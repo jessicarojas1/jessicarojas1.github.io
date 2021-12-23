@@ -154,15 +154,36 @@ footer {
   color: white;
 }
   
-section:nth-of-type(2) .bar .tag {
+
+section:nth-of-type(2) .bar:nth-child(4) .fill {
+    transition: 1.4s 0.2s width ease-in-out;
+}
+
+section:nth-of-type(2) .bar.fill {
     left: 0;
     position: absolute;
     top: 0;
-    background-color: #04c2c9;
-    color: #fff;
-    height: 100%;
-    width: 110px;
-    width: 70px;
+    background-color: #00a1a7;
+    opacity: 1;
+    padding: 0;
+}
+
+
+
+section:nth-of-type(2) .bar {
+    font-size: 11pt;
+    height: 28px;
+    margin: 0 0 15px 0;
+}
+
+section:nth-of-type(2) .bar {
+    align-items: flex-end;
+    background-color: #eee;
+    color: #666;
+    font-size: 7pt;
+    height: 22px;
+    margin: 0 0 12px 0;
+    position: relative;
 }
 
 /* Responsive layout - makes the two columns/boxes stack on top of each other instead of next to each other, on small screens */
