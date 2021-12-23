@@ -28,6 +28,12 @@
   HTML<div class="skills html">80%</div>
 </div>
 
+<div class="skills html">
+    <span class="skill-name">Something</span>
+    <span class="skill-percent">100%</span>
+    <span class="skill-bar level5"></span>
+  </div>
+
 <div class="row">
   <div class="container">
     <div class="label">CSS
@@ -159,5 +165,30 @@ nav ul {
 .css {width: 80%; background-color: #2196F3;} /* Blue */
 .js {width: 65%; background-color: #f44336;} /* Red */
 .php {width: 60%; background-color: #808080;} /* Dark Grey */
+  
+  .skill-bar {
+        display: block;
+        border-radius: 4px;
+        height: 25px;
+        //background-color: $skillColor; //#d7edfa
+            &.level1 { width: 20%; background-color: $skill1}
+            &.level2 { width: 40%; background-color: $skill2}
+            &.level3 { width: 60%; background-color: $skill3}
+            &.level4 { width: 80%; background-color: $skill4}
+            &.level5 { width: 100%; background-color: $skill5 }
+    }
+    .skill-name {
+        position: absolute;
+        top: 5px;
+        left: 10px;
+        color: #333; //#333
+        //font-weight: 600;
+    }
+    .skill-percent {
+      position: absolute;
+      top: 5px;
+      right: 10px;
+      color: #999; //#333
+    }
   
 </style>
