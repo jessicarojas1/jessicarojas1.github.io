@@ -51,9 +51,7 @@
 
 
 <style>
-* {
-  box-sizing: border-box;
-}
+
 
 body {
   font-family: Arial, Helvetica, sans-serif;
@@ -83,28 +81,21 @@ footer {
   text-align: center;
   color: white;
 }
-/* Make sure that padding behaves as expected */
-* {box-sizing:border-box}
 
-  /* Create two columns/boxes that floats next to each other */
+
+/* for menu */
 nav {
   float: left;
   width: 10%;
   background: #ccc;
   padding: 20px;
 }
-
-/* Style the list inside the menu */
+/* for menu */
 nav ul {
   list-style-type: none;
   padding: 0;
 }
-  
-/* Container for skill bars */
-.container {
-  width: 100%; /* Full width */
-  background-color: #ddd; /* Grey background */
-}
+  /* for menu */
   .navbar {
   overflow: hidden;
   background-color: #333;
@@ -113,7 +104,7 @@ nav ul {
   width: 100%; /* Full width */
 }
 
-/* Links inside the navbar */
+/* for menu */
 .navbar a {
   float: left;
   display: block;
@@ -123,13 +114,13 @@ nav ul {
   text-decoration: none;
 }
 
-/* Change background on mouse-over */
+/* for menu */
 .navbar a:hover {
   background: #ddd;
   color: black;
 }
 
-/* Main content */
+/* for menu */
 .main {
   margin-top: 30px; /* Add a top margin to avoid content overlay */
 }
@@ -140,4 +131,26 @@ nav ul {
   margin: auto;
   text-align: center;
 }
+/*   this is for skills page */
+  /* Make sure that padding behaves as expected */
+* {box-sizing:border-box}
+
+/*   this is for skills page */
+.container {
+  width: 100%; /* Full width */
+  background-color: #ddd; /* Grey background */
+}
+/*   this is for skills page */
+.skills {
+  text-align: right; /* Right-align text */
+  padding-top: 10px; /* Add top padding */
+  padding-bottom: 10px; /* Add bottom padding */
+  color: white; /* White text color */
+}
+/*   this is for skills page */
+.html {width: 90%; background-color: #04AA6D;} /* Green */
+.css {width: 80%; background-color: #2196F3;} /* Blue */
+.js {width: 65%; background-color: #f44336;} /* Red */
+.php {width: 60%; background-color: #808080;} /* Dark Grey */
+  
 </style>
