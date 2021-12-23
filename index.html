@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>My Skills</title>
+<title>Home</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
@@ -19,44 +19,34 @@
   </br>
   </br>
   </br>
-<!-- // -->
-<div class="container">
-  <div class="row">
-    <div class="card col-6" style="background-color:green;">
-      <img src="profile icon.jpg" alt="Jessica" style="width:100%">
-      <h1>Jessica Rojas</h1>
-      <p class="title">Full-Stack Developer</p>
-      <p>Gauss Management Research & Engineering Inc.</p>
-      <p><button>Contact</button></p>
-    </div>
-    <div clas="col-6" style="background-color:white;">
-        <p>Welcome to my website. </p>
-            <p>Together we can create exceptional products and services. How can I help you?</p>
-    </div>
+  
+<div class="row">
+  <div class="col-6">
+    <div class="card">
+  <img src="" alt="Jessica" style="width:100%">
+  <h1>Jessica Rojas</h1>
+  <p class="title">Full-Stack Developer</p>
+  <p>Gauss Management Research & Engineering </p>
+  <div style="margin: 24px 0;">
+    <a href="#"><i class="fa fa-dribbble"></i></a> 
+    <a href="#"><i class="fa fa-twitter"></i></a>  
+    <a href="#"><i class="fa fa-linkedin"></i></a>  
+    <a href="#"><i class="fa fa-facebook"></i></a> 
+  </div>
+  <p><button>Contact</button></p>
+</div>
+  </div>
+  
+    <div class="col-6">
+      <p>some long intro text goes here</p>
   </div>
 </div>
-<!-- // -->
-
-<!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  </br>
 </body>
 </html>
 
-<style>
-  .no-gutters {
-  margin-right: 0;
-  margin-left: 0;
 
-  > .col,
-  > [class*="col-"] {
-    padding-right: 0;
-    padding-left: 0;
-  }
-}
-  
+<style>
 * {
   box-sizing: border-box;
 }
@@ -75,6 +65,13 @@ header {
 }
 
 
+/* Clear floats after the columns */
+section::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
 /* Style the footer */
 footer {
   background-color: #777;
@@ -84,43 +81,27 @@ footer {
 }
 /* Make sure that padding behaves as expected */
 * {box-sizing:border-box}
-  
-.card {
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
-  width: 250px;
-  text-align: center;
-  align: left;
+
+  /* Create two columns/boxes that floats next to each other */
+nav {
+  float: left;
+  width: 10%;
+  background: #ccc;
+  padding: 20px;
 }
 
-.title {
-  color: grey;
-  font-size: 18px;
-}
-
-button {
-  border: none;
-  outline: 0;
-  display: inline-block;
-  padding: 8px;
-  color: white;
-  background-color: #000;
-  text-align: center;
-  cursor: pointer;
-  width: 100%;
-  font-size: 18px;
-}
-
-a {
-  text-decoration: none;
-  font-size: 22px;
-  color: black;
-}
-
-button:hover, a:hover {
-  opacity: 0.7;
+/* Style the list inside the menu */
+nav ul {
+  list-style-type: none;
+  padding: 0;
 }
   
-.navbar {
+/* Container for skill bars */
+.container {
+  width: 100%; /* Full width */
+  background-color: #ddd; /* Grey background */
+}
+  .navbar {
   overflow: hidden;
   background-color: #333;
   position: fixed; /* Set the navbar to fixed position */
@@ -148,4 +129,5 @@ button:hover, a:hover {
 .main {
   margin-top: 30px; /* Add a top margin to avoid content overlay */
 }
+  
 </style>
