@@ -23,37 +23,36 @@
   </br>
   
 <h2>My Skills</h2>
-<div class="container">
-  <div class="label">HTML</div>
-  HTML<div class="skills html">80%</div>
-</div>
-
-<div class="skills html">
+<div class="skill-bar-container">
     <span class="skill-name">Something</span>
     <span class="skill-percent">100%</span>
     <span class="skill-bar level5"></span>
   </div>
 
-<div class="row">
-  <div class="container">
-    <div class="label">CSS
-    <div class="skills css">80%</div>
-      </div>
+  <div class="skill-bar-container">
+    <span class="skill-name">Something</span>
+    <span class="skill-percent">80%</span>
+    <span class="skill-bar level4"></span>
   </div>
-</div>
 
-<div class="row">
-  <div class="container">
-    <div class="label">JS</div>
-    <div class="skills js">65%</div>
-    </div>
-</div>
-    
+  <div class="skill-bar-container">
+    <span class="skill-name">Something</span>
+    <span class="skill-percent">60%</span>
+    <span class="skill-bar level3"></span>
+  </div>
 
-<div class="container">
-  <div class="label">PHP</div>
-  <div class="skills php">60%</div>
-</div>
+  <div class="skill-bar-container">
+    <span class="skill-name">Something</span>
+    <span class="skill-percent">40%</span>
+    <span class="skill-bar level2"></span>
+  </div>
+
+  <div class="skill-bar-container">
+    <span class="skill-name">Something</span>
+    <span class="skill-percent">20%</span>
+    <span class="skill-bar level1"></span>
+  </div>
+
   </br>
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
@@ -143,30 +142,19 @@ nav ul {
   margin: auto;
   text-align: center;
 }
-/*   this is for skills page */
-  /* Make sure that padding behaves as expected */
-* {box-sizing:border-box}
+$skill1: #d7edfa;
+$skill2: #c8e7f8;
+$skill3: #b9e0f7;
+$skill4: #a9d9f5;
+$skill5: #9ad3f3;
 
-/*   this is for skills page */
-.container {
-  width: 100%; /* Full width */
-  background-color: #ddd; /* Grey background */
-}
-/*   this is for skills page */
-.skills {
-  text-align: right; /* Right-align text */
-  padding-top: 10px; /* Add top padding */
-  padding-bottom: 10px; /* Add bottom padding */
-  color: white; /* White text color */
-}
-/*   this is for skills page */
- .label {width: 10%; text-align: left; color: white} /* dark grey */
-.html {width: 90%; background-color: #04AA6D;} /* Green */
-.css {width: 80%; background-color: #2196F3;} /* Blue */
-.js {width: 65%; background-color: #f44336;} /* Red */
-.php {width: 60%; background-color: #808080;} /* Dark Grey */
-  
-  .skill-bar {
+.skill-bar-container {
+    position: relative;
+    width: 100%;
+    border-radius: 4px;
+    background-color: whitesmoke;
+    margin-bottom: 0.5em;
+    .skill-bar {
         display: block;
         border-radius: 4px;
         height: 25px;
