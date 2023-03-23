@@ -748,7 +748,7 @@ input:checked + label span:last-child {
 }
 .download-cv {
   text-decoration: none;
-  color: #4d4d4d;
+  color: #ffffff;
   font-weight: 700;
   margin-top: 15px;
   display: inline-block;
@@ -758,7 +758,7 @@ input:checked + label span:last-child {
 .download-cv:hover,
 .download-cv:focus {
   text-decoration: none;
-  color: #4d4d4d;
+  color: #ffffff;
 }
 .about-me-images img {
   width: 100%;
