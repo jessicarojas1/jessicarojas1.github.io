@@ -1020,6 +1020,83 @@ ul.experience-chart h4 {
   border: 2px solid #fff;
   padding: 8px 17px;
 }
+
+
+
+
+.resume {
+  background: #fff;
+  padding: 70px 0;
+}
+.resume h1 {
+  color: #6f6f6f;
+  text-align: center;
+  font-weight: 700;
+  letter-spacing: 4px;
+  position: relative;
+}
+.resume h1:before {
+  content: "";
+  height: 5px;
+  background: #6f6f6f;
+  position: absolute;
+  top: -15px;
+  left: 46.5%;
+  right: 46.5%;
+}
+.filtering {
+  width: 100%;
+  padding: 25px 0;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  display: -moz-box;
+  display: -webkit-flex;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+}
+.no-js .filtering {
+  display: none;
+}
+.resume-navigation {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: inherit;
+  list-style: none;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  -webkit-box-pack: justify;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  padding-left: 0;
+}
+.no-flexbox .resume-navigation {
+  display: inherit;
+}
+.resume-navigation li {
+  cursor: pointer;
+  padding: 7px 14px;
+  border: 1.5px solid #6f6f6f;
+  color: #6f6f6f;
+  font-weight: 700;
+  margin: 0 5px;
+}
+.resume-navigation li.active {
+  background: #6f6f6f;
+  color: #fff;
+}
+.resume .hvr-sweep-to-right:before {
+  background: #6f6f6f;
+}
+.resume .hvr-sweep-to-right.active:before {
+  background: 0 0;
+}
+
+
 .portfolio {
   background: #fff;
   padding: 70px 0;
