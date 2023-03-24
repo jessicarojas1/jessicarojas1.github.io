@@ -752,9 +752,13 @@ input:checked + label span:last-child {
   font-weight: 700;
   margin-top: 15px;
   display: inline-block;
-  border: 2px solid #4d4d4d;
+  border: 2px solid #ffffff;
   padding: 7px 10px;
   text-align: center;
+  background: 0 0;
+  padding: 5px 18px;
+  -webkit-transition: all 0.2s;
+  transition: all 0.2s;
 }
 .download-cv:hover,
 .download-cv:focus {
