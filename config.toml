@@ -1,9 +1,6 @@
 ######################## default configuration ####################
-baseURL = "https://udaylunawat.github.io"
-title = "Uday Lunawat | Data Science Portfolio"
-theme = "uday"
-# disable language
-disableLanguages = ['fr'] # disable language from here
+baseURL = "https://jessicarojas1.github.io"
+title = "My Portfolio"
 cannonifyURLs = true
 ############################# Plugins ##############################
 
@@ -82,13 +79,9 @@ weight = 6
 [params]
 logo_light = "images/logo.png"
 logo_dark = "images/logo.png"
-# Meta data
-description = "This is meta description"
-author = "uday"
-# contact form action
-contact_form_action = "" # contact form works with https://formspree.io
+contact_form_action = "" 
 # Google Analytics
-google_analitycs_id = "" # your id
+google_analitycs_id = ""
 
 # Preloader
 [params.preloader]
@@ -96,27 +89,13 @@ enable = true
 preloader = "images/preloader.gif" # use jpg, png, svg or gif format.
   
 ############################# social site ########################
+[[params.social]]
+icon = "fa-github"
+link = "https://github.com/jessicarojas1"
 
 [[params.social]]
-icon = "fa-twitter" # fontawesome icon 4.7.0 : https://fontawesome.com/v4.7.0/icons/
-link = "https://twitter.com/udaylunawat"
-
-[[params.social]]
-icon = "fa-github" # fontawesome icon 4.7.0 : https://fontawesome.com/v4.7.0/icons/
-link = "https://github.com/udaylunawat"
-
-[[params.social]]
-icon = "fa-linkedin" # fontawesome icon 4.7.0 : https://fontawesome.com/v4.7.0/icons/
-link = "https://www.linkedin.com/in/uday-lunawat"
-
-[[params.social]]
-icon = "fa-stack-overflow" # fontawesome icon 4.7.0 : https://fontawesome.com/v4.7.0/icons/
-link = "https://stackoverflow.com/users/9292995/dracarys3"
-
-[[params.social]]
-icon = "fa-whatsapp" # fontawesome icon 4.7.0 : https://fontawesome.com/v4.7.0/icons/
-link = "https://wa.me/+917887576672"
-
+icon = "fa-linkedin"
+link = "https://www.linkedin.com/in/jessica-rojas-33212918a"
 
 ################################### English language #####################################
 [Languages.en]
@@ -125,16 +104,3 @@ languageCode = "en-us"
 contentDir = "content/english"
 weight = 1
 home = "Home"
-# copyright
-# copyright = "Copyright &copy; 2020 a hugo theme by [somrat](https://somrat.netlify.com)"
-
-
-################################### French language #####################################
-[Languages.fr]
-languageName = "Fr"
-languageCode = "fr-fr"
-contentDir = "content/french"
-weight = 2
-home = "Accueil"
-# copyright
-# copyright = "Copyright &copy; 2020 a hugo theme by [somrat](https://somrat.netlify.com)"
