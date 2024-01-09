@@ -1123,27 +1123,6 @@ ul.experience-chart h4 {
   right: 46.5%;
 }
 
-.resources {
-  background: #fff;
-  padding: 70px 0;
-}
-.resources h1 {
-  color: #6f6f6f;
-  text-align: center;
-  font-weight: 700;
-  letter-spacing: 4px;
-  position: relative;
-}
-.resources h1:before {
-  content: "";
-  height: 5px;
-  background: #6f6f6f;
-  position: absolute;
-  top: -15px;
-  left: 46.5%;
-  right: 46.5%;
-}
-
 .filtering {
   width: 100%;
   padding: 25px 0;
@@ -1212,6 +1191,43 @@ ul.experience-chart h4 {
   justify-content: space-between;
   padding-left: 0;
 }
+/* --- */
+.resources {
+  background: #fff;
+  padding: 70px 0;
+}
+.resources h1 {
+  color: #6f6f6f;
+  text-align: center;
+  font-weight: 700;
+  letter-spacing: 4px;
+  position: relative;
+}
+.resources h1:before {
+  content: "";
+  height: 5px;
+  background: #6f6f6f;
+  position: absolute;
+  top: -15px;
+  left: 46.5%;
+  right: 46.5%;
+}
+
+.resources-navigation {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: inherit;
+  list-style: none;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  -webkit-box-pack: justify;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  padding-left: 0;
+}
 .no-flexbox .resources-navigation {
   display: inherit;
 }
@@ -1234,6 +1250,23 @@ ul.experience-chart h4 {
   background: 0 0;
 }
 
+
+.resources-navigation {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: inherit;
+  list-style: none;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  -webkit-box-pack: justify;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  padding-left: 0;
+}
+/* --- */
 
 .filtr-item img {
   width: 100%;
