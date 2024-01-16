@@ -21,6 +21,7 @@ body#breathe {
   justify-content: center;
   align-items: center;
 }
+
 .author .char {
   display: flex;
   justify-content: space-around;
@@ -29,6 +30,7 @@ body#breathe {
   font-variation-settings: "wght" var(--font-weight, 100);
   color: #FFF;
 }
+
 .author #poof {
   visibility: hidden;
 }
