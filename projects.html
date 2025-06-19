@@ -1,1 +1,44 @@
-<!DOCTYPE html><html><head><link rel='stylesheet' href='style.css'><title>Projects</title></head><body><h1>Projects</h1><p>Filterable projects section here.</p><script src='script.js'></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Projects</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .filters { text-align: center; margin-bottom: 20px; }
+    .filters button { margin: 5px; padding: 10px 20px; border: none; cursor: pointer; }
+    .projects { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
+    .card { width: 250px; background: #fff; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); padding: 15px; transition: transform 0.3s; }
+    .card:hover { transform: scale(1.05); }
+    .card.hidden { display: none; }
+  </style>
+</head>
+<body>
+  <h1>My Projects</h1>
+  <div class="filters">
+    <button onclick="filterProjects('all')">All</button>
+    <button onclick="filterProjects('frontend')">Frontend</button>
+    <button onclick="filterProjects('backend')">Backend</button>
+    <button onclick="filterProjects('cyber')">Cybersecurity</button>
+  </div>
+  <div class="projects">
+    <div class="card frontend">Portfolio Website<br><small>HTML/CSS/JS</small></div>
+    <div class="card backend">API Integration Tool<br><small>Python/Flask</small></div>
+    <div class="card cyber">Threat Analyzer<br><small>Python/Security+</small></div>
+    <div class="card frontend">Responsive Landing Page<br><small>Bootstrap</small></div>
+    <div class="card backend">Database Manager<br><small>PHP/MySQL</small></div>
+    <div class="card cyber">Audit Logger<br><small>Python/NIST</small></div>
+  </div>
+  <script>
+    function filterProjects(category) {
+      document.querySelectorAll('.card').forEach(card => {
+        if (category === 'all' || card.classList.contains(category)) {
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+    }
+  </script>
+</body>
+</html>
