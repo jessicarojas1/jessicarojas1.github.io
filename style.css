@@ -1,31 +1,46 @@
 body {
-  font-family: 'Raleway', sans-serif;
-  background-color: #f9f9f9;
-  color: #333;
-  margin: 0;
+  font-family: sans-serif;
   padding: 0;
+  margin: 0;
+  line-height: 1.6;
+  background-color: #fff;
+  color: #333;
 }
 
-.section {
-  padding: 60px 20px;
+nav {
+  background: #222;
+  color: white;
+  padding: 1em;
+  text-align: center;
 }
 
-/* Dark Mode */
+nav a {
+  margin: 0 10px;
+  color: white;
+  text-decoration: none;
+}
+
+main {
+  padding: 2em;
+}
+
+.project-card {
+  background: #f4f4f4;
+  margin: 1em 0;
+  padding: 1em;
+  border-radius: 8px;
+}
+
 .dark-mode {
   background-color: #121212;
   color: #f1f1f1;
 }
 
-.dark-mode .card {
+.dark-mode .project-card {
   background-color: #1f1f1f;
   color: #f1f1f1;
 }
 
-.dark-mode .navbar,
-.dark-mode footer {
-  background-color: #1a1a1a !important;
-}
-
-.dark-mode a {
-  color: #66ccff;
+.dark-mode nav {
+  background-color: #1a1a1a;
 }
