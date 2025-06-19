@@ -1,27 +1,54 @@
 body {
-  font-family: sans-serif;
-  padding: 0;
+  font-family: 'Roboto', sans-serif;
   margin: 0;
-  line-height: 1.6;
-  background-color: #fff;
+  background-color: #ffffff;
   color: #333;
+  transition: background 0.3s, color 0.3s;
 }
 
 nav {
   background: #222;
-  color: white;
   padding: 1em;
   text-align: center;
 }
 
 nav a {
-  margin: 0 10px;
   color: white;
+  margin: 0 12px;
   text-decoration: none;
+  font-weight: bold;
+}
+
+.hero {
+  background: linear-gradient(to right, #667eea, #764ba2);
+  color: white;
+  text-align: center;
+  padding: 100px 20px;
+}
+
+.hero h1 {
+  font-size: 3em;
+  margin: 0.5em 0;
+}
+
+.hero p {
+  font-size: 1.25em;
+  margin: 0.5em 0;
+}
+
+.btn {
+  background: white;
+  color: #333;
+  padding: 0.75em 1.5em;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
 }
 
 main {
   padding: 2em;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
 .project-card {
@@ -36,11 +63,15 @@ main {
   color: #f1f1f1;
 }
 
+.dark-mode nav {
+  background-color: #1a1a1a;
+}
+
+.dark-mode .hero {
+  background: linear-gradient(to right, #232526, #414345);
+}
+
 .dark-mode .project-card {
   background-color: #1f1f1f;
   color: #f1f1f1;
-}
-
-.dark-mode nav {
-  background-color: #1a1a1a;
 }
