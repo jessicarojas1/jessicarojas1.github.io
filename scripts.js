@@ -1,8 +1,4 @@
-function loadData() {
-  fetch('data.php')
-    .then(response => response.text())
-    .then(data => {
-      document.getElementById('message').innerHTML = data;
-    })
-    .catch(error => console.error('Error:', error));
-}
+// You can add smooth scrolling or form validation here
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("Portfolio site loaded.");
+});
