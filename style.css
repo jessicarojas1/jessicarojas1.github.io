@@ -1,1 +1,1 @@
-/* Master stylesheet including transitions, dark mode, and layout */
+body { font-family: sans-serif; background: #fdfdfd; color: #333; padding: 20px; } nav a { margin-right: 10px; } h1 { color: #764ba2; } iframe { border: none; }
