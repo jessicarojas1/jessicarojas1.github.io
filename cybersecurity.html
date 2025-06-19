@@ -1,23 +1,107 @@
 <!DOCTYPE html>
-
 <html lang="en">
-<head><meta charset="utf-8"/><title>Cybersecurity Expertise</title><link href="style.css" rel="stylesheet"/></head>
+<head>
+  <meta charset="UTF-8" />
+  <title>Cybersecurity Expertise | Jessica Rojas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      color: #fff;
+    }
+    .cyber-container {
+      max-width: 1000px;
+      margin: 60px auto;
+      padding: 0 20px;
+    }
+    .cyber-container h1 {
+      text-align: center;
+      margin-bottom: 40px;
+      font-size: 2.5rem;
+      color: #ff8888;
+    }
+    .expertise-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 30px;
+    }
+    .expertise-card {
+      background: #2a2a2a;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.4);
+      transition: transform 0.3s ease, background 0.3s ease;
+    }
+    .expertise-card:hover {
+      transform: translateY(-5px);
+      background: #3a3a3a;
+    }
+    .expertise-icon {
+      font-size: 2rem;
+      color: #ff4444;
+      margin-bottom: 10px;
+    }
+    .expertise-title {
+      font-size: 1.2rem;
+      color: #ff8888;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    .expertise-desc {
+      color: #ccc;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+  </style>
+</head>
 <body>
-<nav>
-<a href="index.html">Home</a>
-<a href="projects.html">Projects</a>
-<a href="resume.html">Resume</a>
-<a href="timeline.html">Timeline</a>
-<a href="cybersecurity.html">Cybersecurity</a>
-<a href="contact.html">Contact</a>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="projects.html">Projects</a>
+    <a href="resume.html">Resume</a>
+    <a href="timeline.html">Timeline</a>
+    <a href="cybersecurity.html">Cybersecurity</a>
+    <a href="contact.html">Contact</a>
+    <button id="darkModeToggle">🌙 Dark Mode</button>
+  </nav>
 
-<button id="darkModeToggle">🌙 Dark Mode</button>
-</nav>
-<script src="script.js"></script>
-<h1>Cybersecurity Expertise</h1><ul>
-<li>Threat Analysis &amp; Incident Response</li>
-<li>Risk Assessment &amp; Compliance (CMMC, NIST)</li>
-<li>Secure Coding Practices</li>
-<li>Network Defense &amp; Monitoring</li>
-<li>Encryption and PKI</li>
-</ul></body></html>
+  <div class="cyber-container reveal">
+    <h1>Cybersecurity Expertise</h1>
+
+    <div class="expertise-grid">
+      <div class="expertise-card">
+        <div class="expertise-icon">🛡️</div>
+        <div class="expertise-title">Threat Detection & Response</div>
+        <div class="expertise-desc">Proficient in real-time monitoring, SIEM integration, threat hunting, and endpoint defense using tools like CrowdStrike and SentinelOne.</div>
+      </div>
+      <div class="expertise-card">
+        <div class="expertise-icon">🔐</div>
+        <div class="expertise-title">Access Control & Identity</div>
+        <div class="expertise-desc">Experienced with IAM, RBAC/ABAC policies, MFA, and secure directory services using Azure AD and Entra.</div>
+      </div>
+      <div class="expertise-card">
+        <div class="expertise-icon">📜</div>
+        <div class="expertise-title">Compliance & Governance</div>
+        <div class="expertise-desc">Supporting compliance with CMMC, NIST 800-171, and ISO standards through security documentation, assessments, and audits.</div>
+      </div>
+      <div class="expertise-card">
+        <div class="expertise-icon">🧪</div>
+        <div class="expertise-title">Vulnerability Management</div>
+        <div class="expertise-desc">Hands-on experience scanning and patching vulnerabilities using tools like Nessus, OpenVAS, and system baselines.</div>
+      </div>
+      <div class="expertise-card">
+        <div class="expertise-icon">🧠</div>
+        <div class="expertise-title">Security Awareness</div>
+        <div class="expertise-desc">Developed internal training programs and phishing simulations to educate staff and reduce attack surface.</div>
+      </div>
+      <div class="expertise-card">
+        <div class="expertise-icon">🔧</div>
+        <div class="expertise-title">Secure Development</div>
+        <div class="expertise-desc">Code security, static analysis, and secure SDLC principles applied in full-stack development projects.</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
