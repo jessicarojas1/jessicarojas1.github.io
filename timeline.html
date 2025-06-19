@@ -2,58 +2,68 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Timeline | Jessica Rojas</title>
+  <title>Interactive Timeline | Jessica Rojas</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="style.css" />
   <style>
     body {
       color: #fff;
     }
-    .timeline-container {
+    .timeline-wrapper {
       max-width: 900px;
       margin: 60px auto;
       padding: 0 20px;
+      position: relative;
     }
-    .timeline-container h1 {
+    .timeline-wrapper h1 {
       text-align: center;
       margin-bottom: 40px;
       font-size: 2.5rem;
       color: #ff8888;
     }
-    .timeline-item {
-      background: #2a2a2a;
-      margin: 20px 0;
-      padding: 20px;
-      border-left: 5px solid #ff4444;
-      border-radius: 6px;
-      box-shadow: 0 0 8px rgba(0,0,0,0.3);
-      transition: background 0.3s ease;
+    .timeline-line {
+      position: absolute;
+      left: 25px;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: #ff4444;
+      margin-left: 10px;
+    }
+    .timeline-entry {
       position: relative;
+      margin: 40px 0;
+      padding-left: 60px;
     }
-    .timeline-item:hover {
-      background: #3a3a3a;
+    .timeline-dot {
+      position: absolute;
+      top: 0;
+      left: 10px;
+      width: 20px;
+      height: 20px;
+      background: #ff4444;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #ff4444aa;
+      transition: transform 0.3s ease;
     }
-    .timeline-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      cursor: pointer;
+    .timeline-entry:hover .timeline-dot {
+      transform: scale(1.2);
     }
-    .timeline-header h3 {
-      margin: 0;
+    .timeline-entry h3 {
+      margin: 0 0 8px;
       font-size: 1.3rem;
       color: #ff8888;
+      cursor: pointer;
     }
-    .timeline-icon {
-      font-size: 1.5rem;
-      margin-right: 10px;
-    }
-    .timeline-details {
+    .timeline-description {
       display: none;
-      margin-top: 10px;
       color: #ccc;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      margin-top: 10px;
+      padding-left: 5px;
     }
-    .timeline-item.active .timeline-details {
+    .timeline-entry.active .timeline-description {
       display: block;
     }
   </style>
@@ -69,64 +79,53 @@
     <button id="darkModeToggle">🌙 Dark Mode</button>
   </nav>
 
-  <div class="timeline-container reveal">
+  <div class="timeline-wrapper reveal">
     <h1>Career Timeline</h1>
+    <div class="timeline-line"></div>
 
-    <div class="timeline-item">
-      <div class="timeline-header" onclick="this.parentElement.classList.toggle('active')">
-        <h3><span class="timeline-icon">🎖️</span>Military Police (2015–2022)</h3>
-      </div>
-      <div class="timeline-details">
-        <p>Served in the U.S. Army specializing in physical security, law enforcement, investigations, and force protection operations.</p>
-      </div>
+    <div class="timeline-entry">
+      <div class="timeline-dot"></div>
+      <h3 onclick="toggleEntry(this)">🎖️ Military Police (2015–2022)</h3>
+      <div class="timeline-description">Served in the U.S. Army specializing in physical security, law enforcement, investigations, and force protection operations.</div>
     </div>
 
-    <div class="timeline-item">
-      <div class="timeline-header" onclick="this.parentElement.classList.toggle('active')">
-        <h3><span class="timeline-icon">💻</span>Associate Full-Stack Programmer (2020–2021)</h3>
-      </div>
-      <div class="timeline-details">
-        <p>Developed front-end and back-end applications during academic coursework at Weber State University.</p>
-      </div>
+    <div class="timeline-entry">
+      <div class="timeline-dot"></div>
+      <h3 onclick="toggleEntry(this)">💻 Associate Full-Stack Programmer (2020–2021)</h3>
+      <div class="timeline-description">Developed front-end and back-end applications during academic coursework at Weber State University.</div>
     </div>
 
-    <div class="timeline-item">
-      <div class="timeline-header" onclick="this.parentElement.classList.toggle('active')">
-        <h3><span class="timeline-icon">🧑‍💼</span>Full-Stack Developer (2021–2022)</h3>
-      </div>
-      <div class="timeline-details">
-        <p>Built and maintained software solutions for GMRE, Inc., working on secure defense-related applications and UIs.</p>
-      </div>
+    <div class="timeline-entry">
+      <div class="timeline-dot"></div>
+      <h3 onclick="toggleEntry(this)">🧑‍💼 Full-Stack Developer (2021–2022)</h3>
+      <div class="timeline-description">Built and maintained software solutions for GMRE, Inc., working on secure defense-related applications and UIs.</div>
     </div>
 
-    <div class="timeline-item">
-      <div class="timeline-header" onclick="this.parentElement.classList.toggle('active')">
-        <h3><span class="timeline-icon">🧑‍🏫</span>Cybersecurity TA (2022–Present)</h3>
-      </div>
-      <div class="timeline-details">
-        <p>Supported Fullstack Academy students in learning cybersecurity fundamentals, tools, and best practices.</p>
-      </div>
+    <div class="timeline-entry">
+      <div class="timeline-dot"></div>
+      <h3 onclick="toggleEntry(this)">🧑‍🏫 Cybersecurity TA (2022–Present)</h3>
+      <div class="timeline-description">Supported Fullstack Academy students in learning cybersecurity fundamentals, tools, and best practices.</div>
     </div>
 
-    <div class="timeline-item">
-      <div class="timeline-header" onclick="this.parentElement.classList.toggle('active')">
-        <h3><span class="timeline-icon">🛡️</span>Cybersecurity Analyst (2022–2024)</h3>
-      </div>
-      <div class="timeline-details">
-        <p>Analyzed threats, secured systems, and supported compliance for GMRE, Inc. with hands-on tools and vulnerability management.</p>
-      </div>
+    <div class="timeline-entry">
+      <div class="timeline-dot"></div>
+      <h3 onclick="toggleEntry(this)">🛡️ Cybersecurity Analyst (2022–2024)</h3>
+      <div class="timeline-description">Analyzed threats, secured systems, and supported compliance for GMRE, Inc. with hands-on tools and vulnerability management.</div>
     </div>
 
-    <div class="timeline-item">
-      <div class="timeline-header" onclick="this.parentElement.classList.toggle('active')">
-        <h3><span class="timeline-icon">🧠</span>Enterprise Systems Manager (2025–Present)</h3>
-      </div>
-      <div class="timeline-details">
-        <p>Oversee enterprise systems architecture, security programs, and modernization efforts for GMRE, Inc. in aerospace defense.</p>
-      </div>
+    <div class="timeline-entry">
+      <div class="timeline-dot"></div>
+      <h3 onclick="toggleEntry(this)">🧠 Enterprise Systems Manager (2025–Present)</h3>
+      <div class="timeline-description">Oversee enterprise systems architecture, security programs, and modernization efforts for GMRE, Inc. in aerospace defense.</div>
     </div>
   </div>
 
+  <script>
+    function toggleEntry(header) {
+      const entry = header.parentElement;
+      entry.classList.toggle('active');
+    }
+  </script>
   <script src="script.js"></script>
 </body>
 </html>
