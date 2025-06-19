@@ -30,6 +30,8 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
+if(prompt('Password:') !== 'admin123') { alert('Access denied'); window.location.href = 'index.html'; }
+
 function toggleExpand(el) {
       el.classList.toggle('expanded');
       const desc = el.querySelector('p');
