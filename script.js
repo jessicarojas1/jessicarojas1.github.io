@@ -28,7 +28,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   revealElements.forEach(el => observer.observe(el));
 });
-
 function toggleExpand(el) {
       el.classList.toggle('expanded');
       const desc = el.querySelector('p');
