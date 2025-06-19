@@ -28,3 +28,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
   revealElements.forEach(el => observer.observe(el));
 });
+
+
+if(prompt('Password:') !== 'admin123') { alert('Access denied'); window.location.href = 'index.html'; }
+
+function toggleExpand(el) {
+      el.classList.toggle('expanded');
+      const desc = el.querySelector('p');
+      desc.classList.toggle('hidden');
+    }
+
+function filterProjects(category) {
+      document.querySelectorAll('.card').forEach(card => {
+        if (category === 'all' || card.classList.contains(category)) {
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+    }
