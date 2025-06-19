@@ -1,27 +1,114 @@
 <!DOCTYPE html>
-
 <html lang="en">
-<head><meta charset="utf-8"/><title>Contact</title><link href="style.css" rel="stylesheet"/></head>
+<head>
+  <meta charset="UTF-8" />
+  <title>Contact | Jessica Rojas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .contact-section {
+      max-width: 800px;
+      margin: 60px auto;
+      padding: 0 20px;
+      color: #fff;
+    }
+    .contact-section h1 {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      color: #ff8888;
+    }
+    .contact-section p {
+      text-align: center;
+      color: #ccc;
+      margin-bottom: 40px;
+    }
+    form {
+      background: #2a2a2a;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.4);
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #ff8888;
+      font-weight: bold;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: none;
+      border-radius: 6px;
+      background: #1a1a1a;
+      color: #fff;
+      font-size: 1rem;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+    .submit-btn {
+      background: #ff4444;
+      padding: 12px 25px;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .submit-btn:hover {
+      background: #cc0000;
+    }
+    .social-links {
+      text-align: center;
+      margin-top: 30px;
+    }
+    .social-links a {
+      color: #ff4444;
+      text-decoration: none;
+      margin: 0 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
 <body>
-<nav>
-<a href="index.html">Home</a>
-<a href="projects.html">Projects</a>
-<a href="resume.html">Resume</a>
-<a href="timeline.html">Timeline</a>
-<a href="cybersecurity.html">Cybersecurity</a>
-<a href="contact.html">Contact</a>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="projects.html">Projects</a>
+    <a href="resume.html">Resume</a>
+    <a href="timeline.html">Timeline</a>
+    <a href="cybersecurity.html">Cybersecurity</a>
+    <a href="contact.html">Contact</a>
+    <button id="darkModeToggle">🌙 Dark Mode</button>
+  </nav>
 
-<button id="darkModeToggle">🌙 Dark Mode</button>
-</nav>
-<script src="script.js"></script>
-<h1>Contact</h1>
-<form action="https://formspree.io/f/yourFormID" method="POST">
-<input name="name" placeholder="Your Name" required="" type="text"/>
-<input name="_replyto" placeholder="Your Email" required="" type="email"/>
-<textarea name="message" placeholder="Your Message" required=""></textarea>
-<button type="submit">Send</button>
-</form>
-<div class="LI-profile-badge" data-locale="en_US" data-size="medium" data-theme="light" data-type="horizontal" data-vanity="jessica-rojas-33212918a" data-version="v1">
-<a class="LI-simple-link" href="https://www.linkedin.com/in/jessica-rojas-33212918a?trk=profile-badge">Jessica Rojas</a>
-</div>
-</body></html>
+  <section class="contact-section reveal">
+    <h1>Contact Me</h1>
+    <p>Have a question, opportunity, or want to connect? Send me a message below or reach out on LinkedIn.</p>
+
+    <form action="https://formspree.io/f/your-form-id" method="POST">
+      <label for="name">Name</label>
+      <input type="text" id="name" name="name" required />
+
+      <label for="email">Email</label>
+      <input type="email" id="email" name="_replyto" required />
+
+      <label for="message">Message</label>
+      <textarea id="message" name="message" required></textarea>
+
+      <button type="submit" class="submit-btn">Send Message</button>
+    </form>
+
+    <div class="social-links">
+      <p>Or connect with me here:</p>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank">LinkedIn</a>
+      <a href="mailto:your@email.com">Email Me</a>
+    </div>
+  </section>
+
+  <script src="script.js"></script>
+</body>
+</html>

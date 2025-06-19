@@ -1,38 +1,114 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<title>Projects</title>
-<link href="style.css" rel="stylesheet"/>
+  <meta charset="UTF-8" />
+  <title>Projects | Jessica Rojas</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .projects-container {
+      max-width: 1200px;
+      margin: 60px auto;
+      padding: 0 20px;
+    }
+    .projects-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .projects-header h1 {
+      font-size: 2.5rem;
+      color: #fff;
+    }
+    .project-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 30px;
+    }
+    .project-card {
+      background: #2a2a2a;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      transition: transform 0.3s ease, background 0.3s ease;
+    }
+    .project-card:hover {
+      transform: translateY(-5px);
+      background: #3a3a3a;
+    }
+    .project-title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #ff8888;
+    }
+    .project-desc {
+      color: #ccc;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+    .project-links {
+      margin-top: 15px;
+    }
+    .project-links a {
+      color: #ff4444;
+      text-decoration: none;
+      font-weight: bold;
+      margin-right: 10px;
+    }
+  </style>
 </head>
 <body>
-<nav>
-<a href="index.html">Home</a>
-<a href="projects.html">Projects</a>
-<a href="resume.html">Resume</a>
-<a href="timeline.html">Timeline</a>
-<a href="cybersecurity.html">Cybersecurity</a>
-<a href="contact.html">Contact</a>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="projects.html">Projects</a>
+    <a href="resume.html">Resume</a>
+    <a href="timeline.html">Timeline</a>
+    <a href="cybersecurity.html">Cybersecurity</a>
+    <a href="contact.html">Contact</a>
+    <button id="darkModeToggle">🌙 Dark Mode</button>
+  </nav>
 
-<button id="darkModeToggle">🌙 Dark Mode</button>
-</nav>
-<script src="script.js"></script>
-<h1>My Projects</h1>
-<div class="filters">
-<button onclick="filterProjects('all')">All</button>
-<button onclick="filterProjects('frontend')">Frontend</button>
-<button onclick="filterProjects('backend')">Backend</button>
-<button onclick="filterProjects('cyber')">Cybersecurity</button>
-</div>
-<div class="projects">
-<div class="card frontend">Portfolio Website<br/><small>HTML/CSS/JS</small></div>
-<div class="card backend">API Integration Tool<br/><small>Python/Flask</small></div>
-<div class="card cyber">Threat Analyzer<br/><small>Python/Security+</small></div>
-<div class="card frontend">Responsive Landing Page<br/><small>Bootstrap</small></div>
-<div class="card backend">Database Manager<br/><small>PHP/MySQL</small></div>
-<div class="card cyber">Audit Logger<br/><small>Python/NIST</small></div>
-</div>
+  <div class="projects-container">
+    <div class="projects-header reveal">
+      <h1>My Projects</h1>
+      <p style="color:#bbb;">Explore a selection of my recent development and cybersecurity projects.</p>
+    </div>
 
+    <div class="project-grid">
+      <div class="project-card reveal">
+        <div class="project-title">Secure Login Portal</div>
+        <div class="project-desc">A multi-factor authentication system built with HTML, CSS, Python (Flask), and integrated with Duo Security for enterprise login verification.</div>
+        <div class="project-links">
+          <a href="#">Demo</a>
+          <a href="#">Code</a>
+        </div>
+      </div>
+      <div class="project-card reveal">
+        <div class="project-title">Threat Intelligence Dashboard</div>
+        <div class="project-desc">Cyber threat monitoring dashboard using JavaScript, Chart.js, and Python APIs to track and visualize threat trends over time.</div>
+        <div class="project-links">
+          <a href="#">Demo</a>
+          <a href="#">Code</a>
+        </div>
+      </div>
+      <div class="project-card reveal">
+        <div class="project-title">Military Asset Tracker</div>
+        <div class="project-desc">Custom-built logistics tool to manage and visualize tracked assets using secure web interfaces and encrypted backend services.</div>
+        <div class="project-links">
+          <a href="#">Demo</a>
+          <a href="#">Code</a>
+        </div>
+      </div>
+      <div class="project-card reveal">
+        <div class="project-title">Portfolio Website</div>
+        <div class="project-desc">The site you're viewing now. Designed with HTML, CSS, JS and themed for cybersecurity professionals with modern UI and accessibility in mind.</div>
+        <div class="project-links">
+          <a href="#">Live</a>
+          <a href="#">Code</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
