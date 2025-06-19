@@ -1,1 +1,82 @@
-<!DOCTYPE html><html><head><link rel='stylesheet' href='style.css'><title>Timeline</title></head><body><h1>Career Timeline</h1><p>Animated timeline with icons goes here.</p><script src='script.js'></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Career Timeline</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .timeline { position: relative; margin: 2em auto; padding: 2em; max-width: 800px; }
+    .timeline::after { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: #ccc; }
+    .timeline-item { position: relative; width: 50%; padding: 1em; box-sizing: border-box; }
+    .timeline-item.left { left: 0; text-align: right; }
+    .timeline-item.right { left: 50%; text-align: left; }
+    .timeline-content { background: #eee; padding: 1em; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; }
+    .timeline-content.expanded { background: #dbeafe; }
+    .circle { width: 20px; height: 20px; background: #555; border-radius: 50%; position: absolute; top: 1.2em; z-index: 1; }
+    .left .circle { right: -10px; }
+    .right .circle { left: -10px; }
+    .icon { margin-bottom: 0.5em; display: inline-block; font-size: 1.5em; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <h1>Career Timeline</h1>
+  <div class="timeline">
+    <div class="timeline-item left">
+      <div class="circle"></div>
+      <div class="timeline-content" onclick="toggleExpand(this)">
+        <div class="icon">🛡️</div>
+        <h3>Military Police</h3>
+        <p class="hidden">U.S. Army (2015–2022) – Law enforcement, base security, and threat response.</p>
+      </div>
+    </div>
+    <div class="timeline-item right">
+      <div class="circle"></div>
+      <div class="timeline-content" onclick="toggleExpand(this)">
+        <div class="icon">💻</div>
+        <h3>Associate Full-Stack Programmer</h3>
+        <p class="hidden">Weber State University (2020–2021) – Built web apps as part of academic coursework.</p>
+      </div>
+    </div>
+    <div class="timeline-item left">
+      <div class="circle"></div>
+      <div class="timeline-content" onclick="toggleExpand(this)">
+        <div class="icon">🖥️</div>
+        <h3>Full-Stack Developer</h3>
+        <p class="hidden">GMRE, Inc. (2021–2022) – Developed full-stack solutions supporting defense systems.</p>
+      </div>
+    </div>
+    <div class="timeline-item right">
+      <div class="circle"></div>
+      <div class="timeline-content" onclick="toggleExpand(this)">
+        <div class="icon">🧑‍🏫</div>
+        <h3>Cybersecurity TA</h3>
+        <p class="hidden">Fullstack Academy (2022–Present) – Mentoring and guiding new cyber professionals.</p>
+      </div>
+    </div>
+    <div class="timeline-item left">
+      <div class="circle"></div>
+      <div class="timeline-content" onclick="toggleExpand(this)">
+        <div class="icon">🛡️</div>
+        <h3>Cybersecurity Analyst</h3>
+        <p class="hidden">GMRE, Inc. (2022–2024) – Conducted risk assessments and implemented defensive controls.</p>
+      </div>
+    </div>
+    <div class="timeline-item right">
+      <div class="circle"></div>
+      <div class="timeline-content" onclick="toggleExpand(this)">
+        <div class="icon">🖥️</div>
+        <h3>Enterprise Systems Manager</h3>
+        <p class="hidden">GMRE, Inc. (2025–Present) – Leading systems engineering and cybersecurity operations.</p>
+      </div>
+    </div>
+  </div>
+  <script>
+    function toggleExpand(el) {
+      el.classList.toggle('expanded');
+      const desc = el.querySelector('p');
+      desc.classList.toggle('hidden');
+    }
+  </script>
+</body>
+</html>
