@@ -2,8 +2,61 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Career Timeline</title>
+  <title>Timeline | Jessica Rojas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      color: #fff;
+    }
+    .timeline-container {
+      max-width: 900px;
+      margin: 60px auto;
+      padding: 0 20px;
+    }
+    .timeline-container h1 {
+      text-align: center;
+      margin-bottom: 40px;
+      font-size: 2.5rem;
+      color: #ff8888;
+    }
+    .timeline-item {
+      background: #2a2a2a;
+      margin: 20px 0;
+      padding: 20px;
+      border-left: 5px solid #ff4444;
+      border-radius: 6px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.3);
+      transition: background 0.3s ease;
+      position: relative;
+    }
+    .timeline-item:hover {
+      background: #3a3a3a;
+    }
+    .timeline-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+    .timeline-header h3 {
+      margin: 0;
+      font-size: 1.3rem;
+      color: #ff8888;
+    }
+    .timeline-icon {
+      font-size: 1.5rem;
+      margin-right: 10px;
+    }
+    .timeline-details {
+      display: none;
+      margin-top: 10px;
+      color: #ccc;
+    }
+    .timeline-item.active .timeline-details {
+      display: block;
+    }
+  </style>
 </head>
 <body>
   <nav>
@@ -15,52 +68,65 @@
     <a href="contact.html">Contact</a>
     <button id="darkModeToggle">🌙 Dark Mode</button>
   </nav>
-  <h1 style="text-align:center;">Career Timeline</h1>
-  <div class="timeline">
-    <div class="timeline-entry" onclick="toggleDetails(this)">
-      <h3><span class="icon">🎖️</span> Military Police (2015 - 2022)</h3>
+
+  <div class="timeline-container reveal">
+    <h1>Career Timeline</h1>
+
+    <div class="timeline-item">
+      <div class="timeline-header" onclick="this.parentElement.classList.toggle('active')">
+        <h3><span class="timeline-icon">🎖️</span>Military Police (2015–2022)</h3>
+      </div>
       <div class="timeline-details">
-        Served in the U.S. Army providing security, investigations, and law enforcement duties globally.
+        <p>Served in the U.S. Army specializing in physical security, law enforcement, investigations, and force protection operations.</p>
       </div>
     </div>
-    <div class="timeline-entry" onclick="toggleDetails(this)">
-      <h3><span class="icon">👩‍💻</span> Associate Full-Stack Programmer (2020 - 2021)</h3>
+
+    <div class="timeline-item">
+      <div class="timeline-header" onclick="this.parentElement.classList.toggle('active')">
+        <h3><span class="timeline-icon">💻</span>Associate Full-Stack Programmer (2020–2021)</h3>
+      </div>
       <div class="timeline-details">
-        Completed intensive coursework at Weber State University covering web, backend, and database development.
+        <p>Developed front-end and back-end applications during academic coursework at Weber State University.</p>
       </div>
     </div>
-    <div class="timeline-entry" onclick="toggleDetails(this)">
-      <h3><span class="icon">💼</span> Full-Stack Developer (2021 - 2022)</h3>
+
+    <div class="timeline-item">
+      <div class="timeline-header" onclick="this.parentElement.classList.toggle('active')">
+        <h3><span class="timeline-icon">🧑‍💼</span>Full-Stack Developer (2021–2022)</h3>
+      </div>
       <div class="timeline-details">
-        Worked at GMRE, Inc. building web apps and maintaining secure backend systems.
+        <p>Built and maintained software solutions for GMRE, Inc., working on secure defense-related applications and UIs.</p>
       </div>
     </div>
-    <div class="timeline-entry" onclick="toggleDetails(this)">
-      <h3><span class="icon">🧑‍🏫</span> Cyber Security TA (2022 - Present)</h3>
+
+    <div class="timeline-item">
+      <div class="timeline-header" onclick="this.parentElement.classList.toggle('active')">
+        <h3><span class="timeline-icon">🧑‍🏫</span>Cybersecurity TA (2022–Present)</h3>
+      </div>
       <div class="timeline-details">
-        Assisted Fullstack Academy students with concepts like secure coding, ethical hacking, and network defense.
+        <p>Supported Fullstack Academy students in learning cybersecurity fundamentals, tools, and best practices.</p>
       </div>
     </div>
-    <div class="timeline-entry" onclick="toggleDetails(this)">
-      <h3><span class="icon">🛡️</span> Cybersecurity Analyst (2022 - 2024)</h3>
+
+    <div class="timeline-item">
+      <div class="timeline-header" onclick="this.parentElement.classList.toggle('active')">
+        <h3><span class="timeline-icon">🛡️</span>Cybersecurity Analyst (2022–2024)</h3>
+      </div>
       <div class="timeline-details">
-        Analyzed and remediated cyber threats at GMRE, Inc., focusing on SIEMs, IDS/IPS, and vulnerability assessments.
+        <p>Analyzed threats, secured systems, and supported compliance for GMRE, Inc. with hands-on tools and vulnerability management.</p>
       </div>
     </div>
-    <div class="timeline-entry" onclick="toggleDetails(this)">
-      <h3><span class="icon">🖥️</span> Enterprise Systems Manager (2025 - Present)</h3>
+
+    <div class="timeline-item">
+      <div class="timeline-header" onclick="this.parentElement.classList.toggle('active')">
+        <h3><span class="timeline-icon">🧠</span>Enterprise Systems Manager (2025–Present)</h3>
+      </div>
       <div class="timeline-details">
-        Currently leading enterprise systems modernization and cybersecurity compliance efforts at GMRE, Inc.
+        <p>Oversee enterprise systems architecture, security programs, and modernization efforts for GMRE, Inc. in aerospace defense.</p>
       </div>
     </div>
   </div>
-  <script>
-    function toggleDetails(entry) {
-      const isActive = entry.classList.contains('active');
-      document.querySelectorAll('.timeline-entry').forEach(e => e.classList.remove('active'));
-      if (!isActive) entry.classList.add('active');
-    }
-  </script>
+
   <script src="script.js"></script>
 </body>
 </html>
