@@ -37,7 +37,7 @@
     }
     .timeline-dot {
       position: absolute;
-      top: 0;
+      top: 5px;
       left: 10px;
       width: 20px;
       height: 20px;
@@ -49,17 +49,29 @@
     .timeline-entry:hover .timeline-dot {
       transform: scale(1.2);
     }
-    .timeline-entry h3 {
-      margin: 0 0 8px;
+    .timeline-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      flex-wrap: wrap;
+    }
+    .timeline-job {
       font-size: 1.3rem;
       color: #ff8888;
-      cursor: pointer;
+      font-weight: bold;
+      margin: 0;
+    }
+    .timeline-date {
+      font-size: 1rem;
+      color: #aaa;
+      font-style: italic;
     }
     .timeline-description {
       display: none;
       color: #ccc;
       font-size: 0.95rem;
-      line-height: 1.5;
+      line-height: 1.6;
       margin-top: 10px;
       padding-left: 5px;
     }
@@ -85,37 +97,55 @@
 
     <div class="timeline-entry">
       <div class="timeline-dot"></div>
-      <h3 onclick="toggleEntry(this)">🎖️ Military Police (2015–2022)</h3>
+      <div class="timeline-header" onclick="toggleEntry(this)">
+        <span class="timeline-job">🎖️ Military Police</span>
+        <span class="timeline-date">2015–2022</span>
+      </div>
       <div class="timeline-description">Served in the U.S. Army specializing in physical security, law enforcement, investigations, and force protection operations.</div>
     </div>
 
     <div class="timeline-entry">
       <div class="timeline-dot"></div>
-      <h3 onclick="toggleEntry(this)">💻 Associate Full-Stack Programmer (2020–2021)</h3>
+      <div class="timeline-header" onclick="toggleEntry(this)">
+        <span class="timeline-job">💻 Associate Full-Stack Programmer</span>
+        <span class="timeline-date">2020–2021</span>
+      </div>
       <div class="timeline-description">Developed front-end and back-end applications during academic coursework at Weber State University.</div>
     </div>
 
     <div class="timeline-entry">
       <div class="timeline-dot"></div>
-      <h3 onclick="toggleEntry(this)">🧑‍💼 Full-Stack Developer (2021–2022)</h3>
+      <div class="timeline-header" onclick="toggleEntry(this)">
+        <span class="timeline-job">🧑‍💼 Full-Stack Developer</span>
+        <span class="timeline-date">2021–2022</span>
+      </div>
       <div class="timeline-description">Built and maintained software solutions for GMRE, Inc., working on secure defense-related applications and UIs.</div>
     </div>
 
     <div class="timeline-entry">
       <div class="timeline-dot"></div>
-      <h3 onclick="toggleEntry(this)">🧑‍🏫 Cybersecurity TA (2022–Present)</h3>
+      <div class="timeline-header" onclick="toggleEntry(this)">
+        <span class="timeline-job">🧑‍🏫 Cybersecurity TA</span>
+        <span class="timeline-date">2022–Present</span>
+      </div>
       <div class="timeline-description">Supported Fullstack Academy students in learning cybersecurity fundamentals, tools, and best practices.</div>
     </div>
 
     <div class="timeline-entry">
       <div class="timeline-dot"></div>
-      <h3 onclick="toggleEntry(this)">🛡️ Cybersecurity Analyst (2022–2024)</h3>
+      <div class="timeline-header" onclick="toggleEntry(this)">
+        <span class="timeline-job">🛡️ Cybersecurity Analyst</span>
+        <span class="timeline-date">2022–2024</span>
+      </div>
       <div class="timeline-description">Analyzed threats, secured systems, and supported compliance for GMRE, Inc. with hands-on tools and vulnerability management.</div>
     </div>
 
     <div class="timeline-entry">
       <div class="timeline-dot"></div>
-      <h3 onclick="toggleEntry(this)">🧠 Enterprise Systems Manager (2025–Present)</h3>
+      <div class="timeline-header" onclick="toggleEntry(this)">
+        <span class="timeline-job">🧠 Enterprise Systems Manager</span>
+        <span class="timeline-date">2025–Present</span>
+      </div>
       <div class="timeline-description">Oversee enterprise systems architecture, security programs, and modernization efforts for GMRE, Inc. in aerospace defense.</div>
     </div>
   </div>
