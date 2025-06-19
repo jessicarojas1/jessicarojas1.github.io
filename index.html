@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Jessica Rojas | Portfolio</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -13,14 +12,29 @@
     <a href="projects.html">Projects</a>
     <a href="resume.html">Resume</a>
     <a href="timeline.html">Timeline</a>
+    <a href="cybersecurity.html">Cybersecurity</a>
     <a href="contact.html">Contact</a>
+    <a href="admin.html">Admin</a>
     <button id="darkModeToggle">🌙 Dark Mode</button>
   </nav>
-  <header class="hero">
-    <h1>Hi, I'm Jessica Rojas</h1>
-    <p>Cyber Security Expert</p>
-    <a href="projects.html" class="btn">View My Work</a>
-  </header>
+  <main>
+    <section class="hero">
+      <h1>Jessica Rojas</h1>
+      <p>Cybersecurity Expert</p>
+      <a href="assets/resume.pdf" download class="btn">📄 Download Resume</a>
+    </section>
+    <section class="stats">
+      <div><span class="counter" data-target="10">0</span><p>Certifications</p></div>
+      <div><span class="counter" data-target="6">0</span><p>Years Experience</p></div>
+      <div><span class="counter" data-target="12">0</span><p>Projects Completed</p></div>
+    </section>
+    <section class="carousel">
+      <h2>Tech Stack</h2>
+      <div class="tech-carousel">
+        <span>HTML</span><span>CSS</span><span>JavaScript</span><span>Python</span>
+      </div>
+    </section>
+  </main>
   <script src="script.js"></script>
 </body>
 </html>
