@@ -126,3 +126,96 @@ footer {
   opacity: 1;
   transform: none;
 }
+body {
+  color: #fff;
+}
+.hero {
+  background: linear-gradient(135deg, #1a0000, #330000);
+  padding: 100px 20px;
+  text-align: center;
+  color: #fff;
+}
+.hero h1 {
+  font-size: 3.2rem;
+  margin-bottom: 0.5rem;
+}
+.hero p {
+  font-size: 1.3rem;
+  max-width: 700px;
+  margin: 0 auto 2rem;
+  line-height: 1.6;
+}
+.hero .btn {
+  display: inline-block;
+  background: #ff4444;
+  color: white;
+  padding: 12px 30px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: bold;
+  margin: 10px;
+}
+.hero .btn:hover {
+  background: #cc0000;
+}
+.intro-section {
+  padding: 60px 20px;
+  max-width: 1000px;
+  margin: auto;
+  text-align: center;
+}
+.intro-section h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #ff8888;
+}
+.intro-section p {
+  font-size: 1.1rem;
+  color: #ccc;
+  line-height: 1.7;
+}
+.stats-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 40px;
+}
+.stat {
+  background: #2a2a2a;
+  padding: 20px 30px;
+  border-radius: 10px;
+  text-align: center;
+  color: #ff8888;
+  width: 200px;
+}
+.stat h3 {
+  font-size: 2.5rem;
+  margin: 0;
+}
+.stat p {
+  margin: 0;
+  font-size: 1rem;
+  color: #eee;
+}
+.cta {
+  background: #1a1a1a;
+  text-align: center;
+  padding: 60px 20px;
+}
+.cta h2 {
+  font-size: 2rem;
+  color: #ff8888;
+  margin-bottom: 1rem;
+}
+.cta a {
+  background: #ff4444;
+  color: #fff;
+  padding: 12px 30px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: bold;
+}
+.cta a:hover {
+  background: #cc0000;
+}
