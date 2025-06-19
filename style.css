@@ -1,11 +1,128 @@
-body { font-family: Arial, sans-serif; margin: 0; padding: 2em; background: #f9f9f9; color: #333; }
-nav { background: #222; color: #fff; padding: 1em; text-align: center; }
-nav a { color: white; margin: 0 10px; text-decoration: none; }
-.hero { text-align: center; margin: 2em 0; }
-.stats { display: flex; justify-content: center; gap: 2em; margin-top: 2em; }
-.carousel { text-align: center; margin-top: 2em; }
-.tech-carousel span { margin: 0 1em; display: inline-block; font-weight: bold; }
-.counter { font-size: 2em; font-weight: bold; }
-iframe { border: none; }
-.dark-mode { background: #111; color: #f1f1f1; }
-.dark-mode nav { background: #000; }
+body {
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(to right, #1f1f1f, #2c2c2c);
+  color: #f4f4f4;
+}
+nav {
+  background-color: #111;
+  padding: 1em;
+  text-align: center;
+}
+nav a {
+  color: #fff;
+  margin: 0 12px;
+  text-decoration: none;
+  font-weight: bold;
+}
+nav a:hover {
+  color: #ff5555;
+}
+.hero {
+  text-align: center;
+  padding: 80px 20px;
+  background: #220000;
+}
+.hero h1 {
+  font-size: 3rem;
+  margin-bottom: 0.5em;
+}
+.hero p {
+  font-size: 1.5rem;
+  margin-bottom: 1em;
+}
+.hero .btn {
+  padding: 12px 25px;
+  background: #ff4444;
+  color: #fff;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background 0.3s ease;
+}
+.hero .btn:hover {
+  background: #cc0000;
+}
+.stats {
+  display: flex;
+  justify-content: center;
+  gap: 2em;
+  padding: 40px 20px;
+  background: #1a1a1a;
+  flex-wrap: wrap;
+}
+.stats div {
+  text-align: center;
+}
+.counter {
+  font-size: 2.5rem;
+  color: #ff4444;
+}
+.tech-carousel {
+  text-align: center;
+  padding: 40px 20px;
+}
+.tech-carousel span {
+  display: inline-block;
+  margin: 10px 15px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #ff8888;
+}
+form {
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 20px;
+  background: #2a2a2a;
+  border-radius: 10px;
+}
+form input, form textarea {
+  width: 100%;
+  margin-bottom: 15px;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  background: #444;
+  color: #fff;
+}
+form button {
+  background: #ff4444;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+}
+form button:hover {
+  background: #cc0000;
+}
+footer {
+  text-align: center;
+  padding: 20px;
+  color: #888;
+  background: #111;
+}
+.dark-mode {
+  background: #111;
+  color: #eee;
+}
+.dark-mode nav {
+  background: #000;
+}
+.dark-mode .hero {
+  background: #330000;
+}
+.dark-mode .stats {
+  background: #111;
+}
+
+/* Scroll reveal animation */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.6s ease-out;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: none;
+}
