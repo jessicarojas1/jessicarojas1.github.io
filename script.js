@@ -1,1 +1,18 @@
-document.querySelectorAll('.counter')?.forEach(counter => { let count = 0; const update = () => { count++; counter.innerText = count; if (count < +counter.dataset.target) setTimeout(update, 50); }; update(); });
+document.getElementById('darkModeToggle').addEventListener('click', function () {
+  document.body.classList.toggle('dark-mode');
+  this.textContent = document.body.classList.contains('dark-mode') ? '☀️ Light Mode' : '🌙 Dark Mode';
+});
+document.querySelectorAll('.counter').forEach(counter => {
+  let count = 0;
+  const target = +counter.getAttribute('data-target');
+  const update = () => {
+    if (count < target) {
+      count++;
+      counter.textContent = count;
+      setTimeout(update, 60);
+    } else {
+      counter.textContent = target;
+    }
+  };
+  update();
+});

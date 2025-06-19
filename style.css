@@ -1,1 +1,11 @@
-body { font-family: sans-serif; background: #fdfdfd; color: #333; padding: 20px; } nav a { margin-right: 10px; } h1 { color: #764ba2; } iframe { border: none; }
+body { font-family: Arial, sans-serif; margin: 0; padding: 2em; background: #f9f9f9; color: #333; }
+nav { background: #222; color: #fff; padding: 1em; text-align: center; }
+nav a { color: white; margin: 0 10px; text-decoration: none; }
+.hero { text-align: center; margin: 2em 0; }
+.stats { display: flex; justify-content: center; gap: 2em; margin-top: 2em; }
+.carousel { text-align: center; margin-top: 2em; }
+.tech-carousel span { margin: 0 1em; display: inline-block; font-weight: bold; }
+.counter { font-size: 2em; font-weight: bold; }
+iframe { border: none; }
+.dark-mode { background: #111; color: #f1f1f1; }
+.dark-mode nav { background: #000; }
