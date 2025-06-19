@@ -1,39 +1,141 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Jessica Rojas | Portfolio</title>
-<link href="style.css" rel="stylesheet"/>
+  <meta charset="UTF-8" />
+  <title>Jessica Rojas | Cybersecurity Professional</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      color: #fff;
+    }
+    .hero {
+      background: linear-gradient(135deg, #1a0000, #330000);
+      padding: 100px 20px;
+      text-align: center;
+      color: #fff;
+    }
+    .hero h1 {
+      font-size: 3.2rem;
+      margin-bottom: 0.5rem;
+    }
+    .hero p {
+      font-size: 1.3rem;
+      max-width: 700px;
+      margin: 0 auto 2rem;
+      line-height: 1.6;
+    }
+    .hero .btn {
+      display: inline-block;
+      background: #ff4444;
+      color: white;
+      padding: 12px 30px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: bold;
+      margin: 10px;
+    }
+    .hero .btn:hover {
+      background: #cc0000;
+    }
+    .intro-section {
+      padding: 60px 20px;
+      max-width: 1000px;
+      margin: auto;
+      text-align: center;
+    }
+    .intro-section h2 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      color: #ff8888;
+    }
+    .intro-section p {
+      font-size: 1.1rem;
+      color: #ccc;
+      line-height: 1.7;
+    }
+    .stats-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2rem;
+      margin-top: 40px;
+    }
+    .stat {
+      background: #2a2a2a;
+      padding: 20px 30px;
+      border-radius: 10px;
+      text-align: center;
+      color: #ff8888;
+      width: 200px;
+    }
+    .stat h3 {
+      font-size: 2.5rem;
+      margin: 0;
+    }
+    .stat p {
+      margin: 0;
+      font-size: 1rem;
+      color: #eee;
+    }
+    .cta {
+      background: #1a1a1a;
+      text-align: center;
+      padding: 60px 20px;
+    }
+    .cta h2 {
+      font-size: 2rem;
+      color: #ff8888;
+      margin-bottom: 1rem;
+    }
+    .cta a {
+      background: #ff4444;
+      color: #fff;
+      padding: 12px 30px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .cta a:hover {
+      background: #cc0000;
+    }
+  </style>
 </head>
 <body>
-<nav>
-<a href="index.html">Home</a>
-<a href="projects.html">Projects</a>
-<a href="resume.html">Resume</a>
-<a href="timeline.html">Timeline</a>
-<a href="cybersecurity.html">Cybersecurity</a>
-<a href="contact.html">Contact</a>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="projects.html">Projects</a>
+    <a href="resume.html">Resume</a>
+    <a href="timeline.html">Timeline</a>
+    <a href="cybersecurity.html">Cybersecurity</a>
+    <a href="contact.html">Contact</a>
+    <button id="darkModeToggle">🌙 Dark Mode</button>
+  </nav>
 
-<button id="darkModeToggle">🌙 Dark Mode</button>
-</nav>
-<header class="reveal">
-<h1>Jessica Rojas</h1>
-<p>Cybersecurity Analyst &amp; Full-Stack Developer</p>
-<div class="cta-buttons">
-<a download="" href="assets/resume.pdf">📄 Download Resume</a>
-<a href="contact.html">📬 Contact Me</a>
-</div>
-</header>
-<section class="stats reveal">
-<div class="stat"><span class="counter" data-target="10">0</span>Certifications</div>
-<div class="stat"><span class="counter" data-target="6">0</span>Years Experience</div>
-<div class="stat"><span class="counter" data-target="12">0</span>Projects Completed</div>
-</section>
-<footer>
-    © 2025 Jessica Rojas. All rights reserved.
-  </footer>
-<script src="script.js"></script>
+  <section class="hero reveal">
+    <h1>Jessica Rojas</h1>
+    <p>Cybersecurity Professional • Full-Stack Developer • U.S. Army Veteran</p>
+    <a href="assets/resume.pdf" class="btn" download>Download Resume</a>
+    <a href="contact.html" class="btn">Contact Me</a>
+  </section>
+
+  <section class="intro-section reveal">
+    <h2>Welcome</h2>
+    <p>I’m a cybersecurity and software engineering professional with over a decade of experience in secure systems, full-stack development, and defense contracting. I help organizations build and protect critical technology systems through smart design, compliance, and security.</p>
+
+    <div class="stats-grid">
+      <div class="stat"><h3>10+</h3><p>Years Experience</p></div>
+      <div class="stat"><h3>6</h3><p>Certifications</p></div>
+      <div class="stat"><h3>20+</h3><p>Projects</p></div>
+      <div class="stat"><h3>3</h3><p>Clearances Supported</p></div>
+    </div>
+  </section>
+
+  <section class="cta reveal">
+    <h2>Let’s build something secure and powerful together</h2>
+    <a href="projects.html">View My Work</a>
+  </section>
+
+  <script src="script.js"></script>
 </body>
 </html>
