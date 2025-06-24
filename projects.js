@@ -1,20 +1,28 @@
-fetch('projects.json')
-  .then(res => res.json())
-  .then(data => {
-    const container = document.getElementById('project-list');
-    data.forEach(project => {
-      const card = document.createElement('div');
-      card.className = 'project-card reveal';
-      card.innerHTML = `
-        <img src="${project.image}" alt="${project.title}" class="project-thumbnail" />
-        <div class="project-title">${project.title}</div>
-        <div class="project-desc">${project.description}</div>
-        <div class="project-links">
-          <a href="${project.link}" target="_blank">Live</a>
-          <a href="${project.github_url}" target="_blank">Code</a>
-        </div>
-      `;
-      container.appendChild(card);
+// projects.js
+
+document.addEventListener("DOMContentLoaded", () => {
+    // Scroll reveal animations
+    const reveals = document.querySelectorAll(".reveal");
+    const observer = new IntersectionObserver(
+      entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        threshold: 0.1
+      }
+    );
+    reveals.forEach(el => observer.observe(el));
+  
+    // Dark mode toggle
+    const toggle = document.getElementById("darkModeToggle");
+    toggle.addEventListener("click", () => {
+      document.body.classList.toggle("dark");
+      toggle.textContent = document.body.classList.contains("dark") ? "☀️" : "🌙";
     });
-  })
-  .catch(err => console.error('Error loading projects:', err));
+  });
+  

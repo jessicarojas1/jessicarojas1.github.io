@@ -1,46 +1,42 @@
-document.getElementById('darkModeToggle').addEventListener('click', function () {
-  document.body.classList.toggle('dark-mode');
-  this.textContent = document.body.classList.contains('dark-mode') ? '☀️ Light Mode' : '🌙 Dark Mode';
+// Dark Mode Toggle
+const toggle = document.getElementById("darkModeToggle");
+const body = document.body;
+
+// Apply saved theme on load
+window.addEventListener("DOMContentLoaded", () => {
+  const theme = localStorage.getItem("theme");
+  if (theme === "dark") {
+    body.classList.add("dark-mode");
+    toggle.textContent = "☀️ Light Mode";
+  }
 });
-document.querySelectorAll('.counter').forEach(counter => {
-  let count = 0;
-  const target = +counter.getAttribute('data-target');
-  const update = () => {
-    if (count < target) {
-      count++;
-      counter.textContent = count;
-      setTimeout(update, 60);
+
+// Toggle dark/light mode
+toggle?.addEventListener("click", () => {
+  body.classList.toggle("dark-mode");
+  if (body.classList.contains("dark-mode")) {
+    localStorage.setItem("theme", "dark");
+    toggle.textContent = "☀️ Light Mode";
+  } else {
+    localStorage.setItem("theme", "light");
+    toggle.textContent = "🌙 Dark Mode";
+  }
+});
+
+// Scroll reveal effect
+const revealElements = document.querySelectorAll(".reveal");
+
+function revealOnScroll() {
+  const windowHeight = window.innerHeight;
+  revealElements.forEach((el) => {
+    const elementTop = el.getBoundingClientRect().top;
+    if (elementTop < windowHeight - 100) {
+      el.classList.add("visible");
     } else {
-      counter.textContent = target;
+      el.classList.remove("visible");
     }
-  };
-  update();
-});
-document.addEventListener("DOMContentLoaded", () => {
-  const revealElements = document.querySelectorAll(".reveal");
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("visible");
-      }
-    });
-  }, { threshold: 0.1 });
+  });
+}
 
-  revealElements.forEach(el => observer.observe(el));
-});
-
-function toggleExpand(el) {
-      el.classList.toggle('expanded');
-      const desc = el.querySelector('p');
-      desc.classList.toggle('hidden');
-    }
-
-function filterProjects(category) {
-      document.querySelectorAll('.card').forEach(card => {
-        if (category === 'all' || card.classList.contains(category)) {
-          card.classList.remove('hidden');
-        } else {
-          card.classList.add('hidden');
-        }
-      });
-    }
+window.addEventListener("scroll", revealOnScroll);
+window.addEventListener("load", revealOnScroll);

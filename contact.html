@@ -5,6 +5,7 @@
   <title>Contact | Jessica Rojas</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="https://github.githubassets.com/favicons/favicon.svg" />
 </head>
 <body>
   <nav>
@@ -13,46 +14,39 @@
     <a href="resume.html">Resume</a>
     <a href="timeline.html">Timeline</a>
     <a href="cybersecurity.html">Cybersecurity</a>
-    <a href="contact.html">Contact</a>
-    <button id="darkModeToggle">🌙 Dark Mode</button>
+    <a href="contact.html" class="active">Contact</a>
+    <button id="darkModeToggle">🌙</button>
   </nav>
 
-  <section class="contact-section reveal">
-    <h1>Contact Me</h1>
-    <p>Have a question, opportunity, or want to connect? Send me a message below or reach out on LinkedIn.</p>
+  <main class="container reveal">
+    <section class="contact-section">
+      <h1>Get in Touch</h1>
+      <p>If you'd like to collaborate, have a question, or just want to say hello, feel free to reach out below.</p>
 
-    <form action="https://formspree.io/f/your-form-id" method="POST">
-      <label for="name">Name</label>
-      <input type="text" id="name" name="name" required />
+      <form class="contact-form" action="mailto:youremail@example.com" method="POST" enctype="text/plain">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" required />
 
-      <label for="email">Email</label>
-      <input type="email" id="email" name="_replyto" required />
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required />
 
-      <label for="message">Message</label>
-      <textarea id="message" name="message" required></textarea>
+        <label for="message">Message</label>
+        <textarea id="message" name="message" rows="5" required></textarea>
 
-      <button type="submit" class="submit-btn">Send Message</button>
-    </form>
+        <button type="submit" class="btn">Send Message</button>
+      </form>
 
-    <div class="social-links">
-      <p>Or connect with me here:</p>
-      <div style="display: flex; justify-content: center; gap: 30px; margin-top: 15px;">
-        <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" style="text-decoration: none; color: #fff; display: flex; align-items: center; gap: 8px;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#ff4444" viewBox="0 0 24 24">
-            <path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.11 1 2.5 1 4.98 2.12 4.98 3.5zM.49 8H4.5v14H.49V8zm7.49 0h3.89v1.96h.06c.54-.9 1.84-1.96 3.79-1.96 4.05 0 4.8 2.67 4.8 6.13V22H16v-6.17c0-1.47-.03-3.36-2.05-3.36-2.05 0-2.36 1.6-2.36 3.25V22H8V8z"/>
-          </svg>
-          <span>LinkedIn</span>
+      <div class="social-links">
+        <p>Or connect with me here:</p>
+        <a href="https://github.com/jessicarojas1" target="_blank" class="social-icon" title="GitHub">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" />
         </a>
-        <a href="mailto:cuevasjessica40@yahoo.com" style="text-decoration: none; color: #fff; display: flex; align-items: center; gap: 8px;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#ff4444" viewBox="0 0 24 24">
-            <path d="M1.5 4.5h21v15h-21v-15zm1.8 1.5v12h17.4v-12h-17.4zm8.7 6.45l8.1-6.45h-16.2l8.1 6.45zm0 1.65l-8.1-6.45v9.6h16.2v-9.6l-8.1 6.45z"/>
-          </svg>
-          <span>Email Me</span>
+        <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" class="social-icon" title="LinkedIn">
+          <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" />
         </a>
       </div>
-    </div>
-    
-  </section>
+    </section>
+  </main>
 
   <script src="script.js"></script>
 </body>

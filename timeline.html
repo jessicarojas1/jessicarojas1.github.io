@@ -2,86 +2,158 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Interactive Timeline | Jessica Rojas</title>
+  <title>Timeline | Jessica Rojas</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="style.css" />
+  <style>
+    .timeline {
+      position: relative;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 4rem 1rem;
+    }
+
+    .timeline::after {
+      content: '';
+      position: absolute;
+      width: 4px;
+      background: #00ff99;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      margin-left: -2px;
+    }
+
+    .timeline-entry {
+      padding: 1rem 2rem;
+      position: relative;
+      background: inherit;
+      width: 50%;
+      transition: transform 0.4s;
+    }
+
+    .timeline-entry.left {
+      left: 0;
+    }
+
+    .timeline-entry.right {
+      left: 50%;
+    }
+
+    .timeline-entry::before {
+      content: " ";
+      position: absolute;
+      top: 20px;
+      width: 20px;
+      height: 20px;
+      background-color: #00ff99;
+      border-radius: 50%;
+      z-index: 1;
+    }
+
+    .timeline-entry.left::before {
+      right: -10px;
+    }
+
+    .timeline-entry.right::before {
+      left: -10px;
+    }
+
+    .timeline-content {
+      padding: 1rem;
+      background: #161b22;
+      position: relative;
+      border-radius: 6px;
+      box-shadow: 0 0 10px rgba(0,255,153,0.1);
+    }
+
+    .timeline-content h3 {
+      margin-top: 0;
+      color: #00ff99;
+    }
+
+    .timeline-content p {
+      margin: 0.5rem 0;
+    }
+
+    .timeline-content .date {
+      font-size: 0.9rem;
+      color: #58a6ff;
+      margin-bottom: 0.5rem;
+      font-weight: bold;
+    }
+
+    @media screen and (max-width: 768px) {
+      .timeline::after {
+        left: 20px;
+      }
+
+      .timeline-entry {
+        width: 100%;
+        padding-left: 60px;
+        padding-right: 25px;
+      }
+
+      .timeline-entry.left, .timeline-entry.right {
+        left: 0%;
+      }
+
+      .timeline-entry::before {
+        top: 20px;
+        left: 18px;
+      }
+    }
+  </style>
 </head>
 <body>
   <nav>
     <a href="index.html">Home</a>
     <a href="projects.html">Projects</a>
     <a href="resume.html">Resume</a>
-    <a href="timeline.html">Timeline</a>
+    <a href="timeline.html" class="active">Timeline</a>
     <a href="cybersecurity.html">Cybersecurity</a>
     <a href="contact.html">Contact</a>
     <button id="darkModeToggle">🌙 Dark Mode</button>
   </nav>
 
-  <div class="timeline-wrapper reveal">
-    <h1>Career Timeline</h1>
-    <div class="timeline-line"></div>
-
-    <div class="timeline-entry">
-      <div class="timeline-dot"></div>
-      <div class="timeline-header" onclick="toggleEntry(this)">
-        <span class="timeline-job">🎖️ Military Police</span>
-        <span class="timeline-date">2015–2022</span>
+  <section class="timeline reveal">
+    <div class="timeline-entry left reveal">
+      <div class="timeline-content">
+        <span class="date">2025 – Present</span>
+        <h3>Enterprise Systems Manager – GMRE, Inc.</h3>
+        <p>Leading enterprise architecture, compliance (CMMC/NIST), and AI governance efforts.</p>
       </div>
-      <div class="timeline-description">Served in the U.S. Army specializing in physical security, law enforcement, investigations, and force protection operations.</div>
     </div>
 
-    <div class="timeline-entry">
-      <div class="timeline-dot"></div>
-      <div class="timeline-header" onclick="toggleEntry(this)">
-        <span class="timeline-job">💻 Associate Full-Stack Programmer</span>
-        <span class="timeline-date">2020–2021</span>
+    <div class="timeline-entry right reveal">
+      <div class="timeline-content">
+        <span class="date">2022 – 2024</span>
+        <h3>Cybersecurity Analyst – GMRE, Inc.</h3>
+        <p>Performed audits, vulnerability assessments, and compliance checks for DoD contracts.</p>
       </div>
-      <div class="timeline-description">Developed front-end and back-end applications during academic coursework at Weber State University.</div>
     </div>
 
-    <div class="timeline-entry">
-      <div class="timeline-dot"></div>
-      <div class="timeline-header" onclick="toggleEntry(this)">
-        <span class="timeline-job">🧑‍💼 Full-Stack Developer</span>
-        <span class="timeline-date">2021–2022</span>
+    <div class="timeline-entry left reveal">
+      <div class="timeline-content">
+        <span class="date">2022 – Present</span>
+        <h3>Cybersecurity TA – Fullstack Academy</h3>
+        <p>Provided mentoring and instruction in cybersecurity fundamentals, Linux, and red teaming.</p>
       </div>
-      <div class="timeline-description">Built and maintained software solutions for GMRE, Inc., working on secure defense-related applications and UIs.</div>
     </div>
 
-    <div class="timeline-entry">
-      <div class="timeline-dot"></div>
-      <div class="timeline-header" onclick="toggleEntry(this)">
-        <span class="timeline-job">🧑‍🏫 Cybersecurity TA</span>
-        <span class="timeline-date">2022–Present</span>
+    <div class="timeline-entry right reveal">
+      <div class="timeline-content">
+        <span class="date">2015 – 2022</span>
+        <h3>Military Police – U.S. Army</h3>
+        <p>Served in protective security and law enforcement operations. Honorable service completed.</p>
       </div>
-      <div class="timeline-description">Supported Fullstack Academy students in learning cybersecurity fundamentals, tools, and best practices.</div>
     </div>
+  </section>
 
-    <div class="timeline-entry">
-      <div class="timeline-dot"></div>
-      <div class="timeline-header" onclick="toggleEntry(this)">
-        <span class="timeline-job">🛡️ Cybersecurity Analyst</span>
-        <span class="timeline-date">2022–2024</span>
-      </div>
-      <div class="timeline-description">Analyzed threats, secured systems, and supported compliance for GMRE, Inc. with hands-on tools and vulnerability management.</div>
-    </div>
+  <footer>
+    <p>&copy; 2025 Jessica Rojas. All rights reserved.</p>
+  </footer>
 
-    <div class="timeline-entry">
-      <div class="timeline-dot"></div>
-      <div class="timeline-header" onclick="toggleEntry(this)">
-        <span class="timeline-job">🧠 Enterprise Systems Manager</span>
-        <span class="timeline-date">2025–Present</span>
-      </div>
-      <div class="timeline-description">Oversee enterprise systems architecture, security programs, and modernization efforts for GMRE, Inc. in aerospace defense.</div>
-    </div>
-  </div>
-
-  <script>
-    function toggleEntry(header) {
-      const entry = header.parentElement;
-      entry.classList.toggle('active');
-    }
-  </script>
   <script src="script.js"></script>
 </body>
 </html>

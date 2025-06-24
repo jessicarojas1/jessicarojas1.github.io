@@ -1,30 +1,37 @@
 [
   {
-    "title": "CMMC / NIST 800-171 Compliance Tracker",
-    "description": "A full-stack tool to monitor and manage NIST 800-171 and CMMC compliance, including evidence uploads, control status, and remediation tracking.",
-    "image": "images/cmmc-tracker-thumbnail.png",
-    "link": "compliancetracker.html",
-    "github_url": "https://github.com/yourusername/compliance-tracker"
-  },
-  {
-    "title": "Threat Intelligence Dashboard",
-    "description": "Cyber threat monitoring dashboard using JavaScript, Chart.js, and Python APIs to track and visualize threat trends over time.",
-    "image": "images/threat-dashboard.png",
-    "link": "#",
-    "github_url": "#"
-  },
-  {
-    "title": "Military Asset Tracker",
-    "description": "Custom-built logistics tool to manage and visualize tracked assets using secure web interfaces and encrypted backend services.",
-    "image": "images/asset-tracker.png",
-    "link": "#",
-    "github_url": "#"
+    "title": "Compliance Tracker",
+    "description": "A full-featured CMMC / NIST 800-171 compliance tracker with live SSP preview, POAM tracking, pie chart dashboard, and evidence linking.",
+    "image": "assets/images/compliance_tracker.png",
+    "tags": ["Cybersecurity", "CMMC", "Full-Stack", "JavaScript", "Chart.js"],
+    "link": "compliancetracker.html"
   },
   {
     "title": "Portfolio Website",
-    "description": "The site you're viewing now. Designed with HTML, CSS, JS and themed for cybersecurity professionals with modern UI and accessibility in mind.",
-    "image": "images/portfolio-thumb.png",
-    "link": "#",
-    "github_url": "#"
+    "description": "Personal portfolio site built with HTML, CSS, JavaScript. Features a dynamic timeline, dark mode, and responsive design.",
+    "image": "assets/images/portfolio_site.png",
+    "tags": ["Web Design", "Frontend", "HTML", "JavaScript"],
+    "link": "index.html"
+  },
+  {
+    "title": "Resume Builder Tool",
+    "description": "Tool to generate downloadable DOCX resumes. Includes styling templates and field auto-population.",
+    "image": "assets/images/resume_builder.png",
+    "tags": ["Python", "docx", "Automation"],
+    "link": "resume.html"
+  },
+  {
+    "title": "Cybersecurity Knowledgebase",
+    "description": "A resource hub showcasing my expertise in encryption, auditing, compliance, and AI in security. Includes downloadable documents and certifications.",
+    "image": "assets/images/cybersecurity_hub.png",
+    "tags": ["Cybersecurity", "Certifications", "GRC", "AI"],
+    "link": "cybersecurity.html"
+  },
+  {
+    "title": "Interactive Timeline",
+    "description": "An animated timeline of my professional history using CSS and JavaScript with scroll-based reveals and badge milestones.",
+    "image": "assets/images/timeline.png",
+    "tags": ["Frontend", "JavaScript", "CSS", "UX"],
+    "link": "timeline.html"
   }
 ]

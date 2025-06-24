@@ -2,12 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CMMC / NIST 800-171 Compliance Tracker</title>
-  <link rel="icon" href="https://github.githubassets.com/favicons/favicon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Compliance Tracker</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="https://github.githubassets.com/favicons/favicon.svg" type="image/svg+xml">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.7.0/docx.min.js"></script>
 </head>
 <body class="bg-green-950 text-white font-sans">
   <header class="p-6 bg-gray-900 shadow-lg">
@@ -15,60 +14,52 @@
       <h1 class="text-2xl font-bold text-green-400">Compliance Tracker</h1>
       <nav>
         <a href="index.html" class="text-gray-300 hover:text-green-400">Back to Portfolio</a>
-        <a href="#adminPanel" class="ml-4 text-yellow-400 hover:underline">Admin UI</a>
       </nav>
     </div>
   </header>
 
-  <main class="py-12 px-6 md:px-16">
-    <section class="max-w-7xl mx-auto">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-3xl font-bold border-b border-green-400 pb-2">CMMC / NIST 800-171 Compliance Tracker</h2>
-        <button id="themeToggle" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded">Toggle Theme</button>
+  <main class="py-10 px-6 md:px-16">
+    <h2 class="text-3xl font-bold mb-4 border-b border-green-400 pb-2">CMMC / NIST 800-171 Tracker</h2>
+
+    <canvas id="familyPieChart" width="400" height="400" class="mb-6"></canvas>
+
+    <table id="familyTable" class="w-full mb-6 border border-green-500 text-sm">
+      <thead>
+        <tr class="bg-green-900">
+          <th class="px-4 py-2 text-left">Control Family</th>
+          <th class="px-4 py-2 text-center">Compliant</th>
+          <th class="px-4 py-2 text-center">Total</th>
+          <th class="px-4 py-2 text-center">%</th>
+        </tr>
+      </thead>
+      <tbody id="familyTableBody"></tbody>
+    </table>
+
+    <button id="showAllControls" class="btn mb-6">Show All Controls</button>
+
+    <div id="controlView" class="hidden">
+      <button id="backToChart" class="btn mb-4">← Back to Chart</button>
+      <div class="mb-4">
+        <span class="status-badge compliant">Compliant</span>
+        <span class="status-badge non-compliant">Non-Compliant</span>
+        <span class="status-badge in-progress">In Progress</span>
+        <span class="status-badge poam">POAM</span>
       </div>
+      <div id="controlsList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+    </div>
 
-      <input type="text" id="searchInput" class="mb-6 w-full p-2 text-black rounded" placeholder="Search control families..." />
+    <div class="mt-12">
+      <button id="exportSSP" class="btn bg-blue-600">Export SSP Preview</button>
+    </div>
 
-      <canvas id="familyPieChart" class="mb-6 animate-pulse"></canvas>
-
-      <table id="familyTable" class="w-full bg-gray-800 text-sm text-white border border-green-400 rounded mb-6">
-        <thead>
-          <tr class="bg-green-900 text-green-300">
-            <th class="px-4 py-2 text-left">Control Family</th>
-            <th class="px-4 py-2">Compliant</th>
-            <th class="px-4 py-2">Total</th>
-            <th class="px-4 py-2">Compliance %</th>
-          </tr>
-        </thead>
-        <tbody id="familyTableBody"></tbody>
-      </table>
-
-      <button id="showAllControls" class="mb-8 bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 rounded">Show All Controls</button>
-
-      <div id="controlView" class="hidden">
-        <button id="backToChart" class="mb-4 bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded">← Back to Chart</button>
-        <div class="mb-4">
-          <span class="status-badge compliant">Compliant</span>
-          <span class="status-badge non-compliant">Non-Compliant</span>
-          <span class="status-badge in-progress">In Progress</span>
-          <span class="status-badge poam">POAM</span>
-        </div>
-        <div id="controlsList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-      </div>
-
-      <div class="mt-12">
-        <button id="exportSSP" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Export SSP (DOCX)</button>
-      </div>
+    <section class="mt-10 bg-gray-800 p-4 rounded">
+      <h3 class="text-xl font-bold text-green-300 mb-2">Live SSP Preview</h3>
+      <pre id="sspOutput" class="text-sm text-gray-200 whitespace-pre-wrap"></pre>
     </section>
 
-    <section id="sspPreview" class="mt-16 bg-gray-800 p-6 rounded">
-      <h3 class="text-xl mb-4 text-green-300 font-bold">Live SSP Preview</h3>
-      <pre id="sspOutput" class="whitespace-pre-wrap text-gray-300 text-sm"></pre>
-    </section>
-
-    <section id="adminPanel" class="mt-16 bg-gray-900 p-6 rounded">
-      <h3 class="text-xl mb-4 text-yellow-400 font-bold">Admin UI</h3>
-      <button onclick="localStorage.clear(); location.reload();" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">Clear All Local Data</button>
+    <section id="adminPanel" class="mt-12 bg-gray-900 p-6 rounded">
+      <h3 class="text-xl font-bold text-yellow-400 mb-2">Admin Tools</h3>
+      <button onclick="localStorage.clear(); location.reload();" class="btn bg-red-600">Clear Local Data</button>
     </section>
   </main>
 

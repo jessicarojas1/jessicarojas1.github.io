@@ -1,5 +1,6 @@
 let allControls = [];
 let familyMap = {};
+const pieCanvas = document.getElementById('familyPieChart');
 
 async function loadControls() {
   const response = await fetch('cmmc_controls.json');
@@ -7,165 +8,163 @@ async function loadControls() {
   allControls = controls;
   updateFamilyChart(controls);
 }
-
-function renderControls(controls) {
-  const container = document.getElementById('controlsList');
-  container.innerHTML = '';
-
-  controls.forEach(control => {
-    const module = document.createElement('div');
-    module.className = 'control-module';
-
-    const title = document.createElement('h4');
-    title.className = 'text-lg font-bold mb-2 text-green-300';
-    title.textContent = `${control.id} – ${control.title} (${control.family_name})`;
-    module.appendChild(title);
-
-    control.subs.forEach(sub => {
-      const subId = `${control.id}${sub.id}`;
-      const stored = JSON.parse(localStorage.getItem(subId) || '{}');
-
-      const row = document.createElement('div');
-      row.className = 'mb-2 p-2 rounded bg-gray-800';
-
-      const desc = document.createElement('div');
-      desc.className = 'text-sm text-white mb-1';
-      desc.textContent = `${sub.id} – ${sub.title}`;
-      row.appendChild(desc);
-
-      const notes = document.createElement('textarea');
-      notes.placeholder = 'Enter SSP objective/notes...';
-      notes.value = stored.notes || '';
-      notes.onchange = () => {
-        const updated = {
-          ...stored,
-          notes: notes.value
-        };
-        localStorage.setItem(subId, JSON.stringify(updated));
-        generateSSPPreview();
-      };
-      row.appendChild(notes);
-
-      const status = document.createElement('select');
-      status.className = 'mt-1 text-sm p-1 rounded';
-      status.innerHTML = `
-        <option value="">Set Status</option>
-        <option value="compliant">Compliant</option>
-        <option value="non-compliant">Non-Compliant</option>
-        <option value="in-progress">In Progress</option>
-        <option value="poam">POAM</option>
-      `;
-      status.value = stored.status || '';
-      status.onchange = () => {
-        const updated = {
-          ...stored,
-          status: status.value
-        };
-        localStorage.setItem(subId, JSON.stringify(updated));
-        updateFamilyChart(allControls);
-        generateSSPPreview();
-      };
-      row.appendChild(status);
-
-      module.appendChild(row);
-    });
-
-    container.appendChild(module);
-  });
-}
-
+  
 function updateFamilyChart(controls) {
   familyMap = {};
 
   controls.forEach(control => {
-    const family = control.family_id;
-    if (!familyMap[family]) {
-      familyMap[family] = {
-        total: 0,
+    const famId = control.family_id;
+    if (!familyMap[famId]) {
+      familyMap[famId] = {
+        family_name: control.family_name,
         compliant: 0,
-        family_name: control.family_name
+        total: 0
       };
     }
-
     control.subs.forEach(sub => {
-      familyMap[family].total++;
-      const subId = `${control.id}${sub.id}`;
-      const stored = JSON.parse(localStorage.getItem(subId) || '{}');
+      familyMap[famId].total++;
+      const key = `${control.id}${sub.id}`;
+      const stored = JSON.parse(localStorage.getItem(key) || '{}');
       if (stored.status === 'compliant') {
-        familyMap[family].compliant++;
+        familyMap[famId].compliant++;
       }
     });
   });
 
-  const labels = Object.values(familyMap).map(f => `${f.family_name} (${f.family_id})`);
-  const data = Object.values(familyMap).map(v =>
-    v.total === 0 ? 0 : Math.round((v.compliant / v.total) * 100)
+  const labels = Object.values(familyMap).map(f => f.family_name);
+  const data = Object.values(familyMap).map(f =>
+    f.total === 0 ? 0 : Math.round((f.compliant / f.total) * 100)
   );
-  const colors = data.map(val => val === 100 ? '#2563eb' : '#dc2626');
+  const bgColors = data.map(percent => percent === 0
+    ? '#dc2626'
+    : `hsl(${percent * 1.2}, 70%, 50%)`
+  );
 
-  const ctx = document.getElementById('familyPieChart').getContext('2d');
-  if (window.familyPieChart && typeof window.familyPieChart.destroy === 'function') {
-    window.familyPieChart.destroy();
-  }
+  const ctx = pieCanvas.getContext('2d');
+  if (window.familyPieChart) window.familyPieChart.destroy();
 
   window.familyPieChart = new Chart(ctx, {
     type: 'pie',
     data: {
-      labels: labels,
+      labels,
       datasets: [{
-        label: 'Compliance % by Family',
-        data: data,
-        backgroundColor: colors
+        data,
+        backgroundColor: bgColors
       }]
     },
     options: {
+      responsive: true,
       onClick: (e, elements) => {
         if (elements.length > 0) {
           const index = elements[0].index;
-          const selectedLabel = labels[index];
-          const selectedFamily = selectedLabel.match(/\((.*?)\)/)[1];
-          const filtered = allControls.filter(control => control.family_id === selectedFamily);
+          const selectedFamilyName = labels[index];
+          const selectedFamilyId = Object.entries(familyMap).find(
+            ([, v]) => v.family_name === selectedFamilyName
+          )[0];
+          const filteredControls = allControls.filter(c => c.family_id === selectedFamilyId);
           document.getElementById('controlView').classList.remove('hidden');
-          renderControls(filtered);
+          renderControls(filteredControls);
           window.scrollTo({ top: document.getElementById('controlView').offsetTop, behavior: 'smooth' });
         }
-      },
-      responsive: true,
-      animation: {
-        animateRotate: true,
-        animateScale: true
       }
     }
   });
 
   const tableBody = document.getElementById('familyTableBody');
   tableBody.innerHTML = '';
-  Object.entries(familyMap).forEach(([fam, stats]) => {
+  Object.entries(familyMap).forEach(([famId, stats]) => {
     const percent = stats.total === 0 ? 0 : Math.round((stats.compliant / stats.total) * 100);
     tableBody.innerHTML += `
       <tr>
-        <td class="border-t border-green-700 px-4 py-2">${stats.family_name} (${fam})</td>
-        <td class="border-t border-green-700 text-center">${stats.compliant}</td>
-        <td class="border-t border-green-700 text-center">${stats.total}</td>
-        <td class="border-t border-green-700 text-center">${percent}%</td>
+        <td class="px-4 py-2">${stats.family_name} (${famId})</td>
+        <td class="text-center">${stats.compliant}</td>
+        <td class="text-center">${stats.total}</td>
+        <td class="text-center">${percent}%</td>
       </tr>
     `;
   });
 }
 
-function generateSSPPreview() {
-  let output = '';
-  allControls.forEach(control => {
-    output += `\n${control.id} – ${control.title} (${control.family_name})\n`;
+function renderControls(controls) {
+  const list = document.getElementById('controlsList');
+  list.innerHTML = '';
+
+  controls.forEach(control => {
+    const module = document.createElement('div');
+    module.className = 'control-module';
+
+    const title = document.createElement('h4');
+    title.className = 'text-green-300 text-lg font-bold mb-2';
+    title.textContent = `${control.id} – ${control.title}`;
+    module.appendChild(title);
+
     control.subs.forEach(sub => {
-      const subId = `${control.id}${sub.id}`;
-      const stored = JSON.parse(localStorage.getItem(subId) || '{}');
-      output += `  ${sub.id} – ${sub.title}\n`;
-      output += `    Status: ${stored.status || 'Not set'}\n`;
-      output += `    Notes: ${stored.notes || 'None'}\n`;
+      const key = `${control.id}${sub.id}`;
+      const stored = JSON.parse(localStorage.getItem(key) || '{}');
+
+      const block = document.createElement('div');
+      block.className = 'mb-3 p-2 bg-gray-800 rounded';
+
+      const label = document.createElement('div');
+      label.className = 'text-sm font-semibold text-white mb-1';
+      label.textContent = `${sub.id} – ${sub.title}`;
+      block.appendChild(label);
+
+      const select = document.createElement('select');
+      select.className = 'mt-1 mb-2';
+      select.innerHTML = `
+        <option value="">Set Status</option>
+        <option value="compliant">Compliant</option>
+        <option value="non-compliant">Non-Compliant</option>
+        <option value="in-progress">In Progress</option>
+        <option value="poam">POAM</option>
+      `;
+      select.value = stored.status || '';
+      block.appendChild(select);
+
+      const noteInput = document.createElement('textarea');
+      noteInput.placeholder = "SSP Notes / Evidence";
+      noteInput.rows = 3;
+      noteInput.value = stored.notes || '';
+      block.appendChild(noteInput);
+
+      select.onchange = saveAndUpdate;
+      noteInput.oninput = saveAndUpdate;
+
+      function saveAndUpdate() {
+        localStorage.setItem(key, JSON.stringify({
+          status: select.value,
+          notes: noteInput.value
+        }));
+        updateFamilyChart(allControls);
+        updateSSPPreview();
+      }
+
+      module.appendChild(block);
+    });
+
+    list.appendChild(module);
+  });
+
+  updateSSPPreview();
+}
+
+function updateSSPPreview() {
+  const sspOutput = document.getElementById('sspOutput');
+  let content = '';
+
+  allControls.forEach(control => {
+    content += `## ${control.id} – ${control.title}\n\n`;
+    control.subs.forEach(sub => {
+      const key = `${control.id}${sub.id}`;
+      const stored = JSON.parse(localStorage.getItem(key) || '{}');
+      content += `- ${sub.id} – ${sub.title}\n`;
+      content += `  - Status: ${stored.status || 'Not Set'}\n`;
+      content += `  - Notes: ${stored.notes || 'N/A'}\n\n`;
     });
   });
-  document.getElementById('sspOutput').textContent = output.trim();
+
+  sspOutput.textContent = content;
 }
 
 document.getElementById('backToChart').addEventListener('click', () => {
@@ -179,12 +178,12 @@ document.getElementById('showAllControls').addEventListener('click', () => {
 });
 
 document.getElementById('exportSSP').addEventListener('click', () => {
-  const text = document.getElementById('sspOutput').textContent;
-  const blob = new Blob([text], { type: 'application/msword' });
+  const sspText = document.getElementById('sspOutput').textContent;
+  const blob = new Blob([sspText], { type: 'text/plain;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = 'SSP_Summary.doc';
+  link.download = 'ssp_export.txt';
   link.click();
   URL.revokeObjectURL(url);
 });

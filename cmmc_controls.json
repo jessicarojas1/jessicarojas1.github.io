@@ -1,1763 +1,1794 @@
 [
-    {
-      "id": "3.1.1",
-      "title": "Control 3.1.1 Title",
-      "family_id": "3.1",
-      "family_name": "Access Control",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.1.1"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.1.1"
-        }
-      ]
-    },
-    {
-      "id": "3.1.2",
-      "title": "Control 3.1.2 Title",
-      "family_id": "3.1",
-      "family_name": "Access Control",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.1.2"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.1.2"
-        }
-      ]
-    },
-    {
-      "id": "3.1.3",
-      "title": "Control 3.1.3 Title",
-      "family_id": "3.1",
-      "family_name": "Access Control",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.1.3"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.1.3"
-        }
-      ]
-    },
-    {
-      "id": "3.1.4",
-      "title": "Control 3.1.4 Title",
-      "family_id": "3.1",
-      "family_name": "Access Control",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.1.4"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.1.4"
-        }
-      ]
-    },
-    {
-      "id": "3.1.5",
-      "title": "Control 3.1.5 Title",
-      "family_id": "3.1",
-      "family_name": "Access Control",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.1.5"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.1.5"
-        }
-      ]
-    },
-    {
-      "id": "3.1.6",
-      "title": "Control 3.1.6 Title",
-      "family_id": "3.1",
-      "family_name": "Access Control",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.1.6"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.1.6"
-        }
-      ]
-    },
-    {
-      "id": "3.1.7",
-      "title": "Control 3.1.7 Title",
-      "family_id": "3.1",
-      "family_name": "Access Control",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.1.7"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.1.7"
-        }
-      ]
-    },
-    {
-      "id": "3.1.8",
-      "title": "Control 3.1.8 Title",
-      "family_id": "3.1",
-      "family_name": "Access Control",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.1.8"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.1.8"
-        }
-      ]
-    },
-    {
-      "id": "3.1.9",
-      "title": "Control 3.1.9 Title",
-      "family_id": "3.1",
-      "family_name": "Access Control",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.1.9"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.1.9"
-        }
-      ]
-    },
-    {
-      "id": "3.1.10",
-      "title": "Control 3.1.10 Title",
-      "family_id": "3.1",
-      "family_name": "Access Control",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.1.10"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.1.10"
-        }
-      ]
-    },
-    {
-      "id": "3.1.11",
-      "title": "Control 3.1.11 Title",
-      "family_id": "3.1",
-      "family_name": "Access Control",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.1.11"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.1.11"
-        }
-      ]
-    },
-    {
-      "id": "3.1.12",
-      "title": "Control 3.1.12 Title",
-      "family_id": "3.1",
-      "family_name": "Access Control",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.1.12"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.1.12"
-        }
-      ]
-    },
-    {
-      "id": "3.1.13",
-      "title": "Control 3.1.13 Title",
-      "family_id": "3.1",
-      "family_name": "Access Control",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.1.13"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.1.13"
-        }
-      ]
-    },
-    {
-      "id": "3.1.14",
-      "title": "Control 3.1.14 Title",
-      "family_id": "3.1",
-      "family_name": "Access Control",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.1.14"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.1.14"
-        }
-      ]
-    },
-    {
-      "id": "3.1.15",
-      "title": "Control 3.1.15 Title",
-      "family_id": "3.1",
-      "family_name": "Access Control",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.1.15"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.1.15"
-        }
-      ]
-    },
-    {
-      "id": "3.1.16",
-      "title": "Control 3.1.16 Title",
-      "family_id": "3.1",
-      "family_name": "Access Control",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.1.16"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.1.16"
-        }
-      ]
-    },
-    {
-      "id": "3.1.17",
-      "title": "Control 3.1.17 Title",
-      "family_id": "3.1",
-      "family_name": "Access Control",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.1.17"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.1.17"
-        }
-      ]
-    },
-    {
-      "id": "3.1.18",
-      "title": "Control 3.1.18 Title",
-      "family_id": "3.1",
-      "family_name": "Access Control",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.1.18"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.1.18"
-        }
-      ]
-    },
-    {
-      "id": "3.1.19",
-      "title": "Control 3.1.19 Title",
-      "family_id": "3.1",
-      "family_name": "Access Control",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.1.19"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.1.19"
-        }
-      ]
-    },
-    {
-      "id": "3.1.20",
-      "title": "Control 3.1.20 Title",
-      "family_id": "3.1",
-      "family_name": "Access Control",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.1.20"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.1.20"
-        }
-      ]
-    },
-    {
-      "id": "3.1.21",
-      "title": "Control 3.1.21 Title",
-      "family_id": "3.1",
-      "family_name": "Access Control",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.1.21"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.1.21"
-        }
-      ]
-    },
-    {
-      "id": "3.1.22",
-      "title": "Control 3.1.22 Title",
-      "family_id": "3.1",
-      "family_name": "Access Control",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.1.22"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.1.22"
-        }
-      ]
-    },
-    {
-      "id": "3.2.1",
-      "title": "Control 3.2.1 Title",
-      "family_id": "3.2",
-      "family_name": "Awareness and Training",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.2.1"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.2.1"
-        }
-      ]
-    },
-    {
-      "id": "3.2.2",
-      "title": "Control 3.2.2 Title",
-      "family_id": "3.2",
-      "family_name": "Awareness and Training",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.2.2"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.2.2"
-        }
-      ]
-    },
-    {
-      "id": "3.2.3",
-      "title": "Control 3.2.3 Title",
-      "family_id": "3.2",
-      "family_name": "Awareness and Training",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.2.3"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.2.3"
-        }
-      ]
-    },
-    {
-      "id": "3.3.1",
-      "title": "Control 3.3.1 Title",
-      "family_id": "3.3",
-      "family_name": "Audit and Accountability",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.3.1"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.3.1"
-        }
-      ]
-    },
-    {
-      "id": "3.3.2",
-      "title": "Control 3.3.2 Title",
-      "family_id": "3.3",
-      "family_name": "Audit and Accountability",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.3.2"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.3.2"
-        }
-      ]
-    },
-    {
-      "id": "3.3.3",
-      "title": "Control 3.3.3 Title",
-      "family_id": "3.3",
-      "family_name": "Audit and Accountability",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.3.3"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.3.3"
-        }
-      ]
-    },
-    {
-      "id": "3.3.4",
-      "title": "Control 3.3.4 Title",
-      "family_id": "3.3",
-      "family_name": "Audit and Accountability",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.3.4"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.3.4"
-        }
-      ]
-    },
-    {
-      "id": "3.3.5",
-      "title": "Control 3.3.5 Title",
-      "family_id": "3.3",
-      "family_name": "Audit and Accountability",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.3.5"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.3.5"
-        }
-      ]
-    },
-    {
-      "id": "3.3.6",
-      "title": "Control 3.3.6 Title",
-      "family_id": "3.3",
-      "family_name": "Audit and Accountability",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.3.6"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.3.6"
-        }
-      ]
-    },
-    {
-      "id": "3.3.7",
-      "title": "Control 3.3.7 Title",
-      "family_id": "3.3",
-      "family_name": "Audit and Accountability",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.3.7"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.3.7"
-        }
-      ]
-    },
-    {
-      "id": "3.3.8",
-      "title": "Control 3.3.8 Title",
-      "family_id": "3.3",
-      "family_name": "Audit and Accountability",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.3.8"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.3.8"
-        }
-      ]
-    },
-    {
-      "id": "3.3.9",
-      "title": "Control 3.3.9 Title",
-      "family_id": "3.3",
-      "family_name": "Audit and Accountability",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.3.9"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.3.9"
-        }
-      ]
-    },
-    {
-      "id": "3.4.1",
-      "title": "Control 3.4.1 Title",
-      "family_id": "3.4",
-      "family_name": "Configuration Management",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.4.1"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.4.1"
-        }
-      ]
-    },
-    {
-      "id": "3.4.2",
-      "title": "Control 3.4.2 Title",
-      "family_id": "3.4",
-      "family_name": "Configuration Management",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.4.2"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.4.2"
-        }
-      ]
-    },
-    {
-      "id": "3.4.3",
-      "title": "Control 3.4.3 Title",
-      "family_id": "3.4",
-      "family_name": "Configuration Management",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.4.3"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.4.3"
-        }
-      ]
-    },
-    {
-      "id": "3.4.4",
-      "title": "Control 3.4.4 Title",
-      "family_id": "3.4",
-      "family_name": "Configuration Management",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.4.4"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.4.4"
-        }
-      ]
-    },
-    {
-      "id": "3.4.5",
-      "title": "Control 3.4.5 Title",
-      "family_id": "3.4",
-      "family_name": "Configuration Management",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.4.5"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.4.5"
-        }
-      ]
-    },
-    {
-      "id": "3.4.6",
-      "title": "Control 3.4.6 Title",
-      "family_id": "3.4",
-      "family_name": "Configuration Management",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.4.6"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.4.6"
-        }
-      ]
-    },
-    {
-      "id": "3.4.7",
-      "title": "Control 3.4.7 Title",
-      "family_id": "3.4",
-      "family_name": "Configuration Management",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.4.7"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.4.7"
-        }
-      ]
-    },
-    {
-      "id": "3.4.8",
-      "title": "Control 3.4.8 Title",
-      "family_id": "3.4",
-      "family_name": "Configuration Management",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.4.8"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.4.8"
-        }
-      ]
-    },
-    {
-      "id": "3.4.9",
-      "title": "Control 3.4.9 Title",
-      "family_id": "3.4",
-      "family_name": "Configuration Management",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.4.9"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.4.9"
-        }
-      ]
-    },
-    {
-      "id": "3.5.1",
-      "title": "Control 3.5.1 Title",
-      "family_id": "3.5",
-      "family_name": "Identification and Authentication",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.5.1"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.5.1"
-        }
-      ]
-    },
-    {
-      "id": "3.5.2",
-      "title": "Control 3.5.2 Title",
-      "family_id": "3.5",
-      "family_name": "Identification and Authentication",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.5.2"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.5.2"
-        }
-      ]
-    },
-    {
-      "id": "3.5.3",
-      "title": "Control 3.5.3 Title",
-      "family_id": "3.5",
-      "family_name": "Identification and Authentication",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.5.3"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.5.3"
-        }
-      ]
-    },
-    {
-      "id": "3.5.4",
-      "title": "Control 3.5.4 Title",
-      "family_id": "3.5",
-      "family_name": "Identification and Authentication",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.5.4"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.5.4"
-        }
-      ]
-    },
-    {
-      "id": "3.5.5",
-      "title": "Control 3.5.5 Title",
-      "family_id": "3.5",
-      "family_name": "Identification and Authentication",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.5.5"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.5.5"
-        }
-      ]
-    },
-    {
-      "id": "3.5.6",
-      "title": "Control 3.5.6 Title",
-      "family_id": "3.5",
-      "family_name": "Identification and Authentication",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.5.6"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.5.6"
-        }
-      ]
-    },
-    {
-      "id": "3.5.7",
-      "title": "Control 3.5.7 Title",
-      "family_id": "3.5",
-      "family_name": "Identification and Authentication",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.5.7"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.5.7"
-        }
-      ]
-    },
-    {
-      "id": "3.5.8",
-      "title": "Control 3.5.8 Title",
-      "family_id": "3.5",
-      "family_name": "Identification and Authentication",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.5.8"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.5.8"
-        }
-      ]
-    },
-    {
-      "id": "3.5.9",
-      "title": "Control 3.5.9 Title",
-      "family_id": "3.5",
-      "family_name": "Identification and Authentication",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.5.9"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.5.9"
-        }
-      ]
-    },
-    {
-      "id": "3.5.10",
-      "title": "Control 3.5.10 Title",
-      "family_id": "3.5",
-      "family_name": "Identification and Authentication",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.5.10"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.5.10"
-        }
-      ]
-    },
-    {
-      "id": "3.5.11",
-      "title": "Control 3.5.11 Title",
-      "family_id": "3.5",
-      "family_name": "Identification and Authentication",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.5.11"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.5.11"
-        }
-      ]
-    },
-    {
-      "id": "3.6.1",
-      "title": "Control 3.6.1 Title",
-      "family_id": "3.6",
-      "family_name": "Incident Response",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.6.1"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.6.1"
-        }
-      ]
-    },
-    {
-      "id": "3.6.2",
-      "title": "Control 3.6.2 Title",
-      "family_id": "3.6",
-      "family_name": "Incident Response",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.6.2"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.6.2"
-        }
-      ]
-    },
-    {
-      "id": "3.6.3",
-      "title": "Control 3.6.3 Title",
-      "family_id": "3.6",
-      "family_name": "Incident Response",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.6.3"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.6.3"
-        }
-      ]
-    },
-    {
-      "id": "3.7.1",
-      "title": "Control 3.7.1 Title",
-      "family_id": "3.7",
-      "family_name": "Maintenance",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.7.1"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.7.1"
-        }
-      ]
-    },
-    {
-      "id": "3.7.2",
-      "title": "Control 3.7.2 Title",
-      "family_id": "3.7",
-      "family_name": "Maintenance",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.7.2"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.7.2"
-        }
-      ]
-    },
-    {
-      "id": "3.8.1",
-      "title": "Control 3.8.1 Title",
-      "family_id": "3.8",
-      "family_name": "Media Protection",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.8.1"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.8.1"
-        }
-      ]
-    },
-    {
-      "id": "3.8.2",
-      "title": "Control 3.8.2 Title",
-      "family_id": "3.8",
-      "family_name": "Media Protection",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.8.2"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.8.2"
-        }
-      ]
-    },
-    {
-      "id": "3.8.3",
-      "title": "Control 3.8.3 Title",
-      "family_id": "3.8",
-      "family_name": "Media Protection",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.8.3"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.8.3"
-        }
-      ]
-    },
-    {
-      "id": "3.8.4",
-      "title": "Control 3.8.4 Title",
-      "family_id": "3.8",
-      "family_name": "Media Protection",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.8.4"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.8.4"
-        }
-      ]
-    },
-    {
-      "id": "3.8.5",
-      "title": "Control 3.8.5 Title",
-      "family_id": "3.8",
-      "family_name": "Media Protection",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.8.5"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.8.5"
-        }
-      ]
-    },
-    {
-      "id": "3.8.6",
-      "title": "Control 3.8.6 Title",
-      "family_id": "3.8",
-      "family_name": "Media Protection",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.8.6"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.8.6"
-        }
-      ]
-    },
-    {
-      "id": "3.8.7",
-      "title": "Control 3.8.7 Title",
-      "family_id": "3.8",
-      "family_name": "Media Protection",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.8.7"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.8.7"
-        }
-      ]
-    },
-    {
-      "id": "3.8.8",
-      "title": "Control 3.8.8 Title",
-      "family_id": "3.8",
-      "family_name": "Media Protection",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.8.8"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.8.8"
-        }
-      ]
-    },
-    {
-      "id": "3.8.9",
-      "title": "Control 3.8.9 Title",
-      "family_id": "3.8",
-      "family_name": "Media Protection",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.8.9"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.8.9"
-        }
-      ]
-    },
-    {
-      "id": "3.9.1",
-      "title": "Control 3.9.1 Title",
-      "family_id": "3.9",
-      "family_name": "Personnel Security",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.9.1"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.9.1"
-        }
-      ]
-    },
-    {
-      "id": "3.9.2",
-      "title": "Control 3.9.2 Title",
-      "family_id": "3.9",
-      "family_name": "Personnel Security",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.9.2"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.9.2"
-        }
-      ]
-    },
-    {
-      "id": "3.10.1",
-      "title": "Control 3.10.1 Title",
-      "family_id": "3.10",
-      "family_name": "Physical Protection",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.10.1"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.10.1"
-        }
-      ]
-    },
-    {
-      "id": "3.10.2",
-      "title": "Control 3.10.2 Title",
-      "family_id": "3.10",
-      "family_name": "Physical Protection",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.10.2"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.10.2"
-        }
-      ]
-    },
-    {
-      "id": "3.10.3",
-      "title": "Control 3.10.3 Title",
-      "family_id": "3.10",
-      "family_name": "Physical Protection",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.10.3"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.10.3"
-        }
-      ]
-    },
-    {
-      "id": "3.10.4",
-      "title": "Control 3.10.4 Title",
-      "family_id": "3.10",
-      "family_name": "Physical Protection",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.10.4"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.10.4"
-        }
-      ]
-    },
-    {
-      "id": "3.10.5",
-      "title": "Control 3.10.5 Title",
-      "family_id": "3.10",
-      "family_name": "Physical Protection",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.10.5"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.10.5"
-        }
-      ]
-    },
-    {
-      "id": "3.10.6",
-      "title": "Control 3.10.6 Title",
-      "family_id": "3.10",
-      "family_name": "Physical Protection",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.10.6"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.10.6"
-        }
-      ]
-    },
-    {
-      "id": "3.11.1",
-      "title": "Control 3.11.1 Title",
-      "family_id": "3.11",
-      "family_name": "Risk Assessment",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.11.1"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.11.1"
-        }
-      ]
-    },
-    {
-      "id": "3.11.2",
-      "title": "Control 3.11.2 Title",
-      "family_id": "3.11",
-      "family_name": "Risk Assessment",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.11.2"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.11.2"
-        }
-      ]
-    },
-    {
-      "id": "3.11.3",
-      "title": "Control 3.11.3 Title",
-      "family_id": "3.11",
-      "family_name": "Risk Assessment",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.11.3"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.11.3"
-        }
-      ]
-    },
-    {
-      "id": "3.12.1",
-      "title": "Control 3.12.1 Title",
-      "family_id": "3.12",
-      "family_name": "Security Assessment",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.12.1"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.12.1"
-        }
-      ]
-    },
-    {
-      "id": "3.12.2",
-      "title": "Control 3.12.2 Title",
-      "family_id": "3.12",
-      "family_name": "Security Assessment",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.12.2"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.12.2"
-        }
-      ]
-    },
-    {
-      "id": "3.12.3",
-      "title": "Control 3.12.3 Title",
-      "family_id": "3.12",
-      "family_name": "Security Assessment",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.12.3"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.12.3"
-        }
-      ]
-    },
-    {
-      "id": "3.13.1",
-      "title": "Control 3.13.1 Title",
-      "family_id": "3.13",
-      "family_name": "System and Communications Protection",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.13.1"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.13.1"
-        }
-      ]
-    },
-    {
-      "id": "3.13.2",
-      "title": "Control 3.13.2 Title",
-      "family_id": "3.13",
-      "family_name": "System and Communications Protection",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.13.2"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.13.2"
-        }
-      ]
-    },
-    {
-      "id": "3.13.3",
-      "title": "Control 3.13.3 Title",
-      "family_id": "3.13",
-      "family_name": "System and Communications Protection",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.13.3"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.13.3"
-        }
-      ]
-    },
-    {
-      "id": "3.13.4",
-      "title": "Control 3.13.4 Title",
-      "family_id": "3.13",
-      "family_name": "System and Communications Protection",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.13.4"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.13.4"
-        }
-      ]
-    },
-    {
-      "id": "3.13.5",
-      "title": "Control 3.13.5 Title",
-      "family_id": "3.13",
-      "family_name": "System and Communications Protection",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.13.5"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.13.5"
-        }
-      ]
-    },
-    {
-      "id": "3.13.6",
-      "title": "Control 3.13.6 Title",
-      "family_id": "3.13",
-      "family_name": "System and Communications Protection",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.13.6"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.13.6"
-        }
-      ]
-    },
-    {
-      "id": "3.13.7",
-      "title": "Control 3.13.7 Title",
-      "family_id": "3.13",
-      "family_name": "System and Communications Protection",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.13.7"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.13.7"
-        }
-      ]
-    },
-    {
-      "id": "3.13.8",
-      "title": "Control 3.13.8 Title",
-      "family_id": "3.13",
-      "family_name": "System and Communications Protection",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.13.8"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.13.8"
-        }
-      ]
-    },
-    {
-      "id": "3.13.9",
-      "title": "Control 3.13.9 Title",
-      "family_id": "3.13",
-      "family_name": "System and Communications Protection",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.13.9"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.13.9"
-        }
-      ]
-    },
-    {
-      "id": "3.13.10",
-      "title": "Control 3.13.10 Title",
-      "family_id": "3.13",
-      "family_name": "System and Communications Protection",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.13.10"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.13.10"
-        }
-      ]
-    },
-    {
-      "id": "3.13.11",
-      "title": "Control 3.13.11 Title",
-      "family_id": "3.13",
-      "family_name": "System and Communications Protection",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.13.11"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.13.11"
-        }
-      ]
-    },
-    {
-      "id": "3.13.12",
-      "title": "Control 3.13.12 Title",
-      "family_id": "3.13",
-      "family_name": "System and Communications Protection",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.13.12"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.13.12"
-        }
-      ]
-    },
-    {
-      "id": "3.14.1",
-      "title": "Control 3.14.1 Title",
-      "family_id": "3.14",
-      "family_name": "System and Information Integrity",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.14.1"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.14.1"
-        }
-      ]
-    },
-    {
-      "id": "3.14.2",
-      "title": "Control 3.14.2 Title",
-      "family_id": "3.14",
-      "family_name": "System and Information Integrity",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.14.2"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.14.2"
-        }
-      ]
-    },
-    {
-      "id": "3.14.3",
-      "title": "Control 3.14.3 Title",
-      "family_id": "3.14",
-      "family_name": "System and Information Integrity",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.14.3"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.14.3"
-        }
-      ]
-    },
-    {
-      "id": "3.14.4",
-      "title": "Control 3.14.4 Title",
-      "family_id": "3.14",
-      "family_name": "System and Information Integrity",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.14.4"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.14.4"
-        }
-      ]
-    },
-    {
-      "id": "3.14.5",
-      "title": "Control 3.14.5 Title",
-      "family_id": "3.14",
-      "family_name": "System and Information Integrity",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.14.5"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.14.5"
-        }
-      ]
-    },
-    {
-      "id": "3.14.6",
-      "title": "Control 3.14.6 Title",
-      "family_id": "3.14",
-      "family_name": "System and Information Integrity",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.14.6"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.14.6"
-        }
-      ]
-    },
-    {
-      "id": "3.14.7",
-      "title": "Control 3.14.7 Title",
-      "family_id": "3.14",
-      "family_name": "System and Information Integrity",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.14.7"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.14.7"
-        }
-      ]
-    },
-    {
-      "id": "3.14.8",
-      "title": "Control 3.14.8 Title",
-      "family_id": "3.14",
-      "family_name": "System and Information Integrity",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.14.8"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.14.8"
-        }
-      ]
-    },
-    {
-      "id": "3.14.9",
-      "title": "Control 3.14.9 Title",
-      "family_id": "3.14",
-      "family_name": "System and Information Integrity",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.14.9"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.14.9"
-        }
-      ]
-    },
-    {
-      "id": "3.14.10",
-      "title": "Control 3.14.10 Title",
-      "family_id": "3.14",
-      "family_name": "System and Information Integrity",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.14.10"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.14.10"
-        }
-      ]
-    },
-    {
-      "id": "3.14.11",
-      "title": "Control 3.14.11 Title",
-      "family_id": "3.14",
-      "family_name": "System and Information Integrity",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.14.11"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.14.11"
-        }
-      ]
-    },
-    {
-      "id": "3.14.12",
-      "title": "Control 3.14.12 Title",
-      "family_id": "3.14",
-      "family_name": "System and Information Integrity",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.14.12"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.14.12"
-        }
-      ]
-    },
-    {
-      "id": "3.14.13",
-      "title": "Control 3.14.13 Title",
-      "family_id": "3.14",
-      "family_name": "System and Information Integrity",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.14.13"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.14.13"
-        }
-      ]
-    },
-    {
-      "id": "3.14.14",
-      "title": "Control 3.14.14 Title",
-      "family_id": "3.14",
-      "family_name": "System and Information Integrity",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.14.14"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.14.14"
-        }
-      ]
-    },
-    {
-      "id": "3.14.15",
-      "title": "Control 3.14.15 Title",
-      "family_id": "3.14",
-      "family_name": "System and Information Integrity",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.14.15"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.14.15"
-        }
-      ]
-    },
-    {
-      "id": "3.14.16",
-      "title": "Control 3.14.16 Title",
-      "family_id": "3.14",
-      "family_name": "System and Information Integrity",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Objective A for 3.14.16"
-        },
-        {
-          "id": "b",
-          "title": "Objective B for 3.14.16"
-        }
-      ]
-    }
-  ]
-  
+  {
+    "id": "3.1.1",
+    "title": "Control 3.1.1 Title",
+    "family_id": "3.1",
+    "family_name": "Access Control",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.1.1a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.1.1b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.1.2",
+    "title": "Control 3.1.2 Title",
+    "family_id": "3.1",
+    "family_name": "Access Control",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.1.2a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.1.2b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.1.3",
+    "title": "Control 3.1.3 Title",
+    "family_id": "3.1",
+    "family_name": "Access Control",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.1.3a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.1.3b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.1.4",
+    "title": "Control 3.1.4 Title",
+    "family_id": "3.1",
+    "family_name": "Access Control",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.1.4a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.1.4b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.1.5",
+    "title": "Control 3.1.5 Title",
+    "family_id": "3.1",
+    "family_name": "Access Control",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.1.5a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.1.5b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.1.6",
+    "title": "Control 3.1.6 Title",
+    "family_id": "3.1",
+    "family_name": "Access Control",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.1.6a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.1.6b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.1.7",
+    "title": "Control 3.1.7 Title",
+    "family_id": "3.1",
+    "family_name": "Access Control",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.1.7a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.1.7b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.1.8",
+    "title": "Control 3.1.8 Title",
+    "family_id": "3.1",
+    "family_name": "Access Control",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.1.8a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.1.8b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.2.1",
+    "title": "Control 3.2.1 Title",
+    "family_id": "3.2",
+    "family_name": "Awareness and Training",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.2.1a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.2.1b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.2.2",
+    "title": "Control 3.2.2 Title",
+    "family_id": "3.2",
+    "family_name": "Awareness and Training",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.2.2a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.2.2b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.2.3",
+    "title": "Control 3.2.3 Title",
+    "family_id": "3.2",
+    "family_name": "Awareness and Training",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.2.3a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.2.3b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.2.4",
+    "title": "Control 3.2.4 Title",
+    "family_id": "3.2",
+    "family_name": "Awareness and Training",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.2.4a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.2.4b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.2.5",
+    "title": "Control 3.2.5 Title",
+    "family_id": "3.2",
+    "family_name": "Awareness and Training",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.2.5a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.2.5b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.2.6",
+    "title": "Control 3.2.6 Title",
+    "family_id": "3.2",
+    "family_name": "Awareness and Training",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.2.6a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.2.6b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.2.7",
+    "title": "Control 3.2.7 Title",
+    "family_id": "3.2",
+    "family_name": "Awareness and Training",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.2.7a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.2.7b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.2.8",
+    "title": "Control 3.2.8 Title",
+    "family_id": "3.2",
+    "family_name": "Awareness and Training",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.2.8a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.2.8b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.3.1",
+    "title": "Control 3.3.1 Title",
+    "family_id": "3.3",
+    "family_name": "Audit and Accountability",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.3.1a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.3.1b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.3.2",
+    "title": "Control 3.3.2 Title",
+    "family_id": "3.3",
+    "family_name": "Audit and Accountability",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.3.2a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.3.2b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.3.3",
+    "title": "Control 3.3.3 Title",
+    "family_id": "3.3",
+    "family_name": "Audit and Accountability",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.3.3a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.3.3b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.3.4",
+    "title": "Control 3.3.4 Title",
+    "family_id": "3.3",
+    "family_name": "Audit and Accountability",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.3.4a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.3.4b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.3.5",
+    "title": "Control 3.3.5 Title",
+    "family_id": "3.3",
+    "family_name": "Audit and Accountability",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.3.5a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.3.5b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.3.6",
+    "title": "Control 3.3.6 Title",
+    "family_id": "3.3",
+    "family_name": "Audit and Accountability",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.3.6a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.3.6b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.3.7",
+    "title": "Control 3.3.7 Title",
+    "family_id": "3.3",
+    "family_name": "Audit and Accountability",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.3.7a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.3.7b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.3.8",
+    "title": "Control 3.3.8 Title",
+    "family_id": "3.3",
+    "family_name": "Audit and Accountability",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.3.8a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.3.8b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.4.1",
+    "title": "Control 3.4.1 Title",
+    "family_id": "3.4",
+    "family_name": "Configuration Management",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.4.1a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.4.1b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.4.2",
+    "title": "Control 3.4.2 Title",
+    "family_id": "3.4",
+    "family_name": "Configuration Management",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.4.2a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.4.2b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.4.3",
+    "title": "Control 3.4.3 Title",
+    "family_id": "3.4",
+    "family_name": "Configuration Management",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.4.3a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.4.3b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.4.4",
+    "title": "Control 3.4.4 Title",
+    "family_id": "3.4",
+    "family_name": "Configuration Management",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.4.4a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.4.4b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.4.5",
+    "title": "Control 3.4.5 Title",
+    "family_id": "3.4",
+    "family_name": "Configuration Management",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.4.5a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.4.5b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.4.6",
+    "title": "Control 3.4.6 Title",
+    "family_id": "3.4",
+    "family_name": "Configuration Management",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.4.6a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.4.6b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.4.7",
+    "title": "Control 3.4.7 Title",
+    "family_id": "3.4",
+    "family_name": "Configuration Management",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.4.7a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.4.7b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.4.8",
+    "title": "Control 3.4.8 Title",
+    "family_id": "3.4",
+    "family_name": "Configuration Management",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.4.8a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.4.8b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.5.1",
+    "title": "Control 3.5.1 Title",
+    "family_id": "3.5",
+    "family_name": "Identification and Authentication",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.5.1a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.5.1b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.5.2",
+    "title": "Control 3.5.2 Title",
+    "family_id": "3.5",
+    "family_name": "Identification and Authentication",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.5.2a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.5.2b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.5.3",
+    "title": "Control 3.5.3 Title",
+    "family_id": "3.5",
+    "family_name": "Identification and Authentication",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.5.3a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.5.3b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.5.4",
+    "title": "Control 3.5.4 Title",
+    "family_id": "3.5",
+    "family_name": "Identification and Authentication",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.5.4a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.5.4b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.5.5",
+    "title": "Control 3.5.5 Title",
+    "family_id": "3.5",
+    "family_name": "Identification and Authentication",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.5.5a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.5.5b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.5.6",
+    "title": "Control 3.5.6 Title",
+    "family_id": "3.5",
+    "family_name": "Identification and Authentication",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.5.6a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.5.6b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.5.7",
+    "title": "Control 3.5.7 Title",
+    "family_id": "3.5",
+    "family_name": "Identification and Authentication",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.5.7a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.5.7b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.5.8",
+    "title": "Control 3.5.8 Title",
+    "family_id": "3.5",
+    "family_name": "Identification and Authentication",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.5.8a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.5.8b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.6.1",
+    "title": "Control 3.6.1 Title",
+    "family_id": "3.6",
+    "family_name": "Incident Response",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.6.1a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.6.1b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.6.2",
+    "title": "Control 3.6.2 Title",
+    "family_id": "3.6",
+    "family_name": "Incident Response",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.6.2a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.6.2b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.6.3",
+    "title": "Control 3.6.3 Title",
+    "family_id": "3.6",
+    "family_name": "Incident Response",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.6.3a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.6.3b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.6.4",
+    "title": "Control 3.6.4 Title",
+    "family_id": "3.6",
+    "family_name": "Incident Response",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.6.4a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.6.4b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.6.5",
+    "title": "Control 3.6.5 Title",
+    "family_id": "3.6",
+    "family_name": "Incident Response",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.6.5a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.6.5b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.6.6",
+    "title": "Control 3.6.6 Title",
+    "family_id": "3.6",
+    "family_name": "Incident Response",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.6.6a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.6.6b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.6.7",
+    "title": "Control 3.6.7 Title",
+    "family_id": "3.6",
+    "family_name": "Incident Response",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.6.7a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.6.7b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.6.8",
+    "title": "Control 3.6.8 Title",
+    "family_id": "3.6",
+    "family_name": "Incident Response",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.6.8a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.6.8b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.7.1",
+    "title": "Control 3.7.1 Title",
+    "family_id": "3.7",
+    "family_name": "Maintenance",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.7.1a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.7.1b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.7.2",
+    "title": "Control 3.7.2 Title",
+    "family_id": "3.7",
+    "family_name": "Maintenance",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.7.2a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.7.2b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.7.3",
+    "title": "Control 3.7.3 Title",
+    "family_id": "3.7",
+    "family_name": "Maintenance",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.7.3a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.7.3b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.7.4",
+    "title": "Control 3.7.4 Title",
+    "family_id": "3.7",
+    "family_name": "Maintenance",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.7.4a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.7.4b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.7.5",
+    "title": "Control 3.7.5 Title",
+    "family_id": "3.7",
+    "family_name": "Maintenance",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.7.5a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.7.5b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.7.6",
+    "title": "Control 3.7.6 Title",
+    "family_id": "3.7",
+    "family_name": "Maintenance",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.7.6a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.7.6b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.7.7",
+    "title": "Control 3.7.7 Title",
+    "family_id": "3.7",
+    "family_name": "Maintenance",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.7.7a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.7.7b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.7.8",
+    "title": "Control 3.7.8 Title",
+    "family_id": "3.7",
+    "family_name": "Maintenance",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.7.8a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.7.8b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.8.1",
+    "title": "Control 3.8.1 Title",
+    "family_id": "3.8",
+    "family_name": "Media Protection",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.8.1a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.8.1b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.8.2",
+    "title": "Control 3.8.2 Title",
+    "family_id": "3.8",
+    "family_name": "Media Protection",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.8.2a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.8.2b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.8.3",
+    "title": "Control 3.8.3 Title",
+    "family_id": "3.8",
+    "family_name": "Media Protection",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.8.3a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.8.3b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.8.4",
+    "title": "Control 3.8.4 Title",
+    "family_id": "3.8",
+    "family_name": "Media Protection",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.8.4a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.8.4b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.8.5",
+    "title": "Control 3.8.5 Title",
+    "family_id": "3.8",
+    "family_name": "Media Protection",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.8.5a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.8.5b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.8.6",
+    "title": "Control 3.8.6 Title",
+    "family_id": "3.8",
+    "family_name": "Media Protection",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.8.6a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.8.6b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.8.7",
+    "title": "Control 3.8.7 Title",
+    "family_id": "3.8",
+    "family_name": "Media Protection",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.8.7a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.8.7b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.8.8",
+    "title": "Control 3.8.8 Title",
+    "family_id": "3.8",
+    "family_name": "Media Protection",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.8.8a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.8.8b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.9.1",
+    "title": "Control 3.9.1 Title",
+    "family_id": "3.9",
+    "family_name": "Personnel Security",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.9.1a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.9.1b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.9.2",
+    "title": "Control 3.9.2 Title",
+    "family_id": "3.9",
+    "family_name": "Personnel Security",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.9.2a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.9.2b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.9.3",
+    "title": "Control 3.9.3 Title",
+    "family_id": "3.9",
+    "family_name": "Personnel Security",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.9.3a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.9.3b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.9.4",
+    "title": "Control 3.9.4 Title",
+    "family_id": "3.9",
+    "family_name": "Personnel Security",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.9.4a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.9.4b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.9.5",
+    "title": "Control 3.9.5 Title",
+    "family_id": "3.9",
+    "family_name": "Personnel Security",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.9.5a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.9.5b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.9.6",
+    "title": "Control 3.9.6 Title",
+    "family_id": "3.9",
+    "family_name": "Personnel Security",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.9.6a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.9.6b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.9.7",
+    "title": "Control 3.9.7 Title",
+    "family_id": "3.9",
+    "family_name": "Personnel Security",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.9.7a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.9.7b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.9.8",
+    "title": "Control 3.9.8 Title",
+    "family_id": "3.9",
+    "family_name": "Personnel Security",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.9.8a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.9.8b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.10.1",
+    "title": "Control 3.10.1 Title",
+    "family_id": "3.10",
+    "family_name": "Physical Protection",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.10.1a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.10.1b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.10.2",
+    "title": "Control 3.10.2 Title",
+    "family_id": "3.10",
+    "family_name": "Physical Protection",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.10.2a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.10.2b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.10.3",
+    "title": "Control 3.10.3 Title",
+    "family_id": "3.10",
+    "family_name": "Physical Protection",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.10.3a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.10.3b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.10.4",
+    "title": "Control 3.10.4 Title",
+    "family_id": "3.10",
+    "family_name": "Physical Protection",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.10.4a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.10.4b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.10.5",
+    "title": "Control 3.10.5 Title",
+    "family_id": "3.10",
+    "family_name": "Physical Protection",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.10.5a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.10.5b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.10.6",
+    "title": "Control 3.10.6 Title",
+    "family_id": "3.10",
+    "family_name": "Physical Protection",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.10.6a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.10.6b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.10.7",
+    "title": "Control 3.10.7 Title",
+    "family_id": "3.10",
+    "family_name": "Physical Protection",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.10.7a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.10.7b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.10.8",
+    "title": "Control 3.10.8 Title",
+    "family_id": "3.10",
+    "family_name": "Physical Protection",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.10.8a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.10.8b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.11.1",
+    "title": "Control 3.11.1 Title",
+    "family_id": "3.11",
+    "family_name": "Risk Assessment",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.11.1a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.11.1b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.11.2",
+    "title": "Control 3.11.2 Title",
+    "family_id": "3.11",
+    "family_name": "Risk Assessment",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.11.2a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.11.2b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.11.3",
+    "title": "Control 3.11.3 Title",
+    "family_id": "3.11",
+    "family_name": "Risk Assessment",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.11.3a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.11.3b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.11.4",
+    "title": "Control 3.11.4 Title",
+    "family_id": "3.11",
+    "family_name": "Risk Assessment",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.11.4a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.11.4b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.11.5",
+    "title": "Control 3.11.5 Title",
+    "family_id": "3.11",
+    "family_name": "Risk Assessment",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.11.5a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.11.5b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.11.6",
+    "title": "Control 3.11.6 Title",
+    "family_id": "3.11",
+    "family_name": "Risk Assessment",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.11.6a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.11.6b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.11.7",
+    "title": "Control 3.11.7 Title",
+    "family_id": "3.11",
+    "family_name": "Risk Assessment",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.11.7a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.11.7b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.11.8",
+    "title": "Control 3.11.8 Title",
+    "family_id": "3.11",
+    "family_name": "Risk Assessment",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.11.8a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.11.8b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.12.1",
+    "title": "Control 3.12.1 Title",
+    "family_id": "3.12",
+    "family_name": "Security Assessment",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.12.1a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.12.1b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.12.2",
+    "title": "Control 3.12.2 Title",
+    "family_id": "3.12",
+    "family_name": "Security Assessment",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.12.2a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.12.2b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.12.3",
+    "title": "Control 3.12.3 Title",
+    "family_id": "3.12",
+    "family_name": "Security Assessment",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.12.3a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.12.3b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.12.4",
+    "title": "Control 3.12.4 Title",
+    "family_id": "3.12",
+    "family_name": "Security Assessment",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.12.4a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.12.4b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.12.5",
+    "title": "Control 3.12.5 Title",
+    "family_id": "3.12",
+    "family_name": "Security Assessment",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.12.5a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.12.5b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.12.6",
+    "title": "Control 3.12.6 Title",
+    "family_id": "3.12",
+    "family_name": "Security Assessment",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.12.6a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.12.6b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.12.7",
+    "title": "Control 3.12.7 Title",
+    "family_id": "3.12",
+    "family_name": "Security Assessment",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.12.7a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.12.7b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.12.8",
+    "title": "Control 3.12.8 Title",
+    "family_id": "3.12",
+    "family_name": "Security Assessment",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.12.8a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.12.8b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.13.1",
+    "title": "Control 3.13.1 Title",
+    "family_id": "3.13",
+    "family_name": "System and Communications Protection",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.13.1a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.13.1b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.13.2",
+    "title": "Control 3.13.2 Title",
+    "family_id": "3.13",
+    "family_name": "System and Communications Protection",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.13.2a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.13.2b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.13.3",
+    "title": "Control 3.13.3 Title",
+    "family_id": "3.13",
+    "family_name": "System and Communications Protection",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.13.3a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.13.3b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.13.4",
+    "title": "Control 3.13.4 Title",
+    "family_id": "3.13",
+    "family_name": "System and Communications Protection",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.13.4a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.13.4b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.13.5",
+    "title": "Control 3.13.5 Title",
+    "family_id": "3.13",
+    "family_name": "System and Communications Protection",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.13.5a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.13.5b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.13.6",
+    "title": "Control 3.13.6 Title",
+    "family_id": "3.13",
+    "family_name": "System and Communications Protection",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.13.6a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.13.6b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.13.7",
+    "title": "Control 3.13.7 Title",
+    "family_id": "3.13",
+    "family_name": "System and Communications Protection",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.13.7a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.13.7b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.13.8",
+    "title": "Control 3.13.8 Title",
+    "family_id": "3.13",
+    "family_name": "System and Communications Protection",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.13.8a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.13.8b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.14.1",
+    "title": "Control 3.14.1 Title",
+    "family_id": "3.14",
+    "family_name": "System and Information Integrity",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.14.1a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.14.1b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.14.2",
+    "title": "Control 3.14.2 Title",
+    "family_id": "3.14",
+    "family_name": "System and Information Integrity",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.14.2a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.14.2b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.14.3",
+    "title": "Control 3.14.3 Title",
+    "family_id": "3.14",
+    "family_name": "System and Information Integrity",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.14.3a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.14.3b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.14.4",
+    "title": "Control 3.14.4 Title",
+    "family_id": "3.14",
+    "family_name": "System and Information Integrity",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.14.4a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.14.4b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.14.5",
+    "title": "Control 3.14.5 Title",
+    "family_id": "3.14",
+    "family_name": "System and Information Integrity",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.14.5a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.14.5b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.14.6",
+    "title": "Control 3.14.6 Title",
+    "family_id": "3.14",
+    "family_name": "System and Information Integrity",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.14.6a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.14.6b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.14.7",
+    "title": "Control 3.14.7 Title",
+    "family_id": "3.14",
+    "family_name": "System and Information Integrity",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.14.7a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.14.7b Subcontrol Title"
+      }
+    ]
+  },
+  {
+    "id": "3.14.8",
+    "title": "Control 3.14.8 Title",
+    "family_id": "3.14",
+    "family_name": "System and Information Integrity",
+    "subs": [
+      {
+        "id": "a",
+        "title": "3.14.8a Subcontrol Title"
+      },
+      {
+        "id": "b",
+        "title": "3.14.8b Subcontrol Title"
+      }
+    ]
+  }
+]

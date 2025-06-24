@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Resume | Jessica Rojas</title>
+  <title>Jessica Rojas | Resume</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="style.css" />
 </head>
@@ -10,24 +10,96 @@
   <nav>
     <a href="index.html">Home</a>
     <a href="projects.html">Projects</a>
-    <a href="resume.html">Resume</a>
+    <a href="resume.html" class="active">Resume</a>
     <a href="timeline.html">Timeline</a>
     <a href="cybersecurity.html">Cybersecurity</a>
     <a href="contact.html">Contact</a>
     <button id="darkModeToggle">🌙 Dark Mode</button>
   </nav>
 
-  <section class="resume-section reveal">
-    <h1>My Resume</h1>
-    <a href="resume.pdf" download class="resume-download">⬇ Download Resume</a>
-
-    <iframe src="resume.pdf">
-      <p class="iframe-fallback">
-        This browser does not support embedded PDFs.
-        Please <a href="resume.pdf" download>download the PDF</a> to view it.
+  <main class="container resume-section">
+    <section class="reveal">
+      <h1 class="text-center">Resume</h1>
+      <p class="text-center">
+        Download my resume as a PDF or browse the highlights below.
       </p>
-    </iframe>
-  </section>
+      <div class="text-center">
+        <a href="resume.pdf" download class="btn">📄 Download PDF</a>
+      </div>
+    </section>
+
+    <section class="reveal">
+      <h2>Summary</h2>
+      <p>
+        Enterprise Systems Manager and Cybersecurity Professional with a background in system protection, RMF, and IT compliance. Proven success in CMMC, NIST 800-171, and ISO 27001 environments. Experienced U.S. Army Veteran with a mission-driven mindset and an active Secret clearance.
+      </p>
+    </section>
+
+    <section class="reveal">
+      <h2>Certifications</h2>
+      <ul>
+        <li>CISSP – Certified Information Systems Security Professional (ISC2)</li>
+        <li>CompTIA Security+</li>
+        <li>CEH – Certified Ethical Hacker (EC-Council)</li>
+        <li>ECES – Certified Encryption Specialist (EC-Council)</li>
+      </ul>
+    </section>
+
+    <section class="reveal">
+      <h2>Education</h2>
+      <ul>
+        <li><strong>Master of Cybersecurity and Information Assurance</strong>, Western Governors University</li>
+        <li><strong>B.S. Computer Science, Minor in Military Science</strong>, Weber State University</li>
+      </ul>
+    </section>
+
+    <section class="reveal">
+      <h2>Professional Experience</h2>
+      <div class="job">
+        <h3>Enterprise Systems Manager – GMRE, Inc.</h3>
+        <p class="job-date">2025 – Present</p>
+        <ul>
+          <li>Lead CMMC Level 3 implementation and AI governance framework efforts.</li>
+          <li>Managed system architecture, security audits, and team oversight.</li>
+        </ul>
+      </div>
+
+      <div class="job">
+        <h3>Cybersecurity Analyst – GMRE, Inc.</h3>
+        <p class="job-date">2022 – 2024</p>
+        <ul>
+          <li>Conducted risk assessments and implemented NIST/CMMC controls.</li>
+          <li>Deployed tools like CrowdStrike Falcon, Sentinel, and Microsoft Defender ATP.</li>
+        </ul>
+      </div>
+
+      <div class="job">
+        <h3>Cybersecurity TA – Fullstack</h3>
+        <p class="job-date">2022 – Present</p>
+        <ul>
+          <li>Support and mentor students in cybersecurity labs, scripting, and compliance principles.</li>
+        </ul>
+      </div>
+
+      <div class="job">
+        <h3>Military Police – U.S. Army</h3>
+        <p class="job-date">2015 – 2022</p>
+        <ul>
+          <li>Provided critical infrastructure protection and team leadership.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="reveal">
+      <h2>Skills</h2>
+      <ul>
+        <li>Cybersecurity: CMMC, NIST 800-171, RMF, GRC, ISO 27001</li>
+        <li>Programming: Python, JavaScript, HTML, CSS, PowerShell</li>
+        <li>Tools: CrowdStrike, SentinelOne, Microsoft Azure, GitHub, FileCloud, Confluence</li>
+        <li>Soft Skills: Leadership, Communication, Team Management, Security Awareness</li>
+      </ul>
+    </section>
+  </main>
 
   <script src="script.js"></script>
 </body>
