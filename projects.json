@@ -1,19 +1,30 @@
 [
   {
-    "title": "Secure File Uploader",
-    "description": "Encrypted file upload and retrieval system using JavaScript.",
-    "github_url": "https://github.com/jessicarojas1/project1"
-  },
-  {
-    "title": "Dashboard Analytics",
-    "description": "Data visualization dashboard with real-time chart updates.",
-    "github_url": "https://github.com/jessicarojas1/project2"
-  },
-  {
     "title": "CMMC / NIST 800-171 Compliance Tracker",
-    "description": "A full-stack tool to monitor, track, and manage NIST 800-171 and CMMC control compliance, including evidence uploads and remediation tracking.",
-    "tech": ["Django", "React", "Chart.js", "PostgreSQL"],
+    "description": "A full-stack tool to monitor and manage NIST 800-171 and CMMC compliance, including evidence uploads, control status, and remediation tracking.",
     "image": "images/cmmc-tracker-thumbnail.png",
-    "link": "compliancetracker.html" 
+    "link": "compliancetracker.html",
+    "github_url": "https://github.com/yourusername/compliance-tracker"
+  },
+  {
+    "title": "Threat Intelligence Dashboard",
+    "description": "Cyber threat monitoring dashboard using JavaScript, Chart.js, and Python APIs to track and visualize threat trends over time.",
+    "image": "images/threat-dashboard.png",
+    "link": "#",
+    "github_url": "#"
+  },
+  {
+    "title": "Military Asset Tracker",
+    "description": "Custom-built logistics tool to manage and visualize tracked assets using secure web interfaces and encrypted backend services.",
+    "image": "images/asset-tracker.png",
+    "link": "#",
+    "github_url": "#"
+  },
+  {
+    "title": "Portfolio Website",
+    "description": "The site you're viewing now. Designed with HTML, CSS, JS and themed for cybersecurity professionals with modern UI and accessibility in mind.",
+    "image": "images/portfolio-thumb.png",
+    "link": "#",
+    "github_url": "#"
   }
 ]

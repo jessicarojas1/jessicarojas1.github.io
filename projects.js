@@ -4,22 +4,17 @@ fetch('projects.json')
     const container = document.getElementById('project-list');
     data.forEach(project => {
       const card = document.createElement('div');
-      card.className = 'project-card';
-      card.innerHTML = `<h3>${project.title}</h3><p>${project.description}</p><a href="${project.github_url}" target="_blank">View on GitHub</a>`;
+      card.className = 'project-card reveal';
+      card.innerHTML = `
+        <img src="${project.image}" alt="${project.title}" class="project-thumbnail" />
+        <div class="project-title">${project.title}</div>
+        <div class="project-desc">${project.description}</div>
+        <div class="project-links">
+          <a href="${project.link}" target="_blank">Live</a>
+          <a href="${project.github_url}" target="_blank">Code</a>
+        </div>
+      `;
       container.appendChild(card);
     });
-  });
-
-  // Example rendering (simplified)
-data.forEach(project => {
-  const card = `
-    <div class="project-card">
-      <img src="${project.image}" alt="${project.title}" />
-      <h3>${project.title}</h3>
-      <p>${project.description}</p>
-      <a href="${project.link}" class="btn">View Project</a>
-    </div>
-  `;
-  container.innerHTML += card;
-});
-
+  })
+  .catch(err => console.error('Error loading projects:', err));
