@@ -26,7 +26,7 @@
 
       <input type="text" id="searchInput" class="mb-6 w-full p-2 text-black rounded" placeholder="Search control families...">
 
-      <canvas id="familyPieChart" width="400" height="400" class="mb-6 animate-pulse"></canvas>
+      <canvas id="familyPieChart" width="400" height="400" class="mb-6"></canvas>
       <table id="familyTable" class="w-full bg-gray-800 text-sm text-white border border-green-400 rounded mb-6">
         <thead>
           <tr class="bg-green-900 text-green-300">
@@ -44,9 +44,9 @@
       <div id="controlView" class="hidden">
         <button id="backToChart" class="mb-4 bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded">← Back to Chart</button>
         <div class="mb-4">
-          <span class="inline-block bg-green-600 text-white px-2 py-1 rounded text-xs">Compliant</span>
+          <span class="inline-block bg-blue-600 text-white px-2 py-1 rounded text-xs">Compliant</span>
           <span class="inline-block bg-red-600 text-white px-2 py-1 rounded text-xs">Non-Compliant</span>
-          <span class="inline-block bg-blue-600 text-white px-2 py-1 rounded text-xs">In Progress</span>
+          <span class="inline-block bg-blue-300 text-white px-2 py-1 rounded text-xs">In Progress</span>
           <span class="inline-block bg-yellow-400 text-black px-2 py-1 rounded text-xs">POAM</span>
         </div>
         <div id="controlsList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
@@ -97,10 +97,10 @@
           const stored = JSON.parse(localStorage.getItem(subId) || '{}');
 
           const row = document.createElement('div');
-          row.className = 'mb-2 p-2 rounded bg-gray-800';
+          row.className = 'mb-4 p-3 rounded bg-gray-800';
 
           const desc = document.createElement('div');
-          desc.className = 'text-sm text-white';
+          desc.className = 'text-sm text-white mb-2';
           desc.textContent = `${sub.id} – ${sub.title}`;
           row.appendChild(desc);
 
@@ -115,10 +115,27 @@
           `;
           status.value = stored.status || '';
           status.onchange = () => {
-            localStorage.setItem(subId, JSON.stringify({ status: status.value }));
+            const notes = document.getElementById(`${subId}-notes`).value;
+            localStorage.setItem(subId, JSON.stringify({ status: status.value, notes: notes }));
             updateFamilyChart(allControls);
           };
           row.appendChild(status);
+
+          const notesLabel = document.createElement('label');
+          notesLabel.textContent = 'SSP Notes:';
+          notesLabel.className = 'block mt-2 text-xs text-gray-300';
+          row.appendChild(notesLabel);
+
+          const notesInput = document.createElement('textarea');
+          notesInput.id = `${subId}-notes`;
+          notesInput.className = 'w-full mt-1 p-2 text-sm text-black rounded';
+          notesInput.rows = 3;
+          notesInput.placeholder = 'Describe how this control is met...';
+          notesInput.value = stored.notes || '';
+          notesInput.onchange = () => {
+            localStorage.setItem(subId, JSON.stringify({ status: status.value, notes: notesInput.value }));
+          };
+          row.appendChild(notesInput);
 
           module.appendChild(row);
         });
@@ -142,31 +159,32 @@
       });
 
       const labels = Object.keys(familyMap).map(f => `Family ${f}`);
-      const rawData = Object.values(familyMap).map(v => v.total === 0 ? 0 : Math.round((v.compliant / v.total) * 100));
-      const hasData = rawData.some(v => v > 0);
-      const data = hasData ? rawData : rawData.map(() => 1);
-      const colors = data.map(val => `hsl(${val * 1.2}, 70%, 50%)`);
+      const data = Object.values(familyMap).map(fam => fam.total === 0 ? 0 : Math.round((fam.compliant / fam.total) * 100));
+      const backgroundColor = Object.values(familyMap).map(fam => {
+        const percent = fam.total === 0 ? 0 : fam.compliant / fam.total;
+        return `hsl(${(1 - percent) * 0} ${percent * 100}%, 50%)`;
+      });
 
       const ctx = document.getElementById('familyPieChart').getContext('2d');
       if (window.familyPieChart && typeof window.familyPieChart.destroy === 'function') {
         window.familyPieChart.destroy();
       }
+
       window.familyPieChart = new Chart(ctx, {
         type: 'pie',
         data: {
-          labels: labels,
+          labels,
           datasets: [{
-            label: 'Compliance % by Family',
-            data: data,
-            backgroundColor: colors
+            label: 'Compliance by Family',
+            data,
+            backgroundColor: data.map(p => p === 100 ? '#3B82F6' : '#DC2626') // blue if compliant, red if not
           }]
         },
         options: {
           onClick: (e, elements) => {
             if (elements.length > 0) {
               const index = elements[0].index;
-              const selectedLabel = labels[index];
-              const selectedFamily = selectedLabel.replace('Family ', '');
+              const selectedFamily = labels[index].replace('Family ', '');
               const filtered = allControls.filter(control => control.id.startsWith(selectedFamily + '.'));
               document.getElementById('controlView').classList.remove('hidden');
               renderControls(filtered);
