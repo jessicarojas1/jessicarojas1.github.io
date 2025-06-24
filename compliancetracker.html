@@ -23,12 +23,22 @@
     <section class="max-w-7xl mx-auto">
       <h2 class="text-3xl font-bold mb-6 border-b border-green-400 pb-2">CMMC / NIST 800-171 Compliance Tracker</h2>
 
-      <input type="text" id="searchInput" class="mb-6 w-full p-2 text-black rounded" placeholder="Search controls...">
+      <input type="text" id="searchInput" class="mb-6 w-full p-2 text-black rounded" placeholder="Search control families...">
 
-      <canvas id="progressChart" width="400" height="100" class="mb-12"></canvas>
-      <canvas id="familyPieChart" width="400" height="400" class="mb-12"></canvas>
+      <canvas id="familyPieChart" width="400" height="400" class="mb-6"></canvas>
+      <table id="familyTable" class="w-full bg-gray-800 text-sm text-white border border-green-400 rounded mb-12">
+        <thead>
+          <tr class="bg-green-900 text-green-300">
+            <th class="px-4 py-2 text-left">Control Family</th>
+            <th class="px-4 py-2">Compliant</th>
+            <th class="px-4 py-2">Total</th>
+            <th class="px-4 py-2">Compliance %</th>
+          </tr>
+        </thead>
+        <tbody id="familyTableBody"></tbody>
+      </table>
 
-      <div id="controlsList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+      <div id="controlsList" class="grid grid-cols-1 md:grid-cols-2 gap-4 hidden"></div>
 
       <div class="mt-12">
         <button id="exportSSP" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Export SSP (DOCX)</button>
@@ -48,84 +58,17 @@
 
   <script>
     let allControls = [];
+    let familyMap = {};
 
     async function loadControls() {
       const response = await fetch('cmmc_controls.json');
       const controls = await response.json();
       allControls = controls;
-      renderControls(controls);
-      updateChart(controls);
       updateFamilyChart(controls);
     }
 
-    function renderControls(controls) {
-      const container = document.getElementById('controlsList');
-      container.innerHTML = '';
-
-      controls.forEach(control => {
-        const controlBlock = document.createElement('div');
-        controlBlock.className = 'bg-gray-800 p-4 rounded shadow';
-        const subsHtml = control.subs.map(sub => {
-          const dataId = `${control.id}${sub.id}`;
-          const stored = JSON.parse(localStorage.getItem(dataId) || '{}');
-          return `
-            <div class="mt-4">
-              <h5 class="text-sm font-semibold text-green-200">${dataId}) ${sub.text}</h5>
-              <textarea placeholder="Notes for ${dataId}" class="w-full mb-2 px-2 py-1 rounded text-sm note" data-id="${dataId}">${stored.note || ''}</textarea>
-              <input type="file" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" data-id="${dataId}" class="block mb-2 text-sm">
-              <select class="mb-2 text-sm px-2 py-1 rounded status" data-id="${dataId}">
-                <option value="">Status</option>
-                <option value="compliant" ${stored.status === 'compliant' ? 'selected' : ''}>Compliant</option>
-                <option value="non-compliant" ${stored.status === 'non-compliant' ? 'selected' : ''}>Non-Compliant</option>
-                <option value="poam" ${stored.status === 'poam' ? 'selected' : ''}>POAM</option>
-                <option value="in-progress" ${stored.status === 'in-progress' ? 'selected' : ''}>In Progress</option>
-              </select>
-              <input type="date" class="due-date mb-2 px-2 py-1 text-black rounded text-sm" data-id="${dataId}" value="${stored.dueDate || ''}">
-              <label class="text-sm block mb-2">
-                <input type="checkbox" class="review-flag mr-2" data-id="${dataId}" ${stored.reviewed ? 'checked' : ''}> Evidence Reviewed
-              </label>
-              <span class="badge ${stored.status || ''}">${stored.status ? stored.status.replace('-', ' ') : ''}</span>
-              <button class="text-xs text-blue-300 hover:underline mt-1" onclick="showSuggestion('${sub.text}', '${dataId}')">💡 GPT Suggest</button>
-            </div>
-          `;
-        }).join('');
-
-        controlBlock.innerHTML = `
-          <h4 class="text-green-300 font-bold text-lg mb-2">${control.id} - ${control.title}</h4>
-          ${subsHtml}
-        `;
-        container.appendChild(controlBlock);
-      });
-      updateSSPPreview();
-    }
-
-    function updateChart(controls) {
-      const counts = { compliant: 0, 'non-compliant': 0, poam: 0, 'in-progress': 0 };
-      document.querySelectorAll('.status').forEach(select => {
-        counts[select.value] = (counts[select.value] || 0) + 1;
-      });
-
-      const ctx = document.getElementById('progressChart').getContext('2d');
-      if (window.progressChart) window.progressChart.destroy();
-      window.progressChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: ['Compliant', 'Non-Compliant', 'POAM', 'In Progress'],
-          datasets: [{
-            label: 'Control Status Count',
-            data: [counts['compliant'], counts['non-compliant'], counts['poam'], counts['in-progress']],
-            backgroundColor: ['#10b981', '#ef4444', '#f59e0b', '#3b82f6']
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: { legend: { display: false } }
-        }
-      });
-    }
-
     function updateFamilyChart(controls) {
-      const familyMap = {};
+      familyMap = {};
 
       controls.forEach(control => {
         const family = control.id.split('.')[1];
@@ -155,79 +98,31 @@
           }]
         },
         options: {
+          onClick: (e, elements) => {
+            if (elements.length > 0) {
+              const index = elements[0].index;
+              const selectedFamily = labels[index].split(' ')[1];
+              const filtered = allControls.filter(control => control.id.split('.')[1] === selectedFamily);
+              document.getElementById('controlsList').classList.remove('hidden');
+              renderControls(filtered);
+            }
+          },
           responsive: true
         }
       });
-    }
 
-    function updateSSPPreview() {
-      let preview = '';
-      document.querySelectorAll('.note').forEach(note => {
-        if (note.value.trim()) {
-          const id = note.dataset.id;
-          const status = document.querySelector(`select[data-id='${id}']`).value;
-          const due = document.querySelector(`input[type='date'][data-id='${id}']`).value;
-          preview += `${id}:
-- ${note.value.trim()}
-- Status: ${status}, Due: ${due}\n\n`;
-        }
-      });
-      document.getElementById('sspOutput').textContent = preview;
-    }
-
-    async function showSuggestion(text, id) {
-      alert("Example suggestion: Implement access control lists and ensure logging is enabled for all access attempts. [For: " + id + "]");
-    }
-
-    document.getElementById('searchInput').addEventListener('input', (e) => {
-      const value = e.target.value.toLowerCase();
-      const filtered = allControls.filter(control =>
-        control.title.toLowerCase().includes(value) ||
-        control.id.toLowerCase().includes(value)
-      );
-      renderControls(filtered);
-    });
-
-    document.getElementById('exportSSP').addEventListener('click', () => exportSSP(allControls));
-    document.addEventListener('change', (e) => {
-      const id = e.target.dataset.id;
-      if (!id) return;
-      const note = document.querySelector(`textarea[data-id='${id}']`).value;
-      const status = document.querySelector(`select[data-id='${id}']`).value;
-      const dueDate = document.querySelector(`input[type='date'][data-id='${id}']`).value;
-      const reviewed = document.querySelector(`input.review-flag[data-id='${id}']`).checked;
-      localStorage.setItem(id, JSON.stringify({ note, status, dueDate, reviewed }));
-      updateChart(allControls);
-      updateFamilyChart(allControls);
-      updateSSPPreview();
-    });
-
-    function exportSSP(controls) {
-      const docSections = [
-        new docx.Paragraph({ text: "System Security Plan (SSP)", heading: docx.HeadingLevel.TITLE })
-      ];
-
-      controls.forEach(control => {
-        control.subs.forEach(sub => {
-          const id = `${control.id}${sub.id}`;
-          const text = document.querySelector(`textarea[data-id='${id}']`).value;
-          const status = document.querySelector(`select[data-id='${id}']`).value;
-          const date = document.querySelector(`input[type='date'][data-id='${id}']`).value;
-          const reviewed = document.querySelector(`input.review-flag[data-id='${id}']`).checked;
-          if (text.trim()) {
-            docSections.push(new docx.Paragraph(`${id}) ${sub.text}: ${text} [Status: ${status}] [Due: ${date}] [Reviewed: ${reviewed}]`));
-          }
-        });
-      });
-
-      const doc = new docx.Document({
-        sections: [ { children: docSections } ]
-      });
-      docx.Packer.toBlob(doc).then(blob => {
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = "SSP_CMMC.docx";
-        link.click();
+      const tableBody = document.getElementById('familyTableBody');
+      tableBody.innerHTML = '';
+      Object.entries(familyMap).forEach(([fam, stats]) => {
+        const percent = Math.round((stats.compliant / stats.total) * 100);
+        tableBody.innerHTML += `
+          <tr>
+            <td class="border-t border-green-700 px-4 py-2">Family ${fam}</td>
+            <td class="border-t border-green-700 text-center">${stats.compliant}</td>
+            <td class="border-t border-green-700 text-center">${stats.total}</td>
+            <td class="border-t border-green-700 text-center">${percent}%</td>
+          </tr>
+        `;
       });
     }
 
