@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CMMC / NIST 800-171 Compliance Tracker</title>
+  <link rel="icon" href="https://github.githubassets.com/favicons/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.7.0/docx.min.js"></script>
@@ -78,6 +79,54 @@
       updateFamilyChart(controls);
     }
 
+    function renderControls(controls) {
+      const container = document.getElementById('controlsList');
+      container.innerHTML = '';
+
+      controls.forEach(control => {
+        const module = document.createElement('div');
+        module.className = 'bg-gray-700 p-4 rounded shadow';
+
+        const title = document.createElement('h4');
+        title.className = 'text-lg font-bold mb-2 text-green-300';
+        title.textContent = `${control.id} – ${control.title}`;
+        module.appendChild(title);
+
+        control.subs.forEach(sub => {
+          const subId = `${control.id}${sub.id}`;
+          const stored = JSON.parse(localStorage.getItem(subId) || '{}');
+
+          const row = document.createElement('div');
+          row.className = 'mb-2 p-2 rounded bg-gray-800';
+
+          const desc = document.createElement('div');
+          desc.className = 'text-sm text-white';
+          desc.textContent = `${sub.id} – ${sub.title}`;
+          row.appendChild(desc);
+
+          const status = document.createElement('select');
+          status.className = 'mt-1 text-sm p-1 rounded';
+          status.innerHTML = `
+            <option value="">Set Status</option>
+            <option value="compliant">Compliant</option>
+            <option value="non-compliant">Non-Compliant</option>
+            <option value="in-progress">In Progress</option>
+            <option value="poam">POAM</option>
+          `;
+          status.value = stored.status || '';
+          status.onchange = () => {
+            localStorage.setItem(subId, JSON.stringify({ status: status.value }));
+            updateFamilyChart(allControls);
+          };
+          row.appendChild(status);
+
+          module.appendChild(row);
+        });
+
+        container.appendChild(module);
+      });
+    }
+
     function updateFamilyChart(controls) {
       familyMap = {};
 
@@ -146,53 +195,6 @@
         `;
       });
     }
-    function renderControls(controls) {
-    const container = document.getElementById('controlsList');
-    container.innerHTML = '';
-
-    controls.forEach(control => {
-      const module = document.createElement('div');
-      module.className = 'bg-gray-700 p-4 rounded shadow';
-
-      const title = document.createElement('h4');
-      title.className = 'text-lg font-bold mb-2 text-green-300';
-      title.textContent = `${control.id} – ${control.title}`;
-      module.appendChild(title);
-
-      control.subs.forEach(sub => {
-        const subId = `${control.id}${sub.id}`;
-        const stored = JSON.parse(localStorage.getItem(subId) || '{}');
-
-        const row = document.createElement('div');
-        row.className = 'mb-2 p-2 rounded bg-gray-800';
-
-        const desc = document.createElement('div');
-        desc.className = 'text-sm text-white';
-        desc.textContent = `${sub.id} – ${sub.title}`;
-        row.appendChild(desc);
-
-        const status = document.createElement('select');
-        status.className = 'mt-1 text-sm p-1 rounded';
-        status.innerHTML = `
-          <option value="">Set Status</option>
-          <option value="compliant">Compliant</option>
-          <option value="non-compliant">Non-Compliant</option>
-          <option value="in-progress">In Progress</option>
-          <option value="poam">POAM</option>
-        `;
-        status.value = stored.status || '';
-        status.onchange = () => {
-          localStorage.setItem(subId, JSON.stringify({ status: status.value }));
-          updateFamilyChart(allControls);
-        };
-        row.appendChild(status);
-
-        module.appendChild(row);
-      });
-
-      container.appendChild(module);
-    });
-  }
 
     document.getElementById('backToChart').addEventListener('click', () => {
       document.getElementById('controlView').classList.add('hidden');
