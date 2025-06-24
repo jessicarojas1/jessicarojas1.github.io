@@ -3,64 +3,56 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Compliance Tracker</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>CMMC / NIST 800-171 Compliance Tracker</title>
   <link rel="icon" href="https://github.githubassets.com/favicons/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="bg-green-950 text-white font-sans">
-  <header class="p-6 bg-gray-900 shadow-lg">
-    <div class="container mx-auto flex justify-between items-center">
-      <h1 class="text-2xl font-bold text-green-400">Compliance Tracker</h1>
-      <nav>
-        <a href="index.html" class="text-gray-300 hover:text-green-400">Back to Portfolio</a>
-      </nav>
-    </div>
-  </header>
+<body class="compliance-body">
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="projects.html">Projects</a>
+    <a href="resume.html">Resume</a>
+    <a href="timeline.html">Timeline</a>
+    <a href="cybersecurity.html">Cybersecurity</a>
+    <a href="contact.html">Contact</a>
+    <a href="blog.html">Blog</a>
+    <button id="darkModeToggle">🌙 Dark Mode</button>
+  </nav>
 
-  <main class="py-10 px-6 md:px-16">
-    <h2 class="text-3xl font-bold mb-4 border-b border-green-400 pb-2">CMMC / NIST 800-171 Tracker</h2>
+  <main class="container">
+    <h1 class="text-green-400">CMMC / NIST 800-171 Compliance Tracker</h1>
 
-    <canvas id="familyPieChart" width="400" height="400" class="mb-6"></canvas>
+    <input type="text" id="searchInput" class="search-box" placeholder="Search control families..."/>
 
-    <table id="familyTable" class="w-full mb-6 border border-green-500 text-sm">
+    <canvas id="familyPieChart" class="chart-canvas"></canvas>
+
+    <table id="familyTable" class="compliance-table">
       <thead>
-        <tr class="bg-green-900">
-          <th class="px-4 py-2 text-left">Control Family</th>
-          <th class="px-4 py-2 text-center">Compliant</th>
-          <th class="px-4 py-2 text-center">Total</th>
-          <th class="px-4 py-2 text-center">%</th>
+        <tr>
+          <th>Control Family</th>
+          <th>Compliant</th>
+          <th>Total</th>
+          <th>Compliance %</th>
         </tr>
       </thead>
       <tbody id="familyTableBody"></tbody>
     </table>
 
-    <button id="showAllControls" class="btn mb-6">Show All Controls</button>
+    <button id="showAllControls" class="btn">Show All Controls</button>
 
     <div id="controlView" class="hidden">
-      <button id="backToChart" class="btn mb-4">← Back to Chart</button>
-      <div class="mb-4">
+      <button id="backToChart" class="btn-warning">← Back to Chart</button>
+
+      <div class="legend">
         <span class="status-badge compliant">Compliant</span>
         <span class="status-badge non-compliant">Non-Compliant</span>
         <span class="status-badge in-progress">In Progress</span>
         <span class="status-badge poam">POAM</span>
       </div>
-      <div id="controlsList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+
+      <div id="controlsList" class="grid-list"></div>
     </div>
-
-    <div class="mt-12">
-      <button id="exportSSP" class="btn bg-blue-600">Export SSP Preview</button>
-    </div>
-
-    <section class="mt-10 bg-gray-800 p-4 rounded">
-      <h3 class="text-xl font-bold text-green-300 mb-2">Live SSP Preview</h3>
-      <pre id="sspOutput" class="text-sm text-gray-200 whitespace-pre-wrap"></pre>
-    </section>
-
-    <section id="adminPanel" class="mt-12 bg-gray-900 p-6 rounded">
-      <h3 class="text-xl font-bold text-yellow-400 mb-2">Admin Tools</h3>
-      <button onclick="localStorage.clear(); location.reload();" class="btn bg-red-600">Clear Local Data</button>
-    </section>
   </main>
 
   <script src="compliancetracker.js"></script>
