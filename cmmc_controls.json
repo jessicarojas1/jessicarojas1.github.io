@@ -1,1541 +1,1761 @@
 [
     {
       "id": "3.1.1",
-      "title": "Sample Title for Control 3.1.1",
+      "title": "Sample title for control 3.1.1",
+      "family_id": "3.1",
+      "family_name": "Access Control",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.1.1"
+          "title": "Implement requirement 3.1.1a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.1.1"
+          "title": "Implement requirement 3.1.1b"
         }
       ]
     },
     {
       "id": "3.1.2",
-      "title": "Sample Title for Control 3.1.2",
+      "title": "Sample title for control 3.1.2",
+      "family_id": "3.1",
+      "family_name": "Access Control",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.1.2"
+          "title": "Implement requirement 3.1.2a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.1.2"
+          "title": "Implement requirement 3.1.2b"
         }
       ]
     },
     {
       "id": "3.1.3",
-      "title": "Sample Title for Control 3.1.3",
+      "title": "Sample title for control 3.1.3",
+      "family_id": "3.1",
+      "family_name": "Access Control",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.1.3"
+          "title": "Implement requirement 3.1.3a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.1.3"
+          "title": "Implement requirement 3.1.3b"
         }
       ]
     },
     {
       "id": "3.1.4",
-      "title": "Sample Title for Control 3.1.4",
+      "title": "Sample title for control 3.1.4",
+      "family_id": "3.1",
+      "family_name": "Access Control",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.1.4"
+          "title": "Implement requirement 3.1.4a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.1.4"
+          "title": "Implement requirement 3.1.4b"
         }
       ]
     },
     {
       "id": "3.1.5",
-      "title": "Sample Title for Control 3.1.5",
+      "title": "Sample title for control 3.1.5",
+      "family_id": "3.1",
+      "family_name": "Access Control",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.1.5"
+          "title": "Implement requirement 3.1.5a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.1.5"
+          "title": "Implement requirement 3.1.5b"
         }
       ]
     },
     {
       "id": "3.1.6",
-      "title": "Sample Title for Control 3.1.6",
+      "title": "Sample title for control 3.1.6",
+      "family_id": "3.1",
+      "family_name": "Access Control",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.1.6"
+          "title": "Implement requirement 3.1.6a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.1.6"
+          "title": "Implement requirement 3.1.6b"
         }
       ]
     },
     {
       "id": "3.1.7",
-      "title": "Sample Title for Control 3.1.7",
+      "title": "Sample title for control 3.1.7",
+      "family_id": "3.1",
+      "family_name": "Access Control",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.1.7"
+          "title": "Implement requirement 3.1.7a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.1.7"
+          "title": "Implement requirement 3.1.7b"
         }
       ]
     },
     {
       "id": "3.1.8",
-      "title": "Sample Title for Control 3.1.8",
+      "title": "Sample title for control 3.1.8",
+      "family_id": "3.1",
+      "family_name": "Access Control",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.1.8"
+          "title": "Implement requirement 3.1.8a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.1.8"
+          "title": "Implement requirement 3.1.8b"
         }
       ]
     },
     {
       "id": "3.1.9",
-      "title": "Sample Title for Control 3.1.9",
+      "title": "Sample title for control 3.1.9",
+      "family_id": "3.1",
+      "family_name": "Access Control",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.1.9"
+          "title": "Implement requirement 3.1.9a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.1.9"
+          "title": "Implement requirement 3.1.9b"
         }
       ]
     },
     {
       "id": "3.1.10",
-      "title": "Sample Title for Control 3.1.10",
+      "title": "Sample title for control 3.1.10",
+      "family_id": "3.1",
+      "family_name": "Access Control",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.1.10"
+          "title": "Implement requirement 3.1.10a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.1.10"
+          "title": "Implement requirement 3.1.10b"
+        }
+      ]
+    },
+    {
+      "id": "3.1.11",
+      "title": "Sample title for control 3.1.11",
+      "family_id": "3.1",
+      "family_name": "Access Control",
+      "subs": [
+        {
+          "id": "a",
+          "title": "Implement requirement 3.1.11a"
+        },
+        {
+          "id": "b",
+          "title": "Implement requirement 3.1.11b"
+        }
+      ]
+    },
+    {
+      "id": "3.1.12",
+      "title": "Sample title for control 3.1.12",
+      "family_id": "3.1",
+      "family_name": "Access Control",
+      "subs": [
+        {
+          "id": "a",
+          "title": "Implement requirement 3.1.12a"
+        },
+        {
+          "id": "b",
+          "title": "Implement requirement 3.1.12b"
+        }
+      ]
+    },
+    {
+      "id": "3.1.13",
+      "title": "Sample title for control 3.1.13",
+      "family_id": "3.1",
+      "family_name": "Access Control",
+      "subs": [
+        {
+          "id": "a",
+          "title": "Implement requirement 3.1.13a"
+        },
+        {
+          "id": "b",
+          "title": "Implement requirement 3.1.13b"
+        }
+      ]
+    },
+    {
+      "id": "3.1.14",
+      "title": "Sample title for control 3.1.14",
+      "family_id": "3.1",
+      "family_name": "Access Control",
+      "subs": [
+        {
+          "id": "a",
+          "title": "Implement requirement 3.1.14a"
+        },
+        {
+          "id": "b",
+          "title": "Implement requirement 3.1.14b"
+        }
+      ]
+    },
+    {
+      "id": "3.1.15",
+      "title": "Sample title for control 3.1.15",
+      "family_id": "3.1",
+      "family_name": "Access Control",
+      "subs": [
+        {
+          "id": "a",
+          "title": "Implement requirement 3.1.15a"
+        },
+        {
+          "id": "b",
+          "title": "Implement requirement 3.1.15b"
+        }
+      ]
+    },
+    {
+      "id": "3.1.16",
+      "title": "Sample title for control 3.1.16",
+      "family_id": "3.1",
+      "family_name": "Access Control",
+      "subs": [
+        {
+          "id": "a",
+          "title": "Implement requirement 3.1.16a"
+        },
+        {
+          "id": "b",
+          "title": "Implement requirement 3.1.16b"
+        }
+      ]
+    },
+    {
+      "id": "3.1.17",
+      "title": "Sample title for control 3.1.17",
+      "family_id": "3.1",
+      "family_name": "Access Control",
+      "subs": [
+        {
+          "id": "a",
+          "title": "Implement requirement 3.1.17a"
+        },
+        {
+          "id": "b",
+          "title": "Implement requirement 3.1.17b"
+        }
+      ]
+    },
+    {
+      "id": "3.1.18",
+      "title": "Sample title for control 3.1.18",
+      "family_id": "3.1",
+      "family_name": "Access Control",
+      "subs": [
+        {
+          "id": "a",
+          "title": "Implement requirement 3.1.18a"
+        },
+        {
+          "id": "b",
+          "title": "Implement requirement 3.1.18b"
+        }
+      ]
+    },
+    {
+      "id": "3.1.19",
+      "title": "Sample title for control 3.1.19",
+      "family_id": "3.1",
+      "family_name": "Access Control",
+      "subs": [
+        {
+          "id": "a",
+          "title": "Implement requirement 3.1.19a"
+        },
+        {
+          "id": "b",
+          "title": "Implement requirement 3.1.19b"
+        }
+      ]
+    },
+    {
+      "id": "3.1.20",
+      "title": "Sample title for control 3.1.20",
+      "family_id": "3.1",
+      "family_name": "Access Control",
+      "subs": [
+        {
+          "id": "a",
+          "title": "Implement requirement 3.1.20a"
+        },
+        {
+          "id": "b",
+          "title": "Implement requirement 3.1.20b"
+        }
+      ]
+    },
+    {
+      "id": "3.1.21",
+      "title": "Sample title for control 3.1.21",
+      "family_id": "3.1",
+      "family_name": "Access Control",
+      "subs": [
+        {
+          "id": "a",
+          "title": "Implement requirement 3.1.21a"
+        },
+        {
+          "id": "b",
+          "title": "Implement requirement 3.1.21b"
+        }
+      ]
+    },
+    {
+      "id": "3.1.22",
+      "title": "Sample title for control 3.1.22",
+      "family_id": "3.1",
+      "family_name": "Access Control",
+      "subs": [
+        {
+          "id": "a",
+          "title": "Implement requirement 3.1.22a"
+        },
+        {
+          "id": "b",
+          "title": "Implement requirement 3.1.22b"
         }
       ]
     },
     {
       "id": "3.2.1",
-      "title": "Sample Title for Control 3.2.1",
+      "title": "Sample title for control 3.2.1",
+      "family_id": "3.2",
+      "family_name": "Awareness and Training",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.2.1"
+          "title": "Implement requirement 3.2.1a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.2.1"
+          "title": "Implement requirement 3.2.1b"
         }
       ]
     },
     {
       "id": "3.2.2",
-      "title": "Sample Title for Control 3.2.2",
+      "title": "Sample title for control 3.2.2",
+      "family_id": "3.2",
+      "family_name": "Awareness and Training",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.2.2"
+          "title": "Implement requirement 3.2.2a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.2.2"
+          "title": "Implement requirement 3.2.2b"
         }
       ]
     },
     {
       "id": "3.2.3",
-      "title": "Sample Title for Control 3.2.3",
+      "title": "Sample title for control 3.2.3",
+      "family_id": "3.2",
+      "family_name": "Awareness and Training",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.2.3"
+          "title": "Implement requirement 3.2.3a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.2.3"
-        }
-      ]
-    },
-    {
-      "id": "3.2.4",
-      "title": "Sample Title for Control 3.2.4",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Requirement (a) for 3.2.4"
-        },
-        {
-          "id": "b",
-          "title": "Requirement (b) for 3.2.4"
-        }
-      ]
-    },
-    {
-      "id": "3.2.5",
-      "title": "Sample Title for Control 3.2.5",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Requirement (a) for 3.2.5"
-        },
-        {
-          "id": "b",
-          "title": "Requirement (b) for 3.2.5"
-        }
-      ]
-    },
-    {
-      "id": "3.2.6",
-      "title": "Sample Title for Control 3.2.6",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Requirement (a) for 3.2.6"
-        },
-        {
-          "id": "b",
-          "title": "Requirement (b) for 3.2.6"
-        }
-      ]
-    },
-    {
-      "id": "3.2.7",
-      "title": "Sample Title for Control 3.2.7",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Requirement (a) for 3.2.7"
-        },
-        {
-          "id": "b",
-          "title": "Requirement (b) for 3.2.7"
-        }
-      ]
-    },
-    {
-      "id": "3.2.8",
-      "title": "Sample Title for Control 3.2.8",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Requirement (a) for 3.2.8"
-        },
-        {
-          "id": "b",
-          "title": "Requirement (b) for 3.2.8"
-        }
-      ]
-    },
-    {
-      "id": "3.2.9",
-      "title": "Sample Title for Control 3.2.9",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Requirement (a) for 3.2.9"
-        },
-        {
-          "id": "b",
-          "title": "Requirement (b) for 3.2.9"
-        }
-      ]
-    },
-    {
-      "id": "3.2.10",
-      "title": "Sample Title for Control 3.2.10",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Requirement (a) for 3.2.10"
-        },
-        {
-          "id": "b",
-          "title": "Requirement (b) for 3.2.10"
+          "title": "Implement requirement 3.2.3b"
         }
       ]
     },
     {
       "id": "3.3.1",
-      "title": "Sample Title for Control 3.3.1",
+      "title": "Sample title for control 3.3.1",
+      "family_id": "3.3",
+      "family_name": "Audit and Accountability",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.3.1"
+          "title": "Implement requirement 3.3.1a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.3.1"
+          "title": "Implement requirement 3.3.1b"
         }
       ]
     },
     {
       "id": "3.3.2",
-      "title": "Sample Title for Control 3.3.2",
+      "title": "Sample title for control 3.3.2",
+      "family_id": "3.3",
+      "family_name": "Audit and Accountability",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.3.2"
+          "title": "Implement requirement 3.3.2a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.3.2"
+          "title": "Implement requirement 3.3.2b"
         }
       ]
     },
     {
       "id": "3.3.3",
-      "title": "Sample Title for Control 3.3.3",
+      "title": "Sample title for control 3.3.3",
+      "family_id": "3.3",
+      "family_name": "Audit and Accountability",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.3.3"
+          "title": "Implement requirement 3.3.3a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.3.3"
+          "title": "Implement requirement 3.3.3b"
         }
       ]
     },
     {
       "id": "3.3.4",
-      "title": "Sample Title for Control 3.3.4",
+      "title": "Sample title for control 3.3.4",
+      "family_id": "3.3",
+      "family_name": "Audit and Accountability",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.3.4"
+          "title": "Implement requirement 3.3.4a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.3.4"
+          "title": "Implement requirement 3.3.4b"
         }
       ]
     },
     {
       "id": "3.3.5",
-      "title": "Sample Title for Control 3.3.5",
+      "title": "Sample title for control 3.3.5",
+      "family_id": "3.3",
+      "family_name": "Audit and Accountability",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.3.5"
+          "title": "Implement requirement 3.3.5a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.3.5"
+          "title": "Implement requirement 3.3.5b"
         }
       ]
     },
     {
       "id": "3.3.6",
-      "title": "Sample Title for Control 3.3.6",
+      "title": "Sample title for control 3.3.6",
+      "family_id": "3.3",
+      "family_name": "Audit and Accountability",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.3.6"
+          "title": "Implement requirement 3.3.6a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.3.6"
+          "title": "Implement requirement 3.3.6b"
         }
       ]
     },
     {
       "id": "3.3.7",
-      "title": "Sample Title for Control 3.3.7",
+      "title": "Sample title for control 3.3.7",
+      "family_id": "3.3",
+      "family_name": "Audit and Accountability",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.3.7"
+          "title": "Implement requirement 3.3.7a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.3.7"
+          "title": "Implement requirement 3.3.7b"
         }
       ]
     },
     {
       "id": "3.3.8",
-      "title": "Sample Title for Control 3.3.8",
+      "title": "Sample title for control 3.3.8",
+      "family_id": "3.3",
+      "family_name": "Audit and Accountability",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.3.8"
+          "title": "Implement requirement 3.3.8a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.3.8"
+          "title": "Implement requirement 3.3.8b"
         }
       ]
     },
     {
       "id": "3.3.9",
-      "title": "Sample Title for Control 3.3.9",
+      "title": "Sample title for control 3.3.9",
+      "family_id": "3.3",
+      "family_name": "Audit and Accountability",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.3.9"
+          "title": "Implement requirement 3.3.9a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.3.9"
-        }
-      ]
-    },
-    {
-      "id": "3.3.10",
-      "title": "Sample Title for Control 3.3.10",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Requirement (a) for 3.3.10"
-        },
-        {
-          "id": "b",
-          "title": "Requirement (b) for 3.3.10"
+          "title": "Implement requirement 3.3.9b"
         }
       ]
     },
     {
       "id": "3.4.1",
-      "title": "Sample Title for Control 3.4.1",
+      "title": "Sample title for control 3.4.1",
+      "family_id": "3.4",
+      "family_name": "Configuration Management",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.4.1"
+          "title": "Implement requirement 3.4.1a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.4.1"
+          "title": "Implement requirement 3.4.1b"
         }
       ]
     },
     {
       "id": "3.4.2",
-      "title": "Sample Title for Control 3.4.2",
+      "title": "Sample title for control 3.4.2",
+      "family_id": "3.4",
+      "family_name": "Configuration Management",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.4.2"
+          "title": "Implement requirement 3.4.2a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.4.2"
+          "title": "Implement requirement 3.4.2b"
         }
       ]
     },
     {
       "id": "3.4.3",
-      "title": "Sample Title for Control 3.4.3",
+      "title": "Sample title for control 3.4.3",
+      "family_id": "3.4",
+      "family_name": "Configuration Management",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.4.3"
+          "title": "Implement requirement 3.4.3a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.4.3"
+          "title": "Implement requirement 3.4.3b"
         }
       ]
     },
     {
       "id": "3.4.4",
-      "title": "Sample Title for Control 3.4.4",
+      "title": "Sample title for control 3.4.4",
+      "family_id": "3.4",
+      "family_name": "Configuration Management",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.4.4"
+          "title": "Implement requirement 3.4.4a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.4.4"
+          "title": "Implement requirement 3.4.4b"
         }
       ]
     },
     {
       "id": "3.4.5",
-      "title": "Sample Title for Control 3.4.5",
+      "title": "Sample title for control 3.4.5",
+      "family_id": "3.4",
+      "family_name": "Configuration Management",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.4.5"
+          "title": "Implement requirement 3.4.5a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.4.5"
+          "title": "Implement requirement 3.4.5b"
         }
       ]
     },
     {
       "id": "3.4.6",
-      "title": "Sample Title for Control 3.4.6",
+      "title": "Sample title for control 3.4.6",
+      "family_id": "3.4",
+      "family_name": "Configuration Management",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.4.6"
+          "title": "Implement requirement 3.4.6a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.4.6"
+          "title": "Implement requirement 3.4.6b"
         }
       ]
     },
     {
       "id": "3.4.7",
-      "title": "Sample Title for Control 3.4.7",
+      "title": "Sample title for control 3.4.7",
+      "family_id": "3.4",
+      "family_name": "Configuration Management",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.4.7"
+          "title": "Implement requirement 3.4.7a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.4.7"
+          "title": "Implement requirement 3.4.7b"
         }
       ]
     },
     {
       "id": "3.4.8",
-      "title": "Sample Title for Control 3.4.8",
+      "title": "Sample title for control 3.4.8",
+      "family_id": "3.4",
+      "family_name": "Configuration Management",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.4.8"
+          "title": "Implement requirement 3.4.8a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.4.8"
+          "title": "Implement requirement 3.4.8b"
         }
       ]
     },
     {
       "id": "3.4.9",
-      "title": "Sample Title for Control 3.4.9",
+      "title": "Sample title for control 3.4.9",
+      "family_id": "3.4",
+      "family_name": "Configuration Management",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.4.9"
+          "title": "Implement requirement 3.4.9a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.4.9"
-        }
-      ]
-    },
-    {
-      "id": "3.4.10",
-      "title": "Sample Title for Control 3.4.10",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Requirement (a) for 3.4.10"
-        },
-        {
-          "id": "b",
-          "title": "Requirement (b) for 3.4.10"
+          "title": "Implement requirement 3.4.9b"
         }
       ]
     },
     {
       "id": "3.5.1",
-      "title": "Sample Title for Control 3.5.1",
+      "title": "Sample title for control 3.5.1",
+      "family_id": "3.5",
+      "family_name": "Identification and Authentication",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.5.1"
+          "title": "Implement requirement 3.5.1a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.5.1"
+          "title": "Implement requirement 3.5.1b"
         }
       ]
     },
     {
       "id": "3.5.2",
-      "title": "Sample Title for Control 3.5.2",
+      "title": "Sample title for control 3.5.2",
+      "family_id": "3.5",
+      "family_name": "Identification and Authentication",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.5.2"
+          "title": "Implement requirement 3.5.2a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.5.2"
+          "title": "Implement requirement 3.5.2b"
         }
       ]
     },
     {
       "id": "3.5.3",
-      "title": "Sample Title for Control 3.5.3",
+      "title": "Sample title for control 3.5.3",
+      "family_id": "3.5",
+      "family_name": "Identification and Authentication",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.5.3"
+          "title": "Implement requirement 3.5.3a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.5.3"
+          "title": "Implement requirement 3.5.3b"
         }
       ]
     },
     {
       "id": "3.5.4",
-      "title": "Sample Title for Control 3.5.4",
+      "title": "Sample title for control 3.5.4",
+      "family_id": "3.5",
+      "family_name": "Identification and Authentication",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.5.4"
+          "title": "Implement requirement 3.5.4a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.5.4"
+          "title": "Implement requirement 3.5.4b"
         }
       ]
     },
     {
       "id": "3.5.5",
-      "title": "Sample Title for Control 3.5.5",
+      "title": "Sample title for control 3.5.5",
+      "family_id": "3.5",
+      "family_name": "Identification and Authentication",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.5.5"
+          "title": "Implement requirement 3.5.5a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.5.5"
+          "title": "Implement requirement 3.5.5b"
         }
       ]
     },
     {
       "id": "3.5.6",
-      "title": "Sample Title for Control 3.5.6",
+      "title": "Sample title for control 3.5.6",
+      "family_id": "3.5",
+      "family_name": "Identification and Authentication",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.5.6"
+          "title": "Implement requirement 3.5.6a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.5.6"
+          "title": "Implement requirement 3.5.6b"
         }
       ]
     },
     {
       "id": "3.5.7",
-      "title": "Sample Title for Control 3.5.7",
+      "title": "Sample title for control 3.5.7",
+      "family_id": "3.5",
+      "family_name": "Identification and Authentication",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.5.7"
+          "title": "Implement requirement 3.5.7a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.5.7"
+          "title": "Implement requirement 3.5.7b"
         }
       ]
     },
     {
       "id": "3.5.8",
-      "title": "Sample Title for Control 3.5.8",
+      "title": "Sample title for control 3.5.8",
+      "family_id": "3.5",
+      "family_name": "Identification and Authentication",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.5.8"
+          "title": "Implement requirement 3.5.8a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.5.8"
+          "title": "Implement requirement 3.5.8b"
         }
       ]
     },
     {
       "id": "3.5.9",
-      "title": "Sample Title for Control 3.5.9",
+      "title": "Sample title for control 3.5.9",
+      "family_id": "3.5",
+      "family_name": "Identification and Authentication",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.5.9"
+          "title": "Implement requirement 3.5.9a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.5.9"
+          "title": "Implement requirement 3.5.9b"
         }
       ]
     },
     {
       "id": "3.5.10",
-      "title": "Sample Title for Control 3.5.10",
+      "title": "Sample title for control 3.5.10",
+      "family_id": "3.5",
+      "family_name": "Identification and Authentication",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.5.10"
+          "title": "Implement requirement 3.5.10a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.5.10"
+          "title": "Implement requirement 3.5.10b"
+        }
+      ]
+    },
+    {
+      "id": "3.5.11",
+      "title": "Sample title for control 3.5.11",
+      "family_id": "3.5",
+      "family_name": "Identification and Authentication",
+      "subs": [
+        {
+          "id": "a",
+          "title": "Implement requirement 3.5.11a"
+        },
+        {
+          "id": "b",
+          "title": "Implement requirement 3.5.11b"
         }
       ]
     },
     {
       "id": "3.6.1",
-      "title": "Sample Title for Control 3.6.1",
+      "title": "Sample title for control 3.6.1",
+      "family_id": "3.6",
+      "family_name": "Incident Response",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.6.1"
+          "title": "Implement requirement 3.6.1a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.6.1"
+          "title": "Implement requirement 3.6.1b"
         }
       ]
     },
     {
       "id": "3.6.2",
-      "title": "Sample Title for Control 3.6.2",
+      "title": "Sample title for control 3.6.2",
+      "family_id": "3.6",
+      "family_name": "Incident Response",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.6.2"
+          "title": "Implement requirement 3.6.2a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.6.2"
+          "title": "Implement requirement 3.6.2b"
         }
       ]
     },
     {
       "id": "3.6.3",
-      "title": "Sample Title for Control 3.6.3",
+      "title": "Sample title for control 3.6.3",
+      "family_id": "3.6",
+      "family_name": "Incident Response",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.6.3"
+          "title": "Implement requirement 3.6.3a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.6.3"
-        }
-      ]
-    },
-    {
-      "id": "3.6.4",
-      "title": "Sample Title for Control 3.6.4",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Requirement (a) for 3.6.4"
-        },
-        {
-          "id": "b",
-          "title": "Requirement (b) for 3.6.4"
-        }
-      ]
-    },
-    {
-      "id": "3.6.5",
-      "title": "Sample Title for Control 3.6.5",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Requirement (a) for 3.6.5"
-        },
-        {
-          "id": "b",
-          "title": "Requirement (b) for 3.6.5"
-        }
-      ]
-    },
-    {
-      "id": "3.6.6",
-      "title": "Sample Title for Control 3.6.6",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Requirement (a) for 3.6.6"
-        },
-        {
-          "id": "b",
-          "title": "Requirement (b) for 3.6.6"
-        }
-      ]
-    },
-    {
-      "id": "3.6.7",
-      "title": "Sample Title for Control 3.6.7",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Requirement (a) for 3.6.7"
-        },
-        {
-          "id": "b",
-          "title": "Requirement (b) for 3.6.7"
-        }
-      ]
-    },
-    {
-      "id": "3.6.8",
-      "title": "Sample Title for Control 3.6.8",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Requirement (a) for 3.6.8"
-        },
-        {
-          "id": "b",
-          "title": "Requirement (b) for 3.6.8"
-        }
-      ]
-    },
-    {
-      "id": "3.6.9",
-      "title": "Sample Title for Control 3.6.9",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Requirement (a) for 3.6.9"
-        },
-        {
-          "id": "b",
-          "title": "Requirement (b) for 3.6.9"
-        }
-      ]
-    },
-    {
-      "id": "3.6.10",
-      "title": "Sample Title for Control 3.6.10",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Requirement (a) for 3.6.10"
-        },
-        {
-          "id": "b",
-          "title": "Requirement (b) for 3.6.10"
+          "title": "Implement requirement 3.6.3b"
         }
       ]
     },
     {
       "id": "3.7.1",
-      "title": "Sample Title for Control 3.7.1",
+      "title": "Sample title for control 3.7.1",
+      "family_id": "3.7",
+      "family_name": "Maintenance",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.7.1"
+          "title": "Implement requirement 3.7.1a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.7.1"
+          "title": "Implement requirement 3.7.1b"
         }
       ]
     },
     {
       "id": "3.7.2",
-      "title": "Sample Title for Control 3.7.2",
+      "title": "Sample title for control 3.7.2",
+      "family_id": "3.7",
+      "family_name": "Maintenance",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.7.2"
+          "title": "Implement requirement 3.7.2a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.7.2"
+          "title": "Implement requirement 3.7.2b"
         }
       ]
     },
     {
       "id": "3.7.3",
-      "title": "Sample Title for Control 3.7.3",
+      "title": "Sample title for control 3.7.3",
+      "family_id": "3.7",
+      "family_name": "Maintenance",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.7.3"
+          "title": "Implement requirement 3.7.3a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.7.3"
+          "title": "Implement requirement 3.7.3b"
         }
       ]
     },
     {
       "id": "3.7.4",
-      "title": "Sample Title for Control 3.7.4",
+      "title": "Sample title for control 3.7.4",
+      "family_id": "3.7",
+      "family_name": "Maintenance",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.7.4"
+          "title": "Implement requirement 3.7.4a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.7.4"
+          "title": "Implement requirement 3.7.4b"
         }
       ]
     },
     {
       "id": "3.7.5",
-      "title": "Sample Title for Control 3.7.5",
+      "title": "Sample title for control 3.7.5",
+      "family_id": "3.7",
+      "family_name": "Maintenance",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.7.5"
+          "title": "Implement requirement 3.7.5a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.7.5"
+          "title": "Implement requirement 3.7.5b"
         }
       ]
     },
     {
       "id": "3.7.6",
-      "title": "Sample Title for Control 3.7.6",
+      "title": "Sample title for control 3.7.6",
+      "family_id": "3.7",
+      "family_name": "Maintenance",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.7.6"
+          "title": "Implement requirement 3.7.6a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.7.6"
-        }
-      ]
-    },
-    {
-      "id": "3.7.7",
-      "title": "Sample Title for Control 3.7.7",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Requirement (a) for 3.7.7"
-        },
-        {
-          "id": "b",
-          "title": "Requirement (b) for 3.7.7"
-        }
-      ]
-    },
-    {
-      "id": "3.7.8",
-      "title": "Sample Title for Control 3.7.8",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Requirement (a) for 3.7.8"
-        },
-        {
-          "id": "b",
-          "title": "Requirement (b) for 3.7.8"
-        }
-      ]
-    },
-    {
-      "id": "3.7.9",
-      "title": "Sample Title for Control 3.7.9",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Requirement (a) for 3.7.9"
-        },
-        {
-          "id": "b",
-          "title": "Requirement (b) for 3.7.9"
-        }
-      ]
-    },
-    {
-      "id": "3.7.10",
-      "title": "Sample Title for Control 3.7.10",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Requirement (a) for 3.7.10"
-        },
-        {
-          "id": "b",
-          "title": "Requirement (b) for 3.7.10"
+          "title": "Implement requirement 3.7.6b"
         }
       ]
     },
     {
       "id": "3.8.1",
-      "title": "Sample Title for Control 3.8.1",
+      "title": "Sample title for control 3.8.1",
+      "family_id": "3.8",
+      "family_name": "Media Protection",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.8.1"
+          "title": "Implement requirement 3.8.1a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.8.1"
+          "title": "Implement requirement 3.8.1b"
         }
       ]
     },
     {
       "id": "3.8.2",
-      "title": "Sample Title for Control 3.8.2",
+      "title": "Sample title for control 3.8.2",
+      "family_id": "3.8",
+      "family_name": "Media Protection",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.8.2"
+          "title": "Implement requirement 3.8.2a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.8.2"
+          "title": "Implement requirement 3.8.2b"
         }
       ]
     },
     {
       "id": "3.8.3",
-      "title": "Sample Title for Control 3.8.3",
+      "title": "Sample title for control 3.8.3",
+      "family_id": "3.8",
+      "family_name": "Media Protection",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.8.3"
+          "title": "Implement requirement 3.8.3a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.8.3"
+          "title": "Implement requirement 3.8.3b"
         }
       ]
     },
     {
       "id": "3.8.4",
-      "title": "Sample Title for Control 3.8.4",
+      "title": "Sample title for control 3.8.4",
+      "family_id": "3.8",
+      "family_name": "Media Protection",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.8.4"
+          "title": "Implement requirement 3.8.4a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.8.4"
+          "title": "Implement requirement 3.8.4b"
         }
       ]
     },
     {
       "id": "3.8.5",
-      "title": "Sample Title for Control 3.8.5",
+      "title": "Sample title for control 3.8.5",
+      "family_id": "3.8",
+      "family_name": "Media Protection",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.8.5"
+          "title": "Implement requirement 3.8.5a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.8.5"
+          "title": "Implement requirement 3.8.5b"
         }
       ]
     },
     {
       "id": "3.8.6",
-      "title": "Sample Title for Control 3.8.6",
+      "title": "Sample title for control 3.8.6",
+      "family_id": "3.8",
+      "family_name": "Media Protection",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.8.6"
+          "title": "Implement requirement 3.8.6a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.8.6"
+          "title": "Implement requirement 3.8.6b"
         }
       ]
     },
     {
       "id": "3.8.7",
-      "title": "Sample Title for Control 3.8.7",
+      "title": "Sample title for control 3.8.7",
+      "family_id": "3.8",
+      "family_name": "Media Protection",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.8.7"
+          "title": "Implement requirement 3.8.7a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.8.7"
+          "title": "Implement requirement 3.8.7b"
         }
       ]
     },
     {
       "id": "3.8.8",
-      "title": "Sample Title for Control 3.8.8",
+      "title": "Sample title for control 3.8.8",
+      "family_id": "3.8",
+      "family_name": "Media Protection",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.8.8"
+          "title": "Implement requirement 3.8.8a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.8.8"
+          "title": "Implement requirement 3.8.8b"
         }
       ]
     },
     {
       "id": "3.8.9",
-      "title": "Sample Title for Control 3.8.9",
+      "title": "Sample title for control 3.8.9",
+      "family_id": "3.8",
+      "family_name": "Media Protection",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.8.9"
+          "title": "Implement requirement 3.8.9a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.8.9"
-        }
-      ]
-    },
-    {
-      "id": "3.8.10",
-      "title": "Sample Title for Control 3.8.10",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Requirement (a) for 3.8.10"
-        },
-        {
-          "id": "b",
-          "title": "Requirement (b) for 3.8.10"
+          "title": "Implement requirement 3.8.9b"
         }
       ]
     },
     {
       "id": "3.9.1",
-      "title": "Sample Title for Control 3.9.1",
+      "title": "Sample title for control 3.9.1",
+      "family_id": "3.9",
+      "family_name": "Personnel Security",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.9.1"
+          "title": "Implement requirement 3.9.1a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.9.1"
+          "title": "Implement requirement 3.9.1b"
         }
       ]
     },
     {
       "id": "3.9.2",
-      "title": "Sample Title for Control 3.9.2",
+      "title": "Sample title for control 3.9.2",
+      "family_id": "3.9",
+      "family_name": "Personnel Security",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.9.2"
+          "title": "Implement requirement 3.9.2a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.9.2"
-        }
-      ]
-    },
-    {
-      "id": "3.9.3",
-      "title": "Sample Title for Control 3.9.3",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Requirement (a) for 3.9.3"
-        },
-        {
-          "id": "b",
-          "title": "Requirement (b) for 3.9.3"
-        }
-      ]
-    },
-    {
-      "id": "3.9.4",
-      "title": "Sample Title for Control 3.9.4",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Requirement (a) for 3.9.4"
-        },
-        {
-          "id": "b",
-          "title": "Requirement (b) for 3.9.4"
-        }
-      ]
-    },
-    {
-      "id": "3.9.5",
-      "title": "Sample Title for Control 3.9.5",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Requirement (a) for 3.9.5"
-        },
-        {
-          "id": "b",
-          "title": "Requirement (b) for 3.9.5"
-        }
-      ]
-    },
-    {
-      "id": "3.9.6",
-      "title": "Sample Title for Control 3.9.6",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Requirement (a) for 3.9.6"
-        },
-        {
-          "id": "b",
-          "title": "Requirement (b) for 3.9.6"
-        }
-      ]
-    },
-    {
-      "id": "3.9.7",
-      "title": "Sample Title for Control 3.9.7",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Requirement (a) for 3.9.7"
-        },
-        {
-          "id": "b",
-          "title": "Requirement (b) for 3.9.7"
-        }
-      ]
-    },
-    {
-      "id": "3.9.8",
-      "title": "Sample Title for Control 3.9.8",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Requirement (a) for 3.9.8"
-        },
-        {
-          "id": "b",
-          "title": "Requirement (b) for 3.9.8"
-        }
-      ]
-    },
-    {
-      "id": "3.9.9",
-      "title": "Sample Title for Control 3.9.9",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Requirement (a) for 3.9.9"
-        },
-        {
-          "id": "b",
-          "title": "Requirement (b) for 3.9.9"
-        }
-      ]
-    },
-    {
-      "id": "3.9.10",
-      "title": "Sample Title for Control 3.9.10",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Requirement (a) for 3.9.10"
-        },
-        {
-          "id": "b",
-          "title": "Requirement (b) for 3.9.10"
+          "title": "Implement requirement 3.9.2b"
         }
       ]
     },
     {
       "id": "3.10.1",
-      "title": "Sample Title for Control 3.10.1",
+      "title": "Sample title for control 3.10.1",
+      "family_id": "3.10",
+      "family_name": "Physical Protection",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.10.1"
+          "title": "Implement requirement 3.10.1a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.10.1"
+          "title": "Implement requirement 3.10.1b"
         }
       ]
     },
     {
       "id": "3.10.2",
-      "title": "Sample Title for Control 3.10.2",
+      "title": "Sample title for control 3.10.2",
+      "family_id": "3.10",
+      "family_name": "Physical Protection",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.10.2"
+          "title": "Implement requirement 3.10.2a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.10.2"
+          "title": "Implement requirement 3.10.2b"
         }
       ]
     },
     {
       "id": "3.10.3",
-      "title": "Sample Title for Control 3.10.3",
+      "title": "Sample title for control 3.10.3",
+      "family_id": "3.10",
+      "family_name": "Physical Protection",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.10.3"
+          "title": "Implement requirement 3.10.3a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.10.3"
+          "title": "Implement requirement 3.10.3b"
         }
       ]
     },
     {
       "id": "3.10.4",
-      "title": "Sample Title for Control 3.10.4",
+      "title": "Sample title for control 3.10.4",
+      "family_id": "3.10",
+      "family_name": "Physical Protection",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.10.4"
+          "title": "Implement requirement 3.10.4a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.10.4"
+          "title": "Implement requirement 3.10.4b"
         }
       ]
     },
     {
       "id": "3.10.5",
-      "title": "Sample Title for Control 3.10.5",
+      "title": "Sample title for control 3.10.5",
+      "family_id": "3.10",
+      "family_name": "Physical Protection",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.10.5"
+          "title": "Implement requirement 3.10.5a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.10.5"
+          "title": "Implement requirement 3.10.5b"
         }
       ]
     },
     {
       "id": "3.10.6",
-      "title": "Sample Title for Control 3.10.6",
+      "title": "Sample title for control 3.10.6",
+      "family_id": "3.10",
+      "family_name": "Physical Protection",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.10.6"
+          "title": "Implement requirement 3.10.6a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.10.6"
-        }
-      ]
-    },
-    {
-      "id": "3.10.7",
-      "title": "Sample Title for Control 3.10.7",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Requirement (a) for 3.10.7"
-        },
-        {
-          "id": "b",
-          "title": "Requirement (b) for 3.10.7"
-        }
-      ]
-    },
-    {
-      "id": "3.10.8",
-      "title": "Sample Title for Control 3.10.8",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Requirement (a) for 3.10.8"
-        },
-        {
-          "id": "b",
-          "title": "Requirement (b) for 3.10.8"
-        }
-      ]
-    },
-    {
-      "id": "3.10.9",
-      "title": "Sample Title for Control 3.10.9",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Requirement (a) for 3.10.9"
-        },
-        {
-          "id": "b",
-          "title": "Requirement (b) for 3.10.9"
-        }
-      ]
-    },
-    {
-      "id": "3.10.10",
-      "title": "Sample Title for Control 3.10.10",
-      "subs": [
-        {
-          "id": "a",
-          "title": "Requirement (a) for 3.10.10"
-        },
-        {
-          "id": "b",
-          "title": "Requirement (b) for 3.10.10"
+          "title": "Implement requirement 3.10.6b"
         }
       ]
     },
     {
       "id": "3.11.1",
-      "title": "Sample Title for Control 3.11.1",
+      "title": "Sample title for control 3.11.1",
+      "family_id": "3.11",
+      "family_name": "Risk Assessment",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.11.1"
+          "title": "Implement requirement 3.11.1a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.11.1"
+          "title": "Implement requirement 3.11.1b"
         }
       ]
     },
     {
       "id": "3.11.2",
-      "title": "Sample Title for Control 3.11.2",
+      "title": "Sample title for control 3.11.2",
+      "family_id": "3.11",
+      "family_name": "Risk Assessment",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.11.2"
+          "title": "Implement requirement 3.11.2a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.11.2"
+          "title": "Implement requirement 3.11.2b"
         }
       ]
     },
     {
       "id": "3.11.3",
-      "title": "Sample Title for Control 3.11.3",
+      "title": "Sample title for control 3.11.3",
+      "family_id": "3.11",
+      "family_name": "Risk Assessment",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.11.3"
+          "title": "Implement requirement 3.11.3a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.11.3"
+          "title": "Implement requirement 3.11.3b"
         }
       ]
     },
     {
-      "id": "3.11.4",
-      "title": "Sample Title for Control 3.11.4",
+      "id": "3.12.1",
+      "title": "Sample title for control 3.12.1",
+      "family_id": "3.12",
+      "family_name": "Security Assessment",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.11.4"
+          "title": "Implement requirement 3.12.1a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.11.4"
+          "title": "Implement requirement 3.12.1b"
         }
       ]
     },
     {
-      "id": "3.11.5",
-      "title": "Sample Title for Control 3.11.5",
+      "id": "3.12.2",
+      "title": "Sample title for control 3.12.2",
+      "family_id": "3.12",
+      "family_name": "Security Assessment",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.11.5"
+          "title": "Implement requirement 3.12.2a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.11.5"
+          "title": "Implement requirement 3.12.2b"
         }
       ]
     },
     {
-      "id": "3.11.6",
-      "title": "Sample Title for Control 3.11.6",
+      "id": "3.12.3",
+      "title": "Sample title for control 3.12.3",
+      "family_id": "3.12",
+      "family_name": "Security Assessment",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.11.6"
+          "title": "Implement requirement 3.12.3a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.11.6"
+          "title": "Implement requirement 3.12.3b"
         }
       ]
     },
     {
-      "id": "3.11.7",
-      "title": "Sample Title for Control 3.11.7",
+      "id": "3.12.4",
+      "title": "Sample title for control 3.12.4",
+      "family_id": "3.12",
+      "family_name": "Security Assessment",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.11.7"
+          "title": "Implement requirement 3.12.4a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.11.7"
+          "title": "Implement requirement 3.12.4b"
         }
       ]
     },
     {
-      "id": "3.11.8",
-      "title": "Sample Title for Control 3.11.8",
+      "id": "3.13.1",
+      "title": "Sample title for control 3.13.1",
+      "family_id": "3.13",
+      "family_name": "System and Communications Protection",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.11.8"
+          "title": "Implement requirement 3.13.1a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.11.8"
+          "title": "Implement requirement 3.13.1b"
         }
       ]
     },
     {
-      "id": "3.11.9",
-      "title": "Sample Title for Control 3.11.9",
+      "id": "3.13.2",
+      "title": "Sample title for control 3.13.2",
+      "family_id": "3.13",
+      "family_name": "System and Communications Protection",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.11.9"
+          "title": "Implement requirement 3.13.2a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.11.9"
+          "title": "Implement requirement 3.13.2b"
         }
       ]
     },
     {
-      "id": "3.11.10",
-      "title": "Sample Title for Control 3.11.10",
+      "id": "3.13.3",
+      "title": "Sample title for control 3.13.3",
+      "family_id": "3.13",
+      "family_name": "System and Communications Protection",
       "subs": [
         {
           "id": "a",
-          "title": "Requirement (a) for 3.11.10"
+          "title": "Implement requirement 3.13.3a"
         },
         {
           "id": "b",
-          "title": "Requirement (b) for 3.11.10"
+          "title": "Implement requirement 3.13.3b"
+        }
+      ]
+    },
+    {
+      "id": "3.13.4",
+      "title": "Sample title for control 3.13.4",
+      "family_id": "3.13",
+      "family_name": "System and Communications Protection",
+      "subs": [
+        {
+          "id": "a",
+          "title": "Implement requirement 3.13.4a"
+        },
+        {
+          "id": "b",
+          "title": "Implement requirement 3.13.4b"
+        }
+      ]
+    },
+    {
+      "id": "3.13.5",
+      "title": "Sample title for control 3.13.5",
+      "family_id": "3.13",
+      "family_name": "System and Communications Protection",
+      "subs": [
+        {
+          "id": "a",
+          "title": "Implement requirement 3.13.5a"
+        },
+        {
+          "id": "b",
+          "title": "Implement requirement 3.13.5b"
+        }
+      ]
+    },
+    {
+      "id": "3.13.6",
+      "title": "Sample title for control 3.13.6",
+      "family_id": "3.13",
+      "family_name": "System and Communications Protection",
+      "subs": [
+        {
+          "id": "a",
+          "title": "Implement requirement 3.13.6a"
+        },
+        {
+          "id": "b",
+          "title": "Implement requirement 3.13.6b"
+        }
+      ]
+    },
+    {
+      "id": "3.13.7",
+      "title": "Sample title for control 3.13.7",
+      "family_id": "3.13",
+      "family_name": "System and Communications Protection",
+      "subs": [
+        {
+          "id": "a",
+          "title": "Implement requirement 3.13.7a"
+        },
+        {
+          "id": "b",
+          "title": "Implement requirement 3.13.7b"
+        }
+      ]
+    },
+    {
+      "id": "3.13.8",
+      "title": "Sample title for control 3.13.8",
+      "family_id": "3.13",
+      "family_name": "System and Communications Protection",
+      "subs": [
+        {
+          "id": "a",
+          "title": "Implement requirement 3.13.8a"
+        },
+        {
+          "id": "b",
+          "title": "Implement requirement 3.13.8b"
+        }
+      ]
+    },
+    {
+      "id": "3.13.9",
+      "title": "Sample title for control 3.13.9",
+      "family_id": "3.13",
+      "family_name": "System and Communications Protection",
+      "subs": [
+        {
+          "id": "a",
+          "title": "Implement requirement 3.13.9a"
+        },
+        {
+          "id": "b",
+          "title": "Implement requirement 3.13.9b"
+        }
+      ]
+    },
+    {
+      "id": "3.13.10",
+      "title": "Sample title for control 3.13.10",
+      "family_id": "3.13",
+      "family_name": "System and Communications Protection",
+      "subs": [
+        {
+          "id": "a",
+          "title": "Implement requirement 3.13.10a"
+        },
+        {
+          "id": "b",
+          "title": "Implement requirement 3.13.10b"
+        }
+      ]
+    },
+    {
+      "id": "3.13.11",
+      "title": "Sample title for control 3.13.11",
+      "family_id": "3.13",
+      "family_name": "System and Communications Protection",
+      "subs": [
+        {
+          "id": "a",
+          "title": "Implement requirement 3.13.11a"
+        },
+        {
+          "id": "b",
+          "title": "Implement requirement 3.13.11b"
+        }
+      ]
+    },
+    {
+      "id": "3.13.12",
+      "title": "Sample title for control 3.13.12",
+      "family_id": "3.13",
+      "family_name": "System and Communications Protection",
+      "subs": [
+        {
+          "id": "a",
+          "title": "Implement requirement 3.13.12a"
+        },
+        {
+          "id": "b",
+          "title": "Implement requirement 3.13.12b"
+        }
+      ]
+    },
+    {
+      "id": "3.13.13",
+      "title": "Sample title for control 3.13.13",
+      "family_id": "3.13",
+      "family_name": "System and Communications Protection",
+      "subs": [
+        {
+          "id": "a",
+          "title": "Implement requirement 3.13.13a"
+        },
+        {
+          "id": "b",
+          "title": "Implement requirement 3.13.13b"
+        }
+      ]
+    },
+    {
+      "id": "3.13.14",
+      "title": "Sample title for control 3.13.14",
+      "family_id": "3.13",
+      "family_name": "System and Communications Protection",
+      "subs": [
+        {
+          "id": "a",
+          "title": "Implement requirement 3.13.14a"
+        },
+        {
+          "id": "b",
+          "title": "Implement requirement 3.13.14b"
+        }
+      ]
+    },
+    {
+      "id": "3.13.15",
+      "title": "Sample title for control 3.13.15",
+      "family_id": "3.13",
+      "family_name": "System and Communications Protection",
+      "subs": [
+        {
+          "id": "a",
+          "title": "Implement requirement 3.13.15a"
+        },
+        {
+          "id": "b",
+          "title": "Implement requirement 3.13.15b"
+        }
+      ]
+    },
+    {
+      "id": "3.13.16",
+      "title": "Sample title for control 3.13.16",
+      "family_id": "3.13",
+      "family_name": "System and Communications Protection",
+      "subs": [
+        {
+          "id": "a",
+          "title": "Implement requirement 3.13.16a"
+        },
+        {
+          "id": "b",
+          "title": "Implement requirement 3.13.16b"
+        }
+      ]
+    },
+    {
+      "id": "3.14.1",
+      "title": "Sample title for control 3.14.1",
+      "family_id": "3.14",
+      "family_name": "System and Information Integrity",
+      "subs": [
+        {
+          "id": "a",
+          "title": "Implement requirement 3.14.1a"
+        },
+        {
+          "id": "b",
+          "title": "Implement requirement 3.14.1b"
+        }
+      ]
+    },
+    {
+      "id": "3.14.2",
+      "title": "Sample title for control 3.14.2",
+      "family_id": "3.14",
+      "family_name": "System and Information Integrity",
+      "subs": [
+        {
+          "id": "a",
+          "title": "Implement requirement 3.14.2a"
+        },
+        {
+          "id": "b",
+          "title": "Implement requirement 3.14.2b"
+        }
+      ]
+    },
+    {
+      "id": "3.14.3",
+      "title": "Sample title for control 3.14.3",
+      "family_id": "3.14",
+      "family_name": "System and Information Integrity",
+      "subs": [
+        {
+          "id": "a",
+          "title": "Implement requirement 3.14.3a"
+        },
+        {
+          "id": "b",
+          "title": "Implement requirement 3.14.3b"
+        }
+      ]
+    },
+    {
+      "id": "3.14.4",
+      "title": "Sample title for control 3.14.4",
+      "family_id": "3.14",
+      "family_name": "System and Information Integrity",
+      "subs": [
+        {
+          "id": "a",
+          "title": "Implement requirement 3.14.4a"
+        },
+        {
+          "id": "b",
+          "title": "Implement requirement 3.14.4b"
+        }
+      ]
+    },
+    {
+      "id": "3.14.5",
+      "title": "Sample title for control 3.14.5",
+      "family_id": "3.14",
+      "family_name": "System and Information Integrity",
+      "subs": [
+        {
+          "id": "a",
+          "title": "Implement requirement 3.14.5a"
+        },
+        {
+          "id": "b",
+          "title": "Implement requirement 3.14.5b"
+        }
+      ]
+    },
+    {
+      "id": "3.14.6",
+      "title": "Sample title for control 3.14.6",
+      "family_id": "3.14",
+      "family_name": "System and Information Integrity",
+      "subs": [
+        {
+          "id": "a",
+          "title": "Implement requirement 3.14.6a"
+        },
+        {
+          "id": "b",
+          "title": "Implement requirement 3.14.6b"
+        }
+      ]
+    },
+    {
+      "id": "3.14.7",
+      "title": "Sample title for control 3.14.7",
+      "family_id": "3.14",
+      "family_name": "System and Information Integrity",
+      "subs": [
+        {
+          "id": "a",
+          "title": "Implement requirement 3.14.7a"
+        },
+        {
+          "id": "b",
+          "title": "Implement requirement 3.14.7b"
         }
       ]
     }

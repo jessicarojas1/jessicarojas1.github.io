@@ -187,3 +187,45 @@ pre {
 .text-black {
   color: #000000;
 }
+
+/* Chart container responsiveness */
+canvas#familyPieChart {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Control module styling */
+#controlsList .control-module {
+  background: #2d2d2d;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 0 5px rgba(0,0,0,0.3);
+}
+
+/* Status select box */
+#controlsList select {
+  margin-top: 0.5rem;
+  padding: 0.25rem;
+  font-size: 0.9rem;
+  border-radius: 4px;
+}
+
+/* Compliance tags */
+.status-badge {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  display: inline-block;
+}
+.status-badge.compliant { background: #2563eb; color: white; }
+.status-badge.non-compliant { background: #dc2626; color: white; }
+.status-badge.poam { background: #facc15; color: black; }
+.status-badge.in-progress { background: #3b82f6; color: white; }
+
+/* Responsive tweak */
+@media (max-width: 768px) {
+  #controlsList {
+    grid-template-columns: 1fr !important;
+  }
+}
+
