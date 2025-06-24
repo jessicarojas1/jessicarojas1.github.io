@@ -38,7 +38,7 @@
     let allControls = [];
 
     async function loadControls() {
-      const response = await fetch('cmmc_controls_full_detailed.json');
+      const response = await fetch('cmmc_controls.json');
       const controls = await response.json();
       allControls = controls;
       renderControls(controls);
