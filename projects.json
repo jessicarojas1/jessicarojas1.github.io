@@ -2,11 +2,18 @@
   {
     "title": "Secure File Uploader",
     "description": "Encrypted file upload and retrieval system using JavaScript.",
-    "github_url": "https://github.com/yourusername/project1"
+    "github_url": "https://github.com/jessicarojas1/project1"
   },
   {
     "title": "Dashboard Analytics",
     "description": "Data visualization dashboard with real-time chart updates.",
-    "github_url": "https://github.com/yourusername/project2"
+    "github_url": "https://github.com/jessicarojas1/project2"
+  },
+  {
+    "title": "CMMC / NIST 800-171 Compliance Tracker",
+    "description": "A full-stack tool to monitor, track, and manage NIST 800-171 and CMMC control compliance, including evidence uploads and remediation tracking.",
+    "tech": ["Django", "React", "Chart.js", "PostgreSQL"],
+    "image": "images/cmmc-tracker-thumbnail.png",
+    "link": "compliancetracker.html" 
   }
 ]
