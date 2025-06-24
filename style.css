@@ -62,7 +62,7 @@ nav a:hover {
 .hero h1 {
   font-size: 3rem;
   margin-bottom: 1rem;
-  color: #58a6ff;
+  color: #ff4000;
 }
 
 .hero p {
@@ -72,8 +72,8 @@ nav a:hover {
 
 .btn {
   display: inline-block;
-  background: #ffd900;
-  color: #fff;
+  background: #ff8000;
+  color: #000000;
   padding: 0.75rem 1.25rem;
   border-radius: 6px;
   margin: 0.5rem;
@@ -81,8 +81,8 @@ nav a:hover {
 }
 
 .btn:hover {
-  background: #ff4d00;
-  color: #000000;
+  background: #762100;
+  color: #ffffff;
 }
 
 /* Stats */
