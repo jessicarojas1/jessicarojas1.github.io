@@ -1,4 +1,4 @@
-/* styles.css for all pages including compliancetracker.html */
+/* General Body and Layout */
 body {
   font-family: 'Segoe UI', sans-serif;
   margin: 0;
@@ -6,121 +6,171 @@ body {
   background: linear-gradient(to right, #1f1f1f, #2c2c2c);
   color: #f4f4f4;
 }
-nav {
-  background-color: #111;
-  padding: 1em;
-  text-align: center;
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
 }
-nav a {
-  color: #fff;
-  margin: 0 12px;
-  text-decoration: none;
-  font-weight: bold;
+
+.hidden {
+  display: none;
 }
-nav a:hover {
-  color: #ff5555;
-}
-/* Compliance Tracker Specific Styling */
+
+/* Header and Nav */
 header {
   background-color: #0f0f0f;
   border-bottom: 2px solid #00ff99;
   padding: 1em;
   text-align: center;
 }
+
 header h1 {
   color: #00ff99;
   font-size: 2rem;
 }
+
+nav a {
+  color: #fff;
+  margin: 0 12px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+nav a:hover {
+  color: #ff5555;
+}
+
+/* Canvas / Chart */
 canvas {
   display: block;
   margin: 0 auto 20px auto;
-  max-width: 400px;
+  max-width: 100%;
   background-color: #1a1a1a;
   padding: 10px;
   border-radius: 8px;
 }
-button {
-  cursor: pointer;
-  font-weight: bold;
+
+/* Pie Chart Specific */
+canvas#familyPieChart {
+  max-width: 100%;
+  height: auto;
 }
+
+/* Table */
 #familyTable {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 20px;
 }
+
 #familyTable th, #familyTable td {
   border: 1px solid #00ff99;
   padding: 8px;
   text-align: left;
 }
+
 #familyTable th {
   background-color: #003322;
 }
+
 #familyTable td {
   background-color: #112;
 }
+
+/* Controls View */
 #controlView {
   padding: 20px;
   background: #111;
   border-radius: 10px;
 }
-.module {
-  background: #222;
-  padding: 15px;
-  border-radius: 8px;
-  margin-bottom: 15px;
-  box-shadow: 0 0 8px rgba(0,255,100,0.3);
+
+/* Control Module Styling */
+.control-module {
+  background: #2d2d2d;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 0 5px rgba(0,0,0,0.3);
+  margin-bottom: 1rem;
 }
-.module h3 {
+
+.control-module h4 {
   color: #00ff99;
-  margin-bottom: 8px;
+  margin-bottom: 0.5rem;
 }
+
+/* Subcontrol Block */
 .subcontrol {
-  padding-left: 15px;
-  margin-bottom: 10px;
-  border-left: 2px solid #00ff99;
-}
-.status-tag {
-  display: inline-block;
-  padding: 2px 6px;
-  margin-left: 8px;
-  font-size: 0.8rem;
+  padding: 0.75rem;
+  background: #1a1a1a;
+  border-left: 4px solid #00ff99;
+  margin-bottom: 0.75rem;
   border-radius: 4px;
-  color: #fff;
 }
-.status-compliant {
-  background: #009966;
-}
-.status-noncompliant {
-  background: #cc3333;
-}
-.status-inprogress {
-  background: #3366cc;
-}
-.status-poam {
-  background: #ffcc00;
-  color: #000;
-}
-input[type="text"], select, textarea {
+
+/* Select Box Styling */
+select, input[type="text"], textarea {
   width: 100%;
-  padding: 8px;
-  margin-top: 6px;
-  margin-bottom: 16px;
+  padding: 0.5rem;
+  background: #333;
+  color: #fff;
   border: none;
   border-radius: 4px;
-  background-color: #333;
-  color: #fff;
+  margin-top: 0.5rem;
 }
+
+/* Status Tags */
+.status-badge {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  display: inline-block;
+  margin-right: 6px;
+}
+
+.status-badge.compliant {
+  background-color: #2563eb;
+  color: white;
+}
+
+.status-badge.non-compliant {
+  background-color: #dc2626;
+  color: white;
+}
+
+.status-badge.poam {
+  background-color: #facc15;
+  color: black;
+}
+
+.status-badge.in-progress {
+  background-color: #3b82f6;
+  color: white;
+}
+
+/* Buttons */
+button {
+  cursor: pointer;
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  padding: 0.6rem 1rem;
+}
+
 button:hover {
   opacity: 0.85;
 }
+
+/* Code Preview */
 pre {
   background: #1e1e1e;
   padding: 10px;
   border-radius: 8px;
   overflow-x: auto;
+  font-size: 0.85rem;
 }
-/* Filter / tags */
+
+/* Tags / Filters */
 .tag {
   background: #222;
   border: 1px solid #00ff99;
@@ -130,102 +180,69 @@ pre {
   color: #00ff99;
   font-size: 0.85rem;
 }
-/* General layout */
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-}
-.hidden {
-  display: none;
-}
-.text-center {
-  text-align: center;
-}
-.rounded {
-  border-radius: 5px;
-}
-.shadow-lg {
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-}
+
+/* Color Tokens */
 .bg-green-950 {
   background-color: #003322;
 }
+
 .text-green-400 {
   color: #00ff99;
 }
+
 .text-yellow-400 {
   color: #ffcc00;
 }
+
 .bg-yellow-500 {
   background-color: #ffcc00;
 }
+
 .bg-blue-600 {
   background-color: #3366cc;
 }
+
 .bg-blue-700 {
   background-color: #2a4a9e;
 }
+
 .bg-red-600 {
   background-color: #cc3333;
 }
+
 .bg-red-700 {
   background-color: #b22222;
 }
+
 .bg-gray-700 {
   background-color: #3a3a3a;
 }
+
 .bg-gray-800 {
   background-color: #2a2a2a;
 }
+
 .bg-gray-900 {
   background-color: #1a1a1a;
 }
+
 .text-white {
   color: #ffffff;
 }
+
 .text-black {
   color: #000000;
 }
 
-/* Chart container responsiveness */
-canvas#familyPieChart {
-  max-width: 100%;
-  height: auto;
+/* Responsive Grid for Controls */
+#controlsList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 1rem;
 }
 
-/* Control module styling */
-#controlsList .control-module {
-  background: #2d2d2d;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 0 5px rgba(0,0,0,0.3);
-}
-
-/* Status select box */
-#controlsList select {
-  margin-top: 0.5rem;
-  padding: 0.25rem;
-  font-size: 0.9rem;
-  border-radius: 4px;
-}
-
-/* Compliance tags */
-.status-badge {
-  font-size: 0.75rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  display: inline-block;
-}
-.status-badge.compliant { background: #2563eb; color: white; }
-.status-badge.non-compliant { background: #dc2626; color: white; }
-.status-badge.poam { background: #facc15; color: black; }
-.status-badge.in-progress { background: #3b82f6; color: white; }
-
-/* Responsive tweak */
 @media (max-width: 768px) {
   #controlsList {
-    grid-template-columns: 1fr !important;
+    grid-template-columns: 1fr;
   }
 }
-
