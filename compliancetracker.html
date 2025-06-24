@@ -19,19 +19,14 @@
   </header>
 
   <main class="py-12 px-6 md:px-16">
-    <section id="compliance-tracker" class="max-w-7xl mx-auto">
+    <section class="max-w-7xl mx-auto">
       <h2 class="text-3xl font-bold mb-6 border-b border-green-400 pb-2">CMMC / NIST 800-171 Compliance Tracker</h2>
-      <p class="text-lg mb-6 text-gray-300">
-        This interactive tool allows you to:
-        <ul class="list-disc ml-6 text-gray-300">
-          <li>Track CMMC 2.0 Level 2 compliance by control and subcontrol</li>
-          <li>Add notes and upload evidence for each subcontrol</li>
-          <li>Visually manage your progress in real time</li>
-          <li>Export a System Security Plan (SSP) as a DOCX file</li>
-        </ul>
-      </p>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="controlsList"></div>
+      <input type="text" id="searchInput" class="mb-6 w-full p-2 text-black rounded" placeholder="Search controls...">
+
+      <canvas id="progressChart" width="400" height="100" class="mb-12"></canvas>
+
+      <div id="controlsList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
 
       <div class="mt-12">
         <button id="exportSSP" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Export SSP (DOCX)</button>
@@ -40,31 +35,77 @@
   </main>
 
   <script>
+    let allControls = [];
+
     async function loadControls() {
-      const response = await fetch('cmmc_controls.json');
+      const response = await fetch('cmmc_controls_full_detailed.json');
       const controls = await response.json();
+      allControls = controls;
       renderControls(controls);
-      document.getElementById('exportSSP').addEventListener('click', () => exportSSP(controls));
+      updateChart(controls);
     }
 
     function renderControls(controls) {
       const container = document.getElementById('controlsList');
+      container.innerHTML = '';
+
       controls.forEach(control => {
         const controlBlock = document.createElement('div');
         controlBlock.className = 'bg-gray-800 p-4 rounded shadow';
-        const subsHtml = control.subs.map(sub => `
-          <div class="mt-4">
-            <h5 class="text-sm font-semibold text-green-200">${control.id}${sub.id}) ${sub.text}</h5>
-            <textarea placeholder="Notes for ${control.id}${sub.id}" class="w-full mb-2 px-2 py-1 rounded text-sm" data-id="${control.id}${sub.id}"></textarea>
-            <input type="file" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" data-id="${control.id}${sub.id}" class="block mb-2 text-sm">
-          </div>
-        `).join('');
+        const subsHtml = control.subs.map(sub => {
+          const dataId = `${control.id}${sub.id}`;
+          const stored = JSON.parse(localStorage.getItem(dataId) || '{}');
+          return `
+            <div class="mt-4">
+              <h5 class="text-sm font-semibold text-green-200">${dataId}) ${sub.text}</h5>
+              <textarea placeholder="Notes for ${dataId}" class="w-full mb-2 px-2 py-1 rounded text-sm note" data-id="${dataId}">${stored.note || ''}</textarea>
+              <input type="file" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" data-id="${dataId}" class="block mb-2 text-sm">
+              <select class="mb-2 text-sm px-2 py-1 rounded status" data-id="${dataId}">
+                <option value="">Status</option>
+                <option value="compliant" ${stored.status === 'compliant' ? 'selected' : ''}>Compliant</option>
+                <option value="non-compliant" ${stored.status === 'non-compliant' ? 'selected' : ''}>Non-Compliant</option>
+                <option value="poam" ${stored.status === 'poam' ? 'selected' : ''}>POAM</option>
+                <option value="in-progress" ${stored.status === 'in-progress' ? 'selected' : ''}>In Progress</option>
+              </select>
+              <input type="date" class="due-date mb-2 px-2 py-1 text-black rounded text-sm" data-id="${dataId}" value="${stored.dueDate || ''}">
+              <label class="text-sm block mb-2">
+                <input type="checkbox" class="review-flag mr-2" data-id="${dataId}" ${stored.reviewed ? 'checked' : ''}> Evidence Reviewed
+              </label>
+              <span class="badge ${stored.status || ''}">${stored.status ? stored.status.replace('-', ' ') : ''}</span>
+            </div>
+          `;
+        }).join('');
 
         controlBlock.innerHTML = `
           <h4 class="text-green-300 font-bold text-lg mb-2">${control.id} - ${control.title}</h4>
           ${subsHtml}
         `;
         container.appendChild(controlBlock);
+      });
+    }
+
+    function updateChart(controls) {
+      const counts = { compliant: 0, 'non-compliant': 0, poam: 0, 'in-progress': 0 };
+      document.querySelectorAll('.status').forEach(select => {
+        counts[select.value] = (counts[select.value] || 0) + 1;
+      });
+
+      const ctx = document.getElementById('progressChart').getContext('2d');
+      if (window.progressChart) window.progressChart.destroy();
+      window.progressChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Compliant', 'Non-Compliant', 'POAM', 'In Progress'],
+          datasets: [{
+            label: 'Control Status Count',
+            data: [counts['compliant'], counts['non-compliant'], counts['poam'], counts['in-progress']],
+            backgroundColor: ['#10b981', '#ef4444', '#f59e0b', '#3b82f6']
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } }
+        }
       });
     }
 
@@ -75,9 +116,13 @@
 
       controls.forEach(control => {
         control.subs.forEach(sub => {
-          const text = document.querySelector(`textarea[data-id='${control.id}${sub.id}']`).value;
-          if (text.trim()) {
-            docSections.push(new docx.Paragraph(`${control.id}${sub.id}) ${sub.text}: ${text}`));
+          const id = `${control.id}${sub.id}`;
+          const note = document.querySelector(`textarea[data-id='${id}']`).value;
+          const status = document.querySelector(`select[data-id='${id}']`).value;
+          const date = document.querySelector(`input[type='date'][data-id='${id}']`).value;
+          const reviewed = document.querySelector(`input.review-flag[data-id='${id}']`).checked;
+          if (note.trim()) {
+            docSections.push(new docx.Paragraph(`${id}) ${sub.text}: ${note} [Status: ${status}] [Due: ${date}] [Reviewed: ${reviewed}]`));
           }
         });
       });
@@ -93,7 +138,41 @@
       });
     }
 
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      const value = e.target.value.toLowerCase();
+      const filtered = allControls.filter(control =>
+        control.title.toLowerCase().includes(value) ||
+        control.id.toLowerCase().includes(value)
+      );
+      renderControls(filtered);
+    });
+
+    document.getElementById('exportSSP').addEventListener('click', () => exportSSP(allControls));
+    document.addEventListener('change', (e) => {
+      const id = e.target.dataset.id;
+      if (!id) return;
+      const note = document.querySelector(`textarea[data-id='${id}']`).value;
+      const status = document.querySelector(`select[data-id='${id}']`).value;
+      const dueDate = document.querySelector(`input[type='date'][data-id='${id}']`).value;
+      const reviewed = document.querySelector(`input.review-flag[data-id='${id}']`).checked;
+      localStorage.setItem(id, JSON.stringify({ note, status, dueDate, reviewed }));
+      updateChart(allControls);
+    });
+
     loadControls();
   </script>
+  <style>
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+    }
+    .badge.compliant { background: #10b981; color: white; }
+    .badge.non-compliant { background: #ef4444; color: white; }
+    .badge.poam { background: #f59e0b; color: white; }
+    .badge.in-progress { background: #3b82f6; color: white; }
+  </style>
 </body>
 </html>
