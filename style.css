@@ -9,7 +9,7 @@ body {
 }
 
 a {
-  color: #58a6ff;
+  color: #d04408;
   text-decoration: none;
   transition: color 0.3s;
 }
@@ -76,7 +76,7 @@ nav a:hover {
 
 .btn {
   display: inline-block;
-  background: #238636;
+  background: #ffd900;
   color: #fff;
   padding: 0.75rem 1.25rem;
   border-radius: 6px;
@@ -85,8 +85,8 @@ nav a:hover {
 }
 
 .btn:hover {
-  background: #000000;
-  color: #ff9900;
+  background: #ff4d00;
+  color: #000000;
 }
 
 /* Stats */
