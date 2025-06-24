@@ -70,6 +70,10 @@ nav a:hover {
   margin-bottom: 2rem;
 }
 
+.h1-name h1{
+  color: #238636;
+}
+
 .btn {
   display: inline-block;
   background: #238636;
@@ -81,7 +85,7 @@ nav a:hover {
 }
 
 .btn:hover {
-  background: #2200ff;
+  background: #022602;
 }
 
 /* Stats */
