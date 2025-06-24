@@ -99,7 +99,9 @@
       const colors = data.map(val => `hsl(${val * 1.2}, 70%, 50%)`);
 
       const ctx = document.getElementById('familyPieChart').getContext('2d');
-      if (window.familyPieChart) window.familyPieChart.destroy();
+      if (window.familyPieChart && typeof window.familyPieChart.destroy === 'function') {
+        window.familyPieChart.destroy();
+      }
       window.familyPieChart = new Chart(ctx, {
         type: 'pie',
         data: {
