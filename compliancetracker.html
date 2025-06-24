@@ -82,7 +82,7 @@
       familyMap = {};
 
       controls.forEach(control => {
-        const family = control.id.split('.')[1];
+        const family = control.id.split('.')[0];
         if (!familyMap[family]) familyMap[family] = { total: 0, compliant: 0 };
         control.subs.forEach(sub => {
           familyMap[family].total++;
@@ -116,8 +116,9 @@
           onClick: (e, elements) => {
             if (elements.length > 0) {
               const index = elements[0].index;
-              const selectedFamily = labels[index].split(' ')[1];
-              const filtered = allControls.filter(control => control.id.split('.')[1] === selectedFamily);
+              const selectedLabel = labels[index];
+              const selectedFamily = selectedLabel.replace('Family ', '');
+              const filtered = allControls.filter(control => control.id.startsWith(selectedFamily + '.'));
               document.getElementById('controlView').classList.remove('hidden');
               renderControls(filtered);
               window.scrollTo({ top: document.getElementById('controlView').offsetTop, behavior: 'smooth' });
@@ -145,6 +146,53 @@
         `;
       });
     }
+    function renderControls(controls) {
+    const container = document.getElementById('controlsList');
+    container.innerHTML = '';
+
+    controls.forEach(control => {
+      const module = document.createElement('div');
+      module.className = 'bg-gray-700 p-4 rounded shadow';
+
+      const title = document.createElement('h4');
+      title.className = 'text-lg font-bold mb-2 text-green-300';
+      title.textContent = `${control.id} – ${control.title}`;
+      module.appendChild(title);
+
+      control.subs.forEach(sub => {
+        const subId = `${control.id}${sub.id}`;
+        const stored = JSON.parse(localStorage.getItem(subId) || '{}');
+
+        const row = document.createElement('div');
+        row.className = 'mb-2 p-2 rounded bg-gray-800';
+
+        const desc = document.createElement('div');
+        desc.className = 'text-sm text-white';
+        desc.textContent = `${sub.id} – ${sub.title}`;
+        row.appendChild(desc);
+
+        const status = document.createElement('select');
+        status.className = 'mt-1 text-sm p-1 rounded';
+        status.innerHTML = `
+          <option value="">Set Status</option>
+          <option value="compliant">Compliant</option>
+          <option value="non-compliant">Non-Compliant</option>
+          <option value="in-progress">In Progress</option>
+          <option value="poam">POAM</option>
+        `;
+        status.value = stored.status || '';
+        status.onchange = () => {
+          localStorage.setItem(subId, JSON.stringify({ status: status.value }));
+          updateFamilyChart(allControls);
+        };
+        row.appendChild(status);
+
+        module.appendChild(row);
+      });
+
+      container.appendChild(module);
+    });
+  }
 
     document.getElementById('backToChart').addEventListener('click', () => {
       document.getElementById('controlView').classList.add('hidden');
