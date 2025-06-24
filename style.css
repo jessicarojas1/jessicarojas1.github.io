@@ -85,7 +85,8 @@ nav a:hover {
 }
 
 .btn:hover {
-  background: #f9ee23;
+  background: #000000;
+  color: #ff9900;
 }
 
 /* Stats */
