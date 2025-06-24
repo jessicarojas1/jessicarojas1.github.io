@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Compliance Tracker</title>
+  <title>CMMC / NIST 800-171 Compliance Tracker</title>
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.7.0/docx.min.js"></script>
@@ -70,7 +70,7 @@
     let familyMap = {};
 
     async function loadControls() {
-      const response = await fetch('cmmc_controls.json');
+      const response = await fetch('cmmc_controls_full_detailed.json');
       const controls = await response.json();
       allControls = controls;
       updateFamilyChart(controls);
@@ -91,8 +91,10 @@
       });
 
       const labels = Object.keys(familyMap).map(f => `Family ${f}`);
-      const data = Object.values(familyMap).map(v => Math.round((v.compliant / v.total) * 100));
-      const colors = data.map(val => `hsl(${val}, 70%, 50%)`);
+      const rawData = Object.values(familyMap).map(v => v.total === 0 ? 0 : Math.round((v.compliant / v.total) * 100));
+      const hasData = rawData.some(v => v > 0);
+      const data = hasData ? rawData : rawData.map(() => 1); // fallback if all 0
+      const colors = data.map(val => `hsl(${val * 1.2}, 70%, 50%)`);
 
       const ctx = document.getElementById('familyPieChart').getContext('2d');
       if (window.familyPieChart) window.familyPieChart.destroy();
@@ -124,7 +126,7 @@
       const tableBody = document.getElementById('familyTableBody');
       tableBody.innerHTML = '';
       Object.entries(familyMap).forEach(([fam, stats]) => {
-        const percent = Math.round((stats.compliant / stats.total) * 100);
+        const percent = stats.total === 0 ? 0 : Math.round((stats.compliant / stats.total) * 100);
         tableBody.innerHTML += `
           <tr>
             <td class="border-t border-green-700 px-4 py-2">Family ${fam}</td>
@@ -139,47 +141,6 @@
     document.getElementById('backToChart').addEventListener('click', () => {
       document.getElementById('controlView').classList.add('hidden');
     });
-
-    function renderControls(controls) {
-      const container = document.getElementById('controlsList');
-      container.innerHTML = '';
-
-      controls.forEach(control => {
-        const controlBlock = document.createElement('div');
-        controlBlock.className = 'bg-gray-800 p-4 rounded shadow';
-        const subsHtml = control.subs.map(sub => {
-          const dataId = `${control.id}${sub.id}`;
-          const stored = JSON.parse(localStorage.getItem(dataId) || '{}');
-          return `
-            <div class="mt-4">
-              <h5 class="text-sm font-semibold text-green-200">${dataId}) ${sub.text}</h5>
-              <textarea placeholder="Notes for ${dataId}" class="w-full mb-2 px-2 py-1 rounded text-sm note" data-id="${dataId}">${stored.note || ''}</textarea>
-              <input type="file" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" data-id="${dataId}" class="block mb-2 text-sm">
-              <select class="mb-2 text-sm px-2 py-1 rounded status" data-id="${dataId}">
-                <option value="">Status</option>
-                <option value="compliant" ${stored.status === 'compliant' ? 'selected' : ''}>Compliant</option>
-                <option value="non-compliant" ${stored.status === 'non-compliant' ? 'selected' : ''}>Non-Compliant</option>
-                <option value="poam" ${stored.status === 'poam' ? 'selected' : ''}>POAM</option>
-                <option value="in-progress" ${stored.status === 'in-progress' ? 'selected' : ''}>In Progress</option>
-              </select>
-              <input type="date" class="due-date mb-2 px-2 py-1 text-black rounded text-sm" data-id="${dataId}" value="${stored.dueDate || ''}">
-              <label class="text-sm block mb-2">
-                <input type="checkbox" class="review-flag mr-2" data-id="${dataId}" ${stored.reviewed ? 'checked' : ''}> Evidence Reviewed
-              </label>
-              <span class="badge ${stored.status || ''}">${stored.status ? stored.status.replace('-', ' ') : ''}</span>
-              <button class="text-xs text-blue-300 hover:underline mt-1" onclick="showSuggestion('${sub.text}', '${dataId}')">💡 GPT Suggest</button>
-            </div>
-          `;
-        }).join('');
-
-        controlBlock.innerHTML = `
-          <h4 class="text-green-300 font-bold text-lg mb-2">${control.id} - ${control.title}</h4>
-          ${subsHtml}
-        `;
-        container.appendChild(controlBlock);
-      });
-      updateSSPPreview();
-    }
 
     loadControls();
   </script>
