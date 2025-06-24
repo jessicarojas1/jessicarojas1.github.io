@@ -26,6 +26,7 @@
       <input type="text" id="searchInput" class="mb-6 w-full p-2 text-black rounded" placeholder="Search controls...">
 
       <canvas id="progressChart" width="400" height="100" class="mb-12"></canvas>
+      <canvas id="familyPieChart" width="400" height="400" class="mb-12"></canvas>
 
       <div id="controlsList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
 
@@ -54,6 +55,7 @@
       allControls = controls;
       renderControls(controls);
       updateChart(controls);
+      updateFamilyChart(controls);
     }
 
     function renderControls(controls) {
@@ -122,6 +124,42 @@
       });
     }
 
+    function updateFamilyChart(controls) {
+      const familyMap = {};
+
+      controls.forEach(control => {
+        const family = control.id.split('.')[1];
+        if (!familyMap[family]) familyMap[family] = { total: 0, compliant: 0 };
+        control.subs.forEach(sub => {
+          familyMap[family].total++;
+          const dataId = `${control.id}${sub.id}`;
+          const stored = JSON.parse(localStorage.getItem(dataId) || '{}');
+          if (stored.status === 'compliant') familyMap[family].compliant++;
+        });
+      });
+
+      const labels = Object.keys(familyMap).map(f => `Family ${f}`);
+      const data = Object.values(familyMap).map(v => Math.round((v.compliant / v.total) * 100));
+      const colors = data.map(val => `hsl(${val}, 70%, 50%)`);
+
+      const ctx = document.getElementById('familyPieChart').getContext('2d');
+      if (window.familyPieChart) window.familyPieChart.destroy();
+      window.familyPieChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Compliance % by Family',
+            data: data,
+            backgroundColor: colors
+          }]
+        },
+        options: {
+          responsive: true
+        }
+      });
+    }
+
     function updateSSPPreview() {
       let preview = '';
       document.querySelectorAll('.note').forEach(note => {
@@ -160,6 +198,7 @@
       const reviewed = document.querySelector(`input.review-flag[data-id='${id}']`).checked;
       localStorage.setItem(id, JSON.stringify({ note, status, dueDate, reviewed }));
       updateChart(allControls);
+      updateFamilyChart(allControls);
       updateSSPPreview();
     });
 
@@ -194,18 +233,5 @@
 
     loadControls();
   </script>
-  <style>
-    .badge {
-      display: inline-block;
-      padding: 0.2rem 0.5rem;
-      border-radius: 0.25rem;
-      font-size: 0.75rem;
-      text-transform: uppercase;
-    }
-    .badge.compliant { background: #10b981; color: white; }
-    .badge.non-compliant { background: #ef4444; color: white; }
-    .badge.poam { background: #f59e0b; color: white; }
-    .badge.in-progress { background: #3b82f6; color: white; }
-  </style>
 </body>
 </html>
