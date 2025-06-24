@@ -14,6 +14,7 @@
       <h1 class="text-2xl font-bold text-green-400">Compliance Tracker</h1>
       <nav>
         <a href="index.html" class="text-gray-300 hover:text-green-400">Back to Portfolio</a>
+        <a href="#adminPanel" class="ml-4 text-yellow-400 hover:underline">Admin UI</a>
       </nav>
     </div>
   </header>
@@ -31,6 +32,16 @@
       <div class="mt-12">
         <button id="exportSSP" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Export SSP (DOCX)</button>
       </div>
+    </section>
+
+    <section id="sspPreview" class="mt-16 bg-gray-800 p-6 rounded">
+      <h3 class="text-xl mb-4 text-green-300 font-bold">Live SSP Preview</h3>
+      <pre id="sspOutput" class="whitespace-pre-wrap text-gray-300 text-sm"></pre>
+    </section>
+
+    <section id="adminPanel" class="mt-16 bg-gray-900 p-6 rounded">
+      <h3 class="text-xl mb-4 text-yellow-400 font-bold">Admin UI</h3>
+      <button onclick="localStorage.clear(); location.reload();" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">Clear All Local Data</button>
     </section>
   </main>
 
@@ -72,6 +83,7 @@
                 <input type="checkbox" class="review-flag mr-2" data-id="${dataId}" ${stored.reviewed ? 'checked' : ''}> Evidence Reviewed
               </label>
               <span class="badge ${stored.status || ''}">${stored.status ? stored.status.replace('-', ' ') : ''}</span>
+              <button class="text-xs text-blue-300 hover:underline mt-1" onclick="showSuggestion('${sub.text}', '${dataId}')">💡 GPT Suggest</button>
             </div>
           `;
         }).join('');
@@ -82,6 +94,7 @@
         `;
         container.appendChild(controlBlock);
       });
+      updateSSPPreview();
     }
 
     function updateChart(controls) {
@@ -109,33 +122,23 @@
       });
     }
 
-    function exportSSP(controls) {
-      const docSections = [
-        new docx.Paragraph({ text: "System Security Plan (SSP)", heading: docx.HeadingLevel.TITLE })
-      ];
-
-      controls.forEach(control => {
-        control.subs.forEach(sub => {
-          const id = `${control.id}${sub.id}`;
-          const note = document.querySelector(`textarea[data-id='${id}']`).value;
+    function updateSSPPreview() {
+      let preview = '';
+      document.querySelectorAll('.note').forEach(note => {
+        if (note.value.trim()) {
+          const id = note.dataset.id;
           const status = document.querySelector(`select[data-id='${id}']`).value;
-          const date = document.querySelector(`input[type='date'][data-id='${id}']`).value;
-          const reviewed = document.querySelector(`input.review-flag[data-id='${id}']`).checked;
-          if (note.trim()) {
-            docSections.push(new docx.Paragraph(`${id}) ${sub.text}: ${note} [Status: ${status}] [Due: ${date}] [Reviewed: ${reviewed}]`));
-          }
-        });
+          const due = document.querySelector(`input[type='date'][data-id='${id}']`).value;
+          preview += `${id}:
+- ${note.value.trim()}
+- Status: ${status}, Due: ${due}\n\n`;
+        }
       });
+      document.getElementById('sspOutput').textContent = preview;
+    }
 
-      const doc = new docx.Document({
-        sections: [ { children: docSections } ]
-      });
-      docx.Packer.toBlob(doc).then(blob => {
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = "SSP_CMMC.docx";
-        link.click();
-      });
+    async function showSuggestion(text, id) {
+      alert("Example suggestion: Implement access control lists and ensure logging is enabled for all access attempts. [For: " + id + "]");
     }
 
     document.getElementById('searchInput').addEventListener('input', (e) => {
@@ -157,7 +160,37 @@
       const reviewed = document.querySelector(`input.review-flag[data-id='${id}']`).checked;
       localStorage.setItem(id, JSON.stringify({ note, status, dueDate, reviewed }));
       updateChart(allControls);
+      updateSSPPreview();
     });
+
+    function exportSSP(controls) {
+      const docSections = [
+        new docx.Paragraph({ text: "System Security Plan (SSP)", heading: docx.HeadingLevel.TITLE })
+      ];
+
+      controls.forEach(control => {
+        control.subs.forEach(sub => {
+          const id = `${control.id}${sub.id}`;
+          const text = document.querySelector(`textarea[data-id='${id}']`).value;
+          const status = document.querySelector(`select[data-id='${id}']`).value;
+          const date = document.querySelector(`input[type='date'][data-id='${id}']`).value;
+          const reviewed = document.querySelector(`input.review-flag[data-id='${id}']`).checked;
+          if (text.trim()) {
+            docSections.push(new docx.Paragraph(`${id}) ${sub.text}: ${text} [Status: ${status}] [Due: ${date}] [Reviewed: ${reviewed}]`));
+          }
+        });
+      });
+
+      const doc = new docx.Document({
+        sections: [ { children: docSections } ]
+      });
+      docx.Packer.toBlob(doc).then(blob => {
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "SSP_CMMC.docx";
+        link.click();
+      });
+    }
 
     loadControls();
   </script>
