@@ -5,7 +5,6 @@
   <title>Projects | Jessica Rojas</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="style.css" />
-  <link rel="icon" href="https://github.githubassets.com/favicons/favicon.svg" />
 </head>
 <body>
   <nav>
@@ -16,47 +15,56 @@
     <a href="cybersecurity.html">Cybersecurity</a>
     <a href="contact.html">Contact</a>
     <a href="blog.html">Blog</a>
-    <button id="darkModeToggle">🌙</button>
+    <button id="darkModeToggle">🌙 Dark Mode</button>
   </nav>
 
-  <main class="container reveal">
-    <h1 class="section-title">Projects</h1>
-    <p class="section-subtitle">A showcase of cybersecurity tools, full-stack apps, and data visualizations.</p>
+  <header class="section-header">
+    <h1>Projects</h1>
+    <p>Explore some of my recent work and tools.</p>
+  </header>
 
-    <!-- Static tags for now -->
-    <div class="filter-tags">
-      <span class="tag">Cybersecurity</span>
-      <span class="tag">Full-Stack</span>
-      <span class="tag">Compliance</span>
-      <span class="tag">Python</span>
+  <section class="projects-grid">
+    <div class="project-card">
+      <h3>Compliance Tracker</h3>
+      <p>Full-stack tool to manage and visualize CMMC / NIST 800-171 controls with POAM and SSP exports.</p>
+      <a href="compliancetracker.html" class="btn">View Project</a>
     </div>
 
-    <div class="projects-grid">
-      <!-- Project 1 -->
-      <div class="project-card">
-        <h3>CMMC Compliance Tracker</h3>
-        <p>A full-featured app for tracking and visualizing CMMC/NIST 800-171 compliance using a modular control framework.</p>
-        <a href="compliancetracker.html" class="btn">Launch App</a>
-      </div>
-
-      <!-- Project 2 -->
-      <div class="project-card">
-        <h3>Threat Intelligence Visualizer</h3>
-        <p>Interactive dashboard using Python and D3.js to analyze threat feeds and attack patterns from real-world datasets.</p>
-        <a href="#" class="btn">View Demo</a>
-      </div>
-
-      <!-- Project 3 -->
-      <div class="project-card">
-        <h3>Secure FileShare Portal</h3>
-        <p>Custom-built file-sharing platform with AES encryption, role-based access, and audit logging (Python + Flask).</p>
-        <a href="#" class="btn">View Repo</a>
-      </div>
-
-      <!-- Add more projects below -->
+    <div class="project-card">
+      <h3>Portfolio Website</h3>
+      <p>This personal portfolio showcases my resume, timeline, projects, certifications, and more.</p>
+      <a href="index.html" class="btn">View Portfolio</a>
     </div>
-  </main>
 
-  <script src="script.js"></script>
+    <div class="project-card">
+      <h3>Cybersecurity Policy Toolkit</h3>
+      <p>A curated set of policy templates aligned with NIST, CMMC, and ISO frameworks for defense contractors.</p>
+      <a href="cybersecurity.html" class="btn">View Toolkit</a>
+    </div>
+
+    <div class="project-card">
+      <h3>Interactive Timeline</h3>
+      <p>Responsive, animated timeline of my career history, service, and certifications.</p>
+      <a href="timeline.html" class="btn">View Timeline</a>
+    </div>
+    
+    <div class="project-card">
+      <h3>Resume Visualizer</h3>
+      <p>Dynamic resume preview with dark/light modes and downloadable PDF feature.</p>
+      <a href="resume.html" class="btn">View Resume</a>
+    </div>
+
+    <div class="project-card">
+      <h3>Blog Platform</h3>
+      <p>Simple markdown-based blogging system with styling and future CMS integration support.</p>
+      <a href="blog.html" class="btn">Read Blog</a>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p>&copy; 2025 Jessica Rojas. All rights reserved.</p>
+  </footer>
+
+  <script src="scripts.js"></script>
 </body>
 </html>
