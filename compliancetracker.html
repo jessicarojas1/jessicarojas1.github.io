@@ -6,87 +6,70 @@
   <title>CMMC / NIST 800-171 Compliance Tracker</title>
   <link rel="stylesheet" href="styles.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.7.0/docx.min.js"></script>
 </head>
-<body class="bg-black text-white font-sans">
+<body class="bg-green-950 text-white font-sans">
   <header class="p-6 bg-gray-900 shadow-lg">
     <div class="container mx-auto flex justify-between items-center">
-      <h1 class="text-2xl font-bold text-red-500">Compliance Tracker</h1>
+      <h1 class="text-2xl font-bold text-green-400">Compliance Tracker</h1>
       <nav>
-        <a href="index.html" class="text-gray-300 hover:text-red-500">Back to Portfolio</a>
+        <a href="index.html" class="text-gray-300 hover:text-green-400">Back to Portfolio</a>
       </nav>
     </div>
   </header>
 
   <main class="py-12 px-6 md:px-16">
     <section id="compliance-tracker" class="max-w-7xl mx-auto">
-      <h2 class="text-3xl font-bold mb-6 border-b border-red-600 pb-2">CMMC / NIST 800-171 Compliance Tracker</h2>
-      <p class="text-lg mb-6 text-gray-300">Track your organization’s compliance progress with real-time visibility into each NIST 800-171 or CMMC control. Use the interface below to monitor compliance status, upload evidence, and manage remediation tasks.</p>
+      <h2 class="text-3xl font-bold mb-6 border-b border-green-400 pb-2">CMMC / NIST 800-171 Compliance Tracker</h2>
+      <p class="text-lg mb-6 text-gray-300">Manage compliance dynamically. Add, update, or remove POAM entries and control statuses, and track their impact on your overall compliance score. Export a System Security Plan (SSP) anytime.</p>
 
       <div class="grid md:grid-cols-3 gap-6">
-        <!-- Compliance Status Chart -->
         <div class="bg-gray-800 p-4 rounded-2xl shadow">
-          <h3 class="text-xl font-semibold mb-2 text-red-400">Compliance Overview</h3>
+          <h3 class="text-xl font-semibold mb-2 text-green-400">Compliance Overview</h3>
           <canvas id="complianceChart"></canvas>
         </div>
 
-        <!-- Status Breakdown -->
         <div class="bg-gray-800 p-4 rounded-2xl shadow">
-          <h3 class="text-xl font-semibold mb-2 text-red-400">Control Status</h3>
+          <h3 class="text-xl font-semibold mb-2 text-green-400">Status Summary</h3>
           <ul class="space-y-2 text-sm">
-            <li class="text-green-400">Compliant: <span id="compliantCount">24</span></li>
-            <li class="text-yellow-400">In Progress: <span id="inProgressCount">9</span></li>
-            <li class="text-red-400">Non-Compliant: <span id="nonCompliantCount">17</span></li>
+            <li class="text-green-400">Compliant: <span id="compliantCount">0</span></li>
+            <li class="text-yellow-400">In Progress: <span id="inProgressCount">0</span></li>
+            <li class="text-red-400">Non-Compliant: <span id="nonCompliantCount">0</span></li>
+            <li class="text-blue-400">POAMs: <span id="poamCount">0</span></li>
           </ul>
         </div>
 
-        <!-- Recent Control Updates -->
-        <div class="bg-gray-800 p-4 rounded-2xl shadow overflow-x-auto">
-          <h3 class="text-xl font-semibold mb-2 text-red-400">Recent Control Updates</h3>
-          <table class="min-w-full text-sm text-left text-gray-300">
-            <thead>
-              <tr class="border-b border-gray-700">
-                <th class="px-3 py-2">Control ID</th>
-                <th class="px-3 py-2">Title</th>
-                <th class="px-3 py-2">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="hover:bg-gray-700">
-                <td class="px-3 py-2">3.1.1</td>
-                <td class="px-3 py-2">Limit system access...</td>
-                <td class="px-3 py-2 text-green-400">Compliant</td>
-              </tr>
-              <tr class="hover:bg-gray-700">
-                <td class="px-3 py-2">3.1.2</td>
-                <td class="px-3 py-2">Limit access to...</td>
-                <td class="px-3 py-2 text-yellow-400">In Progress</td>
-              </tr>
-              <tr class="hover:bg-gray-700">
-                <td class="px-3 py-2">3.1.3</td>
-                <td class="px-3 py-2">Control connections...</td>
-                <td class="px-3 py-2 text-red-400">Non-Compliant</td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="bg-gray-800 p-4 rounded-2xl shadow">
+          <h3 class="text-xl font-semibold mb-2 text-green-400">POAM Management</h3>
+          <form id="poamForm">
+            <input type="text" id="poamControl" placeholder="Control ID (e.g., 3.1.5)" class="w-full mb-2 px-2 py-1 rounded" required />
+            <input type="text" id="poamDesc" placeholder="Remediation Plan" class="w-full mb-2 px-2 py-1 rounded" required />
+            <select id="poamStatus" class="w-full mb-2 px-2 py-1 rounded" required>
+              <option value="Compliant">Compliant</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Non-Compliant">Non-Compliant</option>
+            </select>
+            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">Add Entry</button>
+          </form>
+          <ul id="poamList" class="mt-4 text-sm text-gray-300 space-y-2"></ul>
+          <button id="exportSSP" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Export SSP (DOCX)</button>
         </div>
-      </div>
-
-      <div class="mt-10 text-center">
-        <a href="projects.html" class="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-xl transition-all">Return to Projects</a>
       </div>
     </section>
   </main>
 
   <script>
-    const ctx = document.getElementById('complianceChart').getContext('2d');
-    new Chart(ctx, {
+    let poamData = [];
+    const statusCounts = { Compliant: 0, "In Progress": 0, "Non-Compliant": 0, POAM: 0 };
+
+    const chart = new Chart(document.getElementById('complianceChart'), {
       type: 'doughnut',
       data: {
-        labels: ['Compliant', 'In Progress', 'Non-Compliant'],
+        labels: ['Compliant', 'In Progress', 'Non-Compliant', 'POAM'],
         datasets: [{
           label: 'Controls',
-          data: [24, 9, 17],
-          backgroundColor: ['#22c55e', '#facc15', '#ef4444'],
+          data: [0, 0, 0, 0],
+          backgroundColor: ['#22c55e', '#facc15', '#ef4444', '#3b82f6'],
           borderWidth: 1
         }]
       },
@@ -98,6 +81,75 @@
           }
         }
       }
+    });
+
+    function updateStatusCounts() {
+      document.getElementById('compliantCount').textContent = statusCounts['Compliant'];
+      document.getElementById('inProgressCount').textContent = statusCounts['In Progress'];
+      document.getElementById('nonCompliantCount').textContent = statusCounts['Non-Compliant'];
+      document.getElementById('poamCount').textContent = statusCounts['POAM'];
+      chart.data.datasets[0].data = [
+        statusCounts['Compliant'],
+        statusCounts['In Progress'],
+        statusCounts['Non-Compliant'],
+        statusCounts['POAM']
+      ];
+      chart.update();
+    }
+
+    document.getElementById('poamForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const control = document.getElementById('poamControl').value.trim();
+      const desc = document.getElementById('poamDesc').value.trim();
+      const status = document.getElementById('poamStatus').value;
+
+      if (!control || !desc || !status) return;
+
+      const entry = { control, desc, status };
+      poamData.push(entry);
+      statusCounts[status]++;
+      statusCounts['POAM']++;
+
+      const li = document.createElement('li');
+      li.innerHTML = `${control} [${status}]: ${desc} <button onclick="removePOAM(this, ${poamData.length - 1})" class="ml-2 text-red-500 hover:text-red-300">Remove</button>`;
+      document.getElementById('poamList').appendChild(li);
+
+      updateStatusCounts();
+
+      document.getElementById('poamControl').value = '';
+      document.getElementById('poamDesc').value = '';
+      document.getElementById('poamStatus').value = '';
+    });
+
+    function removePOAM(button, index) {
+      const removed = poamData[index];
+      if (!removed) return;
+      statusCounts[removed.status]--;
+      statusCounts['POAM']--;
+      poamData[index] = null;
+      button.parentElement.remove();
+      updateStatusCounts();
+    }
+
+    document.getElementById('exportSSP').addEventListener('click', function () {
+      const doc = new docx.Document({
+        sections: [
+          {
+            children: [
+              new docx.Paragraph({ text: "System Security Plan (SSP)", heading: docx.HeadingLevel.TITLE }),
+              ...poamData.filter(p => p).map(entry =>
+                new docx.Paragraph(`${entry.control} [${entry.status}]: ${entry.desc}`)
+              )
+            ]
+          }
+        ]
+      });
+      docx.Packer.toBlob(doc).then(blob => {
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "SSP_POAM.docx";
+        link.click();
+      });
     });
   </script>
 </body>
