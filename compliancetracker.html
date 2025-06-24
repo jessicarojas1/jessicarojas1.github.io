@@ -26,7 +26,7 @@
         <ul class="list-disc ml-6 text-gray-300">
           <li>Track CMMC 2.0 Level 2 compliance by control and subcontrol</li>
           <li>Add notes and upload evidence for each subcontrol</li>
-          <li>Visually manage your progress in real time (chart integrations optional)</li>
+          <li>Visually manage your progress in real time</li>
           <li>Export a System Security Plan (SSP) as a DOCX file</li>
         </ul>
       </p>
@@ -40,18 +40,15 @@
   </main>
 
   <script>
-    const controls = [];
-    for (let i = 1; i <= 17; i++) {
-      for (let j = 1; j <= 10; j++) {
-        const controlNum = `3.${i}.${j}`;
-        const subList = ['a', 'b', 'c'].map(letter => ({ id: letter, text: `Subcontrol ${letter.toUpperCase()} for ${controlNum}` }));
-        controls.push({ id: controlNum, title: `Control ${controlNum} Title`, subs: subList });
-      }
+    async function loadControls() {
+      const response = await fetch('cmmc_controls.json');
+      const controls = await response.json();
+      renderControls(controls);
+      document.getElementById('exportSSP').addEventListener('click', () => exportSSP(controls));
     }
 
-    const container = document.getElementById('controlsList');
-
     function renderControls(controls) {
+      const container = document.getElementById('controlsList');
       controls.forEach(control => {
         const controlBlock = document.createElement('div');
         controlBlock.className = 'bg-gray-800 p-4 rounded shadow';
@@ -96,8 +93,7 @@
       });
     }
 
-    renderControls(controls);
-    document.getElementById('exportSSP').addEventListener('click', () => exportSSP(controls));
+    loadControls();
   </script>
 </body>
 </html>

@@ -1,0 +1,1577 @@
+[
+    {
+      "id": "3.1.1",
+      "title": "Access Control - Control 3.1.1",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Access Control - Control 3.1.1 - Detailed requirement part A for control 3.1.1"
+        },
+        {
+          "id": "b",
+          "text": "Access Control - Control 3.1.1 - Detailed requirement part B for control 3.1.1"
+        },
+        {
+          "id": "c",
+          "text": "Access Control - Control 3.1.1 - Detailed requirement part C for control 3.1.1"
+        }
+      ]
+    },
+    {
+      "id": "3.1.2",
+      "title": "Access Control - Control 3.1.2",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Access Control - Control 3.1.2 - Detailed requirement part A for control 3.1.2"
+        },
+        {
+          "id": "b",
+          "text": "Access Control - Control 3.1.2 - Detailed requirement part B for control 3.1.2"
+        },
+        {
+          "id": "c",
+          "text": "Access Control - Control 3.1.2 - Detailed requirement part C for control 3.1.2"
+        }
+      ]
+    },
+    {
+      "id": "3.1.3",
+      "title": "Access Control - Control 3.1.3",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Access Control - Control 3.1.3 - Detailed requirement part A for control 3.1.3"
+        },
+        {
+          "id": "b",
+          "text": "Access Control - Control 3.1.3 - Detailed requirement part B for control 3.1.3"
+        },
+        {
+          "id": "c",
+          "text": "Access Control - Control 3.1.3 - Detailed requirement part C for control 3.1.3"
+        },
+        {
+          "id": "d",
+          "text": "Access Control - Control 3.1.3 - Detailed requirement part D for control 3.1.3"
+        }
+      ]
+    },
+    {
+      "id": "3.1.4",
+      "title": "Access Control - Control 3.1.4",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Access Control - Control 3.1.4 - Detailed requirement part A for control 3.1.4"
+        }
+      ]
+    },
+    {
+      "id": "3.1.5",
+      "title": "Access Control - Control 3.1.5",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Access Control - Control 3.1.5 - Detailed requirement part A for control 3.1.5"
+        },
+        {
+          "id": "b",
+          "text": "Access Control - Control 3.1.5 - Detailed requirement part B for control 3.1.5"
+        },
+        {
+          "id": "c",
+          "text": "Access Control - Control 3.1.5 - Detailed requirement part C for control 3.1.5"
+        },
+        {
+          "id": "d",
+          "text": "Access Control - Control 3.1.5 - Detailed requirement part D for control 3.1.5"
+        }
+      ]
+    },
+    {
+      "id": "3.1.6",
+      "title": "Access Control - Control 3.1.6",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Access Control - Control 3.1.6 - Detailed requirement part A for control 3.1.6"
+        },
+        {
+          "id": "b",
+          "text": "Access Control - Control 3.1.6 - Detailed requirement part B for control 3.1.6"
+        },
+        {
+          "id": "c",
+          "text": "Access Control - Control 3.1.6 - Detailed requirement part C for control 3.1.6"
+        },
+        {
+          "id": "d",
+          "text": "Access Control - Control 3.1.6 - Detailed requirement part D for control 3.1.6"
+        }
+      ]
+    },
+    {
+      "id": "3.1.7",
+      "title": "Access Control - Control 3.1.7",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Access Control - Control 3.1.7 - Detailed requirement part A for control 3.1.7"
+        },
+        {
+          "id": "b",
+          "text": "Access Control - Control 3.1.7 - Detailed requirement part B for control 3.1.7"
+        }
+      ]
+    },
+    {
+      "id": "3.1.8",
+      "title": "Access Control - Control 3.1.8",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Access Control - Control 3.1.8 - Detailed requirement part A for control 3.1.8"
+        },
+        {
+          "id": "b",
+          "text": "Access Control - Control 3.1.8 - Detailed requirement part B for control 3.1.8"
+        }
+      ]
+    },
+    {
+      "id": "3.1.9",
+      "title": "Access Control - Control 3.1.9",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Access Control - Control 3.1.9 - Detailed requirement part A for control 3.1.9"
+        }
+      ]
+    },
+    {
+      "id": "3.1.10",
+      "title": "Access Control - Control 3.1.10",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Access Control - Control 3.1.10 - Detailed requirement part A for control 3.1.10"
+        }
+      ]
+    },
+    {
+      "id": "3.1.11",
+      "title": "Access Control - Control 3.1.11",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Access Control - Control 3.1.11 - Detailed requirement part A for control 3.1.11"
+        },
+        {
+          "id": "b",
+          "text": "Access Control - Control 3.1.11 - Detailed requirement part B for control 3.1.11"
+        },
+        {
+          "id": "c",
+          "text": "Access Control - Control 3.1.11 - Detailed requirement part C for control 3.1.11"
+        },
+        {
+          "id": "d",
+          "text": "Access Control - Control 3.1.11 - Detailed requirement part D for control 3.1.11"
+        }
+      ]
+    },
+    {
+      "id": "3.1.12",
+      "title": "Access Control - Control 3.1.12",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Access Control - Control 3.1.12 - Detailed requirement part A for control 3.1.12"
+        },
+        {
+          "id": "b",
+          "text": "Access Control - Control 3.1.12 - Detailed requirement part B for control 3.1.12"
+        },
+        {
+          "id": "c",
+          "text": "Access Control - Control 3.1.12 - Detailed requirement part C for control 3.1.12"
+        },
+        {
+          "id": "d",
+          "text": "Access Control - Control 3.1.12 - Detailed requirement part D for control 3.1.12"
+        }
+      ]
+    },
+    {
+      "id": "3.1.13",
+      "title": "Access Control - Control 3.1.13",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Access Control - Control 3.1.13 - Detailed requirement part A for control 3.1.13"
+        },
+        {
+          "id": "b",
+          "text": "Access Control - Control 3.1.13 - Detailed requirement part B for control 3.1.13"
+        }
+      ]
+    },
+    {
+      "id": "3.1.14",
+      "title": "Access Control - Control 3.1.14",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Access Control - Control 3.1.14 - Detailed requirement part A for control 3.1.14"
+        },
+        {
+          "id": "b",
+          "text": "Access Control - Control 3.1.14 - Detailed requirement part B for control 3.1.14"
+        }
+      ]
+    },
+    {
+      "id": "3.2.1",
+      "title": "Awareness and Training - Control 3.2.1",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Awareness and Training - Control 3.2.1 - Detailed requirement part A for control 3.2.1"
+        },
+        {
+          "id": "b",
+          "text": "Awareness and Training - Control 3.2.1 - Detailed requirement part B for control 3.2.1"
+        },
+        {
+          "id": "c",
+          "text": "Awareness and Training - Control 3.2.1 - Detailed requirement part C for control 3.2.1"
+        },
+        {
+          "id": "d",
+          "text": "Awareness and Training - Control 3.2.1 - Detailed requirement part D for control 3.2.1"
+        }
+      ]
+    },
+    {
+      "id": "3.2.2",
+      "title": "Awareness and Training - Control 3.2.2",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Awareness and Training - Control 3.2.2 - Detailed requirement part A for control 3.2.2"
+        },
+        {
+          "id": "b",
+          "text": "Awareness and Training - Control 3.2.2 - Detailed requirement part B for control 3.2.2"
+        },
+        {
+          "id": "c",
+          "text": "Awareness and Training - Control 3.2.2 - Detailed requirement part C for control 3.2.2"
+        }
+      ]
+    },
+    {
+      "id": "3.2.3",
+      "title": "Awareness and Training - Control 3.2.3",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Awareness and Training - Control 3.2.3 - Detailed requirement part A for control 3.2.3"
+        },
+        {
+          "id": "b",
+          "text": "Awareness and Training - Control 3.2.3 - Detailed requirement part B for control 3.2.3"
+        }
+      ]
+    },
+    {
+      "id": "3.3.1",
+      "title": "Audit and Accountability - Control 3.3.1",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Audit and Accountability - Control 3.3.1 - Detailed requirement part A for control 3.3.1"
+        },
+        {
+          "id": "b",
+          "text": "Audit and Accountability - Control 3.3.1 - Detailed requirement part B for control 3.3.1"
+        },
+        {
+          "id": "c",
+          "text": "Audit and Accountability - Control 3.3.1 - Detailed requirement part C for control 3.3.1"
+        }
+      ]
+    },
+    {
+      "id": "3.3.2",
+      "title": "Audit and Accountability - Control 3.3.2",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Audit and Accountability - Control 3.3.2 - Detailed requirement part A for control 3.3.2"
+        },
+        {
+          "id": "b",
+          "text": "Audit and Accountability - Control 3.3.2 - Detailed requirement part B for control 3.3.2"
+        }
+      ]
+    },
+    {
+      "id": "3.3.3",
+      "title": "Audit and Accountability - Control 3.3.3",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Audit and Accountability - Control 3.3.3 - Detailed requirement part A for control 3.3.3"
+        }
+      ]
+    },
+    {
+      "id": "3.3.4",
+      "title": "Audit and Accountability - Control 3.3.4",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Audit and Accountability - Control 3.3.4 - Detailed requirement part A for control 3.3.4"
+        },
+        {
+          "id": "b",
+          "text": "Audit and Accountability - Control 3.3.4 - Detailed requirement part B for control 3.3.4"
+        },
+        {
+          "id": "c",
+          "text": "Audit and Accountability - Control 3.3.4 - Detailed requirement part C for control 3.3.4"
+        }
+      ]
+    },
+    {
+      "id": "3.3.5",
+      "title": "Audit and Accountability - Control 3.3.5",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Audit and Accountability - Control 3.3.5 - Detailed requirement part A for control 3.3.5"
+        },
+        {
+          "id": "b",
+          "text": "Audit and Accountability - Control 3.3.5 - Detailed requirement part B for control 3.3.5"
+        },
+        {
+          "id": "c",
+          "text": "Audit and Accountability - Control 3.3.5 - Detailed requirement part C for control 3.3.5"
+        },
+        {
+          "id": "d",
+          "text": "Audit and Accountability - Control 3.3.5 - Detailed requirement part D for control 3.3.5"
+        }
+      ]
+    },
+    {
+      "id": "3.3.6",
+      "title": "Audit and Accountability - Control 3.3.6",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Audit and Accountability - Control 3.3.6 - Detailed requirement part A for control 3.3.6"
+        }
+      ]
+    },
+    {
+      "id": "3.3.7",
+      "title": "Audit and Accountability - Control 3.3.7",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Audit and Accountability - Control 3.3.7 - Detailed requirement part A for control 3.3.7"
+        },
+        {
+          "id": "b",
+          "text": "Audit and Accountability - Control 3.3.7 - Detailed requirement part B for control 3.3.7"
+        },
+        {
+          "id": "c",
+          "text": "Audit and Accountability - Control 3.3.7 - Detailed requirement part C for control 3.3.7"
+        }
+      ]
+    },
+    {
+      "id": "3.3.8",
+      "title": "Audit and Accountability - Control 3.3.8",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Audit and Accountability - Control 3.3.8 - Detailed requirement part A for control 3.3.8"
+        },
+        {
+          "id": "b",
+          "text": "Audit and Accountability - Control 3.3.8 - Detailed requirement part B for control 3.3.8"
+        }
+      ]
+    },
+    {
+      "id": "3.3.9",
+      "title": "Audit and Accountability - Control 3.3.9",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Audit and Accountability - Control 3.3.9 - Detailed requirement part A for control 3.3.9"
+        }
+      ]
+    },
+    {
+      "id": "3.4.1",
+      "title": "Configuration Management - Control 3.4.1",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Configuration Management - Control 3.4.1 - Detailed requirement part A for control 3.4.1"
+        },
+        {
+          "id": "b",
+          "text": "Configuration Management - Control 3.4.1 - Detailed requirement part B for control 3.4.1"
+        }
+      ]
+    },
+    {
+      "id": "3.4.2",
+      "title": "Configuration Management - Control 3.4.2",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Configuration Management - Control 3.4.2 - Detailed requirement part A for control 3.4.2"
+        }
+      ]
+    },
+    {
+      "id": "3.4.3",
+      "title": "Configuration Management - Control 3.4.3",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Configuration Management - Control 3.4.3 - Detailed requirement part A for control 3.4.3"
+        }
+      ]
+    },
+    {
+      "id": "3.4.4",
+      "title": "Configuration Management - Control 3.4.4",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Configuration Management - Control 3.4.4 - Detailed requirement part A for control 3.4.4"
+        },
+        {
+          "id": "b",
+          "text": "Configuration Management - Control 3.4.4 - Detailed requirement part B for control 3.4.4"
+        },
+        {
+          "id": "c",
+          "text": "Configuration Management - Control 3.4.4 - Detailed requirement part C for control 3.4.4"
+        }
+      ]
+    },
+    {
+      "id": "3.4.5",
+      "title": "Configuration Management - Control 3.4.5",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Configuration Management - Control 3.4.5 - Detailed requirement part A for control 3.4.5"
+        },
+        {
+          "id": "b",
+          "text": "Configuration Management - Control 3.4.5 - Detailed requirement part B for control 3.4.5"
+        },
+        {
+          "id": "c",
+          "text": "Configuration Management - Control 3.4.5 - Detailed requirement part C for control 3.4.5"
+        },
+        {
+          "id": "d",
+          "text": "Configuration Management - Control 3.4.5 - Detailed requirement part D for control 3.4.5"
+        }
+      ]
+    },
+    {
+      "id": "3.4.6",
+      "title": "Configuration Management - Control 3.4.6",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Configuration Management - Control 3.4.6 - Detailed requirement part A for control 3.4.6"
+        }
+      ]
+    },
+    {
+      "id": "3.4.7",
+      "title": "Configuration Management - Control 3.4.7",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Configuration Management - Control 3.4.7 - Detailed requirement part A for control 3.4.7"
+        }
+      ]
+    },
+    {
+      "id": "3.4.8",
+      "title": "Configuration Management - Control 3.4.8",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Configuration Management - Control 3.4.8 - Detailed requirement part A for control 3.4.8"
+        },
+        {
+          "id": "b",
+          "text": "Configuration Management - Control 3.4.8 - Detailed requirement part B for control 3.4.8"
+        },
+        {
+          "id": "c",
+          "text": "Configuration Management - Control 3.4.8 - Detailed requirement part C for control 3.4.8"
+        },
+        {
+          "id": "d",
+          "text": "Configuration Management - Control 3.4.8 - Detailed requirement part D for control 3.4.8"
+        }
+      ]
+    },
+    {
+      "id": "3.4.9",
+      "title": "Configuration Management - Control 3.4.9",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Configuration Management - Control 3.4.9 - Detailed requirement part A for control 3.4.9"
+        },
+        {
+          "id": "b",
+          "text": "Configuration Management - Control 3.4.9 - Detailed requirement part B for control 3.4.9"
+        },
+        {
+          "id": "c",
+          "text": "Configuration Management - Control 3.4.9 - Detailed requirement part C for control 3.4.9"
+        }
+      ]
+    },
+    {
+      "id": "3.5.1",
+      "title": "Identification and Authentication - Control 3.5.1",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Identification and Authentication - Control 3.5.1 - Detailed requirement part A for control 3.5.1"
+        },
+        {
+          "id": "b",
+          "text": "Identification and Authentication - Control 3.5.1 - Detailed requirement part B for control 3.5.1"
+        }
+      ]
+    },
+    {
+      "id": "3.5.2",
+      "title": "Identification and Authentication - Control 3.5.2",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Identification and Authentication - Control 3.5.2 - Detailed requirement part A for control 3.5.2"
+        }
+      ]
+    },
+    {
+      "id": "3.5.3",
+      "title": "Identification and Authentication - Control 3.5.3",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Identification and Authentication - Control 3.5.3 - Detailed requirement part A for control 3.5.3"
+        },
+        {
+          "id": "b",
+          "text": "Identification and Authentication - Control 3.5.3 - Detailed requirement part B for control 3.5.3"
+        }
+      ]
+    },
+    {
+      "id": "3.5.4",
+      "title": "Identification and Authentication - Control 3.5.4",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Identification and Authentication - Control 3.5.4 - Detailed requirement part A for control 3.5.4"
+        },
+        {
+          "id": "b",
+          "text": "Identification and Authentication - Control 3.5.4 - Detailed requirement part B for control 3.5.4"
+        },
+        {
+          "id": "c",
+          "text": "Identification and Authentication - Control 3.5.4 - Detailed requirement part C for control 3.5.4"
+        },
+        {
+          "id": "d",
+          "text": "Identification and Authentication - Control 3.5.4 - Detailed requirement part D for control 3.5.4"
+        }
+      ]
+    },
+    {
+      "id": "3.5.5",
+      "title": "Identification and Authentication - Control 3.5.5",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Identification and Authentication - Control 3.5.5 - Detailed requirement part A for control 3.5.5"
+        }
+      ]
+    },
+    {
+      "id": "3.5.6",
+      "title": "Identification and Authentication - Control 3.5.6",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Identification and Authentication - Control 3.5.6 - Detailed requirement part A for control 3.5.6"
+        },
+        {
+          "id": "b",
+          "text": "Identification and Authentication - Control 3.5.6 - Detailed requirement part B for control 3.5.6"
+        },
+        {
+          "id": "c",
+          "text": "Identification and Authentication - Control 3.5.6 - Detailed requirement part C for control 3.5.6"
+        }
+      ]
+    },
+    {
+      "id": "3.5.7",
+      "title": "Identification and Authentication - Control 3.5.7",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Identification and Authentication - Control 3.5.7 - Detailed requirement part A for control 3.5.7"
+        }
+      ]
+    },
+    {
+      "id": "3.5.8",
+      "title": "Identification and Authentication - Control 3.5.8",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Identification and Authentication - Control 3.5.8 - Detailed requirement part A for control 3.5.8"
+        },
+        {
+          "id": "b",
+          "text": "Identification and Authentication - Control 3.5.8 - Detailed requirement part B for control 3.5.8"
+        },
+        {
+          "id": "c",
+          "text": "Identification and Authentication - Control 3.5.8 - Detailed requirement part C for control 3.5.8"
+        }
+      ]
+    },
+    {
+      "id": "3.5.9",
+      "title": "Identification and Authentication - Control 3.5.9",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Identification and Authentication - Control 3.5.9 - Detailed requirement part A for control 3.5.9"
+        },
+        {
+          "id": "b",
+          "text": "Identification and Authentication - Control 3.5.9 - Detailed requirement part B for control 3.5.9"
+        },
+        {
+          "id": "c",
+          "text": "Identification and Authentication - Control 3.5.9 - Detailed requirement part C for control 3.5.9"
+        },
+        {
+          "id": "d",
+          "text": "Identification and Authentication - Control 3.5.9 - Detailed requirement part D for control 3.5.9"
+        }
+      ]
+    },
+    {
+      "id": "3.5.10",
+      "title": "Identification and Authentication - Control 3.5.10",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Identification and Authentication - Control 3.5.10 - Detailed requirement part A for control 3.5.10"
+        },
+        {
+          "id": "b",
+          "text": "Identification and Authentication - Control 3.5.10 - Detailed requirement part B for control 3.5.10"
+        },
+        {
+          "id": "c",
+          "text": "Identification and Authentication - Control 3.5.10 - Detailed requirement part C for control 3.5.10"
+        },
+        {
+          "id": "d",
+          "text": "Identification and Authentication - Control 3.5.10 - Detailed requirement part D for control 3.5.10"
+        }
+      ]
+    },
+    {
+      "id": "3.5.11",
+      "title": "Identification and Authentication - Control 3.5.11",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Identification and Authentication - Control 3.5.11 - Detailed requirement part A for control 3.5.11"
+        }
+      ]
+    },
+    {
+      "id": "3.6.1",
+      "title": "Incident Response - Control 3.6.1",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Incident Response - Control 3.6.1 - Detailed requirement part A for control 3.6.1"
+        },
+        {
+          "id": "b",
+          "text": "Incident Response - Control 3.6.1 - Detailed requirement part B for control 3.6.1"
+        },
+        {
+          "id": "c",
+          "text": "Incident Response - Control 3.6.1 - Detailed requirement part C for control 3.6.1"
+        },
+        {
+          "id": "d",
+          "text": "Incident Response - Control 3.6.1 - Detailed requirement part D for control 3.6.1"
+        }
+      ]
+    },
+    {
+      "id": "3.6.2",
+      "title": "Incident Response - Control 3.6.2",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Incident Response - Control 3.6.2 - Detailed requirement part A for control 3.6.2"
+        },
+        {
+          "id": "b",
+          "text": "Incident Response - Control 3.6.2 - Detailed requirement part B for control 3.6.2"
+        },
+        {
+          "id": "c",
+          "text": "Incident Response - Control 3.6.2 - Detailed requirement part C for control 3.6.2"
+        }
+      ]
+    },
+    {
+      "id": "3.6.3",
+      "title": "Incident Response - Control 3.6.3",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Incident Response - Control 3.6.3 - Detailed requirement part A for control 3.6.3"
+        }
+      ]
+    },
+    {
+      "id": "3.7.1",
+      "title": "Maintenance - Control 3.7.1",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Maintenance - Control 3.7.1 - Detailed requirement part A for control 3.7.1"
+        }
+      ]
+    },
+    {
+      "id": "3.7.2",
+      "title": "Maintenance - Control 3.7.2",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Maintenance - Control 3.7.2 - Detailed requirement part A for control 3.7.2"
+        },
+        {
+          "id": "b",
+          "text": "Maintenance - Control 3.7.2 - Detailed requirement part B for control 3.7.2"
+        },
+        {
+          "id": "c",
+          "text": "Maintenance - Control 3.7.2 - Detailed requirement part C for control 3.7.2"
+        }
+      ]
+    },
+    {
+      "id": "3.7.3",
+      "title": "Maintenance - Control 3.7.3",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Maintenance - Control 3.7.3 - Detailed requirement part A for control 3.7.3"
+        },
+        {
+          "id": "b",
+          "text": "Maintenance - Control 3.7.3 - Detailed requirement part B for control 3.7.3"
+        },
+        {
+          "id": "c",
+          "text": "Maintenance - Control 3.7.3 - Detailed requirement part C for control 3.7.3"
+        }
+      ]
+    },
+    {
+      "id": "3.7.4",
+      "title": "Maintenance - Control 3.7.4",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Maintenance - Control 3.7.4 - Detailed requirement part A for control 3.7.4"
+        },
+        {
+          "id": "b",
+          "text": "Maintenance - Control 3.7.4 - Detailed requirement part B for control 3.7.4"
+        }
+      ]
+    },
+    {
+      "id": "3.7.5",
+      "title": "Maintenance - Control 3.7.5",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Maintenance - Control 3.7.5 - Detailed requirement part A for control 3.7.5"
+        },
+        {
+          "id": "b",
+          "text": "Maintenance - Control 3.7.5 - Detailed requirement part B for control 3.7.5"
+        },
+        {
+          "id": "c",
+          "text": "Maintenance - Control 3.7.5 - Detailed requirement part C for control 3.7.5"
+        }
+      ]
+    },
+    {
+      "id": "3.7.6",
+      "title": "Maintenance - Control 3.7.6",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Maintenance - Control 3.7.6 - Detailed requirement part A for control 3.7.6"
+        },
+        {
+          "id": "b",
+          "text": "Maintenance - Control 3.7.6 - Detailed requirement part B for control 3.7.6"
+        }
+      ]
+    },
+    {
+      "id": "3.8.1",
+      "title": "Media Protection - Control 3.8.1",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Media Protection - Control 3.8.1 - Detailed requirement part A for control 3.8.1"
+        },
+        {
+          "id": "b",
+          "text": "Media Protection - Control 3.8.1 - Detailed requirement part B for control 3.8.1"
+        }
+      ]
+    },
+    {
+      "id": "3.8.2",
+      "title": "Media Protection - Control 3.8.2",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Media Protection - Control 3.8.2 - Detailed requirement part A for control 3.8.2"
+        }
+      ]
+    },
+    {
+      "id": "3.8.3",
+      "title": "Media Protection - Control 3.8.3",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Media Protection - Control 3.8.3 - Detailed requirement part A for control 3.8.3"
+        },
+        {
+          "id": "b",
+          "text": "Media Protection - Control 3.8.3 - Detailed requirement part B for control 3.8.3"
+        },
+        {
+          "id": "c",
+          "text": "Media Protection - Control 3.8.3 - Detailed requirement part C for control 3.8.3"
+        }
+      ]
+    },
+    {
+      "id": "3.8.4",
+      "title": "Media Protection - Control 3.8.4",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Media Protection - Control 3.8.4 - Detailed requirement part A for control 3.8.4"
+        }
+      ]
+    },
+    {
+      "id": "3.8.5",
+      "title": "Media Protection - Control 3.8.5",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Media Protection - Control 3.8.5 - Detailed requirement part A for control 3.8.5"
+        },
+        {
+          "id": "b",
+          "text": "Media Protection - Control 3.8.5 - Detailed requirement part B for control 3.8.5"
+        }
+      ]
+    },
+    {
+      "id": "3.8.6",
+      "title": "Media Protection - Control 3.8.6",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Media Protection - Control 3.8.6 - Detailed requirement part A for control 3.8.6"
+        },
+        {
+          "id": "b",
+          "text": "Media Protection - Control 3.8.6 - Detailed requirement part B for control 3.8.6"
+        },
+        {
+          "id": "c",
+          "text": "Media Protection - Control 3.8.6 - Detailed requirement part C for control 3.8.6"
+        }
+      ]
+    },
+    {
+      "id": "3.9.1",
+      "title": "Personnel Security - Control 3.9.1",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Personnel Security - Control 3.9.1 - Detailed requirement part A for control 3.9.1"
+        },
+        {
+          "id": "b",
+          "text": "Personnel Security - Control 3.9.1 - Detailed requirement part B for control 3.9.1"
+        },
+        {
+          "id": "c",
+          "text": "Personnel Security - Control 3.9.1 - Detailed requirement part C for control 3.9.1"
+        }
+      ]
+    },
+    {
+      "id": "3.9.2",
+      "title": "Personnel Security - Control 3.9.2",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Personnel Security - Control 3.9.2 - Detailed requirement part A for control 3.9.2"
+        }
+      ]
+    },
+    {
+      "id": "3.10.1",
+      "title": "Physical Protection - Control 3.10.1",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Physical Protection - Control 3.10.1 - Detailed requirement part A for control 3.10.1"
+        },
+        {
+          "id": "b",
+          "text": "Physical Protection - Control 3.10.1 - Detailed requirement part B for control 3.10.1"
+        },
+        {
+          "id": "c",
+          "text": "Physical Protection - Control 3.10.1 - Detailed requirement part C for control 3.10.1"
+        }
+      ]
+    },
+    {
+      "id": "3.10.2",
+      "title": "Physical Protection - Control 3.10.2",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Physical Protection - Control 3.10.2 - Detailed requirement part A for control 3.10.2"
+        },
+        {
+          "id": "b",
+          "text": "Physical Protection - Control 3.10.2 - Detailed requirement part B for control 3.10.2"
+        },
+        {
+          "id": "c",
+          "text": "Physical Protection - Control 3.10.2 - Detailed requirement part C for control 3.10.2"
+        },
+        {
+          "id": "d",
+          "text": "Physical Protection - Control 3.10.2 - Detailed requirement part D for control 3.10.2"
+        }
+      ]
+    },
+    {
+      "id": "3.10.3",
+      "title": "Physical Protection - Control 3.10.3",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Physical Protection - Control 3.10.3 - Detailed requirement part A for control 3.10.3"
+        },
+        {
+          "id": "b",
+          "text": "Physical Protection - Control 3.10.3 - Detailed requirement part B for control 3.10.3"
+        },
+        {
+          "id": "c",
+          "text": "Physical Protection - Control 3.10.3 - Detailed requirement part C for control 3.10.3"
+        },
+        {
+          "id": "d",
+          "text": "Physical Protection - Control 3.10.3 - Detailed requirement part D for control 3.10.3"
+        }
+      ]
+    },
+    {
+      "id": "3.10.4",
+      "title": "Physical Protection - Control 3.10.4",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Physical Protection - Control 3.10.4 - Detailed requirement part A for control 3.10.4"
+        },
+        {
+          "id": "b",
+          "text": "Physical Protection - Control 3.10.4 - Detailed requirement part B for control 3.10.4"
+        },
+        {
+          "id": "c",
+          "text": "Physical Protection - Control 3.10.4 - Detailed requirement part C for control 3.10.4"
+        }
+      ]
+    },
+    {
+      "id": "3.10.5",
+      "title": "Physical Protection - Control 3.10.5",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Physical Protection - Control 3.10.5 - Detailed requirement part A for control 3.10.5"
+        },
+        {
+          "id": "b",
+          "text": "Physical Protection - Control 3.10.5 - Detailed requirement part B for control 3.10.5"
+        },
+        {
+          "id": "c",
+          "text": "Physical Protection - Control 3.10.5 - Detailed requirement part C for control 3.10.5"
+        }
+      ]
+    },
+    {
+      "id": "3.10.6",
+      "title": "Physical Protection - Control 3.10.6",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Physical Protection - Control 3.10.6 - Detailed requirement part A for control 3.10.6"
+        }
+      ]
+    },
+    {
+      "id": "3.11.1",
+      "title": "Risk Assessment - Control 3.11.1",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Risk Assessment - Control 3.11.1 - Detailed requirement part A for control 3.11.1"
+        },
+        {
+          "id": "b",
+          "text": "Risk Assessment - Control 3.11.1 - Detailed requirement part B for control 3.11.1"
+        },
+        {
+          "id": "c",
+          "text": "Risk Assessment - Control 3.11.1 - Detailed requirement part C for control 3.11.1"
+        }
+      ]
+    },
+    {
+      "id": "3.11.2",
+      "title": "Risk Assessment - Control 3.11.2",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Risk Assessment - Control 3.11.2 - Detailed requirement part A for control 3.11.2"
+        },
+        {
+          "id": "b",
+          "text": "Risk Assessment - Control 3.11.2 - Detailed requirement part B for control 3.11.2"
+        }
+      ]
+    },
+    {
+      "id": "3.11.3",
+      "title": "Risk Assessment - Control 3.11.3",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Risk Assessment - Control 3.11.3 - Detailed requirement part A for control 3.11.3"
+        },
+        {
+          "id": "b",
+          "text": "Risk Assessment - Control 3.11.3 - Detailed requirement part B for control 3.11.3"
+        }
+      ]
+    },
+    {
+      "id": "3.12.1",
+      "title": "Security Assessment - Control 3.12.1",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Security Assessment - Control 3.12.1 - Detailed requirement part A for control 3.12.1"
+        },
+        {
+          "id": "b",
+          "text": "Security Assessment - Control 3.12.1 - Detailed requirement part B for control 3.12.1"
+        },
+        {
+          "id": "c",
+          "text": "Security Assessment - Control 3.12.1 - Detailed requirement part C for control 3.12.1"
+        },
+        {
+          "id": "d",
+          "text": "Security Assessment - Control 3.12.1 - Detailed requirement part D for control 3.12.1"
+        }
+      ]
+    },
+    {
+      "id": "3.12.2",
+      "title": "Security Assessment - Control 3.12.2",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Security Assessment - Control 3.12.2 - Detailed requirement part A for control 3.12.2"
+        },
+        {
+          "id": "b",
+          "text": "Security Assessment - Control 3.12.2 - Detailed requirement part B for control 3.12.2"
+        },
+        {
+          "id": "c",
+          "text": "Security Assessment - Control 3.12.2 - Detailed requirement part C for control 3.12.2"
+        },
+        {
+          "id": "d",
+          "text": "Security Assessment - Control 3.12.2 - Detailed requirement part D for control 3.12.2"
+        }
+      ]
+    },
+    {
+      "id": "3.12.3",
+      "title": "Security Assessment - Control 3.12.3",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Security Assessment - Control 3.12.3 - Detailed requirement part A for control 3.12.3"
+        },
+        {
+          "id": "b",
+          "text": "Security Assessment - Control 3.12.3 - Detailed requirement part B for control 3.12.3"
+        },
+        {
+          "id": "c",
+          "text": "Security Assessment - Control 3.12.3 - Detailed requirement part C for control 3.12.3"
+        },
+        {
+          "id": "d",
+          "text": "Security Assessment - Control 3.12.3 - Detailed requirement part D for control 3.12.3"
+        }
+      ]
+    },
+    {
+      "id": "3.12.4",
+      "title": "Security Assessment - Control 3.12.4",
+      "subs": [
+        {
+          "id": "a",
+          "text": "Security Assessment - Control 3.12.4 - Detailed requirement part A for control 3.12.4"
+        }
+      ]
+    },
+    {
+      "id": "3.13.1",
+      "title": "System and Communications Protection - Control 3.13.1",
+      "subs": [
+        {
+          "id": "a",
+          "text": "System and Communications Protection - Control 3.13.1 - Detailed requirement part A for control 3.13.1"
+        },
+        {
+          "id": "b",
+          "text": "System and Communications Protection - Control 3.13.1 - Detailed requirement part B for control 3.13.1"
+        }
+      ]
+    },
+    {
+      "id": "3.13.2",
+      "title": "System and Communications Protection - Control 3.13.2",
+      "subs": [
+        {
+          "id": "a",
+          "text": "System and Communications Protection - Control 3.13.2 - Detailed requirement part A for control 3.13.2"
+        },
+        {
+          "id": "b",
+          "text": "System and Communications Protection - Control 3.13.2 - Detailed requirement part B for control 3.13.2"
+        },
+        {
+          "id": "c",
+          "text": "System and Communications Protection - Control 3.13.2 - Detailed requirement part C for control 3.13.2"
+        }
+      ]
+    },
+    {
+      "id": "3.13.3",
+      "title": "System and Communications Protection - Control 3.13.3",
+      "subs": [
+        {
+          "id": "a",
+          "text": "System and Communications Protection - Control 3.13.3 - Detailed requirement part A for control 3.13.3"
+        },
+        {
+          "id": "b",
+          "text": "System and Communications Protection - Control 3.13.3 - Detailed requirement part B for control 3.13.3"
+        },
+        {
+          "id": "c",
+          "text": "System and Communications Protection - Control 3.13.3 - Detailed requirement part C for control 3.13.3"
+        }
+      ]
+    },
+    {
+      "id": "3.13.4",
+      "title": "System and Communications Protection - Control 3.13.4",
+      "subs": [
+        {
+          "id": "a",
+          "text": "System and Communications Protection - Control 3.13.4 - Detailed requirement part A for control 3.13.4"
+        }
+      ]
+    },
+    {
+      "id": "3.13.5",
+      "title": "System and Communications Protection - Control 3.13.5",
+      "subs": [
+        {
+          "id": "a",
+          "text": "System and Communications Protection - Control 3.13.5 - Detailed requirement part A for control 3.13.5"
+        }
+      ]
+    },
+    {
+      "id": "3.13.6",
+      "title": "System and Communications Protection - Control 3.13.6",
+      "subs": [
+        {
+          "id": "a",
+          "text": "System and Communications Protection - Control 3.13.6 - Detailed requirement part A for control 3.13.6"
+        },
+        {
+          "id": "b",
+          "text": "System and Communications Protection - Control 3.13.6 - Detailed requirement part B for control 3.13.6"
+        }
+      ]
+    },
+    {
+      "id": "3.13.7",
+      "title": "System and Communications Protection - Control 3.13.7",
+      "subs": [
+        {
+          "id": "a",
+          "text": "System and Communications Protection - Control 3.13.7 - Detailed requirement part A for control 3.13.7"
+        },
+        {
+          "id": "b",
+          "text": "System and Communications Protection - Control 3.13.7 - Detailed requirement part B for control 3.13.7"
+        },
+        {
+          "id": "c",
+          "text": "System and Communications Protection - Control 3.13.7 - Detailed requirement part C for control 3.13.7"
+        },
+        {
+          "id": "d",
+          "text": "System and Communications Protection - Control 3.13.7 - Detailed requirement part D for control 3.13.7"
+        }
+      ]
+    },
+    {
+      "id": "3.13.8",
+      "title": "System and Communications Protection - Control 3.13.8",
+      "subs": [
+        {
+          "id": "a",
+          "text": "System and Communications Protection - Control 3.13.8 - Detailed requirement part A for control 3.13.8"
+        },
+        {
+          "id": "b",
+          "text": "System and Communications Protection - Control 3.13.8 - Detailed requirement part B for control 3.13.8"
+        }
+      ]
+    },
+    {
+      "id": "3.13.9",
+      "title": "System and Communications Protection - Control 3.13.9",
+      "subs": [
+        {
+          "id": "a",
+          "text": "System and Communications Protection - Control 3.13.9 - Detailed requirement part A for control 3.13.9"
+        },
+        {
+          "id": "b",
+          "text": "System and Communications Protection - Control 3.13.9 - Detailed requirement part B for control 3.13.9"
+        },
+        {
+          "id": "c",
+          "text": "System and Communications Protection - Control 3.13.9 - Detailed requirement part C for control 3.13.9"
+        }
+      ]
+    },
+    {
+      "id": "3.13.10",
+      "title": "System and Communications Protection - Control 3.13.10",
+      "subs": [
+        {
+          "id": "a",
+          "text": "System and Communications Protection - Control 3.13.10 - Detailed requirement part A for control 3.13.10"
+        },
+        {
+          "id": "b",
+          "text": "System and Communications Protection - Control 3.13.10 - Detailed requirement part B for control 3.13.10"
+        },
+        {
+          "id": "c",
+          "text": "System and Communications Protection - Control 3.13.10 - Detailed requirement part C for control 3.13.10"
+        },
+        {
+          "id": "d",
+          "text": "System and Communications Protection - Control 3.13.10 - Detailed requirement part D for control 3.13.10"
+        }
+      ]
+    },
+    {
+      "id": "3.13.11",
+      "title": "System and Communications Protection - Control 3.13.11",
+      "subs": [
+        {
+          "id": "a",
+          "text": "System and Communications Protection - Control 3.13.11 - Detailed requirement part A for control 3.13.11"
+        },
+        {
+          "id": "b",
+          "text": "System and Communications Protection - Control 3.13.11 - Detailed requirement part B for control 3.13.11"
+        },
+        {
+          "id": "c",
+          "text": "System and Communications Protection - Control 3.13.11 - Detailed requirement part C for control 3.13.11"
+        },
+        {
+          "id": "d",
+          "text": "System and Communications Protection - Control 3.13.11 - Detailed requirement part D for control 3.13.11"
+        }
+      ]
+    },
+    {
+      "id": "3.13.12",
+      "title": "System and Communications Protection - Control 3.13.12",
+      "subs": [
+        {
+          "id": "a",
+          "text": "System and Communications Protection - Control 3.13.12 - Detailed requirement part A for control 3.13.12"
+        },
+        {
+          "id": "b",
+          "text": "System and Communications Protection - Control 3.13.12 - Detailed requirement part B for control 3.13.12"
+        },
+        {
+          "id": "c",
+          "text": "System and Communications Protection - Control 3.13.12 - Detailed requirement part C for control 3.13.12"
+        },
+        {
+          "id": "d",
+          "text": "System and Communications Protection - Control 3.13.12 - Detailed requirement part D for control 3.13.12"
+        }
+      ]
+    },
+    {
+      "id": "3.13.13",
+      "title": "System and Communications Protection - Control 3.13.13",
+      "subs": [
+        {
+          "id": "a",
+          "text": "System and Communications Protection - Control 3.13.13 - Detailed requirement part A for control 3.13.13"
+        }
+      ]
+    },
+    {
+      "id": "3.13.14",
+      "title": "System and Communications Protection - Control 3.13.14",
+      "subs": [
+        {
+          "id": "a",
+          "text": "System and Communications Protection - Control 3.13.14 - Detailed requirement part A for control 3.13.14"
+        }
+      ]
+    },
+    {
+      "id": "3.13.15",
+      "title": "System and Communications Protection - Control 3.13.15",
+      "subs": [
+        {
+          "id": "a",
+          "text": "System and Communications Protection - Control 3.13.15 - Detailed requirement part A for control 3.13.15"
+        },
+        {
+          "id": "b",
+          "text": "System and Communications Protection - Control 3.13.15 - Detailed requirement part B for control 3.13.15"
+        },
+        {
+          "id": "c",
+          "text": "System and Communications Protection - Control 3.13.15 - Detailed requirement part C for control 3.13.15"
+        }
+      ]
+    },
+    {
+      "id": "3.13.16",
+      "title": "System and Communications Protection - Control 3.13.16",
+      "subs": [
+        {
+          "id": "a",
+          "text": "System and Communications Protection - Control 3.13.16 - Detailed requirement part A for control 3.13.16"
+        }
+      ]
+    },
+    {
+      "id": "3.14.1",
+      "title": "System and Information Integrity - Control 3.14.1",
+      "subs": [
+        {
+          "id": "a",
+          "text": "System and Information Integrity - Control 3.14.1 - Detailed requirement part A for control 3.14.1"
+        }
+      ]
+    },
+    {
+      "id": "3.14.2",
+      "title": "System and Information Integrity - Control 3.14.2",
+      "subs": [
+        {
+          "id": "a",
+          "text": "System and Information Integrity - Control 3.14.2 - Detailed requirement part A for control 3.14.2"
+        }
+      ]
+    },
+    {
+      "id": "3.14.3",
+      "title": "System and Information Integrity - Control 3.14.3",
+      "subs": [
+        {
+          "id": "a",
+          "text": "System and Information Integrity - Control 3.14.3 - Detailed requirement part A for control 3.14.3"
+        },
+        {
+          "id": "b",
+          "text": "System and Information Integrity - Control 3.14.3 - Detailed requirement part B for control 3.14.3"
+        }
+      ]
+    },
+    {
+      "id": "3.14.4",
+      "title": "System and Information Integrity - Control 3.14.4",
+      "subs": [
+        {
+          "id": "a",
+          "text": "System and Information Integrity - Control 3.14.4 - Detailed requirement part A for control 3.14.4"
+        },
+        {
+          "id": "b",
+          "text": "System and Information Integrity - Control 3.14.4 - Detailed requirement part B for control 3.14.4"
+        },
+        {
+          "id": "c",
+          "text": "System and Information Integrity - Control 3.14.4 - Detailed requirement part C for control 3.14.4"
+        },
+        {
+          "id": "d",
+          "text": "System and Information Integrity - Control 3.14.4 - Detailed requirement part D for control 3.14.4"
+        }
+      ]
+    },
+    {
+      "id": "3.14.5",
+      "title": "System and Information Integrity - Control 3.14.5",
+      "subs": [
+        {
+          "id": "a",
+          "text": "System and Information Integrity - Control 3.14.5 - Detailed requirement part A for control 3.14.5"
+        },
+        {
+          "id": "b",
+          "text": "System and Information Integrity - Control 3.14.5 - Detailed requirement part B for control 3.14.5"
+        },
+        {
+          "id": "c",
+          "text": "System and Information Integrity - Control 3.14.5 - Detailed requirement part C for control 3.14.5"
+        },
+        {
+          "id": "d",
+          "text": "System and Information Integrity - Control 3.14.5 - Detailed requirement part D for control 3.14.5"
+        }
+      ]
+    },
+    {
+      "id": "3.14.6",
+      "title": "System and Information Integrity - Control 3.14.6",
+      "subs": [
+        {
+          "id": "a",
+          "text": "System and Information Integrity - Control 3.14.6 - Detailed requirement part A for control 3.14.6"
+        },
+        {
+          "id": "b",
+          "text": "System and Information Integrity - Control 3.14.6 - Detailed requirement part B for control 3.14.6"
+        },
+        {
+          "id": "c",
+          "text": "System and Information Integrity - Control 3.14.6 - Detailed requirement part C for control 3.14.6"
+        },
+        {
+          "id": "d",
+          "text": "System and Information Integrity - Control 3.14.6 - Detailed requirement part D for control 3.14.6"
+        }
+      ]
+    },
+    {
+      "id": "3.14.7",
+      "title": "System and Information Integrity - Control 3.14.7",
+      "subs": [
+        {
+          "id": "a",
+          "text": "System and Information Integrity - Control 3.14.7 - Detailed requirement part A for control 3.14.7"
+        },
+        {
+          "id": "b",
+          "text": "System and Information Integrity - Control 3.14.7 - Detailed requirement part B for control 3.14.7"
+        }
+      ]
+    }
+  ]
+  
