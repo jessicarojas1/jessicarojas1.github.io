@@ -21,7 +21,7 @@
   <main class="py-12 px-6 md:px-16">
     <section id="compliance-tracker" class="max-w-7xl mx-auto">
       <h2 class="text-3xl font-bold mb-6 border-b border-green-400 pb-2">CMMC / NIST 800-171 Compliance Tracker</h2>
-      <p class="text-lg mb-6 text-gray-300">Manage compliance dynamically. Add, update, or remove POAM entries and control statuses, and track their impact on your overall compliance score. Export a System Security Plan (SSP) anytime.</p>
+      <p class="text-lg mb-6 text-gray-300">Track, associate evidence, and manage multiple controls in an interactive dashboard view. Upload shared documentation and reuse across control mappings.</p>
 
       <div class="grid md:grid-cols-3 gap-6">
         <div class="bg-gray-800 p-4 rounded-2xl shadow">
@@ -37,18 +37,20 @@
             <li class="text-red-400">Non-Compliant: <span id="nonCompliantCount">0</span></li>
             <li class="text-blue-400">POAMs: <span id="poamCount">0</span></li>
           </ul>
+          <button id="clearAll" class="mt-4 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">Clear All Entries</button>
         </div>
 
         <div class="bg-gray-800 p-4 rounded-2xl shadow">
-          <h3 class="text-xl font-semibold mb-2 text-green-400">POAM Management</h3>
+          <h3 class="text-xl font-semibold mb-2 text-green-400">POAM + Evidence Management</h3>
           <form id="poamForm">
-            <input type="text" id="poamControl" placeholder="Control ID (e.g., 3.1.5)" class="w-full mb-2 px-2 py-1 rounded" required />
+            <input type="text" id="poamControls" placeholder="Control IDs (e.g., 3.1.5, 3.1.7)" class="w-full mb-2 px-2 py-1 rounded" required />
             <input type="text" id="poamDesc" placeholder="Remediation Plan" class="w-full mb-2 px-2 py-1 rounded" required />
             <select id="poamStatus" class="w-full mb-2 px-2 py-1 rounded" required>
               <option value="Compliant">Compliant</option>
               <option value="In Progress">In Progress</option>
               <option value="Non-Compliant">Non-Compliant</option>
             </select>
+            <input type="file" id="poamEvidence" class="w-full mb-2 px-2 py-1 rounded text-sm" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" />
             <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">Add Entry</button>
           </form>
           <ul id="poamList" class="mt-4 text-sm text-gray-300 space-y-2"></ul>
@@ -59,8 +61,21 @@
   </main>
 
   <script>
-    let poamData = [];
+    let poamData = JSON.parse(localStorage.getItem('poamData')) || [];
     const statusCounts = { Compliant: 0, "In Progress": 0, "Non-Compliant": 0, POAM: 0 };
+
+    function calculateStatusCounts() {
+      statusCounts['Compliant'] = 0;
+      statusCounts['In Progress'] = 0;
+      statusCounts['Non-Compliant'] = 0;
+      statusCounts['POAM'] = 0;
+      poamData.forEach(entry => {
+        if (entry) {
+          statusCounts[entry.status] += entry.controls.length;
+          statusCounts['POAM'] += entry.controls.length;
+        }
+      });
+    }
 
     const chart = new Chart(document.getElementById('complianceChart'), {
       type: 'doughnut',
@@ -84,6 +99,7 @@
     });
 
     function updateStatusCounts() {
+      calculateStatusCounts();
       document.getElementById('compliantCount').textContent = statusCounts['Compliant'];
       document.getElementById('inProgressCount').textContent = statusCounts['In Progress'];
       document.getElementById('nonCompliantCount').textContent = statusCounts['Non-Compliant'];
@@ -97,39 +113,69 @@
       chart.update();
     }
 
+    function renderPOAMList() {
+      const list = document.getElementById('poamList');
+      list.innerHTML = '';
+      poamData.forEach((entry, index) => {
+        if (entry) {
+          const li = document.createElement('li');
+          const controlTags = entry.controls.join(', ');
+          li.innerHTML = `${controlTags} [${entry.status}]: ${entry.desc}` +
+            (entry.evidenceName ? ` (<a href="${entry.evidenceURL}" target="_blank" class="underline text-blue-400">Evidence</a>)` : '') +
+            ` <button onclick="removePOAM(${index})" class="ml-2 text-red-500 hover:text-red-300">Remove</button>`;
+          list.appendChild(li);
+        }
+      });
+    }
+
+    function removePOAM(index) {
+      poamData.splice(index, 1);
+      localStorage.setItem('poamData', JSON.stringify(poamData));
+      updateStatusCounts();
+      renderPOAMList();
+    }
+
     document.getElementById('poamForm').addEventListener('submit', function (e) {
       e.preventDefault();
-      const control = document.getElementById('poamControl').value.trim();
+      const controlsRaw = document.getElementById('poamControls').value.trim();
       const desc = document.getElementById('poamDesc').value.trim();
       const status = document.getElementById('poamStatus').value;
+      const fileInput = document.getElementById('poamEvidence');
+      const file = fileInput.files[0];
+      if (!controlsRaw || !desc || !status) return;
 
-      if (!control || !desc || !status) return;
+      const controls = controlsRaw.split(',').map(c => c.trim()).filter(c => c);
+      let entry = { controls, desc, status };
 
-      const entry = { control, desc, status };
-      poamData.push(entry);
-      statusCounts[status]++;
-      statusCounts['POAM']++;
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function () {
+          entry.evidenceName = file.name;
+          entry.evidenceURL = reader.result;
+          finalizeEntry(entry);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        finalizeEntry(entry);
+      }
 
-      const li = document.createElement('li');
-      li.innerHTML = `${control} [${status}]: ${desc} <button onclick="removePOAM(this, ${poamData.length - 1})" class="ml-2 text-red-500 hover:text-red-300">Remove</button>`;
-      document.getElementById('poamList').appendChild(li);
-
-      updateStatusCounts();
-
-      document.getElementById('poamControl').value = '';
-      document.getElementById('poamDesc').value = '';
-      document.getElementById('poamStatus').value = '';
+      function finalizeEntry(entry) {
+        poamData.push(entry);
+        localStorage.setItem('poamData', JSON.stringify(poamData));
+        document.getElementById('poamForm').reset();
+        updateStatusCounts();
+        renderPOAMList();
+      }
     });
 
-    function removePOAM(button, index) {
-      const removed = poamData[index];
-      if (!removed) return;
-      statusCounts[removed.status]--;
-      statusCounts['POAM']--;
-      poamData[index] = null;
-      button.parentElement.remove();
-      updateStatusCounts();
-    }
+    document.getElementById('clearAll').addEventListener('click', () => {
+      if (confirm('Clear all POAM entries?')) {
+        poamData = [];
+        localStorage.removeItem('poamData');
+        updateStatusCounts();
+        renderPOAMList();
+      }
+    });
 
     document.getElementById('exportSSP').addEventListener('click', function () {
       const doc = new docx.Document({
@@ -137,9 +183,7 @@
           {
             children: [
               new docx.Paragraph({ text: "System Security Plan (SSP)", heading: docx.HeadingLevel.TITLE }),
-              ...poamData.filter(p => p).map(entry =>
-                new docx.Paragraph(`${entry.control} [${entry.status}]: ${entry.desc}`)
-              )
+              ...poamData.map(entry => new docx.Paragraph(`${entry.controls.join(', ')} [${entry.status}]: ${entry.desc}`))
             ]
           }
         ]
@@ -151,6 +195,9 @@
         link.click();
       });
     });
+
+    updateStatusCounts();
+    renderPOAMList();
   </script>
 </body>
 </html>
