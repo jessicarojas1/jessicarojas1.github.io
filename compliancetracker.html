@@ -38,7 +38,16 @@
         <tbody id="familyTableBody"></tbody>
       </table>
 
-      <div id="controlsList" class="grid grid-cols-1 md:grid-cols-2 gap-4 hidden"></div>
+      <div id="controlView" class="hidden">
+        <button id="backToChart" class="mb-4 bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded">← Back to Chart</button>
+        <div class="mb-4">
+          <span class="inline-block bg-green-600 text-white px-2 py-1 rounded text-xs">Compliant</span>
+          <span class="inline-block bg-red-600 text-white px-2 py-1 rounded text-xs">Non-Compliant</span>
+          <span class="inline-block bg-blue-600 text-white px-2 py-1 rounded text-xs">In Progress</span>
+          <span class="inline-block bg-yellow-400 text-black px-2 py-1 rounded text-xs">POAM</span>
+        </div>
+        <div id="controlsList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+      </div>
 
       <div class="mt-12">
         <button id="exportSSP" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">Export SSP (DOCX)</button>
@@ -103,8 +112,9 @@
               const index = elements[0].index;
               const selectedFamily = labels[index].split(' ')[1];
               const filtered = allControls.filter(control => control.id.split('.')[1] === selectedFamily);
-              document.getElementById('controlsList').classList.remove('hidden');
+              document.getElementById('controlView').classList.remove('hidden');
               renderControls(filtered);
+              window.scrollTo({ top: document.getElementById('controlView').offsetTop, behavior: 'smooth' });
             }
           },
           responsive: true
@@ -124,6 +134,51 @@
           </tr>
         `;
       });
+    }
+
+    document.getElementById('backToChart').addEventListener('click', () => {
+      document.getElementById('controlView').classList.add('hidden');
+    });
+
+    function renderControls(controls) {
+      const container = document.getElementById('controlsList');
+      container.innerHTML = '';
+
+      controls.forEach(control => {
+        const controlBlock = document.createElement('div');
+        controlBlock.className = 'bg-gray-800 p-4 rounded shadow';
+        const subsHtml = control.subs.map(sub => {
+          const dataId = `${control.id}${sub.id}`;
+          const stored = JSON.parse(localStorage.getItem(dataId) || '{}');
+          return `
+            <div class="mt-4">
+              <h5 class="text-sm font-semibold text-green-200">${dataId}) ${sub.text}</h5>
+              <textarea placeholder="Notes for ${dataId}" class="w-full mb-2 px-2 py-1 rounded text-sm note" data-id="${dataId}">${stored.note || ''}</textarea>
+              <input type="file" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" data-id="${dataId}" class="block mb-2 text-sm">
+              <select class="mb-2 text-sm px-2 py-1 rounded status" data-id="${dataId}">
+                <option value="">Status</option>
+                <option value="compliant" ${stored.status === 'compliant' ? 'selected' : ''}>Compliant</option>
+                <option value="non-compliant" ${stored.status === 'non-compliant' ? 'selected' : ''}>Non-Compliant</option>
+                <option value="poam" ${stored.status === 'poam' ? 'selected' : ''}>POAM</option>
+                <option value="in-progress" ${stored.status === 'in-progress' ? 'selected' : ''}>In Progress</option>
+              </select>
+              <input type="date" class="due-date mb-2 px-2 py-1 text-black rounded text-sm" data-id="${dataId}" value="${stored.dueDate || ''}">
+              <label class="text-sm block mb-2">
+                <input type="checkbox" class="review-flag mr-2" data-id="${dataId}" ${stored.reviewed ? 'checked' : ''}> Evidence Reviewed
+              </label>
+              <span class="badge ${stored.status || ''}">${stored.status ? stored.status.replace('-', ' ') : ''}</span>
+              <button class="text-xs text-blue-300 hover:underline mt-1" onclick="showSuggestion('${sub.text}', '${dataId}')">💡 GPT Suggest</button>
+            </div>
+          `;
+        }).join('');
+
+        controlBlock.innerHTML = `
+          <h4 class="text-green-300 font-bold text-lg mb-2">${control.id} - ${control.title}</h4>
+          ${subsHtml}
+        `;
+        container.appendChild(controlBlock);
+      });
+      updateSSPPreview();
     }
 
     loadControls();
