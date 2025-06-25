@@ -120,6 +120,19 @@ nav a:hover {
   border-bottom: 1px solid #30363d;
 }
 
+.blog-post {
+  background-color: #1f1f1f;
+  border: 2px solid #ff5811;
+  border-radius: 10px;
+  padding: 1rem;
+  height: 250px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 0 8px rgba(255, 98, 0, 0.3);
+  transition: transform 0.3s ease;
+}
+
 /* call to action section */
 .cta {
   text-align: center;
