@@ -226,7 +226,7 @@ footer {
 }
 
 .project-card h3 {
-  color: #00ff99;
+  color: #ff0000;
   margin-bottom: 0.5rem;
 }
 
@@ -238,7 +238,7 @@ footer {
 
 .project-card .btn {
   margin-top: 1rem;
-  background-color: #00ff99;
+  background-color: #ff0000;
   color: #000;
   text-align: center;
   padding: 0.5rem;
