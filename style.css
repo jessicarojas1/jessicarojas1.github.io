@@ -210,7 +210,7 @@ footer {
 
 .project-card {
   background-color: #1f1f1f;
-  border: 2px solid #00ff99;
+  border: 2px solid #ff0000;
   border-radius: 10px;
   padding: 1rem;
   height: 250px;
@@ -246,4 +246,101 @@ footer {
   font-weight: bold;
   text-decoration: none;
 }
+
+ .timeline {
+      position: relative;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 4rem 1rem;
+    }
+
+  .timeline::after {
+      content: '';
+      position: absolute;
+      width: 4px;
+      background: #ffda0b;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      margin-left: -2px;
+    }
+
+    .timeline-entry {
+      padding: 1rem 2rem;
+      position: relative;
+      background: inherit;
+      width: 50%;
+      transition: transform 0.4s;
+    }
+
+    .timeline-entry.left {
+      left: 0;
+    }
+
+    .timeline-entry.right {
+      left: 50%;
+    }
+
+    .timeline-entry::before {
+      content: " ";
+      position: absolute;
+      top: 20px;
+      width: 20px;
+      height: 20px;
+      background-color: #ffda0b;
+      border-radius: 50%;
+      z-index: 1;
+    }
+
+    .timeline-entry.left::before {
+      right: -10px;
+    }
+
+    .timeline-entry.right::before {
+      left: -10px;
+    }
+    .timeline-content {
+      padding: 1rem;
+      background: #161b22;
+      position: relative;
+      border-radius: 6px;
+      box-shadow: 0 0 10px rgba(0,255,153,0.1);
+    }
+
+    .timeline-content h3 {
+      margin-top: 0;
+      color: #ffda0b;
+    }
+
+    .timeline-content p {
+      margin: 0.5rem 0;
+    }
+
+    .timeline-content .date {
+      font-size: 0.9rem;
+      color: #ff1818;
+      margin-bottom: 0.5rem;
+      font-weight: bold;
+    }
+
+    @media screen and (max-width: 768px) {
+      .timeline::after {
+        left: 20px;
+      }
+
+      .timeline-entry {
+        width: 100%;
+        padding-left: 60px;
+        padding-right: 25px;
+      }
+
+      .timeline-entry.left, .timeline-entry.right {
+        left: 0%;
+      }
+
+      .timeline-entry::before {
+        top: 20px;
+        left: 18px;
+      }
+    }
 
