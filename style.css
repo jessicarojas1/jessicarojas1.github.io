@@ -125,20 +125,20 @@ nav a:hover {
   text-align: center;
   margin-top: 60px;
   padding: 60px 20px;
-  background: #112;
-  border-top: 2px solid #ff9f46;
-  border-bottom: 2px solid #ff9f46;
+  background: #ff5811;
+  border-top: 2px solid #ffffff;
+  border-bottom: 2px solid #ffffff;
 }
 
 .cta h2 {
   font-size: 2rem;
-  color: #ff9f46;
+  color: #ffffff;
   margin-bottom: 1rem;
 }
 
 .cta a {
   display: inline-block;
-  background: #ff9f46;
+  background: #ffffff;
   color: #000;
   padding: 0.6em 1.4em;
   border-radius: 5px;
@@ -148,10 +148,8 @@ nav a:hover {
 }
 
 .cta a:hover {
-  background: #cd8125;
+  background: #ff5811;
 }
-
-
 
 /* Footer */
 footer {
