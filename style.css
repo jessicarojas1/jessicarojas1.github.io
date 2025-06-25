@@ -138,8 +138,8 @@ nav a:hover {
 
 .cta a {
   display: inline-block;
-  background: #ffffff;
-  color: #000;
+  background: #000;
+  color: #ff5811;
   padding: 0.6em 1.4em;
   border-radius: 5px;
   font-weight: bold;
@@ -148,7 +148,7 @@ nav a:hover {
 }
 
 .cta a:hover {
-  background: #ff5811;
+  background: #ffffff;
 }
 
 /* Footer */
