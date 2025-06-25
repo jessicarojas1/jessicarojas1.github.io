@@ -127,7 +127,7 @@ nav a:hover {
   margin-top: 2rem;
 }
 
-.blog-card {
+.blog-post {
   background-color: #ffffff;
   border: 2px solid #ff5811;
   border-radius: 10px;
@@ -140,22 +140,22 @@ nav a:hover {
   transition: transform 0.3s ease;
 }
 
-.blog-card:hover {
+.blog-post:hover {
   transform: translateY(-5px);
 }
 
-.blog-card h3 {
+.blog-post h3 {
   color: #ff5811;
   margin-bottom: 0.5rem;
-}
+} 
 
-.blog-card p {
+.blog-post p {
   flex-grow: 1;
   font-size: 0.9rem;
   color: #ccc;
 }
 
-.blog-card .btn {
+.blog-post .btn {
   margin-top: 1rem;
   background-color: #ff5811;
   color: #000;
