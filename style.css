@@ -79,6 +79,17 @@ nav a:hover {
   margin: 0.5rem;
   transition: background 0.3s;
 }
+.btnproject{
+   display: inline-block;
+  background: #ff5811;
+  color: #000000;
+  padding: 0.75rem 1.25rem;
+  border-radius: 6px;
+  margin: 0.5rem;
+  transition: background 0.3s;
+  background: #762100;
+  color: #ffffff;
+}
 
 .btn:hover {
   background: #762100;
