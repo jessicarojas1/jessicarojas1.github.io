@@ -123,9 +123,9 @@ nav a:hover {
 .blog-post {
   background-color: #1f1f1f;
   border: 2px solid #ff5811;
-  border-radius: 10px;
+  border-radius: 5px;
   padding: 1rem;
-  height: 250px;
+  height: 100px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
