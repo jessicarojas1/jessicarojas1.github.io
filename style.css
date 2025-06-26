@@ -391,12 +391,13 @@ footer {
       width: 32px;
       height: 32px;
       transition: transform 0.2s ease-in-out;
+      outline: #ffffff;
     }
 
     .social-links .social-icon img:hover {
       transform: scale(1.1);
     }
-    
+
     .social-links .social-icon {
       margin-right: 10px;
       display: inline-block;
