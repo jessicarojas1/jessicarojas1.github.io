@@ -391,7 +391,8 @@ footer {
       width: 32px;
       height: 32px;
       transition: transform 0.2s ease-in-out;
-      outline: #ffffff;
+      border: 2px solid #ff5811;
+      border-radius: 10px;
     }
 
     .social-links .social-icon img:hover {
