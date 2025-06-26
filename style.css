@@ -388,17 +388,18 @@ footer {
       }
     }
     .social-links .social-icon img {
-  width: 32px;
-  height: 32px;
-  transition: transform 0.2s ease-in-out;
-}
+      width: 32px;
+      height: 32px;
+      transition: transform 0.2s ease-in-out;
+    }
 
-.social-links .social-icon img:hover {
-  transform: scale(1.1);
-}
-.social-links .social-icon {
-  margin-right: 10px;
-  display: inline-block;
-}
+    .social-links .social-icon img:hover {
+      transform: scale(1.1);
+    }
+    
+    .social-links .social-icon {
+      margin-right: 10px;
+      display: inline-block;
+    }
 
 
