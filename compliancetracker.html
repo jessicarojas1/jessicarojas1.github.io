@@ -2,14 +2,19 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CMMC / NIST 800-171 Compliance Tracker</title>
-  <link rel="icon" href="https://github.githubassets.com/favicons/favicon.svg" type="image/svg+xml">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CMMC / NIST 800-171 Compliance Tracker | Jessica Rojas</title>
+  <meta name="description" content="Interactive CMMC and NIST 800-171 compliance tracker with pie chart dashboard, control status tracking, and SSP notes." />
+  <link rel="icon" href="favicon.ico" />
   <link rel="stylesheet" href="style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Chart.js loaded from CDN with integrity check -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+  <script>if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark-mode');</script>
 </head>
 <body class="compliance-body">
-  <nav>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <nav aria-label="Main navigation">
     <a href="index.html">Home</a>
     <a href="projects.html">Projects</a>
     <a href="resume.html">Resume</a>
@@ -17,23 +22,25 @@
     <a href="cybersecurity.html">Cybersecurity</a>
     <a href="contact.html">Contact</a>
     <a href="blog.html">Blog</a>
-    <button id="darkModeToggle">🌙 Dark Mode</button>
+    <button id="darkModeToggle" aria-label="Toggle dark mode">🌙 Dark Mode</button>
   </nav>
 
-  <main class="container">
-    <h1 class="text-green-400">CMMC / NIST 800-171 Compliance Tracker</h1>
+  <main id="main-content" class="container">
+    <h1>CMMC / NIST 800-171 Compliance Tracker</h1>
 
-    <input type="text" id="searchInput" class="search-box" placeholder="Search control families..."/>
+    <label for="searchInput" class="sr-only">Search control families</label>
+    <input type="search" id="searchInput" class="search-box" placeholder="Search control families..." aria-label="Search control families" />
 
-    <canvas id="familyPieChart" class="chart-canvas"></canvas>
+    <canvas id="familyPieChart" class="chart-canvas" role="img" aria-label="Compliance percentage pie chart by control family"></canvas>
 
     <table id="familyTable" class="compliance-table">
+      <caption>Compliance summary by control family</caption>
       <thead>
         <tr>
-          <th>Control Family</th>
-          <th>Compliant</th>
-          <th>Total</th>
-          <th>Compliance %</th>
+          <th scope="col">Control Family</th>
+          <th scope="col">Compliant</th>
+          <th scope="col">Total</th>
+          <th scope="col">Compliance %</th>
         </tr>
       </thead>
       <tbody id="familyTableBody"></tbody>
@@ -44,17 +51,23 @@
     <div id="controlView" class="hidden">
       <button id="backToChart" class="btn-warning">← Back to Chart</button>
 
-      <div class="legend">
-        <span class="status-badge compliant">Compliant</span>
-        <span class="status-badge non-compliant">Non-Compliant</span>
-        <span class="status-badge in-progress">In Progress</span>
-        <span class="status-badge poam">POAM</span>
+      <div class="legend" role="list" aria-label="Status legend">
+        <span class="status-badge compliant" role="listitem">Compliant</span>
+        <span class="status-badge non-compliant" role="listitem">Non-Compliant</span>
+        <span class="status-badge in-progress" role="listitem">In Progress</span>
+        <span class="status-badge poam" role="listitem">POAM</span>
       </div>
 
       <div id="controlsList" class="grid-list"></div>
     </div>
   </main>
 
-  <script src="compliancetracker.js"></script>
+  <footer class="footer">
+    <p>&copy; <span id="yr"></span> Jessica Rojas. All rights reserved.</p>
+    <p class="footer-links"><a href="privacy.html">Privacy Policy</a> · <a href="terms.html">Terms</a></p>
+  </footer>
+
+  <script src="script.js" defer></script>
+  <script src="compliancetracker.js" defer></script>
 </body>
 </html>
