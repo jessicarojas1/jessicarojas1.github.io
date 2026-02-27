@@ -2,12 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Projects | Jessica Rojas</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Projects | Jessica Rojas</title>
+  <meta name="description" content="Projects by Jessica Rojas — compliance tools, portfolio website, cybersecurity toolkits, and more." />
+  <link rel="icon" href="favicon.ico" />
   <link rel="stylesheet" href="style.css" />
+  <script>if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark-mode');</script>
 </head>
 <body>
-  <nav>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <nav aria-label="Main navigation">
     <a href="index.html">Home</a>
     <a href="projects.html" class="active">Projects</a>
     <a href="resume.html">Resume</a>
@@ -15,56 +20,48 @@
     <a href="cybersecurity.html">Cybersecurity</a>
     <a href="contact.html">Contact</a>
     <a href="blog.html">Blog</a>
-    <button id="darkModeToggle">🌙 Dark Mode</button>
+    <button id="darkModeToggle" aria-label="Toggle dark mode">🌙 Dark Mode</button>
   </nav>
 
-  <header class="section-header">
-    <h1>Projects</h1>
-    <p>Explore some of my recent work and tools.</p>
-  </header>
+  <main id="main-content">
+    <header class="section-header">
+      <h1>Projects</h1>
+      <p>Explore some of my recent work and tools.</p>
+    </header>
 
-  <section class="projects-grid">
-    <div class="project-card">
-      <h3>Compliance Tracker</h3>
-      <p>Full-stack tool to manage and visualize CMMC / NIST 800-171 controls with POAM and SSP exports.</p>
-      <a href="compliancetracker.html" class="btn">View Project</a>
-    </div>
+    <section class="projects-grid" aria-label="Project cards">
+      <div class="project-card">
+        <h2>Compliance Tracker</h2>
+        <p>Full-stack tool to manage and visualize CMMC / NIST 800-171 controls with POAM and SSP exports.</p>
+        <a href="compliancetracker.html" class="btn">View Project</a>
+      </div>
 
-    <div class="project-card">
-      <h3>Portfolio Website</h3>
-      <p>This personal portfolio showcases my resume, timeline, projects, certifications, and more.</p>
-      <a href="index.html" class="btn">View Portfolio</a>
-    </div>
+      <div class="project-card">
+        <h2>Portfolio Website</h2>
+        <p>This personal portfolio showcases my resume, timeline, projects, certifications, and more.</p>
+        <a href="index.html" class="btn">View Portfolio</a>
+      </div>
 
-    <div class="project-card">
-      <h3>Cybersecurity Policy Toolkit</h3>
-      <p>A curated set of policy templates aligned with NIST, CMMC, and ISO frameworks for defense contractors.</p>
-      <a href="cybersecurity.html" class="btn">View Toolkit</a>
-    </div>
+      <div class="project-card">
+        <h2>Cybersecurity Policy Toolkit</h2>
+        <p>A curated set of policy templates aligned with NIST, CMMC, and ISO frameworks for defense contractors.</p>
+        <a href="cybersecurity.html" class="btn">View Toolkit</a>
+      </div>
 
-    <!-- <div class="project-card">
-      <h3>Interactive Timeline</h3>
-      <p>Responsive, animated timeline of my career history, service, and certifications.</p>
-      <a href="timeline.html" class="btn">View Timeline</a>
-    </div>
-    
-    <div class="project-card">
-      <h3>Resume Visualizer</h3>
-      <p>Dynamic resume preview with dark/light modes and downloadable PDF feature.</p>
-      <a href="resume.html" class="btn">View Resume</a>
-    </div> -->
-
-    <div class="project-card">
-      <h3>Blog Platform</h3>
-      <p>Simple markdown-based blogging system with styling and future CMS integration support.</p>
-      <a href="blog.html" class="btn">Read Blog</a>
-    </div>
-  </section>
+      <div class="project-card">
+        <h2>Blog Platform</h2>
+        <p>Simple markdown-based blogging system with styling and future CMS integration support.</p>
+        <a href="blog.html" class="btn">Read Blog</a>
+      </div>
+    </section>
+  </main>
 
   <footer class="footer">
-    <p>&copy; 2025 Jessica Rojas. All rights reserved.</p>
+    <p>&copy; <span id="yr"></span> Jessica Rojas. All rights reserved.</p>
+    <p class="footer-links"><a href="privacy.html">Privacy Policy</a> · <a href="terms.html">Terms</a></p>
   </footer>
 
-  <script src="scripts.js"></script>
+  <!-- Fixed: was incorrectly referencing "scripts.js" (typo) -->
+  <script src="script.js" defer></script>
 </body>
 </html>
