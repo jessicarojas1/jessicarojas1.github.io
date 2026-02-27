@@ -4,52 +4,32 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Jessica Rojas | Cybersecurity Professional</title>
-
-  <!-- SEO -->
   <meta name="description" content="Jessica Rojas — Cybersecurity Professional, Full-Stack Developer, and U.S. Army Veteran specializing in RMF, GRC, and ISO 27001." />
-
-  <!-- Open Graph (update og:image URL to your domain) -->
   <meta property="og:title" content="Jessica Rojas | Cybersecurity Professional" />
   <meta property="og:description" content="Enterprise Systems Manager and Cybersecurity Professional with expertise in risk assessments, compliance, and ISO 27001 audits." />
   <meta property="og:type" content="website" />
   <meta property="og:image" content="https://yourdomain.com/og-image.png" />
-
-  <!-- Content Security Policy (tighten further once you know all your sources) -->
-  <meta http-equiv="Content-Security-Policy"
-    content="default-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self';" />
-
-  <!-- Performance: preconnect for any Google Fonts you use in style.css -->
+  <link rel="icon" href="favicon.ico" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-
   <link rel="stylesheet" href="style.css" />
-
-  <!-- Dark mode: apply saved theme BEFORE paint to prevent flash -->
-  <script>
-    (function () {
-      if (localStorage.getItem('theme') === 'dark') {
-        document.documentElement.classList.add('dark');
-      }
-    })();
-  </script>
+  <script>if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark-mode');</script>
 </head>
 <body>
-
-  <!-- Skip navigation for keyboard/screen reader users -->
   <a href="#main-content" class="skip-link">Skip to main content</a>
 
   <nav aria-label="Main navigation">
-    <a href="index.html">Home</a>
+    <a href="index.html" class="active">Home</a>
     <a href="projects.html">Projects</a>
     <a href="resume.html">Resume</a>
     <a href="timeline.html">Timeline</a>
     <a href="cybersecurity.html">Cybersecurity</a>
     <a href="contact.html">Contact</a>
-    <button id="darkModeToggle">🌙 Dark Mode</button>
+    <a href="blog.html">Blog</a>
+    <button id="darkModeToggle" aria-label="Toggle dark mode">🌙 Dark Mode</button>
   </nav>
 
   <main id="main-content">
-
     <section class="hero reveal">
       <h1>Jessica Rojas</h1>
       <p>Cybersecurity Professional • Full-Stack Developer • U.S. Army Veteran</p>
@@ -82,32 +62,21 @@
       <h2>Let's build something secure and powerful together</h2>
       <a href="projects.html" class="btn">View My Work</a>
     </section>
-
   </main>
 
   <footer class="footer">
     <p>&copy; <span id="yr"></span> Jessica Rojas. All rights reserved.</p>
+    <div class="social-links">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" />
+      </a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="LinkedIn">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" />
+      </a>
+    </div>
+    <p class="footer-links"><a href="privacy.html">Privacy Policy</a> · <a href="terms.html">Terms</a></p>
   </footer>
 
   <script src="script.js" defer></script>
-  <script>
-    // Dynamic copyright year
-    document.getElementById('yr').textContent = new Date().getFullYear();
-
-    // Dark mode toggle with localStorage persistence
-    const toggle = document.getElementById('darkModeToggle');
-    const updateToggleLabel = () => {
-      const isDark = document.documentElement.classList.contains('dark');
-      toggle.textContent = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
-    };
-
-    toggle.addEventListener('click', () => {
-      document.documentElement.classList.toggle('dark');
-      localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
-      updateToggleLabel();
-    });
-
-    updateToggleLabel();
-  </script>
 </body>
 </html>
