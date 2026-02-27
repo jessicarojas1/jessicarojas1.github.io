@@ -1,42 +1,46 @@
-// Dark Mode Toggle
-const toggle = document.getElementById("darkModeToggle");
-const body = document.body;
-
-// Apply saved theme on load
-window.addEventListener("DOMContentLoaded", () => {
-  const theme = localStorage.getItem("theme");
-  if (theme === "dark") {
-    body.classList.add("dark-mode");
-    toggle.textContent = "☀️ Light Mode";
+// ─── Theme: apply saved theme immediately to prevent flash ───
+(function () {
+  if (localStorage.getItem('theme') === 'dark') {
+    document.documentElement.classList.add('dark-mode');
   }
-});
+})();
 
-// Toggle dark/light mode
-toggle?.addEventListener("click", () => {
-  body.classList.toggle("dark-mode");
-  if (body.classList.contains("dark-mode")) {
-    localStorage.setItem("theme", "dark");
-    toggle.textContent = "☀️ Light Mode";
-  } else {
-    localStorage.setItem("theme", "light");
-    toggle.textContent = "🌙 Dark Mode";
+document.addEventListener('DOMContentLoaded', () => {
+  const toggle = document.getElementById('darkModeToggle');
+
+  // Sync button label to current state
+  function syncLabel() {
+    if (!toggle) return;
+    const isDark = document.documentElement.classList.contains('dark-mode');
+    toggle.textContent = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
   }
+
+  if (toggle) {
+    toggle.addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark-mode');
+      const isDark = document.documentElement.classList.contains('dark-mode');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      syncLabel();
+    });
+    syncLabel();
+  }
+
+  // Dynamic copyright year
+  const yr = document.getElementById('yr');
+  if (yr) yr.textContent = new Date().getFullYear();
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(
+    entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.1 }
+  );
+  reveals.forEach(el => observer.observe(el));
 });
-
-// Scroll reveal effect
-const revealElements = document.querySelectorAll(".reveal");
-
-function revealOnScroll() {
-  const windowHeight = window.innerHeight;
-  revealElements.forEach((el) => {
-    const elementTop = el.getBoundingClientRect().top;
-    if (elementTop < windowHeight - 100) {
-      el.classList.add("visible");
-    } else {
-      el.classList.remove("visible");
-    }
-  });
-}
-
-window.addEventListener("scroll", revealOnScroll);
-window.addEventListener("load", revealOnScroll);
