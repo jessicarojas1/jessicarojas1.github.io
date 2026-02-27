@@ -2,12 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Terms & Conditions | Jessica Rojas</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Terms &amp; Conditions | Jessica Rojas</title>
+  <link rel="icon" href="favicon.ico" />
   <link rel="stylesheet" href="style.css" />
+  <script>if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark-mode');</script>
 </head>
 <body>
-  <nav>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <nav aria-label="Main navigation">
     <a href="index.html">Home</a>
     <a href="projects.html">Projects</a>
     <a href="resume.html">Resume</a>
@@ -15,9 +19,10 @@
     <a href="cybersecurity.html">Cybersecurity</a>
     <a href="contact.html">Contact</a>
     <a href="blog.html">Blog</a>
+    <button id="darkModeToggle" aria-label="Toggle dark mode">🌙 Dark Mode</button>
   </nav>
 
-  <main class="container">
+  <main id="main-content" class="container">
     <section class="intro-section reveal">
       <h1>Terms and Conditions</h1>
       <p>Last updated: June 2025</p>
@@ -48,6 +53,11 @@
     </section>
   </main>
 
-  <script src="script.js"></script>
+  <footer class="footer">
+    <p>&copy; <span id="yr"></span> Jessica Rojas. All rights reserved.</p>
+    <p class="footer-links"><a href="privacy.html">Privacy Policy</a> · <a href="terms.html">Terms</a></p>
+  </footer>
+
+  <script src="script.js" defer></script>
 </body>
 </html>
