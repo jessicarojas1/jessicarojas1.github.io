@@ -2,13 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Contact | Jessica Rojas</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Contact | Jessica Rojas</title>
+  <meta name="description" content="Get in touch with Jessica Rojas — cybersecurity professional and full-stack developer." />
+  <link rel="icon" href="favicon.ico" />
   <link rel="stylesheet" href="style.css" />
-  <link rel="icon" href="https://github.githubassets.com/favicons/favicon.svg" />
+  <script>if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark-mode');</script>
 </head>
 <body>
-  <nav>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <nav aria-label="Main navigation">
     <a href="index.html">Home</a>
     <a href="projects.html">Projects</a>
     <a href="resume.html">Resume</a>
@@ -16,20 +20,23 @@
     <a href="cybersecurity.html">Cybersecurity</a>
     <a href="contact.html" class="active">Contact</a>
     <a href="blog.html">Blog</a>
-    <button id="darkModeToggle">🌙</button>
+    <button id="darkModeToggle" aria-label="Toggle dark mode">🌙 Dark Mode</button>
   </nav>
 
-  <main class="container reveal">
+  <main id="main-content" class="container reveal">
     <section class="contact-section">
       <h1>Get in Touch</h1>
       <p>If you'd like to collaborate, have a question, or just want to say hello, feel free to reach out below.</p>
 
-      <form class="contact-form" action="mailto:cuevasjessica40@yahoo.com" method="POST" enctype="text/plain">
+      <!-- NOTE: mailto: forms send data as plain text in the email body and don't work in all clients.
+           Consider a backend service like Formspree (https://formspree.io) for reliable form handling.
+           Replace action below with your Formspree endpoint, e.g.: action="https://formspree.io/f/YOUR_ID" method="POST" -->
+      <form class="contact-form" action="mailto:cuevasjessica40@yahoo.com" method="POST" enctype="text/plain" novalidate>
         <label for="name">Name</label>
-        <input type="text" id="name" name="name" required />
+        <input type="text" id="name" name="name" autocomplete="name" required />
 
         <label for="email">Email</label>
-        <input type="email" id="email" name="email" required />
+        <input type="email" id="email" name="email" autocomplete="email" required />
 
         <label for="message">Message</label>
         <textarea id="message" name="message" rows="5" required></textarea>
@@ -38,17 +45,20 @@
       </form>
     </section>
   </main>
+
   <footer class="footer">
-    <p>&copy; 2025 Jessica Rojas. All rights reserved.</p>
-          <div class="social-links">
-            <a href="https://github.com/jessicarojas1" target="_blank" class="social-icon" title="GitHub">
-              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" />
-            </a>
-            <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" class="social-icon" title="LinkedIn">
-              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" />
-            </a>
-         </div>
+    <p>&copy; <span id="yr"></span> Jessica Rojas. All rights reserved.</p>
+    <div class="social-links">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" />
+      </a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="LinkedIn">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" />
+      </a>
+    </div>
+    <p class="footer-links"><a href="privacy.html">Privacy Policy</a> · <a href="terms.html">Terms</a></p>
   </footer>
-  <script src="script.js"></script>
+
+  <script src="script.js" defer></script>
 </body>
 </html>
