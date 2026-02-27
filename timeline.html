@@ -2,12 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Timeline | Jessica Rojas</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Timeline | Jessica Rojas</title>
+  <meta name="description" content="Career timeline of Jessica Rojas — cybersecurity professional and U.S. Army veteran." />
+  <link rel="icon" href="favicon.ico" />
   <link rel="stylesheet" href="style.css" />
+  <script>if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark-mode');</script>
 </head>
 <body>
-  <nav>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <nav aria-label="Main navigation">
     <a href="index.html">Home</a>
     <a href="projects.html">Projects</a>
     <a href="resume.html">Resume</a>
@@ -15,47 +20,63 @@
     <a href="cybersecurity.html">Cybersecurity</a>
     <a href="contact.html">Contact</a>
     <a href="blog.html">Blog</a>
-    <button id="darkModeToggle">🌙 Dark Mode</button>
+    <button id="darkModeToggle" aria-label="Toggle dark mode">🌙 Dark Mode</button>
   </nav>
 
-  <section class="timeline reveal">
-    <div class="timeline-entry left reveal">
-      <div class="timeline-content">
-        <span class="date">2025 – Present</span>
-        <h3>Enterprise Systems Manager – GMRE, Inc.</h3>
-        <p>Leading enterprise architecture, compliance (CMMC/NIST), and AI governance efforts.</p>
+  <main id="main-content">
+    <section class="hero reveal">
+      <h1>Career Timeline</h1>
+      <p>My professional journey from military service to cybersecurity leadership.</p>
+    </section>
+
+    <div class="timeline" role="list">
+      <div class="timeline-entry left reveal" role="listitem">
+        <div class="timeline-content">
+          <span class="date">July 2024 – Present</span>
+          <h2>Enterprise Systems Manager — GMRE, Inc.</h2>
+          <p>Leading enterprise architecture, compliance (CMMC/NIST), and AI governance efforts.</p>
+        </div>
+      </div>
+
+      <div class="timeline-entry right reveal" role="listitem">
+        <div class="timeline-content">
+          <span class="date">January 2024 – Present</span>
+          <h2>Cyber Mentor II — Fullstack Academy</h2>
+          <p>Mentoring students in cybersecurity fundamentals, Linux, red teaming, and compliance.</p>
+        </div>
+      </div>
+
+      <div class="timeline-entry left reveal" role="listitem">
+        <div class="timeline-content">
+          <span class="date">April 2022 – July 2024</span>
+          <h2>Cybersecurity Analyst — GMRE, Inc.</h2>
+          <p>Performed audits, vulnerability assessments, and compliance checks for DoD contracts.</p>
+        </div>
+      </div>
+
+      <div class="timeline-entry right reveal" role="listitem">
+        <div class="timeline-content">
+          <span class="date">October 2022 – March 2023</span>
+          <h2>Teaching Assistant — 2U / Trilogy</h2>
+          <p>Supported cybersecurity curriculum delivery and student lab assistance.</p>
+        </div>
+      </div>
+
+      <div class="timeline-entry left reveal" role="listitem">
+        <div class="timeline-content">
+          <span class="date">June 2015 – June 2022</span>
+          <h2>Military Police — Utah Army National Guard</h2>
+          <p>Served in protective security and law enforcement operations. Honorable service completed.</p>
+        </div>
       </div>
     </div>
+  </main>
 
-    <div class="timeline-entry right reveal">
-      <div class="timeline-content">
-        <span class="date">2022 – 2024</span>
-        <h3>Cybersecurity Analyst – GMRE, Inc.</h3>
-        <p>Performed audits, vulnerability assessments, and compliance checks for DoD contracts.</p>
-      </div>
-    </div>
-
-    <div class="timeline-entry left reveal">
-      <div class="timeline-content">
-        <span class="date">2022 – Present</span>
-        <h3>Cybersecurity TA – Fullstack Academy</h3>
-        <p>Provided mentoring and instruction in cybersecurity fundamentals, Linux, and red teaming.</p>
-      </div>
-    </div>
-
-    <div class="timeline-entry right reveal">
-      <div class="timeline-content">
-        <span class="date">2015 – 2022</span>
-        <h3>Military Police – U.S. Army</h3>
-        <p>Served in protective security and law enforcement operations. Honorable service completed.</p>
-      </div>
-    </div>
-  </section>
-
-  <footer>
-    <p>&copy; 2025 Jessica Rojas. All rights reserved.</p>
+  <footer class="footer">
+    <p>&copy; <span id="yr"></span> Jessica Rojas. All rights reserved.</p>
+    <p class="footer-links"><a href="privacy.html">Privacy Policy</a> · <a href="terms.html">Terms</a></p>
   </footer>
 
-  <script src="script.js"></script>
+  <script src="script.js" defer></script>
 </body>
 </html>
