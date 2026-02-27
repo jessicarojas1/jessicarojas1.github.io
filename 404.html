@@ -2,12 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>404 Not Found | Jessica Rojas</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>404 Not Found | Jessica Rojas</title>
+  <link rel="icon" href="favicon.ico" />
   <link rel="stylesheet" href="style.css" />
+  <script>if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark-mode');</script>
 </head>
 <body>
-  <nav>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <nav aria-label="Main navigation">
     <a href="index.html">Home</a>
     <a href="projects.html">Projects</a>
     <a href="resume.html">Resume</a>
@@ -15,15 +19,21 @@
     <a href="cybersecurity.html">Cybersecurity</a>
     <a href="contact.html">Contact</a>
     <a href="blog.html">Blog</a>
-    <button id="darkModeToggle">🌙 Dark Mode</button>
+    <button id="darkModeToggle" aria-label="Toggle dark mode">🌙 Dark Mode</button>
   </nav>
 
-  <section class="hero reveal text-center">
-    <h1 class="text-red-500">404</h1>
-    <p>The page you are looking for doesn't exist or has been moved.</p>
-    <a href="index.html" class="btn">Return Home</a>
-  </section>
+  <main id="main-content">
+    <section class="hero reveal" style="text-align:center;">
+      <h1 style="color:#ef4444; font-size:6rem; margin-bottom:0;">404</h1>
+      <p>The page you're looking for doesn't exist or has been moved.</p>
+      <a href="index.html" class="btn">Return Home</a>
+    </section>
+  </main>
 
-  <script src="script.js"></script>
+  <footer class="footer">
+    <p>&copy; <span id="yr"></span> Jessica Rojas. All rights reserved.</p>
+  </footer>
+
+  <script src="script.js" defer></script>
 </body>
 </html>
