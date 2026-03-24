@@ -3,71 +3,208 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Projects | Jessica Rojas</title>
-  <meta name="description" content="Projects by Jessica Rojas — compliance tools, portfolio website, cybersecurity toolkits, and more." />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
   <link rel="icon" href="favicon.ico" />
-  <link rel="stylesheet" href="style.css" />
-  <script>if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark-mode');</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="theme.css" />
+  <title>Projects | Jessica Rojas</title>
+  <meta name="description" content="Projects built by Jessica Rojas — tools, apps, and systems spanning cybersecurity, compliance, and web development." />
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
-
-  <nav aria-label="Main navigation">
-    <a href="index.html">Home</a>
-    <a href="projects.html" class="active">Projects</a>
-    <a href="resume.html">Resume</a>
-    <a href="timeline.html">Timeline</a>
-    <a href="cybersecurity.html">Cybersecurity</a>
-    <a href="contact.html">Contact</a>
-    <a href="blog.html">Blog</a>
-    <button id="darkModeToggle" aria-label="Toggle dark mode">🌙 Dark Mode</button>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link active" href="projects.html" aria-current="page">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="blog.html">Blog</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none">
+            <a class="nav-link" href="compliancetracker.html">Tracker</a>
+          </li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </nav>
-
   <main id="main-content">
-    <header class="section-header">
-      <h1>Projects</h1>
-      <p>Explore some of my recent work and tools.</p>
-    </header>
 
-    <section class="projects-grid" aria-label="Project cards">
-      <div class="project-card">
-        <h2>Compliance Tracker</h2>
-        <p>Full-stack tool to manage and visualize CMMC / NIST 800-171 controls with POAM and SSP exports.</p>
-        <a href="compliancetracker.html" class="btn">View Project</a>
-      </div>
-
-      <div class="project-card">
-        <h2>Portfolio Website</h2>
-        <p>This personal portfolio showcases my resume, timeline, projects, certifications, and more.</p>
-        <a href="index.html" class="btn">View Portfolio</a>
-      </div>
-
-      <div class="project-card">
-        <h2>Cybersecurity Policy Toolkit</h2>
-        <p>A curated set of policy templates aligned with NIST, CMMC, and ISO frameworks for defense contractors.</p>
-        <a href="cybersecurity.html" class="btn">View Toolkit</a>
-      </div>
-
-      <div class="project-card">
-        <h2>Blog Platform</h2>
-        <p>Simple markdown-based blogging system with styling and future CMS integration support.</p>
-        <a href="blog.html" class="btn">Read Blog</a>
-      </div>
-
-      <div class="project-card">
-        <h2>ATS Resume Screener</h2>
-        <p>Upload your resume and a job description to get an instant ATS compatibility score, keyword gap analysis, and tailored recommendations.</p>
-        <a href="resumescreener.html" class="btn">Try It</a>
+    <!-- Page Hero -->
+    <section class="hero-section reveal">
+      <div class="container text-center">
+        <h1>Projects</h1>
+        <p class="lead">Tools, apps, and systems I've built.</p>
+        <button class="btn btn-sm btn-warning" data-role-min="editor" data-bs-toggle="modal" data-bs-target="#addProjectModal" style="display:none">+ Add Project</button>
       </div>
     </section>
+
+    <!-- Projects Grid -->
+    <section class="container py-5">
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="projects-grid">
+
+        <!-- Card 1: CMMC Compliance Tracker -->
+        <div class="col">
+          <div class="card h-100">
+            <div class="card-body">
+              <h3 class="card-title h5">CMMC Compliance Tracker</h3>
+              <p class="card-text">Interactive objective-level compliance tracker for CMMC L2/L1 and ISO 27001 with SSP generation, evidence management, and donut chart dashboard.</p>
+            </div>
+            <div class="card-footer d-flex gap-2 flex-wrap">
+              <a href="compliancetracker.html" class="btn btn-sm btn-primary">Open Tracker</a>
+              <button class="btn btn-sm btn-outline-warning" data-role-min="editor" style="display:none">Edit</button>
+              <button class="btn btn-sm btn-outline-danger" data-role-min="admin" style="display:none">Delete</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: ATS Resume Screener -->
+        <div class="col">
+          <div class="card h-100">
+            <div class="card-body">
+              <h3 class="card-title h5">ATS Resume Screener</h3>
+              <p class="card-text">Upload your resume and a job description for instant ATS compatibility scoring, keyword gap analysis, and tailored recommendations.</p>
+            </div>
+            <div class="card-footer d-flex gap-2 flex-wrap">
+              <a href="resumescreener.html" class="btn btn-sm btn-primary">Try It</a>
+              <button class="btn btn-sm btn-outline-warning" data-role-min="editor" style="display:none">Edit</button>
+              <button class="btn btn-sm btn-outline-danger" data-role-min="admin" style="display:none">Delete</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: Portfolio Website -->
+        <div class="col">
+          <div class="card h-100">
+            <div class="card-body">
+              <h3 class="card-title h5">Portfolio Website</h3>
+              <p class="card-text">This responsive portfolio showcasing cybersecurity expertise, career timeline, and projects — built with Bootstrap 5.3 and vanilla JS.</p>
+            </div>
+            <div class="card-footer d-flex gap-2 flex-wrap">
+              <a href="index.html" class="btn btn-sm btn-primary">View Portfolio</a>
+              <button class="btn btn-sm btn-outline-warning" data-role-min="editor" style="display:none">Edit</button>
+              <button class="btn btn-sm btn-outline-danger" data-role-min="admin" style="display:none">Delete</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 4: Cybersecurity Policy Toolkit -->
+        <div class="col">
+          <div class="card h-100">
+            <div class="card-body">
+              <h3 class="card-title h5">Cybersecurity Policy Toolkit</h3>
+              <p class="card-text">A curated set of policy templates aligned with NIST, CMMC, and ISO frameworks for defense contractors.</p>
+            </div>
+            <div class="card-footer d-flex gap-2 flex-wrap">
+              <a href="cybersecurity.html" class="btn btn-sm btn-primary">View Toolkit</a>
+              <button class="btn btn-sm btn-outline-warning" data-role-min="editor" style="display:none">Edit</button>
+              <button class="btn btn-sm btn-outline-danger" data-role-min="admin" style="display:none">Delete</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
   </main>
 
-  <footer class="footer">
-    <p>&copy; <span id="yr"></span> Jessica Rojas. All rights reserved.</p>
-    <p class="footer-links"><a href="privacy.html">Privacy Policy</a> · <a href="terms.html">Terms</a></p>
-  </footer>
+  <!-- Add Project Modal (editor+) -->
+  <div class="modal fade" id="addProjectModal" tabindex="-1" data-role-min="editor" style="display:none">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5">Add Project</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="add-project-form">
+            <div class="mb-3">
+              <label for="proj-title" class="form-label">Title *</label>
+              <input type="text" class="form-control" id="proj-title" required />
+            </div>
+            <div class="mb-3">
+              <label for="proj-desc" class="form-label">Description</label>
+              <textarea class="form-control" id="proj-desc" rows="3"></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="proj-link" class="form-label">Link (URL)</label>
+              <input type="url" class="form-control" id="proj-link" placeholder="https://..." />
+            </div>
+            <input type="hidden" id="proj-url" />
+            <button type="submit" class="btn btn-primary w-100">Save Project</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  <!-- Fixed: was incorrectly referencing "scripts.js" (typo) -->
+  <!-- RBAC Login Modal -->
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="rbacModalLabel">🔒 Login</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="rbac-login-form" novalidate>
+            <div class="mb-3">
+              <label for="rbac-username-input" class="form-label">Display Name <span class="text-secondary small">(optional)</span></label>
+              <input type="text" class="form-control" id="rbac-username-input" autocomplete="username" placeholder="e.g. Jessica" maxlength="40" />
+            </div>
+            <div class="mb-3">
+              <label for="rbac-role-select" class="form-label">Access Level</label>
+              <select class="form-select" id="rbac-role-select">
+                <option value="viewer">Viewer — read-only (no password)</option>
+                <option value="reader">Reader — enhanced access</option>
+                <option value="editor">Editor — content management</option>
+                <option value="admin">Admin — full access</option>
+              </select>
+            </div>
+            <div class="mb-3" id="rbac-pw-group" style="display:none">
+              <label for="rbac-password-input" class="form-label">Password</label>
+              <input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" />
+            </div>
+            <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+          </form>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <p class="text-secondary small mb-0">Session clears when you close this tab.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" />
+      </a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" />
+      </a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="privacy.html">Privacy Policy</a> &middot; <a href="terms.html">Terms</a></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="roles.js" defer></script>
   <script src="script.js" defer></script>
 </body>
 </html>

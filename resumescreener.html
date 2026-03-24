@@ -2,153 +2,205 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>ATS Resume Screener | Jessica Rojas</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Free ATS Resume Screener — upload your resume, paste a job description, and get an instant keyword match score with recommendations." />
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="theme.css" />
   <link rel="stylesheet" href="screener.css" />
-  <!-- PDF.js for reading uploaded PDF resumes -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <title>ATS Resume Screener | Jessica Rojas</title>
+  <meta name="description" content="Free ATS resume screener — upload your resume and a job description to get an instant compatibility score, keyword gap analysis, and recommendations." />
 </head>
 <body>
-  <nav>
-    <a href="index.html">Home</a>
-    <a href="projects.html">Projects</a>
-    <a href="resume.html">Resume</a>
-    <a href="timeline.html">Timeline</a>
-    <a href="cybersecurity.html">Cybersecurity</a>
-    <a href="contact.html">Contact</a>
-    <a href="blog.html">Blog</a>
-    <button id="darkModeToggle">🌙 Dark Mode</button>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link active" href="projects.html" aria-current="page">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="blog.html">Blog</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none">
+            <a class="nav-link" href="compliancetracker.html">Tracker</a>
+          </li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">&#9728;&#65039;</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </nav>
 
-  <main class="container">
-
-    <section class="reveal">
-      <h1 style="color:#ff5811;margin-bottom:0.25rem;">ATS Resume Screener</h1>
-      <p style="color:#8b949e;margin-top:0;">
-        Upload your resume and paste a job description to get an instant ATS compatibility score,
-        keyword gap analysis, and tailored recommendations.
-      </p>
+  <main id="main-content">
+    <section class="hero-section reveal">
+      <div class="container text-center">
+        <h1>ATS Resume Screener</h1>
+        <p class="lead">Upload your resume and paste a job description for an instant ATS compatibility score.</p>
+        <div class="d-flex justify-content-center gap-2 flex-wrap mt-2">
+          <span class="badge bg-secondary">100% Private - processed in your browser</span>
+          <span class="badge bg-secondary">No data sent to any server</span>
+        </div>
+      </div>
     </section>
 
-    <!-- Input panels -->
-    <div class="screener-inputs reveal">
-
-      <!-- Left: Resume -->
-      <div class="input-panel">
-        <h2>Resume</h2>
-
-        <div class="tab-row">
-          <button class="tab-btn active" id="tabUploadBtn">📄 Upload File</button>
-          <button class="tab-btn"        id="tabPasteBtn">✏ Paste Text</button>
+    <section class="container py-4">
+      <div class="screener-inputs">
+        <div class="input-panel">
+          <h2>Resume</h2>
+          <div class="tab-row">
+            <button class="tab-btn active" id="resumeFileTab">Upload File</button>
+            <button class="tab-btn" id="resumePasteTab">Paste Text</button>
+          </div>
+          <div id="resumeFileContent" class="tab-content">
+            <label class="file-drop-zone" id="resumeDropZone" for="resumeFileInput">
+              <span>Drop PDF here or click to browse</span>
+              <input type="file" id="resumeFileInput" accept=".pdf,.txt" class="d-none" aria-label="Upload resume file" />
+            </label>
+            <div class="file-status" id="resumeFileStatus"></div>
+          </div>
+          <div id="resumePasteContent" class="tab-content hidden">
+            <textarea class="screener-textarea" id="resumePasteInput" rows="12" placeholder="Paste your resume text here..." aria-label="Paste resume text"></textarea>
+          </div>
         </div>
-
-        <div id="tabUpload" class="tab-content">
-          <label class="file-drop-zone" id="dropZone" for="resumeFile">
-            <span id="dropText">Drag & drop a PDF or .txt file, or click to browse</span>
-            <input type="file" id="resumeFile" accept=".pdf,.txt" style="display:none;" />
-          </label>
-          <div id="fileStatus" class="file-status"></div>
-        </div>
-
-        <div id="tabPaste" class="tab-content hidden">
-          <textarea id="resumeText" class="screener-textarea"
-            placeholder="Paste your resume text here…" rows="14"></textarea>
+        <div class="input-panel">
+          <h2>Job Description</h2>
+          <div class="tab-row">
+            <button class="tab-btn active" id="jdPasteTab">Paste Text</button>
+            <button class="tab-btn" id="jdFileTab">Upload File</button>
+          </div>
+          <div id="jdPasteContent" class="tab-content">
+            <textarea class="screener-textarea" id="jdPasteInput" rows="12" placeholder="Paste the job description here..." aria-label="Paste job description text"></textarea>
+          </div>
+          <div id="jdFileContent" class="tab-content hidden">
+            <label class="file-drop-zone" id="jdDropZone" for="jdFileInput">
+              <span>Drop file here or click to browse</span>
+              <input type="file" id="jdFileInput" accept=".pdf,.txt" class="d-none" aria-label="Upload job description file" />
+            </label>
+            <div class="file-status" id="jdFileStatus"></div>
+          </div>
         </div>
       </div>
 
-      <!-- Right: Job Description -->
-      <div class="input-panel">
-        <h2>Job Description</h2>
-        <textarea id="jobDescText" class="screener-textarea"
-          placeholder="Paste the full job description here…" rows="18"></textarea>
+      <div class="text-center my-4">
+        <button class="btn btn-primary btn-lg px-5" id="analyzeBtn">Analyze Resume</button>
+        <p class="text-secondary small mt-2" id="analyzeNote">Both a resume and job description are required.</p>
       </div>
 
-    </div>
-
-    <div style="text-align:center;margin:1.5rem 0;">
-      <button class="btn" id="analyzeBtn" style="font-size:1rem;padding:0.75rem 2rem;">
-        🔍 Analyze Match
-      </button>
-    </div>
-
-    <!-- Results -->
-    <div id="results" class="hidden reveal">
-
-      <!-- Score gauge -->
-      <div class="score-section">
-        <div class="score-gauge">
-          <svg viewBox="0 0 120 70" class="gauge-svg">
-            <path d="M10,65 A55,55 0 0,1 110,65" fill="none" stroke="#21262d" stroke-width="12" stroke-linecap="round"/>
-            <path id="gaugeArc" d="M10,65 A55,55 0 0,1 110,65" fill="none" stroke="#ff5811" stroke-width="12" stroke-linecap="round"
-                  stroke-dasharray="0 173"/>
-          </svg>
-          <div class="score-number"><span id="scoreValue">0</span><small>/100</small></div>
+      <div id="resultsSection" style="display:none">
+        <div class="score-section">
+          <div class="score-gauge" role="img" aria-label="ATS compatibility score gauge">
+            <svg class="gauge-svg" viewBox="0 0 200 110" xmlns="http://www.w3.org/2000/svg">
+              <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="var(--bs-tertiary-bg,#21262d)" stroke-width="18" stroke-linecap="round"/>
+              <path id="gaugeFill" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#ff5811" stroke-width="18" stroke-linecap="round" stroke-dasharray="251.2" stroke-dashoffset="251.2"/>
+            </svg>
+            <div class="score-number" id="scoreNumber">0<small>/100</small></div>
+          </div>
+          <div class="score-label" id="scoreLabel">Analyzing...</div>
+          <div class="score-sublabel" id="scoreSublabel"></div>
         </div>
-        <div class="score-label" id="scoreLabel">Analyzing…</div>
-        <div class="score-sublabel" id="scoreSubLabel"></div>
+
+        <div class="kw-filter-bar">
+          <input type="text" class="kw-search" id="kwSearchInput" placeholder="Search keywords..." aria-label="Search keywords" />
+          <div class="kw-cat-pills" id="kwCatPills"></div>
+          <span class="kw-filter-count" id="kwFilterCount"></span>
+        </div>
+
+        <div class="results-grid">
+          <div class="result-card">
+            <h3>Matched Keywords</h3>
+            <div class="keyword-cloud met-cloud" id="metKeywords"></div>
+          </div>
+          <div class="result-card">
+            <h3>Missing Keywords</h3>
+            <div class="keyword-cloud missing-cloud" id="missingKeywords"></div>
+          </div>
+          <div class="result-card">
+            <h3>Category Breakdown</h3>
+            <div id="categoryBreakdown"></div>
+          </div>
+          <div class="result-card">
+            <h3>Recommendations</h3>
+            <ul class="rec-list" id="recommendations"></ul>
+          </div>
+        </div>
+
+        <div class="text-center mt-4 d-flex justify-content-center gap-3 flex-wrap">
+          <button class="btn btn-outline-secondary btn-sm" id="exportResultsBtn">Export Results (JSON)</button>
+          <button class="btn btn-outline-secondary btn-sm" id="resetBtn">Reset</button>
+        </div>
       </div>
-
-      <!-- Keyword filter bar -->
-      <div class="kw-filter-bar">
-        <input type="text" id="kwSearchInput" class="kw-search" placeholder="Filter keywords…" />
-        <div class="kw-cat-pills" id="kwCatPills">
-          <button class="kw-pill active" data-cat="all">All</button>
-          <button class="kw-pill" data-cat="Cybersecurity Frameworks">Frameworks</button>
-          <button class="kw-pill" data-cat="Certifications">Certifications</button>
-          <button class="kw-pill" data-cat="Technical Skills">Technical</button>
-          <button class="kw-pill" data-cat="Security Tools">Tools</button>
-          <button class="kw-pill" data-cat="Soft Skills">Soft Skills</button>
-          <button class="kw-pill" data-cat="Education &amp; Clearance">Education</button>
-        </div>
-        <span class="kw-filter-count" id="kwFilterCount"></span>
-      </div>
-
-      <!-- 4-column results grid -->
-      <div class="results-grid">
-
-        <div class="result-card">
-          <h3>✅ Matched Keywords <span class="kw-count" id="matchedCount"></span></h3>
-          <div id="matchedKeywords" class="keyword-cloud met-cloud"></div>
-        </div>
-
-        <div class="result-card">
-          <h3>❌ Missing Keywords <span class="kw-count" id="missingCount"></span></h3>
-          <div id="missingKeywords" class="keyword-cloud missing-cloud"></div>
-        </div>
-
-        <div class="result-card">
-          <h3>📊 Category Breakdown</h3>
-          <div id="categoryBreakdown"></div>
-        </div>
-
-        <div class="result-card">
-          <h3>💡 Recommendations</h3>
-          <ul id="recommendations" class="rec-list"></ul>
-        </div>
-
-      </div>
-
-      <div style="text-align:center;margin-top:1.5rem;">
-        <button class="btn" id="exportResultsBtn" style="background:#21262d;color:#c9d1d9;">
-          ⬇ Export Results (.txt)
-        </button>
-        <button class="btn" id="resetBtn" style="background:#3a1e1e;color:#f87171;margin-left:0.5rem;">
-          ↺ Start Over
-        </button>
-      </div>
-
-    </div>
-
+    </section>
   </main>
 
-  <footer class="footer">
-    <p>&copy; 2025 Jessica Rojas. All rights reserved.</p>
-    <p><a href="privacy.html">Privacy Policy</a> &middot; <a href="terms.html">Terms &amp; Conditions</a></p>
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="rbacModalLabel">Login</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="rbac-login-form" novalidate>
+            <div class="mb-3">
+              <label for="rbac-username-input" class="form-label">Display Name <span class="text-secondary small">(optional)</span></label>
+              <input type="text" class="form-control" id="rbac-username-input" autocomplete="username" placeholder="e.g. Jessica" maxlength="40" />
+            </div>
+            <div class="mb-3">
+              <label for="rbac-role-select" class="form-label">Access Level</label>
+              <select class="form-select" id="rbac-role-select">
+                <option value="viewer">Viewer - read-only (no password)</option>
+                <option value="reader">Reader - enhanced access</option>
+                <option value="editor">Editor - content management</option>
+                <option value="admin">Admin - full access</option>
+              </select>
+            </div>
+            <div class="mb-3" id="rbac-pw-group" style="display:none">
+              <label for="rbac-password-input" class="form-label">Password</label>
+              <input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" />
+            </div>
+            <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+          </form>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <p class="text-secondary small mb-0">Session clears when you close this tab.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" />
+      </a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" />
+      </a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="privacy.html">Privacy Policy</a> &middot; <a href="terms.html">Terms</a></p>
   </footer>
 
-  <script src="script.js"></script>
-  <script src="resumescreener.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="roles.js" defer></script>
+  <script src="script.js" defer></script>
+  <script src="resumescreener.js" defer></script>
 </body>
 </html>

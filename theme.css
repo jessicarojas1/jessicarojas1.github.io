@@ -1,0 +1,280 @@
+/* ================================================================
+   theme.css — Bootstrap 5.3 custom theme for jessicarojas1.github.io
+   Load AFTER Bootstrap CDN CSS, BEFORE other custom CSS.
+   Brand color: #ff5811 (orange)
+   ================================================================ */
+
+/* ── Bootstrap color-mode variables ──────────────────────────── */
+:root,
+[data-bs-theme="light"] {
+  --bs-primary:             #ff5811;
+  --bs-primary-rgb:         255, 88, 17;
+  --bs-link-color:          #ff5811;
+  --bs-link-color-rgb:      255, 88, 17;
+  --bs-link-hover-color:    #c94100;
+  --bs-body-bg:             #f8f9fa;
+  --bs-secondary-bg:        #ffffff;
+  --brand:                  #ff5811;
+}
+
+[data-bs-theme="dark"] {
+  --bs-primary:             #ff5811;
+  --bs-primary-rgb:         255, 88, 17;
+  --bs-link-color:          #ff7a40;
+  --bs-link-color-rgb:      255, 122, 64;
+  --bs-link-hover-color:    #ff9966;
+
+  /* Match existing dark brand palette */
+  --bs-body-bg:             #0d1117;
+  --bs-body-bg-rgb:         13, 17, 23;
+  --bs-secondary-bg:        #161b22;
+  --bs-tertiary-bg:         #21262d;
+  --bs-border-color:        #30363d;
+  --bs-border-color-translucent: rgba(48,54,61,0.8);
+  --bs-body-color:          #c9d1d9;
+  --bs-body-color-rgb:      201, 209, 217;
+  --bs-secondary-color:     #8b949e;
+  --bs-secondary-color-rgb: 139, 148, 158;
+  --bs-tertiary-color:      #484f58;
+  --bs-emphasis-color:      #f0f6fc;
+  --bs-heading-color:       #f0f6fc;
+  --bs-code-color:          #ff7a40;
+
+  /* Card / surface */
+  --bs-card-bg:             #161b22;
+  --bs-card-border-color:   #30363d;
+
+  /* Navbar */
+  --bs-navbar-color:        rgba(201,209,217,0.85);
+  --bs-navbar-hover-color:  #ff5811;
+  --bs-navbar-active-color: #ff5811;
+  --bs-navbar-brand-color:  #f0f6fc;
+  --bs-navbar-toggler-border-color: #30363d;
+  --bs-navbar-bg:           #161b22;
+
+  /* Input */
+  --bs-form-control-bg:     #0d1117;
+  --bs-input-border-color:  #30363d;
+  --bs-input-color:         #c9d1d9;
+  --brand:                  #ff5811;
+}
+
+/* ── btn-primary overrides ────────────────────────────────────── */
+.btn-primary {
+  --bs-btn-bg:              #ff5811;
+  --bs-btn-border-color:    #ff5811;
+  --bs-btn-color:           #000000;
+  --bs-btn-hover-bg:        #762100;
+  --bs-btn-hover-border-color: #762100;
+  --bs-btn-hover-color:     #ffffff;
+  --bs-btn-active-bg:       #5a1a00;
+  --bs-btn-active-border-color: #5a1a00;
+  --bs-btn-active-color:    #ffffff;
+  --bs-btn-disabled-bg:     #ff5811;
+  --bs-btn-disabled-border-color: #ff5811;
+}
+
+.btn-outline-primary {
+  --bs-btn-color:           #ff5811;
+  --bs-btn-border-color:    #ff5811;
+  --bs-btn-hover-bg:        #ff5811;
+  --bs-btn-hover-color:     #000000;
+  --bs-btn-active-bg:       #762100;
+  --bs-btn-active-color:    #ffffff;
+}
+
+/* ── Navbar ───────────────────────────────────────────────────── */
+#mainNav {
+  background-color: var(--bs-navbar-bg, #161b22) !important;
+  border-bottom: 1px solid var(--bs-border-color, #30363d);
+}
+
+.navbar-brand {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.navbar .nav-link {
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link.active {
+  color: var(--bs-primary) !important;
+}
+
+.navbar .nav-link.active {
+  border-bottom: 2px solid var(--bs-primary);
+  padding-bottom: calc(0.5rem - 2px);
+}
+
+/* ── Focus ring ───────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--bs-primary);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+/* ── Skip link ────────────────────────────────────────────────── */
+.skip-link {
+  position: absolute;
+  top: -48px;
+  left: 0;
+  background: var(--bs-primary);
+  color: #000;
+  padding: 0.6rem 1.2rem;
+  font-weight: bold;
+  z-index: 10000;
+  border-radius: 0 0 6px 0;
+  transition: top 0.2s;
+  text-decoration: none;
+}
+.skip-link:focus { top: 0; }
+
+/* ── RBAC disabled state ──────────────────────────────────────── */
+.rbac-disabled {
+  opacity: 0.45 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+}
+
+/* ── Hero section ─────────────────────────────────────────────── */
+.hero-section {
+  padding: 6rem 1rem 5rem;
+  text-align: center;
+  background: var(--bs-body-bg);
+  border-bottom: 1px solid var(--bs-border-color);
+}
+
+.hero-section h1 {
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  font-weight: 800;
+  color: var(--bs-primary);
+  margin-bottom: 1rem;
+}
+
+.hero-section .lead { color: var(--bs-secondary-color); }
+
+/* ── Section titles ───────────────────────────────────────────── */
+.section-title {
+  color: var(--bs-primary);
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Reveal animation ─────────────────────────────────────────── */
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.55s ease, transform 0.55s ease; }
+.reveal.visible { opacity: 1; transform: none; }
+
+/* ── Cards ────────────────────────────────────────────────────── */
+.card {
+  border-color: var(--bs-border-color);
+  background-color: var(--bs-secondary-bg);
+  transition: box-shadow 0.25s, transform 0.25s;
+}
+
+.card:hover { box-shadow: 0 0 0 2px var(--bs-primary); transform: translateY(-3px); }
+.card-title { color: var(--bs-primary); font-weight: 700; }
+
+/* ── Tag / skill badges ───────────────────────────────────────── */
+.skill-badge {
+  display: inline-block;
+  border: 1px solid var(--bs-primary);
+  color: var(--bs-primary);
+  background: transparent;
+  border-radius: 20px;
+  padding: 0.2rem 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+/* ── Timeline ─────────────────────────────────────────────────── */
+.timeline { position: relative; padding: 2rem 0; }
+.timeline::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0; bottom: 0;
+  width: 2px;
+  background: var(--bs-border-color);
+  transform: translateX(-50%);
+}
+.timeline-entry { position: relative; width: 45%; }
+.timeline-entry.left  { margin-left: 0; margin-right: auto; text-align: right; }
+.timeline-entry.right { margin-left: 55%; }
+.timeline-entry::before {
+  content: '';
+  position: absolute;
+  top: 1.25rem;
+  width: 16px; height: 16px;
+  background: var(--bs-primary);
+  border-radius: 50%;
+  border: 2px solid var(--bs-body-bg);
+}
+.timeline-entry.left::before  { right: -10%; }
+.timeline-entry.right::before { left: -10%; }
+.timeline-entry .card { margin-bottom: 1.5rem; }
+.timeline-entry .date { color: var(--bs-primary); font-size: 0.82rem; font-weight: 600; }
+
+/* ── CTA band ─────────────────────────────────────────────────── */
+.cta-band {
+  background: var(--bs-primary);
+  color: #000;
+  text-align: center;
+  padding: 4rem 1rem;
+}
+.cta-band h2 { font-weight: 800; color: #000; }
+.cta-band .btn { background: #000; color: #fff; border-color: #000; }
+.cta-band .btn:hover { background: #333; }
+
+/* ── Footer ───────────────────────────────────────────────────── */
+.site-footer {
+  background: var(--bs-secondary-bg);
+  border-top: 1px solid var(--bs-border-color);
+  padding: 2rem 1rem;
+  text-align: center;
+  font-size: 0.87rem;
+  color: var(--bs-secondary-color);
+}
+.site-footer a { color: var(--bs-secondary-color); }
+.site-footer a:hover { color: var(--bs-primary); }
+.social-icon { width: 28px; height: 28px; opacity: 0.7; transition: opacity 0.2s; }
+.social-icon:hover { opacity: 1; }
+
+/* ── Stats grid (home) ────────────────────────────────────────── */
+.stat-card-home {
+  background: var(--bs-secondary-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 10px;
+  padding: 1.5rem;
+  text-align: center;
+}
+.stat-card-home h3 { color: var(--bs-primary); font-size: 2.5rem; font-weight: 800; margin: 0; }
+.stat-card-home p  { color: var(--bs-secondary-color); margin: 0.4rem 0 0; font-size: 0.9rem; }
+
+/* ── Blog ─────────────────────────────────────────────────────── */
+.blog-card { border: 1px solid var(--bs-primary); background: var(--bs-secondary-bg); }
+.blog-meta { font-size: 0.8rem; color: var(--bs-secondary-color); }
+
+/* ── Contact form ─────────────────────────────────────────────── */
+.contact-card {
+  background: var(--bs-secondary-bg);
+  border: 1px solid var(--bs-border-color);
+}
+
+/* ── List group overrides ─────────────────────────────────────── */
+.list-group-item {
+  background-color: var(--bs-secondary-bg);
+  border-color: var(--bs-border-color);
+  color: var(--bs-body-color);
+}
+
+/* ── Responsive tweaks ────────────────────────────────────────── */
+@media (max-width: 767.98px) {
+  .hero-section { padding: 3.5rem 1rem 3rem; }
+  .timeline::after { left: 16px; }
+  .timeline-entry { width: 90%; margin-left: 36px !important; text-align: left !important; }
+  .timeline-entry::before { left: -30px !important; right: auto !important; }
+}

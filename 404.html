@@ -3,37 +3,108 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>404 Not Found | Jessica Rojas</title>
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
   <link rel="icon" href="favicon.ico" />
-  <link rel="stylesheet" href="style.css" />
-  <script>if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark-mode');</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="theme.css" />
+  <title>404 Not Found | Jessica Rojas</title>
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
-
-  <nav aria-label="Main navigation">
-    <a href="index.html">Home</a>
-    <a href="projects.html">Projects</a>
-    <a href="resume.html">Resume</a>
-    <a href="timeline.html">Timeline</a>
-    <a href="cybersecurity.html">Cybersecurity</a>
-    <a href="contact.html">Contact</a>
-    <a href="blog.html">Blog</a>
-    <button id="darkModeToggle" aria-label="Toggle dark mode">🌙 Dark Mode</button>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="blog.html">Blog</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none">
+            <a class="nav-link" href="compliancetracker.html">Tracker</a>
+          </li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </nav>
-
   <main id="main-content">
-    <section class="hero reveal" style="text-align:center;">
-      <h1 style="color:#ef4444; font-size:6rem; margin-bottom:0;">404</h1>
-      <p>The page you're looking for doesn't exist or has been moved.</p>
-      <a href="index.html" class="btn">Return Home</a>
+
+    <section class="hero-section d-flex align-items-center justify-content-center text-center" style="min-height: 70vh;">
+      <div class="container">
+        <h1 class="text-danger fw-bold mb-3" style="font-size: 6rem; line-height: 1;">404</h1>
+        <p class="lead mb-4">The page you're looking for doesn't exist.</p>
+        <a href="index.html" class="btn btn-primary btn-lg">Return Home</a>
+      </div>
     </section>
+
   </main>
 
-  <footer class="footer">
-    <p>&copy; <span id="yr"></span> Jessica Rojas. All rights reserved.</p>
-  </footer>
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="rbacModalLabel">🔒 Login</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="rbac-login-form" novalidate>
+            <div class="mb-3">
+              <label for="rbac-username-input" class="form-label">Display Name <span class="text-secondary small">(optional)</span></label>
+              <input type="text" class="form-control" id="rbac-username-input" autocomplete="username" placeholder="e.g. Jessica" maxlength="40" />
+            </div>
+            <div class="mb-3">
+              <label for="rbac-role-select" class="form-label">Access Level</label>
+              <select class="form-select" id="rbac-role-select">
+                <option value="viewer">Viewer — read-only (no password)</option>
+                <option value="reader">Reader — enhanced access</option>
+                <option value="editor">Editor — content management</option>
+                <option value="admin">Admin — full access</option>
+              </select>
+            </div>
+            <div class="mb-3" id="rbac-pw-group" style="display:none">
+              <label for="rbac-password-input" class="form-label">Password</label>
+              <input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" />
+            </div>
+            <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+          </form>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <p class="text-secondary small mb-0">Session clears when you close this tab.</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" />
+      </a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" />
+      </a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="privacy.html">Privacy Policy</a> &middot; <a href="terms.html">Terms</a></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="roles.js" defer></script>
   <script src="script.js" defer></script>
 </body>
 </html>

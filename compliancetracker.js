@@ -300,6 +300,9 @@ function renderAccordion(data) {
 
     container.appendChild(block);
   });
+
+  // Apply role visibility after rendering
+  if (typeof RBAC !== 'undefined') RBAC.applyDOM();
 }
 
 function renderDomainBody(domain, container) {

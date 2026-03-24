@@ -3,82 +3,214 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="theme.css" />
   <title>Blog | Jessica Rojas</title>
   <meta name="description" content="Thoughts on cybersecurity, tech trends, and leadership from Jessica Rojas." />
-  <link rel="icon" href="favicon.ico" />
-  <link rel="stylesheet" href="style.css" />
-  <script>if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark-mode');</script>
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
-
-  <nav aria-label="Main navigation">
-    <a href="index.html">Home</a>
-    <a href="projects.html">Projects</a>
-    <a href="resume.html">Resume</a>
-    <a href="timeline.html">Timeline</a>
-    <a href="cybersecurity.html">Cybersecurity</a>
-    <a href="contact.html">Contact</a>
-    <a href="blog.html" class="active">Blog</a>
-    <button id="darkModeToggle" aria-label="Toggle dark mode">🌙 Dark Mode</button>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link active" href="blog.html" aria-current="page">Blog</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none">
+            <a class="nav-link" href="compliancetracker.html">Tracker</a>
+          </li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </nav>
-
   <main id="main-content">
-    <section class="hero reveal">
-      <h1>Blog</h1>
-      <p>Thoughts on cybersecurity, tech trends, and leadership.</p>
+
+    <!-- Page Hero -->
+    <section class="hero-section reveal">
+      <div class="container text-center">
+        <h1>Blog</h1>
+        <p class="lead">Thoughts on cybersecurity, tech trends, and leadership.</p>
+        <button class="btn btn-sm btn-warning mt-2" data-role-min="editor" style="display:none">+ New Post</button>
+      </div>
     </section>
 
-    <section class="intro-section reveal blog-grid">
-      <article class="blog-post">
-        <h2 class="blog-title">How to Prepare for CMMC Compliance</h2>
-        <p class="blog-meta"><time datetime="2025-06-01">Posted on June 1, 2025</time></p>
-        <p class="blog-snippet">Understanding the technical and documentation requirements of CMMC 2.0 is essential for defense contractors...</p>
-        <a href="#" class="btn small">Read More</a>
-      </article>
+    <!-- Blog Grid -->
+    <section class="container py-5">
+      <div class="row row-cols-1 row-cols-md-2 g-4">
 
-      <article class="blog-post">
-        <h2 class="blog-title">AI in Cyber Defense: Risk or Opportunity?</h2>
-        <p class="blog-meta"><time datetime="2025-05-15">Posted on May 15, 2025</time></p>
-        <p class="blog-snippet">As artificial intelligence continues to grow, so does its application in both attack and defense. In this article, we explore...</p>
-        <a href="#" class="btn small">Read More</a>
-      </article>
+        <!-- Post 1 -->
+        <div class="col">
+          <article class="card h-100 blog-card">
+            <div class="card-body d-flex flex-column">
+              <h2 class="card-title h5">How to Prepare for CMMC Compliance</h2>
+              <p class="blog-meta"><time datetime="2025-06-01">June 1, 2025</time></p>
+              <p class="card-text flex-grow-1">Understanding the technical and documentation requirements of CMMC 2.0 is essential for defense contractors. This guide walks through key practices.</p>
+              <div class="mt-3">
+                <a href="#" class="btn btn-sm btn-primary">Read More</a>
+                <button class="btn btn-sm btn-outline-warning ms-2" data-role-min="editor" style="display:none">Edit</button>
+                <button class="btn btn-sm btn-outline-danger ms-1" data-role-min="admin" style="display:none">Delete</button>
+              </div>
+            </div>
+          </article>
+        </div>
 
-      <article class="blog-post">
-        <h2 class="blog-title">Lessons from the Battlefield: Applying Military Discipline to Cybersecurity</h2>
-        <p class="blog-meta"><time datetime="2025-04-20">Posted on April 20, 2025</time></p>
-        <p class="blog-snippet">Drawing from my experience as a Military Police officer, I share practical lessons that strengthen operational discipline...</p>
-        <a href="#" class="btn small">Read More</a>
-      </article>
+        <!-- Post 2 -->
+        <div class="col">
+          <article class="card h-100 blog-card">
+            <div class="card-body d-flex flex-column">
+              <h2 class="card-title h5">AI in Cyber Defense: Risk or Opportunity?</h2>
+              <p class="blog-meta"><time datetime="2025-05-15">May 15, 2025</time></p>
+              <p class="card-text flex-grow-1">As artificial intelligence continues to grow, so does its application in both attack and defense. In this article, we explore both sides of the equation.</p>
+              <div class="mt-3">
+                <a href="#" class="btn btn-sm btn-primary">Read More</a>
+                <button class="btn btn-sm btn-outline-warning ms-2" data-role-min="editor" style="display:none">Edit</button>
+                <button class="btn btn-sm btn-outline-danger ms-1" data-role-min="admin" style="display:none">Delete</button>
+              </div>
+            </div>
+          </article>
+        </div>
 
-      <article class="blog-post">
-        <h2 class="blog-title">Cyber GRC: Governance, Risk, and Compliance Explained</h2>
-        <p class="blog-meta"><time datetime="2025-04-10">Posted on April 10, 2025</time></p>
-        <p class="blog-snippet">GRC is the backbone of any mature security program. Learn how to align governance, risk management, and compliance for maximum impact...</p>
-        <a href="#" class="btn small">Read More</a>
-      </article>
+        <!-- Post 3 -->
+        <div class="col">
+          <article class="card h-100 blog-card">
+            <div class="card-body d-flex flex-column">
+              <h2 class="card-title h5">Lessons from the Battlefield: Military Discipline in Cybersecurity</h2>
+              <p class="blog-meta"><time datetime="2025-04-20">April 20, 2025</time></p>
+              <p class="card-text flex-grow-1">Drawing from my experience as a Military Police officer, I share practical lessons that strengthen operational discipline in security teams.</p>
+              <div class="mt-3">
+                <a href="#" class="btn btn-sm btn-primary">Read More</a>
+                <button class="btn btn-sm btn-outline-warning ms-2" data-role-min="editor" style="display:none">Edit</button>
+                <button class="btn btn-sm btn-outline-danger ms-1" data-role-min="admin" style="display:none">Delete</button>
+              </div>
+            </div>
+          </article>
+        </div>
 
-      <article class="blog-post">
-        <h2 class="blog-title">Risk and Opportunity in Modern Cybersecurity</h2>
-        <p class="blog-meta"><time datetime="2025-03-28">Posted on March 28, 2025</time></p>
-        <p class="blog-snippet">Every vulnerability is also an opportunity to improve. Here's how I approach risk as a two-sided equation in enterprise environments...</p>
-        <a href="#" class="btn small">Read More</a>
-      </article>
+        <!-- Post 4 -->
+        <div class="col">
+          <article class="card h-100 blog-card">
+            <div class="card-body d-flex flex-column">
+              <h2 class="card-title h5">Cyber GRC: Governance, Risk, and Compliance Explained</h2>
+              <p class="blog-meta"><time datetime="2025-04-10">April 10, 2025</time></p>
+              <p class="card-text flex-grow-1">GRC is the backbone of any mature security program. Learn how to align governance, risk management, and compliance for maximum impact.</p>
+              <div class="mt-3">
+                <a href="#" class="btn btn-sm btn-primary">Read More</a>
+                <button class="btn btn-sm btn-outline-warning ms-2" data-role-min="editor" style="display:none">Edit</button>
+                <button class="btn btn-sm btn-outline-danger ms-1" data-role-min="admin" style="display:none">Delete</button>
+              </div>
+            </div>
+          </article>
+        </div>
 
-      <article class="blog-post">
-        <h2 class="blog-title">Zero Trust Architecture: A Practical Guide</h2>
-        <p class="blog-meta"><time datetime="2025-03-10">Posted on March 10, 2025</time></p>
-        <p class="blog-snippet">Zero Trust isn't just a buzzword — it's a framework that fundamentally changes how we think about perimeter security...</p>
-        <a href="#" class="btn small">Read More</a>
-      </article>
+        <!-- Post 5 -->
+        <div class="col">
+          <article class="card h-100 blog-card">
+            <div class="card-body d-flex flex-column">
+              <h2 class="card-title h5">Risk and Opportunity in Modern Cybersecurity</h2>
+              <p class="blog-meta"><time datetime="2025-03-28">March 28, 2025</time></p>
+              <p class="card-text flex-grow-1">Every vulnerability is also an opportunity to improve. Here's how I approach risk as a two-sided equation in enterprise environments.</p>
+              <div class="mt-3">
+                <a href="#" class="btn btn-sm btn-primary">Read More</a>
+                <button class="btn btn-sm btn-outline-warning ms-2" data-role-min="editor" style="display:none">Edit</button>
+                <button class="btn btn-sm btn-outline-danger ms-1" data-role-min="admin" style="display:none">Delete</button>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <!-- Post 6 -->
+        <div class="col">
+          <article class="card h-100 blog-card">
+            <div class="card-body d-flex flex-column">
+              <h2 class="card-title h5">Zero Trust Architecture: A Practical Guide</h2>
+              <p class="blog-meta"><time datetime="2025-03-10">March 10, 2025</time></p>
+              <p class="card-text flex-grow-1">Zero Trust isn't just a buzzword — it's a framework that fundamentally changes how we think about perimeter security.</p>
+              <div class="mt-3">
+                <a href="#" class="btn btn-sm btn-primary">Read More</a>
+                <button class="btn btn-sm btn-outline-warning ms-2" data-role-min="editor" style="display:none">Edit</button>
+                <button class="btn btn-sm btn-outline-danger ms-1" data-role-min="admin" style="display:none">Delete</button>
+              </div>
+            </div>
+          </article>
+        </div>
+
+      </div>
     </section>
+
   </main>
 
-  <footer class="footer">
-    <p>&copy; <span id="yr"></span> Jessica Rojas. All rights reserved.</p>
-    <p class="footer-links"><a href="privacy.html">Privacy Policy</a> · <a href="terms.html">Terms</a></p>
-  </footer>
+  <!-- RBAC Login Modal -->
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="rbacModalLabel">🔒 Login</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="rbac-login-form" novalidate>
+            <div class="mb-3">
+              <label for="rbac-username-input" class="form-label">Display Name <span class="text-secondary small">(optional)</span></label>
+              <input type="text" class="form-control" id="rbac-username-input" autocomplete="username" placeholder="e.g. Jessica" maxlength="40" />
+            </div>
+            <div class="mb-3">
+              <label for="rbac-role-select" class="form-label">Access Level</label>
+              <select class="form-select" id="rbac-role-select">
+                <option value="viewer">Viewer — read-only (no password)</option>
+                <option value="reader">Reader — enhanced access</option>
+                <option value="editor">Editor — content management</option>
+                <option value="admin">Admin — full access</option>
+              </select>
+            </div>
+            <div class="mb-3" id="rbac-pw-group" style="display:none">
+              <label for="rbac-password-input" class="form-label">Password</label>
+              <input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" />
+            </div>
+            <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+          </form>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <p class="text-secondary small mb-0">Session clears when you close this tab.</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" />
+      </a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" />
+      </a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="privacy.html">Privacy Policy</a> &middot; <a href="terms.html">Terms</a></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="roles.js" defer></script>
   <script src="script.js" defer></script>
 </body>
 </html>
