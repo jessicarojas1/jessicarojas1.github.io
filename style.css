@@ -2,6 +2,12 @@
    Jessica Rojas Portfolio — style.css
    ============================================================ */
 
+/* ── Utility ──────────────────────────────────────────────── */
+.text-center  { text-align: center; }
+.text-red-500 { color: #ef4444; }
+.text-green-400 { color: #4ade80; }
+.hidden { display: none !important; }
+
 /* ── Reset & Base ─────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; }
 

@@ -1,0 +1,329 @@
+/* ============================================================
+   screener.css — ATS Resume Screener styles
+   ============================================================ */
+
+/* ---- Two-column input layout ---- */
+.screener-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin: 1rem 0;
+}
+
+.input-panel {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.input-panel h2 {
+  color: #ff5811;
+  margin: 0 0 1rem;
+  font-size: 1.1rem;
+}
+
+/* ---- Tabs ---- */
+.tab-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.tab-btn {
+  background: #21262d;
+  border: 1px solid #30363d;
+  color: #8b949e;
+  border-radius: 4px;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab-btn.active {
+  background: #ff5811;
+  border-color: #ff5811;
+  color: #000;
+  font-weight: bold;
+}
+
+.tab-btn:hover:not(.active) {
+  border-color: #ff5811;
+  color: #ff5811;
+}
+
+.tab-content.hidden { display: none; }
+
+/* ---- File drop zone ---- */
+.file-drop-zone {
+  display: block;
+  border: 2px dashed #30363d;
+  border-radius: 6px;
+  padding: 2rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  color: #8b949e;
+  font-size: 0.9rem;
+  transition: border-color 0.2s, color 0.2s;
+  background: #0d1117;
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.file-drop-zone:hover,
+.file-drop-zone.drag-over {
+  border-color: #ff5811;
+  color: #ff5811;
+}
+
+.file-status {
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  color: #4ade80;
+  min-height: 1.2rem;
+}
+
+.file-status.error { color: #f87171; }
+
+/* ---- Textarea ---- */
+.screener-textarea {
+  width: 100%;
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 4px;
+  color: #c9d1d9;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.88rem;
+  font-family: inherit;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.screener-textarea:focus {
+  outline: none;
+  border-color: #ff5811;
+}
+
+.screener-textarea::placeholder { color: #484f58; }
+
+/* ---- Score gauge ---- */
+.score-section {
+  text-align: center;
+  margin: 1.5rem auto;
+  max-width: 300px;
+}
+
+.score-gauge {
+  position: relative;
+  width: 200px;
+  margin: 0 auto;
+}
+
+.gauge-svg {
+  width: 100%;
+  height: auto;
+}
+
+.score-number {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2.2rem;
+  font-weight: bold;
+  color: #ff5811;
+  line-height: 1;
+}
+
+.score-number small {
+  font-size: 1rem;
+  color: #8b949e;
+  font-weight: normal;
+}
+
+.score-label {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-top: 0.25rem;
+  color: #c9d1d9;
+}
+
+.score-sublabel {
+  font-size: 0.85rem;
+  color: #8b949e;
+  margin-top: 0.2rem;
+}
+
+/* ---- Results grid ---- */
+.results-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.result-card {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+}
+
+.result-card h3 {
+  color: #ff5811;
+  margin: 0 0 0.75rem;
+  font-size: 0.95rem;
+}
+
+/* ---- Keyword clouds ---- */
+.keyword-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.kw-tag {
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  border: 1px solid;
+}
+
+.met-cloud .kw-tag {
+  background: #1e3a2e;
+  color: #4ade80;
+  border-color: #4ade80;
+}
+
+.missing-cloud .kw-tag {
+  background: #3a1e1e;
+  color: #f87171;
+  border-color: #f87171;
+}
+
+/* ---- Category breakdown ---- */
+.cat-row {
+  margin-bottom: 0.75rem;
+}
+
+.cat-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  color: #c9d1d9;
+  margin-bottom: 0.2rem;
+}
+
+.cat-pct { color: #8b949e; }
+
+.cat-track {
+  background: #21262d;
+  border-radius: 4px;
+  height: 6px;
+}
+
+.cat-fill {
+  height: 6px;
+  border-radius: 4px;
+  background: #ff5811;
+  transition: width 0.5s ease;
+}
+
+.cat-fill.good    { background: #4ade80; }
+.cat-fill.partial { background: #facc15; }
+.cat-fill.low     { background: #f87171; }
+
+/* ---- Recommendations ---- */
+.rec-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.rec-list li {
+  background: #0d1117;
+  border-left: 3px solid #ff5811;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0 4px 4px 0;
+  font-size: 0.85rem;
+  color: #c9d1d9;
+  line-height: 1.4;
+}
+
+/* ---- Keyword filter bar ---- */
+.kw-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.kw-search {
+  background: #0d1117;
+  border: 1px solid #30363d;
+  color: #c9d1d9;
+  border-radius: 4px;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.88rem;
+  width: 180px;
+  flex-shrink: 0;
+}
+.kw-search:focus { outline: none; border-color: #ff5811; }
+.kw-search::placeholder { color: #484f58; }
+
+.kw-cat-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.kw-pill {
+  background: #21262d;
+  border: 1px solid #30363d;
+  color: #8b949e;
+  border-radius: 20px;
+  padding: 0.2rem 0.65rem;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.kw-pill:hover    { border-color: #ff5811; color: #ff5811; }
+.kw-pill.active   { background: #ff5811; border-color: #ff5811; color: #000; font-weight: bold; }
+
+.kw-filter-count {
+  margin-left: auto;
+  font-size: 0.78rem;
+  color: #484f58;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.kw-count {
+  font-size: 0.75rem;
+  color: #8b949e;
+  font-weight: normal;
+  margin-left: 0.3rem;
+}
+
+/* hidden tags when filtered out */
+.kw-tag.kw-hidden { display: none; }
+
+/* ---- Responsive ---- */
+@media (max-width: 768px) {
+  .screener-inputs { grid-template-columns: 1fr; }
+  .results-grid    { grid-template-columns: 1fr; }
+  .score-gauge     { width: 160px; }
+  .score-number    { font-size: 1.8rem; }
+}

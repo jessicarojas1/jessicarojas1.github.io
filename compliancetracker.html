@@ -4,14 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>CMMC / NIST 800-171 Compliance Tracker | Jessica Rojas</title>
-  <meta name="description" content="Interactive CMMC and NIST 800-171 compliance tracker with pie chart dashboard, control status tracking, and SSP notes." />
+  <meta name="description" content="Interactive CMMC / NIST 800-171 / ISO 27001 Compliance Tracker with objective-level tracking, SSP generation, and evidence management." />
   <link rel="icon" href="favicon.ico" />
   <link rel="stylesheet" href="style.css" />
-  <!-- Chart.js loaded from CDN with integrity check -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+  <link rel="stylesheet" href="tracker.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script>if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark-mode');</script>
 </head>
-<body class="compliance-body">
+<body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
 
   <nav aria-label="Main navigation">
@@ -26,41 +27,122 @@
   </nav>
 
   <main id="main-content" class="container">
-    <h1>CMMC / NIST 800-171 Compliance Tracker</h1>
+    <section class="reveal">
+      <h1 style="color:#ff5811;margin-bottom:0.25rem;">Compliance Tracker</h1>
+      <p style="color:#8b949e;margin-top:0;">Track CMMC, ISO 27001, and NIST SP 800-171 controls at the objective level.</p>
+    </section>
 
-    <label for="searchInput" class="sr-only">Search control families</label>
-    <input type="search" id="searchInput" class="search-box" placeholder="Search control families..." aria-label="Search control families" />
-
-    <canvas id="familyPieChart" class="chart-canvas" role="img" aria-label="Compliance percentage pie chart by control family"></canvas>
-
-    <table id="familyTable" class="compliance-table">
-      <caption>Compliance summary by control family</caption>
-      <thead>
-        <tr>
-          <th scope="col">Control Family</th>
-          <th scope="col">Compliant</th>
-          <th scope="col">Total</th>
-          <th scope="col">Compliance %</th>
-        </tr>
-      </thead>
-      <tbody id="familyTableBody"></tbody>
-    </table>
-
-    <button id="showAllControls" class="btn">Show All Controls</button>
-
-    <div id="controlView" class="hidden">
-      <button id="backToChart" class="btn-warning">← Back to Chart</button>
-
-      <div class="legend" role="list" aria-label="Status legend">
-        <span class="status-badge compliant" role="listitem">Compliant</span>
-        <span class="status-badge non-compliant" role="listitem">Non-Compliant</span>
-        <span class="status-badge in-progress" role="listitem">In Progress</span>
-        <span class="status-badge poam" role="listitem">POAM</span>
+    <!-- Toolbar: standard selector + system info -->
+    <div class="tracker-toolbar">
+      <div style="display:flex;align-items:center;gap:0.5rem;">
+        <label for="standardSelect">Standard:</label>
+        <select id="standardSelect">
+          <option value="cmmc_l2" selected>CMMC Level 2 (110 Practices)</option>
+          <option value="cmmc_l1">CMMC Level 1 (17 Practices)</option>
+          <option value="iso27001">ISO/IEC 27001:2022 (93 Controls)</option>
+        </select>
       </div>
+      <div style="display:flex;align-items:center;gap:0.5rem;">
+        <label for="systemNameInput">System:</label>
+        <input type="text" id="systemNameInput" placeholder="System name..." />
+      </div>
+      <div style="margin-left:auto;display:flex;gap:0.5rem;flex-wrap:wrap;">
+        <button class="btn" id="sspBtn" style="padding:0.4rem 0.9rem;font-size:0.88rem;">📄 Generate SSP</button>
+        <button class="btn" id="exportDataBtn" style="padding:0.4rem 0.9rem;font-size:0.88rem;background:#21262d;color:#c9d1d9;">⬇ Export Data</button>
+        <button class="btn" id="importDataBtn" style="padding:0.4rem 0.9rem;font-size:0.88rem;background:#21262d;color:#c9d1d9;">⬆ Import Data</button>
+        <input type="file" id="importFileInput" accept=".json" style="display:none;" />
+        <button class="btn" id="clearDataBtn" style="padding:0.4rem 0.9rem;font-size:0.88rem;background:#3a1e1e;color:#f87171;">✕ Clear All</button>
+      </div>
+    </div>
 
-      <div id="controlsList" class="grid-list"></div>
+    <!-- Dashboard -->
+    <div class="dashboard-grid">
+      <div class="stat-cards">
+        <div class="stat-card">
+          <div class="label">Total</div>
+          <div class="value" id="statTotal">0</div>
+        </div>
+        <div class="stat-card met">
+          <div class="label">Met</div>
+          <div class="value" id="statMet">0</div>
+        </div>
+        <div class="stat-card not-met">
+          <div class="label">Not Met</div>
+          <div class="value" id="statNotMet">0</div>
+        </div>
+        <div class="stat-card in-prog">
+          <div class="label">In Progress</div>
+          <div class="value" id="statInProg">0</div>
+        </div>
+        <div class="stat-card na-card">
+          <div class="label">N/A</div>
+          <div class="value" id="statNA">0</div>
+        </div>
+        <div class="stat-card score-card">
+          <div class="label">Score</div>
+          <div class="value" id="statScore">0%</div>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="statusChart" width="220" height="220"></canvas>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <input type="text" class="tracker-search" id="searchInput" placeholder="Search domains, practices, objectives..." />
+
+    <!-- Domain accordion -->
+    <div class="domain-accordion" id="domainAccordion">
+      <p class="no-results">Loading data…</p>
     </div>
   </main>
+
+  <!-- SSP Modal -->
+  <div class="modal-overlay hidden" id="sspModal">
+    <div class="modal-box">
+      <button class="modal-close" id="sspClose" title="Close">✕</button>
+      <h2>📄 System Security Plan Generator</h2>
+
+      <div class="ssp-form-grid">
+        <div class="ssp-field">
+          <label>Organization Name</label>
+          <input type="text" id="sspOrg" placeholder="e.g., GMRE, Inc." />
+        </div>
+        <div class="ssp-field">
+          <label>System Name</label>
+          <input type="text" id="sspSystem" placeholder="e.g., GMRE Enterprise IT" />
+        </div>
+        <div class="ssp-field">
+          <label>System Owner</label>
+          <input type="text" id="sspOwner" placeholder="e.g., Jessica Rojas" />
+        </div>
+        <div class="ssp-field">
+          <label>Assessment Date</label>
+          <input type="date" id="sspDate" />
+        </div>
+        <div class="ssp-field full-width">
+          <label>System Purpose</label>
+          <textarea id="sspPurpose" rows="2" placeholder="Brief description of the system purpose..."></textarea>
+        </div>
+        <div class="ssp-field full-width">
+          <label>Authorization Boundary</label>
+          <textarea id="sspBoundary" rows="2" placeholder="Describe the system boundary and scope..."></textarea>
+        </div>
+        <div class="ssp-field full-width">
+          <label>Prepared By</label>
+          <input type="text" id="sspPreparedBy" placeholder="Name and title of preparer" />
+        </div>
+      </div>
+
+      <div class="ssp-actions">
+        <button class="btn" id="previewSSPBtn">👁 Preview SSP</button>
+        <button class="btn" id="exportPDFBtn" style="background:#1e3a2e;color:#4ade80;border:1px solid #4ade80;">⬇ Export PDF</button>
+        <button class="btn btn-warning" id="exportWordBtn">⬇ Export Word (.doc)</button>
+      </div>
+
+      <div id="sspDocument" style="display:none;"></div>
+    </div>
+  </div>
 
   <footer class="footer">
     <p>&copy; <span id="yr"></span> Jessica Rojas. All rights reserved.</p>

@@ -1,0 +1,61 @@
+[
+  {
+    "domain_id": "AC",
+    "domain_name": "Access Control",
+    "practices": [
+      {"id": "3.1.1", "title": "Limit system access to authorized users, processes acting on behalf of authorized users, and devices (including other systems)."},
+      {"id": "3.1.2", "title": "Limit system access to the types of transactions and functions that authorized users are permitted to execute."},
+      {"id": "3.1.20", "title": "Verify and control/limit connections to external systems."},
+      {"id": "3.1.22", "title": "Control CUI posted or processed on publicly accessible systems."}
+    ]
+  },
+  {
+    "domain_id": "CM",
+    "domain_name": "Configuration Management",
+    "practices": [
+      {"id": "3.4.1", "title": "Establish and maintain baseline configurations and inventories of organizational systems."},
+      {"id": "3.4.2", "title": "Establish and enforce security configuration settings for information technology products employed in organizational systems."}
+    ]
+  },
+  {
+    "domain_id": "IA",
+    "domain_name": "Identification and Authentication",
+    "practices": [
+      {"id": "3.5.1", "title": "Identify system users, processes acting on behalf of users, and devices."},
+      {"id": "3.5.2", "title": "Authenticate (or verify) the identities of users, processes, or devices, as a prerequisite to allowing access to organizational systems."}
+    ]
+  },
+  {
+    "domain_id": "MP",
+    "domain_name": "Media Protection",
+    "practices": [
+      {"id": "3.8.3", "title": "Sanitize or destroy system media before disposal or reuse."}
+    ]
+  },
+  {
+    "domain_id": "PE",
+    "domain_name": "Physical Protection",
+    "practices": [
+      {"id": "3.10.1", "title": "Limit physical access to organizational systems, equipment, and the respective operating environments to authorized individuals."},
+      {"id": "3.10.3", "title": "Escort visitors and monitor visitor activity."},
+      {"id": "3.10.4", "title": "Maintain audit logs of physical access."},
+      {"id": "3.10.5", "title": "Control and manage physical access devices."}
+    ]
+  },
+  {
+    "domain_id": "SC",
+    "domain_name": "System and Communications Protection",
+    "practices": [
+      {"id": "3.13.1", "title": "Monitor, control, and protect communications at the external boundaries and key internal boundaries of organizational systems."},
+      {"id": "3.13.5", "title": "Implement subnetworks for publicly accessible system components that are physically or logically separated from internal networks."}
+    ]
+  },
+  {
+    "domain_id": "SI",
+    "domain_name": "System and Information Integrity",
+    "practices": [
+      {"id": "3.14.1", "title": "Identify, report, and correct information and information system flaws in a timely manner."},
+      {"id": "3.14.2", "title": "Provide protection from malicious code at appropriate locations within organizational systems."}
+    ]
+  }
+]

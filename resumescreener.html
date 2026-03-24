@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ATS Resume Screener | Jessica Rojas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Free ATS Resume Screener — upload your resume, paste a job description, and get an instant keyword match score with recommendations." />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="screener.css" />
+  <!-- PDF.js for reading uploaded PDF resumes -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+</head>
+<body>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="projects.html">Projects</a>
+    <a href="resume.html">Resume</a>
+    <a href="timeline.html">Timeline</a>
+    <a href="cybersecurity.html">Cybersecurity</a>
+    <a href="contact.html">Contact</a>
+    <a href="blog.html">Blog</a>
+    <button id="darkModeToggle">🌙 Dark Mode</button>
+  </nav>
+
+  <main class="container">
+
+    <section class="reveal">
+      <h1 style="color:#ff5811;margin-bottom:0.25rem;">ATS Resume Screener</h1>
+      <p style="color:#8b949e;margin-top:0;">
+        Upload your resume and paste a job description to get an instant ATS compatibility score,
+        keyword gap analysis, and tailored recommendations.
+      </p>
+    </section>
+
+    <!-- Input panels -->
+    <div class="screener-inputs reveal">
+
+      <!-- Left: Resume -->
+      <div class="input-panel">
+        <h2>Resume</h2>
+
+        <div class="tab-row">
+          <button class="tab-btn active" id="tabUploadBtn">📄 Upload File</button>
+          <button class="tab-btn"        id="tabPasteBtn">✏ Paste Text</button>
+        </div>
+
+        <div id="tabUpload" class="tab-content">
+          <label class="file-drop-zone" id="dropZone" for="resumeFile">
+            <span id="dropText">Drag & drop a PDF or .txt file, or click to browse</span>
+            <input type="file" id="resumeFile" accept=".pdf,.txt" style="display:none;" />
+          </label>
+          <div id="fileStatus" class="file-status"></div>
+        </div>
+
+        <div id="tabPaste" class="tab-content hidden">
+          <textarea id="resumeText" class="screener-textarea"
+            placeholder="Paste your resume text here…" rows="14"></textarea>
+        </div>
+      </div>
+
+      <!-- Right: Job Description -->
+      <div class="input-panel">
+        <h2>Job Description</h2>
+        <textarea id="jobDescText" class="screener-textarea"
+          placeholder="Paste the full job description here…" rows="18"></textarea>
+      </div>
+
+    </div>
+
+    <div style="text-align:center;margin:1.5rem 0;">
+      <button class="btn" id="analyzeBtn" style="font-size:1rem;padding:0.75rem 2rem;">
+        🔍 Analyze Match
+      </button>
+    </div>
+
+    <!-- Results -->
+    <div id="results" class="hidden reveal">
+
+      <!-- Score gauge -->
+      <div class="score-section">
+        <div class="score-gauge">
+          <svg viewBox="0 0 120 70" class="gauge-svg">
+            <path d="M10,65 A55,55 0 0,1 110,65" fill="none" stroke="#21262d" stroke-width="12" stroke-linecap="round"/>
+            <path id="gaugeArc" d="M10,65 A55,55 0 0,1 110,65" fill="none" stroke="#ff5811" stroke-width="12" stroke-linecap="round"
+                  stroke-dasharray="0 173"/>
+          </svg>
+          <div class="score-number"><span id="scoreValue">0</span><small>/100</small></div>
+        </div>
+        <div class="score-label" id="scoreLabel">Analyzing…</div>
+        <div class="score-sublabel" id="scoreSubLabel"></div>
+      </div>
+
+      <!-- Keyword filter bar -->
+      <div class="kw-filter-bar">
+        <input type="text" id="kwSearchInput" class="kw-search" placeholder="Filter keywords…" />
+        <div class="kw-cat-pills" id="kwCatPills">
+          <button class="kw-pill active" data-cat="all">All</button>
+          <button class="kw-pill" data-cat="Cybersecurity Frameworks">Frameworks</button>
+          <button class="kw-pill" data-cat="Certifications">Certifications</button>
+          <button class="kw-pill" data-cat="Technical Skills">Technical</button>
+          <button class="kw-pill" data-cat="Security Tools">Tools</button>
+          <button class="kw-pill" data-cat="Soft Skills">Soft Skills</button>
+          <button class="kw-pill" data-cat="Education &amp; Clearance">Education</button>
+        </div>
+        <span class="kw-filter-count" id="kwFilterCount"></span>
+      </div>
+
+      <!-- 4-column results grid -->
+      <div class="results-grid">
+
+        <div class="result-card">
+          <h3>✅ Matched Keywords <span class="kw-count" id="matchedCount"></span></h3>
+          <div id="matchedKeywords" class="keyword-cloud met-cloud"></div>
+        </div>
+
+        <div class="result-card">
+          <h3>❌ Missing Keywords <span class="kw-count" id="missingCount"></span></h3>
+          <div id="missingKeywords" class="keyword-cloud missing-cloud"></div>
+        </div>
+
+        <div class="result-card">
+          <h3>📊 Category Breakdown</h3>
+          <div id="categoryBreakdown"></div>
+        </div>
+
+        <div class="result-card">
+          <h3>💡 Recommendations</h3>
+          <ul id="recommendations" class="rec-list"></ul>
+        </div>
+
+      </div>
+
+      <div style="text-align:center;margin-top:1.5rem;">
+        <button class="btn" id="exportResultsBtn" style="background:#21262d;color:#c9d1d9;">
+          ⬇ Export Results (.txt)
+        </button>
+        <button class="btn" id="resetBtn" style="background:#3a1e1e;color:#f87171;margin-left:0.5rem;">
+          ↺ Start Over
+        </button>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2025 Jessica Rojas. All rights reserved.</p>
+    <p><a href="privacy.html">Privacy Policy</a> &middot; <a href="terms.html">Terms &amp; Conditions</a></p>
+  </footer>
+
+  <script src="script.js"></script>
+  <script src="resumescreener.js"></script>
+</body>
+</html>

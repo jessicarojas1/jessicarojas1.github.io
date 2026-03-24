@@ -1,0 +1,1025 @@
+[
+  {
+    "domain_id": "AC",
+    "domain_name": "Access Control",
+    "practices": [
+      {
+        "id": "3.1.1",
+        "title": "Limit system access to authorized users, processes acting on behalf of authorized users, and devices (including other systems).",
+        "objectives": [
+          {"id": "3.1.1[a]", "text": "Authorized users of the system are identified."},
+          {"id": "3.1.1[b]", "text": "Processes acting on behalf of authorized users are identified."},
+          {"id": "3.1.1[c]", "text": "Devices (and other systems) authorized to connect to the system are identified."},
+          {"id": "3.1.1[d]", "text": "System access is limited to authorized users."},
+          {"id": "3.1.1[e]", "text": "System access is limited to processes acting on behalf of authorized users."},
+          {"id": "3.1.1[f]", "text": "System access is limited to authorized devices (including other systems)."}
+        ]
+      },
+      {
+        "id": "3.1.2",
+        "title": "Limit system access to the types of transactions and functions that authorized users are permitted to execute.",
+        "objectives": [
+          {"id": "3.1.2[a]", "text": "The types of transactions and functions that authorized users are permitted to execute are defined."},
+          {"id": "3.1.2[b]", "text": "System access is limited to the defined types of transactions and functions for authorized users."}
+        ]
+      },
+      {
+        "id": "3.1.3",
+        "title": "Control the flow of CUI in accordance with approved authorizations.",
+        "objectives": [
+          {"id": "3.1.3[a]", "text": "Information flow control policies are defined."},
+          {"id": "3.1.3[b]", "text": "Methods and enforcement mechanisms for controlling the flow of CUI are defined."},
+          {"id": "3.1.3[c]", "text": "Designated sources and destinations for CUI within the system and between interconnected systems are identified."},
+          {"id": "3.1.3[d]", "text": "CUI flow controls are enforced."}
+        ]
+      },
+      {
+        "id": "3.1.4",
+        "title": "Separate the duties of individuals to reduce the risk of malevolent activity without collusion.",
+        "objectives": [
+          {"id": "3.1.4[a]", "text": "The duties of individuals requiring separation are defined."},
+          {"id": "3.1.4[b]", "text": "Responsibilities for duties that require separation are assigned to separate individuals."},
+          {"id": "3.1.4[c]", "text": "Access privileges that enable individuals to execute separated duties are granted to separate individuals."}
+        ]
+      },
+      {
+        "id": "3.1.5",
+        "title": "Employ the principle of least privilege, including for specific security functions and privileged accounts.",
+        "objectives": [
+          {"id": "3.1.5[a]", "text": "Privileged accounts are identified."},
+          {"id": "3.1.5[b]", "text": "Access to privileged accounts is authorized in accordance with the principle of least privilege."},
+          {"id": "3.1.5[c]", "text": "Security functions are identified."},
+          {"id": "3.1.5[d]", "text": "Access to security functions is authorized in accordance with the principle of least privilege."}
+        ]
+      },
+      {
+        "id": "3.1.6",
+        "title": "Use non-privileged accounts or roles when accessing non-security functions.",
+        "objectives": [
+          {"id": "3.1.6[a]", "text": "Users required to administer privileged accounts are identified."},
+          {"id": "3.1.6[b]", "text": "Administrators use non-privileged accounts or roles when accessing non-security functions."}
+        ]
+      },
+      {
+        "id": "3.1.7",
+        "title": "Prevent non-privileged users from executing privileged functions and capture the execution of such functions in audit logs.",
+        "objectives": [
+          {"id": "3.1.7[a]", "text": "Privileged functions are defined."},
+          {"id": "3.1.7[b]", "text": "Non-privileged users are prevented from executing privileged functions."},
+          {"id": "3.1.7[c]", "text": "The execution of privileged functions is captured in audit logs."}
+        ]
+      },
+      {
+        "id": "3.1.8",
+        "title": "Limit unsuccessful logon attempts.",
+        "objectives": [
+          {"id": "3.1.8[a]", "text": "The means of limiting unsuccessful logon attempts is defined."},
+          {"id": "3.1.8[b]", "text": "The defined limit of unsuccessful logon attempts is enforced."}
+        ]
+      },
+      {
+        "id": "3.1.9",
+        "title": "Provide privacy and security notices consistent with CUI rules.",
+        "objectives": [
+          {"id": "3.1.9[a]", "text": "Privacy and security notices required by CUI-specified rules are identified, consistent with applicable CUI rules."},
+          {"id": "3.1.9[b]", "text": "Privacy and security notices are displayed to system users."}
+        ]
+      },
+      {
+        "id": "3.1.10",
+        "title": "Use session lock with pattern-hiding displays after a period of inactivity.",
+        "objectives": [
+          {"id": "3.1.10[a]", "text": "The period of inactivity after which the system initiates a session lock is defined."},
+          {"id": "3.1.10[b]", "text": "A session lock is initiated after the defined period of inactivity."},
+          {"id": "3.1.10[c]", "text": "Access to the system requires the user to re-authenticate following a session lock."}
+        ]
+      },
+      {
+        "id": "3.1.11",
+        "title": "Terminate (automatically) a user session after a defined condition.",
+        "objectives": [
+          {"id": "3.1.11[a]", "text": "Conditions requiring a user session to be automatically terminated are defined."},
+          {"id": "3.1.11[b]", "text": "A user session is automatically terminated after any of the defined conditions are met."}
+        ]
+      },
+      {
+        "id": "3.1.12",
+        "title": "Monitor and control remote access sessions.",
+        "objectives": [
+          {"id": "3.1.12[a]", "text": "Remote access sessions are permitted and the conditions for their authorization are defined."},
+          {"id": "3.1.12[b]", "text": "Remote access sessions are monitored."},
+          {"id": "3.1.12[c]", "text": "Remote access sessions are controlled."}
+        ]
+      },
+      {
+        "id": "3.1.13",
+        "title": "Employ cryptographic mechanisms to protect the confidentiality of remote access sessions.",
+        "objectives": [
+          {"id": "3.1.13[a]", "text": "Cryptographic mechanisms to protect the confidentiality of remote access sessions are identified."},
+          {"id": "3.1.13[b]", "text": "Cryptographic mechanisms are implemented to protect the confidentiality of remote access sessions."}
+        ]
+      },
+      {
+        "id": "3.1.14",
+        "title": "Route remote access via managed access control points.",
+        "objectives": [
+          {"id": "3.1.14[a]", "text": "Managed access control points are identified and implemented."},
+          {"id": "3.1.14[b]", "text": "Remote access is routed through managed access control points."}
+        ]
+      },
+      {
+        "id": "3.1.15",
+        "title": "Authorize remote execution of privileged commands and access to security-relevant information via remote access only for documented operational needs.",
+        "objectives": [
+          {"id": "3.1.15[a]", "text": "Privileged commands authorized for remote execution are identified."},
+          {"id": "3.1.15[b]", "text": "Security-relevant information authorized to be accessed remotely is identified."},
+          {"id": "3.1.15[c]", "text": "The execution of privileged commands via remote access is authorized only for documented operational needs."},
+          {"id": "3.1.15[d]", "text": "Access to security-relevant information via remote access is authorized only for documented operational needs."}
+        ]
+      },
+      {
+        "id": "3.1.16",
+        "title": "Authorize wireless access prior to allowing such connections.",
+        "objectives": [
+          {"id": "3.1.16[a]", "text": "Wireless access to the system is authorized prior to allowing such connections."}
+        ]
+      },
+      {
+        "id": "3.1.17",
+        "title": "Protect wireless access using authentication and encryption.",
+        "objectives": [
+          {"id": "3.1.17[a]", "text": "Wireless access is protected through authentication."},
+          {"id": "3.1.17[b]", "text": "Wireless access is protected through encryption."}
+        ]
+      },
+      {
+        "id": "3.1.18",
+        "title": "Control connection of mobile devices.",
+        "objectives": [
+          {"id": "3.1.18[a]", "text": "Mobile devices that process, store, or transmit CUI are identified."},
+          {"id": "3.1.18[b]", "text": "The connection of mobile devices is authorized."},
+          {"id": "3.1.18[c]", "text": "The connection of mobile devices is monitored and controlled."}
+        ]
+      },
+      {
+        "id": "3.1.19",
+        "title": "Encrypt CUI on mobile devices and mobile computing platforms.",
+        "objectives": [
+          {"id": "3.1.19[a]", "text": "Mobile devices and mobile computing platforms that process, store, or transmit CUI are identified."},
+          {"id": "3.1.19[b]", "text": "CUI on mobile devices and mobile computing platforms is encrypted."}
+        ]
+      },
+      {
+        "id": "3.1.20",
+        "title": "Verify and control/limit connections to external systems.",
+        "objectives": [
+          {"id": "3.1.20[a]", "text": "Connections to external systems are identified."},
+          {"id": "3.1.20[b]", "text": "The use of external systems is identified and documented."},
+          {"id": "3.1.20[c]", "text": "Connections to external systems are verified."},
+          {"id": "3.1.20[d]", "text": "Connections to external systems are controlled and limited."}
+        ]
+      },
+      {
+        "id": "3.1.21",
+        "title": "Limit use of portable storage devices on external systems.",
+        "objectives": [
+          {"id": "3.1.21[a]", "text": "The use of portable storage devices on external systems is identified and documented."},
+          {"id": "3.1.21[b]", "text": "Limits on the use of portable storage devices on external systems are implemented."}
+        ]
+      },
+      {
+        "id": "3.1.22",
+        "title": "Control CUI posted or processed on publicly accessible systems.",
+        "objectives": [
+          {"id": "3.1.22[a]", "text": "Individuals authorized to post or process information on publicly accessible systems are identified."},
+          {"id": "3.1.22[b]", "text": "Procedures to ensure CUI is not posted on or processed by publicly accessible systems are established."},
+          {"id": "3.1.22[c]", "text": "A review process is implemented to ensure CUI is not posted or processed on publicly accessible systems."},
+          {"id": "3.1.22[d]", "text": "Content on publicly accessible systems is reviewed to ensure it does not contain CUI."}
+        ]
+      }
+    ]
+  },
+  {
+    "domain_id": "AT",
+    "domain_name": "Awareness and Training",
+    "practices": [
+      {
+        "id": "3.2.1",
+        "title": "Ensure that managers, systems administrators, and users of organizational systems are made aware of the security risks associated with their activities and of the applicable policies, standards, and procedures.",
+        "objectives": [
+          {"id": "3.2.1[a]", "text": "Personnel with responsibilities for organizational systems are made aware of the security risks associated with their activities."},
+          {"id": "3.2.1[b]", "text": "Personnel are made aware of applicable policies, standards, and procedures related to the security of organizational systems."}
+        ]
+      },
+      {
+        "id": "3.2.2",
+        "title": "Ensure that personnel are trained to carry out their assigned information security responsibilities.",
+        "objectives": [
+          {"id": "3.2.2[a]", "text": "Information security responsibilities assigned to personnel are identified."},
+          {"id": "3.2.2[b]", "text": "Personnel are trained to carry out their assigned information security responsibilities."}
+        ]
+      },
+      {
+        "id": "3.2.3",
+        "title": "Provide security awareness training on recognizing and reporting potential threats, including social engineering attacks.",
+        "objectives": [
+          {"id": "3.2.3[a]", "text": "Security awareness training includes recognizing and reporting potential threats, including social engineering attacks."},
+          {"id": "3.2.3[b]", "text": "Security awareness training on reporting potential threats is provided to system users."}
+        ]
+      }
+    ]
+  },
+  {
+    "domain_id": "AU",
+    "domain_name": "Audit and Accountability",
+    "practices": [
+      {
+        "id": "3.3.1",
+        "title": "Create and retain system audit logs and records to the extent needed to enable the monitoring, analysis, investigation, and reporting of unlawful or unauthorized system activity.",
+        "objectives": [
+          {"id": "3.3.1[a]", "text": "The types of events to be logged are identified."},
+          {"id": "3.3.1[b]", "text": "The content of audit records for identified events is defined."},
+          {"id": "3.3.1[c]", "text": "Audit records for the identified events are created."},
+          {"id": "3.3.1[d]", "text": "Audit records are retained for an adequate period to support monitoring, analysis, investigation, and reporting."}
+        ]
+      },
+      {
+        "id": "3.3.2",
+        "title": "Ensure that the actions of individual system users can be uniquely traced to those users so they can be held accountable for their actions.",
+        "objectives": [
+          {"id": "3.3.2[a]", "text": "The content of audit records is sufficient to establish what events occurred."},
+          {"id": "3.3.2[b]", "text": "Audit records uniquely establish who performed the actions that were logged."}
+        ]
+      },
+      {
+        "id": "3.3.3",
+        "title": "Review and update logged events.",
+        "objectives": [
+          {"id": "3.3.3[a]", "text": "The events requiring logging are reviewed and updated periodically."},
+          {"id": "3.3.3[b]", "text": "The logging requirements are updated to reflect changes in the review."}
+        ]
+      },
+      {
+        "id": "3.3.4",
+        "title": "Alert in the event of an audit logging process failure.",
+        "objectives": [
+          {"id": "3.3.4[a]", "text": "Personnel to be alerted in the event of an audit logging process failure are identified."},
+          {"id": "3.3.4[b]", "text": "Alerts are generated to defined personnel in the event of an audit logging process failure."}
+        ]
+      },
+      {
+        "id": "3.3.5",
+        "title": "Correlate audit record review, analysis, and reporting processes for investigation and response to indications of unlawful, unauthorized, suspicious, or unusual activity.",
+        "objectives": [
+          {"id": "3.3.5[a]", "text": "Audit record review, analysis, and reporting processes are coordinated."},
+          {"id": "3.3.5[b]", "text": "Audit review, analysis, and reporting processes are used for investigation and response to indications of suspicious activity."}
+        ]
+      },
+      {
+        "id": "3.3.6",
+        "title": "Provide audit record reduction and report generation to support on-demand analysis and reporting.",
+        "objectives": [
+          {"id": "3.3.6[a]", "text": "An audit record reduction capability that processes audit information is provided."},
+          {"id": "3.3.6[b]", "text": "A report generation capability that supports on-demand analysis and reporting is provided."}
+        ]
+      },
+      {
+        "id": "3.3.7",
+        "title": "Provide a system capability that compares and synchronizes internal system clocks with an authoritative source to generate time stamps for audit records.",
+        "objectives": [
+          {"id": "3.3.7[a]", "text": "The internal system clocks are used to generate time stamps for audit records."},
+          {"id": "3.3.7[b]", "text": "The internal system clocks are synchronized to an authoritative source to generate accurate time stamps."}
+        ]
+      },
+      {
+        "id": "3.3.8",
+        "title": "Protect audit information and audit tools from unauthorized access, modification, and deletion.",
+        "objectives": [
+          {"id": "3.3.8[a]", "text": "Audit information is protected against unauthorized access."},
+          {"id": "3.3.8[b]", "text": "Audit information is protected against unauthorized modification."},
+          {"id": "3.3.8[c]", "text": "Audit tools are protected from unauthorized access, modification, and deletion."}
+        ]
+      },
+      {
+        "id": "3.3.9",
+        "title": "Limit management of audit logging to a subset of privileged users.",
+        "objectives": [
+          {"id": "3.3.9[a]", "text": "Privileged users authorized to manage audit logging are identified."},
+          {"id": "3.3.9[b]", "text": "Management of audit logging is limited to the defined privileged users."}
+        ]
+      }
+    ]
+  },
+  {
+    "domain_id": "CM",
+    "domain_name": "Configuration Management",
+    "practices": [
+      {
+        "id": "3.4.1",
+        "title": "Establish and maintain baseline configurations and inventories of organizational systems (including hardware, software, firmware, and documentation) throughout the respective system development life cycles.",
+        "objectives": [
+          {"id": "3.4.1[a]", "text": "Organizational systems and their components are inventoried."},
+          {"id": "3.4.1[b]", "text": "Baseline configurations are established for organizational systems."},
+          {"id": "3.4.1[c]", "text": "Baseline configurations are documented."},
+          {"id": "3.4.1[d]", "text": "Baseline configurations are maintained throughout the system development life cycle."}
+        ]
+      },
+      {
+        "id": "3.4.2",
+        "title": "Establish and enforce security configuration settings for information technology products employed in organizational systems.",
+        "objectives": [
+          {"id": "3.4.2[a]", "text": "Security configuration settings for information technology products employed in organizational systems are established."},
+          {"id": "3.4.2[b]", "text": "Security configuration settings are documented."},
+          {"id": "3.4.2[c]", "text": "Security configuration settings are implemented."},
+          {"id": "3.4.2[d]", "text": "Deviations from established security configuration settings are identified and documented."}
+        ]
+      },
+      {
+        "id": "3.4.3",
+        "title": "Track, review, approve, and log changes to organizational systems.",
+        "objectives": [
+          {"id": "3.4.3[a]", "text": "Changes to the system are identified."},
+          {"id": "3.4.3[b]", "text": "Changes to the system are reviewed."},
+          {"id": "3.4.3[c]", "text": "Changes to the system are approved."},
+          {"id": "3.4.3[d]", "text": "Changes to the system are logged."}
+        ]
+      },
+      {
+        "id": "3.4.4",
+        "title": "Analyze the security impact of changes prior to implementation.",
+        "objectives": [
+          {"id": "3.4.4[a]", "text": "The security impact of proposed changes to the system is analyzed prior to implementation."},
+          {"id": "3.4.4[b]", "text": "The results of the security impact analysis are considered before implementing a change."}
+        ]
+      },
+      {
+        "id": "3.4.5",
+        "title": "Define, document, approve, and enforce physical and logical access restrictions associated with changes to organizational systems.",
+        "objectives": [
+          {"id": "3.4.5[a]", "text": "Physical access restrictions associated with changes to the system are identified and documented."},
+          {"id": "3.4.5[b]", "text": "Logical access restrictions associated with changes to the system are identified and documented."},
+          {"id": "3.4.5[c]", "text": "Physical and logical access restrictions are enforced."}
+        ]
+      },
+      {
+        "id": "3.4.6",
+        "title": "Employ the principle of least functionality by configuring organizational systems to provide only essential capabilities.",
+        "objectives": [
+          {"id": "3.4.6[a]", "text": "Essential system capabilities necessary to support organizational missions are identified."},
+          {"id": "3.4.6[b]", "text": "The system is configured to provide only the essential capabilities."}
+        ]
+      },
+      {
+        "id": "3.4.7",
+        "title": "Restrict, disable, or prevent the use of nonessential programs, functions, ports, protocols, and services.",
+        "objectives": [
+          {"id": "3.4.7[a]", "text": "Nonessential programs, functions, ports, protocols, and services are identified."},
+          {"id": "3.4.7[b]", "text": "Nonessential programs, ports, protocols, and services are restricted, disabled, or prevented."},
+          {"id": "3.4.7[c]", "text": "The use of nonessential programs, functions, ports, protocols, and services is prohibited or restricted."}
+        ]
+      },
+      {
+        "id": "3.4.8",
+        "title": "Apply deny-by-exception (blacklisting) policy to prevent the use of unauthorized software or deny-all, permit-by-exception (whitelisting) policy to allow the execution of authorized software.",
+        "objectives": [
+          {"id": "3.4.8[a]", "text": "A policy to prevent the use of unauthorized software (blacklisting) or allow the execution of authorized software (whitelisting) is established."},
+          {"id": "3.4.8[b]", "text": "Unauthorized software is identified and listed (blacklist) or authorized software is identified and listed (whitelist)."},
+          {"id": "3.4.8[c]", "text": "Only authorized software is permitted to execute."}
+        ]
+      },
+      {
+        "id": "3.4.9",
+        "title": "Control and monitor user-installed software.",
+        "objectives": [
+          {"id": "3.4.9[a]", "text": "A policy governing the installation of software by users is established."},
+          {"id": "3.4.9[b]", "text": "User installation of software is controlled and monitored in accordance with the established policy."}
+        ]
+      }
+    ]
+  },
+  {
+    "domain_id": "IA",
+    "domain_name": "Identification and Authentication",
+    "practices": [
+      {
+        "id": "3.5.1",
+        "title": "Identify system users, processes acting on behalf of users, and devices.",
+        "objectives": [
+          {"id": "3.5.1[a]", "text": "System users are identified."},
+          {"id": "3.5.1[b]", "text": "Processes acting on behalf of users are identified."},
+          {"id": "3.5.1[c]", "text": "Devices accessing the system are identified."}
+        ]
+      },
+      {
+        "id": "3.5.2",
+        "title": "Authenticate (or verify) the identities of users, processes, or devices, as a prerequisite to allowing access to organizational systems.",
+        "objectives": [
+          {"id": "3.5.2[a]", "text": "The identity of each user is authenticated before allowing access to organizational systems."},
+          {"id": "3.5.2[b]", "text": "The identity of each process acting on behalf of a user is authenticated before allowing access."},
+          {"id": "3.5.2[c]", "text": "The identity of each device is authenticated before allowing access to organizational systems."}
+        ]
+      },
+      {
+        "id": "3.5.3",
+        "title": "Use multifactor authentication for local and network access to privileged accounts and for network access to non-privileged accounts.",
+        "objectives": [
+          {"id": "3.5.3[a]", "text": "Multifactor authentication is implemented for local access to privileged accounts."},
+          {"id": "3.5.3[b]", "text": "Multifactor authentication is implemented for network access to privileged accounts."},
+          {"id": "3.5.3[c]", "text": "Multifactor authentication is implemented for network access to non-privileged accounts."}
+        ]
+      },
+      {
+        "id": "3.5.4",
+        "title": "Employ replay-resistant authentication mechanisms for network access to privileged and non-privileged accounts.",
+        "objectives": [
+          {"id": "3.5.4[a]", "text": "Replay-resistant authentication mechanisms are implemented for network access to privileged accounts."},
+          {"id": "3.5.4[b]", "text": "Replay-resistant authentication mechanisms are implemented for network access to non-privileged accounts."}
+        ]
+      },
+      {
+        "id": "3.5.5",
+        "title": "Employ automated tools to support the management of user accounts.",
+        "objectives": [
+          {"id": "3.5.5[a]", "text": "Automated tools to support the management of user accounts are identified."},
+          {"id": "3.5.5[b]", "text": "Automated tools are employed to support user account management."}
+        ]
+      },
+      {
+        "id": "3.5.6",
+        "title": "Disable identifiers after a defined inactivity period.",
+        "objectives": [
+          {"id": "3.5.6[a]", "text": "The period of inactivity after which an identifier is disabled is defined."},
+          {"id": "3.5.6[b]", "text": "Identifiers are disabled after the defined period of inactivity."}
+        ]
+      },
+      {
+        "id": "3.5.7",
+        "title": "Enforce a minimum password complexity and change of characters when new passwords are created.",
+        "objectives": [
+          {"id": "3.5.7[a]", "text": "Password complexity requirements are defined."},
+          {"id": "3.5.7[b]", "text": "The minimum number of characters to be changed when new passwords are created is defined."},
+          {"id": "3.5.7[c]", "text": "Password complexity requirements are enforced when new passwords are created."},
+          {"id": "3.5.7[d]", "text": "The requirement to change a minimum number of characters is enforced when new passwords are created."}
+        ]
+      },
+      {
+        "id": "3.5.8",
+        "title": "Prohibit password reuse for a specified number of generations.",
+        "objectives": [
+          {"id": "3.5.8[a]", "text": "The number of password generations for which reuse is prohibited is defined."},
+          {"id": "3.5.8[b]", "text": "Reuse of passwords is prohibited for the defined number of generations."}
+        ]
+      },
+      {
+        "id": "3.5.9",
+        "title": "Allow temporary password use for system logons with an immediate change to a permanent password.",
+        "objectives": [
+          {"id": "3.5.9[a]", "text": "Temporary passwords for system logons are allowed."},
+          {"id": "3.5.9[b]", "text": "Immediate change to a permanent password is required following system logon with a temporary password."}
+        ]
+      },
+      {
+        "id": "3.5.10",
+        "title": "Store and transmit only cryptographically-protected passwords.",
+        "objectives": [
+          {"id": "3.5.10[a]", "text": "Passwords are stored using cryptographic protection."},
+          {"id": "3.5.10[b]", "text": "Passwords are transmitted using cryptographic protection."}
+        ]
+      },
+      {
+        "id": "3.5.11",
+        "title": "Obscure feedback of authentication information.",
+        "objectives": [
+          {"id": "3.5.11[a]", "text": "Authentication information is obscured during the authentication process."},
+          {"id": "3.5.11[b]", "text": "Feedback of authentication information is hidden during the authentication process."}
+        ]
+      }
+    ]
+  },
+  {
+    "domain_id": "IR",
+    "domain_name": "Incident Response",
+    "practices": [
+      {
+        "id": "3.6.1",
+        "title": "Establish an operational incident-handling capability for organizational systems that includes preparation, detection, analysis, containment, recovery, and user response activities.",
+        "objectives": [
+          {"id": "3.6.1[a]", "text": "An incident-handling capability for the system is established."},
+          {"id": "3.6.1[b]", "text": "The incident-handling capability includes preparation activities."},
+          {"id": "3.6.1[c]", "text": "The incident-handling capability includes detection and analysis activities."},
+          {"id": "3.6.1[d]", "text": "The incident-handling capability includes containment, eradication, and recovery activities."}
+        ]
+      },
+      {
+        "id": "3.6.2",
+        "title": "Track, document, and report incidents to designated officials and/or authorities both internal and external to the organization.",
+        "objectives": [
+          {"id": "3.6.2[a]", "text": "Incidents are tracked."},
+          {"id": "3.6.2[b]", "text": "Incidents are documented and reported to designated internal officials."},
+          {"id": "3.6.2[c]", "text": "Incidents are reported to designated external authorities as appropriate."}
+        ]
+      },
+      {
+        "id": "3.6.3",
+        "title": "Test the organizational incident response capability.",
+        "objectives": [
+          {"id": "3.6.3[a]", "text": "The incident response capability is tested."},
+          {"id": "3.6.3[b]", "text": "The results of incident response testing are used to improve the incident response capability."}
+        ]
+      }
+    ]
+  },
+  {
+    "domain_id": "MA",
+    "domain_name": "Maintenance",
+    "practices": [
+      {
+        "id": "3.7.1",
+        "title": "Perform maintenance on organizational systems.",
+        "objectives": [
+          {"id": "3.7.1[a]", "text": "Maintenance is performed on organizational systems."},
+          {"id": "3.7.1[b]", "text": "Maintenance is performed using approved tools, techniques, and methods."}
+        ]
+      },
+      {
+        "id": "3.7.2",
+        "title": "Provide controls on the tools, techniques, mechanisms, and personnel for the conduct of system maintenance.",
+        "objectives": [
+          {"id": "3.7.2[a]", "text": "Maintenance personnel are controlled."},
+          {"id": "3.7.2[b]", "text": "Tools used for maintenance are controlled."},
+          {"id": "3.7.2[c]", "text": "Maintenance activities are supervised."}
+        ]
+      },
+      {
+        "id": "3.7.3",
+        "title": "Ensure equipment removed for off-site maintenance is sanitized of any CUI.",
+        "objectives": [
+          {"id": "3.7.3[a]", "text": "Equipment to be removed for off-site maintenance is identified."},
+          {"id": "3.7.3[b]", "text": "Equipment removed for off-site maintenance is sanitized of CUI before removal."}
+        ]
+      },
+      {
+        "id": "3.7.4",
+        "title": "Check media containing diagnostic and test programs for malicious code before the media are used in organizational systems.",
+        "objectives": [
+          {"id": "3.7.4[a]", "text": "Media containing diagnostic and test programs to be used in organizational systems are identified."},
+          {"id": "3.7.4[b]", "text": "Media containing diagnostic and test programs are checked for malicious code before being used in organizational systems."}
+        ]
+      },
+      {
+        "id": "3.7.5",
+        "title": "Require MFA to establish nonlocal maintenance sessions via external networks and terminate such connections when nonlocal maintenance is complete.",
+        "objectives": [
+          {"id": "3.7.5[a]", "text": "Multifactor authentication is employed to establish nonlocal maintenance sessions via external networks."},
+          {"id": "3.7.5[b]", "text": "Nonlocal maintenance sessions are terminated when maintenance is complete."}
+        ]
+      },
+      {
+        "id": "3.7.6",
+        "title": "Supervise the maintenance activities of maintenance personnel without required access authorization.",
+        "objectives": [
+          {"id": "3.7.6[a]", "text": "Maintenance personnel without required access authorization are identified."},
+          {"id": "3.7.6[b]", "text": "The maintenance activities of maintenance personnel without required access authorization are supervised."}
+        ]
+      }
+    ]
+  },
+  {
+    "domain_id": "MP",
+    "domain_name": "Media Protection",
+    "practices": [
+      {
+        "id": "3.8.1",
+        "title": "Protect (i.e., physically control and securely store) system media containing CUI, both paper and digital.",
+        "objectives": [
+          {"id": "3.8.1[a]", "text": "Paper media containing CUI is physically controlled."},
+          {"id": "3.8.1[b]", "text": "Digital media containing CUI is physically controlled."},
+          {"id": "3.8.1[c]", "text": "Media containing CUI is securely stored."}
+        ]
+      },
+      {
+        "id": "3.8.2",
+        "title": "Limit access to CUI on system media to authorized users.",
+        "objectives": [
+          {"id": "3.8.2[a]", "text": "Media containing CUI is identified."},
+          {"id": "3.8.2[b]", "text": "Access to media containing CUI is limited to authorized users."}
+        ]
+      },
+      {
+        "id": "3.8.3",
+        "title": "Sanitize or destroy system media before disposal or reuse.",
+        "objectives": [
+          {"id": "3.8.3[a]", "text": "System media is sanitized or destroyed before disposal or reuse."},
+          {"id": "3.8.3[b]", "text": "The media sanitization or destruction is consistent with the applicable security category."}
+        ]
+      },
+      {
+        "id": "3.8.4",
+        "title": "Mark media with necessary CUI markings and distribution limitations.",
+        "objectives": [
+          {"id": "3.8.4[a]", "text": "CUI markings are applied to media containing CUI."},
+          {"id": "3.8.4[b]", "text": "Distribution limitations are applied to media containing CUI."}
+        ]
+      },
+      {
+        "id": "3.8.5",
+        "title": "Control access to media containing CUI and maintain accountability for media during transport outside of controlled areas.",
+        "objectives": [
+          {"id": "3.8.5[a]", "text": "Access to media containing CUI during transport is controlled."},
+          {"id": "3.8.5[b]", "text": "Accountability for media containing CUI is maintained during transport."},
+          {"id": "3.8.5[c]", "text": "Media containing CUI is protected against unauthorized disclosure during transport."}
+        ]
+      },
+      {
+        "id": "3.8.6",
+        "title": "Implement cryptographic mechanisms to protect the confidentiality of CUI during transport unless otherwise protected by alternative physical safeguards.",
+        "objectives": [
+          {"id": "3.8.6[a]", "text": "The types of CUI that require cryptographic protection during transport are identified."},
+          {"id": "3.8.6[b]", "text": "Cryptographic mechanisms to protect the confidentiality of CUI are implemented during transport."}
+        ]
+      },
+      {
+        "id": "3.8.7",
+        "title": "Control the use of removable media on system components.",
+        "objectives": [
+          {"id": "3.8.7[a]", "text": "The use of removable media on system components is identified and documented."},
+          {"id": "3.8.7[b]", "text": "The use of removable media on system components is controlled."}
+        ]
+      },
+      {
+        "id": "3.8.8",
+        "title": "Prohibit the use of portable storage devices when such devices have no identifiable owner.",
+        "objectives": [
+          {"id": "3.8.8[a]", "text": "Portable storage devices in use are identified and their owners established."},
+          {"id": "3.8.8[b]", "text": "The use of portable storage devices with no identifiable owner is prohibited."}
+        ]
+      },
+      {
+        "id": "3.8.9",
+        "title": "Protect the confidentiality of backup CUI at storage locations.",
+        "objectives": [
+          {"id": "3.8.9[a]", "text": "Backup CUI is identified."},
+          {"id": "3.8.9[b]", "text": "The confidentiality of backup CUI at storage locations is protected."}
+        ]
+      }
+    ]
+  },
+  {
+    "domain_id": "PS",
+    "domain_name": "Personnel Security",
+    "practices": [
+      {
+        "id": "3.9.1",
+        "title": "Screen individuals prior to authorizing access to organizational systems containing CUI.",
+        "objectives": [
+          {"id": "3.9.1[a]", "text": "Criteria for screening individuals prior to authorizing access to the system are defined."},
+          {"id": "3.9.1[b]", "text": "Individuals are screened prior to authorizing access to organizational systems containing CUI."}
+        ]
+      },
+      {
+        "id": "3.9.2",
+        "title": "Ensure that CUI is protected during and after personnel actions such as terminations and transfers.",
+        "objectives": [
+          {"id": "3.9.2[a]", "text": "CUI is protected during and after personnel terminations."},
+          {"id": "3.9.2[b]", "text": "CUI is protected during and after personnel transfers."},
+          {"id": "3.9.2[c]", "text": "CUI access is terminated upon departure of personnel from the organization."}
+        ]
+      }
+    ]
+  },
+  {
+    "domain_id": "PE",
+    "domain_name": "Physical Protection",
+    "practices": [
+      {
+        "id": "3.10.1",
+        "title": "Limit physical access to organizational systems, equipment, and the respective operating environments to authorized individuals.",
+        "objectives": [
+          {"id": "3.10.1[a]", "text": "Individuals authorized to have physical access to organizational systems, equipment, and operating environments are identified."},
+          {"id": "3.10.1[b]", "text": "Physical access is limited to authorized individuals."},
+          {"id": "3.10.1[c]", "text": "Physical access is managed."}
+        ]
+      },
+      {
+        "id": "3.10.2",
+        "title": "Protect and monitor the physical facility and support infrastructure for organizational systems.",
+        "objectives": [
+          {"id": "3.10.2[a]", "text": "The physical facility is protected."},
+          {"id": "3.10.2[b]", "text": "The physical facility is monitored."},
+          {"id": "3.10.2[c]", "text": "Support infrastructure for organizational systems is protected and monitored."}
+        ]
+      },
+      {
+        "id": "3.10.3",
+        "title": "Escort visitors and monitor visitor activity.",
+        "objectives": [
+          {"id": "3.10.3[a]", "text": "Visitors are escorted in areas containing organizational systems and equipment."},
+          {"id": "3.10.3[b]", "text": "Visitor activity is monitored."}
+        ]
+      },
+      {
+        "id": "3.10.4",
+        "title": "Maintain audit logs of physical access.",
+        "objectives": [
+          {"id": "3.10.4[a]", "text": "Audit logs of physical access are maintained."},
+          {"id": "3.10.4[b]", "text": "Physical access audit logs are reviewed."}
+        ]
+      },
+      {
+        "id": "3.10.5",
+        "title": "Control and manage physical access devices.",
+        "objectives": [
+          {"id": "3.10.5[a]", "text": "Physical access devices are inventoried."},
+          {"id": "3.10.5[b]", "text": "Physical access devices are controlled and managed."}
+        ]
+      },
+      {
+        "id": "3.10.6",
+        "title": "Enforce safeguarding measures for CUI at alternate work sites.",
+        "objectives": [
+          {"id": "3.10.6[a]", "text": "Alternate work sites where CUI is processed, stored, or transmitted are identified."},
+          {"id": "3.10.6[b]", "text": "Safeguarding measures for CUI at alternate work sites are defined."},
+          {"id": "3.10.6[c]", "text": "Safeguarding measures are enforced at alternate work sites."}
+        ]
+      }
+    ]
+  },
+  {
+    "domain_id": "RA",
+    "domain_name": "Risk Assessment",
+    "practices": [
+      {
+        "id": "3.11.1",
+        "title": "Periodically assess the risk to organizational operations, assets, and individuals, resulting from the operation of organizational systems and the associated processing, storage, or transmission of CUI.",
+        "objectives": [
+          {"id": "3.11.1[a]", "text": "A risk assessment is conducted periodically."},
+          {"id": "3.11.1[b]", "text": "The risk assessment identifies threats to organizational systems and CUI."},
+          {"id": "3.11.1[c]", "text": "The risk assessment identifies vulnerabilities in organizational systems."}
+        ]
+      },
+      {
+        "id": "3.11.2",
+        "title": "Scan for vulnerabilities in organizational systems and applications periodically and when new vulnerabilities affecting those systems and applications are identified.",
+        "objectives": [
+          {"id": "3.11.2[a]", "text": "Vulnerabilities in organizational systems are scanned periodically."},
+          {"id": "3.11.2[b]", "text": "New vulnerabilities affecting organizational systems are identified."},
+          {"id": "3.11.2[c]", "text": "Vulnerability scans are performed when new vulnerabilities are identified."}
+        ]
+      },
+      {
+        "id": "3.11.3",
+        "title": "Remediate vulnerabilities in accordance with risk assessments.",
+        "objectives": [
+          {"id": "3.11.3[a]", "text": "Vulnerabilities identified during scanning are remediated."},
+          {"id": "3.11.3[b]", "text": "Vulnerabilities are remediated in accordance with risk assessments."}
+        ]
+      }
+    ]
+  },
+  {
+    "domain_id": "CA",
+    "domain_name": "Security Assessment",
+    "practices": [
+      {
+        "id": "3.12.1",
+        "title": "Periodically assess the security controls in organizational systems to determine if the controls are effective in their application.",
+        "objectives": [
+          {"id": "3.12.1[a]", "text": "Security controls in organizational systems are periodically assessed."},
+          {"id": "3.12.1[b]", "text": "The security controls are assessed to determine if they are effective in their application."},
+          {"id": "3.12.1[c]", "text": "The assessment results are documented."}
+        ]
+      },
+      {
+        "id": "3.12.2",
+        "title": "Develop and implement plans of action designed to correct deficiencies and reduce or eliminate vulnerabilities in organizational systems.",
+        "objectives": [
+          {"id": "3.12.2[a]", "text": "Plans of action are developed to correct identified deficiencies and reduce or eliminate vulnerabilities."},
+          {"id": "3.12.2[b]", "text": "Plans of action are implemented."}
+        ]
+      },
+      {
+        "id": "3.12.3",
+        "title": "Monitor security controls on an ongoing basis to ensure the continued effectiveness of the controls.",
+        "objectives": [
+          {"id": "3.12.3[a]", "text": "Security controls are monitored on an ongoing basis."},
+          {"id": "3.12.3[b]", "text": "Ongoing monitoring results are used to determine the continued effectiveness of security controls."}
+        ]
+      },
+      {
+        "id": "3.12.4",
+        "title": "Develop, document, and periodically update system security plans that describe system boundaries, system environments of operation, how security requirements are implemented, and the relationships with or connections to other systems.",
+        "objectives": [
+          {"id": "3.12.4[a]", "text": "A system security plan is developed and documented."},
+          {"id": "3.12.4[b]", "text": "The system security plan describes the system boundary."},
+          {"id": "3.12.4[c]", "text": "The system security plan describes how security requirements are implemented."},
+          {"id": "3.12.4[d]", "text": "The system security plan is periodically updated."}
+        ]
+      }
+    ]
+  },
+  {
+    "domain_id": "SC",
+    "domain_name": "System and Communications Protection",
+    "practices": [
+      {
+        "id": "3.13.1",
+        "title": "Monitor, control, and protect communications (i.e., information transmitted or received by organizational systems) at the external boundaries and key internal boundaries of organizational systems.",
+        "objectives": [
+          {"id": "3.13.1[a]", "text": "The external boundaries of the system are defined."},
+          {"id": "3.13.1[b]", "text": "Key internal boundaries of the system are defined."},
+          {"id": "3.13.1[c]", "text": "Communications at external and key internal system boundaries are monitored, controlled, and protected."}
+        ]
+      },
+      {
+        "id": "3.13.2",
+        "title": "Employ architectural designs, software development techniques, and systems engineering principles that promote effective information security within organizational systems.",
+        "objectives": [
+          {"id": "3.13.2[a]", "text": "Security engineering principles are used in the design and implementation of the system's security architecture."},
+          {"id": "3.13.2[b]", "text": "Software development techniques that promote effective security are employed."}
+        ]
+      },
+      {
+        "id": "3.13.3",
+        "title": "Separate user functionality from system management functionality.",
+        "objectives": [
+          {"id": "3.13.3[a]", "text": "User functionality is identified."},
+          {"id": "3.13.3[b]", "text": "System management functionality is identified."},
+          {"id": "3.13.3[c]", "text": "User functionality is separated from system management functionality."}
+        ]
+      },
+      {
+        "id": "3.13.4",
+        "title": "Prevent unauthorized and unintended information transfer via shared system resources.",
+        "objectives": [
+          {"id": "3.13.4[a]", "text": "Shared system resources that could enable unauthorized information transfer are identified."},
+          {"id": "3.13.4[b]", "text": "Unauthorized and unintended information transfer via shared system resources is prevented."}
+        ]
+      },
+      {
+        "id": "3.13.5",
+        "title": "Implement subnetworks for publicly accessible system components that are physically or logically separated from internal networks.",
+        "objectives": [
+          {"id": "3.13.5[a]", "text": "Publicly accessible system components are identified."},
+          {"id": "3.13.5[b]", "text": "Publicly accessible system components are physically or logically separated from internal networks via subnetworks."}
+        ]
+      },
+      {
+        "id": "3.13.6",
+        "title": "Deny network communications traffic by default and allow network communications traffic by exception (i.e., deny all, permit by exception).",
+        "objectives": [
+          {"id": "3.13.6[a]", "text": "Network communications traffic is denied by default."},
+          {"id": "3.13.6[b]", "text": "Network communications traffic is allowed only by exception (permit by exception)."}
+        ]
+      },
+      {
+        "id": "3.13.7",
+        "title": "Prevent remote devices from simultaneously establishing connections with the system and other resources (i.e., split tunneling) unless the connection is established using an approved split tunneling policy.",
+        "objectives": [
+          {"id": "3.13.7[a]", "text": "Split tunneling for remote devices is identified and a policy is established."},
+          {"id": "3.13.7[b]", "text": "Remote devices are prevented from simultaneously establishing connections with the system and other resources unless split tunneling is approved."}
+        ]
+      },
+      {
+        "id": "3.13.8",
+        "title": "Implement cryptographic mechanisms to prevent unauthorized disclosure of CUI during transmission unless otherwise protected by alternative physical safeguards.",
+        "objectives": [
+          {"id": "3.13.8[a]", "text": "Cryptographic mechanisms to prevent unauthorized disclosure of CUI during transmission are identified."},
+          {"id": "3.13.8[b]", "text": "Cryptographic mechanisms to protect the confidentiality of CUI during transmission are implemented."}
+        ]
+      },
+      {
+        "id": "3.13.9",
+        "title": "Terminate network connections associated with communications sessions at the end of the sessions or after a defined period of inactivity.",
+        "objectives": [
+          {"id": "3.13.9[a]", "text": "The period of inactivity after which a network connection is terminated is defined."},
+          {"id": "3.13.9[b]", "text": "Network connections are terminated at the end of sessions or after the defined period of inactivity."}
+        ]
+      },
+      {
+        "id": "3.13.10",
+        "title": "Establish and manage cryptographic keys for required cryptography employed in organizational systems.",
+        "objectives": [
+          {"id": "3.13.10[a]", "text": "Cryptographic key management requirements are established."},
+          {"id": "3.13.10[b]", "text": "Cryptographic keys are generated, distributed, stored, accessed, and destroyed in accordance with requirements."},
+          {"id": "3.13.10[c]", "text": "Cryptographic key management activities are documented."}
+        ]
+      },
+      {
+        "id": "3.13.11",
+        "title": "Employ FIPS-validated cryptography when used to protect the confidentiality of CUI.",
+        "objectives": [
+          {"id": "3.13.11[a]", "text": "FIPS-validated cryptographic modules are identified."},
+          {"id": "3.13.11[b]", "text": "FIPS-validated cryptography is employed to protect the confidentiality of CUI."}
+        ]
+      },
+      {
+        "id": "3.13.12",
+        "title": "Prohibit remote activation of collaborative computing devices and provide indication of use to present users.",
+        "objectives": [
+          {"id": "3.13.12[a]", "text": "Remote activation of collaborative computing devices is prohibited."},
+          {"id": "3.13.12[b]", "text": "An indication is provided to users present when collaborative computing devices are in use."}
+        ]
+      },
+      {
+        "id": "3.13.13",
+        "title": "Control and monitor the use of mobile code.",
+        "objectives": [
+          {"id": "3.13.13[a]", "text": "Approved mobile code technologies are defined."},
+          {"id": "3.13.13[b]", "text": "The use of mobile code is controlled and monitored."},
+          {"id": "3.13.13[c]", "text": "Mobile code is controlled according to established policy."}
+        ]
+      },
+      {
+        "id": "3.13.14",
+        "title": "Control and monitor the use of VoIP technologies.",
+        "objectives": [
+          {"id": "3.13.14[a]", "text": "Authorized VoIP technologies are defined."},
+          {"id": "3.13.14[b]", "text": "The use of VoIP technologies is controlled and monitored."},
+          {"id": "3.13.14[c]", "text": "VoIP technologies are controlled according to established policy."}
+        ]
+      },
+      {
+        "id": "3.13.15",
+        "title": "Protect the authenticity of communications sessions.",
+        "objectives": [
+          {"id": "3.13.15[a]", "text": "The authenticity of communications sessions is protected."},
+          {"id": "3.13.15[b]", "text": "Communications sessions are protected against hijacking and unauthorized disclosure."}
+        ]
+      },
+      {
+        "id": "3.13.16",
+        "title": "Protect the confidentiality of CUI at rest.",
+        "objectives": [
+          {"id": "3.13.16[a]", "text": "CUI at rest is identified."},
+          {"id": "3.13.16[b]", "text": "The confidentiality of CUI at rest is protected."}
+        ]
+      }
+    ]
+  },
+  {
+    "domain_id": "SI",
+    "domain_name": "System and Information Integrity",
+    "practices": [
+      {
+        "id": "3.14.1",
+        "title": "Identify, report, and correct information and information system flaws in a timely manner.",
+        "objectives": [
+          {"id": "3.14.1[a]", "text": "Flaws in the system are identified."},
+          {"id": "3.14.1[b]", "text": "Identified flaws are reported."},
+          {"id": "3.14.1[c]", "text": "Identified flaws are corrected in a timely manner."}
+        ]
+      },
+      {
+        "id": "3.14.2",
+        "title": "Provide protection from malicious code at appropriate locations within organizational systems.",
+        "objectives": [
+          {"id": "3.14.2[a]", "text": "Malicious code protection mechanisms are employed at entry and exit points of the system."},
+          {"id": "3.14.2[b]", "text": "Malicious code protection mechanisms are employed at workstations, servers, and mobile computing devices."},
+          {"id": "3.14.2[c]", "text": "The malicious code protection mechanisms detect and quarantine malicious code."}
+        ]
+      },
+      {
+        "id": "3.14.3",
+        "title": "Monitor system security alerts and advisories and take action in response.",
+        "objectives": [
+          {"id": "3.14.3[a]", "text": "Security alerts and advisories are received from external organizations and information sources."},
+          {"id": "3.14.3[b]", "text": "Alerts and advisories are acted upon in response to identified threats."}
+        ]
+      },
+      {
+        "id": "3.14.4",
+        "title": "Update malicious code protection mechanisms when new releases are available.",
+        "objectives": [
+          {"id": "3.14.4[a]", "text": "Malicious code protection mechanisms are updated when new releases are available."},
+          {"id": "3.14.4[b]", "text": "Updates to malicious code protection mechanisms are tested."}
+        ]
+      },
+      {
+        "id": "3.14.5",
+        "title": "Perform periodic scans of organizational systems and real-time scans of files from external sources as files are downloaded, opened, or executed.",
+        "objectives": [
+          {"id": "3.14.5[a]", "text": "Periodic scans of organizational systems are performed."},
+          {"id": "3.14.5[b]", "text": "Real-time scans of files from external sources are performed as files are downloaded, opened, or executed."},
+          {"id": "3.14.5[c]", "text": "Malicious code is detected and eradicated."}
+        ]
+      },
+      {
+        "id": "3.14.6",
+        "title": "Monitor organizational systems, including inbound and outbound communications traffic, to detect attacks and indicators of potential attacks.",
+        "objectives": [
+          {"id": "3.14.6[a]", "text": "Inbound communications traffic is monitored to detect attacks and indicators of potential attacks."},
+          {"id": "3.14.6[b]", "text": "Outbound communications traffic is monitored to detect attacks and indicators of potential attacks."},
+          {"id": "3.14.6[c]", "text": "Potential attacks and other indicators of compromise are detected."}
+        ]
+      },
+      {
+        "id": "3.14.7",
+        "title": "Identify unauthorized use of organizational systems.",
+        "objectives": [
+          {"id": "3.14.7[a]", "text": "Authorized use of the system is defined."},
+          {"id": "3.14.7[b]", "text": "Unauthorized use of the system is identified through monitoring and alerting."}
+        ]
+      }
+    ]
+  }
+]
