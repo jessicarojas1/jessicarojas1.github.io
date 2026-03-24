@@ -11,8 +11,8 @@
 }
 
 .input-panel {
-  background: #161b22;
-  border: 1px solid #30363d;
+  background: var(--bs-secondary-bg);
+  border: 1px solid var(--bs-border-color);
   border-radius: 8px;
   padding: 1.25rem;
 }
@@ -31,9 +31,9 @@
 }
 
 .tab-btn {
-  background: #21262d;
-  border: 1px solid #30363d;
-  color: #8b949e;
+  background: var(--bs-tertiary-bg);
+  border: 1px solid var(--bs-border-color);
+  color: var(--bs-secondary-color);
   border-radius: 4px;
   padding: 0.35rem 0.75rem;
   font-size: 0.85rem;
@@ -58,15 +58,15 @@
 /* ---- File drop zone ---- */
 .file-drop-zone {
   display: block;
-  border: 2px dashed #30363d;
+  border: 2px dashed var(--bs-border-color);
   border-radius: 6px;
   padding: 2rem 1rem;
   text-align: center;
   cursor: pointer;
-  color: #8b949e;
+  color: var(--bs-secondary-color);
   font-size: 0.9rem;
   transition: border-color 0.2s, color 0.2s;
-  background: #0d1117;
+  background: var(--bs-body-bg);
   min-height: 100px;
   display: flex;
   align-items: center;
@@ -91,10 +91,10 @@
 /* ---- Textarea ---- */
 .screener-textarea {
   width: 100%;
-  background: #0d1117;
-  border: 1px solid #30363d;
+  background: var(--bs-body-bg);
+  border: 1px solid var(--bs-border-color);
   border-radius: 4px;
-  color: #c9d1d9;
+  color: var(--bs-body-color);
   padding: 0.6rem 0.75rem;
   font-size: 0.88rem;
   font-family: inherit;
@@ -107,7 +107,7 @@
   border-color: #ff5811;
 }
 
-.screener-textarea::placeholder { color: #484f58; }
+.screener-textarea::placeholder { color: var(--bs-tertiary-color); }
 
 /* ---- Score gauge ---- */
 .score-section {
@@ -140,7 +140,7 @@
 
 .score-number small {
   font-size: 1rem;
-  color: #8b949e;
+  color: var(--bs-secondary-color);
   font-weight: normal;
 }
 
@@ -148,12 +148,12 @@
   font-size: 1.1rem;
   font-weight: bold;
   margin-top: 0.25rem;
-  color: #c9d1d9;
+  color: var(--bs-body-color);
 }
 
 .score-sublabel {
   font-size: 0.85rem;
-  color: #8b949e;
+  color: var(--bs-secondary-color);
   margin-top: 0.2rem;
 }
 
@@ -166,8 +166,8 @@
 }
 
 .result-card {
-  background: #161b22;
-  border: 1px solid #30363d;
+  background: var(--bs-secondary-bg);
+  border: 1px solid var(--bs-border-color);
   border-radius: 8px;
   padding: 1rem 1.25rem;
 }
@@ -214,14 +214,14 @@
   display: flex;
   justify-content: space-between;
   font-size: 0.82rem;
-  color: #c9d1d9;
+  color: var(--bs-body-color);
   margin-bottom: 0.2rem;
 }
 
-.cat-pct { color: #8b949e; }
+.cat-pct { color: var(--bs-secondary-color); }
 
 .cat-track {
-  background: #21262d;
+  background: var(--bs-tertiary-bg);
   border-radius: 4px;
   height: 6px;
 }
@@ -248,12 +248,12 @@
 }
 
 .rec-list li {
-  background: #0d1117;
+  background: var(--bs-body-bg);
   border-left: 3px solid #ff5811;
   padding: 0.5rem 0.75rem;
   border-radius: 0 4px 4px 0;
   font-size: 0.85rem;
-  color: #c9d1d9;
+  color: var(--bs-body-color);
   line-height: 1.4;
 }
 
@@ -263,17 +263,17 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 0.6rem;
-  background: #161b22;
-  border: 1px solid #30363d;
+  background: var(--bs-secondary-bg);
+  border: 1px solid var(--bs-border-color);
   border-radius: 8px;
   padding: 0.75rem 1rem;
   margin-bottom: 1rem;
 }
 
 .kw-search {
-  background: #0d1117;
-  border: 1px solid #30363d;
-  color: #c9d1d9;
+  background: var(--bs-body-bg);
+  border: 1px solid var(--bs-border-color);
+  color: var(--bs-body-color);
   border-radius: 4px;
   padding: 0.35rem 0.65rem;
   font-size: 0.88rem;
@@ -281,7 +281,7 @@
   flex-shrink: 0;
 }
 .kw-search:focus { outline: none; border-color: #ff5811; }
-.kw-search::placeholder { color: #484f58; }
+.kw-search::placeholder { color: var(--bs-tertiary-color); }
 
 .kw-cat-pills {
   display: flex;
@@ -290,9 +290,9 @@
 }
 
 .kw-pill {
-  background: #21262d;
-  border: 1px solid #30363d;
-  color: #8b949e;
+  background: var(--bs-tertiary-bg);
+  border: 1px solid var(--bs-border-color);
+  color: var(--bs-secondary-color);
   border-radius: 20px;
   padding: 0.2rem 0.65rem;
   font-size: 0.78rem;
@@ -305,14 +305,14 @@
 .kw-filter-count {
   margin-left: auto;
   font-size: 0.78rem;
-  color: #484f58;
+  color: var(--bs-tertiary-color);
   white-space: nowrap;
   flex-shrink: 0;
 }
 
 .kw-count {
   font-size: 0.75rem;
-  color: #8b949e;
+  color: var(--bs-secondary-color);
   font-weight: normal;
   margin-left: 0.3rem;
 }
