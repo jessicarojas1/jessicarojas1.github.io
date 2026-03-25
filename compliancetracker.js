@@ -806,10 +806,25 @@ sysInput.addEventListener('blur', () => {
   localStorage.setItem('ct__systemName', sysInput.value);
 });
 
-// ── Init ──────────────────────────────────────────────────────
+// ── Init (supports ?system=...&standard=... from consultant page) ──
 async function init() {
   App.db = await openDB();
-  await loadStandard('cmmc_l2');
+
+  const params   = new URLSearchParams(window.location.search);
+  const urlSystem = params.get('system');
+  const urlStd    = params.get('standard');
+
+  if (urlSystem) {
+    sysInput.value = urlSystem;
+    localStorage.setItem('ct__systemName', urlSystem);
+  }
+
+  const startStd = (urlStd && STANDARDS[urlStd]) ? urlStd : 'cmmc_l2';
+  if (urlStd && STANDARDS[urlStd]) {
+    document.getElementById('standardSelect').value = startStd;
+  }
+
+  await loadStandard(startStd);
 }
 
 init();

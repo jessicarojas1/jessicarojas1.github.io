@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="theme.css" />
+  <link rel="stylesheet" href="jobtracker.css" />
+  <title>Job Tracker | Jessica Rojas</title>
+  <meta name="description" content="Personal job and contract tracking — log hours, rates, tasks, intake actions, and repeatable items." />
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link active" href="jobtracker.html" aria-current="page">Job Tracker</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none">
+            <a class="nav-link" href="compliancetracker.html">Tracker</a>
+          </li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">&#9728;&#65039;</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content">
+
+    <section class="hero-section reveal">
+      <div class="container text-center">
+        <h1>Job &amp; Contract Tracker</h1>
+        <p class="lead">Track hours, rates, tasks, intake actions, and repeatable items across all your contracts and projects.</p>
+        <div class="d-flex justify-content-center gap-2 flex-wrap mt-2">
+          <span class="badge bg-secondary">Stored locally — 100% private</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="container py-4">
+
+      <!-- Summary cards -->
+      <div class="jt-summary-row mb-4" id="jtSummary">
+        <div class="jt-stat-card">
+          <div class="jt-stat-label">Total Hours</div>
+          <div class="jt-stat-value" id="sumTotalHours">0</div>
+        </div>
+        <div class="jt-stat-card">
+          <div class="jt-stat-label">Total Earnings</div>
+          <div class="jt-stat-value" id="sumTotalEarnings">$0</div>
+        </div>
+        <div class="jt-stat-card">
+          <div class="jt-stat-label">Active Jobs</div>
+          <div class="jt-stat-value" id="sumActiveJobs">0</div>
+        </div>
+        <div class="jt-stat-card">
+          <div class="jt-stat-label">Open Tasks</div>
+          <div class="jt-stat-value" id="sumOpenTasks">0</div>
+        </div>
+      </div>
+
+      <!-- Tab navigation -->
+      <ul class="nav nav-tabs mb-3" id="jtTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="tab-jobs-btn" data-bs-toggle="tab" data-bs-target="#tab-jobs" type="button" role="tab">Jobs / Contracts</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tab-hours-btn" data-bs-toggle="tab" data-bs-target="#tab-hours" type="button" role="tab">Hour Log</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tab-tasks-btn" data-bs-toggle="tab" data-bs-target="#tab-tasks" type="button" role="tab">Tasks</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tab-intake-btn" data-bs-toggle="tab" data-bs-target="#tab-intake" type="button" role="tab">Intake Actions</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="tab-repeatable-btn" data-bs-toggle="tab" data-bs-target="#tab-repeatable" type="button" role="tab">Repeatable Items</button>
+        </li>
+      </ul>
+
+      <div class="tab-content" id="jtTabContent">
+
+        <!-- ── Jobs tab ── -->
+        <div class="tab-pane fade show active" id="tab-jobs" role="tabpanel">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+            <div class="d-flex gap-2 flex-wrap">
+              <input type="text" class="form-control form-control-sm" id="jobSearchInput" placeholder="Search jobs..." style="max-width:220px" />
+              <select class="form-select form-select-sm" id="jobStatusFilter" style="width:auto">
+                <option value="">All Statuses</option>
+                <option value="active">Active</option>
+                <option value="completed">Completed</option>
+                <option value="paused">Paused</option>
+              </select>
+            </div>
+            <button class="btn btn-primary btn-sm" id="addJobBtn" data-bs-toggle="modal" data-bs-target="#jobModal">+ New Job</button>
+          </div>
+          <div id="jobList">
+            <p class="text-secondary" id="jobEmptyMsg">No jobs yet. Click <strong>+ New Job</strong> to get started.</p>
+          </div>
+        </div>
+
+        <!-- ── Hour Log tab ── -->
+        <div class="tab-pane fade" id="tab-hours" role="tabpanel">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+            <div class="d-flex gap-2 flex-wrap">
+              <select class="form-select form-select-sm" id="hourJobFilter" style="width:auto">
+                <option value="">All Jobs</option>
+              </select>
+              <input type="date" class="form-control form-control-sm" id="hourDateFrom" style="width:150px" title="From date" />
+              <input type="date" class="form-control form-control-sm" id="hourDateTo" style="width:150px" title="To date" />
+            </div>
+            <button class="btn btn-primary btn-sm" id="addHourBtn" data-bs-toggle="modal" data-bs-target="#hourModal">+ Log Hours</button>
+          </div>
+          <div class="jt-table-wrap">
+            <table class="jt-table" id="hourTable">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Job</th>
+                  <th>Hours</th>
+                  <th>Description</th>
+                  <th>Earnings</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="hourTableBody">
+                <tr><td colspan="6" class="text-secondary text-center py-3">No hours logged yet.</td></tr>
+              </tbody>
+              <tfoot>
+                <tr class="jt-table-total">
+                  <td colspan="2"><strong>Total</strong></td>
+                  <td id="hourTotalHours">0</td>
+                  <td></td>
+                  <td id="hourTotalEarnings">$0</td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+
+        <!-- ── Tasks tab ── -->
+        <div class="tab-pane fade" id="tab-tasks" role="tabpanel">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+            <div class="d-flex gap-2 flex-wrap">
+              <select class="form-select form-select-sm" id="taskJobFilter" style="width:auto">
+                <option value="">All Jobs</option>
+              </select>
+              <select class="form-select form-select-sm" id="taskStatusFilter" style="width:auto">
+                <option value="">All Statuses</option>
+                <option value="open">Open</option>
+                <option value="in_progress">In Progress</option>
+                <option value="done">Done</option>
+              </select>
+            </div>
+            <button class="btn btn-primary btn-sm" id="addTaskBtn" data-bs-toggle="modal" data-bs-target="#taskModal">+ New Task</button>
+          </div>
+          <div id="taskList">
+            <p class="text-secondary" id="taskEmptyMsg">No tasks yet.</p>
+          </div>
+        </div>
+
+        <!-- ── Intake Actions tab ── -->
+        <div class="tab-pane fade" id="tab-intake" role="tabpanel">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+            <select class="form-select form-select-sm" id="intakeJobFilter" style="width:auto">
+              <option value="">All Jobs</option>
+            </select>
+            <button class="btn btn-primary btn-sm" id="addIntakeBtn" data-bs-toggle="modal" data-bs-target="#intakeModal">+ New Intake Action</button>
+          </div>
+          <p class="text-secondary small mb-3">Intake actions are one-time onboarding steps taken when starting a new contract or project (e.g., get access to systems, sign NDAs, configure tools).</p>
+          <div id="intakeList">
+            <p class="text-secondary" id="intakeEmptyMsg">No intake actions yet.</p>
+          </div>
+        </div>
+
+        <!-- ── Repeatable Items tab ── -->
+        <div class="tab-pane fade" id="tab-repeatable" role="tabpanel">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+            <select class="form-select form-select-sm" id="repeatJobFilter" style="width:auto">
+              <option value="">All Jobs</option>
+            </select>
+            <button class="btn btn-primary btn-sm" id="addRepeatBtn" data-bs-toggle="modal" data-bs-target="#repeatModal">+ New Repeatable</button>
+          </div>
+          <p class="text-secondary small mb-3">Repeatable items are recurring tasks or checklists you run on a schedule (e.g., weekly status report, monthly vulnerability scan, quarterly access review).</p>
+          <div id="repeatList">
+            <p class="text-secondary" id="repeatEmptyMsg">No repeatable items yet.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- ── Job Modal ── -->
+  <div class="modal fade" id="jobModal" tabindex="-1" aria-labelledby="jobModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="jobModalLabel">New Job / Contract</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="jobForm" novalidate>
+            <input type="hidden" id="jobId" />
+            <div class="row g-3">
+              <div class="col-md-8">
+                <label class="form-label">Job / Contract Title <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="jobTitle" placeholder="e.g. GMRE CMMC Consulting" required maxlength="120" />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Status</label>
+                <select class="form-select" id="jobStatus">
+                  <option value="active">Active</option>
+                  <option value="paused">Paused</option>
+                  <option value="completed">Completed</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Hourly Rate ($)</label>
+                <input type="number" class="form-control" id="jobRate" min="0" step="0.01" placeholder="0.00" />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Start Date</label>
+                <input type="date" class="form-control" id="jobStartDate" />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">End Date</label>
+                <input type="date" class="form-control" id="jobEndDate" />
+              </div>
+              <div class="col-12">
+                <label class="form-label">Product / Deliverable Link</label>
+                <input type="url" class="form-control" id="jobLink" placeholder="https://..." />
+              </div>
+              <div class="col-12">
+                <label class="form-label">Product / Scope Description</label>
+                <textarea class="form-control" id="jobDescription" rows="3" placeholder="What does this job/contract cover? Key deliverables, scope, client expectations..."></textarea>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Notes</label>
+                <textarea class="form-control" id="jobNotes" rows="2" placeholder="Key contacts, access details, special considerations..."></textarea>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="saveJobBtn">Save Job</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Hour Log Modal ── -->
+  <div class="modal fade" id="hourModal" tabindex="-1" aria-labelledby="hourModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="hourModalLabel">Log Hours</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="hourForm" novalidate>
+            <input type="hidden" id="hourId" />
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Job <span class="text-danger">*</span></label>
+                <select class="form-select" id="hourJobSelect" required></select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Date <span class="text-danger">*</span></label>
+                <input type="date" class="form-control" id="hourDate" required />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Hours <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="hourHours" min="0.25" max="24" step="0.25" required placeholder="e.g. 2.5" />
+              </div>
+              <div class="col-md-8">
+                <label class="form-label">Work Description <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="hourDescription" required placeholder="What did you work on?" maxlength="200" />
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="saveHourBtn">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Task Modal ── -->
+  <div class="modal fade" id="taskModal" tabindex="-1" aria-labelledby="taskModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="taskModalLabel">New Task</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="taskForm" novalidate>
+            <input type="hidden" id="taskId" />
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Job <span class="text-danger">*</span></label>
+                <select class="form-select" id="taskJobSelect" required></select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Task Title <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="taskTitle" required placeholder="e.g. Complete SSP Section 3" maxlength="150" />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Status</label>
+                <select class="form-select" id="taskStatus">
+                  <option value="open">Open</option>
+                  <option value="in_progress">In Progress</option>
+                  <option value="done">Done</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Priority</label>
+                <select class="form-select" id="taskPriority">
+                  <option value="normal">Normal</option>
+                  <option value="high">High</option>
+                  <option value="low">Low</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Due Date</label>
+                <input type="date" class="form-control" id="taskDueDate" />
+              </div>
+              <div class="col-12">
+                <label class="form-label">Product Link</label>
+                <input type="url" class="form-control" id="taskLink" placeholder="https://..." />
+              </div>
+              <div class="col-12">
+                <label class="form-label">Description</label>
+                <textarea class="form-control" id="taskDescription" rows="3" placeholder="Details, acceptance criteria, blockers..."></textarea>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Notes</label>
+                <textarea class="form-control" id="taskNotes" rows="2" placeholder="Any additional context or notes..."></textarea>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="saveTaskBtn">Save Task</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Intake Action Modal ── -->
+  <div class="modal fade" id="intakeModal" tabindex="-1" aria-labelledby="intakeModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="intakeModalLabel">New Intake Action</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="intakeForm" novalidate>
+            <input type="hidden" id="intakeId" />
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Job <span class="text-danger">*</span></label>
+                <select class="form-select" id="intakeJobSelect" required></select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Action Title <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="intakeTitle" required placeholder="e.g. Obtain VPN credentials" maxlength="150" />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Status</label>
+                <select class="form-select" id="intakeStatus">
+                  <option value="pending">Pending</option>
+                  <option value="in_progress">In Progress</option>
+                  <option value="done">Done</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Due Date</label>
+                <input type="date" class="form-control" id="intakeDueDate" />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Link</label>
+                <input type="url" class="form-control" id="intakeLink" placeholder="https://..." />
+              </div>
+              <div class="col-12">
+                <label class="form-label">Notes</label>
+                <textarea class="form-control" id="intakeNotes" rows="2" placeholder="Details, who to contact, what's needed..."></textarea>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="saveIntakeBtn">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Repeatable Item Modal ── -->
+  <div class="modal fade" id="repeatModal" tabindex="-1" aria-labelledby="repeatModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="repeatModalLabel">New Repeatable Item</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="repeatForm" novalidate>
+            <input type="hidden" id="repeatId" />
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Job <span class="text-danger">*</span></label>
+                <select class="form-select" id="repeatJobSelect" required></select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Item Title <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="repeatTitle" required placeholder="e.g. Weekly status report" maxlength="150" />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Frequency</label>
+                <select class="form-select" id="repeatFrequency">
+                  <option value="daily">Daily</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="biweekly">Bi-Weekly</option>
+                  <option value="monthly">Monthly</option>
+                  <option value="quarterly">Quarterly</option>
+                  <option value="as_needed">As Needed</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Last Completed</label>
+                <input type="date" class="form-control" id="repeatLastDone" />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Next Due</label>
+                <input type="date" class="form-control" id="repeatNextDue" />
+              </div>
+              <div class="col-12">
+                <label class="form-label">Link</label>
+                <input type="url" class="form-control" id="repeatLink" placeholder="https://..." />
+              </div>
+              <div class="col-12">
+                <label class="form-label">Description / Checklist</label>
+                <textarea class="form-control" id="repeatDescription" rows="4" placeholder="Step-by-step instructions or checklist items (one per line)..."></textarea>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Notes</label>
+                <textarea class="form-control" id="repeatNotes" rows="2" placeholder="Additional context, tools used, who receives output..."></textarea>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="saveRepeatBtn">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RBAC Login Modal -->
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="rbacModalLabel">Login</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="rbac-login-form" novalidate>
+            <div class="mb-3">
+              <label for="rbac-username-input" class="form-label">Display Name <span class="text-secondary small">(optional)</span></label>
+              <input type="text" class="form-control" id="rbac-username-input" autocomplete="username" placeholder="e.g. Jessica" maxlength="40" />
+            </div>
+            <div class="mb-3">
+              <label for="rbac-role-select" class="form-label">Access Level</label>
+              <select class="form-select" id="rbac-role-select">
+                <option value="viewer">Viewer - read-only (no password)</option>
+                <option value="reader">Reader - enhanced access</option>
+                <option value="editor">Editor - content management</option>
+                <option value="admin">Admin - full access</option>
+              </select>
+            </div>
+            <div class="mb-3" id="rbac-pw-group" style="display:none">
+              <label for="rbac-password-input" class="form-label">Password</label>
+              <input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" />
+            </div>
+            <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+          </form>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <p class="text-secondary small mb-0">Session clears when you close this tab.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" />
+      </a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" />
+      </a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="privacy.html">Privacy Policy</a> &middot; <a href="terms.html">Terms</a></p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="roles.js" defer></script>
+  <script src="script.js" defer></script>
+  <script src="jobtracker.js" defer></script>
+</body>
+</html>

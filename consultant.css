@@ -1,0 +1,191 @@
+/* ============================================================
+   consultant.css — CMMC Consulting page styles
+   ============================================================ */
+
+/* ---- Cert badges in hero ---- */
+.badge-cert {
+  display: inline-block;
+  background: rgba(255,88,17,0.15);
+  border: 1px solid #ff5811;
+  color: #ff5811;
+  border-radius: 20px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* ---- Capability cards ---- */
+.cap-card {
+  background: var(--bs-secondary-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 10px;
+  padding: 1.5rem;
+  height: 100%;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.cap-card:hover {
+  border-color: #ff5811;
+  box-shadow: 0 0 0 1px #ff5811;
+}
+
+.cap-icon {
+  font-size: 2rem;
+  margin-bottom: 0.75rem;
+}
+
+.cap-card h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ff5811;
+  margin-bottom: 0.5rem;
+}
+
+.cap-card p {
+  font-size: 0.88rem;
+  color: var(--bs-secondary-color);
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* ---- Engagement grid ---- */
+.engagement-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1rem;
+}
+
+.eng-card {
+  background: var(--bs-secondary-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: border-color 0.2s;
+}
+
+.eng-card:hover { border-color: #ff5811; }
+
+.eng-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.eng-customer {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--bs-body-color);
+}
+
+.eng-project {
+  font-size: 0.85rem;
+  color: var(--bs-secondary-color);
+}
+
+.eng-contract {
+  font-size: 0.78rem;
+  color: var(--bs-tertiary-color);
+  font-family: monospace;
+}
+
+.eng-meta {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 0.25rem;
+}
+
+.eng-status {
+  padding: 0.15rem 0.55rem;
+  border-radius: 20px;
+  font-size: 0.73rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.eng-status.active      { background: #1e3a2e; color: #4ade80; border: 1px solid #4ade80; }
+.eng-status.in_progress { background: #2a2510; color: #facc15; border: 1px solid #facc15; }
+.eng-status.completed   { background: #1a2030; color: #60a5fa; border: 1px solid #60a5fa; }
+.eng-status.on_hold     { background: #2a1e1e; color: #f87171; border: 1px solid #f87171; }
+
+.eng-standard {
+  background: var(--bs-tertiary-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 4px;
+  padding: 0.1rem 0.45rem;
+  font-size: 0.73rem;
+  color: var(--bs-secondary-color);
+}
+
+.eng-dates {
+  font-size: 0.78rem;
+  color: var(--bs-tertiary-color);
+}
+
+.eng-notes {
+  font-size: 0.82rem;
+  color: var(--bs-secondary-color);
+  background: var(--bs-body-bg);
+  border-radius: 4px;
+  padding: 0.4rem 0.6rem;
+  margin-top: 0.25rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.eng-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.25rem;
+}
+
+/* ---- Filter row ---- */
+.eng-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* ---- Credentials grid ---- */
+.creds-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 0.75rem;
+}
+
+.cred-item {
+  background: var(--bs-secondary-bg);
+  border: 1px solid var(--bs-border-color);
+  border-left: 3px solid #ff5811;
+  border-radius: 0 6px 6px 0;
+  padding: 0.6rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.cred-item strong {
+  font-size: 0.88rem;
+  color: var(--bs-body-color);
+}
+
+.cred-item span {
+  font-size: 0.78rem;
+  color: var(--bs-secondary-color);
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 576px) {
+  .engagement-grid { grid-template-columns: 1fr; }
+  .creds-grid      { grid-template-columns: 1fr; }
+}

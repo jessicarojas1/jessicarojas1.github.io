@@ -28,10 +28,14 @@
           <li class="nav-item"><a class="nav-link" href="resume.html">Resume</a></li>
           <li class="nav-item"><a class="nav-link" href="timeline.html">Timeline</a></li>
           <li class="nav-item"><a class="nav-link" href="cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="consultant.html">Consultant</a></li>
           <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
           <li class="nav-item"><a class="nav-link" href="blog.html">Blog</a></li>
           <li class="nav-item" id="nav-tracker-link" style="display:none">
             <a class="nav-link" href="compliancetracker.html">Tracker</a>
+          </li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none">
+            <a class="nav-link" href="jobtracker.html">Job Tracker</a>
           </li>
         </ul>
         <div class="d-flex align-items-center gap-2 flex-wrap">
@@ -53,81 +57,87 @@
         <h1>ATS Resume Screener</h1>
         <p class="lead">Upload your resume and paste a job description for an instant ATS compatibility score.</p>
         <div class="d-flex justify-content-center gap-2 flex-wrap mt-2">
-          <span class="badge bg-secondary">100% Private - processed in your browser</span>
+          <span class="badge bg-secondary">100% Private — processed in your browser</span>
           <span class="badge bg-secondary">No data sent to any server</span>
         </div>
       </div>
     </section>
 
     <section class="container py-4">
+
+      <!-- Resume + JD inputs -->
       <div class="screener-inputs">
+
+        <!-- Resume panel -->
         <div class="input-panel">
           <h2>Resume</h2>
           <div class="tab-row">
-            <button class="tab-btn active" id="resumeFileTab">Upload File</button>
-            <button class="tab-btn" id="resumePasteTab">Paste Text</button>
+            <button class="tab-btn active" id="tabUploadBtn">Upload File</button>
+            <button class="tab-btn" id="tabPasteBtn">Paste Text</button>
           </div>
-          <div id="resumeFileContent" class="tab-content">
-            <label class="file-drop-zone" id="resumeDropZone" for="resumeFileInput">
-              <span>Drop PDF here or click to browse</span>
-              <input type="file" id="resumeFileInput" accept=".pdf,.txt" class="d-none" aria-label="Upload resume file" />
+          <div id="tabUpload" class="tab-content">
+            <label class="file-drop-zone" id="dropZone" for="resumeFile">
+              <span id="dropText">Drag &amp; drop a PDF or .txt file, or click to browse</span>
+              <input type="file" id="resumeFile" accept=".pdf,.txt" class="d-none" aria-label="Upload resume file" />
             </label>
-            <div class="file-status" id="resumeFileStatus"></div>
+            <div class="file-status" id="fileStatus"></div>
           </div>
-          <div id="resumePasteContent" class="tab-content hidden">
-            <textarea class="screener-textarea" id="resumePasteInput" rows="12" placeholder="Paste your resume text here..." aria-label="Paste resume text"></textarea>
+          <div id="tabPaste" class="tab-content hidden">
+            <textarea class="screener-textarea" id="resumeText" rows="12" placeholder="Paste your resume text here..." aria-label="Paste resume text"></textarea>
           </div>
         </div>
+
+        <!-- Job Description panel -->
         <div class="input-panel">
           <h2>Job Description</h2>
-          <div class="tab-row">
-            <button class="tab-btn active" id="jdPasteTab">Paste Text</button>
-            <button class="tab-btn" id="jdFileTab">Upload File</button>
-          </div>
-          <div id="jdPasteContent" class="tab-content">
-            <textarea class="screener-textarea" id="jdPasteInput" rows="12" placeholder="Paste the job description here..." aria-label="Paste job description text"></textarea>
-          </div>
-          <div id="jdFileContent" class="tab-content hidden">
-            <label class="file-drop-zone" id="jdDropZone" for="jdFileInput">
-              <span>Drop file here or click to browse</span>
-              <input type="file" id="jdFileInput" accept=".pdf,.txt" class="d-none" aria-label="Upload job description file" />
-            </label>
-            <div class="file-status" id="jdFileStatus"></div>
-          </div>
+          <textarea class="screener-textarea" id="jobDescText" rows="14" placeholder="Paste the job description here..." aria-label="Paste job description text"></textarea>
         </div>
+      </div>
+
+      <!-- Custom keyword tags -->
+      <div class="input-panel mt-3">
+        <h2 style="font-size:0.95rem; margin-bottom:0.5rem;">Custom Keywords <span class="text-secondary fw-normal" style="font-size:0.8rem;">(type a keyword and press Enter or comma to add)</span></h2>
+        <div class="custom-kw-area" id="customKwArea">
+          <input type="text" class="custom-kw-input" id="customKwInput" placeholder="e.g. zero trust, ITAR, ServiceNow..." aria-label="Add custom keyword" />
+        </div>
+        <div class="custom-kw-tags" id="customKwTags"></div>
       </div>
 
       <div class="text-center my-4">
-        <button class="btn btn-primary btn-lg px-5" id="analyzeBtn">Analyze Resume</button>
-        <p class="text-secondary small mt-2" id="analyzeNote">Both a resume and job description are required.</p>
+        <button class="btn btn-primary btn-lg px-5" id="analyzeBtn">Analyze Match</button>
       </div>
 
-      <div id="resultsSection" style="display:none">
+      <!-- Results -->
+      <div id="results" class="hidden">
+
+        <!-- Score gauge -->
         <div class="score-section">
           <div class="score-gauge" role="img" aria-label="ATS compatibility score gauge">
             <svg class="gauge-svg" viewBox="0 0 200 110" xmlns="http://www.w3.org/2000/svg">
               <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="var(--bs-tertiary-bg,#21262d)" stroke-width="18" stroke-linecap="round"/>
-              <path id="gaugeFill" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#ff5811" stroke-width="18" stroke-linecap="round" stroke-dasharray="251.2" stroke-dashoffset="251.2"/>
+              <path id="gaugeArc" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#ff5811" stroke-width="18" stroke-linecap="round" stroke-dasharray="0 251.3" stroke-dashoffset="0"/>
             </svg>
-            <div class="score-number" id="scoreNumber">0<small>/100</small></div>
+            <div class="score-number"><span id="scoreValue">0</span><small>/100</small></div>
           </div>
-          <div class="score-label" id="scoreLabel">Analyzing...</div>
-          <div class="score-sublabel" id="scoreSublabel"></div>
+          <div class="score-label" id="scoreLabel"></div>
+          <div class="score-sublabel" id="scoreSubLabel"></div>
         </div>
 
+        <!-- Keyword filter bar -->
         <div class="kw-filter-bar">
           <input type="text" class="kw-search" id="kwSearchInput" placeholder="Search keywords..." aria-label="Search keywords" />
           <div class="kw-cat-pills" id="kwCatPills"></div>
           <span class="kw-filter-count" id="kwFilterCount"></span>
         </div>
 
+        <!-- Results grid -->
         <div class="results-grid">
           <div class="result-card">
-            <h3>Matched Keywords</h3>
-            <div class="keyword-cloud met-cloud" id="metKeywords"></div>
+            <h3>Matched Keywords <span class="kw-count" id="matchedCount"></span></h3>
+            <div class="keyword-cloud met-cloud" id="matchedKeywords"></div>
           </div>
           <div class="result-card">
-            <h3>Missing Keywords</h3>
+            <h3>Missing Keywords <span class="kw-count" id="missingCount"></span></h3>
             <div class="keyword-cloud missing-cloud" id="missingKeywords"></div>
           </div>
           <div class="result-card">
@@ -141,13 +151,14 @@
         </div>
 
         <div class="text-center mt-4 d-flex justify-content-center gap-3 flex-wrap">
-          <button class="btn btn-outline-secondary btn-sm" id="exportResultsBtn">Export Results (JSON)</button>
+          <button class="btn btn-outline-secondary btn-sm" id="exportResultsBtn">Export Results (.txt)</button>
           <button class="btn btn-outline-secondary btn-sm" id="resetBtn">Reset</button>
         </div>
       </div>
     </section>
   </main>
 
+  <!-- RBAC Login Modal -->
   <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">

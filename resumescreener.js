@@ -1,14 +1,8 @@
 /* ============================================================
    resumescreener.js
    ATS Resume Screener — client-side only
-   - PDF.js for reading uploaded PDF resumes
-   - Keyword extraction from job description
-   - Skill taxonomy categorization
-   - Weighted ATS scoring
-   - Results display + export
    ============================================================ */
 
-// Set PDF.js worker
 if (typeof pdfjsLib !== 'undefined') {
   pdfjsLib.GlobalWorkerOptions.workerSrc =
     'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -97,9 +91,10 @@ const STOP_WORDS = new Set([
 ]);
 
 // ── State ─────────────────────────────────────────────────────
-let resumeText = '';
-let lastResults = null;
-let activeTab   = 'upload';
+let resumeText    = '';
+let lastResults   = null;
+let activeTab     = 'upload';
+let customKeywords = [];  // user-added custom keywords
 
 // ── PDF text extraction ───────────────────────────────────────
 async function extractPDFText(file) {
@@ -121,18 +116,15 @@ function tokenize(text) {
 
 function buildCandidates(tokens) {
   const candidates = new Map();
-  // Unigrams
   tokens.forEach(t => {
     if (!STOP_WORDS.has(t)) candidates.set(t, (candidates.get(t) || 0) + 1);
   });
-  // Bigrams (higher weight)
   for (let i = 0; i < tokens.length - 1; i++) {
     const bg = `${tokens[i]} ${tokens[i + 1]}`;
     if (!STOP_WORDS.has(tokens[i]) && !STOP_WORDS.has(tokens[i + 1])) {
       candidates.set(bg, (candidates.get(bg) || 0) + 2);
     }
   }
-  // Trigrams (even higher)
   for (let i = 0; i < tokens.length - 2; i++) {
     const tg = `${tokens[i]} ${tokens[i+1]} ${tokens[i+2]}`;
     if (!STOP_WORDS.has(tokens[i]) && !STOP_WORDS.has(tokens[i+2])) {
@@ -143,30 +135,31 @@ function buildCandidates(tokens) {
 }
 
 function categorizeJD(jdText) {
-  const tokens    = tokenize(jdText);
+  const tokens     = tokenize(jdText);
   const candidates = buildCandidates(tokens);
-  const result    = {};
+  const normJD     = jdText.toLowerCase();
+  const result     = {};
 
   for (const [cat, { terms }] of Object.entries(TAXONOMY)) {
     result[cat] = [];
     for (const term of terms) {
-      // Check if term appears in JD (direct substring match on normalized text)
-      const normJD = jdText.toLowerCase();
       if (normJD.includes(term) || candidates.has(term)) {
-        // Compute frequency score
         const freq = candidates.get(term) || (normJD.includes(term) ? 1 : 0);
         if (freq > 0) result[cat].push({ keyword: term, freq });
       }
     }
-    // Sort by freq desc, deduplicate by preference for longer matches
     result[cat].sort((a, b) => b.freq - a.freq || b.keyword.length - a.keyword.length);
-    // Remove shorter substrings if longer version exists
     const kept = [];
     result[cat].forEach(item => {
       const dominated = kept.some(k => k.keyword.includes(item.keyword) && k.keyword !== item.keyword);
       if (!dominated) kept.push(item);
     });
     result[cat] = kept.slice(0, 20);
+  }
+
+  // Add custom keywords as their own category if any exist
+  if (customKeywords.length > 0) {
+    result['Custom Keywords'] = customKeywords.map(kw => ({ keyword: kw.toLowerCase(), freq: 1 }));
   }
 
   return result;
@@ -194,12 +187,17 @@ function scoreResume(resumeTxt, categories) {
     catScores[cat] = { matched: catMet, total: keywords.length, pct };
   }
 
-  // Weighted ATS score
+  // Weighted ATS score (custom keywords use weight 0.15, normalized)
+  const effectiveTaxonomy = { ...TAXONOMY };
+  if (customKeywords.length > 0) {
+    effectiveTaxonomy['Custom Keywords'] = { weight: 0.15 };
+  }
+
   let weightedSum = 0, totalWeight = 0;
-  for (const [cat, { weight }] of Object.entries(TAXONOMY)) {
+  for (const [cat, { weight }] of Object.entries(effectiveTaxonomy)) {
     if (catScores[cat] && catScores[cat].total > 0) {
-      weightedSum  += catScores[cat].pct * weight;
-      totalWeight  += weight;
+      weightedSum += catScores[cat].pct * weight;
+      totalWeight += weight;
     }
   }
   const atsScore = totalWeight > 0 ? Math.round(weightedSum / totalWeight) : 0;
@@ -220,7 +218,6 @@ function makeRecommendations(results) {
     recs.push('Low match. Consider significantly tailoring your resume to this specific role, or assess whether your background aligns with the requirements.');
   }
 
-  // Certs
   const certScore = catScores['Certifications'];
   if (certScore && certScore.total > 0 && certScore.pct < 60) {
     const missingCerts = missing.filter(m => m.category === 'Certifications').map(m => m.keyword);
@@ -229,25 +226,26 @@ function makeRecommendations(results) {
     }
   }
 
-  // Technical skills
   const techScore = catScores['Technical Skills'];
   if (techScore && techScore.total > 0 && techScore.pct < 40) {
     recs.push('Add a dedicated "Technical Skills" or "Core Competencies" section that lists tools, platforms, and languages by name.');
   }
 
-  // Clearance/Education
   const eduScore = catScores['Education & Clearance'];
   if (eduScore && eduScore.total > 0 && eduScore.pct < 50) {
     recs.push('If you hold a security clearance or relevant degree, make sure it appears prominently — clearance level, granting agency, and expiration if applicable.');
   }
 
-  // Top missing across all
-  const topMissing = missing.slice(0, 6).map(m => m.keyword);
+  const topMissing = missing.filter(m => m.category !== 'Custom Keywords').slice(0, 6).map(m => m.keyword);
   if (topMissing.length) {
     recs.push(`Priority keywords to incorporate (where truthful): ${topMissing.join(', ')}.`);
   }
 
-  // Frameworks
+  const customMissing = missing.filter(m => m.category === 'Custom Keywords').map(m => m.keyword);
+  if (customMissing.length) {
+    recs.push(`Custom keywords not found in your resume: ${customMissing.join(', ')}. Add these if they apply to your experience.`);
+  }
+
   const fwScore = catScores['Cybersecurity Frameworks'];
   if (fwScore && fwScore.total > 0 && fwScore.pct < 30) {
     recs.push('Spell out compliance framework experience explicitly (e.g., "CMMC Level 2 implementation", "NIST SP 800-171 compliance") rather than generic security descriptions.');
@@ -257,66 +255,78 @@ function makeRecommendations(results) {
 }
 
 // ── Gauge animation ───────────────────────────────────────────
+const GAUGE_ARC_LEN = 251.3; // π × r where r = 80 (half-circle)
+
 function animateGauge(score) {
-  const arc        = document.getElementById('gaugeArc');
-  const numEl      = document.getElementById('scoreValue');
-  const totalLen   = 173; // approximate arc length for our SVG half-circle
-  const targetDash = (score / 100) * totalLen;
-  const color      = score >= 75 ? '#4ade80' : score >= 50 ? '#facc15' : '#f87171';
+  const arc    = document.getElementById('gaugeArc');
+  const numEl  = document.getElementById('scoreValue');
+  const color  = score >= 75 ? '#4ade80' : score >= 50 ? '#facc15' : '#f87171';
+  const target = (score / 100) * GAUGE_ARC_LEN;
 
   arc.style.stroke = color;
-  arc.style.strokeDasharray = `${targetDash} ${totalLen}`;
 
   let current = 0;
-  const step  = Math.ceil(score / 40);
+  const step  = Math.max(1, Math.ceil(score / 40));
   const timer = setInterval(() => {
     current = Math.min(current + step, score);
     numEl.textContent = current;
+    const dash = (current / 100) * GAUGE_ARC_LEN;
+    arc.style.strokeDasharray = `${dash} ${GAUGE_ARC_LEN}`;
     if (current >= score) clearInterval(timer);
   }, 25);
 }
 
+// ── Build category filter pills ───────────────────────────────
+function buildFilterPills(categories) {
+  const pillsEl = document.getElementById('kwCatPills');
+  const cats    = Object.keys(categories).filter(c => categories[c].length > 0);
+
+  pillsEl.innerHTML =
+    `<button class="kw-pill active" data-cat="all">All</button>` +
+    cats.map(c => `<button class="kw-pill" data-cat="${c}">${c}</button>`).join('');
+}
+
 // ── Render results ────────────────────────────────────────────
-function renderResults(results, jdText) {
+function renderResults(results, categories) {
   const { atsScore, matched, missing, catScores } = results;
-  lastResults = { ...results, jdText };
+  lastResults = { ...results, categories };
 
-  // Score label
-  const scoreLabel = atsScore >= 75 ? '🟢 Strong Match'
-    : atsScore >= 50 ? '🟡 Moderate Match'
-    : '🔴 Weak Match';
-  const subLabel = `${matched.length} keywords matched · ${missing.length} missing`;
+  const scoreLabel = atsScore >= 75 ? 'Strong Match'
+    : atsScore >= 50 ? 'Moderate Match'
+    : 'Weak Match';
+  const color = atsScore >= 75 ? '#4ade80' : atsScore >= 50 ? '#facc15' : '#f87171';
 
-  document.getElementById('scoreLabel').textContent   = scoreLabel;
-  document.getElementById('scoreSubLabel').textContent = subLabel;
+  document.getElementById('scoreLabel').textContent    = scoreLabel;
+  document.getElementById('scoreLabel').style.color    = color;
+  document.getElementById('scoreSubLabel').textContent = `${matched.length} keywords matched · ${missing.length} missing`;
   animateGauge(atsScore);
 
-  // Reset filter state on each new analysis
+  // Build filter pills
+  buildFilterPills(categories);
+
+  // Reset filter state
   activeFilterCat = 'all';
   filterQuery = '';
   document.getElementById('kwSearchInput').value = '';
-  document.querySelectorAll('.kw-pill').forEach(p => p.classList.remove('active'));
-  document.querySelector('.kw-pill[data-cat="all"]').classList.add('active');
 
   // Matched keywords
-  const matchedEl = document.getElementById('matchedKeywords');
-  matchedEl.innerHTML = matched.length
+  document.getElementById('matchedKeywords').innerHTML = matched.length
     ? matched.map(m => `<span class="kw-tag" data-kw="${m.keyword}" data-cat="${m.category}" title="${m.category}">${m.keyword}</span>`).join('')
     : '<em style="color:#484f58">None found</em>';
 
   // Missing keywords
-  const missingEl = document.getElementById('missingKeywords');
-  missingEl.innerHTML = missing.length
+  document.getElementById('missingKeywords').innerHTML = missing.length
     ? missing.map(m => `<span class="kw-tag" data-kw="${m.keyword}" data-cat="${m.category}" title="${m.category}">${m.keyword}</span>`).join('')
     : '<em style="color:#4ade80">All keywords found!</em>';
 
-  // Initialize counts
   document.getElementById('matchedCount').textContent = `(${matched.length})`;
   document.getElementById('missingCount').textContent = `(${missing.length})`;
 
   // Category breakdown
-  const catEl = document.getElementById('categoryBreakdown');
-  catEl.innerHTML = Object.entries(catScores)
+  const allCats = { ...TAXONOMY };
+  if (customKeywords.length) allCats['Custom Keywords'] = { weight: 0.15 };
+
+  document.getElementById('categoryBreakdown').innerHTML = Object.entries(catScores)
     .filter(([, s]) => s.total > 0)
     .map(([cat, s]) => {
       const fillClass = s.pct >= 75 ? 'good' : s.pct >= 40 ? 'partial' : 'low';
@@ -333,11 +343,9 @@ function renderResults(results, jdText) {
     }).join('');
 
   // Recommendations
-  const recs = makeRecommendations(results);
   document.getElementById('recommendations').innerHTML =
-    recs.map(r => `<li>${r}</li>`).join('');
+    makeRecommendations(results).map(r => `<li>${r}</li>`).join('');
 
-  // Show results
   const resultsEl = document.getElementById('results');
   resultsEl.classList.remove('hidden');
   resultsEl.scrollIntoView({ behavior: 'smooth' });
@@ -348,7 +356,6 @@ async function analyze() {
   const jdText = document.getElementById('jobDescText').value.trim();
   if (!jdText) { alert('Please paste a job description.'); return; }
 
-  // Get resume text
   let rText = '';
   if (activeTab === 'paste') {
     rText = document.getElementById('resumeText').value.trim();
@@ -359,23 +366,23 @@ async function analyze() {
   }
 
   const btn = document.getElementById('analyzeBtn');
-  btn.textContent = '⏳ Analyzing…';
+  btn.textContent = 'Analyzing...';
   btn.disabled = true;
 
   try {
     const categories = categorizeJD(jdText);
     const results    = scoreResume(rText, categories);
-    renderResults(results, jdText);
+    renderResults(results, categories);
   } catch (err) {
     console.error(err);
     alert('Analysis failed. Please check your inputs and try again.');
   } finally {
-    btn.textContent = '🔍 Analyze Match';
+    btn.textContent = 'Analyze Match';
     btn.disabled = false;
   }
 }
 
-// ── Export results ────────────────────────────────────────────
+// ── Export ────────────────────────────────────────────────────
 function exportResults() {
   if (!lastResults) return;
   const { atsScore, matched, missing, catScores } = lastResults;
@@ -415,9 +422,45 @@ function exportResults() {
   URL.revokeObjectURL(url);
 }
 
-// ── Event listeners ───────────────────────────────────────────
+// ── Custom keyword tags ───────────────────────────────────────
+function renderCustomTags() {
+  const tagsEl = document.getElementById('customKwTags');
+  tagsEl.innerHTML = customKeywords.map((kw, i) =>
+    `<span class="custom-tag">${kw}<button class="custom-tag-remove" data-idx="${i}" aria-label="Remove ${kw}">&times;</button></span>`
+  ).join('');
+}
 
-// Tabs
+function addCustomKeyword(raw) {
+  const kw = raw.trim().toLowerCase().replace(/,/g, '');
+  if (!kw || customKeywords.includes(kw)) return;
+  customKeywords.push(kw);
+  renderCustomTags();
+}
+
+document.getElementById('customKwInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ',') {
+    e.preventDefault();
+    addCustomKeyword(e.target.value);
+    e.target.value = '';
+  }
+});
+
+document.getElementById('customKwInput').addEventListener('blur', e => {
+  if (e.target.value.trim()) {
+    addCustomKeyword(e.target.value);
+    e.target.value = '';
+  }
+});
+
+document.getElementById('customKwTags').addEventListener('click', e => {
+  const btn = e.target.closest('.custom-tag-remove');
+  if (!btn) return;
+  const idx = parseInt(btn.dataset.idx, 10);
+  customKeywords.splice(idx, 1);
+  renderCustomTags();
+});
+
+// ── Tab switching ─────────────────────────────────────────────
 document.getElementById('tabUploadBtn').addEventListener('click', () => {
   activeTab = 'upload';
   document.getElementById('tabUploadBtn').classList.add('active');
@@ -434,25 +477,16 @@ document.getElementById('tabPasteBtn').addEventListener('click', () => {
   document.getElementById('tabUpload').classList.add('hidden');
 });
 
-// File upload
+// ── File upload / drag-drop ───────────────────────────────────
 document.getElementById('resumeFile').addEventListener('change', async e => {
   const file = e.target.files[0];
-  if (!file) return;
-  await handleFileUpload(file);
+  if (file) await handleFileUpload(file);
 });
 
-// Drag & drop
 const dropZone = document.getElementById('dropZone');
 
-dropZone.addEventListener('dragover', e => {
-  e.preventDefault();
-  dropZone.classList.add('drag-over');
-});
-
-dropZone.addEventListener('dragleave', () => {
-  dropZone.classList.remove('drag-over');
-});
-
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('drag-over'); });
 dropZone.addEventListener('drop', async e => {
   e.preventDefault();
   dropZone.classList.remove('drag-over');
@@ -461,47 +495,45 @@ dropZone.addEventListener('drop', async e => {
 });
 
 async function handleFileUpload(file) {
-  const status = document.getElementById('fileStatus');
+  const status   = document.getElementById('fileStatus');
   const dropText = document.getElementById('dropText');
-  status.className = 'file-status';
-  status.textContent = 'Reading file…';
+  status.className  = 'file-status';
+  status.textContent = 'Reading file...';
 
   try {
     if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
       if (typeof pdfjsLib === 'undefined') {
-        status.className = 'file-status error';
-        status.textContent = '⚠ PDF.js failed to load. Try pasting your resume text instead.';
+        status.className  = 'file-status error';
+        status.textContent = 'PDF.js failed to load. Try pasting your resume text instead.';
         return;
       }
       resumeText = await extractPDFText(file);
     } else if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
       resumeText = await file.text();
     } else {
-      status.className = 'file-status error';
-      status.textContent = '⚠ Unsupported file type. Please upload a PDF or .txt file.';
+      status.className  = 'file-status error';
+      status.textContent = 'Unsupported file type. Please upload a PDF or .txt file.';
       return;
     }
 
     if (!resumeText.trim()) {
-      status.className = 'file-status error';
-      status.textContent = '⚠ Could not extract text from this file. Try the Paste Text option.';
+      status.className  = 'file-status error';
+      status.textContent = 'Could not extract text from this file. Try the Paste Text option.';
       return;
     }
 
-    dropText.textContent = `✅ ${file.name}`;
+    dropText.textContent = `\u2705 ${file.name}`;
     status.textContent   = `${Math.round(file.size / 1024)} KB · ~${resumeText.split(/\s+/).length} words extracted`;
   } catch (err) {
     console.error(err);
-    status.className = 'file-status error';
-    status.textContent = '⚠ Error reading file. Try the Paste Text option.';
+    status.className  = 'file-status error';
+    status.textContent = 'Error reading file. Try the Paste Text option.';
     resumeText = '';
   }
 }
 
-// Analyze
+// ── Analyze & export buttons ──────────────────────────────────
 document.getElementById('analyzeBtn').addEventListener('click', analyze);
-
-// Export
 document.getElementById('exportResultsBtn').addEventListener('click', exportResults);
 
 // ── Keyword filter ────────────────────────────────────────────
@@ -511,25 +543,18 @@ let filterQuery     = '';
 function applyKeywordFilter() {
   const q   = filterQuery.toLowerCase().trim();
   const cat = activeFilterCat;
-
   let shownMatched = 0, shownMissing = 0;
 
   document.querySelectorAll('#matchedKeywords .kw-tag').forEach(tag => {
-    const kw      = tag.dataset.kw  || '';
-    const tagCat  = tag.dataset.cat || '';
-    const catOk   = cat === 'all' || tagCat === cat;
-    const queryOk = !q || kw.includes(q);
-    if (catOk && queryOk) { tag.classList.remove('kw-hidden'); shownMatched++; }
-    else                   tag.classList.add('kw-hidden');
+    const ok = (cat === 'all' || tag.dataset.cat === cat) && (!q || tag.dataset.kw.includes(q));
+    tag.classList.toggle('kw-hidden', !ok);
+    if (ok) shownMatched++;
   });
 
   document.querySelectorAll('#missingKeywords .kw-tag').forEach(tag => {
-    const kw      = tag.dataset.kw  || '';
-    const tagCat  = tag.dataset.cat || '';
-    const catOk   = cat === 'all' || tagCat === cat;
-    const queryOk = !q || kw.includes(q);
-    if (catOk && queryOk) { tag.classList.remove('kw-hidden'); shownMissing++; }
-    else                   tag.classList.add('kw-hidden');
+    const ok = (cat === 'all' || tag.dataset.cat === cat) && (!q || tag.dataset.kw.includes(q));
+    tag.classList.toggle('kw-hidden', !ok);
+    if (ok) shownMissing++;
   });
 
   document.getElementById('matchedCount').textContent = `(${shownMatched})`;
@@ -552,25 +577,31 @@ document.getElementById('kwCatPills').addEventListener('click', e => {
   applyKeywordFilter();
 });
 
-// Reset
+// ── Reset ─────────────────────────────────────────────────────
 document.getElementById('resetBtn').addEventListener('click', () => {
-  resumeText = '';
+  resumeText  = '';
   lastResults = null;
-  document.getElementById('resumeFile').value = '';
-  document.getElementById('dropText').textContent = 'Drag & drop a PDF or .txt file, or click to browse';
+  customKeywords = [];
+  renderCustomTags();
+
+  document.getElementById('resumeFile').value     = '';
+  document.getElementById('dropText').textContent  = 'Drag & drop a PDF or .txt file, or click to browse';
   document.getElementById('fileStatus').textContent = '';
-  document.getElementById('resumeText').value = '';
-  document.getElementById('jobDescText').value = '';
+  document.getElementById('resumeText').value      = '';
+  document.getElementById('jobDescText').value     = '';
+  document.getElementById('customKwInput').value   = '';
   document.getElementById('results').classList.add('hidden');
   document.getElementById('scoreValue').textContent = '0';
-  document.getElementById('gaugeArc').style.strokeDasharray = '0 173';
-  document.getElementById('kwSearchInput').value = '';
+  document.getElementById('gaugeArc').style.strokeDasharray = `0 ${GAUGE_ARC_LEN}`;
+  document.getElementById('gaugeArc').style.stroke = '#ff5811';
+  document.getElementById('scoreLabel').textContent    = '';
+  document.getElementById('scoreSubLabel').textContent = '';
+  document.getElementById('kwSearchInput').value   = '';
   document.getElementById('kwFilterCount').textContent = '';
-  document.getElementById('matchedCount').textContent = '';
-  document.getElementById('missingCount').textContent = '';
+  document.getElementById('matchedCount').textContent  = '';
+  document.getElementById('missingCount').textContent  = '';
+  document.getElementById('kwCatPills').innerHTML      = '';
   activeFilterCat = 'all';
-  filterQuery = '';
-  document.querySelectorAll('.kw-pill').forEach(p => p.classList.remove('active'));
-  document.querySelector('.kw-pill[data-cat="all"]').classList.add('active');
+  filterQuery     = '';
   window.scrollTo({ top: 0, behavior: 'smooth' });
 });

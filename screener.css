@@ -320,6 +320,63 @@
 /* hidden tags when filtered out */
 .kw-tag.kw-hidden { display: none; }
 
+/* ---- Custom keyword tags ---- */
+.custom-kw-area {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 4px;
+  background: var(--bs-body-bg);
+  padding: 0.3rem 0.5rem;
+}
+
+.custom-kw-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--bs-body-color);
+  font-size: 0.88rem;
+  outline: none;
+  min-width: 0;
+}
+
+.custom-kw-input::placeholder { color: var(--bs-tertiary-color); }
+
+.custom-kw-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+  min-height: 1rem;
+}
+
+.custom-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: #1c2a3a;
+  color: #60a5fa;
+  border: 1px solid #60a5fa;
+  border-radius: 20px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.custom-tag-remove {
+  background: none;
+  border: none;
+  color: #60a5fa;
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.9rem;
+  line-height: 1;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+
+.custom-tag-remove:hover { opacity: 1; }
+
 /* ---- Responsive ---- */
 @media (max-width: 768px) {
   .screener-inputs { grid-template-columns: 1fr; }
