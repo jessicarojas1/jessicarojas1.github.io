@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="../theme.css" />
+  <link rel="stylesheet" href="isms.css" />
+  <title>Supplier Security Questionnaire | ISMS | Jessica Rojas</title>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="../index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="../projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="../timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="../cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="../consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="../contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="../blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="../knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="../compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="../jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="../admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <main id="main-content">
+    <div class="container py-4">
+      <nav aria-label="breadcrumb" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../index.html">Home</a></li><li class="breadcrumb-item"><a href="index.html">ISMS</a></li><li class="breadcrumb-item active">TMP-008</li></ol></nav>
+      <div class="d-flex justify-content-between align-items-start mb-4 print-btn">
+        <span class="badge bg-success fs-6">Template — TMP-008</span>
+        <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">Print / Save PDF</button>
+      </div>
+      <div class="doc-header mb-4">
+        <table class="table table-bordered table-sm"><tbody>
+          <tr><th style="width:30%">Document Title</th><td>Supplier Security Assessment Questionnaire</td></tr>
+          <tr><th>Document ID</th><td>TMP-008</td></tr>
+          <tr><th>Version</th><td>1.0</td></tr>
+          <tr><th>Classification</th><td>Internal</td></tr>
+          <tr><th>Owner</th><td>Information Security Manager</td></tr>
+          <tr><th>ISO 27001:2022 Controls</th><td>A.5.19, A.5.20</td></tr>
+        </tbody></table>
+      </div>
+
+      <div class="policy-section">
+        <h2>Questionnaire Header</h2>
+        <table class="table table-bordered table-sm">
+          <tbody>
+            <tr><th style="width:30%">Date Issued</th><td>[DATE]</td><th>Supplier Name</th><td>[SUPPLIER NAME]</td></tr>
+            <tr><th>Supplier Primary Contact</th><td>[NAME / EMAIL / PHONE]</td><th>Completion Deadline</th><td>[DATE]</td></tr>
+            <tr><th>Completed By</th><td>[NAME / TITLE]</td><th>Completion Date</th><td>[DATE]</td></tr>
+            <tr><th>Assessed By (our side)</th><td>[ISM NAME]</td><th>Tier Classification</th><td>Tier 1 / Tier 2 / Tier 3</td></tr>
+          </tbody>
+        </table>
+        <div class="alert alert-info small mt-3">
+          <strong>Instructions:</strong> Complete all questions applicable to your organization. For "Yes" answers, be prepared to provide supporting evidence (policies, certifications, audit reports). For "Partial" answers, describe what is in place and what is outstanding. Responses are treated confidentially and used solely for risk assessment purposes. False or misleading responses may result in contract termination.
+        </div>
+        <p class="small"><strong>Scoring:</strong> Yes = 2 pts | Partial = 1 pt | No = 0 pts | N/A = excluded from scoring. Overall scoring: 90–100% = Strong | 75–89% = Acceptable | 60–74% = Conditional | &lt;60% = Unsatisfactory.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>Section 1 — Information Security Governance</h2>
+        <table class="table table-bordered table-sm small">
+          <thead><tr><th>#</th><th>Question</th><th>Yes / Partial / No / N/A</th><th>Evidence / Comments</th></tr></thead>
+          <tbody>
+            <tr><td>1.1</td><td>Does your organization have a documented Information Security Policy approved by senior management and reviewed at least annually?</td><td></td><td></td></tr>
+            <tr><td>1.2</td><td>Does your organization hold ISO 27001 certification or an equivalent (SOC 2 Type II, CSA STAR Level 2, FedRAMP)? If yes, provide certification details and scope.</td><td></td><td></td></tr>
+            <tr><td>1.3</td><td>Is there a designated CISO or equivalent senior information security leadership role with defined responsibilities?</td><td></td><td></td></tr>
+            <tr><td>1.4</td><td>Is information security performance reviewed by senior management at least annually, with documented outcomes?</td><td></td><td></td></tr>
+            <tr><td>1.5</td><td>Does your organization conduct formal information security risk assessments at least annually?</td><td></td><td></td></tr>
+            <tr><td>1.6</td><td>Are information security responsibilities included in all employee contracts and relevant job descriptions?</td><td></td><td></td></tr>
+            <tr><td>1.7</td><td>Has your organization had an independent security assessment (penetration test or third-party audit) within the past 12 months?</td><td></td><td></td></tr>
+            <tr><td>1.8</td><td>Does your organization maintain a comprehensive inventory of information assets?</td><td></td><td></td></tr>
+            <tr><td>1.9</td><td>Has your organization experienced a confirmed security breach affecting customer data in the past 24 months? If yes, describe the incident and remediation actions taken.</td><td></td><td></td></tr>
+            <tr><td>1.10</td><td>Does your organization have a documented information security improvement roadmap with defined objectives and timelines?</td><td></td><td></td></tr>
+          </tbody>
+        </table>
+        <p class="small text-muted">Section 1 Score: ___ / 20 &nbsp;|&nbsp; Percentage: ___%</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>Section 2 — Access Control</h2>
+        <table class="table table-bordered table-sm small">
+          <thead><tr><th>#</th><th>Question</th><th>Yes / Partial / No / N/A</th><th>Evidence / Comments</th></tr></thead>
+          <tbody>
+            <tr><td>2.1</td><td>Is multi-factor authentication (MFA) required for all remote access to your systems?</td><td></td><td></td></tr>
+            <tr><td>2.2</td><td>Is MFA implemented for access to cloud services and critical business applications used to process our data?</td><td></td><td></td></tr>
+            <tr><td>2.3</td><td>Is access to systems and data provisioned on a least-privilege, need-to-know basis with formal approval process?</td><td></td><td></td></tr>
+            <tr><td>2.4</td><td>Are privileged (administrative) accounts managed separately with enhanced controls, logging, and review?</td><td></td><td></td></tr>
+            <tr><td>2.5</td><td>Are formal access reviews conducted at least annually for all users and quarterly for privileged users?</td><td></td><td></td></tr>
+            <tr><td>2.6</td><td>Is access to all systems revoked immediately upon employee termination (within same business day)?</td><td></td><td></td></tr>
+            <tr><td>2.7</td><td>Are shared or generic accounts prohibited for standard user access?</td><td></td><td></td></tr>
+            <tr><td>2.8</td><td>Is there a documented, enforced password policy meeting minimum standards (length ≥12, complexity, no reuse)?</td><td></td><td></td></tr>
+          </tbody>
+        </table>
+        <p class="small text-muted">Section 2 Score: ___ / 16 &nbsp;|&nbsp; Percentage: ___%</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>Section 3 — Data Protection and Privacy</h2>
+        <table class="table table-bordered table-sm small">
+          <thead><tr><th>#</th><th>Question</th><th>Yes / Partial / No / N/A</th><th>Evidence / Comments</th></tr></thead>
+          <tbody>
+            <tr><td>3.1</td><td>Is data classified according to sensitivity, with handling requirements defined for each classification level?</td><td></td><td></td></tr>
+            <tr><td>3.2</td><td>Is encryption (AES-256 or equivalent) applied to sensitive data at rest?</td><td></td><td></td></tr>
+            <tr><td>3.3</td><td>Is encryption (TLS 1.2 minimum, TLS 1.3 preferred) applied to all data in transit?</td><td></td><td></td></tr>
+            <tr><td>3.4</td><td>Is there a documented data retention and secure disposal policy, enforced through technical and procedural controls?</td><td></td><td></td></tr>
+            <tr><td>3.5</td><td>Is your organization compliant with applicable privacy regulations (GDPR, CCPA, HIPAA as applicable)?</td><td></td><td></td></tr>
+            <tr><td>3.6</td><td>Are you willing and able to sign a Data Processing Agreement (DPA) if you will process personal data on our behalf?</td><td></td><td></td></tr>
+            <tr><td>3.7</td><td>Do you maintain a Record of Processing Activities (Article 30 of GDPR) or equivalent data mapping?</td><td></td><td></td></tr>
+            <tr><td>3.8</td><td>Have you made any data breach notifications to regulators in the past 24 months? If yes, provide details.</td><td></td><td></td></tr>
+            <tr><td>3.9</td><td>Is access to personal data restricted to personnel with a documented business need?</td><td></td><td></td></tr>
+            <tr><td>3.10</td><td>Do you have a documented and tested process for responding to data subject access requests within required timelines?</td><td></td><td></td></tr>
+          </tbody>
+        </table>
+        <p class="small text-muted">Section 3 Score: ___ / 20 &nbsp;|&nbsp; Percentage: ___%</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>Section 4 — Network and Technical Security</h2>
+        <table class="table table-bordered table-sm small">
+          <thead><tr><th>#</th><th>Question</th><th>Yes / Partial / No / N/A</th><th>Evidence / Comments</th></tr></thead>
+          <tbody>
+            <tr><td>4.1</td><td>Are firewalls deployed at all network perimeters with a default-deny policy?</td><td></td><td></td></tr>
+            <tr><td>4.2</td><td>Is network segmentation implemented to isolate sensitive systems and data from general business networks?</td><td></td><td></td></tr>
+            <tr><td>4.3</td><td>Are vulnerability scans conducted at minimum monthly for internet-facing systems?</td><td></td><td></td></tr>
+            <tr><td>4.4</td><td>Are external penetration tests conducted at least annually by a qualified third party?</td><td></td><td></td></tr>
+            <tr><td>4.5</td><td>Is an intrusion detection/prevention system (IDS/IPS) or equivalent deployed and monitored?</td><td></td><td></td></tr>
+            <tr><td>4.6</td><td>Is network traffic monitored continuously for anomalies with alerting in place?</td><td></td><td></td></tr>
+            <tr><td>4.7</td><td>Are critical security patches applied within 72 hours and high-severity patches within 7 days of release?</td><td></td><td></td></tr>
+            <tr><td>4.8</td><td>Is endpoint detection and response (EDR) or equivalent deployed on all managed endpoints?</td><td></td><td></td></tr>
+          </tbody>
+        </table>
+        <p class="small text-muted">Section 4 Score: ___ / 16 &nbsp;|&nbsp; Percentage: ___%</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>Section 5 — Incident Management</h2>
+        <table class="table table-bordered table-sm small">
+          <thead><tr><th>#</th><th>Question</th><th>Yes / Partial / No / N/A</th><th>Evidence / Comments</th></tr></thead>
+          <tbody>
+            <tr><td>5.1</td><td>Is there a documented and approved Incident Response Plan covering detection, containment, eradication, and recovery?</td><td></td><td></td></tr>
+            <tr><td>5.2</td><td>Has the Incident Response Plan been tested (tabletop or functional exercise) within the past 12 months?</td><td></td><td></td></tr>
+            <tr><td>5.3</td><td>Will you notify us within 24 hours of a confirmed or suspected security incident that may affect our data or systems?</td><td></td><td></td></tr>
+            <tr><td>5.4</td><td>Is an incident log maintained with all security events, regardless of severity?</td><td></td><td></td></tr>
+            <tr><td>5.5</td><td>Does your organization carry cyber liability insurance appropriate to the services provided?</td><td></td><td></td></tr>
+            <tr><td>5.6</td><td>Is there a designated security contact available 24/7 for incident escalation?</td><td></td><td></td></tr>
+          </tbody>
+        </table>
+        <p class="small text-muted">Section 5 Score: ___ / 12 &nbsp;|&nbsp; Percentage: ___%</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>Section 6 — Business Continuity</h2>
+        <table class="table table-bordered table-sm small">
+          <thead><tr><th>#</th><th>Question</th><th>Yes / Partial / No / N/A</th><th>Evidence / Comments</th></tr></thead>
+          <tbody>
+            <tr><td>6.1</td><td>Does your organization have a documented and approved Business Continuity Plan (BCP)?</td><td></td><td></td></tr>
+            <tr><td>6.2</td><td>Is there a Disaster Recovery Plan (DRP) for critical IT systems, with defined RTOs and RPOs?</td><td></td><td></td></tr>
+            <tr><td>6.3</td><td>Has the BCP/DRP been tested within the past 12 months, with test results documented?</td><td></td><td></td></tr>
+            <tr><td>6.4</td><td>Are the RTO and RPO for services provided to us defined and contractually committed?</td><td></td><td></td></tr>
+            <tr><td>6.5</td><td>Do your critical subcontractors also have documented BCPs consistent with your commitments to us?</td><td></td><td></td></tr>
+          </tbody>
+        </table>
+        <p class="small text-muted">Section 6 Score: ___ / 10 &nbsp;|&nbsp; Percentage: ___%</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>Section 7 — Personnel Security</h2>
+        <table class="table table-bordered table-sm small">
+          <thead><tr><th>#</th><th>Question</th><th>Yes / Partial / No / N/A</th><th>Evidence / Comments</th></tr></thead>
+          <tbody>
+            <tr><td>7.1</td><td>Are background checks (criminal, employment, education) conducted on all personnel with access to our data or systems?</td><td></td><td></td></tr>
+            <tr><td>7.2</td><td>Is a security awareness training program in place, with mandatory completion for all staff at hire and annually?</td><td></td><td></td></tr>
+            <tr><td>7.3</td><td>Are NDAs or confidentiality agreements required for all personnel with access to sensitive information?</td><td></td><td></td></tr>
+            <tr><td>7.4</td><td>Are there clear, documented procedures for managing staff departures, including access revocation and asset return?</td><td></td><td></td></tr>
+          </tbody>
+        </table>
+        <p class="small text-muted">Section 7 Score: ___ / 8 &nbsp;|&nbsp; Percentage: ___%</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>Section 8 — Subcontractors and Supply Chain</h2>
+        <table class="table table-bordered table-sm small">
+          <thead><tr><th>#</th><th>Question</th><th>Yes / Partial / No / N/A</th><th>Evidence / Comments</th></tr></thead>
+          <tbody>
+            <tr><td>8.1</td><td>Will any subcontractors or fourth parties have access to our data or systems as part of this engagement?</td><td></td><td></td></tr>
+            <tr><td>8.2</td><td>Are subcontractors subject to equivalent security requirements as those requested of you in this questionnaire?</td><td></td><td></td></tr>
+            <tr><td>8.3</td><td>Will you notify us before making any material changes to subcontractors involved in processing our data?</td><td></td><td></td></tr>
+            <tr><td>8.4</td><td>Have key subcontractors been formally assessed for security posture in the past 12 months?</td><td></td><td></td></tr>
+          </tbody>
+        </table>
+        <p class="small text-muted">Section 8 Score: ___ / 8 &nbsp;|&nbsp; Percentage: ___%</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>Overall Scoring Summary</h2>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Section</th><th>Max Score</th><th>Actual Score</th><th>Percentage</th></tr></thead>
+          <tbody>
+            <tr><td>1 — Information Security Governance</td><td>20</td><td></td><td></td></tr>
+            <tr><td>2 — Access Control</td><td>16</td><td></td><td></td></tr>
+            <tr><td>3 — Data Protection and Privacy</td><td>20</td><td></td><td></td></tr>
+            <tr><td>4 — Network and Technical Security</td><td>16</td><td></td><td></td></tr>
+            <tr><td>5 — Incident Management</td><td>12</td><td></td><td></td></tr>
+            <tr><td>6 — Business Continuity</td><td>10</td><td></td><td></td></tr>
+            <tr><td>7 — Personnel Security</td><td>8</td><td></td><td></td></tr>
+            <tr><td>8 — Subcontractors</td><td>8</td><td></td><td></td></tr>
+            <tr class="fw-bold"><td>TOTAL</td><td>110</td><td></td><td></td></tr>
+          </tbody>
+        </table>
+        <table class="table table-bordered table-sm mt-2">
+          <thead><tr><th>Score</th><th>Rating</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr class="table-success"><td>90–100%</td><td>Strong</td><td>Approve; standard monitoring</td></tr>
+            <tr class="table-info"><td>75–89%</td><td>Acceptable</td><td>Approve; note improvement areas; annual reassessment</td></tr>
+            <tr class="table-warning"><td>60–74%</td><td>Conditional</td><td>Approve with conditions; remediation plan within 60 days; enhanced monitoring</td></tr>
+            <tr class="table-danger"><td>&lt;60%</td><td>Unsatisfactory</td><td>Reject or defer until remediation demonstrated; escalate to CISO</td></tr>
+          </tbody>
+        </table>
+
+        <p><strong>Overall Score:</strong> ___ / 110 &nbsp;&nbsp; <strong>Percentage:</strong> ___% &nbsp;&nbsp; <strong>Rating:</strong> ___________</p>
+        <p><strong>Assessor Notes and Key Findings:</strong></p>
+        <div style="border:1px solid var(--bs-border-color);border-radius:4px;min-height:80px;padding:8px;" class="mb-3"></div>
+        <p><strong>Conditions / Required Remediation (if Conditional approval):</strong></p>
+        <div style="border:1px solid var(--bs-border-color);border-radius:4px;min-height:60px;padding:8px;" class="mb-3"></div>
+
+        <table class="table table-bordered table-sm mt-3">
+          <thead><tr><th>Role</th><th>Name</th><th>Decision</th><th>Signature</th><th>Date</th></tr></thead>
+          <tbody>
+            <tr><td>ISM / Assessor</td><td></td><td>Approved / Conditional / Rejected</td><td></td><td></td></tr>
+            <tr><td>CISO (Tier 1 only)</td><td></td><td></td><td></td><td></td></tr>
+          </tbody>
+        </table>
+        <p class="text-muted small">Reassessment due date: ___________</p>
+      </div>
+    </div>
+  </main>
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title fs-5" id="rbacModalLabel">🔒 Login</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <div class="modal-body"><form id="rbac-login-form" novalidate>
+        <div class="mb-3"><label for="rbac-username-input" class="form-label">Username</label><input type="text" class="form-control" id="rbac-username-input" autocomplete="username" maxlength="40" required /></div>
+        <div class="mb-3"><label for="rbac-password-input" class="form-label">Password</label><input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" required /></div>
+        <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+      </form></div>
+      <div class="modal-footer border-0 pt-0"><p class="text-secondary small mb-0">Session clears when you close this tab.</p></div>
+    </div></div>
+  </div>
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" /></a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" /></a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="../privacy.html">Privacy Policy</a> &middot; <a href="../terms.html">Terms</a></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="../users.js" defer></script>
+  <script src="../roles.js" defer></script>
+  <script src="../script.js" defer></script>
+</body>
+</html>

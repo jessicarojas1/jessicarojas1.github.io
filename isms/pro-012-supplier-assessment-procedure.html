@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="../theme.css" />
+  <link rel="stylesheet" href="isms.css" />
+  <title>Supplier Security Assessment Procedure | ISMS | Jessica Rojas</title>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="../index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="../projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="../timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="../cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="../consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="../contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="../blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="../knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="../compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="../jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="../admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <main id="main-content">
+    <div class="container py-4">
+      <nav aria-label="breadcrumb" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../index.html">Home</a></li><li class="breadcrumb-item"><a href="index.html">ISMS</a></li><li class="breadcrumb-item active">PRO-012</li></ol></nav>
+      <div class="d-flex justify-content-between align-items-start mb-4 print-btn">
+        <span class="badge bg-warning text-dark fs-6">Procedure — PRO-012</span>
+        <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">Print / Save PDF</button>
+      </div>
+      <div class="doc-header mb-4">
+        <table class="table table-bordered table-sm"><tbody>
+          <tr><th style="width:30%">Document Title</th><td>Supplier Security Assessment Procedure</td></tr>
+          <tr><th>Document ID</th><td>PRO-012</td></tr>
+          <tr><th>Version</th><td>1.0</td></tr>
+          <tr><th>Classification</th><td>Internal</td></tr>
+          <tr><th>Owner</th><td>Information Security Manager</td></tr>
+          <tr><th>Approved By</th><td>Senior Management</td></tr>
+          <tr><th>Effective Date</th><td>2025-01-01</td></tr>
+          <tr><th>Next Review</th><td>2026-01-01</td></tr>
+          <tr><th>ISO 27001:2022 Controls</th><td>A.5.19, A.5.20, A.5.21, A.5.22</td></tr>
+        </tbody></table>
+      </div>
+
+      <div class="policy-section">
+        <h2>1. Purpose and Objective</h2>
+        <p>This procedure defines the end-to-end process for assessing, onboarding, monitoring, and offboarding suppliers and third-party service providers. It ensures that all third parties with access to organizational information, systems, or facilities meet minimum security requirements and that associated risks are identified, documented, and managed throughout the supplier relationship lifecycle.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>2. Scope</h2>
+        <p>This procedure applies to all new and existing suppliers, vendors, contractors, managed service providers, cloud service providers, and any other third party that:</p>
+        <ul>
+          <li>Has access to organizational information assets (any classification level)</li>
+          <li>Processes personal data on behalf of the organization</li>
+          <li>Provides services that are critical to business operations</li>
+          <li>Has physical access to organizational facilities</li>
+          <li>Connects to organizational networks or systems</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>3. Definitions</h2>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Term</th><th>Definition</th></tr></thead>
+          <tbody>
+            <tr><td>Supplier</td><td>Any external organization providing products, services, or resources to the organization</td></tr>
+            <tr><td>Critical Supplier</td><td>A supplier whose failure or compromise would have severe, immediate impact on business operations or data security</td></tr>
+            <tr><td>Due Diligence</td><td>Pre-engagement security assessment to evaluate a supplier's security posture before onboarding</td></tr>
+            <tr><td>DPA</td><td>Data Processing Agreement — legally binding contract required when a supplier processes personal data</td></tr>
+            <tr><td>Right to Audit</td><td>Contractual right allowing the organization to audit the supplier's security controls</td></tr>
+            <tr><td>TPRM</td><td>Third-Party Risk Management — the overall program for managing risks associated with suppliers</td></tr>
+            <tr><td>Supplier Register</td><td>Centralized record of all suppliers, their tier classification, and assessment status</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section">
+        <h2>4. Supplier Tier Classification</h2>
+        <p>All suppliers are classified into one of four tiers based on data access, operational dependency, and replaceability. Tier classification drives assessment depth and review frequency.</p>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Tier</th><th>Criteria</th><th>Assessment Depth</th><th>Review Frequency</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Tier 1 — Critical</strong></td><td>Access to Restricted data; OR processes core business functions; OR single-source with no viable alternative</td><td>Full assessment + evidence review + on-site/virtual audit</td><td>Quarterly monitoring; annual formal reassessment</td></tr>
+            <tr><td><strong>Tier 2 — High</strong></td><td>Access to Confidential data; OR significant operational dependency with some alternatives</td><td>Full questionnaire (TMP-008) + evidence review</td><td>Semi-annual review; annual reassessment</td></tr>
+            <tr><td><strong>Tier 3 — Medium</strong></td><td>Access to Internal data only; OR limited operational dependency; easily replaceable</td><td>Abbreviated questionnaire</td><td>Annual review and questionnaire renewal</td></tr>
+            <tr><td><strong>Tier 4 — Low</strong></td><td>No data access; commodity services; easily replaceable with minimal disruption</td><td>Registration and basic background check only</td><td>Biennial registration renewal</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section">
+        <h2>5. New Supplier Onboarding Assessment</h2>
+        <p><strong>Step 1 — Supplier Request Submission:</strong> The Business Sponsor submits a Supplier Request to the ISM including: supplier name and contact details, description of services, data to be accessed (and classification), systems or facilities access required, business justification, and preliminary tier recommendation.</p>
+        <p><strong>Step 2 — Desktop Due Diligence:</strong> ISM conducts initial desktop research within 5 business days: company background and financial indicators, public security incident history (breach databases, news), certifications held (ISO 27001, SOC 2 Type II, CSA STAR, FedRAMP), any regulatory or legal actions, sanctions screening against applicable lists.</p>
+        <p><strong>Step 3 — Tier Assignment and Questionnaire:</strong> ISM assigns provisional tier based on Step 1 and 2 findings. Sends Security Questionnaire (TMP-008): Tier 1/2 receive full questionnaire; Tier 3 receives abbreviated version; Tier 4 receives registration form only. Supplier must complete within 10 business days.</p>
+        <p><strong>Step 4 — Questionnaire Review and Scoring:</strong> ISM reviews questionnaire responses, scores against minimum security baseline, identifies gaps and missing evidence. Scores below threshold for tier require remediation plan before approval, or escalation to CISO for risk acceptance.</p>
+        <p><strong>Step 5 — Formal Assessment (Tier 1/2):</strong> For Tier 1 and Tier 2 suppliers, or those with questionnaire gaps: schedule virtual or on-site assessment. Review policies, procedures, technical control evidence (scan reports, pentest summaries, audit reports). Interview security personnel. Document findings in assessment report.</p>
+        <p><strong>Step 6 — Risk Rating and Approval Decision:</strong> ISM documents assessment findings and assigns risk rating: Low / Medium / High / Critical. Approval decision: Approved, Approved with Conditions (remediation plan within 60 days), or Rejected. Approval routing: Tier 1 requires ISM + CISO sign-off; Tier 2 requires ISM sign-off; Tier 3/4 may be delegated to Security Analyst.</p>
+        <p><strong>Step 7 — Contractual Requirements:</strong> Legal/Procurement ensures all contracts include mandatory security clauses: compliance with applicable security standards, incident notification SLA (24hr for Tier 1, 48hr for Tier 2), right to audit, data protection/DPA where personal data is processed, sub-processor requirements and notification obligations, data return or certified destruction on contract termination, security baseline requirements per supplier tier.</p>
+        <p><strong>Step 8 — Supplier Register Entry:</strong> ISM adds supplier to Supplier Register: name, tier, services provided, data classification accessed, primary security contact, certifications, assessment date, risk rating, next review due, contract expiry date, and status (Active).</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>6. Ongoing Supplier Monitoring</h2>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Tier</th><th>Continuous Monitoring</th><th>Periodic Review</th><th>Annual Reassessment</th></tr></thead>
+          <tbody>
+            <tr><td>Tier 1</td><td>Threat intelligence monitoring; news alerts; certification expiry tracking</td><td>Quarterly business review with security update</td><td>Full formal reassessment; on-site/virtual audit</td></tr>
+            <tr><td>Tier 2</td><td>Certification expiry monitoring; incident news alerts</td><td>Semi-annual check-in; questionnaire update</td><td>Annual formal reassessment</td></tr>
+            <tr><td>Tier 3</td><td>Certification expiry monitoring</td><td>Annual questionnaire renewal</td><td>Annual</td></tr>
+            <tr><td>Tier 4</td><td>None</td><td>Biennial registration renewal</td><td>Biennial</td></tr>
+          </tbody>
+        </table>
+        <p><strong>Immediate review triggers (all tiers):</strong> Reported security incident at supplier, major ownership/merger/acquisition change, loss or suspension of security certification, regulatory enforcement action, credible intelligence of supplier compromise, significant change in data access scope, supplier financial distress indicators.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>7. Supplier Incident Management</h2>
+        <p><strong>Step 1 — Notification Receipt:</strong> Supplier notifies organization per contractual SLA. ISM receives and logs notification. Assigns tracking ID.</p>
+        <p><strong>Step 2 — Impact Assessment:</strong> ISM assesses organizational impact: Was org data potentially accessed or compromised? Which systems or services were affected? What is the estimated duration of exposure? Is personal data involved (triggering breach notification obligations)?</p>
+        <p><strong>Step 3 — Invoke Incident Response:</strong> If organizational data or systems are potentially affected, invoke PRO-007 Incident Response Procedure. Treat as an organizational incident for purposes of containment, investigation, and notification assessment.</p>
+        <p><strong>Step 4 — Track Supplier Remediation:</strong> Require supplier to provide root cause analysis and remediation plan within 5 business days of incident notification. Track progress against plan. Verify remediation effectiveness before resuming normal supplier access levels.</p>
+        <p><strong>Step 5 — Post-Incident Supplier Review:</strong> Following incident, reassess supplier tier and risk rating. Review contractual terms for adequacy. Consider contract modification, enhanced monitoring, or contract termination for severe or repeated incidents. Document review findings and decisions.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>8. Supplier Offboarding</h2>
+        <p><strong>Step 1 — Initiate Offboarding:</strong> Business Sponsor initiates offboarding process: 60 days before contract end for Tier 1/2; 30 days for Tier 3/4. ISM coordinates offboarding activities.</p>
+        <p><strong>Step 2 — Data Return or Destruction:</strong> Confirm data return or certified destruction schedule per contract terms. Deadline: within 30 days of contract end. For Confidential and Restricted data: Certificate of Data Destruction required from supplier.</p>
+        <p><strong>Step 3 — Access Revocation:</strong> IT revokes all supplier access on the last day of service (or earlier if contract ends abruptly). Verify: VPN access, application accounts, physical access badges, API keys, and shared credentials. Confirmation documented.</p>
+        <p><strong>Step 4 — Certification and Documentation:</strong> Obtain Certificate of Data Destruction for data classified Confidential and above. File all offboarding documentation. Update Supplier Register status to Offboarded with date.</p>
+        <p><strong>Step 5 — Lessons Learned:</strong> For Tier 1/2 suppliers: conduct lessons-learned review. Document service quality, security performance, and any issues for future reference. Input to TPRM program improvements.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>9. Minimum Security Baseline by Tier</h2>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Security Control</th><th>Tier 1</th><th>Tier 2</th><th>Tier 3</th><th>Tier 4</th></tr></thead>
+          <tbody>
+            <tr><td>Encryption in transit (TLS 1.2+)</td><td>Required</td><td>Required</td><td>Required</td><td>Required</td></tr>
+            <tr><td>MFA for access to org systems</td><td>Required</td><td>Required</td><td>Required</td><td>N/A</td></tr>
+            <tr><td>Security awareness training</td><td>Required</td><td>Required</td><td>Recommended</td><td>N/A</td></tr>
+            <tr><td>ISO 27001 or SOC 2 certification</td><td>Required</td><td>Strongly preferred</td><td>Recommended</td><td>N/A</td></tr>
+            <tr><td>Annual penetration testing</td><td>Required</td><td>Recommended</td><td>N/A</td><td>N/A</td></tr>
+            <tr><td>Right to audit (contractual)</td><td>Required</td><td>Optional</td><td>N/A</td><td>N/A</td></tr>
+            <tr><td>24-hour incident notification</td><td>Required</td><td>Required (48hr)</td><td>Required (72hr)</td><td>Required (72hr)</td></tr>
+            <tr><td>Data destruction certificate on offboarding</td><td>Required</td><td>Required</td><td>Required</td><td>N/A</td></tr>
+            <tr><td>Subcontractor security controls</td><td>Required</td><td>Required</td><td>Recommended</td><td>N/A</td></tr>
+            <tr><td>Dedicated security contact 24/7</td><td>Required</td><td>Recommended</td><td>N/A</td><td>N/A</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section">
+        <h2>10. Supplier Register</h2>
+        <p>The ISM maintains the Supplier Register. It is reviewed monthly and used as input to the annual management review (TMP-007). Fields: Supplier ID, Name, Category, Tier, Primary Service, Data Classification Accessed, Primary Security Contact, Certifications Held, Last Assessment Date, Risk Rating, Next Review Due, Contract Expiry, DPA Signed (Y/N), Status (Active / Conditional / Under Review / Offboarded).</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>11. Roles and Responsibilities</h2>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Role</th><th>Responsibilities</th></tr></thead>
+          <tbody>
+            <tr><td>Business Sponsor</td><td>Submit supplier request; maintain day-to-day business relationship; escalate supplier security concerns; initiate offboarding</td></tr>
+            <tr><td>ISM</td><td>Manage TPRM program; conduct or oversee assessments; maintain supplier register; approve Tier 2-4 suppliers; report to management review</td></tr>
+            <tr><td>CISO</td><td>Approve Tier 1 supplier onboarding; set risk acceptance thresholds; review quarterly Tier 1 supplier status</td></tr>
+            <tr><td>Legal/Compliance</td><td>Review and approve contract security clauses; draft/approve DPAs; advise on regulatory requirements</td></tr>
+            <tr><td>Procurement</td><td>Ensure security assessment approval before contract execution; include security exhibits in contracts</td></tr>
+            <tr><td>IT</td><td>Provision and revoke supplier access; configure supplier-specific network access; verify access revocation on offboarding</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section">
+        <h2>12. Related Documents</h2>
+        <ul>
+          <li>TMP-008 — Supplier Security Questionnaire</li>
+          <li>POL-010 — Supplier and Third-Party Security Policy</li>
+          <li>PRO-007 — Incident Response Procedure</li>
+          <li>PRO-005 — Corrective Action Procedure</li>
+          <li>TMP-007 — Management Review Template</li>
+          <li>POL-018 — Privacy and Data Protection Policy</li>
+        </ul>
+      </div>
+
+      <div class="policy-section mt-5">
+        <h2>Revision History</h2>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Version</th><th>Date</th><th>Author</th><th>Description</th></tr></thead>
+          <tbody><tr><td>1.0</td><td>2025-01-01</td><td>Information Security Manager</td><td>Initial release</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title fs-5" id="rbacModalLabel">🔒 Login</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <div class="modal-body"><form id="rbac-login-form" novalidate>
+        <div class="mb-3"><label for="rbac-username-input" class="form-label">Username</label><input type="text" class="form-control" id="rbac-username-input" autocomplete="username" maxlength="40" required /></div>
+        <div class="mb-3"><label for="rbac-password-input" class="form-label">Password</label><input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" required /></div>
+        <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+      </form></div>
+      <div class="modal-footer border-0 pt-0"><p class="text-secondary small mb-0">Session clears when you close this tab.</p></div>
+    </div></div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" /></a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" /></a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="../privacy.html">Privacy Policy</a> &middot; <a href="../terms.html">Terms</a></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="../users.js" defer></script>
+  <script src="../roles.js" defer></script>
+  <script src="../script.js" defer></script>
+</body>
+</html>

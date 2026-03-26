@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="../theme.css" />
+  <link rel="stylesheet" href="isms.css" />
+  <title>Access Request Form | ISMS | Jessica Rojas</title>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="../index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="../projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="../timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="../cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="../consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="../contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="../blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="../knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="../compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="../jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="../admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <main id="main-content">
+    <div class="container py-4">
+      <nav aria-label="breadcrumb" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../index.html">Home</a></li><li class="breadcrumb-item"><a href="index.html">ISMS</a></li><li class="breadcrumb-item active">TMP-009</li></ol></nav>
+      <div class="d-flex justify-content-between align-items-start mb-4 print-btn">
+        <span class="badge bg-success fs-6">Template — TMP-009</span>
+        <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">Print / Save PDF</button>
+      </div>
+      <div class="doc-header mb-4">
+        <table class="table table-bordered table-sm"><tbody>
+          <tr><th style="width:30%">Document Title</th><td>Access Request Form</td></tr>
+          <tr><th>Document ID</th><td>TMP-009</td></tr>
+          <tr><th>Version</th><td>1.0</td></tr>
+          <tr><th>Classification</th><td>Internal</td></tr>
+          <tr><th>Owner</th><td>Information Security Manager</td></tr>
+          <tr><th>ISO 27001:2022 Controls</th><td>A.5.16, A.5.18, A.8.2, A.8.3</td></tr>
+        </tbody></table>
+      </div>
+
+      <div class="policy-section">
+        <h2>Form Header</h2>
+        <table class="table table-bordered table-sm">
+          <tbody>
+            <tr>
+              <th style="width:25%">Request ID</th><td>ARF-[YYYY]-[NNN]</td>
+              <th style="width:25%">Date Submitted</th><td>[DATE]</td>
+            </tr>
+            <tr>
+              <th>Request Type</th>
+              <td colspan="3">
+                ☐ New Access &nbsp;&nbsp; ☐ Modify Existing Access &nbsp;&nbsp; ☐ Temporary Access &nbsp;&nbsp; ☐ Remove Access &nbsp;&nbsp; ☐ Role Transfer
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section">
+        <h2>Section 1 — Requestor Information</h2>
+        <table class="table table-bordered table-sm">
+          <tbody>
+            <tr><th style="width:25%">Full Name</th><td></td><th style="width:25%">Employee / Contractor ID</th><td></td></tr>
+            <tr><th>Job Title</th><td></td><th>Department</th><td></td></tr>
+            <tr><th>Manager Name</th><td></td><th>Manager Email</th><td></td></tr>
+            <tr><th>Employment Type</th><td>☐ Employee &nbsp; ☐ Contractor &nbsp; ☐ Temp &nbsp; ☐ Vendor</td><th>Work Location</th><td>☐ Onsite &nbsp; ☐ Remote &nbsp; ☐ Hybrid</td></tr>
+            <tr><th>Employment Start Date</th><td></td><th>Employment End Date (if temp/contractor)</th><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section">
+        <h2>Section 2 — Access Required</h2>
+        <p class="text-muted small">Complete one row per system/application. Attach additional pages if more than 6 systems are required. All fields are mandatory.</p>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>#</th><th>System / Application Name</th><th>Access Level / Role Requested</th><th>Data Classification Accessed</th><th>Business Justification for This Access Level</th><th>Duration</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td></td><td></td><td>Public / Internal / Confidential / Restricted</td><td></td><td>☐ Permanent<br>☐ Temporary: ___ to ___</td></tr>
+            <tr><td>2</td><td></td><td></td><td>Public / Internal / Confidential / Restricted</td><td></td><td>☐ Permanent<br>☐ Temporary: ___ to ___</td></tr>
+            <tr><td>3</td><td></td><td></td><td>Public / Internal / Confidential / Restricted</td><td></td><td>☐ Permanent<br>☐ Temporary: ___ to ___</td></tr>
+            <tr><td>4</td><td></td><td></td><td>Public / Internal / Confidential / Restricted</td><td></td><td>☐ Permanent<br>☐ Temporary: ___ to ___</td></tr>
+            <tr><td>5</td><td></td><td></td><td>Public / Internal / Confidential / Restricted</td><td></td><td>☐ Permanent<br>☐ Temporary: ___ to ___</td></tr>
+            <tr><td>6</td><td></td><td></td><td>Public / Internal / Confidential / Restricted</td><td></td><td>☐ Permanent<br>☐ Temporary: ___ to ___</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section">
+        <h2>Section 3 — Privileged / Elevated Access <small class="text-muted">(complete only if requesting admin, root, DBA, or elevated privileges)</small></h2>
+        <table class="table table-bordered table-sm">
+          <tbody>
+            <tr><th style="width:35%">Is this a privileged access request?</th><td>☐ Yes &nbsp;&nbsp; ☐ No (skip this section if No)</td></tr>
+            <tr><th>Specific privileges required</th><td></td></tr>
+            <tr><th>Systems/environments in scope</th><td></td></tr>
+            <tr><th>Justification for privileged vs. standard access</th><td></td></tr>
+            <tr><th>MFA confirmation</th><td>☐ I confirm that MFA will be enrolled before privileged access is granted</td></tr>
+            <tr><th>Logging acknowledgment</th><td>☐ I understand that all privileged account actions are logged and subject to review</td></tr>
+            <tr><th>Duration</th><td>☐ Permanent (requires annual re-approval) &nbsp;&nbsp; ☐ Time-limited: ___ to ___ (max 90 days)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section">
+        <h2>Section 4 — Requestor Acknowledgment</h2>
+        <div class="alert alert-secondary small">
+          I confirm that I have read and agree to comply with the Information Security Policy (POL-001), Acceptable Use Policy (POL-002), and all applicable data handling requirements for each system listed in Section 2. I understand that access is granted for legitimate business purposes only, may be revoked at any time, and that misuse of access is subject to disciplinary action up to and including termination and legal proceedings. I agree to report any suspected security incidents, unauthorized access, or misuse of access immediately to the Information Security team.
+        </div>
+        <table class="table table-bordered table-sm">
+          <tbody>
+            <tr><th style="width:35%">Requestor Signature</th><td></td><th style="width:20%">Date</th><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section">
+        <h2>Section 5 — Line Manager Approval</h2>
+        <p class="text-muted small">Manager: Confirm the business need exists, verify the access level is appropriate for the requestor's role, and confirm no separation of duties conflicts result from this access. Approve within 2 business days.</p>
+        <table class="table table-bordered table-sm">
+          <tbody>
+            <tr><th style="width:35%">Manager Name</th><td></td><th style="width:20%">Manager Title</th><td></td></tr>
+            <tr><th>Decision</th><td colspan="3">☐ Approved &nbsp;&nbsp; ☐ Rejected — Reason: ___________________________</td></tr>
+            <tr><th>Comments</th><td colspan="3"></td></tr>
+            <tr><th>Manager Signature</th><td></td><th>Date</th><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section">
+        <h2>Section 6 — Data / System Owner Approval</h2>
+        <p class="text-muted small">Required for each system listed in Section 2. System owners: confirm access level is appropriate and consistent with data classification requirements.</p>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>System Name</th><th>Owner Name</th><th>Owner Title</th><th>Decision</th><th>Conditions</th><th>Signature</th><th>Date</th></tr></thead>
+          <tbody>
+            <tr><td></td><td></td><td></td><td>☐ Approved ☐ Rejected</td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td>☐ Approved ☐ Rejected</td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td>☐ Approved ☐ Rejected</td><td></td><td></td><td></td></tr>
+            <tr><td></td><td></td><td></td><td>☐ Approved ☐ Rejected</td><td></td><td></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section">
+        <h2>Section 7 — Security Review (ISM / Security Team)</h2>
+        <p class="text-muted small">Assess for privilege escalation risk, separation of duties conflicts, regulatory compliance, and cumulative access exposure. <strong>Note: Privileged access requires ISM sign-off in all cases.</strong></p>
+        <table class="table table-bordered table-sm">
+          <tbody>
+            <tr><th style="width:35%">Reviewer Name / Title</th><td></td><th style="width:20%">Review Date</th><td></td></tr>
+            <tr><th>Privilege escalation risk</th><td colspan="3">☐ Low &nbsp;&nbsp; ☐ Medium &nbsp;&nbsp; ☐ High — Notes: ___________________________</td></tr>
+            <tr><th>SoD conflicts identified</th><td colspan="3">☐ None &nbsp;&nbsp; ☐ Yes — Details: ___________________________</td></tr>
+            <tr><th>Compliance considerations</th><td colspan="3"></td></tr>
+            <tr><th>Decision</th><td colspan="3">☐ Approved &nbsp;&nbsp; ☐ Approved with Conditions &nbsp;&nbsp; ☐ Rejected</td></tr>
+            <tr><th>Conditions (if applicable)</th><td colspan="3"></td></tr>
+            <tr><th>Security Reviewer Signature</th><td></td><th>Date</th><td></td></tr>
+            <tr><th>ISM Sign-off (privileged access)</th><td></td><th>Date</th><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section">
+        <h2>Section 8 — IT Implementation</h2>
+        <table class="table table-bordered table-sm">
+          <tbody>
+            <tr><th style="width:35%">Provisioning Technician</th><td></td><th style="width:20%">Date Actioned</th><td></td></tr>
+          </tbody>
+        </table>
+        <table class="table table-bordered table-sm mt-2">
+          <thead><tr><th>System</th><th>Account Created / Modified</th><th>Access Level Set</th><th>Date / Time</th><th>Verified</th></tr></thead>
+          <tbody>
+            <tr><td></td><td></td><td></td><td></td><td>☐</td></tr>
+            <tr><td></td><td></td><td></td><td></td><td>☐</td></tr>
+            <tr><td></td><td></td><td></td><td></td><td>☐</td></tr>
+          </tbody>
+        </table>
+        <table class="table table-bordered table-sm mt-2">
+          <tbody>
+            <tr><th style="width:45%">Access provisioned matches approved access exactly</th><td>☐ Yes &nbsp;&nbsp; ☐ No — Discrepancies: ___________________________</td></tr>
+            <tr><th>Implementation Technician Signature</th><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section">
+        <h2>Section 9 — Record Keeping</h2>
+        <table class="table table-bordered table-sm">
+          <tbody>
+            <tr><th style="width:35%">Filed In</th><td></td><th style="width:20%">Date Filed</th><td></td></tr>
+            <tr><th>Access Inventory Updated</th><td>☐ Yes &nbsp;&nbsp; Date: ___</td><th>Retention Period</th><td>3 years after access revoked</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title fs-5" id="rbacModalLabel">🔒 Login</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <div class="modal-body"><form id="rbac-login-form" novalidate>
+        <div class="mb-3"><label for="rbac-username-input" class="form-label">Username</label><input type="text" class="form-control" id="rbac-username-input" autocomplete="username" maxlength="40" required /></div>
+        <div class="mb-3"><label for="rbac-password-input" class="form-label">Password</label><input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" required /></div>
+        <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+      </form></div>
+      <div class="modal-footer border-0 pt-0"><p class="text-secondary small mb-0">Session clears when you close this tab.</p></div>
+    </div></div>
+  </div>
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" /></a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" /></a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="../privacy.html">Privacy Policy</a> &middot; <a href="../terms.html">Terms</a></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="../users.js" defer></script>
+  <script src="../roles.js" defer></script>
+  <script src="../script.js" defer></script>
+</body>
+</html>

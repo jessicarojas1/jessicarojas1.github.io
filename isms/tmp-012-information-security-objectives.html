@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TMP-012 Information Security Objectives | ISMS</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="stylesheet" href="isms.css" />
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-secondary sticky-top">
+  <div class="container-fluid">
+    <a class="navbar-brand fw-bold" href="../index.html">
+      <i class="bi bi-shield-lock-fill text-primary me-2"></i>JR
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="../about.html">About</a></li>
+        <li class="nav-item"><a class="nav-link" href="../projects.html">Projects</a></li>
+        <li class="nav-item"><a class="nav-link active" href="index.html">ISMS</a></li>
+        <li class="nav-item"><a class="nav-link" href="../contact.html">Contact</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Breadcrumb -->
+<div class="container-fluid bg-dark border-bottom border-secondary py-2 no-print">
+  <div class="container">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0 small">
+        <li class="breadcrumb-item"><a href="../index.html" class="text-decoration-none">Home</a></li>
+        <li class="breadcrumb-item"><a href="index.html" class="text-decoration-none">ISMS</a></li>
+        <li class="breadcrumb-item active">TMP-012</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<!-- Main Content -->
+<main class="container my-4">
+
+  <!-- Document Header -->
+  <div class="doc-header p-4 mb-4 rounded">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+      <div>
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <span class="doc-badge badge-template">Template</span>
+          <span class="doc-badge badge-mandatory">Mandatory</span>
+        </div>
+        <h1 class="h2 fw-bold mb-1">Information Security Objectives Record</h1>
+        <p class="text-secondary mb-0">TMP-012 · ISO/IEC 27001:2022 Clause 6.2 &amp; 9.1</p>
+      </div>
+      <button class="btn btn-outline-light btn-sm no-print" onclick="window.print()">
+        <i class="bi bi-printer me-1"></i>Print / Export PDF
+      </button>
+    </div>
+  </div>
+
+  <!-- Document Metadata -->
+  <div class="isms-card mb-4">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <table class="table table-sm table-borderless mb-0">
+            <tbody>
+              <tr>
+                <th class="text-secondary w-50" scope="row">Document ID</th>
+                <td>TMP-012</td>
+              </tr>
+              <tr>
+                <th class="text-secondary" scope="row">Version</th>
+                <td>1.0</td>
+              </tr>
+              <tr>
+                <th class="text-secondary" scope="row">Classification</th>
+                <td><span class="badge bg-warning text-dark">Internal</span></td>
+              </tr>
+              <tr>
+                <th class="text-secondary" scope="row">Document Owner</th>
+                <td>Information Security Manager</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="col-md-6">
+          <table class="table table-sm table-borderless mb-0">
+            <tbody>
+              <tr>
+                <th class="text-secondary w-50" scope="row">Review Frequency</th>
+                <td>Annual / After significant change</td>
+              </tr>
+              <tr>
+                <th class="text-secondary" scope="row">Next Review</th>
+                <td>[Insert Date]</td>
+              </tr>
+              <tr>
+                <th class="text-secondary" scope="row">ISO Controls</th>
+                <td>
+                  <span class="control-tag">6.2</span>
+                  <span class="control-tag">9.1</span>
+                </td>
+              </tr>
+              <tr>
+                <th class="text-secondary" scope="row">Related Documents</th>
+                <td>POL-001, TMP-007, PRO-001</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Purpose -->
+  <div class="policy-section mb-4">
+    <h2 class="h5 fw-semibold mb-3"><i class="bi bi-bullseye text-primary me-2"></i>1. Purpose</h2>
+    <p>
+      This template supports compliance with ISO/IEC 27001:2022 Clause 6.2 (Information security objectives and planning to achieve them) and Clause 9.1 (Monitoring, measurement, analysis, and evaluation). It provides a structured format for setting, tracking, and reporting on measurable information security objectives that are consistent with the organisation's Information Security Policy and risk treatment priorities.
+    </p>
+    <p class="mb-0">
+      Objectives documented here must be communicated to relevant personnel, updated when circumstances change, and formally reviewed at each Management Review (see TMP-007).
+    </p>
+  </div>
+
+  <!-- ISO 27001 Requirements -->
+  <div class="policy-section mb-4">
+    <h2 class="h5 fw-semibold mb-3"><i class="bi bi-check2-circle text-primary me-2"></i>2. ISO 27001:2022 Requirements — Clause 6.2</h2>
+    <p class="text-secondary small mb-3">Each objective must satisfy all of the following mandatory criteria.</p>
+    <div class="table-responsive">
+      <table class="table table-bordered table-sm align-middle">
+        <thead class="table-dark">
+          <tr>
+            <th>#</th>
+            <th>Requirement</th>
+            <th>Clause</th>
+            <th>Evidence / Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>Consistent with the information security policy</td>
+            <td>6.2(a)</td>
+            <td>[Reference POL-001]</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>Measurable (where practicable)</td>
+            <td>6.2(b)</td>
+            <td>Each objective has a KPI target and measurement method</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>Takes into account applicable IS requirements and risk treatment results</td>
+            <td>6.2(c)</td>
+            <td>[Reference PRO-001 risk register]</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>Communicated to relevant personnel</td>
+            <td>6.2(d)</td>
+            <td>Shared via [intranet / all-hands / email] on [date]</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>Updated as appropriate</td>
+            <td>6.2(e)</td>
+            <td>Change log maintained in Section 7</td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td>Plans document: what will be done, resources needed, responsible party, completion date, evaluation method</td>
+            <td>6.2(f)</td>
+            <td>Captured in objectives table (Section 4)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Objective Period -->
+  <div class="policy-section mb-4">
+    <h2 class="h5 fw-semibold mb-3"><i class="bi bi-calendar3 text-primary me-2"></i>3. Objective Period</h2>
+    <div class="row g-3">
+      <div class="col-md-4">
+        <div class="bg-dark border border-secondary rounded p-3 text-center">
+          <div class="text-secondary small mb-1">Period Start</div>
+          <div class="fw-semibold">[Insert Date — e.g. 01 January 2026]</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="bg-dark border border-secondary rounded p-3 text-center">
+          <div class="text-secondary small mb-1">Period End</div>
+          <div class="fw-semibold">[Insert Date — e.g. 31 December 2026]</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="bg-dark border border-secondary rounded p-3 text-center">
+          <div class="text-secondary small mb-1">Version / Revision</div>
+          <div class="fw-semibold">[e.g. v1.0 — Initial]</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Objectives Table -->
+  <div class="policy-section mb-4">
+    <h2 class="h5 fw-semibold mb-3"><i class="bi bi-table text-primary me-2"></i>4. Information Security Objectives</h2>
+
+    <!-- Status Legend -->
+    <div class="d-flex flex-wrap gap-2 mb-3">
+      <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>On Track</span>
+      <span class="badge bg-warning text-dark"><i class="bi bi-exclamation-circle me-1"></i>At Risk</span>
+      <span class="badge bg-danger"><i class="bi bi-x-circle me-1"></i>Off Track</span>
+      <span class="badge bg-info text-dark"><i class="bi bi-check2-all me-1"></i>Achieved</span>
+      <span class="badge bg-secondary"><i class="bi bi-dash-circle me-1"></i>Not Started</span>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-bordered table-sm align-middle small">
+        <thead class="table-dark">
+          <tr>
+            <th style="min-width:60px">Ref</th>
+            <th style="min-width:160px">Objective</th>
+            <th style="min-width:130px">KPI / Metric</th>
+            <th style="min-width:90px">Target</th>
+            <th style="min-width:100px">Measurement Method</th>
+            <th style="min-width:110px">Responsible Party</th>
+            <th style="min-width:90px">Resources Required</th>
+            <th style="min-width:90px">Target Date</th>
+            <th style="min-width:100px">Related Control / Risk</th>
+            <th style="min-width:90px">Q1 Status</th>
+            <th style="min-width:90px">Q2 Status</th>
+            <th style="min-width:90px">Q3 Status</th>
+            <th style="min-width:90px">Q4 / Final Status</th>
+            <th style="min-width:120px">Notes / Evidence</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="fw-semibold">OBJ-01</td>
+            <td>Reduce mean time to detect (MTTD) security incidents</td>
+            <td>Average MTTD across all P1–P2 incidents</td>
+            <td>≤ 4 hours</td>
+            <td>SIEM / incident log analysis (monthly)</td>
+            <td>SOC Lead / ISM</td>
+            <td>SIEM tooling, analyst capacity</td>
+            <td>31 Dec [Year]</td>
+            <td>A.8.15, A.8.16 / Risk R-012</td>
+            <td><span class="badge bg-secondary">Not Started</span><br><small>[value]</small></td>
+            <td><span class="badge bg-secondary">Not Started</span><br><small>[value]</small></td>
+            <td><span class="badge bg-secondary">Not Started</span><br><small>[value]</small></td>
+            <td><span class="badge bg-secondary">Not Started</span><br><small>[value]</small></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td class="fw-semibold">OBJ-02</td>
+            <td>Achieve 100% completion of mandatory security awareness training for all staff</td>
+            <td>% staff completing annual training by deadline</td>
+            <td>100%</td>
+            <td>LMS completion report (quarterly)</td>
+            <td>HR / ISM</td>
+            <td>LMS platform, ISM time (content)</td>
+            <td>30 Sep [Year]</td>
+            <td>A.6.3 / Risk R-007</td>
+            <td><span class="badge bg-secondary">Not Started</span><br><small>[value]</small></td>
+            <td><span class="badge bg-secondary">Not Started</span><br><small>[value]</small></td>
+            <td><span class="badge bg-secondary">Not Started</span><br><small>[value]</small></td>
+            <td><span class="badge bg-secondary">Not Started</span><br><small>[value]</small></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td class="fw-semibold">OBJ-03</td>
+            <td>Remediate all critical vulnerabilities within SLA</td>
+            <td>% critical vulns remediated within 72 hours of discovery</td>
+            <td>≥ 95%</td>
+            <td>Vulnerability scanner / patch management reports (weekly)</td>
+            <td>IT Operations / ISM</td>
+            <td>Vulnerability scanner licence, patch tooling</td>
+            <td>31 Dec [Year]</td>
+            <td>A.8.8 / Risk R-003</td>
+            <td><span class="badge bg-secondary">Not Started</span><br><small>[value]</small></td>
+            <td><span class="badge bg-secondary">Not Started</span><br><small>[value]</small></td>
+            <td><span class="badge bg-secondary">Not Started</span><br><small>[value]</small></td>
+            <td><span class="badge bg-secondary">Not Started</span><br><small>[value]</small></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td class="fw-semibold">OBJ-04</td>
+            <td>Reduce phishing susceptibility rate across all staff</td>
+            <td>Simulated phishing campaign click rate</td>
+            <td>&lt; 5%</td>
+            <td>Quarterly phishing simulation results (TMP-010)</td>
+            <td>ISM / HR</td>
+            <td>Phishing simulation platform</td>
+            <td>31 Dec [Year]</td>
+            <td>A.6.3, A.8.23 / Risk R-007</td>
+            <td><span class="badge bg-secondary">Not Started</span><br><small>[value]</small></td>
+            <td><span class="badge bg-secondary">Not Started</span><br><small>[value]</small></td>
+            <td><span class="badge bg-secondary">Not Started</span><br><small>[value]</small></td>
+            <td><span class="badge bg-secondary">Not Started</span><br><small>[value]</small></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td class="fw-semibold">OBJ-05</td>
+            <td>Maintain Tier 1 system availability in line with BCP targets</td>
+            <td>Uptime % for systems classified Tier 1 (Restricted / Critical)</td>
+            <td>≥ 99.9% per quarter</td>
+            <td>Monitoring dashboard / availability reports (monthly)</td>
+            <td>IT Operations</td>
+            <td>Monitoring tooling, redundant infrastructure</td>
+            <td>31 Dec [Year]</td>
+            <td>A.8.6, A.8.14 / Risk R-018</td>
+            <td><span class="badge bg-secondary">Not Started</span><br><small>[value]</small></td>
+            <td><span class="badge bg-secondary">Not Started</span><br><small>[value]</small></td>
+            <td><span class="badge bg-secondary">Not Started</span><br><small>[value]</small></td>
+            <td><span class="badge bg-secondary">Not Started</span><br><small>[value]</small></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td class="fw-semibold">OBJ-06</td>
+            <td>Ensure all risk treatment actions are completed on schedule</td>
+            <td>% risk treatment plan actions completed by agreed due date</td>
+            <td>100%</td>
+            <td>Risk register review (quarterly — PRO-001)</td>
+            <td>Risk Owners / ISM</td>
+            <td>Risk register tooling, risk owner time</td>
+            <td>31 Dec [Year]</td>
+            <td>6.1.3, 8.3 / All open risks</td>
+            <td><span class="badge bg-secondary">Not Started</span><br><small>[value]</small></td>
+            <td><span class="badge bg-secondary">Not Started</span><br><small>[value]</small></td>
+            <td><span class="badge bg-secondary">Not Started</span><br><small>[value]</small></td>
+            <td><span class="badge bg-secondary">Not Started</span><br><small>[value]</small></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td class="fw-semibold">OBJ-07</td>
+            <td>Achieve zero major nonconformities in the annual external surveillance/recertification audit</td>
+            <td>Major nonconformity (MNC) count from external audit</td>
+            <td>0 MNCs</td>
+            <td>External audit report (annual)</td>
+            <td>ISM / Top Management</td>
+            <td>Internal audit programme, corrective action budget</td>
+            <td>[Audit date]</td>
+            <td>9.2, 10.1 / All clauses</td>
+            <td><span class="badge bg-secondary">Not Started</span><br><small>[value]</small></td>
+            <td><span class="badge bg-secondary">Not Started</span><br><small>[value]</small></td>
+            <td><span class="badge bg-secondary">Not Started</span><br><small>[value]</small></td>
+            <td><span class="badge bg-secondary">Not Started</span><br><small>[value]</small></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td class="fw-semibold">OBJ-08</td>
+            <td>Maintain current security assessments for all Tier 1 and Tier 2 suppliers</td>
+            <td>% Tier 1 &amp; Tier 2 suppliers with a current (≤12 months) completed questionnaire (TMP-008)</td>
+            <td>100%</td>
+            <td>Supplier register review (quarterly — PRO-012)</td>
+            <td>Procurement / ISM</td>
+            <td>ISM review time, supplier engagement</td>
+            <td>31 Dec [Year]</td>
+            <td>A.5.19, A.5.20 / Risk R-022</td>
+            <td><span class="badge bg-secondary">Not Started</span><br><small>[value]</small></td>
+            <td><span class="badge bg-secondary">Not Started</span><br><small>[value]</small></td>
+            <td><span class="badge bg-secondary">Not Started</span><br><small>[value]</small></td>
+            <td><span class="badge bg-secondary">Not Started</span><br><small>[value]</small></td>
+            <td></td>
+          </tr>
+          <!-- Blank row for additional objective -->
+          <tr class="table-secondary">
+            <td class="fw-semibold text-secondary">OBJ-09</td>
+            <td class="text-secondary fst-italic">[Add objective]</td>
+            <td class="text-secondary fst-italic">[KPI]</td>
+            <td class="text-secondary fst-italic">[Target]</td>
+            <td class="text-secondary fst-italic">[Method]</td>
+            <td class="text-secondary fst-italic">[Owner]</td>
+            <td class="text-secondary fst-italic">[Resources]</td>
+            <td class="text-secondary fst-italic">[Date]</td>
+            <td class="text-secondary fst-italic">[Control/Risk]</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr class="table-secondary">
+            <td class="fw-semibold text-secondary">OBJ-10</td>
+            <td class="text-secondary fst-italic">[Add objective]</td>
+            <td class="text-secondary fst-italic">[KPI]</td>
+            <td class="text-secondary fst-italic">[Target]</td>
+            <td class="text-secondary fst-italic">[Method]</td>
+            <td class="text-secondary fst-italic">[Owner]</td>
+            <td class="text-secondary fst-italic">[Resources]</td>
+            <td class="text-secondary fst-italic">[Date]</td>
+            <td class="text-secondary fst-italic">[Control/Risk]</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Progress Summary -->
+  <div class="policy-section mb-4">
+    <h2 class="h5 fw-semibold mb-3"><i class="bi bi-bar-chart-line text-primary me-2"></i>5. Progress Summary — Latest Review</h2>
+    <p class="text-secondary small mb-3">Complete this section at each quarterly review and Management Review meeting.</p>
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-3">
+        <div class="bg-success bg-opacity-10 border border-success rounded p-3 text-center">
+          <div class="fs-3 fw-bold text-success">[n]</div>
+          <div class="small text-secondary">On Track</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="bg-warning bg-opacity-10 border border-warning rounded p-3 text-center">
+          <div class="fs-3 fw-bold text-warning">[n]</div>
+          <div class="small text-secondary">At Risk</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="bg-danger bg-opacity-10 border border-danger rounded p-3 text-center">
+          <div class="fs-3 fw-bold text-danger">[n]</div>
+          <div class="small text-secondary">Off Track</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="bg-info bg-opacity-10 border border-info rounded p-3 text-center">
+          <div class="fs-3 fw-bold text-info">[n]</div>
+          <div class="small text-secondary">Achieved</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-bordered table-sm align-middle">
+        <thead class="table-dark">
+          <tr>
+            <th>Ref</th>
+            <th>Objective Summary</th>
+            <th>Current Value</th>
+            <th>Target</th>
+            <th>Status</th>
+            <th>Actions Required</th>
+            <th>Action Owner</th>
+            <th>Action Due</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>OBJ-01</td>
+            <td>MTTD ≤ 4 hours</td>
+            <td>[value]</td>
+            <td>≤ 4 hr</td>
+            <td><span class="badge bg-secondary">Not Started</span></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>OBJ-02</td>
+            <td>100% training completion</td>
+            <td>[value]</td>
+            <td>100%</td>
+            <td><span class="badge bg-secondary">Not Started</span></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>OBJ-03</td>
+            <td>Critical vuln remediation ≤ 72 hr</td>
+            <td>[value]</td>
+            <td>≥ 95%</td>
+            <td><span class="badge bg-secondary">Not Started</span></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>OBJ-04</td>
+            <td>Phishing click rate &lt; 5%</td>
+            <td>[value]</td>
+            <td>&lt; 5%</td>
+            <td><span class="badge bg-secondary">Not Started</span></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>OBJ-05</td>
+            <td>Tier 1 availability ≥ 99.9%</td>
+            <td>[value]</td>
+            <td>≥ 99.9%</td>
+            <td><span class="badge bg-secondary">Not Started</span></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>OBJ-06</td>
+            <td>100% risk actions on schedule</td>
+            <td>[value]</td>
+            <td>100%</td>
+            <td><span class="badge bg-secondary">Not Started</span></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>OBJ-07</td>
+            <td>Zero major NCs in external audit</td>
+            <td>[value]</td>
+            <td>0 MNCs</td>
+            <td><span class="badge bg-secondary">Not Started</span></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>OBJ-08</td>
+            <td>100% Tier 1 &amp; 2 supplier assessments current</td>
+            <td>[value]</td>
+            <td>100%</td>
+            <td><span class="badge bg-secondary">Not Started</span></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Objective Alignment -->
+  <div class="policy-section mb-4">
+    <h2 class="h5 fw-semibold mb-3"><i class="bi bi-diagram-3 text-primary me-2"></i>6. Objective Alignment</h2>
+    <p class="text-secondary small mb-3">Demonstrates how each objective supports the Information Security Policy commitments and strategic themes.</p>
+    <div class="table-responsive">
+      <table class="table table-bordered table-sm align-middle text-center">
+        <thead class="table-dark">
+          <tr>
+            <th rowspan="2" class="text-start">Objective</th>
+            <th colspan="4">Policy Commitment</th>
+            <th colspan="3">Strategic Theme</th>
+          </tr>
+          <tr>
+            <th class="small">Confidentiality</th>
+            <th class="small">Integrity</th>
+            <th class="small">Availability</th>
+            <th class="small">Compliance</th>
+            <th class="small">Risk Reduction</th>
+            <th class="small">Culture</th>
+            <th class="small">Resilience</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="text-start">OBJ-01 — MTTD</td>
+            <td><i class="bi bi-check-lg text-success"></i></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td><i class="bi bi-check-lg text-success"></i></td>
+            <td></td>
+            <td><i class="bi bi-check-lg text-success"></i></td>
+          </tr>
+          <tr>
+            <td class="text-start">OBJ-02 — Training</td>
+            <td><i class="bi bi-check-lg text-success"></i></td>
+            <td><i class="bi bi-check-lg text-success"></i></td>
+            <td></td>
+            <td><i class="bi bi-check-lg text-success"></i></td>
+            <td><i class="bi bi-check-lg text-success"></i></td>
+            <td><i class="bi bi-check-lg text-success"></i></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td class="text-start">OBJ-03 — Vuln remediation</td>
+            <td></td>
+            <td><i class="bi bi-check-lg text-success"></i></td>
+            <td><i class="bi bi-check-lg text-success"></i></td>
+            <td></td>
+            <td><i class="bi bi-check-lg text-success"></i></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td class="text-start">OBJ-04 — Phishing rate</td>
+            <td><i class="bi bi-check-lg text-success"></i></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td><i class="bi bi-check-lg text-success"></i></td>
+            <td><i class="bi bi-check-lg text-success"></i></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td class="text-start">OBJ-05 — Availability</td>
+            <td></td>
+            <td></td>
+            <td><i class="bi bi-check-lg text-success"></i></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td><i class="bi bi-check-lg text-success"></i></td>
+          </tr>
+          <tr>
+            <td class="text-start">OBJ-06 — Risk actions</td>
+            <td><i class="bi bi-check-lg text-success"></i></td>
+            <td><i class="bi bi-check-lg text-success"></i></td>
+            <td><i class="bi bi-check-lg text-success"></i></td>
+            <td><i class="bi bi-check-lg text-success"></i></td>
+            <td><i class="bi bi-check-lg text-success"></i></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td class="text-start">OBJ-07 — External audit</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td><i class="bi bi-check-lg text-success"></i></td>
+            <td><i class="bi bi-check-lg text-success"></i></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td class="text-start">OBJ-08 — Supplier assessments</td>
+            <td><i class="bi bi-check-lg text-success"></i></td>
+            <td></td>
+            <td></td>
+            <td><i class="bi bi-check-lg text-success"></i></td>
+            <td><i class="bi bi-check-lg text-success"></i></td>
+            <td></td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Approval -->
+  <div class="policy-section mb-4">
+    <h2 class="h5 fw-semibold mb-3"><i class="bi bi-pen text-primary me-2"></i>7. Approval</h2>
+    <div class="table-responsive">
+      <table class="table table-bordered table-sm">
+        <thead class="table-dark">
+          <tr>
+            <th>Role</th>
+            <th>Name</th>
+            <th>Signature</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Information Security Manager</td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>Chief Information Officer / CTO</td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>Top Management Representative</td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Revision History -->
+  <div class="policy-section mb-4">
+    <h2 class="h5 fw-semibold mb-3"><i class="bi bi-clock-history text-primary me-2"></i>8. Revision History</h2>
+    <div class="table-responsive">
+      <table class="table table-bordered table-sm">
+        <thead class="table-dark">
+          <tr>
+            <th>Version</th>
+            <th>Date</th>
+            <th>Author</th>
+            <th>Approved By</th>
+            <th>Description of Changes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1.0</td>
+            <td>[Date]</td>
+            <td>[Author]</td>
+            <td>[Approver]</td>
+            <td>Initial issue</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<!-- Footer -->
+<footer class="bg-dark border-top border-secondary py-3 mt-4 no-print">
+  <div class="container text-center">
+    <small class="text-secondary">
+      TMP-012 · Information Security Objectives Record · ISO/IEC 27001:2022 · v1.0
+      <span class="mx-2">|</span>
+      <a href="index.html" class="text-decoration-none text-secondary">Back to ISMS Hub</a>
+    </small>
+  </div>
+</footer>
+
+<!-- RBAC Login Modal -->
+<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="loginModalLabel"><i class="bi bi-shield-lock me-2"></i>ISMS Portal Login</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label for="loginEmail" class="form-label">Email Address</label>
+          <input type="email" class="form-control" id="loginEmail" placeholder="name@organisation.com" />
+        </div>
+        <div class="mb-3">
+          <label for="loginPassword" class="form-label">Password</label>
+          <input type="password" class="form-control" id="loginPassword" />
+        </div>
+        <div id="loginError" class="text-danger small d-none">Invalid credentials. Please try again.</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="loginSubmit">Login</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/roles.js"></script>
+<script src="../js/users.js"></script>
+</body>
+</html>

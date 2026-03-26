@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="../theme.css" />
+  <link rel="stylesheet" href="isms.css" />
+  <title>Internal Audit Checklist | ISMS | Jessica Rojas</title>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="../index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="../projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="../timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="../cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="../consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="../contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="../blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="../knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="../compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="../jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="../admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <main id="main-content">
+    <div class="container py-4">
+      <nav aria-label="breadcrumb" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../index.html">Home</a></li><li class="breadcrumb-item"><a href="index.html">ISMS</a></li><li class="breadcrumb-item active">TMP-006</li></ol></nav>
+      <div class="d-flex justify-content-between align-items-start mb-4 print-btn">
+        <span class="badge bg-success fs-6">Template — TMP-006</span>
+        <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">Print / Save PDF</button>
+      </div>
+      <div class="doc-header mb-4">
+        <table class="table table-bordered table-sm"><tbody>
+          <tr><th style="width:30%">Document Title</th><td>Internal Audit Checklist — ISO/IEC 27001:2022</td></tr>
+          <tr><th>Document ID</th><td>TMP-006</td></tr>
+          <tr><th>Version</th><td>1.0</td></tr>
+          <tr><th>Classification</th><td>Internal</td></tr>
+          <tr><th>Owner</th><td>Information Security Manager</td></tr>
+          <tr><th>ISO 27001:2022 Controls</th><td>9.2</td></tr>
+        </tbody></table>
+      </div>
+
+      <div class="policy-section">
+        <h2>Audit Header</h2>
+        <table class="table table-bordered table-sm">
+          <tbody>
+            <tr><th style="width:30%">Audit ID</th><td>AUD-[YYYY]-[NNN]</td></tr>
+            <tr><th>Audit Date(s)</th><td>[START DATE] to [END DATE]</td></tr>
+            <tr><th>Lead Auditor</th><td>[NAME / ROLE]</td></tr>
+            <tr><th>Audit Team Members</th><td>[NAMES]</td></tr>
+            <tr><th>Auditee Organization / Dept</th><td>[ORG NAME / DEPARTMENT]</td></tr>
+            <tr><th>Audit Scope</th><td>[DESCRIBE SCOPE — e.g., Full ISMS / Specific clauses / Specific departments]</td></tr>
+            <tr><th>Audit Criteria</th><td>ISO/IEC 27001:2022 + [list applicable internal policies]</td></tr>
+            <tr><th>Opening Meeting Date/Time</th><td>[DATE / TIME]</td></tr>
+            <tr><th>Closing Meeting Date/Time</th><td>[DATE / TIME]</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section">
+        <h2>Finding Classification Key</h2>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Code</th><th>Classification</th><th>Definition</th><th>CAR Required?</th></tr></thead>
+          <tbody>
+            <tr class="table-success"><td><strong>C</strong></td><td>Conformant</td><td>Requirement fully met; objective evidence sighted</td><td>No</td></tr>
+            <tr class="table-danger"><td><strong>MNC</strong></td><td>Major Nonconformity</td><td>Absence of a required control; systematic failure; repeated minor NC in same area</td><td>Yes — Critical/High CAR</td></tr>
+            <tr class="table-warning"><td><strong>mnc</strong></td><td>Minor Nonconformity</td><td>Isolated, limited-scope failure; control exists but inconsistently applied</td><td>Yes — Medium CAR</td></tr>
+            <tr class="table-info"><td><strong>OFI</strong></td><td>Observation / Opportunity for Improvement</td><td>Not a nonconformity; improvement would strengthen the ISMS</td><td>Optional</td></tr>
+            <tr><td><strong>N/A</strong></td><td>Not Applicable</td><td>Clause/control does not apply to this audit scope (document justification)</td><td>No</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Clause 4 -->
+      <div class="policy-section">
+        <h2>Clause 4 — Context of the Organization</h2>
+        <table class="table table-bordered table-sm small">
+          <thead><tr><th style="width:8%">Ref</th><th style="width:25%">Requirement</th><th style="width:25%">Audit Question</th><th style="width:15%">Evidence Requested</th><th style="width:8%">Finding</th><th style="width:10%">Evidence Ref</th><th style="width:9%">Notes</th></tr></thead>
+          <tbody>
+            <tr><td>4.1</td><td>Understanding the organization and its context</td><td>Has the organization identified internal and external issues relevant to ISMS purpose and direction?</td><td>ISMS context document; management review records (TMP-007)</td><td></td><td></td><td></td></tr>
+            <tr><td>4.2</td><td>Understanding needs of interested parties</td><td>Are interested parties and their information security requirements documented and monitored?</td><td>Interested parties register; contractual requirements; regulatory mapping</td><td></td><td></td><td></td></tr>
+            <tr><td>4.3</td><td>Determining scope of the ISMS</td><td>Is the ISMS scope documented, approved by management, and does it reflect actual operations and interfaces?</td><td>Scope document (TMP-011); management sign-off</td><td></td><td></td><td></td></tr>
+            <tr><td>4.4</td><td>ISMS</td><td>Is the ISMS established, implemented, maintained, and continually improved in line with ISO 27001:2022?</td><td>ISMS documentation set; management review records; audit program</td><td></td><td></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Clause 5 -->
+      <div class="policy-section">
+        <h2>Clause 5 — Leadership</h2>
+        <table class="table table-bordered table-sm small">
+          <thead><tr><th style="width:8%">Ref</th><th style="width:25%">Requirement</th><th style="width:25%">Audit Question</th><th style="width:15%">Evidence Requested</th><th style="width:8%">Finding</th><th style="width:10%">Evidence Ref</th><th style="width:9%">Notes</th></tr></thead>
+          <tbody>
+            <tr><td>5.1</td><td>Leadership and commitment</td><td>Does top management demonstrate active support for the ISMS through resource allocation, communication, and participation?</td><td>Management review minutes (TMP-007); IS policy signed by top management; budget records</td><td></td><td></td><td></td></tr>
+            <tr><td>5.2</td><td>Information security policy</td><td>Is an IS policy established, approved by top management, communicated to all personnel, and available to interested parties?</td><td>POL-001; communication records; employee acknowledgments (TMP-010)</td><td></td><td></td><td></td></tr>
+            <tr><td>5.3</td><td>Organizational roles, responsibilities, and authorities</td><td>Are ISMS roles and responsibilities clearly assigned, documented, and communicated?</td><td>Job descriptions; RACI matrices; organization chart; appointment letters</td><td></td><td></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Clause 6 -->
+      <div class="policy-section">
+        <h2>Clause 6 — Planning</h2>
+        <table class="table table-bordered table-sm small">
+          <thead><tr><th style="width:8%">Ref</th><th style="width:25%">Requirement</th><th style="width:25%">Audit Question</th><th style="width:15%">Evidence Requested</th><th style="width:8%">Finding</th><th style="width:10%">Evidence Ref</th><th style="width:9%">Notes</th></tr></thead>
+          <tbody>
+            <tr><td>6.1.1</td><td>Actions to address risks and opportunities</td><td>Has the organization determined risks and opportunities relevant to ISMS and planned actions to address them?</td><td>Risk register (TMP-002); risk treatment plan; SoA (TMP-001)</td><td></td><td></td><td></td></tr>
+            <tr><td>6.1.2</td><td>Information security risk assessment</td><td>Is a risk assessment methodology defined? Are assessments conducted at planned intervals and when significant changes occur?</td><td>PRO-001; POL-017; completed risk assessments; TMP-002</td><td></td><td></td><td></td></tr>
+            <tr><td>6.1.3</td><td>Information security risk treatment</td><td>Is a risk treatment plan documented with owner assignments, timelines, and residual risk evaluation? Is the SoA current and approved?</td><td>PRO-002; TMP-001 (SoA); TMP-002; management approval records</td><td></td><td></td><td></td></tr>
+            <tr><td>6.2</td><td>Information security objectives</td><td>Are IS objectives established, measurable, monitored, communicated, and updated as appropriate?</td><td>TMP-012; progress reports; management review records</td><td></td><td></td><td></td></tr>
+            <tr><td>6.3</td><td>Planning of changes</td><td>Are changes to the ISMS planned and managed in a controlled manner?</td><td>Change records; impact assessments; PRO-008</td><td></td><td></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Clause 7 -->
+      <div class="policy-section">
+        <h2>Clause 7 — Support</h2>
+        <table class="table table-bordered table-sm small">
+          <thead><tr><th style="width:8%">Ref</th><th style="width:25%">Requirement</th><th style="width:25%">Audit Question</th><th style="width:15%">Evidence Requested</th><th style="width:8%">Finding</th><th style="width:10%">Evidence Ref</th><th style="width:9%">Notes</th></tr></thead>
+          <tbody>
+            <tr><td>7.1</td><td>Resources</td><td>Are adequate human, financial, and technical resources allocated for the ISMS?</td><td>Budget records; staffing plans; tool licenses and subscriptions</td><td></td><td></td><td></td></tr>
+            <tr><td>7.2</td><td>Competence</td><td>Is the competence of ISMS personnel defined, assessed, and maintained? Are records retained?</td><td>Job descriptions; training records (TMP-010); certifications; competency assessments</td><td></td><td></td><td></td></tr>
+            <tr><td>7.3</td><td>Awareness</td><td>Are personnel aware of the IS policy, their contribution to ISMS effectiveness, and the implications of non-conformance?</td><td>Awareness training records (TMP-010); phishing simulation results; LMS completion reports</td><td></td><td></td><td></td></tr>
+            <tr><td>7.4</td><td>Communication</td><td>Is an IS communication plan defined? Is IS information communicated internally and externally as needed?</td><td>Communication plan; distribution records; meeting minutes; newsletters</td><td></td><td></td><td></td></tr>
+            <tr><td>7.5</td><td>Documented information</td><td>Is documented information controlled per PRO-003? Are documents created, updated, and distributed in a controlled manner?</td><td>Document register; version history; approval records; PRO-003; obsolete document handling</td><td></td><td></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Clause 8 -->
+      <div class="policy-section">
+        <h2>Clause 8 — Operation</h2>
+        <table class="table table-bordered table-sm small">
+          <thead><tr><th style="width:8%">Ref</th><th style="width:25%">Requirement</th><th style="width:25%">Audit Question</th><th style="width:15%">Evidence Requested</th><th style="width:8%">Finding</th><th style="width:10%">Evidence Ref</th><th style="width:9%">Notes</th></tr></thead>
+          <tbody>
+            <tr><td>8.1</td><td>Operational planning and control</td><td>Are operational processes planned, implemented, controlled, and documented?</td><td>Documented procedures; work instructions; process records</td><td></td><td></td><td></td></tr>
+            <tr><td>8.2</td><td>Information security risk assessment (results)</td><td>Are risk assessment results documented and retained? Are assessments current?</td><td>TMP-002 with completion dates; risk assessment reports; approval records</td><td></td><td></td><td></td></tr>
+            <tr><td>8.3</td><td>Information security risk treatment (results)</td><td>Is the risk treatment plan implemented? Are results documented?</td><td>TMP-002 residual risk columns; treatment evidence; implementation records</td><td></td><td></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Clause 9 -->
+      <div class="policy-section">
+        <h2>Clause 9 — Performance Evaluation</h2>
+        <table class="table table-bordered table-sm small">
+          <thead><tr><th style="width:8%">Ref</th><th style="width:25%">Requirement</th><th style="width:25%">Audit Question</th><th style="width:15%">Evidence Requested</th><th style="width:8%">Finding</th><th style="width:10%">Evidence Ref</th><th style="width:9%">Notes</th></tr></thead>
+          <tbody>
+            <tr><td>9.1</td><td>Monitoring, measurement, analysis and evaluation</td><td>Are IS performance metrics defined, monitored, analyzed, and reported? Are methods for monitoring defined?</td><td>KPI dashboards; monitoring reports; TMP-012; management reporting</td><td></td><td></td><td></td></tr>
+            <tr><td>9.2</td><td>Internal audit</td><td>Is an annual internal audit program established? Are audits conducted by competent, independent auditors? Are results documented and acted upon?</td><td>Audit program; previous audit reports; this checklist; auditor qualifications; CAR records</td><td></td><td></td><td></td></tr>
+            <tr><td>9.3</td><td>Management review</td><td>Does top management review the ISMS at planned intervals with all required inputs? Are outputs documented and acted upon?</td><td>TMP-007 records; attendance records; action logs; frequency meets requirements</td><td></td><td></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Clause 10 -->
+      <div class="policy-section">
+        <h2>Clause 10 — Improvement</h2>
+        <table class="table table-bordered table-sm small">
+          <thead><tr><th style="width:8%">Ref</th><th style="width:25%">Requirement</th><th style="width:25%">Audit Question</th><th style="width:15%">Evidence Requested</th><th style="width:8%">Finding</th><th style="width:10%">Evidence Ref</th><th style="width:9%">Notes</th></tr></thead>
+          <tbody>
+            <tr><td>10.1</td><td>Continual improvement</td><td>Does the organization continually improve the suitability, adequacy, and effectiveness of the ISMS?</td><td>Improvement log; management review outputs; year-over-year metric trends</td><td></td><td></td><td></td></tr>
+            <tr><td>10.2</td><td>Nonconformity and corrective action</td><td>Are nonconformities identified, documented, root-caused, and corrected? Are corrective actions effective and records retained?</td><td>CAR register; TMP-005 completed forms; effectiveness review records; closure evidence</td><td></td><td></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Annex A Sample Controls -->
+      <div class="policy-section">
+        <h2>Key Annex A Controls (Sample)</h2>
+        <table class="table table-bordered table-sm small">
+          <thead><tr><th style="width:8%">Control</th><th style="width:20%">Control Name</th><th style="width:25%">Audit Question</th><th style="width:15%">Evidence Requested</th><th style="width:8%">Finding</th><th style="width:10%">Evidence Ref</th><th style="width:14%">Notes</th></tr></thead>
+          <tbody>
+            <tr><td>A.5.1</td><td>Policies for information security</td><td>Are IS policies documented, approved by management, communicated, and reviewed at planned intervals?</td><td>Policy documents with version dates; review records; distribution evidence</td><td></td><td></td><td></td></tr>
+            <tr><td>A.5.10</td><td>Acceptable use of information and other assets</td><td>Is an AUP documented? Do all users acknowledge it at hire and annually?</td><td>POL-002; signed acknowledgments in TMP-010</td><td></td><td></td><td></td></tr>
+            <tr><td>A.5.15</td><td>Access control</td><td>Is access control policy implemented? Are access rights granted on need-to-know and least privilege?</td><td>POL-003; access review records; provisioning records</td><td></td><td></td><td></td></tr>
+            <tr><td>A.5.16</td><td>Identity management</td><td>Are unique identities assigned to all users? Are shared accounts prohibited?</td><td>AD/IdP user list; no shared standard accounts; provisioning records</td><td></td><td></td><td></td></tr>
+            <tr><td>A.5.19</td><td>Information security in supplier relationships</td><td>Are supplier security requirements defined and contractually enforced? Are suppliers assessed?</td><td>Supplier register; TMP-008 assessments; contracts with security clauses</td><td></td><td></td><td></td></tr>
+            <tr><td>A.5.24</td><td>Information security incident management planning</td><td>Is an incident management policy and response procedure in place? Is the IRT trained?</td><td>POL-011; PRO-007; IRT contact list; training records; test exercise records</td><td></td><td></td><td></td></tr>
+            <tr><td>A.6.3</td><td>Information security awareness, education and training</td><td>Are all staff completing security awareness training? Are records maintained?</td><td>TMP-010; LMS completion reports; phishing simulation results</td><td></td><td></td><td></td></tr>
+            <tr><td>A.7.1</td><td>Physical security perimeters</td><td>Are physical security perimeters defined and implemented with appropriate access controls?</td><td>Site layout diagram; access control logs; CCTV configuration; visitor log</td><td></td><td></td><td></td></tr>
+            <tr><td>A.8.2</td><td>Privileged access rights</td><td>Are privileged access rights restricted, reviewed quarterly, and all activity logged?</td><td>Privileged account inventory; quarterly access review records; log samples</td><td></td><td></td><td></td></tr>
+            <tr><td>A.8.5</td><td>Secure authentication</td><td>Is MFA implemented for remote access and privileged accounts? Are authentication policies enforced?</td><td>MFA configuration; remote access policy; login reports; failed auth alerting</td><td></td><td></td><td></td></tr>
+            <tr><td>A.8.7</td><td>Protection against malware</td><td>Is endpoint protection deployed, configured, and updated on all managed endpoints?</td><td>EDR/AV console; deployment report; signature update logs; exception list</td><td></td><td></td><td></td></tr>
+            <tr><td>A.8.8</td><td>Management of technical vulnerabilities</td><td>Are vulnerabilities scanned regularly and remediated within SLAs defined in POL-016?</td><td>Scan reports; patch records; SLA compliance metrics; exception log</td><td></td><td></td><td></td></tr>
+            <tr><td>A.8.9</td><td>Configuration management</td><td>Are security baselines defined for all system types? Are configurations managed and deviations detected?</td><td>Baseline documentation; configuration management tool; drift detection reports; change records</td><td></td><td></td><td></td></tr>
+            <tr><td>A.8.13</td><td>Information backup</td><td>Are backups performed per schedule, encrypted, stored offsite, and tested per PRO-009?</td><td>Backup job logs; restore test records; offsite storage confirmation; encryption verification</td><td></td><td></td><td></td></tr>
+            <tr><td>A.8.15</td><td>Logging</td><td>Are logs collected from required sources, protected from tampering, and retained for minimum 12 months?</td><td>SIEM configuration; log source list; retention policy settings; log integrity controls</td><td></td><td></td><td></td></tr>
+            <tr><td>A.8.24</td><td>Use of cryptography</td><td>Are cryptographic controls implemented per POL-006? Are approved algorithms used? Is key management documented?</td><td>POL-006; configuration screenshots; certificate inventory; key management procedures</td><td></td><td></td><td></td></tr>
+            <tr><td>A.8.32</td><td>Change management</td><td>Are all changes to production formally managed per POL-009 and PRO-008? Is there evidence of CAB review?</td><td>RFC records; CAB meeting minutes; change log; PIR records; emergency change records</td><td></td><td></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Audit Summary -->
+      <div class="policy-section">
+        <h2>Audit Summary</h2>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Finding Category</th><th>Count</th></tr></thead>
+          <tbody>
+            <tr><td>Conformant (C)</td><td></td></tr>
+            <tr><td>Major Nonconformity (MNC)</td><td></td></tr>
+            <tr><td>Minor Nonconformity (mnc)</td><td></td></tr>
+            <tr><td>Observation / OFI</td><td></td></tr>
+            <tr><td>Not Applicable (N/A)</td><td></td></tr>
+            <tr><td><strong>Total Checklist Items</strong></td><td></td></tr>
+          </tbody>
+        </table>
+
+        <p><strong>Overall Audit Assessment</strong> (circle one): &nbsp;&nbsp;
+          <strong>Satisfactory</strong> &nbsp;|&nbsp; <strong>Satisfactory with Minor Improvements Required</strong> &nbsp;|&nbsp; <strong>Requires Significant Improvement</strong> &nbsp;|&nbsp; <strong>Unsatisfactory</strong>
+        </p>
+
+        <p><strong>Auditor Observations:</strong></p>
+        <div style="border:1px solid var(--bs-border-color); border-radius:4px; min-height:80px; padding:8px;" class="mb-3"></div>
+
+        <p><strong>Recommended Actions:</strong></p>
+        <div style="border:1px solid var(--bs-border-color); border-radius:4px; min-height:80px; padding:8px;" class="mb-3"></div>
+
+        <table class="table table-bordered table-sm mt-3">
+          <thead><tr><th>Role</th><th>Name</th><th>Signature</th><th>Date</th></tr></thead>
+          <tbody>
+            <tr><td>Lead Auditor</td><td></td><td></td><td></td></tr>
+            <tr><td>Auditee Representative <small class="text-muted">(confirms findings are fairly presented; not agreement with NCs)</small></td><td></td><td></td><td></td></tr>
+            <tr><td>Information Security Manager</td><td></td><td></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title fs-5" id="rbacModalLabel">🔒 Login</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <div class="modal-body"><form id="rbac-login-form" novalidate>
+        <div class="mb-3"><label for="rbac-username-input" class="form-label">Username</label><input type="text" class="form-control" id="rbac-username-input" autocomplete="username" maxlength="40" required /></div>
+        <div class="mb-3"><label for="rbac-password-input" class="form-label">Password</label><input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" required /></div>
+        <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+      </form></div>
+      <div class="modal-footer border-0 pt-0"><p class="text-secondary small mb-0">Session clears when you close this tab.</p></div>
+    </div></div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" /></a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" /></a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="../privacy.html">Privacy Policy</a> &middot; <a href="../terms.html">Terms</a></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="../users.js" defer></script>
+  <script src="../roles.js" defer></script>
+  <script src="../script.js" defer></script>
+</body>
+</html>
