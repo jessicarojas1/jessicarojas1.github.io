@@ -3,7 +3,7 @@
 /* ── Theme: set before CSS loads to prevent FOUC ─────────────── */
 /* (This logic also runs inline in <head> via a tiny inline script) */
 
-document.addEventListener('DOMContentLoaded', () => {
+function _scriptInit() {
 
   /* ── Dark / Light mode toggle ────────────────────────────── */
   const themeBtn = document.getElementById('themeToggleBtn');
@@ -74,8 +74,13 @@ document.addEventListener('DOMContentLoaded', () => {
   if (typeof RBAC !== 'undefined' && RBAC.isAtLeast('editor')) {
     initDynamicProjects();
   }
+}
 
-});
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', _scriptInit);
+} else {
+  _scriptInit();
+}
 
 /* ── Inbox renderer ──────────────────────────────────────────── */
 function renderInbox(container) {

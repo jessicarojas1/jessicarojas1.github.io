@@ -181,4 +181,8 @@ const RBAC = (() => {
 
 })();
 
-document.addEventListener('DOMContentLoaded', () => RBAC.init());
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => RBAC.init());
+} else {
+  RBAC.init();
+}
