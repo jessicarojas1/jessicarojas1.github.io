@@ -74,6 +74,52 @@ function _scriptInit() {
   if (typeof RBAC !== 'undefined' && RBAC.isAtLeast('editor')) {
     initDynamicProjects();
   }
+
+  /* ── Navbar hamburger fallback (if Bootstrap JS blocked/slow) ── */
+  if (typeof bootstrap === 'undefined') {
+    const toggler  = document.querySelector('.navbar-toggler');
+    const collapse = document.getElementById('navContent');
+    if (toggler && collapse) {
+      toggler.addEventListener('click', function () {
+        const open = collapse.classList.toggle('show');
+        toggler.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+      // Close menu when a nav link is clicked on mobile
+      collapse.querySelectorAll('.nav-link').forEach(function (link) {
+        link.addEventListener('click', function () {
+          collapse.classList.remove('show');
+          toggler.setAttribute('aria-expanded', 'false');
+        });
+      });
+    }
+
+    /* ── Login modal fallback (if Bootstrap JS blocked/slow) ───── */
+    const loginBtn   = document.getElementById('rbac-login-btn');
+    const loginModal = document.getElementById('rbacLoginModal');
+    if (loginBtn && loginModal) {
+      // Show modal
+      loginBtn.removeAttribute('data-bs-toggle');
+      loginBtn.removeAttribute('data-bs-target');
+      loginBtn.addEventListener('click', function () {
+        loginModal.style.display = 'flex';
+        loginModal.style.alignItems = 'center';
+        loginModal.style.justifyContent = 'center';
+        loginModal.classList.add('show');
+        loginModal.style.backgroundColor = 'rgba(0,0,0,0.5)';
+        document.body.style.overflow = 'hidden';
+      });
+      // Close modal
+      function closeModal() {
+        loginModal.classList.remove('show');
+        loginModal.style.display = '';
+        document.body.style.overflow = '';
+      }
+      loginModal.querySelector('.btn-close')?.addEventListener('click', closeModal);
+      loginModal.addEventListener('click', function (e) {
+        if (e.target === loginModal) closeModal();
+      });
+    }
+  }
 }
 
 if (document.readyState === 'loading') {
