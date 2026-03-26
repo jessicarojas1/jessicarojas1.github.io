@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="../theme.css" />
+  <link rel="stylesheet" href="isms.css" />
+  <title>ISMS Document Library | Jessica Rojas</title>
+  <meta name="description" content="ISO 27001 ISMS Document Library — a complete, audit-ready collection of policies, procedures, and templates aligned to ISO/IEC 27001:2022." />
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="../index.html">
+        <span style="color:var(--bs-primary)">J</span>Rojas
+      </a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="../projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="../timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="../cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="../consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="../contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="../blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="../knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none">
+            <a class="nav-link" href="../compliancetracker.html">Tracker</a>
+          </li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none">
+            <a class="nav-link" href="../jobtracker.html">Job Tracker</a>
+          </li>
+          <li class="nav-item" data-role-min="admin" style="display:none">
+            <a class="nav-link" href="../admin.html">User Admin</a>
+          </li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme">
+            <span class="theme-icon">☀️</span>
+          </button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content">
+
+    <!-- Hero -->
+    <section class="py-5 reveal">
+      <div class="container">
+        <h1 class="section-title mb-2">ISO 27001 ISMS Document Library</h1>
+        <p class="text-secondary mb-0" style="max-width:760px">A complete, audit-ready collection of policies, procedures, and templates for a mature Information Security Management System aligned to ISO/IEC 27001:2022.</p>
+      </div>
+    </section>
+
+    <!-- Stats Bar -->
+    <section class="py-3 border-top border-bottom reveal">
+      <div class="container">
+        <div class="d-flex flex-wrap gap-4 align-items-center">
+          <div class="text-center">
+            <div class="fs-4 fw-bold text-primary">18</div>
+            <div class="small text-secondary">Policies</div>
+          </div>
+          <div class="text-center">
+            <div class="fs-4 fw-bold text-warning">12</div>
+            <div class="small text-secondary">Procedures</div>
+          </div>
+          <div class="text-center">
+            <div class="fs-4 fw-bold text-success">12</div>
+            <div class="small text-secondary">Templates</div>
+          </div>
+          <div class="vr d-none d-md-block"></div>
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge text-bg-info fs-6 fw-normal px-3 py-2">ISO/IEC 27001:2022</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Filter + Search -->
+    <section class="py-4 reveal">
+      <div class="container">
+        <div class="row g-3 align-items-center mb-4">
+          <div class="col-md-6 col-lg-5">
+            <input type="search" class="form-control" id="isms-search" placeholder="Search documents by title…" aria-label="Search ISMS documents" />
+          </div>
+          <div class="col-md-6 col-lg-7 d-flex flex-wrap gap-2">
+            <button class="btn btn-sm btn-primary isms-filter-btn active" data-filter="all">All</button>
+            <button class="btn btn-sm btn-outline-primary isms-filter-btn" data-filter="policy">Policies</button>
+            <button class="btn btn-sm btn-outline-warning isms-filter-btn" data-filter="procedure">Procedures</button>
+            <button class="btn btn-sm btn-outline-success isms-filter-btn" data-filter="template">Templates</button>
+          </div>
+        </div>
+
+        <!-- Policies Section -->
+        <section id="section-policies" class="mb-5">
+          <h2 class="h4 mb-3 d-flex align-items-center gap-2">
+            <span class="doc-badge doc-badge-policy">Policies</span>
+            <span class="text-secondary fw-normal fs-6">Information security governance documents</span>
+          </h2>
+          <div class="isms-grid" id="grid-policies">
+
+            <div class="card isms-card h-100" data-type="policy" data-title="Information Security Policy">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">POL-001</span>
+                  <span class="doc-badge doc-badge-policy">Policy</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Information Security Policy</h3>
+                <p class="card-text small text-secondary mb-3">Top-level commitment to information security management.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">5.1</span>
+                  <span class="control-tag">5.2</span>
+                </div>
+                <a href="pol-001-information-security-policy.html" class="btn btn-sm btn-outline-primary mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="policy" data-title="Acceptable Use Policy">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">POL-002</span>
+                  <span class="doc-badge doc-badge-policy">Policy</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Acceptable Use Policy</h3>
+                <p class="card-text small text-secondary mb-3">Rules for acceptable use of information assets and systems.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">A.5.10</span>
+                  <span class="control-tag">A.6.3</span>
+                </div>
+                <a href="pol-002-acceptable-use-policy.html" class="btn btn-sm btn-outline-primary mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="policy" data-title="Access Control Policy">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">POL-003</span>
+                  <span class="doc-badge doc-badge-policy">Policy</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Access Control Policy</h3>
+                <p class="card-text small text-secondary mb-3">Logical access management and least privilege principles.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">A.5.15</span>
+                  <span class="control-tag">A.5.16</span>
+                  <span class="control-tag">A.5.18</span>
+                  <span class="control-tag">A.8.2–A.8.5</span>
+                </div>
+                <a href="pol-003-access-control-policy.html" class="btn btn-sm btn-outline-primary mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="policy" data-title="Asset Management Policy">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">POL-004</span>
+                  <span class="doc-badge doc-badge-policy">Policy</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Asset Management Policy</h3>
+                <p class="card-text small text-secondary mb-3">Inventory, ownership, and lifecycle management of information assets.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">A.5.9</span>
+                  <span class="control-tag">A.5.10</span>
+                  <span class="control-tag">A.5.11</span>
+                </div>
+                <a href="pol-004-asset-management-policy.html" class="btn btn-sm btn-outline-primary mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="policy" data-title="Data Classification Policy">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">POL-005</span>
+                  <span class="doc-badge doc-badge-policy">Policy</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Data Classification Policy</h3>
+                <p class="card-text small text-secondary mb-3">Classification, labeling, and handling of information.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">A.5.12</span>
+                  <span class="control-tag">A.5.13</span>
+                  <span class="control-tag">A.5.14</span>
+                </div>
+                <a href="pol-005-data-classification-policy.html" class="btn btn-sm btn-outline-primary mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="policy" data-title="Cryptography Policy">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">POL-006</span>
+                  <span class="doc-badge doc-badge-policy">Policy</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Cryptography Policy</h3>
+                <p class="card-text small text-secondary mb-3">Use of encryption, key management, and cryptographic controls.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">A.8.24</span>
+                </div>
+                <a href="pol-006-cryptography-policy.html" class="btn btn-sm btn-outline-primary mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="policy" data-title="Physical and Environmental Security Policy">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">POL-007</span>
+                  <span class="doc-badge doc-badge-policy">Policy</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Physical and Environmental Security Policy</h3>
+                <p class="card-text small text-secondary mb-3">Physical access controls and environmental protection.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">A.7.1–A.7.14</span>
+                </div>
+                <a href="pol-007-physical-environmental-security-policy.html" class="btn btn-sm btn-outline-primary mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="policy" data-title="Operations Security Policy">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">POL-008</span>
+                  <span class="doc-badge doc-badge-policy">Policy</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Operations Security Policy</h3>
+                <p class="card-text small text-secondary mb-3">Secure operations, logging, and change/capacity management.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">A.8.8</span>
+                  <span class="control-tag">A.8.9</span>
+                  <span class="control-tag">A.8.12</span>
+                  <span class="control-tag">A.8.13</span>
+                  <span class="control-tag">A.8.15</span>
+                  <span class="control-tag">A.8.17</span>
+                </div>
+                <a href="pol-008-operations-security-policy.html" class="btn btn-sm btn-outline-primary mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="policy" data-title="Change Management Policy">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">POL-009</span>
+                  <span class="doc-badge doc-badge-policy">Policy</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Change Management Policy</h3>
+                <p class="card-text small text-secondary mb-3">Controlled change to IT systems and processes.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">A.8.32</span>
+                </div>
+                <a href="pol-009-change-management-policy.html" class="btn btn-sm btn-outline-primary mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="policy" data-title="Supplier and Third-Party Security Policy">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">POL-010</span>
+                  <span class="doc-badge doc-badge-policy">Policy</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Supplier and Third-Party Security Policy</h3>
+                <p class="card-text small text-secondary mb-3">Security requirements for suppliers and service providers.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">A.5.19</span>
+                  <span class="control-tag">A.5.20</span>
+                  <span class="control-tag">A.5.21</span>
+                  <span class="control-tag">A.5.22</span>
+                  <span class="control-tag">A.5.23</span>
+                </div>
+                <a href="pol-010-supplier-third-party-security-policy.html" class="btn btn-sm btn-outline-primary mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="policy" data-title="Information Security Incident Management Policy">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">POL-011</span>
+                  <span class="doc-badge doc-badge-policy">Policy</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Information Security Incident Management Policy</h3>
+                <p class="card-text small text-secondary mb-3">Detection, reporting, and response to security incidents.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">A.5.24</span>
+                  <span class="control-tag">A.5.25</span>
+                  <span class="control-tag">A.5.26</span>
+                  <span class="control-tag">A.5.27</span>
+                  <span class="control-tag">A.5.28</span>
+                </div>
+                <a href="pol-011-incident-management-policy.html" class="btn btn-sm btn-outline-primary mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="policy" data-title="Business Continuity and Resilience Policy">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">POL-012</span>
+                  <span class="doc-badge doc-badge-policy">Policy</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Business Continuity and Resilience Policy</h3>
+                <p class="card-text small text-secondary mb-3">Continuity of operations and information security during disruptions.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">A.5.29</span>
+                  <span class="control-tag">A.5.30</span>
+                </div>
+                <a href="pol-012-business-continuity-resilience-policy.html" class="btn btn-sm btn-outline-primary mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="policy" data-title="Compliance Policy">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">POL-013</span>
+                  <span class="doc-badge doc-badge-policy">Policy</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Compliance Policy</h3>
+                <p class="card-text small text-secondary mb-3">Legal, regulatory, and contractual compliance requirements.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">A.5.31</span>
+                  <span class="control-tag">A.5.32</span>
+                  <span class="control-tag">A.5.33</span>
+                  <span class="control-tag">A.5.34</span>
+                  <span class="control-tag">A.5.35</span>
+                  <span class="control-tag">A.5.36</span>
+                </div>
+                <a href="pol-013-compliance-policy.html" class="btn btn-sm btn-outline-primary mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="policy" data-title="Human Resource Security Policy">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">POL-014</span>
+                  <span class="doc-badge doc-badge-policy">Policy</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Human Resource Security Policy</h3>
+                <p class="card-text small text-secondary mb-3">Security for personnel before, during, and after employment.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">A.6.1</span>
+                  <span class="control-tag">A.6.2</span>
+                  <span class="control-tag">A.6.3</span>
+                  <span class="control-tag">A.6.4</span>
+                  <span class="control-tag">A.6.5</span>
+                  <span class="control-tag">A.6.6</span>
+                  <span class="control-tag">A.6.7</span>
+                  <span class="control-tag">A.6.8</span>
+                </div>
+                <a href="pol-014-human-resource-security-policy.html" class="btn btn-sm btn-outline-primary mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="policy" data-title="Network Security Policy">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">POL-015</span>
+                  <span class="doc-badge doc-badge-policy">Policy</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Network Security Policy</h3>
+                <p class="card-text small text-secondary mb-3">Network access controls, segmentation, and monitoring.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">A.8.20</span>
+                  <span class="control-tag">A.8.21</span>
+                  <span class="control-tag">A.8.22</span>
+                </div>
+                <a href="pol-015-network-security-policy.html" class="btn btn-sm btn-outline-primary mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="policy" data-title="Vulnerability Management Policy">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">POL-016</span>
+                  <span class="doc-badge doc-badge-policy">Policy</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Vulnerability Management Policy</h3>
+                <p class="card-text small text-secondary mb-3">Identification, assessment, and remediation of vulnerabilities.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">A.8.8</span>
+                  <span class="control-tag">A.8.7</span>
+                </div>
+                <a href="pol-016-vulnerability-management-policy.html" class="btn btn-sm btn-outline-primary mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="policy" data-title="Risk Management Policy">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">POL-017</span>
+                  <span class="doc-badge doc-badge-policy">Policy</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Risk Management Policy</h3>
+                <p class="card-text small text-secondary mb-3">Framework for identifying, assessing, and treating information security risks.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">6.1.2</span>
+                  <span class="control-tag">6.1.3</span>
+                </div>
+                <a href="pol-017-risk-management-policy.html" class="btn btn-sm btn-outline-primary mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="policy" data-title="Privacy and Data Protection Policy">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">POL-018</span>
+                  <span class="doc-badge doc-badge-policy">Policy</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Privacy and Data Protection Policy</h3>
+                <p class="card-text small text-secondary mb-3">Protection of personal data and privacy rights.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">A.5.34</span>
+                  <span class="control-tag">A.5.33</span>
+                </div>
+                <a href="pol-018-privacy-data-protection-policy.html" class="btn btn-sm btn-outline-primary mt-auto">View Document</a>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- Procedures Section -->
+        <section id="section-procedures" class="mb-5">
+          <h2 class="h4 mb-3 d-flex align-items-center gap-2">
+            <span class="doc-badge doc-badge-procedure">Procedures</span>
+            <span class="text-secondary fw-normal fs-6">Step-by-step operational processes</span>
+          </h2>
+          <div class="isms-grid" id="grid-procedures">
+
+            <div class="card isms-card h-100" data-type="procedure" data-title="Risk Assessment Procedure">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">PRO-001</span>
+                  <span class="doc-badge doc-badge-procedure">Procedure</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Risk Assessment Procedure</h3>
+                <p class="card-text small text-secondary mb-3">Step-by-step process for identifying and evaluating IS risks.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">6.1.2</span>
+                  <span class="control-tag">8.2</span>
+                </div>
+                <a href="pro-001-risk-assessment-procedure.html" class="btn btn-sm btn-outline-warning mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="procedure" data-title="Risk Treatment Procedure">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">PRO-002</span>
+                  <span class="doc-badge doc-badge-procedure">Procedure</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Risk Treatment Procedure</h3>
+                <p class="card-text small text-secondary mb-3">Selection and implementation of risk treatment options.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">6.1.3</span>
+                  <span class="control-tag">8.3</span>
+                </div>
+                <a href="pro-002-risk-treatment-procedure.html" class="btn btn-sm btn-outline-warning mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="procedure" data-title="Document Control Procedure">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">PRO-003</span>
+                  <span class="doc-badge doc-badge-procedure">Procedure</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Document Control Procedure</h3>
+                <p class="card-text small text-secondary mb-3">Creation, review, approval, and version control of ISMS documents.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">7.5</span>
+                </div>
+                <a href="pro-003-document-control-procedure.html" class="btn btn-sm btn-outline-warning mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="procedure" data-title="Internal Audit Procedure">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">PRO-004</span>
+                  <span class="doc-badge doc-badge-procedure">Procedure</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Internal Audit Procedure</h3>
+                <p class="card-text small text-secondary mb-3">Planning, conducting, and reporting ISMS internal audits.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">9.2</span>
+                </div>
+                <a href="pro-004-internal-audit-procedure.html" class="btn btn-sm btn-outline-warning mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="procedure" data-title="Corrective Action Procedure">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">PRO-005</span>
+                  <span class="doc-badge doc-badge-procedure">Procedure</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Corrective Action Procedure</h3>
+                <p class="card-text small text-secondary mb-3">Nonconformity identification and corrective action management.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">10.2</span>
+                </div>
+                <a href="pro-005-corrective-action-procedure.html" class="btn btn-sm btn-outline-warning mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="procedure" data-title="Access Provisioning Procedure">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">PRO-006</span>
+                  <span class="doc-badge doc-badge-procedure">Procedure</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Access Provisioning Procedure</h3>
+                <p class="card-text small text-secondary mb-3">Requesting, approving, and revoking user access.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">A.5.16</span>
+                  <span class="control-tag">A.5.18</span>
+                  <span class="control-tag">A.8.2</span>
+                </div>
+                <a href="pro-006-access-provisioning-procedure.html" class="btn btn-sm btn-outline-warning mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="procedure" data-title="Incident Response Procedure">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">PRO-007</span>
+                  <span class="doc-badge doc-badge-procedure">Procedure</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Incident Response Procedure</h3>
+                <p class="card-text small text-secondary mb-3">End-to-end incident handling from detection to closure.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">A.5.24</span>
+                  <span class="control-tag">A.5.25</span>
+                  <span class="control-tag">A.5.26</span>
+                  <span class="control-tag">A.5.27</span>
+                  <span class="control-tag">A.5.28</span>
+                </div>
+                <a href="pro-007-incident-response-procedure.html" class="btn btn-sm btn-outline-warning mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="procedure" data-title="Change Management Procedure">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">PRO-008</span>
+                  <span class="doc-badge doc-badge-procedure">Procedure</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Change Management Procedure</h3>
+                <p class="card-text small text-secondary mb-3">Requesting, evaluating, approving, and implementing changes.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">A.8.32</span>
+                </div>
+                <a href="pro-008-change-management-procedure.html" class="btn btn-sm btn-outline-warning mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="procedure" data-title="Backup and Recovery Procedure">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">PRO-009</span>
+                  <span class="doc-badge doc-badge-procedure">Procedure</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Backup and Recovery Procedure</h3>
+                <p class="card-text small text-secondary mb-3">Data backup scheduling, testing, and recovery steps.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">A.8.13</span>
+                </div>
+                <a href="pro-009-backup-recovery-procedure.html" class="btn btn-sm btn-outline-warning mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="procedure" data-title="Security Awareness and Training Procedure">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">PRO-010</span>
+                  <span class="doc-badge doc-badge-procedure">Procedure</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Security Awareness and Training Procedure</h3>
+                <p class="card-text small text-secondary mb-3">Delivery and tracking of security awareness training.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">A.6.3</span>
+                </div>
+                <a href="pro-010-security-awareness-training-procedure.html" class="btn btn-sm btn-outline-warning mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="procedure" data-title="Business Continuity Procedure">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">PRO-011</span>
+                  <span class="doc-badge doc-badge-procedure">Procedure</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Business Continuity Procedure</h3>
+                <p class="card-text small text-secondary mb-3">Activation and execution of business continuity plans.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">A.5.29</span>
+                  <span class="control-tag">A.5.30</span>
+                </div>
+                <a href="pro-011-business-continuity-procedure.html" class="btn btn-sm btn-outline-warning mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="procedure" data-title="Supplier Security Assessment Procedure">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">PRO-012</span>
+                  <span class="doc-badge doc-badge-procedure">Procedure</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Supplier Security Assessment Procedure</h3>
+                <p class="card-text small text-secondary mb-3">Evaluating and monitoring supplier security posture.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">A.5.19</span>
+                  <span class="control-tag">A.5.20</span>
+                  <span class="control-tag">A.5.21</span>
+                  <span class="control-tag">A.5.22</span>
+                </div>
+                <a href="pro-012-supplier-security-assessment-procedure.html" class="btn btn-sm btn-outline-warning mt-auto">View Document</a>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- Templates Section -->
+        <section id="section-templates" class="mb-5">
+          <h2 class="h4 mb-3 d-flex align-items-center gap-2">
+            <span class="doc-badge doc-badge-template">Templates</span>
+            <span class="text-secondary fw-normal fs-6">Forms, registers, and structured records</span>
+          </h2>
+          <div class="isms-grid" id="grid-templates">
+
+            <div class="card isms-card h-100" data-type="template" data-title="Statement of Applicability">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">TMP-001</span>
+                  <span class="doc-badge doc-badge-template">Template</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Statement of Applicability (SoA)</h3>
+                <p class="card-text small text-secondary mb-3">Mapping of all ISO 27001:2022 controls to applicability and justification.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">6.1.3</span>
+                </div>
+                <a href="tmp-001-statement-of-applicability.html" class="btn btn-sm btn-outline-success mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="template" data-title="Risk Register">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">TMP-002</span>
+                  <span class="doc-badge doc-badge-template">Template</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Risk Register</h3>
+                <p class="card-text small text-secondary mb-3">Structured record of identified risks, assessments, and treatment decisions.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">6.1.2</span>
+                  <span class="control-tag">8.2</span>
+                </div>
+                <a href="tmp-002-risk-register.html" class="btn btn-sm btn-outline-success mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="template" data-title="Asset Inventory">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">TMP-003</span>
+                  <span class="doc-badge doc-badge-template">Template</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Asset Inventory</h3>
+                <p class="card-text small text-secondary mb-3">Comprehensive inventory of information assets with ownership and classification.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">A.5.9</span>
+                </div>
+                <a href="tmp-003-asset-inventory.html" class="btn btn-sm btn-outline-success mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="template" data-title="Incident Report Form">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">TMP-004</span>
+                  <span class="doc-badge doc-badge-template">Template</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Incident Report Form</h3>
+                <p class="card-text small text-secondary mb-3">Structured form for recording and tracking security incidents.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">A.5.25</span>
+                </div>
+                <a href="tmp-004-incident-report-form.html" class="btn btn-sm btn-outline-success mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="template" data-title="Corrective Action Request">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">TMP-005</span>
+                  <span class="doc-badge doc-badge-template">Template</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Corrective Action Request (CAR)</h3>
+                <p class="card-text small text-secondary mb-3">Form for documenting nonconformities and corrective actions.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">10.2</span>
+                </div>
+                <a href="tmp-005-corrective-action-request.html" class="btn btn-sm btn-outline-success mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="template" data-title="Internal Audit Checklist">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">TMP-006</span>
+                  <span class="doc-badge doc-badge-template">Template</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Internal Audit Checklist</h3>
+                <p class="card-text small text-secondary mb-3">ISO 27001:2022 audit checklist with all clauses and Annex A controls.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">9.2</span>
+                </div>
+                <a href="tmp-006-internal-audit-checklist.html" class="btn btn-sm btn-outline-success mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="template" data-title="Management Review Template">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">TMP-007</span>
+                  <span class="doc-badge doc-badge-template">Template</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Management Review Template</h3>
+                <p class="card-text small text-secondary mb-3">Agenda and minutes template for ISMS management reviews.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">9.3</span>
+                </div>
+                <a href="tmp-007-management-review-template.html" class="btn btn-sm btn-outline-success mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="template" data-title="Supplier Security Questionnaire">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">TMP-008</span>
+                  <span class="doc-badge doc-badge-template">Template</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Supplier Security Questionnaire</h3>
+                <p class="card-text small text-secondary mb-3">Structured questionnaire for assessing supplier security.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">A.5.20</span>
+                </div>
+                <a href="tmp-008-supplier-security-questionnaire.html" class="btn btn-sm btn-outline-success mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="template" data-title="Access Request Form">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">TMP-009</span>
+                  <span class="doc-badge doc-badge-template">Template</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Access Request Form</h3>
+                <p class="card-text small text-secondary mb-3">Form for requesting, approving, and documenting user access.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">A.5.16</span>
+                </div>
+                <a href="tmp-009-access-request-form.html" class="btn btn-sm btn-outline-success mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="template" data-title="Security Awareness Training Record">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">TMP-010</span>
+                  <span class="doc-badge doc-badge-template">Template</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Security Awareness Training Record</h3>
+                <p class="card-text small text-secondary mb-3">Log of training completion by employee.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">A.6.3</span>
+                </div>
+                <a href="tmp-010-security-awareness-training-record.html" class="btn btn-sm btn-outline-success mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="template" data-title="ISMS Scope Document">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">TMP-011</span>
+                  <span class="doc-badge doc-badge-template">Template</span>
+                </div>
+                <h3 class="card-title h6 mb-2">ISMS Scope Document</h3>
+                <p class="card-text small text-secondary mb-3">Template for defining the scope of the ISMS.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">4.3</span>
+                </div>
+                <a href="tmp-011-isms-scope-document.html" class="btn btn-sm btn-outline-success mt-auto">View Document</a>
+              </div>
+            </div>
+
+            <div class="card isms-card h-100" data-type="template" data-title="Information Security Objectives">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <span class="badge text-bg-secondary doc-meta">TMP-012</span>
+                  <span class="doc-badge doc-badge-template">Template</span>
+                </div>
+                <h3 class="card-title h6 mb-2">Information Security Objectives</h3>
+                <p class="card-text small text-secondary mb-3">Template for setting and tracking IS objectives.</p>
+                <div class="mb-3 d-flex flex-wrap">
+                  <span class="control-tag">6.2</span>
+                </div>
+                <a href="tmp-012-information-security-objectives.html" class="btn btn-sm btn-outline-success mt-auto">View Document</a>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- No results message -->
+        <p class="text-secondary text-center py-4" id="isms-no-results" style="display:none">No documents match your search.</p>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- RBAC Login Modal -->
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="rbacModalLabel">Login</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="rbac-login-form" novalidate>
+            <div class="mb-3">
+              <label for="rbac-username-input" class="form-label">Username</label>
+              <input type="text" class="form-control" id="rbac-username-input" autocomplete="username" placeholder="Enter your username" maxlength="40" required />
+            </div>
+            <div class="mb-3">
+              <label for="rbac-password-input" class="form-label">Password</label>
+              <input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" required />
+            </div>
+            <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+          </form>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <p class="text-secondary small mb-0">Session clears when you close this tab.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" />
+      </a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" />
+      </a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="../privacy.html">Privacy Policy</a> &middot; <a href="../terms.html">Terms</a></p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="../users.js" defer></script>
+  <script src="../roles.js" defer></script>
+  <script src="../script.js" defer></script>
+  <script>
+  /* ── ISMS Filter & Search ─────────────────────────────────────── */
+  (function () {
+    'use strict';
+
+    var activeFilter = 'all';
+    var activeSearch = '';
+
+    function getAllCards() {
+      return Array.from(document.querySelectorAll('[data-type]'));
+    }
+
+    function getSections() {
+      return {
+        policy:    document.getElementById('section-policies'),
+        procedure: document.getElementById('section-procedures'),
+        template:  document.getElementById('section-templates')
+      };
+    }
+
+    function applyFilters() {
+      var cards = getAllCards();
+      var q = activeSearch.toLowerCase().trim();
+      var visibleBySection = { policy: 0, procedure: 0, template: 0 };
+
+      cards.forEach(function (card) {
+        var type  = card.getAttribute('data-type');
+        var title = (card.getAttribute('data-title') || '').toLowerCase();
+
+        var matchesFilter = activeFilter === 'all' || type === activeFilter;
+
+        // Normalize filter vs data-type
+        if (activeFilter === 'policies')   matchesFilter = type === 'policy';
+        if (activeFilter === 'procedures') matchesFilter = type === 'procedure';
+        if (activeFilter === 'templates')  matchesFilter = type === 'template';
+
+        var matchesSearch = !q || title.includes(q);
+
+        var visible = matchesFilter && matchesSearch;
+        card.style.display = visible ? '' : 'none';
+
+        if (visible) {
+          if (type === 'policy')    visibleBySection.policy++;
+          if (type === 'procedure') visibleBySection.procedure++;
+          if (type === 'template')  visibleBySection.template++;
+        }
+      });
+
+      // Show/hide entire sections based on whether they have visible cards
+      var sections = getSections();
+      sections.policy.style.display    = visibleBySection.policy    > 0 ? '' : 'none';
+      sections.procedure.style.display = visibleBySection.procedure > 0 ? '' : 'none';
+      sections.template.style.display  = visibleBySection.template  > 0 ? '' : 'none';
+
+      var totalVisible = visibleBySection.policy + visibleBySection.procedure + visibleBySection.template;
+      var noResults = document.getElementById('isms-no-results');
+      if (noResults) noResults.style.display = totalVisible === 0 ? '' : 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      // Filter buttons
+      document.querySelectorAll('.isms-filter-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          document.querySelectorAll('.isms-filter-btn').forEach(function (b) {
+            b.classList.remove('btn-primary', 'btn-warning', 'btn-success', 'active');
+            b.classList.add('btn-outline-primary');
+            // Restore individual outline colors
+            var f = b.getAttribute('data-filter');
+            if (f === 'procedure') {
+              b.classList.remove('btn-outline-primary');
+              b.classList.add('btn-outline-warning');
+            } else if (f === 'template') {
+              b.classList.remove('btn-outline-primary');
+              b.classList.add('btn-outline-success');
+            }
+          });
+
+          btn.classList.add('active');
+          var filter = btn.getAttribute('data-filter');
+
+          // Set active solid color
+          btn.classList.remove('btn-outline-primary', 'btn-outline-warning', 'btn-outline-success');
+          if (filter === 'all' || filter === 'policy') {
+            btn.classList.add('btn-primary');
+          } else if (filter === 'procedure') {
+            btn.classList.add('btn-warning');
+          } else if (filter === 'template') {
+            btn.classList.add('btn-success');
+          }
+
+          activeFilter = filter;
+          applyFilters();
+        });
+      });
+
+      // Search input
+      var searchInput = document.getElementById('isms-search');
+      if (searchInput) {
+        searchInput.addEventListener('input', function () {
+          activeSearch = searchInput.value;
+          applyFilters();
+        });
+      }
+
+      // Initial render
+      applyFilters();
+    });
+  })();
+  </script>
+</body>
+</html>

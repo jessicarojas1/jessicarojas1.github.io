@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="../theme.css" />
+  <link rel="stylesheet" href="isms.css" />
+  <title>Supplier and Third-Party Security Policy | ISMS | Jessica Rojas</title>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="../index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="../projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="../timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="../cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="../consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="../contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="../blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="../knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="../compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="../jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="../admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <main id="main-content">
+    <div class="container py-4">
+      <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="../index.html">Home</a></li>
+          <li class="breadcrumb-item"><a href="index.html">ISMS</a></li>
+          <li class="breadcrumb-item active">POL-010</li>
+        </ol>
+      </nav>
+      <div class="d-flex justify-content-between align-items-start mb-4 print-btn">
+        <span class="badge bg-primary fs-6">Policy — POL-010</span>
+        <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">Print / Save PDF</button>
+      </div>
+      <div class="doc-header mb-4">
+        <table class="table table-bordered table-sm">
+          <tbody>
+            <tr><th style="width:30%">Document Title</th><td>Supplier and Third-Party Security Policy</td></tr>
+            <tr><th>Document ID</th><td>POL-010</td></tr>
+            <tr><th>Version</th><td>1.0</td></tr>
+            <tr><th>Classification</th><td>Internal</td></tr>
+            <tr><th>Owner</th><td>Information Security Manager</td></tr>
+            <tr><th>Approved By</th><td>Senior Management</td></tr>
+            <tr><th>Effective Date</th><td>2025-01-01</td></tr>
+            <tr><th>Next Review</th><td>2026-01-01</td></tr>
+            <tr><th>ISO 27001:2022 Controls</th><td>A.5.19, A.5.20, A.5.21, A.5.22, A.5.23</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section">
+        <h2>1. Purpose</h2>
+        <p>This policy establishes the requirements for managing information security risks associated with the use of external suppliers, vendors, contractors, and third-party service providers. Third-party relationships introduce significant risk to the organization's information assets, and this risk must be identified, assessed, managed, and continuously monitored throughout the lifecycle of the supplier relationship.</p>
+        <p>This policy aligns with ISO/IEC 27001:2022 Annex A controls A.5.19 through A.5.23, which address information security in supplier relationships, agreements, ICT supply chain, and monitoring and review of supplier services.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>2. Scope</h2>
+        <p>This policy applies to all external parties that have access to, process, store, or transmit organizational information, or that provide services or products that could affect the security of organizational information. This includes but is not limited to:</p>
+        <ul>
+          <li>Technology suppliers and software vendors (including SaaS providers)</li>
+          <li>Managed Service Providers (MSPs) and outsourced IT service providers</li>
+          <li>Cloud Service Providers (CSPs) — IaaS, PaaS, and SaaS</li>
+          <li>Professional services firms (consultants, auditors, legal advisors) with access to organizational data</li>
+          <li>Contractors and temporary staff engaged through staffing agencies</li>
+          <li>Hardware manufacturers and maintenance providers with physical or remote access to organizational systems</li>
+          <li>Data processors and sub-processors handling personal data on behalf of the organization</li>
+          <li>Facilities management and physical security service providers with access to organizational premises</li>
+        </ul>
+        <p>This policy applies to all internal staff responsible for managing, procuring, or overseeing supplier relationships, including Procurement, IT, Legal, and business unit management.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>3. Supplier Classification</h2>
+        <p>All suppliers shall be classified into one of four risk tiers based on the sensitivity of data they can access, the criticality of services they provide, and the potential impact of a supplier security failure on the organization.</p>
+        <table class="table table-bordered table-sm">
+          <thead>
+            <tr><th>Tier</th><th>Classification</th><th>Criteria</th><th>Examples</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Tier 1</strong></td>
+              <td>Critical</td>
+              <td>Access to highly sensitive / confidential data; provides mission-critical services; failure would cause severe business disruption or regulatory breach</td>
+              <td>Cloud infrastructure provider, MSP with domain admin access, payroll processor, identity provider</td>
+            </tr>
+            <tr>
+              <td><strong>Tier 2</strong></td>
+              <td>High</td>
+              <td>Access to internal confidential data; provides important but not mission-critical services; failure would cause significant disruption</td>
+              <td>CRM/ERP SaaS provider, penetration testing firm, backup service provider</td>
+            </tr>
+            <tr>
+              <td><strong>Tier 3</strong></td>
+              <td>Medium</td>
+              <td>Access to internal data with limited sensitivity; service disruption manageable with workarounds</td>
+              <td>Marketing platform, document management SaaS, training platform</td>
+            </tr>
+            <tr>
+              <td><strong>Tier 4</strong></td>
+              <td>Low</td>
+              <td>No access to organizational data; provides commodity or physical goods; service disruption has minimal information security impact</td>
+              <td>Office supply vendors, hardware resellers without system access, courier services</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>Supplier classification shall be reviewed annually and whenever there is a material change in the supplier relationship. Classification shall be documented in the Supplier Register.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>4. Due Diligence and Selection</h2>
+        <p>Before onboarding any new Tier 1, 2, or 3 supplier, the organization shall conduct a security due diligence assessment proportionate to the supplier's risk tier.</p>
+        <ul>
+          <li>The security assessment shall be conducted using the Supplier Security Assessment Questionnaire (TMP-008) and supplemented by the Supplier Onboarding Procedure (PRO-012).</li>
+          <li><strong>Tier 1 (Critical):</strong> Full security questionnaire; review of current ISO 27001 / SOC 2 Type II / equivalent certification; review of penetration test results (executive summary minimum); on-site or virtual security review interview; reference checks with existing clients.</li>
+          <li><strong>Tier 2 (High):</strong> Full security questionnaire; review of ISO 27001 or SOC 2 certification or equivalent evidence; review of recent independent security assessments.</li>
+          <li><strong>Tier 3 (Medium):</strong> Abbreviated security questionnaire; self-attestation against minimum security requirements; review of publicly available security documentation.</li>
+          <li><strong>Tier 4 (Low):</strong> Standard commercial due diligence; no dedicated security assessment required unless data access is subsequently granted.</li>
+          <li>Where a supplier fails to meet minimum security requirements during due diligence, the Information Security Manager must assess whether compensating controls can be applied or whether the supplier relationship should not proceed. The decision and rationale shall be documented and approved by senior management.</li>
+          <li>Due diligence findings and approval decisions shall be recorded in the Supplier Register prior to contract execution.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>5. Contractual Security Requirements</h2>
+        <p>All supplier agreements (contracts, service agreements, data processing agreements) involving access to organizational information or systems must include the following mandatory security clauses:</p>
+        <ul>
+          <li><strong>Security Standards Compliance:</strong> The supplier must maintain an information security program consistent with ISO/IEC 27001:2022, SOC 2, or an equivalent recognized framework appropriate to their services and risk tier. Evidence of compliance must be provided upon request.</li>
+          <li><strong>Right to Audit:</strong> The organization reserves the right to conduct or commission security audits, assessments, or penetration tests of supplier environments and processes (with reasonable notice). The supplier must cooperate fully with such audits.</li>
+          <li><strong>Incident Notification:</strong> The supplier must notify the organization within 24 hours of becoming aware of any actual or suspected security incident, data breach, or unauthorized access affecting organizational data or services. Initial notification shall be followed by a detailed incident report within 72 hours.</li>
+          <li><strong>Data Handling and Protection:</strong> The supplier may only process organizational data for the purposes specified in the agreement. Data must be protected using appropriate encryption at rest and in transit. Personal data must be handled in accordance with applicable data protection law (including GDPR where applicable).</li>
+          <li><strong>Subcontractor Requirements:</strong> The supplier must obtain written approval from the organization before engaging sub-processors or subcontractors that will have access to organizational data. Approved subcontractors must be subject to equivalent contractual security requirements.</li>
+          <li><strong>Data Return and Deletion:</strong> Upon termination of the agreement, the supplier must return all organizational data in an agreed format and securely delete all copies within 30 days, providing written confirmation of deletion.</li>
+          <li><strong>Access Controls:</strong> The supplier must implement and maintain access controls that limit access to organizational data and systems to only those supplier personnel who require access to fulfill the contracted services (principle of least privilege).</li>
+          <li><strong>Regulatory Compliance:</strong> The supplier must comply with all applicable laws and regulations relevant to the services provided, including data protection, export control, and sector-specific requirements.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>6. Security Requirements in Agreements</h2>
+        <p>In addition to the mandatory contractual clauses (Section 5), supplier agreements shall specify the following security control requirements based on risk tier:</p>
+        <ul>
+          <li><strong>Tier 1 and Tier 2:</strong> Current ISO 27001:2022 certification, SOC 2 Type II report, or CSA STAR Level 2 certification. Annual penetration testing of systems handling organizational data. Multi-factor authentication enforced for all supplier personnel accessing organizational systems. Vulnerability remediation SLAs aligned with the organization's patching policy.</li>
+          <li><strong>All tiers with data access:</strong> Encryption of organizational data at rest (AES-256 or equivalent) and in transit (TLS 1.2 minimum, TLS 1.3 preferred). Data residency requirements — organizational data must remain within agreed geographic regions unless prior written approval is obtained. Background screening of supplier personnel with access to organizational data.</li>
+          <li><strong>Tier 1:</strong> Business continuity and disaster recovery plans that meet or exceed the organization's RTO/RPO requirements. Annual BCP/DR testing with results shared with the organization.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>7. Information Security in Cloud Services</h2>
+        <p>The organization shall apply specific due diligence and controls when procuring or using cloud services, in recognition of the unique risks presented by cloud environments.</p>
+        <ul>
+          <li>Before adopting any new cloud service (IaaS, PaaS, or SaaS), the IT Manager and Information Security Manager must assess the service against the organization's cloud security standards, including review of the provider's security documentation, certifications, and shared responsibility model.</li>
+          <li>The shared responsibility model for each cloud service shall be documented and reviewed. The organization must ensure that controls in the "customer responsibility" domain are implemented and operational before production use.</li>
+          <li>Data residency requirements: organizational data shall be stored only in geographic regions approved by the Information Security Manager and, where applicable, required by applicable data protection law. Data residency configuration shall be verified upon deployment and reviewed annually.</li>
+          <li>CSPs must provide: ISO 27001 or SOC 2 Type II certification; transparent documentation of their security controls and incident response procedures; the ability for the organization to retain and export its own data at any time; and a clear process for data deletion upon service termination.</li>
+          <li>Shadow IT (the unauthorized use of cloud services) is prohibited. All cloud services used for organizational purposes must be approved and inventoried in the Supplier Register. Discovered shadow IT shall be assessed and either formally approved or blocked.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>8. Supplier Access Controls</h2>
+        <p>Access granted to supplier personnel to organizational systems, networks, or data shall be controlled in accordance with the following requirements:</p>
+        <ul>
+          <li><strong>Least Privilege:</strong> Supplier personnel shall be granted only the minimum access required to fulfill their contracted services. Access shall be role-specific and reviewed at least quarterly.</li>
+          <li><strong>Multi-Factor Authentication:</strong> MFA is mandatory for all supplier personnel accessing organizational systems remotely or over the internet. Single-factor authentication is not permitted for supplier remote access to any system, regardless of tier.</li>
+          <li><strong>Access Logging:</strong> All supplier access sessions shall be logged, including the identity of the individual, the systems accessed, and the duration of the session. Logs shall be retained for a minimum of 12 months.</li>
+          <li><strong>Time-Limited Access:</strong> Supplier access shall be provisioned for a defined period corresponding to the scope of work. Standing, permanent access for supplier personnel is not permitted for Critical tier systems.</li>
+          <li><strong>Just-In-Time Access:</strong> For Tier 1 (Critical) systems, supplier access shall be provisioned on a just-in-time basis, activated only for the duration of a specific authorized activity and revoked immediately upon completion.</li>
+          <li><strong>No Shared Accounts:</strong> Individual named accounts shall be provided to supplier personnel. Shared or generic accounts for supplier access are prohibited.</li>
+          <li><strong>Supervision:</strong> Remote access by supplier personnel to Tier 1 systems shall, where technically feasible, be subject to session recording and/or real-time monitoring by an authorized organizational employee.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>9. Supplier Monitoring and Review</h2>
+        <p>Supplier relationships shall be actively monitored throughout the contract lifecycle. Monitoring activities shall be proportionate to the supplier's risk tier.</p>
+        <ul>
+          <li><strong>Tier 1 (Critical):</strong> Continuous monitoring of service performance, security events, and alerts from integration points. Quarterly formal security review meetings. Annual security re-assessment using TMP-008. Annual on-site or virtual audit.</li>
+          <li><strong>Tier 2 (High):</strong> Monthly service review including security metrics. Annual security re-assessment. Review of updated certification (ISO 27001 / SOC 2) upon renewal.</li>
+          <li><strong>Tier 3 (Medium):</strong> Quarterly service review. Annual self-attestation of continued compliance with security requirements. Review upon material contract change.</li>
+          <li><strong>Tier 4 (Low):</strong> Annual review. No dedicated security monitoring unless data access is granted.</li>
+          <li>All supplier monitoring activities and findings shall be recorded in the Supplier Register. Material security concerns identified during monitoring shall be escalated to the Information Security Manager and, if not resolved, to senior management.</li>
+          <li>Supplier security performance (incidents, audit findings, response times) shall be reported in the organization's management review of the ISMS at least annually.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>10. Incident Notification Requirements</h2>
+        <p>Suppliers must notify the organization promptly in the event of a security incident that affects or may affect organizational data or services.</p>
+        <ul>
+          <li><strong>Initial Notification:</strong> Suppliers must provide initial notification within <strong>24 hours</strong> of becoming aware of a confirmed or suspected security incident. Notification must be made to the primary organizational contact AND to the Information Security Manager directly (contact details shall be specified in the contract).</li>
+          <li><strong>Detailed Incident Report:</strong> Within 72 hours of initial notification, the supplier must provide a detailed incident report including: nature of the incident; systems, data, and individuals affected; timeline of events; containment measures taken; and impact assessment.</li>
+          <li><strong>Ongoing Updates:</strong> The supplier must provide regular progress updates (at least daily during active incidents) until the incident is fully resolved and a post-incident report is available.</li>
+          <li><strong>Post-Incident Report:</strong> A final post-incident report, including root cause analysis, corrective actions, and preventive measures, must be provided within 30 days of incident resolution.</li>
+          <li><strong>Escalation:</strong> The Information Security Manager shall assess supplier-reported incidents for impact on the organization and initiate the organization's own incident response process (POL-011) as appropriate, including regulatory notification obligations.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>11. Termination of Supplier Relationships</h2>
+        <p>The termination of a supplier relationship must be managed in a controlled manner to protect organizational information and ensure all access is revoked appropriately.</p>
+        <ul>
+          <li><strong>Access Revocation:</strong> All logical access (user accounts, API keys, VPN credentials, certificates) granted to the supplier must be revoked on or before the effective termination date. Access revocation shall be confirmed by the IT department and recorded in the off-boarding checklist.</li>
+          <li><strong>Data Return:</strong> The supplier must return all organizational data in the agreed format within 30 days of termination. Data shall be verified for completeness upon receipt.</li>
+          <li><strong>Data Deletion:</strong> Following successful data return, the supplier must securely delete all copies of organizational data (including backups) and provide a written confirmation of deletion. For Tier 1 and Tier 2 suppliers, a Certificate of Destruction is required.</li>
+          <li><strong>Physical Access:</strong> Any physical access credentials (badges, keys) issued to supplier personnel must be returned or deactivated on the termination date.</li>
+          <li><strong>Confidentiality Obligations:</strong> Contractual confidentiality obligations must survive the termination of the supplier agreement for a period specified in the contract (typically no less than 5 years).</li>
+          <li>Termination activities shall be documented in the Supplier Register with dates, confirmed actions, and responsible individuals.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>12. Supply Chain Security</h2>
+        <p>The organization recognizes that risks to its information security can originate not only from direct suppliers but also from the broader supply chain, including software dependencies, hardware components, and sub-processors.</p>
+        <ul>
+          <li><strong>Software Supply Chain Risks:</strong> Software components (open-source libraries, third-party SDKs, APIs) used in organizational applications shall be inventoried and assessed for known vulnerabilities. The organization's vulnerability management program (POL-016) shall include monitoring of third-party software dependencies for newly disclosed vulnerabilities.</li>
+          <li><strong>Software Bill of Materials (SBOM):</strong> Tier 1 and Tier 2 software suppliers shall be required to provide a current Software Bill of Materials (SBOM) in a machine-readable format (e.g., SPDX or CycloneDX) upon contract execution and upon each major release. The SBOM shall be used to assess the organization's exposure to software supply chain vulnerabilities.</li>
+          <li><strong>Source Code Review Rights:</strong> Contracts with Tier 1 software suppliers shall include the right for the organization (or an approved third party) to commission a source code security review of software components that process or store organizational data, with the supplier's reasonable cooperation.</li>
+          <li><strong>Hardware Integrity:</strong> Hardware procured for use in organizational systems shall be sourced from authorized distributors and original equipment manufacturers. The use of counterfeit or grey-market hardware is prohibited. Hardware integrity checks shall be performed where technically feasible for Tier 1 system components.</li>
+          <li><strong>Sub-Processor Transparency:</strong> Tier 1 and Tier 2 suppliers must disclose their sub-processors and sub-contractors that have access to organizational data. Changes to sub-processor arrangements require advance notification (minimum 30 days) and the organization's written approval.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>13. Related Documents</h2>
+        <ul>
+          <li>Information Security Policy (POL-001)</li>
+          <li>Access Control Policy (POL-005)</li>
+          <li>Information Security Incident Management Policy (POL-011)</li>
+          <li>Data Classification and Handling Policy (POL-004)</li>
+          <li>Supplier Onboarding Procedure (PRO-012)</li>
+          <li>Supplier Security Assessment Questionnaire (TMP-008)</li>
+          <li>Supplier Register</li>
+          <li>Data Processing Agreement Template</li>
+          <li>Vulnerability Management Policy (POL-016)</li>
+        </ul>
+      </div>
+
+      <div class="policy-section mt-5">
+        <h2>Revision History</h2>
+        <table class="table table-bordered table-sm revision-table">
+          <thead><tr><th>Version</th><th>Date</th><th>Author</th><th>Description</th></tr></thead>
+          <tbody><tr><td>1.0</td><td>2025-01-01</td><td>Information Security Manager</td><td>Initial release</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="rbacModalLabel">🔒 Login</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="rbac-login-form" novalidate>
+            <div class="mb-3"><label for="rbac-username-input" class="form-label">Username</label><input type="text" class="form-control" id="rbac-username-input" autocomplete="username" placeholder="Enter your username" maxlength="40" required /></div>
+            <div class="mb-3"><label for="rbac-password-input" class="form-label">Password</label><input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" required /></div>
+            <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+          </form>
+        </div>
+        <div class="modal-footer border-0 pt-0"><p class="text-secondary small mb-0">Session clears when you close this tab.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" /></a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" /></a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="../privacy.html">Privacy Policy</a> &middot; <a href="../terms.html">Terms</a></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="../users.js" defer></script>
+  <script src="../roles.js" defer></script>
+  <script src="../script.js" defer></script>
+</body>
+</html>

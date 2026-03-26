@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="../theme.css" />
+  <link rel="stylesheet" href="isms.css" />
+  <title>Change Management Policy | ISMS | Jessica Rojas</title>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="../index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="../projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="../timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="../cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="../consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="../contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="../blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="../knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="../compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="../jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="../admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <main id="main-content">
+    <div class="container py-4">
+      <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="../index.html">Home</a></li>
+          <li class="breadcrumb-item"><a href="index.html">ISMS</a></li>
+          <li class="breadcrumb-item active">POL-009</li>
+        </ol>
+      </nav>
+      <div class="d-flex justify-content-between align-items-start mb-4 print-btn">
+        <span class="badge bg-primary fs-6">Policy — POL-009</span>
+        <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">Print / Save PDF</button>
+      </div>
+      <div class="doc-header mb-4">
+        <table class="table table-bordered table-sm">
+          <tbody>
+            <tr><th style="width:30%">Document Title</th><td>Change Management Policy</td></tr>
+            <tr><th>Document ID</th><td>POL-009</td></tr>
+            <tr><th>Version</th><td>1.0</td></tr>
+            <tr><th>Classification</th><td>Internal</td></tr>
+            <tr><th>Owner</th><td>Information Security Manager</td></tr>
+            <tr><th>Approved By</th><td>Senior Management</td></tr>
+            <tr><th>Effective Date</th><td>2025-01-01</td></tr>
+            <tr><th>Next Review</th><td>2026-01-01</td></tr>
+            <tr><th>ISO 27001:2022 Controls</th><td>A.8.32, A.5.37</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section">
+        <h2>1. Purpose</h2>
+        <p>This policy establishes a formal, controlled process for managing changes to the organization's information systems, applications, infrastructure, network, and security configurations. Uncontrolled changes are one of the most significant sources of security incidents, service outages, and compliance failures. This policy ensures that all changes are assessed for risk, properly authorized, implemented in a controlled manner, and reviewed for effectiveness.</p>
+        <p>This policy supports the organization's compliance with ISO/IEC 27001:2022 controls A.8.32 (Change management) and A.5.37 (Documented operating procedures) and aligns with IT service management best practices.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>2. Scope</h2>
+        <p>This policy applies to all changes to:</p>
+        <ul>
+          <li><strong>Production systems:</strong> Servers, databases, applications, middleware, and any component of the production IT environment.</li>
+          <li><strong>Applications:</strong> Business applications, customer-facing applications, internal tools, APIs, and microservices deployed in production.</li>
+          <li><strong>Infrastructure:</strong> Physical and virtual hardware, operating systems, hypervisors, container platforms, and storage systems.</li>
+          <li><strong>Network:</strong> Firewalls, routers, switches, load balancers, VPNs, DNS configurations, IP address assignments, and network topology modifications.</li>
+          <li><strong>Security configurations:</strong> Access control rules, authentication settings, encryption configurations, certificate deployments, security group rules, and SIEM alert configurations.</li>
+          <li><strong>Cloud environments:</strong> All cloud infrastructure-as-code, cloud platform configurations, and cloud service settings within the organization's cloud accounts.</li>
+        </ul>
+        <p>Changes to development and test environments are encouraged to follow this process but are not mandated to the same degree as production changes. Changes that include promotion of code or configuration from staging to production are always in scope.</p>
+        <p>This policy applies to all IT staff, development teams, operations teams, security teams, and third-party MSPs who perform changes on behalf of the organization.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>3. Change Categories</h2>
+        <p>All changes shall be classified into one of the following categories based on risk, impact, and urgency.</p>
+        <h3>3.1 Standard Change</h3>
+        <p>A Standard Change is a pre-approved, low-risk, frequently performed change that follows a documented, repeatable procedure. Standard changes do not require individual CAB approval but must be executed in accordance with the approved procedure and logged in the change management system.</p>
+        <p><strong>Characteristics:</strong> Well-understood process; impact is low and predictable; rollback is straightforward; the procedure is fully documented and approved.</p>
+        <p><strong>Examples:</strong> Routine OS patching within maintenance windows following the approved patching SOP; password resets; adding a user to an existing, approved access group; deployment of pre-approved configuration via automated pipeline.</p>
+        <p><strong>Requirements:</strong> Executed per documented SOP; logged in the ITSM/change management tool with timestamp, operator name, and outcome; periodic review of standard change catalog for continued appropriateness (at least annually).</p>
+
+        <h3>3.2 Normal Change</h3>
+        <p>A Normal Change is any change that does not qualify as Standard or Emergency and requires formal assessment, scheduling, and approval prior to implementation. Normal changes are further sub-classified:</p>
+        <ul>
+          <li><strong>Minor (Normal-Low):</strong> Limited scope, low to moderate risk, limited business impact. Examples: minor configuration adjustments, non-critical software version upgrades, addition of a new firewall rule for a single application.</li>
+          <li><strong>Major (Normal-High):</strong> Significant scope, moderate to high risk, potential for broad business impact. Examples: major application releases, infrastructure migrations, network redesigns, security architecture changes, new system integrations, changes to authentication systems.</li>
+        </ul>
+
+        <h3>3.3 Emergency Change</h3>
+        <p>An Emergency Change is required to restore a failed service, prevent an impending failure, or address an active or imminent security incident where the standard lead time for Normal changes is not feasible. Emergency changes carry elevated risk due to reduced assessment time and must be managed accordingly.</p>
+        <p><strong>Characteristics:</strong> Urgent; cannot wait for standard change schedule; risk of not making the change exceeds the risk of expedited implementation.</p>
+        <p><strong>Examples:</strong> Application of a critical security patch to an actively exploited vulnerability; emergency firewall rule to block an active attack; immediate rollback of a failed production deployment causing service outage.</p>
+        <p><strong>Requirements:</strong> Expedited approval process (see Section 8); retroactive full documentation within 24 hours; mandatory post-implementation review within 48 hours.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>4. Change Request Process</h2>
+        <p>All Normal changes shall be initiated through the formal Change Request (RFC — Request for Change) process using the organization's ITSM tool.</p>
+        <h3>4.1 RFC Submission Requirements</h3>
+        <p>Every RFC must include the following information at the time of submission:</p>
+        <ul>
+          <li>Change title and description (what is changing and why)</li>
+          <li>Change category (Standard / Normal-Minor / Normal-Major / Emergency)</li>
+          <li>Systems, applications, and services affected</li>
+          <li>Requester name, department, and contact information</li>
+          <li>Proposed implementation date and change window</li>
+          <li>Detailed implementation plan (step-by-step procedure)</li>
+          <li>Rollback / back-out plan with clearly defined rollback trigger conditions</li>
+          <li>Risk assessment: likelihood, impact, residual risk after mitigations</li>
+          <li>Impact assessment: user impact, service availability during change, affected business functions</li>
+          <li>Testing plan and success criteria</li>
+          <li>Communication plan (who needs to be notified, when, and by what method)</li>
+          <li>Names of all personnel involved in implementation</li>
+          <li>Dependencies on other changes, scheduled downtime, or external factors</li>
+        </ul>
+        <h3>4.2 RFC Lead Time</h3>
+        <p>RFCs shall be submitted at least 5 business days before the proposed implementation date for Normal-Minor changes, and at least 10 business days for Normal-Major changes, to allow adequate review and CAB scheduling. Submissions outside these lead times require IT Manager approval to proceed on the requested timeline.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>5. Change Advisory Board (CAB)</h2>
+        <p>The Change Advisory Board (CAB) is the governing body responsible for reviewing and approving Normal changes, providing oversight of the change schedule, and ensuring that changes are appropriately risk-assessed.</p>
+        <h3>5.1 CAB Composition</h3>
+        <ul>
+          <li>IT Manager (Chair)</li>
+          <li>Information Security Manager</li>
+          <li>Infrastructure/Operations Lead</li>
+          <li>Application/Development Lead</li>
+          <li>Representative from affected business units (as required by the change)</li>
+          <li>Service Desk Manager</li>
+        </ul>
+        <p>Additional subject matter experts (e.g., network engineers, database administrators, vendors) may be invited to specific CAB meetings as required by the nature of the change under review.</p>
+        <h3>5.2 Meeting Cadence</h3>
+        <ul>
+          <li>Standard CAB meetings shall be held weekly, on a scheduled day and time, to review upcoming changes for the following two weeks.</li>
+          <li>An Emergency CAB (eCAB) may be convened at any time via electronic communication (email or instant message) to approve Emergency changes when a full meeting is not feasible.</li>
+        </ul>
+        <h3>5.3 Authority and Quorum</h3>
+        <p>The CAB has authority to approve, reject, defer, or request modification of any Normal change submitted for review. Quorum for a CAB meeting requires at least 3 members including the Chair (IT Manager) or the ISM. eCAB approval for Emergency changes requires approval from at least 2 of the following: IT Manager, ISM, or a designated CAB deputy. All CAB decisions shall be recorded in the ITSM tool against the relevant RFC.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>6. Change Approval Requirements</h2>
+        <p>The following approval matrix applies to all changes:</p>
+        <table class="table table-bordered table-sm">
+          <thead>
+            <tr>
+              <th>Change Category</th>
+              <th>Risk Level</th>
+              <th>Required Approvers</th>
+              <th>Lead Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Standard</td>
+              <td>Low</td>
+              <td>Pre-approved via SOP; logged by implementer</td>
+              <td>None (per SOP)</td>
+            </tr>
+            <tr>
+              <td>Normal — Minor</td>
+              <td>Low–Medium</td>
+              <td>IT Manager + ISM (or CAB delegate)</td>
+              <td>5 business days</td>
+            </tr>
+            <tr>
+              <td>Normal — Major</td>
+              <td>Medium–High</td>
+              <td>Full CAB approval; senior management notification</td>
+              <td>10 business days</td>
+            </tr>
+            <tr>
+              <td>Emergency</td>
+              <td>Any</td>
+              <td>IT Manager + ISM (eCAB); retrospective full CAB review</td>
+              <td>Expedited (see §8)</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>Any change affecting security controls, authentication systems, encryption, or firewall rules requires ISM approval regardless of the change category.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>7. Change Implementation</h2>
+        <h3>7.1 Change Windows</h3>
+        <p>Production changes shall be scheduled within defined change windows to minimize disruption to business operations. Standard change windows are: weeknights between 22:00 and 06:00 local time, and weekends between 08:00 Saturday and 06:00 Monday. Changes outside approved windows require IT Manager approval and must document the business justification.</p>
+        <h3>7.2 Implementation Plan</h3>
+        <p>Prior to implementation, the change implementer shall confirm that:</p>
+        <ul>
+          <li>The RFC has been formally approved and the approval is recorded in the ITSM tool.</li>
+          <li>All affected stakeholders have been notified per the communication plan.</li>
+          <li>The implementation team is assembled and briefed.</li>
+          <li>A configuration or code snapshot (backup) has been taken of the target system prior to any modification.</li>
+          <li>The rollback plan has been reviewed and rollback trigger criteria are understood by all participants.</li>
+          <li>A dedicated change bridge or communication channel has been established for the duration of the change.</li>
+        </ul>
+        <h3>7.3 Rollback Plan Requirement</h3>
+        <p>A rollback plan is mandatory for all Normal and Emergency changes. The rollback plan must describe: the specific steps to restore the system to its pre-change state, the rollback decision authority (who can call a rollback), the maximum time to allow before invoking rollback (rollback decision point), and the expected time to complete the rollback.</p>
+        <h3>7.4 Change Logging</h3>
+        <p>All actions taken during a change window shall be logged in real time in the ITSM change record, including: start time and completion time of each step, the identity of the individual performing each action, any deviations from the planned procedure, and the final outcome (success, partial success, rollback).</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>8. Emergency Changes</h2>
+        <p>Emergency changes bypass the standard lead time requirements but must still follow a controlled, documented process to minimize the risk of compounding an incident.</p>
+        <h3>8.1 Expedited Approval Process</h3>
+        <ol>
+          <li>The change requester notifies the IT Manager and ISM immediately, by phone or instant message if email is not monitored.</li>
+          <li>A brief RFC is created in the ITSM tool (or a temporary record is created if the ITSM tool is unavailable) capturing the nature of the change, justification, proposed actions, and rollback approach.</li>
+          <li>eCAB approval is obtained from at least 2 designated approvers (IT Manager and/or ISM and/or a designated deputy).</li>
+          <li>The change is implemented under continuous communication in a dedicated channel.</li>
+          <li>All actions are logged during implementation.</li>
+        </ol>
+        <h3>8.2 Post-Implementation Retrospective</h3>
+        <p>Within 48 hours of an emergency change being completed, the implementer shall complete the full RFC documentation (if not already done during implementation) and a mandatory post-implementation review shall be scheduled. The retrospective shall cover: what happened (root cause if the change addressed an incident), what was done, whether the change was successful, and whether the emergency change process was correctly followed. The retrospective report shall be retained in the ITSM record.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>9. Post-Implementation Review</h2>
+        <p>A post-implementation review (PIR) is required for all Normal-Major and Emergency changes, and is recommended for all Normal-Minor changes. The PIR shall be conducted within 5 business days of change completion.</p>
+        <h3>9.1 Success Criteria and Verification</h3>
+        <ul>
+          <li>Verify that the intended outcome of the change has been achieved and all success criteria defined in the RFC are met.</li>
+          <li>Confirm that monitoring and alerting systems show no unexpected degradation in service quality post-change.</li>
+          <li>Confirm that rollback was not required; if rollback was invoked, document the reasons.</li>
+          <li>Verify that configuration management documentation and asset records have been updated to reflect the change.</li>
+          <li>Confirm that all access provisioned for the change (temporary elevated access, vendor access) has been revoked.</li>
+        </ul>
+        <h3>9.2 Lessons Learned</h3>
+        <p>The PIR shall identify any lessons learned, including process improvements, gaps in the implementation plan, areas where the rollback plan could be improved, and any risks that were not anticipated during planning. Lessons learned shall be incorporated into future RFC templates, SOPs, or training materials where applicable.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>10. Change Freeze Periods</h2>
+        <p>Change freeze periods are defined intervals during which no Normal changes may be implemented to production systems, in order to ensure stability during periods of high business criticality.</p>
+        <ul>
+          <li>Freeze periods are defined by the IT Manager in consultation with senior management and published to all relevant staff at least 30 days in advance.</li>
+          <li>Typical freeze periods include: year-end financial reporting periods, major marketing campaigns or product launches, regulatory filing deadlines, and holiday periods when reduced IT staff are available.</li>
+          <li>During a change freeze, only Emergency changes may be implemented in production. All Emergency changes during a freeze period require additional approval from a member of senior management.</li>
+          <li>Standard changes (pre-approved, low-risk, per documented SOP) may continue during a freeze period unless the freeze notice explicitly prohibits them.</li>
+          <li>Exception requests to implement a Normal change during a freeze period must be submitted in writing to the IT Manager and ISM, with full justification, and approved at least 48 hours before the intended change window.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>11. Unauthorized Changes</h2>
+        <p>Any change made to production systems, network devices, or security configurations without a corresponding approved RFC is considered an unauthorized change. Unauthorized changes represent a serious control failure and shall be managed accordingly.</p>
+        <h3>11.1 Detection</h3>
+        <p>Unauthorized changes shall be detected through: automated configuration drift monitoring (e.g., file integrity monitoring, cloud configuration audit tools); daily review of system audit logs for unapproved modifications; periodic reconciliation of the live configuration against the approved configuration baseline.</p>
+        <h3>11.2 Reporting</h3>
+        <p>Unauthorized changes shall be reported to the IT Manager and ISM immediately upon detection. The detection shall be logged as a security event in the SIEM. Where the unauthorized change may have security implications (e.g., alteration of firewall rules, creation of new accounts, changes to authentication configurations), it shall be escalated as a security incident per the Incident Management Policy (POL-011).</p>
+        <h3>11.3 Corrective Action</h3>
+        <p>The individual responsible for an unauthorized change shall be identified through log analysis. Corrective action shall be proportionate to the risk caused by the change and the intent, ranging from additional training and a formal warning to disciplinary action up to and including termination of employment or contract. The unauthorized change shall be assessed for security impact, reversed if safe to do so, or managed through an emergency RFC if reversal is not feasible. A root cause analysis shall be conducted to determine why the unauthorized change occurred and what process controls need to be strengthened.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>12. Related Documents</h2>
+        <ul>
+          <li>Information Security Policy (POL-001)</li>
+          <li>Operations Security Policy (POL-008)</li>
+          <li>Vulnerability Management Policy (POL-016)</li>
+          <li>Information Security Incident Management Policy (POL-011)</li>
+          <li>Change Request Form (TMP-009)</li>
+          <li>Change Advisory Board (CAB) Terms of Reference</li>
+          <li>Standard Change Catalog</li>
+          <li>Configuration Management Database (CMDB)</li>
+        </ul>
+      </div>
+
+      <div class="policy-section mt-5">
+        <h2>Revision History</h2>
+        <table class="table table-bordered table-sm revision-table">
+          <thead><tr><th>Version</th><th>Date</th><th>Author</th><th>Description</th></tr></thead>
+          <tbody><tr><td>1.0</td><td>2025-01-01</td><td>Information Security Manager</td><td>Initial release</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="rbacModalLabel">🔒 Login</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="rbac-login-form" novalidate>
+            <div class="mb-3"><label for="rbac-username-input" class="form-label">Username</label><input type="text" class="form-control" id="rbac-username-input" autocomplete="username" placeholder="Enter your username" maxlength="40" required /></div>
+            <div class="mb-3"><label for="rbac-password-input" class="form-label">Password</label><input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" required /></div>
+            <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+          </form>
+        </div>
+        <div class="modal-footer border-0 pt-0"><p class="text-secondary small mb-0">Session clears when you close this tab.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" /></a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" /></a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="../privacy.html">Privacy Policy</a> &middot; <a href="../terms.html">Terms</a></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="../users.js" defer></script>
+  <script src="../roles.js" defer></script>
+  <script src="../script.js" defer></script>
+</body>
+</html>

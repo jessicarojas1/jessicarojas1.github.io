@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="../theme.css" />
+  <link rel="stylesheet" href="isms.css" />
+  <title>Risk Assessment Procedure | ISMS | Jessica Rojas</title>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="../index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="../projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="../timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="../cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="../consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="../contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="../blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="../knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="../compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="../jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="../admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">&#9728;&#65039;</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content">
+    <div class="container py-4">
+      <nav aria-label="breadcrumb" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../index.html">Home</a></li><li class="breadcrumb-item"><a href="index.html">ISMS</a></li><li class="breadcrumb-item active">PRO-001</li></ol></nav>
+
+      <div class="d-flex justify-content-between align-items-start mb-4 print-btn">
+        <span class="badge bg-warning text-dark fs-6">Procedure &mdash; PRO-001</span>
+        <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">Print / Save PDF</button>
+      </div>
+
+      <div class="doc-header mb-4">
+        <table class="table table-bordered table-sm"><tbody>
+          <tr><th style="width:30%">Document Title</th><td>Risk Assessment Procedure</td></tr>
+          <tr><th>Document ID</th><td>PRO-001</td></tr>
+          <tr><th>Version</th><td>1.0</td></tr>
+          <tr><th>Classification</th><td>Internal</td></tr>
+          <tr><th>Owner</th><td>Information Security Manager</td></tr>
+          <tr><th>Approved By</th><td>Senior Management</td></tr>
+          <tr><th>Effective Date</th><td>2025-01-01</td></tr>
+          <tr><th>Next Review</th><td>2026-01-01</td></tr>
+          <tr><th>ISO 27001:2022 Controls</th><td>6.1.2, 8.2</td></tr>
+        </tbody></table>
+      </div>
+
+      <div class="policy-section">
+        <h2>1. Purpose and Objective</h2>
+        <p>This procedure defines the systematic, repeatable process for conducting information security risk assessments within the ISMS. Its purpose is to ensure that all information security risks are identified, analyzed, and evaluated consistently, providing management with the information needed to make informed decisions about risk treatment priorities.</p>
+        <p>The objectives of this procedure are to:</p>
+        <ul>
+          <li>Establish a consistent methodology for identifying threats, vulnerabilities, and associated risks to information assets</li>
+          <li>Ensure risk assessments are conducted against defined criteria so that results are comparable and reproducible</li>
+          <li>Produce a Risk Register (TMP-002) that accurately reflects the organization's current risk exposure</li>
+          <li>Provide input to the risk treatment process (PRO-002) by identifying risks that require treatment</li>
+          <li>Satisfy the requirements of ISO/IEC 27001:2022 Clauses 6.1.2 and 8.2</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>2. Scope</h2>
+        <p>This procedure applies to all information assets within the ISMS scope as defined in the ISMS Scope Statement. It covers:</p>
+        <ul>
+          <li>All information assets: hardware, software, data, services, people, and facilities</li>
+          <li>All threats applicable to those assets within and outside the defined ISMS boundary</li>
+          <li>All personnel involved in conducting, reviewing, or approving risk assessments</li>
+          <li>Annual scheduled risk assessments and triggered assessments arising from incidents, changes, or management direction</li>
+        </ul>
+        <p>This procedure does not cover project-level or operational risk management, which are addressed by the organization's broader enterprise risk framework.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>3. Definitions</h2>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th style="width:25%">Term</th><th>Definition</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Asset</strong></td><td>Anything that has value to the organization and requires protection, including information, software, hardware, services, people, and intangibles such as reputation.</td></tr>
+            <tr><td><strong>Threat</strong></td><td>A potential cause of an unwanted incident that may result in harm to the organization or its information assets. Threats may be natural, accidental, or deliberate.</td></tr>
+            <tr><td><strong>Vulnerability</strong></td><td>A weakness of an asset or control that can be exploited by one or more threats, resulting in a security incident.</td></tr>
+            <tr><td><strong>Likelihood</strong></td><td>The probability that a given threat will exploit a given vulnerability, expressed on a defined scale (1&ndash;5 in this procedure).</td></tr>
+            <tr><td><strong>Impact</strong></td><td>The magnitude of harm resulting from the exploitation of a vulnerability, assessed across the dimensions of confidentiality, integrity, and availability.</td></tr>
+            <tr><td><strong>Inherent Risk</strong></td><td>The level of risk existing before the application of any controls or risk treatment measures.</td></tr>
+            <tr><td><strong>Residual Risk</strong></td><td>The level of risk remaining after risk treatment measures and existing controls have been applied.</td></tr>
+            <tr><td><strong>Risk Owner</strong></td><td>An individual or entity with accountability and authority to manage an identified risk and the associated treatment actions.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section">
+        <h2>4. Prerequisites</h2>
+        <p>Before commencing a risk assessment, the following inputs must be available and current:</p>
+        <ol>
+          <li><strong>Asset Inventory (TMP-003):</strong> A current and complete inventory of all in-scope information assets. If the inventory has not been updated within the past 6 months, it must be refreshed before proceeding.</li>
+          <li><strong>ISMS Scope Statement:</strong> The documented and approved scope of the ISMS, defining the boundaries and interfaces with external parties.</li>
+          <li><strong>Risk Criteria (POL-017):</strong> The organization's documented risk appetite, acceptance thresholds, and scoring criteria, approved by senior management. Risk criteria must be in place before risk evaluation can occur.</li>
+          <li><strong>Previous Risk Register (TMP-002):</strong> The most recent version of the Risk Register, to be used as a baseline for comparison and to carry forward risks that remain open.</li>
+          <li><strong>Threat Intelligence Inputs:</strong> Current threat intelligence feeds, vulnerability advisories, and information from sector-specific sources relevant to the organization's operating environment.</li>
+        </ol>
+      </div>
+
+      <div class="policy-section">
+        <h2>5. Procedure Steps</h2>
+
+        <h3 class="h5 mt-4">Step 1: Establish Risk Assessment Context</h3>
+        <ol>
+          <li>Review the current ISMS Scope Statement and confirm no changes have occurred since the last assessment. If scope changes are identified, update the scope statement before proceeding and obtain management approval.</li>
+          <li>Confirm the Asset Inventory (TMP-003) is current. Coordinate with asset owners and IT to verify all assets are listed. Flag any new systems, services, or data flows introduced since the last assessment for priority inclusion.</li>
+          <li>Review the current threat landscape. Gather inputs from: threat intelligence subscriptions, national cyber security advisory bodies (e.g., CISA, NCSC), industry-specific ISACs, recent security incidents within the organization, and external audit or penetration testing findings.</li>
+          <li>Confirm risk criteria with management. Review the risk appetite statement in POL-017. Confirm that the likelihood scale, impact scale, risk scoring formula, and risk acceptance threshold remain appropriate. Obtain written confirmation from the Information Security Manager that risk criteria are unchanged or document any approved changes.</li>
+          <li>Convene the risk assessment team. Identify and brief all participants: the Information Security Manager (lead), asset owners, IT team representatives, and relevant subject matter experts. Document the team composition in the Risk Assessment Report.</li>
+          <li>Schedule risk assessment sessions. For a full ISMS scope assessment, schedule a minimum of one workshop per asset category. Document the session schedule.</li>
+        </ol>
+
+        <h3 class="h5 mt-4">Step 2: Asset Identification</h3>
+        <ol>
+          <li>Open the Asset Inventory (TMP-003) and review each asset entry. Confirm that all in-scope assets are listed and categorized using the standard asset categories: <em>Information/Data, Software/Applications, Hardware/Infrastructure, Services, People/Roles, Facilities/Physical Infrastructure</em>.</li>
+          <li>For each asset, confirm or assign an Asset Owner. The Asset Owner is the individual or team accountable for the asset's security. No asset may proceed through the risk assessment without an assigned owner.</li>
+          <li>For each asset, record: Asset Name, Asset Category, Asset Description, Data Classification (per POL-005), Physical/Logical Location, Asset Owner, and Dependencies (systems or services this asset depends on).</li>
+          <li>Identify and document critical assets. Assets that, if compromised, would have significant impact on business operations, regulatory compliance, or stakeholder trust must be flagged as critical. Critical assets will receive priority attention during the threat and vulnerability identification steps.</li>
+          <li>Update TMP-003 with any new assets identified. Obtain confirmation from Asset Owners that the inventory is accurate and complete. Record the date of confirmation.</li>
+        </ol>
+
+        <h3 class="h5 mt-4">Step 3: Threat Identification</h3>
+        <ol>
+          <li>For each asset or asset group, identify all applicable threats. Use the organization's Threat Library as a starting point. The threat library includes, but is not limited to:
+            <ul>
+              <li><strong>Malware and Ransomware:</strong> Malicious software designed to disrupt, damage, or gain unauthorized access</li>
+              <li><strong>Insider Threat:</strong> Malicious or negligent actions by current or former employees, contractors, or partners</li>
+              <li><strong>Unauthorized Access:</strong> Exploitation of authentication weaknesses, stolen credentials, or misconfigured access controls</li>
+              <li><strong>Social Engineering:</strong> Phishing, spear-phishing, vishing, and pretexting attacks targeting personnel</li>
+              <li><strong>System Failure:</strong> Hardware failure, software bugs, database corruption, or application crashes</li>
+              <li><strong>Natural Disaster:</strong> Flood, fire, earthquake, severe weather events affecting physical facilities</li>
+              <li><strong>Supply Chain Attack:</strong> Compromise via third-party software, services, or hardware components</li>
+              <li><strong>Denial of Service:</strong> Network or application-level attacks designed to disrupt availability</li>
+              <li><strong>Data Exfiltration:</strong> Unauthorized copying or transfer of data to external parties</li>
+              <li><strong>Physical Theft or Tampering:</strong> Theft of devices or physical media; tampering with hardware</li>
+              <li><strong>Misconfiguration:</strong> Security weaknesses introduced by incorrect system or application configuration</li>
+              <li><strong>Unpatched Vulnerabilities:</strong> Exploitation of known, unpatched software or firmware vulnerabilities</li>
+            </ul>
+          </li>
+          <li>For each threat, record: Threat Name, Threat Category (Deliberate / Accidental / Environmental), Threat Description, and Threat Source (external attacker, malicious insider, natural, etc.).</li>
+          <li>Consider threat combinations where two or more simultaneous threats could amplify impact (e.g., a system failure occurring during an active security incident).</li>
+          <li>Document identified threats in the Risk Register (TMP-002), linked to the relevant asset.</li>
+        </ol>
+
+        <h3 class="h5 mt-4">Step 4: Vulnerability Identification</h3>
+        <ol>
+          <li>For each asset-threat pair, identify the specific vulnerabilities that could allow the threat to be realized. Gather vulnerability information from the following sources:
+            <ul>
+              <li>Automated vulnerability scan results (most recent scan, no older than 90 days)</li>
+              <li>Penetration testing reports (most recent engagement)</li>
+              <li>Internal and external audit findings</li>
+              <li>Personnel interviews with system administrators and users</li>
+              <li>Vendor security advisories and patch bulletins</li>
+              <li>Configuration review outputs</li>
+              <li>Incident post-mortems from previous security events</li>
+            </ul>
+          </li>
+          <li>For each vulnerability, record: Vulnerability Name/Description, the asset(s) affected, and the threat(s) it is associated with. Where possible, reference published vulnerability identifiers (e.g., CVE numbers).</li>
+          <li>Classify each vulnerability by type: Technical (e.g., unpatched software), Process (e.g., no access review procedure), or People (e.g., insufficient security awareness training).</li>
+          <li>Document all identified vulnerabilities in the Risk Register (TMP-002), linked to the relevant asset-threat pairs.</li>
+        </ol>
+
+        <h3 class="h5 mt-4">Step 5: Existing Controls Assessment</h3>
+        <ol>
+          <li>For each asset-threat-vulnerability combination, identify and document all existing controls currently in place. Controls may be technical (firewalls, encryption, MFA), procedural (policies, training, change management), or physical (access card readers, CCTV, fire suppression).</li>
+          <li>For each existing control, assess its effectiveness using the following rating: <strong>Effective</strong> (control operating as designed and fully mitigating the vulnerability), <strong>Partially Effective</strong> (control is in place but has identified weaknesses or gaps), <strong>Ineffective</strong> (control exists on paper but is not operating correctly or not consistently applied).</li>
+          <li>Identify control gaps: vulnerabilities for which no control exists, or where existing controls are rated Partially Effective or Ineffective. Document each gap and its significance.</li>
+          <li>Record all existing controls and their effectiveness ratings in the Risk Register (TMP-002). Control gaps will be prioritized for risk treatment in PRO-002.</li>
+        </ol>
+
+        <h3 class="h5 mt-4">Step 6: Likelihood Assessment</h3>
+        <ol>
+          <li>For each risk (asset-threat-vulnerability combination), assess the likelihood that the threat will exploit the vulnerability, taking into account the effectiveness of existing controls. Use the following 5-point scale:
+            <table class="table table-bordered table-sm mt-2">
+              <thead><tr><th>Rating</th><th>Label</th><th>Description</th><th>Frequency</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>Rare</td><td>Threat occurrence is exceptional; strong controls in place</td><td>&lt;1% probability per year</td></tr>
+                <tr><td>2</td><td>Unlikely</td><td>Threat has occurred in the sector but not expected here</td><td>1&ndash;10% probability per year</td></tr>
+                <tr><td>3</td><td>Possible</td><td>Realistic possibility; some precedent in the organization or sector</td><td>10&ndash;30% probability per year</td></tr>
+                <tr><td>4</td><td>Likely</td><td>Expected to occur in most circumstances; controls partially effective</td><td>30&ndash;60% probability per year</td></tr>
+                <tr><td>5</td><td>Almost Certain</td><td>Expected to occur; controls absent, ineffective, or already breached</td><td>&gt;60% probability per year</td></tr>
+              </tbody>
+            </table>
+          </li>
+          <li>Likelihood ratings must be justified in writing. The assessor must document the rationale, referencing threat intelligence, historical incident data, or control effectiveness evidence.</li>
+          <li>Where there is disagreement among assessors, the Information Security Manager has the final determination on likelihood ratings. Dissenting views may be noted.</li>
+        </ol>
+
+        <h3 class="h5 mt-4">Step 7: Impact Assessment</h3>
+        <ol>
+          <li>For each risk, assess the impact of the threat being realized against each of the three CIA dimensions:
+            <table class="table table-bordered table-sm mt-2">
+              <thead><tr><th>Rating</th><th>Label</th><th>Confidentiality Impact</th><th>Integrity Impact</th><th>Availability Impact</th></tr></thead>
+              <tbody>
+                <tr><td>1</td><td>Negligible</td><td>No sensitive data disclosed</td><td>No data corruption; easily corrected</td><td>Outage &lt;1 hour; no user impact</td></tr>
+                <tr><td>2</td><td>Minor</td><td>Limited internal data disclosed; no regulatory impact</td><td>Minor data errors; detectable and correctable</td><td>Outage 1&ndash;4 hours; limited user impact</td></tr>
+                <tr><td>3</td><td>Moderate</td><td>Internal sensitive data disclosed; potential regulatory attention</td><td>Moderate data corruption; significant correction effort</td><td>Outage 4&ndash;24 hours; significant user and business impact</td></tr>
+                <tr><td>4</td><td>Significant</td><td>Confidential or personal data disclosed; regulatory breach likely</td><td>Major data corruption; business process failure</td><td>Outage 1&ndash;7 days; severe business and reputational impact</td></tr>
+                <tr><td>5</td><td>Catastrophic</td><td>Classified or critical personal data disclosed at scale; severe regulatory and legal consequences</td><td>Complete data loss or destruction; unrecoverable</td><td>Extended outage &gt;7 days; existential threat to organization</td></tr>
+              </tbody>
+            </table>
+          </li>
+          <li>Assess impact across all three CIA dimensions. The overall impact rating for the risk is the <strong>highest</strong> rating across the three dimensions. Document all three individual ratings and the rationale for the overall impact rating.</li>
+          <li>Consider cascading impacts: whether the compromise of this asset could lead to the compromise of other dependent assets or systems. Cascading impacts should increase the overall impact rating.</li>
+        </ol>
+
+        <h3 class="h5 mt-4">Step 8: Inherent Risk Calculation</h3>
+        <ol>
+          <li>Calculate the Inherent Risk Score using the formula: <strong>Inherent Risk Score = Likelihood Rating &times; Impact Rating</strong>. This produces a score between 1 and 25.</li>
+          <li>Map the calculated score to a risk level using the following matrix:
+            <table class="table table-bordered table-sm mt-2">
+              <thead><tr><th>Score Range</th><th>Risk Level</th><th>Color Code</th></tr></thead>
+              <tbody>
+                <tr><td>1&ndash;3</td><td>Very Low</td><td>Green</td></tr>
+                <tr><td>4&ndash;6</td><td>Low</td><td>Blue</td></tr>
+                <tr><td>7&ndash;12</td><td>Medium</td><td>Yellow/Amber</td></tr>
+                <tr><td>13&ndash;19</td><td>High</td><td>Orange</td></tr>
+                <tr><td>20&ndash;25</td><td>Critical</td><td>Red</td></tr>
+              </tbody>
+            </table>
+          </li>
+          <li>Record the Inherent Risk Score, Risk Level, and all component ratings in the Risk Register (TMP-002).</li>
+        </ol>
+
+        <h3 class="h5 mt-4">Step 9: Residual Risk Assessment</h3>
+        <ol>
+          <li>Apply the existing controls identified in Step 5 to re-assess the likelihood and impact ratings. For each risk, re-rate likelihood and impact considering the mitigating effect of effective controls.</li>
+          <li>Calculate the Residual Risk Score using the same formula: <strong>Residual Risk Score = Adjusted Likelihood &times; Adjusted Impact</strong>.</li>
+          <li>If no existing controls are in place, or all controls are rated Ineffective, the Residual Risk Score is equal to the Inherent Risk Score.</li>
+          <li>Record the Residual Likelihood Rating, Residual Impact Rating, Residual Risk Score, and Residual Risk Level in the Risk Register (TMP-002).</li>
+          <li>Assign a Risk Owner to each identified risk. The Risk Owner is responsible for monitoring and managing the risk. The Risk Owner is typically the Asset Owner but may be a department head or business process owner depending on the nature of the risk.</li>
+        </ol>
+
+        <h3 class="h5 mt-4">Step 10: Risk Evaluation</h3>
+        <ol>
+          <li>Compare each Residual Risk Score against the organization's risk acceptance threshold defined in POL-017. Risks at or below the acceptance threshold may be accepted. Risks above the acceptance threshold require treatment via PRO-002.</li>
+          <li>Flag all risks that exceed the acceptance threshold as &ldquo;Requires Treatment&rdquo; in the Risk Register.</li>
+          <li>For risks at or near the acceptance threshold, the Information Security Manager and relevant Risk Owner must make an explicit determination. The determination, including rationale, must be documented.</li>
+          <li>Produce the Risk Evaluation Summary: a ranked list of risks requiring treatment, sorted by Residual Risk Score descending. This summary is a key input to PRO-002.</li>
+          <li>Present the Risk Evaluation Summary to senior management for review and approval before proceeding to risk treatment.</li>
+        </ol>
+      </div>
+
+      <div class="policy-section">
+        <h2>6. Risk Assessment Schedule</h2>
+        <p>Risk assessments are conducted on the following schedule:</p>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Assessment Type</th><th>Frequency</th><th>Trigger</th><th>Owner</th></tr></thead>
+          <tbody>
+            <tr><td>Full ISMS Scope Assessment</td><td>Annual (minimum)</td><td>Scheduled; aligned with annual management review cycle</td><td>Information Security Manager</td></tr>
+            <tr><td>Triggered Assessment &mdash; Security Incident</td><td>Within 10 business days of incident closure</td><td>Any significant security incident (Severity 1 or 2)</td><td>Information Security Manager</td></tr>
+            <tr><td>Triggered Assessment &mdash; Major Change</td><td>Before go-live of the change</td><td>New system deployment, major infrastructure change, significant process change</td><td>Change Requestor + ISM</td></tr>
+            <tr><td>Triggered Assessment &mdash; New System/Service</td><td>Before go-live</td><td>Introduction of any new system, cloud service, or third-party processing arrangement</td><td>Project Lead + ISM</td></tr>
+            <tr><td>Triggered Assessment &mdash; Regulatory Change</td><td>Within 30 days of regulatory change effective date</td><td>New or amended legal, regulatory, or contractual requirement</td><td>Information Security Manager</td></tr>
+            <tr><td>Triggered Assessment &mdash; Management Direction</td><td>As directed</td><td>Direction from senior management following a strategic review or external event</td><td>Information Security Manager</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section">
+        <h2>7. Documentation Requirements</h2>
+        <p>The following documentation must be produced and retained as evidence of the risk assessment:</p>
+        <ol>
+          <li><strong>Completed Risk Register (TMP-002):</strong> Fully populated with all assessed risks, including asset, threat, vulnerability, existing controls, likelihood, impact, inherent risk, residual risk, risk level, and risk owner. The Risk Register is a controlled document updated after each assessment.</li>
+          <li><strong>Risk Assessment Report:</strong> A narrative report summarizing: scope and boundaries, assessment methodology, team composition, threat landscape considerations, key findings (top risks), changes from the previous assessment, and recommendations. The report must be approved and signed by the Information Security Manager.</li>
+          <li><strong>Evidence of Asset Owner Confirmation:</strong> Signed or email-evidenced confirmation from each Asset Owner that the asset inventory is accurate.</li>
+          <li><strong>Management Sign-Off:</strong> Documented approval from the Information Security Manager and, for risk assessments feeding into management review, from senior management. Sign-off records are retained in the ISMS document repository.</li>
+          <li><strong>Session Notes:</strong> Notes from risk assessment workshops documenting participants, discussions, and decisions. Retain as supporting evidence.</li>
+        </ol>
+        <p>All risk assessment documentation must be retained for a minimum of 3 years in accordance with the Records Management requirements of PRO-003.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>8. Roles and Responsibilities</h2>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Activity</th><th>ISM</th><th>Asset Owners</th><th>IT Team</th><th>Risk Owners</th><th>Senior Management</th></tr></thead>
+          <tbody>
+            <tr><td>Establish risk criteria</td><td>A</td><td>C</td><td>C</td><td>C</td><td>R/A</td></tr>
+            <tr><td>Maintain asset inventory (TMP-003)</td><td>A</td><td>R</td><td>R</td><td>I</td><td>I</td></tr>
+            <tr><td>Lead risk assessment workshops</td><td>R/A</td><td>C</td><td>C</td><td>C</td><td>I</td></tr>
+            <tr><td>Identify threats and vulnerabilities</td><td>R/A</td><td>C</td><td>R</td><td>C</td><td>I</td></tr>
+            <tr><td>Rate likelihood and impact</td><td>R/A</td><td>C</td><td>C</td><td>C</td><td>I</td></tr>
+            <tr><td>Populate Risk Register (TMP-002)</td><td>R/A</td><td>I</td><td>C</td><td>I</td><td>I</td></tr>
+            <tr><td>Assign Risk Owners</td><td>A</td><td>C</td><td>I</td><td>R</td><td>C</td></tr>
+            <tr><td>Review and approve Risk Register</td><td>R/A</td><td>C</td><td>I</td><td>C</td><td>A</td></tr>
+            <tr><td>Approve risks for treatment</td><td>R</td><td>C</td><td>I</td><td>C</td><td>A</td></tr>
+            <tr><td>Monitor risk owners&rsquo; progress</td><td>R/A</td><td>I</td><td>I</td><td>R</td><td>I</td></tr>
+          </tbody>
+        </table>
+        <p class="small text-body-secondary mt-1"><em>R = Responsible, A = Accountable, C = Consulted, I = Informed</em></p>
+      </div>
+
+      <div class="policy-section">
+        <h2>9. Quality Assurance</h2>
+        <p>To ensure the quality, consistency, and integrity of risk assessments, the following quality assurance measures are applied:</p>
+        <ol>
+          <li><strong>Peer Review:</strong> All risk assessments must be peer-reviewed by at least one individual other than the lead assessor. The peer reviewer must confirm that the methodology has been followed, ratings are justified, and documentation is complete.</li>
+          <li><strong>ISM Sign-Off:</strong> The Information Security Manager must review and formally approve the Risk Register and Risk Assessment Report before they are finalized and presented to management. The ISM's approval confirms that the assessment meets quality standards.</li>
+          <li><strong>Consistency Checks:</strong> Where multiple asset owners contribute to the assessment, the ISM must perform a consistency check to ensure that comparable assets, threats, and vulnerabilities have been rated on a consistent basis. Significant inconsistencies must be investigated and resolved before finalization.</li>
+          <li><strong>Year-on-Year Comparison:</strong> The Risk Assessment Report must include a comparison with the previous annual assessment, explaining material changes in risk scores, new risks identified, and risks that have been closed or reduced.</li>
+          <li><strong>Management Review:</strong> Risk assessment outputs are reviewed at the annual management review. Management's questions, comments, and decisions must be recorded and filed with the risk assessment documentation.</li>
+        </ol>
+      </div>
+
+      <div class="policy-section">
+        <h2>10. Related Documents</h2>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Document ID</th><th>Document Title</th></tr></thead>
+          <tbody>
+            <tr><td>PRO-002</td><td>Risk Treatment Procedure</td></tr>
+            <tr><td>POL-014</td><td>Risk Management Policy</td></tr>
+            <tr><td>POL-017</td><td>Compliance and Legal Requirements Policy (Risk Criteria)</td></tr>
+            <tr><td>TMP-002</td><td>Risk Register Template</td></tr>
+            <tr><td>TMP-003</td><td>Asset Inventory Template</td></tr>
+            <tr><td>TMP-007</td><td>Management Review Minutes Template</td></tr>
+            <tr><td>PRO-003</td><td>Document Control Procedure</td></tr>
+            <tr><td>PRO-004</td><td>Internal Audit Procedure</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section mt-5">
+        <h2>Revision History</h2>
+        <table class="table table-bordered table-sm revision-table">
+          <thead><tr><th>Version</th><th>Date</th><th>Author</th><th>Description</th></tr></thead>
+          <tbody><tr><td>1.0</td><td>2025-01-01</td><td>Information Security Manager</td><td>Initial release</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title fs-5" id="rbacModalLabel">&#128274; Login</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <div class="modal-body"><form id="rbac-login-form" novalidate>
+        <div class="mb-3"><label for="rbac-username-input" class="form-label">Username</label><input type="text" class="form-control" id="rbac-username-input" autocomplete="username" placeholder="Enter your username" maxlength="40" required /></div>
+        <div class="mb-3"><label for="rbac-password-input" class="form-label">Password</label><input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" required /></div>
+        <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+      </form></div>
+      <div class="modal-footer border-0 pt-0"><p class="text-secondary small mb-0">Session clears when you close this tab.</p></div>
+    </div></div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" /></a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" /></a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="../privacy.html">Privacy Policy</a> &middot; <a href="../terms.html">Terms</a></p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="../users.js" defer></script>
+  <script src="../roles.js" defer></script>
+  <script src="../script.js" defer></script>
+</body>
+</html>

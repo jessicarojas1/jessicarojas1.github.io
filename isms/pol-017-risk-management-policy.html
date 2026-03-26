@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="../theme.css" />
+  <link rel="stylesheet" href="isms.css" />
+  <title>Risk Management Policy | ISMS | Jessica Rojas</title>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="../index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="../projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="../timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="../cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="../consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="../contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="../blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="../knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="../compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="../jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="../admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content">
+    <div class="container py-4">
+      <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="../index.html">Home</a></li>
+          <li class="breadcrumb-item"><a href="index.html">ISMS</a></li>
+          <li class="breadcrumb-item active">POL-017</li>
+        </ol>
+      </nav>
+
+      <div class="d-flex justify-content-between align-items-start mb-4 print-btn">
+        <span class="badge bg-primary fs-6">Policy — POL-017</span>
+        <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">Print / Save PDF</button>
+      </div>
+
+      <div class="doc-header mb-4">
+        <table class="table table-bordered table-sm"><tbody>
+          <tr><th style="width:30%">Document Title</th><td>Risk Management Policy</td></tr>
+          <tr><th>Document ID</th><td>POL-017</td></tr>
+          <tr><th>Version</th><td>1.0</td></tr>
+          <tr><th>Classification</th><td>Internal</td></tr>
+          <tr><th>Owner</th><td>Information Security Manager</td></tr>
+          <tr><th>Approved By</th><td>Senior Management</td></tr>
+          <tr><th>Effective Date</th><td>2025-01-01</td></tr>
+          <tr><th>Next Review</th><td>2026-01-01</td></tr>
+          <tr><th>ISO 27001:2022 Controls</th><td>6.1.1, 6.1.2, 6.1.3, 8.2, 8.3</td></tr>
+        </tbody></table>
+      </div>
+
+      <!-- 1. Purpose -->
+      <div class="policy-section">
+        <h2>1. Purpose</h2>
+        <p>This policy establishes the framework for identifying, assessing, treating, and monitoring information security risks across the Information Security Management System (ISMS). It ensures that risks to the confidentiality, integrity, and availability of information assets are managed in a consistent, repeatable, and documented manner in alignment with ISO 27001:2022 clause 6 and organisational risk appetite.</p>
+        <p>The policy provides the governance foundation upon which the organisation's risk assessment and risk treatment processes are built, ensuring that information security risk is understood at all levels and that treatment decisions are proportionate, evidence-based, and traceable.</p>
+      </div>
+
+      <!-- 2. Scope -->
+      <div class="policy-section">
+        <h2>2. Scope</h2>
+        <p>This policy applies to:</p>
+        <ul>
+          <li>All information assets, processes, and systems within the ISMS scope, including physical and logical assets, data, software, hardware, services, and people.</li>
+          <li>All personnel involved in risk-related activities, including risk owners, asset owners, process owners, the Information Security Manager (ISM), the Chief Information Security Officer (CISO), and senior management.</li>
+          <li>All third-party relationships where information security risk is relevant, including suppliers, contractors, and managed service providers.</li>
+          <li>All organisational locations and operating environments covered by the ISMS boundary.</li>
+        </ul>
+      </div>
+
+      <!-- 3. Risk Management Framework -->
+      <div class="policy-section">
+        <h2>3. Risk Management Framework</h2>
+        <p>The organisation's information security risk management framework is aligned to:</p>
+        <ul>
+          <li><strong>ISO 27001:2022 Clause 6</strong> — Planning; specifically requirements for risk assessment (6.1.2) and risk treatment (6.1.3).</li>
+          <li><strong>ISO 31000:2018</strong> — Risk management principles, framework, and process.</li>
+          <li><strong>ISO 27005:2022</strong> — Information security risk management guidance.</li>
+        </ul>
+        <p>Risk management is integrated into strategic and operational decision-making at all levels of the organisation. Information security risk considerations are embedded in:</p>
+        <ul>
+          <li>Project initiation and change management processes.</li>
+          <li>Supplier onboarding and ongoing supplier management.</li>
+          <li>Business continuity and disaster recovery planning.</li>
+          <li>Annual budgeting and resource allocation decisions.</li>
+        </ul>
+        <p>The ISMS follows a <strong>Plan-Do-Check-Act (PDCA)</strong> cycle for continual risk management improvement:</p>
+        <ul>
+          <li><strong>Plan:</strong> Establish risk criteria, conduct risk assessment, develop risk treatment plan.</li>
+          <li><strong>Do:</strong> Implement risk treatment controls.</li>
+          <li><strong>Check:</strong> Monitor, measure, and review risk effectiveness.</li>
+          <li><strong>Act:</strong> Update risk register, adapt controls, report to management.</li>
+        </ul>
+      </div>
+
+      <!-- 4. Risk Identification -->
+      <div class="policy-section">
+        <h2>4. Risk Identification</h2>
+        <p>Risk identification is conducted using both <strong>asset-based</strong> and <strong>scenario-based</strong> approaches to ensure comprehensive coverage.</p>
+        <h3 class="h5 mt-3">4.1 Threat Sources</h3>
+        <ul>
+          <li><strong>Natural:</strong> Floods, fires, earthquakes, power outages caused by weather events.</li>
+          <li><strong>Human — Accidental:</strong> User errors, misconfigurations, accidental data disclosure.</li>
+          <li><strong>Human — Intentional:</strong> Malicious insiders, external attackers, social engineering, nation-state actors.</li>
+          <li><strong>Environmental:</strong> Hardware failures, utility failures, supply chain disruptions.</li>
+        </ul>
+        <h3 class="h5 mt-3">4.2 Vulnerability Identification</h3>
+        <p>Vulnerabilities are identified through:</p>
+        <ul>
+          <li>Technical vulnerability scanning (automated and manual).</li>
+          <li>Internal and external security audits.</li>
+          <li>Penetration testing and red team exercises.</li>
+          <li>Configuration review and hardening assessments.</li>
+          <li>Supplier and third-party assessments.</li>
+        </ul>
+        <h3 class="h5 mt-3">4.3 Risk Identification Inputs</h3>
+        <ul>
+          <li>Asset inventory (TMP-003) — defines assets subject to risk.</li>
+          <li>Threat intelligence feeds — external and sector-specific sources.</li>
+          <li>Vulnerability scan results — technical findings from tooling.</li>
+          <li>Audit findings — internal and external audit reports.</li>
+          <li>Incident history — patterns and recurrence data from the incident register.</li>
+          <li>Business context — new projects, technology changes, organisational changes.</li>
+        </ul>
+      </div>
+
+      <!-- 5. Risk Analysis Methodology -->
+      <div class="policy-section">
+        <h2>5. Risk Analysis Methodology</h2>
+        <p>The organisation uses a <strong>qualitative 5×5 risk matrix</strong> to score identified risks. Risk Score is calculated as:</p>
+        <p class="fw-semibold ps-3">Risk Score = Likelihood × Impact</p>
+
+        <h3 class="h5 mt-3">5.1 Likelihood Scale</h3>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm">
+            <thead class="table-secondary">
+              <tr><th>Score</th><th>Rating</th><th>Description</th><th>Annual Probability</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>1</td><td>Rare</td><td>Event is not expected to occur</td><td>&lt;5%</td></tr>
+              <tr><td>2</td><td>Unlikely</td><td>Event could occur but is not expected</td><td>5–15%</td></tr>
+              <tr><td>3</td><td>Possible</td><td>Event might occur at some point</td><td>15–40%</td></tr>
+              <tr><td>4</td><td>Likely</td><td>Event will probably occur in most circumstances</td><td>40–70%</td></tr>
+              <tr><td>5</td><td>Almost Certain</td><td>Event is expected to occur in most circumstances</td><td>&gt;70%</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="h5 mt-3">5.2 Impact Scale</h3>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm">
+            <thead class="table-secondary">
+              <tr><th>Score</th><th>Rating</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>1</td><td>Negligible</td><td>Minimal effect; no significant disruption to operations or reputation.</td></tr>
+              <tr><td>2</td><td>Minor</td><td>Limited operational impact; resolved quickly with minimal resource.</td></tr>
+              <tr><td>3</td><td>Moderate</td><td>Significant disruption; some data loss possible; customer-facing impact.</td></tr>
+              <tr><td>4</td><td>Major</td><td>Severe operational impact; potential regulatory consequences; reputational damage.</td></tr>
+              <tr><td>5</td><td>Catastrophic</td><td>Business-threatening; critical data breach; major legal liability; potential loss of certification.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="h5 mt-3">5.3 Risk Scoring Matrix (5×5)</h3>
+        <p class="small text-body-secondary">Rows = Likelihood (1–5), Columns = Impact (1–5). Cell value = Likelihood × Impact.</p>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm text-center" style="max-width:560px">
+            <thead class="table-secondary">
+              <tr>
+                <th>Likelihood \ Impact</th>
+                <th>1 Negligible</th>
+                <th>2 Minor</th>
+                <th>3 Moderate</th>
+                <th>4 Major</th>
+                <th>5 Catastrophic</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th class="table-secondary">5 Almost Certain</th>
+                <td class="table-warning fw-semibold">5</td>
+                <td class="table-warning fw-semibold">10</td>
+                <td class="table-danger fw-semibold">15</td>
+                <td class="table-danger fw-semibold">20</td>
+                <td class="table-danger fw-semibold">25</td>
+              </tr>
+              <tr>
+                <th class="table-secondary">4 Likely</th>
+                <td class="table-success fw-semibold">4</td>
+                <td class="table-warning fw-semibold">8</td>
+                <td class="table-warning fw-semibold">12</td>
+                <td class="table-danger fw-semibold">16</td>
+                <td class="table-danger fw-semibold">20</td>
+              </tr>
+              <tr>
+                <th class="table-secondary">3 Possible</th>
+                <td class="table-success fw-semibold">3</td>
+                <td class="table-success fw-semibold">6</td>
+                <td class="table-warning fw-semibold">9</td>
+                <td class="table-warning fw-semibold">12</td>
+                <td class="table-danger fw-semibold">15</td>
+              </tr>
+              <tr>
+                <th class="table-secondary">2 Unlikely</th>
+                <td class="table-success fw-semibold">2</td>
+                <td class="table-success fw-semibold">4</td>
+                <td class="table-success fw-semibold">6</td>
+                <td class="table-warning fw-semibold">8</td>
+                <td class="table-warning fw-semibold">10</td>
+              </tr>
+              <tr>
+                <th class="table-secondary">1 Rare</th>
+                <td class="table-success fw-semibold">1</td>
+                <td class="table-success fw-semibold">2</td>
+                <td class="table-success fw-semibold">3</td>
+                <td class="table-success fw-semibold">4</td>
+                <td class="table-warning fw-semibold">5</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="small"><span class="badge bg-success me-1">Green 1–6</span> Low &nbsp; <span class="badge bg-warning text-dark me-1">Amber 7–12</span> Medium &nbsp; <span class="badge bg-danger me-1">Red 13–19</span> High &nbsp; <span class="badge bg-danger me-1">Red 20–25</span> Critical</p>
+      </div>
+
+      <!-- 6. Risk Evaluation and Acceptance Criteria -->
+      <div class="policy-section">
+        <h2>6. Risk Evaluation and Acceptance Criteria</h2>
+        <p>Risk appetite is defined and approved by senior management. Risks are evaluated against the following acceptance thresholds:</p>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm">
+            <thead class="table-secondary">
+              <tr><th>Score Range</th><th>Risk Level</th><th>Acceptance Status</th><th>Monitoring Frequency</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="badge bg-success">1–6</span></td>
+                <td>Low</td>
+                <td>Acceptable — no treatment required unless cost-effective controls exist</td>
+                <td>Annual review</td>
+              </tr>
+              <tr>
+                <td><span class="badge bg-warning text-dark">7–12</span></td>
+                <td>Medium</td>
+                <td>Treatment preferred — document risk acceptance if not treating</td>
+                <td>Quarterly monitoring</td>
+              </tr>
+              <tr>
+                <td><span class="badge bg-danger">13–19</span></td>
+                <td>High</td>
+                <td>Treatment required — documented treatment plan mandatory</td>
+                <td>Monthly monitoring</td>
+              </tr>
+              <tr>
+                <td><span class="badge bg-danger">20–25</span></td>
+                <td>Critical</td>
+                <td>Immediate treatment required — escalate to senior management within 24 hours</td>
+                <td>Continuous / Weekly reporting</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>All risks above the acceptance threshold must have a documented treatment plan in the Risk Register (TMP-002). Risk acceptance for risks scoring 13 or above requires written approval from the CISO and must include a rationale and time-limited review date.</p>
+      </div>
+
+      <!-- 7. Risk Treatment -->
+      <div class="policy-section">
+        <h2>7. Risk Treatment</h2>
+        <p>The organisation recognises four risk treatment options. The selection of treatment must be proportionate to the risk level and business context:</p>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm">
+            <thead class="table-secondary">
+              <tr><th>Option</th><th>Description</th><th>When Applicable</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Avoid</strong></td>
+                <td>Cease the activity or process that gives rise to the risk entirely.</td>
+                <td>Risk score is Critical and control implementation is not feasible or cost-effective.</td>
+              </tr>
+              <tr>
+                <td><strong>Reduce / Mitigate</strong></td>
+                <td>Implement technical or organisational controls to reduce likelihood, impact, or both.</td>
+                <td>Preferred treatment for High and Critical risks where controls are available.</td>
+              </tr>
+              <tr>
+                <td><strong>Transfer</strong></td>
+                <td>Share or transfer risk to a third party via insurance, contractual obligations, or outsourcing.</td>
+                <td>Financial or operational risks where third-party mechanisms are available and appropriate.</td>
+              </tr>
+              <tr>
+                <td><strong>Accept</strong></td>
+                <td>Acknowledge the risk and accept that it will not be further treated within the current period.</td>
+                <td>Low risks within appetite, or residual risks where treatment cost exceeds benefit. Must be documented and time-limited.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>All treatment decisions must be documented in the Risk Register (TMP-002), including the selected option, rationale, assigned owner, target completion date, and associated Annex A controls. Following implementation of treatment, residual risk must be re-evaluated and re-scored using the risk matrix. Residual risk must fall within the acceptance threshold or be formally accepted by the CISO.</p>
+        <p>The detailed risk treatment process is defined in <strong>PRO-002 Risk Treatment Procedure</strong>.</p>
+      </div>
+
+      <!-- 8. Statement of Applicability -->
+      <div class="policy-section">
+        <h2>8. Statement of Applicability</h2>
+        <p>Following completion of the risk treatment process, all ISO 27001:2022 Annex A controls (93 controls across 4 themes) are evaluated for applicability to the organisation's risk landscape. The <strong>Statement of Applicability (SoA)</strong> (TMP-001) documents:</p>
+        <ul>
+          <li>All 93 Annex A controls, listed individually.</li>
+          <li>Whether each control is included or excluded.</li>
+          <li>Justification for inclusion (risk treatment selection, legal/regulatory requirement, contractual obligation, or best practice).</li>
+          <li>Justification for exclusion (with documented rationale confirming the control is not relevant to the organisation's risk context).</li>
+          <li>Implementation status (Implemented / In Progress / Planned / Not Applicable).</li>
+        </ul>
+        <p>The SoA is reviewed and approved by senior management at least annually, and updated whenever the risk assessment is significantly revised, a new project introduces new controls, or the scope of the ISMS changes. The SoA is a mandatory document for ISO 27001:2022 certification and must be made available to the certification body during audits.</p>
+      </div>
+
+      <!-- 9. Risk Monitoring and Review -->
+      <div class="policy-section">
+        <h2>9. Risk Monitoring and Review</h2>
+        <p>Risk monitoring is a continuous activity integrated into day-to-day security operations. The following monitoring and review activities are mandated:</p>
+        <h3 class="h5 mt-3">9.1 Continuous Monitoring</h3>
+        <ul>
+          <li>Monitoring of risk indicators through SIEM alerts, vulnerability scan results, and incident trends.</li>
+          <li>Tracking of treatment action progress against target dates in the Risk Register.</li>
+          <li>Surveillance of threat intelligence for emerging risks relevant to the organisation's sector.</li>
+        </ul>
+        <h3 class="h5 mt-3">9.2 Formal Risk Assessment Review</h3>
+        <p>A full formal risk assessment must be conducted:</p>
+        <ul>
+          <li><strong>Annually</strong> — at minimum, aligned with the ISMS management review cycle.</li>
+          <li><strong>Triggered reviews</strong> — upon significant organisational or technical changes (new systems, mergers, significant infrastructure changes), following a significant security incident, following external audit findings, or upon identification of new material threats.</li>
+        </ul>
+        <h3 class="h5 mt-3">9.3 Risk Owner Responsibilities</h3>
+        <p>Assigned risk owners are responsible for tracking the progress of treatment plans against agreed target dates, reporting status changes and blockers to the ISM, and ensuring residual risk scores are updated following treatment implementation.</p>
+      </div>
+
+      <!-- 10. Risk Reporting -->
+      <div class="policy-section">
+        <h2>10. Risk Reporting</h2>
+        <p>The organisation maintains a structured risk reporting cadence to ensure appropriate visibility at each level of governance:</p>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm">
+            <thead class="table-secondary">
+              <tr><th>Frequency</th><th>Report</th><th>Audience</th><th>Content</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Monthly</td>
+                <td>Risk Dashboard</td>
+                <td>Information Security Manager</td>
+                <td>Open risk count by level, treatment progress, overdue actions, new risks identified, incident-related risk updates.</td>
+              </tr>
+              <tr>
+                <td>Quarterly</td>
+                <td>Risk Summary Report</td>
+                <td>Senior Management</td>
+                <td>Risk level distribution, top 10 open risks, treatment effectiveness summary, key risk indicators, changes since last quarter.</td>
+              </tr>
+              <tr>
+                <td>Annual</td>
+                <td>Comprehensive Risk Assessment Report</td>
+                <td>Management Review (TMP-007)</td>
+                <td>Full risk assessment results, year-on-year comparison, SoA review, risk appetite confirmation, treatment outcomes, ISMS improvement recommendations.</td>
+              </tr>
+              <tr>
+                <td>Ad Hoc</td>
+                <td>Critical Risk Escalation</td>
+                <td>CISO and Senior Management</td>
+                <td>Critical risks reported within 24 hours of identification; includes risk description, source, initial score, and proposed containment.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 11. Risk Ownership -->
+      <div class="policy-section">
+        <h2>11. Risk Ownership</h2>
+        <p>Every identified risk must be assigned a named risk owner. Risk ownership is typically assigned to the asset owner or process owner most closely associated with the risk. Risk ownership assignments are recorded in the Risk Register (TMP-002) and must not remain unassigned for more than 5 business days after risk identification.</p>
+        <h3 class="h5 mt-3">Risk Owner Responsibilities</h3>
+        <ul>
+          <li>Maintain awareness of assigned risks and their current score.</li>
+          <li>Drive and monitor progress of treatment plan actions.</li>
+          <li>Report status changes, blockers, or new developments to the ISM.</li>
+          <li>Escalate issues that cannot be resolved within their authority.</li>
+        </ul>
+        <h3 class="h5 mt-3">ISM Responsibilities</h3>
+        <ul>
+          <li>Oversight and quality assurance of the risk register.</li>
+          <li>Ensuring methodology consistency across all risk assessments.</li>
+          <li>Producing risk reports for management.</li>
+          <li>Coordinating triggered risk reviews.</li>
+        </ul>
+        <h3 class="h5 mt-3">CISO Responsibilities</h3>
+        <ul>
+          <li>Defining and reviewing risk appetite on behalf of senior management.</li>
+          <li>Approving acceptance of residual risks above the acceptance threshold.</li>
+          <li>Escalating critical risks to the board or executive team where appropriate.</li>
+        </ul>
+      </div>
+
+      <!-- 12. Roles and Responsibilities -->
+      <div class="policy-section">
+        <h2>12. Roles and Responsibilities</h2>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm">
+            <thead class="table-secondary">
+              <tr><th>Role</th><th>Responsibilities</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Senior Management</strong></td>
+                <td>Set and approve the organisational risk appetite; approve acceptance of High and Critical risks; review the annual risk assessment report; allocate resources for risk treatment.</td>
+              </tr>
+              <tr>
+                <td><strong>CISO / ISM</strong></td>
+                <td>Maintain and improve the risk management methodology; oversee the risk register; coordinate risk assessments; produce risk reports for management; approve risk treatment plans; ensure SoA is current.</td>
+              </tr>
+              <tr>
+                <td><strong>Risk Owners</strong></td>
+                <td>Manage assigned risks; maintain treatment plan progress; update risk status; implement agreed treatment actions; report blockers to the ISM.</td>
+              </tr>
+              <tr>
+                <td><strong>Asset Owners</strong></td>
+                <td>Identify and assess risks to assets under their ownership; participate in risk assessment workshops; ensure asset information in TMP-003 is current.</td>
+              </tr>
+              <tr>
+                <td><strong>All Staff</strong></td>
+                <td>Report potential risks, vulnerabilities, and incidents through established channels; cooperate in risk assessment activities; complete mandatory risk awareness training.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 13. Related Documents -->
+      <div class="policy-section">
+        <h2>13. Related Documents</h2>
+        <ul>
+          <li><a href="pro-001-risk-assessment-procedure.html">PRO-001 — Risk Assessment Procedure</a></li>
+          <li><a href="pro-002-risk-treatment-procedure.html">PRO-002 — Risk Treatment Procedure</a></li>
+          <li><a href="tmp-001-statement-of-applicability.html">TMP-001 — Statement of Applicability</a></li>
+          <li><a href="tmp-002-risk-register.html">TMP-002 — Risk Register</a></li>
+          <li><a href="pol-001-information-security-policy.html">POL-001 — Information Security Policy</a></li>
+          <li><a href="pol-011-incident-management-policy.html">POL-011 — Incident Management Policy</a></li>
+        </ul>
+      </div>
+
+      <!-- Revision History -->
+      <div class="policy-section mt-5">
+        <h2>Revision History</h2>
+        <table class="table table-bordered table-sm">
+          <thead class="table-secondary">
+            <tr><th>Version</th><th>Date</th><th>Author</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1.0</td><td>2025-01-01</td><td>Information Security Manager</td><td>Initial release</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title fs-5" id="rbacModalLabel">🔒 Login</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <div class="modal-body"><form id="rbac-login-form" novalidate>
+        <div class="mb-3"><label for="rbac-username-input" class="form-label">Username</label><input type="text" class="form-control" id="rbac-username-input" autocomplete="username" maxlength="40" required /></div>
+        <div class="mb-3"><label for="rbac-password-input" class="form-label">Password</label><input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" required /></div>
+        <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+      </form></div>
+      <div class="modal-footer border-0 pt-0"><p class="text-secondary small mb-0">Session clears when you close this tab.</p></div>
+    </div></div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" /></a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" /></a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="../privacy.html">Privacy Policy</a> &middot; <a href="../terms.html">Terms</a></p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="../users.js" defer></script>
+  <script src="../roles.js" defer></script>
+  <script src="../script.js" defer></script>
+</body>
+</html>

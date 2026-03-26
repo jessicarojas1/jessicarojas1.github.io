@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="../theme.css" />
+  <link rel="stylesheet" href="isms.css" />
+  <title>Statement of Applicability | ISMS | Jessica Rojas</title>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="../index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="../projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="../timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="../cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="../consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="../contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="../blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="../knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="../compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="../jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="../admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <main id="main-content">
+    <div class="container py-4">
+      <nav aria-label="breadcrumb" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../index.html">Home</a></li><li class="breadcrumb-item"><a href="index.html">ISMS</a></li><li class="breadcrumb-item active">TMP-001</li></ol></nav>
+      <div class="d-flex justify-content-between align-items-start mb-4 print-btn">
+        <span class="badge bg-success fs-6">Template — TMP-001</span>
+        <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">Print / Save PDF</button>
+      </div>
+      <div class="doc-header mb-4">
+        <table class="table table-bordered table-sm"><tbody>
+          <tr><th style="width:30%">Document Title</th><td>Statement of Applicability (SoA)</td></tr>
+          <tr><th>Document ID</th><td>TMP-001</td></tr>
+          <tr><th>Version</th><td>1.0</td></tr>
+          <tr><th>Classification</th><td>Internal</td></tr>
+          <tr><th>Owner</th><td>Information Security Manager</td></tr>
+          <tr><th>ISO 27001:2022 Controls</th><td>6.1.3</td></tr>
+        </tbody></table>
+      </div>
+
+      <div class="policy-section">
+        <h2>1. Purpose</h2>
+        <p>The Statement of Applicability (SoA) is a mandatory document required by ISO 27001:2022 clause 6.1.3. It records all controls from Annex A of ISO/IEC 27001:2022 and provides a determination of whether each control is applicable to the organization's ISMS. Where a control is included, the SoA documents the justification for inclusion and current implementation status. Where a control is excluded, the SoA documents the justification for exclusion and confirms that the associated risks have been accepted or treated through other means.</p>
+        <p>The SoA is a living document and must be reviewed and updated at least annually, following significant changes to the organization's risk environment, and as part of any ISMS management review. It serves as a key reference document for internal and external audits.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>2. Organization and Scope</h2>
+        <table class="table table-bordered table-sm">
+          <tbody>
+            <tr><th style="width:30%">Organization Name</th><td>[ORGANIZATION NAME]</td></tr>
+            <tr><th>ISMS Scope</th><td>[ISMS SCOPE STATEMENT — refer to TMP-011]</td></tr>
+            <tr><th>SoA Prepared By</th><td>[NAME, ROLE]</td></tr>
+            <tr><th>SoA Review Date</th><td>[REVIEW DATE]</td></tr>
+            <tr><th>Approved By</th><td>[APPROVER NAME, ROLE]</td></tr>
+            <tr><th>Approval Date</th><td>[APPROVAL DATE]</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section">
+        <h2>3. Summary Statistics</h2>
+        <p>Complete the table below after filling in the control applicability determinations. These figures should be reported at each management review.</p>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Category</th><th>Count</th></tr></thead>
+          <tbody>
+            <tr><td>Total Annex A Controls</td><td>93</td></tr>
+            <tr><td>Controls Determined Applicable</td><td>[COUNT]</td></tr>
+            <tr><td>Controls Excluded (Not Applicable)</td><td>[COUNT]</td></tr>
+            <tr><td>Applicable Controls — Status: Implemented</td><td>[COUNT]</td></tr>
+            <tr><td>Applicable Controls — Status: In Progress</td><td>[COUNT]</td></tr>
+            <tr><td>Applicable Controls — Status: Planned</td><td>[COUNT]</td></tr>
+            <tr><td>Overall Implementation Percentage</td><td>[%]</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section">
+        <h2>4. Control Applicability Determination</h2>
+        <p>For each control below, complete all columns. Use the following guidance:</p>
+        <ul>
+          <li><strong>Applicable:</strong> Enter "Yes" if the control applies within your ISMS scope, "No" if it does not.</li>
+          <li><strong>Justification:</strong> For "Yes" controls, reference the risk(s) or requirement(s) driving inclusion. For "No" controls, state the specific reason the risk does not exist or is addressed otherwise (e.g., "Organization does not develop software — no custom code exists").</li>
+          <li><strong>Implementation Status:</strong> Select Planned, In Progress, Implemented, or Not Applicable.</li>
+          <li><strong>Reference:</strong> Link to the policy, procedure, or evidence document that implements the control.</li>
+        </ul>
+
+        <h3 class="mt-4">Theme 1: Organizational Controls (5.1 – 5.37)</h3>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm small">
+            <thead class="table-dark">
+              <tr>
+                <th style="width:6%">Control ID</th>
+                <th style="width:20%">Control Name</th>
+                <th style="width:7%">Applicable (Yes/No)</th>
+                <th style="width:25%">Justification for Inclusion / Exclusion</th>
+                <th style="width:12%">Implementation Status</th>
+                <th style="width:15%">Reference</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>5.1</td><td>Policies for information security</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-001</td></tr>
+              <tr><td>5.2</td><td>Information security roles and responsibilities</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-001</td></tr>
+              <tr><td>5.3</td><td>Segregation of duties</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>[REFERENCE]</td></tr>
+              <tr><td>5.4</td><td>Management responsibilities</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>[REFERENCE]</td></tr>
+              <tr><td>5.5</td><td>Contact with authorities</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>[REFERENCE]</td></tr>
+              <tr><td>5.6</td><td>Contact with special interest groups</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>[REFERENCE]</td></tr>
+              <tr><td>5.7</td><td>Threat intelligence</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>[REFERENCE]</td></tr>
+              <tr><td>5.8</td><td>Information security in project management</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>[REFERENCE]</td></tr>
+              <tr><td>5.9</td><td>Inventory of information and other associated assets</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>TMP-003</td></tr>
+              <tr><td>5.10</td><td>Acceptable use of information and other associated assets</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-002</td></tr>
+              <tr><td>5.11</td><td>Return of assets</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-014</td></tr>
+              <tr><td>5.12</td><td>Classification of information</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-005</td></tr>
+              <tr><td>5.13</td><td>Labelling of information</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-005</td></tr>
+              <tr><td>5.14</td><td>Information transfer</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>[REFERENCE]</td></tr>
+              <tr><td>5.15</td><td>Access control</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-003</td></tr>
+              <tr><td>5.16</td><td>Identity management</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-003</td></tr>
+              <tr><td>5.17</td><td>Authentication information</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-003</td></tr>
+              <tr><td>5.18</td><td>Access rights</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-003</td></tr>
+              <tr><td>5.19</td><td>Information security in supplier relationships</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>TMP-008</td></tr>
+              <tr><td>5.20</td><td>Addressing information security within supplier agreements</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>TMP-008</td></tr>
+              <tr><td>5.21</td><td>Managing information security in the ICT supply chain</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>[REFERENCE]</td></tr>
+              <tr><td>5.22</td><td>Monitoring, review and change management of supplier services</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>[REFERENCE]</td></tr>
+              <tr><td>5.23</td><td>Information security for use of cloud services</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>[REFERENCE]</td></tr>
+              <tr><td>5.24</td><td>Information security incident management planning and preparation</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>TMP-004</td></tr>
+              <tr><td>5.25</td><td>Assessment and decision on information security events</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>TMP-004</td></tr>
+              <tr><td>5.26</td><td>Response to information security incidents</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>TMP-004</td></tr>
+              <tr><td>5.27</td><td>Learning from information security incidents</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>TMP-004</td></tr>
+              <tr><td>5.28</td><td>Collection of evidence</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>[REFERENCE]</td></tr>
+              <tr><td>5.29</td><td>Information security during disruption</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>[REFERENCE]</td></tr>
+              <tr><td>5.30</td><td>ICT readiness for business continuity</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>[REFERENCE]</td></tr>
+              <tr><td>5.31</td><td>Legal, statutory, regulatory and contractual requirements</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-013</td></tr>
+              <tr><td>5.32</td><td>Intellectual property rights</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-013</td></tr>
+              <tr><td>5.33</td><td>Protection of records</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>[REFERENCE]</td></tr>
+              <tr><td>5.34</td><td>Privacy and protection of personal information</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-013</td></tr>
+              <tr><td>5.35</td><td>Independent review of information security</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>TMP-006</td></tr>
+              <tr><td>5.36</td><td>Compliance with policies, rules and standards for information security</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-013</td></tr>
+              <tr><td>5.37</td><td>Documented operating procedures</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>[REFERENCE]</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="mt-4">Theme 2: People Controls (6.1 – 6.8)</h3>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm small">
+            <thead class="table-dark">
+              <tr>
+                <th style="width:6%">Control ID</th>
+                <th style="width:20%">Control Name</th>
+                <th style="width:7%">Applicable (Yes/No)</th>
+                <th style="width:25%">Justification for Inclusion / Exclusion</th>
+                <th style="width:12%">Implementation Status</th>
+                <th style="width:15%">Reference</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>6.1</td><td>Screening</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-014</td></tr>
+              <tr><td>6.2</td><td>Terms and conditions of employment</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-014</td></tr>
+              <tr><td>6.3</td><td>Information security awareness, education and training</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>TMP-010</td></tr>
+              <tr><td>6.4</td><td>Disciplinary process</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-014</td></tr>
+              <tr><td>6.5</td><td>Responsibilities after termination or change of employment</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-014</td></tr>
+              <tr><td>6.6</td><td>Confidentiality or non-disclosure agreements</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>[REFERENCE]</td></tr>
+              <tr><td>6.7</td><td>Remote working</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>[REFERENCE]</td></tr>
+              <tr><td>6.8</td><td>Information security event reporting</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>TMP-004</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="mt-4">Theme 3: Physical Controls (7.1 – 7.14)</h3>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm small">
+            <thead class="table-dark">
+              <tr>
+                <th style="width:6%">Control ID</th>
+                <th style="width:20%">Control Name</th>
+                <th style="width:7%">Applicable (Yes/No)</th>
+                <th style="width:25%">Justification for Inclusion / Exclusion</th>
+                <th style="width:12%">Implementation Status</th>
+                <th style="width:15%">Reference</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>7.1</td><td>Physical security perimeters</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-007</td></tr>
+              <tr><td>7.2</td><td>Physical entry</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-007</td></tr>
+              <tr><td>7.3</td><td>Securing offices, rooms and facilities</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-007</td></tr>
+              <tr><td>7.4</td><td>Physical security monitoring</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-007</td></tr>
+              <tr><td>7.5</td><td>Protecting against physical and environmental threats</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-007</td></tr>
+              <tr><td>7.6</td><td>Working in secure areas</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-007</td></tr>
+              <tr><td>7.7</td><td>Clear desk and clear screen</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-007</td></tr>
+              <tr><td>7.8</td><td>Equipment siting and protection</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-007</td></tr>
+              <tr><td>7.9</td><td>Security of assets off-premises</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-007</td></tr>
+              <tr><td>7.10</td><td>Storage media</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-007</td></tr>
+              <tr><td>7.11</td><td>Supporting utilities</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>[REFERENCE]</td></tr>
+              <tr><td>7.12</td><td>Cabling security</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>[REFERENCE]</td></tr>
+              <tr><td>7.13</td><td>Equipment maintenance</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-004</td></tr>
+              <tr><td>7.14</td><td>Secure disposal or re-use of equipment</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-004</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="mt-4">Theme 4: Technological Controls (8.1 – 8.34)</h3>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm small">
+            <thead class="table-dark">
+              <tr>
+                <th style="width:6%">Control ID</th>
+                <th style="width:20%">Control Name</th>
+                <th style="width:7%">Applicable (Yes/No)</th>
+                <th style="width:25%">Justification for Inclusion / Exclusion</th>
+                <th style="width:12%">Implementation Status</th>
+                <th style="width:15%">Reference</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>8.1</td><td>User endpoint devices</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-003</td></tr>
+              <tr><td>8.2</td><td>Privileged access rights</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-003</td></tr>
+              <tr><td>8.3</td><td>Information access restriction</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-003</td></tr>
+              <tr><td>8.4</td><td>Access to source code</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>[REFERENCE]</td></tr>
+              <tr><td>8.5</td><td>Secure authentication</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-003</td></tr>
+              <tr><td>8.6</td><td>Capacity management</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-008</td></tr>
+              <tr><td>8.7</td><td>Protection against malware</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-008</td></tr>
+              <tr><td>8.8</td><td>Management of technical vulnerabilities</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-008</td></tr>
+              <tr><td>8.9</td><td>Configuration management</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-008</td></tr>
+              <tr><td>8.10</td><td>Information deletion</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-005</td></tr>
+              <tr><td>8.11</td><td>Data masking</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>[REFERENCE]</td></tr>
+              <tr><td>8.12</td><td>Data leakage prevention</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>[REFERENCE]</td></tr>
+              <tr><td>8.13</td><td>Information backup</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-008</td></tr>
+              <tr><td>8.14</td><td>Redundancy of information processing facilities</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>[REFERENCE]</td></tr>
+              <tr><td>8.15</td><td>Logging</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-008</td></tr>
+              <tr><td>8.16</td><td>Monitoring activities</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-008</td></tr>
+              <tr><td>8.17</td><td>Clock synchronisation</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-008</td></tr>
+              <tr><td>8.18</td><td>Use of privileged utility programs</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-003</td></tr>
+              <tr><td>8.19</td><td>Installation of software on operational systems</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-009</td></tr>
+              <tr><td>8.20</td><td>Networks security</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-008</td></tr>
+              <tr><td>8.21</td><td>Security of network services</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-008</td></tr>
+              <tr><td>8.22</td><td>Segregation of networks</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-008</td></tr>
+              <tr><td>8.23</td><td>Web filtering</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-002</td></tr>
+              <tr><td>8.24</td><td>Use of cryptography</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>[REFERENCE]</td></tr>
+              <tr><td>8.25</td><td>Secure development life cycle</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>[REFERENCE]</td></tr>
+              <tr><td>8.26</td><td>Application security requirements</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>[REFERENCE]</td></tr>
+              <tr><td>8.27</td><td>Secure system architecture and engineering principles</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>[REFERENCE]</td></tr>
+              <tr><td>8.28</td><td>Secure coding</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>[REFERENCE]</td></tr>
+              <tr><td>8.29</td><td>Security testing in development and acceptance</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>[REFERENCE]</td></tr>
+              <tr><td>8.30</td><td>Outsourced development</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>[REFERENCE]</td></tr>
+              <tr><td>8.31</td><td>Separation of development, test and production environments</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-009</td></tr>
+              <tr><td>8.32</td><td>Change management</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>POL-009</td></tr>
+              <tr><td>8.33</td><td>Test information</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>[REFERENCE]</td></tr>
+              <tr><td>8.34</td><td>Protection of information systems during audit testing</td><td>[YES/NO]</td><td>[JUSTIFICATION]</td><td>[STATUS]</td><td>[REFERENCE]</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="policy-section">
+        <h2>5. SoA Approval and Sign-off</h2>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Role</th><th>Name</th><th>Signature</th><th>Date</th></tr></thead>
+          <tbody>
+            <tr><td>Information Security Manager</td><td>[NAME]</td><td>[SIGNATURE]</td><td>[DATE]</td></tr>
+            <tr><td>CISO / Head of Security</td><td>[NAME]</td><td>[SIGNATURE]</td><td>[DATE]</td></tr>
+            <tr><td>Senior Management Sponsor</td><td>[NAME]</td><td>[SIGNATURE]</td><td>[DATE]</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section">
+        <h2>6. Version History</h2>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Version</th><th>Date</th><th>Author</th><th>Description of Changes</th></tr></thead>
+          <tbody>
+            <tr><td>1.0</td><td>[DATE]</td><td>[AUTHOR]</td><td>Initial issue</td></tr>
+            <tr><td>[VERSION]</td><td>[DATE]</td><td>[AUTHOR]</td><td>[DESCRIPTION]</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </main>
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title fs-5" id="rbacModalLabel">🔒 Login</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <div class="modal-body"><form id="rbac-login-form" novalidate>
+        <div class="mb-3"><label for="rbac-username-input" class="form-label">Username</label><input type="text" class="form-control" id="rbac-username-input" autocomplete="username" placeholder="Enter your username" maxlength="40" required /></div>
+        <div class="mb-3"><label for="rbac-password-input" class="form-label">Password</label><input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" required /></div>
+        <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+      </form></div>
+      <div class="modal-footer border-0 pt-0"><p class="text-secondary small mb-0">Session clears when you close this tab.</p></div>
+    </div></div>
+  </div>
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" /></a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" /></a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="../privacy.html">Privacy Policy</a> &middot; <a href="../terms.html">Terms</a></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="../users.js" defer></script>
+  <script src="../roles.js" defer></script>
+  <script src="../script.js" defer></script>
+</body>
+</html>

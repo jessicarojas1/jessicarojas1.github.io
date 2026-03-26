@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="../theme.css" />
+  <link rel="stylesheet" href="isms.css" />
+  <title>Change Management Procedure | ISMS | Jessica Rojas</title>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="../index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="../projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="../timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="../cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="../consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="../contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="../blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="../knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="../compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="../jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="../admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content">
+    <div class="container py-4">
+      <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="../index.html">Home</a></li>
+          <li class="breadcrumb-item"><a href="index.html">ISMS</a></li>
+          <li class="breadcrumb-item active">PRO-008</li>
+        </ol>
+      </nav>
+
+      <div class="d-flex justify-content-between align-items-start mb-4 print-btn">
+        <span class="badge bg-warning text-dark fs-6">Procedure &mdash; PRO-008</span>
+        <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">Print / Save PDF</button>
+      </div>
+
+      <div class="doc-header mb-4">
+        <table class="table table-bordered table-sm">
+          <tbody>
+            <tr><th style="width:30%">Document Title</th><td>Change Management Procedure</td></tr>
+            <tr><th>Document ID</th><td>PRO-008</td></tr>
+            <tr><th>Version</th><td>1.0</td></tr>
+            <tr><th>Classification</th><td>Internal</td></tr>
+            <tr><th>Owner</th><td>Information Security Manager</td></tr>
+            <tr><th>Approved By</th><td>Senior Management</td></tr>
+            <tr><th>Effective Date</th><td>2025-01-01</td></tr>
+            <tr><th>Next Review</th><td>2026-01-01</td></tr>
+            <tr><th>ISO 27001:2022 Controls</th><td>A.8.32, A.5.37</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 1. Purpose -->
+      <div class="policy-section">
+        <h2>1. Purpose</h2>
+        <p>This procedure defines the organization's end-to-end change management process to ensure that all changes to information systems, infrastructure, applications, and security controls are planned, assessed, authorized, implemented, and reviewed in a controlled manner. It operationalizes the requirements of ISO/IEC 27001:2022 Annex A controls A.8.32 (Change management) and A.5.37 (Documented operating procedures).</p>
+        <p>Uncontrolled change is one of the most common sources of security incidents, outages, and compliance failures. This procedure aims to minimize the security and operational risk associated with change by ensuring changes are properly reviewed before implementation, that rollback plans are always available, and that the impact of all changes is formally evaluated and communicated to stakeholders.</p>
+      </div>
+
+      <!-- 2. Scope -->
+      <div class="policy-section">
+        <h2>2. Scope</h2>
+        <p>This procedure applies to all planned changes to:</p>
+        <ul>
+          <li>Information systems, servers, databases, and applications (including cloud-hosted services)</li>
+          <li>Network infrastructure, firewalls, routers, switches, and related security controls</li>
+          <li>Security tooling including SIEM, EDR, IDS/IPS, DLP, and identity platforms</li>
+          <li>Operating system and software configurations, including security baselines</li>
+          <li>Access control configurations, privilege changes, and directory service modifications</li>
+          <li>Cryptographic keys, certificates, and authentication infrastructure</li>
+          <li>Physical infrastructure changes affecting information systems (power, cooling, cabling)</li>
+          <li>Third-party managed services and cloud service configurations where the organization has administrative control</li>
+        </ul>
+        <p>Routine automated changes (e.g., automated security patching within defined parameters, scheduled backups, log rotation) are governed by the standard change catalog and are excluded from the normal change advisory process, provided they are pre-approved and operating within documented parameters.</p>
+      </div>
+
+      <!-- 3. Definitions -->
+      <div class="policy-section">
+        <h2>3. Definitions</h2>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th style="width:25%">Term</th><th>Definition</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Request for Change (RFC)</strong></td><td>The formal document used to initiate a change request. Contains all information required for technical review, risk assessment, and CAB approval.</td></tr>
+            <tr><td><strong>Change Advisory Board (CAB)</strong></td><td>The cross-functional governance body responsible for reviewing, approving, deferring, or rejecting normal and major changes. Meets weekly and on an ad-hoc basis for urgent changes.</td></tr>
+            <tr><td><strong>Standard Change</strong></td><td>A pre-approved, low-risk, repeatable change that follows a documented, tested procedure. Listed in the Standard Change Catalog. Does not require CAB review for each instance.</td></tr>
+            <tr><td><strong>Normal Change (Minor)</strong></td><td>A change that has not been pre-approved as a standard change. Low to medium risk. Follows the full normal change process but may be reviewed by the ISM without full CAB review for minor changes.</td></tr>
+            <tr><td><strong>Normal Change (Major)</strong></td><td>A significant change with potential for broad impact, high risk, or significant resource requirements. Requires full CAB review and at least 48 hours notice to affected parties.</td></tr>
+            <tr><td><strong>Emergency Change</strong></td><td>A change that must be implemented immediately to restore service, mitigate a critical security risk, or address a P1/P2 incident. Follows an abbreviated approval process.</td></tr>
+            <tr><td><strong>Change Window</strong></td><td>A scheduled time period during which changes may be implemented, designed to minimize impact on business operations.</td></tr>
+            <tr><td><strong>Rollback Plan</strong></td><td>A documented, tested procedure for reverting a system to its pre-change state in the event that the change fails or causes adverse impact.</td></tr>
+            <tr><td><strong>Post-Implementation Review (PIR)</strong></td><td>A formal review conducted after a change to assess whether the change achieved its objectives, whether any issues arose, and whether improvement actions are required.</td></tr>
+            <tr><td><strong>Change Freeze</strong></td><td>A defined period during which no changes may be implemented except those classified as emergency changes or those granted a specific freeze exception.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 4. RFC Submission -->
+      <div class="policy-section">
+        <h2>4. Change Request Submission</h2>
+
+        <h3 class="h5 mt-3">Step 1: Complete the RFC</h3>
+        <p>The requester (change initiator) must complete the Request for Change form (TMP-008). The following information is mandatory; incomplete RFCs will be returned to the requester without review:</p>
+        <ul>
+          <li><strong>Change description:</strong> Clear, plain-language description of what is changing and why</li>
+          <li><strong>Business justification:</strong> The business driver, benefit, or risk being addressed by this change</li>
+          <li><strong>Affected systems and services:</strong> A complete list of all systems, services, users, and business functions impacted by the change</li>
+          <li><strong>Change category:</strong> Standard / Normal (Minor) / Normal (Major) / Emergency — with justification</li>
+          <li><strong>Risk assessment:</strong> Likelihood and impact of the change failing or causing adverse effects; compensating controls; risk level (Low / Medium / High / Critical)</li>
+          <li><strong>Implementation plan:</strong> Detailed, step-by-step instructions for implementing the change. Must be sufficiently detailed that a competent technician not involved in the planning could execute it</li>
+          <li><strong>Test plan:</strong> Success criteria and how they will be verified post-implementation</li>
+          <li><strong>Rollback plan:</strong> Step-by-step procedure for reverting the change. Must include rollback decision criteria (when to trigger rollback) and expected rollback duration</li>
+          <li><strong>Resource requirements:</strong> Personnel, time, downtime window, external support</li>
+          <li><strong>Proposed change window:</strong> Requested implementation date and time, within defined change windows</li>
+          <li><strong>Communication plan:</strong> Who needs to be notified before, during, and after the change</li>
+        </ul>
+
+        <h3 class="h5 mt-3">Step 2: Submit RFC and Obtain RFC Number</h3>
+        <ol>
+          <li>Submit the completed RFC to the change management system (service desk platform). The system automatically assigns a unique RFC number (format: RFC-YYYY-NNNN)</li>
+          <li>The RFC is assigned to the change manager (ISM or delegated IT manager) for initial triage within 1 business day of submission</li>
+          <li>The requester receives an automated confirmation with the RFC number and current status</li>
+          <li>The RFC status is set to "Submitted — Awaiting Triage"</li>
+        </ol>
+      </div>
+
+      <!-- 5. Standard Change -->
+      <div class="policy-section">
+        <h2>5. Standard Change Process</h2>
+        <p>Standard changes are pre-approved, low-risk changes for which the procedure, risk, and expected outcome are well understood and documented. Each type of standard change is listed in the Standard Change Catalog, which is maintained by the ISM and reviewed annually.</p>
+
+        <h3 class="h5 mt-3">Step 1: Confirm Standard Change Eligibility</h3>
+        <ol>
+          <li>Change manager reviews the submitted RFC and confirms the change matches an entry in the Standard Change Catalog exactly. If the proposed change deviates from the catalog entry in any way, it must be reclassified as a normal change</li>
+          <li>If confirmed as a standard change, update RFC status to "Standard Change — Approved"</li>
+        </ol>
+
+        <h3 class="h5 mt-3">Step 2: Schedule Within Approved Change Window</h3>
+        <ol>
+          <li>Implementer schedules the change within the approved change window applicable to the affected system tier (see Section 8)</li>
+          <li>Notify affected parties per the notification requirements for the system tier</li>
+        </ol>
+
+        <h3 class="h5 mt-3">Step 3: Implement Per Documented Procedure</h3>
+        <ol>
+          <li>Implement the change strictly according to the documented standard change procedure in the catalog</li>
+          <li>Record all actions taken, timestamps, and any deviations from the documented procedure in the RFC</li>
+          <li>If any deviation from the standard procedure is required, stop implementation, record the deviation, and escalate to the change manager before continuing. The change may need to be reclassified</li>
+        </ol>
+
+        <h3 class="h5 mt-3">Step 4: Verify and Close</h3>
+        <ol>
+          <li>Verify implementation success against the defined success criteria</li>
+          <li>Update the RFC with implementation outcome, any issues encountered, and actual completion time</li>
+          <li>Close the RFC. Standard changes do not require a formal PIR unless issues were encountered</li>
+        </ol>
+      </div>
+
+      <!-- 6. Normal Change -->
+      <div class="policy-section">
+        <h2>6. Normal Change Process (Minor and Major)</h2>
+
+        <h3 class="h5 mt-3">Step 1: RFC Submission and Triage</h3>
+        <ol>
+          <li>RFC submitted per Section 4. Change manager performs initial triage within 1 business day</li>
+          <li>Confirm completeness of RFC. Return incomplete RFCs to requester with specific feedback on what is missing</li>
+          <li>Classify as Normal (Minor) or Normal (Major) based on defined criteria and assign to technical reviewer</li>
+          <li>Update RFC status to "Under Technical Review"</li>
+        </ol>
+
+        <h3 class="h5 mt-3">Step 2: Technical Review</h3>
+        <ol>
+          <li>Technical reviewer (IT operations and/or Security) reviews the implementation plan, test plan, and rollback plan within 2 business days of assignment</li>
+          <li>Technical reviewer assesses: technical feasibility, completeness of implementation and rollback plans, completeness of affected systems list, and whether the proposed change window is appropriate</li>
+          <li>Technical reviewer may request clarification or amendments from the requester. The review clock pauses pending requester response</li>
+          <li>Technical reviewer documents their assessment and recommendation in the RFC and assigns to ISM for risk assessment</li>
+        </ol>
+
+        <h3 class="h5 mt-3">Step 3: Risk Assessment</h3>
+        <ol>
+          <li>The ISM (or delegated security analyst) completes a formal risk assessment of the change, evaluating:
+            <ul>
+              <li>Likelihood of change failure or causing adverse impact (Low / Medium / High)</li>
+              <li>Impact of change failure on availability, integrity, or confidentiality (Low / Medium / High / Critical)</li>
+              <li>Overall risk level: combination of likelihood and impact</li>
+              <li>Adequacy of the rollback plan</li>
+              <li>Whether the change introduces new security risks (e.g., new attack surface, weakened controls)</li>
+            </ul>
+          </li>
+          <li>Changes assessed as High or Critical risk require ISM approval regardless of change category, and must be presented to the full CAB</li>
+          <li>Risk assessment is documented in the RFC. Risk level is set to Low, Medium, High, or Critical</li>
+        </ol>
+
+        <h3 class="h5 mt-3">Step 4: CAB Review</h3>
+        <ol>
+          <li>Normal (Minor) changes with Low or Medium risk: may be approved by the ISM or CAB Chair without a full CAB meeting, provided no CAB member objects within 24 hours of receiving the RFC summary</li>
+          <li>Normal (Major) changes and any change rated High or Critical risk: reviewed at the weekly CAB meeting. The requester must present the RFC to the CAB if requested</li>
+          <li>Urgent normal changes (not emergency): change manager convenes an ad-hoc CAB via email or conference call. Minimum 2 CAB members must participate, including the CAB Chair or ISM</li>
+          <li>CAB members receive RFC documentation at least 24 hours before the CAB meeting. RFC documentation must not be modified after submission to CAB without re-submitting as a new or amended RFC</li>
+        </ol>
+
+        <h3 class="h5 mt-3">Step 5: CAB Decision</h3>
+        <p>The CAB issues one of the following decisions, recorded in the RFC with rationale:</p>
+        <ul>
+          <li><strong>Approved:</strong> Change may proceed as submitted, within the specified change window</li>
+          <li><strong>Approved with Conditions:</strong> Change may proceed subject to specified conditions (e.g., additional testing, shorter change window, additional monitoring). Conditions are documented and must be met before implementation commences</li>
+          <li><strong>Deferred:</strong> Change is not yet ready for approval. Specific reasons and required actions are documented. Requester must address feedback and resubmit</li>
+          <li><strong>Rejected:</strong> Change is not approved. Reasons are fully documented. Requester may appeal to the CISO/CTO</li>
+        </ul>
+
+        <h3 class="h5 mt-3">Step 6: Schedule and Notify</h3>
+        <ol>
+          <li>Following CAB approval, the implementer schedules the change within an approved change window for the affected system tier</li>
+          <li>For Normal (Major) changes: affected parties (business units, IT teams, customers if applicable) must be notified at least <strong>48 hours</strong> before implementation. Notification must include: the RFC number, the nature and scope of the change, the scheduled change window, expected service impact, and the contact point for queries</li>
+          <li>For Normal (Minor) changes: notification at least 24 hours in advance</li>
+          <li>Change schedule is published in the change calendar</li>
+        </ol>
+
+        <h3 class="h5 mt-3">Step 7: Implement</h3>
+        <ol>
+          <li>Implementer confirms readiness immediately before beginning: all resources available, rollback plan accessible, change window confirmed, monitoring in place</li>
+          <li>Implement the change strictly according to the approved implementation plan. Document all actions in the RFC as they are performed, with timestamps</li>
+          <li>Monitor for back-out trigger criteria throughout implementation. Back-out triggers are defined in the RFC's rollback plan and must be agreed before implementation begins. Common back-out triggers include: implementation exceeding the planned time by more than 50%, unexpected errors at a defined step, system becoming unavailable unexpectedly, or test failure</li>
+          <li>If a back-out trigger is met: immediately invoke the rollback plan. Notify the change manager and CAB Chair. Do not attempt to continue the change without re-approval</li>
+          <li>If an unexpected issue arises that is not covered by the rollback triggers but raises concern, pause implementation and contact the change manager for guidance before proceeding</li>
+        </ol>
+
+        <h3 class="h5 mt-3">Step 8: Verify</h3>
+        <ol>
+          <li>Upon completion of implementation, execute all test plan items defined in the RFC</li>
+          <li>Confirm all success criteria are met. Document test results, including any items that did not meet success criteria and how they were resolved</li>
+          <li>Monitor affected systems for adverse impact for a defined post-implementation monitoring period (minimum 30 minutes for Minor; minimum 2 hours for Major changes; or longer as specified in the RFC)</li>
+          <li>Obtain sign-off from the requester or business process owner that the change has achieved its intended objective</li>
+          <li>If issues are detected during the post-implementation monitoring period, assess against rollback criteria. Create an incident ticket if a security or operational incident has resulted from the change</li>
+        </ol>
+
+        <h3 class="h5 mt-3">Step 9: Post-Implementation Review (PIR)</h3>
+        <ol>
+          <li>For Normal (Major) changes and any change rated High or Critical risk: a formal PIR is conducted within 5 business days of change completion</li>
+          <li>PIR documents: whether the change achieved its objectives, actual versus planned implementation time, any issues encountered, whether the rollback plan would have been adequate, stakeholder feedback, and lessons learned</li>
+          <li>Improvement actions identified in the PIR are recorded in the CAR with owners and target dates</li>
+          <li>PIR report is submitted to the CAB Chair and ISM. Major change PIRs are included in the quarterly management report</li>
+        </ol>
+      </div>
+
+      <!-- 7. Emergency Change -->
+      <div class="policy-section">
+        <h2>7. Emergency Change Process</h2>
+        <p>Emergency changes are reserved for situations where immediate action is required to restore critical services, prevent active exploitation of a critical vulnerability, or address a P1/P2 security incident. Emergency change status must not be used to bypass the normal change process for convenience.</p>
+
+        <h3 class="h5 mt-3">Step 1: Emergency Declaration</h3>
+        <ol>
+          <li>The ISM, CISO, or CTO (or their designated alternates) must formally declare an emergency change. The declaration is recorded in the change management system with a timestamp and brief justification</li>
+          <li>The declaring authority confirms that: the change is required immediately; delay would cause material harm to the organization; and the change cannot wait for the next scheduled CAB</li>
+        </ol>
+
+        <h3 class="h5 mt-3">Step 2: Emergency CAB Approval</h3>
+        <ol>
+          <li>An emergency CAB is convened immediately. This may be conducted by phone call, video conference, or secure email. Physical presence is not required</li>
+          <li>A minimum of 2 CAB approvers must participate, one of whom must be the CAB Chair, ISM, or CISO. Approval by phone or email is acceptable and must be documented</li>
+          <li>The requester presents the proposed change, rationale, and available rollback information. A formal RFC may be completed after implementation (see Step 4) if time does not permit pre-implementation completion</li>
+          <li>Approval is documented (recorded call, email, or chat transcript saved to the incident/change record)</li>
+        </ol>
+
+        <h3 class="h5 mt-3">Step 3: Implement with ISM Oversight</h3>
+        <ol>
+          <li>The emergency change is implemented immediately upon approval. The ISM or a senior IT manager is present (in person or via live video/audio) during implementation</li>
+          <li>All actions are recorded in real time, including timestamps, commands executed, and outcomes observed</li>
+          <li>A rollback procedure must be identified before implementation begins, even if it is a simplified version. Rollback capability must not be entirely absent even in emergencies</li>
+        </ol>
+
+        <h3 class="h5 mt-3">Step 4: Full Documentation and PIR</h3>
+        <ol>
+          <li>A complete RFC is submitted within <strong>48 hours</strong> of emergency change completion, documenting everything that was done, why, by whom, and with what result. This RFC is submitted retrospectively if not completed pre-implementation</li>
+          <li>A PIR is conducted within 48 hours of change completion. The PIR documents: effectiveness of the emergency change, root cause of the emergency situation, and whether the situation could have been anticipated and addressed through the normal change process</li>
+          <li>Identify any preventive actions that would reduce the likelihood of future emergency changes of this type</li>
+        </ol>
+
+        <h3 class="h5 mt-3">Step 5: CAB Ratification</h3>
+        <ol>
+          <li>The emergency change RFC and PIR are presented to the next regular weekly CAB meeting for formal ratification</li>
+          <li>The CAB reviews the emergency change for appropriateness of classification, quality of the implemented change, and completeness of post-implementation documentation</li>
+          <li>If the CAB determines the emergency classification was not warranted, this is recorded and the ISM discusses the classification criteria with the requester and approver to prevent recurrence</li>
+        </ol>
+      </div>
+
+      <!-- 8. Change Windows -->
+      <div class="policy-section">
+        <h2>8. Change Windows</h2>
+        <p>Changes must be scheduled within approved change windows unless an emergency change has been declared. The following standard change windows apply:</p>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Window Type</th><th>Schedule</th><th>Applicable Change Types</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Standard Weekend Window</strong></td><td>Saturday and Sunday, 22:00 to 06:00 (local time)</td><td>All normal and standard changes to production systems</td></tr>
+            <tr><td><strong>Tier 1 Systems (Critical)</strong></td><td>Second Saturday of the month, 22:00 to 06:00</td><td>Core infrastructure, identity systems, security controls, financial systems. Extended window for major changes</td></tr>
+            <tr><td><strong>Tier 2 Systems (Important)</strong></td><td>Any Saturday or Sunday, 22:00 to 06:00</td><td>Internal business applications, secondary databases, departmental systems</td></tr>
+            <tr><td><strong>Tier 3 Systems (Standard)</strong></td><td>Any day, 18:00 to 07:00 (business days); any time (weekends)</td><td>Development, test environments, non-critical internal tools</td></tr>
+            <tr><td><strong>Development / Test</strong></td><td>Any time, with notification to team</td><td>Non-production systems only; no customer impact</td></tr>
+          </tbody>
+        </table>
+        <p>Deviations from the defined change window require ISM approval and are documented in the RFC. All affected parties must be notified of any out-of-window change.</p>
+      </div>
+
+      <!-- 9. Change Freeze -->
+      <div class="policy-section">
+        <h2>9. Change Freeze</h2>
+        <p>A change freeze is declared by the ISM or CTO during periods of elevated risk or critical business activity, during which no changes to production systems may be implemented except emergency changes.</p>
+
+        <h3 class="h5 mt-3">9.1 Defined Freeze Periods</h3>
+        <ul>
+          <li>Year-end financial processing periods (typically mid-December to early January — specific dates published annually)</li>
+          <li>Major business events (mergers, acquisitions, major product launches) as declared by senior management</li>
+          <li>Following a P1 security incident until the ISM confirms the environment is stable</li>
+          <li>During active regulatory audits or assessments, unless the change is required by the auditor</li>
+        </ul>
+
+        <h3 class="h5 mt-3">9.2 Exception Process During Freeze</h3>
+        <ol>
+          <li>Requester documents the business case for implementing the change during a freeze period</li>
+          <li>ISM and CTO jointly review and approve or deny the exception. Both approvals are required</li>
+          <li>Approved freeze exceptions are logged in the change management system and reported to senior management</li>
+          <li>Emergency changes during a freeze period follow the standard emergency change process (Section 7)</li>
+        </ol>
+      </div>
+
+      <!-- 10. Failed Changes -->
+      <div class="policy-section">
+        <h2>10. Failed Changes</h2>
+
+        <h3 class="h5 mt-3">10.1 Rollback Execution</h3>
+        <ol>
+          <li>If a back-out trigger criterion is met (as defined in the RFC rollback plan), the implementer immediately invokes the rollback procedure</li>
+          <li>Notify the change manager and CAB Chair before or immediately after initiating rollback</li>
+          <li>Execute rollback steps exactly as documented in the RFC. Record all rollback actions and timestamps</li>
+          <li>Verify successful rollback by confirming the system has returned to its pre-change state. Document verification results</li>
+          <li>If rollback cannot be completed successfully, immediately escalate to the ISM and declare an incident (PRO-007)</li>
+        </ol>
+
+        <h3 class="h5 mt-3">10.2 Post-Failure Actions</h3>
+        <ul>
+          <li>Create an incident ticket if the failed change has caused a service disruption or security impact</li>
+          <li>Update the RFC with the failure details, rollback outcome, and current system status</li>
+          <li>Conduct a root cause analysis of the change failure — identify whether the failure was due to inadequate planning, testing, documentation, or execution</li>
+          <li>Determine whether the change can be re-attempted. Re-attempt requires a revised RFC with updated implementation and test plans, and full CAB re-review</li>
+          <li>If the change failure was the result of an unauthorized deviation from the approved plan, raise a Corrective Action Request (CAR) and escalate to the ISM for disciplinary consideration</li>
+        </ul>
+      </div>
+
+      <!-- 11. Metrics -->
+      <div class="policy-section">
+        <h2>11. Change Metrics</h2>
+        <p>The following metrics are tracked monthly by the change manager and reported at the weekly CAB meeting and monthly management report:</p>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Metric</th><th>Description</th><th>Target</th></tr></thead>
+          <tbody>
+            <tr><td>Change Success Rate</td><td>Percentage of changes implemented successfully without rollback or incident</td><td>&gt;95%</td></tr>
+            <tr><td>Emergency Change Frequency</td><td>Number of emergency changes per month as a percentage of total changes</td><td>&lt;5% of total changes</td></tr>
+            <tr><td>Change-Related Incidents</td><td>Number of incidents caused by change implementation</td><td>Reduce year-on-year; target &lt;2% of changes causing incidents</td></tr>
+            <tr><td>CAB Backlog</td><td>Number of RFCs pending CAB review for more than 5 business days</td><td>&lt;10% of open RFCs in backlog</td></tr>
+            <tr><td>PIR Completion Rate</td><td>Percentage of major/high-risk changes with PIR completed within 5 business days</td><td>100%</td></tr>
+            <tr><td>Unauthorized Changes</td><td>Number of changes detected that were not submitted through the change management process</td><td>Zero tolerance; all unauthorized changes investigated</td></tr>
+            <tr><td>Change Freeze Violations</td><td>Number of changes implemented during a declared change freeze without approved exception</td><td>Zero; any violation results in immediate CAR</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 12. RACI -->
+      <div class="policy-section">
+        <h2>12. Roles and Responsibilities (RACI)</h2>
+        <p>R = Responsible, A = Accountable, C = Consulted, I = Informed</p>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm small">
+            <thead>
+              <tr>
+                <th>Activity</th>
+                <th>Requester</th>
+                <th>Technical Reviewer (IT)</th>
+                <th>CAB Chair</th>
+                <th>CAB Members</th>
+                <th>ISM</th>
+                <th>Implementer</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Complete and submit RFC</td><td>A/R</td><td>C</td><td>I</td><td>I</td><td>I</td><td>C</td></tr>
+              <tr><td>RFC triage and classification</td><td>I</td><td>C</td><td>A/R</td><td>I</td><td>C</td><td>I</td></tr>
+              <tr><td>Technical review of RFC</td><td>C</td><td>A/R</td><td>I</td><td>I</td><td>C</td><td>C</td></tr>
+              <tr><td>Risk assessment</td><td>C</td><td>C</td><td>I</td><td>I</td><td>A/R</td><td>I</td></tr>
+              <tr><td>CAB meeting and decision</td><td>C</td><td>C</td><td>A/R</td><td>R</td><td>R</td><td>I</td></tr>
+              <tr><td>Schedule change and notify</td><td>C</td><td>I</td><td>I</td><td>I</td><td>C</td><td>A/R</td></tr>
+              <tr><td>Implement change</td><td>I</td><td>C</td><td>I</td><td>I</td><td>C</td><td>A/R</td></tr>
+              <tr><td>Verify and test</td><td>R</td><td>C</td><td>I</td><td>I</td><td>C</td><td>A/R</td></tr>
+              <tr><td>Rollback decision</td><td>C</td><td>C</td><td>C</td><td>I</td><td>A/R</td><td>R</td></tr>
+              <tr><td>Post-implementation review</td><td>C</td><td>C</td><td>A</td><td>C</td><td>R</td><td>C</td></tr>
+              <tr><td>Emergency change approval</td><td>C</td><td>C</td><td>A/R</td><td>C</td><td>A/R</td><td>I</td></tr>
+              <tr><td>CAB ratification of emergency changes</td><td>I</td><td>I</td><td>A/R</td><td>R</td><td>R</td><td>I</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 13. Related Documents -->
+      <div class="policy-section">
+        <h2>13. Related Documents</h2>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Document ID</th><th>Document Title</th></tr></thead>
+          <tbody>
+            <tr><td>POL-008</td><td>Operations Security Policy</td></tr>
+            <tr><td>PRO-007</td><td>Incident Response Procedure</td></tr>
+            <tr><td>PRO-009</td><td>Backup and Recovery Procedure</td></tr>
+            <tr><td>TMP-008</td><td>Request for Change (RFC) Template</td></tr>
+            <tr><td>Standard Change Catalog</td><td>Pre-approved Standard Changes Register</td></tr>
+            <tr><td>Change Calendar</td><td>Scheduled Changes and Change Windows</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Revision History -->
+      <div class="policy-section mt-5">
+        <h2>Revision History</h2>
+        <table class="table table-bordered table-sm revision-table">
+          <thead><tr><th>Version</th><th>Date</th><th>Author</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td>1.0</td><td>2025-01-01</td><td>Information Security Manager</td><td>Initial release</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title fs-5" id="rbacModalLabel">🔒 Login</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <div class="modal-body"><form id="rbac-login-form" novalidate>
+        <div class="mb-3"><label for="rbac-username-input" class="form-label">Username</label><input type="text" class="form-control" id="rbac-username-input" autocomplete="username" placeholder="Enter your username" maxlength="40" required /></div>
+        <div class="mb-3"><label for="rbac-password-input" class="form-label">Password</label><input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" required /></div>
+        <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+      </form></div>
+      <div class="modal-footer border-0 pt-0"><p class="text-secondary small mb-0">Session clears when you close this tab.</p></div>
+    </div></div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" /></a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" /></a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="../privacy.html">Privacy Policy</a> &middot; <a href="../terms.html">Terms</a></p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="../users.js" defer></script>
+  <script src="../roles.js" defer></script>
+  <script src="../script.js" defer></script>
+</body>
+</html>

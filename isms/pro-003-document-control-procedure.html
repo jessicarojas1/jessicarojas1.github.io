@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="../theme.css" />
+  <link rel="stylesheet" href="isms.css" />
+  <title>Document Control Procedure | ISMS | Jessica Rojas</title>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="../index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="../projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="../timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="../cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="../consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="../contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="../blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="../knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="../compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="../jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="../admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">&#9728;&#65039;</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content">
+    <div class="container py-4">
+      <nav aria-label="breadcrumb" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../index.html">Home</a></li><li class="breadcrumb-item"><a href="index.html">ISMS</a></li><li class="breadcrumb-item active">PRO-003</li></ol></nav>
+
+      <div class="d-flex justify-content-between align-items-start mb-4 print-btn">
+        <span class="badge bg-warning text-dark fs-6">Procedure &mdash; PRO-003</span>
+        <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">Print / Save PDF</button>
+      </div>
+
+      <div class="doc-header mb-4">
+        <table class="table table-bordered table-sm"><tbody>
+          <tr><th style="width:30%">Document Title</th><td>Document Control Procedure</td></tr>
+          <tr><th>Document ID</th><td>PRO-003</td></tr>
+          <tr><th>Version</th><td>1.0</td></tr>
+          <tr><th>Classification</th><td>Internal</td></tr>
+          <tr><th>Owner</th><td>Information Security Manager</td></tr>
+          <tr><th>Approved By</th><td>Senior Management</td></tr>
+          <tr><th>Effective Date</th><td>2025-01-01</td></tr>
+          <tr><th>Next Review</th><td>2026-01-01</td></tr>
+          <tr><th>ISO 27001:2022 Controls</th><td>7.5.1, 7.5.2, 7.5.3</td></tr>
+        </tbody></table>
+      </div>
+
+      <div class="policy-section">
+        <h2>1. Purpose and Objective</h2>
+        <p>This procedure establishes the requirements for creating, reviewing, approving, publishing, maintaining, and disposing of all documented information within the Information Security Management System (ISMS). Effective document control ensures that only current, authorized versions of ISMS documents are in use, that changes are managed through a controlled process, and that records are retained as evidence of ISMS operation.</p>
+        <p>The objectives of this procedure are to:</p>
+        <ul>
+          <li>Ensure ISMS documents are approved for adequacy prior to issue</li>
+          <li>Prevent unintended use of obsolete documents</li>
+          <li>Ensure changes to documents are reviewed and approved by authorized personnel</li>
+          <li>Ensure documents remain legible, identifiable, and retrievable</li>
+          <li>Maintain the integrity and availability of documented information throughout its lifecycle</li>
+          <li>Satisfy the requirements of ISO/IEC 27001:2022 Clauses 7.5.1, 7.5.2, and 7.5.3</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>2. Scope</h2>
+        <p>This procedure applies to all ISMS documented information, regardless of format (electronic or physical), including:</p>
+        <ul>
+          <li><strong>Policies (Level 1):</strong> Top-level directional statements mandated by senior management (e.g., Information Security Policy, Acceptable Use Policy)</li>
+          <li><strong>Procedures (Level 2):</strong> Step-by-step instructions describing how activities are carried out (e.g., this document, PRO-001 through PRO-006)</li>
+          <li><strong>Work Instructions and Templates (Level 3):</strong> Detailed task-level instructions, forms, and templates used to produce records (e.g., TMP-001 through TMP-009)</li>
+          <li><strong>Records and Evidence (Level 4):</strong> Completed documents evidencing ISMS activities (e.g., completed Risk Register, audit reports, training completion records)</li>
+          <li><strong>External Documents:</strong> Standards, regulations, vendor documentation, and legal instruments that are referenced by or inform the ISMS</li>
+        </ul>
+        <p>This procedure applies to all personnel who create, review, approve, use, or manage ISMS documented information.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>3. Definitions</h2>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th style="width:25%">Term</th><th>Definition</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Document</strong></td><td>A controlled piece of documented information that provides requirements, guidance, or instructions. Documents are subject to version control and formal review/approval cycles. Examples: policies, procedures, templates.</td></tr>
+            <tr><td><strong>Record</strong></td><td>A completed document that provides evidence of activities performed or results achieved. Records may not be altered after completion. Examples: completed audit checklists, signed management review minutes, training attendance logs.</td></tr>
+            <tr><td><strong>Documented Information</strong></td><td>The ISO 27001:2022 term encompassing both documents and records; information required to be controlled and maintained by the ISMS.</td></tr>
+            <tr><td><strong>Master Document Register</strong></td><td>The authoritative list of all current ISMS documents, their IDs, titles, versions, owners, and review dates. Maintained by the ISM.</td></tr>
+            <tr><td><strong>Version Control</strong></td><td>The systematic management of document versions to ensure that only the current, approved version is in active use and that historical versions are retained and clearly marked as superseded.</td></tr>
+            <tr><td><strong>Document Owner</strong></td><td>The individual accountable for a document's content, accuracy, and timely review. The Document Owner approves changes and is responsible for ensuring the document remains current.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section">
+        <h2>4. Document Hierarchy</h2>
+        <p>The ISMS uses a four-level document hierarchy. Each level provides increasing operational detail and derives its authority from the levels above it.</p>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Level</th><th>Type</th><th>Purpose</th><th>Approval Authority</th><th>Review Frequency</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Level 1</strong></td><td>Policies</td><td>Define the organization's intentions, direction, and commitment on information security topics. Mandatory for all in-scope personnel.</td><td>Senior Management</td><td>Annual</td></tr>
+            <tr><td><strong>Level 2</strong></td><td>Procedures</td><td>Define how policy requirements are implemented in practice. Describe step-by-step processes for key ISMS activities.</td><td>Information Security Manager</td><td>Annual or after significant change</td></tr>
+            <tr><td><strong>Level 3</strong></td><td>Work Instructions &amp; Templates</td><td>Provide detailed task-level guidance and standard forms for recording ISMS activities.</td><td>Document Owner (ISM or delegated)</td><td>Bi-annual</td></tr>
+            <tr><td><strong>Level 4</strong></td><td>Records &amp; Evidence</td><td>Evidence of ISMS activities performed. Created by completing templates or as output of ISMS processes.</td><td>N/A (completed by responsible personnel)</td><td>Retention schedule applies; no review cycle</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section">
+        <h2>5. Document Identification</h2>
+        <p>All ISMS documents must be uniquely identified using the following conventions:</p>
+
+        <h3 class="h5 mt-3">5.1 Document ID Naming Convention</h3>
+        <p>Format: <code>[TYPE]-[NNN]-[short-name]</code></p>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Prefix</th><th>Document Type</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td>POL</td><td>Policy (Level 1)</td><td>POL-001-information-security-policy</td></tr>
+            <tr><td>PRO</td><td>Procedure (Level 2)</td><td>PRO-001-risk-assessment-procedure</td></tr>
+            <tr><td>TMP</td><td>Template / Work Instruction (Level 3)</td><td>TMP-003-asset-inventory</td></tr>
+            <tr><td>REC</td><td>Record (Level 4)</td><td>REC-2025-001-risk-register</td></tr>
+            <tr><td>EXT</td><td>External Document</td><td>EXT-001-iso27001-2022-standard</td></tr>
+          </tbody>
+        </table>
+        <p>The three-digit number (NNN) is assigned sequentially within each document type prefix. Numbers are assigned by the Document Control team (ISM or delegate) and must not be reused once assigned, even if a document is retired.</p>
+
+        <h3 class="h5 mt-3">5.2 Version Numbering</h3>
+        <p>Version numbers follow a Major.Minor format:</p>
+        <ul>
+          <li><strong>Major version (e.g., 1.0 to 2.0):</strong> Significant changes to content, scope, or policy position. Requires full review and approval cycle.</li>
+          <li><strong>Minor version (e.g., 1.0 to 1.1):</strong> Minor corrections, clarifications, or small updates that do not change the substantive requirements. Requires Document Owner approval; ISM notified.</li>
+          <li><strong>Draft documents:</strong> Identified as DRAFT-[version] (e.g., DRAFT-0.1, DRAFT-0.2) until formally approved.</li>
+        </ul>
+
+        <h3 class="h5 mt-3">5.3 Required Metadata</h3>
+        <p>All documents must include the following metadata fields, typically in a header table:</p>
+        <ul>
+          <li>Document Title</li>
+          <li>Document ID</li>
+          <li>Version Number</li>
+          <li>Classification (Public / Internal / Confidential / Restricted)</li>
+          <li>Document Owner</li>
+          <li>Approved By</li>
+          <li>Effective Date</li>
+          <li>Next Review Date</li>
+          <li>Relevant ISO 27001:2022 Controls (where applicable)</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>6. Document Creation</h2>
+        <ol>
+          <li><strong>Author Eligibility:</strong> Documents may be authored by any qualified member of the information security team, IT department, or subject matter expert designated by the ISM. Authors must have sufficient knowledge of the subject matter to produce accurate and complete content.</li>
+          <li><strong>Template Use:</strong> All new documents must be created using the appropriate ISMS document template. Templates are maintained in the ISMS document repository. Use of non-standard templates is not permitted without prior ISM approval.</li>
+          <li><strong>Required Metadata:</strong> Authors must complete all required metadata fields (see Section 5.3) before submitting a document for review. Documents with incomplete metadata will be returned to the author without review.</li>
+          <li><strong>Initial Draft:</strong> The first draft must be saved as DRAFT-0.1. Subsequent draft revisions increment the minor number (DRAFT-0.2, DRAFT-0.3, etc.) until the document is approved and published as version 1.0.</li>
+          <li><strong>Content Standards:</strong> Documents must be written in plain language, be free of ambiguity, and be achievable within the organization's current capabilities and constraints. Requirements within procedures must be expressed as explicit actions with assigned roles (using RACI where applicable) and defined timelines.</li>
+        </ol>
+      </div>
+
+      <div class="policy-section">
+        <h2>7. Document Review and Approval</h2>
+        <p>The review and approval process varies by document level. All reviews must be completed using the document's tracked change or comment function (electronic) or written comment form (physical). Review comments must be retained as part of the document's change history.</p>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Document Level</th><th>Review By</th><th>Approved By</th><th>Final Approval</th></tr></thead>
+          <tbody>
+            <tr><td>Level 1 &mdash; Policy</td><td>ISM + Legal/Compliance + Relevant Department Heads</td><td>Information Security Manager</td><td>Senior Management (mandatory)</td></tr>
+            <tr><td>Level 2 &mdash; Procedure</td><td>Subject Matter Expert + Peer reviewer</td><td>Information Security Manager</td><td>ISM (senior management consulted for significant changes)</td></tr>
+            <tr><td>Level 3 &mdash; Template / Work Instruction</td><td>Peer reviewer</td><td>Document Owner</td><td>ISM notified</td></tr>
+            <tr><td>External Documents</td><td>ISM assessment of relevance and applicability</td><td>ISM</td><td>ISM</td></tr>
+          </tbody>
+        </table>
+        <p class="mt-2">Reviewers must confirm that the document is: accurate, complete, achievable, consistent with other ISMS documents, and compliant with applicable ISO 27001:2022 requirements. Reviewers document their sign-off in the document's review section or via a designated approval workflow in the document management system.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>8. Document Publication and Distribution</h2>
+        <ol>
+          <li><strong>Repository:</strong> All approved ISMS documents are stored in the designated ISMS document repository. The repository is access-controlled. Read access is available to all relevant personnel; write access is restricted to Document Control (ISM or delegate).</li>
+          <li><strong>Access Controls:</strong> Documents classified as Confidential or Restricted must be accessible only to personnel with a documented need. The ISM reviews and approves repository access permissions at least annually.</li>
+          <li><strong>Notification:</strong> Upon publication of a new or revised document, the ISM (or Document Control team) notifies all affected parties by email or internal communication channel. Notification includes: document title, ID, version, effective date, a summary of changes (for revisions), and a link to the published document.</li>
+          <li><strong>Controlled Copies:</strong> Printed copies of documents are considered uncontrolled and are marked &ldquo;UNCONTROLLED COPY &mdash; VERIFY CURRENCY BEFORE USE.&rdquo; Personnel relying on printed copies must verify currency against the repository before use. Distributing printed controlled copies requires ISM authorization and tracking in a distribution register.</li>
+          <li><strong>Archiving of Previous Versions:</strong> Upon publication of a new version, the immediately preceding version is moved to the &ldquo;Archived&rdquo; section of the repository. Archived versions are clearly marked &ldquo;SUPERSEDED &mdash; [date superseded]&rdquo; and are not accessible to general users without explicit authorization.</li>
+        </ol>
+      </div>
+
+      <div class="policy-section">
+        <h2>9. Document Control Procedure Steps</h2>
+        <ol>
+          <li><strong>Draft:</strong> The designated author creates a new document using the appropriate ISMS template. The author completes all metadata fields, drafts content in accordance with the document standards defined in Section 6, and saves the document as DRAFT-0.1 in the draft area of the ISMS repository.</li>
+          <li><strong>Submit for Review:</strong> The author submits the draft document for review by notifying the designated reviewer(s) via email or the document management workflow. The review request must include: the document ID, version, a summary of the document's purpose, and the review deadline (minimum 5 business days for Level 1&ndash;2 documents; 3 business days for Level 3).</li>
+          <li><strong>Review and Comment:</strong> Reviewer(s) conduct their review against the criteria in Section 7. Reviewers provide comments using tracked changes or a comment form. If substantial revisions are required, the reviewer returns the document to the author with documented comments. If the review is satisfactory, the reviewer records their approval in the document review section. The author must resolve all reviewer comments before proceeding. Resolved comments must be documented (either addressed or rejected with rationale).</li>
+          <li><strong>Document Owner Approval:</strong> Following successful peer or SME review, the Document Owner reviews the final draft and approves it for progression to the next approval stage. The Document Owner's approval is recorded in the document's approval section with name, role, and date.</li>
+          <li><strong>ISM Final Approval:</strong> The Information Security Manager reviews the document for completeness, consistency with the ISMS framework, and compliance with ISO 27001:2022 requirements. The ISM provides final approval or returns the document with required changes. For Level 1 policies, the ISM forwards the document to senior management for executive approval. Senior management approval must be evidenced by a named signatory and date.</li>
+          <li><strong>Assign ID and Version Number:</strong> Upon receipt of final approval, the Document Control team assigns the permanent Document ID (per Section 5.1) and increments the version to 1.0 (or the appropriate major version if a revision). The document is updated with the final ID, version, effective date, and next review date. The document is added to the Master Document Register.</li>
+          <li><strong>Publish to Repository:</strong> The Document Control team publishes the approved document to the designated ISMS document repository folder. Access permissions are set per the document classification. The Document Control team sends a notification to all affected parties (see Section 8.3). The Master Document Register is updated to reflect the new document or revision.</li>
+          <li><strong>Archive Previous Version:</strong> If this is a revision, the previous version is moved to the Archived folder, marked SUPERSEDED with the supersession date. The Master Document Register is updated to record the archived version number and date. The Document Control team confirms that no active links point to the archived version.</li>
+        </ol>
+      </div>
+
+      <div class="policy-section">
+        <h2>10. Document Review Schedule</h2>
+        <p>All documents are reviewed on the following schedule, or earlier if triggered by a significant event:</p>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Document Level</th><th>Scheduled Review Frequency</th><th>Triggered Review Triggers</th></tr></thead>
+          <tbody>
+            <tr><td>Level 1 &mdash; Policies</td><td>Annual</td><td>Significant security incident; change in law/regulation; major organizational change; management direction; audit finding</td></tr>
+            <tr><td>Level 2 &mdash; Procedures</td><td>Annual</td><td>Process change; audit finding; incident revealing procedural gap; technology change affecting the procedure</td></tr>
+            <tr><td>Level 3 &mdash; Templates / Work Instructions</td><td>Bi-annual</td><td>Change to the parent procedure or policy; user feedback indicating template is inadequate; audit finding</td></tr>
+            <tr><td>External Documents</td><td>Annual assessment of continued relevance</td><td>Standard or regulation revision; new applicable requirement identified</td></tr>
+          </tbody>
+        </table>
+        <p class="mt-2">The ISM maintains a review calendar in the Master Document Register. Review due dates are monitored monthly. Documents overdue for review must be flagged and reviewed within 30 days of the overdue date, or a formal extension must be documented and approved by the ISM.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>11. Record Management</h2>
+        <p>Records (Level 4 documented information) are managed separately from documents. Records provide evidence that ISMS activities have been performed. They must not be altered after completion. The following retention schedule applies:</p>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Record Type</th><th>Retention Period</th><th>Storage Location</th><th>Disposal Method</th></tr></thead>
+          <tbody>
+            <tr><td>Risk Registers (TMP-002)</td><td>3 years after supersession</td><td>ISMS repository &mdash; Records/Risk</td><td>Secure deletion (electronic); shredding (physical)</td></tr>
+            <tr><td>Audit Reports and Checklists (TMP-006)</td><td>3 years</td><td>ISMS repository &mdash; Records/Audit</td><td>Secure deletion; shredding</td></tr>
+            <tr><td>Corrective Action Records (TMP-005)</td><td>3 years after closure</td><td>ISMS repository &mdash; Records/CAR</td><td>Secure deletion; shredding</td></tr>
+            <tr><td>Management Review Minutes (TMP-007)</td><td>5 years</td><td>ISMS repository &mdash; Records/MgmtReview</td><td>Secure deletion; shredding</td></tr>
+            <tr><td>Training Records</td><td>Duration of employment + 2 years</td><td>HR system / ISMS repository</td><td>Secure deletion per HR policy</td></tr>
+            <tr><td>Access Request Forms (TMP-009)</td><td>2 years after account deprovisioned</td><td>ISMS repository &mdash; Records/Access</td><td>Secure deletion; shredding</td></tr>
+            <tr><td>Incident Records</td><td>5 years</td><td>ISMS repository &mdash; Records/Incidents</td><td>Secure deletion; shredding</td></tr>
+            <tr><td>Supplier Assessments</td><td>Duration of contract + 3 years</td><td>ISMS repository &mdash; Records/Suppliers</td><td>Secure deletion; shredding</td></tr>
+          </tbody>
+        </table>
+        <p class="mt-2">Records must be stored with appropriate access controls to prevent unauthorized access or modification. Physical records containing confidential or personal information must be stored in locked cabinets or secure rooms. Electronic records must be stored in access-controlled systems with audit logging enabled.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>12. Obsolete Documents</h2>
+        <ol>
+          <li>When a document is superseded by a new version or formally withdrawn, it must immediately be removed from active use locations and moved to the Archived section of the ISMS repository.</li>
+          <li>Obsolete documents must be marked with the header: <strong>&ldquo;OBSOLETE &mdash; DO NOT USE &mdash; Superseded by [Document ID] v[Version] on [Date]&rdquo;</strong>. This marking must appear on every page of the obsolete document.</li>
+          <li>Archived obsolete documents are retained for a minimum of 3 years (Level 1&ndash;2) or 2 years (Level 3) from the date of supersession, for historical reference and audit evidence purposes. After the retention period, obsolete documents are disposed of securely.</li>
+          <li>The Master Document Register must record: the document's retired status, the date of retirement, the superseding document ID and version, and the archiving location.</li>
+          <li>The Document Control team must verify, upon archiving, that no active hyperlinks, references in other current documents, or system configurations point to the obsolete document as the current version. Any references found must be updated before archiving is completed.</li>
+        </ol>
+      </div>
+
+      <div class="policy-section">
+        <h2>13. External Documents</h2>
+        <p>External documents (standards, regulations, vendor documentation, legal instruments) that are relevant to the ISMS must be identified, controlled, and managed to ensure the organization is operating against current requirements.</p>
+        <ol>
+          <li><strong>Identification:</strong> The ISM identifies relevant external documents as part of the ISMS context review (conducted annually and on significant changes). Relevant external documents include: ISO/IEC 27001:2022 and related standards, applicable data protection and privacy legislation, sector-specific regulations, contractual security requirements from customers or partners, vendor security documentation for in-scope systems, and national cyber security frameworks.</li>
+          <li><strong>Registration:</strong> Each identified external document is registered in the Master Document Register with prefix EXT, a unique number, the document title, version/edition, issuing body, effective date, and the name of the individual responsible for monitoring for updates.</li>
+          <li><strong>Access Control:</strong> External documents must be stored in the ISMS repository in a designated External Documents folder. Access permissions are set per classification. Copyrighted standards must only be stored and accessed in compliance with the relevant copyright terms.</li>
+          <li><strong>Currency Monitoring:</strong> The individual responsible for each external document must monitor for updates or revisions. When an update is identified, the ISM must assess the impact on ISMS documents and processes and initiate triggered reviews as appropriate.</li>
+          <li><strong>Distribution:</strong> Where external documents are distributed to personnel for reference, they must be clearly identified as external documents and include the retrieval date. Recipients must be instructed to verify currency before use in any decision-making.</li>
+        </ol>
+      </div>
+
+      <div class="policy-section">
+        <h2>14. Roles and Responsibilities</h2>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Activity</th><th>ISM</th><th>Document Owner</th><th>Author</th><th>Reviewer</th><th>Senior Management</th></tr></thead>
+          <tbody>
+            <tr><td>Draft document</td><td>C</td><td>C</td><td>R/A</td><td>I</td><td>I</td></tr>
+            <tr><td>Conduct peer/SME review</td><td>C</td><td>C</td><td>C</td><td>R/A</td><td>I</td></tr>
+            <tr><td>Resolve review comments</td><td>I</td><td>C</td><td>R/A</td><td>C</td><td>I</td></tr>
+            <tr><td>Document Owner approval</td><td>C</td><td>R/A</td><td>I</td><td>I</td><td>I</td></tr>
+            <tr><td>ISM final approval (L2&ndash;3)</td><td>R/A</td><td>I</td><td>I</td><td>I</td><td>I</td></tr>
+            <tr><td>Senior management approval (L1)</td><td>R</td><td>I</td><td>I</td><td>I</td><td>A</td></tr>
+            <tr><td>Assign Document ID and version</td><td>R/A</td><td>I</td><td>I</td><td>I</td><td>I</td></tr>
+            <tr><td>Publish document and notify</td><td>R/A</td><td>I</td><td>I</td><td>I</td><td>I</td></tr>
+            <tr><td>Archive obsolete versions</td><td>R/A</td><td>I</td><td>I</td><td>I</td><td>I</td></tr>
+            <tr><td>Maintain Master Document Register</td><td>R/A</td><td>I</td><td>I</td><td>I</td><td>I</td></tr>
+            <tr><td>Monitor review schedule</td><td>R/A</td><td>R</td><td>I</td><td>I</td><td>I</td></tr>
+            <tr><td>Manage record retention and disposal</td><td>R/A</td><td>C</td><td>I</td><td>I</td><td>I</td></tr>
+          </tbody>
+        </table>
+        <p class="small text-body-secondary mt-1"><em>R = Responsible, A = Accountable, C = Consulted, I = Informed</em></p>
+      </div>
+
+      <div class="policy-section">
+        <h2>15. Related Documents</h2>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Document ID</th><th>Document Title</th></tr></thead>
+          <tbody>
+            <tr><td>POL-001</td><td>Information Security Policy</td></tr>
+            <tr><td>PRO-001</td><td>Risk Assessment Procedure</td></tr>
+            <tr><td>PRO-004</td><td>Internal Audit Procedure</td></tr>
+            <tr><td>PRO-005</td><td>Corrective Action Procedure</td></tr>
+            <tr><td>TMP-001</td><td>Statement of Applicability Template</td></tr>
+            <tr><td>TMP-002</td><td>Risk Register Template</td></tr>
+            <tr><td>TMP-005</td><td>Corrective Action Request Template</td></tr>
+            <tr><td>TMP-006</td><td>Internal Audit Checklist Template</td></tr>
+            <tr><td>TMP-007</td><td>Management Review Minutes Template</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section mt-5">
+        <h2>Revision History</h2>
+        <table class="table table-bordered table-sm revision-table">
+          <thead><tr><th>Version</th><th>Date</th><th>Author</th><th>Description</th></tr></thead>
+          <tbody><tr><td>1.0</td><td>2025-01-01</td><td>Information Security Manager</td><td>Initial release</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title fs-5" id="rbacModalLabel">&#128274; Login</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <div class="modal-body"><form id="rbac-login-form" novalidate>
+        <div class="mb-3"><label for="rbac-username-input" class="form-label">Username</label><input type="text" class="form-control" id="rbac-username-input" autocomplete="username" placeholder="Enter your username" maxlength="40" required /></div>
+        <div class="mb-3"><label for="rbac-password-input" class="form-label">Password</label><input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" required /></div>
+        <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+      </form></div>
+      <div class="modal-footer border-0 pt-0"><p class="text-secondary small mb-0">Session clears when you close this tab.</p></div>
+    </div></div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" /></a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" /></a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="../privacy.html">Privacy Policy</a> &middot; <a href="../terms.html">Terms</a></p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="../users.js" defer></script>
+  <script src="../roles.js" defer></script>
+  <script src="../script.js" defer></script>
+</body>
+</html>

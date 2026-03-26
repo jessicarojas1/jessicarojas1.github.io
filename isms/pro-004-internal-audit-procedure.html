@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="../theme.css" />
+  <link rel="stylesheet" href="isms.css" />
+  <title>Internal Audit Procedure | ISMS | Jessica Rojas</title>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="../index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="../projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="../timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="../cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="../consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="../contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="../blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="../knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="../compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="../jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="../admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">&#9728;&#65039;</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content">
+    <div class="container py-4">
+      <nav aria-label="breadcrumb" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../index.html">Home</a></li><li class="breadcrumb-item"><a href="index.html">ISMS</a></li><li class="breadcrumb-item active">PRO-004</li></ol></nav>
+
+      <div class="d-flex justify-content-between align-items-start mb-4 print-btn">
+        <span class="badge bg-warning text-dark fs-6">Procedure &mdash; PRO-004</span>
+        <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">Print / Save PDF</button>
+      </div>
+
+      <div class="doc-header mb-4">
+        <table class="table table-bordered table-sm"><tbody>
+          <tr><th style="width:30%">Document Title</th><td>Internal Audit Procedure</td></tr>
+          <tr><th>Document ID</th><td>PRO-004</td></tr>
+          <tr><th>Version</th><td>1.0</td></tr>
+          <tr><th>Classification</th><td>Internal</td></tr>
+          <tr><th>Owner</th><td>Information Security Manager</td></tr>
+          <tr><th>Approved By</th><td>Senior Management</td></tr>
+          <tr><th>Effective Date</th><td>2025-01-01</td></tr>
+          <tr><th>Next Review</th><td>2026-01-01</td></tr>
+          <tr><th>ISO 27001:2022 Controls</th><td>9.2.1, 9.2.2</td></tr>
+        </tbody></table>
+      </div>
+
+      <div class="policy-section">
+        <h2>1. Purpose and Objective</h2>
+        <p>This procedure defines the requirements for planning, conducting, reporting, and following up on internal audits of the Information Security Management System (ISMS). Internal audits provide independent assurance that the ISMS conforms to ISO/IEC 27001:2022 requirements and the organization's own policies, procedures, and controls, and that the ISMS is effectively implemented and maintained.</p>
+        <p>The objectives of this procedure are to:</p>
+        <ul>
+          <li>Establish a risk-based, systematic internal audit program that provides full coverage of the ISMS over each audit cycle</li>
+          <li>Ensure internal audits are conducted objectively and impartially by competent auditors independent of the area being audited</li>
+          <li>Produce clear, evidence-based audit findings that are communicated promptly to management and auditees</li>
+          <li>Drive continual improvement by ensuring all nonconformities identified in audits are subject to formal corrective action</li>
+          <li>Provide management with reliable audit results as a key input to management review</li>
+          <li>Satisfy the requirements of ISO/IEC 27001:2022 Clauses 9.2.1 and 9.2.2</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>2. Scope</h2>
+        <p>This procedure applies to all internal audits of the ISMS, including:</p>
+        <ul>
+          <li>All ISO/IEC 27001:2022 clauses applicable to the organization</li>
+          <li>All Annex A controls included in the Statement of Applicability (TMP-001)</li>
+          <li>All ISMS policies, procedures, work instructions, and templates</li>
+          <li>All departments, functions, and locations within the ISMS scope</li>
+          <li>Third-party and supplier controls where the organization has an obligation to audit (as specified in supplier contracts)</li>
+        </ul>
+        <p>This procedure applies to all internal auditors (employees or external contractors engaged to conduct internal audits), all auditees, and all personnel involved in audit planning, oversight, and follow-up.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>3. Definitions</h2>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th style="width:25%">Term</th><th>Definition</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Audit</strong></td><td>A systematic, independent, and documented process for obtaining audit evidence and evaluating it objectively to determine the extent to which audit criteria are fulfilled.</td></tr>
+            <tr><td><strong>Audit Criteria</strong></td><td>The set of requirements, policies, procedures, or standards against which audit evidence is compared. For ISMS audits, criteria include ISO 27001:2022 requirements and internal ISMS documents.</td></tr>
+            <tr><td><strong>Audit Evidence</strong></td><td>Records, statements of fact, or other information which are relevant to the audit criteria and verifiable. Evidence may be qualitative or quantitative.</td></tr>
+            <tr><td><strong>Audit Finding</strong></td><td>The result of evaluating collected audit evidence against audit criteria. Findings may be classified as Nonconformity (Major or Minor) or Observation.</td></tr>
+            <tr><td><strong>Major Nonconformity (Major NC)</strong></td><td>The absence of a required control, a systematic failure of a control across multiple instances, a failure that represents a significant risk to the organization or to certification, or a failure to implement a requirement of ISO 27001:2022.</td></tr>
+            <tr><td><strong>Minor Nonconformity (Minor NC)</strong></td><td>An isolated failure of a control or requirement, not indicative of a systemic breakdown, and not representing an immediate significant risk. Multiple related minor NCs in the same area may be elevated to a major NC.</td></tr>
+            <tr><td><strong>Observation</strong></td><td>A finding where the auditor has identified a weakness or improvement opportunity that does not currently constitute a nonconformity but could develop into one if not addressed.</td></tr>
+            <tr><td><strong>Audit Program</strong></td><td>The set of audits planned for a defined period (typically one year), specifying audit objectives, scope, frequency, methods, and responsibilities.</td></tr>
+            <tr><td><strong>Audit Plan</strong></td><td>A description of the activities and arrangements for a specific audit, including scope, objectives, schedule, auditees, and resource requirements.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section">
+        <h2>4. Audit Program</h2>
+        <p>The ISM is responsible for establishing, implementing, maintaining, and reviewing an annual audit program that provides full coverage of all ISMS clauses and applicable Annex A controls over each audit cycle.</p>
+
+        <h3 class="h5 mt-3">4.1 Annual Audit Program Requirements</h3>
+        <ol>
+          <li>The audit program is established at the beginning of each calendar year (or ISMS cycle) and approved by senior management before the first scheduled audit.</li>
+          <li>The program must ensure that all ISO 27001:2022 Clauses 4&ndash;10 and all applicable Annex A controls are audited at least once within each 12-month cycle. High-risk areas (as identified by the current Risk Register) must be audited with greater frequency.</li>
+          <li>The audit program specifies for each planned audit: audit ID, scope and objectives, audit criteria, planned dates, lead auditor name, audit team composition, and auditee(s).</li>
+          <li>The audit program is risk-based. Areas with a higher residual risk score, previous significant nonconformities, or major process changes since the last audit receive priority scheduling and may be scheduled for more frequent audits.</li>
+          <li>The audit program is reviewed and updated quarterly to account for: newly identified risk areas, changes in organizational scope, significant incidents, and resource availability.</li>
+        </ol>
+
+        <h3 class="h5 mt-3">4.2 Auditor Independence Requirements</h3>
+        <p>Auditors must not audit areas, functions, or processes for which they have direct operational responsibility. Specifically:</p>
+        <ul>
+          <li>Auditors must not audit their own work or areas they manage</li>
+          <li>The ISM may not serve as the sole auditor for audits covering the ISM&rsquo;s own functions; a co-auditor or external auditor must be engaged</li>
+          <li>Where independence cannot be assured internally, an external auditor (qualified consultant or contracted audit firm) must be engaged for that audit scope</li>
+          <li>Independence declarations must be completed by each auditor before each audit and retained as audit records</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>5. Auditor Competence and Independence</h2>
+        <p>All internal auditors must meet the following minimum competence requirements before leading or participating in ISMS internal audits:</p>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Requirement</th><th>Lead Auditor</th><th>Audit Team Member</th></tr></thead>
+          <tbody>
+            <tr><td>Understanding of ISO 27001:2022 requirements</td><td>Comprehensive (all clauses and Annex A)</td><td>Sufficient for assigned audit scope</td></tr>
+            <tr><td>Audit methodology training</td><td>Formal training or equivalent experience (e.g., ISO 27001 Lead Auditor course, or CISA, or equivalent)</td><td>Awareness-level training in audit methodology</td></tr>
+            <tr><td>Technical knowledge</td><td>Relevant to the audit scope (e.g., IT security, physical security)</td><td>Relevant to assigned areas</td></tr>
+            <tr><td>Interview and evidence evaluation skills</td><td>Demonstrated competence</td><td>Basic familiarity</td></tr>
+            <tr><td>Independence declaration</td><td>Required before each audit</td><td>Required before each audit</td></tr>
+          </tbody>
+        </table>
+        <p class="mt-2">The ISM maintains an auditor competence matrix, recording each auditor&rsquo;s qualifications, training, and audit experience. This matrix is reviewed annually and updated after each audit. Where internal competence is insufficient for a planned audit scope, an external auditor must be engaged. All external auditors must demonstrate equivalent competence and must sign an independence declaration and confidentiality agreement before participating.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>6. Audit Planning</h2>
+        <p>The following planning steps must be completed at least 4 weeks before the scheduled audit start date:</p>
+        <ol>
+          <li><strong>Confirm Audit Scope and Objectives:</strong> The Lead Auditor confirms the scope (ISMS clauses, Annex A controls, departments, and processes to be audited) and objectives (what the audit aims to determine) with the ISM. Any changes from the planned audit program must be documented and approved by the ISM before communication to auditees.</li>
+          <li><strong>Select Audit Criteria:</strong> Identify the specific documents, standards, and requirements that will form the basis for evaluation. Audit criteria must include: the relevant ISO 27001:2022 clauses, applicable internal policies and procedures (current versions), and any specific regulatory or contractual requirements applicable to the audited area.</li>
+          <li><strong>Develop the Audit Plan:</strong> The Lead Auditor prepares the Audit Plan document (based on TMP-006), which includes: audit ID and title, scope and objectives, audit criteria, audit team and roles, schedule (dates, times, and activities), list of interviewees (by role, not necessarily by name at this stage), document requests to be made of the auditee, and logistics (location, access requirements, remote audit arrangements if applicable).</li>
+          <li><strong>Notify the Auditee:</strong> The ISM formally notifies the auditee(s) of the upcoming audit at least 2 weeks before the start date. Notification includes the Audit Plan, list of documents required for review, and the schedule for the opening meeting. Auditees are given the opportunity to raise scheduling conflicts within 3 business days. Legitimate conflicts may result in date adjustments, but audits may not be postponed simply to allow remediation of known issues.</li>
+          <li><strong>Prepare Audit Checklists:</strong> The Lead Auditor prepares detailed audit checklists (TMP-006) for each area within scope. Checklists translate audit criteria into specific, testable questions and evidence requirements. Checklists must reference ISO 27001:2022 clause numbers or Annex A control references against each question. Previous audit findings in the same area must be reviewed and incorporated into the checklist to assess whether prior corrective actions remain effective.</li>
+          <li><strong>Document Requests:</strong> The Lead Auditor requests specific documents from the auditee(s) before the audit, enabling pre-audit document review. Typical document requests include: current policies and procedures (confirming currency against Master Document Register), records from the audit period (access logs, training records, change management records, incident logs), evidence of control operation (vulnerability scan reports, patch records, configuration baselines).</li>
+        </ol>
+      </div>
+
+      <div class="policy-section">
+        <h2>7. Audit Conduct Steps</h2>
+
+        <h3 class="h5 mt-4">Step 1: Opening Meeting</h3>
+        <ol>
+          <li>The Lead Auditor conducts the opening meeting with the auditee management team, key personnel, and the ISM. The opening meeting must be documented (date, attendees, agenda items).</li>
+          <li>At the opening meeting, the Lead Auditor: introduces the audit team; confirms the audit scope, objectives, and criteria; explains the audit methodology; confirms the schedule and logistics; establishes communication channels for queries during the audit; explains the finding classification system (Major NC, Minor NC, Observation); confirms confidentiality arrangements; and invites the auditee to raise any questions or concerns.</li>
+          <li>The auditee confirms the availability of guides (personnel who will accompany the audit team during observations and provide access to systems, facilities, and records).</li>
+        </ol>
+
+        <h3 class="h5 mt-4">Step 2: Document Review</h3>
+        <ol>
+          <li>The audit team reviews all documents requested prior to or during the audit. Document review assesses: whether required documents exist; whether documents are current, approved, and version-controlled per PRO-003; whether document content meets the requirements of the audit criteria; and whether records exist to demonstrate that procedures are being followed in practice.</li>
+          <li>For each document reviewed, the auditor records: document title, ID, and version; review date; assessment outcome (Conforms / Does Not Conform / Partially Conforms); specific findings or observations; and evidence reference (e.g., file name, location in repository).</li>
+          <li>Discrepancies identified during document review (e.g., procedure requires a monthly process but no records exist) are noted as provisional findings and verified through interviews and observation before being classified as nonconformities.</li>
+        </ol>
+
+        <h3 class="h5 mt-4">Step 3: Interviews</h3>
+        <ol>
+          <li>The audit team conducts structured interviews with key personnel in the areas being audited. Interviews must be conducted with personnel at multiple levels: management (policy awareness, resource allocation, strategic direction), operational staff (process knowledge, day-to-day implementation), and technical staff (system configuration, monitoring, incident response).</li>
+          <li>Interview questions are drawn from the audit checklist (TMP-006) and must be a mix of open questions (to understand actual practice) and closed questions (to confirm specific requirements). Leading questions must be avoided.</li>
+          <li>The auditor takes notes during interviews and, where permitted, records verbatim statements that constitute audit evidence. Interviewees must be informed that their responses may be referenced in the audit report (anonymized where appropriate).</li>
+          <li>The auditor must not accept assertions or claims without seeking corroborating evidence (records, system outputs, or observation). &ldquo;We do that&rdquo; is not audit evidence; a record or system confirmation is.</li>
+        </ol>
+
+        <h3 class="h5 mt-4">Step 4: Observation</h3>
+        <ol>
+          <li>The audit team observes processes and controls in operation. Observation provides evidence that cannot be obtained from documents or interviews alone. Examples of control observations: physical access control mechanisms (badge readers, door locks, CCTV), clean desk and clear screen practices, secure destruction of physical media, user authentication procedures, secure configuration of active systems (with auditee guide present).</li>
+          <li>The auditor tests controls where possible. Testing examples: attempting to access a restricted area without authorization (with prior arrangement); checking that system timeout is configured per policy; verifying that patch levels on a sample of systems match the approved patch baseline.</li>
+          <li>Observations are documented with: the control observed, the observation method, the date and location, what was observed, and whether the observation conforms to, partially conforms to, or does not conform to the audit criteria.</li>
+        </ol>
+
+        <h3 class="h5 mt-4">Step 5: Evidence Collection</h3>
+        <ol>
+          <li>Throughout the audit, the audit team collects objective evidence to support each finding. Evidence must be sufficient, reliable, and relevant to the audit criteria.</li>
+          <li>Evidence collection methods include: photographs (of physical controls, configurations, or documentation &mdash; with auditee consent); screenshots (of system configurations, logs, or access control settings &mdash; capturing date and system name); document samples (copies of completed forms, records, or reports); system-generated reports (user access lists, patch reports, vulnerability scan outputs, log extracts); and signed interview notes.</li>
+          <li>Evidence must be labeled with: audit ID, audit date, auditee, control reference, and a brief description. Evidence is stored in the audit evidence folder in the ISMS repository, linked to the relevant checklist item.</li>
+          <li>All evidence collected must be handled in accordance with its classification level. Evidence containing personal data or sensitive system information must be stored securely and access-controlled.</li>
+        </ol>
+
+        <h3 class="h5 mt-4">Step 6: Finding Classification</h3>
+        <ol>
+          <li>At the conclusion of fieldwork, the audit team reviews all provisional findings and classifies each as Major NC, Minor NC, or Observation using the following criteria:
+            <table class="table table-bordered table-sm mt-2">
+              <thead><tr><th>Classification</th><th>Criteria</th><th>Examples</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Major NC</strong></td><td>Absence of a required control; systematic failure across multiple instances; failure to implement a mandatory ISO 27001:2022 requirement; evidence of significant risk materialization; multiple related minor NCs elevating to systemic failure</td><td>No documented risk assessment process; MFA not implemented for any privileged accounts; no access review has ever been conducted; no internal audit conducted in preceding 12 months</td></tr>
+                <tr><td><strong>Minor NC</strong></td><td>Isolated failure of a control; requirement not fully met in one or more instances; administrative or documentation gap not indicative of systemic failure; low-risk deviation from procedure</td><td>One access review completed 10 days late; a single user account not deprovisioned within the required 24-hour window; one record missing required sign-off</td></tr>
+                <tr><td><strong>Observation</strong></td><td>Improvement opportunity identified; weakness that could develop into a nonconformity; good practice from another area not applied consistently; area of potential efficiency or resilience improvement</td><td>Training records maintained in two separate systems; alert thresholds not formally documented; procedure references an older template version that has been replaced</td></tr>
+              </tbody>
+            </table>
+          </li>
+          <li>Each finding must be supported by at least one piece of objective audit evidence. Findings without supporting evidence must not be raised. Where the evidence is ambiguous, the auditor must seek additional evidence or downgrade the finding classification.</li>
+          <li>The Lead Auditor reviews all drafted findings with the audit team before the closing meeting. The team must reach consensus on each finding&rsquo;s classification. Unresolved disagreements are escalated to the ISM.</li>
+        </ol>
+
+        <h3 class="h5 mt-4">Closing Meeting</h3>
+        <ol>
+          <li>The Lead Auditor conducts a closing meeting with auditee management and the ISM. The closing meeting presents all audit findings (Major NCs, Minor NCs, and Observations) with supporting evidence. The auditee is given the opportunity to respond to each finding, clarify factual errors, and present any additional evidence not previously considered.</li>
+          <li>Factual errors in findings may be corrected at the closing meeting if supporting evidence is provided. Finding classifications may not be changed based on the auditee&rsquo;s preference; only factual corrections are accepted.</li>
+          <li>The Lead Auditor explains the corrective action process (PRO-005) and the timeframes for submitting corrective action plans. The closing meeting is documented (attendees, findings presented, auditee responses, agreed next steps).</li>
+        </ol>
+      </div>
+
+      <div class="policy-section">
+        <h2>8. Audit Report</h2>
+        <p>The Lead Auditor prepares a formal Audit Report within 10 business days of the closing meeting. The Audit Report must include:</p>
+        <ol>
+          <li><strong>Executive Summary:</strong> A one-page summary of the audit scope, key findings, overall ISMS conformance status, and the most critical actions required. Suitable for senior management consumption.</li>
+          <li><strong>Audit Information:</strong> Audit ID, date(s) conducted, audit team members, auditees, ISMS scope covered, and audit criteria used.</li>
+          <li><strong>Methodology:</strong> Summary of audit methods employed (document review, interviews, observation, testing) and the sampling approach used.</li>
+          <li><strong>Findings:</strong> Each finding listed with: finding ID, classification (Major NC / Minor NC / Observation), the specific audit criteria requirement referenced, the objective evidence supporting the finding, and the finding narrative (what was found, why it is a nonconformity or observation).</li>
+          <li><strong>Recommendations:</strong> For each Major NC and Minor NC, a recommended corrective action direction (not prescriptive; root cause analysis and action selection is the auditee&rsquo;s responsibility under PRO-005).</li>
+          <li><strong>Overall Conclusion:</strong> A statement of the overall level of conformance of the ISMS to audit criteria, including any notable positive findings (areas of strong conformance).</li>
+        </ol>
+        <p>The draft Audit Report is shared with the auditee for a factual review period of 5 business days. The auditee may only comment on factual inaccuracies. Following the review period, the ISM approves the final Audit Report and distributes it to: auditee management, the ISM, and senior management. The Audit Report is retained in the ISMS repository under Records/Audit for a minimum of 3 years.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>9. Corrective Action</h2>
+        <p>All Major NCs and Minor NCs identified in an internal audit require a Corrective Action Request (CAR) to be raised and managed under PRO-005. The following obligations apply following the issue of the final Audit Report:</p>
+        <ol>
+          <li>For each NC, the ISM raises a CAR in the CAR Register (TMP-005) within 3 business days of the final Audit Report being issued. The CAR references the audit ID, finding ID, and finding classification.</li>
+          <li>The auditee (as the responsible party) is required to complete a root cause analysis and submit a corrective action plan within the timeframes specified in PRO-005 (Critical: 5 days; High/Major NC: 10 days; Medium/Minor NC: 20 days).</li>
+          <li>The ISM reviews and approves all corrective action plans before implementation begins. Plans that do not address the root cause, or that propose inadequate actions, are returned to the auditee for revision.</li>
+          <li>Observations do not require a formal CAR but must be communicated to the auditee in writing. The auditee is encouraged to address observations and is invited to provide a voluntary improvement response. Unaddressed observations are reviewed at the next audit of the same area.</li>
+        </ol>
+      </div>
+
+      <div class="policy-section">
+        <h2>10. Audit Follow-Up</h2>
+        <ol>
+          <li>The ISM tracks the status of all open CARs arising from audit findings in the CAR Register. Status is reviewed monthly and reported to senior management quarterly.</li>
+          <li>For each NC requiring corrective action, the Lead Auditor (or an appointed follow-up auditor) conducts a verification review within the agreed corrective action implementation timeframe plus 10 business days. The verification review confirms that: the corrective action has been fully implemented; objective evidence of implementation exists; the root cause has been addressed (not just the symptom); and the risk of recurrence has been reduced.</li>
+          <li>If the verification review confirms the corrective action is effective, the CAR is closed. The closure is documented in the CAR Register with: close date, verifier name, evidence reference, and ISM approval.</li>
+          <li>If the verification review finds the corrective action is not effective, or not fully implemented by the agreed date, the CAR remains open and the ISM escalates to senior management with a revised action plan and escalated timeline. Repeated or persistent NCs are escalated to senior management for direct intervention.</li>
+          <li>A summary of closed and open CARs from each audit is included in the next management review presentation (TMP-007).</li>
+        </ol>
+      </div>
+
+      <div class="policy-section">
+        <h2>11. Audit Records</h2>
+        <p>The following records must be created and retained for each internal audit for a minimum of 3 years:</p>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Record</th><th>Responsible Party</th><th>Retention</th></tr></thead>
+          <tbody>
+            <tr><td>Audit Program (annual)</td><td>ISM</td><td>3 years from program year end</td></tr>
+            <tr><td>Audit Plan (per audit)</td><td>Lead Auditor</td><td>3 years from audit date</td></tr>
+            <tr><td>Auditor Independence Declaration</td><td>Each Auditor</td><td>3 years from audit date</td></tr>
+            <tr><td>Audit Checklists (completed)</td><td>Lead Auditor</td><td>3 years from audit date</td></tr>
+            <tr><td>Audit Evidence (documents, screenshots, photos)</td><td>Lead Auditor</td><td>3 years from audit date</td></tr>
+            <tr><td>Interview Notes</td><td>Lead Auditor</td><td>3 years from audit date</td></tr>
+            <tr><td>Opening and Closing Meeting Records</td><td>Lead Auditor</td><td>3 years from audit date</td></tr>
+            <tr><td>Final Audit Report (approved)</td><td>ISM</td><td>3 years from audit date</td></tr>
+            <tr><td>CARs raised from audit findings</td><td>ISM</td><td>3 years from CAR closure</td></tr>
+            <tr><td>Follow-up verification records</td><td>Lead Auditor / ISM</td><td>3 years from CAR closure</td></tr>
+          </tbody>
+        </table>
+        <p class="mt-2">Records must be stored in the ISMS repository under the Records/Audit folder, organized by audit ID. Access is restricted to the ISM, audit team members, and senior management. Audit records are subject to the document control requirements of PRO-003.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>12. Management Review Input</h2>
+        <p>Audit results are a mandatory input to the ISMS management review process. The ISM presents the following at each management review:</p>
+        <ul>
+          <li>Audit program completion status (audits conducted vs. planned, with explanation of any deviations)</li>
+          <li>Summary of all audit findings (count of Major NCs, Minor NCs, and Observations by audit)</li>
+          <li>Status of all open CARs arising from audit findings (open, in progress, overdue, closed)</li>
+          <li>Trend analysis: comparison of finding counts across the current and previous audit cycles</li>
+          <li>Systemic issues: areas with recurring nonconformities or persistent control weaknesses</li>
+          <li>Recommendations for changes to the audit program for the next cycle</li>
+        </ul>
+        <p>Management review decisions and actions arising from audit results must be documented in the Management Review Minutes (TMP-007) and tracked to completion.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>13. Roles and Responsibilities</h2>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Activity</th><th>Lead Auditor</th><th>Audit Team</th><th>Auditee</th><th>ISM</th><th>Senior Management</th></tr></thead>
+          <tbody>
+            <tr><td>Establish annual audit program</td><td>C</td><td>I</td><td>I</td><td>R/A</td><td>A</td></tr>
+            <tr><td>Plan individual audits</td><td>R/A</td><td>C</td><td>I</td><td>A</td><td>I</td></tr>
+            <tr><td>Prepare audit checklists</td><td>R/A</td><td>C</td><td>I</td><td>C</td><td>I</td></tr>
+            <tr><td>Conduct opening meeting</td><td>R/A</td><td>C</td><td>R</td><td>A</td><td>I</td></tr>
+            <tr><td>Conduct document review</td><td>R/A</td><td>R</td><td>C</td><td>I</td><td>I</td></tr>
+            <tr><td>Conduct interviews</td><td>R/A</td><td>R</td><td>R</td><td>I</td><td>I</td></tr>
+            <tr><td>Collect evidence</td><td>R/A</td><td>R</td><td>C</td><td>I</td><td>I</td></tr>
+            <tr><td>Classify findings</td><td>R/A</td><td>C</td><td>I</td><td>C</td><td>I</td></tr>
+            <tr><td>Conduct closing meeting</td><td>R/A</td><td>C</td><td>R</td><td>A</td><td>I</td></tr>
+            <tr><td>Prepare Audit Report</td><td>R/A</td><td>C</td><td>I</td><td>A</td><td>I</td></tr>
+            <tr><td>Raise CARs from findings</td><td>C</td><td>I</td><td>I</td><td>R/A</td><td>I</td></tr>
+            <tr><td>Implement corrective actions</td><td>I</td><td>I</td><td>R/A</td><td>A</td><td>I</td></tr>
+            <tr><td>Verify corrective action effectiveness</td><td>R/A</td><td>C</td><td>C</td><td>A</td><td>I</td></tr>
+            <tr><td>Present results to management review</td><td>C</td><td>I</td><td>I</td><td>R/A</td><td>A</td></tr>
+          </tbody>
+        </table>
+        <p class="small text-body-secondary mt-1"><em>R = Responsible, A = Accountable, C = Consulted, I = Informed</em></p>
+      </div>
+
+      <div class="policy-section">
+        <h2>14. Related Documents</h2>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Document ID</th><th>Document Title</th></tr></thead>
+          <tbody>
+            <tr><td>PRO-003</td><td>Document Control Procedure</td></tr>
+            <tr><td>PRO-005</td><td>Corrective Action Procedure</td></tr>
+            <tr><td>TMP-001</td><td>Statement of Applicability Template</td></tr>
+            <tr><td>TMP-005</td><td>Corrective Action Request Template</td></tr>
+            <tr><td>TMP-006</td><td>Internal Audit Checklist Template</td></tr>
+            <tr><td>TMP-007</td><td>Management Review Minutes Template</td></tr>
+            <tr><td>POL-001</td><td>Information Security Policy</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section mt-5">
+        <h2>Revision History</h2>
+        <table class="table table-bordered table-sm revision-table">
+          <thead><tr><th>Version</th><th>Date</th><th>Author</th><th>Description</th></tr></thead>
+          <tbody><tr><td>1.0</td><td>2025-01-01</td><td>Information Security Manager</td><td>Initial release</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title fs-5" id="rbacModalLabel">&#128274; Login</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <div class="modal-body"><form id="rbac-login-form" novalidate>
+        <div class="mb-3"><label for="rbac-username-input" class="form-label">Username</label><input type="text" class="form-control" id="rbac-username-input" autocomplete="username" placeholder="Enter your username" maxlength="40" required /></div>
+        <div class="mb-3"><label for="rbac-password-input" class="form-label">Password</label><input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" required /></div>
+        <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+      </form></div>
+      <div class="modal-footer border-0 pt-0"><p class="text-secondary small mb-0">Session clears when you close this tab.</p></div>
+    </div></div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" /></a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" /></a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="../privacy.html">Privacy Policy</a> &middot; <a href="../terms.html">Terms</a></p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="../users.js" defer></script>
+  <script src="../roles.js" defer></script>
+  <script src="../script.js" defer></script>
+</body>
+</html>

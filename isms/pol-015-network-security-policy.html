@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="../theme.css" />
+  <link rel="stylesheet" href="isms.css" />
+  <title>Network Security Policy | ISMS | Jessica Rojas</title>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="../index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="../projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="../timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="../cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="../consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="../contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="../blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="../knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="../compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="../jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="../admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content">
+    <div class="container py-4">
+      <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="../index.html">Home</a></li>
+          <li class="breadcrumb-item"><a href="index.html">ISMS</a></li>
+          <li class="breadcrumb-item active">POL-015</li>
+        </ol>
+      </nav>
+
+      <div class="d-flex justify-content-between align-items-start mb-4 print-btn">
+        <span class="badge bg-primary fs-6">Policy — POL-015</span>
+        <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">Print / Save PDF</button>
+      </div>
+
+      <div class="doc-header mb-4">
+        <table class="table table-bordered table-sm"><tbody>
+          <tr><th style="width:30%">Document Title</th><td>Network Security Policy</td></tr>
+          <tr><th>Document ID</th><td>POL-015</td></tr>
+          <tr><th>Version</th><td>1.0</td></tr>
+          <tr><th>Classification</th><td>Internal</td></tr>
+          <tr><th>Owner</th><td>Information Security Manager</td></tr>
+          <tr><th>Approved By</th><td>Senior Management</td></tr>
+          <tr><th>Effective Date</th><td>2025-01-01</td></tr>
+          <tr><th>Next Review</th><td>2026-01-01</td></tr>
+          <tr><th>ISO 27001:2022 Controls</th><td>A.8.20, A.8.21, A.8.22, A.8.23, A.5.14</td></tr>
+        </tbody></table>
+      </div>
+
+      <div class="policy-section">
+        <h2>1. Purpose</h2>
+        <p>The purpose of this Network Security Policy is to define the requirements for designing, implementing, operating, monitoring, and maintaining the organization's network infrastructure in a manner that protects the confidentiality, integrity, and availability of organizational information and systems.</p>
+        <p>Networks form the backbone of modern information systems, enabling communication between users, applications, and services. Inadequately secured networks create pathways for unauthorized access, data exfiltration, malware propagation, and denial-of-service attacks. This policy establishes the baseline security controls that must be applied across all network environments operated by or on behalf of the organization, and ensures that network security is managed in alignment with the organization's risk management framework and ISO/IEC 27001:2022 requirements.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>2. Scope</h2>
+        <p>This policy applies to all network infrastructure owned, operated, leased, or managed by or on behalf of the organization, including:</p>
+        <ul>
+          <li><strong>Wired networks:</strong> Local Area Networks (LANs), Wide Area Networks (WANs), Metropolitan Area Networks (MANs), and dedicated leased lines</li>
+          <li><strong>Wireless networks:</strong> Corporate Wi-Fi networks, guest wireless networks, and out-of-band management networks</li>
+          <li><strong>Remote access infrastructure:</strong> VPN concentrators, remote access gateways, and jump servers</li>
+          <li><strong>On-premise data center networks:</strong> Physical and virtual network infrastructure within organizational data centers</li>
+          <li><strong>Cloud networks:</strong> Virtual Private Clouds (VPCs), Virtual Networks (VNets), and associated cloud networking components across all cloud service providers used by the organization</li>
+          <li><strong>Industrial control and OT networks:</strong> Operational technology networks where applicable to the organization's operations</li>
+          <li><strong>Network management infrastructure:</strong> Network management platforms, monitoring tools, and out-of-band management networks</li>
+        </ul>
+        <p>This policy applies to all personnel responsible for designing, implementing, operating, or using organizational networks, including IT staff, network administrators, third-party managed service providers, and end users.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>3. Network Architecture and Segmentation</h2>
+        <h3 class="h5 mt-3">3.1 Segmentation Requirements</h3>
+        <p>The organization's network shall be segmented into logical zones based on the sensitivity of systems and data, and the trust level of users and devices. Network segmentation limits the impact of a security breach by containing lateral movement within a single zone and preventing unauthorized access between zones. Segmentation shall be implemented using a combination of VLANs, subnets, firewalls, and access control lists.</p>
+        <p>At minimum, the following network zones shall be defined and maintained as separate, controlled segments:</p>
+        <ul>
+          <li><strong>External / Untrusted Zone:</strong> The public internet and any other untrusted external networks</li>
+          <li><strong>Demilitarized Zone (DMZ):</strong> Hosts internet-facing services (web servers, mail relays, API gateways) that must be accessible from the internet but shall not have unrestricted access to internal networks</li>
+          <li><strong>Internal Corporate Zone:</strong> General corporate network for standard user workstations and business applications</li>
+          <li><strong>Sensitive Data Zone:</strong> Hosts systems processing or storing data classified as Confidential or Restricted (e.g., databases, file servers, HR systems, financial systems)</li>
+          <li><strong>Management Zone:</strong> Isolated network segment for network management systems, monitoring infrastructure, and privileged administrative access</li>
+          <li><strong>Development and Test Zone:</strong> Isolated environment for development and testing activities, with no direct connectivity to production systems</li>
+          <li><strong>Guest Zone:</strong> Isolated network for guest and visitor internet access with no connectivity to internal networks</li>
+        </ul>
+
+        <h3 class="h5 mt-3">3.2 Flat Networks Prohibited</h3>
+        <p>Flat network designs — in which all devices reside on a single network segment with unrestricted lateral communication — are prohibited for environments that process, store, or transmit data classified as Internal or above. The use of flat network architectures creates conditions where a single compromised device can freely communicate with all other network resources, enabling rapid lateral movement and widespread compromise. All legacy flat network environments shall be remediated according to a documented segmentation plan within the timeline agreed by the Information Security Manager.</p>
+
+        <h3 class="h5 mt-3">3.3 Inter-Zone Traffic Controls</h3>
+        <p>All traffic flows between network zones shall be explicitly authorized and documented. The default stance between zones is deny-all; only traffic flows required for authorized business purposes shall be permitted. Traffic between zones shall pass through a firewall or other enforcing security control. Documentation of permitted inter-zone traffic flows shall be maintained and reviewed at least annually.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>4. Firewall and Perimeter Security</h2>
+        <h3 class="h5 mt-3">4.1 Firewall Requirements</h3>
+        <p>Firewalls shall be deployed at all boundaries between network zones, including the perimeter between internal networks and the internet, and between internal network segments of different trust levels. Firewalls shall be enterprise-grade hardware or software products from vendors with established security track records. The following firewall types shall be deployed as appropriate:</p>
+        <ul>
+          <li><strong>Perimeter firewall:</strong> Deployed at the boundary between the organization's networks and the internet or external networks. Shall be a Next-Generation Firewall (NGFW) with application awareness, intrusion prevention, and SSL/TLS inspection capabilities.</li>
+          <li><strong>Internal segmentation firewall:</strong> Deployed between internal network zones to enforce zone-to-zone access controls.</li>
+          <li><strong>Host-based firewall:</strong> Deployed on all servers and workstations to provide additional protection against unauthorized lateral connections.</li>
+        </ul>
+
+        <h3 class="h5 mt-3">4.2 Default-Deny Rule</h3>
+        <p>All firewalls shall be configured with a default-deny (implicit deny) rule as the final rule in the ruleset. Only explicitly authorized traffic shall be permitted. Firewall rules shall specify source address, destination address, protocol, port, and direction, and shall include a documented business justification. Rules permitting "any" as either source or destination shall not be used unless explicitly authorized in writing by the Information Security Manager and supported by documented compensating controls.</p>
+
+        <h3 class="h5 mt-3">4.3 Rule Review Schedule</h3>
+        <p>Firewall rulesets shall be reviewed at least quarterly by the network security team. The review shall identify and remove or update rules that are no longer required, overly permissive, or in conflict with the current network architecture. Review results shall be documented and tracked. All firewall rule changes shall be made through the formal change management process.</p>
+
+        <h3 class="h5 mt-3">4.4 Firewall Change Process</h3>
+        <p>All changes to firewall rules shall be subject to formal change management, including: documented business justification, technical review by the network security team, approval by the Information Security Manager (or delegate) for significant changes, pre- and post-change testing, and rollback planning. Emergency firewall changes shall be documented retrospectively within 24 hours of implementation.</p>
+
+        <h3 class="h5 mt-3">4.5 IPS/IDS Requirements</h3>
+        <p>Intrusion Prevention Systems (IPS) or Intrusion Detection Systems (IDS) shall be deployed at the network perimeter and at key internal network segments to detect and alert on or prevent known attack patterns, anomalous traffic, and policy violations. IPS/IDS signatures and detection rules shall be updated at least weekly. Alerts generated by IPS/IDS shall be integrated into the SIEM for correlation and investigation. IPS blocking rules shall be reviewed to ensure they do not cause false-positive-related service disruptions.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>5. Wireless Network Security</h2>
+        <h3 class="h5 mt-3">5.1 Encryption and Authentication Standards</h3>
+        <p>All organizational wireless networks shall use WPA3 (Wi-Fi Protected Access 3) where supported by hardware. Where WPA3 is not supported by all devices requiring access, WPA2 with AES-CCMP encryption and 802.1X authentication (WPA2-Enterprise) shall be used. WPA2-Personal (PSK) is prohibited on organizational corporate networks. WEP and WPA (original) protocols are absolutely prohibited and shall not be used under any circumstances.</p>
+        <p>The SSID for corporate wireless networks shall not be named in a manner that identifies the organization's name, network vendor, or other information useful to an attacker.</p>
+
+        <h3 class="h5 mt-3">5.2 Guest Network Isolation</h3>
+        <p>Guest wireless networks shall be completely isolated from all internal organizational networks. Guest users shall have access only to the internet and shall have no ability to communicate with internal network resources. Guest network isolation shall be implemented at the firewall and switch level, not through SSID separation alone. Guest networks shall implement client isolation to prevent guests from communicating with each other where possible.</p>
+
+        <h3 class="h5 mt-3">5.3 Rogue Access Point Detection</h3>
+        <p>The organization shall deploy wireless intrusion detection/prevention capabilities to detect rogue access points (unauthorized wireless APs connected to the network) and unauthorized wireless clients. Rogue AP detection shall be continuous and alerts shall be actioned within four (4) business hours of detection. Any confirmed rogue AP shall be treated as a security incident and managed in accordance with the Incident Management Policy (POL-010).</p>
+
+        <h3 class="h5 mt-3">5.4 Wireless Security Assessments</h3>
+        <p>Wireless network security assessments shall be conducted at least annually to identify vulnerabilities, unauthorized access points, and configuration weaknesses. Assessments shall cover all organizational premises and may be conducted by internal security staff or a qualified external specialist. Critical and high-severity findings shall be remediated within the SLA timelines defined in the Vulnerability Management Policy (POL-016).</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>6. Remote Access Security</h2>
+        <h3 class="h5 mt-3">6.1 VPN Requirements</h3>
+        <p>All remote access to internal organizational networks and systems shall be conducted through an approved, encrypted Virtual Private Network (VPN) solution. Direct external access to internal systems without VPN is prohibited. The VPN solution shall implement strong encryption (AES-256 or equivalent), certificate-based authentication, and shall log all connection events.</p>
+
+        <h3 class="h5 mt-3">6.2 Split Tunneling Policy</h3>
+        <p>Split tunneling — the configuration where only traffic destined for organizational resources passes through the VPN tunnel while other traffic goes directly to the internet — shall be disabled by default for connections to internal systems. All traffic from remote workers shall be routed through the VPN gateway to enable uniform security monitoring and filtering. Exceptions to this requirement shall be approved in writing by the Information Security Manager and shall be accompanied by appropriate compensating controls such as endpoint security software and DNS filtering applied to all traffic.</p>
+
+        <h3 class="h5 mt-3">6.3 Multi-Factor Authentication</h3>
+        <p>Multi-Factor Authentication (MFA) shall be mandatory for all VPN connections without exception. MFA shall use a second factor that is independent of the network being accessed. Acceptable second factors include: authenticator application (TOTP), hardware security key (FIDO2/U2F), or smart card certificate. SMS-based OTP is acceptable only where stronger methods are not technically feasible, and this exception must be approved by the Information Security Manager.</p>
+
+        <h3 class="h5 mt-3">6.4 Session Timeout</h3>
+        <p>VPN sessions shall be configured to automatically terminate after a period of inactivity. The maximum idle timeout shall be thirty (30) minutes for connections to sensitive data zones and sixty (60) minutes for standard corporate network access. A maximum session duration of eight (8) hours shall be enforced, after which re-authentication is required regardless of activity level.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>7. Network Monitoring</h2>
+        <h3 class="h5 mt-3">7.1 Continuous Monitoring Requirements</h3>
+        <p>The organization shall implement continuous monitoring of all network environments to detect security events, anomalous behavior, policy violations, and performance issues in real time. Network monitoring shall be a 24/7/365 capability, with alerts routed to the SIEM and managed by the security operations function. Monitoring shall cover all critical network segments, including the internet perimeter, internal zone boundaries, and cloud network environments.</p>
+
+        <h3 class="h5 mt-3">7.2 NetFlow and Traffic Analysis</h3>
+        <p>NetFlow or equivalent flow data (IPFIX, sFlow) shall be collected from all core network devices and analyzed to detect communication patterns indicative of malicious activity, including beaconing behavior, large data transfers, connections to known malicious IP addresses, and unusual inter-segment communication. Flow data shall be retained for a minimum of ninety (90) days.</p>
+
+        <h3 class="h5 mt-3">7.3 Anomaly Detection</h3>
+        <p>Network anomaly detection capabilities shall be deployed to identify deviations from established baseline network behavior. Anomaly detection shall be tuned to minimize false positives while maintaining high detection sensitivity for known attack patterns. Machine learning-based behavioral analytics shall be incorporated where technically feasible. Significant anomalies shall trigger automated alerts and, where configured, automated containment responses.</p>
+
+        <h3 class="h5 mt-3">7.4 Bandwidth Monitoring</h3>
+        <p>Network bandwidth utilization shall be monitored continuously to ensure that performance meets business requirements and to detect potential data exfiltration events or denial-of-service attacks. Thresholds shall be established for normal bandwidth utilization, and alerts generated when utilization significantly deviates from baseline patterns.</p>
+
+        <h3 class="h5 mt-3">7.5 SIEM Integration</h3>
+        <p>All network security monitoring data, including firewall logs, IPS/IDS alerts, VPN logs, DNS query logs, and NetFlow data, shall be ingested into the organization's Security Information and Event Management (SIEM) platform for centralized correlation, analysis, and retention. SIEM rules shall be developed and maintained to detect known attack tactics, techniques, and procedures (TTPs) mapped to the MITRE ATT&CK framework. Retention of security event logs within the SIEM shall meet the requirements of the Compliance Policy (POL-013).</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>8. DNS Security</h2>
+        <h3 class="h5 mt-3">8.1 DNSSEC</h3>
+        <p>DNS Security Extensions (DNSSEC) shall be enabled for all organizational DNS zones to provide cryptographic authentication of DNS responses and protect against DNS spoofing and cache poisoning attacks. DNSSEC key management procedures shall be documented and key rollover conducted in accordance with vendor recommendations. DNSSEC validation shall be enabled on all recursive DNS resolvers operated by the organization.</p>
+
+        <h3 class="h5 mt-3">8.2 DNS over HTTPS and DNS over TLS</h3>
+        <p>The organization shall evaluate and implement DNS over HTTPS (DoH) or DNS over TLS (DoT) for corporate DNS resolution where technically feasible to prevent DNS query interception and eavesdropping. For endpoints, DoH/DoT shall be directed to organizationally managed resolvers rather than public resolvers to ensure that DNS filtering controls remain effective. The use of uncontrolled public DNS resolvers (e.g., 8.8.8.8 without organizational filtering) by corporate endpoints is prohibited.</p>
+
+        <h3 class="h5 mt-3">8.3 Recursive DNS Filtering and Malicious Domain Blocking</h3>
+        <p>All DNS queries from organizational endpoints shall be routed through organizationally controlled recursive DNS resolvers that implement domain filtering. DNS filtering shall block resolution of known malicious domains, command-and-control (C2) infrastructure, phishing domains, and categories of websites prohibited under the Acceptable Use Policy (POL-002). DNS filtering threat intelligence feeds shall be updated at least daily. Exceptions to DNS filtering shall be approved by the Information Security Manager and documented.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>9. Network Access Control (NAC)</h2>
+        <h3 class="h5 mt-3">9.1 Device Posture Assessment</h3>
+        <p>Network Access Control (NAC) shall be implemented to assess the security posture of devices before granting access to organizational network resources. Posture checks shall verify, at minimum: that the device is enrolled and compliant with the organization's mobile device management (MDM) or endpoint management platform; that the operating system and critical applications are running approved, up-to-date software versions; that endpoint security software (antivirus/EDR) is installed, active, and current; and that disk encryption is enabled where required by policy. Devices failing posture checks shall not be granted access to production network resources.</p>
+
+        <h3 class="h5 mt-3">9.2 Quarantine VLAN</h3>
+        <p>Devices that fail NAC posture assessments shall be redirected to a quarantine VLAN that provides access only to resources required to remediate the failed posture check (e.g., software update servers, MDM enrollment endpoints). Quarantined devices shall have no access to organizational data or services until they meet all posture requirements. Network monitoring shall alert the IT team when devices are quarantined to facilitate timely remediation.</p>
+
+        <h3 class="h5 mt-3">9.3 802.1X Authentication</h3>
+        <p>IEEE 802.1X port-based Network Access Control shall be implemented on all wired switch ports and wireless access points to authenticate devices before granting network access. Certificate-based authentication using machine certificates issued by the organization's internal Certificate Authority (CA) shall be the preferred authentication method. 802.1X shall be configured to fail closed — unauthenticated devices shall not be granted access to any network resources.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>10. Cloud Network Security</h2>
+        <h3 class="h5 mt-3">10.1 Virtual Private Cloud / Virtual Network Requirements</h3>
+        <p>All cloud-based workloads and services shall be deployed within dedicated Virtual Private Clouds (VPCs) or Virtual Networks (VNets) rather than default public network configurations. Cloud network design shall replicate the segmentation principles defined in Section 3, with separate subnets for application tiers (web, application, database), management, and monitoring. VPCs/VNets shall not be peered with external VPCs/VNets without documented business justification and approval from the Information Security Manager.</p>
+
+        <h3 class="h5 mt-3">10.2 Security Groups and Cloud Firewall Rules</h3>
+        <p>Security groups, network access control lists (NACLs), and cloud-native firewall rules shall be applied to all cloud resources. Security group rules shall follow the principle of least privilege — allowing only the minimum required inbound and outbound traffic. Rules permitting unrestricted inbound access from the internet (0.0.0.0/0) to any port shall be prohibited unless explicitly justified and compensating controls are in place. Security group configurations shall be reviewed at least quarterly and monitored continuously using cloud security posture management (CSPM) tools.</p>
+
+        <h3 class="h5 mt-3">10.3 Private Endpoints for Sensitive Services</h3>
+        <p>Cloud services storing or processing Confidential or Restricted data (e.g., managed databases, storage accounts, key vaults) shall be accessed via private endpoints (AWS PrivateLink, Azure Private Endpoint, GCP Private Service Connect) rather than public internet endpoints. Public network access to these services shall be disabled at the service level where supported by the cloud provider.</p>
+
+        <h3 class="h5 mt-3">10.4 Cloud Network Monitoring</h3>
+        <p>Cloud network traffic logs (e.g., AWS VPC Flow Logs, Azure NSG Flow Logs, GCP VPC Flow Logs) shall be enabled for all production VPCs/VNets and ingested into the SIEM for monitoring and analysis. Cloud-native security monitoring services (e.g., AWS GuardDuty, Azure Defender for Cloud, GCP Security Command Center) shall be enabled and configured in all production cloud environments. Alerts from cloud network monitoring shall be actioned in accordance with incident response procedures.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>11. Acceptable Network Use</h2>
+        <p>The organizational network shall be used only for authorized business purposes. Organizational network resources shall not be used for personal gain, illegal activities, or activities that violate the Acceptable Use Policy (POL-002). The following activities are specifically prohibited on organizational networks:</p>
+        <ul>
+          <li>Operation of peer-to-peer (P2P) file sharing software for non-business purposes (e.g., BitTorrent for personal file sharing)</li>
+          <li>Unauthorized use of network scanning or vulnerability assessment tools against organizational or third-party systems</li>
+          <li>Attempts to circumvent firewall rules, content filters, or other network security controls using proxy services, VPN tunneling, or other bypass techniques</li>
+          <li>Setting up unauthorized wireless access points, network hubs, switches, or routers connected to organizational networks</li>
+          <li>Connecting personally owned devices to organizational internal networks without prior authorization from IT</li>
+          <li>High-volume personal streaming that creates bandwidth contention and degrades network performance for business use</li>
+          <li>Port scanning, packet sniffing, or network reconnaissance not explicitly authorized for security testing purposes</li>
+        </ul>
+        <p>Violations of acceptable network use shall be handled in accordance with the Disciplinary Process defined in the Human Resource Security Policy (POL-014).</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>12. Network Security Testing</h2>
+        <h3 class="h5 mt-3">12.1 Annual Penetration Testing</h3>
+        <p>An annual network penetration test shall be conducted by a qualified, independent third-party testing provider. The test shall cover at minimum the external perimeter (internet-facing systems and services), internal network (simulating a compromised internal host or malicious insider), and wireless networks. Findings shall be reported with severity ratings, evidence, and remediation guidance. All critical and high-severity findings shall be remediated within the SLA timelines defined in the Vulnerability Management Policy (POL-016), with remediation tracked to closure.</p>
+
+        <h3 class="h5 mt-3">12.2 Quarterly Vulnerability Scanning</h3>
+        <p>Automated network vulnerability scans shall be conducted at least quarterly against all in-scope network hosts and devices. Scans shall be authenticated where possible to improve coverage and accuracy. Scan results shall be reviewed by the security team, correlated with the asset inventory, and remediation actions assigned based on severity. Scan results shall be reported to the Information Security Manager monthly.</p>
+
+        <h3 class="h5 mt-3">12.3 Network Configuration Review</h3>
+        <p>Network device configurations (routers, switches, firewalls, load balancers, VPN concentrators) shall be reviewed at least annually against approved configuration baselines (CIS Benchmarks where available). Configuration reviews shall be conducted using automated tools where possible. Identified deviations shall be documented and remediated within agreed timelines. Network configuration reviews may be included within the scope of internal or external audits.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>13. Related Documents</h2>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Document ID</th><th>Document Title</th></tr></thead>
+          <tbody>
+            <tr><td>POL-001</td><td>Information Security Policy</td></tr>
+            <tr><td>POL-002</td><td>Acceptable Use Policy</td></tr>
+            <tr><td>POL-003</td><td>Access Control Policy</td></tr>
+            <tr><td>POL-010</td><td>Incident Management Policy</td></tr>
+            <tr><td>POL-013</td><td>Compliance Policy</td></tr>
+            <tr><td>POL-014</td><td>Human Resource Security Policy</td></tr>
+            <tr><td>POL-016</td><td>Vulnerability Management Policy</td></tr>
+            <tr><td>POL-017</td><td>Risk Management Policy</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section mt-5">
+        <h2>Revision History</h2>
+        <table class="table table-bordered table-sm revision-table">
+          <thead><tr><th>Version</th><th>Date</th><th>Author</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td>1.0</td><td>2025-01-01</td><td>Information Security Manager</td><td>Initial release</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title fs-5" id="rbacModalLabel">🔒 Login</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <div class="modal-body"><form id="rbac-login-form" novalidate>
+        <div class="mb-3"><label for="rbac-username-input" class="form-label">Username</label><input type="text" class="form-control" id="rbac-username-input" autocomplete="username" placeholder="Enter your username" maxlength="40" required /></div>
+        <div class="mb-3"><label for="rbac-password-input" class="form-label">Password</label><input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" required /></div>
+        <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+      </form></div>
+      <div class="modal-footer border-0 pt-0"><p class="text-secondary small mb-0">Session clears when you close this tab.</p></div>
+    </div></div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" /></a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" /></a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="../privacy.html">Privacy Policy</a> &middot; <a href="../terms.html">Terms</a></p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="../users.js" defer></script>
+  <script src="../roles.js" defer></script>
+  <script src="../script.js" defer></script>
+</body>
+</html>

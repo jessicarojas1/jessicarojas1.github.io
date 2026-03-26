@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="../theme.css" />
+  <link rel="stylesheet" href="isms.css" />
+  <title>Business Continuity Procedure | ISMS | Jessica Rojas</title>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="../index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="../projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="../timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="../cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="../consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="../contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="../blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="../knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="../compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="../jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="../admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content">
+    <div class="container py-4">
+      <nav aria-label="breadcrumb" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../index.html">Home</a></li><li class="breadcrumb-item"><a href="index.html">ISMS</a></li><li class="breadcrumb-item active">PRO-011</li></ol></nav>
+      <div class="d-flex justify-content-between align-items-start mb-4 print-btn">
+        <span class="badge bg-warning text-dark fs-6">Procedure &mdash; PRO-011</span>
+        <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">Print / Save PDF</button>
+      </div>
+
+      <div class="doc-header mb-4">
+        <table class="table table-bordered table-sm"><tbody>
+          <tr><th style="width:30%">Document Title</th><td>Business Continuity Procedure</td></tr>
+          <tr><th>Document ID</th><td>PRO-011</td></tr>
+          <tr><th>Version</th><td>1.0</td></tr>
+          <tr><th>Classification</th><td>Internal</td></tr>
+          <tr><th>Owner</th><td>Information Security Manager</td></tr>
+          <tr><th>Approved By</th><td>Senior Management</td></tr>
+          <tr><th>Effective Date</th><td>2025-01-01</td></tr>
+          <tr><th>Next Review</th><td>2026-01-01</td></tr>
+          <tr><th>ISO 27001:2022 Controls</th><td>A.5.29, A.5.30</td></tr>
+        </tbody></table>
+      </div>
+
+      <!-- 1. Purpose -->
+      <div class="policy-section">
+        <h2>1. Purpose and Objective</h2>
+        <p>This procedure defines the processes the organization follows to prepare for, respond to, manage through, and recover from significant disruptive events affecting business operations. It operationalizes the Business Continuity Policy (POL-012) and satisfies the procedural requirements of ISO 27001:2022 Controls A.5.29 (Information security during disruption) and A.5.30 (ICT readiness for business continuity).</p>
+        <p>The objectives of this procedure are to:</p>
+        <ul>
+          <li>Define a structured, repeatable process for activating and managing the Business Continuity Plan (BCP) during a disruptive event.</li>
+          <li>Ensure critical business functions are identified, prioritized, and protected through Business Impact Analysis (BIA).</li>
+          <li>Establish clear Crisis Team structure, roles, and decision-making authority.</li>
+          <li>Define criteria and steps for BCP activation, continuity operations, and return to normal.</li>
+          <li>Require regular testing and exercising of continuity capabilities to validate their effectiveness before an actual event occurs.</li>
+          <li>Ensure information security controls are maintained at all times during continuity operations.</li>
+        </ul>
+        <p class="alert alert-warning">This document is a controlled BCP asset. All Crisis Team members must hold a current printed copy and be familiar with its contents before any activation event. Digital copies are stored in off-system locations accessible without primary IT infrastructure.</p>
+      </div>
+
+      <!-- 2. Scope -->
+      <div class="policy-section">
+        <h2>2. Scope</h2>
+        <p>This procedure applies to:</p>
+        <ul>
+          <li>All critical business functions identified in the Business Impact Analysis (BIA) as having an RTO of less than 72 hours.</li>
+          <li>All IT systems classified as Tier 1 or Tier 2 in the Backup and Recovery Procedure (PRO-009) and Asset Inventory (TMP-003).</li>
+          <li>All supporting resources for critical functions: key personnel, facilities, third-party services, utilities, and communications infrastructure.</li>
+          <li>All Crisis Team members and their designated alternates.</li>
+          <li>All staff affected by continuity events who must operate under alternate working arrangements.</li>
+        </ul>
+        <p>This procedure supplements but does not replace departmental-level continuity plans, which must be maintained consistent with the overall BCP and reviewed against this procedure annually.</p>
+      </div>
+
+      <!-- 3. Definitions -->
+      <div class="policy-section">
+        <h2>3. Definitions</h2>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th style="width:20%">Term</th><th>Definition</th></tr></thead>
+          <tbody>
+            <tr><td><strong>BCP</strong></td><td>Business Continuity Plan — the documented set of procedures and information to enable the organization to continue critical business functions during a disruptive event.</td></tr>
+            <tr><td><strong>DRP</strong></td><td>Disaster Recovery Plan — the IT-focused component of the BCP covering recovery of technology systems, data, and IT services. Operationalized primarily through PRO-009.</td></tr>
+            <tr><td><strong>BIA</strong></td><td>Business Impact Analysis — the process of identifying critical business functions and quantifying the impact of their disruption over time, used to set RTO, RPO, and MTD requirements.</td></tr>
+            <tr><td><strong>RTO</strong></td><td>Recovery Time Objective — the maximum acceptable duration of downtime for a business function or system before the impact becomes unacceptable.</td></tr>
+            <tr><td><strong>RPO</strong></td><td>Recovery Point Objective — the maximum acceptable amount of data loss, measured in time, in the event of a system failure or data loss incident.</td></tr>
+            <tr><td><strong>MTD</strong></td><td>Maximum Tolerable Downtime — the absolute outer limit of downtime beyond which the organization cannot recover to normal operations; the point of no return.</td></tr>
+            <tr><td><strong>Crisis Team</strong></td><td>The leadership group formally activated to manage the organization's response to a significant disruptive event. Includes primary and alternate members for each designated role.</td></tr>
+            <tr><td><strong>Activation</strong></td><td>The formal decision by the Crisis Team Leader to invoke the BCP and begin managed continuity operations.</td></tr>
+            <tr><td><strong>Tabletop Exercise</strong></td><td>A facilitated discussion-based exercise where the Crisis Team talks through their response to a hypothetical scenario without activating real systems or physically moving operations.</td></tr>
+            <tr><td><strong>Functional Exercise</strong></td><td>A partial activation exercise testing specific components of the BCP (e.g., IT failover to alternate site) without full operational disruption.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 4. Business Impact Analysis -->
+      <div class="policy-section">
+        <h2>4. Business Impact Analysis</h2>
+        <p>The BIA is the foundation of the BCP. It identifies which functions matter most and defines how quickly they must be restored. The BIA must be completed initially before the BCP is put in place, and refreshed annually and after significant operational changes. The following process governs BIA execution:</p>
+        <ol>
+          <li><strong>Identify all critical business functions.</strong> Interview process owners across all departments. Document every business function, including those partially or fully supported by third parties. No function is excluded from initial assessment; criticality is determined through the impact scoring in subsequent steps, not by assumption.</li>
+          <li><strong>Identify dependencies for each function.</strong> For each function, document the resources it depends upon: key personnel (named roles and minimum staffing levels), IT systems and applications (cross-reference TMP-003), physical facilities and workspace, critical suppliers and service providers, utilities (power, connectivity, water), and regulatory or legal requirements that do not pause during a disruption.</li>
+          <li><strong>Define impact over time.</strong> For each function, assess and document the consequences of disruption at defined time intervals: 1 hour, 4 hours, 24 hours, 72 hours, and 1 week. Impacts to assess include: financial loss (revenue, penalties, contractual breach), operational impact (what cannot be done, downstream effects), reputational impact (customer, media, partner), and regulatory or legal consequences (notification obligations, licence risk).</li>
+          <li><strong>Define RTO and RPO.</strong> Based on the impact assessment, define the RTO (how quickly must this function be restored?) and RPO (how much data loss is tolerable for supporting systems?) for each critical function. RTO and RPO must be set to values achievable with available resources; unrealistic objectives that cannot be met by IT must be escalated to senior management for resource decisions.</li>
+          <li><strong>Define MTD.</strong> Identify the point of no return: the maximum time the function can be unavailable before the organization faces consequences from which it cannot recover (loss of critical licence, irretrievable customer loss, regulatory enforcement, financial insolvency). MTD frames the absolute boundary within which BCP activation must succeed.</li>
+          <li><strong>Prioritize recovery order.</strong> Rank critical functions by MTD (shortest MTD = highest priority) and operational interdependency (some functions cannot start until others are restored). Produce a prioritized recovery sequence that IT and operations teams can follow during an activation event.</li>
+          <li><strong>Document and obtain sign-off.</strong> Compile findings in a BIA report. The report must be reviewed and signed off by each process owner (confirming their function's impact data and RTO/RPO) and by senior management. Unsigned BIA is not considered valid for BCP purposes.</li>
+          <li><strong>Maintain the BIA.</strong> Review the BIA annually as part of the BCP review cycle. Trigger an out-of-cycle BIA update for any significant operational change: new critical system deployment, outsourcing of a critical function, major supplier change, new facility, or significant change in regulatory environment.</li>
+        </ol>
+      </div>
+
+      <!-- 5. Crisis Team Structure -->
+      <div class="policy-section">
+        <h2>5. Crisis Team Structure</h2>
+        <p>The Crisis Team is the decision-making body during a BCP activation. All roles must have a designated primary and a trained alternate. The out-of-band contact list (including personal mobile numbers for all primary and alternate members) is maintained in printed form held by each Crisis Team member and in a secure cloud storage location accessible without organizational IT systems.</p>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm">
+            <thead class="table-secondary">
+              <tr><th>Role</th><th>Organizational Title</th><th>Primary Responsibilities</th><th>Alternate</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Crisis Team Leader</strong></td>
+                <td>CEO / COO / Designated Senior Executive</td>
+                <td>Activation decision, overall command, stakeholder communication at executive level, ransom/significant decision authority</td>
+                <td>Designated alternate senior executive</td>
+              </tr>
+              <tr>
+                <td><strong>IT / DR Lead</strong></td>
+                <td>Head of IT / IT Director</td>
+                <td>Activate DRP, manage IT system recovery, coordinate with backup procedure (PRO-009), manage alternate site IT infrastructure</td>
+                <td>Senior IT Systems Administrator</td>
+              </tr>
+              <tr>
+                <td><strong>Communications Lead</strong></td>
+                <td>Head of Communications / Marketing Director</td>
+                <td>Staff communications, customer and external stakeholder communications, media management, status updates</td>
+                <td>Designated communications team member</td>
+              </tr>
+              <tr>
+                <td><strong>HR Lead</strong></td>
+                <td>HR Director / Head of People</td>
+                <td>Staff welfare, alternate work arrangements, staffing shortfalls during disruption, personnel-related regulatory notifications</td>
+                <td>Senior HR Business Partner</td>
+              </tr>
+              <tr>
+                <td><strong>Finance Lead</strong></td>
+                <td>CFO / Finance Director</td>
+                <td>Financial continuity, emergency procurement authority, cost tracking during event, insurance claims</td>
+                <td>Financial Controller</td>
+              </tr>
+              <tr>
+                <td><strong>Information Security Lead (ISM)</strong></td>
+                <td>Information Security Manager</td>
+                <td>Security monitoring during event, approval of any temporary security control relaxations, ransomware/cyber incident coordination, post-event security review</td>
+                <td>Designated security team member</td>
+              </tr>
+              <tr>
+                <td><strong>Legal / Compliance Lead</strong></td>
+                <td>General Counsel / Head of Compliance</td>
+                <td>Regulatory notification obligations, contractual obligations to customers/suppliers, law enforcement liaison, advice on significant decisions</td>
+                <td>Deputy Counsel / Senior Compliance Officer</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>All primary and alternate Crisis Team members must participate in at least one annual BCP exercise to maintain readiness. New members must receive a BCP briefing within 30 days of appointment.</p>
+      </div>
+
+      <!-- 6. BCP Activation -->
+      <div class="policy-section">
+        <h2>6. BCP Activation Criteria and Procedure</h2>
+
+        <h3 class="h5 mt-3">Activation Triggers</h3>
+        <p>The BCP may be activated when any of the following conditions are identified or reasonably anticipated:</p>
+        <ul>
+          <li>Complete or partial loss of access to the primary facility (fire, flood, structural damage, utility failure, denial of access).</li>
+          <li>Critical IT system failure or outage exceeding the RTO threshold for one or more Tier 1 systems, with no immediate path to restoration through normal IT operations.</li>
+          <li>Pandemic, mass casualty event, or public health emergency affecting a significant proportion of the workforce.</li>
+          <li>Ransomware or cyberattack affecting core operational systems (coordinate with PRO-007 Incident Response).</li>
+          <li>Critical supplier failure with no immediate alternative available and exceeding the function's RTO.</li>
+          <li>Natural disaster or severe weather event preventing normal operations.</li>
+          <li>Regulatory action requiring immediate and material operational change.</li>
+        </ul>
+
+        <h3 class="h5 mt-3">Activation Steps</h3>
+        <ol>
+          <li><strong>Identify the trigger.</strong> Any responsible manager, IT Operations, ISM, or Crisis Team member who identifies a potential activation trigger immediately notifies the Crisis Team Leader by the most direct available means (phone call preferred; do not rely solely on organizational email if IT systems are affected).</li>
+          <li><strong>Crisis Team Leader assesses the situation.</strong> The Crisis Team Leader evaluates whether the event meets activation criteria, assesses the likely scope and duration, and determines whether activation should be full (all BCP procedures) or partial (specific modules only). This assessment should not exceed 30 minutes for rapidly evolving events.</li>
+          <li><strong>Crisis Team Leader declares activation.</strong> If activation criteria are met, the Crisis Team Leader formally declares BCP activation. All Crisis Team members are notified within 30 minutes of declaration. Notification method: direct phone call to primary; if unavailable, alternate is called. The declaration is documented with time, date, and scope.</li>
+          <li><strong>Crisis Team convenes.</strong> The full Crisis Team convenes (in-person at the designated assembly point or via the out-of-band conference bridge) within 1 hour of activation declaration. The initial meeting agenda: confirm situation and scope, confirm team assignments, set initial objectives for the first 4 hours, confirm communication channels, assign a dedicated scribe to maintain the Crisis Log.</li>
+          <li><strong>Communications Lead notifies staff.</strong> Within 2 hours of activation, the Communications Lead issues a staff notification via the out-of-band communication method (personal mobile phones or designated messaging platform) advising: what has happened (at appropriate confidentiality level), current working arrangements, where to report and how to contact their manager, and where to find further updates.</li>
+          <li><strong>IT/DR Lead activates the Disaster Recovery Plan.</strong> The IT/DR Lead initiates IT system recovery per PRO-009, following the prioritized recovery sequence from the BIA. The IT/DR Lead provides status updates to the Crisis Team at each check-in interval.</li>
+          <li><strong>Senior management and board notification.</strong> The Crisis Team Leader or designated alternate notifies senior management and, for significant events, the board of directors. Notification timing: within 2 hours for events with material financial or reputational impact; within 4 hours for operational events with contained scope.</li>
+          <li><strong>External notifications.</strong> The Communications Lead handles customer and client communications per pre-prepared communication templates. The Legal/Compliance Lead handles regulatory notifications (timing requirements vary by jurisdiction and event type; Legal must advise within the first 2 hours). Relevant team leads handle supplier notifications.</li>
+        </ol>
+      </div>
+
+      <!-- 7. Continuity Operations -->
+      <div class="policy-section">
+        <h2>7. Continuity Operations</h2>
+
+        <h3 class="h5 mt-3">Communication Plan</h3>
+        <p>Organizational communication infrastructure may be unavailable during a continuity event. The out-of-band communication plan is activated immediately upon BCP activation:</p>
+        <ul>
+          <li><strong>Primary channel:</strong> Designated out-of-band conference bridge (number distributed to all Crisis Team members in advance; printed on BCP reference card).</li>
+          <li><strong>Backup channel:</strong> Personal mobile phones. The current personal mobile contact list for all Crisis Team members and key staff is distributed in printed form to all Crisis Team members at each annual review cycle.</li>
+          <li><strong>Secondary backup:</strong> Personal email addresses (non-organizational) for Crisis Team members; listed in off-system contact document.</li>
+          <li><strong>Communications Log:</strong> The designated Scribe maintains a running Communications Log throughout the event, recording all significant communications: time, sender, recipient(s), content summary, and any decisions or actions arising.</li>
+        </ul>
+
+        <h3 class="h5 mt-3">Decision-Making Cadence</h3>
+        <p>The Crisis Team maintains the following structured meeting cadence during an activation event:</p>
+        <ul>
+          <li><strong>First 4 hours:</strong> Hourly check-ins. Agenda: IT recovery status, staff situation, external communication status, emerging risks, next actions.</li>
+          <li><strong>Hours 4–24:</strong> Every 4 hours. Agenda: recovery progress, escalating issues, resource needs, timeline assessment.</li>
+          <li><strong>Day 2 onwards:</strong> Daily Crisis Team meeting. All decisions documented in the Crisis Log with: decision description, decision maker, rationale, time, and follow-up actions.</li>
+        </ul>
+
+        <h3 class="h5 mt-3">Status Update Schedule</h3>
+        <table class="table table-bordered table-sm">
+          <thead class="table-secondary">
+            <tr><th>Severity Level</th><th>Description</th><th>Update Frequency</th><th>Audience</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><span class="badge bg-danger">P1 Critical</span></td><td>Core business functions down; multiple systems affected; material financial or regulatory impact</td><td>Hourly</td><td>All staff, management, board</td></tr>
+            <tr><td><span class="badge bg-warning text-dark">P2 Major</span></td><td>Significant disruption to one or more business areas; contained financial impact</td><td>Every 4 hours</td><td>Affected staff, management</td></tr>
+            <tr><td><span class="badge bg-info text-dark">P3 Significant</span></td><td>Localized disruption; workarounds in place; limited external impact</td><td>Twice daily</td><td>Affected staff, relevant managers</td></tr>
+          </tbody>
+        </table>
+
+        <h3 class="h5 mt-3">Information Security During Continuity</h3>
+        <p>Information security controls must be maintained throughout any continuity event. Disruption periods are a known exploitation window for threat actors. The following requirements apply:</p>
+        <ul>
+          <li>The ISM maintains elevated monitoring of all accessible systems throughout the event.</li>
+          <li>Any temporary relaxation of security controls (e.g., disabling MFA for a subset of users to enable access via alternate route) requires ISM written approval, is time-limited, documented in the Crisis Log, and is reviewed for re-enablement at each check-in.</li>
+          <li>Any temporary security control relaxation is treated as a risk acceptance; it must state: control relaxed, reason, scope, duration, compensating controls in place, and ISM signature.</li>
+          <li>Access provisioning during a continuity event still requires approval from the system owner or Crisis Team Leader; emergency access is not blanket authorization.</li>
+        </ul>
+      </div>
+
+      <!-- 8. Alternate Site and Remote Operations -->
+      <div class="policy-section">
+        <h2>8. Alternate Site and Remote Operations</h2>
+        <p>When the primary facility is unavailable or compromised, operations must continue from an alternate location. The following options are available in order of preference based on event type and recovery requirements:</p>
+        <ol>
+          <li><strong>Pre-arranged warm or hot alternate site:</strong> A physical site with pre-configured workstations and network connectivity, capable of supporting critical business functions with minimal setup. Preferred for events requiring physical co-location of staff (e.g., facility loss).</li>
+          <li><strong>Cloud-based virtual infrastructure:</strong> Recovery to a cloud environment where IT systems are pre-configured or rapidly provisionable. Preferred for IT system failures and cyberattacks where physical space is unaffected. Coordinate with PRO-009.</li>
+          <li><strong>Vendor or partner site under mutual aid agreement:</strong> Use of a supplier's or partner's facility under a pre-existing mutual aid agreement. Requires activation of the agreement per documented terms. Legal/Compliance Lead to be notified.</li>
+          <li><strong>Remote and home working for all staff:</strong> All staff directed to work from home or alternate remote locations, coordinating via out-of-band communication channels. Requires VPN or cloud-based application access. IT/DR Lead confirms remote access capacity before this option is activated at scale.</li>
+        </ol>
+        <p>Upon activating an alternate site or remote working arrangement, the IT/DR Lead must:</p>
+        <ul>
+          <li>Confirm alternate site or remote access readiness and capacity before directing staff to use it.</li>
+          <li>Route DNS, VPN gateways, and communication platforms to the alternate environment as required.</li>
+          <li>Verify that security controls at the alternate site meet minimum requirements per POL-007 Physical Security Policy and POL-015 Network Security Policy. Deficiencies must be risk-accepted by ISM if they cannot be immediately remediated.</li>
+          <li>Provide IT support capability to staff transitioning to the alternate environment.</li>
+        </ul>
+      </div>
+
+      <!-- 9. Return to Normal Operations -->
+      <div class="policy-section">
+        <h2>9. Return to Normal Operations</h2>
+        <p>Return to normal operations is a controlled process that must not be rushed. An uncontrolled return can introduce new risks if the root cause of the disruption is not fully resolved. The following steps govern the return process:</p>
+        <ol>
+          <li><strong>Crisis Team Leader assesses conditions for return.</strong> Before initiating return, the following criteria must all be met: the primary site and systems are available, tested, and confirmed secure; the root cause of the disruption is resolved or sufficiently mitigated; staff can return safely; all critical business functions are verified as operational in the primary environment.</li>
+          <li><strong>Phased return plan.</strong> Return is phased to reduce risk:
+            <ul>
+              <li>Phase 1: IT systems restored and verified in the primary environment, with enhanced monitoring active.</li>
+              <li>Phase 2: Operations staff return and resume primary-site functions; confirm service quality and data integrity.</li>
+              <li>Phase 3: Full staff return; alternate site or remote arrangements stood down; external stakeholders notified of return to normal.</li>
+            </ul>
+          </li>
+          <li><strong>Enhanced monitoring for 72 hours post-return.</strong> The ISM maintains elevated security monitoring for a minimum of 72 hours after full return to normal operations. This period is used to detect any residual threats, latent malware, or unauthorized access that may have been introduced during the continuity event.</li>
+          <li><strong>Reverse all temporary measures.</strong> Confirm all temporary security control relaxations approved during the event have been reversed. Confirm all emergency access provisioned during the event has been revoked or re-reviewed. Confirm all alternate-site configurations have been stood down and are no longer accessible.</li>
+          <li><strong>Post-incident review.</strong> Within 5 business days of full return to normal, the Crisis Team Leader convenes a post-incident review with all relevant Crisis Team members and operational staff. The review must cover: full timeline of events and decisions, assessment of BCP performance against objectives, what worked well and what did not, root cause confirmation, and corrective actions required. Corrective actions are documented and tracked via PRO-005. The BCP is updated based on lessons learned before the next review cycle.</li>
+        </ol>
+      </div>
+
+      <!-- 10. Testing and Exercising -->
+      <div class="policy-section">
+        <h2>10. Testing and Exercising</h2>
+        <p>A BCP that has not been tested is not a reliable BCP. Regular testing validates that procedures work, people know their roles, and systems can be recovered within defined timeframes. The following testing schedule is mandatory:</p>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm">
+            <thead class="table-secondary">
+              <tr><th>Frequency</th><th>Exercise Type</th><th>Scope</th><th>Lead</th><th>Output</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Monthly</strong></td>
+                <td>Backup restoration test</td>
+                <td>Per PRO-009 schedule; spot restore tests for in-scope systems</td>
+                <td>IT Operations</td>
+                <td>Backup test log</td>
+              </tr>
+              <tr>
+                <td><strong>Quarterly</strong></td>
+                <td>DR test — critical systems</td>
+                <td>Full IT recovery test for all Tier 1 systems to isolated environment; verify application functionality; measure against RTO</td>
+                <td>IT/DR Lead</td>
+                <td>Quarterly DR test report</td>
+              </tr>
+              <tr>
+                <td><strong>Semi-annual</strong></td>
+                <td>Tabletop exercise</td>
+                <td>Scenario-based facilitated discussion with Crisis Team. Scenario chosen by ISM (varied each exercise: e.g., ransomware, facility loss, pandemic, supplier failure). Walk through activation steps, roles, decisions, communications. Identify gaps without activating real systems.</td>
+                <td>ISM (facilitator)</td>
+                <td>Tabletop exercise report; findings and corrective actions</td>
+              </tr>
+              <tr>
+                <td><strong>Annual</strong></td>
+                <td>Full BCP activation test</td>
+                <td>Minimum: functional exercise activating alternate site and testing all critical business function recovery. Full interruption test (where operationally feasible) conducted at minimum every 2–3 years. Include alternate site activation, crisis team communication rehearsal, and stakeholder notification test.</td>
+                <td>Crisis Team Leader / ISM</td>
+                <td>Annual BCP test report; input to Management Review (TMP-007)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>All tests and exercises must be documented with: date, participants, scenario used (for tabletop and functional exercises), findings, pass/fail results against stated objectives, and corrective actions with owners and due dates. Corrective actions are tracked via PRO-005. The ISM compiles and distributes test reports within 10 business days of the exercise.</p>
+      </div>
+
+      <!-- 11. Plan Maintenance -->
+      <div class="policy-section">
+        <h2>11. Plan Maintenance</h2>
+        <p>The BCP is a living document that must be kept current to be effective. The following maintenance requirements apply:</p>
+        <ul>
+          <li><strong>Annual review:</strong> ISM and Crisis Team conduct a full review of this procedure and all related BCP documentation annually.</li>
+          <li><strong>Update triggers (out-of-cycle review required):</strong>
+            <ul>
+              <li>Significant change to critical systems or IT infrastructure.</li>
+              <li>Change to any Crisis Team primary or alternate member.</li>
+              <li>Findings from a test, exercise, or actual activation event requiring procedural changes.</li>
+              <li>Incident lessons learned identifying gaps in this procedure.</li>
+              <li>Material change in the supplier landscape (critical supplier added, removed, or significantly changed).</li>
+              <li>New facility, site, or major cloud migration changing the IT continuity landscape.</li>
+            </ul>
+          </li>
+          <li><strong>Version control:</strong> All revisions follow PRO-003 Document Control Procedure. Previous versions are archived with change records.</li>
+          <li><strong>Distribution:</strong> All Crisis Team members (primary and alternate) must hold a current printed copy and confirm receipt. Digital copies are stored in: (1) the ISMS document repository, and (2) an off-system location (encrypted cloud storage or secure external drive) accessible without the organization's primary IT infrastructure. The ISM maintains the distribution list and confirms all copies are current after each revision.</li>
+        </ul>
+      </div>
+
+      <!-- 12. Roles and Responsibilities -->
+      <div class="policy-section">
+        <h2>12. Roles and Responsibilities</h2>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm">
+            <thead class="table-secondary">
+              <tr>
+                <th>Activity</th>
+                <th>Crisis Team Leader</th>
+                <th>IT/DR Lead</th>
+                <th>Comms Lead</th>
+                <th>ISM</th>
+                <th>HR</th>
+                <th>Finance</th>
+                <th>Legal</th>
+                <th>All Staff</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>BCP activation decision</td><td class="text-center"><strong>A, R</strong></td><td class="text-center">C</td><td class="text-center">I</td><td class="text-center">C</td><td class="text-center">I</td><td class="text-center">I</td><td class="text-center">C</td><td class="text-center">I</td></tr>
+              <tr><td>Staff notification</td><td class="text-center">I</td><td class="text-center">I</td><td class="text-center"><strong>A, R</strong></td><td class="text-center">I</td><td class="text-center">R</td><td class="text-center">I</td><td class="text-center">I</td><td class="text-center">I</td></tr>
+              <tr><td>IT system recovery (DRP)</td><td class="text-center">I</td><td class="text-center"><strong>A, R</strong></td><td class="text-center">I</td><td class="text-center">C</td><td class="text-center">—</td><td class="text-center">—</td><td class="text-center">—</td><td class="text-center">—</td></tr>
+              <tr><td>External communications</td><td class="text-center">I</td><td class="text-center">I</td><td class="text-center"><strong>A, R</strong></td><td class="text-center">I</td><td class="text-center">—</td><td class="text-center">—</td><td class="text-center">C</td><td class="text-center">—</td></tr>
+              <tr><td>Security monitoring</td><td class="text-center">I</td><td class="text-center">R</td><td class="text-center">—</td><td class="text-center"><strong>A, R</strong></td><td class="text-center">—</td><td class="text-center">—</td><td class="text-center">—</td><td class="text-center">—</td></tr>
+              <tr><td>Regulatory notifications</td><td class="text-center">I</td><td class="text-center">—</td><td class="text-center">R</td><td class="text-center">C</td><td class="text-center">—</td><td class="text-center">—</td><td class="text-center"><strong>A, R</strong></td><td class="text-center">—</td></tr>
+              <tr><td>Return-to-normal decision</td><td class="text-center"><strong>A, R</strong></td><td class="text-center">C</td><td class="text-center">—</td><td class="text-center">C</td><td class="text-center">—</td><td class="text-center">—</td><td class="text-center">C</td><td class="text-center">—</td></tr>
+              <tr><td>Post-incident review</td><td class="text-center">R</td><td class="text-center">R</td><td class="text-center">R</td><td class="text-center"><strong>A, R</strong></td><td class="text-center">R</td><td class="text-center">R</td><td class="text-center">R</td><td class="text-center">I</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="text-body-secondary small"><strong>RACI Key:</strong> R = Responsible (performs the activity), A = Accountable (owns the outcome), C = Consulted (input required), I = Informed (notified).</p>
+      </div>
+
+      <!-- 13. Related Documents -->
+      <div class="policy-section">
+        <h2>13. Related Documents</h2>
+        <ul>
+          <li><a href="pol-012-business-continuity-policy.html">POL-012 — Business Continuity Policy</a></li>
+          <li><a href="pro-007-incident-response-procedure.html">PRO-007 — Incident Response Procedure</a></li>
+          <li><a href="pro-009-backup-recovery-procedure.html">PRO-009 — Backup and Recovery Procedure</a></li>
+          <li><a href="tmp-003-asset-inventory.html">TMP-003 — Asset Inventory</a></li>
+          <li>TMP-007 — Management Review Template</li>
+          <li><a href="pro-003-document-control-procedure.html">PRO-003 — Document Control Procedure</a></li>
+          <li><a href="pol-007-physical-security-policy.html">POL-007 — Physical Security Policy</a></li>
+          <li><a href="pol-015-network-security-policy.html">POL-015 — Network Security Policy</a></li>
+        </ul>
+      </div>
+
+      <!-- Revision History -->
+      <div class="policy-section mt-5">
+        <h2>Revision History</h2>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Version</th><th>Date</th><th>Author</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td>1.0</td><td>2025-01-01</td><td>Information Security Manager</td><td>Initial release</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </main>
+
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title fs-5" id="rbacModalLabel">🔒 Login</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <div class="modal-body"><form id="rbac-login-form" novalidate>
+        <div class="mb-3"><label for="rbac-username-input" class="form-label">Username</label><input type="text" class="form-control" id="rbac-username-input" autocomplete="username" maxlength="40" required /></div>
+        <div class="mb-3"><label for="rbac-password-input" class="form-label">Password</label><input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" required /></div>
+        <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+      </form></div>
+      <div class="modal-footer border-0 pt-0"><p class="text-secondary small mb-0">Session clears when you close this tab.</p></div>
+    </div></div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" /></a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" /></a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="../privacy.html">Privacy Policy</a> &middot; <a href="../terms.html">Terms</a></p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="../users.js" defer></script>
+  <script src="../roles.js" defer></script>
+  <script src="../script.js" defer></script>
+</body>
+</html>

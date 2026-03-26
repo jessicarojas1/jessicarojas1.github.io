@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="../theme.css" />
+  <link rel="stylesheet" href="isms.css" />
+  <title>Backup and Recovery Procedure | ISMS | Jessica Rojas</title>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="../index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="../projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="../timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="../cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="../consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="../contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="../blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="../knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="../compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="../jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="../admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content">
+    <div class="container py-4">
+      <nav aria-label="breadcrumb" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../index.html">Home</a></li><li class="breadcrumb-item"><a href="index.html">ISMS</a></li><li class="breadcrumb-item active">PRO-009</li></ol></nav>
+      <div class="d-flex justify-content-between align-items-start mb-4 print-btn">
+        <span class="badge bg-warning text-dark fs-6">Procedure &mdash; PRO-009</span>
+        <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">Print / Save PDF</button>
+      </div>
+
+      <div class="doc-header mb-4">
+        <table class="table table-bordered table-sm"><tbody>
+          <tr><th style="width:30%">Document Title</th><td>Backup and Recovery Procedure</td></tr>
+          <tr><th>Document ID</th><td>PRO-009</td></tr>
+          <tr><th>Version</th><td>1.0</td></tr>
+          <tr><th>Classification</th><td>Internal</td></tr>
+          <tr><th>Owner</th><td>Information Security Manager</td></tr>
+          <tr><th>Approved By</th><td>Senior Management</td></tr>
+          <tr><th>Effective Date</th><td>2025-01-01</td></tr>
+          <tr><th>Next Review</th><td>2026-01-01</td></tr>
+          <tr><th>ISO 27001:2022 Controls</th><td>A.8.13</td></tr>
+        </tbody></table>
+      </div>
+
+      <!-- 1. Purpose -->
+      <div class="policy-section">
+        <h2>1. Purpose and Objective</h2>
+        <p>This procedure defines the requirements, responsibilities, and step-by-step processes for protecting organizational information through systematic backup and enabling timely, verified recovery in the event of data loss, system failure, ransomware, or any other disruptive incident. The objective is to ensure that all critical data and systems can be restored within defined Recovery Time Objectives (RTO) and Recovery Point Objectives (RPO), minimizing business impact and supporting continuity of operations in alignment with ISO 27001:2022 Control A.8.13.</p>
+        <p>This procedure supports the following security objectives:</p>
+        <ul>
+          <li>Ensure the availability, integrity, and confidentiality of backed-up data.</li>
+          <li>Define tiered backup requirements proportionate to data criticality and classification.</li>
+          <li>Establish a verified, tested recovery capability for all in-scope systems.</li>
+          <li>Provide specific guidance for ransomware and malware recovery scenarios.</li>
+          <li>Ensure backup operations are auditable and reportable to management.</li>
+        </ul>
+      </div>
+
+      <!-- 2. Scope -->
+      <div class="policy-section">
+        <h2>2. Scope</h2>
+        <p>This procedure applies to:</p>
+        <ul>
+          <li>All IT systems with documented RTO and RPO requirements, as identified in the Asset Inventory (TMP-003) and Business Impact Analysis.</li>
+          <li>All data classified as <strong>Internal</strong> and above (Internal, Confidential, Restricted) in accordance with the Data Classification Policy (POL-005).</li>
+          <li>All personnel involved in backup configuration, monitoring, and recovery operations, including IT Operations staff, system administrators, and contracted managed service providers.</li>
+          <li>All environments including on-premises infrastructure, cloud platforms, hybrid systems, and end-user devices where data of the required classification is stored or processed.</li>
+        </ul>
+        <p>This procedure does not apply to data classified as Public where no recovery obligation exists, unless that data underpins a business-critical service.</p>
+      </div>
+
+      <!-- 3. Definitions -->
+      <div class="policy-section">
+        <h2>3. Definitions</h2>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th style="width:25%">Term</th><th>Definition</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Full Backup</strong></td><td>A complete copy of all selected data at a point in time. Provides a self-contained restore point but requires significant storage and time.</td></tr>
+            <tr><td><strong>Incremental Backup</strong></td><td>Captures only the data that has changed since the last backup of any type (full or incremental). Faster and smaller than full; requires all increments and the last full backup to restore.</td></tr>
+            <tr><td><strong>Differential Backup</strong></td><td>Captures all data changed since the last full backup. Larger than incremental over time but simpler to restore (requires only the last full and last differential).</td></tr>
+            <tr><td><strong>Snapshot</strong></td><td>A point-in-time image of a system's state, typically at the storage or hypervisor layer. Fast to create and restore; dependent on the underlying storage platform.</td></tr>
+            <tr><td><strong>Continuous Replication</strong></td><td>Near-real-time replication of data to a secondary location, enabling very low RPO (seconds to minutes). Typically used for Tier 1 critical systems.</td></tr>
+            <tr><td><strong>RTO (Recovery Time Objective)</strong></td><td>The maximum tolerable duration of downtime for a system or service before the impact becomes unacceptable to the organization.</td></tr>
+            <tr><td><strong>RPO (Recovery Point Objective)</strong></td><td>The maximum tolerable amount of data loss measured in time; defines how far back in time the recovery point may be.</td></tr>
+            <tr><td><strong>Air-Gapped Backup</strong></td><td>A backup copy stored on media that is physically disconnected from all networks, including the primary environment and the internet. Provides protection against ransomware and network-based attacks that target connected backup systems.</td></tr>
+            <tr><td><strong>Immutable Backup</strong></td><td>A backup written to WORM (Write Once, Read Many) storage or object storage with object lock enabled. The backup cannot be modified, encrypted, or deleted for a defined retention period, even by administrators with elevated privileges.</td></tr>
+            <tr><td><strong>MTD (Maximum Tolerable Downtime)</strong></td><td>The absolute maximum time a business function can be unavailable before recovery becomes impossible or critically damaging.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 4. Backup Requirements by Tier -->
+      <div class="policy-section">
+        <h2>4. Backup Requirements by Tier</h2>
+        <p>All in-scope systems are assigned a backup tier based on their data classification and operational criticality. Tier assignments are documented in the Asset Inventory (TMP-003). The following table defines minimum backup requirements by tier:</p>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm">
+            <thead class="table-secondary">
+              <tr>
+                <th>Tier</th>
+                <th>Criteria</th>
+                <th>Backup Type</th>
+                <th>Frequency</th>
+                <th>RPO</th>
+                <th>RTO</th>
+                <th>Retention</th>
+                <th>Offsite</th>
+                <th>Encryption</th>
+                <th>Immutable</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="badge bg-danger">Tier 1</span></td>
+                <td>Restricted / Critical systems</td>
+                <td>Full daily + continuous replication</td>
+                <td>Continuous + Daily full</td>
+                <td>&lt; 1 hour</td>
+                <td>&lt; 4 hours</td>
+                <td>1 year</td>
+                <td>Offsite + air-gapped required</td>
+                <td>AES-256 required</td>
+                <td>Required</td>
+              </tr>
+              <tr>
+                <td><span class="badge bg-warning text-dark">Tier 2</span></td>
+                <td>Confidential / High criticality</td>
+                <td>Full daily + incremental every 4 hours</td>
+                <td>Every 4 hours + daily full</td>
+                <td>&lt; 4 hours</td>
+                <td>&lt; 8 hours</td>
+                <td>90 days</td>
+                <td>Offsite encrypted required</td>
+                <td>AES-256 required</td>
+                <td>Recommended</td>
+              </tr>
+              <tr>
+                <td><span class="badge bg-info text-dark">Tier 3</span></td>
+                <td>Internal / Medium criticality</td>
+                <td>Full weekly + incremental daily</td>
+                <td>Daily incremental + weekly full</td>
+                <td>&lt; 24 hours</td>
+                <td>&lt; 24 hours</td>
+                <td>30 days</td>
+                <td>Offsite encrypted required</td>
+                <td>AES-256 required</td>
+                <td>Optional</td>
+              </tr>
+              <tr>
+                <td><span class="badge bg-secondary">Tier 4</span></td>
+                <td>Low criticality / easily recreated</td>
+                <td>Full weekly</td>
+                <td>Weekly full</td>
+                <td>&lt; 7 days</td>
+                <td>&lt; 72 hours</td>
+                <td>14 days</td>
+                <td>Encrypted storage</td>
+                <td>Encryption required</td>
+                <td>Not required</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="text-body-secondary small">All tier assignments and deviations require written approval from the Information Security Manager and documentation in TMP-003.</p>
+      </div>
+
+      <!-- 5. Backup Configuration Procedure -->
+      <div class="policy-section">
+        <h2>5. Backup Configuration Procedure</h2>
+        <p>The following steps must be completed when configuring backup jobs for any new or modified in-scope system:</p>
+        <ol>
+          <li><strong>Identify and classify all systems.</strong> Review TMP-003 Asset Inventory to confirm or assign the system's data classification and backup tier. If not yet inventoried, add the system to TMP-003 before proceeding. Document the assigned tier and the business justification.</li>
+          <li><strong>Configure backup jobs per tier schedule.</strong> Create backup jobs in the approved backup platform. Job names must follow the naming convention: <code>[SystemName]-T[Tier]-[BackupType]</code> (e.g., <code>FINDB01-T1-Full</code>, <code>FINDB01-T1-Continuous</code>). Confirm schedules align with the RPO requirements for the assigned tier.</li>
+          <li><strong>Configure encryption.</strong> All backup data must be encrypted using AES-256 at rest and in transit. Encryption keys must be managed using the approved key management solution and must not be stored in the same location as the backup data. Reference POL-006 Cryptography Policy for key management requirements.</li>
+          <li><strong>Configure offsite replication.</strong> Replicate all backups to an offsite location. Preferred method: cloud-based object storage with server-side encryption. Acceptable alternative: physically separate offsite facility with documented access controls. For Tier 1 systems, a separate air-gapped copy is additionally required.</li>
+          <li><strong>Configure immutable backup storage for Tier 1 systems.</strong> Enable object lock (S3-compatible) or configure WORM media for Tier 1 backups. Set the retention lock period to match the defined retention period. Verify that even backup administrators cannot delete or modify locked backups during the retention period. Document the lock configuration and expiry.</li>
+          <li><strong>Configure monitoring and alerting.</strong> All backup jobs must have monitoring enabled. Failed, missed, or incomplete backup jobs must trigger an automated alert within 30 minutes of the scheduled completion time. Alerts must be sent via email to the ISM and the IT on-call contact. Alert suppression is not permitted outside approved maintenance windows.</li>
+          <li><strong>Document the backup inventory.</strong> For each configured backup job, record in the Backup Inventory (maintained within TMP-003 or a dedicated backup register): system name, assigned tier, job name, schedule, retention period, storage location (primary and offsite), encryption key location, and responsible owner.</li>
+          <li><strong>Secure backup credentials.</strong> All credentials used to access backup systems, storage accounts, or encryption keys must be stored in the approved secrets manager. Credentials must never be hardcoded in scripts, configuration files, or documentation. Backup system access follows the principle of least privilege: backup administrator accounts are separate from production administrator accounts.</li>
+        </ol>
+      </div>
+
+      <!-- 6. Backup Verification Schedule -->
+      <div class="policy-section">
+        <h2>6. Backup Verification Schedule</h2>
+        <p>Configuring backups is not sufficient — backups must be regularly verified and tested to confirm they are restorable and meet RTO/RPO requirements. The following schedule is mandatory:</p>
+        <table class="table table-bordered table-sm">
+          <thead class="table-secondary">
+            <tr><th>Frequency</th><th>Activity</th><th>Responsible</th><th>Documentation</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Daily</strong></td>
+              <td>Automated job completion check. Review backup monitoring dashboard or alerts. All failed jobs must be investigated and resolved on the same day. If a job cannot be completed same-day, escalate to ISM immediately.</td>
+              <td>IT Operations</td>
+              <td>Backup monitoring logs (automated); incident ticket if failure occurs</td>
+            </tr>
+            <tr>
+              <td><strong>Weekly</strong></td>
+              <td>Spot restore test. Select a minimum of 3 different systems (varied tiers). Restore one or more files or objects from a recent backup. Verify data integrity by comparing restored content to source or checksum. Document: system, date of backup used, files restored, result, elapsed time, tester name.</td>
+              <td>IT Operations</td>
+              <td>Weekly Backup Test Log</td>
+            </tr>
+            <tr>
+              <td><strong>Monthly</strong></td>
+              <td>Full restore test for at least one Tier 1 and one Tier 2 system. Restore to an isolated test environment. Verify application functionality, data completeness, and integrity. Record actual elapsed restore time and compare against RTO. Document pass/fail and any identified gaps.</td>
+              <td>IT Operations / System Owner</td>
+              <td>Monthly Backup Test Report (submitted to ISM)</td>
+            </tr>
+            <tr>
+              <td><strong>Quarterly</strong></td>
+              <td>DR exercise incorporating backup restoration for all critical Tier 1 systems. Restore to an isolated recovery environment. Test full application functionality, not just data presence. Include network connectivity, authentication, and downstream dependencies. Results reviewed by ISM.</td>
+              <td>IT Operations / ISM</td>
+              <td>Quarterly DR Test Report</td>
+            </tr>
+            <tr>
+              <td><strong>Annual</strong></td>
+              <td>Complete DR test with failover to alternate site or cloud environment. Test all Tier 1 and Tier 2 systems. Validate that the full environment can operate from the alternate site. Include stakeholder participation (system owners, business process owners). Review against BCP (PRO-011).</td>
+              <td>IT Operations / ISM / Senior Management</td>
+              <td>Annual DR Test Report (input to Management Review)</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>All test results, including failures and corrective actions, must be recorded. Recurring failures must be logged as findings in the corrective action system (reference PRO-005).</p>
+      </div>
+
+      <!-- 7. Recovery Procedure -->
+      <div class="policy-section">
+        <h2>7. Recovery Procedure</h2>
+        <p>The following steps must be followed when executing a data or system recovery:</p>
+        <ol>
+          <li><strong>Declare the recovery event.</strong> Open an incident ticket per PRO-007 Incident Response Procedure. Notify the ISM and management per the severity classification in PRO-007. Document the discovery time, nature of the loss or failure, and initial impact assessment.</li>
+          <li><strong>Identify the recovery scope.</strong> Determine which systems, databases, or data sets are affected. Identify the required recovery point: the most recent clean backup before the data loss or system failure event. Confirm the recovery target: production environment or isolated recovery environment.</li>
+          <li><strong>Locate and verify the appropriate backup.</strong> Identify the backup set that corresponds to the required recovery point. Before initiating restore, verify backup integrity using hash or checksum verification. Do not proceed with a restore from a backup that fails integrity verification; escalate to ISM and identify the next-most-recent clean backup.</li>
+          <li><strong>Ransomware and malware: use air-gapped or immutable backup.</strong> If ransomware or malware is suspected or confirmed: select only air-gapped or immutable backup copies — assume all network-accessible backups may be compromised or encrypted. Scan the backup media or objects for malware before mounting or restoring. Do not restore to production until the backup is confirmed clean. Coordinate with the incident response team (PRO-007).</li>
+          <li><strong>Provision the recovery environment.</strong> Confirm whether recovery is to the production environment or an isolated recovery environment. For suspected security incidents, restore to an isolated environment first. Ensure the recovery environment has appropriate network isolation, access controls, and monitoring enabled before data is restored.</li>
+          <li><strong>Execute the restore.</strong> Follow the vendor-specific or tool-specific restore procedure for the backup platform in use. Document all actions with timestamps, operator names, and commands or steps taken. Do not deviate from the documented restore procedure without ISM approval. Track elapsed time against RTO at all stages.</li>
+          <li><strong>Verify data integrity post-restore.</strong> Perform application-level validation: row counts in databases, file counts in file shares, application startup and functional tests. Where possible, perform hash comparison of restored data against the backup manifest. Record all validation results in the incident ticket.</li>
+          <li><strong>Security validation before return to production.</strong> Verify no malware or unauthorized modifications are present in the restored environment. Confirm that all security configurations (firewall rules, access controls, endpoint protection, logging) are intact and operational. Enable enhanced monitoring for a minimum of 72 hours post-restore. ISM must provide written approval before restored systems are returned to production.</li>
+          <li><strong>Stakeholder notification.</strong> Communications Lead or ISM notifies impacted users of recovery completion and restored service availability. Provide a summary of impact duration, data recovery point (any data loss window), and next steps. Update incident ticket with resolution details.</li>
+          <li><strong>Post-recovery review.</strong> Within 5 business days of recovery completion, conduct a post-recovery review: identify root cause of the original failure or incident, assess backup and recovery performance against RTO/RPO targets, identify any gaps in backup coverage or recovery procedures, document lessons learned, and assign corrective actions in PRO-005.</li>
+        </ol>
+      </div>
+
+      <!-- 8. Ransomware-Specific Recovery Guidance -->
+      <div class="policy-section">
+        <h2>8. Ransomware-Specific Recovery Guidance</h2>
+        <p>Ransomware events require specific recovery controls beyond the standard recovery procedure. The following guidance supplements Section 7 and must be applied to all suspected or confirmed ransomware incidents:</p>
+        <ul>
+          <li><strong>Isolate before recovery.</strong> Physically or logically isolate all affected systems from the network before initiating any recovery activity. Do not attempt recovery on a connected, potentially still-compromised system.</li>
+          <li><strong>Confirm the scope of compromise.</strong> Work with the incident response team (PRO-007) to determine the full scope of encrypted or compromised systems, files, and data. Do not assume the compromise is limited to what is immediately visible.</li>
+          <li><strong>Select the correct recovery point.</strong> Identify a recovery point from before the date of initial compromise, not the date of discovery. Threat actors may be present in the environment for weeks before activating ransomware. Consult threat intelligence and log data to identify the earliest known compromise date and select a recovery point prior to that date.</li>
+          <li><strong>Use only air-gapped or offline backups.</strong> Assume all network-accessible backup systems, including cloud-connected backups and backup agents on network-accessible hosts, may be compromised or encrypted. Use only physically disconnected air-gapped copies or immutable WORM copies that cannot have been modified by the attacker.</li>
+          <li><strong>Scan all recovery media before use.</strong> Scan backup media, files, or objects with an up-to-date, clean (offline-updated) antimalware tool before mounting or restoring. Document the scan results.</li>
+          <li><strong>Rebuild systems from clean OS image where possible.</strong> Where time permits and RTO allows, rebuild affected systems from a known-clean OS baseline or hardened image, and restore only data from backup. Restoring a full system backup may reintroduce attacker persistence mechanisms.</li>
+          <li><strong>Ransom payment decision.</strong> Do not pay a ransom without the explicit, documented approval of senior management, legal counsel, and consultation with law enforcement (as appropriate to jurisdiction). Paying a ransom does not guarantee data recovery and may create additional legal obligations. The ISM must document the decision rationale regardless of outcome.</li>
+        </ul>
+      </div>
+
+      <!-- 9. Backup Security Controls -->
+      <div class="policy-section">
+        <h2>9. Backup Security Controls</h2>
+        <p>Backup data must be protected with the same rigor as the source data it represents. The following security controls are mandatory for all backup operations:</p>
+        <table class="table table-bordered table-sm">
+          <thead class="table-secondary">
+            <tr><th style="width:25%">Control Area</th><th>Requirement</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Encryption</strong></td>
+              <td>All backup data must be encrypted using AES-256 at rest and in transit. Customer-managed encryption keys (CMEK) are preferred over provider-managed keys. Keys must be managed in the approved key management system and must not reside in the same storage system as the backup data.</td>
+            </tr>
+            <tr>
+              <td><strong>Access Control</strong></td>
+              <td>Backup administration credentials must be separate from production administration credentials. No individual should hold both backup administrator and production system administrator privileges for the same system (segregation of duties). Access to backup storage must follow the principle of least privilege. All access to backup systems must be authenticated with MFA.</td>
+            </tr>
+            <tr>
+              <td><strong>Monitoring and Logging</strong></td>
+              <td>All access to backup storage, backup configuration changes, and restore operations must be logged. Logs must be retained for a minimum of 90 days and must be protected from modification or deletion. Unusual access patterns (off-hours access, bulk deletes, export of large backup sets) must generate alerts.</td>
+            </tr>
+            <tr>
+              <td><strong>Physical Media</strong></td>
+              <td>Where physical backup media is used (tape, removable drives): media must be stored in locked, access-controlled storage. A physical media inventory must be maintained. Chain of custody must be documented for all media transported offsite. Media must be sanitized per NIST 800-88 before disposal or reuse.</td>
+            </tr>
+            <tr>
+              <td><strong>Personnel</strong></td>
+              <td>All individuals with backup administrator privileges must have undergone background screening appropriate to the classification of data they may access. Privileged backup access must be reviewed at least annually and promptly revoked upon role change or termination.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 10. Backup Failure Response -->
+      <div class="policy-section">
+        <h2>10. Backup Failure Response</h2>
+        <p>Backup failures reduce the organization's ability to recover from incidents and must be treated as security findings, not routine operational issues. The following thresholds and response actions apply:</p>
+        <ul>
+          <li><strong>Alert received for failed backup job:</strong> IT Operations must investigate and attempt to remediate within 2 hours of the alert. The cause of failure must be identified and documented.</li>
+          <li><strong>Backup not completed within 24 hours of scheduled time:</strong> Treat as a critical finding. Open an incident ticket in the incident management system. Attempt a manual backup immediately. Escalate to ISM if manual backup cannot be completed within 4 hours.</li>
+          <li><strong>Repeated failures (3 or more consecutive failures for the same system):</strong> Log as a finding in the corrective action system (PRO-005). ISM notified. System owner notified. Root cause analysis required within 5 business days.</li>
+          <li><strong>Extended unprotected window:</strong> No in-scope system may remain unprotected (no successful backup) for more than 24 hours without documented risk acceptance signed by the ISM. Risk acceptance must state: system name, duration of unprotected window, reason, compensating controls, and expiry date. Risk acceptance expires after 7 days and must be renewed or the situation resolved.</li>
+        </ul>
+      </div>
+
+      <!-- 11. Backup Records and Reporting -->
+      <div class="policy-section">
+        <h2>11. Backup Records and Reporting</h2>
+        <p>Backup records provide evidence of control effectiveness for internal audit, management review, and regulatory or certification purposes. The following records must be maintained:</p>
+        <table class="table table-bordered table-sm">
+          <thead class="table-secondary">
+            <tr><th>Record</th><th>Retention</th><th>Responsible</th><th>Audience</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Automated backup job logs</td><td>90 days minimum</td><td>IT Operations</td><td>IT Operations, ISM</td></tr>
+            <tr><td>Weekly spot restore test log</td><td>1 year</td><td>IT Operations</td><td>IT Operations, ISM</td></tr>
+            <tr><td>Monthly backup test report</td><td>2 years</td><td>IT Operations</td><td>ISM</td></tr>
+            <tr><td>Quarterly DR test report</td><td>3 years</td><td>IT Operations / ISM</td><td>Senior Management, Management Review</td></tr>
+            <tr><td>Annual DR test report</td><td>5 years</td><td>ISM</td><td>Senior Management, Management Review, Auditors</td></tr>
+            <tr><td>Backup risk acceptances</td><td>3 years</td><td>ISM</td><td>ISM, Auditors</td></tr>
+            <tr><td>Backup inventory (TMP-003)</td><td>Current + 2 prior versions</td><td>IT Operations</td><td>ISM, Auditors</td></tr>
+          </tbody>
+        </table>
+        <p><strong>Backup Coverage Metrics</strong> — The following metrics must be reported to the ISM monthly and to senior management at each management review:</p>
+        <ul>
+          <li>Percentage of in-scope systems with a successful backup in the past 24 hours (Tier 1 and 2 target: 100%).</li>
+          <li>Percentage of in-scope systems with a successful backup in the past 7 days (all tiers target: 100%).</li>
+          <li>Number of backup failures in the reporting period and resolution time.</li>
+          <li>Number of restore tests conducted vs. planned, and pass/fail rate.</li>
+          <li>Systems with open risk acceptances for extended unprotected windows.</li>
+        </ul>
+      </div>
+
+      <!-- 12. Roles and Responsibilities -->
+      <div class="policy-section">
+        <h2>12. Roles and Responsibilities</h2>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm">
+            <thead class="table-secondary">
+              <tr><th>Role</th><th>Responsibilities</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>IT Operations</strong></td>
+                <td>Configure and maintain all backup jobs per this procedure. Monitor backup job completion daily. Investigate and resolve failures. Execute restore tests per the verification schedule. Execute recovery operations when required. Maintain the backup inventory. Report metrics to ISM.</td>
+              </tr>
+              <tr>
+                <td><strong>Information Security Manager (ISM)</strong></td>
+                <td>Oversee backup and recovery program. Approve tier assignments and exceptions. Review monthly and quarterly backup test reports. Approve risk acceptances for unprotected windows. Authorize return of restored systems to production after security validation. Report backup program status at management review. Approve this procedure and trigger annual review.</td>
+              </tr>
+              <tr>
+                <td><strong>System Owners</strong></td>
+                <td>Define and document RTO and RPO requirements for owned systems. Participate in restore tests to verify application-level recovery. Review and confirm tier assignment in TMP-003. Escalate to ISM where backup requirements cannot be met due to technical constraints.</td>
+              </tr>
+              <tr>
+                <td><strong>Senior Management</strong></td>
+                <td>Provide funding and resources for backup and DR capabilities proportionate to the RTO/RPO requirements of critical systems. Approve the BCP/DR strategy. Receive quarterly DR test reports at management review. Approve ransom payment decisions where applicable.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 13. Related Documents -->
+      <div class="policy-section">
+        <h2>13. Related Documents</h2>
+        <ul>
+          <li><a href="tmp-003-asset-inventory.html">TMP-003 — Asset Inventory</a></li>
+          <li><a href="pro-007-incident-response-procedure.html">PRO-007 — Incident Response Procedure</a></li>
+          <li>PRO-011 — Business Continuity Procedure</li>
+          <li><a href="pol-008-operations-security-policy.html">POL-008 — Operations Security Policy</a></li>
+          <li><a href="pol-012-business-continuity-policy.html">POL-012 — Business Continuity Policy</a></li>
+          <li><a href="pol-006-cryptography-policy.html">POL-006 — Cryptography Policy</a></li>
+          <li><a href="pol-005-data-classification-policy.html">POL-005 — Data Classification Policy</a></li>
+        </ul>
+      </div>
+
+      <!-- Revision History -->
+      <div class="policy-section mt-5">
+        <h2>Revision History</h2>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Version</th><th>Date</th><th>Author</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td>1.0</td><td>2025-01-01</td><td>Information Security Manager</td><td>Initial release</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </main>
+
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title fs-5" id="rbacModalLabel">🔒 Login</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <div class="modal-body"><form id="rbac-login-form" novalidate>
+        <div class="mb-3"><label for="rbac-username-input" class="form-label">Username</label><input type="text" class="form-control" id="rbac-username-input" autocomplete="username" maxlength="40" required /></div>
+        <div class="mb-3"><label for="rbac-password-input" class="form-label">Password</label><input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" required /></div>
+        <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+      </form></div>
+      <div class="modal-footer border-0 pt-0"><p class="text-secondary small mb-0">Session clears when you close this tab.</p></div>
+    </div></div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" /></a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" /></a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="../privacy.html">Privacy Policy</a> &middot; <a href="../terms.html">Terms</a></p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="../users.js" defer></script>
+  <script src="../roles.js" defer></script>
+  <script src="../script.js" defer></script>
+</body>
+</html>

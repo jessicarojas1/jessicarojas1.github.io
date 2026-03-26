@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="../theme.css" />
+  <link rel="stylesheet" href="isms.css" />
+  <title>Access Control Policy | ISMS | Jessica Rojas</title>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="../index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="../projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="../timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="../cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="../consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="../contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="../blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="../knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="../compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="../jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="../admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content">
+    <div class="container py-4">
+      <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="../index.html">Home</a></li>
+          <li class="breadcrumb-item"><a href="index.html">ISMS</a></li>
+          <li class="breadcrumb-item active">POL-003</li>
+        </ol>
+      </nav>
+
+      <div class="d-flex justify-content-between align-items-start mb-4 print-btn">
+        <span class="badge bg-primary fs-6">Policy — POL-003</span>
+        <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">Print / Save PDF</button>
+      </div>
+
+      <div class="doc-header mb-4">
+        <table class="table table-bordered table-sm">
+          <tbody>
+            <tr><th style="width:30%">Document Title</th><td>Access Control Policy</td></tr>
+            <tr><th>Document ID</th><td>POL-003</td></tr>
+            <tr><th>Version</th><td>1.0</td></tr>
+            <tr><th>Classification</th><td>Internal</td></tr>
+            <tr><th>Owner</th><td>Information Security Manager</td></tr>
+            <tr><th>Approved By</th><td>Senior Management</td></tr>
+            <tr><th>Effective Date</th><td>2025-01-01</td></tr>
+            <tr><th>Next Review</th><td>2026-01-01</td></tr>
+            <tr><th>ISO 27001:2022 Controls</th><td>A.5.15, A.5.16, A.5.17, A.5.18, A.8.2, A.8.3, A.8.4, A.8.5</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section">
+        <h2>1. Purpose</h2>
+        <p>This Access Control Policy establishes the requirements and controls governing access to organizational information systems, applications, networks, and data. The purpose of this policy is to ensure that access to information assets is granted only to authorized individuals, for legitimate business purposes, and in a manner consistent with the organization's security requirements and the principle of least privilege.</p>
+        <p>This policy defines the framework for managing user identities, authentication, authorization, and access lifecycle management across all organizational systems. It supports compliance with ISO/IEC 27001:2022 controls relating to access control and identity management, and underpins the organization's broader information security posture.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>2. Scope</h2>
+        <p>This policy applies to all information systems, applications, databases, network resources, and physical areas controlled by the organization. It covers all forms of access including logical access (user accounts, applications, APIs, remote access) and physical access to secure areas where relevant to information security.</p>
+        <p>This policy applies to all users who are granted or seek access to organizational systems, including employees, contractors, vendors, temporary staff, and automated service accounts. It applies regardless of whether access is from within organizational premises or from remote locations.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>3. Access Control Principles</h2>
+        <p>All access control decisions and implementations must be guided by the following foundational principles:</p>
+        <ul>
+          <li><strong>Need-to-Know:</strong> Access to information will only be granted where there is a demonstrated and documented business need. Access to sensitive data will not be granted based on organizational rank or tenure alone; a specific, role-related need must exist.</li>
+          <li><strong>Least Privilege:</strong> Users, systems, and processes will be granted the minimum level of access rights required to perform their authorized functions. Excess permissions will not be granted as a convenience. Privilege will be reviewed and reduced over time as roles evolve.</li>
+          <li><strong>Separation of Duties:</strong> Critical business functions and processes will be designed so that no single user has the ability to perform sensitive operations without involvement from another authorized individual. Access rights will be configured to enforce separation of duties where feasible to prevent fraud, error, and misuse.</li>
+          <li><strong>Default Deny:</strong> All access to systems and data is denied by default. Access will only be granted upon explicit approval following the formal provisioning process. Systems will be configured to deny access that has not been explicitly permitted.</li>
+          <li><strong>Accountability:</strong> All access and actions taken on organizational systems will be traceable to a specific, identified individual. Shared accounts are prohibited (with limited, documented exceptions for service accounts). Audit logs will be maintained to support accountability.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>4. User Registration and Provisioning</h2>
+        <p>A formal, documented process must be followed for all user account creation and access provisioning. The provisioning process ensures that access is granted appropriately and with proper authorization before any access rights are activated.</p>
+        <p>The provisioning process requires:</p>
+        <ul>
+          <li>A formal access request submitted by the user's manager or department head, specifying the systems required, the level of access needed, and the business justification</li>
+          <li>Approval from the relevant system or data owner for each system or data set to which access is requested</li>
+          <li>Secondary approval from the Information Security Manager for access to systems classified as Confidential or Restricted</li>
+          <li>Confirmation that the user has completed required security awareness training and acknowledged the Acceptable Use Policy (POL-002) before access is activated</li>
+          <li>Assignment of a unique user account — shared accounts are not permitted except in documented exceptions approved by the Information Security Manager</li>
+        </ul>
+        <p>The full provisioning procedure, including forms and approval workflows, is documented in the Access Provisioning Procedure (PRO-006). All provisioning requests and approvals must be recorded and retained for audit purposes.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>5. Privileged Access Management</h2>
+        <p>Privileged accounts (including local administrator accounts, domain administrator accounts, root accounts, database administrator accounts, and any account with elevated system rights) present heightened security risk and are subject to additional controls beyond those applying to standard user accounts.</p>
+        <p>Requirements for privileged access include:</p>
+        <ul>
+          <li>Privileged access must be formally requested, justified, and approved by the Information Security Manager and the relevant system owner</li>
+          <li>Privileged accounts must be separate from standard user accounts; administrators must use a dedicated privileged account for administrative tasks and a separate standard account for day-to-day activities such as email and web browsing</li>
+          <li>Multi-factor authentication (MFA) is mandatory for all privileged account access, without exception</li>
+          <li>Privileged accounts must not be used for routine user tasks (email, internet browsing, document editing)</li>
+          <li>All privileged account activity must be logged and subject to enhanced monitoring; logs must be reviewed at least weekly by the Information Security Manager or designated delegate</li>
+          <li>Privileged Access Management (PAM) tooling must be used where technically feasible to manage, vault, and audit the use of privileged credentials</li>
+          <li>Emergency or break-glass accounts must be inventoried, secured, and their use must trigger immediate notification and post-use review</li>
+          <li>Privileged access for third parties and vendors must be time-limited, session-monitored, and revoked immediately upon completion of the authorized task</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>6. Authentication Requirements</h2>
+        <p>All organizational systems and services must enforce strong authentication. The following requirements apply:</p>
+        <ul>
+          <li>Every user must have a unique, individual account. Shared accounts are prohibited except where technically unavoidable for service or system accounts, in which case a documented exception and compensating controls are required.</li>
+          <li>Multi-factor authentication (MFA) is required for: all remote access connections; all privileged and administrative account access; all access to systems classified as Confidential or Restricted; and access to cloud services and SaaS applications holding organizational data.</li>
+          <li>Approved MFA methods include: hardware security keys (FIDO2/WebAuthn, preferred), authenticator application-based TOTP, push notification-based MFA. SMS-based one-time passwords are not recommended due to SIM-swapping risk and should only be used where no other MFA option is technically available.</li>
+          <li>The use of an approved enterprise password manager is strongly recommended for all staff to facilitate the generation and storage of strong, unique credentials for each system.</li>
+          <li>Default credentials supplied by vendors on any system, device, or application must be changed immediately upon deployment.</li>
+          <li>Authentication systems must enforce account lockout after a maximum of 10 consecutive failed authentication attempts. Lockout duration or manual unlock requirements will be defined in system-specific security configurations.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>7. Password Policy</h2>
+        <p>Passwords are a critical authentication control. The following requirements apply to all passwords used to access organizational systems:</p>
+        <table class="table table-bordered table-sm mt-3">
+          <thead>
+            <tr><th>Requirement</th><th>Standard User Accounts</th><th>Privileged / Admin Accounts</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Minimum Length</td><td>14 characters</td><td>20 characters</td></tr>
+            <tr><td>Complexity</td><td>Mix of uppercase, lowercase, numbers, and special characters</td><td>Mix of uppercase, lowercase, numbers, and special characters</td></tr>
+            <tr><td>Maximum Age</td><td>90 days</td><td>60 days</td></tr>
+            <tr><td>Password History</td><td>12 previous passwords cannot be reused</td><td>12 previous passwords cannot be reused</td></tr>
+            <tr><td>Dictionary Check</td><td>Passwords must not be based on dictionary words, usernames, or common patterns</td><td>Passwords must not be based on dictionary words, usernames, or common patterns</td></tr>
+          </tbody>
+        </table>
+        <p>Additional password requirements:</p>
+        <ul>
+          <li>Passwords must never be written down, stored in plain text, or shared with any other person</li>
+          <li>Passwords must not be the same across multiple systems; unique passwords must be used for each service</li>
+          <li>If a user suspects their password has been compromised, they must change it immediately and report the incident to the IT department</li>
+          <li>Passwords must not be transmitted in clear text; all authentication mechanisms must use encrypted channels (TLS 1.2 minimum)</li>
+          <li>Systems must store passwords using strong cryptographic hashing (bcrypt, Argon2, or PBKDF2); plain text or reversible encryption of passwords is prohibited</li>
+          <li>Where passphrases are used (a sequence of random words), a minimum of 5 words or 20 characters is required</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>8. Access Reviews</h2>
+        <p>Access rights must be reviewed regularly to ensure they remain appropriate and current. Accumulation of excessive access rights over time (privilege creep) represents a significant security risk and must be actively managed.</p>
+        <ul>
+          <li><strong>Privileged Access Reviews:</strong> All privileged and administrative accounts must be reviewed quarterly. The review must confirm that each account is still required, that the level of privilege is still appropriate, and that the account belongs to an active, authorized user. Results must be documented and accounts with unjustified access must be revoked or reduced.</li>
+          <li><strong>Standard User Access Reviews:</strong> Standard user accounts and their associated access rights must be reviewed at least annually. System and data owners are responsible for confirming the appropriateness of access for users of their systems.</li>
+          <li><strong>Review Process:</strong> Access reviews are coordinated by the Information Security Manager. System owners will be provided with a list of current access rights for their systems and will confirm, modify, or revoke access for each entry. Completed review records must be returned within 10 business days of issuance.</li>
+          <li><strong>Remediation:</strong> Access identified as no longer required or appropriate during a review must be revoked within 5 business days of the review conclusion.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>9. Access Revocation</h2>
+        <p>The timely revocation of access is as critical as proper provisioning. Failure to revoke access promptly represents a significant insider threat and data protection risk.</p>
+        <ul>
+          <li><strong>Termination (voluntary or involuntary):</strong> All access rights for a departing employee or contractor must be revoked on or before the effective date of departure. For involuntary terminations or situations involving elevated risk, access must be revoked immediately upon notification to IT, prior to or simultaneous with the employee being informed.</li>
+          <li><strong>Role Change:</strong> When a user changes roles within the organization, access rights associated with the previous role must be reviewed and revoked within 5 business days. Access appropriate to the new role must be formally re-provisioned through the standard process.</li>
+          <li><strong>Leave of Absence:</strong> User accounts for employees on extended leave (greater than 30 days) must be disabled for the duration of the absence and re-enabled only upon return, with a formal access review completed first.</li>
+          <li><strong>Contractor and Vendor Expiry:</strong> Access for contractors and vendors must be configured with an explicit expiry date aligned with the engagement period. Access must not remain active beyond the agreed engagement end date.</li>
+          <li><strong>Process:</strong> Human Resources must notify IT and the Information Security Manager of all separations, role changes, and extended leaves in advance (or immediately, for involuntary terminations). IT must confirm revocation in writing within 24 hours of the access removal deadline.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>10. Remote Access</h2>
+        <p>Remote access to organizational systems introduces risk from unsecured networks and endpoints. The following controls are mandatory for all remote access:</p>
+        <ul>
+          <li>All remote access to internal organizational systems must be conducted exclusively through the organization's approved and centrally managed Virtual Private Network (VPN) solution</li>
+          <li>MFA is required for all VPN and remote desktop connections, without exception</li>
+          <li>Split tunneling (the configuration where only some traffic routes through the VPN while other traffic routes directly to the internet) is prohibited by default; all traffic from remote devices must be routed through the organization's VPN gateway while connected to organizational systems, to enable traffic inspection and logging</li>
+          <li>Remote access sessions must time out automatically after 30 minutes of inactivity</li>
+          <li>Remote access connections and session activity must be logged and retained for a minimum of 90 days</li>
+          <li>Users must not access organizational systems from public computers, kiosks, or any device that is not under the user's control and that has not been approved by IT</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>11. Third-Party Access</h2>
+        <p>Third-party access to organizational systems (including vendors, managed service providers, auditors, and consultants) poses specific risks and must be carefully controlled:</p>
+        <ul>
+          <li>Third-party access must be formally requested and approved using the standard provisioning process (PRO-006), with additional sign-off from the Information Security Manager</li>
+          <li>Access for third parties must be scoped to only the systems and data strictly necessary for the authorized task — broad or standing access is not permitted</li>
+          <li>All third-party access must be time-limited, with an explicit expiry date aligned to the duration of the authorized task or engagement</li>
+          <li>Third parties must not share accounts; each individual requiring access must have their own unique account</li>
+          <li>Third-party access sessions must be logged and monitored; privileged third-party access must be conducted under session recording where technically feasible</li>
+          <li>Third parties must acknowledge and agree to applicable information security requirements as part of their contract or a separate Third-Party Access Agreement before access is granted</li>
+          <li>Third-party access must be revoked immediately upon completion of the authorized task, even if the formal engagement end date has not yet been reached</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>12. Related Documents</h2>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Document ID</th><th>Document Title</th></tr></thead>
+          <tbody>
+            <tr><td>POL-001</td><td>Information Security Policy</td></tr>
+            <tr><td>POL-002</td><td>Acceptable Use Policy</td></tr>
+            <tr><td>POL-006</td><td>Cryptography Policy</td></tr>
+            <tr><td>POL-012</td><td>Supplier and Third-Party Security Policy</td></tr>
+            <tr><td>POL-013</td><td>Human Resources Security Policy</td></tr>
+            <tr><td>PRO-006</td><td>Access Provisioning and Deprovisioning Procedure</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section mt-5">
+        <h2>Revision History</h2>
+        <table class="table table-bordered table-sm revision-table">
+          <thead><tr><th>Version</th><th>Date</th><th>Author</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td>1.0</td><td>2025-01-01</td><td>Information Security Manager</td><td>Initial release</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="rbacModalLabel">🔒 Login</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="rbac-login-form" novalidate>
+            <div class="mb-3">
+              <label for="rbac-username-input" class="form-label">Username</label>
+              <input type="text" class="form-control" id="rbac-username-input" autocomplete="username" placeholder="Enter your username" maxlength="40" required />
+            </div>
+            <div class="mb-3">
+              <label for="rbac-password-input" class="form-label">Password</label>
+              <input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" required />
+            </div>
+            <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+          </form>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <p class="text-secondary small mb-0">Session clears when you close this tab.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" />
+      </a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" />
+      </a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="../privacy.html">Privacy Policy</a> &middot; <a href="../terms.html">Terms</a></p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="../users.js" defer></script>
+  <script src="../roles.js" defer></script>
+  <script src="../script.js" defer></script>
+</body>
+</html>

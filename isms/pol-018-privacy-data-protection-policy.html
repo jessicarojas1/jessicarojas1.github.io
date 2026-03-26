@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="../theme.css" />
+  <link rel="stylesheet" href="isms.css" />
+  <title>Privacy &amp; Data Protection Policy | ISMS | Jessica Rojas</title>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="../index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="../projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="../timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="../cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="../consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="../contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="../blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="../knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="../compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="../jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="../admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content">
+    <div class="container py-4">
+      <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="../index.html">Home</a></li>
+          <li class="breadcrumb-item"><a href="index.html">ISMS</a></li>
+          <li class="breadcrumb-item active">POL-018</li>
+        </ol>
+      </nav>
+
+      <div class="d-flex justify-content-between align-items-start mb-4 print-btn">
+        <span class="badge bg-primary fs-6">Policy — POL-018</span>
+        <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">Print / Save PDF</button>
+      </div>
+
+      <div class="doc-header mb-4">
+        <table class="table table-bordered table-sm"><tbody>
+          <tr><th style="width:30%">Document Title</th><td>Privacy &amp; Data Protection Policy</td></tr>
+          <tr><th>Document ID</th><td>POL-018</td></tr>
+          <tr><th>Version</th><td>1.0</td></tr>
+          <tr><th>Classification</th><td>Internal</td></tr>
+          <tr><th>Owner</th><td>Information Security Manager</td></tr>
+          <tr><th>Approved By</th><td>Senior Management</td></tr>
+          <tr><th>Effective Date</th><td>2025-01-01</td></tr>
+          <tr><th>Next Review</th><td>2026-01-01</td></tr>
+          <tr><th>ISO 27001:2022 Controls</th><td>A.5.33, A.5.34, A.8.11</td></tr>
+        </tbody></table>
+      </div>
+
+      <!-- 1. Purpose -->
+      <div class="policy-section">
+        <h2>1. Purpose</h2>
+        <p>This policy establishes the organisation's commitment to protecting personal data and respecting the privacy rights of individuals whose data we process, in compliance with applicable privacy laws and regulations, including the General Data Protection Regulation (GDPR), and other applicable national data protection legislation.</p>
+        <p>The policy sets out the principles, responsibilities, and controls that govern how personal data is collected, used, stored, shared, retained, and disposed of. It is designed to ensure that personal data is handled with transparency, integrity, and accountability at every stage of the data lifecycle.</p>
+      </div>
+
+      <!-- 2. Scope -->
+      <div class="policy-section">
+        <h2>2. Scope</h2>
+        <p>This policy applies to:</p>
+        <ul>
+          <li>All personal data processed by the organisation in any format — digital, paper, audio, visual, or other recorded form.</li>
+          <li>All employees, contractors, temporary staff, volunteers, and interns who handle personal data as part of their role.</li>
+          <li>All information systems, applications, databases, and storage environments used to process personal data.</li>
+          <li>All third parties (processors, sub-processors, suppliers) processing personal data on behalf of the organisation under a contractual arrangement.</li>
+          <li>Processing activities conducted in all jurisdictions in which the organisation operates.</li>
+        </ul>
+      </div>
+
+      <!-- 3. Data Protection Principles -->
+      <div class="policy-section">
+        <h2>3. Data Protection Principles</h2>
+        <p>All personal data processing must comply with the seven data protection principles aligned to GDPR Article 5. These principles are non-negotiable and apply to every processing activity:</p>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm">
+            <thead class="table-secondary">
+              <tr><th>#</th><th>Principle</th><th>Requirement</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td><strong>Lawfulness, Fairness, and Transparency</strong></td>
+                <td>Personal data must be processed only on a lawful basis (see Section 4). Processing must be fair and not mislead data subjects. Data subjects must be informed of how their data is used via a privacy notice.</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td><strong>Purpose Limitation</strong></td>
+                <td>Personal data must be collected only for specified, explicit, and legitimate purposes. Data must not be further processed in a way incompatible with those purposes.</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td><strong>Data Minimisation</strong></td>
+                <td>Only personal data that is adequate, relevant, and limited to what is necessary for the processing purpose may be collected. Excessive collection is prohibited.</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td><strong>Accuracy</strong></td>
+                <td>Personal data must be kept accurate and, where necessary, up to date. Reasonable steps must be taken to ensure inaccurate data is corrected or erased without delay.</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td><strong>Storage Limitation</strong></td>
+                <td>Personal data must be retained only for as long as necessary for the processing purpose. Retention schedules must be applied and enforced. Data no longer required must be securely deleted or anonymised.</td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td><strong>Integrity and Confidentiality</strong></td>
+                <td>Appropriate technical and organisational security measures must protect personal data against unauthorised access, loss, destruction, or damage. Reference: Data Classification Policy (POL-005).</td>
+              </tr>
+              <tr>
+                <td>7</td>
+                <td><strong>Accountability</strong></td>
+                <td>The organisation must be able to demonstrate compliance with all data protection principles. Processing activities must be documented and evidence of compliance maintained.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 4. Lawful Basis for Processing -->
+      <div class="policy-section">
+        <h2>4. Lawful Basis for Processing</h2>
+        <p>Every processing activity must have a documented lawful basis before processing commences. The six lawful bases under GDPR Article 6 are:</p>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm">
+            <thead class="table-secondary">
+              <tr><th>Basis</th><th>Description</th><th>Key Considerations</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Consent</strong></td>
+                <td>The data subject has given clear, informed, freely given, and unambiguous consent.</td>
+                <td>Consent must be withdrawable at any time. Not appropriate where significant power imbalance exists (e.g., employer-employee).</td>
+              </tr>
+              <tr>
+                <td><strong>Contract</strong></td>
+                <td>Processing is necessary for the performance of a contract with the data subject, or pre-contractual steps at their request.</td>
+                <td>Only data strictly necessary for contract performance may be processed on this basis.</td>
+              </tr>
+              <tr>
+                <td><strong>Legal Obligation</strong></td>
+                <td>Processing is required to comply with a legal or regulatory obligation.</td>
+                <td>The obligation must be specific; general legal obligations are insufficient.</td>
+              </tr>
+              <tr>
+                <td><strong>Vital Interests</strong></td>
+                <td>Processing is necessary to protect the vital interests of the data subject or another natural person.</td>
+                <td>Applies in life-threatening situations; cannot be used if another basis is available.</td>
+              </tr>
+              <tr>
+                <td><strong>Public Task</strong></td>
+                <td>Processing is necessary for the performance of a task carried out in the public interest or exercise of official authority.</td>
+                <td>Applicable to public authorities or organisations exercising delegated public functions.</td>
+              </tr>
+              <tr>
+                <td><strong>Legitimate Interests</strong></td>
+                <td>Processing is necessary for the legitimate interests of the organisation or a third party, except where overridden by the rights of the data subject.</td>
+                <td>Requires a documented Legitimate Interests Assessment (LIA). Cannot override fundamental rights. Not available to public authorities for their public tasks.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Records of processing activities (Article 30 RoPA) are maintained by the Privacy team and include the lawful basis for each processing activity. <strong>Special category data</strong> (GDPR Article 9 — health, biometrics, racial origin, political opinions, religious beliefs, genetic data, sexual orientation, trade union membership, criminal convictions) requires an explicit condition under Article 9(2) in addition to an Article 6 lawful basis. Additional controls apply to all special category processing, including enhanced security measures, strict access controls, and mandatory DPIA consideration.</p>
+      </div>
+
+      <!-- 5. Data Subject Rights -->
+      <div class="policy-section">
+        <h2>5. Data Subject Rights</h2>
+        <p>The organisation respects and upholds all data subject rights under applicable data protection law. All rights requests must be logged upon receipt and responded to within the applicable timeframe:</p>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm">
+            <thead class="table-secondary">
+              <tr><th>Right</th><th>Description</th><th>Response Timeline</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Right of Access (SAR)</strong></td>
+                <td>Data subject may request a copy of personal data held about them and information on how it is used.</td>
+                <td>30 calendar days; extendable to 90 days with written notice and reason.</td>
+              </tr>
+              <tr>
+                <td><strong>Right to Rectification</strong></td>
+                <td>Data subject may request correction of inaccurate or incomplete personal data.</td>
+                <td>30 calendar days.</td>
+              </tr>
+              <tr>
+                <td><strong>Right to Erasure (Right to Be Forgotten)</strong></td>
+                <td>Data subject may request deletion of their personal data where there is no compelling reason for continued processing.</td>
+                <td>30 calendar days. Subject to retention obligations — legal hold or regulatory requirement overrides.</td>
+              </tr>
+              <tr>
+                <td><strong>Right to Restrict Processing</strong></td>
+                <td>Data subject may request that processing is restricted (data retained but not actively used) while a dispute is resolved.</td>
+                <td>Without undue delay upon receipt.</td>
+              </tr>
+              <tr>
+                <td><strong>Right to Data Portability</strong></td>
+                <td>Data subject may request their data in a structured, commonly used, machine-readable format for transfer to another controller.</td>
+                <td>30 calendar days. Applies where processing is based on consent or contract and carried out by automated means.</td>
+              </tr>
+              <tr>
+                <td><strong>Right to Object</strong></td>
+                <td>Data subject may object to processing based on legitimate interests or public task. Absolute right to object to direct marketing.</td>
+                <td>Immediately upon receipt. Processing must cease unless compelling legitimate grounds override.</td>
+              </tr>
+              <tr>
+                <td><strong>Rights re Automated Decision-Making</strong></td>
+                <td>Data subject may request human review of automated decisions that produce legal or similarly significant effects.</td>
+                <td>Immediate action to pause automated decision; human review outcome within 30 days.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>All rights requests are logged in the Privacy Request Register. Requests that are complex, contested, or involve a potential conflict with other legal obligations must be escalated to legal counsel. Data subjects whose requests are refused must be provided with a clear written explanation and informed of their right to complain to the supervisory authority.</p>
+      </div>
+
+      <!-- 6. Privacy by Design and Default -->
+      <div class="policy-section">
+        <h2>6. Privacy by Design and Default</h2>
+        <p>Privacy must be considered and built into all new systems, processes, products, and services from inception — not as an afterthought. This is a mandatory organisational requirement, not an optional best practice.</p>
+        <h3 class="h5 mt-3">6.1 Privacy by Design</h3>
+        <ul>
+          <li>Privacy requirements are included in all project initiation documentation and system design specifications.</li>
+          <li>Privacy impact analysis is part of the standard change management process.</li>
+          <li>Data minimisation is applied at design stage; only necessary data fields are collected.</li>
+          <li>Technical controls (encryption, pseudonymisation, access controls) are incorporated at the architecture stage.</li>
+        </ul>
+        <h3 class="h5 mt-3">6.2 Privacy by Default</h3>
+        <ul>
+          <li>The most privacy-protective settings must be the default configuration for all systems and services.</li>
+          <li>Users must actively opt-in to any data sharing or processing beyond what is strictly necessary — systems must not default to opt-out.</li>
+        </ul>
+        <h3 class="h5 mt-3">6.3 Data Protection Impact Assessment (DPIA)</h3>
+        <p>A DPIA is mandatory before commencing any processing that is likely to result in high risk to individuals. Triggers include:</p>
+        <ul>
+          <li>Large-scale processing of special category data.</li>
+          <li>Systematic and extensive profiling or automated decision-making.</li>
+          <li>Systematic monitoring of publicly accessible areas.</li>
+          <li>Deployment of new technologies with no established privacy track record.</li>
+          <li>Processing that could result in inability of data subjects to exercise their rights.</li>
+        </ul>
+        <p>The DPIA process includes: describing the processing and its purpose; assessing necessity and proportionality; identifying and assessing privacy risks; identifying measures to mitigate risks; and, where high residual risk remains, consulting the supervisory authority and/or legal counsel before proceeding.</p>
+      </div>
+
+      <!-- 7. International Data Transfers -->
+      <div class="policy-section">
+        <h2>7. International Data Transfers</h2>
+        <p>Personal data must not be transferred to a country or territory outside the UK/EEA without ensuring an adequate level of protection. Permitted transfer mechanisms are:</p>
+        <ul>
+          <li><strong>Adequacy Decision:</strong> The destination country has been granted an adequacy decision by the relevant authority (European Commission or UK ICO). No additional safeguards required.</li>
+          <li><strong>Standard Contractual Clauses (SCCs):</strong> Approved SCCs executed between the data exporter and importer. A Transfer Impact Assessment (TIA) is required where the destination country presents a high risk of government access to personal data.</li>
+          <li><strong>Binding Corporate Rules (BCRs):</strong> Approved BCRs for intra-group transfers within multinational organisations.</li>
+          <li><strong>Explicit Consent:</strong> The data subject has been informed of the risks of the transfer to a country without adequate safeguards and has provided explicit, informed consent.</li>
+          <li><strong>Other Article 46/49 Mechanisms:</strong> Including approved codes of conduct, certification mechanisms, or derogations for important public interest, legal claims, or vital interests.</li>
+        </ul>
+        <p>All international transfers must be documented in the Record of Processing Activities (RoPA) with the transfer mechanism, destination country, and any TIA reference noted. Transfers relying on SCCs to high-risk countries require ISM review before execution.</p>
+      </div>
+
+      <!-- 8. Third-Party Data Processors -->
+      <div class="policy-section">
+        <h2>8. Third-Party Data Processors</h2>
+        <p>Where the organisation engages a third party to process personal data on its behalf, the organisation acts as the data controller and the third party acts as a data processor. A legally binding <strong>Data Processing Agreement (DPA)</strong> must be in place before any processing commences.</p>
+        <h3 class="h5 mt-3">8.1 DPA Requirements</h3>
+        <p>All DPAs must contain, as a minimum:</p>
+        <ul>
+          <li>Specific, documented processing instructions; the processor must not process outside these instructions.</li>
+          <li>Obligations on the processor to implement appropriate technical and organisational security measures.</li>
+          <li>Restrictions on engaging sub-processors without written authorisation from the controller.</li>
+          <li>Obligations to assist with data subject rights requests, DPIAs, and security measures.</li>
+          <li>Obligations to delete or return all personal data on termination of the agreement.</li>
+          <li>Audit rights allowing the controller to verify processor compliance.</li>
+        </ul>
+        <h3 class="h5 mt-3">8.2 Processor Due Diligence</h3>
+        <p>Processor compliance is verified as part of the supplier assessment process (PRO-012) prior to engagement and reviewed periodically. Sub-processors require written authorisation from the organisation before appointment. Processors must notify the organisation of any intended changes to sub-processor arrangements; the organisation retains the right to object.</p>
+      </div>
+
+      <!-- 9. Personal Data Breach -->
+      <div class="policy-section">
+        <h2>9. Personal Data Breach</h2>
+        <p>A personal data breach is a security incident that results in accidental or unlawful destruction, loss, alteration, unauthorised disclosure of, or access to personal data. All suspected breaches must be reported immediately to the Privacy Lead and Information Security Manager.</p>
+        <h3 class="h5 mt-3">9.1 Notification Obligations</h3>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm">
+            <thead class="table-secondary">
+              <tr><th>Notification</th><th>Trigger</th><th>Deadline</th><th>Authority</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Supervisory Authority</td>
+                <td>Breach likely to result in a risk to the rights and freedoms of natural persons (GDPR Art. 33).</td>
+                <td>Within 72 hours of becoming aware. If late, reason for delay must be provided.</td>
+                <td>ICO (UK) / Relevant national DPA (EU)</td>
+              </tr>
+              <tr>
+                <td>Data Subjects</td>
+                <td>Breach likely to result in a high risk to the rights and freedoms of natural persons (GDPR Art. 34).</td>
+                <td>Without undue delay; as soon as reasonably possible.</td>
+                <td>Affected individuals</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>An internal breach log is maintained regardless of whether external notification obligations are triggered. All breaches — including those below the notification threshold — must be assessed, documented, and reviewed for lessons learned. The incident response procedure (PRO-007) governs the technical response to breaches. The Privacy Lead must be involved in all breach assessments to determine notification obligations.</p>
+      </div>
+
+      <!-- 10. Data Retention and Deletion -->
+      <div class="policy-section">
+        <h2>10. Data Retention and Deletion</h2>
+        <p>Personal data must not be retained longer than is necessary for the purposes for which it was collected. The organisation maintains a <strong>Data Retention Schedule</strong> reviewed annually, specifying retention periods by data category and applicable legal or regulatory basis.</p>
+        <h3 class="h5 mt-3">10.1 Retention Principles</h3>
+        <ul>
+          <li>Retention periods are set with reference to legal obligations, contractual requirements, and legitimate business need.</li>
+          <li>When the retention period expires, data must be securely deleted, anonymised, or pseudonymised — retention in an identifiable form beyond this point is a policy breach.</li>
+          <li>Deletion must be documented and confirmed; records of deletion are retained for 2 years.</li>
+        </ul>
+        <h3 class="h5 mt-3">10.2 Legal Hold</h3>
+        <p>A legal hold suspends normal retention and deletion schedules for data that may be relevant to pending or anticipated litigation, regulatory investigation, or audit. Legal holds are authorised by the legal team and must be communicated to the Privacy Lead and ISM. Data subject to a legal hold must not be deleted until the hold is formally lifted. The Privacy team is notified when holds are placed and when they are lifted so the retention schedule can be restored.</p>
+        <h3 class="h5 mt-3">10.3 Erasure Requests</h3>
+        <p>Erasure requests (Right to Be Forgotten) are honoured unless a legal obligation, legitimate interest, or legal hold overrides the right. Where erasure is refused, the data subject is informed in writing of the reason and their right to complain to the supervisory authority.</p>
+      </div>
+
+      <!-- 11. Privacy Governance -->
+      <div class="policy-section">
+        <h2>11. Privacy Governance</h2>
+        <p>The organisation maintains a structured privacy governance framework to ensure accountability and continual improvement:</p>
+        <ul>
+          <li><strong>Privacy Lead / Data Protection Officer (DPO):</strong> A Privacy Lead or DPO is designated where required by law. Contact details are published internally and communicated to the supervisory authority. The Privacy Lead provides independent advice, monitors compliance, and is the primary point of contact for data subjects and the supervisory authority.</li>
+          <li><strong>Record of Processing Activities (RoPA):</strong> Maintained and updated by the Privacy team as required by GDPR Article 30. Includes all processing activities, purposes, lawful bases, data categories, recipients, retention periods, and transfer safeguards.</li>
+          <li><strong>DPIA Register:</strong> All DPIAs conducted are recorded, along with outcomes and residual risk acceptance decisions.</li>
+          <li><strong>Annual Privacy Review:</strong> Conducted in conjunction with the ISMS management review. Covers RoPA accuracy, DPIA register, data subject rights request metrics, breach log review, training completion rates, and processor compliance status.</li>
+          <li><strong>Privacy Training:</strong> All staff with access to personal data must complete privacy awareness training on joining and at minimum annually thereafter. Role-specific training is provided for those with higher privacy responsibilities.</li>
+          <li><strong>Privacy Compliance Metrics:</strong> Reported at management review, including: rights request volumes and response rates, breach count and notification outcomes, DPIA completion rate, training completion rate, and processor review coverage.</li>
+        </ul>
+      </div>
+
+      <!-- 12. Related Documents -->
+      <div class="policy-section">
+        <h2>12. Related Documents</h2>
+        <ul>
+          <li><a href="pol-005-data-classification-policy.html">POL-005 — Data Classification Policy</a></li>
+          <li><a href="pol-006-cryptography-policy.html">POL-006 — Cryptography Policy</a></li>
+          <li><a href="pol-010-supplier-security-policy.html">POL-010 — Supplier Security Policy</a></li>
+          <li><a href="pro-007-incident-response-procedure.html">PRO-007 — Incident Response Procedure</a></li>
+          <li>PRO-012 — Supplier Assessment Procedure</li>
+          <li>TMP-004 — Incident Report Form</li>
+        </ul>
+      </div>
+
+      <!-- Revision History -->
+      <div class="policy-section mt-5">
+        <h2>Revision History</h2>
+        <table class="table table-bordered table-sm">
+          <thead class="table-secondary">
+            <tr><th>Version</th><th>Date</th><th>Author</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1.0</td><td>2025-01-01</td><td>Information Security Manager</td><td>Initial release</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title fs-5" id="rbacModalLabel">🔒 Login</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <div class="modal-body"><form id="rbac-login-form" novalidate>
+        <div class="mb-3"><label for="rbac-username-input" class="form-label">Username</label><input type="text" class="form-control" id="rbac-username-input" autocomplete="username" maxlength="40" required /></div>
+        <div class="mb-3"><label for="rbac-password-input" class="form-label">Password</label><input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" required /></div>
+        <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+      </form></div>
+      <div class="modal-footer border-0 pt-0"><p class="text-secondary small mb-0">Session clears when you close this tab.</p></div>
+    </div></div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" /></a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" /></a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="../privacy.html">Privacy Policy</a> &middot; <a href="../terms.html">Terms</a></p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="../users.js" defer></script>
+  <script src="../roles.js" defer></script>
+  <script src="../script.js" defer></script>
+</body>
+</html>

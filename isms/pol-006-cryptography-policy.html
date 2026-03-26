@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="../theme.css" />
+  <link rel="stylesheet" href="isms.css" />
+  <title>Cryptography Policy | ISMS | Jessica Rojas</title>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="../index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="../projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="../timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="../cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="../consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="../contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="../blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="../knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="../compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="../jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="../admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content">
+    <div class="container py-4">
+      <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="../index.html">Home</a></li>
+          <li class="breadcrumb-item"><a href="index.html">ISMS</a></li>
+          <li class="breadcrumb-item active">POL-006</li>
+        </ol>
+      </nav>
+
+      <div class="d-flex justify-content-between align-items-start mb-4 print-btn">
+        <span class="badge bg-primary fs-6">Policy — POL-006</span>
+        <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">Print / Save PDF</button>
+      </div>
+
+      <div class="doc-header mb-4">
+        <table class="table table-bordered table-sm">
+          <tbody>
+            <tr><th style="width:30%">Document Title</th><td>Cryptography Policy</td></tr>
+            <tr><th>Document ID</th><td>POL-006</td></tr>
+            <tr><th>Version</th><td>1.0</td></tr>
+            <tr><th>Classification</th><td>Internal</td></tr>
+            <tr><th>Owner</th><td>Information Security Manager</td></tr>
+            <tr><th>Approved By</th><td>Senior Management</td></tr>
+            <tr><th>Effective Date</th><td>2025-01-01</td></tr>
+            <tr><th>Next Review</th><td>2026-01-01</td></tr>
+            <tr><th>ISO 27001:2022 Controls</th><td>A.8.24</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section">
+        <h2>1. Purpose</h2>
+        <p>This Cryptography Policy establishes the requirements for the selection, implementation, management, and use of cryptographic controls within the organization. Cryptography is a critical tool for protecting the confidentiality, integrity, and authenticity of organizational information, and for supporting secure communications and digital identity assurance.</p>
+        <p>The purpose of this policy is to ensure that cryptographic measures are applied consistently and effectively, using approved and current algorithms and key lengths, and that cryptographic keys and certificates are managed in a secure and auditable manner. Poor cryptographic practices — including use of weak algorithms, improper key management, or failure to apply encryption where required — can render security controls ineffective and expose the organization to significant risk.</p>
+        <p>This policy applies in support of ISO/IEC 27001:2022 Control A.8.24 (Use of cryptography) and complements the requirements of the Data Classification Policy (POL-005) and Access Control Policy (POL-003).</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>2. Scope</h2>
+        <p>This policy applies to all cryptographic controls used to protect organizational information, including but not limited to:</p>
+        <ul>
+          <li>Encryption of data at rest on servers, workstations, mobile devices, databases, and removable media</li>
+          <li>Encryption of data in transit across internal and external networks</li>
+          <li>Digital signatures and certificate-based authentication</li>
+          <li>Cryptographic hashing for data integrity verification and password storage</li>
+          <li>PKI (Public Key Infrastructure) and certificate management</li>
+          <li>Key management systems, Hardware Security Modules (HSMs), and secrets management solutions</li>
+          <li>VPN, SSH, and TLS implementations</li>
+          <li>Encryption used within internally developed or procured applications</li>
+        </ul>
+        <p>This policy applies to all personnel responsible for the design, implementation, operation, or management of systems using cryptographic controls, including IT staff, developers, system administrators, and vendors implementing cryptographic solutions on behalf of the organization.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>3. Cryptographic Standards</h2>
+        <p>Only approved cryptographic algorithms and key lengths as defined in this section may be used in organizational systems. Use of algorithms or configurations not listed in this section requires prior written approval from the Information Security Manager. The organization will review and update approved algorithms as the cryptographic landscape evolves.</p>
+
+        <h3 class="h5 mt-3">3.1 Symmetric Encryption</h3>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Algorithm</th><th>Key Length</th><th>Status</th><th>Use Cases</th></tr></thead>
+          <tbody>
+            <tr><td>AES-256 (GCM mode preferred)</td><td>256-bit</td><td class="text-success fw-semibold">Preferred</td><td>Data at rest encryption, file encryption, disk encryption, VPN</td></tr>
+            <tr><td>AES-128 (GCM mode preferred)</td><td>128-bit</td><td class="text-warning fw-semibold">Acceptable (minimum)</td><td>Acceptable where AES-256 is not feasible; document justification</td></tr>
+            <tr><td>3DES (Triple DES)</td><td>112-bit effective</td><td class="text-danger fw-semibold">Prohibited</td><td>Do not use in any new implementations; retire from existing systems</td></tr>
+            <tr><td>DES</td><td>56-bit</td><td class="text-danger fw-semibold">Prohibited</td><td>Completely deprecated; must not be used under any circumstances</td></tr>
+            <tr><td>RC4</td><td>Variable</td><td class="text-danger fw-semibold">Prohibited</td><td>Completely deprecated; must not be used under any circumstances</td></tr>
+          </tbody>
+        </table>
+        <p>AES must be used with an appropriate mode of operation. GCM (Galois/Counter Mode) is preferred as it provides both confidentiality and integrity (AEAD). CBC mode is acceptable with proper IV management and a separate MAC. ECB mode is prohibited.</p>
+
+        <h3 class="h5 mt-3">3.2 Asymmetric Encryption and Digital Signatures</h3>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Algorithm</th><th>Key Length</th><th>Status</th><th>Use Cases</th></tr></thead>
+          <tbody>
+            <tr><td>RSA</td><td>4096-bit</td><td class="text-success fw-semibold">Preferred</td><td>Key exchange, digital signatures, certificate issuance</td></tr>
+            <tr><td>RSA</td><td>2048-bit</td><td class="text-warning fw-semibold">Acceptable (minimum)</td><td>Minimum for new implementations; existing 2048-bit keys acceptable with annual review</td></tr>
+            <tr><td>RSA</td><td>&lt;2048-bit</td><td class="text-danger fw-semibold">Prohibited</td><td>Must not be used; existing implementations must be migrated immediately</td></tr>
+            <tr><td>ECDSA (P-384 curve)</td><td>384-bit</td><td class="text-success fw-semibold">Preferred</td><td>Digital signatures, TLS certificates, code signing; preferred for new implementations due to smaller key size with equivalent security</td></tr>
+            <tr><td>ECDSA (P-256 curve)</td><td>256-bit</td><td class="text-warning fw-semibold">Acceptable</td><td>Acceptable for most use cases; P-384 preferred</td></tr>
+            <tr><td>EdDSA (Ed25519)</td><td>256-bit (128-bit security)</td><td class="text-success fw-semibold">Preferred</td><td>SSH key pairs, code signing; excellent performance and security properties</td></tr>
+            <tr><td>DSA</td><td>Any</td><td class="text-danger fw-semibold">Prohibited</td><td>Deprecated; must not be used in new implementations</td></tr>
+          </tbody>
+        </table>
+
+        <h3 class="h5 mt-3">3.3 Cryptographic Hash Functions</h3>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Algorithm</th><th>Output Size</th><th>Status</th><th>Use Cases</th></tr></thead>
+          <tbody>
+            <tr><td>SHA-512</td><td>512-bit</td><td class="text-success fw-semibold">Preferred</td><td>Digital signatures, data integrity, HMAC</td></tr>
+            <tr><td>SHA-384</td><td>384-bit</td><td class="text-success fw-semibold">Preferred</td><td>Digital signatures, data integrity, HMAC</td></tr>
+            <tr><td>SHA-256</td><td>256-bit</td><td class="text-warning fw-semibold">Acceptable (minimum)</td><td>General-purpose hashing, digital signatures, TLS; minimum acceptable for new implementations</td></tr>
+            <tr><td>SHA-1</td><td>160-bit</td><td class="text-danger fw-semibold">Prohibited</td><td>Cryptographically broken; must not be used for any security purpose; legacy systems must migrate</td></tr>
+            <tr><td>MD5</td><td>128-bit</td><td class="text-danger fw-semibold">Prohibited</td><td>Cryptographically broken; must not be used for any security purpose; MD5 may only be used for non-security checksums with documented justification</td></tr>
+          </tbody>
+        </table>
+        <p><strong>Password hashing:</strong> Passwords must never be stored using general-purpose hash functions (SHA-256, SHA-512, etc.). Password hashing must use a purpose-built, slow key-derivation function: <strong>Argon2id</strong> (preferred), <strong>bcrypt</strong> (work factor 12 or higher), or <strong>PBKDF2</strong> (600,000+ iterations with HMAC-SHA-256). Plain text storage or reversible encryption of passwords is strictly prohibited.</p>
+
+        <h3 class="h5 mt-3">3.4 Transport Layer Security (TLS)</h3>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Protocol Version</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>TLS 1.3</td><td class="text-success fw-semibold">Preferred — use for all new implementations</td></tr>
+            <tr><td>TLS 1.2</td><td class="text-warning fw-semibold">Acceptable — permitted with approved cipher suites</td></tr>
+            <tr><td>TLS 1.1</td><td class="text-danger fw-semibold">Prohibited — must be disabled on all systems</td></tr>
+            <tr><td>TLS 1.0</td><td class="text-danger fw-semibold">Prohibited — must be disabled on all systems</td></tr>
+            <tr><td>SSL 3.0 / SSL 2.0</td><td class="text-danger fw-semibold">Prohibited — completely deprecated; must not be present</td></tr>
+          </tbody>
+        </table>
+        <p>For TLS 1.2, only strong cipher suites may be used. Cipher suites using NULL encryption, anonymous authentication, export-grade encryption, RC4, or CBC-based cipher suites vulnerable to BEAST/POODLE attacks must be disabled. Approved TLS 1.2 cipher suites include those in the ECDHE family with AES-GCM. The IT department must maintain and enforce a current list of approved cipher suites.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>4. Encryption Requirements</h2>
+        <p>The following encryption requirements apply based on data classification and use case:</p>
+
+        <h3 class="h5 mt-3">4.1 Data at Rest</h3>
+        <ul>
+          <li>All data classified as <strong>Confidential</strong> or <strong>Restricted</strong> must be encrypted at rest using AES-256 or AES-128 (minimum)</li>
+          <li>Full-disk encryption must be enabled on all laptops, workstations, and mobile devices using BitLocker (Windows), FileVault (macOS), or equivalent platform-native solution</li>
+          <li>Database encryption (Transparent Data Encryption or column-level encryption) must be applied to databases containing Confidential or Restricted data</li>
+          <li>Backup data containing Confidential or Restricted information must be encrypted prior to storage or transmission</li>
+          <li>Removable media (USB drives, portable hard drives) used to store organizational data must be encrypted</li>
+        </ul>
+
+        <h3 class="h5 mt-3">4.2 Data in Transit</h3>
+        <ul>
+          <li>All data transmitted across untrusted networks (including the internet, public Wi-Fi, and third-party networks) must be encrypted using TLS 1.2 or higher</li>
+          <li>Unencrypted protocols (HTTP, FTP, Telnet, SMTP without STARTTLS) must not be used for transmitting organizational data outside of isolated lab environments</li>
+          <li>All API communications must use HTTPS (TLS 1.2+); HTTP-only APIs are prohibited in production environments</li>
+          <li>All remote administrative access must use encrypted protocols (SSH, RDP with NLA and TLS, HTTPS management interfaces); Telnet and unencrypted HTTP management interfaces are prohibited</li>
+          <li>Email containing Confidential or Restricted content must be protected using S/MIME or PGP encryption, or transmitted via an encrypted secure file transfer mechanism</li>
+        </ul>
+
+        <h3 class="h5 mt-3">4.3 Removable Media</h3>
+        <p>Removable media (USB storage, external hard drives, optical media) used to store or transport organizational data must be encrypted using AES-256. Unencrypted removable media containing Confidential or Restricted data is prohibited. The use of removable media for Restricted data must be individually authorized by the data owner and Information Security Manager, and must be tracked and logged.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>5. Key Management</h2>
+        <p>Cryptographic keys are as sensitive as the data they protect. Compromise of a key can render encryption ineffective. Key management must be treated as a critical security function.</p>
+
+        <h3 class="h5 mt-3">5.1 Key Generation</h3>
+        <ul>
+          <li>All cryptographic keys must be generated using a Cryptographically Secure Pseudo-Random Number Generator (CSPRNG). Deterministic or predictable key generation is prohibited.</li>
+          <li>Key generation must occur within a trusted and controlled environment. Where possible, key generation must be performed within an HSM or approved Key Management Service (KMS).</li>
+          <li>Key lengths must comply with the approved algorithm standards in Section 3.</li>
+        </ul>
+
+        <h3 class="h5 mt-3">5.2 Key Storage and Protection</h3>
+        <ul>
+          <li>Cryptographic keys must be stored securely and separately from the data they protect. Keys must not be stored in the same location or system as the encrypted data.</li>
+          <li>Production encryption keys must be stored in an approved Hardware Security Module (HSM) or an approved cloud-native Key Management Service (KMS) such as AWS KMS, Azure Key Vault, or Google Cloud KMS.</li>
+          <li>Keys must never be stored in source code, configuration files, scripts, or environment variables without the use of a secrets management system (e.g., HashiCorp Vault, AWS Secrets Manager).</li>
+          <li>Access to key management systems must be restricted to authorized personnel only and subject to the access controls defined in the Access Control Policy (POL-003), including MFA.</li>
+          <li>All key management operations (creation, rotation, access, deletion) must be logged in an immutable audit trail.</li>
+        </ul>
+
+        <h3 class="h5 mt-3">5.3 Key Rotation</h3>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Key Type</th><th>Maximum Rotation Period</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>Symmetric encryption keys (data at rest)</td><td>1 year</td><td>Rotate immediately upon suspected compromise</td></tr>
+            <tr><td>Asymmetric keys (RSA, ECDSA)</td><td>2 years</td><td>Aligned with certificate lifecycle where applicable</td></tr>
+            <tr><td>TLS/SSL certificates</td><td>1 year</td><td>Follow CA/Browser Forum requirements; automate renewal where possible</td></tr>
+            <tr><td>SSH host keys</td><td>2 years</td><td>Rotate following any suspected compromise of the host system</td></tr>
+            <tr><td>API keys and tokens</td><td>1 year</td><td>Rotate immediately upon personnel changes or suspected exposure</td></tr>
+            <tr><td>Database encryption keys (TDE)</td><td>2 years</td><td>Rotate in conjunction with planned maintenance windows</td></tr>
+          </tbody>
+        </table>
+        <p>Keys must be rotated immediately, regardless of scheduled rotation timelines, when: a key is known or suspected to have been compromised; personnel with access to the key leave the organization; the algorithm or key length is found to be inadequate; or a security incident involving the system protected by the key occurs.</p>
+
+        <h3 class="h5 mt-3">5.4 Key Escrow and Recovery</h3>
+        <p>Where required for business continuity purposes, cryptographic keys may be escrowed (a copy held securely by a designated custodian) to enable data recovery in the event of key loss. Key escrow must be:</p>
+        <ul>
+          <li>Formally authorized and documented, with the escrow arrangement recorded in the key management inventory</li>
+          <li>Protected with at least the same level of security as the primary key</li>
+          <li>Subject to split custody where technically feasible (requiring two authorized parties to reconstruct the key)</li>
+          <li>Tested for recoverability at least annually</li>
+        </ul>
+        <p>Key escrow for keys protecting Restricted data requires approval from the Information Security Manager and must involve at minimum two designated custodians.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>6. Certificate Management</h2>
+        <p>Digital certificates are used to bind cryptographic keys to identities and to establish trust in TLS communications, code signing, email security, and authentication. Certificate management must be rigorous to prevent expired, mis-issued, or compromised certificates from undermining security.</p>
+        <ul>
+          <li>Only certificates issued by approved, trusted Certificate Authorities (CAs) may be used in production systems. A list of approved CAs must be maintained by the IT department. Unauthorized or unapproved CAs must not be added to system trust stores.</li>
+          <li>Self-signed certificates must not be used in production environments for systems accessible by end users or external parties. Self-signed certificates may only be used in isolated development or test environments, and must never be trusted in production trust stores.</li>
+          <li>All TLS certificates used in production must have a maximum validity period of 1 year (or less, consistent with CA/Browser Forum requirements). Certificate validity periods must not exceed the maximum permitted by the issuing CA's policies.</li>
+          <li>A complete inventory of all organizational certificates must be maintained, including: common name, issuing CA, validity period, responsible owner, and the system(s) on which the certificate is deployed. This inventory must be reviewed at least quarterly.</li>
+          <li>Certificate expiry monitoring must be implemented to provide alerts at minimum 60 days, 30 days, and 7 days before expiration. Automated certificate renewal (e.g., via ACME/Let's Encrypt or enterprise CA automation) must be used where technically feasible.</li>
+          <li>Expired certificates must not remain deployed on production systems. Deployment of an expired certificate is a security control failure that must be treated as an incident.</li>
+          <li>Certificate revocation must be performed promptly when a certificate is compromised, when the associated private key is suspected of exposure, or when the certificate is no longer required. CRL (Certificate Revocation List) or OCSP (Online Certificate Status Protocol) must be verified by systems relying on certificates.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>7. Prohibited Practices</h2>
+        <p>The following cryptographic practices are strictly prohibited within the organization:</p>
+        <ul>
+          <li><strong>Use of weak or broken algorithms:</strong> MD5, SHA-1 (for security purposes), DES, 3DES, RC4, SSL 2.0, SSL 3.0, TLS 1.0, and TLS 1.1 must not be used in any security-sensitive context. Legacy systems still using these algorithms must be prioritized for remediation.</li>
+          <li><strong>Hardcoded cryptographic keys:</strong> Embedding cryptographic keys, passwords, API secrets, or tokens directly in source code, configuration files, or compiled binaries is strictly prohibited. Secrets must be stored and retrieved from an approved secrets management solution.</li>
+          <li><strong>Self-signed certificates in production:</strong> Self-signed certificates must not be deployed on production systems accessible to users or external systems. Their use undermines certificate-based trust and cannot be effectively revoked.</li>
+          <li><strong>Key sharing:</strong> Private keys must not be shared between systems, individuals, or organizations except through formally approved and documented key escrow arrangements. A private key compromise that requires notification or remediation must be treated as a security incident.</li>
+          <li><strong>Homegrown cryptography:</strong> Implementing custom or proprietary cryptographic algorithms or protocols is prohibited. Only well-vetted, publicly reviewed, and standards-based algorithms may be used. "Security through obscurity" is not an acceptable substitute for proven cryptographic strength.</li>
+          <li><strong>ECB mode encryption:</strong> AES or any block cipher operated in Electronic Codebook (ECB) mode must not be used for data encryption, as ECB mode reveals patterns in plaintext.</li>
+          <li><strong>Key storage in plaintext:</strong> Cryptographic keys must never be stored in plaintext form in files, databases, email, or any system that does not provide appropriate access control and protection.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>8. Cryptographic Module Standards</h2>
+        <p>The organization prefers the use of cryptographic modules that have been validated under FIPS 140-2 or FIPS 140-3 (Federal Information Processing Standard), as this validation provides assurance that the module correctly implements approved algorithms and key management practices.</p>
+        <p>FIPS 140-2/140-3 validated modules at Security Level 2 or higher are required for:</p>
+        <ul>
+          <li>HSMs used for key generation, storage, and management</li>
+          <li>Systems processing Restricted data where validated modules are technically feasible</li>
+          <li>Any system subject to regulatory requirements mandating FIPS-validated cryptography (e.g., FedRAMP, certain financial or healthcare regulations)</li>
+        </ul>
+        <p>Where FIPS-validated modules are not available or technically feasible, the Information Security Manager must document the deviation and confirm that the cryptographic implementation otherwise complies with the algorithm and key length requirements of this policy. The use of platform-native cryptographic libraries (OpenSSL in FIPS mode, Windows CNG, Apple Security Framework) is generally acceptable as these are regularly updated and reviewed.</p>
+        <p>Vendors supplying cryptographic solutions must be able to demonstrate the validation status of their cryptographic modules upon request. The validation status of modules in use must be periodically reviewed to ensure they remain current and have not been revoked.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>9. Related Documents</h2>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Document ID</th><th>Document Title</th></tr></thead>
+          <tbody>
+            <tr><td>POL-001</td><td>Information Security Policy</td></tr>
+            <tr><td>POL-003</td><td>Access Control Policy</td></tr>
+            <tr><td>POL-004</td><td>Asset Management Policy</td></tr>
+            <tr><td>POL-005</td><td>Data Classification Policy</td></tr>
+            <tr><td>POL-008</td><td>Operations Security Policy</td></tr>
+            <tr><td>POL-009</td><td>Network Security Policy</td></tr>
+            <tr><td>POL-015</td><td>Secure Development Policy</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section mt-5">
+        <h2>Revision History</h2>
+        <table class="table table-bordered table-sm revision-table">
+          <thead><tr><th>Version</th><th>Date</th><th>Author</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td>1.0</td><td>2025-01-01</td><td>Information Security Manager</td><td>Initial release</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="rbacModalLabel">🔒 Login</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="rbac-login-form" novalidate>
+            <div class="mb-3">
+              <label for="rbac-username-input" class="form-label">Username</label>
+              <input type="text" class="form-control" id="rbac-username-input" autocomplete="username" placeholder="Enter your username" maxlength="40" required />
+            </div>
+            <div class="mb-3">
+              <label for="rbac-password-input" class="form-label">Password</label>
+              <input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" required />
+            </div>
+            <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+          </form>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <p class="text-secondary small mb-0">Session clears when you close this tab.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" />
+      </a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" />
+      </a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="../privacy.html">Privacy Policy</a> &middot; <a href="../terms.html">Terms</a></p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="../users.js" defer></script>
+  <script src="../roles.js" defer></script>
+  <script src="../script.js" defer></script>
+</body>
+</html>

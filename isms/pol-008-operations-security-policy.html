@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="../theme.css" />
+  <link rel="stylesheet" href="isms.css" />
+  <title>Operations Security Policy | ISMS | Jessica Rojas</title>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="../index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="../projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="../timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="../cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="../consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="../contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="../blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="../knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="../compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="../jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="../admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <main id="main-content">
+    <div class="container py-4">
+      <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="../index.html">Home</a></li>
+          <li class="breadcrumb-item"><a href="index.html">ISMS</a></li>
+          <li class="breadcrumb-item active">POL-008</li>
+        </ol>
+      </nav>
+      <div class="d-flex justify-content-between align-items-start mb-4 print-btn">
+        <span class="badge bg-primary fs-6">Policy — POL-008</span>
+        <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">Print / Save PDF</button>
+      </div>
+      <div class="doc-header mb-4">
+        <table class="table table-bordered table-sm">
+          <tbody>
+            <tr><th style="width:30%">Document Title</th><td>Operations Security Policy</td></tr>
+            <tr><th>Document ID</th><td>POL-008</td></tr>
+            <tr><th>Version</th><td>1.0</td></tr>
+            <tr><th>Classification</th><td>Internal</td></tr>
+            <tr><th>Owner</th><td>Information Security Manager</td></tr>
+            <tr><th>Approved By</th><td>Senior Management</td></tr>
+            <tr><th>Effective Date</th><td>2025-01-01</td></tr>
+            <tr><th>Next Review</th><td>2026-01-01</td></tr>
+            <tr><th>ISO 27001:2022 Controls</th><td>A.8.8, A.8.9, A.8.12, A.8.13, A.8.15, A.8.17, A.8.19, A.5.37</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section">
+        <h2>1. Purpose</h2>
+        <p>This policy establishes the requirements for managing and securing the organization's operational IT environment. It ensures that information processing facilities are operated securely, reliably, and in a controlled manner to protect the confidentiality, integrity, and availability of organizational information assets.</p>
+        <p>Operations security encompasses the day-to-day management of IT systems, including documented procedures, change control, capacity planning, malware protection, backup, logging, monitoring, software management, and vulnerability handling. This policy aligns with ISO/IEC 27001:2022 Annex A controls applicable to technology and operational domains.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>2. Scope</h2>
+        <p>This policy applies to:</p>
+        <ul>
+          <li>All IT systems, applications, infrastructure components, and services operated by or on behalf of the organization.</li>
+          <li>All IT operations personnel, system administrators, developers with production access, and managed service providers (MSPs) responsible for operational functions.</li>
+          <li>On-premises infrastructure, cloud-hosted services (IaaS, PaaS, SaaS), and hybrid environments.</li>
+          <li>Development, test, staging, and production environments where interaction or data flow between environments is possible.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>3. Documented Operating Procedures</h2>
+        <p>All operational IT procedures shall be documented, maintained, and made available to relevant personnel. The requirement to document procedures is not optional — undocumented operational practices introduce operational risk and impede continuity.</p>
+        <ul>
+          <li>All routine operational tasks (system startup/shutdown, backup jobs, monitoring checks, batch processing, scheduled maintenance) shall have documented Standard Operating Procedures (SOPs).</li>
+          <li>SOPs shall include: purpose, scope, step-by-step instructions, expected outputs, error handling, escalation contacts, and the name of the document owner.</li>
+          <li>Operational procedures shall be stored in an accessible, version-controlled location (e.g., the ISMS document repository or IT knowledge base). Access shall be restricted to authorized personnel.</li>
+          <li>All SOPs shall be reviewed at least annually or following any significant operational change. Reviews shall be documented.</li>
+          <li>New procedures shall be reviewed and approved by the IT Manager and Information Security Manager before becoming operational.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>4. Change Management</h2>
+        <p>All changes to production systems, applications, infrastructure, and security configurations are governed by the Change Management Policy (POL-009). No changes shall be made to production systems outside of the formal change management process.</p>
+        <ul>
+          <li>IT operations staff shall not implement changes to production environments without an approved Change Request (CR) on file, except under Emergency Change procedures as defined in POL-009.</li>
+          <li>All change activities shall be logged, including the date and time of the change, the individual who made the change, the system(s) affected, and the outcome.</li>
+          <li>Changes that introduce new software components, modify security configurations, or alter network topology shall require a security impact assessment as part of the change request process.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>5. Capacity Management</h2>
+        <p>The organization shall monitor, forecast, and manage the capacity of IT resources to ensure continued availability of systems and services.</p>
+        <ul>
+          <li>Capacity metrics shall be collected and monitored for all critical systems, including CPU utilization, memory usage, disk storage, network bandwidth, and application throughput.</li>
+          <li>Performance baselines shall be established for all critical systems within 30 days of production deployment. Baselines shall be reviewed and updated at least annually.</li>
+          <li>Capacity thresholds shall be defined for each critical system. Alerts shall be triggered when utilization reaches 75% of defined capacity limits for sustained periods (&gt;15 minutes). At 90% utilization, a capacity incident shall be raised.</li>
+          <li>Capacity planning reviews shall be conducted at least semi-annually, factoring in business growth projections, new service launches, and seasonal demand patterns.</li>
+          <li>Capacity forecasting shall use a minimum 12-month forward projection. Procurement lead times shall be considered in capacity planning decisions.</li>
+          <li>Capacity management activities and decisions shall be documented and presented at management review.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>6. Separation of Development, Test, and Production Environments</h2>
+        <p>Development, testing, staging, and production environments shall be strictly segregated to prevent unauthorized or accidental changes to live systems and to protect production data.</p>
+        <ul>
+          <li>Separate network segments, access controls, and system accounts shall be maintained for development, test/staging, and production environments. Cross-environment access shall require explicit authorization and shall be audited.</li>
+          <li>Production data shall not be used in development or test environments. Where realistic data volumes are required for testing purposes, data shall be anonymized or synthesized using documented data masking or generation tools. Exceptions require written approval from the Information Security Manager and the Data Protection Officer.</li>
+          <li>Developers shall not have direct access to production systems or production databases except through a formal elevated access request process, subject to approval and full audit logging.</li>
+          <li>Deployment pipelines from development to production shall enforce automated security testing gates (e.g., SAST, dependency scanning, configuration checks) before code promotion to production.</li>
+          <li>Production credentials (database passwords, API keys, service account credentials) shall not be present in development or test environment configuration files, code repositories, or documentation.</li>
+          <li>All environment separations shall be documented in the network architecture and verified as part of annual internal audits.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>7. Protection from Malware</h2>
+        <p>The organization shall implement layered controls to detect, prevent, and respond to malware threats across all endpoints, servers, and network infrastructure.</p>
+        <h3>7.1 Endpoint Protection</h3>
+        <ul>
+          <li>Approved endpoint protection software (anti-malware, EDR — Endpoint Detection and Response) shall be installed and actively running on all organizational workstations, laptops, and servers, including virtual machines.</li>
+          <li>Endpoint protection signatures and threat intelligence feeds shall be updated automatically and continuously. Manual updates shall not be the primary update mechanism.</li>
+          <li>EDR agents shall provide real-time behavioural detection, process monitoring, and automated response capabilities (e.g., isolation of compromised endpoints).</li>
+          <li>Full system scans shall be scheduled at least weekly on all endpoints. Scan results shall be centrally logged and reviewed.</li>
+        </ul>
+        <h3>7.2 Email and Web Filtering</h3>
+        <ul>
+          <li>All inbound and outbound email shall be scanned for malware, phishing indicators, and malicious attachments by an approved email security gateway.</li>
+          <li>Potentially dangerous file types (e.g., .exe, .vbs, .js, .bat, .ps1) shall be blocked at the email gateway unless specifically approved for business use.</li>
+          <li>Web proxy or DNS filtering shall be deployed to block access to known malicious domains, phishing sites, and categories inappropriate for organizational use.</li>
+          <li>Web filtering logs shall be reviewed at least monthly for anomalous patterns or repeated blocked access attempts that may indicate a compromised endpoint.</li>
+        </ul>
+        <h3>7.3 User Awareness</h3>
+        <p>All staff shall receive annual training on malware threats, phishing recognition, and safe browsing practices. Simulated phishing exercises shall be conducted at least bi-annually, with outcomes used to improve targeted security awareness training.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>8. Information Backup</h2>
+        <p>The organization shall implement a robust backup program to ensure that information can be recovered following loss, corruption, ransomware attack, or disaster.</p>
+        <ul>
+          <li>Backup requirements for each system shall be defined in accordance with the Recovery Time Objective (RTO) and Recovery Point Objective (RPO) established through the Business Impact Analysis (BIA) (see Business Continuity and Resilience Policy, POL-012).</li>
+          <li>Backup procedures shall be documented in the Backup and Recovery Procedure (PRO-009) and followed without exception.</li>
+          <li>The organization shall follow the 3-2-1 backup rule as a minimum standard: maintain at least <strong>3 copies</strong> of data, on at least <strong>2 different storage media types</strong>, with at least <strong>1 copy stored off-site or in a geographically separate cloud region</strong>.</li>
+          <li>Backup jobs shall be monitored daily. Failed backups shall be treated as operational incidents and investigated immediately. Persistent backup failures affecting critical systems shall be escalated to the IT Manager.</li>
+          <li>Backup integrity and restorability shall be tested at least monthly for critical systems by performing a restore to a non-production environment and verifying data integrity. Full restore tests for critical systems shall be performed at least annually.</li>
+          <li>Backup media and backup data in cloud storage shall be encrypted. Encryption keys shall be stored separately from the backup data.</li>
+          <li>Backup retention periods shall meet business, legal, and regulatory requirements. Default retention: daily backups for 30 days; weekly backups for 3 months; monthly backups for 1 year; annual backups for 7 years (or as required by applicable law).</li>
+          <li>Backups of critical systems shall have an RPO of no greater than 24 hours and an RTO of no greater than 4 hours, unless a different objective is approved in writing by senior management.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>9. Logging and Monitoring</h2>
+        <p>The organization shall maintain comprehensive logging and monitoring capabilities to detect security incidents, support investigations, and demonstrate compliance.</p>
+        <h3>9.1 Mandatory Log Sources</h3>
+        <p>The following systems and components shall generate security event logs and forward them to the centralized SIEM (Security Information and Event Management) platform:</p>
+        <ul>
+          <li>All servers (operating system event logs, application logs, authentication logs)</li>
+          <li>Network devices: firewalls, routers, switches, VPN gateways (connection logs, access control list hits, configuration changes)</li>
+          <li>Identity and Access Management systems (Active Directory / LDAP authentication events, privilege changes)</li>
+          <li>Endpoint protection platforms (detection events, quarantine actions, scan results)</li>
+          <li>Web proxies and email security gateways</li>
+          <li>Cloud platform audit logs (AWS CloudTrail, Azure Monitor, GCP Audit Logs, or equivalent)</li>
+          <li>Database activity logs for databases containing confidential or sensitive data</li>
+          <li>Physical access control systems</li>
+          <li>Remote access infrastructure (VPN, remote desktop)</li>
+        </ul>
+        <h3>9.2 Log Retention</h3>
+        <ul>
+          <li>All security event logs shall be retained for a minimum of 12 months. Logs from systems handling payment card data (PCI DSS scope) or personal data (GDPR scope) shall be retained for a minimum of 12 months with at least 3 months immediately accessible for analysis.</li>
+          <li>Logs related to an active security investigation or legal hold shall be retained for the duration of the investigation or legal matter, regardless of standard retention schedules.</li>
+        </ul>
+        <h3>9.3 SIEM Requirements</h3>
+        <ul>
+          <li>The organization shall maintain a SIEM platform capable of real-time ingestion, correlation, and alerting across all mandatory log sources.</li>
+          <li>SIEM alerting rules shall be reviewed and tuned at least quarterly to reduce false positives and ensure detection of relevant threat patterns.</li>
+          <li>SIEM alert queues shall be reviewed by security operations personnel during business hours as a minimum; critical/high alerts shall trigger out-of-hours notification procedures.</li>
+        </ul>
+        <h3>9.4 Log Integrity</h3>
+        <ul>
+          <li>Log data shall be protected against unauthorized modification or deletion. Logs shall be forwarded to an immutable or write-protected logging infrastructure (e.g., SIEM with tamper protection, cloud-native immutable storage).</li>
+          <li>System clocks shall be synchronized to an authoritative time source (see Section 10) to ensure log timestamps are accurate and consistent for correlation and forensic purposes.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>10. Clock Synchronization</h2>
+        <p>Accurate and consistent system time is essential for log correlation, incident investigation, digital forensics, and compliance.</p>
+        <ul>
+          <li>All servers, network devices, workstations, and cloud instances shall synchronize their clocks using the Network Time Protocol (NTP) or Precision Time Protocol (PTP) from an authoritative time source.</li>
+          <li>The organization shall designate approved internal or external NTP servers. External NTP sources shall use Stratum 1 or Stratum 2 servers from reputable providers (e.g., pool.ntp.org, government time servers, cloud provider time services).</li>
+          <li>All systems shall be configured to synchronize with the designated NTP hierarchy. Client systems shall sync to internal NTP servers, which in turn synchronize with external Stratum 1/2 sources.</li>
+          <li>Time zone configuration shall be standardized: servers shall be configured to use UTC. End-user devices may display local time but shall sync to the same NTP hierarchy.</li>
+          <li>NTP synchronization status shall be monitored. Systems that have drifted beyond an acceptable threshold (typically &gt;500ms from the reference source) shall generate an alert.</li>
+          <li>Clock synchronization configuration shall be verified during system deployment and as part of annual configuration audits.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>11. Installation of Software</h2>
+        <p>The installation of software on organizational systems shall be controlled to prevent the introduction of malicious, unlicensed, or unsupported software.</p>
+        <ul>
+          <li>Only software that appears on the organization's Approved Software List (ASL) may be installed on organizational systems. The ASL shall be maintained by the IT department and reviewed at least annually.</li>
+          <li>Standard users shall not have local administrator privileges on their workstations. Software installation on end-user devices shall require IT department involvement or shall be facilitated through a managed software deployment platform.</li>
+          <li>Requests to install software not on the Approved Software List shall be submitted to the IT department via the Software Installation Request process. Requests shall include: the software name and version, business justification, licensing details, and a security evaluation. Approval is required from the IT Manager and Information Security Manager.</li>
+          <li>All approved software shall be obtained from official, vendor-authorized sources. The use of cracked, pirated, or modified software is strictly prohibited.</li>
+          <li>The use of unapproved browser extensions, plugins, and add-ons is subject to the same controls as full software installations.</li>
+          <li>Installed software shall be inventoried and tracked as part of the organizational asset register. Unauthorized software discovered on organizational systems shall be removed promptly and the incident reported in accordance with the Incident Management Policy (POL-011).</li>
+          <li>Software version management shall be maintained. End-of-life (EOL) software that no longer receives security updates shall not remain in production without a documented compensating control and an approved remediation timeline.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>12. Technical Vulnerability Management</h2>
+        <p>The organization shall maintain a proactive vulnerability management program to identify, assess, and remediate technical vulnerabilities in a timely manner. Full requirements are defined in the Vulnerability Management Policy (POL-016). Key patching timelines are:</p>
+        <ul>
+          <li><strong>Critical vulnerabilities (CVSS 9.0–10.0):</strong> Remediate or apply compensating controls within 24–72 hours of a vendor patch or mitigation becoming available. Emergency change process shall be invoked if required.</li>
+          <li><strong>High vulnerabilities (CVSS 7.0–8.9):</strong> Remediate within 7 calendar days.</li>
+          <li><strong>Medium vulnerabilities (CVSS 4.0–6.9):</strong> Remediate within 30 calendar days.</li>
+          <li><strong>Low vulnerabilities (CVSS 0.1–3.9):</strong> Remediate within 90 calendar days or document accepted risk with senior management approval.</li>
+          <li>Vulnerability scanning of all internet-facing and internal systems shall be conducted at least monthly using approved scanning tools. Critical systems shall be scanned weekly.</li>
+          <li>Patch compliance shall be tracked and reported to management at least monthly. Unpatched critical and high vulnerabilities beyond their SLA shall be escalated to the IT Manager and Information Security Manager.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>13. Audit Logging</h2>
+        <p>The following categories of events shall be captured in system audit logs at a minimum. Audit logs shall be retained per the schedule in Section 9.2 and protected against tampering.</p>
+        <table class="table table-bordered table-sm">
+          <thead>
+            <tr><th>Event Category</th><th>Examples of Events to Log</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Authentication Events</td><td>Successful login, failed login (with source IP), account lockout, multi-factor authentication success/failure, password changes, session timeout</td></tr>
+            <tr><td>Privilege Use</td><td>Elevation to administrative/root privilege, use of sudo/RunAs, privilege assignment or revocation, service account usage</td></tr>
+            <tr><td>Object Access</td><td>Access to confidential files and directories, database queries on sensitive tables, access to cryptographic key stores, access to backup data</td></tr>
+            <tr><td>Policy Changes</td><td>Firewall rule changes, Group Policy modifications, security configuration changes, access control list modifications, RBAC role assignments</td></tr>
+            <tr><td>System Events</td><td>System startup and shutdown, service starts/stops, scheduled task creation or modification, software installation or removal, driver loading</td></tr>
+            <tr><td>Network Events</td><td>VPN connections and disconnections, outbound connections to suspicious destinations, port scanning activity, firewall policy hits</td></tr>
+            <tr><td>Application Events</td><td>Application errors, transaction failures, API authentication failures, data export operations, bulk data access</td></tr>
+          </tbody>
+        </table>
+        <p>Audit log generation shall be validated during system commissioning and verified as part of annual compliance audits.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>14. Related Documents</h2>
+        <ul>
+          <li>Information Security Policy (POL-001)</li>
+          <li>Access Control Policy (POL-005)</li>
+          <li>Change Management Policy (POL-009)</li>
+          <li>Vulnerability Management Policy (POL-016)</li>
+          <li>Business Continuity and Resilience Policy (POL-012)</li>
+          <li>Information Security Incident Management Policy (POL-011)</li>
+          <li>Backup and Recovery Procedure (PRO-009)</li>
+          <li>Approved Software List (ASL)</li>
+          <li>SIEM Alert Runbook</li>
+          <li>NTP Configuration Standard</li>
+        </ul>
+      </div>
+
+      <div class="policy-section mt-5">
+        <h2>Revision History</h2>
+        <table class="table table-bordered table-sm revision-table">
+          <thead><tr><th>Version</th><th>Date</th><th>Author</th><th>Description</th></tr></thead>
+          <tbody><tr><td>1.0</td><td>2025-01-01</td><td>Information Security Manager</td><td>Initial release</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="rbacModalLabel">🔒 Login</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="rbac-login-form" novalidate>
+            <div class="mb-3"><label for="rbac-username-input" class="form-label">Username</label><input type="text" class="form-control" id="rbac-username-input" autocomplete="username" placeholder="Enter your username" maxlength="40" required /></div>
+            <div class="mb-3"><label for="rbac-password-input" class="form-label">Password</label><input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" required /></div>
+            <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+          </form>
+        </div>
+        <div class="modal-footer border-0 pt-0"><p class="text-secondary small mb-0">Session clears when you close this tab.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" /></a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" /></a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="../privacy.html">Privacy Policy</a> &middot; <a href="../terms.html">Terms</a></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="../users.js" defer></script>
+  <script src="../roles.js" defer></script>
+  <script src="../script.js" defer></script>
+</body>
+</html>

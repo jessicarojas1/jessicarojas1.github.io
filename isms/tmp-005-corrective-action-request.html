@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="../theme.css" />
+  <link rel="stylesheet" href="isms.css" />
+  <title>Corrective Action Request (CAR) Form | ISMS | Jessica Rojas</title>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="../index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="../projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="../timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="../cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="../consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="../contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="../blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="../knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="../compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="../jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="../admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <main id="main-content">
+    <div class="container py-4">
+      <nav aria-label="breadcrumb" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../index.html">Home</a></li><li class="breadcrumb-item"><a href="index.html">ISMS</a></li><li class="breadcrumb-item active">TMP-005</li></ol></nav>
+      <div class="d-flex justify-content-between align-items-start mb-4 print-btn">
+        <span class="badge bg-success fs-6">Template — TMP-005</span>
+        <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">Print / Save PDF</button>
+      </div>
+      <div class="doc-header mb-4">
+        <table class="table table-bordered table-sm"><tbody>
+          <tr><th style="width:30%">Document Title</th><td>Corrective Action Request (CAR) Form</td></tr>
+          <tr><th>Document ID</th><td>TMP-005</td></tr>
+          <tr><th>Version</th><td>1.0</td></tr>
+          <tr><th>Classification</th><td>Internal</td></tr>
+          <tr><th>Owner</th><td>Information Security Manager</td></tr>
+          <tr><th>ISO 27001:2022 Controls</th><td>10.1, 10.2</td></tr>
+        </tbody></table>
+      </div>
+
+      <!-- CAR HEADER -->
+      <div class="policy-section">
+        <h2 class="h5 fw-bold mb-3">CAR Header</h2>
+        <p class="text-body-secondary small mb-3">A Corrective Action Request (CAR) is raised whenever a nonconformity is identified within the ISMS. The purpose of the CAR process is to eliminate the root cause of the nonconformity, not merely to address its symptoms. All CARs must be tracked to closure by the ISM. Due dates are determined by priority: Critical — 14 days; High — 30 days; Medium — 60 days; Low — 90 days.</p>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm">
+            <tbody>
+              <tr>
+                <th style="width:30%">CAR ID *</th>
+                <td><span class="text-body-secondary fst-italic">CAR-[YYYY]-[NNN] — assigned sequentially by the ISM upon registration in the CAR register</span></td>
+              </tr>
+              <tr>
+                <th>Date Opened *</th>
+                <td><span class="text-body-secondary fst-italic">[YYYY-MM-DD]</span></td>
+              </tr>
+              <tr>
+                <th>Priority *</th>
+                <td>
+                  <div class="d-flex flex-wrap gap-3">
+                    <div class="form-check"><input class="form-check-input" type="radio" name="carPriority" id="cp-crit"><label class="form-check-label text-danger fw-semibold" for="cp-crit">Critical (14 days)</label></div>
+                    <div class="form-check"><input class="form-check-input" type="radio" name="carPriority" id="cp-high"><label class="form-check-label text-warning fw-semibold" for="cp-high">High (30 days)</label></div>
+                    <div class="form-check"><input class="form-check-input" type="radio" name="carPriority" id="cp-med"><label class="form-check-label text-info fw-semibold" for="cp-med">Medium (60 days)</label></div>
+                    <div class="form-check"><input class="form-check-input" type="radio" name="carPriority" id="cp-low"><label class="form-check-label" for="cp-low">Low (90 days)</label></div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <th>Source *</th>
+                <td>
+                  <div class="d-flex flex-wrap gap-3">
+                    <div class="form-check"><input class="form-check-input" type="radio" name="carSource" id="cs-int"><label class="form-check-label" for="cs-int">Internal Audit</label></div>
+                    <div class="form-check"><input class="form-check-input" type="radio" name="carSource" id="cs-ext"><label class="form-check-label" for="cs-ext">External Audit</label></div>
+                    <div class="form-check"><input class="form-check-input" type="radio" name="carSource" id="cs-inc"><label class="form-check-label" for="cs-inc">Security Incident</label></div>
+                    <div class="form-check"><input class="form-check-input" type="radio" name="carSource" id="cs-mgmt"><label class="form-check-label" for="cs-mgmt">Management Review</label></div>
+                    <div class="form-check"><input class="form-check-input" type="radio" name="carSource" id="cs-mon"><label class="form-check-label" for="cs-mon">Monitoring</label></div>
+                    <div class="form-check"><input class="form-check-input" type="radio" name="carSource" id="cs-sup"><label class="form-check-label" for="cs-sup">Supplier Assessment</label></div>
+                    <div class="form-check"><input class="form-check-input" type="radio" name="carSource" id="cs-self"><label class="form-check-label" for="cs-self">Self-Identified</label></div>
+                    <div class="form-check"><input class="form-check-input" type="radio" name="carSource" id="cs-oth"><label class="form-check-label" for="cs-oth">Other</label></div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <th>ISO Clause or Control Reference *</th>
+                <td><span class="text-body-secondary fst-italic">[ISO 27001:2022 Clause number and/or Annex A control — e.g. Clause 8.2 / A.8.8]</span></td>
+              </tr>
+              <tr>
+                <th>Identified By (Name / Role) *</th>
+                <td><span class="text-body-secondary fst-italic">[FULL NAME] / [JOB TITLE — person who identified the nonconformity]</span></td>
+              </tr>
+              <tr>
+                <th>Assigned Owner *</th>
+                <td><span class="text-body-secondary fst-italic">[FULL NAME] / [ROLE — person accountable for implementing the corrective action plan]</span></td>
+              </tr>
+              <tr>
+                <th>Due Date *</th>
+                <td><span class="text-body-secondary fst-italic">[YYYY-MM-DD — calculated based on priority and open date; approved extensions must be documented below]</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SECTION 1 -->
+      <div class="policy-section">
+        <h2 class="h5 fw-bold mb-3">Section 1 — Nonconformity Description</h2>
+        <p class="text-body-secondary small mb-3">Be precise and factual. The nonconformity description must clearly identify what requirement was not met and what was observed. Avoid vague language such as "insufficient controls" — specify which control, in which system, at which point in time, with what evidence.</p>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">ISO 27001:2022 Clause / Annex A Control Reference</label>
+          <input type="text" class="form-control" placeholder="[E.g., ISO 27001:2022 Clause 8.2 — Information security risk assessment / A.8.8 — Management of technical vulnerabilities]" />
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Nonconformity Type</label>
+          <div class="d-flex gap-4">
+            <div class="form-check"><input class="form-check-input" type="radio" name="ncType" id="nc-major"><label class="form-check-label" for="nc-major"><strong>Major NC</strong> — absence of a required control, systematic failure, or multiple related minor NCs indicating systemic breakdown</label></div>
+            <div class="form-check"><input class="form-check-input" type="radio" name="ncType" id="nc-minor"><label class="form-check-label" for="nc-minor"><strong>Minor NC</strong> — isolated, single instance of failure to meet a requirement; no systemic pattern</label></div>
+            <div class="form-check"><input class="form-check-input" type="radio" name="ncType" id="nc-obs"><label class="form-check-label" for="nc-obs"><strong>Observation</strong> — potential weakness that could become a nonconformity; no CAR formally required but improvement recommended</label></div>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Requirement — What does the standard or policy require?</label>
+          <textarea class="form-control" rows="3" placeholder="[STATE THE REQUIREMENT — quote the specific clause, annex control, or policy requirement that has not been met. Example: 'ISO 27001:2022 Clause 8.2 requires that the organisation performs information security risk assessments at planned intervals and when significant changes are proposed or occur.']"></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Objective Evidence — What was actually observed?</label>
+          <textarea class="form-control" rows="4" placeholder="[STATE THE OBJECTIVE EVIDENCE — describe exactly what was observed, reviewed, or tested. Include specific dates, system names, record references, and sample sizes. Example: 'During internal audit conducted on [DATE], the auditor reviewed the risk register (TMP-002 v3.1). The register was last updated on [DATE], 14 months prior, with no documented evidence of review or approval following the organisation migration to a new cloud platform in [MONTH YEAR].']"></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Impact Assessment — What is the actual or potential impact on the ISMS?</label>
+          <textarea class="form-control" rows="3" placeholder="[DESCRIBE THE IMPACT — include both direct impact (what has already occurred) and potential impact (what could occur if not corrected). Consider regulatory, operational, financial, and reputational dimensions.]"></textarea>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Is this a repeat nonconformity?</label>
+            <input type="text" class="form-control" placeholder="[Y / N]" />
+          </div>
+          <div class="col-md-8">
+            <label class="form-label fw-semibold">If yes — reference previous CAR(s)</label>
+            <input type="text" class="form-control" placeholder="[CAR-YYYY-NNN — list all related prior CARs for this issue or control area]" />
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 2 -->
+      <div class="policy-section">
+        <h2 class="h5 fw-bold mb-3">Section 2 — Immediate Containment</h2>
+        <p class="text-body-secondary small mb-3">Immediate containment actions address the symptoms of the nonconformity to limit current and ongoing impact. These are not corrective actions — they do not eliminate the root cause. Containment must be completed as quickly as practicable, and certainly before the root cause analysis begins. Document every action taken, even if it is later reversed.</p>
+        <div class="table-responsive mb-3">
+          <table class="table table-bordered table-sm">
+            <thead class="table-dark">
+              <tr>
+                <th>Containment Action</th>
+                <th style="width:18%">Owner</th>
+                <th style="width:15%">Date Completed</th>
+                <th style="width:12%">Effective? (Y/N)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>[CONTAINMENT ACTION DESCRIPTION]</td><td>[OWNER NAME / ROLE]</td><td>[YYYY-MM-DD]</td><td>[Y/N]</td></tr>
+              <tr><td></td><td></td><td></td><td></td></tr>
+              <tr><td></td><td></td><td></td><td></td></tr>
+              <tr><td></td><td></td><td></td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Containment Complete?</label>
+            <input type="text" class="form-control" placeholder="[Y / N]" />
+          </div>
+          <div class="col-md-8">
+            <label class="form-label fw-semibold">Date Containment Verified</label>
+            <input type="text" class="form-control" placeholder="[YYYY-MM-DD] — date the ISM confirmed containment actions are effective" />
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 3 -->
+      <div class="policy-section">
+        <h2 class="h5 fw-bold mb-3">Section 3 — Root Cause Analysis</h2>
+        <p class="text-body-secondary small mb-3">Root cause analysis (RCA) identifies the fundamental reason the nonconformity occurred. A corrective action that only addresses symptoms will allow the nonconformity to recur. The RCA must be thorough enough to provide confidence that, if the corrective actions are implemented, the nonconformity will not recur.</p>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold">RCA Method Used</label>
+          <div class="d-flex gap-4 flex-wrap">
+            <div class="form-check"><input class="form-check-input" type="radio" name="rcaMethod" id="rca-5why"><label class="form-check-label" for="rca-5why">5-Whys</label></div>
+            <div class="form-check"><input class="form-check-input" type="radio" name="rcaMethod" id="rca-fish"><label class="form-check-label" for="rca-fish">Fishbone (Ishikawa)</label></div>
+            <div class="form-check"><input class="form-check-input" type="radio" name="rcaMethod" id="rca-fta"><label class="form-check-label" for="rca-fta">Fault Tree Analysis</label></div>
+            <div class="form-check"><input class="form-check-input" type="radio" name="rcaMethod" id="rca-oth"><label class="form-check-label" for="rca-oth">Other</label></div>
+          </div>
+        </div>
+
+        <h3 class="h6 fw-semibold mb-2">5-Whys Worksheet (complete if 5-Whys method is used)</h3>
+        <p class="text-body-secondary small mb-2">Start with the problem statement (the nonconformity) and ask "Why?" five times, drilling down to the fundamental cause. Each answer becomes the input to the next "Why?". Stop when you reach a cause that is within the organisation's control to fix.</p>
+        <div class="table-responsive mb-3">
+          <table class="table table-bordered table-sm">
+            <thead class="table-dark">
+              <tr><th style="width:15%">Step</th><th>Why? (Question)</th><th>Because... (Answer)</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="fw-semibold">Problem Statement</td>
+                <td colspan="2"><span class="text-body-secondary fst-italic">[Restate the nonconformity as a clear problem statement]</span></td>
+              </tr>
+              <tr>
+                <td class="fw-semibold">Why 1?</td>
+                <td>Why did <span class="fst-italic">[problem statement]</span> occur?</td>
+                <td>[ANSWER 1 — first-level cause]</td>
+              </tr>
+              <tr>
+                <td class="fw-semibold">Why 2?</td>
+                <td>Why did <span class="fst-italic">[Answer 1]</span> occur?</td>
+                <td>[ANSWER 2 — second-level cause]</td>
+              </tr>
+              <tr>
+                <td class="fw-semibold">Why 3?</td>
+                <td>Why did <span class="fst-italic">[Answer 2]</span> occur?</td>
+                <td>[ANSWER 3 — third-level cause]</td>
+              </tr>
+              <tr>
+                <td class="fw-semibold">Why 4?</td>
+                <td>Why did <span class="fst-italic">[Answer 3]</span> occur?</td>
+                <td>[ANSWER 4 — fourth-level cause]</td>
+              </tr>
+              <tr>
+                <td class="fw-semibold">Why 5?</td>
+                <td>Why did <span class="fst-italic">[Answer 4]</span> occur?</td>
+                <td>[ANSWER 5 — root cause]</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Root Cause Statement (final)</label>
+          <textarea class="form-control" rows="3" placeholder="[STATE THE ROOT CAUSE IN ONE TO THREE SENTENCES — this is the fundamental reason the nonconformity occurred. It should be specific, actionable, and within the organisation's control to address. Example: 'The risk assessment process does not include a trigger for re-assessment when significant infrastructure changes occur, because the risk management procedure (PRO-001) only specifies an annual scheduled review with no change-driven triggers.']"></textarea>
+        </div>
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Is the root cause:</label>
+            <div class="d-flex gap-4">
+              <div class="form-check"><input class="form-check-input" type="radio" name="rcaScope" id="rca-sys"><label class="form-check-label" for="rca-sys"><strong>Systemic</strong> — likely affects multiple processes, departments, or controls</label></div>
+              <div class="form-check"><input class="form-check-input" type="radio" name="rcaScope" id="rca-iso"><label class="form-check-label" for="rca-iso"><strong>Isolated</strong> — limited to this specific instance or area</label></div>
+            </div>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Contributing Factors</label>
+          <textarea class="form-control" rows="3" placeholder="[LIST ALL CONTRIBUTING FACTORS that enabled or failed to prevent the nonconformity — these may not be root causes in themselves but increased the likelihood or severity. Include process gaps, resource constraints, knowledge gaps, oversight failures, or tool deficiencies.]"></textarea>
+        </div>
+      </div>
+
+      <!-- SECTION 4 -->
+      <div class="policy-section">
+        <h2 class="h5 fw-bold mb-3">Section 4 — Corrective Action Plan</h2>
+        <p class="text-body-secondary small mb-3">Each action must directly address a specific root cause or contributing factor identified in Section 3. Actions that do not link to a root cause are considered compensating controls, not corrective actions. The plan must be approved by the ISM for Critical and High priority CARs before implementation begins. Status options: Open / In Progress / Complete.</p>
+        <div class="table-responsive mb-4">
+          <table class="table table-bordered table-sm">
+            <thead class="table-dark">
+              <tr>
+                <th style="width:5%">#</th>
+                <th>Action Description</th>
+                <th style="width:13%">Addresses Root Cause #</th>
+                <th style="width:13%">Owner</th>
+                <th style="width:10%">Target Date</th>
+                <th style="width:12%">Resources Required</th>
+                <th style="width:10%">Status</th>
+                <th style="width:12%">Completion Evidence</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>1</td><td>[ACTION DESCRIPTION — be specific about what will be done, not just the outcome desired]</td><td>[WHY #]</td><td>[OWNER]</td><td>[YYYY-MM-DD]</td><td>[RESOURCES]</td><td>[STATUS]</td><td>[EVIDENCE REF.]</td></tr>
+              <tr><td>2</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr><td>3</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr><td>4</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr><td>5</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card border-warning mb-3">
+          <div class="card-header bg-warning text-dark fw-semibold py-2">ISM Approval — Required for Critical and High Priority CARs</div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-5">
+                <label class="form-label fw-semibold">ISM Name</label>
+                <input type="text" class="form-control" placeholder="[FULL NAME]" />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label fw-semibold">Date Approved</label>
+                <input type="text" class="form-control" placeholder="[YYYY-MM-DD]" />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">Signature</label>
+                <input type="text" class="form-control" placeholder="[SIGNATURE / DIGITAL REFERENCE]" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 5 -->
+      <div class="policy-section">
+        <h2 class="h5 fw-bold mb-3">Section 5 — Implementation Evidence</h2>
+        <p class="text-body-secondary small mb-3">Every action listed in Section 4 must have a corresponding evidence entry in this section. Evidence demonstrates that the action was actually implemented, not merely planned. Acceptable evidence includes updated documents, configuration screenshots, training completion records, test results, revised procedures, and meeting minutes. The ISM must review and verify all evidence before the CAR can proceed to effectiveness review.</p>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm">
+            <thead class="table-dark">
+              <tr>
+                <th style="width:10%">Action #</th>
+                <th style="width:20%">Evidence Item</th>
+                <th>Description</th>
+                <th style="width:18%">Location / Reference</th>
+                <th style="width:12%">Date Verified</th>
+                <th style="width:15%">Verified By</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>1</td><td>[EVIDENCE ITEM NAME]</td><td>[DESCRIPTION OF WHAT THE EVIDENCE SHOWS]</td><td>[FILE PATH / DOCUMENT REFERENCE]</td><td>[YYYY-MM-DD]</td><td>[NAME / ROLE]</td></tr>
+              <tr><td>2</td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr><td>3</td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr><td>4</td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr><td>5</td><td></td><td></td><td></td><td></td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SECTION 6 -->
+      <div class="policy-section">
+        <h2 class="h5 fw-bold mb-3">Section 6 — Effectiveness Review</h2>
+        <p class="text-body-secondary small mb-3">The effectiveness review is conducted after all corrective actions have been implemented and sufficient time has elapsed to observe whether the root cause has been eliminated. The review date should be set at a point where evidence of effectiveness can reasonably be gathered — typically 30 to 90 days after implementation, depending on the nature of the control. The reviewer should be independent of the corrective action implementation, where practicable.</p>
+        <div class="row g-3 mb-3">
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Effectiveness Review Date</label>
+            <input type="text" class="form-control" placeholder="[YYYY-MM-DD]" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Reviewer (Name / Role)</label>
+            <input type="text" class="form-control" placeholder="[FULL NAME / ROLE]" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Method of Verification</label>
+            <div class="d-flex gap-2 flex-wrap mt-1">
+              <div class="form-check"><input class="form-check-input" type="checkbox" id="ver-audit"><label class="form-check-label small" for="ver-audit">Re-audit</label></div>
+              <div class="form-check"><input class="form-check-input" type="checkbox" id="ver-mon"><label class="form-check-label small" for="ver-mon">Monitoring</label></div>
+              <div class="form-check"><input class="form-check-input" type="checkbox" id="ver-test"><label class="form-check-label small" for="ver-test">Testing</label></div>
+              <div class="form-check"><input class="form-check-input" type="checkbox" id="ver-obs"><label class="form-check-label small" for="ver-obs">Observation</label></div>
+            </div>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Effectiveness Criteria — How will you know the root cause has been eliminated?</label>
+          <textarea class="form-control" rows="3" placeholder="[DEFINE MEASURABLE CRITERIA — specify what evidence or outcomes will demonstrate the root cause no longer exists. Example: 'The risk register is updated within 10 business days of any significant infrastructure change, as evidenced by a change management record linked to the risk register version history for the next three change events.']"></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Review Findings</label>
+          <textarea class="form-control" rows="4" placeholder="[DOCUMENT WHAT WAS OBSERVED DURING THE EFFECTIVENESS REVIEW — include evidence reviewed, tests performed, and findings. Be objective and specific.]"></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Corrective Action Effective?</label>
+          <div class="d-flex gap-4">
+            <div class="form-check"><input class="form-check-input" type="radio" name="caEff" id="eff-yes"><label class="form-check-label" for="eff-yes"><strong>Yes</strong> — root cause eliminated; nonconformity has not recurred</label></div>
+            <div class="form-check"><input class="form-check-input" type="radio" name="caEff" id="eff-no"><label class="form-check-label" for="eff-no"><strong>No</strong> — nonconformity has recurred; CAR must be re-opened</label></div>
+            <div class="form-check"><input class="form-check-input" type="radio" name="caEff" id="eff-part"><label class="form-check-label" for="eff-part"><strong>Partially</strong> — some improvement but root cause not fully eliminated; revise action plan</label></div>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">If No or Partially — explanation and re-opening action</label>
+          <textarea class="form-control" rows="3" placeholder="[EXPLAIN WHY THE CORRECTIVE ACTION WAS NOT FULLY EFFECTIVE AND DESCRIBE THE REVISED APPROACH. Document the new RCA findings if the original root cause was misidentified.]"></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Evidence of Effectiveness</label>
+          <input type="text" class="form-control" placeholder="[REFERENCE EVIDENCE DOCUMENTS, REPORT NAMES, DATES, AND LOCATIONS — e.g. 'Risk register v4.2 dated YYYY-MM-DD showing updates following three change events; change tickets CH-001, CH-002, CH-003']" />
+        </div>
+      </div>
+
+      <!-- SECTION 7 -->
+      <div class="policy-section">
+        <h2 class="h5 fw-bold mb-3">Section 7 — CAR Closure</h2>
+        <p class="text-body-secondary small mb-3">A CAR may only be closed when all actions are complete, implementation evidence has been verified, and the effectiveness review confirms the root cause has been eliminated. The ISM is responsible for formally closing the CAR in the CAR register. Closed CARs must be retained as evidence of continual improvement for a minimum of 3 years, or as specified in the document retention policy.</p>
+        <div class="table-responsive mb-3">
+          <table class="table table-bordered table-sm">
+            <tbody>
+              <tr>
+                <th style="width:40%">All actions in Section 4 complete?</th>
+                <td>[Y / N — if N, do not close; resolve outstanding actions first]</td>
+              </tr>
+              <tr>
+                <th>Effectiveness confirmed?</th>
+                <td>[Y / N — must be Yes from Section 6 review]</td>
+              </tr>
+              <tr>
+                <th>Residual risk acceptable?</th>
+                <td>[Y / N]</td>
+              </tr>
+              <tr>
+                <th>Residual Risk Assessment</th>
+                <td>[DESCRIBE ANY RESIDUAL RISK REMAINING AFTER CORRECTIVE ACTIONS AND CONFIRM IT HAS BEEN FORMALLY ACCEPTED OR ADDED TO THE RISK REGISTER]</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card border-success mb-3">
+          <div class="card-header bg-success text-white fw-semibold py-2">CAR Closure — ISM Sign-off</div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-5">
+                <label class="form-label fw-semibold">Closed By (ISM Name)</label>
+                <input type="text" class="form-control" placeholder="[FULL NAME]" />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label fw-semibold">Signature</label>
+                <input type="text" class="form-control" placeholder="[SIGNATURE / DIGITAL REFERENCE]" />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">Date Closed</label>
+                <input type="text" class="form-control" placeholder="[YYYY-MM-DD]" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Related CARs to Monitor</label>
+          <input type="text" class="form-control" placeholder="[LIST CAR IDs of related nonconformities that may have similar root causes and should be monitored for recurrence — e.g. CAR-YYYY-NNN, CAR-YYYY-NNN]" />
+        </div>
+      </div>
+
+    </div>
+  </main>
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title fs-5" id="rbacModalLabel">🔒 Login</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <div class="modal-body"><form id="rbac-login-form" novalidate>
+        <div class="mb-3"><label for="rbac-username-input" class="form-label">Username</label><input type="text" class="form-control" id="rbac-username-input" autocomplete="username" maxlength="40" required /></div>
+        <div class="mb-3"><label for="rbac-password-input" class="form-label">Password</label><input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" required /></div>
+        <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+      </form></div>
+      <div class="modal-footer border-0 pt-0"><p class="text-secondary small mb-0">Session clears when you close this tab.</p></div>
+    </div></div>
+  </div>
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" /></a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" /></a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="../privacy.html">Privacy Policy</a> &middot; <a href="../terms.html">Terms</a></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="../users.js" defer></script>
+  <script src="../roles.js" defer></script>
+  <script src="../script.js" defer></script>
+</body>
+</html>

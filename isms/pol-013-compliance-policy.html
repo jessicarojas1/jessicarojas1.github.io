@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="../theme.css" />
+  <link rel="stylesheet" href="isms.css" />
+  <title>Compliance Policy | ISMS | Jessica Rojas</title>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="../index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="../projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="../timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="../cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="../consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="../contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="../blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="../knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="../compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="../jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="../admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content">
+    <div class="container py-4">
+      <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="../index.html">Home</a></li>
+          <li class="breadcrumb-item"><a href="index.html">ISMS</a></li>
+          <li class="breadcrumb-item active">POL-013</li>
+        </ol>
+      </nav>
+
+      <div class="d-flex justify-content-between align-items-start mb-4 print-btn">
+        <span class="badge bg-primary fs-6">Policy — POL-013</span>
+        <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">Print / Save PDF</button>
+      </div>
+
+      <div class="doc-header mb-4">
+        <table class="table table-bordered table-sm"><tbody>
+          <tr><th style="width:30%">Document Title</th><td>Compliance Policy</td></tr>
+          <tr><th>Document ID</th><td>POL-013</td></tr>
+          <tr><th>Version</th><td>1.0</td></tr>
+          <tr><th>Classification</th><td>Internal</td></tr>
+          <tr><th>Owner</th><td>Information Security Manager</td></tr>
+          <tr><th>Approved By</th><td>Senior Management</td></tr>
+          <tr><th>Effective Date</th><td>2025-01-01</td></tr>
+          <tr><th>Next Review</th><td>2026-01-01</td></tr>
+          <tr><th>ISO 27001:2022 Controls</th><td>A.5.31, A.5.32, A.5.33, A.5.34, A.5.35, A.5.36</td></tr>
+        </tbody></table>
+      </div>
+
+      <div class="policy-section">
+        <h2>1. Purpose</h2>
+        <p>The purpose of this Compliance Policy is to ensure that the organization identifies, documents, and adheres to all applicable legal, statutory, regulatory, contractual, and organizational requirements relating to information security. This policy establishes the framework for managing compliance obligations, conducting compliance assessments, and ensuring that non-compliance is detected and remediated in a timely manner.</p>
+        <p>Failure to comply with applicable laws and regulations can expose the organization to significant legal liability, financial penalties, reputational damage, and loss of customer trust. This policy mandates a proactive, systematic approach to compliance management that is integrated into the organization's overall Information Security Management System (ISMS).</p>
+        <p>This policy satisfies the requirements of ISO/IEC 27001:2022 Annex A controls A.5.31 (Legal, statutory, regulatory and contractual requirements), A.5.32 (Intellectual property rights), A.5.33 (Protection of records), A.5.34 (Privacy and protection of PII), A.5.35 (Independent review of information security), and A.5.36 (Compliance with policies, rules and standards for information security).</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>2. Scope</h2>
+        <p>This policy applies to all organizational units, business functions, and individuals that process, store, transmit, or are otherwise responsible for information assets within the scope of the ISMS. This includes:</p>
+        <ul>
+          <li>All employees, contractors, consultants, and temporary staff</li>
+          <li>All information systems, applications, databases, and network infrastructure</li>
+          <li>Third-party service providers, suppliers, and business partners with access to organizational data or systems</li>
+          <li>All geographic locations and jurisdictions in which the organization operates</li>
+          <li>Cloud services and outsourced processing activities</li>
+        </ul>
+        <p>Compliance requirements vary by jurisdiction, industry sector, and contractual relationship. All relevant requirements applicable to the organization's operations must be identified, documented, and maintained in the Compliance Register.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>3. Legal and Regulatory Compliance</h2>
+        <h3 class="h5 mt-3">3.1 Identification of Applicable Requirements</h3>
+        <p>The organization shall identify and document all applicable legal, statutory, regulatory, and contractual requirements relevant to information security. These requirements shall be maintained in a formally managed Compliance Register that is reviewed and updated at least annually, or whenever there is a significant change in the regulatory environment, organizational operations, or geographies served.</p>
+        <p>The following categories of legislation and regulation are considered applicable and shall be assessed for relevance to the organization's operations:</p>
+        <ul>
+          <li><strong>General Data Protection Regulation (GDPR):</strong> Applies to all processing of personal data of individuals in the European Economic Area (EEA), regardless of where the organization is established. Requires lawful basis for processing, data subject rights fulfilment, breach notification within 72 hours, and appointment of a Data Protection Officer where required. See also POL-018 (Privacy and Data Protection Policy).</li>
+          <li><strong>California Consumer Privacy Act (CCPA) / California Privacy Rights Act (CPRA):</strong> Applies to processing personal information of California residents where applicable thresholds are met. Requires opt-out rights, disclosure obligations, and data subject access request procedures.</li>
+          <li><strong>Health Insurance Portability and Accountability Act (HIPAA):</strong> Applies where the organization functions as a covered entity or business associate handling protected health information (PHI). Requires implementation of the HIPAA Security Rule, Privacy Rule, and Breach Notification Rule.</li>
+          <li><strong>Sarbanes-Oxley Act (SOX):</strong> Applies to publicly traded companies. Requires internal controls over financial reporting, including IT general controls covering access management, change management, and IT operations.</li>
+          <li><strong>Federal Information Security Modernization Act (FISMA):</strong> Applies to federal agencies and contractors handling federal information systems. Requires implementation of NIST SP 800-53 controls and annual reporting to OMB.</li>
+          <li><strong>Export Control Regulations:</strong> The Export Administration Regulations (EAR) and International Traffic in Arms Regulations (ITAR) govern the export of controlled technologies, software, and data. The organization must ensure that cryptographic technologies, software source code, and sensitive technical data are not transferred to restricted countries or individuals without appropriate licensing.</li>
+          <li><strong>Payment Card Industry Data Security Standard (PCI DSS):</strong> Applies where the organization processes, stores, or transmits payment card data. Requires implementation of the 12 PCI DSS requirements and annual assessment.</li>
+          <li><strong>Industry-Specific Regulations:</strong> Additional sector-specific regulations (e.g., FedRAMP, NERC CIP, FINRA) shall be identified based on the organization's industry and customer base.</li>
+        </ul>
+
+        <h3 class="h5 mt-3">3.2 Compliance Register</h3>
+        <p>The Information Security Manager shall maintain a Compliance Register that documents each applicable legal, regulatory, and contractual requirement. For each requirement, the register shall capture:</p>
+        <ul>
+          <li>Regulation or requirement name and applicable jurisdiction</li>
+          <li>Specific obligations and requirements imposed</li>
+          <li>Organizational units and systems affected</li>
+          <li>Owner responsible for ensuring compliance</li>
+          <li>Current compliance status and evidence of compliance</li>
+          <li>Key compliance deadlines and reporting dates</li>
+          <li>Relevant controls from the ISMS that address the requirement</li>
+        </ul>
+        <p>The Compliance Register shall be reviewed at least annually and following any significant regulatory change, organizational change, or security incident that may affect compliance status.</p>
+
+        <h3 class="h5 mt-3">3.3 Legal Counsel Role</h3>
+        <p>Legal counsel shall be engaged to provide authoritative guidance on the interpretation and applicability of legal and regulatory requirements. The Information Security Manager shall consult with legal counsel when:</p>
+        <ul>
+          <li>Assessing the applicability of new or amended legislation</li>
+          <li>Responding to regulatory inquiries or investigations</li>
+          <li>Implementing data subject rights procedures</li>
+          <li>Reviewing or drafting data processing agreements and supplier contracts</li>
+          <li>Evaluating the legality of information security monitoring activities</li>
+          <li>Determining obligations arising from a data breach or security incident</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>4. Intellectual Property Rights</h2>
+        <h3 class="h5 mt-3">4.1 Software Licensing Compliance</h3>
+        <p>The organization shall ensure that all software used within its environment is properly licensed and that all licensing terms and conditions are complied with. Unlicensed or improperly licensed software exposes the organization to significant legal and financial risk and must be prevented.</p>
+        <p>Only software that has been approved by the IT department and for which valid licenses are held shall be installed on organizational systems. The use of trial software beyond its licensed evaluation period is prohibited. Software subscription renewals shall be tracked and completed before expiry.</p>
+
+        <h3 class="h5 mt-3">4.2 Prohibition on Unauthorized Copying</h3>
+        <p>The unauthorized copying, reproduction, distribution, or modification of copyrighted materials — including software, documentation, music, video, images, and written content — is strictly prohibited. This prohibition applies to:</p>
+        <ul>
+          <li>Copying or installing software without a valid license</li>
+          <li>Reproducing copyrighted publications or training materials beyond fair use provisions</li>
+          <li>Sharing licensed software with third parties outside the scope of the license</li>
+          <li>Using pirated or counterfeit software, media, or content</li>
+        </ul>
+        <p>All staff are required to report suspected violations of intellectual property rights to the Information Security Manager or legal counsel.</p>
+
+        <h3 class="h5 mt-3">4.3 Open Source License Management</h3>
+        <p>The use of open source software (OSS) within organizational systems and products introduces specific licensing obligations that must be managed. The organization shall maintain a record of all open source components used, including the associated license type (e.g., MIT, Apache 2.0, GPL, LGPL, AGPL).</p>
+        <p>Before integrating any open source component into organizational systems or products, the responsible team shall review the license terms to ensure compatibility with organizational use, particularly where products are distributed to customers. Copyleft licenses (e.g., GPL, AGPL) may impose obligations to disclose source code and must be reviewed by legal counsel before use in distributed products.</p>
+        <p>A Software Bill of Materials (SBOM) shall be maintained for all significant systems and products, identifying all included open source components, their versions, and associated licenses.</p>
+
+        <h3 class="h5 mt-3">4.4 License Audit Process</h3>
+        <p>An annual software license audit shall be conducted to verify that:</p>
+        <ul>
+          <li>All installed software is properly licensed and within license limits</li>
+          <li>License agreements have not been violated</li>
+          <li>Open source license obligations are being fulfilled</li>
+          <li>Expired or unused licenses are identified and addressed</li>
+        </ul>
+        <p>The results of the license audit shall be reported to the Information Security Manager and any identified violations remediated within 30 days of discovery. A Software Asset Management (SAM) tool shall be used to automate the discovery and reconciliation of software installations against license entitlements.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>5. Protection of Records</h2>
+        <h3 class="h5 mt-3">5.1 Records Retention Requirements</h3>
+        <p>The organization shall establish and maintain a Records Retention Schedule that defines the minimum and maximum retention periods for all categories of organizational records, including information security records. Retention periods shall be determined based on:</p>
+        <ul>
+          <li>Legal and regulatory requirements specifying minimum retention periods</li>
+          <li>Contractual obligations with customers, partners, and regulators</li>
+          <li>Business operational needs and historical value</li>
+          <li>Potential litigation requirements and statute of limitations considerations</li>
+        </ul>
+        <p>Records relevant to the ISMS, including risk assessments, audit logs, incident records, training records, and policy acknowledgments, shall be retained for a minimum of three (3) years unless a longer period is required by applicable law or regulation. Audit logs shall be retained for a minimum of twelve (12) months online with an additional twelve (12) months in accessible archive storage.</p>
+
+        <h3 class="h5 mt-3">5.2 Legal Hold Procedures</h3>
+        <p>When the organization becomes aware of actual or reasonably anticipated litigation, regulatory investigation, or legal proceeding, a legal hold shall be issued by legal counsel to preserve all relevant records, including electronically stored information (ESI). Upon receipt of a legal hold notice:</p>
+        <ul>
+          <li>Normal records destruction for affected records shall be immediately suspended</li>
+          <li>Affected individuals and system owners shall be notified of their preservation obligations</li>
+          <li>IT shall implement technical measures to prevent deletion of relevant electronic records</li>
+          <li>Custodians shall be identified and their obligations documented</li>
+        </ul>
+        <p>Legal hold procedures shall be maintained by legal counsel in consultation with the Information Security Manager. Records subject to a legal hold shall not be destroyed until the hold is formally released by legal counsel.</p>
+
+        <h3 class="h5 mt-3">5.3 Records Management System</h3>
+        <p>All organizational records shall be managed in accordance with this policy and the Records Retention Schedule. Records shall be stored in approved, managed systems with appropriate access controls, version management, and audit trail capabilities. Ad hoc storage of records in personal cloud accounts, unsanctioned applications, or local drives is prohibited for records subject to retention requirements.</p>
+
+        <h3 class="h5 mt-3">5.4 Electronic Records</h3>
+        <p>Electronic records shall be protected to ensure their integrity, authenticity, and accessibility over their required retention period. Controls shall include:</p>
+        <ul>
+          <li>Access controls preventing unauthorized modification or deletion</li>
+          <li>Backup and redundancy arrangements to prevent loss</li>
+          <li>Format migration plans to ensure records remain accessible as technology changes</li>
+          <li>Cryptographic signing or checksums for records requiring high integrity assurance</li>
+          <li>Audit trails recording who accessed or modified records</li>
+        </ul>
+        <p>Records shall be destroyed in a secure and controlled manner at the end of their retention period, using methods appropriate to the sensitivity of the data (e.g., certified shredding, cryptographic erasure, secure overwriting). Destruction shall be documented.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>6. Privacy and Protection of Personal Data</h2>
+        <p>The organization is committed to protecting the privacy rights of individuals whose personal data it processes. Personal data shall be collected, processed, stored, and deleted in accordance with applicable data protection legislation and the organization's Privacy and Data Protection Policy (POL-018).</p>
+
+        <h3 class="h5 mt-3">6.1 Privacy by Design</h3>
+        <p>Privacy and data protection considerations shall be embedded into the design of new systems, services, and processes from the outset, rather than as an afterthought. Privacy by Design requires that data minimization, purpose limitation, and appropriate technical and organizational safeguards are built into systems at the design stage. New projects and systems that involve the processing of personal data shall complete a Privacy Impact Assessment (PIA) prior to deployment.</p>
+
+        <h3 class="h5 mt-3">6.2 Data Subject Rights</h3>
+        <p>The organization shall maintain documented procedures for handling data subject rights requests, including the right of access, rectification, erasure, restriction of processing, data portability, and objection. All data subject rights requests shall be acknowledged within five (5) business days and fulfilled within the timeframes required by applicable legislation (typically 30 calendar days under GDPR, with potential for extension).</p>
+
+        <h3 class="h5 mt-3">6.3 Privacy Impact Assessments</h3>
+        <p>A Data Protection Impact Assessment (DPIA) shall be conducted prior to implementing new types of processing that are likely to result in a high risk to the rights and freedoms of natural persons. DPIA triggers include large-scale processing of special category data, systematic profiling, use of new technologies, and monitoring of publicly accessible areas. DPIA findings shall inform the design of mitigating controls.</p>
+
+        <h3 class="h5 mt-3">6.4 Data Protection Officer</h3>
+        <p>Where required by applicable law, a Data Protection Officer (DPO) shall be appointed. The DPO shall be provided with the resources necessary to carry out their tasks, maintain independence, and shall report to the highest level of management. Even where a formal DPO appointment is not legally required, a designated privacy lead shall be responsible for overseeing data protection compliance.</p>
+        <p>Detailed privacy and data protection requirements are set out in the Privacy and Data Protection Policy (POL-018).</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>7. Regulation of Cryptographic Controls</h2>
+        <h3 class="h5 mt-3">7.1 Country-Specific Export Controls on Cryptography</h3>
+        <p>Cryptographic technologies, algorithms, and software are subject to export control regulations in many jurisdictions. In the United States, encryption products are controlled under the Export Administration Regulations (EAR) administered by the Bureau of Industry and Security (BIS). Exporting or re-exporting encryption software, hardware, or technology to certain countries, entities, or individuals may require an export license.</p>
+        <p>The organization shall not export, re-export, or transfer cryptographic products to countries subject to US embargoes or to parties on denied party lists (e.g., SDN list, BIS Entity List) without prior authorization from legal counsel and, where required, an export license from BIS.</p>
+
+        <h3 class="h5 mt-3">7.2 Import Compliance</h3>
+        <p>Some countries impose restrictions on the import and use of cryptographic technologies. Before deploying cryptographic products in a new jurisdiction, the organization shall assess the import and use restrictions applicable in that country. Legal counsel shall be consulted where restrictions may apply.</p>
+
+        <h3 class="h5 mt-3">7.3 Reference to Cryptography Policy</h3>
+        <p>The selection, implementation, and management of cryptographic controls shall comply with the Cryptography Policy (POL-006). Cryptographic key management, algorithm selection, and the use of encryption for data in transit and at rest are governed by that policy.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>8. Independent Review of Information Security</h2>
+        <h3 class="h5 mt-3">8.1 Annual Independent Review Requirement</h3>
+        <p>The organization's approach to managing information security and its implementation (i.e., the ISMS) shall be reviewed independently at planned intervals and when significant changes occur. Independent review provides assurance that the ISMS remains suitable, adequate, and effective and is implemented and operated in accordance with organizational policy.</p>
+        <p>An independent review of information security shall be conducted at least annually. The review shall assess conformity with information security policies, standards, and applicable legal and regulatory requirements, and shall identify areas for improvement.</p>
+
+        <h3 class="h5 mt-3">8.2 Internal Audit</h3>
+        <p>An internal audit of the ISMS shall be conducted at least annually in accordance with an audit programme. Internal auditors shall be independent of the activities being audited. Audit findings, non-conformities, and corrective actions shall be documented and tracked to closure. Internal audit results shall be reported to senior management as part of the management review process.</p>
+
+        <h3 class="h5 mt-3">8.3 External Audit</h3>
+        <p>An external audit by an accredited certification body shall be conducted to assess conformity with ISO/IEC 27001:2022. Where the organization maintains ISO 27001 certification, surveillance audits shall be conducted annually and recertification audits every three years. Additionally, external third-party assessments may be commissioned to provide independent assurance on specific aspects of the ISMS.</p>
+
+        <h3 class="h5 mt-3">8.4 Penetration Testing</h3>
+        <p>Penetration testing shall be conducted at least annually by a qualified and independent third-party testing provider to identify technical vulnerabilities in the organization's external and internal attack surface. Penetration test scope, methodology, and remediation requirements are further defined in the Vulnerability Management Policy (POL-016). All critical and high-severity findings from penetration tests shall be remediated within defined SLA timelines.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>9. Technical Compliance</h2>
+        <h3 class="h5 mt-3">9.1 Compliance Scanning</h3>
+        <p>Automated compliance scanning tools shall be deployed to continuously assess the technical compliance of organizational systems with defined security configuration baselines. Scanning shall cover servers, endpoints, network devices, databases, and cloud resources. Scan results shall be reviewed by the IT security team and remediation actions assigned and tracked.</p>
+
+        <h3 class="h5 mt-3">9.2 Vulnerability Assessments</h3>
+        <p>Vulnerability assessments shall be conducted on a regular schedule in accordance with the Vulnerability Management Policy (POL-016). Assessments shall be performed using authenticated scanning to ensure comprehensive coverage. Results shall be correlated with asset criticality to prioritize remediation efforts.</p>
+
+        <h3 class="h5 mt-3">9.3 Configuration Compliance Checking</h3>
+        <p>System configurations shall be assessed for compliance with approved security configuration baselines derived from recognized industry standards, including:</p>
+        <ul>
+          <li><strong>CIS Benchmarks:</strong> Center for Internet Security Benchmarks shall be adopted as the baseline configuration standard for operating systems, databases, applications, and cloud services. Level 1 controls are considered the minimum baseline; Level 2 controls shall be applied to systems handling sensitive or regulated data.</li>
+          <li><strong>DISA STIGs:</strong> Defense Information Systems Agency Security Technical Implementation Guides shall be referenced for systems supporting government or defense contracts.</li>
+          <li><strong>Vendor Security Guides:</strong> Vendor-published security hardening guides shall be referenced where CIS Benchmarks are not available.</li>
+        </ul>
+        <p>Configuration baseline deviations shall be documented, approved by the Information Security Manager, and compensating controls identified where deviations cannot be remediated. Configuration compliance shall be reported monthly to the IT security management team.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>10. Compliance Monitoring and Reporting</h2>
+        <h3 class="h5 mt-3">10.1 Compliance Dashboard</h3>
+        <p>A compliance dashboard shall be maintained that provides a real-time view of the organization's compliance posture across all applicable requirements. The dashboard shall display compliance status by requirement category, trend data over time, open remediation items, and upcoming compliance deadlines.</p>
+
+        <h3 class="h5 mt-3">10.2 Key Performance Indicators</h3>
+        <p>The following compliance KPIs shall be tracked and reported monthly:</p>
+        <ul>
+          <li>Percentage of systems compliant with approved configuration baselines</li>
+          <li>Number of open compliance findings by severity and age</li>
+          <li>Percentage of compliance tasks completed on schedule</li>
+          <li>Number of regulatory changes identified and assessed</li>
+          <li>Time to remediate compliance findings by severity level</li>
+          <li>Percentage of staff having completed mandatory compliance training</li>
+          <li>Number of exception requests submitted, approved, and outstanding</li>
+        </ul>
+
+        <h3 class="h5 mt-3">10.3 Reporting Cadence</h3>
+        <p>Compliance status shall be reported as follows:</p>
+        <ul>
+          <li><strong>Monthly:</strong> Technical compliance dashboard report distributed to IT security management and relevant system owners</li>
+          <li><strong>Quarterly:</strong> Compliance status report to senior management covering overall compliance posture, significant findings, regulatory developments, and remediation progress</li>
+          <li><strong>Annually:</strong> Comprehensive compliance review report to senior management and the Board (or equivalent governing body), covering all applicable requirements, audit results, incidents affecting compliance, and planned improvements</li>
+        </ul>
+
+        <h3 class="h5 mt-3">10.4 Escalation Process</h3>
+        <p>Compliance issues shall be escalated based on severity and potential impact. Critical compliance failures that could result in regulatory action, significant financial penalty, or reputational damage shall be escalated immediately to senior management and legal counsel. High-severity findings shall be escalated to the Information Security Manager within 24 hours of identification. All compliance escalations shall be documented with the date, nature of the issue, individuals notified, and actions taken.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>11. Non-Compliance</h2>
+        <h3 class="h5 mt-3">11.1 Consequences of Non-Compliance</h3>
+        <p>Non-compliance with this policy or applicable legal, regulatory, or contractual requirements may result in:</p>
+        <ul>
+          <li>Disciplinary action against responsible individuals, up to and including termination of employment</li>
+          <li>Regulatory investigation, fines, and sanctions from supervisory authorities</li>
+          <li>Civil litigation and financial liability</li>
+          <li>Revocation of certifications (e.g., ISO 27001, PCI DSS)</li>
+          <li>Reputational damage and loss of customer and stakeholder trust</li>
+          <li>Contractual penalties and termination of agreements</li>
+        </ul>
+
+        <h3 class="h5 mt-3">11.2 Reporting Non-Compliance</h3>
+        <p>All personnel are required to report actual or suspected non-compliance with this policy, applicable laws, or regulations promptly to the Information Security Manager. Reports may be made directly, through a manager, or anonymously via the organization's confidential reporting mechanism. Individuals who report non-compliance in good faith shall be protected from retaliation.</p>
+
+        <h3 class="h5 mt-3">11.3 Remediation Timelines</h3>
+        <p>Upon identification of a compliance violation, the following remediation timelines shall apply based on severity:</p>
+        <ul>
+          <li><strong>Critical:</strong> Immediate containment action within 24 hours; full remediation within 72 hours</li>
+          <li><strong>High:</strong> Remediation within 7 calendar days</li>
+          <li><strong>Medium:</strong> Remediation within 30 calendar days</li>
+          <li><strong>Low:</strong> Remediation within 90 calendar days</li>
+        </ul>
+        <p>Where remediation within the required timeline is not feasible, a formal exception or risk acceptance must be documented and approved by the Information Security Manager with compensating controls identified. Root cause analysis shall be conducted for all critical and high-severity compliance failures.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>12. Related Documents</h2>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Document ID</th><th>Document Title</th></tr></thead>
+          <tbody>
+            <tr><td>POL-001</td><td>Information Security Policy</td></tr>
+            <tr><td>POL-006</td><td>Cryptography Policy</td></tr>
+            <tr><td>POL-016</td><td>Vulnerability Management Policy</td></tr>
+            <tr><td>POL-017</td><td>Risk Management Policy</td></tr>
+            <tr><td>POL-018</td><td>Privacy and Data Protection Policy</td></tr>
+            <tr><td>TMP-001</td><td>Statement of Applicability Template</td></tr>
+            <tr><td>TMP-010</td><td>Security Awareness Training Record</td></tr>
+            <tr><td>PRO-002</td><td>Risk Treatment Procedure</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section mt-5">
+        <h2>Revision History</h2>
+        <table class="table table-bordered table-sm revision-table">
+          <thead><tr><th>Version</th><th>Date</th><th>Author</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td>1.0</td><td>2025-01-01</td><td>Information Security Manager</td><td>Initial release</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title fs-5" id="rbacModalLabel">🔒 Login</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <div class="modal-body"><form id="rbac-login-form" novalidate>
+        <div class="mb-3"><label for="rbac-username-input" class="form-label">Username</label><input type="text" class="form-control" id="rbac-username-input" autocomplete="username" placeholder="Enter your username" maxlength="40" required /></div>
+        <div class="mb-3"><label for="rbac-password-input" class="form-label">Password</label><input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" required /></div>
+        <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+      </form></div>
+      <div class="modal-footer border-0 pt-0"><p class="text-secondary small mb-0">Session clears when you close this tab.</p></div>
+    </div></div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" /></a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" /></a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="../privacy.html">Privacy Policy</a> &middot; <a href="../terms.html">Terms</a></p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="../users.js" defer></script>
+  <script src="../roles.js" defer></script>
+  <script src="../script.js" defer></script>
+</body>
+</html>

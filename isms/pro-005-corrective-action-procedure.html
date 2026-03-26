@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="../theme.css" />
+  <link rel="stylesheet" href="isms.css" />
+  <title>Corrective Action Procedure | ISMS | Jessica Rojas</title>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="../index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="../projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="../timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="../cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="../consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="../contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="../blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="../knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="../compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="../jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="../admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content">
+    <div class="container py-4">
+      <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="../index.html">Home</a></li>
+          <li class="breadcrumb-item"><a href="index.html">ISMS</a></li>
+          <li class="breadcrumb-item active">PRO-005</li>
+        </ol>
+      </nav>
+
+      <div class="d-flex justify-content-between align-items-start mb-4 print-btn">
+        <span class="badge bg-warning text-dark fs-6">Procedure — PRO-005</span>
+        <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">Print / Save PDF</button>
+      </div>
+
+      <div class="doc-header mb-4">
+        <table class="table table-bordered table-sm"><tbody>
+          <tr><th style="width:30%">Document Title</th><td>Corrective Action Procedure</td></tr>
+          <tr><th>Document ID</th><td>PRO-005</td></tr>
+          <tr><th>Version</th><td>1.0</td></tr>
+          <tr><th>Classification</th><td>Internal</td></tr>
+          <tr><th>Owner</th><td>Information Security Manager</td></tr>
+          <tr><th>Approved By</th><td>Senior Management</td></tr>
+          <tr><th>Effective Date</th><td>2025-01-01</td></tr>
+          <tr><th>Next Review</th><td>2026-01-01</td></tr>
+          <tr><th>ISO 27001:2022 Controls</th><td>10.1, 10.2</td></tr>
+        </tbody></table>
+      </div>
+
+      <!-- 1. Purpose and Objective -->
+      <div class="policy-section">
+        <h2>1. Purpose and Objective</h2>
+        <p>This procedure defines the process for identifying, documenting, analysing, and resolving nonconformities within the Information Security Management System (ISMS). Its primary objectives are to:</p>
+        <ul>
+          <li>Ensure that nonconformities are addressed in a timely and structured manner.</li>
+          <li>Eliminate the root causes of nonconformities to prevent recurrence.</li>
+          <li>Drive continual improvement of the ISMS in alignment with ISO 27001:2022 clause 10.</li>
+          <li>Provide a documented, auditable trail of nonconformity identification, treatment, and closure.</li>
+        </ul>
+        <p>This procedure supports the organisation's commitment to maintaining an effective ISMS that meets both certification requirements and operational security objectives.</p>
+      </div>
+
+      <!-- 2. Scope -->
+      <div class="policy-section">
+        <h2>2. Scope</h2>
+        <p>This procedure applies to all ISMS nonconformities identified through any source, including but not limited to:</p>
+        <ul>
+          <li>Internal ISMS audits.</li>
+          <li>External audits (certification body, customer, regulatory).</li>
+          <li>Management review findings and performance gap analysis.</li>
+          <li>Security incident post-incident reviews.</li>
+          <li>Technical vulnerability assessments and penetration testing.</li>
+          <li>Supplier assessments and third-party audit reports.</li>
+          <li>Continuous monitoring alerts and SLA breach reports.</li>
+          <li>Self-identification by staff, managers, or process owners.</li>
+        </ul>
+      </div>
+
+      <!-- 3. Definitions -->
+      <div class="policy-section">
+        <h2>3. Definitions</h2>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm">
+            <thead class="table-secondary">
+              <tr><th>Term</th><th>Definition</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Nonconformity (NC)</strong></td>
+                <td>Non-fulfilment of a requirement — either a requirement of ISO 27001:2022, an ISMS policy, procedure, or control.</td>
+              </tr>
+              <tr>
+                <td><strong>Major NC</strong></td>
+                <td>The absence of a required control or systematic control failure; a failure that materially undermines the effectiveness of the ISMS; or a repeated minor NC in the same area within 12 months.</td>
+              </tr>
+              <tr>
+                <td><strong>Minor NC</strong></td>
+                <td>An isolated, limited-scope failure that does not systematically undermine the ISMS. Deviations from process with no evidence of systemic breakdown.</td>
+              </tr>
+              <tr>
+                <td><strong>Observation / OFI</strong></td>
+                <td>An opportunity for improvement — not a nonconformity, but a weakness or inefficiency worthy of attention and action.</td>
+              </tr>
+              <tr>
+                <td><strong>Root Cause Analysis (RCA)</strong></td>
+                <td>A structured method used to identify the underlying cause(s) of a nonconformity, rather than treating symptoms.</td>
+              </tr>
+              <tr>
+                <td><strong>Corrective Action</strong></td>
+                <td>Action taken to eliminate the root cause of an identified nonconformity to prevent recurrence.</td>
+              </tr>
+              <tr>
+                <td><strong>Preventive Action</strong></td>
+                <td>Action taken proactively to eliminate the cause of a potential nonconformity before it occurs.</td>
+              </tr>
+              <tr>
+                <td><strong>CAR</strong></td>
+                <td>Corrective Action Request — the formal record documenting a nonconformity and its associated corrective action lifecycle (TMP-005).</td>
+              </tr>
+              <tr>
+                <td><strong>CAR ID</strong></td>
+                <td>Unique identifier assigned to each CAR in the format CAR-[YYYY]-[NNN] (e.g., CAR-2025-001).</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 4. Nonconformity Sources -->
+      <div class="policy-section">
+        <h2>4. Nonconformity Sources</h2>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm">
+            <thead class="table-secondary">
+              <tr><th>Source</th><th>Trigger Document / Event</th><th>Typical NC Types</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Internal Audit</strong></td>
+                <td>Audit finding report issued by lead auditor</td>
+                <td>Missing controls, undocumented processes, gaps in policy compliance, evidence deficiencies</td>
+              </tr>
+              <tr>
+                <td><strong>External Audit (Certification Body)</strong></td>
+                <td>Audit report with formal NC citations</td>
+                <td>Systemic control failures, inadequate risk treatment, SoA inaccuracies, process gaps</td>
+              </tr>
+              <tr>
+                <td><strong>Security Incident</strong></td>
+                <td>Post-incident review report</td>
+                <td>Failed detection controls, inadequate response procedures, missing access controls</td>
+              </tr>
+              <tr>
+                <td><strong>Management Review</strong></td>
+                <td>Management review minutes / action items</td>
+                <td>Performance metric failures, unmet objectives, resource gaps</td>
+              </tr>
+              <tr>
+                <td><strong>Vulnerability Assessment</strong></td>
+                <td>Scan report with unpatched Critical/High findings</td>
+                <td>Unpatched critical vulnerabilities, missing hardening baselines, insecure configurations</td>
+              </tr>
+              <tr>
+                <td><strong>Supplier Assessment</strong></td>
+                <td>Supplier security assessment report</td>
+                <td>Supplier failing contractual security obligations, inadequate sub-processor controls</td>
+              </tr>
+              <tr>
+                <td><strong>Monitoring</strong></td>
+                <td>SLA breach notification, SIEM alert, threshold exceeded</td>
+                <td>Repeated SLA breaches, alert fatigue due to misconfigured monitoring, log retention failures</td>
+              </tr>
+              <tr>
+                <td><strong>Self-Identification</strong></td>
+                <td>Staff observation, manager report, process owner notification</td>
+                <td>Process deviations, informal workarounds, undocumented exceptions</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 5. CAR Priority and Response Timelines -->
+      <div class="policy-section">
+        <h2>5. CAR Priority and Response Timelines</h2>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm" style="font-size:0.875rem">
+            <thead class="table-secondary">
+              <tr><th>Priority</th><th>Criteria</th><th>Containment</th><th>CA Plan Due</th><th>Implementation Due</th><th>Effectiveness Review</th></tr>
+            </thead>
+            <tbody>
+              <tr class="table-danger">
+                <td><span class="badge bg-danger">Critical</span></td>
+                <td>Major NC from external audit OR security incident causing confirmed data breach or critical system compromise</td>
+                <td>24 hours</td>
+                <td>5 business days</td>
+                <td>30 days</td>
+                <td>60 days</td>
+              </tr>
+              <tr class="table-warning">
+                <td><span class="badge bg-warning text-dark">High</span></td>
+                <td>Major NC from internal audit OR repeated Minor NC in same area within 12 months OR significant compliance gap</td>
+                <td>48 hours</td>
+                <td>10 business days</td>
+                <td>60 days</td>
+                <td>90 days</td>
+              </tr>
+              <tr>
+                <td><span class="badge bg-primary">Medium</span></td>
+                <td>Isolated Minor NC with limited scope; no recurrence; contained impact</td>
+                <td>N/A</td>
+                <td>20 business days</td>
+                <td>90 days</td>
+                <td>120 days</td>
+              </tr>
+              <tr>
+                <td><span class="badge bg-secondary">Low</span></td>
+                <td>Observation or Opportunity for Improvement (OFI); no compliance breach</td>
+                <td>N/A</td>
+                <td>30 business days</td>
+                <td>180 days</td>
+                <td>210 days</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="small text-body-secondary">All timelines are from the date the CAR is opened. Target dates may be extended with ISM approval and documented justification, provided the CAR does not remain overdue at implementation without an approved extension.</p>
+      </div>
+
+      <!-- 6. Corrective Action Procedure Steps -->
+      <div class="policy-section">
+        <h2>6. Corrective Action Procedure Steps</h2>
+
+        <div class="card mb-3 border-secondary">
+          <div class="card-header fw-semibold">Step 1 — Identify and Document</div>
+          <div class="card-body">
+            <ul class="mb-0">
+              <li>The identifier (auditor, staff member, process owner, or ISM) opens a CAR (TMP-005) as soon as a nonconformity is identified.</li>
+              <li>Record a clear, factual description of the nonconformity with objective evidence (screenshots, log extracts, audit findings, policy references).</li>
+              <li>Reference the applicable ISO 27001:2022 clause, Annex A control, or internal policy requirement that has not been met.</li>
+              <li>Assign a unique CAR ID in the format <strong>CAR-[YYYY]-[NNN]</strong> (e.g., CAR-2025-007).</li>
+              <li>Set the initial priority based on the criteria in Section 5.</li>
+              <li>Notify the ISM within 1 business day of opening the CAR.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card mb-3 border-secondary">
+          <div class="card-header fw-semibold">Step 2 — Immediate Containment</div>
+          <div class="card-body">
+            <ul class="mb-0">
+              <li>Within the containment timeline (Critical: 24 hrs; High: 48 hrs), implement containment actions to limit the impact of the nonconformity.</li>
+              <li>Containment is not corrective action — it is an immediate, short-term measure to prevent further harm while the root cause is investigated.</li>
+              <li>Document all containment actions, the time they were implemented, and the person responsible.</li>
+              <li>Assess whether the containment is effective and confirm this in writing. If containment is not achieving the intended effect, escalate immediately to the ISM and CISO.</li>
+              <li>Examples of containment: disabling a compromised account, blocking a network path, revoking access, applying an emergency patch, quarantining a system.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card mb-3 border-secondary">
+          <div class="card-header fw-semibold">Step 3 — Root Cause Analysis</div>
+          <div class="card-body">
+            <p class="mb-2">Select the appropriate RCA method based on the complexity and priority of the nonconformity:</p>
+            <ul>
+              <li><strong>5-Whys:</strong> Suitable for simple to moderate issues. Ask "why?" at least five times to drill down from symptom to root cause.</li>
+              <li><strong>Fishbone / Ishikawa Diagram:</strong> Suitable for complex issues involving multiple contributing factors across people, process, technology, and environment dimensions.</li>
+              <li><strong>Fault Tree Analysis:</strong> Suitable for Critical NCs where failure pathways need to be systematically mapped and quantified.</li>
+            </ul>
+            <p>RCA requirements:</p>
+            <ul class="mb-0">
+              <li>Document a minimum of 3 levels of "why" even for simple issues — do not stop at the first apparent cause.</li>
+              <li>Clearly distinguish between: the root cause, contributing factors, and symptoms.</li>
+              <li>Determine whether the issue is isolated (limited to one instance or area) or systemic (affecting multiple areas or recurring).</li>
+              <li>Systemic findings require the corrective action scope to be broadened to address all affected areas, not just the instance identified.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card mb-3 border-secondary">
+          <div class="card-header fw-semibold">Step 4 — Develop Corrective Action Plan</div>
+          <div class="card-body">
+            <ul class="mb-0">
+              <li>For each identified root cause, define a specific corrective action that directly addresses that cause — not the symptom.</li>
+              <li>Actions must be specific, measurable, achievable, and time-bound.</li>
+              <li>Assign a named owner for each action (individual, not a team or role).</li>
+              <li>Set realistic target completion dates consistent with the priority timelines in Section 5.</li>
+              <li>Identify required resources (budget, tools, personnel, training) and any dependencies.</li>
+              <li>Document the complete plan in TMP-005.</li>
+              <li>Obtain ISM written approval for all High and Critical CARs before implementation. Manager approval is sufficient for Medium and Low CARs.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card mb-3 border-secondary">
+          <div class="card-header fw-semibold">Step 5 — Implement Corrective Actions</div>
+          <div class="card-body">
+            <ul class="mb-0">
+              <li>Execute each action in accordance with the approved plan and target dates.</li>
+              <li>Document evidence of each action upon completion: screenshots, configuration records, test results, updated policy documents, training completion records.</li>
+              <li>Update the CAR status in the CAR Register as each action is completed.</li>
+              <li>Report implementation progress to the ISM:
+                <ul>
+                  <li>Critical and High CARs: weekly status update.</li>
+                  <li>Medium and Low CARs: monthly status update.</li>
+                </ul>
+              </li>
+              <li>If an action cannot be completed by the target date, notify the ISM immediately with a revised target date and reason. ISM approval required to extend.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card mb-3 border-secondary">
+          <div class="card-header fw-semibold">Step 6 — Verify Effectiveness</div>
+          <div class="card-body">
+            <p class="mb-2">At the effectiveness review date, the ISM or delegated reviewer assesses whether the corrective action has achieved its intended outcome:</p>
+            <ul>
+              <li>The root cause has been eliminated — not merely addressed at symptom level.</li>
+              <li>The nonconformity has not recurred since treatment was implemented.</li>
+              <li>Related areas or processes have been checked for the same or similar weaknesses.</li>
+              <li>Any secondary effects of the corrective action have been evaluated (e.g., new controls not creating new risks).</li>
+            </ul>
+            <p class="mb-0">Document the verification method (re-audit, testing, sampling, observation) and reference evidence. <strong>If effectiveness is not confirmed:</strong> reopen the CAR, conduct additional or deeper RCA, escalate the priority, and develop a revised corrective action plan. Do not close a CAR that has not been verified as effective.</p>
+          </div>
+        </div>
+
+        <div class="card mb-3 border-secondary">
+          <div class="card-header fw-semibold">Step 7 — Close CAR</div>
+          <div class="card-body">
+            <ul class="mb-0">
+              <li>ISM reviews all implementation evidence and the effectiveness confirmation documentation.</li>
+              <li>ISM formally approves closure in the CAR register and in TMP-005.</li>
+              <li>Record the closure date and a reference to the closing evidence package.</li>
+              <li>File the closed CAR (TMP-005 with all supporting evidence) in the document management system or designated secure folder.</li>
+              <li>Retain closed CAR records for a minimum of <strong>3 years</strong> for audit and regulatory purposes.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7. Trend Analysis and Preventive Action -->
+      <div class="policy-section">
+        <h2>7. Trend Analysis and Preventive Action</h2>
+        <p>The ISM reviews CAR trends on a monthly basis to identify systemic patterns that may indicate broader ISMS weaknesses. Monthly trend analysis covers:</p>
+        <ul>
+          <li>NC distribution by source (internal audit, incident, monitoring, etc.).</li>
+          <li>NC distribution by ISO 27001:2022 clause or Annex A control area.</li>
+          <li>Recurrence rate — NCs appearing in the same area in multiple periods.</li>
+          <li>Overdue CARs — actions past target date without approved extension.</li>
+          <li>Average time to close by priority level — trend of improving or deteriorating performance.</li>
+        </ul>
+        <p>Where systemic patterns are identified, the ISM initiates preventive actions targeting the underlying systemic weakness before nonconformities occur. Preventive actions are documented as distinct records in the CAR Register with status tracked to closure.</p>
+        <p>The monthly trend report summary is presented at the ISMS management review (TMP-007) to support senior management decision-making on ISMS investment and improvement priorities. Leading indicators (e.g., training non-completion rates, patch compliance rates, access review completion rates) are monitored to identify and address emerging risks before they crystallise into nonconformities.</p>
+      </div>
+
+      <!-- 8. Escalation -->
+      <div class="policy-section">
+        <h2>8. Escalation</h2>
+        <p>The following escalation triggers apply:</p>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm">
+            <thead class="table-secondary">
+              <tr><th>Trigger</th><th>Escalation Action</th><th>Escalation Target</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>CAR overdue at implementation deadline (without approved extension)</td>
+                <td>ISM formally escalates with written notice of overdue status and impact assessment.</td>
+                <td>Senior Management</td>
+              </tr>
+              <tr>
+                <td>Critical CAR with no confirmed containment after 48 hours</td>
+                <td>ISM escalates immediately with incident status and risk exposure assessment.</td>
+                <td>CISO</td>
+              </tr>
+              <tr>
+                <td>Unresolved Major NC from external certification audit approaching re-audit deadline</td>
+                <td>ISM escalates with status report; management briefed on certification risk.</td>
+                <td>CISO and Senior Management; certification body informed if applicable</td>
+              </tr>
+              <tr>
+                <td>Effectiveness verification fails on second attempt</td>
+                <td>CAR priority escalated one level; senior management notified; external expert review considered.</td>
+                <td>ISM and Senior Management</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 9. CAR Register -->
+      <div class="policy-section">
+        <h2>9. CAR Register</h2>
+        <p>The CAR Register is maintained by the ISM and serves as the single authoritative record of all corrective action activity. The register must include the following fields for each CAR:</p>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm">
+            <thead class="table-secondary">
+              <tr><th>Field</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>CAR ID</td><td>Unique identifier: CAR-[YYYY]-[NNN]</td></tr>
+              <tr><td>Date Opened</td><td>Date the CAR was formally raised</td></tr>
+              <tr><td>Source</td><td>Origin of the nonconformity (e.g., Internal Audit, Incident, Self-Identification)</td></tr>
+              <tr><td>Priority</td><td>Critical / High / Medium / Low</td></tr>
+              <tr><td>NC Description Summary</td><td>Brief description of the nonconformity and ISO clause or control reference</td></tr>
+              <tr><td>Owner</td><td>Named individual responsible for driving the CAR to closure</td></tr>
+              <tr><td>Containment Date</td><td>Date containment action was confirmed (Critical/High only)</td></tr>
+              <tr><td>CA Plan Due</td><td>Target date for corrective action plan approval</td></tr>
+              <tr><td>Implementation Due</td><td>Target date for all actions to be implemented</td></tr>
+              <tr><td>Effectiveness Review Due</td><td>Scheduled date for effectiveness verification</td></tr>
+              <tr><td>Status</td><td>Open / In Progress (Containment) / In Progress (RCA) / In Progress (Implementation) / Pending Effectiveness Review / Closed</td></tr>
+              <tr><td>Closed Date</td><td>Date ISM approved closure</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>A monthly aging report is produced from the CAR Register and presented to management, showing all open CARs by priority, age, and days until target dates.</p>
+      </div>
+
+      <!-- 10. Roles and Responsibilities -->
+      <div class="policy-section">
+        <h2>10. Roles and Responsibilities</h2>
+        <p>The following RACI table defines accountability for each stage of the corrective action process. <strong>R = Responsible, A = Accountable, C = Consulted, I = Informed.</strong></p>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm" style="font-size:0.875rem">
+            <thead class="table-secondary">
+              <tr><th>Activity</th><th>ISM</th><th>Line Manager</th><th>Auditee / Process Owner</th><th>All Staff</th><th>Senior Management</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Identify nonconformity</td>
+                <td>A</td><td>R</td><td>R</td><td>R</td><td>I</td>
+              </tr>
+              <tr>
+                <td>Open CAR (TMP-005)</td>
+                <td>A, R</td><td>R</td><td>R</td><td>—</td><td>—</td>
+              </tr>
+              <tr>
+                <td>Immediate containment</td>
+                <td>A</td><td>R</td><td>R</td><td>R (if directed)</td><td>I (Critical)</td>
+              </tr>
+              <tr>
+                <td>Root cause analysis</td>
+                <td>A</td><td>C</td><td>R</td><td>C</td><td>I</td>
+              </tr>
+              <tr>
+                <td>Develop CA plan</td>
+                <td>A (approves H/C)</td><td>R</td><td>R</td><td>—</td><td>I</td>
+              </tr>
+              <tr>
+                <td>Implement corrective actions</td>
+                <td>A</td><td>R</td><td>R</td><td>R (as assigned)</td><td>I</td>
+              </tr>
+              <tr>
+                <td>Verify effectiveness</td>
+                <td>A, R</td><td>C</td><td>C</td><td>—</td><td>I</td>
+              </tr>
+              <tr>
+                <td>Close CAR</td>
+                <td>A, R</td><td>I</td><td>I</td><td>—</td><td>I (Critical/High)</td>
+              </tr>
+              <tr>
+                <td>Trend analysis and reporting</td>
+                <td>A, R</td><td>I</td><td>I</td><td>—</td><td>I (at mgmt review)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 11. Related Documents -->
+      <div class="policy-section">
+        <h2>11. Related Documents</h2>
+        <ul>
+          <li>TMP-005 — Corrective Action Request Form</li>
+          <li>TMP-006 — Internal Audit Checklist</li>
+          <li><a href="tmp-007-management-review-template.html">TMP-007 — Management Review Template</a></li>
+          <li><a href="pro-004-internal-audit-procedure.html">PRO-004 — Internal Audit Procedure</a></li>
+          <li><a href="pol-001-information-security-policy.html">POL-001 — Information Security Policy</a></li>
+        </ul>
+      </div>
+
+      <!-- Revision History -->
+      <div class="policy-section mt-5">
+        <h2>Revision History</h2>
+        <table class="table table-bordered table-sm">
+          <thead class="table-secondary">
+            <tr><th>Version</th><th>Date</th><th>Author</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1.0</td><td>2025-01-01</td><td>Information Security Manager</td><td>Initial release</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title fs-5" id="rbacModalLabel">🔒 Login</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <div class="modal-body"><form id="rbac-login-form" novalidate>
+        <div class="mb-3"><label for="rbac-username-input" class="form-label">Username</label><input type="text" class="form-control" id="rbac-username-input" autocomplete="username" maxlength="40" required /></div>
+        <div class="mb-3"><label for="rbac-password-input" class="form-label">Password</label><input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" required /></div>
+        <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+      </form></div>
+      <div class="modal-footer border-0 pt-0"><p class="text-secondary small mb-0">Session clears when you close this tab.</p></div>
+    </div></div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" /></a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" /></a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="../privacy.html">Privacy Policy</a> &middot; <a href="../terms.html">Terms</a></p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="../users.js" defer></script>
+  <script src="../roles.js" defer></script>
+  <script src="../script.js" defer></script>
+</body>
+</html>

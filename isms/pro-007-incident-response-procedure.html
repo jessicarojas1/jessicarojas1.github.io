@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="../theme.css" />
+  <link rel="stylesheet" href="isms.css" />
+  <title>Incident Response Procedure | ISMS | Jessica Rojas</title>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="../index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="../projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="../timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="../cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="../consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="../contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="../blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="../knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="../compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="../jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="../admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content">
+    <div class="container py-4">
+      <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="../index.html">Home</a></li>
+          <li class="breadcrumb-item"><a href="index.html">ISMS</a></li>
+          <li class="breadcrumb-item active">PRO-007</li>
+        </ol>
+      </nav>
+
+      <div class="d-flex justify-content-between align-items-start mb-4 print-btn">
+        <span class="badge bg-warning text-dark fs-6">Procedure &mdash; PRO-007</span>
+        <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">Print / Save PDF</button>
+      </div>
+
+      <div class="doc-header mb-4">
+        <table class="table table-bordered table-sm">
+          <tbody>
+            <tr><th style="width:30%">Document Title</th><td>Incident Response Procedure</td></tr>
+            <tr><th>Document ID</th><td>PRO-007</td></tr>
+            <tr><th>Version</th><td>1.0</td></tr>
+            <tr><th>Classification</th><td>Internal</td></tr>
+            <tr><th>Owner</th><td>Information Security Manager</td></tr>
+            <tr><th>Approved By</th><td>Senior Management</td></tr>
+            <tr><th>Effective Date</th><td>2025-01-01</td></tr>
+            <tr><th>Next Review</th><td>2026-01-01</td></tr>
+            <tr><th>ISO 27001:2022 Controls</th><td>A.5.24, A.5.25, A.5.26, A.5.27, A.5.28</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 1. Purpose -->
+      <div class="policy-section">
+        <h2>1. Purpose</h2>
+        <p>This procedure defines the structured, repeatable process the organization will follow to detect, contain, eradicate, recover from, and learn from information security incidents. It operationalizes the requirements of ISO/IEC 27001:2022 Annex A controls A.5.24 through A.5.28 and provides actionable, step-by-step guidance to minimize the impact of security incidents on the confidentiality, integrity, and availability of information assets.</p>
+        <p>A timely and well-coordinated incident response reduces the duration and severity of security events, preserves forensic evidence, supports regulatory notification obligations, and drives continual improvement of security controls. This procedure applies at all times, including outside business hours, and must be followed by all members of the Incident Response Team (IRT).</p>
+      </div>
+
+      <!-- 2. Scope -->
+      <div class="policy-section">
+        <h2>2. Scope</h2>
+        <p>This procedure applies to all confirmed or suspected information security incidents involving:</p>
+        <ul>
+          <li>Any system, network, device, or application owned, operated, or managed by the organization</li>
+          <li>Third-party and cloud-hosted systems that process, store, or transmit organizational data</li>
+          <li>Personal data subject to data protection legislation (including GDPR)</li>
+          <li>Physical security incidents that affect information assets (e.g., theft of devices, unauthorized physical access)</li>
+          <li>Supply chain and third-party incidents that have a direct impact on organizational systems or data</li>
+          <li>Incidents reported by employees, contractors, customers, regulators, or external researchers</li>
+        </ul>
+        <p>This procedure applies to all personnel involved in incident response, including the Information Security Manager (ISM), IT operations staff, business process owners, legal counsel, communications staff, HR, and external incident response support.</p>
+      </div>
+
+      <!-- 3. Definitions -->
+      <div class="policy-section">
+        <h2>3. Definitions</h2>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th style="width:25%">Term</th><th>Definition</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Security Event</strong></td><td>Any observable occurrence in a system or network that may indicate an actual or potential violation of security policy, or a failure of safeguards. Not all events are incidents.</td></tr>
+            <tr><td><strong>Security Incident</strong></td><td>A single or series of unwanted or unexpected security events with a significant probability of compromising business operations or threatening information security.</td></tr>
+            <tr><td><strong>Data Breach</strong></td><td>A security incident resulting in accidental or unlawful destruction, loss, alteration, unauthorized disclosure of, or access to personal data.</td></tr>
+            <tr><td><strong>IRT</strong></td><td>Incident Response Team — the cross-functional team responsible for coordinating the response to security incidents.</td></tr>
+            <tr><td><strong>CIRT</strong></td><td>Computer Incident Response Team — the technical subset of the IRT focused on digital forensics and technical containment and eradication.</td></tr>
+            <tr><td><strong>P1 — Critical</strong></td><td>Active breach, ransomware deployment, confirmed data exfiltration, complete loss of critical system availability. Requires immediate response 24/7.</td></tr>
+            <tr><td><strong>P2 — High</strong></td><td>Suspected breach, significant service disruption, malware infection spreading across multiple systems. Requires response within 1 hour.</td></tr>
+            <tr><td><strong>P3 — Medium</strong></td><td>Policy violation with potential security impact, malware contained to a single system, unauthorized access attempt. Requires response within 4 hours during business hours.</td></tr>
+            <tr><td><strong>P4 — Low</strong></td><td>Minor policy violation with no immediate security impact, nuisance event with no data exposure, informational. Requires response next business day.</td></tr>
+            <tr><td><strong>MTTD</strong></td><td>Mean Time to Detect — the average time elapsed between the start of an incident and its detection.</td></tr>
+            <tr><td><strong>MTTR</strong></td><td>Mean Time to Respond/Recover — the average time elapsed between detection and full recovery.</td></tr>
+            <tr><td><strong>Chain of Custody</strong></td><td>A documented process that tracks the seizure, custody, control, transfer, analysis, and disposition of physical or digital evidence.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 4. IRT Roles -->
+      <div class="policy-section">
+        <h2>4. Incident Response Team</h2>
+        <p>The Incident Response Team (IRT) is a standing, cross-functional team that is activated upon declaration of a security incident. All IRT members must have documented backups (alternates) who can assume the role in the event of unavailability. IRT contact details are maintained in the IRT Contact List (classified Restricted), stored in the PAM vault and distributed to all IRT members annually.</p>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Role</th><th>Responsibilities</th><th>Activated For</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>Incident Commander</strong></td>
+              <td>Overall coordination and decision-making authority. Declares severity level. Approves containment and communication actions. Escalates to senior management. Owns post-incident review. Typically the ISM or CISO.</td>
+              <td>All incidents P1–P3</td>
+            </tr>
+            <tr>
+              <td><strong>Technical Lead</strong></td>
+              <td>Leads technical investigation, containment, eradication, and recovery activities. Coordinates CIRT/IT operations. Oversees forensic evidence collection and integrity. Provides technical briefings to Incident Commander.</td>
+              <td>All incidents P1–P3</td>
+            </tr>
+            <tr>
+              <td><strong>Communications Lead</strong></td>
+              <td>Manages all internal and external communications. Drafts notifications for regulators, customers, and media. Ensures single-spokesperson policy is followed. Coordinates with PR/marketing if required.</td>
+              <td>P1–P2; P3 as needed</td>
+            </tr>
+            <tr>
+              <td><strong>Legal / Privacy Counsel</strong></td>
+              <td>Advises on regulatory notification obligations (GDPR, etc.). Reviews external communications for legal risk. Determines if law enforcement referral is appropriate. Advises on preservation of privilege for incident documentation.</td>
+              <td>P1–P2; P3 involving personal data</td>
+            </tr>
+            <tr>
+              <td><strong>HR Representative</strong></td>
+              <td>Engaged when incident involves employee actions (suspected insider threat, policy violation, HR-relevant misconduct). Advises on disciplinary processes and employment law constraints during investigation.</td>
+              <td>As needed for insider threat or HR matters</td>
+            </tr>
+            <tr>
+              <td><strong>Scribe / Incident Recorder</strong></td>
+              <td>Maintains a contemporaneous, timestamped incident log throughout the response. Records all actions taken, decisions made, evidence collected, and communications sent. Ensures log accuracy and completeness for audit purposes.</td>
+              <td>All incidents P1–P3</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 5. Phase 1 — Preparation -->
+      <div class="policy-section">
+        <h2>5. Phase 1 — Preparation</h2>
+        <p>Effective incident response begins long before an incident occurs. The following preparation activities must be maintained on an ongoing basis and reviewed at least annually, or following any significant incident or organizational change.</p>
+
+        <h3 class="h5 mt-3">5.1 Tools and Technology Readiness</h3>
+        <ul>
+          <li>SIEM platform configured with tuned alerting rules, covering endpoint, network, authentication, and cloud log sources</li>
+          <li>Endpoint Detection and Response (EDR) solution deployed on all managed endpoints, with alerts routed to the security team</li>
+          <li>Forensic toolkit available to CIRT members, including write-blockers, disk imaging tools, memory acquisition tools, and a dedicated forensic workstation</li>
+          <li>Out-of-band communication capability (secure conference bridge, encrypted messaging channel) separate from production systems</li>
+          <li>Incident ticketing system with access controls and audit logging; capable of operation if primary systems are unavailable</li>
+          <li>Network packet capture capability and log retention configured per POL-008 requirements</li>
+        </ul>
+
+        <h3 class="h5 mt-3">5.2 Contact Lists and Escalation Paths</h3>
+        <ul>
+          <li>IRT Contact List maintained and distributed to all IRT members; reviewed quarterly and updated within 5 business days of any personnel change</li>
+          <li>External contact list maintained: external IR firm (retainer details), cyber insurance provider, relevant regulatory bodies (data protection authority, sector regulator), law enforcement contacts (national cybercrime unit)</li>
+          <li>Senior management emergency contact details held by ISM and alternate</li>
+        </ul>
+
+        <h3 class="h5 mt-3">5.3 Playbooks and Procedures</h3>
+        <ul>
+          <li>Incident-specific playbooks maintained and reviewed annually (see Section 13 for full list)</li>
+          <li>Playbooks stored in a location accessible during a major incident (offline copy maintained)</li>
+          <li>RACI matrix reviewed and agreed by all IRT members</li>
+        </ul>
+
+        <h3 class="h5 mt-3">5.4 Training and Exercises</h3>
+        <ul>
+          <li>All IRT members complete incident response training at least annually</li>
+          <li>Tabletop exercise conducted at least annually; functional exercise at least every two years</li>
+          <li>Exercise results documented; improvement actions tracked to closure</li>
+          <li>New IRT members briefed and trained before assuming incident response duties</li>
+        </ul>
+      </div>
+
+      <!-- 6. Phase 2 — Detection and Identification -->
+      <div class="policy-section">
+        <h2>6. Phase 2 — Detection and Identification</h2>
+
+        <h3 class="h5 mt-3">Step 1: Event Detection</h3>
+        <p>Security events may be detected through any of the following channels. All detection sources must be documented in the incident record:</p>
+        <ul>
+          <li><strong>SIEM alert:</strong> Automated alert generated by the SIEM based on correlation rules, anomaly detection, or threat intelligence-based indicators of compromise (IOCs)</li>
+          <li><strong>Helpdesk / IT support ticket:</strong> User or IT staff reports unusual system behaviour, suspected compromise, or observed anomaly</li>
+          <li><strong>Direct user report:</strong> Employee reports phishing email, unexpected account activity, data loss, or suspicious behaviour to the security team or helpdesk</li>
+          <li><strong>External notification:</strong> Third-party security researcher, law enforcement, customer, regulator, or supplier notifies the organization of a suspected or confirmed compromise</li>
+          <li><strong>Threat intelligence feed:</strong> IOC (IP, domain, file hash) matching organizational infrastructure detected in a threat intelligence platform</li>
+          <li><strong>Routine monitoring review:</strong> Security analyst identifies suspicious activity during log review, vulnerability scan, or penetration test</li>
+        </ul>
+        <p>Any member of staff who suspects a security incident must report it immediately to the IT helpdesk or directly to the ISM via the designated reporting channel. Delayed reporting may result in disciplinary action.</p>
+
+        <h3 class="h5 mt-3">Step 2: Initial Triage</h3>
+        <p>Upon receiving an event report, the on-call security analyst or ISM performs initial triage within the timeframes defined by the escalation matrix:</p>
+        <ol>
+          <li>Review the raw alert or report; gather initial indicators (affected systems, accounts, data, timeframe)</li>
+          <li>Consult SIEM, EDR, and log sources to corroborate or discount the initial alert</li>
+          <li>Determine whether the event constitutes a confirmed or suspected security incident, or can be classified as a false positive</li>
+          <li>If false positive: document the event, note the reason for false positive classification, and close the alert with recommendations to tune detection rules if appropriate</li>
+          <li>If confirmed or suspected incident: proceed to Step 3 (Severity Classification) immediately</li>
+        </ol>
+
+        <h3 class="h5 mt-3">Step 3: Severity Classification</h3>
+        <p>Assign an initial severity level based on the criteria below. Severity may be upgraded or downgraded as additional information is obtained. All severity changes must be recorded in the incident log with a timestamp and rationale.</p>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Severity</th><th>Label</th><th>Criteria / Examples</th></tr></thead>
+          <tbody>
+            <tr class="table-danger">
+              <td><strong>P1</strong></td>
+              <td><strong>Critical</strong></td>
+              <td>Active breach with confirmed unauthorized access to systems or data; ransomware deployment affecting production systems; confirmed data exfiltration of Restricted or personal data; complete loss of availability of critical business systems; active compromise of privileged accounts (domain admin, root); supply chain attack actively affecting organizational systems</td>
+            </tr>
+            <tr class="table-warning">
+              <td><strong>P2</strong></td>
+              <td><strong>High</strong></td>
+              <td>Suspected breach with strong indicators but not yet confirmed; malware infection spreading to multiple systems; significant disruption to important business functions; unauthorized access to Confidential data; credential compromise of standard user accounts with data access; DDoS attack affecting customer-facing services</td>
+            </tr>
+            <tr class="table-info">
+              <td><strong>P3</strong></td>
+              <td><strong>Medium</strong></td>
+              <td>Security policy violation with potential data exposure risk; malware infection confirmed but contained to a single isolated system; unauthorized access attempt that was blocked; suspicious but unconfirmed activity on internal systems; phishing attack with limited user engagement</td>
+            </tr>
+            <tr>
+              <td><strong>P4</strong></td>
+              <td><strong>Low</strong></td>
+              <td>Minor policy violation with no data exposure; nuisance malware (adware) with no propagation; failed brute-force attack with no successful authentication; informational security event requiring documentation only; user error resulting in no security impact</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3 class="h5 mt-3">Step 4: IRT Notification</h3>
+        <p>Notify the IRT per the severity level using the IRT Contact List. All notifications must be recorded in the incident log, including the method of notification, time sent, and acknowledgement received.</p>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Severity</th><th>Notification Method</th><th>Response Time Requirement</th><th>Who to Notify</th></tr></thead>
+          <tbody>
+            <tr><td><strong>P1</strong></td><td>Immediate phone call (do not rely on email or messaging alone)</td><td>IRT must be assembled within 30 minutes; incident response actions begin immediately</td><td>Full IRT: Incident Commander, Technical Lead, Communications Lead, Legal, and management chain</td></tr>
+            <tr><td><strong>P2</strong></td><td>Phone call; follow up with incident ticket link</td><td>IRT acknowledgement within 1 hour; response actions begin within 1 hour of detection</td><td>Incident Commander, Technical Lead; others as directed by Incident Commander</td></tr>
+            <tr><td><strong>P3</strong></td><td>Incident ticket creation; email or secure message to Technical Lead and ISM</td><td>IRT acknowledgement within 4 hours during business hours; next business day if after hours</td><td>Technical Lead and ISM; escalate to Incident Commander if severity changes</td></tr>
+            <tr><td><strong>P4</strong></td><td>Incident ticket creation; email to ISM</td><td>Review next business day</td><td>ISM; no broader IRT activation required unless severity changes</td></tr>
+          </tbody>
+        </table>
+
+        <h3 class="h5 mt-3">Step 5: Incident Record Creation</h3>
+        <ol>
+          <li>Open an incident ticket in the incident management system; assign a unique incident number (format: INC-YYYY-NNNN)</li>
+          <li>Record initial details: date/time detected, date/time reported, detection source, affected systems, initial severity, assigned Incident Commander and Technical Lead</li>
+          <li>Begin the incident log — a contemporaneous, timestamped record of all actions, decisions, and observations. The Scribe is responsible for maintaining this log throughout the incident lifecycle</li>
+          <li>Set incident status to "Active — Detection and Identification"</li>
+          <li>All subsequent actions, escalations, and communications are recorded in the incident log in real time</li>
+        </ol>
+      </div>
+
+      <!-- 7. Phase 3 — Containment -->
+      <div class="policy-section">
+        <h2>7. Phase 3 — Containment</h2>
+        <p>The objective of containment is to limit the spread and impact of the incident while preserving evidence for investigation. Containment actions must be approved by the Incident Commander before execution and documented in the incident log with timestamps. No containment action should be taken without authorization except where immediate action is required to prevent imminent, irreversible harm.</p>
+
+        <h3 class="h5 mt-3">7.1 Short-Term Containment</h3>
+        <p>Short-term containment actions are taken immediately to halt or slow the progression of the incident:</p>
+        <ul>
+          <li><strong>Network isolation:</strong> Isolate affected systems from the network (disable network interface, place in isolated VLAN, or apply firewall ACL). Ensure isolation does not destroy volatile evidence (memory, network connections) — photograph or capture system state before isolation where possible</li>
+          <li><strong>Block malicious IOCs:</strong> Apply blocks for known malicious IP addresses, domains, and URLs at the perimeter firewall, web proxy, and DNS layer. Document all blocks applied (IOC, timestamp, system applied on)</li>
+          <li><strong>Disable compromised accounts:</strong> Immediately disable any user or service accounts confirmed to be compromised. Do not delete — accounts must be preserved for forensic investigation. Force-rotate passwords for any accounts that may share credentials with compromised accounts</li>
+          <li><strong>Revoke active sessions:</strong> Terminate active sessions for compromised accounts across all systems, including VPN, SSO, cloud services, and email</li>
+          <li><strong>Preserve evidence:</strong> Before any containment action that may alter system state, capture volatile data (running processes, open network connections, logged-in users, memory where feasible). See Section 12 for evidence handling requirements</li>
+        </ul>
+
+        <h3 class="h5 mt-3">7.2 Long-Term Containment</h3>
+        <p>Long-term containment actions maintain a stable, contained state while eradication and recovery are planned and executed:</p>
+        <ul>
+          <li><strong>Patch and remediate root cause:</strong> Apply emergency patches or configuration changes to close the specific vulnerability exploited, where this can be done without affecting the investigation</li>
+          <li><strong>Rebuild compromised systems:</strong> Where systems are confirmed compromised at a deep level (rootkit, firmware compromise), plan rebuild from clean, verified baseline images rather than attempting to clean in place</li>
+          <li><strong>Change compromised credentials:</strong> Rotate all credentials (passwords, API keys, service account credentials, certificates) that were known or suspected to have been compromised or exposed during the incident</li>
+          <li><strong>Increase monitoring:</strong> Temporarily increase logging verbosity and alerting sensitivity for affected systems and adjacent systems. Deploy additional monitoring for re-infection indicators</li>
+        </ul>
+      </div>
+
+      <!-- 8. Phase 4 — Eradication -->
+      <div class="policy-section">
+        <h2>8. Phase 4 — Eradication</h2>
+        <p>Eradication ensures that the threat actor, malware, or vulnerability that caused the incident is fully removed from the environment before recovery begins. Eradication must be completed and verified before any affected system is returned to production. All eradication actions are documented in the incident log.</p>
+        <ol>
+          <li><strong>Remove malware and malicious artifacts:</strong> Using forensically sound methods, identify and remove all malware, backdoors, webshells, scheduled tasks, persistence mechanisms, and attacker tooling. Utilize EDR quarantine and removal capabilities in conjunction with manual forensic review</li>
+          <li><strong>Close all attack vectors:</strong> Confirm that the initial attack vector (e.g., phishing email, unpatched vulnerability, misconfigured service, compromised vendor access) has been fully closed. If the attack vector cannot be definitively identified, implement broad defensive measures to reduce exposure</li>
+          <li><strong>Verify absence of backdoors:</strong> Conduct a thorough sweep of affected systems for attacker-installed persistence mechanisms, including: registry run keys, scheduled tasks, cron jobs, startup scripts, new local user accounts, SSH authorized keys, web application backdoors, and unauthorized VPN/remote access configurations</li>
+          <li><strong>Patch exploited vulnerabilities:</strong> Apply vendor patches or configuration mitigations for all vulnerabilities confirmed to have been exploited during the incident. Validate patch application and verify system stability post-patching</li>
+          <li><strong>Reset all affected credentials:</strong> Force-rotate all passwords, API keys, OAuth tokens, certificates, and service account credentials for accounts that were compromised, exposed, or that had access to affected systems. Notify affected users of the credential reset and the reason (without unnecessary disclosure of incident details)</li>
+          <li><strong>Validate eradication:</strong> Run antivirus/EDR full scans on all affected systems. Compare system configurations against known-good baselines. Conduct a technical review with the Technical Lead to confirm eradication is complete before proceeding to recovery</li>
+        </ol>
+      </div>
+
+      <!-- 9. Phase 5 — Recovery -->
+      <div class="policy-section">
+        <h2>9. Phase 5 — Recovery</h2>
+        <p>Recovery restores affected systems and services to normal operation in a safe, controlled, and monitored manner. Recovery must not be rushed; returning compromised or unstable systems to production prematurely creates significant risk of recurrence. All recovery steps are authorized by the Incident Commander and documented in the incident log.</p>
+        <ol>
+          <li><strong>Restore from clean backups:</strong> Restore systems from backups that pre-date the confirmed start of the incident and have been verified as clean (scan backups before restore; do not restore from backups that may have been taken during the period of compromise). Consult PRO-009 for detailed backup restoration procedures</li>
+          <li><strong>Rebuild from clean baseline (where applicable):</strong> For systems confirmed as deeply compromised, rebuild from a verified, hardened baseline image rather than restoring from backup. Configure the rebuilt system per current security baselines before returning to production</li>
+          <li><strong>Verify data integrity:</strong> After restoration, validate that data has not been corrupted or tampered with. Compare against checksums or known-good reference data where available. Business process owners must sign off on data integrity before the system is returned to production</li>
+          <li><strong>Security validation pre-production:</strong> Before returning any system to production, conduct: vulnerability scan, configuration baseline comparison, review of all accounts and access rights on the system, and confirmation that all eradication actions from Phase 4 are in place on the restored/rebuilt system</li>
+          <li><strong>Return to production — phased approach:</strong> Return systems to production in a phased manner, beginning with lower-risk systems. Monitor each system closely before adding the next. Avoid returning all affected systems simultaneously</li>
+          <li><strong>Enhanced monitoring period (minimum 72 hours):</strong> Maintain elevated monitoring (increased logging, lower alert thresholds, active analyst review) for a minimum of 72 hours post-recovery for P1 incidents, 48 hours for P2, and 24 hours for P3. Extend if any indicators of residual compromise are detected</li>
+          <li><strong>Adjust monitoring thresholds:</strong> Review and update SIEM rules, EDR policies, and other detection capabilities based on IOCs and TTPs (Tactics, Techniques, and Procedures) identified during the incident. Share relevant IOCs with threat intelligence platforms</li>
+          <li><strong>Notify stakeholders of recovery:</strong> Communicate restoration of service to affected business units, customers (as appropriate), and any external parties notified during the incident. Document all post-recovery communications in the incident record</li>
+        </ol>
+      </div>
+
+      <!-- 10. Phase 6 — Post-Incident Review -->
+      <div class="policy-section">
+        <h2>10. Phase 6 — Post-Incident Review</h2>
+        <p>Every P1 and P2 incident requires a formal post-incident review (PIR). P3 and P4 incidents require a review at the ISM's discretion, based on significance and lessons-learned potential. The PIR is a no-blame, improvement-focused process.</p>
+
+        <h3 class="h5 mt-3">10.1 PIR Timing</h3>
+        <ul>
+          <li><strong>P1 incidents:</strong> PIR must be initiated within 72 hours of incident closure; report finalized within 10 business days</li>
+          <li><strong>P2 incidents:</strong> PIR initiated within 5 business days of incident closure; report finalized within 10 business days</li>
+          <li><strong>P3/P4 incidents:</strong> ISM review within 10 business days; formal PIR if warranted</li>
+        </ul>
+
+        <h3 class="h5 mt-3">10.2 PIR Content</h3>
+        <ol>
+          <li><strong>Timeline reconstruction:</strong> Build a complete chronological timeline of the incident from initial compromise or event through to recovery. Identify any gaps in the timeline and note where evidence is unavailable or uncertain</li>
+          <li><strong>Root cause analysis:</strong> Determine the underlying root cause(s) of the incident. Use a structured methodology (e.g., Five Whys, fishbone diagram) to identify root causes beyond the immediate technical cause. Address both technical and process/people root causes</li>
+          <li><strong>Detection gap analysis:</strong> Assess how and when the incident was detected. Determine whether existing controls should have detected the incident earlier, and why they did not if applicable</li>
+          <li><strong>Response effectiveness assessment:</strong> Evaluate the effectiveness of each phase of the response: Was containment timely? Were the right people involved? Was communication effective? Were regulatory timelines met?</li>
+          <li><strong>Lessons learned:</strong> Document specific, actionable lessons learned from the incident. Include both positive aspects of the response and areas for improvement</li>
+          <li><strong>Improvement recommendations:</strong> Define specific, measurable improvement actions with owners and target completion dates. Track improvement actions through the Corrective Action Register (CAR)</li>
+          <li><strong>Report to management:</strong> The ISM presents the PIR report (using TMP-007 as the template) to senior management. P1 incidents are presented at a dedicated management briefing; P2 and below are included in the next management review cycle</li>
+        </ol>
+      </div>
+
+      <!-- 11. Communication Procedures -->
+      <div class="policy-section">
+        <h2>11. Communication Procedures</h2>
+
+        <h3 class="h5 mt-3">11.1 Internal Communications</h3>
+        <p>Internal communications during an incident must follow the escalation matrix defined in the IRT Contact List. The following principles apply:</p>
+        <ul>
+          <li>All sensitive incident information is shared on a need-to-know basis only. Do not discuss incident details in public forums, general messaging channels, or over unsecured channels</li>
+          <li>Use the designated out-of-band communication channel (secure conference bridge) if primary systems are compromised or unavailable</li>
+          <li>Management notification thresholds: the CEO/MD and Board (as appropriate) must be notified of all P1 incidents immediately and P2 incidents within 4 hours; P3 and P4 are included in the regular security report</li>
+          <li>Departmental heads of affected business units must be notified at the time of IRT activation so they can manage business continuity impacts</li>
+          <li>Do not communicate incident status over compromised or potentially monitored systems if there is any indication the attacker may have access to internal communications</li>
+        </ul>
+
+        <h3 class="h5 mt-3">11.2 External Communications — Regulatory Notification</h3>
+        <p>All external notifications are coordinated by the Communications Lead in conjunction with Legal/Privacy Counsel. No external communication is issued without Incident Commander approval.</p>
+        <ul>
+          <li><strong>GDPR — Supervisory Authority:</strong> Where a personal data breach meets the threshold for notification (i.e., the breach is likely to result in a risk to the rights and freedoms of natural persons), the relevant data protection supervisory authority must be notified within <strong>72 hours</strong> of becoming aware of the breach. If notification is not possible within 72 hours, the notification must be made without undue further delay, accompanied by a documented explanation for the delay. Notification content must include: nature of the breach, categories and approximate number of individuals and records concerned, name and contact details of the DPO/data protection contact, likely consequences of the breach, and measures taken or proposed to address the breach</li>
+          <li><strong>GDPR — Data Subject Notification:</strong> Where a personal data breach is likely to result in a high risk to the rights and freedoms of individuals, affected data subjects must be notified without undue delay. The notification must describe the nature of the breach in clear, plain language and include information on the steps individuals can take to protect themselves</li>
+          <li><strong>Sector-specific regulators:</strong> Consult Legal/Privacy Counsel regarding any notification obligations to sector-specific regulators (financial services regulators, healthcare regulators, etc.) applicable to the organization's operating context</li>
+          <li><strong>Customers and business partners:</strong> Notification decisions are made by the Incident Commander in consultation with Legal, Communications, and the affected business relationship owner. Notification content and timing must be reviewed by Legal before sending</li>
+        </ul>
+
+        <h3 class="h5 mt-3">11.3 Law Enforcement</h3>
+        <p>A decision to engage law enforcement (e.g., national cybercrime unit, national police) will be made by the Incident Commander in consultation with Legal Counsel and senior management. Factors to consider include: the nature and severity of the crime, the likely utility of law enforcement involvement, potential impact on the investigation timeline, and the organization's legal obligations. All law enforcement contacts and disclosures must be documented in the incident record.</p>
+
+        <h3 class="h5 mt-3">11.4 Media and Press</h3>
+        <p>No member of staff other than the designated spokesperson (typically the CEO or a delegated Communications Lead) is authorized to make statements to the media, post on social media, or otherwise communicate about any incident to external parties. All media enquiries are redirected to the designated spokesperson. If a press statement is required, it is drafted by Communications, reviewed by Legal, and approved by the Incident Commander before release.</p>
+      </div>
+
+      <!-- 12. Evidence Handling -->
+      <div class="policy-section">
+        <h2>12. Evidence Handling</h2>
+        <p>Proper evidence handling ensures that evidence is preserved in a forensically sound manner, is legally admissible, and maintains its integrity throughout the investigation. All evidence handling must be performed by, or under the supervision of, a qualified CIRT member.</p>
+
+        <h3 class="h5 mt-3">12.1 Chain of Custody</h3>
+        <ul>
+          <li>A chain of custody form (TMP-007b) must be completed for every piece of evidence collected, whether physical or digital</li>
+          <li>The chain of custody records: evidence description, unique identifier/label, date and time of collection, location of collection, name of person who collected it, and every subsequent transfer, storage location, and access event</li>
+          <li>Evidence must never be transferred to a new custodian without updating the chain of custody record and obtaining the recipient's signature (or digital acknowledgement)</li>
+        </ul>
+
+        <h3 class="h5 mt-3">12.2 Forensic Imaging</h3>
+        <ul>
+          <li>All forensic disk images are created using write-blocking hardware to prevent modification of source media</li>
+          <li>Disk images are taken using an accepted forensic imaging tool (e.g., FTK Imager, dd with verification)</li>
+          <li>MD5 and SHA-256 hash values are calculated and recorded for every disk image immediately upon creation. Hash verification is performed at every stage of analysis</li>
+          <li>Memory captures (RAM dumps) are taken on live systems before isolation where the system's volatile state is relevant to the investigation</li>
+          <li>Log files are exported and hashed. Original logs are preserved; analysis is performed on copies</li>
+        </ul>
+
+        <h3 class="h5 mt-3">12.3 Evidence Preservation Requirements</h3>
+        <ul>
+          <li>Evidence must be stored in a secure, access-controlled location. Physical media is stored in a locked evidence locker; digital evidence is stored in an access-controlled forensic storage system</li>
+          <li>Evidence retention period: a minimum of 3 years for major incidents (P1/P2), or longer if litigation or regulatory proceedings are anticipated. Legal hold instructions override standard retention schedules</li>
+          <li>No evidence may be destroyed without written authorization from Legal Counsel and the ISM, and only after the retention period has elapsed and no legal hold is in effect</li>
+        </ul>
+      </div>
+
+      <!-- 13. Playbooks -->
+      <div class="policy-section">
+        <h2>13. Incident Playbooks</h2>
+        <p>The following incident-specific playbooks are maintained by the ISM and provide detailed, step-by-step technical and procedural guidance for specific incident types. Playbooks are stored in the ISMS document repository (restricted access) and in an offline copy accessible to CIRT members. Each playbook is reviewed and updated at least annually and following any relevant incident.</p>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Playbook ID</th><th>Incident Type</th><th>Key Scope</th></tr></thead>
+          <tbody>
+            <tr><td>PB-001</td><td>Ransomware</td><td>Identification, isolation, communication, backup recovery, law enforcement, negotiation policy (do not pay without approval)</td></tr>
+            <tr><td>PB-002</td><td>Data Breach / Data Exfiltration</td><td>Scope determination, data mapping, regulatory notification decision tree, customer notification, breach report drafting</td></tr>
+            <tr><td>PB-003</td><td>Account Compromise</td><td>Account lockdown, session revocation, credential rotation, access review, privilege escalation detection</td></tr>
+            <tr><td>PB-004</td><td>DDoS Attack</td><td>Traffic analysis, ISP engagement, CDN/scrubbing service activation, failover, customer communication</td></tr>
+            <tr><td>PB-005</td><td>Malware Infection</td><td>Identification, containment, EDR-assisted eradication, root cause (phishing, drive-by, removable media), re-infection prevention</td></tr>
+            <tr><td>PB-006</td><td>Insider Threat</td><td>Covert evidence preservation, HR and Legal involvement, account monitoring (lawful), investigation protocols, escalation</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 14. RACI -->
+      <div class="policy-section">
+        <h2>14. Roles and Responsibilities (RACI)</h2>
+        <p>R = Responsible, A = Accountable, C = Consulted, I = Informed</p>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm small">
+            <thead>
+              <tr>
+                <th>Activity</th>
+                <th>Incident Commander (ISM)</th>
+                <th>Technical Lead (IT)</th>
+                <th>Scribe</th>
+                <th>Communications Lead</th>
+                <th>Legal / Privacy</th>
+                <th>HR</th>
+                <th>Senior Management</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Declare incident and severity</td><td>A/R</td><td>C</td><td>I</td><td>I</td><td>C</td><td>I</td><td>I</td></tr>
+              <tr><td>Activate IRT</td><td>A/R</td><td>I</td><td>I</td><td>I</td><td>I</td><td>I</td><td>I</td></tr>
+              <tr><td>Technical containment actions</td><td>A</td><td>R</td><td>I</td><td>I</td><td>I</td><td>I</td><td>I</td></tr>
+              <tr><td>Forensic evidence collection</td><td>A</td><td>R</td><td>I</td><td>I</td><td>C</td><td>I</td><td>I</td></tr>
+              <tr><td>Maintain incident log</td><td>A</td><td>C</td><td>R</td><td>C</td><td>I</td><td>I</td><td>I</td></tr>
+              <tr><td>Internal stakeholder communication</td><td>A</td><td>I</td><td>I</td><td>R</td><td>C</td><td>C</td><td>I</td></tr>
+              <tr><td>Regulatory notification decision</td><td>A</td><td>C</td><td>I</td><td>C</td><td>R</td><td>I</td><td>C</td></tr>
+              <tr><td>Draft and issue regulatory notification</td><td>A</td><td>I</td><td>I</td><td>R</td><td>R</td><td>I</td><td>I</td></tr>
+              <tr><td>Law enforcement decision</td><td>A</td><td>C</td><td>I</td><td>I</td><td>R</td><td>I</td><td>C</td></tr>
+              <tr><td>Eradication and recovery authorization</td><td>A/R</td><td>R</td><td>I</td><td>I</td><td>I</td><td>I</td><td>C</td></tr>
+              <tr><td>Post-incident review</td><td>A/R</td><td>C</td><td>C</td><td>C</td><td>C</td><td>C</td><td>I</td></tr>
+              <tr><td>Report to management</td><td>A/R</td><td>C</td><td>I</td><td>I</td><td>C</td><td>I</td><td>I</td></tr>
+              <tr><td>Insider threat investigation coordination</td><td>A</td><td>C</td><td>I</td><td>I</td><td>R</td><td>R</td><td>C</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 15. Metrics -->
+      <div class="policy-section">
+        <h2>15. Metrics</h2>
+        <p>The following metrics are tracked by the ISM and reported to management monthly and in the annual management review. Metric targets are set annually as part of the information security objectives process.</p>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Metric</th><th>Description</th><th>Target / Threshold</th><th>Reporting Frequency</th></tr></thead>
+          <tbody>
+            <tr><td>Mean Time to Detect (MTTD)</td><td>Average time from the start of an incident to its detection by the security team</td><td>Reduce year-on-year; P1 target &lt;4hr</td><td>Monthly</td></tr>
+            <tr><td>Mean Time to Respond (MTTR)</td><td>Average time from detection to confirmed containment</td><td>P1 &lt;4hr containment; reduce MTTR year-on-year</td><td>Monthly</td></tr>
+            <tr><td>Mean Time to Recovery</td><td>Average time from detection to full restoration of affected services</td><td>Within defined RTO per system tier (see PRO-009)</td><td>Per incident and monthly aggregate</td></tr>
+            <tr><td>Incident Count by Type</td><td>Number of incidents categorized by type (ransomware, phishing, data breach, etc.)</td><td>Monitor trends; alert on significant increase in any category</td><td>Monthly</td></tr>
+            <tr><td>Incident Count by Severity</td><td>Number of P1, P2, P3, P4 incidents per period</td><td>Monitor trends; zero P1 target (aspirational)</td><td>Monthly</td></tr>
+            <tr><td>Reoccurrence Rate</td><td>Percentage of incidents where the same root cause occurs more than once within 12 months</td><td>&lt;5% reoccurrence</td><td>Quarterly</td></tr>
+            <tr><td>Regulatory Notification Compliance</td><td>Percentage of notifiable breaches notified within required timeframe (GDPR 72hr, etc.)</td><td>100%</td><td>Per incident</td></tr>
+            <tr><td>PIR Completion Rate</td><td>Percentage of P1/P2 incidents with PIR completed within defined timeframe</td><td>100%</td><td>Monthly</td></tr>
+            <tr><td>Improvement Action Closure Rate</td><td>Percentage of PIR improvement actions closed within agreed timescales</td><td>&gt;90%</td><td>Quarterly</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 16. Related Documents -->
+      <div class="policy-section">
+        <h2>16. Related Documents</h2>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Document ID</th><th>Document Title</th></tr></thead>
+          <tbody>
+            <tr><td>POL-010</td><td>Incident Management Policy</td></tr>
+            <tr><td>POL-016</td><td>Privacy and Data Protection Policy</td></tr>
+            <tr><td>PRO-008</td><td>Change Management Procedure</td></tr>
+            <tr><td>PRO-009</td><td>Backup and Recovery Procedure</td></tr>
+            <tr><td>PRO-011</td><td>Business Continuity Procedure</td></tr>
+            <tr><td>TMP-007</td><td>Incident Report Template</td></tr>
+            <tr><td>TMP-007b</td><td>Chain of Custody Form</td></tr>
+            <tr><td>PB-001 to PB-006</td><td>Incident Response Playbooks</td></tr>
+            <tr><td>IRT Contact List</td><td>IRT Member Contact Details (Restricted)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Revision History -->
+      <div class="policy-section mt-5">
+        <h2>Revision History</h2>
+        <table class="table table-bordered table-sm revision-table">
+          <thead><tr><th>Version</th><th>Date</th><th>Author</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td>1.0</td><td>2025-01-01</td><td>Information Security Manager</td><td>Initial release</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title fs-5" id="rbacModalLabel">🔒 Login</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <div class="modal-body"><form id="rbac-login-form" novalidate>
+        <div class="mb-3"><label for="rbac-username-input" class="form-label">Username</label><input type="text" class="form-control" id="rbac-username-input" autocomplete="username" placeholder="Enter your username" maxlength="40" required /></div>
+        <div class="mb-3"><label for="rbac-password-input" class="form-label">Password</label><input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" required /></div>
+        <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+      </form></div>
+      <div class="modal-footer border-0 pt-0"><p class="text-secondary small mb-0">Session clears when you close this tab.</p></div>
+    </div></div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" /></a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" /></a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="../privacy.html">Privacy Policy</a> &middot; <a href="../terms.html">Terms</a></p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="../users.js" defer></script>
+  <script src="../roles.js" defer></script>
+  <script src="../script.js" defer></script>
+</body>
+</html>

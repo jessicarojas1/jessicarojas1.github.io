@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="../theme.css" />
+  <link rel="stylesheet" href="isms.css" />
+  <title>Risk Register | ISMS | Jessica Rojas</title>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="../index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="../projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="../timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="../cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="../consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="../contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="../blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="../knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="../compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="../jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="../admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <main id="main-content">
+    <div class="container py-4">
+      <nav aria-label="breadcrumb" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../index.html">Home</a></li><li class="breadcrumb-item"><a href="index.html">ISMS</a></li><li class="breadcrumb-item active">TMP-002</li></ol></nav>
+      <div class="d-flex justify-content-between align-items-start mb-4 print-btn">
+        <span class="badge bg-success fs-6">Template — TMP-002</span>
+        <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">Print / Save PDF</button>
+      </div>
+      <div class="doc-header mb-4">
+        <table class="table table-bordered table-sm"><tbody>
+          <tr><th style="width:30%">Document Title</th><td>Risk Register</td></tr>
+          <tr><th>Document ID</th><td>TMP-002</td></tr>
+          <tr><th>Version</th><td>1.0</td></tr>
+          <tr><th>Classification</th><td>Internal</td></tr>
+          <tr><th>Owner</th><td>Information Security Manager</td></tr>
+          <tr><th>ISO 27001:2022 Controls</th><td>6.1.2, 6.1.3, 8.2, 8.3</td></tr>
+        </tbody></table>
+      </div>
+
+      <div class="policy-section">
+        <h2>1. Instructions for Use</h2>
+        <p>This Risk Register is the central record of all identified information security risks within the ISMS scope. It must be maintained in accordance with ISO 27001:2022 clauses 6.1.2 (information security risk assessment) and 8.2/8.3 (risk assessment and treatment operations). The register must be reviewed at planned intervals — at minimum annually — and following any significant change to the organization's context, operations, or risk environment.</p>
+        <h5>How to Complete This Register</h5>
+        <ul>
+          <li><strong>Risk ID:</strong> Assign a unique identifier using the format RISK-NNN (e.g., RISK-001).</li>
+          <li><strong>Asset:</strong> Reference the asset from the Asset Inventory (TMP-003) that the risk relates to.</li>
+          <li><strong>Inherent Risk:</strong> Assess likelihood and impact before any controls are applied. Score each on a 1–5 scale. Multiply for the risk score.</li>
+          <li><strong>Treatment Option:</strong> Select one of: Avoid (eliminate the activity), Reduce (implement controls), Transfer (insurance/outsource), Accept (formally document acceptance).</li>
+          <li><strong>Residual Risk:</strong> Re-score likelihood and impact after treatment controls are applied or planned. This is the risk the organization accepts.</li>
+          <li><strong>Risk Owner:</strong> The person accountable for ensuring treatment actions are completed and the risk is managed.</li>
+          <li>All risks with a residual rating of High or Critical must be escalated to senior management and formally accepted in writing.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>2. Risk Rating Key</h2>
+        <p>Inherent and residual risk scores are calculated as: <strong>Likelihood (1–5) × Impact (1–5) = Score (1–25)</strong>.</p>
+        <table class="table table-bordered table-sm" style="max-width:500px;">
+          <thead class="table-dark"><tr><th>Score Range</th><th>Rating</th><th>Colour</th><th>Action Required</th></tr></thead>
+          <tbody>
+            <tr><td>1 – 6</td><td>Low</td><td><span class="badge bg-success">Low</span></td><td>Monitor; review annually</td></tr>
+            <tr><td>7 – 12</td><td>Medium</td><td><span class="badge bg-warning text-dark">Medium</span></td><td>Treat; assign owner; quarterly review</td></tr>
+            <tr><td>13 – 19</td><td>High</td><td><span class="badge bg-danger" style="background-color:#fd7e14!important;">High</span></td><td>Treat urgently; monthly review; escalate</td></tr>
+            <tr><td>20 – 25</td><td>Critical</td><td><span class="badge bg-danger">Critical</span></td><td>Immediate action; executive escalation; weekly review</td></tr>
+          </tbody>
+        </table>
+        <p><strong>Likelihood Scale:</strong> 1 = Rare, 2 = Unlikely, 3 = Possible, 4 = Likely, 5 = Almost Certain<br>
+        <strong>Impact Scale:</strong> 1 = Negligible, 2 = Minor, 3 = Moderate, 4 = Major, 5 = Catastrophic</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>3. Register Header</h2>
+        <table class="table table-bordered table-sm">
+          <tbody>
+            <tr><th style="width:30%">Organization</th><td>[ORGANIZATION NAME]</td></tr>
+            <tr><th>ISMS Scope</th><td>[SCOPE REFERENCE]</td></tr>
+            <tr><th>Register Owner</th><td>[NAME, ROLE]</td></tr>
+            <tr><th>Period Covered</th><td>[FROM DATE] – [TO DATE]</td></tr>
+            <tr><th>Last Review Date</th><td>[DATE]</td></tr>
+            <tr><th>Next Scheduled Review</th><td>[DATE]</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section">
+        <h2>4. Risk Register</h2>
+        <p>Five example rows are provided to illustrate realistic information security risk scenarios. Replace or extend these with actual organizational risks identified during your risk assessment.</p>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm small">
+            <thead class="table-dark">
+              <tr>
+                <th>Risk ID</th>
+                <th>Asset</th>
+                <th>Asset Owner</th>
+                <th>Threat</th>
+                <th>Vulnerability</th>
+                <th>Existing Controls</th>
+                <th>Inherent Likelihood (1-5)</th>
+                <th>Inherent Impact (1-5)</th>
+                <th>Inherent Score</th>
+                <th>Inherent Rating</th>
+                <th>Treatment Option</th>
+                <th>Treatment Controls (Planned / Implemented)</th>
+                <th>Control Owner</th>
+                <th>Target Date</th>
+                <th>Residual Likelihood (1-5)</th>
+                <th>Residual Impact (1-5)</th>
+                <th>Residual Score</th>
+                <th>Residual Rating</th>
+                <th>Status</th>
+                <th>Last Review Date</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>RISK-001</td>
+                <td>Customer Database (CRM)</td>
+                <td>[DATA OWNER]</td>
+                <td>External attacker exploiting SQL injection vulnerability</td>
+                <td>Unpatched web application; no WAF in place; inadequate input validation</td>
+                <td>Firewall; quarterly vulnerability scans</td>
+                <td>4</td><td>5</td><td>20</td><td><span class="badge bg-danger">Critical</span></td>
+                <td>Reduce</td>
+                <td>Deploy WAF; implement parameterized queries; monthly scanning; annual penetration test</td>
+                <td>[OWNER]</td>
+                <td>[DATE]</td>
+                <td>2</td><td>5</td><td>10</td><td><span class="badge bg-warning text-dark">Medium</span></td>
+                <td>In Treatment</td>
+                <td>[DATE]</td>
+                <td>Penetration test scheduled for [DATE]</td>
+              </tr>
+              <tr>
+                <td>RISK-002</td>
+                <td>Corporate Email System</td>
+                <td>[IT MANAGER]</td>
+                <td>Phishing attack leading to credential compromise</td>
+                <td>Lack of MFA on email accounts; insufficient user awareness training</td>
+                <td>Spam filtering; basic security awareness training annually</td>
+                <td>4</td><td>4</td><td>16</td><td><span class="badge bg-danger" style="background-color:#fd7e14!important;">High</span></td>
+                <td>Reduce</td>
+                <td>Enforce MFA on all accounts; quarterly phishing simulations; enhanced security awareness training</td>
+                <td>[OWNER]</td>
+                <td>[DATE]</td>
+                <td>2</td><td>4</td><td>8</td><td><span class="badge bg-warning text-dark">Medium</span></td>
+                <td>In Treatment</td>
+                <td>[DATE]</td>
+                <td>MFA rollout [% complete]</td>
+              </tr>
+              <tr>
+                <td>RISK-003</td>
+                <td>Employee Laptops</td>
+                <td>[IT MANAGER]</td>
+                <td>Theft or loss of laptop containing sensitive data</td>
+                <td>Full disk encryption not enforced on all devices; no remote wipe capability on some older models</td>
+                <td>Asset tagging; visitor policy</td>
+                <td>3</td><td>4</td><td>12</td><td><span class="badge bg-warning text-dark">Medium</span></td>
+                <td>Reduce</td>
+                <td>Enforce full disk encryption (BitLocker/FileVault); enroll all devices in MDM; enable remote wipe</td>
+                <td>[OWNER]</td>
+                <td>[DATE]</td>
+                <td>2</td><td>2</td><td>4</td><td><span class="badge bg-success">Low</span></td>
+                <td>In Treatment</td>
+                <td>[DATE]</td>
+                <td>MDM deployment [% complete]</td>
+              </tr>
+              <tr>
+                <td>RISK-004</td>
+                <td>Cloud Storage (File Share)</td>
+                <td>[BUSINESS OWNER]</td>
+                <td>Insider threat — intentional data exfiltration by employee</td>
+                <td>Overly broad access permissions; no DLP controls; limited audit logging</td>
+                <td>NDA signed by all employees; acceptable use policy</td>
+                <td>2</td><td>5</td><td>10</td><td><span class="badge bg-warning text-dark">Medium</span></td>
+                <td>Reduce</td>
+                <td>Implement least-privilege access model; enable DLP policies; enable audit logging and SIEM alerts for bulk downloads</td>
+                <td>[OWNER]</td>
+                <td>[DATE]</td>
+                <td>2</td><td>4</td><td>8</td><td><span class="badge bg-warning text-dark">Medium</span></td>
+                <td>Open</td>
+                <td>[DATE]</td>
+                <td>Access review to be completed by [DATE]</td>
+              </tr>
+              <tr>
+                <td>RISK-005</td>
+                <td>Primary Data Centre / Server Room</td>
+                <td>[FACILITIES MANAGER]</td>
+                <td>Power outage causing system unavailability</td>
+                <td>Single power feed to server room; UPS battery backup untested for 18 months; no generator</td>
+                <td>UPS installed; supplier SLA for power</td>
+                <td>3</td><td>4</td><td>12</td><td><span class="badge bg-warning text-dark">Medium</span></td>
+                <td>Reduce</td>
+                <td>Test UPS annually; procure generator; review BCP/DR plan; consider secondary site failover</td>
+                <td>[OWNER]</td>
+                <td>[DATE]</td>
+                <td>2</td><td>3</td><td>6</td><td><span class="badge bg-success">Low</span></td>
+                <td>Open</td>
+                <td>[DATE]</td>
+                <td>UPS test scheduled [DATE]</td>
+              </tr>
+              <tr class="table-secondary">
+                <td>[RISK-NNN]</td>
+                <td>[ASSET]</td>
+                <td>[OWNER]</td>
+                <td>[THREAT]</td>
+                <td>[VULNERABILITY]</td>
+                <td>[CONTROLS]</td>
+                <td>[1-5]</td><td>[1-5]</td><td>[SCORE]</td><td>[RATING]</td>
+                <td>[OPTION]</td>
+                <td>[TREATMENT]</td>
+                <td>[OWNER]</td>
+                <td>[DATE]</td>
+                <td>[1-5]</td><td>[1-5]</td><td>[SCORE]</td><td>[RATING]</td>
+                <td>[STATUS]</td>
+                <td>[DATE]</td>
+                <td>[NOTES]</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="policy-section">
+        <h2>5. Risk Summary Statistics</h2>
+        <p>Update this summary at each review cycle. This data feeds into management review reporting (TMP-007).</p>
+        <table class="table table-bordered table-sm" style="max-width:600px;">
+          <thead class="table-dark"><tr><th>Metric</th><th>Count / Value</th></tr></thead>
+          <tbody>
+            <tr><td>Total Risks Identified</td><td>[COUNT]</td></tr>
+            <tr><td>Inherent Critical Risks</td><td>[COUNT]</td></tr>
+            <tr><td>Inherent High Risks</td><td>[COUNT]</td></tr>
+            <tr><td>Inherent Medium Risks</td><td>[COUNT]</td></tr>
+            <tr><td>Inherent Low Risks</td><td>[COUNT]</td></tr>
+            <tr><td>Residual Critical Risks</td><td>[COUNT]</td></tr>
+            <tr><td>Residual High Risks</td><td>[COUNT]</td></tr>
+            <tr><td>Residual Medium Risks</td><td>[COUNT]</td></tr>
+            <tr><td>Residual Low Risks</td><td>[COUNT]</td></tr>
+            <tr><td>Risks: Status Open</td><td>[COUNT]</td></tr>
+            <tr><td>Risks: In Treatment</td><td>[COUNT]</td></tr>
+            <tr><td>Risks: Accepted</td><td>[COUNT]</td></tr>
+            <tr><td>Risks: Closed</td><td>[COUNT]</td></tr>
+            <tr><td>Risks Overdue for Treatment</td><td>[COUNT]</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section">
+        <h2>6. Risk Acceptance Log</h2>
+        <p>Any risk formally accepted by management (without full treatment) must be documented here with explicit management sign-off. Accepted risks must be reviewed at least annually.</p>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Risk ID</th><th>Risk Description</th><th>Residual Risk Rating</th><th>Rationale for Acceptance</th><th>Accepted By (Name, Role)</th><th>Acceptance Date</th><th>Review Date</th></tr></thead>
+          <tbody>
+            <tr><td>[RISK-NNN]</td><td>[DESCRIPTION]</td><td>[RATING]</td><td>[RATIONALE]</td><td>[NAME, ROLE]</td><td>[DATE]</td><td>[DATE]</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </main>
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title fs-5" id="rbacModalLabel">🔒 Login</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <div class="modal-body"><form id="rbac-login-form" novalidate>
+        <div class="mb-3"><label for="rbac-username-input" class="form-label">Username</label><input type="text" class="form-control" id="rbac-username-input" autocomplete="username" placeholder="Enter your username" maxlength="40" required /></div>
+        <div class="mb-3"><label for="rbac-password-input" class="form-label">Password</label><input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" required /></div>
+        <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+      </form></div>
+      <div class="modal-footer border-0 pt-0"><p class="text-secondary small mb-0">Session clears when you close this tab.</p></div>
+    </div></div>
+  </div>
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" /></a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" /></a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="../privacy.html">Privacy Policy</a> &middot; <a href="../terms.html">Terms</a></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="../users.js" defer></script>
+  <script src="../roles.js" defer></script>
+  <script src="../script.js" defer></script>
+</body>
+</html>

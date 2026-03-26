@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="../theme.css" />
+  <link rel="stylesheet" href="isms.css" />
+  <title>Information Security Incident Report Form | ISMS | Jessica Rojas</title>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="../index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="../projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="../timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="../cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="../consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="../contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="../blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="../knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="../compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="../jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="../admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <main id="main-content">
+    <div class="container py-4">
+      <nav aria-label="breadcrumb" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../index.html">Home</a></li><li class="breadcrumb-item"><a href="index.html">ISMS</a></li><li class="breadcrumb-item active">TMP-004</li></ol></nav>
+      <div class="d-flex justify-content-between align-items-start mb-4 print-btn">
+        <span class="badge bg-success fs-6">Template — TMP-004</span>
+        <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">Print / Save PDF</button>
+      </div>
+      <div class="doc-header mb-4">
+        <table class="table table-bordered table-sm"><tbody>
+          <tr><th style="width:30%">Document Title</th><td>Information Security Incident Report Form</td></tr>
+          <tr><th>Document ID</th><td>TMP-004</td></tr>
+          <tr><th>Version</th><td>1.0</td></tr>
+          <tr><th>Classification</th><td>Internal</td></tr>
+          <tr><th>Owner</th><td>Information Security Manager</td></tr>
+          <tr><th>ISO 27001:2022 Controls</th><td>A.5.25, A.5.26, A.5.27</td></tr>
+        </tbody></table>
+      </div>
+
+      <!-- SECTION 1 -->
+      <div class="policy-section">
+        <h2 class="h5 fw-bold mb-3">Section 1 — Incident Identification</h2>
+        <p class="text-body-secondary small mb-3">Complete all fields at the time of initial report. Fields marked with an asterisk (*) are mandatory. Use 24-hour time format (HH:MM) and ISO date format (YYYY-MM-DD) throughout this form.</p>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm">
+            <tbody>
+              <tr>
+                <th style="width:30%">Incident ID *</th>
+                <td><span class="text-body-secondary fst-italic">INC-[YYYY]-[NNN] — assigned by the ISM or SIEM ticketing system upon registration</span></td>
+              </tr>
+              <tr>
+                <th>Date / Time Reported *</th>
+                <td><span class="text-body-secondary fst-italic">[YYYY-MM-DD] [HH:MM] [Timezone]</span></td>
+              </tr>
+              <tr>
+                <th>Date / Time Discovered *</th>
+                <td><span class="text-body-secondary fst-italic">[YYYY-MM-DD] [HH:MM] [Timezone] — when the incident was first observed or detected</span></td>
+              </tr>
+              <tr>
+                <th>Date / Time Occurred (if known)</th>
+                <td><span class="text-body-secondary fst-italic">[YYYY-MM-DD] [HH:MM] [Timezone] — earliest known time the incident began; leave blank if unknown</span></td>
+              </tr>
+              <tr>
+                <th>Reported By (Name / Role) *</th>
+                <td><span class="text-body-secondary fst-italic">[FULL NAME] / [JOB TITLE / ROLE]</span></td>
+              </tr>
+              <tr>
+                <th>Reporting Method *</th>
+                <td>
+                  <div class="d-flex flex-wrap gap-3">
+                    <div class="form-check"><input class="form-check-input" type="checkbox" id="rm-siem"><label class="form-check-label" for="rm-siem">SIEM Alert</label></div>
+                    <div class="form-check"><input class="form-check-input" type="checkbox" id="rm-helpdesk"><label class="form-check-label" for="rm-helpdesk">Helpdesk Ticket</label></div>
+                    <div class="form-check"><input class="form-check-input" type="checkbox" id="rm-user"><label class="form-check-label" for="rm-user">User Report</label></div>
+                    <div class="form-check"><input class="form-check-input" type="checkbox" id="rm-ext"><label class="form-check-label" for="rm-ext">External Notification</label></div>
+                    <div class="form-check"><input class="form-check-input" type="checkbox" id="rm-intel"><label class="form-check-label" for="rm-intel">Threat Intel</label></div>
+                    <div class="form-check"><input class="form-check-input" type="checkbox" id="rm-other"><label class="form-check-label" for="rm-other">Other</label></div>
+                  </div>
+                  <input type="text" class="form-control form-control-sm mt-2" placeholder="If Other, specify: [REPORTING METHOD DETAIL]" />
+                </td>
+              </tr>
+              <tr>
+                <th>Assigned To (Incident Lead) *</th>
+                <td><span class="text-body-secondary fst-italic">[FULL NAME] / [ROLE] — person responsible for coordinating the incident response</span></td>
+              </tr>
+              <tr>
+                <th>Related Tickets / CARs</th>
+                <td><span class="text-body-secondary fst-italic">[TICKET IDs / CAR IDs] — list all related service desk tickets, change requests, or corrective action references</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SECTION 2 -->
+      <div class="policy-section">
+        <h2 class="h5 fw-bold mb-3">Section 2 — Incident Classification</h2>
+        <p class="text-body-secondary small mb-3">Select the severity level that best matches the current known impact. Severity may be escalated or de-escalated as the incident progresses. Document any reclassification in the containment action log (Section 6).</p>
+
+        <h3 class="h6 fw-semibold mb-2">2a. Severity Level</h3>
+        <div class="table-responsive mb-4">
+          <table class="table table-bordered">
+            <thead class="table-dark">
+              <tr>
+                <th style="width:5%">Select</th>
+                <th style="width:15%">Level</th>
+                <th>Criteria</th>
+                <th style="width:20%">Response SLA</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="table-danger">
+                <td class="text-center"><input class="form-check-input" type="radio" name="severity" id="sev-p1" /></td>
+                <td><label for="sev-p1" class="fw-bold text-danger">P1 — Critical</label></td>
+                <td>Active data breach with confirmed exfiltration; ransomware actively spreading across network; complete compromise of critical business system; critical infrastructure down affecting all users; nation-state level attack confirmed.</td>
+                <td class="small">Immediate response. Incident Lead notified within 15 minutes. Senior management and CISO within 30 minutes.</td>
+              </tr>
+              <tr class="table-warning">
+                <td class="text-center"><input class="form-check-input" type="radio" name="severity" id="sev-p2" /></td>
+                <td><label for="sev-p2" class="fw-bold text-warning">P2 — High</label></td>
+                <td>Suspected data breach (unconfirmed exfiltration); significant disruption to one or more critical business systems; targeted attack detected and contained; ransomware on isolated host; insider threat confirmed.</td>
+                <td class="small">Response within 1 hour. ISM notified within 2 hours. Status update every 4 hours.</td>
+              </tr>
+              <tr class="table-info">
+                <td class="text-center"><input class="form-check-input" type="radio" name="severity" id="sev-p3" /></td>
+                <td><label for="sev-p3" class="fw-bold text-info">P3 — Medium</label></td>
+                <td>Contained malware on single endpoint with no lateral movement; policy violation with moderate business impact; phishing attempt with no confirmed credential compromise; unauthorized access attempt blocked by controls.</td>
+                <td class="small">Response within 4 hours during business hours. Status update within 24 hours.</td>
+              </tr>
+              <tr>
+                <td class="text-center"><input class="form-check-input" type="radio" name="severity" id="sev-p4" /></td>
+                <td><label for="sev-p4" class="fw-bold">P4 — Low</label></td>
+                <td>Minor policy violation with no business impact; failed brute-force or scan attempt blocked by perimeter controls; isolated anomaly with benign explanation; lost non-sensitive asset.</td>
+                <td class="small">Response within 2 business days. Logged and monitored for recurrence.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="h6 fw-semibold mb-2">2b. Incident Type — Select all that apply</h3>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm">
+            <tbody>
+              <tr>
+                <td style="width:5%"><input class="form-check-input" type="checkbox" id="it-ua" /></td>
+                <td><label for="it-ua">Unauthorized Access</label></td>
+                <td style="width:5%"><input class="form-check-input" type="checkbox" id="it-db" /></td>
+                <td><label for="it-db">Data Breach / Exfiltration</label></td>
+              </tr>
+              <tr>
+                <td><input class="form-check-input" type="checkbox" id="it-mal" /></td>
+                <td><label for="it-mal">Malware Infection</label></td>
+                <td><input class="form-check-input" type="checkbox" id="it-ran" /></td>
+                <td><label for="it-ran">Ransomware</label></td>
+              </tr>
+              <tr>
+                <td><input class="form-check-input" type="checkbox" id="it-phi" /></td>
+                <td><label for="it-phi">Phishing / Spear Phishing</label></td>
+                <td><input class="form-check-input" type="checkbox" id="it-soc" /></td>
+                <td><label for="it-soc">Social Engineering</label></td>
+              </tr>
+              <tr>
+                <td><input class="form-check-input" type="checkbox" id="it-ddos" /></td>
+                <td><label for="it-ddos">DDoS Attack</label></td>
+                <td><input class="form-check-input" type="checkbox" id="it-ins" /></td>
+                <td><label for="it-ins">Insider Threat</label></td>
+              </tr>
+              <tr>
+                <td><input class="form-check-input" type="checkbox" id="it-phy" /></td>
+                <td><label for="it-phy">Physical Security Breach</label></td>
+                <td><input class="form-check-input" type="checkbox" id="it-cred" /></td>
+                <td><label for="it-cred">Credential Compromise</label></td>
+              </tr>
+              <tr>
+                <td><input class="form-check-input" type="checkbox" id="it-vuln" /></td>
+                <td><label for="it-vuln">Vulnerability Exploitation</label></td>
+                <td><input class="form-check-input" type="checkbox" id="it-sup" /></td>
+                <td><label for="it-sup">Supply Chain Attack</label></td>
+              </tr>
+              <tr>
+                <td><input class="form-check-input" type="checkbox" id="it-sys" /></td>
+                <td><label for="it-sys">System / Service Failure</label></td>
+                <td><input class="form-check-input" type="checkbox" id="it-oth" /></td>
+                <td><label for="it-oth">Other</label></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="mb-3">
+          <label class="form-label small">If Other, specify incident type:</label>
+          <input type="text" class="form-control form-control-sm" placeholder="[OTHER INCIDENT TYPE DESCRIPTION]" />
+        </div>
+      </div>
+
+      <!-- SECTION 3 -->
+      <div class="policy-section">
+        <h2 class="h5 fw-bold mb-3">Section 3 — Affected Systems and Data</h2>
+        <p class="text-body-secondary small mb-3">List all systems, applications, and data stores known or suspected to be affected. Asset Type examples: Server, Workstation, Cloud Service, Network Device, Database, Application, Storage, Mobile Device. Data Classification: Public / Internal / Confidential / Restricted.</p>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm">
+            <thead class="table-dark">
+              <tr>
+                <th>System / Asset Name</th>
+                <th>Asset Type</th>
+                <th>Data Classification</th>
+                <th>Est. Records Affected</th>
+                <th>Asset Owner</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>[ASSET NAME]</td><td>[ASSET TYPE]</td><td>[CLASSIFICATION]</td><td>[NUMBER OR RANGE]</td><td>[OWNER NAME / TEAM]</td><td>[NOTES]</td></tr>
+              <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+              <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+              <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+              <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SECTION 4 -->
+      <div class="policy-section">
+        <h2 class="h5 fw-bold mb-3">Section 4 — Incident Description</h2>
+        <p class="text-body-secondary small mb-2">Provide a clear, factual narrative. Avoid speculation — distinguish between confirmed facts and assumptions. Include what was observed, how it was discovered, and the initial sequence of events. Update this section as new information is established.</p>
+        <div class="mb-4">
+          <label class="form-label fw-semibold">Detailed Narrative</label>
+          <textarea class="form-control" rows="8" placeholder="[DETAILED INCIDENT NARRATIVE — describe what happened, what symptoms were observed, how the incident was discovered, initial indicators of compromise, and the sequence of events as known at the time of this report. Update with additional detail as the investigation progresses.]"></textarea>
+        </div>
+
+        <h3 class="h6 fw-semibold mb-2">Timeline of Key Events</h3>
+        <p class="text-body-secondary small mb-2">Record each significant event with a timestamp. Include source of timestamp (e.g., SIEM log, system log, user statement, forensic image). Add rows as needed.</p>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm">
+            <thead class="table-dark">
+              <tr>
+                <th style="width:20%">Date / Time</th>
+                <th>Event Description</th>
+                <th style="width:25%">Source / Observer</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>[YYYY-MM-DD HH:MM]</td><td>[EVENT DESCRIPTION]</td><td>[SOURCE OR OBSERVER]</td></tr>
+              <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+              <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+              <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+              <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+              <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SECTION 5 -->
+      <div class="policy-section">
+        <h2 class="h5 fw-bold mb-3">Section 5 — Impact Assessment</h2>
+        <p class="text-body-secondary small mb-3">Assess each impact dimension based on currently known information. Estimated Severity: None / Low / Medium / High / Critical.</p>
+        <div class="table-responsive mb-3">
+          <table class="table table-bordered table-sm">
+            <thead class="table-dark">
+              <tr>
+                <th style="width:25%">Impact Type</th>
+                <th style="width:10%">Affected (Y/N)</th>
+                <th>Description of Impact</th>
+                <th style="width:18%">Estimated Severity</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Confidentiality</strong><br><small class="text-body-secondary">Data exposed, accessed, or disclosed without authorisation</small></td>
+                <td class="text-center">[Y/N]</td>
+                <td>[DESCRIBE WHAT DATA WAS EXPOSED AND TO WHOM]</td>
+                <td>[SEVERITY]</td>
+              </tr>
+              <tr>
+                <td><strong>Integrity</strong><br><small class="text-body-secondary">Data modified, corrupted, or deleted without authorisation</small></td>
+                <td class="text-center">[Y/N]</td>
+                <td>[DESCRIBE WHAT DATA WAS MODIFIED OR CORRUPTED]</td>
+                <td>[SEVERITY]</td>
+              </tr>
+              <tr>
+                <td><strong>Availability</strong><br><small class="text-body-secondary">System or service disrupted, degraded, or unavailable</small></td>
+                <td class="text-center">[Y/N]</td>
+                <td>[DESCRIBE SYSTEMS AFFECTED AND DURATION OF DISRUPTION]</td>
+                <td>[SEVERITY]</td>
+              </tr>
+              <tr>
+                <td><strong>Financial</strong><br><small class="text-body-secondary">Direct cost, ransom, fraud, or remediation expense</small></td>
+                <td class="text-center">[Y/N]</td>
+                <td>[DESCRIBE ESTIMATED FINANCIAL EXPOSURE]</td>
+                <td>[SEVERITY]</td>
+              </tr>
+              <tr>
+                <td><strong>Regulatory / Legal</strong><br><small class="text-body-secondary">Potential breach of law, regulation, or contractual obligation</small></td>
+                <td class="text-center">[Y/N]</td>
+                <td>[IDENTIFY APPLICABLE REGULATIONS E.G. GDPR, HIPAA, PCI-DSS]</td>
+                <td>[SEVERITY]</td>
+              </tr>
+              <tr>
+                <td><strong>Reputational</strong><br><small class="text-body-secondary">Impact on public perception, customer trust, or brand</small></td>
+                <td class="text-center">[Y/N]</td>
+                <td>[DESCRIBE POTENTIAL REPUTATIONAL EXPOSURE]</td>
+                <td>[SEVERITY]</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Estimated Number of Records Affected</label>
+            <input type="text" class="form-control" placeholder="[NUMBER, RANGE, OR UNKNOWN]" />
+          </div>
+          <div class="col-md-2">
+            <label class="form-label fw-semibold">Personal Data Involved?</label>
+            <input type="text" class="form-control" placeholder="[Y / N]" />
+          </div>
+          <div class="col-md-2">
+            <label class="form-label fw-semibold">Special Category Data?</label>
+            <input type="text" class="form-control" placeholder="[Y / N]" />
+          </div>
+          <div class="col-md-2">
+            <label class="form-label fw-semibold">Est. Financial Impact</label>
+            <input type="text" class="form-control" placeholder="[RANGE / UNKNOWN]" />
+          </div>
+        </div>
+        <p class="text-body-secondary small mt-2">Note: If personal data is involved, review Section 9 (External Notification Requirements) immediately. GDPR Article 33 requires notification to the supervisory authority within 72 hours of becoming aware of a personal data breach.</p>
+      </div>
+
+      <!-- SECTION 6 -->
+      <div class="policy-section">
+        <h2 class="h5 fw-bold mb-3">Section 6 — Containment Actions</h2>
+        <p class="text-body-secondary small mb-3">Record all containment actions in chronological order. Containment may include network isolation, account suspension, blocking of IP addresses or domains, patching, or disabling of services. Every action must be logged to maintain an accurate audit trail and support post-incident review.</p>
+        <div class="table-responsive mb-3">
+          <table class="table table-bordered table-sm">
+            <thead class="table-dark">
+              <tr>
+                <th style="width:18%">Date / Time</th>
+                <th>Action Taken</th>
+                <th style="width:20%">Taken By (Name / Role)</th>
+                <th style="width:18%">Result / Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>[YYYY-MM-DD HH:MM]</td><td>[CONTAINMENT ACTION DESCRIPTION]</td><td>[NAME / ROLE]</td><td>[RESULT OR STATUS]</td></tr>
+              <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+              <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+              <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+              <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+              <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+              <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+              <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+              <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+              <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Incident Contained?</label>
+            <input type="text" class="form-control" placeholder="[Y / N / PARTIALLY]" />
+          </div>
+          <div class="col-md-8">
+            <label class="form-label fw-semibold">Date / Time Containment Confirmed</label>
+            <input type="text" class="form-control" placeholder="[YYYY-MM-DD HH:MM] [TIMEZONE]" />
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 7 -->
+      <div class="policy-section">
+        <h2 class="h5 fw-bold mb-3">Section 7 — Evidence Collected</h2>
+        <p class="text-body-secondary small mb-3">All evidence must be collected using forensically sound methods where possible. Maintain a strict chain of custody. Do not alter original evidence. Hash all digital evidence items using SHA-256 immediately upon collection and record the hash value below. Physical evidence must be placed in tamper-evident packaging.</p>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm">
+            <thead class="table-dark">
+              <tr>
+                <th style="width:10%">Evidence ID</th>
+                <th style="width:18%">Type</th>
+                <th>Description</th>
+                <th style="width:20%">Location / Hash (SHA-256)</th>
+                <th style="width:13%">Collected By</th>
+                <th style="width:13%">Date / Time</th>
+                <th style="width:8%">Chain of Custody (Y/N)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>[EV-001]</td>
+                <td>
+                  <select class="form-select form-select-sm">
+                    <option>[TYPE]</option>
+                    <option>Log File</option>
+                    <option>Disk Image</option>
+                    <option>Screenshot</option>
+                    <option>Memory Dump</option>
+                    <option>Network Capture</option>
+                    <option>Physical</option>
+                    <option>Other</option>
+                  </select>
+                </td>
+                <td>[EVIDENCE DESCRIPTION]</td>
+                <td>[PATH OR HASH]</td>
+                <td>[NAME]</td>
+                <td>[YYYY-MM-DD HH:MM]</td>
+                <td class="text-center">[Y/N]</td>
+              </tr>
+              <tr><td>[EV-002]</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr><td>[EV-003]</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr><td>[EV-004]</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr><td>[EV-005]</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="text-body-secondary small mt-2">Chain of Custody documentation must accompany each evidence item. Any transfer of evidence must be documented with the recipient's name, role, date, time, and purpose of transfer.</p>
+      </div>
+
+      <!-- SECTION 8 -->
+      <div class="policy-section">
+        <h2 class="h5 fw-bold mb-3">Section 8 — Root Cause Analysis</h2>
+        <p class="text-body-secondary small mb-3">Complete this section during or immediately after containment. A thorough root cause analysis is essential for preventing recurrence. Use the 5-Whys technique or equivalent. This section feeds directly into the Corrective Action Request (TMP-005).</p>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Preliminary Root Cause</label>
+          <textarea class="form-control" rows="3" placeholder="[STATE THE PRELIMINARY ROOT CAUSE — the fundamental reason the incident occurred, not just the immediate trigger. Example: 'Unpatched critical vulnerability CVE-XXXX-XXXX exploited due to delayed patch cycle because of inadequate patch management process.']"></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Attack Vector (if applicable)</label>
+          <input type="text" class="form-control" placeholder="[E.G. Phishing email, exposed RDP, compromised third-party credential, physical access, insider]" />
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Contributing Factors</label>
+          <textarea class="form-control" rows="3" placeholder="[LIST ALL CONTRIBUTING FACTORS — e.g., insufficient security awareness training, inadequate network segmentation, delayed patch approval process, missing MFA on external-facing service, insufficient monitoring coverage]"></textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Related Vulnerabilities (CVE numbers if applicable)</label>
+          <input type="text" class="form-control" placeholder="[CVE-YYYY-NNNNN, CVE-YYYY-NNNNN — or 'N/A' if no known CVE applies]" />
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Control Failures Identified</label>
+          <textarea class="form-control" rows="3" placeholder="[IDENTIFY WHICH ISMS CONTROLS FAILED OR WERE ABSENT — reference specific Annex A controls, policy documents (e.g. POL-016), or procedures that should have prevented or detected this incident]"></textarea>
+        </div>
+      </div>
+
+      <!-- SECTION 9 -->
+      <div class="policy-section">
+        <h2 class="h5 fw-bold mb-3">Section 9 — External Notification Requirements</h2>
+        <p class="text-body-secondary small mb-3">Review all applicable notification obligations immediately upon classification as a potential data breach. Notification deadlines are typically calculated from the time the organisation became aware of the breach, not from the time of initial occurrence. Seek legal counsel if uncertain about applicability.</p>
+        <div class="alert alert-danger py-2 small">
+          <strong>GDPR Reminder:</strong> Article 33 requires notification to the competent supervisory authority within 72 hours of becoming aware of a personal data breach, unless the breach is unlikely to result in a risk to individuals' rights and freedoms. If notification cannot be made within 72 hours, it must be accompanied by reasons for the delay.
+        </div>
+        <div class="table-responsive mt-3">
+          <table class="table table-bordered table-sm">
+            <thead class="table-dark">
+              <tr>
+                <th>Notification Required</th>
+                <th style="width:8%">Applicable (Y/N)</th>
+                <th style="width:15%">Deadline</th>
+                <th style="width:15%">Notified Date / Time</th>
+                <th style="width:15%">Notified By</th>
+                <th style="width:15%">Reference / Case No.</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Supervisory Authority (GDPR / Privacy)</strong><br><small class="text-body-secondary">e.g. ICO (UK), DPA (EU Member State)</small></td>
+                <td>[Y/N]</td>
+                <td>72 hours from awareness</td>
+                <td>[YYYY-MM-DD HH:MM]</td>
+                <td>[NAME / ROLE]</td>
+                <td>[CASE NO.]</td>
+              </tr>
+              <tr>
+                <td><strong>Data Subjects</strong><br><small class="text-body-secondary">Required under GDPR Art. 34 if high risk to individuals</small></td>
+                <td>[Y/N]</td>
+                <td>Without undue delay</td>
+                <td>[YYYY-MM-DD]</td>
+                <td>[NAME / ROLE]</td>
+                <td>[REFERENCE]</td>
+              </tr>
+              <tr>
+                <td><strong>Law Enforcement</strong><br><small class="text-body-secondary">National cybercrime unit or equivalent</small></td>
+                <td>[Y/N]</td>
+                <td>[AS REQUIRED BY LAW]</td>
+                <td>[YYYY-MM-DD HH:MM]</td>
+                <td>[NAME / ROLE]</td>
+                <td>[CASE / REFERENCE NO.]</td>
+              </tr>
+              <tr>
+                <td><strong>Cyber Insurance Provider</strong></td>
+                <td>[Y/N]</td>
+                <td>[PER POLICY TERMS]</td>
+                <td>[YYYY-MM-DD]</td>
+                <td>[NAME / ROLE]</td>
+                <td>[CLAIM REF.]</td>
+              </tr>
+              <tr>
+                <td><strong>Critical Infrastructure Regulator</strong><br><small class="text-body-secondary">e.g. NIS2 competent authority, sector regulator</small></td>
+                <td>[Y/N]</td>
+                <td>[PER APPLICABLE REGULATION]</td>
+                <td>[YYYY-MM-DD HH:MM]</td>
+                <td>[NAME / ROLE]</td>
+                <td>[REFERENCE]</td>
+              </tr>
+              <tr>
+                <td><strong>Board / Senior Management</strong></td>
+                <td>[Y/N]</td>
+                <td>Immediate for P1; &lt;4hr for P2</td>
+                <td>[YYYY-MM-DD HH:MM]</td>
+                <td>[NAME / ROLE]</td>
+                <td>[MEETING / EMAIL REF.]</td>
+              </tr>
+              <tr>
+                <td><strong>Affected Customers / Partners</strong></td>
+                <td>[Y/N]</td>
+                <td>[PER CONTRACT / REGULATION]</td>
+                <td>[YYYY-MM-DD]</td>
+                <td>[NAME / ROLE]</td>
+                <td>[COMMUNICATION REF.]</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SECTION 10 -->
+      <div class="policy-section">
+        <h2 class="h5 fw-bold mb-3">Section 10 — Recovery Actions</h2>
+        <p class="text-body-secondary small mb-3">Recovery actions restore affected systems and services to normal, secure operation. Do not restore systems from potentially compromised backups without first verifying backup integrity. All restored systems must undergo verification testing before being returned to production. Maintain enhanced monitoring for at least 30 days post-recovery.</p>
+        <div class="table-responsive mb-3">
+          <table class="table table-bordered table-sm">
+            <thead class="table-dark">
+              <tr>
+                <th style="width:5%">Step</th>
+                <th>Recovery Action</th>
+                <th style="width:15%">Owner</th>
+                <th style="width:18%">Date / Time Completed</th>
+                <th style="width:15%">Verified By</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>1</td><td>[RECOVERY ACTION DESCRIPTION]</td><td>[OWNER NAME / TEAM]</td><td>[YYYY-MM-DD HH:MM]</td><td>[VERIFIER NAME]</td></tr>
+              <tr><td>2</td><td></td><td></td><td></td><td></td></tr>
+              <tr><td>3</td><td></td><td></td><td></td><td></td></tr>
+              <tr><td>4</td><td></td><td></td><td></td><td></td></tr>
+              <tr><td>5</td><td></td><td></td><td></td><td></td></tr>
+              <tr><td>6</td><td></td><td></td><td></td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-3">
+            <label class="form-label fw-semibold">System Restoration Confirmed?</label>
+            <input type="text" class="form-control" placeholder="[Y / N]" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Enhanced Monitoring Start Date</label>
+            <input type="text" class="form-control" placeholder="[YYYY-MM-DD]" />
+          </div>
+          <div class="col-md-5">
+            <label class="form-label fw-semibold">Enhanced Monitoring End Date</label>
+            <input type="text" class="form-control" placeholder="[YYYY-MM-DD] — recommended minimum 30 days post-recovery" />
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 11 -->
+      <div class="policy-section">
+        <h2 class="h5 fw-bold mb-3">Section 11 — Post-Incident Review</h2>
+        <p class="text-body-secondary small mb-3">The post-incident review must be completed within 5 business days of incident closure for P1/P2, or 10 business days for P3/P4. The review should be attended by the Incident Lead, ISM, and representatives of affected teams. Focus on systemic improvements, not individual blame.</p>
+        <div class="mb-4">
+          <label class="form-label fw-semibold">Lessons Learned</label>
+          <textarea class="form-control" rows="5" placeholder="[LESSONS LEARNED — what did the organisation learn from this incident? What worked well in the response? What could have been done better? Consider: detection capability, response speed, communication, tooling, processes, training.]"></textarea>
+        </div>
+
+        <h3 class="h6 fw-semibold mb-2">Recommended Improvements</h3>
+        <div class="table-responsive mb-3">
+          <table class="table table-bordered table-sm">
+            <thead class="table-dark">
+              <tr>
+                <th>Improvement Description</th>
+                <th style="width:10%">Priority</th>
+                <th style="width:15%">Owner</th>
+                <th style="width:15%">Target Date</th>
+                <th style="width:15%">CAR Reference</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>[IMPROVEMENT DESCRIPTION]</td><td>[P1/P2/P3/P4]</td><td>[OWNER]</td><td>[YYYY-MM-DD]</td><td>[CAR-YYYY-NNN]</td></tr>
+              <tr><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr><td></td><td></td><td></td><td></td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Was this incident preventable?</label>
+            <input type="text" class="form-control" placeholder="[Y / N / Partially]" />
+          </div>
+          <div class="col-md-8">
+            <label class="form-label fw-semibold">If yes or partially — how could it have been prevented?</label>
+            <input type="text" class="form-control" placeholder="[DESCRIBE SPECIFIC PREVENTIVE MEASURES THAT WOULD HAVE STOPPED THIS INCIDENT]" />
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 12 -->
+      <div class="policy-section">
+        <h2 class="h5 fw-bold mb-3">Section 12 — Sign-offs and Closure</h2>
+        <p class="text-body-secondary small mb-3">All sign-offs are required before the incident can be formally closed in the incident register. The Incident Lead confirms accuracy of the report; the ISM confirms all required actions have been taken; CISO/Senior Management confirm acceptance of any residual risk and close the incident for management review purposes.</p>
+        <div class="table-responsive mb-4">
+          <table class="table table-bordered table-sm">
+            <thead class="table-dark">
+              <tr>
+                <th style="width:25%">Role</th>
+                <th>Name</th>
+                <th style="width:25%">Signature</th>
+                <th style="width:18%">Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Incident Lead</strong></td>
+                <td>[FULL NAME]</td>
+                <td></td>
+                <td>[YYYY-MM-DD]</td>
+              </tr>
+              <tr>
+                <td><strong>Information Security Manager</strong></td>
+                <td>[FULL NAME]</td>
+                <td></td>
+                <td>[YYYY-MM-DD]</td>
+              </tr>
+              <tr>
+                <td><strong>CISO / Senior Management</strong></td>
+                <td>[FULL NAME / TITLE]</td>
+                <td></td>
+                <td>[YYYY-MM-DD]</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Date Closed</label>
+            <input type="text" class="form-control" placeholder="[YYYY-MM-DD]" />
+          </div>
+          <div class="col-md-5">
+            <label class="form-label fw-semibold">Closure Confirmed By</label>
+            <input type="text" class="form-control" placeholder="[FULL NAME / ROLE]" />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold">Incident Duration (hours)</label>
+            <input type="text" class="form-control" placeholder="[NUMBER OF HOURS]" />
+          </div>
+        </div>
+        <p class="text-body-secondary small mt-3">Upon closure, update the incident register, file the completed report in the incident evidence repository, and ensure all CARs raised from this incident are tracked to completion. If the incident involved personal data, confirm all regulatory notifications and their outcomes are documented in the data breach register.</p>
+      </div>
+
+    </div>
+  </main>
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title fs-5" id="rbacModalLabel">🔒 Login</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <div class="modal-body"><form id="rbac-login-form" novalidate>
+        <div class="mb-3"><label for="rbac-username-input" class="form-label">Username</label><input type="text" class="form-control" id="rbac-username-input" autocomplete="username" maxlength="40" required /></div>
+        <div class="mb-3"><label for="rbac-password-input" class="form-label">Password</label><input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" required /></div>
+        <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+      </form></div>
+      <div class="modal-footer border-0 pt-0"><p class="text-secondary small mb-0">Session clears when you close this tab.</p></div>
+    </div></div>
+  </div>
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" /></a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" /></a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="../privacy.html">Privacy Policy</a> &middot; <a href="../terms.html">Terms</a></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="../users.js" defer></script>
+  <script src="../roles.js" defer></script>
+  <script src="../script.js" defer></script>
+</body>
+</html>

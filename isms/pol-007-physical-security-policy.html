@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="../theme.css" />
+  <link rel="stylesheet" href="isms.css" />
+  <title>Physical and Environmental Security Policy | ISMS | Jessica Rojas</title>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="../index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="../projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="../timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="../cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="../consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="../contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="../blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="../knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="../compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="../jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="../admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <main id="main-content">
+    <div class="container py-4">
+      <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="../index.html">Home</a></li>
+          <li class="breadcrumb-item"><a href="index.html">ISMS</a></li>
+          <li class="breadcrumb-item active">POL-007</li>
+        </ol>
+      </nav>
+      <div class="d-flex justify-content-between align-items-start mb-4 print-btn">
+        <span class="badge bg-primary fs-6">Policy — POL-007</span>
+        <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">Print / Save PDF</button>
+      </div>
+      <div class="doc-header mb-4">
+        <table class="table table-bordered table-sm">
+          <tbody>
+            <tr><th style="width:30%">Document Title</th><td>Physical and Environmental Security Policy</td></tr>
+            <tr><th>Document ID</th><td>POL-007</td></tr>
+            <tr><th>Version</th><td>1.0</td></tr>
+            <tr><th>Classification</th><td>Internal</td></tr>
+            <tr><th>Owner</th><td>Information Security Manager</td></tr>
+            <tr><th>Approved By</th><td>Senior Management</td></tr>
+            <tr><th>Effective Date</th><td>2025-01-01</td></tr>
+            <tr><th>Next Review</th><td>2026-01-01</td></tr>
+            <tr><th>ISO 27001:2022 Controls</th><td>A.7.1, A.7.2, A.7.3, A.7.4, A.7.5, A.7.6, A.7.7, A.7.8, A.7.9, A.7.10, A.7.11, A.7.12, A.7.13, A.7.14</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section">
+        <h2>1. Purpose</h2>
+        <p>This policy establishes the requirements for protecting the organization's physical premises, equipment, and information assets from unauthorized physical access, damage, interference, theft, and environmental threats. Physical security is a foundational layer of the organization's defense-in-depth strategy and directly supports the confidentiality, integrity, and availability of information assets.</p>
+        <p>This policy fulfills the organization's obligations under ISO/IEC 27001:2022 Annex A, Theme 7 (Physical Controls), ensuring that appropriate physical and environmental safeguards are designed, implemented, and maintained across all organizational sites.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>2. Scope</h2>
+        <p>This policy applies to:</p>
+        <ul>
+          <li>All physical locations owned, leased, or operated by the organization, including headquarters, branch offices, satellite sites, and remote work locations used for organizational business.</li>
+          <li>All data centers, server rooms, communications rooms, and network closets — whether on-premises or co-located at third-party facilities.</li>
+          <li>All equipment, including servers, workstations, laptops, mobile devices, network infrastructure, printers, removable media, and any hardware that stores, processes, or transmits organizational information.</li>
+          <li>All personnel including permanent employees, contractors, temporary staff, and visitors who access organizational premises.</li>
+          <li>Third-party service providers who require physical access to organizational facilities or equipment.</li>
+        </ul>
+        <p>Colocation and cloud provider facilities are governed by contractual obligations and the Supplier and Third-Party Security Policy (POL-010), but physical security controls within the organization's managed zones remain subject to this policy.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>3. Physical Security Perimeters</h2>
+        <p>The organization shall define and implement physical security perimeters to protect areas that contain sensitive information and critical information processing facilities. Security perimeters shall be established using a zone-based model with increasing levels of restriction as sensitivity increases.</p>
+        <h3>3.1 Perimeter Zones</h3>
+        <ul>
+          <li><strong>Public Zone:</strong> Reception areas, lobbies, and meeting rooms accessible to visitors. No unescorted access to internal areas. No organizational equipment or documents left unattended.</li>
+          <li><strong>General Internal Zone:</strong> Open-plan office areas accessible to all staff. Entry controlled by electronic access badge. Visitors must be escorted at all times.</li>
+          <li><strong>Restricted Zone:</strong> Areas containing sensitive systems or confidential information (e.g., HR offices, finance areas, IT operations rooms). Access limited to authorized personnel only. Separate access control enforced.</li>
+          <li><strong>Secure Zone:</strong> Data centers, server rooms, and network equipment rooms. Access strictly limited to designated IT and security staff. Dual-factor physical access required (e.g., badge + PIN or badge + biometric).</li>
+        </ul>
+        <h3>3.2 Physical Barriers</h3>
+        <p>All security perimeter boundaries shall be physically solid and unambiguous. Requirements include:</p>
+        <ul>
+          <li>External walls, floors, and ceilings of secure zones shall be of solid construction with no gaps that allow unauthorized access.</li>
+          <li>All external doors and windows shall be alarmed and subject to intrusion detection monitoring.</li>
+          <li>Walls separating secure zones from general areas shall extend from true floor to true ceiling (not suspended ceiling tiles).</li>
+          <li>Server room and data center doors shall be solid-core steel or equivalent, with anti-tailgating/anti-piggybacking controls (e.g., man-traps, turnstiles, or access audit alerts).</li>
+          <li>All doors providing access to secure or restricted zones must be self-closing and self-locking.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>4. Entry Controls</h2>
+        <p>Access to all organizational facilities shall be controlled to ensure that only authorized individuals gain entry. Entry controls shall be proportional to the sensitivity of the area being protected.</p>
+        <h3>4.1 Electronic Access Control</h3>
+        <ul>
+          <li>All secure and restricted zones shall be protected by electronic access control systems (badge readers, key fobs, or biometric readers).</li>
+          <li>Access rights shall be granted on a need-to-access basis and reviewed at least annually.</li>
+          <li>Individual access credentials shall not be shared under any circumstances.</li>
+          <li>All access events (grants, denials) shall be logged and retained for a minimum of 12 months.</li>
+          <li>Access to data centers and server rooms shall require dual-factor physical authentication.</li>
+        </ul>
+        <h3>4.2 Visitor Management</h3>
+        <ul>
+          <li>All visitors must be registered at reception upon arrival with name, organization, purpose of visit, and time of entry/exit.</li>
+          <li>Visitors shall be issued a visible, time-limited visitor badge that must be worn at all times within the premises.</li>
+          <li>Visitors shall not be granted unescorted access beyond the public zone. An authorized member of staff must escort visitors at all times in internal and restricted areas.</li>
+          <li>Visitor access to secure zones (data centers, server rooms) must be pre-approved in writing by the Information Security Manager or designated authority and recorded in the physical access log.</li>
+          <li>Vendor and maintenance personnel requiring access to secure zones must present valid identification and be accompanied by an authorized internal escort throughout the visit.</li>
+          <li>Visitor badges must be returned at the point of departure. Non-return of a visitor badge shall be treated as a physical security incident and logged accordingly.</li>
+        </ul>
+        <h3>4.3 Access Logs</h3>
+        <p>Electronic access logs for all restricted and secure zones shall be reviewed at least monthly by the Information Security Manager or a designated security administrator. Anomalies including after-hours access, repeated access denials, and access to areas outside an individual's role shall be investigated promptly.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>5. Securing Offices and Facilities</h2>
+        <p>All offices and work areas shall be designed and managed to prevent unauthorized access to information assets.</p>
+        <ul>
+          <li>Offices containing sensitive information shall be locked when not occupied. Keys and access credentials for such offices shall be tightly controlled and their issuance logged.</li>
+          <li>Whiteboards and presentation screens in shared meeting rooms shall be cleared of all confidential information immediately after use. Meeting rooms shall be checked prior to the arrival of external visitors.</li>
+          <li>Printers, fax machines, and multifunction devices that process confidential documents must be located in areas accessible only to authorized staff. Documents shall not be left unattended in output trays.</li>
+          <li>Filing cabinets and desk drawers containing confidential or classified information shall be locked when unattended (see also Section 10, Clear Desk and Clear Screen).</li>
+          <li>Floor plans, network diagrams, and other documents revealing the layout of secure areas shall not be displayed publicly or left unattended.</li>
+          <li>Combination locks and physical keys shall be changed whenever a staff member with access leaves the organization or when compromise is suspected.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>6. Physical Security Monitoring</h2>
+        <h3>6.1 CCTV Coverage</h3>
+        <p>Closed-circuit television (CCTV) surveillance shall be deployed across all organizational facilities in accordance with the following requirements:</p>
+        <ul>
+          <li>CCTV cameras shall cover all entry and exit points, reception areas, corridors leading to restricted and secure zones, and the interior of data centers and server rooms.</li>
+          <li>Camera placement shall ensure complete coverage without blind spots at critical entry/exit points.</li>
+          <li>CCTV footage shall be retained for a minimum of 90 days. Footage related to a security incident or investigation shall be preserved in accordance with evidence preservation requirements.</li>
+          <li>CCTV systems shall record continuously (24/7) with date and time stamping. Recording integrity shall be verified monthly.</li>
+          <li>Access to CCTV footage shall be restricted to the Information Security Manager, designated security personnel, HR (for investigation purposes), and senior management. All access to recorded footage shall be logged.</li>
+          <li>CCTV monitoring in compliance with applicable privacy laws and regulations. Employees and visitors shall be informed of surveillance through visible signage at all entry points.</li>
+        </ul>
+        <h3>6.2 Alarm Systems</h3>
+        <ul>
+          <li>Intrusion detection alarms shall be installed at all external perimeter entry points and on doors to restricted and secure zones.</li>
+          <li>Alarm systems shall be tested at least quarterly. Test records shall be maintained.</li>
+          <li>All alarm events shall be responded to within defined SLAs: immediate response for confirmed intrusion; investigation within 1 hour for unverified alarm triggers.</li>
+          <li>Alarm monitoring shall be continuous (24/7), either via a manned security desk or a contracted security monitoring service.</li>
+        </ul>
+        <h3>6.3 Security Guard Requirements</h3>
+        <p>Where the organization operates facilities with significant information assets, on-site or contracted security personnel shall be deployed during non-business hours. Security guard responsibilities include patrolling facility perimeters, verifying alarm activations, enforcing visitor management procedures, and reporting anomalies to the Information Security Manager.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>7. Protection Against Environmental Threats</h2>
+        <p>The organization shall implement controls to protect information processing facilities and equipment from environmental threats including fire, flood, power failure, temperature extremes, and physical damage.</p>
+        <h3>7.1 Fire Protection</h3>
+        <ul>
+          <li>Data centers and server rooms shall be equipped with automatic fire suppression systems appropriate for electronic equipment environments (e.g., clean agent gas suppression systems such as FM-200 or Novec 1230). Water-based sprinkler systems are not permitted in active equipment areas.</li>
+          <li>Smoke and heat detectors shall be installed throughout all facilities and tested at least annually by a qualified engineer.</li>
+          <li>Fire extinguishers rated for electrical fires shall be available and clearly marked in all areas containing information processing equipment.</li>
+          <li>Fire exit routes shall be clearly marked, unobstructed, and reviewed at least annually.</li>
+        </ul>
+        <h3>7.2 Flood and Water Damage</h3>
+        <ul>
+          <li>Water leak detection sensors shall be deployed beneath raised floors and near water pipes in data center environments.</li>
+          <li>No information processing equipment shall be located below ground level unless adequate flood protection measures are in place.</li>
+          <li>Roof and plumbing inspections shall be conducted annually to identify potential water ingress risks above equipment areas.</li>
+        </ul>
+        <h3>7.3 Temperature and Humidity Monitoring</h3>
+        <ul>
+          <li>Data centers and server rooms shall maintain temperature between 18°C and 27°C (64°F–80°F) and relative humidity between 40% and 60%, in accordance with ASHRAE guidelines.</li>
+          <li>Environmental monitoring systems shall provide real-time alerts to the IT operations team when temperature or humidity thresholds are breached.</li>
+          <li>Redundant cooling systems (N+1 minimum) shall be installed in all server rooms. Cooling system failures shall be treated as a priority incident.</li>
+          <li>Environmental monitoring logs shall be reviewed monthly and retained for 12 months.</li>
+        </ul>
+        <h3>7.4 Power Supply Protection</h3>
+        <ul>
+          <li>All critical information processing equipment shall be connected to Uninterruptible Power Supply (UPS) systems capable of providing sufficient runtime to execute an orderly shutdown or failover in the event of a power failure. Minimum UPS runtime: 15 minutes for non-critical systems; 30 minutes for critical systems.</li>
+          <li>Backup generators shall be available for facilities classified as critical processing sites, with sufficient fuel for a minimum of 72 hours of operation. Generators shall be tested under load quarterly.</li>
+          <li>UPS systems shall be tested under load at least annually and maintained in accordance with manufacturer specifications.</li>
+          <li>Power distribution equipment in secure zones shall be protected from unauthorized access and clearly labelled.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>8. Working in Secure Areas</h2>
+        <p>Personnel working in secure zones (data centers, server rooms, restricted areas) shall comply with the following requirements:</p>
+        <ul>
+          <li>Work in secure areas shall only be conducted by personnel with explicitly granted access rights. Solo work in secure areas containing highly sensitive systems is discouraged; where unavoidable, buddy checks or check-in/check-out procedures shall be applied.</li>
+          <li>The use of personal mobile devices (smartphones, tablets, smartwatches with camera capability) is prohibited inside data centers and server rooms unless specifically authorized in writing by the Information Security Manager.</li>
+          <li>Photography and video recording inside secure areas is strictly prohibited without prior written approval from the Information Security Manager and a documented business justification.</li>
+          <li>Unsupervised third-party access to secure areas is prohibited. Vendor and contractor personnel shall be escorted by an authorized internal staff member throughout the duration of their visit.</li>
+          <li>Food and drink are not permitted inside data centers or server rooms.</li>
+          <li>All removable media (USB drives, external hard drives, optical discs) brought into or taken out of secure areas shall be logged. Unauthorized removable media shall not be used in secure area equipment (see also the Acceptable Use Policy).</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>9. Equipment Security</h2>
+        <h3>9.1 Equipment Siting</h3>
+        <ul>
+          <li>Equipment shall be sited and protected to minimize risks from environmental hazards, unauthorized access, and opportunities for eavesdropping or visual compromise.</li>
+          <li>Monitors and screens displaying sensitive information shall be positioned to prevent observation by unauthorized individuals (shoulder-surfing). Privacy screens shall be used in open-plan or public-facing environments.</li>
+          <li>Equipment containing sensitive data shall not be located near windows, external walls, or areas accessible to the public.</li>
+        </ul>
+        <h3>9.2 Cable Management</h3>
+        <ul>
+          <li>Power cabling and network cabling shall be managed to prevent interference, damage, and unauthorized interception. Network cabling in public or accessible areas shall be routed through conduit or trunking.</li>
+          <li>Patch panels, network switches, and communications cabling in offices shall be secured in locked cabinets or communications rooms.</li>
+          <li>Cable runs in raised floors and ceilings shall be documented and labelled.</li>
+        </ul>
+        <h3>9.3 Equipment Maintenance</h3>
+        <ul>
+          <li>All equipment shall be maintained in accordance with manufacturer specifications and organizational maintenance schedules.</li>
+          <li>Only authorized personnel or approved third-party maintainers shall carry out equipment maintenance. Maintenance activities on equipment containing sensitive data shall be supervised by an authorized internal staff member.</li>
+          <li>Maintenance records shall be kept for the operational life of the equipment.</li>
+          <li>Equipment undergoing repair that may expose stored data shall be sanitized prior to handover to the maintenance provider, or the maintenance shall be performed on-site under supervision.</li>
+        </ul>
+        <h3>9.4 Off-Site Equipment</h3>
+        <ul>
+          <li>Equipment taken off-site (e.g., laptops, mobile devices) shall be subject to the same level of protection as on-site equipment. Personnel are responsible for the physical security of organizational equipment in their possession.</li>
+          <li>Organizational equipment shall not be left unattended in vehicles. If unavoidable (e.g., in a locked boot/trunk), the duration shall be minimized and the fact shall be reported to the line manager.</li>
+          <li>Lost or stolen organizational equipment must be reported immediately to the IT department and Information Security Manager in accordance with the Incident Management Policy (POL-011).</li>
+          <li>Full-disk encryption is mandatory on all portable devices in accordance with the Cryptography Policy.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>10. Clear Desk and Clear Screen</h2>
+        <h3>10.1 Clear Desk Requirements</h3>
+        <p>All staff are required to maintain a clear desk at all times, particularly when away from their workstation or at the end of the working day. Specific requirements include:</p>
+        <ul>
+          <li>Confidential or sensitive documents, notebooks, USB drives, and removable media must be stored in locked drawers or cabinets when not in use.</li>
+          <li>Documents must not be left on desks, printers, scanners, or in meeting rooms after use.</li>
+          <li>Keys to locked cabinets and rooms shall not be left on desks or in unlocked drawers.</li>
+          <li>Visitor-accessible areas shall be checked before external meetings to ensure no sensitive materials are visible.</li>
+        </ul>
+        <h3>10.2 Clear Screen Requirements</h3>
+        <ul>
+          <li>All workstations and laptops shall be configured to automatically lock after a maximum of 5 minutes of inactivity. Users shall lock their screens manually (Win+L / Cmd+Ctrl+Q) when leaving their desk for any period.</li>
+          <li>Screens displaying sensitive information shall not be left visible to others. Privacy screen filters shall be used in open environments and on all laptops used in public locations.</li>
+        </ul>
+        <h3>10.3 Enforcement and Exceptions</h3>
+        <p>Compliance with clear desk and clear screen requirements will be verified through periodic physical security walkthrough audits conducted by the Information Security Manager or delegate, at least quarterly. Non-compliance findings shall be reported to the relevant line manager for corrective action. Any exemptions from clear desk/screen requirements must be formally documented and approved by the Information Security Manager.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>11. Removal of Assets</h2>
+        <p>The removal of information assets — including hardware, software, and data — from organizational premises requires formal authorization.</p>
+        <ul>
+          <li>No equipment, storage media, or documents containing organizational information may be removed from organizational premises without prior written authorization from the asset owner or the Information Security Manager.</li>
+          <li>Authorization for asset removal shall be recorded in the Asset Removal Log, including: the asset description, asset tag/serial number, the individual removing the asset, the destination, the expected return date (if applicable), and the approving authority.</li>
+          <li>Security personnel or reception staff at exit points shall be empowered to challenge individuals removing equipment without visible authorization documentation.</li>
+          <li>Assets not returned by the expected return date shall be flagged as overdue and followed up with the responsible individual within 24 hours.</li>
+          <li>Permanently removed assets shall be removed from the asset register following appropriate disposal in accordance with Section 12.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>12. Secure Disposal and Reuse</h2>
+        <p>All storage media and equipment that reaches end-of-life or is surplus to requirements must be disposed of securely to prevent unauthorized recovery of organizational information.</p>
+        <h3>12.1 Media Sanitization</h3>
+        <ul>
+          <li>All media (HDDs, SSDs, USB drives, tapes, optical media, mobile device storage) shall be sanitized in accordance with NIST SP 800-88 Revision 1 guidelines. The appropriate sanitization method (Clear, Purge, or Destroy) shall be selected based on the sensitivity of the data previously stored and the intended disposition of the media.</li>
+          <li>Hard drives and solid-state drives from systems classified as containing confidential or higher data shall be subjected to cryptographic erase (if supported) or physical destruction.</li>
+          <li>Sanitization activities shall be performed by designated IT personnel or an approved third-party disposal vendor.</li>
+        </ul>
+        <h3>12.2 Equipment Destruction</h3>
+        <ul>
+          <li>Equipment that cannot be sanitized to an acceptable standard (e.g., damaged drives, legacy devices) shall be physically destroyed using methods that render the storage media unreadable (shredding, degaussing, or incineration).</li>
+          <li>Physical destruction shall be conducted by a certified third-party disposal provider holding relevant certifications (e.g., NAID AAA certification or equivalent).</li>
+        </ul>
+        <h3>12.3 Certificates of Destruction</h3>
+        <ul>
+          <li>A Certificate of Destruction (CoD) shall be obtained for all equipment and media disposed of through third-party providers. CoDs shall be retained for a minimum of 7 years.</li>
+          <li>Certificates must include: the date of destruction, a description of assets destroyed (including serial numbers where available), the destruction method used, and the name and certification details of the disposal organization.</li>
+          <li>The asset register shall be updated to reflect disposal, cross-referenced with the CoD reference number.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>13. Unattended User Equipment</h2>
+        <ul>
+          <li>All user equipment (workstations, laptops, thin clients) shall be configured with an automatic screen lock after a maximum of 5 minutes of user inactivity. This setting is mandatory and shall be enforced through Group Policy or MDM configuration.</li>
+          <li>Users shall lock their screens before leaving their workstation unattended, regardless of the expected duration of absence.</li>
+          <li>Users shall log off completely from shared workstations at the end of their session or shift.</li>
+          <li>Laptops and mobile devices shall not be left unattended in public areas. In offices, portable devices shall be secured using a cable lock, locked in a cabinet, or taken with the user when leaving the work area.</li>
+          <li>IT shall enforce screensaver lock policies through centrally managed endpoint configuration. Exceptions require documented approval from the Information Security Manager and must be reviewed annually.</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>14. Related Documents</h2>
+        <ul>
+          <li>Information Security Policy (POL-001)</li>
+          <li>Asset Management Policy (POL-006)</li>
+          <li>Acceptable Use Policy (POL-003)</li>
+          <li>Cryptography and Key Management Policy</li>
+          <li>Supplier and Third-Party Security Policy (POL-010)</li>
+          <li>Information Security Incident Management Policy (POL-011)</li>
+          <li>Media Sanitization Procedure (PRO-007)</li>
+          <li>Asset Removal Authorization Form (TMP-007)</li>
+          <li>NIST SP 800-88 Rev. 1 — Guidelines for Media Sanitization</li>
+        </ul>
+      </div>
+
+      <div class="policy-section mt-5">
+        <h2>Revision History</h2>
+        <table class="table table-bordered table-sm revision-table">
+          <thead><tr><th>Version</th><th>Date</th><th>Author</th><th>Description</th></tr></thead>
+          <tbody><tr><td>1.0</td><td>2025-01-01</td><td>Information Security Manager</td><td>Initial release</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="rbacModalLabel">🔒 Login</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="rbac-login-form" novalidate>
+            <div class="mb-3"><label for="rbac-username-input" class="form-label">Username</label><input type="text" class="form-control" id="rbac-username-input" autocomplete="username" placeholder="Enter your username" maxlength="40" required /></div>
+            <div class="mb-3"><label for="rbac-password-input" class="form-label">Password</label><input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" required /></div>
+            <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+          </form>
+        </div>
+        <div class="modal-footer border-0 pt-0"><p class="text-secondary small mb-0">Session clears when you close this tab.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" /></a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" /></a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="../privacy.html">Privacy Policy</a> &middot; <a href="../terms.html">Terms</a></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="../users.js" defer></script>
+  <script src="../roles.js" defer></script>
+  <script src="../script.js" defer></script>
+</body>
+</html>

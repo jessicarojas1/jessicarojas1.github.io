@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="../theme.css" />
+  <link rel="stylesheet" href="isms.css" />
+  <title>Access Provisioning Procedure | ISMS | Jessica Rojas</title>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="../index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="../projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="../timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="../cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="../consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="../contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="../blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="../knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="../compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="../jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="../admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content">
+    <div class="container py-4">
+      <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="../index.html">Home</a></li>
+          <li class="breadcrumb-item"><a href="index.html">ISMS</a></li>
+          <li class="breadcrumb-item active">PRO-006</li>
+        </ol>
+      </nav>
+
+      <div class="d-flex justify-content-between align-items-start mb-4 print-btn">
+        <span class="badge bg-warning text-dark fs-6">Procedure — PRO-006</span>
+        <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">Print / Save PDF</button>
+      </div>
+
+      <div class="doc-header mb-4">
+        <table class="table table-bordered table-sm"><tbody>
+          <tr><th style="width:30%">Document Title</th><td>Access Provisioning Procedure</td></tr>
+          <tr><th>Document ID</th><td>PRO-006</td></tr>
+          <tr><th>Version</th><td>1.0</td></tr>
+          <tr><th>Classification</th><td>Internal</td></tr>
+          <tr><th>Owner</th><td>Information Security Manager</td></tr>
+          <tr><th>Approved By</th><td>Senior Management</td></tr>
+          <tr><th>Effective Date</th><td>2025-01-01</td></tr>
+          <tr><th>Next Review</th><td>2026-01-01</td></tr>
+          <tr><th>ISO 27001:2022 Controls</th><td>A.5.16, A.5.17, A.5.18, A.8.2, A.8.3</td></tr>
+        </tbody></table>
+      </div>
+
+      <!-- 1. Purpose and Objective -->
+      <div class="policy-section">
+        <h2>1. Purpose and Objective</h2>
+        <p>This procedure ensures that all access to information systems, applications, data, and physical assets is formally requested, appropriately approved, correctly provisioned, and promptly revoked. It supports the principles of <strong>least privilege</strong> (users are granted the minimum access necessary for their role) and <strong>need-to-know</strong> (access to information is limited to those with a legitimate requirement).</p>
+        <p>This procedure establishes a consistent, auditable access control lifecycle that reduces the risk of unauthorised access, privilege accumulation, and insider threat, while maintaining operational efficiency and compliance with ISO 27001:2022 Annex A controls A.5.16 through A.5.18 and A.8.2–A.8.3.</p>
+      </div>
+
+      <!-- 2. Scope -->
+      <div class="policy-section">
+        <h2>2. Scope</h2>
+        <p>This procedure applies to all access provisioning and deprovisioning activities for:</p>
+        <ul>
+          <li><strong>All user types:</strong> permanent employees, fixed-term employees, contractors, temporary staff, agency workers, interns, and vendors.</li>
+          <li><strong>All system types:</strong> on-premises servers and workstations, cloud infrastructure (IaaS/PaaS), SaaS applications, databases, network infrastructure, VPN and remote access solutions, privileged access management (PAM) tooling, and physical access control systems.</li>
+          <li><strong>All account types:</strong> standard user accounts, privileged accounts (local admin, domain admin, root, DBA, network admin), service accounts, application accounts, and shared accounts (where unavoidable).</li>
+          <li>All systems within the ISMS scope regardless of whether they are internally hosted or managed by a third party.</li>
+        </ul>
+      </div>
+
+      <!-- 3. Definitions -->
+      <div class="policy-section">
+        <h2>3. Definitions</h2>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm">
+            <thead class="table-secondary">
+              <tr><th>Term</th><th>Definition</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Provisioning</strong></td>
+                <td>The process of creating, configuring, and enabling user access rights to systems, applications, or data.</td>
+              </tr>
+              <tr>
+                <td><strong>Deprovisioning</strong></td>
+                <td>The process of revoking, disabling, and removing access rights, typically upon termination, role change, or access review finding.</td>
+              </tr>
+              <tr>
+                <td><strong>Privileged Access</strong></td>
+                <td>Elevated permissions beyond those of a standard user, including but not limited to: local administrator, domain administrator, root/sudo, database administrator (DBA), network administrator, and security tool operator.</td>
+              </tr>
+              <tr>
+                <td><strong>Role-Based Access Control (RBAC)</strong></td>
+                <td>An access control model in which access rights are assigned based on a user's job function or role, rather than assigned individually.</td>
+              </tr>
+              <tr>
+                <td><strong>Need-to-Know</strong></td>
+                <td>The principle that access to information should be limited to individuals who require it to perform their specific job duties.</td>
+              </tr>
+              <tr>
+                <td><strong>Separation of Duties (SoD)</strong></td>
+                <td>The distribution of critical or sensitive tasks across multiple individuals to prevent any single person from being able to carry out and conceal fraud, error, or unauthorised action.</td>
+              </tr>
+              <tr>
+                <td><strong>Just-in-Time (JIT) Access</strong></td>
+                <td>A privileged access model in which elevated permissions are granted on demand for a specific, time-limited task and automatically revoked upon completion.</td>
+              </tr>
+              <tr>
+                <td><strong>Access Request Form</strong></td>
+                <td>TMP-009 — the formal document used to request new, modified, or extended access.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 4. Access Request and Provisioning Procedure -->
+      <div class="policy-section">
+        <h2>4. Access Request and Provisioning Procedure</h2>
+
+        <div class="card mb-3 border-secondary">
+          <div class="card-header fw-semibold">Step 1 — Submit Request</div>
+          <div class="card-body">
+            <p class="mb-2">The requestor (user or their line manager) submits an Access Request Form (TMP-009) via the approved request channel (IT service portal or designated email). The form must include all of the following required fields:</p>
+            <ul class="mb-0">
+              <li><strong>Requestor details:</strong> Full name, job title, department, employee / contractor ID.</li>
+              <li><strong>System(s) requested:</strong> Specific system, application, or data store.</li>
+              <li><strong>Access level / role:</strong> The specific permission level or named RBAC role required.</li>
+              <li><strong>Business justification:</strong> Clear explanation of why this access is necessary for the requestor's job duties.</li>
+              <li><strong>Duration:</strong> Permanent (no end date) or temporary (must include a specific end date; maximum 90 days per request for temporary access).</li>
+              <li><strong>Data classification:</strong> The highest classification level of data the requested access would permit the requestor to view or modify.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card mb-3 border-secondary">
+          <div class="card-header fw-semibold">Step 2 — Line Manager Approval</div>
+          <div class="card-body">
+            <ul class="mb-0">
+              <li>The requestor's direct line manager reviews the access request within <strong>2 business days</strong> of submission.</li>
+              <li>The manager confirms: the access is appropriate for the requestor's role, the business justification is valid, and the requested permission level is no more than the minimum necessary.</li>
+              <li>Approval or rejection is recorded in the access request system with a date and time stamp.</li>
+              <li>If rejected, the manager provides a written reason. The requestor may resubmit with revised justification or a reduced access scope.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card mb-3 border-secondary">
+          <div class="card-header fw-semibold">Step 3 — Data / System Owner Approval</div>
+          <div class="card-body">
+            <ul class="mb-0">
+              <li>The owner of each requested system or data store reviews and approves or rejects access to their system independently within <strong>2 business days</strong>.</li>
+              <li>For requests spanning multiple systems, each system owner must approve their own system's access; all approvals must be received before IT proceeds to provisioning.</li>
+              <li>System owners evaluate: appropriateness of the access level, whether it introduces SoD conflicts or cumulative access concerns, and whether the requestor has completed any mandatory system-specific training.</li>
+              <li>Rejection includes reason; ISM is notified if system owner and manager are in dispute regarding access appropriateness.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card mb-3 border-secondary">
+          <div class="card-header fw-semibold">Step 4 — Security Review</div>
+          <div class="card-body">
+            <p class="mb-2">The ISM or a delegated security analyst conducts a security review of all requests prior to provisioning. The review assesses:</p>
+            <ul>
+              <li><strong>Privilege escalation risk:</strong> Does the requested access represent a meaningful increase in privilege over the user's existing access?</li>
+              <li><strong>SoD conflicts:</strong> Would granting this access result in an incompatible role combination per Section 10 of this procedure?</li>
+              <li><strong>Compliance requirements:</strong> Does the data classification or system type impose additional controls (e.g., CUI handling requirements, regulatory restrictions)?</li>
+              <li><strong>Cumulative access:</strong> Does the user's aggregate access across all systems remain within policy bounds?</li>
+            </ul>
+            <p class="mb-0"><strong>ISM sign-off is mandatory for all privileged access requests — no exceptions.</strong> The reviewer may approve with conditions, including a shorter time limit than requested, or requirement for additional monitoring or logging. Conditions are documented in the access request record.</p>
+          </div>
+        </div>
+
+        <div class="card mb-3 border-secondary">
+          <div class="card-header fw-semibold">Step 5 — IT Implementation</div>
+          <div class="card-body">
+            <ul class="mb-0">
+              <li>IT provisions access within <strong>1 business day</strong> of receiving all required approvals.</li>
+              <li>Access is configured exactly as approved — no additional access beyond what was approved may be granted without a separate re-approval.</li>
+              <li>Implementation is documented: account name created or modified, permissions set, date and time of provisioning, implementer identity.</li>
+              <li>For temporary access, the end date is set at the time of provisioning; automated expiry or a calendar reminder for manual revocation is configured.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card mb-3 border-secondary">
+          <div class="card-header fw-semibold">Step 6 — Notification and Briefing</div>
+          <div class="card-body">
+            <ul class="mb-0">
+              <li>The user is notified that access has been provisioned, with details of what has been granted and any applicable conditions (e.g., MFA requirement, session logging).</li>
+              <li>For access to systems classified as Confidential or Restricted: the user receives a security briefing on handling requirements before first use. Briefing completion is documented.</li>
+              <li>For privileged account access: the user receives a briefing on the Privileged Account Acceptable Use Policy and acceptable use obligations. Acknowledgement is recorded.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card mb-3 border-secondary">
+          <div class="card-header fw-semibold">Step 7 — Record</div>
+          <div class="card-body">
+            <ul class="mb-0">
+              <li>The completed and approved Access Request Form (TMP-009) is filed in the document management system or a designated secure access records folder.</li>
+              <li>The Access Inventory (maintained by IT) is updated to reflect the new or modified access grant.</li>
+              <li>Records are retained for a minimum of <strong>3 years after the access is revoked</strong> for audit and regulatory purposes.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. Privileged Access Requirements -->
+      <div class="policy-section">
+        <h2>5. Privileged Access Requirements</h2>
+        <p>Privileged access carries significantly elevated risk and is subject to additional mandatory controls beyond the standard provisioning process:</p>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm">
+            <thead class="table-secondary">
+              <tr><th>Control</th><th>Requirement</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>ISM Approval</strong></td>
+                <td>Mandatory for all privileged access requests. Cannot be delegated below ISM level.</td>
+              </tr>
+              <tr>
+                <td><strong>Multi-Factor Authentication (MFA)</strong></td>
+                <td>Required on all privileged accounts without exception. No MFA exemptions are permitted for privileged access.</td>
+              </tr>
+              <tr>
+                <td><strong>Time Limitation</strong></td>
+                <td>Maximum 90-day grant per approval. Renewal requires a full re-approval cycle. No indefinite privileged access without scheduled review.</td>
+              </tr>
+              <tr>
+                <td><strong>Just-in-Time (JIT) Access</strong></td>
+                <td>JIT access via a PAM solution is the preferred model where technology supports it. Standing privileged access should be replaced with JIT where feasible.</td>
+              </tr>
+              <tr>
+                <td><strong>Individual Named Accounts</strong></td>
+                <td>No shared administrator accounts. Every individual with privileged access must have their own uniquely named account. Generic admin accounts (e.g., "admin", "root") are prohibited for interactive use.</td>
+              </tr>
+              <tr>
+                <td><strong>Session Logging</strong></td>
+                <td>All privileged session activity must be logged. Logs must be retained for a minimum of 12 months and protected from modification or deletion by the privileged user.</td>
+              </tr>
+              <tr>
+                <td><strong>Annual Review</strong></td>
+                <td>Annual privileged access review conducted by the ISM. All privileged accounts verified for continued need; any accounts no longer required are revoked immediately.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 6. Third-Party and Vendor Access -->
+      <div class="policy-section">
+        <h2>6. Third-Party and Vendor Access</h2>
+        <p>All third-party and vendor access to organisational systems is subject to additional controls:</p>
+        <ul>
+          <li><strong>Internal Sponsor:</strong> Every vendor or contractor with system access must have a named internal employee as sponsor. The sponsor is responsible for requesting access, confirming continued business need, and notifying IT/ISM when access is no longer required.</li>
+          <li><strong>Scope Limitation:</strong> Vendor access must be limited to the systems, data, and time period specified in the contract or Statement of Work. Access must not be granted beyond the scope of the contractual arrangement.</li>
+          <li><strong>Time Limitation:</strong> All vendor access has an explicit end date aligned with the contract end date or engagement end date. Renewal requires a new access request through the standard provisioning process.</li>
+          <li><strong>Remote Access:</strong> Vendor remote access must be conducted via a dedicated secure channel — either the organisation's VPN or an approved privileged remote access solution. Vendor access via personal remote desktop tools or uncontrolled channels is prohibited.</li>
+          <li><strong>No Persistent Access:</strong> For critical systems, vendor access must be deactivated between use sessions. Access must be activated by an internal sponsor for each use and deactivated immediately upon completion of the work session.</li>
+          <li><strong>Activity Logging:</strong> All vendor access activity is logged at the session level. Logs are reviewed quarterly as part of the vendor access review process.</li>
+          <li><strong>Quarterly Review:</strong> The ISM conducts a quarterly review of all active vendor accounts to confirm continued business need, appropriate scope, and valid contract status.</li>
+        </ul>
+      </div>
+
+      <!-- 7. Access Modification for Role Changes -->
+      <div class="policy-section">
+        <h2>7. Access Modification for Role Changes</h2>
+        <p>When an employee changes role, department, or job function, their access profile must be updated to reflect their new responsibilities. Failure to update access on role changes is a primary cause of privilege accumulation and is treated as a nonconformity.</p>
+        <ul>
+          <li>The employee's line manager (new or outgoing, as appropriate) submits an Access Modification Request via TMP-009 within <strong>5 business days</strong> of the role change effective date.</li>
+          <li>The request must specify both the access to be revoked (from the previous role) and the access to be granted (for the new role).</li>
+          <li>Access no longer required for the new role must be revoked <strong>before</strong> new access for the new role is granted, to prevent any temporary period of excess access.</li>
+          <li>SoD analysis must be re-performed for the combination of existing access (after revocation) and new access to confirm no incompatible combinations are created.</li>
+          <li>The access modification is subject to the same approval workflow (Steps 2–7 of Section 4) as a new access request.</li>
+        </ul>
+      </div>
+
+      <!-- 8. Access Deprovisioning Procedure -->
+      <div class="policy-section">
+        <h2>8. Access Deprovisioning Procedure</h2>
+
+        <div class="card mb-3 border-secondary">
+          <div class="card-header fw-semibold">Step 1 — Trigger</div>
+          <div class="card-body">
+            <p class="mb-2">Deprovisioning is triggered by any of the following events:</p>
+            <ul class="mb-0">
+              <li><strong>Termination or departure:</strong> HR notifies IT and the ISM of the employee's last day. Target notification: same day as decision; minimum: before the employee's last working day.</li>
+              <li><strong>Contract end:</strong> Automated or manual trigger based on contract end date recorded at provisioning.</li>
+              <li><strong>Periodic access review finding:</strong> Access review determines access is no longer required or appropriate.</li>
+              <li><strong>Role change:</strong> As described in Section 7 — previous role access revoked as part of the modification process.</li>
+              <li><strong>Security incident:</strong> ISM may direct immediate deprovisioning of an account as part of an incident response action.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card mb-3 border-secondary">
+          <div class="card-header fw-semibold">Step 2 — Immediate Actions on Termination</div>
+          <div class="card-body">
+            <ul class="mb-0">
+              <li>Disable all system accounts within <strong>1 hour</strong> of HR notification of termination or departure. This is a hard deadline — not a target.</li>
+              <li>Revoke remote access: disable VPN certificates, revoke MFA tokens, remove from remote access groups.</li>
+              <li>Disable email account; configure an out-of-office auto-reply and, where required, forward incoming email to the line manager for a defined period.</li>
+              <li>Change any shared credentials or passwords that the departing individual was aware of (if shared accounts cannot be avoided, passwords must be changed on departure).</li>
+              <li>Collect physical assets on the last working day: access badges, hardware tokens, laptops, mobile phones, USB security keys, and any other organisation-issued equipment.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card mb-3 border-secondary">
+          <div class="card-header fw-semibold">Step 3 — Verification</div>
+          <div class="card-body">
+            <ul class="mb-0">
+              <li>IT confirms in writing that all system accounts for the individual have been disabled.</li>
+              <li>ISM spot-checks at least 3 critical systems to independently verify account status within 24 hours of the notification.</li>
+              <li>Cloud and SaaS application accounts are verified — cloud accounts are frequently overlooked and must be checked explicitly.</li>
+              <li>Active Directory / Identity Provider (IdP) account is disabled (not immediately deleted). The disabled account is retained for the audit trail and deleted only after the applicable retention period has passed.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card mb-3 border-secondary">
+          <div class="card-header fw-semibold">Step 4 — Record</div>
+          <div class="card-body">
+            <ul class="mb-0">
+              <li>IT completes the deprovisioning checklist, recording the date and time each access was revoked and the name of the individual who performed the revocation.</li>
+              <li>The completed checklist is filed in the individual's HR file and in the access records store.</li>
+              <li>Access records are retained for a minimum of <strong>3 years</strong> after deprovisioning.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- 9. Periodic Access Reviews -->
+      <div class="policy-section">
+        <h2>9. Periodic Access Reviews</h2>
+        <p>Periodic access reviews are a mandatory control to detect and remediate access that has accumulated beyond the individual's current need. Reviews are conducted on the following schedule:</p>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm">
+            <thead class="table-secondary">
+              <tr><th>Account Type</th><th>Review Frequency</th><th>Review Owner</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Privileged accounts</td>
+                <td>Quarterly</td>
+                <td>ISM</td>
+              </tr>
+              <tr>
+                <td>Standard user accounts</td>
+                <td>Semi-annual (every 6 months)</td>
+                <td>Line managers (per their direct reports)</td>
+              </tr>
+              <tr>
+                <td>Service accounts</td>
+                <td>Annual</td>
+                <td>System owners</td>
+              </tr>
+              <tr>
+                <td>Third-party / vendor accounts</td>
+                <td>Quarterly and at contract renewal</td>
+                <td>ISM with input from internal sponsor</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 class="h5 mt-3">9.1 Review Process</h3>
+        <ul>
+          <li>The access review owner receives an access list for their scope from IT/ISM at the start of each review cycle.</li>
+          <li>For each account: the owner confirms whether the access is still required, whether the access level remains appropriate (not excessive), and whether there have been any relevant role or responsibility changes.</li>
+          <li>The ISM independently confirms the appropriateness of flagged or high-risk access entries.</li>
+          <li>Any access identified as no longer required or excessive is revoked within 5 business days of the review finding.</li>
+          <li>Review findings (including confirmations, revocations, and any noted concerns) are documented and retained as evidence of the review. A summary is reported to senior management at the management review.</li>
+        </ul>
+      </div>
+
+      <!-- 10. Separation of Duties Matrix -->
+      <div class="policy-section">
+        <h2>10. Separation of Duties Matrix</h2>
+        <p>The following role combinations are incompatible and must not be held by a single individual. Where these combinations are identified, access provisioning must be refused or, for existing cases, one of the roles must be revoked:</p>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm">
+            <thead class="table-secondary">
+              <tr><th>#</th><th>Role / Function A</th><th>Role / Function B</th><th>Reason</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>Create payment</td>
+                <td>Approve payment</td>
+                <td>Prevents unilateral fraudulent payment initiation and approval by a single individual.</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>System administrator of a system</td>
+                <td>Auditor / reviewer of the same system</td>
+                <td>Prevents self-auditing; the administrator could manipulate logs or configurations and then approve their own findings.</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>Developer for a production system</td>
+                <td>Production deployer for the same system</td>
+                <td>Prevents unauthorised or untested code from being deployed directly to production without a second party.</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>Risk assessor for a risk</td>
+                <td>Risk owner for the same risk</td>
+                <td>Prevents a risk owner from assessing their own risks without independent scrutiny.</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>Procurement / purchasing</td>
+                <td>Accounts payable / payment processing</td>
+                <td>Prevents fraudulent vendor creation and payment by a single individual.</td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td>User account creator / provisioner</td>
+                <td>Access approver</td>
+                <td>Prevents a single individual from both approving and implementing their own access grants.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 class="h5 mt-3">10.1 Compensating Controls for Small Organisations</h3>
+        <p>Where SoD cannot be achieved due to organisational size or resource constraints, this must be formally documented with a risk acceptance. Compensating controls must be implemented and documented, including as applicable:</p>
+        <ul>
+          <li>Enhanced activity logging for the individual holding both roles.</li>
+          <li>Supervisory review of all transactions or actions performed in the combined role.</li>
+          <li>Periodic reconciliation by an independent party (e.g., external auditor or senior manager).</li>
+          <li>Automated alerting on specific high-risk action combinations.</li>
+        </ul>
+        <p>SoD exceptions must be approved by the ISM and CISO and reviewed annually.</p>
+      </div>
+
+      <!-- 11. Service and Application Accounts -->
+      <div class="policy-section">
+        <h2>11. Service and Application Accounts</h2>
+        <p>Service accounts and application accounts require specific controls to prevent misuse and ensure accountability:</p>
+        <h3 class="h5 mt-3">11.1 Service Account Controls</h3>
+        <ul>
+          <li>All service accounts must be requested via the standard access request process (TMP-009), with the system or application owner as the requestor and approver.</li>
+          <li>Service accounts must have a documented purpose (what they do, which system uses them) and a named human owner responsible for managing the account.</li>
+          <li><strong>No interactive login:</strong> Service accounts must not be configured for interactive user login. Interactive login capability must be disabled at the account level where technically possible.</li>
+          <li>Passwords must be rotated in accordance with the Cryptography Policy (POL-006), or managed via an approved Privileged Access Management (PAM) solution with automated rotation.</li>
+          <li>Service accounts are reviewed annually by the system owner to confirm continued need, appropriate permissions, and owner accuracy.</li>
+          <li>Service accounts no longer required must be disabled and deleted after a 30-day retention period for audit purposes.</li>
+        </ul>
+        <h3 class="h5 mt-3">11.2 Application Service Accounts</h3>
+        <ul>
+          <li>Each application must use a unique service account — shared service accounts across applications are prohibited.</li>
+          <li>Permissions must follow the principle of least privilege; the service account must only have access to the resources the application requires to function.</li>
+          <li>All application service account passwords and secrets must be stored in an approved secrets management solution. Hardcoding credentials in source code, configuration files, or scripts is prohibited.</li>
+        </ul>
+      </div>
+
+      <!-- 12. Roles and Responsibilities -->
+      <div class="policy-section">
+        <h2>12. Roles and Responsibilities</h2>
+        <p><strong>R = Responsible, A = Accountable, C = Consulted, I = Informed.</strong></p>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm" style="font-size:0.875rem">
+            <thead class="table-secondary">
+              <tr><th>Activity</th><th>Requestor</th><th>Line Manager</th><th>Data / System Owner</th><th>IT</th><th>ISM</th><th>HR</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>New access request</td>
+                <td>R</td><td>A</td><td>A (per system)</td><td>R (implementation)</td><td>A (security review)</td><td>I</td>
+              </tr>
+              <tr>
+                <td>Privileged access request</td>
+                <td>R</td><td>A</td><td>A (per system)</td><td>R (implementation)</td><td>A (mandatory sign-off)</td><td>I</td>
+              </tr>
+              <tr>
+                <td>Access modification (role change)</td>
+                <td>I</td><td>R, A</td><td>A (per system)</td><td>R</td><td>A</td><td>I</td>
+              </tr>
+              <tr>
+                <td>Deprovisioning — termination</td>
+                <td>—</td><td>I</td><td>I</td><td>R (disable accounts)</td><td>A (verify, oversee)</td><td>R (trigger notification)</td>
+              </tr>
+              <tr>
+                <td>Deprovisioning — contract end</td>
+                <td>—</td><td>I</td><td>I</td><td>R</td><td>A</td><td>C</td>
+              </tr>
+              <tr>
+                <td>Periodic access review</td>
+                <td>I</td><td>R (standard users)</td><td>R (service accts)</td><td>R (supply list)</td><td>A</td><td>I</td>
+              </tr>
+              <tr>
+                <td>SoD analysis</td>
+                <td>—</td><td>C</td><td>C</td><td>C</td><td>R, A</td><td>—</td>
+              </tr>
+              <tr>
+                <td>Vendor access quarterly review</td>
+                <td>—</td><td>I (sponsor)</td><td>I</td><td>R (disable)</td><td>R, A</td><td>—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 13. Related Documents -->
+      <div class="policy-section">
+        <h2>13. Related Documents</h2>
+        <ul>
+          <li>TMP-009 — Access Request Form</li>
+          <li><a href="pol-003-access-control-policy.html">POL-003 — Access Control Policy</a></li>
+          <li><a href="pol-014-hr-security-policy.html">POL-014 — HR Security Policy</a></li>
+          <li><a href="pro-005-corrective-action-procedure.html">PRO-005 — Corrective Action Procedure</a></li>
+          <li><a href="pol-006-cryptography-policy.html">POL-006 — Cryptography Policy</a></li>
+        </ul>
+      </div>
+
+      <!-- Revision History -->
+      <div class="policy-section mt-5">
+        <h2>Revision History</h2>
+        <table class="table table-bordered table-sm">
+          <thead class="table-secondary">
+            <tr><th>Version</th><th>Date</th><th>Author</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1.0</td><td>2025-01-01</td><td>Information Security Manager</td><td>Initial release</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title fs-5" id="rbacModalLabel">🔒 Login</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <div class="modal-body"><form id="rbac-login-form" novalidate>
+        <div class="mb-3"><label for="rbac-username-input" class="form-label">Username</label><input type="text" class="form-control" id="rbac-username-input" autocomplete="username" maxlength="40" required /></div>
+        <div class="mb-3"><label for="rbac-password-input" class="form-label">Password</label><input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" required /></div>
+        <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+      </form></div>
+      <div class="modal-footer border-0 pt-0"><p class="text-secondary small mb-0">Session clears when you close this tab.</p></div>
+    </div></div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" /></a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" /></a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="../privacy.html">Privacy Policy</a> &middot; <a href="../terms.html">Terms</a></p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="../users.js" defer></script>
+  <script src="../roles.js" defer></script>
+  <script src="../script.js" defer></script>
+</body>
+</html>

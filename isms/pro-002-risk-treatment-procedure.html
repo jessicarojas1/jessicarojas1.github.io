@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="../theme.css" />
+  <link rel="stylesheet" href="isms.css" />
+  <title>Risk Treatment Procedure | ISMS | Jessica Rojas</title>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="../index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="../projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="../timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="../cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="../consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="../contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="../blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="../knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="../compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="../jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="../admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">&#9728;&#65039;</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content">
+    <div class="container py-4">
+      <nav aria-label="breadcrumb" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../index.html">Home</a></li><li class="breadcrumb-item"><a href="index.html">ISMS</a></li><li class="breadcrumb-item active">PRO-002</li></ol></nav>
+
+      <div class="d-flex justify-content-between align-items-start mb-4 print-btn">
+        <span class="badge bg-warning text-dark fs-6">Procedure &mdash; PRO-002</span>
+        <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">Print / Save PDF</button>
+      </div>
+
+      <div class="doc-header mb-4">
+        <table class="table table-bordered table-sm"><tbody>
+          <tr><th style="width:30%">Document Title</th><td>Risk Treatment Procedure</td></tr>
+          <tr><th>Document ID</th><td>PRO-002</td></tr>
+          <tr><th>Version</th><td>1.0</td></tr>
+          <tr><th>Classification</th><td>Internal</td></tr>
+          <tr><th>Owner</th><td>Information Security Manager</td></tr>
+          <tr><th>Approved By</th><td>Senior Management</td></tr>
+          <tr><th>Effective Date</th><td>2025-01-01</td></tr>
+          <tr><th>Next Review</th><td>2026-01-01</td></tr>
+          <tr><th>ISO 27001:2022 Controls</th><td>6.1.3, 8.3</td></tr>
+        </tbody></table>
+      </div>
+
+      <div class="policy-section">
+        <h2>1. Purpose and Objective</h2>
+        <p>This procedure defines the process for selecting, planning, implementing, and verifying risk treatment actions for information security risks identified through the Risk Assessment Procedure (PRO-001). Risk treatment is the process of modifying risk by selecting and implementing one or more options to address risks that exceed the organization's defined risk acceptance threshold.</p>
+        <p>The objectives of this procedure are to:</p>
+        <ul>
+          <li>Ensure all risks above the acceptance threshold receive a documented, approved treatment decision</li>
+          <li>Provide a structured approach for evaluating and selecting appropriate treatment options (avoid, reduce, transfer, or accept)</li>
+          <li>Map selected treatment controls to the ISO 27001:2022 Annex A control set and maintain an accurate Statement of Applicability (TMP-001)</li>
+          <li>Ensure risk treatment plans are implemented on schedule, with implementation evidence retained for audit purposes</li>
+          <li>Verify that implemented controls achieve the targeted reduction in residual risk</li>
+          <li>Satisfy the requirements of ISO/IEC 27001:2022 Clauses 6.1.3 and 8.3</li>
+        </ul>
+      </div>
+
+      <div class="policy-section">
+        <h2>2. Scope</h2>
+        <p>This procedure applies to all information security risks identified in the Risk Register (TMP-002) that require treatment, including risks arising from:</p>
+        <ul>
+          <li>Annual and triggered risk assessments conducted under PRO-001</li>
+          <li>Security incidents that reveal previously unidentified or underestimated risks</li>
+          <li>Internal or external audit findings</li>
+          <li>Management review decisions</li>
+          <li>Changes in the threat landscape or regulatory environment</li>
+        </ul>
+        <p>This procedure applies to all personnel involved in approving, implementing, or monitoring risk treatment actions. It also governs the process for formally accepting risks below the acceptance threshold or where treatment is impractical.</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>3. Definitions</h2>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th style="width:25%">Term</th><th>Definition</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Risk Treatment</strong></td><td>The process of selecting and implementing measures to modify risk. Treatment options include avoiding, reducing, transferring, or accepting the risk.</td></tr>
+            <tr><td><strong>Risk Acceptance</strong></td><td>The formal, documented decision to accept a risk without further treatment, acknowledging the potential consequences. Risk acceptance requires explicit management sign-off.</td></tr>
+            <tr><td><strong>Residual Risk</strong></td><td>The level of risk remaining after treatment measures and existing controls have been applied. Risk acceptance decisions are made against residual risk.</td></tr>
+            <tr><td><strong>Compensating Control</strong></td><td>A security control implemented to address a risk when the primary or preferred control cannot be implemented due to technical, operational, or resource constraints.</td></tr>
+            <tr><td><strong>Statement of Applicability (SoA)</strong></td><td>A documented statement describing which ISO 27001:2022 Annex A controls are applicable to the ISMS, with justification for inclusions and exclusions.</td></tr>
+            <tr><td><strong>Risk Treatment Plan</strong></td><td>A documented plan specifying the treatment option selected, the controls to be implemented, the responsible owner, target completion dates, and success metrics for each risk requiring treatment.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section">
+        <h2>4. Prerequisites</h2>
+        <p>Before commencing the risk treatment process, the following must be in place:</p>
+        <ol>
+          <li><strong>Completed and Approved Risk Assessment (PRO-001):</strong> A fully populated Risk Register (TMP-002) with inherent and residual risk scores, risk levels, and Risk Owner assignments, approved by the Information Security Manager.</li>
+          <li><strong>Risk Evaluation Summary:</strong> The ranked list of risks requiring treatment, produced at the conclusion of the risk assessment process, reviewed and approved by senior management.</li>
+          <li><strong>Management Risk Appetite Statement:</strong> The documented and current risk appetite from POL-017, confirming the acceptance threshold and any directional guidance from management on treatment priorities.</li>
+          <li><strong>Current Statement of Applicability (TMP-001):</strong> The most recent version of the SoA, against which control selections will be compared and updated.</li>
+          <li><strong>Resource Commitment:</strong> Preliminary management commitment of budget and personnel resources for risk treatment implementation, obtained during management review or at the start of the treatment cycle.</li>
+        </ol>
+      </div>
+
+      <div class="policy-section">
+        <h2>5. Procedure Steps</h2>
+
+        <h3 class="h5 mt-4">Step 1: Prioritize Risks for Treatment</h3>
+        <ol>
+          <li>Extract all risks from the Risk Register (TMP-002) with a Residual Risk Level of Medium, High, or Critical (i.e., all risks above the acceptance threshold). Verify that the Risk Register reflects the most recently approved risk assessment.</li>
+          <li>Sort risks by Residual Risk Score in descending order. Where multiple risks share the same score, apply a secondary sort: prioritize risks with higher Impact ratings (as high-impact risks warrant earlier treatment even at lower likelihood), then by asset criticality.</li>
+          <li>Identify any risks flagged as regulatory, legal, or contractual obligations. These risks must be treated regardless of their position in the priority ranking and should be escalated immediately to the top of the treatment queue.</li>
+          <li>Present the prioritized risk list to the Information Security Manager for review and confirmation. Obtain written confirmation that the priority order reflects current business priorities and management direction.</li>
+          <li>Document the prioritized treatment list as a working annex to the Risk Treatment Plan.</li>
+        </ol>
+
+        <h3 class="h5 mt-4">Step 2: Select Treatment Options</h3>
+        <ol>
+          <li>For each risk requiring treatment, convene a discussion between the Information Security Manager, the Risk Owner, and relevant subject matter experts. Evaluate all four treatment options against the specific risk:</li>
+        </ol>
+        <table class="table table-bordered table-sm mt-2 mb-3">
+          <thead><tr><th style="width:15%">Option</th><th>Description</th><th>When to Use</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Avoid</strong></td><td>Eliminate the activity, process, or asset that gives rise to the risk</td><td>Risk score is Critical; no cost-effective treatment exists; activity is discretionary</td><td>Decommission a legacy system with unacceptable vulnerability exposure</td></tr>
+            <tr><td><strong>Reduce</strong></td><td>Implement controls to reduce likelihood, impact, or both</td><td>Risk is above acceptance; controls are technically and financially feasible; treatment is proportionate to risk</td><td>Implement MFA to reduce likelihood of unauthorized access</td></tr>
+            <tr><td><strong>Transfer</strong></td><td>Share the financial or operational consequence with a third party via insurance, contract, or outsourcing</td><td>Risk impact can be offset financially; a capable third party can manage the risk more effectively</td><td>Cyber insurance; contractual liability clauses with cloud providers</td></tr>
+            <tr><td><strong>Accept</strong></td><td>Make an informed decision to accept the risk without further treatment</td><td>Residual risk is below or very close to acceptance threshold; cost of treatment exceeds benefit; risk is inherent to the business</td><td>Accept a low-severity vulnerability on an isolated development system</td></tr>
+          </tbody>
+        </table>
+        <ol start="2">
+          <li>Document the treatment option selected for each risk and the rationale for the selection. The rationale must include: options considered and why they were rejected, cost-benefit considerations where relevant, and alignment with risk appetite.</li>
+          <li>Where a combination of treatment options is selected (e.g., Reduce + Transfer), document each option component separately and explain how they work together.</li>
+          <li>Obtain Risk Owner agreement on the selected treatment option before proceeding. Document the Risk Owner's confirmation.</li>
+        </ol>
+
+        <h3 class="h5 mt-4">Step 3: Identify Treatment Controls</h3>
+        <ol>
+          <li>For risks where the treatment option is &ldquo;Reduce,&rdquo; identify specific controls to implement. Map each control to the relevant ISO 27001:2022 Annex A control(s). Use the mapping table in the current Statement of Applicability (TMP-001) as a reference.</li>
+          <li>For each proposed control, document: Control Name, Annex A Reference (if applicable), Control Description, Control Type (Technical / Administrative / Physical), Implementation Owner, Implementation Complexity (Low / Medium / High), and Estimated Implementation Effort.</li>
+          <li>Check the current SoA (TMP-001) to determine whether the control is already listed as applicable. If an applicable control is not yet implemented, this is a gap that must be addressed. If the control is listed as not applicable, the risk treatment decision may require updating the applicability determination.</li>
+          <li>Identify any gaps in the current Annex A control coverage. Where proposed treatment controls are not currently referenced in the SoA, flag these for SoA update (see Section 7).</li>
+          <li>Where the ideal control cannot be implemented (due to technical constraints, cost, or operational impact), document a compensating control. The compensating control must achieve equivalent or near-equivalent risk reduction. The Information Security Manager must approve compensating control selections.</li>
+        </ol>
+
+        <h3 class="h5 mt-4">Step 4: Develop Risk Treatment Plan</h3>
+        <ol>
+          <li>For each risk requiring treatment, document a Risk Treatment Plan entry in the Risk Register (TMP-002) containing the following fields:
+            <ul>
+              <li>Risk ID (from Risk Register)</li>
+              <li>Treatment Option Selected</li>
+              <li>Control(s) to be Implemented</li>
+              <li>Implementation Owner (named individual)</li>
+              <li>Implementation Steps (high-level task breakdown)</li>
+              <li>Target Start Date</li>
+              <li>Target Completion Date</li>
+              <li>Target Residual Risk Score (post-treatment)</li>
+              <li>Success Metrics (how effectiveness will be measured)</li>
+              <li>Resource Requirements (budget, personnel, tools)</li>
+              <li>Dependencies (other controls or changes this depends on)</li>
+            </ul>
+          </li>
+          <li>Ensure all target completion dates are realistic. Discuss with implementation owners before setting dates. For complex controls, consider phased implementation with milestone dates.</li>
+          <li>Set Success Metrics for each treatment action. Success metrics must be measurable and directly linked to the target risk reduction. Examples: &ldquo;MFA enabled for 100% of privileged accounts,&rdquo; &ldquo;Zero critical vulnerabilities unpatched beyond 30 days,&rdquo; &ldquo;Penetration test result confirms control effectiveness.&rdquo;</li>
+          <li>Compile the complete Risk Treatment Plan as a summary document, consolidating all individual risk treatment entries. This document will be presented to management for approval in Step 5.</li>
+        </ol>
+
+        <h3 class="h5 mt-4">Step 5: Obtain Management Approval</h3>
+        <ol>
+          <li>Present the complete Risk Treatment Plan to senior management. The presentation must cover: the prioritized list of risks being treated, treatment options selected and rationale, controls to be implemented and their mapping to Annex A, resource requirements and budget implications, target completion dates, and any risks proposed for acceptance.</li>
+          <li>Obtain formal management sign-off on the Risk Treatment Plan. Sign-off confirms management's authorization to proceed and their acceptance of responsibility for risks proposed for acceptance.</li>
+          <li>Document management approval in the Management Review Records (TMP-007) or as a standalone approval record referencing the Risk Treatment Plan version and date.</li>
+          <li>If management requests changes to the treatment plan (e.g., re-prioritization, acceptance of additional risks, resource adjustments), revise the plan accordingly, obtain re-approval, and document all changes with rationale.</li>
+          <li>Communicate approved treatment actions to all implementation owners. Ensure owners have the resources, authority, and information needed to execute their assigned actions.</li>
+        </ol>
+
+        <h3 class="h5 mt-4">Step 6: Implement Controls</h3>
+        <ol>
+          <li>Implementation owners execute their assigned treatment actions in accordance with the approved Risk Treatment Plan. Each implementation owner is responsible for: following the agreed implementation steps, documenting evidence of completion, reporting progress to the ISM at agreed intervals, and escalating issues that may affect the target completion date.</li>
+          <li>The Information Security Manager maintains a Treatment Implementation Tracker (a working view of the Risk Register) and updates the status of each treatment action at least monthly.</li>
+          <li>For technical controls, implementation must follow the organization's Change Management process to ensure changes are tested and approved before deployment. Implementation owners must reference the Change Advisory Board (CAB) approval reference in the Risk Register upon completion.</li>
+          <li>Where implementation issues arise (technical obstacles, resource constraints, scope changes), the implementation owner must escalate to the ISM within 5 business days. The ISM will assess the impact on the target residual risk and, if necessary, escalate to senior management.</li>
+          <li>Upon completion of each treatment action, the implementation owner documents: completion date, evidence reference (e.g., screenshot, change ticket number, audit log extract, policy version), and any deviations from the planned implementation. Update the Risk Register accordingly.</li>
+        </ol>
+
+        <h3 class="h5 mt-4">Step 7: Verify Control Effectiveness</h3>
+        <ol>
+          <li>After implementation, the Information Security Manager or an independent assessor (not the implementation owner) verifies that the implemented control is operating as intended and achieves the target risk reduction.</li>
+          <li>Verification methods depend on the control type:
+            <ul>
+              <li><strong>Technical controls:</strong> Automated testing, vulnerability scanning re-run, penetration testing, configuration review</li>
+              <li><strong>Administrative controls:</strong> Document review, policy attestation review, training completion records</li>
+              <li><strong>Physical controls:</strong> Physical inspection, access test, review of physical access logs</li>
+            </ul>
+          </li>
+          <li>Compare the post-implementation residual risk against the target residual risk defined in the Risk Treatment Plan. If the target has been achieved, mark the treatment action as Effective. If the target has not been achieved, the treatment action is marked Partially Effective or Ineffective, and an additional treatment action must be initiated.</li>
+          <li>Document verification results in the Risk Register. Include: verification method, verifier name, verification date, result (Effective / Partially Effective / Ineffective), and evidence reference.</li>
+          <li>Update the residual risk score in the Risk Register to reflect verified post-treatment residual risk. This revised residual risk is the organization's current risk exposure for that item.</li>
+        </ol>
+
+        <h3 class="h5 mt-4">Step 8: Monitor and Review</h3>
+        <ol>
+          <li>Risk Owners are responsible for the ongoing monitoring of their assigned risks and the continuing effectiveness of treatment controls. Risk Owners must report any deterioration in control effectiveness to the ISM immediately.</li>
+          <li>The Information Security Manager reviews the status of all open treatment actions monthly and presents a summary to senior management quarterly as part of the ISMS performance reporting.</li>
+          <li>If a control is found to have failed or degraded in effectiveness (e.g., a system patch is superseded by a new vulnerability, a policy control is found non-compliant in an audit), a new or updated risk treatment action must be initiated without delay. The ISM must update the Risk Register and notify the relevant Risk Owner.</li>
+          <li>All risk treatments are reviewed as part of the annual risk assessment cycle (PRO-001). The annual review confirms whether treatment actions remain effective, whether new risks have emerged, and whether the overall residual risk profile is within the organization's risk appetite.</li>
+        </ol>
+      </div>
+
+      <div class="policy-section">
+        <h2>6. Risk Acceptance Process</h2>
+        <p>Where a risk is proposed for acceptance (either because it falls below the acceptance threshold or because the cost of treatment is disproportionate to the benefit), the following formal process must be followed:</p>
+        <ol>
+          <li>The Risk Owner documents the risk acceptance rationale in the Risk Register, including: the current residual risk score, the reason treatment is not being pursued, any compensating monitoring measures in place, and the risk owner's formal acceptance statement.</li>
+          <li>The Information Security Manager reviews the risk acceptance rationale and confirms it is reasonable and consistent with the risk appetite statement. The ISM documents their review outcome.</li>
+          <li>For risks above the acceptance threshold being formally accepted (i.e., management is accepting a risk that technically requires treatment), explicit written approval from senior management is mandatory. This approval must be recorded in the Management Review Records (TMP-007).</li>
+          <li>All accepted risks are flagged in the Risk Register with the acceptance date, approver name, and a mandatory review date (maximum 12 months from acceptance). At the review date, the acceptance decision must be re-evaluated.</li>
+          <li>A summary of all formally accepted risks, including those above the acceptance threshold, is presented at each annual management review.</li>
+        </ol>
+      </div>
+
+      <div class="policy-section">
+        <h2>7. Statement of Applicability</h2>
+        <p>The Statement of Applicability (SoA) (TMP-001) is a mandatory ISMS document that records all ISO 27001:2022 Annex A controls, with a determination of applicability and justification for each. The SoA must be updated after each risk treatment cycle:</p>
+        <ol>
+          <li>Following completion of the risk treatment control selection (Step 3), the ISM reviews the SoA to identify any new controls selected for implementation that are not yet reflected, or any controls whose applicability determination has changed.</li>
+          <li>For each change to the SoA, document: the Annex A control reference, the previous applicability status, the new applicability status, the justification for the change (referencing the risk ID), and the date of change.</li>
+          <li>The updated SoA must be reviewed and approved by the ISM and submitted to senior management for acknowledgment at the next management review.</li>
+          <li>The SoA is version-controlled under the Document Control Procedure (PRO-003). Previous SoA versions must be archived and retained for a minimum of 3 years.</li>
+          <li>The current, approved SoA must be available to auditors on request. It serves as a critical piece of evidence during ISO 27001:2022 certification and surveillance audits.</li>
+        </ol>
+      </div>
+
+      <div class="policy-section">
+        <h2>8. Documentation Requirements</h2>
+        <p>The following documents must be produced and retained for each risk treatment cycle:</p>
+        <ol>
+          <li><strong>Updated Risk Register (TMP-002):</strong> Reflecting all treatment actions, implementation status, verification results, updated residual risk scores, and risk acceptance decisions.</li>
+          <li><strong>Risk Treatment Plan:</strong> The approved plan document summarizing all treatment actions, owners, timelines, and success metrics for the treatment cycle.</li>
+          <li><strong>Updated Statement of Applicability (TMP-001):</strong> Reflecting all control decisions made during the treatment cycle.</li>
+          <li><strong>Implementation Evidence:</strong> For each completed treatment action: screenshots, change management records, policy documents, training records, test results, or other objective evidence demonstrating the control has been implemented.</li>
+          <li><strong>Verification Records:</strong> Documentation of the effectiveness verification step, including the verification method, results, and verifier identity.</li>
+          <li><strong>Management Approval Records:</strong> Documented evidence of management approval of the Risk Treatment Plan and any formal risk acceptance decisions.</li>
+        </ol>
+        <p>All documentation must be retained for a minimum of 3 years. Documents are subject to the controls of PRO-003 (Document Control Procedure).</p>
+      </div>
+
+      <div class="policy-section">
+        <h2>9. Roles and Responsibilities</h2>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Activity</th><th>ISM</th><th>Risk Owners</th><th>IT Team</th><th>Dept. Heads</th><th>Senior Management</th></tr></thead>
+          <tbody>
+            <tr><td>Prioritize risks for treatment</td><td>R/A</td><td>C</td><td>I</td><td>C</td><td>I</td></tr>
+            <tr><td>Select treatment options</td><td>R/A</td><td>R</td><td>C</td><td>C</td><td>I</td></tr>
+            <tr><td>Identify treatment controls</td><td>R/A</td><td>C</td><td>R</td><td>C</td><td>I</td></tr>
+            <tr><td>Update Statement of Applicability</td><td>R/A</td><td>I</td><td>C</td><td>I</td><td>I</td></tr>
+            <tr><td>Develop Risk Treatment Plan</td><td>R/A</td><td>C</td><td>C</td><td>C</td><td>I</td></tr>
+            <tr><td>Obtain management approval</td><td>R</td><td>C</td><td>I</td><td>C</td><td>A</td></tr>
+            <tr><td>Implement controls</td><td>A</td><td>R</td><td>R</td><td>C</td><td>I</td></tr>
+            <tr><td>Verify control effectiveness</td><td>R/A</td><td>C</td><td>C</td><td>I</td><td>I</td></tr>
+            <tr><td>Approve risk acceptance decisions</td><td>R</td><td>C</td><td>I</td><td>C</td><td>A</td></tr>
+            <tr><td>Monitor ongoing treatment status</td><td>R/A</td><td>R</td><td>I</td><td>I</td><td>I</td></tr>
+          </tbody>
+        </table>
+        <p class="small text-body-secondary mt-1"><em>R = Responsible, A = Accountable, C = Consulted, I = Informed</em></p>
+      </div>
+
+      <div class="policy-section">
+        <h2>10. Metrics</h2>
+        <p>The following metrics are tracked to measure the performance of the risk treatment process and reported to management quarterly:</p>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Metric</th><th>Definition</th><th>Target</th><th>Reporting Frequency</th></tr></thead>
+          <tbody>
+            <tr><td>Treatment Plan Completion Rate</td><td>Percentage of treatment actions completed by target date</td><td>&ge;90%</td><td>Quarterly</td></tr>
+            <tr><td>Average Residual Risk Score</td><td>Mean residual risk score across all risks in Risk Register</td><td>Trending downward year-on-year</td><td>Annual</td></tr>
+            <tr><td>Number of Formally Accepted Risks</td><td>Count of risks with a formal acceptance decision in place</td><td>Tracked; reviewed annually</td><td>Annual</td></tr>
+            <tr><td>Number of Risks Above Acceptance Threshold</td><td>Count of risks with residual risk exceeding acceptance threshold</td><td>Trending downward</td><td>Quarterly</td></tr>
+            <tr><td>Control Implementation Rate</td><td>Percentage of planned controls confirmed implemented and verified</td><td>&ge;85%</td><td>Quarterly</td></tr>
+            <tr><td>Overdue Treatment Actions</td><td>Count of treatment actions past their target completion date without closure</td><td>0 Critical; &lt;5 High/Medium</td><td>Monthly</td></tr>
+            <tr><td>SoA Currency</td><td>Days since the SoA was last reviewed and approved</td><td>&lt;365 days</td><td>Annual</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section">
+        <h2>11. Related Documents</h2>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Document ID</th><th>Document Title</th></tr></thead>
+          <tbody>
+            <tr><td>PRO-001</td><td>Risk Assessment Procedure</td></tr>
+            <tr><td>POL-014</td><td>Risk Management Policy</td></tr>
+            <tr><td>POL-017</td><td>Compliance and Legal Requirements Policy (Risk Criteria)</td></tr>
+            <tr><td>TMP-001</td><td>Statement of Applicability Template</td></tr>
+            <tr><td>TMP-002</td><td>Risk Register Template</td></tr>
+            <tr><td>TMP-007</td><td>Management Review Minutes Template</td></tr>
+            <tr><td>PRO-003</td><td>Document Control Procedure</td></tr>
+            <tr><td>PRO-004</td><td>Internal Audit Procedure</td></tr>
+            <tr><td>PRO-005</td><td>Corrective Action Procedure</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="policy-section mt-5">
+        <h2>Revision History</h2>
+        <table class="table table-bordered table-sm revision-table">
+          <thead><tr><th>Version</th><th>Date</th><th>Author</th><th>Description</th></tr></thead>
+          <tbody><tr><td>1.0</td><td>2025-01-01</td><td>Information Security Manager</td><td>Initial release</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title fs-5" id="rbacModalLabel">&#128274; Login</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <div class="modal-body"><form id="rbac-login-form" novalidate>
+        <div class="mb-3"><label for="rbac-username-input" class="form-label">Username</label><input type="text" class="form-control" id="rbac-username-input" autocomplete="username" placeholder="Enter your username" maxlength="40" required /></div>
+        <div class="mb-3"><label for="rbac-password-input" class="form-label">Password</label><input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" required /></div>
+        <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+      </form></div>
+      <div class="modal-footer border-0 pt-0"><p class="text-secondary small mb-0">Session clears when you close this tab.</p></div>
+    </div></div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" /></a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" /></a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="../privacy.html">Privacy Policy</a> &middot; <a href="../terms.html">Terms</a></p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="../users.js" defer></script>
+  <script src="../roles.js" defer></script>
+  <script src="../script.js" defer></script>
+</body>
+</html>

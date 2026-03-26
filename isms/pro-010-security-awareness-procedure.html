@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="../theme.css" />
+  <link rel="stylesheet" href="isms.css" />
+  <title>Security Awareness and Training Procedure | ISMS | Jessica Rojas</title>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="../index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="../projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="../timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="../cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="../consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="../contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="../blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="../knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="../compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="../jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="../admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content">
+    <div class="container py-4">
+      <nav aria-label="breadcrumb" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../index.html">Home</a></li><li class="breadcrumb-item"><a href="index.html">ISMS</a></li><li class="breadcrumb-item active">PRO-010</li></ol></nav>
+      <div class="d-flex justify-content-between align-items-start mb-4 print-btn">
+        <span class="badge bg-warning text-dark fs-6">Procedure &mdash; PRO-010</span>
+        <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">Print / Save PDF</button>
+      </div>
+
+      <div class="doc-header mb-4">
+        <table class="table table-bordered table-sm"><tbody>
+          <tr><th style="width:30%">Document Title</th><td>Security Awareness and Training Procedure</td></tr>
+          <tr><th>Document ID</th><td>PRO-010</td></tr>
+          <tr><th>Version</th><td>1.0</td></tr>
+          <tr><th>Classification</th><td>Internal</td></tr>
+          <tr><th>Owner</th><td>Information Security Manager</td></tr>
+          <tr><th>Approved By</th><td>Senior Management</td></tr>
+          <tr><th>Effective Date</th><td>2025-01-01</td></tr>
+          <tr><th>Next Review</th><td>2026-01-01</td></tr>
+          <tr><th>ISO 27001:2022 Controls</th><td>A.6.3, A.5.10, 7.2</td></tr>
+        </tbody></table>
+      </div>
+
+      <!-- 1. Purpose -->
+      <div class="policy-section">
+        <h2>1. Purpose and Objective</h2>
+        <p>This procedure defines the organization's approach to building and maintaining a security-aware culture across all personnel. It establishes the structure, content requirements, delivery mechanisms, completion expectations, and measurement framework for the information security awareness and training program in alignment with ISO 27001:2022 Controls A.6.3, A.5.10, and clause 7.2.</p>
+        <p>The objectives of this procedure are to:</p>
+        <ul>
+          <li>Ensure all personnel understand their information security responsibilities and the organization's security policies.</li>
+          <li>Reduce the likelihood of security incidents caused by human error, social engineering, and insider threats.</li>
+          <li>Provide role-appropriate, targeted training that equips personnel with the skills relevant to their specific security risks.</li>
+          <li>Demonstrate a documented, measurable, and continuously improving awareness program to auditors, customers, and regulators.</li>
+          <li>Establish clear consequences for non-completion, reinforcing that security awareness is a condition of employment and engagement.</li>
+        </ul>
+      </div>
+
+      <!-- 2. Scope -->
+      <div class="policy-section">
+        <h2>2. Scope</h2>
+        <p>This procedure applies to <strong>all personnel</strong> with access to the organization's information assets, systems, or facilities, including:</p>
+        <ul>
+          <li>Permanent employees (full-time and part-time) at all levels and functions.</li>
+          <li>Contractors and consultants with access to organizational systems or data.</li>
+          <li>Temporary staff and agency workers.</li>
+          <li>Third-party personnel working on-site or with remote access to organizational systems.</li>
+        </ul>
+        <p>Personnel who are on extended leave exceeding 6 months must complete any outstanding training within 10 business days of their return. The ISM may grant exemptions for specific short-term contractors where the nature of their engagement presents negligible risk; exemptions must be documented with a rationale and reviewed within 30 days.</p>
+      </div>
+
+      <!-- 3. Training Program Structure -->
+      <div class="policy-section">
+        <h2>3. Training Program Structure</h2>
+        <p>The security awareness and training program is structured in three tiers, progressively increasing in depth and specificity. All personnel participate in Tier 1. Tier 2 is assigned based on job function. Tier 3 is assigned to security and technical personnel at ISM discretion.</p>
+
+        <h3 class="h5 mt-4">Tier 1 — General Security Awareness</h3>
+        <table class="table table-bordered table-sm mb-4">
+          <tbody>
+            <tr><th style="width:30%">Audience</th><td>All personnel without exception</td></tr>
+            <tr><th>Frequency</th><td>Annual mandatory completion; additional modules may be assigned ad-hoc (see Section 9)</td></tr>
+            <tr><th>Delivery</th><td>Online Learning Management System (LMS); interactive modules with knowledge checks</td></tr>
+            <tr>
+              <th>Core Topics</th>
+              <td>
+                <ul class="mb-0">
+                  <li>Organizational information security policies and the ISMS overview</li>
+                  <li>Acceptable use of organizational systems and data (reference POL-002)</li>
+                  <li>Data classification and handling requirements (reference POL-005)</li>
+                  <li>Password security, authentication standards, and MFA usage</li>
+                  <li>Phishing recognition and reporting</li>
+                  <li>Security incident identification and reporting (how to report, to whom, what to include)</li>
+                  <li>Physical security: clean desk, screen locking, visitor management, tailgating prevention</li>
+                  <li>Social engineering awareness: pretexting, vishing, impersonation</li>
+                </ul>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3 class="h5 mt-4">Tier 2 — Role-Based Security Training</h3>
+        <table class="table table-bordered table-sm mb-4">
+          <tbody>
+            <tr><th style="width:30%">Audience</th><td>Personnel in targeted job functions (assigned by HR and ISM)</td></tr>
+            <tr><th>Frequency</th><td>Annual minimum. A role change triggers additional Tier 2 training for the new role within 30 days.</td></tr>
+            <tr><th>Delivery</th><td>LMS modules; may include instructor-led sessions, workshops, or external vendor training</td></tr>
+            <tr>
+              <th>Tracks by Function</th>
+              <td>
+                <table class="table table-sm table-bordered mb-0">
+                  <thead><tr><th>Function</th><th>Training Topics</th></tr></thead>
+                  <tbody>
+                    <tr><td>IT / System Administrators</td><td>Secure system configuration and hardening, patch management procedures, access control administration, privileged access management, logging and monitoring</td></tr>
+                    <tr><td>Software Developers</td><td>OWASP Top 10, secure Software Development Lifecycle (SDLC), input validation, code review for security, dependency management and supply chain security</td></tr>
+                    <tr><td>Finance / Accounting</td><td>Business Email Compromise (BEC) fraud, wire transfer verification procedures, invoice fraud detection, dual-authorization controls</td></tr>
+                    <tr><td>HR</td><td>Personnel data handling and privacy obligations, pre-employment screening procedures, termination access revocation, handling confidential HR records</td></tr>
+                    <tr><td>Executives and Senior Management</td><td>Cyber risk governance and board-level responsibilities, executive-targeted phishing (whaling), travel security, risk decision-making, incident escalation expectations</td></tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3 class="h5 mt-4">Tier 3 — Advanced Security Training</h3>
+        <table class="table table-bordered table-sm">
+          <tbody>
+            <tr><th style="width:30%">Audience</th><td>Security team, IT security specialists, and designated technical personnel; ISM approves Tier 3 assignments</td></tr>
+            <tr><th>Frequency</th><td>Annual minimum. External training at conferences or via certification programs is encouraged and budgeted separately.</td></tr>
+            <tr>
+              <th>Topics</th>
+              <td>Threat intelligence and threat hunting techniques; SIEM usage, alerting, and investigation workflows; penetration testing fundamentals and red team concepts; digital forensics awareness and evidence handling; advanced malware analysis concepts; security architecture and zero-trust principles. ISM approves Tier 3 training plans and maintains records of external training attended.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 4. Onboarding Security Training Procedure -->
+      <div class="policy-section">
+        <h2>4. Onboarding Security Training Procedure</h2>
+        <p>All new personnel must complete security onboarding training before or immediately upon gaining access to organizational systems. The following procedure applies:</p>
+        <ol>
+          <li><strong>HR notifies ISM and training coordinator of new hire start date.</strong> Notification must be provided a minimum of 3 business days before the start date. Notification must include: full name, job title, department, start date, and whether the individual will require remote access or access to Confidential or Restricted data from day one.</li>
+          <li><strong>Training coordinator assigns onboarding modules in LMS.</strong> Modules are assigned in the LMS upon receipt of the HR notification. A welcome email containing LMS login instructions, training deadlines, and a summary of the required modules is sent to the new hire's pre-provisioned email address or manager for relay.</li>
+          <li><strong>New hire completes all onboarding modules within first 5 business days.</strong> The following modules are mandatory for all new hires regardless of role:
+            <ul>
+              <li>Information Security Policy overview and ISMS introduction</li>
+              <li>Acceptable Use Policy (AUP) training (reference POL-002)</li>
+              <li>Data Classification and Handling</li>
+              <li>Password and Authentication Security</li>
+              <li>Phishing and Social Engineering Awareness</li>
+              <li>Security Incident Identification and Reporting</li>
+              <li>Physical Security and Clean Desk Policy</li>
+              <li>Remote Work Security (mandatory for any personnel with remote access)</li>
+            </ul>
+            Role-based Tier 2 modules are assigned simultaneously and must be completed within 10 business days of the start date.
+          </li>
+          <li><strong>New hire completes competency assessment.</strong> A knowledge assessment is administered upon completion of each module. The minimum passing score is 80%. Personnel who fail an assessment must immediately retake the corresponding module and re-sit the assessment. If a second attempt also fails, the training coordinator escalates to the new hire's line manager and the ISM for review. Access to sensitive systems may be withheld until the required modules are passed.</li>
+          <li><strong>New hire signs AUP acknowledgment and NDA.</strong> Before or on the first day of access, the new hire must sign: the Acceptable Use Policy acknowledgment (reference POL-002) and the Non-Disclosure Agreement (NDA). Both documents must be filed in the employee's HR record and the completion date recorded in TMP-010.</li>
+          <li><strong>Record completion.</strong> Training coordinator records all completion dates, assessment scores, and signed acknowledgments in TMP-010 (Security Awareness Training Record) and the LMS. The line manager is notified upon confirmed completion of all mandatory onboarding training.</li>
+        </ol>
+      </div>
+
+      <!-- 5. Annual Refresher Training Procedure -->
+      <div class="policy-section">
+        <h2>5. Annual Refresher Training Procedure</h2>
+        <p>Annual refresher training ensures all personnel maintain current awareness as the threat landscape, policies, and organizational context evolve. The following procedure governs the annual training cycle:</p>
+        <ol>
+          <li><strong>ISM publishes annual training calendar.</strong> The annual training calendar must be published by January 31 of each year. The calendar sets the training window open date, required completion deadline (typically end of Q2 or the organization's certification anniversary), and the topics covered. The calendar is communicated to all line managers and via company-wide announcement.</li>
+          <li><strong>New content developed or procured.</strong> The ISM reviews and approves all annual training content before deployment. Content must be updated each year to reflect: the current threat landscape and emerging attack techniques, incidents or near-misses from the prior year (anonymized as appropriate), policy changes since the last training cycle, and any regulatory or legal developments. Reuse of unmodified prior-year content is not acceptable unless the ISM documents that no material changes are required.</li>
+          <li><strong>LMS enrollment notifications sent.</strong> The LMS automatically sends enrollment notifications to all in-scope personnel 60 days before the completion deadline, including a direct link to the assigned modules and the deadline date.</li>
+          <li><strong>Automated reminder notifications.</strong> The LMS sends automated reminder notifications to personnel who have not completed their assigned modules at: 30 days before deadline, 14 days before deadline, and 7 days before deadline. Managers of non-completing personnel are copied on the 14-day and 7-day reminders.</li>
+          <li><strong>ISM reports non-completions at deadline.</strong> At the completion deadline, the ISM generates a non-completion report from the LMS. The report is distributed to relevant line managers. Line managers are given 5 business days to ensure their team members complete the outstanding training and to communicate any legitimate obstacles (extended leave, medical absence) to the ISM.</li>
+          <li><strong>Persistent non-completions escalated to HR.</strong> Personnel who remain non-compliant more than 10 business days after the original deadline (absent documented exemption from ISM) are reported to HR. Non-completion of mandatory security training is treated as a policy violation subject to HR disciplinary process per the HR Security Policy (POL-014).</li>
+          <li><strong>Record and report completion.</strong> Completion is recorded in TMP-010 and the LMS. The ISM reports completion metrics to senior management monthly during the active training period and provides a final completion report at the management review following the close of the training window.</li>
+        </ol>
+      </div>
+
+      <!-- 6. Phishing Simulation Program -->
+      <div class="policy-section">
+        <h2>6. Phishing Simulation Program</h2>
+        <p>The phishing simulation program complements formal training by providing a realistic, behavioural measure of the organization's susceptibility to social engineering and creating immediate learning opportunities at the point of failure.</p>
+
+        <h3 class="h5 mt-3">Planning</h3>
+        <p>The ISM, or an approved third-party simulation vendor, plans quarterly phishing simulation campaigns. Campaign scenarios must escalate in sophistication over the annual cycle to prevent personnel from recognizing simulations by pattern. Scenarios are drawn from a rotating library including: credential harvesting via spoofed login pages, malicious attachment delivery, pretextual requests for action (invoice approval, urgent wire transfer), and voice (vishing) or SMS (smishing) phishing variants where technically feasible. The ISM approves all scenarios before launch. Campaign plans are restricted to ISM and simulation vendor personnel — scenarios must not be disclosed to staff in advance.</p>
+
+        <h3 class="h5 mt-3">Execution</h3>
+        <p>Simulated phishing emails are sent to all in-scope personnel during normal working hours unless the campaign is specifically targeting off-hours behaviour. Simulation landing pages capture click events and credential entry events. No real credentials are collected — landing pages must present a non-functional form and immediately redirect to the teachable moment page upon submission. Email filtering systems must be configured to allow simulation emails through without being blocked; IT must whitelist simulation infrastructure per campaign.</p>
+
+        <h3 class="h5 mt-3">Immediate Response for Individuals</h3>
+        <ul>
+          <li><strong>Personnel who click a simulated phishing link</strong> are immediately redirected to a "teachable moment" landing page explaining the indicators of phishing they missed, what they should have done, and how to report real phishing. This is an educational intervention, not a punitive action.</li>
+          <li><strong>Personnel who enter credentials</strong> on a simulated phishing landing page receive the teachable moment page and are automatically enrolled in a targeted remedial phishing awareness module. They must complete the remedial module within 3 business days. The training coordinator and line manager are notified.</li>
+          <li><strong>Personnel who correctly report</strong> the simulated phishing email via the approved reporting mechanism (e.g., "Report Phishing" button) receive positive reinforcement acknowledgment from the simulation platform.</li>
+        </ul>
+
+        <h3 class="h5 mt-3">Reporting and Metrics Targets</h3>
+        <p>Campaign results are compiled by the ISM within 5 business days of campaign close. The report includes: overall click rate, credential entry rate, report rate, per-department breakdown, and identification of repeat offenders (clicked in 2 or more consecutive campaigns). The report is reviewed by the ISM and, at a summary level, presented to senior management quarterly.</p>
+        <table class="table table-bordered table-sm">
+          <thead class="table-secondary">
+            <tr><th>Metric</th><th>Target</th><th>Action if Target Not Met</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Click rate</td><td>&lt; 5%</td><td>Department-level targeted follow-up training; increased simulation frequency for that department</td></tr>
+            <tr><td>Credential entry rate</td><td>&lt; 1%</td><td>Mandatory remedial training for all who entered credentials; review access privileges</td></tr>
+            <tr><td>Report rate</td><td>&gt; 70%</td><td>Reinforce reporting culture in awareness communications; recognize high-performing departments</td></tr>
+          </tbody>
+        </table>
+        <p>Departments or individuals consistently below targets receive a written improvement plan coordinated between the ISM and the relevant line manager. Repeat offenders (clicked in 3 or more campaigns) are referred to HR for a conversation on security obligations.</p>
+      </div>
+
+      <!-- 7. Training Records and Compliance Tracking -->
+      <div class="policy-section">
+        <h2>7. Training Records and Compliance Tracking</h2>
+        <p>All training activity is recorded in TMP-010 (Security Awareness Training Record) and, where applicable, the LMS. TMP-010 is the authoritative record for audit purposes. The following fields are maintained per employee:</p>
+        <ul>
+          <li>Employee ID, name, department, job title, and employment type</li>
+          <li>Onboarding training completion date and assessment scores (by module)</li>
+          <li>Annual training completion dates and scores by year (each training cycle recorded separately)</li>
+          <li>Role-based (Tier 2) training completions: module name, completion date, score</li>
+          <li>Tier 3 advanced training: course/certification name, provider, date, ISM approval reference</li>
+          <li>Phishing simulation results: date, scenario type, action taken (reported / clicked / entered credentials), remedial training completion if applicable</li>
+          <li>AUP acknowledgment date and version signed</li>
+          <li>NDA date</li>
+          <li>Current training compliance status: <span class="badge bg-success">Current</span>, <span class="badge bg-danger">Overdue</span>, or <span class="badge bg-secondary">Exempt</span></li>
+        </ul>
+        <p><strong>Reporting cadence:</strong></p>
+        <ul>
+          <li>Monthly: ISM receives compliance report from LMS showing overall and per-department completion percentages, overdue individuals, and phishing simulation summary.</li>
+          <li>Quarterly: Summary compliance report presented to senior management including trend data.</li>
+          <li>Annual: Full program effectiveness report presented at management review, including all metrics, trend analysis, and recommendations for the next program cycle.</li>
+        </ul>
+      </div>
+
+      <!-- 8. Training Effectiveness Measurement -->
+      <div class="policy-section">
+        <h2>8. Training Effectiveness Measurement</h2>
+        <p>The awareness program must demonstrate measurable improvement in security behaviour over time. The following effectiveness indicators are tracked and reviewed annually by the ISM:</p>
+        <table class="table table-bordered table-sm">
+          <thead class="table-secondary">
+            <tr><th>Indicator</th><th>Measurement Method</th><th>Target Direction</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Assessment score improvement</td><td>Compare pre- and post-module assessment scores; track year-over-year average scores</td><td>Improving (year-on-year increase)</td></tr>
+            <tr><td>Phishing simulation click rate trend</td><td>Quarterly simulation results plotted over rolling 12 months</td><td>Declining over time</td></tr>
+            <tr><td>Security incident rate correlation</td><td>Compare phishing-related incident count before and after training campaigns</td><td>Declining after each major campaign</td></tr>
+            <tr><td>Employee satisfaction and comprehension</td><td>Post-training survey (administered after annual training cycle close); measure perceived relevance and knowledge confidence</td><td>Satisfaction &gt;70%; comprehension confidence &gt;80%</td></tr>
+            <tr><td>Reporting rate</td><td>Volume of security incidents and suspicious activity reports submitted by staff</td><td>Increasing (indicates better awareness)</td></tr>
+          </tbody>
+        </table>
+        <p>The ISM conducts an annual review of the full program using these indicators. Any area failing to show improvement for two consecutive years triggers a formal review of content, delivery method, or target audience segmentation. Adjustments and rationale are documented in the annual program effectiveness report.</p>
+      </div>
+
+      <!-- 9. Ad-hoc and Triggered Training -->
+      <div class="policy-section">
+        <h2>9. Ad-hoc and Triggered Training</h2>
+        <p>In addition to the scheduled annual and onboarding training cycles, the ISM may trigger ad-hoc training for all staff or a targeted subset at any time. Triggers include but are not limited to:</p>
+        <ul>
+          <li>Active threat campaigns specifically targeting the organization's industry sector (e.g., a coordinated phishing campaign impersonating a trusted vendor).</li>
+          <li>Newly issued policy or procedure that requires behavioural change from staff.</li>
+          <li>Post-incident lessons learned where a gap in staff knowledge or behaviour contributed to the incident.</li>
+          <li>Internal or external audit findings identifying awareness deficiencies.</li>
+          <li>Significant external events (e.g., major data breach in the sector raising awareness of a specific attack vector).</li>
+        </ul>
+        <p>Ad-hoc training is targeted to the relevant staff group (not necessarily all personnel). For high-priority triggers (active threat, post-incident), completion is required within <strong>5 business days</strong>. For standard triggers (policy change, audit finding), completion is required within 10 business days. ISM communicates the reason for the ad-hoc training to affected staff, within appropriate confidentiality limits. All ad-hoc training is recorded in TMP-010 on the same basis as scheduled training.</p>
+      </div>
+
+      <!-- 10. Roles and Responsibilities -->
+      <div class="policy-section">
+        <h2>10. Roles and Responsibilities</h2>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm">
+            <thead class="table-secondary">
+              <tr><th>Role</th><th>Responsibilities</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Information Security Manager (ISM)</strong></td>
+                <td>Design, maintain, and continuously improve the awareness program. Approve all training content before deployment. Manage or oversee the phishing simulation program. Report compliance metrics to management. Trigger ad-hoc training. Review and approve Tier 3 training plans. Conduct annual program effectiveness review.</td>
+              </tr>
+              <tr>
+                <td><strong>Human Resources (HR)</strong></td>
+                <td>Notify ISM and training coordinator of new hire start dates (minimum 3 business days notice). File signed AUP acknowledgments and NDAs in employee records. Escalate persistent non-completions through the disciplinary process. Notify ISM of role changes triggering additional Tier 2 training.</td>
+              </tr>
+              <tr>
+                <td><strong>Line Managers</strong></td>
+                <td>Ensure all direct reports complete assigned training by the required deadlines. Act on ISM escalation of non-completions within the specified timeframe. Communicate training requirements and deadlines to new team members. Escalate any obstacles to training completion to the ISM.</td>
+              </tr>
+              <tr>
+                <td><strong>IT Department</strong></td>
+                <td>Administer the LMS platform: user provisioning, module assignment automation, report generation. Provide and maintain technical training content for IT-specific Tier 2 modules. Configure email filtering to permit phishing simulation emails per campaign. Support training coordinator with technical issues.</td>
+              </tr>
+              <tr>
+                <td><strong>All Personnel</strong></td>
+                <td>Complete all assigned training by the specified deadlines. Achieve the minimum passing score on all assessments. Sign and return AUP acknowledgment and NDA as required. Report suspicious activity and potential security incidents immediately. Apply security awareness knowledge to day-to-day work activities.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 11. Related Documents -->
+      <div class="policy-section">
+        <h2>11. Related Documents</h2>
+        <ul>
+          <li>TMP-010 — Security Awareness Training Record</li>
+          <li><a href="pol-002-acceptable-use-policy.html">POL-002 — Acceptable Use Policy</a></li>
+          <li><a href="pol-014-hr-security-policy.html">POL-014 — HR Security Policy</a></li>
+          <li><a href="pol-005-data-classification-policy.html">POL-005 — Data Classification Policy</a></li>
+          <li><a href="pro-005-corrective-action-procedure.html">PRO-005 — Corrective Action Procedure</a></li>
+          <li><a href="pro-007-incident-response-procedure.html">PRO-007 — Incident Response Procedure</a></li>
+        </ul>
+      </div>
+
+      <!-- Revision History -->
+      <div class="policy-section mt-5">
+        <h2>Revision History</h2>
+        <table class="table table-bordered table-sm">
+          <thead><tr><th>Version</th><th>Date</th><th>Author</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td>1.0</td><td>2025-01-01</td><td>Information Security Manager</td><td>Initial release</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </main>
+
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h2 class="modal-title fs-5" id="rbacModalLabel">🔒 Login</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <div class="modal-body"><form id="rbac-login-form" novalidate>
+        <div class="mb-3"><label for="rbac-username-input" class="form-label">Username</label><input type="text" class="form-control" id="rbac-username-input" autocomplete="username" maxlength="40" required /></div>
+        <div class="mb-3"><label for="rbac-password-input" class="form-label">Password</label><input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" required /></div>
+        <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+      </form></div>
+      <div class="modal-footer border-0 pt-0"><p class="text-secondary small mb-0">Session clears when you close this tab.</p></div>
+    </div></div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" /></a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" /></a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="../privacy.html">Privacy Policy</a> &middot; <a href="../terms.html">Terms</a></p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="../users.js" defer></script>
+  <script src="../roles.js" defer></script>
+  <script src="../script.js" defer></script>
+</body>
+</html>
