@@ -1,206 +1,339 @@
-/* isms.css — Styles for ISO 27001 ISMS document pages */
+/* ================================================================
+   isms.css — ISO 27001 ISMS document pages
+   Loads after theme.css. Enhances doc pages with techy accents.
+   ================================================================ */
 
-/* ── Document Header Table ──────────────────────────────────────── */
+/* ── Document Header ─────────────────────────────────────────── */
 .doc-header {
+  background:
+    linear-gradient(135deg, rgba(255, 88, 17, 0.06) 0%, transparent 55%),
+    var(--bs-secondary-bg);
+  border: 1px solid rgba(255, 88, 17, 0.22);
+  border-left: 3px solid var(--bs-primary);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin-bottom: 1.75rem;
   font-size: 0.875rem;
-  border-collapse: collapse;
-  width: 100%;
-  margin-bottom: 1.5rem;
+  position: relative;
+  overflow: hidden;
 }
 
-.doc-header th,
-.doc-header td {
-  padding: 0.4rem 0.75rem;
-  border: 1px solid var(--bs-border-color);
-  vertical-align: top;
+/* Subtle top shimmer line on doc header */
+.doc-header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 88, 17, 0.5), transparent);
 }
 
 .doc-header th {
-  width: 30%;
+  width: 35%;
   font-weight: 600;
-  background-color: var(--bs-tertiary-bg);
-  color: var(--bs-body-color);
+  background-color: transparent;
+  color: var(--bs-secondary-color);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border: none;
+  border-bottom: 1px solid var(--bs-border-color);
+  padding: 0.45rem 0.5rem;
 }
 
-.doc-header tbody tr:nth-child(even) td {
-  background-color: var(--bs-secondary-bg);
+.doc-header td {
+  border: none;
+  border-bottom: 1px solid rgba(var(--bs-border-color-translucent, 48,54,61), 0.4);
+  padding: 0.45rem 0.5rem;
+  vertical-align: top;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.85rem;
 }
 
-.doc-header tbody tr:nth-child(odd) td {
-  background-color: var(--bs-body-bg);
-}
-
-/* ── Policy Section ─────────────────────────────────────────────── */
+/* ── Policy / Procedure Section ──────────────────────────────── */
 .policy-section {
   margin-bottom: 2rem;
-  padding-left: 1.25rem;
-  border-left: 4px solid var(--bs-primary);
+  padding: 1.25rem 1.25rem 0.75rem 1.5rem;
+  border-left: 3px solid var(--bs-primary);
+  border-radius: 0 0.375rem 0.375rem 0;
+  background: linear-gradient(90deg, rgba(255, 88, 17, 0.04) 0%, transparent 40%);
+  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+}
+
+.policy-section:hover {
+  background: linear-gradient(90deg, rgba(255, 88, 17, 0.08) 0%, transparent 50%);
+  box-shadow: inset 3px 0 0 rgba(255, 88, 17, 0.4);
 }
 
 .policy-section h2,
 .policy-section h3,
 .policy-section h4 {
   margin-top: 0;
+  font-weight: 700;
 }
 
-/* ── Document Type Badge ────────────────────────────────────────── */
+/* ── Document Type Badges ─────────────────────────────────────── */
 .doc-badge {
-  display: inline-block;
-  padding: 0.3em 0.7em;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.28em 0.75em;
   border-radius: 0.375rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
+  position: relative;
 }
 
-.doc-badge.doc-badge-policy {
-  background-color: var(--bs-primary);
+/* Policy */
+.doc-badge.doc-badge-policy,
+.doc-badge.badge-policy {
+  background: linear-gradient(135deg, rgba(255, 88, 17, 0.9), rgba(120, 40, 0, 0.9));
   color: #fff;
+  box-shadow: 0 2px 10px rgba(255, 88, 17, 0.35);
 }
 
-.doc-badge.doc-badge-procedure {
-  background-color: var(--bs-warning);
+/* Procedure */
+.doc-badge.doc-badge-procedure,
+.doc-badge.badge-procedure {
+  background: linear-gradient(135deg, rgba(255, 193, 7, 0.9), rgba(180, 130, 0, 0.9));
   color: #000;
+  box-shadow: 0 2px 10px rgba(255, 193, 7, 0.3);
 }
 
-.doc-badge.doc-badge-template {
-  background-color: var(--bs-success);
+/* Template */
+.doc-badge.doc-badge-template,
+.doc-badge.badge-template {
+  background: linear-gradient(135deg, rgba(25, 135, 84, 0.9), rgba(15, 80, 50, 0.9));
   color: #fff;
+  box-shadow: 0 2px 10px rgba(25, 135, 84, 0.3);
 }
 
-/* ── ISMS Card (document link cards) ────────────────────────────── */
+/* Mandatory */
+.doc-badge.badge-mandatory {
+  background: linear-gradient(135deg, rgba(220, 53, 69, 0.9), rgba(140, 20, 30, 0.9));
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(220, 53, 69, 0.3);
+}
+
+/* ── ISMS Card (document link cards in hub) ──────────────────── */
 .isms-card {
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  background: var(--bs-secondary-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.5rem;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.isms-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--bs-primary), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .isms-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  transform: translateY(-5px);
+  box-shadow: 0 0 0 1px rgba(255, 88, 17, 0.45),
+              0 12px 36px rgba(0, 0, 0, 0.45);
+  border-color: rgba(255, 88, 17, 0.4);
+}
+.isms-card:hover::before { opacity: 1; }
+
+/* ── ISMS Hub card body ───────────────────────────────────────── */
+.isms-card .card-body { padding: 1.1rem 1.25rem; }
+.isms-card .card-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+}
+.isms-card .card-text {
+  font-size: 0.8rem;
+  color: var(--bs-secondary-color);
+  line-height: 1.5;
 }
 
-/* ── Document Meta Text ─────────────────────────────────────────── */
+/* ── Document Meta ────────────────────────────────────────────── */
 .doc-meta {
   font-size: 0.78rem;
   color: var(--bs-secondary-color);
+  font-family: 'Courier New', Courier, monospace;
+  letter-spacing: 0.03em;
 }
 
-/* ── ISMS Grid (3-col responsive) ───────────────────────────────── */
+/* ── Control Tags (ISO 27001 Annex A references) ─────────────── */
+.control-tag {
+  display: inline-block;
+  padding: 0.22em 0.6em;
+  border-radius: 50rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  font-family: 'Courier New', Courier, monospace;
+  background-color: rgba(var(--bs-info-rgb, 13,202,240), 0.12);
+  color: var(--bs-info);
+  border: 1px solid rgba(var(--bs-info-rgb, 13,202,240), 0.3);
+  white-space: nowrap;
+  margin: 0.1em 0.15em;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.control-tag:hover {
+  background-color: rgba(var(--bs-info-rgb, 13,202,240), 0.22);
+  border-color: rgba(var(--bs-info-rgb, 13,202,240), 0.6);
+  box-shadow: 0 0 10px rgba(var(--bs-info-rgb, 13,202,240), 0.3);
+}
+
+/* ── ISMS Grid (3-col responsive) ────────────────────────────── */
 .isms-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1.25rem;
 }
+@media (max-width: 991.98px) { .isms-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 575.98px) { .isms-grid { grid-template-columns: 1fr; } }
 
-@media (max-width: 991.98px) {
-  .isms-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+/* ── Stats bar (ISMS hub) ─────────────────────────────────────── */
+.isms-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+}
+.isms-stat-number {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--bs-primary);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  transition: text-shadow 0.3s ease;
+}
+.isms-stat:hover .isms-stat-number {
+  text-shadow: 0 0 16px rgba(255, 88, 17, 0.6);
+}
+.isms-stat-label {
+  font-size: 0.75rem;
+  color: var(--bs-secondary-color);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
-@media (max-width: 575.98px) {
-  .isms-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* ── Print Button ───────────────────────────────────────────────── */
-.print-btn {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  z-index: 10;
-}
-
-@media print {
-  .print-btn {
-    display: none !important;
-  }
-}
-
-/* ── Revision History Table ─────────────────────────────────────── */
+/* ── Revision / Audit Tables ──────────────────────────────────── */
 .revision-table {
   width: 100%;
   font-size: 0.85rem;
   border-collapse: collapse;
   margin-bottom: 1.5rem;
 }
-
 .revision-table th,
 .revision-table td {
-  padding: 0.45rem 0.75rem;
+  padding: 0.5rem 0.75rem;
   border: 1px solid var(--bs-border-color);
   text-align: left;
   vertical-align: top;
 }
-
 .revision-table thead th {
   background-color: var(--bs-tertiary-bg);
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--bs-secondary-color);
+}
+.revision-table tbody tr {
+  transition: background-color 0.15s ease;
+}
+.revision-table tbody tr:hover {
+  background-color: rgba(255, 88, 17, 0.05);
 }
 
-.revision-table tbody tr:nth-child(even) {
-  background-color: var(--bs-secondary-bg);
+/* ── Table enhancements (all tables in ISMS docs) ────────────── */
+.policy-section .table th,
+.policy-section .table thead th {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+}
+.policy-section .table tbody tr {
+  transition: background-color 0.15s ease;
+}
+.policy-section .table tbody tr:hover {
+  background-color: rgba(255, 88, 17, 0.04) !important;
 }
 
-/* ── Control Tag (ISO 27001 control references) ─────────────────── */
-.control-tag {
-  display: inline-block;
-  padding: 0.2em 0.55em;
-  border-radius: 50rem;
+/* ── Print Button ─────────────────────────────────────────────── */
+.print-btn-area {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
+/* ── Section filter buttons (ISMS hub) ───────────────────────── */
+.isms-filter-btn {
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+.isms-filter-btn:hover  { transform: translateY(-1px); }
+.isms-filter-btn.active { box-shadow: 0 0 14px rgba(255, 88, 17, 0.3); }
+
+/* ── Section headings in ISMS hub ────────────────────────────── */
+.isms-section-heading {
   font-size: 0.7rem;
-  font-weight: 600;
-  background-color: rgba(var(--bs-info-rgb), 0.15);
-  color: var(--bs-info);
-  border: 1px solid rgba(var(--bs-info-rgb), 0.3);
-  white-space: nowrap;
-  margin: 0.1em 0.15em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--bs-secondary-color);
+  border-bottom: 1px solid var(--bs-border-color);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.25rem;
+  position: relative;
+}
+.isms-section-heading::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: 0;
+  width: 40px; height: 1px;
+  background: var(--bs-primary);
+  box-shadow: 0 0 8px rgba(255, 88, 17, 0.5);
 }
 
-/* ── Print Styles ───────────────────────────────────────────────── */
+/* ── Print Styles ─────────────────────────────────────────────── */
 @media print {
-  /* Hide navigation, footer, buttons */
-  #mainNav,
-  .navbar,
-  footer,
-  .site-footer,
-  .btn,
-  .print-btn,
-  .no-print {
-    display: none !important;
-  }
+  #mainNav, .navbar, footer, .site-footer,
+  .btn, .no-print { display: none !important; }
 
-  /* Full width layout */
-  body,
-  main,
-  .container,
-  .container-fluid {
+  body, main, .container, .container-fluid {
     width: 100% !important;
     max-width: 100% !important;
     padding: 0 !important;
     margin: 0 !important;
   }
 
-  /* Black text on white */
   body {
     background-color: #fff !important;
+    background-image: none !important;
     color: #000 !important;
+  }
+
+  .doc-header {
+    background: #f8f8f8 !important;
+    border: 1px solid #ccc !important;
+    border-left: 3px solid #ff5811 !important;
   }
 
   .policy-section {
-    border-left-color: #000;
+    border-left: 3px solid #ff5811;
+    background: none !important;
+    box-shadow: none !important;
   }
 
-  a {
-    color: #000 !important;
-    text-decoration: underline;
-  }
+  a { color: #000 !important; text-decoration: underline; }
 
-  /* Avoid page breaks inside sections */
   .policy-section,
   .revision-table,
-  .doc-header {
-    page-break-inside: avoid;
-  }
+  .doc-header { page-break-inside: avoid; }
 }
