@@ -61,13 +61,43 @@
   <main id="main-content">
 
     <!-- Hero Section -->
-    <section class="hero-section reveal">
-      <div class="container text-center">
-        <h1 class="display-3 fw-bold">Jessica Rojas</h1>
-        <p class="lead mb-4">Cybersecurity Professional · Full-Stack Developer · U.S. Army Veteran</p>
+    <section class="hero-section reveal" style="position:relative;overflow:hidden;">
+      <canvas id="matrix-canvas" aria-hidden="true"></canvas>
+      <div class="container text-center hero-content">
+        <h1 class="display-3 fw-bold glitch-text" data-text="Jessica Rojas">Jessica Rojas</h1>
+        <p class="lead mb-4 hero-subtitle"></p>
         <div>
           <a href="Resume_Jessica_R_FEB_2026.pdf" download class="btn btn-primary btn-lg me-2">Download Resume</a>
           <a href="contact.html" class="btn btn-outline-light btn-lg">Contact Me</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Cyber Terminal -->
+    <section class="terminal-section py-5 reveal">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-10 col-xl-9">
+            <p class="text-center mb-3" style="letter-spacing:0.1em;text-transform:uppercase;font-size:0.68rem;color:var(--bs-secondary-color);">↓ &nbsp; Interactive Terminal &nbsp; ↓</p>
+            <div class="cyber-terminal" role="region" aria-label="Interactive portfolio terminal">
+              <div class="terminal-header">
+                <div class="terminal-dots" aria-hidden="true">
+                  <span class="dot dot-red"></span>
+                  <span class="dot dot-yellow"></span>
+                  <span class="dot dot-green"></span>
+                </div>
+                <span class="terminal-title">jrojas@secure-shell — bash</span>
+                <span style="font-size:0.68rem;color:#484f58;font-family:monospace;">type <strong style="color:#ff5811">help</strong></span>
+              </div>
+              <div class="terminal-body" id="terminal-body" aria-live="polite"></div>
+              <div class="terminal-input-line">
+                <span class="terminal-prompt" aria-hidden="true">jrojas@secure:~$&nbsp;</span>
+                <input type="text" id="terminal-input" class="terminal-input"
+                       autocomplete="off" spellcheck="false"
+                       aria-label="Terminal command input" />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
