@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="theme.css" />
+  <title>Unified Compliance Framework | Jessica Rojas</title>
+  <meta name="description" content="Unified Compliance Framework — ISO/IEC 27001:2022, CMMC Level 1 &amp; Level 2 control tracking, cross-mapping, and gap analysis." />
+  <style>
+    .ucf-mono { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; font-size: .85rem; color: #ff5811; }
+    .ucf-select { font-size: .8rem; padding: 2px 6px; min-width: 130px; }
+    .ucf-badge-map { font-size: .7rem; margin: 1px; }
+    .status-implemented { color: var(--bs-success); }
+    .status-partial { color: var(--bs-warning); }
+    .status-planned { color: var(--bs-info); }
+    .status-not-started { color: var(--bs-secondary); }
+    .status-na { color: var(--bs-tertiary-color, #6c757d); }
+    details summary { cursor: pointer; font-weight: 600; padding: .5rem 0; }
+    details summary:hover { color: #ff5811; }
+    details[open] summary { color: #ff5811; }
+    .filter-bar { background: var(--bs-secondary-bg); border: 1px solid var(--bs-border-color); border-radius: .5rem; padding: 1rem; margin-bottom: 1rem; }
+    .high-leverage { border-left: 3px solid #ff5811; }
+    .progress { height: 1.2rem; }
+    .stat-card { border-left: 4px solid #ff5811; }
+    .stat-card .stat-num { font-size: 2rem; font-weight: 700; color: var(--bs-emphasis-color); }
+    .stat-card .stat-label { font-size: .8rem; text-transform: uppercase; color: var(--bs-secondary-color); }
+    .tab-content .table { font-size: .875rem; }
+    .mapping-detail { font-size: .85rem; }
+    @media (max-width: 767.98px) {
+      .ucf-select { min-width: 110px; }
+      .filter-bar { flex-direction: column !important; }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none">
+            <a class="nav-link" href="compliancetracker.html">Tracker</a>
+          </li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none">
+            <a class="nav-link" href="jobtracker.html">Job Tracker</a>
+          </li>
+          <li class="nav-item" data-role-min="admin" style="display:none">
+            <a class="nav-link" href="admin.html">User Admin</a>
+          </li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content">
+    <!-- Page Header -->
+    <section class="hero-section reveal">
+      <div class="container text-center py-4">
+        <div class="d-flex justify-content-center gap-2 flex-wrap mb-3">
+          <span class="badge bg-info">ISO 27001:2022</span>
+          <span class="badge bg-success">CMMC L1</span>
+          <span class="badge bg-warning text-dark">CMMC L2</span>
+          <span class="badge bg-secondary">93 + 17 + 110 controls</span>
+        </div>
+        <h1 class="fw-bold">Unified Compliance Framework</h1>
+        <p class="lead text-body-secondary">ISO/IEC 27001:2022 &middot; CMMC Level 1 &middot; CMMC Level 2 &mdash; Control tracking, cross-mapping, and gap analysis</p>
+      </div>
+    </section>
+
+    <div class="container py-4">
+      <!-- Framework Progress Cards -->
+      <div class="row g-3 mb-4" id="progress-cards">
+        <div class="col-md-4">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="card-title mb-1">ISO 27001:2022 <span class="badge bg-info">93</span></h5>
+              <div class="progress mb-2"><div class="progress-bar bg-success" id="prog-iso" role="progressbar" style="width:0%">0%</div></div>
+              <small class="text-body-secondary" id="stats-iso"></small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="card-title mb-1">CMMC Level 1 <span class="badge bg-success">17</span></h5>
+              <div class="progress mb-2"><div class="progress-bar bg-success" id="prog-l1" role="progressbar" style="width:0%">0%</div></div>
+              <small class="text-body-secondary" id="stats-l1"></small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="card-title mb-1">CMMC Level 2 <span class="badge bg-warning text-dark">110</span></h5>
+              <div class="progress mb-2"><div class="progress-bar bg-success" id="prog-l2" role="progressbar" style="width:0%">0%</div></div>
+              <small class="text-body-secondary" id="stats-l2"></small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <ul class="nav nav-tabs mb-3" id="ucfTabs" role="tablist">
+        <li class="nav-item" role="presentation"><button class="nav-link active" id="tab-dashboard" data-bs-toggle="tab" data-bs-target="#pane-dashboard" type="button" role="tab" aria-controls="pane-dashboard" aria-selected="true">Dashboard</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-iso" data-bs-toggle="tab" data-bs-target="#pane-iso" type="button" role="tab" aria-controls="pane-iso" aria-selected="false">ISO 27001</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-l1" data-bs-toggle="tab" data-bs-target="#pane-l1" type="button" role="tab" aria-controls="pane-l1" aria-selected="false">CMMC Level 1</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-l2" data-bs-toggle="tab" data-bs-target="#pane-l2" type="button" role="tab" aria-controls="pane-l2" aria-selected="false">CMMC Level 2</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-mapping" data-bs-toggle="tab" data-bs-target="#pane-mapping" type="button" role="tab" aria-controls="pane-mapping" aria-selected="false">Control Mapping</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-gap" data-bs-toggle="tab" data-bs-target="#pane-gap" type="button" role="tab" aria-controls="pane-gap" aria-selected="false">Gap Analysis</button></li>
+      </ul>
+
+      <!-- Tab Content -->
+      <div class="tab-content" id="ucfTabContent">
+
+        <!-- DASHBOARD -->
+        <div class="tab-pane fade show active" id="pane-dashboard" role="tabpanel" aria-labelledby="tab-dashboard">
+          <div class="row g-3 mb-4" id="dash-stats"></div>
+          <h5 class="mt-4 mb-3">Framework Progress</h5>
+          <div id="dash-bars"></div>
+          <h5 class="mt-4 mb-3">Domain Breakdown</h5>
+          <div id="dash-domain-breakdown"></div>
+          <div class="mt-4">
+            <button class="btn btn-outline-danger btn-sm" id="btn-reset-all">Reset All Data</button>
+          </div>
+        </div>
+
+        <!-- ISO 27001 -->
+        <div class="tab-pane fade" id="pane-iso" role="tabpanel" aria-labelledby="tab-iso">
+          <div class="filter-bar d-flex gap-2 align-items-center flex-wrap">
+            <input type="search" class="form-control form-control-sm" id="iso-search" placeholder="Search controls..." style="max-width:250px;" />
+            <select class="form-select form-select-sm" id="iso-status-filter" style="max-width:160px;">
+              <option value="">All Statuses</option>
+              <option value="implemented">Implemented</option>
+              <option value="partial">Partial</option>
+              <option value="planned">Planned</option>
+              <option value="not-started">Not Started</option>
+              <option value="na">N/A</option>
+            </select>
+            <select class="form-select form-select-sm" id="iso-domain-filter" style="max-width:200px;">
+              <option value="">All Themes</option>
+            </select>
+            <span class="badge bg-secondary" id="iso-count"></span>
+          </div>
+          <div id="iso-content"></div>
+        </div>
+
+        <!-- CMMC L1 -->
+        <div class="tab-pane fade" id="pane-l1" role="tabpanel" aria-labelledby="tab-l1">
+          <div class="filter-bar d-flex gap-2 align-items-center flex-wrap">
+            <input type="search" class="form-control form-control-sm" id="l1-search" placeholder="Search practices..." style="max-width:250px;" />
+            <select class="form-select form-select-sm" id="l1-status-filter" style="max-width:160px;">
+              <option value="">All Statuses</option>
+              <option value="implemented">Implemented</option>
+              <option value="partial">Partial</option>
+              <option value="planned">Planned</option>
+              <option value="not-started">Not Started</option>
+              <option value="na">N/A</option>
+            </select>
+            <select class="form-select form-select-sm" id="l1-domain-filter" style="max-width:220px;">
+              <option value="">All Domains</option>
+            </select>
+            <span class="badge bg-secondary" id="l1-count"></span>
+          </div>
+          <div id="l1-content"></div>
+        </div>
+
+        <!-- CMMC L2 -->
+        <div class="tab-pane fade" id="pane-l2" role="tabpanel" aria-labelledby="tab-l2">
+          <div class="filter-bar d-flex gap-2 align-items-center flex-wrap">
+            <input type="search" class="form-control form-control-sm" id="l2-search" placeholder="Search practices..." style="max-width:250px;" />
+            <select class="form-select form-select-sm" id="l2-status-filter" style="max-width:160px;">
+              <option value="">All Statuses</option>
+              <option value="implemented">Implemented</option>
+              <option value="partial">Partial</option>
+              <option value="planned">Planned</option>
+              <option value="not-started">Not Started</option>
+              <option value="na">N/A</option>
+            </select>
+            <select class="form-select form-select-sm" id="l2-domain-filter" style="max-width:260px;">
+              <option value="">All Domains</option>
+            </select>
+            <span class="badge bg-secondary" id="l2-count"></span>
+          </div>
+          <div id="l2-content"></div>
+        </div>
+
+        <!-- CONTROL MAPPING -->
+        <div class="tab-pane fade" id="pane-mapping" role="tabpanel" aria-labelledby="tab-mapping">
+          <h5 class="mb-3">ISO 27001 &rarr; CMMC Mapping</h5>
+          <div id="mapping-iso-to-cmmc"></div>
+          <h5 class="mt-4 mb-3">CMMC &rarr; ISO 27001 Reverse Lookup</h5>
+          <div class="mb-3">
+            <select class="form-select form-select-sm" id="mapping-cmmc-select" style="max-width:400px;">
+              <option value="">Select a CMMC practice...</option>
+            </select>
+          </div>
+          <div id="mapping-reverse-result"></div>
+        </div>
+
+        <!-- GAP ANALYSIS -->
+        <div class="tab-pane fade" id="pane-gap" role="tabpanel" aria-labelledby="tab-gap">
+          <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <h5 class="mb-0">Gap Analysis</h5>
+            <button class="btn btn-sm btn-outline-primary" id="btn-export-csv">Export CSV</button>
+          </div>
+          <div class="row g-3 mb-4" id="gap-summary"></div>
+          <div id="gap-content"></div>
+        </div>
+
+      </div><!-- /tab-content -->
+    </div><!-- /container -->
+  </main>
+
+  <!-- RBAC Login Modal -->
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="rbacModalLabel">🔒 Login</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="rbac-login-form" novalidate>
+            <div class="mb-3">
+              <label for="rbac-username-input" class="form-label">Username</label>
+              <input type="text" class="form-control" id="rbac-username-input" autocomplete="username" placeholder="Enter your username" maxlength="40" required />
+            </div>
+            <div class="mb-3">
+              <label for="rbac-password-input" class="form-label">Password</label>
+              <input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" required />
+            </div>
+            <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+          </form>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <p class="text-secondary small mb-0">Session clears when you close this tab.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" />
+      </a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" />
+      </a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="privacy.html">Privacy Policy</a> &middot; <a href="terms.html">Terms</a></p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="users.js" defer></script>
+  <script src="roles.js" defer></script>
+  <script src="script.js" defer></script>
+
+  <script>
+  (function(){
+    'use strict';
+
+    /* ================================================================
+       DATA
+       ================================================================ */
+    const ISO_CONTROLS = [
+      {id:'5.1',theme:'Organizational',title:'Policies for information security',cmmc:['AC.L1-b.1.i','AC.L2-3.1.1']},
+      {id:'5.2',theme:'Organizational',title:'Information security roles and responsibilities',cmmc:['AC.L2-3.1.1','AC.L2-3.1.2']},
+      {id:'5.3',theme:'Organizational',title:'Segregation of duties',cmmc:['AC.L2-3.1.3']},
+      {id:'5.4',theme:'Organizational',title:'Management responsibilities',cmmc:[]},
+      {id:'5.5',theme:'Organizational',title:'Contact with authorities',cmmc:['IR.L2-3.6.1']},
+      {id:'5.6',theme:'Organizational',title:'Contact with special interest groups',cmmc:[]},
+      {id:'5.7',theme:'Organizational',title:'Threat intelligence',cmmc:['RA.L2-3.11.1']},
+      {id:'5.8',theme:'Organizational',title:'Information security in project management',cmmc:[]},
+      {id:'5.9',theme:'Organizational',title:'Inventory of information and other associated assets',cmmc:['CM.L2-3.4.1']},
+      {id:'5.10',theme:'Organizational',title:'Acceptable use of information and other associated assets',cmmc:['AC.L1-b.1.i']},
+      {id:'5.11',theme:'Organizational',title:'Return of assets',cmmc:['MP.L1-b.1.vii']},
+      {id:'5.12',theme:'Organizational',title:'Classification of information',cmmc:['AC.L2-3.1.22']},
+      {id:'5.13',theme:'Organizational',title:'Labelling of information',cmmc:['AC.L2-3.1.22']},
+      {id:'5.14',theme:'Organizational',title:'Information transfer',cmmc:['SC.L2-3.13.8']},
+      {id:'5.15',theme:'Organizational',title:'Access control',cmmc:['AC.L1-b.1.i','AC.L1-b.1.ii','AC.L2-3.1.1','AC.L2-3.1.2']},
+      {id:'5.16',theme:'Organizational',title:'Identity management',cmmc:['IA.L1-b.1.v','IA.L2-3.5.1']},
+      {id:'5.17',theme:'Organizational',title:'Authentication information',cmmc:['IA.L1-b.1.vi','IA.L2-3.5.2','IA.L2-3.5.3']},
+      {id:'5.18',theme:'Organizational',title:'Access rights',cmmc:['AC.L2-3.1.1','AC.L2-3.1.2','AC.L2-3.1.3']},
+      {id:'5.19',theme:'Organizational',title:'Information security in supplier relationships',cmmc:['SR.L2-3.15.1']},
+      {id:'5.20',theme:'Organizational',title:'Addressing information security within supplier agreements',cmmc:['SR.L2-3.15.2']},
+      {id:'5.21',theme:'Organizational',title:'Managing information security in the ICT supply chain',cmmc:['SR.L2-3.15.3']},
+      {id:'5.22',theme:'Organizational',title:'Monitoring, review and change management of supplier services',cmmc:['SR.L2-3.15.1']},
+      {id:'5.23',theme:'Organizational',title:'Information security for use of cloud services',cmmc:['SC.L1-b.1.xii']},
+      {id:'5.24',theme:'Organizational',title:'Information security incident management planning and preparation',cmmc:['IR.L2-3.6.1']},
+      {id:'5.25',theme:'Organizational',title:'Assessment and decision on information security events',cmmc:['IR.L2-3.6.1']},
+      {id:'5.26',theme:'Organizational',title:'Response to information security incidents',cmmc:['IR.L2-3.6.2']},
+      {id:'5.27',theme:'Organizational',title:'Learning from information security incidents',cmmc:['IR.L2-3.6.3']},
+      {id:'5.28',theme:'Organizational',title:'Collection of evidence',cmmc:['IR.L2-3.6.1']},
+      {id:'5.29',theme:'Organizational',title:'Information security during disruption',cmmc:['IR.L2-3.6.1']},
+      {id:'5.30',theme:'Organizational',title:'ICT readiness for business continuity',cmmc:['IR.L2-3.6.1']},
+      {id:'5.31',theme:'Organizational',title:'Legal, statutory, regulatory and contractual requirements',cmmc:[]},
+      {id:'5.32',theme:'Organizational',title:'Intellectual property rights',cmmc:[]},
+      {id:'5.33',theme:'Organizational',title:'Protection of records',cmmc:['AU.L2-3.3.1']},
+      {id:'5.34',theme:'Organizational',title:'Privacy and protection of personal information',cmmc:[]},
+      {id:'5.35',theme:'Organizational',title:'Independent review of information security',cmmc:['CA.L2-3.12.1']},
+      {id:'5.36',theme:'Organizational',title:'Compliance with policies, rules and standards for information security',cmmc:['CA.L2-3.12.4']},
+      {id:'5.37',theme:'Organizational',title:'Documented operating procedures',cmmc:['CM.L2-3.4.1']},
+      {id:'6.1',theme:'People',title:'Screening',cmmc:['PS.L2-3.9.1']},
+      {id:'6.2',theme:'People',title:'Terms and conditions of employment',cmmc:['PS.L2-3.9.1']},
+      {id:'6.3',theme:'People',title:'Information security awareness, education and training',cmmc:['AT.L2-3.2.1','AT.L2-3.2.2']},
+      {id:'6.4',theme:'People',title:'Disciplinary process',cmmc:['PS.L2-3.9.2']},
+      {id:'6.5',theme:'People',title:'Responsibilities after termination or change of employment',cmmc:['PS.L2-3.9.2','AC.L2-3.1.1']},
+      {id:'6.6',theme:'People',title:'Confidentiality or non-disclosure agreements',cmmc:['PS.L2-3.9.1']},
+      {id:'6.7',theme:'People',title:'Remote working',cmmc:['AC.L2-3.1.12','SC.L2-3.13.5']},
+      {id:'6.8',theme:'People',title:'Information security event reporting',cmmc:['IR.L2-3.6.1']},
+      {id:'7.1',theme:'Physical',title:'Physical security perimeters',cmmc:['PE.L1-b.1.viii']},
+      {id:'7.2',theme:'Physical',title:'Physical entry',cmmc:['PE.L1-b.1.viii','PE.L1-b.1.ix']},
+      {id:'7.3',theme:'Physical',title:'Securing offices, rooms and facilities',cmmc:['PE.L1-b.1.viii']},
+      {id:'7.4',theme:'Physical',title:'Physical security monitoring',cmmc:['PE.L1-b.1.x','PE.L2-3.10.6']},
+      {id:'7.5',theme:'Physical',title:'Protecting against physical and environmental threats',cmmc:['PE.L1-b.1.viii']},
+      {id:'7.6',theme:'Physical',title:'Working in secure areas',cmmc:['PE.L1-b.1.ix']},
+      {id:'7.7',theme:'Physical',title:'Clear desk and clear screen',cmmc:['AC.L2-3.1.10']},
+      {id:'7.8',theme:'Physical',title:'Equipment siting and protection',cmmc:['PE.L1-b.1.viii']},
+      {id:'7.9',theme:'Physical',title:'Security of assets off-premises',cmmc:['MP.L2-3.8.6','MP.L2-3.8.9']},
+      {id:'7.10',theme:'Physical',title:'Storage media',cmmc:['MP.L1-b.1.vii','MP.L2-3.8.1']},
+      {id:'7.11',theme:'Physical',title:'Supporting utilities',cmmc:['PE.L2-3.10.2']},
+      {id:'7.12',theme:'Physical',title:'Cabling security',cmmc:['PE.L1-b.1.viii']},
+      {id:'7.13',theme:'Physical',title:'Equipment maintenance',cmmc:['MA.L2-3.7.1']},
+      {id:'7.14',theme:'Physical',title:'Secure disposal or re-use of equipment',cmmc:['MP.L1-b.1.vii','MP.L2-3.8.1']},
+      {id:'8.1',theme:'Technological',title:'User endpoint devices',cmmc:['CM.L2-3.4.1','SC.L2-3.13.6']},
+      {id:'8.2',theme:'Technological',title:'Privileged access rights',cmmc:['AC.L2-3.1.5','AC.L2-3.1.6']},
+      {id:'8.3',theme:'Technological',title:'Information access restriction',cmmc:['AC.L1-b.1.ii','AC.L2-3.1.3']},
+      {id:'8.4',theme:'Technological',title:'Access to source code',cmmc:['AC.L2-3.1.3','CM.L2-3.4.2']},
+      {id:'8.5',theme:'Technological',title:'Secure authentication',cmmc:['IA.L1-b.1.vi','IA.L2-3.5.3','IA.L2-3.5.4']},
+      {id:'8.6',theme:'Technological',title:'Capacity management',cmmc:['SC.L2-3.13.1']},
+      {id:'8.7',theme:'Technological',title:'Protection against malware',cmmc:['SI.L1-b.1.xv','SI.L1-b.1.xvi','SI.L2-3.14.2']},
+      {id:'8.8',theme:'Technological',title:'Management of technical vulnerabilities',cmmc:['SI.L1-b.1.xiv','SI.L2-3.14.1','RA.L2-3.11.2']},
+      {id:'8.9',theme:'Technological',title:'Configuration management',cmmc:['CM.L2-3.4.1','CM.L2-3.4.2']},
+      {id:'8.10',theme:'Technological',title:'Information deletion',cmmc:['MP.L2-3.8.1']},
+      {id:'8.11',theme:'Technological',title:'Data masking',cmmc:['AC.L2-3.1.22']},
+      {id:'8.12',theme:'Technological',title:'Data leakage prevention',cmmc:['AC.L1-b.1.iv','SC.L2-3.13.8']},
+      {id:'8.13',theme:'Technological',title:'Information backup',cmmc:['SI.L2-3.14.7']},
+      {id:'8.14',theme:'Technological',title:'Redundancy of information processing facilities',cmmc:['SI.L2-3.14.7']},
+      {id:'8.15',theme:'Technological',title:'Logging',cmmc:['AU.L2-3.3.1','AU.L2-3.3.2']},
+      {id:'8.16',theme:'Technological',title:'Monitoring activities',cmmc:['AU.L2-3.3.1','SI.L2-3.14.6']},
+      {id:'8.17',theme:'Technological',title:'Clock synchronisation',cmmc:['AU.L2-3.3.7']},
+      {id:'8.18',theme:'Technological',title:'Use of privileged utility programs',cmmc:['AC.L2-3.1.5','CM.L2-3.4.8']},
+      {id:'8.19',theme:'Technological',title:'Installation of software on operational systems',cmmc:['CM.L2-3.4.8','SI.L2-3.14.1']},
+      {id:'8.20',theme:'Technological',title:'Networks security',cmmc:['SC.L1-b.1.xii','SC.L2-3.13.1']},
+      {id:'8.21',theme:'Technological',title:'Security of network services',cmmc:['SC.L2-3.13.1','SC.L2-3.13.2']},
+      {id:'8.22',theme:'Technological',title:'Segregation of networks',cmmc:['SC.L1-b.1.xiii','SC.L2-3.13.3']},
+      {id:'8.23',theme:'Technological',title:'Web filtering',cmmc:['SC.L2-3.13.8','SI.L2-3.14.2']},
+      {id:'8.24',theme:'Technological',title:'Use of cryptography',cmmc:['SC.L2-3.13.8','SC.L2-3.13.10']},
+      {id:'8.25',theme:'Technological',title:'Secure development life cycle',cmmc:['CM.L2-3.4.2','SA.L2-3.1.1']},
+      {id:'8.26',theme:'Technological',title:'Application security requirements',cmmc:['CM.L2-3.4.2']},
+      {id:'8.27',theme:'Technological',title:'Secure system architecture and engineering principles',cmmc:['SC.L2-3.13.2']},
+      {id:'8.28',theme:'Technological',title:'Secure coding',cmmc:['CM.L2-3.4.2']},
+      {id:'8.29',theme:'Technological',title:'Security testing in development and acceptance',cmmc:['CA.L2-3.12.1']},
+      {id:'8.30',theme:'Technological',title:'Outsourced development',cmmc:['SR.L2-3.15.2']},
+      {id:'8.31',theme:'Technological',title:'Separation of development, test and production environments',cmmc:['CM.L2-3.4.6']},
+      {id:'8.32',theme:'Technological',title:'Change management',cmmc:['CM.L2-3.4.3']},
+      {id:'8.33',theme:'Technological',title:'Test information',cmmc:['CA.L2-3.12.1']},
+      {id:'8.34',theme:'Technological',title:'Protection of information systems during audit testing',cmmc:['CA.L2-3.12.1']}
+    ];
+
+    const CMMC_L1 = [
+      {id:'AC.L1-b.1.i',domain:'Access Control',title:'Limit information system access to authorized users, processes acting on behalf of authorized users, and devices (including other information systems).'},
+      {id:'AC.L1-b.1.ii',domain:'Access Control',title:'Limit information system access to the types of transactions and functions that authorized users are permitted to execute.'},
+      {id:'AC.L1-b.1.iii',domain:'Access Control',title:'Verify and control/limit connections to external information systems.'},
+      {id:'AC.L1-b.1.iv',domain:'Access Control',title:'Control information posted or processed on publicly accessible information systems.'},
+      {id:'IA.L1-b.1.v',domain:'Identification & Authentication',title:'Identify information system users, processes acting on behalf of users, or devices.'},
+      {id:'IA.L1-b.1.vi',domain:'Identification & Authentication',title:'Authenticate (or verify) the identities of those users, processes, or devices, as a prerequisite to allowing access.'},
+      {id:'MP.L1-b.1.vii',domain:'Media Protection',title:'Sanitize or destroy information system media before disposal or reuse.'},
+      {id:'PE.L1-b.1.viii',domain:'Physical Protection',title:'Limit physical access to organizational information systems, equipment, and the respective operating environments to authorized individuals.'},
+      {id:'PE.L1-b.1.ix',domain:'Physical Protection',title:'Escort visitors and monitor visitor activity; maintain audit logs of physical access.'},
+      {id:'PE.L1-b.1.x',domain:'Physical Protection',title:'Maintain audit logs of physical access.'},
+      {id:'PE.L1-b.1.xi',domain:'Physical Protection',title:'Control and manage physical access devices.'},
+      {id:'SC.L1-b.1.xii',domain:'System & Communications Protection',title:'Monitor, control, and protect organizational communications (i.e., information transmitted or received) at the external boundaries and key internal boundaries of the information system.'},
+      {id:'SC.L1-b.1.xiii',domain:'System & Communications Protection',title:'Implement subnetworks for publicly accessible system components that are physically or logically separated from internal networks.'},
+      {id:'SI.L1-b.1.xiv',domain:'System & Information Integrity',title:'Identify, report, and correct information and information system flaws in a timely manner.'},
+      {id:'SI.L1-b.1.xv',domain:'System & Information Integrity',title:'Provide protection from malicious code at appropriate locations within organizational information systems.'},
+      {id:'SI.L1-b.1.xvi',domain:'System & Information Integrity',title:'Update malicious code protection mechanisms when new releases are available.'},
+      {id:'SI.L1-b.1.xvii',domain:'System & Information Integrity',title:'Perform periodic scans of the information system and real-time scans of files from external sources as files are downloaded, opened, or executed.'}
+    ];
+
+    const CMMC_L2 = [
+      {id:'AC.L1-3.1.1',l1:'AC.L1-b.1.i',domain:'Access Control',nist:'3.1.1',title:'Limit system access to authorized users, processes, and devices.'},
+      {id:'AC.L1-3.1.2',l1:'AC.L1-b.1.ii',domain:'Access Control',nist:'3.1.2',title:'Limit system access to the types of transactions and functions authorized users are permitted to execute.'},
+      {id:'AC.L2-3.1.3',l1:null,domain:'Access Control',nist:'3.1.3',title:'Control the flow of CUI in accordance with approved authorizations.'},
+      {id:'AC.L2-3.1.4',l1:null,domain:'Access Control',nist:'3.1.4',title:'Separate the duties of individuals to reduce the risk of malevolent activity.'},
+      {id:'AC.L2-3.1.5',l1:null,domain:'Access Control',nist:'3.1.5',title:'Employ the principle of least privilege, including for specific security functions and privileged accounts.'},
+      {id:'AC.L2-3.1.6',l1:null,domain:'Access Control',nist:'3.1.6',title:'Use non-privileged accounts or roles when accessing non-security functions.'},
+      {id:'AC.L2-3.1.7',l1:null,domain:'Access Control',nist:'3.1.7',title:'Prevent non-privileged users from executing privileged functions and capture in audit logs.'},
+      {id:'AC.L2-3.1.8',l1:null,domain:'Access Control',nist:'3.1.8',title:'Limit unsuccessful logon attempts.'},
+      {id:'AC.L2-3.1.9',l1:null,domain:'Access Control',nist:'3.1.9',title:'Provide privacy and security notices consistent with CUI rules.'},
+      {id:'AC.L2-3.1.10',l1:null,domain:'Access Control',nist:'3.1.10',title:'Use session lock after a period of inactivity or upon request.'},
+      {id:'AC.L2-3.1.11',l1:null,domain:'Access Control',nist:'3.1.11',title:'Terminate sessions after a defined condition.'},
+      {id:'AC.L2-3.1.12',l1:null,domain:'Access Control',nist:'3.1.12',title:'Monitor and control remote access sessions.'},
+      {id:'AC.L2-3.1.13',l1:null,domain:'Access Control',nist:'3.1.13',title:'Employ cryptographic mechanisms to protect the confidentiality of remote access sessions.'},
+      {id:'AC.L2-3.1.14',l1:null,domain:'Access Control',nist:'3.1.14',title:'Route remote access via managed access control points.'},
+      {id:'AC.L2-3.1.15',l1:null,domain:'Access Control',nist:'3.1.15',title:'Authorize remote execution of privileged commands and access to security-relevant information only for documented operational needs.'},
+      {id:'AC.L2-3.1.16',l1:null,domain:'Access Control',nist:'3.1.16',title:'Authorize wireless access prior to allowing connections.'},
+      {id:'AC.L2-3.1.17',l1:null,domain:'Access Control',nist:'3.1.17',title:'Protect wireless access using authentication and encryption.'},
+      {id:'AC.L2-3.1.18',l1:null,domain:'Access Control',nist:'3.1.18',title:'Control connection of mobile devices.'},
+      {id:'AC.L2-3.1.19',l1:null,domain:'Access Control',nist:'3.1.19',title:'Encrypt CUI on mobile devices and mobile computing platforms.'},
+      {id:'AC.L2-3.1.20',l1:null,domain:'Access Control',nist:'3.1.20',title:'Verify and control connections to external systems.'},
+      {id:'AC.L2-3.1.21',l1:null,domain:'Access Control',nist:'3.1.21',title:'Limit use of portable storage devices on external systems.'},
+      {id:'AC.L2-3.1.22',l1:null,domain:'Access Control',nist:'3.1.22',title:'Control CUI posted or processed on publicly accessible systems.'},
+      {id:'AT.L2-3.2.1',l1:null,domain:'Awareness & Training',nist:'3.2.1',title:'Ensure personnel are aware of security risks associated with their activities.'},
+      {id:'AT.L2-3.2.2',l1:null,domain:'Awareness & Training',nist:'3.2.2',title:'Ensure personnel are trained to carry out assigned security responsibilities.'},
+      {id:'AT.L2-3.2.3',l1:null,domain:'Awareness & Training',nist:'3.2.3',title:'Provide security awareness training on recognizing and reporting threats.'},
+      {id:'AU.L2-3.3.1',l1:null,domain:'Audit & Accountability',nist:'3.3.1',title:'Create and retain system audit logs to enable monitoring, analysis, investigation, and reporting.'},
+      {id:'AU.L2-3.3.2',l1:null,domain:'Audit & Accountability',nist:'3.3.2',title:'Ensure actions of individual users can be traced to those users to hold them accountable.'},
+      {id:'AU.L2-3.3.3',l1:null,domain:'Audit & Accountability',nist:'3.3.3',title:'Review and update logged events.'},
+      {id:'AU.L2-3.3.4',l1:null,domain:'Audit & Accountability',nist:'3.3.4',title:'Alert in the event of audit logging process failure.'},
+      {id:'AU.L2-3.3.5',l1:null,domain:'Audit & Accountability',nist:'3.3.5',title:'Correlate audit record review, analysis, and reporting processes.'},
+      {id:'AU.L2-3.3.6',l1:null,domain:'Audit & Accountability',nist:'3.3.6',title:'Provide audit record reduction and report generation to support analysis and reporting.'},
+      {id:'AU.L2-3.3.7',l1:null,domain:'Audit & Accountability',nist:'3.3.7',title:'Provide a system capability that compares and synchronizes internal clocks.'},
+      {id:'AU.L2-3.3.8',l1:null,domain:'Audit & Accountability',nist:'3.3.8',title:'Protect audit information and tools from unauthorized access, modification, and deletion.'},
+      {id:'AU.L2-3.3.9',l1:null,domain:'Audit & Accountability',nist:'3.3.9',title:'Limit management of audit logging to a subset of privileged users.'},
+      {id:'CM.L2-3.4.1',l1:null,domain:'Configuration Management',nist:'3.4.1',title:'Establish and maintain baseline configurations and inventories of organizational systems.'},
+      {id:'CM.L2-3.4.2',l1:null,domain:'Configuration Management',nist:'3.4.2',title:'Establish and enforce security configuration settings for IT products.'},
+      {id:'CM.L2-3.4.3',l1:null,domain:'Configuration Management',nist:'3.4.3',title:'Track, review, approve, and log changes to organizational systems.'},
+      {id:'CM.L2-3.4.4',l1:null,domain:'Configuration Management',nist:'3.4.4',title:'Analyze security impact of changes prior to implementation.'},
+      {id:'CM.L2-3.4.5',l1:null,domain:'Configuration Management',nist:'3.4.5',title:'Define, document, approve, and enforce physical and logical access restrictions.'},
+      {id:'CM.L2-3.4.6',l1:null,domain:'Configuration Management',nist:'3.4.6',title:'Employ the principle of least functionality.'},
+      {id:'CM.L2-3.4.7',l1:null,domain:'Configuration Management',nist:'3.4.7',title:'Restrict, disable, or prevent the use of nonessential programs, functions, ports, protocols, and services.'},
+      {id:'CM.L2-3.4.8',l1:null,domain:'Configuration Management',nist:'3.4.8',title:'Apply deny-by-exception policy to prevent use of unauthorized software.'},
+      {id:'CM.L2-3.4.9',l1:null,domain:'Configuration Management',nist:'3.4.9',title:'Control and monitor user-installed software.'},
+      {id:'IA.L1-3.5.1',l1:'IA.L1-b.1.v',domain:'Identification & Authentication',nist:'3.5.1',title:'Identify system users, processes, and devices.'},
+      {id:'IA.L1-3.5.2',l1:'IA.L1-b.1.vi',domain:'Identification & Authentication',nist:'3.5.2',title:'Authenticate users, processes, and devices before allowing access.'},
+      {id:'IA.L2-3.5.3',l1:null,domain:'Identification & Authentication',nist:'3.5.3',title:'Use multifactor authentication for local and network access to privileged accounts.'},
+      {id:'IA.L2-3.5.4',l1:null,domain:'Identification & Authentication',nist:'3.5.4',title:'Employ replay-resistant authentication mechanisms.'},
+      {id:'IA.L2-3.5.5',l1:null,domain:'Identification & Authentication',nist:'3.5.5',title:'Employ identifier management to prevent reuse of identifiers for a defined period.'},
+      {id:'IA.L2-3.5.6',l1:null,domain:'Identification & Authentication',nist:'3.5.6',title:'Disable identifiers after a defined inactivity period.'},
+      {id:'IA.L2-3.5.7',l1:null,domain:'Identification & Authentication',nist:'3.5.7',title:'Enforce a minimum password complexity and change of characters.'},
+      {id:'IA.L2-3.5.8',l1:null,domain:'Identification & Authentication',nist:'3.5.8',title:'Prohibit password reuse for a specified number of generations.'},
+      {id:'IA.L2-3.5.9',l1:null,domain:'Identification & Authentication',nist:'3.5.9',title:'Allow temporary password use with an immediate change requirement.'},
+      {id:'IA.L2-3.5.10',l1:null,domain:'Identification & Authentication',nist:'3.5.10',title:'Store and transmit only cryptographically-protected passwords.'},
+      {id:'IA.L2-3.5.11',l1:null,domain:'Identification & Authentication',nist:'3.5.11',title:'Obscure feedback of authentication information.'},
+      {id:'IR.L2-3.6.1',l1:null,domain:'Incident Response',nist:'3.6.1',title:'Establish an operational incident-handling capability including preparation, detection, analysis, containment, recovery, and user activities.'},
+      {id:'IR.L2-3.6.2',l1:null,domain:'Incident Response',nist:'3.6.2',title:'Track, document, and report incidents to designated officials and/or authorities.'},
+      {id:'IR.L2-3.6.3',l1:null,domain:'Incident Response',nist:'3.6.3',title:'Test the organizational incident response capability.'},
+      {id:'MA.L2-3.7.1',l1:null,domain:'Maintenance',nist:'3.7.1',title:'Perform maintenance on organizational systems.'},
+      {id:'MA.L2-3.7.2',l1:null,domain:'Maintenance',nist:'3.7.2',title:'Provide controls on tools, techniques, mechanisms, and personnel for maintenance.'},
+      {id:'MA.L2-3.7.3',l1:null,domain:'Maintenance',nist:'3.7.3',title:'Ensure equipment removed for maintenance is sanitized.'},
+      {id:'MA.L2-3.7.4',l1:null,domain:'Maintenance',nist:'3.7.4',title:'Check media containing diagnostic programs for malicious code.'},
+      {id:'MA.L2-3.7.5',l1:null,domain:'Maintenance',nist:'3.7.5',title:'Require MFA to establish nonlocal maintenance sessions.'},
+      {id:'MA.L2-3.7.6',l1:null,domain:'Maintenance',nist:'3.7.6',title:'Supervise maintenance activities of personnel without required access authorization.'},
+      {id:'MP.L1-3.8.3',l1:'MP.L1-b.1.vii',domain:'Media Protection',nist:'3.8.3',title:'Sanitize or destroy system media before disposal or reuse.'},
+      {id:'MP.L2-3.8.1',l1:null,domain:'Media Protection',nist:'3.8.1',title:'Protect system media containing CUI, both paper and digital.'},
+      {id:'MP.L2-3.8.2',l1:null,domain:'Media Protection',nist:'3.8.2',title:'Limit access to CUI on system media to authorized users.'},
+      {id:'MP.L2-3.8.4',l1:null,domain:'Media Protection',nist:'3.8.4',title:'Mark media with necessary CUI markings and distribution limitations.'},
+      {id:'MP.L2-3.8.5',l1:null,domain:'Media Protection',nist:'3.8.5',title:'Control access to media containing CUI and maintain accountability.'},
+      {id:'MP.L2-3.8.6',l1:null,domain:'Media Protection',nist:'3.8.6',title:'Implement cryptographic mechanisms to protect CUI during transport.'},
+      {id:'MP.L2-3.8.7',l1:null,domain:'Media Protection',nist:'3.8.7',title:'Control the use of removable media on system components.'},
+      {id:'MP.L2-3.8.8',l1:null,domain:'Media Protection',nist:'3.8.8',title:'Prohibit the use of portable storage without identifiable owner.'},
+      {id:'MP.L2-3.8.9',l1:null,domain:'Media Protection',nist:'3.8.9',title:'Protect the backup copies of CUI at storage locations.'},
+      {id:'PS.L2-3.9.1',l1:null,domain:'Personnel Security',nist:'3.9.1',title:'Screen individuals prior to authorizing access to systems containing CUI.'},
+      {id:'PS.L2-3.9.2',l1:null,domain:'Personnel Security',nist:'3.9.2',title:'Ensure CUI is protected during and after personnel actions such as terminations and transfers.'},
+      {id:'PE.L1-3.10.1',l1:'PE.L1-b.1.viii',domain:'Physical Protection',nist:'3.10.1',title:'Limit physical access to systems, equipment, and operating environments to authorized individuals.'},
+      {id:'PE.L1-3.10.3',l1:'PE.L1-b.1.ix',domain:'Physical Protection',nist:'3.10.3',title:'Escort visitors and monitor visitor activity.'},
+      {id:'PE.L1-3.10.4',l1:'PE.L1-b.1.x',domain:'Physical Protection',nist:'3.10.4',title:'Maintain audit logs of physical access.'},
+      {id:'PE.L1-3.10.5',l1:'PE.L1-b.1.xi',domain:'Physical Protection',nist:'3.10.5',title:'Control and manage physical access devices.'},
+      {id:'PE.L2-3.10.2',l1:null,domain:'Physical Protection',nist:'3.10.2',title:'Protect and monitor the physical facility and support infrastructure.'},
+      {id:'PE.L2-3.10.6',l1:null,domain:'Physical Protection',nist:'3.10.6',title:'Enforce safeguarding measures for CUI at alternate work sites.'},
+      {id:'RA.L2-3.11.1',l1:null,domain:'Risk Assessment',nist:'3.11.1',title:'Periodically assess the risk to operations, assets, and individuals.'},
+      {id:'RA.L2-3.11.2',l1:null,domain:'Risk Assessment',nist:'3.11.2',title:'Scan for vulnerabilities in systems periodically and when new vulnerabilities are identified.'},
+      {id:'RA.L2-3.11.3',l1:null,domain:'Risk Assessment',nist:'3.11.3',title:'Remediate vulnerabilities in accordance with risk assessments.'},
+      {id:'CA.L2-3.12.1',l1:null,domain:'Security Assessment',nist:'3.12.1',title:'Periodically assess security controls to determine if they are effective.'},
+      {id:'CA.L2-3.12.2',l1:null,domain:'Security Assessment',nist:'3.12.2',title:'Develop and implement plans of action designed to correct deficiencies.'},
+      {id:'CA.L2-3.12.3',l1:null,domain:'Security Assessment',nist:'3.12.3',title:'Monitor security controls on an ongoing basis to ensure the continued effectiveness.'},
+      {id:'CA.L2-3.12.4',l1:null,domain:'Security Assessment',nist:'3.12.4',title:'Develop, document, and periodically update system security plans.'},
+      {id:'SC.L1-3.13.1',l1:'SC.L1-b.1.xii',domain:'System & Communications Protection',nist:'3.13.1',title:'Monitor, control, and protect communications at external boundaries and key internal boundaries.'},
+      {id:'SC.L1-3.13.5',l1:'SC.L1-b.1.xiii',domain:'System & Communications Protection',nist:'3.13.5',title:'Implement subnetworks for publicly accessible system components separated from internal networks.'},
+      {id:'SC.L2-3.13.2',l1:null,domain:'System & Communications Protection',nist:'3.13.2',title:'Employ architectural designs, software development techniques, and systems engineering principles.'},
+      {id:'SC.L2-3.13.3',l1:null,domain:'System & Communications Protection',nist:'3.13.3',title:'Separate user functionality from system management functionality.'},
+      {id:'SC.L2-3.13.4',l1:null,domain:'System & Communications Protection',nist:'3.13.4',title:'Prevent unauthorized and unintended information transfer.'},
+      {id:'SC.L2-3.13.6',l1:null,domain:'System & Communications Protection',nist:'3.13.6',title:'Deny network communications traffic by default.'},
+      {id:'SC.L2-3.13.7',l1:null,domain:'System & Communications Protection',nist:'3.13.7',title:'Prevent remote devices from simultaneously connecting to the system and other resources (split tunneling).'},
+      {id:'SC.L2-3.13.8',l1:null,domain:'System & Communications Protection',nist:'3.13.8',title:'Implement cryptographic mechanisms to prevent unauthorized disclosure during transmission.'},
+      {id:'SC.L2-3.13.9',l1:null,domain:'System & Communications Protection',nist:'3.13.9',title:'Terminate network connections after a defined period of inactivity.'},
+      {id:'SC.L2-3.13.10',l1:null,domain:'System & Communications Protection',nist:'3.13.10',title:'Establish and manage cryptographic keys.'},
+      {id:'SC.L2-3.13.11',l1:null,domain:'System & Communications Protection',nist:'3.13.11',title:'Employ FIPS-validated cryptography when used to protect CUI.'},
+      {id:'SC.L2-3.13.12',l1:null,domain:'System & Communications Protection',nist:'3.13.12',title:'Prohibit remote activation of collaborative computing devices.'},
+      {id:'SC.L2-3.13.13',l1:null,domain:'System & Communications Protection',nist:'3.13.13',title:'Control and monitor the use of mobile code.'},
+      {id:'SC.L2-3.13.14',l1:null,domain:'System & Communications Protection',nist:'3.13.14',title:'Control and monitor the use of VoIP technologies.'},
+      {id:'SC.L2-3.13.15',l1:null,domain:'System & Communications Protection',nist:'3.13.15',title:'Protect the authenticity of communications sessions.'},
+      {id:'SC.L2-3.13.16',l1:null,domain:'System & Communications Protection',nist:'3.13.16',title:'Protect CUI at rest.'},
+      {id:'SI.L1-3.14.1',l1:'SI.L1-b.1.xiv',domain:'System & Information Integrity',nist:'3.14.1',title:'Identify, report, and correct information and system flaws in a timely manner.'},
+      {id:'SI.L1-3.14.2',l1:'SI.L1-b.1.xv',domain:'System & Information Integrity',nist:'3.14.2',title:'Provide protection from malicious code at appropriate locations.'},
+      {id:'SI.L1-3.14.4',l1:'SI.L1-b.1.xvi',domain:'System & Information Integrity',nist:'3.14.4',title:'Update malicious code protection mechanisms when new releases are available.'},
+      {id:'SI.L1-3.14.5',l1:'SI.L1-b.1.xvii',domain:'System & Information Integrity',nist:'3.14.5',title:'Perform periodic scans and real-time scans of files from external sources.'},
+      {id:'SI.L2-3.14.3',l1:null,domain:'System & Information Integrity',nist:'3.14.3',title:'Monitor system security alerts and advisories and take action in response.'},
+      {id:'SI.L2-3.14.6',l1:null,domain:'System & Information Integrity',nist:'3.14.6',title:'Monitor systems to detect attacks and indicators of potential attacks.'},
+      {id:'SI.L2-3.14.7',l1:null,domain:'System & Information Integrity',nist:'3.14.7',title:'Identify unauthorized use of organizational systems.'}
+    ];
+
+    /* ================================================================
+       STATUS MANAGEMENT
+       ================================================================ */
+    const STORE = 'ucf2_';
+    function getStatus(id) { return localStorage.getItem(STORE + id) || 'not-started'; }
+    function setStatus(id, val) { localStorage.setItem(STORE + id, val); updateAll(); }
+
+    const STATUS_CONFIG = {
+      'implemented': { label:'Implemented', color:'success',  icon:'\u2714' },
+      'partial':     { label:'Partial',     color:'warning',  icon:'\u26A0' },
+      'planned':     { label:'Planned',     color:'info',     icon:'\uD83D\uDCC5' },
+      'not-started': { label:'Not Started', color:'secondary',icon:'\u25CB' },
+      'na':          { label:'N/A',         color:'dark',     icon:'\u2014' }
+    };
+
+    function calcStats(ids) {
+      const counts = { implemented:0, partial:0, planned:0, 'not-started':0, na:0 };
+      ids.forEach(function(id) { var s = getStatus(id); counts[s] = (counts[s]||0)+1; });
+      var total = ids.length;
+      var done = counts.implemented + counts.partial;
+      var pct = total ? Math.round(done/total*100) : 0;
+      return Object.assign({ total:total, pct:pct }, counts);
+    }
+
+    function makeSelect(controlId) {
+      var s = getStatus(controlId);
+      var html = '<select class="form-select ucf-select" data-control="'+controlId+'">';
+      Object.keys(STATUS_CONFIG).forEach(function(k) {
+        html += '<option value="'+k+'"'+(s===k?' selected':'')+'>'+STATUS_CONFIG[k].icon+' '+STATUS_CONFIG[k].label+'</option>';
+      });
+      html += '</select>';
+      return html;
+    }
+
+    function themeBadge(theme) {
+      var colors = { Organizational:'primary', People:'info', Physical:'warning', Technological:'success' };
+      return '<span class="badge bg-'+(colors[theme]||'secondary')+'">'+theme+'</span>';
+    }
+
+    function domainBadge(domain) {
+      var abbr = domain.replace(/&/g,'&amp;');
+      return '<span class="badge bg-secondary">'+abbr+'</span>';
+    }
+
+    function cmmcBadges(arr) {
+      if (!arr || !arr.length) return '<span class="text-body-secondary small">None</span>';
+      return arr.map(function(c) { return '<span class="badge bg-outline-secondary ucf-badge-map border">'+c+'</span>'; }).join(' ');
+    }
+
+    function isoMappingsFor(cmmcId) {
+      var results = [];
+      ISO_CONTROLS.forEach(function(c) {
+        if (c.cmmc.indexOf(cmmcId) !== -1) results.push(c.id);
+      });
+      return results;
+    }
+
+    function isoBadges(arr) {
+      if (!arr.length) return '<span class="text-body-secondary small">None</span>';
+      return arr.map(function(id) { return '<span class="badge bg-info ucf-badge-map">ISO '+id+'</span>'; }).join(' ');
+    }
+
+    /* ================================================================
+       PROGRESS CARDS UPDATE
+       ================================================================ */
+    function updateProgressCards() {
+      var isoIds = ISO_CONTROLS.map(function(c){return 'iso-'+c.id;});
+      var l1Ids = CMMC_L1.map(function(c){return 'l1-'+c.id;});
+      var l2Ids = CMMC_L2.map(function(c){return 'l2-'+c.id;});
+
+      var isoS = calcStats(isoIds);
+      var l1S = calcStats(l1Ids);
+      var l2S = calcStats(l2Ids);
+
+      function upd(barId, statsId, s) {
+        var bar = document.getElementById(barId);
+        bar.style.width = s.pct+'%';
+        bar.textContent = s.pct+'%';
+        bar.setAttribute('aria-valuenow', s.pct);
+        document.getElementById(statsId).innerHTML =
+          '<span class="text-success">'+s.implemented+' Implemented</span> / '+
+          '<span class="text-warning">'+s.partial+' Partial</span> / '+
+          '<span class="text-body-secondary">'+s['not-started']+' Not Started</span>';
+      }
+      upd('prog-iso','stats-iso',isoS);
+      upd('prog-l1','stats-l1',l1S);
+      upd('prog-l2','stats-l2',l2S);
+    }
+
+    /* ================================================================
+       DASHBOARD TAB
+       ================================================================ */
+    function renderDashboard() {
+      var isoIds = ISO_CONTROLS.map(function(c){return 'iso-'+c.id;});
+      var l1Ids = CMMC_L1.map(function(c){return 'l1-'+c.id;});
+      var l2Ids = CMMC_L2.map(function(c){return 'l2-'+c.id;});
+      var allIds = isoIds.concat(l1Ids).concat(l2Ids);
+      var all = calcStats(allIds);
+      var isoS = calcStats(isoIds);
+      var l1S = calcStats(l1Ids);
+      var l2S = calcStats(l2Ids);
+
+      // Summary stats
+      var statsHtml = '';
+      var cards = [
+        { label:'Total Controls', val:all.total, cls:'text-body-secondary' },
+        { label:'Implemented', val:all.implemented, cls:'text-success' },
+        { label:'Partial', val:all.partial, cls:'text-warning' },
+        { label:'Gap', val:all['not-started']+all.planned, cls:'text-danger' }
+      ];
+      cards.forEach(function(c) {
+        statsHtml += '<div class="col-6 col-md-3"><div class="card stat-card"><div class="card-body text-center">'+
+          '<div class="stat-num '+c.cls+'">'+c.val+'</div>'+
+          '<div class="stat-label">'+c.label+'</div></div></div></div>';
+      });
+      document.getElementById('dash-stats').innerHTML = statsHtml;
+
+      // Stacked progress bars
+      var barsHtml = '';
+      [{name:'ISO 27001:2022',s:isoS},{name:'CMMC Level 1',s:l1S},{name:'CMMC Level 2',s:l2S}].forEach(function(fw) {
+        var s = fw.s;
+        var t = s.total || 1;
+        barsHtml += '<div class="mb-3"><div class="d-flex justify-content-between mb-1"><strong>'+fw.name+'</strong><span>'+s.pct+'% complete</span></div>'+
+          '<div class="progress" style="height:1.4rem;">'+
+          '<div class="progress-bar bg-success" style="width:'+(s.implemented/t*100)+'%">'+s.implemented+'</div>'+
+          '<div class="progress-bar bg-warning" style="width:'+(s.partial/t*100)+'%">'+s.partial+'</div>'+
+          '<div class="progress-bar bg-info" style="width:'+(s.planned/t*100)+'%">'+s.planned+'</div>'+
+          '<div class="progress-bar bg-secondary" style="width:'+(s['not-started']/t*100)+'%">'+s['not-started']+'</div>'+
+          '</div></div>';
+      });
+      document.getElementById('dash-bars').innerHTML = barsHtml;
+
+      // Domain breakdown
+      var breakHtml = '';
+
+      // ISO by theme
+      var isoThemes = {};
+      ISO_CONTROLS.forEach(function(c) {
+        if (!isoThemes[c.theme]) isoThemes[c.theme] = [];
+        isoThemes[c.theme].push('iso-'+c.id);
+      });
+      breakHtml += '<h6>ISO 27001 by Theme</h6><table class="table table-sm"><thead><tr><th>Theme</th><th>Controls</th><th>Implemented</th><th>%</th></tr></thead><tbody>';
+      Object.keys(isoThemes).forEach(function(th) {
+        var ds = calcStats(isoThemes[th]);
+        breakHtml += '<tr><td>'+th+'</td><td>'+ds.total+'</td><td>'+ds.implemented+'</td><td>'+ds.pct+'%</td></tr>';
+      });
+      breakHtml += '</tbody></table>';
+
+      // CMMC L1 by domain
+      var l1Domains = {};
+      CMMC_L1.forEach(function(c) {
+        if (!l1Domains[c.domain]) l1Domains[c.domain] = [];
+        l1Domains[c.domain].push('l1-'+c.id);
+      });
+      breakHtml += '<h6 class="mt-3">CMMC Level 1 by Domain</h6><table class="table table-sm"><thead><tr><th>Domain</th><th>Controls</th><th>Implemented</th><th>%</th></tr></thead><tbody>';
+      Object.keys(l1Domains).forEach(function(d) {
+        var ds = calcStats(l1Domains[d]);
+        breakHtml += '<tr><td>'+d+'</td><td>'+ds.total+'</td><td>'+ds.implemented+'</td><td>'+ds.pct+'%</td></tr>';
+      });
+      breakHtml += '</tbody></table>';
+
+      // CMMC L2 by domain
+      var l2Domains = {};
+      CMMC_L2.forEach(function(c) {
+        if (!l2Domains[c.domain]) l2Domains[c.domain] = [];
+        l2Domains[c.domain].push('l2-'+c.id);
+      });
+      breakHtml += '<h6 class="mt-3">CMMC Level 2 by Domain</h6><table class="table table-sm"><thead><tr><th>Domain</th><th>Controls</th><th>Implemented</th><th>%</th></tr></thead><tbody>';
+      Object.keys(l2Domains).forEach(function(d) {
+        var ds = calcStats(l2Domains[d]);
+        breakHtml += '<tr><td>'+d+'</td><td>'+ds.total+'</td><td>'+ds.implemented+'</td><td>'+ds.pct+'%</td></tr>';
+      });
+      breakHtml += '</tbody></table>';
+
+      document.getElementById('dash-domain-breakdown').innerHTML = breakHtml;
+    }
+
+    /* ================================================================
+       ISO 27001 TAB
+       ================================================================ */
+    function renderISO() {
+      var themes = [];
+      var themeMap = {};
+      ISO_CONTROLS.forEach(function(c) {
+        if (!themeMap[c.theme]) { themeMap[c.theme] = []; themes.push(c.theme); }
+        themeMap[c.theme].push(c);
+      });
+
+      // Populate domain filter
+      var df = document.getElementById('iso-domain-filter');
+      if (df.options.length <= 1) {
+        themes.forEach(function(t) {
+          var o = document.createElement('option');
+          o.value = t; o.textContent = t;
+          df.appendChild(o);
+        });
+      }
+
+      var html = '';
+      themes.forEach(function(theme) {
+        html += '<details open><summary>'+theme+' ('+themeMap[theme].length+' controls)</summary>';
+        html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr><th>ID</th><th>Theme</th><th>Title</th><th>Status</th><th>CMMC Mappings</th></tr></thead><tbody>';
+        themeMap[theme].forEach(function(c) {
+          html += '<tr data-id="iso-'+c.id+'" data-theme="'+c.theme+'" data-status="'+getStatus('iso-'+c.id)+'">'+
+            '<td class="ucf-mono">'+c.id+'</td>'+
+            '<td>'+themeBadge(c.theme)+'</td>'+
+            '<td>'+c.title+'</td>'+
+            '<td>'+makeSelect('iso-'+c.id)+'</td>'+
+            '<td>'+cmmcBadges(c.cmmc)+'</td></tr>';
+        });
+        html += '</tbody></table></div></details>';
+      });
+      document.getElementById('iso-content').innerHTML = html;
+    }
+
+    /* ================================================================
+       CMMC L1 TAB
+       ================================================================ */
+    function renderL1() {
+      var domains = [];
+      var domMap = {};
+      CMMC_L1.forEach(function(c) {
+        if (!domMap[c.domain]) { domMap[c.domain] = []; domains.push(c.domain); }
+        domMap[c.domain].push(c);
+      });
+
+      var df = document.getElementById('l1-domain-filter');
+      if (df.options.length <= 1) {
+        domains.forEach(function(d) {
+          var o = document.createElement('option');
+          o.value = d; o.textContent = d;
+          df.appendChild(o);
+        });
+      }
+
+      var html = '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr><th>Practice ID</th><th>Domain</th><th>Practice Statement</th><th>Status</th><th>ISO 27001 Mappings</th></tr></thead><tbody>';
+      CMMC_L1.forEach(function(c) {
+        var isoMaps = isoMappingsFor(c.id);
+        html += '<tr data-id="l1-'+c.id+'" data-domain="'+c.domain+'" data-status="'+getStatus('l1-'+c.id)+'">'+
+          '<td class="ucf-mono">'+c.id+'</td>'+
+          '<td>'+domainBadge(c.domain)+'</td>'+
+          '<td>'+c.title+'</td>'+
+          '<td>'+makeSelect('l1-'+c.id)+'</td>'+
+          '<td>'+isoBadges(isoMaps)+'</td></tr>';
+      });
+      html += '</tbody></table></div>';
+      document.getElementById('l1-content').innerHTML = html;
+    }
+
+    /* ================================================================
+       CMMC L2 TAB
+       ================================================================ */
+    function renderL2() {
+      var domains = [];
+      var domMap = {};
+      CMMC_L2.forEach(function(c) {
+        if (!domMap[c.domain]) { domMap[c.domain] = []; domains.push(c.domain); }
+        domMap[c.domain].push(c);
+      });
+
+      var df = document.getElementById('l2-domain-filter');
+      if (df.options.length <= 1) {
+        domains.forEach(function(d) {
+          var o = document.createElement('option');
+          o.value = d; o.textContent = d;
+          df.appendChild(o);
+        });
+      }
+
+      var html = '';
+      domains.forEach(function(domain) {
+        html += '<details open><summary>'+domain+' ('+domMap[domain].length+' practices)</summary>';
+        html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr><th>Practice ID</th><th>Domain</th><th>Practice Statement</th><th>Level</th><th>Status</th><th>ISO 27001 Mappings</th></tr></thead><tbody>';
+        domMap[domain].forEach(function(c) {
+          var isoMaps = isoMappingsFor(c.id);
+          // Also check reverse: which ISO controls map to any L1 equivalent
+          if (c.l1) {
+            isoMappingsFor(c.l1).forEach(function(im) {
+              if (isoMaps.indexOf(im) === -1) isoMaps.push(im);
+            });
+          }
+          var levelBadge = c.l1 ? '<span class="badge bg-success">L1</span>' : '<span class="badge bg-warning text-dark">L2</span>';
+          var storeId = 'l2-'+c.id;
+          // If L1, auto-inherit status
+          var currentStatus = getStatus(storeId);
+          html += '<tr data-id="'+storeId+'" data-domain="'+c.domain+'" data-status="'+currentStatus+'">'+
+            '<td class="ucf-mono">'+c.id+'</td>'+
+            '<td>'+domainBadge(c.domain)+'</td>'+
+            '<td>'+c.title+'</td>'+
+            '<td>'+levelBadge+'</td>'+
+            '<td>'+makeSelect(storeId)+'</td>'+
+            '<td>'+isoBadges(isoMaps)+'</td></tr>';
+        });
+        html += '</tbody></table></div></details>';
+      });
+      document.getElementById('l2-content').innerHTML = html;
+    }
+
+    /* ================================================================
+       CONTROL MAPPING TAB
+       ================================================================ */
+    function renderMapping() {
+      // ISO -> CMMC mapping table
+      var themeOrder = ['Organizational','People','Physical','Technological'];
+      var themeNums = { Organizational:'5', People:'6', Physical:'7', Technological:'8' };
+      var html = '';
+
+      themeOrder.forEach(function(theme) {
+        var controls = ISO_CONTROLS.filter(function(c){ return c.theme === theme; });
+        html += '<details open><summary>Theme '+themeNums[theme]+': '+theme+' ('+controls.length+' controls)</summary>';
+        html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle mapping-detail"><thead><tr><th>ISO Control</th><th>Title</th><th>CMMC L1 Mappings</th><th>CMMC L2 Mappings</th></tr></thead><tbody>';
+        controls.forEach(function(c) {
+          var l1Maps = c.cmmc.filter(function(m){ return m.indexOf('L1-b') !== -1; });
+          var l2Maps = c.cmmc.filter(function(m){ return m.indexOf('L1-b') === -1; });
+          html += '<tr><td class="ucf-mono">'+c.id+'</td><td>'+c.title+'</td>'+
+            '<td>'+(l1Maps.length ? l1Maps.map(function(m){return '<span class="badge bg-success ucf-badge-map">'+m+'</span>';}).join(' ') : '<span class="text-body-secondary small">None</span>')+'</td>'+
+            '<td>'+(l2Maps.length ? l2Maps.map(function(m){return '<span class="badge bg-warning text-dark ucf-badge-map">'+m+'</span>';}).join(' ') : '<span class="text-body-secondary small">None</span>')+'</td></tr>';
+        });
+        html += '</tbody></table></div></details>';
+      });
+      document.getElementById('mapping-iso-to-cmmc').innerHTML = html;
+
+      // Reverse lookup dropdown
+      var sel = document.getElementById('mapping-cmmc-select');
+      if (sel.options.length <= 1) {
+        CMMC_L1.forEach(function(c) {
+          var o = document.createElement('option');
+          o.value = c.id; o.textContent = c.id + ' — ' + c.title.substring(0,60) + '...';
+          sel.appendChild(o);
+        });
+        CMMC_L2.forEach(function(c) {
+          var o = document.createElement('option');
+          o.value = c.id; o.textContent = c.id + ' — ' + c.title.substring(0,60) + (c.title.length>60?'...':'');
+          sel.appendChild(o);
+        });
+      }
+    }
+
+    function handleReverseMapping() {
+      var sel = document.getElementById('mapping-cmmc-select');
+      var cmmcId = sel.value;
+      var container = document.getElementById('mapping-reverse-result');
+      if (!cmmcId) { container.innerHTML = ''; return; }
+
+      var isoMaps = isoMappingsFor(cmmcId);
+      if (!isoMaps.length) {
+        container.innerHTML = '<div class="alert alert-secondary">No ISO 27001 controls map to this CMMC practice.</div>';
+        return;
+      }
+      var html = '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>ISO Control</th><th>Theme</th><th>Title</th><th>Status</th></tr></thead><tbody>';
+      isoMaps.forEach(function(isoId) {
+        var ctrl = ISO_CONTROLS.find(function(c){ return c.id === isoId; });
+        if (ctrl) {
+          html += '<tr><td class="ucf-mono">'+ctrl.id+'</td><td>'+themeBadge(ctrl.theme)+'</td><td>'+ctrl.title+'</td>'+
+            '<td><span class="badge bg-'+STATUS_CONFIG[getStatus('iso-'+ctrl.id)].color+'">'+STATUS_CONFIG[getStatus('iso-'+ctrl.id)].label+'</span></td></tr>';
+        }
+      });
+      html += '</tbody></table></div>';
+      container.innerHTML = html;
+    }
+
+    /* ================================================================
+       GAP ANALYSIS TAB
+       ================================================================ */
+    function renderGap() {
+      // Collect all gaps
+      var gaps = [];
+      ISO_CONTROLS.forEach(function(c) {
+        var s = getStatus('iso-'+c.id);
+        if (s === 'not-started' || s === 'planned') {
+          gaps.push({ id:'iso-'+c.id, displayId:c.id, framework:'ISO 27001', title:c.title, status:s, mappings:c.cmmc.length });
+        }
+      });
+      CMMC_L1.forEach(function(c) {
+        var s = getStatus('l1-'+c.id);
+        if (s === 'not-started' || s === 'planned') {
+          gaps.push({ id:'l1-'+c.id, displayId:c.id, framework:'CMMC L1', title:c.title, status:s, mappings:isoMappingsFor(c.id).length });
+        }
+      });
+      CMMC_L2.forEach(function(c) {
+        var s = getStatus('l2-'+c.id);
+        if (s === 'not-started' || s === 'planned') {
+          var mapCount = isoMappingsFor(c.id).length;
+          if (c.l1) mapCount += 1; // counts as cross-framework
+          gaps.push({ id:'l2-'+c.id, displayId:c.id, framework:'CMMC L2', title:c.title, status:s, mappings:mapCount });
+        }
+      });
+
+      // Identify high-leverage: ISO controls that map to CMMC, or CMMC that maps to ISO
+      // "High leverage" = appears in multiple frameworks (mappings >= 2)
+      gaps.forEach(function(g) { g.highLeverage = g.mappings >= 2; });
+
+      // Sort: high leverage first
+      gaps.sort(function(a,b) { return (b.highLeverage?1:0) - (a.highLeverage?1:0); });
+
+      // Summary counts
+      var isoGaps = gaps.filter(function(g){return g.framework==='ISO 27001';}).length;
+      var l1Gaps = gaps.filter(function(g){return g.framework==='CMMC L1';}).length;
+      var l2Gaps = gaps.filter(function(g){return g.framework==='CMMC L2';}).length;
+
+      var sumHtml = '<div class="col-4"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+isoGaps+'</div><small>ISO 27001 Gaps</small></div></div></div>'+
+        '<div class="col-4"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+l1Gaps+'</div><small>CMMC L1 Gaps</small></div></div></div>'+
+        '<div class="col-4"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+l2Gaps+'</div><small>CMMC L2 Gaps</small></div></div></div>';
+      document.getElementById('gap-summary').innerHTML = sumHtml;
+
+      if (!gaps.length) {
+        document.getElementById('gap-content').innerHTML = '<div class="alert alert-success">No gaps! All controls have been addressed.</div>';
+        return;
+      }
+
+      // Group by framework
+      var grouped = { 'ISO 27001':[], 'CMMC L1':[], 'CMMC L2':[] };
+      gaps.forEach(function(g) { grouped[g.framework].push(g); });
+
+      var html = '';
+      ['ISO 27001','CMMC L1','CMMC L2'].forEach(function(fw) {
+        if (!grouped[fw].length) return;
+        html += '<h6 class="mt-3">'+fw+' ('+grouped[fw].length+' gaps)</h6>';
+        html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr><th>Control</th><th>Title</th><th>Status</th><th>Priority</th></tr></thead><tbody>';
+        grouped[fw].forEach(function(g) {
+          html += '<tr class="'+(g.highLeverage?'high-leverage':'')+'">'+
+            '<td class="ucf-mono">'+g.displayId+'</td>'+
+            '<td>'+g.title+'</td>'+
+            '<td><span class="badge bg-'+STATUS_CONFIG[g.status].color+'">'+STATUS_CONFIG[g.status].label+'</span></td>'+
+            '<td>'+(g.highLeverage?'<span class="badge bg-danger">High Leverage</span>':'<span class="text-body-secondary small">Standard</span>')+'</td></tr>';
+        });
+        html += '</tbody></table></div>';
+      });
+      document.getElementById('gap-content').innerHTML = html;
+    }
+
+    /* ================================================================
+       CSV EXPORT
+       ================================================================ */
+    function exportCSV() {
+      var rows = [['Framework','Control ID','Title','Status','Priority']];
+      ISO_CONTROLS.forEach(function(c) {
+        var s = getStatus('iso-'+c.id);
+        if (s==='not-started'||s==='planned') rows.push(['ISO 27001',c.id,'"'+c.title.replace(/"/g,'""')+'"',s,c.cmmc.length>=2?'High Leverage':'Standard']);
+      });
+      CMMC_L1.forEach(function(c) {
+        var s = getStatus('l1-'+c.id);
+        if (s==='not-started'||s==='planned') rows.push(['CMMC L1',c.id,'"'+c.title.replace(/"/g,'""')+'"',s,isoMappingsFor(c.id).length>=2?'High Leverage':'Standard']);
+      });
+      CMMC_L2.forEach(function(c) {
+        var s = getStatus('l2-'+c.id);
+        if (s==='not-started'||s==='planned') {
+          var mc = isoMappingsFor(c.id).length + (c.l1?1:0);
+          rows.push(['CMMC L2',c.id,'"'+c.title.replace(/"/g,'""')+'"',s,mc>=2?'High Leverage':'Standard']);
+        }
+      });
+      var csv = rows.map(function(r){return r.join(',');}).join('\n');
+      var blob = new Blob([csv], {type:'text/csv'});
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'ucf_gap_analysis.csv';
+      a.click();
+    }
+
+    /* ================================================================
+       FILTERING
+       ================================================================ */
+    function applyFilter(prefix) {
+      var search = document.getElementById(prefix+'-search').value.toLowerCase();
+      var statusF = document.getElementById(prefix+'-status-filter').value;
+      var domainF = document.getElementById(prefix+'-domain-filter').value;
+      var container = document.getElementById(prefix+'-content');
+      var rows = container.querySelectorAll('tr[data-id]');
+      var visible = 0;
+      rows.forEach(function(row) {
+        var id = row.getAttribute('data-id');
+        var text = row.textContent.toLowerCase();
+        var rowStatus = getStatus(id);
+        var rowDomain = row.getAttribute('data-theme') || row.getAttribute('data-domain') || '';
+        var show = true;
+        if (search && text.indexOf(search) === -1) show = false;
+        if (statusF && rowStatus !== statusF) show = false;
+        if (domainF && rowDomain !== domainF) show = false;
+        row.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+      document.getElementById(prefix+'-count').textContent = visible + ' shown';
+    }
+
+    /* ================================================================
+       STATUS CHANGE HANDLER (event delegation)
+       ================================================================ */
+    function handleStatusChange(e) {
+      if (e.target.matches('select[data-control]')) {
+        var controlId = e.target.getAttribute('data-control');
+        var val = e.target.value;
+        setStatus(controlId, val);
+
+        // For L2 controls that have L1 equivalents, sync L1 status
+        var l2Ctrl = CMMC_L2.find(function(c){ return 'l2-'+c.id === controlId && c.l1; });
+        if (l2Ctrl) {
+          setStatus('l1-'+l2Ctrl.l1, val);
+        }
+        // For L1 controls, sync to corresponding L2
+        var l1Ctrl = CMMC_L1.find(function(c){ return 'l1-'+c.id === controlId; });
+        if (l1Ctrl) {
+          var l2Match = CMMC_L2.find(function(c2){ return c2.l1 === l1Ctrl.id; });
+          if (l2Match) {
+            setStatus('l2-'+l2Match.id, val);
+          }
+        }
+      }
+    }
+
+    /* ================================================================
+       RESET ALL
+       ================================================================ */
+    function resetAll() {
+      if (!confirm('Are you sure you want to reset ALL control statuses? This cannot be undone.')) return;
+      var keys = [];
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k && k.indexOf(STORE) === 0) keys.push(k);
+      }
+      keys.forEach(function(k) { localStorage.removeItem(k); });
+      updateAll();
+    }
+
+    /* ================================================================
+       UPDATE ALL
+       ================================================================ */
+    function updateAll() {
+      updateProgressCards();
+      renderDashboard();
+      renderISO();
+      renderL1();
+      renderL2();
+      renderMapping();
+      renderGap();
+    }
+
+    /* ================================================================
+       INIT
+       ================================================================ */
+    function init() {
+      updateAll();
+
+      // Event delegation for status changes
+      document.getElementById('ucfTabContent').addEventListener('change', handleStatusChange);
+
+      // Filters
+      ['iso','l1','l2'].forEach(function(prefix) {
+        document.getElementById(prefix+'-search').addEventListener('input', function(){ applyFilter(prefix); });
+        document.getElementById(prefix+'-status-filter').addEventListener('change', function(){ applyFilter(prefix); });
+        document.getElementById(prefix+'-domain-filter').addEventListener('change', function(){ applyFilter(prefix); });
+      });
+
+      // Reset button
+      document.getElementById('btn-reset-all').addEventListener('click', resetAll);
+
+      // CSV export
+      document.getElementById('btn-export-csv').addEventListener('click', exportCSV);
+
+      // Reverse mapping
+      document.getElementById('mapping-cmmc-select').addEventListener('change', handleReverseMapping);
+
+      // Initial count badges
+      ['iso','l1','l2'].forEach(function(prefix) { applyFilter(prefix); });
+    }
+
+    // Run on DOM ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+
+  })();
+  </script>
+</body>
+</html>
