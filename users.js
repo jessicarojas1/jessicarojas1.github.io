@@ -15,8 +15,8 @@
 const Users = (() => {
 
   const STORE_KEY   = 'rbac_users';
-  const DEFAULT_PW  = 'Basketball#44.';
-  const DEFAULT_USER = 'jrojas1';
+  const DEFAULT_PW  = 'Admin@2026!';
+  const DEFAULT_USER = 'admin';
 
   /* ── SHA-256 via Web Crypto ─────────────────────────────────── */
   async function sha256(str) {
