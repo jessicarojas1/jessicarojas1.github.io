@@ -3,20 +3,15 @@
  * Users are stored in localStorage as { username, passwordHash, role, created }.
  * Passwords are hashed with SHA-256 (Web Crypto API) — no plaintext ever stored.
  *
- * Default seeded admin on first load:
- *   username : admin
- *   password : Admin@2026!
- *   role     : admin
+ * First-run: if no users exist, roles.js will show a "Create Admin" form.
  *
- * Public API: Users.seed(), Users.getUsers(), Users.authenticate(),
- *             Users.addUser(), Users.deleteUser(), Users.changePassword(),
- *             Users.updateRole(), Users.sha256()
+ * Public API: Users.seed(), Users.hasUsers(), Users.getUsers(),
+ *             Users.authenticate(), Users.addUser(), Users.deleteUser(),
+ *             Users.changePassword(), Users.updateRole(), Users.sha256()
  */
 const Users = (() => {
 
-  const STORE_KEY   = 'rbac_users';
-  const DEFAULT_PW  = 'Admin@2026!';
-  const DEFAULT_USER = 'admin';
+  const STORE_KEY = 'rbac_users';
 
   /* ── SHA-256 via Web Crypto ─────────────────────────────────── */
   async function sha256(str) {
@@ -34,18 +29,13 @@ const Users = (() => {
     localStorage.setItem(STORE_KEY, JSON.stringify(users));
   }
 
-  /* ── Seed default admin on first run ────────────────────────── */
+  function hasUsers() {
+    return getUsers().length > 0;
+  }
+
+  /* ── Seed — no-op; first-run account creation is handled via UI ─ */
   async function seed() {
-    const users = getUsers();
-    if (!users.length) {
-      const hash = await sha256(DEFAULT_PW);
-      saveUsers([{
-        username    : DEFAULT_USER,
-        passwordHash: hash,
-        role        : 'admin',
-        created     : Date.now(),
-      }]);
-    }
+    return hasUsers();
   }
 
   /* ── Authenticate — returns user object or null ─────────────── */
@@ -99,6 +89,6 @@ const Users = (() => {
   }
 
   /* ── Public API ──────────────────────────────────────────────── */
-  return { seed, getUsers, authenticate, addUser, deleteUser, changePassword, updateRole, sha256 };
+  return { seed, hasUsers, getUsers, authenticate, addUser, deleteUser, changePassword, updateRole, sha256 };
 
 })();

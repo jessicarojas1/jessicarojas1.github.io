@@ -38,9 +38,11 @@
     .nexus-id { font-size: .82rem; font-weight: 700; text-decoration: none !important; }
     .nexus-id:hover { text-shadow: 0 0 8px currentColor; }
     .nexus-title { font-size: .75rem; color: var(--bs-secondary-color); margin-top: .1rem; line-height: 1.35; }
-    /* Clickable link badges */
-    a.ucf-link { cursor: pointer; text-decoration: none !important; }
-    a.ucf-link:hover { opacity: .85; transform: translateY(-1px); display: inline-block; }
+    /* Clickable control links/buttons */
+    .ucf-link { cursor: pointer; }
+    button.ucf-link { font-family: inherit; }
+    .badge.ucf-link:hover, button.nexus-id:hover { opacity: .82; transform: translateY(-1px); }
+    button.nexus-id { display: inline; font-size: .82rem; font-weight: 700; }
     /* Highlight pulse for nav */
     .ucf-highlight { transition: background-color .3s ease, outline .3s ease; }
     @media (max-width: 767.98px) {
@@ -531,7 +533,11 @@
       {id:'SI.L1-3.14.5',l1:'SI.L1-b.1.xvii',domain:'System & Information Integrity',nist:'3.14.5',title:'Perform periodic scans and real-time scans of files from external sources.'},
       {id:'SI.L2-3.14.3',l1:null,domain:'System & Information Integrity',nist:'3.14.3',title:'Monitor system security alerts and advisories and take action in response.'},
       {id:'SI.L2-3.14.6',l1:null,domain:'System & Information Integrity',nist:'3.14.6',title:'Monitor systems to detect attacks and indicators of potential attacks.'},
-      {id:'SI.L2-3.14.7',l1:null,domain:'System & Information Integrity',nist:'3.14.7',title:'Identify unauthorized use of organizational systems.'}
+      {id:'SI.L2-3.14.7',l1:null,domain:'System & Information Integrity',nist:'3.14.7',title:'Identify unauthorized use of organizational systems.'},
+      /* Supply Chain Risk Management — NIST SP 800-171 Rev 2 domain 3.15 */
+      {id:'SR.L2-3.15.1',l1:null,domain:'Supply Chain Risk Management',nist:'3.15.1',title:'Establish a supply chain risk management strategy to identify, assess, and mitigate supply chain risks.'},
+      {id:'SR.L2-3.15.2',l1:null,domain:'Supply Chain Risk Management',nist:'3.15.2',title:'Use assessment and review processes to assess the risks of supply chain components before selection, acceptance, and use.'},
+      {id:'SR.L2-3.15.3',l1:null,domain:'Supply Chain Risk Management',nist:'3.15.3',title:'Employ penetration testing to identify vulnerabilities and opportunities for exploitation — include supply chain elements.'}
     ];
 
     /* ================================================================
@@ -584,7 +590,7 @@
         var isL1 = !!CMMC_L1.find(function(l){ return l.id === c; });
         var storeId = isL1 ? 'l1-'+c : 'l2-'+c;
         var cls = isL1 ? 'bg-success' : 'bg-warning text-dark';
-        return '<a href="#" class="badge '+cls+' ucf-badge-map ucf-link" data-goto="'+storeId+'" title="Jump to '+c+'">'+c+'</a>';
+        return '<button type="button" class="badge '+cls+' ucf-badge-map ucf-link border-0" data-goto="'+storeId+'" title="Jump to '+c+'">'+c+'</button>';
       }).join(' ');
     }
 
@@ -599,7 +605,7 @@
     function isoBadges(arr) {
       if (!arr.length) return '<span class="text-body-secondary small">None</span>';
       return arr.map(function(id) {
-        return '<a href="#" class="badge bg-info ucf-badge-map ucf-link" data-goto="iso-'+id+'" title="Jump to ISO '+id+'">ISO '+id+'</a>';
+        return '<button type="button" class="badge bg-info ucf-badge-map ucf-link border-0" data-goto="iso-'+id+'" title="Jump to ISO '+id+'">ISO '+id+'</button>';
       }).join(' ');
     }
 
@@ -638,13 +644,14 @@
         var details = row.closest('details');
         if (details && !details.open) details.open = true;
         row.scrollIntoView({ behavior:'smooth', block:'center' });
-        row.style.outline = '2px solid rgba(255,88,17,0.8)';
-        row.style.backgroundColor = 'rgba(255,88,17,0.12)';
+        row.style.transition = 'outline 0.1s, background-color 0.1s';
+        row.style.outline = '2px solid rgba(255,88,17,0.9)';
+        row.style.backgroundColor = 'rgba(255,88,17,0.15)';
         setTimeout(function() {
           row.style.outline = '';
           row.style.backgroundColor = '';
-        }, 2200);
-      }, 180);
+        }, 2500);
+      }, 350);
     }
 
     /* ================================================================
@@ -972,7 +979,7 @@
         if (g.iso.length) {
           g.iso.forEach(function(c) {
             html += '<div class="nexus-item">';
-            html += '<a href="#" class="ucf-mono ucf-link nexus-id text-info" data-goto="iso-'+c.id+'">'+c.id+'</a>';
+            html += '<button type="button" class="ucf-mono ucf-link nexus-id text-info bg-transparent border-0 p-0" data-goto="iso-'+c.id+'">'+c.id+'</button>';
             html += statusDot('iso-'+c.id);
             html += '<div class="nexus-title">'+c.title+'</div>';
             html += '</div>';
@@ -987,7 +994,7 @@
         if (g.l1.length) {
           g.l1.forEach(function(c) {
             html += '<div class="nexus-item">';
-            html += '<a href="#" class="ucf-mono ucf-link nexus-id text-success" data-goto="l1-'+c.id+'">'+c.id+'</a>';
+            html += '<button type="button" class="ucf-mono ucf-link nexus-id text-success bg-transparent border-0 p-0" data-goto="l1-'+c.id+'">'+c.id+'</button>';
             html += statusDot('l1-'+c.id);
             html += '<div class="nexus-title">'+c.title+'</div>';
             html += '</div>';
@@ -1002,7 +1009,7 @@
         if (g.l2.length) {
           g.l2.forEach(function(c) {
             html += '<div class="nexus-item">';
-            html += '<a href="#" class="ucf-mono ucf-link nexus-id" data-goto="l2-'+c.id+'" style="color:#ffc107">'+c.id+'</a>';
+            html += '<button type="button" class="ucf-mono ucf-link nexus-id bg-transparent border-0 p-0" data-goto="l2-'+c.id+'" style="color:#ffc107">'+c.id+'</button>';
             html += statusDot('l2-'+c.id);
             html += '<div class="nexus-title">'+c.title+'</div>';
             html += '</div>';
@@ -1025,7 +1032,7 @@
         html += '<div class="row g-2">';
         isoOnly.forEach(function(c) {
           html += '<div class="col-md-6 col-lg-4"><div class="nexus-item">';
-          html += '<a href="#" class="ucf-mono ucf-link nexus-id text-info" data-goto="iso-'+c.id+'">'+c.id+'</a>';
+          html += '<button type="button" class="ucf-mono ucf-link nexus-id text-info bg-transparent border-0 p-0" data-goto="iso-'+c.id+'">'+c.id+'</button>';
           html += statusDot('iso-'+c.id);
           html += '<div class="nexus-title">'+c.title+'</div>';
           html += '</div></div>';
@@ -1085,7 +1092,7 @@
           '<td>'+themeBadge(ctrl.theme)+'</td>'+
           '<td>'+ctrl.title+'</td>'+
           '<td><span class="badge bg-'+STATUS_CONFIG[s].color+'">'+STATUS_CONFIG[s].label+'</span></td>'+
-          '<td><a href="#" class="btn btn-outline-secondary btn-sm py-0 ucf-link" data-goto="iso-'+ctrl.id+'">Go</a></td>'+
+          '<td><button type="button" class="btn btn-outline-secondary btn-sm py-0 ucf-link" data-goto="iso-'+ctrl.id+'">Go</button></td>'+
           '</tr>';
       });
       html += '</tbody></table></div>';
@@ -1263,8 +1270,7 @@
       renderISO();
       renderL1();
       renderL2();
-      renderNexus();
-      renderMapping();
+      renderMapping(); // calls renderNexus() internally
       renderGap();
     }
 
@@ -1277,10 +1283,15 @@
       // Event delegation for status changes
       document.getElementById('ucfTabContent').addEventListener('change', handleStatusChange);
 
-      // Event delegation for clickable cross-links (ucf-link badges)
+      // Event delegation for clickable cross-links (ucf-link buttons and badges)
       document.getElementById('ucfTabContent').addEventListener('click', function(e) {
-        var link = e.target.closest('a.ucf-link[data-goto]');
-        if (link) { e.preventDefault(); navigateToControl(link.getAttribute('data-goto')); }
+        var el = e.target.nodeType === 1 ? e.target : e.target.parentElement;
+        var btn = el && el.closest('[data-goto]');
+        if (btn) {
+          e.preventDefault();
+          e.stopPropagation();
+          navigateToControl(btn.getAttribute('data-goto'));
+        }
       });
 
       // Filters

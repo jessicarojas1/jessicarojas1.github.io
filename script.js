@@ -93,32 +93,7 @@ function _scriptInit() {
       });
     }
 
-    /* ── Login modal fallback (if Bootstrap JS blocked/slow) ───── */
-    const loginBtn   = document.getElementById('rbac-login-btn');
-    const loginModal = document.getElementById('rbacLoginModal');
-    if (loginBtn && loginModal) {
-      // Show modal
-      loginBtn.removeAttribute('data-bs-toggle');
-      loginBtn.removeAttribute('data-bs-target');
-      loginBtn.addEventListener('click', function () {
-        loginModal.style.display = 'flex';
-        loginModal.style.alignItems = 'center';
-        loginModal.style.justifyContent = 'center';
-        loginModal.classList.add('show');
-        loginModal.style.backgroundColor = 'rgba(0,0,0,0.5)';
-        document.body.style.overflow = 'hidden';
-      });
-      // Close modal
-      function closeModal() {
-        loginModal.classList.remove('show');
-        loginModal.style.display = '';
-        document.body.style.overflow = '';
-      }
-      loginModal.querySelector('.btn-close')?.addEventListener('click', closeModal);
-      loginModal.addEventListener('click', function (e) {
-        if (e.target === loginModal) closeModal();
-      });
-    }
+    // Login modal fallback is handled by roles.js
   }
 }
 
