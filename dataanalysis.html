@@ -38,7 +38,7 @@
     /* ── Canvas wrapper ─────────────────────────────────────── */
     .da-canvas-wrap {
       position: relative;
-      height: 280px;
+      height: 300px;
     }
     .da-canvas-wrap .da-placeholder {
       position: absolute;
@@ -73,6 +73,32 @@
       padding: 0;
       background: none;
     }
+
+    /* ── Stats panel ─────────────────────────────────────────── */
+    .da-stats-panel {
+      font-size: .78rem;
+      border-top: 1px solid var(--bs-border-color);
+      padding-top: .45rem;
+      margin-top: .35rem;
+      min-height: 1.8rem;
+      color: var(--bs-secondary-color);
+    }
+    .da-stats-panel strong { color: var(--bs-body-color); }
+    .da-stat-item { white-space: nowrap; }
+
+    /* ── Overlay controls row ────────────────────────────────── */
+    .da-overlay-row {
+      border-top: 1px solid var(--bs-border-color);
+      border-bottom: 1px solid var(--bs-border-color);
+      padding: .3rem 0;
+      font-size: .82rem;
+      color: var(--bs-secondary-color);
+      row-gap: .25rem !important;
+    }
+    .da-overlay-row label { cursor: pointer; user-select: none; }
+
+    /* ── Paste area ──────────────────────────────────────────── */
+    .da-paste-input { font-family: monospace; font-size: .8rem; }
 
     /* ── Responsive: mobile table above chart ───────────────── */
     @media (max-width: 767.98px) {
@@ -239,560 +265,634 @@
   (function() {
     'use strict';
 
-    // ── Constants ────────────────────────────────────────────────
-    const DA_STORE = 'da_charts';
-    const PALETTE  = ['#ff5811','#3b82f6','#10b981','#f59e0b','#8b5cf6','#ec4899','#14b8a6','#f97316','#06b6d4','#84cc16'];
-    const chartInstances = {};
-    let debounceTimers = {};
-    let initialized = false;
+    var DA_STORE = 'da_charts';
 
-    // ── Auth gate ───────────────────────────────────────────────
-    // Strategy 1: MutationObserver watches for RBAC making #da-app visible
-    // Strategy 2: Polling fallback every 300ms, stops after 15s
-    const appEl  = document.getElementById('da-app');
-    const gateEl = document.getElementById('da-gate');
+    // ── Color Themes ─────────────────────────────────────────────
+    var THEMES = {
+      ember:  { name:'Ember',  main:'#ff5811', palette:['#ff5811','#ff8c42','#ffd166','#f7a541','#e05c22','#c94a1a','#ff6b35','#ff9a00'], trend:'#f59e0b', avg:'#ef4444', ma:'#8b5cf6' },
+      ocean:  { name:'Ocean',  main:'#0ea5e9', palette:['#0ea5e9','#06b6d4','#3b82f6','#6366f1','#0284c7','#7dd3fc','#38bdf8','#60a5fa'], trend:'#f59e0b', avg:'#10b981', ma:'#f43f5e' },
+      forest: { name:'Forest', main:'#10b981', palette:['#10b981','#059669','#34d399','#84cc16','#6ee7b7','#047857','#4ade80','#a3e635'], trend:'#f59e0b', avg:'#f43f5e', ma:'#3b82f6' },
+      sunset: { name:'Sunset', main:'#f43f5e', palette:['#f43f5e','#e11d48','#fb7185','#f97316','#fb923c','#fcd34d','#be123c','#fda4af'], trend:'#a855f7', avg:'#0ea5e9', ma:'#10b981' },
+      aurora: { name:'Aurora', main:'#8b5cf6', palette:['#8b5cf6','#7c3aed','#a78bfa','#ec4899','#f472b6','#6d28d9','#4f46e5','#c4b5fd'], trend:'#f59e0b', avg:'#10b981', ma:'#0ea5e9' },
+      slate:  { name:'Slate',  main:'#64748b', palette:['#0f172a','#1e293b','#334155','#475569','#64748b','#94a3b8','#cbd5e1','#e2e8f0'], trend:'#f59e0b', avg:'#ef4444', ma:'#06b6d4' },
+    };
+    var DEFAULT_THEME = 'ember';
+
+    var chartInstances = {};
+    var debounceTimers = {};
+    var initialized    = false;
+
+    // ── Auth gate ─────────────────────────────────────────────────
+    var appEl  = document.getElementById('da-app');
+    var gateEl = document.getElementById('da-gate');
 
     function onAppVisible() {
       if (initialized) return;
       initialized = true;
-      // Hide the gate hero
       if (gateEl) gateEl.style.display = 'none';
       initDataApp();
     }
+    function checkVisible() { return appEl && appEl.style.display !== 'none'; }
 
-    function checkVisible() {
-      // RBAC sets display from 'none' to '' or 'block' when the role is met
-      return appEl && appEl.style.display !== 'none';
-    }
-
-    // MutationObserver
     if (appEl) {
-      const observer = new MutationObserver(function() {
-        if (checkVisible()) {
-          observer.disconnect();
-          onAppVisible();
-        }
-      });
-      observer.observe(appEl, { attributes: true, attributeFilter: ['style'] });
+      var obs = new MutationObserver(function() { if (checkVisible()) { obs.disconnect(); onAppVisible(); } });
+      obs.observe(appEl, { attributes: true, attributeFilter: ['style'] });
     }
-
-    // Polling fallback
-    let pollCount = 0;
-    const pollMax = 15000 / 300; // 50 attempts
-    const pollId = setInterval(function() {
-      pollCount++;
-      if (checkVisible()) {
-        clearInterval(pollId);
-        onAppVisible();
-      } else if (pollCount >= pollMax) {
-        clearInterval(pollId);
-      }
+    var pollCount = 0;
+    var pollId = setInterval(function() {
+      if (++pollCount > 50 || checkVisible()) { clearInterval(pollId); onAppVisible(); }
     }, 300);
 
-    // ── Storage ─────────────────────────────────────────────────
+    // ── Storage ───────────────────────────────────────────────────
     function loadCharts() {
-      try {
-        var raw = localStorage.getItem(DA_STORE);
-        return raw ? JSON.parse(raw) : null;
-      } catch (e) {
-        return null;
-      }
+      try { var r = localStorage.getItem(DA_STORE); return r ? JSON.parse(r) : null; } catch(e) { return null; }
     }
+    function saveCharts(c) { localStorage.setItem(DA_STORE, JSON.stringify(c)); }
 
-    function saveCharts(charts) {
-      localStorage.setItem(DA_STORE, JSON.stringify(charts));
-    }
-
-    // ── Demo data (first visit only) ────────────────────────────
+    // ── Demo chart ────────────────────────────────────────────────
     function createDemoChart() {
       return {
-        id: 'da_demo',
-        name: 'Demo — Monthly Revenue',
-        type: 'bar',
-        groupBy: 'month',
-        aggregation: 'sum',
-        color: '#ff5811',
+        id: 'da_demo', name: 'Demo — Monthly Revenue', type: 'bar',
+        groupBy: 'month', aggregation: 'sum',
+        colorTheme: DEFAULT_THEME, color: '#ff5811',
+        showTrend: true, showAvg: true, movingAvg: 'none', forecastPeriods: 3,
         data: [
-          { x: '2024-01-15', y: '4200' },
-          { x: '2024-01-28', y: '1800' },
-          { x: '2024-02-10', y: '3500' },
-          { x: '2024-03-05', y: '5100' },
-          { x: '2024-03-22', y: '2400' },
-          { x: '2024-04-12', y: '6800' }
+          {x:'2024-01-15',y:'4200'},{x:'2024-01-28',y:'1800'},
+          {x:'2024-02-10',y:'3500'},{x:'2024-03-05',y:'5100'},
+          {x:'2024-03-22',y:'2400'},{x:'2024-04-12',y:'6800'},
+          {x:'2024-05-08',y:'7200'},{x:'2024-06-20',y:'5900'},
+          {x:'2024-07-14',y:'8400'},{x:'2024-08-09',y:'7100'}
         ]
       };
     }
 
-    // ── Unique ID generator ─────────────────────────────────────
-    function genId() {
-      return 'da_' + Date.now() + '' + Math.floor(Math.random() * 1000);
-    }
+    function genId() { return 'da_' + Date.now() + Math.floor(Math.random()*1000); }
 
-    // ── ISO week number ─────────────────────────────────────────
+    // ── ISO week ───────────────────────────────────────────────────
     function isoWeek(d) {
-      var date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-      date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
-      var yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
-      var weekNo = Math.ceil(((date - yearStart) / 86400000 + 1) / 7);
-      return { year: date.getUTCFullYear(), week: weekNo };
+      var dt = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+      dt.setUTCDate(dt.getUTCDate() + 4 - (dt.getUTCDay() || 7));
+      var ys = new Date(Date.UTC(dt.getUTCFullYear(), 0, 1));
+      return { year: dt.getUTCFullYear(), week: Math.ceil(((dt - ys) / 86400000 + 1) / 7) };
     }
 
-    // ── Data grouping ────────────────────────────────────────────
+    // ── Data grouping ──────────────────────────────────────────────
     function groupData(rawData, groupBy, aggregation) {
       if (groupBy === 'manual') {
-        // Return as-is (no parsing or grouping)
-        return rawData.filter(function(r) { return r.x !== '' || r.y !== ''; }).map(function(r) {
-          return { label: r.x, value: parseFloat(r.y) || 0 };
-        });
+        return rawData.filter(function(r){return r.x!==''||r.y!=='';})
+          .map(function(r){return {label:r.x, value:parseFloat(r.y)||0};});
       }
-
-      var buckets = {}; // key -> [values]
-
+      var buckets = {};
       rawData.forEach(function(row) {
         if (!row.x) return;
         var d = new Date(row.x);
         if (isNaN(d.getTime())) return;
-        var val = parseFloat(row.y) || 0;
-        var key;
-
+        var val = parseFloat(row.y)||0, key;
         switch (groupBy) {
-          case 'day':
-            key = d.toISOString().slice(0, 10); // YYYY-MM-DD
-            break;
-          case 'week':
-            var w = isoWeek(d);
-            key = w.year + '-W' + String(w.week).padStart(2, '0');
-            break;
-          case 'month':
-            key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
-            break;
-          case 'quarter':
-            var q = Math.floor(d.getMonth() / 3) + 1;
-            key = d.getFullYear() + '-Q' + q;
-            break;
-          case 'halfyear':
-            var h = d.getMonth() < 6 ? 'H1' : 'H2';
-            key = d.getFullYear() + '-' + h;
-            break;
-          case 'year':
-            key = '' + d.getFullYear();
-            break;
-          case 'multiyear':
-            var base = d.getFullYear() - (d.getFullYear() % 2);
-            key = base + '-' + (base + 1);
-            break;
-          default:
-            key = row.x;
+          case 'day':      key = d.toISOString().slice(0,10); break;
+          case 'week':     var w=isoWeek(d); key=w.year+'-W'+String(w.week).padStart(2,'0'); break;
+          case 'month':    key = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); break;
+          case 'quarter':  key = d.getFullYear()+'-Q'+(Math.floor(d.getMonth()/3)+1); break;
+          case 'halfyear': key = d.getFullYear()+'-'+(d.getMonth()<6?'H1':'H2'); break;
+          case 'year':     key = ''+d.getFullYear(); break;
+          case 'multiyear':var b=d.getFullYear()-(d.getFullYear()%2); key=b+'-'+(b+1); break;
+          default:         key = row.x;
         }
-
         if (!buckets[key]) buckets[key] = [];
         buckets[key].push(val);
       });
-
-      // Sort keys, build result
-      var keys = Object.keys(buckets).sort();
-      return keys.map(function(k) {
+      return Object.keys(buckets).sort().map(function(k) {
         var vals = buckets[k];
-        var agg = aggregation === 'average'
-          ? vals.reduce(function(a, b) { return a + b; }, 0) / vals.length
-          : vals.reduce(function(a, b) { return a + b; }, 0);
-        return { label: k, value: Math.round(agg * 100) / 100 };
+        var agg = aggregation==='average'
+          ? vals.reduce(function(a,b){return a+b;},0)/vals.length
+          : vals.reduce(function(a,b){return a+b;},0);
+        return { label:k, value:Math.round(agg*100)/100 };
       });
     }
 
-    // ── Chart rendering ──────────────────────────────────────────
+    // ── Next period label (forecast) ──────────────────────────────
+    function nextPeriodLabel(label, groupBy) {
+      var p, y, m, q;
+      switch (groupBy) {
+        case 'month':
+          p=label.split('-'); y=parseInt(p[0]); m=parseInt(p[1])+1;
+          if(m>12){m=1;y++;} return y+'-'+String(m).padStart(2,'0');
+        case 'year':
+          return String(parseInt(label)+1);
+        case 'quarter':
+          p=label.split('-Q'); y=parseInt(p[0]); q=parseInt(p[1])+1;
+          if(q>4){q=1;y++;} return y+'-Q'+q;
+        case 'halfyear':
+          p=label.split('-'); y=parseInt(p[0]);
+          return p[1]==='H1' ? y+'-H2' : (y+1)+'-H1';
+        default: return null;
+      }
+    }
+
+    // ── Statistics ─────────────────────────────────────────────────
+    function calcStats(values) {
+      var n = values.length; if (!n) return null;
+      var sum = values.reduce(function(a,b){return a+b;},0);
+      var mean = sum/n;
+      var sorted = values.slice().sort(function(a,b){return a-b;});
+      var median = n%2===0?(sorted[n/2-1]+sorted[n/2])/2:sorted[Math.floor(n/2)];
+      var variance = values.reduce(function(acc,v){return acc+Math.pow(v-mean,2);},0)/n;
+      var growth = n>=2?((values[n-1]-values[0])/Math.abs(values[0]||1))*100:null;
+      return {
+        count:n, sum:Math.round(sum*100)/100,
+        min:Math.min.apply(null,values), max:Math.max.apply(null,values),
+        mean:Math.round(mean*100)/100, median:Math.round(median*100)/100,
+        stddev:Math.round(Math.sqrt(variance)*100)/100,
+        growth:growth!==null?Math.round(growth*10)/10:null
+      };
+    }
+
+    // ── Linear regression (index-based) ───────────────────────────
+    function linReg(ys) {
+      var n=ys.length; if(n<2) return null;
+      var sumX=0,sumY=0,sumXY=0,sumXX=0;
+      for(var i=0;i<n;i++){sumX+=i;sumY+=ys[i];sumXY+=i*ys[i];sumXX+=i*i;}
+      var denom=n*sumXX-sumX*sumX; if(denom===0) return null;
+      var m=(n*sumXY-sumX*sumY)/denom, b=(sumY-m*sumX)/n;
+      return {m:m,b:b,predict:function(x){return Math.round((m*x+b)*100)/100;}};
+    }
+
+    // ── Moving average ─────────────────────────────────────────────
+    function movingAverage(values, period) {
+      return values.map(function(_,i) {
+        if(i<period-1) return null;
+        var s=values.slice(i-period+1,i+1);
+        return Math.round(s.reduce(function(a,b){return a+b;},0)/period*100)/100;
+      });
+    }
+
+    // ── Render chart ───────────────────────────────────────────────
     function renderChart(chartObj) {
-      var canvas = document.getElementById('canvas-' + chartObj.id);
+      var canvas = document.getElementById('canvas-'+chartObj.id);
       if (!canvas) return;
       var ctx = canvas.getContext('2d');
 
-      // Destroy existing instance
       if (chartInstances[chartObj.id]) {
         chartInstances[chartObj.id].destroy();
         delete chartInstances[chartObj.id];
       }
 
-      // Check placeholder
       var wrap = canvas.closest('.da-canvas-wrap');
       var placeholder = wrap ? wrap.querySelector('.da-placeholder') : null;
+      var isPD = chartObj.type==='pie'||chartObj.type==='doughnut';
+      var isScatter = chartObj.type==='scatter';
+      var canOverlay = !isPD && !isScatter;
 
-      var isPieDoughnut = (chartObj.type === 'pie' || chartObj.type === 'doughnut');
       var grouped;
-
-      if (isPieDoughnut) {
-        // Pie/Doughnut: use raw data directly (ignore groupBy)
-        grouped = chartObj.data.filter(function(r) { return r.x !== '' || r.y !== ''; }).map(function(r) {
-          return { label: r.x || '(no label)', value: parseFloat(r.y) || 0 };
-        });
+      if (isPD) {
+        grouped = chartObj.data.filter(function(r){return r.x!==''||r.y!=='';})
+          .map(function(r){return {label:r.x||'(no label)',value:parseFloat(r.y)||0};});
       } else {
         grouped = groupData(chartObj.data, chartObj.groupBy, chartObj.aggregation);
       }
 
-      if (grouped.length === 0) {
-        if (placeholder) placeholder.style.display = 'flex';
-        return;
+      if (grouped.length===0) {
+        if (placeholder) placeholder.style.display='flex';
+        updateStatsPanel(chartObj.id, null); return;
       }
-      if (placeholder) placeholder.style.display = 'none';
+      if (placeholder) placeholder.style.display='none';
 
-      var labels = grouped.map(function(g) { return g.label; });
-      var values = grouped.map(function(g) { return g.value; });
+      var labels = grouped.map(function(g){return g.label;});
+      var values = grouped.map(function(g){return g.value;});
+      var theme = THEMES[chartObj.colorTheme]||THEMES[DEFAULT_THEME];
+      var mainColor = chartObj.color||theme.main;
 
-      // Determine chart.js type
-      var cjType = chartObj.type === 'area' ? 'line' : chartObj.type;
+      updateStatsPanel(chartObj.id, values);
 
-      // Colors
-      var bgColors, borderColors;
-      if (isPieDoughnut) {
-        bgColors = values.map(function(_, i) { return PALETTE[i % PALETTE.length]; });
-        borderColors = bgColors;
-      } else {
-        bgColors = chartObj.color || '#ff5811';
-        borderColors = chartObj.color || '#ff5811';
-      }
+      var cjType = chartObj.type==='area'?'line':(isScatter?'scatter':chartObj.type);
 
-      var datasetOpts = {
-        label: chartObj.name || 'Data',
-        data: values,
-        backgroundColor: bgColors,
-        borderColor: borderColors,
-        borderWidth: isPieDoughnut ? 1 : 2,
-        fill: chartObj.type === 'area',
-        tension: (cjType === 'line') ? 0.3 : 0,
-        pointRadius: (cjType === 'scatter') ? 5 : 3
+      var mainDs = {
+        label: chartObj.name||'Data',
+        data: isScatter
+          ? grouped.map(function(g){var nx=parseFloat(g.label);return{x:isNaN(nx)?0:nx,y:g.value};})
+          : values,
+        backgroundColor: isPD
+          ? values.map(function(_,i){return theme.palette[i%theme.palette.length];})
+          : (chartObj.type==='area' ? mainColor+'33' : mainColor),
+        borderColor: isPD
+          ? values.map(function(_,i){return theme.palette[i%theme.palette.length];})
+          : mainColor,
+        borderWidth: isPD?1:2,
+        fill: chartObj.type==='area',
+        tension: cjType==='line'?0.3:0,
+        pointRadius: isScatter?5:3,
+        order: 10
       };
 
-      // For area charts, use a semi-transparent fill
-      if (chartObj.type === 'area') {
-        datasetOpts.backgroundColor = (chartObj.color || '#ff5811') + '33';
-        datasetOpts.borderColor = chartObj.color || '#ff5811';
-      }
+      var datasets = [mainDs];
+      var extLabels = labels.slice();
+      var reg = (canOverlay && values.length>=2) ? linReg(values) : null;
 
-      var config = {
-        type: cjType,
-        data: {
-          labels: labels,
-          datasets: [datasetOpts]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            title: {
-              display: true,
-              text: chartObj.name || 'Untitled',
-              font: { size: 14 }
-            },
-            legend: {
-              display: isPieDoughnut
-            }
-          },
-          scales: isPieDoughnut ? {} : {
-            y: { beginAtZero: true }
-          }
-        }
-      };
-
-      // Scatter needs {x, y} data format
-      if (cjType === 'scatter') {
-        config.data.labels = undefined;
-        config.data.datasets[0].data = grouped.map(function(g) {
-          var numX = parseFloat(g.label);
-          return { x: isNaN(numX) ? 0 : numX, y: g.value };
+      // ── Trend line ──────────────────────────────────────────────
+      if (canOverlay && chartObj.showTrend && reg) {
+        datasets.push({
+          label:'Trend', type:'line',
+          data: values.map(function(_,i){return reg.predict(i);}),
+          borderColor:theme.trend, borderWidth:2, borderDash:[6,3],
+          backgroundColor:'transparent', pointRadius:0, fill:false, tension:0, order:2
         });
       }
 
-      chartInstances[chartObj.id] = new Chart(ctx, config);
+      // ── Moving average ───────────────────────────────────────────
+      if (canOverlay && chartObj.movingAvg && chartObj.movingAvg!=='none') {
+        var period = parseInt(chartObj.movingAvg);
+        if (period>=2 && values.length>=period) {
+          datasets.push({
+            label:period+'-Period MA', type:'line',
+            data: movingAverage(values, period),
+            borderColor:theme.ma, borderWidth:2, borderDash:[3,3],
+            backgroundColor:'transparent', pointRadius:0, fill:false, tension:0.4, spanGaps:true, order:3
+          });
+        }
+      }
+
+      // ── Average line ─────────────────────────────────────────────
+      if (canOverlay && chartObj.showAvg && values.length>0) {
+        var avg = Math.round(values.reduce(function(a,b){return a+b;},0)/values.length*100)/100;
+        datasets.push({
+          label:'Avg ('+avg.toLocaleString()+')', type:'line',
+          data: values.map(function(){return avg;}),
+          borderColor:theme.avg, borderWidth:2, borderDash:[8,4],
+          backgroundColor:'transparent', pointRadius:0, fill:false, tension:0, order:4
+        });
+      }
+
+      // ── Forecast ──────────────────────────────────────────────────
+      var fcN = parseInt(chartObj.forecastPeriods)||0;
+      if (canOverlay && fcN>0 && reg) {
+        var fcVals = new Array(values.length).fill(null);
+        var lastLbl = labels[labels.length-1];
+        var fcOk = true;
+        for (var fp=0; fp<fcN; fp++) {
+          var nextLbl = nextPeriodLabel(lastLbl, chartObj.groupBy);
+          if (!nextLbl) { fcOk=false; break; }
+          lastLbl = nextLbl;
+          extLabels.push(nextLbl);
+          fcVals.push(Math.max(0, reg.predict(values.length+fp)));
+        }
+        if (fcOk) {
+          mainDs.data = values.concat(new Array(fcN).fill(null));
+          datasets.slice(1).forEach(function(ds) {
+            if (Array.isArray(ds.data)) { while(ds.data.length<extLabels.length) ds.data.push(null); }
+          });
+          datasets.push({
+            label:'Forecast', type:'line',
+            data: fcVals,
+            borderColor:theme.trend, borderWidth:2, borderDash:[5,5],
+            backgroundColor:theme.trend+'22',
+            pointRadius:4, pointStyle:'triangle',
+            fill:false, tension:0.2, spanGaps:false, order:1
+          });
+        }
+      }
+
+      chartInstances[chartObj.id] = new Chart(ctx, {
+        type: cjType,
+        data: { labels: extLabels, datasets: datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode:'index', intersect:false },
+          plugins: {
+            legend: {
+              display: datasets.length>1||isPD,
+              position: 'bottom',
+              labels: { boxWidth:12, padding:10, font:{size:11} }
+            },
+            tooltip: {
+              callbacks: {
+                label: function(ctx) {
+                  var v = ctx.parsed && ctx.parsed.y!==undefined ? ctx.parsed.y : ctx.parsed;
+                  if (v===null) return null;
+                  return ' '+ctx.dataset.label+': '+(typeof v==='number'?v.toLocaleString():v);
+                }
+              }
+            }
+          },
+          scales: isPD ? {} : {
+            x: { ticks:{maxRotation:45,autoSkip:true,font:{size:11}} },
+            y: { beginAtZero:true, ticks:{font:{size:11}} }
+          }
+        }
+      });
     }
 
-    // ── DOM: build a data row ────────────────────────────────────
-    function buildRow(x, y, rowNum) {
+    // ── Stats panel ────────────────────────────────────────────────
+    function updateStatsPanel(id, values) {
+      var panel = document.getElementById('stats-'+id);
+      if (!panel) return;
+      if (!values||values.length===0) { panel.innerHTML='<span class="text-secondary">No data</span>'; return; }
+      var s = calcStats(values);
+      var g = s.growth!==null
+        ? '<span class="badge '+(s.growth>=0?'bg-success':'bg-danger')+'">'+
+          (s.growth>=0?'+':'')+s.growth+'%</span>'
+        : '';
+      panel.innerHTML =
+        '<div class="d-flex flex-wrap gap-3">'+
+          si('n',s.count)+si('\u03a3',s.sum.toLocaleString())+
+          si('Min',s.min.toLocaleString())+si('Max',s.max.toLocaleString())+
+          si('Mean',s.mean.toLocaleString())+si('Median',s.median.toLocaleString())+
+          si('\u03c3',s.stddev.toLocaleString())+
+          (g?'<div class="da-stat-item"><span class="text-secondary">Growth </span>'+g+'</div>':'')+
+        '</div>';
+    }
+    function si(lbl,val) {
+      return '<div class="da-stat-item"><span class="text-secondary">'+lbl+' </span><strong>'+val+'</strong></div>';
+    }
+
+    // ── HTML helpers ───────────────────────────────────────────────
+    function escHtml(s) {
+      if(!s) return '';
+      return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+    function buildRow(x,y,rowNum) {
       var tr = document.createElement('tr');
-      tr.innerHTML =
-        '<td class="da-row-num">' + rowNum + '</td>' +
-        '<td><input type="text" class="form-control form-control-sm da-input-x" value="' + escHtml(x) + '" placeholder="Date / Label" /></td>' +
-        '<td><input type="number" class="form-control form-control-sm da-input-y" value="' + escHtml(y) + '" placeholder="Value" step="any" /></td>' +
-        '<td><button class="btn btn-sm btn-outline-danger btn-remove-row" title="Delete row">&times;</button></td>';
+      tr.innerHTML=
+        '<td class="da-row-num">'+rowNum+'</td>'+
+        '<td><input type="text" class="form-control form-control-sm da-input-x" value="'+escHtml(x)+'" placeholder="Date / Label" /></td>'+
+        '<td><input type="number" class="form-control form-control-sm da-input-y" value="'+escHtml(y)+'" placeholder="Value" step="any" /></td>'+
+        '<td><button class="btn btn-sm btn-outline-danger btn-remove-row" title="Remove row">&times;</button></td>';
       return tr;
     }
 
-    function escHtml(s) {
-      if (!s) return '';
-      return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    }
-
-    // ── DOM: build a chart card ──────────────────────────────────
+    // ── Build chart card ───────────────────────────────────────────
     function buildCard(chartObj) {
       var card = document.createElement('div');
       card.className = 'card da-chart-card mb-4';
       card.dataset.chartId = chartObj.id;
 
-      var showAgg = (chartObj.groupBy !== 'manual') ? '' : ' d-none';
+      var showAgg = chartObj.groupBy!=='manual'?'':'  d-none';
+      var th = chartObj.colorTheme||DEFAULT_THEME;
+      var tOpts = Object.keys(THEMES).map(function(k){
+        return '<option value="'+k+'"'+(th===k?' selected':'')+'>'+THEMES[k].name+'</option>';
+      }).join('');
+      var fcVal = parseInt(chartObj.forecastPeriods)||0;
+      var maVal = chartObj.movingAvg||'none';
 
       card.innerHTML =
-        '<div class="card-body">' +
-          '<!-- Card header: name + controls -->' +
-          '<div class="d-flex flex-wrap align-items-center gap-2 mb-3">' +
-            '<input type="text" class="form-control form-control-sm da-chart-name" style="max-width:220px" value="' + escHtml(chartObj.name) + '" placeholder="Chart name" />' +
-            '<select class="form-select form-select-sm da-chart-type" style="max-width:130px">' +
-              '<option value="line"' + (chartObj.type === 'line' ? ' selected' : '') + '>Line</option>' +
-              '<option value="bar"' + (chartObj.type === 'bar' ? ' selected' : '') + '>Bar</option>' +
-              '<option value="pie"' + (chartObj.type === 'pie' ? ' selected' : '') + '>Pie</option>' +
-              '<option value="doughnut"' + (chartObj.type === 'doughnut' ? ' selected' : '') + '>Doughnut</option>' +
-              '<option value="area"' + (chartObj.type === 'area' ? ' selected' : '') + '>Area</option>' +
-              '<option value="scatter"' + (chartObj.type === 'scatter' ? ' selected' : '') + '>Scatter</option>' +
-            '</select>' +
-            '<select class="form-select form-select-sm da-chart-group" style="max-width:150px">' +
-              '<option value="manual"' + (chartObj.groupBy === 'manual' ? ' selected' : '') + '>Manual Labels</option>' +
-              '<option value="day"' + (chartObj.groupBy === 'day' ? ' selected' : '') + '>By Day</option>' +
-              '<option value="week"' + (chartObj.groupBy === 'week' ? ' selected' : '') + '>By Week</option>' +
-              '<option value="month"' + (chartObj.groupBy === 'month' ? ' selected' : '') + '>By Month</option>' +
-              '<option value="quarter"' + (chartObj.groupBy === 'quarter' ? ' selected' : '') + '>By Quarter</option>' +
-              '<option value="halfyear"' + (chartObj.groupBy === 'halfyear' ? ' selected' : '') + '>By Half Year</option>' +
-              '<option value="year"' + (chartObj.groupBy === 'year' ? ' selected' : '') + '>By Year</option>' +
-              '<option value="multiyear"' + (chartObj.groupBy === 'multiyear' ? ' selected' : '') + '>Multi-Year</option>' +
-            '</select>' +
-            '<select class="form-select form-select-sm da-chart-agg' + showAgg + '" style="max-width:110px">' +
-              '<option value="sum"' + (chartObj.aggregation === 'sum' ? ' selected' : '') + '>Sum</option>' +
-              '<option value="average"' + (chartObj.aggregation === 'average' ? ' selected' : '') + '>Average</option>' +
-            '</select>' +
-            '<input type="color" class="da-color-picker" value="' + (chartObj.color || '#ff5811') + '" title="Chart color" />' +
-            '<div class="ms-auto d-flex gap-1">' +
-              '<button class="btn btn-sm btn-outline-secondary btn-export-csv" title="Export CSV">Export CSV</button>' +
-              '<button class="btn btn-sm btn-outline-danger btn-delete-chart" title="Delete chart">Delete</button>' +
-            '</div>' +
-          '</div>' +
-          '<!-- Card body: chart + table (responsive grid) -->' +
-          '<div class="da-card-body-grid row g-3">' +
-            '<div class="col-md-7">' +
-              '<div class="da-canvas-wrap">' +
-                '<canvas id="canvas-' + chartObj.id + '"></canvas>' +
-                '<div class="da-placeholder">No data yet — add rows below</div>' +
-              '</div>' +
-            '</div>' +
-            '<div class="col-md-5">' +
-              '<div class="table-responsive">' +
-                '<table class="table table-sm da-data-table mb-2">' +
-                  '<thead><tr><th class="da-row-num">#</th><th>X (Date / Label)</th><th>Y (Value)</th><th></th></tr></thead>' +
-                  '<tbody class="da-table-body"></tbody>' +
-                '</table>' +
-              '</div>' +
-              '<button class="btn btn-sm btn-outline-primary btn-add-row">+ Add Row</button>' +
-            '</div>' +
-          '</div>' +
+        '<div class="card-body">'+
+
+        '<div class="d-flex flex-wrap align-items-center gap-2 mb-2">'+
+          '<input type="text" class="form-control form-control-sm da-chart-name" style="max-width:190px" value="'+escHtml(chartObj.name)+'" placeholder="Chart name" />'+
+          '<select class="form-select form-select-sm da-chart-type" style="max-width:110px">'+
+            '<option value="line"'    +(chartObj.type==='line'    ?' selected':'')+'>Line</option>'+
+            '<option value="bar"'     +(chartObj.type==='bar'     ?' selected':'')+'>Bar</option>'+
+            '<option value="pie"'     +(chartObj.type==='pie'     ?' selected':'')+'>Pie</option>'+
+            '<option value="doughnut"'+(chartObj.type==='doughnut'?' selected':'')+'>Doughnut</option>'+
+            '<option value="area"'    +(chartObj.type==='area'    ?' selected':'')+'>Area</option>'+
+            '<option value="scatter"' +(chartObj.type==='scatter' ?' selected':'')+'>Scatter</option>'+
+          '</select>'+
+          '<select class="form-select form-select-sm da-chart-group" style="max-width:130px">'+
+            '<option value="manual"'   +(chartObj.groupBy==='manual'   ?' selected':'')+'>Manual</option>'+
+            '<option value="day"'      +(chartObj.groupBy==='day'      ?' selected':'')+'>By Day</option>'+
+            '<option value="week"'     +(chartObj.groupBy==='week'     ?' selected':'')+'>By Week</option>'+
+            '<option value="month"'    +(chartObj.groupBy==='month'    ?' selected':'')+'>By Month</option>'+
+            '<option value="quarter"'  +(chartObj.groupBy==='quarter'  ?' selected':'')+'>By Quarter</option>'+
+            '<option value="halfyear"' +(chartObj.groupBy==='halfyear' ?' selected':'')+'>Half Year</option>'+
+            '<option value="year"'     +(chartObj.groupBy==='year'     ?' selected':'')+'>By Year</option>'+
+            '<option value="multiyear"'+(chartObj.groupBy==='multiyear'?' selected':'')+'>Multi-Year</option>'+
+          '</select>'+
+          '<select class="form-select form-select-sm da-chart-agg'+showAgg+'" style="max-width:100px">'+
+            '<option value="sum"'    +(chartObj.aggregation==='sum'    ?' selected':'')+'>Sum</option>'+
+            '<option value="average"'+(chartObj.aggregation==='average'?' selected':'')+'>Average</option>'+
+          '</select>'+
+          '<select class="form-select form-select-sm da-chart-theme" style="max-width:105px" title="Color theme">'+tOpts+'</select>'+
+          '<input type="color" class="da-color-picker" value="'+escHtml(chartObj.color||'#ff5811')+'" title="Series color" />'+
+          '<div class="ms-auto d-flex gap-1 flex-wrap">'+
+            '<button class="btn btn-sm btn-outline-secondary btn-export-png" title="Download PNG">PNG</button>'+
+            '<button class="btn btn-sm btn-outline-secondary btn-export-csv" title="Export CSV">CSV</button>'+
+            '<button class="btn btn-sm btn-outline-danger btn-delete-chart">Delete</button>'+
+          '</div>'+
+        '</div>'+
+
+        '<div class="d-flex flex-wrap align-items-center gap-3 mb-3 da-overlay-row">'+
+          '<label class="d-flex align-items-center gap-1 mb-0" title="Linear regression trend line">'+
+            '<input type="checkbox" class="da-check-trend"'+(chartObj.showTrend?' checked':'')+' /> Trend Line'+
+          '</label>'+
+          '<label class="d-flex align-items-center gap-1 mb-0" title="Horizontal mean reference line">'+
+            '<input type="checkbox" class="da-check-avg"'+(chartObj.showAvg?' checked':'')+' /> Avg Line'+
+          '</label>'+
+          '<label class="d-flex align-items-center gap-1 mb-0">'+
+            '<span>Moving Avg</span>'+
+            '<select class="form-select form-select-sm da-chart-ma ms-1" style="max-width:70px">'+
+              '<option value="none"'+(maVal==='none'?' selected':'')+'>Off</option>'+
+              '<option value="3"'  +(maVal==='3'   ?' selected':'')+'>3</option>'+
+              '<option value="5"'  +(maVal==='5'   ?' selected':'')+'>5</option>'+
+              '<option value="7"'  +(maVal==='7'   ?' selected':'')+'>7</option>'+
+              '<option value="10"' +(maVal==='10'  ?' selected':'')+'>10</option>'+
+            '</select>'+
+          '</label>'+
+          '<label class="d-flex align-items-center gap-1 mb-0" title="Linear forecast — works with Month / Quarter / Half-Year / Year grouping">'+
+            '<span>Forecast</span>'+
+            '<select class="form-select form-select-sm da-chart-forecast ms-1" style="max-width:70px">'+
+              '<option value="0"' +(fcVal===0 ?' selected':'')+'>Off</option>'+
+              '<option value="3"' +(fcVal===3 ?' selected':'')+'>+3</option>'+
+              '<option value="6"' +(fcVal===6 ?' selected':'')+'>+6</option>'+
+              '<option value="12"'+(fcVal===12?' selected':'')+'>+12</option>'+
+            '</select>'+
+          '</label>'+
+        '</div>'+
+
+        '<div class="da-card-body-grid row g-3">'+
+          '<div class="col-md-7">'+
+            '<div class="da-canvas-wrap">'+
+              '<canvas id="canvas-'+chartObj.id+'"></canvas>'+
+              '<div class="da-placeholder">No data yet — add rows below</div>'+
+            '</div>'+
+            '<div class="da-stats-panel" id="stats-'+chartObj.id+'"></div>'+
+          '</div>'+
+          '<div class="col-md-5">'+
+            '<div class="table-responsive">'+
+              '<table class="table table-sm da-data-table mb-2">'+
+                '<thead><tr><th class="da-row-num">#</th><th>X (Date / Label)</th><th>Y (Value)</th><th></th></tr></thead>'+
+                '<tbody class="da-table-body"></tbody>'+
+              '</table>'+
+            '</div>'+
+            '<div class="d-flex gap-2 flex-wrap">'+
+              '<button class="btn btn-sm btn-outline-primary btn-add-row">+ Add Row</button>'+
+              '<button class="btn btn-sm btn-outline-secondary btn-paste-csv" title="Paste CSV rows">Paste CSV</button>'+
+            '</div>'+
+            '<div class="mt-2 d-none" id="paste-area-'+chartObj.id+'">'+
+              '<textarea class="form-control form-control-sm da-paste-input" rows="4" placeholder="Paste rows: x,y (one per line)&#10;2024-01,1500&#10;Jan,2400"></textarea>'+
+              '<div class="d-flex gap-2 mt-1">'+
+                '<button class="btn btn-sm btn-primary btn-apply-paste">Apply</button>'+
+                '<button class="btn btn-sm btn-outline-secondary btn-cancel-paste">Cancel</button>'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+
         '</div>';
 
-      // Populate data rows
       var tbody = card.querySelector('.da-table-body');
-      var data = chartObj.data && chartObj.data.length ? chartObj.data : [];
-      data.forEach(function(row, i) {
-        tbody.appendChild(buildRow(row.x, row.y, i + 1));
-      });
-
+      (chartObj.data||[]).forEach(function(row,i){ tbody.appendChild(buildRow(row.x,row.y,i+1)); });
       return card;
     }
 
-    // ── Read card state back to object ──────────────────────────
+    // ── Read card state ────────────────────────────────────────────
     function readCard(card) {
-      var id = card.dataset.chartId;
-      var name = card.querySelector('.da-chart-name').value.trim();
-      var type = card.querySelector('.da-chart-type').value;
-      var groupBy = card.querySelector('.da-chart-group').value;
-      var aggregation = card.querySelector('.da-chart-agg').value;
-      var color = card.querySelector('.da-color-picker').value;
-
-      var rows = card.querySelectorAll('.da-table-body tr');
-      var data = [];
-      rows.forEach(function(tr) {
-        var x = tr.querySelector('.da-input-x').value;
-        var y = tr.querySelector('.da-input-y').value;
-        data.push({ x: x, y: y });
+      var rows = [];
+      card.querySelectorAll('.da-table-body tr').forEach(function(tr){
+        rows.push({x:tr.querySelector('.da-input-x').value, y:tr.querySelector('.da-input-y').value});
       });
-
       return {
-        id: id,
-        name: name,
-        type: type,
-        groupBy: groupBy,
-        aggregation: aggregation,
-        color: color,
-        data: data
+        id:             card.dataset.chartId,
+        name:           card.querySelector('.da-chart-name').value.trim(),
+        type:           card.querySelector('.da-chart-type').value,
+        groupBy:        card.querySelector('.da-chart-group').value,
+        aggregation:    card.querySelector('.da-chart-agg').value,
+        colorTheme:     card.querySelector('.da-chart-theme').value,
+        color:          card.querySelector('.da-color-picker').value,
+        showTrend:      card.querySelector('.da-check-trend').checked,
+        showAvg:        card.querySelector('.da-check-avg').checked,
+        movingAvg:      card.querySelector('.da-chart-ma').value,
+        forecastPeriods:parseInt(card.querySelector('.da-chart-forecast').value)||0,
+        data: rows
       };
     }
 
-    // ── Save all charts from DOM state ──────────────────────────
     function saveAll() {
-      var cards = document.querySelectorAll('.da-chart-card');
-      var charts = [];
-      cards.forEach(function(card) {
-        charts.push(readCard(card));
-      });
+      var charts=[];
+      document.querySelectorAll('.da-chart-card').forEach(function(c){charts.push(readCard(c));});
       saveCharts(charts);
     }
-
-    // ── Update row numbers in a card ─────────────────────────────
     function renumberRows(card) {
-      var rows = card.querySelectorAll('.da-table-body tr');
-      rows.forEach(function(tr, i) {
-        tr.querySelector('.da-row-num').textContent = i + 1;
+      card.querySelectorAll('.da-table-body tr').forEach(function(tr,i){
+        tr.querySelector('.da-row-num').textContent=i+1;
       });
     }
 
-    // ── Export a chart's data as CSV ─────────────────────────────
+    // ── Exports ────────────────────────────────────────────────────
     function exportCSV(chartObj) {
-      var lines = ['X,Y'];
-      chartObj.data.forEach(function(r) {
-        // Escape commas in values
-        var xVal = String(r.x || '').replace(/"/g, '""');
-        var yVal = String(r.y || '').replace(/"/g, '""');
-        lines.push('"' + xVal + '","' + yVal + '"');
+      var lines=['X,Y'];
+      chartObj.data.forEach(function(r){
+        lines.push('"'+ String(r.x||'').replace(/"/g,'""')+'","'+ String(r.y||'').replace(/"/g,'""')+'"');
       });
-      var csv = lines.join('\n');
-      var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      var url = URL.createObjectURL(blob);
-      var a = document.createElement('a');
-      a.href = url;
-      a.download = (chartObj.name || 'chart') + '.csv';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      dlBlob(lines.join('\n'),'text/csv',(chartObj.name||'chart')+'.csv');
+    }
+    function exportPNG(chartObj) {
+      var canvas=document.getElementById('canvas-'+chartObj.id); if(!canvas) return;
+      var a=document.createElement('a');
+      a.href=canvas.toDataURL('image/png'); a.download=(chartObj.name||'chart')+'.png';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    }
+    function dlBlob(content,type,filename) {
+      var url=URL.createObjectURL(new Blob([content],{type:type}));
+      var a=document.createElement('a'); a.href=url; a.download=filename;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
     }
 
-    // ── Debounced chart update ────────────────────────────────────
+    // ── Render scheduling ──────────────────────────────────────────
     function scheduleRender(card) {
-      var id = card.dataset.chartId;
-      if (debounceTimers[id]) clearTimeout(debounceTimers[id]);
-      debounceTimers[id] = setTimeout(function() {
-        var obj = readCard(card);
-        saveAll();
-        renderChart(obj);
-      }, 600);
+      var id=card.dataset.chartId;
+      if(debounceTimers[id]) clearTimeout(debounceTimers[id]);
+      debounceTimers[id]=setTimeout(function(){var o=readCard(card);saveAll();renderChart(o);},600);
     }
-
-    // ── Immediate chart update (for selects / color) ─────────────
     function immediateRender(card) {
-      var id = card.dataset.chartId;
-      if (debounceTimers[id]) clearTimeout(debounceTimers[id]);
-      var obj = readCard(card);
-      saveAll();
-      renderChart(obj);
+      var id=card.dataset.chartId;
+      if(debounceTimers[id]) clearTimeout(debounceTimers[id]);
+      var o=readCard(card); saveAll(); renderChart(o);
     }
 
-    // ── App init ─────────────────────────────────────────────────
+    // ── App init ───────────────────────────────────────────────────
     function initDataApp() {
       var container = document.getElementById('charts-container');
       if (!container) return;
 
       var charts = loadCharts();
-      if (!charts) {
-        // First visit: create a demo chart
-        charts = [createDemoChart()];
-        saveCharts(charts);
-      }
+      if (!charts) { charts=[createDemoChart()]; saveCharts(charts); }
 
-      // Render all saved charts
       charts.forEach(function(chartObj) {
+        chartObj.colorTheme      = chartObj.colorTheme      || DEFAULT_THEME;
+        chartObj.showTrend       = chartObj.showTrend       || false;
+        chartObj.showAvg         = chartObj.showAvg         || false;
+        chartObj.movingAvg       = chartObj.movingAvg       || 'none';
+        chartObj.forecastPeriods = chartObj.forecastPeriods || 0;
         var card = buildCard(chartObj);
         container.appendChild(card);
-        // Render after DOM insertion so canvas is available
         renderChart(chartObj);
       });
 
-      // ── Event delegation on container ──────────────────────────
       container.addEventListener('click', function(e) {
-        var target = e.target;
-        var card = target.closest('.da-chart-card');
+        var t=e.target, card=t.closest('.da-chart-card');
 
-        // New chart button is outside the container, handled separately
-        // Delete chart
-        if (target.closest('.btn-delete-chart') && card) {
-          card.remove();
-          var id = card.dataset.chartId;
-          if (chartInstances[id]) {
-            chartInstances[id].destroy();
-            delete chartInstances[id];
-          }
-          saveAll();
-          return;
+        if (t.closest('.btn-delete-chart') && card) {
+          if (!confirm('Delete "'+( readCard(card).name||'this chart')+'"?')) return;
+          var id=card.dataset.chartId;
+          if(chartInstances[id]){chartInstances[id].destroy();delete chartInstances[id];}
+          card.remove(); saveAll(); return;
         }
-
-        // Add row
-        if (target.closest('.btn-add-row') && card) {
-          var tbody = card.querySelector('.da-table-body');
-          var rowCount = tbody.querySelectorAll('tr').length;
-          tbody.appendChild(buildRow('', '', rowCount + 1));
-          saveAll();
-          return;
+        if (t.closest('.btn-add-row') && card) {
+          var tb=card.querySelector('.da-table-body');
+          tb.appendChild(buildRow('','',tb.querySelectorAll('tr').length+1));
+          saveAll(); return;
         }
-
-        // Remove row
-        if (target.closest('.btn-remove-row') && card) {
-          var tr = target.closest('tr');
-          if (tr) tr.remove();
-          renumberRows(card);
-          immediateRender(card);
-          return;
+        if (t.closest('.btn-remove-row') && card) {
+          var tr=t.closest('tr'); if(tr) tr.remove();
+          renumberRows(card); immediateRender(card); return;
         }
-
-        // Export CSV
-        if (target.closest('.btn-export-csv') && card) {
-          var obj = readCard(card);
-          exportCSV(obj);
-          return;
+        if (t.closest('.btn-export-csv') && card) { exportCSV(readCard(card)); return; }
+        if (t.closest('.btn-export-png') && card) { exportPNG(readCard(card)); return; }
+        if (t.closest('.btn-paste-csv') && card) {
+          var pa=document.getElementById('paste-area-'+card.dataset.chartId);
+          if(pa) pa.classList.toggle('d-none'); return;
+        }
+        if (t.closest('.btn-cancel-paste') && card) {
+          var pa=document.getElementById('paste-area-'+card.dataset.chartId);
+          if(pa) pa.classList.add('d-none'); return;
+        }
+        if (t.closest('.btn-apply-paste') && card) {
+          var pa=document.getElementById('paste-area-'+card.dataset.chartId);
+          var ta=pa?pa.querySelector('.da-paste-input'):null; if(!ta) return;
+          var tb2=card.querySelector('.da-table-body');
+          ta.value.split('\n').forEach(function(line){
+            line=line.trim(); if(!line) return;
+            var parts=line.split(',');
+            if(parts.length>=2){
+              var x=parts[0].trim().replace(/^"|"$/g,'');
+              var y=parts.slice(1).join(',').trim().replace(/^"|"$/g,'');
+              tb2.appendChild(buildRow(x,y,tb2.querySelectorAll('tr').length+1));
+            }
+          });
+          ta.value=''; pa.classList.add('d-none');
+          renumberRows(card); immediateRender(card); return;
         }
       });
 
-      // Input changes: debounced for text inputs, immediate for selects/color
       container.addEventListener('input', function(e) {
-        var card = e.target.closest('.da-chart-card');
-        if (!card) return;
-
-        if (e.target.matches('.da-input-x, .da-input-y, .da-chart-name')) {
-          scheduleRender(card);
-        }
+        var card=e.target.closest('.da-chart-card'); if(!card) return;
+        if(e.target.matches('.da-input-x,.da-input-y,.da-chart-name')) scheduleRender(card);
       });
 
       container.addEventListener('change', function(e) {
-        var card = e.target.closest('.da-chart-card');
-        if (!card) return;
-
-        if (e.target.matches('.da-chart-type, .da-chart-group, .da-chart-agg, .da-color-picker')) {
-          // Toggle aggregation visibility when groupBy changes
-          if (e.target.matches('.da-chart-group')) {
-            var aggSelect = card.querySelector('.da-chart-agg');
-            if (e.target.value === 'manual') {
-              aggSelect.classList.add('d-none');
-            } else {
-              aggSelect.classList.remove('d-none');
-            }
+        var card=e.target.closest('.da-chart-card'); if(!card) return;
+        if(e.target.matches('.da-chart-type,.da-chart-group,.da-chart-agg,.da-color-picker,.da-chart-theme,.da-chart-ma,.da-chart-forecast,.da-check-trend,.da-check-avg')){
+          if(e.target.matches('.da-chart-group')){
+            card.querySelector('.da-chart-agg').classList.toggle('d-none',e.target.value==='manual');
           }
           immediateRender(card);
         }
       });
 
-      // ── New Chart button ────────────────────────────────────────
       var newBtn = document.getElementById('btn-new-chart');
       if (newBtn) {
         newBtn.addEventListener('click', function() {
-          var chartObj = {
-            id: genId(),
-            name: 'New Chart',
-            type: 'bar',
-            groupBy: 'manual',
-            aggregation: 'sum',
-            color: '#ff5811',
-            data: [
-              { x: '', y: '' },
-              { x: '', y: '' },
-              { x: '', y: '' }
-            ]
+          var o = {
+            id:genId(), name:'New Chart', type:'bar',
+            groupBy:'manual', aggregation:'sum',
+            colorTheme:DEFAULT_THEME, color:'#ff5811',
+            showTrend:false, showAvg:false, movingAvg:'none', forecastPeriods:0,
+            data:[{x:'',y:''},{x:'',y:''},{x:'',y:''}]
           };
-          var card = buildCard(chartObj);
+          var card=buildCard(o);
           container.prepend(card);
-          renderChart(chartObj);
-          saveAll();
-          // Scroll to the new card
-          card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          renderChart(o); saveAll();
+          card.scrollIntoView({behavior:'smooth',block:'start'});
         });
       }
     }
