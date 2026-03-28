@@ -143,6 +143,9 @@ const RBAC = (() => {
 
     const trackerLink = document.getElementById('nav-tracker-link');
     if (trackerLink) trackerLink.style.display = isAtLeast('reader') ? '' : 'none';
+
+    const daLink = document.getElementById('nav-dataanalysis-link');
+    if (daLink) daLink.style.display = isAtLeast('reader') ? '' : 'none';
   }
 
   /* ================================================================

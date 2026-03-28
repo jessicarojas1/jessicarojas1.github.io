@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="theme.css" />
+  <title>Data Analysis | Jessica Rojas</title>
+  <meta name="description" content="Interactive data analysis dashboard — create custom charts, group data by time periods, and export to CSV." />
+
+  <style>
+    /* ── Auth gate hero ─────────────────────────────────────── */
+    .da-gate {
+      min-height: 70vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    .da-gate .lock-icon {
+      font-size: 4rem;
+      display: block;
+      margin-bottom: 1rem;
+    }
+
+    /* ── Chart card ─────────────────────────────────────────── */
+    .da-chart-card {
+      border-left: 3px solid var(--bs-primary);
+      transition: box-shadow 0.2s ease, transform 0.15s ease;
+    }
+    .da-chart-card:hover {
+      box-shadow: 0 .25rem .75rem rgba(0,0,0,.12);
+      transform: translateY(-1px);
+    }
+
+    /* ── Canvas wrapper ─────────────────────────────────────── */
+    .da-canvas-wrap {
+      position: relative;
+      height: 280px;
+    }
+    .da-canvas-wrap .da-placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--bs-secondary-color);
+      font-size: .9rem;
+      pointer-events: none;
+    }
+
+    /* ── Data table ─────────────────────────────────────────── */
+    .da-data-table td,
+    .da-data-table th {
+      vertical-align: middle;
+      font-size: .85rem;
+    }
+    .da-row-num {
+      color: var(--bs-secondary-color);
+      width: 2rem;
+      text-align: center;
+    }
+
+    /* ── Color picker ───────────────────────────────────────── */
+    .da-color-picker {
+      width: 2.2rem;
+      height: 2rem;
+      border-radius: .375rem;
+      cursor: pointer;
+      border: 1px solid var(--bs-border-color);
+      padding: 0;
+      background: none;
+    }
+
+    /* ── Responsive: mobile table above chart ───────────────── */
+    @media (max-width: 767.98px) {
+      .da-card-body-grid {
+        display: flex;
+        flex-direction: column-reverse;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- ════════════════════════════════════════════════════════
+       NAV
+       ════════════════════════════════════════════════════════ -->
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none">
+            <a class="nav-link" href="compliancetracker.html">Tracker</a>
+          </li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none">
+            <a class="nav-link" href="jobtracker.html">Job Tracker</a>
+          </li>
+          <li class="nav-item" id="nav-dataanalysis-link" style="display:none">
+            <a class="nav-link active" href="dataanalysis.html" aria-current="page">Data Analysis</a>
+          </li>
+          <li class="nav-item" data-role-min="admin" style="display:none">
+            <a class="nav-link" href="admin.html">User Admin</a>
+          </li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ════════════════════════════════════════════════════════
+       MAIN CONTENT
+       ════════════════════════════════════════════════════════ -->
+  <main id="main-content">
+
+    <!-- Auth gate: shown when user is NOT logged in -->
+    <section class="da-gate" id="da-gate">
+      <div class="container text-center">
+        <span class="lock-icon" aria-hidden="true">🔒</span>
+        <h1 class="mb-3">Data Analysis Dashboard</h1>
+        <p class="lead text-secondary mb-4">Please log in to access the data analysis tools.</p>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Log In</button>
+      </div>
+    </section>
+
+    <!-- App content: hidden until RBAC grants reader+ access -->
+    <div id="da-app" data-role-min="reader" style="display:none">
+
+      <section class="hero-section reveal">
+        <div class="container text-center">
+          <h1>Data Analysis Dashboard</h1>
+          <p class="lead">Create custom charts, group data by time periods, and export to CSV.</p>
+          <div class="d-flex justify-content-center gap-2 flex-wrap mt-2">
+            <span class="badge bg-secondary">Stored locally — 100% private</span>
+          </div>
+        </div>
+      </section>
+
+      <div class="container py-4">
+        <!-- Toolbar -->
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+          <h2 class="h5 mb-0">Your Charts</h2>
+          <button class="btn btn-primary btn-sm" id="btn-new-chart">+ New Chart</button>
+        </div>
+
+        <!-- Charts container: all chart cards rendered here -->
+        <div id="charts-container"></div>
+      </div>
+
+    </div><!-- /#da-app -->
+
+  </main>
+
+  <!-- ════════════════════════════════════════════════════════
+       RBAC LOGIN MODAL
+       ════════════════════════════════════════════════════════ -->
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="rbacModalLabel">🔒 Login</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="rbac-login-form" novalidate>
+            <div class="mb-3">
+              <label for="rbac-username-input" class="form-label">Username</label>
+              <input type="text" class="form-control" id="rbac-username-input" autocomplete="username" placeholder="Enter your username" maxlength="40" required />
+            </div>
+            <div class="mb-3">
+              <label for="rbac-password-input" class="form-label">Password</label>
+              <input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" required />
+            </div>
+            <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+          </form>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <p class="text-secondary small mb-0">Session clears when you close this tab.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════
+       FOOTER
+       ════════════════════════════════════════════════════════ -->
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" />
+      </a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" />
+      </a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="privacy.html">Privacy Policy</a> &middot; <a href="terms.html">Terms</a></p>
+  </footer>
+
+  <!-- ════════════════════════════════════════════════════════
+       SCRIPTS
+       ════════════════════════════════════════════════════════ -->
+  <!-- 1. Bootstrap (sync) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <!-- 2. Chart.js (sync, before defer scripts) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <!-- 3-5. RBAC & site scripts (defer) -->
+  <script src="users.js" defer></script>
+  <script src="roles.js" defer></script>
+  <script src="script.js" defer></script>
+
+  <!-- 6. Data Analysis inline IIFE -->
+  <script>
+  (function() {
+    'use strict';
+
+    // ── Constants ────────────────────────────────────────────────
+    const DA_STORE = 'da_charts';
+    const PALETTE  = ['#ff5811','#3b82f6','#10b981','#f59e0b','#8b5cf6','#ec4899','#14b8a6','#f97316','#06b6d4','#84cc16'];
+    const chartInstances = {};
+    let debounceTimers = {};
+    let initialized = false;
+
+    // ── Auth gate ───────────────────────────────────────────────
+    // Strategy 1: MutationObserver watches for RBAC making #da-app visible
+    // Strategy 2: Polling fallback every 300ms, stops after 15s
+    const appEl  = document.getElementById('da-app');
+    const gateEl = document.getElementById('da-gate');
+
+    function onAppVisible() {
+      if (initialized) return;
+      initialized = true;
+      // Hide the gate hero
+      if (gateEl) gateEl.style.display = 'none';
+      initDataApp();
+    }
+
+    function checkVisible() {
+      // RBAC sets display from 'none' to '' or 'block' when the role is met
+      return appEl && appEl.style.display !== 'none';
+    }
+
+    // MutationObserver
+    if (appEl) {
+      const observer = new MutationObserver(function() {
+        if (checkVisible()) {
+          observer.disconnect();
+          onAppVisible();
+        }
+      });
+      observer.observe(appEl, { attributes: true, attributeFilter: ['style'] });
+    }
+
+    // Polling fallback
+    let pollCount = 0;
+    const pollMax = 15000 / 300; // 50 attempts
+    const pollId = setInterval(function() {
+      pollCount++;
+      if (checkVisible()) {
+        clearInterval(pollId);
+        onAppVisible();
+      } else if (pollCount >= pollMax) {
+        clearInterval(pollId);
+      }
+    }, 300);
+
+    // ── Storage ─────────────────────────────────────────────────
+    function loadCharts() {
+      try {
+        var raw = localStorage.getItem(DA_STORE);
+        return raw ? JSON.parse(raw) : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function saveCharts(charts) {
+      localStorage.setItem(DA_STORE, JSON.stringify(charts));
+    }
+
+    // ── Demo data (first visit only) ────────────────────────────
+    function createDemoChart() {
+      return {
+        id: 'da_demo',
+        name: 'Demo — Monthly Revenue',
+        type: 'bar',
+        groupBy: 'month',
+        aggregation: 'sum',
+        color: '#ff5811',
+        data: [
+          { x: '2024-01-15', y: '4200' },
+          { x: '2024-01-28', y: '1800' },
+          { x: '2024-02-10', y: '3500' },
+          { x: '2024-03-05', y: '5100' },
+          { x: '2024-03-22', y: '2400' },
+          { x: '2024-04-12', y: '6800' }
+        ]
+      };
+    }
+
+    // ── Unique ID generator ─────────────────────────────────────
+    function genId() {
+      return 'da_' + Date.now() + '' + Math.floor(Math.random() * 1000);
+    }
+
+    // ── ISO week number ─────────────────────────────────────────
+    function isoWeek(d) {
+      var date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+      date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
+      var yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+      var weekNo = Math.ceil(((date - yearStart) / 86400000 + 1) / 7);
+      return { year: date.getUTCFullYear(), week: weekNo };
+    }
+
+    // ── Data grouping ────────────────────────────────────────────
+    function groupData(rawData, groupBy, aggregation) {
+      if (groupBy === 'manual') {
+        // Return as-is (no parsing or grouping)
+        return rawData.filter(function(r) { return r.x !== '' || r.y !== ''; }).map(function(r) {
+          return { label: r.x, value: parseFloat(r.y) || 0 };
+        });
+      }
+
+      var buckets = {}; // key -> [values]
+
+      rawData.forEach(function(row) {
+        if (!row.x) return;
+        var d = new Date(row.x);
+        if (isNaN(d.getTime())) return;
+        var val = parseFloat(row.y) || 0;
+        var key;
+
+        switch (groupBy) {
+          case 'day':
+            key = d.toISOString().slice(0, 10); // YYYY-MM-DD
+            break;
+          case 'week':
+            var w = isoWeek(d);
+            key = w.year + '-W' + String(w.week).padStart(2, '0');
+            break;
+          case 'month':
+            key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+            break;
+          case 'quarter':
+            var q = Math.floor(d.getMonth() / 3) + 1;
+            key = d.getFullYear() + '-Q' + q;
+            break;
+          case 'halfyear':
+            var h = d.getMonth() < 6 ? 'H1' : 'H2';
+            key = d.getFullYear() + '-' + h;
+            break;
+          case 'year':
+            key = '' + d.getFullYear();
+            break;
+          case 'multiyear':
+            var base = d.getFullYear() - (d.getFullYear() % 2);
+            key = base + '-' + (base + 1);
+            break;
+          default:
+            key = row.x;
+        }
+
+        if (!buckets[key]) buckets[key] = [];
+        buckets[key].push(val);
+      });
+
+      // Sort keys, build result
+      var keys = Object.keys(buckets).sort();
+      return keys.map(function(k) {
+        var vals = buckets[k];
+        var agg = aggregation === 'average'
+          ? vals.reduce(function(a, b) { return a + b; }, 0) / vals.length
+          : vals.reduce(function(a, b) { return a + b; }, 0);
+        return { label: k, value: Math.round(agg * 100) / 100 };
+      });
+    }
+
+    // ── Chart rendering ──────────────────────────────────────────
+    function renderChart(chartObj) {
+      var canvas = document.getElementById('canvas-' + chartObj.id);
+      if (!canvas) return;
+      var ctx = canvas.getContext('2d');
+
+      // Destroy existing instance
+      if (chartInstances[chartObj.id]) {
+        chartInstances[chartObj.id].destroy();
+        delete chartInstances[chartObj.id];
+      }
+
+      // Check placeholder
+      var wrap = canvas.closest('.da-canvas-wrap');
+      var placeholder = wrap ? wrap.querySelector('.da-placeholder') : null;
+
+      var isPieDoughnut = (chartObj.type === 'pie' || chartObj.type === 'doughnut');
+      var grouped;
+
+      if (isPieDoughnut) {
+        // Pie/Doughnut: use raw data directly (ignore groupBy)
+        grouped = chartObj.data.filter(function(r) { return r.x !== '' || r.y !== ''; }).map(function(r) {
+          return { label: r.x || '(no label)', value: parseFloat(r.y) || 0 };
+        });
+      } else {
+        grouped = groupData(chartObj.data, chartObj.groupBy, chartObj.aggregation);
+      }
+
+      if (grouped.length === 0) {
+        if (placeholder) placeholder.style.display = 'flex';
+        return;
+      }
+      if (placeholder) placeholder.style.display = 'none';
+
+      var labels = grouped.map(function(g) { return g.label; });
+      var values = grouped.map(function(g) { return g.value; });
+
+      // Determine chart.js type
+      var cjType = chartObj.type === 'area' ? 'line' : chartObj.type;
+
+      // Colors
+      var bgColors, borderColors;
+      if (isPieDoughnut) {
+        bgColors = values.map(function(_, i) { return PALETTE[i % PALETTE.length]; });
+        borderColors = bgColors;
+      } else {
+        bgColors = chartObj.color || '#ff5811';
+        borderColors = chartObj.color || '#ff5811';
+      }
+
+      var datasetOpts = {
+        label: chartObj.name || 'Data',
+        data: values,
+        backgroundColor: bgColors,
+        borderColor: borderColors,
+        borderWidth: isPieDoughnut ? 1 : 2,
+        fill: chartObj.type === 'area',
+        tension: (cjType === 'line') ? 0.3 : 0,
+        pointRadius: (cjType === 'scatter') ? 5 : 3
+      };
+
+      // For area charts, use a semi-transparent fill
+      if (chartObj.type === 'area') {
+        datasetOpts.backgroundColor = (chartObj.color || '#ff5811') + '33';
+        datasetOpts.borderColor = chartObj.color || '#ff5811';
+      }
+
+      var config = {
+        type: cjType,
+        data: {
+          labels: labels,
+          datasets: [datasetOpts]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            title: {
+              display: true,
+              text: chartObj.name || 'Untitled',
+              font: { size: 14 }
+            },
+            legend: {
+              display: isPieDoughnut
+            }
+          },
+          scales: isPieDoughnut ? {} : {
+            y: { beginAtZero: true }
+          }
+        }
+      };
+
+      // Scatter needs {x, y} data format
+      if (cjType === 'scatter') {
+        config.data.labels = undefined;
+        config.data.datasets[0].data = grouped.map(function(g) {
+          var numX = parseFloat(g.label);
+          return { x: isNaN(numX) ? 0 : numX, y: g.value };
+        });
+      }
+
+      chartInstances[chartObj.id] = new Chart(ctx, config);
+    }
+
+    // ── DOM: build a data row ────────────────────────────────────
+    function buildRow(x, y, rowNum) {
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td class="da-row-num">' + rowNum + '</td>' +
+        '<td><input type="text" class="form-control form-control-sm da-input-x" value="' + escHtml(x) + '" placeholder="Date / Label" /></td>' +
+        '<td><input type="number" class="form-control form-control-sm da-input-y" value="' + escHtml(y) + '" placeholder="Value" step="any" /></td>' +
+        '<td><button class="btn btn-sm btn-outline-danger btn-remove-row" title="Delete row">&times;</button></td>';
+      return tr;
+    }
+
+    function escHtml(s) {
+      if (!s) return '';
+      return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    // ── DOM: build a chart card ──────────────────────────────────
+    function buildCard(chartObj) {
+      var card = document.createElement('div');
+      card.className = 'card da-chart-card mb-4';
+      card.dataset.chartId = chartObj.id;
+
+      var showAgg = (chartObj.groupBy !== 'manual') ? '' : ' d-none';
+
+      card.innerHTML =
+        '<div class="card-body">' +
+          '<!-- Card header: name + controls -->' +
+          '<div class="d-flex flex-wrap align-items-center gap-2 mb-3">' +
+            '<input type="text" class="form-control form-control-sm da-chart-name" style="max-width:220px" value="' + escHtml(chartObj.name) + '" placeholder="Chart name" />' +
+            '<select class="form-select form-select-sm da-chart-type" style="max-width:130px">' +
+              '<option value="line"' + (chartObj.type === 'line' ? ' selected' : '') + '>Line</option>' +
+              '<option value="bar"' + (chartObj.type === 'bar' ? ' selected' : '') + '>Bar</option>' +
+              '<option value="pie"' + (chartObj.type === 'pie' ? ' selected' : '') + '>Pie</option>' +
+              '<option value="doughnut"' + (chartObj.type === 'doughnut' ? ' selected' : '') + '>Doughnut</option>' +
+              '<option value="area"' + (chartObj.type === 'area' ? ' selected' : '') + '>Area</option>' +
+              '<option value="scatter"' + (chartObj.type === 'scatter' ? ' selected' : '') + '>Scatter</option>' +
+            '</select>' +
+            '<select class="form-select form-select-sm da-chart-group" style="max-width:150px">' +
+              '<option value="manual"' + (chartObj.groupBy === 'manual' ? ' selected' : '') + '>Manual Labels</option>' +
+              '<option value="day"' + (chartObj.groupBy === 'day' ? ' selected' : '') + '>By Day</option>' +
+              '<option value="week"' + (chartObj.groupBy === 'week' ? ' selected' : '') + '>By Week</option>' +
+              '<option value="month"' + (chartObj.groupBy === 'month' ? ' selected' : '') + '>By Month</option>' +
+              '<option value="quarter"' + (chartObj.groupBy === 'quarter' ? ' selected' : '') + '>By Quarter</option>' +
+              '<option value="halfyear"' + (chartObj.groupBy === 'halfyear' ? ' selected' : '') + '>By Half Year</option>' +
+              '<option value="year"' + (chartObj.groupBy === 'year' ? ' selected' : '') + '>By Year</option>' +
+              '<option value="multiyear"' + (chartObj.groupBy === 'multiyear' ? ' selected' : '') + '>Multi-Year</option>' +
+            '</select>' +
+            '<select class="form-select form-select-sm da-chart-agg' + showAgg + '" style="max-width:110px">' +
+              '<option value="sum"' + (chartObj.aggregation === 'sum' ? ' selected' : '') + '>Sum</option>' +
+              '<option value="average"' + (chartObj.aggregation === 'average' ? ' selected' : '') + '>Average</option>' +
+            '</select>' +
+            '<input type="color" class="da-color-picker" value="' + (chartObj.color || '#ff5811') + '" title="Chart color" />' +
+            '<div class="ms-auto d-flex gap-1">' +
+              '<button class="btn btn-sm btn-outline-secondary btn-export-csv" title="Export CSV">Export CSV</button>' +
+              '<button class="btn btn-sm btn-outline-danger btn-delete-chart" title="Delete chart">Delete</button>' +
+            '</div>' +
+          '</div>' +
+          '<!-- Card body: chart + table (responsive grid) -->' +
+          '<div class="da-card-body-grid row g-3">' +
+            '<div class="col-md-7">' +
+              '<div class="da-canvas-wrap">' +
+                '<canvas id="canvas-' + chartObj.id + '"></canvas>' +
+                '<div class="da-placeholder">No data yet — add rows below</div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="col-md-5">' +
+              '<div class="table-responsive">' +
+                '<table class="table table-sm da-data-table mb-2">' +
+                  '<thead><tr><th class="da-row-num">#</th><th>X (Date / Label)</th><th>Y (Value)</th><th></th></tr></thead>' +
+                  '<tbody class="da-table-body"></tbody>' +
+                '</table>' +
+              '</div>' +
+              '<button class="btn btn-sm btn-outline-primary btn-add-row">+ Add Row</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+
+      // Populate data rows
+      var tbody = card.querySelector('.da-table-body');
+      var data = chartObj.data && chartObj.data.length ? chartObj.data : [];
+      data.forEach(function(row, i) {
+        tbody.appendChild(buildRow(row.x, row.y, i + 1));
+      });
+
+      return card;
+    }
+
+    // ── Read card state back to object ──────────────────────────
+    function readCard(card) {
+      var id = card.dataset.chartId;
+      var name = card.querySelector('.da-chart-name').value.trim();
+      var type = card.querySelector('.da-chart-type').value;
+      var groupBy = card.querySelector('.da-chart-group').value;
+      var aggregation = card.querySelector('.da-chart-agg').value;
+      var color = card.querySelector('.da-color-picker').value;
+
+      var rows = card.querySelectorAll('.da-table-body tr');
+      var data = [];
+      rows.forEach(function(tr) {
+        var x = tr.querySelector('.da-input-x').value;
+        var y = tr.querySelector('.da-input-y').value;
+        data.push({ x: x, y: y });
+      });
+
+      return {
+        id: id,
+        name: name,
+        type: type,
+        groupBy: groupBy,
+        aggregation: aggregation,
+        color: color,
+        data: data
+      };
+    }
+
+    // ── Save all charts from DOM state ──────────────────────────
+    function saveAll() {
+      var cards = document.querySelectorAll('.da-chart-card');
+      var charts = [];
+      cards.forEach(function(card) {
+        charts.push(readCard(card));
+      });
+      saveCharts(charts);
+    }
+
+    // ── Update row numbers in a card ─────────────────────────────
+    function renumberRows(card) {
+      var rows = card.querySelectorAll('.da-table-body tr');
+      rows.forEach(function(tr, i) {
+        tr.querySelector('.da-row-num').textContent = i + 1;
+      });
+    }
+
+    // ── Export a chart's data as CSV ─────────────────────────────
+    function exportCSV(chartObj) {
+      var lines = ['X,Y'];
+      chartObj.data.forEach(function(r) {
+        // Escape commas in values
+        var xVal = String(r.x || '').replace(/"/g, '""');
+        var yVal = String(r.y || '').replace(/"/g, '""');
+        lines.push('"' + xVal + '","' + yVal + '"');
+      });
+      var csv = lines.join('\n');
+      var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = (chartObj.name || 'chart') + '.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // ── Debounced chart update ────────────────────────────────────
+    function scheduleRender(card) {
+      var id = card.dataset.chartId;
+      if (debounceTimers[id]) clearTimeout(debounceTimers[id]);
+      debounceTimers[id] = setTimeout(function() {
+        var obj = readCard(card);
+        saveAll();
+        renderChart(obj);
+      }, 600);
+    }
+
+    // ── Immediate chart update (for selects / color) ─────────────
+    function immediateRender(card) {
+      var id = card.dataset.chartId;
+      if (debounceTimers[id]) clearTimeout(debounceTimers[id]);
+      var obj = readCard(card);
+      saveAll();
+      renderChart(obj);
+    }
+
+    // ── App init ─────────────────────────────────────────────────
+    function initDataApp() {
+      var container = document.getElementById('charts-container');
+      if (!container) return;
+
+      var charts = loadCharts();
+      if (!charts) {
+        // First visit: create a demo chart
+        charts = [createDemoChart()];
+        saveCharts(charts);
+      }
+
+      // Render all saved charts
+      charts.forEach(function(chartObj) {
+        var card = buildCard(chartObj);
+        container.appendChild(card);
+        // Render after DOM insertion so canvas is available
+        renderChart(chartObj);
+      });
+
+      // ── Event delegation on container ──────────────────────────
+      container.addEventListener('click', function(e) {
+        var target = e.target;
+        var card = target.closest('.da-chart-card');
+
+        // New chart button is outside the container, handled separately
+        // Delete chart
+        if (target.closest('.btn-delete-chart') && card) {
+          card.remove();
+          var id = card.dataset.chartId;
+          if (chartInstances[id]) {
+            chartInstances[id].destroy();
+            delete chartInstances[id];
+          }
+          saveAll();
+          return;
+        }
+
+        // Add row
+        if (target.closest('.btn-add-row') && card) {
+          var tbody = card.querySelector('.da-table-body');
+          var rowCount = tbody.querySelectorAll('tr').length;
+          tbody.appendChild(buildRow('', '', rowCount + 1));
+          saveAll();
+          return;
+        }
+
+        // Remove row
+        if (target.closest('.btn-remove-row') && card) {
+          var tr = target.closest('tr');
+          if (tr) tr.remove();
+          renumberRows(card);
+          immediateRender(card);
+          return;
+        }
+
+        // Export CSV
+        if (target.closest('.btn-export-csv') && card) {
+          var obj = readCard(card);
+          exportCSV(obj);
+          return;
+        }
+      });
+
+      // Input changes: debounced for text inputs, immediate for selects/color
+      container.addEventListener('input', function(e) {
+        var card = e.target.closest('.da-chart-card');
+        if (!card) return;
+
+        if (e.target.matches('.da-input-x, .da-input-y, .da-chart-name')) {
+          scheduleRender(card);
+        }
+      });
+
+      container.addEventListener('change', function(e) {
+        var card = e.target.closest('.da-chart-card');
+        if (!card) return;
+
+        if (e.target.matches('.da-chart-type, .da-chart-group, .da-chart-agg, .da-color-picker')) {
+          // Toggle aggregation visibility when groupBy changes
+          if (e.target.matches('.da-chart-group')) {
+            var aggSelect = card.querySelector('.da-chart-agg');
+            if (e.target.value === 'manual') {
+              aggSelect.classList.add('d-none');
+            } else {
+              aggSelect.classList.remove('d-none');
+            }
+          }
+          immediateRender(card);
+        }
+      });
+
+      // ── New Chart button ────────────────────────────────────────
+      var newBtn = document.getElementById('btn-new-chart');
+      if (newBtn) {
+        newBtn.addEventListener('click', function() {
+          var chartObj = {
+            id: genId(),
+            name: 'New Chart',
+            type: 'bar',
+            groupBy: 'manual',
+            aggregation: 'sum',
+            color: '#ff5811',
+            data: [
+              { x: '', y: '' },
+              { x: '', y: '' },
+              { x: '', y: '' }
+            ]
+          };
+          var card = buildCard(chartObj);
+          container.prepend(card);
+          renderChart(chartObj);
+          saveAll();
+          // Scroll to the new card
+          card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      }
+    }
+
+  })();
+  </script>
+</body>
+</html>
