@@ -87,6 +87,22 @@
     .da-stat-item { white-space: nowrap; }
 
     /* ── Overlay controls row ────────────────────────────────── */
+    /* ── Date range row ───────────────────────────────────────────── */
+    .da-date-row {
+      background: var(--bs-tertiary-bg, rgba(0,0,0,0.04));
+      border: 1px solid var(--bs-border-color);
+      border-radius: .375rem;
+      padding: .4rem .65rem;
+      font-size: .82rem;
+      gap: .5rem !important;
+    }
+    .da-date-label {
+      font-weight: 600;
+      white-space: nowrap;
+      font-size: .8rem;
+      color: var(--bs-body-color);
+    }
+
     .da-overlay-row {
       border-top: 1px solid var(--bs-border-color);
       border-bottom: 1px solid var(--bs-border-color);
@@ -316,6 +332,7 @@
         groupBy: 'month', aggregation: 'sum',
         colorTheme: DEFAULT_THEME, color: '#ff5811',
         showTrend: true, showAvg: true, movingAvg: 'none', forecastPeriods: 3,
+        dateFrom: '2024-01-01', dateTo: '', multiColor: true,
         data: [
           {x:'2024-01-15',y:'4200'},{x:'2024-01-28',y:'1800'},
           {x:'2024-02-10',y:'3500'},{x:'2024-03-05',y:'5100'},
@@ -337,13 +354,27 @@
     }
 
     // ── Data grouping ──────────────────────────────────────────────
-    function groupData(rawData, groupBy, aggregation) {
+    function groupData(rawData, groupBy, aggregation, dateFrom, dateTo) {
+      // Filter by date range first
+      var data = rawData;
+      if (dateFrom || dateTo) {
+        var dFrom = dateFrom ? new Date(dateFrom)            : null;
+        var dTo   = dateTo   ? new Date(dateTo+'T23:59:59')  : null;
+        data = rawData.filter(function(row) {
+          if (!row.x) return false;
+          var d = new Date(row.x);
+          if (isNaN(d.getTime())) return true;
+          if (dFrom && d < dFrom) return false;
+          if (dTo   && d > dTo)   return false;
+          return true;
+        });
+      }
       if (groupBy === 'manual') {
-        return rawData.filter(function(r){return r.x!==''||r.y!=='';})
+        return data.filter(function(r){return r.x!==''||r.y!=='';})
           .map(function(r){return {label:r.x, value:parseFloat(r.y)||0};});
       }
       var buckets = {};
-      rawData.forEach(function(row) {
+      data.forEach(function(row) {
         if (!row.x) return;
         var d = new Date(row.x);
         if (isNaN(d.getTime())) return;
@@ -448,7 +479,7 @@
         grouped = chartObj.data.filter(function(r){return r.x!==''||r.y!=='';})
           .map(function(r){return {label:r.x||'(no label)',value:parseFloat(r.y)||0};});
       } else {
-        grouped = groupData(chartObj.data, chartObj.groupBy, chartObj.aggregation);
+        grouped = groupData(chartObj.data, chartObj.groupBy, chartObj.aggregation, chartObj.dateFrom, chartObj.dateTo);
       }
 
       if (grouped.length===0) {
@@ -471,10 +502,10 @@
         data: isScatter
           ? grouped.map(function(g){var nx=parseFloat(g.label);return{x:isNaN(nx)?0:nx,y:g.value};})
           : values,
-        backgroundColor: isPD
-          ? values.map(function(_,i){return theme.palette[i%theme.palette.length];})
+        backgroundColor: (isPD || chartObj.multiColor)
+          ? values.map(function(_,i){return theme.palette[i%theme.palette.length]+(chartObj.type==='area'?'33':'');})
           : (chartObj.type==='area' ? mainColor+'33' : mainColor),
-        borderColor: isPD
+        borderColor: (isPD || chartObj.multiColor)
           ? values.map(function(_,i){return theme.palette[i%theme.palette.length];})
           : mainColor,
         borderWidth: isPD?1:2,
@@ -647,6 +678,22 @@
             '<option value="area"'    +(chartObj.type==='area'    ?' selected':'')+'>Area</option>'+
             '<option value="scatter"' +(chartObj.type==='scatter' ?' selected':'')+'>Scatter</option>'+
           '</select>'+
+          '<select class="form-select form-select-sm da-chart-theme" style="max-width:105px" title="Color theme">'+tOpts+'</select>'+
+          '<input type="color" class="da-color-picker" value="'+escHtml(chartObj.color||'#ff5811')+'" title="Series color (overrides theme for single-color charts)" />'+
+          '<div class="ms-auto d-flex gap-1 flex-wrap">'+
+            '<button class="btn btn-sm btn-outline-secondary btn-export-png" title="Download PNG">PNG</button>'+
+            '<button class="btn btn-sm btn-outline-secondary btn-export-csv" title="Export CSV">CSV</button>'+
+            '<button class="btn btn-sm btn-outline-danger btn-delete-chart">Delete</button>'+
+          '</div>'+
+        '</div>'+
+
+        '<div class="d-flex flex-wrap align-items-center gap-2 mb-2 da-date-row">'+
+          '<span class="da-date-label">&#128197; Date Range</span>'+
+          '<input type="date" class="form-control form-control-sm da-date-from" style="max-width:150px" value="'+escHtml(chartObj.dateFrom||'')+'" title="Start date" />'+
+          '<span class="text-secondary">&#8594;</span>'+
+          '<input type="date" class="form-control form-control-sm da-date-to" style="max-width:150px" value="'+escHtml(chartObj.dateTo||'')+'" title="End date" />'+
+          '<span class="vr mx-1"></span>'+
+          '<span class="text-secondary small fw-semibold">Period</span>'+
           '<select class="form-select form-select-sm da-chart-group" style="max-width:130px">'+
             '<option value="manual"'   +(chartObj.groupBy==='manual'   ?' selected':'')+'>Manual</option>'+
             '<option value="day"'      +(chartObj.groupBy==='day'      ?' selected':'')+'>By Day</option>'+
@@ -661,13 +708,7 @@
             '<option value="sum"'    +(chartObj.aggregation==='sum'    ?' selected':'')+'>Sum</option>'+
             '<option value="average"'+(chartObj.aggregation==='average'?' selected':'')+'>Average</option>'+
           '</select>'+
-          '<select class="form-select form-select-sm da-chart-theme" style="max-width:105px" title="Color theme">'+tOpts+'</select>'+
-          '<input type="color" class="da-color-picker" value="'+escHtml(chartObj.color||'#ff5811')+'" title="Series color" />'+
-          '<div class="ms-auto d-flex gap-1 flex-wrap">'+
-            '<button class="btn btn-sm btn-outline-secondary btn-export-png" title="Download PNG">PNG</button>'+
-            '<button class="btn btn-sm btn-outline-secondary btn-export-csv" title="Export CSV">CSV</button>'+
-            '<button class="btn btn-sm btn-outline-danger btn-delete-chart">Delete</button>'+
-          '</div>'+
+          '<button class="btn btn-sm btn-outline-secondary btn-clear-dates ms-auto" title="Clear date filter">&#x2715; Clear</button>'+
         '</div>'+
 
         '<div class="d-flex flex-wrap align-items-center gap-3 mb-3 da-overlay-row">'+
@@ -676,6 +717,9 @@
           '</label>'+
           '<label class="d-flex align-items-center gap-1 mb-0" title="Horizontal mean reference line">'+
             '<input type="checkbox" class="da-check-avg"'+(chartObj.showAvg?' checked':'')+' /> Avg Line'+
+          '</label>'+
+          '<label class="d-flex align-items-center gap-1 mb-0" title="Apply palette color to each bar / data point individually">'+
+            '<input type="checkbox" class="da-check-multicolor"'+(chartObj.multiColor?' checked':'')+' /> Multi-Color'+
           '</label>'+
           '<label class="d-flex align-items-center gap-1 mb-0">'+
             '<span>Moving Avg</span>'+
@@ -752,6 +796,9 @@
         showAvg:        card.querySelector('.da-check-avg').checked,
         movingAvg:      card.querySelector('.da-chart-ma').value,
         forecastPeriods:parseInt(card.querySelector('.da-chart-forecast').value)||0,
+        dateFrom:       (card.querySelector('.da-date-from')||{}).value||'',
+        dateTo:         (card.querySelector('.da-date-to')||{}).value||'',
+        multiColor:     card.querySelector('.da-check-multicolor') ? card.querySelector('.da-check-multicolor').checked : false,
         data: rows
       };
     }
@@ -813,6 +860,9 @@
         chartObj.showAvg         = chartObj.showAvg         || false;
         chartObj.movingAvg       = chartObj.movingAvg       || 'none';
         chartObj.forecastPeriods = chartObj.forecastPeriods || 0;
+        chartObj.dateFrom        = chartObj.dateFrom        || '';
+        chartObj.dateTo          = chartObj.dateTo          || '';
+        chartObj.multiColor      = chartObj.multiColor      || false;
         var card = buildCard(chartObj);
         container.appendChild(card);
         renderChart(chartObj);
@@ -838,6 +888,11 @@
         }
         if (t.closest('.btn-export-csv') && card) { exportCSV(readCard(card)); return; }
         if (t.closest('.btn-export-png') && card) { exportPNG(readCard(card)); return; }
+        if (t.closest('.btn-clear-dates') && card) {
+          var df=card.querySelector('.da-date-from'), dt=card.querySelector('.da-date-to');
+          if(df) df.value=''; if(dt) dt.value='';
+          immediateRender(card); return;
+        }
         if (t.closest('.btn-paste-csv') && card) {
           var pa=document.getElementById('paste-area-'+card.dataset.chartId);
           if(pa) pa.classList.toggle('d-none'); return;
@@ -871,7 +926,7 @@
 
       container.addEventListener('change', function(e) {
         var card=e.target.closest('.da-chart-card'); if(!card) return;
-        if(e.target.matches('.da-chart-type,.da-chart-group,.da-chart-agg,.da-color-picker,.da-chart-theme,.da-chart-ma,.da-chart-forecast,.da-check-trend,.da-check-avg')){
+        if(e.target.matches('.da-chart-type,.da-chart-group,.da-chart-agg,.da-color-picker,.da-chart-theme,.da-chart-ma,.da-chart-forecast,.da-check-trend,.da-check-avg,.da-check-multicolor,.da-date-from,.da-date-to')){
           if(e.target.matches('.da-chart-group')){
             card.querySelector('.da-chart-agg').classList.toggle('d-none',e.target.value==='manual');
           }
@@ -887,6 +942,7 @@
             groupBy:'manual', aggregation:'sum',
             colorTheme:DEFAULT_THEME, color:'#ff5811',
             showTrend:false, showAvg:false, movingAvg:'none', forecastPeriods:0,
+            dateFrom:'', dateTo:'', multiColor:false,
             data:[{x:'',y:''},{x:'',y:''},{x:'',y:''}]
           };
           var card=buildCard(o);
