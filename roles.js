@@ -248,17 +248,24 @@ const RBAC = (() => {
       submitBtn.disabled    = true;
       submitBtn.textContent = 'Verifying…';
 
-      const result = await login(username, password);
-
-      submitBtn.disabled    = false;
-      submitBtn.textContent = 'Login';
-
-      if (result.ok) {
-        hideModal();
-        form.reset();
-        if (errEl) { errEl.textContent = ''; errEl.classList.add('d-none'); }
-      } else {
-        if (errEl) { errEl.textContent = result.error; errEl.classList.remove('d-none'); }
+      try {
+        const result = await login(username, password);
+        submitBtn.disabled    = false;
+        submitBtn.textContent = 'Login';
+        if (result.ok) {
+          hideModal();
+          form.reset();
+          if (errEl) { errEl.textContent = ''; errEl.classList.add('d-none'); }
+        } else {
+          if (errEl) { errEl.textContent = result.error; errEl.classList.remove('d-none'); }
+        }
+      } catch (err) {
+        submitBtn.disabled    = false;
+        submitBtn.textContent = 'Login';
+        if (errEl) {
+          errEl.textContent = err.message || 'Login failed. Ensure you are on an HTTPS connection.';
+          errEl.classList.remove('d-none');
+        }
       }
     });
 
@@ -301,19 +308,23 @@ const RBAC = (() => {
       btn.disabled    = true;
       btn.textContent = 'Submitting…';
 
-      const result = await Users.requestAccess(username, pw, note);
-
-      btn.disabled    = false;
-      btn.textContent = 'Submit Request';
-
-      if (result.ok) {
-        const body  = document.getElementById('rbacLoginModal')?.querySelector('.modal-body');
-        const title = document.getElementById('rbacLoginModal')?.querySelector('.modal-title');
-        if (body)  body.innerHTML = REQUEST_SENT_HTML;
-        if (title) title.textContent = '📋 Request Access';
-        document.getElementById('rbac-back-to-login-sent')?.addEventListener('click', refreshModalContent);
-      } else {
-        showErr(result.error);
+      try {
+        const result = await Users.requestAccess(username, pw, note);
+        btn.disabled    = false;
+        btn.textContent = 'Submit Request';
+        if (result.ok) {
+          const body  = document.getElementById('rbacLoginModal')?.querySelector('.modal-body');
+          const title = document.getElementById('rbacLoginModal')?.querySelector('.modal-title');
+          if (body)  body.innerHTML = REQUEST_SENT_HTML;
+          if (title) title.textContent = '📋 Request Access';
+          document.getElementById('rbac-back-to-login-sent')?.addEventListener('click', refreshModalContent);
+        } else {
+          showErr(result.error);
+        }
+      } catch (err) {
+        btn.disabled    = false;
+        btn.textContent = 'Submit Request';
+        showErr(err.message || 'Request failed. Ensure you are on an HTTPS connection.');
       }
     });
 
