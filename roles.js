@@ -3,7 +3,7 @@
  * Role hierarchy: viewer (0) < reader (1) < editor (2) < admin (3)
  * State lives in sessionStorage (clears on tab close).
  * Login is username + password via users.js (Users module).
- * First run: if no users exist the login modal shows a Create Admin form.
+ * Root user (username: root / password: RootAdmin@2026!) always exists.
  */
 const RBAC = (() => {
 
@@ -131,14 +131,8 @@ const RBAC = (() => {
     } else {
       loginBtn.classList.remove('d-none');
       userArea?.classList.add('d-none');
-      // Reflect first-run state on the button label
-      if (typeof Users !== 'undefined' && !Users.hasUsers()) {
-        loginBtn.textContent = 'Setup Account';
-        loginBtn.title = 'No accounts exist — click to create the first admin account';
-      } else {
-        loginBtn.textContent = 'Login';
-        loginBtn.title = '';
-      }
+      loginBtn.textContent = 'Login';
+      loginBtn.title = '';
     }
 
     const trackerLink = document.getElementById('nav-tracker-link');
@@ -149,7 +143,7 @@ const RBAC = (() => {
   }
 
   /* ================================================================
-     MODAL CONTENT — swapped dynamically based on user-store state
+     MODAL CONTENT — swapped dynamically
      ================================================================ */
 
   const LOGIN_FORM_HTML = `
@@ -168,55 +162,70 @@ const RBAC = (() => {
       <div class="alert alert-danger d-none py-2 small" id="rbac-login-error"
            role="alert" aria-live="polite"></div>
       <button type="submit" class="btn btn-primary w-100">Login</button>
-    </form>`;
+    </form>
+    <div class="text-center mt-3">
+      <button type="button" class="btn btn-link btn-sm p-0 text-secondary"
+              id="rbac-request-access-link">
+        Don't have an account? Request access
+      </button>
+    </div>`;
 
-  const SETUP_FORM_HTML = `
+  const REQUEST_FORM_HTML = `
     <div class="alert alert-info py-2 small mb-3">
-      <strong>First-time setup.</strong> No accounts exist yet.
-      Create the first admin account to get started.
+      Submit a request to create an account. An admin will review and approve it.
     </div>
-    <form id="rbac-setup-form" novalidate>
+    <form id="rbac-request-form" novalidate>
       <div class="mb-3">
-        <label for="setup-username" class="form-label">Username</label>
-        <input type="text" class="form-control" id="setup-username"
+        <label for="req-username" class="form-label">Desired Username</label>
+        <input type="text" class="form-control" id="req-username"
                autocomplete="username" maxlength="40" required />
       </div>
       <div class="mb-3">
-        <label for="setup-password" class="form-label">Password</label>
-        <input type="password" class="form-control" id="setup-password"
+        <label for="req-password" class="form-label">Password</label>
+        <input type="password" class="form-control" id="req-password"
                autocomplete="new-password" required />
         <div class="form-text">Minimum 8 characters.</div>
       </div>
       <div class="mb-3">
-        <label for="setup-password2" class="form-label">Confirm Password</label>
-        <input type="password" class="form-control" id="setup-password2"
+        <label for="req-password2" class="form-label">Confirm Password</label>
+        <input type="password" class="form-control" id="req-password2"
                autocomplete="new-password" required />
       </div>
-      <div class="alert alert-danger d-none py-2 small" id="setup-error"
+      <div class="mb-3">
+        <label for="req-note" class="form-label">Note <span class="text-secondary fw-normal">(optional)</span></label>
+        <input type="text" class="form-control" id="req-note"
+               placeholder="Why do you need access?" maxlength="200" />
+      </div>
+      <div class="alert alert-danger d-none py-2 small" id="req-error"
            role="alert" aria-live="polite"></div>
-      <button type="submit" class="btn btn-primary w-100">Create Admin Account</button>
-    </form>`;
+      <button type="submit" class="btn btn-primary w-100">Submit Request</button>
+    </form>
+    <div class="text-center mt-2">
+      <button type="button" class="btn btn-link btn-sm p-0 text-secondary"
+              id="rbac-back-to-login">Back to login</button>
+    </div>`;
 
-  /* Inject the right form into the modal body and wire it up */
+  const REQUEST_SENT_HTML = `
+    <div class="text-center py-3">
+      <div class="fs-1 mb-2">✅</div>
+      <h3 class="h5 mb-1">Request submitted!</h3>
+      <p class="text-secondary small mb-3">An admin will review your request and activate your account.</p>
+      <button type="button" class="btn btn-outline-primary btn-sm"
+              id="rbac-back-to-login-sent">Back to login</button>
+    </div>`;
+
+  /* Inject login form into the modal body */
   function refreshModalContent() {
     const modalEl = document.getElementById('rbacLoginModal');
     if (!modalEl) return;
 
-    const body   = modalEl.querySelector('.modal-body');
-    const title  = modalEl.querySelector('.modal-title');
+    const body  = modalEl.querySelector('.modal-body');
+    const title = modalEl.querySelector('.modal-title');
     if (!body) return;
 
-    const noUsers = typeof Users !== 'undefined' && !Users.hasUsers();
-
-    if (noUsers) {
-      if (title) title.textContent = '🔑 Create Admin Account';
-      body.innerHTML = SETUP_FORM_HTML;
-      wireSetupForm();
-    } else {
-      if (title) title.textContent = '🔒 Login';
-      body.innerHTML = LOGIN_FORM_HTML;
-      wireLoginForm();
-    }
+    if (title) title.textContent = '🔒 Login';
+    body.innerHTML = LOGIN_FORM_HTML;
+    wireLoginForm();
   }
 
   /* ── Wire login form ─────────────────────────────────────── */
@@ -252,58 +261,63 @@ const RBAC = (() => {
         if (errEl) { errEl.textContent = result.error; errEl.classList.remove('d-none'); }
       }
     });
+
+    // "Request Access" link — swap to request form
+    document.getElementById('rbac-request-access-link')?.addEventListener('click', () => {
+      const modalEl = document.getElementById('rbacLoginModal');
+      const body    = modalEl?.querySelector('.modal-body');
+      const title   = modalEl?.querySelector('.modal-title');
+      if (!body) return;
+      if (title) title.textContent = '📋 Request Access';
+      body.innerHTML = REQUEST_FORM_HTML;
+      wireRequestForm();
+    });
   }
 
-  /* ── Wire setup (first-run) form ─────────────────────────── */
-  function wireSetupForm() {
-    const form  = document.getElementById('rbac-setup-form');
+  /* ── Wire request form ───────────────────────────────────── */
+  function wireRequestForm() {
+    const form  = document.getElementById('rbac-request-form');
     if (!form) return;
-    const errEl = document.getElementById('setup-error');
+    const errEl = document.getElementById('req-error');
+
+    const showErr = msg => {
+      if (errEl) { errEl.textContent = msg; errEl.classList.remove('d-none'); }
+    };
 
     form.addEventListener('submit', async e => {
       e.preventDefault();
-      const username = document.getElementById('setup-username').value.trim();
-      const pw       = document.getElementById('setup-password').value;
-      const pw2      = document.getElementById('setup-password2').value;
+      const username = document.getElementById('req-username').value.trim();
+      const pw       = document.getElementById('req-password').value;
+      const pw2      = document.getElementById('req-password2').value;
+      const note     = document.getElementById('req-note').value;
+      const btn      = form.querySelector('[type="submit"]');
 
-      const showErr = msg => {
-        if (errEl) { errEl.textContent = msg; errEl.classList.remove('d-none'); }
-      };
+      if (!username)     return showErr('Username is required.');
+      if (pw.length < 8) return showErr('Password must be at least 8 characters.');
+      if (pw !== pw2)    return showErr('Passwords do not match.');
 
-      if (!username)       return showErr('Username is required.');
-      if (pw.length < 8)   return showErr('Password must be at least 8 characters.');
-      if (pw !== pw2)      return showErr('Passwords do not match.');
+      if (typeof Users === 'undefined') return showErr('User module not loaded. Refresh and try again.');
 
-      const submitBtn = form.querySelector('[type="submit"]');
-      submitBtn.disabled    = true;
-      submitBtn.textContent = 'Creating…';
+      btn.disabled    = true;
+      btn.textContent = 'Submitting…';
 
-      if (typeof Users === 'undefined') {
-        submitBtn.disabled    = false;
-        submitBtn.textContent = 'Create Admin Account';
-        return showErr('User module not loaded. Refresh and try again.');
-      }
+      const result = await Users.requestAccess(username, pw, note);
 
-      const result = await Users.addUser(username, pw, 'admin');
-      if (!result.ok) {
-        submitBtn.disabled    = false;
-        submitBtn.textContent = 'Create Admin Account';
-        return showErr(result.error);
-      }
+      btn.disabled    = false;
+      btn.textContent = 'Submit Request';
 
-      // Auto-login with the new account
-      const loginResult = await login(username, pw);
-      submitBtn.disabled    = false;
-      submitBtn.textContent = 'Create Admin Account';
-
-      if (loginResult.ok) {
-        hideModal();
-        updateNav();
+      if (result.ok) {
+        const body  = document.getElementById('rbacLoginModal')?.querySelector('.modal-body');
+        const title = document.getElementById('rbacLoginModal')?.querySelector('.modal-title');
+        if (body)  body.innerHTML = REQUEST_SENT_HTML;
+        if (title) title.textContent = '📋 Request Access';
+        document.getElementById('rbac-back-to-login-sent')?.addEventListener('click', refreshModalContent);
       } else {
-        showErr('Account created but auto-login failed. Please log in manually.');
-        refreshModalContent(); // switch back to login form
+        showErr(result.error);
       }
     });
+
+    document.getElementById('rbac-back-to-login')?.addEventListener('click', refreshModalContent);
   }
 
   /* ── initLoginForm: called once on init ─────────────────── */
@@ -318,7 +332,7 @@ const RBAC = (() => {
     if (typeof bootstrap !== 'undefined') {
       modalEl.addEventListener('show.bs.modal', refreshModalContent);
     } else {
-      // Vanilla fallback: intercept login button click to check state first
+      // Vanilla fallback: intercept login button click
       const loginBtn = document.getElementById('rbac-login-btn');
       if (loginBtn) {
         loginBtn.removeAttribute('data-bs-toggle');
@@ -340,8 +354,6 @@ const RBAC = (() => {
       }
     }
 
-    // Render the correct form for the initial state (in case modal is
-    // already open or has stale content from a previous navigation)
     refreshModalContent();
   }
 
