@@ -29,6 +29,20 @@
     .stat-card .stat-label { font-size: .8rem; text-transform: uppercase; color: var(--bs-secondary-color); }
     .tab-content .table { font-size: .875rem; }
     .mapping-detail { font-size: .85rem; }
+    /* Control Nexus */
+    .nexus-card { transition: box-shadow .2s; }
+    .nexus-card:hover { box-shadow: 0 0 0 1px rgba(255,88,17,.3), 0 4px 20px rgba(0,0,0,.3); }
+    .nexus-col-header { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+    .nexus-item { margin-bottom: .55rem; padding-bottom: .4rem; border-bottom: 1px solid var(--bs-border-color); }
+    .nexus-item:last-child { border-bottom: none; margin-bottom: 0; }
+    .nexus-id { font-size: .82rem; font-weight: 700; text-decoration: none !important; }
+    .nexus-id:hover { text-shadow: 0 0 8px currentColor; }
+    .nexus-title { font-size: .75rem; color: var(--bs-secondary-color); margin-top: .1rem; line-height: 1.35; }
+    /* Clickable link badges */
+    a.ucf-link { cursor: pointer; text-decoration: none !important; }
+    a.ucf-link:hover { opacity: .85; transform: translateY(-1px); display: inline-block; }
+    /* Highlight pulse for nav */
+    .ucf-highlight { transition: background-color .3s ease, outline .3s ease; }
     @media (max-width: 767.98px) {
       .ucf-select { min-width: 110px; }
       .filter-bar { flex-direction: column !important; }
@@ -130,7 +144,7 @@
         <li class="nav-item" role="presentation"><button class="nav-link" id="tab-iso" data-bs-toggle="tab" data-bs-target="#pane-iso" type="button" role="tab" aria-controls="pane-iso" aria-selected="false">ISO 27001</button></li>
         <li class="nav-item" role="presentation"><button class="nav-link" id="tab-l1" data-bs-toggle="tab" data-bs-target="#pane-l1" type="button" role="tab" aria-controls="pane-l1" aria-selected="false">CMMC Level 1</button></li>
         <li class="nav-item" role="presentation"><button class="nav-link" id="tab-l2" data-bs-toggle="tab" data-bs-target="#pane-l2" type="button" role="tab" aria-controls="pane-l2" aria-selected="false">CMMC Level 2</button></li>
-        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-mapping" data-bs-toggle="tab" data-bs-target="#pane-mapping" type="button" role="tab" aria-controls="pane-mapping" aria-selected="false">Control Mapping</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-mapping" data-bs-toggle="tab" data-bs-target="#pane-mapping" type="button" role="tab" aria-controls="pane-mapping" aria-selected="false">Control Nexus</button></li>
         <li class="nav-item" role="presentation"><button class="nav-link" id="tab-gap" data-bs-toggle="tab" data-bs-target="#pane-gap" type="button" role="tab" aria-controls="pane-gap" aria-selected="false">Gap Analysis</button></li>
       </ul>
 
@@ -209,14 +223,15 @@
           <div id="l2-content"></div>
         </div>
 
-        <!-- CONTROL MAPPING -->
+        <!-- CONTROL NEXUS -->
         <div class="tab-pane fade" id="pane-mapping" role="tabpanel" aria-labelledby="tab-mapping">
-          <h5 class="mb-3">ISO 27001 &rarr; CMMC Mapping</h5>
-          <div id="mapping-iso-to-cmmc"></div>
-          <h5 class="mt-4 mb-3">CMMC &rarr; ISO 27001 Reverse Lookup</h5>
+          <p class="text-body-secondary small mb-3">Controls from all three frameworks grouped by functional domain. Click any control ID badge to jump directly to that control. Status icons reflect current tracking state.</p>
+          <div id="nexus-content"></div>
+          <hr class="my-4" />
+          <h5 class="mb-3">Reverse Lookup &mdash; CMMC &rarr; ISO 27001</h5>
           <div class="mb-3">
-            <select class="form-select form-select-sm" id="mapping-cmmc-select" style="max-width:400px;">
-              <option value="">Select a CMMC practice...</option>
+            <select class="form-select form-select-sm" id="mapping-cmmc-select" style="max-width:440px;">
+              <option value="">Select a CMMC practice to see mapped ISO controls...</option>
             </select>
           </div>
           <div id="mapping-reverse-result"></div>
@@ -291,8 +306,8 @@
        DATA
        ================================================================ */
     const ISO_CONTROLS = [
-      {id:'5.1',theme:'Organizational',title:'Policies for information security',cmmc:['AC.L1-b.1.i','AC.L2-3.1.1']},
-      {id:'5.2',theme:'Organizational',title:'Information security roles and responsibilities',cmmc:['AC.L2-3.1.1','AC.L2-3.1.2']},
+      {id:'5.1',theme:'Organizational',title:'Policies for information security',cmmc:['AC.L1-b.1.i','AC.L1-3.1.1']},
+      {id:'5.2',theme:'Organizational',title:'Information security roles and responsibilities',cmmc:['AC.L1-3.1.1','AC.L1-3.1.2']},
       {id:'5.3',theme:'Organizational',title:'Segregation of duties',cmmc:['AC.L2-3.1.3']},
       {id:'5.4',theme:'Organizational',title:'Management responsibilities',cmmc:[]},
       {id:'5.5',theme:'Organizational',title:'Contact with authorities',cmmc:['IR.L2-3.6.1']},
@@ -305,10 +320,10 @@
       {id:'5.12',theme:'Organizational',title:'Classification of information',cmmc:['AC.L2-3.1.22']},
       {id:'5.13',theme:'Organizational',title:'Labelling of information',cmmc:['AC.L2-3.1.22']},
       {id:'5.14',theme:'Organizational',title:'Information transfer',cmmc:['SC.L2-3.13.8']},
-      {id:'5.15',theme:'Organizational',title:'Access control',cmmc:['AC.L1-b.1.i','AC.L1-b.1.ii','AC.L2-3.1.1','AC.L2-3.1.2']},
-      {id:'5.16',theme:'Organizational',title:'Identity management',cmmc:['IA.L1-b.1.v','IA.L2-3.5.1']},
-      {id:'5.17',theme:'Organizational',title:'Authentication information',cmmc:['IA.L1-b.1.vi','IA.L2-3.5.2','IA.L2-3.5.3']},
-      {id:'5.18',theme:'Organizational',title:'Access rights',cmmc:['AC.L2-3.1.1','AC.L2-3.1.2','AC.L2-3.1.3']},
+      {id:'5.15',theme:'Organizational',title:'Access control',cmmc:['AC.L1-b.1.i','AC.L1-b.1.ii','AC.L1-3.1.1','AC.L1-3.1.2']},
+      {id:'5.16',theme:'Organizational',title:'Identity management',cmmc:['IA.L1-b.1.v','IA.L1-3.5.1']},
+      {id:'5.17',theme:'Organizational',title:'Authentication information',cmmc:['IA.L1-b.1.vi','IA.L1-3.5.2','IA.L2-3.5.3']},
+      {id:'5.18',theme:'Organizational',title:'Access rights',cmmc:['AC.L1-3.1.1','AC.L1-3.1.2','AC.L2-3.1.3']},
       {id:'5.19',theme:'Organizational',title:'Information security in supplier relationships',cmmc:['SR.L2-3.15.1']},
       {id:'5.20',theme:'Organizational',title:'Addressing information security within supplier agreements',cmmc:['SR.L2-3.15.2']},
       {id:'5.21',theme:'Organizational',title:'Managing information security in the ICT supply chain',cmmc:['SR.L2-3.15.3']},
@@ -334,7 +349,7 @@
       {id:'6.4',theme:'People',title:'Disciplinary process',cmmc:['PS.L2-3.9.2']},
       {id:'6.5',theme:'People',title:'Responsibilities after termination or change of employment',cmmc:['PS.L2-3.9.2','AC.L2-3.1.1']},
       {id:'6.6',theme:'People',title:'Confidentiality or non-disclosure agreements',cmmc:['PS.L2-3.9.1']},
-      {id:'6.7',theme:'People',title:'Remote working',cmmc:['AC.L2-3.1.12','SC.L2-3.13.5']},
+      {id:'6.7',theme:'People',title:'Remote working',cmmc:['AC.L2-3.1.12','SC.L1-3.13.5']},
       {id:'6.8',theme:'People',title:'Information security event reporting',cmmc:['IR.L2-3.6.1']},
       {id:'7.1',theme:'Physical',title:'Physical security perimeters',cmmc:['PE.L1-b.1.viii']},
       {id:'7.2',theme:'Physical',title:'Physical entry',cmmc:['PE.L1-b.1.viii','PE.L1-b.1.ix']},
@@ -355,9 +370,9 @@
       {id:'8.3',theme:'Technological',title:'Information access restriction',cmmc:['AC.L1-b.1.ii','AC.L2-3.1.3']},
       {id:'8.4',theme:'Technological',title:'Access to source code',cmmc:['AC.L2-3.1.3','CM.L2-3.4.2']},
       {id:'8.5',theme:'Technological',title:'Secure authentication',cmmc:['IA.L1-b.1.vi','IA.L2-3.5.3','IA.L2-3.5.4']},
-      {id:'8.6',theme:'Technological',title:'Capacity management',cmmc:['SC.L2-3.13.1']},
-      {id:'8.7',theme:'Technological',title:'Protection against malware',cmmc:['SI.L1-b.1.xv','SI.L1-b.1.xvi','SI.L2-3.14.2']},
-      {id:'8.8',theme:'Technological',title:'Management of technical vulnerabilities',cmmc:['SI.L1-b.1.xiv','SI.L2-3.14.1','RA.L2-3.11.2']},
+      {id:'8.6',theme:'Technological',title:'Capacity management',cmmc:['SC.L1-3.13.1']},
+      {id:'8.7',theme:'Technological',title:'Protection against malware',cmmc:['SI.L1-b.1.xv','SI.L1-b.1.xvi','SI.L1-3.14.2']},
+      {id:'8.8',theme:'Technological',title:'Management of technical vulnerabilities',cmmc:['SI.L1-b.1.xiv','SI.L1-3.14.1','RA.L2-3.11.2']},
       {id:'8.9',theme:'Technological',title:'Configuration management',cmmc:['CM.L2-3.4.1','CM.L2-3.4.2']},
       {id:'8.10',theme:'Technological',title:'Information deletion',cmmc:['MP.L2-3.8.1']},
       {id:'8.11',theme:'Technological',title:'Data masking',cmmc:['AC.L2-3.1.22']},
@@ -369,12 +384,12 @@
       {id:'8.17',theme:'Technological',title:'Clock synchronisation',cmmc:['AU.L2-3.3.7']},
       {id:'8.18',theme:'Technological',title:'Use of privileged utility programs',cmmc:['AC.L2-3.1.5','CM.L2-3.4.8']},
       {id:'8.19',theme:'Technological',title:'Installation of software on operational systems',cmmc:['CM.L2-3.4.8','SI.L2-3.14.1']},
-      {id:'8.20',theme:'Technological',title:'Networks security',cmmc:['SC.L1-b.1.xii','SC.L2-3.13.1']},
-      {id:'8.21',theme:'Technological',title:'Security of network services',cmmc:['SC.L2-3.13.1','SC.L2-3.13.2']},
+      {id:'8.20',theme:'Technological',title:'Networks security',cmmc:['SC.L1-b.1.xii','SC.L1-3.13.1']},
+      {id:'8.21',theme:'Technological',title:'Security of network services',cmmc:['SC.L1-3.13.1','SC.L2-3.13.2']},
       {id:'8.22',theme:'Technological',title:'Segregation of networks',cmmc:['SC.L1-b.1.xiii','SC.L2-3.13.3']},
       {id:'8.23',theme:'Technological',title:'Web filtering',cmmc:['SC.L2-3.13.8','SI.L2-3.14.2']},
       {id:'8.24',theme:'Technological',title:'Use of cryptography',cmmc:['SC.L2-3.13.8','SC.L2-3.13.10']},
-      {id:'8.25',theme:'Technological',title:'Secure development life cycle',cmmc:['CM.L2-3.4.2','SA.L2-3.1.1']},
+      {id:'8.25',theme:'Technological',title:'Secure development life cycle',cmmc:['CM.L2-3.4.2']},
       {id:'8.26',theme:'Technological',title:'Application security requirements',cmmc:['CM.L2-3.4.2']},
       {id:'8.27',theme:'Technological',title:'Secure system architecture and engineering principles',cmmc:['SC.L2-3.13.2']},
       {id:'8.28',theme:'Technological',title:'Secure coding',cmmc:['CM.L2-3.4.2']},
@@ -565,7 +580,12 @@
 
     function cmmcBadges(arr) {
       if (!arr || !arr.length) return '<span class="text-body-secondary small">None</span>';
-      return arr.map(function(c) { return '<span class="badge bg-outline-secondary ucf-badge-map border">'+c+'</span>'; }).join(' ');
+      return arr.map(function(c) {
+        var isL1 = !!CMMC_L1.find(function(l){ return l.id === c; });
+        var storeId = isL1 ? 'l1-'+c : 'l2-'+c;
+        var cls = isL1 ? 'bg-success' : 'bg-warning text-dark';
+        return '<a href="#" class="badge '+cls+' ucf-badge-map ucf-link" data-goto="'+storeId+'" title="Jump to '+c+'">'+c+'</a>';
+      }).join(' ');
     }
 
     function isoMappingsFor(cmmcId) {
@@ -578,7 +598,53 @@
 
     function isoBadges(arr) {
       if (!arr.length) return '<span class="text-body-secondary small">None</span>';
-      return arr.map(function(id) { return '<span class="badge bg-info ucf-badge-map">ISO '+id+'</span>'; }).join(' ');
+      return arr.map(function(id) {
+        return '<a href="#" class="badge bg-info ucf-badge-map ucf-link" data-goto="iso-'+id+'" title="Jump to ISO '+id+'">ISO '+id+'</a>';
+      }).join(' ');
+    }
+
+    /* ── Navigate to a control in any tab ──────────────────────────── */
+    function navigateToControl(storeId) {
+      var tabId;
+      if (storeId.indexOf('iso-') === 0) tabId = 'tab-iso';
+      else if (storeId.indexOf('l1-') === 0) tabId = 'tab-l1';
+      else if (storeId.indexOf('l2-') === 0) tabId = 'tab-l2';
+      else return;
+
+      var tabEl = document.getElementById(tabId);
+      if (tabEl) {
+        if (typeof bootstrap !== 'undefined') {
+          bootstrap.Tab.getOrCreateInstance(tabEl).show();
+        } else {
+          // Fallback: manually toggle tabs
+          document.querySelectorAll('#ucfTabs .nav-link').forEach(function(btn) {
+            btn.classList.remove('active');
+            btn.setAttribute('aria-selected','false');
+          });
+          document.querySelectorAll('#ucfTabContent .tab-pane').forEach(function(p) {
+            p.classList.remove('show','active');
+          });
+          tabEl.classList.add('active');
+          tabEl.setAttribute('aria-selected','true');
+          var panelId = tabEl.getAttribute('data-bs-target').replace('#','');
+          var panel = document.getElementById(panelId);
+          if (panel) { panel.classList.add('show','active'); }
+        }
+      }
+
+      setTimeout(function() {
+        var row = document.querySelector('[data-id="'+storeId+'"]');
+        if (!row) return;
+        var details = row.closest('details');
+        if (details && !details.open) details.open = true;
+        row.scrollIntoView({ behavior:'smooth', block:'center' });
+        row.style.outline = '2px solid rgba(255,88,17,0.8)';
+        row.style.backgroundColor = 'rgba(255,88,17,0.12)';
+        setTimeout(function() {
+          row.style.outline = '';
+          row.style.backgroundColor = '';
+        }, 2200);
+      }, 180);
     }
 
     /* ================================================================
@@ -818,63 +884,209 @@
     }
 
     /* ================================================================
-       CONTROL MAPPING TAB
+       CONTROL NEXUS TAB
        ================================================================ */
     function renderMapping() {
-      // ISO -> CMMC mapping table
-      var themeOrder = ['Organizational','People','Physical','Technological'];
-      var themeNums = { Organizational:'5', People:'6', Physical:'7', Technological:'8' };
-      var html = '';
+      renderNexus();
 
-      themeOrder.forEach(function(theme) {
-        var controls = ISO_CONTROLS.filter(function(c){ return c.theme === theme; });
-        html += '<details open><summary>Theme '+themeNums[theme]+': '+theme+' ('+controls.length+' controls)</summary>';
-        html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle mapping-detail"><thead><tr><th>ISO Control</th><th>Title</th><th>CMMC L1 Mappings</th><th>CMMC L2 Mappings</th></tr></thead><tbody>';
-        controls.forEach(function(c) {
-          var l1Maps = c.cmmc.filter(function(m){ return m.indexOf('L1-b') !== -1; });
-          var l2Maps = c.cmmc.filter(function(m){ return m.indexOf('L1-b') === -1; });
-          html += '<tr><td class="ucf-mono">'+c.id+'</td><td>'+c.title+'</td>'+
-            '<td>'+(l1Maps.length ? l1Maps.map(function(m){return '<span class="badge bg-success ucf-badge-map">'+m+'</span>';}).join(' ') : '<span class="text-body-secondary small">None</span>')+'</td>'+
-            '<td>'+(l2Maps.length ? l2Maps.map(function(m){return '<span class="badge bg-warning text-dark ucf-badge-map">'+m+'</span>';}).join(' ') : '<span class="text-body-secondary small">None</span>')+'</td></tr>';
-        });
-        html += '</tbody></table></div></details>';
-      });
-      document.getElementById('mapping-iso-to-cmmc').innerHTML = html;
-
-      // Reverse lookup dropdown
+      // Populate reverse lookup dropdown
       var sel = document.getElementById('mapping-cmmc-select');
       if (sel.options.length <= 1) {
+        var grp1 = document.createElement('optgroup');
+        grp1.label = 'CMMC Level 1 (17 practices)';
         CMMC_L1.forEach(function(c) {
           var o = document.createElement('option');
-          o.value = c.id; o.textContent = c.id + ' — ' + c.title.substring(0,60) + '...';
-          sel.appendChild(o);
+          o.value = 'L1:'+c.id;
+          o.textContent = c.id + ' — ' + (c.title.length>70 ? c.title.substring(0,70)+'…' : c.title);
+          grp1.appendChild(o);
         });
+        sel.appendChild(grp1);
+        var grp2 = document.createElement('optgroup');
+        grp2.label = 'CMMC Level 2 (110 practices)';
         CMMC_L2.forEach(function(c) {
           var o = document.createElement('option');
-          o.value = c.id; o.textContent = c.id + ' — ' + c.title.substring(0,60) + (c.title.length>60?'...':'');
-          sel.appendChild(o);
+          o.value = 'L2:'+c.id;
+          o.textContent = c.id + (c.l1?' [L1+L2]':' [L2]') + ' — ' + (c.title.length>65 ? c.title.substring(0,65)+'…' : c.title);
+          grp2.appendChild(o);
         });
+        sel.appendChild(grp2);
       }
+    }
+
+    function renderNexus() {
+      // Build domain index: for each CMMC domain list L1 practices, L2-only practices, and mapped ISO controls
+      var domains = [];
+      var domMap = {};
+
+      CMMC_L1.forEach(function(c) {
+        if (!domMap[c.domain]) { domMap[c.domain] = {l1:[], l2:[], iso:[]}; domains.push(c.domain); }
+        domMap[c.domain].l1.push(c);
+      });
+      CMMC_L2.forEach(function(c) {
+        if (!domMap[c.domain]) { domMap[c.domain] = {l1:[], l2:[], iso:[]}; domains.push(c.domain); }
+        if (!c.l1) domMap[c.domain].l2.push(c); // L2-only (not already an L1 practice)
+      });
+
+      // Map ISO controls into domains via their cmmc arrays
+      ISO_CONTROLS.forEach(function(iso) {
+        if (!iso.cmmc.length) return;
+        var addedTo = {};
+        iso.cmmc.forEach(function(cId) {
+          var l1m = CMMC_L1.find(function(l){ return l.id === cId; });
+          var l2m = CMMC_L2.find(function(l){ return l.id === cId; });
+          var dom = (l1m && l1m.domain) || (l2m && l2m.domain);
+          if (dom && !addedTo[dom] && domMap[dom]) {
+            addedTo[dom] = true;
+            domMap[dom].iso.push(iso);
+          }
+        });
+      });
+
+      var isoOnly = ISO_CONTROLS.filter(function(c){ return !c.cmmc.length; });
+
+      function statusDot(storeId) {
+        var s = getStatus(storeId);
+        var cfg = STATUS_CONFIG[s];
+        return '<span class="badge bg-'+cfg.color+' ms-1" style="font-size:.65rem">'+cfg.icon+'</span>';
+      }
+
+      var html = '';
+
+      domains.forEach(function(domain) {
+        var g = domMap[domain];
+        var totalISO = g.iso.length, totalL1 = g.l1.length, totalL2 = g.l2.length;
+        if (!totalISO && !totalL1 && !totalL2) return;
+
+        html += '<div class="card mb-3 nexus-card">';
+        html += '<div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">';
+        html += '<strong>'+domain+'</strong>';
+        html += '<div class="d-flex gap-1 flex-wrap">';
+        if (totalISO) html += '<span class="badge bg-info">ISO: '+totalISO+'</span>';
+        if (totalL1)  html += '<span class="badge bg-success">L1: '+totalL1+'</span>';
+        if (totalL2)  html += '<span class="badge bg-warning text-dark">L2+: '+totalL2+'</span>';
+        html += '</div></div>';
+        html += '<div class="card-body"><div class="row g-3">';
+
+        // ISO column
+        html += '<div class="col-md-4"><div class="nexus-col-header text-info">ISO 27001:2022</div>';
+        if (g.iso.length) {
+          g.iso.forEach(function(c) {
+            html += '<div class="nexus-item">';
+            html += '<a href="#" class="ucf-mono ucf-link nexus-id text-info" data-goto="iso-'+c.id+'">'+c.id+'</a>';
+            html += statusDot('iso-'+c.id);
+            html += '<div class="nexus-title">'+c.title+'</div>';
+            html += '</div>';
+          });
+        } else {
+          html += '<span class="text-body-secondary" style="font-size:.8rem">No direct ISO mapping</span>';
+        }
+        html += '</div>';
+
+        // L1 column
+        html += '<div class="col-md-4"><div class="nexus-col-header text-success">CMMC Level 1</div>';
+        if (g.l1.length) {
+          g.l1.forEach(function(c) {
+            html += '<div class="nexus-item">';
+            html += '<a href="#" class="ucf-mono ucf-link nexus-id text-success" data-goto="l1-'+c.id+'">'+c.id+'</a>';
+            html += statusDot('l1-'+c.id);
+            html += '<div class="nexus-title">'+c.title+'</div>';
+            html += '</div>';
+          });
+        } else {
+          html += '<span class="text-body-secondary" style="font-size:.8rem">No L1 practices</span>';
+        }
+        html += '</div>';
+
+        // L2-only column
+        html += '<div class="col-md-4"><div class="nexus-col-header" style="color:#ffc107">CMMC Level 2 (Additional)</div>';
+        if (g.l2.length) {
+          g.l2.forEach(function(c) {
+            html += '<div class="nexus-item">';
+            html += '<a href="#" class="ucf-mono ucf-link nexus-id" data-goto="l2-'+c.id+'" style="color:#ffc107">'+c.id+'</a>';
+            html += statusDot('l2-'+c.id);
+            html += '<div class="nexus-title">'+c.title+'</div>';
+            html += '</div>';
+          });
+        } else {
+          html += '<span class="text-body-secondary" style="font-size:.8rem">No additional L2 practices</span>';
+        }
+        html += '</div>';
+
+        html += '</div></div></div>';
+      });
+
+      // ISO-only controls
+      if (isoOnly.length) {
+        html += '<div class="card mb-3 nexus-card">';
+        html += '<div class="card-header d-flex justify-content-between align-items-center">';
+        html += '<strong>ISO 27001 Only <span class="fw-normal text-body-secondary">(Governance, Legal, Supply Chain, BCM — no direct CMMC equivalent)</span></strong>';
+        html += '<span class="badge bg-info">'+isoOnly.length+' controls</span>';
+        html += '</div><div class="card-body">';
+        html += '<div class="row g-2">';
+        isoOnly.forEach(function(c) {
+          html += '<div class="col-md-6 col-lg-4"><div class="nexus-item">';
+          html += '<a href="#" class="ucf-mono ucf-link nexus-id text-info" data-goto="iso-'+c.id+'">'+c.id+'</a>';
+          html += statusDot('iso-'+c.id);
+          html += '<div class="nexus-title">'+c.title+'</div>';
+          html += '</div></div>';
+        });
+        html += '</div></div></div>';
+      }
+
+      document.getElementById('nexus-content').innerHTML = html;
     }
 
     function handleReverseMapping() {
       var sel = document.getElementById('mapping-cmmc-select');
-      var cmmcId = sel.value;
+      var raw = sel.value;
       var container = document.getElementById('mapping-reverse-result');
-      if (!cmmcId) { container.innerHTML = ''; return; }
+      if (!raw) { container.innerHTML = ''; return; }
+
+      // raw is "L1:AC.L1-b.1.i" or "L2:AC.L2-3.1.3"
+      var parts = raw.split(':');
+      var tier = parts[0];
+      var cmmcId = parts.slice(1).join(':');
+
+      // Find the practice object
+      var practice = null;
+      if (tier === 'L1') practice = CMMC_L1.find(function(c){ return c.id === cmmcId; });
+      else               practice = CMMC_L2.find(function(c){ return c.id === cmmcId; });
 
       var isoMaps = isoMappingsFor(cmmcId);
+
+      // For L2 controls that have an L1 equivalent, also check the L1 ID
+      if (tier === 'L2' && practice && practice.l1) {
+        isoMappingsFor(practice.l1).forEach(function(id) {
+          if (isoMaps.indexOf(id) === -1) isoMaps.push(id);
+        });
+      }
+
+      var html = '';
+      if (practice) {
+        html += '<div class="card mb-3"><div class="card-body"><div class="d-flex gap-2 flex-wrap align-items-center mb-2">';
+        html += '<span class="badge '+(tier==='L1'?'bg-success':'bg-warning text-dark')+'">'+tier+'</span>';
+        html += '<span class="ucf-mono">'+cmmcId+'</span>';
+        if (tier==='L2' && practice.l1) html += '<span class="badge bg-success">Also in L1: '+practice.l1+'</span>';
+        html += '</div><p class="mb-0">'+practice.title+'</p></div></div>';
+      }
+
       if (!isoMaps.length) {
-        container.innerHTML = '<div class="alert alert-secondary">No ISO 27001 controls map to this CMMC practice.</div>';
+        html += '<div class="alert alert-secondary">No ISO 27001 controls directly map to this CMMC practice.</div>';
+        container.innerHTML = html;
         return;
       }
-      var html = '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>ISO Control</th><th>Theme</th><th>Title</th><th>Status</th></tr></thead><tbody>';
+      html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr><th>ISO Control</th><th>Theme</th><th>Title</th><th>Status</th><th></th></tr></thead><tbody>';
       isoMaps.forEach(function(isoId) {
         var ctrl = ISO_CONTROLS.find(function(c){ return c.id === isoId; });
-        if (ctrl) {
-          html += '<tr><td class="ucf-mono">'+ctrl.id+'</td><td>'+themeBadge(ctrl.theme)+'</td><td>'+ctrl.title+'</td>'+
-            '<td><span class="badge bg-'+STATUS_CONFIG[getStatus('iso-'+ctrl.id)].color+'">'+STATUS_CONFIG[getStatus('iso-'+ctrl.id)].label+'</span></td></tr>';
-        }
+        if (!ctrl) return;
+        var s = getStatus('iso-'+ctrl.id);
+        html += '<tr>'+
+          '<td class="ucf-mono">'+ctrl.id+'</td>'+
+          '<td>'+themeBadge(ctrl.theme)+'</td>'+
+          '<td>'+ctrl.title+'</td>'+
+          '<td><span class="badge bg-'+STATUS_CONFIG[s].color+'">'+STATUS_CONFIG[s].label+'</span></td>'+
+          '<td><a href="#" class="btn btn-outline-secondary btn-sm py-0 ucf-link" data-goto="iso-'+ctrl.id+'">Go</a></td>'+
+          '</tr>';
       });
       html += '</tbody></table></div>';
       container.innerHTML = html;
@@ -1051,6 +1263,7 @@
       renderISO();
       renderL1();
       renderL2();
+      renderNexus();
       renderMapping();
       renderGap();
     }
@@ -1063,6 +1276,12 @@
 
       // Event delegation for status changes
       document.getElementById('ucfTabContent').addEventListener('change', handleStatusChange);
+
+      // Event delegation for clickable cross-links (ucf-link badges)
+      document.getElementById('ucfTabContent').addEventListener('click', function(e) {
+        var link = e.target.closest('a.ucf-link[data-goto]');
+        if (link) { e.preventDefault(); navigateToControl(link.getAttribute('data-goto')); }
+      });
 
       // Filters
       ['iso','l1','l2'].forEach(function(prefix) {
