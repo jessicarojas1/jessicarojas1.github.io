@@ -9,6 +9,13 @@
   <link rel="stylesheet" href="theme.css" />
   <title>User Administration | Jessica Rojas</title>
   <meta name="robots" content="noindex,nofollow" />
+  <style>
+    .perm-table th, .perm-table td { font-size: 0.8rem; text-align: center; }
+    .perm-table td:first-child { text-align: left; }
+    .perm-table .col-active { background: rgba(var(--bs-primary-rgb), 0.12); }
+    .perm-check { color: #198754; font-weight: 700; }
+    .perm-dash  { color: var(--bs-secondary); }
+  </style>
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
@@ -63,23 +70,107 @@
   <main id="main-content" class="py-5">
     <div class="container">
 
-      <!-- Access gate: shown only to admin -->
+      <!-- Access gate -->
       <div id="admin-gate-locked" class="text-center py-5">
         <div class="display-1 mb-3">🔒</div>
         <h1 class="h3">Admin Access Required</h1>
-        <p class="text-secondary">Please log in with an admin account to manage users.</p>
+        <p class="text-secondary">Please log in with an admin or editor account.</p>
         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
       </div>
 
       <div id="admin-panel" style="display:none">
         <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
           <h1 class="h2 mb-0">User Administration</h1>
-          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
-            + Add User
-          </button>
+          <button class="btn btn-primary" id="show-add-user-btn" onclick="toggleAddUser()">+ Add User</button>
         </div>
 
         <div id="admin-alert" class="d-none mb-3"></div>
+
+        <!-- ── Inline Add User Panel ───────────────────────────────── -->
+        <div class="card mb-4" id="add-user-panel" style="display:none">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <strong>New User</strong>
+            <button type="button" class="btn-close" onclick="toggleAddUser()" aria-label="Close"></button>
+          </div>
+          <div class="card-body">
+            <div class="row g-4">
+
+              <!-- Form -->
+              <div class="col-md-5">
+                <div class="mb-3">
+                  <label for="new-username" class="form-label">Username <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="new-username" maxlength="40" autocomplete="off" placeholder="e.g. jsmith" />
+                </div>
+                <div class="mb-3">
+                  <label for="new-password" class="form-label">Password <span class="text-danger">*</span></label>
+                  <input type="password" class="form-control" id="new-password" autocomplete="new-password" placeholder="Min 8 characters" />
+                </div>
+                <div class="mb-3">
+                  <label for="new-role" class="form-label">Role <span class="text-danger">*</span></label>
+                  <select class="form-select" id="new-role" onchange="highlightPermCol(this.value)">
+                    <option value="viewer">Viewer</option>
+                    <option value="reader">Reader</option>
+                    <option value="editor">Editor</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </div>
+                <div class="alert alert-danger d-none py-2 small" id="add-user-error" role="alert"></div>
+                <div class="d-flex gap-2">
+                  <button type="button" class="btn btn-primary flex-grow-1" id="create-user-btn" onclick="doAddUser()">Create User</button>
+                  <button type="button" class="btn btn-outline-secondary" onclick="toggleAddUser()">Cancel</button>
+                </div>
+              </div>
+
+              <!-- Permissions table -->
+              <div class="col-md-7">
+                <p class="small text-secondary mb-2">Role permissions — selected column is highlighted.</p>
+                <div class="table-responsive">
+                  <table class="table table-bordered table-sm perm-table mb-0" id="perm-table">
+                    <thead>
+                      <tr>
+                        <th style="min-width:160px">Permission</th>
+                        <th id="ph-viewer">Viewer</th>
+                        <th id="ph-reader">Reader</th>
+                        <th id="ph-editor">Editor</th>
+                        <th id="ph-admin">Admin</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>Public pages</td>
+                        <td class="perm-check">✓</td><td class="perm-check">✓</td><td class="perm-check">✓</td><td class="perm-check">✓</td>
+                      </tr>
+                      <tr>
+                        <td>Compliance Tracker</td>
+                        <td class="perm-dash">—</td><td class="perm-check">✓</td><td class="perm-check">✓</td><td class="perm-check">✓</td>
+                      </tr>
+                      <tr>
+                        <td>Data Analysis</td>
+                        <td class="perm-dash">—</td><td class="perm-check">✓</td><td class="perm-check">✓</td><td class="perm-check">✓</td>
+                      </tr>
+                      <tr>
+                        <td>Job Tracker</td>
+                        <td class="perm-dash">—</td><td class="perm-check">✓</td><td class="perm-check">✓</td><td class="perm-check">✓</td>
+                      </tr>
+                      <tr>
+                        <td>Edit content</td>
+                        <td class="perm-dash">—</td><td class="perm-dash">—</td><td class="perm-check">✓</td><td class="perm-check">✓</td>
+                      </tr>
+                      <tr>
+                        <td>Approve requests</td>
+                        <td class="perm-dash">—</td><td class="perm-dash">—</td><td class="perm-check">✓</td><td class="perm-check">✓</td>
+                      </tr>
+                      <tr>
+                        <td>Manage users</td>
+                        <td class="perm-dash">—</td><td class="perm-dash">—</td><td class="perm-dash">—</td><td class="perm-check">✓</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <!-- Pending Access Requests -->
         <div class="card mb-4">
@@ -96,7 +187,7 @@
         <div class="card">
           <div class="card-body p-0">
             <div class="table-responsive">
-              <table class="table table-hover mb-0" id="users-table">
+              <table class="table table-hover mb-0">
                 <thead>
                   <tr>
                     <th>Username</th>
@@ -114,129 +205,136 @@
         </div>
 
         <p class="text-secondary small mt-2">
-          Users are stored in your browser's localStorage. Passwords are SHA-256 hashed — never stored in plaintext.
+          Users stored in browser localStorage. Passwords are SHA-256 hashed — never stored in plaintext.
         </p>
       </div>
     </div>
   </main>
 
   <!-- ── Approve Request Modal ─────────────────────────────────── -->
-  <div class="modal fade" id="approveRequestModal" tabindex="-1" aria-labelledby="approveRequestModalLabel" aria-modal="true" role="dialog">
-    <div class="modal-dialog modal-dialog-centered">
+  <div class="modal fade" id="approveRequestModal" tabindex="-1" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h2 class="modal-title fs-5" id="approveRequestModalLabel">Approve Access Request</h2>
+          <h2 class="modal-title fs-5">Approve Access Request</h2>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <p class="text-secondary small mb-3">Approving request for: <strong id="approve-username-display"></strong></p>
-          <form id="approve-request-form" novalidate>
-            <input type="hidden" id="approve-target-username" />
-            <div class="mb-3">
-              <label for="approve-role" class="form-label">Assign Role <span class="text-danger">*</span></label>
-              <select class="form-select" id="approve-role" required>
-                <option value="viewer">Viewer — read-only</option>
-                <option value="reader">Reader — enhanced access</option>
-                <option value="editor">Editor — content management</option>
-                <option value="admin">Admin — full access</option>
+          <div class="row g-4">
+            <div class="col-md-4">
+              <label for="approve-role" class="form-label">Assign Role</label>
+              <select class="form-select" id="approve-role" onchange="highlightApprovePermCol(this.value)">
+                <option value="viewer">Viewer</option>
+                <option value="reader">Reader</option>
+                <option value="editor">Editor</option>
+                <option value="admin">Admin</option>
               </select>
+              <div class="alert alert-danger d-none py-2 small mt-3" id="approve-error" role="alert"></div>
+              <button type="button" class="btn btn-success w-100 mt-3" onclick="doApproveRequest()">Approve &amp; Create Account</button>
             </div>
-            <div class="alert alert-danger d-none py-2 small" id="approve-error" role="alert"></div>
-            <button type="submit" class="btn btn-success w-100">Approve &amp; Create Account</button>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── Add User Modal ─────────────────────────────────────────── -->
-  <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-modal="true" role="dialog">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2 class="modal-title fs-5" id="addUserModalLabel">Add New User</h2>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form id="add-user-form" novalidate>
-            <div class="mb-3">
-              <label for="new-username" class="form-label">Username <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" id="new-username" maxlength="40" required autocomplete="off" />
+            <div class="col-md-8">
+              <div class="table-responsive">
+                <table class="table table-bordered table-sm perm-table mb-0" id="approve-perm-table">
+                  <thead>
+                    <tr>
+                      <th style="min-width:160px">Permission</th>
+                      <th id="aph-viewer">Viewer</th>
+                      <th id="aph-reader">Reader</th>
+                      <th id="aph-editor">Editor</th>
+                      <th id="aph-admin">Admin</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>Public pages</td><td class="perm-check">✓</td><td class="perm-check">✓</td><td class="perm-check">✓</td><td class="perm-check">✓</td></tr>
+                    <tr><td>Compliance Tracker</td><td class="perm-dash">—</td><td class="perm-check">✓</td><td class="perm-check">✓</td><td class="perm-check">✓</td></tr>
+                    <tr><td>Data Analysis</td><td class="perm-dash">—</td><td class="perm-check">✓</td><td class="perm-check">✓</td><td class="perm-check">✓</td></tr>
+                    <tr><td>Job Tracker</td><td class="perm-dash">—</td><td class="perm-check">✓</td><td class="perm-check">✓</td><td class="perm-check">✓</td></tr>
+                    <tr><td>Edit content</td><td class="perm-dash">—</td><td class="perm-dash">—</td><td class="perm-check">✓</td><td class="perm-check">✓</td></tr>
+                    <tr><td>Approve requests</td><td class="perm-dash">—</td><td class="perm-dash">—</td><td class="perm-check">✓</td><td class="perm-check">✓</td></tr>
+                    <tr><td>Manage users</td><td class="perm-dash">—</td><td class="perm-dash">—</td><td class="perm-dash">—</td><td class="perm-check">✓</td></tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
-            <div class="mb-3">
-              <label for="new-password" class="form-label">Password <span class="text-danger">*</span></label>
-              <input type="password" class="form-control" id="new-password" required autocomplete="new-password" />
-              <div class="form-text">Minimum 8 characters recommended.</div>
-            </div>
-            <div class="mb-3">
-              <label for="new-role" class="form-label">Role <span class="text-danger">*</span></label>
-              <select class="form-select" id="new-role" required>
-                <option value="viewer">Viewer — read-only</option>
-                <option value="reader">Reader — enhanced access</option>
-                <option value="editor">Editor — content management</option>
-                <option value="admin">Admin — full access</option>
-              </select>
-            </div>
-            <div class="alert alert-danger d-none py-2 small" id="add-user-error" role="alert"></div>
-            <button type="submit" class="btn btn-primary w-100">Create User</button>
-          </form>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
   <!-- ── Change Password Modal ──────────────────────────────────── -->
-  <div class="modal fade" id="changePwModal" tabindex="-1" aria-labelledby="changePwModalLabel" aria-modal="true" role="dialog">
+  <div class="modal fade" id="changePwModal" tabindex="-1" aria-modal="true" role="dialog">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h2 class="modal-title fs-5" id="changePwModalLabel">Change Password</h2>
+          <h2 class="modal-title fs-5">Change Password</h2>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <p class="text-secondary small mb-3">Changing password for: <strong id="changepw-username-display"></strong></p>
-          <form id="change-pw-form" novalidate>
-            <input type="hidden" id="changepw-target-username" />
-            <div class="mb-3">
-              <label for="changepw-new" class="form-label">New Password <span class="text-danger">*</span></label>
-              <input type="password" class="form-control" id="changepw-new" required autocomplete="new-password" />
-            </div>
-            <div class="mb-3">
-              <label for="changepw-confirm" class="form-label">Confirm Password <span class="text-danger">*</span></label>
-              <input type="password" class="form-control" id="changepw-confirm" required autocomplete="new-password" />
-            </div>
-            <div class="alert alert-danger d-none py-2 small" id="changepw-error" role="alert"></div>
-            <button type="submit" class="btn btn-primary w-100">Update Password</button>
-          </form>
+          <div class="mb-3">
+            <label for="changepw-new" class="form-label">New Password <span class="text-danger">*</span></label>
+            <input type="password" class="form-control" id="changepw-new" autocomplete="new-password" />
+          </div>
+          <div class="mb-3">
+            <label for="changepw-confirm" class="form-label">Confirm Password <span class="text-danger">*</span></label>
+            <input type="password" class="form-control" id="changepw-confirm" autocomplete="new-password" />
+          </div>
+          <div class="alert alert-danger d-none py-2 small" id="changepw-error" role="alert"></div>
+          <button type="button" class="btn btn-primary w-100" onclick="doChangePassword()">Update Password</button>
         </div>
       </div>
     </div>
   </div>
 
   <!-- ── Change Role Modal ──────────────────────────────────────── -->
-  <div class="modal fade" id="changeRoleModal" tabindex="-1" aria-labelledby="changeRoleModalLabel" aria-modal="true" role="dialog">
-    <div class="modal-dialog modal-dialog-centered">
+  <div class="modal fade" id="changeRoleModal" tabindex="-1" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h2 class="modal-title fs-5" id="changeRoleModalLabel">Change Role</h2>
+          <h2 class="modal-title fs-5">Change Role</h2>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <p class="text-secondary small mb-3">Changing role for: <strong id="changerole-username-display"></strong></p>
-          <form id="change-role-form" novalidate>
-            <input type="hidden" id="changerole-target-username" />
-            <div class="mb-3">
+          <div class="row g-4">
+            <div class="col-md-4">
               <label for="changerole-select" class="form-label">New Role</label>
-              <select class="form-select" id="changerole-select">
-                <option value="viewer">Viewer — read-only</option>
-                <option value="reader">Reader — enhanced access</option>
-                <option value="editor">Editor — content management</option>
-                <option value="admin">Admin — full access</option>
+              <select class="form-select" id="changerole-select" onchange="highlightRolePermCol(this.value)">
+                <option value="viewer">Viewer</option>
+                <option value="reader">Reader</option>
+                <option value="editor">Editor</option>
+                <option value="admin">Admin</option>
               </select>
+              <div class="alert alert-danger d-none py-2 small mt-3" id="changerole-error" role="alert"></div>
+              <button type="button" class="btn btn-primary w-100 mt-3" onclick="doChangeRole()">Update Role</button>
             </div>
-            <div class="alert alert-danger d-none py-2 small" id="changerole-error" role="alert"></div>
-            <button type="submit" class="btn btn-primary w-100">Update Role</button>
-          </form>
+            <div class="col-md-8">
+              <div class="table-responsive">
+                <table class="table table-bordered table-sm perm-table mb-0" id="role-perm-table">
+                  <thead>
+                    <tr>
+                      <th style="min-width:160px">Permission</th>
+                      <th id="rph-viewer">Viewer</th>
+                      <th id="rph-reader">Reader</th>
+                      <th id="rph-editor">Editor</th>
+                      <th id="rph-admin">Admin</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>Public pages</td><td class="perm-check">✓</td><td class="perm-check">✓</td><td class="perm-check">✓</td><td class="perm-check">✓</td></tr>
+                    <tr><td>Compliance Tracker</td><td class="perm-dash">—</td><td class="perm-check">✓</td><td class="perm-check">✓</td><td class="perm-check">✓</td></tr>
+                    <tr><td>Data Analysis</td><td class="perm-dash">—</td><td class="perm-check">✓</td><td class="perm-check">✓</td><td class="perm-check">✓</td></tr>
+                    <tr><td>Job Tracker</td><td class="perm-dash">—</td><td class="perm-check">✓</td><td class="perm-check">✓</td><td class="perm-check">✓</td></tr>
+                    <tr><td>Edit content</td><td class="perm-dash">—</td><td class="perm-dash">—</td><td class="perm-check">✓</td><td class="perm-check">✓</td></tr>
+                    <tr><td>Approve requests</td><td class="perm-dash">—</td><td class="perm-dash">—</td><td class="perm-check">✓</td><td class="perm-check">✓</td></tr>
+                    <tr><td>Manage users</td><td class="perm-dash">—</td><td class="perm-dash">—</td><td class="perm-dash">—</td><td class="perm-check">✓</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -251,18 +349,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <form id="rbac-login-form" novalidate>
-            <div class="mb-3">
-              <label for="rbac-username-input" class="form-label">Username</label>
-              <input type="text" class="form-control" id="rbac-username-input" autocomplete="username" placeholder="Enter your username" maxlength="40" required />
-            </div>
-            <div class="mb-3">
-              <label for="rbac-password-input" class="form-label">Password</label>
-              <input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" required />
-            </div>
-            <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
-            <button type="submit" class="btn btn-primary w-100">Login</button>
-          </form>
+          <!-- roles.js injects the login form here -->
         </div>
         <div class="modal-footer border-0 pt-0">
           <p class="text-secondary small mb-0">Session clears when you close this tab.</p>
@@ -289,77 +376,257 @@
   <script src="roles.js" defer></script>
   <script src="script.js" defer></script>
   <script>
-  /* ── Admin panel logic ────────────────────────────────────────── */
+  /* ── Admin panel — all logic inline, no form-submit delegation ── */
+
   const ROLE_BADGES = {
-    viewer : 'bg-secondary',
-    reader : 'bg-info text-dark',
-    editor : 'bg-warning text-dark',
-    admin  : 'bg-danger',
+    viewer: 'bg-secondary', reader: 'bg-info text-dark',
+    editor: 'bg-warning text-dark', admin: 'bg-danger',
   };
 
-  function escH(str) {
-    return String(str).replace(/[&<>"']/g, c =>
-      ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])
-    );
+  function escH(s) {
+    return String(s).replace(/[&<>"']/g, c =>
+      ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
-  function showAlert(msg, type = 'success') {
+  function showAlert(msg, type) {
     const el = document.getElementById('admin-alert');
     if (!el) return;
-    el.className = `alert alert-${type} py-2`;
+    el.className = 'alert alert-' + (type || 'success') + ' py-2';
     el.textContent = msg;
     el.classList.remove('d-none');
-    setTimeout(() => el.classList.add('d-none'), 4000);
+    setTimeout(function(){ el.classList.add('d-none'); }, 5000);
+  }
+
+  function showErr(id, msg) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.remove('d-none');
+  }
+
+  function hideErr(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('d-none');
+  }
+
+  /* ── Permissions table column highlight ─────────────────────── */
+  var PERM_COLS = ['viewer','reader','editor','admin'];
+
+  function highlightCol(tableId, prefixId, role) {
+    PERM_COLS.forEach(function(r) {
+      var th = document.getElementById(prefixId + r);
+      if (!th) return;
+      th.classList.toggle('col-active', r === role);
+    });
+    var tbl = document.getElementById(tableId);
+    if (!tbl) return;
+    var colIdx = PERM_COLS.indexOf(role) + 1; // +1 for first "Permission" column
+    tbl.querySelectorAll('tbody tr').forEach(function(row) {
+      row.querySelectorAll('td').forEach(function(td, i) {
+        if (i === 0) return;
+        td.classList.toggle('col-active', i === colIdx);
+      });
+    });
+  }
+
+  function highlightPermCol(role)        { highlightCol('perm-table',         'ph-',  role); }
+  function highlightApprovePermCol(role) { highlightCol('approve-perm-table', 'aph-', role); }
+  function highlightRolePermCol(role)    { highlightCol('role-perm-table',    'rph-', role); }
+
+  /* ── Toggle add-user panel ───────────────────────────────────── */
+  function toggleAddUser() {
+    var panel = document.getElementById('add-user-panel');
+    if (!panel) return;
+    var showing = panel.style.display !== 'none';
+    panel.style.display = showing ? 'none' : '';
+    if (!showing) {
+      document.getElementById('new-username').value  = '';
+      document.getElementById('new-password').value  = '';
+      document.getElementById('new-role').value      = 'viewer';
+      hideErr('add-user-error');
+      highlightPermCol('viewer');
+      setTimeout(function(){ document.getElementById('new-username').focus(); }, 50);
+    }
+  }
+
+  /* ── Add user ────────────────────────────────────────────────── */
+  function doAddUser() {
+    var username = (document.getElementById('new-username').value || '').trim();
+    var password = document.getElementById('new-password').value || '';
+    var role     = document.getElementById('new-role').value;
+    var btn      = document.getElementById('create-user-btn');
+
+    hideErr('add-user-error');
+
+    if (!username) { showErr('add-user-error', 'Username is required.'); return; }
+    if (password.length < 1) { showErr('add-user-error', 'Password is required.'); return; }
+
+    if (typeof Users === 'undefined') {
+      showErr('add-user-error', 'Auth module not loaded — please refresh the page.');
+      return;
+    }
+
+    btn.disabled   = true;
+    btn.textContent = 'Creating…';
+
+    Users.addUser(username, password, role).then(function(result) {
+      btn.disabled   = false;
+      btn.textContent = 'Create User';
+      if (result.ok) {
+        toggleAddUser();
+        renderUsers();
+        showAlert('User "' + username + '" created as ' + role + '.');
+      } else {
+        showErr('add-user-error', result.error);
+      }
+    }).catch(function(err) {
+      btn.disabled   = false;
+      btn.textContent = 'Create User';
+      showErr('add-user-error', 'Error: ' + (err && err.message ? err.message : String(err)));
+    });
+  }
+
+  /* ── Approve request ─────────────────────────────────────────── */
+  var _approveTarget = '';
+
+  function openApproveRequest(username) {
+    _approveTarget = username;
+    document.getElementById('approve-username-display').textContent = username;
+    document.getElementById('approve-role').value = 'viewer';
+    hideErr('approve-error');
+    highlightApprovePermCol('viewer');
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('approveRequestModal')).show();
+  }
+
+  function doApproveRequest() {
+    var role   = document.getElementById('approve-role').value;
+    var result = Users.approveRequest(_approveTarget, role);
+    if (result.ok) {
+      bootstrap.Modal.getOrCreateInstance(document.getElementById('approveRequestModal')).hide();
+      renderRequests();
+      renderUsers();
+      showAlert('Request approved — "' + _approveTarget + '" is now ' + role + '.');
+    } else {
+      showErr('approve-error', result.error);
+    }
+  }
+
+  function confirmRejectRequest(username) {
+    if (!confirm('Reject access request from "' + username + '"?')) return;
+    Users.rejectRequest(username);
+    renderRequests();
+    showAlert('Request from "' + username + '" rejected.', 'warning');
+  }
+
+  /* ── Change password ─────────────────────────────────────────── */
+  var _changePwTarget = '';
+
+  function openChangePw(username) {
+    _changePwTarget = username;
+    document.getElementById('changepw-username-display').textContent = username;
+    document.getElementById('changepw-new').value     = '';
+    document.getElementById('changepw-confirm').value = '';
+    hideErr('changepw-error');
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('changePwModal')).show();
+  }
+
+  function doChangePassword() {
+    var newPw   = document.getElementById('changepw-new').value;
+    var confirm = document.getElementById('changepw-confirm').value;
+    var btn     = document.querySelector('#changePwModal .btn-primary');
+
+    hideErr('changepw-error');
+    if (!newPw)            { showErr('changepw-error', 'Password required.'); return; }
+    if (newPw !== confirm)  { showErr('changepw-error', 'Passwords do not match.'); return; }
+
+    btn.disabled = true; btn.textContent = 'Updating…';
+
+    Users.changePassword(_changePwTarget, newPw).then(function(result) {
+      btn.disabled = false; btn.textContent = 'Update Password';
+      if (result.ok) {
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('changePwModal')).hide();
+        showAlert('Password updated for "' + _changePwTarget + '".');
+      } else {
+        showErr('changepw-error', result.error);
+      }
+    }).catch(function(err) {
+      btn.disabled = false; btn.textContent = 'Update Password';
+      showErr('changepw-error', 'Error: ' + (err && err.message ? err.message : String(err)));
+    });
+  }
+
+  /* ── Change role ─────────────────────────────────────────────── */
+  var _changeRoleTarget = '';
+
+  function openChangeRole(username, currentRole) {
+    _changeRoleTarget = username;
+    document.getElementById('changerole-username-display').textContent = username;
+    document.getElementById('changerole-select').value = currentRole;
+    hideErr('changerole-error');
+    highlightRolePermCol(currentRole);
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('changeRoleModal')).show();
+  }
+
+  function doChangeRole() {
+    var role   = document.getElementById('changerole-select').value;
+    var result = Users.updateRole(_changeRoleTarget, role);
+    if (result.ok) {
+      bootstrap.Modal.getOrCreateInstance(document.getElementById('changeRoleModal')).hide();
+      renderUsers();
+      showAlert('Role updated for "' + _changeRoleTarget + '".');
+    } else {
+      showErr('changerole-error', result.error);
+    }
+  }
+
+  /* ── Delete ──────────────────────────────────────────────────── */
+  function confirmDeleteUser(username) {
+    if (!confirm('Delete user "' + username + '"? This cannot be undone.')) return;
+    Users.deleteUser(username);
+    renderUsers();
+    showAlert('User "' + username + '" deleted.', 'warning');
   }
 
   /* ── Render users table ──────────────────────────────────────── */
   function renderUsers() {
-    const tbody   = document.getElementById('users-tbody');
+    var tbody   = document.getElementById('users-tbody');
     if (!tbody || typeof Users === 'undefined') return;
-    const users   = Users.getUsers();
-    const isAdmin = typeof RBAC !== 'undefined' && RBAC.isAtLeast('admin');
+    var users   = Users.getUsers();
+    var isAdmin = typeof RBAC !== 'undefined' && RBAC.isAtLeast('admin');
 
-    const rootRow = `
-      <tr class="table-secondary">
-        <td class="align-middle fw-semibold">
-          root <span class="badge bg-secondary ms-1" style="font-size:0.7rem">system</span>
-        </td>
-        <td class="align-middle"><span class="badge bg-danger">admin</span></td>
-        <td class="align-middle text-secondary small">Built-in</td>
-        <td class="align-middle text-end text-secondary small fst-italic">Protected</td>
-      </tr>`;
+    var rootRow = '<tr class="table-secondary">'
+      + '<td class="align-middle fw-semibold">root <span class="badge bg-secondary ms-1" style="font-size:0.7rem">system</span></td>'
+      + '<td class="align-middle"><span class="badge bg-danger">admin</span></td>'
+      + '<td class="align-middle text-secondary small">Built-in</td>'
+      + '<td class="align-middle text-end text-secondary small fst-italic">Protected</td>'
+      + '</tr>';
 
-    const userRows = users.length === 0
-      ? '<tr><td colspan="4" class="text-secondary text-center py-3">No users yet — use root to log in and add one.</td></tr>'
-      : users.map(u => `
-        <tr>
-          <td class="align-middle fw-semibold">${escH(u.username)}</td>
-          <td class="align-middle">
-            <span class="badge ${ROLE_BADGES[u.role] || 'bg-secondary'}">${escH(u.role)}</span>
-          </td>
-          <td class="align-middle text-secondary small">${u.created ? new Date(u.created).toLocaleDateString() : '—'}</td>
-          <td class="align-middle text-end">
-            ${isAdmin ? `
-              <button class="btn btn-sm btn-outline-secondary me-1"
-                onclick="openChangeRole('${escH(u.username)}', '${escH(u.role)}')">Role</button>
-              <button class="btn btn-sm btn-outline-warning me-1"
-                onclick="openChangePw('${escH(u.username)}')">Password</button>
-              <button class="btn btn-sm btn-outline-danger"
-                onclick="confirmDeleteUser('${escH(u.username)}')">Delete</button>
-            ` : '<span class="text-secondary small fst-italic">View only</span>'}
-          </td>
-        </tr>`).join('');
+    var userRows = users.length === 0
+      ? '<tr><td colspan="4" class="text-secondary text-center py-3">No users yet.</td></tr>'
+      : users.map(function(u) {
+          var actions = isAdmin
+            ? '<button class="btn btn-sm btn-outline-secondary me-1" onclick="openChangeRole(\'' + escH(u.username) + '\',\'' + escH(u.role) + '\')">Role</button>'
+              + '<button class="btn btn-sm btn-outline-warning me-1" onclick="openChangePw(\'' + escH(u.username) + '\')">Password</button>'
+              + '<button class="btn btn-sm btn-outline-danger" onclick="confirmDeleteUser(\'' + escH(u.username) + '\')">Delete</button>'
+            : '<span class="text-secondary small fst-italic">View only</span>';
+          return '<tr>'
+            + '<td class="align-middle fw-semibold">' + escH(u.username) + '</td>'
+            + '<td class="align-middle"><span class="badge ' + (ROLE_BADGES[u.role] || 'bg-secondary') + '">' + escH(u.role) + '</span></td>'
+            + '<td class="align-middle text-secondary small">' + (u.created ? new Date(u.created).toLocaleDateString() : '—') + '</td>'
+            + '<td class="align-middle text-end">' + actions + '</td>'
+            + '</tr>';
+        }).join('');
 
     tbody.innerHTML = rootRow + userRows;
   }
 
   /* ── Render pending requests ─────────────────────────────────── */
   function renderRequests() {
-    const container = document.getElementById('requests-container');
-    const badge     = document.getElementById('req-count-badge');
+    var container = document.getElementById('requests-container');
+    var badge     = document.getElementById('req-count-badge');
     if (!container || typeof Users === 'undefined') return;
 
-    const reqs = Users.getRequests();
+    var reqs = Users.getRequests();
     if (badge) {
       badge.textContent = reqs.length;
       badge.classList.toggle('d-none', reqs.length === 0);
@@ -370,153 +637,41 @@
       return;
     }
 
-    container.innerHTML = `
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead>
-            <tr>
-              <th>Username</th>
-              <th>Note</th>
-              <th>Requested</th>
-              <th class="text-end">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${reqs.map(r => `
-              <tr>
-                <td class="align-middle fw-semibold">${escH(r.username)}</td>
-                <td class="align-middle text-secondary small">${r.note ? escH(r.note) : '—'}</td>
-                <td class="align-middle text-secondary small">${new Date(r.requested).toLocaleDateString()}</td>
-                <td class="align-middle text-end">
-                  <button class="btn btn-sm btn-success me-1"
-                    onclick="openApproveRequest('${escH(r.username)}')">Approve</button>
-                  <button class="btn btn-sm btn-outline-danger"
-                    onclick="confirmRejectRequest('${escH(r.username)}')">Reject</button>
-                </td>
-              </tr>`).join('')}
-          </tbody>
-        </table>
-      </div>`;
+    var rows = reqs.map(function(r) {
+      return '<tr>'
+        + '<td class="align-middle fw-semibold">' + escH(r.username) + '</td>'
+        + '<td class="align-middle text-secondary small">' + (r.note ? escH(r.note) : '—') + '</td>'
+        + '<td class="align-middle text-secondary small">' + new Date(r.requested).toLocaleDateString() + '</td>'
+        + '<td class="align-middle text-end">'
+          + '<button class="btn btn-sm btn-success me-1" onclick="openApproveRequest(\'' + escH(r.username) + '\')">Approve</button>'
+          + '<button class="btn btn-sm btn-outline-danger" onclick="confirmRejectRequest(\'' + escH(r.username) + '\')">Reject</button>'
+        + '</td></tr>';
+    }).join('');
+
+    container.innerHTML = '<div class="table-responsive"><table class="table table-hover mb-0"><thead><tr>'
+      + '<th>Username</th><th>Note</th><th>Requested</th><th class="text-end">Actions</th>'
+      + '</tr></thead><tbody>' + rows + '</tbody></table></div>';
   }
 
   /* ── Panel visibility ────────────────────────────────────────── */
   function refreshPanel() {
-    const canAccess = typeof RBAC !== 'undefined' && RBAC.isAtLeast('editor');
-    const gate  = document.getElementById('admin-gate-locked');
-    const panel = document.getElementById('admin-panel');
+    var canAccess = typeof RBAC !== 'undefined' && RBAC.isAtLeast('editor');
+    var gate  = document.getElementById('admin-gate-locked');
+    var panel = document.getElementById('admin-panel');
     if (gate)  gate.style.display  = canAccess ? 'none' : '';
-    if (panel) panel.style.display = canAccess ? '' : 'none';
+    if (panel) panel.style.display = canAccess ? ''     : 'none';
     if (canAccess) { renderRequests(); renderUsers(); }
   }
 
-  /* ── Event delegation — handles all form submits ─────────────── */
-  document.addEventListener('submit', async function(e) {
-    const form = e.target;
-
-    /* Add user */
-    if (form.id === 'add-user-form') {
-      e.preventDefault();
-      if (typeof Users === 'undefined') return;
-      const username = document.getElementById('new-username').value.trim();
-      const password = document.getElementById('new-password').value;
-      const role     = document.getElementById('new-role').value;
-      const errEl    = document.getElementById('add-user-error');
-      const btn      = form.querySelector('[type="submit"]');
-
-      btn.disabled = true; btn.textContent = 'Creating…';
-      const result = await Users.addUser(username, password, role);
-      btn.disabled = false; btn.textContent = 'Create User';
-
-      if (result.ok) {
-        bootstrap.Modal.getInstance(document.getElementById('addUserModal'))?.hide();
-        form.reset();
-        if (errEl) errEl.classList.add('d-none');
-        renderUsers();
-        showAlert(`User "${username}" created successfully.`);
-      } else {
-        if (errEl) { errEl.textContent = result.error; errEl.classList.remove('d-none'); }
-      }
-      return;
-    }
-
-    /* Approve request */
-    if (form.id === 'approve-request-form') {
-      e.preventDefault();
-      if (typeof Users === 'undefined') return;
-      const target = document.getElementById('approve-target-username').value;
-      const role   = document.getElementById('approve-role').value;
-      const errEl  = document.getElementById('approve-error');
-
-      const result = Users.approveRequest(target, role);
-      if (result.ok) {
-        bootstrap.Modal.getInstance(document.getElementById('approveRequestModal'))?.hide();
-        if (errEl) errEl.classList.add('d-none');
-        renderRequests(); renderUsers();
-        showAlert(`Request approved — "${target}" is now a ${role}.`);
-      } else {
-        if (errEl) { errEl.textContent = result.error; errEl.classList.remove('d-none'); }
-      }
-      return;
-    }
-
-    /* Change password */
-    if (form.id === 'change-pw-form') {
-      e.preventDefault();
-      if (typeof Users === 'undefined') return;
-      const target  = document.getElementById('changepw-target-username').value;
-      const newPw   = document.getElementById('changepw-new').value;
-      const confirm = document.getElementById('changepw-confirm').value;
-      const errEl   = document.getElementById('changepw-error');
-      const btn     = form.querySelector('[type="submit"]');
-
-      if (newPw !== confirm) {
-        if (errEl) { errEl.textContent = 'Passwords do not match.'; errEl.classList.remove('d-none'); }
-        return;
-      }
-      btn.disabled = true; btn.textContent = 'Updating…';
-      const result = await Users.changePassword(target, newPw);
-      btn.disabled = false; btn.textContent = 'Update Password';
-
-      if (result.ok) {
-        bootstrap.Modal.getInstance(document.getElementById('changePwModal'))?.hide();
-        form.reset();
-        if (errEl) errEl.classList.add('d-none');
-        showAlert(`Password updated for "${target}".`);
-      } else {
-        if (errEl) { errEl.textContent = result.error; errEl.classList.remove('d-none'); }
-      }
-      return;
-    }
-
-    /* Change role */
-    if (form.id === 'change-role-form') {
-      e.preventDefault();
-      if (typeof Users === 'undefined') return;
-      const target = document.getElementById('changerole-target-username').value;
-      const role   = document.getElementById('changerole-select').value;
-      const errEl  = document.getElementById('changerole-error');
-
-      const result = Users.updateRole(target, role);
-      if (result.ok) {
-        bootstrap.Modal.getInstance(document.getElementById('changeRoleModal'))?.hide();
-        if (errEl) errEl.classList.add('d-none');
-        renderUsers();
-        showAlert(`Role updated for "${target}".`);
-      } else {
-        if (errEl) { errEl.textContent = result.error; errEl.classList.remove('d-none'); }
-      }
-      return;
-    }
-  });
-
-  /* ── Poll until RBAC/Users are ready, then init ─────────────── */
+  /* ── Wait for modules, then init ─────────────────────────────── */
   (function waitForModules() {
     if (typeof RBAC !== 'undefined' && typeof Users !== 'undefined') {
       refreshPanel();
-      // Watch rbac-user-area class changes — fires on every login/logout
-      const userArea = document.getElementById('rbac-user-area');
+      highlightPermCol('viewer');
+      // Re-run refreshPanel whenever RBAC login/logout changes the nav user area
+      var userArea = document.getElementById('rbac-user-area');
       if (userArea) {
-        new MutationObserver(() => refreshPanel()).observe(userArea, {
+        new MutationObserver(refreshPanel).observe(userArea, {
           attributes: true, attributeFilter: ['class']
         });
       }
@@ -524,45 +679,6 @@
       setTimeout(waitForModules, 50);
     }
   })();
-
-  /* ── Global helpers called from inline onclick attrs ─────────── */
-  function openApproveRequest(username) {
-    document.getElementById('approve-target-username').value         = username;
-    document.getElementById('approve-username-display').textContent  = username;
-    document.getElementById('approve-role').value                    = 'viewer';
-    document.getElementById('approve-error').classList.add('d-none');
-    new bootstrap.Modal(document.getElementById('approveRequestModal')).show();
-  }
-
-  function confirmRejectRequest(username) {
-    if (!confirm(`Reject access request from "${username}"?`)) return;
-    Users.rejectRequest(username);
-    renderRequests();
-    showAlert(`Request from "${username}" rejected.`, 'warning');
-  }
-
-  function openChangePw(username) {
-    document.getElementById('changepw-target-username').value         = username;
-    document.getElementById('changepw-username-display').textContent  = username;
-    document.getElementById('change-pw-form').reset();
-    document.getElementById('changepw-error').classList.add('d-none');
-    new bootstrap.Modal(document.getElementById('changePwModal')).show();
-  }
-
-  function openChangeRole(username, currentRole) {
-    document.getElementById('changerole-target-username').value        = username;
-    document.getElementById('changerole-username-display').textContent = username;
-    document.getElementById('changerole-select').value                 = currentRole;
-    document.getElementById('changerole-error').classList.add('d-none');
-    new bootstrap.Modal(document.getElementById('changeRoleModal')).show();
-  }
-
-  function confirmDeleteUser(username) {
-    if (!confirm(`Delete user "${username}"? This cannot be undone.`)) return;
-    Users.deleteUser(username);
-    renderUsers();
-    showAlert(`User "${username}" deleted.`, 'warning');
-  }
   </script>
 </body>
 </html>
