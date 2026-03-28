@@ -305,6 +305,7 @@
 
   function showAlert(msg, type = 'success') {
     const el = document.getElementById('admin-alert');
+    if (!el) return;
     el.className = `alert alert-${type} py-2`;
     el.textContent = msg;
     el.classList.remove('d-none');
@@ -314,11 +315,10 @@
   /* ── Render users table ──────────────────────────────────────── */
   function renderUsers() {
     const tbody   = document.getElementById('users-tbody');
-    if (!tbody) return;
+    if (!tbody || typeof Users === 'undefined') return;
     const users   = Users.getUsers();
     const isAdmin = typeof RBAC !== 'undefined' && RBAC.isAtLeast('admin');
 
-    // Root row always shown at top
     const rootRow = `
       <tr class="table-secondary">
         <td class="align-middle fw-semibold">
@@ -357,7 +357,7 @@
   function renderRequests() {
     const container = document.getElementById('requests-container');
     const badge     = document.getElementById('req-count-badge');
-    if (!container) return;
+    if (!container || typeof Users === 'undefined') return;
 
     const reqs = Users.getRequests();
     if (badge) {
@@ -399,37 +399,50 @@
       </div>`;
   }
 
-  /* ── Add user ─────────────────────────────────────────────────── */
-  document.addEventListener('DOMContentLoaded', () => {
-    const addForm = document.getElementById('add-user-form');
-    addForm?.addEventListener('submit', async e => {
+  /* ── Panel visibility ────────────────────────────────────────── */
+  function refreshPanel() {
+    const canAccess = typeof RBAC !== 'undefined' && RBAC.isAtLeast('editor');
+    const gate  = document.getElementById('admin-gate-locked');
+    const panel = document.getElementById('admin-panel');
+    if (gate)  gate.style.display  = canAccess ? 'none' : '';
+    if (panel) panel.style.display = canAccess ? '' : 'none';
+    if (canAccess) { renderRequests(); renderUsers(); }
+  }
+
+  /* ── Event delegation — handles all form submits ─────────────── */
+  document.addEventListener('submit', async function(e) {
+    const form = e.target;
+
+    /* Add user */
+    if (form.id === 'add-user-form') {
       e.preventDefault();
+      if (typeof Users === 'undefined') return;
       const username = document.getElementById('new-username').value.trim();
       const password = document.getElementById('new-password').value;
       const role     = document.getElementById('new-role').value;
       const errEl    = document.getElementById('add-user-error');
-      const btn      = addForm.querySelector('[type="submit"]');
+      const btn      = form.querySelector('[type="submit"]');
 
-      btn.disabled = true;
+      btn.disabled = true; btn.textContent = 'Creating…';
       const result = await Users.addUser(username, password, role);
-      btn.disabled = false;
+      btn.disabled = false; btn.textContent = 'Create User';
 
       if (result.ok) {
         bootstrap.Modal.getInstance(document.getElementById('addUserModal'))?.hide();
-        addForm.reset();
-        errEl.classList.add('d-none');
+        form.reset();
+        if (errEl) errEl.classList.add('d-none');
         renderUsers();
         showAlert(`User "${username}" created successfully.`);
       } else {
-        errEl.textContent = result.error;
-        errEl.classList.remove('d-none');
+        if (errEl) { errEl.textContent = result.error; errEl.classList.remove('d-none'); }
       }
-    });
+      return;
+    }
 
-    /* ── Approve request form ────────────────────────────────── */
-    const approveForm = document.getElementById('approve-request-form');
-    approveForm?.addEventListener('submit', e => {
+    /* Approve request */
+    if (form.id === 'approve-request-form') {
       e.preventDefault();
+      if (typeof Users === 'undefined') return;
       const target = document.getElementById('approve-target-username').value;
       const role   = document.getElementById('approve-role').value;
       const errEl  = document.getElementById('approve-error');
@@ -437,50 +450,48 @@
       const result = Users.approveRequest(target, role);
       if (result.ok) {
         bootstrap.Modal.getInstance(document.getElementById('approveRequestModal'))?.hide();
-        errEl.classList.add('d-none');
-        renderRequests();
-        renderUsers();
+        if (errEl) errEl.classList.add('d-none');
+        renderRequests(); renderUsers();
         showAlert(`Request approved — "${target}" is now a ${role}.`);
       } else {
-        errEl.textContent = result.error;
-        errEl.classList.remove('d-none');
+        if (errEl) { errEl.textContent = result.error; errEl.classList.remove('d-none'); }
       }
-    });
+      return;
+    }
 
-    /* ── Change password ─────────────────────────────────────── */
-    const cpwForm = document.getElementById('change-pw-form');
-    cpwForm?.addEventListener('submit', async e => {
+    /* Change password */
+    if (form.id === 'change-pw-form') {
       e.preventDefault();
+      if (typeof Users === 'undefined') return;
       const target  = document.getElementById('changepw-target-username').value;
       const newPw   = document.getElementById('changepw-new').value;
       const confirm = document.getElementById('changepw-confirm').value;
       const errEl   = document.getElementById('changepw-error');
-      const btn     = cpwForm.querySelector('[type="submit"]');
+      const btn     = form.querySelector('[type="submit"]');
 
       if (newPw !== confirm) {
-        errEl.textContent = 'Passwords do not match.';
-        errEl.classList.remove('d-none');
+        if (errEl) { errEl.textContent = 'Passwords do not match.'; errEl.classList.remove('d-none'); }
         return;
       }
-      btn.disabled = true;
+      btn.disabled = true; btn.textContent = 'Updating…';
       const result = await Users.changePassword(target, newPw);
-      btn.disabled = false;
+      btn.disabled = false; btn.textContent = 'Update Password';
 
       if (result.ok) {
         bootstrap.Modal.getInstance(document.getElementById('changePwModal'))?.hide();
-        cpwForm.reset();
-        errEl.classList.add('d-none');
+        form.reset();
+        if (errEl) errEl.classList.add('d-none');
         showAlert(`Password updated for "${target}".`);
       } else {
-        errEl.textContent = result.error;
-        errEl.classList.remove('d-none');
+        if (errEl) { errEl.textContent = result.error; errEl.classList.remove('d-none'); }
       }
-    });
+      return;
+    }
 
-    /* ── Change role ─────────────────────────────────────────── */
-    const crForm = document.getElementById('change-role-form');
-    crForm?.addEventListener('submit', e => {
+    /* Change role */
+    if (form.id === 'change-role-form') {
       e.preventDefault();
+      if (typeof Users === 'undefined') return;
       const target = document.getElementById('changerole-target-username').value;
       const role   = document.getElementById('changerole-select').value;
       const errEl  = document.getElementById('changerole-error');
@@ -488,32 +499,37 @@
       const result = Users.updateRole(target, role);
       if (result.ok) {
         bootstrap.Modal.getInstance(document.getElementById('changeRoleModal'))?.hide();
-        errEl.classList.add('d-none');
+        if (errEl) errEl.classList.add('d-none');
         renderUsers();
         showAlert(`Role updated for "${target}".`);
       } else {
-        errEl.textContent = result.error;
-        errEl.classList.remove('d-none');
+        if (errEl) { errEl.textContent = result.error; errEl.classList.remove('d-none'); }
       }
-    });
-
-    /* ── Show/hide panel based on role (editor+) ─────────────── */
-    function refreshPanel() {
-      const canAccess = typeof RBAC !== 'undefined' && RBAC.isAtLeast('editor');
-      document.getElementById('admin-gate-locked').style.display = canAccess ? 'none' : '';
-      document.getElementById('admin-panel').style.display       = canAccess ? '' : 'none';
-      if (canAccess) { renderRequests(); renderUsers(); }
+      return;
     }
-
-    refreshPanel();
-    document.getElementById('rbac-logout-btn')?.addEventListener('click', () => setTimeout(refreshPanel, 100));
-    document.getElementById('rbacLoginModal')?.addEventListener('hidden.bs.modal', () => setTimeout(refreshPanel, 100));
   });
 
+  /* ── Poll until RBAC/Users are ready, then init ─────────────── */
+  (function waitForModules() {
+    if (typeof RBAC !== 'undefined' && typeof Users !== 'undefined') {
+      refreshPanel();
+      // Watch rbac-user-area class changes — fires on every login/logout
+      const userArea = document.getElementById('rbac-user-area');
+      if (userArea) {
+        new MutationObserver(() => refreshPanel()).observe(userArea, {
+          attributes: true, attributeFilter: ['class']
+        });
+      }
+    } else {
+      setTimeout(waitForModules, 50);
+    }
+  })();
+
+  /* ── Global helpers called from inline onclick attrs ─────────── */
   function openApproveRequest(username) {
-    document.getElementById('approve-target-username').value      = username;
-    document.getElementById('approve-username-display').textContent = username;
-    document.getElementById('approve-role').value                 = 'viewer';
+    document.getElementById('approve-target-username').value         = username;
+    document.getElementById('approve-username-display').textContent  = username;
+    document.getElementById('approve-role').value                    = 'viewer';
     document.getElementById('approve-error').classList.add('d-none');
     new bootstrap.Modal(document.getElementById('approveRequestModal')).show();
   }
@@ -526,17 +542,17 @@
   }
 
   function openChangePw(username) {
-    document.getElementById('changepw-target-username').value        = username;
-    document.getElementById('changepw-username-display').textContent = username;
+    document.getElementById('changepw-target-username').value         = username;
+    document.getElementById('changepw-username-display').textContent  = username;
     document.getElementById('change-pw-form').reset();
     document.getElementById('changepw-error').classList.add('d-none');
     new bootstrap.Modal(document.getElementById('changePwModal')).show();
   }
 
   function openChangeRole(username, currentRole) {
-    document.getElementById('changerole-target-username').value       = username;
+    document.getElementById('changerole-target-username').value        = username;
     document.getElementById('changerole-username-display').textContent = username;
-    document.getElementById('changerole-select').value                = currentRole;
+    document.getElementById('changerole-select').value                 = currentRole;
     document.getElementById('changerole-error').classList.add('d-none');
     new bootstrap.Modal(document.getElementById('changeRoleModal')).show();
   }
