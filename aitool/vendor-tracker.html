@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="../theme.css" />
+  <link rel="stylesheet" href="../isms/isms.css" />
+  <title>AI Tool Evaluation Tracker | Jessica Rojas</title>
+  <style>
+    .board-wrap { display:flex; gap:1rem; overflow-x:auto; padding-bottom:1rem; }
+    .board-col { min-width:220px; max-width:260px; flex-shrink:0; }
+    .col-header { font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--bs-secondary-color); padding:0.5rem 0.75rem; border-radius:0.375rem 0.375rem 0 0; border-top:3px solid var(--bs-primary); background:var(--bs-secondary-bg); border:1px solid var(--bs-border-color); border-top-width:3px; margin-bottom:0.5rem; }
+    .col-header.col-approved { border-top-color:#198754; }
+    .col-header.col-rejected { border-top-color:#dc3545; }
+    .col-cards { max-height:68vh; overflow-y:auto; }
+    .eval-card { background:var(--bs-tertiary-bg); border:1px solid var(--bs-border-color); border-radius:0.375rem; padding:0.85rem; margin-bottom:0.5rem; cursor:pointer; transition:border-color 0.2s, box-shadow 0.2s; }
+    .eval-card:hover { border-color:rgba(255,88,17,0.5); box-shadow:0 2px 12px rgba(255,88,17,0.12); }
+    .eval-card .tool-name { font-weight:700; font-size:0.9rem; margin-bottom:0.2rem; }
+    .eval-card .vendor-name { font-size:0.78rem; color:var(--bs-secondary-color); margin-bottom:0.4rem; }
+    .doc-dots { display:flex; gap:0.25rem; flex-wrap:wrap; margin-top:0.4rem; }
+    .doc-dot { width:10px; height:10px; border-radius:50%; border:1px solid var(--bs-border-color); }
+    .doc-dot.done { background:var(--bs-primary); border-color:var(--bs-primary); }
+    .stat-box { background:var(--bs-secondary-bg); border:1px solid var(--bs-border-color); border-radius:0.5rem; padding:1rem; text-align:center; }
+    .upload-lbl { display:inline-flex; align-items:center; gap:0.3rem; cursor:pointer; padding:0.25em 0.6em; border-radius:0.3rem; font-size:0.78rem; font-weight:600; background:rgba(255,88,17,0.1); border:1px solid rgba(255,88,17,0.3); color:var(--bs-primary); }
+    .upload-lbl:hover { background:rgba(255,88,17,0.18); }
+    .fname-sm { font-size:0.72rem; color:var(--bs-secondary-color); font-family:monospace; }
+    .badge-noncui { background:#6c757d; color:#fff; }
+    .badge-cui    { background:#ffc107; color:#000; }
+    .badge-cdi    { background:#dc3545; color:#fff; }
+    .badge-itar   { background:#212529; color:#fff; }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="../index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="../cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="../consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="../contact.html">Contact</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content">
+    <div class="container-fluid px-4 py-4">
+      <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="../index.html">Home</a></li>
+          <li class="breadcrumb-item"><a href="index.html">AI Tool Evaluation</a></li>
+          <li class="breadcrumb-item active">Tracker</li>
+        </ol>
+      </nav>
+
+      <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+          <h1 class="h4 fw-bold mb-0">AI Tool Evaluation Tracker</h1>
+          <p class="text-secondary small mb-0">Track each tool through the 6-phase evaluation lifecycle</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="exportBtn">Export JSON</button>
+          <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#evalModal" id="newEvalBtn">+ New Evaluation</button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="row g-3 mb-4" id="statsRow">
+        <div class="col-6 col-md-3"><div class="stat-box"><div class="fs-3 fw-bold text-primary" id="statTotal">0</div><div class="small text-secondary">Total</div></div></div>
+        <div class="col-6 col-md-3"><div class="stat-box"><div class="fs-3 fw-bold text-warning" id="statInProgress">0</div><div class="small text-secondary">In Progress</div></div></div>
+        <div class="col-6 col-md-3"><div class="stat-box"><div class="fs-3 fw-bold text-success" id="statApproved">0</div><div class="small text-secondary">Approved</div></div></div>
+        <div class="col-6 col-md-3"><div class="stat-box"><div class="fs-3 fw-bold text-danger" id="statRejected">0</div><div class="small text-secondary">Rejected</div></div></div>
+      </div>
+
+      <!-- Filters -->
+      <div class="d-flex gap-2 mb-3 flex-wrap align-items-center">
+        <input type="search" class="form-control form-control-sm" id="searchInput" placeholder="Search tool or vendor..." style="max-width:220px" />
+        <select class="form-select form-select-sm" id="filterClass" style="max-width:180px">
+          <option value="">All Classifications</option>
+          <option>Non-CUI</option><option>CUI</option><option>CDI</option><option>ITAR-Controlled</option>
+        </select>
+      </div>
+
+      <!-- Board -->
+      <div class="board-wrap" id="board"></div>
+    </div>
+  </main>
+
+  <!-- Modal -->
+  <div class="modal fade" id="evalModal" tabindex="-1" aria-labelledby="evalModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="evalModalLabel">New Evaluation</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="editId" />
+          <div class="row g-3">
+            <div class="col-md-6"><label class="form-label fw-semibold small">Tool Name <span class="text-danger">*</span></label><input class="form-control form-control-sm" id="f_tool" /></div>
+            <div class="col-md-6"><label class="form-label fw-semibold small">Vendor Name <span class="text-danger">*</span></label><input class="form-control form-control-sm" id="f_vendor" /></div>
+            <div class="col-md-6"><label class="form-label fw-semibold small">Business Sponsor</label><input class="form-control form-control-sm" id="f_sponsor" /></div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small">Data Classification <span class="text-danger">*</span></label>
+              <select class="form-select form-select-sm" id="f_class">
+                <option value="">Select</option>
+                <option>Non-CUI</option><option>CUI</option><option>CDI</option><option>ITAR-Controlled</option>
+              </select>
+            </div>
+            <div class="col-md-6"><label class="form-label fw-semibold small">Programs / Contracts</label><input class="form-control form-control-sm" id="f_programs" placeholder="e.g. FA8621-24-C-0001" /></div>
+            <div class="col-md-6"><label class="form-label fw-semibold small">Assigned ISSO</label><input class="form-control form-control-sm" id="f_isso" /></div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold small">Current Phase</label>
+              <select class="form-select form-select-sm" id="f_phase">
+                <option value="1">Phase 1 — Request Submitted</option>
+                <option value="2">Phase 2 — Regulatory Screening</option>
+                <option value="3">Phase 3 — Vendor Assessment</option>
+                <option value="4">Phase 4 — Risk Assessment &amp; Checklist</option>
+                <option value="5">Phase 5 — Legal &amp; Approval</option>
+                <option value="6">Phase 6 — Approved / Active</option>
+                <option value="rejected">Rejected</option>
+              </select>
+            </div>
+            <div class="col-md-6"><label class="form-label fw-semibold small">Date Submitted</label><input class="form-control form-control-sm" type="date" id="f_date" /></div>
+            <div class="col-12"><label class="form-label fw-semibold small">Notes</label><textarea class="form-control form-control-sm" rows="3" id="f_notes"></textarea></div>
+
+            <!-- Document checklist -->
+            <div class="col-12">
+              <div class="fw-semibold small mb-2">Document Completion</div>
+              <div class="row g-2">
+                <div class="col-md-6"><div class="form-check"><input class="form-check-input" type="checkbox" id="doc_checklist"><label class="form-check-label small" for="doc_checklist">Evaluation Checklist (TMP-AI-001) complete</label></div></div>
+                <div class="col-md-6"><div class="form-check"><input class="form-check-input" type="checkbox" id="doc_risk"><label class="form-check-label small" for="doc_risk">Risk Assessment (TMP-AI-002) complete</label></div></div>
+                <div class="col-md-6"><div class="form-check"><input class="form-check-input" type="checkbox" id="doc_vendorq"><label class="form-check-label small" for="doc_vendorq">Vendor Questionnaire (TMP-AI-003) received</label></div></div>
+                <div class="col-md-6"><div class="form-check"><input class="form-check-input" type="checkbox" id="doc_legal"><label class="form-check-label small" for="doc_legal">Legal review &amp; DPA complete</label></div></div>
+                <div class="col-md-6"><div class="form-check"><input class="form-check-input" type="checkbox" id="doc_approval"><label class="form-check-label small" for="doc_approval">CISO / ISSO approval obtained</label></div></div>
+              </div>
+            </div>
+
+            <!-- File uploads -->
+            <div class="col-12">
+              <div class="fw-semibold small mb-2">Upload Documents</div>
+              <div class="row g-2">
+                <div class="col-md-6">
+                  <label class="upload-lbl">📎 Evaluation Checklist PDF<input type="file" accept=".pdf" class="d-none" id="file_checklist" /></label>
+                  <span class="fname-sm ms-1" id="fname_checklist"></span>
+                </div>
+                <div class="col-md-6">
+                  <label class="upload-lbl">📎 Risk Assessment PDF<input type="file" accept=".pdf" class="d-none" id="file_risk" /></label>
+                  <span class="fname-sm ms-1" id="fname_risk"></span>
+                </div>
+                <div class="col-md-6">
+                  <label class="upload-lbl">📎 Vendor Questionnaire PDF<input type="file" accept=".pdf" class="d-none" id="file_vendorq" /></label>
+                  <span class="fname-sm ms-1" id="fname_vendorq"></span>
+                </div>
+                <div class="col-md-6">
+                  <label class="upload-lbl">📎 Approval Memo PDF<input type="file" accept=".pdf" class="d-none" id="file_approval" /></label>
+                  <span class="fname-sm ms-1" id="fname_approval"></span>
+                </div>
+              </div>
+              <p class="text-secondary mt-2 mb-0" style="font-size:0.72rem">File names are saved for reference. Actual files are stored locally in your browser session.</p>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-danger btn-sm me-auto d-none" id="deleteBtn">Delete</button>
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary btn-sm" id="saveEvalBtn">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="py-4 mt-3 border-top">
+    <div class="container text-center text-secondary small">&copy; 2025 Jessica Rojas — AI Tool Evaluation Framework</div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmCFCqjmFKnfkr5i+xeSKY3b5N1" crossorigin="anonymous"></script>
+  <script src="../script.js"></script>
+  <script>
+  (function(){
+    const STORE = 'aitool-tracker-v1';
+    const PHASES = [
+      {id:'1', label:'Phase 1 — Request Submitted', colorClass:''},
+      {id:'2', label:'Phase 2 — Regulatory Screening', colorClass:''},
+      {id:'3', label:'Phase 3 — Vendor Assessment', colorClass:''},
+      {id:'4', label:'Phase 4 — Risk Assessment & Checklist', colorClass:''},
+      {id:'5', label:'Phase 5 — Legal & Approval', colorClass:''},
+      {id:'6', label:'Phase 6 — Approved / Active', colorClass:'col-approved'},
+      {id:'rejected', label:'Rejected', colorClass:'col-rejected'},
+    ];
+    const CLASS_BADGE = {
+      'Non-CUI':'badge-noncui',
+      'CUI':'badge-cui',
+      'CDI':'badge-cdi',
+      'ITAR-Controlled':'badge-itar',
+    };
+    const SEED = [
+      {id:'seed1', tool:'Copilot Enterprise', vendor:'Microsoft', sponsor:'Engineering Dept', classification:'CUI', programs:'FA8621-24-C-0001', isso:'J. Smith', phase:'3', date:'2025-03-10', notes:'Awaiting vendor questionnaire response.', docs:{checklist:true,risk:true,vendorq:false,legal:false,approval:false}, files:{}},
+      {id:'seed2', tool:'Gemini for Workspace', vendor:'Google', sponsor:'Program Office', classification:'Non-CUI', programs:'Internal Only', isso:'M. Torres', phase:'5', date:'2025-02-01', notes:'Legal review in progress. DPA draft received.', docs:{checklist:true,risk:true,vendorq:true,legal:false,approval:false}, files:{}},
+      {id:'seed3', tool:'ChatGPT Enterprise', vendor:'OpenAI', sponsor:'Contracts Team', classification:'Non-CUI', programs:'Proposals', isso:'J. Smith', phase:'6', date:'2025-01-15', notes:'Approved for non-CUI proposal writing only.', docs:{checklist:true,risk:true,vendorq:true,legal:true,approval:true}, files:{}},
+    ];
+
+    function getData(){ try{ const d=JSON.parse(localStorage.getItem(STORE)||'null'); return d || JSON.parse(JSON.stringify(SEED)); } catch(e){ return JSON.parse(JSON.stringify(SEED)); } }
+    function saveData(d){ localStorage.setItem(STORE, JSON.stringify(d)); }
+
+    function render(){
+      const data = getData();
+      const search = document.getElementById('searchInput').value.trim().toLowerCase();
+      const filterCls = document.getElementById('filterClass').value;
+      const filtered = data.filter(e => {
+        const matchSearch = !search || e.tool.toLowerCase().includes(search) || e.vendor.toLowerCase().includes(search);
+        const matchCls = !filterCls || e.classification === filterCls;
+        return matchSearch && matchCls;
+      });
+
+      // Stats
+      document.getElementById('statTotal').textContent = data.length;
+      document.getElementById('statInProgress').textContent = data.filter(e=>e.phase!=='6'&&e.phase!=='rejected').length;
+      document.getElementById('statApproved').textContent = data.filter(e=>e.phase==='6').length;
+      document.getElementById('statRejected').textContent = data.filter(e=>e.phase==='rejected').length;
+
+      // Board
+      const board = document.getElementById('board');
+      board.innerHTML = '';
+      PHASES.forEach(ph => {
+        const cards = filtered.filter(e => e.phase === ph.id);
+        const col = document.createElement('div');
+        col.className = 'board-col';
+        col.innerHTML = `<div class="col-header ${ph.colorClass}">${ph.label} <span class="badge bg-secondary ms-1">${cards.length}</span></div><div class="col-cards" id="col_${ph.id}"></div>`;
+        board.appendChild(col);
+        const colCards = col.querySelector('.col-cards');
+        cards.forEach(e => {
+          const badgeCls = CLASS_BADGE[e.classification] || 'badge-noncui';
+          const docKeys = ['checklist','risk','vendorq','legal','approval'];
+          const docLabels = ['Checklist','Risk Assess.','Vendor Q','Legal','Approval'];
+          const dots = docKeys.map((k,i)=>`<span class="doc-dot ${e.docs&&e.docs[k]?'done':''}" title="${docLabels[i]}"></span>`).join('');
+          const card = document.createElement('div');
+          card.className = 'eval-card';
+          card.innerHTML = `
+            <div class="tool-name">${e.tool}</div>
+            <div class="vendor-name">${e.vendor}</div>
+            <span class="badge ${badgeCls} mb-1" style="font-size:0.68rem">${e.classification}</span>
+            ${e.isso ? `<div class="text-secondary" style="font-size:0.72rem">ISSO: ${e.isso}</div>` : ''}
+            ${e.date ? `<div class="text-secondary" style="font-size:0.72rem">${e.date}</div>` : ''}
+            <div class="doc-dots">${dots}</div>
+          `;
+          card.addEventListener('click', ()=>openEdit(e.id));
+          colCards.appendChild(card);
+        });
+      });
+    }
+
+    function openEdit(id){
+      const data = getData();
+      const e = data.find(x=>x.id===id);
+      if(!e) return;
+      document.getElementById('evalModalLabel').textContent = 'Edit Evaluation';
+      document.getElementById('editId').value = id;
+      document.getElementById('f_tool').value = e.tool||'';
+      document.getElementById('f_vendor').value = e.vendor||'';
+      document.getElementById('f_sponsor').value = e.sponsor||'';
+      document.getElementById('f_class').value = e.classification||'';
+      document.getElementById('f_programs').value = e.programs||'';
+      document.getElementById('f_isso').value = e.isso||'';
+      document.getElementById('f_phase').value = e.phase||'1';
+      document.getElementById('f_date').value = e.date||'';
+      document.getElementById('f_notes').value = e.notes||'';
+      const docs = e.docs||{};
+      document.getElementById('doc_checklist').checked = !!docs.checklist;
+      document.getElementById('doc_risk').checked = !!docs.risk;
+      document.getElementById('doc_vendorq').checked = !!docs.vendorq;
+      document.getElementById('doc_legal').checked = !!docs.legal;
+      document.getElementById('doc_approval').checked = !!docs.approval;
+      const files = e.files||{};
+      ['checklist','risk','vendorq','approval'].forEach(k=>{
+        document.getElementById('fname_'+k).textContent = files[k]||'';
+      });
+      document.getElementById('deleteBtn').classList.remove('d-none');
+      const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('evalModal'));
+      modal.show();
+    }
+
+    document.getElementById('newEvalBtn').addEventListener('click', function(){
+      document.getElementById('evalModalLabel').textContent = 'New Evaluation';
+      document.getElementById('editId').value = '';
+      ['f_tool','f_vendor','f_sponsor','f_class','f_programs','f_isso','f_notes'].forEach(id=>{
+        const el=document.getElementById(id); if(el) el.value='';
+      });
+      document.getElementById('f_phase').value = '1';
+      document.getElementById('f_date').value = new Date().toISOString().slice(0,10);
+      ['checklist','risk','vendorq','legal','approval'].forEach(k=>{ document.getElementById('doc_'+k).checked=false; document.getElementById('fname_'+k).textContent=''; });
+      document.getElementById('deleteBtn').classList.add('d-none');
+    });
+
+    document.getElementById('saveEvalBtn').addEventListener('click', function(){
+      const tool = document.getElementById('f_tool').value.trim();
+      const vendor = document.getElementById('f_vendor').value.trim();
+      const cls = document.getElementById('f_class').value;
+      if(!tool||!vendor||!cls){ alert('Tool Name, Vendor Name, and Classification are required.'); return; }
+      const data = getData();
+      const id = document.getElementById('editId').value || String(Date.now());
+      const files = {};
+      ['checklist','risk','vendorq','approval'].forEach(k=>{
+        const fn = document.getElementById('fname_'+k).textContent;
+        if(fn) files[k]=fn;
+      });
+      const entry = {
+        id, tool, vendor,
+        sponsor: document.getElementById('f_sponsor').value.trim(),
+        classification: cls,
+        programs: document.getElementById('f_programs').value.trim(),
+        isso: document.getElementById('f_isso').value.trim(),
+        phase: document.getElementById('f_phase').value,
+        date: document.getElementById('f_date').value,
+        notes: document.getElementById('f_notes').value.trim(),
+        docs:{
+          checklist: document.getElementById('doc_checklist').checked,
+          risk: document.getElementById('doc_risk').checked,
+          vendorq: document.getElementById('doc_vendorq').checked,
+          legal: document.getElementById('doc_legal').checked,
+          approval: document.getElementById('doc_approval').checked,
+        },
+        files
+      };
+      const idx = data.findIndex(x=>x.id===id);
+      if(idx>=0) data[idx]=entry; else data.push(entry);
+      saveData(data);
+      bootstrap.Modal.getOrCreateInstance(document.getElementById('evalModal')).hide();
+      render();
+    });
+
+    document.getElementById('deleteBtn').addEventListener('click', function(){
+      const id = document.getElementById('editId').value;
+      if(!id||!confirm('Delete this evaluation?')) return;
+      let data = getData();
+      data = data.filter(x=>x.id!==id);
+      saveData(data);
+      bootstrap.Modal.getOrCreateInstance(document.getElementById('evalModal')).hide();
+      render();
+    });
+
+    // File inputs
+    ['checklist','risk','vendorq','approval'].forEach(k=>{
+      document.getElementById('file_'+k).addEventListener('change', function(){
+        const fn = this.files[0]?this.files[0].name:'';
+        document.getElementById('fname_'+k).textContent = fn;
+      });
+    });
+
+    document.getElementById('searchInput').addEventListener('input', render);
+    document.getElementById('filterClass').addEventListener('change', render);
+
+    document.getElementById('exportBtn').addEventListener('click', function(){
+      const data = getData();
+      const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'ai-tool-evaluations-' + new Date().toISOString().slice(0,10) + '.json';
+      a.click();
+    });
+
+    render();
+  })();
+  </script>
+</body>
+</html>
