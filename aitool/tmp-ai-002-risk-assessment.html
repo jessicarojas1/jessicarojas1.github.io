@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="../theme.css" />
+  <link rel="stylesheet" href="../isms/isms.css" />
+  <title>TMP-AI-002 AI Tool Risk Assessment | Jessica Rojas</title>
+  <style>
+    .risk-table th { font-size:0.78rem; text-transform:uppercase; letter-spacing:0.04em; white-space:nowrap; }
+    .risk-table td { vertical-align:middle; font-size:0.875rem; }
+    .risk-table select { font-size:0.82rem; padding:0.2rem 0.4rem; min-width:60px; }
+    .risk-table textarea { font-size:0.82rem; min-width:140px; resize:vertical; }
+    .risk-score { font-weight:700; font-size:1rem; text-align:center; }
+    .badge-low    { background:rgba(25,135,84,0.18);  color:#198754; border:1px solid rgba(25,135,84,0.4);  padding:0.3em 0.65em; border-radius:0.375rem; font-size:0.75rem; font-weight:700; white-space:nowrap; }
+    .badge-medium { background:rgba(255,193,7,0.18);  color:#d09a00; border:1px solid rgba(255,193,7,0.4);  padding:0.3em 0.65em; border-radius:0.375rem; font-size:0.75rem; font-weight:700; white-space:nowrap; }
+    .badge-high   { background:rgba(255,88,17,0.18);  color:#ff5811; border:1px solid rgba(255,88,17,0.4);  padding:0.3em 0.65em; border-radius:0.375rem; font-size:0.75rem; font-weight:700; white-space:nowrap; }
+    .badge-critical { background:rgba(220,53,69,0.18); color:#dc3545; border:1px solid rgba(220,53,69,0.4); padding:0.3em 0.65em; border-radius:0.375rem; font-size:0.75rem; font-weight:700; white-space:nowrap; }
+    .summary-box { display:inline-flex; flex-direction:column; align-items:center; padding:1rem 1.5rem; border-radius:0.5rem; border:1px solid; min-width:100px; }
+    .treatment-table td, .treatment-table th { font-size:0.875rem; vertical-align:middle; }
+    .treatment-table input, .treatment-table select, .treatment-table textarea { font-size:0.82rem; }
+    @media print {
+      .no-print { display:none !important; }
+      body { font-size:11px; }
+      .risk-table th, .risk-table td { font-size:10px !important; }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <nav class="navbar navbar-expand-lg sticky-top no-print" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="../index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="../projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="../cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="../consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="../contact.html">Contact</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="../compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="../admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">&#9728;&#65039;</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content">
+    <div class="container-fluid py-4 px-4" style="max-width:1400px;">
+
+      <nav aria-label="breadcrumb" class="mb-3 no-print">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="../index.html">Home</a></li>
+          <li class="breadcrumb-item"><a href="index.html">AI Tool Evaluation</a></li>
+          <li class="breadcrumb-item active">TMP-AI-002</li>
+        </ol>
+      </nav>
+
+      <!-- Doc Header -->
+      <div class="doc-header">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+          <span class="doc-badge badge-template">Template</span>
+          <button class="btn btn-sm btn-outline-secondary no-print" onclick="window.print()">Print / Save PDF</button>
+        </div>
+        <table class="table table-sm mb-0">
+          <tbody>
+            <tr><th>Document ID</th><td>TMP-AI-002</td><th>Version</th><td>1.0</td></tr>
+            <tr><th>Title</th><td>AI Tool Risk Assessment</td><th>Status</th><td>Active</td></tr>
+            <tr><th>Owner</th><td>ISSO / Risk Management</td><th>Last Reviewed</th><td>2025-01-01</td></tr>
+            <tr><th>References</th><td colspan="3">NIST SP 800-30r1, ISO 27001:2022 Clause 6.1.2, CMMC RA Domain, DFARS 252.204-7012</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Assessment Header Form -->
+      <div class="policy-section mb-4">
+        <h2 class="h5 fw-bold mb-3">Assessment Information</h2>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label small fw-semibold">Tool Name</label>
+            <input type="text" id="ra-toolname" class="form-control form-control-sm" placeholder="e.g., GitHub Copilot Enterprise" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small fw-semibold">Assessor Name</label>
+            <input type="text" id="ra-assessor" class="form-control form-control-sm" placeholder="Full name and title" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small fw-semibold">Assessment Date</label>
+            <input type="date" id="ra-date" class="form-control form-control-sm" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small fw-semibold">Data Classification</label>
+            <select id="ra-classification" class="form-select form-select-sm">
+              <option value="">-- Select --</option>
+              <option>Public</option>
+              <option>Internal Use Only</option>
+              <option>CUI</option>
+              <option>CDI (Covered Defense Information)</option>
+              <option>ITAR-Controlled Technical Data</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small fw-semibold">Program / Contract</label>
+            <input type="text" id="ra-program" class="form-control form-control-sm" placeholder="Program name or contract number" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Risk Scoring Legend -->
+      <div class="d-flex flex-wrap gap-2 mb-4 align-items-center no-print">
+        <span class="text-secondary small fw-semibold me-2">Risk Score = Likelihood &times; Impact</span>
+        <span class="badge-low">1&ndash;6 Low</span>
+        <span class="badge-medium">7&ndash;14 Medium</span>
+        <span class="badge-high">15&ndash;19 High</span>
+        <span class="badge-critical">20&ndash;25 Critical</span>
+      </div>
+
+      <!-- Risk Register Table -->
+      <div class="isms-section-heading mb-3">Risk Register</div>
+      <div class="table-responsive mb-5">
+        <table class="table table-bordered table-hover risk-table" id="riskTable">
+          <thead class="table-secondary">
+            <tr>
+              <th style="width:50px;">ID</th>
+              <th style="min-width:220px;">Threat Scenario</th>
+              <th style="min-width:160px;">Vulnerability</th>
+              <th style="width:90px;">Likelihood<br><span class="text-secondary fw-normal" style="font-size:0.7rem;">(1=Rare, 5=Near Certain)</span></th>
+              <th style="width:90px;">Impact<br><span class="text-secondary fw-normal" style="font-size:0.7rem;">(1=Negligible, 5=Catastrophic)</span></th>
+              <th style="width:80px;">Score</th>
+              <th style="width:100px;">Risk Level</th>
+              <th style="min-width:180px;">Current Controls</th>
+              <th style="width:110px;">Treatment</th>
+              <th style="min-width:120px;">Owner</th>
+              <th style="width:110px;">Due Date</th>
+            </tr>
+          </thead>
+          <tbody id="riskTableBody">
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Risk Summary -->
+      <div class="isms-section-heading mb-3">Risk Summary</div>
+      <div class="d-flex flex-wrap gap-3 mb-5">
+        <div class="summary-box" style="background:rgba(220,53,69,0.1);border-color:rgba(220,53,69,0.35);color:#dc3545;">
+          <span class="fs-2 fw-bold" id="count-critical">0</span>
+          <span class="small fw-semibold">Critical</span>
+        </div>
+        <div class="summary-box" style="background:rgba(255,88,17,0.1);border-color:rgba(255,88,17,0.35);color:#ff5811;">
+          <span class="fs-2 fw-bold" id="count-high">0</span>
+          <span class="small fw-semibold">High</span>
+        </div>
+        <div class="summary-box" style="background:rgba(255,193,7,0.1);border-color:rgba(255,193,7,0.35);color:#d09a00;">
+          <span class="fs-2 fw-bold" id="count-medium">0</span>
+          <span class="small fw-semibold">Medium</span>
+        </div>
+        <div class="summary-box" style="background:rgba(25,135,84,0.1);border-color:rgba(25,135,84,0.35);color:#198754;">
+          <span class="fs-2 fw-bold" id="count-low">0</span>
+          <span class="small fw-semibold">Low</span>
+        </div>
+        <div class="summary-box ms-3" style="background:var(--bs-secondary-bg);border-color:var(--bs-border-color);color:var(--bs-body-color);">
+          <span class="fs-2 fw-bold" id="count-total">0</span>
+          <span class="small fw-semibold">Total Risks</span>
+        </div>
+      </div>
+
+      <!-- Risk Treatment Plan -->
+      <div class="isms-section-heading mb-3">Risk Treatment Plan</div>
+      <p class="text-secondary small mb-3">Document treatment actions for High and Critical risks. <span class="no-print">Use the button to add rows.</span></p>
+      <div class="table-responsive mb-3">
+        <table class="table table-bordered treatment-table" id="treatmentTable">
+          <thead class="table-secondary">
+            <tr>
+              <th style="width:80px;">Risk ID</th>
+              <th style="min-width:200px;">Treatment Action</th>
+              <th style="min-width:200px;">Compensating Controls</th>
+              <th style="width:120px;">Target Date</th>
+              <th style="width:130px;">Status</th>
+              <th class="no-print" style="width:60px;"></th>
+            </tr>
+          </thead>
+          <tbody id="treatmentBody">
+            <tr>
+              <td><input type="text" class="form-control form-control-sm" placeholder="e.g., R-001" /></td>
+              <td><textarea class="form-control form-control-sm" rows="2" placeholder="Describe treatment action..."></textarea></td>
+              <td><textarea class="form-control form-control-sm" rows="2" placeholder="Describe compensating controls..."></textarea></td>
+              <td><input type="date" class="form-control form-control-sm" /></td>
+              <td>
+                <select class="form-select form-select-sm">
+                  <option>Not Started</option>
+                  <option>In Progress</option>
+                  <option>Completed</option>
+                  <option>Accepted</option>
+                </select>
+              </td>
+              <td class="text-center no-print"><button class="btn btn-sm btn-outline-danger remove-treatment-row" title="Remove row">&times;</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <button class="btn btn-sm btn-outline-primary no-print" id="addTreatmentRow">+ Add Row</button>
+
+    </div><!-- /container -->
+  </main>
+
+  <footer class="py-4 mt-5 border-top no-print">
+    <div class="container text-center text-secondary small">&copy; 2025 Jessica Rojas &mdash; AI Tool Evaluation Framework</div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmCFCqjmFKnfkr5i+xeSKY3b5N1" crossorigin="anonymous"></script>
+  <script src="../script.js"></script>
+  <script>
+  (function() {
+
+    // Pre-populated threat scenarios
+    // Fields: id, threat, vulnerability, likelihood, impact, controls
+    const defaultRisks = [
+      {
+        id: 'R-001',
+        threat: 'CUI/CDI exposure via AI prompt logging by vendor',
+        vuln: 'Vendor retains user prompts containing sensitive data in server-side logs accessible to vendor staff',
+        l: 4, i: 5,
+        controls: 'Contractual prohibition on training data use; DPA executed',
+        treatment: 'Mitigate'
+      },
+      {
+        id: 'R-002',
+        threat: 'Unauthorized model training on proprietary engineering data',
+        vuln: 'Default AI service settings enable data reuse for model improvement without explicit opt-out',
+        l: 3, i: 5,
+        controls: 'Vendor attestation required; enterprise plan with no-training clause',
+        treatment: 'Mitigate'
+      },
+      {
+        id: 'R-003',
+        threat: 'Prompt injection via malicious document processing',
+        vuln: 'AI tool processes externally-supplied documents that contain adversarial instructions embedded in content',
+        l: 3, i: 4,
+        controls: 'Prompt injection testing; input validation; sandbox document processing',
+        treatment: 'Mitigate'
+      },
+      {
+        id: 'R-004',
+        threat: 'AI-generated engineering errors (hallucination) in safety-critical designs',
+        vuln: 'Engineers rely on AI outputs for specifications, calculations, or code without mandatory independent verification',
+        l: 4, i: 5,
+        controls: 'Mandatory human review policy; AI output cannot substitute for PE review',
+        treatment: 'Mitigate'
+      },
+      {
+        id: 'R-005',
+        threat: 'Foreign adversary access to AI vendor infrastructure',
+        vuln: 'Vendor employs foreign nationals or operates data centers in adversary-accessible jurisdictions',
+        l: 3, i: 5,
+        controls: 'Vendor screening questionnaire (TMP-AI-003); FedRAMP authorization check',
+        treatment: 'Mitigate'
+      },
+      {
+        id: 'R-006',
+        threat: 'ITAR-controlled technical data submitted to non-compliant AI service',
+        vuln: 'Users unknowingly input export-controlled design data, schematics, or specifications into a commercial AI tool',
+        l: 4, i: 5,
+        controls: 'ITAR training; acceptable use policy; DLP monitoring on AI prompts',
+        treatment: 'Mitigate'
+      },
+      {
+        id: 'R-007',
+        threat: 'Insider threat: employee exfiltrating data via AI prompts',
+        vuln: 'Malicious or negligent insider uses AI tool to aggregate and exfiltrate sensitive data through prompt queries',
+        l: 2, i: 4,
+        controls: 'User activity monitoring; DLP rules; behavior analytics (UEBA)',
+        treatment: 'Mitigate'
+      },
+      {
+        id: 'R-008',
+        threat: 'Vendor security breach exposing organizational AI interaction logs',
+        vuln: 'Vendor infrastructure compromised; attacker gains access to stored prompts and responses',
+        l: 3, i: 4,
+        controls: 'Vendor SOC 2 Type II review; breach notification SLA in contract; encryption at rest',
+        treatment: 'Transfer'
+      },
+      {
+        id: 'R-009',
+        threat: 'AI tool used to bypass peer-review and configuration management processes',
+        vuln: 'Engineers submit AI-generated artifacts directly to production without standard review gates',
+        l: 3, i: 4,
+        controls: 'Acceptable use policy; CM process updated to flag AI-generated artifacts for additional review',
+        treatment: 'Mitigate'
+      },
+      {
+        id: 'R-010',
+        threat: 'Loss of audit trail due to AI tool logging failure',
+        vuln: 'AI tool logging is disabled, misconfigured, or not integrated with SIEM, leaving no record of AI interactions',
+        l: 2, i: 3,
+        controls: 'SIEM integration requirement; logging configuration verification during onboarding',
+        treatment: 'Mitigate'
+      }
+    ];
+
+    function getRiskLevel(score) {
+      if (score >= 20) return { label: 'Critical', cls: 'badge-critical' };
+      if (score >= 15) return { label: 'High',     cls: 'badge-high' };
+      if (score >= 7)  return { label: 'Medium',   cls: 'badge-medium' };
+      return                  { label: 'Low',      cls: 'badge-low' };
+    }
+
+    function buildRow(risk) {
+      const score = risk.l * risk.i;
+      const rl = getRiskLevel(score);
+      return `
+        <tr>
+          <td class="text-center fw-semibold">${risk.id}</td>
+          <td>${risk.threat}</td>
+          <td><textarea class="form-control form-control-sm" rows="3">${risk.vuln}</textarea></td>
+          <td class="text-center">
+            <select class="form-select form-select-sm likelihood-sel" aria-label="Likelihood">
+              ${[1,2,3,4,5].map(n=>`<option value="${n}"${n===risk.l?' selected':''}>${n}</option>`).join('')}
+            </select>
+          </td>
+          <td class="text-center">
+            <select class="form-select form-select-sm impact-sel" aria-label="Impact">
+              ${[1,2,3,4,5].map(n=>`<option value="${n}"${n===risk.i?' selected':''}>${n}</option>`).join('')}
+            </select>
+          </td>
+          <td class="risk-score text-center score-cell">${score}</td>
+          <td class="text-center level-cell"><span class="${rl.cls}">${rl.label}</span></td>
+          <td><textarea class="form-control form-control-sm" rows="3">${risk.controls}</textarea></td>
+          <td>
+            <select class="form-select form-select-sm treatment-sel" aria-label="Treatment">
+              <option${risk.treatment==='Accept'?' selected':''}>Accept</option>
+              <option${risk.treatment==='Mitigate'?' selected':''}>Mitigate</option>
+              <option${risk.treatment==='Transfer'?' selected':''}>Transfer</option>
+              <option${risk.treatment==='Avoid'?' selected':''}>Avoid</option>
+            </select>
+          </td>
+          <td><input type="text" class="form-control form-control-sm" placeholder="Name / Role" /></td>
+          <td><input type="date" class="form-control form-control-sm" /></td>
+        </tr>`;
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('riskTableBody');
+      tbody.innerHTML = defaultRisks.map(buildRow).join('');
+      attachRowListeners();
+      updateSummary();
+    }
+
+    function attachRowListeners() {
+      document.querySelectorAll('#riskTableBody tr').forEach(row => {
+        const lSel = row.querySelector('.likelihood-sel');
+        const iSel = row.querySelector('.impact-sel');
+        const scoreCell = row.querySelector('.score-cell');
+        const levelCell = row.querySelector('.level-cell');
+
+        function recalc() {
+          const l = parseInt(lSel.value, 10);
+          const i = parseInt(iSel.value, 10);
+          const score = l * i;
+          const rl = getRiskLevel(score);
+          scoreCell.textContent = score;
+          levelCell.innerHTML = `<span class="${rl.cls}">${rl.label}</span>`;
+          updateSummary();
+        }
+
+        lSel.addEventListener('change', recalc);
+        iSel.addEventListener('change', recalc);
+      });
+    }
+
+    function updateSummary() {
+      let counts = { Critical: 0, High: 0, Medium: 0, Low: 0, total: 0 };
+      document.querySelectorAll('#riskTableBody .score-cell').forEach(cell => {
+        const score = parseInt(cell.textContent, 10);
+        const rl = getRiskLevel(score);
+        counts[rl.label]++;
+        counts.total++;
+      });
+      document.getElementById('count-critical').textContent = counts.Critical;
+      document.getElementById('count-high').textContent = counts.High;
+      document.getElementById('count-medium').textContent = counts.Medium;
+      document.getElementById('count-low').textContent = counts.Low;
+      document.getElementById('count-total').textContent = counts.total;
+    }
+
+    // Treatment table
+    function buildTreatmentRow() {
+      return `<tr>
+        <td><input type="text" class="form-control form-control-sm" placeholder="e.g., R-001" /></td>
+        <td><textarea class="form-control form-control-sm" rows="2" placeholder="Describe treatment action..."></textarea></td>
+        <td><textarea class="form-control form-control-sm" rows="2" placeholder="Describe compensating controls..."></textarea></td>
+        <td><input type="date" class="form-control form-control-sm" /></td>
+        <td>
+          <select class="form-select form-select-sm">
+            <option>Not Started</option>
+            <option>In Progress</option>
+            <option>Completed</option>
+            <option>Accepted</option>
+          </select>
+        </td>
+        <td class="text-center no-print"><button class="btn btn-sm btn-outline-danger remove-treatment-row" title="Remove row">&times;</button></td>
+      </tr>`;
+    }
+
+    document.getElementById('addTreatmentRow').addEventListener('click', function() {
+      document.getElementById('treatmentBody').insertAdjacentHTML('beforeend', buildTreatmentRow());
+    });
+
+    document.getElementById('treatmentBody').addEventListener('click', function(e) {
+      if (e.target.classList.contains('remove-treatment-row')) {
+        const row = e.target.closest('tr');
+        if (document.querySelectorAll('#treatmentBody tr').length > 1) row.remove();
+      }
+    });
+
+    // Init
+    renderTable();
+  })();
+  </script>
+</body>
+</html>

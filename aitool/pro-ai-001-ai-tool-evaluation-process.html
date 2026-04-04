@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="../theme.css" />
+  <link rel="stylesheet" href="../isms/isms.css" />
+  <title>AI Tool Evaluation Process | PRO-AI-001 | Jessica Rojas</title>
+  <style>
+    .process-step {
+      display: flex;
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+      align-items: flex-start;
+    }
+    .step-badge {
+      width: 2.5rem; height: 2.5rem;
+      border-radius: 50%;
+      background: var(--bs-primary);
+      color: #fff;
+      font-weight: 800;
+      font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      margin-top: 0.1rem;
+      box-shadow: 0 0 14px rgba(255,88,17,0.35);
+    }
+    .step-content { flex: 1; }
+    .step-connector {
+      width: 2px;
+      height: 1.5rem;
+      background: linear-gradient(180deg, var(--bs-primary), rgba(255,88,17,0.2));
+      margin-left: 1.25rem;
+      margin-bottom: 0;
+    }
+    .decision-box {
+      background: rgba(255,193,7,0.08);
+      border: 1px solid rgba(255,193,7,0.3);
+      border-radius: 0.5rem;
+      padding: 0.85rem 1rem;
+      margin-top: 0.75rem;
+    }
+    .gate-approved { border-left: 4px solid #198754 !important; }
+    .gate-rejected { border-left: 4px solid #dc3545 !important; }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="../index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="../projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="../cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="../consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="../contact.html">Contact</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="../compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="../admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content">
+    <div class="container py-4">
+      <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="../index.html">Home</a></li>
+          <li class="breadcrumb-item"><a href="index.html">AI Tool Evaluation</a></li>
+          <li class="breadcrumb-item active">PRO-AI-001</li>
+        </ol>
+      </nav>
+
+      <div class="d-flex justify-content-between align-items-start mb-4 no-print">
+        <span class="doc-badge badge-procedure">Procedure — PRO-AI-001</span>
+        <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">Print / Save PDF</button>
+      </div>
+
+      <!-- Document Header -->
+      <div class="doc-header mb-4">
+        <table class="table table-sm mb-0">
+          <tbody>
+            <tr><th style="width:32%">Document Title</th><td>AI Tool Evaluation Process</td></tr>
+            <tr><th>Document ID</th><td>PRO-AI-001</td></tr>
+            <tr><th>Version</th><td>1.0</td></tr>
+            <tr><th>Classification</th><td>Internal — Controlled</td></tr>
+            <tr><th>Owner</th><td>ISSO / CISO</td></tr>
+            <tr><th>Approved By</th><td>CISO</td></tr>
+            <tr><th>Effective Date</th><td>2025-01-01</td></tr>
+            <tr><th>Next Review</th><td>2026-01-01</td></tr>
+            <tr><th>Regulatory Alignment</th><td>CMMC: CA.2.157, RA.2.141, CM.2.061, SA.3.169 &bull; NIST 800-171: 3.12.1, 3.11.1, 3.13.1 &bull; ISO 27001: 5.19, 5.20, 5.23, 6.1.2, 8.25</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Purpose & Scope -->
+      <div class="policy-section">
+        <h2 class="h5">1. Purpose &amp; Scope</h2>
+        <p>This procedure defines the end-to-end process for evaluating, approving, deploying, and monitoring AI tools. It applies to any AI tool request submitted by organizational personnel and covers all phases from initial intake through decommissioning.</p>
+        <p class="mb-0">This procedure supports compliance with CMMC 2.0, NIST SP 800-171, DFARS 252.204-7012, and ISO/IEC 27001:2022, ensuring that AI tool adoption decisions are risk-informed, documented, and auditable.</p>
+      </div>
+
+      <!-- Prerequisites -->
+      <div class="policy-section">
+        <h2 class="h5">2. Prerequisites &amp; Inputs</h2>
+        <ul class="mb-0">
+          <li>Requestor has identified a specific business need that an AI tool addresses</li>
+          <li>At least one candidate AI tool/vendor has been identified</li>
+          <li>Program Manager or Business Unit Lead has endorsed the request</li>
+          <li>Relevant documents: <a href="pol-ai-001-ai-tool-adoption-policy.html">POL-AI-001</a>, <a href="tmp-ai-001-evaluation-checklist.html">TMP-AI-001</a>, <a href="tmp-ai-002-risk-assessment.html">TMP-AI-002</a>, <a href="tmp-ai-003-vendor-questionnaire.html">TMP-AI-003</a></li>
+        </ul>
+      </div>
+
+      <!-- Process Steps -->
+      <div class="policy-section">
+        <h2 class="h5">3. Process Steps</h2>
+        <p class="text-secondary small mb-4">Target timeline: 15–45 business days depending on data classification and complexity.</p>
+
+        <!-- Step 1 -->
+        <div class="process-step">
+          <div class="step-badge">1</div>
+          <div class="step-content">
+            <h3 class="h6 mb-1">Request Submission <span class="badge bg-secondary fw-normal ms-1" style="font-size:0.7rem">1–2 days</span></h3>
+            <p class="text-secondary small mb-2"><strong>Performed by:</strong> Business Unit / Requestor</p>
+            <p>The requestor submits an AI Tool Evaluation Request containing:</p>
+            <ul class="small">
+              <li>Tool name, vendor, and version/subscription tier</li>
+              <li>Business justification and use case description</li>
+              <li>List of data types the tool will process (CUI categories, proprietary data, personnel data)</li>
+              <li>Intended user population and access scope</li>
+              <li>Integration points with existing systems</li>
+              <li>Program/contract(s) the tool will support</li>
+              <li>Estimated start date and expected duration of use</li>
+            </ul>
+            <div class="decision-box">
+              <strong>Gate 1 — Completeness Check:</strong> ISSO reviews the submission for completeness within 2 business days. Incomplete requests are returned to the requestor. Complete requests proceed to Step 2.
+            </div>
+          </div>
+        </div>
+        <div class="step-connector"></div>
+
+        <!-- Step 2 -->
+        <div class="process-step">
+          <div class="step-badge">2</div>
+          <div class="step-content">
+            <h3 class="h6 mb-1">Data Classification &amp; Regulatory Screening <span class="badge bg-secondary fw-normal ms-1" style="font-size:0.7rem">2–3 days</span></h3>
+            <p class="text-secondary small mb-2"><strong>Performed by:</strong> ISSO + Legal/Export Compliance</p>
+            <p>The ISSO and Legal team review the data types involved and determine:</p>
+            <ul class="small">
+              <li>Highest data classification level the tool will encounter</li>
+              <li>Whether any data constitutes CUI (and CUI category per CUI Registry)</li>
+              <li>Whether any data constitutes CDI under DFARS 252.204-7012</li>
+              <li>Whether any data is subject to ITAR (22 CFR Parts 120–130) or EAR (15 CFR Parts 730–774)</li>
+              <li>Whether the tool constitutes a "covered contractor information system" under DFARS</li>
+              <li>Applicable ISO 27001 Annex A controls and CMMC practice domains</li>
+            </ul>
+            <div class="decision-box">
+              <strong>Gate 2 — Classification Decision:</strong>
+              <ul class="small mb-0 mt-2">
+                <li class="gate-approved" style="padding-left:0.5rem;border-left:3px solid #198754;margin-bottom:0.25rem">Non-CUI / Low risk → Proceed to abbreviated evaluation (Steps 3–5)</li>
+                <li class="gate-approved" style="padding-left:0.5rem;border-left:3px solid #ffc107;margin-bottom:0.25rem">CUI / CDI → Proceed to full evaluation (all steps), CISO approval required</li>
+                <li style="padding-left:0.5rem;border-left:3px solid #dc3545">ITAR/EAR-controlled data → Legal hold; Technology Control Plan amendment required before proceeding</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="step-connector"></div>
+
+        <!-- Step 3 -->
+        <div class="process-step">
+          <div class="step-badge">3</div>
+          <div class="step-content">
+            <h3 class="h6 mb-1">Vendor Security Assessment <span class="badge bg-secondary fw-normal ms-1" style="font-size:0.7rem">5–10 days</span></h3>
+            <p class="text-secondary small mb-2"><strong>Performed by:</strong> ISSO + Procurement/Legal</p>
+            <p>The ISSO sends <a href="tmp-ai-003-vendor-questionnaire.html">TMP-AI-003 (Vendor Questionnaire)</a> to the vendor and reviews responses. Assessment covers:</p>
+            <ul class="small">
+              <li><strong>Security Certifications:</strong> SOC 2 Type II, ISO 27001, FedRAMP authorization status</li>
+              <li><strong>Data Handling:</strong> Data residency, retention/deletion, training data opt-out capability</li>
+              <li><strong>Access Controls:</strong> MFA enforcement, RBAC, API key management</li>
+              <li><strong>Encryption:</strong> AES-256 at rest, TLS 1.2+ in transit, key management practices</li>
+              <li><strong>Incident Response:</strong> Breach notification timelines, forensic preservation capability</li>
+              <li><strong>AI-Specific:</strong> Model training practices, output logging, human oversight options</li>
+              <li><strong>Export Controls:</strong> ITAR/EAR awareness, foreign national employee access controls</li>
+              <li><strong>Subprocessors:</strong> Complete list with data access scope and geographic location</li>
+            </ul>
+            <div class="decision-box">
+              <strong>Gate 3 — Vendor Minimum Thresholds:</strong> Vendor must meet minimum security thresholds. Critical failures (e.g., no encryption, no incident reporting, foreign data residency for CUI) result in disqualification.
+            </div>
+          </div>
+        </div>
+        <div class="step-connector"></div>
+
+        <!-- Step 4 -->
+        <div class="process-step">
+          <div class="step-badge">4</div>
+          <div class="step-content">
+            <h3 class="h6 mb-1">Compliance Checklist Completion <span class="badge bg-secondary fw-normal ms-1" style="font-size:0.7rem">3–5 days</span></h3>
+            <p class="text-secondary small mb-2"><strong>Performed by:</strong> ISSO</p>
+            <p>The ISSO completes the <a href="tmp-ai-001-evaluation-checklist.html">TMP-AI-001 (Evaluation Checklist)</a>, evaluating the AI tool against:</p>
+            <table class="table table-sm table-bordered small mt-2">
+              <thead><tr><th>Framework</th><th>Evaluation Areas</th><th>Threshold</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><strong>CMMC L2</strong></td>
+                  <td>All 14 domains (AC, AT, AU, CA, CM, IA, IR, MA, MP, PS, PE, RA, SC, SI)</td>
+                  <td>100% of applicable practices met or compensating controls documented</td>
+                </tr>
+                <tr>
+                  <td><strong>NIST 800-171</strong></td>
+                  <td>All 110 security requirements in 14 families</td>
+                  <td>Score ≥ 110 in SPRS methodology, or POA&amp;M for gaps</td>
+                </tr>
+                <tr>
+                  <td><strong>DFARS 7012</strong></td>
+                  <td>CDI safeguarding, cloud requirements, incident reporting</td>
+                  <td>All requirements met; no gaps for CDI-processing tools</td>
+                </tr>
+                <tr>
+                  <td><strong>ISO 27001</strong></td>
+                  <td>Annex A: 5.19–5.23, 8.25, 8.30 (supplier and cloud controls)</td>
+                  <td>All applicable controls met or formally excepted</td>
+                </tr>
+                <tr>
+                  <td><strong>AI-Specific</strong></td>
+                  <td>Training data controls, prompt injection, human oversight, output review</td>
+                  <td>All critical items addressed; medium items have remediation plan</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="step-connector"></div>
+
+        <!-- Step 5 -->
+        <div class="process-step">
+          <div class="step-badge">5</div>
+          <div class="step-content">
+            <h3 class="h6 mb-1">Risk Assessment <span class="badge bg-secondary fw-normal ms-1" style="font-size:0.7rem">3–5 days</span></h3>
+            <p class="text-secondary small mb-2"><strong>Performed by:</strong> ISSO</p>
+            <p>The ISSO completes <a href="tmp-ai-002-risk-assessment.html">TMP-AI-002 (Risk Assessment)</a>, identifying and scoring all relevant threats and vulnerabilities. Risk treatment decisions are documented:</p>
+            <table class="table table-sm table-bordered small mt-2">
+              <thead><tr><th>Risk Level</th><th>Score</th><th>Required Action</th></tr></thead>
+              <tbody>
+                <tr><td><span class="badge" style="background:#dc3545">Critical</span></td><td>20–25</td><td>Tool cannot be approved; must be redesigned or use case must be eliminated</td></tr>
+                <tr><td><span class="badge" style="background:#fd7e14">High</span></td><td>15–19</td><td>CISO approval required; mandatory compensating controls; timeline for risk reduction</td></tr>
+                <tr><td><span class="badge" style="background:#ffc107;color:#000">Medium</span></td><td>8–14</td><td>ISSO approval; documented risk acceptance or remediation plan</td></tr>
+                <tr><td><span class="badge" style="background:#198754">Low</span></td><td>1–7</td><td>Standard approval; risk acceptance documented</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="step-connector"></div>
+
+        <!-- Step 6 -->
+        <div class="process-step">
+          <div class="step-badge">6</div>
+          <div class="step-content">
+            <h3 class="h6 mb-1">Legal &amp; Contractual Review <span class="badge bg-secondary fw-normal ms-1" style="font-size:0.7rem">3–5 days</span></h3>
+            <p class="text-secondary small mb-2"><strong>Performed by:</strong> Legal / Contracts</p>
+            <p>Legal reviews and executes required agreements with the vendor:</p>
+            <ul class="small">
+              <li><strong>Non-Disclosure Agreement (NDA)</strong> — prior to sharing any organizational data with the vendor</li>
+              <li><strong>Data Processing Agreement (DPA)</strong> — specifies data handling obligations, purpose limitation, deletion timelines, and breach notification</li>
+              <li><strong>DFARS Flow-Down Clause</strong> — where CDI is involved, vendor must accept DFARS 252.204-7012 obligations</li>
+              <li><strong>AI-Specific Addendum</strong> — prohibits use of organizational data for model training; specifies output ownership; liability for AI errors</li>
+              <li><strong>Export Control Clause</strong> — confirms vendor's awareness of and compliance with ITAR/EAR restrictions</li>
+              <li><strong>Audit Rights</strong> — organization's right to audit vendor's security practices and access logs</li>
+            </ul>
+          </div>
+        </div>
+        <div class="step-connector"></div>
+
+        <!-- Step 7 -->
+        <div class="process-step">
+          <div class="step-badge">7</div>
+          <div class="step-content">
+            <h3 class="h6 mb-1">Approval Decision <span class="badge bg-secondary fw-normal ms-1" style="font-size:0.7rem">2–3 days</span></h3>
+            <p class="text-secondary small mb-2"><strong>Performed by:</strong> ISSO (standard) / CISO (CUI/CDI/High-risk)</p>
+            <p>The approving authority reviews the complete evaluation package and makes one of three decisions:</p>
+            <div class="row g-2 mt-1">
+              <div class="col-md-4">
+                <div class="p-3 rounded h-100" style="background:rgba(25,135,84,0.1);border:1px solid rgba(25,135,84,0.3)">
+                  <div class="fw-bold text-success small mb-1">APPROVED</div>
+                  <div class="text-secondary" style="font-size:0.78rem">All requirements met; tool added to authorized software list; deployment can proceed</div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="p-3 rounded h-100" style="background:rgba(255,193,7,0.08);border:1px solid rgba(255,193,7,0.3)">
+                  <div class="fw-bold text-warning small mb-1">CONDITIONAL APPROVAL</div>
+                  <div class="text-secondary" style="font-size:0.78rem">Approved with specific conditions; remediation items must be resolved within stated timeframe</div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="p-3 rounded h-100" style="background:rgba(220,53,69,0.08);border:1px solid rgba(220,53,69,0.3)">
+                  <div class="fw-bold text-danger small mb-1">REJECTED</div>
+                  <div class="text-secondary" style="font-size:0.78rem">Critical gaps cannot be remediated; request denied; requestor notified with documented rationale</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="step-connector"></div>
+
+        <!-- Step 8 -->
+        <div class="process-step">
+          <div class="step-badge">8</div>
+          <div class="step-content">
+            <h3 class="h6 mb-1">Deployment &amp; Technical Controls <span class="badge bg-secondary fw-normal ms-1" style="font-size:0.7rem">5–10 days</span></h3>
+            <p class="text-secondary small mb-2"><strong>Performed by:</strong> IT / System Administrator</p>
+            <p>Upon approval, IT implements the required technical controls before user access is granted:</p>
+            <ul class="small">
+              <li>Configure role-based access control (RBAC) aligned to least privilege</li>
+              <li>Enable MFA for all user accounts</li>
+              <li>Integrate with existing SIEM/logging infrastructure; ensure all AI interactions are logged</li>
+              <li>Configure Data Loss Prevention (DLP) rules to monitor and alert on sensitive data in AI prompts</li>
+              <li>Add AI tool to the Configuration Management Database (CMDB) and establish a baseline configuration</li>
+              <li>Configure network segmentation to restrict AI tool traffic to authorized endpoints</li>
+              <li>Establish API key rotation schedule (minimum 90 days)</li>
+              <li>Test and validate security controls before production access</li>
+            </ul>
+          </div>
+        </div>
+        <div class="step-connector"></div>
+
+        <!-- Step 9 -->
+        <div class="process-step">
+          <div class="step-badge">9</div>
+          <div class="step-content">
+            <h3 class="h6 mb-1">User Training &amp; Awareness <span class="badge bg-secondary fw-normal ms-1" style="font-size:0.7rem">2–3 days</span></h3>
+            <p class="text-secondary small mb-2"><strong>Performed by:</strong> Training Coordinator / ISSO</p>
+            <p>Before users are granted access, mandatory training must be completed and documented:</p>
+            <ul class="small">
+              <li>AI Tool Acceptable Use training specific to the deployed tool</li>
+              <li>CUI handling rules when using AI tools (if applicable)</li>
+              <li>How to recognize and report prompt injection attempts or anomalous AI behavior</li>
+              <li>Prohibited data types and use cases per POL-AI-001</li>
+              <li>Incident reporting procedure for AI-related security events</li>
+            </ul>
+            <p class="small mb-0">Training records must be retained for a minimum of 3 years (CMMC AT.2.056).</p>
+          </div>
+        </div>
+        <div class="step-connector"></div>
+
+        <!-- Step 10 -->
+        <div class="process-step">
+          <div class="step-badge">10</div>
+          <div class="step-content">
+            <h3 class="h6 mb-1">Ongoing Monitoring &amp; Annual Review <span class="badge bg-secondary fw-normal ms-1" style="font-size:0.7rem">Continuous</span></h3>
+            <p class="text-secondary small mb-2"><strong>Performed by:</strong> ISSO + IT</p>
+            <p>Approved AI tools are subject to continuous and periodic review:</p>
+            <table class="table table-sm table-bordered small mt-2">
+              <thead><tr><th>Activity</th><th>Frequency</th><th>Owner</th></tr></thead>
+              <tbody>
+                <tr><td>SIEM log review for AI tool activity anomalies</td><td>Weekly</td><td>IT / SOC</td></tr>
+                <tr><td>DLP alert review</td><td>Weekly</td><td>IT / ISSO</td></tr>
+                <tr><td>API key rotation</td><td>90 days</td><td>IT</td></tr>
+                <tr><td>Vendor security posture review (certifications current?)</td><td>Quarterly</td><td>ISSO</td></tr>
+                <tr><td>User access review (still authorized, still need access?)</td><td>Quarterly</td><td>Program Manager</td></tr>
+                <tr><td>Full re-evaluation (risk assessment, checklist, vendor questionnaire)</td><td>Annual</td><td>ISSO</td></tr>
+                <tr><td>Re-evaluation triggered by: major version update, data classification change, vendor breach, contract scope change</td><td>As needed</td><td>ISSO</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="step-connector"></div>
+
+        <!-- Step 11 -->
+        <div class="process-step">
+          <div class="step-badge">11</div>
+          <div class="step-content">
+            <h3 class="h6 mb-1">Decommissioning <span class="badge bg-secondary fw-normal ms-1" style="font-size:0.7rem">As needed</span></h3>
+            <p class="text-secondary small mb-2"><strong>Performed by:</strong> IT + ISSO + Legal</p>
+            <p>When an AI tool is retired or authorization is revoked:</p>
+            <ul class="small mb-0">
+              <li>Revoke all user access and API credentials immediately</li>
+              <li>Request vendor confirmation of data deletion including all prompts, outputs, and any training data</li>
+              <li>Obtain written vendor attestation of data destruction within 30 days</li>
+              <li>Retain audit logs per retention schedule (minimum 3 years)</li>
+              <li>Remove tool from authorized software list and CMDB</li>
+              <li>Document lessons learned and update this procedure as needed</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Limitations Section -->
+      <div class="policy-section">
+        <h2 class="h5">4. Known Limitations of AI Tools in Aerospace Environments</h2>
+        <p class="small text-secondary">The following limitations must be disclosed to users and documented in the evaluation record:</p>
+        <div class="row g-3 mt-1">
+          <div class="col-md-6">
+            <div class="p-3 rounded h-100" style="background:var(--bs-secondary-bg);border:1px solid var(--bs-border-color)">
+              <h4 class="h6 text-warning">Hallucination &amp; Accuracy</h4>
+              <p class="small text-secondary mb-0">AI tools can generate plausible-sounding but factually incorrect outputs. In aerospace, this risk is critical for engineering calculations, regulatory citations, material properties, and safety analyses. All AI-generated technical content must be independently verified.</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="p-3 rounded h-100" style="background:var(--bs-secondary-bg);border:1px solid var(--bs-border-color)">
+              <h4 class="h6 text-warning">Knowledge Cutoff</h4>
+              <p class="small text-secondary mb-0">AI language models have training data cutoffs and cannot reflect the latest standards, regulations (e.g., current CMMC rules, updated ITAR lists), or recent threat intelligence. Always verify against current source documents.</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="p-3 rounded h-100" style="background:var(--bs-secondary-bg);border:1px solid var(--bs-border-color)">
+              <h4 class="h6 text-warning">Prompt Injection</h4>
+              <p class="small text-secondary mb-0">Malicious actors can embed instructions in documents processed by AI tools to manipulate outputs or exfiltrate data. AI tools should not be used to process untrusted external documents in CUI environments without appropriate sandboxing.</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="p-3 rounded h-100" style="background:var(--bs-secondary-bg);border:1px solid var(--bs-border-color)">
+              <h4 class="h6 text-warning">Training Data Contamination</h4>
+              <p class="small text-secondary mb-0">Vendors offering enterprise plans must contractually prohibit use of organizational data for model training. Absence of this guarantee means sensitive data could influence model outputs accessible to competitors or foreign actors.</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="p-3 rounded h-100" style="background:var(--bs-secondary-bg);border:1px solid var(--bs-border-color)">
+              <h4 class="h6 text-warning">Auditability &amp; Explainability</h4>
+              <p class="small text-secondary mb-0">AI decision-making processes are often opaque. For regulatory submissions, airworthiness determinations, or safety-critical decisions, AI tools cannot substitute for documented, traceable human engineering judgment.</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="p-3 rounded h-100" style="background:var(--bs-secondary-bg);border:1px solid var(--bs-border-color)">
+              <h4 class="h6 text-warning">Export Control Risk</h4>
+              <p class="small text-secondary mb-0">Cloud-based AI tools may process data on infrastructure located in or accessible by personnel in countries subject to export restrictions. Foreign national access to AI training data containing ITAR-controlled information may constitute an unauthorized export.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Revision History -->
+      <div class="policy-section">
+        <h2 class="h5">5. Revision History</h2>
+        <table class="revision-table">
+          <thead><tr><th>Version</th><th>Date</th><th>Author</th><th>Changes</th></tr></thead>
+          <tbody>
+            <tr><td>1.0</td><td>2025-01-01</td><td>ISSO</td><td>Initial release</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-4 no-print">
+        <a href="index.html" class="btn btn-outline-secondary btn-sm">Back to AI Tool Evaluation Hub</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="py-4 mt-5 border-top no-print">
+    <div class="container text-center text-secondary small">&copy; 2025 Jessica Rojas — AI Tool Evaluation Framework</div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmCFCqjmFKnfkr5i+xeSKY3b5N1" crossorigin="anonymous"></script>
+  <script src="../script.js"></script>
+</body>
+</html>
