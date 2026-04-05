@@ -8,129 +8,73 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
   <link rel="stylesheet" href="theme.css" />
   <title>Data Analysis | Jessica Rojas</title>
-  <meta name="description" content="Interactive data analysis dashboard — create custom charts, group data by time periods, and export to CSV." />
-
+  <meta name="description" content="Interactive data analysis dashboard — upload CSV, create custom charts, apply color themes, pick per-item colors, and export results." />
   <style>
-    /* ── Auth gate hero ─────────────────────────────────────── */
-    .da-gate {
-      min-height: 70vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-    }
-    .da-gate .lock-icon {
-      font-size: 4rem;
-      display: block;
-      margin-bottom: 1rem;
-    }
+    .da-gate { min-height:70vh; display:flex; align-items:center; justify-content:center; text-align:center; }
+    .da-gate .lock-icon { font-size:4rem; display:block; margin-bottom:1rem; }
 
-    /* ── Chart card ─────────────────────────────────────────── */
-    .da-chart-card {
-      border-left: 3px solid var(--bs-primary);
-      transition: box-shadow 0.2s ease, transform 0.15s ease;
-    }
-    .da-chart-card:hover {
-      box-shadow: 0 .25rem .75rem rgba(0,0,0,.12);
-      transform: translateY(-1px);
-    }
+    /* Chart card */
+    .da-chart-card { border-left:3px solid var(--bs-primary); transition:box-shadow .2s,transform .15s; }
+    .da-chart-card:hover { box-shadow:0 .25rem .75rem rgba(0,0,0,.14); transform:translateY(-1px); }
 
-    /* ── Canvas wrapper ─────────────────────────────────────── */
-    .da-canvas-wrap {
-      position: relative;
-      height: 300px;
-    }
+    /* Canvas */
+    .da-canvas-wrap { position:relative; height:380px; }
     .da-canvas-wrap .da-placeholder {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--bs-secondary-color);
-      font-size: .9rem;
-      pointer-events: none;
+      position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+      color:var(--bs-secondary-color); font-size:.9rem; pointer-events:none;
     }
 
-    /* ── Data table ─────────────────────────────────────────── */
-    .da-data-table td,
-    .da-data-table th {
-      vertical-align: middle;
-      font-size: .85rem;
-    }
-    .da-row-num {
-      color: var(--bs-secondary-color);
-      width: 2rem;
-      text-align: center;
-    }
+    /* Data table */
+    .da-data-table td,.da-data-table th { vertical-align:middle; font-size:.82rem; }
+    .da-row-num { color:var(--bs-secondary-color); width:2rem; text-align:center; }
 
-    /* ── Color picker ───────────────────────────────────────── */
-    .da-color-picker {
-      width: 2.2rem;
-      height: 2rem;
-      border-radius: .375rem;
-      cursor: pointer;
-      border: 1px solid var(--bs-border-color);
-      padding: 0;
-      background: none;
-    }
+    /* Series color picker (single-color mode) */
+    .da-color-picker { width:2.2rem; height:2rem; border-radius:.375rem; cursor:pointer; border:1px solid var(--bs-border-color); padding:0; background:none; }
 
-    /* ── Stats panel ─────────────────────────────────────────── */
-    .da-stats-panel {
-      font-size: .78rem;
-      border-top: 1px solid var(--bs-border-color);
-      padding-top: .45rem;
-      margin-top: .35rem;
-      min-height: 1.8rem;
-      color: var(--bs-secondary-color);
-    }
-    .da-stats-panel strong { color: var(--bs-body-color); }
-    .da-stat-item { white-space: nowrap; }
+    /* Per-item color editor */
+    .da-color-editor { border-top:1px solid var(--bs-border-color); padding-top:.6rem; margin-top:.4rem; }
+    .da-item-swatch { display:flex; flex-direction:column; align-items:center; gap:.2rem; }
+    .da-item-color-input { width:2rem; height:2rem; padding:0; border-radius:.375rem; cursor:pointer; border:1px solid var(--bs-border-color); }
+    .da-item-swatch-label { font-size:.63rem; color:var(--bs-secondary-color); max-width:4.5rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:center; }
 
-    /* ── Overlay controls row ────────────────────────────────── */
-    /* ── Date range row ───────────────────────────────────────────── */
-    .da-date-row {
-      background: var(--bs-tertiary-bg, rgba(0,0,0,0.04));
-      border: 1px solid var(--bs-border-color);
-      border-radius: .375rem;
-      padding: .4rem .65rem;
-      font-size: .82rem;
-      gap: .5rem !important;
-    }
-    .da-date-label {
-      font-weight: 600;
-      white-space: nowrap;
-      font-size: .8rem;
-      color: var(--bs-body-color);
-    }
+    /* Stats */
+    .da-stats-panel { font-size:.78rem; border-top:1px solid var(--bs-border-color); padding-top:.45rem; margin-top:.35rem; min-height:1.8rem; color:var(--bs-secondary-color); }
+    .da-stats-panel strong { color:var(--bs-body-color); }
+    .da-stat-item { white-space:nowrap; }
 
-    .da-overlay-row {
-      border-top: 1px solid var(--bs-border-color);
-      border-bottom: 1px solid var(--bs-border-color);
-      padding: .3rem 0;
-      font-size: .82rem;
-      color: var(--bs-secondary-color);
-      row-gap: .25rem !important;
-    }
-    .da-overlay-row label { cursor: pointer; user-select: none; }
+    /* Date range row */
+    .da-date-row { background:var(--bs-tertiary-bg,rgba(0,0,0,.04)); border:1px solid var(--bs-border-color); border-radius:.375rem; padding:.4rem .65rem; font-size:.82rem; gap:.5rem !important; }
+    .da-date-label { font-weight:600; white-space:nowrap; font-size:.8rem; color:var(--bs-body-color); }
 
-    /* ── Paste area ──────────────────────────────────────────── */
-    .da-paste-input { font-family: monospace; font-size: .8rem; }
+    /* Overlay row */
+    .da-overlay-row { border-top:1px solid var(--bs-border-color); border-bottom:1px solid var(--bs-border-color); padding:.3rem 0; font-size:.82rem; color:var(--bs-secondary-color); row-gap:.25rem !important; }
+    .da-overlay-row label { cursor:pointer; user-select:none; }
 
-    /* ── Responsive: mobile table above chart ───────────────── */
-    @media (max-width: 767.98px) {
-      .da-card-body-grid {
-        display: flex;
-        flex-direction: column-reverse;
-      }
+    /* Paste area */
+    .da-paste-input { font-family:monospace; font-size:.8rem; }
+
+    /* Upload zone */
+    .da-upload-zone {
+      border:2px dashed var(--bs-border-color); border-radius:.375rem; padding:.65rem 1rem;
+      text-align:center; color:var(--bs-secondary-color); font-size:.8rem; cursor:pointer;
+      transition:border-color .2s,background .2s; margin-top:.5rem;
     }
+    .da-upload-zone:hover,.da-upload-zone.drag-over { border-color:var(--bs-primary); background:rgba(255,88,17,.05); color:var(--bs-primary); }
+
+    /* Pagination */
+    .da-pager { font-size:.78rem; }
+    .da-pager .btn { padding:.1rem .4rem; font-size:.73rem; }
+
+    /* Column picker inline */
+    .da-col-picker { background:var(--bs-tertiary-bg); border:1px solid var(--bs-border-color); border-radius:.375rem; padding:.65rem .85rem; font-size:.82rem; margin-top:.5rem; }
+
+    /* Mobile */
+    @media(max-width:767.98px){.da-card-body-grid{display:flex;flex-direction:column-reverse;}}
   </style>
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
 
-  <!-- ════════════════════════════════════════════════════════
-       NAV
-       ════════════════════════════════════════════════════════ -->
   <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
     <div class="container-fluid px-4">
       <a class="navbar-brand fw-bold" href="index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
@@ -148,21 +92,13 @@
           <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
           <li class="nav-item"><a class="nav-link" href="blog.html">Blog</a></li>
           <li class="nav-item"><a class="nav-link" href="knowledge.html">Knowledge Base</a></li>
-          <li class="nav-item" id="nav-tracker-link" style="display:none">
-            <a class="nav-link" href="compliancetracker.html">Tracker</a>
-          </li>
-          <li class="nav-item" id="nav-jobtracker-link" style="display:none">
-            <a class="nav-link" href="jobtracker.html">Job Tracker</a>
-          </li>
-          <li class="nav-item" id="nav-dataanalysis-link" style="display:none">
-            <a class="nav-link active" href="dataanalysis.html" aria-current="page">Data Analysis</a>
-          </li>
-          <li class="nav-item" data-role-min="admin" style="display:none">
-            <a class="nav-link" href="admin.html">User Admin</a>
-          </li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" id="nav-dataanalysis-link" style="display:none"><a class="nav-link active" href="dataanalysis.html" aria-current="page">Data Analysis</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="admin.html">User Admin</a></li>
         </ul>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">&#x2600;&#xFE0F;</span></button>
           <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
           <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
             <span id="rbac-role-badge" class="badge bg-secondary"></span>
@@ -174,57 +110,50 @@
     </div>
   </nav>
 
-  <!-- ════════════════════════════════════════════════════════
-       MAIN CONTENT
-       ════════════════════════════════════════════════════════ -->
   <main id="main-content">
 
-    <!-- Auth gate: shown when user is NOT logged in -->
     <section class="da-gate" id="da-gate">
       <div class="container text-center">
-        <span class="lock-icon" aria-hidden="true">🔒</span>
+        <span class="lock-icon" aria-hidden="true">&#x1F512;</span>
         <h1 class="mb-3">Data Analysis Dashboard</h1>
         <p class="lead text-secondary mb-4">Please log in to access the data analysis tools.</p>
         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Log In</button>
       </div>
     </section>
 
-    <!-- App content: hidden until RBAC grants reader+ access -->
     <div id="da-app" data-role-min="reader" style="display:none">
-
       <section class="hero-section reveal">
         <div class="container text-center">
           <h1>Data Analysis Dashboard</h1>
-          <p class="lead">Create custom charts, group data by time periods, and export to CSV.</p>
+          <p class="lead">Upload CSV, build charts, apply themes, and customize per-item colors.</p>
           <div class="d-flex justify-content-center gap-2 flex-wrap mt-2">
-            <span class="badge bg-secondary">Stored locally — 100% private</span>
+            <span class="badge bg-secondary">100% client-side &mdash; data stays local</span>
           </div>
         </div>
       </section>
 
       <div class="container py-4">
-        <!-- Toolbar -->
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
           <h2 class="h5 mb-0">Your Charts</h2>
-          <button class="btn btn-primary btn-sm" id="btn-new-chart">+ New Chart</button>
+          <div class="d-flex gap-2">
+            <label class="btn btn-sm btn-outline-secondary mb-0" title="Import chart config from JSON">
+              Import JSON<input type="file" id="da-import-file" accept=".json" style="display:none">
+            </label>
+            <button class="btn btn-primary btn-sm" id="btn-new-chart">+ New Chart</button>
+          </div>
         </div>
-
-        <!-- Charts container: all chart cards rendered here -->
         <div id="charts-container"></div>
       </div>
-
-    </div><!-- /#da-app -->
+    </div>
 
   </main>
 
-  <!-- ════════════════════════════════════════════════════════
-       RBAC LOGIN MODAL
-       ════════════════════════════════════════════════════════ -->
+  <!-- RBAC Login Modal -->
   <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h2 class="modal-title fs-5" id="rbacModalLabel">🔒 Login</h2>
+          <h2 class="modal-title fs-5" id="rbacModalLabel">&#x1F512; Login</h2>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -248,9 +177,6 @@
     </div>
   </div>
 
-  <!-- ════════════════════════════════════════════════════════
-       FOOTER
-       ════════════════════════════════════════════════════════ -->
   <footer class="site-footer">
     <div class="d-flex justify-content-center gap-3 mb-2">
       <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
@@ -264,694 +190,807 @@
     <p><a href="privacy.html">Privacy Policy</a> &middot; <a href="terms.html">Terms</a></p>
   </footer>
 
-  <!-- ════════════════════════════════════════════════════════
-       SCRIPTS
-       ════════════════════════════════════════════════════════ -->
-  <!-- 1. Bootstrap (sync) -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
-  <!-- 2. Chart.js (sync, before defer scripts) -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-  <!-- 3-5. RBAC & site scripts (defer) -->
   <script src="users.js" defer></script>
   <script src="roles.js" defer></script>
   <script src="script.js" defer></script>
 
-  <!-- 6. Data Analysis inline IIFE -->
   <script>
-  (function() {
-    'use strict';
+  (function(){
+  'use strict';
 
-    var DA_STORE = 'da_charts';
+  /* ── CONSTANTS ───────────────────────────────────────── */
+  var DA_STORE  = 'da_charts';
+  var PAGE_SIZE = 75;
 
-    // ── Color Themes ─────────────────────────────────────────────
-    var THEMES = {
-      ember:  { name:'Ember',  main:'#ff5811', palette:['#ff5811','#ff8c42','#ffd166','#f7a541','#e05c22','#c94a1a','#ff6b35','#ff9a00'], trend:'#f59e0b', avg:'#ef4444', ma:'#8b5cf6' },
-      ocean:  { name:'Ocean',  main:'#0ea5e9', palette:['#0ea5e9','#06b6d4','#3b82f6','#6366f1','#0284c7','#7dd3fc','#38bdf8','#60a5fa'], trend:'#f59e0b', avg:'#10b981', ma:'#f43f5e' },
-      forest: { name:'Forest', main:'#10b981', palette:['#10b981','#059669','#34d399','#84cc16','#6ee7b7','#047857','#4ade80','#a3e635'], trend:'#f59e0b', avg:'#f43f5e', ma:'#3b82f6' },
-      sunset: { name:'Sunset', main:'#f43f5e', palette:['#f43f5e','#e11d48','#fb7185','#f97316','#fb923c','#fcd34d','#be123c','#fda4af'], trend:'#a855f7', avg:'#0ea5e9', ma:'#10b981' },
-      aurora: { name:'Aurora', main:'#8b5cf6', palette:['#8b5cf6','#7c3aed','#a78bfa','#ec4899','#f472b6','#6d28d9','#4f46e5','#c4b5fd'], trend:'#f59e0b', avg:'#10b981', ma:'#0ea5e9' },
-      slate:  { name:'Slate',  main:'#64748b', palette:['#0f172a','#1e293b','#334155','#475569','#64748b','#94a3b8','#cbd5e1','#e2e8f0'], trend:'#f59e0b', avg:'#ef4444', ma:'#06b6d4' },
+  /* ── THEMES ──────────────────────────────────────────── */
+  var THEMES = {
+    ember:   {name:'Ember',   main:'#ff5811', palette:['#ff5811','#ff8c42','#ffd166','#f7a541','#e05c22','#c94a1a','#ff6b35','#ff9a00','#ffa630','#ef6c00'], trend:'#f59e0b', avg:'#ef4444', ma:'#8b5cf6'},
+    ocean:   {name:'Ocean',   main:'#0ea5e9', palette:['#0ea5e9','#06b6d4','#3b82f6','#6366f1','#0284c7','#7dd3fc','#38bdf8','#60a5fa','#818cf8','#2dd4bf'], trend:'#f59e0b', avg:'#10b981', ma:'#f43f5e'},
+    forest:  {name:'Forest',  main:'#10b981', palette:['#10b981','#059669','#34d399','#84cc16','#6ee7b7','#047857','#4ade80','#a3e635','#65a30d','#15803d'], trend:'#f59e0b', avg:'#f43f5e', ma:'#3b82f6'},
+    sunset:  {name:'Sunset',  main:'#f43f5e', palette:['#f43f5e','#e11d48','#fb7185','#f97316','#fb923c','#fcd34d','#be123c','#fda4af','#fbbf24','#d97706'], trend:'#a855f7', avg:'#0ea5e9', ma:'#10b981'},
+    aurora:  {name:'Aurora',  main:'#8b5cf6', palette:['#8b5cf6','#7c3aed','#a78bfa','#ec4899','#f472b6','#6d28d9','#4f46e5','#c4b5fd','#e879f9','#d946ef'], trend:'#f59e0b', avg:'#10b981', ma:'#0ea5e9'},
+    slate:   {name:'Slate',   main:'#64748b', palette:['#0f172a','#1e293b','#334155','#475569','#64748b','#94a3b8','#cbd5e1','#e2e8f0','#b0bec5','#607d8b'], trend:'#f59e0b', avg:'#ef4444', ma:'#06b6d4'},
+    neon:    {name:'Neon',    main:'#00fff0', palette:['#00fff0','#39ff14','#ff00ff','#ffff00','#ff6600','#ff0066','#00ff99','#0099ff','#cc00ff','#ff9900'], trend:'#ffffff', avg:'#ff00ff', ma:'#39ff14'},
+    crimson: {name:'Crimson', main:'#dc2626', palette:['#dc2626','#b91c1c','#ef4444','#f87171','#991b1b','#7f1d1d','#fca5a5','#fee2e2','#c0392b','#e74c3c'], trend:'#f59e0b', avg:'#3b82f6', ma:'#10b981'},
+    gold:    {name:'Gold',    main:'#f59e0b', palette:['#f59e0b','#d97706','#fcd34d','#fbbf24','#b45309','#92400e','#fde68a','#fef3c7','#e67e22','#f39c12'], trend:'#3b82f6', avg:'#10b981', ma:'#8b5cf6'},
+    midnight:{name:'Midnight',main:'#6366f1', palette:['#1e1b4b','#312e81','#3730a3','#4338ca','#4f46e5','#6366f1','#818cf8','#a5b4fc','#c7d2fe','#e0e7ff'], trend:'#f59e0b', avg:'#34d399', ma:'#f472b6'},
+  };
+  var DEFAULT_THEME = 'ember';
+
+  /* ── STATE ───────────────────────────────────────────── */
+  var chartInstances = {};
+  var debounceTimers = {};
+  var tablePages     = {};   // id -> {page, filter}
+  var initialized    = false;
+
+  /* ── AUTH GATE ───────────────────────────────────────── */
+  var appEl  = document.getElementById('da-app');
+  var gateEl = document.getElementById('da-gate');
+  function onAppVisible(){ if(initialized)return; initialized=true; if(gateEl)gateEl.style.display='none'; initDataApp(); }
+  function checkVisible(){ return appEl && appEl.style.display!=='none'; }
+  if(appEl){
+    var obs=new MutationObserver(function(){if(checkVisible()){obs.disconnect();onAppVisible();}});
+    obs.observe(appEl,{attributes:true,attributeFilter:['style']});
+  }
+  var pc=0,pi=setInterval(function(){if(++pc>50||checkVisible()){clearInterval(pi);onAppVisible();}},300);
+
+  /* ── STORAGE ─────────────────────────────────────────── */
+  function loadCharts(){try{var r=localStorage.getItem(DA_STORE);return r?JSON.parse(r):null;}catch(e){return null;}}
+  function saveCharts(c){try{localStorage.setItem(DA_STORE,JSON.stringify(c));}catch(e){console.warn('Storage full');}}
+
+  /* ── DEMO ────────────────────────────────────────────── */
+  function createDemoChart(){
+    return {
+      id:'da_demo',name:'Demo — Monthly Revenue',type:'bar',
+      groupBy:'month',aggregation:'sum',colorTheme:'ember',color:'#ff5811',
+      showTrend:true,showAvg:true,movingAvg:'none',forecastPeriods:3,
+      dateFrom:'',dateTo:'',multiColor:true,itemColors:{},
+      chartHeight:380,yMin:'',yMax:'',showGrid:true,smooth:true,stacked:false,
+      data:[
+        {x:'2024-01-15',y:'4200'},{x:'2024-01-28',y:'1800'},{x:'2024-02-10',y:'3500'},
+        {x:'2024-03-05',y:'5100'},{x:'2024-03-22',y:'2400'},{x:'2024-04-12',y:'6800'},
+        {x:'2024-05-08',y:'7200'},{x:'2024-06-20',y:'5900'},{x:'2024-07-14',y:'8400'},
+        {x:'2024-08-09',y:'7100'},{x:'2024-09-18',y:'9200'},{x:'2024-10-03',y:'8600'},
+        {x:'2024-11-22',y:'10100'},{x:'2024-12-15',y:'11500'}
+      ]
     };
-    var DEFAULT_THEME = 'ember';
+  }
+  function genId(){return 'da_'+Date.now()+Math.floor(Math.random()*1000);}
 
-    var chartInstances = {};
-    var debounceTimers = {};
-    var initialized    = false;
+  /* ── ISO WEEK ────────────────────────────────────────── */
+  function isoWeek(d){
+    var dt=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
+    dt.setUTCDate(dt.getUTCDate()+4-(dt.getUTCDay()||7));
+    var ys=new Date(Date.UTC(dt.getUTCFullYear(),0,1));
+    return{year:dt.getUTCFullYear(),week:Math.ceil(((dt-ys)/86400000+1)/7)};
+  }
 
-    // ── Auth gate ─────────────────────────────────────────────────
-    var appEl  = document.getElementById('da-app');
-    var gateEl = document.getElementById('da-gate');
-
-    function onAppVisible() {
-      if (initialized) return;
-      initialized = true;
-      if (gateEl) gateEl.style.display = 'none';
-      initDataApp();
-    }
-    function checkVisible() { return appEl && appEl.style.display !== 'none'; }
-
-    if (appEl) {
-      var obs = new MutationObserver(function() { if (checkVisible()) { obs.disconnect(); onAppVisible(); } });
-      obs.observe(appEl, { attributes: true, attributeFilter: ['style'] });
-    }
-    var pollCount = 0;
-    var pollId = setInterval(function() {
-      if (++pollCount > 50 || checkVisible()) { clearInterval(pollId); onAppVisible(); }
-    }, 300);
-
-    // ── Storage ───────────────────────────────────────────────────
-    function loadCharts() {
-      try { var r = localStorage.getItem(DA_STORE); return r ? JSON.parse(r) : null; } catch(e) { return null; }
-    }
-    function saveCharts(c) { localStorage.setItem(DA_STORE, JSON.stringify(c)); }
-
-    // ── Demo chart ────────────────────────────────────────────────
-    function createDemoChart() {
-      return {
-        id: 'da_demo', name: 'Demo — Monthly Revenue', type: 'bar',
-        groupBy: 'month', aggregation: 'sum',
-        colorTheme: DEFAULT_THEME, color: '#ff5811',
-        showTrend: true, showAvg: true, movingAvg: 'none', forecastPeriods: 3,
-        dateFrom: '2024-01-01', dateTo: '', multiColor: true,
-        data: [
-          {x:'2024-01-15',y:'4200'},{x:'2024-01-28',y:'1800'},
-          {x:'2024-02-10',y:'3500'},{x:'2024-03-05',y:'5100'},
-          {x:'2024-03-22',y:'2400'},{x:'2024-04-12',y:'6800'},
-          {x:'2024-05-08',y:'7200'},{x:'2024-06-20',y:'5900'},
-          {x:'2024-07-14',y:'8400'},{x:'2024-08-09',y:'7100'}
-        ]
-      };
-    }
-
-    function genId() { return 'da_' + Date.now() + Math.floor(Math.random()*1000); }
-
-    // ── ISO week ───────────────────────────────────────────────────
-    function isoWeek(d) {
-      var dt = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-      dt.setUTCDate(dt.getUTCDate() + 4 - (dt.getUTCDay() || 7));
-      var ys = new Date(Date.UTC(dt.getUTCFullYear(), 0, 1));
-      return { year: dt.getUTCFullYear(), week: Math.ceil(((dt - ys) / 86400000 + 1) / 7) };
-    }
-
-    // ── Data grouping ──────────────────────────────────────────────
-    function groupData(rawData, groupBy, aggregation, dateFrom, dateTo) {
-      // Filter by date range first
-      var data = rawData;
-      if (dateFrom || dateTo) {
-        var dFrom = dateFrom ? new Date(dateFrom)            : null;
-        var dTo   = dateTo   ? new Date(dateTo+'T23:59:59')  : null;
-        data = rawData.filter(function(row) {
-          if (!row.x) return false;
-          var d = new Date(row.x);
-          if (isNaN(d.getTime())) return true;
-          if (dFrom && d < dFrom) return false;
-          if (dTo   && d > dTo)   return false;
-          return true;
-        });
-      }
-      if (groupBy === 'manual') {
-        return data.filter(function(r){return r.x!==''||r.y!=='';})
-          .map(function(r){return {label:r.x, value:parseFloat(r.y)||0};});
-      }
-      var buckets = {};
-      data.forEach(function(row) {
-        if (!row.x) return;
-        var d = new Date(row.x);
-        if (isNaN(d.getTime())) return;
-        var val = parseFloat(row.y)||0, key;
-        switch (groupBy) {
-          case 'day':      key = d.toISOString().slice(0,10); break;
-          case 'week':     var w=isoWeek(d); key=w.year+'-W'+String(w.week).padStart(2,'0'); break;
-          case 'month':    key = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); break;
-          case 'quarter':  key = d.getFullYear()+'-Q'+(Math.floor(d.getMonth()/3)+1); break;
-          case 'halfyear': key = d.getFullYear()+'-'+(d.getMonth()<6?'H1':'H2'); break;
-          case 'year':     key = ''+d.getFullYear(); break;
-          case 'multiyear':var b=d.getFullYear()-(d.getFullYear()%2); key=b+'-'+(b+1); break;
-          default:         key = row.x;
-        }
-        if (!buckets[key]) buckets[key] = [];
-        buckets[key].push(val);
-      });
-      return Object.keys(buckets).sort().map(function(k) {
-        var vals = buckets[k];
-        var agg = aggregation==='average'
-          ? vals.reduce(function(a,b){return a+b;},0)/vals.length
-          : vals.reduce(function(a,b){return a+b;},0);
-        return { label:k, value:Math.round(agg*100)/100 };
+  /* ── GROUP DATA ──────────────────────────────────────── */
+  function groupData(rawData,groupBy,aggregation,dateFrom,dateTo){
+    var data=rawData;
+    if(dateFrom||dateTo){
+      var dF=dateFrom?new Date(dateFrom):null, dT=dateTo?new Date(dateTo+'T23:59:59'):null;
+      data=rawData.filter(function(r){
+        if(!r.x)return false; var d=new Date(r.x); if(isNaN(d.getTime()))return true;
+        if(dF&&d<dF)return false; if(dT&&d>dT)return false; return true;
       });
     }
+    if(groupBy==='manual'){
+      return data.filter(function(r){return r.x!==''||r.y!=='';})
+        .map(function(r){return{label:r.x||'(no label)',value:parseFloat(r.y)||0};});
+    }
+    var buckets={};
+    data.forEach(function(row){
+      if(!row.x)return; var d=new Date(row.x); if(isNaN(d.getTime()))return;
+      var val=parseFloat(row.y)||0,key;
+      switch(groupBy){
+        case 'day':      key=d.toISOString().slice(0,10); break;
+        case 'week':     var w=isoWeek(d);key=w.year+'-W'+String(w.week).padStart(2,'0'); break;
+        case 'month':    key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); break;
+        case 'quarter':  key=d.getFullYear()+'-Q'+(Math.floor(d.getMonth()/3)+1); break;
+        case 'halfyear': key=d.getFullYear()+'-'+(d.getMonth()<6?'H1':'H2'); break;
+        case 'year':     key=''+d.getFullYear(); break;
+        case 'multiyear':var b=d.getFullYear()-(d.getFullYear()%2);key=b+'-'+(b+1); break;
+        default:         key=row.x;
+      }
+      if(!buckets[key])buckets[key]=[];
+      buckets[key].push(val);
+    });
+    return Object.keys(buckets).sort().map(function(k){
+      var vals=buckets[k],agg;
+      switch(aggregation){
+        case 'average':agg=vals.reduce(function(a,b){return a+b;},0)/vals.length;break;
+        case 'count':  agg=vals.length;break;
+        case 'min':    agg=Math.min.apply(null,vals);break;
+        case 'max':    agg=Math.max.apply(null,vals);break;
+        case 'median': var s=vals.slice().sort(function(a,b){return a-b;});
+                       agg=s.length%2===0?(s[s.length/2-1]+s[s.length/2])/2:s[Math.floor(s.length/2)];break;
+        default:       agg=vals.reduce(function(a,b){return a+b;},0);
+      }
+      return{label:k,value:Math.round(agg*100)/100};
+    });
+  }
 
-    // ── Next period label (forecast) ──────────────────────────────
-    function nextPeriodLabel(label, groupBy) {
-      var p, y, m, q;
-      switch (groupBy) {
-        case 'month':
-          p=label.split('-'); y=parseInt(p[0]); m=parseInt(p[1])+1;
-          if(m>12){m=1;y++;} return y+'-'+String(m).padStart(2,'0');
-        case 'year':
-          return String(parseInt(label)+1);
-        case 'quarter':
-          p=label.split('-Q'); y=parseInt(p[0]); q=parseInt(p[1])+1;
-          if(q>4){q=1;y++;} return y+'-Q'+q;
-        case 'halfyear':
-          p=label.split('-'); y=parseInt(p[0]);
-          return p[1]==='H1' ? y+'-H2' : (y+1)+'-H1';
-        default: return null;
+  /* ── NEXT PERIOD LABEL ───────────────────────────────── */
+  function nextPeriodLabel(label,groupBy){
+    var p,y,m,q;
+    switch(groupBy){
+      case 'month':    p=label.split('-');y=parseInt(p[0]);m=parseInt(p[1])+1;if(m>12){m=1;y++;}return y+'-'+String(m).padStart(2,'0');
+      case 'year':     return String(parseInt(label)+1);
+      case 'quarter':  p=label.split('-Q');y=parseInt(p[0]);q=parseInt(p[1])+1;if(q>4){q=1;y++;}return y+'-Q'+q;
+      case 'halfyear': p=label.split('-');y=parseInt(p[0]);return p[1]==='H1'?y+'-H2':(y+1)+'-H1';
+      default: return null;
+    }
+  }
+
+  /* ── STATISTICS ──────────────────────────────────────── */
+  function calcStats(values){
+    var n=values.length; if(!n)return null;
+    var sum=values.reduce(function(a,b){return a+b;},0);
+    var mean=sum/n;
+    var sorted=values.slice().sort(function(a,b){return a-b;});
+    var median=n%2===0?(sorted[n/2-1]+sorted[n/2])/2:sorted[Math.floor(n/2)];
+    var variance=values.reduce(function(acc,v){return acc+Math.pow(v-mean,2);},0)/n;
+    var growth=n>=2?((values[n-1]-values[0])/Math.abs(values[0]||1))*100:null;
+    var p25=sorted[Math.floor(n*0.25)], p75=sorted[Math.floor(n*0.75)];
+    return{
+      count:n,sum:Math.round(sum*100)/100,
+      min:Math.min.apply(null,values),max:Math.max.apply(null,values),
+      mean:Math.round(mean*100)/100,median:Math.round(median*100)/100,
+      stddev:Math.round(Math.sqrt(variance)*100)/100,
+      p25:Math.round(p25*100)/100,p75:Math.round(p75*100)/100,
+      range:Math.round((Math.max.apply(null,values)-Math.min.apply(null,values))*100)/100,
+      growth:growth!==null?Math.round(growth*10)/10:null
+    };
+  }
+
+  /* ── LINEAR REGRESSION ───────────────────────────────── */
+  function linReg(ys){
+    var n=ys.length; if(n<2)return null;
+    var sx=0,sy=0,sxy=0,sxx=0;
+    for(var i=0;i<n;i++){sx+=i;sy+=ys[i];sxy+=i*ys[i];sxx+=i*i;}
+    var d=n*sxx-sx*sx; if(d===0)return null;
+    var m=(n*sxy-sx*sy)/d,b=(sy-m*sx)/n;
+    return{m:m,b:b,predict:function(x){return Math.round((m*x+b)*100)/100;}};
+  }
+
+  /* ── MOVING AVERAGE ──────────────────────────────────── */
+  function movingAverage(values,period){
+    return values.map(function(_,i){
+      if(i<period-1)return null;
+      var s=values.slice(i-period+1,i+1);
+      return Math.round(s.reduce(function(a,b){return a+b;},0)/period*100)/100;
+    });
+  }
+
+  /* ── GET COLOR FOR ITEM ──────────────────────────────── */
+  function getItemColor(chartObj,label,idx,alpha){
+    var theme=THEMES[chartObj.colorTheme]||THEMES[DEFAULT_THEME];
+    var base=(chartObj.itemColors&&chartObj.itemColors[label])
+      ?chartObj.itemColors[label]
+      :theme.palette[idx%theme.palette.length];
+    return alpha?base+alpha:base;
+  }
+
+  /* ── RENDER CHART ────────────────────────────────────── */
+  function renderChart(chartObj){
+    var canvas=document.getElementById('canvas-'+chartObj.id);
+    if(!canvas)return;
+    var wrap=canvas.closest('.da-canvas-wrap');
+    if(wrap)wrap.style.height=(chartObj.chartHeight||380)+'px';
+    var ctx=canvas.getContext('2d');
+    if(chartInstances[chartObj.id]){chartInstances[chartObj.id].destroy();delete chartInstances[chartObj.id];}
+    var placeholder=wrap?wrap.querySelector('.da-placeholder'):null;
+    var isPD=chartObj.type==='pie'||chartObj.type==='doughnut'||chartObj.type==='polarArea';
+    var isScatter=chartObj.type==='scatter';
+    var isRadar=chartObj.type==='radar';
+    var isHBar=chartObj.type==='hbar';
+    var canOverlay=!isPD&&!isScatter&&!isRadar;
+    var grouped;
+    if(isPD||isRadar){
+      grouped=chartObj.data.filter(function(r){return r.x!==''||r.y!=='';})
+        .map(function(r){return{label:r.x||'(no label)',value:parseFloat(r.y)||0};});
+    } else {
+      grouped=groupData(chartObj.data,chartObj.groupBy,chartObj.aggregation,chartObj.dateFrom,chartObj.dateTo);
+    }
+    if(grouped.length===0){if(placeholder)placeholder.style.display='flex';updateStatsPanel(chartObj.id,null);renderColorEditor(chartObj,[]);return;}
+    if(placeholder)placeholder.style.display='none';
+    var labels=grouped.map(function(g){return g.label;});
+    var values=grouped.map(function(g){return g.value;});
+    var theme=THEMES[chartObj.colorTheme]||THEMES[DEFAULT_THEME];
+    var mainColor=chartObj.color||theme.main;
+    var useMulti=chartObj.multiColor||isPD||isRadar;
+    updateStatsPanel(chartObj.id,values);
+    renderColorEditor(chartObj,labels);
+    var cjType=isHBar?'bar':(chartObj.type==='area'?'line':chartObj.type==='polarArea'?'polarArea':(isRadar?'radar':isScatter?'scatter':chartObj.type));
+    var bgColors=useMulti
+      ?labels.map(function(lbl,i){return getItemColor(chartObj,lbl,i,chartObj.type==='area'?'33':'');})
+      :(chartObj.type==='area'?mainColor+'33':mainColor);
+    var bdColors=useMulti
+      ?labels.map(function(lbl,i){return getItemColor(chartObj,lbl,i,null);})
+      :mainColor;
+    var mainDs={
+      label:chartObj.name||'Data',
+      data:isScatter?grouped.map(function(g){var nx=parseFloat(g.label);return{x:isNaN(nx)?0:nx,y:g.value};}):values,
+      backgroundColor:bgColors,borderColor:bdColors,borderWidth:isPD||isRadar?1:2,
+      fill:chartObj.type==='area',
+      tension:(cjType==='line'&&chartObj.smooth!==false)?0.3:0,
+      pointRadius:isScatter?5:3,order:10
+    };
+    if(isHBar)mainDs.indexAxis='y';
+    if(chartObj.stacked&&(chartObj.type==='bar'||chartObj.type==='area'))mainDs.stack='s0';
+    var datasets=[mainDs],extLabels=labels.slice();
+    var reg=(canOverlay&&values.length>=2)?linReg(values):null;
+    if(canOverlay&&chartObj.showTrend&&reg)datasets.push({label:'Trend',type:'line',data:values.map(function(_,i){return reg.predict(i);}),borderColor:theme.trend,borderWidth:2,borderDash:[6,3],backgroundColor:'transparent',pointRadius:0,fill:false,tension:0,order:2});
+    if(canOverlay&&chartObj.movingAvg&&chartObj.movingAvg!=='none'){
+      var per=parseInt(chartObj.movingAvg);
+      if(per>=2&&values.length>=per)datasets.push({label:per+'-Period MA',type:'line',data:movingAverage(values,per),borderColor:theme.ma,borderWidth:2,borderDash:[3,3],backgroundColor:'transparent',pointRadius:0,fill:false,tension:0.4,spanGaps:true,order:3});
+    }
+    if(canOverlay&&chartObj.showAvg&&values.length>0){
+      var avg=Math.round(values.reduce(function(a,b){return a+b;},0)/values.length*100)/100;
+      datasets.push({label:'Avg ('+avg.toLocaleString()+')',type:'line',data:values.map(function(){return avg;}),borderColor:theme.avg,borderWidth:2,borderDash:[8,4],backgroundColor:'transparent',pointRadius:0,fill:false,tension:0,order:4});
+    }
+    var fcN=parseInt(chartObj.forecastPeriods)||0;
+    if(canOverlay&&fcN>0&&reg){
+      var fcVals=new Array(values.length).fill(null),lastLbl=labels[labels.length-1],fcOk=true;
+      for(var fp=0;fp<fcN;fp++){var nl=nextPeriodLabel(lastLbl,chartObj.groupBy);if(!nl){fcOk=false;break;}lastLbl=nl;extLabels.push(nl);fcVals.push(Math.max(0,reg.predict(values.length+fp)));}
+      if(fcOk){
+        mainDs.data=values.concat(new Array(fcN).fill(null));
+        datasets.slice(1).forEach(function(ds){if(Array.isArray(ds.data)){while(ds.data.length<extLabels.length)ds.data.push(null);}});
+        datasets.push({label:'Forecast',type:'line',data:fcVals,borderColor:theme.trend,borderWidth:2,borderDash:[5,5],backgroundColor:theme.trend+'22',pointRadius:4,pointStyle:'triangle',fill:false,tension:0.2,spanGaps:false,order:1});
       }
     }
-
-    // ── Statistics ─────────────────────────────────────────────────
-    function calcStats(values) {
-      var n = values.length; if (!n) return null;
-      var sum = values.reduce(function(a,b){return a+b;},0);
-      var mean = sum/n;
-      var sorted = values.slice().sort(function(a,b){return a-b;});
-      var median = n%2===0?(sorted[n/2-1]+sorted[n/2])/2:sorted[Math.floor(n/2)];
-      var variance = values.reduce(function(acc,v){return acc+Math.pow(v-mean,2);},0)/n;
-      var growth = n>=2?((values[n-1]-values[0])/Math.abs(values[0]||1))*100:null;
-      return {
-        count:n, sum:Math.round(sum*100)/100,
-        min:Math.min.apply(null,values), max:Math.max.apply(null,values),
-        mean:Math.round(mean*100)/100, median:Math.round(median*100)/100,
-        stddev:Math.round(Math.sqrt(variance)*100)/100,
-        growth:growth!==null?Math.round(growth*10)/10:null
-      };
+    var scalesConfig;
+    if(isPD||isRadar){scalesConfig={};}
+    else{
+      var xS={ticks:{maxRotation:45,autoSkip:true,font:{size:11}},grid:{display:chartObj.showGrid!==false}};
+      var yS={beginAtZero:true,ticks:{font:{size:11}},grid:{display:chartObj.showGrid!==false}};
+      if(chartObj.yMin!==''&&chartObj.yMin!=null)yS.min=parseFloat(chartObj.yMin);
+      if(chartObj.yMax!==''&&chartObj.yMax!=null)yS.max=parseFloat(chartObj.yMax);
+      if(chartObj.stacked){xS.stacked=true;yS.stacked=true;}
+      scalesConfig=isHBar?{x:yS,y:xS}:{x:xS,y:yS};
     }
-
-    // ── Linear regression (index-based) ───────────────────────────
-    function linReg(ys) {
-      var n=ys.length; if(n<2) return null;
-      var sumX=0,sumY=0,sumXY=0,sumXX=0;
-      for(var i=0;i<n;i++){sumX+=i;sumY+=ys[i];sumXY+=i*ys[i];sumXX+=i*i;}
-      var denom=n*sumXX-sumX*sumX; if(denom===0) return null;
-      var m=(n*sumXY-sumX*sumY)/denom, b=(sumY-m*sumX)/n;
-      return {m:m,b:b,predict:function(x){return Math.round((m*x+b)*100)/100;}};
-    }
-
-    // ── Moving average ─────────────────────────────────────────────
-    function movingAverage(values, period) {
-      return values.map(function(_,i) {
-        if(i<period-1) return null;
-        var s=values.slice(i-period+1,i+1);
-        return Math.round(s.reduce(function(a,b){return a+b;},0)/period*100)/100;
-      });
-    }
-
-    // ── Render chart ───────────────────────────────────────────────
-    function renderChart(chartObj) {
-      var canvas = document.getElementById('canvas-'+chartObj.id);
-      if (!canvas) return;
-      var ctx = canvas.getContext('2d');
-
-      if (chartInstances[chartObj.id]) {
-        chartInstances[chartObj.id].destroy();
-        delete chartInstances[chartObj.id];
+    chartInstances[chartObj.id]=new Chart(ctx,{
+      type:cjType,
+      data:{labels:extLabels,datasets:datasets},
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        animation:{duration:values.length>500?0:400},
+        interaction:{mode:'index',intersect:false},
+        plugins:{
+          legend:{display:datasets.length>1||isPD||isRadar,position:'bottom',labels:{boxWidth:12,padding:10,font:{size:11}}},
+          tooltip:{callbacks:{label:function(c){var v=c.parsed&&c.parsed.y!==undefined?c.parsed.y:c.parsed;if(v===null)return null;return' '+c.dataset.label+': '+(typeof v==='number'?v.toLocaleString():v);}}}
+        },
+        scales:scalesConfig
       }
+    });
+  }
 
-      var wrap = canvas.closest('.da-canvas-wrap');
-      var placeholder = wrap ? wrap.querySelector('.da-placeholder') : null;
-      var isPD = chartObj.type==='pie'||chartObj.type==='doughnut';
-      var isScatter = chartObj.type==='scatter';
-      var canOverlay = !isPD && !isScatter;
+  /* ── STATS PANEL ─────────────────────────────────────── */
+  function updateStatsPanel(id,values){
+    var panel=document.getElementById('stats-'+id); if(!panel)return;
+    if(!values||!values.length){panel.innerHTML='<span class="text-secondary small">No data</span>';return;}
+    var s=calcStats(values);
+    var g=s.growth!==null?'<div class="da-stat-item"><span class="text-secondary">Growth </span><span class="badge '+(s.growth>=0?'bg-success':'bg-danger')+'">'+(s.growth>=0?'+':'')+s.growth+'%</span></div>':'';
+    panel.innerHTML='<div class="d-flex flex-wrap gap-3">'+
+      si('n',s.count)+si('\u03a3',s.sum.toLocaleString())+
+      si('Min',s.min.toLocaleString())+si('Max',s.max.toLocaleString())+
+      si('Range',s.range.toLocaleString())+
+      si('Mean',s.mean.toLocaleString())+si('Median',s.median.toLocaleString())+
+      si('\u03c3',s.stddev.toLocaleString())+
+      si('P25',s.p25.toLocaleString())+si('P75',s.p75.toLocaleString())+
+      g+'</div>';
+  }
+  function si(l,v){return '<div class="da-stat-item"><span class="text-secondary">'+l+' </span><strong>'+v+'</strong></div>';}
 
-      var grouped;
-      if (isPD) {
-        grouped = chartObj.data.filter(function(r){return r.x!==''||r.y!=='';})
-          .map(function(r){return {label:r.x||'(no label)',value:parseFloat(r.y)||0};});
-      } else {
-        grouped = groupData(chartObj.data, chartObj.groupBy, chartObj.aggregation, chartObj.dateFrom, chartObj.dateTo);
-      }
-
-      if (grouped.length===0) {
-        if (placeholder) placeholder.style.display='flex';
-        updateStatsPanel(chartObj.id, null); return;
-      }
-      if (placeholder) placeholder.style.display='none';
-
-      var labels = grouped.map(function(g){return g.label;});
-      var values = grouped.map(function(g){return g.value;});
-      var theme = THEMES[chartObj.colorTheme]||THEMES[DEFAULT_THEME];
-      var mainColor = chartObj.color||theme.main;
-
-      updateStatsPanel(chartObj.id, values);
-
-      var cjType = chartObj.type==='area'?'line':(isScatter?'scatter':chartObj.type);
-
-      var mainDs = {
-        label: chartObj.name||'Data',
-        data: isScatter
-          ? grouped.map(function(g){var nx=parseFloat(g.label);return{x:isNaN(nx)?0:nx,y:g.value};})
-          : values,
-        backgroundColor: (isPD || chartObj.multiColor)
-          ? values.map(function(_,i){return theme.palette[i%theme.palette.length]+(chartObj.type==='area'?'33':'');})
-          : (chartObj.type==='area' ? mainColor+'33' : mainColor),
-        borderColor: (isPD || chartObj.multiColor)
-          ? values.map(function(_,i){return theme.palette[i%theme.palette.length];})
-          : mainColor,
-        borderWidth: isPD?1:2,
-        fill: chartObj.type==='area',
-        tension: cjType==='line'?0.3:0,
-        pointRadius: isScatter?5:3,
-        order: 10
-      };
-
-      var datasets = [mainDs];
-      var extLabels = labels.slice();
-      var reg = (canOverlay && values.length>=2) ? linReg(values) : null;
-
-      // ── Trend line ──────────────────────────────────────────────
-      if (canOverlay && chartObj.showTrend && reg) {
-        datasets.push({
-          label:'Trend', type:'line',
-          data: values.map(function(_,i){return reg.predict(i);}),
-          borderColor:theme.trend, borderWidth:2, borderDash:[6,3],
-          backgroundColor:'transparent', pointRadius:0, fill:false, tension:0, order:2
-        });
-      }
-
-      // ── Moving average ───────────────────────────────────────────
-      if (canOverlay && chartObj.movingAvg && chartObj.movingAvg!=='none') {
-        var period = parseInt(chartObj.movingAvg);
-        if (period>=2 && values.length>=period) {
-          datasets.push({
-            label:period+'-Period MA', type:'line',
-            data: movingAverage(values, period),
-            borderColor:theme.ma, borderWidth:2, borderDash:[3,3],
-            backgroundColor:'transparent', pointRadius:0, fill:false, tension:0.4, spanGaps:true, order:3
-          });
-        }
-      }
-
-      // ── Average line ─────────────────────────────────────────────
-      if (canOverlay && chartObj.showAvg && values.length>0) {
-        var avg = Math.round(values.reduce(function(a,b){return a+b;},0)/values.length*100)/100;
-        datasets.push({
-          label:'Avg ('+avg.toLocaleString()+')', type:'line',
-          data: values.map(function(){return avg;}),
-          borderColor:theme.avg, borderWidth:2, borderDash:[8,4],
-          backgroundColor:'transparent', pointRadius:0, fill:false, tension:0, order:4
-        });
-      }
-
-      // ── Forecast ──────────────────────────────────────────────────
-      var fcN = parseInt(chartObj.forecastPeriods)||0;
-      if (canOverlay && fcN>0 && reg) {
-        var fcVals = new Array(values.length).fill(null);
-        var lastLbl = labels[labels.length-1];
-        var fcOk = true;
-        for (var fp=0; fp<fcN; fp++) {
-          var nextLbl = nextPeriodLabel(lastLbl, chartObj.groupBy);
-          if (!nextLbl) { fcOk=false; break; }
-          lastLbl = nextLbl;
-          extLabels.push(nextLbl);
-          fcVals.push(Math.max(0, reg.predict(values.length+fp)));
-        }
-        if (fcOk) {
-          mainDs.data = values.concat(new Array(fcN).fill(null));
-          datasets.slice(1).forEach(function(ds) {
-            if (Array.isArray(ds.data)) { while(ds.data.length<extLabels.length) ds.data.push(null); }
-          });
-          datasets.push({
-            label:'Forecast', type:'line',
-            data: fcVals,
-            borderColor:theme.trend, borderWidth:2, borderDash:[5,5],
-            backgroundColor:theme.trend+'22',
-            pointRadius:4, pointStyle:'triangle',
-            fill:false, tension:0.2, spanGaps:false, order:1
-          });
-        }
-      }
-
-      chartInstances[chartObj.id] = new Chart(ctx, {
-        type: cjType,
-        data: { labels: extLabels, datasets: datasets },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          interaction: { mode:'index', intersect:false },
-          plugins: {
-            legend: {
-              display: datasets.length>1||isPD,
-              position: 'bottom',
-              labels: { boxWidth:12, padding:10, font:{size:11} }
-            },
-            tooltip: {
-              callbacks: {
-                label: function(ctx) {
-                  var v = ctx.parsed && ctx.parsed.y!==undefined ? ctx.parsed.y : ctx.parsed;
-                  if (v===null) return null;
-                  return ' '+ctx.dataset.label+': '+(typeof v==='number'?v.toLocaleString():v);
-                }
-              }
-            }
-          },
-          scales: isPD ? {} : {
-            x: { ticks:{maxRotation:45,autoSkip:true,font:{size:11}} },
-            y: { beginAtZero:true, ticks:{font:{size:11}} }
-          }
-        }
-      });
-    }
-
-    // ── Stats panel ────────────────────────────────────────────────
-    function updateStatsPanel(id, values) {
-      var panel = document.getElementById('stats-'+id);
-      if (!panel) return;
-      if (!values||values.length===0) { panel.innerHTML='<span class="text-secondary">No data</span>'; return; }
-      var s = calcStats(values);
-      var g = s.growth!==null
-        ? '<span class="badge '+(s.growth>=0?'bg-success':'bg-danger')+'">'+
-          (s.growth>=0?'+':'')+s.growth+'%</span>'
-        : '';
-      panel.innerHTML =
-        '<div class="d-flex flex-wrap gap-3">'+
-          si('n',s.count)+si('\u03a3',s.sum.toLocaleString())+
-          si('Min',s.min.toLocaleString())+si('Max',s.max.toLocaleString())+
-          si('Mean',s.mean.toLocaleString())+si('Median',s.median.toLocaleString())+
-          si('\u03c3',s.stddev.toLocaleString())+
-          (g?'<div class="da-stat-item"><span class="text-secondary">Growth </span>'+g+'</div>':'')+
+  /* ── COLOR EDITOR ────────────────────────────────────── */
+  function renderColorEditor(chartObj,labels){
+    var card=document.querySelector('[data-chart-id="'+chartObj.id+'"]');
+    if(!card)return;
+    var editor=card.querySelector('.da-color-editor');
+    if(!editor)return;
+    if(!chartObj.multiColor||!labels.length){editor.innerHTML='';return;}
+    var html='<div class="small text-secondary mb-2 fw-semibold">Per-Item Colors</div><div class="d-flex flex-wrap gap-2">';
+    labels.forEach(function(lbl,i){
+      var col=getItemColor(chartObj,lbl,i,null);
+      html+='<div class="da-item-swatch">'+
+        '<input type="color" class="da-item-color-input" value="'+col+'" data-label="'+escHtml(lbl)+'" title="'+escHtml(lbl)+'">'+
+        '<div class="da-item-swatch-label" title="'+escHtml(lbl)+'">'+escHtml(lbl)+'</div>'+
         '</div>';
-    }
-    function si(lbl,val) {
-      return '<div class="da-stat-item"><span class="text-secondary">'+lbl+' </span><strong>'+val+'</strong></div>';
-    }
-
-    // ── HTML helpers ───────────────────────────────────────────────
-    function escHtml(s) {
-      if(!s) return '';
-      return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    }
-    function buildRow(x,y,rowNum) {
-      var tr = document.createElement('tr');
-      tr.innerHTML=
-        '<td class="da-row-num">'+rowNum+'</td>'+
-        '<td><input type="text" class="form-control form-control-sm da-input-x" value="'+escHtml(x)+'" placeholder="Date / Label" /></td>'+
-        '<td><input type="number" class="form-control form-control-sm da-input-y" value="'+escHtml(y)+'" placeholder="Value" step="any" /></td>'+
-        '<td><button class="btn btn-sm btn-outline-danger btn-remove-row" title="Remove row">&times;</button></td>';
-      return tr;
-    }
-
-    // ── Build chart card ───────────────────────────────────────────
-    function buildCard(chartObj) {
-      var card = document.createElement('div');
-      card.className = 'card da-chart-card mb-4';
-      card.dataset.chartId = chartObj.id;
-
-      var showAgg = chartObj.groupBy!=='manual'?'':'  d-none';
-      var th = chartObj.colorTheme||DEFAULT_THEME;
-      var tOpts = Object.keys(THEMES).map(function(k){
-        return '<option value="'+k+'"'+(th===k?' selected':'')+'>'+THEMES[k].name+'</option>';
-      }).join('');
-      var fcVal = parseInt(chartObj.forecastPeriods)||0;
-      var maVal = chartObj.movingAvg||'none';
-
-      card.innerHTML =
-        '<div class="card-body">'+
-
-        '<div class="d-flex flex-wrap align-items-center gap-2 mb-2">'+
-          '<input type="text" class="form-control form-control-sm da-chart-name" style="max-width:190px" value="'+escHtml(chartObj.name)+'" placeholder="Chart name" />'+
-          '<select class="form-select form-select-sm da-chart-type" style="max-width:110px">'+
-            '<option value="line"'    +(chartObj.type==='line'    ?' selected':'')+'>Line</option>'+
-            '<option value="bar"'     +(chartObj.type==='bar'     ?' selected':'')+'>Bar</option>'+
-            '<option value="pie"'     +(chartObj.type==='pie'     ?' selected':'')+'>Pie</option>'+
-            '<option value="doughnut"'+(chartObj.type==='doughnut'?' selected':'')+'>Doughnut</option>'+
-            '<option value="area"'    +(chartObj.type==='area'    ?' selected':'')+'>Area</option>'+
-            '<option value="scatter"' +(chartObj.type==='scatter' ?' selected':'')+'>Scatter</option>'+
-          '</select>'+
-          '<select class="form-select form-select-sm da-chart-theme" style="max-width:105px" title="Color theme">'+tOpts+'</select>'+
-          '<input type="color" class="da-color-picker" value="'+escHtml(chartObj.color||'#ff5811')+'" title="Series color (overrides theme for single-color charts)" />'+
-          '<div class="ms-auto d-flex gap-1 flex-wrap">'+
-            '<button class="btn btn-sm btn-outline-secondary btn-export-png" title="Download PNG">PNG</button>'+
-            '<button class="btn btn-sm btn-outline-secondary btn-export-csv" title="Export CSV">CSV</button>'+
-            '<button class="btn btn-sm btn-outline-danger btn-delete-chart">Delete</button>'+
-          '</div>'+
-        '</div>'+
-
-        '<div class="d-flex flex-wrap align-items-center gap-2 mb-2 da-date-row">'+
-          '<span class="da-date-label">&#128197; Date Range</span>'+
-          '<input type="date" class="form-control form-control-sm da-date-from" style="max-width:150px" value="'+escHtml(chartObj.dateFrom||'')+'" title="Start date" />'+
-          '<span class="text-secondary">&#8594;</span>'+
-          '<input type="date" class="form-control form-control-sm da-date-to" style="max-width:150px" value="'+escHtml(chartObj.dateTo||'')+'" title="End date" />'+
-          '<span class="vr mx-1"></span>'+
-          '<span class="text-secondary small fw-semibold">Period</span>'+
-          '<select class="form-select form-select-sm da-chart-group" style="max-width:130px">'+
-            '<option value="manual"'   +(chartObj.groupBy==='manual'   ?' selected':'')+'>Manual</option>'+
-            '<option value="day"'      +(chartObj.groupBy==='day'      ?' selected':'')+'>By Day</option>'+
-            '<option value="week"'     +(chartObj.groupBy==='week'     ?' selected':'')+'>By Week</option>'+
-            '<option value="month"'    +(chartObj.groupBy==='month'    ?' selected':'')+'>By Month</option>'+
-            '<option value="quarter"'  +(chartObj.groupBy==='quarter'  ?' selected':'')+'>By Quarter</option>'+
-            '<option value="halfyear"' +(chartObj.groupBy==='halfyear' ?' selected':'')+'>Half Year</option>'+
-            '<option value="year"'     +(chartObj.groupBy==='year'     ?' selected':'')+'>By Year</option>'+
-            '<option value="multiyear"'+(chartObj.groupBy==='multiyear'?' selected':'')+'>Multi-Year</option>'+
-          '</select>'+
-          '<select class="form-select form-select-sm da-chart-agg'+showAgg+'" style="max-width:100px">'+
-            '<option value="sum"'    +(chartObj.aggregation==='sum'    ?' selected':'')+'>Sum</option>'+
-            '<option value="average"'+(chartObj.aggregation==='average'?' selected':'')+'>Average</option>'+
-          '</select>'+
-          '<button class="btn btn-sm btn-outline-secondary btn-clear-dates ms-auto" title="Clear date filter">&#x2715; Clear</button>'+
-        '</div>'+
-
-        '<div class="d-flex flex-wrap align-items-center gap-3 mb-3 da-overlay-row">'+
-          '<label class="d-flex align-items-center gap-1 mb-0" title="Linear regression trend line">'+
-            '<input type="checkbox" class="da-check-trend"'+(chartObj.showTrend?' checked':'')+' /> Trend Line'+
-          '</label>'+
-          '<label class="d-flex align-items-center gap-1 mb-0" title="Horizontal mean reference line">'+
-            '<input type="checkbox" class="da-check-avg"'+(chartObj.showAvg?' checked':'')+' /> Avg Line'+
-          '</label>'+
-          '<label class="d-flex align-items-center gap-1 mb-0" title="Apply palette color to each bar / data point individually">'+
-            '<input type="checkbox" class="da-check-multicolor"'+(chartObj.multiColor?' checked':'')+' /> Multi-Color'+
-          '</label>'+
-          '<label class="d-flex align-items-center gap-1 mb-0">'+
-            '<span>Moving Avg</span>'+
-            '<select class="form-select form-select-sm da-chart-ma ms-1" style="max-width:70px">'+
-              '<option value="none"'+(maVal==='none'?' selected':'')+'>Off</option>'+
-              '<option value="3"'  +(maVal==='3'   ?' selected':'')+'>3</option>'+
-              '<option value="5"'  +(maVal==='5'   ?' selected':'')+'>5</option>'+
-              '<option value="7"'  +(maVal==='7'   ?' selected':'')+'>7</option>'+
-              '<option value="10"' +(maVal==='10'  ?' selected':'')+'>10</option>'+
-            '</select>'+
-          '</label>'+
-          '<label class="d-flex align-items-center gap-1 mb-0" title="Linear forecast — works with Month / Quarter / Half-Year / Year grouping">'+
-            '<span>Forecast</span>'+
-            '<select class="form-select form-select-sm da-chart-forecast ms-1" style="max-width:70px">'+
-              '<option value="0"' +(fcVal===0 ?' selected':'')+'>Off</option>'+
-              '<option value="3"' +(fcVal===3 ?' selected':'')+'>+3</option>'+
-              '<option value="6"' +(fcVal===6 ?' selected':'')+'>+6</option>'+
-              '<option value="12"'+(fcVal===12?' selected':'')+'>+12</option>'+
-            '</select>'+
-          '</label>'+
-        '</div>'+
-
-        '<div class="da-card-body-grid row g-3">'+
-          '<div class="col-md-7">'+
-            '<div class="da-canvas-wrap">'+
-              '<canvas id="canvas-'+chartObj.id+'"></canvas>'+
-              '<div class="da-placeholder">No data yet — add rows below</div>'+
-            '</div>'+
-            '<div class="da-stats-panel" id="stats-'+chartObj.id+'"></div>'+
-          '</div>'+
-          '<div class="col-md-5">'+
-            '<div class="table-responsive">'+
-              '<table class="table table-sm da-data-table mb-2">'+
-                '<thead><tr><th class="da-row-num">#</th><th>X (Date / Label)</th><th>Y (Value)</th><th></th></tr></thead>'+
-                '<tbody class="da-table-body"></tbody>'+
-              '</table>'+
-            '</div>'+
-            '<div class="d-flex gap-2 flex-wrap">'+
-              '<button class="btn btn-sm btn-outline-primary btn-add-row">+ Add Row</button>'+
-              '<button class="btn btn-sm btn-outline-secondary btn-paste-csv" title="Paste CSV rows">Paste CSV</button>'+
-            '</div>'+
-            '<div class="mt-2 d-none" id="paste-area-'+chartObj.id+'">'+
-              '<textarea class="form-control form-control-sm da-paste-input" rows="4" placeholder="Paste rows: x,y (one per line)&#10;2024-01,1500&#10;Jan,2400"></textarea>'+
-              '<div class="d-flex gap-2 mt-1">'+
-                '<button class="btn btn-sm btn-primary btn-apply-paste">Apply</button>'+
-                '<button class="btn btn-sm btn-outline-secondary btn-cancel-paste">Cancel</button>'+
-              '</div>'+
-            '</div>'+
-          '</div>'+
-        '</div>'+
-
-        '</div>';
-
-      var tbody = card.querySelector('.da-table-body');
-      (chartObj.data||[]).forEach(function(row,i){ tbody.appendChild(buildRow(row.x,row.y,i+1)); });
-      return card;
-    }
-
-    // ── Read card state ────────────────────────────────────────────
-    function readCard(card) {
-      var rows = [];
-      card.querySelectorAll('.da-table-body tr').forEach(function(tr){
-        rows.push({x:tr.querySelector('.da-input-x').value, y:tr.querySelector('.da-input-y').value});
-      });
-      return {
-        id:             card.dataset.chartId,
-        name:           card.querySelector('.da-chart-name').value.trim(),
-        type:           card.querySelector('.da-chart-type').value,
-        groupBy:        card.querySelector('.da-chart-group').value,
-        aggregation:    card.querySelector('.da-chart-agg').value,
-        colorTheme:     card.querySelector('.da-chart-theme').value,
-        color:          card.querySelector('.da-color-picker').value,
-        showTrend:      card.querySelector('.da-check-trend').checked,
-        showAvg:        card.querySelector('.da-check-avg').checked,
-        movingAvg:      card.querySelector('.da-chart-ma').value,
-        forecastPeriods:parseInt(card.querySelector('.da-chart-forecast').value)||0,
-        dateFrom:       (card.querySelector('.da-date-from')||{}).value||'',
-        dateTo:         (card.querySelector('.da-date-to')||{}).value||'',
-        multiColor:     card.querySelector('.da-check-multicolor') ? card.querySelector('.da-check-multicolor').checked : false,
-        data: rows
-      };
-    }
-
-    function saveAll() {
-      var charts=[];
-      document.querySelectorAll('.da-chart-card').forEach(function(c){charts.push(readCard(c));});
-      saveCharts(charts);
-    }
-    function renumberRows(card) {
-      card.querySelectorAll('.da-table-body tr').forEach(function(tr,i){
-        tr.querySelector('.da-row-num').textContent=i+1;
-      });
-    }
-
-    // ── Exports ────────────────────────────────────────────────────
-    function exportCSV(chartObj) {
-      var lines=['X,Y'];
-      chartObj.data.forEach(function(r){
-        lines.push('"'+ String(r.x||'').replace(/"/g,'""')+'","'+ String(r.y||'').replace(/"/g,'""')+'"');
-      });
-      dlBlob(lines.join('\n'),'text/csv',(chartObj.name||'chart')+'.csv');
-    }
-    function exportPNG(chartObj) {
-      var canvas=document.getElementById('canvas-'+chartObj.id); if(!canvas) return;
-      var a=document.createElement('a');
-      a.href=canvas.toDataURL('image/png'); a.download=(chartObj.name||'chart')+'.png';
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    }
-    function dlBlob(content,type,filename) {
-      var url=URL.createObjectURL(new Blob([content],{type:type}));
-      var a=document.createElement('a'); a.href=url; a.download=filename;
-      document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-    }
-
-    // ── Render scheduling ──────────────────────────────────────────
-    function scheduleRender(card) {
-      var id=card.dataset.chartId;
-      if(debounceTimers[id]) clearTimeout(debounceTimers[id]);
-      debounceTimers[id]=setTimeout(function(){var o=readCard(card);saveAll();renderChart(o);},600);
-    }
-    function immediateRender(card) {
-      var id=card.dataset.chartId;
-      if(debounceTimers[id]) clearTimeout(debounceTimers[id]);
-      var o=readCard(card); saveAll(); renderChart(o);
-    }
-
-    // ── App init ───────────────────────────────────────────────────
-    function initDataApp() {
-      var container = document.getElementById('charts-container');
-      if (!container) return;
-
-      var charts = loadCharts();
-      if (!charts) { charts=[createDemoChart()]; saveCharts(charts); }
-
-      charts.forEach(function(chartObj) {
-        chartObj.colorTheme      = chartObj.colorTheme      || DEFAULT_THEME;
-        chartObj.showTrend       = chartObj.showTrend       || false;
-        chartObj.showAvg         = chartObj.showAvg         || false;
-        chartObj.movingAvg       = chartObj.movingAvg       || 'none';
-        chartObj.forecastPeriods = chartObj.forecastPeriods || 0;
-        chartObj.dateFrom        = chartObj.dateFrom        || '';
-        chartObj.dateTo          = chartObj.dateTo          || '';
-        chartObj.multiColor      = chartObj.multiColor      || false;
-        var card = buildCard(chartObj);
-        container.appendChild(card);
+    });
+    html+='</div>';
+    html+='<button class="btn btn-xs btn-outline-secondary mt-2" style="font-size:.72rem;padding:.1rem .4rem" data-reset-colors="1">Reset to theme</button>';
+    editor.innerHTML=html;
+    editor.querySelectorAll('.da-item-color-input').forEach(function(inp){
+      inp.addEventListener('change',function(){
+        var lbl=this.getAttribute('data-label');
+        if(!chartObj.itemColors)chartObj.itemColors={};
+        chartObj.itemColors[lbl]=this.value;
+        var charts=loadCharts()||[];
+        var idx=charts.findIndex(function(c){return c.id===chartObj.id;});
+        if(idx>=0)charts[idx].itemColors=chartObj.itemColors;
+        saveCharts(charts);
         renderChart(chartObj);
       });
-
-      container.addEventListener('click', function(e) {
-        var t=e.target, card=t.closest('.da-chart-card');
-
-        if (t.closest('.btn-delete-chart') && card) {
-          if (!confirm('Delete "'+( readCard(card).name||'this chart')+'"?')) return;
-          var id=card.dataset.chartId;
-          if(chartInstances[id]){chartInstances[id].destroy();delete chartInstances[id];}
-          card.remove(); saveAll(); return;
-        }
-        if (t.closest('.btn-add-row') && card) {
-          var tb=card.querySelector('.da-table-body');
-          tb.appendChild(buildRow('','',tb.querySelectorAll('tr').length+1));
-          saveAll(); return;
-        }
-        if (t.closest('.btn-remove-row') && card) {
-          var tr=t.closest('tr'); if(tr) tr.remove();
-          renumberRows(card); immediateRender(card); return;
-        }
-        if (t.closest('.btn-export-csv') && card) { exportCSV(readCard(card)); return; }
-        if (t.closest('.btn-export-png') && card) { exportPNG(readCard(card)); return; }
-        if (t.closest('.btn-clear-dates') && card) {
-          var df=card.querySelector('.da-date-from'), dt=card.querySelector('.da-date-to');
-          if(df) df.value=''; if(dt) dt.value='';
-          immediateRender(card); return;
-        }
-        if (t.closest('.btn-paste-csv') && card) {
-          var pa=document.getElementById('paste-area-'+card.dataset.chartId);
-          if(pa) pa.classList.toggle('d-none'); return;
-        }
-        if (t.closest('.btn-cancel-paste') && card) {
-          var pa=document.getElementById('paste-area-'+card.dataset.chartId);
-          if(pa) pa.classList.add('d-none'); return;
-        }
-        if (t.closest('.btn-apply-paste') && card) {
-          var pa=document.getElementById('paste-area-'+card.dataset.chartId);
-          var ta=pa?pa.querySelector('.da-paste-input'):null; if(!ta) return;
-          var tb2=card.querySelector('.da-table-body');
-          ta.value.split('\n').forEach(function(line){
-            line=line.trim(); if(!line) return;
-            var parts=line.split(',');
-            if(parts.length>=2){
-              var x=parts[0].trim().replace(/^"|"$/g,'');
-              var y=parts.slice(1).join(',').trim().replace(/^"|"$/g,'');
-              tb2.appendChild(buildRow(x,y,tb2.querySelectorAll('tr').length+1));
-            }
-          });
-          ta.value=''; pa.classList.add('d-none');
-          renumberRows(card); immediateRender(card); return;
-        }
+    });
+    var resetBtn=editor.querySelector('[data-reset-colors]');
+    if(resetBtn){
+      resetBtn.addEventListener('click',function(){
+        chartObj.itemColors={};
+        var charts=loadCharts()||[];
+        var idx=charts.findIndex(function(c){return c.id===chartObj.id;});
+        if(idx>=0)charts[idx].itemColors={};
+        saveCharts(charts);
+        renderChart(chartObj);
       });
-
-      container.addEventListener('input', function(e) {
-        var card=e.target.closest('.da-chart-card'); if(!card) return;
-        if(e.target.matches('.da-input-x,.da-input-y,.da-chart-name')) scheduleRender(card);
-      });
-
-      container.addEventListener('change', function(e) {
-        var card=e.target.closest('.da-chart-card'); if(!card) return;
-        if(e.target.matches('.da-chart-type,.da-chart-group,.da-chart-agg,.da-color-picker,.da-chart-theme,.da-chart-ma,.da-chart-forecast,.da-check-trend,.da-check-avg,.da-check-multicolor,.da-date-from,.da-date-to')){
-          if(e.target.matches('.da-chart-group')){
-            card.querySelector('.da-chart-agg').classList.toggle('d-none',e.target.value==='manual');
-          }
-          immediateRender(card);
-        }
-      });
-
-      var newBtn = document.getElementById('btn-new-chart');
-      if (newBtn) {
-        newBtn.addEventListener('click', function() {
-          var o = {
-            id:genId(), name:'New Chart', type:'bar',
-            groupBy:'manual', aggregation:'sum',
-            colorTheme:DEFAULT_THEME, color:'#ff5811',
-            showTrend:false, showAvg:false, movingAvg:'none', forecastPeriods:0,
-            dateFrom:'', dateTo:'', multiColor:false,
-            data:[{x:'',y:''},{x:'',y:''},{x:'',y:''}]
-          };
-          var card=buildCard(o);
-          container.prepend(card);
-          renderChart(o); saveAll();
-          card.scrollIntoView({behavior:'smooth',block:'start'});
-        });
-      }
     }
+  }
+
+  /* ── ESCAPE HTML ─────────────────────────────────────── */
+  function escHtml(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+  /* ── CSV PARSER ──────────────────────────────────────── */
+  function parseSmartCSV(text){
+    var lines=text.split(/\r?\n/).filter(function(l){return l.trim();});
+    if(!lines.length)return{headers:[],rows:[]};
+    var firstLine=lines[0];
+    var counts={',':0,'\t':0,';':0,'|':0};
+    [',','\t',';','|'].forEach(function(d){counts[d]=(firstLine.match(new RegExp('\\'+d.replace('|','\\|'),'g'))||[]).length;});
+    var delim=Object.keys(counts).reduce(function(a,b){return counts[a]>=counts[b]?a:b;});
+    function parseLine(line){
+      var res=[],cur='',inQ=false;
+      for(var i=0;i<line.length;i++){var ch=line[i];if(ch==='"'){inQ=!inQ;}else if(ch===delim&&!inQ){res.push(cur.trim());cur='';}else cur+=ch;}
+      res.push(cur.trim()); return res;
+    }
+    var parsed=lines.map(parseLine);
+    var hasHeader=parsed[0].some(function(f){return isNaN(parseFloat(f))&&f.trim()!=='';});
+    var headers=hasHeader?parsed[0]:parsed[0].map(function(_,i){return 'Col '+(i+1);});
+    var rows=hasHeader?parsed.slice(1):parsed;
+    return{headers:headers,rows:rows,delim:delim};
+  }
+
+  /* ── BUILD TABLE ROW ─────────────────────────────────── */
+  function buildRow(x,y,rowNum){
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td class="da-row-num">'+rowNum+'</td>'+
+      '<td><input type="text" class="form-control form-control-sm da-input-x" value="'+escHtml(x)+'" placeholder="Date / Label"></td>'+
+      '<td><input type="number" class="form-control form-control-sm da-input-y" value="'+escHtml(y)+'" placeholder="Value" step="any"></td>'+
+      '<td><button class="btn btn-sm btn-outline-danger btn-remove-row" title="Remove">&times;</button></td>';
+    return tr;
+  }
+
+  /* ── REBUILD TABLE PAGE ──────────────────────────────── */
+  function rebuildTable(card,chartObj){
+    var id=chartObj.id;
+    var ps=tablePages[id]||{page:0,filter:''};
+    tablePages[id]=ps;
+    var data=chartObj.data||[];
+    var f=(ps.filter||'').toLowerCase();
+    var filtered=f?data.filter(function(r){return (r.x||'').toLowerCase().includes(f)||(r.y||'').toString().includes(f);}):data;
+    var total=filtered.length,tp=Math.max(1,Math.ceil(total/PAGE_SIZE));
+    if(ps.page>=tp)ps.page=tp-1;
+    var start=ps.page*PAGE_SIZE,end=Math.min(start+PAGE_SIZE,total);
+    var page=filtered.slice(start,end);
+    var tbody=card.querySelector('.da-table-body');
+    tbody.innerHTML='';
+    page.forEach(function(row,i){tbody.appendChild(buildRow(row.x,row.y,start+i+1));});
+    var pager=card.querySelector('.da-pager');
+    if(!pager)return;
+    if(total<=PAGE_SIZE){pager.innerHTML='<span class="text-secondary">'+total+' row'+(total!==1?'s':'')+'</span>';}
+    else{pager.innerHTML=
+      '<span class="text-secondary me-1">'+(start+1)+'\u2013'+end+' / '+total+'</span>'+
+      '<button class="btn btn-sm btn-outline-secondary da-prev"'+(ps.page===0?' disabled':'')+'>&#8249;</button>'+
+      '<button class="btn btn-sm btn-outline-secondary da-next"'+(ps.page>=tp-1?' disabled':'')+'>&#8250;</button>';}
+  }
+
+  /* ── READ CARD ───────────────────────────────────────── */
+  function readCard(card){
+    var id=card.dataset.chartId;
+    var ps=tablePages[id]||{page:0,filter:''};
+    var charts=loadCharts()||[];
+    var stored=charts.find(function(c){return c.id===id;})||{};
+    var fullData=(stored.data||[]).slice();
+    var f=(ps.filter||'').toLowerCase();
+    if(!f){
+      var start=ps.page*PAGE_SIZE;
+      card.querySelectorAll('.da-table-body tr').forEach(function(tr,i){
+        var idx=start+i;
+        var x=tr.querySelector('.da-input-x').value, y=tr.querySelector('.da-input-y').value;
+        if(idx<fullData.length)fullData[idx]={x:x,y:y};
+        else fullData.push({x:x,y:y});
+      });
+    }
+    return{
+      id:id,
+      name:card.querySelector('.da-chart-name').value.trim(),
+      type:card.querySelector('.da-chart-type').value,
+      groupBy:card.querySelector('.da-chart-group').value,
+      aggregation:card.querySelector('.da-chart-agg').value,
+      colorTheme:card.querySelector('.da-chart-theme').value,
+      color:card.querySelector('.da-color-picker').value,
+      showTrend:card.querySelector('.da-check-trend').checked,
+      showAvg:card.querySelector('.da-check-avg').checked,
+      multiColor:card.querySelector('.da-check-multicolor').checked,
+      movingAvg:card.querySelector('.da-chart-ma').value,
+      forecastPeriods:parseInt(card.querySelector('.da-chart-forecast').value)||0,
+      dateFrom:card.querySelector('.da-date-from').value||'',
+      dateTo:card.querySelector('.da-date-to').value||'',
+      chartHeight:parseInt(card.querySelector('.da-chart-height').value)||380,
+      yMin:card.querySelector('.da-y-min').value,
+      yMax:card.querySelector('.da-y-max').value,
+      showGrid:card.querySelector('.da-check-grid').checked,
+      smooth:card.querySelector('.da-check-smooth').checked,
+      stacked:card.querySelector('.da-check-stacked').checked,
+      itemColors:stored.itemColors||{},
+      data:fullData
+    };
+  }
+
+  function saveAll(){
+    var charts=[];
+    document.querySelectorAll('.da-chart-card').forEach(function(c){charts.push(readCard(c));});
+    saveCharts(charts);
+  }
+
+  /* ── EXPORTS ─────────────────────────────────────────── */
+  function exportCSV(chartObj){
+    var lines=['X,Y'];
+    chartObj.data.forEach(function(r){lines.push('"'+String(r.x||'').replace(/"/g,'""')+'","'+String(r.y||'').replace(/"/g,'""')+'"');});
+    dlBlob(lines.join('\n'),'text/csv',(chartObj.name||'chart')+'.csv');
+  }
+  function exportPNG(chartObj){
+    var c=document.getElementById('canvas-'+chartObj.id); if(!c)return;
+    var a=document.createElement('a'); a.href=c.toDataURL('image/png'); a.download=(chartObj.name||'chart')+'.png';
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+  }
+  function exportJSON(chartObj){dlBlob(JSON.stringify(chartObj,null,2),'application/json',(chartObj.name||'chart')+'.json');}
+  function dlBlob(content,type,filename){
+    var url=URL.createObjectURL(new Blob([content],{type:type}));
+    var a=document.createElement('a'); a.href=url; a.download=filename;
+    document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+  }
+
+  /* ── SCHEDULE / IMMEDIATE RENDER ─────────────────────── */
+  function scheduleRender(card){
+    var id=card.dataset.chartId;
+    if(debounceTimers[id])clearTimeout(debounceTimers[id]);
+    debounceTimers[id]=setTimeout(function(){var o=readCard(card);saveAll();renderChart(o);},600);
+  }
+  function immediateRender(card){
+    var id=card.dataset.chartId;
+    if(debounceTimers[id])clearTimeout(debounceTimers[id]);
+    var o=readCard(card);saveAll();renderChart(o);
+  }
+
+  /* ── BUILD CARD HTML ─────────────────────────────────── */
+  function buildCard(chartObj){
+    var card=document.createElement('div');
+    card.className='card da-chart-card mb-4';
+    card.dataset.chartId=chartObj.id;
+    var th=chartObj.colorTheme||DEFAULT_THEME;
+    var tOpts=Object.keys(THEMES).map(function(k){return'<option value="'+k+'"'+(th===k?' selected':'')+'>'+THEMES[k].name+'</option>';}).join('');
+    var showAgg=chartObj.groupBy!=='manual'?'':' d-none';
+    var fcVal=parseInt(chartObj.forecastPeriods)||0, maVal=chartObj.movingAvg||'none', hVal=chartObj.chartHeight||380;
+    var types=[['line','Line'],['bar','Bar'],['hbar','H-Bar'],['pie','Pie'],['doughnut','Doughnut'],['area','Area'],['scatter','Scatter'],['radar','Radar'],['polarArea','Polar']];
+    var typeOpts=types.map(function(t){return'<option value="'+t[0]+'"'+(chartObj.type===t[0]?' selected':'')+'>'+t[1]+'</option>';}).join('');
+    var aggOpts=[['sum','Sum'],['average','Average'],['count','Count'],['min','Min'],['max','Max'],['median','Median']].map(function(a){return'<option value="'+a[0]+'"'+(chartObj.aggregation===a[0]?' selected':'')+'>'+a[1]+'</option>';}).join('');
+    var grpOpts=[['manual','Manual'],['day','By Day'],['week','By Week'],['month','By Month'],['quarter','By Quarter'],['halfyear','Half Year'],['year','By Year'],['multiyear','Multi-Year']].map(function(g){return'<option value="'+g[0]+'"'+(chartObj.groupBy===g[0]?' selected':'')+'>'+g[1]+'</option>';}).join('');
+    var maOpts=[['none','Off'],['2','2'],['3','3'],['5','5'],['7','7'],['10','10'],['12','12'],['20','20']].map(function(m){return'<option value="'+m[0]+'"'+(maVal===m[0]?' selected':'')+'>'+m[1]+'</option>';}).join('');
+    var fcOpts=[['0','Off'],['3','+3'],['6','+6'],['12','+12'],['24','+24']].map(function(f){return'<option value="'+f[0]+'"'+(fcVal==f[0]?' selected':'')+'>'+f[1]+'</option>';}).join('');
+    var hOpts=[['250','S'],['380','M'],['500','L'],['680','XL']].map(function(h){return'<option value="'+h[0]+'"'+(hVal==h[0]?' selected':'')+'>'+h[1]+'</option>';}).join('');
+
+    card.innerHTML=
+      '<div class="card-body">'+
+
+      /* Row 1: name type theme color height actions */
+      '<div class="d-flex flex-wrap align-items-center gap-2 mb-2">'+
+        '<input type="text" class="form-control form-control-sm da-chart-name" style="max-width:185px" value="'+escHtml(chartObj.name)+'" placeholder="Chart name">'+
+        '<select class="form-select form-select-sm da-chart-type" style="max-width:110px">'+typeOpts+'</select>'+
+        '<select class="form-select form-select-sm da-chart-theme" style="max-width:105px" title="Color theme">'+tOpts+'</select>'+
+        '<input type="color" class="da-color-picker" value="'+escHtml(chartObj.color||'#ff5811')+'" title="Series color (single-color mode)">'+
+        '<select class="form-select form-select-sm da-chart-height" style="max-width:70px" title="Chart height">'+hOpts+'</select>'+
+        '<div class="ms-auto d-flex gap-1 flex-wrap">'+
+          '<button class="btn btn-sm btn-outline-secondary btn-fullscreen" title="Fullscreen">&#x26F6;</button>'+
+          '<button class="btn btn-sm btn-outline-secondary btn-duplicate" title="Duplicate">&#x229E;</button>'+
+          '<button class="btn btn-sm btn-outline-secondary btn-export-png" title="PNG">PNG</button>'+
+          '<button class="btn btn-sm btn-outline-secondary btn-export-csv" title="CSV">CSV</button>'+
+          '<button class="btn btn-sm btn-outline-secondary btn-export-json" title="JSON">JSON</button>'+
+          '<button class="btn btn-sm btn-outline-danger btn-delete-chart">&times;</button>'+
+        '</div>'+
+      '</div>'+
+
+      /* Row 2: date range + grouping */
+      '<div class="d-flex flex-wrap align-items-center gap-2 mb-2 da-date-row">'+
+        '<span class="da-date-label">&#128197; Range</span>'+
+        '<input type="date" class="form-control form-control-sm da-date-from" style="max-width:148px" value="'+escHtml(chartObj.dateFrom||'')+'">'+
+        '<span class="text-secondary">&#8594;</span>'+
+        '<input type="date" class="form-control form-control-sm da-date-to" style="max-width:148px" value="'+escHtml(chartObj.dateTo||'')+'">'+
+        '<button class="btn btn-sm btn-outline-secondary btn-clear-dates" title="Clear">&#x2715;</button>'+
+        '<span class="vr mx-1"></span>'+
+        '<select class="form-select form-select-sm da-chart-group" style="max-width:130px">'+grpOpts+'</select>'+
+        '<select class="form-select form-select-sm da-chart-agg'+showAgg+'" style="max-width:95px">'+aggOpts+'</select>'+
+      '</div>'+
+
+      /* Row 3: overlays + Y axis */
+      '<div class="d-flex flex-wrap align-items-center gap-3 mb-3 da-overlay-row">'+
+        '<label class="d-flex align-items-center gap-1 mb-0"><input type="checkbox" class="da-check-trend"'+(chartObj.showTrend?' checked':'')+'>Trend</label>'+
+        '<label class="d-flex align-items-center gap-1 mb-0"><input type="checkbox" class="da-check-avg"'+(chartObj.showAvg?' checked':'')+'>Avg</label>'+
+        '<label class="d-flex align-items-center gap-1 mb-0"><input type="checkbox" class="da-check-multicolor"'+(chartObj.multiColor?' checked':'')+'>Per-Item Colors</label>'+
+        '<label class="d-flex align-items-center gap-1 mb-0"><input type="checkbox" class="da-check-grid"'+(chartObj.showGrid!==false?' checked':'')+'>Grid</label>'+
+        '<label class="d-flex align-items-center gap-1 mb-0"><input type="checkbox" class="da-check-smooth"'+(chartObj.smooth!==false?' checked':'')+'>Smooth</label>'+
+        '<label class="d-flex align-items-center gap-1 mb-0"><input type="checkbox" class="da-check-stacked"'+(chartObj.stacked?' checked':'')+'>Stack</label>'+
+        '<label class="d-flex align-items-center gap-1 mb-0">MA<select class="form-select form-select-sm da-chart-ma ms-1" style="max-width:62px">'+maOpts+'</select></label>'+
+        '<label class="d-flex align-items-center gap-1 mb-0">Fcst<select class="form-select form-select-sm da-chart-forecast ms-1" style="max-width:62px">'+fcOpts+'</select></label>'+
+        '<span class="text-secondary small ms-1">Y:</span>'+
+        '<input type="number" class="form-control form-control-sm da-y-min" style="max-width:68px" value="'+escHtml(chartObj.yMin||'')+'" placeholder="Min" step="any">'+
+        '<input type="number" class="form-control form-control-sm da-y-max" style="max-width:68px" value="'+escHtml(chartObj.yMax||'')+'" placeholder="Max" step="any">'+
+      '</div>'+
+
+      /* Body: chart + table */
+      '<div class="da-card-body-grid row g-3">'+
+        '<div class="col-lg-7">'+
+          '<div class="da-canvas-wrap" style="height:'+hVal+'px">'+
+            '<canvas id="canvas-'+chartObj.id+'"></canvas>'+
+            '<div class="da-placeholder">No data — add rows or upload a file</div>'+
+          '</div>'+
+          '<div class="da-stats-panel" id="stats-'+chartObj.id+'"></div>'+
+          '<div class="da-color-editor" id="color-editor-'+chartObj.id+'"></div>'+
+        '</div>'+
+        '<div class="col-lg-5">'+
+          '<div class="d-flex gap-2 align-items-center mb-2 flex-wrap">'+
+            '<input type="search" class="form-control form-control-sm da-table-filter" placeholder="Filter rows&hellip;" style="max-width:150px">'+
+            '<div class="da-pager d-flex align-items-center gap-1 ms-auto"></div>'+
+          '</div>'+
+          '<div style="max-height:300px;overflow-y:auto">'+
+            '<table class="table table-sm da-data-table mb-2">'+
+              '<thead><tr><th class="da-row-num">#</th><th>X</th><th>Y</th><th></th></tr></thead>'+
+              '<tbody class="da-table-body"></tbody>'+
+            '</table>'+
+          '</div>'+
+          '<div class="d-flex gap-2 flex-wrap mb-2">'+
+            '<button class="btn btn-sm btn-outline-primary btn-add-row">+ Row</button>'+
+            '<button class="btn btn-sm btn-outline-secondary btn-paste-toggle">Paste</button>'+
+            '<label class="btn btn-sm btn-outline-success mb-0">Upload CSV<input type="file" class="da-file-input" accept=".csv,.tsv,.txt" style="display:none"></label>'+
+            '<button class="btn btn-sm btn-outline-warning btn-sort-x" title="Sort by X">Sort X</button>'+
+            '<button class="btn btn-sm btn-outline-danger btn-clear-all" title="Clear all rows">Clear</button>'+
+          '</div>'+
+          '<div class="da-upload-zone" id="drop-'+chartObj.id+'">Drop CSV / TSV file here (Shift+drop to append)</div>'+
+          '<div class="d-none" id="col-picker-'+chartObj.id+'">'+
+            '<div class="da-col-picker">'+
+              '<div class="d-flex gap-2 align-items-center flex-wrap mb-2">'+
+                '<span class="small fw-semibold">Column mapping:</span>'+
+                '<label class="small">X: <select class="form-select form-select-sm da-cp-x" style="width:auto;display:inline-block"></select></label>'+
+                '<label class="small">Y: <select class="form-select form-select-sm da-cp-y" style="width:auto;display:inline-block"></select></label>'+
+                '<label class="small d-flex align-items-center gap-1"><input type="checkbox" class="da-cp-header" checked> Header row</label>'+
+                '<button class="btn btn-sm btn-primary da-cp-apply">Apply</button>'+
+                '<button class="btn btn-sm btn-outline-secondary da-cp-cancel">Cancel</button>'+
+              '</div>'+
+              '<div class="da-cp-preview small overflow-auto" style="max-height:100px"></div>'+
+            '</div>'+
+          '</div>'+
+          '<div class="d-none mt-2" id="paste-area-'+chartObj.id+'">'+
+            '<textarea class="form-control form-control-sm da-paste-input" rows="4" placeholder="Paste CSV, TSV, or Excel data here&#10;x,y or x[tab]y one per line"></textarea>'+
+            '<div class="d-flex gap-2 mt-1">'+
+              '<button class="btn btn-sm btn-primary btn-apply-paste">Replace</button>'+
+              '<button class="btn btn-sm btn-outline-success btn-append-paste">Append</button>'+
+              '<button class="btn btn-sm btn-outline-secondary btn-cancel-paste">Cancel</button>'+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+      '</div>'+
+      '</div>';
+
+    return card;
+  }
+
+  /* ── UPLOAD / PARSE HELPERS ──────────────────────────── */
+  function setupCard(card,chartObj){
+    var fileInput=card.querySelector('.da-file-input');
+    var dropZone=card.querySelector('.da-upload-zone');
+    function handleFile(file,append){
+      var reader=new FileReader();
+      reader.onload=function(e){handleParsed(parseSmartCSV(e.target.result),card,append);};
+      reader.readAsText(file);
+    }
+    if(fileInput){fileInput.addEventListener('change',function(){if(this.files[0]){handleFile(this.files[0],false);this.value='';}});}
+    if(dropZone){
+      dropZone.addEventListener('dragover',function(e){e.preventDefault();this.classList.add('drag-over');});
+      dropZone.addEventListener('dragleave',function(){this.classList.remove('drag-over');});
+      dropZone.addEventListener('drop',function(e){
+        e.preventDefault();this.classList.remove('drag-over');
+        var f=e.dataTransfer.files[0];if(f)handleFile(f,e.shiftKey);
+      });
+    }
+  }
+
+  function handleParsed(parsed,card,append){
+    var id=card.dataset.chartId;
+    var pickerWrap=document.getElementById('col-picker-'+id);
+    if(!pickerWrap)return;
+    var headers=parsed.headers,rows=parsed.rows;
+    if(headers.length<=2){
+      applyRows(rows.map(function(r){return{x:r[0]||'',y:r[1]||''};}),card,append);
+      return;
+    }
+    // Show column picker
+    var cpx=pickerWrap.querySelector('.da-cp-x'),cpy=pickerWrap.querySelector('.da-cp-y');
+    cpx.innerHTML=headers.map(function(h,i){return'<option value="'+i+'">'+escHtml(h)+'</option>';}).join('');
+    cpy.innerHTML=headers.map(function(h,i){return'<option value="'+i+'"'+(i===1?' selected':'')+'>'+escHtml(h)+'</option>';}).join('');
+    var preview=pickerWrap.querySelector('.da-cp-preview');
+    preview.innerHTML='<table class="table table-xs table-bordered mb-0"><thead><tr>'+headers.map(function(h){return'<th>'+escHtml(h)+'</th>';}).join('')+'</tr></thead><tbody>'+rows.slice(0,4).map(function(r){return'<tr>'+r.map(function(c){return'<td>'+escHtml(c)+'</td>';}).join('')+'</tr>';}).join('')+'</tbody></table>';
+    pickerWrap.classList.remove('d-none');
+    pickerWrap._pendingRows=rows;
+    pickerWrap._pendingAppend=append;
+  }
+
+  function applyRows(data,card,append){
+    var id=card.dataset.chartId;
+    var charts=loadCharts()||[];
+    var idx=charts.findIndex(function(c){return c.id===id;});
+    var co=idx>=0?charts[idx]:readCard(card);
+    if(!append)co.data=[];
+    co.data=co.data.concat(data.filter(function(r){return r.x!==''||r.y!==''; }));
+    if(idx>=0)charts[idx]=co;else charts.push(co);
+    saveCharts(charts);
+    tablePages[id]={page:0,filter:''};
+    rebuildTable(card,co);
+    renderChart(co);
+  }
+
+  /* ── INIT ────────────────────────────────────────────── */
+  function initDataApp(){
+    var container=document.getElementById('charts-container'); if(!container)return;
+    var charts=loadCharts();
+    if(!charts||!charts.length){charts=[createDemoChart()];saveCharts(charts);}
+    charts=charts.map(function(c){
+      return Object.assign({colorTheme:'ember',showTrend:false,showAvg:false,movingAvg:'none',forecastPeriods:0,dateFrom:'',dateTo:'',multiColor:false,itemColors:{},chartHeight:380,yMin:'',yMax:'',showGrid:true,smooth:true,stacked:false},c);
+    });
+    charts.forEach(function(co){
+      var card=buildCard(co);
+      container.appendChild(card);
+      tablePages[co.id]={page:0,filter:''};
+      rebuildTable(card,co);
+      renderChart(co);
+      setupCard(card,co);
+    });
+
+    /* ── EVENT DELEGATION ─────────────────────────────── */
+    container.addEventListener('click',function(e){
+      var t=e.target,card=t.closest('.da-chart-card'); if(!card)return;
+      var id=card.dataset.chartId;
+
+      if(t.closest('.btn-delete-chart')){
+        if(!confirm('Delete "'+(readCard(card).name||'this chart')+'"?'))return;
+        if(chartInstances[id]){chartInstances[id].destroy();delete chartInstances[id];}
+        card.remove();saveAll();return;
+      }
+      if(t.closest('.btn-add-row')){
+        var charts2=loadCharts()||[],i2=charts2.findIndex(function(c){return c.id===id;});
+        var co2=i2>=0?charts2[i2]:readCard(card);
+        co2.data=co2.data||[];co2.data.push({x:'',y:''});
+        if(i2>=0)charts2[i2]=co2;else charts2.push(co2);saveCharts(charts2);
+        var tp=Math.ceil(co2.data.length/PAGE_SIZE);
+        tablePages[id]={page:Math.max(0,tp-1),filter:''};
+        rebuildTable(card,co2);return;
+      }
+      if(t.closest('.btn-remove-row')){
+        var tr=t.closest('tr'),rn=parseInt(tr.querySelector('.da-row-num').textContent)-1;
+        var charts3=loadCharts()||[],i3=charts3.findIndex(function(c){return c.id===id;});
+        if(i3>=0){charts3[i3].data.splice(rn,1);saveCharts(charts3);
+          var ps3=tablePages[id]||{page:0};var total3=charts3[i3].data.length;
+          if(ps3.page>0&&ps3.page*PAGE_SIZE>=total3)ps3.page--;
+          rebuildTable(card,charts3[i3]);renderChart(charts3[i3]);}return;
+      }
+      if(t.closest('.btn-export-csv')){exportCSV(readCard(card));return;}
+      if(t.closest('.btn-export-png')){exportPNG(readCard(card));return;}
+      if(t.closest('.btn-export-json')){exportJSON(readCard(card));return;}
+      if(t.closest('.btn-fullscreen')){
+        var cv=document.getElementById('canvas-'+id);
+        if(cv&&cv.requestFullscreen)cv.requestFullscreen();
+        return;
+      }
+      if(t.closest('.btn-duplicate')){
+        var orig=readCard(card),copy=JSON.parse(JSON.stringify(orig));
+        copy.id=genId();copy.name=(copy.name||'Chart')+' (copy)';
+        var nc=buildCard(copy);card.after(nc);
+        tablePages[copy.id]={page:0,filter:''};rebuildTable(nc,copy);renderChart(copy);setupCard(nc,copy);saveAll();return;
+      }
+      if(t.closest('.btn-clear-dates')){
+        card.querySelector('.da-date-from').value='';card.querySelector('.da-date-to').value='';
+        immediateRender(card);return;
+      }
+      if(t.closest('.btn-paste-toggle')){
+        document.getElementById('paste-area-'+id).classList.toggle('d-none');return;
+      }
+      if(t.closest('.btn-apply-paste')||t.closest('.btn-append-paste')){
+        var append=!!t.closest('.btn-append-paste');
+        var ta=document.getElementById('paste-area-'+id).querySelector('.da-paste-input');
+        if(ta&&ta.value.trim()){var parsed=parseSmartCSV(ta.value);handleParsed(parsed,card,append);ta.value='';}
+        document.getElementById('paste-area-'+id).classList.add('d-none');return;
+      }
+      if(t.closest('.btn-cancel-paste')){document.getElementById('paste-area-'+id).classList.add('d-none');return;}
+      if(t.closest('.btn-sort-x')){
+        var cs=loadCharts()||[],is=cs.findIndex(function(c){return c.id===id;});
+        if(is>=0){cs[is].data.sort(function(a,b){return a.x<b.x?-1:a.x>b.x?1:0;});saveCharts(cs);tablePages[id]={page:0,filter:''};rebuildTable(card,cs[is]);renderChart(cs[is]);}return;
+      }
+      if(t.closest('.btn-clear-all')){
+        if(!confirm('Delete all rows?'))return;
+        var ca=loadCharts()||[],ia=ca.findIndex(function(c){return c.id===id;});
+        if(ia>=0){ca[ia].data=[];saveCharts(ca);tablePages[id]={page:0,filter:''};rebuildTable(card,ca[ia]);renderChart(ca[ia]);}return;
+      }
+      // Column picker buttons
+      var pickerWrap=document.getElementById('col-picker-'+id);
+      if(pickerWrap&&t.closest('.da-cp-apply')){
+        var xi=parseInt(pickerWrap.querySelector('.da-cp-x').value);
+        var yi=parseInt(pickerWrap.querySelector('.da-cp-y').value);
+        var hdr=pickerWrap.querySelector('.da-cp-header').checked;
+        var rows=(pickerWrap._pendingRows||[]).slice(hdr?1:0);
+        applyRows(rows.map(function(r){return{x:r[xi]||'',y:r[yi]||''};}),card,pickerWrap._pendingAppend||false);
+        pickerWrap.classList.add('d-none');return;
+      }
+      if(pickerWrap&&t.closest('.da-cp-cancel')){pickerWrap.classList.add('d-none');return;}
+      // Pagination
+      if(t.classList.contains('da-prev')||t.classList.contains('da-next')){
+        saveAll();
+        var ps=tablePages[id]||{page:0};
+        if(t.classList.contains('da-prev'))ps.page--;else ps.page++;
+        var ch=loadCharts()||[],ic=ch.findIndex(function(c){return c.id===id;});
+        if(ic>=0)rebuildTable(card,ch[ic]);return;
+      }
+    });
+
+    container.addEventListener('input',function(e){
+      var card=e.target.closest('.da-chart-card');if(!card)return;
+      var id=card.dataset.chartId;
+      if(e.target.matches('.da-table-filter')){
+        var ps=tablePages[id]||{page:0};ps.filter=e.target.value;ps.page=0;
+        var ch=loadCharts()||[],ic=ch.findIndex(function(c){return c.id===id;});
+        if(ic>=0)rebuildTable(card,ch[ic]);return;
+      }
+      if(e.target.matches('.da-input-x,.da-input-y,.da-chart-name,.da-y-min,.da-y-max'))scheduleRender(card);
+    });
+
+    container.addEventListener('change',function(e){
+      var card=e.target.closest('.da-chart-card');if(!card)return;
+      if(e.target.matches('.da-chart-type,.da-chart-group,.da-chart-agg,.da-color-picker,.da-chart-theme,.da-chart-ma,.da-chart-forecast,.da-check-trend,.da-check-avg,.da-check-multicolor,.da-check-grid,.da-check-smooth,.da-check-stacked,.da-date-from,.da-date-to,.da-chart-height')){
+        if(e.target.matches('.da-chart-group'))card.querySelector('.da-chart-agg').classList.toggle('d-none',e.target.value==='manual');
+        if(e.target.matches('.da-chart-height')){var w=card.querySelector('.da-canvas-wrap');if(w)w.style.height=e.target.value+'px';}
+        immediateRender(card);
+      }
+    });
+
+    /* New chart */
+    var nb=document.getElementById('btn-new-chart');
+    if(nb)nb.addEventListener('click',function(){
+      var co={id:genId(),name:'New Chart',type:'bar',groupBy:'manual',aggregation:'sum',colorTheme:DEFAULT_THEME,color:'#ff5811',showTrend:false,showAvg:false,multiColor:false,itemColors:{},movingAvg:'none',forecastPeriods:0,dateFrom:'',dateTo:'',chartHeight:380,yMin:'',yMax:'',showGrid:true,smooth:true,stacked:false,data:[{x:'',y:''},{x:'',y:''},{x:'',y:''}]};
+      var card=buildCard(co);container.prepend(card);
+      tablePages[co.id]={page:0,filter:''};rebuildTable(card,co);renderChart(co);setupCard(card,co);saveAll();
+      card.scrollIntoView({behavior:'smooth',block:'start'});
+    });
+
+    /* Import JSON */
+    var importFile=document.getElementById('da-import-file');
+    if(importFile)importFile.addEventListener('change',function(){
+      if(!this.files[0])return;
+      var r=new FileReader();r.onload=function(e){
+        try{
+          var d=JSON.parse(e.target.result);
+          var arr=Array.isArray(d)?d:[d];
+          arr.forEach(function(co){
+            if(!co.data)return;
+            co=Object.assign({colorTheme:'ember',showTrend:false,showAvg:false,movingAvg:'none',forecastPeriods:0,dateFrom:'',dateTo:'',multiColor:false,itemColors:{},chartHeight:380,yMin:'',yMax:'',showGrid:true,smooth:true,stacked:false},co);
+            co.id=genId();
+            var card=buildCard(co);container.prepend(card);
+            tablePages[co.id]={page:0,filter:''};rebuildTable(card,co);renderChart(co);setupCard(card,co);
+          });
+          saveAll();
+        }catch(err){alert('Invalid JSON: '+err.message);}
+      };
+      r.readAsText(this.files[0]);this.value='';
+    });
+  }
 
   })();
   </script>
