@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="theme.css" />
+  <title>Code Builder | Jessica Rojas</title>
+  <meta name="description" content="In-browser code editor with live preview, JavaScript console, JSON formatter, and Markdown renderer." />
+  <style>
+    html, body { height: 100%; overflow: hidden; }
+
+    /* ── Layout ─────────────────────────────────────────── */
+    .cb-shell   { display:flex; flex-direction:column; height:calc(100vh - 56px); }
+    .cb-toolbar { flex-shrink:0; padding:6px 12px; border-bottom:1px solid var(--bs-border-color); display:flex; align-items:center; gap:8px; flex-wrap:wrap; background:var(--bs-body-bg); }
+    .cb-main    { flex:1; display:flex; overflow:hidden; min-height:0; }
+
+    /* ── Editor pane ─────────────────────────────────────── */
+    .cb-editor-pane  { width:50%; display:flex; flex-direction:column; border-right:1px solid var(--bs-border-color); min-width:0; }
+    .cb-subtabs      { flex-shrink:0; padding:4px 8px 0; background:var(--bs-body-bg); border-bottom:1px solid var(--bs-border-color); }
+    .cb-subtabs .nav-link { padding:4px 10px; font-size:0.82rem; }
+    .cb-editor-wrap  { flex:1; position:relative; min-height:0; }
+    #monacoEditor    { position:absolute; inset:0; }
+
+    /* ── Output pane ──────────────────────────────────────── */
+    .cb-output-pane  { width:50%; display:flex; flex-direction:column; min-width:0; }
+    .cb-out-header   { flex-shrink:0; padding:5px 12px; border-bottom:1px solid var(--bs-border-color); display:flex; align-items:center; justify-content:space-between; background:var(--bs-body-bg); }
+    .cb-out-header span { font-size:0.82rem; font-weight:600; }
+    #cbPreview       { flex:1; border:none; background:#fff; min-height:0; }
+    #cbConsole       { flex:1; overflow-y:auto; padding:10px 14px; font-family:"Cascadia Code","Fira Code",Consolas,monospace; font-size:13px; min-height:0; }
+
+    /* ── Console colors ───────────────────────────────────── */
+    [data-bs-theme="dark"]  #cbConsole { background:#1e1e1e; color:#d4d4d4; }
+    [data-bs-theme="light"] #cbConsole { background:#f8f8f8; color:#1e1e1e; }
+    .cl-line   { padding:2px 0; border-bottom:1px solid rgba(128,128,128,.15); white-space:pre-wrap; word-break:break-all; }
+    .cl-error  { color:#f48771; }
+    .cl-warn   { color:#cca700; }
+    .cl-info   { color:#3dc9b0; }
+    .cl-result { color:#9cdcfe; font-style:italic; }
+    .cl-sys    { color:#858585; font-style:italic; }
+
+    /* ── Status bar ───────────────────────────────────────── */
+    .cb-status { flex-shrink:0; padding:2px 10px; font-size:11px; color:var(--bs-secondary-color); border-top:1px solid var(--bs-border-color); background:var(--bs-body-bg); display:flex; justify-content:space-between; }
+
+    /* ── Toolbar controls ─────────────────────────────────── */
+    .cb-toolbar .form-select,
+    .cb-toolbar .btn { font-size:0.8rem; }
+    .cb-toolbar .vr  { height:22px; align-self:center; }
+    #cbMsg { font-size:0.78rem; }
+
+    /* ── Resizer ──────────────────────────────────────────── */
+    .cb-resizer { width:5px; background:var(--bs-border-color); cursor:col-resize; flex-shrink:0; transition:background .15s; }
+    .cb-resizer:hover { background:var(--bs-primary); }
+
+    /* ── Fullscreen mode ──────────────────────────────────── */
+    .cb-shell.fs-output .cb-editor-pane { display:none; }
+    .cb-shell.fs-output .cb-output-pane { width:100%; }
+    .cb-shell.fs-editor .cb-output-pane { display:none; }
+    .cb-shell.fs-editor .cb-editor-pane { width:100%; }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link active" href="projects.html" aria-current="page">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" id="nav-dataanalysis-link" style="display:none"><a class="nav-link" href="dataanalysis.html">Data Analysis</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- RBAC Login Modal -->
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="rbacModalLabel">🔒 Login</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="rbac-login-form" novalidate>
+            <div class="mb-3">
+              <label for="rbac-username-input" class="form-label">Username</label>
+              <input type="text" class="form-control" id="rbac-username-input" autocomplete="username" placeholder="Enter your username" maxlength="40" required />
+            </div>
+            <div class="mb-3">
+              <label for="rbac-password-input" class="form-label">Password</label>
+              <input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" required />
+            </div>
+            <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+          </form>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <p class="text-secondary small mb-0">Session clears when you close this tab.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main id="main-content" style="height:calc(100vh - 56px);overflow:hidden;">
+  <div class="cb-shell" id="cbShell">
+
+    <!-- ══ Toolbar ══════════════════════════════════════════════ -->
+    <div class="cb-toolbar">
+      <!-- Language -->
+      <select id="cbLang" class="form-select form-select-sm" style="width:auto" aria-label="Language">
+        <option value="javascript">JavaScript</option>
+        <option value="html">HTML / CSS / JS</option>
+        <option value="json">JSON</option>
+        <option value="markdown">Markdown</option>
+        <option value="python">Python (Skulpt)</option>
+      </select>
+
+      <!-- Run -->
+      <button id="cbRun" class="btn btn-sm btn-primary" title="Run (Ctrl+Enter)">&#9654; Run</button>
+
+      <!-- Auto-run -->
+      <div class="form-check form-switch mb-0 d-flex align-items-center gap-1">
+        <input class="form-check-input mt-0" type="checkbox" id="cbAutoRun" role="switch">
+        <label class="form-check-label small" for="cbAutoRun">Auto</label>
+      </div>
+
+      <div class="vr"></div>
+
+      <!-- Saved snippets -->
+      <select id="cbSlot" class="form-select form-select-sm" style="width:160px" aria-label="Saved snippets">
+        <option value="">── Snippets ──</option>
+      </select>
+      <button id="cbSave"   class="btn btn-sm btn-outline-secondary" title="Save snippet">Save</button>
+      <button id="cbDelete" class="btn btn-sm btn-outline-danger"    title="Delete snippet">Del</button>
+
+      <div class="vr"></div>
+
+      <!-- Utilities -->
+      <button id="cbCopy"     class="btn btn-sm btn-outline-secondary" title="Copy code">Copy</button>
+      <button id="cbClear"    class="btn btn-sm btn-outline-secondary" title="Clear editor">Clear</button>
+      <button id="cbFsEditor" class="btn btn-sm btn-outline-secondary" title="Expand editor">&#9707; Editor</button>
+      <button id="cbFsOutput" class="btn btn-sm btn-outline-secondary" title="Expand output">&#9707; Output</button>
+
+      <span id="cbMsg" class="ms-auto text-success fw-semibold"></span>
+    </div>
+
+    <!-- ══ Main area ═════════════════════════════════════════════ -->
+    <div class="cb-main" id="cbMain">
+
+      <!-- Editor pane -->
+      <div class="cb-editor-pane" id="editorPane">
+        <div class="cb-subtabs d-none" id="htmlSubtabs">
+          <ul class="nav nav-tabs border-0" id="htmlTabs">
+            <li class="nav-item"><button class="nav-link active" data-tab="html">HTML</button></li>
+            <li class="nav-item"><button class="nav-link"        data-tab="css">CSS</button></li>
+            <li class="nav-item"><button class="nav-link"        data-tab="jsTab">JS</button></li>
+          </ul>
+        </div>
+        <div class="cb-editor-wrap">
+          <div id="monacoEditor"></div>
+        </div>
+        <div class="cb-status">
+          <span id="stCursor">Ln 1, Col 1</span>
+          <span id="stLang">JavaScript</span>
+        </div>
+      </div>
+
+      <!-- Drag resizer -->
+      <div class="cb-resizer" id="cbResizer"></div>
+
+      <!-- Output pane -->
+      <div class="cb-output-pane" id="outputPane">
+        <div class="cb-out-header">
+          <span id="outLabel">Console</span>
+          <button id="cbClearOut" class="btn btn-sm btn-link p-0 text-secondary" style="font-size:.78rem">Clear</button>
+        </div>
+        <iframe id="cbPreview"  sandbox="allow-scripts allow-same-origin allow-forms allow-modals" style="display:none;flex:1;border:none;"></iframe>
+        <div    id="cbConsole"  style="display:flex;flex-direction:column;"></div>
+        <div class="cb-status">
+          <span id="stRun">Ready</span>
+          <span id="stTime"></span>
+        </div>
+      </div>
+
+    </div><!-- /cb-main -->
+  </div><!-- /cb-shell -->
+  </main>
+
+  <!-- ══ Scripts ══════════════════════════════════════════════ -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <!-- Skulpt for Python -->
+  <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
+  <!-- Marked for Markdown -->
+  <script src="https://cdn.jsdelivr.net/npm/marked@12.0.0/marked.min.js"></script>
+  <!-- Monaco loader -->
+  <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.js"></script>
+
+  <script>
+  (function () {
+    'use strict';
+
+    /* ── Defaults ─────────────────────────────────────── */
+    var DEFAULTS = {
+      javascript: [
+        '// JavaScript Playground — Ctrl+Enter to run\n',
+        '\n',
+        'console.log("Hello, World!");\n',
+        '\n',
+        '// Fibonacci\n',
+        'const fib = n => n <= 1 ? n : fib(n-1) + fib(n-2);\n',
+        'console.log("fib(10) =", fib(10));\n',
+        '\n',
+        '// Array ops\n',
+        'const nums = [3, 1, 4, 1, 5, 9, 2, 6, 5, 3];\n',
+        'const sorted = [...nums].sort((a,b)=>a-b);\n',
+        'const sum    = nums.reduce((a,b)=>a+b,0);\n',
+        'console.log("sorted:", sorted.join(", "));\n',
+        'console.log("sum:", sum, " | max:", Math.max(...nums));\n',
+        '\n',
+        '// Return value is also printed\n',
+        'nums.filter(n => n > 3);\n'
+      ].join(''),
+
+      html: '<h1>Hello, World!</h1>\n<p>Edit HTML, CSS, and JS tabs then click <strong>Run</strong>.</p>\n<button onclick="greet()">Click Me</button>\n<div id="out"></div>',
+      css:  'body {\n  font-family: system-ui, sans-serif;\n  max-width: 640px;\n  margin: 40px auto;\n  padding: 24px;\n  background: #f9fafb;\n}\nh1 { color: #ff5811; }\nbutton {\n  background: #ff5811;\n  color: #fff;\n  border: none;\n  padding: 8px 18px;\n  border-radius: 6px;\n  cursor: pointer;\n  font-size: 1rem;\n}\n#out {\n  margin-top: 18px;\n  padding: 14px;\n  background: #fff;\n  border-radius: 8px;\n  border: 1px solid #e5e7eb;\n  min-height: 48px;\n}',
+      jsTab:'function greet() {\n  document.getElementById("out").innerHTML =\n    "<strong>Hello from JS!</strong> Time: " + new Date().toLocaleTimeString();\n}',
+
+      json: '{\n  "project": "Code Builder",\n  "version": "1.0.0",\n  "features": [\n    "Monaco Editor",\n    "Live HTML/CSS/JS preview",\n    "JavaScript console",\n    "JSON formatter",\n    "Markdown renderer",\n    "Python (Skulpt)"\n  ],\n  "author": {\n    "name": "Jessica Rojas",\n    "role": "Systems Engineer"\n  }\n}',
+
+      markdown: '# Code Builder\n\nWelcome to the **Code Builder** playground!\n\n## Features\n\n- Monaco Editor with syntax highlighting\n- Live HTML/CSS/JS preview\n- JavaScript console output\n- JSON formatting & validation\n- Markdown preview\n- Python execution via Skulpt\n\n## Example\n\n```javascript\nconst greet = name => `Hello, ${name}!`;\nconsole.log(greet("World"));\n```\n\n> Start editing to see live results.',
+
+      python: '# Python Playground (Skulpt)\nprint("Hello, World!")\n\n# Fibonacci\ndef fib(n):\n    if n <= 1: return n\n    return fib(n-1) + fib(n-2)\n\nfor i in range(10):\n    print(f"fib({i}) = {fib(i)}")\n\n# List operations\nnums = [3, 1, 4, 1, 5, 9, 2, 6]\nprint("\\nSorted:", sorted(nums))\nprint("Sum:", sum(nums))\nprint("Max:", max(nums))\n'
+    };
+
+    var MONACO_LANG = { javascript:'javascript', html:'html', css:'css', jsTab:'javascript', json:'json', markdown:'markdown', python:'python' };
+    var LANG_LABEL  = { javascript:'JavaScript', html:'HTML/CSS/JS', json:'JSON', markdown:'Markdown', python:'Python' };
+
+    /* ── State ────────────────────────────────────────── */
+    var editor        = null;   // Monaco instance
+    var currentLang   = 'javascript';
+    var htmlContent   = { html: DEFAULTS.html, css: DEFAULTS.css, jsTab: DEFAULTS.jsTab };
+    var htmlActive    = 'html';
+    var autoTimer     = null;
+
+    /* ── DOM refs ─────────────────────────────────────── */
+    var $ = id => document.getElementById(id);
+    var elLang      = $('cbLang');
+    var elRun       = $('cbRun');
+    var elAutoRun   = $('cbAutoRun');
+    var elSlot      = $('cbSlot');
+    var elSave      = $('cbSave');
+    var elDelete    = $('cbDelete');
+    var elCopy      = $('cbCopy');
+    var elClear     = $('cbClear');
+    var elFsEditor  = $('cbFsEditor');
+    var elFsOutput  = $('cbFsOutput');
+    var elMsg       = $('cbMsg');
+    var elPreview   = $('cbPreview');
+    var elConsole   = $('cbConsole');
+    var elClearOut  = $('cbClearOut');
+    var elHtmlTabs  = $('htmlSubtabs');
+    var elShell     = $('cbShell');
+    var elStCursor  = $('stCursor');
+    var elStLang    = $('stLang');
+    var elStRun     = $('stRun');
+    var elStTime    = $('stTime');
+    var elOutLabel  = $('outLabel');
+
+    /* ── Monaco init ──────────────────────────────────── */
+    require.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs' } });
+    require(['vs/editor/editor.main'], function () {
+      var isDark = document.documentElement.getAttribute('data-bs-theme') !== 'light';
+      editor = monaco.editor.create($('monacoEditor'), {
+        value:              DEFAULTS.javascript,
+        language:           'javascript',
+        theme:              isDark ? 'vs-dark' : 'vs',
+        automaticLayout:    true,
+        minimap:            { enabled: false },
+        scrollBeyondLastLine: false,
+        fontSize:           14,
+        fontFamily:         "'Cascadia Code','Fira Code',Consolas,monospace",
+        fontLigatures:      true,
+        lineNumbers:        'on',
+        renderLineHighlight:'line',
+        smoothScrolling:    true,
+        cursorBlinking:     'smooth',
+        padding:            { top: 8 },
+        tabSize:            2,
+        wordWrap:           'on'
+      });
+
+      editor.onDidChangeCursorPosition(e => {
+        elStCursor.textContent = 'Ln ' + e.position.lineNumber + ', Col ' + e.position.column;
+      });
+
+      editor.onDidChangeModelContent(() => {
+        if (elAutoRun.checked) {
+          clearTimeout(autoTimer);
+          autoTimer = setTimeout(runCode, 900);
+        }
+      });
+
+      editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, runCode);
+
+      setupUI();
+      loadSnippetList();
+      addSysLog('Ready. Press Ctrl+Enter or click ▶ Run.');
+    });
+
+    /* ── Theme sync ───────────────────────────────────── */
+    new MutationObserver(muts => {
+      muts.forEach(m => {
+        if (m.attributeName === 'data-bs-theme' && window.monaco && editor) {
+          var light = document.documentElement.getAttribute('data-bs-theme') === 'light';
+          monaco.editor.setTheme(light ? 'vs' : 'vs-dark');
+        }
+      });
+    }).observe(document.documentElement, { attributes: true });
+
+    /* ── Resizer (drag) ───────────────────────────────── */
+    (function () {
+      var resizer   = $('cbResizer');
+      var edPane    = $('editorPane');
+      var outPane   = $('outputPane');
+      var mainEl    = $('cbMain');
+      var dragging  = false, startX, startW;
+      resizer.addEventListener('mousedown', e => {
+        dragging = true; startX = e.clientX; startW = edPane.offsetWidth;
+        document.body.style.cursor = 'col-resize';
+        document.body.style.userSelect = 'none';
+      });
+      document.addEventListener('mousemove', e => {
+        if (!dragging) return;
+        var pct = ((startW + e.clientX - startX) / mainEl.offsetWidth * 100).toFixed(1);
+        pct = Math.min(85, Math.max(15, pct));
+        edPane.style.width  = pct + '%';
+        outPane.style.width = (100 - pct) + '%';
+      });
+      document.addEventListener('mouseup', () => {
+        dragging = false;
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+      });
+    })();
+
+    /* ── UI wiring ────────────────────────────────────── */
+    function setupUI() {
+      elRun.addEventListener('click', runCode);
+      elLang.addEventListener('change', changeLang);
+      elClear.addEventListener('click', clearEditor);
+      elCopy.addEventListener('click', copyCode);
+      elClearOut.addEventListener('click', clearOutput);
+      elSave.addEventListener('click', saveSnippet);
+      elDelete.addEventListener('click', deleteSnippet);
+      elSlot.addEventListener('change', loadSnippet);
+      elFsEditor.addEventListener('click', () => toggleFullscreen('editor'));
+      elFsOutput.addEventListener('click', () => toggleFullscreen('output'));
+
+      document.querySelectorAll('#htmlTabs .nav-link').forEach(btn => {
+        btn.addEventListener('click', () => switchHtmlTab(btn.dataset.tab));
+      });
+
+      // postMessage from iframe (HTML console passthrough)
+      window.addEventListener('message', e => {
+        if (e.data && e.data.cbType === 'console') addLog(e.data.level || 'log', e.data.msg);
+      });
+    }
+
+    /* ── Language switch ──────────────────────────────── */
+    function changeLang() {
+      currentLang = elLang.value;
+      elStLang.textContent = LANG_LABEL[currentLang] || currentLang;
+
+      var isHtml = currentLang === 'html';
+      elHtmlTabs.classList.toggle('d-none', !isHtml);
+
+      if (isHtml) {
+        // Restore html sub-tab content
+        setMonacoLang(MONACO_LANG[htmlActive]);
+        editor.setValue(htmlContent[htmlActive] || '');
+        showOutput('iframe');
+      } else if (currentLang === 'markdown') {
+        setMonacoLang('markdown');
+        editor.setValue(DEFAULTS.markdown);
+        showOutput('iframe');
+      } else {
+        setMonacoLang(MONACO_LANG[currentLang] || currentLang);
+        editor.setValue(DEFAULTS[currentLang] || '');
+        showOutput('console');
+      }
+      clearOutput();
+      elStRun.textContent = 'Ready';
+    }
+
+    function setMonacoLang(lang) {
+      if (editor) monaco.editor.setModelLanguage(editor.getModel(), lang);
+    }
+
+    function switchHtmlTab(tab) {
+      // Save current
+      htmlContent[htmlActive] = editor.getValue();
+      htmlActive = tab;
+      setMonacoLang(MONACO_LANG[tab]);
+      editor.setValue(htmlContent[tab] || '');
+      document.querySelectorAll('#htmlTabs .nav-link').forEach(b =>
+        b.classList.toggle('active', b.dataset.tab === tab));
+    }
+
+    function showOutput(mode) {
+      if (mode === 'iframe') {
+        elPreview.style.display  = 'flex';
+        elPreview.style.flex     = '1';
+        elConsole.style.display  = 'none';
+        elOutLabel.textContent   = 'Preview';
+      } else {
+        elPreview.style.display  = 'none';
+        elConsole.style.display  = 'flex';
+        elOutLabel.textContent   = 'Console';
+      }
+    }
+
+    /* ── Run dispatcher ───────────────────────────────── */
+    function runCode() {
+      var t0 = performance.now();
+      elStRun.textContent = 'Running…';
+      try {
+        if      (currentLang === 'html')       runHTML();
+        else if (currentLang === 'javascript') runJS();
+        else if (currentLang === 'json')       runJSON();
+        else if (currentLang === 'markdown')   runMarkdown();
+        else if (currentLang === 'python')     runPython();
+        var ms = (performance.now() - t0).toFixed(1);
+        elStRun.textContent = 'Done ✓';
+        elStTime.textContent = ms + ' ms';
+      } catch (err) {
+        elStRun.textContent = 'Error';
+        addLog('error', 'Runner error: ' + err.message);
+      }
+    }
+
+    /* ── HTML runner ──────────────────────────────────── */
+    function runHTML() {
+      if (currentLang === 'html') htmlContent[htmlActive] = editor.getValue();
+      showOutput('iframe');
+      var combined = [
+        '<!DOCTYPE html><html><head><meta charset="UTF-8">',
+        '<style>', htmlContent.css || '', '</style></head><body>',
+        htmlContent.html || '',
+        '<script>',
+        '(function(){',
+        '  var _c=console,_p=window.parent;',
+        '  function _s(l,a){try{_p.postMessage({cbType:"console",level:l,msg:Array.from(a).map(function(x){return typeof x==="object"?JSON.stringify(x,null,2):String(x);}).join(" ")},"*");}catch(e){}}',
+        '  console.log=function(){_s("log",arguments);_c.log.apply(_c,arguments);};',
+        '  console.error=function(){_s("error",arguments);_c.error.apply(_c,arguments);};',
+        '  console.warn=function(){_s("warn",arguments);_c.warn.apply(_c,arguments);};',
+        '  console.info=function(){_s("info",arguments);_c.info.apply(_c,arguments);};',
+        '  window.onerror=function(m){_s("error",[m]);};',
+        '})();',
+        htmlContent.jsTab || '',
+        '<\/script></body></html>'
+      ].join('');
+      var blob = new Blob([combined], { type: 'text/html' });
+      var url  = URL.createObjectURL(blob);
+      elPreview.onload = function () { URL.revokeObjectURL(url); };
+      elPreview.src = url;
+    }
+
+    /* ── JS runner ────────────────────────────────────── */
+    function runJS() {
+      showOutput('console');
+      clearOutput();
+      var code = editor.getValue();
+      var orig = { log: console.log, error: console.error, warn: console.warn, info: console.info };
+      console.log   = function() { addLog('log',   fmt(arguments)); orig.log.apply(console, arguments); };
+      console.error = function() { addLog('error', fmt(arguments)); orig.error.apply(console, arguments); };
+      console.warn  = function() { addLog('warn',  fmt(arguments)); orig.warn.apply(console, arguments); };
+      console.info  = function() { addLog('info',  fmt(arguments)); orig.info.apply(console, arguments); };
+      try {
+        var result = (new Function(code))();
+        if (result !== undefined) addLog('result', '\u21B3 ' + fmtVal(result));
+      } catch (e) {
+        addLog('error', e.toString());
+      } finally {
+        console.log   = orig.log;
+        console.error = orig.error;
+        console.warn  = orig.warn;
+        console.info  = orig.info;
+      }
+    }
+
+    /* ── JSON runner ──────────────────────────────────── */
+    function runJSON() {
+      showOutput('console');
+      clearOutput();
+      try {
+        var parsed    = JSON.parse(editor.getValue());
+        var formatted = JSON.stringify(parsed, null, 2);
+        editor.setValue(formatted);
+        addLog('info',  '\u2713 Valid JSON');
+        addLog('log',   'Type    : ' + (Array.isArray(parsed) ? 'array' : typeof parsed));
+        addLog('log',   'Entries : ' + (Array.isArray(parsed) ? parsed.length : Object.keys(parsed).length));
+        addLog('log',   'Size    : ' + new Blob([formatted]).size + ' bytes');
+      } catch (e) {
+        addLog('error', 'Invalid JSON \u2014 ' + e.message);
+      }
+    }
+
+    /* ── Markdown runner ──────────────────────────────── */
+    function runMarkdown() {
+      showOutput('iframe');
+      var md  = editor.getValue();
+      var html = (window.marked && window.marked.parse) ? window.marked.parse(md) : '<pre>' + md + '</pre>';
+      var doc = [
+        '<!DOCTYPE html><html><head><meta charset="UTF-8">',
+        '<style>',
+        'body{font-family:system-ui,sans-serif;max-width:740px;margin:40px auto;padding:24px;line-height:1.65;}',
+        'h1,h2,h3{border-bottom:1px solid #e5e7eb;padding-bottom:.3em;}',
+        'code{background:#f3f4f6;padding:2px 6px;border-radius:4px;font-size:.9em;}',
+        'pre{background:#f3f4f6;padding:16px;border-radius:8px;overflow-x:auto;}',
+        'pre code{background:transparent;padding:0;}',
+        'blockquote{border-left:4px solid #ff5811;margin:0;padding:0 16px;color:#6b7280;}',
+        'table{border-collapse:collapse;width:100%;}',
+        'th,td{border:1px solid #e5e7eb;padding:8px 12px;}',
+        'th{background:#f9fafb;}',
+        'img{max-width:100%;}',
+        '</style></head><body>', html, '</body></html>'
+      ].join('');
+      var blob = new Blob([doc], { type: 'text/html' });
+      var url  = URL.createObjectURL(blob);
+      elPreview.onload = function () { URL.revokeObjectURL(url); };
+      elPreview.src = url;
+    }
+
+    /* ── Python runner (Skulpt) ───────────────────────── */
+    function runPython() {
+      showOutput('console');
+      clearOutput();
+      if (!window.Sk) { addLog('error', 'Skulpt not loaded.'); return; }
+      var output = '';
+      Sk.configure({
+        output: function (text) {
+          output += text;
+          if (text.endsWith('\n')) {
+            addLog('log', output.trimEnd());
+            output = '';
+          }
+        },
+        read: function (x) {
+          if (Sk.builtinFiles === undefined || Sk.builtinFiles['files'][x] === undefined)
+            throw 'File not found: ' + x;
+          return Sk.builtinFiles['files'][x];
+        }
+      });
+      var prog = editor.getValue();
+      Sk.misceval.asyncToPromise(() => Sk.importMainWithBody('<stdin>', false, prog, true))
+        .then(() => { if (output) addLog('log', output.trimEnd()); elStRun.textContent = 'Done \u2713'; })
+        .catch(e  => { addLog('error', e.toString()); elStRun.textContent = 'Error'; });
+      elStRun.textContent = 'Running…';
+    }
+
+    /* ── Console helpers ──────────────────────────────── */
+    function fmt(args) {
+      return Array.from(args).map(fmtVal).join(' ');
+    }
+    function fmtVal(v) {
+      if (v === null)       return 'null';
+      if (v === undefined)  return 'undefined';
+      if (typeof v === 'object') { try { return JSON.stringify(v, null, 2); } catch(e) { return String(v); } }
+      return String(v);
+    }
+    function addLog(level, msg) {
+      var line = document.createElement('div');
+      line.className = 'cl-line cl-' + (level || 'log');
+      line.textContent = msg;
+      elConsole.appendChild(line);
+      elConsole.scrollTop = elConsole.scrollHeight;
+    }
+    function addSysLog(msg) { addLog('sys', msg); }
+    function clearOutput() {
+      elConsole.innerHTML = '';
+      elPreview.src = 'about:blank';
+    }
+
+    /* ── Editor helpers ───────────────────────────────── */
+    function clearEditor() {
+      if (currentLang === 'html') {
+        htmlContent = { html:'', css:'', jsTab:'' };
+      }
+      if (editor) editor.setValue('');
+    }
+    function copyCode() {
+      if (!editor) return;
+      var text = editor.getValue();
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => flash('Copied!'));
+      } else {
+        var ta = document.createElement('textarea');
+        ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.focus(); ta.select();
+        document.execCommand('copy'); document.body.removeChild(ta);
+        flash('Copied!');
+      }
+    }
+    function flash(msg) {
+      elMsg.textContent = msg;
+      setTimeout(() => elMsg.textContent = '', 2000);
+    }
+
+    /* ── Fullscreen toggle ────────────────────────────── */
+    function toggleFullscreen(side) {
+      var shell = elShell;
+      if (side === 'editor') {
+        shell.classList.toggle('fs-editor');
+        shell.classList.remove('fs-output');
+      } else {
+        shell.classList.toggle('fs-output');
+        shell.classList.remove('fs-editor');
+      }
+      if (editor) editor.layout();
+    }
+
+    /* ── Snippets ─────────────────────────────────────── */
+    function loadSnippetList() {
+      var store = getStore();
+      elSlot.innerHTML = '<option value="">── Snippets ──</option>';
+      Object.keys(store).sort().forEach(name => {
+        var o = document.createElement('option');
+        o.value = name; o.textContent = name;
+        elSlot.appendChild(o);
+      });
+    }
+    function getStore() {
+      try { return JSON.parse(localStorage.getItem('cb_snippets') || '{}'); } catch(e) { return {}; }
+    }
+    function saveSnippet() {
+      var name = prompt('Snippet name:');
+      if (!name || !name.trim()) return;
+      name = name.trim();
+      var store = getStore();
+      var snap = {
+        lang: currentLang,
+        code: editor ? editor.getValue() : '',
+        htmlContent: currentLang === 'html' ? JSON.parse(JSON.stringify(htmlContent)) : null
+      };
+      store[name] = snap;
+      localStorage.setItem('cb_snippets', JSON.stringify(store));
+      loadSnippetList();
+      elSlot.value = name;
+      flash('Saved!');
+    }
+    function loadSnippet() {
+      var name = elSlot.value;
+      if (!name) return;
+      var store = getStore();
+      var s = store[name];
+      if (!s) return;
+      elLang.value = s.lang;
+      currentLang  = s.lang;
+      changeLang();   // resets editor to defaults — we override below
+      if (s.lang === 'html' && s.htmlContent) {
+        htmlContent = JSON.parse(JSON.stringify(s.htmlContent));
+        htmlActive  = 'html';
+        setMonacoLang('html');
+        if (editor) editor.setValue(htmlContent.html || '');
+        document.querySelectorAll('#htmlTabs .nav-link').forEach(b =>
+          b.classList.toggle('active', b.dataset.tab === 'html'));
+      } else {
+        if (editor) editor.setValue(s.code || '');
+      }
+    }
+    function deleteSnippet() {
+      var name = elSlot.value;
+      if (!name) return;
+      if (!confirm('Delete snippet "' + name + '"?')) return;
+      var store = getStore();
+      delete store[name];
+      localStorage.setItem('cb_snippets', JSON.stringify(store));
+      loadSnippetList();
+      flash('Deleted');
+    }
+
+  })();
+  </script>
+
+  <script src="users.js" defer></script>
+  <script src="roles.js" defer></script>
+  <script src="script.js" defer></script>
+</body>
+</html>
