@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="favicon.ico"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="theme.css"/>
+  <title>Budget Manager | Jessica Rojas</title>
+  <meta name="description" content="Household budget manager — track bills, wages, and money distribution."/>
+  <style>
+    /* ── Summary cards ──────────────────── */
+    .bm-stat { border-left:4px solid var(--bs-primary); }
+    .bm-stat.danger  { border-color:#dc3545; }
+    .bm-stat.success { border-color:#198754; }
+    .bm-stat.warning { border-color:#ffc107; }
+    .bm-stat.info    { border-color:#0dcaf0; }
+    .bm-stat .label  { font-size:.75rem; text-transform:uppercase; letter-spacing:.04em; color:var(--bs-secondary-color); }
+    .bm-stat .value  { font-size:1.6rem; font-weight:700; line-height:1.1; }
+    .bm-stat .sub    { font-size:.78rem; color:var(--bs-secondary-color); }
+
+    /* ── Bills table ─────────────────────── */
+    .status-badge { font-size:.7rem; padding:2px 8px; border-radius:20px; }
+    .status-paid     { background:rgba(25,135,84,.15);  color:#198754; }
+    .status-unpaid   { background:rgba(255,193,7,.12);  color:#ffc107; }
+    .status-overdue  { background:rgba(220,53,69,.15);  color:#dc3545; }
+    .status-upcoming { background:rgba(13,202,240,.12); color:#0dcaf0; }
+    .bill-row.overdue  td:first-child { border-left:3px solid #dc3545; }
+    .bill-row.upcoming td:first-child { border-left:3px solid #0dcaf0; }
+    .bill-row.paid     td:first-child { border-left:3px solid #198754; }
+
+    /* ── Member cards ────────────────────── */
+    .member-card { border-left:5px solid; }
+    .contrib-bar { height:8px; border-radius:4px; }
+
+    /* ── Distribution ────────────────────── */
+    .dist-card  { transition:transform .15s; }
+    .dist-card:hover { transform:translateY(-2px); }
+    .alloc-input { max-width:90px; }
+
+    /* ── Charts ──────────────────────────── */
+    .chart-wrap { position:relative; height:260px; }
+    .chart-wrap canvas { max-height:260px; }
+
+    /* ── Misc ────────────────────────────── */
+    .nav-tabs .nav-link { font-size:.88rem; }
+    .table th  { font-size:.78rem; text-transform:uppercase; letter-spacing:.04em; }
+    .table td  { font-size:.87rem; vertical-align:middle; }
+    .cat-icon  { width:22px; height:22px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:.7rem; flex-shrink:0; }
+    .section-heading { font-size:.7rem; text-transform:uppercase; letter-spacing:.08em; color:var(--bs-secondary-color); margin-bottom:.5rem; }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link"     style="display:none"><a class="nav-link" href="compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link"  style="display:none"><a class="nav-link" href="jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" id="nav-dataanalysis-link" style="display:none"><a class="nav-link" href="dataanalysis.html">Data Analysis</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- RBAC Modal -->
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="rbacModalLabel">🔒 Login</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="rbac-login-form" novalidate>
+            <div class="mb-3"><label class="form-label">Username</label>
+              <input type="text" class="form-control" id="rbac-username-input" autocomplete="username" placeholder="Enter your username" maxlength="40" required/></div>
+            <div class="mb-3"><label class="form-label">Password</label>
+              <input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" required/></div>
+            <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+          </form>
+        </div>
+        <div class="modal-footer border-0 pt-0"><p class="text-secondary small mb-0">Session clears when you close this tab.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ Bill Modal ═══════════════════════════════════════════ -->
+  <div class="modal fade" id="billModal" tabindex="-1" aria-labelledby="billModalLabel">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="billModalLabel">Add Bill</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="billForm" novalidate>
+            <input type="hidden" id="bf-id"/>
+            <div class="row g-2 mb-2">
+              <div class="col-8">
+                <label class="form-label">Bill Name *</label>
+                <input class="form-control" id="bf-name" placeholder="e.g. Rent" required/>
+              </div>
+              <div class="col-4">
+                <label class="form-label">Category</label>
+                <select class="form-select" id="bf-cat">
+                  <option value="housing">🏠 Housing</option>
+                  <option value="utilities">💡 Utilities</option>
+                  <option value="transport">🚗 Transport</option>
+                  <option value="food">🛒 Food</option>
+                  <option value="health">❤️ Health</option>
+                  <option value="insurance">🛡️ Insurance</option>
+                  <option value="debt">💳 Debt</option>
+                  <option value="subscriptions">📱 Subscriptions</option>
+                  <option value="education">📚 Education</option>
+                  <option value="entertainment">🎬 Entertainment</option>
+                  <option value="savings">💰 Savings</option>
+                  <option value="other">📦 Other</option>
+                </select>
+              </div>
+            </div>
+            <div class="row g-2 mb-2">
+              <div class="col-6">
+                <label class="form-label">Minimum Payment *</label>
+                <div class="input-group"><span class="input-group-text">$</span>
+                <input class="form-control" type="number" id="bf-min" min="0" step="0.01" placeholder="0.00" required/></div>
+              </div>
+              <div class="col-6">
+                <label class="form-label">Actual Payment</label>
+                <div class="input-group"><span class="input-group-text">$</span>
+                <input class="form-control" type="number" id="bf-actual" min="0" step="0.01" placeholder="0.00"/></div>
+              </div>
+            </div>
+            <div class="row g-2 mb-2">
+              <div class="col-6">
+                <label class="form-label">Due Date</label>
+                <input class="form-control" type="date" id="bf-due"/>
+              </div>
+              <div class="col-6">
+                <label class="form-label">Frequency</label>
+                <select class="form-select" id="bf-freq">
+                  <option value="monthly">Monthly</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="biweekly">Bi-weekly</option>
+                  <option value="quarterly">Quarterly</option>
+                  <option value="semiannual">Semi-annual</option>
+                  <option value="annual">Annual</option>
+                  <option value="onetime">One-time</option>
+                </select>
+              </div>
+            </div>
+            <div class="row g-2 mb-2">
+              <div class="col-6">
+                <label class="form-label">Status</label>
+                <select class="form-select" id="bf-status">
+                  <option value="unpaid">Unpaid</option>
+                  <option value="paid">Paid</option>
+                  <option value="overdue">Overdue</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label class="form-label">Priority</label>
+                <select class="form-select" id="bf-priority">
+                  <option value="high">🔴 High</option>
+                  <option value="medium" selected>🟡 Medium</option>
+                  <option value="low">🟢 Low</option>
+                </select>
+              </div>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Notes</label>
+              <input class="form-control" id="bf-notes" placeholder="Optional notes"/>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button class="btn btn-primary" id="bf-save">Save Bill</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ Member Modal ══════════════════════════════════════════ -->
+  <div class="modal fade" id="memberModal" tabindex="-1" aria-labelledby="memberModalLabel">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="memberModalLabel">Add Member</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="memberForm" novalidate>
+            <input type="hidden" id="mf-id"/>
+            <div class="mb-2">
+              <label class="form-label">Name *</label>
+              <input class="form-control" id="mf-name" placeholder="e.g. Alex" required/>
+            </div>
+            <div class="row g-2 mb-2">
+              <div class="col-7">
+                <label class="form-label">Income *</label>
+                <div class="input-group"><span class="input-group-text">$</span>
+                <input class="form-control" type="number" id="mf-income" min="0" step="0.01" required/></div>
+              </div>
+              <div class="col-5">
+                <label class="form-label">Frequency</label>
+                <select class="form-select" id="mf-freq">
+                  <option value="monthly">Monthly</option>
+                  <option value="semimonthly">Semi-monthly</option>
+                  <option value="biweekly">Bi-weekly</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="annual">Annual</option>
+                </select>
+              </div>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Color</label>
+              <div class="d-flex gap-2 flex-wrap" id="colorPicker">
+                <button type="button" class="btn btn-sm cp-btn active" data-color="#ff5811" style="background:#ff5811;width:30px;height:30px;border-radius:50%;border:2px solid #fff;"></button>
+                <button type="button" class="btn btn-sm cp-btn" data-color="#0ea5e9" style="background:#0ea5e9;width:30px;height:30px;border-radius:50%;border:2px solid transparent;"></button>
+                <button type="button" class="btn btn-sm cp-btn" data-color="#10b981" style="background:#10b981;width:30px;height:30px;border-radius:50%;border:2px solid transparent;"></button>
+                <button type="button" class="btn btn-sm cp-btn" data-color="#8b5cf6" style="background:#8b5cf6;width:30px;height:30px;border-radius:50%;border:2px solid transparent;"></button>
+                <button type="button" class="btn btn-sm cp-btn" data-color="#f59e0b" style="background:#f59e0b;width:30px;height:30px;border-radius:50%;border:2px solid transparent;"></button>
+                <button type="button" class="btn btn-sm cp-btn" data-color="#ec4899" style="background:#ec4899;width:30px;height:30px;border-radius:50%;border:2px solid transparent;"></button>
+              </div>
+              <input type="hidden" id="mf-color" value="#ff5811"/>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Manual Distribution % <small class="text-secondary">(leave 0 = auto)</small></label>
+              <div class="input-group"><input class="form-control" type="number" id="mf-pct" min="0" max="100" step="1" value="0"/><span class="input-group-text">%</span></div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button class="btn btn-primary" id="mf-save">Save Member</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MAIN ═══════════════════════════════════════════════════ -->
+  <main id="main-content" class="container-fluid px-4 py-4">
+
+    <!-- Page header -->
+    <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+      <div>
+        <h1 class="h3 fw-bold mb-0">Budget Manager</h1>
+        <p class="text-secondary mb-0 small">Track household bills, wages, and money distribution</p>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-sm btn-outline-secondary" id="bmExport">⬇ Export JSON</button>
+        <button class="btn btn-sm btn-outline-secondary" id="bmImport">⬆ Import JSON</button>
+        <input type="file" id="bmImportFile" accept=".json" style="display:none"/>
+        <button class="btn btn-sm btn-outline-danger" id="bmReset">Reset All</button>
+      </div>
+    </div>
+
+    <!-- ── Tabs ──────────────────────────────────────────── -->
+    <ul class="nav nav-tabs mb-4" id="bmTabs">
+      <li class="nav-item"><button class="nav-link active" data-tab="dashboard">📊 Dashboard</button></li>
+      <li class="nav-item"><button class="nav-link" data-tab="bills">📋 Bills</button></li>
+      <li class="nav-item"><button class="nav-link" data-tab="household">👥 Household</button></li>
+      <li class="nav-item"><button class="nav-link" data-tab="distribution">💵 Distribution</button></li>
+      <li class="nav-item"><button class="nav-link" data-tab="reports">📈 Reports</button></li>
+    </ul>
+
+    <!-- ════════════════ DASHBOARD ════════════════ -->
+    <div id="tab-dashboard" class="bm-tab">
+      <!-- Summary row -->
+      <div class="row g-3 mb-4" id="summaryCards">
+        <div class="col-6 col-md-3">
+          <div class="card bm-stat info p-3">
+            <div class="label">Total Monthly Income</div>
+            <div class="value text-info" id="s-income">$0</div>
+            <div class="sub" id="s-income-sub">0 members</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card bm-stat danger p-3">
+            <div class="label">Total Bills (Actual)</div>
+            <div class="value text-danger" id="s-bills">$0</div>
+            <div class="sub" id="s-bills-sub">Min: $0</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card bm-stat success p-3">
+            <div class="label">Remaining</div>
+            <div class="value text-success" id="s-remain">$0</div>
+            <div class="sub" id="s-remain-sub">0% of income</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card bm-stat warning p-3">
+            <div class="label">Overdue / Due Soon</div>
+            <div class="value text-warning" id="s-alerts">0</div>
+            <div class="sub" id="s-alerts-sub">bills need attention</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alerts row -->
+      <div id="bmAlerts" class="mb-4"></div>
+
+      <!-- Charts row 1 -->
+      <div class="row g-4 mb-4">
+        <div class="col-md-6 col-lg-4">
+          <div class="card p-3 h-100">
+            <div class="fw-semibold small mb-2">Expenses by Category</div>
+            <div class="chart-wrap"><canvas id="chartCat"></canvas></div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="card p-3 h-100">
+            <div class="fw-semibold small mb-2">Income vs Expenses</div>
+            <div class="chart-wrap"><canvas id="chartIvE"></canvas></div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="card p-3 h-100">
+            <div class="fw-semibold small mb-2">Household Income Split</div>
+            <div class="chart-wrap"><canvas id="chartIncome"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts row 2 -->
+      <div class="row g-4">
+        <div class="col-md-8">
+          <div class="card p-3">
+            <div class="fw-semibold small mb-2">Min Payment vs Actual Payment per Bill</div>
+            <div style="position:relative;height:300px;"><canvas id="chartBills"></canvas></div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card p-3 h-100">
+            <div class="fw-semibold small mb-2">Remaining Distribution</div>
+            <div class="chart-wrap"><canvas id="chartDist"></canvas></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════ BILLS ════════════════ -->
+    <div id="tab-bills" class="bm-tab d-none">
+      <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+        <div class="d-flex gap-2 flex-wrap">
+          <input class="form-control form-control-sm" id="billSearch" placeholder="🔍 Search bills…" style="width:200px"/>
+          <select class="form-select form-select-sm" id="billFilter" style="width:auto">
+            <option value="">All Statuses</option>
+            <option value="paid">Paid</option>
+            <option value="unpaid">Unpaid</option>
+            <option value="overdue">Overdue</option>
+          </select>
+          <select class="form-select form-select-sm" id="billCatFilter" style="width:auto">
+            <option value="">All Categories</option>
+            <option value="housing">Housing</option>
+            <option value="utilities">Utilities</option>
+            <option value="transport">Transport</option>
+            <option value="food">Food</option>
+            <option value="health">Health</option>
+            <option value="insurance">Insurance</option>
+            <option value="debt">Debt</option>
+            <option value="subscriptions">Subscriptions</option>
+            <option value="education">Education</option>
+            <option value="entertainment">Entertainment</option>
+            <option value="savings">Savings</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#billModal" id="addBillBtn">+ Add Bill</button>
+      </div>
+
+      <!-- Bills totals mini-bar -->
+      <div class="card p-3 mb-3">
+        <div class="row g-2 text-center">
+          <div class="col"><div class="section-heading">Total Min</div><div class="fw-bold" id="bt-min">$0</div></div>
+          <div class="col"><div class="section-heading">Total Actual</div><div class="fw-bold" id="bt-actual">$0</div></div>
+          <div class="col"><div class="section-heading">Overpaying</div><div class="fw-bold text-info" id="bt-over">$0</div></div>
+          <div class="col"><div class="section-heading">Paid</div><div class="fw-bold text-success" id="bt-paid">0</div></div>
+          <div class="col"><div class="section-heading">Unpaid</div><div class="fw-bold text-warning" id="bt-unpaid">0</div></div>
+          <div class="col"><div class="section-heading">Overdue</div><div class="fw-bold text-danger" id="bt-overdue">0</div></div>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Category</th>
+              <th>Min Payment</th>
+              <th>Actual Payment</th>
+              <th>Frequency</th>
+              <th>Monthly Equiv.</th>
+              <th>Due Date</th>
+              <th>Priority</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="billsBody">
+            <tr id="billsEmpty"><td colspan="10" class="text-center text-secondary py-4">No bills yet — click <strong>+ Add Bill</strong> to get started.</td></tr>
+          </tbody>
+          <tfoot>
+            <tr class="fw-semibold" id="billsFoot" style="display:none">
+              <td colspan="2">Totals</td>
+              <td id="ft-min"></td>
+              <td id="ft-actual"></td>
+              <td colspan="2" id="ft-monthly"></td>
+              <td colspan="4"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- ════════════════ HOUSEHOLD ════════════════ -->
+    <div id="tab-household" class="bm-tab d-none">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h2 class="h5 mb-0">Household Members</h2>
+        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#memberModal" id="addMemberBtn">+ Add Member</button>
+      </div>
+
+      <!-- Distribution mode toggle -->
+      <div class="card p-3 mb-4">
+        <div class="fw-semibold small mb-2">Distribution Mode</div>
+        <div class="d-flex gap-3 align-items-center flex-wrap">
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="distMode" id="distAuto" value="auto" checked/>
+            <label class="form-check-label" for="distAuto">Auto — proportional to salary</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="distMode" id="distManual" value="manual"/>
+            <label class="form-check-label" for="distManual">Manual — set % per member</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="distMode" id="distEqual" value="equal"/>
+            <label class="form-check-label" for="distEqual">Equal — split evenly</label>
+          </div>
+        </div>
+      </div>
+
+      <div id="membersGrid" class="row g-3">
+        <div class="col-12 text-center text-secondary py-4" id="membersEmpty">No members yet — click <strong>+ Add Member</strong>.</div>
+      </div>
+
+      <!-- Household totals -->
+      <div class="card p-3 mt-4" id="householdTotals" style="display:none">
+        <div class="row g-3 text-center">
+          <div class="col"><div class="section-heading">Combined Annual</div><div class="fw-bold" id="ht-annual">$0</div></div>
+          <div class="col"><div class="section-heading">Combined Monthly</div><div class="fw-bold" id="ht-monthly">$0</div></div>
+          <div class="col"><div class="section-heading">Avg Per Member</div><div class="fw-bold" id="ht-avg">$0</div></div>
+          <div class="col"><div class="section-heading">Members</div><div class="fw-bold" id="ht-count">0</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════ DISTRIBUTION ════════════════ -->
+    <div id="tab-distribution" class="bm-tab d-none">
+      <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+        <h2 class="h5 mb-0">Money Distribution</h2>
+        <span class="badge bg-secondary" id="distModeLabel">Auto</span>
+      </div>
+
+      <!-- Summary bar -->
+      <div class="card p-3 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="small fw-semibold">Income → Bills → Remaining</span>
+          <span class="small text-secondary" id="distSummaryPct"></span>
+        </div>
+        <div class="progress" style="height:18px;border-radius:8px;">
+          <div class="progress-bar bg-danger"  id="pb-bills"   style="width:0%" title="Bills"></div>
+          <div class="progress-bar bg-success" id="pb-remain"  style="width:0%" title="Remaining"></div>
+        </div>
+        <div class="d-flex justify-content-between mt-1">
+          <span class="small text-danger">Bills: <strong id="pb-bills-lbl">$0</strong></span>
+          <span class="small text-success">Remaining: <strong id="pb-remain-lbl">$0</strong></span>
+        </div>
+      </div>
+
+      <!-- Per-member allocation cards -->
+      <div id="distCards" class="row g-3">
+        <div class="col-12 text-center text-secondary py-4" id="distEmpty">Add household members to see distribution.</div>
+      </div>
+
+      <!-- Manual % warning -->
+      <div class="alert alert-warning d-none mt-3" id="distPctWarning">
+        ⚠️ Manual percentages don't add up to 100% — total is <strong id="distPctTotal">0</strong>%. Adjust values to balance.
+      </div>
+    </div>
+
+    <!-- ════════════════ REPORTS ════════════════ -->
+    <div id="tab-reports" class="bm-tab d-none">
+      <div class="row g-4">
+        <div class="col-md-6">
+          <div class="card p-3">
+            <div class="fw-semibold small mb-2">Monthly Budget Health</div>
+            <div style="position:relative;height:280px;"><canvas id="chartHealth"></canvas></div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card p-3">
+            <div class="fw-semibold small mb-2">Bills by Priority</div>
+            <div style="position:relative;height:280px;"><canvas id="chartPriority"></canvas></div>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="card p-3">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <div class="fw-semibold small">Bill Frequency Breakdown</div>
+            </div>
+            <div style="position:relative;height:260px;"><canvas id="chartFreq"></canvas></div>
+          </div>
+        </div>
+        <!-- Key metrics table -->
+        <div class="col-12">
+          <div class="card p-3">
+            <div class="fw-semibold small mb-3">Key Budget Metrics</div>
+            <div class="row g-3" id="metricsGrid"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="site-footer mt-4">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon"/>
+      </a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon"/>
+      </a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="privacy.html">Privacy Policy</a> &middot; <a href="terms.html">Terms</a></p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="users.js" defer></script>
+  <script src="roles.js" defer></script>
+  <script src="script.js" defer></script>
+
+  <script>
+  (function(){
+    'use strict';
+
+    /* ── helpers ───────────────────────────────────────── */
+    var $ = id => document.getElementById(id);
+    var fmt = n => '$' + Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+    var pct = (a,b) => b ? ((a/b)*100).toFixed(1)+'%' : '0%';
+    var uid = () => Math.random().toString(36).slice(2,10);
+    var today = () => new Date().toISOString().slice(0,10);
+
+    /* ── frequency → monthly multiplier ───────────────── */
+    var FREQ_MO = { weekly:52/12, biweekly:26/12, semimonthly:2, monthly:1, quarterly:1/3, semiannual:1/6, annual:1/12, onetime:0 };
+    var INCOME_MO = { weekly:52/12, biweekly:26/12, semimonthly:2, monthly:1, annual:1/12 };
+
+    /* ── category config ───────────────────────────────── */
+    var CAT = {
+      housing:       { label:'Housing',       icon:'🏠', color:'#6366f1' },
+      utilities:     { label:'Utilities',     icon:'💡', color:'#f59e0b' },
+      transport:     { label:'Transport',     icon:'🚗', color:'#3b82f6' },
+      food:          { label:'Food',          icon:'🛒', color:'#10b981' },
+      health:        { label:'Health',        icon:'❤️', color:'#ef4444' },
+      insurance:     { label:'Insurance',     icon:'🛡️', color:'#8b5cf6' },
+      debt:          { label:'Debt',          icon:'💳', color:'#dc2626' },
+      subscriptions: { label:'Subscriptions', icon:'📱', color:'#0ea5e9' },
+      education:     { label:'Education',     icon:'📚', color:'#06b6d4' },
+      entertainment: { label:'Entertainment', icon:'🎬', color:'#ec4899' },
+      savings:       { label:'Savings',       icon:'💰', color:'#22c55e' },
+      other:         { label:'Other',         icon:'📦', color:'#94a3b8' }
+    };
+
+    /* ── data store ────────────────────────────────────── */
+    var DB = { bills:[], members:[], distMode:'auto' };
+    function load(){ try{ var s=localStorage.getItem('bm_data'); if(s) DB=JSON.parse(s); }catch(e){} }
+    function save(){ localStorage.setItem('bm_data',JSON.stringify(DB)); }
+    load();
+
+    /* ── chart registry ────────────────────────────────── */
+    var charts = {};
+    function destroyChart(id){ if(charts[id]){ charts[id].destroy(); delete charts[id]; } }
+
+    /* ══ Calculations ══════════════════════════════════ */
+    function toMonthly(amount, freq){ return amount * (FREQ_MO[freq]||1); }
+    function memberMonthly(m){ return m.income * (INCOME_MO[m.freq]||1); }
+    function totalIncome(){ return DB.members.reduce((s,m)=>s+memberMonthly(m),0); }
+    function totalBillsMin(){ return DB.bills.reduce((s,b)=>s+toMonthly(b.min,b.freq),0); }
+    function totalBillsActual(){ return DB.bills.reduce((s,b)=>s+toMonthly(b.actual||b.min,b.freq),0); }
+    function remaining(){ return totalIncome() - totalBillsActual(); }
+
+    function memberPct(m){
+      var ti = totalIncome();
+      if(DB.distMode==='equal') return DB.members.length ? 100/DB.members.length : 0;
+      if(DB.distMode==='manual') return m.pct||0;
+      return ti ? memberMonthly(m)/ti*100 : 0;
+    }
+
+    function daysUntilDue(dateStr){
+      if(!dateStr) return null;
+      var diff = (new Date(dateStr) - new Date(today())) / 86400000;
+      return Math.ceil(diff);
+    }
+
+    function effectiveStatus(b){
+      if(b.status==='paid') return 'paid';
+      if(b.status==='overdue') return 'overdue';
+      var d = daysUntilDue(b.due);
+      if(d!==null && d<0) return 'overdue';
+      if(d!==null && d<=7) return 'upcoming';
+      return 'unpaid';
+    }
+
+    /* ══ Tabs ══════════════════════════════════════════ */
+    document.querySelectorAll('#bmTabs .nav-link').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        document.querySelectorAll('#bmTabs .nav-link').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.bm-tab').forEach(t=>t.classList.add('d-none'));
+        $('tab-'+btn.dataset.tab).classList.remove('d-none');
+        if(btn.dataset.tab==='dashboard') renderDashboard();
+        if(btn.dataset.tab==='reports')   renderReports();
+        if(btn.dataset.tab==='distribution') renderDistribution();
+      });
+    });
+
+    /* ══ Bills ══════════════════════════════════════════ */
+    function renderBills(){
+      var tbody = $('billsBody');
+      var search  = ($('billSearch')||{value:''}).value.toLowerCase();
+      var fStatus = ($('billFilter')||{value:''}).value;
+      var fCat    = ($('billCatFilter')||{value:''}).value;
+
+      var filtered = DB.bills.filter(b=>{
+        var st = effectiveStatus(b);
+        if(fStatus && st!==fStatus) return false;
+        if(fCat   && b.cat!==fCat)  return false;
+        if(search && !b.name.toLowerCase().includes(search)) return false;
+        return true;
+      });
+
+      var totalMin=0, totalAct=0, paid=0, unpaid=0, overdue=0;
+      DB.bills.forEach(b=>{
+        totalMin += toMonthly(b.min,b.freq);
+        totalAct += toMonthly(b.actual||b.min,b.freq);
+        var st=effectiveStatus(b);
+        if(st==='paid') paid++;
+        else if(st==='overdue') overdue++;
+        else unpaid++;
+      });
+
+      $('bt-min').textContent    = fmt(totalMin);
+      $('bt-actual').textContent = fmt(totalAct);
+      $('bt-over').textContent   = fmt(totalAct-totalMin);
+      $('bt-paid').textContent   = paid;
+      $('bt-unpaid').textContent = unpaid;
+      $('bt-overdue').textContent= overdue;
+
+      if(!filtered.length){
+        tbody.innerHTML='<tr id="billsEmpty"><td colspan="10" class="text-center text-secondary py-4">No bills match the current filter.</td></tr>';
+        $('billsFoot').style.display='none';
+        return;
+      }
+      $('billsFoot').style.display='';
+
+      var fMin=0,fAct=0,fMo=0;
+      tbody.innerHTML = filtered.map(b=>{
+        var st  = effectiveStatus(b);
+        var cat = CAT[b.cat]||CAT.other;
+        var mo  = toMonthly(b.actual||b.min, b.freq);
+        fMin += b.min; fAct += (b.actual||b.min); fMo += mo;
+        var dDays = daysUntilDue(b.due);
+        var dLabel = b.due ? (dDays===0?'Today':dDays<0?Math.abs(dDays)+'d ago':dDays+'d') : '—';
+        return `<tr class="bill-row ${st}">
+          <td><strong>${b.name}</strong>${b.notes?`<br><small class="text-secondary">${b.notes}</small>`:''}
+          </td>
+          <td><span class="cat-icon" style="background:${cat.color}22;color:${cat.color}">${cat.icon}</span> ${cat.label}</td>
+          <td>${fmt(b.min)}</td>
+          <td class="${(b.actual||b.min)>b.min?'text-info':''}">${fmt(b.actual||b.min)}</td>
+          <td>${b.freq.charAt(0).toUpperCase()+b.freq.slice(1)}</td>
+          <td>${fmt(mo)}/mo</td>
+          <td class="${st==='overdue'?'text-danger':st==='upcoming'?'text-info':''}">${b.due||'—'} <small>(${dLabel})</small></td>
+          <td>${b.priority==='high'?'🔴':b.priority==='low'?'🟢':'🟡'} ${b.priority.charAt(0).toUpperCase()+b.priority.slice(1)}</td>
+          <td><span class="status-badge status-${st}">${st.charAt(0).toUpperCase()+st.slice(1)}</span></td>
+          <td>
+            <button class="btn btn-sm btn-link p-0 me-2" onclick="editBill('${b.id}')">✏️</button>
+            <button class="btn btn-sm btn-link p-0 me-2" onclick="toggleBillPaid('${b.id}')" title="${st==='paid'?'Mark unpaid':'Mark paid'}">${st==='paid'?'↩️':'✅'}</button>
+            <button class="btn btn-sm btn-link p-0 text-danger" onclick="deleteBill('${b.id}')">🗑️</button>
+          </td>
+        </tr>`;
+      }).join('');
+
+      $('ft-min').textContent     = fmt(fMin);
+      $('ft-actual').textContent  = fmt(fAct);
+      $('ft-monthly').textContent = fmt(fMo)+'/mo';
+    }
+
+    window.editBill = function(id){
+      var b = DB.bills.find(x=>x.id===id); if(!b) return;
+      $('bf-id').value      = b.id;
+      $('bf-name').value    = b.name;
+      $('bf-cat').value     = b.cat;
+      $('bf-min').value     = b.min;
+      $('bf-actual').value  = b.actual||'';
+      $('bf-due').value     = b.due||'';
+      $('bf-freq').value    = b.freq;
+      $('bf-status').value  = b.status;
+      $('bf-priority').value= b.priority;
+      $('bf-notes').value   = b.notes||'';
+      $('billModalLabel').textContent = 'Edit Bill';
+      bootstrap.Modal.getOrCreateInstance($('billModal')).show();
+    };
+
+    window.deleteBill = function(id){
+      if(!confirm('Delete this bill?')) return;
+      DB.bills = DB.bills.filter(b=>b.id!==id);
+      save(); renderAll();
+    };
+
+    window.toggleBillPaid = function(id){
+      var b = DB.bills.find(x=>x.id===id); if(!b) return;
+      b.status = b.status==='paid' ? 'unpaid' : 'paid';
+      save(); renderAll();
+    };
+
+    $('bf-save').addEventListener('click',()=>{
+      var name = $('bf-name').value.trim();
+      var min  = parseFloat($('bf-min').value);
+      if(!name || isNaN(min)) { alert('Name and Minimum Payment are required.'); return; }
+      var id = $('bf-id').value || uid();
+      var existing = DB.bills.findIndex(b=>b.id===id);
+      var bill = { id, name,
+        cat:      $('bf-cat').value,
+        min:      min,
+        actual:   parseFloat($('bf-actual').value)||min,
+        due:      $('bf-due').value||'',
+        freq:     $('bf-freq').value,
+        status:   $('bf-status').value,
+        priority: $('bf-priority').value,
+        notes:    $('bf-notes').value.trim()
+      };
+      if(existing>=0) DB.bills[existing]=bill;
+      else DB.bills.push(bill);
+      save();
+      bootstrap.Modal.getInstance($('billModal')).hide();
+      $('billForm').reset(); $('bf-id').value='';
+      $('billModalLabel').textContent='Add Bill';
+      renderAll();
+    });
+
+    $('billModal').addEventListener('hidden.bs.modal',()=>{
+      $('billForm').reset(); $('bf-id').value='';
+      $('billModalLabel').textContent='Add Bill';
+    });
+
+    ['billSearch','billFilter','billCatFilter'].forEach(id=>{
+      var el=$(''+id); if(el) el.addEventListener('input',renderBills);
+    });
+
+    /* ══ Members ════════════════════════════════════════ */
+    function renderMembers(){
+      var grid = $('membersGrid');
+      $('householdTotals').style.display = DB.members.length ? '' : 'none';
+
+      if(!DB.members.length){
+        grid.innerHTML = '<div class="col-12 text-center text-secondary py-4" id="membersEmpty">No members yet — click <strong>+ Add Member</strong>.</div>';
+        return;
+      }
+
+      var ti = totalIncome();
+      grid.innerHTML = DB.members.map(m=>{
+        var mo   = memberMonthly(m);
+        var share= ti ? mo/ti*100 : 0;
+        return `<div class="col-md-6 col-lg-4">
+          <div class="card member-card p-3 h-100" style="border-color:${m.color}">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <div>
+                <div class="fw-bold">${m.name}</div>
+                <div class="small text-secondary">${fmt(m.income)} / ${m.freq}</div>
+              </div>
+              <div>
+                <button class="btn btn-sm btn-link p-0 me-1" onclick="editMember('${m.id}')">✏️</button>
+                <button class="btn btn-sm btn-link p-0 text-danger" onclick="deleteMember('${m.id}')">🗑️</button>
+              </div>
+            </div>
+            <div class="d-flex justify-content-between small mb-1">
+              <span>Monthly</span><span class="fw-semibold">${fmt(mo)}</span>
+            </div>
+            <div class="d-flex justify-content-between small mb-1">
+              <span>Annual</span><span class="fw-semibold">${fmt(mo*12)}</span>
+            </div>
+            <div class="d-flex justify-content-between small mb-2">
+              <span>Household share</span><span class="fw-semibold" style="color:${m.color}">${share.toFixed(1)}%</span>
+            </div>
+            <div class="contrib-bar bg-secondary bg-opacity-25 overflow-hidden">
+              <div class="contrib-bar" style="width:${share}%;background:${m.color}"></div>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+
+      var totalMo = ti, totalAnn = ti*12, avg = DB.members.length ? totalMo/DB.members.length : 0;
+      $('ht-annual').textContent  = fmt(totalAnn);
+      $('ht-monthly').textContent = fmt(totalMo);
+      $('ht-avg').textContent     = fmt(avg);
+      $('ht-count').textContent   = DB.members.length;
+    }
+
+    window.editMember = function(id){
+      var m = DB.members.find(x=>x.id===id); if(!m) return;
+      $('mf-id').value     = m.id;
+      $('mf-name').value   = m.name;
+      $('mf-income').value = m.income;
+      $('mf-freq').value   = m.freq;
+      $('mf-color').value  = m.color;
+      $('mf-pct').value    = m.pct||0;
+      document.querySelectorAll('.cp-btn').forEach(b=>{
+        b.style.border = b.dataset.color===m.color ? '2px solid #fff' : '2px solid transparent';
+        b.classList.toggle('active', b.dataset.color===m.color);
+      });
+      $('memberModalLabel').textContent = 'Edit Member';
+      bootstrap.Modal.getOrCreateInstance($('memberModal')).show();
+    };
+
+    window.deleteMember = function(id){
+      if(!confirm('Remove this member?')) return;
+      DB.members = DB.members.filter(m=>m.id!==id);
+      save(); renderAll();
+    };
+
+    $('mf-save').addEventListener('click',()=>{
+      var name   = $('mf-name').value.trim();
+      var income = parseFloat($('mf-income').value);
+      if(!name || isNaN(income)) { alert('Name and Income are required.'); return; }
+      var id = $('mf-id').value || uid();
+      var existing = DB.members.findIndex(m=>m.id===id);
+      var member = { id, name, income, freq:$('mf-freq').value, color:$('mf-color').value, pct:parseFloat($('mf-pct').value)||0 };
+      if(existing>=0) DB.members[existing]=member;
+      else DB.members.push(member);
+      save();
+      bootstrap.Modal.getInstance($('memberModal')).hide();
+      $('memberForm').reset(); $('mf-id').value='';
+      $('memberModalLabel').textContent='Add Member';
+      renderAll();
+    });
+
+    $('memberModal').addEventListener('hidden.bs.modal',()=>{
+      $('memberForm').reset(); $('mf-id').value='';
+      $('memberModalLabel').textContent='Add Member';
+    });
+
+    // Color picker
+    document.querySelectorAll('.cp-btn').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        document.querySelectorAll('.cp-btn').forEach(b=>{
+          b.style.border='2px solid transparent'; b.classList.remove('active');
+        });
+        btn.style.border='2px solid #fff'; btn.classList.add('active');
+        $('mf-color').value = btn.dataset.color;
+      });
+    });
+
+    // Distribution mode radios
+    document.querySelectorAll('input[name="distMode"]').forEach(r=>{
+      r.addEventListener('change',()=>{
+        DB.distMode = r.value; save(); renderMembers(); renderDistribution();
+      });
+    });
+
+    /* ══ Distribution ═══════════════════════════════════ */
+    function renderDistribution(){
+      var ti      = totalIncome();
+      var bills   = totalBillsActual();
+      var rem     = remaining();
+      var billPct = ti ? Math.min(100, bills/ti*100) : 0;
+      var remPct  = ti ? Math.max(0, rem/ti*100) : 0;
+
+      $('pb-bills').style.width   = billPct.toFixed(1)+'%';
+      $('pb-remain').style.width  = remPct.toFixed(1)+'%';
+      $('pb-bills-lbl').textContent  = fmt(bills);
+      $('pb-remain-lbl').textContent = fmt(rem);
+      $('distSummaryPct').textContent= `${billPct.toFixed(1)}% to bills · ${remPct.toFixed(1)}% remaining`;
+
+      var modeMap = {auto:'Auto (by salary)',manual:'Manual (%)',equal:'Equal split'};
+      $('distModeLabel').textContent = modeMap[DB.distMode]||DB.distMode;
+
+      // Sync radio UI
+      document.querySelectorAll('input[name="distMode"]').forEach(r=>{ r.checked = r.value===DB.distMode; });
+
+      var cards = $('distCards');
+      var warn  = $('distPctWarning');
+
+      if(!DB.members.length){
+        cards.innerHTML='<div class="col-12 text-center text-secondary py-4" id="distEmpty">Add household members to see distribution.</div>';
+        warn.classList.add('d-none'); return;
+      }
+
+      var totalManualPct = DB.members.reduce((s,m)=>s+(m.pct||0),0);
+      if(DB.distMode==='manual' && Math.abs(totalManualPct-100)>0.5){
+        warn.classList.remove('d-none');
+        $('distPctTotal').textContent = totalManualPct.toFixed(1);
+      } else { warn.classList.add('d-none'); }
+
+      cards.innerHTML = DB.members.map(m=>{
+        var p    = memberPct(m);
+        var alloc= rem>0 ? rem*(p/100) : 0;
+        var mo   = memberMonthly(m);
+        var takes= ti ? mo/ti*100 : 0;
+        return `<div class="col-md-6 col-lg-4">
+          <div class="card dist-card p-3 h-100" style="border-top:4px solid ${m.color}">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <div class="fw-bold">${m.name}</div>
+              <span class="badge" style="background:${m.color}22;color:${m.color};font-size:.75rem">${p.toFixed(1)}%</span>
+            </div>
+            <div class="d-flex justify-content-between small mb-1 text-secondary">
+              <span>Monthly income</span><span>${fmt(mo)}</span>
+            </div>
+            <div class="d-flex justify-content-between small mb-1 text-secondary">
+              <span>Household share</span><span>${takes.toFixed(1)}%</span>
+            </div>
+            <hr class="my-2"/>
+            <div class="d-flex justify-content-between mb-1">
+              <span class="small fw-semibold">Gets of remaining</span>
+              <span class="fw-bold" style="color:${m.color}">${fmt(alloc)}</span>
+            </div>
+            <div class="progress mt-2" style="height:6px;border-radius:3px;background:var(--bs-secondary-bg)">
+              <div class="progress-bar" style="width:${Math.min(100,p)}%;background:${m.color}"></div>
+            </div>
+            ${DB.distMode==='manual'?`<div class="mt-2 d-flex align-items-center gap-2">
+              <label class="small text-secondary mb-0">Override %:</label>
+              <div class="input-group input-group-sm alloc-input">
+                <input type="number" class="form-control" min="0" max="100" step="1" value="${m.pct||0}" oninput="updateManualPct('${m.id}',this.value)"/>
+                <span class="input-group-text">%</span>
+              </div></div>`:''}
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    window.updateManualPct = function(id, val){
+      var m = DB.members.find(x=>x.id===id); if(!m) return;
+      m.pct = parseFloat(val)||0;
+      save(); renderDistribution();
+    };
+
+    /* ══ Dashboard ══════════════════════════════════════ */
+    function renderDashboard(){
+      var ti    = totalIncome();
+      var bills = totalBillsActual();
+      var rem   = remaining();
+      var alerts = DB.bills.filter(b=>{ var s=effectiveStatus(b); return s==='overdue'||s==='upcoming'; }).length;
+
+      $('s-income').textContent      = fmt(ti);
+      $('s-income-sub').textContent  = DB.members.length+' member'+(DB.members.length!==1?'s':'');
+      $('s-bills').textContent       = fmt(bills);
+      $('s-bills-sub').textContent   = 'Min: '+fmt(totalBillsMin());
+      $('s-remain').textContent      = fmt(rem);
+      $('s-remain-sub').textContent  = pct(rem,ti)+' of income';
+      $('s-alerts').textContent      = alerts;
+      $('s-alerts-sub').textContent  = 'bills need attention';
+
+      // Alerts banner
+      var alertBox = $('bmAlerts');
+      var overdues  = DB.bills.filter(b=>effectiveStatus(b)==='overdue');
+      var upcomings = DB.bills.filter(b=>effectiveStatus(b)==='upcoming');
+      alertBox.innerHTML = [
+        ...overdues.map(b=>`<div class="alert alert-danger py-2 small mb-2">🔴 <strong>${b.name}</strong> is overdue${b.due?' (due '+b.due+')':''}. Amount: ${fmt(b.actual||b.min)}</div>`),
+        ...upcomings.map(b=>`<div class="alert alert-info py-2 small mb-2">🔵 <strong>${b.name}</strong> due in ${daysUntilDue(b.due)} day(s) (${b.due}). Amount: ${fmt(b.actual||b.min)}</div>`)
+      ].join('');
+
+      renderCharts();
+    }
+
+    /* ══ Charts ═════════════════════════════════════════ */
+    function chartColors(n){
+      var palette=['#6366f1','#f59e0b','#3b82f6','#10b981','#ef4444','#8b5cf6','#ec4899','#0ea5e9','#22c55e','#dc2626','#06b6d4','#94a3b8'];
+      return Array.from({length:n},(_,i)=>palette[i%palette.length]);
+    }
+
+    function renderCharts(){
+      // 1. Expenses by category (doughnut)
+      destroyChart('chartCat');
+      var catTotals={};
+      DB.bills.forEach(b=>{ catTotals[b.cat]=(catTotals[b.cat]||0)+toMonthly(b.actual||b.min,b.freq); });
+      var catKeys = Object.keys(catTotals).filter(k=>catTotals[k]>0);
+      if(catKeys.length){
+        charts.chartCat = new Chart($('chartCat'),{
+          type:'doughnut',
+          data:{ labels:catKeys.map(k=>(CAT[k]||CAT.other).label),
+                 datasets:[{data:catKeys.map(k=>catTotals[k].toFixed(2)),
+                            backgroundColor:catKeys.map(k=>(CAT[k]||CAT.other).color),
+                            borderWidth:2}]},
+          options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:12}}}}
+        });
+      }
+
+      // 2. Income vs Expenses (horizontal bar)
+      destroyChart('chartIvE');
+      var ti=totalIncome(), bills=totalBillsActual(), rem=Math.max(0,remaining());
+      charts.chartIvE = new Chart($('chartIvE'),{
+        type:'bar',
+        data:{ labels:['Income','Bills','Remaining'],
+               datasets:[{data:[ti.toFixed(2),bills.toFixed(2),rem.toFixed(2)],
+                          backgroundColor:['#0dcaf0','#dc3545','#198754'],
+                          borderRadius:6}]},
+        options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+                 plugins:{legend:{display:false}},
+                 scales:{x:{ticks:{callback:v=>'$'+Number(v).toLocaleString()}}}}
+      });
+
+      // 3. Household income split (pie)
+      destroyChart('chartIncome');
+      if(DB.members.length){
+        charts.chartIncome = new Chart($('chartIncome'),{
+          type:'pie',
+          data:{ labels:DB.members.map(m=>m.name),
+                 datasets:[{data:DB.members.map(m=>memberMonthly(m).toFixed(2)),
+                            backgroundColor:DB.members.map(m=>m.color),
+                            borderWidth:2}]},
+          options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:12}}}}
+        });
+      }
+
+      // 4. Bills min vs actual (grouped bar)
+      destroyChart('chartBills');
+      if(DB.bills.length){
+        var bLabels = DB.bills.map(b=>b.name);
+        charts.chartBills = new Chart($('chartBills'),{
+          type:'bar',
+          data:{ labels:bLabels,
+                 datasets:[
+                   {label:'Min Payment',  data:DB.bills.map(b=>b.min.toFixed(2)),  backgroundColor:'rgba(99,102,241,.6)',borderRadius:4},
+                   {label:'Actual Payment',data:DB.bills.map(b=>(b.actual||b.min).toFixed(2)),backgroundColor:'rgba(239,68,68,.6)',borderRadius:4}
+                 ]},
+          options:{responsive:true,maintainAspectRatio:false,
+                   plugins:{legend:{position:'top',labels:{font:{size:11}}}},
+                   scales:{y:{ticks:{callback:v=>'$'+Number(v).toLocaleString()}}}}
+        });
+      }
+
+      // 5. Remaining distribution (doughnut)
+      destroyChart('chartDist');
+      if(DB.members.length && rem>0){
+        charts.chartDist = new Chart($('chartDist'),{
+          type:'doughnut',
+          data:{ labels:DB.members.map(m=>m.name),
+                 datasets:[{data:DB.members.map(m=>(rem*(memberPct(m)/100)).toFixed(2)),
+                            backgroundColor:DB.members.map(m=>m.color),
+                            borderWidth:2}]},
+          options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:12}}}}
+        });
+      }
+    }
+
+    /* ══ Reports ════════════════════════════════════════ */
+    function renderReports(){
+      var ti=totalIncome(), bills=totalBillsActual(), rem=remaining(), minB=totalBillsMin();
+
+      // 1. Budget health gauge (horizontal stacked bar)
+      destroyChart('chartHealth');
+      charts.chartHealth = new Chart($('chartHealth'),{
+        type:'bar',
+        data:{ labels:['Monthly Budget'],
+               datasets:[
+                 {label:'Bills (Actual)',  data:[bills.toFixed(2)],  backgroundColor:'#dc3545',borderRadius:{topLeft:6,bottomLeft:6}},
+                 {label:'Remaining',       data:[Math.max(0,rem).toFixed(2)],backgroundColor:'#198754',borderRadius:{topRight:6,bottomRight:6}}
+               ]},
+        options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+                 scales:{x:{stacked:true,ticks:{callback:v=>'$'+Number(v).toLocaleString()}},y:{stacked:true}},
+                 plugins:{legend:{position:'top'}}}
+      });
+
+      // 2. Bills by priority (bar)
+      destroyChart('chartPriority');
+      var prioData = {high:0, medium:0, low:0};
+      DB.bills.forEach(b=>{ prioData[b.priority]=(prioData[b.priority]||0)+toMonthly(b.actual||b.min,b.freq); });
+      charts.chartPriority = new Chart($('chartPriority'),{
+        type:'bar',
+        data:{ labels:['High','Medium','Low'],
+               datasets:[{data:[prioData.high.toFixed(2),prioData.medium.toFixed(2),prioData.low.toFixed(2)],
+                          backgroundColor:['#dc3545','#ffc107','#198754'],borderRadius:6}]},
+        options:{responsive:true,maintainAspectRatio:false,
+                 plugins:{legend:{display:false}},
+                 scales:{y:{ticks:{callback:v=>'$'+Number(v).toLocaleString()}}}}
+      });
+
+      // 3. Bill frequency breakdown (doughnut)
+      destroyChart('chartFreq');
+      var freqData={};
+      DB.bills.forEach(b=>{ freqData[b.freq]=(freqData[b.freq]||0)+1; });
+      var fKeys=Object.keys(freqData);
+      if(fKeys.length){
+        charts.chartFreq = new Chart($('chartFreq'),{
+          type:'doughnut',
+          data:{ labels:fKeys.map(k=>k.charAt(0).toUpperCase()+k.slice(1)),
+                 datasets:[{data:fKeys.map(k=>freqData[k]),
+                            backgroundColor:chartColors(fKeys.length),borderWidth:2}]},
+          options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:12}}}}
+        });
+      }
+
+      // Key metrics
+      var savingsRate = ti>0 ? rem/ti*100 : 0;
+      var debtLoad    = ti>0 ? (DB.bills.filter(b=>b.cat==='debt').reduce((s,b)=>s+toMonthly(b.actual||b.min,b.freq),0))/ti*100 : 0;
+      var housing     = DB.bills.filter(b=>b.cat==='housing').reduce((s,b)=>s+toMonthly(b.actual||b.min,b.freq),0);
+      var housingPct  = ti>0 ? housing/ti*100 : 0;
+      var overMin     = bills - minB;
+      var emergency   = minB * 3;
+
+      $('metricsGrid').innerHTML = [
+        {label:'Savings Rate',    value:savingsRate.toFixed(1)+'%',  sub:'of monthly income',     cls:savingsRate>=20?'success':savingsRate>=10?'warning':'danger'},
+        {label:'Debt Load',       value:debtLoad.toFixed(1)+'%',     sub:'income to debt payments',cls:debtLoad<=15?'success':debtLoad<=36?'warning':'danger'},
+        {label:'Housing Cost %',  value:housingPct.toFixed(1)+'%',   sub:'income to housing',     cls:housingPct<=30?'success':housingPct<=40?'warning':'danger'},
+        {label:'Overpaying Bills',value:fmt(overMin),                 sub:'above minimums',        cls:'info'},
+        {label:'3-Month Emergency Fund',value:fmt(emergency),         sub:'recommended savings goal',cls:'info'},
+        {label:'Annual Savings Potential',value:fmt(Math.max(0,rem)*12),sub:'if fully saved',      cls:'success'},
+      ].map(m=>`<div class="col-md-4 col-sm-6">
+        <div class="card bm-stat ${m.cls} p-3">
+          <div class="label">${m.label}</div>
+          <div class="value text-${m.cls}">${m.value}</div>
+          <div class="sub">${m.sub}</div>
+        </div>
+      </div>`).join('');
+    }
+
+    /* ══ Alerts & summary on bills tab ═════════════════ */
+    function renderSummary(){
+      renderBills();
+      renderMembers();
+    }
+
+    /* ══ Import / Export ════════════════════════════════ */
+    $('bmExport').addEventListener('click',()=>{
+      var blob = new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});
+      var url  = URL.createObjectURL(blob);
+      var a    = document.createElement('a');
+      a.href=url; a.download='budget-'+today()+'.json';
+      a.click(); URL.revokeObjectURL(url);
+    });
+    $('bmImport').addEventListener('click',()=>$('bmImportFile').click());
+    $('bmImportFile').addEventListener('change',e=>{
+      var file = e.target.files[0]; if(!file) return;
+      var reader = new FileReader();
+      reader.onload = evt=>{
+        try{
+          var data = JSON.parse(evt.target.result);
+          if(data.bills && data.members){ DB=data; save(); renderAll(); alert('Import successful!'); }
+          else alert('Invalid budget file.');
+        }catch(err){ alert('Could not parse file: '+err.message); }
+        e.target.value='';
+      };
+      reader.readAsText(file);
+    });
+    $('bmReset').addEventListener('click',()=>{
+      if(!confirm('Reset ALL budget data? This cannot be undone.')) return;
+      DB={bills:[],members:[],distMode:'auto'};
+      save(); renderAll();
+    });
+
+    /* ══ Render all ═════════════════════════════════════ */
+    function renderAll(){
+      renderSummary();
+      var activeTab = document.querySelector('#bmTabs .nav-link.active');
+      if(activeTab){
+        var t = activeTab.dataset.tab;
+        if(t==='dashboard')    renderDashboard();
+        if(t==='reports')      renderReports();
+        if(t==='distribution') renderDistribution();
+      } else { renderDashboard(); }
+    }
+
+    /* ══ Boot ═══════════════════════════════════════════ */
+    // Restore distMode radio
+    document.querySelectorAll('input[name="distMode"]').forEach(r=>{ r.checked=r.value===DB.distMode; });
+    renderAll();
+
+  })();
+  </script>
+</body>
+</html>
