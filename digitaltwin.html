@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="favicon.ico"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="theme.css"/>
+  <title>Digital Twin — Enterprise Security | Jessica Rojas</title>
+  <meta name="description" content="Interactive digital twin of an enterprise security program — navigate assets, systems, controls, risks, and trust boundaries visually."/>
+  <style>
+    html,body{height:100%;margin:0;overflow:hidden;background:#07091299;}
+
+    /* ── Canvas shell ───────────────────────────── */
+    #dt-shell{display:flex;flex-direction:column;height:100vh;}
+    #dt-topbar{flex-shrink:0;background:#0b0f1e;border-bottom:1px solid #1e2a45;padding:6px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;z-index:20;}
+    #dt-canvas-wrap{flex:1;position:relative;overflow:hidden;}
+    #cy{width:100%;height:100%;background:#070b18;}
+
+    /* ── Topbar ─────────────────────────────────── */
+    .dt-logo{display:flex;align-items:center;gap:8px;font-size:.85rem;font-weight:700;color:#60a5fa;white-space:nowrap;}
+    .dt-logo svg{flex-shrink:0;}
+    .dt-search-wrap{position:relative;flex:0 0 220px;}
+    .dt-search-wrap input{background:#111827;border:1px solid #1e2a45;color:#e2e8f0;font-size:.8rem;padding:5px 10px 5px 30px;border-radius:6px;width:100%;outline:none;}
+    .dt-search-wrap input:focus{border-color:#3b82f6;}
+    .dt-search-wrap svg{position:absolute;left:8px;top:50%;transform:translateY(-50%);color:#475569;}
+    .filter-btn{background:#111827;border:1px solid #1e2a45;color:#94a3b8;font-size:.72rem;padding:4px 10px;border-radius:5px;cursor:pointer;transition:all .15s;white-space:nowrap;}
+    .filter-btn:hover,.filter-btn.active{background:#1e3a5f;border-color:#3b82f6;color:#93c5fd;}
+    .filter-btn.f-risk   .dot{background:#ef4444;}
+    .filter-btn.f-control .dot{background:#f59e0b;}
+    .filter-btn.f-asset  .dot{background:#3b82f6;}
+    .filter-btn.f-system .dot{background:#8b5cf6;}
+    .filter-btn.f-user   .dot{background:#10b981;}
+    .filter-btn.f-incident .dot{background:#be123c;}
+    .filter-btn.f-evidence .dot{background:#06b6d4;}
+    .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;}
+    .dt-divider{width:1px;height:22px;background:#1e2a45;flex-shrink:0;}
+    .dt-btn{background:#111827;border:1px solid #1e2a45;color:#94a3b8;font-size:.75rem;padding:5px 10px;border-radius:5px;cursor:pointer;transition:all .15s;}
+    .dt-btn:hover{border-color:#3b82f6;color:#93c5fd;}
+    #dt-scorecard{margin-left:auto;display:flex;gap:12px;align-items:center;}
+    .sc-item{text-align:center;}
+    .sc-val{font-size:1rem;font-weight:700;line-height:1;}
+    .sc-lbl{font-size:.62rem;color:#475569;text-transform:uppercase;letter-spacing:.05em;}
+
+    /* ── Zone legend pill ───────────────────────── */
+    #zone-legend{position:absolute;bottom:12px;left:12px;z-index:10;display:flex;flex-direction:column;gap:5px;}
+    .zone-pill{display:flex;align-items:center;gap:6px;font-size:.7rem;color:#94a3b8;background:rgba(7,11,24,.85);border:1px solid #1e2a45;padding:3px 8px;border-radius:20px;backdrop-filter:blur(4px);}
+    .zone-swatch{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
+
+    /* ── Minimap ─────────────────────────────────── */
+    #dt-minimap{position:absolute;bottom:12px;right:380px;z-index:10;background:rgba(7,11,24,.9);border:1px solid #1e2a45;border-radius:8px;padding:6px;width:160px;}
+    #dt-minimap.panel-open{right:520px;}
+    #dt-minimap .mm-title{font-size:.65rem;color:#475569;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+    #mm-canvas{width:148px;height:90px;border-radius:4px;background:#0d1425;}
+
+    /* ── Crosshair coords ───────────────────────── */
+    #dt-coords{position:absolute;bottom:12px;right:12px;font-size:.68rem;color:#334155;z-index:5;}
+    #dt-coords.panel-open{right:400px;}
+
+    /* ── Detail panel ───────────────────────────── */
+    #dt-panel{position:absolute;top:0;right:0;height:100%;width:380px;background:#0b0f1e;border-left:1px solid #1e2a45;transform:translateX(100%);transition:transform .25s ease;z-index:15;display:flex;flex-direction:column;overflow:hidden;}
+    #dt-panel.open{transform:translateX(0);}
+    #panel-header{flex-shrink:0;padding:16px;border-bottom:1px solid #1e2a45;display:flex;align-items:flex-start;gap:12px;}
+    #panel-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;}
+    #panel-close{margin-left:auto;background:none;border:none;color:#475569;cursor:pointer;padding:2px;font-size:1rem;line-height:1;}
+    #panel-close:hover{color:#94a3b8;}
+    #panel-body{flex:1;overflow-y:auto;padding:14px;}
+    #panel-body::-webkit-scrollbar{width:4px;}
+    #panel-body::-webkit-scrollbar-thumb{background:#1e2a45;border-radius:4px;}
+
+    .p-section{margin-bottom:16px;}
+    .p-section-title{font-size:.65rem;text-transform:uppercase;letter-spacing:.07em;color:#475569;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+    .p-section-title::after{content:'';flex:1;height:1px;background:#1e2a45;}
+    .p-metric-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+    .p-metric{background:#111827;border:1px solid #1e2a45;border-radius:8px;padding:10px;}
+    .p-metric .val{font-size:1.2rem;font-weight:700;line-height:1;}
+    .p-metric .lbl{font-size:.68rem;color:#475569;margin-top:2px;}
+    .p-tag{display:inline-flex;align-items:center;gap:4px;font-size:.7rem;background:#111827;border:1px solid #1e2a45;border-radius:4px;padding:3px 8px;margin:2px;color:#94a3b8;cursor:pointer;transition:all .15s;}
+    .p-tag:hover{border-color:#3b82f6;color:#93c5fd;}
+    .p-tag .dot{width:6px;height:6px;margin-right:2px;}
+    .p-bar-wrap{background:#111827;border-radius:4px;overflow:hidden;height:6px;margin-top:4px;}
+    .p-bar{height:100%;border-radius:4px;transition:width .5s ease;}
+    .risk-badge{display:inline-block;font-size:.68rem;font-weight:600;padding:2px 8px;border-radius:20px;}
+    .risk-critical{background:#7f1d1d;color:#fca5a5;}
+    .risk-high{background:#7c2d12;color:#fdba74;}
+    .risk-medium{background:#713f12;color:#fde68a;}
+    .risk-low{background:#14532d;color:#86efac;}
+
+    /* ── Pulse animation for high-risk nodes ─────── */
+    @keyframes pulse-ring{0%{box-shadow:0 0 0 0 rgba(239,68,68,.4);}70%{box-shadow:0 0 0 8px rgba(239,68,68,0);}100%{box-shadow:0 0 0 0 rgba(239,68,68,0);}}
+
+    /* ── Tooltip ─────────────────────────────────── */
+    #dt-tooltip{position:absolute;pointer-events:none;background:#0b0f1e;border:1px solid #1e2a45;border-radius:6px;padding:6px 10px;font-size:.73rem;color:#e2e8f0;max-width:200px;z-index:25;opacity:0;transition:opacity .1s;}
+    #dt-tooltip.show{opacity:1;}
+
+    /* ── Focus overlay ───────────────────────────── */
+    .faded{opacity:.15!important;}
+
+    /* ── Scrollbar ───────────────────────────────── */
+    *::-webkit-scrollbar{width:5px;}
+    *::-webkit-scrollbar-track{background:transparent;}
+    *::-webkit-scrollbar-thumb{background:#1e2a45;border-radius:3px;}
+  </style>
+</head>
+<body>
+
+<!-- RBAC Login Modal -->
+<div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title fs-5" id="rbacModalLabel">🔒 Login</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="rbac-login-form" novalidate>
+          <div class="mb-3"><label class="form-label">Username</label>
+            <input type="text" class="form-control" id="rbac-username-input" autocomplete="username" placeholder="Enter your username" maxlength="40" required/></div>
+          <div class="mb-3"><label class="form-label">Password</label>
+            <input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" required/></div>
+          <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
+          <button type="submit" class="btn btn-primary w-100">Login</button>
+        </form>
+      </div>
+      <div class="modal-footer border-0 pt-0"><p class="text-secondary small mb-0">Session clears when you close this tab.</p></div>
+    </div>
+  </div>
+</div>
+
+<div id="dt-shell">
+  <!-- ══ Topbar ══════════════════════════════════════════════ -->
+  <div id="dt-topbar">
+    <!-- Logo -->
+    <div class="dt-logo">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/><line x1="12" y1="22" x2="12" y2="15.5"/><polyline points="22 8.5 12 15.5 2 8.5"/>
+      </svg>
+      Digital Twin
+    </div>
+    <div class="dt-divider"></div>
+
+    <!-- Search -->
+    <div class="dt-search-wrap">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="dt-search" placeholder="Search nodes…" autocomplete="off" spellcheck="false"/>
+    </div>
+    <div class="dt-divider"></div>
+
+    <!-- Type filters -->
+    <span style="font-size:.68rem;color:#334155;white-space:nowrap">Show:</span>
+    <button class="filter-btn f-asset  active" data-type="asset">    <span class="dot"></span>Assets</button>
+    <button class="filter-btn f-system active" data-type="system">   <span class="dot"></span>Systems</button>
+    <button class="filter-btn f-user   active" data-type="user">     <span class="dot"></span>Users</button>
+    <button class="filter-btn f-control active" data-type="control"> <span class="dot"></span>Controls</button>
+    <button class="filter-btn f-risk   active" data-type="risk">     <span class="dot"></span>Risks</button>
+    <button class="filter-btn f-incident active" data-type="incident"><span class="dot"></span>Incidents</button>
+    <button class="filter-btn f-evidence active" data-type="evidence"><span class="dot"></span>Evidence</button>
+    <div class="dt-divider"></div>
+
+    <!-- View controls -->
+    <button class="dt-btn" id="btn-reset-view">⟲ Reset View</button>
+    <button class="dt-btn" id="btn-focus-mode">◎ Focus Mode: Off</button>
+    <button class="dt-btn" id="btn-export">⬇ Export PNG</button>
+
+    <!-- Login -->
+    <button class="dt-btn" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+    <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+      <span id="rbac-role-badge" class="badge bg-secondary" style="font-size:.65rem"></span>
+      <span id="rbac-username" class="text-body-secondary small fw-semibold" style="font-size:.75rem"></span>
+      <button class="dt-btn" id="rbac-logout-btn">Logout</button>
+    </div>
+
+    <!-- Theme -->
+    <button class="dt-btn" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+
+    <!-- Scorecard -->
+    <div id="dt-scorecard">
+      <div class="sc-item"><div class="sc-val" id="sc-assets" style="color:#3b82f6">0</div><div class="sc-lbl">Assets</div></div>
+      <div class="sc-item"><div class="sc-val" id="sc-risks"  style="color:#ef4444">0</div><div class="sc-lbl">Open Risks</div></div>
+      <div class="sc-item"><div class="sc-val" id="sc-controls" style="color:#f59e0b">0</div><div class="sc-lbl">Controls</div></div>
+      <div class="sc-item"><div class="sc-val" id="sc-incidents" style="color:#be123c">0</div><div class="sc-lbl">Incidents</div></div>
+    </div>
+  </div>
+
+  <!-- ══ Canvas ═══════════════════════════════════════════════ -->
+  <div id="dt-canvas-wrap">
+    <div id="cy"></div>
+
+    <!-- Zone legend -->
+    <div id="zone-legend">
+      <div class="zone-pill"><div class="zone-swatch" style="background:#7f1d1d55;border:1px solid #7f1d1d"></div>Internet / External</div>
+      <div class="zone-pill"><div class="zone-swatch" style="background:#14532d55;border:1px solid #14532d"></div>DMZ</div>
+      <div class="zone-pill"><div class="zone-swatch" style="background:#1e3a5f55;border:1px solid #1e3a5f"></div>Corporate Network</div>
+      <div class="zone-pill"><div class="zone-swatch" style="background:#4a1d9655;border:1px solid #4a1d96"></div>CUI Enclave</div>
+      <div class="zone-pill"><div class="zone-swatch" style="background:#0f172a55;border:1px solid #164e63"></div>Cloud (Azure/AWS)</div>
+      <div class="zone-pill"><div class="zone-swatch" style="background:#3b270055;border:1px solid #92400e"></div>OT / ICS</div>
+    </div>
+
+    <!-- Detail panel -->
+    <div id="dt-panel">
+      <div id="panel-header">
+        <div id="panel-icon">🔷</div>
+        <div style="flex:1;min-width:0;">
+          <div id="panel-type-badge" style="font-size:.65rem;color:#475569;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;">Asset</div>
+          <div id="panel-name" style="font-size:1rem;font-weight:700;color:#e2e8f0;line-height:1.2;"></div>
+          <div id="panel-zone" style="font-size:.72rem;color:#475569;margin-top:2px;"></div>
+        </div>
+        <button id="panel-close">✕</button>
+      </div>
+      <div id="panel-body"></div>
+    </div>
+
+    <!-- Tooltip -->
+    <div id="dt-tooltip"></div>
+
+    <!-- Coords -->
+    <div id="dt-coords">x:0 y:0</div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/cytoscape@3.29.2/dist/cytoscape.min.js"></script>
+<script src="users.js" defer></script>
+<script src="roles.js" defer></script>
+<script src="script.js" defer></script>
+<script>
+(function(){
+'use strict';
+
+/* ══ DATA ══════════════════════════════════════════════════════════════════ */
+
+var ZONE_COLORS = {
+  ext:   { bg:'rgba(127,29,29,.18)',   border:'#7f1d1d', label:'Internet / External' },
+  dmz:   { bg:'rgba(20,83,45,.18)',    border:'#14532d', label:'DMZ' },
+  corp:  { bg:'rgba(30,58,95,.18)',    border:'#1e3a5f', label:'Corporate Network' },
+  cui:   { bg:'rgba(74,29,150,.18)',   border:'#4a1d96', label:'CUI Enclave' },
+  cloud: { bg:'rgba(15,23,42,.25)',    border:'#164e63', label:'Cloud (Azure / AWS)' },
+  ot:    { bg:'rgba(59,39,0,.25)',     border:'#92400e', label:'OT / ICS' },
+};
+
+var NODE_STYLES = {
+  asset:    { color:'#3b82f6', shape:'round-rectangle', icon:'🖥️',  size:58 },
+  system:   { color:'#8b5cf6', shape:'round-rectangle', icon:'⚙️',  size:62 },
+  user:     { color:'#10b981', shape:'ellipse',          icon:'👥',  size:54 },
+  control:  { color:'#f59e0b', shape:'diamond',          icon:'🛡️',  size:60 },
+  risk:     { color:'#ef4444', shape:'triangle',         icon:'⚠️',  size:58 },
+  incident: { color:'#be123c', shape:'octagon',          icon:'🚨',  size:56 },
+  evidence: { color:'#06b6d4', shape:'barrel',           icon:'📄',  size:54 },
+  zone:     { color:'#334155', shape:'round-rectangle',  icon:'',    size:0  },
+};
+
+var RISK_COLORS = { critical:'#dc2626', high:'#ea580c', medium:'#ca8a04', low:'#16a34a' };
+
+/* ── Zones ─────────────────────────────────────────────────────────────── */
+var zones = [
+  { id:'z-ext',   label:'Internet\n/ External', zone:'ext',   x:-200, y:-400, w:560, h:180 },
+  { id:'z-dmz',   label:'DMZ',                   zone:'dmz',   x:-320, y:-170, w:780, h:220 },
+  { id:'z-corp',  label:'Corporate\nNetwork',    zone:'corp',  x:-500, y:120,  w:700, h:700 },
+  { id:'z-cui',   label:'CUI\nEnclave',          zone:'cui',   x:260,  y:120,  w:440, h:480 },
+  { id:'z-cloud', label:'Cloud\n(Azure/AWS)',    zone:'cloud', x:500,  y:-420, w:440, h:500 },
+  { id:'z-ot',    label:'OT / ICS\nNetwork',     zone:'ot',    x:-500, y:880,  w:420, h:200 },
+];
+
+/* ── Assets ────────────────────────────────────────────────────────────── */
+var assets = [
+  { id:'a-vpn',      label:'VPN\nGateway',        zone:'dmz',   x:-180, y:-90,  risk:'high',   status:'partial',      desc:'Cisco ASA VPN gateway — remote access entry point. MFA enforced.',                 coverage:72,  issues:2 },
+  { id:'a-waf',      label:'Web App\nFirewall',    zone:'dmz',   x: 60,  y:-120, risk:'low',    status:'operational',  desc:'F5 WAF protecting internet-facing applications. OWASP rules active.',              coverage:95,  issues:0 },
+  { id:'a-email-gw', label:'Email\nGateway',       zone:'dmz',   x:280,  y:-80,  risk:'medium', status:'operational',  desc:'Proofpoint email security gateway. DLP rules and sandboxing enabled.',              coverage:88,  issues:1 },
+  { id:'a-ids',      label:'Network\nIDS/IPS',     zone:'dmz',   x: 60,  y: 20,  risk:'low',    status:'operational',  desc:'Suricata IDS/IPS monitoring DMZ traffic. Rules updated weekly.',                   coverage:91,  issues:0 },
+  { id:'a-dc',       label:'Active Directory\nDC (Primary)', zone:'corp', x:-380, y:230, risk:'critical', status:'operational', desc:'Windows Server 2022 domain controller. Primary identity authority.',       coverage:98,  issues:1 },
+  { id:'a-siem',     label:'SIEM\n(Splunk)',        zone:'corp',  x:-160, y:420,  risk:'low',    status:'operational',  desc:'Splunk Enterprise SIEM. Ingesting 50GB/day. 1-year log retention.',               coverage:100, issues:0 },
+  { id:'a-jump',     label:'Privileged\nJump Server', zone:'corp', x:-380, y:420, risk:'high',  status:'partial',      desc:'Windows jump server for admin access. CyberArk integrated. MFA required.',        coverage:89,  issues:1 },
+  { id:'a-pam',      label:'PAM\n(CyberArk)',       zone:'corp',  x:-220, y:620,  risk:'low',    status:'operational',  desc:'CyberArk privileged access management. All admin creds vaulted.',                 coverage:100, issues:0 },
+  { id:'a-endpoints',label:'Endpoint\nFleet (~450)', zone:'corp', x:0,    y:270,  risk:'medium', status:'partial',      desc:'Mixed Windows 10/11 endpoints. CrowdStrike deployed on 98%. 9 unmanaged.',       coverage:98,  issues:9 },
+  { id:'a-backup',   label:'Backup\nInfrastructure', zone:'corp', x: 60,  y:560,  risk:'high',   status:'degraded',     desc:'Veeam backup server. CVE-2024-40711 unpatched. Isolated pending patch.',           coverage:45,  issues:3 },
+  { id:'a-hr-sys',   label:'HR\nSystem',            zone:'corp',  x:-40,  y:710,  risk:'medium', status:'operational',  desc:'Workday HR SaaS — connected to Azure AD via SCIM provisioning.',                  coverage:75,  issues:1 },
+  { id:'a-cui-fs',   label:'CUI File\nServer',       zone:'cui',   x:360,  y:240,  risk:'critical','status':'partial',   desc:'Windows Server 2022. Stores ITAR-controlled technical data. CUI labeling active.', coverage:61,  issues:4 },
+  { id:'a-azure-ad', label:'Azure AD\nTenant',      zone:'cloud', x:630,  y:-340, risk:'medium', status:'operational',  desc:'Azure AD identity plane. 478 users. Conditional Access policies active.',         coverage:94,  issues:1 },
+  { id:'a-aws-s3',   label:'AWS S3\nCUI Bucket',    zone:'cloud', x:780,  y:-200, risk:'high',   status:'partial',      desc:'S3 bucket for CUI artifacts. Encrypted at rest. Access logging gap identified.',   coverage:70,  issues:2 },
+  { id:'a-hmi',      label:'Manufacturing\nHMI',    zone:'ot',    x:-380, y:960,  risk:'critical','status':'degraded',  desc:'Siemens PLC/HMI. Windows XP embedded. No AV. No monitoring. Air-gapped — unverified.', coverage:0, issues:5 },
+];
+
+/* ── Systems ───────────────────────────────────────────────────────────── */
+var systems = [
+  { id:'s-remote',   label:'Remote\nAccess',        zone:'dmz',   x:-50,  y:-270, risk:'high',   desc:'Combines VPN Gateway, Azure MFA, and Azure AD for remote worker and contractor access.',
+    components:['a-vpn','a-azure-ad'], controls:['c-mfa','c-pam','c-logging'], risks:['r-mfa','r-contractor'], coverage:72 },
+  { id:'s-iam',      label:'Identity &\nAccess Mgmt', zone:'corp', x:-180, y:140, risk:'medium', desc:'End-to-end IAM: Azure AD (cloud IdP), on-prem AD, CyberArk PAM, Workday SCIM provisioning.',
+    components:['a-dc','a-azure-ad','a-pam'], controls:['c-mfa','c-pam'], risks:['r-mfa'], coverage:88 },
+  { id:'s-secops',   label:'Security\nOperations',   zone:'corp',  x:-100, y:500,  risk:'low',    desc:'SOC capability: Splunk SIEM + CrowdStrike EDR + Tenable VM. 24/7 monitoring with IR retainer.',
+    components:['a-siem','a-endpoints'], controls:['c-edr','c-logging','c-vm'], risks:[], coverage:95 },
+  { id:'s-cui-hdl',  label:'CUI Handling\nSystem',   zone:'cui',   x:410,  y:400,  risk:'critical', desc:'Systems and processes handling ITAR/EAR CUI: CUI File Server + AWS S3 + DLP enforcement.',
+    components:['a-cui-fs','a-aws-s3'], controls:['c-dlp','c-encrypt'], risks:['r-cui-email','r-aws-log'], coverage:61 },
+  { id:'s-email',    label:'Email &\nCollab',         zone:'dmz',  x:210,  y:-260, risk:'medium', desc:'M365 + Proofpoint. Collaboration platform for all internal and CUI-adjacent communications.',
+    components:['a-email-gw'], controls:['c-dlp','c-logging'], risks:['r-cui-email'], coverage:80 },
+  { id:'s-ot-mon',   label:'OT\nMonitoring',          zone:'ot',   x:-250, y:950,  risk:'critical', desc:'OT security program — currently minimal. No IDS. No agent on HMI. Passive monitoring planned.',
+    components:['a-hmi'], controls:[], risks:['r-ot'], coverage:0 },
+];
+
+/* ── User groups ───────────────────────────────────────────────────────── */
+var users = [
+  { id:'u-employees', label:'Employees\n(~120)',      zone:'ext',  x:-80,  y:-350, risk:'low',    desc:'Internal workforce. Domain-joined, MFA enabled, SAT completed. Access reviewed quarterly.' },
+  { id:'u-remote',    label:'Remote\nWorkers (~45)',  zone:'ext',  x:120,  y:-360, risk:'medium', desc:'Work-from-home employees. VPN required. BYOD policy enforced with MDM enrollment.' },
+  { id:'u-admins',    label:'Sys\nAdmins (8)',        zone:'corp', x:-300, y:310,  risk:'high',   desc:'Privileged admin team. PAM-vaulted creds, JIT access, dual accounts, FIDO2 keys.' },
+  { id:'u-contractors',label:'Contractors\n(12)',     zone:'ext',  x:280,  y:-370, risk:'high',   desc:'Third-party contractors. Separate OU, limited VPN profile. Quarterly access reviews overdue.' },
+  { id:'u-svc-accts', label:'Service\nAccounts (>50)', zone:'corp', x:-60, y:150,  risk:'medium', desc:'Automated service accounts. Not all in PAM vault. Several with excessive permissions.' },
+  { id:'u-auditors',  label:'External\nAuditors (3)', zone:'ext',  x:440,  y:-340, risk:'low',   desc:'C3PAO assessors and external auditors. Read-only scoped access during assessments only.' },
+];
+
+/* ── Controls ──────────────────────────────────────────────────────────── */
+var controls = [
+  { id:'c-mfa',     label:'Multi-Factor\nAuthentication',  zone:'corp', x:-430, y:140,  status:'partial',      coverage:78,  desc:'Azure MFA for cloud/VPN. On-prem non-priv accounts not yet covered. POA&M CC-2024-001.' },
+  { id:'c-edr',     label:'Endpoint\nDetection (EDR)',      zone:'corp', x:140,  y:370,  status:'implemented',  coverage:98,  desc:'CrowdStrike Falcon. 98% deployment. Remaining 2% = isolated OT and legacy devices.' },
+  { id:'c-logging', label:'SIEM &\nAudit Logging',          zone:'corp', x:-60,  y:650,  status:'partial',      coverage:84,  desc:'Splunk. 84% asset coverage. CUI file server and HMI gaps identified.' },
+  { id:'c-dlp',     label:'Data Loss\nPrevention',          zone:'corp', x:180,  y:640,  status:'partial',      coverage:71,  desc:'Endpoint + email DLP. SharePoint automated labeling not yet deployed.' },
+  { id:'c-pam',     label:'Privileged\nAccess Mgmt',        zone:'corp', x:-320, y:530,  status:'implemented',  coverage:92,  desc:'CyberArk PAM. All IT admin creds vaulted. JIT access enabled.' },
+  { id:'c-vm',      label:'Vulnerability\nManagement',      zone:'corp', x:180,  y:470,  status:'partial',      coverage:85,  desc:'Tenable Nessus weekly scans. OT and some legacy systems excluded.' },
+  { id:'c-seg',     label:'Network\nSegmentation',          zone:'dmz',  x:-300, y:-30,  status:'partial',      coverage:80,  desc:'VLAN segmentation. DMZ enforced. OT/corp boundary weak — firewall rules audit needed.' },
+  { id:'c-encrypt', label:'Encryption\nat Rest',             zone:'cui',  x:550,  y:350,  status:'implemented',  coverage:95,  desc:'BitLocker on endpoints, AES-256 on CUI FS, S3 SSE-KMS. Email body unencrypted for CUI.' },
+  { id:'c-ir',      label:'Incident\nResponse',             zone:'corp', x: 80,  y:800,  status:'implemented',  coverage:100, desc:'IRP v2.1 approved. IR retainer (CrowdStrike Services). Tabletop Q1 2024.' },
+  { id:'c-sat',     label:'Security\nAwareness Training',   zone:'corp', x:-180, y:810,  status:'implemented',  coverage:96,  desc:'Annual SAT + phishing simulation. 96% completion. 4% overdue (contractors).' },
+];
+
+/* ── Risks ─────────────────────────────────────────────────────────────── */
+var risks = [
+  { id:'r-ot',         label:'OT Network\nUnmonitored',       zone:'ot',    x:-200, y:1010, severity:'critical', desc:'Legacy HMI with no AV, no logging, unverified air-gap. Single successful attack could halt production. POA&M target: Q4 2025.' },
+  { id:'r-mfa',        label:'Incomplete\nMFA Coverage',       zone:'corp',  x:-460, y:310,  severity:'high',     desc:'On-premise non-privileged accounts not yet MFA-protected. Expands credential attack surface. Remediation Q2 2025.' },
+  { id:'r-contractor', label:'Contractor\nOverprivilege',      zone:'ext',   x:450,  y:-290, severity:'high',     desc:'12 contractor accounts not reviewed in 180 days. Several retain access to systems post-engagement.' },
+  { id:'r-cui-email',  label:'CUI in\nUnsecured Email',        zone:'corp',  x:260,  y:760,  severity:'medium',   desc:'CUI data detected in standard M365 mailboxes. Users bypassing DLP by forwarding to personal email.' },
+  { id:'r-aws-log',    label:'AWS CUI Logging\nGap',           zone:'cloud', x:820,  y:-100, severity:'high',     desc:'S3 access logging not enabled on all CUI buckets. Evidence trail incomplete for DFARS compliance.' },
+  { id:'r-backup-cve', label:'Backup Server\nCVE-2024-40711', zone:'corp',  x:220,  y:600,  severity:'critical', desc:'Critical RCE vulnerability in Veeam Backup. Patch available. Server isolated pending maintenance window.' },
+];
+
+/* ── Incidents ─────────────────────────────────────────────────────────── */
+var incidents = [
+  { id:'i-contractor-login', label:'INC-2024-003\nSuspicious Login',    zone:'ext',   x:600, y:-300, severity:'high',   status:'open',         desc:'Contractor account logged in from 3 countries in 4 hours. Account suspended. Investigation ongoing. Possible credential compromise.' },
+  { id:'i-exfil',            label:'INC-2024-007\nPotential Exfil',     zone:'corp',  x:280, y:750,  severity:'critical','status':'investigating', desc:'DLP alert: 2.4GB outbound to personal Gmail from HR system. User interview scheduled. Forensic copy in progress.' },
+  { id:'i-cui-audit',        label:'FINDING-2024-12\nAudit Log Gap',    zone:'cui',   x:640, y:460,  severity:'medium',  status:'remediation',  desc:'C3PAO pre-assessment finding: CUI file server audit logs not forwarded to SIEM. Gap covered 60 days. Remediated — logs now flowing.' },
+];
+
+/* ── Evidence ──────────────────────────────────────────────────────────── */
+var evidence = [
+  { id:'e-mfa-rpt',    label:'MFA Deployment\nReport Q4-2024',    zone:'corp', x:-430, y:50,   status:'reviewed', desc:'Azure MFA coverage report showing 78% of accounts protected. Gap analysis included.' },
+  { id:'e-nessus',     label:'Nessus Scan\nQ3 2024',              zone:'corp', x:250,  y:490,  status:'pending',  desc:'Full vulnerability scan of in-scope assets. 3 critical, 12 high findings — remediation tracking attached.' },
+  { id:'e-crowdstrike',label:'CrowdStrike\nCoverage Oct 2024',    zone:'corp', x:280,  y:370,  status:'reviewed', desc:'Falcon dashboard export. 98% agent deployment confirmed. Coverage gaps listed by asset.' },
+  { id:'e-stig',       label:'STIG Compliance\nReport Win2022',   zone:'cui',  x:570,  y:160,  status:'reviewed', desc:'SCAP scan results. 94% compliant. 6 open CAT I/II findings with POA&M.' },
+  { id:'e-sat-cert',   label:'SAT Completion\nCertificates',      zone:'corp', x:-80,  y:870,  status:'reviewed', desc:'96% workforce completion. Includes phishing simulation results and training records.' },
+];
+
+/* ── Edges ─────────────────────────────────────────────────────────────── */
+var edges = [
+  // Users → Systems
+  { id:'e1',  source:'u-employees',  target:'s-iam',       rel:'uses',       label:'' },
+  { id:'e2',  source:'u-remote',     target:'s-remote',    rel:'uses',       label:'VPN' },
+  { id:'e3',  source:'u-contractors',target:'s-remote',    rel:'uses',       label:'VPN' },
+  { id:'e4',  source:'u-admins',     target:'a-jump',      rel:'uses',       label:'PAM' },
+  { id:'e5',  source:'u-svc-accts',  target:'a-dc',        rel:'uses',       label:'' },
+  // Systems → Assets
+  { id:'e6',  source:'s-remote',     target:'a-vpn',       rel:'depends_on', label:'' },
+  { id:'e7',  source:'s-remote',     target:'a-azure-ad',  rel:'depends_on', label:'' },
+  { id:'e8',  source:'s-iam',        target:'a-dc',        rel:'depends_on', label:'' },
+  { id:'e9',  source:'s-iam',        target:'a-pam',       rel:'depends_on', label:'' },
+  { id:'e10', source:'s-secops',     target:'a-siem',      rel:'depends_on', label:'' },
+  { id:'e11', source:'s-secops',     target:'a-endpoints', rel:'monitors',   label:'EDR' },
+  { id:'e12', source:'s-cui-hdl',    target:'a-cui-fs',    rel:'depends_on', label:'' },
+  { id:'e13', source:'s-cui-hdl',    target:'a-aws-s3',    rel:'depends_on', label:'' },
+  { id:'e14', source:'s-email',      target:'a-email-gw',  rel:'depends_on', label:'' },
+  { id:'e15', source:'s-ot-mon',     target:'a-hmi',       rel:'monitors',   label:'' },
+  // Controls → Assets/Systems
+  { id:'e16', source:'c-mfa',        target:'s-remote',    rel:'controls',   label:'' },
+  { id:'e17', source:'c-mfa',        target:'s-iam',       rel:'controls',   label:'' },
+  { id:'e18', source:'c-edr',        target:'a-endpoints', rel:'controls',   label:'' },
+  { id:'e19', source:'c-logging',    target:'a-siem',      rel:'feeds',      label:'' },
+  { id:'e20', source:'c-dlp',        target:'s-email',     rel:'controls',   label:'' },
+  { id:'e21', source:'c-dlp',        target:'s-cui-hdl',   rel:'controls',   label:'' },
+  { id:'e22', source:'c-pam',        target:'a-jump',      rel:'controls',   label:'' },
+  { id:'e23', source:'c-seg',        target:'a-ids',       rel:'supports',   label:'' },
+  { id:'e24', source:'c-encrypt',    target:'a-cui-fs',    rel:'controls',   label:'' },
+  { id:'e25', source:'c-ir',         target:'s-secops',    rel:'supports',   label:'' },
+  // Risks → Assets
+  { id:'e26', source:'r-ot',         target:'a-hmi',       rel:'affects',    label:'' },
+  { id:'e27', source:'r-mfa',        target:'c-mfa',       rel:'affects',    label:'' },
+  { id:'e28', source:'r-contractor', target:'u-contractors',rel:'affects',   label:'' },
+  { id:'e29', source:'r-cui-email',  target:'s-email',     rel:'affects',    label:'' },
+  { id:'e30', source:'r-aws-log',    target:'a-aws-s3',    rel:'affects',    label:'' },
+  { id:'e31', source:'r-backup-cve', target:'a-backup',    rel:'affects',    label:'' },
+  // Incidents
+  { id:'e32', source:'i-contractor-login', target:'u-contractors', rel:'involves', label:'' },
+  { id:'e33', source:'i-contractor-login', target:'s-remote',      rel:'involves', label:'' },
+  { id:'e34', source:'i-exfil',           target:'a-hr-sys',       rel:'involves', label:'' },
+  { id:'e35', source:'i-exfil',           target:'s-email',        rel:'involves', label:'' },
+  { id:'e36', source:'i-cui-audit',       target:'a-cui-fs',       rel:'involves', label:'' },
+  // Evidence
+  { id:'e37', source:'e-mfa-rpt',    target:'c-mfa',        rel:'supports',   label:'' },
+  { id:'e38', source:'e-nessus',     target:'c-vm',         rel:'supports',   label:'' },
+  { id:'e39', source:'e-crowdstrike',target:'c-edr',        rel:'supports',   label:'' },
+  { id:'e40', source:'e-stig',       target:'a-cui-fs',     rel:'supports',   label:'' },
+  { id:'e41', source:'e-sat-cert',   target:'c-sat',        rel:'supports',   label:'' },
+  // Asset dependencies
+  { id:'e42', source:'a-dc',         target:'a-azure-ad',   rel:'syncs',      label:'AD Connect' },
+  { id:'e43', source:'a-endpoints',  target:'a-dc',         rel:'depends_on', label:'' },
+  { id:'e44', source:'a-hr-sys',     target:'a-azure-ad',   rel:'depends_on', label:'SCIM' },
+  { id:'e45', source:'a-backup',     target:'a-cui-fs',     rel:'backs_up',   label:'' },
+];
+
+
+/* ══ BUILD CYTOSCAPE ELEMENTS ════════════════════════════════════════════ */
+function buildElements() {
+  var els = [];
+
+  // Zone backdrops
+  zones.forEach(function(z) {
+    var zc = ZONE_COLORS[z.zone];
+    els.push({ data:{id:z.id, label:z.label, type:'zone', zone:z.zone,
+      w:z.w, h:z.h}, position:{x:z.x+z.w/2, y:z.y+z.h/2}, classes:'zone-node' });
+  });
+
+  // Assets
+  assets.forEach(function(a) {
+    els.push({ data:{id:a.id, label:a.label, type:'asset', zone:a.zone,
+      risk:a.risk, status:a.status, desc:a.desc, coverage:a.coverage,
+      issues:a.issues, issues_n:a.issues}, position:{x:a.x, y:a.y}, classes:'asset' });
+  });
+
+  // Systems
+  systems.forEach(function(s) {
+    els.push({ data:{id:s.id, label:s.label, type:'system', zone:s.zone,
+      risk:s.risk, desc:s.desc, coverage:s.coverage,
+      components:s.components, controls:s.controls, risks:s.risks },
+      position:{x:s.x, y:s.y}, classes:'system' });
+  });
+
+  // Users
+  users.forEach(function(u) {
+    els.push({ data:{id:u.id, label:u.label, type:'user', zone:u.zone,
+      risk:u.risk, desc:u.desc}, position:{x:u.x, y:u.y}, classes:'user' });
+  });
+
+  // Controls
+  controls.forEach(function(c) {
+    els.push({ data:{id:c.id, label:c.label, type:'control', zone:c.zone,
+      risk:'low', status:c.status, coverage:c.coverage, desc:c.desc},
+      position:{x:c.x, y:c.y}, classes:'control' });
+  });
+
+  // Risks
+  risks.forEach(function(r) {
+    els.push({ data:{id:r.id, label:r.label, type:'risk', zone:r.zone,
+      risk:r.severity, severity:r.severity, desc:r.desc},
+      position:{x:r.x, y:r.y}, classes:'risk risk-'+r.severity });
+  });
+
+  // Incidents
+  incidents.forEach(function(i) {
+    els.push({ data:{id:i.id, label:i.label, type:'incident', zone:i.zone,
+      risk:i.severity, severity:i.severity, status:i.status, desc:i.desc},
+      position:{x:i.x, y:i.y}, classes:'incident' });
+  });
+
+  // Evidence
+  evidence.forEach(function(ev) {
+    els.push({ data:{id:ev.id, label:ev.label, type:'evidence', zone:ev.zone,
+      risk:'low', status:ev.status, desc:ev.desc},
+      position:{x:ev.x, y:ev.y}, classes:'evidence' });
+  });
+
+  // Edges
+  edges.forEach(function(e) {
+    els.push({ data:{id:e.id, source:e.source, target:e.target,
+      rel:e.rel, label:e.label} });
+  });
+
+  return els;
+}
+
+/* ══ CYTOSCAPE INIT ══════════════════════════════════════════════════════ */
+var cy = cytoscape({
+  container: document.getElementById('cy'),
+  elements: buildElements(),
+  layout: { name:'preset' },
+  style: [
+    // Zone backdrops
+    { selector:'.zone-node', style:{
+      'shape':'round-rectangle',
+      'width':'data(w)', 'height':'data(h)',
+      'background-opacity':0.12,
+      'border-width':1.5,
+      'border-style':'dashed',
+      'border-opacity':0.5,
+      'label':'data(label)',
+      'text-valign':'top', 'text-halign':'center',
+      'text-margin-y':14,
+      'font-size':11, 'font-weight':600,
+      'color':'#334155',
+      'text-wrap':'wrap',
+      'events':'no',
+      'z-index':0,
+    }},
+    { selector:'.zone-node[zone="ext"]',   style:{'background-color':'#7f1d1d','border-color':'#7f1d1d','color':'#ef9a9a'} },
+    { selector:'.zone-node[zone="dmz"]',   style:{'background-color':'#14532d','border-color':'#14532d','color':'#86efac'} },
+    { selector:'.zone-node[zone="corp"]',  style:{'background-color':'#1e3a5f','border-color':'#1e3a5f','color':'#93c5fd'} },
+    { selector:'.zone-node[zone="cui"]',   style:{'background-color':'#4a1d96','border-color':'#4a1d96','color':'#c4b5fd'} },
+    { selector:'.zone-node[zone="cloud"]', style:{'background-color':'#083344','border-color':'#164e63','color':'#67e8f9'} },
+    { selector:'.zone-node[zone="ot"]',    style:{'background-color':'#3b2700','border-color':'#92400e','color':'#fde68a'} },
+
+    // All regular nodes
+    { selector:'node:not(.zone-node)', style:{
+      'width':56, 'height':56,
+      'label':'data(label)',
+      'text-valign':'bottom', 'text-halign':'center',
+      'text-margin-y':6,
+      'font-size':10, 'font-weight':500,
+      'color':'#94a3b8',
+      'text-wrap':'wrap', 'text-max-width':90,
+      'border-width':2,
+      'z-index':10,
+      'transition-property':'border-color border-width opacity',
+      'transition-duration':'0.15s',
+    }},
+
+    // Asset nodes
+    { selector:'.asset', style:{
+      'shape':'round-rectangle',
+      'background-color':'#1d3461','border-color':'#3b82f6',
+      'content':'data(label)',
+    }},
+    { selector:'.asset[risk="critical"]', style:{'border-color':'#dc2626','border-width':3} },
+    { selector:'.asset[risk="high"]',     style:{'border-color':'#ea580c','border-width':2.5} },
+    { selector:'.asset[risk="medium"]',   style:{'border-color':'#ca8a04'} },
+
+    // System nodes
+    { selector:'.system', style:{
+      'shape':'round-rectangle',
+      'width':66, 'height':66,
+      'background-color':'#2e1065','border-color':'#8b5cf6','border-width':2.5,
+    }},
+
+    // User nodes
+    { selector:'.user', style:{
+      'shape':'ellipse',
+      'background-color':'#064e3b','border-color':'#10b981',
+    }},
+    { selector:'.user[risk="high"]', style:{'border-color':'#ea580c'} },
+
+    // Control nodes
+    { selector:'.control', style:{
+      'shape':'diamond',
+      'width':60, 'height':60,
+      'background-color':'#451a03','border-color':'#f59e0b','border-width':2.5,
+    }},
+    { selector:'.control[status="partial"]',      style:{'border-color':'#ca8a04','border-style':'dashed'} },
+    { selector:'.control[status="implemented"]',  style:{'border-color':'#f59e0b'} },
+
+    // Risk nodes
+    { selector:'.risk', style:{
+      'shape':'triangle',
+      'width':62, 'height':62,
+      'background-color':'#450a0a','border-color':'#ef4444','border-width':2.5,
+    }},
+    { selector:'.risk-high',     style:{'background-color':'#431407','border-color':'#ea580c'} },
+    { selector:'.risk-medium',   style:{'background-color':'#422006','border-color':'#f59e0b'} },
+    { selector:'.risk-low',      style:{'background-color':'#052e16','border-color':'#22c55e'} },
+
+    // Incident nodes
+    { selector:'.incident', style:{
+      'shape':'octagon',
+      'width':60, 'height':60,
+      'background-color':'#4c0519','border-color':'#be123c','border-width':3,
+    }},
+
+    // Evidence nodes
+    { selector:'.evidence', style:{
+      'shape':'barrel',
+      'background-color':'#083344','border-color':'#06b6d4',
+    }},
+
+    // Node hover
+    { selector:'node:not(.zone-node):active', style:{'border-width':3,'background-opacity':0.9} },
+
+    // Edges
+    { selector:'edge', style:{
+      'width':1.2,
+      'line-color':'#1e2a45',
+      'target-arrow-color':'#1e2a45',
+      'target-arrow-shape':'triangle',
+      'arrow-scale':0.7,
+      'curve-style':'bezier',
+      'opacity':0.6,
+      'label':'data(label)',
+      'font-size':8,
+      'color':'#334155',
+      'text-rotation':'autorotate',
+      'z-index':5,
+    }},
+    { selector:'edge[rel="controls"]',   style:{'line-color':'#92400e','target-arrow-color':'#92400e','width':1.8,'line-style':'dashed','opacity':0.7} },
+    { selector:'edge[rel="affects"]',    style:{'line-color':'#7f1d1d','target-arrow-color':'#7f1d1d','width':2,'line-style':'dashed','opacity':0.8} },
+    { selector:'edge[rel="involves"]',   style:{'line-color':'#be123c','target-arrow-color':'#be123c','width':2,'opacity':0.8} },
+    { selector:'edge[rel="depends_on"]', style:{'line-color':'#1e3a5f','target-arrow-color':'#1e3a5f','width':1.5,'opacity':0.5} },
+    { selector:'edge[rel="monitors"]',   style:{'line-color':'#065f46','target-arrow-color':'#065f46','width':1.5,'opacity':0.6} },
+    { selector:'edge[rel="supports"]',   style:{'line-color':'#0c4a6e','target-arrow-color':'#0c4a6e','opacity':0.5} },
+    { selector:'edge[rel="feeds"]',      style:{'line-color':'#1e3a5f','target-arrow-color':'#1e3a5f','line-style':'dotted','opacity':0.5} },
+    { selector:'edge[rel="backs_up"]',   style:{'line-color':'#4a1d96','target-arrow-color':'#4a1d96','opacity':0.5} },
+
+    // Selected
+    { selector:'node:selected', style:{'border-width':4,'border-color':'#60a5fa','z-index':20} },
+
+    // Faded (focus mode)
+    { selector:'.faded', style:{'opacity':0.1,'events':'no'} },
+  ],
+  wheelSensitivity: 0.3,
+  minZoom: 0.08,
+  maxZoom: 4,
+});
+
+/* ══ SCORECARD UPDATE ════════════════════════════════════════════════════ */
+document.getElementById('sc-assets').textContent    = assets.length;
+document.getElementById('sc-risks').textContent     = risks.length + incidents.length;
+document.getElementById('sc-controls').textContent  = controls.length;
+document.getElementById('sc-incidents').textContent = incidents.filter(function(i){return i.status==='open'||i.status==='investigating';}).length;
+
+/* ══ NODE ICONS (add emoji text overlay) ════════════════════════════════ */
+var ICONS = { asset:'🖥', system:'⚙', user:'👥', control:'🛡', risk:'⚠', incident:'🚨', evidence:'📄' };
+
+/* ══ TOOLTIP ════════════════════════════════════════════════════════════ */
+var tooltip = document.getElementById('dt-tooltip');
+
+cy.on('mouseover', 'node:not(.zone-node)', function(e) {
+  var d = e.target.data();
+  var pos = e.renderedPosition;
+  tooltip.innerHTML = '<strong style="color:#e2e8f0">' + d.label.replace(/\n/g,' ') + '</strong>'
+    + (d.desc ? '<br><span style="color:#64748b;font-size:.68rem">' + d.desc.slice(0,80) + '…</span>' : '');
+  tooltip.style.left = (pos.x + 20) + 'px';
+  tooltip.style.top  = (pos.y - 10) + 'px';
+  tooltip.classList.add('show');
+});
+cy.on('mouseout', 'node', function() { tooltip.classList.remove('show'); });
+cy.on('mousemove', function(e) {
+  document.getElementById('dt-coords').textContent = 'x:'+Math.round(e.position.x)+' y:'+Math.round(e.position.y);
+});
+
+/* ══ DETAIL PANEL ════════════════════════════════════════════════════════ */
+var panel       = document.getElementById('dt-panel');
+var panelIcon   = document.getElementById('panel-icon');
+var panelName   = document.getElementById('panel-name');
+var panelType   = document.getElementById('panel-type-badge');
+var panelZone   = document.getElementById('panel-zone');
+var panelBody   = document.getElementById('panel-body');
+
+var TYPE_COLORS  = { asset:'#3b82f6', system:'#8b5cf6', user:'#10b981', control:'#f59e0b', risk:'#ef4444', incident:'#be123c', evidence:'#06b6d4' };
+var TYPE_ICONS_E = { asset:'🖥️', system:'⚙️', user:'👥', control:'🛡️', risk:'⚠️', incident:'🚨', evidence:'📄' };
+
+function openPanel(node) {
+  var d = node.data();
+  if (d.type === 'zone') return;
+
+  var tc = TYPE_COLORS[d.type] || '#64748b';
+  panelIcon.textContent    = TYPE_ICONS_E[d.type] || '🔷';
+  panelIcon.style.background = tc + '22';
+  panelIcon.style.border   = '1px solid ' + tc + '44';
+  panelName.textContent    = d.label.replace(/\n/g, ' ');
+  panelType.textContent    = d.type.toUpperCase();
+  panelType.style.color    = tc;
+  panelZone.textContent    = d.zone ? 'Zone: ' + (ZONE_COLORS[d.zone]||{label:d.zone}).label : '';
+
+  // Build connected node lists
+  var connected = { upstream:[], downstream:[] };
+  cy.edges().forEach(function(e) {
+    var ed = e.data();
+    if (ed.source === d.id) {
+      var t = cy.getElementById(ed.target).data();
+      if (t && t.type !== 'zone') connected.downstream.push({id:ed.target, label:(t.label||'').replace(/\n/g,' '), type:t.type, rel:ed.rel});
+    }
+    if (ed.target === d.id) {
+      var s = cy.getElementById(ed.source).data();
+      if (s && s.type !== 'zone') connected.upstream.push({id:ed.source, label:(s.label||'').replace(/\n/g,' '), type:s.type, rel:ed.rel});
+    }
+  });
+
+  var html = '';
+
+  // Description
+  if (d.desc) {
+    html += '<div class="p-section"><div class="p-section-title">Description</div>'
+          + '<p style="font-size:.8rem;color:#94a3b8;line-height:1.5;margin:0">' + d.desc + '</p></div>';
+  }
+
+  // Metrics
+  var metrics = [];
+  if (d.coverage !== undefined) metrics.push({val: d.coverage+'%', lbl:'Log Coverage', color: d.coverage>=80?'#10b981':d.coverage>=50?'#f59e0b':'#ef4444'});
+  if (d.issues_n !== undefined) metrics.push({val: d.issues_n, lbl:'Open Issues', color: d.issues_n>0?'#ef4444':'#10b981'});
+  if (d.severity) metrics.push({val: d.severity.toUpperCase(), lbl:'Severity', color: RISK_COLORS[d.severity]||'#ef4444'});
+  if (d.status && d.type !== 'asset') metrics.push({val: (d.status||'').replace(/_/g,' '), lbl:'Status', color:'#94a3b8'});
+
+  if (metrics.length) {
+    html += '<div class="p-section"><div class="p-section-title">Metrics</div><div class="p-metric-row">';
+    metrics.forEach(function(m) {
+      html += '<div class="p-metric"><div class="val" style="color:' + m.color + '">' + m.val + '</div><div class="lbl">' + m.lbl + '</div></div>';
+    });
+    html += '</div>';
+
+    if (d.coverage !== undefined) {
+      var bc = d.coverage>=80?'#10b981':d.coverage>=50?'#f59e0b':'#ef4444';
+      html += '<div style="margin-top:4px"><div style="font-size:.68rem;color:#475569;margin-bottom:3px">Logging Coverage</div>'
+            + '<div class="p-bar-wrap"><div class="p-bar" style="width:'+d.coverage+'%;background:'+bc+'"></div></div></div>';
+    }
+    html += '</div>';
+  }
+
+  // Connected upstream
+  if (connected.upstream.length) {
+    html += '<div class="p-section"><div class="p-section-title">Incoming Relationships (' + connected.upstream.length + ')</div>';
+    connected.upstream.forEach(function(n) {
+      var nc = TYPE_COLORS[n.type]||'#64748b';
+      html += '<span class="p-tag" onclick="focusNode(\''+n.id+'\')" title="'+n.rel+'">'
+            + '<span class="dot" style="background:'+nc+'"></span>' + n.label
+            + '<span style="font-size:.6rem;color:#475569;margin-left:4px">'+n.rel+'</span></span>';
+    });
+    html += '</div>';
+  }
+
+  // Connected downstream
+  if (connected.downstream.length) {
+    html += '<div class="p-section"><div class="p-section-title">Outgoing Relationships (' + connected.downstream.length + ')</div>';
+    connected.downstream.forEach(function(n) {
+      var nc = TYPE_COLORS[n.type]||'#64748b';
+      html += '<span class="p-tag" onclick="focusNode(\''+n.id+'\')" title="'+n.rel+'">'
+            + '<span class="dot" style="background:'+nc+'"></span>' + n.label
+            + '<span style="font-size:.6rem;color:#475569;margin-left:4px">'+n.rel+'</span></span>';
+    });
+    html += '</div>';
+  }
+
+  // Quick actions
+  html += '<div class="p-section" style="margin-top:16px"><div class="p-section-title">Actions</div>'
+        + '<div style="display:flex;gap:6px;flex-wrap:wrap">'
+        + '<button class="dt-btn" onclick="focusNode(\''+d.id+'\')">◎ Focus</button>'
+        + '<button class="dt-btn" onclick="cy.getElementById(\''+d.id+'\').neighborhood().select()">⎇ Select Neighbors</button>'
+        + '</div></div>';
+
+  panelBody.innerHTML = html;
+  panel.classList.add('open');
+  document.getElementById('dt-coords').classList.add('panel-open');
+  var mm = document.getElementById('dt-minimap');
+  if (mm) mm.classList.add('panel-open');
+}
+
+document.getElementById('panel-close').addEventListener('click', function() {
+  panel.classList.remove('open');
+  document.getElementById('dt-coords').classList.remove('panel-open');
+  var mm = document.getElementById('dt-minimap');
+  if (mm) mm.classList.remove('panel-open');
+  cy.elements().removeClass('faded');
+});
+
+cy.on('tap', 'node:not(.zone-node)', function(e) {
+  openPanel(e.target);
+});
+
+/* ══ FOCUS MODE ══════════════════════════════════════════════════════════ */
+var focusMode = false;
+var focusBtn  = document.getElementById('btn-focus-mode');
+
+focusBtn.addEventListener('click', function() {
+  focusMode = !focusMode;
+  focusBtn.textContent = '◎ Focus Mode: ' + (focusMode ? 'On' : 'Off');
+  focusBtn.classList.toggle('active', focusMode);
+  if (!focusMode) cy.elements().removeClass('faded');
+});
+
+cy.on('tap', 'node:not(.zone-node)', function(e) {
+  if (!focusMode) return;
+  var node = e.target;
+  cy.elements().addClass('faded');
+  node.removeClass('faded');
+  node.neighborhood().removeClass('faded');
+});
+
+window.focusNode = function(id) {
+  var node = cy.getElementById(id);
+  if (!node.length) return;
+  cy.animate({ center:{ eles:node }, zoom:1.4 }, { duration:400 });
+  openPanel(node);
+};
+
+/* ══ SEARCH ══════════════════════════════════════════════════════════════ */
+document.getElementById('dt-search').addEventListener('input', function() {
+  var q = this.value.trim().toLowerCase();
+  cy.elements().removeClass('faded');
+  if (!q) return;
+  cy.nodes(':not(.zone-node)').forEach(function(n) {
+    var label = (n.data('label')||'').toLowerCase();
+    var desc  = (n.data('desc')||'').toLowerCase();
+    if (!label.includes(q) && !desc.includes(q)) n.addClass('faded');
+    else { n.removeClass('faded'); cy.animate({center:{eles:n}},{duration:300}); }
+  });
+});
+
+/* ══ TYPE FILTERS ════════════════════════════════════════════════════════ */
+document.querySelectorAll('.filter-btn[data-type]').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    btn.classList.toggle('active');
+    var type = btn.dataset.type;
+    var show = btn.classList.contains('active');
+    cy.nodes('[type="'+type+'"]').style('display', show ? 'element' : 'none');
+  });
+});
+
+/* ══ RESET VIEW ══════════════════════════════════════════════════════════ */
+document.getElementById('btn-reset-view').addEventListener('click', function() {
+  cy.animate({ fit:{ padding:60 } }, { duration:400 });
+  cy.elements().removeClass('faded');
+  panel.classList.remove('open');
+});
+
+/* ══ EXPORT ══════════════════════════════════════════════════════════════ */
+document.getElementById('btn-export').addEventListener('click', function() {
+  var png = cy.png({ output:'blob', bg:'#070b18', scale:2 });
+  var url = URL.createObjectURL(png);
+  var a = document.createElement('a'); a.href=url; a.download='security-digital-twin.png'; a.click();
+  URL.revokeObjectURL(url);
+});
+
+/* ══ FIT ON LOAD ══════════════════════════════════════════════════════════ */
+cy.ready(function() { cy.fit(60); });
+
+/* ══ CLICK BACKGROUND = DESELECT ═════════════════════════════════════════ */
+cy.on('tap', function(e) { if (e.target === cy) { cy.elements().removeClass('faded'); } });
+
+})(); // end IIFE
+</script>
+</body>
+</html>
