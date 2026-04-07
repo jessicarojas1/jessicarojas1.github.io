@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="favicon.ico"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="theme.css"/>
+  <title>Secure Architecture Builder | Jessica Rojas</title>
+  <meta name="description" content="Drag-and-drop secure environment designer with real-time security analysis, control gap detection, and compliance mapping."/>
+  <style>
+    /* ── Canvas + Layout ── */
+    .sab-wrap { display:flex; gap:0; height:calc(100vh - 140px); min-height:600px; overflow:hidden; border:1px solid var(--bs-border-color); border-radius:.5rem; }
+    .sab-palette { width:220px; min-width:180px; overflow-y:auto; border-right:1px solid var(--bs-border-color); background:var(--bs-body-bg); flex-shrink:0; padding:.75rem .5rem; }
+    .sab-canvas-wrap { flex:1; position:relative; overflow:hidden; background: repeating-linear-gradient(0deg,transparent,transparent 29px,var(--bs-border-color) 29px,var(--bs-border-color) 30px), repeating-linear-gradient(90deg,transparent,transparent 29px,var(--bs-border-color) 29px,var(--bs-border-color) 30px); background-size:30px 30px; }
+    #sabCanvas { width:100%; height:100%; display:block; cursor:default; }
+    .sab-panel { width:300px; min-width:240px; border-left:1px solid var(--bs-border-color); background:var(--bs-body-bg); overflow-y:auto; flex-shrink:0; }
+
+    /* ── Palette items ── */
+    .palette-section { font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--bs-secondary-color); margin:.75rem 0 .3rem .25rem; }
+    .palette-item {
+      display:flex; align-items:center; gap:.5rem; padding:.4rem .5rem;
+      border-radius:.35rem; cursor:grab; font-size:.78rem; margin-bottom:2px;
+      border:1px solid transparent; transition:all .15s; user-select:none;
+    }
+    .palette-item:hover { background:var(--bs-tertiary-bg); border-color:var(--bs-border-color); }
+    .palette-item:active { cursor:grabbing; }
+    .palette-icon { font-size:1.1rem; width:22px; text-align:center; flex-shrink:0; }
+
+    /* ── Canvas nodes ── */
+    .sab-node {
+      position:absolute; display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:2px; cursor:move; user-select:none; border-radius:.45rem;
+      border:2px solid transparent; transition:border-color .15s, box-shadow .15s;
+      box-shadow:0 1px 4px rgba(0,0,0,.18);
+      min-width:72px; padding:.35rem .4rem; text-align:center;
+      font-size:.68rem; font-weight:500;
+    }
+    .sab-node:hover { box-shadow:0 2px 10px rgba(0,0,0,.3); z-index:10; }
+    .sab-node.selected { border-color:#0d6efd !important; box-shadow:0 0 0 3px rgba(13,110,253,.35); z-index:20; }
+    .sab-node .node-icon { font-size:1.4rem; line-height:1; }
+    .sab-node .node-label { line-height:1.2; max-width:80px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+    /* Zone overlay */
+    .sab-zone {
+      position:absolute; border-radius:.6rem; border:2px dashed; pointer-events:none;
+      display:flex; align-items:flex-start; justify-content:flex-end; padding:.3rem .5rem;
+      font-size:.65rem; font-weight:600; text-transform:uppercase; letter-spacing:.04em; opacity:.55;
+    }
+
+    /* Connector SVG */
+    #connectorSvg { position:absolute; top:0;left:0; width:100%; height:100%; pointer-events:none; overflow:visible; }
+    .sab-edge { stroke-width:2; fill:none; marker-end:url(#arrowhead); }
+    .sab-edge.encrypted  { stroke:#198754; stroke-dasharray:none; }
+    .sab-edge.unencrypted{ stroke:#dc3545; stroke-dasharray:6 3; }
+    .sab-edge.untrusted  { stroke:#fd7e14; stroke-dasharray:4 4; }
+    .sab-edge.control    { stroke:#6f42c1; stroke-dasharray:2 2; }
+
+    /* ── Analysis Panel ── */
+    .finding-row { padding:.5rem .75rem; border-radius:.35rem; margin-bottom:.3rem; font-size:.8rem; display:flex; gap:.5rem; align-items:flex-start; }
+    .finding-row.critical { background:rgba(220,53,69,.12); border-left:3px solid #dc3545; }
+    .finding-row.high     { background:rgba(253,126,20,.12); border-left:3px solid #fd7e14; }
+    .finding-row.medium   { background:rgba(255,193,7,.12);  border-left:3px solid #ffc107; }
+    .finding-row.info     { background:rgba(13,202,240,.12); border-left:3px solid #0dcaf0; }
+    .finding-row.pass     { background:rgba(25,135,84,.12);  border-left:3px solid #198754; }
+    .sev-badge { font-size:.6rem; font-weight:700; border-radius:.2rem; padding:.1rem .3rem; white-space:nowrap; flex-shrink:0; margin-top:1px; }
+    .sev-critical { background:#dc3545; color:#fff; }
+    .sev-high     { background:#fd7e14; color:#fff; }
+    .sev-medium   { background:#ffc107; color:#000; }
+    .sev-info     { background:#0dcaf0; color:#000; }
+    .sev-pass     { background:#198754; color:#fff; }
+
+    /* Score ring */
+    .score-ring { position:relative; width:80px; height:80px; margin:auto; }
+    .score-ring svg { transform:rotate(-90deg); }
+    .score-ring .score-text { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1.15rem; }
+
+    /* Properties panel */
+    .prop-label { font-size:.72rem; color:var(--bs-secondary-color); margin-bottom:1px; }
+    .prop-val   { font-size:.82rem; margin-bottom:.6rem; }
+
+    /* Toolbar */
+    .sab-toolbar { display:flex; gap:.4rem; align-items:center; flex-wrap:wrap; padding:.5rem .75rem; border-bottom:1px solid var(--bs-border-color); background:var(--bs-body-bg); }
+    .sab-toolbar .btn { font-size:.78rem; padding:.25rem .55rem; }
+
+    /* Mode indicator */
+    .mode-badge { font-size:.7rem; border-radius:.25rem; padding:.15rem .4rem; font-weight:600; }
+
+    /* Connecting cursor */
+    .sab-canvas-wrap.connect-mode { cursor:crosshair; }
+    .sab-canvas-wrap.connect-mode .sab-node { cursor:crosshair; }
+
+    /* Compliance pills */
+    .comp-pill { display:inline-block; font-size:.65rem; border-radius:10rem; padding:.1rem .45rem; margin:2px; border:1px solid; }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="blog.html">Blog</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggle" aria-label="Toggle theme">
+            <i class="bi bi-moon-stars-fill" id="themeIcon"></i>
+          </button>
+          <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">
+            <i class="bi bi-person-lock"></i> Login
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- RBAC Login Modal -->
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacLoginLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" id="rbacModalContent"></div>
+    </div>
+  </div>
+
+  <main id="main-content" class="container-fluid px-3 py-3">
+    <div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2">
+      <div>
+        <h1 class="h3 fw-bold mb-0">Secure Architecture Builder</h1>
+        <p class="text-secondary small mb-0">Drag components onto the canvas, draw connections, then run analysis to find weaknesses.</p>
+      </div>
+      <div class="d-flex gap-2 flex-wrap">
+        <button class="btn btn-sm btn-success" id="analyzeBtn"><i class="bi bi-shield-check"></i> Analyze</button>
+        <button class="btn btn-sm btn-outline-secondary" id="exportBtn"><i class="bi bi-download"></i> Export</button>
+        <button class="btn btn-sm btn-outline-secondary" id="loadTemplateBtn" data-bs-toggle="modal" data-bs-target="#templateModal"><i class="bi bi-grid"></i> Templates</button>
+        <button class="btn btn-sm btn-outline-danger" id="clearBtn"><i class="bi bi-trash"></i> Clear</button>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="sab-toolbar rounded-top border border-bottom-0 mb-0">
+      <span class="small fw-semibold me-1">Mode:</span>
+      <button class="btn btn-sm btn-primary active" id="modeSelect">&#128070; Select</button>
+      <button class="btn btn-sm btn-outline-secondary" id="modeConnect">&#128279; Connect</button>
+      <button class="btn btn-sm btn-outline-secondary" id="modeZone">&#9633; Zone</button>
+      <div class="vr mx-1"></div>
+      <span class="small text-secondary">Edge type:</span>
+      <select class="form-select form-select-sm w-auto" id="edgeTypeSelect">
+        <option value="encrypted">Encrypted (TLS)</option>
+        <option value="unencrypted">Unencrypted</option>
+        <option value="untrusted">Untrusted</option>
+        <option value="control">Control Plane</option>
+      </select>
+      <div class="vr mx-1 ms-auto"></div>
+      <button class="btn btn-sm btn-outline-danger" id="deleteSelectedBtn"><i class="bi bi-x-lg"></i> Delete</button>
+      <span class="small text-secondary ms-2" id="modeHint">Click to select nodes. Drag to move.</span>
+    </div>
+
+    <!-- Main builder area -->
+    <div class="sab-wrap rounded-bottom border border-top-0">
+      <!-- Palette -->
+      <div class="sab-palette">
+        <div class="palette-section">Users & Endpoints</div>
+        <div class="palette-item" draggable="true" data-type="user">
+          <span class="palette-icon">&#128100;</span> User (Corp)
+        </div>
+        <div class="palette-item" draggable="true" data-type="byod">
+          <span class="palette-icon">&#128241;</span> BYOD Device
+        </div>
+        <div class="palette-item" draggable="true" data-type="workstation">
+          <span class="palette-icon">&#128187;</span> Workstation
+        </div>
+        <div class="palette-item" draggable="true" data-type="contractor">
+          <span class="palette-icon">&#129489;</span> Contractor
+        </div>
+        <div class="palette-item" draggable="true" data-type="remoteuser">
+          <span class="palette-icon">&#127968;</span> Remote User
+        </div>
+
+        <div class="palette-section">Network</div>
+        <div class="palette-item" draggable="true" data-type="firewall">
+          <span class="palette-icon">&#128308;</span> Firewall
+        </div>
+        <div class="palette-item" draggable="true" data-type="router">
+          <span class="palette-icon">&#128225;</span> Router
+        </div>
+        <div class="palette-item" draggable="true" data-type="switch">
+          <span class="palette-icon">&#128506;</span> Switch
+        </div>
+        <div class="palette-item" draggable="true" data-type="vpn">
+          <span class="palette-icon">&#128274;</span> VPN Gateway
+        </div>
+        <div class="palette-item" draggable="true" data-type="loadbalancer">
+          <span class="palette-icon">&#9878;</span> Load Balancer
+        </div>
+        <div class="palette-item" draggable="true" data-type="ids">
+          <span class="palette-icon">&#128270;</span> IDS / IPS
+        </div>
+        <div class="palette-item" draggable="true" data-type="waf">
+          <span class="palette-icon">&#127759;</span> WAF
+        </div>
+
+        <div class="palette-section">Servers & Data</div>
+        <div class="palette-item" draggable="true" data-type="webserver">
+          <span class="palette-icon">&#127760;</span> Web Server
+        </div>
+        <div class="palette-item" draggable="true" data-type="appserver">
+          <span class="palette-icon">&#9881;</span> App Server
+        </div>
+        <div class="palette-item" draggable="true" data-type="database">
+          <span class="palette-icon">&#128451;</span> Database
+        </div>
+        <div class="palette-item" draggable="true" data-type="fileserver">
+          <span class="palette-icon">&#128193;</span> File Server
+        </div>
+        <div class="palette-item" draggable="true" data-type="cui">
+          <span class="palette-icon">&#128272;</span> CUI / Sensitive Data
+        </div>
+        <div class="palette-item" draggable="true" data-type="backup">
+          <span class="palette-icon">&#128190;</span> Backup Server
+        </div>
+
+        <div class="palette-section">Cloud</div>
+        <div class="palette-item" draggable="true" data-type="cloud">
+          <span class="palette-icon">&#9729;</span> Cloud Service
+        </div>
+        <div class="palette-item" draggable="true" data-type="saas">
+          <span class="palette-icon">&#128736;</span> SaaS App
+        </div>
+        <div class="palette-item" draggable="true" data-type="s3">
+          <span class="palette-icon">&#128220;</span> Cloud Storage
+        </div>
+        <div class="palette-item" draggable="true" data-type="cloudiam">
+          <span class="palette-icon">&#128273;</span> Cloud IAM
+        </div>
+
+        <div class="palette-section">Security Controls</div>
+        <div class="palette-item" draggable="true" data-type="mfa">
+          <span class="palette-icon">&#128245;</span> MFA
+        </div>
+        <div class="palette-item" draggable="true" data-type="siem">
+          <span class="palette-icon">&#128202;</span> SIEM
+        </div>
+        <div class="palette-item" draggable="true" data-type="dlp">
+          <span class="palette-icon">&#128683;</span> DLP
+        </div>
+        <div class="palette-item" draggable="true" data-type="edr">
+          <span class="palette-icon">&#129657;</span> EDR
+        </div>
+        <div class="palette-item" draggable="true" data-type="pam">
+          <span class="palette-icon">&#128081;</span> PAM
+        </div>
+        <div class="palette-item" draggable="true" data-type="idp">
+          <span class="palette-icon">&#128282;</span> Identity Provider
+        </div>
+        <div class="palette-item" draggable="true" data-type="casb">
+          <span class="palette-icon">&#128065;</span> CASB
+        </div>
+        <div class="palette-item" draggable="true" data-type="scanner">
+          <span class="palette-icon">&#128269;</span> Vuln Scanner
+        </div>
+      </div>
+
+      <!-- Canvas -->
+      <div class="sab-canvas-wrap" id="canvasWrap">
+        <svg id="connectorSvg">
+          <defs>
+            <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#888"/>
+            </marker>
+          </defs>
+          <g id="edgeGroup"></g>
+        </svg>
+        <div id="nodeLayer"></div>
+      </div>
+
+      <!-- Right Panel -->
+      <div class="sab-panel">
+        <!-- Score + summary -->
+        <div class="p-3 border-bottom">
+          <div class="fw-semibold mb-2 small text-uppercase text-secondary">Security Score</div>
+          <div class="score-ring mb-2">
+            <svg viewBox="0 0 80 80" width="80" height="80">
+              <circle cx="40" cy="40" r="34" fill="none" stroke="var(--bs-border-color)" stroke-width="8"/>
+              <circle id="scoreArc" cx="40" cy="40" r="34" fill="none" stroke="#0d6efd" stroke-width="8"
+                      stroke-dasharray="0 213.6" stroke-linecap="round" style="transition:stroke-dasharray .6s ease"/>
+            </svg>
+            <div class="score-text" id="scoreText">—</div>
+          </div>
+          <div class="d-flex justify-content-around text-center small mb-1">
+            <div><div class="fw-bold text-danger" id="cnt-critical">0</div><div class="text-secondary" style="font-size:.65rem">Critical</div></div>
+            <div><div class="fw-bold text-warning" id="cnt-high">0</div><div class="text-secondary" style="font-size:.65rem">High</div></div>
+            <div><div class="fw-bold text-warning" id="cnt-medium">0</div><div class="text-secondary" style="font-size:.65rem">Medium</div></div>
+            <div><div class="fw-bold text-success" id="cnt-pass">0</div><div class="text-secondary" style="font-size:.65rem">Passed</div></div>
+          </div>
+        </div>
+
+        <!-- Findings -->
+        <div class="p-2 border-bottom" id="findingsPanel">
+          <div class="small text-secondary text-center py-3">Drop components and click <strong>Analyze</strong> to see findings.</div>
+        </div>
+
+        <!-- Properties -->
+        <div class="p-3" id="propsPanel">
+          <div class="fw-semibold mb-2 small text-uppercase text-secondary">Properties</div>
+          <div class="small text-secondary" id="propsContent">Select a node to view details.</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Template Modal -->
+  <div class="modal fade" id="templateModal" tabindex="-1" aria-labelledby="tmplLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="tmplLabel">Load Template</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p class="small text-secondary">Start with a pre-built environment to explore analysis.</p>
+          <div class="list-group">
+            <button class="list-group-item list-group-item-action" data-template="basic">
+              <div class="fw-semibold">Basic Web App</div>
+              <div class="small text-secondary">User → Firewall → Web Server → Database</div>
+            </button>
+            <button class="list-group-item list-group-item-action" data-template="remote">
+              <div class="fw-semibold">Remote Workforce</div>
+              <div class="small text-secondary">Remote users, BYOD, VPN, corp network, MFA, SIEM</div>
+            </button>
+            <button class="list-group-item list-group-item-action" data-template="cloud">
+              <div class="fw-semibold">Hybrid Cloud</div>
+              <div class="small text-secondary">On-prem + AWS with IAM, CASB, DLP, cloud storage</div>
+            </button>
+            <button class="list-group-item list-group-item-action" data-template="cmmc">
+              <div class="fw-semibold">CMMC Level 2 Environment</div>
+              <div class="small text-secondary">CUI handling with PAM, SIEM, EDR, MFA, DLP, IDS</div>
+            </button>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer mt-2">
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmR6yxBvFf/AQgDLRFrS5dQ1LAv" crossorigin="anonymous"></script>
+  <script src="users.js" defer></script>
+  <script src="roles.js" defer></script>
+  <script src="script.js" defer></script>
+
+  <script>
+  // ─── NODE DEFINITIONS ────────────────────────────────────────────────────────
+  const NODE_DEFS = {
+    // Users & Endpoints
+    user:        { icon:'👤', label:'User (Corp)',      color:'#0d6efd', bg:'#e8f4fd', cat:'user',     controls:[], tags:['endpoint','user'] },
+    byod:        { icon:'📱', label:'BYOD',             color:'#fd7e14', bg:'#fff3e8', cat:'user',     controls:[], tags:['endpoint','byod','unmanaged'] },
+    workstation: { icon:'💻', label:'Workstation',      color:'#0d6efd', bg:'#e8f4fd', cat:'endpoint', controls:[], tags:['endpoint','managed'] },
+    contractor:  { icon:'🧑', label:'Contractor',       color:'#ffc107', bg:'#fffbe6', cat:'user',     controls:[], tags:['user','external'] },
+    remoteuser:  { icon:'🏠', label:'Remote User',      color:'#6f42c1', bg:'#f0ebff', cat:'user',     controls:[], tags:['user','remote'] },
+    // Network
+    firewall:    { icon:'🔴', label:'Firewall',         color:'#dc3545', bg:'#fde8ea', cat:'network',  controls:['firewall'], tags:['control','boundary'] },
+    router:      { icon:'📡', label:'Router',           color:'#20c997', bg:'#e6faf4', cat:'network',  controls:[], tags:['network'] },
+    switch:      { icon:'🔀', label:'Switch',           color:'#6c757d', bg:'#f0f0f0', cat:'network',  controls:[], tags:['network'] },
+    vpn:         { icon:'🔒', label:'VPN',              color:'#198754', bg:'#e8f5ec', cat:'network',  controls:['vpn','encryption'], tags:['control','encryption'] },
+    loadbalancer:{ icon:'⚖',  label:'Load Balancer',   color:'#0dcaf0', bg:'#e6f9fd', cat:'network',  controls:[], tags:['network'] },
+    ids:         { icon:'🔎', label:'IDS / IPS',        color:'#dc3545', bg:'#fde8ea', cat:'control',  controls:['ids','monitoring'], tags:['control','detection'] },
+    waf:         { icon:'🌍', label:'WAF',              color:'#dc3545', bg:'#fde8ea', cat:'control',  controls:['waf'], tags:['control','webprotection'] },
+    // Servers
+    webserver:   { icon:'🌐', label:'Web Server',       color:'#0d6efd', bg:'#e8f4fd', cat:'server',   controls:[], tags:['server','internet-facing'] },
+    appserver:   { icon:'⚙',  label:'App Server',      color:'#6f42c1', bg:'#f0ebff', cat:'server',   controls:[], tags:['server'] },
+    database:    { icon:'🗄', label:'Database',         color:'#20c997', bg:'#e6faf4', cat:'server',   controls:[], tags:['server','data','sensitive'] },
+    fileserver:  { icon:'📁', label:'File Server',      color:'#fd7e14', bg:'#fff3e8', cat:'server',   controls:[], tags:['server','data'] },
+    cui:         { icon:'🔐', label:'CUI Data',         color:'#dc3545', bg:'#fde8ea', cat:'server',   controls:[], tags:['data','sensitive','cui'] },
+    backup:      { icon:'💾', label:'Backup',           color:'#6c757d', bg:'#f0f0f0', cat:'server',   controls:[], tags:['server','data'] },
+    // Cloud
+    cloud:       { icon:'☁',  label:'Cloud Service',   color:'#0dcaf0', bg:'#e6f9fd', cat:'cloud',    controls:[], tags:['cloud','external'] },
+    saas:        { icon:'🔧', label:'SaaS',             color:'#fd7e14', bg:'#fff3e8', cat:'cloud',    controls:[], tags:['cloud','saas','external'] },
+    s3:          { icon:'📄', label:'Cloud Storage',    color:'#0d6efd', bg:'#e8f4fd', cat:'cloud',    controls:[], tags:['cloud','data','storage'] },
+    cloudiam:    { icon:'🔑', label:'Cloud IAM',        color:'#198754', bg:'#e8f5ec', cat:'cloud',    controls:['iam'], tags:['cloud','control','iam'] },
+    // Controls
+    mfa:         { icon:'📲', label:'MFA',              color:'#198754', bg:'#e8f5ec', cat:'control',  controls:['mfa','authentication'], tags:['control','auth'] },
+    siem:        { icon:'📊', label:'SIEM',             color:'#0d6efd', bg:'#e8f4fd', cat:'control',  controls:['siem','logging','monitoring'], tags:['control','monitoring'] },
+    dlp:         { icon:'🚫', label:'DLP',              color:'#dc3545', bg:'#fde8ea', cat:'control',  controls:['dlp'], tags:['control','dataprotection'] },
+    edr:         { icon:'🦠', label:'EDR',              color:'#dc3545', bg:'#fde8ea', cat:'control',  controls:['edr','monitoring'], tags:['control','detection'] },
+    pam:         { icon:'👑', label:'PAM',              color:'#6f42c1', bg:'#f0ebff', cat:'control',  controls:['pam','privileged'], tags:['control','privileged'] },
+    idp:         { icon:'🔌', label:'Identity Provider',color:'#198754', bg:'#e8f5ec', cat:'control',  controls:['iam','sso'], tags:['control','iam','auth'] },
+    casb:        { icon:'👁',  label:'CASB',            color:'#fd7e14', bg:'#fff3e8', cat:'control',  controls:['casb','cloudvisibility'], tags:['control','cloud'] },
+    scanner:     { icon:'🔍', label:'Vuln Scanner',     color:'#6f42c1', bg:'#f0ebff', cat:'control',  controls:['scanning','vulnerability'], tags:['control','assessment'] },
+  };
+
+  const ZONE_DEFS = {
+    internet:  { label:'Internet / Untrusted', color:'#dc3545' },
+    dmz:       { label:'DMZ',                  color:'#fd7e14' },
+    internal:  { label:'Internal Network',     color:'#0d6efd' },
+    restricted:{ label:'Restricted Zone',      color:'#6f42c1' },
+    cloud:     { label:'Cloud Environment',    color:'#0dcaf0' },
+  };
+
+  // ─── STATE ───────────────────────────────────────────────────────────────────
+  let nodes   = [];  // { id, type, x, y, label, zone }
+  let edges   = [];  // { id, from, to, edgeType }
+  let zones   = [];  // { id, zoneType, x, y, w, h }
+  let nodeSeq = 0;
+  let edgeSeq = 0;
+  let zoneSeq = 0;
+
+  let mode          = 'select';   // 'select' | 'connect' | 'zone'
+  let selectedId    = null;       // selected node or edge id
+  let connectFrom   = null;       // node id for pending connection
+  let draggingId    = null;
+  let dragOffX      = 0, dragOffY = 0;
+  let zoneDrawing   = false;
+  let zoneStartX    = 0, zoneStartY = 0;
+  let zonePreview   = null;
+
+  const canvasWrap = document.getElementById('canvasWrap');
+  const nodeLayer  = document.getElementById('nodeLayer');
+  const edgeGroup  = document.getElementById('edgeGroup');
+
+  // ─── UTILS ───────────────────────────────────────────────────────────────────
+  function uid(prefix) { return prefix + '_' + (++nodeSeq); }
+  function edgeUid()   { return 'e_' + (++edgeSeq); }
+  function zoneUid()   { return 'z_' + (++zoneSeq); }
+  function def(type)   { return NODE_DEFS[type] || { icon:'?', label:type, color:'#888', bg:'#eee', cat:'?', controls:[], tags:[] }; }
+
+  function canvasRect()   { return canvasWrap.getBoundingClientRect(); }
+  function canvasXY(e)    { const r = canvasRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+
+  function nodeCenterXY(node) {
+    const el = document.getElementById(node.id);
+    if (!el) return { x: node.x + 40, y: node.y + 35 };
+    return { x: node.x + el.offsetWidth/2, y: node.y + el.offsetHeight/2 };
+  }
+
+  function nodeById(id)  { return nodes.find(n=>n.id===id); }
+  function allControls() { return nodes.flatMap(n => def(n.type).controls); }
+  function hasControl(c) { return allControls().includes(c); }
+
+  // ─── RENDER NODES ────────────────────────────────────────────────────────────
+  function renderNodes() {
+    nodeLayer.innerHTML = '';
+    nodes.forEach(n => {
+      const d   = def(n.type);
+      const div = document.createElement('div');
+      div.className  = 'sab-node' + (selectedId === n.id ? ' selected' : '');
+      div.id         = n.id;
+      div.style.cssText = `left:${n.x}px;top:${n.y}px;background:${d.bg};border-color:${d.color};color:#222`;
+      div.innerHTML  = `<span class="node-icon">${d.icon}</span><span class="node-label">${n.label||d.label}</span>`;
+      div.addEventListener('mousedown', e => onNodeMouseDown(e, n.id));
+      nodeLayer.appendChild(div);
+    });
+    renderEdges();
+    renderZones();
+  }
+
+  // ─── RENDER EDGES ────────────────────────────────────────────────────────────
+  function renderEdges() {
+    edgeGroup.innerHTML = '';
+    edges.forEach(e => {
+      const from = nodeById(e.from);
+      const to   = nodeById(e.to);
+      if (!from || !to) return;
+      const f = nodeCenterXY(from);
+      const t = nodeCenterXY(to);
+      const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+      const mx = (f.x + t.x) / 2;
+      const cp = `M${f.x},${f.y} Q${mx},${f.y} ${t.x},${t.y}`;
+      path.setAttribute('d', cp);
+      path.setAttribute('class', `sab-edge ${e.edgeType}`);
+      path.setAttribute('data-edge', e.id);
+      path.style.cursor = 'pointer';
+      path.addEventListener('click', () => selectEdge(e.id));
+      edgeGroup.appendChild(path);
+
+      // Edge type label
+      const label = document.createElementNS('http://www.w3.org/2000/svg','text');
+      label.setAttribute('x', mx);
+      label.setAttribute('y', (f.y+t.y)/2 - 4);
+      label.setAttribute('text-anchor','middle');
+      label.setAttribute('font-size','9');
+      label.setAttribute('fill','#888');
+      label.textContent = e.edgeType;
+      edgeGroup.appendChild(label);
+    });
+  }
+
+  // ─── RENDER ZONES ────────────────────────────────────────────────────────────
+  function renderZones() {
+    document.querySelectorAll('.sab-zone').forEach(z => z.remove());
+    zones.forEach(z => {
+      const zd  = ZONE_DEFS[z.zoneType] || { label:z.zoneType, color:'#888' };
+      const div = document.createElement('div');
+      div.className = 'sab-zone';
+      div.id = z.id;
+      div.style.cssText = `left:${z.x}px;top:${z.y}px;width:${z.w}px;height:${z.h}px;border-color:${zd.color};color:${zd.color}`;
+      div.textContent = zd.label;
+      canvasWrap.insertBefore(div, canvasWrap.firstChild);
+    });
+  }
+
+  // ─── DRAG-AND-DROP FROM PALETTE ──────────────────────────────────────────────
+  document.querySelectorAll('.palette-item').forEach(item => {
+    item.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('nodeType', item.dataset.type);
+    });
+  });
+
+  canvasWrap.addEventListener('dragover', e => e.preventDefault());
+  canvasWrap.addEventListener('drop', e => {
+    e.preventDefault();
+    const type = e.dataTransfer.getData('nodeType');
+    if (!type) return;
+    const { x, y } = canvasXY(e);
+    const d = def(type);
+    nodes.push({ id: uid('n'), type, x: x - 36, y: y - 30, label: d.label });
+    renderNodes();
+  });
+
+  // ─── NODE MOUSE INTERACTIONS ─────────────────────────────────────────────────
+  function onNodeMouseDown(e, id) {
+    e.stopPropagation();
+    if (mode === 'connect') {
+      if (connectFrom === null) {
+        connectFrom = id;
+        document.getElementById(id).style.outline = '2px solid orange';
+        document.getElementById('modeHint').textContent = 'Now click the target node.';
+      } else if (connectFrom !== id) {
+        const edgeType = document.getElementById('edgeTypeSelect').value;
+        edges.push({ id: edgeUid(), from: connectFrom, to: id, edgeType });
+        document.getElementById(connectFrom).style.outline = '';
+        connectFrom = null;
+        document.getElementById('modeHint').textContent = 'Click a source node to start a connection.';
+        renderEdges();
+      }
+      return;
+    }
+    selectedId  = id;
+    draggingId  = id;
+    const xy    = canvasXY(e);
+    const node  = nodeById(id);
+    dragOffX    = xy.x - node.x;
+    dragOffY    = xy.y - node.y;
+    renderNodes();
+    showProps(id);
+  }
+
+  canvasWrap.addEventListener('mousemove', e => {
+    if (!draggingId) return;
+    const { x, y } = canvasXY(e);
+    const node = nodeById(draggingId);
+    node.x = Math.max(0, x - dragOffX);
+    node.y = Math.max(0, y - dragOffY);
+    const el = document.getElementById(draggingId);
+    if (el) { el.style.left = node.x + 'px'; el.style.top = node.y + 'px'; }
+    renderEdges();
+  });
+
+  canvasWrap.addEventListener('mouseup', () => { draggingId = null; });
+
+  canvasWrap.addEventListener('click', e => {
+    if (e.target === canvasWrap || e.target.id === 'connectorSvg') {
+      selectedId = null;
+      connectFrom = null;
+      document.querySelectorAll('.sab-node').forEach(el => el.style.outline = '');
+      renderNodes();
+      document.getElementById('propsContent').innerHTML = '<span class="small text-secondary">Select a node to view details.</span>';
+    }
+  });
+
+  // ─── ZONE DRAWING ────────────────────────────────────────────────────────────
+  canvasWrap.addEventListener('mousedown', e => {
+    if (mode !== 'zone') return;
+    if (e.target !== canvasWrap && !e.target.classList.contains('sab-zone')) return;
+    zoneDrawing = true;
+    const { x, y } = canvasXY(e);
+    zoneStartX = x; zoneStartY = y;
+    zonePreview = document.createElement('div');
+    zonePreview.style.cssText = `position:absolute;border:2px dashed #0d6efd;border-radius:.6rem;pointer-events:none;left:${x}px;top:${y}px;width:0;height:0;background:rgba(13,110,253,.05)`;
+    canvasWrap.appendChild(zonePreview);
+  });
+
+  canvasWrap.addEventListener('mousemove', e => {
+    if (!zoneDrawing || !zonePreview) return;
+    const { x, y } = canvasXY(e);
+    const x0 = Math.min(x, zoneStartX), y0 = Math.min(y, zoneStartY);
+    const w  = Math.abs(x - zoneStartX), h  = Math.abs(y - zoneStartY);
+    zonePreview.style.left = x0+'px'; zonePreview.style.top = y0+'px';
+    zonePreview.style.width = w+'px'; zonePreview.style.height = h+'px';
+  });
+
+  canvasWrap.addEventListener('mouseup', e => {
+    if (!zoneDrawing) return;
+    zoneDrawing = false;
+    if (zonePreview) { zonePreview.remove(); zonePreview = null; }
+    const { x, y } = canvasXY(e);
+    const x0 = Math.min(x, zoneStartX), y0 = Math.min(y, zoneStartY);
+    const w  = Math.abs(x - zoneStartX), h  = Math.abs(y - zoneStartY);
+    if (w < 40 || h < 30) return;
+    // Ask zone type
+    const types = Object.keys(ZONE_DEFS);
+    const pick  = prompt('Zone type:\n' + types.map((t,i)=>`${i+1}. ${t}`).join('\n') + '\n\nEnter number or name:', '3');
+    const picked = types[parseInt(pick)-1] || types.find(t=>t===pick) || 'internal';
+    zones.push({ id: zoneUid(), zoneType: picked, x: x0, y: y0, w, h });
+    renderZones();
+  });
+
+  // ─── MODE BUTTONS ────────────────────────────────────────────────────────────
+  function setMode(m) {
+    mode = m;
+    connectFrom = null;
+    document.querySelectorAll('.sab-node').forEach(el => el.style.outline = '');
+    document.getElementById('modeSelect').className  = 'btn btn-sm ' + (m==='select'  ? 'btn-primary'          : 'btn-outline-secondary');
+    document.getElementById('modeConnect').className = 'btn btn-sm ' + (m==='connect' ? 'btn-warning text-dark' : 'btn-outline-secondary');
+    document.getElementById('modeZone').className    = 'btn btn-sm ' + (m==='zone'    ? 'btn-info text-dark'    : 'btn-outline-secondary');
+    canvasWrap.className = 'sab-canvas-wrap' + (m==='connect' ? ' connect-mode' : '');
+    const hints = { select:'Click to select nodes. Drag to move.', connect:'Click a source node, then the target.', zone:'Click and drag to draw a zone boundary.' };
+    document.getElementById('modeHint').textContent = hints[m];
+  }
+  document.getElementById('modeSelect').addEventListener('click',  () => setMode('select'));
+  document.getElementById('modeConnect').addEventListener('click', () => setMode('connect'));
+  document.getElementById('modeZone').addEventListener('click',    () => setMode('zone'));
+
+  // ─── DELETE SELECTED ─────────────────────────────────────────────────────────
+  document.getElementById('deleteSelectedBtn').addEventListener('click', () => {
+    if (!selectedId) return;
+    nodes  = nodes.filter(n => n.id !== selectedId);
+    edges  = edges.filter(e => e.from !== selectedId && e.to !== selectedId);
+    zones  = zones.filter(z => z.id !== selectedId);
+    selectedId = null;
+    renderNodes();
+    document.getElementById('propsContent').innerHTML = '<span class="small text-secondary">Select a node to view details.</span>';
+  });
+  document.addEventListener('keydown', e => {
+    if ((e.key==='Delete'||e.key==='Backspace') && selectedId && document.activeElement === document.body) {
+      document.getElementById('deleteSelectedBtn').click();
+    }
+  });
+
+  // ─── SELECT EDGE ────────────────────────────────────────────────────────────
+  function selectEdge(id) {
+    const edge = edges.find(e=>e.id===id);
+    if (!edge) return;
+    selectedId = id;
+    const from = nodeById(edge.from);
+    const to   = nodeById(edge.to);
+    document.getElementById('propsContent').innerHTML = `
+      <div class="prop-label">Connection</div>
+      <div class="prop-val">${def(from?.type).icon} ${from?.label} → ${def(to?.type).icon} ${to?.label}</div>
+      <div class="prop-label">Type</div>
+      <div class="prop-val">${edge.edgeType}</div>
+      <select class="form-select form-select-sm mb-2" id="edgeTypeChanger">
+        ${['encrypted','unencrypted','untrusted','control'].map(t=>`<option value="${t}" ${t===edge.edgeType?'selected':''}>${t}</option>`).join('')}
+      </select>
+    `;
+    document.getElementById('edgeTypeChanger')?.addEventListener('change', ev => {
+      edge.edgeType = ev.target.value;
+      renderEdges();
+    });
+  }
+
+  // ─── SHOW PROPS ──────────────────────────────────────────────────────────────
+  function showProps(id) {
+    const node = nodeById(id);
+    if (!node) return;
+    const d = def(node.type);
+    document.getElementById('propsContent').innerHTML = `
+      <div class="prop-label">Type</div>
+      <div class="prop-val">${d.icon} ${d.label}</div>
+      <div class="prop-label">Label</div>
+      <input class="form-control form-control-sm mb-2" id="nodeLabelEdit" value="${node.label||d.label}"/>
+      <div class="prop-label">Category</div>
+      <div class="prop-val">${d.cat}</div>
+      <div class="prop-label">Tags</div>
+      <div class="prop-val">${d.tags.map(t=>`<span class="badge bg-secondary me-1" style="font-size:.65rem">${t}</span>`).join('')}</div>
+      <div class="prop-label">Built-in Controls</div>
+      <div class="prop-val">${d.controls.length ? d.controls.map(c=>`<span class="badge bg-success me-1" style="font-size:.65rem">${c}</span>`).join('') : '<span class="text-secondary small">None</span>'}</div>
+    `;
+    document.getElementById('nodeLabelEdit')?.addEventListener('input', ev => {
+      node.label = ev.target.value;
+      const el = document.getElementById(id);
+      if (el) el.querySelector('.node-label').textContent = node.label;
+    });
+  }
+
+  // ─── ANALYSIS ENGINE ─────────────────────────────────────────────────────────
+  function analyzeArchitecture() {
+    const findings = [];
+    const ctrlSet  = new Set(allControls());
+    const nodeTypes = new Set(nodes.map(n=>n.type));
+    const tags      = nodes.flatMap(n => def(n.type).tags);
+    const tagSet    = new Set(tags);
+
+    // Helper
+    function find(sev, text, pass=false) { findings.push({ sev: pass?'pass':sev, text }); }
+
+    if (nodes.length === 0) {
+      findings.push({ sev:'info', text:'Add components to the canvas to begin analysis.' });
+      return findings;
+    }
+
+    // ── Critical checks ──────────────────────────────────────
+    const hasCUI    = tagSet.has('cui') || nodeTypes.has('cui') || nodeTypes.has('database');
+    const hasMFA    = ctrlSet.has('mfa') || nodeTypes.has('mfa');
+    const hasSIEM   = ctrlSet.has('siem') || nodeTypes.has('siem');
+    const hasDLP    = ctrlSet.has('dlp') || nodeTypes.has('dlp');
+    const hasFirewall = ctrlSet.has('firewall') || nodeTypes.has('firewall');
+    const hasEDR    = ctrlSet.has('edr') || nodeTypes.has('edr');
+    const hasPAM    = ctrlSet.has('pam') || nodeTypes.has('pam');
+    const hasIDS    = ctrlSet.has('ids') || nodeTypes.has('ids');
+    const hasVPN    = ctrlSet.has('vpn') || nodeTypes.has('vpn');
+    const hasWAF    = ctrlSet.has('waf') || nodeTypes.has('waf');
+    const hasIDProvider = ctrlSet.has('iam') || nodeTypes.has('idp') || nodeTypes.has('cloudiam');
+    const hasCASB   = ctrlSet.has('casb') || nodeTypes.has('casb');
+    const hasScanner = ctrlSet.has('scanning') || nodeTypes.has('scanner');
+    const hasWebServer = nodeTypes.has('webserver');
+    const hasBYOD   = nodeTypes.has('byod');
+    const hasCloud  = nodeTypes.has('cloud') || nodeTypes.has('saas') || nodeTypes.has('s3') || nodeTypes.has('cloudiam');
+    const hasRemote = nodeTypes.has('remoteuser');
+    const hasContractor = nodeTypes.has('contractor');
+    const hasPrivilegedUser = nodeTypes.has('pam') || nodes.some(n=>n.label?.toLowerCase().includes('admin'));
+
+    // Unencrypted edges to sensitive data
+    const sensitiveIds = nodes.filter(n=>def(n.type).tags.includes('sensitive')||def(n.type).tags.includes('cui')).map(n=>n.id);
+    const unencryptedToSensitive = edges.some(e =>
+      (e.edgeType === 'unencrypted') && (sensitiveIds.includes(e.to) || sensitiveIds.includes(e.from))
+    );
+    if (unencryptedToSensitive) {
+      find('critical', 'Unencrypted connection to sensitive/CUI data — violates confidentiality requirements. Use TLS/encryption on all data paths.');
+    }
+
+    // MFA missing with users
+    const hasUsers = tagSet.has('user');
+    if (hasUsers && !hasMFA) {
+      find('critical', 'No MFA component detected. Users are authenticating without multi-factor authentication — account compromise risk is high.');
+    } else if (hasUsers && hasMFA) {
+      find('pass', 'MFA component present — authentication hardening detected.', true);
+    }
+
+    // CUI without DLP
+    if (hasCUI && !hasDLP) {
+      find('critical', 'CUI / sensitive data present but no DLP detected. Data exfiltration is uncontrolled — CMMC AC.3.022 / NIST 3.13.2 may be violated.');
+    } else if (hasCUI && hasDLP) {
+      find('pass', 'DLP present — sensitive data exfiltration controls detected.', true);
+    }
+
+    // No firewall (boundary protection)
+    if (!hasFirewall) {
+      find('high', 'No firewall detected. Without boundary protection, all inbound/outbound traffic is unfiltered — NIST SC-7 boundary protection control missing.');
+    } else {
+      find('pass', 'Firewall present — boundary protection control satisfied.', true);
+    }
+
+    // BYOD with no containerization / MDM
+    if (hasBYOD && hasCUI) {
+      find('critical', 'BYOD devices have direct access to CUI data with no containerization or MDM control. Unmanaged endpoints handling controlled data violates CMMC 3.1.18.');
+    }
+    if (hasBYOD && !hasMFA) {
+      find('high', 'BYOD devices present without MFA. Unmanaged endpoints with single-factor auth are high-value targets.');
+    }
+
+    // No SIEM / logging
+    if (!hasSIEM) {
+      find('high', 'No SIEM or centralized logging detected. Audit events cannot be correlated or reviewed — NIST AU-2, AU-12 control gap.');
+    } else {
+      find('pass', 'SIEM present — centralized logging and monitoring in place.', true);
+    }
+
+    // Internet-facing server without WAF
+    if (hasWebServer && !hasWAF) {
+      find('high', 'Web server is internet-facing without a WAF. Application-layer attacks (SQLi, XSS, CSRF) are unmitigated.');
+    } else if (hasWebServer && hasWAF) {
+      find('pass', 'WAF protecting internet-facing web server — application-layer protection in place.', true);
+    }
+
+    // Remote users without VPN
+    if (hasRemote && !hasVPN) {
+      find('high', 'Remote users present but no VPN gateway detected. Remote access occurs over untrusted networks without encrypted tunneling.');
+    } else if (hasRemote && hasVPN) {
+      find('pass', 'VPN present for remote users — encrypted tunnel access in place.', true);
+    }
+
+    // Cloud without CASB
+    if (hasCloud && !hasCASB) {
+      find('medium', 'Cloud services present without a CASB. Shadow IT and unsanctioned cloud usage cannot be monitored or controlled.');
+    } else if (hasCloud && hasCASB) {
+      find('pass', 'CASB present — cloud access visibility and policy enforcement in place.', true);
+    }
+
+    // Cloud without Identity Provider
+    if (hasCloud && !hasIDProvider) {
+      find('medium', 'Cloud services exist without a centralized Identity Provider. Federated SSO and centralized IAM policies are absent — privilege sprawl risk.');
+    }
+
+    // No EDR on endpoints
+    const hasEndpoints = tagSet.has('endpoint');
+    if (hasEndpoints && !hasEDR) {
+      find('medium', 'Endpoint devices present without EDR. Malware, ransomware, and lateral movement cannot be detected on hosts.');
+    } else if (hasEndpoints && hasEDR) {
+      find('pass', 'EDR present on endpoint environment — host-based threat detection in place.', true);
+    }
+
+    // Contractors with CUI access
+    if (hasContractor && hasCUI) {
+      find('medium', 'Contractors may have access to CUI. Ensure third-party access is time-limited, segmented, and audited per CMMC 3.1.2.');
+    }
+
+    // No IDS / IPS
+    if (!hasIDS) {
+      find('medium', 'No IDS/IPS detected. Network-level intrusion attempts will go undetected — NIST SI-4 control gap.');
+    } else {
+      find('pass', 'IDS/IPS present — network intrusion detection in place.', true);
+    }
+
+    // Privileged access without PAM
+    if (!hasPAM && nodes.length > 4) {
+      find('medium', 'No Privileged Access Management (PAM) solution detected. Admin credentials are unvaulted and session recording is absent.');
+    } else if (hasPAM) {
+      find('pass', 'PAM present — privileged credential vaulting and session controls in place.', true);
+    }
+
+    // No vulnerability scanner
+    if (!hasScanner) {
+      find('medium', 'No vulnerability scanner detected. Patch state and configuration drift cannot be measured systematically — NIST RA-5 gap.');
+    } else {
+      find('pass', 'Vulnerability scanner present — continuous assessment capability in place.', true);
+    }
+
+    // Untrusted edges to sensitive data
+    const untrustedToSensitive = edges.some(e =>
+      e.edgeType === 'untrusted' && (sensitiveIds.includes(e.to) || sensitiveIds.includes(e.from))
+    );
+    if (untrustedToSensitive) {
+      find('high', 'Untrusted connection path leads to sensitive data. Trust boundaries are violated — verify intent and segment accordingly.');
+    }
+
+    // Good architecture bonus checks
+    const passCount    = findings.filter(f=>f.sev==='pass').length;
+    const criticalCount= findings.filter(f=>f.sev==='critical').length;
+    const highCount    = findings.filter(f=>f.sev==='high').length;
+    const medCount     = findings.filter(f=>f.sev==='medium').length;
+
+    // Compliance mapping
+    const complianceMap = [];
+    if (criticalCount === 0) complianceMap.push({ framework:'CMMC L2', status:'pass' });
+    if (!hasCUI || (hasDLP && hasMFA && hasSIEM)) complianceMap.push({ framework:'NIST 800-171', status: (hasDLP&&hasMFA&&hasSIEM)?'pass':'fail' });
+    if (hasFirewall && hasSIEM) complianceMap.push({ framework:'NIST CSF', status:'pass' });
+    if (hasMFA && hasIDProvider) complianceMap.push({ framework:'Zero Trust', status:'partial' });
+
+    findings._compliance = complianceMap;
+    return findings;
+  }
+
+  // ─── RENDER FINDINGS ─────────────────────────────────────────────────────────
+  document.getElementById('analyzeBtn').addEventListener('click', () => {
+    const findings = analyzeArchitecture();
+    const panel    = document.getElementById('findingsPanel');
+
+    const sevOrder = ['critical','high','medium','info','pass'];
+    const sorted   = [...findings].filter(f=>f.sev!==undefined).sort((a,b)=>sevOrder.indexOf(a.sev)-sevOrder.indexOf(b.sev));
+
+    const crit = sorted.filter(f=>f.sev==='critical').length;
+    const high = sorted.filter(f=>f.sev==='high').length;
+    const med  = sorted.filter(f=>f.sev==='medium').length;
+    const pass = sorted.filter(f=>f.sev==='pass').length;
+    const total = sorted.length;
+
+    // Score: start at 100, deduct
+    let score = 100 - (crit * 20) - (high * 10) - (med * 5);
+    score = Math.max(0, Math.min(100, score));
+
+    // Update score ring
+    const circumference = 2 * Math.PI * 34;
+    const arcLen = (score / 100) * circumference;
+    document.getElementById('scoreArc').setAttribute('stroke-dasharray', `${arcLen} ${circumference - arcLen}`);
+    const scoreColor = score >= 80 ? '#198754' : score >= 55 ? '#ffc107' : '#dc3545';
+    document.getElementById('scoreArc').setAttribute('stroke', scoreColor);
+    document.getElementById('scoreText').textContent = score;
+    document.getElementById('cnt-critical').textContent = crit;
+    document.getElementById('cnt-high').textContent     = high;
+    document.getElementById('cnt-medium').textContent   = med;
+    document.getElementById('cnt-pass').textContent     = pass;
+
+    panel.innerHTML = `<div class="p-2 border-bottom d-flex justify-content-between align-items-center">
+      <span class="fw-semibold small">Findings (${total})</span>
+      <span class="small text-secondary">${nodes.length} nodes · ${edges.length} edges</span>
+    </div>` +
+    sorted.map(f => `
+      <div class="finding-row ${f.sev}">
+        <span class="sev-badge sev-${f.sev}">${f.sev.toUpperCase()}</span>
+        <span>${f.text}</span>
+      </div>`).join('');
+
+    // Compliance pills
+    const comp = findings._compliance || [];
+    if (comp.length) {
+      panel.innerHTML += `<div class="p-2 border-top">
+        <div class="small fw-semibold mb-1 text-secondary" style="font-size:.65rem;text-transform:uppercase">Compliance Mapping</div>
+        ${comp.map(c=>`<span class="comp-pill" style="border-color:${c.status==='pass'?'#198754':c.status==='partial'?'#ffc107':'#dc3545'};color:${c.status==='pass'?'#198754':c.status==='partial'?'#ffc107':'#dc3545'}">${c.framework}: ${c.status}</span>`).join('')}
+      </div>`;
+    }
+  });
+
+  // ─── TEMPLATES ───────────────────────────────────────────────────────────────
+  const TEMPLATES = {
+    basic: {
+      nodes:[
+        { id:'n1', type:'user',      x:50,  y:200, label:'Corporate User' },
+        { id:'n2', type:'firewall',  x:220, y:200, label:'Perimeter FW' },
+        { id:'n3', type:'webserver', x:400, y:150, label:'Web Server' },
+        { id:'n4', type:'appserver', x:400, y:280, label:'App Server' },
+        { id:'n5', type:'database',  x:580, y:215, label:'Database' },
+      ],
+      edges:[
+        { id:'e1', from:'n1', to:'n2', edgeType:'encrypted' },
+        { id:'e2', from:'n2', to:'n3', edgeType:'encrypted' },
+        { id:'e3', from:'n2', to:'n4', edgeType:'encrypted' },
+        { id:'e4', from:'n4', to:'n5', edgeType:'unencrypted' },
+      ],
+      zones:[ { id:'z1', zoneType:'internet', x:10, y:160, w:140, h:100 }, { id:'z2', zoneType:'internal', x:360, y:120, w:290, h:220 } ],
+    },
+    remote: {
+      nodes:[
+        { id:'n1', type:'remoteuser',x:30,  y:130, label:'Remote User' },
+        { id:'n2', type:'byod',      x:30,  y:260, label:'BYOD Device' },
+        { id:'n3', type:'vpn',       x:200, y:195, label:'VPN Gateway' },
+        { id:'n4', type:'mfa',       x:360, y:130, label:'MFA' },
+        { id:'n5', type:'firewall',  x:360, y:260, label:'Corp Firewall' },
+        { id:'n6', type:'siem',      x:530, y:130, label:'SIEM' },
+        { id:'n7', type:'fileserver',x:530, y:260, label:'File Server' },
+      ],
+      edges:[
+        { id:'e1', from:'n1', to:'n3', edgeType:'encrypted' },
+        { id:'e2', from:'n2', to:'n3', edgeType:'untrusted' },
+        { id:'e3', from:'n3', to:'n4', edgeType:'encrypted' },
+        { id:'e4', from:'n3', to:'n5', edgeType:'encrypted' },
+        { id:'e5', from:'n5', to:'n6', edgeType:'control' },
+        { id:'e6', from:'n5', to:'n7', edgeType:'encrypted' },
+      ],
+      zones:[],
+    },
+    cloud: {
+      nodes:[
+        { id:'n1', type:'user',      x:30,  y:200, label:'Corp User' },
+        { id:'n2', type:'idp',       x:200, y:100, label:'Identity Provider' },
+        { id:'n3', type:'casb',      x:200, y:290, label:'CASB' },
+        { id:'n4', type:'firewall',  x:380, y:200, label:'Firewall' },
+        { id:'n5', type:'cloud',     x:560, y:120, label:'AWS / Azure' },
+        { id:'n6', type:'saas',      x:560, y:220, label:'M365 / GSuite' },
+        { id:'n7', type:'s3',        x:560, y:320, label:'Cloud Storage' },
+        { id:'n8', type:'dlp',       x:380, y:340, label:'DLP' },
+        { id:'n9', type:'cloudiam',  x:380, y:90,  label:'Cloud IAM' },
+      ],
+      edges:[
+        { id:'e1', from:'n1', to:'n2', edgeType:'encrypted' },
+        { id:'e2', from:'n1', to:'n3', edgeType:'control' },
+        { id:'e3', from:'n2', to:'n4', edgeType:'control' },
+        { id:'e4', from:'n4', to:'n5', edgeType:'encrypted' },
+        { id:'e5', from:'n4', to:'n6', edgeType:'encrypted' },
+        { id:'e6', from:'n4', to:'n7', edgeType:'encrypted' },
+        { id:'e7', from:'n3', to:'n6', edgeType:'control' },
+        { id:'e8', from:'n8', to:'n7', edgeType:'control' },
+        { id:'e9', from:'n9', to:'n5', edgeType:'control' },
+      ],
+      zones:[],
+    },
+    cmmc: {
+      nodes:[
+        { id:'n1', type:'user',      x:30,  y:180, label:'Corp User' },
+        { id:'n2', type:'mfa',       x:190, y:100, label:'MFA' },
+        { id:'n3', type:'idp',       x:190, y:260, label:'SSO / IdP' },
+        { id:'n4', type:'firewall',  x:360, y:180, label:'Perimeter FW' },
+        { id:'n5', type:'ids',       x:360, y:300, label:'IDS / IPS' },
+        { id:'n6', type:'edr',       x:530, y:100, label:'EDR' },
+        { id:'n7', type:'pam',       x:530, y:220, label:'PAM' },
+        { id:'n8', type:'siem',      x:530, y:340, label:'SIEM' },
+        { id:'n9', type:'dlp',       x:700, y:180, label:'DLP' },
+        { id:'n10',type:'cui',       x:700, y:320, label:'CUI Data Store' },
+        { id:'n11',type:'scanner',   x:360, y:60,  label:'Vuln Scanner' },
+      ],
+      edges:[
+        { id:'e1', from:'n1', to:'n2', edgeType:'encrypted' },
+        { id:'e2', from:'n1', to:'n3', edgeType:'encrypted' },
+        { id:'e3', from:'n2', to:'n4', edgeType:'encrypted' },
+        { id:'e4', from:'n4', to:'n6', edgeType:'encrypted' },
+        { id:'e5', from:'n4', to:'n7', edgeType:'encrypted' },
+        { id:'e6', from:'n5', to:'n8', edgeType:'control' },
+        { id:'e7', from:'n7', to:'n10',edgeType:'encrypted' },
+        { id:'e8', from:'n9', to:'n10',edgeType:'control' },
+        { id:'e9', from:'n6', to:'n8', edgeType:'control' },
+        { id:'e10',from:'n11',to:'n4', edgeType:'control' },
+      ],
+      zones:[
+        { id:'z1', zoneType:'restricted', x:650, y:150, w:200, h:220 },
+        { id:'z2', zoneType:'internal',   x:310, y:50,  w:260, h:330 },
+      ],
+    },
+  };
+
+  document.querySelectorAll('[data-template]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const t = TEMPLATES[btn.dataset.template];
+      if (!t) return;
+      nodes = t.nodes.map(n=>({...n}));
+      edges = t.edges.map(e=>({...e}));
+      zones = t.zones.map(z=>({...z}));
+      nodeSeq = nodes.length; edgeSeq = edges.length; zoneSeq = zones.length;
+      bootstrap.Modal.getInstance(document.getElementById('templateModal'))?.hide();
+      renderNodes();
+      // Auto analyze
+      setTimeout(() => document.getElementById('analyzeBtn').click(), 300);
+    });
+  });
+
+  // ─── CLEAR ───────────────────────────────────────────────────────────────────
+  document.getElementById('clearBtn').addEventListener('click', () => {
+    if (!confirm('Clear the canvas?')) return;
+    nodes=[]; edges=[]; zones=[]; nodeSeq=0; edgeSeq=0; zoneSeq=0; selectedId=null;
+    renderNodes();
+    document.getElementById('findingsPanel').innerHTML = '<div class="small text-secondary text-center py-3">Drop components and click <strong>Analyze</strong> to see findings.</div>';
+    document.getElementById('propsContent').innerHTML  = '<span class="small text-secondary">Select a node to view details.</span>';
+    document.getElementById('scoreText').textContent = '—';
+    document.getElementById('scoreArc').setAttribute('stroke-dasharray','0 213.6');
+    ['cnt-critical','cnt-high','cnt-medium','cnt-pass'].forEach(id => document.getElementById(id).textContent='0');
+  });
+
+  // ─── EXPORT ───────────────────────────────────────────────────────────────────
+  document.getElementById('exportBtn').addEventListener('click', () => {
+    const findings = analyzeArchitecture();
+    let txt = `SECURE ARCHITECTURE BUILDER — EXPORT\nGenerated: ${new Date().toLocaleDateString()}\n\n`;
+    txt += `NODES (${nodes.length}):\n`;
+    nodes.forEach(n => txt += `  [${def(n.type).icon}] ${n.label} (${n.type})\n`);
+    txt += `\nCONNECTIONS (${edges.length}):\n`;
+    edges.forEach(e => {
+      const f=nodeById(e.from), t=nodeById(e.to);
+      txt += `  ${f?.label||e.from} → ${t?.label||e.to} [${e.edgeType}]\n`;
+    });
+    txt += `\nFINDINGS:\n`;
+    findings.filter(f=>f.sev).forEach(f => txt += `  [${f.sev.toUpperCase()}] ${f.text}\n`);
+    const blob = new Blob([txt],{type:'text/plain'});
+    const a = Object.assign(document.createElement('a'),{href:URL.createObjectURL(blob),download:'secure-architecture.txt'});
+    a.click();
+  });
+
+  // ─── THEME TOGGLE ────────────────────────────────────────────────────────────
+  document.getElementById('themeToggle')?.addEventListener('click', () => {
+    const t = document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-bs-theme', t);
+    localStorage.setItem('bsTheme', t);
+    document.getElementById('themeIcon').className = t === 'dark' ? 'bi bi-moon-stars-fill' : 'bi bi-sun-fill';
+  });
+
+  // ─── YEAR FOOTER ─────────────────────────────────────────────────────────────
+  document.querySelectorAll('[data-year]').forEach(el => el.textContent = new Date().getFullYear());
+
+  // ─── INIT ────────────────────────────────────────────────────────────────────
+  setMode('select');
+  // Auto-load CMMC template on first visit
+  if (!localStorage.getItem('sabVisited')) {
+    localStorage.setItem('sabVisited','1');
+    const t = TEMPLATES.cmmc;
+    nodes = t.nodes.map(n=>({...n}));
+    edges = t.edges.map(e=>({...e}));
+    zones = t.zones.map(z=>({...z}));
+    nodeSeq = nodes.length; edgeSeq = edges.length; zoneSeq = zones.length;
+    renderNodes();
+    setTimeout(() => document.getElementById('analyzeBtn').click(), 400);
+  }
+  </script>
+</body>
+</html>
