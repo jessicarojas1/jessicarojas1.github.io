@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
   <link rel="icon" href="favicon.ico"/>
@@ -116,21 +118,28 @@
           <li class="nav-item"><a class="nav-link" href="blog.html">Blog</a></li>
         </ul>
         <div class="d-flex align-items-center gap-2">
-          <button class="btn btn-sm btn-outline-secondary" id="themeToggle" aria-label="Toggle theme">
-            <i class="bi bi-moon-stars-fill" id="themeIcon"></i>
-          </button>
-          <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">
-            <i class="bi bi-person-lock"></i> Login
-          </button>
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
         </div>
       </div>
     </div>
   </nav>
 
   <!-- RBAC Login Modal -->
-  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacLoginLabel" aria-hidden="true">
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacLoginLabel" aria-modal="true" role="dialog">
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content" id="rbacModalContent"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="rbacLoginLabel">🔒 Login</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body"></div>
+      </div>
     </div>
   </div>
 
@@ -1056,14 +1065,6 @@
     const blob = new Blob([txt],{type:'text/plain'});
     const a = Object.assign(document.createElement('a'),{href:URL.createObjectURL(blob),download:'secure-architecture.txt'});
     a.click();
-  });
-
-  // ─── THEME TOGGLE ────────────────────────────────────────────────────────────
-  document.getElementById('themeToggle')?.addEventListener('click', () => {
-    const t = document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-bs-theme', t);
-    localStorage.setItem('bsTheme', t);
-    document.getElementById('themeIcon').className = t === 'dark' ? 'bi bi-moon-stars-fill' : 'bi bi-sun-fill';
   });
 
   // ─── YEAR FOOTER ─────────────────────────────────────────────────────────────

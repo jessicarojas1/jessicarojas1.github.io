@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
   <link rel="icon" href="favicon.ico"/>
@@ -106,15 +108,16 @@
           <label class="section-label">Your Target Role</label>
           <select class="form-select form-select-sm" id="targetRoleSelect"></select>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
           <label class="section-label">Experience Level</label>
           <select class="form-select form-select-sm" id="expSelect">
-            <option value="0">Just starting out</option>
-            <option value="1">1–2 years</option>
-            <option value="3">3–5 years</option>
-            <option value="6">6–10 years</option>
-            <option value="10">10+ years</option>
+            <option value="entry">Entry (&lt;2 yrs)</option>
+            <option value="mid" selected>Mid (2–5 yrs)</option>
+            <option value="senior">Senior (5+ yrs)</option>
           </select>
+        </div>
+        <div class="col-md-1 d-flex align-items-end">
+          <button class="btn btn-primary btn-sm w-100" id="applySetup">Apply</button>
         </div>
       </div>
     </div>
@@ -178,20 +181,23 @@
     <!-- CERTIFICATIONS -->
     <div id="tab-certs" class="cc-tab">
       <div class="d-flex gap-2 mb-3 flex-wrap">
-        <select class="form-select form-select-sm w-auto" id="certCatFilter">
-          <option value="">All Categories</option>
-          <option value="foundation">Foundation</option>
-          <option value="defense">Blue Team / Defense</option>
-          <option value="offense">Red Team / Offense</option>
-          <option value="cloud">Cloud Security</option>
-          <option value="grc">GRC / Management</option>
-          <option value="forensics">Forensics / DFIR</option>
-        </select>
         <select class="form-select form-select-sm w-auto" id="certLevelFilter">
           <option value="">All Levels</option>
-          <option value="1">Entry</option>
-          <option value="2">Intermediate</option>
-          <option value="3">Advanced</option>
+          <option value="Foundation">Foundation</option>
+          <option value="Intermediate">Intermediate</option>
+          <option value="Advanced">Advanced</option>
+          <option value="Expert">Expert</option>
+        </select>
+        <select class="form-select form-select-sm w-auto" id="certVendorFilter">
+          <option value="">All Vendors</option>
+          <option value="CompTIA">CompTIA</option>
+          <option value="GIAC">GIAC</option>
+          <option value="ISC2">ISC2</option>
+          <option value="ISACA">ISACA</option>
+          <option value="OffSec">OffSec</option>
+          <option value="AWS">AWS</option>
+          <option value="HackTheBox">HackTheBox</option>
+          <option value="eLearnSec">eLearnSec</option>
         </select>
         <div class="ms-auto d-flex align-items-center gap-2">
           <span class="small text-secondary" id="cert-count-label">0 earned</span>
@@ -213,7 +219,7 @@
         <div class="col-md-6">
           <div class="card p-4">
             <div class="fw-semibold mb-3">Adjust Your Current Skills</div>
-            <div id="skillSliders"></div>
+            <div id="skillSliders" class="row g-2"></div>
           </div>
         </div>
       </div>
@@ -269,6 +275,12 @@
   <footer class="site-footer mt-5">
     <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
   </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmR6yxBvFf/AQgDLRFrS5dQ1LAv" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="users.js" defer></script>
+  <script src="roles.js" defer></script>
+  <script src="script.js" defer></script>
 
   <!-- ===== DATA + JAVASCRIPT ===== -->
   <script>
@@ -681,8 +693,7 @@
   function renderCerts(filter='') {
     const path = findCareerPath(STATE.currentRole, STATE.targetRole);
     const pathCerts = certsForPath(path).map(c=>c.id);
-    const total = document.getElementById('cert-total');
-    const done  = document.getElementById('cert-done');
+    const countLabel = document.getElementById('cert-count-label');
     const grid  = document.getElementById('certGrid');
 
     let filtered = CERTS;
@@ -725,18 +736,19 @@
           STATE.completedCerts.push(id);
         }
         saveState();
-        renderCerts(document.getElementById('certLevelFilter').value || document.getElementById('certVendorFilter').value);
+        renderCerts(document.getElementById('certLevelFilter').value || document.getElementById('certVendorFilter').value || '');
         renderDashboard();
       });
     });
 
     const doneCount = CERTS.filter(c=>STATE.completedCerts.includes(c.id)).length;
-    if (total) total.textContent = CERTS.length;
-    if (done)  done.textContent  = doneCount;
+    if (countLabel) countLabel.textContent = `${doneCount} earned`;
   }
 
-  document.getElementById('certLevelFilter').addEventListener('change', e => renderCerts(e.target.value));
-  document.getElementById('certVendorFilter').addEventListener('change', e => renderCerts(e.target.value));
+  document.getElementById('certLevelFilter').addEventListener('change', () =>
+    renderCerts(document.getElementById('certLevelFilter').value || document.getElementById('certVendorFilter').value || ''));
+  document.getElementById('certVendorFilter').addEventListener('change', () =>
+    renderCerts(document.getElementById('certLevelFilter').value || document.getElementById('certVendorFilter').value || ''));
 
   // ─── RENDER SKILLS ───────────────────────────────────────────────────────────
   let radarChart = null;
@@ -902,44 +914,43 @@
 
   // ─── RENDER DASHBOARD ────────────────────────────────────────────────────────
   function renderDashboard() {
-    const path   = findCareerPath(STATE.currentRole, STATE.targetRole);
-    const fromR  = roleById(STATE.currentRole);
-    const toR    = roleById(STATE.targetRole);
+    const path      = findCareerPath(STATE.currentRole, STATE.targetRole);
+    const fromR     = roleById(STATE.currentRole);
+    const toR       = roleById(STATE.targetRole);
     const pathCerts = certsForPath(path);
-    const certsDone = pathCerts.filter(c=>STATE.completedCerts.includes(c.id)).length;
-    const labsDone  = LABS.filter(l=>STATE.completedLabs.includes(l.id)).length;
-    const certPct   = pct(certsDone, pathCerts.length);
-    const labPct    = pct(labsDone, LABS.length);
-    const overall   = Math.round((certPct + labPct) / 2);
-
-    // Update header badges
+    const certsDone = STATE.completedCerts.length;
+    const certsNeed = pathCerts.filter(c=>!STATE.completedCerts.includes(c.id)).length;
+    const labsDone  = STATE.completedLabs.length;
+    const salaryPot = toR ? fmtSalary(toR.salary[1]) : '—';
     const el = id => document.getElementById(id);
-    if (el('dash-current'))  el('dash-current').textContent  = fromR?.label || STATE.currentRole;
-    if (el('dash-target'))   el('dash-target').textContent   = toR?.label   || STATE.targetRole;
-    if (el('dash-progress')) el('dash-progress').textContent = overall + '%';
-    if (el('dash-steps'))    el('dash-steps').textContent    = path.length - 1 + ' steps';
 
-    // Progress bars
-    if (el('cert-progress-bar')) {
-      el('cert-progress-bar').style.width = certPct + '%';
-      el('cert-progress-bar').textContent  = certsDone + '/' + pathCerts.length;
-    }
-    if (el('lab-progress-bar')) {
-      el('lab-progress-bar').style.width = labPct + '%';
-      el('lab-progress-bar').textContent  = labsDone + '/' + LABS.length;
-    }
-    if (el('overall-progress-bar')) {
-      el('overall-progress-bar').style.width = overall + '%';
-      el('overall-progress-bar').textContent  = overall + '%';
-    }
+    // Stat counters (IDs that exist in HTML)
+    if (el('dash-certs-earned')) el('dash-certs-earned').textContent = certsDone;
+    if (el('dash-certs-needed')) el('dash-certs-needed').textContent = certsNeed;
+    if (el('dash-labs-done'))    el('dash-labs-done').textContent    = labsDone;
+    if (el('dash-salary-gap'))   el('dash-salary-gap').textContent   = salaryPot;
 
-    // Next actions
+    // Priority actions
     const nextCert = pathCerts.find(c=>!STATE.completedCerts.includes(c.id));
     const nextLab  = LABS.find(l=>!STATE.completedLabs.includes(l.id));
-    if (el('next-cert')) el('next-cert').textContent = nextCert ? nextCert.name : 'All done!';
-    if (el('next-lab'))  el('next-lab').textContent  = nextLab  ? nextLab.title : 'All done!';
+    if (el('dash-priorities')) {
+      el('dash-priorities').innerHTML = `
+        <div class="mb-3">
+          <div class="small fw-semibold text-secondary mb-1">NEXT CERTIFICATION</div>
+          <div class="small">${nextCert ? `<span class="badge bg-primary me-1">${nextCert.name}</span>${nextCert.vendor} · ~${nextCert.hours}h · +${fmtSalary(nextCert.salaryBoost)}/yr` : '<span class="text-success">All on-path certs earned!</span>'}</div>
+        </div>
+        <div class="mb-3">
+          <div class="small fw-semibold text-secondary mb-1">NEXT LAB PROJECT</div>
+          <div class="small">${nextLab ? `<span class="diff-badge diff-${nextLab.diff.toLowerCase()}">${nextLab.diff}</span> ${nextLab.title}` : '<span class="text-success">All labs completed!</span>'}</div>
+        </div>
+        <div>
+          <div class="small fw-semibold text-secondary mb-1">PATH PROGRESS</div>
+          <div class="progress mb-1" style="height:6px"><div class="progress-bar bg-primary" style="width:${pathCerts.length ? Math.round(certsDone/pathCerts.length*100) : 0}%"></div></div>
+          <div class="small text-secondary">${certsDone} of ${pathCerts.length} path certs earned</div>
+        </div>`;
+    }
 
-    // Skill bars
+    // Skill bars for path domains
     const pathDomains = [...new Set(path.flatMap(id => roleById(id)?.domains||[]))].slice(0,6);
     if (el('dash-skills-bars')) {
       el('dash-skills-bars').innerHTML = pathDomains.map(d => {
@@ -947,7 +958,7 @@
         const val = STATE.skillLevels[d] || 0;
         return `<div class="mb-2">
           <div class="d-flex justify-content-between small mb-1">
-            <span>${sk?.label||d}</span><span>${val}/10</span>
+            <span>${sk?.label||d}</span><span class="fw-semibold">${val}/10</span>
           </div>
           <div class="progress" style="height:6px">
             <div class="progress-bar" style="width:${val*10}%"></div>
@@ -991,14 +1002,6 @@
 
   // ─── YEAR FOOTER ─────────────────────────────────────────────────────────────
   document.querySelectorAll('[data-year]').forEach(el => el.textContent = new Date().getFullYear());
-
-  // ─── BOOTSTRAP RBAC MODAL ────────────────────────────────────────────────────
-  document.querySelectorAll('[data-bs-toggle="modal"]').forEach(el => {
-    el.addEventListener('click', () => {
-      const target = document.querySelector(el.dataset.bsTarget);
-      if (target) new bootstrap.Modal(target).show();
-    });
-  });
 
   // ─── RENDER ALL ──────────────────────────────────────────────────────────────
   function renderAll() {
