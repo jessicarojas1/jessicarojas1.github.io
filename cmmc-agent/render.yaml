@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: cmmc-compliance-agent
+    runtime: python
+    rootDir: cmmc-agent
+    buildCommand: pip install -r requirements.txt
+    startCommand: python server.py
+    plan: free
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false          # you set this manually in the Render dashboard
+      - key: PORT
+        value: 10000         # Render assigns this port automatically
