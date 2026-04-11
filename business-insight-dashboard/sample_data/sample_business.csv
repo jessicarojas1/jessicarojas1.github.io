@@ -1,0 +1,83 @@
+date,revenue,leads,conversions,product,service,source,customer
+2024-01-04,1849.12,20,0,Pro Plan,Consulting,Organic Search,Vertex Systems
+2024-01-08,6388.07,17,1,Enterprise Plan,Managed Service,Cold Outreach,Vertex Systems
+2024-01-08,1547.45,13,1,Pro Plan,Consulting,Partner,Frontier Labs
+2024-01-10,5909.09,5,0,Enterprise Plan,Training,Cold Outreach,Beacon Health
+2024-01-11,1463.71,6,1,Pro Plan,Implementation,LinkedIn,Vertex Systems
+2024-01-12,539.96,15,0,Starter Plan,Support,LinkedIn,Frontier Labs
+2024-01-12,1804.53,8,1,Pro Plan,Consulting,LinkedIn,BluePeak LLC
+2024-01-14,1420.01,9,1,Pro Plan,Implementation,Organic Search,Sterling Finance
+2024-01-23,692.11,8,1,Starter Plan,Implementation,Referral,Acme Corp
+2024-02-05,583.13,8,1,Starter Plan,Implementation,Organic Search,Vertex Systems
+2024-02-08,6353.87,21,1,Enterprise Plan,Support,Paid Search,BluePeak LLC
+2024-02-11,1596.58,7,1,Pro Plan,Consulting,Cold Outreach,Quantum Ops
+2024-02-18,646.25,10,1,Starter Plan,Support,Paid Search,Beacon Health
+2024-03-01,833.36,13,0,Starter Plan,Implementation,Cold Outreach,Summit Digital
+2024-03-03,8845.95,7,1,Enterprise Plan,Support,Partner,Frontier Labs
+2024-03-04,376.47,14,1,Add-on: Analytics,Consulting,Referral,Sterling Finance
+2024-03-12,383.27,21,1,Add-on: Analytics,Support,Paid Search,TechStart Inc
+2024-03-14,2452.74,8,1,Pro Plan,Implementation,LinkedIn,Summit Digital
+2024-03-18,264.51,3,0,Add-on: Support,Managed Service,Partner,Sterling Finance
+2024-03-20,1882.12,20,1,Pro Plan,Consulting,Partner,Cascade Networks
+2024-04-03,410.99,18,1,Add-on: Analytics,Support,Organic Search,Crestline Consulting
+2024-04-04,850.7,23,0,Starter Plan,Consulting,Paid Search,TechStart Inc
+2024-04-05,9398.07,16,0,Enterprise Plan,Support,Referral,Crestline Consulting
+2024-04-06,2553.07,25,1,Pro Plan,Support,Paid Search,Apex Solutions
+2024-04-06,2452.01,20,0,Pro Plan,Implementation,Partner,Quantum Ops
+2024-04-10,2153.94,10,1,Pro Plan,Training,Paid Search,Cascade Networks
+2024-04-11,1835.85,23,0,Pro Plan,Training,Referral,Acme Corp
+2024-04-13,7478.12,17,0,Enterprise Plan,Support,Organic Search,Apex Solutions
+2024-05-02,696.05,18,1,Starter Plan,Consulting,LinkedIn,TechStart Inc
+2024-05-04,2645.16,10,1,Pro Plan,Implementation,Paid Search,Pinnacle Services
+2024-05-08,870.25,22,0,Starter Plan,Managed Service,Referral,Beacon Health
+2024-05-13,1878.2,22,1,Pro Plan,Training,Referral,BluePeak LLC
+2024-05-18,7790.46,18,1,Enterprise Plan,Managed Service,Partner,Crestline Consulting
+2024-05-22,894.31,13,1,Starter Plan,Consulting,Partner,Apex Solutions
+2024-05-23,273.58,12,1,Add-on: Support,Managed Service,Referral,Atlas Ventures
+2024-05-28,764.86,17,1,Starter Plan,Implementation,Paid Search,GlobalEdge
+2024-05-28,701.93,5,1,Starter Plan,Implementation,Referral,Meridian Group
+2024-06-09,1972.43,5,1,Pro Plan,Consulting,LinkedIn,Frontier Labs
+2024-06-15,7614.18,20,1,Enterprise Plan,Support,Referral,Cascade Networks
+2024-06-20,2430.5,11,1,Pro Plan,Consulting,LinkedIn,Summit Digital
+2024-06-22,2649.49,7,1,Pro Plan,Support,Paid Search,Vertex Systems
+2024-06-28,1966.78,7,1,Pro Plan,Training,Cold Outreach,TechStart Inc
+2024-07-01,2833.56,10,1,Pro Plan,Managed Service,LinkedIn,Streamline Co
+2024-07-05,899.28,4,1,Starter Plan,Support,Referral,NovaTech
+2024-07-09,2634.48,14,1,Pro Plan,Managed Service,Paid Search,Vertex Systems
+2024-07-11,814.91,4,1,Starter Plan,Managed Service,Organic Search,Beacon Health
+2024-07-25,2377.55,3,0,Pro Plan,Training,Paid Search,Frontier Labs
+2024-07-26,368.54,14,1,Add-on: Support,Implementation,Paid Search,Crestline Consulting
+2024-07-26,8779.4,17,1,Enterprise Plan,Consulting,Organic Search,Atlas Ventures
+2024-07-27,9437.76,11,1,Enterprise Plan,Implementation,Organic Search,Apex Solutions
+2024-07-28,1052.34,8,1,Starter Plan,Training,Organic Search,Crestline Consulting
+2024-08-10,882.97,21,1,Starter Plan,Support,Paid Search,Apex Solutions
+2024-08-11,909.66,24,1,Starter Plan,Training,Organic Search,Harbor Analytics
+2024-08-13,968.48,8,1,Starter Plan,Training,Organic Search,GlobalEdge
+2024-08-17,483.9,5,1,Add-on: Analytics,Consulting,LinkedIn,Apex Solutions
+2024-09-05,2316.18,23,1,Pro Plan,Implementation,Referral,BluePeak LLC
+2024-09-08,2407.73,6,1,Pro Plan,Managed Service,Referral,TechStart Inc
+2024-09-15,908.65,12,1,Starter Plan,Training,Referral,Meridian Group
+2024-09-21,913.2,10,1,Starter Plan,Implementation,Partner,Crestline Consulting
+2024-09-23,984.96,6,1,Starter Plan,Consulting,Organic Search,Acme Corp
+2024-09-26,1003.69,17,1,Starter Plan,Consulting,Referral,Ironclad Security
+2024-10-01,551.29,20,1,Add-on: Analytics,Consulting,Paid Search,Streamline Co
+2024-10-03,8623.81,7,1,Enterprise Plan,Implementation,Paid Search,Frontier Labs
+2024-10-08,905.7,24,1,Starter Plan,Consulting,Referral,GlobalEdge
+2024-10-17,1055.67,18,1,Starter Plan,Managed Service,Paid Search,Meridian Group
+2024-10-22,2334.41,11,1,Pro Plan,Training,Organic Search,Quantum Ops
+2024-10-23,2699.62,16,0,Pro Plan,Implementation,Paid Search,Ironclad Security
+2024-10-24,2691.03,15,1,Pro Plan,Consulting,Organic Search,Sterling Finance
+2024-10-25,2640.91,10,1,Pro Plan,Training,LinkedIn,Cascade Networks
+2024-10-27,1097.28,21,1,Starter Plan,Managed Service,Referral,Acme Corp
+2024-11-01,531.8,18,1,Add-on: Analytics,Implementation,Organic Search,NovaTech
+2024-11-15,2615.0,5,1,Pro Plan,Support,Paid Search,Streamline Co
+2024-11-19,515.88,22,1,Add-on: Analytics,Consulting,Paid Search,Pinnacle Services
+2024-11-23,2974.05,12,1,Pro Plan,Support,Partner,Vertex Systems
+2024-11-24,1162.49,23,0,Starter Plan,Managed Service,Paid Search,BluePeak LLC
+2024-12-03,999.28,14,1,Starter Plan,Consulting,Cold Outreach,Atlas Ventures
+2024-12-03,3369.93,15,1,Pro Plan,Consulting,LinkedIn,Beacon Health
+2024-12-13,561.18,12,1,Add-on: Analytics,Implementation,Referral,Crestline Consulting
+2024-12-16,621.27,22,1,Add-on: Analytics,Implementation,Organic Search,Summit Digital
+2024-12-18,11392.56,10,1,Enterprise Plan,Consulting,Cold Outreach,Beacon Health
+2024-12-20,11767.69,16,1,Enterprise Plan,Support,Referral,TechStart Inc
+2024-12-27,1384.53,11,1,Starter Plan,Implementation,Organic Search,Cascade Networks

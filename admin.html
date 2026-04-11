@@ -204,12 +204,26 @@
                     <a href="https://dashboard.render.com/web/srv-d7d8f8i8qa3s73bg5keg" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary">Render Dashboard</a>
                   </td>
                 </tr>
+                <tr>
+                  <td>
+                    <div class="fw-semibold">Business Insight Dashboard</div>
+                    <div class="text-secondary small">Streamlit · Python · Plotly · Free tier</div>
+                  </td>
+                  <td><span class="badge bg-warning text-dark">Not deployed</span></td>
+                  <td>
+                    <span class="text-secondary small">Deploy to Render to get URL</span>
+                  </td>
+                  <td class="text-end">
+                    <a href="https://dashboard.render.com/new" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-secondary">+ Deploy on Render</a>
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>
           <div class="card-footer text-secondary small">
-            Free tier sleeps after 15 min of inactivity — cold start takes ~30 s. Upgrade to Starter ($7/mo) for always-on.
-            Set <code>ANTHROPIC_API_KEY</code> under Environment in the Render dashboard.
+            Free tier sleeps after 15 min of inactivity — cold start ~30 s. Upgrade to Starter ($7/mo) for always-on.
+            CMMC Agent requires <code>ANTHROPIC_API_KEY</code> set in Render → Environment.
+            Business Dashboard: <code>startCommand: streamlit run app.py --server.port $PORT --server.address 0.0.0.0 --server.headless true</code>
           </div>
         </div>
 
