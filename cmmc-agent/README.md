@@ -27,8 +27,20 @@ pip install -r requirements.txt
 # Add your Anthropic API key
 cp .env.example .env
 # Edit .env and set ANTHROPIC_API_KEY=sk-ant-...
+```
 
-# Run
+## Running
+
+### Web GUI (recommended)
+```bash
+python server.py
+# Open http://localhost:5050
+```
+Features: chat interface, live compliance score ring, per-domain progress bars,
+POA&M display, and a **?** help button with full usage instructions.
+
+### CLI
+```bash
 python agent.py
 ```
 
