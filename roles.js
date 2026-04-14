@@ -127,7 +127,27 @@ const RBAC = (() => {
       loginBtn.classList.add('d-none');
       userArea?.classList.remove('d-none');
       if (badge) { badge.className = `badge ${def.badgeClass} me-1`; badge.textContent = def.label; }
-      if (uname) uname.textContent = getUser();
+      if (uname) {
+        uname.textContent = getUser();
+        // Make username clickable to open change-password
+        if (!uname.dataset.pwWired) {
+          uname.dataset.pwWired = '1';
+          uname.style.cursor = 'pointer';
+          uname.title = 'Change password';
+          uname.addEventListener('click', () => {
+            const modalEl = document.getElementById('rbacLoginModal');
+            if (!modalEl) return;
+            const body  = modalEl.querySelector('.modal-body');
+            const title = modalEl.querySelector('.modal-title');
+            if (body)  body.innerHTML = CHANGE_PASSWORD_HTML;
+            if (title) title.textContent = '🔑 Change Password';
+            wireChangePasswordForm();
+            if (typeof bootstrap !== 'undefined') {
+              bootstrap.Modal.getOrCreateInstance(modalEl).show();
+            }
+          });
+        }
+      }
     } else {
       loginBtn.classList.remove('d-none');
       userArea?.classList.add('d-none');
@@ -163,10 +183,14 @@ const RBAC = (() => {
            role="alert" aria-live="polite"></div>
       <button type="submit" class="btn btn-primary w-100">Login</button>
     </form>
-    <div class="text-center mt-3">
+    <div class="d-flex justify-content-between mt-3">
+      <button type="button" class="btn btn-link btn-sm p-0 text-secondary"
+              id="rbac-forgot-password-link">
+        Forgot password?
+      </button>
       <button type="button" class="btn btn-link btn-sm p-0 text-secondary"
               id="rbac-request-access-link">
-        Don't have an account? Request access
+        Request access
       </button>
     </div>`;
 
@@ -212,6 +236,50 @@ const RBAC = (() => {
       <p class="text-secondary small mb-3">An admin will review your request and activate your account.</p>
       <button type="button" class="btn btn-outline-primary btn-sm"
               id="rbac-back-to-login-sent">Back to login</button>
+    </div>`;
+
+  const FORGOT_PASSWORD_HTML = `
+    <div class="alert alert-info py-2 small mb-3">
+      Password resets are managed by your site admin.
+    </div>
+    <p class="small text-secondary mb-3">
+      Ask your admin to reset your password from the
+      <strong>User Admin</strong> panel. They can set a new password for your account.
+    </p>
+    <p class="small text-secondary mb-0">
+      Root account? The root password is set in <code>users.js</code> and cannot be changed from the UI.
+    </p>
+    <div class="text-center mt-3">
+      <button type="button" class="btn btn-outline-secondary btn-sm"
+              id="rbac-back-to-login-forgot">Back to login</button>
+    </div>`;
+
+  const CHANGE_PASSWORD_HTML = `
+    <form id="rbac-change-pw-form" novalidate>
+      <div class="mb-3">
+        <label for="rbac-change-current" class="form-label">Current Password</label>
+        <input type="password" class="form-control" id="rbac-change-current"
+               autocomplete="current-password" required />
+      </div>
+      <div class="mb-3">
+        <label for="rbac-change-new" class="form-label">New Password</label>
+        <input type="password" class="form-control" id="rbac-change-new"
+               autocomplete="new-password" placeholder="Minimum 8 characters" required />
+      </div>
+      <div class="mb-3">
+        <label for="rbac-change-confirm" class="form-label">Confirm New Password</label>
+        <input type="password" class="form-control" id="rbac-change-confirm"
+               autocomplete="new-password" required />
+      </div>
+      <div class="alert alert-danger d-none py-2 small" id="rbac-change-error"
+           role="alert" aria-live="polite"></div>
+      <div class="alert alert-success d-none py-2 small" id="rbac-change-success"
+           role="status" aria-live="polite"></div>
+      <button type="submit" class="btn btn-primary w-100">Update Password</button>
+    </form>
+    <div class="text-center mt-2">
+      <button type="button" class="btn btn-link btn-sm p-0 text-secondary"
+              id="rbac-cancel-change-pw">Cancel</button>
     </div>`;
 
   /* Inject login form into the modal body */
@@ -279,6 +347,65 @@ const RBAC = (() => {
       body.innerHTML = REQUEST_FORM_HTML;
       wireRequestForm();
     });
+
+    // "Forgot Password?" link
+    document.getElementById('rbac-forgot-password-link')?.addEventListener('click', () => {
+      const modalEl = document.getElementById('rbacLoginModal');
+      const body    = modalEl?.querySelector('.modal-body');
+      const title   = modalEl?.querySelector('.modal-title');
+      if (!body) return;
+      if (title) title.textContent = '🔑 Reset Password';
+      body.innerHTML = FORGOT_PASSWORD_HTML;
+      document.getElementById('rbac-back-to-login-forgot')?.addEventListener('click', refreshModalContent);
+    });
+  }
+
+  /* ── Wire change-password form (for logged-in users) ────────── */
+  function wireChangePasswordForm() {
+    const form    = document.getElementById('rbac-change-pw-form');
+    if (!form) return;
+    const errEl   = document.getElementById('rbac-change-error');
+    const succEl  = document.getElementById('rbac-change-success');
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const currentPw = document.getElementById('rbac-change-current').value;
+      const newPw     = document.getElementById('rbac-change-new').value;
+      const confirmPw = document.getElementById('rbac-change-confirm').value;
+      const btn       = form.querySelector('[type="submit"]');
+
+      const showErr  = msg => { if (errEl)  { errEl.textContent  = msg; errEl.classList.remove('d-none');  } };
+      const showSucc = msg => { if (succEl) { succEl.textContent = msg; succEl.classList.remove('d-none'); } };
+      const hideAll  = ()  => { errEl?.classList.add('d-none'); succEl?.classList.add('d-none'); };
+
+      hideAll();
+      if (newPw.length < 8) return showErr('New password must be at least 8 characters.');
+      if (newPw !== confirmPw) return showErr('Passwords do not match.');
+
+      btn.disabled = true; btn.textContent = 'Updating…';
+
+      try {
+        const verified = await Users.authenticate(getUser(), currentPw);
+        if (!verified) {
+          btn.disabled = false; btn.textContent = 'Update Password';
+          return showErr('Current password is incorrect.');
+        }
+        const result = await Users.changePassword(getUser(), newPw);
+        btn.disabled = false; btn.textContent = 'Update Password';
+        if (result.ok) {
+          form.reset();
+          showSucc('Password updated successfully.');
+          setTimeout(() => hideModal(), 1800);
+        } else {
+          showErr(result.error || 'Failed to update password.');
+        }
+      } catch (err) {
+        btn.disabled = false; btn.textContent = 'Update Password';
+        showErr(err.message || 'Update failed.');
+      }
+    });
+
+    document.getElementById('rbac-cancel-change-pw')?.addEventListener('click', hideModal);
   }
 
   /* ── Wire request form ───────────────────────────────────── */
