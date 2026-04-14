@@ -5,58 +5,141 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Privacy Policy | Jessica Rojas</title>
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
   <link rel="icon" href="favicon.ico" />
-  <link rel="stylesheet" href="style.css" />
-  <script>if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark-mode');</script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="theme.css" />
+  <title>Privacy Policy | Jessica Rojas</title>
+  <meta name="description" content="Privacy policy for jessicarojas1.github.io." />
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
-
-  <nav aria-label="Main navigation">
-    <a href="index.html">Home</a>
-    <a href="projects.html">Projects</a>
-    <a href="resume.html">Resume</a>
-    <a href="timeline.html">Timeline</a>
-    <a href="cybersecurity.html">Cybersecurity</a>
-    <a href="contact.html">Contact</a>
-    <a href="blog.html">Blog</a>
-    <button id="darkModeToggle" aria-label="Toggle dark mode">🌙 Dark Mode</button>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none">
+            <a class="nav-link" href="compliancetracker.html">Tracker</a>
+          </li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none">
+            <a class="nav-link" href="jobtracker.html">Job Tracker</a>
+          </li>
+          <li class="nav-item" id="nav-dataanalysis-link" style="display:none">
+            <a class="nav-link" href="dataanalysis.html">Data Analysis</a>
+          </li>
+          <li class="nav-item" data-role-min="admin" style="display:none">
+            <a class="nav-link" href="admin.html">User Admin</a>
+          </li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </nav>
 
-  <main id="main-content" class="container">
-    <section class="intro-section reveal">
-      <h1>Privacy Policy</h1>
-      <p>Last updated: June 2025</p>
+  <main id="main-content">
+    <section class="hero-section reveal">
+      <div class="container text-center">
+        <h1>Privacy Policy</h1>
+        <p class="lead">Last updated: June 2025</p>
+      </div>
+    </section>
 
-      <h2>Information Collection</h2>
-      <p>This website does not collect personal information unless you voluntarily provide it through the contact form. Any data you submit (such as your name and email) is used only to respond to your inquiry.</p>
+    <section class="container py-5" style="max-width:760px">
+      <div class="card">
+        <div class="card-body p-4 p-md-5">
 
-      <h2>Cookies &amp; Analytics</h2>
-      <p>This site stores your dark mode preference in <code>localStorage</code> to improve your experience. No tracking cookies or analytics scripts are used at this time.</p>
+          <h2 class="h5 mb-3">Information Collection</h2>
+          <p class="text-body-secondary">This website does not collect personal information unless you voluntarily provide it through the contact form. Any data you submit (such as your name and email) is used only to respond to your inquiry.</p>
 
-      <h2>Use of Information</h2>
-      <p>Your information will never be sold, rented, or shared with third parties. It is used only for professional contact and project collaboration purposes.</p>
+          <hr class="my-4">
 
-      <h2>External Links</h2>
-      <p>This website links to external sites such as GitHub and LinkedIn. All external links open in a new tab with <code>rel="noopener noreferrer"</code> for your security. You are encouraged to review their privacy policies.</p>
+          <h2 class="h5 mb-3">Cookies &amp; Local Storage</h2>
+          <p class="text-body-secondary">This site stores your theme preference and login session in <code>localStorage</code> and <code>sessionStorage</code> to improve your experience. No tracking cookies or third-party analytics scripts are used. Session data is cleared when you close the browser tab.</p>
 
-      <h2>Security</h2>
-      <p>Reasonable steps are taken to protect your data. This site uses HTTPS to encrypt communication.</p>
+          <hr class="my-4">
 
-      <h2>Changes to This Policy</h2>
-      <p>This privacy policy may be updated. Visitors are encouraged to review this page periodically.</p>
+          <h2 class="h5 mb-3">Use of Information</h2>
+          <p class="text-body-secondary">Your information will never be sold, rented, or shared with third parties. It is used only for professional contact and project collaboration purposes.</p>
 
-      <h2>Contact</h2>
-      <p>If you have questions or concerns about your privacy, please <a href="contact.html">contact me</a>.</p>
+          <hr class="my-4">
+
+          <h2 class="h5 mb-3">External Links</h2>
+          <p class="text-body-secondary">This website links to external sites such as GitHub and LinkedIn. All external links open in a new tab with <code>rel="noopener noreferrer"</code> for your security. You are encouraged to review their privacy policies.</p>
+
+          <hr class="my-4">
+
+          <h2 class="h5 mb-3">Security</h2>
+          <p class="text-body-secondary">Reasonable steps are taken to protect your data. This site is served over HTTPS. Passwords for the login system are hashed with SHA-256 via the Web Crypto API — no plaintext passwords are ever stored.</p>
+
+          <hr class="my-4">
+
+          <h2 class="h5 mb-3">Changes to This Policy</h2>
+          <p class="text-body-secondary">This privacy policy may be updated. Visitors are encouraged to review this page periodically.</p>
+
+          <hr class="my-4">
+
+          <h2 class="h5 mb-3">Contact</h2>
+          <p class="text-body-secondary mb-0">If you have questions or concerns about your privacy, please <a href="contact.html">contact me</a>.</p>
+
+        </div>
+      </div>
     </section>
   </main>
 
-  <footer class="footer">
-    <p>&copy; <span id="yr"></span> Jessica Rojas. All rights reserved.</p>
-    <p class="footer-links"><a href="privacy.html">Privacy Policy</a> · <a href="terms.html">Terms</a></p>
-  </footer>
+  <!-- RBAC Login Modal -->
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="rbacModalLabel">🔒 Login</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <!-- roles.js injects login form here -->
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <p class="text-secondary small mb-0">Session clears when you close this tab.</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" />
+      </a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" />
+      </a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="privacy.html">Privacy Policy</a> &middot; <a href="terms.html">Terms</a></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="users.js" defer></script>
+  <script src="roles.js" defer></script>
   <script src="script.js" defer></script>
 </body>
 </html>

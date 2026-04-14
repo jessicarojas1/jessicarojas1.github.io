@@ -72,9 +72,9 @@
       </div>
     </div>
   </nav>
-  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-modal="true">
+  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
     <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
-      <div class="modal-header"><h2 class="modal-title fs-5">🔒 Login</h2><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-header"><h2 class="modal-title fs-5" id="rbacModalLabel">🔒 Login</h2><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
       <div class="modal-body"><form id="rbac-login-form" novalidate>
         <div class="mb-3"><label class="form-label">Username</label><input type="text" class="form-control" id="rbac-username-input" required/></div>
         <div class="mb-3"><label class="form-label">Password</label><input type="password" class="form-control" id="rbac-password-input" required/></div>
