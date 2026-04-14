@@ -33,16 +33,120 @@ function _scriptInit() {
     el.textContent = new Date().getFullYear();
   });
 
-  /* ── Scroll reveal ───────────────────────────────────────── */
-  const reveals = document.querySelectorAll('.reveal');
+  /* ── Scroll progress bar ────────────────────────────────── */
+  const progressBar = document.createElement('div');
+  progressBar.id = 'scroll-progress';
+  document.body.prepend(progressBar);
+  function updateProgress() {
+    const scrollTop  = window.scrollY;
+    const docHeight  = document.documentElement.scrollHeight - window.innerHeight;
+    const pct        = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    progressBar.style.width = pct + '%';
+  }
+  window.addEventListener('scroll', updateProgress, { passive: true });
+  updateProgress();
+
+  /* ── Navbar shrink on scroll ─────────────────────────────── */
+  const mainNav = document.getElementById('mainNav');
+  if (mainNav) {
+    window.addEventListener('scroll', () => {
+      mainNav.classList.toggle('nav-scrolled', window.scrollY > 40);
+    }, { passive: true });
+  }
+
+  /* ── Scroll reveal (all variants) ───────────────────────── */
+  const revealSels = '.reveal, .reveal-left, .reveal-right, .reveal-scale';
+  const reveals = document.querySelectorAll(revealSels);
   if (reveals.length) {
     const obs = new IntersectionObserver(
       entries => entries.forEach(e => {
         if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
       }),
-      { threshold: 0.1 }
+      { threshold: 0.08 }
     );
     reveals.forEach(el => obs.observe(el));
+  }
+
+  /* ── Auto-stagger cards in rows ──────────────────────────── */
+  document.querySelectorAll('.row').forEach(row => {
+    const cards = row.querySelectorAll(':scope > .col > .card, :scope > [class*="col"] > .card');
+    if (cards.length < 2) return;
+    cards.forEach((card, i) => {
+      if (!card.classList.contains('reveal') && !card.classList.contains('reveal-scale')) {
+        card.classList.add('reveal-scale');
+      }
+      const delay = Math.min(i + 1, 6);
+      card.classList.add('reveal-d' + delay);
+    });
+  });
+  // Re-observe newly classed cards
+  document.querySelectorAll('.reveal-scale:not([data-obs])').forEach(el => {
+    el.dataset.obs = '1';
+    const obs2 = new IntersectionObserver(entries => entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); obs2.unobserve(e.target); }
+    }), { threshold: 0.06 });
+    obs2.observe(el);
+  });
+
+  /* ── Ripple effect on all buttons ────────────────────────── */
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('.btn');
+    if (!btn) return;
+    const r    = document.createElement('span');
+    const rect = btn.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    r.className = 'ripple';
+    r.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX - rect.left - size/2}px;top:${e.clientY - rect.top - size/2}px`;
+    btn.appendChild(r);
+    r.addEventListener('animationend', () => r.remove());
+  });
+
+  /* ── Ambient hero orbs ───────────────────────────────────── */
+  document.querySelectorAll('.hero-section').forEach(hero => {
+    const orbs = [
+      { size: 280, color: 'rgba(255,88,17,0.55)',  dur: 9,  delay: 0   },
+      { size: 200, color: 'rgba(255,153,102,0.4)', dur: 12, delay: 3   },
+      { size: 160, color: 'rgba(255,88,17,0.3)',   dur: 7,  delay: 1.5 },
+    ];
+    orbs.forEach(o => {
+      const div = document.createElement('div');
+      div.className = 'hero-orb';
+      div.style.cssText = [
+        `width:${o.size}px`, `height:${o.size}px`,
+        `background:${o.color}`,
+        `left:${10 + Math.random() * 75}%`,
+        `bottom:${-20 + Math.random() * 60}%`,
+        `animation-duration:${o.dur}s`,
+        `animation-delay:${o.delay}s`,
+      ].join(';');
+      hero.appendChild(div);
+    });
+  });
+
+  /* ── Number count-up for [data-count] elements ───────────── */
+  const counters = document.querySelectorAll('[data-count]');
+  if (counters.length) {
+    const countObs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        const el     = e.target;
+        const target = parseFloat(el.dataset.count);
+        const prefix = el.dataset.prefix || '';
+        const suffix = el.dataset.suffix || '';
+        const dec    = el.dataset.decimals ? parseInt(el.dataset.decimals) : 0;
+        const dur    = 1400;
+        const start  = performance.now();
+        const tick   = now => {
+          const progress = Math.min((now - start) / dur, 1);
+          const eased    = 1 - Math.pow(1 - progress, 3);
+          el.textContent = prefix + (target * eased).toFixed(dec) + suffix;
+          if (progress < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+        countObs.unobserve(el);
+      });
+    }, { threshold: 0.5 });
+    counters.forEach(el => countObs.observe(el));
   }
 
   /* ── Contact form → localStorage submissions (for admin view) */

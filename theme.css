@@ -608,3 +608,185 @@ html { scroll-behavior: smooth; }
   .terminal-body { min-height: 200px; max-height: 280px; font-size: 0.78rem; }
   .terminal-prompt, .terminal-input { font-size: 0.78rem; }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   ANIMATION LAYER v2
+   All animations respect prefers-reduced-motion.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Page load fade-in ────────────────────────────────────────── */
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+body {
+  animation: page-enter 0.45s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* ── Scroll progress bar ──────────────────────────────────────── */
+#scroll-progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  width: 0%;
+  background: linear-gradient(90deg, #ff5811, #ff9966, #ff5811);
+  background-size: 200% 100%;
+  animation: shimmer 2.5s linear infinite;
+  z-index: 10000;
+  pointer-events: none;
+  transition: width 0.08s linear;
+}
+
+/* ── Navbar shrink on scroll ──────────────────────────────────── */
+#mainNav {
+  transition: padding 0.3s ease, box-shadow 0.3s ease, backdrop-filter 0.3s ease;
+}
+#mainNav.nav-scrolled {
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* ── Reveal variants ──────────────────────────────────────────── */
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-36px);
+  transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.reveal-right {
+  opacity: 0;
+  transform: translateX(36px);
+  transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.reveal-scale {
+  opacity: 0;
+  transform: scale(0.92);
+  transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.reveal-left.visible,
+.reveal-right.visible,
+.reveal-scale.visible { opacity: 1; transform: none; }
+
+/* Stagger delays — applied automatically by JS to .row > .col > .card */
+.reveal-d1  { transition-delay: 0.05s !important; }
+.reveal-d2  { transition-delay: 0.12s !important; }
+.reveal-d3  { transition-delay: 0.19s !important; }
+.reveal-d4  { transition-delay: 0.26s !important; }
+.reveal-d5  { transition-delay: 0.33s !important; }
+.reveal-d6  { transition-delay: 0.40s !important; }
+
+/* ── Card hover glow ──────────────────────────────────────────── */
+.card {
+  transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.3s ease !important;
+}
+.card:hover {
+  box-shadow: 0 8px 32px rgba(255, 88, 17, 0.14),
+              0 2px 8px rgba(0,0,0,0.3) !important;
+  border-color: rgba(255, 88, 17, 0.25) !important;
+}
+
+/* ── Badge pulse (for status/live indicators) ─────────────────── */
+@keyframes badge-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
+  50%       { box-shadow: 0 0 0 5px rgba(16, 185, 129, 0); }
+}
+.badge-live, .badge.bg-success {
+  animation: badge-pulse 2.4s ease infinite;
+}
+
+/* ── Floating ambient orbs (injected by JS into .hero-section) ── */
+.hero-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(60px);
+  opacity: 0;
+  animation: orb-float linear infinite;
+}
+@keyframes orb-float {
+  0%   { opacity: 0;   transform: translateY(0)     scale(1);    }
+  15%  { opacity: 0.18; }
+  85%  { opacity: 0.18; }
+  100% { opacity: 0;   transform: translateY(-80px) scale(1.15); }
+}
+
+/* ── Ripple effect on buttons ─────────────────────────────────── */
+.btn { position: relative; overflow: hidden; }
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0);
+  animation: ripple-expand 0.5s linear;
+  background: rgba(255, 255, 255, 0.22);
+  pointer-events: none;
+}
+@keyframes ripple-expand {
+  to { transform: scale(4); opacity: 0; }
+}
+
+/* ── Number counter ───────────────────────────────────────────── */
+[data-count] { font-variant-numeric: tabular-nums; }
+
+/* ── Floating animation (for decorative elements) ────────────── */
+@keyframes float-y {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
+}
+.float-anim { animation: float-y 3.5s ease-in-out infinite; }
+
+/* ── Shine effect on hero heading ────────────────────────────── */
+@keyframes text-shine {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
+/* ── Underline grow on nav links ──────────────────────────────── */
+.navbar-nav .nav-link {
+  position: relative;
+}
+.navbar-nav .nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 50%;
+  width: 0; height: 2px;
+  background: var(--bs-primary);
+  border-radius: 1px;
+  transition: width 0.25s ease, left 0.25s ease;
+}
+.navbar-nav .nav-link:hover::after,
+.navbar-nav .nav-link.active::after {
+  width: 80%;
+  left: 10%;
+}
+
+/* ── Skeleton shimmer (for loading states) ───────────────────── */
+@keyframes skeleton-wave {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg,
+    rgba(255,255,255,0.05) 25%,
+    rgba(255,255,255,0.10) 37%,
+    rgba(255,255,255,0.05) 63%
+  );
+  background-size: 400px 100%;
+  animation: skeleton-wave 1.4s ease infinite;
+  border-radius: 4px;
+}
+
+/* ── Respect reduced motion ───────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  body { animation: none; }
+  .hero-orb { display: none; }
+}
