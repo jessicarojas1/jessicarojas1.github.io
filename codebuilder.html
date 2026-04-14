@@ -110,18 +110,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <form id="rbac-login-form" novalidate>
-            <div class="mb-3">
-              <label for="rbac-username-input" class="form-label">Username</label>
-              <input type="text" class="form-control" id="rbac-username-input" autocomplete="username" placeholder="Enter your username" maxlength="40" required />
-            </div>
-            <div class="mb-3">
-              <label for="rbac-password-input" class="form-label">Password</label>
-              <input type="password" class="form-control" id="rbac-password-input" autocomplete="current-password" required />
-            </div>
-            <div class="alert alert-danger d-none py-2 small" id="rbac-login-error" role="alert" aria-live="polite"></div>
-            <button type="submit" class="btn btn-primary w-100">Login</button>
-          </form>
+          <!-- roles.js injects login form here -->
         </div>
         <div class="modal-footer border-0 pt-0">
           <p class="text-secondary small mb-0">Session clears when you close this tab.</p>
