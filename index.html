@@ -123,24 +123,130 @@
         <div class="row row-cols-1 row-cols-md-3 g-4 mt-3 justify-content-center">
           <div class="col">
             <div class="stat-card-home text-center p-4">
-              <div class="display-4 fw-bold" style="color:var(--bs-primary)">5+</div>
+              <div class="display-4 fw-bold" style="color:var(--bs-primary)" data-count="5" data-suffix="+">5+</div>
               <div class="mt-2 fw-semibold">Years of Experience</div>
             </div>
           </div>
           <div class="col">
             <div class="stat-card-home text-center p-4">
-              <div class="display-4 fw-bold" style="color:var(--bs-primary)">5</div>
+              <div class="display-4 fw-bold" style="color:var(--bs-primary)" data-count="5">5</div>
               <div class="mt-2 fw-semibold">Certifications</div>
             </div>
           </div>
           <div class="col">
             <div class="stat-card-home text-center p-4">
-              <div class="display-4 fw-bold" style="color:var(--bs-primary)">3</div>
+              <div class="display-4 fw-bold" style="color:var(--bs-primary)" data-count="3">3</div>
               <div class="mt-2 fw-semibold">Degrees</div>
             </div>
           </div>
         </div>
       </div>
+    </section>
+
+    <!-- Skills Matrix + Tech Stack -->
+    <section class="py-5 reveal">
+      <div class="skills-section-wrap">
+        <canvas id="node-canvas" aria-hidden="true"></canvas>
+        <div class="skills-section-content container">
+          <h2 class="section-title">Skills &amp; Technology</h2>
+          <hr class="cyber-hr" />
+          <div class="row g-5">
+
+            <!-- Skill bars -->
+            <div class="col-lg-6">
+              <p class="mb-4" style="font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--bs-secondary-color);">Skill Matrix</p>
+              <div class="skill-bar-wrap tech-frame">
+                <div class="skill-bar-label"><span>CMMC &amp; NIST SP 800-171</span><span>95%</span></div>
+                <div class="skill-bar-track"><div class="skill-bar-fill" data-fill="95"></div></div>
+              </div>
+              <div class="skill-bar-wrap tech-frame">
+                <div class="skill-bar-label"><span>GRC &amp; Risk Assessment</span><span>92%</span></div>
+                <div class="skill-bar-track"><div class="skill-bar-fill" data-fill="92"></div></div>
+              </div>
+              <div class="skill-bar-wrap tech-frame">
+                <div class="skill-bar-label"><span>ISO/IEC 27001:2022</span><span>90%</span></div>
+                <div class="skill-bar-track"><div class="skill-bar-fill" data-fill="90"></div></div>
+              </div>
+              <div class="skill-bar-wrap tech-frame">
+                <div class="skill-bar-label"><span>Python &amp; Scripting</span><span>88%</span></div>
+                <div class="skill-bar-track"><div class="skill-bar-fill" data-fill="88"></div></div>
+              </div>
+              <div class="skill-bar-wrap tech-frame">
+                <div class="skill-bar-label"><span>Penetration Testing (CEH)</span><span>85%</span></div>
+                <div class="skill-bar-track"><div class="skill-bar-fill" data-fill="85"></div></div>
+              </div>
+              <div class="skill-bar-wrap tech-frame">
+                <div class="skill-bar-label"><span>Full-Stack Development</span><span>85%</span></div>
+                <div class="skill-bar-track"><div class="skill-bar-fill" data-fill="85"></div></div>
+              </div>
+              <div class="skill-bar-wrap tech-frame">
+                <div class="skill-bar-label"><span>Cloud Security (AWS / Azure)</span><span>82%</span></div>
+                <div class="skill-bar-track"><div class="skill-bar-fill" data-fill="82"></div></div>
+              </div>
+              <div class="skill-bar-wrap tech-frame">
+                <div class="skill-bar-label"><span>AI Governance Strategy</span><span>80%</span></div>
+                <div class="skill-bar-track"><div class="skill-bar-fill" data-fill="80"></div></div>
+              </div>
+            </div>
+
+            <!-- Tech Stack icons -->
+            <div class="col-lg-6">
+              <p class="mb-4" style="font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--bs-secondary-color);">Tech Stack</p>
+              <div class="tech-stack-grid">
+                <div class="tech-icon-item">
+                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="Python" loading="lazy" />
+                  <span>Python</span>
+                </div>
+                <div class="tech-icon-item">
+                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" alt="JavaScript" loading="lazy" />
+                  <span>JavaScript</span>
+                </div>
+                <div class="tech-icon-item">
+                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" alt="TypeScript" loading="lazy" />
+                  <span>TypeScript</span>
+                </div>
+                <div class="tech-icon-item">
+                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" alt="React" loading="lazy" />
+                  <span>React</span>
+                </div>
+                <div class="tech-icon-item">
+                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" alt="Node.js" loading="lazy" />
+                  <span>Node.js</span>
+                </div>
+                <div class="tech-icon-item">
+                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg" alt="Linux" loading="lazy" />
+                  <span>Linux</span>
+                </div>
+                <div class="tech-icon-item">
+                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg" alt="Docker" loading="lazy" />
+                  <span>Docker</span>
+                </div>
+                <div class="tech-icon-item">
+                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-plain-wordmark.svg" alt="AWS" loading="lazy" />
+                  <span>AWS</span>
+                </div>
+                <div class="tech-icon-item">
+                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/azure/azure-original.svg" alt="Azure" loading="lazy" />
+                  <span>Azure</span>
+                </div>
+                <div class="tech-icon-item">
+                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" alt="Git" loading="lazy" />
+                  <span>Git</span>
+                </div>
+                <div class="tech-icon-item">
+                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" alt="PostgreSQL" loading="lazy" />
+                  <span>PostgreSQL</span>
+                </div>
+                <div class="tech-icon-item">
+                  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vscode/vscode-original.svg" alt="VS Code" loading="lazy" />
+                  <span>VS Code</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div><!-- /.skills-section-content -->
+      </div><!-- /.skills-section-wrap -->
     </section>
 
     <!-- CTA Band -->
