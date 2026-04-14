@@ -183,12 +183,13 @@ const RBAC = (() => {
            role="alert" aria-live="polite"></div>
       <button type="submit" class="btn btn-primary w-100">Login</button>
     </form>
-    <div class="d-flex justify-content-between mt-3">
-      <button type="button" class="btn btn-link btn-sm p-0 text-secondary"
+    <hr class="my-3 opacity-25">
+    <div class="d-flex justify-content-between">
+      <button type="button" class="btn btn-link btn-sm p-0 small"
               id="rbac-forgot-password-link">
         Forgot password?
       </button>
-      <button type="button" class="btn btn-link btn-sm p-0 text-secondary"
+      <button type="button" class="btn btn-link btn-sm p-0 small"
               id="rbac-request-access-link">
         Request access
       </button>
