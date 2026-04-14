@@ -478,7 +478,7 @@ const RBAC = (() => {
         loginBtn.removeAttribute('data-bs-target');
         loginBtn.addEventListener('click', () => {
           refreshModalContent();
-          modalEl.style.display = 'flex';
+          modalEl.style.display = 'block';
           modalEl.classList.add('show');
           modalEl.style.backgroundColor = 'rgba(0,0,0,0.5)';
           document.body.style.overflow = 'hidden';
