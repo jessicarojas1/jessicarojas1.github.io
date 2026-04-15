@@ -153,10 +153,12 @@ function _scriptInit() {
   const contactForm = document.getElementById('contactForm');
   if (contactForm) {
     contactForm.addEventListener('submit', e => {
-      const name    = document.getElementById('cf-name')?.value   || '';
-      const email   = document.getElementById('cf-email')?.value  || '';
-      const subject = document.getElementById('cf-subject')?.value || '';
-      const message = document.getElementById('cf-message')?.value || '';
+      e.preventDefault();
+      const name    = document.getElementById('cf-name')?.value.trim()   || '';
+      const email   = document.getElementById('cf-email')?.value.trim()  || '';
+      const subject = document.getElementById('cf-subject')?.value.trim() || '';
+      const message = document.getElementById('cf-message')?.value.trim() || '';
+      if (!name || !email || !message) return;
       const submissions = JSON.parse(localStorage.getItem('contact_submissions') || '[]');
       submissions.unshift({
         id: Date.now(),
@@ -165,6 +167,13 @@ function _scriptInit() {
         read: false,
       });
       localStorage.setItem('contact_submissions', JSON.stringify(submissions));
+      // Show success state
+      contactForm.innerHTML = `
+        <div class="text-center py-4">
+          <div class="fs-1 mb-3">✅</div>
+          <h3 class="h5 mb-2">Message received!</h3>
+          <p class="text-secondary mb-0">Thanks for reaching out — I'll get back to you soon.</p>
+        </div>`;
     });
   }
 
