@@ -283,13 +283,13 @@ html { scroll-behavior: smooth; }
 .card {
   border-color: var(--bs-border-color);
   background-color: var(--bs-secondary-bg);
-  transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.3s ease;
+  transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.3s ease !important;
 }
 .card:hover {
   box-shadow: 0 0 0 1px rgba(255, 88, 17, 0.45),
-              0 8px 32px rgba(0, 0, 0, 0.45);
+              0 8px 32px rgba(0, 0, 0, 0.45) !important;
   transform: translateY(-4px);
-  border-color: rgba(255, 88, 17, 0.4);
+  border-color: rgba(255, 88, 17, 0.4) !important;
 }
 .card-title { color: var(--bs-primary); font-weight: 700; }
 
@@ -726,15 +726,6 @@ body {
 .reveal-d5  { transition-delay: 0.33s !important; }
 .reveal-d6  { transition-delay: 0.40s !important; }
 
-/* ── Card hover glow ──────────────────────────────────────────── */
-.card {
-  transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.3s ease !important;
-}
-.card:hover {
-  box-shadow: 0 8px 32px rgba(255, 88, 17, 0.14),
-              0 2px 8px rgba(0,0,0,0.3) !important;
-  border-color: rgba(255, 88, 17, 0.25) !important;
-}
 
 /* ── Badge pulse (for status/live indicators) ─────────────────── */
 @keyframes badge-pulse {
