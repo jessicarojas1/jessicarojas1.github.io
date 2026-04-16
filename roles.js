@@ -183,12 +183,13 @@ const RBAC = (() => {
            role="alert" aria-live="polite"></div>
       <button type="submit" class="btn btn-primary w-100">Login</button>
     </form>
-    <div class="d-flex justify-content-between mt-3">
-      <button type="button" class="btn btn-link btn-sm p-0 text-secondary"
+    <hr class="my-3 opacity-25">
+    <div class="d-flex justify-content-between">
+      <button type="button" class="btn btn-link btn-sm p-0 small"
               id="rbac-forgot-password-link">
         Forgot password?
       </button>
-      <button type="button" class="btn btn-link btn-sm p-0 text-secondary"
+      <button type="button" class="btn btn-link btn-sm p-0 small"
               id="rbac-request-access-link">
         Request access
       </button>
@@ -466,18 +467,24 @@ const RBAC = (() => {
     // Wire logout button (always present in nav, outside modal)
     document.getElementById('rbac-logout-btn')?.addEventListener('click', logout);
 
-    // Bootstrap: refresh modal content each time it opens
-    if (typeof bootstrap !== 'undefined') {
-      modalEl.addEventListener('show.bs.modal', refreshModalContent);
-    } else {
-      // Vanilla fallback: intercept login button click
-      const loginBtn = document.getElementById('rbac-login-btn');
-      if (loginBtn) {
-        loginBtn.removeAttribute('data-bs-toggle');
-        loginBtn.removeAttribute('data-bs-target');
+    // Wire login button directly — don't rely on data-bs-toggle delegation
+    const loginBtn = document.getElementById('rbac-login-btn');
+    if (loginBtn) {
+      loginBtn.removeAttribute('data-bs-toggle');
+      loginBtn.removeAttribute('data-bs-target');
+
+      if (typeof bootstrap !== 'undefined') {
+        // Bootstrap path: programmatically show modal
         loginBtn.addEventListener('click', () => {
           refreshModalContent();
-          modalEl.style.display = 'flex';
+          bootstrap.Modal.getOrCreateInstance(modalEl).show();
+        });
+        modalEl.addEventListener('show.bs.modal', refreshModalContent);
+      } else {
+        // Vanilla fallback when Bootstrap JS is unavailable
+        loginBtn.addEventListener('click', () => {
+          refreshModalContent();
+          modalEl.style.display = 'block';
           modalEl.classList.add('show');
           modalEl.style.backgroundColor = 'rgba(0,0,0,0.5)';
           document.body.style.overflow = 'hidden';
