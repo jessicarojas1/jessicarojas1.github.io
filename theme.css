@@ -662,8 +662,8 @@ html { scroll-behavior: smooth; }
 
 /* ── Page load fade-in ────────────────────────────────────────── */
 @keyframes page-enter {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: none; }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 body {
   animation: page-enter 0.45s cubic-bezier(0.4, 0, 0.2, 1) both;

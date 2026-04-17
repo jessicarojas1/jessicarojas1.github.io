@@ -479,7 +479,6 @@ const RBAC = (() => {
           refreshModalContent();
           bootstrap.Modal.getOrCreateInstance(modalEl).show();
         });
-        modalEl.addEventListener('show.bs.modal', refreshModalContent);
       } else {
         // Vanilla fallback when Bootstrap JS is unavailable
         loginBtn.addEventListener('click', () => {
