@@ -153,10 +153,12 @@ function _scriptInit() {
   const contactForm = document.getElementById('contactForm');
   if (contactForm) {
     contactForm.addEventListener('submit', e => {
-      const name    = document.getElementById('cf-name')?.value   || '';
-      const email   = document.getElementById('cf-email')?.value  || '';
-      const subject = document.getElementById('cf-subject')?.value || '';
-      const message = document.getElementById('cf-message')?.value || '';
+      e.preventDefault();
+      const name    = document.getElementById('cf-name')?.value.trim()   || '';
+      const email   = document.getElementById('cf-email')?.value.trim()  || '';
+      const subject = document.getElementById('cf-subject')?.value.trim() || '';
+      const message = document.getElementById('cf-message')?.value.trim() || '';
+      if (!name || !email || !message) return;
       const submissions = JSON.parse(localStorage.getItem('contact_submissions') || '[]');
       submissions.unshift({
         id: Date.now(),
@@ -165,6 +167,13 @@ function _scriptInit() {
         read: false,
       });
       localStorage.setItem('contact_submissions', JSON.stringify(submissions));
+      // Show success state
+      contactForm.innerHTML = `
+        <div class="text-center py-4">
+          <div class="fs-1 mb-3">✅</div>
+          <h3 class="h5 mb-2">Message received!</h3>
+          <p class="text-secondary mb-0">Thanks for reaching out — I'll get back to you soon.</p>
+        </div>`;
     });
   }
 
@@ -623,12 +632,96 @@ function initTerminal() {
   body.addEventListener('click', function() { input.focus(); });
 }
 
+/* ── Skill fill bars ─────────────────────────────────────────── */
+function initSkillBars() {
+  var bars = document.querySelectorAll('.skill-bar-fill[data-fill]');
+  if (!bars.length) return;
+  var obs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (!e.isIntersecting) return;
+      var bar = e.target;
+      bar.style.width = (parseFloat(bar.dataset.fill) || 0) + '%';
+      bar.classList.add('filled');
+      obs.unobserve(bar);
+    });
+  }, { threshold: 0.25 });
+  bars.forEach(function(b) { obs.observe(b); });
+}
+
+/* ── Particle network canvas (skills section background) ─────── */
+function initNodeCanvas() {
+  var canvas = document.getElementById('node-canvas');
+  if (!canvas) return;
+  var ctx    = canvas.getContext('2d');
+  var NODES  = 50, CONNECT = 120;
+  var nodes  = [], raf, running = false;
+
+  function resize() {
+    var wrap = canvas.parentElement;
+    canvas.width  = wrap.offsetWidth  || 800;
+    canvas.height = wrap.offsetHeight || 420;
+  }
+  function spawn() {
+    nodes = [];
+    for (var i = 0; i < NODES; i++) {
+      nodes.push({
+        x:  Math.random() * canvas.width,
+        y:  Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.45,
+        vy: (Math.random() - 0.5) * 0.45,
+        r:  1.2 + Math.random() * 1.6
+      });
+    }
+  }
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    nodes.forEach(function(n) {
+      n.x += n.vx; n.y += n.vy;
+      if (n.x < 0 || n.x > canvas.width)  n.vx *= -1;
+      if (n.y < 0 || n.y > canvas.height) n.vy *= -1;
+    });
+    for (var i = 0; i < nodes.length; i++) {
+      for (var j = i + 1; j < nodes.length; j++) {
+        var dx = nodes[i].x - nodes[j].x, dy = nodes[i].y - nodes[j].y;
+        var d  = Math.sqrt(dx * dx + dy * dy);
+        if (d < CONNECT) {
+          ctx.beginPath();
+          ctx.strokeStyle = 'rgba(255,88,17,' + ((1 - d / CONNECT) * 0.45) + ')';
+          ctx.lineWidth   = 0.75;
+          ctx.moveTo(nodes[i].x, nodes[i].y);
+          ctx.lineTo(nodes[j].x, nodes[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+    nodes.forEach(function(n) {
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,88,17,0.65)';
+      ctx.fill();
+    });
+    if (running) raf = requestAnimationFrame(draw);
+  }
+  function start() { if (!running) { running = true; raf = requestAnimationFrame(draw); } }
+  function stop()  { running = false; cancelAnimationFrame(raf); }
+
+  resize(); spawn();
+  window.addEventListener('resize', function() { resize(); spawn(); });
+
+  var visObs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) { e.isIntersecting ? start() : stop(); });
+  }, { threshold: 0.05 });
+  visObs.observe(canvas.parentElement);
+}
+
 /* ── Boot all techy features ─────────────────────────────────── */
 (function bootTechy() {
   function run() {
     initMatrixRain();
     initHeroTypewriter();
     initTerminal();
+    initSkillBars();
+    initNodeCanvas();
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', run);

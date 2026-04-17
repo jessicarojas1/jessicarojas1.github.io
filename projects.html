@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
   <link rel="icon" href="favicon.ico" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" crossorigin="anonymous">
   <link rel="stylesheet" href="theme.css" />
   <title>Projects | Jessica Rojas</title>
   <meta name="description" content="Projects built by Jessica Rojas — tools, apps, and systems spanning cybersecurity, compliance, and web development." />
@@ -350,6 +350,27 @@
           </div>
         </div>
 
+        <!-- SnapKit: macOS Window Snapping App -->
+        <div class="col">
+          <div class="card h-100">
+            <div class="card-body">
+              <h3 class="card-title h5">SnapKit</h3>
+              <p class="card-text">A native macOS app that brings intelligent window snapping to your desktop. Drag windows to screen edges or corners to instantly resize and tile them — no configuration needed.</p>
+              <div class="d-flex flex-wrap gap-1 mt-2">
+                <span class="badge bg-secondary" style="font-size:0.7rem">Swift</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">Xcode</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">macOS</span>
+                <span class="badge" style="background:rgba(255,88,17,0.2);color:var(--bs-primary);font-size:0.7rem;border:1px solid rgba(255,88,17,0.3)">Window Management</span>
+              </div>
+            </div>
+            <div class="card-footer d-flex gap-2 flex-wrap">
+              <a href="https://github.com/jessicarojas1/SnapKit" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary">View Source</a>
+              <button class="btn btn-sm btn-outline-warning" data-role-min="editor" style="display:none">Edit</button>
+              <button class="btn btn-sm btn-outline-danger" data-role-min="admin" style="display:none">Delete</button>
+            </div>
+          </div>
+        </div>
+
         <!-- Card 7: AI Tool Evaluation Framework -->
         <div class="col">
           <div class="card h-100">
@@ -378,7 +399,7 @@
   </main>
 
   <!-- Add Project Modal (editor+) -->
-  <div class="modal fade" id="addProjectModal" tabindex="-1" data-role-min="editor" style="display:none">
+  <div class="modal" id="addProjectModal" tabindex="-1" data-role-min="editor" style="display:none">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
@@ -408,7 +429,7 @@
   </div>
 
   <!-- RBAC Login Modal -->
-  <div class="modal fade" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+  <div class="modal" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
@@ -437,7 +458,7 @@
     <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
     <p><a href="privacy.html">Privacy Policy</a> &middot; <a href="terms.html">Terms</a></p>
   </footer>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmhNQT7NjPE7O6lXeKGNDCqBFBJ0" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
   <script src="users.js" defer></script>
   <script src="roles.js" defer></script>
   <script src="script.js" defer></script>

@@ -18,6 +18,8 @@
   --glow-sm:  0 0 12px rgba(255, 88, 17, 0.20);
   --glow-md:  0 0 24px rgba(255, 88, 17, 0.30);
   --glow-lg:  0 0 40px rgba(255, 88, 17, 0.40);
+  --neon-cyan:              #00bcd4;
+  --neon-green:             #28c940;
 }
 
 [data-bs-theme="dark"] {
@@ -60,12 +62,19 @@
   --glow-sm:  0 0 12px rgba(255, 88, 17, 0.25);
   --glow-md:  0 0 24px rgba(255, 88, 17, 0.40);
   --glow-lg:  0 0 40px rgba(255, 88, 17, 0.55);
+  --neon-cyan:              #00e5ff;
+  --neon-green:             #3fb950;
 }
 
-/* ── Subtle dot-grid background (dark mode) ───────────────────── */
+/* ── Tech-grid background (dark mode) — grid lines + dot nodes ── */
 [data-bs-theme="dark"] body {
-  background-image: radial-gradient(rgba(48, 54, 61, 0.55) 1px, transparent 1px);
-  background-size: 28px 28px;
+  background-color: #0d1117;
+  background-image:
+    linear-gradient(rgba(48, 54, 61, 0.20) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(48, 54, 61, 0.20) 1px, transparent 1px),
+    radial-gradient(circle, rgba(255, 88, 17, 0.11) 1.2px, transparent 1.2px);
+  background-size: 40px 40px, 40px 40px, 40px 40px;
+  background-position: 0 0, 0 0, 20px 20px;
 }
 
 /* ── Smooth scroll ────────────────────────────────────────────── */
@@ -246,6 +255,19 @@ html { scroll-behavior: smooth; }
   background-clip: text;
   font-weight: 700;
   margin-bottom: 1.5rem;
+  position: relative;
+  padding-left: 1rem;
+}
+.section-title::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.1em;
+  bottom: 0.1em;
+  width: 3px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #ff5811, #ff9966);
+  box-shadow: 0 0 10px rgba(255, 88, 17, 0.7), 0 0 20px rgba(255, 88, 17, 0.35);
 }
 
 /* ── Reveal animation ─────────────────────────────────────────── */
@@ -261,13 +283,13 @@ html { scroll-behavior: smooth; }
 .card {
   border-color: var(--bs-border-color);
   background-color: var(--bs-secondary-bg);
-  transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.3s ease;
+  transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.3s ease !important;
 }
 .card:hover {
   box-shadow: 0 0 0 1px rgba(255, 88, 17, 0.45),
-              0 8px 32px rgba(0, 0, 0, 0.45);
+              0 8px 32px rgba(0, 0, 0, 0.45) !important;
   transform: translateY(-4px);
-  border-color: rgba(255, 88, 17, 0.4);
+  border-color: rgba(255, 88, 17, 0.4) !important;
 }
 .card-title { color: var(--bs-primary); font-weight: 700; }
 
@@ -432,6 +454,30 @@ html { scroll-behavior: smooth; }
 }
 [data-bs-theme="dark"] .modal-header {
   border-bottom-color: var(--bs-border-color);
+}
+
+/* ── Modal responsive positioning ────────────────────────────── */
+/* Constrain body height so it scrolls rather than overflows the screen */
+#rbacLoginModal .modal-body {
+  max-height: min(60vh, 420px);
+  overflow-y: auto;
+}
+/* Compact modal width on desktop — login form doesn't need 500px */
+@media (min-width: 576px) {
+  #rbacLoginModal .modal-dialog {
+    max-width: 400px;
+  }
+}
+/* On phones: full-width with comfortable side margins */
+@media (max-width: 575.98px) {
+  #rbacLoginModal .modal-dialog {
+    margin: 0.75rem auto;
+    max-width: calc(100% - 1.5rem);
+  }
+  /* Taller allowance in portrait; landscape phones get scrollable body */
+  #rbacLoginModal .modal-body {
+    max-height: min(55vh, 360px);
+  }
 }
 
 /* ── Badge polish ─────────────────────────────────────────────── */
@@ -616,8 +662,8 @@ html { scroll-behavior: smooth; }
 
 /* ── Page load fade-in ────────────────────────────────────────── */
 @keyframes page-enter {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: none; }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 body {
   animation: page-enter 0.45s cubic-bezier(0.4, 0, 0.2, 1) both;
@@ -680,15 +726,6 @@ body {
 .reveal-d5  { transition-delay: 0.33s !important; }
 .reveal-d6  { transition-delay: 0.40s !important; }
 
-/* ── Card hover glow ──────────────────────────────────────────── */
-.card {
-  transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.3s ease !important;
-}
-.card:hover {
-  box-shadow: 0 8px 32px rgba(255, 88, 17, 0.14),
-              0 2px 8px rgba(0,0,0,0.3) !important;
-  border-color: rgba(255, 88, 17, 0.25) !important;
-}
 
 /* ── Badge pulse (for status/live indicators) ─────────────────── */
 @keyframes badge-pulse {
@@ -778,6 +815,145 @@ body {
   background-size: 400px 100%;
   animation: skeleton-wave 1.4s ease infinite;
   border-radius: 4px;
+}
+
+/* ================================================================
+   SKILLS + TECH STACK SECTION
+   ================================================================ */
+
+/* ── Node canvas background ───────────────────────────────────── */
+.skills-section-wrap {
+  position: relative;
+  overflow: hidden;
+}
+#node-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.35;
+  pointer-events: none;
+  z-index: 0;
+}
+.skills-section-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Skill bars ───────────────────────────────────────────────── */
+.skill-bar-wrap { margin-bottom: 1.1rem; }
+.skill-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+  color: var(--bs-body-color);
+}
+.skill-bar-label span:last-child { color: var(--neon-cyan); }
+.skill-bar-track {
+  height: 7px;
+  background: rgba(48, 54, 61, 0.65);
+  border-radius: 8px;
+  overflow: visible;
+  position: relative;
+}
+.skill-bar-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #ff5811 0%, #ff9966 55%, var(--neon-cyan) 100%);
+  transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+/* bright glint at the tip */
+.skill-bar-fill::after {
+  content: '';
+  position: absolute;
+  right: -2px; top: -3px;
+  width: 6px; height: 13px;
+  border-radius: 3px;
+  background: #fff;
+  opacity: 0;
+  filter: blur(1px);
+  box-shadow: 0 0 10px var(--neon-cyan), 0 0 20px rgba(0, 229, 255, 0.5);
+  transition: opacity 0.3s ease 1s;
+}
+.skill-bar-fill.filled::after { opacity: 0.8; }
+
+/* ── Tech stack icon grid ─────────────────────────────────────── */
+.tech-stack-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  gap: 0.85rem;
+}
+.tech-icon-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.75rem 0.5rem;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 8px;
+  background: var(--bs-secondary-bg);
+  cursor: default;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+}
+.tech-icon-item:hover {
+  border-color: rgba(255, 88, 17, 0.55);
+  box-shadow: 0 0 18px rgba(255, 88, 17, 0.18), 0 4px 14px rgba(0, 0, 0, 0.3);
+  transform: translateY(-4px);
+}
+.tech-icon-item img {
+  width: 36px; height: 36px;
+  object-fit: contain;
+  transition: filter 0.25s ease;
+}
+.tech-icon-item:hover img {
+  filter: drop-shadow(0 0 6px rgba(255, 88, 17, 0.45));
+}
+.tech-icon-item span {
+  font-size: 0.65rem;
+  color: var(--bs-secondary-color);
+  text-align: center;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+/* ── Tech frame — corner bracket decoration ───────────────────── */
+.tech-frame { position: relative; }
+.tech-frame::before,
+.tech-frame::after {
+  content: '';
+  position: absolute;
+  width: 12px; height: 12px;
+  border-color: rgba(255, 88, 17, 0.4);
+  border-style: solid;
+  pointer-events: none;
+}
+.tech-frame::before { top: -3px; left: -3px; border-width: 1.5px 0 0 1.5px; }
+.tech-frame::after  { bottom: -3px; right: -3px; border-width: 0 1.5px 1.5px 0; }
+
+/* ── Cyber HR divider ─────────────────────────────────────────── */
+.cyber-hr {
+  border: none;
+  height: 1px;
+  margin: 1.5rem 0 2rem;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 88, 17, 0.5) 30%, rgba(0, 229, 255, 0.3) 70%, transparent 100%);
+  position: relative;
+  overflow: visible;
+}
+.cyber-hr::before {
+  content: '◆';
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.6rem;
+  color: var(--bs-primary);
+  background: var(--bs-body-bg);
+  padding: 0 0.5rem;
+  text-shadow: 0 0 8px rgba(255, 88, 17, 0.8);
+  line-height: 1;
 }
 
 /* ── Respect reduced motion ───────────────────────────────────── */
