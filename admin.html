@@ -262,6 +262,17 @@
         <p class="text-secondary small mt-2">
           Users stored in browser localStorage. Passwords are SHA-256 hashed — never stored in plaintext.
         </p>
+
+        <!-- Archived Blog Posts -->
+        <div class="card mt-4">
+          <div class="card-header d-flex align-items-center gap-2">
+            <strong>Archived Blog Posts</strong>
+            <span class="badge bg-secondary" id="archived-post-count">0</span>
+          </div>
+          <div id="archived-posts-body" class="card-body">
+            <p class="text-secondary small mb-0">No archived posts.</p>
+          </div>
+        </div>
       </div>
     </div>
   </main>
@@ -708,6 +719,49 @@
       + '</tr></thead><tbody>' + rows + '</tbody></table></div>';
   }
 
+  /* ── Archived blog posts ─────────────────────────────────────── */
+  var POST_LABELS = {
+    cmmc: 'How to Prepare for CMMC Compliance',
+    ai: 'AI in Cyber Defense: Risk or Opportunity?',
+    military: 'Lessons from the Battlefield: Military Discipline in Cybersecurity',
+    grc: 'Cyber GRC: Governance, Risk, and Compliance Explained',
+    risk: 'Risk and Opportunity in Modern Cybersecurity',
+    zerotrust: 'Zero Trust Architecture: A Practical Guide'
+  };
+
+  function renderArchivedPosts() {
+    var body  = document.getElementById('archived-posts-body');
+    var badge = document.getElementById('archived-post-count');
+    if (!body) return;
+    var list = [];
+    try { list = JSON.parse(localStorage.getItem('blog_archived') || '[]'); } catch(e) {}
+    badge.textContent = list.length;
+    if (!list.length) {
+      body.innerHTML = '<p class="text-secondary small p-3 mb-0">No archived posts.</p>';
+      return;
+    }
+    body.innerHTML = '<div class="table-responsive"><table class="table table-hover mb-0"><thead><tr>'
+      + '<th>Post</th><th class="text-end">Actions</th>'
+      + '</tr></thead><tbody>'
+      + list.map(function(id) {
+          var label = POST_LABELS[id] || id;
+          return '<tr><td class="align-middle">' + escH(label) + '</td>'
+            + '<td class="align-middle text-end">'
+            + '<button class="btn btn-sm btn-success" onclick="restorePost(\'' + escH(id) + '\')">Restore</button>'
+            + '</td></tr>';
+        }).join('')
+      + '</tbody></table></div>';
+  }
+
+  function restorePost(id) {
+    var list = [];
+    try { list = JSON.parse(localStorage.getItem('blog_archived') || '[]'); } catch(e) {}
+    list = list.filter(function(x) { return x !== id; });
+    try { localStorage.setItem('blog_archived', JSON.stringify(list)); } catch(e) {}
+    showAlert('Post restored. It will reappear on the blog page.', 'success');
+    renderArchivedPosts();
+  }
+
   /* ── Panel visibility ────────────────────────────────────────── */
   function refreshPanel() {
     var canAccess = typeof RBAC !== 'undefined' && RBAC.isAtLeast('editor');
@@ -715,7 +769,7 @@
     var panel = document.getElementById('admin-panel');
     if (gate)  gate.style.display  = canAccess ? 'none' : '';
     if (panel) panel.style.display = canAccess ? ''     : 'none';
-    if (canAccess) { renderRequests(); renderUsers(); }
+    if (canAccess) { renderRequests(); renderUsers(); renderArchivedPosts(); }
   }
 
   /* ── Wait for modules, then init ─────────────────────────────── */

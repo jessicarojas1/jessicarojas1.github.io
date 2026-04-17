@@ -480,6 +480,13 @@ html { scroll-behavior: smooth; }
   }
 }
 
+/* ── Blog article body ────────────────────────────────────────── */
+.blog-article h3 { font-size: 1.1rem; font-weight: 700; margin-top: 1.4rem; margin-bottom: 0.4rem; color: var(--bs-primary); }
+.blog-article h3:first-child { margin-top: 0; }
+.blog-article p  { margin-bottom: 0.85rem; line-height: 1.7; }
+.blog-article ul { padding-left: 1.4rem; margin-bottom: 0.85rem; }
+.blog-article li { margin-bottom: 0.3rem; line-height: 1.6; }
+
 /* ── Badge polish ─────────────────────────────────────────────── */
 .badge {
   letter-spacing: 0.03em;
