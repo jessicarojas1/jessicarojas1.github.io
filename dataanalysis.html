@@ -177,9 +177,35 @@
       font-weight:600; padding:.15rem .45rem; border-radius:.3rem;
       background:rgba(251,191,36,.15); color:#b45309; border:1px solid rgba(251,191,36,.4); }
 
+    /* ── KPI SPARKLINES ───────────────────────────────── */
+    .kpi-sparkline { margin-top:.4rem; line-height:0; opacity:.9; }
+
+    /* ── CHART NOTES ──────────────────────────────────── */
+    .da-chart-notes-wrap {
+      padding:.5rem 1rem .65rem; border-top:1px solid var(--bs-border-color);
+      background:var(--bs-tertiary-bg,rgba(0,0,0,.015));
+    }
+    .da-notes-label { font-size:.65rem; font-weight:700; text-transform:uppercase;
+      letter-spacing:.07em; color:var(--bs-secondary-color); margin-bottom:.3rem; }
+    .da-chart-notes { font-size:.8rem !important; resize:vertical; min-height:2.8rem;
+      border-color:transparent !important; background:transparent !important; }
+    .da-chart-notes:focus { border-color:var(--bs-border-color) !important;
+      background:var(--bs-body-bg) !important; }
+    .da-chart-notes::placeholder { font-style:italic; }
+
+    /* ── SUMMARY BAR ──────────────────────────────────── */
+    .da-summary-bar {
+      display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap;
+      padding:.4rem 1.75rem; border-bottom:1px solid var(--bs-border-color);
+      font-size:.75rem; color:var(--bs-secondary-color);
+      background:var(--bs-tertiary-bg,rgba(0,0,0,.015));
+    }
+    .da-summary-bar strong { color:var(--bs-body-color); }
+    .da-summary-item { display:flex; align-items:center; gap:.3rem; }
+
     /* ── PRINT ────────────────────────────────────────── */
     @media print {
-      .navbar,.exec-meta .btn,.da-toolbar,.btn-delete-chart,.btn-duplicate,
+      .navbar,.exec-meta .btn,.da-toolbar,.da-summary-bar,.btn-delete-chart,.btn-duplicate,
       .btn-export-png,.btn-export-csv,.btn-export-json,.btn-add-row,.btn-paste-toggle,
       label:has(.da-file-input),.da-upload-zone,.btn-sort-x,.btn-clear-all,
       .da-advanced-panel,.da-card-body-grid .col-lg-5,.site-footer,
@@ -193,6 +219,10 @@
       .exec-header { padding:.75rem 1rem; }
       .kpi-strip { padding:.5rem 1rem; }
       .insights-bar { padding:.4rem 1rem; }
+      .da-chart-notes { border:none !important; background:transparent !important;
+        resize:none !important; padding:0 !important; }
+      .da-chart-notes-wrap { padding:.3rem 0 0; background:transparent; }
+      .da-notes-label { display:none; }
     }
 
     /* Mobile */
@@ -286,6 +316,9 @@
         <div id="insights-list" class="d-flex gap-3 flex-wrap"></div>
       </div>
 
+      <!-- Summary Bar -->
+      <div class="da-summary-bar" id="da-summary-bar" style="display:none"></div>
+
       <!-- Dashboard Toolbar -->
       <div class="da-toolbar">
         <span class="text-secondary small fw-semibold me-1">Layout:</span>
@@ -294,7 +327,15 @@
         <button class="btn btn-sm btn-outline-secondary layout-btn" data-cols="3" title="Three columns">&#9646;&#9646;&#9646;</button>
         <div class="vr mx-1"></div>
         <button class="btn btn-sm btn-outline-secondary" id="btn-refresh-kpi" title="Refresh KPIs &amp; insights">&#8635; Refresh</button>
+        <div class="vr mx-1"></div>
+        <span class="text-secondary small fw-semibold">Period:</span>
+        <input type="date" id="global-date-from" class="form-control form-control-sm" style="max-width:140px" title="Apply start date to all charts">
+        <span class="text-secondary small">&#8594;</span>
+        <input type="date" id="global-date-to" class="form-control form-control-sm" style="max-width:140px" title="Apply end date to all charts">
+        <button class="btn btn-sm btn-outline-primary" id="btn-apply-global-date" title="Apply date range to all charts">Apply All</button>
+        <button class="btn btn-sm btn-outline-secondary" id="btn-clear-global-date" title="Clear global date filter">&#x2715;</button>
         <div class="ms-auto d-flex gap-2">
+          <button class="btn btn-sm btn-outline-secondary" id="btn-export-dashboard" title="Export full dashboard as JSON">&#128229; Export All</button>
           <label class="btn btn-sm btn-outline-secondary mb-0" title="Import chart config from JSON">
             Import JSON<input type="file" id="da-import-file" accept=".json" style="display:none">
           </label>
@@ -788,6 +829,7 @@
       stacked:qc('.da-check-stacked',false),
       goalValue:qv('.da-goal-value',''),
       goalLabel:qv('.da-goal-label','Target'),
+      notes:qv('.da-chart-notes',''),
       itemColors:stored.itemColors||{},
       data:fullData
     };
@@ -957,6 +999,13 @@
           '</div>'+
         '</div>'+
       '</div>'+
+
+      /* Executive notes / commentary */
+      '<div class="da-chart-notes-wrap">'+
+        '<div class="da-notes-label">&#128221; Notes</div>'+
+        '<textarea class="form-control form-control-sm da-chart-notes" rows="2" placeholder="Add executive commentary, key drivers, or action items…">'+escHtml(chartObj.notes||'')+'</textarea>'+
+      '</div>'+
+
       '</div>'; /* close card-body */
 
     return card;
@@ -1022,7 +1071,7 @@
     var charts=loadCharts();
     if(!charts||!charts.length){charts=[createDemoChart()];saveCharts(charts);}
     charts=charts.map(function(c){
-      return Object.assign({colorTheme:'ember',showTrend:false,showAvg:false,movingAvg:'none',forecastPeriods:0,dateFrom:'',dateTo:'',multiColor:false,itemColors:{},chartHeight:380,yMin:'',yMax:'',showGrid:true,smooth:true,stacked:false},c);
+      return Object.assign({colorTheme:'ember',showTrend:false,showAvg:false,movingAvg:'none',forecastPeriods:0,dateFrom:'',dateTo:'',multiColor:false,itemColors:{},chartHeight:380,yMin:'',yMax:'',showGrid:true,smooth:true,stacked:false,notes:''},c);
     });
     charts.forEach(function(co){
       var card=buildCard(co);
@@ -1141,7 +1190,7 @@
     /* New chart */
     var nb=document.getElementById('btn-new-chart');
     if(nb)nb.addEventListener('click',function(){
-      var co={id:genId(),name:'New Chart',type:'bar',groupBy:'manual',aggregation:'sum',colorTheme:DEFAULT_THEME,color:'#ff5811',showTrend:false,showAvg:false,multiColor:false,itemColors:{},movingAvg:'none',forecastPeriods:0,dateFrom:'',dateTo:'',chartHeight:380,yMin:'',yMax:'',showGrid:true,smooth:true,stacked:false,data:[{x:'',y:''},{x:'',y:''},{x:'',y:''}]};
+      var co={id:genId(),name:'New Chart',type:'bar',groupBy:'manual',aggregation:'sum',colorTheme:DEFAULT_THEME,color:'#ff5811',showTrend:false,showAvg:false,multiColor:false,itemColors:{},movingAvg:'none',forecastPeriods:0,dateFrom:'',dateTo:'',chartHeight:380,yMin:'',yMax:'',showGrid:true,smooth:true,stacked:false,notes:'',data:[{x:'',y:''},{x:'',y:''},{x:'',y:''}]};
       var card=buildCard(co);container.prepend(card);
       tablePages[co.id]={page:0,filter:''};rebuildTable(card,co);renderChart(co);setupCard(card,co);saveAll();
       card.scrollIntoView({behavior:'smooth',block:'start'});
@@ -1174,6 +1223,25 @@
       });
     });
 
+    /* ── SPARKLINE SVG ───────────────────────────────── */
+    function sparklineSVG(vals, color){
+      if(!vals||vals.length<2)return'';
+      var min=Math.min.apply(null,vals),max=Math.max.apply(null,vals);
+      var range=max-min||1;
+      var w=80,h=24,pad=2;
+      var pts=vals.map(function(v,i){
+        var x=Math.round(i/(vals.length-1)*(w-pad*2)+pad);
+        var y=Math.round((h-pad)-((v-min)/range)*(h-pad*2));
+        return x+','+y;
+      }).join(' ');
+      var lx=Math.round((vals.length-1)/(vals.length-1)*(w-pad*2)+pad);
+      var ly=Math.round((h-pad)-((vals[vals.length-1]-min)/range)*(h-pad*2));
+      return '<svg width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'" style="display:block;overflow:visible">'+
+        '<polyline points="'+pts+'" fill="none" stroke="'+color+'" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>'+
+        '<circle cx="'+lx+'" cy="'+ly+'" r="2.2" fill="'+color+'"/>'+
+        '</svg>';
+    }
+
     /* ── KPI STRIP ───────────────────────────────────── */
     function buildKPIStrip(){
       var strip=document.getElementById('kpi-strip'); if(!strip)return;
@@ -1194,6 +1262,8 @@
         var deltaStr=delta!==null?(delta>=0?'+':'')+(Math.round(delta*10)/10)+'% vs prior':'';
         var arrow=delta===null?'':delta>0?'&#9650;':delta<0?'&#9660;':'&#8212;';
         var cls=delta===null?'flat':delta>0?'up':delta<0?'down':'flat';
+        var sparkColor=cls==='up'?'#22c55e':cls==='down'?'#ef4444':'#94a3b8';
+        var spark=sparklineSVG(vals.slice(-16),sparkColor);
         var goalNum=parseFloat(co.goalValue);
         var goalBadge='';
         if(!isNaN(goalNum)&&co.goalValue!==''){
@@ -1205,10 +1275,15 @@
         cards.push(
           '<div class="kpi-card">'+
           '<div class="kpi-label">'+escHtml(co.name||'Metric')+'</div>'+
-          '<div class="kpi-value">'+fmtNum(latest)+'</div>'+
-          '<div class="kpi-delta '+cls+'">'+arrow+' '+escHtml(deltaStr)+'</div>'+
-          (totalDelta!==null?'<div class="kpi-sub">Total: '+(totalDelta>=0?'+':'')+(Math.round(totalDelta*10)/10)+'%</div>':'')+
-          goalBadge+
+          '<div class="d-flex align-items-flex-start justify-content-between gap-2">'+
+            '<div>'+
+              '<div class="kpi-value">'+fmtNum(latest)+'</div>'+
+              '<div class="kpi-delta '+cls+'">'+arrow+' '+escHtml(deltaStr)+'</div>'+
+              (totalDelta!==null?'<div class="kpi-sub">Total: '+(totalDelta>=0?'+':'')+(Math.round(totalDelta*10)/10)+'%</div>':'')+
+              goalBadge+
+            '</div>'+
+            (spark?'<div class="kpi-sparkline">'+spark+'</div>':'')+
+          '</div>'+
           '</div>'
         );
       });
@@ -1217,6 +1292,29 @@
       } else {
         strip.innerHTML='<div class="text-secondary small d-flex align-items-center px-1" style="white-space:nowrap">Add charts below to see KPIs here</div>';
       }
+    }
+
+    /* ── SUMMARY BAR ─────────────────────────────────── */
+    function buildSummaryBar(){
+      var bar=document.getElementById('da-summary-bar'); if(!bar)return;
+      var charts=loadCharts()||[];
+      if(!charts.length){bar.style.display='none';return;}
+      var totalRows=0,dates=[];
+      charts.forEach(function(co){
+        totalRows+=(co.data||[]).length;
+        (co.data||[]).forEach(function(r){
+          if(r.x){var d=new Date(r.x);if(!isNaN(d))dates.push(d);}
+        });
+      });
+      dates.sort(function(a,b){return a-b;});
+      var dateRange=dates.length>=2
+        ?dates[0].toLocaleDateString()+' – '+dates[dates.length-1].toLocaleDateString()
+        :'—';
+      bar.innerHTML=
+        '<div class="da-summary-item">&#128202; <strong>'+charts.length+'</strong> chart'+(charts.length!==1?'s':'')+'</div>'+
+        '<div class="da-summary-item">&#128196; <strong>'+totalRows.toLocaleString()+'</strong> data points</div>'+
+        '<div class="da-summary-item">&#128197; '+dateRange+'</div>';
+      bar.style.display='';
     }
 
     function fmtNum(v){
@@ -1278,12 +1376,59 @@
     /* ── REFRESH KPI BUTTON ──────────────────────────── */
     var refreshBtn=document.getElementById('btn-refresh-kpi');
     if(refreshBtn)refreshBtn.addEventListener('click',function(){
-      buildKPIStrip();buildInsights();
+      buildKPIStrip();buildInsights();buildSummaryBar();
       if(execUpdated)execUpdated.textContent='Refreshed: '+new Date().toLocaleString();
     });
 
-    /* Initial KPI + insights build */
-    setTimeout(function(){buildKPIStrip();buildInsights();},500);
+    /* ── GLOBAL DATE FILTER ──────────────────────────── */
+    var gdf=document.getElementById('global-date-from');
+    var gdt=document.getElementById('global-date-to');
+    var gApply=document.getElementById('btn-apply-global-date');
+    var gClear=document.getElementById('btn-clear-global-date');
+    if(gApply)gApply.addEventListener('click',function(){
+      var from=gdf?gdf.value:'', to=gdt?gdt.value:'';
+      document.querySelectorAll('.da-chart-card').forEach(function(card){
+        var f=card.querySelector('.da-date-from'), t=card.querySelector('.da-date-to');
+        if(f)f.value=from; if(t)t.value=to;
+        immediateRender(card);
+      });
+      setTimeout(function(){buildKPIStrip();buildInsights();buildSummaryBar();},300);
+    });
+    if(gClear)gClear.addEventListener('click',function(){
+      if(gdf)gdf.value=''; if(gdt)gdt.value='';
+      document.querySelectorAll('.da-chart-card').forEach(function(card){
+        var f=card.querySelector('.da-date-from'), t=card.querySelector('.da-date-to');
+        if(f)f.value=''; if(t)t.value='';
+        immediateRender(card);
+      });
+      setTimeout(function(){buildKPIStrip();buildInsights();buildSummaryBar();},300);
+    });
+
+    /* ── EXPORT DASHBOARD ────────────────────────────── */
+    var expBtn=document.getElementById('btn-export-dashboard');
+    if(expBtn)expBtn.addEventListener('click',function(){
+      saveAll();
+      var charts=loadCharts()||[];
+      var bundle={
+        title:(document.getElementById('exec-title')||{}).value||'Dashboard',
+        subtitle:(document.getElementById('exec-subtitle')||{}).value||'',
+        exported:new Date().toISOString(),
+        charts:charts
+      };
+      dlBlob(JSON.stringify(bundle,null,2),'application/json','dashboard-'+new Date().toISOString().slice(0,10)+'.json');
+    });
+
+    /* ── NOTES SAVE ──────────────────────────────────── */
+    container.addEventListener('input',function(e){
+      if(e.target.matches('.da-chart-notes')){
+        var card=e.target.closest('.da-chart-card'); if(!card)return;
+        if(debounceTimers['notes-'+card.dataset.chartId])clearTimeout(debounceTimers['notes-'+card.dataset.chartId]);
+        debounceTimers['notes-'+card.dataset.chartId]=setTimeout(function(){saveAll();},800);
+      }
+    });
+
+    /* Initial KPI + insights + summary build */
+    setTimeout(function(){buildKPIStrip();buildInsights();buildSummaryBar();},500);
 
     /* ── GOAL + ADVANCED on change ───────────────────── */
     container.addEventListener('change',function(e){
@@ -1292,6 +1437,12 @@
     container.addEventListener('input',function(e){
       if(e.target.matches('.da-goal-value,.da-goal-label'))scheduleRender(e.target.closest('.da-chart-card'));
     });
+
+    /* Rebuild summary bar whenever any chart renders */
+    var _origScheduleRender=scheduleRender;
+    scheduleRender=function(card){_origScheduleRender(card);setTimeout(buildSummaryBar,700);};
+    var _origImmediateRender=immediateRender;
+    immediateRender=function(card){_origImmediateRender(card);setTimeout(buildSummaryBar,200);};
 
     /* Import JSON */
     var importFile=document.getElementById('da-import-file');
