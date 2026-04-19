@@ -15,12 +15,104 @@
     .da-gate { min-height:70vh; display:flex; align-items:center; justify-content:center; text-align:center; }
     .da-gate .lock-icon { font-size:4rem; display:block; margin-bottom:1rem; }
 
-    /* Chart card */
-    .da-chart-card { border-left:3px solid var(--bs-primary); transition:box-shadow .2s,transform .15s; }
-    .da-chart-card:hover { box-shadow:0 .25rem .75rem rgba(0,0,0,.14); transform:translateY(-1px); }
+    /* ── EXECUTIVE HEADER ─────────────────────────────── */
+    .exec-header {
+      background:linear-gradient(135deg,rgba(255,88,17,.12) 0%,rgba(255,88,17,.03) 100%);
+      border-bottom:1px solid var(--bs-border-color);
+      padding:1.25rem 1.75rem .9rem;
+    }
+    .exec-title-input {
+      background:transparent; border:none; outline:none;
+      font-size:1.55rem; font-weight:700; color:var(--bs-body-color);
+      width:100%; padding:0; line-height:1.2;
+    }
+    .exec-title-input:focus { border-bottom:2px solid var(--bs-primary); }
+    .exec-subtitle-input {
+      background:transparent; border:none; outline:none;
+      font-size:.9rem; color:var(--bs-secondary-color);
+      width:100%; padding:0; margin-top:.2rem;
+    }
+    .exec-subtitle-input:focus { border-bottom:1px solid var(--bs-primary); }
+    .exec-meta { font-size:.75rem; color:var(--bs-secondary-color); white-space:nowrap; }
+
+    /* ── KPI STRIP ────────────────────────────────────── */
+    .kpi-strip {
+      display:flex; gap:1rem; overflow-x:auto; padding:1rem 1.75rem;
+      border-bottom:1px solid var(--bs-border-color);
+      scrollbar-width:thin;
+    }
+    .kpi-card {
+      min-width:160px; flex:0 0 auto;
+      background:var(--bs-body-bg); border:1px solid var(--bs-border-color);
+      border-radius:.75rem; padding:.85rem 1rem;
+      border-top:3px solid var(--bs-primary);
+      transition:box-shadow .15s;
+    }
+    .kpi-card:hover { box-shadow:0 .25rem .75rem rgba(0,0,0,.1); }
+    .kpi-label { font-size:.68rem; font-weight:600; text-transform:uppercase;
+      letter-spacing:.06em; color:var(--bs-secondary-color); margin-bottom:.3rem; }
+    .kpi-value { font-size:1.6rem; font-weight:800; line-height:1; margin-bottom:.25rem; }
+    .kpi-delta { font-size:.75rem; font-weight:600; }
+    .kpi-delta.up   { color:#22c55e; }
+    .kpi-delta.down { color:#ef4444; }
+    .kpi-delta.flat { color:var(--bs-secondary-color); }
+    .kpi-sub { font-size:.68rem; color:var(--bs-secondary-color); margin-top:.15rem; }
+
+    /* ── INSIGHTS BAR ─────────────────────────────────── */
+    .insights-bar {
+      background:rgba(255,88,17,.06); border-bottom:1px solid rgba(255,88,17,.15);
+      padding:.55rem 1.75rem; font-size:.8rem; color:var(--bs-body-color);
+      display:flex; align-items:flex-start; gap:.75rem; flex-wrap:wrap;
+    }
+    .insights-bar .insight-label {
+      font-weight:700; color:var(--bs-primary); white-space:nowrap; padding-top:.05rem;
+    }
+    .insight-item { display:flex; align-items:center; gap:.3rem; }
+    .insight-dot { width:5px; height:5px; border-radius:50%; background:var(--bs-primary); flex-shrink:0; }
+
+    /* ── DASHBOARD TOOLBAR ────────────────────────────── */
+    .da-toolbar {
+      display:flex; align-items:center; gap:.6rem; flex-wrap:wrap;
+      padding:.65rem 1.75rem; border-bottom:1px solid var(--bs-border-color);
+      background:var(--bs-body-bg);
+    }
+    .layout-btn.active { background:var(--bs-primary); color:#fff; border-color:var(--bs-primary); }
+
+    /* ── CHARTS GRID ──────────────────────────────────── */
+    #charts-container { padding:1.25rem 1.75rem; }
+    #charts-container.layout-2col { display:grid; grid-template-columns:repeat(2,1fr); gap:1.25rem; }
+    #charts-container.layout-3col { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
+    #charts-container.layout-2col .da-chart-card,
+    #charts-container.layout-3col .da-chart-card { margin-bottom:0; }
+    #charts-container.layout-2col .da-card-body-grid,
+    #charts-container.layout-3col .da-card-body-grid { flex-direction:column; }
+    #charts-container.layout-2col .col-lg-7,
+    #charts-container.layout-2col .col-lg-5,
+    #charts-container.layout-3col .col-lg-7,
+    #charts-container.layout-3col .col-lg-5 { width:100%; }
+
+    /* ── CHART CARD ───────────────────────────────────── */
+    .da-chart-card {
+      border:1px solid var(--bs-border-color); border-radius:.75rem;
+      border-top:3px solid var(--bs-primary);
+      transition:box-shadow .2s; margin-bottom:1.25rem; overflow:hidden;
+    }
+    .da-chart-card:hover { box-shadow:0 .3rem 1rem rgba(0,0,0,.1); }
+    .da-card-header {
+      display:flex; align-items:center; gap:.6rem; flex-wrap:wrap;
+      padding:.85rem 1rem .5rem; border-bottom:1px solid var(--bs-border-color);
+      background:var(--bs-tertiary-bg,rgba(0,0,0,.02));
+    }
+
+    /* Advanced controls — collapsed by default */
+    .da-advanced-toggle { font-size:.72rem; color:var(--bs-secondary-color); cursor:pointer;
+      user-select:none; white-space:nowrap; }
+    .da-advanced-toggle:hover { color:var(--bs-primary); }
+    .da-advanced-panel { padding:.5rem 1rem .4rem; border-top:1px solid var(--bs-border-color);
+      background:var(--bs-tertiary-bg,rgba(0,0,0,.02)); font-size:.8rem; }
 
     /* Canvas */
-    .da-canvas-wrap { position:relative; height:380px; }
+    .da-canvas-wrap { position:relative; height:320px; }
     .da-canvas-wrap .da-placeholder {
       position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
       color:var(--bs-secondary-color); font-size:.9rem; pointer-events:none;
@@ -30,26 +122,34 @@
     .da-data-table td,.da-data-table th { vertical-align:middle; font-size:.82rem; }
     .da-row-num { color:var(--bs-secondary-color); width:2rem; text-align:center; }
 
-    /* Series color picker (single-color mode) */
-    .da-color-picker { width:2.2rem; height:2rem; border-radius:.375rem; cursor:pointer; border:1px solid var(--bs-border-color); padding:0; background:none; }
+    /* Series color picker */
+    .da-color-picker { width:2.2rem; height:2rem; border-radius:.375rem; cursor:pointer;
+      border:1px solid var(--bs-border-color); padding:0; background:none; }
 
     /* Per-item color editor */
     .da-color-editor { border-top:1px solid var(--bs-border-color); padding-top:.6rem; margin-top:.4rem; }
     .da-item-swatch { display:flex; flex-direction:column; align-items:center; gap:.2rem; }
-    .da-item-color-input { width:2rem; height:2rem; padding:0; border-radius:.375rem; cursor:pointer; border:1px solid var(--bs-border-color); }
-    .da-item-swatch-label { font-size:.63rem; color:var(--bs-secondary-color); max-width:4.5rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:center; }
+    .da-item-color-input { width:2rem; height:2rem; padding:0; border-radius:.375rem;
+      cursor:pointer; border:1px solid var(--bs-border-color); }
+    .da-item-swatch-label { font-size:.63rem; color:var(--bs-secondary-color); max-width:4.5rem;
+      overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:center; }
 
     /* Stats */
-    .da-stats-panel { font-size:.78rem; border-top:1px solid var(--bs-border-color); padding-top:.45rem; margin-top:.35rem; min-height:1.8rem; color:var(--bs-secondary-color); }
+    .da-stats-panel { font-size:.78rem; border-top:1px solid var(--bs-border-color);
+      padding-top:.45rem; margin-top:.35rem; min-height:1.8rem; color:var(--bs-secondary-color); }
     .da-stats-panel strong { color:var(--bs-body-color); }
     .da-stat-item { white-space:nowrap; }
 
     /* Date range row */
-    .da-date-row { background:var(--bs-tertiary-bg,rgba(0,0,0,.04)); border:1px solid var(--bs-border-color); border-radius:.375rem; padding:.4rem .65rem; font-size:.82rem; gap:.5rem !important; }
+    .da-date-row { background:var(--bs-tertiary-bg,rgba(0,0,0,.04));
+      border:1px solid var(--bs-border-color); border-radius:.375rem;
+      padding:.4rem .65rem; font-size:.82rem; gap:.5rem !important; }
     .da-date-label { font-weight:600; white-space:nowrap; font-size:.8rem; color:var(--bs-body-color); }
 
     /* Overlay row */
-    .da-overlay-row { border-top:1px solid var(--bs-border-color); border-bottom:1px solid var(--bs-border-color); padding:.3rem 0; font-size:.82rem; color:var(--bs-secondary-color); row-gap:.25rem !important; }
+    .da-overlay-row { border-top:1px solid var(--bs-border-color);
+      border-bottom:1px solid var(--bs-border-color); padding:.3rem 0;
+      font-size:.82rem; color:var(--bs-secondary-color); row-gap:.25rem !important; }
     .da-overlay-row label { cursor:pointer; user-select:none; }
 
     /* Paste area */
@@ -61,17 +161,50 @@
       text-align:center; color:var(--bs-secondary-color); font-size:.8rem; cursor:pointer;
       transition:border-color .2s,background .2s; margin-top:.5rem;
     }
-    .da-upload-zone:hover,.da-upload-zone.drag-over { border-color:var(--bs-primary); background:rgba(255,88,17,.05); color:var(--bs-primary); }
+    .da-upload-zone:hover,.da-upload-zone.drag-over {
+      border-color:var(--bs-primary); background:rgba(255,88,17,.05); color:var(--bs-primary); }
 
     /* Pagination */
     .da-pager { font-size:.78rem; }
     .da-pager .btn { padding:.1rem .4rem; font-size:.73rem; }
 
-    /* Column picker inline */
-    .da-col-picker { background:var(--bs-tertiary-bg); border:1px solid var(--bs-border-color); border-radius:.375rem; padding:.65rem .85rem; font-size:.82rem; margin-top:.5rem; }
+    /* Column picker */
+    .da-col-picker { background:var(--bs-tertiary-bg); border:1px solid var(--bs-border-color);
+      border-radius:.375rem; padding:.65rem .85rem; font-size:.82rem; margin-top:.5rem; }
+
+    /* Goal line badge */
+    .goal-badge { display:inline-flex; align-items:center; gap:.25rem; font-size:.7rem;
+      font-weight:600; padding:.15rem .45rem; border-radius:.3rem;
+      background:rgba(251,191,36,.15); color:#b45309; border:1px solid rgba(251,191,36,.4); }
+
+    /* ── PRINT ────────────────────────────────────────── */
+    @media print {
+      .navbar,.exec-meta .btn,.da-toolbar,.btn-delete-chart,.btn-duplicate,
+      .btn-export-png,.btn-export-csv,.btn-export-json,.btn-add-row,.btn-paste-toggle,
+      label:has(.da-file-input),.da-upload-zone,.btn-sort-x,.btn-clear-all,
+      .da-advanced-panel,.da-card-body-grid .col-lg-5,.site-footer,
+      #btn-new-chart,.da-import-file,.btn-fullscreen,.da-advanced-toggle,
+      .da-overlay-row,.da-date-row { display:none !important; }
+      .da-chart-card { break-inside:avoid; box-shadow:none; border:1px solid #ccc; margin-bottom:1rem; }
+      #charts-container { padding:.5rem; }
+      #charts-container.layout-2col,#charts-container.layout-3col {
+        display:grid !important; grid-template-columns:repeat(2,1fr) !important; gap:.75rem; }
+      .da-canvas-wrap { height:260px !important; }
+      .exec-header { padding:.75rem 1rem; }
+      .kpi-strip { padding:.5rem 1rem; }
+      .insights-bar { padding:.4rem 1rem; }
+    }
 
     /* Mobile */
-    @media(max-width:767.98px){.da-card-body-grid{display:flex;flex-direction:column-reverse;}}
+    @media(max-width:767.98px){
+      .da-card-body-grid{display:flex;flex-direction:column-reverse;}
+      #charts-container.layout-2col,#charts-container.layout-3col{display:block;}
+      .kpi-strip { gap:.65rem; padding:.75rem 1rem; }
+      .kpi-card { min-width:130px; }
+      #charts-container { padding:.75rem 1rem; }
+      .exec-header { padding:1rem; }
+      .da-toolbar { padding:.5rem 1rem; }
+    }
   </style>
 </head>
 <body>
@@ -124,28 +257,52 @@
     </section>
 
     <div id="da-app" data-role-min="reader" style="display:none">
-      <section class="hero-section reveal">
-        <div class="container text-center">
-          <h1>Data Analysis Dashboard</h1>
-          <p class="lead">Upload CSV, build charts, apply themes, and customize per-item colors.</p>
-          <div class="d-flex justify-content-center gap-2 flex-wrap mt-2">
-            <span class="badge bg-secondary">100% client-side &mdash; data stays local</span>
-          </div>
-        </div>
-      </section>
 
-      <div class="container py-4">
-        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-          <h2 class="h5 mb-0">Your Charts</h2>
-          <div class="d-flex gap-2">
-            <label class="btn btn-sm btn-outline-secondary mb-0" title="Import chart config from JSON">
-              Import JSON<input type="file" id="da-import-file" accept=".json" style="display:none">
-            </label>
-            <button class="btn btn-primary btn-sm" id="btn-new-chart">+ New Chart</button>
+      <!-- Executive Header -->
+      <div class="exec-header">
+        <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
+          <div style="flex:1;min-width:200px">
+            <input class="exec-title-input" id="exec-title" value="Executive Dashboard" maxlength="80" spellcheck="false">
+            <input class="exec-subtitle-input" id="exec-subtitle" value="Performance Overview — All metrics are client-side and stay local" maxlength="120" spellcheck="false">
+          </div>
+          <div class="exec-meta d-flex align-items-center gap-2 flex-wrap">
+            <span id="exec-updated" class="text-secondary small"></span>
+            <button class="btn btn-sm btn-outline-secondary" onclick="window.print()" title="Print / Save as PDF">&#128438; Print</button>
+            <span class="badge bg-secondary" style="font-size:.65rem">Data stays local</span>
           </div>
         </div>
-        <div id="charts-container"></div>
       </div>
+
+      <!-- KPI Strip -->
+      <div class="kpi-strip" id="kpi-strip">
+        <div class="text-secondary small d-flex align-items-center px-1" style="white-space:nowrap">
+          Add charts below to see KPIs here
+        </div>
+      </div>
+
+      <!-- Insights Bar -->
+      <div class="insights-bar" id="insights-bar" style="display:none!important">
+        <span class="insight-label">&#128200; Insights</span>
+        <div id="insights-list" class="d-flex gap-3 flex-wrap"></div>
+      </div>
+
+      <!-- Dashboard Toolbar -->
+      <div class="da-toolbar">
+        <span class="text-secondary small fw-semibold me-1">Layout:</span>
+        <button class="btn btn-sm btn-outline-secondary layout-btn active" data-cols="1" title="Single column">&#9646;</button>
+        <button class="btn btn-sm btn-outline-secondary layout-btn" data-cols="2" title="Two columns">&#9646;&#9646;</button>
+        <button class="btn btn-sm btn-outline-secondary layout-btn" data-cols="3" title="Three columns">&#9646;&#9646;&#9646;</button>
+        <div class="vr mx-1"></div>
+        <button class="btn btn-sm btn-outline-secondary" id="btn-refresh-kpi" title="Refresh KPIs &amp; insights">&#8635; Refresh</button>
+        <div class="ms-auto d-flex gap-2">
+          <label class="btn btn-sm btn-outline-secondary mb-0" title="Import chart config from JSON">
+            Import JSON<input type="file" id="da-import-file" accept=".json" style="display:none">
+          </label>
+          <button class="btn btn-sm btn-primary" id="btn-new-chart">+ New Chart</button>
+        </div>
+      </div>
+
+      <div id="charts-container"></div>
     </div>
 
   </main>
@@ -423,6 +580,19 @@
       var avg=Math.round(values.reduce(function(a,b){return a+b;},0)/values.length*100)/100;
       datasets.push({label:'Avg ('+avg.toLocaleString()+')',type:'line',data:values.map(function(){return avg;}),borderColor:theme.avg,borderWidth:2,borderDash:[8,4],backgroundColor:'transparent',pointRadius:0,fill:false,tension:0,order:4});
     }
+    /* Goal / target line */
+    var goalNum=parseFloat(chartObj.goalValue);
+    if(canOverlay&&!isNaN(goalNum)&&goalNum!==''){
+      var goalLbl2=chartObj.goalLabel||'Target';
+      datasets.push({
+        label:goalLbl2+' ('+goalNum.toLocaleString()+')',
+        type:'line',
+        data:extLabels.map(function(){return goalNum;}),
+        borderColor:'#f59e0b',borderWidth:2.5,borderDash:[10,4],
+        backgroundColor:'transparent',pointRadius:0,fill:false,tension:0,order:0
+      });
+    }
+
     var fcN=parseInt(chartObj.forecastPeriods)||0;
     if(canOverlay&&fcN>0&&reg){
       var fcVals=new Array(values.length).fill(null),lastLbl=labels[labels.length-1],fcOk=true;
@@ -593,27 +763,31 @@
         else fullData.push({x:x,y:y});
       });
     }
+    function qv(sel,def){var el=card.querySelector(sel);return el?(el.value||def):def;}
+    function qc(sel,def){var el=card.querySelector(sel);return el?el.checked:def;}
     return{
       id:id,
-      name:card.querySelector('.da-chart-name').value.trim(),
-      type:card.querySelector('.da-chart-type').value,
-      groupBy:card.querySelector('.da-chart-group').value,
-      aggregation:card.querySelector('.da-chart-agg').value,
-      colorTheme:card.querySelector('.da-chart-theme').value,
-      color:card.querySelector('.da-color-picker').value,
-      showTrend:card.querySelector('.da-check-trend').checked,
-      showAvg:card.querySelector('.da-check-avg').checked,
-      multiColor:card.querySelector('.da-check-multicolor').checked,
-      movingAvg:card.querySelector('.da-chart-ma').value,
-      forecastPeriods:parseInt(card.querySelector('.da-chart-forecast').value)||0,
-      dateFrom:card.querySelector('.da-date-from').value||'',
-      dateTo:card.querySelector('.da-date-to').value||'',
-      chartHeight:parseInt(card.querySelector('.da-chart-height').value)||380,
-      yMin:card.querySelector('.da-y-min').value,
-      yMax:card.querySelector('.da-y-max').value,
-      showGrid:card.querySelector('.da-check-grid').checked,
-      smooth:card.querySelector('.da-check-smooth').checked,
-      stacked:card.querySelector('.da-check-stacked').checked,
+      name:qv('.da-chart-name',''),
+      type:qv('.da-chart-type','bar'),
+      groupBy:qv('.da-chart-group','manual'),
+      aggregation:qv('.da-chart-agg','sum'),
+      colorTheme:qv('.da-chart-theme','ember'),
+      color:qv('.da-color-picker','#ff5811'),
+      showTrend:qc('.da-check-trend',false),
+      showAvg:qc('.da-check-avg',false),
+      multiColor:qc('.da-check-multicolor',false),
+      movingAvg:qv('.da-chart-ma','none'),
+      forecastPeriods:parseInt(qv('.da-chart-forecast','0'))||0,
+      dateFrom:qv('.da-date-from',''),
+      dateTo:qv('.da-date-to',''),
+      chartHeight:parseInt(qv('.da-chart-height','320'))||320,
+      yMin:qv('.da-y-min',''),
+      yMax:qv('.da-y-max',''),
+      showGrid:qc('.da-check-grid',true),
+      smooth:qc('.da-check-smooth',true),
+      stacked:qc('.da-check-stacked',false),
+      goalValue:qv('.da-goal-value',''),
+      goalLabel:qv('.da-goal-label','Target'),
       itemColors:stored.itemColors||{},
       data:fullData
     };
@@ -672,51 +846,63 @@
     var fcOpts=[['0','Off'],['3','+3'],['6','+6'],['12','+12'],['24','+24']].map(function(f){return'<option value="'+f[0]+'"'+(fcVal==f[0]?' selected':'')+'>'+f[1]+'</option>';}).join('');
     var hOpts=[['250','S'],['380','M'],['500','L'],['680','XL']].map(function(h){return'<option value="'+h[0]+'"'+(hVal==h[0]?' selected':'')+'>'+h[1]+'</option>';}).join('');
 
-    card.innerHTML=
-      '<div class="card-body">'+
+    var goalVal=chartObj.goalValue||'', goalLbl=escHtml(chartObj.goalLabel||'Target');
 
-      /* Row 1: name type theme color height actions */
-      '<div class="d-flex flex-wrap align-items-center gap-2 mb-2">'+
-        '<input type="text" class="form-control form-control-sm da-chart-name" style="max-width:185px" value="'+escHtml(chartObj.name)+'" placeholder="Chart name">'+
-        '<select class="form-select form-select-sm da-chart-type" style="max-width:110px">'+typeOpts+'</select>'+
-        '<select class="form-select form-select-sm da-chart-theme" style="max-width:105px" title="Color theme">'+tOpts+'</select>'+
-        '<input type="color" class="da-color-picker" value="'+escHtml(chartObj.color||'#ff5811')+'" title="Series color (single-color mode)">'+
-        '<select class="form-select form-select-sm da-chart-height" style="max-width:70px" title="Chart height">'+hOpts+'</select>'+
+    card.innerHTML=
+      /* Card header: name + primary controls + actions */
+      '<div class="da-card-header">'+
+        '<input type="text" class="form-control form-control-sm da-chart-name fw-semibold" style="max-width:200px;border:none;background:transparent;font-size:.95rem;padding-left:0" value="'+escHtml(chartObj.name)+'" placeholder="Metric name">'+
+        '<select class="form-select form-select-sm da-chart-type" style="max-width:120px">'+typeOpts+'</select>'+
+        '<select class="form-select form-select-sm da-chart-group" style="max-width:125px">'+grpOpts+'</select>'+
+        '<select class="form-select form-select-sm da-chart-agg'+showAgg+'" style="max-width:95px">'+aggOpts+'</select>'+
         '<div class="ms-auto d-flex gap-1 flex-wrap">'+
           '<button class="btn btn-sm btn-outline-secondary btn-fullscreen" title="Fullscreen">&#x26F6;</button>'+
           '<button class="btn btn-sm btn-outline-secondary btn-duplicate" title="Duplicate">&#x229E;</button>'+
-          '<button class="btn btn-sm btn-outline-secondary btn-export-png" title="PNG">PNG</button>'+
-          '<button class="btn btn-sm btn-outline-secondary btn-export-csv" title="CSV">CSV</button>'+
-          '<button class="btn btn-sm btn-outline-secondary btn-export-json" title="JSON">JSON</button>'+
-          '<button class="btn btn-sm btn-outline-danger btn-delete-chart">&times;</button>'+
+          '<button class="btn btn-sm btn-outline-secondary btn-export-png" title="Export PNG">PNG</button>'+
+          '<button class="btn btn-sm btn-outline-secondary btn-export-csv" title="Export CSV">CSV</button>'+
+          '<button class="btn btn-sm btn-outline-secondary btn-export-json" title="Export JSON">JSON</button>'+
+          '<button class="btn btn-sm btn-outline-danger btn-delete-chart" title="Delete">&times;</button>'+
         '</div>'+
       '</div>'+
 
-      /* Row 2: date range + grouping */
+      '<div class="card-body pt-2">'+
+
+      /* Date range + goal line row */
       '<div class="d-flex flex-wrap align-items-center gap-2 mb-2 da-date-row">'+
         '<span class="da-date-label">&#128197; Range</span>'+
         '<input type="date" class="form-control form-control-sm da-date-from" style="max-width:148px" value="'+escHtml(chartObj.dateFrom||'')+'">'+
         '<span class="text-secondary">&#8594;</span>'+
         '<input type="date" class="form-control form-control-sm da-date-to" style="max-width:148px" value="'+escHtml(chartObj.dateTo||'')+'">'+
-        '<button class="btn btn-sm btn-outline-secondary btn-clear-dates" title="Clear">&#x2715;</button>'+
+        '<button class="btn btn-sm btn-outline-secondary btn-clear-dates" title="Clear dates">&#x2715;</button>'+
         '<span class="vr mx-1"></span>'+
-        '<select class="form-select form-select-sm da-chart-group" style="max-width:130px">'+grpOpts+'</select>'+
-        '<select class="form-select form-select-sm da-chart-agg'+showAgg+'" style="max-width:95px">'+aggOpts+'</select>'+
+        '<span class="da-date-label">&#127919; Target</span>'+
+        '<input type="number" class="form-control form-control-sm da-goal-value" style="max-width:90px" value="'+escHtml(goalVal)+'" placeholder="Value" step="any">'+
+        '<input type="text"   class="form-control form-control-sm da-goal-label" style="max-width:90px" value="'+goalLbl+'" placeholder="Label">'+
       '</div>'+
 
-      /* Row 3: overlays + Y axis */
-      '<div class="d-flex flex-wrap align-items-center gap-3 mb-3 da-overlay-row">'+
-        '<label class="d-flex align-items-center gap-1 mb-0"><input type="checkbox" class="da-check-trend"'+(chartObj.showTrend?' checked':'')+'>Trend</label>'+
-        '<label class="d-flex align-items-center gap-1 mb-0"><input type="checkbox" class="da-check-avg"'+(chartObj.showAvg?' checked':'')+'>Avg</label>'+
-        '<label class="d-flex align-items-center gap-1 mb-0"><input type="checkbox" class="da-check-multicolor"'+(chartObj.multiColor?' checked':'')+'>Per-Item Colors</label>'+
-        '<label class="d-flex align-items-center gap-1 mb-0"><input type="checkbox" class="da-check-grid"'+(chartObj.showGrid!==false?' checked':'')+'>Grid</label>'+
-        '<label class="d-flex align-items-center gap-1 mb-0"><input type="checkbox" class="da-check-smooth"'+(chartObj.smooth!==false?' checked':'')+'>Smooth</label>'+
-        '<label class="d-flex align-items-center gap-1 mb-0"><input type="checkbox" class="da-check-stacked"'+(chartObj.stacked?' checked':'')+'>Stack</label>'+
-        '<label class="d-flex align-items-center gap-1 mb-0">MA<select class="form-select form-select-sm da-chart-ma ms-1" style="max-width:62px">'+maOpts+'</select></label>'+
-        '<label class="d-flex align-items-center gap-1 mb-0">Fcst<select class="form-select form-select-sm da-chart-forecast ms-1" style="max-width:62px">'+fcOpts+'</select></label>'+
-        '<span class="text-secondary small ms-1">Y:</span>'+
-        '<input type="number" class="form-control form-control-sm da-y-min" style="max-width:68px" value="'+escHtml(chartObj.yMin||'')+'" placeholder="Min" step="any">'+
-        '<input type="number" class="form-control form-control-sm da-y-max" style="max-width:68px" value="'+escHtml(chartObj.yMax||'')+'" placeholder="Max" step="any">'+
+      /* Advanced toggle */
+      '<div class="mb-2">'+
+        '<span class="da-advanced-toggle" data-toggle-advanced>&#9881; Advanced options &#9660;</span>'+
+      '</div>'+
+      '<div class="da-advanced-panel d-none mb-2">'+
+        '<div class="d-flex flex-wrap align-items-center gap-3 mb-2">'+
+          '<select class="form-select form-select-sm da-chart-theme" style="max-width:110px" title="Color theme">'+tOpts+'</select>'+
+          '<input type="color" class="da-color-picker" value="'+escHtml(chartObj.color||'#ff5811')+'" title="Series color">'+
+          '<select class="form-select form-select-sm da-chart-height" style="max-width:75px" title="Chart height">'+hOpts+'</select>'+
+          '<label class="d-flex align-items-center gap-1 mb-0 small"><input type="checkbox" class="da-check-trend"'+(chartObj.showTrend?' checked':'')+'>Trend line</label>'+
+          '<label class="d-flex align-items-center gap-1 mb-0 small"><input type="checkbox" class="da-check-avg"'+(chartObj.showAvg?' checked':'')+'>Avg line</label>'+
+          '<label class="d-flex align-items-center gap-1 mb-0 small"><input type="checkbox" class="da-check-multicolor"'+(chartObj.multiColor?' checked':'')+'>Multi-color</label>'+
+          '<label class="d-flex align-items-center gap-1 mb-0 small"><input type="checkbox" class="da-check-grid"'+(chartObj.showGrid!==false?' checked':'')+'>Grid</label>'+
+          '<label class="d-flex align-items-center gap-1 mb-0 small"><input type="checkbox" class="da-check-smooth"'+(chartObj.smooth!==false?' checked':'')+'>Smooth</label>'+
+          '<label class="d-flex align-items-center gap-1 mb-0 small"><input type="checkbox" class="da-check-stacked"'+(chartObj.stacked?' checked':'')+'>Stack</label>'+
+        '</div>'+
+        '<div class="d-flex flex-wrap align-items-center gap-3">'+
+          '<label class="d-flex align-items-center gap-1 mb-0 small">Moving avg<select class="form-select form-select-sm da-chart-ma ms-1" style="max-width:62px">'+maOpts+'</select></label>'+
+          '<label class="d-flex align-items-center gap-1 mb-0 small">Forecast<select class="form-select form-select-sm da-chart-forecast ms-1" style="max-width:62px">'+fcOpts+'</select></label>'+
+          '<span class="text-secondary small">Y axis:</span>'+
+          '<input type="number" class="form-control form-control-sm da-y-min" style="max-width:68px" value="'+escHtml(chartObj.yMin||'')+'" placeholder="Min" step="any">'+
+          '<input type="number" class="form-control form-control-sm da-y-max" style="max-width:68px" value="'+escHtml(chartObj.yMax||'')+'" placeholder="Max" step="any">'+
+        '</div>'+
       '</div>'+
 
       /* Body: chart + table */
@@ -747,7 +933,7 @@
             '<button class="btn btn-sm btn-outline-warning btn-sort-x" title="Sort by X">Sort X</button>'+
             '<button class="btn btn-sm btn-outline-danger btn-clear-all" title="Clear all rows">Clear</button>'+
           '</div>'+
-          '<div class="da-upload-zone" id="drop-'+chartObj.id+'">Drop CSV / TSV file here (Shift+drop to append)</div>'+
+          '<div class="da-upload-zone" id="drop-'+chartObj.id+'">Drop CSV / TSV file here &mdash; Shift+drop to append</div>'+
           '<div class="d-none" id="col-picker-'+chartObj.id+'">'+
             '<div class="da-col-picker">'+
               '<div class="d-flex gap-2 align-items-center flex-wrap mb-2">'+
@@ -771,7 +957,7 @@
           '</div>'+
         '</div>'+
       '</div>'+
-      '</div>';
+      '</div>'; /* close card-body */
 
     return card;
   }
@@ -959,6 +1145,152 @@
       var card=buildCard(co);container.prepend(card);
       tablePages[co.id]={page:0,filter:''};rebuildTable(card,co);renderChart(co);setupCard(card,co);saveAll();
       card.scrollIntoView({behavior:'smooth',block:'start'});
+    });
+
+    /* ── ADVANCED TOGGLE ─────────────────────────────── */
+    container.addEventListener('click',function(e){
+      if(e.target.closest('[data-toggle-advanced]')){
+        var panel=e.target.closest('.card-body,.da-chart-card').querySelector('.da-advanced-panel');
+        if(panel){
+          panel.classList.toggle('d-none');
+          var tog=e.target.closest('[data-toggle-advanced]');
+          tog.innerHTML=panel.classList.contains('d-none')
+            ?'&#9881; Advanced options &#9660;'
+            :'&#9881; Advanced options &#9650;';
+        }
+      }
+    });
+
+    /* ── LAYOUT TOGGLE ───────────────────────────────── */
+    document.querySelectorAll('.layout-btn').forEach(function(btn){
+      btn.addEventListener('click',function(){
+        document.querySelectorAll('.layout-btn').forEach(function(b){b.classList.remove('active');});
+        this.classList.add('active');
+        var cols=parseInt(this.dataset.cols)||1;
+        container.className='';
+        container.id='charts-container';
+        if(cols===2)container.classList.add('layout-2col');
+        if(cols===3)container.classList.add('layout-3col');
+      });
+    });
+
+    /* ── KPI STRIP ───────────────────────────────────── */
+    function buildKPIStrip(){
+      var strip=document.getElementById('kpi-strip'); if(!strip)return;
+      var charts=loadCharts()||[];
+      var cards=[];
+      charts.forEach(function(co){
+        var isPD=co.type==='pie'||co.type==='doughnut'||co.type==='polarArea';
+        var isScatter=co.type==='scatter'||co.type==='radar';
+        if(isPD||isScatter)return;
+        var grouped=groupData(co.data,co.groupBy,co.aggregation,co.dateFrom,co.dateTo);
+        if(grouped.length<1)return;
+        var vals=grouped.map(function(g){return g.value;});
+        var latest=vals[vals.length-1];
+        var prev=vals.length>=2?vals[vals.length-2]:null;
+        var first=vals[0];
+        var delta=prev!==null&&prev!==0?((latest-prev)/Math.abs(prev)*100):null;
+        var totalDelta=first!==0?((latest-first)/Math.abs(first)*100):null;
+        var deltaStr=delta!==null?(delta>=0?'+':'')+(Math.round(delta*10)/10)+'% vs prior':'';
+        var arrow=delta===null?'':delta>0?'&#9650;':delta<0?'&#9660;':'&#8212;';
+        var cls=delta===null?'flat':delta>0?'up':delta<0?'down':'flat';
+        var goalNum=parseFloat(co.goalValue);
+        var goalBadge='';
+        if(!isNaN(goalNum)&&co.goalValue!==''){
+          var pct=Math.round(latest/goalNum*100);
+          var gc=pct>=100?'#22c55e':pct>=75?'#f59e0b':'#ef4444';
+          goalBadge='<div class="goal-badge mt-1" style="border-color:'+gc+';background:'+gc+'18;color:'+gc+'">'+
+            '&#127919; '+(co.goalLabel||'Target')+': '+pct+'%</div>';
+        }
+        cards.push(
+          '<div class="kpi-card">'+
+          '<div class="kpi-label">'+escHtml(co.name||'Metric')+'</div>'+
+          '<div class="kpi-value">'+fmtNum(latest)+'</div>'+
+          '<div class="kpi-delta '+cls+'">'+arrow+' '+escHtml(deltaStr)+'</div>'+
+          (totalDelta!==null?'<div class="kpi-sub">Total: '+(totalDelta>=0?'+':'')+(Math.round(totalDelta*10)/10)+'%</div>':'')+
+          goalBadge+
+          '</div>'
+        );
+      });
+      if(cards.length){
+        strip.innerHTML=cards.join('');
+      } else {
+        strip.innerHTML='<div class="text-secondary small d-flex align-items-center px-1" style="white-space:nowrap">Add charts below to see KPIs here</div>';
+      }
+    }
+
+    function fmtNum(v){
+      if(Math.abs(v)>=1e9)return(Math.round(v/1e8)/10).toLocaleString()+'B';
+      if(Math.abs(v)>=1e6)return(Math.round(v/1e5)/10).toLocaleString()+'M';
+      if(Math.abs(v)>=1e3)return(Math.round(v/100)/10).toLocaleString()+'K';
+      return(Math.round(v*100)/100).toLocaleString();
+    }
+
+    /* ── INSIGHTS ────────────────────────────────────── */
+    function buildInsights(){
+      var bar=document.getElementById('insights-bar');
+      var list=document.getElementById('insights-list');
+      if(!bar||!list)return;
+      var charts=loadCharts()||[];
+      var bullets=[];
+      charts.forEach(function(co){
+        var isPD=co.type==='pie'||co.type==='doughnut'||co.type==='polarArea';
+        if(isPD||co.type==='scatter'||co.type==='radar')return;
+        var grouped=groupData(co.data,co.groupBy,co.aggregation,co.dateFrom,co.dateTo);
+        if(grouped.length<2)return;
+        var vals=grouped.map(function(g){return g.value;});
+        var lbls=grouped.map(function(g){return g.label;});
+        var n=co.name||'Metric';
+        var first=vals[0],last=vals[vals.length-1];
+        var change=first!==0?Math.round((last-first)/Math.abs(first)*1000)/10:null;
+        if(change!==null){
+          var dir=change>0?'up':'down';
+          var col=change>0?'#22c55e':'#ef4444';
+          bullets.push('<div class="insight-item"><div class="insight-dot" style="background:'+col+'"></div><span><strong>'+escHtml(n)+'</strong> '+(change>0?'up':'down')+' <strong>'+(change>0?'+':'')+change+'%</strong> over the period</span></div>');
+        }
+        var maxIdx=vals.indexOf(Math.max.apply(null,vals));
+        bullets.push('<div class="insight-item"><div class="insight-dot"></div><span><strong>'+escHtml(n)+'</strong> peak: <strong>'+fmtNum(vals[maxIdx])+'</strong> ('+escHtml(lbls[maxIdx])+')</span></div>');
+        var reg=linReg(vals);
+        if(reg&&vals.length>=4){
+          var trend=reg.m>0?'trending up':'trending down';
+          var col2=reg.m>0?'#22c55e':'#ef4444';
+          bullets.push('<div class="insight-item"><div class="insight-dot" style="background:'+col2+'"></div><span><strong>'+escHtml(n)+'</strong> is <strong>'+trend+'</strong> (linear slope)</span></div>');
+        }
+      });
+      if(bullets.length){
+        list.innerHTML=bullets.slice(0,6).join('');
+        bar.style.removeProperty('display');
+      } else {
+        bar.style.setProperty('display','none','important');
+      }
+    }
+
+    /* ── EXEC HEADER PERSISTENCE ─────────────────────── */
+    var execTitle=document.getElementById('exec-title');
+    var execSub=document.getElementById('exec-subtitle');
+    var execUpdated=document.getElementById('exec-updated');
+    if(execTitle){execTitle.value=localStorage.getItem('da_exec_title')||'Executive Dashboard';}
+    if(execSub){execSub.value=localStorage.getItem('da_exec_subtitle')||'Performance Overview — All metrics are client-side and stay local';}
+    if(execUpdated){execUpdated.textContent='Refreshed: '+new Date().toLocaleString();}
+    if(execTitle)execTitle.addEventListener('input',function(){localStorage.setItem('da_exec_title',this.value);});
+    if(execSub)execSub.addEventListener('input',function(){localStorage.setItem('da_exec_subtitle',this.value);});
+
+    /* ── REFRESH KPI BUTTON ──────────────────────────── */
+    var refreshBtn=document.getElementById('btn-refresh-kpi');
+    if(refreshBtn)refreshBtn.addEventListener('click',function(){
+      buildKPIStrip();buildInsights();
+      if(execUpdated)execUpdated.textContent='Refreshed: '+new Date().toLocaleString();
+    });
+
+    /* Initial KPI + insights build */
+    setTimeout(function(){buildKPIStrip();buildInsights();},500);
+
+    /* ── GOAL + ADVANCED on change ───────────────────── */
+    container.addEventListener('change',function(e){
+      if(e.target.matches('.da-goal-value,.da-goal-label'))immediateRender(e.target.closest('.da-chart-card'));
+    });
+    container.addEventListener('input',function(e){
+      if(e.target.matches('.da-goal-value,.da-goal-label'))scheduleRender(e.target.closest('.da-chart-card'));
     });
 
     /* Import JSON */
