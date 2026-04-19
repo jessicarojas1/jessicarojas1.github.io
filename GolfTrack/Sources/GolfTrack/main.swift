@@ -1,0 +1,2 @@
+import SwiftUI
+GolfTrackApp.main()
