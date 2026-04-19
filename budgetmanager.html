@@ -51,6 +51,38 @@
     .table td  { font-size:.87rem; vertical-align:middle; }
     .cat-icon  { width:22px; height:22px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:.7rem; flex-shrink:0; }
     .section-heading { font-size:.7rem; text-transform:uppercase; letter-spacing:.08em; color:var(--bs-secondary-color); margin-bottom:.5rem; }
+
+    /* ── Health Score ────────────────────────────────── */
+    .health-score-badge { width:84px; height:84px; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; border:5px solid; flex-shrink:0; }
+    .health-grade { font-size:2.4rem; font-weight:900; line-height:1; }
+    .health-pts-label { font-size:.58rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; opacity:.75; }
+    .health-bar { height:7px; border-radius:4px; background:var(--bs-secondary-bg); overflow:hidden; }
+    .health-bar-fill { height:100%; border-radius:4px; transition:width .5s ease; }
+
+    /* ── Budget Insights ─────────────────────────────── */
+    .bm-insights { background:rgba(99,102,241,.06); border:1px solid rgba(99,102,241,.18); border-radius:.6rem; padding:.65rem 1rem; }
+    .bm-insight-item { display:flex; align-items:flex-start; gap:.5rem; padding:.22rem 0; font-size:.82rem; line-height:1.4; }
+    .bm-insight-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; margin-top:.3rem; }
+
+    /* ── Goals ───────────────────────────────────────── */
+    .goal-card { border-left:4px solid; transition:transform .15s; }
+    .goal-card:hover { transform:translateY(-2px); }
+    .goal-progress { height:12px; border-radius:6px; background:var(--bs-secondary-bg); overflow:hidden; }
+    .goal-fill { height:100%; border-radius:6px; transition:width .4s ease; }
+    .goal-pct { font-size:.75rem; font-weight:700; }
+
+    /* ── 50/30/20 Rule Bar ───────────────────────────── */
+    .rule-bar { height:36px; border-radius:6px; overflow:hidden; display:flex; }
+    .rule-bar > div { display:flex; align-items:center; padding-inline:.5rem; font-size:.68rem; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; transition:width .4s; min-width:0; }
+
+    /* ── Auto-pay badge ──────────────────────────────── */
+    .autopay-badge { font-size:.63rem; background:rgba(34,197,94,.12); color:#16a34a; border:1px solid rgba(34,197,94,.3); border-radius:20px; padding:1px 7px; vertical-align:middle; margin-left:4px; }
+
+    /* ── Print ───────────────────────────────────────── */
+    @media print {
+      .navbar, #bmTabs, .btn, footer, .da-toolbar { display:none !important; }
+      .bm-tab { display:block !important; page-break-inside:avoid; }
+    }
   </style>
 </head>
 <body>
@@ -192,6 +224,12 @@
               <label class="form-label">Notes</label>
               <input class="form-control" id="bf-notes" placeholder="Optional notes"/>
             </div>
+            <div class="mb-2">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="bf-autopay"/>
+                <label class="form-check-label" for="bf-autopay">Auto-pay (paid automatically each cycle)</label>
+              </div>
+            </div>
           </form>
         </div>
         <div class="modal-footer">
@@ -284,6 +322,7 @@
       <li class="nav-item"><button class="nav-link" data-tab="household">👥 Household</button></li>
       <li class="nav-item"><button class="nav-link" data-tab="distribution">💵 Distribution</button></li>
       <li class="nav-item"><button class="nav-link" data-tab="reports">📈 Reports</button></li>
+      <li class="nav-item"><button class="nav-link" data-tab="goals">🎯 Goals</button></li>
     </ul>
 
     <!-- ════════════════ DASHBOARD ════════════════ -->
@@ -316,6 +355,34 @@
             <div class="label">Overdue / Due Soon</div>
             <div class="value text-warning" id="s-alerts">0</div>
             <div class="sub" id="s-alerts-sub">bills need attention</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Health Score + Insights -->
+      <div class="row g-3 mb-4">
+        <div class="col-md-4">
+          <div class="card p-3 h-100">
+            <div class="fw-semibold small mb-3">Budget Health Score</div>
+            <div class="d-flex align-items-center gap-3 mb-2">
+              <div class="health-score-badge" id="healthBadge" style="border-color:#94a3b8;color:#94a3b8">
+                <div class="health-grade" id="healthGrade">—</div>
+                <div class="health-pts-label" id="healthPtsLabel">Score</div>
+              </div>
+              <div class="flex-grow-1">
+                <div class="health-bar mb-2"><div class="health-bar-fill" id="healthBarFill" style="width:0%"></div></div>
+                <div class="small fw-semibold" id="healthDesc" style="color:#94a3b8">Add data to calculate</div>
+              </div>
+            </div>
+            <div id="healthBreakdown"></div>
+          </div>
+        </div>
+        <div class="col-md-8">
+          <div class="card p-3 h-100">
+            <div class="fw-semibold small mb-2">💡 Budget Insights</div>
+            <div id="bmInsights" class="bm-insights">
+              <div class="text-secondary small">Add bills and income to see personalized insights.</div>
+            </div>
           </div>
         </div>
       </div>
@@ -389,6 +456,7 @@
             <option value="other">Other</option>
           </select>
         </div>
+        <button class="btn btn-sm btn-outline-success" id="markAllPaidBtn">✅ Mark All Paid</button>
         <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#billModal" id="addBillBtn">+ Add Bill</button>
       </div>
 
@@ -534,12 +602,51 @@
             <div style="position:relative;height:260px;"><canvas id="chartFreq"></canvas></div>
           </div>
         </div>
+        <!-- 50/30/20 Rule -->
+        <div class="col-12">
+          <div class="card p-3">
+            <div class="fw-semibold small mb-1">50 / 30 / 20 Budget Rule Analysis</div>
+            <div class="text-secondary" style="font-size:.75rem;margin-bottom:.75rem">50% Needs · 30% Wants · 20% Savings — benchmarks against your actual split</div>
+            <div id="rule503020" class="mb-2"></div>
+            <div class="row g-3 text-center mt-1" id="rule503020Grid"></div>
+          </div>
+        </div>
+        <!-- Annual Projection -->
+        <div class="col-12">
+          <div class="card p-3">
+            <div class="fw-semibold small mb-3">Annual Projection</div>
+            <div class="row g-3" id="annualProjection"></div>
+          </div>
+        </div>
         <!-- Key metrics table -->
         <div class="col-12">
           <div class="card p-3">
             <div class="fw-semibold small mb-3">Key Budget Metrics</div>
             <div class="row g-3" id="metricsGrid"></div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════ GOALS ════════════════ -->
+    <div id="tab-goals" class="bm-tab d-none">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <div>
+          <h2 class="h5 mb-0">Savings Goals</h2>
+          <p class="text-secondary mb-0 small">Track progress toward financial milestones</p>
+        </div>
+        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#goalModal" id="addGoalBtn">+ Add Goal</button>
+      </div>
+      <div class="row g-3" id="goalsGrid">
+        <div class="col-12 text-center text-secondary py-4">No goals yet — click <strong>+ Add Goal</strong> to get started.</div>
+      </div>
+      <div class="card p-3 mt-4" id="goalsSummary" style="display:none">
+        <div class="row g-3 text-center">
+          <div class="col"><div class="section-heading">Goals</div><div class="fw-bold" id="gs-count">0</div></div>
+          <div class="col"><div class="section-heading">Total Target</div><div class="fw-bold" id="gs-target">$0</div></div>
+          <div class="col"><div class="section-heading">Saved</div><div class="fw-bold text-success" id="gs-saved">$0</div></div>
+          <div class="col"><div class="section-heading">Still Needed</div><div class="fw-bold text-warning" id="gs-needed">$0</div></div>
+          <div class="col"><div class="section-heading">Overall Progress</div><div class="fw-bold text-info" id="gs-pct">0%</div></div>
         </div>
       </div>
     </div>
@@ -558,6 +665,64 @@
     <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
     <p><a href="privacy.html">Privacy Policy</a> &middot; <a href="terms.html">Terms</a></p>
   </footer>
+
+  <!-- ══ Goal Modal ═══════════════════════════════════════════ -->
+  <div class="modal" id="goalModal" tabindex="-1" aria-labelledby="goalModalLabel">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="goalModalLabel">Add Goal</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="goalForm" novalidate>
+            <input type="hidden" id="gf-id"/>
+            <div class="mb-2">
+              <label class="form-label">Goal Name *</label>
+              <input class="form-control" id="gf-name" placeholder="e.g. Emergency Fund, New Car" required/>
+            </div>
+            <div class="row g-2 mb-2">
+              <div class="col-6">
+                <label class="form-label">Target Amount *</label>
+                <div class="input-group"><span class="input-group-text">$</span>
+                <input class="form-control" type="number" id="gf-target" min="0" step="0.01" required/></div>
+              </div>
+              <div class="col-6">
+                <label class="form-label">Saved So Far</label>
+                <div class="input-group"><span class="input-group-text">$</span>
+                <input class="form-control" type="number" id="gf-saved" min="0" step="0.01" value="0"/></div>
+              </div>
+            </div>
+            <div class="row g-2 mb-2">
+              <div class="col-6">
+                <label class="form-label">Target Date</label>
+                <input class="form-control" type="date" id="gf-date"/>
+              </div>
+              <div class="col-6">
+                <label class="form-label">Color</label>
+                <div class="d-flex gap-2 flex-wrap" id="goalColorPicker">
+                  <button type="button" class="btn btn-sm gcp-btn active" data-color="#22c55e" style="background:#22c55e;width:30px;height:30px;border-radius:50%;border:2px solid #fff;"></button>
+                  <button type="button" class="btn btn-sm gcp-btn" data-color="#3b82f6" style="background:#3b82f6;width:30px;height:30px;border-radius:50%;border:2px solid transparent;"></button>
+                  <button type="button" class="btn btn-sm gcp-btn" data-color="#8b5cf6" style="background:#8b5cf6;width:30px;height:30px;border-radius:50%;border:2px solid transparent;"></button>
+                  <button type="button" class="btn btn-sm gcp-btn" data-color="#f59e0b" style="background:#f59e0b;width:30px;height:30px;border-radius:50%;border:2px solid transparent;"></button>
+                  <button type="button" class="btn btn-sm gcp-btn" data-color="#ec4899" style="background:#ec4899;width:30px;height:30px;border-radius:50%;border:2px solid transparent;"></button>
+                </div>
+                <input type="hidden" id="gf-color" value="#22c55e"/>
+              </div>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Notes</label>
+              <input class="form-control" id="gf-notes" placeholder="What is this for?"/>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button class="btn btn-primary" id="gf-save">Save Goal</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
@@ -643,9 +808,10 @@
         btn.classList.add('active');
         document.querySelectorAll('.bm-tab').forEach(t=>t.classList.add('d-none'));
         $('tab-'+btn.dataset.tab).classList.remove('d-none');
-        if(btn.dataset.tab==='dashboard') renderDashboard();
-        if(btn.dataset.tab==='reports')   renderReports();
+        if(btn.dataset.tab==='dashboard')    renderDashboard();
+        if(btn.dataset.tab==='reports')      renderReports();
         if(btn.dataset.tab==='distribution') renderDistribution();
+        if(btn.dataset.tab==='goals')        renderGoals();
       });
     });
 
@@ -697,7 +863,7 @@
         var dDays = daysUntilDue(b.due);
         var dLabel = b.due ? (dDays===0?'Today':dDays<0?Math.abs(dDays)+'d ago':dDays+'d') : '—';
         return `<tr class="bill-row ${st}">
-          <td><strong>${b.name}</strong>${b.notes?`<br><small class="text-secondary">${b.notes}</small>`:''}
+          <td><strong>${b.name}</strong>${b.autopay?'<span class="autopay-badge">Auto-pay</span>':''}${b.notes?`<br><small class="text-secondary">${b.notes}</small>`:''}
           </td>
           <td><span class="cat-icon" style="background:${cat.color}22;color:${cat.color}">${cat.icon}</span> ${cat.label}</td>
           <td>${fmt(b.min)}</td>
@@ -732,6 +898,7 @@
       $('bf-status').value  = b.status;
       $('bf-priority').value= b.priority;
       $('bf-notes').value   = b.notes||'';
+      $('bf-autopay').checked = b.autopay||false;
       $('billModalLabel').textContent = 'Edit Bill';
       bootstrap.Modal.getOrCreateInstance($('billModal')).show();
     };
@@ -762,7 +929,8 @@
         freq:     $('bf-freq').value,
         status:   $('bf-status').value,
         priority: $('bf-priority').value,
-        notes:    $('bf-notes').value.trim()
+        notes:    $('bf-notes').value.trim(),
+        autopay:  $('bf-autopay').checked
       };
       if(existing>=0) DB.bills[existing]=bill;
       else DB.bills.push(bill);
@@ -993,6 +1161,8 @@
         ...upcomings.map(b=>`<div class="alert alert-info py-2 small mb-2">🔵 <strong>${b.name}</strong> due in ${daysUntilDue(b.due)} day(s) (${b.due}). Amount: ${fmt(b.actual||b.min)}</div>`)
       ].join('');
 
+      renderHealthScore();
+      buildBudgetInsights();
       renderCharts();
     }
 
@@ -1146,7 +1316,200 @@
           <div class="sub">${m.sub}</div>
         </div>
       </div>`).join('');
+
+      // 50/30/20 Rule Analysis
+      var needsCats=['housing','utilities','transport','food','health','insurance','debt'];
+      var wantsCats=['entertainment','subscriptions','education','other'];
+      var needsTotal=DB.bills.filter(b=>needsCats.includes(b.cat)).reduce((s,b)=>s+toMonthly(b.actual||b.min,b.freq),0);
+      var wantsTotal=DB.bills.filter(b=>wantsCats.includes(b.cat)).reduce((s,b)=>s+toMonthly(b.actual||b.min,b.freq),0);
+      var savingsCatTotal=DB.bills.filter(b=>b.cat==='savings').reduce((s,b)=>s+toMonthly(b.actual||b.min,b.freq),0);
+      var actualSavings=Math.max(0,rem)+savingsCatTotal;
+      var needsPct=ti>0?needsTotal/ti*100:0;
+      var wantsPct=ti>0?wantsTotal/ti*100:0;
+      var savingsPct=ti>0?actualSavings/ti*100:0;
+      var ruleEl=$('rule503020');
+      if(ruleEl&&ti>0){
+        var barTotal=needsPct+wantsPct+savingsPct||1;
+        var nW=(needsPct/barTotal*100).toFixed(1);
+        var wW=(wantsPct/barTotal*100).toFixed(1);
+        var sW=(savingsPct/barTotal*100).toFixed(1);
+        ruleEl.innerHTML=`<div class="rule-bar mb-3">
+          <div style="width:${nW}%;background:#ef4444;border-radius:6px 0 0 6px">${parseFloat(nW)>10?'Needs '+needsPct.toFixed(0)+'%':''}</div>
+          <div style="width:${wW}%;background:#f59e0b">${parseFloat(wW)>10?'Wants '+wantsPct.toFixed(0)+'%':''}</div>
+          <div style="width:${sW}%;background:#22c55e;border-radius:0 6px 6px 0">${parseFloat(sW)>10?'Savings '+savingsPct.toFixed(0)+'%':''}</div>
+        </div>
+        <div class="d-flex gap-4 flex-wrap small">
+          <span><span style="color:#ef4444;font-weight:700">■</span> Needs ${fmt(needsTotal)} <span class="text-secondary">(${needsPct.toFixed(1)}% — target 50%)</span></span>
+          <span><span style="color:#f59e0b;font-weight:700">■</span> Wants ${fmt(wantsTotal)} <span class="text-secondary">(${wantsPct.toFixed(1)}% — target 30%)</span></span>
+          <span><span style="color:#22c55e;font-weight:700">■</span> Savings ${fmt(actualSavings)} <span class="text-secondary">(${savingsPct.toFixed(1)}% — target 20%)</span></span>
+        </div>`;
+      } else if(ruleEl){ ruleEl.innerHTML='<div class="text-secondary small">Add income and bills to see the 50/30/20 breakdown.</div>'; }
+
+      // Annual Projection
+      var annEl=$('annualProjection');
+      if(annEl){
+        annEl.innerHTML=[
+          {label:'Annual Gross Income',value:fmt(ti*12),sub:'',cls:'info'},
+          {label:'Annual Bills',value:fmt(bills*12),sub:'',cls:'danger'},
+          {label:'Annual Savings',value:fmt(Math.max(0,rem)*12),sub:savingsRate.toFixed(1)+'% savings rate',cls:'success'},
+          {label:'6-Mo Emergency Fund',value:fmt(minB*6),sub:'recommended buffer',cls:'warning'},
+        ].map(m=>`<div class="col-md-3 col-sm-6"><div class="card bm-stat ${m.cls} p-3"><div class="label">${m.label}</div><div class="value text-${m.cls}">${m.value}</div>${m.sub?`<div class="sub">${m.sub}</div>`:''}</div></div>`).join('');
+      }
     }
+
+    /* ══ Health Score ═══════════════════════════════════ */
+    function computeHealthScore(){
+      var ti = totalIncome();
+      if(!ti||!DB.bills.length) return {score:0,grade:'—',color:'#94a3b8',desc:'Add income & bills to calculate',breakdown:[]};
+      var rem=remaining(), bills=totalBillsActual();
+      var savingsRate=ti>0?rem/ti*100:0;
+      var debtLoad=(DB.bills.filter(b=>b.cat==='debt').reduce((s,b)=>s+toMonthly(b.actual||b.min,b.freq),0))/ti*100;
+      var housingPct=(DB.bills.filter(b=>b.cat==='housing').reduce((s,b)=>s+toMonthly(b.actual||b.min,b.freq),0))/ti*100;
+      var overdues=DB.bills.filter(b=>effectiveStatus(b)==='overdue').length;
+      var score=0, breakdown=[];
+      var savPts=savingsRate>=20?30:savingsRate>=10?20:savingsRate>=5?10:savingsRate>0?5:0;
+      score+=savPts; breakdown.push({label:'Savings rate',pts:savPts,max:30,val:savingsRate.toFixed(1)+'%'});
+      var debtPts=debtLoad<=15?25:debtLoad<=30?15:debtLoad<=45?5:0;
+      score+=debtPts; breakdown.push({label:'Debt load',pts:debtPts,max:25,val:debtLoad.toFixed(1)+'%'});
+      var housPts=housingPct<=30?25:housingPct<=40?15:housingPct<=50?5:0;
+      score+=housPts; breakdown.push({label:'Housing cost',pts:housPts,max:25,val:housingPct.toFixed(1)+'%'});
+      var ovdPts=overdues===0?20:Math.max(0,20-overdues*5);
+      score+=ovdPts; breakdown.push({label:'Bill status',pts:ovdPts,max:20,val:overdues+' overdue'});
+      var grade=score>=80?'A':score>=65?'B':score>=50?'C':score>=35?'D':'F';
+      var color=score>=80?'#22c55e':score>=65?'#84cc16':score>=50?'#f59e0b':score>=35?'#f97316':'#ef4444';
+      var descs={A:'Excellent financial health',B:'Good shape — minor areas to improve',C:'Fair — focus on savings & debt',D:'Needs attention — review spending',F:'Critical — take action now'};
+      return{score,grade,color,desc:descs[grade],breakdown};
+    }
+
+    function renderHealthScore(){
+      var h=computeHealthScore();
+      var badge=$('healthBadge'),grade=$('healthGrade'),fill=$('healthBarFill'),desc=$('healthDesc'),bd=$('healthBreakdown'),ptsl=$('healthPtsLabel');
+      if(!badge)return;
+      badge.style.borderColor=h.color; badge.style.color=h.color;
+      grade.textContent=h.grade; ptsl.textContent=h.score+' / 100';
+      fill.style.width=h.score+'%'; fill.style.background=h.color;
+      desc.textContent=h.desc; desc.style.color=h.color;
+      if(h.breakdown.length){
+        bd.innerHTML=h.breakdown.map(b=>`<div class="d-flex justify-content-between small mb-1"><span class="text-secondary">${b.label} <span class="text-secondary">(${b.val})</span></span><span style="color:${b.pts===b.max?'#22c55e':b.pts>0?'#f59e0b':'#ef4444'};font-weight:600">${b.pts}/${b.max}</span></div>`).join('');
+      }
+    }
+
+    /* ══ Budget Insights ════════════════════════════════ */
+    function buildBudgetInsights(){
+      var ti=totalIncome(); if(!ti){$('bmInsights').innerHTML='<div class="text-secondary small">Add income and bills to see personalized insights.</div>';return;}
+      var rem=remaining(),bills=totalBillsActual(),minB=totalBillsMin();
+      var savingsRate=rem/ti*100;
+      var debtLoad=(DB.bills.filter(b=>b.cat==='debt').reduce((s,b)=>s+toMonthly(b.actual||b.min,b.freq),0))/ti*100;
+      var housingPct=(DB.bills.filter(b=>b.cat==='housing').reduce((s,b)=>s+toMonthly(b.actual||b.min,b.freq),0))/ti*100;
+      var overdues=DB.bills.filter(b=>effectiveStatus(b)==='overdue');
+      var upcoming=DB.bills.filter(b=>effectiveStatus(b)==='upcoming');
+      var overMin=bills-minB;
+      var insights=[];
+      if(savingsRate>=20) insights.push({c:'#22c55e',t:`Savings rate of <strong>${savingsRate.toFixed(1)}%</strong> is excellent — above the recommended 20%.`});
+      else if(savingsRate>0) insights.push({c:'#f59e0b',t:`Savings rate is <strong>${savingsRate.toFixed(1)}%</strong> — aim for 20%. Cut ${fmt(ti*0.2-rem)} more to hit the goal.`});
+      else insights.push({c:'#ef4444',t:`<strong>Bills exceed income</strong> by ${fmt(Math.abs(rem))}/mo — urgent review needed.`});
+      if(housingPct>40) insights.push({c:'#ef4444',t:`Housing is <strong>${housingPct.toFixed(1)}%</strong> of income — well above the 30% guideline.`});
+      else if(housingPct>30) insights.push({c:'#f59e0b',t:`Housing at <strong>${housingPct.toFixed(1)}%</strong> — slightly above the 30% guideline.`});
+      if(debtLoad>36) insights.push({c:'#ef4444',t:`Debt payments are <strong>${debtLoad.toFixed(1)}%</strong> of income — above the 36% danger zone.`});
+      else if(debtLoad>0&&debtLoad<=15) insights.push({c:'#22c55e',t:`Debt load of <strong>${debtLoad.toFixed(1)}%</strong> is healthy.`});
+      if(overdues.length) insights.push({c:'#ef4444',t:`<strong>${overdues.length} overdue bill${overdues.length>1?'s':''}</strong> — ${fmt(overdues.reduce((s,b)=>s+toMonthly(b.actual||b.min,b.freq),0))}/mo needs immediate action.`});
+      if(upcoming.length) insights.push({c:'#0ea5e9',t:`<strong>${upcoming.length} bill${upcoming.length>1?'s':''}</strong> due within 7 days — ${fmt(upcoming.reduce((s,b)=>s+toMonthly(b.actual||b.min,b.freq),0))} total.`});
+      if(overMin>50) insights.push({c:'#6366f1',t:`Paying <strong>${fmt(overMin)}</strong>/mo above minimums on ${DB.bills.filter(b=>(b.actual||b.min)>b.min).length} bills — consider directing extra to highest-interest debt first.`});
+      if(rem>0) insights.push({c:'#22c55e',t:`At this savings rate you'll accumulate <strong>${fmt(rem*12)}</strong> annually.`});
+      if(!insights.length){$('bmInsights').innerHTML='<div class="text-secondary small">Looking good — no major issues detected.</div>';return;}
+      $('bmInsights').innerHTML=insights.slice(0,5).map(i=>`<div class="bm-insight-item"><div class="bm-insight-dot" style="background:${i.c}"></div><div>${i.t}</div></div>`).join('');
+    }
+
+    /* ══ Goals ══════════════════════════════════════════ */
+    function renderGoals(){
+      if(!DB.goals)DB.goals=[];
+      var grid=$('goalsGrid'),summary=$('goalsSummary');
+      if(!DB.goals.length){
+        grid.innerHTML='<div class="col-12 text-center text-secondary py-4">No goals yet — click <strong>+ Add Goal</strong> to get started.</div>';
+        if(summary)summary.style.display='none';return;
+      }
+      if(summary)summary.style.display='';
+      var totalTarget=0,totalSaved=0;
+      grid.innerHTML=DB.goals.map(g=>{
+        var pct=g.target>0?Math.min(100,g.saved/g.target*100):0;
+        var needed=Math.max(0,g.target-g.saved);
+        var daysLeft=g.date?Math.ceil((new Date(g.date)-new Date(today()))/86400000):null;
+        totalTarget+=g.target;totalSaved+=g.saved;
+        var daysHtml=daysLeft!==null?(daysLeft>0?`<div class="small text-secondary mt-1">${daysLeft} days remaining</div>`:daysLeft===0?`<div class="small text-warning mt-1">Due today!</div>`:`<div class="small text-danger mt-1">Overdue by ${Math.abs(daysLeft)} days</div>`):'';
+        return`<div class="col-md-6 col-lg-4"><div class="card goal-card p-3 h-100" style="border-color:${g.color}">
+          <div class="d-flex justify-content-between align-items-start mb-1">
+            <div class="fw-bold">${g.name}</div>
+            <div class="d-flex gap-1">
+              <button class="btn btn-sm btn-link p-0" onclick="editGoal('${g.id}')">✏️</button>
+              <button class="btn btn-sm btn-link p-0 text-danger" onclick="deleteGoal('${g.id}')">🗑️</button>
+            </div>
+          </div>
+          ${g.notes?`<div class="small text-secondary mb-2">${g.notes}</div>`:''}
+          <div class="d-flex justify-content-between small mb-1"><span>Saved</span><span class="fw-semibold" style="color:${g.color}">${fmt(g.saved)}</span></div>
+          <div class="d-flex justify-content-between small mb-2"><span>Target</span><span class="fw-semibold">${fmt(g.target)}</span></div>
+          <div class="goal-progress mb-1"><div class="goal-fill" style="width:${pct}%;background:${g.color}"></div></div>
+          <div class="d-flex justify-content-between mb-2">
+            <span class="goal-pct" style="color:${g.color}">${pct.toFixed(0)}% complete</span>
+            <span class="small text-secondary">${fmt(needed)} to go</span>
+          </div>
+          ${daysHtml}
+          <div class="input-group input-group-sm mt-2">
+            <input type="number" class="form-control" placeholder="Add amount…" id="goal-add-${g.id}" min="0" step="0.01"/>
+            <button class="btn btn-outline-success" onclick="addToGoal('${g.id}')">+ Add</button>
+          </div>
+        </div></div>`;
+      }).join('');
+      $('gs-count').textContent=DB.goals.length;
+      $('gs-target').textContent=fmt(totalTarget);
+      $('gs-saved').textContent=fmt(totalSaved);
+      $('gs-needed').textContent=fmt(Math.max(0,totalTarget-totalSaved));
+      $('gs-pct').textContent=totalTarget>0?(totalSaved/totalTarget*100).toFixed(1)+'%':'0%';
+    }
+
+    window.editGoal=function(id){
+      var g=(DB.goals||[]).find(x=>x.id===id);if(!g)return;
+      $('gf-id').value=g.id;$('gf-name').value=g.name;$('gf-target').value=g.target;
+      $('gf-saved').value=g.saved;$('gf-date').value=g.date||'';$('gf-notes').value=g.notes||'';$('gf-color').value=g.color;
+      document.querySelectorAll('.gcp-btn').forEach(b=>{b.style.border=b.dataset.color===g.color?'2px solid #fff':'2px solid transparent';b.classList.toggle('active',b.dataset.color===g.color);});
+      $('goalModalLabel').textContent='Edit Goal';
+      bootstrap.Modal.getOrCreateInstance($('goalModal')).show();
+    };
+    window.deleteGoal=function(id){
+      if(!confirm('Delete this goal?'))return;
+      DB.goals=DB.goals.filter(g=>g.id!==id);save();renderGoals();
+    };
+    window.addToGoal=function(id){
+      var g=(DB.goals||[]).find(x=>x.id===id);if(!g)return;
+      var amt=parseFloat(document.getElementById('goal-add-'+id).value);
+      if(isNaN(amt)||amt<=0)return;
+      g.saved=Math.min(g.target,g.saved+amt);save();renderGoals();
+    };
+
+    $('gf-save').addEventListener('click',()=>{
+      var name=$('gf-name').value.trim(),target=parseFloat($('gf-target').value);
+      if(!name||isNaN(target)||target<=0){alert('Name and Target amount are required.');return;}
+      var id=$('gf-id').value||uid();
+      if(!DB.goals)DB.goals=[];
+      var existing=DB.goals.findIndex(g=>g.id===id);
+      var goal={id,name,target,saved:parseFloat($('gf-saved').value)||0,date:$('gf-date').value||'',color:$('gf-color').value,notes:$('gf-notes').value.trim()};
+      if(existing>=0)DB.goals[existing]=goal;else DB.goals.push(goal);
+      save();bootstrap.Modal.getInstance($('goalModal')).hide();$('goalForm').reset();$('gf-id').value='';$('goalModalLabel').textContent='Add Goal';renderGoals();
+    });
+    $('goalModal').addEventListener('hidden.bs.modal',()=>{$('goalForm').reset();$('gf-id').value='';$('goalModalLabel').textContent='Add Goal';});
+    document.querySelectorAll('.gcp-btn').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        document.querySelectorAll('.gcp-btn').forEach(b=>{b.style.border='2px solid transparent';b.classList.remove('active');});
+        btn.style.border='2px solid #fff';btn.classList.add('active');$('gf-color').value=btn.dataset.color;
+      });
+    });
+
+    /* ══ Mark All Paid ══════════════════════════════════ */
+    var mapBtn=$('markAllPaidBtn');
+    if(mapBtn)mapBtn.addEventListener('click',()=>{
+      if(!DB.bills.length)return;
+      if(!confirm('Mark all bills as paid?'))return;
+      DB.bills.forEach(b=>{b.status='paid';});save();renderAll();
+    });
 
     /* ══ Alerts & summary on bills tab ═════════════════ */
     function renderSummary(){
@@ -1191,11 +1554,12 @@
         if(t==='dashboard')    renderDashboard();
         if(t==='reports')      renderReports();
         if(t==='distribution') renderDistribution();
+        if(t==='goals')        renderGoals();
       } else { renderDashboard(); }
     }
 
     /* ══ Boot ═══════════════════════════════════════════ */
-    // Restore distMode radio
+    if(!DB.goals) DB.goals=[];
     document.querySelectorAll('input[name="distMode"]').forEach(r=>{ r.checked=r.value===DB.distMode; });
     renderAll();
 
