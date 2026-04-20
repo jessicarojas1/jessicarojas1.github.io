@@ -292,6 +292,103 @@ Get-Process | Export-Csv processes.csv -NoTypeInformation
 Get-NetTCPConnection -State Listen | Select LocalPort,@{n='Process';e={(Get-Process -Id $_.OwningProcess).Name}} | Sort LocalPort</code></pre></div></div></div>
 </div>`
     },
+    {
+      id: 1700000003000,
+      title: 'macOS Terminal Essentials',
+      category: 'macOS', visibility: 'public', author: 'JRojas',
+      created: 1700000003000,
+      tags: ['macos', 'terminal', 'bash', 'zsh', 'cheat-sheet'],
+      summary: 'Essential macOS Terminal commands for navigation, networking, processes, and everyday tasks.',
+      body: `<div class="row g-3">
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Navigation &amp; Files</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>ls -la</code></td><td>List all files with details</td></tr><tr><td><code>cd ~/Desktop</code></td><td>Change to Desktop</td></tr><tr><td><code>mkdir -p a/b/c</code></td><td>Create nested dirs</td></tr><tr><td><code>cp -r src/ dst/</code></td><td>Copy folder recursively</td></tr><tr><td><code>mv old new</code></td><td>Move or rename</td></tr><tr><td><code>rm -rf folder/</code></td><td>Delete folder (no prompt)</td></tr><tr><td><code>find . -name "*.log"</code></td><td>Search files by pattern</td></tr><tr><td><code>open .</code></td><td>Open current folder in Finder</td></tr><tr><td><code>cat file | pbcopy</code></td><td>Copy file contents to clipboard</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Networking</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>ifconfig en0</code></td><td>IP address for Wi-Fi</td></tr><tr><td><code>ping -c 4 8.8.8.8</code></td><td>Ping (4 packets)</td></tr><tr><td><code>nslookup example.com</code></td><td>DNS lookup</td></tr><tr><td><code>traceroute google.com</code></td><td>Trace route</td></tr><tr><td><code>netstat -an | grep LISTEN</code></td><td>Listening ports</td></tr><tr><td><code>lsof -i :3000</code></td><td>What process is on port 3000</td></tr><tr><td><code>curl -I https://site.com</code></td><td>HTTP response headers only</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Processes &amp; System</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>ps aux | grep node</code></td><td>Find process by name</td></tr><tr><td><code>kill -9 PID</code></td><td>Force-kill by PID</td></tr><tr><td><code>pkill -f "python app"</code></td><td>Kill by command match</td></tr><tr><td><code>top</code> / <code>htop</code></td><td>Live process monitor</td></tr><tr><td><code>df -h</code></td><td>Disk usage summary</td></tr><tr><td><code>du -sh *</code></td><td>Size of each item here</td></tr><tr><td><code>sw_vers</code></td><td>macOS version info</td></tr><tr><td><code>uname -a</code></td><td>Kernel &amp; architecture</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Text &amp; Quick Tools</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>grep -r "TODO" ./src</code></td><td>Search recursively in files</td></tr><tr><td><code>sed -i '' 's/old/new/g' f</code></td><td>In-place replace (macOS syntax)</td></tr><tr><td><code>awk '{print $2}' file</code></td><td>Print column 2</td></tr><tr><td><code>wc -l file</code></td><td>Count lines in file</td></tr><tr><td><code>tar -czf out.tgz dir/</code></td><td>Create gzipped tar archive</td></tr><tr><td><code>tar -xzf archive.tgz</code></td><td>Extract tar archive</td></tr><tr><td><code>chmod +x script.sh</code></td><td>Make file executable</td></tr></tbody></table></div></div></div>
+</div>`
+    },
+    {
+      id: 1700000004000,
+      title: 'GitHub CLI & Workflow',
+      category: 'Git / GitHub', visibility: 'public', author: 'JRojas',
+      created: 1700000004000,
+      tags: ['github', 'gh', 'cli', 'git', 'pull-request', 'cheat-sheet'],
+      summary: 'GitHub CLI (gh) commands for repos, issues, pull requests, Actions, and releases.',
+      body: `<div class="row g-3">
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Auth &amp; Repos</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>gh auth login</code></td><td>Authenticate with GitHub</td></tr><tr><td><code>gh auth status</code></td><td>Show current auth state</td></tr><tr><td><code>gh repo clone user/repo</code></td><td>Clone a repository</td></tr><tr><td><code>gh repo create name</code></td><td>Create new repo (interactive)</td></tr><tr><td><code>gh repo view --web</code></td><td>Open repo in browser</td></tr><tr><td><code>gh repo fork user/repo</code></td><td>Fork a repository</td></tr><tr><td><code>gh repo list</code></td><td>List your repositories</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Pull Requests</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>gh pr create</code></td><td>Open PR creation wizard</td></tr><tr><td><code>gh pr create --draft</code></td><td>Create as draft PR</td></tr><tr><td><code>gh pr list</code></td><td>List open pull requests</td></tr><tr><td><code>gh pr view 42</code></td><td>View PR #42</td></tr><tr><td><code>gh pr checkout 42</code></td><td>Check out PR branch locally</td></tr><tr><td><code>gh pr merge 42 --squash</code></td><td>Squash &amp; merge PR</td></tr><tr><td><code>gh pr review --approve</code></td><td>Approve current PR</td></tr><tr><td><code>gh pr status</code></td><td>Show your PR activity</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Issues</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>gh issue list</code></td><td>List open issues</td></tr><tr><td><code>gh issue create</code></td><td>Create issue (wizard)</td></tr><tr><td><code>gh issue view 7</code></td><td>View issue #7</td></tr><tr><td><code>gh issue close 7</code></td><td>Close issue #7</td></tr><tr><td><code>gh issue edit 7 --add-label bug</code></td><td>Add a label</td></tr><tr><td><code>gh issue list --label "bug"</code></td><td>Filter issues by label</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Actions &amp; Releases</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>gh run list</code></td><td>Recent workflow runs</td></tr><tr><td><code>gh run view 1234</code></td><td>View run details</td></tr><tr><td><code>gh run watch</code></td><td>Watch current run live</td></tr><tr><td><code>gh workflow list</code></td><td>List all workflows</td></tr><tr><td><code>gh workflow run build.yml</code></td><td>Manually trigger a workflow</td></tr><tr><td><code>gh release create v1.0.0</code></td><td>Create a release</td></tr><tr><td><code>gh release list</code></td><td>List all releases</td></tr></tbody></table></div></div></div>
+</div>`
+    },
+    {
+      id: 1700000005000,
+      title: 'GitLab CI/CD & glab CLI',
+      category: 'Git / GitLab', visibility: 'public', author: 'JRojas',
+      created: 1700000005000,
+      tags: ['gitlab', 'glab', 'ci-cd', 'pipeline', 'merge-request', 'cheat-sheet'],
+      summary: 'GitLab glab CLI commands and .gitlab-ci.yml pipeline basics for DevOps workflows.',
+      body: `<div class="row g-3">
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Auth &amp; Projects</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>glab auth login</code></td><td>Authenticate with GitLab</td></tr><tr><td><code>glab auth status</code></td><td>Show auth state</td></tr><tr><td><code>glab repo clone user/proj</code></td><td>Clone a project</td></tr><tr><td><code>glab repo create</code></td><td>Create a new project</td></tr><tr><td><code>glab repo view --web</code></td><td>Open project in browser</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Merge Requests</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>glab mr create</code></td><td>Create MR (wizard)</td></tr><tr><td><code>glab mr list</code></td><td>List open merge requests</td></tr><tr><td><code>glab mr view 5</code></td><td>View MR #5</td></tr><tr><td><code>glab mr checkout 5</code></td><td>Check out MR branch</td></tr><tr><td><code>glab mr merge 5</code></td><td>Merge MR #5</td></tr><tr><td><code>glab mr approve 5</code></td><td>Approve MR #5</td></tr><tr><td><code>glab mr note 5 -m "LGTM"</code></td><td>Add a comment to MR</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Pipelines &amp; CI</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>glab pipeline list</code></td><td>Recent pipelines</td></tr><tr><td><code>glab pipeline view 99</code></td><td>View pipeline #99</td></tr><tr><td><code>glab pipeline run</code></td><td>Trigger a new pipeline</td></tr><tr><td><code>glab pipeline status</code></td><td>Current branch status</td></tr><tr><td><code>glab ci view</code></td><td>Watch live CI output</td></tr><tr><td><code>glab ci trace JOB_ID</code></td><td>Tail a specific job log</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">.gitlab-ci.yml Basics</h6><pre class="small mb-0"><code>stages: [build, test, deploy]
+
+build-job:
+  stage: build
+  image: node:20
+  script:
+    - npm ci
+    - npm run build
+  artifacts:
+    paths: [dist/]
+
+test-job:
+  stage: test
+  script: npm test
+
+deploy-job:
+  stage: deploy
+  script: ./deploy.sh
+  only: [main]</code></pre></div></div></div>
+</div>`
+    },
+    {
+      id: 1700000006000,
+      title: 'SSH Key Setup & Usage',
+      category: 'Security / SSH', visibility: 'public', author: 'JRojas',
+      created: 1700000006000,
+      tags: ['ssh', 'keys', 'security', 'linux', 'macos', 'windows', 'cheat-sheet'],
+      summary: 'Generate SSH keys on macOS/Linux and Windows, copy to a server, and configure ssh_config for named shortcuts.',
+      body: `<div class="row g-3">
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Generate Keys (macOS / Linux)</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>ssh-keygen -t ed25519 -C "you@email"</code></td><td>Generate Ed25519 key pair</td></tr><tr><td><code>ssh-keygen -t rsa -b 4096 -C "you@email"</code></td><td>Generate RSA 4096-bit key</td></tr><tr><td><code>cat ~/.ssh/id_ed25519.pub</code></td><td>Print public key</td></tr><tr><td><code>eval "$(ssh-agent -s)"</code></td><td>Start ssh-agent</td></tr><tr><td><code>ssh-add ~/.ssh/id_ed25519</code></td><td>Add key to agent</td></tr><tr><td><code>ssh-add -l</code></td><td>List loaded keys</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Generate Keys (Windows / PowerShell)</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>ssh-keygen -t ed25519 -C "you@email"</code></td><td>Works in PS / cmd</td></tr><tr><td><code>type $env:USERPROFILE\.ssh\id_ed25519.pub</code></td><td>Print public key</td></tr><tr><td><code>Get-Service ssh-agent | Set-Service -StartupType Automatic</code></td><td>Enable agent on boot</td></tr><tr><td><code>Start-Service ssh-agent</code></td><td>Start agent now</td></tr><tr><td><code>ssh-add $env:USERPROFILE\.ssh\id_ed25519</code></td><td>Add key to agent</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Copy Key to Server</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>ssh-copy-id user@host</code></td><td>Auto-append to authorized_keys</td></tr><tr><td><code>cat ~/.ssh/id_ed25519.pub | ssh user@host "mkdir -p ~/.ssh &amp;&amp; cat >> ~/.ssh/authorized_keys"</code></td><td>Manual copy</td></tr><tr><td><code>chmod 700 ~/.ssh</code></td><td>Fix .ssh dir permissions</td></tr><tr><td><code>chmod 600 ~/.ssh/authorized_keys</code></td><td>Fix authorized_keys permissions</td></tr><tr><td><code>ssh -i ~/.ssh/id_ed25519 user@host</code></td><td>Connect with specific key</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">~/.ssh/config Shortcuts</h6><pre class="small mb-0"><code>Host myserver
+  HostName 203.0.113.10
+  User ubuntu
+  IdentityFile ~/.ssh/id_ed25519
+  Port 22
+
+Host github.com
+  User git
+  IdentityFile ~/.ssh/id_github
+  AddKeysToAgent yes</code></pre><p class="small mt-2 mb-0">Then connect with just: <code>ssh myserver</code></p></div></div></div>
+</div>`
+    },
+    {
+      id: 1700000007000,
+      title: 'npm & Node.js Cheat Sheet',
+      category: 'JavaScript / Node', visibility: 'public', author: 'JRojas',
+      created: 1700000007000,
+      tags: ['npm', 'node', 'javascript', 'package-manager', 'cheat-sheet'],
+      summary: 'Essential npm commands for package management, scripts, versioning, and the Node.js ecosystem.',
+      body: `<div class="row g-3">
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Package Management</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>npm init -y</code></td><td>Init package.json with defaults</td></tr><tr><td><code>npm install</code></td><td>Install all deps from lockfile</td></tr><tr><td><code>npm install express</code></td><td>Install &amp; save to dependencies</td></tr><tr><td><code>npm install -D jest</code></td><td>Save as devDependency</td></tr><tr><td><code>npm uninstall lodash</code></td><td>Remove a package</td></tr><tr><td><code>npm update</code></td><td>Update all packages</td></tr><tr><td><code>npm outdated</code></td><td>List outdated packages</td></tr><tr><td><code>npm list --depth=0</code></td><td>Top-level installed packages</td></tr><tr><td><code>npm ci</code></td><td>Clean install from lockfile (CI)</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Scripts &amp; Audit</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>npm run &lt;script&gt;</code></td><td>Run a script from package.json</td></tr><tr><td><code>npm start</code></td><td>Run the "start" script</td></tr><tr><td><code>npm test</code></td><td>Run the "test" script</td></tr><tr><td><code>npm run build</code></td><td>Run the "build" script</td></tr><tr><td><code>npm run lint -- --fix</code></td><td>Pass extra args to a script</td></tr><tr><td><code>npm audit</code></td><td>Check for vulnerabilities</td></tr><tr><td><code>npm audit fix</code></td><td>Auto-fix safe vulnerabilities</td></tr><tr><td><code>npm cache clean --force</code></td><td>Wipe local npm cache</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">npx &amp; Global</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>npx create-react-app my-app</code></td><td>Run without global install</td></tr><tr><td><code>npx ts-node script.ts</code></td><td>Run TypeScript directly</td></tr><tr><td><code>npm install -g typescript</code></td><td>Install a package globally</td></tr><tr><td><code>npm list -g --depth=0</code></td><td>List global packages</td></tr><tr><td><code>npm root -g</code></td><td>Global node_modules path</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Versioning &amp; Publishing</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>npm version patch</code></td><td>1.0.0 → 1.0.1</td></tr><tr><td><code>npm version minor</code></td><td>1.0.0 → 1.1.0</td></tr><tr><td><code>npm version major</code></td><td>1.0.0 → 2.0.0</td></tr><tr><td><code>npm publish</code></td><td>Publish to npm registry</td></tr><tr><td><code>npm publish --tag beta</code></td><td>Publish as beta tag</td></tr><tr><td><code>npm pack</code></td><td>Create .tgz for local testing</td></tr></tbody></table></div></div></div>
+</div>`
+    },
   ];
 
   const VISIBILITY_LEVELS = { public: 0, reader: 1, admin: 3 };
@@ -486,8 +583,22 @@ Get-NetTCPConnection -State Listen | Select LocalPort,@{n='Process';e={(Get-Proc
     new bootstrap.Modal(document.getElementById('kbAddModal')).show();
   }
 
+  /* ── Seed default entries on first visit ───────────────────── */
+  function seedIfEmpty() {
+    if (localStorage.getItem(SEED_KEY)) return;
+    const existing = getEntries();
+    const existingIds = new Set(existing.map(e => e.id));
+    const merged = [...existing];
+    for (const e of SEED_ENTRIES) {
+      if (!existingIds.has(e.id)) merged.push(e);
+    }
+    saveEntries(merged);
+    localStorage.setItem(SEED_KEY, '1');
+  }
+
   /* ── Wire up ────────────────────────────────────────────────── */
   document.addEventListener('DOMContentLoaded', () => {
+    seedIfEmpty();
     render();
 
     // Reset add modal on close
