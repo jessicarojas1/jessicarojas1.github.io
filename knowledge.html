@@ -201,7 +201,7 @@
           <div id="kbViewMeta" class="kb-meta text-secondary mb-3 d-flex flex-wrap gap-2"></div>
           <p id="kbViewSummary" class="fw-semibold mb-3"></p>
           <hr />
-          <pre id="kbViewBody" class="kb-body small" style="background:transparent;border:none;padding:0;margin:0;overflow-x:auto;"></pre>
+          <div id="kbViewBody" class="kb-body small"></div>
         </div>
         <div class="modal-footer">
           <div data-role-min="editor" style="display:none" class="d-flex gap-2">
@@ -251,7 +251,48 @@
   <script src="script.js" defer></script>
   <script>
   /* ── Knowledge Base logic ────────────────────────────────────── */
-  const KB_KEY = 'kb_entries';
+  const KB_KEY   = 'kb_entries';
+  const SEED_KEY = 'kb_seeded_v2';
+
+  /* ── Seed entries ────────────────────────────────────────────── */
+  const SEED_ENTRIES = [
+    {
+      id: 1700000001000, pinned: true,
+      title: 'Windows CMD Essential Commands',
+      category: 'Windows / AD', visibility: 'public', author: 'JRojas',
+      created: 1700000001000,
+      tags: ['windows', 'cmd', 'command-prompt', 'cheat-sheet'],
+      summary: 'Quick-reference for the most useful Windows Command Prompt commands — navigation, networking, processes, disk, and user management.',
+      body: `<div class="row g-3">
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Navigation &amp; Files</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>dir /a /s *.log</code></td><td>List files recursively</td></tr><tr><td><code>cd C:\\Users\\Deploy</code></td><td>Change directory</td></tr><tr><td><code>md new-folder</code></td><td>Create directory</td></tr><tr><td><code>rd /s /q folder</code></td><td>Delete folder (no prompt)</td></tr><tr><td><code>xcopy /e /i /h src dst</code></td><td>Copy folder tree</td></tr><tr><td><code>robocopy src dst /mir</code></td><td>Mirror copy</td></tr><tr><td><code>del /f /q file.txt</code></td><td>Force-delete file</td></tr><tr><td><code>where notepad</code></td><td>Find executable path</td></tr><tr><td><code>mklink /d Link Target</code></td><td>Symbolic link</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Networking</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>ipconfig /all</code></td><td>Full IP / MAC / DNS info</td></tr><tr><td><code>ipconfig /flushdns</code></td><td>Flush DNS cache</td></tr><tr><td><code>ping -n 4 8.8.8.8</code></td><td>Ping (4 packets)</td></tr><tr><td><code>tracert google.com</code></td><td>Trace route</td></tr><tr><td><code>nslookup example.com</code></td><td>DNS lookup</td></tr><tr><td><code>netstat -ano</code></td><td>Active connections + PID</td></tr><tr><td><code>netstat -b</code></td><td>Process per port</td></tr><tr><td><code>arp -a</code></td><td>IP→MAC table</td></tr><tr><td><code>netsh advfirewall show allprofiles</code></td><td>Firewall status</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Processes &amp; Services</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>tasklist</code></td><td>List running processes</td></tr><tr><td><code>taskkill /im name.exe /f</code></td><td>Kill by name</td></tr><tr><td><code>taskkill /pid 1234 /f</code></td><td>Kill by PID</td></tr><tr><td><code>sc query</code></td><td>List all services</td></tr><tr><td><code>sc start wuauserv</code></td><td>Start a service</td></tr><tr><td><code>sc stop wuauserv</code></td><td>Stop a service</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Disk, System &amp; Users</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>sfc /scannow</code></td><td>System File Checker</td></tr><tr><td><code>DISM /Online /Cleanup-Image /RestoreHealth</code></td><td>Repair Windows image</td></tr><tr><td><code>systeminfo</code></td><td>OS, RAM, uptime</td></tr><tr><td><code>gpupdate /force</code></td><td>Force GPO refresh</td></tr><tr><td><code>gpresult /r</code></td><td>Applied GPOs</td></tr><tr><td><code>net user</code></td><td>List local users</td></tr><tr><td><code>net user name /add</code></td><td>Create local user</td></tr><tr><td><code>icacls file /grant User:(R)</code></td><td>Grant read permission</td></tr></tbody></table></div></div></div>
+</div>`
+    },
+    {
+      id: 1700000002000,
+      title: 'PowerShell Essential Commands',
+      category: 'Windows / AD', visibility: 'public', author: 'JRojas',
+      created: 1700000002000,
+      tags: ['windows', 'powershell', 'scripting', 'cheat-sheet'],
+      summary: 'Core PowerShell commands for system administration — processes, services, files, networking, Active Directory, and event logs.',
+      body: `<div class="row g-3">
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Help &amp; Files</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>Get-Command *process*</code></td><td>Find commands</td></tr><tr><td><code>Get-Help Cmdlet -Full</code></td><td>Full help + examples</td></tr><tr><td><code>Get-ChildItem -Recurse -Filter *.log</code></td><td>Recursive file search</td></tr><tr><td><code>Get-Content file.txt</code></td><td>Read file</td></tr><tr><td><code>Set-Content file.txt "text"</code></td><td>Write file</td></tr><tr><td><code>Get-FileHash file -Algorithm SHA256</code></td><td>Hash file</td></tr><tr><td><code>Test-Path C:\\Some\\Path</code></td><td>Check path exists</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Processes &amp; Services</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>Get-Process</code></td><td>List all processes</td></tr><tr><td><code>Stop-Process -Name notepad -Force</code></td><td>Kill by name</td></tr><tr><td><code>Get-Process | Sort CPU -Desc | Select -First 10</code></td><td>Top 10 by CPU</td></tr><tr><td><code>Get-Service</code></td><td>List services</td></tr><tr><td><code>Start-Service wuauserv</code></td><td>Start service</td></tr><tr><td><code>Set-Service -StartupType Disabled</code></td><td>Disable service</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Networking</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>Test-NetConnection host -Port 443</code></td><td>TCP port check</td></tr><tr><td><code>Get-NetIPAddress</code></td><td>All IP addresses</td></tr><tr><td><code>Resolve-DnsName example.com</code></td><td>DNS lookup</td></tr><tr><td><code>Get-NetTCPConnection -State Listen</code></td><td>Listening ports</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Active Directory (RSAT)</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>Get-ADUser -Identity jrojas</code></td><td>User details</td></tr><tr><td><code>Get-ADUser -Filter {Enabled -eq $true}</code></td><td>All enabled users</td></tr><tr><td><code>Get-ADGroupMember "Domain Admins"</code></td><td>Group members</td></tr><tr><td><code>Unlock-ADAccount -Identity jrojas</code></td><td>Unlock account</td></tr><tr><td><code>Get-WinEvent -FilterHashtable @{LogName='Security';Id=4625}</code></td><td>Failed logons</td></tr></tbody></table></div></div></div>
+<div class="col-12"><div class="card border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Useful One-Liners</h6><pre class="mb-0 small"><code># Files modified in the last 24 hours
+Get-ChildItem C:\ -Recurse | Where-Object {$_.LastWriteTime -gt (Get-Date).AddHours(-24)}
+
+# Export process list to CSV
+Get-Process | Export-Csv processes.csv -NoTypeInformation
+
+# Open ports with owning process name
+Get-NetTCPConnection -State Listen | Select LocalPort,@{n='Process';e={(Get-Process -Id $_.OwningProcess).Name}} | Sort LocalPort</code></pre></div></div></div>
+</div>`
+    },
+  ];
 
   const VISIBILITY_LEVELS = { public: 0, reader: 1, admin: 3 };
 
@@ -397,7 +438,7 @@
 
     document.getElementById('kbViewModalLabel').textContent = entry.title || '';
     document.getElementById('kbViewSummary').textContent    = entry.summary || '';
-    document.getElementById('kbViewBody').textContent       = entry.body || '';
+    document.getElementById('kbViewBody').innerHTML          = entry.body || '';
 
     const meta = document.getElementById('kbViewMeta');
     const tagHtml = (entry.tags || []).map(t => `<span class="badge bg-secondary">${escH(t)}</span>`).join(' ');
