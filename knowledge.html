@@ -765,6 +765,10 @@ drop http any any -> any any (
   }
 
   /* ── Render cards ──────────────────────────────────────────── */
+  function stripHtml(html) {
+    return html ? html.replace(/<[^>]*>/g, ' ').replace(/&[a-z]+;/g, ' ').replace(/\s+/g, ' ').trim() : '';
+  }
+
   let activeTag    = null;
   let activeSearch = '';
 
@@ -810,7 +814,7 @@ drop http any any -> any any (
       entries = entries.filter(e =>
         (e.title || '').toLowerCase().includes(q) ||
         (e.summary || '').toLowerCase().includes(q) ||
-        (e.body || '').toLowerCase().includes(q) ||
+        stripHtml(e.body || '').toLowerCase().includes(q) ||
         (e.tags || []).some(t => t.toLowerCase().includes(q)) ||
         (e.category || '').toLowerCase().includes(q)
       );
