@@ -379,6 +379,18 @@
             </div>
           </div>
 
+          <!-- Bot Activity -->
+          <div class="card mb-4 border-warning">
+            <div class="card-header d-flex align-items-center gap-2" style="border-bottom-color:var(--bs-warning-border-subtle)">
+              <strong>&#127855; Bot Activity</strong>
+              <span class="badge bg-warning text-dark ms-1" id="tr-bot-count">0</span>
+              <span class="text-secondary small ms-2">honeypot hits + form spam attempts</span>
+            </div>
+            <div class="card-body p-0" id="tr-bot-body">
+              <p class="text-secondary text-center p-4 mb-0">No bot activity detected yet.</p>
+            </div>
+          </div>
+
           <!-- Recent events feed -->
           <div class="card mb-3">
             <div class="card-header d-flex align-items-center gap-2 flex-wrap">
@@ -983,6 +995,32 @@
       .sort(function (a, b) { return b[1] - a[1]; })
       .slice(0, 6);
     buildBars(sortedRefs, document.getElementById('tr-referrers-chart'));
+
+    /* ── Bot activity ── */
+    var botEvents = events.filter(function (e) {
+      return e.type === 'bot_trap' || e.type === 'bot_form' || e.page === 'honeypot.html';
+    });
+    document.getElementById('tr-bot-count').textContent = botEvents.length;
+    var botBody = document.getElementById('tr-bot-body');
+    if (!botEvents.length) {
+      botBody.innerHTML = '<p class="text-secondary text-center p-4 mb-0">No bot activity detected yet — the honeypot is live and waiting.</p>';
+    } else {
+      var botRows = botEvents.slice().reverse().slice(0, 30).map(function (e) {
+        var t = new Date(e.ts);
+        var timeStr = t.toLocaleDateString() + ' ' + t.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+        var icon = e.type === 'bot_form' ? '&#128229;' : '&#127855;';
+        var desc = e.type === 'bot_form' ? 'Form spam attempt' : 'Honeypot page hit';
+        var ref = (e.data && e.data.referrer) ? ' · ref: ' + escH(e.data.referrer) : '';
+        return '<tr>'
+          + '<td class="text-secondary small">' + escH(timeStr) + '</td>'
+          + '<td>' + icon + ' ' + escH(desc) + '</td>'
+          + '<td class="small text-secondary">' + escH(e.page || '—') + ref + '</td>'
+          + '</tr>';
+      }).join('');
+      botBody.innerHTML = '<div class="table-responsive"><table class="table table-sm table-hover mb-0">'
+        + '<thead><tr><th>Time</th><th>Type</th><th>Details</th></tr></thead>'
+        + '<tbody>' + botRows + '</tbody></table></div>';
+    }
 
     /* ── Recent events table ── */
     var tbody  = document.getElementById('tr-events-tbody');

@@ -837,5 +837,10 @@ cy.on('tap', function(e) { if (e.target === cy) { cy.elements().removeClass('fad
     <p><a href="privacy.html">Privacy Policy</a> &middot; <a href="terms.html">Terms</a></p>
   </footer>
   <script src="analytics.js" defer></script>
+
+<!-- bot-trap: hidden off-screen link, invisible to humans -->
+<div aria-hidden="true" style="position:absolute;left:-99999px;top:auto;width:1px;height:1px;overflow:hidden">
+  <a href="honeypot.html" tabindex="-1">admin-legacy-export</a>
+</div>
 </body>
 </html>

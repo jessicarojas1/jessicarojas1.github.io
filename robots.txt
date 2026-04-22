@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /honeypot.html
 
 Sitemap: https://jessicarojas1.github.io/sitemap.xml

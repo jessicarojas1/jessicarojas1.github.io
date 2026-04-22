@@ -159,6 +159,15 @@ function _scriptInit() {
       const subject = document.getElementById('cf-subject')?.value.trim() || '';
       const message = document.getElementById('cf-message')?.value.trim() || '';
       if (!name || !email || !message) return;
+
+      // Honeypot check — bots fill the hidden "website" field, humans never see it
+      const botField = document.getElementById('cf-website')?.value || '';
+      if (botField) {
+        if (window.SiteAnalytics) window.SiteAnalytics.track('bot_form', { field: 'website', email });
+        // Show success to fool the bot, but discard the submission
+        contactForm.innerHTML = `<div class="text-center py-4"><div class="fs-1 mb-3">✅</div><h3 class="h5 mb-2">Message received!</h3><p class="text-secondary mb-0">Thanks for reaching out — I'll get back to you soon.</p></div>`;
+        return;
+      }
       const submissions = lsGet('contact_submissions');
       submissions.unshift({
         id: Date.now(),
