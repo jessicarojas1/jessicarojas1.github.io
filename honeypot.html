@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Admin — Data Export v2.3</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{background:#0a0a0a;color:#33ff33;font-family:'Courier New',monospace;padding:2rem;font-size:.85rem;line-height:1.6}
+    h1{color:#ff0;margin-bottom:1rem;font-size:1rem;letter-spacing:.1em}
+    table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.78rem}
+    th,td{border:1px solid #333;padding:4px 8px;text-align:left}
+    th{background:#111;color:#ff0}
+    .blink{animation:blink 1s step-end infinite}
+    @keyframes blink{50%{opacity:0}}
+    .prompt::before{content:'> ';color:#0f0}
+    #human-reveal{display:none;margin-top:3rem;padding:2rem;border:2px solid #ff0;background:#111;border-radius:8px;text-align:center}
+    #human-reveal h2{color:#ff0;font-size:1.2rem;margin-bottom:.5rem}
+    #human-reveal p{color:#aaa;margin:.5rem 0}
+    #human-reveal a{color:#33ff33;text-decoration:underline}
+    #countdown{color:#ff0;font-weight:700}
+  </style>
+</head>
+<body>
+
+  <h1>&#9608; SITE ADMINISTRATION — LEGACY EXPORT PANEL v2.3 &#9608;</h1>
+
+  <p class="prompt">Connecting to database<span class="blink">_</span></p>
+  <br>
+  <p class="prompt">SELECT * FROM users LIMIT 10;</p>
+  <table>
+    <thead>
+      <tr><th>id</th><th>username</th><th>email</th><th>role</th><th>password_hash</th><th>created</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td>admin</td><td>admin@localhost</td><td>superadmin</td><td>NOT_STORED_IN_PLAINTEXT</td><td>2024-01-01</td></tr>
+      <tr><td>2</td><td>guest</td><td>guest@localhost</td><td>viewer</td><td>NOT_STORED_IN_PLAINTEXT</td><td>2024-01-02</td></tr>
+    </tbody>
+  </table>
+
+  <p class="prompt">ls /api/internal/</p>
+  <pre>
+  drwxr-xr--  /api/internal/users
+  drwxr-xr--  /api/internal/config
+  drwxr-xr--  /api/internal/export
+  -rw-r-----  .env
+  -rw-r-----  config.json
+  -rw-r-----  secrets.yaml
+  </pre>
+
+  <p class="prompt">cat .env</p>
+  <pre>
+  # Nothing real to see here — this is a honeypot.
+  # All credentials above are fake.
+  DB_HOST=localhost
+  DB_USER=REDACTED
+  DB_PASS=REDACTED
+  API_KEY=REDACTED
+  </pre>
+
+  <!-- Human message — shown after JS delay -->
+  <div id="human-reveal">
+    <h2>&#127855; You found the honeypot!</h2>
+    <p>This page is a decoy designed to detect and log automated bots.</p>
+    <p>All data shown above is completely fake — no real credentials or user data is stored here.</p>
+    <p>If you're a real person, welcome! Redirecting you home in <span id="countdown">8</span>s.</p>
+    <p><a href="index.html">&#8592; Take me home now</a></p>
+  </div>
+
+  <script src="analytics.js"></script>
+  <script>
+    // Immediately log the trap hit
+    if (window.SiteAnalytics) {
+      window.SiteAnalytics.track('bot_trap', { referrer: document.referrer });
+    }
+
+    // After a short delay, reveal the honeypot message to actual humans
+    // (bots typically don't sit around waiting for JS timeouts)
+    setTimeout(function () {
+      document.getElementById('human-reveal').style.display = 'block';
+      var secs = 8;
+      var cd = document.getElementById('countdown');
+      var timer = setInterval(function () {
+        secs--;
+        if (cd) cd.textContent = secs;
+        if (secs <= 0) {
+          clearInterval(timer);
+          window.location.replace('index.html');
+        }
+      }, 1000);
+    }, 1500);
+  </script>
+</body>
+</html>
