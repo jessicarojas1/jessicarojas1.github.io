@@ -660,9 +660,9 @@
       ? '<tr><td colspan="4" class="text-secondary text-center py-3">No users yet.</td></tr>'
       : users.map(function(u) {
           var actions = isAdmin
-            ? '<button class="btn btn-sm btn-outline-secondary me-1" onclick="openChangeRole(\'' + escH(u.username) + '\',\'' + escH(u.role) + '\')">Role</button>'
-              + '<button class="btn btn-sm btn-outline-warning me-1" onclick="openChangePw(\'' + escH(u.username) + '\')">Password</button>'
-              + '<button class="btn btn-sm btn-outline-danger" onclick="confirmDeleteUser(\'' + escH(u.username) + '\')">Delete</button>'
+            ? '<button class="btn btn-sm btn-outline-secondary me-1" data-action="openChangeRole" data-username="' + escH(u.username) + '" data-role="' + escH(u.role) + '">Role</button>'
+              + '<button class="btn btn-sm btn-outline-warning me-1" data-action="openChangePw" data-username="' + escH(u.username) + '">Password</button>'
+              + '<button class="btn btn-sm btn-outline-danger" data-action="confirmDeleteUser" data-username="' + escH(u.username) + '">Delete</button>'
             : '<span class="text-secondary small fst-italic">View only</span>';
           return '<tr>'
             + '<td class="align-middle fw-semibold">' + escH(u.username) + '</td>'
@@ -698,8 +698,8 @@
         + '<td class="align-middle text-secondary small">' + (r.note ? escH(r.note) : '—') + '</td>'
         + '<td class="align-middle text-secondary small">' + new Date(r.requested).toLocaleDateString() + '</td>'
         + '<td class="align-middle text-end">'
-          + '<button class="btn btn-sm btn-success me-1" onclick="openApproveRequest(\'' + escH(r.username) + '\')">Approve</button>'
-          + '<button class="btn btn-sm btn-outline-danger" onclick="confirmRejectRequest(\'' + escH(r.username) + '\')">Reject</button>'
+          + '<button class="btn btn-sm btn-success me-1" data-action="openApproveRequest" data-username="' + escH(r.username) + '">Approve</button>'
+          + '<button class="btn btn-sm btn-outline-danger" data-action="confirmRejectRequest" data-username="' + escH(r.username) + '">Reject</button>'
         + '</td></tr>';
     }).join('');
 
@@ -707,6 +707,50 @@
       + '<th>Username</th><th>Note</th><th>Requested</th><th class="text-end">Actions</th>'
       + '</tr></thead><tbody>' + rows + '</tbody></table></div>';
   }
+
+  /* ── Archived blog posts ─────────────────────────────────────── */
+  var POST_LABELS = {
+    cmmc: 'How to Prepare for CMMC Compliance',
+    ai: 'AI in Cyber Defense: Risk or Opportunity?',
+    military: 'Lessons from the Battlefield: Military Discipline in Cybersecurity',
+    grc: 'Cyber GRC: Governance, Risk, and Compliance Explained',
+    risk: 'Risk and Opportunity in Modern Cybersecurity',
+    zerotrust: 'Zero Trust Architecture: A Practical Guide'
+  };
+
+  function renderArchivedPosts() {
+    var body  = document.getElementById('archived-posts-body');
+    var badge = document.getElementById('archived-post-count');
+    if (!body) return;
+    var list = [];
+    try { list = JSON.parse(localStorage.getItem('blog_archived') || '[]'); } catch(e) {}
+    badge.textContent = list.length;
+    if (!list.length) {
+      body.innerHTML = '<p class="text-secondary small p-3 mb-0">No archived posts.</p>';
+      return;
+    }
+    body.innerHTML = '<div class="table-responsive"><table class="table table-hover mb-0"><thead><tr>'
+      + '<th>Post</th><th class="text-end">Actions</th>'
+      + '</tr></thead><tbody>'
+      + list.map(function(id) {
+          var label = POST_LABELS[id] || id;
+          return '<tr><td class="align-middle">' + escH(label) + '</td>'
+            + '<td class="align-middle text-end">'
+            + '<button class="btn btn-sm btn-success" data-action="restorePost" data-id="' + escH(id) + '">Restore</button>'
+            + '</td></tr>';
+        }).join('')
+      + '</tbody></table></div>';
+  }
+
+  function restorePost(id) {
+    var list = [];
+    try { list = JSON.parse(localStorage.getItem('blog_archived') || '[]'); } catch(e) {}
+    list = list.filter(function(x) { return x !== id; });
+    try { localStorage.setItem('blog_archived', JSON.stringify(list)); } catch(e) {}
+    showAlert('Post restored. It will reappear on the blog page.', 'success');
+    renderArchivedPosts();
+  }
+
 
   /* ── Panel visibility ────────────────────────────────────────── */
   function refreshPanel() {
@@ -723,6 +767,33 @@
     if (typeof RBAC !== 'undefined' && typeof Users !== 'undefined') {
       refreshPanel();
       highlightPermCol('viewer');
+
+      // Delegated handlers for dynamically-rendered action buttons
+      var tbody = document.getElementById('users-tbody');
+      if (tbody) tbody.addEventListener('click', function(ev) {
+        var btn = ev.target.closest('[data-action]');
+        if (!btn) return;
+        var a = btn.dataset.action, u = btn.dataset.username;
+        if (a === 'openChangeRole')    openChangeRole(u, btn.dataset.role);
+        else if (a === 'openChangePw') openChangePw(u);
+        else if (a === 'confirmDeleteUser') confirmDeleteUser(u);
+      });
+
+      var reqCont = document.getElementById('requests-container');
+      if (reqCont) reqCont.addEventListener('click', function(ev) {
+        var btn = ev.target.closest('[data-action]');
+        if (!btn) return;
+        var a = btn.dataset.action, u = btn.dataset.username;
+        if (a === 'openApproveRequest')    openApproveRequest(u);
+        else if (a === 'confirmRejectRequest') confirmRejectRequest(u);
+      });
+
+      var postBody = document.getElementById('archived-posts-body');
+      if (postBody) postBody.addEventListener('click', function(ev) {
+        var btn = ev.target.closest('[data-action]');
+        if (!btn) return;
+        if (btn.dataset.action === 'restorePost') restorePost(btn.dataset.id);
+      });
       // Re-run refreshPanel whenever RBAC login/logout changes the nav user area
       var userArea = document.getElementById('rbac-user-area');
       if (userArea) {

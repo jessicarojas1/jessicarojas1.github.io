@@ -192,7 +192,7 @@
           <span id="outLabel">Console</span>
           <button id="cbClearOut" class="btn btn-sm btn-link p-0 text-secondary" style="font-size:.78rem">Clear</button>
         </div>
-        <iframe id="cbPreview"  sandbox="allow-scripts allow-same-origin allow-forms allow-modals" style="display:none;flex:1;border:none;"></iframe>
+        <iframe id="cbPreview"  sandbox="allow-scripts allow-forms allow-modals" style="display:none;flex:1;border:none;"></iframe>
         <div    id="cbConsole"  style="display:flex;flex-direction:column;"></div>
         <div class="cb-status">
           <span id="stRun">Ready</span>
@@ -381,6 +381,7 @@
 
       // postMessage from iframe (HTML console passthrough)
       window.addEventListener('message', e => {
+        if (e.source !== document.getElementById('cbPreview').contentWindow) return;
         if (e.data && e.data.cbType === 'console') addLog(e.data.level || 'log', e.data.msg);
       });
     }
@@ -468,7 +469,7 @@
         '<script>',
         '(function(){',
         '  var _c=console,_p=window.parent;',
-        '  function _s(l,a){try{_p.postMessage({cbType:"console",level:l,msg:Array.from(a).map(function(x){return typeof x==="object"?JSON.stringify(x,null,2):String(x);}).join(" ")},"*");}catch(e){}}',
+        '  function _s(l,a){try{_p.postMessage({cbType:"console",level:l,msg:Array.from(a).map(function(x){return typeof x==="object"?JSON.stringify(x,null,2):String(x);}).join(" ")},window.location.origin||"*");}catch(e){}}',
         '  console.log=function(){_s("log",arguments);_c.log.apply(_c,arguments);};',
         '  console.error=function(){_s("error",arguments);_c.error.apply(_c,arguments);};',
         '  console.warn=function(){_s("warn",arguments);_c.warn.apply(_c,arguments);};',

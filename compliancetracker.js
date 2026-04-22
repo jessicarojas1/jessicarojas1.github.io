@@ -89,7 +89,7 @@ function dbClear() {
 // ── localStorage helpers ─────────────────────────────────────
 function storeKey(id) { return `ct__${App.standard}__${id}`; }
 
-function getStored(id)         { return JSON.parse(localStorage.getItem(storeKey(id)) || '{}'); }
+function getStored(id)         { try { return JSON.parse(localStorage.getItem(storeKey(id)) || '{}'); } catch(e) { return {}; } }
 function saveStatus(id, val)   { const d = getStored(id); d.status = val; localStorage.setItem(storeKey(id), JSON.stringify(d)); }
 function saveNotes(id, val)    { const d = getStored(id); d.notes  = val; localStorage.setItem(storeKey(id), JSON.stringify(d)); }
 
@@ -750,7 +750,7 @@ document.getElementById('exportDataBtn').addEventListener('click', async () => {
     if (k.startsWith('ct__')) keys.push(k);
   }
   const lsData = {};
-  keys.forEach(k => { lsData[k] = JSON.parse(localStorage.getItem(k)); });
+  keys.forEach(k => { try { lsData[k] = JSON.parse(localStorage.getItem(k)); } catch(e) { lsData[k] = null; } });
 
   const evidenceMeta = (await dbGetAll()).map(({ data: _d, ...rest }) => rest);
 
@@ -811,8 +811,11 @@ async function init() {
   App.db = await openDB();
 
   const params   = new URLSearchParams(window.location.search);
-  const urlSystem = params.get('system');
-  const urlStd    = params.get('standard');
+  const rawSystem = params.get('system');
+  const rawStd    = params.get('standard');
+  // Sanitize: strip tags, limit length, allow only safe chars for standard key
+  const urlSystem = rawSystem ? String(rawSystem).replace(/<[^>]*>/g, '').slice(0, 200) : null;
+  const urlStd    = rawStd    ? String(rawStd).replace(/[^a-z0-9_]/gi, '').slice(0, 50) : null;
 
   if (urlSystem) {
     sysInput.value = urlSystem;

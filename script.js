@@ -159,7 +159,7 @@ function _scriptInit() {
       const subject = document.getElementById('cf-subject')?.value.trim() || '';
       const message = document.getElementById('cf-message')?.value.trim() || '';
       if (!name || !email || !message) return;
-      const submissions = JSON.parse(localStorage.getItem('contact_submissions') || '[]');
+      const submissions = lsGet('contact_submissions');
       submissions.unshift({
         id: Date.now(),
         name, email, subject, message,
@@ -218,7 +218,7 @@ if (document.readyState === 'loading') {
 
 /* ── Inbox renderer ──────────────────────────────────────────── */
 function renderInbox(container) {
-  const submissions = JSON.parse(localStorage.getItem('contact_submissions') || '[]');
+  const submissions = lsGet('contact_submissions');
   if (!submissions.length) {
     container.innerHTML = '<p class="text-secondary">No submissions yet.</p>';
     return;
@@ -243,14 +243,14 @@ function renderInbox(container) {
 }
 
 function markRead(idx) {
-  const subs = JSON.parse(localStorage.getItem('contact_submissions') || '[]');
+  const subs = lsGet('contact_submissions');
   if (subs[idx]) { subs[idx].read = !subs[idx].read; localStorage.setItem('contact_submissions', JSON.stringify(subs)); }
   const inboxEl = document.getElementById('admin-inbox');
   if (inboxEl) renderInbox(inboxEl);
 }
 
 function deleteSubmission(idx) {
-  const subs = JSON.parse(localStorage.getItem('contact_submissions') || '[]');
+  const subs = lsGet('contact_submissions');
   subs.splice(idx, 1);
   localStorage.setItem('contact_submissions', JSON.stringify(subs));
   const inboxEl = document.getElementById('admin-inbox');
@@ -274,7 +274,7 @@ function initDynamicProjects() {
     const link  = document.getElementById('proj-link').value.trim();
     if (!title) return;
 
-    const projects = JSON.parse(localStorage.getItem('dynamic_projects') || '[]');
+    const projects = lsGet('dynamic_projects');
     projects.push({ id: Date.now(), title, desc, url, link });
     localStorage.setItem('dynamic_projects', JSON.stringify(projects));
     renderDynamicProjects(grid);
@@ -287,7 +287,7 @@ function renderDynamicProjects(grid) {
   // Remove existing dynamic cards
   grid.querySelectorAll('[data-dynamic-project]').forEach(el => el.remove());
 
-  const projects = JSON.parse(localStorage.getItem('dynamic_projects') || '[]');
+  const projects = lsGet('dynamic_projects');
   const isAdmin  = typeof RBAC !== 'undefined' && RBAC.isAtLeast('admin');
 
   projects.forEach(p => {
@@ -310,11 +310,16 @@ function renderDynamicProjects(grid) {
 }
 
 function deleteDynamicProject(id) {
-  let projects = JSON.parse(localStorage.getItem('dynamic_projects') || '[]');
+  let projects = lsGet('dynamic_projects');
   projects = projects.filter(p => p.id !== id);
   localStorage.setItem('dynamic_projects', JSON.stringify(projects));
   const grid = document.getElementById('projects-grid');
   if (grid) renderDynamicProjects(grid);
+}
+
+/* ── Safe localStorage parse helper ─────────────────────────── */
+function lsGet(key) {
+  try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) { return []; }
 }
 
 /* ── HTML escape helper ──────────────────────────────────────── */
