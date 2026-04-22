@@ -23,7 +23,9 @@ function save(key, data) {
 }
 
 function uid() {
-  return `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
+  var arr = new Uint32Array(1);
+  crypto.getRandomValues(arr);
+  return `${Date.now().toString(36)}_${arr[0].toString(36).slice(0, 5)}`;
 }
 
 function escHtml(s) {

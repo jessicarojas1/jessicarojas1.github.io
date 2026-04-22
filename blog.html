@@ -2,27 +2,23 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; img-src 'self' https://cdn.jsdelivr.net data: blob:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self' https://cdn.jsdelivr.net; worker-src blob:; object-src 'none'; base-uri 'self';">
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
   <link rel="icon" href="favicon.ico" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" crossorigin="anonymous">
   <link rel="stylesheet" href="theme.css" />
-  <style>
-    .blog-article pre { background:var(--bs-tertiary-bg,rgba(0,0,0,.04)); border:1px solid var(--bs-border-color); border-radius:.5rem; padding:.8rem 1.1rem; overflow-x:auto; margin:.4rem 0 1rem; }
-    .blog-article pre code { font-size:.81rem; color:var(--bs-body-color); background:none; padding:0; white-space:pre; }
-    .blog-article code { font-size:.85rem; }
-    .blog-article h3 { margin-top:1.6rem; margin-bottom:.45rem; }
-    .blog-article h4 { margin-top:1.1rem; margin-bottom:.3rem; font-size:1rem; font-weight:600; }
-    .blog-article table { width:100%; border-collapse:collapse; margin:.5rem 0 1rem; font-size:.88rem; }
-    .blog-article th, .blog-article td { padding:.4rem .75rem; border:1px solid var(--bs-border-color); }
-    .blog-article th { background:var(--bs-tertiary-bg); font-weight:600; }
-    .blog-article p { margin-bottom:.75rem; }
-  </style>
   <title>Blog | Jessica Rojas</title>
   <meta name="description" content="Thoughts on cybersecurity, tech trends, and leadership from Jessica Rojas." />
+  <meta property="og:title" content="Blog | Jessica Rojas" />
+  <meta property="og:description" content="Cybersecurity, compliance, DevOps, and career insights from a CISSP practitioner." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://jessicarojas1.github.io/blog.html" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Blog | Jessica Rojas" />
+  <meta name="twitter:description" content="Cybersecurity, compliance, DevOps, and career insights from a CISSP practitioner." />
+  <link rel="alternate" type="application/rss+xml" title="Jessica Rojas Blog" href="feed.xml" />
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
@@ -35,11 +31,13 @@
       <div class="collapse navbar-collapse" id="navContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
           <li class="nav-item"><a class="nav-link" href="projects.html">Projects</a></li>
           <li class="nav-item"><a class="nav-link" href="resume.html">Resume</a></li>
           <li class="nav-item"><a class="nav-link" href="timeline.html">Timeline</a></li>
           <li class="nav-item"><a class="nav-link" href="cybersecurity.html">Cybersecurity</a></li>
           <li class="nav-item"><a class="nav-link" href="consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="services.html">Services</a></li>
           <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
           <li class="nav-item"><a class="nav-link active" href="blog.html" aria-current="page">Blog</a></li>
           <li class="nav-item"><a class="nav-link" href="knowledge.html">Knowledge Base</a></li>
@@ -79,140 +77,101 @@
       </div>
     </section>
 
-    <!-- Category Filter Bar -->
-    <section class="container pb-3 pt-0">
-      <div id="blog-filter-bar" class="d-flex flex-wrap gap-2 align-items-center">
-        <span class="text-secondary small me-1">Filter:</span>
-      </div>
-    </section>
-
     <!-- Blog Grid -->
-    <section class="container py-3">
-      <div class="row row-cols-1 row-cols-md-2 g-4" id="blog-grid">
+    <section class="container py-5">
+      <div class="row row-cols-1 row-cols-md-2 g-4">
 
         <!-- Post 1 -->
-        <div class="col" id="post-col-cmmc">
-          <article class="card h-100 blog-card" data-post-id="cmmc">
+        <div class="col">
+          <article class="card h-100 blog-card">
             <div class="card-body d-flex flex-column">
-              <h2 class="card-title h5 post-title">How to Prepare for CMMC Compliance</h2>
-              <p class="blog-meta"><time class="post-date" datetime="2025-06-01">June 1, 2025</time></p>
-              <p class="card-text flex-grow-1 post-excerpt">Understanding the technical and documentation requirements of CMMC 2.0 is essential for defense contractors. This guide walks through key practices.</p>
+              <h2 class="card-title h5">How to Prepare for CMMC Compliance</h2>
+              <p class="blog-meta"><time datetime="2025-06-01">June 1, 2025</time></p>
+              <p class="card-text flex-grow-1">Understanding the technical and documentation requirements of CMMC 2.0 is essential for defense contractors. This guide walks through key practices.</p>
               <div class="mt-3">
-                <button class="btn btn-sm btn-primary blog-read-btn">Read More</button>
-                <button class="btn btn-sm btn-outline-warning ms-2 blog-edit-btn" data-role-min="editor" style="display:none">Edit</button>
-                <button class="btn btn-sm btn-outline-danger ms-1 blog-delete-btn" data-role-min="admin" style="display:none">Delete</button>
+                <a href="#" class="btn btn-sm btn-primary">Read More</a>
+                <button class="btn btn-sm btn-outline-warning ms-2" data-role-min="editor" style="display:none">Edit</button>
+                <button class="btn btn-sm btn-outline-danger ms-1" data-role-min="admin" style="display:none">Delete</button>
               </div>
             </div>
           </article>
         </div>
 
         <!-- Post 2 -->
-        <div class="col" id="post-col-ai">
-          <article class="card h-100 blog-card" data-post-id="ai">
+        <div class="col">
+          <article class="card h-100 blog-card">
             <div class="card-body d-flex flex-column">
-              <h2 class="card-title h5 post-title">AI in Cyber Defense: Risk or Opportunity?</h2>
-              <p class="blog-meta"><time class="post-date" datetime="2025-05-15">May 15, 2025</time></p>
-              <p class="card-text flex-grow-1 post-excerpt">As artificial intelligence continues to grow, so does its application in both attack and defense. In this article, we explore both sides of the equation.</p>
+              <h2 class="card-title h5">AI in Cyber Defense: Risk or Opportunity?</h2>
+              <p class="blog-meta"><time datetime="2025-05-15">May 15, 2025</time></p>
+              <p class="card-text flex-grow-1">As artificial intelligence continues to grow, so does its application in both attack and defense. In this article, we explore both sides of the equation.</p>
               <div class="mt-3">
-                <button class="btn btn-sm btn-primary blog-read-btn">Read More</button>
-                <button class="btn btn-sm btn-outline-warning ms-2 blog-edit-btn" data-role-min="editor" style="display:none">Edit</button>
-                <button class="btn btn-sm btn-outline-danger ms-1 blog-delete-btn" data-role-min="admin" style="display:none">Delete</button>
+                <a href="#" class="btn btn-sm btn-primary">Read More</a>
+                <button class="btn btn-sm btn-outline-warning ms-2" data-role-min="editor" style="display:none">Edit</button>
+                <button class="btn btn-sm btn-outline-danger ms-1" data-role-min="admin" style="display:none">Delete</button>
               </div>
             </div>
           </article>
         </div>
 
         <!-- Post 3 -->
-        <div class="col" id="post-col-military">
-          <article class="card h-100 blog-card" data-post-id="military">
+        <div class="col">
+          <article class="card h-100 blog-card">
             <div class="card-body d-flex flex-column">
-              <h2 class="card-title h5 post-title">Lessons from the Battlefield: Military Discipline in Cybersecurity</h2>
-              <p class="blog-meta"><time class="post-date" datetime="2025-04-20">April 20, 2025</time></p>
-              <p class="card-text flex-grow-1 post-excerpt">Drawing from my experience as a Military Police officer, I share practical lessons that strengthen operational discipline in security teams.</p>
+              <h2 class="card-title h5">Lessons from the Battlefield: Military Discipline in Cybersecurity</h2>
+              <p class="blog-meta"><time datetime="2025-04-20">April 20, 2025</time></p>
+              <p class="card-text flex-grow-1">Drawing from my experience as a Military Police officer, I share practical lessons that strengthen operational discipline in security teams.</p>
               <div class="mt-3">
-                <button class="btn btn-sm btn-primary blog-read-btn">Read More</button>
-                <button class="btn btn-sm btn-outline-warning ms-2 blog-edit-btn" data-role-min="editor" style="display:none">Edit</button>
-                <button class="btn btn-sm btn-outline-danger ms-1 blog-delete-btn" data-role-min="admin" style="display:none">Delete</button>
+                <a href="#" class="btn btn-sm btn-primary">Read More</a>
+                <button class="btn btn-sm btn-outline-warning ms-2" data-role-min="editor" style="display:none">Edit</button>
+                <button class="btn btn-sm btn-outline-danger ms-1" data-role-min="admin" style="display:none">Delete</button>
               </div>
             </div>
           </article>
         </div>
 
         <!-- Post 4 -->
-        <div class="col" id="post-col-grc">
-          <article class="card h-100 blog-card" data-post-id="grc">
+        <div class="col">
+          <article class="card h-100 blog-card">
             <div class="card-body d-flex flex-column">
-              <h2 class="card-title h5 post-title">Cyber GRC: Governance, Risk, and Compliance Explained</h2>
-              <p class="blog-meta"><time class="post-date" datetime="2025-04-10">April 10, 2025</time></p>
-              <p class="card-text flex-grow-1 post-excerpt">GRC is the backbone of any mature security program. Learn how to align governance, risk management, and compliance for maximum impact.</p>
+              <h2 class="card-title h5">Cyber GRC: Governance, Risk, and Compliance Explained</h2>
+              <p class="blog-meta"><time datetime="2025-04-10">April 10, 2025</time></p>
+              <p class="card-text flex-grow-1">GRC is the backbone of any mature security program. Learn how to align governance, risk management, and compliance for maximum impact.</p>
               <div class="mt-3">
-                <button class="btn btn-sm btn-primary blog-read-btn">Read More</button>
-                <button class="btn btn-sm btn-outline-warning ms-2 blog-edit-btn" data-role-min="editor" style="display:none">Edit</button>
-                <button class="btn btn-sm btn-outline-danger ms-1 blog-delete-btn" data-role-min="admin" style="display:none">Delete</button>
+                <a href="#" class="btn btn-sm btn-primary">Read More</a>
+                <button class="btn btn-sm btn-outline-warning ms-2" data-role-min="editor" style="display:none">Edit</button>
+                <button class="btn btn-sm btn-outline-danger ms-1" data-role-min="admin" style="display:none">Delete</button>
               </div>
             </div>
           </article>
         </div>
 
         <!-- Post 5 -->
-        <div class="col" id="post-col-risk">
-          <article class="card h-100 blog-card" data-post-id="risk">
+        <div class="col">
+          <article class="card h-100 blog-card">
             <div class="card-body d-flex flex-column">
-              <h2 class="card-title h5 post-title">Risk and Opportunity in Modern Cybersecurity</h2>
-              <p class="blog-meta"><time class="post-date" datetime="2025-03-28">March 28, 2025</time></p>
-              <p class="card-text flex-grow-1 post-excerpt">Every vulnerability is also an opportunity to improve. Here's how I approach risk as a two-sided equation in enterprise environments.</p>
+              <h2 class="card-title h5">Risk and Opportunity in Modern Cybersecurity</h2>
+              <p class="blog-meta"><time datetime="2025-03-28">March 28, 2025</time></p>
+              <p class="card-text flex-grow-1">Every vulnerability is also an opportunity to improve. Here's how I approach risk as a two-sided equation in enterprise environments.</p>
               <div class="mt-3">
-                <button class="btn btn-sm btn-primary blog-read-btn">Read More</button>
-                <button class="btn btn-sm btn-outline-warning ms-2 blog-edit-btn" data-role-min="editor" style="display:none">Edit</button>
-                <button class="btn btn-sm btn-outline-danger ms-1 blog-delete-btn" data-role-min="admin" style="display:none">Delete</button>
+                <a href="#" class="btn btn-sm btn-primary">Read More</a>
+                <button class="btn btn-sm btn-outline-warning ms-2" data-role-min="editor" style="display:none">Edit</button>
+                <button class="btn btn-sm btn-outline-danger ms-1" data-role-min="admin" style="display:none">Delete</button>
               </div>
             </div>
           </article>
         </div>
 
         <!-- Post 6 -->
-        <div class="col" id="post-col-zerotrust">
-          <article class="card h-100 blog-card" data-post-id="zerotrust">
+        <div class="col">
+          <article class="card h-100 blog-card">
             <div class="card-body d-flex flex-column">
-              <h2 class="card-title h5 post-title">Zero Trust Architecture: A Practical Guide</h2>
-              <p class="blog-meta"><time class="post-date" datetime="2025-03-10">March 10, 2025</time></p>
-              <p class="card-text flex-grow-1 post-excerpt">Zero Trust isn't just a buzzword — it's a framework that fundamentally changes how we think about perimeter security.</p>
+              <h2 class="card-title h5">Zero Trust Architecture: A Practical Guide</h2>
+              <p class="blog-meta"><time datetime="2025-03-10">March 10, 2025</time></p>
+              <p class="card-text flex-grow-1">Zero Trust isn't just a buzzword — it's a framework that fundamentally changes how we think about perimeter security.</p>
               <div class="mt-3">
-                <button class="btn btn-sm btn-primary blog-read-btn">Read More</button>
-                <button class="btn btn-sm btn-outline-warning ms-2 blog-edit-btn" data-role-min="editor" style="display:none">Edit</button>
-                <button class="btn btn-sm btn-outline-danger ms-1 blog-delete-btn" data-role-min="admin" style="display:none">Delete</button>
-              </div>
-            </div>
-          </article>
-        </div>
-
-        <!-- Post 7 -->
-        <div class="col" id="post-col-deploy">
-          <article class="card h-100 blog-card" data-post-id="deploy">
-            <div class="card-body d-flex flex-column">
-              <h2 class="card-title h5 post-title">How to Deploy a New Domain on a Fresh Server: PHP, JS, HTML &amp; MariaDB</h2>
-              <p class="blog-meta"><time class="post-date" datetime="2026-04-19">April 19, 2026</time></p>
-              <p class="card-text flex-grow-1 post-excerpt">A complete step-by-step guide to spinning up a VPS, configuring DNS, installing Apache + PHP 8.2 + MariaDB, writing your first PHP/MySQL application, and securing everything with HTTPS.</p>
-              <div class="mt-3">
-                <button class="btn btn-sm btn-primary blog-read-btn">Read More</button>
-                <button class="btn btn-sm btn-outline-warning ms-2 blog-edit-btn" data-role-min="editor" style="display:none">Edit</button>
-                <button class="btn btn-sm btn-outline-danger ms-1 blog-delete-btn" data-role-min="admin" style="display:none">Delete</button>
-              </div>
-            </div>
-          </article>
-        </div>
-
-        <!-- Post 8 -->
-        <div class="col" id="post-col-webserver">
-          <article class="card h-100 blog-card" data-post-id="webserver">
-            <div class="card-body d-flex flex-column">
-              <h2 class="card-title h5 post-title">Building a Production Web Server From Scratch: Nginx, PHP 8.2, Bootstrap &amp; MySQL/MariaDB</h2>
-              <p class="blog-meta"><time class="post-date" datetime="2026-04-20">April 20, 2026</time></p>
-              <p class="card-text flex-grow-1 post-excerpt">End-to-end guide: harden Ubuntu 22.04, install Nginx + PHP-FPM, connect to MySQL/MariaDB via PDO, build a Bootstrap 5 frontend with custom CSS, write a JSON REST API in PHP, and secure everything with HTTPS.</p>
-              <div class="mt-3">
-                <button class="btn btn-sm btn-primary blog-read-btn">Read More</button>
-                <button class="btn btn-sm btn-outline-warning ms-2 blog-edit-btn" data-role-min="editor" style="display:none">Edit</button>
-                <button class="btn btn-sm btn-outline-danger ms-1 blog-delete-btn" data-role-min="admin" style="display:none">Delete</button>
+                <a href="#" class="btn btn-sm btn-primary">Read More</a>
+                <button class="btn btn-sm btn-outline-warning ms-2" data-role-min="editor" style="display:none">Edit</button>
+                <button class="btn btn-sm btn-outline-danger ms-1" data-role-min="admin" style="display:none">Delete</button>
               </div>
             </div>
           </article>
@@ -378,12 +337,6 @@
           </article>
         </div>
 
-        <!-- Empty state -->
-        <div id="blog-empty" class="col-12 text-center py-5 text-secondary" style="display:none">
-          <p class="fs-5 mb-1">No posts in this category.</p>
-          <button class="btn btn-sm btn-outline-secondary mt-2" id="blog-clear-filter">Show all posts</button>
-        </div>
-
       </div>
     </section>
 
@@ -407,61 +360,6 @@
     </div>
   </div>
 
-  <!-- ── Read Modal ───────────────────────────────────────────── -->
-  <div class="modal" id="blogReadModal" tabindex="-1" aria-modal="true" role="dialog">
-    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
-      <div class="modal-content">
-        <div class="modal-header">
-          <div>
-            <h2 class="modal-title fs-5 mb-1" id="blog-read-title"></h2>
-            <p class="text-secondary small mb-0" id="blog-read-date"></p>
-          </div>
-          <button type="button" class="btn-close ms-3" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body blog-article" id="blog-read-body"></div>
-        <div class="modal-footer py-2">
-          <button class="btn btn-sm btn-outline-secondary" id="blog-back-top">↑ Back to top</button>
-          <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── Edit Modal ────────────────────────────────────────────── -->
-  <div class="modal" id="blogEditModal" tabindex="-1" aria-modal="true" role="dialog">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2 class="modal-title fs-5" id="blog-edit-heading">Edit Post</h2>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label class="form-label">Title</label>
-            <input type="text" class="form-control" id="blog-edit-title" maxlength="200" />
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Date</label>
-            <input type="date" class="form-control" id="blog-edit-date" />
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Excerpt <span class="text-secondary small">(shown on card)</span></label>
-            <textarea class="form-control" id="blog-edit-excerpt" rows="3" maxlength="300"></textarea>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Full Content <span class="text-secondary small">(HTML supported)</span></label>
-            <textarea class="form-control font-monospace" id="blog-edit-content" rows="12" style="font-size:0.82rem"></textarea>
-          </div>
-          <div class="alert alert-danger d-none py-2 small" id="blog-edit-error"></div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-primary" id="blog-save-btn">Save</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <footer class="site-footer">
     <div class="d-flex justify-content-center gap-3 mb-2">
       <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
@@ -474,95 +372,14 @@
     <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
     <p><a href="privacy.html">Privacy Policy</a> &middot; <a href="terms.html">Terms</a></p>
   </footer>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmyQWuGmUhSBQOVCp7p5pT1gkTJ" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
   <script src="users.js" defer></script>
   <script src="roles.js" defer></script>
   <script src="script.js" defer></script>
+  <script src="siteSearch.js" defer></script>
   <script>
   (function () {
     var ARCH_KEY = 'blog_archived';
-
-    function sanitizeHtml(html) {
-      if (!html) return '';
-      var doc = new DOMParser().parseFromString(html, 'text/html');
-      doc.querySelectorAll('script,iframe,object,embed,form,base,link,meta').forEach(function(el) { el.remove(); });
-      doc.querySelectorAll('*').forEach(function(el) {
-        Array.from(el.attributes).forEach(function(attr) {
-          var n = attr.name.toLowerCase();
-          var v = attr.value.trim().toLowerCase();
-          if (n.startsWith('on') ||
-              (['href','src','action','formaction'].indexOf(n) !== -1 &&
-               (v.startsWith('javascript:') || v.startsWith('data:text/html')))) {
-            el.removeAttribute(attr.name);
-          }
-        });
-      });
-      return doc.body.innerHTML;
-    }
-
-    var POST_TAGS = {
-      cmmc:            'Compliance',
-      ai:              'AI & Cyber',
-      military:        'Leadership',
-      grc:             'Compliance',
-      risk:            'Risk',
-      zerotrust:       'Architecture',
-      deploy:          'DevOps',
-      webserver:       'DevOps',
-      incidentresponse:'Incident Response',
-      docker:          'DevOps',
-      apisecurity:     'Security',
-      linuxhardening:  'Linux',
-      htmlcss:         'Web Dev',
-      jsdom:           'Web Dev',
-      nodeexpress:     'Web Dev',
-      gitworkflow:     'DevOps',
-      cssresponsive:   'Web Dev',
-      godaddyvps:      'DevOps'
-    };
-
-    function readTime(id) {
-      var html  = CONTENT[id] || '';
-      var words = html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().split(' ').filter(Boolean).length;
-      return Math.max(1, Math.round(words / 200));
-    }
-
-    var activeCategory = '';
-
-    function buildFilterBar() {
-      var bar  = document.getElementById('blog-filter-bar');
-      if (!bar) return;
-      var cats = ['All'];
-      Object.values(POST_TAGS).forEach(function(c) { if (cats.indexOf(c) === -1) cats.push(c); });
-      cats.sort(function(a, b) { return a === 'All' ? -1 : b === 'All' ? 1 : a.localeCompare(b); });
-      bar.innerHTML = '<span class="text-secondary small me-1">Filter:</span>';
-      cats.forEach(function(cat) {
-        var btn = document.createElement('button');
-        btn.className = 'btn btn-sm ' + (cat === 'All' ? 'btn-primary' : 'btn-outline-secondary') + ' blog-cat-btn';
-        btn.dataset.cat = cat === 'All' ? '' : cat;
-        btn.textContent = cat;
-        bar.appendChild(btn);
-      });
-    }
-
-    function filterCards() {
-      var visible = 0;
-      document.querySelectorAll('[data-post-id]').forEach(function(card) {
-        var id  = card.dataset.postId;
-        var col = document.getElementById('post-col-' + id);
-        if (!col || col.style.display === 'none') return;
-        if (activeCategory && POST_TAGS[id] !== activeCategory) {
-          col.dataset.catHidden = '1';
-          col.style.display = 'none';
-        } else {
-          col.dataset.catHidden = '';
-          col.style.display = '';
-          visible++;
-        }
-      });
-      var empty = document.getElementById('blog-empty');
-      if (empty) empty.style.display = visible === 0 ? '' : 'none';
-    }
     var EDITS_KEY = 'blog_edits';
 
     /* ── Full article content keyed by post id ──────────────── */
@@ -649,25 +466,6 @@
           if (d && ed.date)  { d.textContent = formatDate(ed.date); d.setAttribute('datetime', ed.date); }
           if (e && ed.excerpt) e.textContent = ed.excerpt;
         }
-
-        // Inject read-time estimate
-        var meta = card.querySelector('.blog-meta');
-        if (meta && CONTENT[id] && !meta.querySelector('.read-time')) {
-          var rt = document.createElement('span');
-          rt.className = 'read-time text-secondary small ms-2';
-          rt.textContent = '· ~' + readTime(id) + ' min read';
-          meta.appendChild(rt);
-        }
-
-        // Tag badge
-        var tag = POST_TAGS[id];
-        if (tag && !card.querySelector('.post-tag')) {
-          var badge = document.createElement('span');
-          badge.className = 'post-tag badge bg-secondary-subtle text-secondary-emphasis me-2 mb-1';
-          badge.textContent = tag;
-          var titleEl = card.querySelector('.post-title');
-          if (titleEl) titleEl.insertAdjacentElement('beforebegin', badge);
-        }
       });
     }
 
@@ -683,7 +481,7 @@
 
       document.getElementById('blog-read-title').textContent = title;
       document.getElementById('blog-read-date').textContent  = formatDate(dateStr);
-      document.getElementById('blog-read-body').innerHTML    = sanitizeHtml(content);
+      document.getElementById('blog-read-body').innerHTML    = content;
 
       bootstrap.Modal.getOrCreateInstance(document.getElementById('blogReadModal')).show();
     }
@@ -765,47 +563,14 @@
     /* ── Save button ─────────────────────────────────────────── */
     document.getElementById('blog-save-btn').addEventListener('click', saveEdit);
 
-    /* ── Category filter clicks ─────────────────────────────── */
-    document.getElementById('blog-filter-bar').addEventListener('click', function(e) {
-      var btn = e.target.closest('.blog-cat-btn');
-      if (!btn) return;
-      activeCategory = btn.dataset.cat;
-      document.querySelectorAll('.blog-cat-btn').forEach(function(b) {
-        b.className = b.className.replace(/btn-primary|btn-outline-secondary/g, '').trim();
-        b.classList.add(b.dataset.cat === activeCategory ? 'btn-primary' : 'btn-outline-secondary');
-      });
-      // Restore archived-hidden cols first, then re-apply
-      document.querySelectorAll('[data-cat-hidden="1"]').forEach(function(col) {
-        col.style.display = '';
-        col.dataset.catHidden = '';
-      });
-      filterCards();
-    });
-
-    /* ── Clear filter (empty state button) ──────────────────── */
-    document.getElementById('blog-clear-filter').addEventListener('click', function() {
-      activeCategory = '';
-      document.querySelectorAll('.blog-cat-btn').forEach(function(b) {
-        b.className = b.className.replace(/btn-primary|btn-outline-secondary/g, '').trim();
-        b.classList.add(b.dataset.cat === '' ? 'btn-primary' : 'btn-outline-secondary');
-      });
-      document.querySelectorAll('[data-cat-hidden="1"]').forEach(function(col) {
-        col.style.display = '';
-        col.dataset.catHidden = '';
-      });
-      document.getElementById('blog-empty').style.display = 'none';
-    });
-
-    /* ── Back to top in read modal ───────────────────────────── */
-    document.getElementById('blog-back-top').addEventListener('click', function() {
-      var body = document.getElementById('blog-read-body');
-      if (body) body.closest('.modal-body').scrollTo({ top: 0, behavior: 'smooth' });
-    });
-
     /* ── Init ────────────────────────────────────────────────── */
-    buildFilterBar();
     applyState();
-    filterCards();
+
+    // Support ?open=<id> from site search deep links
+    (function() {
+      var p = new URLSearchParams(window.location.search).get('open');
+      if (p && CONTENT[p]) setTimeout(function() { openRead(p); }, 200);
+    })();
   })();
   </script>
 </body>

@@ -23,7 +23,9 @@ function saveEngagements(list) {
 }
 
 function generateId() {
-  return `eng_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+  var arr = new Uint32Array(1);
+  crypto.getRandomValues(arr);
+  return `eng_${Date.now()}_${arr[0].toString(36).slice(0, 5)}`;
 }
 
 // ── Render ────────────────────────────────────────────────────

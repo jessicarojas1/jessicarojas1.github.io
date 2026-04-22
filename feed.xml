@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Jessica Rojas — Blog</title>
+    <link>https://jessicarojas1.github.io/blog.html</link>
+    <description>Cybersecurity, compliance, DevOps, and career insights from a CISSP-certified Enterprise Systems Manager and U.S. Army veteran.</description>
+    <language>en-us</language>
+    <atom:link href="https://jessicarojas1.github.io/feed.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 22 Apr 2026 00:00:00 +0000</lastBuildDate>
+
+    <item>
+      <title>Deploying on GoDaddy VPS: An 8-Phase Guide</title>
+      <link>https://jessicarojas1.github.io/blog.html?open=godaddyvps</link>
+      <guid>https://jessicarojas1.github.io/blog.html#godaddyvps</guid>
+      <description>A practical walkthrough for deploying a production web server on a GoDaddy VPS — from initial SSH access through SSL, Nginx, firewall hardening, and automation.</description>
+      <category>DevOps</category>
+    </item>
+
+    <item>
+      <title>CI/CD with GitHub Actions</title>
+      <link>https://jessicarojas1.github.io/blog.html?open=deploy</link>
+      <guid>https://jessicarojas1.github.io/blog.html#deploy</guid>
+      <description>End-to-end guide to building a GitHub Actions CI/CD pipeline — lint, test, build, and deploy to production automatically.</description>
+      <category>DevOps</category>
+    </item>
+
+    <item>
+      <title>API Security Best Practices</title>
+      <link>https://jessicarojas1.github.io/blog.html?open=apisecurity</link>
+      <guid>https://jessicarojas1.github.io/blog.html#apisecurity</guid>
+      <description>REST API security from authentication to rate limiting — practical patterns using OAuth 2.0, JWT, input validation, and OWASP guidance.</description>
+      <category>Security</category>
+    </item>
+
+    <item>
+      <title>Linux Server Hardening for CMMC</title>
+      <link>https://jessicarojas1.github.io/blog.html?open=linuxhardening</link>
+      <guid>https://jessicarojas1.github.io/blog.html#linuxhardening</guid>
+      <description>Step-by-step Linux hardening guide aligned with CMMC Level 2 and DoD STIGs — SSH lockdown, auditd, firewall, and CIS benchmark application.</description>
+      <category>Linux</category>
+    </item>
+
+    <item>
+      <title>Docker &amp; Container Security</title>
+      <link>https://jessicarojas1.github.io/blog.html?open=docker</link>
+      <guid>https://jessicarojas1.github.io/blog.html#docker</guid>
+      <description>Securing Docker containers from image hygiene to runtime protection — rootless mode, capabilities, read-only filesystems, and image scanning.</description>
+      <category>DevOps</category>
+    </item>
+
+    <item>
+      <title>Incident Response: The First 48 Hours</title>
+      <link>https://jessicarojas1.github.io/blog.html?open=incidentresponse</link>
+      <guid>https://jessicarojas1.github.io/blog.html#incidentresponse</guid>
+      <description>A practical playbook for the first 48 hours of an incident — detection, containment, eradication, and the communication strategies that determine outcomes.</description>
+      <category>Incident Response</category>
+    </item>
+
+    <item>
+      <title>Deploying a Web Server on a Linux VPS</title>
+      <link>https://jessicarojas1.github.io/blog.html?open=webserver</link>
+      <guid>https://jessicarojas1.github.io/blog.html#webserver</guid>
+      <description>Full walkthrough of deploying Nginx on a Linux VPS — from initial setup through SSL, reverse proxy, and firewall configuration.</description>
+      <category>DevOps</category>
+    </item>
+
+    <item>
+      <title>Zero Trust Architecture: A Practical Guide</title>
+      <link>https://jessicarojas1.github.io/blog.html?open=zerotrust</link>
+      <guid>https://jessicarojas1.github.io/blog.html#zerotrust</guid>
+      <description>Implementing Zero Trust beyond the buzzword — identity verification, microsegmentation, and continuous monitoring in practice.</description>
+      <category>Architecture</category>
+    </item>
+
+    <item>
+      <title>Cyber GRC: Governance, Risk, and Compliance Explained</title>
+      <link>https://jessicarojas1.github.io/blog.html?open=grc</link>
+      <guid>https://jessicarojas1.github.io/blog.html#grc</guid>
+      <description>A plain-English breakdown of GRC frameworks — how governance, risk management, and compliance intersect in real organizations.</description>
+      <category>Compliance</category>
+    </item>
+
+    <item>
+      <title>Risk and Opportunity in Modern Cybersecurity</title>
+      <link>https://jessicarojas1.github.io/blog.html?open=risk</link>
+      <guid>https://jessicarojas1.github.io/blog.html#risk</guid>
+      <description>Why risk management isn't just about threats — understanding the opportunity side of the equation and how to present it to leadership.</description>
+      <category>Risk</category>
+    </item>
+
+    <item>
+      <title>AI in Cyber Defense: Risk or Opportunity?</title>
+      <link>https://jessicarojas1.github.io/blog.html?open=ai</link>
+      <guid>https://jessicarojas1.github.io/blog.html#ai</guid>
+      <description>Unpacking the dual-use nature of AI in cybersecurity — where it strengthens defenses and where it amplifies attacker capabilities.</description>
+      <category>AI &amp; Cyber</category>
+    </item>
+
+    <item>
+      <title>Lessons from the Battlefield: Military Discipline in Cybersecurity</title>
+      <link>https://jessicarojas1.github.io/blog.html?open=military</link>
+      <guid>https://jessicarojas1.github.io/blog.html#military</guid>
+      <description>How military training — mission clarity, decision-making under pressure, and disciplined process — translates directly to leading security programs.</description>
+      <category>Leadership</category>
+    </item>
+
+    <item>
+      <title>How to Prepare for CMMC Compliance</title>
+      <link>https://jessicarojas1.github.io/blog.html?open=cmmc</link>
+      <guid>https://jessicarojas1.github.io/blog.html#cmmc</guid>
+      <description>A practical guide to preparing for CMMC Level 2 — from scoping and gap analysis through SSP authoring and C3PAO assessment readiness.</description>
+      <category>Compliance</category>
+    </item>
+
+  </channel>
+</rss>

@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" crossorigin="anonymous">
+  <link rel="stylesheet" href="theme.css" />
+  <title>Services | Jessica Rojas</title>
+  <meta name="description" content="CMMC consulting services by Jessica Rojas — assessment, implementation, retainer, and training packages for DoD contractors." />
+  <meta property="og:title" content="Consulting Services | Jessica Rojas" />
+  <meta property="og:description" content="CMMC, NIST 800-171, and DoD compliance consulting. Assessment, implementation, and retainer packages." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://jessicarojas1.github.io/services.html" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Consulting Services | Jessica Rojas" />
+  <meta name="twitter:description" content="CMMC, NIST 800-171, and DoD compliance consulting packages." />
+  <style>
+    .svc-card {
+      border: 1px solid var(--bs-border-color);
+      border-radius: 12px;
+      padding: 2rem;
+      height: 100%;
+      transition: transform .15s, box-shadow .15s;
+      position: relative;
+      background: var(--bs-body-bg);
+    }
+    .svc-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,.18); }
+    .svc-card.featured {
+      border-color: var(--bs-primary);
+      box-shadow: 0 0 0 2px rgba(var(--bs-primary-rgb), .25);
+    }
+    .svc-badge {
+      position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+      background: var(--bs-primary); color: #fff;
+      font-size: .72rem; font-weight: 700; letter-spacing: .06em;
+      padding: 3px 14px; border-radius: 50px;
+      white-space: nowrap;
+    }
+    .svc-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .svc-name { font-size: 1.15rem; font-weight: 700; margin-bottom: .25rem; }
+    .svc-tagline { font-size: .85rem; color: var(--bs-secondary-color); margin-bottom: 1rem; }
+    .svc-price { font-size: 1.4rem; font-weight: 800; color: var(--bs-primary); margin-bottom: 1.25rem; }
+    .svc-price span { font-size: .8rem; font-weight: 400; color: var(--bs-secondary-color); }
+    .svc-features { list-style: none; padding: 0; margin: 0 0 1.5rem; }
+    .svc-features li { padding: 5px 0; font-size: .88rem; border-bottom: 1px solid var(--bs-border-color); display: flex; gap: 8px; }
+    .svc-features li:last-child { border-bottom: none; }
+    .svc-check { color: var(--bs-success); font-weight: 700; flex-shrink: 0; }
+    .faq-item { border-bottom: 1px solid var(--bs-border-color); padding: 1.2rem 0; }
+    .faq-item:first-child { padding-top: 0; }
+    .faq-q { font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; gap: 8px; }
+    .faq-q .toggle { color: var(--bs-primary); flex-shrink: 0; transition: transform .2s; }
+    .faq-a { font-size: .9rem; color: var(--bs-secondary-color); margin-top: .75rem; display: none; }
+    .faq-item.open .faq-a { display: block; }
+    .faq-item.open .toggle { transform: rotate(45deg); }
+    .process-step {
+      display: flex; gap: 1rem; align-items: flex-start; padding: 1rem 0;
+      border-bottom: 1px solid var(--bs-border-color);
+    }
+    .process-step:last-child { border-bottom: none; }
+    .step-num {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--bs-primary); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: .9rem; flex-shrink: 0;
+    }
+    .avail-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 18px; border-radius: 50px; font-size: .85rem; font-weight: 600;
+    }
+    .avail-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .avail-open  { background: rgba(25,135,84,.1); color: #198754; border: 1px solid rgba(25,135,84,.3); }
+    .avail-open  .avail-dot { background: #198754; box-shadow: 0 0 0 3px rgba(25,135,84,.25); animation: pulse 2s infinite; }
+    .avail-busy  { background: rgba(255,193,7,.1); color: #ffc107; border: 1px solid rgba(255,193,7,.3); }
+    .avail-busy  .avail-dot { background: #ffc107; }
+    .avail-full  { background: rgba(220,53,69,.1); color: #dc3545; border: 1px solid rgba(220,53,69,.3); }
+    .avail-full  .avail-dot { background: #dc3545; }
+    @keyframes pulse { 0%,100%{box-shadow:0 0 0 3px rgba(25,135,84,.25)} 50%{box-shadow:0 0 0 6px rgba(25,135,84,.08)} }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+          <li class="nav-item"><a class="nav-link" href="projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link active" href="services.html" aria-current="page">Services</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" id="nav-dataanalysis-link" style="display:none"><a class="nav-link" href="dataanalysis.html">Data Analysis</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content">
+
+    <!-- Hero -->
+    <section class="hero-section reveal">
+      <div class="container text-center">
+        <h1>Consulting Services</h1>
+        <p class="lead">CMMC, NIST 800-171, and DoD compliance — practical guidance from a practitioner who's done it.</p>
+        <!-- Availability indicator (controlled by admin via localStorage) -->
+        <div class="mt-3" id="avail-banner"></div>
+      </div>
+    </section>
+
+    <!-- Pricing cards -->
+    <section class="container py-5" id="packages">
+      <h2 class="section-title text-center mb-2">Service Packages</h2>
+      <p class="text-center text-secondary small mb-5">All engagements start with a free 30-minute discovery call. Contact me to discuss scope and pricing.</p>
+      <div class="row g-4 justify-content-center">
+
+        <!-- Assessment -->
+        <div class="col-md-6 col-lg-4">
+          <div class="svc-card">
+            <div class="svc-icon">&#128203;</div>
+            <div class="svc-name">Gap Assessment</div>
+            <div class="svc-tagline">Understand where you stand before you start</div>
+            <div class="svc-price">Contact for pricing <span>/ project</span></div>
+            <ul class="svc-features">
+              <li><span class="svc-check">&#10003;</span>CMMC L1 or L2 gap analysis (all 110 practices)</li>
+              <li><span class="svc-check">&#10003;</span>NIST SP 800-171 scoring</li>
+              <li><span class="svc-check">&#10003;</span>CUI boundary identification</li>
+              <li><span class="svc-check">&#10003;</span>Written findings report</li>
+              <li><span class="svc-check">&#10003;</span>Prioritized remediation roadmap</li>
+              <li><span class="svc-check">&#10003;</span>Executive summary for leadership</li>
+            </ul>
+            <a href="contact.html" class="btn btn-outline-primary w-100">Get a Quote</a>
+          </div>
+        </div>
+
+        <!-- Implementation -->
+        <div class="col-md-6 col-lg-4">
+          <div class="svc-card featured">
+            <div class="svc-badge">MOST POPULAR</div>
+            <div class="svc-icon">&#128274;</div>
+            <div class="svc-name">Full Implementation</div>
+            <div class="svc-tagline">End-to-end compliance program build-out</div>
+            <div class="svc-price">Contact for pricing <span>/ engagement</span></div>
+            <ul class="svc-features">
+              <li><span class="svc-check">&#10003;</span>Everything in Gap Assessment</li>
+              <li><span class="svc-check">&#10003;</span>SSP authoring (full System Security Plan)</li>
+              <li><span class="svc-check">&#10003;</span>Policy &amp; procedure development</li>
+              <li><span class="svc-check">&#10003;</span>POA&amp;M creation and management</li>
+              <li><span class="svc-check">&#10003;</span>Evidence collection strategy</li>
+              <li><span class="svc-check">&#10003;</span>C3PAO assessment prep support</li>
+              <li><span class="svc-check">&#10003;</span>DFARS 252.204-7012 self-attestation guidance</li>
+            </ul>
+            <a href="contact.html" class="btn btn-primary w-100">Start Your Program</a>
+          </div>
+        </div>
+
+        <!-- Retainer -->
+        <div class="col-md-6 col-lg-4">
+          <div class="svc-card">
+            <div class="svc-icon">&#9881;</div>
+            <div class="svc-name">Ongoing Retainer</div>
+            <div class="svc-tagline">Continuous monitoring and advisory support</div>
+            <div class="svc-price">Contact for pricing <span>/ month</span></div>
+            <ul class="svc-features">
+              <li><span class="svc-check">&#10003;</span>Monthly compliance review calls</li>
+              <li><span class="svc-check">&#10003;</span>Continuous monitoring plan management</li>
+              <li><span class="svc-check">&#10003;</span>Incident response advisory (up to 4 hrs/mo)</li>
+              <li><span class="svc-check">&#10003;</span>Policy updates for new regulations</li>
+              <li><span class="svc-check">&#10003;</span>Tool tuning (SIEM, EDR, vulnerability mgmt)</li>
+              <li><span class="svc-check">&#10003;</span>Priority email response (&lt;24h)</li>
+            </ul>
+            <a href="contact.html" class="btn btn-outline-primary w-100">Discuss Retainer</a>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Add-ons -->
+      <div class="mt-5 reveal">
+        <h3 class="section-title mb-3">Add-On Services</h3>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-body py-3">
+                <div class="fw-semibold mb-1">&#129303; Staff Training</div>
+                <div class="small text-secondary">Security awareness, role-based CMMC education, and tabletop incident response exercises.</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-body py-3">
+                <div class="fw-semibold mb-1">&#128200; Tool Integration</div>
+                <div class="small text-secondary">CrowdStrike, Microsoft Sentinel, Tenable, NinjaRMM integration and evidence pipeline setup.</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-body py-3">
+                <div class="fw-semibold mb-1">&#128196; ITAR / DFARS Review</div>
+                <div class="small text-secondary">ITAR classification, CUI boundary definition, and flow-down requirement review for subcontractors.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Process -->
+    <section class="container py-4 reveal">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <h2 class="section-title mb-4">How It Works</h2>
+          <div class="process-step">
+            <div class="step-num">1</div>
+            <div>
+              <div class="fw-semibold">Discovery Call (Free &middot; 30 min)</div>
+              <div class="small text-secondary mt-1">We discuss your current state, scope, timeline, and goals. No commitment required.</div>
+            </div>
+          </div>
+          <div class="process-step">
+            <div class="step-num">2</div>
+            <div>
+              <div class="fw-semibold">Scoping &amp; Proposal</div>
+              <div class="small text-secondary mt-1">I send a tailored proposal with deliverables, timeline, and pricing within 48 hours.</div>
+            </div>
+          </div>
+          <div class="process-step">
+            <div class="step-num">3</div>
+            <div>
+              <div class="fw-semibold">Engagement Kickoff</div>
+              <div class="small text-secondary mt-1">We align on access, tools, and communication cadence. Work begins immediately.</div>
+            </div>
+          </div>
+          <div class="process-step">
+            <div class="step-num">4</div>
+            <div>
+              <div class="fw-semibold">Delivery &amp; Handoff</div>
+              <div class="small text-secondary mt-1">Deliverables are reviewed together. You receive all documentation and a knowledge transfer session.</div>
+            </div>
+          </div>
+          <div class="process-step">
+            <div class="step-num">5</div>
+            <div>
+              <div class="fw-semibold">Ongoing Support</div>
+              <div class="small text-secondary mt-1">Post-engagement questions answered for 30 days. Retainer option available for continuous support.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="container py-5 reveal">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <h2 class="section-title mb-4">Frequently Asked Questions</h2>
+          <div id="faq-list">
+
+            <div class="faq-item">
+              <div class="faq-q">Who do you typically work with? <span class="toggle">+</span></div>
+              <div class="faq-a">Primarily small to mid-size DoD contractors (50–500 employees) who need to achieve CMMC Level 1 or Level 2 certification. I also work with subcontractors handling CUI who have flow-down DFARS requirements.</div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-q">Do you work remotely? <span class="toggle">+</span></div>
+              <div class="faq-a">Yes — all assessments, policy work, and advisory services are delivered remotely. For engagements requiring on-site presence (e.g., physical environment walkthroughs), travel can be arranged.</div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-q">How long does a CMMC Level 2 assessment take? <span class="toggle">+</span></div>
+              <div class="faq-a">A gap assessment typically takes 2–4 weeks depending on the size of the organization and availability of documentation. Full implementation programs range from 3 to 12 months based on the gap findings.</div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-q">Can you help us after the C3PAO assessment? <span class="toggle">+</span></div>
+              <div class="faq-a">Absolutely. Post-assessment support — POA&amp;M remediation, continuous monitoring, and annual review — is one of the most common reasons clients engage on retainer.</div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-q">Do you sign NDAs? <span class="toggle">+</span></div>
+              <div class="faq-a">Yes. I routinely sign mutual NDAs before starting any engagement. I hold an active Secret clearance and understand the sensitivity of information involved in defense contractor environments.</div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-band reveal">
+      <div class="container text-center">
+        <h2 class="fw-bold mb-3">Ready to get started?</h2>
+        <p class="text-white-50 mb-4">Book a free 30-minute discovery call and we'll map out your path to CMMC compliance.</p>
+        <a href="contact.html" class="btn btn-primary btn-lg">Schedule a Call</a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- RBAC Login Modal -->
+  <div class="modal" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="rbacModalLabel">&#128274; Login</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body"><!-- roles.js injects login form here --></div>
+        <div class="modal-footer border-0 pt-0"><p class="text-secondary small mb-0">Session clears when you close this tab.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" />
+      </a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" />
+      </a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="privacy.html">Privacy Policy</a> &middot; <a href="terms.html">Terms</a></p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+  <script src="users.js" defer></script>
+  <script src="roles.js" defer></script>
+  <script src="script.js" defer></script>
+  <script src="siteSearch.js" defer></script>
+  <script>
+    // FAQ accordion
+    document.querySelectorAll('.faq-item').forEach(function(item) {
+      item.querySelector('.faq-q').addEventListener('click', function() {
+        item.classList.toggle('open');
+      });
+    });
+
+    // Availability banner (admin sets via localStorage key 'consulting_availability')
+    (function() {
+      var status = localStorage.getItem('consulting_availability') || 'open';
+      var banner = document.getElementById('avail-banner');
+      if (!banner) return;
+      var map = {
+        open: { cls: 'avail-open',  label: 'Currently accepting new clients' },
+        busy: { cls: 'avail-busy',  label: 'Limited availability — reach out to discuss' },
+        full: { cls: 'avail-full',  label: 'Fully booked — join the waitlist' },
+      };
+      var s = map[status] || map.open;
+      banner.innerHTML = '<span class="avail-badge ' + s.cls + '"><span class="avail-dot"></span>' + s.label + '</span>';
+    })();
+  </script>
+</body>
+</html>

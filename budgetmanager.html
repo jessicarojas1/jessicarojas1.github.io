@@ -101,6 +101,7 @@
           <li class="nav-item"><a class="nav-link" href="timeline.html">Timeline</a></li>
           <li class="nav-item"><a class="nav-link" href="cybersecurity.html">Cybersecurity</a></li>
           <li class="nav-item"><a class="nav-link" href="consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="services.html">Services</a></li>
           <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
           <li class="nav-item"><a class="nav-link" href="blog.html">Blog</a></li>
           <li class="nav-item"><a class="nav-link" href="knowledge.html">Knowledge Base</a></li>
@@ -738,7 +739,7 @@
     var $ = id => document.getElementById(id);
     var fmt = n => '$' + Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
     var pct = (a,b) => b ? ((a/b)*100).toFixed(1)+'%' : '0%';
-    var uid = () => Math.random().toString(36).slice(2,10);
+    var uid = () => { var a = new Uint32Array(2); crypto.getRandomValues(a); return a[0].toString(36)+a[1].toString(36); };
     var today = () => new Date().toISOString().slice(0,10);
 
     /* ── frequency → monthly multiplier ───────────────── */

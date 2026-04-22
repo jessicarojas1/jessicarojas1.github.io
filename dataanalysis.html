@@ -250,11 +250,13 @@
       <div class="collapse navbar-collapse" id="navContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
           <li class="nav-item"><a class="nav-link" href="projects.html">Projects</a></li>
           <li class="nav-item"><a class="nav-link" href="resume.html">Resume</a></li>
           <li class="nav-item"><a class="nav-link" href="timeline.html">Timeline</a></li>
           <li class="nav-item"><a class="nav-link" href="cybersecurity.html">Cybersecurity</a></li>
           <li class="nav-item"><a class="nav-link" href="consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="services.html">Services</a></li>
           <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
           <li class="nav-item"><a class="nav-link" href="blog.html">Blog</a></li>
           <li class="nav-item"><a class="nav-link" href="knowledge.html">Knowledge Base</a></li>
@@ -447,7 +449,7 @@
       ]
     };
   }
-  function genId(){return 'da_'+Date.now()+Math.floor(Math.random()*1000);}
+  function genId(){var a=new Uint32Array(1);crypto.getRandomValues(a);return 'da_'+Date.now()+a[0].toString(36);}
 
   /* ── ISO WEEK ────────────────────────────────────────── */
   function isoWeek(d){

@@ -13,6 +13,13 @@
   <link rel="stylesheet" href="consultant.css" />
   <title>CMMC Consulting | Jessica Rojas</title>
   <meta name="description" content="CMMC consulting services by Jessica Rojas — CISSP-certified cybersecurity professional specializing in CMMC Level 2 implementation, NIST SP 800-171, and DoD compliance." />
+  <meta property="og:title" content="CMMC Consulting | Jessica Rojas" />
+  <meta property="og:description" content="CMMC Level 2 consulting — assessments, SSP development, and compliance support." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://jessicarojas1.github.io/consultant.html" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="CMMC Consulting | Jessica Rojas" />
+  <meta name="twitter:description" content="CMMC Level 2 consulting — assessments, SSP development, and compliance support." />
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
@@ -26,6 +33,7 @@
       <div class="collapse navbar-collapse" id="navContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
           <li class="nav-item"><a class="nav-link" href="projects.html">Projects</a></li>
           <li class="nav-item"><a class="nav-link" href="resume.html">Resume</a></li>
           <li class="nav-item"><a class="nav-link" href="timeline.html">Timeline</a></li>
@@ -72,11 +80,14 @@
           <span class="badge-cert">CEH</span>
           <span class="badge-cert">ECES</span>
           <span class="badge-cert">CompTIA Security+</span>
-          <span class="badge-cert">MS Cybersecurity & IA</span>
+          <span class="badge-cert">MS Cybersecurity &amp; IA</span>
         </div>
-        <div class="mt-3">
+        <!-- Availability badge -->
+        <div class="mt-3 mb-2" id="consult-avail-badge"></div>
+        <div class="mt-2">
           <a href="contact.html" class="btn btn-primary btn-lg me-2">Get In Touch</a>
           <a href="#engagements" class="btn btn-outline-light btn-lg">My Engagements</a>
+          <a href="services.html" class="btn btn-outline-light btn-lg ms-2">View Services</a>
         </div>
       </div>
     </section>
@@ -161,6 +172,26 @@
       <div id="engagementList" class="engagement-grid">
         <p class="text-secondary" id="engEmptyMsg">No engagements yet. Click <strong>+ New Engagement</strong> to start tracking.</p>
       </div>
+    </section>
+
+    <!-- Availability Calendar -->
+    <section class="container py-4 reveal" id="availability">
+      <h2 class="section-title mb-1">Availability</h2>
+      <p class="text-secondary small mb-3">General availability for new discovery calls and engagements. <span data-role-min="admin" id="avail-edit-link" style="display:none"><a href="#" id="toggleAvailAdmin">Edit availability</a></span></p>
+
+      <!-- Admin controls (hidden) -->
+      <div data-role-min="admin" id="avail-admin-panel" style="display:none" class="card mb-3">
+        <div class="card-body py-3">
+          <div class="d-flex gap-2 flex-wrap align-items-center">
+            <span class="small fw-semibold">Set status:</span>
+            <button class="btn btn-sm btn-success" data-avail="open">Open</button>
+            <button class="btn btn-sm btn-warning" data-avail="busy">Limited</button>
+            <button class="btn btn-sm btn-danger" data-avail="full">Fully Booked</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="avail-calendar" class="row g-2"></div>
     </section>
 
     <!-- Credentials / Background -->
@@ -286,5 +317,54 @@
   <script src="roles.js" defer></script>
   <script src="script.js" defer></script>
   <script src="consultant.js" defer></script>
+  <script src="siteSearch.js" defer></script>
+  <script>
+    /* ── Availability badge & calendar ──────────────────────── */
+    var AVAIL_MAP = {
+      open: { cls: 'bg-success',   label: 'Currently accepting new clients',          dot: '&#x1F7E2;' },
+      busy: { cls: 'bg-warning',   label: 'Limited availability — reach out to discuss', dot: '&#x1F7E1;' },
+      full: { cls: 'bg-danger',    label: 'Fully booked — join the waitlist',          dot: '&#x1F534;' },
+    };
+
+    function renderAvail() {
+      var status = localStorage.getItem('consulting_availability') || 'open';
+      var s = AVAIL_MAP[status] || AVAIL_MAP.open;
+      var badge = document.getElementById('consult-avail-badge');
+      if (badge) badge.innerHTML = '<span class="badge ' + s.cls + ' fs-6 px-3 py-2">' + s.dot + ' ' + s.label + '</span>';
+      renderCalendar(status);
+    }
+
+    function renderCalendar(status) {
+      var cal = document.getElementById('avail-calendar');
+      if (!cal) return;
+      var days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+      var slots = {
+        open: { Mon:'Available', Tue:'Available', Wed:'Available', Thu:'Available', Fri:'Available' },
+        busy: { Mon:'Available', Tue:'Limited',   Wed:'Available', Thu:'Limited',   Fri:'Available' },
+        full: { Mon:'Booked',    Tue:'Booked',    Wed:'Booked',    Thu:'Booked',    Fri:'Booked' },
+      };
+      var slotCls = { Available: 'bg-success bg-opacity-10 border-success text-success',
+                      Limited:   'bg-warning bg-opacity-10 border-warning text-warning',
+                      Booked:    'bg-danger  bg-opacity-10 border-danger  text-danger' };
+      var cur = slots[status] || slots.open;
+      cal.innerHTML = days.map(function(d) {
+        var state = cur[d] || 'Available';
+        return '<div class="col"><div class="card border text-center py-3 ' + slotCls[state] + '">'
+             + '<div class="fw-bold small">' + d + '</div>'
+             + '<div style="font-size:.72rem">' + state + '</div></div></div>';
+      }).join('');
+    }
+
+    // Admin set-availability buttons
+    document.querySelectorAll('[data-avail]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        localStorage.setItem('consulting_availability', btn.dataset.avail);
+        renderAvail();
+      });
+    });
+
+    // Delay to let roles.js wire up before checking admin
+    document.addEventListener('DOMContentLoaded', function() { setTimeout(renderAvail, 80); });
+  </script>
 </body>
 </html>
