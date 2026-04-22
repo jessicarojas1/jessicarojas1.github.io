@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; img-src 'self' https://cdn.jsdelivr.net data: blob:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self' https://cdn.jsdelivr.net; worker-src blob:; object-src 'none'; base-uri 'self';">
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -481,6 +482,24 @@
   (function () {
     var ARCH_KEY = 'blog_archived';
 
+    function sanitizeHtml(html) {
+      if (!html) return '';
+      var doc = new DOMParser().parseFromString(html, 'text/html');
+      doc.querySelectorAll('script,iframe,object,embed,form,base,link,meta').forEach(function(el) { el.remove(); });
+      doc.querySelectorAll('*').forEach(function(el) {
+        Array.from(el.attributes).forEach(function(attr) {
+          var n = attr.name.toLowerCase();
+          var v = attr.value.trim().toLowerCase();
+          if (n.startsWith('on') ||
+              (['href','src','action','formaction'].indexOf(n) !== -1 &&
+               (v.startsWith('javascript:') || v.startsWith('data:text/html')))) {
+            el.removeAttribute(attr.name);
+          }
+        });
+      });
+      return doc.body.innerHTML;
+    }
+
     var POST_TAGS = {
       cmmc:            'Compliance',
       ai:              'AI & Cyber',
@@ -664,7 +683,7 @@
 
       document.getElementById('blog-read-title').textContent = title;
       document.getElementById('blog-read-date').textContent  = formatDate(dateStr);
-      document.getElementById('blog-read-body').innerHTML    = content;
+      document.getElementById('blog-read-body').innerHTML    = sanitizeHtml(content);
 
       bootstrap.Modal.getOrCreateInstance(document.getElementById('blogReadModal')).show();
     }

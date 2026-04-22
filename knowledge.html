@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; img-src 'self' https://cdn.jsdelivr.net data: blob:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self' https://cdn.jsdelivr.net; worker-src blob:; object-src 'none'; base-uri 'self';">
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -765,6 +766,24 @@ drop http any any -> any any (
   }
 
   /* ── Render cards ──────────────────────────────────────────── */
+  function sanitizeHtml(html) {
+    if (!html) return '';
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    doc.querySelectorAll('script,iframe,object,embed,form,base,link,meta').forEach(el => el.remove());
+    doc.querySelectorAll('*').forEach(el => {
+      Array.from(el.attributes).forEach(attr => {
+        const n = attr.name.toLowerCase();
+        const v = attr.value.trim().toLowerCase();
+        if (n.startsWith('on') ||
+            (['href','src','action','formaction'].includes(n) &&
+             (v.startsWith('javascript:') || v.startsWith('data:text/html')))) {
+          el.removeAttribute(attr.name);
+        }
+      });
+    });
+    return doc.body.innerHTML;
+  }
+
   function stripHtml(html) {
     return html ? html.replace(/<[^>]*>/g, ' ').replace(/&[a-z]+;/g, ' ').replace(/\s+/g, ' ').trim() : '';
   }
@@ -886,7 +905,7 @@ drop http any any -> any any (
 
     document.getElementById('kbViewModalLabel').textContent = entry.title || '';
     document.getElementById('kbViewSummary').textContent    = entry.summary || '';
-    document.getElementById('kbViewBody').innerHTML          = entry.body || '';
+    document.getElementById('kbViewBody').innerHTML          = sanitizeHtml(entry.body);
 
     const meta = document.getElementById('kbViewMeta');
     const tagHtml = (entry.tags || []).map(t => `<span class="badge bg-secondary">${escH(t)}</span>`).join(' ');
