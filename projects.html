@@ -11,6 +11,13 @@
   <link rel="stylesheet" href="theme.css" />
   <title>Projects | Jessica Rojas</title>
   <meta name="description" content="Projects built by Jessica Rojas — tools, apps, and systems spanning cybersecurity, compliance, and web development." />
+  <meta property="og:title" content="Projects | Jessica Rojas" />
+  <meta property="og:description" content="Tools and apps by Jessica Rojas — compliance trackers, AI agents, code playgrounds, and more." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://jessicarojas1.github.io/projects.html" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Projects | Jessica Rojas" />
+  <meta name="twitter:description" content="Tools and apps by Jessica Rojas — compliance trackers, AI agents, code playgrounds, and more." />
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
@@ -67,12 +74,26 @@
       </div>
     </section>
 
+    <!-- Filter bar -->
+    <section class="container pt-4 pb-2">
+      <div class="d-flex flex-wrap gap-2 align-items-center" id="proj-filter-bar">
+        <span class="text-secondary small me-1" style="font-size:.78rem;text-transform:uppercase;letter-spacing:.05em">Filter:</span>
+        <button class="btn btn-sm btn-primary proj-filter active" data-filter="all">All</button>
+        <button class="btn btn-sm btn-outline-secondary proj-filter" data-filter="Security">Security</button>
+        <button class="btn btn-sm btn-outline-secondary proj-filter" data-filter="Compliance">Compliance</button>
+        <button class="btn btn-sm btn-outline-secondary proj-filter" data-filter="DevOps">DevOps</button>
+        <button class="btn btn-sm btn-outline-secondary proj-filter" data-filter="AI">AI</button>
+        <button class="btn btn-sm btn-outline-secondary proj-filter" data-filter="Finance">Finance</button>
+        <button class="btn btn-sm btn-outline-secondary proj-filter" data-filter="macOS">macOS</button>
+      </div>
+    </section>
+
     <!-- Projects Grid -->
-    <section class="container py-5">
+    <section class="container py-3">
       <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="projects-grid">
 
         <!-- Card 1: CMMC Compliance Tracker -->
-        <div class="col">
+        <div class="col" data-tags="Compliance Security">
           <div class="card h-100">
             <div class="card-body">
               <h3 class="card-title h5">CMMC Compliance Tracker</h3>
@@ -87,7 +108,7 @@
         </div>
 
         <!-- Card 2: ATS Resume Screener -->
-        <div class="col">
+        <div class="col" data-tags="AI">
           <div class="card h-100">
             <div class="card-body">
               <h3 class="card-title h5">ATS Resume Screener</h3>
@@ -102,7 +123,7 @@
         </div>
 
         <!-- Card 3: Portfolio Website -->
-        <div class="col">
+        <div class="col" data-tags="DevOps">
           <div class="card h-100">
             <div class="card-body">
               <h3 class="card-title h5">Portfolio Website</h3>
@@ -117,7 +138,7 @@
         </div>
 
         <!-- Card 4: Cybersecurity Policy Toolkit -->
-        <div class="col">
+        <div class="col" data-tags="Security Compliance">
           <div class="card h-100">
             <div class="card-body">
               <h3 class="card-title h5">Cybersecurity Policy Toolkit</h3>
@@ -132,7 +153,7 @@
         </div>
 
         <!-- Card 5: Data Analysis Dashboard -->
-        <div class="col">
+        <div class="col" data-tags="AI DevOps">
           <div class="card h-100">
             <div class="card-body">
               <h3 class="card-title h5">Data Analysis Dashboard</h3>
@@ -156,7 +177,7 @@
         </div>
 
         <!-- Card 6: Unified Compliance Framework -->
-        <div class="col">
+        <div class="col" data-tags="Compliance Security">
           <div class="card h-100">
             <div class="card-body">
               <h3 class="card-title h5">Unified Compliance Framework</h3>
@@ -177,7 +198,7 @@
         </div>
 
         <!-- Card 15: Business Insight Dashboard -->
-        <div class="col">
+        <div class="col" data-tags="AI DevOps">
           <div class="card h-100">
             <div class="card-body">
               <h3 class="card-title h5">Business Insight Dashboard</h3>
@@ -198,7 +219,7 @@
         </div>
 
         <!-- Card 14: CMMC Compliance Agent -->
-        <div class="col">
+        <div class="col" data-tags="AI Compliance Security">
           <div class="card h-100">
             <div class="card-body">
               <h3 class="card-title h5">CMMC 2.0 Compliance Agent</h3>
@@ -219,7 +240,7 @@
         </div>
 
         <!-- Card 11: Digital Twin -->
-        <div class="col">
+        <div class="col" data-tags="Security Compliance">
           <div class="card h-100">
             <div class="card-body">
               <h3 class="card-title h5">Digital Twin — Enterprise Security</h3>
@@ -241,7 +262,7 @@
         </div>
 
         <!-- Card 13: Secure Architecture Builder -->
-        <div class="col">
+        <div class="col" data-tags="Security Compliance">
           <div class="card h-100">
             <div class="card-body">
               <h3 class="card-title h5">Secure Architecture Builder</h3>
@@ -263,7 +284,7 @@
         </div>
 
         <!-- Card 12: Career Command Center -->
-        <div class="col">
+        <div class="col" data-tags="Security AI">
           <div class="card h-100">
             <div class="card-body">
               <h3 class="card-title h5">Cybersecurity Career Command Center</h3>
@@ -285,7 +306,7 @@
         </div>
 
         <!-- Card 10: Compliance Copilot -->
-        <div class="col">
+        <div class="col" data-tags="Compliance AI DevOps">
           <div class="card h-100">
             <div class="card-body">
               <h3 class="card-title h5">Compliance Copilot</h3>
@@ -309,7 +330,7 @@
         </div>
 
         <!-- Card 9: Budget Manager -->
-        <div class="col">
+        <div class="col" data-tags="Finance">
           <div class="card h-100">
             <div class="card-body">
               <h3 class="card-title h5">Budget Manager</h3>
@@ -331,7 +352,7 @@
         </div>
 
         <!-- Card 8: Code Builder -->
-        <div class="col">
+        <div class="col" data-tags="DevOps">
           <div class="card h-100">
             <div class="card-body">
               <h3 class="card-title h5">Code Builder</h3>
@@ -354,7 +375,7 @@
         </div>
 
         <!-- SnapKit: macOS Window Snapping App -->
-        <div class="col">
+        <div class="col" data-tags="macOS">
           <div class="card h-100">
             <div class="card-body">
               <h3 class="card-title h5">SnapKit</h3>
@@ -375,7 +396,7 @@
         </div>
 
         <!-- Card 7: AI Tool Evaluation Framework -->
-        <div class="col">
+        <div class="col" data-tags="AI Compliance Security">
           <div class="card h-100">
             <div class="card-body">
               <h3 class="card-title h5">AI Tool Evaluation Framework</h3>
@@ -465,5 +486,23 @@
   <script src="users.js" defer></script>
   <script src="roles.js" defer></script>
   <script src="script.js" defer></script>
+  <script src="siteSearch.js" defer></script>
+  <script>
+    document.querySelectorAll('.proj-filter').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.proj-filter').forEach(function(b) {
+          b.classList.remove('active', 'btn-primary');
+          b.classList.add('btn-outline-secondary');
+        });
+        btn.classList.add('active', 'btn-primary');
+        btn.classList.remove('btn-outline-secondary');
+        var filter = btn.dataset.filter;
+        document.querySelectorAll('#projects-grid .col[data-tags]').forEach(function(col) {
+          var match = filter === 'all' || col.dataset.tags.split(' ').indexOf(filter) !== -1;
+          col.style.display = match ? '' : 'none';
+        });
+      });
+    });
+  </script>
 </body>
 </html>

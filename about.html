@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" crossorigin="anonymous">
+  <link rel="stylesheet" href="theme.css" />
+  <title>About | Jessica Rojas</title>
+  <meta name="description" content="About Jessica Rojas — U.S. Army veteran, CISSP-certified cybersecurity professional, and Enterprise Systems Manager specializing in CMMC and DoD compliance." />
+  <meta property="og:title" content="About Jessica Rojas" />
+  <meta property="og:description" content="U.S. Army veteran and CISSP-certified cybersecurity professional specializing in CMMC, NIST 800-171, and DoD compliance." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://jessicarojas1.github.io/about.html" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="About Jessica Rojas" />
+  <meta name="twitter:description" content="U.S. Army veteran and CISSP-certified cybersecurity professional." />
+  <style>
+    .about-photo-wrap {
+      width: 180px; height: 180px;
+      border-radius: 50%;
+      border: 4px solid var(--bs-primary);
+      overflow: hidden;
+      margin: 0 auto 1.5rem;
+      background: var(--bs-body-secondary);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 4rem; color: var(--bs-primary);
+    }
+    .value-card {
+      border-left: 3px solid var(--bs-primary);
+      padding: 1rem 1.25rem;
+      background: var(--bs-body-secondary);
+      border-radius: 0 8px 8px 0;
+    }
+    .value-card h3 { font-size: .95rem; font-weight: 700; margin-bottom: .25rem; }
+    .value-card p  { font-size: .88rem; margin: 0; color: var(--bs-secondary-color); }
+    .stat-box { text-align: center; }
+    .stat-box .num { font-size: 2rem; font-weight: 800; color: var(--bs-primary); line-height: 1; }
+    .stat-box .lbl { font-size: .78rem; color: var(--bs-secondary-color); margin-top: .2rem; }
+    .timeline-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--bs-primary); flex-shrink: 0; margin-top: 4px; }
+    .timeline-line { width: 2px; background: var(--bs-border-color); flex: 1; min-height: 24px; margin: 4px auto; }
+    .cert-pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 16px; border-radius: 50px;
+      border: 1px solid var(--bs-primary);
+      background: rgba(var(--bs-primary-rgb), .08);
+      font-size: .85rem; font-weight: 600;
+    }
+    .cert-pill .cert-icon { font-size: 1.1rem; }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link active" href="about.html" aria-current="page">About</a></li>
+          <li class="nav-item"><a class="nav-link" href="projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="services.html">Services</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" id="nav-dataanalysis-link" style="display:none"><a class="nav-link" href="dataanalysis.html">Data Analysis</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content">
+
+    <!-- Hero -->
+    <section class="hero-section reveal">
+      <div class="container text-center">
+        <div class="about-photo-wrap">&#128100;</div>
+        <h1 class="display-4 fw-bold">Jessica Rojas</h1>
+        <p class="lead">Enterprise Systems Manager &middot; CISSP &middot; U.S. Army Veteran</p>
+        <div class="d-flex justify-content-center flex-wrap gap-2 mt-3">
+          <span class="badge bg-primary fs-6">CISSP</span>
+          <span class="badge bg-primary fs-6">CEH</span>
+          <span class="badge bg-primary fs-6">ECES</span>
+          <span class="badge bg-primary fs-6">CompTIA Security+</span>
+          <span class="badge bg-secondary fs-6">Secret Clearance</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="container py-5">
+
+      <!-- Stats row -->
+      <div class="row row-cols-2 row-cols-md-4 g-3 mb-5 text-center reveal">
+        <div class="col"><div class="stat-box"><div class="num">10+</div><div class="lbl">Years in Security</div></div></div>
+        <div class="col"><div class="stat-box"><div class="num">110</div><div class="lbl">CMMC Practices Implemented</div></div></div>
+        <div class="col"><div class="stat-box"><div class="num">4</div><div class="lbl">Active Certifications</div></div></div>
+        <div class="col"><div class="stat-box"><div class="num">7</div><div class="lbl">Years Military Service</div></div></div>
+      </div>
+
+      <!-- Bio -->
+      <div class="row g-5 align-items-start mb-5 reveal">
+        <div class="col-lg-7">
+          <h2 class="section-title">My Story</h2>
+          <p>I'm a cybersecurity professional with roots in the U.S. Army, where I served as Military Police with the Utah Army National Guard from 2015 to 2022. That experience gave me something you can't learn in a classroom: a mission-driven mindset, disciplined attention to detail, and an instinct for protecting critical assets under pressure.</p>
+          <p>After transitioning to civilian tech, I pursued a B.S. in Computer Science with a Minor in Military Science from Weber State University, then a Master's in Cybersecurity and Information Assurance from Western Governors University. Today, I serve as Enterprise Systems Manager at GMRE, Inc. — a defense contractor — where I led the end-to-end CMMC Level 2 certification effort, authored the SSP, and built the compliance infrastructure from the ground up.</p>
+          <p>I also mentor the next generation of cybersecurity professionals as a Cyber Mentor II at Fullstack Academy, translating complex concepts into practical, hands-on learning. Building this portfolio site — 20+ tools, a knowledge base, a compliance tracker, and a live AI agent — is part of the same philosophy: learn by building, share what you know.</p>
+        </div>
+        <div class="col-lg-5">
+          <h2 class="section-title">Career Milestones</h2>
+          <div class="d-flex flex-column gap-1">
+            <div class="d-flex gap-3 align-items-start">
+              <div class="d-flex flex-column align-items-center">
+                <div class="timeline-dot"></div>
+                <div class="timeline-line"></div>
+              </div>
+              <div class="pb-3">
+                <div class="fw-semibold">Enterprise Systems Manager</div>
+                <div class="text-secondary small">GMRE, Inc. &mdash; 2025&ndash;Present</div>
+                <div class="small mt-1">Led CMMC L2 certification; enterprise security architecture; team oversight.</div>
+              </div>
+            </div>
+            <div class="d-flex gap-3 align-items-start">
+              <div class="d-flex flex-column align-items-center">
+                <div class="timeline-dot"></div>
+                <div class="timeline-line"></div>
+              </div>
+              <div class="pb-3">
+                <div class="fw-semibold">Cyber Mentor II</div>
+                <div class="text-secondary small">Fullstack Academy &mdash; 2024&ndash;2026</div>
+                <div class="small mt-1">Mentored students in Linux, red teaming, and security fundamentals.</div>
+              </div>
+            </div>
+            <div class="d-flex gap-3 align-items-start">
+              <div class="d-flex flex-column align-items-center">
+                <div class="timeline-dot"></div>
+                <div class="timeline-line"></div>
+              </div>
+              <div class="pb-3">
+                <div class="fw-semibold">Cybersecurity Analyst</div>
+                <div class="text-secondary small">GMRE, Inc. &mdash; 2022&ndash;2024</div>
+                <div class="small mt-1">NIST/CMMC controls; CrowdStrike Falcon; vulnerability assessments.</div>
+              </div>
+            </div>
+            <div class="d-flex gap-3 align-items-start">
+              <div class="d-flex flex-column align-items-center">
+                <div class="timeline-dot"></div>
+              </div>
+              <div class="pb-3">
+                <div class="fw-semibold">Military Police</div>
+                <div class="text-secondary small">Utah Army National Guard &mdash; 2015&ndash;2022</div>
+                <div class="small mt-1">Critical infrastructure protection; team leadership; honorable service.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Values -->
+      <div class="reveal mb-5">
+        <h2 class="section-title mb-4">How I Work</h2>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="value-card">
+              <h3>Mission before checkbox</h3>
+              <p>Compliance isn't the goal — protecting the mission is. Every control I implement is grounded in why it matters, not just what the auditor wants to see.</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="value-card">
+              <h3>Build, don't just advise</h3>
+              <p>I write SSPs, author policies, tune SIEMs, and build tools. If something doesn't exist, I create it — from this portfolio to a full compliance agent powered by Claude.</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="value-card">
+              <h3>Teach what you know</h3>
+              <p>Mentoring at Fullstack Academy reinforced that the best way to deepen expertise is to explain it clearly to someone else. I bring that same instinct to client work.</p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="value-card">
+              <h3>Continuous improvement</h3>
+              <p>Security is never done. I pursue certifications, build new tools, and stay current with evolving frameworks because the threat landscape never stops moving.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Credentials -->
+      <div class="reveal mb-5">
+        <h2 class="section-title mb-4">Credentials &amp; Education</h2>
+        <div class="row g-3">
+          <div class="col-12">
+            <div class="d-flex flex-wrap gap-2">
+              <span class="cert-pill"><span class="cert-icon">&#127942;</span>CISSP &mdash; ISC&sup2;</span>
+              <span class="cert-pill"><span class="cert-icon">&#127942;</span>CEH &mdash; EC-Council</span>
+              <span class="cert-pill"><span class="cert-icon">&#127942;</span>ECES &mdash; EC-Council</span>
+              <span class="cert-pill"><span class="cert-icon">&#127942;</span>CompTIA Security+</span>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card h-100">
+              <div class="card-body">
+                <div class="text-primary fw-bold small mb-1">GRADUATE DEGREE</div>
+                <h3 class="h6 fw-semibold mb-1">Master of Cybersecurity and Information Assurance</h3>
+                <div class="text-secondary small">Western Governors University</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card h-100">
+              <div class="card-body">
+                <div class="text-primary fw-bold small mb-1">UNDERGRADUATE DEGREE</div>
+                <h3 class="h6 fw-semibold mb-1">B.S. Computer Science, Minor in Military Science</h3>
+                <div class="text-secondary small">Weber State University</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- CTA -->
+    <section class="cta-band reveal">
+      <div class="container text-center">
+        <h2 class="fw-bold mb-3">Let's work together</h2>
+        <p class="text-white-50 mb-4">Whether it's a compliance program, a consulting engagement, or a conversation — I'm here.</p>
+        <a href="contact.html" class="btn btn-primary btn-lg me-2">Get in Touch</a>
+        <a href="services.html" class="btn btn-outline-light btn-lg">View Services</a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- RBAC Login Modal -->
+  <div class="modal" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="rbacModalLabel">&#128274; Login</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body"><!-- roles.js injects login form here --></div>
+        <div class="modal-footer border-0 pt-0"><p class="text-secondary small mb-0">Session clears when you close this tab.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" />
+      </a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" />
+      </a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="privacy.html">Privacy Policy</a> &middot; <a href="terms.html">Terms</a></p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+  <script src="users.js" defer></script>
+  <script src="roles.js" defer></script>
+  <script src="script.js" defer></script>
+  <script src="siteSearch.js" defer></script>
+</body>
+</html>

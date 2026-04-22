@@ -10,6 +10,13 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" crossorigin="anonymous">
   <link rel="stylesheet" href="theme.css" />
   <title>Resume | Jessica Rojas</title>
+  <meta property="og:title" content="Resume | Jessica Rojas" />
+  <meta property="og:description" content="Enterprise Systems Manager and cybersecurity professional resume with download." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://jessicarojas1.github.io/resume.html" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Resume | Jessica Rojas" />
+  <meta name="twitter:description" content="Enterprise Systems Manager and cybersecurity professional resume with download." />
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
@@ -22,11 +29,13 @@
       <div class="collapse navbar-collapse" id="navContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
           <li class="nav-item"><a class="nav-link" href="projects.html">Projects</a></li>
           <li class="nav-item"><a class="nav-link active" aria-current="page" href="resume.html">Resume</a></li>
           <li class="nav-item"><a class="nav-link" href="timeline.html">Timeline</a></li>
           <li class="nav-item"><a class="nav-link" href="cybersecurity.html">Cybersecurity</a></li>
           <li class="nav-item"><a class="nav-link" href="consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="services.html">Services</a></li>
           <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
           <li class="nav-item"><a class="nav-link" href="blog.html">Blog</a></li>
           <li class="nav-item"><a class="nav-link" href="knowledge.html">Knowledge Base</a></li>
@@ -62,9 +71,21 @@
       <div class="container text-center">
         <h1 class="display-4 fw-bold mb-3">Resume</h1>
         <p class="lead mb-4">Enterprise Systems Manager &middot; Cybersecurity Professional &middot; U.S. Army Veteran</p>
-        <a href="Resume_Jessica_R_FEB_2026.pdf" class="btn btn-primary btn-lg" download>&#128196; Download Resume</a>
+        <div class="d-flex justify-content-center gap-2 flex-wrap">
+          <a href="Resume_Jessica_R_FEB_2026.pdf" class="btn btn-primary btn-lg" download>&#128196; Download PDF</a>
+          <button class="btn btn-outline-light btn-lg" id="togglePdfBtn">&#128065; View Inline</button>
+        </div>
       </div>
     </section>
+
+    <!-- Inline PDF viewer (hidden by default) -->
+    <div id="pdf-viewer-wrap" class="container py-3" style="display:none">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <span class="text-secondary small">Viewing inline — <a href="Resume_Jessica_R_FEB_2026.pdf" download>download PDF</a> if it doesn't render.</span>
+        <button class="btn btn-sm btn-outline-secondary" id="closePdfBtn">&#x2715; Close</button>
+      </div>
+      <iframe src="Resume_Jessica_R_FEB_2026.pdf" title="Jessica Rojas Resume" style="width:100%;height:80vh;border:1px solid var(--bs-border-color);border-radius:8px;" loading="lazy"></iframe>
+    </div>
 
     <div class="container py-5">
 
@@ -287,5 +308,19 @@
   <script src="users.js" defer></script>
   <script src="roles.js" defer></script>
   <script src="script.js" defer></script>
+  <script src="siteSearch.js" defer></script>
+  <script>
+    var pdfWrap = document.getElementById('pdf-viewer-wrap');
+    document.getElementById('togglePdfBtn').addEventListener('click', function() {
+      var open = pdfWrap.style.display === 'none';
+      pdfWrap.style.display = open ? '' : 'none';
+      this.textContent = open ? '✕ Hide Viewer' : '👁 View Inline';
+      if (open) pdfWrap.scrollIntoView({ behavior: 'smooth' });
+    });
+    document.getElementById('closePdfBtn').addEventListener('click', function() {
+      pdfWrap.style.display = 'none';
+      document.getElementById('togglePdfBtn').textContent = '👁 View Inline';
+    });
+  </script>
 </body>
 </html>
