@@ -17,6 +17,12 @@
     .perm-table .col-active { background: rgba(var(--bs-primary-rgb), 0.12); }
     .perm-check { color: #198754; font-weight: 700; }
     .perm-dash  { color: var(--bs-secondary); }
+    /* Traffic bar chart */
+    .tr-bar-row { display:flex; align-items:center; gap:8px; padding:3px 0; }
+    .tr-bar-label { width:130px; font-size:.78rem; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; flex-shrink:0; text-align:right; }
+    .tr-bar-track { flex:1; background:var(--bs-border-color); border-radius:3px; height:18px; position:relative; display:flex; align-items:center; overflow:hidden; }
+    .tr-bar-fill  { height:100%; border-radius:3px; background:var(--bs-primary); transition:width .4s ease; }
+    .tr-bar-val   { position:absolute; right:6px; font-size:.72rem; font-weight:600; }
   </style>
 </head>
 <body>
@@ -83,12 +89,29 @@
       </div>
 
       <div id="admin-panel" style="display:none">
-        <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
-          <h1 class="h2 mb-0">User Administration</h1>
-          <button class="btn btn-primary" id="show-add-user-btn" onclick="toggleAddUser()">+ Add User</button>
+        <div class="d-flex align-items-center mb-3">
+          <h1 class="h2 mb-0">Admin Panel</h1>
         </div>
 
         <div id="admin-alert" class="d-none mb-3"></div>
+
+        <!-- Tab navigation -->
+        <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="admin-users-tab" data-bs-toggle="tab" data-bs-target="#admin-tab-users" type="button" role="tab" aria-controls="admin-tab-users" aria-selected="true">&#128101; Users</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="admin-traffic-tab" data-bs-toggle="tab" data-bs-target="#admin-tab-traffic" type="button" role="tab" aria-controls="admin-tab-traffic" aria-selected="false">&#128202; Traffic</button>
+          </li>
+        </ul>
+
+        <div class="tab-content">
+
+        <!-- ── Users tab ─────────────────────────────────────────── -->
+        <div class="tab-pane fade show active" id="admin-tab-users" role="tabpanel">
+          <div class="d-flex mb-4">
+            <button class="btn btn-primary ms-auto" id="show-add-user-btn" onclick="toggleAddUser()">+ Add User</button>
+          </div>
 
         <!-- ── Inline Add User Panel ───────────────────────────────── -->
         <div class="card mb-4" id="add-user-panel" style="display:none">
@@ -261,10 +284,135 @@
           </div>
         </div>
 
-        <p class="text-secondary small mt-2">
-          Users stored in browser localStorage. Passwords are SHA-256 hashed — never stored in plaintext.
-        </p>
-      </div>
+          <!-- Archived Blog Posts -->
+          <div class="card mb-4">
+            <div class="card-header d-flex align-items-center gap-2">
+              <strong>Archived Blog Posts</strong>
+              <span class="badge bg-secondary" id="archived-post-count">0</span>
+            </div>
+            <div class="card-body" id="archived-posts-body">
+              <p class="text-secondary small mb-0">No archived posts.</p>
+            </div>
+          </div>
+
+          <p class="text-secondary small mt-2">
+            Users stored in browser localStorage. Passwords are SHA-256 hashed — never stored in plaintext.
+          </p>
+        </div><!-- /admin-tab-users -->
+
+        <!-- ── Traffic tab ──────────────────────────────────────── -->
+        <div class="tab-pane fade" id="admin-tab-traffic" role="tabpanel">
+
+          <!-- KPI row -->
+          <div class="row g-3 mb-4">
+            <div class="col-6 col-lg-3">
+              <div class="card text-center">
+                <div class="card-body py-3">
+                  <div class="h2 mb-0 fw-bold" id="tr-total">—</div>
+                  <div class="small text-secondary">Total Events</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-6 col-lg-3">
+              <div class="card text-center">
+                <div class="card-body py-3">
+                  <div class="h2 mb-0 fw-bold" id="tr-pageviews">—</div>
+                  <div class="small text-secondary">Page Views</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-6 col-lg-3">
+              <div class="card text-center">
+                <div class="card-body py-3">
+                  <div class="h2 mb-0 fw-bold" id="tr-today">—</div>
+                  <div class="small text-secondary">Today</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-6 col-lg-3">
+              <div class="card text-center">
+                <div class="card-body py-3">
+                  <div class="h5 mb-1 fw-bold text-truncate" id="tr-top-page">—</div>
+                  <div class="small text-secondary">Top Page</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charts row -->
+          <div class="row g-3 mb-4">
+            <div class="col-md-8">
+              <div class="card h-100">
+                <div class="card-header"><strong>Top Pages</strong> <span class="text-secondary small fw-normal">(page views)</span></div>
+                <div class="card-body p-0" id="tr-pages-chart" style="min-height:200px">
+                  <p class="text-secondary text-center p-4 mb-0">No data yet — visit some pages first.</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card h-100">
+                <div class="card-header"><strong>Event Types</strong></div>
+                <div class="card-body p-0" id="tr-types-chart" style="min-height:200px">
+                  <p class="text-secondary text-center p-4 mb-0">No data yet.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Device & referrers row -->
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <div class="card">
+                <div class="card-header"><strong>Device Types</strong></div>
+                <div class="card-body p-0" id="tr-devices-chart" style="min-height:90px">
+                  <p class="text-secondary text-center p-4 mb-0">No data yet.</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card">
+                <div class="card-header"><strong>Top Referrers</strong></div>
+                <div class="card-body p-0" id="tr-referrers-chart" style="min-height:90px">
+                  <p class="text-secondary text-center p-4 mb-0">No data yet.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent events feed -->
+          <div class="card mb-3">
+            <div class="card-header d-flex align-items-center gap-2 flex-wrap">
+              <strong>Recent Events</strong>
+              <span class="badge bg-secondary ms-1" id="tr-event-count">0</span>
+              <div class="ms-auto d-flex gap-2">
+                <button class="btn btn-sm btn-outline-secondary" id="tr-export-btn">Export JSON</button>
+                <button class="btn btn-sm btn-outline-danger" id="tr-clear-btn">Clear Data</button>
+              </div>
+            </div>
+            <div class="card-body p-0">
+              <div class="table-responsive" style="max-height:420px;overflow-y:auto">
+                <table class="table table-sm table-hover mb-0">
+                  <thead class="sticky-top" style="background:var(--bs-body-bg)">
+                    <tr>
+                      <th style="min-width:150px">Time</th>
+                      <th style="min-width:110px">Type</th>
+                      <th style="min-width:110px">Page</th>
+                      <th>Details</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tr-events-tbody">
+                    <tr><td colspan="4" class="text-secondary text-center py-3">No events recorded yet.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <p class="text-secondary small">Analytics are stored in this browser's localStorage. Data reflects visits made in this browser only — max 1,000 events retained.</p>
+        </div><!-- /admin-tab-traffic -->
+
+        </div><!-- /tab-content -->
+      </div><!-- /admin-panel -->
     </div>
   </main>
 
@@ -754,6 +902,126 @@
   }
 
 
+  /* ── Traffic analytics rendering ────────────────────────────── */
+  var ANALYTICS_KEY = 'site_analytics_v1';
+
+  function getAnalyticsEvents() {
+    try { return JSON.parse(localStorage.getItem(ANALYTICS_KEY) || '[]'); } catch (e) { return []; }
+  }
+
+  function buildBars(pairs, container) {
+    if (!pairs.length) {
+      container.innerHTML = '<p class="text-secondary text-center p-4 mb-0">No data yet.</p>';
+      return;
+    }
+    var max = pairs[0][1] || 1;
+    container.innerHTML = '<div class="p-3">'
+      + pairs.map(function (p) {
+          var pct = Math.round((p[1] / max) * 100);
+          return '<div class="tr-bar-row">'
+            + '<span class="tr-bar-label" title="' + escH(p[0]) + '">' + escH(p[0]) + '</span>'
+            + '<div class="tr-bar-track"><div class="tr-bar-fill" style="width:' + pct + '%"></div>'
+            + '<span class="tr-bar-val">' + p[1] + '</span></div></div>';
+        }).join('')
+      + '</div>';
+  }
+
+  function renderTraffic() {
+    var events    = getAnalyticsEvents();
+    var todayMid  = new Date(); todayMid.setHours(0,0,0,0);
+    var todayTs   = todayMid.getTime();
+
+    var pageViews    = events.filter(function (e) { return e.type === 'page_view'; });
+    var todayEvents  = events.filter(function (e) { return e.ts >= todayTs; });
+
+    /* ── KPIs ── */
+    document.getElementById('tr-total').textContent     = events.length;
+    document.getElementById('tr-pageviews').textContent = pageViews.length;
+    document.getElementById('tr-today').textContent     = todayEvents.length;
+    document.getElementById('tr-event-count').textContent = events.length;
+
+    /* ── Top pages ── */
+    var pageCounts = {};
+    pageViews.forEach(function (e) {
+      var p = e.page || 'unknown';
+      pageCounts[p] = (pageCounts[p] || 0) + 1;
+    });
+    var sortedPages = Object.keys(pageCounts)
+      .map(function (k) { return [k, pageCounts[k]]; })
+      .sort(function (a, b) { return b[1] - a[1]; });
+
+    document.getElementById('tr-top-page').textContent = sortedPages.length ? sortedPages[0][0] : '—';
+    buildBars(sortedPages.slice(0, 10), document.getElementById('tr-pages-chart'));
+
+    /* ── Event types ── */
+    var typeCounts = {};
+    events.forEach(function (e) { typeCounts[e.type] = (typeCounts[e.type] || 0) + 1; });
+    var sortedTypes = Object.keys(typeCounts)
+      .map(function (k) { return [k.replace(/_/g, ' '), typeCounts[k]]; })
+      .sort(function (a, b) { return b[1] - a[1]; });
+    buildBars(sortedTypes, document.getElementById('tr-types-chart'));
+
+    /* ── Device types ── */
+    var devCounts = {};
+    pageViews.forEach(function (e) {
+      var d = (e.data && e.data.device) ? e.data.device : 'unknown';
+      devCounts[d] = (devCounts[d] || 0) + 1;
+    });
+    var sortedDevs = Object.keys(devCounts)
+      .map(function (k) { return [k, devCounts[k]]; })
+      .sort(function (a, b) { return b[1] - a[1]; });
+    buildBars(sortedDevs, document.getElementById('tr-devices-chart'));
+
+    /* ── Referrers ── */
+    var refCounts = {};
+    pageViews.forEach(function (e) {
+      var r = (e.data && e.data.referrer) ? e.data.referrer : '(direct)';
+      refCounts[r] = (refCounts[r] || 0) + 1;
+    });
+    var sortedRefs = Object.keys(refCounts)
+      .map(function (k) { return [k, refCounts[k]]; })
+      .sort(function (a, b) { return b[1] - a[1]; })
+      .slice(0, 6);
+    buildBars(sortedRefs, document.getElementById('tr-referrers-chart'));
+
+    /* ── Recent events table ── */
+    var tbody  = document.getElementById('tr-events-tbody');
+    var recent = events.slice().reverse().slice(0, 150);
+    if (!recent.length) {
+      tbody.innerHTML = '<tr><td colspan="4" class="text-secondary text-center py-3">No events recorded yet — visit some pages to start tracking.</td></tr>';
+      return;
+    }
+
+    var TYPE_BADGES = {
+      page_view:     'bg-primary',
+      search:        'bg-info text-dark',
+      search_click:  'bg-success',
+      blog_open:     'bg-warning text-dark',
+      contact_submit:'bg-danger'
+    };
+
+    tbody.innerHTML = recent.map(function (e) {
+      var t       = new Date(e.ts);
+      var timeStr = t.toLocaleDateString() + ' ' + t.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+      var details = '—';
+      if (e.data) {
+        if (e.data.query)    details = 'query: ' + escH(e.data.query);
+        else if (e.data.post) details = 'post: ' + escH(e.data.post);
+        else if (e.data.title && e.data.title !== document.title.split('|')[0].trim())
+                             details = escH(e.data.title);
+        else if (e.data.url) details = escH(e.data.url);
+        if (e.data.referrer) details += (details !== '—' ? ' · ' : '') + 'ref: ' + escH(e.data.referrer);
+      }
+      var badge = TYPE_BADGES[e.type] || 'bg-secondary';
+      return '<tr>'
+        + '<td class="text-secondary small">' + escH(timeStr) + '</td>'
+        + '<td><span class="badge ' + badge + ' small">' + escH(e.type.replace(/_/g, ' ')) + '</span></td>'
+        + '<td class="small">' + escH(e.page || '—') + '</td>'
+        + '<td class="small text-secondary">' + details + '</td>'
+        + '</tr>';
+    }).join('');
+  }
+
   /* ── Panel visibility ────────────────────────────────────────── */
   function refreshPanel() {
     var canAccess = typeof RBAC !== 'undefined' && RBAC.isAtLeast('editor');
@@ -761,7 +1029,7 @@
     var panel = document.getElementById('admin-panel');
     if (gate)  gate.style.display  = canAccess ? 'none' : '';
     if (panel) panel.style.display = canAccess ? ''     : 'none';
-    if (canAccess) { renderRequests(); renderUsers(); }
+    if (canAccess) { renderRequests(); renderUsers(); renderArchivedPosts(); }
   }
 
   /* ── Wait for modules, then init ─────────────────────────────── */
@@ -796,6 +1064,36 @@
         if (!btn) return;
         if (btn.dataset.action === 'restorePost') restorePost(btn.dataset.id);
       });
+
+      // Traffic tab — render on show, and wire export/clear
+      var trafficTabBtn = document.getElementById('admin-traffic-tab');
+      if (trafficTabBtn) {
+        trafficTabBtn.addEventListener('shown.bs.tab', renderTraffic);
+      }
+
+      var exportBtn = document.getElementById('tr-export-btn');
+      if (exportBtn) {
+        exportBtn.addEventListener('click', function () {
+          var events = getAnalyticsEvents();
+          var blob = new Blob([JSON.stringify(events, null, 2)], { type: 'application/json' });
+          var a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = 'site_analytics_' + new Date().toISOString().split('T')[0] + '.json';
+          a.click();
+          URL.revokeObjectURL(a.href);
+        });
+      }
+
+      var clearBtn = document.getElementById('tr-clear-btn');
+      if (clearBtn) {
+        clearBtn.addEventListener('click', function () {
+          if (!confirm('Clear all analytics data? This cannot be undone.')) return;
+          localStorage.removeItem(ANALYTICS_KEY);
+          renderTraffic();
+          showAlert('Analytics data cleared.', 'warning');
+        });
+      }
+
       // Re-run refreshPanel whenever RBAC login/logout changes the nav user area
       var userArea = document.getElementById('rbac-user-area');
       if (userArea) {
@@ -808,5 +1106,6 @@
     }
   })();
   </script>
+  <script src="analytics.js" defer></script>
 </body>
 </html>
