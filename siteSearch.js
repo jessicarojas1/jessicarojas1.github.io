@@ -183,11 +183,26 @@
       if (e.target === overlay) close();
     });
 
+    // Track result clicks
+    results.addEventListener('click', function (ev) {
+      var link = ev.target.closest('.ss-result');
+      if (!link || !window.SiteAnalytics) return;
+      var titleEl = link.querySelector('.ss-result-title');
+      SiteAnalytics.track('search_click', {
+        title: titleEl ? titleEl.textContent : '',
+        url: link.getAttribute('href')
+      });
+    });
+
     // Live search
     input.addEventListener('input', function () {
       clearTimeout(debounce);
       debounce = setTimeout(function () {
-        render(search(input.value.trim()), results);
+        var q = input.value.trim();
+        render(search(q), results);
+        if (q.length >= 2 && window.SiteAnalytics) {
+          SiteAnalytics.track('search', { query: q });
+        }
       }, 120);
     });
 

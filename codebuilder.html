@@ -479,7 +479,8 @@
         '  window.onerror=function(m){_s("error",[m]);};',
         '})();',
         htmlContent.jsTab || '',
-        '<\/script></body></html>'
+        '<\/script>  <script src="analytics.js" defer></script>
+</body></html>'
       ].join('');
       var blob = new Blob([combined], { type: 'text/html' });
       var url  = URL.createObjectURL(blob);
@@ -545,7 +546,8 @@
         'th,td{border:1px solid #e5e7eb;padding:8px 12px;}',
         'th{background:#f9fafb;}',
         'img{max-width:100%;}',
-        '</style></head><body>', html, '</body></html>'
+        '</style></head><body>', html, '  <script src="analytics.js" defer></script>
+</body></html>'
       ].join('');
       var blob = new Blob([doc], { type: 'text/html' });
       var url  = URL.createObjectURL(blob);
@@ -720,5 +722,6 @@
   <script src="users.js" defer></script>
   <script src="roles.js" defer></script>
   <script src="script.js" defer></script>
+  <script src="analytics.js" defer></script>
 </body>
 </html>
