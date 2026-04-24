@@ -24,10 +24,13 @@
   function init() {
     var ref = '';
     try { if (document.referrer) ref = new URL(document.referrer).hostname; } catch (e) {}
+    var tz = '';
+    try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) {}
     track('page_view', {
       title: document.title.split('|')[0].trim(),
       referrer: ref,
-      device: /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 'mobile' : 'desktop'
+      device: /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
+      tz: tz
     });
   }
 
