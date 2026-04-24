@@ -339,6 +339,25 @@
             </div>
           </div>
 
+          <!-- Globe visualization -->
+          <div class="card mb-4" id="globe-card">
+            <div class="card-header d-flex align-items-center gap-2 flex-wrap">
+              <strong>&#127758; Traffic Origin Globe</strong>
+              <span class="text-secondary small fw-normal ms-2">approximate location from visitor timezone · drag to rotate · scroll to zoom</span>
+              <div class="ms-auto d-flex gap-2 align-items-center">
+                <span class="small text-secondary me-1">
+                  <span style="color:#4ade80">&#9679;</span> visits &nbsp;
+                  <span style="color:#f97316">&#9679;</span> bots
+                </span>
+                <button class="btn btn-sm btn-outline-secondary" id="globe-toggle-btn">&#9646;&#9646; Pause</button>
+              </div>
+            </div>
+            <div style="background:#060d1f;border-radius:0 0 calc(var(--bs-border-radius) - 1px) calc(var(--bs-border-radius) - 1px);overflow:hidden;min-height:460px;display:flex;align-items:center;justify-content:center">
+              <div id="globe-container" style="width:100%;height:460px;"></div>
+              <div id="globe-loading" style="position:absolute;color:#4ade80;font-size:.85rem;pointer-events:none">Loading globe…</div>
+            </div>
+          </div>
+
           <!-- Charts row -->
           <div class="row g-3 mb-4">
             <div class="col-md-8">
@@ -1106,7 +1125,11 @@
       // Traffic tab — render on show, and wire export/clear
       var trafficTabBtn = document.getElementById('admin-traffic-tab');
       if (trafficTabBtn) {
-        trafficTabBtn.addEventListener('shown.bs.tab', renderTraffic);
+        trafficTabBtn.addEventListener('shown.bs.tab', function () {
+          renderTraffic();
+          // Slight delay so the tab pane is fully visible before globe sizes itself
+          setTimeout(function () { renderGlobe(getAnalyticsEvents()); }, 80);
+        });
       }
 
       var exportBtn = document.getElementById('tr-export-btn');
@@ -1144,6 +1167,234 @@
     }
   })();
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/globe.gl@2.31.1/dist/globe.gl.min.js" defer></script>
   <script src="analytics.js" defer></script>
+
+  <script>
+  /* ── Globe visualization ─────────────────────────────────────── */
+
+  /* Timezone → [lat, lng] lookup (IANA → approximate city center) */
+  var TZ_COORDS = {
+    /* North America */
+    'America/New_York':       [40.71,-74.01], 'America/Chicago':       [41.85,-87.65],
+    'America/Denver':         [39.74,-104.98],'America/Los_Angeles':   [34.05,-118.24],
+    'America/Phoenix':        [33.45,-112.07],'America/Anchorage':     [61.22,-149.90],
+    'Pacific/Honolulu':       [21.31,-157.82],'America/Toronto':       [43.65,-79.38],
+    'America/Vancouver':      [49.25,-123.12],'America/Montreal':      [45.51,-73.55],
+    'America/Winnipeg':       [49.90,-97.14], 'America/Halifax':       [44.65,-63.60],
+    'America/Edmonton':       [53.55,-113.49],'America/Calgary':       [51.05,-114.07],
+    'America/Mexico_City':    [19.43,-99.13], 'America/Monterrey':     [25.67,-100.31],
+    'America/Bogota':         [4.71,-74.07],  'America/Lima':          [-12.05,-77.04],
+    'America/Santiago':       [-33.46,-70.65],'America/Buenos_Aires':  [-34.61,-58.38],
+    'America/Sao_Paulo':      [-23.55,-46.63],'America/Manaus':        [-3.10,-60.03],
+    'America/Caracas':        [10.49,-66.88], 'America/La_Paz':        [-16.50,-68.15],
+    'America/Guayaquil':      [-2.15,-79.93], 'America/Asuncion':      [-25.29,-57.65],
+    'America/Montevideo':     [-34.90,-56.19],'America/Havana':        [23.13,-82.38],
+    'America/Jamaica':        [17.99,-76.79], 'America/Panama':        [8.99,-79.52],
+    'America/Costa_Rica':     [9.93,-84.08],  'America/Guatemala':     [14.64,-90.51],
+    'America/El_Salvador':    [13.69,-89.22], 'America/Tegucigalpa':   [14.09,-87.21],
+    'America/Managua':        [12.13,-86.28], 'America/Puerto_Rico':   [18.47,-66.11],
+    'America/Santo_Domingo':  [18.48,-69.90], 'America/Belize':        [17.25,-88.77],
+    'America/Indiana/Indianapolis':[39.77,-86.16],
+    /* Europe */
+    'Europe/London':          [51.51,-0.13],  'Europe/Paris':          [48.85,2.35],
+    'Europe/Berlin':          [52.52,13.40],  'Europe/Madrid':         [40.42,-3.70],
+    'Europe/Rome':            [41.90,12.48],  'Europe/Amsterdam':      [52.37,4.90],
+    'Europe/Brussels':        [50.85,4.35],   'Europe/Zurich':         [47.37,8.55],
+    'Europe/Vienna':          [48.21,16.37],  'Europe/Warsaw':         [52.23,21.01],
+    'Europe/Stockholm':       [59.33,18.07],  'Europe/Oslo':           [59.91,10.75],
+    'Europe/Copenhagen':      [55.68,12.57],  'Europe/Helsinki':       [60.17,24.94],
+    'Europe/Lisbon':          [38.72,-9.14],  'Europe/Athens':         [37.98,23.73],
+    'Europe/Bucharest':       [44.43,26.10],  'Europe/Istanbul':       [41.01,28.95],
+    'Europe/Kiev':            [50.45,30.52],  'Europe/Moscow':         [55.75,37.62],
+    'Europe/Prague':          [50.08,14.43],  'Europe/Budapest':       [47.50,19.04],
+    'Europe/Belgrade':        [44.80,20.46],  'Europe/Sofia':          [42.70,23.32],
+    'Europe/Dublin':          [53.33,-6.25],  'Europe/Zurich':         [47.38,8.54],
+    'Europe/Bratislava':      [48.15,17.11],  'Europe/Ljubljana':      [46.05,14.51],
+    'Europe/Zagreb':          [45.81,15.98],  'Europe/Sarajevo':       [43.85,18.36],
+    'Europe/Skopje':          [41.99,21.43],  'Europe/Podgorica':      [42.44,19.26],
+    'Europe/Tirane':          [41.33,19.83],  'Europe/Riga':           [56.95,24.11],
+    'Europe/Tallinn':         [59.44,24.75],  'Europe/Vilnius':        [54.69,25.28],
+    'Europe/Minsk':           [53.90,27.57],  'Europe/Chisinau':       [47.00,28.86],
+    'Europe/Kaliningrad':     [54.71,20.51],  'Europe/Nicosia':        [35.17,33.37],
+    /* Asia */
+    'Asia/Dubai':             [25.20,55.27],  'Asia/Karachi':          [24.86,67.01],
+    'Asia/Kolkata':           [22.57,88.36],  'Asia/Dhaka':            [23.72,90.41],
+    'Asia/Bangkok':           [13.75,100.52], 'Asia/Jakarta':          [-6.21,106.85],
+    'Asia/Singapore':         [1.29,103.85],  'Asia/Hong_Kong':        [22.30,114.18],
+    'Asia/Shanghai':          [31.23,121.47], 'Asia/Tokyo':            [35.69,139.69],
+    'Asia/Seoul':             [37.57,126.98], 'Asia/Taipei':           [25.05,121.53],
+    'Asia/Kuala_Lumpur':      [3.15,101.69],  'Asia/Manila':           [14.60,120.98],
+    'Asia/Colombo':           [6.93,79.84],   'Asia/Kathmandu':        [27.72,85.32],
+    'Asia/Tashkent':          [41.30,69.27],  'Asia/Almaty':           [43.26,76.94],
+    'Asia/Tehran':            [35.69,51.42],  'Asia/Baghdad':          [33.34,44.40],
+    'Asia/Riyadh':            [24.69,46.72],  'Asia/Beirut':           [33.89,35.50],
+    'Asia/Jerusalem':         [31.78,35.22],  'Asia/Amman':            [31.96,35.95],
+    'Asia/Muscat':            [23.61,58.59],  'Asia/Kabul':            [34.53,69.17],
+    'Asia/Dhaka':             [23.72,90.41],  'Asia/Yangon':           [16.87,96.19],
+    'Asia/Phnom_Penh':        [11.57,104.92], 'Asia/Ho_Chi_Minh':      [10.82,106.63],
+    'Asia/Vientiane':         [17.97,102.60], 'Asia/Ulaanbaatar':      [47.92,106.92],
+    'Asia/Bishkek':           [42.87,74.59],  'Asia/Dushanbe':         [38.56,68.77],
+    'Asia/Ashgabat':          [37.95,58.38],  'Asia/Baku':             [40.41,49.87],
+    'Asia/Tbilisi':           [41.69,44.83],  'Asia/Yerevan':          [40.18,44.51],
+    'Asia/Nicosia':           [35.17,33.37],  'Asia/Kuwait':           [29.37,47.98],
+    'Asia/Qatar':             [25.29,51.53],  'Asia/Bahrain':          [26.22,50.59],
+    'Asia/Aden':              [12.78,45.04],  'Asia/Colombo':          [6.93,79.84],
+    'Asia/Novosibirsk':       [54.99,82.90],  'Asia/Yekaterinburg':    [56.86,60.61],
+    'Asia/Omsk':              [54.99,73.37],  'Asia/Krasnoyarsk':      [56.02,92.87],
+    'Asia/Irkutsk':           [52.27,104.30], 'Asia/Vladivostok':      [43.12,131.90],
+    'Asia/Yakutsk':           [62.03,129.73], 'Asia/Magadan':          [59.57,150.79],
+    'Asia/Sakhalin':          [46.96,142.73], 'Asia/Kamchatka':        [53.02,158.65],
+    /* Pacific / Oceania */
+    'Australia/Sydney':       [-33.87,151.21],'Australia/Melbourne':   [-37.81,144.96],
+    'Australia/Brisbane':     [-27.47,153.03],'Australia/Perth':       [-31.95,115.86],
+    'Australia/Adelaide':     [-34.93,138.60],'Australia/Darwin':      [-12.46,130.84],
+    'Australia/Hobart':       [-42.88,147.32],'Pacific/Auckland':      [-36.87,174.77],
+    'Pacific/Fiji':           [-18.14,178.44],'Pacific/Guam':          [13.47,144.75],
+    'Pacific/Honolulu':       [21.31,-157.82],'Pacific/Port_Moresby':  [-9.44,147.18],
+    'Pacific/Noumea':         [-22.27,166.44],'Pacific/Tahiti':        [-17.54,-149.57],
+    'Pacific/Tongatapu':      [-21.14,-175.20],'Pacific/Apia':         [-13.83,-171.77],
+    /* Africa */
+    'Africa/Cairo':           [30.06,31.25],  'Africa/Lagos':          [6.45,3.40],
+    'Africa/Nairobi':         [-1.29,36.82],  'Africa/Johannesburg':   [-26.20,28.04],
+    'Africa/Casablanca':      [33.59,-7.62],  'Africa/Addis_Ababa':    [9.02,38.75],
+    'Africa/Accra':           [5.56,-0.20],   'Africa/Khartoum':       [15.55,32.53],
+    'Africa/Dar_es_Salaam':   [-6.79,39.21],  'Africa/Kampala':        [0.32,32.58],
+    'Africa/Lusaka':          [-15.42,28.28], 'Africa/Harare':         [-17.83,31.05],
+    'Africa/Maputo':          [-25.96,32.59], 'Africa/Antananarivo':   [-18.91,47.54],
+    'Africa/Abidjan':         [5.35,-4.00],   'Africa/Dakar':          [14.69,-17.44],
+    'Africa/Bamako':          [12.65,-8.00],  'Africa/Conakry':        [9.54,-13.68],
+    'Africa/Ouagadougou':     [12.37,-1.53],  'Africa/Niamey':         [13.51,2.12],
+    'Africa/Ndjamena':        [12.11,15.04],  'Africa/Kigali':         [-1.95,30.06],
+    'Africa/Bujumbura':       [-3.39,29.36],  'Africa/Luanda':         [-8.84,13.23],
+    'Africa/Libreville':      [0.39,9.45],    'Africa/Douala':         [4.06,9.74],
+    'Africa/Bangui':          [4.36,18.55],   'Africa/Kinshasa':       [-4.32,15.32],
+    'Africa/Brazzaville':     [-4.27,15.28],  'Africa/Malabo':         [3.75,8.78],
+    'Africa/Algiers':         [36.74,3.06],   'Africa/Tunis':          [36.82,10.17],
+    'Africa/Tripoli':         [32.89,13.19],  'Africa/Mogadishu':      [2.05,45.34],
+    'Africa/Djibouti':        [11.59,43.15],  'Africa/Asmara':         [15.34,38.93],
+    'Africa/Mbabane':         [-26.32,31.14], 'Africa/Maseru':         [-29.32,27.48],
+    'Africa/Windhoek':        [-22.56,17.08], 'Africa/Gaborone':       [-24.65,25.91],
+    'Africa/Blantyre':        [-15.79,35.00], 'Africa/Lilongwe':       [-13.97,33.79],
+  };
+
+  /* Deterministic jitter so points don't jump on every render */
+  function tzJitter(tz) {
+    var h = 0;
+    for (var i = 0; i < tz.length; i++) h = ((h << 5) - h + tz.charCodeAt(i)) | 0;
+    return [((h & 0xff) / 255 - 0.5) * 3, (((h >> 8) & 0xff) / 255 - 0.5) * 3];
+  }
+
+  /* Coarse fallback by timezone prefix */
+  function tzToCoords(tz) {
+    if (!tz) return null;
+    if (TZ_COORDS[tz]) return TZ_COORDS[tz];
+    var pfx = tz.split('/')[0];
+    var fallbacks = {
+      'America':   [39, -98],   'Europe':    [50, 15],
+      'Asia':      [34, 100],   'Africa':    [5,  25],
+      'Pacific':   [-10,-150],  'Australia': [-25,134],
+      'Atlantic':  [30, -30],   'Indian':    [-20, 75],
+      'Arctic':    [90, 0],     'Antarctica':[-80, 0],
+    };
+    return fallbacks[pfx] || null;
+  }
+
+  /* Globe singleton */
+  var _globe = null;
+  var _globeRotating = true;
+
+  function renderGlobe(events) {
+    var container = document.getElementById('globe-container');
+    var loading   = document.getElementById('globe-loading');
+    if (!container) return;
+    if (typeof Globe === 'undefined') {
+      if (loading) loading.textContent = 'Globe library loading… try switching tabs and back.';
+      return;
+    }
+    if (loading) loading.style.display = 'none';
+
+    /* Aggregate visits and bot hits by timezone */
+    var visitCounts = {}, botCounts = {};
+    events.forEach(function (e) {
+      var tz = e.data && e.data.tz;
+      if (!tz) return;
+      if (e.type === 'bot_trap' || e.type === 'bot_form') {
+        botCounts[tz] = (botCounts[tz] || 0) + 1;
+      } else if (e.type === 'page_view') {
+        visitCounts[tz] = (visitCounts[tz] || 0) + 1;
+      }
+    });
+
+    var pointData = [];
+
+    Object.keys(visitCounts).forEach(function (tz) {
+      var coords = tzToCoords(tz);
+      if (!coords) return;
+      var j = tzJitter(tz);
+      pointData.push({
+        lat: coords[0] + j[0], lng: coords[1] + j[1],
+        count: visitCounts[tz], kind: 'visit',
+        label: tz.replace(/_/g, ' ') + ' — ' + visitCounts[tz] + ' visit' + (visitCounts[tz] !== 1 ? 's' : '')
+      });
+    });
+
+    Object.keys(botCounts).forEach(function (tz) {
+      var coords = tzToCoords(tz);
+      if (!coords) return;
+      var j = tzJitter('bot_' + tz);
+      pointData.push({
+        lat: coords[0] + j[0], lng: coords[1] + j[1],
+        count: botCounts[tz], kind: 'bot',
+        label: '⚠ Bot / ' + tz.replace(/_/g, ' ') + ' — ' + botCounts[tz] + ' hit' + (botCounts[tz] !== 1 ? 's' : '')
+      });
+    });
+
+    var maxCount = 1;
+    pointData.forEach(function (d) { if (d.count > maxCount) maxCount = d.count; });
+
+    /* Initialise globe once */
+    if (!_globe) {
+      _globe = Globe()(container)
+        .globeImageUrl('//unpkg.com/three-globe/example/img/earth-dark.jpg')
+        .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
+        .atmosphereColor('#3b82f6')
+        .atmosphereAltitude(0.18)
+        .width(container.offsetWidth)
+        .height(460);
+
+      _globe.controls().autoRotate      = true;
+      _globe.controls().autoRotateSpeed = 0.6;
+      _globe.controls().enableZoom      = true;
+
+      /* Pause auto-rotate when the user drags */
+      _globe.controls().addEventListener('start', function () {
+        _globe.controls().autoRotate = false;
+      });
+    }
+
+    _globe
+      .pointsData(pointData)
+      .pointLat('lat')
+      .pointLng('lng')
+      .pointRadius(function (d) { return 0.35 + Math.sqrt(d.count) * 0.35; })
+      .pointAltitude(function (d) { return 0.01 + (d.count / maxCount) * 0.06; })
+      .pointColor(function (d) { return d.kind === 'bot' ? '#f97316' : '#4ade80'; })
+      .pointLabel('label');
+  }
+
+  /* Wire globe pause/resume toggle */
+  document.addEventListener('DOMContentLoaded', function () {
+    var toggleBtn = document.getElementById('globe-toggle-btn');
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', function () {
+        if (!_globe) return;
+        _globeRotating = !_globeRotating;
+        _globe.controls().autoRotate = _globeRotating;
+        toggleBtn.innerHTML = _globeRotating ? '&#9646;&#9646; Pause' : '&#9654; Resume';
+      });
+    }
+  });
+  </script>
 </body>
 </html>
