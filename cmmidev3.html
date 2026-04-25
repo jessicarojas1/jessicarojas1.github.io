@@ -10,8 +10,8 @@
   <link rel="icon" href="favicon.ico" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
   <link rel="stylesheet" href="theme.css" />
-  <title>CMMI Level 3 Development | Jessica Rojas</title>
-  <meta name="description" content="Complete CMMI for Development Maturity Level 3 control framework — all process areas, specific practices, and downloadable Excel checklist." />
+  <title>CMMI v2.0 Level 3 Development | Jessica Rojas</title>
+  <meta name="description" content="Complete CMMI v2.0 for Development Maturity Level 3 practice framework — all 19 Practice Areas, 126 Practices, and downloadable Excel checklist." />
   <style>
     .level-badge-ml2  { background: rgba(13,110,253,.15); color:#6ea8fe; border:1px solid rgba(13,110,253,.3); }
     .level-badge-ml3  { background: rgba(25,135,84,.15);  color:#75b798; border:1px solid rgba(25,135,84,.3);  }
@@ -72,12 +72,12 @@
     <!-- Hero -->
     <section class="hero-section">
       <div class="container text-center">
-        <h1 class="display-5 fw-bold">CMMI for Development — Level 3</h1>
-        <p class="lead mb-3">Complete framework of all 18 Process Areas and 138 Specific Practices required for ML3 appraisal readiness.</p>
+        <h1 class="display-5 fw-bold">CMMI v2.0 for Development — Level 3</h1>
+        <p class="lead mb-3">Complete framework of all 19 Practice Areas and 126 Practices required for ML3 appraisal readiness.</p>
         <div class="d-flex justify-content-center gap-2 flex-wrap">
-          <span class="badge bg-primary px-3 py-2">CMMI-DEV v1.3</span>
+          <span class="badge bg-primary px-3 py-2">CMMI v2.0</span>
           <span class="badge bg-success px-3 py-2">Maturity Level 3</span>
-          <span class="badge bg-warning text-dark px-3 py-2">18 Process Areas</span>
+          <span class="badge bg-warning text-dark px-3 py-2">19 Practice Areas</span>
         </div>
       </div>
     </section>
@@ -88,15 +88,15 @@
         <div class="col-6 col-lg-3">
           <div class="card text-center stat-card h-100">
             <div class="card-body py-3">
-              <div class="num text-primary" id="stat-total">138</div>
-              <div class="lbl">Total Controls</div>
+              <div class="num text-primary" id="stat-total">126</div>
+              <div class="lbl">Total Practices</div>
             </div>
           </div>
         </div>
         <div class="col-6 col-lg-3">
           <div class="card text-center stat-card h-100">
             <div class="card-body py-3">
-              <div class="num" id="stat-ml2">54</div>
+              <div class="num" id="stat-ml2">66</div>
               <div class="lbl">Maturity Level 2</div>
             </div>
           </div>
@@ -104,7 +104,7 @@
         <div class="col-6 col-lg-3">
           <div class="card text-center stat-card h-100">
             <div class="card-body py-3">
-              <div class="num text-success" id="stat-ml3">84</div>
+              <div class="num text-success" id="stat-ml3">60</div>
               <div class="lbl">Maturity Level 3</div>
             </div>
           </div>
@@ -112,8 +112,8 @@
         <div class="col-6 col-lg-3">
           <div class="card text-center stat-card h-100">
             <div class="card-body py-3">
-              <div class="num text-warning" id="stat-pas">18</div>
-              <div class="lbl">Process Areas</div>
+              <div class="num text-warning" id="stat-pas">19</div>
+              <div class="lbl">Practice Areas</div>
             </div>
           </div>
         </div>
@@ -125,12 +125,13 @@
       <div class="row g-2 align-items-end">
         <div class="col-md-4">
           <label class="form-label small fw-semibold mb-1">Search</label>
-          <input type="search" id="ctrl-search" class="form-control form-control-sm" placeholder="Control #, description, PA…" autocomplete="off" />
+          <input type="search" id="ctrl-search" class="form-control form-control-sm" placeholder="Practice #, description, PA…" autocomplete="off" />
         </div>
         <div class="col-6 col-md-2">
-          <label class="form-label small fw-semibold mb-1">Process Area</label>
+          <label class="form-label small fw-semibold mb-1">Practice Area</label>
           <select id="ctrl-pa" class="form-select form-select-sm">
             <option value="">All PAs</option>
+
           </select>
         </div>
         <div class="col-6 col-md-2">
@@ -163,9 +164,9 @@
           <thead>
             <tr>
               <th style="min-width:70px">PA</th>
-              <th style="min-width:120px">Control #</th>
-              <th style="min-width:160px">Specific Goal</th>
-              <th>Control Description</th>
+              <th style="min-width:120px">Practice #</th>
+              <th style="min-width:160px">Practice Group</th>
+              <th>Practice Description</th>
               <th style="min-width:70px">Level</th>
               <th style="min-width:130px">Category</th>
             </tr>
@@ -187,10 +188,10 @@
         <div class="col-md-6">
           <div class="card h-100">
             <div class="card-body">
-              <h2 class="h5 fw-bold mb-3">&#128218; About CMMI DEV Level 3</h2>
-              <p class="small text-secondary mb-2">CMMI for Development (CMMI-DEV) provides a framework for improving development processes. Maturity Level 3 requires all ML2 practices <em>plus</em> organizational process definition, integration, and risk management.</p>
-              <p class="small text-secondary mb-2"><strong>ML2 (Managed):</strong> Projects are planned, monitored, and controlled. Basic project management disciplines are in place.</p>
-              <p class="small text-secondary mb-0"><strong>ML3 (Defined):</strong> Processes are characterized and understood organization-wide. Standard processes are tailored from a set of organizational assets.</p>
+              <h2 class="h5 fw-bold mb-3">&#128218; About CMMI v2.0 DEV Level 3</h2>
+              <p class="small text-secondary mb-2">CMMI v2.0 for Development provides an updated, streamlined framework for process improvement. Released in 2018, v2.0 reorganizes practices into Practice Areas and Practice Groups, adds Governance (GOV) and Implementation Infrastructure (II), and consolidates requirements and V&amp;V practices.</p>
+              <p class="small text-secondary mb-2"><strong>ML2 (Managed):</strong> Work is planned, estimated, monitored, and controlled. 9 Practice Areas cover planning, estimating, configuration management, quality assurance, risk, and requirements development.</p>
+              <p class="small text-secondary mb-0"><strong>ML3 (Defined):</strong> Processes are defined and managed at the organizational level. 10 additional Practice Areas add governance, infrastructure, organizational training, integrated management, and development-specific engineering disciplines.</p>
             </div>
           </div>
         </div>
@@ -199,12 +200,12 @@
             <div class="card-body">
               <h2 class="h5 fw-bold mb-3">&#128196; Excel Output Includes</h2>
               <ul class="small text-secondary mb-0 ps-3">
-                <li class="mb-1"><strong>All Controls</strong> — complete 138-row master list with compliance status column</li>
-                <li class="mb-1"><strong>ML2 Process Areas</strong> — 7 PAs, 54 Specific Practices</li>
-                <li class="mb-1"><strong>ML3 Process Areas</strong> — 11 PAs, 84 Specific Practices</li>
-                <li class="mb-1"><strong>Core Controls</strong> — practices shared across CMMI constellations</li>
-                <li class="mb-1"><strong>Development-Specific</strong> — practices unique to CMMI-DEV</li>
-                <li><strong>Generic Practices</strong> — GPs 1.1–3.2 applicable to all PAs</li>
+                <li class="mb-1"><strong>All Practices</strong> — complete 126-row master list with compliance status column</li>
+                <li class="mb-1"><strong>ML2 Practice Areas</strong> — 9 PAs, 66 Practices (8 Core + RDM)</li>
+                <li class="mb-1"><strong>ML3 Practice Areas</strong> — 10 PAs, 60 Practices (6 Core + 4 Dev-Specific)</li>
+                <li class="mb-1"><strong>Core Practices</strong> — practices applicable across CMMI constellations</li>
+                <li class="mb-1"><strong>Development-Specific</strong> — practices unique to CMMI-DEV (RDM, TS, PI, VV, PR)</li>
+                <li><strong>Practice Areas Overview</strong> — summary tab with PA names, levels, and practice counts</li>
               </ul>
             </div>
           </div>
