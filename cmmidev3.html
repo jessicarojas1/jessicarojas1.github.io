@@ -10,8 +10,8 @@
   <link rel="icon" href="favicon.ico" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
   <link rel="stylesheet" href="theme.css" />
-  <title>CMMI v2.0 — Level 3 All Domains | Jessica Rojas</title>
-  <meta name="description" content="Complete CMMI v2.0 Maturity Level 3 practice framework — all 23 Practice Areas (Core + Development + Services), 150 Practices, filterable by domain, with downloadable Excel checklist." />
+  <title>CMMI v2.0 — ML2 to ML5 All Domains | Jessica Rojas</title>
+  <meta name="description" content="Complete CMMI v2.0 ML2–ML5 practice framework — all 24 Practice Areas (Core + Development + Services), 160 Practices, filterable by level and domain, with downloadable Excel checklist." />
   <style>
     .level-badge-ml2  { background: rgba(13,110,253,.15); color:#6ea8fe; border:1px solid rgba(13,110,253,.3); }
     .level-badge-ml3  { background: rgba(25,135,84,.15);  color:#75b798; border:1px solid rgba(25,135,84,.3);  }
@@ -73,11 +73,11 @@
     <section class="hero-section">
       <div class="container text-center">
         <h1 class="display-5 fw-bold">CMMI v2.0 — Level 3</h1>
-        <p class="lead mb-3">Complete framework covering all 23 Practice Areas and 150 Practices. Filter by Core, Development, or Services domain.</p>
+        <p class="lead mb-3">Complete CMMI v2.0 framework — ML2 through ML5, all 24 Practice Areas and 160 Practices. Filter by level, domain, category, or keyword.</p>
         <div class="d-flex justify-content-center gap-2 flex-wrap">
           <span class="badge bg-primary px-3 py-2">CMMI v2.0</span>
-          <span class="badge bg-success px-3 py-2">Maturity Level 3</span>
-          <span class="badge bg-warning text-dark px-3 py-2">23 Practice Areas</span>
+          <span class="badge bg-success px-3 py-2">ML2 → ML5</span>
+          <span class="badge bg-warning text-dark px-3 py-2">24 Practice Areas</span>
           <span class="badge bg-secondary px-3 py-2">All Domains</span>
         </div>
       </div>
@@ -86,34 +86,50 @@
     <!-- Stats row -->
     <section class="container py-4">
       <div class="row g-3">
-        <div class="col-6 col-lg-3">
+        <div class="col-6 col-md-4 col-lg-2">
           <div class="card text-center stat-card h-100">
             <div class="card-body py-3">
-              <div class="num text-primary" id="stat-total">150</div>
+              <div class="num text-primary" id="stat-total">160</div>
               <div class="lbl">Total Practices</div>
             </div>
           </div>
         </div>
-        <div class="col-6 col-lg-3">
+        <div class="col-6 col-md-4 col-lg-2">
           <div class="card text-center stat-card h-100">
             <div class="card-body py-3">
               <div class="num" id="stat-ml2">86</div>
-              <div class="lbl">Maturity Level 2</div>
+              <div class="lbl">ML2 Managed</div>
             </div>
           </div>
         </div>
-        <div class="col-6 col-lg-3">
+        <div class="col-6 col-md-4 col-lg-2">
           <div class="card text-center stat-card h-100">
             <div class="card-body py-3">
               <div class="num text-success" id="stat-ml3">64</div>
-              <div class="lbl">Maturity Level 3</div>
+              <div class="lbl">ML3 Defined</div>
             </div>
           </div>
         </div>
-        <div class="col-6 col-lg-3">
+        <div class="col-6 col-md-4 col-lg-2">
           <div class="card text-center stat-card h-100">
             <div class="card-body py-3">
-              <div class="num text-warning" id="stat-pas">23</div>
+              <div class="num" style="color:#fd7e14" id="stat-ml4">6</div>
+              <div class="lbl">ML4 Quantitative</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+          <div class="card text-center stat-card h-100">
+            <div class="card-body py-3">
+              <div class="num text-danger" id="stat-ml5">4</div>
+              <div class="lbl">ML5 Optimizing</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+          <div class="card text-center stat-card h-100">
+            <div class="card-body py-3">
+              <div class="num text-warning" id="stat-pas">24</div>
               <div class="lbl">Practice Areas</div>
             </div>
           </div>
@@ -138,8 +154,10 @@
           <label class="form-label small fw-semibold mb-1">Level</label>
           <select id="ctrl-level" class="form-select form-select-sm">
             <option value="">All</option>
-            <option value="ML2">ML2</option>
-            <option value="ML3">ML3</option>
+            <option value="ML2">ML2 — Managed</option>
+            <option value="ML3">ML3 — Defined</option>
+            <option value="ML4">ML4 — Quantitative</option>
+            <option value="ML5">ML5 — Optimizing</option>
           </select>
         </div>
         <div class="col-6 col-md-2">
@@ -183,26 +201,26 @@
         <div class="col-md-6">
           <div class="card h-100">
             <div class="card-body">
-              <h2 class="h5 fw-bold mb-3">&#128218; About CMMI v2.0 Level 3</h2>
-              <p class="small text-secondary mb-2">CMMI v2.0 provides an updated, streamlined framework released in 2018. It reorganizes practices into Practice Areas and Practice Groups, adds Governance (GOV) and Implementation Infrastructure (II), and supports multiple constellations — Development and Services — through domain-specific Practice Areas layered on a shared Core.</p>
-              <p class="small text-secondary mb-2"><strong>ML2 (Managed):</strong> 12 Practice Areas — 9 Core (apply to all domains) + RDM (Development) + SD, IRP (Services). Work is planned, estimated, monitored, and controlled.</p>
-              <p class="small text-secondary mb-0"><strong>ML3 (Defined):</strong> 11 additional Practice Areas — 5 Core (DAR, CAR, OT, PAD, PCM) + 4 Development (TS, PI, VV, PR) + 2 Services (STSM, SSD). Processes are standardized and institutionalized at the organizational level.</p>
+              <h2 class="h5 fw-bold mb-3">&#128218; About CMMI v2.0 — ML2 Through ML5</h2>
+              <p class="small text-secondary mb-2">CMMI v2.0 (2018) reorganizes practices into Practice Areas and Practice Groups. Core PAs apply to all domains; Development and Services PAs layer on top. ML4 and ML5 are Core-only — quantitative management and optimization are universal capabilities.</p>
+              <p class="small text-secondary mb-2"><strong>ML2 Managed:</strong> 12 PAs — 9 Core + RDM (Dev) + SD, IRP (Svc) — 86 practices.</p>
+              <p class="small text-secondary mb-2"><strong>ML3 Defined:</strong> 11 PAs — 5 Core + TS, PI, VV, PR (Dev) + STSM, SSD (Svc) — 64 practices.</p>
+              <p class="small text-secondary mb-2"><strong>ML4 Quantitatively Managed:</strong> OPM (Core) — statistical process control, quantitative objectives — 6 practices.</p>
+              <p class="small text-secondary mb-0"><strong>ML5 Optimizing:</strong> OPM continued — innovation identification, deployment, and sustained gains — 4 practices.</p>
             </div>
           </div>
         </div>
         <div class="col-md-6">
           <div class="card h-100">
             <div class="card-body">
-              <h2 class="h5 fw-bold mb-3">&#128196; Excel Output Includes</h2>
+              <h2 class="h5 fw-bold mb-3">&#128196; Excel Output — 10 Sheets</h2>
               <ul class="small text-secondary mb-0 ps-3">
-                <li class="mb-1"><strong>All Practices</strong> — complete 150-row master list</li>
-                <li class="mb-1"><strong>ML2 Core</strong> — 64 practices across 9 Core PAs</li>
-                <li class="mb-1"><strong>ML2 Development</strong> — 9 practices (RDM)</li>
-                <li class="mb-1"><strong>ML2 Services</strong> — 13 practices (SD, IRP)</li>
-                <li class="mb-1"><strong>ML3 Core</strong> — 29 practices across 5 Core PAs</li>
-                <li class="mb-1"><strong>ML3 Development</strong> — 24 practices (TS, PI, VV, PR)</li>
-                <li class="mb-1"><strong>ML3 Services</strong> — 11 practices (STSM, SSD)</li>
-                <li><strong>Evidence Guide</strong> — artifacts + appraiser tips for all 23 PAs</li>
+                <li class="mb-1"><strong>All Practices</strong> — complete 160-row master list</li>
+                <li class="mb-1"><strong>ML2 Core / ML2 Dev / ML2 Svc</strong></li>
+                <li class="mb-1"><strong>ML3 Core / ML3 Dev / ML3 Svc</strong></li>
+                <li class="mb-1"><strong>ML4 Quantitative Mgmt</strong> — OPM PG1–3 (6 practices)</li>
+                <li class="mb-1"><strong>ML5 Optimizing</strong> — OPM PG4–5 (4 practices)</li>
+                <li><strong>Evidence Guide</strong> — artifacts + appraiser tips for all 24 PAs</li>
               </ul>
             </div>
           </div>
@@ -449,9 +467,51 @@
 
       </div>
 
+      <!-- ML4/ML5 Evidence -->
+      <h3 class="h6 fw-bold text-uppercase mb-3" style="letter-spacing:.08em;color:#fd7e14">&#128310; Maturity Levels 4 &amp; 5 — Required Artifacts</h3>
+      <p class="text-secondary small mb-3">ML4 and ML5 have no domain-specific Practice Areas — quantitative management and optimization apply universally through <strong>OPM (Organizational Performance Management)</strong>.</p>
+      <div class="row row-cols-1 row-cols-md-2 g-3 mb-4">
+
+        <div class="col"><div class="card h-100" style="border-color:rgba(253,126,20,.4)"><div class="card-header d-flex align-items-center gap-2 py-2" style="background:rgba(253,126,20,.08)">
+          <span class="pa-badge">OPM</span><span class="fw-semibold small flex-grow-1">Organizational Performance Management</span>
+          <span class="badge ms-auto" style="background:rgba(253,126,20,.2);color:#fd7e14;font-size:.65rem">ML4 — Quantitative</span>
+        </div><div class="card-body py-2">
+          <div class="fw-semibold small mb-1" style="color:#fd7e14">PG1–PG3: Establish &amp; Manage Quantitatively</div>
+          <ul class="small mb-0 ps-3">
+            <li>Quantitative performance objectives aligned to business goals</li>
+            <li>Process performance baselines — control charts, capability data (Cp/Cpk)</li>
+            <li>Statistical analysis reports showing SPC or regression use</li>
+            <li>Quantitative project management plans referencing org baselines</li>
+            <li>Performance monitoring dashboards with quantitative thresholds</li>
+            <li>Corrective action records tied to statistical deviations</li>
+          </ul>
+        </div></div></div>
+
+        <div class="col"><div class="card h-100" style="border-color:rgba(220,53,69,.4)"><div class="card-header d-flex align-items-center gap-2 py-2" style="background:rgba(220,53,69,.08)">
+          <span class="pa-badge">OPM</span><span class="fw-semibold small flex-grow-1">Organizational Performance Management</span>
+          <span class="badge ms-auto" style="background:rgba(220,53,69,.2);color:#ea868f;font-size:.65rem">ML5 — Optimizing</span>
+        </div><div class="card-body py-2">
+          <div class="fw-semibold small mb-1" style="color:#ea868f">PG4–PG5: Identify &amp; Deploy Innovations</div>
+          <ul class="small mb-0 ps-3">
+            <li>Innovation proposals with quantitative benefit/risk evaluation</li>
+            <li>Candidate improvement pipeline records (proposals → evaluated → selected)</li>
+            <li>Deployment plans for selected process or technology improvements</li>
+            <li>Pilot results before org-wide deployment</li>
+            <li>Before-and-after performance measurement records for deployed improvements</li>
+            <li>Institutionalization evidence — improvements embedded in standard processes</li>
+          </ul>
+        </div></div></div>
+
+      </div>
+
+      <div class="alert small mb-4" style="background:rgba(253,126,20,.1);border:1px solid rgba(253,126,20,.3);color:var(--bs-body-color)">
+        <strong style="color:#fd7e14">&#128202; ML4 Appraiser Focus:</strong> Statistical rigor is non-negotiable. Appraisers expect actual control charts, capability indices, and prediction models — not just dashboards. Show that quantitative objectives drive management decisions at both project and organizational level.
+        <br><strong style="color:#ea868f">&#128640; ML5 Appraiser Focus:</strong> Innovation must be systematic, not ad hoc. Show a repeatable pipeline where improvements are quantitatively evaluated before adoption, piloted, deployed with a plan, and measured for outcome. "We tried something new" is not ML5 evidence.
+      </div>
+
       <!-- Appraiser Focus -->
       <div class="card border-danger">
-        <div class="card-header fw-bold" style="background:rgba(220,53,69,.15);color:#ea868f">&#128293; What Appraisers Will Actually Drill You On</div>
+        <div class="card-header fw-bold" style="background:rgba(220,53,69,.15);color:#ea868f">&#128293; What Appraisers Will Actually Drill You On (ML2–ML5)</div>
         <div class="card-body">
           <div class="row g-3 mb-4">
             <div class="col-md-6 col-lg-3">
