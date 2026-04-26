@@ -224,6 +224,30 @@ var CMMI_DATA = [
 ['SSD','Service System Development','SSD 3.1','PG 3 – Deliver the Service System','Implement and integrate service system components according to the service system design','ML3','Services-Specific','Services'],
 ['SSD','Service System Development','SSD 3.2','PG 3 – Deliver the Service System','Verify and validate the service system against requirements and confirm readiness for service delivery','ML3','Services-Specific','Services'],
 
+/* ═══════════════════════════════════════════════════════════════════
+   ML4 — CORE PRACTICE AREAS  (domain = 'All')
+   Quantitatively Managed: statistical & quantitative management
+═══════════════════════════════════════════════════════════════════ */
+
+/* ── OPM — Organizational Performance Management ── */
+['OPM','Organizational Performance Management','OPM 1.1','PG 1 – Establish Quantitative Objectives','Establish and maintain quantitative performance objectives for the organization aligned to business objectives and stakeholder needs','ML4','Core','All'],
+['OPM','Organizational Performance Management','OPM 1.2','PG 1 – Establish Quantitative Objectives','Identify the sub-processes and measures to be used for quantitative management and monitoring of organizational performance','ML4','Core','All'],
+['OPM','Organizational Performance Management','OPM 2.1','PG 2 – Manage Performance Quantitatively','Apply statistical and other quantitative techniques to analyze process performance data and predict future organizational performance','ML4','Core','All'],
+['OPM','Organizational Performance Management','OPM 2.2','PG 2 – Manage Performance Quantitatively','Monitor and manage process and product performance against quantitative objectives and take corrective action when objectives are not being achieved','ML4','Core','All'],
+['OPM','Organizational Performance Management','OPM 3.1','PG 3 – Evaluate and Adjust','Identify root causes of performance shortfalls against quantitative objectives using statistical analysis and implement targeted corrective actions','ML4','Core','All'],
+['OPM','Organizational Performance Management','OPM 3.2','PG 3 – Evaluate and Adjust','Evaluate the effect of implemented changes on process performance using quantitative methods and adjust objectives or processes accordingly','ML4','Core','All'],
+
+/* ═══════════════════════════════════════════════════════════════════
+   ML5 — CORE PRACTICE AREAS  (domain = 'All')
+   Optimizing: innovation, continuous improvement, defect prevention
+═══════════════════════════════════════════════════════════════════ */
+
+/* ── OPM (continued at ML5) — Innovation and Optimization ── */
+['OPM','Organizational Performance Management','OPM 4.1','PG 4 – Identify Improvements','Identify and analyze innovative process and technology improvements that could enhance quality, cycle time, and organizational performance','ML5','Core','All'],
+['OPM','Organizational Performance Management','OPM 4.2','PG 4 – Identify Improvements','Evaluate candidate improvements using quantitative performance models and data to estimate potential benefit and risk before adoption','ML5','Core','All'],
+['OPM','Organizational Performance Management','OPM 5.1','PG 5 – Deploy and Sustain Improvements','Deploy selected process and technology improvements across the organization using a managed deployment plan with defined success criteria','ML5','Core','All'],
+['OPM','Organizational Performance Management','OPM 5.2','PG 5 – Deploy and Sustain Improvements','Measure and evaluate the effect of deployed improvements on organizational performance objectives and sustain achieved gains through institutionalization','ML5','Core','All'],
+
 ];
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -321,6 +345,10 @@ var EVIDENCE = {
   SSD: {
     artifacts: ['Service system requirements document','Service system design and architecture document','Interface requirements between service components','Integration and verification plan for service system','Service system verification and validation results','Service readiness review records'],
     tips: 'Appraisers check that service system requirements are traceable to customer needs and that verification demonstrates the system supports intended service delivery before go-live.'
+  },
+  OPM: {
+    artifacts: ['Quantitative performance objectives aligned to business goals','Process performance baselines (control charts, histograms, capability data)','Statistical analysis reports showing use of SPC or regression techniques','Quantitative project management plans referencing organizational baselines','Performance monitoring dashboards with quantitative thresholds and alerts','Corrective action records tied to quantitative deviations from objectives','Innovation proposals with quantitative benefit/risk evaluation','Deployment plans for selected process or technology improvements','Before-and-after performance measurement records for deployed improvements','Lessons learned from improvement deployments'],
+    tips: 'ML4/ML5 appraisers expect statistical rigor — not just data collection but actual use of control charts, capability indices (Cp, Cpk), prediction models, and regression analysis. Show that quantitative objectives drive management decisions. For ML5, the innovation pipeline must show proposals being evaluated quantitatively, selected, piloted, and deployed with measured outcomes.'
   }
 };
 
@@ -462,7 +490,21 @@ function downloadExcel() {
     ['PA','PA Full Name','Practice #','Practice Group','Description','Level','Category','Domain']),
     'ML3 Services');
 
-  /* Sheet 8 — Evidence Guide */
+  /* Sheet 8 — ML4 (OPM) */
+  var ml4 = CMMI_DATA.filter(function(d){ return d[5]==='ML4'; })
+    .map(function(d){ return [d[0],d[1],d[2],d[3],d[4],d[5],d[6],d[7]]; });
+  XLSX.utils.book_append_sheet(wb, makeSheet(ml4,
+    ['PA','PA Full Name','Practice #','Practice Group','Description','Level','Category','Domain']),
+    'ML4 Quantitative Mgmt');
+
+  /* Sheet 9 — ML5 (OPM Optimization) */
+  var ml5 = CMMI_DATA.filter(function(d){ return d[5]==='ML5'; })
+    .map(function(d){ return [d[0],d[1],d[2],d[3],d[4],d[5],d[6],d[7]]; });
+  XLSX.utils.book_append_sheet(wb, makeSheet(ml5,
+    ['PA','PA Full Name','Practice #','Practice Group','Description','Level','Category','Domain']),
+    'ML5 Optimizing');
+
+  /* Sheet 10 — Evidence Guide */
   var evRows = [];
   Object.keys(EVIDENCE).forEach(function(pa) {
     var e = EVIDENCE[pa];
@@ -475,7 +517,7 @@ function downloadExcel() {
     ['PA','Artifact / Evidence Item','Appraiser Tips']),
     'Evidence Guide');
 
-  XLSX.writeFile(wb, 'CMMI_v2_ML3_All_Domains.xlsx');
+  XLSX.writeFile(wb, 'CMMI_v2_ML5_All_Domains.xlsx');
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -504,6 +546,8 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('stat-total').textContent  = CMMI_DATA.length;
   document.getElementById('stat-ml2').textContent    = CMMI_DATA.filter(function(d){ return d[5]==='ML2'; }).length;
   document.getElementById('stat-ml3').textContent    = CMMI_DATA.filter(function(d){ return d[5]==='ML3'; }).length;
+  document.getElementById('stat-ml4').textContent    = CMMI_DATA.filter(function(d){ return d[5]==='ML4'; }).length;
+  document.getElementById('stat-ml5').textContent    = CMMI_DATA.filter(function(d){ return d[5]==='ML5'; }).length;
   var pas = {};
   CMMI_DATA.forEach(function(d){ pas[d[0]] = true; });
   document.getElementById('stat-pas').textContent    = Object.keys(pas).length;
