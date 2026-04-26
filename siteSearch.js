@@ -14,6 +14,7 @@
     { title: 'Services',      url: 'services.html',       text: 'services pricing consulting assessment implementation retainer packages' },
     { title: 'Contact',       url: 'contact.html',        text: 'contact get in touch message email' },
     { title: 'Blog',          url: 'blog.html',           text: 'blog articles cybersecurity devops compliance writing' },
+    { title: 'CMMI v2.0 DEV Level 3', url: 'cmmidev3.html', text: 'cmmi v2 development maturity level 3 practice areas practices compliance framework governance' },
     { title: 'Knowledge Base', url: 'knowledge.html',     text: 'knowledge base commands terminal linux cli cheatsheet' },
   ];
 

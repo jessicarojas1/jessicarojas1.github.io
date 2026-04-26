@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; img-src 'self' https://cdn.jsdelivr.net data: blob:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self' https://cdn.jsdelivr.net; worker-src blob:; object-src 'none'; base-uri 'self';">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="theme.css" />
+  <title>CMMI v2.0 Level 3 Development | Jessica Rojas</title>
+  <meta name="description" content="Complete CMMI v2.0 for Development Maturity Level 3 practice framework — all 19 Practice Areas, 126 Practices, and downloadable Excel checklist." />
+  <style>
+    .level-badge-ml2  { background: rgba(13,110,253,.15); color:#6ea8fe; border:1px solid rgba(13,110,253,.3); }
+    .level-badge-ml3  { background: rgba(25,135,84,.15);  color:#75b798; border:1px solid rgba(25,135,84,.3);  }
+    .cat-badge-core   { background: rgba(13,110,253,.12); color:#6ea8fe; border:1px solid rgba(13,110,253,.25);}
+    .cat-badge-dev    { background: rgba(255,193,7,.12);  color:#ffc107; border:1px solid rgba(255,193,7,.25); }
+    .badge-pill       { display:inline-block; padding:2px 8px; border-radius:20px; font-size:.72rem; font-weight:600; white-space:nowrap; }
+    #controls-table thead th { position:sticky; top:0; z-index:2; background:var(--bs-body-bg); border-bottom:2px solid var(--bs-border-color); }
+    .ctrl-row td { vertical-align:middle; font-size:.82rem; }
+    .pa-badge { font-size:.75rem; font-weight:700; font-family:monospace; padding:2px 7px; border-radius:4px; background:rgba(var(--bs-primary-rgb),.15); color:var(--bs-primary); }
+    .sg-text  { font-size:.72rem; color:var(--bs-secondary-color); }
+    #ctrl-count { font-size:.8rem; }
+    .stat-card .num { font-size:2rem; font-weight:700; line-height:1; }
+    .stat-card .lbl { font-size:.78rem; color:var(--bs-secondary-color); }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+          <li class="nav-item"><a class="nav-link active" href="projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="services.html">Services</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" id="nav-dataanalysis-link" style="display:none"><a class="nav-link" href="dataanalysis.html">Data Analysis</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content">
+
+    <!-- Hero -->
+    <section class="hero-section">
+      <div class="container text-center">
+        <h1 class="display-5 fw-bold">CMMI v2.0 for Development — Level 3</h1>
+        <p class="lead mb-3">Complete framework of all 19 Practice Areas and 126 Practices required for ML3 appraisal readiness.</p>
+        <div class="d-flex justify-content-center gap-2 flex-wrap">
+          <span class="badge bg-primary px-3 py-2">CMMI v2.0</span>
+          <span class="badge bg-success px-3 py-2">Maturity Level 3</span>
+          <span class="badge bg-warning text-dark px-3 py-2">19 Practice Areas</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats row -->
+    <section class="container py-4">
+      <div class="row g-3">
+        <div class="col-6 col-lg-3">
+          <div class="card text-center stat-card h-100">
+            <div class="card-body py-3">
+              <div class="num text-primary" id="stat-total">126</div>
+              <div class="lbl">Total Practices</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="card text-center stat-card h-100">
+            <div class="card-body py-3">
+              <div class="num" id="stat-ml2">73</div>
+              <div class="lbl">Maturity Level 2</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="card text-center stat-card h-100">
+            <div class="card-body py-3">
+              <div class="num text-success" id="stat-ml3">53</div>
+              <div class="lbl">Maturity Level 3</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="card text-center stat-card h-100">
+            <div class="card-body py-3">
+              <div class="num text-warning" id="stat-pas">19</div>
+              <div class="lbl">Practice Areas</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Filter bar -->
+    <section class="container pb-3">
+      <div class="row g-2 align-items-end">
+        <div class="col-md-4">
+          <label class="form-label small fw-semibold mb-1">Search</label>
+          <input type="search" id="ctrl-search" class="form-control form-control-sm" placeholder="Practice #, description, PA…" autocomplete="off" />
+        </div>
+        <div class="col-6 col-md-2">
+          <label class="form-label small fw-semibold mb-1">Practice Area</label>
+          <select id="ctrl-pa" class="form-select form-select-sm">
+            <option value="">All PAs</option>
+
+          </select>
+        </div>
+        <div class="col-6 col-md-2">
+          <label class="form-label small fw-semibold mb-1">Level</label>
+          <select id="ctrl-level" class="form-select form-select-sm">
+            <option value="">All</option>
+            <option value="ML2">ML2</option>
+            <option value="ML3">ML3</option>
+          </select>
+        </div>
+        <div class="col-6 col-md-2">
+          <label class="form-label small fw-semibold mb-1">Category</label>
+          <select id="ctrl-cat" class="form-select form-select-sm">
+            <option value="">All</option>
+            <option value="Core">Core</option>
+            <option value="Development-Specific">Development-Specific</option>
+          </select>
+        </div>
+        <div class="col-6 col-md-2 d-flex gap-2">
+          <button class="btn btn-sm btn-outline-secondary flex-grow-1" id="ctrl-reset">Reset</button>
+          <button class="btn btn-sm btn-success flex-grow-1" id="download-btn">&#8595; Excel</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Table -->
+    <section class="container pb-5">
+      <div class="table-responsive" style="max-height:65vh;overflow-y:auto;">
+        <table class="table table-hover table-bordered mb-0" id="controls-table">
+          <thead>
+            <tr>
+              <th style="min-width:70px">PA</th>
+              <th style="min-width:120px">Practice #</th>
+              <th style="min-width:160px">Practice Group</th>
+              <th>Practice Description</th>
+              <th style="min-width:70px">Level</th>
+              <th style="min-width:130px">Category</th>
+            </tr>
+          </thead>
+          <tbody id="controls-tbody">
+            <tr><td colspan="6" class="text-center text-secondary py-4">Loading controls…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="d-flex justify-content-between align-items-center mt-2 flex-wrap gap-2">
+        <span id="ctrl-count" class="text-secondary small"></span>
+        <button class="btn btn-success btn-sm px-4" id="download-btn2">&#8595; Download Excel (.xlsx)</button>
+      </div>
+    </section>
+
+    <!-- Framework info -->
+    <section class="container pb-5">
+      <div class="row g-4">
+        <div class="col-md-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <h2 class="h5 fw-bold mb-3">&#128218; About CMMI v2.0 DEV Level 3</h2>
+              <p class="small text-secondary mb-2">CMMI v2.0 for Development provides an updated, streamlined framework for process improvement. Released in 2018, v2.0 reorganizes practices into Practice Areas and Practice Groups, adds Governance (GOV) and Implementation Infrastructure (II), and consolidates requirements and V&amp;V practices.</p>
+              <p class="small text-secondary mb-2"><strong>ML2 (Managed):</strong> Work is planned, estimated, monitored, and controlled. 9 Practice Areas cover planning, estimating, configuration management, quality assurance, risk, and requirements development.</p>
+              <p class="small text-secondary mb-0"><strong>ML3 (Defined):</strong> Processes are defined and managed at the organizational level. 10 additional Practice Areas add governance, infrastructure, organizational training, integrated management, and development-specific engineering disciplines.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <h2 class="h5 fw-bold mb-3">&#128196; Excel Output Includes</h2>
+              <ul class="small text-secondary mb-0 ps-3">
+                <li class="mb-1"><strong>All Practices</strong> — complete 126-row master list with compliance status column</li>
+                <li class="mb-1"><strong>ML2 Practice Areas</strong> — 10 PAs, 73 Practices (9 Core + RDM)</li>
+                <li class="mb-1"><strong>ML3 Practice Areas</strong> — 9 PAs, 53 Practices (5 Core + TS, PI, VV, PR)</li>
+                <li class="mb-1"><strong>Core Practices</strong> — practices applicable across CMMI constellations</li>
+                <li class="mb-1"><strong>Development-Specific</strong> — 5 PAs proven through execution: RDM, TS, PI, VV, PR</li>
+                <li><strong>Practice Areas Overview &amp; Evidence Guide — summary + full evidence requirements per PA</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Evidence Section -->
+    <section class="container pb-5" id="evidence-section">
+      <h2 class="h4 fw-bold mb-1">Required Evidence by Practice Area</h2>
+      <p class="text-secondary small mb-4">What appraisers need to see for each PA. ⭐ = Development-Specific (proven through execution).</p>
+
+      <!-- ML2 Evidence -->
+      <h3 class="h6 fw-bold text-uppercase mb-3" style="letter-spacing:.08em;color:var(--bs-primary)">&#128310; Maturity Level 2 — Required Artifacts</h3>
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 mb-5">
+
+        <div class="col"><div class="card h-100"><div class="card-header d-flex align-items-center gap-2 py-2">
+          <span class="pa-badge">CM</span><span class="fw-semibold small flex-grow-1">Configuration Management</span>
+          <span class="badge" style="background:rgba(13,110,253,.15);color:#6ea8fe;font-size:.65rem">ML2</span>
+        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
+          <li>Version control system (Git, SVN, etc.)</li>
+          <li>Baseline definition — code, configs, docs under CM</li>
+          <li>Change control process with tickets tied to commits</li>
+          <li>Audit trail — who changed what, when</li>
+        </ul></div></div></div>
+
+        <div class="col"><div class="card h-100"><div class="card-header d-flex align-items-center gap-2 py-2">
+          <span class="pa-badge">EST</span><span class="fw-semibold small flex-grow-1">Estimation</span>
+          <span class="badge" style="background:rgba(13,110,253,.15);color:#6ea8fe;font-size:.65rem">ML2</span>
+        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
+          <li>Documented estimation method (story points, hours, parametric, etc.)</li>
+          <li>Historical data used from past sprints or projects</li>
+          <li>Estimates tied to actuals with variance tracking</li>
+        </ul></div></div></div>
+
+        <div class="col"><div class="card h-100"><div class="card-header d-flex align-items-center gap-2 py-2">
+          <span class="pa-badge">GOV</span><span class="fw-semibold small flex-grow-1">Governance</span>
+          <span class="badge" style="background:rgba(13,110,253,.15);color:#6ea8fe;font-size:.65rem">ML2</span>
+        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
+          <li>Defined roles and responsibilities (RACI or equivalent)</li>
+          <li>Management oversight evidence — reviews, approvals</li>
+          <li>Policy framework showing who enforces what</li>
+        </ul></div></div></div>
+
+        <div class="col"><div class="card h-100"><div class="card-header d-flex align-items-center gap-2 py-2">
+          <span class="pa-badge">II</span><span class="fw-semibold small flex-grow-1">Implementation Infrastructure</span>
+          <span class="badge" style="background:rgba(13,110,253,.15);color:#6ea8fe;font-size:.65rem">ML2</span>
+        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
+          <li>Documented tools and environments (Dev, Test, Prod)</li>
+          <li>CI/CD pipeline configurations and execution logs</li>
+          <li>Access provisioning records for required tools</li>
+          <li>Standards and templates available to teams</li>
+        </ul></div></div></div>
+
+        <div class="col"><div class="card h-100"><div class="card-header d-flex align-items-center gap-2 py-2">
+          <span class="pa-badge">MPM</span><span class="fw-semibold small flex-grow-1">Managing Performance &amp; Measurement</span>
+          <span class="badge" style="background:rgba(13,110,253,.15);color:#6ea8fe;font-size:.65rem">ML2</span>
+        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
+          <li>Defined metrics — velocity, defects, cycle time, etc.</li>
+          <li>Dashboards or reports showing metrics over time</li>
+          <li>Regular review cadence evidence (weekly/monthly records)</li>
+        </ul></div></div></div>
+
+        <div class="col"><div class="card h-100"><div class="card-header d-flex align-items-center gap-2 py-2">
+          <span class="pa-badge">MC</span><span class="fw-semibold small flex-grow-1">Monitor and Control</span>
+          <span class="badge" style="background:rgba(13,110,253,.15);color:#6ea8fe;font-size:.65rem">ML2</span>
+        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
+          <li>Status tracking artifacts (Jira, Azure DevOps, etc.)</li>
+          <li>Variance management records — schedule/cost/scope deltas</li>
+          <li>Corrective action logs when things slip</li>
+        </ul></div></div></div>
+
+        <div class="col"><div class="card h-100"><div class="card-header d-flex align-items-center gap-2 py-2">
+          <span class="pa-badge">PLAN</span><span class="fw-semibold small flex-grow-1">Planning</span>
+          <span class="badge" style="background:rgba(13,110,253,.15);color:#6ea8fe;font-size:.65rem">ML2</span>
+        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
+          <li>Project plans covering scope, schedule, and resources</li>
+          <li>Sprint and release planning artifacts</li>
+          <li>Dependencies identified and tracked</li>
+        </ul></div></div></div>
+
+        <div class="col"><div class="card h-100"><div class="card-header d-flex align-items-center gap-2 py-2">
+          <span class="pa-badge">PQA</span><span class="fw-semibold small flex-grow-1">Process Quality Assurance</span>
+          <span class="badge" style="background:rgba(13,110,253,.15);color:#6ea8fe;font-size:.65rem">ML2</span>
+        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
+          <li>Internal audit or QA check records</li>
+          <li>Evidence of noncompliance tracking</li>
+          <li>Corrective action tickets or logs</li>
+        </ul></div></div></div>
+
+        <div class="col"><div class="card h-100 border-primary"><div class="card-header d-flex align-items-center gap-2 py-2" style="background:rgba(13,110,253,.08)">
+          <span class="pa-badge">RDM</span><span class="fw-semibold small flex-grow-1">Requirements Dev &amp; Management</span>
+          <span class="badge bg-primary ms-auto" style="font-size:.65rem">&#11088; DEV CORE</span>
+        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
+          <li>Requirements documentation (user stories, specs, use cases)</li>
+          <li>Traceability matrix: Requirement &#8594; Design &#8594; Code &#8594; Test</li>
+          <li>Change management records for requirements</li>
+          <li>Stakeholder approval and validation records</li>
+        </ul></div></div></div>
+
+        <div class="col"><div class="card h-100"><div class="card-header d-flex align-items-center gap-2 py-2">
+          <span class="pa-badge">RSK</span><span class="fw-semibold small flex-grow-1">Risk and Opportunity Management</span>
+          <span class="badge" style="background:rgba(13,110,253,.15);color:#6ea8fe;font-size:.65rem">ML2</span>
+        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
+          <li>Risk register with identified risks and opportunities</li>
+          <li>Risk scoring and prioritization evidence</li>
+          <li>Mitigation plans per risk item</li>
+          <li>Periodic risk review meeting records</li>
+        </ul></div></div></div>
+
+      </div>
+
+      <!-- ML3 Evidence -->
+      <h3 class="h6 fw-bold text-uppercase mb-3" style="letter-spacing:.08em;color:var(--bs-success)">&#128310; Maturity Level 3 — Required Artifacts</h3>
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 mb-5">
+
+        <div class="col"><div class="card h-100"><div class="card-header d-flex align-items-center gap-2 py-2">
+          <span class="pa-badge">CAR</span><span class="fw-semibold small flex-grow-1">Causal Analysis and Resolution</span>
+          <span class="badge" style="background:rgba(25,135,84,.15);color:#75b798;font-size:.65rem">ML3</span>
+        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
+          <li>Root cause analysis (RCA) documentation on defects/issues</li>
+          <li>Trend analysis showing recurring issue patterns</li>
+          <li>Preventative actions implemented and tracked to closure</li>
+        </ul></div></div></div>
+
+        <div class="col"><div class="card h-100"><div class="card-header d-flex align-items-center gap-2 py-2">
+          <span class="pa-badge">DAR</span><span class="fw-semibold small flex-grow-1">Decision Analysis and Resolution</span>
+          <span class="badge" style="background:rgba(25,135,84,.15);color:#75b798;font-size:.65rem">ML3</span>
+        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
+          <li>Formal decision-making process documentation</li>
+          <li>Trade studies for tools, architecture, or vendor selection</li>
+          <li>Criteria-based evaluation matrices with scoring</li>
+        </ul></div></div></div>
+
+        <div class="col"><div class="card h-100"><div class="card-header d-flex align-items-center gap-2 py-2">
+          <span class="pa-badge">OT</span><span class="fw-semibold small flex-grow-1">Organizational Training</span>
+          <span class="badge" style="background:rgba(25,135,84,.15);color:#75b798;font-size:.65rem">ML3</span>
+        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
+          <li>Training plans defined per role</li>
+          <li>Completion records (LMS exports or certificates)</li>
+          <li>Skills gap identification documentation</li>
+        </ul></div></div></div>
+
+        <div class="col"><div class="card h-100 border-primary"><div class="card-header d-flex align-items-center gap-2 py-2" style="background:rgba(13,110,253,.08)">
+          <span class="pa-badge">PR</span><span class="fw-semibold small flex-grow-1">Peer Reviews</span>
+          <span class="badge bg-primary ms-auto" style="font-size:.65rem">&#11088; DEV CORE</span>
+        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
+          <li>Code review records (pull requests with actual comments)</li>
+          <li>Design review meeting notes or checklists</li>
+          <li>Review checklists or entry/exit criteria</li>
+          <li>Evidence reviews are actually happening — not just "LGTM"</li>
+        </ul></div></div></div>
+
+        <div class="col"><div class="card h-100"><div class="card-header d-flex align-items-center gap-2 py-2">
+          <span class="pa-badge">PAD</span><span class="fw-semibold small flex-grow-1">Process Asset Development</span>
+          <span class="badge" style="background:rgba(25,135,84,.15);color:#75b798;font-size:.65rem">ML3</span>
+        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
+          <li>Standard process documentation (SOPs, templates, playbooks)</li>
+          <li>Central repository (SharePoint, Confluence, etc.)</li>
+          <li>Versioning history of process documents</li>
+        </ul></div></div></div>
+
+        <div class="col"><div class="card h-100"><div class="card-header d-flex align-items-center gap-2 py-2">
+          <span class="pa-badge">PCM</span><span class="fw-semibold small flex-grow-1">Process Management</span>
+          <span class="badge" style="background:rgba(25,135,84,.15);color:#75b798;font-size:.65rem">ML3</span>
+        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
+          <li>Organizational standard processes documented</li>
+          <li>Tailoring guidelines — how projects adapt processes</li>
+          <li>Governance records over process usage and compliance</li>
+        </ul></div></div></div>
+
+        <div class="col"><div class="card h-100 border-primary"><div class="card-header d-flex align-items-center gap-2 py-2" style="background:rgba(13,110,253,.08)">
+          <span class="pa-badge">PI</span><span class="fw-semibold small flex-grow-1">Product Integration</span>
+          <span class="badge bg-primary ms-auto" style="font-size:.65rem">&#11088; DEV CORE</span>
+        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
+          <li>Integration strategy document</li>
+          <li>Build process documentation and logs</li>
+          <li>Integration testing evidence and results</li>
+          <li>CI/CD pipelines executing integration builds</li>
+        </ul></div></div></div>
+
+        <div class="col"><div class="card h-100 border-primary"><div class="card-header d-flex align-items-center gap-2 py-2" style="background:rgba(13,110,253,.08)">
+          <span class="pa-badge">TS</span><span class="fw-semibold small flex-grow-1">Technical Solution</span>
+          <span class="badge bg-primary ms-auto" style="font-size:.65rem">&#11088; DEV CORE</span>
+        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
+          <li>System and software design documentation</li>
+          <li>Architecture decision records (ADRs)</li>
+          <li>Implementation artifacts aligned to requirements</li>
+          <li>Coding standards with evidence of adherence</li>
+        </ul></div></div></div>
+
+        <div class="col"><div class="card h-100 border-primary"><div class="card-header d-flex align-items-center gap-2 py-2" style="background:rgba(13,110,253,.08)">
+          <span class="pa-badge">VV</span><span class="fw-semibold small flex-grow-1">Verification and Validation</span>
+          <span class="badge bg-primary ms-auto" style="font-size:.65rem">&#11088; DEV CORE</span>
+        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
+          <li>Test plans — unit, integration, system</li>
+          <li>Test execution results with pass/fail status</li>
+          <li>Requirement-to-test traceability (coverage matrix)</li>
+          <li>Acceptance validation records (customer or user sign-off)</li>
+        </ul></div></div></div>
+
+      </div>
+
+      <!-- Appraiser Focus -->
+      <div class="card border-danger">
+        <div class="card-header fw-bold" style="background:rgba(220,53,69,.15);color:#ea868f">&#128293; What Appraisers Will Actually Drill You On</div>
+        <div class="card-body">
+          <div class="row g-3 mb-4">
+            <div class="col-md-6 col-lg-3">
+              <div class="card h-100" style="border-color:rgba(220,53,69,.4)">
+                <div class="card-body py-2">
+                  <div class="fw-bold small mb-1">&#129504; Engineering Lifecycle — MAKE OR BREAK</div>
+                  <div class="text-primary fw-semibold small mb-1">RDM &#8594; TS &#8594; PI &#8594; VV &#8594; PR</div>
+                  <div class="text-secondary" style="font-size:.75rem">Must be fully traceable and real. This chain is the entire point of the Development appraisal.</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+              <div class="card h-100">
+                <div class="card-body py-2">
+                  <div class="fw-bold small mb-1">&#128202; Control &amp; Discipline</div>
+                  <div class="text-primary fw-semibold small mb-1">PLAN, MC, MPM, RSK</div>
+                  <div class="text-secondary" style="font-size:.75rem">Must show you are in control of your projects — not just doing work, but managing it.</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+              <div class="card h-100">
+                <div class="card-body py-2">
+                  <div class="fw-bold small mb-1">&#127970; Organizational Maturity</div>
+                  <div class="text-primary fw-semibold small mb-1">PAD, PCM, OT, PQA</div>
+                  <div class="text-secondary" style="font-size:.75rem">Must show this isn't a one-off project — it's institutionalized across the organization.</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+              <div class="card h-100">
+                <div class="card-body py-2">
+                  <div class="fw-bold small mb-1">&#128269; Decision &amp; Improvement</div>
+                  <div class="text-primary fw-semibold small mb-1">DAR, CAR</div>
+                  <div class="text-secondary" style="font-size:.75rem">Must show you think and improve like an engineering org — data-driven decisions, root cause fixes.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="p-3 rounded" style="background:rgba(220,53,69,.1);border:1px solid rgba(220,53,69,.3)">
+                <div class="fw-bold small mb-2" style="color:#ea868f">&#128680; You will FAIL if:</div>
+                <ul class="small mb-0 ps-3 text-secondary">
+                  <li>Processes exist but aren't actually used</li>
+                  <li>No traceability — biggest failure point</li>
+                  <li>No real peer reviews (just "LGTM" culture)</li>
+                  <li>No metrics tied to actual decisions</li>
+                  <li>No root cause analysis on defects</li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="p-3 rounded" style="background:rgba(25,135,84,.1);border:1px solid rgba(25,135,84,.3)">
+                <div class="fw-bold small mb-2" style="color:#75b798">&#9989; You will PASS if:</div>
+                <ul class="small mb-0 ps-3 text-secondary">
+                  <li>Everything is connected — requirements trace to tests</li>
+                  <li>Everything is repeatable — processes work on every project</li>
+                  <li>Everything is evidenced in real work artifacts</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- RBAC Login Modal -->
+  <div class="modal" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="rbacModalLabel">&#128274; Login</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body"><!-- roles.js injects login form here --></div>
+        <div class="modal-footer border-0 pt-0">
+          <p class="text-secondary small mb-0">Session clears when you close this tab.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" />
+      </a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" />
+      </a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="privacy.html">Privacy Policy</a> &middot; <a href="terms.html">Terms</a></p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmyQWuGmUhSBQOVCp7p5pT1gkTJ" crossorigin="anonymous"></script>
+  <script src="users.js" defer></script>
+  <script src="roles.js" defer></script>
+  <script src="script.js" defer></script>
+  <script src="analytics.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js" defer></script>
+  <script src="siteSearch.js" defer></script>
+  <script src="cmmidev3.js" defer></script>
+
+<!-- bot-trap: hidden off-screen link, invisible to humans -->
+<div aria-hidden="true" style="position:absolute;left:-99999px;top:auto;width:1px;height:1px;overflow:hidden">
+  <a href="honeypot.html" tabindex="-1">admin-legacy-export</a>
+</div>
+</body>
+</html>
