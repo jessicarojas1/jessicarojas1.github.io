@@ -373,7 +373,7 @@ function renderTable(rows) {
     return;
   }
   var html = '<table class="table table-bordered table-hover table-sm align-middle mb-0"><thead class="table-dark sticky-top"><tr>'
-    + '<th>PA</th><th>Practice #</th><th>Practice Group</th><th>Description</th><th>Level</th><th>Domain</th>'
+    + '<th>Practice Area</th><th>Practice</th><th>Practice Group</th><th>Description</th><th>Level</th><th>Domain</th>'
     + '</tr></thead><tbody>';
   rows.forEach(function(d) {
     var domBadge = d[6] === 'All' ? '<span class="badge bg-secondary">Core</span>'
@@ -449,7 +449,7 @@ function downloadExcel() {
   var filename = 'CMMI_v2_' + levelPart + '_' + domainPart + '.xlsx';
   var wb = XLSX.utils.book_new();
 
-  var COLS = ['PA','PA Full Name','Practice #','Practice Group','Description','Level','Domain'];
+  var COLS = ['Practice Area','Practice Area Full Name','Practice','Practice Group','Description','Level','Domain'];
   var toRow = function(d){ return [d[0],d[1],d[2],d[3],d[4],d[5],d[6]]; };
 
   /* Sheet 1 — All Practices */
