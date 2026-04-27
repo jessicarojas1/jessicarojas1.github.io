@@ -49,8 +49,8 @@ var CMMI_DATA = [
 ['CM','Configuration Management','CM 3.2','PG 3 – Establish Integrity','Perform configuration audits to confirm baselines and documentation are accurate and complete','ML2','Core','All'],
 
 /* ── PQA — Process Quality Assurance ── */
-['PQA','Process Quality Assurance','PQA 1.1','PG 1 – Evaluate Processes and Products','Objectively evaluate selected performed processes against applicable descriptions and standards','ML2','Core','All'],
-['PQA','Process Quality Assurance','PQA 1.2','PG 1 – Evaluate Processes and Products','Objectively evaluate selected work products and services against applicable standards and requirements','ML2','Core','All'],
+['PQA','Process Quality Assurance','PQA 1.1','PG 1 – Evaluate Processes and Products','Objectively evaluate selected performed processes and activities against the organization\'s established process definitions and applicable standards','ML2','Core','All'],
+['PQA','Process Quality Assurance','PQA 1.2','PG 1 – Evaluate Processes and Products','Objectively evaluate selected work products against applicable process definitions, standards, and stated requirements','ML2','Core','All'],
 ['PQA','Process Quality Assurance','PQA 2.1','PG 2 – Provide Objective Insight','Communicate noncompliance issues to staff and management and ensure resolution to closure','ML2','Core','All'],
 ['PQA','Process Quality Assurance','PQA 2.2','PG 2 – Provide Objective Insight','Establish and maintain records of quality assurance activities and their results','ML2','Core','All'],
 ['PQA','Process Quality Assurance','PQA 3.1','PG 3 – Manage Quality Assurance','Establish and maintain a process quality assurance approach aligned to organizational standards','ML2','Core','All'],
@@ -75,6 +75,7 @@ var CMMI_DATA = [
 
 /* ── II — Implementation Infrastructure ── */
 ['II','Implementation Infrastructure','II 1.1','PG 1 – Identify Infrastructure Needs','Identify resources, tools, methods, and environments needed to implement and support processes','ML2','Core','All'],
+['II','Implementation Infrastructure','II 1.2','PG 1 – Identify Infrastructure Needs','Document infrastructure gaps and prioritize needs based on process requirements and organizational objectives','ML2','Core','All'],
 ['II','Implementation Infrastructure','II 2.1','PG 2 – Provide Infrastructure','Establish and maintain infrastructure (tools, environments, templates) to support work performance','ML2','Core','All'],
 ['II','Implementation Infrastructure','II 2.2','PG 2 – Provide Infrastructure','Make infrastructure available to staff and provide access, training, and support as needed','ML2','Core','All'],
 ['II','Implementation Infrastructure','II 3.1','PG 3 – Improve Infrastructure','Evaluate implementation infrastructure effectiveness using performance data and staff feedback','ML2','Core','All'],
@@ -109,7 +110,7 @@ var CMMI_DATA = [
 ═══════════════════════════════════════════════════════════════════ */
 
 /* ── SD — Service Delivery ── */
-['SD','Service Delivery','SD 1.1','PG 1 – Establish Service Agreements','Establish and maintain service agreements that define services, service levels, and obligations to customers','ML2','Services-Specific','Services'],
+['SD','Service Delivery','SD 1.1','PG 1 – Establish Service Agreements','Establish and maintain service agreements defining service scope, stakeholder responsibilities, and service level objectives','ML2','Services-Specific','Services'],
 ['SD','Service Delivery','SD 1.2','PG 1 – Establish Service Agreements','Establish and maintain service level targets and measures aligned to customer expectations','ML2','Services-Specific','Services'],
 ['SD','Service Delivery','SD 2.1','PG 2 – Deliver Services','Prepare for service delivery including resources, infrastructure, and trained staff','ML2','Services-Specific','Services'],
 ['SD','Service Delivery','SD 2.2','PG 2 – Deliver Services','Deliver services per service agreements and maintain agreed service levels','ML2','Services-Specific','Services'],
@@ -152,9 +153,10 @@ var CMMI_DATA = [
 ['OT','Organizational Training','OT 2.1','PG 2 – Provide Training','Establish and maintain a tactical training plan that addresses current organizational training needs','ML3','Core','All'],
 ['OT','Organizational Training','OT 2.2','PG 2 – Provide Training','Deliver required training using appropriate instructional methods and media','ML3','Core','All'],
 ['OT','Organizational Training','OT 3.1','PG 3 – Evaluate Training Effectiveness','Assess the effectiveness of training by evaluating outcomes against defined criteria','ML3','Core','All'],
+['OT','Organizational Training','OT 3.2','PG 3 – Evaluate Training Effectiveness','Establish and maintain records of training completion, effectiveness evaluations, and lessons learned for organizational reference','ML3','Core','All'],
 
 /* ── PAD — Process Asset Development ── */
-['PAD','Process Asset Development','PAD 1.1','PG 1 – Establish Standard Processes','Establish and maintain the organization\'s set of standard processes covering all required practice areas','ML3','Core','All'],
+['PAD','Process Asset Development','PAD 1.1','PG 1 – Establish Standard Processes','Establish and maintain the organization\'s set of standard processes covering all core and applicable domain-specific practice areas','ML3','Core','All'],
 ['PAD','Process Asset Development','PAD 1.2','PG 1 – Establish Standard Processes','Establish and maintain descriptions of life cycle models approved for use in the organization','ML3','Core','All'],
 ['PAD','Process Asset Development','PAD 2.1','PG 2 – Develop Process Assets','Establish and maintain the organizational process asset library, including process descriptions, templates, and examples','ML3','Core','All'],
 ['PAD','Process Asset Development','PAD 2.2','PG 2 – Develop Process Assets','Establish and maintain tailoring guidelines and criteria for adapting standard processes to project needs','ML3','Core','All'],
@@ -164,9 +166,9 @@ var CMMI_DATA = [
 /* ── PCM — Process Capability Management ── */
 ['PCM','Process Capability Management','PCM 1.1','PG 1 – Establish Process Capability Baselines','Collect and analyze process performance data from projects to establish organizational process capability baselines','ML3','Core','All'],
 ['PCM','Process Capability Management','PCM 1.2','PG 1 – Establish Process Capability Baselines','Establish and maintain organizational process performance baselines for key process measures','ML3','Core','All'],
-['PCM','Process Capability Management','PCM 2.1','PG 2 – Plan Process Capability Management','Identify processes and sub-processes to be managed for process capability and define measures to support quantitative management','ML3','Core','All'],
-['PCM','Process Capability Management','PCM 2.2','PG 2 – Plan Process Capability Management','Establish and maintain process performance models to characterize expected process performance','ML3','Core','All'],
-['PCM','Process Capability Management','PCM 3.1','PG 3 – Apply Process Capability Management','Use process performance baselines and models to support planning, monitoring, and management decisions','ML3','Core','All'],
+['PCM','Process Capability Management','PCM 2.1','PG 2 – Establish Process Performance Models','Select processes and sub-processes for capability management and identify the measures needed to establish statistical understanding of their performance','ML3','Core','All'],
+['PCM','Process Capability Management','PCM 2.2','PG 2 – Establish Process Performance Models','Establish and maintain process performance models that characterize expected process behavior and variation for selected processes','ML3','Core','All'],
+['PCM','Process Capability Management','PCM 3.1','PG 3 – Apply Process Capability Management','Use process performance baselines and models to support planning, monitoring, and management decisions at project and organizational levels','ML3','Core','All'],
 ['PCM','Process Capability Management','PCM 3.2','PG 3 – Apply Process Capability Management','Take action to address process performance shortfalls and sustain process capability improvements','ML3','Core','All'],
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -180,7 +182,7 @@ var CMMI_DATA = [
 ['TS','Technical Solution','TS 2.2','PG 2 – Develop the Design','Establish and maintain a complete and traceable definition of product and component interfaces','ML3','Development-Specific','Development'],
 ['TS','Technical Solution','TS 2.3','PG 2 – Develop the Design','Analyze designs for build-versus-buy feasibility, risk, and compliance with requirements','ML3','Development-Specific','Development'],
 ['TS','Technical Solution','TS 3.1','PG 3 – Implement the Design','Implement designs using applicable coding standards, design rules, and criteria','ML3','Development-Specific','Development'],
-['TS','Technical Solution','TS 3.2','PG 3 – Implement the Design','Develop and maintain documentation needed to install, operate, and maintain the product','ML3','Development-Specific','Development'],
+['TS','Technical Solution','TS 3.2','PG 3 – Implement the Design','Develop and maintain documentation needed to install, operate, maintain, and support users of the delivered product','ML3','Development-Specific','Development'],
 
 /* ── PI — Product Integration ── */
 ['PI','Product Integration','PI 1.1','PG 1 – Prepare for Product Integration','Establish and maintain an integration strategy covering sequence, environment, procedures, and criteria','ML3','Development-Specific','Development'],
@@ -201,9 +203,11 @@ var CMMI_DATA = [
 
 /* ── PR — Peer Reviews ── */
 ['PR','Peer Reviews','PR 1.1','PG 1 – Prepare for Peer Reviews','Select work products to be peer reviewed and define the review approach and objectives','ML3','Development-Specific','Development'],
+['PR','Peer Reviews','PR 1.2','PG 1 – Prepare for Peer Reviews','Establish peer review entry and exit criteria, checklists, and reviewer roles and responsibilities','ML3','Development-Specific','Development'],
 ['PR','Peer Reviews','PR 2.1','PG 2 – Conduct Peer Reviews','Prepare for peer reviews by distributing materials and assigning roles in advance','ML3','Development-Specific','Development'],
 ['PR','Peer Reviews','PR 2.2','PG 2 – Conduct Peer Reviews','Conduct peer reviews and record identified defects, issues, and action items','ML3','Development-Specific','Development'],
 ['PR','Peer Reviews','PR 3.1','PG 3 – Analyze Peer Review Data','Analyze peer review data to identify trends, common defect types, and process improvement opportunities','ML3','Development-Specific','Development'],
+['PR','Peer Reviews','PR 3.2','PG 3 – Analyze Peer Review Data','Track peer review metrics over time and use results to improve review effectiveness and development processes','ML3','Development-Specific','Development'],
 
 /* ═══════════════════════════════════════════════════════════════════
    ML3 — SERVICES DOMAIN  (domain = 'Services')
@@ -212,9 +216,10 @@ var CMMI_DATA = [
 /* ── STSM — Strategic Service Management ── */
 ['STSM','Strategic Service Management','STSM 1.1','PG 1 – Establish Strategic Needs','Establish and maintain an understanding of strategic service needs and how services support organizational objectives','ML3','Services-Specific','Services'],
 ['STSM','Strategic Service Management','STSM 1.2','PG 1 – Establish Strategic Needs','Establish and maintain a strategic plan for services aligned to stakeholder and organizational needs','ML3','Services-Specific','Services'],
-['STSM','Strategic Service Management','STSM 2.1','PG 2 – Establish Service System Approach','Establish and maintain a standard service approach that covers service delivery, capability, and capacity requirements','ML3','Services-Specific','Services'],
-['STSM','Strategic Service Management','STSM 2.2','PG 2 – Establish Service System Approach','Maintain a service catalog that describes available services, features, service levels, and constraints','ML3','Services-Specific','Services'],
+['STSM','Strategic Service Management','STSM 2.1','PG 2 – Establish Standard Service Approach','Establish and maintain a standard approach defining how services will be consistently developed, delivered, and improved across the organization','ML3','Services-Specific','Services'],
+['STSM','Strategic Service Management','STSM 2.2','PG 2 – Establish Standard Service Approach','Establish and maintain a service catalog describing available services, service level commitments, strategic constraints, and the value each service delivers to stakeholders','ML3','Services-Specific','Services'],
 ['STSM','Strategic Service Management','STSM 3.1','PG 3 – Manage the Service Strategy','Monitor and improve the service strategy based on changes in organizational objectives and service performance data','ML3','Services-Specific','Services'],
+['STSM','Strategic Service Management','STSM 3.2','PG 3 – Manage the Service Strategy','Establish mechanisms to review and evolve the service strategy in response to organizational changes, stakeholder feedback, and emerging service opportunities','ML3','Services-Specific','Services'],
 
 /* ── SSD — Service System Development ── */
 ['SSD','Service System Development','SSD 1.1','PG 1 – Analyze Service Needs','Analyze service needs and constraints to establish and maintain service system requirements','ML3','Services-Specific','Services'],
@@ -245,8 +250,10 @@ var CMMI_DATA = [
 /* ── OPM (continued at ML5) — Innovation and Optimization ── */
 ['OPM','Organizational Performance Management','OPM 4.1','PG 4 – Identify Improvements','Identify and analyze innovative process and technology improvements that could enhance quality, cycle time, and organizational performance','ML5','Core','All'],
 ['OPM','Organizational Performance Management','OPM 4.2','PG 4 – Identify Improvements','Evaluate candidate improvements using quantitative performance models and data to estimate potential benefit and risk before adoption','ML5','Core','All'],
+['OPM','Organizational Performance Management','OPM 4.3','PG 4 – Identify Improvements','Prioritize candidate improvements for adoption based on quantitative benefit analysis, organizational readiness, and strategic alignment','ML5','Core','All'],
 ['OPM','Organizational Performance Management','OPM 5.1','PG 5 – Deploy and Sustain Improvements','Deploy selected process and technology improvements across the organization using a managed deployment plan with defined success criteria','ML5','Core','All'],
 ['OPM','Organizational Performance Management','OPM 5.2','PG 5 – Deploy and Sustain Improvements','Measure and evaluate the effect of deployed improvements on organizational performance objectives and sustain achieved gains through institutionalization','ML5','Core','All'],
+['OPM','Organizational Performance Management','OPM 5.3','PG 5 – Deploy and Sustain Improvements','Monitor deployed improvements for sustainability and address deficiencies that emerge post-deployment to prevent regression','ML5','Core','All'],
 
 ];
 
@@ -303,8 +310,8 @@ var EVIDENCE = {
     tips: 'Appraisers look for systemic fixes, not one-off patches. Evidence that the same defect type stops recurring is the strongest proof of effective CAR.'
   },
   OT: {
-    artifacts: ['Organizational training needs assessment','Training plan (tactical and strategic)','Training records / completion certificates','Training effectiveness evaluation results','Curriculum or course materials'],
-    tips: 'Training must be tied to organizational process needs, not just individual development. Show that effectiveness is measured (e.g., post-training assessments, performance change).'
+    artifacts: ['Organizational training needs assessment','Training plan (tactical and strategic)','Training records / completion certificates','Training effectiveness evaluation results (surveys, assessments, performance data)','Curriculum or course materials','Lessons learned from training delivery and effectiveness reviews'],
+    tips: 'Training must be tied to organizational process needs, not just individual development. Show that effectiveness is measured (post-training assessments, performance change) AND that records are maintained (OT 3.2). Appraisers check that the same training data is used to improve future training plans.'
   },
   PAD: {
     artifacts: ['Organizational process asset library (OPAL) with indexed assets','Standard process descriptions','Life cycle model descriptions','Tailoring guidelines and approved tailoring log','Process improvement proposals and disposition records'],
@@ -327,8 +334,8 @@ var EVIDENCE = {
     tips: 'Distinguish verification (built right) from validation (built the right thing). Appraisers check that each requirement has a corresponding test case and that all tests are executed and recorded.'
   },
   PR: {
-    artifacts: ['Peer review plan or schedule','Review preparation records (distributed materials, checklists)','Review meeting minutes or defect logs','Action item tracking records','Defect density trend data across reviews'],
-    tips: 'Preparation evidence is often missed — show that reviewers received materials in advance. Data showing defect trends improving over time demonstrates process effectiveness.'
+    artifacts: ['Peer review plan or schedule','Peer review entry/exit criteria and checklists (PR 1.2)','Role assignments for reviewers (author, moderator, reviewer, recorder)','Review preparation records (materials distributed in advance)','Review meeting minutes or defect logs with action items','Action item tracking records closed before product proceeds','Defect density and injection-rate trend data across reviews (PR 3.2)','Metrics showing review effectiveness improvement over time'],
+    tips: 'Preparation evidence (PR 1.2) is often missed — show checklists, entry criteria, and that reviewers received materials before the meeting. For PR 3.2 metrics, defect density trends and defect type analysis prove the process is improving. "LGTM" rubber-stamp reviews with no data will fail immediately.'
   },
   SD: {
     artifacts: ['Service agreements / SLAs with customers','Service level targets and measurement definitions','Service delivery readiness checklists','Service performance reports','Customer review meeting minutes','Service continuity and recovery plans'],
@@ -347,8 +354,8 @@ var EVIDENCE = {
     tips: 'Appraisers check that service system requirements are traceable to customer needs and that verification demonstrates the system supports intended service delivery before go-live.'
   },
   OPM: {
-    artifacts: ['Quantitative performance objectives aligned to business goals','Process performance baselines (control charts, histograms, capability data)','Statistical analysis reports showing use of SPC or regression techniques','Quantitative project management plans referencing organizational baselines','Performance monitoring dashboards with quantitative thresholds and alerts','Corrective action records tied to quantitative deviations from objectives','Innovation proposals with quantitative benefit/risk evaluation','Deployment plans for selected process or technology improvements','Before-and-after performance measurement records for deployed improvements','Lessons learned from improvement deployments'],
-    tips: 'ML4/ML5 appraisers expect statistical rigor — not just data collection but actual use of control charts, capability indices (Cp, Cpk), prediction models, and regression analysis. Show that quantitative objectives drive management decisions. For ML5, the innovation pipeline must show proposals being evaluated quantitatively, selected, piloted, and deployed with measured outcomes.'
+    artifacts: ['Quantitative performance objectives aligned to business goals','Process performance baselines (control charts, histograms, capability data)','Statistical analysis reports showing use of SPC or regression techniques','Quantitative project management plans referencing organizational baselines','Performance monitoring dashboards with quantitative thresholds and alerts','Corrective action records tied to quantitative deviations from objectives','Prioritized improvement proposal log with benefit/risk scoring','Innovation proposals with quantitative benefit/risk evaluation records','Pilot results before organization-wide deployment','Deployment plans for selected process or technology improvements with defined success criteria','Before-and-after performance measurement records for deployed improvements','Sustainability monitoring records showing no regression post-deployment','Lessons learned from improvement deployments'],
+    tips: 'ML4 appraisers expect statistical rigor — actual use of control charts, capability indices (Cp/Cpk), prediction models, and regression analysis, not just dashboards. Show that quantitative objectives drive management decisions at both project and org level. For ML5, the innovation pipeline must be systematic: proposals evaluated quantitatively (OPM 4.1-4.3), prioritized, piloted, deployed with a plan (OPM 5.1), measured for outcome (OPM 5.2), and monitored for regression (OPM 5.3). "We tried something new" is not ML5 evidence.'
   }
 };
 
