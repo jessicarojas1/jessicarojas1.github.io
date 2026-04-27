@@ -21,13 +21,13 @@ var CMMI_DATA = [
 ['PLAN','Planning','PLAN 3.3','PG 3 – Obtain Commitment','Obtain commitment from stakeholders responsible for executing and supporting the plan','ML2','All'],
 
 /* ── EST — Estimation ── */
-['EST','Estimation','EST 1.1','PG 1 – Prepare for Estimating','Establish and maintain estimating parameters, measures, and methods to be used','ML2','All'],
-['EST','Estimation','EST 1.2','PG 1 – Prepare for Estimating','Select and document estimating methods and techniques appropriate for the work','ML2','All'],
-['EST','Estimation','EST 2.1','PG 2 – Estimate the Work','Estimate work product and task sizes using defined measures','ML2','All'],
-['EST','Estimation','EST 2.2','PG 2 – Estimate the Work','Estimate effort and duration using established estimating parameters and models','ML2','All'],
-['EST','Estimation','EST 2.3','PG 2 – Estimate the Work','Estimate project costs based on estimated effort, duration, and resource requirements','ML2','All'],
-['EST','Estimation','EST 3.1','PG 3 – Validate Estimates','Review estimates for reasonableness using historical data and expert judgment','ML2','All'],
-['EST','Estimation','EST 3.2','PG 3 – Validate Estimates','Document rationale for estimation assumptions and record actuals for future calibration','ML2','All'],
+['EST','Estimation','EST 1.1','PG 1 – Prepare for Estimating','Establish and maintain estimating parameters, measures, and methods to be used','ML3','All'],
+['EST','Estimation','EST 1.2','PG 1 – Prepare for Estimating','Select and document estimating methods and techniques appropriate for the work','ML3','All'],
+['EST','Estimation','EST 2.1','PG 2 – Estimate the Work','Estimate work product and task sizes using defined measures','ML3','All'],
+['EST','Estimation','EST 2.2','PG 2 – Estimate the Work','Estimate effort and duration using established estimating parameters and models','ML3','All'],
+['EST','Estimation','EST 2.3','PG 2 – Estimate the Work','Estimate project costs based on estimated effort, duration, and resource requirements','ML3','All'],
+['EST','Estimation','EST 3.1','PG 3 – Validate Estimates','Review estimates for reasonableness using historical data and expert judgment','ML3','All'],
+['EST','Estimation','EST 3.2','PG 3 – Validate Estimates','Document rationale for estimation assumptions and record actuals for future calibration','ML3','All'],
 
 /* ── MC — Monitor and Control ── */
 ['MC','Monitor and Control','MC 1.1','PG 1 – Monitor the Work','Monitor actual performance and progress against the project plan','ML2','All'],
@@ -56,13 +56,13 @@ var CMMI_DATA = [
 ['PQA','Process Quality Assurance','PQA 3.1','PG 3 – Manage Quality Assurance','Establish and maintain a process quality assurance approach aligned to organizational standards','ML2','All'],
 
 /* ── RSK — Risk and Opportunity Management ── */
-['RSK','Risk and Opportunity Management','RSK 1.1','PG 1 – Identify Risks and Opportunities','Identify and document risks and opportunities using a defined identification approach','ML2','All'],
-['RSK','Risk and Opportunity Management','RSK 1.2','PG 1 – Identify Risks and Opportunities','Evaluate and categorize risks and opportunities using defined parameters and thresholds','ML2','All'],
-['RSK','Risk and Opportunity Management','RSK 2.1','PG 2 – Plan Mitigation','Develop risk and opportunity mitigation options, contingency plans, and triggers','ML2','All'],
-['RSK','Risk and Opportunity Management','RSK 2.2','PG 2 – Plan Mitigation','Prioritize risks for mitigation based on defined criteria and probability/impact assessment','ML2','All'],
-['RSK','Risk and Opportunity Management','RSK 2.3','PG 2 – Plan Mitigation','Develop and maintain risk and opportunity mitigation plans for priority items','ML2','All'],
-['RSK','Risk and Opportunity Management','RSK 3.1','PG 3 – Implement Mitigation','Implement risk mitigation plans and monitor for changes in risk status','ML2','All'],
-['RSK','Risk and Opportunity Management','RSK 3.2','PG 3 – Implement Mitigation','Adjust mitigation strategies based on monitoring results and trigger conditions','ML2','All'],
+['RSK','Risk and Opportunity Management','RSK 1.1','PG 1 – Identify Risks and Opportunities','Identify and document risks and opportunities using a defined identification approach','ML3','All'],
+['RSK','Risk and Opportunity Management','RSK 1.2','PG 1 – Identify Risks and Opportunities','Evaluate and categorize risks and opportunities using defined parameters and thresholds','ML3','All'],
+['RSK','Risk and Opportunity Management','RSK 2.1','PG 2 – Plan Mitigation','Develop risk and opportunity mitigation options, contingency plans, and triggers','ML3','All'],
+['RSK','Risk and Opportunity Management','RSK 2.2','PG 2 – Plan Mitigation','Prioritize risks for mitigation based on defined criteria and probability/impact assessment','ML3','All'],
+['RSK','Risk and Opportunity Management','RSK 2.3','PG 2 – Plan Mitigation','Develop and maintain risk and opportunity mitigation plans for priority items','ML3','All'],
+['RSK','Risk and Opportunity Management','RSK 3.1','PG 3 – Implement Mitigation','Implement risk mitigation plans and monitor for changes in risk status','ML3','All'],
+['RSK','Risk and Opportunity Management','RSK 3.2','PG 3 – Implement Mitigation','Adjust mitigation strategies based on monitoring results and trigger conditions','ML3','All'],
 
 /* ── GOV — Governance ── */
 ['GOV','Governance','GOV 1.1','PG 1 – Define Expectations','Define and communicate expected organizational behaviors for performing work and processes','ML2','All'],
@@ -100,10 +100,19 @@ var CMMI_DATA = [
 ['RDM','Requirements Development and Management','RDM 2.1','PG 2 – Analyze and Validate Requirements','Establish product and product-component requirements aligned to customer requirements','ML2','Development'],
 ['RDM','Requirements Development and Management','RDM 2.2','PG 2 – Analyze and Validate Requirements','Allocate requirements to product components and ensure bidirectional traceability','ML2','Development'],
 ['RDM','Requirements Development and Management','RDM 2.3','PG 2 – Analyze and Validate Requirements','Identify and document interface requirements between product components','ML2','Development'],
-['RDM','Requirements Development and Management','RDM 3.1','PG 3 – Manage Requirements','Obtain commitment to requirements from project participants','ML2','Development'],
-['RDM','Requirements Development and Management','RDM 3.2','PG 3 – Manage Requirements','Manage requirements changes and document rationale and impact of each change','ML2','Development'],
-['RDM','Requirements Development and Management','RDM 3.3','PG 3 – Manage Requirements','Ensure alignment between project work products, plans, and requirements','ML2','Development'],
-['RDM','Requirements Development and Management','RDM 3.4','PG 3 – Manage Requirements','Identify and correct inconsistencies between project work and requirements','ML2','Development'],
+['RDM','Requirements Development and Management','RDM 3.1','PG 3 – Manage Requirements','Obtain commitment to requirements from project participants','ML3','Development'],
+['RDM','Requirements Development and Management','RDM 3.2','PG 3 – Manage Requirements','Manage requirements changes and document rationale and impact of each change','ML3','Development'],
+['RDM','Requirements Development and Management','RDM 3.3','PG 3 – Manage Requirements','Ensure alignment between project work products, plans, and requirements','ML3','Development'],
+['RDM','Requirements Development and Management','RDM 3.4','PG 3 – Manage Requirements','Identify and correct inconsistencies between project work and requirements','ML3','Development'],
+
+/* ── SAM — Supplier Agreement Management (Optional, in scope) ── */
+['SAM','Supplier Agreement Management','SAM 1.1','PG 1 – Prepare for Supplier Agreements','Determine acquisition requirements and constraints, and identify potential suppliers','ML2','Development'],
+['SAM','Supplier Agreement Management','SAM 1.2','PG 1 – Prepare for Supplier Agreements','Establish and document criteria for evaluating and selecting suppliers','ML2','Development'],
+['SAM','Supplier Agreement Management','SAM 2.1','PG 2 – Establish Supplier Agreements','Negotiate and document agreements with selected suppliers that define requirements, deliverables, and acceptance criteria','ML2','Development'],
+['SAM','Supplier Agreement Management','SAM 2.2','PG 2 – Establish Supplier Agreements','Ensure supplier agreements address requirements for transition of acquired products and services into the project','ML2','Development'],
+['SAM','Supplier Agreement Management','SAM 3.1','PG 3 – Manage Supplier Agreements','Monitor supplier progress and performance against the agreement','ML2','Development'],
+['SAM','Supplier Agreement Management','SAM 3.2','PG 3 – Manage Supplier Agreements','Evaluate selected supplier work products and processes using defined criteria','ML2','Development'],
+['SAM','Supplier Agreement Management','SAM 3.3','PG 3 – Manage Supplier Agreements','Accept delivery of acquired products and services upon satisfying agreement requirements','ML2','Development'],
 
 /* ═══════════════════════════════════════════════════════════════════
    ML2 — SERVICES DOMAIN  (domain = 'Services')
@@ -352,6 +361,10 @@ var EVIDENCE = {
   SSD: {
     artifacts: ['Service system requirements document','Service system design and architecture document','Interface requirements between service components','Integration and verification plan for service system','Service system verification and validation results','Service readiness review records'],
     tips: 'Appraisers check that service system requirements are traceable to customer needs and that verification demonstrates the system supports intended service delivery before go-live.'
+  },
+  SAM: {
+    artifacts: ['Supplier selection criteria and evaluation scorecard','Formal supplier agreement / contract with defined deliverables, schedule, and acceptance criteria','Supplier progress monitoring records and status review notes','Work product evaluation results against defined criteria','Delivery and acceptance documentation','Supplier transition plan and records for acquired products or services'],
+    tips: 'SAM is optional but frequently in-scope for Development appraisals. Appraisers look for evidence that supplier selection was criteria-based (not just cost), that agreements define measurable acceptance criteria, and that ongoing monitoring is documented — not just a signed contract filed away.'
   },
   OPM: {
     artifacts: ['Quantitative performance objectives aligned to business goals','Process performance baselines (control charts, histograms, capability data)','Statistical analysis reports showing use of SPC or regression techniques','Quantitative project management plans referencing organizational baselines','Performance monitoring dashboards with quantitative thresholds and alerts','Corrective action records tied to quantitative deviations from objectives','Prioritized improvement proposal log with benefit/risk scoring','Innovation proposals with quantitative benefit/risk evaluation records','Pilot results before organization-wide deployment','Deployment plans for selected process or technology improvements with defined success criteria','Before-and-after performance measurement records for deployed improvements','Sustainability monitoring records showing no regression post-deployment','Lessons learned from improvement deployments'],
