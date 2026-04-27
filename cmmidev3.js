@@ -445,6 +445,11 @@ function makeSheet(rows, cols) {
 }
 
 function downloadExcel() {
+  var lvl = document.getElementById('ctrl-level').value;
+  var dom = document.getElementById('ctrl-domain').value;
+  var levelPart  = lvl  || 'ML2-ML5';
+  var domainPart = dom  || 'All-Domains';
+  var filename = 'CMMI_v2_' + levelPart + '_' + domainPart + '.xlsx';
   var wb = XLSX.utils.book_new();
 
   /* Sheet 1 — All Practices */
@@ -524,7 +529,7 @@ function downloadExcel() {
     ['PA','Artifact / Evidence Item','Appraiser Tips']),
     'Evidence Guide');
 
-  XLSX.writeFile(wb, 'CMMI_v2_ML5_All_Domains.xlsx');
+  XLSX.writeFile(wb, filename);
 }
 
 /* ═══════════════════════════════════════════════════════════════════
