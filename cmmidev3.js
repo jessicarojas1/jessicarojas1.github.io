@@ -366,7 +366,19 @@ function escH(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+function updateStats(rows) {
+  var pas = {};
+  rows.forEach(function(d){ pas[d[0]] = true; });
+  document.getElementById('stat-total').textContent = rows.length;
+  document.getElementById('stat-ml2').textContent   = rows.filter(function(d){ return d[5]==='ML2'; }).length;
+  document.getElementById('stat-ml3').textContent   = rows.filter(function(d){ return d[5]==='ML3'; }).length;
+  document.getElementById('stat-ml4').textContent   = rows.filter(function(d){ return d[5]==='ML4'; }).length;
+  document.getElementById('stat-ml5').textContent   = rows.filter(function(d){ return d[5]==='ML5'; }).length;
+  document.getElementById('stat-pas').textContent   = Object.keys(pas).length;
+}
+
 function renderTable(rows) {
+  updateStats(rows);
   if (!rows.length) {
     document.getElementById('results-table').innerHTML = '<p class="text-muted p-3">No practices match the current filters.</p>';
     document.getElementById('result-count').textContent = '0';
@@ -533,14 +545,4 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   document.getElementById('btn-export').addEventListener('click', downloadExcel);
-
-  /* Stats */
-  document.getElementById('stat-total').textContent  = CMMI_DATA.length;
-  document.getElementById('stat-ml2').textContent    = CMMI_DATA.filter(function(d){ return d[5]==='ML2'; }).length;
-  document.getElementById('stat-ml3').textContent    = CMMI_DATA.filter(function(d){ return d[5]==='ML3'; }).length;
-  document.getElementById('stat-ml4').textContent    = CMMI_DATA.filter(function(d){ return d[5]==='ML4'; }).length;
-  document.getElementById('stat-ml5').textContent    = CMMI_DATA.filter(function(d){ return d[5]==='ML5'; }).length;
-  var pas = {};
-  CMMI_DATA.forEach(function(d){ pas[d[0]] = true; });
-  document.getElementById('stat-pas').textContent    = Object.keys(pas).length;
 });
