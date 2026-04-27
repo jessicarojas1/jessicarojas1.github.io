@@ -15,10 +15,8 @@
   <style>
     .level-badge-ml2  { background: rgba(13,110,253,.15); color:#6ea8fe; border:1px solid rgba(13,110,253,.3); }
     .level-badge-ml3  { background: rgba(25,135,84,.15);  color:#75b798; border:1px solid rgba(25,135,84,.3);  }
-    .cat-badge-core   { background: rgba(13,110,253,.12); color:#6ea8fe; border:1px solid rgba(13,110,253,.25);}
-    .cat-badge-dev    { background: rgba(255,193,7,.12);  color:#ffc107; border:1px solid rgba(255,193,7,.25); }
     .badge-pill       { display:inline-block; padding:2px 8px; border-radius:20px; font-size:.72rem; font-weight:600; white-space:nowrap; }
-    #controls-table thead th { position:sticky; top:0; z-index:2; background:var(--bs-body-bg); border-bottom:2px solid var(--bs-border-color); }
+    #results-table thead th { position:sticky; top:0; z-index:2; background:var(--bs-body-bg); border-bottom:2px solid var(--bs-border-color); }
     .ctrl-row td { vertical-align:middle; font-size:.82rem; }
     .pa-badge { font-size:.75rem; font-weight:700; font-family:monospace; padding:2px 7px; border-radius:4px; background:rgba(var(--bs-primary-rgb),.15); color:var(--bs-primary); }
     .sg-text  { font-size:.72rem; color:var(--bs-secondary-color); }
@@ -73,7 +71,7 @@
     <section class="hero-section">
       <div class="container text-center">
         <h1 class="display-5 fw-bold">CMMI v2.0 — Level 3</h1>
-        <p class="lead mb-3">Complete CMMI v2.0 framework — ML2 through ML5, all 24 Practice Areas and 167 Practices. Filter by level, domain, category, or keyword.</p>
+        <p class="lead mb-3">Complete CMMI v2.0 framework — ML2 through ML5, all 24 Practice Areas and 167 Practices. Filter by level, domain, or keyword.</p>
         <div class="d-flex justify-content-center gap-2 flex-wrap">
           <span class="badge bg-primary px-3 py-2">CMMI v2.0</span>
           <span class="badge bg-success px-3 py-2">ML2 → ML5</span>
@@ -142,12 +140,12 @@
       <div class="row g-2 align-items-end">
         <div class="col-md-4">
           <label class="form-label small fw-semibold mb-1">Search</label>
-          <input type="search" id="ctrl-search" class="form-control form-control-sm" placeholder="Practice #, description, PA…" autocomplete="off" />
+          <input type="search" id="ctrl-search" class="form-control form-control-sm" placeholder="Practice (CAR 1.1), description, Practice Area…" autocomplete="off" />
         </div>
         <div class="col-6 col-md-2">
           <label class="form-label small fw-semibold mb-1">Practice Area</label>
           <select id="ctrl-pa" class="form-select form-select-sm">
-            <option value="">All PAs</option>
+            <option value="">All Practice Areas</option>
           </select>
         </div>
         <div class="col-6 col-md-2">
