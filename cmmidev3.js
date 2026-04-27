@@ -369,12 +369,32 @@ function escH(s) {
 function updateStats(rows) {
   var pas = {};
   rows.forEach(function(d){ pas[d[0]] = true; });
+  var paCount = Object.keys(pas).length;
   document.getElementById('stat-total').textContent = rows.length;
   document.getElementById('stat-ml2').textContent   = rows.filter(function(d){ return d[5]==='ML2'; }).length;
   document.getElementById('stat-ml3').textContent   = rows.filter(function(d){ return d[5]==='ML3'; }).length;
   document.getElementById('stat-ml4').textContent   = rows.filter(function(d){ return d[5]==='ML4'; }).length;
   document.getElementById('stat-ml5').textContent   = rows.filter(function(d){ return d[5]==='ML5'; }).length;
-  document.getElementById('stat-pas').textContent   = Object.keys(pas).length;
+  document.getElementById('stat-pas').textContent   = paCount;
+
+  /* Filter summary line above the table */
+  document.getElementById('filter-summary').textContent =
+    paCount + ' Practice Area' + (paCount !== 1 ? 's' : '') +
+    '  ·  ' +
+    rows.length + ' Practice' + (rows.length !== 1 ? 's' : '');
+
+  /* Active filter label */
+  var lvl = document.getElementById('ctrl-level').value;
+  var dom = document.getElementById('ctrl-domain').value;
+  var pa  = document.getElementById('ctrl-pa').value;
+  var srch = document.getElementById('ctrl-search').value.trim();
+  var parts = [];
+  if (lvl)  parts.push(lvl);
+  if (dom)  parts.push(dom);
+  if (pa)   parts.push(pa);
+  if (srch) parts.push('“' + srch + '”');
+  document.getElementById('filter-label').textContent =
+    parts.length ? 'Filtered by: ' + parts.join(' · ') : 'All practices';
 }
 
 function renderTable(rows) {
