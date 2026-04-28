@@ -93,7 +93,7 @@
         <div class="d-flex justify-content-center gap-2 flex-wrap">
           <span class="badge bg-warning text-dark px-3 py-2">Technical Analysis</span>
           <span class="badge bg-success px-3 py-2">Live Prices</span>
-          <span class="badge bg-primary px-3 py-2">RSI · MACD · EMA</span>
+          <span class="badge bg-primary px-3 py-2">RSI · Bollinger · EMA</span>
           <span class="badge bg-secondary px-3 py-2">Free · No Login</span>
         </div>
       </div>
@@ -155,12 +155,15 @@
             <div class="card-body py-3 px-4 d-flex flex-column justify-content-between">
               <div class="small text-secondary fw-semibold mb-1 text-uppercase" style="letter-spacing:.06em">Data Feed</div>
               <div class="small mb-2" id="last-updated">Initializing…</div>
-              <div class="d-flex gap-2 align-items-center">
-                <button class="btn btn-sm btn-outline-primary" id="btn-refresh">&#8635; Refresh</button>
-                <span class="badge bg-success auto-badge" id="auto-badge">Auto ON</span>
+              <div class="d-flex gap-2 align-items-center mb-1">
+                <button class="btn btn-sm btn-outline-primary" id="btn-refresh">⟳ Refresh Now</button>
+                <span class="badge bg-success auto-badge">Auto ON</span>
               </div>
-              <div class="mt-2" style="font-size:.65rem;color:var(--bs-secondary-color)">
-                Source: CoinGecko · alt.me · Refreshes every 2 min
+              <div class="small text-secondary">
+                Next refresh in: <span id="countdown" class="fw-bold text-primary">2:00</span>
+              </div>
+              <div class="mt-1" style="font-size:.65rem;color:var(--bs-secondary-color)">
+                Source: CoinGecko · alt.me
               </div>
             </div>
           </div>
@@ -175,6 +178,23 @@
         <span>&#9888;</span>
         <span id="error-msg">Could not fetch data.</span>
         <span class="text-secondary small ms-auto">CoinGecko free tier has rate limits — will retry automatically.</span>
+      </div>
+    </div>
+
+    <!-- ── Alert banner (triggered alerts appear here) ── -->
+    <div class="container mb-1" id="alert-banner"></div>
+
+    <!-- ── Sort controls ── -->
+    <div class="container mb-3">
+      <div class="d-flex align-items-center gap-3 flex-wrap">
+        <span class="small text-secondary fw-semibold">Sort by:</span>
+        <div class="btn-group btn-group-sm" role="group" aria-label="Sort coins">
+          <button type="button" class="btn btn-secondary active" id="sort-signal">Signal Strength</button>
+          <button type="button" class="btn btn-outline-secondary" id="sort-24h">24h Change</button>
+          <button type="button" class="btn btn-outline-secondary" id="sort-1h">1h Change</button>
+          <button type="button" class="btn btn-outline-secondary" id="sort-mcap">Market Cap</button>
+        </div>
+        <span class="small text-secondary ms-auto">1h data included · Bollinger Bands active</span>
       </div>
     </div>
 
@@ -237,8 +257,33 @@
 
   </main>
 
+  <!-- ── Price Alert Modal ── -->
+  <div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header py-2">
+          <h6 class="modal-title fw-bold" id="alertModalTitle">🔔 Set Price Alert</h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body py-3">
+          <div class="mb-3 small text-secondary">
+            Current price: <span class="fw-bold text-body" id="alertCurrentPrice">—</span>
+          </div>
+          <label class="form-label small fw-semibold">Target Price (USD)</label>
+          <input type="number" class="form-control form-control-sm mb-1" id="alertPrice"
+            placeholder="Enter target price…" min="0" step="any">
+          <div class="invalid-feedback">Please enter a valid price.</div>
+          <div class="small text-secondary mb-3">Alert fires once, then removes itself.</div>
+          <div class="d-grid gap-2">
+            <button class="btn btn-success btn-sm" id="alertAboveBtn">▲ Alert when price goes ABOVE</button>
+            <button class="btn btn-danger btn-sm"  id="alertBelowBtn">▼ Alert when price drops BELOW</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmTiEJEq4PBioYE1p89ZlqhIEtDK" crossorigin="anonymous"></script>
-  <!-- CHUNK 2: crypto signals logic injected here -->
   <script src="cryptosignals.js"></script>
 </body>
 </html>
