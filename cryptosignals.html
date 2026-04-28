@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; img-src 'self' https://cdn.jsdelivr.net https://assets.coingecko.com data: blob:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self' https://cdn.jsdelivr.net https://api.coingecko.com https://api.alternative.me; worker-src blob:; object-src 'none'; base-uri 'self';">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="theme.css" />
+  <title>Crypto Trading Signals | Jessica Rojas</title>
+  <meta name="description" content="Live cryptocurrency trading signals — RSI, momentum, and trend analysis for BTC, ETH, SOL, and more. Updated every 2 minutes." />
+  <style>
+    .signal-badge {
+      font-size: .68rem; font-weight: 700; padding: 3px 8px;
+      border-radius: 20px; white-space: nowrap; letter-spacing: .03em;
+    }
+    .coin-card { transition: transform .15s, box-shadow .15s; }
+    .coin-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.25); }
+    .sparkline-wrap svg { display: block; }
+    .rsi-zone-line {
+      position: absolute; top: 0; height: 100%; width: 1px;
+      background: rgba(128,128,128,.35);
+    }
+    .fng-meter { height: 8px; border-radius: 4px; background: rgba(128,128,128,.2); overflow: hidden; }
+    .fng-bar   { height: 100%; border-radius: 4px; transition: width .6s, background .6s; }
+    .fng-num   { font-size: 2.2rem; font-weight: 800; line-height: 1; }
+    .loading-shimmer {
+      background: linear-gradient(90deg, rgba(128,128,128,.08) 25%, rgba(128,128,128,.18) 50%, rgba(128,128,128,.08) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: 8px; height: 260px;
+    }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+    .indicator-row { font-size: .78rem; }
+    .indicator-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+    details summary { list-style: none; }
+    details summary::-webkit-details-marker { display: none; }
+    .refresh-spin { animation: spin .8s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .auto-badge { font-size: .65rem; }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+          <li class="nav-item"><a class="nav-link active" href="projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="services.html">Services</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link" href="knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" id="nav-dataanalysis-link" style="display:none"><a class="nav-link" href="dataanalysis.html">Data Analysis</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content">
+
+    <!-- ── Hero ── -->
+    <section class="hero-section">
+      <div class="container text-center">
+        <h1 class="display-5 fw-bold">Crypto Trading Signals</h1>
+        <p class="lead mb-3">Live RSI, momentum &amp; trend analysis — 8 coins, updated every 2 minutes.</p>
+        <div class="d-flex justify-content-center gap-2 flex-wrap">
+          <span class="badge bg-warning text-dark px-3 py-2">Technical Analysis</span>
+          <span class="badge bg-success px-3 py-2">Live Prices</span>
+          <span class="badge bg-primary px-3 py-2">RSI · MACD · EMA</span>
+          <span class="badge bg-secondary px-3 py-2">Free · No Login</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Controls bar ── -->
+    <section class="container py-4">
+      <div class="row g-3 align-items-stretch">
+
+        <!-- Fear &amp; Greed card -->
+        <div class="col-12 col-md-4 col-lg-3">
+          <div class="card h-100">
+            <div class="card-body py-3 px-4">
+              <div class="small text-secondary fw-semibold mb-1 text-uppercase" style="letter-spacing:.06em">Market Sentiment</div>
+              <div class="d-flex align-items-end gap-3 mb-2">
+                <div class="fng-num" id="fng-value">—</div>
+                <div>
+                  <div class="fw-bold" id="fng-label">Loading…</div>
+                  <div class="small text-secondary">Fear &amp; Greed Index</div>
+                </div>
+              </div>
+              <div class="fng-meter">
+                <div class="fng-bar" id="fng-bar" style="width:0%"></div>
+              </div>
+              <div class="d-flex justify-content-between mt-1" style="font-size:.65rem;color:var(--bs-secondary-color)">
+                <span>Extreme Fear</span><span>Extreme Greed</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Market summary stats -->
+        <div class="col-12 col-md-8 col-lg-6">
+          <div class="card h-100">
+            <div class="card-body py-3 px-4">
+              <div class="small text-secondary fw-semibold mb-2 text-uppercase" style="letter-spacing:.06em">Signal Summary</div>
+              <div class="d-flex gap-2 flex-wrap" id="signal-summary">
+                <span class="badge rounded-pill px-3 py-2" style="background:rgba(25,135,84,.15);color:#20c997">
+                  <span id="count-buy">—</span> Buy
+                </span>
+                <span class="badge rounded-pill px-3 py-2" style="background:rgba(255,193,7,.15);color:#ffc107">
+                  <span id="count-hold">—</span> Hold
+                </span>
+                <span class="badge rounded-pill px-3 py-2" style="background:rgba(220,53,69,.15);color:#ea868f">
+                  <span id="count-sell">—</span> Sell
+                </span>
+              </div>
+              <div class="small text-secondary mt-2">
+                Signals are based on RSI(14), EMA crossover, 24h &amp; 7d price momentum.
+                <strong class="text-warning"> Always use your own judgement before trading.</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Refresh controls -->
+        <div class="col-12 col-lg-3">
+          <div class="card h-100">
+            <div class="card-body py-3 px-4 d-flex flex-column justify-content-between">
+              <div class="small text-secondary fw-semibold mb-1 text-uppercase" style="letter-spacing:.06em">Data Feed</div>
+              <div class="small mb-2" id="last-updated">Initializing…</div>
+              <div class="d-flex gap-2 align-items-center">
+                <button class="btn btn-sm btn-outline-primary" id="btn-refresh">&#8635; Refresh</button>
+                <span class="badge bg-success auto-badge" id="auto-badge">Auto ON</span>
+              </div>
+              <div class="mt-2" style="font-size:.65rem;color:var(--bs-secondary-color)">
+                Source: CoinGecko · alt.me · Refreshes every 2 min
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── Error bar ── -->
+    <div class="container mb-2 d-none" id="error-bar">
+      <div class="alert alert-warning d-flex align-items-center gap-2 py-2 mb-0">
+        <span>&#9888;</span>
+        <span id="error-msg">Could not fetch data.</span>
+        <span class="text-secondary small ms-auto">CoinGecko free tier has rate limits — will retry automatically.</span>
+      </div>
+    </div>
+
+    <!-- ── Coin grid ── -->
+    <section class="container pb-4">
+      <div class="row g-3" id="coin-grid">
+        <!-- shimmer placeholders while loading -->
+        <div class="col-12 col-md-6 col-lg-4 col-xl-3"><div class="loading-shimmer"></div></div>
+        <div class="col-12 col-md-6 col-lg-4 col-xl-3"><div class="loading-shimmer"></div></div>
+        <div class="col-12 col-md-6 col-lg-4 col-xl-3"><div class="loading-shimmer"></div></div>
+        <div class="col-12 col-md-6 col-lg-4 col-xl-3"><div class="loading-shimmer"></div></div>
+        <div class="col-12 col-md-6 col-lg-4 col-xl-3"><div class="loading-shimmer"></div></div>
+        <div class="col-12 col-md-6 col-lg-4 col-xl-3"><div class="loading-shimmer"></div></div>
+        <div class="col-12 col-md-6 col-lg-4 col-xl-3"><div class="loading-shimmer"></div></div>
+        <div class="col-12 col-md-6 col-lg-4 col-xl-3"><div class="loading-shimmer"></div></div>
+      </div>
+    </section>
+
+    <!-- ── How to use ── -->
+    <section class="container pb-4">
+      <div class="card">
+        <div class="card-header fw-bold small text-uppercase" style="letter-spacing:.06em">&#128214; How to Read These Signals</div>
+        <div class="card-body">
+          <div class="row g-3 small">
+            <div class="col-12 col-md-6 col-lg-3">
+              <div class="fw-bold text-success mb-1">&#128640; STRONG BUY / BUY</div>
+              RSI is oversold (below 30–35) and/or price has pulled back significantly.
+              Asset may be undervalued short-term. Consider entering a position in small increments — don't go all in at once.
+            </div>
+            <div class="col-12 col-md-6 col-lg-3">
+              <div class="fw-bold text-warning mb-1">&#9208; HOLD</div>
+              No clear edge in either direction. RSI is neutral (40–60), momentum is mixed.
+              Best to wait for a clearer signal before entering or exiting.
+            </div>
+            <div class="col-12 col-md-6 col-lg-3">
+              <div class="fw-bold text-danger mb-1">&#128683; SELL / STRONG SELL</div>
+              RSI is overbought (above 65–70) and/or recent price gains are large.
+              Consider taking some profit or tightening your stop-loss. Not a guarantee of a drop.
+            </div>
+            <div class="col-12 col-md-6 col-lg-3">
+              <div class="fw-bold text-secondary mb-1">&#128202; RSI Explained</div>
+              RSI (Relative Strength Index) measures how fast price moved recently.
+              Below 30 = may be oversold (beaten down too much).
+              Above 70 = may be overbought (run up too fast).
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Disclaimer ── -->
+    <section class="container pb-5">
+      <div class="alert alert-warning small mb-0">
+        <strong>&#9888; Not Financial Advice.</strong>
+        These signals are generated by automated technical analysis (RSI, EMA, momentum) using publicly available price data from CoinGecko.
+        They do <em>not</em> guarantee future price movements. Cryptocurrency is highly volatile — you can lose money.
+        Always do your own research, manage risk with stop-losses, and never invest more than you can afford to lose.
+      </div>
+    </section>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmTiEJEq4PBioYE1p89ZlqhIEtDK" crossorigin="anonymous"></script>
+  <!-- CHUNK 2: crypto signals logic injected here -->
+  <script src="cryptosignals.js"></script>
+</body>
+</html>
