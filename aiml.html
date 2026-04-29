@@ -195,6 +195,14 @@
             <a class="nav-link" href="#xai">Explainability (XAI)</a>
             <a class="nav-link" href="#ethics">Ethics &amp; Responsible AI</a>
 
+            <div class="nav-section">LLMs &amp; Production</div>
+            <a class="nav-link" href="#llm">LLMs &amp; Prompt Engineering</a>
+            <a class="nav-link" href="#compression">Model Compression</a>
+            <a class="nav-link" href="#distributed">Distributed Training</a>
+            <a class="nav-link" href="#causal">Causal Inference</a>
+            <a class="nav-link" href="#automl">AutoML &amp; NAS</a>
+            <a class="nav-link" href="#ml-testing">ML Testing</a>
+
             <div class="nav-section">Build &amp; Ship</div>
             <a class="nav-link" href="#setup">Initial Setup</a>
             <a class="nav-link" href="#hyperparams">Hyperparameter Tuning</a>
@@ -4820,6 +4828,268 @@ model, optimizer, loader = privacy_engine.<span class="fn">make_private_with_eps
                     <p><strong>Reparameterisation:</strong> z = μ + σ·ε, ε~N(0,I)</p>
                     <p><strong>Flow NLL:</strong> log p(x) = log p(z) + log|det J|</p>
                     <p class="mb-0"><strong>Score matching:</strong> s_θ(x) ≈ ∇_x log p(x)</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═══════════════════════════════════════════════════════
+               LLMs & PROMPT ENGINEERING
+          ═══════════════════════════════════════════════════════ -->
+          <section id="llm" class="mb-5">
+            <h2 class="section-title">LLMs &amp; Prompt Engineering</h2>
+            <p class="lead">Large Language Models are now the backbone of most new AI products. Understanding how they work, how to prompt them, how to fine-tune them, and how to build RAG pipelines is essential for any modern ML practitioner.</p>
+
+            <!-- Architecture recap -->
+            <h4 class="mt-4 mb-3 fw-semibold">LLM Architecture at a Glance</h4>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">Tokenisation</div>
+                  <div class="card-body small">
+                    <p>Text → integer token IDs before any model sees it. Vocabulary size typically 32k–128k tokens.</p>
+                    <ul class="ps-3 mb-0">
+                      <li><strong>BPE (GPT-2/4):</strong> merge frequent byte pairs iteratively</li>
+                      <li><strong>WordPiece (BERT):</strong> maximises likelihood of corpus</li>
+                      <li><strong>SentencePiece (Llama):</strong> language-agnostic, handles whitespace as token</li>
+                      <li><strong>Tiktoken:</strong> OpenAI's fast Rust-based BPE</li>
+                    </ul>
+                    <div class="code-block mt-2">
+<span class="kw">import</span> tiktoken
+enc = tiktoken.<span class="fn">encoding_for_model</span>(<span class="st">"gpt-4"</span>)
+tokens = enc.<span class="fn">encode</span>(<span class="st">"Hello, world!"</span>)
+<span class="cm"># [9906, 11, 1917, 0]  ← 4 tokens</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Transformer Decoder Stack</div>
+                  <div class="card-body small">
+                    <p>GPT-style (decoder-only) processes tokens autoregressively — each token attends only to past tokens (causal mask).</p>
+                    <p><strong>Per layer:</strong></p>
+                    <ol class="ps-3 mb-2">
+                      <li>RMSNorm (pre-norm)</li>
+                      <li>Multi-head causal self-attention + RoPE positional encoding</li>
+                      <li>Residual connection</li>
+                      <li>RMSNorm</li>
+                      <li>SwiGLU FFN (dim → 4×dim → dim)</li>
+                      <li>Residual connection</li>
+                    </ol>
+                    <p class="mb-0"><strong>KV Cache:</strong> store past K,V tensors to avoid recomputing at every decode step — critical for inference speed.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">Sampling Strategies</div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-0 comp-table">
+                      <thead class="table-dark"><tr><th>Strategy</th><th>How</th><th>Use</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>Greedy</strong></td><td>argmax over vocab</td><td>Deterministic, repetitive</td></tr>
+                        <tr><td><strong>Top-k</strong></td><td>Sample from top k tokens</td><td>k=50 is common</td></tr>
+                        <tr><td><strong>Top-p (nucleus)</strong></td><td>Sample from min set with cumulative p</td><td>p=0.9 default</td></tr>
+                        <tr><td><strong>Temperature</strong></td><td>logits /= T before softmax</td><td>T&lt;1 sharper, T&gt;1 more random</td></tr>
+                        <tr><td><strong>Beam search</strong></td><td>Keep top B sequences</td><td>Translation, where diversity matters less</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Prompt Engineering -->
+            <h4 class="mt-4 mb-3 fw-semibold">Prompt Engineering Techniques</h4>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">Core Techniques</div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-0 comp-table">
+                      <thead class="table-dark"><tr><th>Technique</th><th>How</th><th>When to use</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>Zero-shot</strong></td><td>Just the task, no examples</td><td>Simple, well-defined tasks</td></tr>
+                        <tr><td><strong>Few-shot</strong></td><td>2–8 input/output examples in prompt</td><td>Format consistency, rare tasks</td></tr>
+                        <tr><td><strong>Chain-of-Thought</strong></td><td>"Let's think step by step" or explicit reasoning trace</td><td>Math, logic, multi-step reasoning</td></tr>
+                        <tr><td><strong>Self-Consistency</strong></td><td>Sample multiple CoT paths, majority vote</td><td>Improves CoT accuracy significantly</td></tr>
+                        <tr><td><strong>ReAct</strong></td><td>Interleave Reasoning + Acting (tool calls)</td><td>Agents, search-augmented tasks</td></tr>
+                        <tr><td><strong>Role prompting</strong></td><td>"You are an expert in..."</td><td>Tone control, domain specificity</td></tr>
+                        <tr><td><strong>Output formatting</strong></td><td>Specify JSON schema, markdown structure</td><td>Structured extraction, APIs</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Prompt Engineering Best Practices</div>
+                  <div class="card-body small">
+                    <ul class="ps-3 mb-2">
+                      <li><strong>Be specific:</strong> Vague prompts → vague outputs. State the format, length, audience.</li>
+                      <li><strong>Persona + task + context + format:</strong> The four prompt components that matter most.</li>
+                      <li><strong>Positive framing:</strong> "Return only JSON" beats "Don't return anything other than JSON".</li>
+                      <li><strong>Delimit inputs:</strong> Use XML tags or triple-quotes to separate instructions from data.</li>
+                      <li><strong>Temperature for creativity:</strong> T=0 for factual/structured, T=0.7–1.0 for creative.</li>
+                      <li><strong>System vs user turn:</strong> Put persistent instructions in system prompt; put data in user turn.</li>
+                      <li><strong>Iterate with evals:</strong> Build a test set of 50+ examples; measure prompt changes systematically.</li>
+                    </ul>
+                    <div class="code-block">
+<span class="cm"># Structured prompt template</span>
+system = <span class="st">"""You are a senior data analyst.
+Return ONLY valid JSON with keys: sentiment, confidence, reason.
+Do not include markdown fences."""</span>
+
+user = <span class="st">f"""Classify the sentiment of this review:
+&lt;review&gt;{review_text}&lt;/review&gt;"""</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- RAG -->
+            <h4 class="mt-4 mb-3 fw-semibold">Retrieval-Augmented Generation (RAG)</h4>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">RAG Architecture</div>
+                  <div class="card-body small">
+                    <p>Augment LLM context with retrieved documents at inference time — no retraining needed, knowledge stays fresh.</p>
+                    <ol class="ps-3 mb-2">
+                      <li><strong>Indexing:</strong> Chunk documents → embed with bi-encoder → store in vector DB (Pinecone, Weaviate, pgvector, Chroma)</li>
+                      <li><strong>Retrieval:</strong> Embed query → ANN search (HNSW/IVF) → top-k chunks by cosine similarity</li>
+                      <li><strong>Augment:</strong> Inject retrieved chunks into prompt context</li>
+                      <li><strong>Generate:</strong> LLM answers grounded in retrieved evidence</li>
+                    </ol>
+                    <div class="code-block">
+<span class="kw">from</span> langchain_openai <span class="kw">import</span> OpenAIEmbeddings, ChatOpenAI
+<span class="kw">from</span> langchain_community.vectorstores <span class="kw">import</span> Chroma
+<span class="kw">from</span> langchain.chains <span class="kw">import</span> RetrievalQA
+
+embeddings = <span class="fn">OpenAIEmbeddings</span>()
+vectordb = Chroma.<span class="fn">from_documents</span>(docs, embeddings)
+retriever = vectordb.<span class="fn">as_retriever</span>(search_kwargs={<span class="st">"k"</span>: <span class="nm">4</span>})
+qa = RetrievalQA.<span class="fn">from_chain_type</span>(llm=<span class="fn">ChatOpenAI</span>(), retriever=retriever)
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">Advanced RAG Patterns</div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-2 comp-table">
+                      <thead class="table-dark"><tr><th>Pattern</th><th>What it does</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>HyDE</strong></td><td>Generate a hypothetical answer, embed it for retrieval — improves recall on abstract queries</td></tr>
+                        <tr><td><strong>Re-ranking</strong></td><td>Cross-encoder reranks top-50 → top-5; much more accurate than bi-encoder alone (Cohere Rerank, BGE)</td></tr>
+                        <tr><td><strong>Multi-query</strong></td><td>LLM generates 3 query variants; union of retrieved sets; reduces vocabulary mismatch</td></tr>
+                        <tr><td><strong>Parent-child chunking</strong></td><td>Index small chunks for precision, return larger parent for context</td></tr>
+                        <tr><td><strong>Hybrid search</strong></td><td>Combine dense (semantic) + sparse (BM25) retrieval with RRF fusion</td></tr>
+                        <tr><td><strong>Self-RAG</strong></td><td>Model decides whether retrieval is needed; critiques its own output</td></tr>
+                      </tbody>
+                    </table>
+                    <p class="mb-0"><strong>RAG eval metrics:</strong> faithfulness (is answer grounded?), answer relevancy, context precision/recall — use RAGAS framework.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- RLHF & Fine-tuning -->
+            <h4 class="mt-4 mb-3 fw-semibold">RLHF &amp; Fine-Tuning</h4>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">RLHF Pipeline</div>
+                  <div class="card-body small">
+                    <ol class="ps-3 mb-2">
+                      <li><strong>SFT (Supervised Fine-Tuning):</strong> Fine-tune base LLM on curated instruction-response pairs using cross-entropy loss</li>
+                      <li><strong>Reward Model:</strong> Train RM on human preference pairs (chosen vs rejected) using: L = −log σ(r(chosen) − r(rejected))</li>
+                      <li><strong>PPO/GRPO:</strong> Optimise SFT model to maximise reward while staying close to SFT policy via KL penalty: r_total = r_RM − β·KL(π‖π_SFT)</li>
+                    </ol>
+                    <p class="mb-0"><strong>DPO (Direct Preference Optimisation):</strong> Skips the RM entirely — optimises preference directly from comparison data. Simpler, often matches PPO quality.</p>
+                    <div class="code-block mt-2">
+<span class="cm"># DPO loss (simplified)</span>
+log_ratio_chosen = log_pi_chosen - log_pi_ref_chosen
+log_ratio_rejected = log_pi_rejected - log_pi_ref_rejected
+loss = -F.<span class="fn">logsigmoid</span>(beta * (log_ratio_chosen - log_ratio_rejected))
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">Parameter-Efficient Fine-Tuning (PEFT)</div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-2 comp-table">
+                      <thead class="table-dark"><tr><th>Method</th><th>How it works</th><th>Params trained</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>LoRA</strong></td><td>Decompose weight update ΔW = A·B (r&lt;&lt;d); train only A,B</td><td>0.1–1% of total</td></tr>
+                        <tr><td><strong>QLoRA</strong></td><td>LoRA on 4-bit quantized base model; gradient in BF16</td><td>0.1% + quantized base</td></tr>
+                        <tr><td><strong>Prefix Tuning</strong></td><td>Prepend trainable virtual tokens to each layer's K,V</td><td>~0.1%</td></tr>
+                        <tr><td><strong>Adapter</strong></td><td>Small bottleneck layers inserted between transformer layers</td><td>~3%</td></tr>
+                        <tr><td><strong>IA³</strong></td><td>Scale activations with learnable vectors; fewer params than LoRA</td><td>&lt;0.1%</td></tr>
+                      </tbody>
+                    </table>
+                    <div class="code-block">
+<span class="kw">from</span> peft <span class="kw">import</span> LoraConfig, get_peft_model
+config = <span class="fn">LoraConfig</span>(r=<span class="nm">16</span>, lora_alpha=<span class="nm">32</span>,
+  target_modules=[<span class="st">"q_proj"</span>,<span class="st">"v_proj"</span>], lora_dropout=<span class="nm">0.05</span>)
+model = <span class="fn">get_peft_model</span>(base_model, config)
+model.<span class="fn">print_trainable_parameters</span>()
+<span class="cm"># trainable params: 4,194,304 || all params: 6,742,609,920</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- LLM Evals -->
+            <h4 class="mt-4 mb-3 fw-semibold">LLM Evaluation</h4>
+            <div class="row g-3">
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">Automatic Metrics</div>
+                  <div class="card-body small">
+                    <ul class="ps-3 mb-0">
+                      <li><strong>BLEU/ROUGE:</strong> n-gram overlap — fast but poor correlation with human quality</li>
+                      <li><strong>BERTScore:</strong> Contextual embedding similarity using BERT</li>
+                      <li><strong>Perplexity:</strong> exp(−(1/N)Σlog p(xᵢ)) — measures fluency, not accuracy</li>
+                      <li><strong>MMLU/HellaSwag/GSM8K:</strong> Multiple-choice benchmarks for knowledge and reasoning</li>
+                      <li><strong>LLM-as-judge:</strong> GPT-4 or Claude rates outputs on rubric — scales, but has position bias</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Hallucination &amp; Grounding</div>
+                  <div class="card-body small">
+                    <p><strong>Types of hallucination:</strong></p>
+                    <ul class="ps-3 mb-2">
+                      <li><strong>Intrinsic:</strong> Output contradicts the source context</li>
+                      <li><strong>Extrinsic:</strong> Output can't be verified from context (may still be true)</li>
+                    </ul>
+                    <p><strong>Mitigations:</strong> RAG (ground to retrieved docs), citation forcing, constitutional AI, RLHF with honesty reward, temperature=0 for factual tasks, tool use (calculator, search).</p>
+                    <p class="mb-0"><strong>Detection:</strong> NLI-based entailment scoring, SelfCheckGPT (sample multiple outputs and check consistency).</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">Production LLM Stack</div>
+                  <div class="card-body small">
+                    <ul class="ps-3 mb-0">
+                      <li><strong>Inference:</strong> vLLM (PagedAttention), TGI (HuggingFace), TensorRT-LLM</li>
+                      <li><strong>Orchestration:</strong> LangChain, LlamaIndex, DSPy</li>
+                      <li><strong>Guardrails:</strong> NeMo Guardrails, Guardrails AI, Llama Guard</li>
+                      <li><strong>Observability:</strong> LangSmith, Helicone, Arize Phoenix — trace every LLM call</li>
+                      <li><strong>Caching:</strong> Semantic cache (GPTCache) — avoid re-running identical queries</li>
+                      <li><strong>Cost control:</strong> Route simple queries to smaller models (Haiku/Gemini Flash); use only frontier for hard tasks</li>
+                    </ul>
                   </div>
                 </div>
               </div>
