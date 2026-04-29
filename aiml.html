@@ -2748,6 +2748,301 @@ docker run -p <span class="nm">8000</span>:<span class="nm">8000</span> my-model
             </div>
           </section>
 
+          <!-- ═══════════════════════════════════════════════════ EXPLAINABILITY (XAI) -->
+          <section id="xai" class="aiml-section mb-5">
+            <div class="section-divider"></div>
+            <h2 class="h4 fw-bold mb-1">Explainability &amp; Interpretability (XAI)</h2>
+            <p class="text-secondary small mb-3">A model you can't explain is a model you can't trust in production — especially in regulated industries (finance, healthcare, legal). XAI bridges the gap between model accuracy and human understanding.</p>
+
+            <div class="card mb-3" style="border-left:4px solid #ffc107;">
+              <div class="card-header fw-bold small">Interpretable vs Explainable — The Distinction</div>
+              <div class="card-body small">
+                <div class="row g-3">
+                  <div class="col-12 col-md-6">
+                    <p class="fw-semibold mb-1">Intrinsically interpretable models:</p>
+                    <p class="mb-2">Transparent by design — you can read the decision directly from the model itself.</p>
+                    <ul class="ps-3 mb-0">
+                      <li><strong>Linear / Logistic Regression</strong> — each coefficient = effect of that feature on output</li>
+                      <li><strong>Decision Tree</strong> — follow the branch path to the leaf</li>
+                      <li><strong>Rule-based models</strong> — explicit IF-THEN logic</li>
+                      <li><strong>GAMs (Generalised Additive Models)</strong> — f(x) = f₁(x₁) + f₂(x₂) + … smooth, interpretable</li>
+                    </ul>
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <p class="fw-semibold mb-1">Post-hoc explainability (black-box models):</p>
+                    <p class="mb-2">Applied after training to explain individual predictions or global model behaviour. Works on any model.</p>
+                    <ul class="ps-3 mb-0">
+                      <li><strong>SHAP</strong> — game-theoretic, model-agnostic, theoretically grounded</li>
+                      <li><strong>LIME</strong> — local linear approximation around one prediction</li>
+                      <li><strong>Permutation importance</strong> — shuffle a feature, measure accuracy drop</li>
+                      <li><strong>Attention maps</strong> — visualise which tokens/pixels the model focused on</li>
+                      <li><strong>Grad-CAM</strong> — gradient-weighted class activation maps for CNNs</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-6">
+                <div class="card h-100 model-card" style="border-top:3px solid #0d6efd;">
+                  <div class="card-header fw-bold small d-flex justify-content-between">
+                    <span>SHAP — SHapley Additive exPlanations</span>
+                    <span class="badge diff-intermediate">Intermediate</span>
+                  </div>
+                  <div class="card-body small">
+                    <p>SHAP assigns each feature a <strong>Shapley value</strong> — its fair contribution to the prediction, averaging over all possible feature orderings. The only method that satisfies all four fairness axioms (efficiency, symmetry, dummy, additivity).</p>
+                    <div class="code-block mb-2">
+<span class="kw">import</span> shap
+
+<span class="cm"># Tree-based models (fast, exact)</span>
+explainer = shap.<span class="fn">TreeExplainer</span>(xgb_model)
+shap_vals = explainer.<span class="fn">shap_values</span>(X_test)
+
+<span class="cm"># Summary plot — global feature importance</span>
+shap.<span class="fn">summary_plot</span>(shap_vals, X_test)
+
+<span class="cm"># Waterfall plot — explain one prediction</span>
+shap.<span class="fn">waterfall_plot</span>(
+  shap.Explanation(values=shap_vals[<span class="nm">0</span>],
+    base_values=explainer.expected_value,
+    data=X_test.<span class="fn">iloc</span>[<span class="nm">0</span>]))
+
+<span class="cm"># For neural nets (slower, sample-based)</span>
+explainer = shap.<span class="fn">DeepExplainer</span>(model, X_background)
+                    </div>
+                    <p class="mb-0"><strong>Key plots:</strong> summary (global), waterfall (local), dependence (feature interaction), force plot (single prediction visualisation)</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100 model-card" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small d-flex justify-content-between">
+                    <span>LIME &amp; Permutation Importance</span>
+                    <span class="badge diff-beginner">Beginner</span>
+                  </div>
+                  <div class="card-body small">
+                    <p class="fw-semibold mb-1">LIME — Local Interpretable Model-agnostic Explanations:</p>
+                    <div class="code-block mb-2">
+<span class="kw">from</span> lime.lime_tabular <span class="kw">import</span> LimeTabularExplainer
+
+explainer = <span class="fn">LimeTabularExplainer</span>(
+  X_train.values,
+  feature_names=feature_names,
+  class_names=[<span class="st">'No'</span>, <span class="st">'Yes'</span>],
+  mode=<span class="st">'classification'</span>
+)
+exp = explainer.<span class="fn">explain_instance</span>(
+  X_test.<span class="fn">iloc</span>[<span class="nm">0</span>].values,
+  model.predict_proba, num_features=<span class="nm">6</span>
+)
+exp.<span class="fn">show_in_notebook</span>()
+                    </div>
+                    <p class="fw-semibold mb-1">Permutation feature importance:</p>
+                    <div class="code-block mb-0">
+<span class="kw">from</span> sklearn.inspection <span class="kw">import</span> permutation_importance
+result = <span class="fn">permutation_importance</span>(
+  model, X_val, y_val, n_repeats=<span class="nm">10</span>, scoring=<span class="st">'f1_macro'</span>)
+imp = pd.<span class="fn">Series</span>(result.importances_mean,
+                index=feature_names).<span class="fn">sort_values</span>()
+imp.<span class="fn">plot</span>(kind=<span class="st">'barh'</span>)
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-4">
+                <div class="card h-100">
+                  <div class="card-header fw-bold small">Grad-CAM for CNNs</div>
+                  <div class="card-body small">
+                    <p>Gradient-weighted Class Activation Mapping produces a heatmap showing which spatial regions of an image influenced the prediction. No model modification needed.</p>
+                    <div class="code-block mb-2">
+<span class="kw">from</span> pytorch_grad_cam <span class="kw">import</span> GradCAM
+<span class="kw">from</span> pytorch_grad_cam.utils.image <span class="kw">import</span> show_cam_on_image
+
+cam = <span class="fn">GradCAM</span>(model=model,
+               target_layers=[model.layer4[-<span class="nm">1</span>]])
+grayscale_cam = <span class="fn">cam</span>(input_tensor=img_tensor)
+visualisation = <span class="fn">show_cam_on_image</span>(
+  rgb_img, grayscale_cam[<span class="nm">0</span>], use_rgb=<span class="kw">True</span>)
+                    </div>
+                    <p class="mb-0">Use <code>pytorch-grad-cam</code> library for ResNet, EfficientNet, ViT and more.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100">
+                  <div class="card-header fw-bold small">Partial Dependence Plots (PDP)</div>
+                  <div class="card-body small">
+                    <p>Show the marginal effect of one or two features on the predicted outcome — averaging out the effect of all other features. Good for communicating model behaviour to non-technical stakeholders.</p>
+                    <div class="code-block mb-2">
+<span class="kw">from</span> sklearn.inspection <span class="kw">import</span> PartialDependenceDisplay
+
+PartialDependenceDisplay.<span class="fn">from_estimator</span>(
+  model, X_train,
+  features=[<span class="st">'age'</span>, <span class="st">'income'</span>, (<span class="st">'age'</span>, <span class="st">'income'</span>)],
+  kind=<span class="st">'both'</span>  <span class="cm"># PDP + ICE curves</span>
+)
+                    </div>
+                    <p class="mb-0"><strong>ICE curves</strong> (Individual Conditional Expectation) show one line per sample — reveals heterogeneous effects PDP averages away.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100">
+                  <div class="card-header fw-bold small">When XAI Is Required</div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-2 comp-table">
+                      <thead class="table-dark"><tr><th>Domain</th><th>Requirement</th></tr></thead>
+                      <tbody>
+                        <tr><td>Finance / Credit</td><td>EU GDPR Art. 22 — right to explanation for automated decisions</td></tr>
+                        <tr><td>Healthcare</td><td>FDA requires AI/ML transparency for clinical decision support</td></tr>
+                        <tr><td>HR / Hiring</td><td>EEOC compliance — must explain adverse impact</td></tr>
+                        <tr><td>Insurance</td><td>Must justify premium decisions to regulators</td></tr>
+                        <tr><td>Any production model</td><td>Debugging unexpected predictions and catching bias</td></tr>
+                      </tbody>
+                    </table>
+                    <div class="callout callout-warn mb-0">Even when not legally required, unexplainable predictions erode user trust. Build explainability tooling from the start, not as an afterthought.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═══════════════════════════════════════════════════ TIME SERIES -->
+          <section id="time-series" class="aiml-section mb-5">
+            <div class="section-divider"></div>
+            <h2 class="h4 fw-bold mb-1">Time Series Forecasting</h2>
+            <p class="text-secondary small mb-3">Time series data is ordered — past observations influence future ones. Standard ML assumptions (i.i.d. samples) break down. You need specialised models and validation strategies.</p>
+
+            <div class="callout callout-danger mb-3">
+              <strong>Never shuffle time series data.</strong> Splitting randomly creates data leakage — future values used to predict the past. Always split by time: train on earlier data, validate on later data.
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-4">
+                <div class="card h-100 model-card" style="border-top:3px solid #0d6efd;">
+                  <div class="card-header fw-bold small d-flex justify-content-between">
+                    <span>Classical Statistical Models</span>
+                    <span class="badge diff-beginner">Beginner</span>
+                  </div>
+                  <div class="card-body small">
+                    <p class="fw-semibold mb-1">ARIMA — AutoRegressive Integrated Moving Average:</p>
+                    <div class="code-block mb-2">
+<span class="kw">from</span> statsmodels.tsa.statespace.sarimax <span class="kw">import</span> SARIMAX
+
+<span class="cm"># SARIMA(p,d,q)(P,D,Q,s) — with seasonality</span>
+model = <span class="fn">SARIMAX</span>(y_train,
+  order=(<span class="nm">1</span>,<span class="nm">1</span>,<span class="nm">1</span>),
+  seasonal_order=(<span class="nm">1</span>,<span class="nm">1</span>,<span class="nm">0</span>,<span class="nm">12</span>))  <span class="cm"># monthly seasonality</span>
+fit = model.<span class="fn">fit</span>()
+forecast = fit.<span class="fn">forecast</span>(steps=<span class="nm">12</span>)
+                    </div>
+                    <p class="mb-1"><strong>Parameters:</strong> p = AR order, d = differencing, q = MA order. Use AIC/BIC to select.</p>
+                    <p class="mb-0"><strong>Best for:</strong> Univariate, stationary (or easily differenced), interpretable output required.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100 model-card" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small d-flex justify-content-between">
+                    <span>Prophet &amp; Gradient Boosting</span>
+                    <span class="badge diff-beginner">Beginner</span>
+                  </div>
+                  <div class="card-body small">
+                    <p class="fw-semibold mb-1">Prophet (Meta):</p>
+                    <div class="code-block mb-2">
+<span class="kw">from</span> prophet <span class="kw">import</span> Prophet
+
+m = <span class="fn">Prophet</span>(
+  yearly_seasonality=<span class="kw">True</span>,
+  weekly_seasonality=<span class="kw">True</span>,
+  changepoint_prior_scale=<span class="nm">0.05</span>
+)
+m.<span class="fn">add_country_holidays</span>(country_name=<span class="st">'US'</span>)
+m.<span class="fn">fit</span>(df)  <span class="cm"># df must have 'ds' (date) and 'y' columns</span>
+future = m.<span class="fn">make_future_dataframe</span>(periods=<span class="nm">90</span>)
+forecast = m.<span class="fn">predict</span>(future)
+                    </div>
+                    <p class="fw-semibold mb-1">LightGBM / XGBoost for time series:</p>
+                    <ul class="ps-3 mb-0">
+                      <li>Engineer lag features: y(t-1), y(t-7), y(t-30)</li>
+                      <li>Add rolling stats: rolling mean, std, min, max</li>
+                      <li>Add calendar features: hour, day_of_week, month, is_holiday</li>
+                      <li>Use TimeSeriesSplit for cross-validation</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100 model-card" style="border-top:3px solid #6610f2;">
+                  <div class="card-header fw-bold small d-flex justify-content-between">
+                    <span>Deep Learning for Time Series</span>
+                    <span class="badge diff-advanced">Advanced</span>
+                  </div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-2 comp-table">
+                      <thead class="table-dark"><tr><th>Model</th><th>Strengths</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>LSTM / GRU</strong></td><td>Sequential memory, good for short-medium horizons</td></tr>
+                        <tr><td><strong>TCN</strong></td><td>Temporal Conv Net — parallelisable, long receptive field</td></tr>
+                        <tr><td><strong>N-BEATS</strong></td><td>Interpretable, strong univariate benchmark</td></tr>
+                        <tr><td><strong>Temporal Fusion Transformer</strong></td><td>Multi-horizon, handles covariates, interpretable attention</td></tr>
+                        <tr><td><strong>PatchTST / TimesNet</strong></td><td>Transformer adapted for time series; state-of-the-art</td></tr>
+                        <tr><td><strong>TimesFM / Moirai</strong></td><td>Foundation models — zero-shot time series forecasting</td></tr>
+                      </tbody>
+                    </table>
+                    <div class="callout callout-tip mb-0">For most business forecasting, LightGBM with lag features outperforms LSTM. Only reach for TFT or Transformers when you have multivariate inputs, very long horizons, or millions of time series to forecast simultaneously.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card mb-3">
+              <div class="card-header fw-bold small">Walk-Forward Validation — The Right CV for Time Series</div>
+              <div class="card-body small">
+                <div class="row g-3">
+                  <div class="col-12 col-md-5">
+                    <p>Standard k-fold is wrong for time series. Walk-forward (expanding window) validation mirrors real deployment — train on past, evaluate on future, expand the window and repeat.</p>
+                    <div class="code-block mb-2">
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> TimeSeriesSplit
+
+tscv = <span class="fn">TimeSeriesSplit</span>(n_splits=<span class="nm">5</span>,
+                       gap=<span class="nm">0</span>,       <span class="cm"># no gap between train/val</span>
+                       test_size=<span class="nm">90</span>)  <span class="cm"># 90-day val window</span>
+scores = []
+<span class="kw">for</span> train_idx, val_idx <span class="kw">in</span> tscv.<span class="fn">split</span>(X):
+  model.<span class="fn">fit</span>(X[train_idx], y[train_idx])
+  scores.<span class="fn">append</span>(
+    <span class="fn">rmse</span>(y[val_idx], model.<span class="fn">predict</span>(X[val_idx])))
+<span class="fn">print</span>(<span class="st">f'RMSE: {np.mean(scores):.2f} ± {np.std(scores):.2f}'</span>)
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-7">
+                    <p class="fw-semibold mb-1">Key time series concepts:</p>
+                    <table class="table table-sm table-bordered small mb-0 comp-table">
+                      <thead class="table-dark"><tr><th>Concept</th><th>What It Means</th><th>How to Handle</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>Stationarity</strong></td><td>Mean/variance constant over time</td><td>Differencing, log transform</td></tr>
+                        <tr><td><strong>Trend</strong></td><td>Long-term direction (up/down)</td><td>Detrend or let model learn it</td></tr>
+                        <tr><td><strong>Seasonality</strong></td><td>Regular cyclic patterns</td><td>Seasonal decompose or add season features</td></tr>
+                        <tr><td><strong>Autocorrelation</strong></td><td>y(t) correlated with y(t-k)</td><td>Lag features, ACF/PACF plots</td></tr>
+                        <tr><td><strong>Multicollinearity</strong></td><td>Lag features highly correlated</td><td>PCA on lags or careful selection</td></tr>
+                        <tr><td><strong>Forecast horizon</strong></td><td>How far ahead you predict</td><td>Separate model per horizon or seq2seq</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="callout callout-tip">
+              <strong>Benchmark before you model.</strong> Always compare against naïve baselines: last-value persistence (ŷ(t) = y(t-1)) and seasonal naïve (ŷ(t) = y(t-52 weeks)). Many "sophisticated" models barely beat the seasonal naïve on real business data. If your model doesn't clearly beat the naïve, it's not ready.
+            </div>
+          </section>
+
         </div><!-- /col content -->
       </div><!-- /row -->
     </div><!-- /container-fluid -->
