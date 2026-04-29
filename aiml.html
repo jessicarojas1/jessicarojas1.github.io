@@ -6476,6 +6476,225 @@ dvc push  <span class="cm"># push to remote storage (S3, GCS)</span>
             </div>
           </section>
 
+          <!-- ═══════════════════════════════════════════════════════
+               ANOMALY DETECTION
+          ═══════════════════════════════════════════════════════ -->
+          <section id="anomaly" class="mb-5">
+            <h2 class="section-title">Anomaly Detection</h2>
+            <p class="lead">Anomaly detection finds data points that don't conform to expected patterns — without labelled anomaly examples in most cases. Used in fraud detection, network intrusion, manufacturing QC, and monitoring.</p>
+
+            <h4 class="mt-4 mb-3 fw-semibold">Methods Overview</h4>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">Statistical Methods</div>
+                  <div class="card-body small">
+                    <ul class="ps-3 mb-2">
+                      <li><strong>Z-score:</strong> Flag |x − μ| / σ &gt; 3. Assumes Gaussian distribution. Breaks for multivariate or heavy-tailed data.</li>
+                      <li><strong>IQR method:</strong> Flag x &lt; Q1 − 1.5·IQR or x &gt; Q3 + 1.5·IQR. Robust to skew.</li>
+                      <li><strong>Grubbs test:</strong> Hypothesis test for single outlier in univariate normal sample.</li>
+                      <li><strong>CUSUM:</strong> Cumulative sum control chart — detects small persistent shifts in mean. Used in SPC and network monitoring.</li>
+                      <li><strong>Mahalanobis distance:</strong> d = √((x−μ)ᵀΣ⁻¹(x−μ)) — accounts for covariance. Good for multivariate Gaussian data.</li>
+                    </ul>
+                    <div class="code-block">
+<span class="kw">from</span> scipy <span class="kw">import</span> stats
+z_scores = np.<span class="fn">abs</span>(stats.<span class="fn">zscore</span>(df))
+outliers = (z_scores &gt; <span class="nm">3</span>).<span class="fn">any</span>(axis=<span class="nm">1</span>)
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">ML-based Methods</div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-2 comp-table">
+                      <thead class="table-dark"><tr><th>Method</th><th>Idea</th><th>Complexity</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>Isolation Forest</strong></td><td>Anomalies are isolated by fewer splits in random trees</td><td>O(n log n) — fast, scalable</td></tr>
+                        <tr><td><strong>LOF</strong></td><td>Local Outlier Factor: compare density of point to neighbours</td><td>O(n²) — slow for large n</td></tr>
+                        <tr><td><strong>One-class SVM</strong></td><td>Learn hypersphere around normal data in kernel space</td><td>O(n²−n³) — slow, SVs needed</td></tr>
+                        <tr><td><strong>DBSCAN</strong></td><td>Points not in any cluster = anomalies (noise points)</td><td>O(n log n) with index</td></tr>
+                        <tr><td><strong>Autoencoder</strong></td><td>High reconstruction error = anomaly</td><td>Scales; captures complex patterns</td></tr>
+                        <tr><td><strong>VAE</strong></td><td>Low ELBO (log-likelihood) = anomaly</td><td>Probabilistic uncertainty</td></tr>
+                      </tbody>
+                    </table>
+                    <div class="code-block">
+<span class="kw">from</span> sklearn.ensemble <span class="kw">import</span> IsolationForest
+iso = <span class="fn">IsolationForest</span>(contamination=<span class="nm">0.05</span>, random_state=<span class="nm">42</span>)
+preds = iso.<span class="fn">fit_predict</span>(X)  <span class="cm"># -1 = anomaly, 1 = normal</span>
+scores = iso.<span class="fn">score_samples</span>(X)  <span class="cm"># lower = more anomalous</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">Deep Anomaly Detection</div>
+                  <div class="card-body small">
+                    <p><strong>Autoencoder:</strong> Train on normal data only. At inference, reconstruction error MSE(x, x̂) is the anomaly score — anomalous inputs can't be reconstructed well.</p>
+                    <div class="code-block">
+encoder = nn.<span class="fn">Sequential</span>(nn.<span class="fn">Linear</span>(<span class="nm">128</span>,<span class="nm">32</span>), nn.<span class="fn">ReLU</span>())
+decoder = nn.<span class="fn">Sequential</span>(nn.<span class="fn">Linear</span>(<span class="nm">32</span>,<span class="nm">128</span>), nn.<span class="fn">Sigmoid</span>())
+<span class="cm"># anomaly score at inference:</span>
+score = F.<span class="fn">mse_loss</span>(decoder(encoder(x)), x, reduction=<span class="st">'none'</span>).<span class="fn">mean</span>(<span class="nm">1</span>)
+                    </div>
+                    <p class="mt-2"><strong>Deep SVDD:</strong> Learn a neural network mapping normal data points close to a hypersphere centre c; anomalies map far from c.</p>
+                    <p class="mb-0"><strong>Normalising flows:</strong> Exact log-likelihood — anomalies have low p(x). Glow, RealNVP used for image anomaly detection.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Time series anomaly -->
+            <h4 class="mt-4 mb-3 fw-semibold">Time-Series Anomaly Detection</h4>
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">Approaches</div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-0 comp-table">
+                      <thead class="table-dark"><tr><th>Method</th><th>Idea</th><th>Tool</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>STL decomposition</strong></td><td>Residuals from trend+seasonal decomposition; flag large residuals</td><td>statsmodels, Prophet</td></tr>
+                        <tr><td><strong>ARIMA residuals</strong></td><td>Fit ARIMA; flag points where |residual| &gt; k·σ</td><td>statsmodels</td></tr>
+                        <tr><td><strong>LSTM prediction error</strong></td><td>Predict next step; high prediction error = anomaly</td><td>PyTorch, Keras</td></tr>
+                        <tr><td><strong>Transformer (Anomaly Transformer)</strong></td><td>Association discrepancy between prior and series associations</td><td>Research SOTA</td></tr>
+                        <tr><td><strong>MatrixProfile</strong></td><td>Nearest-neighbour distance in subsequence space; Discord = anomaly</td><td>stumpy library</td></tr>
+                        <tr><td><strong>Prophet + changepoints</strong></td><td>Bayesian structural model; changepoint detection + holiday effects</td><td>Prophet (Meta)</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Evaluation &amp; Deployment</div>
+                  <div class="card-body small">
+                    <p><strong>Evaluation challenge:</strong> Anomalies are rare and costly to label. Metrics:</p>
+                    <ul class="ps-3 mb-2">
+                      <li><strong>AUC-ROC / AUC-PR:</strong> AUC-PR more informative for imbalanced datasets</li>
+                      <li><strong>F1 at best threshold:</strong> Threshold tuned on labelled anomalies</li>
+                      <li><strong>Point-adjusted F1:</strong> For time series — if any point in anomalous window detected, entire window counts</li>
+                    </ul>
+                    <p><strong>Threshold calibration:</strong> Set contamination rate based on business tolerance (false alarm rate vs miss rate trade-off).</p>
+                    <p class="mb-0"><strong>Production:</strong> Arize AI, WhyLogs, Evidently — detect feature drift as a precursor to anomalous predictions. Alert on 3-sigma deviations from rolling baseline.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═══════════════════════════════════════════════════════
+               STREAMING ML
+          ═══════════════════════════════════════════════════════ -->
+          <section id="streaming" class="mb-5">
+            <h2 class="section-title">Online &amp; Streaming ML</h2>
+            <p class="lead">When data arrives as a continuous stream and the world changes over time, batch training is too slow. Online learning updates models incrementally — one example at a time — enabling real-time adaptation.</p>
+
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">Online Learning Algorithms</div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-0 comp-table">
+                      <thead class="table-dark"><tr><th>Algorithm</th><th>Update rule</th><th>Best for</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>SGD (online)</strong></td><td>θ ← θ − η·∇L(xₜ,yₜ)</td><td>General; decaying LR needed</td></tr>
+                        <tr><td><strong>Perceptron</strong></td><td>w ← w + y·x on mistake</td><td>Linear binary classification</td></tr>
+                        <tr><td><strong>Passive-Aggressive</strong></td><td>Update only if margin violated; aggressiveness param C</td><td>Text classification streams</td></tr>
+                        <tr><td><strong>FTRL</strong></td><td>Follow-The-Regularised-Leader; sparse solutions</td><td>Ad CTR prediction (Google)</td></tr>
+                        <tr><td><strong>Hoeffding Tree</strong></td><td>Grow decision tree with Hoeffding bound on sufficient statistics</td><td>Streaming classification, VFDT</td></tr>
+                        <tr><td><strong>River / Creme</strong></td><td>Python library for all of the above</td><td>General streaming ML</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Concept Drift</div>
+                  <div class="card-body small">
+                    <p>The statistical relationship between features and labels changes over time — model accuracy degrades.</p>
+                    <p><strong>Types:</strong></p>
+                    <ul class="ps-3 mb-2">
+                      <li><strong>Sudden drift:</strong> Abrupt change (system update, world event)</li>
+                      <li><strong>Gradual drift:</strong> Slow shift in distribution over time</li>
+                      <li><strong>Recurring drift:</strong> Seasonal patterns (weekday vs weekend behaviour)</li>
+                      <li><strong>Incremental drift:</strong> Monotonic slow change (population ageing)</li>
+                    </ul>
+                    <p><strong>Detection:</strong> ADWIN (adaptive windowing), DDM, Page-Hinkley test, KSWIN. Monitor rolling accuracy or prediction distribution.</p>
+                    <p class="mb-0"><strong>Response:</strong> Retrain on recent window, weighted training (recent examples weighted higher), ensemble with fresh model.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">River: Streaming ML in Python</div>
+                  <div class="card-body small">
+                    <div class="code-block">
+<span class="kw">from</span> river <span class="kw">import</span> linear_model, preprocessing, metrics, stream
+
+model = preprocessing.<span class="fn">StandardScaler</span>() | linear_model.<span class="fn">LogisticRegression</span>()
+metric = metrics.<span class="fn">ROCAUC</span>()
+
+<span class="kw">for</span> x, y <span class="kw">in</span> stream.<span class="fn">iter_csv</span>(<span class="st">'data.csv'</span>, target=<span class="st">'label'</span>):
+    y_pred = model.<span class="fn">predict_proba_one</span>(x)
+    metric.<span class="fn">update</span>(y, y_pred)
+    model.<span class="fn">learn_one</span>(x, y)  <span class="cm"># update on each example</span>
+
+<span class="cm"># Drift detection</span>
+<span class="kw">from</span> river <span class="kw">import</span> drift
+detector = drift.<span class="fn">ADWIN</span>()
+<span class="kw">for</span> val <span class="kw">in</span> stream_of_errors:
+    detector.<span class="fn">update</span>(val)
+    <span class="kw">if</span> detector.drift_detected:
+        <span class="fn">retrain_model</span>()
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Streaming infrastructure -->
+            <h4 class="mt-4 mb-3 fw-semibold">Streaming Infrastructure</h4>
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">Event Streaming Platforms</div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-0 comp-table">
+                      <thead class="table-dark"><tr><th>Platform</th><th>Use</th><th>Key feature</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>Kafka</strong></td><td>High-throughput event log</td><td>Durable, partitioned, 1M+ msg/sec; backbone for real-time ML pipelines</td></tr>
+                        <tr><td><strong>Flink</strong></td><td>Stateful stream processing</td><td>Exactly-once semantics, event time, windowing — feature computation on streams</td></tr>
+                        <tr><td><strong>Spark Streaming</strong></td><td>Micro-batch streaming</td><td>Structured Streaming integrates with Spark ML; easier than Flink for batch-ML orgs</td></tr>
+                        <tr><td><strong>Kinesis</strong></td><td>AWS managed Kafka</td><td>Auto-scales, integrates with SageMaker for real-time inference</td></tr>
+                        <tr><td><strong>Pulsar</strong></td><td>Multi-tenant streaming</td><td>Tiered storage, geo-replication, functions for lightweight transforms</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Real-Time Feature Engineering</div>
+                  <div class="card-body small">
+                    <p><strong>Training-serving skew:</strong> The #1 source of production ML failures — features computed differently at training time vs serving time.</p>
+                    <p><strong>Point-in-time correct joins:</strong> When training, use only features available at the time of each label — no future leakage.</p>
+                    <p><strong>Feature Store pattern:</strong></p>
+                    <ul class="ps-3 mb-2">
+                      <li><strong>Offline store:</strong> Historical feature values (Hive, BigQuery, Delta Lake) — used for training</li>
+                      <li><strong>Online store:</strong> Latest feature values (Redis, DynamoDB) — used for low-latency serving (&lt;10ms)</li>
+                      <li><strong>Materialisation job:</strong> Flink/Spark pipeline keeps online store synced with offline store</li>
+                    </ul>
+                    <p class="mb-0"><strong>Tools:</strong> Feast, Tecton, Hopsworks, Vertex AI Feature Store, SageMaker Feature Store.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
         </div><!-- /col content -->
       </div><!-- /row -->
     </div><!-- /container-fluid -->
