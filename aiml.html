@@ -6695,6 +6695,268 @@ detector = drift.<span class="fn">ADWIN</span>()
             </div>
           </section>
 
+          <!-- ═══════════════════════════════════════════════════════
+               ML SYSTEM DESIGN
+          ═══════════════════════════════════════════════════════ -->
+          <section id="system-design" class="mb-5">
+            <h2 class="section-title">ML System Design</h2>
+            <p class="lead">ML system design interviews and real production systems require thinking beyond model accuracy — scale, latency, freshness, feedback loops, and failure modes all matter. Here's a framework and worked examples.</p>
+
+            <!-- Framework -->
+            <h4 class="mt-4 mb-3 fw-semibold">ML System Design Framework</h4>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">The 6-Step Framework</div>
+                  <div class="card-body small">
+                    <ol class="ps-3 mb-0">
+                      <li><strong>Clarify requirements:</strong> What is the business goal? What does success look like? Latency SLA? Scale (QPS, users, items)? Online vs offline?</li>
+                      <li><strong>Define ML task:</strong> Framing (classification/ranking/regression/generation), label definition, metrics (offline → online), baseline</li>
+                      <li><strong>Data:</strong> Sources, volume, freshness, labeling strategy, privacy constraints, training/serving feature availability</li>
+                      <li><strong>Features &amp; modelling:</strong> Feature types and engineering, candidate models, training strategy, evaluation methodology</li>
+                      <li><strong>Serving &amp; infrastructure:</strong> Latency requirements, batch vs real-time, model serving, feature store, caching, A/B testing</li>
+                      <li><strong>Monitoring &amp; iteration:</strong> Metrics to track in production, drift detection, feedback loop, retraining cadence, failure modes</li>
+                    </ol>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Key Trade-offs to Discuss</div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-0 comp-table">
+                      <thead class="table-dark"><tr><th>Dimension</th><th>Options</th><th>Driver</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>Latency vs accuracy</strong></td><td>Simpler model vs complex model; cache vs recompute</td><td>User-facing vs batch</td></tr>
+                        <tr><td><strong>Freshness vs cost</strong></td><td>Real-time features vs daily batch features</td><td>Feature drift rate</td></tr>
+                        <tr><td><strong>Recall vs precision</strong></td><td>Lower threshold vs higher threshold</td><td>Cost of FP vs FN</td></tr>
+                        <tr><td><strong>Online vs offline eval</strong></td><td>AUC/NDCG vs CTR/revenue lift</td><td>Proxy vs true objective</td></tr>
+                        <tr><td><strong>Model complexity</strong></td><td>Interpretable (LR, tree) vs complex (DNN)</td><td>Regulation, debugging</td></tr>
+                        <tr><td><strong>Retraining frequency</strong></td><td>Daily batch vs real-time online learning</td><td>Drift rate, infra cost</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Worked examples -->
+            <h4 class="mt-4 mb-3 fw-semibold">Worked System Design Examples</h4>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">YouTube Video Recommendation</div>
+                  <div class="card-body small">
+                    <p><strong>Goal:</strong> Maximise watch time while avoiding clickbait and harmful content.</p>
+                    <p><strong>Two-stage architecture:</strong></p>
+                    <ul class="ps-3 mb-2">
+                      <li><strong>Candidate generation (recall):</strong> Two-tower model embeds user + item; ANN retrieves top 500 from 500M videos. Features: watch history, search history, demographics.</li>
+                      <li><strong>Ranking (precision):</strong> Deep neural network scores 500 candidates; features: video age, CTR, watch percentage, user-video co-occurrence. Outputs: P(watch 30s), P(like), P(share).</li>
+                    </ul>
+                    <p><strong>Label:</strong> Weighted combination of engagement signals — watch time > likes > clicks (to avoid clickbait). Position bias correction via inverse propensity weighting.</p>
+                    <p class="mb-0"><strong>Monitoring:</strong> Watch time, satisfaction survey, diversity metrics, fairness by creator demographics.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">Fraud Detection (Real-Time)</div>
+                  <div class="card-body small">
+                    <p><strong>Goal:</strong> Flag fraudulent transactions in &lt;100ms with &lt;0.1% false positive rate on legitimate transactions.</p>
+                    <p><strong>Constraints:</strong> Highly imbalanced (0.1% fraud), adversarial (fraudsters adapt), real-time latency requirement.</p>
+                    <p><strong>Design:</strong></p>
+                    <ul class="ps-3 mb-2">
+                      <li><strong>Features:</strong> Transaction amount, merchant category, velocity (# transactions last 1h/24h/7d from online store), distance from last transaction, device fingerprint</li>
+                      <li><strong>Model:</strong> GBM (interpretable, fast inference) + deep neural net ensemble. Threshold calibrated to FPR budget.</li>
+                      <li><strong>Real-time:</strong> Redis feature store for velocity counts; p99 latency &lt; 50ms</li>
+                      <li><strong>Feedback loop:</strong> Human review queue for borderline cases; label confirmed fraud → retrain weekly</li>
+                    </ul>
+                    <p class="mb-0"><strong>Metrics:</strong> FPR at 80% recall; dollar value of fraud caught; false decline rate.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Search Ranking</div>
+                  <div class="card-body small">
+                    <p><strong>Task:</strong> Given query q and candidate documents D, rank D by relevance.</p>
+                    <p><strong>Learning to Rank:</strong></p>
+                    <ul class="ps-3 mb-0">
+                      <li><strong>Pointwise:</strong> Predict relevance score per (q,d) pair — MSE/cross-entropy</li>
+                      <li><strong>Pairwise:</strong> Predict which of (d₁, d₂) is more relevant for q — RankNet loss</li>
+                      <li><strong>Listwise:</strong> Directly optimise NDCG over the full list — LambdaMART, softmax over list</li>
+                    </ul>
+                    <p class="mt-2 mb-0"><strong>Features:</strong> BM25, PageRank, TF-IDF, click-through rate, freshness, query-document semantic similarity (BERT bi-encoder).</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">Ads Click-Through Rate</div>
+                  <div class="card-body small">
+                    <p><strong>Task:</strong> P(click | user, ad, context) — calibrated probability, not just ranking.</p>
+                    <p><strong>Scale:</strong> Billions of predictions/day, millisecond latency.</p>
+                    <p><strong>Architecture:</strong> Sparse feature embeddings (user ID, item ID, cross features) → deep neural net → sigmoid. DLRM (Meta), Wide &amp; Deep (Google).</p>
+                    <p><strong>Key techniques:</strong></p>
+                    <ul class="ps-3 mb-0">
+                      <li>Embedding tables (10M+ categorical features)</li>
+                      <li>FTRL-Proximal for online learning</li>
+                      <li>Isotonic regression for calibration</li>
+                      <li>Feedback delay handling (delayed labels)</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #dc3545;">
+                  <div class="card-header fw-bold small">Common Failure Modes</div>
+                  <div class="card-body small">
+                    <ul class="ps-3 mb-0">
+                      <li><strong>Training-serving skew:</strong> Features computed differently offline vs online</li>
+                      <li><strong>Feedback loops:</strong> Model predictions influence labels used for retraining (filter bubbles, popularity bias)</li>
+                      <li><strong>Data leakage:</strong> Future information in training features</li>
+                      <li><strong>Cold start:</strong> No history for new users/items</li>
+                      <li><strong>Label delay:</strong> Conversion labels arrive days later — stale negatives</li>
+                      <li><strong>Distribution shift:</strong> Training data doesn't match production</li>
+                      <li><strong>Adversarial gaming:</strong> Users/sellers optimise for the metric (SEO, ad fraud)</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═══════════════════════════════════════════════════════
+               RESEARCH SKILLS
+          ═══════════════════════════════════════════════════════ -->
+          <section id="research" class="mb-5">
+            <h2 class="section-title">Research Skills &amp; Staying Current</h2>
+            <p class="lead">ML moves fast. Knowing how to find, read, and evaluate research papers — and how to build a system for staying current — is as important as any technical skill.</p>
+
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">How to Read a Paper</div>
+                  <div class="card-body small">
+                    <p><strong>Three-pass method (Keshav):</strong></p>
+                    <ol class="ps-3 mb-2">
+                      <li><strong>First pass (5 min):</strong> Title, abstract, intro, section headings, conclusion. Decide if worth deeper read.</li>
+                      <li><strong>Second pass (1h):</strong> Read with understanding — study figures, tables, key equations. Skip proofs. Note what you don't understand.</li>
+                      <li><strong>Third pass (4h):</strong> Virtually re-implement. Identify every assumption, challenge every claim. Understand all proofs.</li>
+                    </ol>
+                    <p><strong>What to extract:</strong></p>
+                    <ul class="ps-3 mb-0">
+                      <li>Problem being solved + why it matters</li>
+                      <li>Key insight / contribution</li>
+                      <li>Method: architecture, training, loss</li>
+                      <li>Experimental setup + baselines</li>
+                      <li>Limitations honestly stated</li>
+                      <li>What to try next (related work + future work)</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Where to Find Research</div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-0 comp-table">
+                      <thead class="table-dark"><tr><th>Source</th><th>What it offers</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>arXiv (cs.LG, cs.AI, stat.ML)</strong></td><td>Pre-prints — fastest way to see new work, often before peer review</td></tr>
+                        <tr><td><strong>Papers With Code</strong></td><td>Papers + GitHub repos + SOTA benchmarks — see what actually works</td></tr>
+                        <tr><td><strong>Semantic Scholar</strong></td><td>Citation graph — find influential papers and follow citation trails</td></tr>
+                        <tr><td><strong>NeurIPS / ICML / ICLR / CVPR</strong></td><td>Top venues — papers accepted here are peer reviewed and broadly important</td></tr>
+                        <tr><td><strong>Distill.pub</strong></td><td>Beautifully illustrated ML explainers — start here for understanding, not novelty</td></tr>
+                        <tr><td><strong>Hugging Face blog</strong></td><td>Practical implementation-focused summaries of new models and methods</td></tr>
+                        <tr><td><strong>Twitter/X + LinkedIn</strong></td><td>Follow Yann LeCun, Andrej Karpathy, Yoshua Bengio — real-time discussion</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">Evaluating a Paper's Claims</div>
+                  <div class="card-body small">
+                    <p><strong>Red flags:</strong></p>
+                    <ul class="ps-3 mb-2">
+                      <li>Only compared to weak baselines (cherry-picked)</li>
+                      <li>Results only on one dataset / one random seed</li>
+                      <li>No ablation study — can't tell which part matters</li>
+                      <li>Hyperparameters tuned on test set</li>
+                      <li>Missing confidence intervals or statistical tests</li>
+                      <li>Code not released — can't verify</li>
+                    </ul>
+                    <p><strong>Green flags:</strong></p>
+                    <ul class="ps-3 mb-0">
+                      <li>Multiple strong baselines with reproduced numbers</li>
+                      <li>Ablation table isolating each contribution</li>
+                      <li>Negative results honestly reported</li>
+                      <li>Code + reproducible training scripts released</li>
+                      <li>Results on multiple datasets and modalities</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Learning resources & staying current -->
+            <h4 class="mt-4 mb-3 fw-semibold">Best Learning Resources</h4>
+            <div class="row g-3">
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">Foundational Courses</div>
+                  <div class="card-body small">
+                    <ul class="ps-3 mb-0">
+                      <li><strong>Fast.ai:</strong> Practical deep learning from top-down — build intuition first</li>
+                      <li><strong>CS231n (Stanford):</strong> Computer vision — best visual intuition for CNNs and attention</li>
+                      <li><strong>CS224n (Stanford):</strong> NLP with deep learning — transformers from scratch</li>
+                      <li><strong>Andrej Karpathy's Zero-to-Hero:</strong> Build GPT-2 from scratch in pure PyTorch — best hands-on LLM course</li>
+                      <li><strong>Deep Learning Book (Goodfellow et al.):</strong> Rigorous theory — read alongside a practical course</li>
+                      <li><strong>Pattern Recognition &amp; ML (Bishop):</strong> Probabilistic ML bible</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Staying Current System</div>
+                  <div class="card-body small">
+                    <p><strong>Weekly routine:</strong></p>
+                    <ul class="ps-3 mb-2">
+                      <li>Subscribe to <strong>The Batch</strong> (deeplearning.ai), <strong>Import AI</strong> (Jack Clark), <strong>ML News</strong> (Yannic Kilcher)</li>
+                      <li>Watch <strong>Yannic Kilcher</strong> or <strong>Two Minute Papers</strong> for paper walkthroughs</li>
+                      <li>Skim arXiv cs.LG top-50 weekly — read abstract + figures only for most</li>
+                    </ul>
+                    <p><strong>Deep dives:</strong> Pick 1–2 papers per month for full third-pass read and implementation. Replicate key result in a Jupyter notebook.</p>
+                    <p class="mb-0"><strong>Community:</strong> MLOps Discord, Hugging Face Discord, local ML meetups — questions and discussion accelerate learning faster than solo reading.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">From Reading to Doing</div>
+                  <div class="card-body small">
+                    <p><strong>The replication ladder:</strong></p>
+                    <ol class="ps-3 mb-2">
+                      <li>Run official code on paper's dataset</li>
+                      <li>Re-implement core idea from scratch (no copy-paste)</li>
+                      <li>Reproduce key table result within 5%</li>
+                      <li>Apply to a new dataset or problem</li>
+                      <li>Extend: ablate, improve, or combine with another method</li>
+                    </ol>
+                    <p><strong>Publish your work:</strong> GitHub repo + blog post / arXiv pre-print. Even failed replications are valuable to the community.</p>
+                    <p class="mb-0"><strong>Kaggle:</strong> Competitions force you to close the gap between research and practice. Read winning solution write-ups — dense with practical insights.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
         </div><!-- /col content -->
       </div><!-- /row -->
     </div><!-- /container-fluid -->
