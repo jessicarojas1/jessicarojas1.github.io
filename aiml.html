@@ -3714,6 +3714,196 @@ ce = F.<span class="fn">cross_entropy</span>(logits, labels)
             </div>
           </section>
 
+          <!-- ═══════════════════════════════════════════════════ NLP DEEP DIVE -->
+          <section id="nlp" class="aiml-section mb-5">
+            <div class="section-divider"></div>
+            <h2 class="h4 fw-bold mb-1">Natural Language Processing — Deep Dive</h2>
+            <p class="text-secondary small mb-3">NLP is the study of making computers understand and generate human language. The field was transformed by the Transformer architecture in 2017 — nearly every modern NLP system (GPT, BERT, T5, Claude) is built on it.</p>
+
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #0d6efd;">
+                  <div class="card-header fw-bold small">Text Preprocessing &amp; Tokenisation</div>
+                  <div class="card-body small">
+                    <p>Before any model can process text, it must be converted to numbers. Tokenisation splits text into units (tokens) and maps each to an integer ID.</p>
+                    <table class="table table-sm table-bordered small mb-2 comp-table">
+                      <thead class="table-dark"><tr><th>Method</th><th>How</th><th>Used By</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>Word-level</strong></td><td>Split on whitespace/punctuation</td><td>Classic NLP, word2vec</td></tr>
+                        <tr><td><strong>Character-level</strong></td><td>Each character = one token</td><td>Language models on noisy text</td></tr>
+                        <tr><td><strong>BPE</strong></td><td>Byte Pair Encoding — merge frequent pairs</td><td>GPT-2/3/4, RoBERTa</td></tr>
+                        <tr><td><strong>WordPiece</strong></td><td>Like BPE but maximises LM likelihood</td><td>BERT, DistilBERT</td></tr>
+                        <tr><td><strong>SentencePiece</strong></td><td>Language-agnostic BPE/Unigram</td><td>T5, LLaMA, Claude</td></tr>
+                      </tbody>
+                    </table>
+                    <div class="code-block mb-2">
+<span class="kw">from</span> transformers <span class="kw">import</span> AutoTokenizer
+tok = AutoTokenizer.<span class="fn">from_pretrained</span>(<span class="st">'bert-base-uncased'</span>)
+enc = tok(<span class="st">"Hello, how are you?"</span>,
+          return_tensors=<span class="st">'pt'</span>, padding=<span class="kw">True</span>)
+<span class="cm"># enc['input_ids']:   token IDs</span>
+<span class="cm"># enc['attention_mask']: 1=real token, 0=padding</span>
+<span class="fn">print</span>(tok.<span class="fn">convert_ids_to_tokens</span>(enc[<span class="st">'input_ids'</span>][<span class="nm">0</span>]))
+<span class="cm"># ['[CLS]','hello',',','how','are','you','?','[SEP]']</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Word Embeddings — From Counts to Dense Vectors</div>
+                  <div class="card-body small">
+                    <p>Embeddings map tokens to dense vectors capturing semantic meaning. Words with similar meanings are close in embedding space.</p>
+                    <table class="table table-sm table-bordered small mb-2 comp-table">
+                      <thead class="table-dark"><tr><th>Method</th><th>Key Idea</th><th>Limitation</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>One-hot</strong></td><td>V-dim binary vector per word</td><td>No semantics, huge sparse vectors</td></tr>
+                        <tr><td><strong>TF-IDF</strong></td><td>Word frequency weighted by rarity</td><td>No word order, no semantics</td></tr>
+                        <tr><td><strong>Word2Vec (CBOW/SG)</strong></td><td>Predict word from context / vice versa</td><td>Static — "bank" same vector in all contexts</td></tr>
+                        <tr><td><strong>GloVe</strong></td><td>Factorises co-occurrence matrix</td><td>Static, global statistics only</td></tr>
+                        <tr><td><strong>FastText</strong></td><td>Word2Vec + subword (character n-grams)</td><td>Static, but handles OOV words</td></tr>
+                        <tr><td><strong>Contextual (BERT/GPT)</strong></td><td>Transformer hidden states per token</td><td>Expensive, needs GPU</td></tr>
+                      </tbody>
+                    </table>
+                    <div class="callout callout-tip mb-0"><strong>king − man + woman ≈ queen</strong> — vector arithmetic in Word2Vec embedding space. This emergent geometry is why embeddings are so powerful: analogical reasoning is just vector addition.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card mb-3" style="border-left:4px solid #6610f2;">
+              <div class="card-header fw-bold small">The Transformer — How Attention Works (Math)</div>
+              <div class="card-body small">
+                <div class="row g-3">
+                  <div class="col-12 col-md-5">
+                    <p class="fw-semibold mb-1">Scaled Dot-Product Attention:</p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(102,16,242,.08);font-size:.9rem;">
+                      Attention(Q, K, V) = softmax(QKᵀ / √d_k) · V
+                    </div>
+                    <ul class="ps-3 mb-2">
+                      <li><strong>Q (Query):</strong> "What am I looking for?"</li>
+                      <li><strong>K (Key):</strong> "What do I contain?"</li>
+                      <li><strong>V (Value):</strong> "What information do I carry?"</li>
+                      <li><strong>√d_k scaling:</strong> prevents dot products from growing too large → softmax becoming too peaked → vanishing gradients</li>
+                    </ul>
+                    <p class="fw-semibold mb-1">Multi-Head Attention:</p>
+                    <p class="mb-0">Run h attention heads in parallel, each with different learned projections W_Q, W_K, W_V. Concatenate outputs, project to model dimension. Different heads capture different relationship types (syntax, coreference, semantics).</p>
+                  </div>
+                  <div class="col-12 col-md-7">
+                    <div class="code-block mb-2">
+<span class="kw">import</span> torch, torch.nn <span class="kw">as</span> nn, math
+
+<span class="kw">class</span> <span class="fn">MultiHeadAttention</span>(nn.Module):
+  <span class="kw">def</span> <span class="fn">__init__</span>(self, d_model, n_heads):
+    <span class="fn">super()</span>.<span class="fn">__init__</span>()
+    self.h = n_heads
+    self.d_k = d_model // n_heads
+    self.W_q = nn.<span class="fn">Linear</span>(d_model, d_model)
+    self.W_k = nn.<span class="fn">Linear</span>(d_model, d_model)
+    self.W_v = nn.<span class="fn">Linear</span>(d_model, d_model)
+    self.W_o = nn.<span class="fn">Linear</span>(d_model, d_model)
+
+  <span class="kw">def</span> <span class="fn">forward</span>(self, x, mask=<span class="kw">None</span>):
+    B, T, D = x.shape
+    <span class="cm"># Project, reshape to (B, heads, T, d_k)</span>
+    Q = self.W_q(x).<span class="fn">view</span>(B,T,self.h,self.d_k).<span class="fn">transpose</span>(<span class="nm">1</span>,<span class="nm">2</span>)
+    K = self.W_k(x).<span class="fn">view</span>(B,T,self.h,self.d_k).<span class="fn">transpose</span>(<span class="nm">1</span>,<span class="nm">2</span>)
+    V = self.W_v(x).<span class="fn">view</span>(B,T,self.h,self.d_k).<span class="fn">transpose</span>(<span class="nm">1</span>,<span class="nm">2</span>)
+    <span class="cm"># Scaled dot-product attention</span>
+    scores = Q @ K.<span class="fn">transpose</span>(-<span class="nm">2</span>,-<span class="nm">1</span>) / math.<span class="fn">sqrt</span>(self.d_k)
+    <span class="kw">if</span> mask <span class="kw">is not None</span>: scores = scores.<span class="fn">masked_fill</span>(mask, <span class="nm">-1e9</span>)
+    attn = scores.<span class="fn">softmax</span>(dim=-<span class="nm">1</span>)
+    out = (attn @ V).<span class="fn">transpose</span>(<span class="nm">1</span>,<span class="nm">2</span>).<span class="fn">reshape</span>(B,T,D)
+    <span class="kw">return</span> self.W_o(out)
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #0d6efd;">
+                  <div class="card-header fw-bold small">BERT — Encoder-Only Transformer</div>
+                  <div class="card-body small">
+                    <p>BERT (Bidirectional Encoder Representations from Transformers) reads the full sequence in both directions simultaneously.</p>
+                    <p class="fw-semibold mb-1">Pretraining objectives:</p>
+                    <ul class="ps-3 mb-2">
+                      <li><strong>Masked LM (MLM):</strong> 15% of tokens replaced with [MASK]. Model predicts original token. Forces bidirectional context.</li>
+                      <li><strong>Next Sentence Prediction (NSP):</strong> Classify if sentence B follows sentence A. (Later shown to be less useful.)</li>
+                    </ul>
+                    <p class="fw-semibold mb-1">Fine-tuning tasks:</p>
+                    <ul class="ps-3 mb-0">
+                      <li>Classification: add linear layer on [CLS] token</li>
+                      <li>NER/Tagging: add linear layer on each token</li>
+                      <li>QA: predict start/end span positions</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">GPT — Decoder-Only Transformer</div>
+                  <div class="card-body small">
+                    <p>GPT (Generative Pretrained Transformer) uses causal (left-to-right) attention — each token can only attend to past tokens.</p>
+                    <p class="fw-semibold mb-1">Pretraining objective:</p>
+                    <ul class="ps-3 mb-2">
+                      <li><strong>Causal LM:</strong> predict next token given all previous. P(token_t | token_1…token_{t-1}). Trained on internet-scale text.</li>
+                    </ul>
+                    <p class="fw-semibold mb-1">Key design choices:</p>
+                    <ul class="ps-3 mb-2">
+                      <li>Causal mask: upper triangle of attention matrix set to −∞</li>
+                      <li>No encoder — decoder only, no cross-attention</li>
+                      <li>Emergent in-context learning at scale (few-shot)</li>
+                    </ul>
+                    <p class="fw-semibold mb-0">BERT vs GPT:</p>
+                    <p class="mb-0">BERT = read understanding (classification, NER, QA). GPT = generation (chat, code, summarisation, translation).</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">Positional Encoding &amp; Transformer Stack</div>
+                  <div class="card-body small">
+                    <p>Attention has no notion of order — "the cat sat" and "sat the cat" produce identical attention scores. Positional encoding injects position information.</p>
+                    <p class="fw-semibold mb-1">Sinusoidal (original Transformer):</p>
+                    <div class="code-block mb-2">
+PE[pos, 2i]   = sin(pos / 10000^(2i/d))
+PE[pos, 2i+1] = cos(pos / 10000^(2i/d))
+<span class="cm"># Different frequencies → unique pattern per position</span>
+<span class="cm"># Allows model to attend by relative position</span>
+                    </div>
+                    <p class="fw-semibold mb-1">Modern alternatives:</p>
+                    <ul class="ps-3 mb-0">
+                      <li><strong>Learned absolute:</strong> GPT-2, BERT — trainable embedding per position</li>
+                      <li><strong>RoPE (Rotary):</strong> LLaMA, GPT-NeoX — encodes relative positions via rotation; generalises to longer sequences</li>
+                      <li><strong>ALiBi:</strong> adds linear bias to attention scores; simple, extrapolates well</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card mb-3">
+              <div class="card-header fw-bold small">NLP Task Taxonomy &amp; Model Selection</div>
+              <div class="card-body p-0">
+                <table class="table table-sm table-bordered small mb-0 comp-table">
+                  <thead class="table-dark"><tr><th>Task</th><th>Input → Output</th><th>Best Model Family</th><th>Example</th></tr></thead>
+                  <tbody>
+                    <tr><td>Text Classification</td><td>Text → Class</td><td>BERT / DistilBERT fine-tune</td><td>Sentiment, spam, topic</td></tr>
+                    <tr><td>Named Entity Recognition</td><td>Text → Token labels</td><td>BERT token classification</td><td>Person/Org/Location tags</td></tr>
+                    <tr><td>Question Answering</td><td>Context+Q → Span</td><td>BERT / RoBERTa on SQuAD</td><td>Extractive QA</td></tr>
+                    <tr><td>Text Generation</td><td>Prompt → Text</td><td>GPT-family / LLaMA fine-tune</td><td>Chatbots, code gen</td></tr>
+                    <tr><td>Translation</td><td>Text → Text (diff lang)</td><td>Encoder-Decoder (T5, mBART)</td><td>EN → FR, multi-lingual</td></tr>
+                    <tr><td>Summarisation</td><td>Long text → Short text</td><td>BART / T5 fine-tune</td><td>News summary, abstractive</td></tr>
+                    <tr><td>Semantic Similarity</td><td>Text pair → Score</td><td>Sentence-BERT (bi-encoder)</td><td>Duplicate detection, search</td></tr>
+                    <tr><td>RAG / Search</td><td>Query → Retrieved docs</td><td>Embedding model + vector DB</td><td>ChatGPT with plugins</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
         </div><!-- /col content -->
       </div><!-- /row -->
     </div><!-- /container-fluid -->
