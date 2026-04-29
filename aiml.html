@@ -5624,6 +5624,289 @@ propensity = ps_model.<span class="fn">predict_proba</span>(X)[:, <span class="n
             </div>
           </section>
 
+          <!-- ═══════════════════════════════════════════════════════
+               AutoML & NAS
+          ═══════════════════════════════════════════════════════ -->
+          <section id="automl" class="mb-5">
+            <h2 class="section-title">AutoML &amp; Neural Architecture Search</h2>
+            <p class="lead">AutoML automates the most tedious parts of the ML pipeline — from feature engineering to model selection to architecture design — making ML accessible and accelerating expert workflows.</p>
+
+            <!-- AutoML Overview -->
+            <h4 class="mt-4 mb-3 fw-semibold">AutoML Landscape</h4>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">What AutoML Automates</div>
+                  <div class="card-body small">
+                    <ul class="ps-3 mb-0">
+                      <li><strong>Data preprocessing:</strong> Imputation strategy, encoding, scaling</li>
+                      <li><strong>Feature engineering:</strong> Polynomial features, interactions, selection</li>
+                      <li><strong>Model selection:</strong> Which algorithm to use (linear, tree, neural)</li>
+                      <li><strong>Hyperparameter optimisation:</strong> Learning rate, depth, regularisation</li>
+                      <li><strong>Ensemble construction:</strong> Stacking, blending, weighted voting</li>
+                      <li><strong>Neural architecture search:</strong> Layer types, connections, dimensions</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Key AutoML Frameworks</div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-0 comp-table">
+                      <thead class="table-dark"><tr><th>Framework</th><th>Best for</th><th>Notes</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>AutoGluon</strong></td><td>Tabular, text, image</td><td>Amazon; aggressive ensembling; often wins competitions</td></tr>
+                        <tr><td><strong>H2O AutoML</strong></td><td>Tabular</td><td>Fast; GLM, GBM, DL, stacked ensemble in one call</td></tr>
+                        <tr><td><strong>TPOT</strong></td><td>Tabular</td><td>Genetic programming to evolve sklearn pipelines</td></tr>
+                        <tr><td><strong>Auto-sklearn</strong></td><td>Tabular</td><td>Bayesian optimisation over sklearn estimators</td></tr>
+                        <tr><td><strong>Vertex AI AutoML</strong></td><td>Tables, vision, NLP</td><td>Managed Google Cloud; no-code option</td></tr>
+                        <tr><td><strong>Ludwig</strong></td><td>Multi-modal</td><td>Uber; declarative YAML config for any architecture</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">AutoGluon Quick Start</div>
+                  <div class="card-body small">
+                    <div class="code-block">
+<span class="kw">from</span> autogluon.tabular <span class="kw">import</span> TabularPredictor
+
+predictor = <span class="fn">TabularPredictor</span>(
+    label=<span class="st">'target'</span>,
+    eval_metric=<span class="st">'roc_auc'</span>
+).<span class="fn">fit</span>(
+    train_data,
+    time_limit=<span class="nm">600</span>,     <span class="cm"># 10 minutes</span>
+    presets=<span class="st">'best_quality'</span>  <span class="cm"># or 'medium_quality'</span>
+)
+
+predictions = predictor.<span class="fn">predict_proba</span>(test_data)
+predictor.<span class="fn">leaderboard</span>(test_data, silent=<span class="nm">True</span>)
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- HPO -->
+            <h4 class="mt-4 mb-3 fw-semibold">Hyperparameter Optimisation (HPO)</h4>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">HPO Methods Compared</div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-2 comp-table">
+                      <thead class="table-dark"><tr><th>Method</th><th>How</th><th>Efficiency</th><th>Use when</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>Grid Search</strong></td><td>Try all combinations</td><td>Poor (exponential)</td><td>&lt;3 hyperparams, coarse grid</td></tr>
+                        <tr><td><strong>Random Search</strong></td><td>Sample uniformly</td><td>Good — finds good regions faster than grid</td><td>Baseline; &gt;3 params</td></tr>
+                        <tr><td><strong>Bayesian Opt.</strong></td><td>GP surrogate + acquisition fn (EI, UCB)</td><td>Best sample efficiency</td><td>Expensive evals, &lt;20 params</td></tr>
+                        <tr><td><strong>TPE (Optuna)</strong></td><td>Tree-structured Parzen estimator</td><td>Near-Bayes, handles categorical</td><td>General purpose; default choice</td></tr>
+                        <tr><td><strong>Hyperband / ASHA</strong></td><td>Early stopping + successive halving</td><td>Fast — kills bad configs early</td><td>DL training with many configs</td></tr>
+                        <tr><td><strong>PBT</strong></td><td>Population; exploit best, explore mutations</td><td>Adaptive schedules during training</td><td>Long training runs (RL, LLM)</td></tr>
+                      </tbody>
+                    </table>
+                    <div class="code-block">
+<span class="kw">import</span> optuna
+<span class="kw">def</span> <span class="fn">objective</span>(trial):
+    lr  = trial.<span class="fn">suggest_float</span>(<span class="st">"lr"</span>, <span class="nm">1e-5</span>, <span class="nm">1e-1</span>, log=<span class="nm">True</span>)
+    n   = trial.<span class="fn">suggest_int</span>(<span class="st">"n_layers"</span>, <span class="nm">1</span>, <span class="nm">5</span>)
+    <span class="kw">return</span> <span class="fn">train_and_eval</span>(lr, n)
+study = optuna.<span class="fn">create_study</span>(direction=<span class="st">"maximize"</span>)
+study.<span class="fn">optimize</span>(objective, n_trials=<span class="nm">100</span>)
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Neural Architecture Search (NAS)</div>
+                  <div class="card-body small">
+                    <p>Automate the design of neural network architectures. Three main paradigms:</p>
+                    <ul class="ps-3 mb-2">
+                      <li><strong>RL-based NAS (NASNet):</strong> Controller RNN generates architecture; reward = validation accuracy. Expensive — 2000 GPU-days originally.</li>
+                      <li><strong>Evolutionary NAS (AmoebaNet):</strong> Mutation + selection over architecture population. More parallelisable than RL.</li>
+                      <li><strong>DARTS (Differentiable):</strong> Relaxes discrete search to continuous — mix all ops with learnable weights, then prune weak ops. 1 GPU-day. Most practical today.</li>
+                      <li><strong>One-shot / weight sharing:</strong> Train a supernet once; sub-networks inherit weights. (SNAS, SMASH, Once-for-All)</li>
+                      <li><strong>Zero-cost proxies:</strong> Score architectures at init (no training!) using gradient/activation statistics — 1000× faster than standard NAS.</li>
+                    </ul>
+                    <p class="mb-0"><strong>Results:</strong> EfficientNet (NAS + compound scaling) matched ResNet-50 accuracy with 8× fewer parameters and 6× fewer FLOPS.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═══════════════════════════════════════════════════════
+               ML TESTING
+          ═══════════════════════════════════════════════════════ -->
+          <section id="ml-testing" class="mb-5">
+            <h2 class="section-title">ML Testing &amp; Validation</h2>
+            <p class="lead">ML systems have unique failure modes that unit tests alone can't catch. A rigorous testing strategy covers data, model behaviour, infrastructure, and production monitoring.</p>
+
+            <!-- Testing taxonomy -->
+            <h4 class="mt-4 mb-3 fw-semibold">Testing Taxonomy</h4>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">Data Tests</div>
+                  <div class="card-body small">
+                    <ul class="ps-3 mb-2">
+                      <li><strong>Schema validation:</strong> Column types, ranges, cardinality</li>
+                      <li><strong>Null / missing rate:</strong> Alert if &gt; threshold</li>
+                      <li><strong>Distribution drift:</strong> KS test, Population Stability Index (PSI)</li>
+                      <li><strong>Label consistency:</strong> No duplicate (feature, label) contradictions</li>
+                      <li><strong>Train/test leakage:</strong> Check for feature overlap that wouldn't exist at inference time</li>
+                      <li><strong>Class balance:</strong> Alert on significant shift vs training baseline</li>
+                    </ul>
+                    <div class="code-block">
+<span class="kw">import</span> great_expectations <span class="kw">as</span> gx
+ctx = gx.<span class="fn">get_context</span>()
+suite = ctx.<span class="fn">add_expectation_suite</span>(<span class="st">"my_suite"</span>)
+<span class="cm"># Define expectations</span>
+batch.<span class="fn">expect_column_values_to_not_be_null</span>(<span class="st">"age"</span>)
+batch.<span class="fn">expect_column_values_to_be_between</span>(<span class="st">"age"</span>, <span class="nm">0</span>, <span class="nm">120</span>)
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Model Behaviour Tests</div>
+                  <div class="card-body small">
+                    <ul class="ps-3 mb-2">
+                      <li><strong>Minimum performance:</strong> Overall accuracy / AUC must exceed baseline</li>
+                      <li><strong>Subgroup performance:</strong> No group should fall below a floor</li>
+                      <li><strong>Invariance tests:</strong> Flipping protected attribute shouldn't change prediction (for anti-discrimination)</li>
+                      <li><strong>Monotonicity:</strong> Increasing a feature (e.g., income) should not decrease credit score</li>
+                      <li><strong>Directional expectation (MET):</strong> Adding "not" to a negative review should flip sentiment</li>
+                      <li><strong>Metamorphic tests:</strong> Apply known transformations; check expected output relationship</li>
+                    </ul>
+                    <div class="code-block">
+<span class="cm"># Invariance test example</span>
+<span class="kw">for</span> sample <span class="kw">in</span> test_set:
+    perturbed = <span class="fn">flip_gender</span>(sample)
+    <span class="kw">assert</span> model.<span class="fn">predict</span>(sample) == model.<span class="fn">predict</span>(perturbed)
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">Infrastructure Tests</div>
+                  <div class="card-body small">
+                    <ul class="ps-3 mb-2">
+                      <li><strong>Training reproducibility:</strong> Same seed → same loss trajectory</li>
+                      <li><strong>Serialisation round-trip:</strong> save → load → predict matches original</li>
+                      <li><strong>Latency SLA:</strong> p99 inference latency under load</li>
+                      <li><strong>Memory regression:</strong> Peak GPU/CPU memory doesn't grow with new code</li>
+                      <li><strong>Input validation:</strong> API rejects malformed inputs gracefully</li>
+                      <li><strong>Output shape:</strong> Model always returns expected tensor shape / JSON schema</li>
+                    </ul>
+                    <div class="code-block">
+<span class="cm"># Shape test</span>
+<span class="kw">def</span> <span class="fn">test_output_shape</span>():
+    x = torch.<span class="fn">randn</span>(<span class="nm">4</span>, <span class="nm">3</span>, <span class="nm">224</span>, <span class="nm">224</span>)
+    out = model(x)
+    <span class="kw">assert</span> out.shape == (<span class="nm">4</span>, <span class="nm">1000</span>)
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- CheckList & BDD -->
+            <h4 class="mt-4 mb-3 fw-semibold">Behavioural Testing &amp; NLP Evaluation</h4>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">CheckList (Ribeiro et al. 2020)</div>
+                  <div class="card-body small">
+                    <p>A systematic framework for testing NLP models across three capability types:</p>
+                    <table class="table table-sm table-bordered small mb-0 comp-table">
+                      <thead class="table-dark"><tr><th>Test type</th><th>What it checks</th><th>Example</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>MFT (Min Functionality)</strong></td><td>Basic capabilities the model must have</td><td>Negation: "I don't like this" → negative</td></tr>
+                        <tr><td><strong>INV (Invariance)</strong></td><td>Perturbations that should not change output</td><td>Swap "John" → "Mary" in sentiment text — prediction unchanged</td></tr>
+                        <tr><td><strong>DIR (Directional)</strong></td><td>Perturbations with known effect direction</td><td>Adding "The food was terrible" to a review should lower sentiment score</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Production Monitoring</div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-2 comp-table">
+                      <thead class="table-dark"><tr><th>Signal</th><th>How to detect</th><th>Action</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>Data drift</strong></td><td>KS test, PSI on feature distributions vs training baseline</td><td>Retrain or alert</td></tr>
+                        <tr><td><strong>Concept drift</strong></td><td>Model accuracy / calibration degrades on recent data</td><td>Retrain with recent window</td></tr>
+                        <tr><td><strong>Prediction drift</strong></td><td>Output score distribution shifts (e.g., mean probability drops)</td><td>Investigate upstream data</td></tr>
+                        <tr><td><strong>Latency spike</strong></td><td>p99 latency exceeds SLA threshold</td><td>Auto-scale, profile hotspot</td></tr>
+                        <tr><td><strong>Error rate</strong></td><td>4xx/5xx from serving endpoint</td><td>Rollback, canary</td></tr>
+                      </tbody>
+                    </table>
+                    <p class="mb-0"><strong>Tools:</strong> Arize AI, WhyLogs, Evidently AI, Seldon Alibi Detect, SageMaker Model Monitor — all log feature statistics and alert on drift.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- CI/CD for ML -->
+            <h4 class="mt-4 mb-3 fw-semibold">CI/CD for ML</h4>
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">ML Pipeline Stages</div>
+                  <div class="card-body small">
+                    <ol class="ps-3 mb-2">
+                      <li><strong>Data validation:</strong> Great Expectations / Pandera checks on new data snapshot</li>
+                      <li><strong>Feature pipeline test:</strong> Input/output schema, no leakage, reproducibility</li>
+                      <li><strong>Training run:</strong> Triggered on schedule or data change; logs to MLflow/W&amp;B</li>
+                      <li><strong>Evaluation gate:</strong> New model must beat current production model on holdout; subgroup checks pass</li>
+                      <li><strong>Staging deploy:</strong> Shadow traffic (new model scores requests but doesn't serve them)</li>
+                      <li><strong>Canary release:</strong> Route 5% → 20% → 100% of traffic; monitor metrics at each step</li>
+                      <li><strong>Rollback trigger:</strong> Automated rollback if error rate / score drift exceeds threshold</li>
+                    </ol>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">GitHub Actions ML Pipeline</div>
+                  <div class="card-body small">
+                    <div class="code-block">
+<span class="cm"># .github/workflows/ml_ci.yml</span>
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install -r requirements.txt
+      - name: Data validation
+        run: python validate_data.py
+      - name: Unit tests
+        run: pytest tests/ -v
+      - name: Train smoke test
+        run: python train.py --epochs 1 --smoke-test
+      - name: Model evaluation gate
+        run: python evaluate.py --min-auc 0.85
+      - name: Push to registry
+        if: github.ref == 'refs/heads/main'
+        run: mlflow models build-docker -m runs:/&lt;run_id&gt;/model
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
         </div><!-- /col content -->
       </div><!-- /row -->
     </div><!-- /container-fluid -->
