@@ -5440,6 +5440,190 @@ model = <span class="fn">FSDP</span>(model, sharding_strategy=ShardingStrategy.F
             </div>
           </section>
 
+          <!-- ═══════════════════════════════════════════════════════
+               CAUSAL INFERENCE
+          ═══════════════════════════════════════════════════════ -->
+          <section id="causal" class="mb-5">
+            <h2 class="section-title">Causal Inference</h2>
+            <p class="lead">ML models excel at prediction — but they can't distinguish cause from correlation. Causal inference lets you answer <em>why</em> and <em>what if</em>, not just <em>what</em>. Essential for A/B testing, policy decisions, and understanding model behaviour.</p>
+
+            <!-- Causation vs Correlation -->
+            <h4 class="mt-4 mb-3 fw-semibold">Causation vs Correlation</h4>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #dc3545;">
+                  <div class="card-header fw-bold small">Why Correlation Misleads</div>
+                  <div class="card-body small">
+                    <p><strong>Classic examples:</strong></p>
+                    <ul class="ps-3 mb-2">
+                      <li>Ice cream sales ↑ drowning deaths ↑ — confounder: hot weather</li>
+                      <li>Shoe size predicts reading ability in children — confounder: age</li>
+                      <li>Hospital patients have worse outcomes — selection bias (sicker people go to hospitals)</li>
+                      <li>More fire trucks → more damage — reverse causation</li>
+                    </ul>
+                    <p class="mb-0"><strong>ML implication:</strong> A model trained on observational data learns correlations, not mechanisms. If you act on predictions (e.g., send discount to likely churners), the intervention changes the data distribution — your model breaks.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">Potential Outcomes Framework (Rubin)</div>
+                  <div class="card-body small">
+                    <p>Each unit i has two potential outcomes: Y(1) (treated) and Y(0) (untreated). We only observe one.</p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(110,168,254,.08);font-size:.85rem;">ITE = Y_i(1) − Y_i(0) &nbsp;(never both observable)</div>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(110,168,254,.08);font-size:.85rem;">ATE = E[Y(1) − Y(0)] = E[Y(1)] − E[Y(0)]</div>
+                    <p><strong>Fundamental problem:</strong> We can only observe Y_i(T_i), not both counterfactuals. All causal methods try to estimate the missing counterfactual.</p>
+                    <p class="mb-0"><strong>SUTVA assumption:</strong> No interference between units; treatment is well-defined.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Causal Graphs (DAGs)</div>
+                  <div class="card-body small">
+                    <p>Pearl's do-calculus uses Directed Acyclic Graphs to encode causal structure and identify confounders.</p>
+                    <p><strong>Key concepts:</strong></p>
+                    <ul class="ps-3 mb-0">
+                      <li><strong>Confounder:</strong> Variable causing both treatment and outcome (must control for)</li>
+                      <li><strong>Collider:</strong> Variable caused by both treatment and outcome (do NOT control — opens backdoor)</li>
+                      <li><strong>Mediator:</strong> Variable on the causal path (control blocks the effect you want to measure)</li>
+                      <li><strong>do-operator:</strong> P(Y|do(X=x)) ≠ P(Y|X=x) — intervention vs observation</li>
+                      <li><strong>Backdoor criterion:</strong> Block all non-causal paths from X to Y via conditioning</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Methods -->
+            <h4 class="mt-4 mb-3 fw-semibold">Causal Estimation Methods</h4>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">Randomised Controlled Trials (RCTs)</div>
+                  <div class="card-body small">
+                    <p>The gold standard. Random assignment makes treatment independent of all confounders. A/B tests are RCTs.</p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(110,168,254,.08);font-size:.85rem;">ATE ≈ ȳ_treatment − ȳ_control</div>
+                    <p><strong>Power analysis:</strong> How many samples do you need?</p>
+                    <div class="code-block">
+<span class="kw">from</span> statsmodels.stats.power <span class="kw">import</span> TTestIndPower
+power_analysis = <span class="fn">TTestIndPower</span>()
+n = power_analysis.<span class="fn">solve_power</span>(
+    effect_size=<span class="nm">0.2</span>, power=<span class="nm">0.8</span>, alpha=<span class="nm">0.05</span>)
+<span class="cm"># n per group ≈ 394 for small effect (Cohen's d=0.2)</span>
+                    </div>
+                    <p class="mb-0"><strong>Limitations:</strong> Expensive, slow, often unethical. Online A/B tests suffer novelty effects, network effects (social platforms), and Hawthorne effects.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Difference-in-Differences (DiD)</div>
+                  <div class="card-body small">
+                    <p>Compare the change in outcomes before/after treatment between treated and control groups. Eliminates time-invariant confounders.</p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(32,201,151,.08);font-size:.85rem;">DiD = (Ȳ_T,post − Ȳ_T,pre) − (Ȳ_C,post − Ȳ_C,pre)</div>
+                    <p><strong>Parallel trends assumption:</strong> In the absence of treatment, treated and control groups would have followed the same trend. Test by checking pre-treatment trends.</p>
+                    <div class="code-block">
+<span class="kw">import</span> statsmodels.formula.api <span class="kw">as</span> smf
+model = smf.<span class="fn">ols</span>(
+    <span class="st">'outcome ~ treated + post + treated:post + controls'</span>,
+    data=df).<span class="fn">fit</span>()
+did_estimate = model.params[<span class="st">'treated:post'</span>]
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">Propensity Score Matching</div>
+                  <div class="card-body small">
+                    <p>Estimate P(T=1|X) — the probability of receiving treatment given covariates — then match treated and control units with similar scores.</p>
+                    <ol class="ps-3 mb-2">
+                      <li>Fit logistic regression: P(T|X)</li>
+                      <li>Match each treated unit to closest control by PS</li>
+                      <li>Check covariate balance (standardised mean difference &lt; 0.1)</li>
+                      <li>Estimate ATE on matched sample</li>
+                    </ol>
+                    <div class="code-block">
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LogisticRegression
+ps_model = <span class="fn">LogisticRegression</span>().<span class="fn">fit</span>(X, T)
+propensity = ps_model.<span class="fn">predict_proba</span>(X)[:, <span class="nm">1</span>]
+<span class="cm"># Then match on propensity scores using causalml or MatchIt</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">Instrumental Variables (IV)</div>
+                  <div class="card-body small">
+                    <p>Use a variable Z (instrument) that affects treatment but affects outcome <em>only through</em> treatment — bypasses unobserved confounders.</p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(110,168,254,.08);font-size:.85rem;">LATE = Cov(Y,Z) / Cov(T,Z)</div>
+                    <p><strong>Classic examples:</strong></p>
+                    <ul class="ps-3 mb-0">
+                      <li>Quarter of birth as IV for education (Angrist &amp; Krueger)</li>
+                      <li>Random encouragement as IV for actual treatment take-up</li>
+                      <li>Distance to college as IV for college attendance</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">ML-based Causal Methods</div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-0 comp-table">
+                      <thead class="table-dark"><tr><th>Method</th><th>Idea</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>Double ML</strong></td><td>Partial out confounders using two ML models; residualise both Y and T</td></tr>
+                        <tr><td><strong>Causal Forest</strong></td><td>Estimate heterogeneous treatment effects (HTE) using honest splitting in random forests</td></tr>
+                        <tr><td><strong>Meta-learners</strong></td><td>T-learner, S-learner, X-learner — fit separate outcome models per treatment arm</td></tr>
+                        <tr><td><strong>CausalImpact</strong></td><td>Google's Bayesian structural time-series for measuring marketing/policy impact</td></tr>
+                        <tr><td><strong>DoWhy + EconML</strong></td><td>Microsoft open-source causal ML libraries; unify estimation + refutation</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Causal in practice -->
+            <h4 class="mt-4 mb-3 fw-semibold">Causal Thinking in ML Practice</h4>
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">When Causal Matters</div>
+                  <div class="card-body small">
+                    <ul class="ps-3 mb-0">
+                      <li><strong>Churn models:</strong> Sending discounts to "likely churners" can train the model to identify who responds to discounts, not who would have churned</li>
+                      <li><strong>Recommendation:</strong> Did users enjoy this item because we showed it to them, or would they have found it anyway?</li>
+                      <li><strong>Credit scoring:</strong> Does approving a loan cause repayment, or do creditworthy people repay regardless?</li>
+                      <li><strong>Healthcare:</strong> Does a drug work, or are healthier patients more likely to be prescribed it?</li>
+                      <li><strong>Hiring:</strong> Do certain colleges produce better employees, or do better employees go to those colleges?</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #dc3545;">
+                  <div class="card-header fw-bold small">Causal ML Pitfalls</div>
+                  <div class="card-body small">
+                    <ul class="ps-3 mb-0">
+                      <li><strong>SHAP ≠ causal:</strong> Feature importance measures predictive contribution, not causal effect. Correlated features confuse it.</li>
+                      <li><strong>Overlap assumption:</strong> PSM fails if treated and control populations don't overlap in covariate space</li>
+                      <li><strong>Weak instruments:</strong> IV with F-stat &lt; 10 is unreliable — amplifies bias</li>
+                      <li><strong>Parallel trends violation:</strong> DiD is invalid if treated group was trending differently before treatment</li>
+                      <li><strong>SUTVA violation:</strong> Network effects (social platforms) break standard causal estimates — use cluster or switchback experiments</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
         </div><!-- /col content -->
       </div><!-- /row -->
     </div><!-- /container-fluid -->
