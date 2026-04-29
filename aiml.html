@@ -4125,6 +4125,271 @@ z = mu + sigma * eps
             </div>
           </section>
 
+          <!-- ═══════════════════════════════════════════════════ ENSEMBLE METHODS -->
+          <section id="ensemble" class="aiml-section mb-5">
+            <div class="section-divider"></div>
+            <h2 class="h4 fw-bold mb-1">Ensemble Methods — Theory &amp; Practice</h2>
+            <p class="text-secondary small mb-3">Ensembles combine multiple weak learners to build a strong learner. The mathematical intuition: if each model makes independent errors, averaging their predictions cancels much of the noise.</p>
+
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #0d6efd;">
+                  <div class="card-header fw-bold small">Bagging — Variance Reduction</div>
+                  <div class="card-body small">
+                    <p><strong>Bootstrap Aggregating.</strong> Train B models on B different bootstrap samples (drawn with replacement). Average predictions.</p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(13,110,253,.08);font-size:.85rem;">
+                      ŷ = (1/B) Σᵦ hᵦ(x)
+                    </div>
+                    <p class="fw-semibold mb-1">Why it works — mathematically:</p>
+                    <p class="mb-2">Variance of average of B uncorrelated models = σ²/B. Even partially correlated models get significant variance reduction.</p>
+                    <ul class="ps-3 mb-2">
+                      <li>Doesn't reduce bias — base model must be low-bias</li>
+                      <li>Each bootstrap sample contains ~63.2% unique examples (Poisson)</li>
+                      <li>The ~36.8% left out = <strong>out-of-bag (OOB)</strong> estimate — free validation!</li>
+                    </ul>
+                    <div class="code-block mb-0">
+<span class="kw">from</span> sklearn.ensemble <span class="kw">import</span> BaggingClassifier
+model = <span class="fn">BaggingClassifier</span>(
+  estimator=DecisionTreeClassifier(max_depth=<span class="nm">None</span>),
+  n_estimators=<span class="nm">100</span>, oob_score=<span class="kw">True</span>)
+model.<span class="fn">fit</span>(X_train, y_train)
+<span class="fn">print</span>(model.oob_score_)  <span class="cm"># free OOB accuracy</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #fd7e14;">
+                  <div class="card-header fw-bold small">Boosting — Bias Reduction</div>
+                  <div class="card-body small">
+                    <p>Train models <em>sequentially</em>, each focusing on the mistakes of the previous ones. Reduces bias by combining many weak learners into one strong one.</p>
+                    <p class="fw-semibold mb-1">AdaBoost — adaptive weights:</p>
+                    <ol class="ps-3 mb-2">
+                      <li>Initialise uniform sample weights wᵢ = 1/n</li>
+                      <li>Train weak learner hₜ on weighted data</li>
+                      <li>Compute error εₜ = Σwᵢ·1[hₜ(xᵢ)≠yᵢ]</li>
+                      <li>Compute model weight αₜ = ½ ln((1−εₜ)/εₜ)</li>
+                      <li>Update: wᵢ ← wᵢ·exp(−αₜyᵢhₜ(xᵢ)), normalise</li>
+                      <li>Final: H(x) = sign(Σ αₜhₜ(x))</li>
+                    </ol>
+                    <p class="fw-semibold mb-1">Gradient Boosting — generalises AdaBoost:</p>
+                    <p class="mb-1">Each tree fits the <strong>negative gradient of the loss</strong> — the residuals for MSE, pseudo-residuals for other losses.</p>
+                    <div class="code-block mb-0">
+<span class="cm"># Gradient boosting step (pseudocode)</span>
+<span class="cm"># F₀(x) = initial prediction (mean for MSE)</span>
+<span class="cm"># For t = 1..T:</span>
+<span class="cm">#   rᵢ = −∂L/∂F(xᵢ)  ← negative gradient</span>
+<span class="cm">#   hₜ = tree fit on {xᵢ, rᵢ}</span>
+<span class="cm">#   Fₜ(x) = Fₜ₋₁(x) + η·hₜ(x)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Stacking &amp; Voting</div>
+                  <div class="card-body small">
+                    <p class="fw-semibold mb-1">Stacking (Stacked Generalisation):</p>
+                    <p class="mb-2">Train diverse base models, then train a meta-learner on their out-of-fold predictions. The meta-learner learns which base models to trust on which inputs.</p>
+                    <div class="code-block mb-2">
+<span class="kw">from</span> sklearn.ensemble <span class="kw">import</span> StackingClassifier
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LogisticRegression
+
+stack = <span class="fn">StackingClassifier</span>(
+  estimators=[
+    (<span class="st">'rf'</span>,  <span class="fn">RandomForestClassifier</span>(n_estimators=<span class="nm">100</span>)),
+    (<span class="st">'xgb'</span>, <span class="fn">XGBClassifier</span>()),
+    (<span class="st">'lgb'</span>, <span class="fn">LGBMClassifier</span>()),
+  ],
+  final_estimator=<span class="fn">LogisticRegression</span>(),
+  cv=<span class="nm">5</span>   <span class="cm"># OOF to prevent leakage</span>
+)
+                    </div>
+                    <p class="fw-semibold mb-1">Voting:</p>
+                    <ul class="ps-3 mb-0">
+                      <li><strong>Hard voting:</strong> majority class wins</li>
+                      <li><strong>Soft voting:</strong> average predicted probabilities — almost always better</li>
+                      <li><strong>Weighted voting:</strong> weight by model's validation performance</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═══════════════════════════════════════════════════ BAYESIAN ML -->
+          <section id="bayesian" class="aiml-section mb-5">
+            <div class="section-divider"></div>
+            <h2 class="h4 fw-bold mb-1">Bayesian Machine Learning</h2>
+            <p class="text-secondary small mb-3">Bayesian ML treats model parameters as random variables with distributions, not fixed values. This gives you calibrated uncertainty estimates — critical for medical diagnosis, autonomous vehicles, and risk-sensitive decisions.</p>
+
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">Bayesian Inference — The Full Picture</div>
+                  <div class="card-body small">
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(255,193,7,.08);font-size:.9rem;">
+                      P(θ|D) = P(D|θ) · P(θ) / P(D)
+                    </div>
+                    <table class="table table-sm table-bordered small mb-2 comp-table">
+                      <thead class="table-dark"><tr><th>Term</th><th>Name</th><th>Meaning</th></tr></thead>
+                      <tbody>
+                        <tr><td>P(θ|D)</td><td>Posterior</td><td>Updated belief about θ after seeing data D</td></tr>
+                        <tr><td>P(D|θ)</td><td>Likelihood</td><td>Probability of data given parameters</td></tr>
+                        <tr><td>P(θ)</td><td>Prior</td><td>Belief about θ before seeing data</td></tr>
+                        <tr><td>P(D)</td><td>Evidence / Marginal</td><td>Normalisation constant (often intractable)</td></tr>
+                      </tbody>
+                    </table>
+                    <p class="fw-semibold mb-1">Conjugate priors — closed-form posteriors:</p>
+                    <table class="table table-sm table-bordered small mb-0 comp-table">
+                      <thead class="table-dark"><tr><th>Likelihood</th><th>Conjugate Prior</th><th>Posterior</th></tr></thead>
+                      <tbody>
+                        <tr><td>Bernoulli</td><td>Beta(α,β)</td><td>Beta(α+k, β+n−k)</td></tr>
+                        <tr><td>Gaussian (known σ)</td><td>Gaussian</td><td>Gaussian</td></tr>
+                        <tr><td>Multinomial</td><td>Dirichlet</td><td>Dirichlet</td></tr>
+                        <tr><td>Poisson</td><td>Gamma</td><td>Gamma</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #6610f2;">
+                  <div class="card-header fw-bold small">Gaussian Processes</div>
+                  <div class="card-body small">
+                    <p>A Gaussian Process (GP) is a distribution over functions. Instead of learning point estimates of parameters, a GP provides a full predictive distribution — mean + uncertainty — at every input point.</p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(102,16,242,.08);font-size:.85rem;">
+                      f(x) ~ GP(m(x), k(x,x'))
+                    </div>
+                    <p>where m(x) = mean function, k(x,x') = kernel (covariance) function.</p>
+                    <p class="fw-semibold mb-1">Common kernels:</p>
+                    <ul class="ps-3 mb-2">
+                      <li><strong>RBF/Squared Exponential:</strong> k(x,x') = σ²exp(−‖x−x'‖²/2l²) — infinitely differentiable, very smooth</li>
+                      <li><strong>Matérn 5/2:</strong> twice differentiable — more realistic for real physical processes</li>
+                      <li><strong>Periodic:</strong> k encodes cyclic patterns — good for time series</li>
+                    </ul>
+                    <div class="code-block mb-2">
+<span class="kw">from</span> sklearn.gaussian_process <span class="kw">import</span> GaussianProcessRegressor
+<span class="kw">from</span> sklearn.gaussian_process.kernels <span class="kw">import</span> RBF, Matern
+gp = <span class="fn">GaussianProcessRegressor</span>(
+  kernel=<span class="fn">Matern</span>(nu=<span class="nm">2.5</span>), n_restarts_optimizer=<span class="nm">5</span>)
+gp.<span class="fn">fit</span>(X_train, y_train)
+y_pred, y_std = gp.<span class="fn">predict</span>(X_test, return_std=<span class="kw">True</span>)
+<span class="cm"># y_pred: mean prediction, y_std: ±1σ uncertainty</span>
+                    </div>
+                    <p class="mb-0"><strong>GP uses:</strong> Bayesian optimisation surrogate model (Optuna uses TPE, not GP, but GP-based BO is also common), small-data regression with uncertainty, spatial interpolation (Kriging).</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card mb-3">
+              <div class="card-header fw-bold small">Uncertainty in Deep Learning</div>
+              <div class="card-body small">
+                <div class="row g-3">
+                  <div class="col-12 col-md-6">
+                    <p class="fw-semibold mb-1">Two types of uncertainty:</p>
+                    <ul class="ps-3 mb-2">
+                      <li><strong>Aleatoric (data uncertainty):</strong> irreducible noise in the data itself — a blurry photo, an inherently ambiguous label. Cannot be reduced by collecting more data.</li>
+                      <li><strong>Epistemic (model uncertainty):</strong> uncertainty about which model/parameters are correct — reduces with more data. This is what Bayesian methods quantify.</li>
+                    </ul>
+                    <p class="fw-semibold mb-1">Monte Carlo Dropout — practical Bayesian NN:</p>
+                    <div class="code-block mb-0">
+<span class="cm"># Enable dropout at inference time</span>
+model.<span class="fn">train</span>()  <span class="cm"># keep dropout active</span>
+preds = torch.<span class="fn">stack</span>([model(x) <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">50</span>)])
+mean = preds.<span class="fn">mean</span>(<span class="nm">0</span>)   <span class="cm"># prediction mean</span>
+uncertainty = preds.<span class="fn">std</span>(<span class="nm">0</span>) <span class="cm"># epistemic uncertainty</span>
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <p class="fw-semibold mb-1">Other uncertainty methods:</p>
+                    <table class="table table-sm table-bordered small mb-0 comp-table">
+                      <thead class="table-dark"><tr><th>Method</th><th>How</th><th>Cost</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>MC Dropout</strong></td><td>Dropout at inference, T forward passes</td><td>T× inference</td></tr>
+                        <tr><td><strong>Deep Ensembles</strong></td><td>Train N models, measure disagreement</td><td>N× training + N× inference</td></tr>
+                        <tr><td><strong>Laplace Approx.</strong></td><td>Gaussian approx. of posterior at MAP</td><td>1× training + Hessian</td></tr>
+                        <tr><td><strong>Conformal Prediction</strong></td><td>Coverage guarantee from calibration set</td><td>Minimal</td></tr>
+                        <tr><td><strong>Temperature scaling</strong></td><td>Scale softmax logits to calibrate probs</td><td>Minimal</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═══════════════════════════════════════════════════ RECOMMENDATION SYSTEMS -->
+          <section id="recsys" class="aiml-section mb-5">
+            <div class="section-divider"></div>
+            <h2 class="h4 fw-bold mb-1">Recommendation Systems</h2>
+            <p class="text-secondary small mb-3">RecSys powers Netflix, Spotify, Amazon, TikTok, and YouTube. The core problem: given past interactions between users and items, predict what a user will engage with next.</p>
+
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #0d6efd;">
+                  <div class="card-header fw-bold small">Collaborative Filtering</div>
+                  <div class="card-body small">
+                    <p>Recommendations based purely on user-item interaction patterns — no item content needed. "Users like you also liked…"</p>
+                    <p class="fw-semibold mb-1">User-based CF:</p>
+                    <p class="mb-2">Find k most similar users (cosine / Pearson similarity on rating vectors). Predict rating as weighted average of their ratings.</p>
+                    <p class="fw-semibold mb-1">Item-based CF:</p>
+                    <p class="mb-2">Find similar items based on who rated them similarly. More stable than user-based (item preferences change slower than user tastes).</p>
+                    <p class="fw-semibold mb-1">Problems with pure CF:</p>
+                    <ul class="ps-3 mb-0">
+                      <li><strong>Cold start:</strong> new users/items have no interaction history</li>
+                      <li><strong>Sparsity:</strong> most users rate &lt;1% of items</li>
+                      <li><strong>Popularity bias:</strong> popular items dominate recommendations</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Matrix Factorisation</div>
+                  <div class="card-body small">
+                    <p>Decompose the user-item rating matrix R (m×n) into two low-rank matrices: R ≈ U·Vᵀ where U ∈ ℝᵐˣᵏ (user factors) and V ∈ ℝⁿˣᵏ (item factors), k ≪ min(m,n).</p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(32,201,151,.08);font-size:.85rem;">
+                      min_{U,V} Σ_{(i,j)∈Ω} (Rᵢⱼ − uᵢᵀvⱼ)² + λ(‖U‖²_F + ‖V‖²_F)
+                    </div>
+                    <div class="code-block mb-2">
+<span class="kw">from</span> surprise <span class="kw">import</span> SVD, Dataset, Reader
+reader = <span class="fn">Reader</span>(rating_scale=(<span class="nm">1</span>, <span class="nm">5</span>))
+data = Dataset.<span class="fn">load_from_df</span>(df[[<span class="st">'user'</span>,<span class="st">'item'</span>,<span class="st">'rating'</span>]], reader)
+algo = <span class="fn">SVD</span>(n_factors=<span class="nm">100</span>, n_epochs=<span class="nm">20</span>, lr_all=<span class="nm">0.005</span>)
+<span class="cm"># algo.predict(user_id, item_id) → estimated rating</span>
+                    </div>
+                    <p class="mb-0"><strong>ALS (Alternating Least Squares):</strong> Fix U, solve for V analytically. Fix V, solve for U. Repeat. Parallelisable, good for implicit feedback (clicks, plays) at scale — used by Spotify.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">Deep &amp; Hybrid RecSys</div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-2 comp-table">
+                      <thead class="table-dark"><tr><th>Approach</th><th>How</th><th>Used By</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>Neural CF</strong></td><td>Replace dot product with MLP; learns non-linear interactions</td><td>Pinterest</td></tr>
+                        <tr><td><strong>Content-Based</strong></td><td>Item feature embeddings (genre, text, image); cosine similarity</td><td>Pandora, Spotify Discover</td></tr>
+                        <tr><td><strong>Two-Tower</strong></td><td>Separate encoders for user and item; trained on clicks/plays</td><td>YouTube, Google Search</td></tr>
+                        <tr><td><strong>Transformers (SASRec)</strong></td><td>Self-attention over interaction sequence; models session context</td><td>Amazon, Netflix</td></tr>
+                        <tr><td><strong>Graph NNs</strong></td><td>User-item interaction graph; message passing captures higher-order relations</td><td>Pinterest PinSage</td></tr>
+                      </tbody>
+                    </table>
+                    <p class="fw-semibold mb-1">Evaluation metrics:</p>
+                    <ul class="ps-3 mb-0">
+                      <li><strong>NDCG@k</strong> — normalised discounted cumulative gain</li>
+                      <li><strong>Hit Rate@k</strong> — did the relevant item appear in top k?</li>
+                      <li><strong>MRR</strong> — mean reciprocal rank of first relevant item</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
         </div><!-- /col content -->
       </div><!-- /row -->
     </div><!-- /container-fluid -->
