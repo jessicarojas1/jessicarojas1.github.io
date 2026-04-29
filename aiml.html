@@ -167,9 +167,23 @@
             <a class="nav-link" href="#unsupervised">Unsupervised</a>
             <a class="nav-link" href="#deep-learning">Deep Learning</a>
             <a class="nav-link" href="#reinforcement">Reinforcement</a>
+            <a class="nav-link" href="#ensemble">Ensemble Methods</a>
+            <a class="nav-link" href="#nlp">NLP Deep Dive</a>
+            <a class="nav-link" href="#cv">Computer Vision</a>
+            <a class="nav-link" href="#generative">Generative Models</a>
+            <a class="nav-link" href="#bayesian">Bayesian ML</a>
+            <a class="nav-link" href="#recsys">Recommendation Systems</a>
+
+            <div class="nav-section">Math &amp; Theory</div>
+            <a class="nav-link" href="#math-calc">Math Calculator</a>
+            <a class="nav-link" href="#math-stats">Math &amp; Stats</a>
+            <a class="nav-link" href="#linear-algebra">Linear Algebra</a>
+            <a class="nav-link" href="#prob-stats">Probability &amp; Stats</a>
+            <a class="nav-link" href="#info-theory">Information Theory</a>
+            <a class="nav-link" href="#learning-theory">Learning Theory</a>
+            <a class="nav-link" href="#math-cheatsheet">Math Cheat Sheet</a>
 
             <div class="nav-section">Core Skills</div>
-            <a class="nav-link" href="#math-stats">Math &amp; Stats</a>
             <a class="nav-link" href="#training">Training Pipeline</a>
             <a class="nav-link" href="#optimizers">Optimizers</a>
             <a class="nav-link" href="#feature-eng">Feature Engineering</a>
@@ -179,6 +193,7 @@
             <a class="nav-link" href="#transfer-learning">Transfer Learning</a>
             <a class="nav-link" href="#time-series">Time Series</a>
             <a class="nav-link" href="#xai">Explainability (XAI)</a>
+            <a class="nav-link" href="#ethics">Ethics &amp; Responsible AI</a>
 
             <div class="nav-section">Build &amp; Ship</div>
             <a class="nav-link" href="#setup">Initial Setup</a>
@@ -3043,6 +3058,384 @@ scores = []
             </div>
           </section>
 
+          <!-- ═══════════════════════════════════════════════════ MATH CALCULATOR -->
+          <section id="math-calc" class="aiml-section mb-5">
+            <div class="section-divider"></div>
+            <h2 class="h4 fw-bold mb-1">Interactive ML Math Calculator</h2>
+            <p class="text-secondary small mb-3">Compute the core mathematical functions used in every ML model. Enter values and see results instantly with the formula shown.</p>
+
+            <div class="row g-3 mb-3">
+              <!-- Activation Functions -->
+              <div class="col-12 col-md-6 col-xl-4">
+                <div class="card h-100" style="border-top:3px solid #0d6efd;">
+                  <div class="card-header fw-bold small">Activation Functions</div>
+                  <div class="card-body small">
+                    <label class="form-label fw-semibold">Input x</label>
+                    <input type="number" id="calc-act-x" class="form-control form-control-sm mb-2" value="1.5" step="0.1">
+                    <div class="d-grid gap-1">
+                      <div class="d-flex justify-content-between p-1 rounded" style="background:rgba(13,110,253,.08)">
+                        <span>Sigmoid σ(x) = 1/(1+e⁻ˣ)</span>
+                        <strong id="out-sigmoid">—</strong>
+                      </div>
+                      <div class="d-flex justify-content-between p-1 rounded" style="background:rgba(32,201,151,.08)">
+                        <span>ReLU max(0,x)</span>
+                        <strong id="out-relu">—</strong>
+                      </div>
+                      <div class="d-flex justify-content-between p-1 rounded" style="background:rgba(255,193,7,.08)">
+                        <span>Tanh (eˣ−e⁻ˣ)/(eˣ+e⁻ˣ)</span>
+                        <strong id="out-tanh">—</strong>
+                      </div>
+                      <div class="d-flex justify-content-between p-1 rounded" style="background:rgba(102,16,242,.08)">
+                        <span>GELU ≈ x·Φ(x)</span>
+                        <strong id="out-gelu">—</strong>
+                      </div>
+                      <div class="d-flex justify-content-between p-1 rounded" style="background:rgba(220,53,69,.08)">
+                        <span>Swish x·σ(x)</span>
+                        <strong id="out-swish">—</strong>
+                      </div>
+                      <div class="d-flex justify-content-between p-1 rounded" style="background:rgba(108,117,125,.08)">
+                        <span>Leaky ReLU (α=0.01)</span>
+                        <strong id="out-leaky">—</strong>
+                      </div>
+                    </div>
+                    <button class="btn btn-sm btn-primary w-100 mt-2" onclick="calcActivations()">Calculate</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Loss Functions -->
+              <div class="col-12 col-md-6 col-xl-4">
+                <div class="card h-100" style="border-top:3px solid #dc3545;">
+                  <div class="card-header fw-bold small">Loss Functions</div>
+                  <div class="card-body small">
+                    <label class="form-label fw-semibold">True y</label>
+                    <input type="number" id="calc-loss-y" class="form-control form-control-sm mb-1" value="1" step="0.1">
+                    <label class="form-label fw-semibold">Predicted ŷ</label>
+                    <input type="number" id="calc-loss-yhat" class="form-control form-control-sm mb-2" value="0.7" step="0.1" min="0.001" max="0.999">
+                    <div class="d-grid gap-1">
+                      <div class="d-flex justify-content-between p-1 rounded" style="background:rgba(13,110,253,.08)">
+                        <span>MSE (y−ŷ)²</span>
+                        <strong id="out-mse">—</strong>
+                      </div>
+                      <div class="d-flex justify-content-between p-1 rounded" style="background:rgba(32,201,151,.08)">
+                        <span>MAE |y−ŷ|</span>
+                        <strong id="out-mae">—</strong>
+                      </div>
+                      <div class="d-flex justify-content-between p-1 rounded" style="background:rgba(255,193,7,.08)">
+                        <span>Binary Cross-Entropy</span>
+                        <strong id="out-bce">—</strong>
+                      </div>
+                      <div class="d-flex justify-content-between p-1 rounded" style="background:rgba(102,16,242,.08)">
+                        <span>Hinge max(0, 1−y·ŷ)</span>
+                        <strong id="out-hinge">—</strong>
+                      </div>
+                      <div class="d-flex justify-content-between p-1 rounded" style="background:rgba(220,53,69,.08)">
+                        <span>Log Loss −y·log(ŷ)</span>
+                        <strong id="out-logloss">—</strong>
+                      </div>
+                      <div class="d-flex justify-content-between p-1 rounded" style="background:rgba(108,117,125,.08)">
+                        <span>Huber (δ=1)</span>
+                        <strong id="out-huber">—</strong>
+                      </div>
+                    </div>
+                    <button class="btn btn-sm btn-danger w-100 mt-2" onclick="calcLoss()">Calculate</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Softmax + Dot Product + Cosine -->
+              <div class="col-12 col-md-6 col-xl-4">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Softmax &amp; Similarity</div>
+                  <div class="card-body small">
+                    <label class="form-label fw-semibold">Logits (comma-separated)</label>
+                    <input type="text" id="calc-softmax-in" class="form-control form-control-sm mb-1" value="2.0, 1.0, 0.1">
+                    <button class="btn btn-sm btn-success w-100 mb-2" onclick="calcSoftmax()">Softmax →</button>
+                    <div id="out-softmax" class="code-block mb-3" style="min-height:36px;font-size:.75rem;">—</div>
+
+                    <label class="form-label fw-semibold">Vector A (comma-separated)</label>
+                    <input type="text" id="calc-va" class="form-control form-control-sm mb-1" value="1, 2, 3">
+                    <label class="form-label fw-semibold">Vector B</label>
+                    <input type="text" id="calc-vb" class="form-control form-control-sm mb-2" value="4, 5, 6">
+                    <button class="btn btn-sm btn-success w-100 mb-2" onclick="calcVectors()">Compute →</button>
+                    <div class="d-grid gap-1">
+                      <div class="d-flex justify-content-between p-1 rounded" style="background:rgba(13,110,253,.08)">
+                        <span>Dot product A·B</span><strong id="out-dot">—</strong>
+                      </div>
+                      <div class="d-flex justify-content-between p-1 rounded" style="background:rgba(32,201,151,.08)">
+                        <span>Cosine similarity</span><strong id="out-cos">—</strong>
+                      </div>
+                      <div class="d-flex justify-content-between p-1 rounded" style="background:rgba(255,193,7,.08)">
+                        <span>Euclidean distance</span><strong id="out-euc">—</strong>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Bayes Calculator -->
+              <div class="col-12 col-md-6 col-xl-4">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">Bayes' Theorem</div>
+                  <div class="card-body small">
+                    <p class="mb-2 text-center" style="font-size:.9rem;"><strong>P(A|B) = P(B|A)·P(A) / P(B)</strong></p>
+                    <label class="form-label fw-semibold">P(A) — Prior</label>
+                    <input type="number" id="calc-bayes-pa" class="form-control form-control-sm mb-1" value="0.01" step="0.01" min="0" max="1">
+                    <label class="form-label fw-semibold">P(B|A) — Likelihood</label>
+                    <input type="number" id="calc-bayes-pba" class="form-control form-control-sm mb-1" value="0.9" step="0.01" min="0" max="1">
+                    <label class="form-label fw-semibold">P(B) — Evidence</label>
+                    <input type="number" id="calc-bayes-pb" class="form-control form-control-sm mb-2" value="0.05" step="0.01" min="0.0001" max="1">
+                    <button class="btn btn-sm btn-warning text-dark w-100 mb-2" onclick="calcBayes()">Calculate P(A|B)</button>
+                    <div class="d-flex justify-content-between p-2 rounded" style="background:rgba(255,193,7,.12)">
+                      <span>Posterior P(A|B)</span><strong id="out-bayes">—</strong>
+                    </div>
+                    <p class="mt-2 mb-0 text-secondary" style="font-size:.72rem;">Example: medical test. P(disease)=1%, test sensitivity=90%, P(positive)=5% → probability you actually have disease given positive test.</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Stats Calculator -->
+              <div class="col-12 col-md-6 col-xl-4">
+                <div class="card h-100" style="border-top:3px solid #6610f2;">
+                  <div class="card-header fw-bold small">Statistics</div>
+                  <div class="card-body small">
+                    <label class="form-label fw-semibold">Dataset (comma-separated)</label>
+                    <input type="text" id="calc-stats-data" class="form-control form-control-sm mb-2" value="4, 8, 15, 16, 23, 42">
+                    <button class="btn btn-sm w-100 mb-2" style="background:#6610f2;color:#fff;" onclick="calcStats()">Compute All</button>
+                    <div class="d-grid gap-1">
+                      <div class="d-flex justify-content-between p-1 rounded" style="background:rgba(102,16,242,.08)"><span>Mean (μ)</span><strong id="out-mean">—</strong></div>
+                      <div class="d-flex justify-content-between p-1 rounded" style="background:rgba(102,16,242,.08)"><span>Median</span><strong id="out-median">—</strong></div>
+                      <div class="d-flex justify-content-between p-1 rounded" style="background:rgba(102,16,242,.08)"><span>Std Dev (σ)</span><strong id="out-std">—</strong></div>
+                      <div class="d-flex justify-content-between p-1 rounded" style="background:rgba(102,16,242,.08)"><span>Variance (σ²)</span><strong id="out-var">—</strong></div>
+                      <div class="d-flex justify-content-between p-1 rounded" style="background:rgba(102,16,242,.08)"><span>Range</span><strong id="out-range">—</strong></div>
+                      <div class="d-flex justify-content-between p-1 rounded" style="background:rgba(102,16,242,.08)"><span>IQR (Q3−Q1)</span><strong id="out-iqr">—</strong></div>
+                      <div class="d-flex justify-content-between p-1 rounded" style="background:rgba(102,16,242,.08)"><span>Skewness</span><strong id="out-skew">—</strong></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Gradient Descent Step -->
+              <div class="col-12 col-md-6 col-xl-4">
+                <div class="card h-100" style="border-top:3px solid #fd7e14;">
+                  <div class="card-header fw-bold small">Gradient Descent Step</div>
+                  <div class="card-body small">
+                    <p class="mb-2">θ ← θ − η · ∇L</p>
+                    <label class="form-label fw-semibold">Current θ (weight)</label>
+                    <input type="number" id="calc-gd-theta" class="form-control form-control-sm mb-1" value="2.5" step="0.1">
+                    <label class="form-label fw-semibold">Learning rate η</label>
+                    <input type="number" id="calc-gd-lr" class="form-control form-control-sm mb-1" value="0.01" step="0.001" min="0.0001">
+                    <label class="form-label fw-semibold">Gradient ∇L</label>
+                    <input type="number" id="calc-gd-grad" class="form-control form-control-sm mb-2" value="3.2" step="0.1">
+                    <label class="form-label fw-semibold">Momentum β (0 = off)</label>
+                    <input type="number" id="calc-gd-beta" class="form-control form-control-sm mb-1" value="0.9" step="0.1" min="0" max="0.999">
+                    <label class="form-label fw-semibold">Previous velocity v</label>
+                    <input type="number" id="calc-gd-v" class="form-control form-control-sm mb-2" value="0" step="0.01">
+                    <button class="btn btn-sm w-100 mb-2" style="background:#fd7e14;color:#fff;" onclick="calcGD()">Compute Step</button>
+                    <div class="d-grid gap-1">
+                      <div class="d-flex justify-content-between p-1 rounded" style="background:rgba(253,126,20,.1)"><span>New θ</span><strong id="out-theta-new">—</strong></div>
+                      <div class="d-flex justify-content-between p-1 rounded" style="background:rgba(253,126,20,.1)"><span>New velocity v</span><strong id="out-v-new">—</strong></div>
+                      <div class="d-flex justify-content-between p-1 rounded" style="background:rgba(253,126,20,.1)"><span>Step size η·∇L</span><strong id="out-step">—</strong></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Confusion Matrix Calculator -->
+            <div class="card mb-3">
+              <div class="card-header fw-bold small">Confusion Matrix &amp; Classification Metrics</div>
+              <div class="card-body small">
+                <div class="row g-3">
+                  <div class="col-12 col-md-4">
+                    <div class="row g-2">
+                      <div class="col-6"><label class="form-label fw-semibold text-success">True Positives (TP)</label><input type="number" id="calc-tp" class="form-control form-control-sm" value="85" min="0"></div>
+                      <div class="col-6"><label class="form-label fw-semibold text-danger">False Positives (FP)</label><input type="number" id="calc-fp" class="form-control form-control-sm" value="10" min="0"></div>
+                      <div class="col-6"><label class="form-label fw-semibold text-warning">False Negatives (FN)</label><input type="number" id="calc-fn" class="form-control form-control-sm" value="5" min="0"></div>
+                      <div class="col-6"><label class="form-label fw-semibold text-secondary">True Negatives (TN)</label><input type="number" id="calc-tn" class="form-control form-control-sm" value="900" min="0"></div>
+                    </div>
+                    <button class="btn btn-sm btn-primary w-100 mt-2" onclick="calcConfusion()">Calculate All Metrics</button>
+                  </div>
+                  <div class="col-12 col-md-8">
+                    <div class="row g-1" id="out-confusion">
+                      <div class="col-6"><div class="d-flex justify-content-between p-1 rounded" style="background:rgba(13,110,253,.08)"><span>Accuracy</span><strong id="out-acc">—</strong></div></div>
+                      <div class="col-6"><div class="d-flex justify-content-between p-1 rounded" style="background:rgba(32,201,151,.08)"><span>Precision</span><strong id="out-prec">—</strong></div></div>
+                      <div class="col-6"><div class="d-flex justify-content-between p-1 rounded" style="background:rgba(255,193,7,.08)"><span>Recall / TPR</span><strong id="out-rec">—</strong></div></div>
+                      <div class="col-6"><div class="d-flex justify-content-between p-1 rounded" style="background:rgba(102,16,242,.08)"><span>F1 Score</span><strong id="out-f1">—</strong></div></div>
+                      <div class="col-6"><div class="d-flex justify-content-between p-1 rounded" style="background:rgba(220,53,69,.08)"><span>Specificity / TNR</span><strong id="out-spec">—</strong></div></div>
+                      <div class="col-6"><div class="d-flex justify-content-between p-1 rounded" style="background:rgba(253,126,20,.08)"><span>FPR</span><strong id="out-fpr">—</strong></div></div>
+                      <div class="col-6"><div class="d-flex justify-content-between p-1 rounded" style="background:rgba(13,110,253,.08)"><span>MCC</span><strong id="out-mcc">—</strong></div></div>
+                      <div class="col-6"><div class="d-flex justify-content-between p-1 rounded" style="background:rgba(32,201,151,.08)"><span>Balanced Acc.</span><strong id="out-bacc">—</strong></div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═══════════════════════════════════════════════════ LINEAR ALGEBRA DEEP DIVE -->
+          <section id="linear-algebra" class="aiml-section mb-5">
+            <div class="section-divider"></div>
+            <h2 class="h4 fw-bold mb-1">Linear Algebra — The Language of ML</h2>
+            <p class="text-secondary small mb-3">Every operation in a neural network is a matrix multiplication. Every embedding is a vector. Every gradient is a Jacobian. Linear algebra is not background knowledge — it <em>is</em> machine learning.</p>
+
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #0d6efd;">
+                  <div class="card-header fw-bold small">Vectors &amp; Norms</div>
+                  <div class="card-body small">
+                    <p>A vector <strong>v ∈ ℝⁿ</strong> is an ordered list of n numbers. In ML, it represents a data point, an embedding, or a gradient.</p>
+                    <table class="table table-sm table-bordered small mb-2 comp-table">
+                      <thead class="table-dark"><tr><th>Operation</th><th>Formula</th><th>ML Use</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>L1 norm</strong></td><td>‖v‖₁ = Σ|vᵢ|</td><td>Lasso regularisation</td></tr>
+                        <tr><td><strong>L2 norm</strong></td><td>‖v‖₂ = √(Σvᵢ²)</td><td>Ridge regularisation, distance</td></tr>
+                        <tr><td><strong>Dot product</strong></td><td>a·b = ΣaᵢBᵢ</td><td>Attention scores, similarity</td></tr>
+                        <tr><td><strong>Cosine sim.</strong></td><td>a·b / (‖a‖₂‖b‖₂)</td><td>Embedding similarity, NLP</td></tr>
+                        <tr><td><strong>Outer product</strong></td><td>abᵀ ∈ ℝⁿˣᵐ</td><td>Low-rank updates, LoRA</td></tr>
+                        <tr><td><strong>Projection</strong></td><td>proj_b(a) = (a·b/‖b‖²)b</td><td>PCA, Gram-Schmidt</td></tr>
+                      </tbody>
+                    </table>
+                    <div class="callout callout-tip mb-0"><strong>Unit vector:</strong> v̂ = v/‖v‖₂ — normalise embeddings before cosine similarity to avoid scale bias. This is what LayerNorm in transformers does to hidden states.</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Matrix Operations</div>
+                  <div class="card-body small">
+                    <p>A matrix <strong>A ∈ ℝᵐˣⁿ</strong> has m rows and n columns. A dense layer is literally: <strong>y = Wx + b</strong> where W ∈ ℝᵒˣⁱ, x ∈ ℝⁱ, y ∈ ℝᵒ.</p>
+                    <table class="table table-sm table-bordered small mb-2 comp-table">
+                      <thead class="table-dark"><tr><th>Operation</th><th>Formula / Shape</th><th>ML Use</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>Matrix multiply</strong></td><td>C = AB, (m×k)(k×n)→(m×n)</td><td>Every linear layer</td></tr>
+                        <tr><td><strong>Transpose</strong></td><td>Aᵀ[i,j] = A[j,i]</td><td>Attention: QKᵀ</td></tr>
+                        <tr><td><strong>Inverse</strong></td><td>AA⁻¹ = I</td><td>Closed-form OLS solution</td></tr>
+                        <tr><td><strong>Trace</strong></td><td>tr(A) = Σ Aᵢᵢ</td><td>Regularisation, norms</td></tr>
+                        <tr><td><strong>Determinant</strong></td><td>det(A)</td><td>Volume scaling, invertibility</td></tr>
+                        <tr><td><strong>Hadamard (⊙)</strong></td><td>C[i,j] = A[i,j]·B[i,j]</td><td>LSTM gates, attention masks</td></tr>
+                        <tr><td><strong>Frobenius norm</strong></td><td>‖A‖_F = √(ΣΣAᵢⱼ²)</td><td>Weight regularisation</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">Eigenvalues &amp; Eigenvectors</div>
+                  <div class="card-body small">
+                    <p>For matrix A: <strong>Av = λv</strong> — eigenvector v is unchanged in direction when multiplied by A; λ is the scaling factor.</p>
+                    <p class="fw-semibold mb-1">Why it matters in ML:</p>
+                    <ul class="ps-3 mb-2">
+                      <li><strong>PCA:</strong> eigenvectors of the covariance matrix are the principal components; eigenvalues = explained variance</li>
+                      <li><strong>Spectral clustering:</strong> eigenvectors of graph Laplacian define cluster structure</li>
+                      <li><strong>Hessian:</strong> eigenvalues of the loss Hessian reveal curvature — large eigenvalues = sharp minima = overfitting risk</li>
+                      <li><strong>Gradient stability:</strong> weight matrices with eigenvalues &gt;1 cause exploding gradients; &lt;1 cause vanishing</li>
+                    </ul>
+                    <div class="code-block mb-0">
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+A = np.<span class="fn">array</span>([[<span class="nm">4</span>,<span class="nm">2</span>],[<span class="nm">1</span>,<span class="nm">3</span>]])
+vals, vecs = np.linalg.<span class="fn">eig</span>(A)
+<span class="cm"># vals: eigenvalues λ</span>
+<span class="cm"># vecs: columns are eigenvectors</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #6610f2;">
+                  <div class="card-header fw-bold small">SVD — Singular Value Decomposition</div>
+                  <div class="card-body small">
+                    <p><strong>A = UΣVᵀ</strong> — any matrix decomposes into rotation U, scaling Σ (diagonal), rotation Vᵀ. The diagonal values of Σ are singular values (always ≥ 0).</p>
+                    <p class="fw-semibold mb-1">ML applications:</p>
+                    <ul class="ps-3 mb-2">
+                      <li><strong>PCA:</strong> SVD of centred data X gives principal components — no need to form XᵀX explicitly</li>
+                      <li><strong>Recommendation (MF):</strong> decompose user-item matrix into latent factors</li>
+                      <li><strong>Low-rank approximation:</strong> keep top-k singular values → compressed representation (LoRA is exactly this)</li>
+                      <li><strong>Pseudo-inverse:</strong> A⁺ = VΣ⁺Uᵀ — solves least squares when A is not invertible</li>
+                    </ul>
+                    <div class="code-block mb-0">
+U, s, Vt = np.linalg.<span class="fn">svd</span>(A, full_matrices=<span class="kw">False</span>)
+<span class="cm"># Low-rank approx with top k components</span>
+k = <span class="nm">10</span>
+A_approx = U[:,:k] @ np.<span class="fn">diag</span>(s[:k]) @ Vt[:k,:]
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #dc3545;">
+                  <div class="card-header fw-bold small">PCA — Math from First Principles</div>
+                  <div class="card-body small">
+                    <p>PCA finds the directions of maximum variance in data. Step by step:</p>
+                    <ol class="ps-3 mb-2">
+                      <li>Centre data: X_c = X − μ</li>
+                      <li>Compute covariance: C = (1/n) X_cᵀX_c</li>
+                      <li>Eigen-decompose: C = QΛQᵀ</li>
+                      <li>Sort eigenvectors by eigenvalue (descending)</li>
+                      <li>Project: Z = X_c · Q[:, :k]</li>
+                    </ol>
+                    <p><strong>Explained variance ratio:</strong> λᵢ / Σλⱼ — tells you what % of total variance each component captures.</p>
+                    <div class="code-block mb-0">
+<span class="kw">from</span> sklearn.decomposition <span class="kw">import</span> PCA
+pca = <span class="fn">PCA</span>(n_components=<span class="nm">2</span>)
+Z = pca.<span class="fn">fit_transform</span>(X_scaled)
+<span class="fn">print</span>(pca.explained_variance_ratio_)
+<span class="cm"># [0.72, 0.18] → 90% variance in 2 dims</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card mb-3">
+              <div class="card-header fw-bold small">Linear Algebra in Neural Networks — Worked Example</div>
+              <div class="card-body small">
+                <div class="row g-3">
+                  <div class="col-12 col-md-6">
+                    <p class="fw-semibold mb-1">A single dense layer, written out fully:</p>
+                    <div class="code-block mb-2">
+<span class="cm"># Input: batch of 32 samples, 128 features each</span>
+X  = np.<span class="fn">random.randn</span>(<span class="nm">32</span>, <span class="nm">128</span>)   <span class="cm"># shape (32, 128)</span>
+W  = np.<span class="fn">random.randn</span>(<span class="nm">128</span>, <span class="nm">64</span>)   <span class="cm"># shape (128, 64)</span>
+b  = np.<span class="fn">zeros</span>(<span class="nm">64</span>)                 <span class="cm"># shape (64,)</span>
+
+<span class="cm"># Forward pass: (32,128) @ (128,64) + (64,) = (32,64)</span>
+Z  = X @ W + b                      <span class="cm"># matrix multiply</span>
+A  = np.<span class="fn">maximum</span>(<span class="nm">0</span>, Z)              <span class="cm"># ReLU activation</span>
+
+<span class="cm"># Backward pass: chain rule as matrix ops</span>
+dZ = (A &gt; <span class="nm">0</span>).astype(float)        <span class="cm"># ReLU gradient</span>
+dW = X.T @ dZ                       <span class="cm"># (128,32)@(32,64)=(128,64)</span>
+db = dZ.<span class="fn">sum</span>(axis=<span class="nm">0</span>)                <span class="cm"># sum over batch</span>
+dX = dZ @ W.T                       <span class="cm"># gradient to prev layer</span>
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <p class="fw-semibold mb-1">Attention mechanism — all matrix ops:</p>
+                    <div class="code-block mb-0">
+<span class="cm"># Queries Q, Keys K, Values V — all (seq, d_model)</span>
+d_k = <span class="nm">64</span>   <span class="cm"># key dimension</span>
+Q = X @ W_Q  <span class="cm"># (seq, d_k)</span>
+K = X @ W_K  <span class="cm"># (seq, d_k)</span>
+V = X @ W_V  <span class="cm"># (seq, d_v)</span>
+
+<span class="cm"># Scaled dot-product attention</span>
+scores = Q @ K.T / np.<span class="fn">sqrt</span>(d_k)   <span class="cm"># (seq, seq)</span>
+weights = <span class="fn">softmax</span>(scores, axis=-<span class="nm">1</span>) <span class="cm"># attention pattern</span>
+output  = weights @ V               <span class="cm"># (seq, d_v)</span>
+
+<span class="cm"># This is ALL of self-attention — three matmuls</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
         </div><!-- /col content -->
       </div><!-- /row -->
     </div><!-- /container-fluid -->
@@ -3071,6 +3464,119 @@ scores = []
           setTimeout(function() { btn.textContent = 'Copy'; btn.style.opacity = '.6'; }, 1800);
         });
       });
+    });
+
+    // ── Math Calculator Functions ──────────────────────────────
+    function fmt(n) { return isNaN(n)||!isFinite(n) ? 'Error' : (+n.toFixed(6)).toString(); }
+    function parseVec(id) { return document.getElementById(id).value.split(',').map(Number).filter(v=>!isNaN(v)); }
+
+    function calcActivations() {
+      var x = parseFloat(document.getElementById('calc-act-x').value);
+      document.getElementById('out-sigmoid').textContent = fmt(1/(1+Math.exp(-x)));
+      document.getElementById('out-relu').textContent    = fmt(Math.max(0,x));
+      document.getElementById('out-tanh').textContent    = fmt(Math.tanh(x));
+      var gelu = x * 0.5 * (1 + Math.tanh(Math.sqrt(2/Math.PI)*(x+0.044715*Math.pow(x,3))));
+      document.getElementById('out-gelu').textContent   = fmt(gelu);
+      document.getElementById('out-swish').textContent  = fmt(x/(1+Math.exp(-x)));
+      document.getElementById('out-leaky').textContent  = fmt(x>=0?x:0.01*x);
+    }
+
+    function calcLoss() {
+      var y = parseFloat(document.getElementById('calc-loss-y').value);
+      var yh = parseFloat(document.getElementById('calc-loss-yhat').value);
+      yh = Math.max(1e-7, Math.min(1-1e-7, yh));
+      document.getElementById('out-mse').textContent    = fmt(Math.pow(y-yh,2));
+      document.getElementById('out-mae').textContent    = fmt(Math.abs(y-yh));
+      document.getElementById('out-bce').textContent    = fmt(-(y*Math.log(yh)+(1-y)*Math.log(1-yh)));
+      document.getElementById('out-hinge').textContent  = fmt(Math.max(0,1-y*yh));
+      document.getElementById('out-logloss').textContent= fmt(-y*Math.log(yh));
+      var d=Math.abs(y-yh); var delta=1;
+      document.getElementById('out-huber').textContent  = fmt(d<=delta ? 0.5*d*d : delta*(d-0.5*delta));
+    }
+
+    function calcSoftmax() {
+      var logits = parseVec('calc-softmax-in');
+      var mx = Math.max(...logits);
+      var exps = logits.map(v=>Math.exp(v-mx));
+      var s = exps.reduce((a,b)=>a+b,0);
+      var probs = exps.map(v=>v/s);
+      document.getElementById('out-softmax').textContent =
+        '[' + probs.map((v,i)=>'c'+i+'='+v.toFixed(4)).join(', ') + ']  sum='+probs.reduce((a,b)=>a+b,0).toFixed(4);
+    }
+
+    function calcVectors() {
+      var a=parseVec('calc-va'), b=parseVec('calc-vb');
+      if(a.length!==b.length){document.getElementById('out-dot').textContent='Len mismatch';return;}
+      var dot=a.reduce((s,v,i)=>s+v*b[i],0);
+      var na=Math.sqrt(a.reduce((s,v)=>s+v*v,0)), nb=Math.sqrt(b.reduce((s,v)=>s+v*v,0));
+      var euc=Math.sqrt(a.reduce((s,v,i)=>s+Math.pow(v-b[i],2),0));
+      document.getElementById('out-dot').textContent=fmt(dot);
+      document.getElementById('out-cos').textContent=fmt(dot/(na*nb));
+      document.getElementById('out-euc').textContent=fmt(euc);
+    }
+
+    function calcBayes() {
+      var pa=parseFloat(document.getElementById('calc-bayes-pa').value);
+      var pba=parseFloat(document.getElementById('calc-bayes-pba').value);
+      var pb=parseFloat(document.getElementById('calc-bayes-pb').value);
+      document.getElementById('out-bayes').textContent=fmt(pba*pa/pb);
+    }
+
+    function calcStats() {
+      var d = parseVec('calc-stats-data').sort((a,b)=>a-b);
+      var n=d.length, mean=d.reduce((a,b)=>a+b,0)/n;
+      var med=n%2===0?(d[n/2-1]+d[n/2])/2:d[(n-1)/2];
+      var variance=d.reduce((s,v)=>s+Math.pow(v-mean,2),0)/n;
+      var std=Math.sqrt(variance);
+      var q1=d[Math.floor(n/4)], q3=d[Math.floor(3*n/4)];
+      var skew=d.reduce((s,v)=>s+Math.pow((v-mean)/std,3),0)/n;
+      document.getElementById('out-mean').textContent=fmt(mean);
+      document.getElementById('out-median').textContent=fmt(med);
+      document.getElementById('out-std').textContent=fmt(std);
+      document.getElementById('out-var').textContent=fmt(variance);
+      document.getElementById('out-range').textContent=fmt(d[n-1]-d[0]);
+      document.getElementById('out-iqr').textContent=fmt(q3-q1);
+      document.getElementById('out-skew').textContent=fmt(skew);
+    }
+
+    function calcGD() {
+      var theta=parseFloat(document.getElementById('calc-gd-theta').value);
+      var lr=parseFloat(document.getElementById('calc-gd-lr').value);
+      var grad=parseFloat(document.getElementById('calc-gd-grad').value);
+      var beta=parseFloat(document.getElementById('calc-gd-beta').value);
+      var v=parseFloat(document.getElementById('calc-gd-v').value);
+      var vNew=beta*v+(1-beta)*grad;
+      var thetaNew=theta-lr*(beta>0?vNew:grad);
+      document.getElementById('out-theta-new').textContent=fmt(thetaNew);
+      document.getElementById('out-v-new').textContent=fmt(vNew);
+      document.getElementById('out-step').textContent=fmt(lr*(beta>0?vNew:grad));
+    }
+
+    function calcConfusion() {
+      var tp=+document.getElementById('calc-tp').value;
+      var fp=+document.getElementById('calc-fp').value;
+      var fn=+document.getElementById('calc-fn').value;
+      var tn=+document.getElementById('calc-tn').value;
+      var total=tp+fp+fn+tn;
+      var acc=(tp+tn)/total, prec=tp/(tp+fp), rec=tp/(tp+fn);
+      var spec=tn/(tn+fp), fpr=fp/(fp+tn);
+      var f1=2*prec*rec/(prec+rec);
+      var mcc=(tp*tn-fp*fn)/Math.sqrt((tp+fp)*(tp+fn)*(tn+fp)*(tn+fn));
+      var bacc=(rec+spec)/2;
+      document.getElementById('out-acc').textContent=fmt(acc);
+      document.getElementById('out-prec').textContent=fmt(prec);
+      document.getElementById('out-rec').textContent=fmt(rec);
+      document.getElementById('out-f1').textContent=fmt(f1);
+      document.getElementById('out-spec').textContent=fmt(spec);
+      document.getElementById('out-fpr').textContent=fmt(fpr);
+      document.getElementById('out-mcc').textContent=fmt(mcc);
+      document.getElementById('out-bacc').textContent=fmt(bacc);
+    }
+
+    // Run all calculators on load
+    window.addEventListener('DOMContentLoaded', function() {
+      calcActivations(); calcLoss(); calcSoftmax(); calcVectors();
+      calcBayes(); calcStats(); calcGD(); calcConfusion();
     });
 
     // Theme toggle (inherits from theme.css / localStorage)
