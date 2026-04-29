@@ -4390,6 +4390,442 @@ algo = <span class="fn">SVD</span>(n_factors=<span class="nm">100</span>, n_epoc
             </div>
           </section>
 
+
+          <!-- ═══════════════════════════════════════════════════════
+               ETHICS & RESPONSIBLE AI
+          ═══════════════════════════════════════════════════════ -->
+          <section id="ethics" class="mb-5">
+            <h2 class="section-title">Ethics &amp; Responsible AI</h2>
+            <p class="lead">Building powerful models isn't enough — you must ensure they are fair, transparent, private, and accountable. Responsible AI is not a checklist; it's an engineering discipline.</p>
+
+            <!-- Fairness -->
+            <h4 class="mt-4 mb-3 fw-semibold">Fairness Definitions</h4>
+            <p class="small mb-2">These definitions are often <em>mutually exclusive</em> — you cannot satisfy all simultaneously (Chouldechova 2017, COMPAS case). Choose based on the harm model.</p>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">Demographic Parity</div>
+                  <div class="card-body small">
+                    <p>Positive prediction rate is equal across groups:</p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(110,168,254,.08);font-size:.85rem;">P(&#374;=1 | A=0) = P(&#374;=1 | A=1)</div>
+                    <p class="mb-0"><strong>Risk:</strong> may require predicting worse for high-risk individuals to balance rates. Good when base rates are equal.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Equalized Odds</div>
+                  <div class="card-body small">
+                    <p>Equal TPR <em>and</em> FPR across groups:</p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(32,201,151,.08);font-size:.85rem;">P(&#374;=1|Y=y,A=0) = P(&#374;=1|Y=y,A=1) &nbsp;∀y</div>
+                    <p class="mb-0">Stronger than demographic parity. Equalized opportunity relaxes to TPR only. Common in hiring/lending.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">Calibration</div>
+                  <div class="card-body small">
+                    <p>Predicted probability = actual frequency for all groups:</p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(255,193,7,.08);font-size:.85rem;">P(Y=1 | &#374;=p, A=a) = p &nbsp;∀a, p</div>
+                    <p class="mb-0">Critical for medical risk scores. Platt scaling / isotonic regression used post-hoc. COMPAS was calibrated but not equal odds.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bias taxonomy -->
+            <h4 class="mt-4 mb-3 fw-semibold">Types of Bias in ML</h4>
+            <div class="table-responsive mb-4">
+              <table class="table table-sm table-bordered small comp-table">
+                <thead class="table-dark">
+                  <tr><th>Bias Type</th><th>Where it enters</th><th>Example</th><th>Mitigation</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td><strong>Historical</strong></td><td>Training labels reflect past discrimination</td><td>Resume screening trained on past hires (mostly male)</td><td>Re-label, re-weight, adversarial debiasing</td></tr>
+                  <tr><td><strong>Representation</strong></td><td>Training data under-represents a group</td><td>Face recognition fails on dark skin (Buolamwini &amp; Gebru)</td><td>Curate balanced datasets, oversampling</td></tr>
+                  <tr><td><strong>Measurement</strong></td><td>Proxy label ≠ true outcome for some groups</td><td>Using arrest records as proxy for crime</td><td>Audit labels, choose better proxies</td></tr>
+                  <tr><td><strong>Aggregation</strong></td><td>One model for groups with different distributions</td><td>Diabetes prediction ignoring sex-specific symptoms</td><td>Stratified models or interaction features</td></tr>
+                  <tr><td><strong>Evaluation</strong></td><td>Benchmark doesn't reflect deployment population</td><td>ImageNet accuracy ≠ real-world distribution shift</td><td>Disaggregated evaluation, subgroup metrics</td></tr>
+                  <tr><td><strong>Feedback Loop</strong></td><td>Model outputs influence future training data</td><td>Predictive policing: patrol → more arrests → model doubles down</td><td>Human-in-the-loop, causal modelling</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Differential Privacy -->
+            <h4 class="mt-4 mb-3 fw-semibold">Differential Privacy</h4>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">ε-Differential Privacy (Dwork 2006)</div>
+                  <div class="card-body small">
+                    <p>A randomised mechanism M satisfies ε-DP if for all adjacent datasets D, D′ (differing in one record) and all outputs S:</p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(110,168,254,.08);font-size:.85rem;">P(M(D) ∈ S) ≤ e^ε · P(M(D′) ∈ S)</div>
+                    <ul class="ps-3 mb-0">
+                      <li>ε → 0: very strong privacy (more noise)</li>
+                      <li>ε → ∞: no privacy guarantee</li>
+                      <li>Typical practical range: ε ∈ [1, 10]</li>
+                      <li>(ε,δ)-DP allows a δ probability of violation — used in practice</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Mechanisms &amp; DP-SGD</div>
+                  <div class="card-body small">
+                    <p><strong>Gaussian Mechanism:</strong> Add noise σ = Δf·√(2ln(1.25/δ)) / ε where Δf is the L2 sensitivity of query f.</p>
+                    <p><strong>DP-SGD (Google):</strong> Clip per-sample gradients to norm C, add Gaussian noise, average — achieves (ε,δ)-DP training.</p>
+                    <div class="code-block">
+<span class="kw">from</span> opacus <span class="kw">import</span> PrivacyEngine
+privacy_engine = <span class="fn">PrivacyEngine</span>()
+model, optimizer, loader = privacy_engine.<span class="fn">make_private_with_epsilon</span>(
+    module=model, optimizer=optimizer, data_loader=loader,
+    epochs=<span class="nm">10</span>, target_epsilon=<span class="nm">3.0</span>, target_delta=<span class="nm">1e-5</span>, max_grad_norm=<span class="nm">1.0</span>)
+                    </div>
+                    <p class="mb-0 mt-2">Apple uses local DP (noise added on device). Google uses central DP (noise at aggregation). Both used in production at scale.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Federated Learning -->
+            <h4 class="mt-4 mb-3 fw-semibold">Federated Learning</h4>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">FedAvg Algorithm</div>
+                  <div class="card-body small">
+                    <p>Train locally on each device, aggregate only model updates — raw data never leaves the device.</p>
+                    <ol class="ps-3 mb-2">
+                      <li>Server sends global model weights θ to K clients</li>
+                      <li>Each client trains for E local epochs: θₖ ← θ − η·∇Lₖ(θ)</li>
+                      <li>Server aggregates: θ ← Σₖ (nₖ/n) · θₖ &nbsp;(weighted by dataset size)</li>
+                      <li>Repeat for R rounds</li>
+                    </ol>
+                    <p class="mb-0"><strong>Challenges:</strong> non-IID data (statistical heterogeneity), partial participation, communication cost, Byzantine clients. FedProx adds proximal term to handle heterogeneity.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">Privacy Attacks &amp; Defences</div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-0 comp-table">
+                      <thead class="table-dark"><tr><th>Attack</th><th>What it does</th><th>Defence</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>Membership Inference</strong></td><td>Determines if a record was in training set</td><td>DP, regularisation, confidence masking</td></tr>
+                        <tr><td><strong>Model Inversion</strong></td><td>Reconstructs training data from predictions</td><td>Output perturbation, DP</td></tr>
+                        <tr><td><strong>Gradient Inversion</strong></td><td>Reconstructs inputs from shared gradients (FL)</td><td>Gradient compression, DP-SGD, secure aggregation</td></tr>
+                        <tr><td><strong>Data Poisoning</strong></td><td>Manipulate training data to corrupt model</td><td>Robust aggregation (trimmed mean, median), anomaly detection</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Model Cards & Regulation -->
+            <h4 class="mt-4 mb-3 fw-semibold">Documentation &amp; Regulation</h4>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Model Cards (Mitchell et al. 2019)</div>
+                  <div class="card-body small">
+                    <p>Standardised documentation accompanying ML models. Required sections:</p>
+                    <ul class="ps-3 mb-0">
+                      <li><strong>Model details:</strong> architecture, training data, version</li>
+                      <li><strong>Intended use:</strong> primary use, out-of-scope uses</li>
+                      <li><strong>Factors:</strong> demographic/environmental factors affecting performance</li>
+                      <li><strong>Metrics:</strong> performance measures and decision thresholds</li>
+                      <li><strong>Evaluation data:</strong> datasets, preprocessing, motivation</li>
+                      <li><strong>Ethical considerations:</strong> sensitive data, human life risks</li>
+                      <li><strong>Caveats and recommendations</strong></li>
+                    </ul>
+                    <p class="mt-2 mb-0"><em>Datasheets for Datasets</em> (Gebru et al.) is the analogous standard for training/evaluation data provenance.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">Regulatory Landscape</div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-0 comp-table">
+                      <thead class="table-dark"><tr><th>Regulation</th><th>Scope</th><th>Key Requirements</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>EU AI Act (2024)</strong></td><td>EU market; risk-tiered</td><td>High-risk: conformity assessment, human oversight, transparency, logging. GPAI: capability evaluations, copyright disclosure</td></tr>
+                        <tr><td><strong>GDPR</strong></td><td>EU personal data</td><td>Right to explanation for automated decisions (Art. 22), data minimisation, purpose limitation, right to erasure</td></tr>
+                        <tr><td><strong>CCPA / CPRA</strong></td><td>California residents</td><td>Right to know, delete, opt-out of sale; automated decision-making opt-out</td></tr>
+                        <tr><td><strong>NIST AI RMF</strong></td><td>US voluntary framework</td><td>Govern, Map, Measure, Manage — four core functions for AI risk management</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Responsible AI checklist -->
+            <h4 class="mt-4 mb-3 fw-semibold">Responsible AI Engineering Checklist</h4>
+            <div class="row g-3">
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">Before Training</div>
+                  <div class="card-body small">
+                    <ul class="ps-3 mb-0">
+                      <li>Define success metrics and failure modes</li>
+                      <li>Identify sensitive attributes and protected groups</li>
+                      <li>Audit data sources for representation gaps</li>
+                      <li>Document data provenance and consent</li>
+                      <li>Choose fairness definition appropriate to harm model</li>
+                      <li>Set up holdout subgroup evaluation splits</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">During Development</div>
+                  <div class="card-body small">
+                    <ul class="ps-3 mb-0">
+                      <li>Disaggregate metrics by subgroup in every eval</li>
+                      <li>Run adversarial probing / red-teaming</li>
+                      <li>Apply DP-SGD if training on sensitive data</li>
+                      <li>Log all experiment parameters (MLflow, W&amp;B)</li>
+                      <li>Use SHAP/LIME to validate feature importance</li>
+                      <li>Check for label leakage and proxy discrimination</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">Before &amp; After Deployment</div>
+                  <div class="card-body small">
+                    <ul class="ps-3 mb-0">
+                      <li>Publish model card with scope and limitations</li>
+                      <li>Set up data drift / concept drift monitoring</li>
+                      <li>Implement human review for high-stakes decisions</li>
+                      <li>Establish an appeals / recourse mechanism</li>
+                      <li>Run periodic fairness audits post-launch</li>
+                      <li>Plan for model sunsetting and version control</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═══════════════════════════════════════════════════════
+               MATH CHEAT SHEET
+          ═══════════════════════════════════════════════════════ -->
+          <section id="math-cheatsheet" class="mb-5">
+            <h2 class="section-title">Math Cheat Sheet</h2>
+            <p class="lead">Every key formula in one place — bookmark this and scan it before any ML interview or project kickoff.</p>
+
+            <!-- Activation Functions -->
+            <h4 class="mt-4 mb-2 fw-semibold">Activation Functions</h4>
+            <div class="table-responsive mb-4">
+              <table class="table table-sm table-bordered small comp-table">
+                <thead class="table-dark"><tr><th>Name</th><th>Formula</th><th>Derivative</th><th>Use</th></tr></thead>
+                <tbody>
+                  <tr><td><strong>Sigmoid</strong></td><td>σ(x) = 1/(1+e⁻ˣ)</td><td>σ(x)(1−σ(x))</td><td>Binary output, gates</td></tr>
+                  <tr><td><strong>Tanh</strong></td><td>(eˣ−e⁻ˣ)/(eˣ+e⁻ˣ)</td><td>1−tanh²(x)</td><td>RNNs, zero-centred</td></tr>
+                  <tr><td><strong>ReLU</strong></td><td>max(0,x)</td><td>1 if x&gt;0 else 0</td><td>Default hidden layers</td></tr>
+                  <tr><td><strong>Leaky ReLU</strong></td><td>max(αx,x), α=0.01</td><td>1 if x&gt;0 else α</td><td>Avoids dying ReLU</td></tr>
+                  <tr><td><strong>GELU</strong></td><td>x·Φ(x) ≈ x·σ(1.702x)</td><td>Φ(x)+x·φ(x)</td><td>Transformers (BERT, GPT)</td></tr>
+                  <tr><td><strong>Swish</strong></td><td>x·σ(x)</td><td>σ(x)+x·σ(x)(1−σ(x))</td><td>EfficientNet, MobileNet</td></tr>
+                  <tr><td><strong>Softmax</strong></td><td>eˣⁱ / Σⱼ eˣʲ</td><td>softmax(x)·(1−softmax(x))</td><td>Multiclass output</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Loss Functions -->
+            <h4 class="mt-4 mb-2 fw-semibold">Loss Functions</h4>
+            <div class="table-responsive mb-4">
+              <table class="table table-sm table-bordered small comp-table">
+                <thead class="table-dark"><tr><th>Loss</th><th>Formula</th><th>When to use</th></tr></thead>
+                <tbody>
+                  <tr><td><strong>MSE</strong></td><td>(1/n)Σ(yᵢ−ŷᵢ)²</td><td>Regression; penalises outliers heavily</td></tr>
+                  <tr><td><strong>MAE</strong></td><td>(1/n)Σ|yᵢ−ŷᵢ|</td><td>Regression; robust to outliers</td></tr>
+                  <tr><td><strong>Huber</strong></td><td>½δ² if |e|≤δ else δ(|e|−½δ)</td><td>Regression; interpolates MSE/MAE</td></tr>
+                  <tr><td><strong>BCE</strong></td><td>−[y·log(p)+(1−y)·log(1−p)]</td><td>Binary classification</td></tr>
+                  <tr><td><strong>CCE</strong></td><td>−Σ yᵢ·log(pᵢ)</td><td>Multiclass classification</td></tr>
+                  <tr><td><strong>Hinge</strong></td><td>max(0, 1−y·ŷ)</td><td>SVM margin maximisation</td></tr>
+                  <tr><td><strong>KL Divergence</strong></td><td>Σ P·log(P/Q)</td><td>VAE, distillation, RL policy</td></tr>
+                  <tr><td><strong>Focal</strong></td><td>−(1−p)^γ · log(p)</td><td>Class imbalance (RetinaNet)</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Regularisation & Optimisers -->
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-6">
+                <h4 class="mt-2 mb-2 fw-semibold">Regularisation</h4>
+                <div class="table-responsive">
+                  <table class="table table-sm table-bordered small comp-table">
+                    <thead class="table-dark"><tr><th>Method</th><th>Penalty added to L</th><th>Effect</th></tr></thead>
+                    <tbody>
+                      <tr><td><strong>L2 (Ridge)</strong></td><td>λΣθᵢ²</td><td>Shrinks weights; equivalent to MAP with Gaussian prior</td></tr>
+                      <tr><td><strong>L1 (Lasso)</strong></td><td>λΣ|θᵢ|</td><td>Sparse weights; feature selection</td></tr>
+                      <tr><td><strong>ElasticNet</strong></td><td>α·L1 + (1−α)·L2</td><td>Combines sparsity and grouping</td></tr>
+                      <tr><td><strong>Dropout</strong></td><td>—</td><td>Randomly zero neurons; ensemble effect</td></tr>
+                      <tr><td><strong>Label Smoothing</strong></td><td>yˢ = (1−ε)y + ε/K</td><td>Prevents overconfidence; better calibration</td></tr>
+                      <tr><td><strong>Weight Decay</strong></td><td>λ‖θ‖²</td><td>Applied directly in optimiser step (AdamW)</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <h4 class="mt-2 mb-2 fw-semibold">Optimisers</h4>
+                <div class="table-responsive">
+                  <table class="table table-sm table-bordered small comp-table">
+                    <thead class="table-dark"><tr><th>Optimiser</th><th>Update Rule</th><th>Notes</th></tr></thead>
+                    <tbody>
+                      <tr><td><strong>SGD</strong></td><td>θ ← θ − η·g</td><td>Simple; needs LR tuning</td></tr>
+                      <tr><td><strong>Momentum</strong></td><td>v ← βv + g; θ ← θ − η·v</td><td>Accelerates in consistent directions</td></tr>
+                      <tr><td><strong>RMSprop</strong></td><td>v ← βv + (1−β)g²; θ ← θ − η·g/√v</td><td>Adaptive LR per param</td></tr>
+                      <tr><td><strong>Adam</strong></td><td>m̂ = m/(1−β₁ᵗ); v̂ = v/(1−β₂ᵗ); θ ← θ − η·m̂/√v̂</td><td>β₁=0.9, β₂=0.999, ε=1e-8</td></tr>
+                      <tr><td><strong>AdamW</strong></td><td>Adam + weight decay decoupled from gradient</td><td>Better generalisation than Adam+L2</td></tr>
+                      <tr><td><strong>Lion</strong></td><td>sign(βm + (1−β)g); m ← βm + (1−β)g</td><td>Sign-based; memory-efficient</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- Evaluation Metrics -->
+            <h4 class="mt-4 mb-2 fw-semibold">Evaluation Metrics</h4>
+            <div class="table-responsive mb-4">
+              <table class="table table-sm table-bordered small comp-table">
+                <thead class="table-dark"><tr><th>Metric</th><th>Formula</th><th>Good when</th></tr></thead>
+                <tbody>
+                  <tr><td><strong>Accuracy</strong></td><td>(TP+TN)/(TP+TN+FP+FN)</td><td>Balanced classes</td></tr>
+                  <tr><td><strong>Precision</strong></td><td>TP/(TP+FP)</td><td>False positives are costly</td></tr>
+                  <tr><td><strong>Recall (TPR)</strong></td><td>TP/(TP+FN)</td><td>False negatives are costly</td></tr>
+                  <tr><td><strong>F1</strong></td><td>2·P·R/(P+R)</td><td>Imbalanced classes</td></tr>
+                  <tr><td><strong>AUC-ROC</strong></td><td>∫TPR d(FPR)</td><td>Ranking quality across thresholds</td></tr>
+                  <tr><td><strong>MCC</strong></td><td>(TP·TN−FP·FN)/√((TP+FP)(TP+FN)(TN+FP)(TN+FN))</td><td>Heavily imbalanced; most informative single metric</td></tr>
+                  <tr><td><strong>BLEU</strong></td><td>BP·exp(Σwₙ·log pₙ)</td><td>Machine translation n-gram overlap</td></tr>
+                  <tr><td><strong>NDCG@k</strong></td><td>DCG@k / IDCG@k</td><td>Ranking / RecSys</td></tr>
+                  <tr><td><strong>R²</strong></td><td>1 − SS_res/SS_tot</td><td>Regression goodness-of-fit</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Probability & Distributions -->
+            <h4 class="mt-4 mb-2 fw-semibold">Key Probability Distributions</h4>
+            <div class="table-responsive mb-4">
+              <table class="table table-sm table-bordered small comp-table">
+                <thead class="table-dark"><tr><th>Distribution</th><th>PMF / PDF</th><th>Mean</th><th>Variance</th><th>ML use</th></tr></thead>
+                <tbody>
+                  <tr><td><strong>Bernoulli(p)</strong></td><td>pˣ(1−p)^(1−x)</td><td>p</td><td>p(1−p)</td><td>Binary classification output</td></tr>
+                  <tr><td><strong>Binomial(n,p)</strong></td><td>C(n,k)pᵏ(1−p)^(n−k)</td><td>np</td><td>np(1−p)</td><td>Count of successes</td></tr>
+                  <tr><td><strong>Gaussian(μ,σ²)</strong></td><td>(1/σ√2π)exp(−(x−μ)²/2σ²)</td><td>μ</td><td>σ²</td><td>Noise model, priors, latent space</td></tr>
+                  <tr><td><strong>Poisson(λ)</strong></td><td>λᵏe⁻λ/k!</td><td>λ</td><td>λ</td><td>Event counts, NLP tokens</td></tr>
+                  <tr><td><strong>Exponential(λ)</strong></td><td>λe⁻λˣ</td><td>1/λ</td><td>1/λ²</td><td>Time-to-event models</td></tr>
+                  <tr><td><strong>Beta(α,β)</strong></td><td>xᵅ⁻¹(1−x)^(β−1)/B(α,β)</td><td>α/(α+β)</td><td>αβ/((α+β)²(α+β+1))</td><td>Prior on probabilities</td></tr>
+                  <tr><td><strong>Dirichlet(α)</strong></td><td>∝ Πxᵢᵅⁱ⁻¹</td><td>αᵢ/Σαⱼ</td><td>—</td><td>Prior over categorical distributions (LDA)</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Linear Algebra quick ref -->
+            <h4 class="mt-4 mb-2 fw-semibold">Linear Algebra Quick Reference</h4>
+            <div class="table-responsive mb-4">
+              <table class="table table-sm table-bordered small comp-table">
+                <thead class="table-dark"><tr><th>Concept</th><th>Formula / Fact</th><th>ML relevance</th></tr></thead>
+                <tbody>
+                  <tr><td><strong>Dot product</strong></td><td>a·b = ΣaᵢbᵢM = ‖a‖‖b‖cosθ</td><td>Attention scores, similarity</td></tr>
+                  <tr><td><strong>Matrix multiply</strong></td><td>(AB)ᵢⱼ = Σₖ AᵢₖBₖⱼ</td><td>Linear layers, convolutions</td></tr>
+                  <tr><td><strong>Transpose</strong></td><td>(AB)ᵀ = BᵀAᵀ</td><td>Backprop gradient flow</td></tr>
+                  <tr><td><strong>Eigendecomposition</strong></td><td>Av = λv; A = QΛQᵀ</td><td>PCA, spectral clustering, stability</td></tr>
+                  <tr><td><strong>SVD</strong></td><td>A = UΣVᵀ</td><td>Dimensionality reduction, LSA, RecSys</td></tr>
+                  <tr><td><strong>Trace</strong></td><td>tr(A) = Σλᵢ = Σaᵢᵢ</td><td>GP marginal likelihood, nuclear norm</td></tr>
+                  <tr><td><strong>Determinant</strong></td><td>det(A) = Πλᵢ</td><td>Gaussian normalisation, Jacobian</td></tr>
+                  <tr><td><strong>Rank</strong></td><td>rank(A) = # nonzero singular values</td><td>Low-rank approximation, LoRA</td></tr>
+                  <tr><td><strong>Frobenius norm</strong></td><td>‖A‖_F = √ΣᵢⱼAᵢⱼ²= √Σσᵢ²</td><td>Matrix regularisation, weight decay</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Information theory -->
+            <h4 class="mt-4 mb-2 fw-semibold">Information Theory</h4>
+            <div class="table-responsive mb-4">
+              <table class="table table-sm table-bordered small comp-table">
+                <thead class="table-dark"><tr><th>Quantity</th><th>Formula</th><th>Interpretation</th></tr></thead>
+                <tbody>
+                  <tr><td><strong>Entropy H(X)</strong></td><td>−Σ p(x)·log₂p(x)</td><td>Average bits to encode X; max when uniform</td></tr>
+                  <tr><td><strong>Joint Entropy H(X,Y)</strong></td><td>−ΣΣ p(x,y)·log p(x,y)</td><td>Bits to encode X and Y together</td></tr>
+                  <tr><td><strong>Conditional H(X|Y)</strong></td><td>H(X,Y) − H(Y)</td><td>Remaining uncertainty in X given Y</td></tr>
+                  <tr><td><strong>Mutual Info I(X;Y)</strong></td><td>H(X) − H(X|Y) = KL(P(X,Y)‖P(X)P(Y))</td><td>Shared info; feature selection, ICA</td></tr>
+                  <tr><td><strong>KL Divergence</strong></td><td>D_KL(P‖Q) = Σ P·log(P/Q) ≥ 0</td><td>Extra bits encoding P using Q; not symmetric</td></tr>
+                  <tr><td><strong>Cross Entropy H(P,Q)</strong></td><td>H(P) + D_KL(P‖Q) = −Σ P·log Q</td><td>Minimising CE ⟺ minimising KL when P is fixed</td></tr>
+                  <tr><td><strong>Jensen–Shannon</strong></td><td>½D_KL(P‖M)+½D_KL(Q‖M), M=½(P+Q)</td><td>Symmetric, bounded [0,1]; GAN training objective</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Gradient descent summary -->
+            <h4 class="mt-4 mb-2 fw-semibold">Gradient Descent Variants</h4>
+            <div class="table-responsive mb-4">
+              <table class="table table-sm table-bordered small comp-table">
+                <thead class="table-dark"><tr><th>Variant</th><th>Batch size</th><th>Update per step</th><th>Notes</th></tr></thead>
+                <tbody>
+                  <tr><td><strong>Batch GD</strong></td><td>Full dataset</td><td>θ ← θ − η·(1/n)Σ∇Lᵢ</td><td>Exact gradient; slow, memory-heavy</td></tr>
+                  <tr><td><strong>SGD</strong></td><td>1 sample</td><td>θ ← θ − η·∇Lᵢ</td><td>Noisy but fast; implicit regularisation</td></tr>
+                  <tr><td><strong>Mini-batch SGD</strong></td><td>B samples</td><td>θ ← θ − η·(1/B)Σ∇Lᵢ</td><td>Best of both; standard in deep learning</td></tr>
+                  <tr><td><strong>Cosine Annealing</strong></td><td>—</td><td>ηₜ = ηₘᵢₙ + ½(ηₘₐₓ−ηₘᵢₙ)(1+cos(πt/T))</td><td>Smooth LR decay; warm restarts (SGDR)</td></tr>
+                  <tr><td><strong>Warmup</strong></td><td>—</td><td>ηₜ = η·t/Twarmup for t&lt;Twarmup</td><td>Stabilises early Transformer training</td></tr>
+                  <tr><td><strong>Gradient Clipping</strong></td><td>—</td><td>g ← g·min(1, C/‖g‖)</td><td>Prevents exploding gradients in RNNs</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- All-in-one formula card -->
+            <h4 class="mt-4 mb-2 fw-semibold">Master Formula Card</h4>
+            <div class="row g-3">
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">Bayesian Inference</div>
+                  <div class="card-body small">
+                    <p><strong>Bayes:</strong> P(θ|D) ∝ P(D|θ)·P(θ)</p>
+                    <p><strong>MLE:</strong> θ̂ = argmax P(D|θ) — no prior</p>
+                    <p><strong>MAP:</strong> θ̂ = argmax P(D|θ)·P(θ)</p>
+                    <p><strong>MAP + Gaussian prior</strong> = MLE + L2 regularisation</p>
+                    <p><strong>MAP + Laplace prior</strong> = MLE + L1 regularisation</p>
+                    <p class="mb-0"><strong>MLE + Bernoulli</strong> = cross-entropy loss minimisation</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Deep Learning</div>
+                  <div class="card-body small">
+                    <p><strong>Forward pass:</strong> aˡ = f(Wˡaˡ⁻¹ + bˡ)</p>
+                    <p><strong>Chain rule:</strong> ∂L/∂Wˡ = δˡ·(aˡ⁻¹)ᵀ</p>
+                    <p><strong>Attention:</strong> softmax(QKᵀ/√d_k)·V</p>
+                    <p><strong>BatchNorm:</strong> (x−μ_B)/√(σ²_B+ε)·γ+β</p>
+                    <p><strong>LayerNorm:</strong> normalise over feature dim, not batch</p>
+                    <p class="mb-0"><strong>Residual:</strong> H(x) = F(x) + x</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">Generative Models</div>
+                  <div class="card-body small">
+                    <p><strong>VAE ELBO:</strong> L = E[log p(x|z)] − D_KL(q(z|x)‖p(z))</p>
+                    <p><strong>GAN:</strong> min_G max_D E[logD(x)] + E[log(1−D(G(z)))]</p>
+                    <p><strong>Diffusion (forward):</strong> q(xₜ|xₜ₋₁) = N(√ᾱxₜ₋₁, (1−ᾱ)I)</p>
+                    <p><strong>Reparameterisation:</strong> z = μ + σ·ε, ε~N(0,I)</p>
+                    <p><strong>Flow NLL:</strong> log p(x) = log p(z) + log|det J|</p>
+                    <p class="mb-0"><strong>Score matching:</strong> s_θ(x) ≈ ∇_x log p(x)</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
         </div><!-- /col content -->
       </div><!-- /row -->
     </div><!-- /container-fluid -->
