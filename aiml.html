@@ -172,11 +172,19 @@
             <a class="nav-link" href="#math-stats">Math &amp; Stats</a>
             <a class="nav-link" href="#training">Training Pipeline</a>
             <a class="nav-link" href="#optimizers">Optimizers</a>
+            <a class="nav-link" href="#feature-eng">Feature Engineering</a>
+            <a class="nav-link" href="#data-pipelines">Data Pipelines</a>
+
+            <div class="nav-section">Advanced</div>
+            <a class="nav-link" href="#transfer-learning">Transfer Learning</a>
+            <a class="nav-link" href="#time-series">Time Series</a>
+            <a class="nav-link" href="#xai">Explainability (XAI)</a>
 
             <div class="nav-section">Build &amp; Ship</div>
             <a class="nav-link" href="#setup">Initial Setup</a>
             <a class="nav-link" href="#hyperparams">Hyperparameter Tuning</a>
             <a class="nav-link" href="#testing">Testing &amp; Stress</a>
+            <a class="nav-link" href="#mlops">Deployment &amp; MLOps</a>
             <a class="nav-link" href="#pitfalls">Common Pitfalls</a>
             <a class="nav-link" href="#build-guide">Build Your Own AI</a>
           </nav>
@@ -2087,6 +2095,283 @@ app = <span class="fn">FastAPI</span>()
 
             <div class="callout callout-info">
               <strong>The ML project loop never ends.</strong> Once deployed, real-world data drift means models degrade. Budget for retraining pipelines from the start — collect labels, set up automated retraining triggers, and version every model artifact. The best ML teams spend more time on data and monitoring than on model architecture.
+            </div>
+          </section>
+
+          <!-- ═══════════════════════════════════════════════════ FEATURE ENGINEERING -->
+          <section id="feature-eng" class="aiml-section mb-5">
+            <div class="section-divider"></div>
+            <h2 class="h4 fw-bold mb-1">Feature Engineering</h2>
+            <p class="text-secondary small mb-3">The single highest-leverage skill in applied ML. A mediocre model on great features beats a great model on raw data every time. "Garbage in, garbage out" is not a cliché — it's the root cause of most failed projects.</p>
+
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-6">
+                <div class="card h-100 model-card" style="border-top:3px solid #0d6efd;">
+                  <div class="card-header fw-bold small">Numeric Features</div>
+                  <div class="card-body small">
+                    <p class="fw-semibold mb-1">Scaling — why it matters:</p>
+                    <p class="mb-2">Algorithms that use distance (KNN, SVM) or gradient descent (neural nets, logistic regression) are sensitive to feature scale. A feature ranging 0–1,000,000 will dominate one ranging 0–1.</p>
+                    <table class="table table-sm table-bordered small mb-2 comp-table">
+                      <thead class="table-dark"><tr><th>Method</th><th>Formula</th><th>Use When</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>StandardScaler</strong></td><td>(x − μ) / σ</td><td>Data is roughly Gaussian; default for neural nets</td></tr>
+                        <tr><td><strong>MinMaxScaler</strong></td><td>(x − min) / (max − min)</td><td>Need values in [0,1]; e.g., pixel values, bounded outputs</td></tr>
+                        <tr><td><strong>RobustScaler</strong></td><td>(x − median) / IQR</td><td>Data has outliers — median/IQR ignore them</td></tr>
+                        <tr><td><strong>Log transform</strong></td><td>log(x + 1)</td><td>Right-skewed distributions (income, counts, prices)</td></tr>
+                      </tbody>
+                    </table>
+                    <div class="code-block mb-2">
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler
+scaler = <span class="fn">StandardScaler</span>()
+X_train_sc = scaler.<span class="fn">fit_transform</span>(X_train)  <span class="cm"># fit on train only</span>
+X_val_sc   = scaler.<span class="fn">transform</span>(X_val)        <span class="cm"># transform only</span>
+                    </div>
+                    <div class="callout callout-danger mb-0">Never fit the scaler on validation or test data — that is data leakage.</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100 model-card" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Categorical Features</div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-2 comp-table">
+                      <thead class="table-dark"><tr><th>Encoding</th><th>How</th><th>When</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>One-Hot</strong></td><td>N categories → N binary columns</td><td>Low cardinality (&lt;20 values), no ordinal relationship</td></tr>
+                        <tr><td><strong>Label / Ordinal</strong></td><td>Map to integer (0,1,2…)</td><td>Ordinal categories (Low/Med/High), tree models only</td></tr>
+                        <tr><td><strong>Target Encoding</strong></td><td>Replace category with mean target value</td><td>High cardinality — but use with CV folds to prevent leakage</td></tr>
+                        <tr><td><strong>Embeddings</strong></td><td>Learn dense vector per category</td><td>Neural nets with very high cardinality (user IDs, zip codes)</td></tr>
+                        <tr><td><strong>Hash Encoding</strong></td><td>Hash category to fixed N bins</td><td>Extremely high cardinality at inference speed</td></tr>
+                      </tbody>
+                    </table>
+                    <div class="code-block mb-0">
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="cm"># One-hot (low cardinality)</span>
+df = pd.<span class="fn">get_dummies</span>(df, columns=[<span class="st">'color'</span>], drop_first=<span class="kw">True</span>)
+
+<span class="cm"># Target encoding (high cardinality) — use inside CV</span>
+<span class="kw">from</span> category_encoders <span class="kw">import</span> TargetEncoder
+enc = <span class="fn">TargetEncoder</span>(cols=[<span class="st">'city'</span>])
+X_train = enc.<span class="fn">fit_transform</span>(X_train, y_train)
+X_val   = enc.<span class="fn">transform</span>(X_val)
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-4">
+                <div class="card h-100 model-card">
+                  <div class="card-header fw-bold small">Handling Missing Data</div>
+                  <div class="card-body small">
+                    <p class="mb-1">Never drop rows unless missingness is truly random and &lt;5% of data. Understand <em>why</em> values are missing first.</p>
+                    <table class="table table-sm table-bordered small mb-2 comp-table">
+                      <thead class="table-dark"><tr><th>Strategy</th><th>Use When</th></tr></thead>
+                      <tbody>
+                        <tr><td>Mean / median imputation</td><td>MCAR, numeric, &lt;10% missing</td></tr>
+                        <tr><td>Mode imputation</td><td>Categorical, low cardinality</td></tr>
+                        <tr><td>KNN imputation</td><td>MAR, correlated features</td></tr>
+                        <tr><td>Model-based (iterative)</td><td>MNAR, complex patterns</td></tr>
+                        <tr><td>Add "was_missing" flag</td><td>Missingness itself is informative</td></tr>
+                      </tbody>
+                    </table>
+                    <div class="code-block mb-0">
+<span class="kw">from</span> sklearn.impute <span class="kw">import</span> SimpleImputer, KNNImputer
+imp = <span class="fn">SimpleImputer</span>(strategy=<span class="st">'median'</span>)
+X_train = imp.<span class="fn">fit_transform</span>(X_train)
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100 model-card">
+                  <div class="card-header fw-bold small">Feature Creation &amp; Interactions</div>
+                  <div class="card-body small">
+                    <p class="mb-1">Creating new features from existing ones is often more valuable than tuning the model. Domain knowledge drives this.</p>
+                    <ul class="ps-3 mb-2">
+                      <li><strong>Ratio features:</strong> price / sqft, clicks / impressions (CTR)</li>
+                      <li><strong>Interaction terms:</strong> age × income, width × height</li>
+                      <li><strong>Aggregations:</strong> user's 7-day mean spend, rolling std</li>
+                      <li><strong>Date decomposition:</strong> hour, day_of_week, is_weekend, days_since</li>
+                      <li><strong>Binning:</strong> age → [0–18, 18–35, 35–65, 65+] buckets</li>
+                      <li><strong>Clustering as feature:</strong> assign each row its k-means cluster ID</li>
+                    </ul>
+                    <div class="callout callout-tip mb-0">SHAP values after training tell you which features actually matter — prune features with near-zero importance to reduce overfitting.</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100 model-card">
+                  <div class="card-header fw-bold small">Dimensionality Reduction</div>
+                  <div class="card-body small">
+                    <p class="mb-1">When you have hundreds of features, reducing dimensions removes noise and prevents the curse of dimensionality.</p>
+                    <table class="table table-sm table-bordered small mb-2 comp-table">
+                      <thead class="table-dark"><tr><th>Method</th><th>Best For</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>PCA</strong></td><td>Linear reduction; preserves variance</td></tr>
+                        <tr><td><strong>t-SNE</strong></td><td>2D/3D visualisation of clusters</td></tr>
+                        <tr><td><strong>UMAP</strong></td><td>Faster t-SNE; better global structure</td></tr>
+                        <tr><td><strong>Autoencoder</strong></td><td>Non-linear reduction via neural net</td></tr>
+                        <tr><td><strong>SelectKBest</strong></td><td>Statistical feature selection</td></tr>
+                      </tbody>
+                    </table>
+                    <div class="code-block mb-0">
+<span class="kw">from</span> sklearn.decomposition <span class="kw">import</span> PCA
+pca = <span class="fn">PCA</span>(n_components=<span class="nm">0.95</span>)  <span class="cm"># keep 95% variance</span>
+X_reduced = pca.<span class="fn">fit_transform</span>(X_scaled)
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="callout callout-tip">
+              <strong>Feature engineering order matters.</strong> Always follow: impute → encode → scale → reduce. Scaling before encoding corrupts categoricals; reducing before scaling gives PCA wrong variance. Wrap the whole pipeline in <code>sklearn.pipeline.Pipeline</code> so it applies identically to train, validation, and test.
+            </div>
+          </section>
+
+          <!-- ═══════════════════════════════════════════════════ DATA PIPELINES -->
+          <section id="data-pipelines" class="aiml-section mb-5">
+            <div class="section-divider"></div>
+            <h2 class="h4 fw-bold mb-1">Data Pipelines</h2>
+            <p class="text-secondary small mb-3">How data moves from raw source to model input — and how to make that process fast, reproducible, and leakage-free.</p>
+
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-6">
+                <div class="card h-100 model-card" style="border-top:3px solid #0dcaf0;">
+                  <div class="card-header fw-bold small">sklearn Pipeline — The Right Way</div>
+                  <div class="card-body small">
+                    <p>A <code>Pipeline</code> chains preprocessing steps and the model into one object. It guarantees no leakage (fit only on training data), enables cross-validation on the full pipeline, and makes deployment trivial — save one object, serve one object.</p>
+                    <div class="code-block mb-2">
+<span class="kw">from</span> sklearn.pipeline <span class="kw">import</span> Pipeline
+<span class="kw">from</span> sklearn.compose <span class="kw">import</span> ColumnTransformer
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler, OneHotEncoder
+<span class="kw">from</span> sklearn.impute <span class="kw">import</span> SimpleImputer
+<span class="kw">from</span> xgboost <span class="kw">import</span> XGBClassifier
+
+num_pipe = <span class="fn">Pipeline</span>([
+  (<span class="st">'impute'</span>, <span class="fn">SimpleImputer</span>(strategy=<span class="st">'median'</span>)),
+  (<span class="st">'scale'</span>,  <span class="fn">StandardScaler</span>()),
+])
+cat_pipe = <span class="fn">Pipeline</span>([
+  (<span class="st">'impute'</span>, <span class="fn">SimpleImputer</span>(strategy=<span class="st">'most_frequent'</span>)),
+  (<span class="st">'encode'</span>, <span class="fn">OneHotEncoder</span>(handle_unknown=<span class="st">'ignore'</span>)),
+])
+pre = <span class="fn">ColumnTransformer</span>([
+  (<span class="st">'num'</span>, num_pipe, num_cols),
+  (<span class="st">'cat'</span>, cat_pipe, cat_cols),
+])
+model = <span class="fn">Pipeline</span>([
+  (<span class="st">'prep'</span>,  pre),
+  (<span class="st">'clf'</span>,   <span class="fn">XGBClassifier</span>()),
+])
+model.<span class="fn">fit</span>(X_train, y_train)       <span class="cm"># fit once</span>
+model.<span class="fn">predict</span>(X_test)             <span class="cm"># use everywhere</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100 model-card" style="border-top:3px solid #6610f2;">
+                  <div class="card-header fw-bold small">PyTorch Dataset &amp; DataLoader</div>
+                  <div class="card-body small">
+                    <p>For deep learning, PyTorch separates data loading (<code>Dataset</code>) from batching and shuffling (<code>DataLoader</code>). This enables parallel loading with multiple CPU workers while the GPU trains.</p>
+                    <div class="code-block mb-2">
+<span class="kw">from</span> torch.utils.data <span class="kw">import</span> Dataset, DataLoader
+<span class="kw">import</span> torchvision.transforms <span class="kw">as</span> T
+
+<span class="kw">class</span> <span class="fn">ImageDS</span>(Dataset):
+  <span class="kw">def</span> <span class="fn">__init__</span>(self, paths, labels, transform):
+    self.paths, self.labels = paths, labels
+    self.transform = transform
+  <span class="kw">def</span> <span class="fn">__len__</span>(self):  <span class="kw">return</span> <span class="fn">len</span>(self.paths)
+  <span class="kw">def</span> <span class="fn">__getitem__</span>(self, i):
+    img = <span class="fn">load_image</span>(self.paths[i])
+    <span class="kw">return</span> self.transform(img), self.labels[i]
+
+train_tf = T.<span class="fn">Compose</span>([
+  T.<span class="fn">RandomHorizontalFlip</span>(),
+  T.<span class="fn">RandomCrop</span>(<span class="nm">224</span>),
+  T.<span class="fn">ToTensor</span>(),
+  T.<span class="fn">Normalize</span>(mean=[<span class="nm">0.485</span>,<span class="nm">0.456</span>,<span class="nm">0.406</span>],
+               std=[<span class="nm">0.229</span>,<span class="nm">0.224</span>,<span class="nm">0.225</span>]),
+])
+loader = <span class="fn">DataLoader</span>(
+  <span class="fn">ImageDS</span>(paths, labels, train_tf),
+  batch_size=<span class="nm">64</span>, shuffle=<span class="kw">True</span>, num_workers=<span class="nm">4</span>,
+  pin_memory=<span class="kw">True</span>  <span class="cm"># faster GPU transfer</span>
+)
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-4">
+                <div class="card h-100">
+                  <div class="card-header fw-bold small">Train / Val / Test Split Discipline</div>
+                  <div class="card-body small">
+                    <ul class="ps-3 mb-2">
+                      <li><strong>Train (70–80%)</strong> — model sees this during training</li>
+                      <li><strong>Validation (10–15%)</strong> — used for HPO and early stopping. Model never trains on it but you indirectly use it.</li>
+                      <li><strong>Test (10–15%)</strong> — touched exactly once, at the very end. Reports real-world performance.</li>
+                    </ul>
+                    <div class="callout callout-danger mb-2">If you tune hyperparameters on the test set, your test score is optimistic. The test set must be invisible until final evaluation.</div>
+                    <p class="mb-0"><strong>For time series:</strong> always split by time — never shuffle. Future data cannot inform past predictions.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100">
+                  <div class="card-header fw-bold small">Data Augmentation</div>
+                  <div class="card-body small">
+                    <p>Artificially expand the training set by applying label-preserving transformations. Reduces overfitting. Never augment validation or test data.</p>
+                    <p class="fw-semibold mb-1">Images:</p>
+                    <ul class="ps-3 mb-1">
+                      <li>Flip, crop, rotate, colour jitter, cutout, mixup</li>
+                      <li><code>torchvision.transforms</code> or <code>albumentations</code></li>
+                    </ul>
+                    <p class="fw-semibold mb-1">Text (NLP):</p>
+                    <ul class="ps-3 mb-1">
+                      <li>Back-translation, synonym swap, random deletion</li>
+                      <li><code>nlpaug</code> library</li>
+                    </ul>
+                    <p class="fw-semibold mb-1">Tabular:</p>
+                    <ul class="ps-3 mb-0">
+                      <li>SMOTE (oversample minority class), Gaussian noise injection</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100">
+                  <div class="card-header fw-bold small">Exploratory Data Analysis (EDA)</div>
+                  <div class="card-body small">
+                    <p>Always do EDA before building any model. It prevents hours of debugging later.</p>
+                    <div class="code-block mb-2">
+<span class="cm"># Essential EDA checklist</span>
+df.<span class="fn">shape</span>                       <span class="cm"># rows, columns</span>
+df.<span class="fn">dtypes</span>                       <span class="cm"># feature types</span>
+df.<span class="fn">isnull</span>().<span class="fn">mean</span>()             <span class="cm"># % missing per col</span>
+df.<span class="fn">describe</span>()                   <span class="cm"># distribution stats</span>
+df[<span class="st">'label'</span>].<span class="fn">value_counts</span>()     <span class="cm"># class balance</span>
+df.<span class="fn">corr</span>()[<span class="st">'target'</span>].<span class="fn">abs</span>().<span class="fn">sort_values</span>() <span class="cm"># correlations</span>
+                    </div>
+                    <ul class="ps-3 mb-0">
+                      <li>Plot each feature distribution — spot outliers and skew</li>
+                      <li>Plot target distribution — spot class imbalance early</li>
+                      <li>Plot correlation heatmap — find redundant features</li>
+                      <li>Check for duplicate rows and ID columns that leak</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="callout callout-tip">
+              <strong>The 80/20 of data work:</strong> In most production ML projects, 80% of time goes to data — collection, cleaning, labelling, and pipeline engineering. The model architecture accounts for maybe 5% of the performance difference. Invest in data quality before model complexity.
             </div>
           </section>
 
