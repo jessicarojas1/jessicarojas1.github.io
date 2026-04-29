@@ -5096,6 +5096,192 @@ model.<span class="fn">print_trainable_parameters</span>()
             </div>
           </section>
 
+          <!-- ═══════════════════════════════════════════════════════
+               MODEL COMPRESSION & EFFICIENCY
+          ═══════════════════════════════════════════════════════ -->
+          <section id="compression" class="mb-5">
+            <h2 class="section-title">Model Compression &amp; Efficiency</h2>
+            <p class="lead">State-of-the-art models are often too large to deploy on edge devices or too slow for real-time inference. Compression techniques shrink models with minimal accuracy loss.</p>
+
+            <!-- Quantization -->
+            <h4 class="mt-4 mb-3 fw-semibold">Quantization</h4>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">How Quantization Works</div>
+                  <div class="card-body small">
+                    <p>Map floating-point weights to lower-precision integers. A FP32 weight becomes INT8 via:</p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(110,168,254,.08);font-size:.85rem;">x_q = round(x / scale) + zero_point</div>
+                    <table class="table table-sm table-bordered small mb-2 comp-table">
+                      <thead class="table-dark"><tr><th>Format</th><th>Bits</th><th>Size vs FP32</th><th>Use case</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>FP32</strong></td><td>32</td><td>1×</td><td>Training baseline</td></tr>
+                        <tr><td><strong>BF16</strong></td><td>16</td><td>0.5×</td><td>Training (same dynamic range as FP32)</td></tr>
+                        <tr><td><strong>FP16</strong></td><td>16</td><td>0.5×</td><td>Inference, mixed-precision</td></tr>
+                        <tr><td><strong>INT8</strong></td><td>8</td><td>0.25×</td><td>Post-training quantization (PTQ)</td></tr>
+                        <tr><td><strong>INT4/NF4</strong></td><td>4</td><td>0.125×</td><td>QLoRA, GPTQ, AWQ — LLM serving</td></tr>
+                        <tr><td><strong>1-bit</strong></td><td>1</td><td>0.03×</td><td>BitNet b1.58 — research frontier</td></tr>
+                      </tbody>
+                    </table>
+                    <div class="code-block">
+<span class="kw">from</span> transformers <span class="kw">import</span> BitsAndBytesConfig, AutoModelForCausalLM
+quant_config = <span class="fn">BitsAndBytesConfig</span>(
+    load_in_4bit=<span class="nm">True</span>, bnb_4bit_quant_type=<span class="st">"nf4"</span>,
+    bnb_4bit_compute_dtype=torch.bfloat16)
+model = AutoModelForCausalLM.<span class="fn">from_pretrained</span>(
+    <span class="st">"meta-llama/Llama-3-8B"</span>, quantization_config=quant_config)
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Quantization Methods</div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-2 comp-table">
+                      <thead class="table-dark"><tr><th>Method</th><th>When</th><th>Accuracy</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>PTQ (Post-Training)</strong></td><td>After training; calibrate with small dataset</td><td>Good for INT8; degrades at INT4</td></tr>
+                        <tr><td><strong>QAT (Quant-Aware Training)</strong></td><td>Simulate quantization during training</td><td>Best accuracy; requires retraining</td></tr>
+                        <tr><td><strong>GPTQ</strong></td><td>Layer-wise Hessian-based; INT4 LLMs</td><td>Near FP16 at 4-bit for LLMs</td></tr>
+                        <tr><td><strong>AWQ (Activation-aware)</strong></td><td>Protect salient weights by scaling</td><td>Better than GPTQ on edge cases</td></tr>
+                        <tr><td><strong>SmoothQuant</strong></td><td>Migrate quantization difficulty from activations to weights</td><td>INT8 W8A8 with FP16 accuracy</td></tr>
+                      </tbody>
+                    </table>
+                    <p class="mb-0"><strong>Practical tip:</strong> Start with BF16 for serving; if memory is the bottleneck, try AWQ INT4. Accuracy loss is usually &lt;1% on INT8, ~1–3% on INT4 for LLMs.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pruning -->
+            <h4 class="mt-4 mb-3 fw-semibold">Pruning</h4>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">Pruning Strategies</div>
+                  <div class="card-body small">
+                    <p>Remove weights/neurons/heads that contribute least to model output. Two main flavours:</p>
+                    <ul class="ps-3 mb-2">
+                      <li><strong>Unstructured:</strong> Set individual weights to zero (magnitude pruning). Achieves 90%+ sparsity; needs sparse hardware/libraries to see speedup (sparse BLAS, NVIDIA Ampere structured sparsity).</li>
+                      <li><strong>Structured:</strong> Remove entire filters, heads, or layers. Immediately faster on dense hardware. Less aggressive compression.</li>
+                    </ul>
+                    <div class="code-block">
+<span class="kw">import</span> torch.nn.utils.prune <span class="kw">as</span> prune
+<span class="cm"># Prune 30% of weights in a linear layer (L1 unstructured)</span>
+prune.<span class="fn">l1_unstructured</span>(layer, name=<span class="st">'weight'</span>, amount=<span class="nm">0.3</span>)
+<span class="cm"># Make pruning permanent</span>
+prune.<span class="fn">remove</span>(layer, <span class="st">'weight'</span>)
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #dc3545;">
+                  <div class="card-header fw-bold small">Lottery Ticket Hypothesis</div>
+                  <div class="card-body small">
+                    <p>Frankle &amp; Carlin (2019): Within a large randomly initialised network exists a small "winning ticket" subnetwork that, if trained from scratch at its original initialisation, can match the full network's accuracy.</p>
+                    <p><strong>Iterative Magnitude Pruning:</strong></p>
+                    <ol class="ps-3 mb-2">
+                      <li>Train full network to convergence</li>
+                      <li>Prune p% of smallest weights</li>
+                      <li>Reset remaining weights to their initial values</li>
+                      <li>Repeat from step 1</li>
+                    </ol>
+                    <p class="mb-0"><strong>Practical impact:</strong> Winning tickets at 80–95% sparsity often match dense accuracy. Foundation for modern structured pruning research (SparseGPT, Wanda).</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Knowledge Distillation -->
+            <h4 class="mt-4 mb-3 fw-semibold">Knowledge Distillation</h4>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">Response Distillation (Hinton 2015)</div>
+                  <div class="card-body small">
+                    <p>Train a small <em>student</em> model to mimic a large <em>teacher</em> model's output distribution, not just its hard labels.</p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(110,168,254,.08);font-size:.85rem;">L = α·L_CE(y_hard, ŷ_s) + (1−α)·T²·KL(σ(z_t/T) ‖ σ(z_s/T))</div>
+                    <p><strong>T (temperature):</strong> Higher T softens the teacher distribution, revealing inter-class relationships (e.g. "cat" and "dog" are more similar than "cat" and "car").</p>
+                    <div class="code-block">
+T = <span class="nm">4.0</span>
+soft_targets = F.<span class="fn">softmax</span>(teacher_logits / T, dim=-<span class="nm">1</span>)
+soft_preds   = F.<span class="fn">log_softmax</span>(student_logits / T, dim=-<span class="nm">1</span>)
+distill_loss = F.<span class="fn">kl_div</span>(soft_preds, soft_targets, reduction=<span class="st">'batchmean'</span>) * (T**<span class="nm">2</span>)
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Distillation Variants</div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-2 comp-table">
+                      <thead class="table-dark"><tr><th>Variant</th><th>What's transferred</th><th>Example</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>Response</strong></td><td>Soft logits from final layer</td><td>DistilBERT (BERT→66% size, 97% performance)</td></tr>
+                        <tr><td><strong>Feature</strong></td><td>Intermediate layer activations (FitNets)</td><td>Matching attention patterns, hidden states</td></tr>
+                        <tr><td><strong>Relation</strong></td><td>Pairwise relations between samples</td><td>RKD — relative distance/angle between outputs</td></tr>
+                        <tr><td><strong>Data-free</strong></td><td>Use generator to synthesize training data</td><td>DAFL — no access to original training set</td></tr>
+                        <tr><td><strong>Spec. decoding</strong></td><td>Small draft model proposes tokens, large model verifies</td><td>3–5× inference speedup at zero accuracy cost</td></tr>
+                      </tbody>
+                    </table>
+                    <p class="mb-0"><strong>Real-world results:</strong> TinyBERT (4-layer) ≈ BERT-base on GLUE. Phi-3-mini distilled from GPT-4 synthetic data matches much larger open-source models.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Efficient architectures -->
+            <h4 class="mt-4 mb-3 fw-semibold">Efficient Architectures</h4>
+            <div class="row g-3">
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">Mixture of Experts (MoE)</div>
+                  <div class="card-body small">
+                    <p>Replace FFN with N expert FFNs. A trainable router selects top-k experts per token:</p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(255,193,7,.08);font-size:.85rem;">y = Σᵢ G(x)ᵢ · Eᵢ(x) &nbsp;where G = top-k(softmax(Wx))</div>
+                    <p>GPT-4, Mixtral 8×7B, Gemini 1.5 use MoE. Total params are large, but only ~1/8 are active per token → same compute cost as a dense model 8× smaller.</p>
+                    <p class="mb-0"><strong>Challenges:</strong> Load balancing (auxiliary loss), routing collapse, communication overhead in distributed settings.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">Efficient Attention</div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-0 comp-table">
+                      <thead class="table-dark"><tr><th>Method</th><th>Complexity</th><th>Key idea</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>Standard</strong></td><td>O(n²)</td><td>Full QKᵀ matrix</td></tr>
+                        <tr><td><strong>FlashAttention</strong></td><td>O(n²) but IO-optimal</td><td>Fused CUDA kernel; avoids materialising full attention matrix in HBM</td></tr>
+                        <tr><td><strong>Sliding Window</strong></td><td>O(n·w)</td><td>Each token attends to w neighbours (Mistral)</td></tr>
+                        <tr><td><strong>Linear Attention</strong></td><td>O(n)</td><td>Kernel trick; approximate attention</td></tr>
+                        <tr><td><strong>GQA</strong></td><td>O(n²/G)</td><td>G query groups share K,V heads (Llama 3)</td></tr>
+                        <tr><td><strong>MLA</strong></td><td>—</td><td>Low-rank KV compression (DeepSeek-V2)</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Mobile &amp; Edge Efficiency</div>
+                  <div class="card-body small">
+                    <ul class="ps-3 mb-0">
+                      <li><strong>Depthwise separable conv:</strong> Factorises 3×3 conv into depthwise + pointwise — 8–9× fewer MACs (MobileNet)</li>
+                      <li><strong>Inverted residuals:</strong> Expand → depthwise → project (MobileNetV2)</li>
+                      <li><strong>Neural Architecture Search:</strong> EfficientNet found via NAS — 8× fewer params than ResNet-50 at same accuracy</li>
+                      <li><strong>TensorFlow Lite / Core ML:</strong> On-device inference runtimes with INT8 delegate</li>
+                      <li><strong>ONNX Runtime:</strong> Cross-platform inference; graph optimisations (fusion, constant folding)</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
         </div><!-- /col content -->
       </div><!-- /row -->
     </div><!-- /container-fluid -->
