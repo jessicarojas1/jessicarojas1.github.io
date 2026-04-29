@@ -195,6 +195,16 @@
             <a class="nav-link" href="#xai">Explainability (XAI)</a>
             <a class="nav-link" href="#ethics">Ethics &amp; Responsible AI</a>
 
+            <div class="nav-section">Modern Paradigms</div>
+            <a class="nav-link" href="#ssl">Self-Supervised Learning</a>
+            <a class="nav-link" href="#gnn">Graph Neural Networks</a>
+            <a class="nav-link" href="#multimodal">Multi-modal Models</a>
+            <a class="nav-link" href="#data-centric">Data-Centric AI</a>
+            <a class="nav-link" href="#anomaly">Anomaly Detection</a>
+            <a class="nav-link" href="#streaming">Streaming ML</a>
+            <a class="nav-link" href="#system-design">ML System Design</a>
+            <a class="nav-link" href="#research">Research Skills</a>
+
             <div class="nav-section">LLMs &amp; Production</div>
             <a class="nav-link" href="#llm">LLMs &amp; Prompt Engineering</a>
             <a class="nav-link" href="#compression">Model Compression</a>
@@ -5902,6 +5912,166 @@ jobs:
         run: mlflow models build-docker -m runs:/&lt;run_id&gt;/model
                     </div>
                   </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═══════════════════════════════════════════════════════
+               SELF-SUPERVISED LEARNING
+          ═══════════════════════════════════════════════════════ -->
+          <section id="ssl" class="mb-5">
+            <h2 class="section-title">Self-Supervised Learning</h2>
+            <p class="lead">Self-supervised learning (SSL) creates supervisory signals from the data itself — no human labels required. It's the paradigm behind BERT, GPT, CLIP, MAE, and nearly every modern foundation model.</p>
+
+            <!-- Why SSL -->
+            <h4 class="mt-4 mb-3 fw-semibold">Why Self-Supervised?</h4>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">The Labeling Bottleneck</div>
+                  <div class="card-body small">
+                    <p>Supervised learning needs expensive human labels. SSL exploits the structure already in data:</p>
+                    <ul class="ps-3 mb-0">
+                      <li>Predict the next word (GPT) — no labels needed</li>
+                      <li>Reconstruct masked patches (MAE) — image is its own label</li>
+                      <li>Match image to caption (CLIP) — web data is free</li>
+                      <li>Predict rotation angle — transformation is label</li>
+                    </ul>
+                    <p class="mt-2 mb-0"><strong>Result:</strong> Models pre-trained on billions of unlabelled examples then fine-tuned on hundreds of labelled examples beat fully supervised models trained on millions.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">SSL Families</div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-0 comp-table">
+                      <thead class="table-dark"><tr><th>Family</th><th>Core idea</th><th>Examples</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>Generative</strong></td><td>Reconstruct masked / corrupted input</td><td>BERT, MAE, GPT (autoregressive)</td></tr>
+                        <tr><td><strong>Contrastive</strong></td><td>Pull augmented views of same sample together, push different samples apart</td><td>SimCLR, MoCo, NNCLR</td></tr>
+                        <tr><td><strong>Self-distillation</strong></td><td>Online network learns to match momentum/EMA target network — no negatives</td><td>BYOL, DINO, EMA</td></tr>
+                        <tr><td><strong>Redundancy reduction</strong></td><td>Decorrelate cross-view features</td><td>Barlow Twins, VICReg</td></tr>
+                        <tr><td><strong>Predictive</strong></td><td>Predict representations of masked regions in latent space</td><td>I-JEPA, data2vec</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">Pretext vs Downstream Tasks</div>
+                  <div class="card-body small">
+                    <p><strong>Pretext task:</strong> The self-supervised objective used during pre-training — a proxy designed to force the model to learn useful representations.</p>
+                    <p><strong>Downstream task:</strong> The actual task you care about — classification, detection, QA — solved by fine-tuning or linear probing on top of frozen SSL representations.</p>
+                    <p><strong>Linear probe:</strong> Freeze backbone, train only a linear classifier on top. Measures representation quality without confounding fine-tuning tricks.</p>
+                    <p class="mb-0"><strong>Key insight:</strong> Good pretext tasks produce representations where downstream tasks are linearly separable — a strong signal that the model has learned semantic structure.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Contrastive Learning -->
+            <h4 class="mt-4 mb-3 fw-semibold">Contrastive Learning</h4>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">SimCLR (Chen et al. 2020)</div>
+                  <div class="card-body small">
+                    <p>For each image, create two augmented views. Pull same-image pairs (positives) together, push all other pairs (negatives) apart in embedding space.</p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(110,168,254,.08);font-size:.85rem;">L = −log exp(sim(zᵢ,zⱼ)/τ) / Σₖ≠ᵢ exp(sim(zᵢ,zₖ)/τ)</div>
+                    <p>This is NT-Xent (normalised temperature-scaled cross-entropy). τ (temperature) controls sharpness — typically 0.07–0.5.</p>
+                    <p><strong>Key ingredients:</strong></p>
+                    <ul class="ps-3 mb-2">
+                      <li>Strong augmentations: random crop, colour jitter, Gaussian blur, grayscale</li>
+                      <li>Projection head g(·): 2-layer MLP on top of backbone — improves linear probe by ~10%</li>
+                      <li>Large batch (4096+): more negatives → better learning signal</li>
+                    </ul>
+                    <div class="code-block">
+<span class="cm"># SimCLR NT-Xent loss (simplified)</span>
+<span class="kw">def</span> <span class="fn">nt_xent</span>(z1, z2, tau=<span class="nm">0.5</span>):
+    z = F.<span class="fn">normalize</span>(torch.<span class="fn">cat</span>([z1, z2]), dim=<span class="nm">1</span>)
+    sim = z @ z.T / tau
+    N = z1.shape[<span class="nm">0</span>]
+    labels = torch.<span class="fn">arange</span>(N).<span class="fn">roll</span>(N).<span class="fn">to</span>(z.device)
+    <span class="kw">return</span> F.<span class="fn">cross_entropy</span>(sim, labels)
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">MoCo &amp; BYOL — No Large Batch Required</div>
+                  <div class="card-body small">
+                    <p><strong>MoCo (He et al.):</strong> Maintains a queue of negatives from past batches + momentum encoder. Decouples batch size from number of negatives.</p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(32,201,151,.08);font-size:.85rem;">θ_k ← m·θ_k + (1−m)·θ_q &nbsp;(momentum update, m=0.999)</div>
+                    <p><strong>BYOL (Bootstrap Your Own Latent):</strong> Eliminates negatives entirely — online network predicts EMA target network's representation. Requires stop-gradient on target.</p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(32,201,151,.08);font-size:.85rem;">L = 2 − 2 · (q(z_online) · z_target) / (‖q(z_online)‖ · ‖z_target‖)</div>
+                    <p class="mb-0"><strong>Why BYOL doesn't collapse:</strong> The asymmetry (predictor + EMA target + stop-grad) prevents the trivial constant solution. Analysed via implicit regularisation and feature decorrelation.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- DINO & MAE -->
+            <h4 class="mt-4 mb-3 fw-semibold">DINO &amp; Masked Autoencoders</h4>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">DINO / DINOv2</div>
+                  <div class="card-body small">
+                    <p>Self-distillation with no labels. Student ViT processes local crops; teacher ViT (EMA of student) processes global crop. Student learns to match teacher's softmax output.</p>
+                    <p><strong>Why ViT + DINO works so well:</strong> Attention maps in DINO-trained ViTs spontaneously attend to semantic object boundaries — emergent segmentation without any supervision.</p>
+                    <p><strong>DINOv2</strong> adds curated 142M image dataset + register tokens, achieving state-of-the-art on many dense prediction tasks (depth, segmentation) without fine-tuning.</p>
+                    <p class="mb-0"><strong>Centering:</strong> Subtract running mean of teacher outputs to prevent collapse to one dominant dimension.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">Masked Autoencoders (MAE)</div>
+                  <div class="card-body small">
+                    <p>He et al. 2021: Mask 75% of image patches, reconstruct pixel values of masked patches using a ViT encoder + lightweight decoder.</p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(110,168,254,.08);font-size:.85rem;">L = ‖pixels_masked − decoder(encoder(visible_patches))‖²</div>
+                    <p><strong>Key design choices:</strong></p>
+                    <ul class="ps-3 mb-2">
+                      <li>75% masking ratio (much higher than BERT's 15%) — harder task, better representations</li>
+                      <li>Encoder only sees unmasked tokens — efficient (only 25% of compute)</li>
+                      <li>Decoder is asymmetric and lightweight — discarded after pre-training</li>
+                      <li>Predicts normalised pixel values per patch (not raw pixels)</li>
+                    </ul>
+                    <p class="mb-0"><strong>NLP analogue:</strong> BERT uses 15% masking with WordPiece tokens. SpanBERT masks contiguous spans — harder, better for extraction tasks.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SSL in NLP -->
+            <h4 class="mt-4 mb-3 fw-semibold">SSL in NLP: The Full Picture</h4>
+            <div class="row g-3">
+              <div class="col-12 col-md-3">
+                <div class="card h-100 text-center p-3" style="border-top:3px solid #6ea8fe;">
+                  <div class="fw-bold mb-2 small">MLM (BERT)</div>
+                  <div class="small">Mask 15% of tokens, predict originals. Bidirectional context. Best for classification, NER, extractive QA.</div>
+                </div>
+              </div>
+              <div class="col-12 col-md-3">
+                <div class="card h-100 text-center p-3" style="border-top:3px solid #20c997;">
+                  <div class="fw-bold mb-2 small">CLM (GPT)</div>
+                  <div class="small">Predict next token autoregressively. Causal attention mask. Best for generation. Scales to very long contexts.</div>
+                </div>
+              </div>
+              <div class="col-12 col-md-3">
+                <div class="card h-100 text-center p-3" style="border-top:3px solid #ffc107;">
+                  <div class="fw-bold mb-2 small">Span Corruption (T5)</div>
+                  <div class="small">Replace contiguous token spans with sentinel tokens; decoder reconstructs them. Encoder-decoder. Best for seq2seq tasks.</div>
+                </div>
+              </div>
+              <div class="col-12 col-md-3">
+                <div class="card h-100 text-center p-3" style="border-top:3px solid #dc3545;">
+                  <div class="fw-bold mb-2 small">RTD (ELECTRA)</div>
+                  <div class="small">Generator replaces tokens; discriminator predicts which tokens were replaced. 4× more efficient than MLM — trains on every token not just 15%.</div>
                 </div>
               </div>
             </div>
