@@ -2375,6 +2375,379 @@ df.<span class="fn">corr</span>()[<span class="st">'target'</span>].<span class=
             </div>
           </section>
 
+          <!-- ═══════════════════════════════════════════════════ TRANSFER LEARNING -->
+          <section id="transfer-learning" class="aiml-section mb-5">
+            <div class="section-divider"></div>
+            <h2 class="h4 fw-bold mb-1">Transfer Learning &amp; Fine-Tuning</h2>
+            <p class="text-secondary small mb-3">Training a model from scratch requires millions of labelled examples and days of GPU time. Transfer learning lets you start from a powerful pretrained model and adapt it to your task in hours — sometimes with only a few hundred examples.</p>
+
+            <div class="card mb-4" style="border-left:4px solid #6610f2;">
+              <div class="card-header fw-bold small">The Core Idea</div>
+              <div class="card-body small">
+                <div class="row g-3">
+                  <div class="col-12 col-md-6">
+                    <p>A model pretrained on a large dataset (ImageNet, Common Crawl, GitHub code) has already learned general representations — edges, textures, grammar, semantics. Your task just needs the final layers retrained to your specific labels.</p>
+                    <table class="table table-sm table-bordered small mb-0 comp-table">
+                      <thead class="table-dark"><tr><th>Scenario</th><th>Strategy</th></tr></thead>
+                      <tbody>
+                        <tr><td>Small dataset, similar domain</td><td>Freeze all layers, retrain head only</td></tr>
+                        <tr><td>Medium dataset, similar domain</td><td>Fine-tune last 2–4 layers + head</td></tr>
+                        <tr><td>Large dataset, different domain</td><td>Fine-tune full model with low LR</td></tr>
+                        <tr><td>Very different domain</td><td>Use pretrained as init, train all</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <div class="code-block mb-2">
+<span class="kw">import</span> torchvision.models <span class="kw">as</span> models
+
+<span class="cm"># Load pretrained ResNet50</span>
+model = models.<span class="fn">resnet50</span>(weights=<span class="st">'IMAGENET1K_V2'</span>)
+
+<span class="cm"># Freeze all layers</span>
+<span class="kw">for</span> param <span class="kw">in</span> model.<span class="fn">parameters</span>():
+  param.requires_grad = <span class="kw">False</span>
+
+<span class="cm"># Replace final layer for your task (e.g. 5 classes)</span>
+model.fc = nn.<span class="fn">Sequential</span>(
+  nn.<span class="fn">Dropout</span>(<span class="nm">0.3</span>),
+  nn.<span class="fn">Linear</span>(model.fc.in_features, <span class="nm">5</span>)
+)
+<span class="cm"># Only model.fc parameters will be updated</span>
+optimizer = torch.optim.<span class="fn">AdamW</span>(
+  model.fc.<span class="fn">parameters</span>(), lr=<span class="nm">1e-3</span>)
+                    </div>
+                    <div class="callout callout-tip mb-0">Use a lower LR for pretrained layers than the new head — e.g., head LR = 1e-3, backbone LR = 1e-5. This prevents "catastrophic forgetting" of pretrained knowledge.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-4">
+                <div class="card h-100 model-card" style="border-top:3px solid #0d6efd;">
+                  <div class="card-header fw-bold small d-flex justify-content-between">
+                    <span>Computer Vision</span><span class="badge diff-intermediate">Intermediate</span>
+                  </div>
+                  <div class="card-body small">
+                    <p class="fw-semibold mb-1">Popular pretrained backbones:</p>
+                    <table class="table table-sm table-bordered small mb-2 comp-table">
+                      <thead class="table-dark"><tr><th>Model</th><th>Best For</th><th>Params</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>ResNet50/101</strong></td><td>General classification</td><td>25–45M</td></tr>
+                        <tr><td><strong>EfficientNet-B4</strong></td><td>Accuracy/size balance</td><td>19M</td></tr>
+                        <tr><td><strong>ViT-B/16</strong></td><td>High accuracy, needs data</td><td>86M</td></tr>
+                        <tr><td><strong>MobileNetV3</strong></td><td>Mobile / edge inference</td><td>5M</td></tr>
+                        <tr><td><strong>CLIP</strong></td><td>Zero-shot image-text tasks</td><td>400M</td></tr>
+                      </tbody>
+                    </table>
+                    <p class="mb-0">Source: <code>torchvision.models</code> or <code>timm</code> library (1000+ models with pretrained weights)</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100 model-card" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small d-flex justify-content-between">
+                    <span>NLP / Text</span><span class="badge diff-intermediate">Intermediate</span>
+                  </div>
+                  <div class="card-body small">
+                    <p class="fw-semibold mb-1">Hugging Face Transformers — standard approach:</p>
+                    <div class="code-block mb-2">
+<span class="kw">from</span> transformers <span class="kw">import</span> (
+  AutoTokenizer, AutoModelForSequenceClassification,
+  TrainingArguments, Trainer
+)
+tokenizer = AutoTokenizer.<span class="fn">from_pretrained</span>(
+  <span class="st">'distilbert-base-uncased'</span>)
+model = AutoModelForSequenceClassification.<span class="fn">from_pretrained</span>(
+  <span class="st">'distilbert-base-uncased'</span>, num_labels=<span class="nm">3</span>)
+
+args = <span class="fn">TrainingArguments</span>(
+  output_dir=<span class="st">'./results'</span>,
+  num_train_epochs=<span class="nm">3</span>,
+  per_device_train_batch_size=<span class="nm">16</span>,
+  learning_rate=<span class="nm">2e-5</span>,    <span class="cm"># LLM fine-tune LR</span>
+  warmup_ratio=<span class="nm">0.1</span>,
+  weight_decay=<span class="nm">0.01</span>,
+)
+trainer = <span class="fn">Trainer</span>(model=model, args=args,
+  train_dataset=train_ds, eval_dataset=val_ds)
+trainer.<span class="fn">train</span>()
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100 model-card" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small d-flex justify-content-between">
+                    <span>Few-Shot &amp; Zero-Shot</span><span class="badge diff-advanced">Advanced</span>
+                  </div>
+                  <div class="card-body small">
+                    <p>Large models can solve tasks with no (zero-shot) or very few (few-shot) examples — no gradient update needed.</p>
+                    <p class="fw-semibold mb-1">Zero-shot classification:</p>
+                    <div class="code-block mb-2">
+<span class="kw">from</span> transformers <span class="kw">import</span> pipeline
+clf = <span class="fn">pipeline</span>(<span class="st">'zero-shot-classification'</span>,
+               model=<span class="st">'facebook/bart-large-mnli'</span>)
+result = <span class="fn">clf</span>(<span class="st">"The stock crashed 20%"</span>,
+    candidate_labels=[<span class="st">'finance'</span>,<span class="st">'sports'</span>,<span class="st">'politics'</span>])
+<span class="fn">print</span>(result[<span class="st">'labels'</span>][<span class="nm">0</span>])  <span class="cm"># → 'finance'</span>
+                    </div>
+                    <p class="fw-semibold mb-1">Few-shot (prompt engineering):</p>
+                    <ul class="ps-3 mb-0">
+                      <li>Provide 3–10 examples in the prompt context</li>
+                      <li>Use <strong>RAG</strong> (Retrieval-Augmented Generation) for dynamic few-shot context from a vector database</li>
+                      <li>Use <strong>LoRA / QLoRA</strong> for parameter-efficient fine-tuning of LLMs with limited VRAM</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card mb-3">
+              <div class="card-header fw-bold small">LoRA — Parameter-Efficient Fine-Tuning (PEFT)</div>
+              <div class="card-body small">
+                <div class="row g-3">
+                  <div class="col-12 col-md-5">
+                    <p>Fine-tuning a 7B parameter LLM requires ~56GB of VRAM — impractical for most. <strong>LoRA (Low-Rank Adaptation)</strong> freezes the original weights and injects small trainable rank-decomposition matrices into each layer. Only 0.1–1% of parameters are trained, but quality approaches full fine-tuning.</p>
+                    <table class="table table-sm table-bordered small mb-0 comp-table">
+                      <thead class="table-dark"><tr><th>Method</th><th>VRAM (7B model)</th><th>Quality</th></tr></thead>
+                      <tbody>
+                        <tr><td>Full fine-tune</td><td>~56 GB</td><td>Best</td></tr>
+                        <tr><td>LoRA (r=16)</td><td>~14 GB</td><td>Near-best</td></tr>
+                        <tr><td>QLoRA (4-bit)</td><td>~6 GB</td><td>Slightly lower</td></tr>
+                        <tr><td>Prompt tuning</td><td>~4 GB</td><td>Task-specific</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="col-12 col-md-7">
+                    <div class="code-block mb-2">
+<span class="kw">from</span> peft <span class="kw">import</span> get_peft_model, LoraConfig
+
+config = <span class="fn">LoraConfig</span>(
+  r=<span class="nm">16</span>,             <span class="cm"># rank — higher = more capacity</span>
+  lora_alpha=<span class="nm">32</span>,   <span class="cm"># scaling factor</span>
+  target_modules=[<span class="st">'q_proj'</span>, <span class="st">'v_proj'</span>],
+  lora_dropout=<span class="nm">0.05</span>,
+  bias=<span class="st">'none'</span>,
+  task_type=<span class="st">'CAUSAL_LM'</span>
+)
+model = <span class="fn">get_peft_model</span>(base_model, config)
+model.<span class="fn">print_trainable_parameters</span>()
+<span class="cm"># trainable params: 4,194,304 / 6,738,415,616 (0.06%)</span>
+                    </div>
+                    <div class="callout callout-tip mb-0">Use <strong>QLoRA</strong> (<code>bitsandbytes</code> 4-bit quantisation + LoRA) to fine-tune 7B–13B models on a single consumer GPU (RTX 3090/4090 with 24GB VRAM). This is how most custom LLM fine-tuning is done today.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="callout callout-tip">
+              <strong>Transfer learning first, train from scratch last.</strong> Unless your domain is completely unlike anything in the pretraining data (rare), starting from pretrained weights will outperform random init given the same compute budget. Even a 5-epoch fine-tune of BERT beats a custom LSTM trained for 50 epochs on most NLP tasks.
+            </div>
+          </section>
+
+          <!-- ═══════════════════════════════════════════════════ DEPLOYMENT & MLOPS -->
+          <section id="mlops" class="aiml-section mb-5">
+            <div class="section-divider"></div>
+            <h2 class="h4 fw-bold mb-1">Deployment &amp; MLOps</h2>
+            <p class="text-secondary small mb-3">A model that lives only in a Jupyter notebook delivers zero value. MLOps is the discipline of moving models into production reliably — and keeping them working after deployment.</p>
+
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-6">
+                <div class="card h-100 model-card" style="border-top:3px solid #0d6efd;">
+                  <div class="card-header fw-bold small">Exporting &amp; Serialising Models</div>
+                  <div class="card-body small">
+                    <p class="fw-semibold mb-1">PyTorch — three options:</p>
+                    <div class="code-block mb-2">
+<span class="cm"># Option 1: Save weights only (recommended)</span>
+torch.<span class="fn">save</span>(model.state_dict(), <span class="st">'model.pt'</span>)
+model.<span class="fn">load_state_dict</span>(torch.<span class="fn">load</span>(<span class="st">'model.pt'</span>))
+
+<span class="cm"># Option 2: TorchScript (portable, no Python needed)</span>
+scripted = torch.jit.<span class="fn">script</span>(model)
+scripted.<span class="fn">save</span>(<span class="st">'model_scripted.pt'</span>)
+
+<span class="cm"># Option 3: ONNX (cross-framework, for TensorRT / ONNX Runtime)</span>
+torch.onnx.<span class="fn">export</span>(model, dummy_input, <span class="st">'model.onnx'</span>,
+  input_names=[<span class="st">'input'</span>], output_names=[<span class="st">'output'</span>],
+  dynamic_axes={<span class="st">'input'</span>: {<span class="nm">0</span>: <span class="st">'batch'</span>}})
+                    </div>
+                    <p class="fw-semibold mb-1">Scikit-learn:</p>
+                    <div class="code-block mb-0">
+<span class="kw">import</span> joblib
+joblib.<span class="fn">dump</span>(pipeline, <span class="st">'pipeline.joblib'</span>)  <span class="cm"># save</span>
+pipeline = joblib.<span class="fn">load</span>(<span class="st">'pipeline.joblib'</span>) <span class="cm"># load</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100 model-card" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Serving with FastAPI</div>
+                  <div class="card-body small">
+                    <p>FastAPI is the standard for wrapping ML models as REST APIs — async, typed, auto-documented, and production-grade.</p>
+                    <div class="code-block mb-2">
+<span class="kw">from</span> fastapi <span class="kw">import</span> FastAPI
+<span class="kw">from</span> pydantic <span class="kw">import</span> BaseModel
+<span class="kw">import</span> joblib, numpy <span class="kw">as</span> np
+
+app = <span class="fn">FastAPI</span>()
+model = joblib.<span class="fn">load</span>(<span class="st">'pipeline.joblib'</span>)
+
+<span class="kw">class</span> <span class="fn">InputData</span>(BaseModel):
+  feature1: float
+  feature2: float
+  feature3: str
+
+<span class="kw">class</span> <span class="fn">Prediction</span>(BaseModel):
+  label: int
+  probability: float
+
+@app.<span class="fn">post</span>(<span class="st">'/predict'</span>, response_model=Prediction)
+<span class="kw">async def</span> <span class="fn">predict</span>(data: InputData):
+  X = np.<span class="fn">array</span>([[data.feature1, data.feature2, data.feature3]])
+  prob = model.<span class="fn">predict_proba</span>(X)[<span class="nm">0</span>, <span class="nm">1</span>]
+  <span class="kw">return</span> {<span class="st">'label'</span>: <span class="fn">int</span>(prob &gt; <span class="nm">0.5</span>), <span class="st">'probability'</span>: <span class="fn">float</span>(prob)}
+
+<span class="cm"># Run: uvicorn app:app --host 0.0.0.0 --port 8000</span>
+                    </div>
+                    <p class="mb-0">Add a <code>/health</code> endpoint that returns 200 OK — load balancers and Kubernetes need it.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-4">
+                <div class="card h-100 model-card">
+                  <div class="card-header fw-bold small">Docker — Reproducible Containers</div>
+                  <div class="card-body small">
+                    <p>Docker packages your model, dependencies, and server into one portable image that runs identically everywhere — local, cloud, or Kubernetes.</p>
+                    <div class="code-block mb-2">
+<span class="cm"># Dockerfile</span>
+FROM python:<span class="nm">3.11</span>-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY model.joblib app.py ./
+EXPOSE <span class="nm">8000</span>
+CMD [<span class="st">"uvicorn"</span>, <span class="st">"app:app"</span>, <span class="st">"--host"</span>, <span class="st">"0.0.0.0"</span>, <span class="st">"--port"</span>, <span class="st">"8000"</span>]
+                    </div>
+                    <div class="code-block mb-0">
+<span class="cm"># Build and run</span>
+docker build -t my-model .
+docker run -p <span class="nm">8000</span>:<span class="nm">8000</span> my-model
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100 model-card">
+                  <div class="card-header fw-bold small">Experiment Tracking</div>
+                  <div class="card-body small">
+                    <p>Without tracking, you'll forget which hyperparameters produced which results. Use MLflow or W&amp;B from day one.</p>
+                    <div class="code-block mb-2">
+<span class="kw">import</span> mlflow
+
+<span class="kw">with</span> mlflow.<span class="fn">start_run</span>():
+  mlflow.<span class="fn">log_params</span>({
+    <span class="st">'lr'</span>: <span class="nm">1e-3</span>, <span class="st">'batch_size'</span>: <span class="nm">64</span>,
+    <span class="st">'architecture'</span>: <span class="st">'resnet50'</span>
+  })
+  <span class="kw">for</span> epoch <span class="kw">in</span> <span class="fn">range</span>(epochs):
+    train_loss, val_acc = <span class="fn">train_one_epoch</span>(...)
+    mlflow.<span class="fn">log_metrics</span>({
+      <span class="st">'train_loss'</span>: train_loss,
+      <span class="st">'val_acc'</span>: val_acc
+    }, step=epoch)
+  mlflow.pytorch.<span class="fn">log_model</span>(model, <span class="st">'model'</span>)
+                    </div>
+                    <p class="mb-0"><strong>Alternatives:</strong> <code>wandb</code> (richer UI, team features), <code>neptune.ai</code>, <code>ClearML</code></p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100 model-card">
+                  <div class="card-header fw-bold small">Model Monitoring &amp; Drift</div>
+                  <div class="card-body small">
+                    <p>Models degrade silently in production. The world changes; your training data doesn't. Monitor for:</p>
+                    <table class="table table-sm table-bordered small mb-2 comp-table">
+                      <thead class="table-dark"><tr><th>Drift Type</th><th>What Changed</th><th>Signal</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>Data drift</strong></td><td>Input feature distribution</td><td>PSI, KL-divergence on features</td></tr>
+                        <tr><td><strong>Concept drift</strong></td><td>Relationship X→Y</td><td>Prediction accuracy drops</td></tr>
+                        <tr><td><strong>Label drift</strong></td><td>Output distribution</td><td>Mean prediction shifts</td></tr>
+                        <tr><td><strong>Upstream drift</strong></td><td>Data pipeline changed</td><td>Null rates, schema errors spike</td></tr>
+                      </tbody>
+                    </table>
+                    <p class="mb-0"><strong>Tools:</strong> <code>Evidently AI</code>, <code>WhyLogs</code>, <code>Arize</code>, <code>Fiddler</code></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card mb-3">
+              <div class="card-header fw-bold small">MLOps Maturity Stack</div>
+              <div class="card-body p-0">
+                <table class="table table-sm table-bordered small mb-0 comp-table">
+                  <thead class="table-dark"><tr><th>Level</th><th>What You Have</th><th>Tools</th></tr></thead>
+                  <tbody>
+                    <tr><td><span class="badge diff-beginner">Level 0</span></td><td>Manual — notebook → export → upload to server by hand</td><td>Jupyter, joblib, any web server</td></tr>
+                    <tr><td><span class="badge diff-beginner">Level 1</span></td><td>Experiment tracking + model registry + basic API</td><td>MLflow / W&amp;B, FastAPI, Docker</td></tr>
+                    <tr><td><span class="badge diff-intermediate">Level 2</span></td><td>CI/CD pipeline: test → train → evaluate → deploy automatically on new data</td><td>GitHub Actions, DVC, MLflow, Kubernetes</td></tr>
+                    <tr><td><span class="badge diff-intermediate">Level 3</span></td><td>Feature store + data versioning + automated retraining triggers + A/B testing</td><td>Feast, DVC, Seldon, Argo Workflows</td></tr>
+                    <tr><td><span class="badge diff-advanced">Level 4</span></td><td>Full observability: drift detection, automated rollback, shadow deployments, canary releases</td><td>Evidently, Arize, Istio, Kubeflow</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-6">
+                <div class="card h-100">
+                  <div class="card-header fw-bold small">Inference Optimisation</div>
+                  <div class="card-body small">
+                    <p>A trained model may be too slow or large for production. These techniques reduce latency and memory with minimal accuracy loss.</p>
+                    <table class="table table-sm table-bordered small mb-0 comp-table">
+                      <thead class="table-dark"><tr><th>Technique</th><th>How</th><th>Speedup</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>torch.compile</strong></td><td>JIT-compile model graph (PyTorch 2.0+)</td><td>1.5–3×</td></tr>
+                        <tr><td><strong>ONNX Runtime</strong></td><td>Cross-platform optimised inference engine</td><td>2–4×</td></tr>
+                        <tr><td><strong>TensorRT</strong></td><td>NVIDIA GPU kernel fusion + FP16</td><td>4–8×</td></tr>
+                        <tr><td><strong>INT8 Quantisation</strong></td><td>32-bit floats → 8-bit integers</td><td>2–4×, 4× smaller</td></tr>
+                        <tr><td><strong>Pruning</strong></td><td>Zero out low-magnitude weights</td><td>2–5× smaller</td></tr>
+                        <tr><td><strong>Distillation</strong></td><td>Train small "student" to mimic large "teacher"</td><td>10–50× smaller</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100">
+                  <div class="card-header fw-bold small">Free Deployment Platforms</div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-0 comp-table">
+                      <thead class="table-dark"><tr><th>Platform</th><th>Best For</th><th>Free Tier</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>Hugging Face Spaces</strong></td><td>Gradio / Streamlit ML demos</td><td>CPU Spaces always free</td></tr>
+                        <tr><td><strong>Render</strong></td><td>FastAPI / Flask REST APIs</td><td>750 hrs/month</td></tr>
+                        <tr><td><strong>Railway</strong></td><td>Full-stack apps with DB</td><td>$5 credit/month</td></tr>
+                        <tr><td><strong>Google Colab</strong></td><td>Notebook + free T4 GPU</td><td>GPU sessions (limited)</td></tr>
+                        <tr><td><strong>Kaggle Kernels</strong></td><td>Training notebooks</td><td>30 GPU hrs/week</td></tr>
+                        <tr><td><strong>Modal</strong></td><td>Serverless GPU inference</td><td>$30 credit/month</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="callout callout-tip">
+              <strong>Start at Level 1, not Level 4.</strong> Over-engineering MLOps before the model proves its value in production is a common trap. Get a working FastAPI + Docker deploy first, add monitoring when you have real traffic, and add CI/CD when retraining happens more than once a month.
+            </div>
+          </section>
+
         </div><!-- /col content -->
       </div><!-- /row -->
     </div><!-- /container-fluid -->
