@@ -158,10 +158,12 @@
           <nav id="aiml-sidebar" aria-label="Page sections">
             <div class="nav-section">Overview</div>
             <a class="nav-link" href="#foundation">Foundation</a>
+            <a class="nav-link" href="#ai-vs-ml">AI vs ML</a>
             <a class="nav-link" href="#learning-types">Learning Types</a>
 
             <div class="nav-section">Models</div>
             <a class="nav-link" href="#supervised">Supervised</a>
+            <a class="nav-link" href="#regression">Regression</a>
             <a class="nav-link" href="#unsupervised">Unsupervised</a>
             <a class="nav-link" href="#deep-learning">Deep Learning</a>
             <a class="nav-link" href="#reinforcement">Reinforcement</a>
@@ -235,6 +237,108 @@
               <strong>Key insight:</strong> Deep Learning ⊂ Machine Learning ⊂ Artificial Intelligence.
               Most modern "AI" products (ChatGPT, image generators, recommendation systems) are Deep Learning.
               Classical ML (Random Forest, XGBoost) still dominates structured/tabular data in industry.
+            </div>
+          </section>
+
+          <!-- ════════════════════════════════════════════════════════
+               SECTION 1b — AI vs ML
+          ════════════════════════════════════════════════════════ -->
+          <section id="ai-vs-ml" class="aiml-section mb-5">
+            <div class="section-divider"></div>
+            <h2 class="h4 fw-bold mb-1">AI vs Machine Learning — What's the Difference?</h2>
+            <p class="text-secondary small mb-3">These terms are often used interchangeably but they are not the same thing. Understanding the distinction prevents confusion when choosing tools or reading research.</p>
+
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #0d6efd;">
+                  <div class="card-header fw-bold small">Artificial Intelligence (AI)</div>
+                  <div class="card-body small">
+                    <p>The broadest term. Any technique that enables machines to <strong>simulate human-like intelligence</strong> — reasoning, problem-solving, planning, language understanding, perception.</p>
+                    <p class="mb-1 fw-semibold">Includes:</p>
+                    <ul class="ps-3 mb-2">
+                      <li>Rule-based expert systems (no learning)</li>
+                      <li>Search algorithms (A*, minimax)</li>
+                      <li>Machine Learning (learns from data)</li>
+                      <li>Robotics and planning</li>
+                      <li>Natural language processing</li>
+                    </ul>
+                    <div class="callout callout-info mb-0">AI does <strong>not</strong> require learning from data. A chess engine with hard-coded rules is AI but not ML.</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Machine Learning (ML)</div>
+                  <div class="card-body small">
+                    <p>A subset of AI where systems <strong>learn patterns from data</strong> without being explicitly programmed for every case. The model improves as it sees more examples.</p>
+                    <p class="mb-1 fw-semibold">Core idea:</p>
+                    <p class="mb-2"><em>Given input X and output Y, find a function f such that f(X) ≈ Y — and generalise to unseen X.</em></p>
+                    <p class="mb-1 fw-semibold">Three families:</p>
+                    <ul class="ps-3 mb-0">
+                      <li><strong>Regression</strong> — predict a continuous value</li>
+                      <li><strong>Classification</strong> — predict a category</li>
+                      <li><strong>Clustering / Generation</strong> — discover structure</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #6610f2;">
+                  <div class="card-header fw-bold small">Deep Learning (DL)</div>
+                  <div class="card-body small">
+                    <p>A subset of ML using <strong>multi-layer neural networks</strong> with many parameters (millions to billions). Excels on unstructured data: images, audio, text, video.</p>
+                    <p class="mb-1 fw-semibold">Why "deep"?</p>
+                    <p class="mb-2">Multiple stacked layers learn increasingly abstract representations — edges → shapes → objects → concepts.</p>
+                    <p class="mb-1 fw-semibold">When to use DL over classical ML:</p>
+                    <ul class="ps-3 mb-0">
+                      <li>Input is images, audio, or raw text</li>
+                      <li>You have &gt;100k training examples</li>
+                      <li>Feature engineering would be impractical</li>
+                      <li>State-of-the-art accuracy required</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Relationship diagram (text-based) -->
+            <div class="card mb-3">
+              <div class="card-header fw-bold small">Hierarchy and Practical Scope</div>
+              <div class="card-body small">
+                <div class="row g-3 align-items-center">
+                  <div class="col-12 col-md-5">
+                    <div class="text-center p-3" style="background:rgba(13,110,253,.08);border:1px solid rgba(13,110,253,.3);border-radius:12px;">
+                      <div class="fw-bold mb-2">Artificial Intelligence</div>
+                      <div class="p-2" style="background:rgba(32,201,151,.1);border:1px solid rgba(32,201,151,.3);border-radius:8px;">
+                        <div class="fw-bold mb-1">Machine Learning</div>
+                        <div class="p-2" style="background:rgba(102,16,242,.12);border:1px solid rgba(102,16,242,.3);border-radius:6px;">
+                          <div class="fw-bold">Deep Learning</div>
+                          <div class="small text-secondary">CNNs · RNNs · Transformers · GANs</div>
+                        </div>
+                        <div class="small text-secondary mt-1">+ Decision Trees · SVMs · Random Forests</div>
+                      </div>
+                      <div class="small text-secondary mt-1">+ Expert Systems · Search · Planning</div>
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-7">
+                    <table class="table table-sm table-bordered small mb-0 comp-table">
+                      <thead class="table-dark"><tr><th>Question</th><th>Answer</th></tr></thead>
+                      <tbody>
+                        <tr><td>Is ChatGPT AI?</td><td>Yes — it's also ML and Deep Learning</td></tr>
+                        <tr><td>Is a spam filter AI?</td><td>Yes — it's also ML (Naive Bayes / logistic)</td></tr>
+                        <tr><td>Is a chess engine AI?</td><td>Yes — but <em>not</em> ML (rule-based search)</td></tr>
+                        <tr><td>Is linear regression ML?</td><td>Yes — but not deep learning</td></tr>
+                        <tr><td>Is a neural net always deep?</td><td>No — a 1-layer net is "shallow"</td></tr>
+                        <tr><td>Is deep learning always better?</td><td>No — XGBoost beats DL on most tabular data</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="callout callout-tip">
+              <strong>Practical rule:</strong> Start with classical ML (XGBoost, logistic regression). Only reach for deep learning when the data is unstructured, the dataset is large, or classical methods have plateaued. Deep learning is more powerful <em>and</em> more expensive to train, debug, and deploy.
             </div>
           </section>
 
@@ -413,6 +517,146 @@
           </section>
 
           <!-- ════════════════════════════════════════════════════════
+               SECTION 3b — REGRESSION DEEP DIVE
+          ════════════════════════════════════════════════════════ -->
+          <section id="regression" class="aiml-section mb-5">
+            <div class="section-divider"></div>
+            <h2 class="h4 fw-bold mb-1">Regression — From Linear to Neural</h2>
+            <p class="text-secondary small mb-3">Regression predicts a <strong>continuous numeric output</strong> (price, temperature, score). Understanding the regression family in depth is the foundation of almost all supervised learning, including neural networks.</p>
+
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-6">
+                <div class="card h-100 model-card" style="border-top:3px solid #0d6efd;">
+                  <div class="card-header fw-bold small d-flex justify-content-between">
+                    <span>Linear Regression</span><span class="badge diff-beginner">Beginner</span>
+                  </div>
+                  <div class="card-body small">
+                    <p>Fits a straight line (or hyperplane) through the data: <strong>ŷ = w₀ + w₁x₁ + w₂x₂ + … + wₙxₙ</strong>. Weights are found by minimising the Mean Squared Error (MSE) between predictions and true values.</p>
+                    <div class="code-block mb-2">
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LinearRegression
+model = <span class="fn">LinearRegression</span>()
+model.<span class="fn">fit</span>(X_train, y_train)
+<span class="fn">print</span>(model.coef_)      <span class="cm"># weight per feature</span>
+<span class="fn">print</span>(model.intercept_) <span class="cm"># bias term w₀</span>
+                    </div>
+                    <p class="mb-1 fw-semibold">Assumptions (when they break, the model fails):</p>
+                    <ul class="ps-3 mb-0">
+                      <li>Linear relationship between features and target</li>
+                      <li>Errors are normally distributed and homoscedastic</li>
+                      <li>Features are not perfectly collinear</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100 model-card" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small d-flex justify-content-between">
+                    <span>Ridge &amp; Lasso (Regularised Regression)</span><span class="badge diff-beginner">Beginner</span>
+                  </div>
+                  <div class="card-body small">
+                    <p>Plain linear regression overfits with many features. Regularisation adds a penalty to large weights, forcing the model to stay simpler.</p>
+                    <table class="table table-sm table-bordered small mb-2">
+                      <thead class="table-dark"><tr><th>Method</th><th>Penalty</th><th>Effect</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>Ridge (L2)</strong></td><td>λ · Σwᵢ²</td><td>Shrinks all weights toward zero; keeps all features</td></tr>
+                        <tr><td><strong>Lasso (L1)</strong></td><td>λ · Σ|wᵢ|</td><td>Drives some weights to exactly zero — automatic feature selection</td></tr>
+                        <tr><td><strong>ElasticNet</strong></td><td>mix of L1+L2</td><td>Best of both; use when features are correlated</td></tr>
+                      </tbody>
+                    </table>
+                    <div class="code-block mb-0">
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> Ridge, Lasso, ElasticNet
+ridge = <span class="fn">Ridge</span>(alpha=<span class="nm">1.0</span>)     <span class="cm"># alpha = λ</span>
+lasso = <span class="fn">Lasso</span>(alpha=<span class="nm">0.1</span>)
+enet  = <span class="fn">ElasticNet</span>(alpha=<span class="nm">0.1</span>, l1_ratio=<span class="nm">0.5</span>)
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-4">
+                <div class="card h-100 model-card">
+                  <div class="card-header fw-bold small d-flex justify-content-between">
+                    <span>Polynomial Regression</span><span class="badge diff-beginner">Beginner</span>
+                  </div>
+                  <div class="card-body small">
+                    <p>Fits curves instead of lines by adding polynomial features: x², x³, x·z, etc. Still linear in the weights — just linear regression on transformed features.</p>
+                    <div class="code-block mb-2">
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> PolynomialFeatures
+<span class="kw">from</span> sklearn.pipeline <span class="kw">import</span> make_pipeline
+
+model = <span class="fn">make_pipeline</span>(
+  <span class="fn">PolynomialFeatures</span>(degree=<span class="nm">3</span>),
+  <span class="fn">Ridge</span>(alpha=<span class="nm">1.0</span>)  <span class="cm"># always regularise poly</span>
+)
+model.<span class="fn">fit</span>(X_train, y_train)
+                    </div>
+                    <div class="callout callout-warn mb-0">Degree &gt; 3 almost always overfits badly. Prefer tree-based models or neural networks for complex non-linear relationships.</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100 model-card">
+                  <div class="card-header fw-bold small d-flex justify-content-between">
+                    <span>Logistic Regression</span><span class="badge diff-beginner">Beginner</span>
+                  </div>
+                  <div class="card-body small">
+                    <p>Despite the name, logistic regression is a <strong>classification</strong> model. It applies the sigmoid function to a linear combination of features to output a probability between 0 and 1.</p>
+                    <p><strong>ŷ = σ(w·x + b)</strong> where σ(z) = 1/(1 + e⁻ᶻ)</p>
+                    <p class="mb-1">Threshold at 0.5 for binary classification. For multi-class, use softmax (multinomial logistic regression).</p>
+                    <ul class="ps-3 mb-0">
+                      <li>Fast to train, highly interpretable (odds ratios)</li>
+                      <li>Great baseline for any classification problem</li>
+                      <li>Fails on non-linear decision boundaries without feature engineering</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100 model-card">
+                  <div class="card-header fw-bold small d-flex justify-content-between">
+                    <span>Regression with Neural Networks</span><span class="badge diff-intermediate">Intermediate</span>
+                  </div>
+                  <div class="card-body small">
+                    <p>For complex non-linear regression, an MLP replaces the linear model: multiple hidden layers with non-linear activations, then a <strong>single linear output neuron</strong> (no activation on the last layer for regression).</p>
+                    <div class="code-block mb-2">
+<span class="kw">class</span> <span class="fn">MLPRegressor</span>(nn.Module):
+  <span class="kw">def</span> <span class="fn">__init__</span>(self):
+    <span class="fn">super()</span>.<span class="fn">__init__</span>()
+    self.net = nn.<span class="fn">Sequential</span>(
+      nn.<span class="fn">Linear</span>(<span class="nm">n_features</span>, <span class="nm">128</span>), nn.<span class="fn">ReLU</span>(),
+      nn.<span class="fn">Linear</span>(<span class="nm">128</span>, <span class="nm">64</span>),          nn.<span class="fn">ReLU</span>(),
+      nn.<span class="fn">Linear</span>(<span class="nm">64</span>, <span class="nm">1</span>)  <span class="cm"># linear output</span>
+    )
+  <span class="kw">def</span> <span class="fn">forward</span>(self, x): <span class="kw">return</span> self.net(x)
+                    </div>
+                    <p class="mb-0">Loss: <code>nn.MSELoss()</code> for regression. Use <code>nn.HuberLoss()</code> for robustness to outliers.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card mb-3">
+              <div class="card-header fw-bold small">When to Use Which Regression Model</div>
+              <div class="card-body p-0">
+                <table class="table table-sm table-bordered small mb-0 comp-table">
+                  <thead class="table-dark"><tr><th>Situation</th><th>Best Model</th><th>Why</th></tr></thead>
+                  <tbody>
+                    <tr><td>Linear relationship, few features, need interpretability</td><td>Linear Regression</td><td>Coefficients are directly interpretable</td></tr>
+                    <tr><td>Many correlated features, risk of overfitting</td><td>Ridge</td><td>Shrinks weights, keeps all features</td></tr>
+                    <tr><td>Many features, expect most to be irrelevant</td><td>Lasso</td><td>Zeros out irrelevant features automatically</td></tr>
+                    <tr><td>Mild non-linearity, small dataset</td><td>Polynomial + Ridge</td><td>Adds curvature without deep learning overhead</td></tr>
+                    <tr><td>Tabular data, non-linear, medium dataset</td><td>XGBoost / LightGBM</td><td>Handles interactions and non-linearity out of the box</td></tr>
+                    <tr><td>High-dimensional, large dataset, complex patterns</td><td>MLP / Deep Learning</td><td>Learns arbitrary non-linear functions</td></tr>
+                    <tr><td>Time series forecasting</td><td>LSTM / Temporal Fusion Transformer</td><td>Models temporal dependencies natively</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- ════════════════════════════════════════════════════════
                SECTION 4 — UNSUPERVISED MODELS
           ════════════════════════════════════════════════════════ -->
           <section id="unsupervised" class="aiml-section mb-5">
@@ -488,6 +732,72 @@
             <div class="section-divider"></div>
             <h2 class="h3 fw-bold mb-1">Deep Learning Architectures</h2>
             <p class="text-secondary mb-4">Neural network families — when to use which.</p>
+
+            <!-- MLP fundamentals — the base of all neural networks -->
+            <div class="card mb-4 model-card" style="border-left:4px solid #ffc107;">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <span class="fw-bold">Neural Network Fundamentals — The MLP</span>
+                <span class="badge diff-beginner">Foundation</span>
+              </div>
+              <div class="card-body small">
+                <div class="row g-3">
+                  <div class="col-12 col-md-5">
+                    <p>A <strong>Multi-Layer Perceptron (MLP)</strong> — also called a fully-connected or feed-forward network — is the simplest neural network. Every advanced architecture (CNN, RNN, Transformer) is built on the same core idea.</p>
+                    <p class="fw-semibold mb-1">Anatomy of a neuron:</p>
+                    <p class="mb-2"><strong>output = activation(Σ(weightᵢ × inputᵢ) + bias)</strong></p>
+                    <p class="fw-semibold mb-1">Anatomy of a network:</p>
+                    <ul class="ps-3 mb-2">
+                      <li><strong>Input layer</strong> — one node per feature</li>
+                      <li><strong>Hidden layers</strong> — learn non-linear representations</li>
+                      <li><strong>Output layer</strong> — one node per class (classification) or 1 node (regression)</li>
+                    </ul>
+                    <p class="fw-semibold mb-1">How it learns:</p>
+                    <ol class="ps-3 mb-0">
+                      <li><strong>Forward pass:</strong> input flows through layers, produces prediction</li>
+                      <li><strong>Loss:</strong> compare prediction to truth (MSE, cross-entropy)</li>
+                      <li><strong>Backward pass:</strong> gradients flow back via chain rule (backprop)</li>
+                      <li><strong>Update:</strong> optimizer adjusts weights to reduce loss</li>
+                      <li>Repeat for every batch until loss converges</li>
+                    </ol>
+                  </div>
+                  <div class="col-12 col-md-7">
+                    <div class="code-block mb-2">
+<span class="kw">import</span> torch.nn <span class="kw">as</span> nn
+
+<span class="cm"># 3-layer MLP: 784 → 256 → 128 → 10</span>
+<span class="cm"># (e.g., MNIST: 28×28 pixels → 10 digit classes)</span>
+model = nn.<span class="fn">Sequential</span>(
+  nn.<span class="fn">Linear</span>(<span class="nm">784</span>, <span class="nm">256</span>),  <span class="cm"># hidden layer 1</span>
+  nn.<span class="fn">ReLU</span>(),
+  nn.<span class="fn">Dropout</span>(<span class="nm">0.3</span>),
+  nn.<span class="fn">Linear</span>(<span class="nm">256</span>, <span class="nm">128</span>),  <span class="cm"># hidden layer 2</span>
+  nn.<span class="fn">ReLU</span>(),
+  nn.<span class="fn">Dropout</span>(<span class="nm">0.3</span>),
+  nn.<span class="fn">Linear</span>(<span class="nm">128</span>, <span class="nm">10</span>),   <span class="cm"># output (logits)</span>
+)
+
+<span class="cm"># Training step</span>
+logits = <span class="fn">model</span>(x_batch)             <span class="cm"># forward</span>
+loss = nn.<span class="fn">CrossEntropyLoss</span>()(logits, y_batch)
+loss.<span class="fn">backward</span>()                     <span class="cm"># backward</span>
+optimizer.<span class="fn">step</span>()                    <span class="cm"># update</span>
+                    </div>
+                    <p class="mb-1 fw-semibold">Key design choices:</p>
+                    <table class="table table-sm table-bordered small mb-0 comp-table">
+                      <thead class="table-dark"><tr><th>Choice</th><th>Default Recommendation</th></tr></thead>
+                      <tbody>
+                        <tr><td>Activation (hidden)</td><td>ReLU (or GELU for transformers)</td></tr>
+                        <tr><td>Activation (output)</td><td>None (regression), Softmax (classification)</td></tr>
+                        <tr><td>Width</td><td>128–512, powers of 2 for GPU efficiency</td></tr>
+                        <tr><td>Depth</td><td>Start with 2–3 hidden layers</td></tr>
+                        <tr><td>Regularisation</td><td>Dropout (0.2–0.5) + weight decay</td></tr>
+                        <tr><td>Initialisation</td><td>Kaiming He (ReLU), Xavier (tanh/sigmoid)</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
 
             <div class="row g-3 mb-4">
               <div class="col-12 col-lg-6">
@@ -1250,6 +1560,45 @@ times = []
             <div class="section-divider"></div>
             <h2 class="h4 fw-bold mb-1">Common Pitfalls</h2>
             <p class="text-secondary small mb-3">These mistakes are responsible for most failed ML projects. Knowing them in advance is half the solution.</p>
+
+            <!-- Goldilocks analogy -->
+            <div class="card mb-4" style="border-left:4px solid #ffc107;">
+              <div class="card-header fw-bold small">The Goldilocks Problem — Model Complexity</div>
+              <div class="card-body small">
+                <div class="row g-3 align-items-center">
+                  <div class="col-12 col-md-4 text-center">
+                    <div class="p-3 rounded mb-2" style="background:rgba(108,117,125,.12);border:1px solid rgba(108,117,125,.3);">
+                      <div class="fw-bold text-secondary mb-1">Too Simple</div>
+                      <div class="display-6">🥣</div>
+                      <div class="small mt-1"><strong>Underfitting</strong><br>Too cold — can't capture the pattern</div>
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-4 text-center">
+                    <div class="p-3 rounded mb-2" style="background:rgba(25,135,84,.12);border:1px solid rgba(25,135,84,.4);">
+                      <div class="fw-bold text-success mb-1">Just Right</div>
+                      <div class="display-6">🥣</div>
+                      <div class="small mt-1"><strong>Good Fit</strong><br>Train ≈ Val — generalises well</div>
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-4 text-center">
+                    <div class="p-3 rounded mb-2" style="background:rgba(220,53,69,.12);border:1px solid rgba(220,53,69,.3);">
+                      <div class="fw-bold text-danger mb-1">Too Complex</div>
+                      <div class="display-6">🥣</div>
+                      <div class="small mt-1"><strong>Overfitting</strong><br>Too hot — memorised noise</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-3">
+                  <p class="mb-1">The central challenge of machine learning is finding the <strong>Goldilocks zone</strong> of model complexity:</p>
+                  <ul class="ps-3 mb-2">
+                    <li>A <strong>too-simple</strong> model (linear regression on a non-linear problem) has <em>high bias</em> — it makes systematic errors because it can't represent the true pattern.</li>
+                    <li>A <strong>too-complex</strong> model (a 50-layer network on 500 samples) has <em>high variance</em> — it fits the training noise perfectly but fails on new data.</li>
+                    <li>A <strong>just-right</strong> model learns the underlying signal and ignores noise — its training and validation metrics are close to each other.</li>
+                  </ul>
+                  <p class="mb-0">This is formally called the <strong>Bias-Variance Tradeoff</strong>. Every modelling decision — architecture depth, regularisation, dataset size — moves you along this spectrum. The tools to find the sweet spot: cross-validation, learning curves, and regularisation.</p>
+                </div>
+              </div>
+            </div>
 
             <div class="row g-3 mb-3">
               <div class="col-12 col-md-6">
