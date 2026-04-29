@@ -5282,6 +5282,164 @@ distill_loss = F.<span class="fn">kl_div</span>(soft_preds, soft_targets, reduct
             </div>
           </section>
 
+          <!-- ═══════════════════════════════════════════════════════
+               HARDWARE & DISTRIBUTED TRAINING
+          ═══════════════════════════════════════════════════════ -->
+          <section id="distributed" class="mb-5">
+            <h2 class="section-title">Hardware &amp; Distributed Training</h2>
+            <p class="lead">Training large models on a single GPU is rarely feasible. Understanding GPU memory, parallelism strategies, and cloud infrastructure is essential for production ML at scale.</p>
+
+            <!-- GPU Memory -->
+            <h4 class="mt-4 mb-3 fw-semibold">GPU Memory Breakdown</h4>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">Where Memory Goes During Training</div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-2 comp-table">
+                      <thead class="table-dark"><tr><th>Component</th><th>FP32 bytes per param</th><th>Notes</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>Model weights</strong></td><td>4</td><td>2 in FP16/BF16</td></tr>
+                        <tr><td><strong>Gradients</strong></td><td>4</td><td>Same dtype as weights</td></tr>
+                        <tr><td><strong>Optimizer state (Adam)</strong></td><td>8</td><td>m and v buffers in FP32</td></tr>
+                        <tr><td><strong>Activations</strong></td><td>Varies</td><td>Batch × seq × hidden × layers; dominates for long sequences</td></tr>
+                        <tr><td><strong>KV cache (inference)</strong></td><td>2 × layers × heads × seq × d_head</td><td>Grows linearly with context</td></tr>
+                      </tbody>
+                    </table>
+                    <p class="mb-0"><strong>Rule of thumb:</strong> A 7B parameter model in FP16 needs ~14 GB for weights alone. Add 2× for gradients + optimizer = ~42 GB for full Adam training in FP32 optimizer states (mixed precision).</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Memory Reduction Techniques</div>
+                  <div class="card-body small">
+                    <ul class="ps-3 mb-2">
+                      <li><strong>Mixed precision (AMP):</strong> Forward/backward in FP16/BF16; optimizer in FP32. ~2× memory, ~3× speed.</li>
+                      <li><strong>Gradient checkpointing:</strong> Recompute activations on backward pass instead of storing them. ~33% memory overhead for compute.</li>
+                      <li><strong>Gradient accumulation:</strong> Accumulate gradients over N mini-batches before stepping. Simulate large batch on small GPU.</li>
+                      <li><strong>CPU offloading:</strong> Move optimizer states/activations to CPU RAM (DeepSpeed ZeRO-Infinity).</li>
+                      <li><strong>Flash Attention:</strong> O(1) memory (vs O(n²)) for attention matrix by fusing CUDA kernels.</li>
+                    </ul>
+                    <div class="code-block">
+<span class="cm"># Mixed precision + gradient checkpointing</span>
+<span class="kw">from</span> torch.cuda.amp <span class="kw">import</span> autocast, GradScaler
+scaler = <span class="fn">GradScaler</span>()
+model.<span class="fn">gradient_checkpointing_enable</span>()
+
+<span class="kw">with</span> <span class="fn">autocast</span>():
+    loss = model(inputs).loss
+scaler.<span class="fn">scale</span>(loss).<span class="fn">backward</span>()
+scaler.<span class="fn">step</span>(optimizer)
+scaler.<span class="fn">update</span>()
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Parallelism strategies -->
+            <h4 class="mt-4 mb-3 fw-semibold">Parallelism Strategies</h4>
+            <div class="table-responsive mb-4">
+              <table class="table table-sm table-bordered small comp-table">
+                <thead class="table-dark">
+                  <tr><th>Strategy</th><th>What's split</th><th>Communication</th><th>Best for</th><th>Example</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td><strong>Data Parallel (DDP)</strong></td><td>Same model on each GPU; split data</td><td>AllReduce gradients each step</td><td>Most common; model fits 1 GPU</td><td>PyTorch DDP, Horovod</td></tr>
+                  <tr><td><strong>Tensor Parallel</strong></td><td>Split individual weight matrices across GPUs</td><td>AllReduce within each layer</td><td>Very large layers (attention, FFN)</td><td>Megatron-LM, DeepSpeed TP</td></tr>
+                  <tr><td><strong>Pipeline Parallel</strong></td><td>Split model layers across GPUs</td><td>Send activations between stages</td><td>Very deep models; GPipe, 1F1B schedule</td><td>GPT-NeoX, PaLM</td></tr>
+                  <tr><td><strong>ZeRO-1</strong></td><td>Optimizer states sharded across GPUs</td><td>AllGather optimizer states</td><td>Free win over DDP</td><td>DeepSpeed ZeRO stage 1</td></tr>
+                  <tr><td><strong>ZeRO-2</strong></td><td>Optimizer + gradients sharded</td><td>ReduceScatter + AllGather</td><td>Large models; less comm than ZeRO-3</td><td>DeepSpeed ZeRO stage 2</td></tr>
+                  <tr><td><strong>ZeRO-3 / FSDP</strong></td><td>Optimizer + gradients + params sharded</td><td>AllGather params on forward/backward</td><td>Models that don't fit on 1 GPU</td><td>DeepSpeed ZeRO-3, PyTorch FSDP</td></tr>
+                  <tr><td><strong>3D Parallel</strong></td><td>Data + Tensor + Pipeline combined</td><td>Complex interconnect topology</td><td>Largest scale (1000+ GPUs)</td><td>Megatron-Turing NLG, GPT-4</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- DDP code -->
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">PyTorch DDP (multi-GPU single node)</div>
+                  <div class="card-body small">
+                    <div class="code-block">
+<span class="kw">import</span> torch.distributed <span class="kw">as</span> dist
+<span class="kw">from</span> torch.nn.parallel <span class="kw">import</span> DistributedDataParallel <span class="kw">as</span> DDP
+
+<span class="cm"># Launch: torchrun --nproc_per_node=4 train.py</span>
+dist.<span class="fn">init_process_group</span>(<span class="st">"nccl"</span>)
+local_rank = dist.<span class="fn">get_rank</span>()
+torch.cuda.<span class="fn">set_device</span>(local_rank)
+
+model = <span class="fn">MyModel</span>().<span class="fn">to</span>(local_rank)
+model = <span class="fn">DDP</span>(model, device_ids=[local_rank])
+
+<span class="cm"># Sampler ensures non-overlapping data per GPU</span>
+sampler = DistributedSampler(dataset)
+loader = DataLoader(dataset, sampler=sampler, batch_size=<span class="nm">32</span>)
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">DeepSpeed ZeRO + FSDP</div>
+                  <div class="card-body small">
+                    <div class="code-block">
+<span class="cm"># DeepSpeed config (ds_config.json)</span>
+{
+  <span class="st">"zero_optimization"</span>: {
+    <span class="st">"stage"</span>: <span class="nm">3</span>,
+    <span class="st">"offload_optimizer"</span>: {<span class="st">"device"</span>: <span class="st">"cpu"</span>},
+    <span class="st">"offload_param"</span>: {<span class="st">"device"</span>: <span class="st">"cpu"</span>}
+  },
+  <span class="st">"bf16"</span>: {<span class="st">"enabled"</span>: <span class="nm">true</span>},
+  <span class="st">"gradient_checkpointing"</span>: <span class="nm">true</span>
+}
+
+<span class="cm"># PyTorch FSDP alternative</span>
+<span class="kw">from</span> torch.distributed.fsdp <span class="kw">import</span> FullyShardedDataParallel <span class="kw">as</span> FSDP
+model = <span class="fn">FSDP</span>(model, sharding_strategy=ShardingStrategy.FULL_SHARD,
+             mixed_precision=<span class="fn">MixedPrecision</span>(param_dtype=torch.bfloat16))
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Cloud ML -->
+            <h4 class="mt-4 mb-3 fw-semibold">Cloud ML Platforms</h4>
+            <div class="table-responsive mb-4">
+              <table class="table table-sm table-bordered small comp-table">
+                <thead class="table-dark"><tr><th>Platform</th><th>Provider</th><th>Key features</th><th>Best for</th></tr></thead>
+                <tbody>
+                  <tr><td><strong>SageMaker</strong></td><td>AWS</td><td>Managed training/serving, Feature Store, Clarify (bias), Pipelines CI/CD, A/B traffic splitting</td><td>AWS-native orgs, full MLOps lifecycle</td></tr>
+                  <tr><td><strong>Vertex AI</strong></td><td>GCP</td><td>AutoML, Matching Engine (vector search), Model Registry, Explainable AI, Pipelines (Kubeflow)</td><td>GCP-native, research &amp; large-scale training</td></tr>
+                  <tr><td><strong>Azure ML</strong></td><td>Microsoft</td><td>Designer (drag-drop), Responsible AI dashboard, integration with Azure OpenAI</td><td>Enterprise, Microsoft ecosystem</td></tr>
+                  <tr><td><strong>Databricks</strong></td><td>Multi-cloud</td><td>MLflow native, Unity Catalog, Delta Lake, Feature Store, Model Serving</td><td>Data-heavy orgs, Spark workloads</td></tr>
+                  <tr><td><strong>Modal / RunPod / Lambda</strong></td><td>Indie clouds</td><td>On-demand GPU rentals, serverless inference, cheap A100/H100 access</td><td>Startups, research, cost-sensitive workloads</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- GPU comparison -->
+            <h4 class="mt-4 mb-3 fw-semibold">GPU Quick Reference</h4>
+            <div class="table-responsive">
+              <table class="table table-sm table-bordered small comp-table">
+                <thead class="table-dark"><tr><th>GPU</th><th>VRAM</th><th>FP16 TFLOPS</th><th>BF16</th><th>Int8</th><th>NVLink</th><th>Best use</th></tr></thead>
+                <tbody>
+                  <tr><td><strong>RTX 4090</strong></td><td>24 GB</td><td>165</td><td>✓</td><td>✓</td><td>✗</td><td>Local research, fine-tuning up to ~30B with quantization</td></tr>
+                  <tr><td><strong>A100 40G</strong></td><td>40 GB</td><td>312</td><td>✓</td><td>✓</td><td>✓ (600 GB/s)</td><td>Training medium models, production inference</td></tr>
+                  <tr><td><strong>A100 80G</strong></td><td>80 GB</td><td>312</td><td>✓</td><td>✓</td><td>✓ (600 GB/s)</td><td>Training LLMs up to 70B, cloud standard</td></tr>
+                  <tr><td><strong>H100 SXM</strong></td><td>80 GB</td><td>989</td><td>✓</td><td>✓</td><td>✓ (900 GB/s)</td><td>Frontier LLM training, FP8 support</td></tr>
+                  <tr><td><strong>H200</strong></td><td>141 GB</td><td>989</td><td>✓</td><td>✓</td><td>✓</td><td>Very large model training with HBM3e memory</td></tr>
+                  <tr><td><strong>TPU v5e</strong></td><td>—</td><td>197 (bf16)</td><td>✓</td><td>✓</td><td>ICI fabric</td><td>Google cloud, JAX/XLA workloads, price-performance</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
         </div><!-- /col content -->
       </div><!-- /row -->
     </div><!-- /container-fluid -->
