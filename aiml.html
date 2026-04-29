@@ -3436,6 +3436,284 @@ output  = weights @ V               <span class="cm"># (seq, d_v)</span>
             </div>
           </section>
 
+          <!-- ═══════════════════════════════════════════════════ PROBABILITY & STATS DEEP DIVE -->
+          <section id="prob-stats" class="aiml-section mb-5">
+            <div class="section-divider"></div>
+            <h2 class="h4 fw-bold mb-1">Probability &amp; Statistics — Deep Dive</h2>
+            <p class="text-secondary small mb-3">ML models are probabilistic by nature. Understanding distributions, estimation, and inference is what separates someone who runs models from someone who understands them.</p>
+
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #0d6efd;">
+                  <div class="card-header fw-bold small">Key Probability Distributions</div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-0 comp-table">
+                      <thead class="table-dark"><tr><th>Distribution</th><th>Parameters</th><th>PDF/PMF</th><th>ML Use</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>Bernoulli</strong></td><td>p</td><td>p^x(1-p)^(1-x)</td><td>Binary label probability</td></tr>
+                        <tr><td><strong>Binomial</strong></td><td>n, p</td><td>C(n,k)p^k(1-p)^(n-k)</td><td>k successes in n trials</td></tr>
+                        <tr><td><strong>Gaussian (Normal)</strong></td><td>μ, σ²</td><td>(1/σ√2π)e^(-(x-μ)²/2σ²)</td><td>Weight init, noise, prior</td></tr>
+                        <tr><td><strong>Categorical</strong></td><td>p₁…pₖ</td><td>∏pᵢ^xᵢ</td><td>Multi-class output</td></tr>
+                        <tr><td><strong>Poisson</strong></td><td>λ</td><td>λ^k e^-λ / k!</td><td>Count data, event rates</td></tr>
+                        <tr><td><strong>Beta</strong></td><td>α, β</td><td>x^(α-1)(1-x)^(β-1)/B(α,β)</td><td>Prior on probabilities</td></tr>
+                        <tr><td><strong>Dirichlet</strong></td><td>α₁…αₖ</td><td>∝∏xᵢ^(αᵢ-1)</td><td>Prior on categoricals (LDA)</td></tr>
+                        <tr><td><strong>Exponential</strong></td><td>λ</td><td>λe^(-λx)</td><td>Time between events</td></tr>
+                        <tr><td><strong>Laplace</strong></td><td>μ, b</td><td>(1/2b)e^(-|x-μ|/b)</td><td>L1 regularisation prior (Lasso)</td></tr>
+                        <tr><td><strong>Student-t</strong></td><td>ν, μ, σ</td><td>Heavy tails</td><td>Robust regression, small samples</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">MLE vs MAP vs Bayesian Inference</div>
+                  <div class="card-body small">
+                    <p>Three ways to estimate parameters from data — each makes different assumptions about uncertainty.</p>
+                    <table class="table table-sm table-bordered small mb-2 comp-table">
+                      <thead class="table-dark"><tr><th>Method</th><th>Objective</th><th>Prior?</th><th>Output</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>MLE</strong></td><td>max P(data|θ)</td><td>No</td><td>Point estimate θ̂</td></tr>
+                        <tr><td><strong>MAP</strong></td><td>max P(data|θ)·P(θ)</td><td>Yes</td><td>Point estimate θ̂_MAP</td></tr>
+                        <tr><td><strong>Bayesian</strong></td><td>compute P(θ|data)</td><td>Yes</td><td>Full distribution over θ</td></tr>
+                      </tbody>
+                    </table>
+                    <p class="fw-semibold mb-1">Key equivalences:</p>
+                    <ul class="ps-3 mb-2">
+                      <li><strong>MLE + Gaussian likelihood = minimising MSE</strong></li>
+                      <li><strong>MLE + Bernoulli likelihood = minimising cross-entropy</strong></li>
+                      <li><strong>MAP + Gaussian prior = L2 (Ridge) regularisation</strong></li>
+                      <li><strong>MAP + Laplace prior = L1 (Lasso) regularisation</strong></li>
+                    </ul>
+                    <div class="callout callout-tip mb-0">When you add weight decay to your optimizer you are implicitly doing MAP estimation with a Gaussian prior on weights. This is not a coincidence — it is the mathematical equivalence.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">Hypothesis Testing</div>
+                  <div class="card-body small">
+                    <p>Used to decide if observed model improvements are real or due to random chance.</p>
+                    <p class="fw-semibold mb-1">Workflow:</p>
+                    <ol class="ps-3 mb-2">
+                      <li>State H₀ (null) and H₁ (alternative)</li>
+                      <li>Choose significance level α (usually 0.05)</li>
+                      <li>Compute test statistic and p-value</li>
+                      <li>If p &lt; α: reject H₀ (result is significant)</li>
+                    </ol>
+                    <p class="fw-semibold mb-1">Common tests in ML:</p>
+                    <ul class="ps-3 mb-2">
+                      <li><strong>t-test:</strong> compare means of two models' CV scores</li>
+                      <li><strong>McNemar's test:</strong> compare two classifiers on same test set</li>
+                      <li><strong>Wilcoxon signed-rank:</strong> non-parametric alternative to t-test</li>
+                      <li><strong>Bootstrap test:</strong> permutation test for any metric</li>
+                    </ul>
+                    <div class="callout callout-warn mb-0"><strong>p-value ≠ effect size.</strong> A model that's 0.001% better can have p&lt;0.05 on a large test set. Always report confidence intervals alongside p-values.</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #6610f2;">
+                  <div class="card-header fw-bold small">Central Limit Theorem &amp; Confidence Intervals</div>
+                  <div class="card-body small">
+                    <p><strong>CLT:</strong> The sample mean of n i.i.d. samples converges to a normal distribution as n→∞, regardless of the underlying distribution: x̄ ~ N(μ, σ²/n)</p>
+                    <p class="fw-semibold mb-1">Why it matters in ML:</p>
+                    <ul class="ps-3 mb-2">
+                      <li>Justifies using z-tests/t-tests on model performance metrics</li>
+                      <li>Mini-batch gradient estimates are approximately normal at large batch sizes</li>
+                      <li>Cross-validation scores are asymptotically normal</li>
+                    </ul>
+                    <p class="fw-semibold mb-1">95% Confidence Interval for accuracy:</p>
+                    <div class="code-block mb-2">
+<span class="cm"># Wilson score interval (better for proportions)</span>
+<span class="kw">from</span> statsmodels.stats.proportion <span class="kw">import</span> proportion_confint
+ci_lo, ci_hi = <span class="fn">proportion_confint</span>(
+  correct, total, alpha=<span class="nm">0.05</span>, method=<span class="st">'wilson'</span>)
+<span class="fn">print</span>(<span class="st">f'Accuracy: {correct/total:.3f} [{ci_lo:.3f}, {ci_hi:.3f}]'</span>)
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #dc3545;">
+                  <div class="card-header fw-bold small">Correlation vs Causation</div>
+                  <div class="card-body small">
+                    <p>ML models learn correlations in data. They do not discover causal relationships. This distinction is critical for deployment.</p>
+                    <p class="fw-semibold mb-1">Pearson correlation:</p>
+                    <p class="mb-2">r = Σ(xᵢ-x̄)(yᵢ-ȳ) / (n·σₓσᵧ) — measures linear relationship. Range: [−1, 1]</p>
+                    <p class="fw-semibold mb-1">Spearman rank correlation:</p>
+                    <p class="mb-2">ρ = 1 − 6Σdᵢ²/n(n²−1) — measures monotonic relationship. Robust to outliers.</p>
+                    <p class="fw-semibold mb-1">Confounders — why correlation misleads:</p>
+                    <ul class="ps-3 mb-0">
+                      <li>Ice cream sales correlate with drowning → confounder: hot weather</li>
+                      <li>Hospital visits correlate with death → selection bias</li>
+                      <li>Simpson's Paradox: trend reverses when data is disaggregated by group</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═══════════════════════════════════════════════════ INFORMATION THEORY -->
+          <section id="info-theory" class="aiml-section mb-5">
+            <div class="section-divider"></div>
+            <h2 class="h4 fw-bold mb-1">Information Theory</h2>
+            <p class="text-secondary small mb-3">Shannon's information theory underpins every loss function, compression algorithm, and learned representation in ML. The vocabulary — entropy, cross-entropy, KL divergence — appears constantly.</p>
+
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #0dcaf0;">
+                  <div class="card-header fw-bold small">Entropy &amp; Cross-Entropy</div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-2 comp-table">
+                      <thead class="table-dark"><tr><th>Quantity</th><th>Formula</th><th>Meaning</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>Self-information</strong></td><td>I(x) = −log₂ P(x)</td><td>Bits to encode one event x. Rare events carry more information.</td></tr>
+                        <tr><td><strong>Entropy H(P)</strong></td><td>−Σ P(x) log P(x)</td><td>Average information / uncertainty in distribution P. Max when uniform, 0 when deterministic.</td></tr>
+                        <tr><td><strong>Cross-entropy H(P,Q)</strong></td><td>−Σ P(x) log Q(x)</td><td>Bits needed to encode P using code designed for Q. Always ≥ H(P).</td></tr>
+                        <tr><td><strong>KL Divergence</strong></td><td>D_KL(P‖Q) = H(P,Q)−H(P)</td><td>Extra bits when using Q instead of P. Always ≥ 0. Not symmetric.</td></tr>
+                        <tr><td><strong>Mutual Information</strong></td><td>I(X;Y) = H(X)−H(X|Y)</td><td>Reduction in uncertainty about X from knowing Y. Used in feature selection.</td></tr>
+                        <tr><td><strong>Jensen-Shannon div.</strong></td><td>½D_KL(P‖M)+½D_KL(Q‖M)</td><td>Symmetric, bounded version of KL. Used in GAN loss.</td></tr>
+                      </tbody>
+                    </table>
+                    <div class="callout callout-tip mb-0"><strong>Cross-entropy loss IS H(P,Q).</strong> Your true labels define P (one-hot = deterministic); your model's softmax output defines Q. Minimising H(P,Q) pushes Q toward P — making the model's predictions match reality.</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">KL Divergence in Practice</div>
+                  <div class="card-body small">
+                    <p>KL divergence measures how much one probability distribution differs from another. It shows up everywhere:</p>
+                    <table class="table table-sm table-bordered small mb-2 comp-table">
+                      <thead class="table-dark"><tr><th>Model</th><th>Where KL Appears</th><th>Role</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>VAE</strong></td><td>ELBO = E[log p(x|z)] − D_KL(q(z|x) ‖ p(z))</td><td>Regularises latent space toward Gaussian prior</td></tr>
+                        <tr><td><strong>PPO (RL)</strong></td><td>Clip constraint on policy ratio</td><td>Prevents policy update from moving too far</td></tr>
+                        <tr><td><strong>RLHF</strong></td><td>KL penalty vs reference model</td><td>Stops LLM drifting too far from pretrained</td></tr>
+                        <tr><td><strong>Knowledge Distillation</strong></td><td>D_KL(teacher ‖ student)</td><td>Student learns soft label distribution</td></tr>
+                        <tr><td><strong>Bayesian NN</strong></td><td>ELBO variational objective</td><td>Approximate posterior inference</td></tr>
+                      </tbody>
+                    </table>
+                    <div class="code-block mb-0">
+<span class="kw">import</span> torch.nn.functional <span class="kw">as</span> F
+<span class="cm"># KL(P || Q) — both must be log-probabilities</span>
+kl = F.<span class="fn">kl_div</span>(Q.<span class="fn">log</span>(), P, reduction=<span class="st">'batchmean'</span>)
+<span class="cm"># Cross-entropy H(P, Q)</span>
+ce = F.<span class="fn">cross_entropy</span>(logits, labels)
+<span class="cm"># Entropy H(P) = cross_entropy(P, P)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═══════════════════════════════════════════════════ STATISTICAL LEARNING THEORY -->
+          <section id="learning-theory" class="aiml-section mb-5">
+            <div class="section-divider"></div>
+            <h2 class="h4 fw-bold mb-1">Statistical Learning Theory</h2>
+            <p class="text-secondary small mb-3">The formal mathematical framework answering: <em>When does a model generalise? How much data do we need? What is the fundamental limit of learning?</em></p>
+
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #dc3545;">
+                  <div class="card-header fw-bold small">The Generalisation Problem</div>
+                  <div class="card-body small">
+                    <p>We train on a finite sample S drawn from an unknown distribution D. We want low error on D, but can only measure error on S. The <strong>generalisation gap</strong> is:</p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(220,53,69,.08);border:1px solid rgba(220,53,69,.2);">
+                      generalisation gap = R(h) − R̂(h)
+                    </div>
+                    <p>Where R(h) = true risk (error on D) and R̂(h) = empirical risk (error on S).</p>
+                    <p class="fw-semibold mb-1">PAC Learning — Probably Approximately Correct:</p>
+                    <p class="mb-2">A learning algorithm A PAC-learns concept class C if, for any ε &gt; 0 and δ &gt; 0, given enough samples m, A outputs h with P[R(h) ≤ ε] ≥ 1 − δ.</p>
+                    <p>In plain English: with enough data, we can find a hypothesis that is <em>approximately correct</em> with <em>high probability</em>.</p>
+                    <div class="callout callout-tip mb-0">The required sample size m grows with model complexity and shrinks with ε and δ. This is why complex models need more data.</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #6610f2;">
+                  <div class="card-header fw-bold small">VC Dimension &amp; Model Complexity</div>
+                  <div class="card-body small">
+                    <p>The <strong>VC dimension</strong> (Vapnik-Chervonenkis) of a hypothesis class H is the largest set of points it can shatter (classify in all possible ways).</p>
+                    <table class="table table-sm table-bordered small mb-2 comp-table">
+                      <thead class="table-dark"><tr><th>Model</th><th>VC Dim</th></tr></thead>
+                      <tbody>
+                        <tr><td>Threshold classifier on ℝ</td><td>1</td></tr>
+                        <tr><td>Linear classifier in ℝᵈ</td><td>d + 1</td></tr>
+                        <tr><td>Decision tree (depth k)</td><td>2ᵏ</td></tr>
+                        <tr><td>Neural network</td><td>O(W log W) — W = weights</td></tr>
+                        <tr><td>SVM (RBF kernel)</td><td>∞ (always shatters)</td></tr>
+                      </tbody>
+                    </table>
+                    <p class="fw-semibold mb-1">Fundamental theorem of learning:</p>
+                    <p class="mb-0">With probability ≥ 1−δ: R(h) ≤ R̂(h) + √(VC_dim·log(m/VC_dim) + log(1/δ)) / m. Higher VC dimension → larger generalisation bound → need more data to guarantee generalisation.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-4">
+                <div class="card h-100">
+                  <div class="card-header fw-bold small">Bias-Variance Decomposition (Formal)</div>
+                  <div class="card-body small">
+                    <p>Expected prediction error decomposes into three terms:</p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(0,0,0,.15);font-size:.85rem;">
+                      E[(y − ŷ)²] = Bias² + Variance + Noise
+                    </div>
+                    <ul class="ps-3 mb-2">
+                      <li><strong>Bias²</strong> = (E[ŷ] − y)² — systematic error from wrong assumptions</li>
+                      <li><strong>Variance</strong> = E[(ŷ − E[ŷ])²] — sensitivity to training set fluctuations</li>
+                      <li><strong>Noise</strong> = irreducible error from randomness in y</li>
+                    </ul>
+                    <p class="mb-0">Complex models: low bias, high variance. Simple models: high bias, low variance. Regularisation trades variance for bias. Ensemble methods (bagging) reduce variance without increasing bias much.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100">
+                  <div class="card-header fw-bold small">Regularisation — Theoretical Basis</div>
+                  <div class="card-body small">
+                    <p>Regularisation restricts the hypothesis class to control VC dimension and variance.</p>
+                    <table class="table table-sm table-bordered small mb-2 comp-table">
+                      <thead class="table-dark"><tr><th>Method</th><th>Effect on H</th><th>Bayesian Equivalent</th></tr></thead>
+                      <tbody>
+                        <tr><td>L2 (Ridge)</td><td>Shrinks weights toward 0</td><td>Gaussian prior N(0,σ²)</td></tr>
+                        <tr><td>L1 (Lasso)</td><td>Sparsifies — zeros weights</td><td>Laplace prior</td></tr>
+                        <tr><td>Dropout</td><td>Ensemble of thinned nets</td><td>Approximate variational inference</td></tr>
+                        <tr><td>Early stopping</td><td>Limits number of GD steps</td><td>Implicit L2 regularisation</td></tr>
+                        <tr><td>Data augmentation</td><td>Injects prior knowledge</td><td>Prior on invariances</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100">
+                  <div class="card-header fw-bold small">No Free Lunch Theorem</div>
+                  <div class="card-body small">
+                    <p>The <strong>No Free Lunch (NFL) theorem</strong> (Wolpert, 1996): averaged over all possible problems, no learning algorithm outperforms any other.</p>
+                    <p class="fw-semibold mb-1">What this really means:</p>
+                    <ul class="ps-3 mb-2">
+                      <li>There is no universally best ML algorithm</li>
+                      <li>An algorithm that works on one class of problems performs poorly on another</li>
+                      <li>Good performance requires inductive bias matching the problem structure</li>
+                      <li>CNNs encode translation invariance — only good for spatial data</li>
+                      <li>RNNs encode sequential order — only good for sequences</li>
+                    </ul>
+                    <div class="callout callout-tip mb-0">The NFL theorem is why we have many different model families — each encodes different inductive biases suited to different problem structures. Algorithm selection is domain expertise, not guessing.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
         </div><!-- /col content -->
       </div><!-- /row -->
     </div><!-- /container-fluid -->
