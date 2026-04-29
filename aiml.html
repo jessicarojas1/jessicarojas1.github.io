@@ -1,0 +1,1662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self' https://cdn.jsdelivr.net; worker-src blob:; object-src 'none'; base-uri 'self';">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="theme.css" />
+  <title>AI &amp; ML Hub | Jessica Rojas</title>
+  <meta name="description" content="Complete AI and Machine Learning reference — models, math, training pipelines, optimization, testing, and a step-by-step guide to building your own AI." />
+  <style>
+    /* ── Sidebar nav ── */
+    #aiml-sidebar {
+      position: sticky; top: 70px; height: calc(100vh - 90px);
+      overflow-y: auto; padding-bottom: 2rem;
+    }
+    #aiml-sidebar .nav-link {
+      font-size: .82rem; padding: .3rem .75rem; border-radius: 6px;
+      color: var(--bs-secondary-color); white-space: nowrap;
+    }
+    #aiml-sidebar .nav-link.active,
+    #aiml-sidebar .nav-link:hover { color: var(--bs-primary); background: rgba(var(--bs-primary-rgb),.08); }
+    #aiml-sidebar .nav-section {
+      font-size: .68rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .08em; color: var(--bs-secondary-color);
+      padding: .6rem .75rem .1rem; margin-top: .25rem;
+    }
+
+    /* ── Content sections ── */
+    .aiml-section { scroll-margin-top: 80px; }
+    .section-divider {
+      height: 3px; border-radius: 2px; margin-bottom: 1.5rem;
+      background: linear-gradient(90deg, var(--bs-primary), transparent);
+    }
+
+    /* ── Model cards ── */
+    .model-card { transition: transform .12s, box-shadow .12s; }
+    .model-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,.2); }
+
+    /* ── Difficulty badges ── */
+    .diff-beginner     { background: rgba(25,135,84,.15);  color: #75b798; border: 1px solid rgba(25,135,84,.3);  }
+    .diff-intermediate { background: rgba(255,193,7,.15);  color: #ffc107; border: 1px solid rgba(255,193,7,.3);  }
+    .diff-advanced     { background: rgba(220,53,69,.15);  color: #ea868f; border: 1px solid rgba(220,53,69,.3);  }
+
+    /* ── Code blocks ── */
+    .code-block {
+      background: rgba(0,0,0,.3); border: 1px solid rgba(128,128,128,.2);
+      border-radius: 8px; padding: 1rem 1.25rem; font-family: 'Courier New', monospace;
+      font-size: .8rem; line-height: 1.6; overflow-x: auto; position: relative;
+    }
+    [data-bs-theme="light"] .code-block { background: rgba(0,0,0,.05); }
+    .code-block .copy-btn {
+      position: absolute; top: .5rem; right: .5rem;
+      font-size: .65rem; padding: 2px 8px; opacity: .6;
+    }
+    .code-block .copy-btn:hover { opacity: 1; }
+    .kw  { color: #c792ea; }   /* keyword  */
+    .cm  { color: #546e7a; font-style: italic; } /* comment */
+    .st  { color: #c3e88d; }   /* string   */
+    .nm  { color: #f78c6c; }   /* number   */
+    .fn  { color: #82aaff; }   /* function */
+    .bi  { color: #ffcb6b; }   /* built-in */
+
+    /* ── Comparison tables ── */
+    .comp-table th { font-size: .78rem; white-space: nowrap; }
+    .comp-table td { font-size: .78rem; }
+
+    /* ── Pill tags ── */
+    .tag { display:inline-block; font-size:.65rem; padding:2px 7px; border-radius:20px;
+           background:rgba(var(--bs-primary-rgb),.12); color:var(--bs-primary); margin:1px; }
+
+    /* ── Step guide ── */
+    .step-num {
+      width: 36px; height: 36px; border-radius: 50%; display: flex;
+      align-items: center; justify-content: center; font-weight: 800;
+      font-size: 1rem; flex-shrink: 0;
+    }
+    .step-line {
+      width: 2px; background: rgba(var(--bs-primary-rgb),.2);
+      margin: 2px 0; flex-grow: 1; align-self: center; margin-left: 17px;
+    }
+
+    /* ── Info callouts ── */
+    .callout { border-left: 3px solid; border-radius: 0 6px 6px 0; padding: .75rem 1rem; margin-bottom: 1rem; }
+    .callout-tip     { border-color: #198754; background: rgba(25,135,84,.08);  }
+    .callout-warn    { border-color: #ffc107; background: rgba(255,193,7,.08);  }
+    .callout-danger  { border-color: #dc3545; background: rgba(220,53,69,.08);  }
+    .callout-info    { border-color: #0dcaf0; background: rgba(13,202,240,.06); }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+          <li class="nav-item"><a class="nav-link" href="projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="services.html">Services</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="blog.html">Blog</a></li>
+          <li class="nav-item"><a class="nav-link active" href="aiml.html">AI &amp; ML</a></li>
+          <li class="nav-item"><a class="nav-link" href="knowledge.html">Knowledge Base</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" id="nav-dataanalysis-link" style="display:none"><a class="nav-link" href="dataanalysis.html">Data Analysis</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content">
+
+    <!-- ── Hero ── -->
+    <section class="hero-section">
+      <div class="container text-center">
+        <h1 class="display-5 fw-bold">AI &amp; ML Hub</h1>
+        <p class="lead mb-3">Everything you need to understand, build, train, optimize, and test AI and Machine Learning systems — from first principles to production.</p>
+        <div class="d-flex justify-content-center gap-2 flex-wrap">
+          <span class="badge bg-primary px-3 py-2">Models &amp; Architectures</span>
+          <span class="badge bg-success px-3 py-2">Training Pipelines</span>
+          <span class="badge bg-warning text-dark px-3 py-2">Math &amp; Statistics</span>
+          <span class="badge bg-danger px-3 py-2">Testing &amp; Stress</span>
+          <span class="badge bg-secondary px-3 py-2">Build Your Own AI</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Two-column layout: sidebar + content ── -->
+    <div class="container-fluid px-0">
+      <div class="row g-0">
+
+        <!-- ── Sidebar ── -->
+        <div class="col-lg-2 d-none d-lg-block border-end px-3 pt-4" style="min-width:200px;max-width:220px">
+          <nav id="aiml-sidebar" aria-label="Page sections">
+            <div class="nav-section">Overview</div>
+            <a class="nav-link" href="#foundation">Foundation</a>
+            <a class="nav-link" href="#learning-types">Learning Types</a>
+
+            <div class="nav-section">Models</div>
+            <a class="nav-link" href="#supervised">Supervised</a>
+            <a class="nav-link" href="#unsupervised">Unsupervised</a>
+            <a class="nav-link" href="#deep-learning">Deep Learning</a>
+            <a class="nav-link" href="#reinforcement">Reinforcement</a>
+
+            <div class="nav-section">Core Skills</div>
+            <a class="nav-link" href="#math-stats">Math &amp; Stats</a>
+            <a class="nav-link" href="#training">Training Pipeline</a>
+            <a class="nav-link" href="#optimizers">Optimizers</a>
+
+            <div class="nav-section">Build &amp; Ship</div>
+            <a class="nav-link" href="#setup">Initial Setup</a>
+            <a class="nav-link" href="#hyperparams">Hyperparameter Tuning</a>
+            <a class="nav-link" href="#testing">Testing &amp; Stress</a>
+            <a class="nav-link" href="#pitfalls">Common Pitfalls</a>
+            <a class="nav-link" href="#build-guide">Build Your Own AI</a>
+          </nav>
+        </div>
+
+        <!-- ── Main content ── -->
+        <div class="col-lg-10 px-4 px-lg-5 py-4" data-bs-spy="scroll" data-bs-target="#aiml-sidebar" data-bs-smooth-scroll="true" tabindex="0" style="max-width:1100px">
+
+          <!-- ════════════════════════════════════════════════════════
+               SECTION 1 — FOUNDATION
+          ════════════════════════════════════════════════════════ -->
+          <section id="foundation" class="aiml-section mb-5">
+            <div class="section-divider"></div>
+            <h2 class="h3 fw-bold mb-1">Foundation</h2>
+            <p class="text-secondary mb-4">The landscape — what each term actually means and how they relate.</p>
+
+            <!-- Hierarchy diagram as cards -->
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-6 col-xl-3">
+                <div class="card h-100 border-primary">
+                  <div class="card-header fw-bold text-primary small">🧠 Artificial Intelligence</div>
+                  <div class="card-body small">
+                    The broadest category. Any technique that enables machines to mimic human intelligence — planning, reasoning, perception, language. AI includes both rule-based systems and learned systems.
+                    <div class="mt-2"><span class="tag">Rules-based</span><span class="tag">Search algorithms</span><span class="tag">Expert systems</span><span class="tag">ML</span></div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6 col-xl-3">
+                <div class="card h-100" style="border-color:rgba(13,202,240,.4)">
+                  <div class="card-header fw-bold small" style="color:#0dcaf0">📊 Machine Learning</div>
+                  <div class="card-body small">
+                    A subset of AI. Instead of explicit rules, the system <em>learns patterns from data</em>. You feed examples; it finds the underlying function. Requires: data, a model, a training process, and an objective.
+                    <div class="mt-2"><span class="tag">Learns from data</span><span class="tag">Statistical patterns</span><span class="tag">Generalises</span></div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6 col-xl-3">
+                <div class="card h-100" style="border-color:rgba(111,66,193,.4)">
+                  <div class="card-header fw-bold small" style="color:#c084fc">🕸️ Deep Learning</div>
+                  <div class="card-body small">
+                    A subset of ML using <em>multi-layer neural networks</em>. Excels when data is high-dimensional (images, audio, text). Requires large datasets and GPU compute. Learns its own features automatically.
+                    <div class="mt-2"><span class="tag">Neural networks</span><span class="tag">GPU required</span><span class="tag">Feature learning</span></div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6 col-xl-3">
+                <div class="card h-100" style="border-color:rgba(253,126,20,.4)">
+                  <div class="card-header fw-bold small" style="color:#fd7e14">⚗️ Data Science</div>
+                  <div class="card-body small">
+                    Overlaps with ML but focuses on <em>extracting insights from data</em> — exploration, visualisation, statistical analysis, and communicating findings. Not always building predictive models.
+                    <div class="mt-2"><span class="tag">EDA</span><span class="tag">Visualisation</span><span class="tag">Statistical inference</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="callout callout-info">
+              <strong>Key insight:</strong> Deep Learning ⊂ Machine Learning ⊂ Artificial Intelligence.
+              Most modern "AI" products (ChatGPT, image generators, recommendation systems) are Deep Learning.
+              Classical ML (Random Forest, XGBoost) still dominates structured/tabular data in industry.
+            </div>
+          </section>
+
+          <!-- ════════════════════════════════════════════════════════
+               SECTION 2 — LEARNING TYPES
+          ════════════════════════════════════════════════════════ -->
+          <section id="learning-types" class="aiml-section mb-5">
+            <h2 class="h3 fw-bold mb-1">Types of Machine Learning</h2>
+            <p class="text-secondary mb-4">Categorised by how the model learns from data.</p>
+
+            <div class="row g-3">
+              <div class="col-12 col-lg-6">
+                <div class="card h-100">
+                  <div class="card-header d-flex align-items-center gap-2">
+                    <span class="badge bg-success">Supervised</span>
+                    <span class="small text-secondary">Labelled data</span>
+                  </div>
+                  <div class="card-body small">
+                    <p>Every training example has an input <strong>X</strong> and a known correct output <strong>y</strong>. The model learns to map X → y and is evaluated on how well it predicts y on unseen data.</p>
+                    <p class="mb-1"><strong>Use when:</strong> You have labelled historical data and want to predict a target.</p>
+                    <div class="d-flex flex-wrap gap-1">
+                      <span class="tag">Classification</span><span class="tag">Regression</span><span class="tag">Object detection</span><span class="tag">Translation</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-lg-6">
+                <div class="card h-100">
+                  <div class="card-header d-flex align-items-center gap-2">
+                    <span class="badge bg-warning text-dark">Unsupervised</span>
+                    <span class="small text-secondary">No labels</span>
+                  </div>
+                  <div class="card-body small">
+                    <p>Only inputs X, no labels. The model discovers hidden structure — clusters, patterns, compressed representations — purely from the distribution of the data.</p>
+                    <p class="mb-1"><strong>Use when:</strong> You have lots of data but no labels, or want to explore structure.</p>
+                    <div class="d-flex flex-wrap gap-1">
+                      <span class="tag">Clustering</span><span class="tag">Dimensionality reduction</span><span class="tag">Anomaly detection</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-lg-6">
+                <div class="card h-100">
+                  <div class="card-header d-flex align-items-center gap-2">
+                    <span class="badge bg-primary">Reinforcement</span>
+                    <span class="small text-secondary">Reward signal</span>
+                  </div>
+                  <div class="card-body small">
+                    <p>An <strong>agent</strong> takes actions in an <strong>environment</strong>, receives a <strong>reward</strong>, and learns a <strong>policy</strong> that maximises cumulative reward over time. No labelled data — the signal comes from outcomes.</p>
+                    <p class="mb-1"><strong>Use when:</strong> Sequential decision-making with a clear reward structure.</p>
+                    <div class="d-flex flex-wrap gap-1">
+                      <span class="tag">Games</span><span class="tag">Robotics</span><span class="tag">Trading</span><span class="tag">Ad bidding</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-lg-6">
+                <div class="card h-100">
+                  <div class="card-header d-flex align-items-center gap-2">
+                    <span class="badge bg-danger">Self-Supervised</span>
+                    <span class="small text-secondary">Labels from data itself</span>
+                  </div>
+                  <div class="card-body small">
+                    <p>A special form of supervised learning where <em>labels are generated from the input data itself</em>. The model learns by predicting masked/hidden parts of inputs. Powers modern LLMs.</p>
+                    <p class="mb-1"><strong>Use when:</strong> You have massive unlabelled data and want rich representations.</p>
+                    <div class="d-flex flex-wrap gap-1">
+                      <span class="tag">GPT (predict next token)</span><span class="tag">BERT (fill mask)</span><span class="tag">CLIP</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-lg-6">
+                <div class="card h-100">
+                  <div class="card-header d-flex align-items-center gap-2">
+                    <span class="badge bg-secondary">Semi-Supervised</span>
+                    <span class="small text-secondary">Few labels + many unlabelled</span>
+                  </div>
+                  <div class="card-body small">
+                    <p>A small labelled set + a large unlabelled set. The model uses the labelled data for direct supervision and the unlabelled data to learn better representations. Practical when labelling is expensive.</p>
+                    <div class="d-flex flex-wrap gap-1">
+                      <span class="tag">Medical imaging</span><span class="tag">Text classification</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-lg-6">
+                <div class="card h-100">
+                  <div class="card-header d-flex align-items-center gap-2">
+                    <span class="badge" style="background:#6f42c1">Transfer Learning</span>
+                    <span class="small text-secondary">Reuse pretrained models</span>
+                  </div>
+                  <div class="card-body small">
+                    <p>Take a model pretrained on a large general dataset (ImageNet, Common Crawl) and fine-tune it on your smaller task-specific dataset. Dramatically reduces data and compute requirements.</p>
+                    <div class="d-flex flex-wrap gap-1">
+                      <span class="tag">Fine-tuning LLMs</span><span class="tag">LoRA</span><span class="tag">PEFT</span><span class="tag">Feature extraction</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ════════════════════════════════════════════════════════
+               SECTION 3 — SUPERVISED MODELS
+          ════════════════════════════════════════════════════════ -->
+          <section id="supervised" class="aiml-section mb-5">
+            <div class="section-divider"></div>
+            <h2 class="h3 fw-bold mb-1">Supervised Learning Models</h2>
+            <p class="text-secondary mb-4">Pick the right model for the job. Each has different assumptions, strengths, and failure modes.</p>
+
+            <div class="table-responsive mb-4">
+              <table class="table table-sm comp-table align-middle">
+                <thead>
+                  <tr>
+                    <th>Model</th><th>Type</th><th>Best For</th><th>Needs Scale</th><th>Interpretable</th><th>Difficulty</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td class="fw-semibold">Linear Regression</td><td>Regression</td><td>Continuous output, linear relationships</td><td>No</td><td>✅ Yes</td><td><span class="badge diff-beginner">Beginner</span></td></tr>
+                  <tr><td class="fw-semibold">Logistic Regression</td><td>Classification</td><td>Binary/multi-class, probabilistic output</td><td>No</td><td>✅ Yes</td><td><span class="badge diff-beginner">Beginner</span></td></tr>
+                  <tr><td class="fw-semibold">Decision Tree</td><td>Both</td><td>Rule-based decisions, explainability</td><td>No</td><td>✅ Yes</td><td><span class="badge diff-beginner">Beginner</span></td></tr>
+                  <tr><td class="fw-semibold">Random Forest</td><td>Both</td><td>Tabular data, robust to noise</td><td>Moderate</td><td>🟡 Partial</td><td><span class="badge diff-intermediate">Intermediate</span></td></tr>
+                  <tr><td class="fw-semibold">Gradient Boosting (XGBoost/LightGBM)</td><td>Both</td><td>Tabular competitions, high accuracy</td><td>Moderate</td><td>🟡 Partial</td><td><span class="badge diff-intermediate">Intermediate</span></td></tr>
+                  <tr><td class="fw-semibold">SVM</td><td>Both</td><td>High-dim, small datasets, margin-based</td><td>No</td><td>🟡 Partial</td><td><span class="badge diff-intermediate">Intermediate</span></td></tr>
+                  <tr><td class="fw-semibold">K-Nearest Neighbors</td><td>Both</td><td>Simple baselines, local patterns</td><td>No</td><td>✅ Yes</td><td><span class="badge diff-beginner">Beginner</span></td></tr>
+                  <tr><td class="fw-semibold">Naive Bayes</td><td>Classification</td><td>Text classification, fast inference</td><td>No</td><td>✅ Yes</td><td><span class="badge diff-beginner">Beginner</span></td></tr>
+                  <tr><td class="fw-semibold">Neural Network (MLP)</td><td>Both</td><td>Complex non-linear patterns</td><td>Yes</td><td>❌ Black box</td><td><span class="badge diff-advanced">Advanced</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <div class="card model-card h-100">
+                  <div class="card-header d-flex justify-content-between align-items-center">
+                    <span class="fw-bold">Random Forest</span>
+                    <span class="badge diff-intermediate">Intermediate</span>
+                  </div>
+                  <div class="card-body small">
+                    <p>An <strong>ensemble</strong> of decision trees, each trained on a random subset of data and features. Final prediction = majority vote (classification) or mean (regression). Resistant to overfitting; handles missing values.</p>
+                    <p class="mb-1 fw-semibold">Key hyperparameters:</p>
+                    <ul class="mb-2 ps-3">
+                      <li><code>n_estimators</code> — number of trees (more = better, diminishing returns)</li>
+                      <li><code>max_depth</code> — controls individual tree complexity</li>
+                      <li><code>max_features</code> — features sampled per split (√n for classification)</li>
+                      <li><code>min_samples_split</code> — prevents overfitting on small nodes</li>
+                    </ul>
+                    <div class="callout callout-tip mb-0">
+                      <strong>When to use:</strong> Default choice for tabular data before trying anything more complex.
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card model-card h-100">
+                  <div class="card-header d-flex justify-content-between align-items-center">
+                    <span class="fw-bold">XGBoost / LightGBM / CatBoost</span>
+                    <span class="badge diff-intermediate">Intermediate</span>
+                  </div>
+                  <div class="card-body small">
+                    <p><strong>Gradient boosting</strong> builds trees sequentially — each tree corrects the errors of the previous one. Dominates Kaggle competitions on structured data. Faster and more accurate than Random Forest on most tabular problems.</p>
+                    <p class="mb-1 fw-semibold">Key hyperparameters:</p>
+                    <ul class="mb-2 ps-3">
+                      <li><code>learning_rate</code> — step size (lower = more trees needed)</li>
+                      <li><code>n_estimators</code> + <code>early_stopping_rounds</code></li>
+                      <li><code>max_depth</code> / <code>num_leaves</code> — tree complexity</li>
+                      <li><code>subsample</code>, <code>colsample_bytree</code> — regularization via sampling</li>
+                    </ul>
+                    <div class="callout callout-tip mb-0">
+                      <strong>Rule:</strong> Low learning rate (0.01–0.05) + many trees + early stopping = gold standard.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ════════════════════════════════════════════════════════
+               SECTION 4 — UNSUPERVISED MODELS
+          ════════════════════════════════════════════════════════ -->
+          <section id="unsupervised" class="aiml-section mb-5">
+            <div class="section-divider"></div>
+            <h2 class="h3 fw-bold mb-1">Unsupervised Learning Models</h2>
+            <p class="text-secondary mb-4">Finding structure without labels.</p>
+
+            <div class="row g-3">
+              <div class="col-12 col-md-6 col-xl-4">
+                <div class="card model-card h-100">
+                  <div class="card-header fw-bold small">K-Means Clustering</div>
+                  <div class="card-body small">
+                    Assigns each point to the nearest of K centroids, then recalculates centroids iteratively. Fast, simple, scales well. Assumes spherical clusters of similar size.
+                    <br><br><strong>Choose K:</strong> Elbow method (plot inertia vs K) or Silhouette score.
+                    <div class="mt-2"><span class="tag">Customer segmentation</span><span class="tag">Image compression</span></div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6 col-xl-4">
+                <div class="card model-card h-100">
+                  <div class="card-header fw-bold small">DBSCAN</div>
+                  <div class="card-body small">
+                    Density-based clustering. Groups points that are closely packed; marks low-density points as <em>noise/outliers</em>. Doesn't require specifying K; discovers arbitrary-shaped clusters.
+                    <br><br><strong>Key params:</strong> <code>eps</code> (neighbourhood radius), <code>min_samples</code>.
+                    <div class="mt-2"><span class="tag">Anomaly detection</span><span class="tag">Geospatial</span></div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6 col-xl-4">
+                <div class="card model-card h-100">
+                  <div class="card-header fw-bold small">PCA — Principal Component Analysis</div>
+                  <div class="card-body small">
+                    Linear dimensionality reduction. Projects data onto orthogonal axes of maximum variance. Use to reduce features, visualise high-dim data, or remove noise before another model.
+                    <br><br><strong>Rule:</strong> Retain components explaining 95% of variance.
+                    <div class="mt-2"><span class="tag">Feature reduction</span><span class="tag">Visualisation</span><span class="tag">Noise removal</span></div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6 col-xl-4">
+                <div class="card model-card h-100">
+                  <div class="card-header fw-bold small">t-SNE / UMAP</div>
+                  <div class="card-body small">
+                    Non-linear dimensionality reduction for <strong>visualisation only</strong> (2D/3D plots). t-SNE preserves local structure; UMAP is faster and better preserves global structure.
+                    <div class="callout callout-warn mt-2 mb-0">Do not use t-SNE distances for downstream ML — they aren't meaningful.</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6 col-xl-4">
+                <div class="card model-card h-100">
+                  <div class="card-header fw-bold small">Autoencoder</div>
+                  <div class="card-body small">
+                    A neural network that learns to compress input into a low-dimensional <em>latent space</em>, then reconstruct it. The bottleneck forces learning meaningful features. Variants: VAE (generative), denoising.
+                    <div class="mt-2"><span class="tag">Anomaly detection</span><span class="tag">Compression</span><span class="tag">Generative modelling</span></div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6 col-xl-4">
+                <div class="card model-card h-100">
+                  <div class="card-header fw-bold small">Gaussian Mixture Model (GMM)</div>
+                  <div class="card-body small">
+                    Probabilistic clustering that assumes data comes from a mixture of Gaussian distributions. Softer than K-Means — assigns probabilities to cluster membership. Fitted with EM algorithm.
+                    <div class="mt-2"><span class="tag">Density estimation</span><span class="tag">Soft clustering</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ════════════════════════════════════════════════════════
+               SECTION 5 — DEEP LEARNING
+          ════════════════════════════════════════════════════════ -->
+          <section id="deep-learning" class="aiml-section mb-5">
+            <div class="section-divider"></div>
+            <h2 class="h3 fw-bold mb-1">Deep Learning Architectures</h2>
+            <p class="text-secondary mb-4">Neural network families — when to use which.</p>
+
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-lg-6">
+                <div class="card model-card h-100" style="border-left:3px solid #0dcaf0">
+                  <div class="card-header d-flex justify-content-between">
+                    <span class="fw-bold">CNN — Convolutional Neural Network</span>
+                    <span class="badge diff-intermediate">Intermediate</span>
+                  </div>
+                  <div class="card-body small">
+                    <p>Applies learned <strong>filters (kernels)</strong> across input to detect spatial patterns — edges, textures, shapes. Translation-invariant. Standard architecture: Conv layers → ReLU → Pooling → Fully connected.</p>
+                    <p class="mb-1"><strong>Key layers:</strong> Conv2D, MaxPool, BatchNorm, GlobalAvgPool, Dense</p>
+                    <p class="mb-1"><strong>Use for:</strong> Images, video frames, audio spectrograms, spatial data</p>
+                    <p class="mb-0"><strong>Notable models:</strong> ResNet, EfficientNet, VGG, MobileNet, YOLO (detection)</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-lg-6">
+                <div class="card model-card h-100" style="border-left:3px solid #c084fc">
+                  <div class="card-header d-flex justify-content-between">
+                    <span class="fw-bold">RNN / LSTM / GRU</span>
+                    <span class="badge diff-intermediate">Intermediate</span>
+                  </div>
+                  <div class="card-body small">
+                    <p><strong>Recurrent</strong> networks process sequences by maintaining a hidden state across timesteps. LSTM adds gates (forget/input/output) to control long-range memory. GRU is a lighter variant.</p>
+                    <p class="mb-1"><strong>Problem:</strong> Vanishing gradients over long sequences — largely replaced by Transformers.</p>
+                    <p class="mb-1"><strong>Use for:</strong> Time series, legacy NLP, short sequences</p>
+                    <p class="mb-0"><strong>Still useful when:</strong> Low compute, real-time streaming, short context</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-lg-6">
+                <div class="card model-card h-100" style="border-left:3px solid #198754">
+                  <div class="card-header d-flex justify-content-between">
+                    <span class="fw-bold">Transformer</span>
+                    <span class="badge diff-advanced">Advanced</span>
+                  </div>
+                  <div class="card-body small">
+                    <p>Built on <strong>self-attention</strong> — every token attends to every other token in parallel. No recurrence means it scales with compute. The dominant architecture for language, code, images (ViT), and multimodal models.</p>
+                    <p class="mb-1"><strong>Core concepts:</strong> Query/Key/Value attention, multi-head attention, positional encoding, feed-forward sublayers, layer norm</p>
+                    <p class="mb-0"><strong>Notable models:</strong> GPT, BERT, T5, LLaMA, Mistral, Vision Transformer (ViT)</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-lg-6">
+                <div class="card model-card h-100" style="border-left:3px solid #fd7e14">
+                  <div class="card-header d-flex justify-content-between">
+                    <span class="fw-bold">GAN — Generative Adversarial Network</span>
+                    <span class="badge diff-advanced">Advanced</span>
+                  </div>
+                  <div class="card-body small">
+                    <p>Two networks in competition: a <strong>Generator</strong> that creates fake samples and a <strong>Discriminator</strong> that distinguishes real from fake. Generator improves until the discriminator can't tell the difference.</p>
+                    <p class="mb-1"><strong>Training challenge:</strong> Mode collapse, training instability, GAN game doesn't always converge</p>
+                    <p class="mb-0"><strong>Notable:</strong> StyleGAN (faces), CycleGAN (image translation), Pix2Pix</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-lg-6">
+                <div class="card model-card h-100" style="border-left:3px solid #dc3545">
+                  <div class="card-header d-flex justify-content-between">
+                    <span class="fw-bold">Diffusion Model</span>
+                    <span class="badge diff-advanced">Advanced</span>
+                  </div>
+                  <div class="card-body small">
+                    <p>Learns to <strong>reverse a noise-adding process</strong>. Training: gradually add Gaussian noise to data. Inference: start from pure noise and denoise iteratively. Produces higher quality and more stable output than GANs.</p>
+                    <p class="mb-1"><strong>Key concept:</strong> DDPM (Denoising Diffusion Probabilistic Model), U-Net backbone, classifier-free guidance</p>
+                    <p class="mb-0"><strong>Notable:</strong> Stable Diffusion, DALL-E 3, Sora (video), AudioLDM</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-lg-6">
+                <div class="card model-card h-100" style="border-left:3px solid #ffc107">
+                  <div class="card-header d-flex justify-content-between">
+                    <span class="fw-bold">Graph Neural Network (GNN)</span>
+                    <span class="badge diff-advanced">Advanced</span>
+                  </div>
+                  <div class="card-body small">
+                    <p>Operates directly on <strong>graph-structured data</strong>. Each node aggregates messages from its neighbours, updating its representation. Works on irregular, relational data that CNNs can't handle.</p>
+                    <p class="mb-1"><strong>Variants:</strong> GCN, GraphSAGE, GAT (attention-based), MPNN</p>
+                    <p class="mb-0"><strong>Use for:</strong> Social networks, molecules, knowledge graphs, recommendation systems</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ════════════════════════════════════════════════════════
+               SECTION 6 — REINFORCEMENT LEARNING
+          ════════════════════════════════════════════════════════ -->
+          <section id="reinforcement" class="aiml-section mb-5">
+            <div class="section-divider"></div>
+            <h2 class="h3 fw-bold mb-1">Reinforcement Learning</h2>
+            <p class="text-secondary mb-4">Training agents through trial and error in an environment.</p>
+
+            <div class="callout callout-info mb-4">
+              <strong>Core components:</strong> Agent (learner) · Environment (world) · State (current situation) · Action (agent's choice) · Reward (signal) · Policy (action-selection strategy) · Value function (expected future reward)
+            </div>
+
+            <div class="row g-3">
+              <div class="col-12 col-md-6 col-xl-4">
+                <div class="card model-card h-100">
+                  <div class="card-header fw-bold small d-flex justify-content-between">
+                    Q-Learning / DQN <span class="badge diff-intermediate">Intermediate</span>
+                  </div>
+                  <div class="card-body small">
+                    Learns a <strong>Q-value</strong> (expected reward) for each state-action pair. DQN uses a neural network as the Q-function approximator, enabling it to handle high-dimensional state spaces (pixels).
+                    <div class="mt-2"><span class="tag">Discrete actions</span><span class="tag">Atari games</span></div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6 col-xl-4">
+                <div class="card model-card h-100">
+                  <div class="card-header fw-bold small d-flex justify-content-between">
+                    Policy Gradient (REINFORCE) <span class="badge diff-advanced">Advanced</span>
+                  </div>
+                  <div class="card-body small">
+                    Directly optimises the policy (probability distribution over actions) by gradient ascent on expected reward. High variance — needs many samples. Foundation of PPO and modern RLHF.
+                    <div class="mt-2"><span class="tag">Continuous actions</span><span class="tag">LLM fine-tuning (RLHF)</span></div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6 col-xl-4">
+                <div class="card model-card h-100">
+                  <div class="card-header fw-bold small d-flex justify-content-between">
+                    PPO / Actor-Critic <span class="badge diff-advanced">Advanced</span>
+                  </div>
+                  <div class="card-body small">
+                    <strong>Proximal Policy Optimization</strong> — constrains policy updates to a trust region for stability. Actor-Critic combines value estimation with policy learning. Current standard for RL in practice and RLHF.
+                    <div class="mt-2"><span class="tag">Robotics</span><span class="tag">ChatGPT RLHF</span><span class="tag">Game AI</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ════════════════════════════════════════════════════════
+               SECTION 7 — MATH & STATS
+          ════════════════════════════════════════════════════════ -->
+          <section id="math-stats" class="aiml-section mb-5">
+            <div class="section-divider"></div>
+            <h2 class="h3 fw-bold mb-1">Math &amp; Statistics You Actually Need</h2>
+            <p class="text-secondary mb-4">You don't need a PhD — but these fundamentals are unavoidable.</p>
+
+            <div class="row g-3">
+              <div class="col-12 col-lg-6">
+                <div class="card h-100">
+                  <div class="card-header fw-bold small">📐 Linear Algebra</div>
+                  <div class="card-body small">
+                    <p>Data is tensors (scalars, vectors, matrices, higher-dim). All neural network operations are matrix multiplications.</p>
+                    <ul class="ps-3 mb-2">
+                      <li><strong>Vectors:</strong> Feature representations, embeddings</li>
+                      <li><strong>Matrix multiply:</strong> Core of every dense layer (<em>y = Wx + b</em>)</li>
+                      <li><strong>Dot product:</strong> Similarity between embeddings (cosine similarity)</li>
+                      <li><strong>Eigenvalues/vectors:</strong> PCA, understanding variance</li>
+                      <li><strong>Transpose, inverse:</strong> Used throughout gradient derivations</li>
+                    </ul>
+                    <div class="callout callout-tip mb-0"><strong>Priority:</strong> Matrix multiply &gt; dot product &gt; eigenvalues. You can go far with just the first two.</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-lg-6">
+                <div class="card h-100">
+                  <div class="card-header fw-bold small">📉 Calculus &amp; Gradients</div>
+                  <div class="card-body small">
+                    <p>Backpropagation is just the chain rule applied repeatedly through a computation graph.</p>
+                    <ul class="ps-3 mb-2">
+                      <li><strong>Derivative:</strong> Rate of change — how much loss changes with each weight</li>
+                      <li><strong>Partial derivative:</strong> Derivative w.r.t. one variable, holding others fixed</li>
+                      <li><strong>Gradient:</strong> Vector of all partial derivatives → direction of steepest ascent</li>
+                      <li><strong>Chain rule:</strong> <em>∂L/∂w = (∂L/∂a)(∂a/∂w)</em> — propagates error backward</li>
+                      <li><strong>Jacobian/Hessian:</strong> Higher-order, used in advanced optimizers</li>
+                    </ul>
+                    <div class="callout callout-tip mb-0"><strong>Key insight:</strong> You don't derive gradients manually — frameworks (PyTorch autograd) do it. But understanding what's happening lets you debug and design better.</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-lg-6">
+                <div class="card h-100">
+                  <div class="card-header fw-bold small">🎲 Probability &amp; Statistics</div>
+                  <div class="card-body small">
+                    <ul class="ps-3 mb-2">
+                      <li><strong>Mean, variance, std dev:</strong> Describe and normalize your data</li>
+                      <li><strong>Distributions:</strong> Normal (Gaussian), Bernoulli, Categorical, Beta — model assumptions</li>
+                      <li><strong>Bayes' theorem:</strong> P(A|B) = P(B|A)P(A)/P(B) — foundation of probabilistic ML</li>
+                      <li><strong>MLE vs MAP:</strong> Maximum Likelihood Estimation vs Maximum A Posteriori — how models are trained</li>
+                      <li><strong>Entropy / KL divergence:</strong> Information content, used in cross-entropy loss and VAEs</li>
+                      <li><strong>Central Limit Theorem:</strong> Why sample means are normally distributed at scale</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-lg-6">
+                <div class="card h-100">
+                  <div class="card-header fw-bold small">📊 Information Theory &amp; Loss Functions</div>
+                  <div class="card-body small">
+                    <p>Loss functions measure how wrong your model is. You minimise them during training.</p>
+                    <div class="table-responsive">
+                      <table class="table table-sm mb-0" style="font-size:.75rem">
+                        <thead><tr><th>Loss</th><th>Task</th><th>Formula (simplified)</th></tr></thead>
+                        <tbody>
+                          <tr><td>MSE</td><td>Regression</td><td>mean((y - ŷ)²)</td></tr>
+                          <tr><td>MAE</td><td>Regression</td><td>mean(|y - ŷ|)</td></tr>
+                          <tr><td>Binary Cross-Entropy</td><td>Binary classif.</td><td>−[y·log(ŷ) + (1−y)·log(1−ŷ)]</td></tr>
+                          <tr><td>Categorical Cross-Entropy</td><td>Multi-class</td><td>−Σ y·log(ŷ)</td></tr>
+                          <tr><td>KL Divergence</td><td>Distribution match</td><td>Σ P·log(P/Q)</td></tr>
+                          <tr><td>Huber Loss</td><td>Robust regression</td><td>MSE for small errors, MAE for large</td></tr>
+                          <tr><td>Focal Loss</td><td>Class imbalance</td><td>Cross-entropy weighted by difficulty</td></tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ════════════════════════════════════════════════════════
+               SECTION 8 — TRAINING PIPELINE
+          ════════════════════════════════════════════════════════ -->
+          <section id="training" class="aiml-section mb-5">
+            <div class="section-divider"></div>
+            <h2 class="h3 fw-bold mb-1">Training Pipeline</h2>
+            <p class="text-secondary mb-4">From raw data to a trained model — every step matters.</p>
+
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-6">
+                <div class="card h-100">
+                  <div class="card-header fw-bold small">1 — Data Preparation</div>
+                  <div class="card-body small">
+                    <p class="fw-semibold mb-1">Split your data first — before any preprocessing:</p>
+                    <ul class="ps-3 mb-2">
+                      <li><strong>Train (70–80%):</strong> Model learns from this</li>
+                      <li><strong>Validation (10–15%):</strong> Tune hyperparameters on this</li>
+                      <li><strong>Test (10–15%):</strong> Final honest evaluation — touch once</li>
+                    </ul>
+                    <div class="callout callout-warn mb-2">Never fit scalers/encoders on validation or test data — only fit on training, then transform all sets. Fitting on all data = <strong>data leakage</strong>.</div>
+                    <p class="fw-semibold mb-1">Preprocessing steps:</p>
+                    <ul class="ps-3 mb-0">
+                      <li>Handle missing values (impute mean/median/mode or model-based)</li>
+                      <li>Encode categoricals (one-hot, ordinal, target encoding)</li>
+                      <li>Scale numerics (StandardScaler for NNs, MinMax optional)</li>
+                      <li>Feature engineering (interactions, log transforms, rolling stats)</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100">
+                  <div class="card-header fw-bold small">2 — Forward &amp; Backward Pass</div>
+                  <div class="card-body small">
+                    <p>One training step:</p>
+                    <ol class="ps-3 mb-2">
+                      <li><strong>Forward pass:</strong> Input flows through the network → produces prediction ŷ</li>
+                      <li><strong>Compute loss:</strong> Loss(ŷ, y) — how wrong was the prediction</li>
+                      <li><strong>Backward pass:</strong> Chain rule propagates gradients from loss back through every layer</li>
+                      <li><strong>Update weights:</strong> w ← w − lr × ∂L/∂w</li>
+                      <li><strong>Zero gradients:</strong> Reset before next batch (PyTorch doesn't auto-zero)</li>
+                    </ol>
+                    <div class="code-block">
+<span class="kw">for</span> epoch <span class="kw">in</span> <span class="bi">range</span>(num_epochs):
+  <span class="kw">for</span> X, y <span class="kw">in</span> train_loader:
+    optimizer.<span class="fn">zero_grad</span>()        <span class="cm"># ① reset</span>
+    pred = model(X)               <span class="cm"># ② forward</span>
+    loss = criterion(pred, y)     <span class="cm"># ③ loss</span>
+    loss.<span class="fn">backward</span>()              <span class="cm"># ④ backward</span>
+    optimizer.<span class="fn">step</span>()             <span class="cm"># ⑤ update</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100">
+                  <div class="card-header fw-bold small">3 — Batch Size, Epochs &amp; Iterations</div>
+                  <div class="card-body small">
+                    <div class="table-responsive">
+                      <table class="table table-sm mb-2" style="font-size:.75rem">
+                        <tbody>
+                          <tr><td class="fw-semibold">Epoch</td><td>One full pass through the entire training set</td></tr>
+                          <tr><td class="fw-semibold">Batch size</td><td>Samples per gradient update. Smaller = noisier gradients, better generalisation. Larger = stable, needs more memory.</td></tr>
+                          <tr><td class="fw-semibold">Iteration</td><td>One gradient update. Iterations/epoch = dataset_size / batch_size</td></tr>
+                          <tr><td class="fw-semibold">Mini-batch SGD</td><td>Batch size 32–512 — standard. Combines efficiency of batch GD with noise benefits of SGD.</td></tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <div class="callout callout-tip mb-0"><strong>Start with:</strong> batch_size=32, train until validation loss stops improving (early stopping with patience=10).</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100">
+                  <div class="card-header fw-bold small">4 — Regularization Techniques</div>
+                  <div class="card-body small">
+                    <p>Prevent overfitting (model memorises training data, fails on new data):</p>
+                    <ul class="ps-3 mb-0">
+                      <li><strong>L2 (Weight Decay):</strong> Penalises large weights → <code>optimizer = Adam(lr, weight_decay=1e-4)</code></li>
+                      <li><strong>L1:</strong> Encourages sparse weights (some exactly zero)</li>
+                      <li><strong>Dropout:</strong> Randomly zero out neurons during training. Prevents co-adaptation. Rate 0.2–0.5.</li>
+                      <li><strong>Batch Normalisation:</strong> Normalises activations per batch. Stabilises training, reduces sensitivity to learning rate. Use after linear layer, before activation.</li>
+                      <li><strong>Early Stopping:</strong> Stop when validation loss stops improving. Most effective regulariser.</li>
+                      <li><strong>Data Augmentation:</strong> Artificially expand training set (flip, crop, noise).</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ════════════════════════════════════════════════════════
+               SECTION 9 — OPTIMIZERS
+          ════════════════════════════════════════════════════════ -->
+          <section id="optimizers" class="aiml-section mb-5">
+            <div class="section-divider"></div>
+            <h2 class="h3 fw-bold mb-1">Optimizers</h2>
+            <p class="text-secondary mb-4">How the model's weights are updated each step.</p>
+
+            <div class="table-responsive mb-4">
+              <table class="table table-sm comp-table align-middle">
+                <thead>
+                  <tr><th>Optimizer</th><th>Key Idea</th><th>Learning Rate Sensitivity</th><th>Use When</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td class="fw-semibold">SGD</td><td>Vanilla gradient descent with mini-batches</td><td>Very sensitive</td><td>Computer vision with careful tuning + momentum</td></tr>
+                  <tr><td class="fw-semibold">SGD + Momentum</td><td>Accelerates in consistent gradient direction</td><td>Sensitive</td><td>CNNs, ResNets — often beats Adam with tuning</td></tr>
+                  <tr><td class="fw-semibold">AdaGrad</td><td>Adapts per-parameter LR (accumulates sq. gradients)</td><td>Less sensitive</td><td>Sparse data, NLP — LR shrinks too fast for deep nets</td></tr>
+                  <tr><td class="fw-semibold">RMSprop</td><td>AdaGrad with exponential moving average (prevents LR decay)</td><td>Moderate</td><td>RNNs, non-stationary problems</td></tr>
+                  <tr><td class="fw-semibold text-primary">Adam</td><td>Momentum + RMSprop combined. Adaptive per-parameter LR.</td><td>Low (robust)</td><td>Default for almost everything. Start here.</td></tr>
+                  <tr><td class="fw-semibold">AdamW</td><td>Adam + decoupled weight decay (correct L2 regularisation)</td><td>Low</td><td>Transformers, LLMs — preferred over Adam</td></tr>
+                  <tr><td class="fw-semibold">Lion</td><td>Sign-based update — memory efficient</td><td>Low</td><td>Large models where memory matters</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <div class="card h-100">
+                  <div class="card-header fw-bold small">Learning Rate Schedulers</div>
+                  <div class="card-body small">
+                    <p>Adjust learning rate during training for faster convergence and better final accuracy.</p>
+                    <ul class="ps-3 mb-0">
+                      <li><strong>Step Decay:</strong> Multiply LR by γ every N epochs</li>
+                      <li><strong>Cosine Annealing:</strong> Smoothly decays LR following cosine curve — standard for transformers</li>
+                      <li><strong>Warmup:</strong> Ramp LR from 0 to target over first N steps — critical for large models</li>
+                      <li><strong>ReduceLROnPlateau:</strong> Reduce when val loss stops improving</li>
+                      <li><strong>One-Cycle Policy:</strong> LR rises then falls — fast training, often best result</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100">
+                  <div class="card-header fw-bold small">Activation Functions</div>
+                  <div class="card-body small">
+                    <p>Non-linearities applied after each layer — without them, a deep network collapses to a single linear transformation.</p>
+                    <div class="table-responsive">
+                      <table class="table table-sm mb-0" style="font-size:.73rem">
+                        <thead><tr><th>Activation</th><th>Output</th><th>Use</th></tr></thead>
+                        <tbody>
+                          <tr><td>Sigmoid</td><td>(0, 1)</td><td>Binary output layer only</td></tr>
+                          <tr><td>Tanh</td><td>(−1, 1)</td><td>RNNs, zero-centred</td></tr>
+                          <tr><td class="fw-semibold">ReLU</td><td>[0, ∞)</td><td>Default hidden layers (fast, sparse)</td></tr>
+                          <tr><td>Leaky ReLU</td><td>(−∞, ∞)</td><td>Fixes dying ReLU problem</td></tr>
+                          <tr><td>GELU</td><td>Smooth ReLU</td><td>Transformers, BERT, GPT</td></tr>
+                          <tr><td>Softmax</td><td>Probabilities sum=1</td><td>Multi-class output layer</td></tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ════════════════════════════════════════════════════════
+               SECTION 10 — INITIAL SETUP
+          ════════════════════════════════════════════════════════ -->
+          <section id="setup" class="aiml-section mb-5">
+            <div class="section-divider"></div>
+            <h2 class="h3 fw-bold mb-1">Initial Setup — Hardware, Stack &amp; Environment</h2>
+            <p class="text-secondary mb-4">What you actually need to start building.</p>
+
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-4">
+                <div class="card h-100">
+                  <div class="card-header fw-bold small">🖥️ Hardware Guide</div>
+                  <div class="card-body small">
+                    <p class="fw-semibold mb-1">CPU Only</p>
+                    <p class="mb-2">Fine for: scikit-learn, small datasets, tabular ML. Not for deep learning.</p>
+                    <p class="fw-semibold mb-1">GPU (NVIDIA — CUDA)</p>
+                    <p class="mb-1">Required for deep learning. VRAM matters:</p>
+                    <ul class="ps-3 mb-2">
+                      <li><strong>8 GB</strong> — small models, fine-tuning</li>
+                      <li><strong>16–24 GB</strong> — medium models (RTX 3090, 4090)</li>
+                      <li><strong>40–80 GB</strong> — large models (A100, H100)</li>
+                    </ul>
+                    <p class="fw-semibold mb-1">Cloud (no hardware)</p>
+                    <ul class="ps-3 mb-0">
+                      <li><strong>Google Colab</strong> — free T4 GPU, good start</li>
+                      <li><strong>Kaggle Kernels</strong> — free 30h/week GPU</li>
+                      <li><strong>RunPod / Lambda Labs</strong> — cheap on-demand GPU</li>
+                      <li><strong>AWS/GCP/Azure</strong> — enterprise scale</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100">
+                  <div class="card-header fw-bold small">🧰 Software Stack</div>
+                  <div class="card-body small">
+                    <p class="fw-semibold mb-1">Language: Python 3.10+</p>
+                    <p class="mb-2">Dominant language for ML. Avoid others unless you have a specific reason.</p>
+                    <p class="fw-semibold mb-1">Core Libraries:</p>
+                    <ul class="ps-3 mb-2">
+                      <li><strong>NumPy</strong> — array operations</li>
+                      <li><strong>Pandas</strong> — data manipulation</li>
+                      <li><strong>Matplotlib / Seaborn</strong> — visualisation</li>
+                      <li><strong>Scikit-learn</strong> — classical ML + utilities</li>
+                    </ul>
+                    <p class="fw-semibold mb-1">Deep Learning Frameworks:</p>
+                    <ul class="ps-3 mb-0">
+                      <li><strong>PyTorch</strong> — research default, flexible, dynamic graph</li>
+                      <li><strong>TensorFlow / Keras</strong> — production, mobile deployment</li>
+                      <li><strong>JAX</strong> — high-performance research (Google)</li>
+                      <li><strong>Hugging Face Transformers</strong> — pretrained models</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100">
+                  <div class="card-header fw-bold small">⚙️ Environment Setup</div>
+                  <div class="card-body small">
+                    <p class="fw-semibold mb-1">Recommended: conda + pip</p>
+                    <div class="code-block mb-2">
+<span class="cm"># Create isolated environment</span>
+conda create -n mlenv python=<span class="nm">3.11</span>
+conda activate mlenv
+
+<span class="cm"># PyTorch with CUDA 12.1</span>
+pip install torch torchvision torchaudio \
+  --index-url https://download.pytorch.org/whl/cu121
+
+<span class="cm"># Core data stack</span>
+pip install numpy pandas matplotlib seaborn \
+  scikit-learn jupyter ipykernel xgboost \
+  lightgbm transformers datasets accelerate
+                    </div>
+                    <p class="fw-semibold mb-1">IDE: VS Code or JupyterLab</p>
+                    <ul class="ps-3 mb-0">
+                      <li>VS Code + Python extension + Jupyter extension</li>
+                      <li>JupyterLab for exploration-heavy workflows</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="callout callout-tip">
+              <strong>Verify GPU setup:</strong>
+              <code>python -c "import torch; print(torch.cuda.is_available(), torch.cuda.get_device_name(0))"</code>
+              Should print <code>True</code> and your GPU name. If False, CUDA drivers need reinstallation.
+            </div>
+          </section>
+
+          <!-- ═══════════════════════════════════════════════════ HYPERPARAMETER TUNING -->
+          <section id="hyperparams" class="aiml-section mb-5">
+            <div class="section-divider"></div>
+            <h2 class="h4 fw-bold mb-1">Hyperparameter Tuning</h2>
+            <p class="text-secondary small mb-3">Finding the best configuration for your model — learning rate, batch size, depth, regularization — without manually guessing.</p>
+
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-6">
+                <div class="card h-100 model-card">
+                  <div class="card-header fw-bold small d-flex justify-content-between">
+                    <span>Grid Search</span>
+                    <span class="badge diff-beginner">Beginner</span>
+                  </div>
+                  <div class="card-body small">
+                    <p>Exhaustively evaluates every combination of the hyperparameter grid. Simple and reproducible, but cost grows exponentially with the number of parameters.</p>
+                    <div class="code-block mb-2">
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> GridSearchCV
+<span class="kw">from</span> sklearn.ensemble <span class="kw">import</span> RandomForestClassifier
+
+param_grid = {
+  <span class="st">'n_estimators'</span>: [<span class="nm">100</span>, <span class="nm">300</span>],
+  <span class="st">'max_depth'</span>:    [<span class="kw">None</span>, <span class="nm">10</span>, <span class="nm">20</span>],
+  <span class="st">'min_samples_split'</span>: [<span class="nm">2</span>, <span class="nm">5</span>]
+}
+gs = GridSearchCV(RandomForestClassifier(), param_grid,
+                  cv=<span class="nm">5</span>, scoring=<span class="st">'f1_macro'</span>, n_jobs=<span class="nm">-1</span>)
+gs.fit(X_train, y_train)
+<span class="fn">print</span>(gs.best_params_)
+                    </div>
+                    <p class="mb-0"><strong>When to use:</strong> Small grids (&lt;50 combos), final polish after narrowing range.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100 model-card">
+                  <div class="card-header fw-bold small d-flex justify-content-between">
+                    <span>Random Search</span>
+                    <span class="badge diff-beginner">Beginner</span>
+                  </div>
+                  <div class="card-body small">
+                    <p>Samples random combinations from continuous distributions. Finds good solutions 2–10× faster than grid search because most hyperparameters are not equally important.</p>
+                    <div class="code-block mb-2">
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> RandomizedSearchCV
+<span class="kw">from</span> scipy.stats <span class="kw">import</span> loguniform, randint
+
+param_dist = {
+  <span class="st">'learning_rate'</span>: loguniform(<span class="nm">1e-4</span>, <span class="nm">1e-1</span>),
+  <span class="st">'n_estimators'</span>: randint(<span class="nm">50</span>, <span class="nm">500</span>),
+  <span class="st">'max_depth'</span>:    randint(<span class="nm">3</span>, <span class="nm">15</span>)
+}
+rs = RandomizedSearchCV(model, param_dist,
+                        n_iter=<span class="nm">60</span>, cv=<span class="nm">5</span>, n_jobs=<span class="nm">-1</span>)
+rs.fit(X_train, y_train)
+                    </div>
+                    <p class="mb-0"><strong>Rule of thumb:</strong> 60 random trials achieves ~95% coverage of a well-sampled grid.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-4">
+                <div class="card h-100 model-card">
+                  <div class="card-header fw-bold small d-flex justify-content-between">
+                    <span>Bayesian Optimization</span>
+                    <span class="badge diff-intermediate">Intermediate</span>
+                  </div>
+                  <div class="card-body small">
+                    <p>Builds a probabilistic surrogate model (Gaussian Process or Tree Parzen Estimator) of the objective surface, then samples where improvement is most likely.</p>
+                    <ul class="ps-3 mb-2">
+                      <li>Surrogate is updated after each trial</li>
+                      <li>Acquisition function (EI, UCB) picks next point</li>
+                      <li>Converges in 20–50 trials vs 100s for random</li>
+                      <li>Best for expensive evaluations (GPU hours)</li>
+                    </ul>
+                    <p class="mb-0"><strong>Libraries:</strong> <code>scikit-optimize</code>, <code>hyperopt</code>, <code>Optuna</code></p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100 model-card" style="border-top:3px solid #0dcaf0;">
+                  <div class="card-header fw-bold small d-flex justify-content-between">
+                    <span>Optuna</span>
+                    <span class="badge diff-intermediate">Intermediate</span>
+                  </div>
+                  <div class="card-body small">
+                    <p>Modern standard for HPO. Uses TPE with <strong>pruning</strong> — cancels poor trials early to save compute. Dashboard built in.</p>
+                    <div class="code-block mb-2">
+<span class="kw">import</span> optuna
+
+<span class="kw">def</span> <span class="fn">objective</span>(trial):
+  lr  = trial.suggest_float(<span class="st">'lr'</span>,  <span class="nm">1e-5</span>, <span class="nm">1e-2</span>, log=<span class="kw">True</span>)
+  wd  = trial.suggest_float(<span class="st">'wd'</span>,  <span class="nm">1e-6</span>, <span class="nm">1e-3</span>, log=<span class="kw">True</span>)
+  lay = trial.suggest_int(<span class="st">'layers'</span>, <span class="nm">2</span>, <span class="nm">6</span>)
+  <span class="kw">return</span> <span class="fn">train_model</span>(lr, wd, lay)  <span class="cm"># returns val_loss</span>
+
+study = optuna.create_study(direction=<span class="st">'minimize'</span>)
+study.optimize(objective, n_trials=<span class="nm">100</span>)
+<span class="fn">print</span>(study.best_params)
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100 model-card">
+                  <div class="card-header fw-bold small d-flex justify-content-between">
+                    <span>AutoML</span>
+                    <span class="badge diff-beginner">Beginner</span>
+                  </div>
+                  <div class="card-body small">
+                    <p>Automates the full pipeline — feature engineering, model selection, and tuning. Best for rapid baselines; less interpretable.</p>
+                    <table class="table table-sm table-bordered small mb-2">
+                      <thead class="table-dark"><tr><th>Tool</th><th>Best For</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>AutoSklearn</strong></td><td>Classical ML (sklearn)</td></tr>
+                        <tr><td><strong>TPOT</strong></td><td>Pipeline genetic search</td></tr>
+                        <tr><td><strong>H2O AutoML</strong></td><td>Tabular, production</td></tr>
+                        <tr><td><strong>Auto-PyTorch</strong></td><td>Neural arch search (NAS)</td></tr>
+                        <tr><td><strong>Vertex AI AutoML</strong></td><td>Cloud, no-code</td></tr>
+                      </tbody>
+                    </table>
+                    <p class="mb-0 small text-warning-emphasis">AutoML sets the baseline — manual tuning of a well-chosen architecture still wins on custom problems.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card mb-3">
+              <div class="card-header fw-bold small">Hyperparameter Priority Guide</div>
+              <div class="card-body p-0">
+                <table class="table table-sm table-bordered small mb-0 comp-table">
+                  <thead class="table-dark">
+                    <tr><th>Hyperparameter</th><th>Impact</th><th>Typical Range</th><th>Strategy</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td><strong>Learning Rate</strong></td><td class="text-danger fw-bold">Critical</td><td>1e-5 → 1e-1 (log)</td><td>Tune first; use LR Range Test</td></tr>
+                    <tr><td><strong>Batch Size</strong></td><td class="text-warning">High</td><td>16, 32, 64, 128, 256</td><td>Larger = faster + noisier gradients</td></tr>
+                    <tr><td><strong>Weight Decay</strong></td><td class="text-warning">High</td><td>1e-6 → 1e-2 (log)</td><td>Tune jointly with LR</td></tr>
+                    <tr><td><strong>Network Depth</strong></td><td class="text-warning">High</td><td>2–8 layers</td><td>Start shallow, add layers</td></tr>
+                    <tr><td><strong>Hidden Size</strong></td><td class="text-info">Medium</td><td>64, 128, 256, 512</td><td>Powers of 2 for GPU efficiency</td></tr>
+                    <tr><td><strong>Dropout Rate</strong></td><td class="text-info">Medium</td><td>0.1 → 0.5</td><td>Higher for small datasets</td></tr>
+                    <tr><td><strong>Num Epochs</strong></td><td class="text-secondary">Low</td><td>10 → 300</td><td>Use early stopping instead</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="callout callout-tip">
+              <strong>LR Range Test (Smith 2015):</strong> Train for 1 epoch while linearly increasing LR from 1e-7 to 1. Plot loss vs LR — the optimal LR is just before loss starts rising steeply. This 5-minute test replaces hours of grid search.
+            </div>
+          </section>
+
+          <!-- ═══════════════════════════════════════════════════ TESTING & STRESS -->
+          <section id="testing" class="aiml-section mb-5">
+            <div class="section-divider"></div>
+            <h2 class="h4 fw-bold mb-1">Testing &amp; Stress Testing</h2>
+            <p class="text-secondary small mb-3">A model that scores well on a test set is not a model you can trust in production. Real validation means understanding failure modes, distribution shift, bias, and latency under load.</p>
+
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-6">
+                <div class="card h-100">
+                  <div class="card-header fw-bold small">Evaluation Metrics by Task</div>
+                  <div class="card-body p-0">
+                    <table class="table table-sm table-bordered small mb-0 comp-table">
+                      <thead class="table-dark"><tr><th>Task</th><th>Primary Metric</th><th>Also Check</th></tr></thead>
+                      <tbody>
+                        <tr><td>Binary Classification</td><td>AUC-ROC</td><td>F1, Precision-Recall curve</td></tr>
+                        <tr><td>Multi-class Classification</td><td>Macro F1</td><td>Confusion matrix, per-class recall</td></tr>
+                        <tr><td>Imbalanced Classes</td><td>PR-AUC</td><td>Matthews Correlation Coefficient</td></tr>
+                        <tr><td>Regression</td><td>RMSE</td><td>MAE, R², residual plots</td></tr>
+                        <tr><td>Object Detection</td><td>mAP@IoU50</td><td>FPS, mAP@50:95</td></tr>
+                        <tr><td>NLP Generation</td><td>BLEU / ROUGE</td><td>BERTScore, human eval</td></tr>
+                        <tr><td>Clustering</td><td>Silhouette Score</td><td>Davies-Bouldin, visual inspection</td></tr>
+                        <tr><td>Ranking / RecSys</td><td>NDCG@k</td><td>MRR, Hit Rate@k</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100">
+                  <div class="card-header fw-bold small">Cross-Validation Strategies</div>
+                  <div class="card-body small">
+                    <p><strong>k-Fold CV</strong> (k=5 or 10) — standard for tabular data. Rotate which fold is the validation set, average the k scores. More reliable than a single train/val split.</p>
+                    <div class="code-block mb-2">
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> StratifiedKFold, cross_val_score
+skf = StratifiedKFold(n_splits=<span class="nm">5</span>, shuffle=<span class="kw">True</span>, random_state=<span class="nm">42</span>)
+scores = cross_val_score(model, X, y, cv=skf, scoring=<span class="st">'f1_macro'</span>)
+<span class="fn">print</span>(<span class="st">f'CV F1: {scores.mean():.3f} ± {scores.std():.3f}'</span>)
+                    </div>
+                    <ul class="ps-3 mb-0 small">
+                      <li><strong>Stratified k-Fold</strong> — preserves class ratio in each fold (use for classification)</li>
+                      <li><strong>GroupKFold</strong> — prevents data from the same subject leaking across folds</li>
+                      <li><strong>TimeSeriesSplit</strong> — walk-forward validation for temporal data (never shuffle)</li>
+                      <li><strong>Nested CV</strong> — outer loop for performance estimate, inner for HPO; avoids optimistic bias</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-4">
+                <div class="card h-100 model-card" style="border-top:3px solid #dc3545;">
+                  <div class="card-header fw-bold small">Adversarial &amp; Edge Case Testing</div>
+                  <div class="card-body small">
+                    <p>Probe the model with inputs designed to break it — not to attack it, but to find blind spots before deployment does.</p>
+                    <ul class="ps-3 mb-2">
+                      <li><strong>FGSM / PGD attacks</strong> — add imperceptible pixel noise that flips image classifier output</li>
+                      <li><strong>TextFooler / BERT-Attack</strong> — substitute synonyms to fool NLP models</li>
+                      <li><strong>Boundary samples</strong> — inputs near the decision boundary expose fragility</li>
+                      <li><strong>Out-of-distribution (OOD)</strong> — test on data from a different domain, season, or source</li>
+                      <li><strong>Null inputs</strong> — all-zeros, all-ones, empty strings, NaN-filled rows</li>
+                    </ul>
+                    <p class="mb-0 text-warning-emphasis"><strong>Target:</strong> Graceful degradation, not crashes — model should return a low-confidence prediction rather than an exception.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100 model-card" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">Bias &amp; Fairness Auditing</div>
+                  <div class="card-body small">
+                    <p>A model accurate on average may be systematically wrong for a subgroup. Always slice your test metrics by sensitive attributes.</p>
+                    <ul class="ps-3 mb-2">
+                      <li><strong>Demographic parity</strong> — positive rate equal across groups</li>
+                      <li><strong>Equalized odds</strong> — equal TPR and FPR across groups</li>
+                      <li><strong>Calibration by subgroup</strong> — predicted probability matches actual frequency</li>
+                    </ul>
+                    <div class="code-block mb-2">
+<span class="cm"># Slice test set by subgroup</span>
+<span class="kw">for</span> grp, sub <span class="kw">in</span> test_df.groupby(<span class="st">'gender'</span>):
+  preds = model.<span class="fn">predict</span>(sub[features])
+  f1 = <span class="fn">f1_score</span>(sub[<span class="st">'label'</span>], preds)
+  <span class="fn">print</span>(<span class="st">f'{grp}: F1={f1:.3f}'</span>)
+                    </div>
+                    <p class="mb-0"><strong>Tools:</strong> <code>Fairlearn</code>, <code>IBM AI Fairness 360</code>, <code>What-If Tool</code></p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100 model-card" style="border-top:3px solid #0dcaf0;">
+                  <div class="card-header fw-bold small">Latency &amp; Throughput Profiling</div>
+                  <div class="card-body small">
+                    <p>A model that takes 800ms per prediction is unusable in a real-time product. Profile before you deploy.</p>
+                    <div class="code-block mb-2">
+<span class="kw">import</span> time, torch
+model.<span class="fn">eval</span>()
+
+<span class="cm"># Warm up GPU</span>
+<span class="kw">with</span> torch.no_grad():
+  <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">10</span>): model(dummy_input)
+
+<span class="cm"># Measure 100 runs</span>
+times = []
+<span class="kw">with</span> torch.no_grad():
+  <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="nm">100</span>):
+    t0 = time.<span class="fn">perf_counter</span>()
+    model(dummy_input)
+    times.<span class="fn">append</span>(time.<span class="fn">perf_counter</span>() - t0)
+<span class="fn">print</span>(<span class="st">f'p50={sorted(times)[50]*1000:.1f}ms'</span>)
+<span class="fn">print</span>(<span class="st">f'p99={sorted(times)[99]*1000:.1f}ms'</span>)
+                    </div>
+                    <p class="mb-0"><strong>Speed-up tools:</strong> <code>torch.compile</code>, ONNX export, TensorRT, quantization (INT8), knowledge distillation.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card mb-3">
+              <div class="card-header fw-bold small">Pre-Deploy Testing Checklist</div>
+              <div class="card-body small">
+                <div class="row g-2">
+                  <div class="col-12 col-md-6">
+                    <ul class="ps-3 mb-0">
+                      <li>Test set held out until final evaluation — never used during training or tuning</li>
+                      <li>Cross-validation score and held-out score agree (±3% is normal; &gt;5% gap = overfit)</li>
+                      <li>Calibration curve plotted — predicted probabilities match real frequencies</li>
+                      <li>OOD test set evaluated — how does accuracy degrade on unseen distributions?</li>
+                      <li>Performance sliced by all known sensitive attributes</li>
+                    </ul>
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <ul class="ps-3 mb-0">
+                      <li>p50 and p99 latency measured under realistic batch sizes</li>
+                      <li>Memory footprint profiled — model fits on target hardware</li>
+                      <li>Null / malformed inputs return graceful output (no exceptions)</li>
+                      <li>Model versioned and artifacts saved (weights + config + preprocessing)</li>
+                      <li>Monitoring set up for data drift and prediction distribution shift</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═══════════════════════════════════════════════════ COMMON PITFALLS -->
+          <section id="pitfalls" class="aiml-section mb-5">
+            <div class="section-divider"></div>
+            <h2 class="h4 fw-bold mb-1">Common Pitfalls</h2>
+            <p class="text-secondary small mb-3">These mistakes are responsible for most failed ML projects. Knowing them in advance is half the solution.</p>
+
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-6">
+                <div class="card h-100 model-card" style="border-top:3px solid #dc3545;">
+                  <div class="card-header fw-bold small">Overfitting</div>
+                  <div class="card-body small">
+                    <p><strong>Symptom:</strong> Training accuracy 98%, validation accuracy 72%. The model memorised the training set.</p>
+                    <p class="fw-semibold mb-1">Fixes (in order of preference):</p>
+                    <ol class="ps-3 mb-2">
+                      <li>Get more training data (most effective)</li>
+                      <li>Add Dropout (0.2–0.5 after each hidden layer)</li>
+                      <li>L2 regularisation (weight decay)</li>
+                      <li>Reduce model capacity (fewer layers / smaller hidden size)</li>
+                      <li>Data augmentation (images: flip, crop, colour jitter)</li>
+                      <li>Early stopping on validation loss</li>
+                    </ol>
+                    <div class="callout callout-warn mb-0">
+                      Never evaluate augmented data in your validation set — augmentation is training-only.
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100 model-card" style="border-top:3px solid #6c757d;">
+                  <div class="card-header fw-bold small">Underfitting</div>
+                  <div class="card-body small">
+                    <p><strong>Symptom:</strong> Both training and validation accuracy are poor. The model has too little capacity or too little training.</p>
+                    <p class="fw-semibold mb-1">Fixes:</p>
+                    <ol class="ps-3 mb-2">
+                      <li>Increase model capacity (more layers / wider hidden sizes)</li>
+                      <li>Train longer (more epochs, check loss is still declining)</li>
+                      <li>Reduce regularisation (lower dropout, lower weight decay)</li>
+                      <li>Use a more expressive architecture (e.g., deep net vs. linear)</li>
+                      <li>Engineer better features — linear models underfit complex relationships</li>
+                      <li>Lower learning rate if loss is oscillating</li>
+                    </ol>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-4">
+                <div class="card h-100 model-card" style="border-top:3px solid #fd7e14;">
+                  <div class="card-header fw-bold small">Data Leakage</div>
+                  <div class="card-body small">
+                    <p>Future information leaks into training features, causing unrealistically high scores that collapse in production.</p>
+                    <p class="fw-semibold mb-1">Common sources:</p>
+                    <ul class="ps-3 mb-2">
+                      <li>Scaling / normalisation fit on the full dataset before splitting</li>
+                      <li>Target encoding computed on the whole dataset</li>
+                      <li>Time-series: using future timestamps as features</li>
+                      <li>Group leakage: same patient/user in train and test</li>
+                    </ul>
+                    <div class="callout callout-danger mb-0">
+                      <strong>Rule:</strong> Fit all preprocessing transformers on training data only. Apply (transform-only) to validation and test.
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100 model-card" style="border-top:3px solid #6610f2;">
+                  <div class="card-header fw-bold small">Vanishing &amp; Exploding Gradients</div>
+                  <div class="card-body small">
+                    <p>In deep networks, gradients can shrink to zero (vanish) or grow uncontrollably (explode) during backprop, stalling training.</p>
+                    <p class="fw-semibold mb-1">Vanishing fixes:</p>
+                    <ul class="ps-3 mb-1">
+                      <li>ReLU / Leaky ReLU / GELU instead of sigmoid/tanh</li>
+                      <li>Residual connections (ResNet skip connections)</li>
+                      <li>Batch Normalisation after linear layers</li>
+                      <li>Careful weight initialisation (Kaiming / He init for ReLU)</li>
+                    </ul>
+                    <p class="fw-semibold mb-1">Exploding fixes:</p>
+                    <ul class="ps-3 mb-0">
+                      <li>Gradient clipping: <code>torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)</code></li>
+                      <li>Reduce learning rate</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100 model-card" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Class Imbalance</div>
+                  <div class="card-body small">
+                    <p>When 99% of examples are class 0, a model that predicts class 0 every time scores 99% accuracy — but is useless.</p>
+                    <p class="fw-semibold mb-1">Fixes (ranked by effectiveness):</p>
+                    <ol class="ps-3 mb-2">
+                      <li><strong>Class weights in loss:</strong> <code>CrossEntropyLoss(weight=class_weights)</code></li>
+                      <li><strong>Oversampling minority:</strong> SMOTE (for tabular), duplicate with augmentation (images)</li>
+                      <li><strong>Undersampling majority:</strong> Random or Tomek Links</li>
+                      <li><strong>Threshold tuning:</strong> Default 0.5 threshold is wrong — tune on PR curve</li>
+                      <li><strong>Use PR-AUC</strong> not accuracy as your metric</li>
+                    </ol>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card mb-3">
+              <div class="card-header fw-bold small">Quick Diagnosis Table</div>
+              <div class="card-body p-0">
+                <table class="table table-sm table-bordered small mb-0 comp-table">
+                  <thead class="table-dark"><tr><th>Symptom</th><th>Likely Cause</th><th>First Action</th></tr></thead>
+                  <tbody>
+                    <tr><td>Loss is NaN from step 1</td><td>LR too large, bad init, data has NaN</td><td>Check data, reduce LR 10×</td></tr>
+                    <tr><td>Loss not decreasing after 10 epochs</td><td>LR too low, wrong optimizer, frozen layers</td><td>Plot LR range test, check requires_grad</td></tr>
+                    <tr><td>Val loss increases while train loss drops</td><td>Overfitting</td><td>Add dropout, reduce capacity</td></tr>
+                    <tr><td>Both losses plateau early at high value</td><td>Underfitting / wrong architecture</td><td>Increase capacity, train longer</td></tr>
+                    <tr><td>Loss oscillates wildly</td><td>LR too high or bad batch norm</td><td>Reduce LR, add gradient clipping</td></tr>
+                    <tr><td>Perfect train acc, chance-level val acc</td><td>Data leakage or label mismatch</td><td>Audit preprocessing pipeline</td></tr>
+                    <tr><td>GPU OOM error</td><td>Batch too large, model too large, memory leak</td><td>Halve batch, use gradient checkpointing</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═══════════════════════════════════════════════════ BUILD YOUR OWN AI -->
+          <section id="buildguide" class="aiml-section mb-5">
+            <div class="section-divider"></div>
+            <h2 class="h4 fw-bold mb-1">Build Your Own AI — Step-by-Step</h2>
+            <p class="text-secondary small mb-3">A complete end-to-end workflow from raw idea to deployed model. Follow this order — skipping steps causes pain later.</p>
+
+            <!-- Step timeline -->
+            <div class="row g-3 mb-4">
+
+              <div class="col-12">
+                <div class="card" style="border-left:4px solid #0d6efd;">
+                  <div class="card-body small">
+                    <div class="d-flex align-items-start gap-3">
+                      <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center flex-shrink-0" style="width:36px;height:36px;font-weight:700;">1</div>
+                      <div class="w-100">
+                        <p class="fw-bold mb-1">Define the Problem Precisely</p>
+                        <p class="mb-1">ML is an optimisation tool — it needs a clear objective. Answer these before writing any code:</p>
+                        <ul class="ps-3 mb-0">
+                          <li>What exactly are you predicting? (label, value, cluster, sequence)</li>
+                          <li>What does success look like? (metric + threshold: "AUC &gt; 0.85 on held-out set")</li>
+                          <li>What data exists, and what is the ground truth label?</li>
+                          <li>What are the constraints? (latency, model size, interpretability, cost)</li>
+                          <li>Is ML actually necessary? Can a rule-based system solve 80% of cases?</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <div class="card" style="border-left:4px solid #6610f2;">
+                  <div class="card-body small">
+                    <div class="d-flex align-items-start gap-3">
+                      <div class="rounded-circle bg-purple text-white d-flex align-items-center justify-content-center flex-shrink-0" style="width:36px;height:36px;font-weight:700;background:#6610f2;">2</div>
+                      <div class="w-100">
+                        <p class="fw-bold mb-1">Collect &amp; Understand Your Data</p>
+                        <div class="row g-2">
+                          <div class="col-12 col-md-6">
+                            <p class="mb-1 fw-semibold">Exploratory Data Analysis (EDA):</p>
+                            <div class="code-block mb-1">
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+df = pd.<span class="fn">read_csv</span>(<span class="st">'data.csv'</span>)
+df.<span class="fn">info</span>()          <span class="cm"># types, nulls</span>
+df.<span class="fn">describe</span>()      <span class="cm"># stats per column</span>
+df.<span class="fn">hist</span>(figsize=(<span class="nm">12</span>,<span class="nm">8</span>))  <span class="cm"># distributions</span>
+
+<span class="cm"># Label balance</span>
+df[<span class="st">'label'</span>].<span class="fn">value_counts</span>(normalize=<span class="kw">True</span>)
+
+<span class="cm"># Correlation heatmap</span>
+<span class="kw">import</span> seaborn <span class="kw">as</span> sns
+sns.<span class="fn">heatmap</span>(df.<span class="fn">corr</span>(), annot=<span class="kw">True</span>, cmap=<span class="st">'coolwarm'</span>)
+                            </div>
+                          </div>
+                          <div class="col-12 col-md-6">
+                            <p class="mb-1 fw-semibold">Data quality checks:</p>
+                            <ul class="ps-3 mb-0">
+                              <li>Missing values — impute or drop?</li>
+                              <li>Duplicates — exact and near-duplicates</li>
+                              <li>Outliers — domain knowledge required</li>
+                              <li>Label noise — sample 100 rows manually</li>
+                              <li>Feature units — are numbers on comparable scales?</li>
+                              <li>Temporal ordering — does time matter?</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <div class="card" style="border-left:4px solid #20c997;">
+                  <div class="card-body small">
+                    <div class="d-flex align-items-start gap-3">
+                      <div class="rounded-circle text-white d-flex align-items-center justify-content-center flex-shrink-0" style="width:36px;height:36px;font-weight:700;background:#20c997;">3</div>
+                      <div class="w-100">
+                        <p class="fw-bold mb-1">Preprocess &amp; Engineer Features</p>
+                        <div class="row g-2">
+                          <div class="col-12 col-md-6">
+                            <p class="mb-1 fw-semibold">Standard pipeline:</p>
+                            <div class="code-block">
+<span class="kw">from</span> sklearn.pipeline <span class="kw">import</span> Pipeline
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler
+<span class="kw">from</span> sklearn.impute <span class="kw">import</span> SimpleImputer
+
+pipe = Pipeline([
+  (<span class="st">'impute'</span>, SimpleImputer(strategy=<span class="st">'median'</span>)),
+  (<span class="st">'scale'</span>,  StandardScaler()),
+])
+X_train = pipe.<span class="fn">fit_transform</span>(X_raw_train)
+X_val   = pipe.<span class="fn">transform</span>(X_raw_val)  <span class="cm"># NO fit!</span>
+                            </div>
+                          </div>
+                          <div class="col-12 col-md-6">
+                            <p class="mb-1 fw-semibold">Feature engineering ideas:</p>
+                            <ul class="ps-3 mb-0">
+                              <li>Date → day-of-week, hour, is_weekend</li>
+                              <li>Aggregations: user's mean, max, count</li>
+                              <li>Ratios: revenue / sessions</li>
+                              <li>Lag features for time series</li>
+                              <li>One-hot encode low-cardinality categoricals</li>
+                              <li>Target encode high-cardinality (carefully)</li>
+                              <li>PCA for dense embeddings</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <div class="card" style="border-left:4px solid #ffc107;">
+                  <div class="card-body small">
+                    <div class="d-flex align-items-start gap-3">
+                      <div class="rounded-circle text-dark d-flex align-items-center justify-content-center flex-shrink-0" style="width:36px;height:36px;font-weight:700;background:#ffc107;">4</div>
+                      <div class="w-100">
+                        <p class="fw-bold mb-1">Choose &amp; Baseline Your Model</p>
+                        <p class="mb-1">Always start simple. A strong baseline prevents chasing complexity that isn't needed.</p>
+                        <table class="table table-sm table-bordered small mb-1 comp-table">
+                          <thead class="table-dark"><tr><th>Problem Type</th><th>Start With</th><th>Then Try</th></tr></thead>
+                          <tbody>
+                            <tr><td>Tabular classification</td><td>Logistic Regression</td><td>XGBoost / LightGBM</td></tr>
+                            <tr><td>Tabular regression</td><td>Ridge / Lasso</td><td>XGBoost / Random Forest</td></tr>
+                            <tr><td>Image classification</td><td>ResNet-18 pretrained</td><td>EfficientNet-B4 / ViT</td></tr>
+                            <tr><td>Text classification</td><td>TF-IDF + LogReg</td><td>DistilBERT fine-tuned</td></tr>
+                            <tr><td>Text generation</td><td>GPT-2 fine-tuned</td><td>LLaMA-3 / Mistral fine-tuned</td></tr>
+                            <tr><td>Time series</td><td>SARIMA / Prophet</td><td>LSTM / Temporal Fusion Transformer</td></tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <div class="card" style="border-left:4px solid #0dcaf0;">
+                  <div class="card-body small">
+                    <div class="d-flex align-items-start gap-3">
+                      <div class="rounded-circle text-dark d-flex align-items-center justify-content-center flex-shrink-0" style="width:36px;height:36px;font-weight:700;background:#0dcaf0;">5</div>
+                      <div class="w-100">
+                        <p class="fw-bold mb-1">Train, Tune, Evaluate</p>
+                        <div class="row g-2">
+                          <div class="col-12 col-md-6">
+                            <p class="mb-1 fw-semibold">PyTorch training loop (minimal):</p>
+                            <div class="code-block">
+model.<span class="fn">train</span>()
+optimizer = torch.optim.<span class="fn">AdamW</span>(
+  model.<span class="fn">parameters</span>(), lr=<span class="nm">3e-4</span>, weight_decay=<span class="nm">1e-2</span>)
+scheduler = torch.optim.lr_scheduler.<span class="fn">CosineAnnealingLR</span>(
+  optimizer, T_max=num_epochs)
+
+best_val, patience, p_count = <span class="nm">inf</span>, <span class="nm">10</span>, <span class="nm">0</span>
+<span class="kw">for</span> epoch <span class="kw">in</span> <span class="fn">range</span>(num_epochs):
+  <span class="kw">for</span> xb, yb <span class="kw">in</span> train_loader:
+    xb, yb = xb.<span class="fn">to</span>(device), yb.<span class="fn">to</span>(device)
+    optimizer.<span class="fn">zero_grad</span>()
+    loss = criterion(model(xb), yb)
+    loss.<span class="fn">backward</span>()
+    torch.nn.utils.<span class="fn">clip_grad_norm_</span>(model.<span class="fn">parameters</span>(), <span class="nm">1.0</span>)
+    optimizer.<span class="fn">step</span>()
+  val_loss = <span class="fn">evaluate</span>(model, val_loader)
+  scheduler.<span class="fn">step</span>()
+  <span class="kw">if</span> val_loss &lt; best_val:
+    best_val = val_loss
+    torch.<span class="fn">save</span>(model.<span class="fn">state_dict</span>(), <span class="st">'best.pt'</span>)
+    p_count = <span class="nm">0</span>
+  <span class="kw">else</span>:
+    p_count += <span class="nm">1</span>
+    <span class="kw">if</span> p_count &gt;= patience: <span class="kw">break</span>
+                            </div>
+                          </div>
+                          <div class="col-12 col-md-6">
+                            <p class="mb-1 fw-semibold">Tuning order:</p>
+                            <ol class="ps-3 mb-2">
+                              <li>LR Range Test → set initial LR</li>
+                              <li>Optuna for LR + weight_decay + dropout</li>
+                              <li>Freeze best config, tune architecture depth</li>
+                              <li>Ensemble 3–5 models with different seeds</li>
+                            </ol>
+                            <p class="mb-1 fw-semibold">Evaluation gates:</p>
+                            <ul class="ps-3 mb-0">
+                              <li>CV score stable across folds (&lt;3% std)</li>
+                              <li>Held-out score within 5% of CV score</li>
+                              <li>Calibration curve is reasonable</li>
+                              <li>Subgroup metrics acceptable</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <div class="card" style="border-left:4px solid #dc3545;">
+                  <div class="card-body small">
+                    <div class="d-flex align-items-start gap-3">
+                      <div class="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center flex-shrink-0" style="width:36px;height:36px;font-weight:700;">6</div>
+                      <div class="w-100">
+                        <p class="fw-bold mb-1">Deploy &amp; Monitor</p>
+                        <div class="row g-2">
+                          <div class="col-12 col-md-6">
+                            <p class="mb-1 fw-semibold">Export &amp; serve:</p>
+                            <div class="code-block mb-1">
+<span class="cm"># Export to ONNX (framework-agnostic)</span>
+torch.<span class="fn">onnx.export</span>(model, dummy_input,
+  <span class="st">'model.onnx'</span>, opset_version=<span class="nm">17</span>)
+
+<span class="cm"># FastAPI serving example</span>
+<span class="kw">from</span> fastapi <span class="kw">import</span> FastAPI
+app = <span class="fn">FastAPI</span>()
+
+@app.<span class="fn">post</span>(<span class="st">'/predict'</span>)
+<span class="kw">async def</span> <span class="fn">predict</span>(payload: InputSchema):
+  X = <span class="fn">preprocess</span>(payload)
+  <span class="kw">return</span> {<span class="st">'prediction'</span>: model.<span class="fn">predict</span>(X).<span class="fn">tolist</span>()}
+                            </div>
+                          </div>
+                          <div class="col-12 col-md-6">
+                            <p class="mb-1 fw-semibold">Production monitoring:</p>
+                            <ul class="ps-3 mb-1">
+                              <li><strong>Data drift:</strong> track input feature distributions (KS test, PSI)</li>
+                              <li><strong>Prediction drift:</strong> output distribution shifted?</li>
+                              <li><strong>Ground truth feedback:</strong> collect labels to retrain</li>
+                              <li><strong>Latency SLOs:</strong> alert if p99 &gt; threshold</li>
+                              <li><strong>Error rate:</strong> exceptions, malformed inputs</li>
+                            </ul>
+                            <p class="mb-0"><strong>Tools:</strong> MLflow, Weights &amp; Biases, Evidently, Seldon, BentoML, AWS SageMaker</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div><!-- /steps -->
+
+            <div class="callout callout-info">
+              <strong>The ML project loop never ends.</strong> Once deployed, real-world data drift means models degrade. Budget for retraining pipelines from the start — collect labels, set up automated retraining triggers, and version every model artifact. The best ML teams spend more time on data and monitoring than on model architecture.
+            </div>
+          </section>
+
+        </div><!-- /col content -->
+      </div><!-- /row -->
+    </div><!-- /container-fluid -->
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmkl2m/25YmHul6gwTzxnRJ1UKXH" crossorigin="anonymous"></script>
+  <script>
+    // Scrollspy
+    var scrollSpy = new bootstrap.ScrollSpy(document.body, {
+      target: '#aiml-sidebar', offset: 90, smoothScroll: true
+    });
+
+    // Copy-to-clipboard for code blocks
+    document.querySelectorAll('.code-block').forEach(function(block) {
+      var btn = document.createElement('button');
+      btn.className = 'btn btn-sm btn-outline-secondary copy-btn';
+      btn.style.cssText = 'position:absolute;top:6px;right:6px;font-size:.7rem;padding:1px 6px;opacity:.6;';
+      btn.textContent = 'Copy';
+      block.style.position = 'relative';
+      block.appendChild(btn);
+      btn.addEventListener('click', function() {
+        var text = block.innerText.replace(/Copy$/, '').trim();
+        navigator.clipboard.writeText(text).then(function() {
+          btn.textContent = 'Copied!';
+          btn.style.opacity = '1';
+          setTimeout(function() { btn.textContent = 'Copy'; btn.style.opacity = '.6'; }, 1800);
+        });
+      });
+    });
+
+    // Theme toggle (inherits from theme.css / localStorage)
+    var themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) {
+      themeToggle.addEventListener('click', function() {
+        var html = document.documentElement;
+        var next = html.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-bs-theme', next);
+        localStorage.setItem('bsTheme', next);
+      });
+    }
+  </script>
+</body>
+</html>
