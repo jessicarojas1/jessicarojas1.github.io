@@ -1109,9 +1109,133 @@ optimizer.<span class="fn">step</span>()                    <span class="cm"># u
           ════════════════════════════════════════════════════════ -->
           <section id="optimizers" class="aiml-section mb-5">
             <div class="section-divider"></div>
-            <h2 class="h3 fw-bold mb-1">Optimizers</h2>
-            <p class="text-secondary mb-4">How the model's weights are updated each step.</p>
+            <h2 class="h3 fw-bold mb-1">Optimizers &amp; The Learning Objective</h2>
+            <p class="text-secondary mb-3">Before choosing an optimizer, understand what it's actually doing — and why that problem is harder than it looks.</p>
 
+            <!-- The core objective -->
+            <div class="card mb-4" style="border-left:4px solid #0d6efd;">
+              <div class="card-header fw-bold small">The Core Optimization Objective</div>
+              <div class="card-body small">
+                <div class="row g-4 align-items-start">
+                  <div class="col-12 col-md-5">
+                    <p class="mb-2">Every machine learning model — whether linear regression, a random forest, or a billion-parameter transformer — is ultimately solving the same mathematical problem:</p>
+                    <div class="text-center p-3 mb-3 rounded" style="background:rgba(13,110,253,.08);border:1px solid rgba(13,110,253,.25);font-size:1.25rem;letter-spacing:.04em;">
+                      min<sub>θ</sub> &nbsp;<em>L</em>(θ)
+                    </div>
+                    <table class="table table-sm table-bordered small mb-2 comp-table">
+                      <thead class="table-dark"><tr><th>Symbol</th><th>Meaning</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>θ (theta)</strong></td><td>All trainable parameters — every weight and bias in the model</td></tr>
+                        <tr><td><strong>L(θ)</strong></td><td>Loss function — a scalar measuring how wrong the model's predictions are given the current θ</td></tr>
+                        <tr><td><strong>min</strong></td><td>Find the θ that makes L as small as possible</td></tr>
+                      </tbody>
+                    </table>
+                    <p class="mb-0">For a neural network with millions of parameters, θ is a vector in a millions-dimensional space. The loss surface is a landscape over that space — training is the process of navigating downhill to the lowest point you can find.</p>
+                  </div>
+                  <div class="col-12 col-md-7">
+                    <p class="mb-2 fw-semibold">Common loss functions (what L(θ) actually is):</p>
+                    <table class="table table-sm table-bordered small mb-3 comp-table">
+                      <thead class="table-dark"><tr><th>Task</th><th>Loss</th><th>Formula</th></tr></thead>
+                      <tbody>
+                        <tr><td>Regression</td><td>MSE</td><td>½ · mean((y − ŷ)²)</td></tr>
+                        <tr><td>Regression (robust)</td><td>Huber</td><td>MSE for small errors, MAE for large</td></tr>
+                        <tr><td>Binary classification</td><td>Binary Cross-Entropy</td><td>−[y·log(ŷ) + (1−y)·log(1−ŷ)]</td></tr>
+                        <tr><td>Multi-class</td><td>Cross-Entropy</td><td>−Σ yᵢ · log(ŷᵢ)</td></tr>
+                        <tr><td>Ranking</td><td>Hinge Loss</td><td>max(0, margin − score)</td></tr>
+                        <tr><td>Generative (VAE)</td><td>ELBO</td><td>Reconstruction − KL divergence</td></tr>
+                      </tbody>
+                    </table>
+                    <div class="callout callout-tip mb-0">
+                      <strong>The loss is not the metric.</strong> You minimise the loss (a smooth, differentiable proxy) and evaluate the metric (accuracy, F1, BLEU). Cross-entropy loss minimised → accuracy maximised, but they are not the same number. Always report the metric to stakeholders, never the raw loss.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Gradient descent -->
+            <div class="card mb-4">
+              <div class="card-header fw-bold small">Gradient Descent — How We Minimise L(θ)</div>
+              <div class="card-body small">
+                <div class="row g-3">
+                  <div class="col-12 col-md-5">
+                    <p>We can't search every possible θ directly — the space is astronomically large. Instead we use the <strong>gradient</strong>: the direction in θ-space that increases L the most. Move opposite to that direction (downhill) by a small step.</p>
+                    <div class="text-center p-3 mb-2 rounded" style="background:rgba(0,0,0,.2);border:1px solid rgba(128,128,128,.2);font-size:1rem;">
+                      θ ← θ − η · ∇<sub>θ</sub> L(θ)
+                    </div>
+                    <table class="table table-sm table-bordered small mb-2 comp-table">
+                      <thead class="table-dark"><tr><th>Symbol</th><th>Meaning</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>η (eta)</strong></td><td>Learning rate — step size. Too big: overshoots. Too small: slow.</td></tr>
+                        <tr><td><strong>∇<sub>θ</sub> L</strong></td><td>Gradient of loss w.r.t. parameters — computed by backpropagation</td></tr>
+                        <tr><td><strong>← (update)</strong></td><td>Applied once per batch (not once per epoch)</td></tr>
+                      </tbody>
+                    </table>
+                    <p class="mb-0">This single update rule, repeated thousands to millions of times over mini-batches of data, is how every neural network learns.</p>
+                  </div>
+                  <div class="col-12 col-md-7">
+                    <p class="mb-2 fw-semibold">Three flavours of gradient descent:</p>
+                    <table class="table table-sm table-bordered small mb-3 comp-table">
+                      <thead class="table-dark"><tr><th>Variant</th><th>Batch Size</th><th>Gradient Quality</th><th>Speed</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>Batch GD</strong></td><td>Full dataset</td><td>Exact — no noise</td><td>Very slow; impractical at scale</td></tr>
+                        <tr><td><strong>Stochastic GD (SGD)</strong></td><td>1 sample</td><td>Very noisy</td><td>Fast per step; noisy updates can escape local minima</td></tr>
+                        <tr><td><strong>Mini-batch GD</strong></td><td>32–512</td><td>Approximate — useful noise</td><td>Best of both; what "SGD" means in practice</td></tr>
+                      </tbody>
+                    </table>
+                    <div class="code-block mb-2">
+<span class="cm"># PyTorch gradient descent — one update step</span>
+optimizer.<span class="fn">zero_grad</span>()        <span class="cm"># clear old gradients</span>
+loss = criterion(model(xb), yb)  <span class="cm"># forward: compute L(θ)</span>
+loss.<span class="fn">backward</span>()               <span class="cm"># backward: compute ∇θ L</span>
+optimizer.<span class="fn">step</span>()               <span class="cm"># update: θ ← θ − η∇θL</span>
+                    </div>
+                    <div class="callout callout-warn mb-0">
+                      <strong>zero_grad() is critical.</strong> PyTorch accumulates gradients by default. Forgetting to call zero_grad() is one of the most common training bugs — gradients from previous batches pile up and the update is wrong.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Local vs global minima -->
+            <div class="card mb-4" style="border-left:4px solid #fd7e14;">
+              <div class="card-header fw-bold small">Local Minima, Global Minima &amp; Saddle Points</div>
+              <div class="card-body small">
+                <div class="row g-3">
+                  <div class="col-12 col-md-5">
+                    <p>The loss surface of a neural network is not a bowl (convex) — it is a highly complex landscape with many valleys, ridges, and flat regions. Gradient descent can get stuck.</p>
+                    <table class="table table-sm table-bordered small mb-2 comp-table">
+                      <thead class="table-dark"><tr><th>Feature</th><th>What It Is</th><th>Problem?</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>Global minimum</strong></td><td>Lowest possible L(θ) — best solution</td><td>Rarely found exactly in practice</td></tr>
+                        <tr><td><strong>Local minimum</strong></td><td>Valley — lower than all neighbours, but not globally lowest</td><td>Can trap gradient descent</td></tr>
+                        <tr><td><strong>Saddle point</strong></td><td>Flat region — gradient ≈ 0 but not a minimum</td><td>More common than local minima in high dimensions; slows training</td></tr>
+                        <tr><td><strong>Plateau</strong></td><td>Broad flat area of similar loss</td><td>Learning appears to stop; often needs LR warmup or schedule change</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="col-12 col-md-7">
+                    <p class="mb-1 fw-semibold">The surprising truth about local minima in deep learning:</p>
+                    <p class="mb-2">In very high-dimensional parameter spaces (millions of θ), true local minima are <em>extremely rare</em>. A point that is a minimum in every direction simultaneously is vanishingly unlikely. Most apparent local minima are actually saddle points. Research (Goodfellow et al., 2015) showed that local minima in deep nets tend to have similar loss values to the global minimum — so escaping them is less critical than it first appears.</p>
+                    <p class="mb-1 fw-semibold">Practical techniques to escape / avoid bad minima:</p>
+                    <ul class="ps-3 mb-2">
+                      <li><strong>Momentum</strong> — accumulates velocity across steps, rolls through small valleys</li>
+                      <li><strong>Stochastic noise</strong> — mini-batch gradient noise acts as natural perturbation</li>
+                      <li><strong>Learning rate warmup</strong> — start slow, then accelerate past initial bad regions</li>
+                      <li><strong>Cyclical / cosine LR schedules</strong> — periodic LR increases help escape plateaus</li>
+                      <li><strong>Random restarts</strong> — train from multiple random initialisations, take best</li>
+                      <li><strong>Good initialisation</strong> — Kaiming/He init places starting θ in a better basin</li>
+                    </ul>
+                    <div class="callout callout-tip mb-0">
+                      <strong>Flat minima generalise better.</strong> Sharp minima (narrow valleys) tend to overfit — a tiny shift in test data shoots loss upward. Flat minima are robust to small perturbations. SGD with momentum tends to find flatter minima than Adam, which may explain why SGD sometimes generalises better despite converging slower.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <p class="fw-semibold mb-2">Optimizer variants — which algorithm to use for the update step:</p>
             <div class="table-responsive mb-4">
               <table class="table table-sm comp-table align-middle">
                 <thead>
