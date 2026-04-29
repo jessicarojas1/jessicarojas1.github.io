@@ -6077,6 +6077,167 @@ jobs:
             </div>
           </section>
 
+          <!-- ═══════════════════════════════════════════════════════
+               GRAPH NEURAL NETWORKS
+          ═══════════════════════════════════════════════════════ -->
+          <section id="gnn" class="mb-5">
+            <h2 class="section-title">Graph Neural Networks (GNNs)</h2>
+            <p class="lead">Many real-world systems are graphs — molecules, social networks, knowledge bases, road networks, code ASTs. GNNs extend deep learning to this irregular structure via message passing between nodes.</p>
+
+            <!-- Graph basics -->
+            <h4 class="mt-4 mb-3 fw-semibold">Graph Fundamentals</h4>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">Graph Representation</div>
+                  <div class="card-body small">
+                    <p>A graph G = (V, E) has nodes V and edges E. In ML, each node v has feature vector <strong>x</strong>ᵥ and optionally each edge has features <strong>e</strong>ᵤᵥ.</p>
+                    <p><strong>Adjacency matrix A:</strong> Aᵢⱼ = 1 if edge (i,j) exists. Sparse for real-world graphs.</p>
+                    <p><strong>Degree matrix D:</strong> Dᵢᵢ = Σⱼ Aᵢⱼ (number of neighbours).</p>
+                    <p><strong>Normalised Laplacian:</strong> L = I − D⁻½AD⁻½ — eigenvalues define graph frequency spectrum (used in spectral methods).</p>
+                    <p class="mb-0"><strong>Types:</strong> Homogeneous, heterogeneous (multiple node/edge types), directed, weighted, temporal, hypergraphs.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Message Passing Framework (MPNN)</div>
+                  <div class="card-body small">
+                    <p>The general GNN recipe — each node aggregates messages from neighbours, then updates its own representation:</p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(32,201,151,.08);font-size:.85rem;">mᵥ⁽ˡ⁾ = AGG({MSG(hᵤ⁽ˡ⁻¹⁾, hᵥ⁽ˡ⁻¹⁾, eᵤᵥ) : u ∈ N(v)})</div>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(32,201,151,.08);font-size:.85rem;">hᵥ⁽ˡ⁾ = UPDATE(hᵥ⁽ˡ⁻¹⁾, mᵥ⁽ˡ⁾)</div>
+                    <p>After L layers, each node's representation captures its L-hop neighbourhood. Tasks:</p>
+                    <ul class="ps-3 mb-0">
+                      <li><strong>Node-level:</strong> Classify each node (e.g., fraud detection)</li>
+                      <li><strong>Edge-level:</strong> Predict links (e.g., RecSys, knowledge graphs)</li>
+                      <li><strong>Graph-level:</strong> Classify whole graph (e.g., molecule property)</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">GNN Expressiveness</div>
+                  <div class="card-body small">
+                    <p><strong>Weisfeiler-Leman (WL) test:</strong> Standard GNNs (GCN, GraphSAGE) are at most as expressive as the 1-WL graph isomorphism test — cannot distinguish certain non-isomorphic graphs.</p>
+                    <p><strong>GIN (Graph Isomorphism Network):</strong> Maximally powerful among standard MPNN — uses sum aggregation + MLP update:</p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(255,193,7,.08);font-size:.85rem;">hᵥ⁽ˡ⁾ = MLP((1+ε)·hᵥ⁽ˡ⁻¹⁾ + Σᵤ∈N(v) hᵤ⁽ˡ⁻¹⁾)</div>
+                    <p class="mb-0"><strong>Beyond 1-WL:</strong> Higher-order GNNs (k-WL), random node features, structural encodings (distance, cycles) — needed for molecular property prediction.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- GNN architectures -->
+            <h4 class="mt-4 mb-3 fw-semibold">Key GNN Architectures</h4>
+            <div class="table-responsive mb-4">
+              <table class="table table-sm table-bordered small comp-table">
+                <thead class="table-dark"><tr><th>Model</th><th>Aggregation</th><th>Key formula</th><th>Strengths</th><th>Use case</th></tr></thead>
+                <tbody>
+                  <tr><td><strong>GCN</strong></td><td>Mean (spectral)</td><td>H⁽ˡ⁺¹⁾ = σ(D̃⁻½ÃD̃⁻½ H⁽ˡ⁾ W⁽ˡ⁾)</td><td>Simple, fast, semi-supervised</td><td>Citation networks, node classification</td></tr>
+                  <tr><td><strong>GraphSAGE</strong></td><td>Mean/max/LSTM (sample)</td><td>hᵥ = CONCAT(hᵥ, AGG({hᵤ}))</td><td>Inductive (generalises to unseen nodes)</td><td>Pinterest, large-scale social graphs</td></tr>
+                  <tr><td><strong>GAT</strong></td><td>Attention-weighted sum</td><td>αᵤᵥ = softmax(LeakyReLU(aᵀ[Whᵥ‖Whᵤ]))</td><td>Learnable neighbour importance</td><td>Heterogeneous graphs, knowledge graphs</td></tr>
+                  <tr><td><strong>GIN</strong></td><td>Sum (injective)</td><td>hᵥ = MLP((1+ε)hᵥ + Σhᵤ)</td><td>Max expressiveness (1-WL)</td><td>Graph classification, molecules</td></tr>
+                  <tr><td><strong>MPNN</strong></td><td>Any differentiable fn</td><td>General framework</td><td>Edge features, chemistry</td><td>Molecular property prediction (QM9)</td></tr>
+                  <tr><td><strong>Graph Transformer</strong></td><td>Global attention</td><td>Full Transformer on graph (Graphormer, GPS)</td><td>Long-range dependencies</td><td>Molecules, code, planning</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Code + Applications -->
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">PyTorch Geometric Quick Start</div>
+                  <div class="card-body small">
+                    <div class="code-block">
+<span class="kw">from</span> torch_geometric.nn <span class="kw">import</span> GCNConv, GATConv, global_mean_pool
+<span class="kw">from</span> torch_geometric.data <span class="kw">import</span> Data
+
+<span class="cm"># Build a graph</span>
+edge_index = torch.<span class="fn">tensor</span>([[<span class="nm">0</span>,<span class="nm">1</span>,<span class="nm">1</span>,<span class="nm">2</span>],[<span class="nm">1</span>,<span class="nm">0</span>,<span class="nm">2</span>,<span class="nm">1</span>]], dtype=torch.long)
+x = torch.<span class="fn">randn</span>(<span class="nm">3</span>, <span class="nm">16</span>)  <span class="cm"># 3 nodes, 16 features each</span>
+data = <span class="fn">Data</span>(x=x, edge_index=edge_index)
+
+<span class="cm"># 2-layer GCN for node classification</span>
+<span class="kw">class</span> <span class="fn">GCN</span>(nn.Module):
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, in_ch, hidden, out_ch):
+        <span class="fn">super</span>().__init__()
+        self.conv1 = <span class="fn">GCNConv</span>(in_ch, hidden)
+        self.conv2 = <span class="fn">GCNConv</span>(hidden, out_ch)
+    <span class="kw">def</span> <span class="fn">forward</span>(self, x, edge_index):
+        x = self.conv1(x, edge_index).<span class="fn">relu</span>()
+        <span class="kw">return</span> self.conv2(x, edge_index)
+
+<span class="cm"># Graph-level: add global_mean_pool(x, batch)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Real-World GNN Applications</div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-0 comp-table">
+                      <thead class="table-dark"><tr><th>Domain</th><th>Graph structure</th><th>Task</th><th>Model</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>Drug discovery</strong></td><td>Atoms = nodes, bonds = edges</td><td>Predict solubility, toxicity, binding affinity</td><td>MPNN, SchNet, DimeNet</td></tr>
+                        <tr><td><strong>Social networks</strong></td><td>Users = nodes, follows = edges</td><td>Friend recommendation, spam detection</td><td>GraphSAGE (Pinterest PinSage)</td></tr>
+                        <tr><td><strong>Knowledge graphs</strong></td><td>Entities = nodes, relations = edges</td><td>Link prediction, entity classification</td><td>R-GCN, RotatE, TransE</td></tr>
+                        <tr><td><strong>Traffic</strong></td><td>Roads = nodes, connections = edges</td><td>ETA prediction, congestion forecasting</td><td>Spatio-temporal GNN (Google Maps)</td></tr>
+                        <tr><td><strong>Code analysis</strong></td><td>AST nodes, control flow graph</td><td>Bug detection, type inference</td><td>GGNN, code2vec</td></tr>
+                        <tr><td><strong>Fraud detection</strong></td><td>Accounts, transactions, devices</td><td>Classify fraudulent nodes/edges</td><td>Heterogeneous GNN (Alipay)</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Challenges -->
+            <h4 class="mt-4 mb-3 fw-semibold">GNN Challenges &amp; Solutions</h4>
+            <div class="row g-3">
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #dc3545;">
+                  <div class="card-header fw-bold small">Over-smoothing</div>
+                  <div class="card-body small">
+                    <p>With many layers, all node representations converge to the same value — neighbourhood aggregation averages out features.</p>
+                    <p><strong>Solutions:</strong> Residual connections (JK-Net jumping knowledge), DropEdge (randomly drop edges per layer), pair-norm, initial residual connections (GCNII).</p>
+                    <p class="mb-0"><strong>Rule of thumb:</strong> 2–3 layers is optimal for most tasks; rarely benefit from &gt;5 layers without mitigation.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">Scalability</div>
+                  <div class="card-body small">
+                    <p>Full-graph training requires all neighbours in memory. For billion-node graphs this is infeasible.</p>
+                    <p><strong>Solutions:</strong></p>
+                    <ul class="ps-3 mb-0">
+                      <li><strong>Neighbour sampling (GraphSAGE):</strong> Sample fixed-size neighbourhood</li>
+                      <li><strong>Cluster-GCN:</strong> Mini-batch over graph clusters</li>
+                      <li><strong>GraphSAINT:</strong> Sample subgraphs with importance weights</li>
+                      <li><strong>Lazy propagation:</strong> Precompute fixed diffusion (SGC, SIGN)</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">Heterogeneous &amp; Dynamic Graphs</div>
+                  <div class="card-body small">
+                    <p><strong>Heterogeneous graphs</strong> have multiple node/edge types (e.g., user, item, tag). Use type-specific transformation matrices; HAN (heterogeneous attention) uses meta-path aggregation.</p>
+                    <p><strong>Dynamic/temporal graphs</strong> have time-stamped edges. Approaches:</p>
+                    <ul class="ps-3 mb-0">
+                      <li><strong>Snapshot-based:</strong> GNN per time window + RNN/Transformer over time</li>
+                      <li><strong>Event-based (TGN):</strong> Temporal Graph Networks maintain node memory updated on each interaction event</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
         </div><!-- /col content -->
       </div><!-- /row -->
     </div><!-- /container-fluid -->
