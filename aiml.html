@@ -6238,6 +6238,244 @@ data = <span class="fn">Data</span>(x=x, edge_index=edge_index)
             </div>
           </section>
 
+          <!-- ═══════════════════════════════════════════════════════
+               MULTI-MODAL MODELS
+          ═══════════════════════════════════════════════════════ -->
+          <section id="multimodal" class="mb-5">
+            <h2 class="section-title">Multi-modal Models</h2>
+            <p class="lead">Multi-modal models process and generate across multiple data types — text, images, audio, video, code. They are the frontier of AI: CLIP, GPT-4o, Gemini, Flamingo, and Stable Diffusion are all multi-modal.</p>
+
+            <!-- CLIP -->
+            <h4 class="mt-4 mb-3 fw-semibold">CLIP — Contrastive Language-Image Pre-training</h4>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">How CLIP Works (Radford et al. 2021)</div>
+                  <div class="card-body small">
+                    <p>Train image encoder (ViT or ResNet) and text encoder (Transformer) jointly on 400M (image, caption) pairs from the web using contrastive loss.</p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(110,168,254,.08);font-size:.85rem;">L = NT-Xent(image_embeds, text_embeds) — match N pairs in batch of N²</div>
+                    <p>At inference: embed query text + all candidate images → pick image with highest cosine similarity. Zero-shot classification: text prompts are "a photo of a {class}".</p>
+                    <div class="code-block">
+<span class="kw">import</span> clip, torch
+model, preprocess = clip.<span class="fn">load</span>(<span class="st">"ViT-B/32"</span>)
+image = preprocess(pil_image).<span class="fn">unsqueeze</span>(<span class="nm">0</span>)
+text = clip.<span class="fn">tokenize</span>([<span class="st">"a dog"</span>, <span class="st">"a cat"</span>, <span class="st">"a car"</span>])
+<span class="kw">with</span> torch.<span class="fn">no_grad</span>():
+    logits, _ = model(image, text)
+probs = logits.<span class="fn">softmax</span>(dim=-<span class="nm">1</span>)  <span class="cm"># zero-shot prediction</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">CLIP-based Architectures</div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-0 comp-table">
+                      <thead class="table-dark"><tr><th>Model</th><th>Built on CLIP</th><th>Capability</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>DALL-E 2</strong></td><td>CLIP image embeddings as condition for diffusion prior</td><td>Text → image via CLIP image space</td></tr>
+                        <tr><td><strong>Stable Diffusion</strong></td><td>CLIP text encoder conditions U-Net via cross-attention</td><td>Open-source text→image, inpainting</td></tr>
+                        <tr><td><strong>ALIGN</strong></td><td>Similar to CLIP, noisy 1.8B pairs, EfficientNet encoder</td><td>Retrieval, zero-shot at scale</td></tr>
+                        <tr><td><strong>SigLIP</strong></td><td>Sigmoid loss instead of softmax; better small batches</td><td>Efficient image-text matching</td></tr>
+                        <tr><td><strong>BLIP-2</strong></td><td>Frozen CLIP image encoder + Q-Former bridge + frozen LLM</td><td>Visual QA, image captioning</td></tr>
+                        <tr><td><strong>LLaVA</strong></td><td>CLIP encoder + linear projection + Llama/Mistral LLM</td><td>Open-source vision-language chat</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Vision-Language Models -->
+            <h4 class="mt-4 mb-3 fw-semibold">Vision-Language Models (VLMs)</h4>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">Architecture Patterns</div>
+                  <div class="card-body small">
+                    <p><strong>Two-tower + cross-attention (Flamingo):</strong> Interleaved image features injected into LLM via gated cross-attention layers. Few-shot generalisation from images in context window.</p>
+                    <p><strong>Linear projection (LLaVA):</strong> CLIP patch features → linear layer → LLM token space. Simplest and surprisingly effective. Fine-tuned on instruction-following image-text pairs.</p>
+                    <p><strong>Q-Former bridge (BLIP-2):</strong> Learnable query tokens attend to image features → fixed-size representation passed to frozen LLM. Efficient: image encoder and LLM both frozen.</p>
+                    <p class="mb-0"><strong>Unified tokenisation (Chameleon):</strong> Discretise image patches into tokens via VQ-VAE; train single Transformer over text and image tokens jointly.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">Frontier Multi-modal Models</div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-0 comp-table">
+                      <thead class="table-dark"><tr><th>Model</th><th>Modalities</th><th>Key capability</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>GPT-4o</strong></td><td>Text, image, audio, video</td><td>Real-time audio, native multi-modal reasoning</td></tr>
+                        <tr><td><strong>Gemini 1.5</strong></td><td>Text, image, audio, video, code</td><td>1M token context, native video understanding</td></tr>
+                        <tr><td><strong>Claude 3.5+</strong></td><td>Text, image, document</td><td>Strong document analysis, chart reading</td></tr>
+                        <tr><td><strong>LLaVA / InternVL</strong></td><td>Text, image</td><td>Open-source, competitive with closed models</td></tr>
+                        <tr><td><strong>Whisper + LLM</strong></td><td>Audio → text → LLM</td><td>Speech understanding via cascade</td></tr>
+                        <tr><td><strong>Sora / Runway Gen-3</strong></td><td>Text → video</td><td>Spatiotemporal diffusion / DiT</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Text-to-Image -->
+            <h4 class="mt-4 mb-3 fw-semibold">Text-to-Image: Stable Diffusion Architecture</h4>
+            <div class="row g-3">
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Latent Diffusion (LDM)</div>
+                  <div class="card-body small">
+                    <p>Stable Diffusion runs diffusion in a <em>latent space</em> (4×64×64) not pixel space (3×512×512) — 48× smaller, 8× faster.</p>
+                    <ol class="ps-3 mb-2">
+                      <li><strong>VAE Encoder:</strong> Compress image to latent z</li>
+                      <li><strong>Forward diffusion:</strong> Add noise to z over T steps</li>
+                      <li><strong>U-Net denoiser:</strong> Predict noise conditioned on CLIP text embedding via cross-attention</li>
+                      <li><strong>Classifier-free guidance:</strong> 50% of training uses null text → boosted signal: ε_guided = ε_uncond + s·(ε_cond − ε_uncond)</li>
+                      <li><strong>VAE Decoder:</strong> Reconstruct pixel image from denoised latent</li>
+                    </ol>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">Fine-tuning Text-to-Image</div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-0 comp-table">
+                      <thead class="table-dark"><tr><th>Method</th><th>Idea</th><th>Data needed</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>DreamBooth</strong></td><td>Fine-tune full model on 3–20 images of subject; add rare token identifier</td><td>3–20 images</td></tr>
+                        <tr><td><strong>LoRA (text-to-image)</strong></td><td>Low-rank adaptation of U-Net cross-attention; very small delta</td><td>5–50 images</td></tr>
+                        <tr><td><strong>Textual Inversion</strong></td><td>Learn new token embedding; keep model frozen</td><td>3–10 images</td></tr>
+                        <tr><td><strong>ControlNet</strong></td><td>Add trainable copy of U-Net encoder conditioned on depth/pose/sketch</td><td>Paired condition data</td></tr>
+                        <tr><td><strong>IP-Adapter</strong></td><td>Condition on image prompt via decoupled cross-attention</td><td>Image reference at inference</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">Multi-modal Evaluation</div>
+                  <div class="card-body small">
+                    <ul class="ps-3 mb-0">
+                      <li><strong>FID (Fréchet Inception Distance):</strong> Distance between real and generated image distributions in Inception feature space — lower is better</li>
+                      <li><strong>CLIP score:</strong> Cosine similarity between generated image and text prompt — measures text-image alignment</li>
+                      <li><strong>IS (Inception Score):</strong> p(y|x) sharp + p(y) diverse — older metric, largely replaced by FID</li>
+                      <li><strong>VQA accuracy:</strong> Accuracy on visual question answering benchmarks (VQAv2, MMBench)</li>
+                      <li><strong>COCO captions CIDEr:</strong> Consensus-based image description evaluation</li>
+                      <li><strong>Human evaluation:</strong> Still gold standard for image quality and faithfulness</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═══════════════════════════════════════════════════════
+               DATA-CENTRIC AI
+          ═══════════════════════════════════════════════════════ -->
+          <section id="data-centric" class="mb-5">
+            <h2 class="section-title">Data-Centric AI</h2>
+            <p class="lead">Andrew Ng's insight: systematically improving data quality often yields larger gains than tweaking model architecture. In production, data problems are the #1 cause of model degradation.</p>
+
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">Model-Centric vs Data-Centric</div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-0 comp-table">
+                      <thead class="table-dark"><tr><th></th><th>Model-Centric</th><th>Data-Centric</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>Focus</strong></td><td>Tune architecture, loss, training</td><td>Fix labeling errors, add balanced data, improve quality</td></tr>
+                        <tr><td><strong>Data</strong></td><td>Fixed</td><td>Iterated on</td></tr>
+                        <tr><td><strong>Model</strong></td><td>Iterated on</td><td>Fixed (good baseline)</td></tr>
+                        <tr><td><strong>Gains from</strong></td><td>Better algorithms</td><td>Cleaner, more consistent data</td></tr>
+                        <tr><td><strong>Best when</strong></td><td>Research, novel architectures</td><td>Production, domain-specific tasks</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Data Quality Framework</div>
+                  <div class="card-body small">
+                    <ul class="ps-3 mb-2">
+                      <li><strong>Accuracy:</strong> Labels match ground truth</li>
+                      <li><strong>Consistency:</strong> Same examples always get same label</li>
+                      <li><strong>Coverage:</strong> All important input variations are represented</li>
+                      <li><strong>Timeliness:</strong> Data reflects current distribution</li>
+                      <li><strong>Completeness:</strong> Missing values handled consistently</li>
+                    </ul>
+                    <p><strong>Cleanlab:</strong> Open-source library to find label errors using confident learning — estimates joint distribution between given and true labels to find likely mislabelled examples.</p>
+                    <div class="code-block">
+<span class="kw">from</span> cleanlab.classification <span class="kw">import</span> CleanLearning
+cl = <span class="fn">CleanLearning</span>(sklearn_model)
+label_issues = cl.<span class="fn">find_label_issues</span>(X_train, y_train)
+<span class="cm"># label_issues: bool array of suspected mislabels</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">Data Augmentation Strategies</div>
+                  <div class="card-body small">
+                    <p><strong>Vision:</strong> Random crop, flip, colour jitter, Cutout, Mixup, CutMix, RandAugment, AugMix</p>
+                    <p><strong>NLP:</strong> Back-translation, synonym replacement (EDA), random insertion/deletion, paraphrase generation, template filling</p>
+                    <p><strong>Audio:</strong> Time stretch, pitch shift, noise injection, SpecAugment (mask frequency/time bands)</p>
+                    <p><strong>Tabular:</strong> SMOTE (synthesise minority class), Gaussian noise on continuous features, categorical resampling</p>
+                    <p class="mb-0"><strong>Synthetic data:</strong> Use LLMs/diffusion models to generate labelled examples. Particularly effective for rare classes and low-resource languages.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">Data Labeling at Scale</div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-0 comp-table">
+                      <thead class="table-dark"><tr><th>Approach</th><th>Tool</th><th>Best for</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>Crowd-sourcing</strong></td><td>MTurk, Scale AI, Labelbox</td><td>Large volume, clear guidelines</td></tr>
+                        <tr><td><strong>Expert labeling</strong></td><td>Direct hire, Prodigy</td><td>Medical, legal, nuanced tasks</td></tr>
+                        <tr><td><strong>Active learning</strong></td><td>Modal, Label Studio</td><td>Label highest-uncertainty examples first — fewer labels needed</td></tr>
+                        <tr><td><strong>Weak supervision</strong></td><td>Snorkel</td><td>Programmatic labeling functions; aggregate noisy labels via label model</td></tr>
+                        <tr><td><strong>LLM annotation</strong></td><td>GPT-4, Claude</td><td>Classification, NER — often matches or beats MTurk at fraction of cost</td></tr>
+                        <tr><td><strong>Semi-supervised</strong></td><td>FixMatch, FlexMatch</td><td>Small labelled + large unlabelled set</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Data Versioning &amp; Lineage</div>
+                  <div class="card-body small">
+                    <ul class="ps-3 mb-2">
+                      <li><strong>DVC (Data Version Control):</strong> Git for data and models — track dataset versions alongside code, push to S3/GCS</li>
+                      <li><strong>Delta Lake / Iceberg:</strong> ACID transactions on data lake; time travel to any past snapshot</li>
+                      <li><strong>Feature Store (Feast, Tecton):</strong> Central registry of feature definitions; consistent features between training and serving</li>
+                      <li><strong>Data lineage (OpenLineage, Marquez):</strong> Track which model was trained on which data version — essential for debugging and compliance</li>
+                    </ul>
+                    <div class="code-block">
+<span class="cm"># DVC: version a dataset</span>
+dvc add data/train.csv
+git add data/train.csv.dvc .gitignore
+git commit -m "Add training data v1.2"
+dvc push  <span class="cm"># push to remote storage (S3, GCS)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
         </div><!-- /col content -->
       </div><!-- /row -->
     </div><!-- /container-fluid -->
