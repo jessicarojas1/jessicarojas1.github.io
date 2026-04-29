@@ -3904,6 +3904,227 @@ PE[pos, 2i+1] = cos(pos / 10000^(2i/d))
             </div>
           </section>
 
+          <!-- ═══════════════════════════════════════════════════ COMPUTER VISION -->
+          <section id="cv" class="aiml-section mb-5">
+            <div class="section-divider"></div>
+            <h2 class="h4 fw-bold mb-1">Computer Vision — Deep Dive</h2>
+            <p class="text-secondary small mb-3">Computer vision teaches machines to interpret images and video. It's the field where deep learning first proved dramatically superior to classical methods — and the intuition built here applies to every other modality.</p>
+
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #0dcaf0;">
+                  <div class="card-header fw-bold small">Convolution — The Math</div>
+                  <div class="card-body small">
+                    <p>A convolution slides a small learnable filter (kernel) across the image, computing a dot product at each position. This detects local patterns regardless of where they appear (translation equivariance).</p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(13,202,240,.08);">
+                      (I * K)[i,j] = Σₘ Σₙ I[i+m, j+n] · K[m,n]
+                    </div>
+                    <table class="table table-sm table-bordered small mb-2 comp-table">
+                      <thead class="table-dark"><tr><th>Parameter</th><th>Effect</th><th>Typical Value</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>Kernel size</strong></td><td>Receptive field per layer</td><td>3×3 (most common), 1×1, 5×5</td></tr>
+                        <tr><td><strong>Stride</strong></td><td>Step between positions; &gt;1 downsamples</td><td>1 (same), 2 (halve resolution)</td></tr>
+                        <tr><td><strong>Padding</strong></td><td>Preserve spatial size</td><td>'same' = (kernel-1)/2</td></tr>
+                        <tr><td><strong>Dilation</strong></td><td>Expands receptive field without extra params</td><td>1 (standard), 2, 4 (segmentation)</td></tr>
+                        <tr><td><strong>Groups</strong></td><td>Depthwise = 1 filter per channel</td><td>in_channels (depthwise conv)</td></tr>
+                      </tbody>
+                    </table>
+                    <p class="mb-1 fw-semibold">Output spatial size formula:</p>
+                    <div class="text-center mb-0" style="font-size:.85rem;">out = ⌊(in + 2·pad − dilation·(kernel−1) − 1) / stride + 1⌋</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">CNN Architecture Building Blocks</div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-2 comp-table">
+                      <thead class="table-dark"><tr><th>Block</th><th>What It Does</th><th>Why</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>Conv2D</strong></td><td>Learnable spatial filter</td><td>Feature detection</td></tr>
+                        <tr><td><strong>BatchNorm</strong></td><td>Normalise activations per mini-batch</td><td>Faster training, higher LR, regularisation</td></tr>
+                        <tr><td><strong>ReLU/GELU</strong></td><td>Non-linearity</td><td>Expressivity without vanishing gradients</td></tr>
+                        <tr><td><strong>MaxPool</strong></td><td>Take max over spatial region</td><td>Translation invariance, downsample</td></tr>
+                        <tr><td><strong>AvgPool / GAP</strong></td><td>Average over region / whole spatial dim</td><td>Smooth aggregation, reduce params</td></tr>
+                        <tr><td><strong>Residual skip</strong></td><td>y = F(x) + x</td><td>Enables training of very deep nets (ResNet)</td></tr>
+                        <tr><td><strong>Depthwise-Separable</strong></td><td>Depthwise then pointwise conv</td><td>8–9× fewer params (MobileNet)</td></tr>
+                        <tr><td><strong>SE block</strong></td><td>Channel-wise attention weights</td><td>Recalibrate feature importance</td></tr>
+                      </tbody>
+                    </table>
+                    <div class="code-block mb-0">
+<span class="cm"># Standard ResNet block</span>
+<span class="kw">class</span> <span class="fn">ResBlock</span>(nn.Module):
+  <span class="kw">def</span> <span class="fn">__init__</span>(self, c):
+    <span class="fn">super()</span>.<span class="fn">__init__</span>()
+    self.block = nn.<span class="fn">Sequential</span>(
+      nn.<span class="fn">Conv2d</span>(c,c,<span class="nm">3</span>,padding=<span class="nm">1</span>,bias=<span class="kw">False</span>),
+      nn.<span class="fn">BatchNorm2d</span>(c), nn.<span class="fn">ReLU</span>(),
+      nn.<span class="fn">Conv2d</span>(c,c,<span class="nm">3</span>,padding=<span class="nm">1</span>,bias=<span class="kw">False</span>),
+      nn.<span class="fn">BatchNorm2d</span>(c))
+  <span class="kw">def</span> <span class="fn">forward</span>(self,x): <span class="kw">return</span> nn.<span class="fn">ReLU</span>()(self.block(x)+x)
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-4">
+                <div class="card h-100">
+                  <div class="card-header fw-bold small">Object Detection</div>
+                  <div class="card-body small">
+                    <p>Detect and localise multiple objects in an image — output: bounding boxes + class labels + confidence scores.</p>
+                    <table class="table table-sm table-bordered small mb-2 comp-table">
+                      <thead class="table-dark"><tr><th>Model</th><th>Speed</th><th>Accuracy</th><th>Approach</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>YOLO v8/11</strong></td><td>Real-time</td><td>High</td><td>Single-stage, anchor-free</td></tr>
+                        <tr><td><strong>Faster R-CNN</strong></td><td>Slow</td><td>Very high</td><td>Two-stage (RPN + classifier)</td></tr>
+                        <tr><td><strong>SSD</strong></td><td>Fast</td><td>Medium</td><td>Single-stage, multi-scale</td></tr>
+                        <tr><td><strong>DETR</strong></td><td>Slow</td><td>High</td><td>Transformer end-to-end, no anchors</td></tr>
+                      </tbody>
+                    </table>
+                    <p class="mb-1 fw-semibold">Key metric — IoU (Intersection over Union):</p>
+                    <p class="mb-0">IoU = Area(pred ∩ gt) / Area(pred ∪ gt). mAP@0.5 = mean AP across classes at IoU threshold 0.5.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100">
+                  <div class="card-header fw-bold small">Image Segmentation</div>
+                  <div class="card-body small">
+                    <p>Assign a class label to every pixel in the image.</p>
+                    <table class="table table-sm table-bordered small mb-2 comp-table">
+                      <thead class="table-dark"><tr><th>Type</th><th>Output</th><th>Model</th></tr></thead>
+                      <tbody>
+                        <tr><td>Semantic</td><td>Class per pixel (no instances)</td><td>DeepLab, SegFormer</td></tr>
+                        <tr><td>Instance</td><td>Mask per object instance</td><td>Mask R-CNN</td></tr>
+                        <tr><td>Panoptic</td><td>Both semantic + instance</td><td>Panoptic FPN, Mask2Former</td></tr>
+                        <tr><td>SAM</td><td>Any segmentation from prompt</td><td>Segment Anything (Meta)</td></tr>
+                      </tbody>
+                    </table>
+                    <p class="fw-semibold mb-1">U-Net — encoder-decoder with skip connections:</p>
+                    <div class="code-block mb-0">
+<span class="cm"># Encoder: downsample (MaxPool after each block)</span>
+<span class="cm"># Decoder: upsample (ConvTranspose2d or bilinear)</span>
+<span class="cm"># Skip: concat encoder features to decoder</span>
+<span class="cm"># Output: Conv2d → n_classes, no final activation</span>
+<span class="cm">#         (use CrossEntropyLoss directly on logits)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100">
+                  <div class="card-header fw-bold small">Image Augmentation Strategy</div>
+                  <div class="card-body small">
+                    <div class="code-block mb-2">
+<span class="kw">import</span> albumentations <span class="kw">as</span> A
+<span class="kw">from</span> albumentations.pytorch <span class="kw">import</span> ToTensorV2
+
+train_tf = A.<span class="fn">Compose</span>([
+  A.<span class="fn">RandomResizedCrop</span>(<span class="nm">224</span>, <span class="nm">224</span>),
+  A.<span class="fn">HorizontalFlip</span>(p=<span class="nm">0.5</span>),
+  A.<span class="fn">ColorJitter</span>(brightness=<span class="nm">0.2</span>, contrast=<span class="nm">0.2</span>),
+  A.<span class="fn">ShiftScaleRotate</span>(shift_limit=<span class="nm">0.1</span>,
+                      scale_limit=<span class="nm">0.2</span>, rotate_limit=<span class="nm">15</span>),
+  A.<span class="fn">CoarseDropout</span>(max_holes=<span class="nm">8</span>),   <span class="cm"># cutout</span>
+  A.<span class="fn">Normalize</span>(mean=[<span class="nm">0.485</span>,<span class="nm">0.456</span>,<span class="nm">0.406</span>],
+              std=[<span class="nm">0.229</span>,<span class="nm">0.224</span>,<span class="nm">0.225</span>]),
+  <span class="fn">ToTensorV2</span>(),
+])
+                    </div>
+                    <p class="mb-1 fw-semibold">Advanced: MixUp &amp; CutMix</p>
+                    <p class="mb-0">MixUp: ẑ = λ·z_a+(1-λ)·z_b, ŷ = λ·y_a+(1-λ)·y_b — blend images and labels. CutMix: paste a random crop of image B into image A. Both regularise CNNs significantly on ImageNet.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═══════════════════════════════════════════════════ GENERATIVE MODELS -->
+          <section id="generative" class="aiml-section mb-5">
+            <div class="section-divider"></div>
+            <h2 class="h4 fw-bold mb-1">Generative Models — VAE, GAN, Diffusion</h2>
+            <p class="text-secondary small mb-3">Generative models learn the data distribution p(x) and can sample new data from it. Understanding the math behind each family reveals why they produce different kinds of outputs — and why diffusion models produce the sharpest images.</p>
+
+            <div class="row g-3 mb-3">
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #6610f2;">
+                  <div class="card-header fw-bold small">VAE — Variational Autoencoder</div>
+                  <div class="card-body small">
+                    <p>VAE learns a probabilistic latent space — every input maps to a distribution, not a single point. This enables smooth interpolation and generation.</p>
+                    <p class="fw-semibold mb-1">The ELBO objective:</p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(102,16,242,.08);font-size:.82rem;">
+                      L = E[log p(x|z)] − D_KL(q(z|x) ‖ p(z))
+                    </div>
+                    <ul class="ps-3 mb-2">
+                      <li><strong>E[log p(x|z)]</strong> — reconstruction term: how well can we recover x from z?</li>
+                      <li><strong>D_KL(q ‖ p)</strong> — regularisation: keep latent posterior close to Gaussian prior N(0,I)</li>
+                    </ul>
+                    <p class="fw-semibold mb-1">Reparameterisation trick:</p>
+                    <div class="code-block mb-0">
+<span class="cm"># Sample z = μ + σ·ε, ε ~ N(0,I)</span>
+<span class="cm"># Allows gradients to flow through sampling</span>
+eps = torch.randn_like(sigma)
+z = mu + sigma * eps
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #dc3545;">
+                  <div class="card-header fw-bold small">GAN — Generative Adversarial Network</div>
+                  <div class="card-body small">
+                    <p>Two networks compete in a minimax game: the Generator G tries to fool the Discriminator D; D tries to distinguish real from fake.</p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(220,53,69,.08);font-size:.82rem;">
+                      min_G max_D E[log D(x)] + E[log(1−D(G(z)))]
+                    </div>
+                    <p class="fw-semibold mb-1">Training challenges:</p>
+                    <ul class="ps-3 mb-2">
+                      <li><strong>Mode collapse:</strong> G generates only a few modes of p(x)</li>
+                      <li><strong>Training instability:</strong> D and G must stay in balance</li>
+                      <li><strong>Vanishing gradients:</strong> when D is too good, G gets no gradient</li>
+                    </ul>
+                    <p class="fw-semibold mb-1">Fixes — modern GAN improvements:</p>
+                    <ul class="ps-3 mb-0">
+                      <li>Wasserstein GAN (WGAN): use Earth Mover distance, clip weights or gradient penalty</li>
+                      <li>StyleGAN2: progressive growing, style injection, path length regularisation</li>
+                      <li>Spectral normalisation on D layers</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #0dcaf0;">
+                  <div class="card-header fw-bold small">Diffusion Models</div>
+                  <div class="card-body small">
+                    <p>Diffusion models learn to reverse a gradual noising process. They currently produce the best image quality (DALL-E 3, Stable Diffusion, Midjourney).</p>
+                    <p class="fw-semibold mb-1">Forward process (fixed, no learning):</p>
+                    <div class="text-center p-2 mb-1 rounded" style="background:rgba(13,202,240,.08);font-size:.8rem;">
+                      q(xₜ|xₜ₋₁) = N(xₜ; √(1−βₜ)xₜ₋₁, βₜI)
+                    </div>
+                    <p class="mb-1 text-secondary" style="font-size:.75rem;">Add Gaussian noise at each of T steps. At t=T, xₜ ≈ N(0,I).</p>
+                    <p class="fw-semibold mb-1">Reverse process (learned):</p>
+                    <div class="text-center p-2 mb-1 rounded" style="background:rgba(13,202,240,.08);font-size:.8rem;">
+                      pθ(xₜ₋₁|xₜ) = N(xₜ₋₁; μθ(xₜ,t), Σθ(xₜ,t))
+                    </div>
+                    <p class="mb-1">A U-Net predicts the noise ε added at each step. Training loss: ‖ε − εθ(xₜ, t)‖²</p>
+                    <p class="fw-semibold mb-1">Key components:</p>
+                    <ul class="ps-3 mb-0">
+                      <li><strong>DDPM:</strong> original formulation, ~1000 steps</li>
+                      <li><strong>DDIM:</strong> deterministic, 50 steps (20× faster)</li>
+                      <li><strong>Classifier-free guidance:</strong> condition on text prompt during training by randomly dropping text; scale guidance at inference for quality/diversity tradeoff</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="callout callout-tip">
+              <strong>Which generative model when:</strong> VAE → smooth latent space, useful for anomaly detection and representation learning. GAN → high-fidelity images, fast sampling (1 forward pass). Diffusion → best quality, slow (50–1000 steps), dominant for image/audio/video generation. Autoregressive (GPT) → best for text and discrete data.
+            </div>
+          </section>
+
         </div><!-- /col content -->
       </div><!-- /row -->
     </div><!-- /container-fluid -->
