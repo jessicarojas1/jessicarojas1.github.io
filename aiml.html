@@ -7159,6 +7159,183 @@ model.<span class="fn">learn</span>(total_timesteps=<span class="nm">1_000_000</
             </div>
           </section>
 
+          <!-- ═══════════════════════════════════════════════════════
+               OPTIMIZATION THEORY
+          ═══════════════════════════════════════════════════════ -->
+          <section id="optim-theory" class="mb-5">
+            <h2 class="section-title">Optimization Theory</h2>
+            <p class="lead">Understanding the mathematical underpinnings of training — convexity, loss landscapes, weight initialisation, and convergence — separates practitioners who tune blindly from those who diagnose and fix systematically.</p>
+
+            <!-- Convexity -->
+            <h4 class="mt-4 mb-3 fw-semibold">Convex vs Non-Convex Optimisation</h4>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">Convexity</div>
+                  <div class="card-body small">
+                    <p>A function f is convex if for all x, y and λ ∈ [0,1]:</p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(110,168,254,.08);font-size:.85rem;">f(λx + (1−λ)y) ≤ λf(x) + (1−λ)f(y)</div>
+                    <p><strong>Convex problems:</strong> Any local minimum is a global minimum. GD converges (with appropriate LR). Examples: linear regression (MSE), logistic regression, SVM.</p>
+                    <p><strong>Strongly convex</strong> (f ≽ μI): Unique minimum; GD converges linearly — error decays as O((1−μ/L)ᵏ) where L is Lipschitz constant of gradient.</p>
+                    <p class="mb-0"><strong>Deep networks are non-convex</strong> — but empirically still trainable due to overparameterisation, loss landscape structure, and implicit regularisation of SGD.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Loss Landscape</div>
+                  <div class="card-body small">
+                    <p><strong>Saddle points:</strong> Gradient = 0 but not a minimum — positive curvature in some directions, negative in others. Common in high-dimensional non-convex losses. SGD noise helps escape them.</p>
+                    <p><strong>Sharp vs flat minima:</strong> Flat minima generalise better — small perturbations to weights barely change the loss. Sharp minima overfit to training data.</p>
+                    <p><strong>SAM (Sharpness-Aware Minimisation):</strong> Explicitly seeks flat minima by perturbing weights in worst direction and minimising that perturbed loss:</p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(32,201,151,.08);font-size:.85rem;">min_θ max_{‖ε‖≤ρ} L(θ+ε)</div>
+                    <p class="mb-0"><strong>Mode connectivity:</strong> Two independently trained minima are typically connected by a low-loss path in weight space — the loss landscape is not isolated valleys but a connected manifold.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">KKT Conditions</div>
+                  <div class="card-body small">
+                    <p>Karush-Kuhn-Tucker conditions — necessary (and sufficient for convex problems) for constrained optimisation:</p>
+                    <p>For min f(x) s.t. gᵢ(x) ≤ 0, hⱼ(x) = 0:</p>
+                    <ul class="ps-3 mb-2">
+                      <li><strong>Stationarity:</strong> ∇f + Σλᵢ∇gᵢ + Σμⱼ∇hⱼ = 0</li>
+                      <li><strong>Primal feasibility:</strong> gᵢ(x) ≤ 0, hⱼ(x) = 0</li>
+                      <li><strong>Dual feasibility:</strong> λᵢ ≥ 0</li>
+                      <li><strong>Complementary slackness:</strong> λᵢgᵢ(x) = 0</li>
+                    </ul>
+                    <p class="mb-0"><strong>SVM derivation:</strong> SVM is a QP with KKT conditions — support vectors are those where λᵢ &gt; 0 (complementary slackness active). Dual formulation leads to kernel trick.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Weight initialisation -->
+            <h4 class="mt-4 mb-3 fw-semibold">Weight Initialisation</h4>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">Why Initialisation Matters</div>
+                  <div class="card-body small">
+                    <p><strong>Vanishing/exploding gradients:</strong> In a deep network with L layers, gradients are products of L Jacobians. If each matrix has singular values &lt;1, gradient → 0 (vanishing). If &gt;1, gradient → ∞ (exploding).</p>
+                    <p><strong>Symmetry breaking:</strong> All weights = 0 → all neurons identical → no learning. Must break symmetry with random initialisation.</p>
+                    <table class="table table-sm table-bordered small mb-0 comp-table">
+                      <thead class="table-dark"><tr><th>Method</th><th>Formula</th><th>For</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>Xavier / Glorot</strong></td><td>Var = 2/(n_in + n_out)</td><td>Tanh, sigmoid activations</td></tr>
+                        <tr><td><strong>He / Kaiming</strong></td><td>Var = 2/n_in</td><td>ReLU, LeakyReLU</td></tr>
+                        <tr><td><strong>Orthogonal</strong></td><td>Random orthogonal matrix via SVD</td><td>RNNs, preserves gradient norms</td></tr>
+                        <tr><td><strong>Sparse</strong></td><td>Only k connections per neuron non-zero</td><td>Very deep networks (ResNets at init)</td></tr>
+                        <tr><td><strong>μP (maximal update)</strong></td><td>Width-dependent scaling</td><td>Transfer HPs across model sizes</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Xavier / He Derivation</div>
+                  <div class="card-body small">
+                    <p><strong>Goal:</strong> Keep variance of activations and gradients stable across layers.</p>
+                    <p>For a linear layer y = Wx with n_in inputs, if W ~ N(0, σ²) and x has unit variance:</p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(32,201,151,.08);font-size:.85rem;">Var(y) = n_in · σ² · Var(x)</div>
+                    <p>To keep Var(y) = Var(x): σ² = 1/n_in (He for ReLU, which kills ~half variance, so σ² = 2/n_in). Xavier averages forward and backward: σ² = 2/(n_in + n_out).</p>
+                    <div class="code-block">
+<span class="cm"># PyTorch applies He init by default for Linear layers</span>
+nn.init.<span class="fn">kaiming_normal_</span>(layer.weight, mode=<span class="st">'fan_in'</span>, nonlinearity=<span class="st">'relu'</span>)
+nn.init.<span class="fn">xavier_uniform_</span>(layer.weight)
+nn.init.<span class="fn">zeros_</span>(layer.bias)
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- LR schedules & convergence -->
+            <h4 class="mt-4 mb-3 fw-semibold">Learning Rate Schedules &amp; Convergence</h4>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">LR Schedule Comparison</div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-2 comp-table">
+                      <thead class="table-dark"><tr><th>Schedule</th><th>Formula</th><th>When to use</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>Step decay</strong></td><td>η ← η · γ every k epochs</td><td>Simple; standard for ResNets (γ=0.1 at 30/60/90)</td></tr>
+                        <tr><td><strong>Exponential</strong></td><td>η_t = η₀ · e^(−λt)</td><td>Smooth continuous decay</td></tr>
+                        <tr><td><strong>Cosine annealing</strong></td><td>η_t = η_min + ½(η_max−η_min)(1+cos(πt/T))</td><td>Deep learning default; warm restarts (SGDR)</td></tr>
+                        <tr><td><strong>Linear warmup</strong></td><td>η_t = η_max·t/T_warm, then cosine</td><td>Transformers — stabilises early training</td></tr>
+                        <tr><td><strong>1-cycle policy</strong></td><td>Warmup to η_max then anneal to η_min/100</td><td>Fast training (Leslie Smith); used in fast.ai</td></tr>
+                        <tr><td><strong>Reduce on plateau</strong></td><td>Halve η if val loss stagnates for k epochs</td><td>When training dynamics unknown</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">Convergence Theory</div>
+                  <div class="card-body small">
+                    <p><strong>SGD convergence (non-convex):</strong> Under smoothness (L-Lipschitz gradient), SGD finds an ε-stationary point (‖∇L‖ ≤ ε) in O(1/ε²) iterations.</p>
+                    <p><strong>Implicit regularisation:</strong> SGD with small batches implicitly prefers flatter minima — the gradient noise acts as a regulariser that biases towards solutions with better generalisation.</p>
+                    <p><strong>Catapult phase:</strong> At the start of training with large LR, loss initially spikes before dropping — the network is being pushed out of a sharp basin into a flatter region.</p>
+                    <p><strong>Neural tangent kernel (NTK):</strong> In the infinite-width limit, gradient descent on neural networks is equivalent to kernel regression with the NTK — provides theoretical insight into convergence but doesn't explain practical finite-width training well.</p>
+                    <p class="mb-0"><strong>Grokking:</strong> Models sometimes generalise long after memorisation — continued training eventually finds a structured solution even after near-zero training loss.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Batch norm & layer norm theory -->
+            <h4 class="mt-4 mb-3 fw-semibold">Normalisation Layers: Theory</h4>
+            <div class="row g-3">
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">BatchNorm</div>
+                  <div class="card-body small">
+                    <p>Normalise each feature across the batch; learnable γ, β restore expressiveness:</p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(32,201,151,.08);font-size:.85rem;">x̂ = (x − μ_B)/√(σ²_B+ε) &nbsp;→&nbsp; γx̂ + β</div>
+                    <p><strong>Why it works:</strong> Reduces internal covariate shift; allows higher LR; acts as regulariser (noise from batch statistics).</p>
+                    <p><strong>Problems:</strong> Batch size dependent; different behaviour train vs inference; doesn't work with batch size 1; problematic for RNNs and variable-length sequences.</p>
+                    <p class="mb-0"><strong>Running stats:</strong> At inference uses EMA of μ, σ² from training — must set model.eval().</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">LayerNorm &amp; RMSNorm</div>
+                  <div class="card-body small">
+                    <p><strong>LayerNorm:</strong> Normalise across feature dimension (not batch) — independent per sample. Works with any batch size; standard in Transformers.</p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(255,193,7,.08);font-size:.85rem;">LN(x) = γ·(x − μ)/√(σ²+ε) + β &nbsp;(μ,σ over features)</div>
+                    <p><strong>RMSNorm</strong> (simpler, used in Llama/Mistral): Drop the mean subtraction — just scale by RMS:</p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(255,193,7,.08);font-size:.85rem;">RMSNorm(x) = γ · x / √(mean(x²)+ε)</div>
+                    <p class="mb-0">10–20% faster than LayerNorm; empirically matches or exceeds quality in large LLMs.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #dc3545;">
+                  <div class="card-header fw-bold small">GroupNorm &amp; When to Use What</div>
+                  <div class="card-body small">
+                    <p><strong>GroupNorm:</strong> Divide channels into G groups; normalise within each group. Batch-size independent; used in detection/segmentation where batch size is small (1–2 images).</p>
+                    <p><strong>InstanceNorm:</strong> Normalise each sample × channel independently. Used in style transfer — removes content statistics, preserves style.</p>
+                    <table class="table table-sm table-bordered small mb-0 comp-table">
+                      <thead class="table-dark"><tr><th>Norm</th><th>Use</th></tr></thead>
+                      <tbody>
+                        <tr><td>BatchNorm</td><td>CNNs, large batch, image classification</td></tr>
+                        <tr><td>LayerNorm</td><td>Transformers, NLP, variable length</td></tr>
+                        <tr><td>RMSNorm</td><td>LLMs — faster LayerNorm alternative</td></tr>
+                        <tr><td>GroupNorm</td><td>Object detection, small batch</td></tr>
+                        <tr><td>InstanceNorm</td><td>Style transfer, image generation</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
         </div><!-- /col content -->
       </div><!-- /row -->
     </div><!-- /container-fluid -->
