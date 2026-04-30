@@ -205,6 +205,13 @@
             <a class="nav-link" href="#system-design">ML System Design</a>
             <a class="nav-link" href="#research">Research Skills</a>
 
+            <div class="nav-section">Deep Dives</div>
+            <a class="nav-link" href="#rl-deep">RL Deep Dive</a>
+            <a class="nav-link" href="#optim-theory">Optimization Theory</a>
+            <a class="nav-link" href="#domain-ml">Domain-Specific ML</a>
+            <a class="nav-link" href="#scratch">Code From Scratch</a>
+            <a class="nav-link" href="#career">Career Roadmap</a>
+
             <div class="nav-section">LLMs &amp; Production</div>
             <a class="nav-link" href="#llm">LLMs &amp; Prompt Engineering</a>
             <a class="nav-link" href="#compression">Model Compression</a>
@@ -6951,6 +6958,201 @@ detector = drift.<span class="fn">ADWIN</span>()
                     </ol>
                     <p><strong>Publish your work:</strong> GitHub repo + blog post / arXiv pre-print. Even failed replications are valuable to the community.</p>
                     <p class="mb-0"><strong>Kaggle:</strong> Competitions force you to close the gap between research and practice. Read winning solution write-ups — dense with practical insights.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═══════════════════════════════════════════════════════
+               RL DEEP DIVE
+          ═══════════════════════════════════════════════════════ -->
+          <section id="rl-deep" class="mb-5">
+            <h2 class="section-title">Reinforcement Learning Deep Dive</h2>
+            <p class="lead">RL trains agents by trial and error — maximising cumulative reward through interaction with an environment. It powers game-playing AI, robotics, LLM alignment (RLHF), and real-time bidding.</p>
+
+            <!-- Core formalism -->
+            <h4 class="mt-4 mb-3 fw-semibold">Core Formalism: MDPs</h4>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">Markov Decision Process</div>
+                  <div class="card-body small">
+                    <p>An MDP is a tuple (S, A, P, R, γ) where:</p>
+                    <ul class="ps-3 mb-2">
+                      <li><strong>S</strong> — state space</li>
+                      <li><strong>A</strong> — action space</li>
+                      <li><strong>P(s′|s,a)</strong> — transition dynamics</li>
+                      <li><strong>R(s,a,s′)</strong> — reward function</li>
+                      <li><strong>γ ∈ [0,1)</strong> — discount factor</li>
+                    </ul>
+                    <p><strong>Goal:</strong> Find policy π*(a|s) that maximises expected discounted return:</p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(110,168,254,.08);font-size:.85rem;">G_t = Σ_{k=0}^∞ γᵏ R_{t+k+1}</div>
+                    <p class="mb-0"><strong>Markov property:</strong> P(s_{t+1}|s_t,a_t) = P(s_{t+1}|s_0,...,s_t,a_t) — future depends only on current state, not history.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Value Functions</div>
+                  <div class="card-body small">
+                    <p><strong>State value V^π(s):</strong> Expected return starting from s, following π:</p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(32,201,151,.08);font-size:.85rem;">V^π(s) = E_π[G_t | S_t=s]</div>
+                    <p><strong>Action value Q^π(s,a):</strong> Expected return taking a in s, then following π:</p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(32,201,151,.08);font-size:.85rem;">Q^π(s,a) = E_π[G_t | S_t=s, A_t=a]</div>
+                    <p><strong>Bellman equation:</strong></p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(32,201,151,.08);font-size:.85rem;">V^π(s) = Σ_a π(a|s) Σ_{s′} P(s′|s,a)[R + γV^π(s′)]</div>
+                    <p class="mb-0"><strong>Advantage A(s,a) = Q(s,a) − V(s)</strong> — how much better action a is vs the average. Used in actor-critic methods.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">RL Algorithm Taxonomy</div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-0 comp-table">
+                      <thead class="table-dark"><tr><th>Category</th><th>Learns</th><th>Examples</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>Value-based</strong></td><td>Q(s,a); policy implicit (greedy)</td><td>DQN, Double DQN, Dueling DQN, Rainbow</td></tr>
+                        <tr><td><strong>Policy gradient</strong></td><td>π_θ(a|s) directly</td><td>REINFORCE, A2C, PPO, TRPO</td></tr>
+                        <tr><td><strong>Actor-Critic</strong></td><td>Both policy + value fn</td><td>A3C, SAC, TD3, DDPG</td></tr>
+                        <tr><td><strong>Model-based</strong></td><td>World model P(s′|s,a)</td><td>Dyna-Q, MuZero, Dreamer, MBPO</td></tr>
+                        <tr><td><strong>Offline RL</strong></td><td>From fixed dataset only</td><td>BCQ, CQL, IQL, TD3+BC</td></tr>
+                        <tr><td><strong>Multi-agent</strong></td><td>Multiple interacting agents</td><td>MADDPG, QMIX, MAPPO</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- DQN & PPO -->
+            <h4 class="mt-4 mb-3 fw-semibold">Deep Q-Networks &amp; PPO</h4>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">DQN (Mnih et al. 2015)</div>
+                  <div class="card-body small">
+                    <p>Approximate Q(s,a;θ) with a neural network. Two key stabilisation tricks:</p>
+                    <ul class="ps-3 mb-2">
+                      <li><strong>Experience replay:</strong> Store transitions in buffer D; sample random mini-batches — breaks temporal correlations</li>
+                      <li><strong>Target network:</strong> Use frozen θ⁻ for TD targets; update every C steps — stabilises training</li>
+                    </ul>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(110,168,254,.08);font-size:.85rem;">L(θ) = E[(r + γ max_{a′} Q(s′,a′;θ⁻) − Q(s,a;θ))²]</div>
+                    <p><strong>Improvements:</strong> Double DQN (decouple selection/evaluation to remove max bias), Dueling DQN (separate V and A streams), Prioritised Replay (sample high-TD-error transitions more), Rainbow (all combined).</p>
+                    <div class="code-block">
+<span class="kw">from</span> stable_baselines3 <span class="kw">import</span> DQN
+model = <span class="fn">DQN</span>(<span class="st">"MlpPolicy"</span>, <span class="st">"CartPole-v1"</span>,
+             learning_rate=<span class="nm">1e-3</span>, buffer_size=<span class="nm">50000</span>,
+             exploration_fraction=<span class="nm">0.1</span>, verbose=<span class="nm">1</span>)
+model.<span class="fn">learn</span>(total_timesteps=<span class="nm">100_000</span>)
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">PPO (Proximal Policy Optimisation)</div>
+                  <div name="card-body small" class="card-body small">
+                    <p>The workhorse algorithm for continuous control and LLM alignment. Constrains policy update size to prevent catastrophic collapse.</p>
+                    <p><strong>Clipped objective (avoids trust-region penalty):</strong></p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(32,201,151,.08);font-size:.85rem;">L^CLIP = E[min(r_t(θ)Â_t, clip(r_t(θ), 1−ε, 1+ε)Â_t)]</div>
+                    <p>where r_t(θ) = π_θ(a|s) / π_θ_old(a|s) is the probability ratio, Â_t is the advantage estimate, and ε=0.2 is the clip range.</p>
+                    <p><strong>Full PPO loss:</strong> L = L^CLIP − c₁·L^VF + c₂·H[π_θ] (value loss + entropy bonus for exploration)</p>
+                    <div class="code-block">
+<span class="kw">from</span> stable_baselines3 <span class="kw">import</span> PPO
+model = <span class="fn">PPO</span>(<span class="st">"MlpPolicy"</span>, <span class="st">"HalfCheetah-v4"</span>,
+             n_steps=<span class="nm">2048</span>, batch_size=<span class="nm">64</span>,
+             n_epochs=<span class="nm">10</span>, clip_range=<span class="nm">0.2</span>, verbose=<span class="nm">1</span>)
+model.<span class="fn">learn</span>(total_timesteps=<span class="nm">1_000_000</span>)
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SAC, Offline RL, Multi-agent -->
+            <h4 class="mt-4 mb-3 fw-semibold">SAC, Offline RL &amp; Multi-Agent</h4>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">Soft Actor-Critic (SAC)</div>
+                  <div class="card-body small">
+                    <p>Maximum entropy RL — augments reward with policy entropy to encourage exploration:</p>
+                    <div class="text-center p-2 mb-2 rounded" style="background:rgba(255,193,7,.08);font-size:.85rem;">J(π) = Σ_t E[r_t + α·H(π(·|s_t))]</div>
+                    <p>α (temperature) balances exploration vs exploitation — auto-tuned by constraining expected entropy to a target value.</p>
+                    <p><strong>Key features:</strong></p>
+                    <ul class="ps-3 mb-0">
+                      <li>Off-policy (efficient replay buffer use)</li>
+                      <li>Clipped double-Q trick (like TD3) to reduce overestimation</li>
+                      <li>Reparameterisation trick for continuous actions</li>
+                      <li>State-of-the-art for continuous control (MuJoCo)</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">Offline RL</div>
+                  <div class="card-body small">
+                    <p>Learn from a fixed logged dataset — no environment interaction. Critical when environment is expensive or dangerous (healthcare, robotics).</p>
+                    <p><strong>Core challenge:</strong> Distributional shift — Q-values are extrapolated for out-of-distribution actions not in the dataset → overestimation → policy fails.</p>
+                    <table class="table table-sm table-bordered small mb-0 comp-table">
+                      <thead class="table-dark"><tr><th>Method</th><th>Key idea</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>BCQ</strong></td><td>Constrain actions to those in dataset via generative model</td></tr>
+                        <tr><td><strong>CQL</strong></td><td>Penalise Q-values for OOD actions; conservative lower bound</td></tr>
+                        <tr><td><strong>IQL</strong></td><td>Implicit Q-learning — avoid querying OOD actions entirely; uses expectile regression</td></tr>
+                        <tr><td><strong>TD3+BC</strong></td><td>TD3 + behaviour cloning regulariser; simple and competitive</td></tr>
+                        <tr><td><strong>Decision Transformer</strong></td><td>Sequence model conditioned on return-to-go; treats RL as sequence prediction</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Model-Based &amp; Multi-Agent RL</div>
+                  <div class="card-body small">
+                    <p><strong>Model-based RL:</strong> Learn a world model P(s′,r|s,a); plan inside it (Dyna-Q) or use it for imagination rollouts (Dreamer, MBPO). Far more sample-efficient but sensitive to model errors (compounding).</p>
+                    <p><strong>MuZero:</strong> Learns a latent world model + value + policy; no knowledge of game rules needed. Beats AlphaZero on Atari + chess simultaneously.</p>
+                    <p><strong>Multi-agent RL:</strong> N agents each with own obs, action, reward. Challenges: non-stationarity (other agents learning), credit assignment, communication.</p>
+                    <ul class="ps-3 mb-0">
+                      <li><strong>MADDPG:</strong> Centralised critic (sees all agents) + decentralised actors</li>
+                      <li><strong>QMIX:</strong> Monotonic mixing network for cooperative tasks</li>
+                      <li><strong>MAPPO:</strong> PPO with centralised value function — strong baseline for cooperative MARL</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- RL tips -->
+            <h4 class="mt-4 mb-3 fw-semibold">RL in Practice: Common Pitfalls</h4>
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #dc3545;">
+                  <div class="card-header fw-bold small">Reward Hacking &amp; Pitfalls</div>
+                  <div class="card-body small">
+                    <ul class="ps-3 mb-0">
+                      <li><strong>Reward hacking:</strong> Agent finds unintended ways to maximise reward (boat racing agent spinning in circles for score)</li>
+                      <li><strong>Sparse rewards:</strong> Agent never reaches positive reward during random exploration. Fix: reward shaping, curriculum learning, hindsight experience replay (HER)</li>
+                      <li><strong>Catastrophic forgetting:</strong> Policy improves on new tasks but forgets old ones. Fix: EWC, replay buffers, population-based training</li>
+                      <li><strong>Sample inefficiency:</strong> On-policy methods (PPO) need millions of steps. Fix: off-policy (SAC), model-based, offline RL</li>
+                      <li><strong>Hyper-sensitivity:</strong> RL results vary enormously with random seed — always report mean ± std over ≥ 5 seeds</li>
+                      <li><strong>Sim-to-real gap:</strong> Policy trained in simulation fails in real world. Fix: domain randomisation, real-world fine-tuning</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">RL for LLMs (RLHF &amp; Beyond)</div>
+                  <div class="card-body small">
+                    <p><strong>RLHF recap:</strong> SFT → Reward Model → PPO. Policy = LLM, action = next token, reward = RM score at end of sequence, KL penalty keeps it close to SFT reference.</p>
+                    <p><strong>GRPO (Group Relative Policy Optimisation):</strong> Used in DeepSeek-R1. Removes value network — estimates baseline from group of sampled outputs. Simpler and more memory-efficient than PPO.</p>
+                    <p><strong>Constitutional AI (CAI):</strong> Use AI feedback instead of human feedback — model critiques own outputs using a constitution of principles, then revises. Scales without human labelers.</p>
+                    <p class="mb-0"><strong>Process Reward Models (PRMs):</strong> Reward each reasoning step (not just final answer) — better for math and chain-of-thought tasks. Used in OpenAI o1.</p>
                   </div>
                 </div>
               </div>
