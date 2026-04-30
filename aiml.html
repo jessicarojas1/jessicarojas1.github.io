@@ -7336,6 +7336,147 @@ nn.init.<span class="fn">zeros_</span>(layer.bias)
             </div>
           </section>
 
+          <!-- ═══════════════════════════════════════════════════════
+               DOMAIN-SPECIFIC ML
+          ═══════════════════════════════════════════════════════ -->
+          <section id="domain-ml" class="mb-5">
+            <h2 class="section-title">Domain-Specific ML</h2>
+            <p class="lead">The same model architecture behaves very differently across domains. Healthcare demands interpretability and regulatory compliance; finance requires robustness to distribution shift; autonomous vehicles need real-time safety guarantees.</p>
+
+            <!-- Healthcare -->
+            <h4 class="mt-4 mb-3 fw-semibold">Healthcare &amp; Clinical ML</h4>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">Regulatory &amp; Compliance</div>
+                  <div class="card-body small">
+                    <ul class="ps-3 mb-0">
+                      <li><strong>HIPAA:</strong> Patient data must be de-identified (18 Safe Harbor identifiers) or covered by BAA. No PHI in training sets without explicit consent + IRB approval.</li>
+                      <li><strong>FDA 510(k) / De Novo:</strong> AI/ML-based Software as a Medical Device (SaMD) must demonstrate substantial equivalence. FDA's Predetermined Change Control Plan (PCCP) allows post-market updates without full re-submission.</li>
+                      <li><strong>IEC 62304:</strong> Software lifecycle standard for medical devices — requires traceability, risk analysis, and validation documentation.</li>
+                      <li><strong>Clinical validation:</strong> Retrospective studies → prospective studies → RCT. AUC on a held-out test set is not sufficient for FDA submission.</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Clinical Data Types &amp; Models</div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-0 comp-table">
+                      <thead class="table-dark"><tr><th>Data type</th><th>Model</th><th>Task</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>EHR (structured)</strong></td><td>XGBoost, LSTM, Transformer (BERT for EHR)</td><td>Sepsis prediction, readmission, mortality</td></tr>
+                        <tr><td><strong>Medical imaging</strong></td><td>CNN (U-Net, ResNet), ViT, SAM</td><td>Tumour segmentation, diabetic retinopathy, chest X-ray</td></tr>
+                        <tr><td><strong>Clinical notes</strong></td><td>BioBERT, ClinicalBERT, GPT-4</td><td>ICD coding, entity extraction, discharge summaries</td></tr>
+                        <tr><td><strong>Genomics</strong></td><td>CNN on sequences, Enformer, AlphaFold</td><td>Variant effect prediction, protein folding</td></tr>
+                        <tr><td><strong>Wearables</strong></td><td>LSTM, Transformer on time series</td><td>Arrhythmia detection, sleep staging, falls</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">Healthcare ML Pitfalls</div>
+                  <div class="card-body small">
+                    <ul class="ps-3 mb-0">
+                      <li><strong>Shortcut learning:</strong> Models learn hospital-specific artefacts (scanner brand, demographic mix) rather than pathology</li>
+                      <li><strong>Label noise:</strong> ICD codes are billing codes, not ground truth diagnoses — systematic biases</li>
+                      <li><strong>Temporal leakage:</strong> Using notes written after the event you're predicting (discharge summary to predict admission outcome)</li>
+                      <li><strong>Demographic bias:</strong> Pulse oximetry less accurate for dark skin; models trained on majority populations fail on minorities</li>
+                      <li><strong>Uncertainty:</strong> Calibrated confidence is critical — model must express "I don't know" reliably</li>
+                      <li><strong>Human-in-loop:</strong> Most clinical AI is decision support, not autonomous — design for appropriate reliance</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Finance -->
+            <h4 class="mt-4 mb-3 fw-semibold">Finance &amp; Quantitative ML</h4>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">Time Series in Finance</div>
+                  <div class="card-body small">
+                    <p><strong>Backtesting pitfalls — the most dangerous part:</strong></p>
+                    <ul class="ps-3 mb-2">
+                      <li><strong>Lookahead bias:</strong> Using data available only after the trade decision (e.g., daily close to make intraday decision)</li>
+                      <li><strong>Survivorship bias:</strong> Only modelling stocks still listed — ignores delistings and bankruptcy</li>
+                      <li><strong>Overfitting:</strong> Sharpe ratio inflates with number of parameters; use combinatorial purged cross-validation (CPCV)</li>
+                      <li><strong>Transaction costs:</strong> Slippage, spread, market impact — often wipe out apparent alpha entirely</li>
+                    </ul>
+                    <p><strong>Evaluation metrics:</strong></p>
+                    <ul class="ps-3 mb-0">
+                      <li><strong>Sharpe ratio:</strong> (μ_p − r_f) / σ_p — risk-adjusted return</li>
+                      <li><strong>Max drawdown:</strong> Largest peak-to-trough decline</li>
+                      <li><strong>Calmar ratio:</strong> CAGR / max drawdown</li>
+                      <li><strong>Information ratio:</strong> Active return / tracking error</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">ML in Finance: Use Cases &amp; Models</div>
+                  <div class="card-body small">
+                    <table class="table table-sm table-bordered small mb-2 comp-table">
+                      <thead class="table-dark"><tr><th>Use case</th><th>Model</th><th>Key challenge</th></tr></thead>
+                      <tbody>
+                        <tr><td><strong>Credit scoring</strong></td><td>Logistic regression, XGBoost</td><td>Interpretability (ECOA), disparate impact</td></tr>
+                        <tr><td><strong>Fraud detection</strong></td><td>GBM, GNN, isolation forest</td><td>Extreme imbalance, adversarial evolution</td></tr>
+                        <tr><td><strong>Algorithmic trading</strong></td><td>LSTM, Transformer, RL (PPO)</td><td>Non-stationarity, market impact</td></tr>
+                        <tr><td><strong>Risk management</strong></td><td>Monte Carlo, VAR models, Gaussian copula</td><td>Tail risk, black swans</td></tr>
+                        <tr><td><strong>NLP sentiment</strong></td><td>FinBERT, LLaMA fine-tuned</td><td>Earnings call tone → price move</td></tr>
+                        <tr><td><strong>Portfolio optimisation</strong></td><td>Markowitz, Black-Litterman, RL</td><td>Covariance estimation, transaction costs</td></tr>
+                      </tbody>
+                    </table>
+                    <p class="mb-0"><strong>Alternative data:</strong> Satellite imagery (parking lot counts), credit card transactions, app downloads, LinkedIn job postings — increasingly used by hedge funds as alpha signals.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Autonomous vehicles -->
+            <h4 class="mt-4 mb-3 fw-semibold">Autonomous Vehicles &amp; Robotics</h4>
+            <div class="row g-3">
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">Perception Stack</div>
+                  <div class="card-body small">
+                    <p><strong>Sensors:</strong> Camera (rich texture, cheap), LiDAR (accurate 3D, expensive), Radar (all weather, velocity), GPS+IMU (localisation).</p>
+                    <p><strong>Object detection:</strong> BEV (Bird's Eye View) representations — project all sensor data to top-down map. BEVFusion fuses camera + LiDAR in BEV space.</p>
+                    <p><strong>3D detection:</strong> PointPillars, VoxelNet, CenterPoint — process LiDAR point clouds as voxels or pillars, detect 3D bounding boxes.</p>
+                    <p class="mb-0"><strong>Tracking:</strong> Multi-object tracking (MOT) via Kalman filter + Hungarian algorithm for data association across frames.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">Planning &amp; Control</div>
+                  <div class="card-body small">
+                    <p><strong>HD Maps:</strong> Pre-computed centimetre-accurate maps with lane boundaries, speed limits, traffic lights — autonomous driving relies heavily on them; Tesla notably avoids them.</p>
+                    <p><strong>Prediction:</strong> Predict future trajectories of other agents — multimodal (multiple plausible futures). Models: TNT, MTR, Wayformer (Transformer over agent history).</p>
+                    <p><strong>Planning:</strong> Rule-based planners (Waymo early), learned planners (imitation learning + RL), occupancy grid networks.</p>
+                    <p class="mb-0"><strong>End-to-end:</strong> UniAD, Tesla FSD — single neural network from sensors to control outputs. Harder to debug but potentially more integrated.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Safety &amp; Validation</div>
+                  <div class="card-body small">
+                    <p><strong>Long tail problem:</strong> 99.9% of driving is easy; the remaining 0.1% edge cases (jaywalkers, construction, weather) determine safety. Requires billions of miles of data or simulation.</p>
+                    <p><strong>Simulation:</strong> Carla, SUMO, Waymo's simulation environment — replay logged scenarios with synthetic perturbations. Cannot fully capture sim-to-real gap.</p>
+                    <p><strong>ISO 26262:</strong> Functional safety standard for road vehicles — requires ASIL (Automotive Safety Integrity Level) classification and fault tree analysis.</p>
+                    <p class="mb-0"><strong>Disengagement rate:</strong> Industry metric — how often human must take over per mile. Not standardised across companies, making comparison misleading.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
         </div><!-- /col content -->
       </div><!-- /row -->
     </div><!-- /container-fluid -->
