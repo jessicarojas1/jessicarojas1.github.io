@@ -7477,6 +7477,224 @@ nn.init.<span class="fn">zeros_</span>(layer.bias)
             </div>
           </section>
 
+          <!-- ═══════════════════════════════════════════════════════
+               CODE FROM SCRATCH
+          ═══════════════════════════════════════════════════════ -->
+          <section id="scratch" class="mb-5">
+            <h2 class="section-title">Code From Scratch (NumPy)</h2>
+            <p class="lead">Implementing algorithms from first principles — without frameworks — builds deep intuition and prepares you for ML coding interviews. These are the canonical implementations every practitioner should be able to write.</p>
+
+            <!-- Backprop -->
+            <h4 class="mt-4 mb-3 fw-semibold">Backpropagation from Scratch</h4>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">2-Layer MLP + Backprop</div>
+                  <div class="card-body small">
+                    <div class="code-block">
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="kw">def</span> <span class="fn">sigmoid</span>(x): <span class="kw">return</span> <span class="nm">1</span> / (<span class="nm">1</span> + np.<span class="fn">exp</span>(-x))
+
+<span class="kw">class</span> <span class="fn">MLP</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, n_in, n_h, n_out):
+        self.W1 = np.random.<span class="fn">randn</span>(n_in, n_h) * np.<span class="fn">sqrt</span>(<span class="nm">2</span>/n_in)
+        self.b1 = np.<span class="fn">zeros</span>((1, n_h))
+        self.W2 = np.random.<span class="fn">randn</span>(n_h, n_out) * np.<span class="fn">sqrt</span>(<span class="nm">2</span>/n_h)
+        self.b2 = np.<span class="fn">zeros</span>((<span class="nm">1</span>, n_out))
+
+    <span class="kw">def</span> <span class="fn">forward</span>(self, X):
+        self.X = X
+        self.z1 = X @ self.W1 + self.b1
+        self.a1 = np.<span class="fn">maximum</span>(<span class="nm">0</span>, self.z1)     <span class="cm"># ReLU</span>
+        self.z2 = self.a1 @ self.W2 + self.b2
+        self.a2 = <span class="fn">sigmoid</span>(self.z2)            <span class="cm"># output</span>
+        <span class="kw">return</span> self.a2
+
+    <span class="kw">def</span> <span class="fn">backward</span>(self, y, lr=<span class="nm">0.01</span>):
+        m = y.shape[<span class="nm">0</span>]
+        dL_da2 = self.a2 - y                  <span class="cm"># BCE grad</span>
+        dL_dW2 = self.a1.T @ dL_da2 / m
+        dL_db2 = dL_da2.<span class="fn">mean</span>(axis=<span class="nm">0</span>, keepdims=<span class="nm">True</span>)
+        dL_da1 = dL_da2 @ self.W2.T
+        dL_dz1 = dL_da1 * (self.z1 > <span class="nm">0</span>)       <span class="cm"># ReLU grad</span>
+        dL_dW1 = self.X.T @ dL_dz1 / m
+        dL_db1 = dL_dz1.<span class="fn">mean</span>(axis=<span class="nm">0</span>, keepdims=<span class="nm">True</span>)
+        self.W2 -= lr * dL_dW2; self.b2 -= lr * dL_db2
+        self.W1 -= lr * dL_dW1; self.b1 -= lr * dL_db1
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Scaled Dot-Product Attention</div>
+                  <div class="card-body small">
+                    <div class="code-block">
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="kw">def</span> <span class="fn">softmax</span>(x, axis=-<span class="nm">1</span>):
+    x = x - x.<span class="fn">max</span>(axis=axis, keepdims=<span class="nm">True</span>)
+    e = np.<span class="fn">exp</span>(x)
+    <span class="kw">return</span> e / e.<span class="fn">sum</span>(axis=axis, keepdims=<span class="nm">True</span>)
+
+<span class="kw">def</span> <span class="fn">attention</span>(Q, K, V, mask=<span class="nm">None</span>):
+    <span class="st">"""
+    Q,K,V: (batch, heads, seq, d_k)
+    Returns: (batch, heads, seq, d_v)
+    """</span>
+    d_k = Q.shape[-<span class="nm">1</span>]
+    scores = Q @ K.<span class="fn">swapaxes</span>(-<span class="nm">2</span>, -<span class="nm">1</span>) / np.<span class="fn">sqrt</span>(d_k)
+    <span class="kw">if</span> mask <span class="kw">is not None</span>:
+        scores = np.<span class="fn">where</span>(mask, -<span class="nm">1e9</span>, scores)
+    attn = <span class="fn">softmax</span>(scores)       <span class="cm"># (batch, heads, seq, seq)</span>
+    <span class="kw">return</span> attn @ V, attn
+
+<span class="cm"># Causal mask for GPT-style autoregressive attention</span>
+seq = <span class="nm">4</span>
+causal_mask = np.<span class="fn">triu</span>(np.<span class="fn">ones</span>((seq, seq), dtype=<span class="fn">bool</span>), k=<span class="nm">1</span>)
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- K-means & Decision Tree -->
+            <h4 class="mt-4 mb-3 fw-semibold">K-Means &amp; Decision Tree</h4>
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">K-Means Clustering</div>
+                  <div class="card-body small">
+                    <div class="code-block">
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="kw">class</span> <span class="fn">KMeans</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, k, max_iter=<span class="nm">100</span>):
+        self.k = k; self.max_iter = max_iter
+
+    <span class="kw">def</span> <span class="fn">fit</span>(self, X):
+        idx = np.random.<span class="fn">choice</span>(len(X), self.k, replace=<span class="nm">False</span>)
+        self.centroids = X[idx]
+        <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(self.max_iter):
+            labels = self.<span class="fn">_assign</span>(X)
+            new_c = np.<span class="fn">array</span>([X[labels==j].<span class="fn">mean</span>(<span class="nm">0</span>)
+                              <span class="kw">for</span> j <span class="kw">in</span> <span class="fn">range</span>(self.k)])
+            <span class="kw">if</span> np.<span class="fn">allclose</span>(new_c, self.centroids): <span class="kw">break</span>
+            self.centroids = new_c
+        <span class="kw">return</span> self
+
+    <span class="kw">def</span> <span class="fn">_assign</span>(self, X):
+        dists = np.<span class="fn">linalg</span>.<span class="fn">norm</span>(
+            X[:, <span class="nm">None</span>] - self.centroids[<span class="nm">None</span>], axis=-<span class="nm">1</span>)
+        <span class="kw">return</span> dists.<span class="fn">argmin</span>(axis=<span class="nm">1</span>)
+
+    <span class="kw">def</span> <span class="fn">predict</span>(self, X): <span class="kw">return</span> self.<span class="fn">_assign</span>(X)
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #6ea8fe;">
+                  <div class="card-header fw-bold small">Decision Tree (CART)</div>
+                  <div class="card-body small">
+                    <div class="code-block">
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="kw">def</span> <span class="fn">gini</span>(y):
+    classes, counts = np.<span class="fn">unique</span>(y, return_counts=<span class="nm">True</span>)
+    p = counts / len(y)
+    <span class="kw">return</span> <span class="nm">1</span> - (p**<span class="nm">2</span>).<span class="fn">sum</span>()
+
+<span class="kw">def</span> <span class="fn">best_split</span>(X, y):
+    best = {<span class="st">'gain'</span>: -<span class="nm">1</span>}
+    parent_gini = <span class="fn">gini</span>(y)
+    <span class="kw">for</span> feat <span class="kw">in</span> <span class="fn">range</span>(X.shape[<span class="nm">1</span>]):
+        <span class="kw">for</span> thresh <span class="kw">in</span> np.<span class="fn">unique</span>(X[:, feat]):
+            left  = y[X[:, feat] &lt;= thresh]
+            right = y[X[:, feat] &gt;  thresh]
+            <span class="kw">if</span> <span class="fn">len</span>(left)==<span class="nm">0</span> <span class="kw">or</span> <span class="fn">len</span>(right)==<span class="nm">0</span>: <span class="kw">continue</span>
+            n = <span class="fn">len</span>(y)
+            gain = parent_gini - (
+                <span class="fn">len</span>(left)/<span class="fn">n</span>*<span class="fn">gini</span>(left) + <span class="fn">len</span>(right)/n*<span class="fn">gini</span>(right))
+            <span class="kw">if</span> gain &gt; best[<span class="st">'gain'</span>]:
+                best = {<span class="st">'gain'</span>:gain, <span class="st">'feat'</span>:feat, <span class="st">'thresh'</span>:thresh}
+    <span class="kw">return</span> best
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Linear Regression & PCA -->
+            <h4 class="mt-4 mb-3 fw-semibold">Linear Regression &amp; PCA</h4>
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #20c997;">
+                  <div class="card-header fw-bold small">Linear Regression: Normal Equation &amp; Gradient Descent</div>
+                  <div class="card-body small">
+                    <div class="code-block">
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="cm"># Closed-form: θ = (XᵀX)⁻¹Xᵀy</span>
+<span class="kw">def</span> <span class="fn">linear_reg_ols</span>(X, y):
+    X = np.<span class="fn">column_stack</span>([np.<span class="fn">ones</span>(len(X)), X])
+    <span class="kw">return</span> np.linalg.<span class="fn">lstsq</span>(X, y, rcond=<span class="nm">None</span>)[<span class="nm">0</span>]
+
+<span class="cm"># Gradient descent</span>
+<span class="kw">def</span> <span class="fn">linear_reg_gd</span>(X, y, lr=<span class="nm">0.01</span>, epochs=<span class="nm">1000</span>):
+    m, n = X.shape
+    theta = np.<span class="fn">zeros</span>(n + <span class="nm">1</span>)
+    X_ = np.<span class="fn">column_stack</span>([np.<span class="fn">ones</span>(m), X])
+    <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(epochs):
+        grad = X_.T @ (X_ @ theta - y) / m
+        theta -= lr * grad
+    <span class="kw">return</span> theta
+
+<span class="cm"># Ridge regression: θ = (XᵀX + λI)⁻¹Xᵀy</span>
+<span class="kw">def</span> <span class="fn">ridge</span>(X, y, lam=<span class="nm">1.0</span>):
+    X_ = np.<span class="fn">column_stack</span>([np.<span class="fn">ones</span>(len(X)), X])
+    I = np.<span class="fn">eye</span>(X_.shape[<span class="nm">1</span>]); I[<span class="nm">0</span>,<span class="nm">0</span>] = <span class="nm">0</span>  <span class="cm"># don't penalise bias</span>
+    <span class="kw">return</span> np.linalg.<span class="fn">solve</span>(X_.T @ X_ + lam * I, X_.T @ y)
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="card h-100" style="border-top:3px solid #ffc107;">
+                  <div class="card-header fw-bold small">PCA from Scratch</div>
+                  <div class="card-body small">
+                    <div class="code-block">
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="kw">class</span> <span class="fn">PCA</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, n_components):
+        self.n = n_components
+
+    <span class="kw">def</span> <span class="fn">fit</span>(self, X):
+        self.mean = X.<span class="fn">mean</span>(axis=<span class="nm">0</span>)
+        X_c = X - self.mean
+        <span class="cm"># Covariance via SVD (numerically stable)</span>
+        U, S, Vt = np.linalg.<span class="fn">svd</span>(X_c, full_matrices=<span class="nm">False</span>)
+        self.components = Vt[:self.n]           <span class="cm"># top n eigenvectors</span>
+        self.explained_var = (S**<span class="nm">2</span>) / (len(X)-<span class="nm">1</span>)
+        <span class="kw">return</span> self
+
+    <span class="kw">def</span> <span class="fn">transform</span>(self, X):
+        <span class="kw">return</span> (X - self.mean) @ self.components.T
+
+    <span class="kw">def</span> <span class="fn">inverse_transform</span>(self, Z):
+        <span class="kw">return</span> Z @ self.components + self.mean
+
+<span class="cm"># Explained variance ratio</span>
+<span class="cm"># pca.explained_var[:n] / pca.explained_var.sum()</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
         </div><!-- /col content -->
       </div><!-- /row -->
     </div><!-- /container-fluid -->
