@@ -841,10 +841,480 @@ function startAutoRefresh() {
    INIT
 ═══════════════════════════════════════════════════════════════════ */
 
+/* ═══════════════════════════════════════════════════════════════════
+   PAPER TRADING ENGINE
+   State persisted to localStorage key 'csPaperTrade'
+   Tracks: cash balance, positions, full trade log, performance metrics
+═══════════════════════════════════════════════════════════════════ */
+
+var PT_KEY      = 'csPaperTrade';
+var PT_START    = 10000;   /* default starting balance */
+var _pt         = null;    /* in-memory state */
+var _ptTarget   = null;    /* { sym, name, price, signal, action } for modal */
+
+/* ── State helpers ──────────────────────────────────────────────── */
+function ptLoad() {
+  try { _pt = JSON.parse(localStorage.getItem(PT_KEY)); } catch(e) { _pt = null; }
+  if (!_pt) _pt = _ptDefault();
+}
+
+function ptSave() {
+  try { localStorage.setItem(PT_KEY, JSON.stringify(_pt)); } catch(e) {}
+}
+
+function _ptDefault() {
+  return {
+    enabled:      false,
+    balance:      PT_START,
+    startBalance: PT_START,
+    startDate:    Date.now(),
+    positions:    {},   /* sym → { qty, avgPrice, totalCost } */
+    trades:       []    /* chronological trade log */
+  };
+}
+
+function ptReset() {
+  _pt = _ptDefault();
+  _pt.enabled = true;
+  ptSave();
+  renderPortfolio();
+  if (_lastComputed) renderCoins(sortData(_lastComputed, _sortBy));
+}
+
+/* ── Trade execution ────────────────────────────────────────────── */
+function ptBuy(sym, name, price, qty, signalLabel) {
+  if (!_pt || !_pt.enabled) return { ok: false, err: 'Paper trading is off.' };
+  var total = price * qty;
+  if (total > _pt.balance) return { ok: false, err: 'Insufficient virtual cash ($' + _pt.balance.toFixed(2) + ' available).' };
+  if (qty <= 0) return { ok: false, err: 'Quantity must be greater than zero.' };
+
+  /* update position */
+  var pos = _pt.positions[sym] || { qty: 0, avgPrice: 0, totalCost: 0 };
+  var newCost = pos.totalCost + total;
+  var newQty  = pos.qty + qty;
+  pos.avgPrice  = newCost / newQty;
+  pos.totalCost = newCost;
+  pos.qty       = newQty;
+  _pt.positions[sym] = pos;
+
+  _pt.balance -= total;
+
+  _pt.trades.unshift({
+    ts:       Date.now(),
+    sym:      sym,
+    name:     name,
+    action:   'BUY',
+    qty:      qty,
+    price:    price,
+    total:    total,
+    signal:   signalLabel || '—',
+    balAfter: _pt.balance
+  });
+
+  ptSave();
+  return { ok: true };
+}
+
+function ptSell(sym, name, price, qty, signalLabel) {
+  if (!_pt || !_pt.enabled) return { ok: false, err: 'Paper trading is off.' };
+  var pos = _pt.positions[sym];
+  if (!pos || pos.qty <= 0) return { ok: false, err: 'No position in ' + sym + '.' };
+  if (qty > pos.qty) return { ok: false, err: 'Only ' + pos.qty.toFixed(6) + ' ' + sym + ' held.' };
+  if (qty <= 0) return { ok: false, err: 'Quantity must be greater than zero.' };
+
+  var total      = price * qty;
+  var costBasis  = pos.avgPrice * qty;
+  var realizedPnl = total - costBasis;
+
+  pos.qty       -= qty;
+  pos.totalCost -= costBasis;
+  if (pos.qty < 1e-10) { delete _pt.positions[sym]; }
+  else { _pt.positions[sym] = pos; }
+
+  _pt.balance += total;
+
+  _pt.trades.unshift({
+    ts:         Date.now(),
+    sym:        sym,
+    name:       name,
+    action:     'SELL',
+    qty:        qty,
+    price:      price,
+    total:      total,
+    signal:     signalLabel || '—',
+    pnl:        realizedPnl,
+    balAfter:   _pt.balance
+  });
+
+  ptSave();
+  return { ok: true, pnl: realizedPnl };
+}
+
+/* ── Portfolio metrics ──────────────────────────────────────────── */
+function ptEquity() {
+  if (!_pt || !_lastComputed) return _pt ? _pt.balance : 0;
+  var posValue = 0;
+  Object.keys(_pt.positions).forEach(function(sym) {
+    var pos  = _pt.positions[sym];
+    var item = _lastComputed.find(function(i) { return i.coin.symbol.toUpperCase() === sym; });
+    if (item) posValue += pos.qty * item.coin.current_price;
+  });
+  return _pt.balance + posValue;
+}
+
+function ptStats() {
+  if (!_pt) return {};
+  var trades     = _pt.trades;
+  var sells      = trades.filter(function(t) { return t.action === 'SELL'; });
+  var wins       = sells.filter(function(t) { return (t.pnl || 0) > 0; });
+  var totalPnl   = sells.reduce(function(a, t) { return a + (t.pnl || 0); }, 0);
+  var bestTrade  = sells.reduce(function(a, t) { return (t.pnl || 0) > a ? (t.pnl || 0) : a; }, -Infinity);
+  var worstTrade = sells.reduce(function(a, t) { return (t.pnl || 0) < a ? (t.pnl || 0) : a; }, Infinity);
+  var equity     = ptEquity();
+  var totalReturn = ((equity - _pt.startBalance) / _pt.startBalance) * 100;
+  return {
+    equity:      equity,
+    totalReturn: totalReturn,
+    realizedPnl: totalPnl,
+    winRate:     sells.length ? (wins.length / sells.length * 100) : 0,
+    tradeCount:  trades.length,
+    sellCount:   sells.length,
+    bestTrade:   sells.length ? bestTrade : 0,
+    worstTrade:  sells.length ? worstTrade : 0
+  };
+}
+
+/* ── Portfolio render ───────────────────────────────────────────── */
+function renderPortfolio() {
+  var panel = document.getElementById('pt-panel');
+  if (!panel) return;
+
+  if (!_pt || !_pt.enabled) {
+    panel.innerHTML =
+      '<div class="d-flex align-items-center gap-3 flex-wrap">' +
+        '<div>' +
+          '<div class="fw-bold">📊 Paper Trading Mode</div>' +
+          '<div class="small text-secondary">Practice with $' + PT_START.toLocaleString() + ' virtual cash — no real money, no risk.</div>' +
+        '</div>' +
+        '<button class="btn btn-success btn-sm ms-auto" id="pt-enable-btn">Enable Paper Trading</button>' +
+      '</div>';
+    document.getElementById('pt-enable-btn') &&
+      document.getElementById('pt-enable-btn').addEventListener('click', function() {
+        _pt.enabled = true; ptSave(); renderPortfolio();
+        if (_lastComputed) renderCoins(sortData(_lastComputed, _sortBy));
+      });
+    return;
+  }
+
+  var stats = ptStats();
+  var retColor  = stats.totalReturn >= 0 ? '#20c997' : '#dc3545';
+  var retSign   = stats.totalReturn >= 0 ? '+' : '';
+  var daysSince = Math.floor((Date.now() - _pt.startDate) / 86400000);
+
+  /* positions table */
+  var posRows = '';
+  Object.keys(_pt.positions).forEach(function(sym) {
+    var pos  = _pt.positions[sym];
+    var item = _lastComputed && _lastComputed.find(function(i) { return i.coin.symbol.toUpperCase() === sym; });
+    var cur  = item ? item.coin.current_price : pos.avgPrice;
+    var val  = pos.qty * cur;
+    var unPnl = val - pos.totalCost;
+    var unPct = (unPnl / pos.totalCost) * 100;
+    var pnlCls = unPnl >= 0 ? 'text-success' : 'text-danger';
+    posRows +=
+      '<tr>' +
+        '<td class="fw-semibold">' + sym + '</td>' +
+        '<td>' + pos.qty.toFixed(6) + '</td>' +
+        '<td>$' + pos.avgPrice.toFixed(4) + '</td>' +
+        '<td>$' + cur.toFixed(4) + '</td>' +
+        '<td>$' + val.toFixed(2) + '</td>' +
+        '<td class="' + pnlCls + '">' + (unPnl >= 0 ? '+' : '') + '$' + unPnl.toFixed(2) +
+          ' <span class="small">(' + (unPct >= 0 ? '+' : '') + unPct.toFixed(1) + '%)</span></td>' +
+        '<td><button class="btn btn-danger btn-sm pt-sell-all" data-sym="' + sym + '" style="font-size:.65rem;padding:1px 7px">Sell All</button></td>' +
+      '</tr>';
+  });
+  if (!posRows) posRows = '<tr><td colspan="7" class="text-secondary text-center py-2 small">No open positions — buy a coin to start.</td></tr>';
+
+  /* trade log (last 15) */
+  var logRows = '';
+  _pt.trades.slice(0, 15).forEach(function(t) {
+    var d = new Date(t.ts);
+    var dtStr = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    var actionCls = t.action === 'BUY' ? 'text-success' : 'text-danger';
+    var pnlStr = t.action === 'SELL' && t.pnl !== undefined
+      ? '<span class="' + (t.pnl >= 0 ? 'text-success' : 'text-danger') + '">' +
+          (t.pnl >= 0 ? '+' : '') + '$' + t.pnl.toFixed(2) + '</span>'
+      : '—';
+    logRows +=
+      '<tr style="font-size:.75rem">' +
+        '<td class="text-secondary">' + dtStr + '</td>' +
+        '<td class="fw-semibold ' + actionCls + '">' + t.action + ' ' + t.sym + '</td>' +
+        '<td>' + t.qty.toFixed(6) + '</td>' +
+        '<td>$' + t.price.toFixed(4) + '</td>' +
+        '<td>$' + t.total.toFixed(2) + '</td>' +
+        '<td>' + pnlStr + '</td>' +
+        '<td class="text-secondary">' + (t.signal || '—') + '</td>' +
+      '</tr>';
+  });
+  if (!logRows) logRows = '<tr><td colspan="7" class="text-secondary text-center py-2 small">No trades yet.</td></tr>';
+
+  panel.innerHTML =
+    /* metrics strip */
+    '<div class="d-flex gap-3 flex-wrap align-items-center mb-3">' +
+      '<div class="text-center px-3 py-2 rounded" style="background:rgba(32,201,151,.1)">' +
+        '<div class="small text-secondary">Virtual Cash</div>' +
+        '<div class="fw-bold fs-6">$' + _pt.balance.toFixed(2) + '</div>' +
+      '</div>' +
+      '<div class="text-center px-3 py-2 rounded" style="background:rgba(110,168,254,.1)">' +
+        '<div class="small text-secondary">Total Equity</div>' +
+        '<div class="fw-bold fs-6">$' + stats.equity.toFixed(2) + '</div>' +
+      '</div>' +
+      '<div class="text-center px-3 py-2 rounded" style="background:' + retColor + '18">' +
+        '<div class="small text-secondary">Total Return</div>' +
+        '<div class="fw-bold fs-6" style="color:' + retColor + '">' + retSign + stats.totalReturn.toFixed(2) + '%</div>' +
+      '</div>' +
+      '<div class="text-center px-3 py-2 rounded" style="background:rgba(128,128,128,.08)">' +
+        '<div class="small text-secondary">Win Rate</div>' +
+        '<div class="fw-bold fs-6">' + (stats.sellCount ? stats.winRate.toFixed(0) + '%' : '—') + '</div>' +
+      '</div>' +
+      '<div class="text-center px-3 py-2 rounded" style="background:rgba(128,128,128,.08)">' +
+        '<div class="small text-secondary">Trades</div>' +
+        '<div class="fw-bold fs-6">' + stats.tradeCount + '</div>' +
+      '</div>' +
+      '<div class="text-center px-3 py-2 rounded" style="background:rgba(128,128,128,.08)">' +
+        '<div class="small text-secondary">Days Active</div>' +
+        '<div class="fw-bold fs-6">' + daysSince + '</div>' +
+      '</div>' +
+      '<div class="ms-auto d-flex gap-2">' +
+        '<button class="btn btn-sm btn-outline-secondary" id="pt-toggle-log">📋 Log</button>' +
+        '<button class="btn btn-sm btn-outline-danger" id="pt-reset-btn">↺ Reset</button>' +
+      '</div>' +
+    '</div>' +
+
+    /* positions table */
+    '<div class="table-responsive mb-3">' +
+      '<table class="table table-sm table-bordered mb-0" style="font-size:.78rem">' +
+        '<thead class="table-dark"><tr>' +
+          '<th>Coin</th><th>Qty</th><th>Avg Entry</th><th>Current</th><th>Value</th><th>Unrealized P&amp;L</th><th></th>' +
+        '</tr></thead>' +
+        '<tbody>' + posRows + '</tbody>' +
+      '</table>' +
+    '</div>' +
+
+    /* trade log (collapsible) */
+    '<div id="pt-log-wrap" class="d-none">' +
+      '<div class="small fw-semibold text-secondary mb-1 text-uppercase" style="letter-spacing:.05em">Trade Log (last 15)</div>' +
+      '<div class="table-responsive">' +
+        '<table class="table table-sm table-bordered mb-0">' +
+          '<thead class="table-dark"><tr>' +
+            '<th>Time</th><th>Action</th><th>Qty</th><th>Price</th><th>Total</th><th>Realized P&amp;L</th><th>Signal</th>' +
+          '</tr></thead>' +
+          '<tbody>' + logRows + '</tbody>' +
+        '</table>' +
+      '</div>' +
+    '</div>';
+
+  /* wire buttons */
+  var toggleLog = document.getElementById('pt-toggle-log');
+  if (toggleLog) {
+    toggleLog.addEventListener('click', function() {
+      var wrap = document.getElementById('pt-log-wrap');
+      if (!wrap) return;
+      var hidden = wrap.classList.toggle('d-none');
+      toggleLog.textContent = hidden ? '📋 Log' : '📋 Hide Log';
+    });
+  }
+
+  var resetBtn = document.getElementById('pt-reset-btn');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', function() {
+      if (confirm('Reset paper trading? All positions and trade history will be cleared. Start fresh with $' + PT_START.toLocaleString() + '.')) ptReset();
+    });
+  }
+
+  document.querySelectorAll('.pt-sell-all').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var sym  = btn.dataset.sym;
+      var pos  = _pt.positions[sym];
+      var item = _lastComputed && _lastComputed.find(function(i) { return i.coin.symbol.toUpperCase() === sym; });
+      if (!pos || !item) return;
+      var result = ptSell(sym, item.coin.name, item.coin.current_price, pos.qty,
+                          item.computed.signal.label);
+      if (result.ok) {
+        showPtToast('SELL ' + sym, result.pnl);
+        renderPortfolio();
+        if (_lastComputed) renderCoins(sortData(_lastComputed, _sortBy));
+      }
+    });
+  });
+}
+
+/* ── Toast feedback ─────────────────────────────────────────────── */
+function showPtToast(msg, pnl) {
+  var wrap = document.getElementById('pt-toast-wrap');
+  if (!wrap) return;
+  var pnlStr = '';
+  if (pnl !== undefined && pnl !== null) {
+    pnlStr = ' &nbsp;P&L: <strong class="' + (pnl >= 0 ? 'text-success' : 'text-danger') + '">' +
+             (pnl >= 0 ? '+' : '') + '$' + pnl.toFixed(2) + '</strong>';
+  }
+  var div = document.createElement('div');
+  div.className = 'alert alert-success alert-dismissible fade show py-2 mb-2';
+  div.setAttribute('role', 'alert');
+  div.innerHTML = '✅ <strong>' + msg + '</strong> executed.' + pnlStr +
+    '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+  wrap.appendChild(div);
+  setTimeout(function() { if (div.parentNode) div.parentNode.removeChild(div); }, 4000);
+}
+
+/* ── Buy/Sell modal ─────────────────────────────────────────────── */
+function openPtModal(sym, name, price, signalLabel, action) {
+  _ptTarget = { sym: sym, name: name, price: price, signal: signalLabel, action: action };
+  var pos     = _pt && _pt.positions[sym];
+  var maxBuy  = _pt ? Math.floor(_pt.balance / price * 1e6) / 1e6 : 0;
+  var maxSell = pos ? pos.qty : 0;
+
+  var title = document.getElementById('ptModalTitle');
+  var body  = document.getElementById('ptModalBody');
+  if (!title || !body) return;
+
+  title.textContent = (action === 'BUY' ? '📈 Buy ' : '📉 Sell ') + sym;
+
+  body.innerHTML =
+    '<p class="mb-2 small"><strong>' + name + '</strong> · Current: <strong>$' + price.toFixed(4) + '</strong> · Signal: <strong>' + signalLabel + '</strong></p>' +
+    (action === 'BUY'
+      ? '<p class="small text-secondary mb-3">Available cash: <strong>$' + (_pt ? _pt.balance.toFixed(2) : '0') + '</strong> · Max: <strong>' + maxBuy + ' ' + sym + '</strong></p>'
+      : '<p class="small text-secondary mb-3">Held: <strong>' + (pos ? pos.qty.toFixed(6) : 0) + ' ' + sym + '</strong> · Avg entry: <strong>$' + (pos ? pos.avgPrice.toFixed(4) : 0) + '</strong></p>') +
+
+    '<div class="mb-3">' +
+      '<label class="form-label small fw-semibold">Quantity (' + sym + ')</label>' +
+      '<input type="number" class="form-control" id="pt-qty-input" min="0" step="any" placeholder="0.00" ' +
+        'value="' + (action === 'BUY' ? (maxBuy * 0.1).toFixed(6) : (maxSell).toFixed(6)) + '">' +
+    '</div>' +
+
+    '<div class="mb-3">' +
+      '<label class="form-label small fw-semibold">Or enter $ amount</label>' +
+      '<input type="number" class="form-control" id="pt-usd-input" min="0" step="any" placeholder="0.00">' +
+    '</div>' +
+
+    '<div class="small text-secondary" id="pt-trade-total">Total: $0.00</div>';
+
+  /* sync qty ↔ usd */
+  var qtyInp = document.getElementById('pt-qty-input');
+  var usdInp = document.getElementById('pt-usd-input');
+  var totEl  = document.getElementById('pt-trade-total');
+
+  function updateTotal(from) {
+    var qty = from === 'qty' ? parseFloat(qtyInp.value) : parseFloat(usdInp.value) / price;
+    if (isNaN(qty) || qty < 0) qty = 0;
+    var usd = qty * price;
+    if (from === 'qty' && usdInp) usdInp.value = usd > 0 ? usd.toFixed(2) : '';
+    if (from === 'usd' && qtyInp) qtyInp.value = qty > 0 ? qty.toFixed(6) : '';
+    if (totEl) totEl.textContent = 'Total: $' + usd.toFixed(2);
+  }
+  if (qtyInp) qtyInp.addEventListener('input', function() { updateTotal('qty'); });
+  if (usdInp) usdInp.addEventListener('input', function() { updateTotal('usd'); });
+  if (qtyInp) updateTotal('qty');
+
+  var modal = document.getElementById('ptModal');
+  if (modal && window.bootstrap) bootstrap.Modal.getOrCreateInstance(modal).show();
+}
+
+function wirePtModal() {
+  var confirmBtn = document.getElementById('pt-confirm-btn');
+  if (!confirmBtn) return;
+  confirmBtn.addEventListener('click', function() {
+    if (!_ptTarget) return;
+    var qtyInp = document.getElementById('pt-qty-input');
+    var qty    = parseFloat(qtyInp ? qtyInp.value : '0');
+    if (!qty || qty <= 0) { if (qtyInp) qtyInp.classList.add('is-invalid'); return; }
+    if (qtyInp) qtyInp.classList.remove('is-invalid');
+
+    var result = _ptTarget.action === 'BUY'
+      ? ptBuy(_ptTarget.sym, _ptTarget.name, _ptTarget.price, qty, _ptTarget.signal)
+      : ptSell(_ptTarget.sym, _ptTarget.name, _ptTarget.price, qty, _ptTarget.signal);
+
+    if (!result.ok) { alert(result.err); return; }
+
+    var modal = document.getElementById('ptModal');
+    if (modal && window.bootstrap) bootstrap.Modal.getOrCreateInstance(modal).hide();
+
+    showPtToast((_ptTarget.action === 'BUY' ? 'BUY ' : 'SELL ') + qty.toFixed(6) + ' ' + _ptTarget.sym,
+                result.pnl);
+    renderPortfolio();
+    if (_lastComputed) renderCoins(sortData(_lastComputed, _sortBy));
+  });
+}
+
+/* ── Patch renderCoins to inject paper trading buttons ─────────── */
+var _origRenderCoins = renderCoins;
+renderCoins = function(arr) {
+  _origRenderCoins(arr);
+  if (!_pt || !_pt.enabled) return;
+
+  arr.forEach(function(item) {
+    var sym   = item.coin.symbol.toUpperCase();
+    var pos   = _pt.positions[sym];
+    var price = item.coin.current_price;
+    var sig   = item.computed.signal.label;
+
+    /* find the card's action-button area */
+    var grid = document.getElementById('coin-grid');
+    if (!grid) return;
+    var cards = grid.querySelectorAll('.coin-card');
+    var target = null;
+    cards.forEach(function(card) {
+      var hdr = card.querySelector('.card-header .fw-bold');
+      if (hdr && hdr.textContent.trim() === sym) target = card;
+    });
+    if (!target) return;
+
+    var btnArea = target.querySelector('.d-flex.gap-2.flex-wrap');
+    if (!btnArea) return;
+
+    /* position badge */
+    if (pos && pos.qty > 0) {
+      var val    = pos.qty * price;
+      var unPnl  = val - pos.totalCost;
+      var pnlCls = unPnl >= 0 ? '#20c997' : '#dc3545';
+      var badge  = document.createElement('div');
+      badge.className = 'w-100 small rounded px-2 py-1 mt-1';
+      badge.style.cssText = 'background:rgba(110,168,254,.08);border:1px solid rgba(110,168,254,.2)';
+      badge.innerHTML = '📦 Holding <strong>' + pos.qty.toFixed(6) + ' ' + sym + '</strong>' +
+        ' · Value: <strong>$' + val.toFixed(2) + '</strong>' +
+        ' · P&amp;L: <strong style="color:' + pnlCls + '">' +
+          (unPnl >= 0 ? '+' : '') + '$' + unPnl.toFixed(2) + '</strong>';
+      btnArea.parentNode.insertBefore(badge, btnArea);
+    }
+
+    /* buy button */
+    var buyBtn = document.createElement('button');
+    buyBtn.textContent = '📈 Buy';
+    buyBtn.style.cssText = 'font-size:.65rem;padding:2px 8px;border-radius:4px;border:1px solid #198754;color:#198754;background:transparent;cursor:pointer';
+    buyBtn.addEventListener('click', function() {
+      openPtModal(sym, item.coin.name, price, sig, 'BUY');
+    });
+    btnArea.appendChild(buyBtn);
+
+    /* sell button (only if holding) */
+    if (pos && pos.qty > 0) {
+      var sellBtn = document.createElement('button');
+      sellBtn.textContent = '📉 Sell';
+      sellBtn.style.cssText = 'font-size:.65rem;padding:2px 8px;border-radius:4px;border:1px solid #dc3545;color:#dc3545;background:transparent;cursor:pointer';
+      sellBtn.addEventListener('click', function() {
+        openPtModal(sym, item.coin.name, price, sig, 'SELL');
+      });
+      btnArea.appendChild(sellBtn);
+    }
+  });
+};
+
 document.addEventListener('DOMContentLoaded', function() {
   loadAlerts();
+  ptLoad();
   wireSortButtons();
   wireAlertModal();
+  wirePtModal();
   setSortActive('signal');
 
   refresh();
@@ -857,4 +1327,6 @@ document.addEventListener('DOMContentLoaded', function() {
       startCountdown();
       refresh();
     });
+
+  renderPortfolio();
 });
