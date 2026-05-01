@@ -110,6 +110,45 @@
     /* expand toggle */
     #expand-all-btn { font-size: .78rem; }
 
+    /* tips / pitfalls */
+    .tip-list, .pitfall-list { list-style: none; padding: 0; margin: 0; }
+    .tip-list li, .pitfall-list li { padding: .18rem 0 .18rem 1.4rem; font-size: .845rem; position: relative; }
+    .tip-list li::before     { content: '💡'; position: absolute; left: 0; font-size: .7rem; top: .22rem; }
+    .pitfall-list li::before { content: '⚠️'; position: absolute; left: 0; font-size: .65rem; top: .24rem; }
+
+    /* SOA selector */
+    .soa-wrap { display: flex; align-items: center; gap: 6px; padding: 0 .5rem; flex-shrink: 0; }
+    .soa-select {
+      font-size: .72rem; padding: 2px 6px; border-radius: 4px;
+      border: 1px solid #dee2e6; cursor: pointer; outline: none;
+    }
+    .soa-select.s-applicable    { background: #dcfce7; color: #15803d; border-color: #86efac; }
+    .soa-select.s-not-app       { background: #f1f5f9; color: #64748b; border-color: #cbd5e1; }
+    .soa-select.s-partial       { background: #fef9c3; color: #854d0e; border-color: #fde047; }
+    .soa-select.s-not-assessed  { background: #f8fafc; color: #94a3b8; }
+
+    /* SOA progress */
+    .soa-bar-track { height: 5px; border-radius: 3px; background: #1e293b; overflow: hidden; margin: .3rem 0; }
+    .soa-bar-fill  { height: 100%; border-radius: 3px; background: #22c55e; transition: width .3s; }
+
+    /* view tabs */
+    .view-tab {
+      padding: .35rem .9rem; border-radius: 6px; font-size: .82rem; font-weight: 500;
+      color: #64748b; border: 1px solid #e2e8f0; background: #fff;
+      cursor: pointer; transition: all .15s; white-space: nowrap;
+    }
+    .view-tab:hover  { border-color: #94a3b8; color: #0f172a; }
+    .view-tab.active { background: #0f172a; color: #fff; border-color: #0f172a; }
+
+    /* ISMS docs / mapping panels */
+    .doc-card { background: #fff; border-radius: 8px; border: 1px solid #e2e8f0; padding: 1rem 1.25rem; }
+    .doc-badge { font-size: .7rem; padding: 2px 8px; border-radius: 20px; font-weight: 600; }
+    .doc-badge-req  { background: #fee2e2; color: #dc2626; }
+    .doc-badge-rec  { background: #dbeafe; color: #1d4ed8; }
+    .map-new        { background: #dcfce7; color: #15803d; font-size: .7rem; padding: 1px 7px; border-radius: 10px; font-weight: 600; }
+    .map-merged     { background: #fef9c3; color: #92400e; font-size: .7rem; padding: 1px 7px; border-radius: 10px; font-weight: 600; }
+    .map-revised    { background: #dbeafe; color: #1d4ed8; font-size: .7rem; padding: 1px 7px; border-radius: 10px; font-weight: 600; }
+
     @media (max-width: 768px) {
       .sidebar { width: 100%; height: auto; position: relative; flex-direction: row; flex-wrap: wrap; }
       body > .d-flex { flex-direction: column; }
@@ -152,11 +191,28 @@
       <a href="#" class="nav-link-side"        data-ctype="Corrective"  onclick="return filterType('Corrective',this)">🔧 Corrective</a>
     </div>
 
+    <div class="sidebar-section-label">SOA Progress</div>
+    <div class="mb-1">
+      <div class="soa-bar-track"><div class="soa-bar-fill" id="soa-bar" style="width:0%"></div></div>
+      <div style="font-size:.68rem;color:#94a3b8" id="soa-stats">0 / 93 assessed</div>
+    </div>
+    <div class="d-flex flex-column gap-1 mb-4">
+      <a href="#" class="nav-link-side" data-soa="Applicable"     onclick="return filterSOA('Applicable',this)">
+        <span>✅ Applicable</span>     <span class="sidebar-sub" id="soa-count-app">0</span>
+      </a>
+      <a href="#" class="nav-link-side" data-soa="Partial"        onclick="return filterSOA('Partial',this)">
+        <span>🔶 Partial</span>        <span class="sidebar-sub" id="soa-count-par">0</span>
+      </a>
+      <a href="#" class="nav-link-side" data-soa="Not Applicable" onclick="return filterSOA('Not Applicable',this)">
+        <span>⬜ Not Applicable</span> <span class="sidebar-sub" id="soa-count-na">0</span>
+      </a>
+    </div>
+
     <div class="mt-auto">
-      <button class="btn btn-success btn-sm w-100 mb-2 fw-semibold" onclick="downloadExcel()">
-        ⬇ Download Excel
-      </button>
-      <div class="text-center" style="font-size:.63rem;color:#475569">93 controls · evidence · policies</div>
+      <button class="btn btn-success btn-sm w-100 mb-2 fw-semibold" onclick="downloadExcel()">⬇ Download Excel</button>
+      <button class="btn btn-outline-success btn-sm w-100 mb-2" onclick="exportSOA()">📋 Export SOA</button>
+      <button class="btn btn-outline-secondary btn-sm w-100 mb-3" onclick="resetSOA()">↺ Reset SOA</button>
+      <div class="text-center" style="font-size:.63rem;color:#475569">93 controls · evidence · policies · SOA</div>
     </div>
   </nav>
 
@@ -202,6 +258,121 @@
       </div>
     </div>
 
+    <!-- View tabs -->
+    <div class="d-flex gap-2 mb-4 flex-wrap">
+      <button class="view-tab active" id="tab-controls" onclick="showView('controls')">🛡 Controls</button>
+      <button class="view-tab" id="tab-docs"    onclick="showView('docs')">📋 ISMS Documents</button>
+      <button class="view-tab" id="tab-mapping" onclick="showView('mapping')">🔄 2013 → 2022 Mapping</button>
+    </div>
+
+    <!-- ── ISMS Mandatory Documents ──────────────────────────────────── -->
+    <div id="view-docs" style="display:none">
+      <div class="doc-card mb-3">
+        <div class="fw-bold mb-1">Mandatory Records <span class="doc-badge doc-badge-req ms-1">Required by ISO 27001:2022</span></div>
+        <div class="small text-secondary mb-3">These documents must exist for certification. Auditors will request them directly.</div>
+        <div class="row g-2">
+          <div class="col-md-6"><ul class="ev-list">
+            <li><strong>4.3</strong> — ISMS Scope Statement</li>
+            <li><strong>5.2</strong> — Information Security Policy</li>
+            <li><strong>6.1.2</strong> — IS Risk Assessment Process</li>
+            <li><strong>6.1.3</strong> — IS Risk Treatment Plan</li>
+            <li><strong>6.2</strong> — Information Security Objectives</li>
+            <li><strong>7.2</strong> — Evidence of Competence (training records)</li>
+            <li><strong>8.1</strong> — Operational Planning &amp; Control documentation</li>
+          </ul></div>
+          <div class="col-md-6"><ul class="ev-list">
+            <li><strong>8.2</strong> — IS Risk Assessment results</li>
+            <li><strong>8.3</strong> — IS Risk Treatment results</li>
+            <li><strong>9.1</strong> — Monitoring &amp; Measurement results</li>
+            <li><strong>9.2</strong> — Internal Audit Programme &amp; Reports</li>
+            <li><strong>9.3</strong> — Management Review records</li>
+            <li><strong>10.1</strong> — Nonconformity &amp; Corrective Action records</li>
+            <li><strong>Annex A</strong> — Statement of Applicability (SoA)</li>
+          </ul></div>
+        </div>
+      </div>
+      <div class="doc-card mb-3">
+        <div class="fw-bold mb-1">Strongly Recommended <span class="doc-badge doc-badge-rec ms-1">Best Practice</span></div>
+        <div class="small text-secondary mb-3">Not explicitly mandated but routinely expected by auditors and needed to evidence Annex A controls.</div>
+        <div class="row g-2">
+          <div class="col-md-6"><ul class="pol-list">
+            <li>Asset Register / CMDB (5.9)</li>
+            <li>Acceptable Use Policy (5.10)</li>
+            <li>Access Control Policy + RBAC matrix (5.15)</li>
+            <li>Information Classification Policy (5.12)</li>
+            <li>Supplier Register &amp; Risk Assessments (5.19)</li>
+            <li>Incident Response Plan &amp; Log (5.24–5.27)</li>
+            <li>Business Continuity / DR Plan (5.29–5.30)</li>
+            <li>NDA / Confidentiality Agreement templates (6.6)</li>
+            <li>HR Screening &amp; Offboarding Procedures (6.1, 6.5)</li>
+          </ul></div>
+          <div class="col-md-6"><ul class="pol-list">
+            <li>Physical Security Policy &amp; Site Plans (7.x)</li>
+            <li>Change Management Procedure (8.32)</li>
+            <li>Vulnerability Management Procedure (8.8)</li>
+            <li>Patch Management Logs (8.8)</li>
+            <li>Backup Policy &amp; Restoration Test Records (8.13)</li>
+            <li>Cryptography Policy &amp; Key Management (8.24)</li>
+            <li>Secure SDLC Policy (8.25)</li>
+            <li>Data Protection Policy &amp; ROPA (5.34)</li>
+            <li>Logging &amp; SIEM Configuration Records (8.15)</li>
+          </ul></div>
+        </div>
+      </div>
+      <div class="doc-card">
+        <div class="fw-bold mb-2">Document Retention Guidance</div>
+        <div class="row g-3 small">
+          <div class="col-md-4"><div class="p-2 rounded" style="background:#f0fdf4"><strong>Minimum 3 years</strong><br>Audit reports, management reviews, corrective actions, training records</div></div>
+          <div class="col-md-4"><div class="p-2 rounded" style="background:#eff6ff"><strong>Duration of ISMS + 3 years</strong><br>Risk assessments, risk treatment plans, SOA</div></div>
+          <div class="col-md-4"><div class="p-2 rounded" style="background:#fff7ed"><strong>As legally required</strong><br>Incident logs, data breach records, legal hold documents, ROPA</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 2013 → 2022 Control Mapping ───────────────────────────────── -->
+    <div id="view-mapping" style="display:none">
+      <div class="doc-card mb-3">
+        <div class="fw-bold mb-1">What changed in ISO 27002:2022?</div>
+        <div class="row g-3 small mb-3">
+          <div class="col-md-3"><div class="p-2 rounded text-center" style="background:#dcfce7"><div class="fw-bold fs-5" style="color:#15803d">11</div>New controls added</div></div>
+          <div class="col-md-3"><div class="p-2 rounded text-center" style="background:#fef9c3"><div class="fw-bold fs-5" style="color:#92400e">24</div>Controls merged</div></div>
+          <div class="col-md-3"><div class="p-2 rounded text-center" style="background:#dbeafe"><div class="fw-bold fs-5" style="color:#1d4ed8">58</div>Controls revised</div></div>
+          <div class="col-md-3"><div class="p-2 rounded text-center" style="background:#f1f5f9"><div class="fw-bold fs-5" style="color:#475569">114→93</div>Total controls</div></div>
+        </div>
+        <div class="fw-semibold small mb-2">11 New Controls (no 2013 equivalent)</div>
+        <div class="d-flex flex-wrap gap-2 mb-3">
+          <span class="map-new">5.7 Threat intelligence</span>
+          <span class="map-new">5.23 Cloud services</span>
+          <span class="map-new">5.30 ICT readiness for BCM</span>
+          <span class="map-new">7.4 Physical security monitoring</span>
+          <span class="map-new">8.9 Configuration management</span>
+          <span class="map-new">8.10 Information deletion</span>
+          <span class="map-new">8.11 Data masking</span>
+          <span class="map-new">8.12 Data leakage prevention</span>
+          <span class="map-new">8.16 Monitoring activities</span>
+          <span class="map-new">8.23 Web filtering</span>
+          <span class="map-new">8.28 Secure coding</span>
+        </div>
+      </div>
+      <div class="doc-card">
+        <div class="fw-bold mb-2">Full 2022 → 2013 Control Mapping</div>
+        <div class="search-wrap mb-2"><span class="search-icon">🔍</span>
+          <input type="text" class="form-control form-control-sm" id="map-search" style="padding-left:2.2rem" placeholder="Filter mapping table…" oninput="filterMapping()">
+        </div>
+        <div class="table-responsive" style="max-height:520px;overflow-y:auto">
+          <table class="table table-sm table-hover" style="font-size:.8rem" id="map-table">
+            <thead class="table-dark sticky-top"><tr>
+              <th style="width:70px">2022 ID</th><th>2022 Control Name</th>
+              <th style="width:160px">2013 Reference(s)</th><th style="width:80px">Change</th>
+            </tr></thead>
+            <tbody id="map-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Controls view ─────────────────────────────────────────────── -->
+    <div id="view-controls">
     <!-- Search + toolbar -->
     <div class="d-flex gap-2 mb-3 flex-wrap">
       <div class="search-wrap flex-grow-1">
@@ -228,6 +399,7 @@
       <div class="fw-semibold">No controls match your filters</div>
       <div class="small text-secondary mt-1">Try adjusting the search or clearing the family/type filter</div>
     </div>
+    </div><!-- /view-controls -->
 
   </main>
 </div>
@@ -237,37 +409,81 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmTiEJEq4PBioYE1p89ZlqhIEtDK" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="iso27001-data.js"></script>
+<script src="iso27001-tips.js"></script>
 <script>
-/* ── State ─────────────────────────────────────────────────────────────── */
-var _family  = 'all';
-var _ctype   = '';
-var _search  = '';
-var _expanded = false;
+/* ── State ──────────────────────────────────────────────────────────────── */
+var _family = 'all', _ctype = '', _search = '', _soa = '', _expanded = false;
 
 /* ── Helpers ────────────────────────────────────────────────────────────── */
 var FK = { Organizational:'org', People:'people', Physical:'physical', Technological:'tech' };
 var FC = { org:'var(--c-org)', people:'var(--c-ppl)', physical:'var(--c-phy)', tech:'var(--c-tch)' };
 var FB = { org:'#eff6ff', people:'#f0fdf4', physical:'#fff7ed', tech:'#faf5ff' };
-
-function fkey(f)  { return FK[f] || 'org'; }
-function fcolor(k){ return FC[k] || FC.org; }
-
+function fkey(f)   { return FK[f] || 'org'; }
+function fcolor(k) { return FC[k] || FC.org; }
 function typeBadge(t) {
-  var cls = { Preventive:'tbadge-prev', Detective:'tbadge-det', Corrective:'tbadge-corr' }[t] || 'tbadge-prev';
-  return '<span class="tbadge ' + cls + '">' + t + '</span>';
+  var cls = {Preventive:'tbadge-prev',Detective:'tbadge-det',Corrective:'tbadge-corr'}[t]||'tbadge-prev';
+  return '<span class="tbadge '+cls+'">'+t+'</span>';
 }
 function ciaBadge(c) {
-  var cls = { C:'cia-c', I:'cia-i', A:'cia-a' }[c] || '';
-  var lbl = { C:'Confidentiality', I:'Integrity', A:'Availability' }[c] || c;
-  return '<span class="cia ' + cls + '" title="' + lbl + '">' + c + '</span>';
+  var cls = {C:'cia-c',I:'cia-i',A:'cia-a'}[c]||'';
+  var lbl = {C:'Confidentiality',I:'Integrity',A:'Availability'}[c]||c;
+  return '<span class="cia '+cls+'" title="'+lbl+'">'+c+'</span>';
 }
 
-/* ── Render ─────────────────────────────────────────────────────────────── */
-function renderControls(controls) {
-  var container  = document.getElementById('controls-container');
-  var noResults  = document.getElementById('no-results');
-  var countEl    = document.getElementById('results-count');
+/* ── SOA Storage ────────────────────────────────────────────────────────── */
+var SOA_KEY = 'iso27001_soa_v1';
+var _soaData = {};
+function soaLoad() {
+  try { _soaData = JSON.parse(localStorage.getItem(SOA_KEY)) || {}; } catch(e) { _soaData = {}; }
+}
+function soaSave() { try { localStorage.setItem(SOA_KEY, JSON.stringify(_soaData)); } catch(e) {} }
+function soaGet(id) { return _soaData[id] || { status:'Not Assessed', notes:'' }; }
+function soaSet(id, status, notes) {
+  if (!_soaData[id]) _soaData[id] = { status:'Not Assessed', notes:'' };
+  if (status !== undefined) _soaData[id].status = status;
+  if (notes  !== undefined) _soaData[id].notes  = notes;
+  soaSave();
+  updateSoaBar();
+  /* re-colour the select */
+  var sel = document.getElementById('soa-sel-' + id.replace('.','_'));
+  if (sel) applySoaCls(sel, _soaData[id].status);
+}
+function applySoaCls(sel, status) {
+  sel.className = 'soa-select ' + ({Applicable:'s-applicable','Not Applicable':'s-not-app',Partial:'s-partial','Not Assessed':'s-not-assessed'}[status]||'s-not-assessed');
+}
+function updateSoaBar() {
+  var counts = { Applicable:0, 'Not Applicable':0, Partial:0 };
+  var assessed = 0;
+  Object.values(_soaData).forEach(function(v) {
+    if (v.status !== 'Not Assessed') { assessed++; if (counts[v.status]!==undefined) counts[v.status]++; }
+  });
+  var pct = Math.round(assessed / 93 * 100);
+  var bar = document.getElementById('soa-bar');
+  var stats = document.getElementById('soa-stats');
+  if (bar)   bar.style.width = pct + '%';
+  if (stats) stats.textContent = assessed + ' / 93 assessed (' + pct + '%)';
+  var el;
+  if ((el=document.getElementById('soa-count-app'))) el.textContent = counts['Applicable'];
+  if ((el=document.getElementById('soa-count-par'))) el.textContent = counts['Partial'];
+  if ((el=document.getElementById('soa-count-na')))  el.textContent = counts['Not Applicable'];
+}
+function resetSOA() {
+  if (!confirm('Clear all SOA statuses? This cannot be undone.')) return;
+  _soaData = {}; soaSave(); updateSoaBar(); applyFilters();
+}
+function filterSOA(status, el) {
+  _soa = (_soa === status) ? '' : status;
+  document.querySelectorAll('[data-soa]').forEach(function(a){ a.classList.remove('active'); });
+  if (_soa && el) el.classList.add('active');
+  applyFilters();
+  return false;
+}
 
+/* ── Render Controls ────────────────────────────────────────────────────── */
+function renderControls(controls) {
+  var container = document.getElementById('controls-container');
+  var noResults = document.getElementById('no-results');
+  var countEl   = document.getElementById('results-count');
   if (!controls || !controls.length) {
     container.innerHTML = '';
     noResults.style.display = 'block';
@@ -277,178 +493,313 @@ function renderControls(controls) {
   noResults.style.display = 'none';
   countEl.textContent = 'Showing ' + controls.length + ' of 93 controls';
 
-  /* group by family */
   var groups = {};
-  controls.forEach(function(c) {
-    if (!groups[c.family]) groups[c.family] = [];
-    groups[c.family].push(c);
-  });
-
-  var ORDER = ['Organizational', 'People', 'Physical', 'Technological'];
+  controls.forEach(function(c) { if (!groups[c.family]) groups[c.family]=[]; groups[c.family].push(c); });
+  var ORDER = ['Organizational','People','Physical','Technological'];
   var html = '';
 
   ORDER.forEach(function(family) {
     var list = groups[family];
     if (!list || !list.length) return;
-    var k = fkey(family);
-    var col = fcolor(k);
-
+    var k = fkey(family), col = fcolor(k);
     html += '<div class="mb-4">';
-    /* family heading */
-    html += '<div class="family-header">';
-    html += '<div class="family-title" style="color:' + col + '">' + family + ' Controls</div>';
-    html += '<span class="family-count" style="background:' + FB[k] + ';color:' + col + '">' + list.length + '</span>';
-    html += '</div>';
-
-    /* accordion */
-    html += '<div class="d-flex flex-column gap-2" id="fam-' + k + '">';
+    html += '<div class="family-header"><div class="family-title" style="color:'+col+'">'+family+' Controls</div>';
+    html += '<span class="family-count" style="background:'+FB[k]+';color:'+col+'">'+list.length+'</span></div>';
+    html += '<div class="d-flex flex-column gap-2">';
 
     list.forEach(function(ctrl) {
-      var cid = 'c' + ctrl.id.replace('.', '_');
-      html += '<div class="accordion control-card ' + k + '" id="wrap-' + cid + '">';
+      var cid   = 'c' + ctrl.id.replace('.','_');
+      var soa   = soaGet(ctrl.id);
+      var soaCls = {Applicable:'s-applicable','Not Applicable':'s-not-app',Partial:'s-partial','Not Assessed':'s-not-assessed'}[soa.status]||'s-not-assessed';
+      var tip   = (window.TIPS && TIPS[ctrl.id]) || { tips:[], pitfalls:[] };
+
+      html += '<div class="accordion control-card '+k+'" id="wrap-'+cid+'">';
       html += '<div class="accordion-item border-0 bg-transparent">';
 
-      /* header */
-      html += '<h2 class="accordion-header">';
-      html += '<button class="accordion-button collapsed bg-white" type="button" ';
-      html += 'data-bs-toggle="collapse" data-bs-target="#' + cid + '" ';
-      html += 'aria-expanded="false" aria-controls="' + cid + '">';
-      html += '<span class="ctrl-id me-3">' + ctrl.id + '</span>';
-      html += '<span class="fw-semibold flex-grow-1 me-3">' + ctrl.name + '</span>';
+      /* header row: button + SOA select outside button */
+      html += '<h2 class="accordion-header d-flex align-items-center">';
+      html += '<button class="accordion-button collapsed bg-white flex-grow-1" type="button" ';
+      html += 'data-bs-toggle="collapse" data-bs-target="#'+cid+'" aria-expanded="false">';
+      html += '<span class="ctrl-id me-3">'+ctrl.id+'</span>';
+      html += '<span class="fw-semibold flex-grow-1 me-3">'+ctrl.name+'</span>';
       html += '<span class="d-flex gap-1 align-items-center flex-shrink-0 me-2">';
-      ctrl.type.forEach(function(t) { html += typeBadge(t); });
-      ctrl.cia.forEach(function(c)  { html += ciaBadge(c); });
-      html += '</span>';
-      html += '</button></h2>';
+      ctrl.type.forEach(function(t){ html += typeBadge(t); });
+      ctrl.cia.forEach(function(c){  html += ciaBadge(c); });
+      html += '</span></button>';
+      /* SOA select lives outside the button to avoid click bubbling */
+      html += '<div class="soa-wrap">';
+      html += '<select id="soa-sel-'+cid+'" class="soa-select '+soaCls+'" ';
+      html += 'onclick="event.stopPropagation()" onchange="soaSet(\''+ctrl.id+'\',this.value)">';
+      ['Not Assessed','Applicable','Partial','Not Applicable'].forEach(function(s){
+        html += '<option'+(s===soa.status?' selected':'')+'>'+s+'</option>';
+      });
+      html += '</select></div>';
+      html += '</h2>';
 
       /* body */
-      html += '<div id="' + cid + '" class="accordion-collapse collapse">';
+      html += '<div id="'+cid+'" class="accordion-collapse collapse">';
       html += '<div class="accordion-body">';
-      html += '<p class="text-secondary mb-3" style="font-size:.845rem">' + ctrl.description + '</p>';
+      html += '<p class="text-secondary mb-3" style="font-size:.845rem">'+ctrl.description+'</p>';
       html += '<div class="row g-3">';
 
-      /* evidence */
-      html += '<div class="col-lg-7">';
-      html += '<div class="section-label">Evidence Examples</div>';
-      html += '<ul class="ev-list">';
-      ctrl.evidence.forEach(function(e) { html += '<li>' + e + '</li>'; });
+      html += '<div class="col-lg-7"><div class="section-label">Evidence Examples</div><ul class="ev-list">';
+      ctrl.evidence.forEach(function(e){ html += '<li>'+e+'</li>'; });
       html += '</ul></div>';
 
-      /* policies */
-      html += '<div class="col-lg-5">';
-      html += '<div class="section-label">Required Policies / Documents</div>';
-      html += '<ul class="pol-list">';
-      ctrl.policies.forEach(function(p) { html += '<li>' + p + '</li>'; });
+      html += '<div class="col-lg-5"><div class="section-label">Required Policies / Documents</div><ul class="pol-list">';
+      ctrl.policies.forEach(function(p){ html += '<li>'+p+'</li>'; });
       html += '</ul></div>';
 
-      html += '</div>'; /* row */
-      html += '</div>'; /* accordion-body */
-      html += '</div>'; /* collapse */
-      html += '</div>'; /* accordion-item */
-      html += '</div>'; /* wrap */
+      /* tips + pitfalls row */
+      if (tip.tips.length || tip.pitfalls.length) {
+        html += '<div class="col-12"><div class="border-top pt-3"><div class="row g-3">';
+        if (tip.tips.length) {
+          html += '<div class="col-md-6"><div class="section-label">💡 Implementation Tips</div><ul class="tip-list">';
+          tip.tips.forEach(function(t){ html += '<li>'+t+'</li>'; });
+          html += '</ul></div>';
+        }
+        if (tip.pitfalls.length) {
+          html += '<div class="col-md-6"><div class="section-label">⚠️ Common Audit Pitfalls</div><ul class="pitfall-list">';
+          tip.pitfalls.forEach(function(p){ html += '<li>'+p+'</li>'; });
+          html += '</ul></div>';
+        }
+        html += '</div></div></div>';
+      }
+
+      /* SOA notes */
+      html += '<div class="col-12"><div class="border-top pt-2 d-flex align-items-start gap-2">';
+      html += '<span class="section-label mt-1" style="white-space:nowrap">SOA Notes</span>';
+      html += '<textarea rows="2" class="form-control form-control-sm" style="font-size:.8rem" ';
+      html += 'placeholder="Justification for inclusion/exclusion…" ';
+      html += 'onclick="event.stopPropagation()" ';
+      html += 'onchange="soaSet(\''+ctrl.id+'\',undefined,this.value)">'+escHtml(soa.notes)+'</textarea>';
+      html += '</div></div>';
+
+      html += '</div></div></div></div></div>';
     });
-
-    html += '</div>'; /* fam group */
-    html += '</div>'; /* mb-4 */
+    html += '</div></div>';
   });
-
   container.innerHTML = html;
 }
 
+function escHtml(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
 /* ── Filters ────────────────────────────────────────────────────────────── */
 function applyFilters() {
-  _search = (document.getElementById('search-input').value || '').toLowerCase();
+  _search = (document.getElementById('search-input').value||'').toLowerCase();
   var filtered = CONTROLS.filter(function(c) {
-    var fmatch = _family === 'all' || c.family === _family;
-    var tmatch = !_ctype  || c.type.indexOf(_ctype) !== -1;
+    var fmatch = _family==='all' || c.family===_family;
+    var tmatch = !_ctype  || c.type.indexOf(_ctype)!==-1;
+    var soaMatch = !_soa  || soaGet(c.id).status===_soa;
     var smatch = !_search
-      || c.id.toLowerCase().indexOf(_search) !== -1
-      || c.name.toLowerCase().indexOf(_search) !== -1
-      || c.description.toLowerCase().indexOf(_search) !== -1
-      || c.evidence.some(function(e) { return e.toLowerCase().indexOf(_search) !== -1; })
-      || c.policies.some(function(p) { return p.toLowerCase().indexOf(_search) !== -1; });
-    return fmatch && tmatch && smatch;
+      || c.id.toLowerCase().indexOf(_search)!==-1
+      || c.name.toLowerCase().indexOf(_search)!==-1
+      || c.description.toLowerCase().indexOf(_search)!==-1
+      || c.evidence.some(function(e){ return e.toLowerCase().indexOf(_search)!==-1; })
+      || c.policies.some(function(p){ return p.toLowerCase().indexOf(_search)!==-1; });
+    return fmatch && tmatch && soaMatch && smatch;
   });
   renderControls(filtered);
 }
-
 function filterFamily(family, el) {
   _family = family;
-  document.querySelectorAll('[data-family]').forEach(function(a) { a.classList.remove('active'); });
+  document.querySelectorAll('[data-family]').forEach(function(a){ a.classList.remove('active'); });
   if (el) el.classList.add('active');
   var tag = document.getElementById('active-tag');
-  if (family !== 'all') {
-    var k = fkey(family);
-    tag.innerHTML = '<span class="tbadge" style="background:' + FB[k] + ';color:' + fcolor(k) + ';font-size:.75rem">' + family + '</span>';
-  } else { tag.innerHTML = ''; }
-  applyFilters();
-  return false;
+  if (family!=='all') { var k=fkey(family); tag.innerHTML='<span class="tbadge" style="background:'+FB[k]+';color:'+fcolor(k)+';font-size:.75rem">'+family+'</span>'; }
+  else tag.innerHTML='';
+  applyFilters(); return false;
 }
-
 function filterType(ctype, el) {
   _ctype = ctype;
-  document.querySelectorAll('[data-ctype]').forEach(function(a) { a.classList.remove('active'); });
+  document.querySelectorAll('[data-ctype]').forEach(function(a){ a.classList.remove('active'); });
   if (el) el.classList.add('active');
-  applyFilters();
-  return false;
+  applyFilters(); return false;
 }
-
-/* ── Expand / Collapse All ─────────────────────────────────────────────── */
 function toggleExpandAll() {
   _expanded = !_expanded;
   document.getElementById('expand-all-btn').textContent = _expanded ? 'Collapse All' : 'Expand All';
   document.querySelectorAll('.accordion-collapse').forEach(function(el) {
-    var bsCollapse = bootstrap.Collapse.getOrCreateInstance(el, { toggle: false });
-    _expanded ? bsCollapse.show() : bsCollapse.hide();
+    bootstrap.Collapse.getOrCreateInstance(el,{toggle:false})[_expanded?'show':'hide']();
   });
 }
 
-/* ── Excel Download ────────────────────────────────────────────────────── */
+/* ── View switching ─────────────────────────────────────────────────────── */
+function showView(v) {
+  ['controls','docs','mapping'].forEach(function(n){
+    document.getElementById('view-'+n).style.display = n===v ? '' : 'none';
+    var t = document.getElementById('tab-'+n);
+    if (t) t.classList.toggle('active', n===v);
+  });
+}
+
+/* ── Mapping table ──────────────────────────────────────────────────────── */
+var MAPPING = [
+  ['5.1','Policies for information security','A.5.1.1, A.5.1.2','Merged'],
+  ['5.2','IS roles and responsibilities','A.6.1.1','Revised'],
+  ['5.3','Segregation of duties','A.6.1.2','Revised'],
+  ['5.4','Management responsibilities','A.7.2.1','Revised'],
+  ['5.5','Contact with authorities','A.6.1.3','Revised'],
+  ['5.6','Contact with special interest groups','A.6.1.4','Revised'],
+  ['5.7','Threat intelligence','—','NEW'],
+  ['5.8','IS in project management','A.6.1.5, A.14.1.1','Merged'],
+  ['5.9','Inventory of assets','A.8.1.1, A.8.1.2','Merged'],
+  ['5.10','Acceptable use of assets','A.8.1.3','Revised'],
+  ['5.11','Return of assets','A.8.1.4','Revised'],
+  ['5.12','Classification of information','A.8.2.1','Revised'],
+  ['5.13','Labelling of information','A.8.2.2','Revised'],
+  ['5.14','Information transfer','A.13.2.1, A.13.2.2, A.13.2.3','Merged'],
+  ['5.15','Access control','A.9.1.1, A.9.1.2','Merged'],
+  ['5.16','Identity management','A.9.2.1','Revised'],
+  ['5.17','Authentication information','A.9.2.4, A.9.3.1, A.9.4.3','Merged'],
+  ['5.18','Access rights','A.9.2.2, A.9.2.5, A.9.2.6','Merged'],
+  ['5.19','IS in supplier relationships','A.15.1.1','Revised'],
+  ['5.20','IS in supplier agreements','A.15.1.2','Revised'],
+  ['5.21','Managing IS in ICT supply chain','A.15.1.3','Revised'],
+  ['5.22','Monitoring of supplier services','A.15.2.1, A.15.2.2','Merged'],
+  ['5.23','IS for use of cloud services','—','NEW'],
+  ['5.24','IS incident management planning','A.16.1.1','Revised'],
+  ['5.25','Assessment of IS events','A.16.1.4','Revised'],
+  ['5.26','Response to IS incidents','A.16.1.5','Revised'],
+  ['5.27','Learning from IS incidents','A.16.1.6','Revised'],
+  ['5.28','Collection of evidence','A.16.1.7','Revised'],
+  ['5.29','IS during disruption','A.17.1.1, A.17.1.3','Merged'],
+  ['5.30','ICT readiness for BCM','—','NEW'],
+  ['5.31','Legal and regulatory requirements','A.18.1.1','Revised'],
+  ['5.32','Intellectual property rights','A.18.1.2','Revised'],
+  ['5.33','Protection of records','A.18.1.3','Revised'],
+  ['5.34','Privacy and protection of PII','A.18.1.4','Revised'],
+  ['5.35','Independent review of IS','A.18.2.1','Revised'],
+  ['5.36','Compliance with IS policies','A.18.2.2, A.18.2.3','Merged'],
+  ['5.37','Documented operating procedures','A.12.1.1','Revised'],
+  ['6.1','Screening','A.7.1.1','Revised'],
+  ['6.2','Terms and conditions of employment','A.7.1.2','Revised'],
+  ['6.3','IS awareness, education and training','A.7.2.2','Revised'],
+  ['6.4','Disciplinary process','A.7.2.3','Revised'],
+  ['6.5','Responsibilities after termination','A.7.3.1','Revised'],
+  ['6.6','Confidentiality or NDA agreements','A.13.2.4','Revised'],
+  ['6.7','Remote working','A.6.2.2','Revised'],
+  ['6.8','IS event reporting','A.16.1.2','Revised'],
+  ['7.1','Physical security perimeters','A.11.1.1','Revised'],
+  ['7.2','Physical entry','A.11.1.2, A.11.1.6','Merged'],
+  ['7.3','Securing offices, rooms and facilities','A.11.1.3','Revised'],
+  ['7.4','Physical security monitoring','—','NEW'],
+  ['7.5','Protecting against physical threats','A.11.1.4','Revised'],
+  ['7.6','Working in secure areas','A.11.1.5','Revised'],
+  ['7.7','Clear desk and clear screen','A.11.2.9','Revised'],
+  ['7.8','Equipment siting and protection','A.11.2.1','Revised'],
+  ['7.9','Security of assets off-premises','A.11.2.6','Revised'],
+  ['7.10','Storage media','A.8.3.1, A.8.3.2, A.8.3.3, A.11.2.5','Merged'],
+  ['7.11','Supporting utilities','A.11.2.2','Revised'],
+  ['7.12','Cabling security','A.11.2.3','Revised'],
+  ['7.13','Equipment maintenance','A.11.2.4','Revised'],
+  ['7.14','Secure disposal or re-use of equipment','A.11.2.7','Revised'],
+  ['8.1','User end point devices','A.6.2.1, A.11.2.8','Merged'],
+  ['8.2','Privileged access rights','A.9.2.3','Revised'],
+  ['8.3','Information access restriction','A.9.4.1','Revised'],
+  ['8.4','Access to source code','A.9.4.5','Revised'],
+  ['8.5','Secure authentication','A.9.4.2','Revised'],
+  ['8.6','Capacity management','A.12.1.3','Revised'],
+  ['8.7','Protection against malware','A.12.2.1','Revised'],
+  ['8.8','Management of technical vulnerabilities','A.12.6.1, A.18.2.3','Merged'],
+  ['8.9','Configuration management','—','NEW'],
+  ['8.10','Information deletion','—','NEW'],
+  ['8.11','Data masking','—','NEW'],
+  ['8.12','Data leakage prevention','—','NEW'],
+  ['8.13','Information backup','A.12.3.1','Revised'],
+  ['8.14','Redundancy of information processing','A.17.2.1','Revised'],
+  ['8.15','Logging','A.12.4.1, A.12.4.2, A.12.4.3','Merged'],
+  ['8.16','Monitoring activities','—','NEW'],
+  ['8.17','Clock synchronisation','A.12.4.4','Revised'],
+  ['8.18','Use of privileged utility programs','A.9.4.4','Revised'],
+  ['8.19','Installation of software on operational systems','A.12.5.1, A.12.6.2','Merged'],
+  ['8.20','Networks security','A.13.1.1','Revised'],
+  ['8.21','Security of network services','A.13.1.2','Revised'],
+  ['8.22','Segregation of networks','A.13.1.3','Revised'],
+  ['8.23','Web filtering','—','NEW'],
+  ['8.24','Use of cryptography','A.10.1.1, A.10.1.2','Merged'],
+  ['8.25','Secure development life cycle','A.14.2.1','Revised'],
+  ['8.26','Application security requirements','A.14.1.2, A.14.1.3','Merged'],
+  ['8.27','Secure system architecture and engineering','A.14.2.5','Revised'],
+  ['8.28','Secure coding','—','NEW'],
+  ['8.29','Security testing in development','A.14.2.8, A.14.2.9','Merged'],
+  ['8.30','Outsourced development','A.14.2.7','Revised'],
+  ['8.31','Separation of dev, test and production','A.12.1.4','Revised'],
+  ['8.32','Change management','A.12.1.2','Revised'],
+  ['8.33','Test information','A.14.3.1','Revised'],
+  ['8.34','Protection of IS during audit testing','A.12.7.1','Revised']
+];
+function renderMapping(rows) {
+  var tbody = document.getElementById('map-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = rows.map(function(r) {
+    var cls = {NEW:'map-new',Merged:'map-merged',Revised:'map-revised'}[r[3]]||'';
+    return '<tr><td class="fw-bold" style="font-family:monospace">'+r[0]+'</td><td>'+r[1]+'</td>'
+      +'<td class="text-secondary small">'+r[2]+'</td>'
+      +'<td><span class="'+cls+'">'+r[3]+'</span></td></tr>';
+  }).join('');
+}
+function filterMapping() {
+  var q = (document.getElementById('map-search').value||'').toLowerCase();
+  renderMapping(q ? MAPPING.filter(function(r){ return r[0].indexOf(q)!==-1||r[1].toLowerCase().indexOf(q)!==-1||r[2].toLowerCase().indexOf(q)!==-1||r[3].toLowerCase().indexOf(q)!==-1; }) : MAPPING);
+}
+
+/* ── Excel Downloads ────────────────────────────────────────────────────── */
 function downloadExcel() {
   var wb = XLSX.utils.book_new();
-  var FAMILIES = ['Organizational', 'People', 'Physical', 'Technological'];
-  var HEADER   = ['Control ID','Control Name','Family','Control Type','CIA Properties',
-                  'Description','Evidence Examples','Required Policies / Documents'];
-
-  /* All controls sheet */
-  var allRows = [HEADER];
+  var FAMILIES = ['Organizational','People','Physical','Technological'];
+  var H = ['Control ID','Control Name','Family','Control Type','CIA','Description','Evidence Examples','Required Policies','Implementation Tips','Common Audit Pitfalls','SOA Status','SOA Notes'];
+  var allRows = [H];
   CONTROLS.forEach(function(c) {
-    allRows.push([
-      c.id, c.name, c.family,
-      c.type.join(', '), c.cia.join(', '),
-      c.description,
-      c.evidence.join('\n• ').replace(/^/, '• '),
-      c.policies.join('\n• ').replace(/^/, '• ')
-    ]);
+    var tip = (window.TIPS && TIPS[c.id]) || {tips:[],pitfalls:[]};
+    var soa = soaGet(c.id);
+    allRows.push([c.id,c.name,c.family,c.type.join(', '),c.cia.join(', '),c.description,
+      c.evidence.join('\n• ').replace(/^/,'• '),c.policies.join('\n• ').replace(/^/,'• '),
+      tip.tips.join('\n• ').replace(/^/,tip.tips.length?'• ':''),
+      tip.pitfalls.join('\n• ').replace(/^/,tip.pitfalls.length?'• ':''),
+      soa.status, soa.notes]);
   });
   var ws0 = XLSX.utils.aoa_to_sheet(allRows);
-  ws0['!cols'] = [{wch:9},{wch:42},{wch:16},{wch:28},{wch:14},{wch:65},{wch:85},{wch:55}];
-  ws0['!freeze'] = { xSplit:0, ySplit:1, topLeftCell:'A2', activePane:'bottomLeft', state:'frozen' };
+  ws0['!cols']=[{wch:9},{wch:40},{wch:16},{wch:22},{wch:12},{wch:60},{wch:80},{wch:50},{wch:60},{wch:60},{wch:16},{wch:40}];
+  ws0['!freeze']={xSplit:0,ySplit:1,topLeftCell:'A2',activePane:'bottomLeft',state:'frozen'};
   XLSX.utils.book_append_sheet(wb, ws0, 'All Controls');
-
-  /* Per-family sheets */
   FAMILIES.forEach(function(fam) {
-    var rows = [['Control ID','Control Name','Control Type','CIA Properties','Description','Evidence Examples','Required Policies / Documents']];
-    CONTROLS.filter(function(c){ return c.family === fam; }).forEach(function(c) {
-      rows.push([
-        c.id, c.name,
-        c.type.join(', '), c.cia.join(', '),
-        c.description,
-        c.evidence.join('\n• ').replace(/^/, '• '),
-        c.policies.join('\n• ').replace(/^/, '• ')
-      ]);
+    var rows=[['Control ID','Control Name','Control Type','CIA','Description','Evidence','Policies','Tips','Pitfalls','SOA Status','SOA Notes']];
+    CONTROLS.filter(function(c){return c.family===fam;}).forEach(function(c){
+      var tip=(window.TIPS&&TIPS[c.id])||{tips:[],pitfalls:[]};
+      var soa=soaGet(c.id);
+      rows.push([c.id,c.name,c.type.join(', '),c.cia.join(', '),c.description,
+        c.evidence.join('\n• ').replace(/^/,'• '),c.policies.join('\n• ').replace(/^/,'• '),
+        tip.tips.join('\n• ').replace(/^/,tip.tips.length?'• ':''),
+        tip.pitfalls.join('\n• ').replace(/^/,tip.pitfalls.length?'• ':''),
+        soa.status,soa.notes]);
     });
-    var ws = XLSX.utils.aoa_to_sheet(rows);
-    ws['!cols'] = [{wch:9},{wch:42},{wch:28},{wch:14},{wch:65},{wch:85},{wch:55}];
-    ws['!freeze'] = { xSplit:0, ySplit:1, topLeftCell:'A2', activePane:'bottomLeft', state:'frozen' };
-    XLSX.utils.book_append_sheet(wb, ws, fam.substring(0,31));
+    var ws=XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols']=[{wch:9},{wch:40},{wch:22},{wch:12},{wch:60},{wch:80},{wch:50},{wch:60},{wch:60},{wch:16},{wch:40}];
+    ws['!freeze']={xSplit:0,ySplit:1,topLeftCell:'A2',activePane:'bottomLeft',state:'frozen'};
+    XLSX.utils.book_append_sheet(wb,ws,fam.substring(0,31));
   });
-
-  XLSX.writeFile(wb, 'ISO27001-27002-2022-Controls.xlsx');
+  XLSX.writeFile(wb,'ISO27001-27002-2022-Controls.xlsx');
+}
+function exportSOA() {
+  var wb = XLSX.utils.book_new();
+  var rows=[['Control ID','Control Name','Family','Control Type','CIA','SOA Status','Justification / Notes','Description']];
+  CONTROLS.forEach(function(c){
+    var soa=soaGet(c.id);
+    rows.push([c.id,c.name,c.family,c.type.join(', '),c.cia.join(', '),soa.status,soa.notes,c.description]);
+  });
+  var ws=XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols']=[{wch:9},{wch:40},{wch:16},{wch:22},{wch:12},{wch:18},{wch:55},{wch:65}];
+  ws['!freeze']={xSplit:0,ySplit:1,topLeftCell:'A2',activePane:'bottomLeft',state:'frozen'};
+  XLSX.utils.book_append_sheet(wb,ws,'Statement of Applicability');
+  XLSX.writeFile(wb,'ISO27001-SOA.xlsx');
 }
 
 /* ── Init ───────────────────────────────────────────────────────────────── */
+soaLoad();
+updateSoaBar();
 renderControls(CONTROLS);
+renderMapping(MAPPING);
 </script>
 </body>
 </html>
