@@ -95,22 +95,51 @@
     <section class="container py-3">
       <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="projects-grid">
 
-        <!-- Card 1: CMMC Compliance Tracker -->
-        <div class="col" data-tags="Compliance Security">
+        <!-- AI & ML Hub -->
+        <div class="col" data-tags="AI ML Machine Learning Deep Learning Reference">
           <div class="card h-100">
             <div class="card-body">
-              <h3 class="card-title h5">CMMC Compliance Tracker</h3>
-              <p class="card-text">Interactive objective-level compliance tracker for CMMC L2/L1 and ISO 27001 with SSP generation, evidence management, and donut chart dashboard.</p>
+              <h3 class="card-title h5">AI &amp; ML Hub</h3>
+              <p class="card-text">Complete reference for building your own AI — all major model architectures, training pipelines, optimizers, hyperparameter tuning, testing strategies, common pitfalls, and a step-by-step build guide. From linear regression to Transformers and diffusion models.</p>
+              <div class="d-flex flex-wrap gap-1 mt-2">
+                <span class="badge bg-primary" style="font-size:0.7rem">Deep Learning</span>
+                <span class="badge bg-success" style="font-size:0.7rem">PyTorch · scikit-learn</span>
+                <span class="badge bg-info text-dark" style="font-size:0.7rem">RSI · EMA · Momentum</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">Transformers · CNNs · GANs</span>
+                <span class="badge bg-warning text-dark" style="font-size:0.7rem">Complete Reference</span>
+              </div>
             </div>
             <div class="card-footer d-flex gap-2 flex-wrap">
-              <a href="compliancetracker.html" class="btn btn-sm btn-primary">Open Tracker</a>
+              <a href="aiml.html" class="btn btn-sm btn-primary">Open AI &amp; ML Hub</a>
+              <button class="btn btn-sm btn-outline-primary" data-role-min="editor" style="display:none">Edit</button>
+              <button class="btn btn-sm btn-outline-danger" data-role-min="admin" style="display:none">Delete</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Tool Evaluation Framework -->
+        <div class="col" data-tags="AI Compliance Security">
+          <div class="card h-100">
+            <div class="card-body">
+              <h3 class="card-title h5">AI Tool Evaluation Framework</h3>
+              <p class="card-text">Aerospace/defense-grade framework for vetting new AI tools — policy, 11-step evaluation process, interactive compliance checklist, risk assessment, digital vendor questionnaire, and a kanban pipeline tracker.</p>
+              <div class="d-flex flex-wrap gap-1 mt-2">
+                <span class="badge bg-secondary" style="font-size:0.7rem">CMMC 2.0</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">NIST 800-171</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">ISO 27001</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">DFARS 7012</span>
+                <span class="badge" style="background:rgba(255,88,17,0.2);color:var(--bs-primary);font-size:0.7rem;border:1px solid rgba(255,88,17,0.3)">Aerospace</span>
+              </div>
+            </div>
+            <div class="card-footer d-flex gap-2 flex-wrap">
+              <a href="aitool/index.html" class="btn btn-sm btn-primary">Open Framework</a>
               <button class="btn btn-sm btn-outline-warning" data-role-min="editor" style="display:none">Edit</button>
               <button class="btn btn-sm btn-outline-danger" data-role-min="admin" style="display:none">Delete</button>
             </div>
           </div>
         </div>
 
-        <!-- Card 2: ATS Resume Screener -->
+        <!-- ATS Resume Screener -->
         <div class="col" data-tags="AI">
           <div class="card h-100">
             <div class="card-body">
@@ -125,82 +154,29 @@
           </div>
         </div>
 
-        <!-- Card 3: Portfolio Website -->
-        <div class="col" data-tags="DevOps">
+        <!-- Budget Manager -->
+        <div class="col" data-tags="Finance">
           <div class="card h-100">
             <div class="card-body">
-              <h3 class="card-title h5">Portfolio Website</h3>
-              <p class="card-text">This responsive portfolio showcasing cybersecurity expertise, career timeline, and projects — built with Bootstrap 5.3 and vanilla JS.</p>
-            </div>
-            <div class="card-footer d-flex gap-2 flex-wrap">
-              <a href="index.html" class="btn btn-sm btn-primary">View Portfolio</a>
-              <button class="btn btn-sm btn-outline-warning" data-role-min="editor" style="display:none">Edit</button>
-              <button class="btn btn-sm btn-outline-danger" data-role-min="admin" style="display:none">Delete</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card 4: Cybersecurity Policy Toolkit -->
-        <div class="col" data-tags="Security Compliance">
-          <div class="card h-100">
-            <div class="card-body">
-              <h3 class="card-title h5">Cybersecurity Policy Toolkit</h3>
-              <p class="card-text">A curated set of policy templates aligned with NIST, CMMC, and ISO frameworks for defense contractors.</p>
-            </div>
-            <div class="card-footer d-flex gap-2 flex-wrap">
-              <a href="cybersecurity.html" class="btn btn-sm btn-primary">View Toolkit</a>
-              <button class="btn btn-sm btn-outline-warning" data-role-min="editor" style="display:none">Edit</button>
-              <button class="btn btn-sm btn-outline-danger" data-role-min="admin" style="display:none">Delete</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card 5: Data Analysis Dashboard -->
-        <div class="col" data-tags="AI DevOps">
-          <div class="card h-100">
-            <div class="card-body">
-              <h3 class="card-title h5">Data Analysis Dashboard</h3>
-              <p class="card-text">Executive-grade analytics platform — KPI strip with delta% and goal attainment, AI-generated insights bar, 9 chart types with trend lines, forecasting, and goal overlays. 1/2/3-column grid layout, print-ready boardroom output, and 10 color themes.</p>
+              <h3 class="card-title h5">Budget Manager</h3>
+              <p class="card-text">Household budget tracker — log bills with min vs actual payments, add multiple wage earners, and auto-distribute remaining money by salary proportion, equal split, or manual %. Includes 5 charts, overdue alerts, priority tracking, and JSON export.</p>
               <div class="d-flex flex-wrap gap-1 mt-2">
+                <span class="badge bg-secondary" style="font-size:0.7rem">Bills</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">Wages</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">Distribution</span>
                 <span class="badge bg-secondary" style="font-size:0.7rem">Chart.js</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">9 Chart Types</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">KPI Strip</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">AI Insights</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">Goal Lines</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">Print Ready</span>
-                <span class="badge" style="background:rgba(255,88,17,0.2);color:var(--bs-primary);font-size:0.7rem;border:1px solid rgba(255,88,17,0.3)">Login Required</span>
+                <span class="badge" style="background:rgba(255,88,17,0.2);color:var(--bs-primary);font-size:0.7rem;border:1px solid rgba(255,88,17,0.3)">Finance</span>
               </div>
             </div>
             <div class="card-footer d-flex gap-2 flex-wrap">
-              <a href="dataanalysis.html" class="btn btn-sm btn-primary">Open Dashboard</a>
+              <a href="budgetmanager.html" class="btn btn-sm btn-primary">Open Budget Manager</a>
               <button class="btn btn-sm btn-outline-warning" data-role-min="editor" style="display:none">Edit</button>
               <button class="btn btn-sm btn-outline-danger" data-role-min="admin" style="display:none">Delete</button>
             </div>
           </div>
         </div>
 
-        <!-- Card 6: Unified Compliance Framework -->
-        <div class="col" data-tags="Compliance Security">
-          <div class="card h-100">
-            <div class="card-body">
-              <h3 class="card-title h5">Unified Compliance Framework</h3>
-              <p class="card-text">Cross-maps and tracks ISO 27001:2022, CMMC Level 1, and CMMC Level 2 controls in one place — with gap analysis, control mapping, and CSV export.</p>
-              <div class="d-flex flex-wrap gap-1 mt-2">
-                <span class="badge bg-secondary" style="font-size:0.7rem">ISO 27001</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">CMMC L1</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">CMMC L2</span>
-                <span class="badge" style="background:rgba(255,88,17,0.2);color:var(--bs-primary);font-size:0.7rem;border:1px solid rgba(255,88,17,0.3)">220 Controls</span>
-              </div>
-            </div>
-            <div class="card-footer d-flex gap-2 flex-wrap">
-              <a href="unifiedcompliance.html" class="btn btn-sm btn-primary">Open Framework</a>
-              <button class="btn btn-sm btn-outline-warning" data-role-min="editor" style="display:none">Edit</button>
-              <button class="btn btn-sm btn-outline-danger" data-role-min="admin" style="display:none">Delete</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card 15: Business Insight Dashboard -->
+        <!-- Business Insight Dashboard -->
         <div class="col" data-tags="AI DevOps">
           <div class="card h-100">
             <div class="card-body">
@@ -221,7 +197,7 @@
           </div>
         </div>
 
-        <!-- Card 14: CMMC Compliance Agent -->
+        <!-- CMMC 2.0 Compliance Agent -->
         <div class="col" data-tags="AI Compliance Security">
           <div class="card h-100">
             <div class="card-body">
@@ -242,73 +218,67 @@
           </div>
         </div>
 
-        <!-- Card 11: Digital Twin -->
-        <div class="col" data-tags="Security Compliance">
+        <!-- CMMC Compliance Tracker -->
+        <div class="col" data-tags="Compliance Security">
           <div class="card h-100">
             <div class="card-body">
-              <h3 class="card-title h5">Digital Twin — Enterprise Security</h3>
-              <p class="card-text">Interactive visual map of an entire security program — assets, systems, users, controls, trust zones, risks, incidents, and evidence rendered as a live graph. Click any node to drill into relationships, coverage metrics, and open issues. Focus mode, search, type filters, and PNG export.</p>
-              <div class="d-flex flex-wrap gap-1 mt-2">
-                <span class="badge bg-secondary" style="font-size:0.7rem">Cytoscape.js</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">Graph Visualization</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">CMMC</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">Risk Mapping</span>
-                <span class="badge" style="background:rgba(255,88,17,0.2);color:var(--bs-primary);font-size:0.7rem;border:1px solid rgba(255,88,17,0.3)">Security Architecture</span>
-              </div>
+              <h3 class="card-title h5">CMMC Compliance Tracker</h3>
+              <p class="card-text">Interactive objective-level compliance tracker for CMMC L2/L1 and ISO 27001 with SSP generation, evidence management, and donut chart dashboard.</p>
             </div>
             <div class="card-footer d-flex gap-2 flex-wrap">
-              <a href="digitaltwin.html" class="btn btn-sm btn-primary">Open Digital Twin</a>
+              <a href="compliancetracker.html" class="btn btn-sm btn-primary">Open Tracker</a>
               <button class="btn btn-sm btn-outline-warning" data-role-min="editor" style="display:none">Edit</button>
-              <button class="btn btn-sm btn-outline-danger"  data-role-min="admin"  style="display:none">Delete</button>
+              <button class="btn btn-sm btn-outline-danger" data-role-min="admin" style="display:none">Delete</button>
             </div>
           </div>
         </div>
 
-        <!-- Card 13: Secure Architecture Builder -->
-        <div class="col" data-tags="Security Compliance">
+        <!-- CMMI v2.0 DEV Level 3 Framework -->
+        <div class="col" data-tags="CMMI Compliance Framework">
           <div class="card h-100">
             <div class="card-body">
-              <h3 class="card-title h5">Secure Architecture Builder</h3>
-              <p class="card-text">Drag-and-drop canvas for designing secure environments with 30+ components: users, BYOD, VPN, firewalls, SIEM, MFA, DLP, PAM, cloud services, and more. Analysis engine detects unencrypted data paths, missing controls, trust boundary violations, and compliance gaps with NIST and CMMC mapping.</p>
+              <h3 class="card-title h5">CMMI v2.0 DEV Level 3 Framework</h3>
+              <p class="card-text">Complete CMMI v2.0 for Development Maturity Level 3 reference — all 19 Practice Areas, 126 Practices with evidence requirements per PA. Filter by PA, level, or category. Download a 7-tab Excel workbook including an Evidence Guide for appraisal readiness.</p>
               <div class="d-flex flex-wrap gap-1 mt-2">
-                <span class="badge bg-secondary" style="font-size:0.7rem">Drag &amp; Drop</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">Threat Modeling</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">CMMC</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">NIST 800-171</span>
-                <span class="badge" style="background:rgba(255,88,17,0.2);color:var(--bs-primary);font-size:0.7rem;border:1px solid rgba(255,88,17,0.3)">Security Architecture</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">CMMI v2.0</span>
+                <span class="badge bg-success" style="font-size:0.7rem">ML3</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">19 Practice Areas</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">126 Practices</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">Excel Export</span>
               </div>
             </div>
             <div class="card-footer d-flex gap-2 flex-wrap">
-              <a href="securebuilder.html" class="btn btn-sm btn-primary">Open Builder</a>
+              <a href="cmmidev3.html" class="btn btn-sm btn-primary">Open Framework</a>
               <button class="btn btn-sm btn-outline-warning" data-role-min="editor" style="display:none">Edit</button>
-              <button class="btn btn-sm btn-outline-danger"  data-role-min="admin"  style="display:none">Delete</button>
+              <button class="btn btn-sm btn-outline-danger" data-role-min="admin" style="display:none">Delete</button>
             </div>
           </div>
         </div>
 
-        <!-- Card 12: Career Command Center -->
-        <div class="col" data-tags="Security AI">
+        <!-- Code Builder -->
+        <div class="col" data-tags="DevOps">
           <div class="card h-100">
             <div class="card-body">
-              <h3 class="card-title h5">Cybersecurity Career Command Center</h3>
-              <p class="card-text">Interactive career planning platform for cybersecurity professionals. Pick a current and target role (e.g. SOC Analyst → Security Architect) and get a BFS-generated career path, recommended certifications, skill gap analysis, salary progression charts, and a hands-on lab project tracker.</p>
+              <h3 class="card-title h5">Code Builder</h3>
+              <p class="card-text">In-browser code playground with Monaco Editor, live HTML/CSS/JS preview, JavaScript console, JSON formatter, Markdown renderer, and Python execution — save named snippets, drag-resize panes, auto-run on keypress.</p>
               <div class="d-flex flex-wrap gap-1 mt-2">
-                <span class="badge bg-secondary" style="font-size:0.7rem">Chart.js</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">Career Planning</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">25+ Certifications</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">20 Lab Projects</span>
-                <span class="badge" style="background:rgba(255,88,17,0.2);color:var(--bs-primary);font-size:0.7rem;border:1px solid rgba(255,88,17,0.3)">Skill Radar</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">JavaScript</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">HTML/CSS/JS</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">Python</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">JSON</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">Markdown</span>
+                <span class="badge" style="background:rgba(255,88,17,0.2);color:var(--bs-primary);font-size:0.7rem;border:1px solid rgba(255,88,17,0.3)">Monaco IDE</span>
               </div>
             </div>
             <div class="card-footer d-flex gap-2 flex-wrap">
-              <a href="careercenter.html" class="btn btn-sm btn-primary">Open Career Center</a>
+              <a href="codebuilder.html" class="btn btn-sm btn-primary">Open Playground</a>
               <button class="btn btn-sm btn-outline-warning" data-role-min="editor" style="display:none">Edit</button>
-              <button class="btn btn-sm btn-outline-danger"  data-role-min="admin"  style="display:none">Delete</button>
+              <button class="btn btn-sm btn-outline-danger" data-role-min="admin" style="display:none">Delete</button>
             </div>
           </div>
         </div>
 
-        <!-- Card 10: Compliance Copilot -->
+        <!-- Compliance Copilot -->
         <div class="col" data-tags="Compliance AI DevOps">
           <div class="card h-100">
             <div class="card-body">
@@ -332,45 +302,305 @@
           </div>
         </div>
 
-        <!-- Card 9: Budget Manager -->
-        <div class="col" data-tags="Finance">
+        <!-- Crypto Trading Signals -->
+        <div class="col" data-tags="Finance Crypto Trading Dashboard">
           <div class="card h-100">
             <div class="card-body">
-              <h3 class="card-title h5">Budget Manager</h3>
-              <p class="card-text">Household budget tracker — log bills with min vs actual payments, add multiple wage earners, and auto-distribute remaining money by salary proportion, equal split, or manual %. Includes 5 charts, overdue alerts, priority tracking, and JSON export.</p>
+              <h3 class="card-title h5">Crypto Trading Signals</h3>
+              <p class="card-text">Live technical analysis dashboard for 8 major cryptocurrencies — RSI, EMA crossover, and momentum signals. Pulls real-time prices from CoinGecko with Fear &amp; Greed Index. Auto-refreshes every 2 minutes with buy/hold/sell guidance.</p>
               <div class="d-flex flex-wrap gap-1 mt-2">
-                <span class="badge bg-secondary" style="font-size:0.7rem">Bills</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">Wages</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">Distribution</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">Chart.js</span>
-                <span class="badge" style="background:rgba(255,88,17,0.2);color:var(--bs-primary);font-size:0.7rem;border:1px solid rgba(255,88,17,0.3)">Finance</span>
+                <span class="badge bg-warning text-dark" style="font-size:0.7rem">Live Prices</span>
+                <span class="badge bg-success" style="font-size:0.7rem">RSI · EMA · Momentum</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">BTC · ETH · SOL · more</span>
+                <span class="badge bg-primary" style="font-size:0.7rem">CoinGecko API</span>
               </div>
             </div>
             <div class="card-footer d-flex gap-2 flex-wrap">
-              <a href="budgetmanager.html" class="btn btn-sm btn-primary">Open Budget Manager</a>
+              <a href="cryptosignals.html" class="btn btn-sm btn-warning text-dark">Open Signals</a>
+              <button class="btn btn-sm btn-outline-warning" data-role-min="editor" style="display:none">Edit</button>
+              <button class="btn btn-sm btn-outline-danger" data-role-min="admin" style="display:none">Delete</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cybersecurity Career Command Center -->
+        <div class="col" data-tags="Security AI">
+          <div class="card h-100">
+            <div class="card-body">
+              <h3 class="card-title h5">Cybersecurity Career Command Center</h3>
+              <p class="card-text">Interactive career planning platform for cybersecurity professionals. Pick a current and target role (e.g. SOC Analyst → Security Architect) and get a BFS-generated career path, recommended certifications, skill gap analysis, salary progression charts, and a hands-on lab project tracker.</p>
+              <div class="d-flex flex-wrap gap-1 mt-2">
+                <span class="badge bg-secondary" style="font-size:0.7rem">Chart.js</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">Career Planning</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">25+ Certifications</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">20 Lab Projects</span>
+                <span class="badge" style="background:rgba(255,88,17,0.2);color:var(--bs-primary);font-size:0.7rem;border:1px solid rgba(255,88,17,0.3)">Skill Radar</span>
+              </div>
+            </div>
+            <div class="card-footer d-flex gap-2 flex-wrap">
+              <a href="careercenter.html" class="btn btn-sm btn-primary">Open Career Center</a>
               <button class="btn btn-sm btn-outline-warning" data-role-min="editor" style="display:none">Edit</button>
               <button class="btn btn-sm btn-outline-danger"  data-role-min="admin"  style="display:none">Delete</button>
             </div>
           </div>
         </div>
 
-        <!-- Card 8: Code Builder -->
-        <div class="col" data-tags="DevOps">
+        <!-- Cybersecurity Policy Toolkit -->
+        <div class="col" data-tags="Security Compliance">
           <div class="card h-100">
             <div class="card-body">
-              <h3 class="card-title h5">Code Builder</h3>
-              <p class="card-text">In-browser code playground with Monaco Editor, live HTML/CSS/JS preview, JavaScript console, JSON formatter, Markdown renderer, and Python execution — save named snippets, drag-resize panes, auto-run on keypress.</p>
+              <h3 class="card-title h5">Cybersecurity Policy Toolkit</h3>
+              <p class="card-text">A curated set of policy templates aligned with NIST, CMMC, and ISO frameworks for defense contractors.</p>
+            </div>
+            <div class="card-footer d-flex gap-2 flex-wrap">
+              <a href="cybersecurity.html" class="btn btn-sm btn-primary">View Toolkit</a>
+              <button class="btn btn-sm btn-outline-warning" data-role-min="editor" style="display:none">Edit</button>
+              <button class="btn btn-sm btn-outline-danger" data-role-min="admin" style="display:none">Delete</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Data Analysis Dashboard -->
+        <div class="col" data-tags="AI DevOps">
+          <div class="card h-100">
+            <div class="card-body">
+              <h3 class="card-title h5">Data Analysis Dashboard</h3>
+              <p class="card-text">Executive-grade analytics platform — KPI strip with delta% and goal attainment, AI-generated insights bar, 9 chart types with trend lines, forecasting, and goal overlays. 1/2/3-column grid layout, print-ready boardroom output, and 10 color themes.</p>
               <div class="d-flex flex-wrap gap-1 mt-2">
-                <span class="badge bg-secondary" style="font-size:0.7rem">JavaScript</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">HTML/CSS/JS</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">Python</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">JSON</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">Markdown</span>
-                <span class="badge" style="background:rgba(255,88,17,0.2);color:var(--bs-primary);font-size:0.7rem;border:1px solid rgba(255,88,17,0.3)">Monaco IDE</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">Chart.js</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">9 Chart Types</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">KPI Strip</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">AI Insights</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">Goal Lines</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">Print Ready</span>
+                <span class="badge" style="background:rgba(255,88,17,0.2);color:var(--bs-primary);font-size:0.7rem;border:1px solid rgba(255,88,17,0.3)">Login Required</span>
               </div>
             </div>
             <div class="card-footer d-flex gap-2 flex-wrap">
-              <a href="codebuilder.html" class="btn btn-sm btn-primary">Open Playground</a>
+              <a href="dataanalysis.html" class="btn btn-sm btn-primary">Open Dashboard</a>
+              <button class="btn btn-sm btn-outline-warning" data-role-min="editor" style="display:none">Edit</button>
+              <button class="btn btn-sm btn-outline-danger" data-role-min="admin" style="display:none">Delete</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Digital Twin — Enterprise Security -->
+        <div class="col" data-tags="Security Compliance">
+          <div class="card h-100">
+            <div class="card-body">
+              <h3 class="card-title h5">Digital Twin — Enterprise Security</h3>
+              <p class="card-text">Interactive visual map of an entire security program — assets, systems, users, controls, trust zones, risks, incidents, and evidence rendered as a live graph. Click any node to drill into relationships, coverage metrics, and open issues. Focus mode, search, type filters, and PNG export.</p>
+              <div class="d-flex flex-wrap gap-1 mt-2">
+                <span class="badge bg-secondary" style="font-size:0.7rem">Cytoscape.js</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">Graph Visualization</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">CMMC</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">Risk Mapping</span>
+                <span class="badge" style="background:rgba(255,88,17,0.2);color:var(--bs-primary);font-size:0.7rem;border:1px solid rgba(255,88,17,0.3)">Security Architecture</span>
+              </div>
+            </div>
+            <div class="card-footer d-flex gap-2 flex-wrap">
+              <a href="digitaltwin.html" class="btn btn-sm btn-primary">Open Digital Twin</a>
+              <button class="btn btn-sm btn-outline-warning" data-role-min="editor" style="display:none">Edit</button>
+              <button class="btn btn-sm btn-outline-danger"  data-role-min="admin"  style="display:none">Delete</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- FitTrack — Workout Tracker -->
+        <div class="col">
+          <div class="card h-100">
+            <div class="card-body">
+              <h3 class="card-title h5">FitTrack — Workout Tracker</h3>
+              <p class="card-text">Native SwiftUI app for iOS and macOS. Start and log workouts with a live timer, track sets with weight and reps, and browse 65+ built-in exercises filtered by muscle group or equipment. Workout history grouped by month, streak tracking, and full SwiftData persistence.</p>
+              <div class="d-flex flex-wrap gap-1 mt-2">
+                <span class="badge bg-secondary" style="font-size:0.7rem">Swift</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">SwiftUI</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">SwiftData</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">iOS 17+</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">macOS 14+</span>
+                <span class="badge" style="background:rgba(255,88,17,0.2);color:var(--bs-primary);font-size:0.7rem;border:1px solid rgba(255,88,17,0.3)">Multiplatform</span>
+              </div>
+            </div>
+            <div class="card-footer d-flex gap-2 flex-wrap">
+              <a href="https://github.com/jessicarojas1/FitTrack" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary">View Source</a>
+              <button class="btn btn-sm btn-outline-warning" data-role-min="editor" style="display:none">Edit</button>
+              <button class="btn btn-sm btn-outline-danger" data-role-min="admin" style="display:none">Delete</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- GolfTrack — Scorecard, Handicap, Watch & Club AI -->
+        <div class="col">
+          <div class="card h-100">
+            <div class="card-body">
+              <h3 class="card-title h5">GolfTrack — Scorecard, Handicap, Watch &amp; Club AI</h3>
+              <p class="card-text">Native SwiftUI app for iOS, macOS, and Apple Watch. GPS-powered nearby course search, live hole-by-hole scorecard with strokes, putts, fairways, and GIR. Apple Watch companion lets you score from your wrist via WatchConnectivity. Garmin Connect IQ companion in Monkey C. In-round music mini-player for Apple Music, Spotify, YouTube Music, Amazon Music, and Tidal. Club recommendation engine suggests which club to hit based on hole yardage — enter your own carry distances or choose a Beginner/Intermediate/Advanced/Masters preset. Built-in USGA/R&amp;A rules reference covering scoring, teeing, penalty areas, the green, penalties, and etiquette. Automatic WHS handicap index and stats dashboard.</p>
+              <div class="d-flex flex-wrap gap-1 mt-2">
+                <span class="badge bg-secondary" style="font-size:0.7rem">Swift</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">SwiftUI</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">SwiftData</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">watchOS</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">WatchConnectivity</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">MediaPlayer</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">MapKit</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">iOS 17+</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">macOS 14+</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">Club Recs</span>
+                <span class="badge" style="background:rgba(255,88,17,0.2);color:var(--bs-primary);font-size:0.7rem;border:1px solid rgba(255,88,17,0.3)">Golf</span>
+              </div>
+            </div>
+            <div class="card-footer d-flex gap-2 flex-wrap">
+              <a href="https://github.com/jessicarojas1/jessicarojas1.github.io/tree/main/GolfTrack" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary">View Source</a>
+              <button class="btn btn-sm btn-outline-warning" data-role-min="editor" style="display:none">Edit</button>
+              <button class="btn btn-sm btn-outline-danger" data-role-min="admin" style="display:none">Delete</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ISO 27001/27002:2022 Controls Reference -->
+        <div class="col" data-tags="Compliance Security">
+          <div class="card h-100">
+            <div class="card-body">
+              <h3 class="card-title h5">ISO 27001/27002:2022 Controls Reference</h3>
+              <p class="card-text">Interactive reference for all 93 ISO/IEC 27001:2022 Annex A controls — filter by theme, type, and security attribute. Includes implementation guidance, evidence checklists, and a compliance tracker.</p>
+              <div class="d-flex flex-wrap gap-1 mt-2">
+                <span class="badge bg-secondary" style="font-size:0.7rem">ISO 27001</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">ISO 27002</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">93 Controls</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">4 Themes</span>
+                <span class="badge" style="background:rgba(255,88,17,0.2);color:var(--bs-primary);font-size:0.7rem;border:1px solid rgba(255,88,17,0.3)">ISMS</span>
+              </div>
+            </div>
+            <div class="card-footer d-flex gap-2 flex-wrap">
+              <a href="iso27001.html" class="btn btn-sm btn-primary">Open Reference</a>
+              <button class="btn btn-sm btn-outline-warning" data-role-min="editor" style="display:none">Edit</button>
+              <button class="btn btn-sm btn-outline-danger" data-role-min="admin" style="display:none">Delete</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ISO 42001:2023 AI Management System Reference -->
+        <div class="col" data-tags="AI Compliance Security">
+          <div class="card h-100">
+            <div class="card-body">
+              <h3 class="card-title h5">ISO 42001:2023 AI Management System Reference</h3>
+              <p class="card-text">Interactive reference for ISO/IEC 42001:2023 Annex A controls — AI governance framework with 34 controls across 9 domains. Filter by AI principle, control type, and family. Includes implementation tips, evidence checklists, and EU AI Act alignment mapping.</p>
+              <div class="d-flex flex-wrap gap-1 mt-2">
+                <span class="badge bg-secondary" style="font-size:0.7rem">ISO 42001</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">AI Governance</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">34 Controls</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">EU AI Act</span>
+                <span class="badge" style="background:rgba(255,88,17,0.2);color:var(--bs-primary);font-size:0.7rem;border:1px solid rgba(255,88,17,0.3)">AIMS</span>
+              </div>
+            </div>
+            <div class="card-footer d-flex gap-2 flex-wrap">
+              <a href="iso42001.html" class="btn btn-sm btn-primary">Open Reference</a>
+              <button class="btn btn-sm btn-outline-warning" data-role-min="editor" style="display:none">Edit</button>
+              <button class="btn btn-sm btn-outline-danger" data-role-min="admin" style="display:none">Delete</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mail Unsubscriber -->
+        <div class="col">
+          <div class="card h-100">
+            <div class="card-body">
+              <h3 class="card-title h5">Mail Unsubscriber</h3>
+              <p class="card-text">Native macOS app that connects to any IMAP email account, scans your spam/junk folder for RFC 2369 <code>List-Unsubscribe</code> headers, and bulk-unsubscribes you from senders with one click. Supports RFC 8058 one-click POST, mailto: fallback, and secure Keychain password storage.</p>
+              <div class="d-flex flex-wrap gap-1 mt-2">
+                <span class="badge bg-secondary" style="font-size:0.7rem">Swift</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">SwiftUI</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">macOS</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">IMAP</span>
+                <span class="badge" style="background:rgba(255,88,17,0.2);color:var(--bs-primary);font-size:0.7rem;border:1px solid rgba(255,88,17,0.3)">Xcode</span>
+              </div>
+            </div>
+            <div class="card-footer d-flex gap-2 flex-wrap">
+              <a href="https://github.com/jessicarojas1/MailUnsubscriber" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary">View Source</a>
+              <button class="btn btn-sm btn-outline-warning" data-role-min="editor" style="display:none">Edit</button>
+              <button class="btn btn-sm btn-outline-danger" data-role-min="admin" style="display:none">Delete</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- PickleTrack — Pickleball Scorekeeper & Stats -->
+        <div class="col">
+          <div class="card h-100">
+            <div class="card-body">
+              <h3 class="card-title h5">PickleTrack — Pickleball Scorekeeper &amp; Stats</h3>
+              <p class="card-text">Native SwiftUI app for iOS and macOS targeting the 36M+ US pickleball players. Full side-out scoring with first-serve rule and server rotation for doubles, automatic score announcement display ("3-2-1"), one-tap undo, and match history. Stats dashboard with win rate, win streak, avg points, and a last-10-results chart. GPS-powered nearby court finder via MapKit. Built-in rules reference covering scoring, serving, the kitchen (NVZ), faults, and match formats — great for beginners. Flexible format: singles or doubles, to 11/15/21, best of 1/3/5. SwiftData persistence.</p>
+              <div class="d-flex flex-wrap gap-1 mt-2">
+                <span class="badge bg-secondary" style="font-size:0.7rem">Swift</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">SwiftUI</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">SwiftData</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">MapKit</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">iOS 17+</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">macOS 14+</span>
+                <span class="badge" style="background:rgba(255,88,17,0.2);color:var(--bs-primary);font-size:0.7rem;border:1px solid rgba(255,88,17,0.3)">Pickleball</span>
+              </div>
+            </div>
+            <div class="card-footer d-flex gap-2 flex-wrap">
+              <a href="https://github.com/jessicarojas1/jessicarojas1.github.io/tree/main/PickleTrack" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary">View Source</a>
+              <button class="btn btn-sm btn-outline-warning" data-role-min="editor" style="display:none">Edit</button>
+              <button class="btn btn-sm btn-outline-danger" data-role-min="admin" style="display:none">Delete</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Portfolio Website -->
+        <div class="col" data-tags="DevOps">
+          <div class="card h-100">
+            <div class="card-body">
+              <h3 class="card-title h5">Portfolio Website</h3>
+              <p class="card-text">This responsive portfolio showcasing cybersecurity expertise, career timeline, and projects — built with Bootstrap 5.3 and vanilla JS.</p>
+            </div>
+            <div class="card-footer d-flex gap-2 flex-wrap">
+              <a href="index.html" class="btn btn-sm btn-primary">View Portfolio</a>
+              <button class="btn btn-sm btn-outline-warning" data-role-min="editor" style="display:none">Edit</button>
+              <button class="btn btn-sm btn-outline-danger" data-role-min="admin" style="display:none">Delete</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- QuickRisk — Cybersecurity Assessment SaaS -->
+        <div class="col">
+          <div class="card h-100">
+            <div class="card-body">
+              <h3 class="card-title h5">QuickRisk — Cybersecurity Assessment SaaS</h3>
+              <p class="card-text">CMMC 2.0 &amp; NIST 800-171 risk assessment platform for defense contractors. Answer 65 questions across 11 security domains, get an instant risk score and prioritized remediation roadmap. Stripe-powered subscriptions at $49/mo (Pro) and $149/mo (Business). Deploy-ready on Render.</p>
+              <div class="d-flex flex-wrap gap-1 mt-2">
+                <span class="badge bg-secondary" style="font-size:0.7rem">Python</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">Flask</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">CMMC 2.0</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">NIST 800-171</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">Stripe</span>
+                <span class="badge" style="background:rgba(255,88,17,0.2);color:var(--bs-primary);font-size:0.7rem;border:1px solid rgba(255,88,17,0.3)">SaaS</span>
+              </div>
+            </div>
+            <div class="card-footer d-flex gap-2 flex-wrap">
+              <a href="https://github.com/jessicarojas1/QuickRisk" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary">View Source</a>
+              <button class="btn btn-sm btn-outline-warning" data-role-min="editor" style="display:none">Edit</button>
+              <button class="btn btn-sm btn-outline-danger" data-role-min="admin" style="display:none">Delete</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Secure Architecture Builder -->
+        <div class="col" data-tags="Security Compliance">
+          <div class="card h-100">
+            <div class="card-body">
+              <h3 class="card-title h5">Secure Architecture Builder</h3>
+              <p class="card-text">Drag-and-drop canvas for designing secure environments with 30+ components: users, BYOD, VPN, firewalls, SIEM, MFA, DLP, PAM, cloud services, and more. Analysis engine detects unencrypted data paths, missing controls, trust boundary violations, and compliance gaps with NIST and CMMC mapping.</p>
+              <div class="d-flex flex-wrap gap-1 mt-2">
+                <span class="badge bg-secondary" style="font-size:0.7rem">Drag &amp; Drop</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">Threat Modeling</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">CMMC</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">NIST 800-171</span>
+                <span class="badge" style="background:rgba(255,88,17,0.2);color:var(--bs-primary);font-size:0.7rem;border:1px solid rgba(255,88,17,0.3)">Security Architecture</span>
+              </div>
+            </div>
+            <div class="card-footer d-flex gap-2 flex-wrap">
+              <a href="securebuilder.html" class="btn btn-sm btn-primary">Open Builder</a>
               <button class="btn btn-sm btn-outline-warning" data-role-min="editor" style="display:none">Edit</button>
               <button class="btn btn-sm btn-outline-danger"  data-role-min="admin"  style="display:none">Delete</button>
             </div>
@@ -398,207 +628,21 @@
           </div>
         </div>
 
-        <!-- GolfTrack: iOS + macOS golf scorecard & handicap tracker -->
-        <div class="col">
+        <!-- Unified Compliance Framework -->
+        <div class="col" data-tags="Compliance Security">
           <div class="card h-100">
             <div class="card-body">
-              <h3 class="card-title h5">GolfTrack — Scorecard, Handicap, Watch &amp; Club AI</h3>
-              <p class="card-text">Native SwiftUI app for iOS, macOS, and Apple Watch. GPS-powered nearby course search, live hole-by-hole scorecard with strokes, putts, fairways, and GIR. Apple Watch companion lets you score from your wrist via WatchConnectivity. Garmin Connect IQ companion in Monkey C. In-round music mini-player for Apple Music, Spotify, YouTube Music, Amazon Music, and Tidal. Club recommendation engine suggests which club to hit based on hole yardage — enter your own carry distances or choose a Beginner/Intermediate/Advanced/Masters preset. Built-in USGA/R&A rules reference covering scoring, teeing, penalty areas, the green, penalties, and etiquette. Automatic WHS handicap index and stats dashboard.</p>
+              <h3 class="card-title h5">Unified Compliance Framework</h3>
+              <p class="card-text">Cross-maps and tracks ISO 27001:2022, CMMC Level 1, and CMMC Level 2 controls in one place — with gap analysis, control mapping, and CSV export.</p>
               <div class="d-flex flex-wrap gap-1 mt-2">
-                <span class="badge bg-secondary" style="font-size:0.7rem">Swift</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">SwiftUI</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">SwiftData</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">watchOS</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">WatchConnectivity</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">MediaPlayer</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">MapKit</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">iOS 17+</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">macOS 14+</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">Club Recs</span>
-                <span class="badge" style="background:rgba(255,88,17,0.2);color:var(--bs-primary);font-size:0.7rem;border:1px solid rgba(255,88,17,0.3)">Golf</span>
-              </div>
-            </div>
-            <div class="card-footer d-flex gap-2 flex-wrap">
-              <a href="https://github.com/jessicarojas1/jessicarojas1.github.io/tree/main/GolfTrack" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary">View Source</a>
-              <button class="btn btn-sm btn-outline-warning" data-role-min="editor" style="display:none">Edit</button>
-              <button class="btn btn-sm btn-outline-danger" data-role-min="admin" style="display:none">Delete</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- PickleTrack: pickleball scoring & stats -->
-        <div class="col">
-          <div class="card h-100">
-            <div class="card-body">
-              <h3 class="card-title h5">PickleTrack — Pickleball Scorekeeper &amp; Stats</h3>
-              <p class="card-text">Native SwiftUI app for iOS and macOS targeting the 36M+ US pickleball players. Full side-out scoring with first-serve rule and server rotation for doubles, automatic score announcement display ("3-2-1"), one-tap undo, and match history. Stats dashboard with win rate, win streak, avg points, and a last-10-results chart. GPS-powered nearby court finder via MapKit. Built-in rules reference covering scoring, serving, the kitchen (NVZ), faults, and match formats — great for beginners. Flexible format: singles or doubles, to 11/15/21, best of 1/3/5. SwiftData persistence.</p>
-              <div class="d-flex flex-wrap gap-1 mt-2">
-                <span class="badge bg-secondary" style="font-size:0.7rem">Swift</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">SwiftUI</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">SwiftData</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">MapKit</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">iOS 17+</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">macOS 14+</span>
-                <span class="badge" style="background:rgba(255,88,17,0.2);color:var(--bs-primary);font-size:0.7rem;border:1px solid rgba(255,88,17,0.3)">Pickleball</span>
-              </div>
-            </div>
-            <div class="card-footer d-flex gap-2 flex-wrap">
-              <a href="https://github.com/jessicarojas1/jessicarojas1.github.io/tree/main/PickleTrack" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary">View Source</a>
-              <button class="btn btn-sm btn-outline-warning" data-role-min="editor" style="display:none">Edit</button>
-              <button class="btn btn-sm btn-outline-danger" data-role-min="admin" style="display:none">Delete</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- QuickRisk: CMMC/NIST SaaS -->
-        <div class="col">
-          <div class="card h-100">
-            <div class="card-body">
-              <h3 class="card-title h5">QuickRisk — Cybersecurity Assessment SaaS</h3>
-              <p class="card-text">CMMC 2.0 &amp; NIST 800-171 risk assessment platform for defense contractors. Answer 65 questions across 11 security domains, get an instant risk score and prioritized remediation roadmap. Stripe-powered subscriptions at $49/mo (Pro) and $149/mo (Business). Deploy-ready on Render.</p>
-              <div class="d-flex flex-wrap gap-1 mt-2">
-                <span class="badge bg-secondary" style="font-size:0.7rem">Python</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">Flask</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">CMMC 2.0</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">NIST 800-171</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">Stripe</span>
-                <span class="badge" style="background:rgba(255,88,17,0.2);color:var(--bs-primary);font-size:0.7rem;border:1px solid rgba(255,88,17,0.3)">SaaS</span>
-              </div>
-            </div>
-            <div class="card-footer d-flex gap-2 flex-wrap">
-              <a href="https://github.com/jessicarojas1/QuickRisk" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary">View Source</a>
-              <button class="btn btn-sm btn-outline-warning" data-role-min="editor" style="display:none">Edit</button>
-              <button class="btn btn-sm btn-outline-danger" data-role-min="admin" style="display:none">Delete</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- FitTrack: iOS + macOS workout tracker -->
-        <div class="col">
-          <div class="card h-100">
-            <div class="card-body">
-              <h3 class="card-title h5">FitTrack — Workout Tracker</h3>
-              <p class="card-text">Native SwiftUI app for iOS and macOS. Start and log workouts with a live timer, track sets with weight and reps, and browse 65+ built-in exercises filtered by muscle group or equipment. Workout history grouped by month, streak tracking, and full SwiftData persistence.</p>
-              <div class="d-flex flex-wrap gap-1 mt-2">
-                <span class="badge bg-secondary" style="font-size:0.7rem">Swift</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">SwiftUI</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">SwiftData</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">iOS 17+</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">macOS 14+</span>
-                <span class="badge" style="background:rgba(255,88,17,0.2);color:var(--bs-primary);font-size:0.7rem;border:1px solid rgba(255,88,17,0.3)">Multiplatform</span>
-              </div>
-            </div>
-            <div class="card-footer d-flex gap-2 flex-wrap">
-              <a href="https://github.com/jessicarojas1/FitTrack" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary">View Source</a>
-              <button class="btn btn-sm btn-outline-warning" data-role-min="editor" style="display:none">Edit</button>
-              <button class="btn btn-sm btn-outline-danger" data-role-min="admin" style="display:none">Delete</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Mail Unsubscriber: macOS email unsubscribe app -->
-        <div class="col">
-          <div class="card h-100">
-            <div class="card-body">
-              <h3 class="card-title h5">Mail Unsubscriber</h3>
-              <p class="card-text">Native macOS app that connects to any IMAP email account, scans your spam/junk folder for RFC 2369 <code>List-Unsubscribe</code> headers, and bulk-unsubscribes you from senders with one click. Supports RFC 8058 one-click POST, mailto: fallback, and secure Keychain password storage.</p>
-              <div class="d-flex flex-wrap gap-1 mt-2">
-                <span class="badge bg-secondary" style="font-size:0.7rem">Swift</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">SwiftUI</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">macOS</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">IMAP</span>
-                <span class="badge" style="background:rgba(255,88,17,0.2);color:var(--bs-primary);font-size:0.7rem;border:1px solid rgba(255,88,17,0.3)">Xcode</span>
-              </div>
-            </div>
-            <div class="card-footer d-flex gap-2 flex-wrap">
-              <a href="https://github.com/jessicarojas1/MailUnsubscriber" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary">View Source</a>
-              <button class="btn btn-sm btn-outline-warning" data-role-min="editor" style="display:none">Edit</button>
-              <button class="btn btn-sm btn-outline-danger" data-role-min="admin" style="display:none">Delete</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card: Crypto Trading Signals -->
-        <div class="col" data-tags="Finance Crypto Trading Dashboard">
-          <div class="card h-100">
-            <div class="card-body">
-              <h3 class="card-title h5">Crypto Trading Signals</h3>
-              <p class="card-text">Live technical analysis dashboard for 8 major cryptocurrencies — RSI, EMA crossover, and momentum signals. Pulls real-time prices from CoinGecko with Fear &amp; Greed Index. Auto-refreshes every 2 minutes with buy/hold/sell guidance.</p>
-              <div class="d-flex flex-wrap gap-1 mt-2">
-                <span class="badge bg-warning text-dark" style="font-size:0.7rem">Live Prices</span>
-                <span class="badge bg-success" style="font-size:0.7rem">RSI · EMA · Momentum</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">BTC · ETH · SOL · more</span>
-                <span class="badge bg-primary" style="font-size:0.7rem">CoinGecko API</span>
-              </div>
-            </div>
-            <div class="card-footer d-flex gap-2 flex-wrap">
-              <a href="cryptosignals.html" class="btn btn-sm btn-warning text-dark">Open Signals</a>
-              <button class="btn btn-sm btn-outline-warning" data-role-min="editor" style="display:none">Edit</button>
-              <button class="btn btn-sm btn-outline-danger" data-role-min="admin" style="display:none">Delete</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card: AI & ML Hub -->
-        <div class="col" data-tags="AI ML Machine Learning Deep Learning Reference">
-          <div class="card h-100">
-            <div class="card-body">
-              <h3 class="card-title h5">AI &amp; ML Hub</h3>
-              <p class="card-text">Complete reference for building your own AI — all major model architectures, training pipelines, optimizers, hyperparameter tuning, testing strategies, common pitfalls, and a step-by-step build guide. From linear regression to Transformers and diffusion models.</p>
-              <div class="d-flex flex-wrap gap-1 mt-2">
-                <span class="badge bg-primary" style="font-size:0.7rem">Deep Learning</span>
-                <span class="badge bg-success" style="font-size:0.7rem">PyTorch · scikit-learn</span>
-                <span class="badge bg-info text-dark" style="font-size:0.7rem">RSI · EMA · Momentum</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">Transformers · CNNs · GANs</span>
-                <span class="badge bg-warning text-dark" style="font-size:0.7rem">Complete Reference</span>
-              </div>
-            </div>
-            <div class="card-footer d-flex gap-2 flex-wrap">
-              <a href="aiml.html" class="btn btn-sm btn-primary">Open AI &amp; ML Hub</a>
-              <button class="btn btn-sm btn-outline-primary" data-role-min="editor" style="display:none">Edit</button>
-              <button class="btn btn-sm btn-outline-danger" data-role-min="admin" style="display:none">Delete</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card: CMMI v2.0 DEV Level 3 Framework -->
-        <div class="col" data-tags="CMMI Compliance Framework">
-          <div class="card h-100">
-            <div class="card-body">
-              <h3 class="card-title h5">CMMI v2.0 DEV Level 3 Framework</h3>
-              <p class="card-text">Complete CMMI v2.0 for Development Maturity Level 3 reference — all 19 Practice Areas, 126 Practices with evidence requirements per PA. Filter by PA, level, or category. Download a 7-tab Excel workbook including an Evidence Guide for appraisal readiness.</p>
-              <div class="d-flex flex-wrap gap-1 mt-2">
-                <span class="badge bg-secondary" style="font-size:0.7rem">CMMI v2.0</span>
-                <span class="badge bg-success" style="font-size:0.7rem">ML3</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">19 Practice Areas</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">126 Practices</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">Excel Export</span>
-              </div>
-            </div>
-            <div class="card-footer d-flex gap-2 flex-wrap">
-              <a href="cmmidev3.html" class="btn btn-sm btn-primary">Open Framework</a>
-              <button class="btn btn-sm btn-outline-warning" data-role-min="editor" style="display:none">Edit</button>
-              <button class="btn btn-sm btn-outline-danger" data-role-min="admin" style="display:none">Delete</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card 7: AI Tool Evaluation Framework -->
-        <div class="col" data-tags="AI Compliance Security">
-          <div class="card h-100">
-            <div class="card-body">
-              <h3 class="card-title h5">AI Tool Evaluation Framework</h3>
-              <p class="card-text">Aerospace/defense-grade framework for vetting new AI tools — policy, 11-step evaluation process, interactive compliance checklist, risk assessment, digital vendor questionnaire, and a kanban pipeline tracker.</p>
-              <div class="d-flex flex-wrap gap-1 mt-2">
-                <span class="badge bg-secondary" style="font-size:0.7rem">CMMC 2.0</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">NIST 800-171</span>
                 <span class="badge bg-secondary" style="font-size:0.7rem">ISO 27001</span>
-                <span class="badge bg-secondary" style="font-size:0.7rem">DFARS 7012</span>
-                <span class="badge" style="background:rgba(255,88,17,0.2);color:var(--bs-primary);font-size:0.7rem;border:1px solid rgba(255,88,17,0.3)">Aerospace</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">CMMC L1</span>
+                <span class="badge bg-secondary" style="font-size:0.7rem">CMMC L2</span>
+                <span class="badge" style="background:rgba(255,88,17,0.2);color:var(--bs-primary);font-size:0.7rem;border:1px solid rgba(255,88,17,0.3)">220 Controls</span>
               </div>
             </div>
             <div class="card-footer d-flex gap-2 flex-wrap">
-              <a href="aitool/index.html" class="btn btn-sm btn-primary">Open Framework</a>
+              <a href="unifiedcompliance.html" class="btn btn-sm btn-primary">Open Framework</a>
               <button class="btn btn-sm btn-outline-warning" data-role-min="editor" style="display:none">Edit</button>
               <button class="btn btn-sm btn-outline-danger" data-role-min="admin" style="display:none">Delete</button>
             </div>
