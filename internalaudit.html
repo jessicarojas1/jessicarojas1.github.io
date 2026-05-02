@@ -165,6 +165,7 @@
         <div class="d-flex gap-2">
           <button class="btn btn-sm btn-outline-primary" onclick="window.print()">Print / Save PDF</button>
           <button class="btn btn-sm btn-primary" id="export-csv-btn">Export CSV</button>
+          <a href="grc.html#iaudit" class="btn btn-sm btn-outline-success">View in GRC Pro →</a>
         </div>
       </div>
 
@@ -775,6 +776,37 @@
     document.getElementById('audit-builder').style.display = 'none';
     document.getElementById('report-output').style.display = 'block';
     window.scrollTo(0, 0);
+
+    // Auto-save session to GRC Pro shared storage
+    saveToGRCPro(rows, org, auditor, dateVal, fwKey, fwName, counts);
+  }
+
+  // ─── SAVE TO GRC PRO ─────────────────────────────────────────────────────────
+  function saveToGRCPro(rows, org, auditor, dateVal, fwKey, fwName, counts) {
+    try {
+      const sessions = JSON.parse(localStorage.getItem('grc_audit_sessions') || '[]');
+      const compliant = counts.compliant || 0;
+      const total = rows.length;
+      const pct = total ? Math.round(((compliant + (counts.partial||0)*0.5) / total) * 100) : 0;
+      const session = {
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2,5),
+        title: (org && org !== '—' ? org + ' – ' : '') + fwName,
+        org, auditor,
+        date: dateVal || new Date().toISOString().slice(0,10),
+        framework: fwKey,
+        frameworkName: fwName,
+        rowCount: total,
+        compliantCount: compliant,
+        partialCount: counts.partial || 0,
+        nonCompliantCount: counts.noncompliant || 0,
+        compliancePct: pct,
+        savedAt: new Date().toISOString(),
+        rows: rows,
+      };
+      sessions.unshift(session);
+      if (sessions.length > 30) sessions.splice(30);
+      localStorage.setItem('grc_audit_sessions', JSON.stringify(sessions));
+    } catch(e) { /* silently fail if storage unavailable */ }
   }
 
   // ─── CSV EXPORT ──────────────────────────────────────────────────────────────
