@@ -123,12 +123,16 @@
       <li><a class="nav-link" href="#" data-mod="vendors">🏢 Vendors</a></li>
 
       <div class="sidebar-section">Intelligence</div>
+      <li><a class="nav-link" href="#" data-mod="analytics">📊 Analytics</a></li>
+      <li><a class="nav-link" href="#" data-mod="risktracker">🎯 Risk Tracker</a></li>
       <li><a class="nav-link" href="#" data-mod="gaps">🔍 Gap Analysis</a></li>
       <li><a class="nav-link" href="#" data-mod="trends">📈 Trends</a></li>
       <li><a class="nav-link" href="#" data-mod="ai">🤖 AI Assistant</a></li>
 
       <div class="sidebar-section">Governance</div>
       <li><a class="nav-link" href="#" data-mod="audits">🔎 Audits</a></li>
+      <li><a class="nav-link" href="#" data-mod="iaudit">📋 Internal Audit</a></li>
+      <li><a class="nav-link" href="#" data-mod="projects">🚀 Projects</a></li>
       <li><a class="nav-link" href="#" data-mod="training">🎓 Training</a></li>
       <li><a class="nav-link" href="#" data-mod="bcp">🔄 Business Continuity</a></li>
       <li><a class="nav-link" href="#" data-mod="regs">⚖️ Regulatory Register</a></li>
@@ -414,6 +418,67 @@
         </div>
       </div>
 
+      <!-- ANALYTICS -->
+      <div class="module" id="mod-analytics">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h4 class="mb-0 fw-bold">Analytics &amp; Charts</h4>
+          <span class="text-secondary small">Live data from all modules</span>
+        </div>
+        <div class="row g-3 mb-3">
+          <div class="col-md-6 col-xl-3"><div class="card h-100"><div class="card-header small fw-semibold">Risks by Category</div><div class="card-body"><div style="position:relative;height:200px"><canvas id="chart-risk-cat"></canvas></div></div></div></div>
+          <div class="col-md-6 col-xl-3"><div class="card h-100"><div class="card-header small fw-semibold">Incident Types</div><div class="card-body"><div style="position:relative;height:200px"><canvas id="chart-inc-type"></canvas></div></div></div></div>
+          <div class="col-md-6 col-xl-3"><div class="card h-100"><div class="card-header small fw-semibold">Asset Criticality</div><div class="card-body"><div style="position:relative;height:200px"><canvas id="chart-asset-crit"></canvas></div></div></div></div>
+          <div class="col-md-6 col-xl-3"><div class="card h-100"><div class="card-header small fw-semibold">Vendor Risk</div><div class="card-body"><div style="position:relative;height:200px"><canvas id="chart-vendor-dist"></canvas></div></div></div></div>
+        </div>
+        <div class="row g-3 mb-3">
+          <div class="col-md-6"><div class="card h-100"><div class="card-header small fw-semibold">Controls by Framework &amp; Status</div><div class="card-body"><div style="position:relative;height:240px"><canvas id="chart-ctrl-fw"></canvas></div></div></div></div>
+          <div class="col-md-6"><div class="card h-100"><div class="card-header small fw-semibold">Training Completion (%)</div><div class="card-body"><div style="position:relative;height:240px"><canvas id="chart-training-comp"></canvas></div></div></div></div>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6"><div class="card h-100"><div class="card-header small fw-semibold">Policy Status</div><div class="card-body"><div style="position:relative;height:200px"><canvas id="chart-policy-status-a"></canvas></div></div></div></div>
+          <div class="col-md-6"><div class="card h-100"><div class="card-header small fw-semibold">KRI Status Distribution</div><div class="card-body"><div style="position:relative;height:200px"><canvas id="chart-kri-status"></canvas></div></div></div></div>
+        </div>
+      </div>
+
+      <!-- RISK TRACKER -->
+      <div class="module" id="mod-risktracker">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h4 class="mb-0 fw-bold">Risk Tracker</h4>
+          <div class="d-flex gap-2 align-items-center">
+            <select class="form-select form-select-sm" style="width:auto" id="rt-filter-status"><option value="">All Statuses</option><option>Open</option><option>In Treatment</option><option>Accepted</option><option>Closed</option></select>
+            <select class="form-select form-select-sm" style="width:auto" id="rt-filter-cat"><option value="">All Categories</option><option>Technical</option><option>Operational</option><option>Compliance</option><option>Financial</option><option>Strategic</option><option>Reputational</option></select>
+          </div>
+        </div>
+        <div class="row g-3 mb-4" id="rt-kpis"></div>
+        <div class="row g-3 mb-4">
+          <div class="col-md-6"><div class="card"><div class="card-header small fw-semibold">Risk Score Distribution</div><div class="card-body"><div style="position:relative;height:220px"><canvas id="chart-risk-score-dist"></canvas></div></div></div></div>
+          <div class="col-md-6"><div class="card"><div class="card-header small fw-semibold">Treatment Breakdown</div><div class="card-body"><div style="position:relative;height:220px"><canvas id="chart-risk-treatment"></canvas></div></div></div></div>
+        </div>
+        <h6 class="fw-semibold mb-2">Risk Aging (days open)</h6>
+        <div class="table-responsive mb-4"><table class="table table-sm table-hover align-middle"><thead class="table-dark"><tr><th>Risk</th><th>Category</th><th>Score</th><th>Status</th><th>Owner</th><th>Review Due</th><th>Aging</th><th>Treatment</th></tr></thead><tbody id="rt-tbody"></tbody></table></div>
+      </div>
+
+      <!-- INTERNAL AUDIT -->
+      <div class="module" id="mod-iaudit">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4 class="mb-0 fw-bold">Internal Audit</h4>
+          <a href="internalaudit.html" target="_blank" class="btn btn-primary btn-sm">🚀 Launch Audit Tool →</a>
+        </div>
+        <div class="alert alert-info small py-2 mb-3">Audit sessions are automatically saved here when you generate a report in the Audit Tool. <a href="internalaudit.html" target="_blank">Open the tool →</a></div>
+        <div class="row g-3 mb-3" id="iaudit-kpis"></div>
+        <div id="iaudit-list"></div>
+      </div>
+
+      <!-- PROJECTS -->
+      <div class="module" id="mod-projects">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4 class="mb-0 fw-bold">Remediation Projects</h4>
+          <button class="btn btn-sm btn-primary" data-rbac-min="editor" data-bs-toggle="modal" data-bs-target="#projectModal" onclick="openProjectModal()">+ New Project</button>
+        </div>
+        <div class="row g-3 mb-3" id="project-kpis"></div>
+        <div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead class="table-dark"><tr><th>Project</th><th>Priority</th><th>Status</th><th>Owner</th><th>Progress</th><th>Target Date</th><th>Budget</th><th>Linked</th><th></th></tr></thead><tbody id="project-tbody"></tbody></table></div>
+      </div>
+
       <!-- AUDITS -->
       <div class="module" id="mod-audits">
         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -530,6 +595,20 @@
           <div class="col-md-6"><label class="form-label small fw-semibold">Owner</label><input type="text" class="form-control" id="ctrl-owner" /></div>
           <div class="col-md-6"><label class="form-label small fw-semibold">Last Tested</label><input type="date" class="form-control" id="ctrl-last-tested" /></div>
           <div class="col-12"><label class="form-label small fw-semibold">Evidence / Notes</label><textarea class="form-control" id="ctrl-evidence" rows="2"></textarea></div>
+          <div class="col-md-4"><label class="form-label small fw-semibold">Met / Not Met</label>
+            <select class="form-select" id="ctrl-met">
+              <option value="">— Not Assessed —</option>
+              <option value="met">✅ Met</option>
+              <option value="partial">⚠️ Partially Met</option>
+              <option value="not-met">❌ Not Met</option>
+            </select>
+          </div>
+          <div class="col-12"><hr class="my-2"/><div class="fw-semibold small mb-2">Relationships <span class="text-secondary fw-normal">(hold Ctrl/Cmd to select multiple)</span></div></div>
+          <div class="col-md-6"><label class="form-label small fw-semibold">Linked Controls</label><select multiple class="form-select form-select-sm" id="ctrl-linked-controls" size="4"></select></div>
+          <div class="col-md-6"><label class="form-label small fw-semibold">Linked Policies</label><select multiple class="form-select form-select-sm" id="ctrl-linked-policies" size="4"></select></div>
+          <div class="col-md-6"><label class="form-label small fw-semibold">Linked Assets</label><select multiple class="form-select form-select-sm" id="ctrl-linked-assets" size="4"></select></div>
+          <div class="col-md-6"><label class="form-label small fw-semibold">Linked Risks / Treatments</label><select multiple class="form-select form-select-sm" id="ctrl-linked-risks" size="4"></select></div>
+          <div class="col-12"><label class="form-label small fw-semibold">Linked Projects</label><select multiple class="form-select form-select-sm" id="ctrl-linked-projects" size="4"></select></div>
         </div>
       </div>
       <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" onclick="saveCtrl()">Save</button></div>
@@ -870,6 +949,39 @@
   </div>
 </div>
 
+<!-- PROJECT MODAL -->
+<div class="modal fade" id="projectModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title" id="projectModalTitle">New Project</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <input type="hidden" id="project-id" />
+        <div class="row g-3">
+          <div class="col-12"><label class="form-label small fw-semibold">Project Name *</label><input type="text" class="form-control" id="project-name" /></div>
+          <div class="col-md-4"><label class="form-label small fw-semibold">Priority</label>
+            <select class="form-select" id="project-priority"><option>Critical</option><option>High</option><option>Medium</option><option>Low</option></select>
+          </div>
+          <div class="col-md-4"><label class="form-label small fw-semibold">Status</label>
+            <select class="form-select" id="project-status"><option value="planning">Planning</option><option value="in-progress">In Progress</option><option value="on-hold">On Hold</option><option value="completed">Completed</option></select>
+          </div>
+          <div class="col-md-4"><label class="form-label small fw-semibold">Owner</label><input type="text" class="form-control" id="project-owner" /></div>
+          <div class="col-md-4"><label class="form-label small fw-semibold">Start Date</label><input type="date" class="form-control" id="project-start" /></div>
+          <div class="col-md-4"><label class="form-label small fw-semibold">Target Date</label><input type="date" class="form-control" id="project-target" /></div>
+          <div class="col-md-4"><label class="form-label small fw-semibold">Budget ($)</label><input type="number" class="form-control" id="project-budget" min="0" /></div>
+          <div class="col-12"><label class="form-label small fw-semibold">Progress (0–100%)</label><input type="range" class="form-range" id="project-progress" min="0" max="100" step="5" oninput="document.getElementById('project-progress-val').textContent=this.value+'%'" /><span id="project-progress-val" class="small text-secondary">0%</span></div>
+          <div class="col-12"><label class="form-label small fw-semibold">Description</label><textarea class="form-control" id="project-desc" rows="2"></textarea></div>
+          <div class="col-12"><hr class="my-1"/><div class="fw-semibold small mb-2">Link to GRC Entities</div></div>
+          <div class="col-md-6"><label class="form-label small fw-semibold">Linked Controls</label><select multiple class="form-select form-select-sm" id="project-linked-controls" size="4"></select></div>
+          <div class="col-md-6"><label class="form-label small fw-semibold">Linked Risks</label><select multiple class="form-select form-select-sm" id="project-linked-risks" size="4"></select></div>
+          <div class="col-md-6"><label class="form-label small fw-semibold">Linked Policies</label><select multiple class="form-select form-select-sm" id="project-linked-policies" size="4"></select></div>
+          <div class="col-md-6"><label class="form-label small fw-semibold">Linked Assets</label><select multiple class="form-select form-select-sm" id="project-linked-assets" size="4"></select></div>
+        </div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" onclick="saveProject()">Save</button></div>
+    </div>
+  </div>
+</div>
+
 <!-- ══════════════════════════════════════
      SCRIPTS
 ═══════════════════════════════════════ -->
@@ -1001,7 +1113,7 @@ function kpiCard(val,label,color='primary'){return `<div class="col-6 col-md-3">
 function destroyChart(id){const ex=Chart.getChart(id);if(ex)ex.destroy();}
 
 /* ══ NAVIGATION ══ */
-const MODULE_TITLES={dashboard:'Dashboard',risks:'Risk Register',controls:'Controls Library',policies:'Policy Manager',compliance:'Compliance Overview',poam:'POA&M',exceptions:'Exception Register',incidents:'Incident Management',assets:'Asset Inventory',vendors:'Vendor Risk',gaps:'Gap Analysis',trends:'Compliance Trends',ai:'AI Assistant',activity:'Activity Log',settings:'Settings',audits:'Audit Management',training:'Training & Awareness',bcp:'Business Continuity & DR',regs:'Regulatory Register',kri:'Key Risk Indicators'};
+const MODULE_TITLES={dashboard:'Dashboard',risks:'Risk Register',controls:'Controls Library',policies:'Policy Manager',compliance:'Compliance Overview',poam:'POA&M',exceptions:'Exception Register',incidents:'Incident Management',assets:'Asset Inventory',vendors:'Vendor Risk',analytics:'Analytics & Charts',risktracker:'Risk Tracker',gaps:'Gap Analysis',trends:'Compliance Trends',ai:'AI Assistant',audits:'Audit Management',iaudit:'Internal Audit',projects:'Remediation Projects',training:'Training & Awareness',bcp:'Business Continuity & DR',regs:'Regulatory Register',kri:'Key Risk Indicators',activity:'Activity Log',settings:'Settings'};
 function navigate(mod){
   document.querySelectorAll('.module').forEach(m=>m.classList.remove('active'));
   document.querySelectorAll('[data-mod]').forEach(a=>a.classList.remove('active'));
@@ -1025,6 +1137,10 @@ function renderModule(mod){
     case 'gaps':renderGaps();break;
     case 'trends':renderTrends();break;
     case 'ai':renderAI();break;
+    case 'analytics':renderAnalytics();break;
+    case 'risktracker':renderRiskTracker();break;
+    case 'iaudit':renderIAudit();break;
+    case 'projects':renderProjects();break;
     case 'activity':renderActivity();break;
     case 'settings':renderSettings();break;
     case 'audits':renderAudits();break;
@@ -1170,6 +1286,24 @@ function deleteRisk(id){
 ══════════════════════════════════════════ */
 
 /* ── CONTROLS ── */
+function metBadge(m){
+  if(!m)return '<span class="badge bg-secondary" style="font-size:.65rem">–</span>';
+  if(m==='met')return '<span class="badge bg-success" style="font-size:.65rem">✅ Met</span>';
+  if(m==='partial')return '<span class="badge bg-warning text-dark" style="font-size:.65rem">⚠️ Partial</span>';
+  return '<span class="badge bg-danger" style="font-size:.65rem">❌ Not Met</span>';
+}
+function toggleMet(id){
+  const c=(DB.controls||[]).find(x=>x.id===id);if(!c)return;
+  const cycle=[undefined,'met','partial','not-met'];
+  const cur=cycle.indexOf(c.met);
+  c.met=cycle[(cur+1)%cycle.length];
+  dbSave(DB);renderControls();
+}
+function ctrlLinksHtml(c){
+  const total=(c.links||{});
+  const count=Object.values(total).flat().length;
+  return count?`<span class="badge bg-secondary" style="font-size:.65rem" title="Linked items">${count} links</span>`:'';
+}
 function renderControls(){
   const fwF=document.getElementById('ctrl-filter-fw').value;
   const stF=document.getElementById('ctrl-filter-status').value;
@@ -1181,17 +1315,35 @@ function renderControls(){
   const fwTag=fw=>`<span class="fw-tag">${escHtml(fw)}</span>`;
   document.getElementById('ctrl-tbody').innerHTML=rows.length?rows.map(c=>`<tr>
     <td class="small text-secondary">${escHtml(c.ctrlId||'')}</td>
-    <td><div class="fw-semibold small">${escHtml(c.name)}</div><div class="text-secondary" style="font-size:.72rem">${escHtml(c.desc||'')}</div></td>
+    <td><div class="fw-semibold small">${escHtml(c.name)}</div><div class="text-secondary" style="font-size:.72rem">${escHtml(c.desc||'')}</div>${ctrlLinksHtml(c)}</td>
     <td>${(c.frameworks||[]).map(fwTag).join('')}</td>
     <td><span class="badge ${ctrlStatusClass(c.status)}">${escHtml(c.status)}</span></td>
+    <td>${canEdit()?`<span style="cursor:pointer" onclick="toggleMet('${c.id}')" title="Click to cycle Met status">${metBadge(c.met)}</span>`:metBadge(c.met)}</td>
     <td class="small">${escHtml(c.owner||'–')}</td>
     <td class="small">${fmtDate(c.lastTested)}</td>
-    <td class="small" style="max-width:160px;white-space:normal">${escHtml(c.evidence||'–')}</td>
     <td class="actions">${canEdit()?`<button class="btn btn-sm btn-outline-secondary me-1" onclick="openCtrlModal('${c.id}')">✏️</button>`:''}${canAdmin()?`<button class="btn btn-sm btn-outline-danger" onclick="deleteCtrl('${c.id}')">🗑</button>`:''}</td>
   </tr>`).join(''):'<tr><td colspan="8" class="text-center text-secondary py-3">No controls match filters.</td></tr>';
+  // Also update table header to include Met column
+  const thead=document.querySelector('#mod-controls thead tr');
+  if(thead&&thead.children.length===8&&thead.children[4].textContent!=='Met'){
+    thead.children[4].insertAdjacentHTML('beforebegin','<th>Met</th>');
+  }
   ['ctrl-filter-fw','ctrl-filter-status','ctrl-search'].forEach(id=>{
     const el=document.getElementById(id);if(el){el.oninput=renderControls;el.onchange=renderControls;}
   });
+}
+function populateCtrlLinkSelects(c){
+  const links=c?(c.links||{}):{};
+  const setOpts=(elId,items,valFn,labelFn,selected)=>{
+    const el=document.getElementById(elId);if(!el)return;
+    el.innerHTML=items.map(x=>`<option value="${valFn(x)}" ${(selected||[]).includes(valFn(x))?'selected':''}>${escHtml(labelFn(x))}</option>`).join('');
+  };
+  const otherId=c?c.id:'';
+  setOpts('ctrl-linked-controls',(DB.controls||[]).filter(x=>x.id!==otherId),x=>x.id,x=>x.ctrlId+' – '+x.name,links.controls);
+  setOpts('ctrl-linked-policies',DB.policies||[],x=>x.id,x=>x.name,links.policies);
+  setOpts('ctrl-linked-assets',DB.assets||[],x=>x.id,x=>x.name,links.assets);
+  setOpts('ctrl-linked-risks',DB.risks||[],x=>x.id,x=>x.title,links.risks);
+  setOpts('ctrl-linked-projects',DB.projects||[],x=>x.id,x=>x.name,links.projects);
 }
 let ctrlModalBS;
 function openCtrlModal(id){
@@ -1207,11 +1359,35 @@ function openCtrlModal(id){
   document.getElementById('ctrl-owner').value=c?c.owner:'';
   document.getElementById('ctrl-last-tested').value=c?c.lastTested:'';
   document.getElementById('ctrl-evidence').value=c?c.evidence:'';
+  document.getElementById('ctrl-met').value=c?(c.met||''):'';
+  populateCtrlLinkSelects(c);
   ctrlModalBS.show();
+}
+function getMultiSelect(id){
+  const el=document.getElementById(id);if(!el)return[];
+  return Array.from(el.selectedOptions).map(o=>o.value);
 }
 function saveCtrl(){
   const id=document.getElementById('ctrl-id').value;
-  const obj={id:id||uid(),ctrlId:document.getElementById('ctrl-ctrl-id').value.trim(),name:document.getElementById('ctrl-name').value.trim(),desc:document.getElementById('ctrl-desc').value.trim(),frameworks:document.getElementById('ctrl-frameworks').value.split(',').map(s=>s.trim()).filter(Boolean),status:document.getElementById('ctrl-status').value,owner:document.getElementById('ctrl-owner').value.trim(),lastTested:document.getElementById('ctrl-last-tested').value,evidence:document.getElementById('ctrl-evidence').value.trim()};
+  const obj={
+    id:id||uid(),
+    ctrlId:document.getElementById('ctrl-ctrl-id').value.trim(),
+    name:document.getElementById('ctrl-name').value.trim(),
+    desc:document.getElementById('ctrl-desc').value.trim(),
+    frameworks:document.getElementById('ctrl-frameworks').value.split(',').map(s=>s.trim()).filter(Boolean),
+    status:document.getElementById('ctrl-status').value,
+    owner:document.getElementById('ctrl-owner').value.trim(),
+    lastTested:document.getElementById('ctrl-last-tested').value,
+    evidence:document.getElementById('ctrl-evidence').value.trim(),
+    met:document.getElementById('ctrl-met').value||undefined,
+    links:{
+      controls:getMultiSelect('ctrl-linked-controls'),
+      policies:getMultiSelect('ctrl-linked-policies'),
+      assets:getMultiSelect('ctrl-linked-assets'),
+      risks:getMultiSelect('ctrl-linked-risks'),
+      projects:getMultiSelect('ctrl-linked-projects'),
+    }
+  };
   if(!obj.name)return alert('Control name is required.');
   if(!DB.controls)DB.controls=[];
   if(id){const i=DB.controls.findIndex(c=>c.id===id);if(i>-1)DB.controls[i]=obj;}else DB.controls.push(obj);
@@ -1932,8 +2108,57 @@ function resetData(){
 }
 
 /* ── INIT ── */
+/* Convert IIFEs to callable functions so they run after initDB() */
+function extendSeedData(){
+  if(!DB)return;
+  if(!DB.audits){DB.audits=[
+    {id:'au1',title:'ISO 27001 Internal Audit 2025',type:'Internal',scope:'All Annex A controls',lead:'Internal Audit Team',status:'in-progress',start:daysAgo(14),end:daysFromNow(7),findings:4,notes:'Annual ISMS internal audit prior to surveillance.'},
+    {id:'au2',title:'Penetration Test – External Perimeter',type:'Penetration Test',scope:'External-facing web apps and APIs',lead:'SecureWorks',status:'closed',start:daysAgo(60),end:daysAgo(45),findings:7,notes:'3 high findings remediated; 4 medium in POA&M.'},
+    {id:'au3',title:'CMMC 2.0 Readiness Assessment',type:'External',scope:'CMMC 2.0 Level 2 – 110 practices',lead:'C3PAO Assessor',status:'planning',start:daysFromNow(30),end:daysFromNow(60),findings:0,notes:'Pre-assessment gap analysis complete.'},
+  ];dbSave(DB);}
+  if(!DB.training){DB.training=[
+    {id:'tr1',name:'Security Awareness Training',type:'Security Awareness',audience:'All Staff',frequency:'Annual',completion:87,due:daysFromNow(45),provider:'KnowBe4',notes:'87/100 staff completed.'},
+    {id:'tr2',name:'Phishing Simulation Q2',type:'Phishing Simulation',audience:'All Staff',frequency:'Quarterly',completion:100,due:daysFromNow(-5),provider:'KnowBe4',notes:'Click rate: 4%.'},
+    {id:'tr3',name:'GDPR & Privacy Training',type:'Privacy / GDPR',audience:'All Staff',frequency:'Annual',completion:72,due:daysFromNow(30),provider:'Internal',notes:'Required for GDPR compliance.'},
+    {id:'tr4',name:'Incident Response Tabletop',type:'Incident Response',audience:'IT / Security',frequency:'Annual',completion:0,due:daysFromNow(21),provider:'Internal',notes:'Scheduled for next month.'},
+    {id:'tr5',name:'Secure Development Practices',type:'Technical Security',audience:'Technical Staff',frequency:'Annual',completion:60,due:daysFromNow(60),provider:'SANS',notes:'Mandatory for DevOps and Engineering.'},
+  ];dbSave(DB);}
+  if(!DB.bcp){DB.bcp=[
+    {id:'bc1',system:'Core ERP System',criticality:'Critical',rto:4,rpo:1,strategy:'Hot Standby',owner:'IT Director',lastTested:daysAgo(90),testResult:'pass',notes:'Active-active cluster AWS us-east-1/us-west-2.'},
+    {id:'bc2',system:'Customer-Facing Web Portal',criticality:'Critical',rto:2,rpo:0.5,strategy:'Cloud Failover',owner:'Cloud Ops',lastTested:daysAgo(180),testResult:'partial',notes:'Failover untested for DB tier.'},
+    {id:'bc3',system:'Email (Microsoft 365)',criticality:'High',rto:8,rpo:4,strategy:'Cloud Failover',owner:'IT',lastTested:daysAgo(365),testResult:'pass',notes:'Microsoft SLA covers RTO.'},
+    {id:'bc4',system:'Finance / Payroll',criticality:'High',rto:24,rpo:4,strategy:'Backup Restore',owner:'Finance IT',lastTested:'',testResult:'',notes:'Manual restore process documented. Test overdue.'},
+    {id:'bc5',system:'Physical HQ Operations',criticality:'Medium',rto:72,rpo:24,strategy:'Manual Workaround',owner:'Facilities',lastTested:daysAgo(120),testResult:'pass',notes:'Remote work policy covers short-term HQ disruption.'},
+  ];dbSave(DB);}
+  if(!DB.regs){DB.regs=[
+    {id:'rg1',name:'GDPR',jurisdiction:'EU',applicability:'applicable',status:'partial',owner:'DPO / Legal',review:daysFromNow(90),body:'ICO / EDPB',notes:'Data retention policy overdue.'},
+    {id:'rg2',name:'HIPAA',jurisdiction:'US Federal',applicability:'not-applicable',status:'compliant',owner:'Legal',review:daysFromNow(180),body:'HHS OCR',notes:'No PHI processed.'},
+    {id:'rg3',name:'PCI DSS v4.0',jurisdiction:'Global',applicability:'partial',status:'in-progress',owner:'IT Security',review:daysFromNow(60),body:'PCI SSC',notes:'SAQ A applicable for hosted payment form.'},
+    {id:'rg4',name:'CCPA / CPRA',jurisdiction:'US-CA',applicability:'applicable',status:'partial',owner:'Legal / Privacy',review:daysFromNow(45),body:'CPPA',notes:'Privacy policy updated. Opt-out mechanism needed.'},
+    {id:'rg5',name:'ISO 27001:2022',jurisdiction:'Global',applicability:'applicable',status:'in-progress',owner:'CISO',review:daysFromNow(30),body:'ISO/IEC',notes:'Surveillance audit scheduled.'},
+    {id:'rg6',name:'NIST CSF 2.0',jurisdiction:'US',applicability:'applicable',status:'partial',owner:'CISO',review:daysFromNow(120),body:'NIST',notes:'~68% of framework functions addressed.'},
+    {id:'rg7',name:'SOC 2 Type II',jurisdiction:'US',applicability:'applicable',status:'compliant',owner:'IT Security',review:daysFromNow(270),body:'AICPA',notes:'Type II report current.'},
+  ];dbSave(DB);}
+  if(!DB.kri){DB.kri=[
+    {id:'k1',name:'Unpatched Critical CVEs',category:'Technical',current:14,warning:5,critical:10,unit:'count',trend:'worsening',owner:'IT Security',updated:TODAY,desc:'Count of critical CVEs open >72 hours.'},
+    {id:'k2',name:'Phishing Click Rate',category:'People',current:4,warning:8,critical:15,unit:'%',trend:'improving',owner:'Security Awareness',updated:TODAY,desc:'% of staff clicking simulated phishing emails.'},
+    {id:'k3',name:'MFA Coverage',category:'Technical',current:99,warning:95,critical:90,unit:'%',trend:'stable',owner:'IT',updated:TODAY,desc:'% of user accounts with MFA enforced.'},
+    {id:'k4',name:'Mean Time to Detect (MTTD)',category:'Operational',current:6,warning:24,critical:72,unit:'hours',trend:'stable',owner:'SOC',updated:TODAY,desc:'Average hours to detect a security incident.'},
+    {id:'k5',name:'Mean Time to Respond (MTTR)',category:'Operational',current:18,warning:48,critical:96,unit:'hours',trend:'improving',owner:'SOC',updated:TODAY,desc:'Average hours from detection to containment.'},
+    {id:'k6',name:'Policy Review Overdue',category:'Compliance',current:1,warning:2,critical:5,unit:'count',trend:'stable',owner:'CISO',updated:TODAY,desc:'Number of policies past review due date.'},
+    {id:'k7',name:'Vendor Reviews Overdue',category:'Compliance',current:1,warning:2,critical:5,unit:'count',trend:'stable',owner:'Procurement',updated:TODAY,desc:'Number of vendors with overdue annual risk review.'},
+    {id:'k8',name:'Open Critical Risks',category:'Operational',current:2,warning:3,critical:5,unit:'count',trend:'worsening',owner:'CISO',updated:TODAY,desc:'Number of critical-severity risks in Open or In Treatment status.'},
+  ];dbSave(DB);}
+  if(!DB.projects){DB.projects=[
+    {id:'proj1',name:'Vulnerability Remediation Program',priority:'Critical',status:'in-progress',owner:'IT Security',start:daysAgo(30),target:daysFromNow(14),budget:15000,progress:45,desc:'Patch all 14 critical CVEs from Qualys scan.',links:{controls:['c6'],risks:['r1','r4'],policies:[],assets:['a1','a2']}},
+    {id:'proj2',name:'MDM Mobile Device Rollout',priority:'High',status:'planning',owner:'IT',start:daysFromNow(7),target:daysFromNow(60),budget:12000,progress:10,desc:'Deploy Intune to 45 corporate mobile devices.',links:{controls:['c3'],risks:[],policies:[],assets:['a2']}},
+    {id:'proj3',name:'AI Governance Policy Approval',priority:'Medium',status:'in-progress',owner:'CISO',start:daysAgo(14),target:daysFromNow(45),budget:0,progress:35,desc:'Draft, legal review, and board sign-off.',links:{controls:['c11'],risks:[],policies:['p6'],assets:[]}},
+  ];dbSave(DB);}
+}
+
 document.addEventListener('DOMContentLoaded',()=>{
   initDB();
+  extendSeedData();
   // Sidebar org name
   document.getElementById('sidebar-org').textContent=(DB.settings||{}).org||'My Organization';
   applyRBAC();
@@ -1975,47 +2200,6 @@ document.addEventListener('DOMContentLoaded',()=>{
 ══════════════════════════════════════════ */
 
 /* ── Extend seed data on first load ── */
-(function extendSeed(){
-  if(!DB)return;
-  if(!DB.audits){DB.audits=[
-    {id:'au1',title:'ISO 27001 Internal Audit 2025',type:'Internal',scope:'All Annex A controls',lead:'Internal Audit Team',status:'in-progress',start:daysAgo(14),end:daysFromNow(7),findings:4,notes:'Annual ISMS internal audit prior to surveillance.'},
-    {id:'au2',title:'Penetration Test – External Perimeter',type:'Penetration Test',scope:'External-facing web apps and APIs',lead:'SecureWorks',status:'closed',start:daysAgo(60),end:daysAgo(45),findings:7,notes:'3 high findings remediated; 4 medium in POA&M.'},
-    {id:'au3',title:'CMMC 2.0 Readiness Assessment',type:'External',scope:'CMMC 2.0 Level 2 – 110 practices',lead:'C3PAO Assessor',status:'planning',start:daysFromNow(30),end:daysFromNow(60),findings:0,notes:'Pre-assessment gap analysis complete.'},
-  ];dbSave(DB);}
-  if(!DB.training){DB.training=[
-    {id:'tr1',name:'Security Awareness Training',type:'Security Awareness',audience:'All Staff',frequency:'Annual',completion:87,due:daysFromNow(45),provider:'KnowBe4',notes:'87/100 staff completed. Reminders sent to 13 outstanding.'},
-    {id:'tr2',name:'Phishing Simulation Q2',type:'Phishing Simulation',audience:'All Staff',frequency:'Quarterly',completion:100,due:daysFromNow(-5),provider:'KnowBe4',notes:'Click rate: 4%. Down from 9% last quarter.'},
-    {id:'tr3',name:'GDPR & Privacy Training',type:'Privacy / GDPR',audience:'All Staff',frequency:'Annual',completion:72,due:daysFromNow(30),provider:'Internal',notes:'Required for GDPR compliance.'},
-    {id:'tr4',name:'Incident Response Tabletop',type:'Incident Response',audience:'IT / Security',frequency:'Annual',completion:0,due:daysFromNow(21),provider:'Internal',notes:'Scheduled for next month.'},
-    {id:'tr5',name:'Secure Development Practices',type:'Technical Security',audience:'Technical Staff',frequency:'Annual',completion:60,due:daysFromNow(60),provider:'SANS',notes:'Mandatory for DevOps and Engineering.'},
-  ];dbSave(DB);}
-  if(!DB.bcp){DB.bcp=[
-    {id:'bc1',system:'Core ERP System',criticality:'Critical',rto:4,rpo:1,strategy:'Hot Standby',owner:'IT Director',lastTested:daysAgo(90),testResult:'pass',notes:'Active-active cluster in AWS us-east-1 / us-west-2.'},
-    {id:'bc2',system:'Customer-Facing Web Portal',criticality:'Critical',rto:2,rpo:0.5,strategy:'Cloud Failover',owner:'Cloud Ops',lastTested:daysAgo(180),testResult:'partial',notes:'Failover untested for DB tier — in POA&M.'},
-    {id:'bc3',system:'Email (Microsoft 365)',criticality:'High',rto:8,rpo:4,strategy:'Cloud Failover',owner:'IT',lastTested:daysAgo(365),testResult:'pass',notes:'Microsoft SLA covers RTO. Annual DR test passed.'},
-    {id:'bc4',system:'Finance / Payroll',criticality:'High',rto:24,rpo:4,strategy:'Backup Restore',owner:'Finance IT',lastTested:'',testResult:'',notes:'Manual restore process documented. Test overdue.'},
-    {id:'bc5',system:'Physical HQ Operations',criticality:'Medium',rto:72,rpo:24,strategy:'Manual Workaround',owner:'Facilities',lastTested:daysAgo(120),testResult:'pass',notes:'Remote work policy covers short-term HQ disruption.'},
-  ];dbSave(DB);}
-  if(!DB.regs){DB.regs=[
-    {id:'rg1',name:'GDPR',jurisdiction:'EU',applicability:'applicable',status:'partial',owner:'DPO / Legal',review:daysFromNow(90),body:'ICO / EDPB',notes:'Data retention policy overdue. DPA with key vendors signed.'},
-    {id:'rg2',name:'HIPAA',jurisdiction:'US Federal',applicability:'not-applicable',status:'compliant',owner:'Legal',review:daysFromNow(180),body:'HHS OCR',notes:'No PHI processed. Confirmed with Legal 2024.'},
-    {id:'rg3',name:'PCI DSS v4.0',jurisdiction:'Global',applicability:'partial',status:'in-progress',owner:'IT Security',review:daysFromNow(60),body:'PCI SSC',notes:'SAQ A applicable for hosted payment form. Upgrading to v4.0.'},
-    {id:'rg4',name:'CCPA / CPRA',jurisdiction:'US-CA',applicability:'applicable',status:'partial',owner:'Legal / Privacy',review:daysFromNow(45),body:'CPPA',notes:'Privacy policy updated. Opt-out mechanism needed.'},
-    {id:'rg5',name:'ISO 27001:2022',jurisdiction:'Global',applicability:'applicable',status:'in-progress',owner:'CISO',review:daysFromNow(30),body:'ISO/IEC',notes:'Surveillance audit scheduled. Internal audit in progress.'},
-    {id:'rg6',name:'NIST CSF 2.0',jurisdiction:'US',applicability:'applicable',status:'partial',owner:'CISO',review:daysFromNow(120),body:'NIST',notes:'Voluntary alignment. ~68% of framework functions addressed.'},
-    {id:'rg7',name:'SOC 2 Type II',jurisdiction:'US',applicability:'applicable',status:'compliant',owner:'IT Security',review:daysFromNow(270),body:'AICPA',notes:'Type II report current. Next audit window opens in 9 months.'},
-  ];dbSave(DB);}
-  if(!DB.kri){DB.kri=[
-    {id:'k1',name:'Unpatched Critical CVEs',category:'Technical',current:14,warning:5,critical:10,unit:'count',trend:'worsening',owner:'IT Security',updated:TODAY,desc:'Count of critical CVEs open >72 hours in Qualys.'},
-    {id:'k2',name:'Phishing Click Rate',category:'People',current:4,warning:8,critical:15,unit:'%',trend:'improving',owner:'Security Awareness',updated:TODAY,desc:'% of staff clicking simulated phishing emails.'},
-    {id:'k3',name:'MFA Coverage',category:'Technical',current:99,warning:95,critical:90,unit:'%',trend:'stable',owner:'IT',updated:TODAY,desc:'% of user accounts with MFA enforced. Higher = better. Warning/critical are lower bounds.'},
-    {id:'k4',name:'Mean Time to Detect (MTTD)',category:'Operational',current:6,warning:24,critical:72,unit:'hours',trend:'stable',owner:'SOC',updated:TODAY,desc:'Average hours to detect a security incident.'},
-    {id:'k5',name:'Mean Time to Respond (MTTR)',category:'Operational',current:18,warning:48,critical:96,unit:'hours',trend:'improving',owner:'SOC',updated:TODAY,desc:'Average hours from detection to containment.'},
-    {id:'k6',name:'Policy Review Overdue',category:'Compliance',current:1,warning:2,critical:5,unit:'count',trend:'stable',owner:'CISO',updated:TODAY,desc:'Number of policies past review due date.'},
-    {id:'k7',name:'Vendor Reviews Overdue',category:'Compliance',current:1,warning:2,critical:5,unit:'count',trend:'stable',owner:'Procurement',updated:TODAY,desc:'Number of vendors with overdue annual risk review.'},
-    {id:'k8',name:'Open Critical Risks',category:'Operational',current:2,warning:3,critical:5,unit:'count',trend:'worsening',owner:'CISO',updated:TODAY,desc:'Number of critical-severity risks in Open or In Treatment status.'},
-  ];dbSave(DB);}
-})();
 
 /* ── AUDITS ── */
 function renderAudits(){
@@ -2313,6 +2497,265 @@ function deleteKri(id){
   DB.kri=DB.kri.filter(x=>x.id!==id);
   log('KRI',`Deleted: ${k?k.name:id}`);
   renderKri();
+}
+</script>
+
+<script>
+/* ══════════════════════════════════════════
+   ANALYTICS, RISK TRACKER, INTERNAL AUDIT, PROJECTS
+══════════════════════════════════════════ */
+
+/* ── ANALYTICS ── */
+function renderAnalytics(){
+  const risks=DB.risks||[];const controls=DB.controls||[];
+  const incidents=DB.incidents||[];const assets=DB.assets||[];
+  const vendors=DB.vendors||[];const training=DB.training||[];
+  const policies=DB.policies||[];const kri=DB.kri||[];
+
+  // Risk by category
+  destroyChart('chart-risk-cat');
+  const catCounts={};risks.forEach(r=>{catCounts[r.category]=(catCounts[r.category]||0)+1;});
+  const catColors=['#0d6efd','#6f42c1','#20c997','#fd7e14','#dc3545','#ffc107'];
+  new Chart(document.getElementById('chart-risk-cat'),{type:'doughnut',data:{labels:Object.keys(catCounts),datasets:[{data:Object.values(catCounts),backgroundColor:catColors}]},options:{plugins:{legend:{position:'bottom',labels:{font:{size:10}}}},cutout:'60%'}});
+
+  // Incident types
+  destroyChart('chart-inc-type');
+  const incTypes={};incidents.forEach(i=>{incTypes[i.type]=(incTypes[i.type]||0)+1;});
+  new Chart(document.getElementById('chart-inc-type'),{type:'doughnut',data:{labels:Object.keys(incTypes)||['None'],datasets:[{data:Object.values(incTypes)||[0],backgroundColor:catColors}]},options:{plugins:{legend:{position:'bottom',labels:{font:{size:10}}}},cutout:'60%'}});
+
+  // Asset criticality
+  destroyChart('chart-asset-crit');
+  const ac={Critical:0,High:0,Medium:0,Low:0};assets.forEach(a=>{ac[a.criticality]=(ac[a.criticality]||0)+1;});
+  new Chart(document.getElementById('chart-asset-crit'),{type:'doughnut',data:{labels:Object.keys(ac),datasets:[{data:Object.values(ac),backgroundColor:['#dc3545','#fd7e14','#ffc107','#198754']}]},options:{plugins:{legend:{position:'bottom',labels:{font:{size:10}}}},cutout:'60%'}});
+
+  // Vendor risk
+  destroyChart('chart-vendor-dist');
+  const vr={Critical:0,High:0,Medium:0,Low:0};vendors.forEach(v=>{vr[v.risk]=(vr[v.risk]||0)+1;});
+  new Chart(document.getElementById('chart-vendor-dist'),{type:'doughnut',data:{labels:Object.keys(vr),datasets:[{data:Object.values(vr),backgroundColor:['#dc3545','#fd7e14','#ffc107','#198754']}]},options:{plugins:{legend:{position:'bottom',labels:{font:{size:10}}}},cutout:'60%'}});
+
+  // Controls by framework & status (grouped bar)
+  destroyChart('chart-ctrl-fw');
+  const fws=['iso27001','nistcsf','cmmc2','iso42001','soc2'];
+  const fwLabels2={iso27001:'ISO 27001',nistcsf:'NIST CSF',cmmc2:'CMMC 2.0',iso42001:'ISO 42001',soc2:'SOC 2'};
+  const fwImpl=fws.map(fw=>(controls.filter(c=>c.frameworks&&c.frameworks.includes(fw)&&c.status==='implemented')).length);
+  const fwPart=fws.map(fw=>(controls.filter(c=>c.frameworks&&c.frameworks.includes(fw)&&c.status==='partial')).length);
+  const fwNone=fws.map(fw=>(controls.filter(c=>c.frameworks&&c.frameworks.includes(fw)&&c.status==='not-implemented')).length);
+  new Chart(document.getElementById('chart-ctrl-fw'),{type:'bar',data:{labels:fws.map(f=>fwLabels2[f]),datasets:[{label:'Implemented',data:fwImpl,backgroundColor:'#198754'},{label:'Partial',data:fwPart,backgroundColor:'#ffc107'},{label:'Not Implemented',data:fwNone,backgroundColor:'#dc3545'}]},options:{plugins:{legend:{position:'bottom'}},scales:{x:{stacked:true},y:{stacked:true,ticks:{stepSize:1}}}}});
+
+  // Training completion
+  destroyChart('chart-training-comp');
+  const tNames=training.map(t=>t.name.length>25?t.name.slice(0,22)+'…':t.name);
+  const tPcts=training.map(t=>Number(t.completion)||0);
+  const tColors=tPcts.map(p=>p>=90?'#198754':p>=60?'#ffc107':'#dc3545');
+  new Chart(document.getElementById('chart-training-comp'),{type:'bar',data:{labels:tNames,datasets:[{label:'Completion %',data:tPcts,backgroundColor:tColors,borderRadius:4}]},options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{min:0,max:100,ticks:{callback:v=>v+'%'}}}}});
+
+  // Policy status
+  destroyChart('chart-policy-status-a');
+  const ps={};policies.forEach(p=>{ps[p.status]=(ps[p.status]||0)+1;});
+  new Chart(document.getElementById('chart-policy-status-a'),{type:'doughnut',data:{labels:Object.keys(ps)||['None'],datasets:[{data:Object.values(ps)||[0],backgroundColor:['#198754','#6c757d','#ffc107','#0d6efd']}]},options:{plugins:{legend:{position:'bottom',labels:{font:{size:10}}}},cutout:'60%'}});
+
+  // KRI status
+  destroyChart('chart-kri-status');
+  let kg=0,ky=0,kr=0;kri.forEach(k=>{const s=kriStatus(k);if(s==='green')kg++;else if(s==='yellow')ky++;else kr++;});
+  new Chart(document.getElementById('chart-kri-status'),{type:'doughnut',data:{labels:['On Target','Warning','Critical'],datasets:[{data:[kg,ky,kr],backgroundColor:['#198754','#ffc107','#dc3545']}]},options:{plugins:{legend:{position:'bottom',labels:{font:{size:10}}}},cutout:'60%'}});
+}
+
+/* ── RISK TRACKER ── */
+function renderRiskTracker(){
+  const stF=document.getElementById('rt-filter-status').value;
+  const catF=document.getElementById('rt-filter-cat').value;
+  let risks=(DB.risks||[]).filter(r=>(!stF||r.status===stF)&&(!catF||r.category===catF));
+
+  // KPIs
+  const avgScore=risks.length?Math.round(risks.reduce((s,r)=>s+riskScore(r),0)/risks.length):0;
+  const overdue=risks.filter(r=>r.review&&r.review<TODAY&&r.status!=='Closed').length;
+  const treated=risks.filter(r=>r.status==='In Treatment').length;
+  document.getElementById('rt-kpis').innerHTML=kpiCard(risks.length,'Filtered Risks')+kpiCard(avgScore,'Avg Risk Score','warning')+kpiCard(treated,'In Treatment','primary')+kpiCard(overdue,'Review Overdue','danger');
+
+  // Score distribution (histogram-like bar)
+  destroyChart('chart-risk-score-dist');
+  const buckets={'1–4':0,'5–9':0,'10–14':0,'15–19':0,'20–25':0};
+  (DB.risks||[]).forEach(r=>{const s=riskScore(r);if(s<=4)buckets['1–4']++;else if(s<=9)buckets['5–9']++;else if(s<=14)buckets['10–14']++;else if(s<=19)buckets['15–19']++;else buckets['20–25']++;});
+  new Chart(document.getElementById('chart-risk-score-dist'),{type:'bar',data:{labels:Object.keys(buckets),datasets:[{label:'Risk Count',data:Object.values(buckets),backgroundColor:['#198754','#ffc107','#fd7e14','#dc3545','#6f1c25'],borderRadius:4}]},options:{plugins:{legend:{display:false}},scales:{y:{ticks:{stepSize:1}}}}});
+
+  // Treatment breakdown
+  destroyChart('chart-risk-treatment');
+  const tc={mitigate:0,accept:0,transfer:0,avoid:0};
+  (DB.risks||[]).forEach(r=>{tc[r.treatment]=(tc[r.treatment]||0)+1;});
+  new Chart(document.getElementById('chart-risk-treatment'),{type:'doughnut',data:{labels:['Mitigate','Accept','Transfer','Avoid'],datasets:[{data:Object.values(tc),backgroundColor:['#0d6efd','#6c757d','#6f42c1','#dc3545']}]},options:{plugins:{legend:{position:'bottom'}},cutout:'60%'}});
+
+  // Risk aging table
+  const now=new Date();
+  document.getElementById('rt-tbody').innerHTML=risks.length?[...risks].sort((a,b)=>riskScore(b)-riskScore(a)).map(r=>{
+    const sc=riskScore(r);const sv=riskSevFromScore(sc);
+    const openedDate=r.openedDate?new Date(r.openedDate):null;
+    const agingDays=openedDate?Math.floor((now-openedDate)/86400000):null;
+    const agingBadge=agingDays===null?'<span class="text-secondary small">–</span>':agingDays>90?`<span class="badge bg-danger">${agingDays}d</span>`:agingDays>30?`<span class="badge bg-warning text-dark">${agingDays}d</span>`:`<span class="badge bg-secondary">${agingDays}d</span>`;
+    return`<tr>
+      <td class="fw-semibold small">${escHtml(r.title)}</td>
+      <td><span class="badge bg-secondary">${escHtml(r.category)}</span></td>
+      <td><span class="badge ${sevClass(sv)}">${sc} – ${sv}</span></td>
+      <td><span class="badge bg-secondary">${escHtml(r.status)}</span></td>
+      <td class="small">${escHtml(r.owner||'–')}</td>
+      <td class="small ${r.review&&r.review<TODAY?'text-danger fw-semibold':''}">${fmtDate(r.review)}</td>
+      <td>${agingBadge}</td>
+      <td><span class="badge ${treatClass(r.treatment)}">${escHtml(r.treatment)}</span></td>
+    </tr>`;
+  }).join(''):'<tr><td colspan="8" class="text-center text-secondary py-3">No risks match filters.</td></tr>';
+
+  ['rt-filter-status','rt-filter-cat'].forEach(id=>{
+    const el=document.getElementById(id);if(el){el.onchange=renderRiskTracker;}
+  });
+}
+
+/* ── INTERNAL AUDIT INTEGRATION ── */
+function renderIAudit(){
+  let sessions=[];
+  try{sessions=JSON.parse(localStorage.getItem('grc_audit_sessions')||'[]');}catch(e){}
+  if(!sessions.length){
+    document.getElementById('iaudit-kpis').innerHTML='';
+    document.getElementById('iaudit-list').innerHTML=`<div class="card"><div class="card-body text-center py-5">
+      <div class="fs-1 mb-3">📋</div>
+      <h6 class="fw-semibold mb-2">No audit sessions yet</h6>
+      <p class="text-secondary small mb-3">Generate a report in the Internal Audit Tool to save sessions here automatically.</p>
+      <a href="internalaudit.html" target="_blank" class="btn btn-primary">Launch Internal Audit Tool →</a>
+    </div></div>`;
+    return;
+  }
+  const avgPct=Math.round(sessions.reduce((s,x)=>s+(x.compliancePct||0),0)/sessions.length);
+  const totalFindings=sessions.reduce((s,x)=>s+(x.nonCompliantCount||0),0);
+  document.getElementById('iaudit-kpis').innerHTML=kpiCard(sessions.length,'Saved Sessions')+kpiCard(avgPct+'%','Avg Compliance','primary')+kpiCard(totalFindings,'Total Non-Compliant','danger')+kpiCard([...new Set(sessions.map(s=>s.framework))].length,'Frameworks Covered','secondary');
+  const fwColor=p=>p>=80?'#198754':p>=50?'#ffc107':'#dc3545';
+  document.getElementById('iaudit-list').innerHTML=sessions.map(s=>`
+    <div class="card mb-3">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <div>
+          <span class="fw-semibold">${escHtml(s.title)}</span>
+          <span class="badge bg-secondary ms-2 small">${escHtml(s.frameworkName||s.framework)}</span>
+        </div>
+        <div class="d-flex gap-2 align-items-center">
+          <span class="small text-secondary">${fmtDate(s.date)}</span>
+          <button class="btn btn-sm btn-outline-danger" onclick="deleteAuditSession('${s.id}')">🗑</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row g-3 align-items-center">
+          <div class="col-md-4">
+            <div class="compliance-bar mb-1"><div class="compliance-fill" style="width:${s.compliancePct||0}%;background:${fwColor(s.compliancePct||0)}"></div></div>
+            <div class="d-flex justify-content-between small">
+              <span class="fw-bold" style="color:${fwColor(s.compliancePct||0)}">${s.compliancePct||0}% compliant</span>
+              <span class="text-secondary">${s.rowCount||0} controls</span>
+            </div>
+          </div>
+          <div class="col-md-8">
+            <div class="d-flex gap-3 flex-wrap small">
+              <span class="text-success">✅ Compliant: ${s.compliantCount||0}</span>
+              <span class="text-warning">⚠️ Partial: ${s.partialCount||0}</span>
+              <span class="text-danger">❌ Non-Compliant: ${s.nonCompliantCount||0}</span>
+              ${s.auditor?`<span class="text-secondary">Auditor: ${escHtml(s.auditor)}</span>`:''}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+function deleteAuditSession(id){
+  if(!confirm('Remove this audit session?'))return;
+  try{
+    let sessions=JSON.parse(localStorage.getItem('grc_audit_sessions')||'[]');
+    sessions=sessions.filter(s=>s.id!==id);
+    localStorage.setItem('grc_audit_sessions',JSON.stringify(sessions));
+  }catch(e){}
+  renderIAudit();
+}
+
+/* ── PROJECTS ── */
+function renderProjects(){
+  const items=DB.projects||[];
+  const stClass=s=>({planning:'bg-secondary','in-progress':'bg-primary','on-hold':'bg-warning text-dark',completed:'bg-success'})[s]||'bg-secondary';
+  const active=items.filter(i=>i.status==='in-progress').length;
+  const done=items.filter(i=>i.status==='completed').length;
+  const totalBudget=items.reduce((s,i)=>s+(Number(i.budget)||0),0);
+  document.getElementById('project-kpis').innerHTML=kpiCard(items.length,'Total Projects')+kpiCard(active,'In Progress','primary')+kpiCard(done,'Completed','success')+kpiCard('$'+totalBudget.toLocaleString(),'Total Budget','secondary');
+  document.getElementById('project-tbody').innerHTML=items.length?items.map(p=>{
+    const pct=Number(p.progress)||0;
+    const barColor=pct>=100?'#198754':pct>=60?'#0d6efd':'#ffc107';
+    const totalLinks=Object.values(p.links||{}).flat().length;
+    return`<tr>
+      <td><div class="fw-semibold small">${escHtml(p.name)}</div><div class="text-secondary" style="font-size:.72rem">${escHtml(p.desc||'')}</div></td>
+      <td><span class="badge ${sevClass(p.priority)}">${escHtml(p.priority)}</span></td>
+      <td><span class="badge ${stClass(p.status)}">${escHtml(p.status)}</span></td>
+      <td class="small">${escHtml(p.owner||'–')}</td>
+      <td style="min-width:120px"><div class="d-flex align-items-center gap-2"><div class="compliance-bar flex-grow-1"><div class="compliance-fill" style="width:${pct}%;background:${barColor}"></div></div><span class="small">${pct}%</span></div></td>
+      <td class="small ${p.target&&p.target<TODAY&&p.status!=='completed'?'text-danger fw-semibold':''}">${fmtDate(p.target)}</td>
+      <td class="small">${p.budget?'$'+Number(p.budget).toLocaleString():'–'}</td>
+      <td>${totalLinks?`<span class="badge bg-secondary">${totalLinks} links</span>`:'–'}</td>
+      <td class="actions">${canEdit()?`<button class="btn btn-sm btn-outline-secondary me-1" onclick="openProjectModal('${p.id}')">✏️</button>`:''}${canAdmin()?`<button class="btn btn-sm btn-outline-danger" onclick="deleteProject('${p.id}')">🗑</button>`:''}</td>
+    </tr>`;}).join(''):'<tr><td colspan="9" class="text-center text-secondary py-3">No projects yet.</td></tr>';
+}
+function populateProjectLinkSelects(p){
+  const links=p?(p.links||{}):{};
+  const setOpts=(elId,items,valFn,labelFn,sel)=>{
+    const el=document.getElementById(elId);if(!el)return;
+    el.innerHTML=items.map(x=>`<option value="${valFn(x)}" ${(sel||[]).includes(valFn(x))?'selected':''}>${escHtml(labelFn(x))}</option>`).join('');
+  };
+  setOpts('project-linked-controls',DB.controls||[],x=>x.id,x=>x.ctrlId+' – '+x.name,links.controls);
+  setOpts('project-linked-risks',DB.risks||[],x=>x.id,x=>x.title,links.risks);
+  setOpts('project-linked-policies',DB.policies||[],x=>x.id,x=>x.name,links.policies);
+  setOpts('project-linked-assets',DB.assets||[],x=>x.id,x=>x.name,links.assets);
+}
+let projectModalBS;
+function openProjectModal(id){
+  if(!projectModalBS)projectModalBS=new bootstrap.Modal(document.getElementById('projectModal'));
+  const p=id?(DB.projects||[]).find(x=>x.id===id):null;
+  document.getElementById('projectModalTitle').textContent=p?'Edit Project':'New Project';
+  document.getElementById('project-id').value=p?p.id:'';
+  document.getElementById('project-name').value=p?p.name:'';
+  document.getElementById('project-priority').value=p?p.priority:'High';
+  document.getElementById('project-status').value=p?p.status:'planning';
+  document.getElementById('project-owner').value=p?p.owner:'';
+  document.getElementById('project-start').value=p?p.start:'';
+  document.getElementById('project-target').value=p?p.target:'';
+  document.getElementById('project-budget').value=p?p.budget:'';
+  document.getElementById('project-progress').value=p?p.progress:0;
+  document.getElementById('project-progress-val').textContent=(p?p.progress:0)+'%';
+  document.getElementById('project-desc').value=p?p.desc:'';
+  populateProjectLinkSelects(p);
+  projectModalBS.show();
+}
+function saveProject(){
+  const id=document.getElementById('project-id').value;
+  const obj={
+    id:id||uid(),
+    name:document.getElementById('project-name').value.trim(),
+    priority:document.getElementById('project-priority').value,
+    status:document.getElementById('project-status').value,
+    owner:document.getElementById('project-owner').value.trim(),
+    start:document.getElementById('project-start').value,
+    target:document.getElementById('project-target').value,
+    budget:Number(document.getElementById('project-budget').value)||0,
+    progress:Number(document.getElementById('project-progress').value)||0,
+    desc:document.getElementById('project-desc').value.trim(),
+    links:{
+      controls:getMultiSelect('project-linked-controls'),
+      risks:getMultiSelect('project-linked-risks'),
+      policies:getMultiSelect('project-linked-policies'),
+      assets:getMultiSelect('project-linked-assets'),
+    }
+  };
+  if(!obj.name)return alert('Project name is required.');
+  if(!DB.projects)DB.projects=[];
+  if(id){const i=DB.projects.findIndex(x=>x.id===id);if(i>-1)DB.projects[i]=obj;}else DB.projects.push(obj);
+  log('Projects',id?`Updated: ${obj.name}`:`Added: ${obj.name}`);
+  bootstrap.Modal.getInstance(document.getElementById('projectModal')).hide();
+  renderProjects();
+}
+function deleteProject(id){
+  if(!confirm('Delete this project?'))return;
+  const p=(DB.projects||[]).find(x=>x.id===id);
+  DB.projects=DB.projects.filter(x=>x.id!==id);
+  log('Projects',`Deleted: ${p?p.name:id}`);
+  renderProjects();
 }
 </script>
 </body>
