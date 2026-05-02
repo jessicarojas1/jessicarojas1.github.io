@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="theme.css" />
+  <title>Internal Audit Template | Jessica Rojas</title>
+  <style>
+    .audit-row td { vertical-align: top; padding: 0.4rem 0.5rem; }
+    .audit-row textarea { min-height: 60px; resize: vertical; font-size: 0.85rem; }
+    .audit-row input[type=text] { font-size: 0.85rem; }
+    .audit-row select { font-size: 0.85rem; }
+    .row-num { width: 38px; text-align: center; color: var(--bs-secondary-color); padding-top: 0.6rem !important; }
+    .col-control { min-width: 220px; }
+    .col-status { width: 160px; }
+    .col-risk   { width: 120px; }
+    .col-findings { min-width: 200px; }
+    .col-evidence { min-width: 160px; }
+    .col-del { width: 40px; text-align: center; }
+    #report-output { display:none; }
+    @media print {
+      nav, .no-print { display: none !important; }
+      #report-output { display: block !important; }
+      #audit-builder { display: none !important; }
+      .report-page { break-after: page; }
+    }
+    .status-badge-compliant       { background: #198754; }
+    .status-badge-partial         { background: #ffc107; color:#000; }
+    .status-badge-noncompliant    { background: #dc3545; }
+    .status-badge-na              { background: #6c757d; }
+    .status-badge-nottested       { background: #0dcaf0; color:#000; }
+    .report-header { border-bottom: 2px solid var(--bs-primary); padding-bottom: 1rem; margin-bottom: 1.5rem; }
+    .summary-card { border: 1px solid var(--bs-border-color); border-radius: 8px; padding: 1rem; text-align: center; }
+    .summary-card .num { font-size: 2rem; font-weight: 700; }
+    .findings-table td { font-size: 0.82rem; vertical-align: top; }
+    .findings-table th { font-size: 0.8rem; }
+    .progress-bar-custom { height: 20px; border-radius: 4px; background: var(--bs-secondary-bg); overflow: hidden; }
+    .progress-segment { height: 100%; display: inline-block; }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <nav class="navbar navbar-expand-lg sticky-top no-print" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="projects.html">Projects</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content">
+
+    <!-- ── BUILDER ── -->
+    <div id="audit-builder">
+
+      <!-- Hero -->
+      <section class="hero-section reveal no-print">
+        <div class="container text-center">
+          <h1>Internal Audit Template</h1>
+          <p class="lead">Select controls, add findings and evidence, then compile your audit report.</p>
+        </div>
+      </section>
+
+      <!-- Audit Metadata -->
+      <section class="container py-4 no-print">
+        <div class="card mb-4">
+          <div class="card-header fw-semibold">Audit Details</div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold">Organization Name</label>
+                <input type="text" class="form-control" id="meta-org" placeholder="e.g. Acme Corp" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-semibold">Auditor Name</label>
+                <input type="text" class="form-control" id="meta-auditor" placeholder="e.g. Jane Smith" />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">Audit Date</label>
+                <input type="date" class="form-control" id="meta-date" />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">Framework</label>
+                <select class="form-select" id="meta-framework">
+                  <option value="iso27001">ISO 27001:2022</option>
+                  <option value="cmmc2">CMMC 2.0 Level 2</option>
+                  <option value="iso42001">ISO 42001:2023</option>
+                  <option value="custom">Custom Framework</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label small fw-semibold">Audit Type</label>
+                <select class="form-select" id="meta-type">
+                  <option>Internal Audit</option>
+                  <option>External Audit</option>
+                  <option>Gap Assessment</option>
+                  <option>Surveillance Audit</option>
+                  <option>Certification Audit</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <label class="form-label small fw-semibold">Scope</label>
+                <input type="text" class="form-control" id="meta-scope" placeholder="e.g. Information security controls for cloud infrastructure and data handling processes" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Audit Items Table -->
+      <section class="container-fluid px-4 py-2 no-print">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0 fw-semibold">Audit Items</h5>
+          <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-outline-secondary" id="clear-btn">Clear All</button>
+            <button class="btn btn-sm btn-primary" id="add-row-btn">+ Add Row</button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm align-top" id="audit-table">
+            <thead class="table-dark">
+              <tr>
+                <th class="row-num">#</th>
+                <th class="col-control">Control</th>
+                <th class="col-status">Status</th>
+                <th class="col-risk">Risk Level</th>
+                <th class="col-findings">Findings / Notes</th>
+                <th class="col-evidence">Evidence Reference</th>
+                <th class="col-del"></th>
+              </tr>
+            </thead>
+            <tbody id="audit-body">
+              <!-- rows injected here -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="d-flex gap-2 mt-3 mb-5">
+          <button class="btn btn-sm btn-primary" id="add-row-btn2">+ Add Row</button>
+          <button class="btn btn-sm btn-success" id="generate-btn">Generate Audit Report</button>
+        </div>
+      </section>
+
+    </div><!-- /audit-builder -->
+
+    <!-- ── REPORT OUTPUT ── -->
+    <div id="report-output" class="container py-4">
+
+      <div class="d-flex justify-content-between align-items-start mb-4 no-print">
+        <button class="btn btn-sm btn-outline-secondary" id="back-btn">← Back to Audit</button>
+        <div class="d-flex gap-2">
+          <button class="btn btn-sm btn-outline-primary" onclick="window.print()">Print / Save PDF</button>
+          <button class="btn btn-sm btn-primary" id="export-csv-btn">Export CSV</button>
+        </div>
+      </div>
+
+      <div class="report-header">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+          <div>
+            <h2 class="mb-1" id="rpt-title">Internal Audit Report</h2>
+            <div class="text-secondary small" id="rpt-subtitle"></div>
+          </div>
+          <div class="text-end">
+            <div class="small text-secondary">Date</div>
+            <div class="fw-semibold" id="rpt-date"></div>
+          </div>
+        </div>
+        <div class="row mt-3 g-2">
+          <div class="col-auto"><span class="text-secondary small">Organization:</span> <span class="fw-semibold" id="rpt-org"></span></div>
+          <div class="col-auto"><span class="text-secondary small ms-3">Auditor:</span> <span class="fw-semibold" id="rpt-auditor"></span></div>
+          <div class="col-auto"><span class="text-secondary small ms-3">Type:</span> <span class="fw-semibold" id="rpt-type"></span></div>
+          <div class="col-12"><span class="text-secondary small">Scope:</span> <span id="rpt-scope"></span></div>
+        </div>
+      </div>
+
+      <!-- Summary Cards -->
+      <h5 class="fw-semibold mb-3">Executive Summary</h5>
+      <div class="row g-3 mb-4" id="rpt-summary-cards"></div>
+
+      <!-- Compliance Bar -->
+      <div class="mb-4">
+        <div class="d-flex justify-content-between mb-1">
+          <span class="small fw-semibold">Compliance Distribution</span>
+          <span class="small fw-semibold" id="rpt-pct"></span>
+        </div>
+        <div class="progress-bar-custom" id="rpt-bar"></div>
+        <div class="d-flex gap-3 mt-1 flex-wrap" style="font-size:0.75rem">
+          <span><span style="color:#198754">■</span> Compliant</span>
+          <span><span style="color:#ffc107">■</span> Partial</span>
+          <span><span style="color:#dc3545">■</span> Non-Compliant</span>
+          <span><span style="color:#6c757d">■</span> N/A</span>
+          <span><span style="color:#0dcaf0">■</span> Not Tested</span>
+        </div>
+      </div>
+
+      <!-- Risk Summary -->
+      <div class="row g-3 mb-4" id="rpt-risk-cards"></div>
+
+      <!-- Findings Table -->
+      <h5 class="fw-semibold mb-3">Detailed Findings</h5>
+      <div class="table-responsive mb-5">
+        <table class="table table-bordered findings-table">
+          <thead class="table-dark">
+            <tr>
+              <th>#</th>
+              <th>Control</th>
+              <th>Status</th>
+              <th>Risk</th>
+              <th>Findings / Notes</th>
+              <th>Evidence Reference</th>
+            </tr>
+          </thead>
+          <tbody id="rpt-findings-body"></tbody>
+        </table>
+      </div>
+
+      <!-- Signature Block -->
+      <div class="row g-4 mt-2">
+        <div class="col-md-4">
+          <div style="border-top:1px solid var(--bs-border-color); padding-top: 0.5rem;">
+            <div class="small text-secondary">Lead Auditor</div>
+            <div class="fw-semibold mt-3" id="rpt-sig-auditor"></div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div style="border-top:1px solid var(--bs-border-color); padding-top: 0.5rem;">
+            <div class="small text-secondary">Management Representative</div>
+            <div class="fw-semibold mt-3">&nbsp;</div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div style="border-top:1px solid var(--bs-border-color); padding-top: 0.5rem;">
+            <div class="small text-secondary">Date Issued</div>
+            <div class="fw-semibold mt-3" id="rpt-sig-date"></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /report-output -->
+
+  </main>
+
+  <footer class="site-footer no-print">
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmyQWuGmUhSBQOVCp7p5pT1gkTJ" crossorigin="anonymous"></script>
+  <script src="script.js" defer></script>
+  <script>
+  // ─── CONTROLS DATA ───────────────────────────────────────────────────────────
+  const FRAMEWORKS = {
+    iso27001: {
+      name: 'ISO 27001:2022',
+      controls: [
+        // 5 – Organizational
+        {id:'5.1',  name:'Policies for information security'},
+        {id:'5.2',  name:'Information security roles and responsibilities'},
+        {id:'5.3',  name:'Segregation of duties'},
+        {id:'5.4',  name:'Management responsibilities'},
+        {id:'5.5',  name:'Contact with authorities'},
+        {id:'5.6',  name:'Contact with special interest groups'},
+        {id:'5.7',  name:'Threat intelligence'},
+        {id:'5.8',  name:'Information security in project management'},
+        {id:'5.9',  name:'Inventory of information and other associated assets'},
+        {id:'5.10', name:'Acceptable use of information and other associated assets'},
+        {id:'5.11', name:'Return of assets'},
+        {id:'5.12', name:'Classification of information'},
+        {id:'5.13', name:'Labelling of information'},
+        {id:'5.14', name:'Information transfer'},
+        {id:'5.15', name:'Access control'},
+        {id:'5.16', name:'Identity management'},
+        {id:'5.17', name:'Authentication information'},
+        {id:'5.18', name:'Access rights'},
+        {id:'5.19', name:'Information security in supplier relationships'},
+        {id:'5.20', name:'Addressing information security within supplier agreements'},
+        {id:'5.21', name:'Managing information security in the ICT supply chain'},
+        {id:'5.22', name:'Monitoring, review and change management of supplier services'},
+        {id:'5.23', name:'Information security for use of cloud services'},
+        {id:'5.24', name:'Information security incident management planning and preparation'},
+        {id:'5.25', name:'Assessment and decision on information security events'},
+        {id:'5.26', name:'Response to information security incidents'},
+        {id:'5.27', name:'Learning from information security incidents'},
+        {id:'5.28', name:'Collection of evidence'},
+        {id:'5.29', name:'Information security during disruption'},
+        {id:'5.30', name:'ICT readiness for business continuity'},
+        {id:'5.31', name:'Legal, statutory, regulatory and contractual requirements'},
+        {id:'5.32', name:'Intellectual property rights'},
+        {id:'5.33', name:'Protection of records'},
+        {id:'5.34', name:'Privacy and protection of PII'},
+        {id:'5.35', name:'Independent review of information security'},
+        {id:'5.36', name:'Compliance with policies, rules and standards for information security'},
+        {id:'5.37', name:'Documented operating procedures'},
+        // 6 – People
+        {id:'6.1',  name:'Screening'},
+        {id:'6.2',  name:'Terms and conditions of employment'},
+        {id:'6.3',  name:'Information security awareness, education and training'},
+        {id:'6.4',  name:'Disciplinary process'},
+        {id:'6.5',  name:'Responsibilities after termination or change of employment'},
+        {id:'6.6',  name:'Confidentiality or non-disclosure agreements'},
+        {id:'6.7',  name:'Remote working'},
+        {id:'6.8',  name:'Information security event reporting'},
+        // 7 – Physical
+        {id:'7.1',  name:'Physical security perimeters'},
+        {id:'7.2',  name:'Physical entry'},
+        {id:'7.3',  name:'Securing offices, rooms and facilities'},
+        {id:'7.4',  name:'Physical security monitoring'},
+        {id:'7.5',  name:'Protecting against physical and environmental threats'},
+        {id:'7.6',  name:'Working in secure areas'},
+        {id:'7.7',  name:'Clear desk and clear screen'},
+        {id:'7.8',  name:'Equipment siting and protection'},
+        {id:'7.9',  name:'Security of assets off-premises'},
+        {id:'7.10', name:'Storage media'},
+        {id:'7.11', name:'Supporting utilities'},
+        {id:'7.12', name:'Cabling security'},
+        {id:'7.13', name:'Equipment maintenance'},
+        {id:'7.14', name:'Secure disposal or re-use of equipment'},
+        // 8 – Technological
+        {id:'8.1',  name:'User endpoint devices'},
+        {id:'8.2',  name:'Privileged access rights'},
+        {id:'8.3',  name:'Information access restriction'},
+        {id:'8.4',  name:'Access to source code'},
+        {id:'8.5',  name:'Secure authentication'},
+        {id:'8.6',  name:'Capacity management'},
+        {id:'8.7',  name:'Protection against malware'},
+        {id:'8.8',  name:'Management of technical vulnerabilities'},
+        {id:'8.9',  name:'Configuration management'},
+        {id:'8.10', name:'Information deletion'},
+        {id:'8.11', name:'Data masking'},
+        {id:'8.12', name:'Data leakage prevention'},
+        {id:'8.13', name:'Information backup'},
+        {id:'8.14', name:'Redundancy of information processing facilities'},
+        {id:'8.15', name:'Logging'},
+        {id:'8.16', name:'Monitoring activities'},
+        {id:'8.17', name:'Clock synchronization'},
+        {id:'8.18', name:'Use of privileged utility programs'},
+        {id:'8.19', name:'Installation of software on operational systems'},
+        {id:'8.20', name:'Networks security'},
+        {id:'8.21', name:'Security of network services'},
+        {id:'8.22', name:'Segregation of networks'},
+        {id:'8.23', name:'Web filtering'},
+        {id:'8.24', name:'Use of cryptography'},
+        {id:'8.25', name:'Secure development life cycle'},
+        {id:'8.26', name:'Application security requirements'},
+        {id:'8.27', name:'Secure system architecture and engineering principles'},
+        {id:'8.28', name:'Secure coding'},
+        {id:'8.29', name:'Security testing in development and acceptance'},
+        {id:'8.30', name:'Outsourced development'},
+        {id:'8.31', name:'Separation of development, test and production environments'},
+        {id:'8.32', name:'Change management'},
+        {id:'8.33', name:'Test information'},
+        {id:'8.34', name:'Protection of information systems during audit testing'},
+      ]
+    },
+    cmmc2: {
+      name: 'CMMC 2.0 Level 2',
+      controls: [
+        // AC – Access Control
+        {id:'3.1.1',  name:'Limit system access to authorized users, processes, and devices'},
+        {id:'3.1.2',  name:'Limit system access to permitted transactions and functions'},
+        {id:'3.1.3',  name:'Control the flow of CUI in accordance with approved authorizations'},
+        {id:'3.1.4',  name:'Separate duties of individuals to reduce risk of malevolent activity'},
+        {id:'3.1.5',  name:'Employ the principle of least privilege'},
+        {id:'3.1.6',  name:'Use non-privileged accounts when accessing non-security functions'},
+        {id:'3.1.7',  name:'Prevent non-privileged users from executing privileged functions'},
+        {id:'3.1.8',  name:'Limit unsuccessful logon attempts'},
+        {id:'3.1.9',  name:'Provide privacy and security notices consistent with CUI rules'},
+        {id:'3.1.10', name:'Use session lock with pattern-hiding displays after inactivity'},
+        {id:'3.1.11', name:'Terminate sessions after a defined condition'},
+        {id:'3.1.12', name:'Monitor and control remote access sessions'},
+        {id:'3.1.13', name:'Employ cryptographic mechanisms to protect remote access sessions'},
+        {id:'3.1.14', name:'Route remote access via managed access control points'},
+        {id:'3.1.15', name:'Authorize remote execution of privileged commands only for operational needs'},
+        {id:'3.1.16', name:'Authorize wireless access prior to allowing connections'},
+        {id:'3.1.17', name:'Protect wireless access using authentication and encryption'},
+        {id:'3.1.18', name:'Control connection of mobile devices'},
+        {id:'3.1.19', name:'Encrypt CUI on mobile devices and mobile computing platforms'},
+        {id:'3.1.20', name:'Verify and control all connections to external systems'},
+        {id:'3.1.21', name:'Limit use of portable storage devices on external systems'},
+        {id:'3.1.22', name:'Control CUI posted or processed on publicly accessible systems'},
+        // AT – Awareness and Training
+        {id:'3.2.1',  name:'Ensure personnel are aware of security risks associated with their activities'},
+        {id:'3.2.2',  name:'Ensure personnel are trained to carry out assigned security responsibilities'},
+        {id:'3.2.3',  name:'Provide security awareness training on recognizing and reporting threats'},
+        // AU – Audit and Accountability
+        {id:'3.3.1',  name:'Create and retain system audit logs to enable monitoring, analysis, and investigation'},
+        {id:'3.3.2',  name:'Ensure actions of individual users can be uniquely traced'},
+        {id:'3.3.3',  name:'Review and update logged events'},
+        {id:'3.3.4',  name:'Alert in the event of an audit logging process failure'},
+        {id:'3.3.5',  name:'Correlate audit record review, analysis, and reporting processes'},
+        {id:'3.3.6',  name:'Provide audit record reduction and report generation'},
+        {id:'3.3.7',  name:'Provide system capability that compares and synchronizes internal clocks'},
+        {id:'3.3.8',  name:'Protect audit information and tools from unauthorized access'},
+        {id:'3.3.9',  name:'Limit management of audit logging to a subset of privileged users'},
+        // CM – Configuration Management
+        {id:'3.4.1',  name:'Establish and maintain baseline configurations and inventories of systems'},
+        {id:'3.4.2',  name:'Establish and enforce security configuration settings'},
+        {id:'3.4.3',  name:'Track, review, approve, and log changes to systems'},
+        {id:'3.4.4',  name:'Analyze the security impact of changes prior to implementation'},
+        {id:'3.4.5',  name:'Define, document, approve, and enforce access restrictions for changes'},
+        {id:'3.4.6',  name:'Employ the principle of least functionality'},
+        {id:'3.4.7',  name:'Restrict, disable, or prevent the use of nonessential programs, ports, protocols'},
+        {id:'3.4.8',  name:'Apply deny-by-exception policy to prevent use of unauthorized software'},
+        {id:'3.4.9',  name:'Control and monitor user-installed software'},
+        // IA – Identification and Authentication
+        {id:'3.5.1',  name:'Identify system users, processes acting on behalf of users, and devices'},
+        {id:'3.5.2',  name:'Authenticate the identities of users, processes, or devices'},
+        {id:'3.5.3',  name:'Use multifactor authentication for local and network access to privileged accounts'},
+        {id:'3.5.4',  name:'Employ replay-resistant authentication mechanisms'},
+        {id:'3.5.5',  name:'Employ automated tools to support the management of system identifiers'},
+        {id:'3.5.6',  name:'Disable identifiers after a defined inactivity period'},
+        {id:'3.5.7',  name:'Enforce a minimum password complexity and change of characters when new passwords are established'},
+        {id:'3.5.8',  name:'Prohibit password reuse for a specified number of generations'},
+        {id:'3.5.9',  name:'Allow temporary password use with an immediate change requirement'},
+        {id:'3.5.10', name:'Store and transmit only cryptographically-protected passwords'},
+        {id:'3.5.11', name:'Obscure feedback of authentication information during the authentication process'},
+        // IR – Incident Response
+        {id:'3.6.1',  name:'Establish an operational incident-handling capability'},
+        {id:'3.6.2',  name:'Track, document, and report incidents to appropriate officials and authorities'},
+        {id:'3.6.3',  name:'Test the incident response capability'},
+        // MA – Maintenance
+        {id:'3.7.1',  name:'Perform maintenance on organizational systems'},
+        {id:'3.7.2',  name:'Provide controls on tools, techniques, mechanisms, and personnel for maintenance'},
+        {id:'3.7.3',  name:'Ensure equipment removed for maintenance is sanitized'},
+        {id:'3.7.4',  name:'Check media containing diagnostic programs for malicious code'},
+        {id:'3.7.5',  name:'Require MFA for remote maintenance sessions and prohibit remote activation'},
+        {id:'3.7.6',  name:'Supervise the maintenance activities of personnel without required access'},
+        // MP – Media Protection
+        {id:'3.8.1',  name:'Protect system media containing CUI, both paper and digital'},
+        {id:'3.8.2',  name:'Limit access to CUI on system media to authorized users'},
+        {id:'3.8.3',  name:'Sanitize or destroy system media before disposal or reuse'},
+        {id:'3.8.4',  name:'Mark media with necessary CUI markings and distribution limitations'},
+        {id:'3.8.5',  name:'Control access to media containing CUI during transport'},
+        {id:'3.8.6',  name:'Implement cryptographic mechanisms to protect CUI during transport'},
+        {id:'3.8.7',  name:'Control the use of removable media on system components'},
+        {id:'3.8.8',  name:'Prohibit the use of portable storage devices without identifiable owner'},
+        {id:'3.8.9',  name:'Protect the confidentiality of backup CUI at storage locations'},
+        // PE – Physical Protection
+        {id:'3.10.1', name:'Limit physical access to organizational systems to authorized individuals'},
+        {id:'3.10.2', name:'Protect and monitor the physical facility and support infrastructure'},
+        {id:'3.10.3', name:'Escort visitors and monitor visitor activity'},
+        {id:'3.10.4', name:'Maintain audit logs of physical access'},
+        {id:'3.10.5', name:'Control and manage physical access devices'},
+        {id:'3.10.6', name:'Enforce safeguarding measures for CUI at alternate work sites'},
+        // PS – Personnel Security
+        {id:'3.9.1',  name:'Screen individuals prior to authorizing access to systems'},
+        {id:'3.9.2',  name:'Ensure CUI is protected during and after personnel actions such as terminations'},
+        // RA – Risk Assessment
+        {id:'3.11.1', name:'Periodically assess the risk to operations, assets, and individuals'},
+        {id:'3.11.2', name:'Scan for vulnerabilities in organizational systems periodically'},
+        {id:'3.11.3', name:'Remediate vulnerabilities in accordance with risk assessments'},
+        // SA – Security Assessment
+        {id:'3.12.1', name:'Periodically assess security controls to determine if controls are effective'},
+        {id:'3.12.2', name:'Develop and implement plans of action to correct deficiencies'},
+        {id:'3.12.3', name:'Monitor security controls on an ongoing basis'},
+        {id:'3.12.4', name:'Develop, document, and periodically update system security plans'},
+        // SC – System and Communications Protection
+        {id:'3.13.1',  name:'Monitor, control, and protect communications at external boundaries'},
+        {id:'3.13.2',  name:'Employ architectural designs and engineering principles promoting security'},
+        {id:'3.13.3',  name:'Separate user functionality from system management functionality'},
+        {id:'3.13.4',  name:'Prevent unauthorized and unintended information transfer'},
+        {id:'3.13.5',  name:'Implement subnetworks for publicly accessible system components'},
+        {id:'3.13.6',  name:'Deny network communications traffic by default'},
+        {id:'3.13.7',  name:'Prevent remote devices from simultaneously using non-remote connections'},
+        {id:'3.13.8',  name:'Implement cryptographic mechanisms to prevent unauthorized disclosure during transmission'},
+        {id:'3.13.9',  name:'Terminate network connections after defined period of inactivity'},
+        {id:'3.13.10', name:'Establish and manage cryptographic keys for required cryptography'},
+        {id:'3.13.11', name:'Employ FIPS-validated cryptography when used to protect CUI'},
+        {id:'3.13.12', name:'Prohibit remote activation of collaborative computing devices'},
+        {id:'3.13.13', name:'Control and monitor the use of mobile code'},
+        {id:'3.13.14', name:'Control and monitor the use of VoIP technologies'},
+        {id:'3.13.15', name:'Protect the authenticity of communications sessions'},
+        {id:'3.13.16', name:'Protect CUI at rest'},
+        // SI – System and Information Integrity
+        {id:'3.14.1', name:'Identify, report, and correct information and system flaws in a timely manner'},
+        {id:'3.14.2', name:'Provide protection from malicious code at appropriate locations'},
+        {id:'3.14.3', name:'Monitor system security alerts and advisories and take action'},
+        {id:'3.14.4', name:'Update malicious code protection mechanisms'},
+        {id:'3.14.5', name:'Perform periodic and real-time scans of files from external sources'},
+        {id:'3.14.6', name:'Monitor systems to detect attacks and indicators of potential attacks'},
+        {id:'3.14.7', name:'Identify unauthorized use of organizational systems'},
+      ]
+    },
+    iso42001: {
+      name: 'ISO 42001:2023',
+      controls: [
+        // A.2 – Policies
+        {id:'A.2.2', name:'Policies for AI'},
+        {id:'A.2.3', name:'Review of Policies for AI'},
+        // A.3 – Internal Organization
+        {id:'A.3.2', name:'AI Roles and Responsibilities'},
+        {id:'A.3.3', name:'Reporting of Concerns Related to AI Systems'},
+        // A.4 – Resources
+        {id:'A.4.2', name:'Resources for AI Systems'},
+        {id:'A.4.3', name:'Awareness and Training for AI'},
+        {id:'A.4.4', name:'System and Computing Resources'},
+        // A.5 – Impact Assessment
+        {id:'A.5.2', name:'AI Impact Assessment Process'},
+        {id:'A.5.3', name:'Documenting AI Impacts'},
+        {id:'A.5.4', name:'Impacts on AI Subjects'},
+        {id:'A.5.5', name:'Societal Impacts of AI Systems'},
+        // A.6 – AI System Lifecycle
+        {id:'A.6.1.2', name:'AI System Design'},
+        {id:'A.6.1.3', name:'AI System Risk Management'},
+        {id:'A.6.2.2', name:'Data for AI Systems'},
+        {id:'A.6.2.3', name:'Data Acquisition for AI'},
+        {id:'A.6.2.4', name:'Data Preparation'},
+        {id:'A.6.2.5', name:'Data Provenance'},
+        {id:'A.6.2.6', name:'AI System Verification and Validation'},
+        {id:'A.6.2.7', name:'AI System Documentation'},
+        // A.7 – Data
+        {id:'A.7.2', name:'Data Governance for AI'},
+        {id:'A.7.3', name:'Data Quality for AI'},
+        {id:'A.7.4', name:'Data Privacy for AI'},
+        {id:'A.7.5', name:'Data Security for AI'},
+        {id:'A.7.6', name:'Data Lifecycle Management for AI'},
+        // A.8 – Information for Interested Parties
+        {id:'A.8.2', name:'Information for Users of AI Systems'},
+        {id:'A.8.3', name:'External Reporting on AI'},
+        {id:'A.8.4', name:'AI Incident Communication'},
+        {id:'A.8.5', name:'Information for Interested Parties'},
+        // A.9 – Use of AI Systems
+        {id:'A.9.2', name:'Processes for Responsible Use of AI'},
+        {id:'A.9.3', name:'Objectives for Responsible Use of AI'},
+        {id:'A.9.4', name:'Intended Use of AI Systems'},
+        // A.10 – Third-Party and Customer Relationships
+        {id:'A.10.2', name:'Allocating Responsibilities for AI'},
+        {id:'A.10.3', name:'Suppliers of AI Systems and Components'},
+        {id:'A.10.4', name:'Customers of AI Systems'},
+      ]
+    },
+    custom: {
+      name: 'Custom Framework',
+      controls: []
+    }
+  };
+
+  // ─── STATE ───────────────────────────────────────────────────────────────────
+  let rowCount = 0;
+
+  // ─── UTILS ───────────────────────────────────────────────────────────────────
+  function currentFramework() {
+    return document.getElementById('meta-framework').value;
+  }
+
+  function buildControlOptions(fw) {
+    const controls = FRAMEWORKS[fw] ? FRAMEWORKS[fw].controls : [];
+    let html = '<option value="">— Select control —</option>';
+    controls.forEach(c => {
+      html += `<option value="${c.id}">${c.id} – ${c.name}</option>`;
+    });
+    return html;
+  }
+
+  function addRow() {
+    rowCount++;
+    const fw = currentFramework();
+    const isCustom = fw === 'custom';
+    const tbody = document.getElementById('audit-body');
+    const tr = document.createElement('tr');
+    tr.className = 'audit-row';
+    tr.dataset.rowId = rowCount;
+
+    tr.innerHTML = `
+      <td class="row-num">${rowCount}</td>
+      <td class="col-control">
+        ${isCustom
+          ? `<input type="text" class="form-control form-control-sm ctrl-id mb-1" placeholder="Control ID" />
+             <input type="text" class="form-control form-control-sm ctrl-name" placeholder="Control Name" />`
+          : `<select class="form-select form-select-sm ctrl-select">${buildControlOptions(fw)}</select>`
+        }
+      </td>
+      <td class="col-status">
+        <select class="form-select form-select-sm ctrl-status">
+          <option value="compliant">✓ Compliant</option>
+          <option value="partial">△ Partially Compliant</option>
+          <option value="noncompliant">✗ Non-Compliant</option>
+          <option value="na">N/A</option>
+          <option value="nottested">— Not Tested</option>
+        </select>
+      </td>
+      <td class="col-risk">
+        <select class="form-select form-select-sm ctrl-risk">
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+          <option value="critical">Critical</option>
+        </select>
+      </td>
+      <td class="col-findings">
+        <textarea class="form-control ctrl-findings" placeholder="Observations, gaps, or positive notes…"></textarea>
+      </td>
+      <td class="col-evidence">
+        <input type="text" class="form-control ctrl-evidence" placeholder="Doc ref, ticket, screenshot…" />
+      </td>
+      <td class="col-del">
+        <button class="btn btn-sm btn-outline-danger del-row-btn" title="Delete row">×</button>
+      </td>
+    `;
+
+    tbody.appendChild(tr);
+
+    // Renumber all rows after appending
+    renumber();
+
+    // Delete handler
+    tr.querySelector('.del-row-btn').addEventListener('click', () => {
+      tr.remove();
+      renumber();
+    });
+  }
+
+  function renumber() {
+    document.querySelectorAll('#audit-body .audit-row').forEach((tr, i) => {
+      tr.querySelector('.row-num').textContent = i + 1;
+    });
+  }
+
+  function getRowData() {
+    const fw = currentFramework();
+    const controls = FRAMEWORKS[fw] ? FRAMEWORKS[fw].controls : [];
+    const ctrlMap = {};
+    controls.forEach(c => { ctrlMap[c.id] = c.name; });
+
+    const rows = [];
+    document.querySelectorAll('#audit-body .audit-row').forEach((tr, i) => {
+      const isCustom = fw === 'custom';
+      let id = '', name = '';
+
+      if (isCustom) {
+        id   = tr.querySelector('.ctrl-id')   ? tr.querySelector('.ctrl-id').value.trim()   : '';
+        name = tr.querySelector('.ctrl-name') ? tr.querySelector('.ctrl-name').value.trim() : '';
+      } else {
+        const sel = tr.querySelector('.ctrl-select');
+        id   = sel ? sel.value : '';
+        name = ctrlMap[id] || '';
+      }
+
+      rows.push({
+        num:      i + 1,
+        id,
+        name,
+        status:   tr.querySelector('.ctrl-status').value,
+        risk:     tr.querySelector('.ctrl-risk').value,
+        findings: tr.querySelector('.ctrl-findings').value.trim(),
+        evidence: tr.querySelector('.ctrl-evidence').value.trim(),
+      });
+    });
+    return rows;
+  }
+
+  // ─── REPORT ──────────────────────────────────────────────────────────────────
+  const STATUS_LABELS = {
+    compliant:    'Compliant',
+    partial:      'Partially Compliant',
+    noncompliant: 'Non-Compliant',
+    na:           'N/A',
+    nottested:    'Not Tested',
+  };
+  const STATUS_COLORS = {
+    compliant:    '#198754',
+    partial:      '#ffc107',
+    noncompliant: '#dc3545',
+    na:           '#6c757d',
+    nottested:    '#0dcaf0',
+  };
+  const RISK_COLORS = {
+    low:      '#198754',
+    medium:   '#ffc107',
+    high:     '#fd7e14',
+    critical: '#dc3545',
+  };
+
+  function badge(text, color) {
+    const dark = color === '#ffc107' || color === '#0dcaf0';
+    return `<span class="badge" style="background:${color};color:${dark?'#000':'#fff'}">${text}</span>`;
+  }
+
+  function generateReport() {
+    const org      = document.getElementById('meta-org').value.trim()      || '—';
+    const auditor  = document.getElementById('meta-auditor').value.trim()  || '—';
+    const dateVal  = document.getElementById('meta-date').value;
+    const scope    = document.getElementById('meta-scope').value.trim()    || '—';
+    const fwKey    = currentFramework();
+    const fwName   = FRAMEWORKS[fwKey].name;
+    const auditType = document.getElementById('meta-type').value;
+
+    const dateStr = dateVal
+      ? new Date(dateVal + 'T00:00:00').toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'})
+      : new Date().toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'});
+
+    const rows = getRowData();
+    if (!rows.length) { alert('Add at least one audit row before generating the report.'); return; }
+
+    // Stats
+    const counts = {compliant:0, partial:0, noncompliant:0, na:0, nottested:0};
+    const risks  = {low:0, medium:0, high:0, critical:0};
+    rows.forEach(r => {
+      if (counts[r.status] !== undefined) counts[r.status]++;
+      if (risks[r.risk]   !== undefined) risks[r.risk]++;
+    });
+    const total    = rows.length;
+    const reviewed = total - counts.na - counts.nottested;
+    const pct      = reviewed > 0 ? Math.round((counts.compliant / reviewed) * 100) : 0;
+
+    // Header
+    document.getElementById('rpt-title').textContent    = `${auditType} Report`;
+    document.getElementById('rpt-subtitle').textContent = `Framework: ${fwName}`;
+    document.getElementById('rpt-date').textContent     = dateStr;
+    document.getElementById('rpt-org').textContent      = org;
+    document.getElementById('rpt-auditor').textContent  = auditor;
+    document.getElementById('rpt-type').textContent     = auditType;
+    document.getElementById('rpt-scope').textContent    = scope;
+    document.getElementById('rpt-sig-auditor').textContent = auditor;
+    document.getElementById('rpt-sig-date').textContent    = dateStr;
+    document.getElementById('rpt-pct').textContent = `${pct}% Compliance Rate`;
+
+    // Summary cards
+    const cardDefs = [
+      { label: 'Total Controls', val: total,              color: 'var(--bs-body-color)' },
+      { label: 'Compliant',      val: counts.compliant,   color: '#198754' },
+      { label: 'Partial',        val: counts.partial,     color: '#ffc107' },
+      { label: 'Non-Compliant',  val: counts.noncompliant,color: '#dc3545' },
+      { label: 'N/A',            val: counts.na,          color: '#6c757d' },
+      { label: 'Not Tested',     val: counts.nottested,   color: '#0dcaf0' },
+    ];
+    document.getElementById('rpt-summary-cards').innerHTML = cardDefs.map(c => `
+      <div class="col-6 col-md-4 col-lg-2">
+        <div class="summary-card">
+          <div class="num" style="color:${c.color}">${c.val}</div>
+          <div class="small text-secondary">${c.label}</div>
+        </div>
+      </div>`).join('');
+
+    // Progress bar
+    const barEl = document.getElementById('rpt-bar');
+    barEl.innerHTML = Object.entries(counts).map(([k,v]) =>
+      v > 0 ? `<span class="progress-segment" style="width:${(v/total)*100}%;background:${STATUS_COLORS[k]}"></span>` : ''
+    ).join('');
+
+    // Risk cards
+    document.getElementById('rpt-risk-cards').innerHTML = Object.entries(risks).map(([k,v]) => `
+      <div class="col-6 col-md-3">
+        <div class="summary-card">
+          <div class="num" style="color:${RISK_COLORS[k]}">${v}</div>
+          <div class="small text-secondary">${k.charAt(0).toUpperCase()+k.slice(1)} Risk</div>
+        </div>
+      </div>`).join('');
+
+    // Findings table
+    document.getElementById('rpt-findings-body').innerHTML = rows.map(r => `
+      <tr>
+        <td class="text-secondary">${r.num}</td>
+        <td><strong>${r.id || '—'}</strong><br><span class="text-secondary">${r.name}</span></td>
+        <td>${badge(STATUS_LABELS[r.status], STATUS_COLORS[r.status])}</td>
+        <td>${badge(r.risk.charAt(0).toUpperCase()+r.risk.slice(1), RISK_COLORS[r.risk])}</td>
+        <td>${r.findings || '<span class="text-secondary fst-italic">None</span>'}</td>
+        <td>${r.evidence || '<span class="text-secondary fst-italic">None</span>'}</td>
+      </tr>`).join('');
+
+    // Show report
+    document.getElementById('audit-builder').style.display = 'none';
+    document.getElementById('report-output').style.display = 'block';
+    window.scrollTo(0, 0);
+  }
+
+  // ─── CSV EXPORT ──────────────────────────────────────────────────────────────
+  function exportCSV() {
+    const rows = getRowData();
+    const fwName = FRAMEWORKS[currentFramework()].name;
+    const org    = document.getElementById('meta-org').value.trim() || '';
+    const lines  = [['#','Control ID','Control Name','Status','Risk','Findings','Evidence']
+      .map(h => `"${h}"`).join(',')];
+    rows.forEach(r => {
+      lines.push([
+        r.num,
+        `"${r.id}"`,
+        `"${r.name}"`,
+        `"${STATUS_LABELS[r.status]}"`,
+        `"${r.risk.charAt(0).toUpperCase()+r.risk.slice(1)}"`,
+        `"${r.findings.replace(/"/g,'""')}"`,
+        `"${r.evidence.replace(/"/g,'""')}"`,
+      ].join(','));
+    });
+    const blob = new Blob([lines.join('\n')], {type:'text/csv'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `audit-report-${org.replace(/\s+/g,'-').toLowerCase() || 'export'}.csv`;
+    a.click();
+  }
+
+  // ─── EVENT WIRING ────────────────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', () => {
+    // Set today's date as default
+    document.getElementById('meta-date').valueAsDate = new Date();
+
+    // Add initial row
+    addRow();
+
+    document.getElementById('add-row-btn').addEventListener('click',  addRow);
+    document.getElementById('add-row-btn2').addEventListener('click', addRow);
+    document.getElementById('generate-btn').addEventListener('click', generateReport);
+    document.getElementById('back-btn').addEventListener('click', () => {
+      document.getElementById('report-output').style.display = 'none';
+      document.getElementById('audit-builder').style.display = 'block';
+      window.scrollTo(0, 0);
+    });
+    document.getElementById('export-csv-btn').addEventListener('click', exportCSV);
+    document.getElementById('clear-btn').addEventListener('click', () => {
+      if (confirm('Clear all audit rows?')) {
+        document.getElementById('audit-body').innerHTML = '';
+        rowCount = 0;
+        addRow();
+      }
+    });
+
+    // Rebuild control dropdowns when framework changes
+    document.getElementById('meta-framework').addEventListener('change', () => {
+      const fw = currentFramework();
+      const isCustom = fw === 'custom';
+      document.querySelectorAll('#audit-body .audit-row').forEach(tr => {
+        const td = tr.querySelector('.col-control');
+        if (isCustom) {
+          td.innerHTML = `<input type="text" class="form-control form-control-sm ctrl-id mb-1" placeholder="Control ID" />
+                          <input type="text" class="form-control form-control-sm ctrl-name" placeholder="Control Name" />`;
+        } else {
+          td.innerHTML = `<select class="form-select form-select-sm ctrl-select">${buildControlOptions(fw)}</select>`;
+        }
+      });
+    });
+  });
+  </script>
+</body>
+</html>
