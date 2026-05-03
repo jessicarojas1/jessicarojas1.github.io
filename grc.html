@@ -95,6 +95,22 @@
     [data-rbac-min="editor"]  { display:none; }
     [data-rbac-min="admin"]   { display:none; }
     @media(max-width:767px){ #sidebar{ position:fixed; z-index:200; } }
+    /* Metrics module */
+    .kpi-m-card { transition: box-shadow .15s, transform .15s; cursor:pointer; }
+    .kpi-m-card:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,0,0,.2); }
+    .kpi-m-bordered { border-left: 4px solid var(--kpi-color, #0d6efd) !important; }
+    .kpi-m-shadow { box-shadow: 0 4px 24px rgba(0,0,0,.18) !important; border: none !important; }
+    .kpi-m-minimal { background: transparent !important; border: none !important; }
+    .kpi-m-glass { backdrop-filter: blur(8px); background: rgba(var(--bs-body-bg-rgb),.6) !important; border: 1px solid rgba(255,255,255,.12) !important; }
+    .kpi-value { font-size: 2rem; font-weight: 700; line-height: 1; }
+    .kpi-sparkline { height: 60px; position: relative; }
+    .metrics-view-btn.active { background: var(--bs-primary) !important; color: #fff !important; border-color: var(--bs-primary) !important; }
+    .kpi-status-bar { height: 3px; border-radius: 2px; }
+    .trend-up-good   { color: #198754; }
+    .trend-up-bad    { color: #dc3545; }
+    .trend-down-good { color: #198754; }
+    .trend-down-bad  { color: #dc3545; }
+    .trend-stable    { color: #6c757d; }
   </style>
 </head>
 <body>
@@ -124,6 +140,7 @@
 
       <div class="sidebar-section">Intelligence</div>
       <li><a class="nav-link" href="#" data-mod="analytics">📊 Analytics</a></li>
+      <li><a class="nav-link" href="#" data-mod="metrics">📐 KPI Metrics</a></li>
       <li><a class="nav-link" href="#" data-mod="risktracker">🎯 Risk Tracker</a></li>
       <li><a class="nav-link" href="#" data-mod="gaps">🔍 Gap Analysis</a></li>
       <li><a class="nav-link" href="#" data-mod="trends">📈 Trends</a></li>
@@ -415,6 +432,69 @@
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- METRICS -->
+      <div class="module" id="mod-metrics">
+
+        <!-- Controls bar -->
+        <div class="d-flex flex-wrap gap-2 mb-3 align-items-center">
+          <h4 class="mb-0 fw-bold me-auto">KPI Metrics</h4>
+          <!-- View switcher -->
+          <div class="btn-group btn-group-sm" id="metrics-view-btns" role="group">
+            <button class="btn btn-outline-secondary metrics-view-btn active" data-view="grid" onclick="setMetricsView('grid',this)">⊞ Grid</button>
+            <button class="btn btn-outline-secondary metrics-view-btn" data-view="list" onclick="setMetricsView('list',this)">☰ List</button>
+          </div>
+          <!-- Columns -->
+          <select class="form-select form-select-sm" style="width:auto" id="metrics-cols" onchange="renderMetrics()">
+            <option value="2">2 Columns</option>
+            <option value="3" selected>3 Columns</option>
+            <option value="4">4 Columns</option>
+            <option value="6">6 Columns</option>
+          </select>
+          <!-- Card style -->
+          <select class="form-select form-select-sm" style="width:auto" id="metrics-card-style" onchange="renderMetrics()">
+            <option value="flat">Flat</option>
+            <option value="bordered">Bordered</option>
+            <option value="gradient">Gradient</option>
+            <option value="shadow">Shadow</option>
+            <option value="minimal">Minimal</option>
+            <option value="glass">Glass</option>
+          </select>
+          <!-- Color theme -->
+          <select class="form-select form-select-sm" style="width:auto" id="metrics-theme" onchange="renderMetrics()">
+            <option value="custom">Custom Colors</option>
+            <option value="corporate">Corporate Blue</option>
+            <option value="security">Security Red</option>
+            <option value="nature">Nature Green</option>
+            <option value="sunset">Sunset</option>
+            <option value="ocean">Ocean</option>
+            <option value="mono">Monochrome</option>
+            <option value="neon">Neon</option>
+          </select>
+          <!-- Chart type override -->
+          <select class="form-select form-select-sm" style="width:auto" id="metrics-chart-override" onchange="renderMetrics()">
+            <option value="">Per-KPI Chart</option>
+            <option value="line">All — Line</option>
+            <option value="bar">All — Bar</option>
+            <option value="area">All — Area</option>
+            <option value="doughnut">All — Doughnut</option>
+            <option value="gauge">All — Gauge</option>
+          </select>
+          <button class="btn btn-sm btn-primary" data-rbac-min="editor" onclick="openKpiModal()">+ Add KPI</button>
+        </div>
+
+        <!-- Summary strip -->
+        <div class="row g-2 mb-3" id="metrics-summary"></div>
+
+        <!-- Grid / List view -->
+        <div id="metrics-grid"></div>
+
+        <!-- Focus view (single KPI expanded) -->
+        <div id="metrics-focus" style="display:none">
+          <button class="btn btn-sm btn-outline-secondary mb-3" onclick="closeFocus()">← Back</button>
+          <div id="metrics-focus-content"></div>
         </div>
       </div>
 
@@ -1113,7 +1193,7 @@ function kpiCard(val,label,color='primary'){return `<div class="col-6 col-md-3">
 function destroyChart(id){const ex=Chart.getChart(id);if(ex)ex.destroy();}
 
 /* ══ NAVIGATION ══ */
-const MODULE_TITLES={dashboard:'Dashboard',risks:'Risk Register',controls:'Controls Library',policies:'Policy Manager',compliance:'Compliance Overview',poam:'POA&M',exceptions:'Exception Register',incidents:'Incident Management',assets:'Asset Inventory',vendors:'Vendor Risk',analytics:'Analytics & Charts',risktracker:'Risk Tracker',gaps:'Gap Analysis',trends:'Compliance Trends',ai:'AI Assistant',audits:'Audit Management',iaudit:'Internal Audit',projects:'Remediation Projects',training:'Training & Awareness',bcp:'Business Continuity & DR',regs:'Regulatory Register',kri:'Key Risk Indicators',activity:'Activity Log',settings:'Settings'};
+const MODULE_TITLES={dashboard:'Dashboard',risks:'Risk Register',controls:'Controls Library',policies:'Policy Manager',compliance:'Compliance Overview',poam:'POA&M',exceptions:'Exception Register',incidents:'Incident Management',assets:'Asset Inventory',vendors:'Vendor Risk',analytics:'Analytics & Charts',risktracker:'Risk Tracker',gaps:'Gap Analysis',trends:'Compliance Trends',ai:'AI Assistant',audits:'Audit Management',iaudit:'Internal Audit',projects:'Remediation Projects',training:'Training & Awareness',bcp:'Business Continuity & DR',regs:'Regulatory Register',kri:'Key Risk Indicators',metrics:'KPI Metrics',activity:'Activity Log',settings:'Settings'};
 function navigate(mod){
   document.querySelectorAll('.module').forEach(m=>m.classList.remove('active'));
   document.querySelectorAll('[data-mod]').forEach(a=>a.classList.remove('active'));
@@ -1148,6 +1228,7 @@ function renderModule(mod){
     case 'bcp':renderBcp();break;
     case 'regs':renderRegs();break;
     case 'kri':renderKri();break;
+    case 'metrics':renderMetrics();break;
   }
 }
 </script>
@@ -2154,6 +2235,26 @@ function extendSeedData(){
     {id:'proj2',name:'MDM Mobile Device Rollout',priority:'High',status:'planning',owner:'IT',start:daysFromNow(7),target:daysFromNow(60),budget:12000,progress:10,desc:'Deploy Intune to 45 corporate mobile devices.',links:{controls:['c3'],risks:[],policies:[],assets:['a2']}},
     {id:'proj3',name:'AI Governance Policy Approval',priority:'Medium',status:'in-progress',owner:'CISO',start:daysAgo(14),target:daysFromNow(45),budget:0,progress:35,desc:'Draft, legal review, and board sign-off.',links:{controls:['c11'],risks:[],policies:['p6'],assets:[]}},
   ];dbSave(DB);}
+  if(!DB.metrics){DB.metrics=[
+    {id:'m1',name:'Security Training Completion',desc:'% of staff who completed mandatory annual security awareness training.',unit:'%',category:'People',chartType:'line',color:'#0d6efd',target:100,targetDir:'higher',warnThreshold:85,critThreshold:70,data:[
+      {date:daysAgo(150),value:45},{date:daysAgo(120),value:58},{date:daysAgo(90),value:67},{date:daysAgo(60),value:75},{date:daysAgo(30),value:82},{date:daysAgo(7),value:87},
+    ]},
+    {id:'m2',name:'Mean Time to Patch (Critical)',desc:'Average days to apply critical security patches after vendor release.',unit:'days',category:'Technical',chartType:'bar',color:'#dc3545',target:7,targetDir:'lower',warnThreshold:14,critThreshold:30,data:[
+      {date:daysAgo(150),value:28},{date:daysAgo(120),value:22},{date:daysAgo(90),value:18},{date:daysAgo(60),value:15},{date:daysAgo(30),value:11},{date:daysAgo(7),value:9},
+    ]},
+    {id:'m3',name:'MFA Adoption Rate',desc:'Percentage of active user accounts with MFA enforced.',unit:'%',category:'Technical',chartType:'area',color:'#198754',target:100,targetDir:'higher',warnThreshold:95,critThreshold:90,data:[
+      {date:daysAgo(150),value:78},{date:daysAgo(120),value:84},{date:daysAgo(90),value:89},{date:daysAgo(60),value:93},{date:daysAgo(30),value:97},{date:daysAgo(7),value:99},
+    ]},
+    {id:'m4',name:'Open Critical Findings',desc:'Number of open critical audit or vulnerability findings.',unit:'count',category:'Compliance',chartType:'bar',color:'#fd7e14',target:0,targetDir:'lower',warnThreshold:3,critThreshold:7,data:[
+      {date:daysAgo(150),value:12},{date:daysAgo(120),value:10},{date:daysAgo(90),value:8},{date:daysAgo(60),value:6},{date:daysAgo(30),value:4},{date:daysAgo(7),value:3},
+    ]},
+    {id:'m5',name:'Vendor Risk Reviews Completed',desc:'% of vendors due for annual risk review that have been reviewed.',unit:'%',category:'Vendor',chartType:'doughnut',color:'#6f42c1',target:100,targetDir:'higher',warnThreshold:80,critThreshold:60,data:[
+      {date:daysAgo(150),value:55},{date:daysAgo(120),value:62},{date:daysAgo(90),value:70},{date:daysAgo(60),value:78},{date:daysAgo(30),value:85},{date:daysAgo(7),value:91},
+    ]},
+    {id:'m6',name:'Incident Response Time (MTTR)',desc:'Mean time to resolve security incidents in hours.',unit:'hours',category:'Operational',chartType:'line',color:'#20c997',target:4,targetDir:'lower',warnThreshold:24,critThreshold:72,data:[
+      {date:daysAgo(150),value:48},{date:daysAgo(120),value:36},{date:daysAgo(90),value:28},{date:daysAgo(60),value:22},{date:daysAgo(30),value:16},{date:daysAgo(7),value:14},
+    ]},
+  ];dbSave(DB);}
 }
 
 document.addEventListener('DOMContentLoaded',()=>{
@@ -2757,6 +2858,561 @@ function deleteProject(id){
   log('Projects',`Deleted: ${p?p.name:id}`);
   renderProjects();
 }
+
+/* ══════════════════════════════════════════
+   KPI METRICS MODULE
+══════════════════════════════════════════ */
+const METRIC_THEMES={
+  'Corporate Blue':['#0d6efd','#3d8bfd','#6ea8fe','#9ec5fe','#cfe2ff','#084298'],
+  'Security Red':['#dc3545','#e35d6a','#ea868f','#f1aeb5','#f8d7da','#842029'],
+  'Nature Green':['#198754','#28a745','#5cb85c','#82c991','#a3cfbb','#0a3622'],
+  'Sunset':['#fd7e14','#ffc107','#e83e8c','#dc3545','#6f42c1','#0d6efd'],
+  'Ocean':['#0dcaf0','#0d6efd','#6610f2','#20c997','#0aa2c0','#052c65'],
+  'Monochrome':['#212529','#495057','#6c757d','#adb5bd','#ced4da','#343a40'],
+  'Neon':['#00ff88','#00cfff','#ff00c8','#ffe600','#ff4d00','#7b00ff'],
+  'Pastel':['#9ec5fe','#a3cfbb','#f1aeb5','#ffe69c','#d3d3f5','#f5c2e7'],
+};
+
+let _metricsView='grid';
+let _kpiModalBS=null, _kpiDataModalBS=null;
+
+function renderMetrics(){
+  if(!DB.metrics)DB.metrics=[];
+  renderMetricsSummary();
+  const v=_metricsView;
+  document.getElementById('metrics-focus').style.display='none';
+  if(v==='list') renderMetricsList();
+  else renderMetricsGrid();
+}
+
+function setMetricsView(view,btn){
+  _metricsView=view;
+  document.querySelectorAll('.metrics-view-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderMetrics();
+}
+
+function renderMetricsSummary(){
+  const kpis=DB.metrics||[];
+  let total=kpis.length,onTarget=0,warning=0,critical=0;
+  kpis.forEach(k=>{
+    const s=kpiStatus(k);
+    if(s==='on-target')onTarget++;
+    else if(s==='warning')warning++;
+    else if(s==='critical')critical++;
+  });
+  document.getElementById('metrics-summary').innerHTML=`
+    <div class="col-6 col-md-3"><div class="card text-center py-2"><div class="fs-3 fw-bold">${total}</div><div class="text-muted small">Total KPIs</div></div></div>
+    <div class="col-6 col-md-3"><div class="card text-center py-2 border-success"><div class="fs-3 fw-bold text-success">${onTarget}</div><div class="text-muted small">On Target</div></div></div>
+    <div class="col-6 col-md-3"><div class="card text-center py-2 border-warning"><div class="fs-3 fw-bold text-warning">${warning}</div><div class="text-muted small">Warning</div></div></div>
+    <div class="col-6 col-md-3"><div class="card text-center py-2 border-danger"><div class="fs-3 fw-bold text-danger">${critical}</div><div class="text-muted small">Critical</div></div></div>
+  `;
+}
+
+function kpiStatus(k){
+  const v=kpiCurrentValue(k);
+  if(v===null) return 'no-data';
+  if(k.targetDir==='lower'){
+    if(v<=k.target) return 'on-target';
+    if(v<=k.warnThreshold) return 'warning';
+    if(v<=k.critThreshold) return 'warning';
+    return 'critical';
+  } else {
+    if(v>=k.target) return 'on-target';
+    if(v>=k.warnThreshold) return 'warning';
+    if(v>=k.critThreshold) return 'warning';
+    return 'critical';
+  }
+}
+
+function kpiStatusColor(s){
+  if(s==='on-target') return 'success';
+  if(s==='warning') return 'warning';
+  if(s==='critical') return 'danger';
+  return 'secondary';
+}
+
+function kpiCurrentValue(k){
+  if(!k.data||!k.data.length) return null;
+  const sorted=[...k.data].sort((a,b)=>a.date.localeCompare(b.date));
+  return sorted[sorted.length-1].value;
+}
+
+function kpiTrend(k){
+  if(!k.data||k.data.length<2) return {arrow:'→',cls:'trend-stable'};
+  const sorted=[...k.data].sort((a,b)=>a.date.localeCompare(b.date));
+  const last=sorted[sorted.length-1].value;
+  const prev=sorted[sorted.length-2].value;
+  const diff=last-prev;
+  if(Math.abs(diff)<0.001) return {arrow:'→',cls:'trend-stable'};
+  if(diff>0){
+    return k.targetDir==='higher'
+      ?{arrow:'↑',cls:'trend-up-good'}
+      :{arrow:'↑',cls:'trend-up-bad'};
+  } else {
+    return k.targetDir==='lower'
+      ?{arrow:'↓',cls:'trend-down-good'}
+      :{arrow:'↓',cls:'trend-down-bad'};
+  }
+}
+
+function getKpiColor(k){
+  const theme=document.getElementById('metrics-theme')?.value;
+  if(theme&&theme!=='KPI Color'&&METRIC_THEMES[theme]){
+    const idx=(DB.metrics||[]).indexOf(k);
+    const palette=METRIC_THEMES[theme];
+    return palette[idx%palette.length];
+  }
+  return k.color||'#0d6efd';
+}
+
+function getCardStyleClass(){
+  const s=document.getElementById('metrics-card-style')?.value||'Flat';
+  const map={'Flat':'','Bordered':'kpi-m-bordered','Gradient':'kpi-m-gradient','Shadow':'kpi-m-shadow','Minimal':'kpi-m-minimal','Glass':'kpi-m-glass'};
+  return map[s]||'';
+}
+
+function getChartTypeOverride(){
+  const v=document.getElementById('metrics-chart-override')?.value||'(per KPI)';
+  return v==='(per KPI)'?null:v.toLowerCase();
+}
+
+function getColClass(){
+  const c=document.getElementById('metrics-cols')?.value||'3';
+  const map={'2':'col-md-6','3':'col-md-4','4':'col-md-3','6':'col-md-2'};
+  return map[c]||'col-md-4';
+}
+
+function renderMetricsGrid(){
+  const kpis=DB.metrics||[];
+  const colCls=getColClass();
+  const cardCls=getCardStyleClass();
+  if(!kpis.length){
+    document.getElementById('metrics-grid').innerHTML='<div class="text-center text-muted py-5">No KPIs defined yet. Click <strong>+ Add KPI</strong> to get started.</div>';
+    return;
+  }
+  let html='<div class="row g-3">';
+  kpis.forEach(k=>{
+    const cv=kpiCurrentValue(k);
+    const s=kpiStatus(k);
+    const sc=kpiStatusColor(s);
+    const tr=kpiTrend(k);
+    const color=getKpiColor(k);
+    const chartId='kpic_'+k.id;
+    html+=`<div class="${colCls}">
+      <div class="card kpi-m-card h-100 ${cardCls}" style="--kpi-color:${color}" onclick="focusKpi('${k.id}')">
+        <div class="card-body p-3">
+          <div class="d-flex justify-content-between align-items-start mb-1">
+            <div class="fw-semibold small text-truncate me-2" title="${escHtml(k.name)}">${escHtml(k.name)}</div>
+            <span class="badge bg-${sc} text-nowrap">${s.replace('-',' ')}</span>
+          </div>
+          <div class="d-flex align-items-end gap-2 mb-1">
+            <span class="kpi-value" style="color:${color}">${cv!==null?cv:'—'}</span>
+            <span class="text-muted small mb-1">${escHtml(k.unit)}</span>
+            <span class="${tr.cls} mb-1 fs-5">${tr.arrow}</span>
+          </div>
+          <div class="text-muted small mb-2">Target: ${k.target} ${escHtml(k.unit)} &nbsp;·&nbsp; <span class="text-muted">${escHtml(k.category||'')}</span></div>
+          <div class="kpi-sparkline"><canvas id="${chartId}"></canvas></div>
+          <div class="d-flex gap-1 mt-2" onclick="event.stopPropagation()">
+            <button class="btn btn-outline-secondary btn-sm flex-fill" onclick="openKpiDataModal('${k.id}')">+ Data</button>
+            <button class="btn btn-outline-primary btn-sm flex-fill" onclick="openKpiModal('${k.id}')">Edit</button>
+            <button class="btn btn-outline-danger btn-sm" onclick="deleteKpi('${k.id}')"><i class="bi bi-trash"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  });
+  html+='</div>';
+  document.getElementById('metrics-grid').innerHTML=html;
+  kpis.forEach(k=>drawKpiChart('kpic_'+k.id,k,true));
+}
+
+function renderMetricsList(){
+  const kpis=DB.metrics||[];
+  if(!kpis.length){
+    document.getElementById('metrics-grid').innerHTML='<div class="text-center text-muted py-5">No KPIs defined yet.</div>';
+    return;
+  }
+  let rows='';
+  kpis.forEach(k=>{
+    const cv=kpiCurrentValue(k);
+    const s=kpiStatus(k);
+    const sc=kpiStatusColor(s);
+    const tr=kpiTrend(k);
+    const color=getKpiColor(k);
+    const sparkId='kpis_'+k.id;
+    rows+=`<tr>
+      <td><strong>${escHtml(k.name)}</strong><div class="text-muted small">${escHtml(k.category||'')}</div></td>
+      <td><span style="color:${color};font-weight:700">${cv!==null?cv:'—'}</span> <span class="text-muted small">${escHtml(k.unit)}</span></td>
+      <td>${k.target} ${escHtml(k.unit)}</td>
+      <td><span class="badge bg-${sc}">${s.replace('-',' ')}</span></td>
+      <td><span class="${tr.cls} fs-5">${tr.arrow}</span></td>
+      <td style="width:120px"><canvas id="${sparkId}" height="40"></canvas></td>
+      <td>
+        <button class="btn btn-outline-secondary btn-sm me-1" onclick="openKpiDataModal('${k.id}')">Data</button>
+        <button class="btn btn-outline-primary btn-sm me-1" onclick="openKpiModal('${k.id}')">Edit</button>
+        <button class="btn btn-outline-danger btn-sm" onclick="deleteKpi('${k.id}')">Del</button>
+      </td>
+    </tr>`;
+  });
+  document.getElementById('metrics-grid').innerHTML=`
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead class="table-light"><tr><th>KPI</th><th>Current</th><th>Target</th><th>Status</th><th>Trend</th><th>Sparkline</th><th></th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+  kpis.forEach(k=>drawKpiChart('kpis_'+k.id,k,true));
+}
+
+function drawKpiChart(canvasId,k,sparkline=false){
+  destroyChart(canvasId);
+  const el=document.getElementById(canvasId);
+  if(!el||!k.data||!k.data.length) return;
+  const sorted=[...k.data].sort((a,b)=>a.date.localeCompare(b.date));
+  const labels=sorted.map(d=>d.date.slice(5));
+  const values=sorted.map(d=>d.value);
+  const color=getKpiColor(k);
+  const chartTypeRaw=getChartTypeOverride()||k.chartType||'line';
+  const isArea=chartTypeRaw==='area';
+  const chartType=isArea?'line':(chartTypeRaw==='gauge'?'doughnut':chartTypeRaw);
+
+  const alpha=(hex,a)=>{const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return `rgba(${r},${g},${b},${a})`;};
+
+  let datasets,options;
+  if(chartType==='doughnut'){
+    const cv=kpiCurrentValue(k);
+    const pct=k.target?Math.min(100,Math.round((cv/k.target)*100)):0;
+    datasets=[{data:[pct,100-pct],backgroundColor:[color,alpha(color,0.15)],borderWidth:0}];
+    options={cutout:'70%',plugins:{legend:{display:false},tooltip:{enabled:!sparkline}},animation:{duration:sparkline?0:400}};
+  } else {
+    const theme=document.getElementById('metrics-theme')?.value;
+    const palette=theme&&METRIC_THEMES[theme]?METRIC_THEMES[theme]:null;
+    datasets=[{
+      label:k.name,
+      data:values,
+      borderColor:color,
+      backgroundColor:chartType==='bar'
+        ?(palette?palette.map(c=>alpha(c,0.7)):alpha(color,0.7))
+        :(isArea?alpha(color,0.2):'transparent'),
+      fill:isArea,
+      tension:0.4,
+      pointRadius:sparkline?0:4,
+      pointHoverRadius:sparkline?0:6,
+      borderWidth:sparkline?1.5:2,
+    }];
+    options={
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{enabled:!sparkline}},
+      scales:chartType==='bar'||chartType==='line'?{
+        x:{display:!sparkline,ticks:{maxTicksLimit:6,font:{size:10}}},
+        y:{display:!sparkline,ticks:{font:{size:10}}},
+      }:{},
+      animation:{duration:sparkline?0:400},
+    };
+    if(!sparkline&&k.target!=null){
+      datasets.push({
+        label:'Target',
+        data:labels.map(()=>k.target),
+        borderColor:'rgba(108,117,125,0.5)',
+        borderDash:[6,4],
+        borderWidth:1.5,
+        pointRadius:0,
+        fill:false,
+      });
+      if(k.warnThreshold!=null) datasets.push({label:'Warning',data:labels.map(()=>k.warnThreshold),borderColor:'rgba(255,193,7,0.5)',borderDash:[4,4],borderWidth:1,pointRadius:0,fill:false});
+      if(k.critThreshold!=null) datasets.push({label:'Critical',data:labels.map(()=>k.critThreshold),borderColor:'rgba(220,53,69,0.5)',borderDash:[4,4],borderWidth:1,pointRadius:0,fill:false});
+    }
+  }
+  new Chart(el,{type:chartType,data:{labels,datasets},options});
+}
+
+function focusKpi(id){
+  const k=(DB.metrics||[]).find(x=>x.id===id);
+  if(!k) return;
+  const cv=kpiCurrentValue(k);
+  const s=kpiStatus(k);
+  const sc=kpiStatusColor(s);
+  const tr=kpiTrend(k);
+  const color=getKpiColor(k);
+  const sorted=[...(k.data||[])].sort((a,b)=>a.date.localeCompare(b.date));
+  let tableRows=sorted.map(d=>`<tr><td>${d.date}</td><td>${d.value} ${escHtml(k.unit)}</td></tr>`).join('');
+  document.getElementById('metrics-focus-content').innerHTML=`
+    <button class="btn btn-outline-secondary btn-sm mb-3" onclick="closeFocus()">← Back to all KPIs</button>
+    <div class="row g-3">
+      <div class="col-md-3">
+        <div class="card h-100">
+          <div class="card-body text-center">
+            <div class="kpi-value mb-1" style="color:${color};font-size:3rem">${cv!==null?cv:'—'}</div>
+            <div class="text-muted">${escHtml(k.unit)}</div>
+            <hr>
+            <h5 class="fw-bold">${escHtml(k.name)}</h5>
+            <span class="badge bg-${sc} fs-6 mb-2">${s.replace('-',' ')}</span>
+            <div class="text-muted small mb-1">${escHtml(k.desc||'')}</div>
+            <hr>
+            <div class="d-flex justify-content-between small"><span>Target:</span><strong>${k.target} ${escHtml(k.unit)}</strong></div>
+            <div class="d-flex justify-content-between small"><span>Warning:</span><strong>${k.warnThreshold} ${escHtml(k.unit)}</strong></div>
+            <div class="d-flex justify-content-between small"><span>Critical:</span><strong>${k.critThreshold} ${escHtml(k.unit)}</strong></div>
+            <div class="d-flex justify-content-between small mt-1"><span>Direction:</span><strong>${k.targetDir==='higher'?'↑ Higher better':'↓ Lower better'}</strong></div>
+            <div class="d-flex justify-content-between small"><span>Trend:</span><strong class="${tr.cls}">${tr.arrow}</strong></div>
+            <div class="mt-3 d-flex gap-2 flex-column">
+              <button class="btn btn-outline-secondary btn-sm" onclick="openKpiDataModal('${k.id}')">Manage Data Points</button>
+              <button class="btn btn-outline-primary btn-sm" onclick="openKpiModal('${k.id}')">Edit KPI</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-header fw-semibold">Trend Chart</div>
+          <div class="card-body" style="min-height:300px;position:relative">
+            <canvas id="kpi-focus-chart"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card h-100">
+          <div class="card-header fw-semibold">Data History</div>
+          <div class="card-body p-0">
+            <table class="table table-sm table-hover mb-0">
+              <thead><tr><th>Date</th><th>Value</th></tr></thead>
+              <tbody>${tableRows||'<tr><td colspan="2" class="text-muted text-center py-3">No data yet</td></tr>'}</tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('metrics-focus').style.display='block';
+  document.getElementById('metrics-grid').style.display='none';
+  document.getElementById('metrics-summary').closest('.row')||null;
+  requestAnimationFrame(()=>drawKpiChart('kpi-focus-chart',k,false));
+}
+
+function closeFocus(){
+  document.getElementById('metrics-focus').style.display='none';
+  document.getElementById('metrics-grid').style.display='';
+  renderMetrics();
+}
+
+function openKpiModal(id){
+  if(!_kpiModalBS) _kpiModalBS=new bootstrap.Modal(document.getElementById('kpiModal'));
+  const k=id?(DB.metrics||[]).find(x=>x.id===id):null;
+  document.getElementById('kpi-id').value=k?k.id:'';
+  document.getElementById('kpi-name').value=k?k.name:'';
+  document.getElementById('kpi-desc').value=k?k.desc||'':'';
+  document.getElementById('kpi-unit').value=k?k.unit||'':'';
+  document.getElementById('kpi-category').value=k?k.category||'':'';
+  document.getElementById('kpi-target').value=k?k.target:'';
+  document.getElementById('kpi-targetdir').value=k?k.targetDir||'higher':'higher';
+  document.getElementById('kpi-charttype').value=k?k.chartType||'line':'line';
+  document.getElementById('kpi-color').value=k?k.color||'#0d6efd':'#0d6efd';
+  document.getElementById('kpi-warn').value=k?k.warnThreshold:'';
+  document.getElementById('kpi-crit').value=k?k.critThreshold:'';
+  _kpiModalBS.show();
+}
+
+function saveKpi(){
+  const id=document.getElementById('kpi-id').value;
+  const name=document.getElementById('kpi-name').value.trim();
+  if(!name) return alert('Name is required.');
+  const obj={
+    id:id||uid(),
+    name,
+    desc:document.getElementById('kpi-desc').value.trim(),
+    unit:document.getElementById('kpi-unit').value.trim(),
+    category:document.getElementById('kpi-category').value.trim(),
+    target:Number(document.getElementById('kpi-target').value)||0,
+    targetDir:document.getElementById('kpi-targetdir').value,
+    chartType:document.getElementById('kpi-charttype').value,
+    color:document.getElementById('kpi-color').value,
+    warnThreshold:Number(document.getElementById('kpi-warn').value)||null,
+    critThreshold:Number(document.getElementById('kpi-crit').value)||null,
+    data:id?((DB.metrics||[]).find(x=>x.id===id)||{}).data||[]:[],
+  };
+  if(!DB.metrics) DB.metrics=[];
+  if(id){const i=DB.metrics.findIndex(x=>x.id===id);if(i>-1)DB.metrics[i]=obj;}
+  else DB.metrics.push(obj);
+  dbSave(DB);
+  log('KPI Metrics',id?`Updated: ${name}`:`Added: ${name}`);
+  bootstrap.Modal.getInstance(document.getElementById('kpiModal')).hide();
+  renderMetrics();
+}
+
+function deleteKpi(id){
+  if(!confirm('Delete this KPI and all its data?')) return;
+  const k=(DB.metrics||[]).find(x=>x.id===id);
+  DB.metrics=(DB.metrics||[]).filter(x=>x.id!==id);
+  dbSave(DB);
+  log('KPI Metrics',`Deleted: ${k?k.name:id}`);
+  renderMetrics();
+}
+
+function openKpiDataModal(id){
+  if(!_kpiDataModalBS) _kpiDataModalBS=new bootstrap.Modal(document.getElementById('kpiDataModal'));
+  const k=(DB.metrics||[]).find(x=>x.id===id);
+  if(!k) return;
+  document.getElementById('kpi-data-id').value=id;
+  document.getElementById('kpi-data-modal-name').textContent=k.name;
+  document.getElementById('dp-date').value=TODAY;
+  document.getElementById('dp-value').value='';
+  refreshDataModalTable(k);
+  _kpiDataModalBS.show();
+}
+
+function refreshDataModalTable(k){
+  if(!k){
+    const id=document.getElementById('kpi-data-id').value;
+    k=(DB.metrics||[]).find(x=>x.id===id);
+  }
+  if(!k) return;
+  const sorted=[...(k.data||[])].sort((a,b)=>b.date.localeCompare(a.date));
+  document.getElementById('kpi-data-tbody').innerHTML=sorted.length
+    ?sorted.map(d=>`<tr><td>${d.date}</td><td>${d.value} ${escHtml(k.unit)}</td><td><button class="btn btn-outline-danger btn-sm py-0" onclick="deleteDataPoint('${d.date}')">×</button></td></tr>`).join('')
+    :'<tr><td colspan="3" class="text-muted text-center">No data points yet</td></tr>';
+}
+
+function addDataPoint(){
+  const id=document.getElementById('kpi-data-id').value;
+  const date=document.getElementById('dp-date').value;
+  const value=document.getElementById('dp-value').value;
+  if(!date||value==='') return alert('Date and value are required.');
+  const k=(DB.metrics||[]).find(x=>x.id===id);
+  if(!k) return;
+  if(!k.data) k.data=[];
+  const existing=k.data.findIndex(d=>d.date===date);
+  if(existing>-1) k.data[existing].value=Number(value);
+  else k.data.push({date,value:Number(value)});
+  dbSave(DB);
+  document.getElementById('dp-value').value='';
+  refreshDataModalTable(k);
+}
+
+function deleteDataPoint(date){
+  const id=document.getElementById('kpi-data-id').value;
+  const k=(DB.metrics||[]).find(x=>x.id===id);
+  if(!k) return;
+  k.data=(k.data||[]).filter(d=>d.date!==date);
+  dbSave(DB);
+  refreshDataModalTable(k);
+}
 </script>
+
+<!-- KPI Define/Edit Modal -->
+<div class="modal fade" id="kpiModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">KPI Definition</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <input type="hidden" id="kpi-id">
+        <div class="row g-3">
+          <div class="col-md-8">
+            <label class="form-label fw-semibold">Name <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="kpi-name" placeholder="e.g. MFA Adoption Rate">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Category</label>
+            <input type="text" class="form-control" id="kpi-category" placeholder="e.g. Technical, People…">
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold">Description</label>
+            <textarea class="form-control" id="kpi-desc" rows="2" placeholder="What does this KPI measure?"></textarea>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold">Unit</label>
+            <input type="text" class="form-control" id="kpi-unit" placeholder="%, count, hours…">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold">Target Value</label>
+            <input type="number" class="form-control" id="kpi-target" placeholder="100">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold">Direction</label>
+            <select class="form-select" id="kpi-targetdir">
+              <option value="higher">Higher is better</option>
+              <option value="lower">Lower is better</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label fw-semibold">Chart Type</label>
+            <select class="form-select" id="kpi-charttype">
+              <option value="line">Line</option>
+              <option value="bar">Bar</option>
+              <option value="area">Area</option>
+              <option value="doughnut">Doughnut</option>
+              <option value="gauge">Gauge</option>
+              <option value="scatter">Scatter</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Warning Threshold</label>
+            <input type="number" class="form-control" id="kpi-warn" placeholder="85">
+            <div class="form-text">Triggers warning badge</div>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Critical Threshold</label>
+            <input type="number" class="form-control" id="kpi-crit" placeholder="70">
+            <div class="form-text">Triggers critical badge</div>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Color</label>
+            <div class="d-flex gap-2 align-items-center">
+              <input type="color" class="form-control form-control-color" id="kpi-color" value="#0d6efd" style="width:50px">
+              <div class="d-flex flex-wrap gap-1" id="kpi-color-presets">
+                <span class="kpi-preset-swatch" data-color="#0d6efd" style="background:#0d6efd;width:22px;height:22px;border-radius:4px;cursor:pointer;display:inline-block;border:2px solid transparent" title="Blue" onclick="document.getElementById('kpi-color').value='#0d6efd'"></span>
+                <span class="kpi-preset-swatch" data-color="#dc3545" style="background:#dc3545;width:22px;height:22px;border-radius:4px;cursor:pointer;display:inline-block;border:2px solid transparent" title="Red" onclick="document.getElementById('kpi-color').value='#dc3545'"></span>
+                <span class="kpi-preset-swatch" data-color="#198754" style="background:#198754;width:22px;height:22px;border-radius:4px;cursor:pointer;display:inline-block;border:2px solid transparent" title="Green" onclick="document.getElementById('kpi-color').value='#198754'"></span>
+                <span class="kpi-preset-swatch" data-color="#fd7e14" style="background:#fd7e14;width:22px;height:22px;border-radius:4px;cursor:pointer;display:inline-block;border:2px solid transparent" title="Orange" onclick="document.getElementById('kpi-color').value='#fd7e14'"></span>
+                <span class="kpi-preset-swatch" data-color="#6f42c1" style="background:#6f42c1;width:22px;height:22px;border-radius:4px;cursor:pointer;display:inline-block;border:2px solid transparent" title="Purple" onclick="document.getElementById('kpi-color').value='#6f42c1'"></span>
+                <span class="kpi-preset-swatch" data-color="#20c997" style="background:#20c997;width:22px;height:22px;border-radius:4px;cursor:pointer;display:inline-block;border:2px solid transparent" title="Teal" onclick="document.getElementById('kpi-color').value='#20c997'"></span>
+                <span class="kpi-preset-swatch" data-color="#ffc107" style="background:#ffc107;width:22px;height:22px;border-radius:4px;cursor:pointer;display:inline-block;border:2px solid transparent" title="Yellow" onclick="document.getElementById('kpi-color').value='#ffc107'"></span>
+                <span class="kpi-preset-swatch" data-color="#e83e8c" style="background:#e83e8c;width:22px;height:22px;border-radius:4px;cursor:pointer;display:inline-block;border:2px solid transparent" title="Pink" onclick="document.getElementById('kpi-color').value='#e83e8c'"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" onclick="saveKpi()">Save KPI</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- KPI Data Points Modal -->
+<div class="modal fade" id="kpiDataModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Data Points — <span id="kpi-data-modal-name"></span></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="kpi-data-id">
+        <div class="row g-2 mb-3 align-items-end">
+          <div class="col-md-5">
+            <label class="form-label fw-semibold">Date</label>
+            <input type="date" class="form-control" id="dp-date">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Value</label>
+            <input type="number" class="form-control" id="dp-value" placeholder="Enter value" step="any">
+          </div>
+          <div class="col-md-3">
+            <button class="btn btn-success w-100" onclick="addDataPoint()">+ Add Point</button>
+          </div>
+        </div>
+        <table class="table table-sm table-hover" id="kpi-data-table">
+          <thead><tr><th>Date</th><th>Value</th><th></th></tr></thead>
+          <tbody id="kpi-data-tbody"></tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Done</button>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
