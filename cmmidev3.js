@@ -20,15 +20,6 @@ var CMMI_DATA = [
 ['PLAN','Planning','PLAN 3.2','PG 3 – Obtain Commitment','Reconcile the project plan to reflect available and estimated resources','ML2','All'],
 ['PLAN','Planning','PLAN 3.3','PG 3 – Obtain Commitment','Obtain commitment from stakeholders responsible for executing and supporting the plan','ML2','All'],
 
-/* ── EST — Estimation ── */
-['EST','Estimation','EST 1.1','PG 1 – Prepare for Estimating','Establish and maintain estimating parameters, measures, and methods to be used','ML3','All'],
-['EST','Estimation','EST 1.2','PG 1 – Prepare for Estimating','Select and document estimating methods and techniques appropriate for the work','ML3','All'],
-['EST','Estimation','EST 2.1','PG 2 – Estimate the Work','Estimate work product and task sizes using defined measures','ML3','All'],
-['EST','Estimation','EST 2.2','PG 2 – Estimate the Work','Estimate effort and duration using established estimating parameters and models','ML3','All'],
-['EST','Estimation','EST 2.3','PG 2 – Estimate the Work','Estimate project costs based on estimated effort, duration, and resource requirements','ML3','All'],
-['EST','Estimation','EST 3.1','PG 3 – Validate Estimates','Review estimates for reasonableness using historical data and expert judgment','ML3','All'],
-['EST','Estimation','EST 3.2','PG 3 – Validate Estimates','Document rationale for estimation assumptions and record actuals for future calibration','ML3','All'],
-
 /* ── MC — Monitor and Control ── */
 ['MC','Monitor and Control','MC 1.1','PG 1 – Monitor the Work','Monitor actual performance and progress against the project plan','ML2','All'],
 ['MC','Monitor and Control','MC 1.2','PG 1 – Monitor the Work','Monitor the involvement of relevant stakeholders against plan commitments','ML2','All'],
@@ -54,15 +45,6 @@ var CMMI_DATA = [
 ['PQA','Process Quality Assurance','PQA 2.1','PG 2 – Provide Objective Insight','Communicate noncompliance issues to staff and management and ensure resolution to closure','ML2','All'],
 ['PQA','Process Quality Assurance','PQA 2.2','PG 2 – Provide Objective Insight','Establish and maintain records of quality assurance activities and their results','ML2','All'],
 ['PQA','Process Quality Assurance','PQA 3.1','PG 3 – Manage Quality Assurance','Establish and maintain a process quality assurance approach aligned to organizational standards','ML2','All'],
-
-/* ── RSK — Risk and Opportunity Management ── */
-['RSK','Risk and Opportunity Management','RSK 1.1','PG 1 – Identify Risks and Opportunities','Identify and document risks and opportunities using a defined identification approach','ML3','All'],
-['RSK','Risk and Opportunity Management','RSK 1.2','PG 1 – Identify Risks and Opportunities','Evaluate and categorize risks and opportunities using defined parameters and thresholds','ML3','All'],
-['RSK','Risk and Opportunity Management','RSK 2.1','PG 2 – Plan Mitigation','Develop risk and opportunity mitigation options, contingency plans, and triggers','ML3','All'],
-['RSK','Risk and Opportunity Management','RSK 2.2','PG 2 – Plan Mitigation','Prioritize risks for mitigation based on defined criteria and probability/impact assessment','ML3','All'],
-['RSK','Risk and Opportunity Management','RSK 2.3','PG 2 – Plan Mitigation','Develop and maintain risk and opportunity mitigation plans for priority items','ML3','All'],
-['RSK','Risk and Opportunity Management','RSK 3.1','PG 3 – Implement Mitigation','Implement risk mitigation plans and monitor for changes in risk status','ML3','All'],
-['RSK','Risk and Opportunity Management','RSK 3.2','PG 3 – Implement Mitigation','Adjust mitigation strategies based on monitoring results and trigger conditions','ML3','All'],
 
 /* ── GOV — Governance ── */
 ['GOV','Governance','GOV 1.1','PG 1 – Define Expectations','Define and communicate expected organizational behaviors for performing work and processes','ML2','All'],
@@ -140,6 +122,15 @@ var CMMI_DATA = [
    ML3 — CORE PRACTICE AREAS  (domain = 'All')
 ═══════════════════════════════════════════════════════════════════ */
 
+/* ── EST — Estimation ── */
+['EST','Estimation','EST 1.1','PG 1 – Prepare for Estimating','Establish and maintain estimating parameters, measures, and methods to be used','ML3','All'],
+['EST','Estimation','EST 1.2','PG 1 – Prepare for Estimating','Select and document estimating methods and techniques appropriate for the work','ML3','All'],
+['EST','Estimation','EST 2.1','PG 2 – Estimate the Work','Estimate work product and task sizes using defined measures','ML3','All'],
+['EST','Estimation','EST 2.2','PG 2 – Estimate the Work','Estimate effort and duration using established estimating parameters and models','ML3','All'],
+['EST','Estimation','EST 2.3','PG 2 – Estimate the Work','Estimate project costs based on estimated effort, duration, and resource requirements','ML3','All'],
+['EST','Estimation','EST 3.1','PG 3 – Validate Estimates','Review estimates for reasonableness using historical data and expert judgment','ML3','All'],
+['EST','Estimation','EST 3.2','PG 3 – Validate Estimates','Document rationale for estimation assumptions and record actuals for future calibration','ML3','All'],
+
 /* ── DAR — Decision Analysis and Resolution ── */
 ['DAR','Decision Analysis and Resolution','DAR 1.1','PG 1 – Establish Guidelines','Establish and maintain guidelines for determining which issues are subject to formal decision analysis','ML3','All'],
 ['DAR','Decision Analysis and Resolution','DAR 1.2','PG 1 – Establish Guidelines','Establish and maintain criteria and methods for evaluating alternatives against defined objectives','ML3','All'],
@@ -171,6 +162,15 @@ var CMMI_DATA = [
 ['PAD','Process Asset Development','PAD 2.2','PG 2 – Develop Process Assets','Establish and maintain tailoring guidelines and criteria for adapting standard processes to project needs','ML3','All'],
 ['PAD','Process Asset Development','PAD 3.1','PG 3 – Improve Process Assets','Collect process improvement proposals and lessons learned and incorporate improvements into organizational process assets','ML3','All'],
 ['PAD','Process Asset Development','PAD 3.2','PG 3 – Improve Process Assets','Maintain historical data and lessons learned in the organizational process asset library','ML3','All'],
+
+/* ── RSK — Risk and Opportunity Management ── */
+['RSK','Risk and Opportunity Management','RSK 1.1','PG 1 – Identify Risks and Opportunities','Identify and document risks and opportunities using a defined identification approach','ML3','All'],
+['RSK','Risk and Opportunity Management','RSK 1.2','PG 1 – Identify Risks and Opportunities','Evaluate and categorize risks and opportunities using defined parameters and thresholds','ML3','All'],
+['RSK','Risk and Opportunity Management','RSK 2.1','PG 2 – Plan Mitigation','Develop risk and opportunity mitigation options, contingency plans, and triggers','ML3','All'],
+['RSK','Risk and Opportunity Management','RSK 2.2','PG 2 – Plan Mitigation','Prioritize risks for mitigation based on defined criteria and probability/impact assessment','ML3','All'],
+['RSK','Risk and Opportunity Management','RSK 2.3','PG 2 – Plan Mitigation','Develop and maintain risk and opportunity mitigation plans for priority items','ML3','All'],
+['RSK','Risk and Opportunity Management','RSK 3.1','PG 3 – Implement Mitigation','Implement risk mitigation plans and monitor for changes in risk status','ML3','All'],
+['RSK','Risk and Opportunity Management','RSK 3.2','PG 3 – Implement Mitigation','Adjust mitigation strategies based on monitoring results and trigger conditions','ML3','All'],
 
 /* ── PCM — Process Capability Management ── */
 ['PCM','Process Capability Management','PCM 1.1','PG 1 – Establish Process Capability Baselines','Collect and analyze process performance data from projects to establish organizational process capability baselines','ML3','All'],
@@ -414,7 +414,6 @@ function renderTable(rows) {
   updateStats(rows);
   if (!rows.length) {
     document.getElementById('results-table').innerHTML = '<p class="text-muted p-3">No practices match the current filters.</p>';
-    document.getElementById('result-count').textContent = '0';
     return;
   }
   var html = '<table class="table table-bordered table-hover table-sm align-middle mb-0"><thead class="table-dark sticky-top"><tr>'
@@ -435,7 +434,6 @@ function renderTable(rows) {
   });
   html += '</tbody></table>';
   document.getElementById('results-table').innerHTML = html;
-  document.getElementById('result-count').textContent = rows.length;
 }
 
 function applyFilters() {
