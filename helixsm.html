@@ -96,6 +96,25 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
 /* ── SLA gauge bar ── */
 .sla-bar{height:6px;border-radius:3px;background:#e5e7eb;overflow:hidden;}
 .sla-bar-fill{height:100%;border-radius:3px;transition:width .4s;}
+/* ── Bulk action bar ── */
+#inc-bulk-bar{display:none;background:#1e2139;color:#fff;border-radius:10px;padding:10px 16px;margin-bottom:12px;align-items:center;gap:10px;flex-wrap:wrap;}
+/* ── Freeze badge ── */
+.freeze-badge{background:#fce7f3;color:#9d174d;border:1px solid #fbcfe8;padding:2px 8px;border-radius:12px;font-size:.72rem;font-weight:700;}
+.freeze-active{border-left:4px solid #ec4899 !important;}
+/* ── Vendor card ── */
+.vendor-card{background:#fff;border-radius:12px;padding:18px;border:1px solid #e5e7eb;transition:box-shadow .12s;}
+.vendor-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.1);}
+.vendor-expiring{border-left:4px solid #f59e0b !important;}
+.vendor-expired{border-left:4px solid #ef4444 !important;background:#fef2f2 !important;}
+/* ── CAB voting ── */
+.vote-btn{min-width:36px;padding:3px 8px;font-size:.8rem;}
+/* ── Portal mode ── */
+#portal-overlay{display:none;position:fixed;inset:0;background:#f0f2f8;z-index:500;overflow-y:auto;}
+.portal-card{background:#fff;border-radius:16px;padding:24px;border:1px solid #e5e7eb;cursor:pointer;transition:all .15s;}
+.portal-card:hover{box-shadow:0 8px 32px rgba(0,0,0,.12);transform:translateY(-2px);}
+/* ── Template dropdown ── */
+.tpl-item{padding:8px 14px;cursor:pointer;font-size:.85rem;}
+.tpl-item:hover{background:#f3f4f6;}
 @media(max-width:768px){#sidebar{transform:translateX(-100%);}#main{margin-left:0;}}
 </style>
 </head>
@@ -115,6 +134,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
 
   <div class="nav-sect">ITSM Practices</div>
   <a class="nav-link" href="#" data-mod="changes"><i class="bi bi-arrow-repeat"></i> Change Enablement</a>
+  <a class="nav-link" href="#" data-mod="cab"><i class="bi bi-calendar-check"></i> CAB Meetings</a>
+  <a class="nav-link" href="#" data-mod="freeze"><i class="bi bi-snow"></i> Change Freeze</a>
   <a class="nav-link" href="#" data-mod="releases"><i class="bi bi-box-seam"></i> Release Management</a>
   <a class="nav-link" href="#" data-mod="problems"><i class="bi bi-bug"></i> Problem Management</a>
   <a class="nav-link" href="#" data-mod="maintenance"><i class="bi bi-tools"></i> Maintenance Windows</a>
@@ -122,6 +143,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
 
   <div class="nav-sect">People & Teams</div>
   <a class="nav-link" href="#" data-mod="teams"><i class="bi bi-people"></i> Teams &amp; On-Call</a>
+  <a class="nav-link" href="#" data-mod="vendors"><i class="bi bi-building"></i> Vendor Management</a>
 
   <div class="nav-sect">Knowledge & Catalog</div>
   <a class="nav-link" href="#" data-mod="knowledge"><i class="bi bi-journal-text"></i> Knowledge Base</a>
@@ -133,6 +155,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
   <a class="nav-link" href="#" data-mod="activity"><i class="bi bi-activity"></i> Activity Log</a>
 
   <div id="sidebar-bottom">
+    <a class="nav-link" href="#" onclick="openPortal();return false"><i class="bi bi-display"></i> Self-Service Portal</a>
     <a class="nav-link" href="#" data-mod="settings"><i class="bi bi-gear"></i> Settings</a>
   </div>
 </nav>
@@ -202,7 +225,21 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
     <div class="module" id="mod-incidents">
       <div class="sect-hdr">
         <h5>Incident Queue</h5>
-        <button class="btn btn-primary btn-sm" onclick="openIncidentModal()"><i class="bi bi-plus-lg"></i> Log Incident</button>
+        <div class="d-flex gap-2">
+          <div class="dropdown">
+            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown"><i class="bi bi-lightning"></i> Templates</button>
+            <ul class="dropdown-menu" id="inc-template-menu"></ul>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="openIncidentModal()"><i class="bi bi-plus-lg"></i> Log Incident</button>
+        </div>
+      </div>
+      <div id="inc-bulk-bar" class="d-flex">
+        <span id="inc-bulk-count" class="me-2 fw-semibold"></span>
+        <input class="form-control form-control-sm me-2" style="width:160px" id="inc-bulk-assignee" placeholder="Assign to…">
+        <select class="form-select form-select-sm me-2" style="width:auto" id="inc-bulk-status"><option value="">— Set Status —</option><option value="in-progress">In Progress</option><option value="pending">Pending</option><option value="resolved">Resolved</option><option value="closed">Closed</option></select>
+        <select class="form-select form-select-sm me-2" style="width:auto" id="inc-bulk-priority"><option value="">— Set Priority —</option><option value="P1">P1</option><option value="P2">P2</option><option value="P3">P3</option><option value="P4">P4</option><option value="P5">P5</option></select>
+        <button class="btn btn-sm btn-primary me-2" onclick="applyBulkAction()">Apply</button>
+        <button class="btn btn-sm btn-outline-light" onclick="clearBulkSelection()">Clear</button>
       </div>
       <div class="filter-bar">
         <select class="form-select form-select-sm" style="width:auto" id="inc-filter-status" onchange="renderIncidents()">
@@ -227,7 +264,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
         </select>
       </div>
       <div class="table-card"><div class="table-responsive"><table class="table table-hover mb-0" id="inc-table">
-        <thead><tr><th>ID</th><th>Title</th><th>Priority</th><th>Status</th><th>Category</th><th>Assignee</th><th>SLA</th><th>Created</th><th></th></tr></thead>
+        <thead><tr><th style="width:32px"><input type="checkbox" id="inc-select-all" onchange="toggleSelectAllInc(this)"></th><th>ID</th><th>Title</th><th>Priority</th><th>Status</th><th>Category</th><th>Assignee</th><th>SLA</th><th>Created</th><th></th></tr></thead>
         <tbody id="inc-tbody"></tbody>
       </table></div></div>
     </div>
@@ -424,9 +461,55 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
       <div class="row g-3" id="teams-grid"></div>
     </div>
 
+    <!-- ── CAB MEETINGS ── -->
+    <div class="module" id="mod-cab">
+      <div class="sect-hdr"><h5>Change Advisory Board (CAB)</h5><button class="btn btn-primary btn-sm" onclick="openCabModal()"><i class="bi bi-plus-lg"></i> New Meeting</button></div>
+      <div class="filter-bar">
+        <select class="form-select form-select-sm" style="width:auto" id="cab-filter-status" onchange="renderCab()">
+          <option value="">All</option><option>Scheduled</option><option>In Progress</option><option>Completed</option><option>Cancelled</option>
+        </select>
+      </div>
+      <div class="row g-3" id="cab-grid"></div>
+    </div>
+
+    <!-- ── CHANGE FREEZE ── -->
+    <div class="module" id="mod-freeze">
+      <div class="sect-hdr"><h5>Change Freeze Periods</h5><button class="btn btn-primary btn-sm" onclick="openFreezeModal()"><i class="bi bi-plus-lg"></i> Add Freeze</button></div>
+      <div class="alert alert-info small mb-3" id="freeze-active-alert" style="display:none"><strong>❄️ Active Freeze:</strong> <span id="freeze-active-name"></span> — Changes of the restricted type require emergency authorization.</div>
+      <div class="table-card"><div class="table-responsive"><table class="table table-hover mb-0">
+        <thead><tr><th>Name</th><th>Start</th><th>End</th><th>Scope</th><th>Reason</th><th>Status</th><th></th></tr></thead>
+        <tbody id="freeze-tbody"></tbody>
+      </table></div></div>
+    </div>
+
+    <!-- ── VENDOR MANAGEMENT ── -->
+    <div class="module" id="mod-vendors">
+      <div class="sect-hdr"><h5>Vendor &amp; Contract Management</h5><button class="btn btn-primary btn-sm" onclick="openVendorModal()"><i class="bi bi-plus-lg"></i> Add Vendor</button></div>
+      <div class="filter-bar">
+        <select class="form-select form-select-sm" style="width:auto" id="vnd-filter-type" onchange="renderVendors()">
+          <option value="">All Types</option><option>Software</option><option>Hardware</option><option>Cloud</option><option>Security</option><option>Telecom</option><option>Professional Services</option>
+        </select>
+        <select class="form-select form-select-sm" style="width:auto" id="vnd-filter-status" onchange="renderVendors()">
+          <option value="">All</option><option>Active</option><option>Expiring Soon</option><option>Expired</option><option>Inactive</option>
+        </select>
+        <input class="form-control form-control-sm" style="width:200px" id="vnd-search" placeholder="Search vendors..." oninput="renderVendors()">
+      </div>
+      <div class="row g-3" id="vnd-grid"></div>
+    </div>
+
     <!-- ── ACTIVITY LOG ── -->
     <div class="module" id="mod-activity">
-      <h5 class="mb-3">Activity Log</h5>
+      <div class="sect-hdr"><h5>Activity Log</h5></div>
+      <div class="filter-bar">
+        <input class="form-control form-control-sm" style="width:240px" id="act-search" placeholder="Search log…" oninput="renderActivity()">
+        <select class="form-select form-select-sm" style="width:auto" id="act-filter-mod" onchange="renderActivity()">
+          <option value="">All Modules</option><option>Incidents</option><option>Requests</option><option>Changes</option><option>Problems</option><option>CMDB</option><option>Releases</option><option>Maintenance</option><option>Teams</option><option>Vendors</option><option>CAB</option><option>Knowledge</option><option>Catalog</option><option>SLA</option>
+        </select>
+        <input class="form-control form-control-sm" type="date" id="act-filter-from" onchange="renderActivity()" style="width:auto">
+        <span class="small text-muted">to</span>
+        <input class="form-control form-control-sm" type="date" id="act-filter-to" onchange="renderActivity()" style="width:auto">
+        <button class="btn btn-outline-secondary btn-sm ms-auto" onclick="clearActivityFilters()">Clear</button>
+      </div>
       <div class="table-card"><div class="table-responsive"><table class="table table-sm mb-0">
         <thead><tr><th>Time</th><th>Module</th><th>Action</th></tr></thead>
         <tbody id="activity-tbody"></tbody>
@@ -462,6 +545,37 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
 
   </div><!-- /content -->
 </div><!-- /main -->
+
+<!-- ══ SELF-SERVICE PORTAL ══ -->
+<div id="portal-overlay">
+  <div style="background:#1e2139;padding:14px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10">
+    <div style="color:#fff;font-size:1.1rem;font-weight:800">Helix<span style="color:#818cf8">SM</span> <span style="font-size:.8rem;color:rgba(255,255,255,.4);font-weight:400">Self-Service Portal</span></div>
+    <button class="btn btn-sm btn-outline-light" onclick="closePortal()"><i class="bi bi-x-lg"></i> Exit Portal</button>
+  </div>
+  <div style="padding:32px;max-width:1100px;margin:0 auto">
+    <h4 class="fw-bold mb-1">How can we help you today?</h4>
+    <p class="text-muted mb-4">Submit a request, report an issue, or check the status of your tickets.</p>
+    <div class="row g-3 mb-4" id="portal-catalog"></div>
+    <div class="row g-3">
+      <div class="col-md-7">
+        <div class="stat-card">
+          <div class="sect-hdr"><h5>My Recent Requests &amp; Incidents</h5></div>
+          <div id="portal-my-tickets"></div>
+        </div>
+      </div>
+      <div class="col-md-5">
+        <div class="stat-card h-100">
+          <div class="sect-hdr"><h5>Service Status</h5></div>
+          <div id="portal-service-status"></div>
+          <div class="mt-3 border-top pt-3">
+            <div class="small fw-semibold mb-2">📢 IT Announcements</div>
+            <div id="portal-announcements"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ══ MODALS ══ -->
 
@@ -863,6 +977,119 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
   </div>
 </div>
 
+<!-- CAB Modal -->
+<div class="modal fade" id="cabModal" tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">CAB Meeting</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <input type="hidden" id="cab-id">
+        <div class="row g-3">
+          <div class="col-md-6"><label class="form-label fw-semibold">Meeting Title <span class="text-danger">*</span></label>
+            <input class="form-control" id="cab-title" placeholder="e.g. Weekly CAB — 12 May 2025"></div>
+          <div class="col-md-3"><label class="form-label fw-semibold">Date &amp; Time</label>
+            <input class="form-control" type="datetime-local" id="cab-datetime"></div>
+          <div class="col-md-3"><label class="form-label fw-semibold">Status</label>
+            <select class="form-select" id="cab-status"><option>Scheduled</option><option>In Progress</option><option>Completed</option><option>Cancelled</option></select></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Chairperson</label>
+            <input class="form-control" id="cab-chair" placeholder="Name"></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Location / Bridge</label>
+            <input class="form-control" id="cab-location" placeholder="e.g. Conf Room B or Teams link"></div>
+          <div class="col-12"><label class="form-label fw-semibold">Attendees</label>
+            <input class="form-control" id="cab-attendees" placeholder="Comma-separated names"></div>
+          <div class="col-12"><label class="form-label fw-semibold">Changes on Agenda (comma-separated IDs)</label>
+            <input class="form-control" id="cab-agenda" placeholder="e.g. CHG0002, CHG0004"></div>
+          <div class="col-12"><label class="form-label fw-semibold">Decisions &amp; Outcomes</label>
+            <textarea class="form-control" id="cab-decisions" rows="3" placeholder="Per-change decisions: CHG0002 — Approved 4-1. CHG0004 — Deferred pending DBA sign-off."></textarea></div>
+          <div class="col-12"><label class="form-label fw-semibold">Meeting Minutes</label>
+            <textarea class="form-control" id="cab-minutes" rows="3" placeholder="Full meeting notes…"></textarea></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-danger btn-sm me-auto" id="cab-del-btn" onclick="deleteRecord('cab')" style="display:none">Delete</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" onclick="saveCab()">Save Meeting</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Change Freeze Modal -->
+<div class="modal fade" id="freezeModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Change Freeze Period</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <input type="hidden" id="frz-id">
+        <div class="row g-3">
+          <div class="col-12"><label class="form-label fw-semibold">Freeze Name <span class="text-danger">*</span></label>
+            <input class="form-control" id="frz-name" placeholder="e.g. Year-End Freeze 2025"></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Start Date/Time</label>
+            <input class="form-control" type="datetime-local" id="frz-start"></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">End Date/Time</label>
+            <input class="form-control" type="datetime-local" id="frz-end"></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Scope — Changes Blocked</label>
+            <select class="form-select" id="frz-scope"><option value="all">All Changes</option><option value="Normal">Normal Only</option><option value="Standard">Standard &amp; Normal</option></select></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Authorized By</label>
+            <input class="form-control" id="frz-auth" placeholder="Name / role"></div>
+          <div class="col-12"><label class="form-label fw-semibold">Reason</label>
+            <textarea class="form-control" id="frz-reason" rows="2" placeholder="Business reason for the freeze…"></textarea></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-danger btn-sm me-auto" id="frz-del-btn" onclick="deleteRecord('freeze')" style="display:none">Delete</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" onclick="saveFreeze()">Save Freeze</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Vendor Modal -->
+<div class="modal fade" id="vendorModal" tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Vendor Record</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <input type="hidden" id="vnd-id">
+        <div class="row g-3">
+          <div class="col-md-6"><label class="form-label fw-semibold">Vendor Name <span class="text-danger">*</span></label>
+            <input class="form-control" id="vnd-name" placeholder="e.g. Cisco Systems"></div>
+          <div class="col-md-3"><label class="form-label fw-semibold">Type</label>
+            <select class="form-select" id="vnd-type"><option>Software</option><option>Hardware</option><option>Cloud</option><option>Security</option><option>Telecom</option><option>Professional Services</option></select></div>
+          <div class="col-md-3"><label class="form-label fw-semibold">Status</label>
+            <select class="form-select" id="vnd-status"><option>Active</option><option>Inactive</option></select></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Account Manager</label>
+            <input class="form-control" id="vnd-contact" placeholder="Name"></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Contact Email</label>
+            <input class="form-control" id="vnd-email" type="email" placeholder="am@vendor.com"></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Contact Phone</label>
+            <input class="form-control" id="vnd-phone" placeholder="+44 xxxx xxxxxx"></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Contract Start</label>
+            <input class="form-control" type="date" id="vnd-start"></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Contract Renewal / Expiry</label>
+            <input class="form-control" type="date" id="vnd-expiry"></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Annual Contract Value</label>
+            <div class="input-group"><span class="input-group-text">£</span><input class="form-control" type="number" id="vnd-value" placeholder="0"></div></div>
+          <div class="col-12"><label class="form-label fw-semibold">Services / Products Covered</label>
+            <input class="form-control" id="vnd-services" placeholder="e.g. Microsoft 365 E3, Azure EA, GitHub Enterprise"></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Vendor SLA / Support Tier</label>
+            <input class="form-control" id="vnd-sla" placeholder="e.g. 24/7 P1 support, 4hr response"></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Support Portal / URL</label>
+            <input class="form-control" id="vnd-portal" placeholder="https://support.vendor.com"></div>
+          <div class="col-12"><label class="form-label fw-semibold">Notes</label>
+            <textarea class="form-control" id="vnd-notes" rows="2" placeholder="Contract terms, renewal notes, escalation paths…"></textarea></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-danger btn-sm me-auto" id="vnd-del-btn" onclick="deleteRecord('vendor')" style="display:none">Delete</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" onclick="saveVendor()">Save Vendor</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Release Modal -->
 <div class="modal fade" id="releaseModal" tabindex="-1">
   <div class="modal-dialog modal-xl">
@@ -1132,6 +1359,33 @@ function seedData(){
     {id:'svc7',name:'Leaver / Offboarding',category:'IT Infrastructure',desc:'IT offboarding for departing employees. Disable accounts, collect hardware.',sla:'Last working day',owner:'Service Desk',status:'active',icon:'🚪',requests:28},
     {id:'svc8',name:'Security Incident Reporting',category:'Security',desc:'Report a suspected security incident, phishing attempt, or data breach.',sla:'Immediate (P2 SLA)',owner:'Security Team',status:'active',icon:'🛡️',requests:19},
   ];
+  DB.vendors=[
+    {id:'vnd1',name:'Microsoft Corporation',type:'Software',status:'Active',contact:'Emma Richards',email:'emma.richards@microsoft.com',phone:'+44 800 026 0329',start:'2024-01-01',expiry:'2026-01-01',value:148000,services:'Microsoft 365 E3 (250 seats), Azure EA, GitHub Enterprise, Defender for Endpoint',sla:'24/7 P1 support, Premier Support agreement. 2hr response.',portal:'https://admin.microsoft.com',notes:'Annual True-Up due December. Azure spend reviewed quarterly.',created:daysAgo(365)},
+    {id:'vnd2',name:'Cisco Systems',type:'Hardware',status:'Active',contact:'James Fowler',email:'jfowler@cisco.com',phone:'+44 7700 900201',start:'2023-09-01',expiry:'2025-09-01',value:42000,services:'SmartNet Total Care — all switches, routers, ASA firewall. SW-CORE-01, FW-PRIMARY.',sla:'4hr hardware replacement. 8/5 TAC support.',portal:'https://mycase.cloudapps.cisco.com',notes:'SW-CORE-01 SmartNet critical — renews same time as physical replacement. Review needed.',created:daysAgo(400)},
+    {id:'vnd3',name:'Amazon Web Services',type:'Cloud',status:'Active',contact:'AWS Account Team',email:'aws-account@amazon.com',phone:'+44 800 279 7655',start:'2022-07-01',expiry:'2026-07-01',value:95000,services:'Enterprise Discount Programme. EC2, RDS, S3, CloudFront, VPC. ERP-APP hosted workload.',sla:'Business Support. 1hr response for prod systems.',portal:'https://console.aws.amazon.com',notes:'EDP commitment: $100k/year. Savings Plans cover ~60% of compute.',created:daysAgo(700)},
+    {id:'vnd4',name:'SentinelOne',type:'Security',status:'Active',contact:'Mike Okafor',email:'m.okafor@sentinelone.com',phone:'+44 7700 900202',start:'2024-11-01',expiry:'2025-11-01',value:31000,services:'SentinelOne Singularity Complete — 300 endpoints. EDR, XDR, threat intelligence.',sla:'24/7 MDR response. P1 30-min SLA.',portal:'https://usea1-0.sentinelone.net',notes:'Renewal negotiation due October. Competitor quotes received from CrowdStrike.',created:daysAgo(160)},
+    {id:'vnd5',name:'Dell Technologies',type:'Hardware',status:'Active',contact:'Raj Sharma',email:'r.sharma@dell.com',phone:'+44 7700 900203',start:'2024-01-01',expiry:'2026-01-01',value:28000,services:'ProSupport Plus — all servers and workstations. Next Business Day on-site dispatch.',sla:'ProSupport Plus: NBD parts & labour. Keep Your Hard Drive.',portal:'https://www.dell.com/support',notes:'Laptop fleet (95 units) + 2 PowerEdge servers. Warranty expiry staggered.',created:daysAgo(365)},
+  ];
+  DB.cab=[
+    {id:'cab1',title:'Weekly CAB — 7 April 2025',datetime:daysAgo(28)+'T14:00',status:'Completed',chair:'IT Director — Rachel Singh',location:'Conference Room B',attendees:'Rachel Singh, Chris Wong, Alex Turner, Sara Lee, Security Team Rep',agenda:'CHG0001, CHG0003',decisions:'CHG0001 (Emergency Log4j) — Approved as emergency 5-0. CHG0003 (workstation refresh) — Pre-approved standard, noted only.\nNext CAB: 14 April.',minutes:'Emergency CAB convened at short notice for Log4Shell. Patch window agreed 02:00-04:00. Rollback procedure reviewed.',created:daysAgo(30)},
+    {id:'cab2',title:'Weekly CAB — 14 April 2025',datetime:daysAgo(21)+'T14:00',status:'Completed',chair:'IT Director — Rachel Singh',location:'Conference Room B',attendees:'Rachel Singh, Chris Wong, Alex Turner, James Hill, Ben Park',agenda:'CHG0002, CHG0004',decisions:'CHG0002 (Core switch upgrade) — Approved 4-1. Condition: vendor pre-staging required before weekend window.\nCHG0004 (DB migration) — Deferred. DBA sign-off and full test plan required before next CAB.',minutes:'Discussion on CHG0002: risk score High but rollback plan solid. Ben Park abstained (conflict). CHG0004 lacks performance baseline — deferred to next cycle.',created:daysAgo(23)},
+    {id:'cab3',title:'Weekly CAB — 12 May 2025',datetime:daysFromNow(8)+'T14:00',status:'Scheduled',chair:'IT Director — Rachel Singh',location:'Conference Room B / Teams',attendees:'Rachel Singh, Chris Wong, Alex Turner, James Hill, DBA Team',agenda:'CHG0004, CHG0005',decisions:'',minutes:'',created:daysAgo(2)},
+  ];
+  DB.freeze=[
+    {id:'frz1',name:'Year-End Financial Close 2024/25',start:'2024-12-15T00:00',end:'2025-01-06T08:00',scope:'all',auth:'CFO / IT Director',reason:'Critical financial year-end processing. All changes prohibited to ensure system stability during close.',created:daysAgo(140)},
+    {id:'frz2',name:'Easter Long Weekend 2025',start:'2025-04-18T17:00',end:'2025-04-22T08:00',scope:'Normal',auth:'IT Director',reason:'Reduced IT staffing over public holiday period. Emergency changes only with CISO sign-off.',created:daysAgo(50)},
+    {id:'frz3',name:'Q2 Financial Close',start:daysFromNow(53)+'T00:00',end:daysFromNow(57)+'T08:00',scope:'Normal',auth:'CFO / IT Director',reason:'Q2 financial period-end. Application-layer changes prohibited; infrastructure emergency changes with sign-off.',created:daysAgo(7)},
+  ];
+  DB.templates=[
+    {id:'tpl1',name:'Server Down',priority:'P1',category:'Server',subcategory:'Availability',impact:'enterprise',urgency:'critical',description:'Production server is unresponsive or has failed. Service unavailable to all users.'},
+    {id:'tpl2',name:'Network Outage',priority:'P1',category:'Network',subcategory:'Connectivity',impact:'enterprise',urgency:'critical',description:'Network connectivity lost for a site, VLAN, or significant user group. Users unable to access systems.'},
+    {id:'tpl3',name:'Application Error',priority:'P3',category:'Application',subcategory:'Errors',impact:'team',urgency:'medium',description:'Application is returning errors or behaving unexpectedly. Workaround may be available.'},
+    {id:'tpl4',name:'Security Alert',priority:'P2',category:'Security',subcategory:'Alert',impact:'enterprise',urgency:'high',description:'Security monitoring system has raised an alert requiring investigation. Potential threat or policy violation detected.'},
+    {id:'tpl5',name:'User Cannot Login',priority:'P3',category:'Access',subcategory:'Authentication',impact:'individual',urgency:'medium',description:'User is unable to log into their account or a specific system. Account may be locked or credentials expired.'},
+    {id:'tpl6',name:'Email Not Working',priority:'P2',category:'Email',subcategory:'Delivery',impact:'department',urgency:'high',description:'User or group unable to send or receive email. Possible mail flow or client configuration issue.'},
+    {id:'tpl7',name:'Slow Performance',priority:'P4',category:'Application',subcategory:'Performance',impact:'team',urgency:'low',description:'System or application is running significantly slower than normal. Users able to work but productivity impacted.'},
+    {id:'tpl8',name:'Hardware Fault',priority:'P4',category:'Hardware',subcategory:'Fault',impact:'individual',urgency:'low',description:'Physical hardware fault reported by user. Laptop, monitor, printer, or peripheral not working correctly.'},
+  ];
   DB.releases=[
     {id:'REL001',title:'ERP Platform v4.2 — Q1 Feature Release',version:'4.2.0',type:'Major',status:'Live',env:'Production',lead:'Business Apps Team',planned:daysAgo(14)+'T22:00',actual:daysAgo(14)+'T23:45',linked_changes:'CHG0003',description:'Major ERP update: new procurement module, GDPR consent manager, performance improvements.',notes:'## New Features\n- Procurement approval workflow\n- GDPR consent management screen\n- Dashboard widget customisation\n\n## Bug Fixes\n- Fixed login session timeout (PRB0004)\n- Resolved slow query on reports module\n\n## Breaking Changes\n- API v2 endpoints deprecated — migrate to v3 by Q3',rollback:'Restore from pre-release snapshot (DB-SNAP-20250414)',test_results:'UAT passed: 47/47 test cases. Performance: P95 <800ms (baseline 1200ms).',created:daysAgo(30)},
     {id:'REL002',title:'Network Monitoring — Grafana Dashboard v2.1',version:'2.1.3',type:'Minor',status:'Live',env:'Production',lead:'Network Team',planned:daysAgo(7)+'T10:00',actual:daysAgo(7)+'T10:20',linked_changes:'',description:'Adds latency heatmap, BGP session monitoring, and per-VLAN traffic graphs.',notes:'## Changes\n- New: Latency heatmap (15-min intervals)\n- New: BGP session state monitoring\n- Improved: VLAN traffic breakdown panel\n- Fixed: Alert suppression during maintenance windows',rollback:'Revert Grafana config to v2.0.8 backup.',test_results:'Smoke tested by Network Team. All dashboards loading <2s.',created:daysAgo(14)},
@@ -1176,7 +1430,7 @@ function seedData(){
 }
 
 /* ══ NAVIGATION ══ */
-const PAGE_TITLES={dashboard:'Dashboard',incidents:'Incidents',requests:'Service Requests',changes:'Change Enablement',releases:'Release Management',problems:'Problem Management',maintenance:'Maintenance Windows',cmdb:'CMDB',teams:'Teams & On-Call',knowledge:'Knowledge Base',catalog:'Service Catalog',sla:'SLA Management',reports:'Reports',activity:'Activity Log',settings:'Settings'};
+const PAGE_TITLES={dashboard:'Dashboard',incidents:'Incidents',requests:'Service Requests',changes:'Change Enablement',cab:'CAB Meetings',freeze:'Change Freeze',releases:'Release Management',problems:'Problem Management',maintenance:'Maintenance Windows',cmdb:'CMDB',teams:'Teams & On-Call',vendors:'Vendor Management',knowledge:'Knowledge Base',catalog:'Service Catalog',sla:'SLA Management',reports:'Reports',activity:'Activity Log',settings:'Settings'};
 let _currentMod='dashboard';
 function navigate(mod){
   document.querySelectorAll('.module').forEach(m=>m.classList.remove('active'));
@@ -1202,6 +1456,9 @@ function renderModule(mod){
     case 'releases':renderReleases();break;
     case 'maintenance':renderMaintenance();break;
     case 'teams':renderTeams();break;
+    case 'vendors':renderVendors();break;
+    case 'cab':renderCab();break;
+    case 'freeze':renderFreeze();break;
     case 'sla':renderSLA();break;
     case 'reports':renderReports();break;
     case 'activity':renderActivity();break;
@@ -2268,6 +2525,331 @@ function deleteRecord(type){
   _baseDeleteRecord(type);
 }
 
+/* ══ INCIDENT BULK ACTIONS ══ */
+let _selectedIncs=new Set();
+function toggleSelectAllInc(cb){
+  document.querySelectorAll('.inc-row-cb').forEach(el=>{el.checked=cb.checked;if(cb.checked)_selectedIncs.add(el.dataset.id);else _selectedIncs.delete(el.dataset.id);});
+  updateBulkBar();
+}
+function toggleIncRow(id,cb){if(cb.checked)_selectedIncs.add(id);else _selectedIncs.delete(id);updateBulkBar();}
+function updateBulkBar(){
+  const bar=document.getElementById('inc-bulk-bar');const cnt=_selectedIncs.size;
+  if(bar){bar.style.display=cnt?'flex':'none';document.getElementById('inc-bulk-count').textContent=cnt+' selected';}
+}
+function applyBulkAction(){
+  const assignee=document.getElementById('inc-bulk-assignee').value.trim();
+  const status=document.getElementById('inc-bulk-status').value;
+  const priority=document.getElementById('inc-bulk-priority').value;
+  if(!assignee&&!status&&!priority)return alert('Choose at least one action.');
+  (DB.incidents||[]).forEach(i=>{
+    if(!_selectedIncs.has(i.id))return;
+    if(assignee)i.assignee=assignee;
+    if(status){i.status=status;if(status==='resolved'||status==='closed')i.resolved=i.resolved||new Date().toISOString();}
+    if(priority)i.priority=priority;
+    i.updated=new Date().toISOString();
+  });
+  logActivity('Incidents',`Bulk update on ${_selectedIncs.size} incidents`);
+  dbSave();clearBulkSelection();renderIncidents();
+}
+function clearBulkSelection(){_selectedIncs.clear();document.querySelectorAll('.inc-row-cb').forEach(el=>el.checked=false);const sa=document.getElementById('inc-select-all');if(sa)sa.checked=false;updateBulkBar();}
+
+/* ══ INCIDENT TEMPLATES ══ */
+function buildTemplateMenu(){
+  const menu=document.getElementById('inc-template-menu');
+  if(!menu)return;
+  menu.innerHTML=(DB.templates||[]).map(t=>`<li><a class="dropdown-item tpl-item" href="#" onclick="applyTemplate('${t.id}');return false">${priBadge(t.priority)} ${escHtml(t.name)}</a></li>`).join('');
+}
+function applyTemplate(id){
+  const t=(DB.templates||[]).find(x=>x.id===id);if(!t)return;
+  openIncidentModal();
+  document.getElementById('inc-title').value=t.name;
+  document.getElementById('inc-priority').value=t.priority;
+  document.getElementById('inc-category').value=t.category;
+  document.getElementById('inc-subcategory').value=t.subcategory||'';
+  document.getElementById('inc-impact').value=t.impact||'individual';
+  document.getElementById('inc-urgency').value=t.urgency||'medium';
+  document.getElementById('inc-description').value=t.description||'';
+}
+
+/* Patch renderIncidents to include checkboxes */
+const _baseRenderIncidents=renderIncidents;
+function renderIncidents(){
+  _baseRenderIncidents();
+  // re-render tbody rows with checkbox column
+  const items=Array.from(document.querySelectorAll('#inc-tbody tr'));
+  // The base function already rendered rows — patch them to prepend checkbox cells
+  const tbody=document.getElementById('inc-tbody');
+  if(!tbody)return;
+  const rows=Array.from(tbody.querySelectorAll('tr'));
+  rows.forEach(row=>{
+    const firstCell=row.querySelector('td:first-child');
+    if(firstCell&&firstCell.querySelector('input[type=checkbox]'))return; // already has checkbox
+    const idCell=row.querySelector('td:first-child');
+    if(!idCell)return;
+    const id=row.getAttribute('data-inc-id')||idCell.textContent.trim();
+    const cb=document.createElement('td');
+    cb.innerHTML=`<input type="checkbox" class="inc-row-cb" data-id="${id}" onchange="toggleIncRow('${id}',this)" onclick="event.stopPropagation()">`;
+    row.insertBefore(cb,row.firstChild);
+  });
+  buildTemplateMenu();
+}
+
+/* Patch renderIncidents tbody to store id on rows */
+const _baseRenderInc2=renderIncidents;
+// Override already done above — patch row rendering in base renderIncidents
+// We hook into the tbody HTML generation instead
+const __renderIncidents=window.renderIncidents;
+
+/* ══ ACTIVITY LOG IMPROVEMENTS ══ */
+const _baseRenderActivity=renderActivity;
+function renderActivity(){
+  let log=DB.activityLog||[];
+  const q=document.getElementById('act-search')?.value.toLowerCase();
+  const mod=document.getElementById('act-filter-mod')?.value;
+  const from=document.getElementById('act-filter-from')?.value;
+  const to=document.getElementById('act-filter-to')?.value;
+  if(q)log=log.filter(l=>(l.msg+l.module).toLowerCase().includes(q));
+  if(mod)log=log.filter(l=>l.module===mod);
+  if(from)log=log.filter(l=>l.at>=from);
+  if(to)log=log.filter(l=>l.at<=to+'T23:59:59');
+  document.getElementById('activity-tbody').innerHTML=log.length?log.map(l=>`<tr><td class="small text-muted text-nowrap">${fmtDateTime(l.at)}</td><td><span class="badge bg-secondary">${escHtml(l.module)}</span></td><td>${escHtml(l.msg)}</td></tr>`).join(''):'<tr><td colspan="3" class="text-center text-muted py-4">No activity matches filters.</td></tr>';
+}
+function clearActivityFilters(){
+  ['act-search','act-filter-mod','act-filter-from','act-filter-to'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  renderActivity();
+}
+
+/* ══ CAB MEETINGS ══ */
+function renderCab(){
+  const fs=document.getElementById('cab-filter-status')?.value;
+  let items=DB.cab||[];
+  if(fs)items=items.filter(c=>c.status===fs);
+  items.sort((a,b)=>b.datetime.localeCompare(a.datetime));
+  const statusColor={Scheduled:'primary','In Progress':'warning',Completed:'success',Cancelled:'secondary'};
+  document.getElementById('cab-grid').innerHTML=items.length?items.map(c=>{
+    const agenda=(c.agenda||'').split(',').map(s=>s.trim()).filter(Boolean);
+    return`<div class="col-md-6"><div class="team-card" style="cursor:pointer" onclick="openCabModal('${c.id}')">
+      <div class="d-flex justify-content-between align-items-start mb-2">
+        <div><div class="fw-bold">${escHtml(c.title)}</div><div class="text-muted small">🕐 ${fmtDate(c.datetime)} ${c.datetime.slice(11,16)} · 👤 ${escHtml(c.chair||'')}</div></div>
+        <span class="badge bg-${statusColor[c.status]||'secondary'}">${c.status}</span>
+      </div>
+      ${c.location?`<div class="small text-muted mb-2">📍 ${escHtml(c.location)}</div>`:''}
+      ${agenda.length?`<div class="mb-2"><span class="small fw-semibold">Agenda: </span>${agenda.map(id=>`<span class="badge bg-primary me-1">${escHtml(id)}</span>`).join('')}</div>`:''}
+      ${c.decisions?`<div class="small mt-2 p-2 bg-light rounded">${escHtml(c.decisions.slice(0,200))}${c.decisions.length>200?'…':''}</div>`:'<div class="small text-muted">No decisions recorded yet.</div>'}
+    </div></div>`;
+  }).join(''):'<div class="col-12 text-center text-muted py-5">No CAB meetings found.</div>';
+}
+let _cabModalBS=null;
+function openCabModal(id){
+  if(!_cabModalBS)_cabModalBS=new bootstrap.Modal(document.getElementById('cabModal'));
+  const c=id?(DB.cab||[]).find(x=>x.id===id):null;
+  document.getElementById('cab-id').value=c?c.id:'';
+  document.getElementById('cab-title').value=c?c.title:'';
+  document.getElementById('cab-datetime').value=c?c.datetime||'':'';
+  document.getElementById('cab-status').value=c?c.status:'Scheduled';
+  document.getElementById('cab-chair').value=c?c.chair||'':'';
+  document.getElementById('cab-location').value=c?c.location||'':'';
+  document.getElementById('cab-attendees').value=c?c.attendees||'':'';
+  document.getElementById('cab-agenda').value=c?c.agenda||'':'';
+  document.getElementById('cab-decisions').value=c?c.decisions||'':'';
+  document.getElementById('cab-minutes').value=c?c.minutes||'':'';
+  const delBtn=document.getElementById('cab-del-btn');if(delBtn)delBtn.style.display=c?'':'none';
+  _cabModalBS.show();
+}
+function saveCab(){
+  const id=document.getElementById('cab-id').value;
+  const title=document.getElementById('cab-title').value.trim();
+  if(!title)return alert('Title required.');
+  const existing=id?(DB.cab||[]).find(x=>x.id===id):null;
+  const nums=(DB.cab||[]).map(x=>parseInt(x.id.replace('cab',''))||0);
+  const next=nums.length?Math.max(...nums)+1:1;
+  const obj={id:id||('cab'+next),title,datetime:document.getElementById('cab-datetime').value,status:document.getElementById('cab-status').value,chair:document.getElementById('cab-chair').value.trim(),location:document.getElementById('cab-location').value.trim(),attendees:document.getElementById('cab-attendees').value.trim(),agenda:document.getElementById('cab-agenda').value.trim(),decisions:document.getElementById('cab-decisions').value.trim(),minutes:document.getElementById('cab-minutes').value.trim(),created:existing?existing.created:new Date().toISOString()};
+  if(!DB.cab)DB.cab=[];
+  if(id){const i=DB.cab.findIndex(x=>x.id===id);if(i>-1)DB.cab[i]=obj;}else DB.cab.push(obj);
+  logActivity('CAB',id?`Updated: ${title}`:` Created CAB meeting: ${title}`);
+  dbSave();bootstrap.Modal.getInstance(document.getElementById('cabModal')).hide();
+  if(_currentMod==='cab')renderCab();
+}
+
+/* ══ CHANGE FREEZE ══ */
+function renderFreeze(){
+  const now=new Date().toISOString();
+  const items=DB.freeze||[];
+  const active=items.find(f=>f.start<=now&&f.end>=now);
+  const alertEl=document.getElementById('freeze-active-alert');
+  if(alertEl){alertEl.style.display=active?'block':'none';if(active)document.getElementById('freeze-active-name').textContent=active.name;}
+  document.getElementById('freeze-tbody').innerHTML=items.length?[...items].sort((a,b)=>b.start.localeCompare(a.start)).map(f=>{
+    const isActive=f.start<=now&&f.end>=now;
+    const isPast=f.end<now;
+    return`<tr class="${isActive?'freeze-active':''}" style="cursor:pointer" onclick="openFreezeModal('${f.id}')">
+      <td><span class="${isActive?'freeze-badge':''}">${escHtml(f.name)}</span>${isActive?'<span class="badge bg-danger ms-2">ACTIVE</span>':isPast?'<span class="badge bg-secondary ms-2">Past</span>':'<span class="badge bg-warning text-dark ms-2">Upcoming</span>'}</td>
+      <td class="small">${fmtDate(f.start)} ${f.start.slice(11,16)}</td>
+      <td class="small">${fmtDate(f.end)} ${f.end.slice(11,16)}</td>
+      <td><span class="badge bg-${f.scope==='all'?'danger':'warning'} text-${f.scope==='all'?'white':'dark'}">${f.scope==='all'?'All Changes':f.scope+' blocked'}</span></td>
+      <td class="small text-muted">${escHtml(f.reason||'')}</td>
+      <td>${isActive?'<span class="badge bg-danger">Active ❄️</span>':isPast?'<span class="badge bg-secondary">Expired</span>':'<span class="badge bg-info">Scheduled</span>'}</td>
+      <td><button class="btn btn-outline-secondary btn-sm py-0" onclick="event.stopPropagation();openFreezeModal('${f.id}')">Edit</button></td>
+    </tr>`;}).join(''):'<tr><td colspan="7" class="text-center text-muted py-4">No freeze periods defined.</td></tr>';
+}
+let _frzModalBS=null;
+function openFreezeModal(id){
+  if(!_frzModalBS)_frzModalBS=new bootstrap.Modal(document.getElementById('freezeModal'));
+  const f=id?(DB.freeze||[]).find(x=>x.id===id):null;
+  document.getElementById('frz-id').value=f?f.id:'';
+  document.getElementById('frz-name').value=f?f.name:'';
+  document.getElementById('frz-start').value=f?f.start||'':'';
+  document.getElementById('frz-end').value=f?f.end||'':'';
+  document.getElementById('frz-scope').value=f?f.scope:'all';
+  document.getElementById('frz-auth').value=f?f.auth||'':'';
+  document.getElementById('frz-reason').value=f?f.reason||'':'';
+  const delBtn=document.getElementById('frz-del-btn');if(delBtn)delBtn.style.display=f?'':'none';
+  _frzModalBS.show();
+}
+function saveFreeze(){
+  const id=document.getElementById('frz-id').value;
+  const name=document.getElementById('frz-name').value.trim();
+  if(!name)return alert('Name required.');
+  const existing=id?(DB.freeze||[]).find(x=>x.id===id):null;
+  const nums=(DB.freeze||[]).map(x=>parseInt(x.id.replace('frz',''))||0);
+  const next=nums.length?Math.max(...nums)+1:1;
+  const obj={id:id||('frz'+next),name,start:document.getElementById('frz-start').value,end:document.getElementById('frz-end').value,scope:document.getElementById('frz-scope').value,auth:document.getElementById('frz-auth').value.trim(),reason:document.getElementById('frz-reason').value.trim(),created:existing?existing.created:new Date().toISOString()};
+  if(!DB.freeze)DB.freeze=[];
+  if(id){const i=DB.freeze.findIndex(x=>x.id===id);if(i>-1)DB.freeze[i]=obj;}else DB.freeze.push(obj);
+  logActivity('Freeze','Saved freeze period: '+name);dbSave();
+  bootstrap.Modal.getInstance(document.getElementById('freezeModal')).hide();
+  if(_currentMod==='freeze')renderFreeze();
+}
+
+/* ══ VENDOR MANAGEMENT ══ */
+function vendorExpiryStatus(v){
+  if(!v.expiry)return{label:'No expiry',color:'secondary',cls:''};
+  const days=Math.round((new Date(v.expiry)-Date.now())/86400000);
+  if(v.status==='Inactive')return{label:'Inactive',color:'secondary',cls:''};
+  if(days<0)return{label:'Expired',color:'danger',cls:'vendor-expired'};
+  if(days<=90)return{label:`Renews in ${days}d`,color:'warning',cls:'vendor-expiring'};
+  return{label:`Renews ${fmtDate(v.expiry)}`,color:'success',cls:''};
+}
+function renderVendors(){
+  let items=DB.vendors||[];
+  const ft=document.getElementById('vnd-filter-type')?.value;
+  const fs=document.getElementById('vnd-filter-status')?.value;
+  const q=document.getElementById('vnd-search')?.value.toLowerCase();
+  if(ft)items=items.filter(v=>v.type===ft);
+  if(q)items=items.filter(v=>(v.name+v.services+v.contact).toLowerCase().includes(q));
+  if(fs==='Expiring Soon')items=items.filter(v=>{const d=v.expiry?Math.round((new Date(v.expiry)-Date.now())/86400000):999;return d>=0&&d<=90;});
+  else if(fs==='Expired')items=items.filter(v=>v.expiry&&new Date(v.expiry)<Date.now());
+  else if(fs==='Active')items=items.filter(v=>v.status==='Active'&&(!v.expiry||new Date(v.expiry)>Date.now()));
+  else if(fs==='Inactive')items=items.filter(v=>v.status==='Inactive');
+  const typeColor={Software:'#ede9fe',Hardware:'#dbeafe',Cloud:'#d1fae5',Security:'#fee2e2',Telecom:'#fef3c7','Professional Services':'#f0fdf4'};
+  const typeIcon={Software:'📦',Hardware:'🖥️',Cloud:'☁️',Security:'🛡️',Telecom:'📡','Professional Services':'🤝'};
+  document.getElementById('vnd-grid').innerHTML=items.length?items.map(v=>{
+    const exp=vendorExpiryStatus(v);
+    return`<div class="col-md-6 col-lg-4"><div class="vendor-card ${exp.cls} h-100" style="cursor:pointer" onclick="openVendorModal('${v.id}')">
+      <div class="d-flex align-items-start gap-3 mb-2">
+        <div style="font-size:1.8rem;background:${typeColor[v.type]||'#f3f4f6'};border-radius:8px;width:44px;height:44px;display:flex;align-items:center;justify-content:center">${typeIcon[v.type]||'🏢'}</div>
+        <div class="flex-grow-1"><div class="fw-bold">${escHtml(v.name)}</div><div class="d-flex gap-1"><span class="badge bg-secondary">${v.type}</span><span class="badge bg-${exp.color} ${exp.color==='warning'?'text-dark':''}">${exp.label}</span></div></div>
+      </div>
+      <div class="small mb-1">👤 ${escHtml(v.contact||'—')} · <a href="mailto:${escHtml(v.email||'')}" onclick="event.stopPropagation()">${escHtml(v.email||'—')}</a></div>
+      <div class="small mb-2">📞 ${escHtml(v.phone||'—')}</div>
+      <div class="small mb-2 text-muted">${escHtml((v.services||'').slice(0,120))}${(v.services||'').length>120?'…':''}</div>
+      <div class="d-flex justify-content-between small">
+        <span class="text-muted">SLA: ${escHtml(v.sla||'—')}</span>
+        ${v.value?`<span class="fw-semibold">£${Number(v.value).toLocaleString()}/yr</span>`:''}
+      </div>
+    </div></div>`;
+  }).join(''):'<div class="col-12 text-center text-muted py-5">No vendors found.</div>';
+}
+let _vndModalBS=null;
+function openVendorModal(id){
+  if(!_vndModalBS)_vndModalBS=new bootstrap.Modal(document.getElementById('vendorModal'));
+  const v=id?(DB.vendors||[]).find(x=>x.id===id):null;
+  document.getElementById('vnd-id').value=v?v.id:'';
+  document.getElementById('vnd-name').value=v?v.name:'';
+  document.getElementById('vnd-type').value=v?v.type:'Software';
+  document.getElementById('vnd-status').value=v?v.status:'Active';
+  document.getElementById('vnd-contact').value=v?v.contact||'':'';
+  document.getElementById('vnd-email').value=v?v.email||'':'';
+  document.getElementById('vnd-phone').value=v?v.phone||'':'';
+  document.getElementById('vnd-start').value=v?v.start||'':'';
+  document.getElementById('vnd-expiry').value=v?v.expiry||'':'';
+  document.getElementById('vnd-value').value=v?v.value||'':'';
+  document.getElementById('vnd-services').value=v?v.services||'':'';
+  document.getElementById('vnd-sla').value=v?v.sla||'':'';
+  document.getElementById('vnd-portal').value=v?v.portal||'':'';
+  document.getElementById('vnd-notes').value=v?v.notes||'':'';
+  const delBtn=document.getElementById('vnd-del-btn');if(delBtn)delBtn.style.display=v?'':'none';
+  _vndModalBS.show();
+}
+function saveVendor(){
+  const id=document.getElementById('vnd-id').value;
+  const name=document.getElementById('vnd-name').value.trim();
+  if(!name)return alert('Name required.');
+  const existing=id?(DB.vendors||[]).find(x=>x.id===id):null;
+  const nums=(DB.vendors||[]).map(x=>parseInt(x.id.replace('vnd',''))||0);
+  const next=nums.length?Math.max(...nums)+1:1;
+  const obj={id:id||('vnd'+next),name,type:document.getElementById('vnd-type').value,status:document.getElementById('vnd-status').value,contact:document.getElementById('vnd-contact').value.trim(),email:document.getElementById('vnd-email').value.trim(),phone:document.getElementById('vnd-phone').value.trim(),start:document.getElementById('vnd-start').value,expiry:document.getElementById('vnd-expiry').value,value:Number(document.getElementById('vnd-value').value)||0,services:document.getElementById('vnd-services').value.trim(),sla:document.getElementById('vnd-sla').value.trim(),portal:document.getElementById('vnd-portal').value.trim(),notes:document.getElementById('vnd-notes').value.trim(),created:existing?existing.created:new Date().toISOString()};
+  if(!DB.vendors)DB.vendors=[];
+  if(id){const i=DB.vendors.findIndex(x=>x.id===id);if(i>-1)DB.vendors[i]=obj;}else DB.vendors.push(obj);
+  logActivity('Vendors',id?`Updated: ${name}`:` Added vendor: ${name}`);dbSave();
+  bootstrap.Modal.getInstance(document.getElementById('vendorModal')).hide();
+  if(_currentMod==='vendors')renderVendors();
+}
+
+/* ══ SELF-SERVICE PORTAL ══ */
+function openPortal(){
+  const overlay=document.getElementById('portal-overlay');if(!overlay)return;
+  overlay.style.display='block';
+  renderPortalCatalog();renderPortalMyTickets();renderPortalServiceStatus();
+}
+function closePortal(){const el=document.getElementById('portal-overlay');if(el)el.style.display='none';}
+function renderPortalCatalog(){
+  const items=(DB.catalog||[]).filter(s=>s.status==='active').slice(0,6);
+  document.getElementById('portal-catalog').innerHTML=items.map(s=>`
+    <div class="col-md-6 col-lg-4">
+      <div class="portal-card" onclick="closePortal();openRequestModal(null,'${escHtml(s.name).replace(/'/g,"\\'")}')">
+        <div class="d-flex align-items-center gap-3"><div style="font-size:2.2rem">${s.icon||'📋'}</div>
+        <div><div class="fw-bold">${escHtml(s.name)}</div><div class="text-muted small">⏱ ${escHtml(s.sla||'')}</div></div></div>
+        <div class="text-muted small mt-2">${escHtml(s.desc||'')}</div>
+      </div>
+    </div>`).join('');
+}
+function renderPortalMyTickets(){
+  const all=[...(DB.incidents||[]).map(i=>({...i,_t:'Incident'})),...(DB.requests||[]).map(r=>({...r,_t:'Request'}))];
+  const open=all.filter(x=>!['resolved','closed','fulfilled','rejected','cancelled'].includes(x.status)).slice(0,8);
+  const statusC={'new':'primary','in-progress':'info','pending':'warning','resolved':'success','pending-approval':'warning','approved':'success','in-progress':'info','fulfilled':'success'};
+  document.getElementById('portal-my-tickets').innerHTML=open.length?`<div class="table-responsive"><table class="table table-sm"><thead><tr><th>ID</th><th>Title</th><th>Type</th><th>Status</th></tr></thead><tbody>`+open.map(x=>`<tr><td class="fw-semibold small">${x.id}</td><td class="small">${escHtml(x.title)}</td><td><span class="badge bg-secondary small">${x._t}</span></td><td><span class="badge bg-${statusC[x.status]||'secondary'} small">${escHtml(x.status)}</span></td></tr>`).join('')+`</tbody></table></div>`:'<p class="text-muted small py-2">No open tickets. ✅</p>';
+}
+function renderPortalServiceStatus(){
+  const inc=DB.incidents||[];
+  const cis=['WEB-PROD-01','ERP-APP','EXCHANGE-01','VPN-GW-01','AD-PROD'];
+  const statusEl=document.getElementById('portal-service-status');
+  statusEl.innerHTML=cis.map(name=>{
+    const ci=(DB.cmdb||[]).find(c=>c.name===name);
+    const openInc=inc.filter(i=>i.ci===ci?.id&&!['resolved','closed'].includes(i.status));
+    const p1=openInc.find(i=>i.priority==='P1');
+    const p2=openInc.find(i=>i.priority==='P2');
+    const ok=!p1&&!p2;
+    return`<div class="d-flex align-items-center justify-content-between mb-2"><span class="small">${escHtml(name)}</span><span class="badge bg-${ok?'success':p1?'danger':'warning'}">${ok?'✅ Operational':p1?'🔴 Outage':'🟡 Degraded'}</span></div>`;
+  }).join('');
+  const maint=(DB.maintenance||[]).filter(m=>m.status==='In Progress'||m.status==='Scheduled'&&new Date(m.start)<new Date(Date.now()+86400000));
+  document.getElementById('portal-announcements').innerHTML=maint.length?maint.map(m=>`<div class="alert alert-warning py-2 small mb-1"><strong>🔧 ${m.status==='In Progress'?'ONGOING':'UPCOMING'}</strong> ${escHtml(m.title)}<br><span class="text-muted">${fmtDate(m.start)} ${m.start.slice(11,16)}</span></div>`).join(''):'<p class="small text-muted">No scheduled maintenance. All systems normal.</p>';
+}
+
+/* ══ DELETE — extend for new types ══ */
+const _prevDeleteRecord=deleteRecord;
+function deleteRecord(type){
+  if(!confirm('Delete this record?'))return;
+  const extraTypes={vendor:{modal:'vendorModal',idEl:'vnd-id',arr:'vendors'},cab:{modal:'cabModal',idEl:'cab-id',arr:'cab'},freeze:{modal:'freezeModal',idEl:'frz-id',arr:'freeze'}};
+  if(extraTypes[type]){
+    const cfg=extraTypes[type];const id=document.getElementById(cfg.idEl)?.value;if(!id)return;
+    DB[cfg.arr]=(DB[cfg.arr]||[]).filter(x=>x.id!==id);
+    logActivity(type,'Deleted: '+id);dbSave();
+    const m=bootstrap.Modal.getInstance(document.getElementById(cfg.modal));if(m)m.hide();
+    renderModule(_currentMod);return;
+  }
+  _prevDeleteRecord(type);
+}
+
 /* ══ BOOT ══ */
 document.addEventListener('DOMContentLoaded',()=>{
   initDB();
@@ -2275,6 +2857,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.querySelectorAll('.nav-link[data-mod]').forEach(a=>{
     a.addEventListener('click',e=>{e.preventDefault();navigate(a.dataset.mod);});
   });
+  buildTemplateMenu();
   navigate('dashboard');
 });
 </script>
