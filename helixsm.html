@@ -74,6 +74,25 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
 .sect-hdr h5{font-weight:700;font-size:1rem;margin:0;}
 /* ── CMDB type icon ── */
 .ci-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+/* ── Major Incident Banner ── */
+#major-inc-banner{display:none;background:#7f1d1d;color:#fff;padding:8px 24px;font-size:.85rem;border-bottom:2px solid #ef4444;position:sticky;top:54px;z-index:99;}
+#major-inc-banner .blink{animation:blink 1s step-start infinite;}
+@keyframes blink{50%{opacity:0;}}
+/* ── CSAT stars ── */
+.csat-star{cursor:pointer;font-size:1.2rem;color:#d1d5db;transition:color .1s;}
+.csat-star.on{color:#f59e0b;}
+/* ── Release badge ── */
+.rel-version{font-family:monospace;background:#1e2139;color:#818cf8;padding:2px 8px;border-radius:4px;font-size:.78rem;}
+/* ── Maintenance window indicator ── */
+.maint-badge{background:#fef3c7;color:#92400e;border:1px solid #fde68a;padding:2px 8px;border-radius:12px;font-size:.72rem;font-weight:600;}
+/* ── On-call badge ── */
+.oncall-badge{background:#d1fae5;color:#065f46;border:1px solid #a7f3d0;padding:3px 10px;border-radius:12px;font-size:.78rem;font-weight:600;}
+/* ── Work notes ── */
+.note-item{background:#f9fafb;border-radius:8px;padding:10px 12px;border-left:3px solid var(--hsm-accent);margin-bottom:8px;}
+.note-item .note-meta{font-size:.7rem;color:#9ca3af;}
+/* ── Team card ── */
+.team-card{background:#fff;border-radius:12px;padding:18px;border:1px solid #e5e7eb;transition:box-shadow .12s;}
+.team-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.1);}
 /* ── SLA gauge bar ── */
 .sla-bar{height:6px;border-radius:3px;background:#e5e7eb;overflow:hidden;}
 .sla-bar-fill{height:100%;border-radius:3px;transition:width .4s;}
@@ -96,8 +115,13 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
 
   <div class="nav-sect">ITSM Practices</div>
   <a class="nav-link" href="#" data-mod="changes"><i class="bi bi-arrow-repeat"></i> Change Enablement</a>
+  <a class="nav-link" href="#" data-mod="releases"><i class="bi bi-box-seam"></i> Release Management</a>
   <a class="nav-link" href="#" data-mod="problems"><i class="bi bi-bug"></i> Problem Management</a>
+  <a class="nav-link" href="#" data-mod="maintenance"><i class="bi bi-tools"></i> Maintenance Windows</a>
   <a class="nav-link" href="#" data-mod="cmdb"><i class="bi bi-diagram-3"></i> CMDB</a>
+
+  <div class="nav-sect">People & Teams</div>
+  <a class="nav-link" href="#" data-mod="teams"><i class="bi bi-people"></i> Teams &amp; On-Call</a>
 
   <div class="nav-sect">Knowledge & Catalog</div>
   <a class="nav-link" href="#" data-mod="knowledge"><i class="bi bi-journal-text"></i> Knowledge Base</a>
@@ -115,6 +139,11 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
 
 <!-- ══ MAIN ══ -->
 <div id="main">
+  <div id="major-inc-banner">
+    <span class="blink">🚨 MAJOR INCIDENT — </span>
+    <span id="major-inc-text"></span>
+    <button class="btn btn-sm btn-outline-light ms-3 py-0" onclick="clearMajorIncident()">Clear</button>
+  </div>
   <div id="topbar">
     <div class="page-title" id="page-title">Dashboard</div>
     <div class="topbar-right">
@@ -133,7 +162,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
         <div class="col-md-5"><div class="stat-card h-100"><div class="fw-semibold mb-3 small text-muted text-uppercase" style="letter-spacing:.6px">Incidents by Priority</div><canvas id="dash-pri-chart" height="200"></canvas></div></div>
         <div class="col-md-7"><div class="stat-card h-100"><div class="fw-semibold mb-3 small text-muted text-uppercase" style="letter-spacing:.6px">Incident Volume — Last 14 Days</div><canvas id="dash-trend-chart" height="200"></canvas></div></div>
       </div>
-      <div class="row g-3">
+      <div class="row g-3 mb-3">
         <div class="col-md-7">
           <div class="stat-card">
             <div class="sect-hdr"><h5>🔴 Critical &amp; High Incidents</h5><a href="#" class="small text-primary" onclick="navigate('incidents')">View all →</a></div>
@@ -144,6 +173,26 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
           <div class="stat-card h-100">
             <div class="sect-hdr"><h5>Recent Activity</h5></div>
             <div class="timeline" id="dash-activity"></div>
+          </div>
+        </div>
+      </div>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <div class="stat-card h-100">
+            <div class="sect-hdr"><h5>📅 Upcoming Changes</h5><a href="#" class="small text-primary" onclick="navigate('changes')">View all →</a></div>
+            <div id="dash-upcoming-changes"></div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="stat-card h-100">
+            <div class="sect-hdr"><h5>🔧 Active Maintenance</h5><a href="#" class="small text-primary" onclick="navigate('maintenance')">View all →</a></div>
+            <div id="dash-maintenance"></div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="stat-card h-100">
+            <div class="sect-hdr"><h5>⭐ CSAT &amp; Top Teams</h5></div>
+            <div id="dash-csat"></div>
           </div>
         </div>
       </div>
@@ -334,7 +383,45 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
         <div class="col-md-6"><div class="stat-card"><div class="fw-semibold mb-2 small text-muted text-uppercase" style="letter-spacing:.6px">Change Pipeline by Type</div><canvas id="rpt-chg-chart" height="220"></canvas></div></div>
         <div class="col-md-6"><div class="stat-card"><div class="fw-semibold mb-2 small text-muted text-uppercase" style="letter-spacing:.6px">SLA Compliance by Priority</div><canvas id="rpt-sla-chart" height="220"></canvas></div></div>
         <div class="col-md-6"><div class="stat-card"><div class="fw-semibold mb-2 small text-muted text-uppercase" style="letter-spacing:.6px">Problem Status Overview</div><canvas id="rpt-prb-chart" height="220"></canvas></div></div>
+        <div class="col-md-6"><div class="stat-card"><div class="fw-semibold mb-2 small text-muted text-uppercase" style="letter-spacing:.6px">MTTR vs SLA Target (hours)</div><canvas id="rpt-mttr-chart" height="220"></canvas></div></div>
+        <div class="col-md-6"><div class="stat-card"><div class="fw-semibold mb-2 small text-muted text-uppercase" style="letter-spacing:.6px">Incident Volume — 6-Month Trend</div><canvas id="rpt-monthly-chart" height="220"></canvas></div></div>
       </div>
+    </div>
+
+    <!-- ── RELEASE MANAGEMENT ── -->
+    <div class="module" id="mod-releases">
+      <div class="sect-hdr"><h5>Release Management</h5><button class="btn btn-primary btn-sm" onclick="openReleaseModal()"><i class="bi bi-plus-lg"></i> New Release</button></div>
+      <div class="filter-bar">
+        <select class="form-select form-select-sm" style="width:auto" id="rel-filter-status" onchange="renderReleases()">
+          <option value="">All Statuses</option><option>Planning</option><option>In Testing</option><option>Approved</option><option>Deploying</option><option>Live</option><option>Rolled Back</option>
+        </select>
+        <select class="form-select form-select-sm" style="width:auto" id="rel-filter-type" onchange="renderReleases()">
+          <option value="">All Types</option><option>Major</option><option>Minor</option><option>Patch</option><option>Hotfix</option>
+        </select>
+        <input class="form-control form-control-sm" style="width:200px" id="rel-search" placeholder="Search releases..." oninput="renderReleases()">
+      </div>
+      <div class="table-card"><div class="table-responsive"><table class="table table-hover mb-0">
+        <thead><tr><th>ID</th><th>Release</th><th>Version</th><th>Type</th><th>Status</th><th>Planned Go-Live</th><th>Actual Go-Live</th><th>Lead</th><th>Linked Changes</th><th></th></tr></thead>
+        <tbody id="rel-tbody"></tbody>
+      </table></div></div>
+    </div>
+
+    <!-- ── MAINTENANCE WINDOWS ── -->
+    <div class="module" id="mod-maintenance">
+      <div class="sect-hdr"><h5>Maintenance Windows</h5><button class="btn btn-primary btn-sm" onclick="openMaintenanceModal()"><i class="bi bi-plus-lg"></i> New Window</button></div>
+      <div class="filter-bar">
+        <select class="form-select form-select-sm" style="width:auto" id="mw-filter-status" onchange="renderMaintenance()">
+          <option value="">All</option><option>Scheduled</option><option>In Progress</option><option>Completed</option><option>Cancelled</option>
+        </select>
+        <input class="form-control form-control-sm" style="width:200px" id="mw-search" placeholder="Search..." oninput="renderMaintenance()">
+      </div>
+      <div class="row g-3" id="mw-grid"></div>
+    </div>
+
+    <!-- ── TEAMS & ON-CALL ── -->
+    <div class="module" id="mod-teams">
+      <div class="sect-hdr"><h5>Teams &amp; On-Call</h5><button class="btn btn-primary btn-sm" onclick="openTeamModal()"><i class="bi bi-plus-lg"></i> New Team</button></div>
+      <div class="row g-3" id="teams-grid"></div>
     </div>
 
     <!-- ── ACTIVITY LOG ── -->
@@ -429,6 +516,34 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
             <textarea class="form-control" id="inc-description" rows="3" placeholder="Full details of the incident, symptoms, affected users…"></textarea></div>
           <div class="col-12"><label class="form-label fw-semibold">Resolution Notes</label>
             <textarea class="form-control" id="inc-resolution" rows="2" placeholder="How was this resolved? (fill when resolving)"></textarea></div>
+          <div class="col-12">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="inc-major">
+              <label class="form-check-label fw-semibold text-danger" for="inc-major">🚨 Declare as Major Incident (shows banner)</label>
+            </div>
+          </div>
+          <div class="col-12" id="inc-csat-row" style="display:none">
+            <label class="form-label fw-semibold">CSAT Rating (from requester)</label>
+            <div class="d-flex align-items-center gap-3">
+              <div id="inc-csat-stars">
+                <span class="csat-star" data-v="1" onclick="setCsatStar(1)">★</span>
+                <span class="csat-star" data-v="2" onclick="setCsatStar(2)">★</span>
+                <span class="csat-star" data-v="3" onclick="setCsatStar(3)">★</span>
+                <span class="csat-star" data-v="4" onclick="setCsatStar(4)">★</span>
+                <span class="csat-star" data-v="5" onclick="setCsatStar(5)">★</span>
+              </div>
+              <input type="hidden" id="inc-csat-score" value="0">
+              <input class="form-control form-control-sm" id="inc-csat-comment" placeholder="Optional comment" style="max-width:300px">
+            </div>
+          </div>
+          <div class="col-12" id="inc-notes-section" style="display:none">
+            <label class="form-label fw-semibold">Work Notes</label>
+            <div id="inc-notes-list" class="mb-2"></div>
+            <div class="input-group input-group-sm">
+              <input class="form-control" id="inc-note-input" placeholder="Add a timestamped work note…">
+              <button class="btn btn-outline-secondary" onclick="addIncidentNote()">Add Note</button>
+            </div>
+          </div>
         </div>
       </div>
       <div class="modal-footer">
@@ -748,6 +863,140 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
   </div>
 </div>
 
+<!-- Release Modal -->
+<div class="modal fade" id="releaseModal" tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Release Record</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <input type="hidden" id="rel-id">
+        <div class="row g-3">
+          <div class="col-md-7"><label class="form-label fw-semibold">Release Title <span class="text-danger">*</span></label>
+            <input class="form-control" id="rel-title" placeholder="e.g. CRM v3.2 — Q2 Feature Release"></div>
+          <div class="col-md-2"><label class="form-label fw-semibold">Version</label>
+            <input class="form-control" id="rel-version" placeholder="3.2.0"></div>
+          <div class="col-md-3"><label class="form-label fw-semibold">Type</label>
+            <select class="form-select" id="rel-type"><option>Major</option><option>Minor</option><option>Patch</option><option>Hotfix</option></select></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Status</label>
+            <select class="form-select" id="rel-status">
+              <option value="Planning">Planning</option><option value="In Testing">In Testing</option><option value="Approved">Approved</option>
+              <option value="Deploying">Deploying</option><option value="Live">Live</option><option value="Rolled Back">Rolled Back</option>
+            </select></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Release Lead</label>
+            <input class="form-control" id="rel-lead" placeholder="Name or team"></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Environment</label>
+            <select class="form-select" id="rel-env"><option>Production</option><option>Staging</option><option>Development</option></select></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Planned Go-Live</label>
+            <input class="form-control" type="datetime-local" id="rel-planned"></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Actual Go-Live</label>
+            <input class="form-control" type="datetime-local" id="rel-actual"></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Linked Change(s)</label>
+            <input class="form-control" id="rel-changes" placeholder="e.g. CHG0001, CHG0003"></div>
+          <div class="col-12"><label class="form-label fw-semibold">Description</label>
+            <textarea class="form-control" id="rel-description" rows="2" placeholder="What is being released?"></textarea></div>
+          <div class="col-12"><label class="form-label fw-semibold">Release Notes</label>
+            <textarea class="form-control" id="rel-notes" rows="4" placeholder="Changelog, new features, bug fixes, breaking changes…"></textarea></div>
+          <div class="col-12"><label class="form-label fw-semibold">Rollback Plan</label>
+            <textarea class="form-control" id="rel-rollback" rows="2" placeholder="Steps to roll back if deployment fails…"></textarea></div>
+          <div class="col-12"><label class="form-label fw-semibold">Test Results Summary</label>
+            <textarea class="form-control" id="rel-test-results" rows="2" placeholder="UAT / regression / performance test summary…"></textarea></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-danger btn-sm me-auto" id="rel-del-btn" onclick="deleteRecord('release')" style="display:none">Delete</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" onclick="saveRelease()">Save Release</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Maintenance Window Modal -->
+<div class="modal fade" id="maintenanceModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Maintenance Window</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <input type="hidden" id="mw-id">
+        <div class="row g-3">
+          <div class="col-12"><label class="form-label fw-semibold">Title <span class="text-danger">*</span></label>
+            <input class="form-control" id="mw-title" placeholder="e.g. Core Switch Replacement — Planned Outage"></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Type</label>
+            <select class="form-select" id="mw-type"><option>Planned</option><option>Emergency</option></select></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Status</label>
+            <select class="form-select" id="mw-status"><option>Scheduled</option><option>In Progress</option><option>Completed</option><option>Cancelled</option></select></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Impact Level</label>
+            <select class="form-select" id="mw-impact"><option>None</option><option>Low</option><option>Medium</option><option>High</option><option>Full Outage</option></select></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Start Date/Time</label>
+            <input class="form-control" type="datetime-local" id="mw-start"></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">End Date/Time</label>
+            <input class="form-control" type="datetime-local" id="mw-end"></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Owner / Team</label>
+            <input class="form-control" id="mw-owner" placeholder="e.g. Network Team"></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Linked Change</label>
+            <input class="form-control" id="mw-change" placeholder="e.g. CHG0002"></div>
+          <div class="col-12"><label class="form-label fw-semibold">Affected CIs (comma-separated)</label>
+            <input class="form-control" id="mw-cis" placeholder="e.g. SW-CORE-01, ERP-APP"></div>
+          <div class="col-12"><label class="form-label fw-semibold">Description &amp; User Impact</label>
+            <textarea class="form-control" id="mw-description" rows="2" placeholder="What will be unavailable, who is affected, and how long?"></textarea></div>
+          <div class="col-12">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="mw-notified" checked>
+              <label class="form-check-label fw-semibold" for="mw-notified">Users notified</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-danger btn-sm me-auto" id="mw-del-btn" onclick="deleteRecord('maintenance')" style="display:none">Delete</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" onclick="saveMaintenance()">Save Window</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Team Modal -->
+<div class="modal fade" id="teamModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Team / Assignment Group</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <input type="hidden" id="team-id">
+        <div class="row g-3">
+          <div class="col-md-6"><label class="form-label fw-semibold">Team Name <span class="text-danger">*</span></label>
+            <input class="form-control" id="team-name" placeholder="e.g. Network Team"></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Specialty</label>
+            <input class="form-control" id="team-specialty" placeholder="e.g. Network, Security, Applications…"></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Team Lead</label>
+            <input class="form-control" id="team-lead" placeholder="Name"></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Contact Email</label>
+            <input class="form-control" id="team-email" type="email" placeholder="team@company.com"></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Team Phone / Ext</label>
+            <input class="form-control" id="team-phone" placeholder="+44 20 xxxx xxxx"></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Slack / Teams Channel</label>
+            <input class="form-control" id="team-channel" placeholder="#network-ops"></div>
+          <div class="col-12"><label class="form-label fw-semibold">Members (comma-separated)</label>
+            <input class="form-control" id="team-members" placeholder="Alice, Bob, Charlie…"></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Current On-Call</label>
+            <input class="form-control" id="team-oncall" placeholder="Name"></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">On-Call Until</label>
+            <input class="form-control" type="date" id="team-oncall-until"></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Escalation Contact</label>
+            <input class="form-control" id="team-escalation" placeholder="Name (manager/backup)"></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Escalation Phone</label>
+            <input class="form-control" id="team-esc-phone" placeholder="+44 7xxx xxxxxx"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-danger btn-sm me-auto" id="team-del-btn" onclick="deleteRecord('team')" style="display:none">Delete</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" onclick="saveTeam()">Save Team</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 <script>
@@ -883,18 +1132,51 @@ function seedData(){
     {id:'svc7',name:'Leaver / Offboarding',category:'IT Infrastructure',desc:'IT offboarding for departing employees. Disable accounts, collect hardware.',sla:'Last working day',owner:'Service Desk',status:'active',icon:'🚪',requests:28},
     {id:'svc8',name:'Security Incident Reporting',category:'Security',desc:'Report a suspected security incident, phishing attempt, or data breach.',sla:'Immediate (P2 SLA)',owner:'Security Team',status:'active',icon:'🛡️',requests:19},
   ];
+  DB.releases=[
+    {id:'REL001',title:'ERP Platform v4.2 — Q1 Feature Release',version:'4.2.0',type:'Major',status:'Live',env:'Production',lead:'Business Apps Team',planned:daysAgo(14)+'T22:00',actual:daysAgo(14)+'T23:45',linked_changes:'CHG0003',description:'Major ERP update: new procurement module, GDPR consent manager, performance improvements.',notes:'## New Features\n- Procurement approval workflow\n- GDPR consent management screen\n- Dashboard widget customisation\n\n## Bug Fixes\n- Fixed login session timeout (PRB0004)\n- Resolved slow query on reports module\n\n## Breaking Changes\n- API v2 endpoints deprecated — migrate to v3 by Q3',rollback:'Restore from pre-release snapshot (DB-SNAP-20250414)',test_results:'UAT passed: 47/47 test cases. Performance: P95 <800ms (baseline 1200ms).',created:daysAgo(30)},
+    {id:'REL002',title:'Network Monitoring — Grafana Dashboard v2.1',version:'2.1.3',type:'Minor',status:'Live',env:'Production',lead:'Network Team',planned:daysAgo(7)+'T10:00',actual:daysAgo(7)+'T10:20',linked_changes:'',description:'Adds latency heatmap, BGP session monitoring, and per-VLAN traffic graphs.',notes:'## Changes\n- New: Latency heatmap (15-min intervals)\n- New: BGP session state monitoring\n- Improved: VLAN traffic breakdown panel\n- Fixed: Alert suppression during maintenance windows',rollback:'Revert Grafana config to v2.0.8 backup.',test_results:'Smoke tested by Network Team. All dashboards loading <2s.',created:daysAgo(14)},
+    {id:'REL003',title:'Security Patch Bundle — CVE-2025-Q1',version:'SP-2025-Q1',type:'Patch',status:'Live',env:'Production',lead:'Security Team',planned:daysAgo(21)+'T02:00',actual:daysAgo(21)+'T02:30',linked_changes:'CHG0001',description:'Critical and high CVE patches across web servers, database tier, and VPN appliances.',notes:'## Patches Applied\n- Apache httpd 2.4.62 (CVE-2024-40898)\n- OpenSSL 3.3.1 (CVE-2024-4603)\n- Cisco ASA 9.20.3 (CSCwj66296)\n- PostgreSQL 16.4 (CVE-2024-7348)',rollback:'Restore from VM snapshots taken T-30min.',test_results:'Vulnerability scan post-patch: 0 critical, 2 medium (accepted risk).',created:daysAgo(25)},
+    {id:'REL004',title:'Customer Portal v5.0 — Full Redesign',version:'5.0.0',type:'Major',status:'In Testing',env:'Staging',lead:'Product Engineering',planned:daysFromNow(14)+'T21:00',actual:'',linked_changes:'CHG0004',description:'Complete UI overhaul using React 18, new checkout flow, and mobile-first design.',notes:'## In Progress\n- New React 18 frontend (replacing Angular 13)\n- Redesigned checkout flow (+23% conversion in A/B)\n- Mobile-first responsive layout\n- New account dashboard\n\n## Pending\n- Payment gateway integration tests\n- Accessibility audit (WCAG 2.2 AA)',rollback:'Blue-green deployment — flip load balancer back to v4.x cluster.',test_results:'Functional: 182/204 passing. Performance: WIP. UAT scheduled next week.',created:daysAgo(21)},
+    {id:'REL005',title:'VPN Hotfix — Idle Timeout Fix',version:'HF-2025-005',type:'Hotfix',status:'Approved',env:'Production',lead:'Network Team',planned:daysFromNow(3)+'T22:00',actual:'',linked_changes:'',description:'Vendor-supplied hotfix for VPN idle timeout issue (Known Error PRB0002).',notes:'## Fix\n- Cisco ASA: idle-timeout adjusted to 3600s (from 2700s)\n- Keepalive interval tuned per vendor recommendation\n\n## Testing\n- Tested in lab for 4 hours. Zero disconnections observed.',rollback:'Revert ASA config to backup saved pre-patch.',test_results:'Lab: Pass. Awaiting production deployment approval.',created:daysAgo(3)},
+  ];
+  DB.maintenance=[
+    {id:'mw1',title:'Core Switch Replacement — SW-CORE-01 to SW-CORE-02',type:'Planned',status:'Scheduled',impact:'Full Outage',start:daysFromNow(4)+'T22:00',end:daysFromNow(5)+'T02:00',owner:'Network Team',change_ref:'CHG0002',cis:'SW-CORE-01, All VLANs',description:'Full network outage expected during switch replacement. All staff to save work before 21:45.',notified:true,created:daysAgo(3)},
+    {id:'mw2',title:'Database Maintenance — Index Rebuild & VACUUM',type:'Planned',status:'Scheduled',impact:'Low',start:daysFromNow(1)+'T01:00',end:daysFromNow(1)+'T03:00',owner:'DBA Team',change_ref:'',cis:'DB-PROD-01',description:'Routine PostgreSQL VACUUM ANALYZE and index rebuild. DB accessible throughout; some queries may be slower.',notified:true,created:daysAgo(2)},
+    {id:'mw3',title:'Firewall Rule Update — Outbound ACL Change',type:'Emergency',status:'In Progress',impact:'Low',start:hoursAgo(1.5),end:daysFromNow(0)+'T23:00',owner:'Network Team',change_ref:'CHG0005',cis:'FW-PRIMARY',description:'Firewall rule addition for new SaaS procurement tool. Minimal impact — outbound only.',notified:false,created:hoursAgo(3)},
+    {id:'mw4',title:'Exchange CU Update — Exchange 2019 CU15',type:'Planned',status:'Completed',impact:'Medium',start:daysAgo(10)+'T22:00',end:daysAgo(10)+'T01:00',owner:'Email Team',change_ref:'',cis:'EXCHANGE-01',description:'Cumulative Update 15 applied. Email unavailable for ~2 hours.',notified:true,created:daysAgo(14)},
+  ];
+  DB.teams=[
+    {id:'t1',name:'Service Desk',specialty:'First-line support, password resets, general IT',lead:'Sarah Chen',email:'servicedesk@company.com',phone:'+44 20 1234 5678',channel:'#service-desk',members:'Sarah Chen, Tom Baker, Lucy Park, James O\'Neill, Nina Patel',oncall:'Sarah Chen',oncall_until:daysFromNow(3).slice(0,10),escalation:'IT Manager — Rachel Singh',esc_phone:'+44 7700 900123',created:daysAgo(365)},
+    {id:'t2',name:'Network Team',specialty:'Network infrastructure, VPN, firewall, switching',lead:'Chris Wong',email:'network@company.com',phone:'Ext 2200',channel:'#network-ops',members:'Chris Wong, Ben Park, Aisha Kamara',oncall:'Ben Park',oncall_until:daysFromNow(5).slice(0,10),escalation:'Chris Wong — Network Lead',esc_phone:'+44 7700 900124',created:daysAgo(365)},
+    {id:'t3',name:'Server Team',specialty:'Windows/Linux servers, virtualisation, storage',lead:'Alex Turner',email:'servers@company.com',phone:'Ext 2300',channel:'#server-ops',members:'Alex Turner, Maria Lopez, David Kim',oncall:'Maria Lopez',oncall_until:daysFromNow(2).slice(0,10),escalation:'Alex Turner — Team Lead',esc_phone:'+44 7700 900125',created:daysAgo(365)},
+    {id:'t4',name:'Security Team',specialty:'SOC, threat detection, access management, compliance',lead:'James Hill (CISO)',email:'security@company.com',phone:'+44 20 1234 5679',channel:'#security-alerts',members:'James Hill, Priya Nair, Omar Hassan, Zoe Williams',oncall:'Omar Hassan',oncall_until:daysFromNow(1).slice(0,10),escalation:'CISO — James Hill (24/7)',esc_phone:'+44 7700 900001',created:daysAgo(365)},
+    {id:'t5',name:'Desktop Team',specialty:'Workstations, laptops, printers, mobile devices',lead:'Sam Blake',email:'desktop@company.com',phone:'Ext 2400',channel:'#desktop-support',members:'Sam Blake, Mia Torres, Jack Freeman',oncall:'Sam Blake',oncall_until:daysFromNow(4).slice(0,10),escalation:'IT Manager — Rachel Singh',esc_phone:'+44 7700 900123',created:daysAgo(365)},
+  ];
+  // seed CSAT on some resolved incidents
+  DB.incidents[3].csat={score:5,comment:'Fixed super fast, great comms!',rated_at:daysAgo(4)};
+  DB.incidents[4].csat={score:4,comment:'Resolved well but took a while.',rated_at:daysAgo(3)};
+  DB.incidents[8].csat={score:5,comment:'Battery replaced same day.',rated_at:daysAgo(3)};
+  DB.incidents[9].csat={score:3,comment:'Resolved but comms could be better.',rated_at:daysAgo(7)};
+  // seed a few work notes on P1 incident
+  DB.incidents[0].work_notes=[
+    {id:uid(),text:'Checked DB connections — pool at 100/100. Restarting connection pool service.',author:'Alex Turner',at:hoursAgo(2.8)},
+    {id:uid(),text:'Pool restart did not resolve. Escalating to vendor DBA support.',author:'Alex Turner',at:hoursAgo(2.2)},
+    {id:uid(),text:'Vendor on call. Identified runaway query from BI report job. Killing session.',author:'Alex Turner',at:hoursAgo(1.5)},
+  ];
   DB.activityLog=[
     {id:uid(),module:'System',msg:'HelixSM initialised with seed data',at:new Date().toISOString()},
     {id:uid(),module:'Incidents',msg:'INC0001 created — P1: Database server unresponsive',at:hoursAgo(3)},
     {id:uid(),module:'Changes',msg:'CHG0001 completed — Emergency Log4j patch applied',at:daysAgo(8)},
     {id:uid(),module:'Problems',msg:'PRB0002 marked as Known Error — VPN idle drops',at:daysAgo(2)},
     {id:uid(),module:'Requests',msg:'REQ0003 fulfilled — SharePoint access granted',at:daysAgo(1)},
+    {id:uid(),module:'Releases',msg:'REL004 status: In Testing — Customer Portal v5.0',at:daysAgo(1)},
+    {id:uid(),module:'Maintenance',msg:'MW scheduled: Core Switch replacement in 4 days',at:daysAgo(3)},
   ];
   dbSave();
 }
 
 /* ══ NAVIGATION ══ */
-const PAGE_TITLES={dashboard:'Dashboard',incidents:'Incidents',requests:'Service Requests',changes:'Change Enablement',problems:'Problem Management',cmdb:'CMDB',knowledge:'Knowledge Base',catalog:'Service Catalog',sla:'SLA Management',reports:'Reports',activity:'Activity Log',settings:'Settings'};
+const PAGE_TITLES={dashboard:'Dashboard',incidents:'Incidents',requests:'Service Requests',changes:'Change Enablement',releases:'Release Management',problems:'Problem Management',maintenance:'Maintenance Windows',cmdb:'CMDB',teams:'Teams & On-Call',knowledge:'Knowledge Base',catalog:'Service Catalog',sla:'SLA Management',reports:'Reports',activity:'Activity Log',settings:'Settings'};
 let _currentMod='dashboard';
 function navigate(mod){
   document.querySelectorAll('.module').forEach(m=>m.classList.remove('active'));
@@ -917,6 +1199,9 @@ function renderModule(mod){
     case 'cmdb':renderCMDB();break;
     case 'knowledge':renderKnowledge();break;
     case 'catalog':renderCatalog();break;
+    case 'releases':renderReleases();break;
+    case 'maintenance':renderMaintenance();break;
+    case 'teams':renderTeams();break;
     case 'sla':renderSLA();break;
     case 'reports':renderReports();break;
     case 'activity':renderActivity();break;
@@ -1637,6 +1922,350 @@ function deleteRecord(type){
   const m=bootstrap.Modal.getInstance(document.getElementById(modalMap[type]));
   if(m)m.hide();
   renderModule(_currentMod);
+}
+
+/* ══ DASHBOARD EXTRAS ══ */
+const _origRenderDashboard=renderDashboard;
+function renderDashboard(){
+  _origRenderDashboard();
+  renderUpcomingChanges();
+  renderActiveMaintenance();
+  renderDashCsat();
+  checkMajorIncident();
+}
+function renderUpcomingChanges(){
+  const el=document.getElementById('dash-upcoming-changes');if(!el)return;
+  const chgs=(DB.changes||[]).filter(c=>['approved','scheduled'].includes(c.status)&&c.planned_start).sort((a,b)=>a.planned_start.localeCompare(b.planned_start)).slice(0,5);
+  el.innerHTML=chgs.length?chgs.map(c=>{
+    const typeColor={Standard:'success',Normal:'primary',Emergency:'danger'};
+    return`<div class="d-flex align-items-start gap-2 mb-2 pb-2 border-bottom"><div><span class="badge bg-${typeColor[c.type]||'secondary'} me-1">${c.type}</span>${riskBadge(c.risk)}</div><div><div class="small fw-semibold">${escHtml(c.title)}</div><div class="text-muted" style="font-size:.72rem">${fmtDate(c.planned_start)} · ${escHtml(c.assignee||'—')}</div></div></div>`;
+  }).join(''):'<p class="text-muted small py-2">No approved/scheduled changes.</p>';
+}
+function renderActiveMaintenance(){
+  const el=document.getElementById('dash-maintenance');if(!el)return;
+  const now=Date.now();
+  const active=(DB.maintenance||[]).filter(m=>{
+    const s=new Date(m.start).getTime();const e=new Date(m.end).getTime();
+    return m.status==='In Progress'||(m.status==='Scheduled'&&s-now<7*86400000&&s>now);
+  }).slice(0,4);
+  const impactColor={'Full Outage':'danger',High:'danger',Medium:'warning',Low:'success',None:'secondary'};
+  el.innerHTML=active.length?active.map(m=>`<div class="mb-2 pb-2 border-bottom"><div class="d-flex align-items-center gap-2 mb-1"><span class="maint-badge">${m.status==='In Progress'?'🔴 ACTIVE':'⏰ UPCOMING'}</span><span class="badge bg-${impactColor[m.impact]||'secondary'} small">${m.impact}</span></div><div class="small fw-semibold">${escHtml(m.title)}</div><div class="text-muted" style="font-size:.72rem">${fmtDate(m.start)} ${m.start.slice(11,16)} → ${fmtDate(m.end)} ${m.end.slice(11,16)}</div></div>`).join(''):'<p class="text-muted small py-2">No active or upcoming maintenance windows.</p>';
+}
+function renderDashCsat(){
+  const el=document.getElementById('dash-csat');if(!el)return;
+  const rated=(DB.incidents||[]).filter(i=>i.csat&&i.csat.score);
+  const avg=rated.length?rated.reduce((s,i)=>s+i.csat.score,0)/rated.length:null;
+  const stars=n=>Array.from({length:5},(_,i)=>`<span style="color:${i<Math.round(n)?'#f59e0b':'#d1d5db'}">★</span>`).join('');
+  el.innerHTML=`<div class="text-center mb-3"><div class="fs-2 fw-bold">${avg?avg.toFixed(1):'—'}</div><div>${avg?stars(avg):''}</div><div class="text-muted small">${rated.length} ratings</div></div>`;
+  // top teams by incidents resolved
+  const teams=DB.teams||[];
+  el.innerHTML+=`<div class="small fw-semibold text-muted text-uppercase mb-2" style="letter-spacing:.5px">On-Call Now</div>`+teams.slice(0,3).map(t=>`<div class="d-flex justify-content-between align-items-center mb-1"><span class="small">${escHtml(t.name)}</span><span class="oncall-badge">${escHtml(t.oncall||'—')}</span></div>`).join('');
+}
+function checkMajorIncident(){
+  const major=(DB.incidents||[]).find(i=>i.major&&!['resolved','closed'].includes(i.status));
+  const banner=document.getElementById('major-inc-banner');
+  if(!banner)return;
+  if(major){banner.style.display='block';document.getElementById('major-inc-text').textContent=major.id+' — '+major.title+(major.assignee?' | Assigned: '+major.assignee:'');}
+  else{banner.style.display='none';}
+}
+function clearMajorIncident(){
+  (DB.incidents||[]).forEach(i=>{if(i.major&&!['resolved','closed'].includes(i.status))i.major=false;});
+  dbSave();checkMajorIncident();
+}
+
+/* ══ INCIDENT ENHANCEMENTS (CSAT + WORK NOTES + MAJOR) ══ */
+let _csatScore=0;
+function setCsatStar(n){
+  _csatScore=n;
+  document.getElementById('inc-csat-score').value=n;
+  document.querySelectorAll('.csat-star').forEach(s=>{s.classList.toggle('on',Number(s.dataset.v)<=n);});
+}
+function addIncidentNote(){
+  const id=document.getElementById('inc-id').value;
+  const text=document.getElementById('inc-note-input').value.trim();
+  if(!text||!id)return;
+  const inc=(DB.incidents||[]).find(x=>x.id===id);
+  if(!inc)return;
+  if(!inc.work_notes)inc.work_notes=[];
+  inc.work_notes.push({id:uid(),text,author:(DB.settings||{}).group||'Service Desk',at:new Date().toISOString()});
+  dbSave();
+  document.getElementById('inc-note-input').value='';
+  renderIncidentNotes(inc);
+}
+function renderIncidentNotes(inc){
+  const el=document.getElementById('inc-notes-list');if(!el)return;
+  const notes=[...(inc.work_notes||[])].reverse();
+  el.innerHTML=notes.map(n=>`<div class="note-item"><div>${escHtml(n.text)}</div><div class="note-meta">${escHtml(n.author)} · ${fmtDateTime(n.at)}</div></div>`).join('')||'<p class="text-muted small">No work notes yet.</p>';
+}
+// Patch openIncidentModal to show CSAT + notes for resolved, and handle major flag
+const _baseOpenIncidentModal=openIncidentModal;
+function openIncidentModal(id){
+  _baseOpenIncidentModal(id);
+  const i=id?(DB.incidents||[]).find(x=>x.id===id):null;
+  const status=i?i.status:'new';
+  const csatRow=document.getElementById('inc-csat-row');
+  const notesSection=document.getElementById('inc-notes-section');
+  if(csatRow)csatRow.style.display=['resolved','closed'].includes(status)?'':'none';
+  if(notesSection)notesSection.style.display=id?'':'none';
+  document.getElementById('inc-major').checked=!!(i&&i.major);
+  _csatScore=i&&i.csat?i.csat.score:0;
+  document.getElementById('inc-csat-score').value=_csatScore;
+  document.querySelectorAll('.csat-star').forEach(s=>s.classList.toggle('on',Number(s.dataset.v)<=_csatScore));
+  document.getElementById('inc-csat-comment').value=i&&i.csat?i.csat.comment||'':'';
+  if(i)renderIncidentNotes(i);
+}
+// Patch saveIncident to persist major flag + CSAT
+const _baseSaveIncident=saveIncident;
+function saveIncident(){
+  _baseSaveIncident();
+  // post-save: persist extra fields
+  const id=document.getElementById('inc-id').value||(DB.incidents[DB.incidents.length-1]?.id);
+  const inc=(DB.incidents||[]).find(x=>x.id===id);
+  if(!inc)return;
+  inc.major=document.getElementById('inc-major').checked;
+  const csatScore=Number(document.getElementById('inc-csat-score').value)||0;
+  if(csatScore>0){inc.csat={score:csatScore,comment:document.getElementById('inc-csat-comment').value.trim(),rated_at:new Date().toISOString()};}
+  dbSave();
+  checkMajorIncident();
+}
+
+/* ══ RELEASE MANAGEMENT ══ */
+function renderReleases(){
+  let items=DB.releases||[];
+  const fs=document.getElementById('rel-filter-status')?.value;
+  const ft=document.getElementById('rel-filter-type')?.value;
+  const q=document.getElementById('rel-search')?.value.toLowerCase();
+  if(fs)items=items.filter(r=>r.status===fs);
+  if(ft)items=items.filter(r=>r.type===ft);
+  if(q)items=items.filter(r=>(r.title+r.version+r.description).toLowerCase().includes(q));
+  items.sort((a,b)=>(b.planned||'').localeCompare(a.planned||''));
+  const typeColor={Major:'danger',Minor:'primary',Patch:'success',Hotfix:'warning'};
+  const statusColor={Planning:'secondary','In Testing':'info',Approved:'primary',Deploying:'warning',Live:'success','Rolled Back':'danger'};
+  document.getElementById('rel-tbody').innerHTML=items.length?items.map(r=>`<tr style="cursor:pointer" onclick="openReleaseModal('${r.id}')">
+    <td class="fw-semibold text-primary">${r.id}</td>
+    <td><div class="fw-semibold">${escHtml(r.title)}</div><div class="text-muted small">${escHtml(r.description||'').slice(0,70)}</div></td>
+    <td><span class="rel-version">${escHtml(r.version||'—')}</span></td>
+    <td><span class="badge bg-${typeColor[r.type]||'secondary'}">${r.type||'—'}</span></td>
+    <td><span class="badge bg-${statusColor[r.status]||'secondary'}">${r.status||'—'}</span></td>
+    <td class="small">${r.planned?fmtDate(r.planned):'—'}</td>
+    <td class="small">${r.actual?fmtDate(r.actual):'<span class="text-muted">—</span>'}</td>
+    <td class="small">${escHtml(r.lead||'—')}</td>
+    <td class="small">${escHtml(r.linked_changes||'—')}</td>
+    <td><button class="btn btn-outline-secondary btn-sm py-0" onclick="event.stopPropagation();openReleaseModal('${r.id}')">Edit</button></td>
+  </tr>`).join(''):'<tr><td colspan="10" class="text-center text-muted py-4">No releases found.</td></tr>';
+}
+let _relModalBS=null;
+function openReleaseModal(id){
+  if(!_relModalBS)_relModalBS=new bootstrap.Modal(document.getElementById('releaseModal'));
+  const r=id?(DB.releases||[]).find(x=>x.id===id):null;
+  document.getElementById('rel-id').value=r?r.id:'';
+  document.getElementById('rel-title').value=r?r.title:'';
+  document.getElementById('rel-version').value=r?r.version||'':'';
+  document.getElementById('rel-type').value=r?r.type:'Minor';
+  document.getElementById('rel-status').value=r?r.status:'Planning';
+  document.getElementById('rel-env').value=r?r.env:'Production';
+  document.getElementById('rel-lead').value=r?r.lead||'':'';
+  document.getElementById('rel-planned').value=r?r.planned||'':'';
+  document.getElementById('rel-actual').value=r?r.actual||'':'';
+  document.getElementById('rel-changes').value=r?r.linked_changes||'':'';
+  document.getElementById('rel-description').value=r?r.description||'':'';
+  document.getElementById('rel-notes').value=r?r.notes||'':'';
+  document.getElementById('rel-rollback').value=r?r.rollback||'':'';
+  document.getElementById('rel-test-results').value=r?r.test_results||'':'';
+  const delBtn=document.getElementById('rel-del-btn');
+  if(delBtn)delBtn.style.display=r?'':'none';
+  _relModalBS.show();
+}
+function saveRelease(){
+  const id=document.getElementById('rel-id').value;
+  const title=document.getElementById('rel-title').value.trim();
+  if(!title)return alert('Title required.');
+  const existing=id?(DB.releases||[]).find(x=>x.id===id):null;
+  const relIds=(DB.releases||[]).map(r=>parseInt(r.id.replace('REL',''))||0);
+  const nextNum=relIds.length?Math.max(...relIds)+1:1;
+  const obj={id:id||('REL'+String(nextNum).padStart(3,'0')),title,version:document.getElementById('rel-version').value.trim(),type:document.getElementById('rel-type').value,status:document.getElementById('rel-status').value,env:document.getElementById('rel-env').value,lead:document.getElementById('rel-lead').value.trim(),planned:document.getElementById('rel-planned').value,actual:document.getElementById('rel-actual').value,linked_changes:document.getElementById('rel-changes').value.trim(),description:document.getElementById('rel-description').value.trim(),notes:document.getElementById('rel-notes').value.trim(),rollback:document.getElementById('rel-rollback').value.trim(),test_results:document.getElementById('rel-test-results').value.trim(),created:existing?existing.created:new Date().toISOString()};
+  if(!DB.releases)DB.releases=[];
+  if(id){const idx=DB.releases.findIndex(x=>x.id===id);if(idx>-1)DB.releases[idx]=obj;}else DB.releases.push(obj);
+  logActivity('Releases',id?`Updated ${obj.id}: ${obj.title}`:` Created ${obj.id}: ${obj.title}`);
+  dbSave();
+  bootstrap.Modal.getInstance(document.getElementById('releaseModal')).hide();
+  if(_currentMod==='releases')renderReleases();
+}
+
+/* ══ MAINTENANCE WINDOWS ══ */
+function renderMaintenance(){
+  let items=DB.maintenance||[];
+  const fs=document.getElementById('mw-filter-status')?.value;
+  const q=document.getElementById('mw-search')?.value.toLowerCase();
+  if(fs)items=items.filter(m=>m.status===fs);
+  if(q)items=items.filter(m=>(m.title+m.cis+m.description).toLowerCase().includes(q));
+  items.sort((a,b)=>a.start.localeCompare(b.start));
+  const impactColor={'Full Outage':'danger',High:'danger',Medium:'warning',Low:'success',None:'secondary'};
+  const statusColor={'In Progress':'danger',Scheduled:'warning',Completed:'success',Cancelled:'secondary'};
+  document.getElementById('mw-grid').innerHTML=items.length?items.map(m=>`
+    <div class="col-md-6">
+      <div class="team-card" onclick="openMaintenanceModal('${m.id}')" style="cursor:pointer">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div class="fw-bold">${escHtml(m.title)}</div>
+          <span class="badge bg-${statusColor[m.status]||'secondary'}">${m.status}</span>
+        </div>
+        <div class="d-flex gap-2 flex-wrap mb-2">
+          <span class="badge bg-${m.type==='Emergency'?'danger':'secondary'}">${m.type}</span>
+          <span class="badge bg-${impactColor[m.impact]||'secondary'}">Impact: ${m.impact}</span>
+          ${m.notified?'<span class="badge bg-success">Users Notified</span>':'<span class="badge bg-warning text-dark">Not Notified</span>'}
+        </div>
+        <div class="small text-muted mb-2">🕐 ${fmtDate(m.start)} ${m.start.slice(11,16)} → ${fmtDate(m.end)} ${m.end.slice(11,16)}</div>
+        ${m.cis?`<div class="small text-muted mb-1">🖥️ ${escHtml(m.cis)}</div>`:''}
+        ${m.change_ref?`<div class="small text-muted">🔄 ${escHtml(m.change_ref)}</div>`:''}
+        <div class="small mt-2">${escHtml(m.description||'')}</div>
+      </div>
+    </div>`).join(''):'<div class="col-12 text-center text-muted py-5">No maintenance windows found.</div>';
+}
+let _mwModalBS=null;
+function openMaintenanceModal(id){
+  if(!_mwModalBS)_mwModalBS=new bootstrap.Modal(document.getElementById('maintenanceModal'));
+  const m=id?(DB.maintenance||[]).find(x=>x.id===id):null;
+  document.getElementById('mw-id').value=m?m.id:'';
+  document.getElementById('mw-title').value=m?m.title:'';
+  document.getElementById('mw-type').value=m?m.type:'Planned';
+  document.getElementById('mw-status').value=m?m.status:'Scheduled';
+  document.getElementById('mw-impact').value=m?m.impact:'Medium';
+  document.getElementById('mw-start').value=m?m.start||'':'';
+  document.getElementById('mw-end').value=m?m.end||'':'';
+  document.getElementById('mw-owner').value=m?m.owner||'':'';
+  document.getElementById('mw-change').value=m?m.change_ref||'':'';
+  document.getElementById('mw-cis').value=m?m.cis||'':'';
+  document.getElementById('mw-description').value=m?m.description||'':'';
+  document.getElementById('mw-notified').checked=m?m.notified!==false:true;
+  const delBtn=document.getElementById('mw-del-btn');
+  if(delBtn)delBtn.style.display=m?'':'none';
+  _mwModalBS.show();
+}
+function saveMaintenance(){
+  const id=document.getElementById('mw-id').value;
+  const title=document.getElementById('mw-title').value.trim();
+  if(!title)return alert('Title required.');
+  const existing=id?(DB.maintenance||[]).find(x=>x.id===id):null;
+  const obj={id:id||uid(),title,type:document.getElementById('mw-type').value,status:document.getElementById('mw-status').value,impact:document.getElementById('mw-impact').value,start:document.getElementById('mw-start').value,end:document.getElementById('mw-end').value,owner:document.getElementById('mw-owner').value.trim(),change_ref:document.getElementById('mw-change').value.trim(),cis:document.getElementById('mw-cis').value.trim(),description:document.getElementById('mw-description').value.trim(),notified:document.getElementById('mw-notified').checked,created:existing?existing.created:new Date().toISOString()};
+  if(!DB.maintenance)DB.maintenance=[];
+  if(id){const idx=DB.maintenance.findIndex(x=>x.id===id);if(idx>-1)DB.maintenance[idx]=obj;}else DB.maintenance.push(obj);
+  logActivity('Maintenance',id?`Updated: ${title}`:` Created maintenance window: ${title}`);
+  dbSave();
+  bootstrap.Modal.getInstance(document.getElementById('maintenanceModal')).hide();
+  if(_currentMod==='maintenance')renderMaintenance();
+}
+
+/* ══ TEAMS & ON-CALL ══ */
+function renderTeams(){
+  const teams=DB.teams||[];
+  document.getElementById('teams-grid').innerHTML=teams.length?teams.map(t=>`
+    <div class="col-md-6 col-lg-4">
+      <div class="team-card h-100">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div>
+            <div class="fw-bold fs-6">${escHtml(t.name)}</div>
+            <div class="text-muted small">${escHtml(t.specialty||'')}</div>
+          </div>
+          <button class="btn btn-outline-secondary btn-sm py-0" onclick="openTeamModal('${t.id}')">Edit</button>
+        </div>
+        <div class="d-flex gap-2 align-items-center mb-2">
+          <span class="oncall-badge">🟢 On-Call: ${escHtml(t.oncall||'—')}</span>
+          ${t.oncall_until?`<span class="text-muted small">until ${fmtDate(t.oncall_until)}</span>`:''}
+        </div>
+        <div class="small mb-1">👤 <strong>Lead:</strong> ${escHtml(t.lead||'—')}</div>
+        <div class="small mb-1">📧 <a href="mailto:${escHtml(t.email||'')}">${escHtml(t.email||'—')}</a></div>
+        <div class="small mb-1">📞 ${escHtml(t.phone||'—')}</div>
+        ${t.channel?`<div class="small mb-2">💬 ${escHtml(t.channel)}</div>`:''}
+        <div class="small mb-2"><span class="fw-semibold">Members:</span> ${escHtml(t.members||'—')}</div>
+        <div class="small text-muted border-top pt-2 mt-1"><strong>Escalation:</strong> ${escHtml(t.escalation||'—')} · ${escHtml(t.esc_phone||'—')}</div>
+        <div class="mt-2">
+          <a href="#" class="small text-primary me-2" onclick="navigate('incidents');document.getElementById('inc-filter-status').value='';document.getElementById('inc-search').value='${escHtml(t.name)}';renderIncidents();return false">View incidents →</a>
+        </div>
+      </div>
+    </div>`).join(''):'<div class="col-12 text-center text-muted py-5">No teams defined yet.</div>';
+}
+let _teamModalBS=null;
+function openTeamModal(id){
+  if(!_teamModalBS)_teamModalBS=new bootstrap.Modal(document.getElementById('teamModal'));
+  const t=id?(DB.teams||[]).find(x=>x.id===id):null;
+  document.getElementById('team-id').value=t?t.id:'';
+  document.getElementById('team-name').value=t?t.name:'';
+  document.getElementById('team-specialty').value=t?t.specialty||'':'';
+  document.getElementById('team-lead').value=t?t.lead||'':'';
+  document.getElementById('team-email').value=t?t.email||'':'';
+  document.getElementById('team-phone').value=t?t.phone||'':'';
+  document.getElementById('team-channel').value=t?t.channel||'':'';
+  document.getElementById('team-members').value=t?t.members||'':'';
+  document.getElementById('team-oncall').value=t?t.oncall||'':'';
+  document.getElementById('team-oncall-until').value=t?t.oncall_until||'':'';
+  document.getElementById('team-escalation').value=t?t.escalation||'':'';
+  document.getElementById('team-esc-phone').value=t?t.esc_phone||'':'';
+  const delBtn=document.getElementById('team-del-btn');
+  if(delBtn)delBtn.style.display=t?'':'none';
+  _teamModalBS.show();
+}
+function saveTeam(){
+  const id=document.getElementById('team-id').value;
+  const name=document.getElementById('team-name').value.trim();
+  if(!name)return alert('Name required.');
+  const existing=id?(DB.teams||[]).find(x=>x.id===id):null;
+  const obj={id:id||uid(),name,specialty:document.getElementById('team-specialty').value.trim(),lead:document.getElementById('team-lead').value.trim(),email:document.getElementById('team-email').value.trim(),phone:document.getElementById('team-phone').value.trim(),channel:document.getElementById('team-channel').value.trim(),members:document.getElementById('team-members').value.trim(),oncall:document.getElementById('team-oncall').value.trim(),oncall_until:document.getElementById('team-oncall-until').value,escalation:document.getElementById('team-escalation').value.trim(),esc_phone:document.getElementById('team-esc-phone').value.trim(),created:existing?existing.created:new Date().toISOString()};
+  if(!DB.teams)DB.teams=[];
+  if(id){const idx=DB.teams.findIndex(x=>x.id===id);if(idx>-1)DB.teams[idx]=obj;}else DB.teams.push(obj);
+  logActivity('Teams',id?`Updated team: ${name}`:` Created team: ${name}`);
+  dbSave();
+  bootstrap.Modal.getInstance(document.getElementById('teamModal')).hide();
+  if(_currentMod==='teams')renderTeams();
+}
+
+/* ══ REPORT IMPROVEMENTS ══ */
+const _baseRenderReports=renderReports;
+function renderReports(){
+  _baseRenderReports();
+  // MTTR by priority
+  setTimeout(()=>{
+    const slas=DB.sla||[];
+    const inc=DB.incidents||[];
+    const resolved=inc.filter(i=>['resolved','closed'].includes(i.status)&&i.resolved&&i.created);
+    const mttrByPri={};
+    resolved.forEach(i=>{
+      const h=(new Date(i.resolved)-new Date(i.created))/3600000;
+      if(!mttrByPri[i.priority])mttrByPri[i.priority]={sum:0,count:0};
+      mttrByPri[i.priority].sum+=h;mttrByPri[i.priority].count++;
+    });
+    const priLabels=Object.keys(mttrByPri).sort();
+    const mttrVals=priLabels.map(p=>+(mttrByPri[p].sum/mttrByPri[p].count).toFixed(1));
+    const slaTarget=priLabels.map(p=>{const s=slas.find(x=>x.priority===p);return s?s.resolution_hours:null;});
+    if(document.getElementById('rpt-mttr-chart')){
+      destroyChart('rpt-mttr-chart');
+      new Chart(document.getElementById('rpt-mttr-chart'),{type:'bar',data:{labels:priLabels,datasets:[{label:'Avg MTTR (hrs)',data:mttrVals,backgroundColor:'#818cf8',borderRadius:4},{label:'SLA Target (hrs)',data:slaTarget,type:'line',borderColor:'#ef4444',borderDash:[6,4],pointRadius:4,fill:false}]},options:{plugins:{legend:{display:true}},scales:{y:{title:{display:true,text:'Hours'}}},animation:{duration:400}}});
+    }
+    // 6-month trend
+    if(document.getElementById('rpt-monthly-chart')){
+      const months=[];const mLabels=[];
+      for(let i=5;i>=0;i--){const d=new Date();d.setMonth(d.getMonth()-i);months.push(d.toISOString().slice(0,7));mLabels.push(d.toLocaleDateString('en-GB',{month:'short',year:'2-digit'}));}
+      const mCounts=months.map(m=>inc.filter(x=>x.created&&x.created.startsWith(m)).length);
+      const rCounts=months.map(m=>inc.filter(x=>x.resolved&&x.resolved.startsWith(m)).length);
+      destroyChart('rpt-monthly-chart');
+      new Chart(document.getElementById('rpt-monthly-chart'),{type:'bar',data:{labels:mLabels,datasets:[{label:'Logged',data:mCounts,backgroundColor:'rgba(129,140,248,.7)',borderRadius:4},{label:'Resolved',data:rCounts,backgroundColor:'rgba(22,163,74,.7)',borderRadius:4}]},options:{plugins:{legend:{display:true}},scales:{y:{ticks:{stepSize:1}}},animation:{duration:400}}});
+    }
+  },100);
+}
+
+/* ══ DELETE — extend for new types ══ */
+const _baseDeleteRecord=deleteRecord;
+function deleteRecord(type){
+  if(!confirm('Delete this record?'))return;
+  const extraTypes={release:{modal:'releaseModal',idEl:'rel-id',arr:'releases'},maintenance:{modal:'maintenanceModal',idEl:'mw-id',arr:'maintenance'},team:{modal:'teamModal',idEl:'team-id',arr:'teams'}};
+  if(extraTypes[type]){
+    const cfg=extraTypes[type];const id=document.getElementById(cfg.idEl)?.value;if(!id)return;
+    DB[cfg.arr]=(DB[cfg.arr]||[]).filter(x=>x.id!==id);
+    logActivity(type,'Deleted: '+id);dbSave();
+    const m=bootstrap.Modal.getInstance(document.getElementById(cfg.modal));if(m)m.hide();
+    renderModule(_currentMod);
+    return;
+  }
+  _baseDeleteRecord(type);
 }
 
 /* ══ BOOT ══ */
