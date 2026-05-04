@@ -1,0 +1,1654 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Helix SM — ITIL 4 Service Management</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<style>
+:root{--hsm-sidebar:#0f1117;--hsm-accent:#818cf8;--hsm-accent-bg:rgba(129,140,248,.12);}
+*{box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f8;margin:0;}
+/* ── Sidebar ── */
+#sidebar{width:232px;min-height:100vh;background:var(--hsm-sidebar);position:fixed;top:0;left:0;z-index:200;display:flex;flex-direction:column;overflow-y:auto;}
+#sidebar .brand{padding:20px 16px 10px;color:#fff;border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:6px;}
+#sidebar .brand .logo{font-size:1.35rem;font-weight:800;letter-spacing:-0.5px;}
+#sidebar .brand .logo em{color:var(--hsm-accent);font-style:normal;}
+#sidebar .brand .sub{font-size:.62rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1.5px;margin-top:2px;}
+#sidebar .nav-sect{padding:10px 16px 3px;font-size:.6rem;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:2px;}
+#sidebar .nav-link{color:rgba(255,255,255,.6);padding:7px 14px;border-radius:7px;margin:1px 8px;font-size:.83rem;display:flex;align-items:center;gap:9px;transition:all .13s;}
+#sidebar .nav-link:hover{background:rgba(255,255,255,.06);color:#fff;}
+#sidebar .nav-link.active{background:var(--hsm-accent-bg);color:var(--hsm-accent);font-weight:600;}
+#sidebar .nav-link .bi{font-size:.95rem;width:16px;text-align:center;}
+#sidebar .nav-link .badge{margin-left:auto;font-size:.6rem;padding:2px 6px;}
+#sidebar-bottom{margin-top:auto;padding:12px 8px;border-top:1px solid rgba(255,255,255,.06);}
+/* ── Topbar ── */
+#main{margin-left:232px;min-height:100vh;}
+#topbar{background:#fff;border-bottom:1px solid #e5e7eb;padding:0 24px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+#topbar .page-title{font-size:1.05rem;font-weight:700;color:#111827;}
+#topbar .topbar-right{display:flex;align-items:center;gap:12px;}
+/* ── Content ── */
+#content{padding:22px 24px;}
+.module{display:none;}.module.active{display:block;}
+/* ── Stat cards ── */
+.stat-card{background:#fff;border-radius:12px;padding:18px 20px;border:1px solid #e5e7eb;}
+.stat-card .stat-val{font-size:2rem;font-weight:800;line-height:1.1;}
+.stat-card .stat-label{font-size:.78rem;color:#6b7280;font-weight:500;margin-top:2px;}
+.stat-card .stat-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;}
+/* ── Priority badges ── */
+.pri-p1{background:#7f1d1d;color:#fff;}
+.pri-p2{background:#dc2626;color:#fff;}
+.pri-p3{background:#ea580c;color:#fff;}
+.pri-p4{background:#ca8a04;color:#fff;}
+.pri-p5{background:#6b7280;color:#fff;}
+/* ── SLA indicator ── */
+.sla-ok{color:#16a34a;font-weight:600;}
+.sla-risk{color:#d97706;font-weight:600;}
+.sla-breach{color:#dc2626;font-weight:700;}
+.sla-met{color:#6b7280;}
+/* ── Filter bar ── */
+.filter-bar{background:#fff;border-radius:10px;padding:12px 16px;margin-bottom:14px;border:1px solid #e5e7eb;display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+/* ── Table ── */
+.table th{font-size:.72rem;text-transform:uppercase;letter-spacing:.6px;color:#9ca3af;font-weight:600;border-bottom:1px solid #f3f4f6;}
+.table td{vertical-align:middle;font-size:.88rem;}
+.table-card{background:#fff;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden;}
+/* ── Change pipeline ── */
+.pipe-col{background:#f9fafb;border-radius:10px;min-height:240px;}
+.pipe-col .pipe-header{font-size:.72rem;text-transform:uppercase;letter-spacing:.8px;color:#6b7280;font-weight:700;padding:10px 14px 6px;}
+.pipe-item{background:#fff;border-radius:8px;padding:10px 12px;margin:6px;border:1px solid #e5e7eb;cursor:pointer;transition:box-shadow .12s;}
+.pipe-item:hover{box-shadow:0 2px 12px rgba(0,0,0,.1);}
+/* ── KB card ── */
+.kb-card{background:#fff;border-radius:10px;padding:16px;border:1px solid #e5e7eb;cursor:pointer;transition:box-shadow .12s,transform .12s;}
+.kb-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.1);transform:translateY(-1px);}
+/* ── Catalog card ── */
+.cat-card{background:#fff;border-radius:12px;padding:18px;border:1px solid #e5e7eb;transition:box-shadow .12s;}
+.cat-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.1);}
+/* ── Timeline ── */
+.timeline{border-left:2px solid #e5e7eb;margin-left:8px;}
+.t-item{position:relative;padding:4px 0 12px 20px;}
+.t-item::before{content:'';position:absolute;left:-5px;top:8px;width:8px;height:8px;border-radius:50%;background:var(--hsm-accent);}
+.t-item .t-time{font-size:.7rem;color:#9ca3af;}
+/* ── Section header ── */
+.sect-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.sect-hdr h5{font-weight:700;font-size:1rem;margin:0;}
+/* ── CMDB type icon ── */
+.ci-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+/* ── SLA gauge bar ── */
+.sla-bar{height:6px;border-radius:3px;background:#e5e7eb;overflow:hidden;}
+.sla-bar-fill{height:100%;border-radius:3px;transition:width .4s;}
+@media(max-width:768px){#sidebar{transform:translateX(-100%);}#main{margin-left:0;}}
+</style>
+</head>
+<body>
+
+<!-- ══ SIDEBAR ══ -->
+<nav id="sidebar">
+  <div class="brand">
+    <div class="logo">Helix<em>SM</em></div>
+    <div class="sub">ITIL 4 Service Management</div>
+  </div>
+
+  <div class="nav-sect">Service Desk</div>
+  <a class="nav-link active" href="#" data-mod="dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a>
+  <a class="nav-link" href="#" data-mod="incidents"><i class="bi bi-exclamation-triangle"></i> Incidents <span class="badge bg-danger" id="sb-inc-badge"></span></a>
+  <a class="nav-link" href="#" data-mod="requests"><i class="bi bi-inbox"></i> Service Requests <span class="badge bg-primary" id="sb-req-badge"></span></a>
+
+  <div class="nav-sect">ITSM Practices</div>
+  <a class="nav-link" href="#" data-mod="changes"><i class="bi bi-arrow-repeat"></i> Change Enablement</a>
+  <a class="nav-link" href="#" data-mod="problems"><i class="bi bi-bug"></i> Problem Management</a>
+  <a class="nav-link" href="#" data-mod="cmdb"><i class="bi bi-diagram-3"></i> CMDB</a>
+
+  <div class="nav-sect">Knowledge & Catalog</div>
+  <a class="nav-link" href="#" data-mod="knowledge"><i class="bi bi-journal-text"></i> Knowledge Base</a>
+  <a class="nav-link" href="#" data-mod="catalog"><i class="bi bi-grid"></i> Service Catalog</a>
+
+  <div class="nav-sect">Governance</div>
+  <a class="nav-link" href="#" data-mod="sla"><i class="bi bi-clock-history"></i> SLA Management</a>
+  <a class="nav-link" href="#" data-mod="reports"><i class="bi bi-bar-chart-line"></i> Reports</a>
+  <a class="nav-link" href="#" data-mod="activity"><i class="bi bi-activity"></i> Activity Log</a>
+
+  <div id="sidebar-bottom">
+    <a class="nav-link" href="#" data-mod="settings"><i class="bi bi-gear"></i> Settings</a>
+  </div>
+</nav>
+
+<!-- ══ MAIN ══ -->
+<div id="main">
+  <div id="topbar">
+    <div class="page-title" id="page-title">Dashboard</div>
+    <div class="topbar-right">
+      <button class="btn btn-sm btn-outline-secondary" onclick="navigate('catalog')"><i class="bi bi-plus-lg"></i> New Request</button>
+      <button class="btn btn-sm btn-primary" onclick="openIncidentModal()"><i class="bi bi-exclamation-triangle"></i> Log Incident</button>
+      <span class="badge bg-secondary" id="topbar-org">HelixCorp</span>
+    </div>
+  </div>
+
+  <div id="content">
+
+    <!-- ── DASHBOARD ── -->
+    <div class="module active" id="mod-dashboard">
+      <div class="row g-3 mb-3" id="dash-stats"></div>
+      <div class="row g-3 mb-3">
+        <div class="col-md-5"><div class="stat-card h-100"><div class="fw-semibold mb-3 small text-muted text-uppercase" style="letter-spacing:.6px">Incidents by Priority</div><canvas id="dash-pri-chart" height="200"></canvas></div></div>
+        <div class="col-md-7"><div class="stat-card h-100"><div class="fw-semibold mb-3 small text-muted text-uppercase" style="letter-spacing:.6px">Incident Volume — Last 14 Days</div><canvas id="dash-trend-chart" height="200"></canvas></div></div>
+      </div>
+      <div class="row g-3">
+        <div class="col-md-7">
+          <div class="stat-card">
+            <div class="sect-hdr"><h5>🔴 Critical &amp; High Incidents</h5><a href="#" class="small text-primary" onclick="navigate('incidents')">View all →</a></div>
+            <div id="dash-critical-inc"></div>
+          </div>
+        </div>
+        <div class="col-md-5">
+          <div class="stat-card h-100">
+            <div class="sect-hdr"><h5>Recent Activity</h5></div>
+            <div class="timeline" id="dash-activity"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── INCIDENTS ── -->
+    <div class="module" id="mod-incidents">
+      <div class="sect-hdr">
+        <h5>Incident Queue</h5>
+        <button class="btn btn-primary btn-sm" onclick="openIncidentModal()"><i class="bi bi-plus-lg"></i> Log Incident</button>
+      </div>
+      <div class="filter-bar">
+        <select class="form-select form-select-sm" style="width:auto" id="inc-filter-status" onchange="renderIncidents()">
+          <option value="">All Statuses</option>
+          <option value="new">New</option><option value="in-progress">In Progress</option>
+          <option value="pending">Pending</option><option value="resolved">Resolved</option><option value="closed">Closed</option>
+        </select>
+        <select class="form-select form-select-sm" style="width:auto" id="inc-filter-pri" onchange="renderIncidents()">
+          <option value="">All Priorities</option>
+          <option>P1</option><option>P2</option><option>P3</option><option>P4</option><option>P5</option>
+        </select>
+        <select class="form-select form-select-sm" style="width:auto" id="inc-filter-cat" onchange="renderIncidents()">
+          <option value="">All Categories</option>
+          <option>Network</option><option>Server</option><option>Application</option><option>Hardware</option><option>Security</option><option>Access</option><option>Email</option><option>Other</option>
+        </select>
+        <input class="form-control form-control-sm" style="width:200px" id="inc-search" placeholder="Search..." oninput="renderIncidents()">
+        <select class="form-select form-select-sm ms-auto" style="width:auto" id="inc-sort" onchange="renderIncidents()">
+          <option value="created-desc">Newest first</option>
+          <option value="created-asc">Oldest first</option>
+          <option value="priority">Priority</option>
+          <option value="sla">SLA remaining</option>
+        </select>
+      </div>
+      <div class="table-card"><div class="table-responsive"><table class="table table-hover mb-0" id="inc-table">
+        <thead><tr><th>ID</th><th>Title</th><th>Priority</th><th>Status</th><th>Category</th><th>Assignee</th><th>SLA</th><th>Created</th><th></th></tr></thead>
+        <tbody id="inc-tbody"></tbody>
+      </table></div></div>
+    </div>
+
+    <!-- ── SERVICE REQUESTS ── -->
+    <div class="module" id="mod-requests">
+      <div class="sect-hdr">
+        <h5>Service Requests</h5>
+        <button class="btn btn-primary btn-sm" onclick="openRequestModal()"><i class="bi bi-plus-lg"></i> New Request</button>
+      </div>
+      <div class="filter-bar">
+        <select class="form-select form-select-sm" style="width:auto" id="req-filter-status" onchange="renderRequests()">
+          <option value="">All Statuses</option>
+          <option value="pending-approval">Pending Approval</option><option value="approved">Approved</option>
+          <option value="in-progress">In Progress</option><option value="fulfilled">Fulfilled</option><option value="rejected">Rejected</option><option value="cancelled">Cancelled</option>
+        </select>
+        <input class="form-control form-control-sm" style="width:220px" id="req-search" placeholder="Search..." oninput="renderRequests()">
+      </div>
+      <div class="table-card"><div class="table-responsive"><table class="table table-hover mb-0">
+        <thead><tr><th>ID</th><th>Request</th><th>Type</th><th>Requester</th><th>Assignee</th><th>Status</th><th>Approval</th><th>Submitted</th><th></th></tr></thead>
+        <tbody id="req-tbody"></tbody>
+      </table></div></div>
+    </div>
+
+    <!-- ── CHANGE ENABLEMENT ── -->
+    <div class="module" id="mod-changes">
+      <div class="sect-hdr">
+        <h5>Change Enablement</h5>
+        <button class="btn btn-primary btn-sm" onclick="openChangeModal()"><i class="bi bi-plus-lg"></i> New RFC</button>
+      </div>
+      <div class="filter-bar">
+        <select class="form-select form-select-sm" style="width:auto" id="chg-filter-type" onchange="renderChanges()">
+          <option value="">All Types</option><option>Standard</option><option>Normal</option><option>Emergency</option>
+        </select>
+        <select class="form-select form-select-sm" style="width:auto" id="chg-filter-status" onchange="renderChanges()">
+          <option value="">All Statuses</option>
+          <option value="draft">Draft</option><option value="submitted">Submitted</option>
+          <option value="pending-cab">Pending CAB</option><option value="approved">Approved</option>
+          <option value="rejected">Rejected</option><option value="scheduled">Scheduled</option>
+          <option value="implementing">Implementing</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option>
+        </select>
+        <div class="btn-group btn-group-sm ms-auto">
+          <button class="btn btn-outline-secondary active" id="chg-view-table" onclick="setChangeView('table',this)"><i class="bi bi-list-ul"></i> List</button>
+          <button class="btn btn-outline-secondary" id="chg-view-pipe" onclick="setChangeView('pipeline',this)"><i class="bi bi-kanban"></i> Pipeline</button>
+        </div>
+      </div>
+      <div id="chg-table-view">
+        <div class="table-card"><div class="table-responsive"><table class="table table-hover mb-0">
+          <thead><tr><th>RFC#</th><th>Title</th><th>Type</th><th>Risk</th><th>Status</th><th>Planned Start</th><th>CAB</th><th>Implementer</th><th></th></tr></thead>
+          <tbody id="chg-tbody"></tbody>
+        </table></div></div>
+      </div>
+      <div id="chg-pipe-view" style="display:none">
+        <div class="row g-2" id="chg-pipeline"></div>
+      </div>
+    </div>
+
+    <!-- ── PROBLEM MANAGEMENT ── -->
+    <div class="module" id="mod-problems">
+      <div class="sect-hdr">
+        <h5>Problem Management</h5>
+        <button class="btn btn-primary btn-sm" onclick="openProblemModal()"><i class="bi bi-plus-lg"></i> New Problem</button>
+      </div>
+      <ul class="nav nav-tabs mb-3" id="prb-tabs">
+        <li class="nav-item"><a class="nav-link active" href="#" onclick="setPrbTab('all',this)">All Problems</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" onclick="setPrbTab('known-error',this)">Known Error DB</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" onclick="setPrbTab('open',this)">Under Investigation</a></li>
+      </ul>
+      <div class="table-card"><div class="table-responsive"><table class="table table-hover mb-0">
+        <thead><tr><th>PRB#</th><th>Title</th><th>Status</th><th>Priority</th><th>Category</th><th>Related Incidents</th><th>Assignee</th><th>Workaround</th><th></th></tr></thead>
+        <tbody id="prb-tbody"></tbody>
+      </table></div></div>
+    </div>
+
+    <!-- ── CMDB ── -->
+    <div class="module" id="mod-cmdb">
+      <div class="sect-hdr">
+        <h5>Configuration Management Database</h5>
+        <button class="btn btn-primary btn-sm" onclick="openCIModal()"><i class="bi bi-plus-lg"></i> Add CI</button>
+      </div>
+      <div class="filter-bar">
+        <select class="form-select form-select-sm" style="width:auto" id="ci-filter-type" onchange="renderCMDB()">
+          <option value="">All Types</option>
+          <option>Server</option><option>Network</option><option>Workstation</option><option>Software</option><option>Service</option><option>Database</option><option>Storage</option><option>Cloud</option>
+        </select>
+        <select class="form-select form-select-sm" style="width:auto" id="ci-filter-env" onchange="renderCMDB()">
+          <option value="">All Environments</option><option>Production</option><option>Staging</option><option>Development</option><option>DR</option>
+        </select>
+        <select class="form-select form-select-sm" style="width:auto" id="ci-filter-status" onchange="renderCMDB()">
+          <option value="">All Statuses</option><option>Active</option><option>Inactive</option><option>Retired</option><option>In Maintenance</option>
+        </select>
+        <input class="form-control form-control-sm" style="width:200px" id="ci-search" placeholder="Search CIs..." oninput="renderCMDB()">
+      </div>
+      <div class="table-card"><div class="table-responsive"><table class="table table-hover mb-0">
+        <thead><tr><th>CI</th><th>Name</th><th>Type</th><th>Environment</th><th>Status</th><th>Owner</th><th>IP / Version</th><th>Location</th><th>Open Inc.</th><th></th></tr></thead>
+        <tbody id="ci-tbody"></tbody>
+      </table></div></div>
+    </div>
+
+    <!-- ── KNOWLEDGE BASE ── -->
+    <div class="module" id="mod-knowledge">
+      <div class="sect-hdr">
+        <h5>Knowledge Base</h5>
+        <button class="btn btn-primary btn-sm" onclick="openArticleModal()"><i class="bi bi-plus-lg"></i> New Article</button>
+      </div>
+      <div class="filter-bar">
+        <input class="form-control form-control-sm" style="width:280px" id="kb-search" placeholder="Search articles..." oninput="renderKnowledge()">
+        <select class="form-select form-select-sm" style="width:auto" id="kb-filter-cat" onchange="renderKnowledge()">
+          <option value="">All Categories</option>
+          <option>Network</option><option>Access &amp; Identity</option><option>Email</option><option>Hardware</option><option>Applications</option><option>Security</option><option>Onboarding</option><option>How-To</option>
+        </select>
+        <select class="form-select form-select-sm" style="width:auto" id="kb-filter-status" onchange="renderKnowledge()">
+          <option value="">All</option><option value="published">Published</option><option value="draft">Draft</option>
+        </select>
+      </div>
+      <div class="row g-3" id="kb-grid"></div>
+    </div>
+
+    <!-- ── SERVICE CATALOG ── -->
+    <div class="module" id="mod-catalog">
+      <div class="sect-hdr">
+        <h5>Service Catalog</h5>
+        <button class="btn btn-outline-secondary btn-sm" onclick="openCatalogModal()"><i class="bi bi-plus-lg"></i> Add Service</button>
+      </div>
+      <div class="filter-bar">
+        <input class="form-control form-control-sm" style="width:250px" id="cat-search" placeholder="Search services..." oninput="renderCatalog()">
+        <select class="form-select form-select-sm" style="width:auto" id="cat-filter-cat" onchange="renderCatalog()">
+          <option value="">All Categories</option>
+          <option>IT Infrastructure</option><option>Access &amp; Identity</option><option>Hardware &amp; Devices</option><option>Software</option><option>Communication</option><option>Security</option>
+        </select>
+      </div>
+      <div class="row g-3" id="cat-grid"></div>
+    </div>
+
+    <!-- ── SLA MANAGEMENT ── -->
+    <div class="module" id="mod-sla">
+      <div class="sect-hdr">
+        <h5>SLA Management</h5>
+        <button class="btn btn-primary btn-sm" onclick="openSlaModal()"><i class="bi bi-plus-lg"></i> Add SLA</button>
+      </div>
+      <div class="row g-3 mb-3" id="sla-compliance-strip"></div>
+      <div class="table-card"><div class="table-responsive"><table class="table table-hover mb-0">
+        <thead><tr><th>Name</th><th>Priority</th><th>Response</th><th>Resolution</th><th>Target %</th><th>Actual %</th><th>Compliance</th><th>Active</th><th></th></tr></thead>
+        <tbody id="sla-tbody"></tbody>
+      </table></div></div>
+    </div>
+
+    <!-- ── REPORTS ── -->
+    <div class="module" id="mod-reports">
+      <h5 class="mb-3">Reports &amp; Analytics</h5>
+      <div class="row g-3">
+        <div class="col-md-6"><div class="stat-card"><div class="fw-semibold mb-2 small text-muted text-uppercase" style="letter-spacing:.6px">Incidents by Category</div><canvas id="rpt-cat-chart" height="220"></canvas></div></div>
+        <div class="col-md-6"><div class="stat-card"><div class="fw-semibold mb-2 small text-muted text-uppercase" style="letter-spacing:.6px">Change Pipeline by Type</div><canvas id="rpt-chg-chart" height="220"></canvas></div></div>
+        <div class="col-md-6"><div class="stat-card"><div class="fw-semibold mb-2 small text-muted text-uppercase" style="letter-spacing:.6px">SLA Compliance by Priority</div><canvas id="rpt-sla-chart" height="220"></canvas></div></div>
+        <div class="col-md-6"><div class="stat-card"><div class="fw-semibold mb-2 small text-muted text-uppercase" style="letter-spacing:.6px">Problem Status Overview</div><canvas id="rpt-prb-chart" height="220"></canvas></div></div>
+      </div>
+    </div>
+
+    <!-- ── ACTIVITY LOG ── -->
+    <div class="module" id="mod-activity">
+      <h5 class="mb-3">Activity Log</h5>
+      <div class="table-card"><div class="table-responsive"><table class="table table-sm mb-0">
+        <thead><tr><th>Time</th><th>Module</th><th>Action</th></tr></thead>
+        <tbody id="activity-tbody"></tbody>
+      </table></div></div>
+    </div>
+
+    <!-- ── SETTINGS ── -->
+    <div class="module" id="mod-settings">
+      <h5 class="mb-3">Settings</h5>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="stat-card">
+            <h6 class="fw-bold mb-3">Organization</h6>
+            <div class="mb-3"><label class="form-label small fw-semibold">Organization Name</label>
+              <input class="form-control" id="set-org" value="HelixCorp"></div>
+            <div class="mb-3"><label class="form-label small fw-semibold">Default Assignee Group</label>
+              <input class="form-control" id="set-group" placeholder="e.g. Service Desk"></div>
+            <button class="btn btn-primary btn-sm" onclick="saveSettings()">Save Settings</button>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="stat-card">
+            <h6 class="fw-bold mb-3">Data</h6>
+            <p class="small text-muted">All data is stored locally in your browser. Export a backup or reset to default seed data.</p>
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-secondary btn-sm" onclick="exportData()"><i class="bi bi-download"></i> Export JSON</button>
+              <button class="btn btn-outline-danger btn-sm" onclick="resetData()"><i class="bi bi-trash"></i> Reset Data</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- ══ MODALS ══ -->
+
+<!-- Incident Modal -->
+<div class="modal fade" id="incidentModal" tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Incident Record</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <input type="hidden" id="inc-id">
+        <div class="row g-3">
+          <div class="col-12"><label class="form-label fw-semibold">Title <span class="text-danger">*</span></label>
+            <input class="form-control" id="inc-title" placeholder="Brief description of the incident"></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Priority</label>
+            <select class="form-select" id="inc-priority">
+              <option value="P1">P1 — Critical</option><option value="P2">P2 — High</option>
+              <option value="P3" selected>P3 — Medium</option><option value="P4">P4 — Low</option><option value="P5">P5 — Info</option>
+            </select></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Status</label>
+            <select class="form-select" id="inc-status">
+              <option value="new">New</option><option value="in-progress">In Progress</option>
+              <option value="pending">Pending</option><option value="resolved">Resolved</option><option value="closed">Closed</option>
+            </select></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Category</label>
+            <select class="form-select" id="inc-category">
+              <option>Network</option><option>Server</option><option>Application</option>
+              <option>Hardware</option><option>Security</option><option>Access</option><option>Email</option><option>Other</option>
+            </select></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Subcategory</label>
+            <input class="form-control" id="inc-subcategory" placeholder="e.g. DNS, Firewall, Login…"></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Requester / Affected User</label>
+            <input class="form-control" id="inc-requester" placeholder="Name or email"></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Assignee</label>
+            <input class="form-control" id="inc-assignee" placeholder="Name"></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Assignment Group</label>
+            <input class="form-control" id="inc-group" placeholder="e.g. Network Team"></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Impact</label>
+            <select class="form-select" id="inc-impact">
+              <option value="enterprise">Enterprise-wide</option><option value="department">Department</option>
+              <option value="team">Team / Group</option><option value="individual">Individual</option>
+            </select></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Urgency</label>
+            <select class="form-select" id="inc-urgency">
+              <option value="critical">Critical — immediate</option><option value="high">High — within hours</option>
+              <option value="medium">Medium — within day</option><option value="low">Low — scheduled</option>
+            </select></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Related CI</label>
+            <select class="form-select" id="inc-ci"><option value="">— None —</option></select></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Related Problem</label>
+            <select class="form-select" id="inc-problem"><option value="">— None —</option></select></div>
+          <div class="col-12"><label class="form-label fw-semibold">Description</label>
+            <textarea class="form-control" id="inc-description" rows="3" placeholder="Full details of the incident, symptoms, affected users…"></textarea></div>
+          <div class="col-12"><label class="form-label fw-semibold">Resolution Notes</label>
+            <textarea class="form-control" id="inc-resolution" rows="2" placeholder="How was this resolved? (fill when resolving)"></textarea></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-danger btn-sm me-auto" id="inc-del-btn" onclick="deleteRecord('incident')" style="display:none">Delete</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" onclick="saveIncident()">Save Incident</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Service Request Modal -->
+<div class="modal fade" id="requestModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Service Request</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <input type="hidden" id="req-id">
+        <div class="row g-3">
+          <div class="col-12"><label class="form-label fw-semibold">Request Title <span class="text-danger">*</span></label>
+            <input class="form-control" id="req-title" placeholder="What do you need?"></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Service Type</label>
+            <input class="form-control" id="req-type" placeholder="e.g. Software Install, Access Request…"></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Requester</label>
+            <input class="form-control" id="req-requester" placeholder="Name or email"></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Assignee</label>
+            <input class="form-control" id="req-assignee" placeholder="Name"></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Status</label>
+            <select class="form-select" id="req-status">
+              <option value="pending-approval">Pending Approval</option><option value="approved">Approved</option>
+              <option value="in-progress">In Progress</option><option value="fulfilled">Fulfilled</option>
+              <option value="rejected">Rejected</option><option value="cancelled">Cancelled</option>
+            </select></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Approval Status</label>
+            <select class="form-select" id="req-approval">
+              <option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="not-required">Not Required</option>
+            </select></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Due Date</label>
+            <input class="form-control" type="date" id="req-due"></div>
+          <div class="col-12"><label class="form-label fw-semibold">Details / Justification</label>
+            <textarea class="form-control" id="req-notes" rows="3" placeholder="Business justification and any additional details…"></textarea></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-danger btn-sm me-auto" id="req-del-btn" onclick="deleteRecord('request')" style="display:none">Delete</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" onclick="saveRequest()">Save Request</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Change Modal -->
+<div class="modal fade" id="changeModal" tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Request for Change (RFC)</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <input type="hidden" id="chg-id">
+        <div class="row g-3">
+          <div class="col-12"><label class="form-label fw-semibold">Change Title <span class="text-danger">*</span></label>
+            <input class="form-control" id="chg-title" placeholder="Short title for the change"></div>
+          <div class="col-md-3"><label class="form-label fw-semibold">Change Type</label>
+            <select class="form-select" id="chg-type">
+              <option value="Standard">Standard (pre-approved)</option><option value="Normal">Normal (CAB required)</option><option value="Emergency">Emergency (expedited)</option>
+            </select></div>
+          <div class="col-md-3"><label class="form-label fw-semibold">Status</label>
+            <select class="form-select" id="chg-status">
+              <option value="draft">Draft</option><option value="submitted">Submitted</option><option value="pending-cab">Pending CAB</option>
+              <option value="approved">Approved</option><option value="rejected">Rejected</option>
+              <option value="scheduled">Scheduled</option><option value="implementing">Implementing</option>
+              <option value="completed">Completed</option><option value="cancelled">Cancelled</option>
+            </select></div>
+          <div class="col-md-3"><label class="form-label fw-semibold">Risk Level</label>
+            <select class="form-select" id="chg-risk">
+              <option value="Low">Low</option><option value="Medium">Medium</option><option value="High">High</option><option value="Critical">Critical</option>
+            </select></div>
+          <div class="col-md-3"><label class="form-label fw-semibold">Impact</label>
+            <select class="form-select" id="chg-impact">
+              <option value="Low">Low</option><option value="Medium">Medium</option><option value="High">High</option><option value="Critical">Critical</option>
+            </select></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Implementer</label>
+            <input class="form-control" id="chg-assignee" placeholder="Name or team"></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">CAB Approver</label>
+            <input class="form-control" id="chg-cab" placeholder="CAB chair or approver name"></div>
+          <div class="col-md-3"><label class="form-label fw-semibold">Planned Start</label>
+            <input class="form-control" type="datetime-local" id="chg-planned-start"></div>
+          <div class="col-md-3"><label class="form-label fw-semibold">Planned End</label>
+            <input class="form-control" type="datetime-local" id="chg-planned-end"></div>
+          <div class="col-md-3"><label class="form-label fw-semibold">Actual Start</label>
+            <input class="form-control" type="datetime-local" id="chg-actual-start"></div>
+          <div class="col-md-3"><label class="form-label fw-semibold">Actual End</label>
+            <input class="form-control" type="datetime-local" id="chg-actual-end"></div>
+          <div class="col-12"><label class="form-label fw-semibold">Description &amp; Justification</label>
+            <textarea class="form-control" id="chg-description" rows="2" placeholder="What is changing and why?"></textarea></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Implementation Plan</label>
+            <textarea class="form-control" id="chg-impl-plan" rows="2" placeholder="Step-by-step implementation steps…"></textarea></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Rollback Plan</label>
+            <textarea class="form-control" id="chg-rollback" rows="2" placeholder="How to revert if something goes wrong…"></textarea></div>
+          <div class="col-12"><label class="form-label fw-semibold">Test Plan / Success Criteria</label>
+            <textarea class="form-control" id="chg-test-plan" rows="2" placeholder="How do we verify the change was successful?"></textarea></div>
+          <div class="col-12"><label class="form-label fw-semibold">CAB Notes</label>
+            <textarea class="form-control" id="chg-cab-notes" rows="2" placeholder="CAB discussion notes and conditions…"></textarea></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-success btn-sm me-auto" id="chg-approve-btn" onclick="approveChange()" style="display:none"><i class="bi bi-check-lg"></i> Approve</button>
+        <button class="btn btn-outline-danger btn-sm" id="chg-del-btn" onclick="deleteRecord('change')" style="display:none">Delete</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" onclick="saveChange()">Save RFC</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Problem Modal -->
+<div class="modal fade" id="problemModal" tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Problem Record</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <input type="hidden" id="prb-id">
+        <div class="row g-3">
+          <div class="col-12"><label class="form-label fw-semibold">Title <span class="text-danger">*</span></label>
+            <input class="form-control" id="prb-title" placeholder="Problem title"></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Status</label>
+            <select class="form-select" id="prb-status">
+              <option value="open">Open</option><option value="under-investigation">Under Investigation</option>
+              <option value="known-error">Known Error</option><option value="resolved">Resolved</option><option value="closed">Closed</option>
+            </select></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Priority</label>
+            <select class="form-select" id="prb-priority">
+              <option value="P1">P1 — Critical</option><option value="P2">P2 — High</option>
+              <option value="P3" selected>P3 — Medium</option><option value="P4">P4 — Low</option>
+            </select></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Category</label>
+            <select class="form-select" id="prb-category">
+              <option>Network</option><option>Server</option><option>Application</option>
+              <option>Hardware</option><option>Security</option><option>Access</option><option>Email</option><option>Other</option>
+            </select></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Assignee</label>
+            <input class="form-control" id="prb-assignee" placeholder="Name"></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Related Incidents (comma-separated IDs)</label>
+            <input class="form-control" id="prb-incidents" placeholder="e.g. INC0001, INC0003"></div>
+          <div class="col-12"><label class="form-label fw-semibold">Description</label>
+            <textarea class="form-control" id="prb-description" rows="2" placeholder="What problem is being investigated?"></textarea></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Root Cause Analysis</label>
+            <textarea class="form-control" id="prb-root-cause" rows="2" placeholder="Identified root cause…"></textarea></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Workaround</label>
+            <textarea class="form-control" id="prb-workaround" rows="2" placeholder="Temporary fix or workaround for affected users…"></textarea></div>
+          <div class="col-12"><label class="form-label fw-semibold">Permanent Solution / Resolution</label>
+            <textarea class="form-control" id="prb-solution" rows="2" placeholder="Long-term fix implemented or planned…"></textarea></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-warning btn-sm me-auto" id="prb-ke-btn" onclick="markKnownError()" style="display:none">Mark Known Error</button>
+        <button class="btn btn-outline-danger btn-sm" id="prb-del-btn" onclick="deleteRecord('problem')" style="display:none">Delete</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" onclick="saveProblem()">Save Problem</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CI Modal -->
+<div class="modal fade" id="ciModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Configuration Item</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <input type="hidden" id="ci-id">
+        <div class="row g-3">
+          <div class="col-md-8"><label class="form-label fw-semibold">CI Name <span class="text-danger">*</span></label>
+            <input class="form-control" id="ci-name" placeholder="e.g. WEB-PROD-01"></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Type</label>
+            <select class="form-select" id="ci-type">
+              <option>Server</option><option>Network</option><option>Workstation</option><option>Software</option><option>Service</option><option>Database</option><option>Storage</option><option>Cloud</option>
+            </select></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Environment</label>
+            <select class="form-select" id="ci-env">
+              <option>Production</option><option>Staging</option><option>Development</option><option>DR</option>
+            </select></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Status</label>
+            <select class="form-select" id="ci-status">
+              <option>Active</option><option>Inactive</option><option>Retired</option><option>In Maintenance</option>
+            </select></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Criticality</label>
+            <select class="form-select" id="ci-criticality">
+              <option>Critical</option><option>High</option><option>Medium</option><option>Low</option>
+            </select></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Owner</label>
+            <input class="form-control" id="ci-owner" placeholder="Name or team"></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">IP Address / Version</label>
+            <input class="form-control" id="ci-ip" placeholder="10.0.1.x or v1.2.3"></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">OS / Platform</label>
+            <input class="form-control" id="ci-os" placeholder="e.g. Windows Server 2022, Ubuntu 22.04"></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Location / Region</label>
+            <input class="form-control" id="ci-location" placeholder="e.g. DC1, AWS us-east-1"></div>
+          <div class="col-12"><label class="form-label fw-semibold">Related CIs</label>
+            <input class="form-control" id="ci-related" placeholder="e.g. DB-PROD-01, LB-01 (comma separated)"></div>
+          <div class="col-12"><label class="form-label fw-semibold">Notes</label>
+            <textarea class="form-control" id="ci-notes" rows="2" placeholder="Additional information…"></textarea></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-danger btn-sm me-auto" id="ci-del-btn" onclick="deleteRecord('ci')" style="display:none">Delete</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" onclick="saveCI()">Save CI</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- KB Article Modal -->
+<div class="modal fade" id="articleModal" tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Knowledge Article</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <input type="hidden" id="art-id">
+        <div class="row g-3">
+          <div class="col-12"><label class="form-label fw-semibold">Title <span class="text-danger">*</span></label>
+            <input class="form-control" id="art-title" placeholder="Article title"></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Category</label>
+            <select class="form-select" id="art-category">
+              <option>Network</option><option>Access &amp; Identity</option><option>Email</option><option>Hardware</option><option>Applications</option><option>Security</option><option>Onboarding</option><option>How-To</option>
+            </select></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Status</label>
+            <select class="form-select" id="art-status"><option value="published">Published</option><option value="draft">Draft</option></select></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Author</label>
+            <input class="form-control" id="art-author" placeholder="Name"></div>
+          <div class="col-12"><label class="form-label fw-semibold">Tags (comma-separated)</label>
+            <input class="form-control" id="art-tags" placeholder="e.g. vpn, password, network"></div>
+          <div class="col-12"><label class="form-label fw-semibold">Content</label>
+            <textarea class="form-control" id="art-content" rows="8" placeholder="Write the article content here. Use plain text or markdown-style headings with ##…"></textarea></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-danger btn-sm me-auto" id="art-del-btn" onclick="deleteRecord('article')" style="display:none">Delete</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" onclick="saveArticle()">Save Article</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Catalog Modal -->
+<div class="modal fade" id="catalogModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Service Catalog Item</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <input type="hidden" id="cat-id">
+        <div class="row g-3">
+          <div class="col-md-8"><label class="form-label fw-semibold">Service Name <span class="text-danger">*</span></label>
+            <input class="form-control" id="cat-name" placeholder="e.g. New User Onboarding"></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Category</label>
+            <select class="form-select" id="cat-category">
+              <option>IT Infrastructure</option><option>Access &amp; Identity</option><option>Hardware &amp; Devices</option><option>Software</option><option>Communication</option><option>Security</option>
+            </select></div>
+          <div class="col-12"><label class="form-label fw-semibold">Description</label>
+            <textarea class="form-control" id="cat-desc" rows="2" placeholder="What does this service provide?"></textarea></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">SLA / Fulfillment Time</label>
+            <input class="form-control" id="cat-sla" placeholder="e.g. 2 business days"></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Service Owner</label>
+            <input class="form-control" id="cat-owner" placeholder="Team or person"></div>
+          <div class="col-md-4"><label class="form-label fw-semibold">Status</label>
+            <select class="form-select" id="cat-status"><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
+          <div class="col-12"><label class="form-label fw-semibold">Icon (emoji)</label>
+            <input class="form-control" id="cat-icon" placeholder="e.g. 💻 🔐 📧" maxlength="4" style="width:80px;display:inline;"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-danger btn-sm me-auto" id="cat-del-btn" onclick="deleteRecord('catalog')" style="display:none">Delete</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" onclick="saveCatalog()">Save Service</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLA Modal -->
+<div class="modal fade" id="slaModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">SLA Definition</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <input type="hidden" id="sla-id">
+        <div class="row g-3">
+          <div class="col-12"><label class="form-label fw-semibold">SLA Name <span class="text-danger">*</span></label>
+            <input class="form-control" id="sla-name" placeholder="e.g. P1 Critical SLA"></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Priority</label>
+            <select class="form-select" id="sla-priority">
+              <option value="P1">P1 — Critical</option><option value="P2">P2 — High</option>
+              <option value="P3">P3 — Medium</option><option value="P4">P4 — Low</option><option value="P5">P5 — Info</option>
+            </select></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Target Compliance %</label>
+            <input class="form-control" type="number" id="sla-target-pct" min="1" max="100" value="99"></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Response Time (hours)</label>
+            <input class="form-control" type="number" id="sla-response" min="0.1" step="0.25" placeholder="0.25"></div>
+          <div class="col-md-6"><label class="form-label fw-semibold">Resolution Time (hours)</label>
+            <input class="form-control" type="number" id="sla-resolution" min="0.5" step="0.5" placeholder="4"></div>
+          <div class="col-12">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="sla-active" checked>
+              <label class="form-check-label fw-semibold" for="sla-active">Active</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-danger btn-sm me-auto" id="sla-del-btn" onclick="deleteRecord('sla')" style="display:none">Delete</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" onclick="saveSla()">Save SLA</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<script>
+'use strict';
+/* ══ HELPERS ══ */
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmtDate(iso){if(!iso)return'—';const d=new Date(iso);return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});}
+function fmtDateTime(iso){if(!iso)return'—';const d=new Date(iso);return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})+'&nbsp;'+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});}
+function hoursAgo(n){return new Date(Date.now()-n*3600000).toISOString();}
+function daysAgo(n){return new Date(Date.now()-n*86400000).toISOString();}
+function daysFromNow(n){return new Date(Date.now()+n*86400000).toISOString();}
+function destroyChart(id){const c=Chart.getChart(id);if(c)c.destroy();}
+let _incNum=1,_reqNum=1,_chgNum=1,_prbNum=1;
+function incId(){return'INC'+String(_incNum++).padStart(4,'0');}
+function reqId(){return'REQ'+String(_reqNum++).padStart(4,'0');}
+function chgId(){return'CHG'+String(_chgNum++).padStart(4,'0');}
+function prbId(){return'PRB'+String(_prbNum++).padStart(4,'0');}
+
+/* ── Priority / status badge helpers ── */
+function priBadge(p){const m={P1:'danger',P2:'danger',P3:'warning',P4:'info',P5:'secondary'};const t={P1:'P1 Critical',P2:'P2 High',P3:'P3 Medium',P4:'P4 Low',P5:'P5 Info'};return`<span class="badge bg-${m[p]||'secondary'}">${t[p]||p}</span>`;}
+function statusBadge(s){const m={'new':'primary','in-progress':'info','pending':'warning','resolved':'success','closed':'secondary','draft':'secondary','submitted':'primary','pending-cab':'warning','approved':'success','rejected':'danger','scheduled':'primary','implementing':'info','completed':'success','cancelled':'secondary','open':'danger','under-investigation':'warning','known-error':'warning','fulfilled':'success','pending-approval':'warning','active':'success','inactive':'secondary','retired':'dark','in-maintenance':'warning'};return`<span class="badge bg-${m[s]||'secondary'}">${escHtml(s.replace(/-/g,' '))}</span>`;}
+function riskBadge(r){const m={Low:'success',Medium:'warning',High:'danger',Critical:'danger'};return`<span class="badge bg-${m[r]||'secondary'}">${r||'—'}</span>`;}
+function ciTypeIcon(t){const m={Server:'🖥️',Network:'🌐',Workstation:'💻',Software:'📦',Service:'⚙️',Database:'🗄️',Storage:'💾',Cloud:'☁️'};const c={Server:'#dbeafe',Network:'#d1fae5',Workstation:'#fef3c7',Software:'#ede9fe',Service:'#fee2e2',Database:'#fce7f3',Storage:'#f0fdf4',Cloud:'#e0f2fe'};return`<div class="ci-icon" style="background:${c[t]||'#f3f4f6'}">${m[t]||'📋'}</div>`;}
+
+/* ── SLA calculation ── */
+function getSlaInfo(inc){
+  if(!inc||!inc.created)return null;
+  const sla=(DB.sla||[]).find(s=>s.priority===inc.priority&&s.active!==false);
+  if(!sla)return{status:'no-sla',label:'No SLA',cls:'text-muted'};
+  const resMs=sla.resolution_hours*3600000;
+  const created=new Date(inc.created).getTime();
+  const breachAt=created+resMs;
+  const now=Date.now();
+  if(inc.status==='resolved'||inc.status==='closed'){
+    const resolvedAt=inc.resolved?new Date(inc.resolved).getTime():now;
+    return resolvedAt<=breachAt?{status:'met',label:'Met ✓',cls:'sla-met'}:{status:'breached',label:'Breached ✗',cls:'sla-breach'};
+  }
+  const remaining=breachAt-now;
+  const pct=Math.max(0,remaining/resMs*100);
+  const hrs=remaining/3600000;
+  if(remaining<0)return{status:'breached',label:`Breached ${Math.abs(hrs).toFixed(1)}h ago`,cls:'sla-breach'};
+  if(pct<25)return{status:'at-risk',label:`At risk: ${hrs.toFixed(1)}h`,cls:'sla-risk'};
+  return{status:'ok',label:`${hrs.toFixed(1)}h left`,cls:'sla-ok'};
+}
+
+/* ══ DATABASE ══ */
+let DB={incidents:[],requests:[],changes:[],problems:[],cmdb:[],knowledge:[],catalog:[],sla:[],activityLog:[],settings:{org:'HelixCorp',group:'Service Desk'}};
+function dbSave(){localStorage.setItem('helixsm_db',JSON.stringify(DB));}
+function initDB(){
+  const raw=localStorage.getItem('helixsm_db');
+  if(raw){try{const p=JSON.parse(raw);if(p&&p.incidents)DB=p;}catch(e){}}
+  seedData();
+}
+function logActivity(module,msg){
+  if(!DB.activityLog)DB.activityLog=[];
+  DB.activityLog.unshift({id:uid(),module,msg,at:new Date().toISOString()});
+  if(DB.activityLog.length>300)DB.activityLog.splice(300);
+}
+
+/* ── Seed Data ── */
+function seedData(){
+  if(DB.sla&&DB.sla.length)return; // already seeded
+  DB.sla=[
+    {id:'sla1',name:'P1 Critical SLA',priority:'P1',response_hours:0.25,resolution_hours:4,target_pct:99,active:true},
+    {id:'sla2',name:'P2 High SLA',priority:'P2',response_hours:1,resolution_hours:8,target_pct:95,active:true},
+    {id:'sla3',name:'P3 Medium SLA',priority:'P3',response_hours:4,resolution_hours:24,target_pct:90,active:true},
+    {id:'sla4',name:'P4/P5 Low SLA',priority:'P4',response_hours:8,resolution_hours:72,target_pct:85,active:true},
+  ];
+  DB.incidents=[
+    {id:'INC0001',title:'Database server DB-PROD-01 unresponsive',priority:'P1',status:'in-progress',category:'Server',subcategory:'Database',requester:'Jane Smith',assignee:'Alex Turner',group:'Server Team',impact:'enterprise',urgency:'critical',ci:'ci2',problem:'prb1',description:'Primary production database is not accepting connections. ERP and CRM both down.',resolution:'',created:hoursAgo(3),updated:hoursAgo(0.5),resolved:''},
+    {id:'INC0002',title:'Email delivery failing for Sales department',priority:'P2',status:'in-progress',category:'Email',subcategory:'Delivery',requester:'Mark Johnson',assignee:'Sara Lee',group:'Email Team',impact:'department',urgency:'high',ci:'ci6',problem:'',description:'Sales team unable to send emails externally. Internal delivery working.',resolution:'',created:hoursAgo(6),updated:hoursAgo(2),resolved:''},
+    {id:'INC0003',title:'VPN intermittent disconnections for remote workers',priority:'P3',status:'pending',category:'Network',subcategory:'VPN',requester:'Remote Users (15)',assignee:'Ben Park',group:'Network Team',impact:'team',urgency:'medium',ci:'ci8',problem:'prb2',description:'Remote workers report VPN dropping every 30-60 minutes.',resolution:'',created:daysAgo(2),updated:hoursAgo(4),resolved:''},
+    {id:'INC0004',title:'Core network switch SW-CORE-01 failure',priority:'P1',status:'resolved',category:'Network',subcategory:'Switching',requester:'IT Operations',assignee:'Chris Wong',group:'Network Team',impact:'enterprise',urgency:'critical',ci:'ci3',problem:'',description:'Core switch failure caused network outage for 200 users.',resolution:'Switch replaced with standby unit. All ports verified.',created:daysAgo(5),updated:daysAgo(4),resolved:daysAgo(4)},
+    {id:'INC0005',title:'Application login errors for Finance team',priority:'P3',status:'resolved',category:'Application',subcategory:'Authentication',requester:'Finance Manager',assignee:'Sara Lee',group:'App Team',impact:'team',urgency:'medium',ci:'ci7',problem:'prb4',description:'5 Finance users unable to log into ERP after password reset.',resolution:'Session cache cleared and authentication tokens refreshed.',created:daysAgo(3),updated:daysAgo(3),resolved:daysAgo(3)},
+    {id:'INC0006',title:'Printer PRT-FLOOR3 not printing',priority:'P4',status:'new',category:'Hardware',subcategory:'Printer',requester:'Tom Baker',assignee:'',group:'Desktop Team',impact:'individual',urgency:'low',ci:'',problem:'',description:'3rd floor laser printer offline. Shows offline on print server.',resolution:'',created:hoursAgo(1),updated:hoursAgo(1),resolved:''},
+    {id:'INC0007',title:'Payment gateway timeout errors',priority:'P2',status:'in-progress',category:'Application',subcategory:'Integration',requester:'E-commerce Team',assignee:'Alex Turner',group:'App Team',impact:'enterprise',urgency:'high',ci:'ci7',problem:'',description:'Checkout payment processing timing out intermittently. 12% failure rate.',resolution:'',created:hoursAgo(5),updated:hoursAgo(1),resolved:''},
+    {id:'INC0008',title:'File share access denied for Marketing',priority:'P3',status:'pending',category:'Access',subcategory:'File Share',requester:'Lucy Chen',assignee:'Ben Park',group:'Service Desk',impact:'team',urgency:'medium',ci:'',problem:'',description:'Marketing team lost access to shared drive after AD group policy update.',resolution:'',created:daysAgo(1),updated:hoursAgo(8),resolved:''},
+    {id:'INC0009',title:'Laptop battery not charging — user Amy Ng',priority:'P4',status:'resolved',category:'Hardware',subcategory:'Laptop',requester:'Amy Ng',assignee:'Desktop Team',group:'Desktop Team',impact:'individual',urgency:'low',ci:'ci10',problem:'',description:'Laptop battery stopped charging. Charging cable tested OK.',resolution:'Faulty battery replaced from hardware stock.',created:daysAgo(4),updated:daysAgo(3),resolved:daysAgo(3)},
+    {id:'INC0010',title:'Security alert: suspicious login from unknown IP',priority:'P2',status:'resolved',category:'Security',subcategory:'Authentication',requester:'SIEM Alert',assignee:'Security Team',group:'Security Team',impact:'enterprise',urgency:'high',ci:'ci4',problem:'',description:'SIEM flagged login from IP 185.220.x.x. Account belongs to CFO.',resolution:'Account locked, password reset, MFA re-enrolled. No data exfiltration detected.',created:daysAgo(7),updated:daysAgo(7),resolved:daysAgo(7)},
+  ];
+  _incNum=11;
+  DB.requests=[
+    {id:'REQ0001',title:'New employee onboarding — David Kim (starts Mon)',type:'Onboarding',requester:'HR — Rachel Adams',assignee:'Service Desk',status:'in-progress',approval:'approved',due:daysFromNow(3),notes:'Standard onboarding: laptop, accounts, VPN, email, Slack. Start date Monday.',created:daysAgo(3)},
+    {id:'REQ0002',title:'Install Adobe Creative Cloud for Design team',type:'Software Install',requester:'Design Lead — Priya N',assignee:'Desktop Team',status:'pending-approval',approval:'pending',due:daysFromNow(5),notes:'5 licenses required. Budget code: MKTG-2025-SW.',created:daysAgo(1)},
+    {id:'REQ0003',title:'Grant read access to Finance reports SharePoint',type:'Access Request',requester:'James Porter',assignee:'Ben Park',status:'fulfilled',approval:'approved',due:daysAgo(1),notes:'Read-only access to FY2024 folder only. Manager approved.',created:daysAgo(5)},
+    {id:'REQ0004',title:'Replace monitor for Sarah Wu — 27" 4K',type:'Hardware Request',requester:'Sarah Wu',assignee:'Desktop Team',status:'pending-approval',approval:'pending',due:daysFromNow(7),notes:'Current monitor has dead pixels. Requested 27" 4K.',created:hoursAgo(8)},
+    {id:'REQ0005',title:'VPN access for contractor — Mike O\'Brien',type:'Access Request',requester:'IT Manager',assignee:'Network Team',status:'approved',approval:'approved',due:daysFromNow(1),notes:'3-month contract. VPN + dev environment access only.',created:daysAgo(2)},
+  ];
+  _reqNum=6;
+  DB.changes=[
+    {id:'CHG0001',title:'Emergency security patch — Apache Log4j CVE-2021-44228',type:'Emergency',status:'completed',risk:'Critical',impact:'High',assignee:'Security Team',cab:'CISO — James Hill',planned_start:daysAgo(8)+'T02:00',planned_end:daysAgo(8)+'T04:00',actual_start:daysAgo(8)+'T02:05',actual_end:daysAgo(8)+'T03:48',description:'Emergency patch for critical Log4Shell vulnerability across all Java services.',impl_plan:'1. Snapshot all affected VMs. 2. Apply patch via Ansible playbook. 3. Verify services. 4. Update CMDB.',rollback:'Revert to pre-patch snapshot if services fail post-patch.',test_plan:'Verify log4j version, run smoke tests on all patched services.',cab_notes:'CISO approved emergency change at 01:30. Change window 02:00-04:00.',created:daysAgo(9)},
+    {id:'CHG0002',title:'Network core switch upgrade — SW-CORE-01 to SW-CORE-02',type:'Normal',status:'approved',risk:'High',impact:'High',assignee:'Network Team — Chris Wong',cab:'CAB Board',planned_start:daysFromNow(4)+'T22:00',planned_end:daysFromNow(5)+'T02:00',actual_start:'',actual_end:'',description:'Replace end-of-life core switch with new Cisco Catalyst 9300. Planned maintenance window.',impl_plan:'1. Pre-stage SW-CORE-02. 2. Schedule 4-hour window. 3. Cut-over. 4. Verify all uplinks.',rollback:'Re-cable to SW-CORE-01 if new switch fails to pass traffic.',test_plan:'Ping all VLANs, verify routing, test critical application connectivity.',cab_notes:'CAB approved 3-2 vote. Change advisory board satisfied with rollback plan.',created:daysAgo(6)},
+    {id:'CHG0003',title:'Workstation replacement — Finance team (10 units)',type:'Standard',status:'completed',risk:'Low',impact:'Low',assignee:'Desktop Team',cab:'Pre-approved',planned_start:daysAgo(3)+'T09:00',planned_end:daysAgo(3)+'T17:00',actual_start:daysAgo(3)+'T09:00',actual_end:daysAgo(3)+'T16:30',description:'Replace 10 Finance workstations with Dell OptiPlex 7010. Standard hardware refresh.',impl_plan:'Deploy from SOE image, migrate user profile, test applications.',rollback:'Re-image from backup if SOE deployment fails.',test_plan:'User acceptance sign-off on each workstation.',cab_notes:'Standard change — no CAB required.',created:daysAgo(7)},
+    {id:'CHG0004',title:'Database migration — CRM DB to new PostgreSQL cluster',type:'Normal',status:'pending-cab',risk:'High',impact:'High',assignee:'DBA Team — Alex Turner',cab:'CAB Board',planned_start:daysFromNow(10)+'T00:00',planned_end:daysFromNow(10)+'T06:00',actual_start:'',actual_end:'',description:'Migrate CRM database from MySQL 5.7 (EOL) to PostgreSQL 16 cluster.',impl_plan:'1. Schema conversion. 2. Data migration. 3. Application re-point. 4. Validation.',rollback:'Keep MySQL in read-only until validation complete. Re-point if needed.',test_plan:'Full regression suite on CRM. Performance baseline comparison.',cab_notes:'Scheduled for next CAB meeting Fri 14:00.',created:daysAgo(2)},
+    {id:'CHG0005',title:'Firewall rule change — allow port 443 for new SaaS vendor',type:'Emergency',status:'implementing',risk:'Medium',impact:'Medium',assignee:'Network Team',cab:'Security Lead',planned_start:new Date().toISOString().slice(0,16),planned_end:daysFromNow(0)+'T23:00',actual_start:hoursAgo(1).slice(0,16),actual_end:'',description:'Allow outbound HTTPS to vendor IP range for new procurement SaaS tool going live today.',impl_plan:'Add outbound ACL on FW-PRIMARY. Test connectivity from workstations.',rollback:'Remove ACL rule.',test_plan:'Curl test from 3 workstations. Vendor confirms connectivity.',cab_notes:'Security lead approved. Rule scoped to specific IP range only.',created:hoursAgo(3)},
+  ];
+  _chgNum=6;
+  DB.problems=[
+    {id:'PRB0001',title:'Recurring database connection pool exhaustion',status:'known-error',priority:'P1',category:'Server',assignee:'Alex Turner',related_incidents:'INC0001',description:'Production DB server periodically exhausts connection pool under load.',root_cause:'Identified: Application not releasing connections properly after long-running reports.',workaround:'Restart DB connection pool service every 6 hours. Monitor via Nagios alert.',solution:'Code fix in progress — PR #4421. Deploy with next sprint release.',created:daysAgo(14)},
+    {id:'PRB0002',title:'VPN gateway drops sessions after 45 minutes idle',status:'known-error',priority:'P2',category:'Network',assignee:'Ben Park',related_incidents:'INC0003',description:'VPN gateway applying overly aggressive idle timeout causing session drops.',root_cause:'Root cause confirmed: VPN concentrator idle-timeout setting too low (2700s).',workaround:'Users: Re-connect when dropped. Advise use of keepalive client setting.',solution:'Vendor config change in CAB queue. ETA: next maintenance window.',created:daysAgo(21)},
+    {id:'PRB0003',title:'Intermittent slow query performance on reporting module',status:'under-investigation',priority:'P2',category:'Application',assignee:'DBA Team',related_incidents:'',description:'Business intelligence reports taking 10-15 min instead of 30 seconds.',root_cause:'Under investigation — suspect missing index on FK_order_customer.',workaround:'Run reports after 18:00 when load is lower.',solution:'',created:daysAgo(7)},
+    {id:'PRB0004',title:'Login failures after AD password change — ERP system',status:'resolved',priority:'P3',category:'Application',assignee:'Sara Lee',related_incidents:'INC0005',description:'Users unable to log into ERP immediately after changing Active Directory password.',root_cause:'ERP caches Kerberos tokens for 60 minutes. Password change invalidates token but cache not cleared.',workaround:'Log out of ERP and log back in after password change.',solution:'ERP vendor patch deployed (v4.2.1) — token cache now cleared on password event.',created:daysAgo(10)},
+  ];
+  _prbNum=5;
+  DB.cmdb=[
+    {id:'ci1',name:'WEB-PROD-01',type:'Server',env:'Production',status:'Active',criticality:'Critical',owner:'Web Team',ip:'10.0.1.10',os:'Ubuntu 22.04 LTS',location:'DC1 / Rack A3',related:'ci2,ci4',notes:'Primary web server. Nginx 1.24.',created:daysAgo(365)},
+    {id:'ci2',name:'DB-PROD-01',type:'Database',env:'Production',status:'Active',criticality:'Critical',owner:'DBA Team',ip:'10.0.1.20',os:'RHEL 9.2',location:'DC1 / Rack B1',related:'ci1,ci7',notes:'Primary PostgreSQL 16 cluster. 2TB storage.',created:daysAgo(365)},
+    {id:'ci3',name:'SW-CORE-01',type:'Network',env:'Production',status:'In Maintenance',criticality:'Critical',owner:'Network Team',ip:'10.0.0.1',os:'Cisco IOS XE 17.x',location:'DC1 / Rack A1',related:'ci4,ci8',notes:'Core distribution switch. EOL — scheduled for replacement CHG0002.',created:daysAgo(730)},
+    {id:'ci4',name:'FW-PRIMARY',type:'Network',env:'Production',status:'Active',criticality:'Critical',owner:'Security Team',ip:'10.0.0.254',os:'Palo Alto PAN-OS 11.1',location:'DC1 / Rack A2',related:'ci3',notes:'Primary next-gen firewall. HA pair with FW-SECONDARY.',created:daysAgo(400)},
+    {id:'ci5',name:'AD-PROD',type:'Service',env:'Production',status:'Active',criticality:'Critical',owner:'IT',ip:'10.0.1.5',os:'Windows Server 2022',location:'DC1 / Rack B2',related:'ci1,ci6,ci7',notes:'Active Directory Domain Services. 2 DCs.',created:daysAgo(365)},
+    {id:'ci6',name:'EXCHANGE-01',type:'Server',env:'Production',status:'Active',criticality:'High',owner:'Email Team',ip:'10.0.1.15',os:'Windows Server 2019',location:'DC1 / Rack B3',related:'ci5',notes:'Exchange 2019 CU14. ~800 mailboxes.',created:daysAgo(500)},
+    {id:'ci7',name:'ERP-APP',type:'Software',env:'Production',status:'Active',criticality:'Critical',owner:'Business Apps',ip:'10.0.2.10',os:'v4.2.1',location:'Cloud / AWS',related:'ci2,ci5',notes:'Enterprise ERP — finance, HR, procurement modules.',created:daysAgo(700)},
+    {id:'ci8',name:'VPN-GW-01',type:'Network',env:'Production',status:'Active',criticality:'High',owner:'Network Team',ip:'203.0.113.1',os:'Cisco ASA 9.20',location:'DC1 / Rack A4',related:'ci3,ci4',notes:'Primary VPN concentrator. ~80 concurrent remote users.',created:daysAgo(600)},
+    {id:'ci9',name:'BACKUP-01',type:'Server',env:'DR',status:'Active',criticality:'High',owner:'IT Ops',ip:'10.0.3.5',os:'Windows Server 2022',location:'DR Site / Rack C1',related:'ci2,ci6',notes:'Veeam Backup & Replication 12. 12TB NAS.',created:daysAgo(300)},
+    {id:'ci10',name:'Laptop Fleet (Staff)',type:'Workstation',env:'Production',status:'Active',criticality:'Medium',owner:'Desktop Team',ip:'DHCP',os:'Windows 11 Enterprise',location:'Office / Remote',related:'ci5,ci8',notes:'~95 Dell Latitude 7450 laptops. MDM: Intune.',created:daysAgo(180)},
+  ];
+  DB.knowledge=[
+    {id:'kb1',title:'How to Reset Your Password',category:'Access & Identity',status:'published',author:'Service Desk',tags:'password,reset,login,ad',views:312,content:`## Overview\nThis article explains how to reset your Active Directory password.\n\n## Self-Service Reset\n1. Go to https://aka.ms/sspr\n2. Enter your username (name@company.com)\n3. Verify your identity via authenticator app or SMS\n4. Choose a new password (min 12 chars, upper/lower/number/symbol)\n5. Sign in with new password\n\n## Via Service Desk\nCall +44 (0) 20 1234 5678 or raise a ticket — we can reset within 15 minutes during business hours.\n\n## Common Issues\n- Password must not match last 10 passwords\n- Account locked after 5 failed attempts — wait 15 minutes or call Service Desk\n- MFA not working? See KB article: MFA Troubleshooting`,created:daysAgo(90),updated:daysAgo(7)},
+    {id:'kb2',title:'VPN Connection Troubleshooting Guide',category:'Network',status:'published',author:'Network Team',tags:'vpn,remote,cisco,anyconnect',views:189,content:`## Symptoms\n- VPN drops every 30-60 minutes (known issue — workaround below)\n- Cannot connect at all\n- Connected but cannot reach internal systems\n\n## Workaround for Idle Drops (Known Error PRB0002)\nEnable the keepalive setting in your AnyConnect client:\n1. Open Cisco AnyConnect > Preferences\n2. Check "Enable keepalive messages"\n3. Set interval to 20 seconds\n4. Reconnect\n\n## Cannot Connect At All\n1. Check your internet connection is working\n2. Verify you are using the correct VPN server: vpn.company.com\n3. Ensure MFA is set up on your account\n4. Try restarting the AnyConnect service: Services > Cisco AnyConnect > Restart\n\n## Still stuck?\nRaise an incident or call the Service Desk.`,created:daysAgo(21),updated:daysAgo(2)},
+    {id:'kb3',title:'New Employee IT Setup Checklist',category:'Onboarding',status:'published',author:'Service Desk',tags:'onboarding,new,starter,setup',views:78,content:`## Day 1 Setup\n\n### Accounts Created\n- [ ] Active Directory account\n- [ ] Email (Exchange / M365)\n- [ ] MFA enrolled\n- [ ] Slack workspace invite\n- [ ] Zoom licence assigned\n- [ ] VPN access configured\n\n### Hardware Provided\n- [ ] Dell Latitude laptop with Windows 11\n- [ ] Power adapter\n- [ ] USB-C dock (if desk-based)\n- [ ] Headset\n\n### Software Installed\n- [ ] Microsoft 365 (Word, Excel, Outlook, Teams)\n- [ ] Cisco AnyConnect VPN\n- [ ] Company browser bookmarks\n- [ ] Department-specific software (confirm with manager)\n\n## First Week\n- Complete Security Awareness Training (link in welcome email)\n- Book IT orientation session with Service Desk`,created:daysAgo(60),updated:daysAgo(14)},
+    {id:'kb4',title:'Common Login Issues and Fixes',category:'Access & Identity',status:'published',author:'Service Desk',tags:'login,password,mfa,account',views:201,content:`## "Your account is locked"\nAccounts lock after 5 failed attempts. Wait 15 minutes for auto-unlock or call Service Desk.\n\n## MFA Code Not Working\n1. Check your phone clock is accurate (MFA codes are time-sensitive)\n2. Try the next code — wait 30 seconds and try again\n3. Use backup code from your profile\n4. Contact Service Desk to reset MFA\n\n## "Your password has expired"\nNavigate to https://account.activedirectory.windowsazure.com to change it.\n\n## Cannot Log Into ERP After Password Change\nThis is a known issue (PRB0004 — resolved). Log out of ERP completely, wait 2 minutes, then log back in with your new password.`,created:daysAgo(45),updated:daysAgo(3)},
+    {id:'kb5',title:'Requesting Software or Application Access',category:'Applications',status:'published',author:'Service Desk',tags:'software,access,install,request',views:95,content:`## How to Request Software\n\n1. Submit a Service Request via the Self-Service Portal or this ITSM tool\n2. Include: software name, version, business justification, number of licences\n3. Manager approval required for all software requests\n4. Standard processing time: 3-5 business days\n\n## Approved Software Catalogue\nThe following is pre-approved and can be installed on request:\n- Microsoft 365 suite\n- Adobe Acrobat Reader\n- Zoom\n- Slack\n- Chrome / Firefox\n\n## Unlicensed / Unapproved Software\nInstallation of software not in the approved list requires Security and IT Manager sign-off.`,created:daysAgo(30),updated:daysAgo(10)},
+    {id:'kb6',title:'Phishing Email — How to Identify and Report',category:'Security',status:'published',author:'Security Team',tags:'phishing,security,email,threat',views:143,content:`## Red Flags\n- Urgent language: "Your account will be suspended!"\n- Unexpected attachments or links\n- Sender email domain doesn't match the organisation\n- Generic greeting ("Dear Customer")\n- Requests for passwords, payment, or personal info\n\n## What To Do If You Receive One\n1. DO NOT click any links or open attachments\n2. Report it: right-click > "Report Phishing" in Outlook\n3. Delete the email\n4. If you clicked a link: immediately disconnect from network and call Security Team\n\n## What To Do If You Clicked\n1. Do NOT enter any credentials on the site\n2. Call Security: +44 (0) 20 1234 5679 (24/7)\n3. Change your password immediately via SSPR\n4. Raise a P2 security incident in the ITSM tool`,created:daysAgo(20),updated:daysAgo(5)},
+  ];
+  DB.catalog=[
+    {id:'svc1',name:'New Employee Onboarding',category:'IT Infrastructure',desc:'Full IT setup for new starters: laptop, accounts, email, VPN, and software.',sla:'1 business day before start date',owner:'Service Desk',status:'active',icon:'👤',requests:47},
+    {id:'svc2',name:'Software Installation Request',category:'Software',desc:'Request installation of approved or new software on your workstation.',sla:'3-5 business days',owner:'Desktop Team',status:'active',icon:'📦',requests:89},
+    {id:'svc3',name:'Access / Permission Request',category:'Access & Identity',desc:'Request access to shared drives, applications, systems, or distribution lists.',sla:'2 business days',owner:'Service Desk',status:'active',icon:'🔐',requests:134},
+    {id:'svc4',name:'Password Reset',category:'Access & Identity',desc:'Reset your AD password or unlock your account.',sla:'15 minutes (business hours)',owner:'Service Desk',status:'active',icon:'🔑',requests:201},
+    {id:'svc5',name:'Hardware Request',category:'Hardware & Devices',desc:'Request new or replacement hardware (laptop, monitor, peripherals).',sla:'5-7 business days',owner:'Desktop Team',status:'active',icon:'💻',requests:62},
+    {id:'svc6',name:'VPN Access Request',category:'IT Infrastructure',desc:'Request VPN access for remote working or for a contractor.',sla:'1 business day',owner:'Network Team',status:'active',icon:'🌐',requests:53},
+    {id:'svc7',name:'Leaver / Offboarding',category:'IT Infrastructure',desc:'IT offboarding for departing employees. Disable accounts, collect hardware.',sla:'Last working day',owner:'Service Desk',status:'active',icon:'🚪',requests:28},
+    {id:'svc8',name:'Security Incident Reporting',category:'Security',desc:'Report a suspected security incident, phishing attempt, or data breach.',sla:'Immediate (P2 SLA)',owner:'Security Team',status:'active',icon:'🛡️',requests:19},
+  ];
+  DB.activityLog=[
+    {id:uid(),module:'System',msg:'HelixSM initialised with seed data',at:new Date().toISOString()},
+    {id:uid(),module:'Incidents',msg:'INC0001 created — P1: Database server unresponsive',at:hoursAgo(3)},
+    {id:uid(),module:'Changes',msg:'CHG0001 completed — Emergency Log4j patch applied',at:daysAgo(8)},
+    {id:uid(),module:'Problems',msg:'PRB0002 marked as Known Error — VPN idle drops',at:daysAgo(2)},
+    {id:uid(),module:'Requests',msg:'REQ0003 fulfilled — SharePoint access granted',at:daysAgo(1)},
+  ];
+  dbSave();
+}
+
+/* ══ NAVIGATION ══ */
+const PAGE_TITLES={dashboard:'Dashboard',incidents:'Incidents',requests:'Service Requests',changes:'Change Enablement',problems:'Problem Management',cmdb:'CMDB',knowledge:'Knowledge Base',catalog:'Service Catalog',sla:'SLA Management',reports:'Reports',activity:'Activity Log',settings:'Settings'};
+let _currentMod='dashboard';
+function navigate(mod){
+  document.querySelectorAll('.module').forEach(m=>m.classList.remove('active'));
+  document.querySelectorAll('.nav-link[data-mod]').forEach(a=>a.classList.remove('active'));
+  const el=document.getElementById('mod-'+mod);
+  if(el)el.classList.add('active');
+  const link=document.querySelector(`.nav-link[data-mod="${mod}"]`);
+  if(link)link.classList.add('active');
+  document.getElementById('page-title').textContent=PAGE_TITLES[mod]||mod;
+  _currentMod=mod;
+  renderModule(mod);
+}
+function renderModule(mod){
+  switch(mod){
+    case 'dashboard':renderDashboard();break;
+    case 'incidents':renderIncidents();break;
+    case 'requests':renderRequests();break;
+    case 'changes':renderChanges();break;
+    case 'problems':renderProblems();break;
+    case 'cmdb':renderCMDB();break;
+    case 'knowledge':renderKnowledge();break;
+    case 'catalog':renderCatalog();break;
+    case 'sla':renderSLA();break;
+    case 'reports':renderReports();break;
+    case 'activity':renderActivity();break;
+    case 'settings':renderSettingsPage();break;
+  }
+}
+function updateSidebarBadges(){
+  const openInc=(DB.incidents||[]).filter(i=>!['resolved','closed'].includes(i.status)).length;
+  const openReq=(DB.requests||[]).filter(r=>!['fulfilled','rejected','cancelled'].includes(r.status)).length;
+  const ib=document.getElementById('sb-inc-badge');
+  const rb=document.getElementById('sb-req-badge');
+  if(ib){ib.textContent=openInc||'';ib.style.display=openInc?'':'none';}
+  if(rb){rb.textContent=openReq||'';rb.style.display=openReq?'':'none';}
+}
+</script>
+
+<!-- Article View Modal -->
+<div class="modal fade" id="articleViewModal" tabindex="-1">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="art-view-title"></h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="d-flex gap-3 mb-3 small text-muted" id="art-view-meta"></div>
+        <div id="art-view-body" style="white-space:pre-wrap;line-height:1.7;"></div>
+      </div>
+      <div class="modal-footer">
+        <span class="me-auto small text-muted" id="art-view-views"></span>
+        <button class="btn btn-outline-primary btn-sm" id="art-view-edit-btn">Edit Article</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══ DASHBOARD ══ */
+function renderDashboard(){
+  const inc=DB.incidents||[];const chg=DB.changes||[];const prb=DB.problems||[];
+  const req=DB.requests||[];
+  const open=inc.filter(i=>!['resolved','closed'].includes(i.status));
+  const p1=open.filter(i=>i.priority==='P1').length;
+  const p2=open.filter(i=>i.priority==='P2').length;
+  const pendChg=chg.filter(c=>['submitted','pending-cab'].includes(c.status)).length;
+  const openPrb=prb.filter(p=>!['resolved','closed'].includes(p.status)).length;
+  const pendReq=req.filter(r=>r.status==='pending-approval').length;
+  // SLA compliance from resolved
+  const resolved=inc.filter(i=>['resolved','closed'].includes(i.status));
+  let slamet=0;
+  resolved.forEach(i=>{const s=getSlaInfo(i);if(s&&(s.status==='met'))slamet++;});
+  const slaPct=resolved.length?Math.round(slamet/resolved.length*100):100;
+  document.getElementById('dash-stats').innerHTML=`
+    <div class="col-6 col-md col-lg"><div class="stat-card h-100 d-flex align-items-center gap-3"><div class="stat-icon" style="background:#fee2e2"><span style="font-size:1.3rem">🚨</span></div><div><div class="stat-val text-danger">${open.length}</div><div class="stat-label">Open Incidents</div></div></div></div>
+    <div class="col-6 col-md col-lg"><div class="stat-card h-100 d-flex align-items-center gap-3"><div class="stat-icon" style="background:#fef3c7"><span style="font-size:1.3rem">🔴</span></div><div><div class="stat-val text-warning">${p1+p2}</div><div class="stat-label">P1 / P2 Open</div></div></div></div>
+    <div class="col-6 col-md col-lg"><div class="stat-card h-100 d-flex align-items-center gap-3"><div class="stat-icon" style="background:#dbeafe"><span style="font-size:1.3rem">🔄</span></div><div><div class="stat-val text-primary">${pendChg}</div><div class="stat-label">Changes Pending</div></div></div></div>
+    <div class="col-6 col-md col-lg"><div class="stat-card h-100 d-flex align-items-center gap-3"><div class="stat-icon" style="background:#fce7f3"><span style="font-size:1.3rem">⏳</span></div><div><div class="stat-val">${pendReq}</div><div class="stat-label">Requests Awaiting</div></div></div></div>
+    <div class="col-6 col-md col-lg"><div class="stat-card h-100 d-flex align-items-center gap-3"><div class="stat-icon" style="background:#d1fae5"><span style="font-size:1.3rem">📊</span></div><div><div class="stat-val text-success">${slaPct}%</div><div class="stat-label">SLA Compliance</div></div></div></div>
+    <div class="col-6 col-md col-lg"><div class="stat-card h-100 d-flex align-items-center gap-3"><div class="stat-icon" style="background:#ede9fe"><span style="font-size:1.3rem">🐛</span></div><div><div class="stat-val text-purple" style="color:#7c3aed">${openPrb}</div><div class="stat-label">Open Problems</div></div></div></div>
+  `;
+  renderDashCharts();
+  renderCriticalInc();
+  renderDashActivity();
+  updateSidebarBadges();
+}
+function renderDashCharts(){
+  const inc=DB.incidents||[];
+  const open=inc.filter(i=>!['resolved','closed'].includes(i.status));
+  const pCounts=[1,2,3,4,5].map(n=>open.filter(i=>i.priority==='P'+n).length);
+  destroyChart('dash-pri-chart');
+  new Chart(document.getElementById('dash-pri-chart'),{type:'doughnut',data:{labels:['P1 Critical','P2 High','P3 Medium','P4 Low','P5 Info'],datasets:[{data:pCounts,backgroundColor:['#7f1d1d','#dc2626','#ea580c','#ca8a04','#6b7280'],borderWidth:0}]},options:{plugins:{legend:{position:'right',labels:{font:{size:11},padding:10}}},cutout:'60%',animation:{duration:500}}});
+  // 14-day trend
+  const labels=[];const data=[];
+  for(let d=13;d>=0;d--){
+    const day=new Date(Date.now()-d*86400000);
+    const dayStr=day.toISOString().slice(0,10);
+    labels.push(day.toLocaleDateString('en-GB',{day:'2-digit',month:'short'}));
+    data.push(inc.filter(i=>i.created&&i.created.startsWith(dayStr)).length);
+  }
+  destroyChart('dash-trend-chart');
+  new Chart(document.getElementById('dash-trend-chart'),{type:'line',data:{labels,datasets:[{label:'Incidents',data,borderColor:'#818cf8',backgroundColor:'rgba(129,140,248,.12)',fill:true,tension:0.4,pointRadius:3}]},options:{plugins:{legend:{display:false}},scales:{x:{ticks:{maxTicksLimit:7,font:{size:10}}},y:{ticks:{stepSize:1,font:{size:10}}}},animation:{duration:500}}});
+}
+function renderCriticalInc(){
+  const inc=(DB.incidents||[]).filter(i=>['P1','P2'].includes(i.priority)&&!['resolved','closed'].includes(i.status));
+  if(!inc.length){document.getElementById('dash-critical-inc').innerHTML='<p class="text-muted small py-2">No open P1/P2 incidents. ✅</p>';return;}
+  document.getElementById('dash-critical-inc').innerHTML=`<div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>ID</th><th>Title</th><th>Priority</th><th>SLA</th><th>Assignee</th></tr></thead><tbody>`
+    +inc.map(i=>{const sla=getSlaInfo(i);return`<tr style="cursor:pointer" onclick="openIncidentModal('${i.id}')"><td class="fw-semibold">${i.id}</td><td>${escHtml(i.title)}</td><td>${priBadge(i.priority)}</td><td class="${sla?sla.cls:''}">${sla?sla.label:'—'}</td><td>${escHtml(i.assignee||'Unassigned')}</td></tr>`;}).join('')
+    +`</tbody></table></div>`;
+}
+function renderDashActivity(){
+  const log=(DB.activityLog||[]).slice(0,8);
+  document.getElementById('dash-activity').innerHTML=log.map(l=>`<div class="t-item"><div class="small fw-semibold">${escHtml(l.msg)}</div><div class="t-time">${escHtml(l.module)} · ${fmtDateTime(l.at)}</div></div>`).join('')||'<span class="text-muted small">No activity yet.</span>';
+}
+
+/* ══ INCIDENTS ══ */
+function renderIncidents(){
+  let items=DB.incidents||[];
+  const fs=document.getElementById('inc-filter-status')?.value;
+  const fp=document.getElementById('inc-filter-pri')?.value;
+  const fc=document.getElementById('inc-filter-cat')?.value;
+  const q=document.getElementById('inc-search')?.value.toLowerCase();
+  const sort=document.getElementById('inc-sort')?.value||'created-desc';
+  if(fs)items=items.filter(i=>i.status===fs);
+  if(fp)items=items.filter(i=>i.priority===fp);
+  if(fc)items=items.filter(i=>i.category===fc);
+  if(q)items=items.filter(i=>(i.title+i.description+i.requester+i.assignee).toLowerCase().includes(q));
+  const priOrder={P1:1,P2:2,P3:3,P4:4,P5:5};
+  if(sort==='created-desc')items.sort((a,b)=>b.created.localeCompare(a.created));
+  else if(sort==='created-asc')items.sort((a,b)=>a.created.localeCompare(b.created));
+  else if(sort==='priority')items.sort((a,b)=>(priOrder[a.priority]||9)-(priOrder[b.priority]||9));
+  else if(sort==='sla'){items.sort((a,b)=>{const sa=getSlaInfo(a);const sb=getSlaInfo(b);const ord={breached:0,'at-risk':1,ok:2,met:3,'no-sla':4};return(ord[sa?.status]||9)-(ord[sb?.status]||9);});}
+  document.getElementById('inc-tbody').innerHTML=items.length?items.map(i=>{
+    const sla=getSlaInfo(i);
+    return`<tr style="cursor:pointer" onclick="openIncidentModal('${i.id}')">
+      <td class="fw-semibold text-primary">${i.id}</td>
+      <td><div class="fw-semibold">${escHtml(i.title)}</div><div class="text-muted small">${escHtml(i.subcategory||'')}${i.group?` · ${escHtml(i.group)}`:''}</div></td>
+      <td>${priBadge(i.priority)}</td>
+      <td>${statusBadge(i.status)}</td>
+      <td>${escHtml(i.category||'')}</td>
+      <td>${escHtml(i.assignee||'—')}</td>
+      <td class="${sla?sla.cls:''} small">${sla?sla.label:'—'}</td>
+      <td class="small text-muted">${fmtDate(i.created)}</td>
+      <td><button class="btn btn-outline-secondary btn-sm py-0" onclick="event.stopPropagation();openIncidentModal('${i.id}')">Edit</button></td>
+    </tr>`;}).join(''):'<tr><td colspan="9" class="text-center text-muted py-4">No incidents match your filters.</td></tr>';
+  updateSidebarBadges();
+}
+
+let _incModalBS=null;
+function openIncidentModal(id){
+  if(!_incModalBS)_incModalBS=new bootstrap.Modal(document.getElementById('incidentModal'));
+  const i=id?(DB.incidents||[]).find(x=>x.id===id):null;
+  document.getElementById('inc-id').value=i?i.id:'';
+  document.getElementById('inc-title').value=i?i.title:'';
+  document.getElementById('inc-priority').value=i?i.priority:'P3';
+  document.getElementById('inc-status').value=i?i.status:'new';
+  document.getElementById('inc-category').value=i?i.category:'Network';
+  document.getElementById('inc-subcategory').value=i?i.subcategory||'':'';
+  document.getElementById('inc-requester').value=i?i.requester||'':'';
+  document.getElementById('inc-assignee').value=i?i.assignee||'':'';
+  document.getElementById('inc-group').value=i?i.group||'':'';
+  document.getElementById('inc-impact').value=i?i.impact||'individual':'individual';
+  document.getElementById('inc-urgency').value=i?i.urgency||'medium':'medium';
+  document.getElementById('inc-description').value=i?i.description||'':'';
+  document.getElementById('inc-resolution').value=i?i.resolution||'':'';
+  // populate CI and Problem dropdowns
+  const ciSel=document.getElementById('inc-ci');
+  ciSel.innerHTML='<option value="">— None —</option>'+(DB.cmdb||[]).map(c=>`<option value="${c.id}"${i&&i.ci===c.id?' selected':''}>${escHtml(c.name)}</option>`).join('');
+  const prbSel=document.getElementById('inc-problem');
+  prbSel.innerHTML='<option value="">— None —</option>'+(DB.problems||[]).map(p=>`<option value="${p.id}"${i&&i.problem===p.id?' selected':''}>${escHtml(p.id)} — ${escHtml(p.title)}</option>`).join('');
+  const delBtn=document.getElementById('inc-del-btn');
+  if(delBtn)delBtn.style.display=i?'':'none';
+  _incModalBS.show();
+}
+function saveIncident(){
+  const id=document.getElementById('inc-id').value;
+  const title=document.getElementById('inc-title').value.trim();
+  if(!title)return alert('Title is required.');
+  const status=document.getElementById('inc-status').value;
+  const existing=id?(DB.incidents||[]).find(x=>x.id===id):null;
+  const obj={
+    id:id||incId(),title,
+    priority:document.getElementById('inc-priority').value,
+    status,
+    category:document.getElementById('inc-category').value,
+    subcategory:document.getElementById('inc-subcategory').value.trim(),
+    requester:document.getElementById('inc-requester').value.trim(),
+    assignee:document.getElementById('inc-assignee').value.trim(),
+    group:document.getElementById('inc-group').value.trim(),
+    impact:document.getElementById('inc-impact').value,
+    urgency:document.getElementById('inc-urgency').value,
+    ci:document.getElementById('inc-ci').value,
+    problem:document.getElementById('inc-problem').value,
+    description:document.getElementById('inc-description').value.trim(),
+    resolution:document.getElementById('inc-resolution').value.trim(),
+    created:existing?existing.created:new Date().toISOString(),
+    updated:new Date().toISOString(),
+    resolved:(status==='resolved'||status==='closed')?(existing?.resolved||new Date().toISOString()):'',
+  };
+  if(!DB.incidents)DB.incidents=[];
+  if(id){const idx=DB.incidents.findIndex(x=>x.id===id);if(idx>-1)DB.incidents[idx]=obj;}
+  else DB.incidents.push(obj);
+  logActivity('Incidents',id?`Updated ${obj.id}: ${obj.title}`:`Created ${obj.id}: ${obj.title}`);
+  dbSave();
+  bootstrap.Modal.getInstance(document.getElementById('incidentModal')).hide();
+  if(_currentMod==='incidents')renderIncidents();
+  else if(_currentMod==='dashboard')renderDashboard();
+  updateSidebarBadges();
+}
+
+/* ══ SERVICE REQUESTS ══ */
+function renderRequests(){
+  let items=DB.requests||[];
+  const fs=document.getElementById('req-filter-status')?.value;
+  const q=document.getElementById('req-search')?.value.toLowerCase();
+  if(fs)items=items.filter(r=>r.status===fs);
+  if(q)items=items.filter(r=>(r.title+r.type+r.requester).toLowerCase().includes(q));
+  items.sort((a,b)=>b.created.localeCompare(a.created));
+  document.getElementById('req-tbody').innerHTML=items.length?items.map(r=>`<tr style="cursor:pointer" onclick="openRequestModal('${r.id}')">
+    <td class="fw-semibold text-primary">${r.id}</td>
+    <td><div class="fw-semibold">${escHtml(r.title)}</div>${r.due?`<div class="text-muted small">Due: ${fmtDate(r.due)}</div>`:''}</td>
+    <td>${escHtml(r.type||'—')}</td>
+    <td>${escHtml(r.requester||'—')}</td>
+    <td>${escHtml(r.assignee||'—')}</td>
+    <td>${statusBadge(r.status)}</td>
+    <td><span class="badge bg-${r.approval==='approved'?'success':r.approval==='rejected'?'danger':'secondary'}">${escHtml(r.approval||'pending')}</span></td>
+    <td class="small text-muted">${fmtDate(r.created)}</td>
+    <td><button class="btn btn-outline-secondary btn-sm py-0" onclick="event.stopPropagation();openRequestModal('${r.id}')">Edit</button></td>
+  </tr>`).join(''):'<tr><td colspan="9" class="text-center text-muted py-4">No requests found.</td></tr>';
+  updateSidebarBadges();
+}
+let _reqModalBS=null;
+function openRequestModal(id,prefill){
+  if(!_reqModalBS)_reqModalBS=new bootstrap.Modal(document.getElementById('requestModal'));
+  const r=id?(DB.requests||[]).find(x=>x.id===id):null;
+  document.getElementById('req-id').value=r?r.id:'';
+  document.getElementById('req-title').value=r?r.title:(prefill||'');
+  document.getElementById('req-type').value=r?r.type||'':'';
+  document.getElementById('req-requester').value=r?r.requester||'':'';
+  document.getElementById('req-assignee').value=r?r.assignee||'':'';
+  document.getElementById('req-status').value=r?r.status:'pending-approval';
+  document.getElementById('req-approval').value=r?r.approval||'pending':'pending';
+  document.getElementById('req-due').value=r&&r.due?r.due.slice(0,10):'';
+  document.getElementById('req-notes').value=r?r.notes||'':'';
+  const delBtn=document.getElementById('req-del-btn');
+  if(delBtn)delBtn.style.display=r?'':'none';
+  _reqModalBS.show();
+}
+function saveRequest(){
+  const id=document.getElementById('req-id').value;
+  const title=document.getElementById('req-title').value.trim();
+  if(!title)return alert('Title required.');
+  const existing=id?(DB.requests||[]).find(x=>x.id===id):null;
+  const obj={id:id||reqId(),title,type:document.getElementById('req-type').value.trim(),requester:document.getElementById('req-requester').value.trim(),assignee:document.getElementById('req-assignee').value.trim(),status:document.getElementById('req-status').value,approval:document.getElementById('req-approval').value,due:document.getElementById('req-due').value||'',notes:document.getElementById('req-notes').value.trim(),created:existing?existing.created:new Date().toISOString()};
+  if(!DB.requests)DB.requests=[];
+  if(id){const idx=DB.requests.findIndex(x=>x.id===id);if(idx>-1)DB.requests[idx]=obj;}else DB.requests.push(obj);
+  logActivity('Requests',id?`Updated ${obj.id}`:` Created ${obj.id}: ${obj.title}`);
+  dbSave();
+  bootstrap.Modal.getInstance(document.getElementById('requestModal')).hide();
+  if(_currentMod==='requests')renderRequests();
+  updateSidebarBadges();
+}
+
+/* ══ CHANGES ══ */
+let _chgView='table';
+function setChangeView(v,btn){
+  _chgView=v;
+  document.getElementById('chg-table-view').style.display=v==='table'?'':'none';
+  document.getElementById('chg-pipe-view').style.display=v==='pipeline'?'':'none';
+  document.querySelectorAll('#chg-view-table,#chg-view-pipe').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  renderChanges();
+}
+function renderChanges(){
+  let items=DB.changes||[];
+  const ft=document.getElementById('chg-filter-type')?.value;
+  const fs=document.getElementById('chg-filter-status')?.value;
+  if(ft)items=items.filter(c=>c.type===ft);
+  if(fs)items=items.filter(c=>c.status===fs);
+  items.sort((a,b)=>b.created.localeCompare(a.created));
+  if(_chgView==='pipeline'){renderChangePipeline(items);return;}
+  const typeColor={Standard:'success',Normal:'primary',Emergency:'danger'};
+  document.getElementById('chg-tbody').innerHTML=items.length?items.map(c=>`<tr style="cursor:pointer" onclick="openChangeModal('${c.id}')">
+    <td class="fw-semibold text-primary">${c.id}</td>
+    <td><div class="fw-semibold">${escHtml(c.title)}</div>${c.planned_start?`<div class="text-muted small">Planned: ${fmtDate(c.planned_start)}</div>`:''}</td>
+    <td><span class="badge bg-${typeColor[c.type]||'secondary'}">${c.type||'—'}</span></td>
+    <td>${riskBadge(c.risk)}</td>
+    <td>${statusBadge(c.status)}</td>
+    <td class="small">${c.planned_start?fmtDate(c.planned_start):'—'}</td>
+    <td class="small">${escHtml(c.cab||'—')}</td>
+    <td class="small">${escHtml(c.assignee||'—')}</td>
+    <td><button class="btn btn-outline-secondary btn-sm py-0" onclick="event.stopPropagation();openChangeModal('${c.id}')">Edit</button></td>
+  </tr>`).join(''):'<tr><td colspan="9" class="text-center text-muted py-4">No changes found.</td></tr>';
+}
+function renderChangePipeline(items){
+  const stages=[{key:'draft',label:'Draft'},{key:'submitted',label:'Submitted'},{key:'pending-cab',label:'Pending CAB'},{key:'approved',label:'Approved'},{key:'scheduled',label:'Scheduled'},{key:'implementing',label:'Implementing'},{key:'completed',label:'Completed'}];
+  document.getElementById('chg-pipeline').innerHTML=stages.map(s=>{
+    const cols=items.filter(c=>c.status===s.key);
+    return`<div class="col"><div class="pipe-col"><div class="pipe-header">${s.label} <span class="badge bg-secondary">${cols.length}</span></div>${cols.map(c=>`<div class="pipe-item" onclick="openChangeModal('${c.id}')"><div class="small fw-semibold mb-1">${escHtml(c.title)}</div><div class="d-flex gap-1 flex-wrap"><span class="badge bg-${{'Standard':'success','Normal':'primary','Emergency':'danger'}[c.type]||'secondary'} small">${c.type}</span>${riskBadge(c.risk)}</div></div>`).join('')||'<div class="text-muted small px-3 py-2">—</div>'}</div></div>`;
+  }).join('');
+}
+let _chgModalBS=null;
+function openChangeModal(id){
+  if(!_chgModalBS)_chgModalBS=new bootstrap.Modal(document.getElementById('changeModal'));
+  const c=id?(DB.changes||[]).find(x=>x.id===id):null;
+  document.getElementById('chg-id').value=c?c.id:'';
+  document.getElementById('chg-title').value=c?c.title:'';
+  document.getElementById('chg-type').value=c?c.type:'Normal';
+  document.getElementById('chg-status').value=c?c.status:'draft';
+  document.getElementById('chg-risk').value=c?c.risk:'Medium';
+  document.getElementById('chg-impact').value=c?c.impact:'Medium';
+  document.getElementById('chg-assignee').value=c?c.assignee||'':'';
+  document.getElementById('chg-cab').value=c?c.cab||'':'';
+  document.getElementById('chg-planned-start').value=c?c.planned_start||'':'';
+  document.getElementById('chg-planned-end').value=c?c.planned_end||'':'';
+  document.getElementById('chg-actual-start').value=c?c.actual_start||'':'';
+  document.getElementById('chg-actual-end').value=c?c.actual_end||'':'';
+  document.getElementById('chg-description').value=c?c.description||'':'';
+  document.getElementById('chg-impl-plan').value=c?c.impl_plan||'':'';
+  document.getElementById('chg-rollback').value=c?c.rollback||'':'';
+  document.getElementById('chg-test-plan').value=c?c.test_plan||'':'';
+  document.getElementById('chg-cab-notes').value=c?c.cab_notes||'':'';
+  const approveBtn=document.getElementById('chg-approve-btn');
+  if(approveBtn)approveBtn.style.display=(c&&['submitted','pending-cab'].includes(c.status))?'':'none';
+  const delBtn=document.getElementById('chg-del-btn');
+  if(delBtn)delBtn.style.display=c?'':'none';
+  _chgModalBS.show();
+}
+function saveChange(){
+  const id=document.getElementById('chg-id').value;
+  const title=document.getElementById('chg-title').value.trim();
+  if(!title)return alert('Title required.');
+  const existing=id?(DB.changes||[]).find(x=>x.id===id):null;
+  const obj={id:id||chgId(),title,type:document.getElementById('chg-type').value,status:document.getElementById('chg-status').value,risk:document.getElementById('chg-risk').value,impact:document.getElementById('chg-impact').value,assignee:document.getElementById('chg-assignee').value.trim(),cab:document.getElementById('chg-cab').value.trim(),planned_start:document.getElementById('chg-planned-start').value,planned_end:document.getElementById('chg-planned-end').value,actual_start:document.getElementById('chg-actual-start').value,actual_end:document.getElementById('chg-actual-end').value,description:document.getElementById('chg-description').value.trim(),impl_plan:document.getElementById('chg-impl-plan').value.trim(),rollback:document.getElementById('chg-rollback').value.trim(),test_plan:document.getElementById('chg-test-plan').value.trim(),cab_notes:document.getElementById('chg-cab-notes').value.trim(),created:existing?existing.created:new Date().toISOString()};
+  if(!DB.changes)DB.changes=[];
+  if(id){const idx=DB.changes.findIndex(x=>x.id===id);if(idx>-1)DB.changes[idx]=obj;}else DB.changes.push(obj);
+  logActivity('Changes',id?`Updated ${obj.id}`:` Created ${obj.id}: ${obj.title}`);
+  dbSave();
+  bootstrap.Modal.getInstance(document.getElementById('changeModal')).hide();
+  if(_currentMod==='changes')renderChanges();
+}
+function approveChange(){
+  const id=document.getElementById('chg-id').value;
+  const c=(DB.changes||[]).find(x=>x.id===id);
+  if(!c)return;
+  c.status='approved';c.cab_notes=(c.cab_notes||'')+'\n[Approved via HelixSM — '+new Date().toLocaleString()+']';
+  dbSave();logActivity('Changes',`Approved: ${c.id}`);
+  bootstrap.Modal.getInstance(document.getElementById('changeModal')).hide();
+  if(_currentMod==='changes')renderChanges();
+}
+
+/* ══ PROBLEMS ══ */
+let _prbTab='all';
+function setPrbTab(tab,el){
+  _prbTab=tab;
+  document.querySelectorAll('#prb-tabs .nav-link').forEach(a=>a.classList.remove('active'));
+  if(el)el.classList.add('active');
+  renderProblems();return false;
+}
+function renderProblems(){
+  let items=DB.problems||[];
+  if(_prbTab==='known-error')items=items.filter(p=>p.status==='known-error');
+  else if(_prbTab==='open')items=items.filter(p=>['open','under-investigation'].includes(p.status));
+  const priOrder={P1:1,P2:2,P3:3,P4:4};
+  items.sort((a,b)=>(priOrder[a.priority]||9)-(priOrder[b.priority]||9));
+  document.getElementById('prb-tbody').innerHTML=items.length?items.map(p=>`<tr style="cursor:pointer" onclick="openProblemModal('${p.id}')">
+    <td class="fw-semibold text-primary">${p.id}</td>
+    <td><div class="fw-semibold">${escHtml(p.title)}</div><div class="text-muted small">${escHtml(p.description||'').slice(0,60)}…</div></td>
+    <td>${statusBadge(p.status)}</td>
+    <td>${priBadge(p.priority)}</td>
+    <td>${escHtml(p.category||'')}</td>
+    <td class="small">${escHtml(p.related_incidents||'—')}</td>
+    <td>${escHtml(p.assignee||'—')}</td>
+    <td>${p.workaround?'<span class="badge bg-success">Yes</span>':'<span class="badge bg-secondary">No</span>'}</td>
+    <td><button class="btn btn-outline-secondary btn-sm py-0" onclick="event.stopPropagation();openProblemModal('${p.id}')">Edit</button></td>
+  </tr>`).join(''):'<tr><td colspan="9" class="text-center text-muted py-4">No problems found.</td></tr>';
+}
+let _prbModalBS=null;
+function openProblemModal(id){
+  if(!_prbModalBS)_prbModalBS=new bootstrap.Modal(document.getElementById('problemModal'));
+  const p=id?(DB.problems||[]).find(x=>x.id===id):null;
+  document.getElementById('prb-id').value=p?p.id:'';
+  document.getElementById('prb-title').value=p?p.title:'';
+  document.getElementById('prb-status').value=p?p.status:'open';
+  document.getElementById('prb-priority').value=p?p.priority:'P3';
+  document.getElementById('prb-category').value=p?p.category:'Network';
+  document.getElementById('prb-assignee').value=p?p.assignee||'':'';
+  document.getElementById('prb-incidents').value=p?p.related_incidents||'':'';
+  document.getElementById('prb-description').value=p?p.description||'':'';
+  document.getElementById('prb-root-cause').value=p?p.root_cause||'':'';
+  document.getElementById('prb-workaround').value=p?p.workaround||'':'';
+  document.getElementById('prb-solution').value=p?p.solution||'':'';
+  const keBtn=document.getElementById('prb-ke-btn');
+  if(keBtn)keBtn.style.display=(p&&p.status!=='known-error'&&p.status!=='resolved'&&p.status!=='closed')?'':'none';
+  const delBtn=document.getElementById('prb-del-btn');
+  if(delBtn)delBtn.style.display=p?'':'none';
+  _prbModalBS.show();
+}
+function saveProblem(){
+  const id=document.getElementById('prb-id').value;
+  const title=document.getElementById('prb-title').value.trim();
+  if(!title)return alert('Title required.');
+  const existing=id?(DB.problems||[]).find(x=>x.id===id):null;
+  const obj={id:id||prbId(),title,status:document.getElementById('prb-status').value,priority:document.getElementById('prb-priority').value,category:document.getElementById('prb-category').value,assignee:document.getElementById('prb-assignee').value.trim(),related_incidents:document.getElementById('prb-incidents').value.trim(),description:document.getElementById('prb-description').value.trim(),root_cause:document.getElementById('prb-root-cause').value.trim(),workaround:document.getElementById('prb-workaround').value.trim(),solution:document.getElementById('prb-solution').value.trim(),created:existing?existing.created:new Date().toISOString()};
+  if(!DB.problems)DB.problems=[];
+  if(id){const idx=DB.problems.findIndex(x=>x.id===id);if(idx>-1)DB.problems[idx]=obj;}else DB.problems.push(obj);
+  logActivity('Problems',id?`Updated ${obj.id}`:` Created ${obj.id}: ${obj.title}`);
+  dbSave();
+  bootstrap.Modal.getInstance(document.getElementById('problemModal')).hide();
+  if(_currentMod==='problems')renderProblems();
+}
+function markKnownError(){
+  const id=document.getElementById('prb-id').value;
+  document.getElementById('prb-status').value='known-error';
+  saveProblem();
+}
+
+/* ══ CMDB ══ */
+function renderCMDB(){
+  let items=DB.cmdb||[];
+  const ft=document.getElementById('ci-filter-type')?.value;
+  const fe=document.getElementById('ci-filter-env')?.value;
+  const fs=document.getElementById('ci-filter-status')?.value;
+  const q=document.getElementById('ci-search')?.value.toLowerCase();
+  if(ft)items=items.filter(c=>c.type===ft);
+  if(fe)items=items.filter(c=>c.env===fe);
+  if(fs)items=items.filter(c=>c.status===fs);
+  if(q)items=items.filter(c=>(c.name+c.owner+c.ip+c.os).toLowerCase().includes(q));
+  document.getElementById('ci-tbody').innerHTML=items.length?items.map(c=>{
+    const openInc=(DB.incidents||[]).filter(i=>i.ci===c.id&&!['resolved','closed'].includes(i.status)).length;
+    return`<tr style="cursor:pointer" onclick="openCIModal('${c.id}')">
+      <td>${ciTypeIcon(c.type)}</td>
+      <td><div class="fw-semibold">${escHtml(c.name)}</div><div class="text-muted small">${escHtml(c.notes||'').slice(0,50)}</div></td>
+      <td><span class="badge bg-secondary">${c.type}</span></td>
+      <td>${escHtml(c.env||'—')}</td>
+      <td>${statusBadge(c.status?.toLowerCase().replace(' ','-')||'active')}</td>
+      <td>${escHtml(c.owner||'—')}</td>
+      <td class="small">${escHtml(c.ip||'—')}</td>
+      <td class="small">${escHtml(c.location||'—')}</td>
+      <td>${openInc?`<span class="badge bg-danger">${openInc}</span>`:'<span class="text-muted">—</span>'}</td>
+      <td><button class="btn btn-outline-secondary btn-sm py-0" onclick="event.stopPropagation();openCIModal('${c.id}')">Edit</button></td>
+    </tr>`;}).join(''):'<tr><td colspan="10" class="text-center text-muted py-4">No CIs found.</td></tr>';
+}
+let _ciModalBS=null;
+function openCIModal(id){
+  if(!_ciModalBS)_ciModalBS=new bootstrap.Modal(document.getElementById('ciModal'));
+  const c=id?(DB.cmdb||[]).find(x=>x.id===id):null;
+  document.getElementById('ci-id').value=c?c.id:'';
+  document.getElementById('ci-name').value=c?c.name:'';
+  document.getElementById('ci-type').value=c?c.type:'Server';
+  document.getElementById('ci-env').value=c?c.env:'Production';
+  document.getElementById('ci-status').value=c?c.status:'Active';
+  document.getElementById('ci-criticality').value=c?c.criticality:'Medium';
+  document.getElementById('ci-owner').value=c?c.owner||'':'';
+  document.getElementById('ci-ip').value=c?c.ip||'':'';
+  document.getElementById('ci-os').value=c?c.os||'':'';
+  document.getElementById('ci-location').value=c?c.location||'':'';
+  document.getElementById('ci-related').value=c?c.related||'':'';
+  document.getElementById('ci-notes').value=c?c.notes||'':'';
+  const delBtn=document.getElementById('ci-del-btn');
+  if(delBtn)delBtn.style.display=c?'':'none';
+  _ciModalBS.show();
+}
+function saveCI(){
+  const id=document.getElementById('ci-id').value;
+  const name=document.getElementById('ci-name').value.trim();
+  if(!name)return alert('Name required.');
+  const existing=id?(DB.cmdb||[]).find(x=>x.id===id):null;
+  const obj={id:id||uid(),name,type:document.getElementById('ci-type').value,env:document.getElementById('ci-env').value,status:document.getElementById('ci-status').value,criticality:document.getElementById('ci-criticality').value,owner:document.getElementById('ci-owner').value.trim(),ip:document.getElementById('ci-ip').value.trim(),os:document.getElementById('ci-os').value.trim(),location:document.getElementById('ci-location').value.trim(),related:document.getElementById('ci-related').value.trim(),notes:document.getElementById('ci-notes').value.trim(),created:existing?existing.created:new Date().toISOString()};
+  if(!DB.cmdb)DB.cmdb=[];
+  if(id){const idx=DB.cmdb.findIndex(x=>x.id===id);if(idx>-1)DB.cmdb[idx]=obj;}else DB.cmdb.push(obj);
+  logActivity('CMDB',id?`Updated CI: ${name}`:` Added CI: ${name}`);
+  dbSave();
+  bootstrap.Modal.getInstance(document.getElementById('ciModal')).hide();
+  if(_currentMod==='cmdb')renderCMDB();
+}
+
+/* ══ KNOWLEDGE BASE ══ */
+function renderKnowledge(){
+  let items=DB.knowledge||[];
+  const q=document.getElementById('kb-search')?.value.toLowerCase();
+  const fc=document.getElementById('kb-filter-cat')?.value;
+  const fs=document.getElementById('kb-filter-status')?.value;
+  if(q)items=items.filter(a=>(a.title+a.tags+a.content+a.category).toLowerCase().includes(q));
+  if(fc)items=items.filter(a=>a.category===fc);
+  if(fs)items=items.filter(a=>a.status===fs);
+  items.sort((a,b)=>b.updated.localeCompare(a.updated));
+  const catColors={Network:'#dbeafe','Access & Identity':'#fce7f3',Email:'#d1fae5',Hardware:'#fef3c7',Applications:'#ede9fe',Security:'#fee2e2',Onboarding:'#e0f2fe','How-To':'#f0fdf4'};
+  document.getElementById('kb-grid').innerHTML=items.length?items.map(a=>`
+    <div class="col-md-6 col-lg-4">
+      <div class="kb-card h-100" onclick="viewArticle('${a.id}')">
+        <div class="d-flex align-items-start justify-content-between mb-2">
+          <span class="badge rounded-pill" style="background:${catColors[a.category]||'#f3f4f6'};color:#374151">${escHtml(a.category)}</span>
+          ${a.status==='draft'?'<span class="badge bg-secondary">Draft</span>':''}
+        </div>
+        <div class="fw-bold mb-1">${escHtml(a.title)}</div>
+        <div class="text-muted small mb-2">${escHtml((a.content||'').slice(0,100))}…</div>
+        <div class="d-flex justify-content-between small text-muted mt-auto">
+          <span>👁 ${a.views||0} views</span>
+          <span>Updated ${fmtDate(a.updated)}</span>
+        </div>
+        <div class="mt-2 d-flex gap-1 flex-wrap">${(a.tags||'').split(',').filter(t=>t.trim()).map(t=>`<span class="badge bg-light text-dark border">${escHtml(t.trim())}</span>`).join('')}</div>
+      </div>
+    </div>`).join(''):'<div class="col-12 text-center text-muted py-5">No articles found.</div>';
+}
+let _artModalBS=null,_artViewModalBS=null;
+function openArticleModal(id){
+  if(!_artModalBS)_artModalBS=new bootstrap.Modal(document.getElementById('articleModal'));
+  const a=id?(DB.knowledge||[]).find(x=>x.id===id):null;
+  document.getElementById('art-id').value=a?a.id:'';
+  document.getElementById('art-title').value=a?a.title:'';
+  document.getElementById('art-category').value=a?a.category:'How-To';
+  document.getElementById('art-status').value=a?a.status:'published';
+  document.getElementById('art-author').value=a?a.author||'':'';
+  document.getElementById('art-tags').value=a?a.tags||'':'';
+  document.getElementById('art-content').value=a?a.content||'':'';
+  const delBtn=document.getElementById('art-del-btn');
+  if(delBtn)delBtn.style.display=a?'':'none';
+  _artModalBS.show();
+}
+function viewArticle(id){
+  if(!_artViewModalBS)_artViewModalBS=new bootstrap.Modal(document.getElementById('articleViewModal'));
+  const a=(DB.knowledge||[]).find(x=>x.id===id);
+  if(!a)return;
+  a.views=(a.views||0)+1;dbSave();
+  document.getElementById('art-view-title').textContent=a.title;
+  document.getElementById('art-view-meta').innerHTML=`<span>📂 ${escHtml(a.category)}</span><span>✍️ ${escHtml(a.author||'Unknown')}</span><span>📅 ${fmtDate(a.updated)}</span>`;
+  document.getElementById('art-view-views').textContent=`👁 ${a.views} views`;
+  document.getElementById('art-view-body').textContent=a.content||'';
+  document.getElementById('art-view-edit-btn').onclick=()=>{_artViewModalBS.hide();openArticleModal(id);};
+  _artViewModalBS.show();
+}
+function saveArticle(){
+  const id=document.getElementById('art-id').value;
+  const title=document.getElementById('art-title').value.trim();
+  if(!title)return alert('Title required.');
+  const existing=id?(DB.knowledge||[]).find(x=>x.id===id):null;
+  const obj={id:id||uid(),title,category:document.getElementById('art-category').value,status:document.getElementById('art-status').value,author:document.getElementById('art-author').value.trim(),tags:document.getElementById('art-tags').value.trim(),content:document.getElementById('art-content').value.trim(),views:existing?existing.views||0:0,created:existing?existing.created:new Date().toISOString(),updated:new Date().toISOString()};
+  if(!DB.knowledge)DB.knowledge=[];
+  if(id){const idx=DB.knowledge.findIndex(x=>x.id===id);if(idx>-1)DB.knowledge[idx]=obj;}else DB.knowledge.push(obj);
+  logActivity('Knowledge',id?`Updated article: ${title}`:` Created article: ${title}`);
+  dbSave();
+  bootstrap.Modal.getInstance(document.getElementById('articleModal')).hide();
+  if(_currentMod==='knowledge')renderKnowledge();
+}
+
+/* ══ SERVICE CATALOG ══ */
+function renderCatalog(){
+  let items=DB.catalog||[];
+  const q=document.getElementById('cat-search')?.value.toLowerCase();
+  const fc=document.getElementById('cat-filter-cat')?.value;
+  if(q)items=items.filter(s=>(s.name+s.desc+s.category).toLowerCase().includes(q));
+  if(fc)items=items.filter(s=>s.category===fc);
+  const catColors={'IT Infrastructure':'#dbeafe','Access & Identity':'#fce7f3','Hardware & Devices':'#fef3c7',Software:'#ede9fe',Communication:'#d1fae5',Security:'#fee2e2'};
+  document.getElementById('cat-grid').innerHTML=items.length?items.map(s=>`
+    <div class="col-md-6 col-lg-4 col-xl-3">
+      <div class="cat-card h-100 d-flex flex-column">
+        <div class="d-flex align-items-center gap-3 mb-2">
+          <div style="font-size:2rem">${s.icon||'📋'}</div>
+          <div><div class="fw-bold">${escHtml(s.name)}</div><span class="badge rounded-pill small" style="background:${catColors[s.category]||'#f3f4f6'};color:#374151">${escHtml(s.category)}</span></div>
+        </div>
+        <div class="text-muted small mb-3 flex-grow-1">${escHtml(s.desc||'')}</div>
+        <div class="d-flex justify-content-between small text-muted mb-3">
+          <span>⏱ ${escHtml(s.sla||'SLA varies')}</span>
+          <span>👤 ${escHtml(s.owner||'IT')}</span>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-primary btn-sm flex-grow-1" onclick="raiseRequest('${s.id}')">Request Now</button>
+          <button class="btn btn-outline-secondary btn-sm" onclick="openCatalogModal('${s.id}')"><i class="bi bi-pencil"></i></button>
+        </div>
+      </div>
+    </div>`).join(''):'<div class="col-12 text-center text-muted py-5">No services found.</div>';
+}
+function raiseRequest(catalogId){
+  const s=(DB.catalog||[]).find(x=>x.id===catalogId);
+  if(!s)return;
+  s.requests=(s.requests||0)+1;dbSave();
+  openRequestModal(null,s.name);
+}
+let _catModalBS=null;
+function openCatalogModal(id){
+  if(!_catModalBS)_catModalBS=new bootstrap.Modal(document.getElementById('catalogModal'));
+  const s=id?(DB.catalog||[]).find(x=>x.id===id):null;
+  document.getElementById('cat-id').value=s?s.id:'';
+  document.getElementById('cat-name').value=s?s.name:'';
+  document.getElementById('cat-category').value=s?s.category:'IT Infrastructure';
+  document.getElementById('cat-desc').value=s?s.desc||'':'';
+  document.getElementById('cat-sla').value=s?s.sla||'':'';
+  document.getElementById('cat-owner').value=s?s.owner||'':'';
+  document.getElementById('cat-status').value=s?s.status:'active';
+  document.getElementById('cat-icon').value=s?s.icon||'':'';
+  const delBtn=document.getElementById('cat-del-btn');
+  if(delBtn)delBtn.style.display=s?'':'none';
+  _catModalBS.show();
+}
+function saveCatalog(){
+  const id=document.getElementById('cat-id').value;
+  const name=document.getElementById('cat-name').value.trim();
+  if(!name)return alert('Name required.');
+  const existing=id?(DB.catalog||[]).find(x=>x.id===id):null;
+  const obj={id:id||uid(),name,category:document.getElementById('cat-category').value,desc:document.getElementById('cat-desc').value.trim(),sla:document.getElementById('cat-sla').value.trim(),owner:document.getElementById('cat-owner').value.trim(),status:document.getElementById('cat-status').value,icon:document.getElementById('cat-icon').value.trim()||'📋',requests:existing?existing.requests||0:0};
+  if(!DB.catalog)DB.catalog=[];
+  if(id){const idx=DB.catalog.findIndex(x=>x.id===id);if(idx>-1)DB.catalog[idx]=obj;}else DB.catalog.push(obj);
+  logActivity('Catalog',id?`Updated service: ${name}`:` Added service: ${name}`);
+  dbSave();
+  bootstrap.Modal.getInstance(document.getElementById('catalogModal')).hide();
+  if(_currentMod==='catalog')renderCatalog();
+}
+
+/* ══ SLA MANAGEMENT ══ */
+function renderSLA(){
+  const slas=DB.sla||[];
+  const inc=DB.incidents||[];
+  // compliance per priority
+  const strip=slas.map(s=>{
+    const resolved=inc.filter(i=>i.priority===s.priority&&['resolved','closed'].includes(i.status));
+    let met=0;resolved.forEach(i=>{const si=getSlaInfo(i);if(si&&si.status==='met')met++;});
+    const pct=resolved.length?Math.round(met/resolved.length*100):100;
+    const color=pct>=s.target_pct?'success':pct>=s.target_pct-10?'warning':'danger';
+    return`<div class="col-md-3"><div class="stat-card text-center"><div class="fw-bold mb-1">${escHtml(s.name)}</div><div class="fs-2 fw-bold text-${color}">${pct}%</div><div class="small text-muted">Target: ${s.target_pct}%</div><div class="sla-bar mt-2"><div class="sla-bar-fill bg-${color}" style="width:${pct}%"></div></div></div></div>`;
+  }).join('');
+  document.getElementById('sla-compliance-strip').innerHTML=strip;
+  document.getElementById('sla-tbody').innerHTML=slas.length?slas.map(s=>{
+    const resolved=inc.filter(i=>i.priority===s.priority&&['resolved','closed'].includes(i.status));
+    let met=0;resolved.forEach(i=>{const si=getSlaInfo(i);if(si&&si.status==='met')met++;});
+    const pct=resolved.length?Math.round(met/resolved.length*100):100;
+    const color=pct>=s.target_pct?'success':pct>=s.target_pct-10?'warning':'danger';
+    return`<tr onclick="openSlaModal('${s.id}')" style="cursor:pointer">
+      <td class="fw-semibold">${escHtml(s.name)}</td>
+      <td>${priBadge(s.priority)}</td>
+      <td>${s.response_hours<1?Math.round(s.response_hours*60)+' min':s.response_hours+'h'}</td>
+      <td>${s.resolution_hours+'h'}</td>
+      <td>${s.target_pct}%</td>
+      <td class="text-${color} fw-bold">${pct}%</td>
+      <td><div class="sla-bar" style="width:100px"><div class="sla-bar-fill bg-${color}" style="width:${pct}%"></div></div></td>
+      <td><span class="badge bg-${s.active?'success':'secondary'}">${s.active?'Active':'Inactive'}</span></td>
+      <td><button class="btn btn-outline-secondary btn-sm py-0" onclick="event.stopPropagation();openSlaModal('${s.id}')">Edit</button></td>
+    </tr>`;}).join(''):'<tr><td colspan="9" class="text-center text-muted py-4">No SLAs defined.</td></tr>';
+}
+let _slaModalBS=null;
+function openSlaModal(id){
+  if(!_slaModalBS)_slaModalBS=new bootstrap.Modal(document.getElementById('slaModal'));
+  const s=id?(DB.sla||[]).find(x=>x.id===id):null;
+  document.getElementById('sla-id').value=s?s.id:'';
+  document.getElementById('sla-name').value=s?s.name:'';
+  document.getElementById('sla-priority').value=s?s.priority:'P3';
+  document.getElementById('sla-response').value=s?s.response_hours:'';
+  document.getElementById('sla-resolution').value=s?s.resolution_hours:'';
+  document.getElementById('sla-target-pct').value=s?s.target_pct:99;
+  document.getElementById('sla-active').checked=s?s.active!==false:true;
+  const delBtn=document.getElementById('sla-del-btn');
+  if(delBtn)delBtn.style.display=s?'':'none';
+  _slaModalBS.show();
+}
+function saveSla(){
+  const id=document.getElementById('sla-id').value;
+  const name=document.getElementById('sla-name').value.trim();
+  if(!name)return alert('Name required.');
+  const obj={id:id||uid(),name,priority:document.getElementById('sla-priority').value,response_hours:Number(document.getElementById('sla-response').value)||1,resolution_hours:Number(document.getElementById('sla-resolution').value)||8,target_pct:Number(document.getElementById('sla-target-pct').value)||95,active:document.getElementById('sla-active').checked};
+  if(!DB.sla)DB.sla=[];
+  if(id){const idx=DB.sla.findIndex(x=>x.id===id);if(idx>-1)DB.sla[idx]=obj;}else DB.sla.push(obj);
+  logActivity('SLA',id?`Updated SLA: ${name}`:` Added SLA: ${name}`);
+  dbSave();
+  bootstrap.Modal.getInstance(document.getElementById('slaModal')).hide();
+  if(_currentMod==='sla')renderSLA();
+}
+
+/* ══ REPORTS ══ */
+function renderReports(){
+  const inc=DB.incidents||[];const chg=DB.changes||[];const prb=DB.problems||[];
+  // incidents by category
+  const cats={};inc.forEach(i=>{cats[i.category]=(cats[i.category]||0)+1;});
+  destroyChart('rpt-cat-chart');
+  new Chart(document.getElementById('rpt-cat-chart'),{type:'bar',data:{labels:Object.keys(cats),datasets:[{label:'Incidents',data:Object.values(cats),backgroundColor:'#818cf8',borderRadius:4}]},options:{plugins:{legend:{display:false}},scales:{y:{ticks:{stepSize:1}}},animation:{duration:400}}});
+  // changes by type
+  const chgTypes={Standard:0,Normal:0,Emergency:0};chg.forEach(c=>{if(chgTypes[c.type]!=null)chgTypes[c.type]++;});
+  destroyChart('rpt-chg-chart');
+  new Chart(document.getElementById('rpt-chg-chart'),{type:'doughnut',data:{labels:Object.keys(chgTypes),datasets:[{data:Object.values(chgTypes),backgroundColor:['#16a34a','#2563eb','#dc2626'],borderWidth:0}]},options:{plugins:{legend:{position:'right'}},cutout:'60%',animation:{duration:400}}});
+  // SLA compliance by priority
+  const slas=DB.sla||[];
+  const slaLabels=[];const slaData=[];const slaColors=[];
+  slas.forEach(s=>{
+    const resolved=inc.filter(i=>i.priority===s.priority&&['resolved','closed'].includes(i.status));
+    let met=0;resolved.forEach(i=>{const si=getSlaInfo(i);if(si&&si.status==='met')met++;});
+    const pct=resolved.length?Math.round(met/resolved.length*100):100;
+    slaLabels.push(s.priority);slaData.push(pct);
+    slaColors.push(pct>=s.target_pct?'#16a34a':pct>=s.target_pct-10?'#d97706':'#dc2626');
+  });
+  destroyChart('rpt-sla-chart');
+  new Chart(document.getElementById('rpt-sla-chart'),{type:'bar',data:{labels:slaLabels,datasets:[{label:'Compliance %',data:slaData,backgroundColor:slaColors,borderRadius:4}]},options:{plugins:{legend:{display:false}},scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%'}}},animation:{duration:400}}});
+  // problems by status
+  const pStatuses={};prb.forEach(p=>{pStatuses[p.status]=(pStatuses[p.status]||0)+1;});
+  destroyChart('rpt-prb-chart');
+  new Chart(document.getElementById('rpt-prb-chart'),{type:'doughnut',data:{labels:Object.keys(pStatuses),datasets:[{data:Object.values(pStatuses),backgroundColor:['#dc2626','#d97706','#ca8a04','#16a34a','#6b7280'],borderWidth:0}]},options:{plugins:{legend:{position:'right'}},cutout:'60%',animation:{duration:400}}});
+}
+
+/* ══ ACTIVITY ══ */
+function renderActivity(){
+  const log=DB.activityLog||[];
+  document.getElementById('activity-tbody').innerHTML=log.length?log.map(l=>`<tr><td class="small text-muted text-nowrap">${fmtDateTime(l.at)}</td><td><span class="badge bg-secondary">${escHtml(l.module)}</span></td><td>${escHtml(l.msg)}</td></tr>`).join(''):'<tr><td colspan="3" class="text-center text-muted py-4">No activity logged yet.</td></tr>';
+}
+
+/* ══ SETTINGS ══ */
+function renderSettingsPage(){
+  document.getElementById('set-org').value=(DB.settings||{}).org||'HelixCorp';
+  document.getElementById('set-group').value=(DB.settings||{}).group||'Service Desk';
+}
+function saveSettings(){
+  if(!DB.settings)DB.settings={};
+  DB.settings.org=document.getElementById('set-org').value.trim()||'HelixCorp';
+  DB.settings.group=document.getElementById('set-group').value.trim()||'Service Desk';
+  dbSave();
+  document.getElementById('topbar-org').textContent=DB.settings.org;
+  alert('Settings saved.');
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='helixsm-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();
+}
+function resetData(){
+  if(!confirm('Reset ALL data to defaults? This cannot be undone.'))return;
+  localStorage.removeItem('helixsm_db');
+  DB={incidents:[],requests:[],changes:[],problems:[],cmdb:[],knowledge:[],catalog:[],sla:[],activityLog:[],settings:{org:'HelixCorp',group:'Service Desk'}};
+  seedData();
+  navigate('dashboard');
+}
+
+/* ══ UNIVERSAL DELETE ══ */
+function deleteRecord(type){
+  if(!confirm('Delete this record?'))return;
+  const modalMap={incident:'incidentModal',request:'requestModal',change:'changeModal',problem:'problemModal',ci:'ciModal',article:'articleModal',catalog:'catalogModal',sla:'slaModal'};
+  const idMap={incident:'inc-id',request:'req-id',change:'chg-id',problem:'prb-id',ci:'ci-id',article:'art-id',catalog:'cat-id',sla:'sla-id'};
+  const dbMap={incident:'incidents',request:'requests',change:'changes',problem:'problems',ci:'cmdb',article:'knowledge',catalog:'catalog',sla:'sla'};
+  const id=document.getElementById(idMap[type])?.value;
+  if(!id)return;
+  DB[dbMap[type]]=(DB[dbMap[type]]||[]).filter(x=>x.id!==id);
+  logActivity(type,'Deleted record: '+id);dbSave();
+  const m=bootstrap.Modal.getInstance(document.getElementById(modalMap[type]));
+  if(m)m.hide();
+  renderModule(_currentMod);
+}
+
+/* ══ BOOT ══ */
+document.addEventListener('DOMContentLoaded',()=>{
+  initDB();
+  document.getElementById('topbar-org').textContent=(DB.settings||{}).org||'HelixCorp';
+  document.querySelectorAll('.nav-link[data-mod]').forEach(a=>{
+    a.addEventListener('click',e=>{e.preventDefault();navigate(a.dataset.mod);});
+  });
+  navigate('dashboard');
+});
+</script>
+</body>
+</html>
+
