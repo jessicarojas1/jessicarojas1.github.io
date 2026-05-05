@@ -9,9 +9,10 @@
   <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
   <link rel="icon" href="favicon.ico" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="theme.css" />
-  <title>CMMI v2.0 — ML2 to ML5 All Domains | Jessica Rojas</title>
-  <meta name="description" content="Complete CMMI v2.0 ML2–ML5 practice framework — all 25 Practice Areas (Core + Development + Services), 174 Practices, filterable by level and domain, with downloadable Excel checklist." />
+  <title>CMMI v2.0 DEV ML3 — Practice Reference | Jessica Rojas</title>
+  <meta name="description" content="Complete CMMI v2.0 for Development Maturity Level 3 reference — 19 Practice Areas, enriched with practice statements, elaborations, and compliance examples per practice. Filter, search, and export to Excel." />
   <style>
     .level-badge-ml2  { background: rgba(13,110,253,.15); color:#6ea8fe; border:1px solid rgba(13,110,253,.3); }
     .level-badge-ml3  { background: rgba(25,135,84,.15);  color:#75b798; border:1px solid rgba(25,135,84,.3);  }
@@ -23,6 +24,10 @@
     #ctrl-count { font-size:.8rem; }
     .stat-card .num { font-size:2rem; font-weight:700; line-height:1; }
     .stat-card .lbl { font-size:.78rem; color:var(--bs-secondary-color); }
+    .practice-row:hover td { background: rgba(var(--bs-primary-rgb),.06); }
+    .detail-row td { background: rgba(var(--bs-body-color-rgb),.02) !important; }
+    .expand-icon { transition: transform .2s ease; font-size:.8rem; }
+    .practice-row[aria-expanded="true"] .expand-icon { transform: rotate(90deg); }
   </style>
 </head>
 <body>
@@ -69,13 +74,13 @@
     <!-- Hero -->
     <section class="hero-section">
       <div class="container text-center">
-        <h1 class="display-5 fw-bold">CMMI v2.0 — ML2 through ML5</h1>
-        <p class="lead mb-3">Complete CMMI v2.0 framework — ML2 through ML5, all 25 Practice Areas and 174 Practices. Filter by level, domain, or keyword.</p>
+        <h1 class="display-5 fw-bold">CMMI v2.0 — DEV Maturity Level 3</h1>
+        <p class="lead mb-3">Complete ML3 Development reference — 19 Practice Areas, every Practice enriched with the CMMI practice statement, elaboration, and concrete compliance examples. Filter, search, click any row to expand.</p>
         <div class="d-flex justify-content-center gap-2 flex-wrap">
           <span class="badge bg-primary px-3 py-2">CMMI v2.0</span>
-          <span class="badge bg-success px-3 py-2">ML2 → ML5</span>
-          <span class="badge bg-warning text-dark px-3 py-2">25 Practice Areas</span>
-          <span class="badge bg-secondary px-3 py-2">All Domains</span>
+          <span class="badge bg-success px-3 py-2">ML3 Defined</span>
+          <span class="badge bg-warning text-dark px-3 py-2">19 Practice Areas</span>
+          <span class="badge bg-secondary px-3 py-2">DEV + Core</span>
         </div>
       </div>
     </section>
@@ -86,7 +91,7 @@
         <div class="col-6 col-md-4 col-lg-2">
           <div class="card text-center stat-card h-100">
             <div class="card-body py-3">
-              <div class="num text-primary" id="stat-total">174</div>
+              <div class="num text-primary" id="stat-total">—</div>
               <div class="lbl">Total Practices</div>
             </div>
           </div>
@@ -94,7 +99,7 @@
         <div class="col-6 col-md-4 col-lg-2">
           <div class="card text-center stat-card h-100">
             <div class="card-body py-3">
-              <div class="num" id="stat-ml2">76</div>
+              <div class="num" id="stat-ml2">—</div>
               <div class="lbl">ML2 Managed</div>
             </div>
           </div>
@@ -102,7 +107,7 @@
         <div class="col-6 col-md-4 col-lg-2">
           <div class="card text-center stat-card h-100">
             <div class="card-body py-3">
-              <div class="num text-success" id="stat-ml3">86</div>
+              <div class="num text-success" id="stat-ml3">—</div>
               <div class="lbl">ML3 Defined</div>
             </div>
           </div>
@@ -126,7 +131,7 @@
         <div class="col-6 col-md-4 col-lg-2">
           <div class="card text-center stat-card h-100">
             <div class="card-body py-3">
-              <div class="num text-warning" id="stat-pas">25</div>
+              <div class="num text-warning" id="stat-pas">—</div>
               <div class="lbl">Practice Areas</div>
             </div>
           </div>
@@ -139,7 +144,7 @@
       <div class="row g-2 align-items-end">
         <div class="col-md-4">
           <label class="form-label small fw-semibold mb-1">Search</label>
-          <input type="search" id="ctrl-search" class="form-control form-control-sm" placeholder="Practice (CAR 1.1), description, Practice Area…" autocomplete="off" />
+          <input type="search" id="ctrl-search" class="form-control form-control-sm" placeholder="CAR 1.1, practice statement, elaboration, PA name…" autocomplete="off" />
         </div>
         <div class="col-6 col-md-2">
           <label class="form-label small fw-semibold mb-1">Practice Area</label>
@@ -192,26 +197,26 @@
         <div class="col-md-6">
           <div class="card h-100">
             <div class="card-body">
-              <h2 class="h5 fw-bold mb-3">&#128218; About CMMI v2.0 — ML2 Through ML5</h2>
-              <p class="small text-secondary mb-2">CMMI v2.0 (2018) reorganizes practices into Practice Areas and Practice Groups. Core PAs apply to all domains; Development and Services PAs layer on top. ML4 and ML5 are Core-only — quantitative management and optimization are universal capabilities.</p>
-              <p class="small text-secondary mb-2"><strong>ML2 Managed:</strong> 11 PAs — 7 Core (CM, GOV, II, MC, MPM, PLAN, PQA) + RDM (Dev) + SD, IRP (Svc) + SAM (optional) — 76 practices.</p>
-              <p class="small text-secondary mb-2"><strong>ML3 Defined:</strong> 13 PAs — 7 Core (CAR, DAR, EST, OT, PAD, PCM, RSK) + TS, PI, VV, PR (Dev) + STSM, SSD (Svc) — 86 practices.</p>
-              <p class="small text-secondary mb-2"><strong>ML4 Quantitatively Managed:</strong> OPM (Core) — statistical process control, quantitative objectives — 6 practices.</p>
-              <p class="small text-secondary mb-0"><strong>ML5 Optimizing:</strong> OPM continued — innovation identification, prioritization, deployment, and sustainability — 6 practices.</p>
+              <h2 class="h5 fw-bold mb-3">&#128218; About This Reference — CMMI v2.0 DEV ML3</h2>
+              <p class="small text-secondary mb-2">CMMI v2.0 (2018) organizes practices into Practice Areas and Practice Groups. This reference covers all 19 Practice Areas required for a Development ML3 appraisal — 7 ML2 Core PAs, 4 ML2 Dev PAs (incl. SAM), 7 ML3 Core PAs, and 4 ML3 Dev PAs — each enriched with the CMMI practice statement, elaboration, and concrete compliance examples.</p>
+              <p class="small text-secondary mb-2"><strong>ML2 Core (7):</strong> CM, GOV, II, MC, MPM, PLAN, PQA — project management and discipline fundamentals required at every level.</p>
+              <p class="small text-secondary mb-2"><strong>ML2 Development (2+1):</strong> RDM (requirements), SAM (supplier agreements — optional but frequently in-scope).</p>
+              <p class="small text-secondary mb-2"><strong>ML3 Core (7):</strong> CAR, DAR, EST, OT, PAD, PCM, RSK — organizational process definition, training, risk, estimation, and improvement.</p>
+              <p class="small text-secondary mb-0"><strong>ML3 Development (4):</strong> TS (technical solution), PI (product integration), VV (verification &amp; validation), PR (peer reviews) — the engineering lifecycle chain appraisers scrutinize most.</p>
             </div>
           </div>
         </div>
         <div class="col-md-6">
           <div class="card h-100">
             <div class="card-body">
-              <h2 class="h5 fw-bold mb-3">&#128196; Excel Output — 10 Sheets</h2>
+              <h2 class="h5 fw-bold mb-3">&#128196; Excel Output — 6 Sheets</h2>
               <ul class="small text-secondary mb-0 ps-3">
-                <li class="mb-1"><strong>All Practices</strong> — complete 174-row master list</li>
-                <li class="mb-1"><strong>ML2 Core / ML2 Dev / ML2 Svc</strong></li>
-                <li class="mb-1"><strong>ML3 Core / ML3 Dev / ML3 Svc</strong></li>
-                <li class="mb-1"><strong>ML4 Quantitative Mgmt</strong> — OPM PG1–3 (6 practices)</li>
-                <li class="mb-1"><strong>ML5 Optimizing</strong> — OPM PG4–5 (6 practices)</li>
-                <li><strong>Evidence Guide</strong> — artifacts + appraiser tips for all 25 PAs</li>
+                <li class="mb-1"><strong>All Practices</strong> — complete master list with practice statement, elaboration, and compliance examples</li>
+                <li class="mb-1"><strong>ML3 Core</strong> — CAR, DAR, EST, OT, PAD, PCM, RSK (all Core)</li>
+                <li class="mb-1"><strong>ML3 Development</strong> — TS, PI, VV, PR (engineering lifecycle)</li>
+                <li class="mb-1"><strong>ML2 Core</strong> — CM, GOV, II, MC, MPM, PLAN, PQA</li>
+                <li class="mb-1"><strong>ML2 Development</strong> — RDM, SAM</li>
+                <li><strong>Evidence Guide</strong> — artifacts + appraiser tips for all 19 PAs</li>
               </ul>
             </div>
           </div>
