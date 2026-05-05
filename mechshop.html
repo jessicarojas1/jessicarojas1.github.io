@@ -1,0 +1,2138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MechPro — Auto Service & Management</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<style>
+/* ── Variables ── */
+:root {
+  --orange: #e85d04;
+  --orange-dark: #c44d00;
+  --orange-bg: rgba(232,93,4,.1);
+  --slate: #1e293b;
+  --slate-mid: #334155;
+  --steel: #f1f5f9;
+  --sidebar-w: 244px;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+
+/* ============================================================
+   BOOKING VIEW
+   ============================================================ */
+#booking-view { background: var(--steel); min-height: 100vh; }
+
+.bk-hero {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #1a3a2a 100%);
+  color: #fff; padding: 3.5rem 1rem 2.5rem; text-align: center; position: relative;
+}
+.bk-hero h1 { font-size: 2.3rem; font-weight: 800; letter-spacing: -1px; margin-bottom: .3rem; }
+.bk-hero h1 span { color: var(--orange); }
+.bk-hero p.tagline { color: rgba(255,255,255,.6); font-size: 1rem; margin-bottom: 1rem; }
+.bk-hero-meta { display: flex; justify-content: center; flex-wrap: wrap; gap: 1.4rem; font-size: .8rem; color: rgba(255,255,255,.42); }
+.bk-hero-meta span { display: flex; align-items: center; gap: 5px; }
+.bk-admin-link {
+  position: absolute; top: 14px; right: 16px;
+  color: rgba(255,255,255,.28); font-size: .75rem; text-decoration: none; transition: color .2s;
+}
+.bk-admin-link:hover { color: rgba(255,255,255,.65); }
+
+.bk-steps { max-width: 800px; margin: 2rem auto; padding: 0 1rem 3rem; }
+
+.step-card {
+  background: #fff; border-radius: 14px; border: 1px solid #e2e8f0;
+  margin-bottom: 1.2rem; overflow: hidden; box-shadow: 0 1px 6px rgba(0,0,0,.04);
+}
+.step-hdr {
+  background: var(--slate); color: #fff; padding: 10px 18px;
+  font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .8px;
+  display: flex; align-items: center; gap: 8px;
+}
+.step-num {
+  width: 22px; height: 22px; border-radius: 50%; background: var(--orange); color: #fff;
+  font-weight: 800; font-size: .75rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.step-body { padding: 18px; }
+
+/* Service grid */
+.svc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)); gap: 10px; }
+.svc-card {
+  border: 2px solid #e2e8f0; border-radius: 10px; padding: 14px; cursor: pointer;
+  transition: all .15s; background: #fff; position: relative;
+}
+.svc-card:hover { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(232,93,4,.1); }
+.svc-card.selected { border-color: var(--orange); background: var(--orange-bg); }
+.svc-card .svc-name { font-weight: 700; font-size: .88rem; color: var(--slate); }
+.svc-card .svc-meta { font-size: .75rem; color: #64748b; margin-top: 3px; }
+.svc-card .svc-price { font-size: 1.05rem; font-weight: 800; color: var(--orange-dark); margin-top: 6px; }
+.svc-chk { position: absolute; top: 8px; right: 10px; color: var(--orange); font-size: 1.1rem; display: none; }
+.svc-card.selected .svc-chk { display: block; }
+
+/* Vehicle fields */
+.vehicle-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 10px; }
+
+/* Mechanic cards */
+.mech-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+.mech-card {
+  border: 2px solid #e2e8f0; border-radius: 10px; padding: 13px 18px;
+  cursor: pointer; transition: all .15s; text-align: center; min-width: 120px;
+}
+.mech-card:hover { border-color: var(--orange); }
+.mech-card.selected { border-color: var(--orange); background: var(--orange-bg); }
+.mech-avatar {
+  width: 44px; height: 44px; border-radius: 50%; background: var(--slate); color: var(--orange);
+  font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px;
+}
+.mech-nm { font-weight: 600; font-size: .88rem; color: var(--slate); }
+.mech-sp { font-size: .7rem; color: #64748b; margin-top: 2px; }
+
+/* Time slots */
+.time-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.time-slot {
+  border: 2px solid #e2e8f0; border-radius: 8px; padding: 7px 14px;
+  cursor: pointer; font-size: .85rem; font-weight: 600; transition: all .15s; background: #fff;
+}
+.time-slot:hover { border-color: var(--orange); }
+.time-slot.selected { background: var(--slate); color: #fff; border-color: var(--slate); }
+.time-slot.unavail { background: #f8fafc; color: #cbd5e1; cursor: not-allowed; text-decoration: line-through; pointer-events: none; }
+
+/* Orange button */
+.btn-orange {
+  background: var(--orange); color: #fff; font-weight: 700; border: none;
+  padding: .7rem 2rem; border-radius: 10px; font-size: 1rem; cursor: pointer;
+  transition: background .15s; display: inline-flex; align-items: center; gap: 7px;
+}
+.btn-orange:hover { background: var(--orange-dark); }
+.btn-orange:disabled { opacity: .5; cursor: not-allowed; }
+
+/* Booking confirm */
+#booking-confirm {
+  background: #fff; border-radius: 14px; border: 1px solid #e2e8f0;
+  padding: 3rem; text-align: center; display: none;
+}
+.confirm-icon { font-size: 3.5rem; color: #16a34a; margin-bottom: 1rem; }
+.confirm-ref { font-size: .75rem; color: #94a3b8; margin-top: .5rem; font-family: monospace; }
+
+/* ============================================================
+   ADMIN LOGIN
+   ============================================================ */
+#admin-login {
+  min-height: 100vh; display: none; background: var(--slate);
+  align-items: center; justify-content: center;
+}
+.login-card {
+  background: #fff; border-radius: 16px; padding: 2.5rem; width: 360px; max-width: 92%;
+  box-shadow: 0 20px 60px rgba(0,0,0,.4);
+}
+.login-logo { font-size: 2.5rem; margin-bottom: 1rem; text-align: center; }
+.login-card h2 { font-weight: 800; color: var(--slate); text-align: center; margin-bottom: .2rem; }
+.login-card p { font-size: .82rem; color: #64748b; text-align: center; margin-bottom: 1.5rem; }
+
+/* ============================================================
+   ADMIN VIEW
+   ============================================================ */
+#admin-view { display: none; min-height: 100vh; }
+
+/* Sidebar */
+#adm-sidebar {
+  width: var(--sidebar-w); min-height: 100vh; background: #0f172a;
+  position: fixed; top: 0; left: 0; z-index: 200;
+  display: flex; flex-direction: column; overflow-y: auto;
+}
+.adm-brand { padding: 20px 16px 12px; border-bottom: 1px solid rgba(255,255,255,.07); }
+.adm-brand .shop-nm { font-size: 1rem; font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.adm-brand .shop-nm span { color: var(--orange); }
+.adm-brand .shop-sub { font-size: .6rem; color: rgba(255,255,255,.28); text-transform: uppercase; letter-spacing: 1.5px; margin-top: 2px; }
+.adm-sect { padding: 12px 16px 3px; font-size: .6rem; color: rgba(255,255,255,.22); text-transform: uppercase; letter-spacing: 2px; }
+.adm-link {
+  color: rgba(255,255,255,.55); padding: 8px 14px; border-radius: 7px; margin: 1px 8px;
+  font-size: .83rem; display: flex; align-items: center; gap: 9px; cursor: pointer;
+  transition: all .13s; border: none; background: none; width: calc(100% - 16px); text-align: left;
+}
+.adm-link:hover { background: rgba(255,255,255,.06); color: #fff; }
+.adm-link.active { background: rgba(232,93,4,.2); color: var(--orange); font-weight: 600; }
+.adm-link .bi { font-size: .9rem; width: 16px; text-align: center; }
+.adm-link .badge { margin-left: auto; font-size: .6rem; padding: 2px 6px; }
+.adm-sidebar-btm { margin-top: auto; padding: 12px 8px; border-top: 1px solid rgba(255,255,255,.07); }
+
+/* Main */
+#adm-main { margin-left: var(--sidebar-w); min-height: 100vh; background: #f1f5f9; }
+#adm-topbar {
+  background: #fff; border-bottom: 1px solid #e2e8f0; padding: 0 24px; height: 54px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 4px rgba(0,0,0,.04);
+}
+#adm-topbar .page-title { font-size: 1.05rem; font-weight: 700; color: var(--slate); }
+#adm-content { padding: 22px 24px; }
+.adm-mod { display: none; }
+.adm-mod.active { display: block; }
+
+/* Stat cards */
+.stat-card { background: #fff; border-radius: 12px; padding: 18px 20px; border: 1px solid #e2e8f0; }
+.stat-val { font-size: 2rem; font-weight: 800; line-height: 1.1; color: var(--slate); }
+.stat-lbl { font-size: .78rem; color: #64748b; font-weight: 500; margin-top: 2px; }
+.stat-ico { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+
+/* Table */
+.tbl-card { background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; }
+.table th { font-size: .72rem; text-transform: uppercase; letter-spacing: .6px; color: #94a3b8; font-weight: 600; border-bottom: 1px solid #f1f5f9; white-space: nowrap; }
+.table td { vertical-align: middle; font-size: .86rem; }
+
+/* Status badges */
+.bpending    { background: #fef3c7; color: #92400e; border-radius: 5px; padding: 2px 8px; font-size: .72rem; font-weight: 600; white-space: nowrap; }
+.bconfirmed  { background: #d1fae5; color: #065f46; border-radius: 5px; padding: 2px 8px; font-size: .72rem; font-weight: 600; white-space: nowrap; }
+.binprogress { background: #dbeafe; color: #1e40af; border-radius: 5px; padding: 2px 8px; font-size: .72rem; font-weight: 600; white-space: nowrap; }
+.bcompleted  { background: #f1f5f9; color: #334155; border-radius: 5px; padding: 2px 8px; font-size: .72rem; font-weight: 600; white-space: nowrap; }
+.bcancelled  { background: #fee2e2; color: #991b1b; border-radius: 5px; padding: 2px 8px; font-size: .72rem; font-weight: 600; white-space: nowrap; }
+.bnoshow     { background: #ede9fe; color: #5b21b6; border-radius: 5px; padding: 2px 8px; font-size: .72rem; font-weight: 600; white-space: nowrap; }
+.bopen       { background: #fff7ed; color: #c2410c; border-radius: 5px; padding: 2px 8px; font-size: .72rem; font-weight: 600; white-space: nowrap; }
+
+/* Filter bar */
+.filter-bar {
+  background: #fff; border-radius: 10px; padding: 12px 16px;
+  margin-bottom: 14px; border: 1px solid #e2e8f0; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+}
+
+/* Hours bar */
+.hrs-bar { height: 9px; border-radius: 5px; background: var(--orange); transition: width .3s; }
+.hrs-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f1f5f9; }
+.hrs-row:last-child { border-bottom: none; }
+
+/* Timer */
+.timer-txt { font-family: monospace; font-size: .9rem; font-weight: 700; color: #1e40af; white-space: nowrap; }
+
+/* Section title */
+.sec-title { font-size: 1rem; font-weight: 700; color: var(--slate); margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; }
+
+/* Mechanic avatar (small, in tables) */
+.mech-ava-sm {
+  width: 30px; height: 30px; border-radius: 50%; background: var(--slate); color: var(--orange);
+  font-weight: 700; font-size: .78rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+
+/* Work order modal */
+.wo-section-title {
+  font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .7px;
+  color: var(--slate); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
+}
+.wo-line-row { display: flex; gap: 6px; align-items: flex-start; margin-bottom: 6px; }
+.wo-total-box {
+  background: var(--slate); color: #fff; border-radius: 10px; padding: 14px 18px;
+  display: flex; justify-content: space-between; align-items: center; margin-top: 12px;
+}
+.wo-total-box .lbl { font-size: .8rem; color: rgba(255,255,255,.6); }
+.wo-total-box .val { font-size: 1.5rem; font-weight: 800; }
+.wo-subtotals { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+.wo-sub { background: #f8fafc; border-radius: 8px; padding: 10px 14px; border: 1px solid #e2e8f0; }
+.wo-sub .sub-lbl { font-size: .72rem; color: #64748b; }
+.wo-sub .sub-val { font-size: 1.1rem; font-weight: 700; color: var(--slate); }
+.modal-content { border-radius: 14px; }
+.modal-header { background: var(--slate); color: #fff; border-radius: 14px 14px 0 0; border-bottom: none; }
+.modal-header .btn-close { filter: invert(1); }
+
+/* Mobile */
+@media (max-width: 768px) {
+  #adm-sidebar { transform: translateX(-100%); transition: transform .25s; }
+  #adm-sidebar.open { transform: translateX(0); }
+  #adm-main { margin-left: 0; }
+  #adm-content { padding: 14px; }
+  .bk-hero h1 { font-size: 1.75rem; }
+  .svc-grid { grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); }
+  .vehicle-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     BOOKING VIEW
+     ============================================================ -->
+<div id="booking-view">
+  <div class="bk-hero">
+    <a class="bk-admin-link" href="#" onclick="showAdminLogin();return false;">
+      <i class="bi bi-gear-fill"></i> Admin
+    </a>
+    <h1 id="hero-name">🔧 <span>MechPro</span></h1>
+    <p class="tagline" id="hero-tagline">Professional auto service — book your appointment online</p>
+    <div class="bk-hero-meta">
+      <span><i class="bi bi-clock"></i> <span id="hero-hours">Mon–Fri 8 AM – 6 PM</span></span>
+      <span><i class="bi bi-telephone"></i> Call us anytime</span>
+      <span><i class="bi bi-shield-check"></i> Certified mechanics</span>
+    </div>
+  </div>
+
+  <div class="bk-steps">
+    <div id="bk-form-area">
+
+      <!-- Step 1: Service -->
+      <div class="step-card">
+        <div class="step-hdr"><span class="step-num">1</span> Select a Service</div>
+        <div class="step-body">
+          <div class="svc-grid" id="svc-grid">
+            <div class="text-muted small">Loading services…</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Vehicle info -->
+      <div class="step-card">
+        <div class="step-hdr"><span class="step-num">2</span> Your Vehicle</div>
+        <div class="step-body">
+          <div class="vehicle-grid">
+            <div>
+              <label class="form-label fw-semibold small">Year *</label>
+              <input type="number" id="bk-veh-year" class="form-control" placeholder="2019" min="1960" max="2026">
+            </div>
+            <div>
+              <label class="form-label fw-semibold small">Make *</label>
+              <input type="text" id="bk-veh-make" class="form-control" placeholder="Toyota">
+            </div>
+            <div>
+              <label class="form-label fw-semibold small">Model *</label>
+              <input type="text" id="bk-veh-model" class="form-control" placeholder="Camry">
+            </div>
+            <div>
+              <label class="form-label fw-semibold small">Mileage (optional)</label>
+              <input type="number" id="bk-veh-miles" class="form-control" placeholder="45000">
+            </div>
+            <div>
+              <label class="form-label fw-semibold small">License Plate (optional)</label>
+              <input type="text" id="bk-veh-plate" class="form-control" placeholder="ABC-1234">
+            </div>
+            <div>
+              <label class="form-label fw-semibold small">VIN (optional)</label>
+              <input type="text" id="bk-veh-vin" class="form-control" placeholder="1HGBH41JXMN109186" maxlength="17">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Mechanic -->
+      <div class="step-card">
+        <div class="step-hdr"><span class="step-num">3</span> Choose a Mechanic</div>
+        <div class="step-body">
+          <div class="mech-grid" id="bk-mech-grid">
+            <div class="text-muted small">Loading mechanics…</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4: Date -->
+      <div class="step-card">
+        <div class="step-hdr"><span class="step-num">4</span> Pick a Date</div>
+        <div class="step-body">
+          <input type="date" id="bk-date" class="form-control" style="max-width:220px;" oninput="updateTimeSlots()">
+        </div>
+      </div>
+
+      <!-- Step 5: Time -->
+      <div class="step-card">
+        <div class="step-hdr"><span class="step-num">5</span> Choose a Time</div>
+        <div class="step-body">
+          <div class="time-grid" id="time-grid">
+            <div class="text-muted small">Complete steps 1–4 above to see available times.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 6: Contact info -->
+      <div class="step-card">
+        <div class="step-hdr"><span class="step-num">6</span> Your Information</div>
+        <div class="step-body">
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <label class="form-label fw-semibold small">Full Name *</label>
+              <input type="text" id="bk-name" class="form-control" placeholder="Jane Smith">
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label fw-semibold small">Phone *</label>
+              <input type="tel" id="bk-phone" class="form-control" placeholder="(555) 000-0000">
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label fw-semibold small">Email (optional)</label>
+              <input type="email" id="bk-email" class="form-control" placeholder="jane@example.com">
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label fw-semibold small">Additional Notes (optional)</label>
+              <input type="text" id="bk-notes" class="form-control" placeholder="Describe any symptoms or concerns">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div id="bk-summary-card" class="step-card" style="display:none">
+        <div class="step-hdr" style="background:var(--orange);">
+          <i class="bi bi-receipt-cutoff"></i> Booking Summary
+        </div>
+        <div class="step-body" id="bk-summary-body"></div>
+      </div>
+
+      <div id="bk-error" class="alert alert-danger" style="display:none;border-radius:10px;"></div>
+
+      <button class="btn-orange w-100" style="justify-content:center;" onclick="submitBooking()">
+        <i class="bi bi-calendar-check-fill"></i> Confirm Appointment
+      </button>
+    </div>
+
+    <!-- Confirmation -->
+    <div id="booking-confirm">
+      <div class="confirm-icon"><i class="bi bi-check-circle-fill"></i></div>
+      <h3 style="color:var(--slate);font-weight:800;">You're booked!</h3>
+      <p class="text-muted" id="confirm-msg"></p>
+      <div class="confirm-ref" id="confirm-ref"></div>
+      <button class="btn-orange mt-4" onclick="resetBooking()">Book Another Appointment</button>
+    </div>
+  </div>
+</div>
+<!-- END BOOKING VIEW -->
+
+<!-- ============================================================
+     ADMIN LOGIN
+     ============================================================ -->
+<div id="admin-login">
+  <div class="login-card">
+    <div class="login-logo">🔧</div>
+    <h2>Admin Login</h2>
+    <p>MechPro Shop Management</p>
+    <div class="mb-3">
+      <label class="form-label fw-semibold small">Password</label>
+      <input type="password" id="adm-pw" class="form-control" placeholder="Enter admin password"
+             onkeydown="if(event.key==='Enter')adminLogin()">
+    </div>
+    <div id="login-err" class="alert alert-danger small py-2" style="display:none;"></div>
+    <button class="btn-orange w-100" style="justify-content:center;" onclick="adminLogin()">Sign In</button>
+    <div class="text-center mt-3">
+      <a href="#" onclick="showBooking();return false;" style="font-size:.82rem;color:#64748b;text-decoration:none;">← Back to Booking</a>
+    </div>
+    <div class="text-center mt-2">
+      <span style="font-size:.72rem;color:#94a3b8;">Default password: <code>admin123</code></span>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     ADMIN VIEW
+     ============================================================ -->
+<div id="admin-view">
+
+  <!-- Sidebar -->
+  <nav id="adm-sidebar">
+    <div class="adm-brand">
+      <div class="shop-nm" id="adm-nm">🔧 <span>MechPro</span></div>
+      <div class="shop-sub">Admin Dashboard</div>
+    </div>
+
+    <div class="adm-sect">Overview</div>
+    <button class="adm-link active" data-mod="dashboard" onclick="showMod('dashboard',this)">
+      <i class="bi bi-grid-1x2-fill"></i> Dashboard
+    </button>
+
+    <div class="adm-sect">Appointments</div>
+    <button class="adm-link" data-mod="appointments" onclick="showMod('appointments',this)">
+      <i class="bi bi-calendar3"></i> All Appointments
+      <span class="badge bg-warning text-dark" id="sb-pending-badge" style="display:none"></span>
+    </button>
+    <button class="adm-link" data-mod="add-appt" onclick="showMod('add-appt',this)">
+      <i class="bi bi-plus-circle-fill"></i> Add Appointment
+    </button>
+
+    <div class="adm-sect">Work Orders</div>
+    <button class="adm-link" data-mod="work-orders" onclick="showMod('work-orders',this)">
+      <i class="bi bi-clipboard2-check-fill"></i> Work Orders
+      <span class="badge bg-danger" id="sb-open-wo-badge" style="display:none"></span>
+    </button>
+
+    <div class="adm-sect">Reports</div>
+    <button class="adm-link" data-mod="time-reports" onclick="showMod('time-reports',this)">
+      <i class="bi bi-clock-history"></i> Time Reports
+    </button>
+    <button class="adm-link" data-mod="revenue" onclick="showMod('revenue',this)">
+      <i class="bi bi-cash-stack"></i> Revenue
+    </button>
+
+    <div class="adm-sect">Configuration</div>
+    <button class="adm-link" data-mod="services-mgmt" onclick="showMod('services-mgmt',this)">
+      <i class="bi bi-tools"></i> Services
+    </button>
+    <button class="adm-link" data-mod="mechanics-mgmt" onclick="showMod('mechanics-mgmt',this)">
+      <i class="bi bi-person-badge-fill"></i> Mechanics
+    </button>
+    <button class="adm-link" data-mod="settings" onclick="showMod('settings',this)">
+      <i class="bi bi-gear-fill"></i> Settings
+    </button>
+
+    <div class="adm-sidebar-btm">
+      <button class="adm-link" onclick="showBooking()">
+        <i class="bi bi-arrow-left-circle"></i> Booking Page
+      </button>
+      <button class="adm-link" onclick="adminLogout()">
+        <i class="bi bi-box-arrow-left"></i> Sign Out
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <div id="adm-main">
+    <div id="adm-topbar">
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-sm btn-light d-md-none" onclick="toggleSidebar()">
+          <i class="bi bi-list fs-5"></i>
+        </button>
+        <div class="page-title" id="adm-page-title">Dashboard</div>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <span class="text-muted" style="font-size:.77rem;" id="live-clock"></span>
+        <span class="badge" style="background:rgba(232,93,4,.15);color:#c44d00;font-size:.68rem;padding:3px 8px;">Admin</span>
+      </div>
+    </div>
+
+    <div id="adm-content">
+
+      <!-- ── DASHBOARD ─────────────────────────────────── -->
+      <div class="adm-mod active" id="mod-dashboard">
+        <div class="row g-3 mb-4" id="dash-stats"></div>
+        <div class="row g-3">
+          <div class="col-lg-8">
+            <div class="tbl-card">
+              <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+                <div class="fw-bold" style="color:var(--slate)">Today's Schedule</div>
+                <span class="text-muted small" id="dash-date-lbl"></span>
+              </div>
+              <div class="table-responsive">
+                <table class="table mb-0">
+                  <thead><tr><th>Time</th><th>Client & Vehicle</th><th>Service</th><th>Mechanic</th><th>Status</th><th>Actions</th></tr></thead>
+                  <tbody id="dash-today-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4 d-flex flex-column gap-3">
+            <div class="tbl-card p-3">
+              <div class="fw-bold mb-2" style="color:var(--slate);font-size:.92rem;"><i class="bi bi-hourglass-split text-warning"></i> Awaiting Confirmation</div>
+              <div id="dash-pending-list"></div>
+            </div>
+            <div class="tbl-card p-3">
+              <div class="fw-bold mb-2" style="color:var(--slate);font-size:.92rem;"><i class="bi bi-clipboard2-check" style="color:var(--orange)"></i> Open Work Orders</div>
+              <div id="dash-open-wo"></div>
+            </div>
+            <div class="tbl-card p-3">
+              <div class="fw-bold mb-2" style="color:var(--slate);font-size:.92rem;"><i class="bi bi-clock-history" style="color:var(--orange)"></i> Today's Hours by Mechanic</div>
+              <div id="dash-hours-today"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ALL APPOINTMENTS ──────────────────────────── -->
+      <div class="adm-mod" id="mod-appointments">
+        <div class="filter-bar">
+          <input type="date" id="af-date" class="form-control form-control-sm" style="width:160px;" onchange="renderAppointments()">
+          <select id="af-mech" class="form-select form-select-sm" style="width:155px;" onchange="renderAppointments()">
+            <option value="">All Mechanics</option>
+          </select>
+          <select id="af-status" class="form-select form-select-sm" style="width:155px;" onchange="renderAppointments()">
+            <option value="">All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="in_progress">In Progress</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+            <option value="no_show">No Show</option>
+          </select>
+          <button class="btn btn-sm btn-outline-secondary" onclick="clearApptFilters()">Clear</button>
+          <div class="ms-auto small text-muted" id="af-count"></div>
+        </div>
+        <div class="tbl-card">
+          <div class="table-responsive">
+            <table class="table mb-0">
+              <thead><tr><th>Date & Time</th><th>Client</th><th>Vehicle</th><th>Service</th><th>Mechanic</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody id="appt-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ADD APPOINTMENT ───────────────────────────── -->
+      <div class="adm-mod" id="mod-add-appt">
+        <div style="max-width:680px;">
+          <div class="tbl-card p-4">
+            <div class="sec-title"><i class="bi bi-plus-circle-fill text-warning"></i> Add Appointment</div>
+            <!-- Client info -->
+            <div class="fw-semibold small text-muted mb-2" style="text-transform:uppercase;letter-spacing:.6px;">Client</div>
+            <div class="row g-3 mb-3">
+              <div class="col-sm-6">
+                <label class="form-label fw-semibold small">Name *</label>
+                <input type="text" id="aa-name" class="form-control" placeholder="Full name">
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label fw-semibold small">Phone *</label>
+                <input type="tel" id="aa-phone" class="form-control" placeholder="(555) 000-0000">
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label fw-semibold small">Email</label>
+                <input type="email" id="aa-email" class="form-control">
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label fw-semibold small">Notes</label>
+                <input type="text" id="aa-notes" class="form-control" placeholder="Optional">
+              </div>
+            </div>
+            <!-- Vehicle info -->
+            <div class="fw-semibold small text-muted mb-2" style="text-transform:uppercase;letter-spacing:.6px;">Vehicle</div>
+            <div class="row g-3 mb-3">
+              <div class="col-sm-4">
+                <label class="form-label fw-semibold small">Year *</label>
+                <input type="number" id="aa-veh-year" class="form-control" placeholder="2019" min="1960" max="2026">
+              </div>
+              <div class="col-sm-4">
+                <label class="form-label fw-semibold small">Make *</label>
+                <input type="text" id="aa-veh-make" class="form-control" placeholder="Toyota">
+              </div>
+              <div class="col-sm-4">
+                <label class="form-label fw-semibold small">Model *</label>
+                <input type="text" id="aa-veh-model" class="form-control" placeholder="Camry">
+              </div>
+              <div class="col-sm-4">
+                <label class="form-label fw-semibold small">Mileage</label>
+                <input type="number" id="aa-veh-miles" class="form-control" placeholder="Optional">
+              </div>
+              <div class="col-sm-4">
+                <label class="form-label fw-semibold small">License Plate</label>
+                <input type="text" id="aa-veh-plate" class="form-control" placeholder="Optional">
+              </div>
+              <div class="col-sm-4">
+                <label class="form-label fw-semibold small">VIN</label>
+                <input type="text" id="aa-veh-vin" class="form-control" placeholder="Optional" maxlength="17">
+              </div>
+            </div>
+            <!-- Appointment details -->
+            <div class="fw-semibold small text-muted mb-2" style="text-transform:uppercase;letter-spacing:.6px;">Appointment</div>
+            <div class="row g-3">
+              <div class="col-sm-6">
+                <label class="form-label fw-semibold small">Service *</label>
+                <select id="aa-service" class="form-select"></select>
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label fw-semibold small">Mechanic *</label>
+                <select id="aa-mech" class="form-select" onchange="aaRefreshSlots()"></select>
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label fw-semibold small">Date *</label>
+                <input type="date" id="aa-date" class="form-control" oninput="aaRefreshSlots()">
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label fw-semibold small">Time *</label>
+                <select id="aa-time" class="form-select"></select>
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label fw-semibold small">Status</label>
+                <select id="aa-status" class="form-select">
+                  <option value="confirmed">Confirmed</option>
+                  <option value="pending">Pending</option>
+                </select>
+              </div>
+            </div>
+            <div id="aa-msg" class="alert mt-3" style="display:none;font-size:.85rem;"></div>
+            <button class="btn-orange mt-4 w-100" style="justify-content:center;" onclick="adminAddAppt()">
+              <i class="bi bi-calendar-plus-fill"></i> Add Appointment
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── WORK ORDERS ───────────────────────────────── -->
+      <div class="adm-mod" id="mod-work-orders">
+        <div class="filter-bar">
+          <select id="wo-filter-status" class="form-select form-select-sm" style="width:155px;" onchange="renderWorkOrders()">
+            <option value="">All Work Orders</option>
+            <option value="open">Open</option>
+            <option value="completed">Completed</option>
+          </select>
+          <select id="wo-filter-mech" class="form-select form-select-sm" style="width:155px;" onchange="renderWorkOrders()">
+            <option value="">All Mechanics</option>
+          </select>
+          <div class="ms-auto small text-muted" id="wo-count"></div>
+        </div>
+        <div class="tbl-card">
+          <div class="table-responsive">
+            <table class="table mb-0">
+              <thead><tr><th>Date</th><th>Client</th><th>Vehicle</th><th>Service</th><th>Mechanic</th><th>Labor</th><th>Parts</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody id="wo-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TIME REPORTS ──────────────────────────────── -->
+      <div class="adm-mod" id="mod-time-reports">
+        <div class="filter-bar">
+          <select id="tr-period" class="form-select form-select-sm" style="width:155px;" onchange="renderTimeReports()">
+            <option value="today">Today</option>
+            <option value="week">This Week</option>
+            <option value="month" selected>This Month</option>
+            <option value="all">All Time</option>
+          </select>
+          <select id="tr-mech" class="form-select form-select-sm" style="width:155px;" onchange="renderTimeReports()">
+            <option value="">All Mechanics</option>
+          </select>
+        </div>
+        <div class="row g-3 mb-3" id="tr-stat-cards"></div>
+        <div class="row g-3 mb-3">
+          <div class="col-lg-6">
+            <div class="tbl-card p-3 h-100">
+              <div class="fw-bold mb-3" style="color:var(--slate);font-size:.92rem;">Hours by Mechanic</div>
+              <div id="tr-by-mech"></div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="tbl-card p-3 h-100">
+              <div class="fw-bold mb-3" style="color:var(--slate);font-size:.92rem;">Hours by Day</div>
+              <div id="tr-by-day"></div>
+            </div>
+          </div>
+        </div>
+        <div class="tbl-card">
+          <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+            <div class="fw-bold" style="color:var(--slate);">Session Log</div>
+            <button class="btn btn-sm btn-outline-secondary" onclick="exportTrCsv()"><i class="bi bi-download"></i> CSV</button>
+          </div>
+          <div class="table-responsive">
+            <table class="table mb-0">
+              <thead><tr><th>Date</th><th>Client</th><th>Vehicle</th><th>Service</th><th>Mechanic</th><th>Clock-In</th><th>Clock-Out</th><th>Actual Time</th><th>Billed Hours</th></tr></thead>
+              <tbody id="tr-session-log"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── REVENUE ────────────────────────────────────── -->
+      <div class="adm-mod" id="mod-revenue">
+        <div class="filter-bar">
+          <select id="rev-period" class="form-select form-select-sm" style="width:155px;" onchange="renderRevenue()">
+            <option value="today">Today</option>
+            <option value="week">This Week</option>
+            <option value="month" selected>This Month</option>
+            <option value="all">All Time</option>
+          </select>
+          <select id="rev-mech" class="form-select form-select-sm" style="width:155px;" onchange="renderRevenue()">
+            <option value="">All Mechanics</option>
+          </select>
+        </div>
+        <div class="row g-3 mb-3" id="rev-stat-cards"></div>
+        <div class="row g-3 mb-3">
+          <div class="col-lg-6">
+            <div class="tbl-card p-3 h-100">
+              <div class="fw-bold mb-3" style="color:var(--slate);font-size:.92rem;">Revenue by Mechanic</div>
+              <div id="rev-by-mech"></div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="tbl-card p-3 h-100">
+              <div class="fw-bold mb-3" style="color:var(--slate);font-size:.92rem;">Revenue by Service</div>
+              <div id="rev-by-svc"></div>
+            </div>
+          </div>
+        </div>
+        <div class="tbl-card">
+          <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+            <div class="fw-bold" style="color:var(--slate);">Completed Work Orders</div>
+            <button class="btn btn-sm btn-outline-secondary" onclick="exportRevCsv()"><i class="bi bi-download"></i> CSV</button>
+          </div>
+          <div class="table-responsive">
+            <table class="table mb-0">
+              <thead><tr><th>Date</th><th>Client</th><th>Vehicle</th><th>Service</th><th>Mechanic</th><th>Labor</th><th>Parts</th><th>Total</th></tr></thead>
+              <tbody id="rev-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SERVICES MANAGEMENT ────────────────────────── -->
+      <div class="adm-mod" id="mod-services-mgmt">
+        <div class="row g-3">
+          <div class="col-lg-5">
+            <div class="tbl-card p-4">
+              <div class="sec-title"><i class="bi bi-tools text-warning"></i> <span id="svc-form-title">Add Service</span></div>
+              <input type="hidden" id="svc-edit-id">
+              <div class="mb-3">
+                <label class="form-label fw-semibold small">Service Name *</label>
+                <input type="text" id="svc-name-inp" class="form-control" placeholder="e.g. Oil Change">
+              </div>
+              <div class="row g-2 mb-3">
+                <div class="col-6">
+                  <label class="form-label fw-semibold small">Est. Duration (min) *</label>
+                  <input type="number" id="svc-dur-inp" class="form-control" placeholder="45" min="5" step="5">
+                </div>
+                <div class="col-6">
+                  <label class="form-label fw-semibold small">Base Price ($) *</label>
+                  <input type="number" id="svc-price-inp" class="form-control" placeholder="49" min="0" step="0.50">
+                </div>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn-orange flex-fill" style="justify-content:center;" onclick="saveService()">Save</button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="clearSvcForm()">Clear</button>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-7">
+            <div class="tbl-card">
+              <div class="table-responsive">
+                <table class="table mb-0">
+                  <thead><tr><th>Service</th><th>Est. Duration</th><th>Base Price</th><th>Actions</th></tr></thead>
+                  <tbody id="svc-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── MECHANICS MANAGEMENT ──────────────────────── -->
+      <div class="adm-mod" id="mod-mechanics-mgmt">
+        <div class="row g-3">
+          <div class="col-lg-4">
+            <div class="tbl-card p-4">
+              <div class="sec-title"><i class="bi bi-person-badge-fill text-warning"></i> <span id="mech-form-title">Add Mechanic</span></div>
+              <input type="hidden" id="mech-edit-id">
+              <div class="mb-3">
+                <label class="form-label fw-semibold small">Name *</label>
+                <input type="text" id="mech-name-inp" class="form-control" placeholder="Full name">
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold small">Specialty (optional)</label>
+                <input type="text" id="mech-spec-inp" class="form-control" placeholder="e.g. Engine & Transmission">
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold small">Labor Rate ($/hr) *</label>
+                <input type="number" id="mech-rate-inp" class="form-control" placeholder="85" min="0" step="5">
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn-orange flex-fill" style="justify-content:center;" onclick="saveMech()">Save</button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="clearMechForm()">Clear</button>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-8">
+            <div class="tbl-card">
+              <div class="table-responsive">
+                <table class="table mb-0">
+                  <thead><tr><th>Mechanic</th><th>Specialty</th><th>Labor Rate</th><th>Status</th><th>Actions</th></tr></thead>
+                  <tbody id="mech-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SETTINGS ───────────────────────────────────── -->
+      <div class="adm-mod" id="mod-settings">
+        <div style="max-width:580px;">
+          <div class="tbl-card p-4">
+            <div class="sec-title"><i class="bi bi-gear-fill text-warning"></i> Shop Settings</div>
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label fw-semibold small">Shop Name</label>
+                <input type="text" id="set-name" class="form-control" placeholder="MechPro">
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-semibold small">Tagline</label>
+                <input type="text" id="set-tag" class="form-control" placeholder="Professional auto service">
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label fw-semibold small">Opening Time</label>
+                <input type="time" id="set-open" class="form-control">
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label fw-semibold small">Closing Time</label>
+                <input type="time" id="set-close" class="form-control">
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label fw-semibold small">Slot Interval</label>
+                <select id="set-interval" class="form-select">
+                  <option value="30">30 minutes</option>
+                  <option value="45">45 minutes</option>
+                  <option value="60">60 minutes</option>
+                  <option value="90">90 minutes</option>
+                </select>
+              </div>
+              <div class="col-12"><hr style="margin:.5rem 0;"></div>
+              <div class="col-12 fw-semibold small text-muted" style="margin-bottom:-8px;">Change Admin Password</div>
+              <div class="col-sm-6">
+                <label class="form-label fw-semibold small">Current Password</label>
+                <input type="password" id="set-pw-old" class="form-control">
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label fw-semibold small">New Password</label>
+                <input type="password" id="set-pw-new" class="form-control" placeholder="Leave blank to keep">
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label fw-semibold small">Confirm New Password</label>
+                <input type="password" id="set-pw-cfm" class="form-control">
+              </div>
+            </div>
+            <div id="set-msg" class="alert mt-3" style="display:none;font-size:.85rem;"></div>
+            <button class="btn-orange mt-3 w-100" style="justify-content:center;" onclick="saveSettings()">
+              <i class="bi bi-floppy-fill"></i> Save Settings
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /#adm-content -->
+  </div><!-- /#adm-main -->
+</div><!-- /#admin-view -->
+
+<!-- ============================================================
+     WORK ORDER MODAL
+     ============================================================ -->
+<div class="modal fade" id="woModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <h5 class="modal-title fw-bold mb-0" id="wo-modal-title">Work Order</h5>
+          <div class="small" style="color:rgba(255,255,255,.55);" id="wo-modal-subtitle"></div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <input type="hidden" id="wo-appt-id">
+
+        <!-- Vehicle & client summary -->
+        <div class="row g-2 mb-4" id="wo-header-info"></div>
+
+        <!-- Labor -->
+        <div class="wo-section-title"><i class="bi bi-person-gear" style="color:var(--orange)"></i> Labor</div>
+        <div id="wo-labor-rows"></div>
+        <button class="btn btn-sm btn-outline-secondary mb-3" onclick="woAddLabor()">
+          <i class="bi bi-plus"></i> Add Labor Line
+        </button>
+
+        <!-- Parts -->
+        <div class="wo-section-title mt-2"><i class="bi bi-box-seam" style="color:var(--orange)"></i> Parts & Materials</div>
+        <div id="wo-parts-rows"></div>
+        <button class="btn btn-sm btn-outline-secondary mb-3" onclick="woAddPart()">
+          <i class="bi bi-plus"></i> Add Part / Material
+        </button>
+
+        <!-- Notes -->
+        <div class="wo-section-title mt-2"><i class="bi bi-journal-text" style="color:var(--orange)"></i> Mechanic Notes</div>
+        <textarea id="wo-notes" class="form-control mb-3" rows="3" placeholder="Describe work performed, findings, recommendations…"></textarea>
+
+        <!-- Totals -->
+        <div class="wo-subtotals">
+          <div class="wo-sub">
+            <div class="sub-lbl">Labor Total</div>
+            <div class="sub-val" id="wo-labor-total">$0.00</div>
+          </div>
+          <div class="wo-sub">
+            <div class="sub-lbl">Parts Total</div>
+            <div class="sub-val" id="wo-parts-total">$0.00</div>
+          </div>
+        </div>
+        <div class="wo-total-box mt-2">
+          <div><div class="lbl">Grand Total</div><div class="val" id="wo-grand-total">$0.00</div></div>
+          <div class="text-end"><div class="lbl">Work Order</div><div style="font-size:.75rem;color:rgba(255,255,255,.4);" id="wo-id-display"></div></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+        <button class="btn btn-primary" onclick="saveWorkOrder(false)"><i class="bi bi-floppy"></i> Save</button>
+        <button class="btn btn-success" onclick="saveWorkOrder(true)"><i class="bi bi-check-circle-fill"></i> Save & Mark Complete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+/* =============================================================
+   MechPro — Full App Logic
+   ============================================================= */
+
+// ── State ─────────────────────────────────────────────────────
+const S = { appointments: [], workOrders: [], services: [], mechanics: [], settings: {} };
+let bk = { svcId: null, mechId: null, date: null, time: null };
+const timers = {};
+
+// ── Defaults ──────────────────────────────────────────────────
+const DFLT = {
+  settings: {
+    shopName: 'MechPro',
+    tagline: 'Professional auto service — book your appointment online',
+    openTime: '08:00',
+    closeTime: '18:00',
+    slotInterval: 60,
+    adminPw: 'admin123'
+  },
+  services: [
+    { name: 'Oil Change',                  duration: 45,  price: 49  },
+    { name: 'Tire Rotation',               duration: 30,  price: 25  },
+    { name: 'Brake Inspection',            duration: 60,  price: 35  },
+    { name: 'Brake Pad Replacement',       duration: 120, price: 180 },
+    { name: 'Battery Replacement',         duration: 30,  price: 120 },
+    { name: 'AC Service',                  duration: 90,  price: 95  },
+    { name: 'Diagnostic Scan',             duration: 60,  price: 75  },
+    { name: 'Transmission Fluid Change',   duration: 60,  price: 85  },
+    { name: 'Engine Tune-Up',              duration: 90,  price: 125 },
+    { name: 'Full Inspection',             duration: 90,  price: 95  }
+  ],
+  mechanics: []
+};
+
+// ── Utils ──────────────────────────────────────────────────────
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+
+function fmtTime(t) {
+  if (!t) return '';
+  const [h, m] = t.split(':').map(Number);
+  return `${h % 12 || 12}:${String(m).padStart(2,'0')} ${h < 12 ? 'AM' : 'PM'}`;
+}
+function fmtDate(d) {
+  if (!d) return '';
+  return new Date(d + 'T12:00:00').toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
+}
+function fmtDur(mins) {
+  if (mins == null) return '—';
+  const h = Math.floor(mins / 60), m = mins % 60;
+  if (h === 0) return `${m}m`;
+  if (m === 0) return `${h}h`;
+  return `${h}h ${m}m`;
+}
+function fmtMoney(n) { return '$' + (+(n || 0)).toFixed(2); }
+function fmtTS(ts)   { return ts ? new Date(ts).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}) : '—'; }
+function todayStr()  { return new Date().toISOString().slice(0,10); }
+function elapsedMin(ts) { return Math.round((Date.now() - ts) / 60000); }
+
+function inPeriod(dateStr, period) {
+  const d = new Date(dateStr + 'T12:00:00');
+  const now = new Date(); now.setHours(12,0,0,0);
+  if (period === 'today') return d.toDateString() === now.toDateString();
+  if (period === 'week') {
+    const s = new Date(now); s.setDate(now.getDate() - now.getDay());
+    const e = new Date(s);   e.setDate(s.getDate() + 6);
+    return d >= s && d <= e;
+  }
+  if (period === 'month') return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
+  return true;
+}
+
+function badge(status) {
+  const map = {
+    pending:     ['bpending',    'Pending'],
+    confirmed:   ['bconfirmed',  'Confirmed'],
+    in_progress: ['binprogress', '⏱ In Progress'],
+    completed:   ['bcompleted',  'Completed'],
+    cancelled:   ['bcancelled',  'Cancelled'],
+    no_show:     ['bnoshow',     'No Show']
+  };
+  const [cls, lbl] = map[status] || ['bg-secondary text-white', status];
+  return `<span class="${cls}">${lbl}</span>`;
+}
+
+function vehicleLabel(v) {
+  if (!v) return '—';
+  return `${v.year || ''} ${v.make || ''} ${v.model || ''}`.trim() || '—';
+}
+
+// ── Persistence ────────────────────────────────────────────────
+function load() {
+  const raw = localStorage.getItem('mechpro_v1');
+  if (raw) {
+    const p = JSON.parse(raw);
+    S.appointments = p.appointments || [];
+    S.workOrders   = p.workOrders   || [];
+    S.services     = p.services?.length  ? p.services  : DFLT.services.map(s => ({ id: uid(), ...s }));
+    S.mechanics    = p.mechanics || [];
+    S.settings     = { ...DFLT.settings, ...(p.settings || {}) };
+  } else {
+    S.services  = DFLT.services.map(s => ({ id: uid(), ...s }));
+    S.mechanics = [];
+    S.settings  = { ...DFLT.settings };
+  }
+}
+function save() { localStorage.setItem('mechpro_v1', JSON.stringify(S)); }
+
+// ── Navigation ─────────────────────────────────────────────────
+function showBooking() {
+  document.getElementById('booking-view').style.display  = 'block';
+  document.getElementById('admin-login').style.display   = 'none';
+  document.getElementById('admin-view').style.display    = 'none';
+  applySettings();
+  populateBookingForm();
+}
+function showAdminLogin() {
+  document.getElementById('booking-view').style.display  = 'none';
+  document.getElementById('admin-login').style.display   = 'flex';
+  document.getElementById('admin-view').style.display    = 'none';
+  document.getElementById('adm-pw').value = '';
+  document.getElementById('login-err').style.display = 'none';
+  setTimeout(() => document.getElementById('adm-pw').focus(), 80);
+}
+function showAdmin() {
+  document.getElementById('booking-view').style.display  = 'none';
+  document.getElementById('admin-login').style.display   = 'none';
+  document.getElementById('admin-view').style.display    = 'block';
+  applySettings();
+  updateBadges();
+  renderDashboard();
+  startClock();
+}
+
+const MOD_TITLES = {
+  dashboard: 'Dashboard', appointments: 'All Appointments', 'add-appt': 'Add Appointment',
+  'work-orders': 'Work Orders', 'time-reports': 'Time Reports', revenue: 'Revenue',
+  'services-mgmt': 'Services', 'mechanics-mgmt': 'Mechanics', settings: 'Settings'
+};
+
+function showMod(name, btn) {
+  document.querySelectorAll('.adm-mod').forEach(m => m.classList.remove('active'));
+  document.querySelectorAll('.adm-link').forEach(b => b.classList.remove('active'));
+  document.getElementById('mod-' + name).classList.add('active');
+  if (btn) btn.classList.add('active');
+  document.getElementById('adm-page-title').textContent = MOD_TITLES[name] || name;
+  const render = {
+    dashboard:       renderDashboard,
+    appointments:    () => { fillApptMechFilter(); renderAppointments(); },
+    'add-appt':      populateAddApptForm,
+    'work-orders':   () => { fillWoMechFilter(); renderWorkOrders(); },
+    'time-reports':  () => { fillTrMechFilter(); renderTimeReports(); },
+    revenue:         () => { fillRevMechFilter(); renderRevenue(); },
+    'services-mgmt': renderSvcTable,
+    'mechanics-mgmt':renderMechTable,
+    settings:        populateSettings
+  };
+  if (render[name]) render[name]();
+}
+
+function toggleSidebar() { document.getElementById('adm-sidebar').classList.toggle('open'); }
+
+// ── Auth ───────────────────────────────────────────────────────
+function adminLogin() {
+  if (document.getElementById('adm-pw').value === S.settings.adminPw) {
+    showAdmin();
+  } else {
+    const el = document.getElementById('login-err');
+    el.textContent = 'Incorrect password.'; el.style.display = 'block';
+  }
+}
+function adminLogout() { showBooking(); }
+
+// ── Clock ──────────────────────────────────────────────────────
+let _clock = null;
+function startClock() {
+  if (_clock) clearInterval(_clock);
+  const el = document.getElementById('live-clock');
+  const tick = () => { el.textContent = new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',second:'2-digit'}); };
+  tick(); _clock = setInterval(tick, 1000);
+}
+
+// ── Settings ───────────────────────────────────────────────────
+function applySettings() {
+  const s = S.settings;
+  document.title = s.shopName + ' — Booking';
+  document.getElementById('hero-name').innerHTML    = '🔧 <span>' + s.shopName + '</span>';
+  document.getElementById('hero-tagline').textContent = s.tagline;
+  document.getElementById('hero-hours').textContent   = 'Mon–Fri ' + fmtTime(s.openTime) + ' – ' + fmtTime(s.closeTime);
+  document.getElementById('adm-nm').innerHTML = '🔧 <span>' + s.shopName + '</span>';
+}
+function populateSettings() {
+  const s = S.settings;
+  document.getElementById('set-name').value  = s.shopName;
+  document.getElementById('set-tag').value   = s.tagline;
+  document.getElementById('set-open').value  = s.openTime;
+  document.getElementById('set-close').value = s.closeTime;
+  document.getElementById('set-interval').value = String(s.slotInterval);
+  ['set-pw-old','set-pw-new','set-pw-cfm'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('set-msg').style.display = 'none';
+}
+function saveSettings() {
+  const name = document.getElementById('set-name').value.trim();
+  if (!name) { settingsMsg('Shop name is required.','danger'); return; }
+  S.settings.shopName    = name;
+  S.settings.tagline     = document.getElementById('set-tag').value.trim();
+  S.settings.openTime    = document.getElementById('set-open').value;
+  S.settings.closeTime   = document.getElementById('set-close').value;
+  S.settings.slotInterval= parseInt(document.getElementById('set-interval').value);
+  const oldPw = document.getElementById('set-pw-old').value;
+  const newPw = document.getElementById('set-pw-new').value;
+  const cfmPw = document.getElementById('set-pw-cfm').value;
+  if (newPw) {
+    if (oldPw !== S.settings.adminPw)  { settingsMsg('Current password incorrect.','danger'); return; }
+    if (newPw !== cfmPw)               { settingsMsg('New passwords do not match.','danger'); return; }
+    if (newPw.length < 6)              { settingsMsg('Password must be at least 6 characters.','danger'); return; }
+    S.settings.adminPw = newPw;
+  }
+  save(); applySettings(); settingsMsg('Settings saved!','success');
+}
+function settingsMsg(msg, type) {
+  const el = document.getElementById('set-msg');
+  el.className = 'alert alert-' + type + ' mt-3'; el.textContent = msg; el.style.display = 'block';
+}
+
+// ── Badges ─────────────────────────────────────────────────────
+function updateBadges() {
+  const pending = S.appointments.filter(a => a.status === 'pending').length;
+  const pb = document.getElementById('sb-pending-badge');
+  pending > 0 ? (pb.textContent = pending, pb.style.display = '') : pb.style.display = 'none';
+
+  const openWo = S.workOrders.filter(w => w.status === 'open').length;
+  const wb = document.getElementById('sb-open-wo-badge');
+  openWo > 0 ? (wb.textContent = openWo, wb.style.display = '') : wb.style.display = 'none';
+}
+
+// ── Time Slots ─────────────────────────────────────────────────
+function genSlots(open, close, interval) {
+  const slots = [];
+  const [oh, om] = open.split(':').map(Number);
+  const [ch, cm] = close.split(':').map(Number);
+  let cur = oh*60+om, end = ch*60+cm;
+  while (cur < end) {
+    slots.push(`${String(Math.floor(cur/60)).padStart(2,'0')}:${String(cur%60).padStart(2,'0')}`);
+    cur += interval;
+  }
+  return slots;
+}
+function bookedSlots(mechId, date, excludeId) {
+  const taken = new Set();
+  S.appointments.forEach(a => {
+    if (a.date !== date || a.mechId !== mechId || a.id === excludeId) return;
+    if (['cancelled','no_show'].includes(a.status)) return;
+    const svc = S.services.find(s => s.id === a.serviceId);
+    const dur = svc ? svc.duration : 60;
+    const intv = S.settings.slotInterval;
+    const [ah, am] = a.time.split(':').map(Number);
+    const start = ah*60+am, need = Math.ceil(dur/intv);
+    for (let i = 0; i < need; i++) {
+      const t = start + i*intv;
+      taken.add(`${String(Math.floor(t/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')}`);
+    }
+  });
+  return taken;
+}
+
+// ── Booking Form ───────────────────────────────────────────────
+function populateBookingForm() {
+  const di = document.getElementById('bk-date');
+  di.min = todayStr();
+  if (!di.value) di.value = todayStr();
+
+  // Services
+  const grid = document.getElementById('svc-grid');
+  grid.innerHTML = S.services.length
+    ? S.services.map(s => `
+        <div class="svc-card" onclick="selectSvc('${s.id}',this)">
+          <i class="bi bi-check-circle-fill svc-chk"></i>
+          <div class="svc-name">${s.name}</div>
+          <div class="svc-meta"><i class="bi bi-clock"></i> ${fmtDur(s.duration)} est.</div>
+          <div class="svc-price">${fmtMoney(s.price)}</div>
+        </div>`).join('')
+    : '<div class="text-muted small">No services available yet.</div>';
+
+  // Mechanics
+  const active = S.mechanics.filter(m => m.active);
+  const mg = document.getElementById('bk-mech-grid');
+  mg.innerHTML = active.length
+    ? active.map(m => `
+        <div class="mech-card" onclick="selectMech('${m.id}',this)">
+          <div class="mech-avatar">${m.name[0]}</div>
+          <div class="mech-nm">${m.name}</div>
+          ${m.specialty ? `<div class="mech-sp">${m.specialty}</div>` : ''}
+        </div>`).join('')
+    : '<div class="text-muted small">No mechanics available. Please call to book.</div>';
+
+  bk = { svcId: null, mechId: null, date: di.value, time: null };
+  updateTimeSlots();
+}
+
+function selectSvc(id, el) {
+  bk.svcId = id;
+  document.querySelectorAll('.svc-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  updateTimeSlots(); updateSummary();
+}
+function selectMech(id, el) {
+  bk.mechId = id;
+  document.querySelectorAll('.mech-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  updateTimeSlots(); updateSummary();
+}
+function updateTimeSlots() {
+  bk.date = document.getElementById('bk-date').value;
+  const grid = document.getElementById('time-grid');
+  if (!bk.svcId || !bk.mechId || !bk.date) {
+    grid.innerHTML = '<div class="text-muted small">Complete steps 1–4 above to see available times.</div>';
+    bk.time = null; return;
+  }
+  const { openTime, closeTime, slotInterval } = S.settings;
+  const slots = genSlots(openTime, closeTime, slotInterval);
+  const taken = bookedSlots(bk.mechId, bk.date, null);
+  const now = new Date(), isToday = bk.date === todayStr();
+  const nowMin = now.getHours()*60 + now.getMinutes();
+  if (taken.has(bk.time)) bk.time = null;
+  grid.innerHTML = slots.map(slot => {
+    const [sh,sm] = slot.split(':').map(Number);
+    const past = isToday && (sh*60+sm) <= nowMin;
+    const busy = taken.has(slot);
+    const unav = past || busy;
+    const sel  = !unav && slot === bk.time;
+    return `<div class="time-slot${unav?' unavail':''}${sel?' selected':''}"
+      ${unav?'':` onclick="pickTime('${slot}',this)"`}>${fmtTime(slot)}</div>`;
+  }).join('');
+}
+function pickTime(t, el) {
+  bk.time = t;
+  document.querySelectorAll('.time-slot').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  updateSummary();
+}
+function updateSummary() {
+  const card = document.getElementById('bk-summary-card');
+  if (!bk.svcId || !bk.mechId || !bk.date || !bk.time) { card.style.display='none'; return; }
+  const svc  = S.services.find(s => s.id === bk.svcId);
+  const mech = S.mechanics.find(m => m.id === bk.mechId);
+  card.style.display = 'block';
+  document.getElementById('bk-summary-body').innerHTML = `
+    <div class="row g-2">
+      <div class="col-6"><div class="small text-muted">SERVICE</div><div class="fw-semibold">${svc?.name}</div></div>
+      <div class="col-6"><div class="small text-muted">MECHANIC</div><div class="fw-semibold">${mech?.name}</div></div>
+      <div class="col-6"><div class="small text-muted">DATE</div><div class="fw-semibold">${fmtDate(bk.date)}</div></div>
+      <div class="col-6"><div class="small text-muted">TIME</div><div class="fw-semibold">${fmtTime(bk.time)}</div></div>
+      <div class="col-6"><div class="small text-muted">EST. DURATION</div><div class="fw-semibold">${fmtDur(svc?.duration)}</div></div>
+      <div class="col-6"><div class="small text-muted">BASE PRICE</div><div class="fw-semibold" style="color:var(--orange-dark)">${fmtMoney(svc?.price)}</div></div>
+    </div>`;
+}
+function submitBooking() {
+  const name  = document.getElementById('bk-name').value.trim();
+  const phone = document.getElementById('bk-phone').value.trim();
+  const email = document.getElementById('bk-email').value.trim();
+  const notes = document.getElementById('bk-notes').value.trim();
+  const year  = document.getElementById('bk-veh-year').value.trim();
+  const make  = document.getElementById('bk-veh-make').value.trim();
+  const model = document.getElementById('bk-veh-model').value.trim();
+  document.getElementById('bk-error').style.display = 'none';
+
+  if (!bk.svcId)  { bkErr('Please select a service (Step 1).'); return; }
+  if (!year||!make||!model) { bkErr('Please fill in Year, Make, and Model (Step 2).'); return; }
+  if (!bk.mechId) { bkErr('Please choose a mechanic (Step 3).'); return; }
+  if (!bk.date)   { bkErr('Please pick a date (Step 4).'); return; }
+  if (!bk.time)   { bkErr('Please choose a time slot (Step 5).'); return; }
+  if (!name)      { bkErr('Please enter your name (Step 6).'); return; }
+  if (!phone)     { bkErr('Please enter your phone number (Step 6).'); return; }
+
+  const svc  = S.services.find(s => s.id === bk.svcId);
+  const mech = S.mechanics.find(m => m.id === bk.mechId);
+  const appt = {
+    id: uid(), clientName: name, clientPhone: phone, clientEmail: email, notes,
+    vehicle: {
+      year, make, model,
+      mileage:   document.getElementById('bk-veh-miles').value.trim(),
+      plate:     document.getElementById('bk-veh-plate').value.trim(),
+      vin:       document.getElementById('bk-veh-vin').value.trim()
+    },
+    serviceId: bk.svcId, serviceName: svc.name, serviceDuration: svc.duration, servicePrice: svc.price,
+    mechId: bk.mechId, mechName: mech.name,
+    date: bk.date, time: bk.time, status: 'pending',
+    startedAt: null, completedAt: null, actualDuration: null,
+    workOrderId: null, createdAt: Date.now()
+  };
+  // Auto-create a blank work order
+  const wo = { id: uid(), appointmentId: appt.id, laborItems: [], parts: [], notes: '', status: 'open', createdAt: Date.now() };
+  appt.workOrderId = wo.id;
+  S.appointments.push(appt);
+  S.workOrders.push(wo);
+  save();
+
+  document.getElementById('bk-form-area').style.display = 'none';
+  document.getElementById('booking-confirm').style.display = 'block';
+  document.getElementById('confirm-msg').innerHTML =
+    `Your <strong>${svc.name}</strong> for your <strong>${year} ${make} ${model}</strong> with <strong>${mech.name}</strong> on <strong>${fmtDate(bk.date)}</strong> at <strong>${fmtTime(bk.time)}</strong> has been received. We'll see you soon, ${name.split(' ')[0]}!`;
+  document.getElementById('confirm-ref').textContent = 'Ref: ' + appt.id.toUpperCase();
+}
+function bkErr(msg) {
+  const el = document.getElementById('bk-error');
+  el.textContent = msg; el.style.display = 'block';
+  el.scrollIntoView({ behavior:'smooth', block:'center' });
+}
+function resetBooking() {
+  document.getElementById('bk-form-area').style.display = 'block';
+  document.getElementById('booking-confirm').style.display = 'none';
+  ['bk-name','bk-phone','bk-email','bk-notes',
+   'bk-veh-year','bk-veh-make','bk-veh-model','bk-veh-miles','bk-veh-plate','bk-veh-vin']
+    .forEach(id => document.getElementById(id).value = '');
+  bk = { svcId: null, mechId: null, date: todayStr(), time: null };
+  document.getElementById('bk-date').value = todayStr();
+  populateBookingForm();
+}
+
+// ── Appointment Actions ────────────────────────────────────────
+function apptActions(a) {
+  let h = '';
+  if (a.status === 'pending') {
+    h += `<button class="btn btn-success btn-sm" onclick="updateAppt('${a.id}',{status:'confirmed'})"><i class="bi bi-check-lg"></i> Confirm</button>`;
+    h += `<button class="btn btn-outline-danger btn-sm" onclick="cancelAppt('${a.id}')">Cancel</button>`;
+  }
+  if (a.status === 'confirmed') {
+    h += `<button class="btn btn-primary btn-sm" onclick="startAppt('${a.id}')"><i class="bi bi-play-fill"></i> Start</button>`;
+    h += `<button class="btn btn-outline-secondary btn-sm" onclick="noShowAppt('${a.id}')">No Show</button>`;
+    h += `<button class="btn btn-outline-danger btn-sm" onclick="cancelAppt('${a.id}')">Cancel</button>`;
+  }
+  if (a.status === 'in_progress') {
+    h += `<span class="timer-txt" id="timer-${a.id}">${fmtDur(elapsedMin(a.startedAt))}</span>`;
+    h += `<button class="btn btn-warning btn-sm" onclick="openWoModal('${a.id}')"><i class="bi bi-clipboard2-check"></i> Work Order</button>`;
+    h += `<button class="btn btn-success btn-sm" onclick="completeAppt('${a.id}')"><i class="bi bi-stop-fill"></i> Complete</button>`;
+    startTimer(a.id, a.startedAt);
+  }
+  if (a.status === 'completed') {
+    h += `<span class="text-muted small">${fmtDur(a.actualDuration)} actual</span>`;
+    h += `<button class="btn btn-outline-secondary btn-sm" onclick="openWoModal('${a.id}')"><i class="bi bi-receipt"></i> Work Order</button>`;
+  }
+  if (['completed','cancelled','no_show'].includes(a.status)) {
+    h += `<button class="btn btn-outline-danger btn-sm" onclick="deleteAppt('${a.id}')" title="Delete"><i class="bi bi-trash"></i></button>`;
+  }
+  return h;
+}
+function updateAppt(id, changes) {
+  const idx = S.appointments.findIndex(a => a.id === id);
+  if (idx === -1) return;
+  Object.assign(S.appointments[idx], changes);
+  save(); updateBadges(); refreshMod();
+}
+function startAppt(id) {
+  updateAppt(id, { status: 'in_progress', startedAt: Date.now() });
+}
+function completeAppt(id) {
+  const a = S.appointments.find(x => x.id === id); if (!a) return;
+  clearTimer(id);
+  const now = Date.now();
+  const actual = a.startedAt ? Math.round((now - a.startedAt)/60000) : a.serviceDuration;
+  if (a.workOrderId) {
+    const wo = S.workOrders.find(w => w.id === a.workOrderId);
+    if (wo && wo.status === 'open') wo.status = 'completed';
+  }
+  updateAppt(id, { status: 'completed', completedAt: now, actualDuration: actual });
+}
+function cancelAppt(id) {
+  if (!confirm('Cancel this appointment?')) return;
+  clearTimer(id); updateAppt(id, { status: 'cancelled' });
+}
+function noShowAppt(id) { updateAppt(id, { status: 'no_show' }); }
+function deleteAppt(id) {
+  if (!confirm('Permanently delete this appointment?')) return;
+  clearTimer(id);
+  S.appointments = S.appointments.filter(a => a.id !== id);
+  save(); updateBadges(); refreshMod();
+}
+function refreshMod() {
+  const active = document.querySelector('.adm-link.active');
+  const mod = active?.dataset.mod || 'dashboard';
+  const r = {
+    dashboard: renderDashboard, appointments: renderAppointments,
+    'work-orders': renderWorkOrders, 'time-reports': renderTimeReports, revenue: renderRevenue
+  };
+  if (r[mod]) r[mod]();
+}
+
+// ── Timers ─────────────────────────────────────────────────────
+function startTimer(id, startedAt) {
+  if (timers[id]) return;
+  timers[id] = setInterval(() => {
+    const el = document.getElementById('timer-' + id);
+    if (el) el.textContent = fmtDur(elapsedMin(startedAt)); else clearTimer(id);
+  }, 60000);
+}
+function clearTimer(id) { clearInterval(timers[id]); delete timers[id]; }
+
+// ── Dashboard ──────────────────────────────────────────────────
+function renderDashboard() {
+  const today     = todayStr();
+  const todayApts = S.appointments.filter(a => a.date === today);
+  const pending   = S.appointments.filter(a => a.status === 'pending');
+  const completed = todayApts.filter(a => a.status === 'completed');
+  const inProg    = todayApts.filter(a => a.status === 'in_progress');
+  const hrsToday  = completed.reduce((s,a) => s + (a.actualDuration ?? a.serviceDuration ?? 0), 0)
+                  + inProg.reduce((s,a) => s + elapsedMin(a.startedAt), 0);
+  const woToday = S.workOrders.filter(w => {
+    const appt = S.appointments.find(a => a.id === w.appointmentId);
+    return appt && appt.date === today && appt.status === 'completed';
+  });
+  const revToday = woToday.reduce((s,w) => s + woTotal(w), 0);
+  const openWo   = S.workOrders.filter(w => w.status === 'open').length;
+
+  document.getElementById('dash-stats').innerHTML = `
+    <div class="col-6 col-xl-3">
+      <div class="stat-card d-flex align-items-start justify-content-between">
+        <div><div class="stat-val">${todayApts.length}</div><div class="stat-lbl">Jobs Today</div></div>
+        <div class="stat-ico" style="background:#eff6ff;color:#1d4ed8"><i class="bi bi-calendar-check"></i></div>
+      </div>
+    </div>
+    <div class="col-6 col-xl-3">
+      <div class="stat-card d-flex align-items-start justify-content-between">
+        <div><div class="stat-val">${fmtDur(hrsToday)}</div><div class="stat-lbl">Hours Worked Today</div></div>
+        <div class="stat-ico" style="background:#fff7ed;color:#ea580c"><i class="bi bi-clock-history"></i></div>
+      </div>
+    </div>
+    <div class="col-6 col-xl-3">
+      <div class="stat-card d-flex align-items-start justify-content-between">
+        <div><div class="stat-val" style="color:#16a34a">${fmtMoney(revToday)}</div><div class="stat-lbl">Revenue Today</div></div>
+        <div class="stat-ico" style="background:#f0fdf4;color:#16a34a"><i class="bi bi-cash-stack"></i></div>
+      </div>
+    </div>
+    <div class="col-6 col-xl-3">
+      <div class="stat-card d-flex align-items-start justify-content-between">
+        <div><div class="stat-val" style="color:#c44d00">${openWo}</div><div class="stat-lbl">Open Work Orders</div></div>
+        <div class="stat-ico" style="background:#fff7ed;color:#c44d00"><i class="bi bi-clipboard2-check"></i></div>
+      </div>
+    </div>`;
+
+  document.getElementById('dash-date-lbl').textContent =
+    new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+
+  const sorted = [...todayApts].sort((a,b) => a.time.localeCompare(b.time));
+  document.getElementById('dash-today-tbody').innerHTML = sorted.length
+    ? sorted.map(a => `<tr>
+        <td><strong>${fmtTime(a.time)}</strong></td>
+        <td>${a.clientName}<br><small class="text-muted">${a.clientPhone}</small></td>
+        <td>${vehicleLabel(a.vehicle)}<br><small class="text-muted">${a.serviceName}</small></td>
+        <td>${a.mechName}</td>
+        <td>${badge(a.status)}</td>
+        <td><div class="d-flex gap-1 flex-wrap">${apptActions(a)}</div></td>
+      </tr>`).join('')
+    : '<tr><td colspan="6" class="text-center text-muted py-4">No appointments today</td></tr>';
+
+  const pendEl = document.getElementById('dash-pending-list');
+  pendEl.innerHTML = pending.length
+    ? pending.slice(0,5).map(a => `
+        <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+          <div>
+            <div class="fw-semibold" style="font-size:.84rem">${a.clientName}</div>
+            <div class="text-muted" style="font-size:.73rem">${vehicleLabel(a.vehicle)} · ${fmtDate(a.date)} ${fmtTime(a.time)}</div>
+          </div>
+          <div class="d-flex gap-1">
+            <button class="btn btn-success btn-sm" style="font-size:.7rem;padding:2px 8px"
+              onclick="updateAppt('${a.id}',{status:'confirmed'})">✓</button>
+            <button class="btn btn-outline-danger btn-sm" style="font-size:.7rem;padding:2px 6px"
+              onclick="cancelAppt('${a.id}')">✕</button>
+          </div>
+        </div>`).join('')
+      + (pending.length>5 ? `<div class="small text-muted">+${pending.length-5} more</div>` : '')
+    : '<div class="small text-muted">No pending bookings</div>';
+
+  const openWoList = S.workOrders.filter(w => w.status==='open').slice(0,4);
+  document.getElementById('dash-open-wo').innerHTML = openWoList.length
+    ? openWoList.map(w => {
+        const appt = S.appointments.find(a => a.id === w.appointmentId);
+        if (!appt) return '';
+        return `<div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+          <div>
+            <div class="fw-semibold" style="font-size:.84rem">${appt.clientName}</div>
+            <div class="text-muted" style="font-size:.73rem">${vehicleLabel(appt.vehicle)} · ${appt.serviceName}</div>
+          </div>
+          <button class="btn btn-sm btn-outline-warning" style="font-size:.7rem" onclick="openWoModal('${appt.id}')">Open</button>
+        </div>`;
+      }).join('')
+    : '<div class="small text-muted">No open work orders</div>';
+
+  const byMech = {};
+  completed.forEach(a => { byMech[a.mechName] = (byMech[a.mechName]||0) + (a.actualDuration ?? a.serviceDuration ?? 0); });
+  inProg.forEach(a   => { byMech[a.mechName] = (byMech[a.mechName]||0) + elapsedMin(a.startedAt); });
+  const maxH = Math.max(...Object.values(byMech), 1);
+  document.getElementById('dash-hours-today').innerHTML = Object.keys(byMech).length
+    ? Object.entries(byMech).map(([nm,mins]) => `
+        <div class="hrs-row">
+          <div style="width:80px;font-size:.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${nm}</div>
+          <div style="flex:1"><div class="hrs-bar" style="width:${Math.round(mins/maxH*100)}%"></div></div>
+          <div style="width:46px;text-align:right;font-size:.8rem;color:#64748b">${fmtDur(mins)}</div>
+        </div>`).join('')
+    : '<div class="small text-muted">No sessions completed yet</div>';
+}
+
+// ── All Appointments ───────────────────────────────────────────
+function fillApptMechFilter() {
+  const sel = document.getElementById('af-mech'), cur = sel.value;
+  sel.innerHTML = '<option value="">All Mechanics</option>' +
+    S.mechanics.map(m => `<option value="${m.id}"${m.id===cur?' selected':''}>${m.name}</option>`).join('');
+}
+function clearApptFilters() {
+  ['af-date','af-mech','af-status'].forEach(id => document.getElementById(id).value='');
+  renderAppointments();
+}
+function renderAppointments() {
+  const date = document.getElementById('af-date').value;
+  const mech = document.getElementById('af-mech').value;
+  const stat = document.getElementById('af-status').value;
+  let list = [...S.appointments];
+  if (date) list = list.filter(a => a.date === date);
+  if (mech) list = list.filter(a => a.mechId === mech);
+  if (stat) list = list.filter(a => a.status === stat);
+  list.sort((a,b) => (b.date+b.time).localeCompare(a.date+a.time));
+  document.getElementById('af-count').textContent = `${list.length} record${list.length!==1?'s':''}`;
+  document.getElementById('appt-tbody').innerHTML = list.length
+    ? list.map(a => `<tr>
+        <td><strong>${fmtDate(a.date)}</strong><br><span class="small">${fmtTime(a.time)}</span></td>
+        <td>${a.clientName}<br><small class="text-muted">${a.clientPhone}</small></td>
+        <td>${vehicleLabel(a.vehicle)}${a.vehicle?.plate?`<br><small class="text-muted">${a.vehicle.plate}</small>`:''}</td>
+        <td>${a.serviceName}<br><small class="text-muted">${fmtDur(a.serviceDuration)} est.</small></td>
+        <td>${a.mechName}</td>
+        <td>${badge(a.status)}</td>
+        <td><div class="d-flex gap-1 flex-wrap">${apptActions(a)}</div></td>
+      </tr>`).join('')
+    : '<tr><td colspan="7" class="text-center text-muted py-4">No appointments found</td></tr>';
+}
+
+// ── Add Appointment (Admin) ────────────────────────────────────
+function populateAddApptForm() {
+  document.getElementById('aa-service').innerHTML =
+    S.services.map(s => `<option value="${s.id}">${s.name} (${fmtDur(s.duration)} · ${fmtMoney(s.price)})</option>`).join('');
+  const ms = document.getElementById('aa-mech');
+  ms.innerHTML = S.mechanics.filter(m=>m.active).map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+  const di = document.getElementById('aa-date');
+  if (!di.value) di.value = todayStr();
+  di.min = todayStr();
+  aaRefreshSlots();
+}
+function aaRefreshSlots() {
+  const date = document.getElementById('aa-date').value;
+  const mechId = document.getElementById('aa-mech').value;
+  const timeSel = document.getElementById('aa-time');
+  if (!date||!mechId) { timeSel.innerHTML='<option>Select mechanic & date first</option>'; return; }
+  const {openTime,closeTime,slotInterval} = S.settings;
+  const slots = genSlots(openTime,closeTime,slotInterval);
+  const taken = bookedSlots(mechId, date, null);
+  const now = new Date(), isToday = date===todayStr(), nowMin = now.getHours()*60+now.getMinutes();
+  const avail = slots.filter(s => {
+    const [h,m] = s.split(':').map(Number);
+    if (isToday && h*60+m<=nowMin) return false;
+    return !taken.has(s);
+  });
+  timeSel.innerHTML = avail.length
+    ? avail.map(t => `<option value="${t}">${fmtTime(t)}</option>`).join('')
+    : '<option>No slots available</option>';
+}
+function adminAddAppt() {
+  const name  = document.getElementById('aa-name').value.trim();
+  const phone = document.getElementById('aa-phone').value.trim();
+  const year  = document.getElementById('aa-veh-year').value.trim();
+  const make  = document.getElementById('aa-veh-make').value.trim();
+  const model = document.getElementById('aa-veh-model').value.trim();
+  const svcId = document.getElementById('aa-service').value;
+  const mechId= document.getElementById('aa-mech').value;
+  const date  = document.getElementById('aa-date').value;
+  const time  = document.getElementById('aa-time').value;
+  const msgEl = document.getElementById('aa-msg');
+  msgEl.style.display = 'none';
+
+  if (!name||!phone)        { aaMsg('Name and phone are required.','danger'); return; }
+  if (!year||!make||!model) { aaMsg('Vehicle year, make, and model are required.','danger'); return; }
+  if (!svcId||!mechId||!date) { aaMsg('Service, mechanic, and date are required.','danger'); return; }
+  if (!time||time.startsWith('No')||time.startsWith('Select')) { aaMsg('No valid time slot — try another date.','danger'); return; }
+
+  const svc  = S.services.find(s => s.id===svcId);
+  const mech = S.mechanics.find(m => m.id===mechId);
+  const appt = {
+    id: uid(), clientName: name, clientPhone: phone,
+    clientEmail: document.getElementById('aa-email').value.trim(),
+    notes: document.getElementById('aa-notes').value.trim(),
+    vehicle: {
+      year, make, model,
+      mileage: document.getElementById('aa-veh-miles').value.trim(),
+      plate:   document.getElementById('aa-veh-plate').value.trim(),
+      vin:     document.getElementById('aa-veh-vin').value.trim()
+    },
+    serviceId: svcId, serviceName: svc.name, serviceDuration: svc.duration, servicePrice: svc.price,
+    mechId, mechName: mech.name,
+    date, time, status: document.getElementById('aa-status').value,
+    startedAt: null, completedAt: null, actualDuration: null,
+    workOrderId: null, createdAt: Date.now()
+  };
+  const wo = { id: uid(), appointmentId: appt.id, laborItems: [], parts: [], notes: '', status: 'open', createdAt: Date.now() };
+  appt.workOrderId = wo.id;
+  S.appointments.push(appt); S.workOrders.push(wo);
+  save(); updateBadges();
+  ['aa-name','aa-phone','aa-email','aa-notes',
+   'aa-veh-year','aa-veh-make','aa-veh-model','aa-veh-miles','aa-veh-plate','aa-veh-vin']
+    .forEach(id => document.getElementById(id).value='');
+  aaMsg(`Appointment added for ${name} — ${year} ${make} ${model} on ${fmtDate(date)} at ${fmtTime(time)}.`,'success');
+  setTimeout(()=>{ msgEl.style.display='none'; msgEl.className='alert alert-danger mt-3'; }, 4000);
+}
+function aaMsg(msg,type) {
+  const el = document.getElementById('aa-msg');
+  el.className='alert alert-'+type+' mt-3'; el.textContent=msg; el.style.display='block';
+}
+
+// ── Work Order Helpers ─────────────────────────────────────────
+function woTotal(wo) {
+  const labor = (wo.laborItems||[]).reduce((s,l)=>s+(parseFloat(l.hours)||0)*(parseFloat(l.rate)||0),0);
+  const parts = (wo.parts||[]).reduce((s,p)=>s+(parseFloat(p.qty)||0)*(parseFloat(p.unitCost)||0),0);
+  return labor + parts;
+}
+function woLaborTotal(wo) {
+  return (wo.laborItems||[]).reduce((s,l)=>s+(parseFloat(l.hours)||0)*(parseFloat(l.rate)||0),0);
+}
+function woPartsTotal(wo) {
+  return (wo.parts||[]).reduce((s,p)=>s+(parseFloat(p.qty)||0)*(parseFloat(p.unitCost)||0),0);
+}
+function woBilledHours(wo) {
+  return (wo.laborItems||[]).reduce((s,l)=>s+(parseFloat(l.hours)||0),0);
+}
+
+// ── Work Order Modal ───────────────────────────────────────────
+let _woModal = null, _woLaborRows = [], _woPartsRows = [];
+
+function openWoModal(apptId) {
+  const appt = S.appointments.find(a=>a.id===apptId); if (!appt) return;
+  let wo = S.workOrders.find(w=>w.appointmentId===apptId);
+  if (!wo) {
+    wo = { id:uid(), appointmentId:apptId, laborItems:[], parts:[], notes:'', status:'open', createdAt:Date.now() };
+    appt.workOrderId = wo.id; S.workOrders.push(wo); save();
+  }
+  const mech = S.mechanics.find(m=>m.id===appt.mechId);
+  const defaultRate = mech?.laborRate || 85;
+
+  document.getElementById('wo-appt-id').value = apptId;
+  document.getElementById('wo-modal-title').textContent = `Work Order — ${appt.serviceName}`;
+  document.getElementById('wo-modal-subtitle').textContent =
+    `${appt.clientName} · ${vehicleLabel(appt.vehicle)} · ${fmtDate(appt.date)} ${fmtTime(appt.time)}`;
+  document.getElementById('wo-id-display').textContent = wo.id.toUpperCase();
+
+  document.getElementById('wo-header-info').innerHTML = [
+    ['Client',   appt.clientName],
+    ['Phone',    appt.clientPhone],
+    ['Vehicle',  vehicleLabel(appt.vehicle)],
+    ['Mileage',  appt.vehicle?.mileage ? appt.vehicle.mileage+' mi' : '—'],
+    ['Plate',    appt.vehicle?.plate || '—'],
+    ['Mechanic', appt.mechName]
+  ].map(([lbl,val]) => `
+    <div class="col-6 col-sm-4">
+      <div class="small text-muted">${lbl}</div>
+      <div class="fw-semibold small">${val}</div>
+    </div>`).join('');
+
+  document.getElementById('wo-notes').value = wo.notes || '';
+  _woLaborRows = [...(wo.laborItems||[]).map(l=>({...l}))];
+  if (_woLaborRows.length === 0)
+    _woLaborRows.push({ id:uid(), description:appt.serviceName, hours:'', rate:defaultRate });
+  _woPartsRows = [...(wo.parts||[]).map(p=>({...p}))];
+  renderWoLabor(defaultRate); renderWoParts(); recalcWoTotals();
+
+  if (!_woModal) _woModal = new bootstrap.Modal(document.getElementById('woModal'));
+  _woModal.show();
+}
+
+function renderWoLabor(defaultRate) {
+  document.getElementById('wo-labor-rows').innerHTML = _woLaborRows.map((l,i) => `
+    <div class="wo-line-row">
+      <input class="form-control form-control-sm" style="flex:3" placeholder="Description"
+        value="${(l.description||'').replace(/"/g,'&quot;')}" oninput="_woLaborRows[${i}].description=this.value">
+      <input class="form-control form-control-sm" style="width:72px" type="number" placeholder="Hrs" min="0" step="0.25"
+        value="${l.hours||''}" oninput="_woLaborRows[${i}].hours=this.value;recalcWoTotals()">
+      <div class="input-group input-group-sm" style="width:110px">
+        <span class="input-group-text">$</span>
+        <input class="form-control" type="number" placeholder="Rate/hr" min="0" step="5"
+          value="${l.rate||defaultRate||''}" oninput="_woLaborRows[${i}].rate=this.value;recalcWoTotals()">
+      </div>
+      <div style="width:74px;font-size:.82rem;font-weight:600;padding-top:6px;text-align:right;white-space:nowrap">
+        ${fmtMoney((parseFloat(l.hours)||0)*(parseFloat(l.rate)||0))}
+      </div>
+      <button class="btn btn-sm btn-outline-danger" onclick="woRemoveLabor(${i})"><i class="bi bi-x"></i></button>
+    </div>`).join('');
+}
+function renderWoParts() {
+  document.getElementById('wo-parts-rows').innerHTML = _woPartsRows.map((p,i) => `
+    <div class="wo-line-row">
+      <input class="form-control form-control-sm" style="flex:3" placeholder="Part / material name"
+        value="${(p.name||'').replace(/"/g,'&quot;')}" oninput="_woPartsRows[${i}].name=this.value">
+      <input class="form-control form-control-sm" style="width:72px" type="number" placeholder="Qty" min="1" step="1"
+        value="${p.qty||''}" oninput="_woPartsRows[${i}].qty=this.value;recalcWoTotals()">
+      <div class="input-group input-group-sm" style="width:115px">
+        <span class="input-group-text">$</span>
+        <input class="form-control" type="number" placeholder="Unit cost" min="0" step="0.01"
+          value="${p.unitCost||''}" oninput="_woPartsRows[${i}].unitCost=this.value;recalcWoTotals()">
+      </div>
+      <div style="width:74px;font-size:.82rem;font-weight:600;padding-top:6px;text-align:right;white-space:nowrap">
+        ${fmtMoney((parseFloat(p.qty)||0)*(parseFloat(p.unitCost)||0))}
+      </div>
+      <button class="btn btn-sm btn-outline-danger" onclick="woRemovePart(${i})"><i class="bi bi-x"></i></button>
+    </div>`).join('');
+}
+function recalcWoTotals() {
+  const labor = _woLaborRows.reduce((s,l)=>s+(parseFloat(l.hours)||0)*(parseFloat(l.rate)||0),0);
+  const parts = _woPartsRows.reduce((s,p)=>s+(parseFloat(p.qty)||0)*(parseFloat(p.unitCost)||0),0);
+  document.getElementById('wo-labor-total').textContent = fmtMoney(labor);
+  document.getElementById('wo-parts-total').textContent = fmtMoney(parts);
+  document.getElementById('wo-grand-total').textContent = fmtMoney(labor+parts);
+}
+function woAddLabor() {
+  const apptId = document.getElementById('wo-appt-id').value;
+  const appt = S.appointments.find(a=>a.id===apptId);
+  const mech = appt ? S.mechanics.find(m=>m.id===appt.mechId) : null;
+  _woLaborRows.push({ id:uid(), description:'', hours:'', rate:mech?.laborRate||85 });
+  renderWoLabor(mech?.laborRate||85); recalcWoTotals();
+}
+function woAddPart()       { _woPartsRows.push({id:uid(),name:'',qty:'',unitCost:''}); renderWoParts(); recalcWoTotals(); }
+function woRemoveLabor(i)  { _woLaborRows.splice(i,1); renderWoLabor(); recalcWoTotals(); }
+function woRemovePart(i)   { _woPartsRows.splice(i,1); renderWoParts(); recalcWoTotals(); }
+
+function saveWorkOrder(markComplete) {
+  const apptId = document.getElementById('wo-appt-id').value;
+  const appt = S.appointments.find(a=>a.id===apptId); if (!appt) return;
+  let wo = S.workOrders.find(w=>w.appointmentId===apptId);
+  if (!wo) { wo={id:uid(),appointmentId:apptId,laborItems:[],parts:[],notes:'',status:'open',createdAt:Date.now()}; S.workOrders.push(wo); }
+  wo.laborItems = _woLaborRows.filter(l=>l.description||l.hours);
+  wo.parts      = _woPartsRows.filter(p=>p.name||p.qty);
+  wo.notes      = document.getElementById('wo-notes').value;
+  if (markComplete) {
+    wo.status = 'completed';
+    if (appt.status === 'in_progress') {
+      clearTimer(apptId);
+      const now = Date.now();
+      appt.status = 'completed'; appt.completedAt = now;
+      appt.actualDuration = appt.startedAt ? Math.round((now-appt.startedAt)/60000) : appt.serviceDuration;
+    }
+  }
+  save(); updateBadges(); refreshMod();
+  if (_woModal) _woModal.hide();
+}
+
+// ── Work Orders List ───────────────────────────────────────────
+function fillWoMechFilter() {
+  document.getElementById('wo-filter-mech').innerHTML = '<option value="">All Mechanics</option>' +
+    S.mechanics.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
+}
+function renderWorkOrders() {
+  const statF = document.getElementById('wo-filter-status').value;
+  const mechF = document.getElementById('wo-filter-mech').value;
+  let list = S.workOrders.map(w => ({ wo:w, appt:S.appointments.find(a=>a.id===w.appointmentId) })).filter(x=>x.appt);
+  if (statF) list = list.filter(x=>x.wo.status===statF);
+  if (mechF) list = list.filter(x=>x.appt.mechId===mechF);
+  list.sort((a,b)=>(b.appt.date+b.appt.time).localeCompare(a.appt.date+a.appt.time));
+  document.getElementById('wo-count').textContent = `${list.length} work order${list.length!==1?'s':''}`;
+  document.getElementById('wo-tbody').innerHTML = list.length
+    ? list.map(({wo,appt}) => {
+        const lt=woLaborTotal(wo), pt=woPartsTotal(wo);
+        const woBadge = wo.status==='open' ? '<span class="bopen">Open</span>' : '<span class="bcompleted">Completed</span>';
+        return `<tr>
+          <td>${fmtDate(appt.date)}<br><small class="text-muted">${fmtTime(appt.time)}</small></td>
+          <td>${appt.clientName}<br><small class="text-muted">${appt.clientPhone}</small></td>
+          <td>${vehicleLabel(appt.vehicle)}</td>
+          <td>${appt.serviceName}</td>
+          <td>${appt.mechName}</td>
+          <td>${fmtMoney(lt)}</td>
+          <td>${fmtMoney(pt)}</td>
+          <td><strong>${fmtMoney(lt+pt)}</strong></td>
+          <td>${woBadge}</td>
+          <td><button class="btn btn-sm btn-outline-warning" onclick="openWoModal('${appt.id}')"><i class="bi bi-pencil"></i></button></td>
+        </tr>`;
+      }).join('')
+    : '<tr><td colspan="10" class="text-center text-muted py-4">No work orders found</td></tr>';
+}
+
+// ── Time Reports ───────────────────────────────────────────────
+function fillTrMechFilter() {
+  document.getElementById('tr-mech').innerHTML = '<option value="">All Mechanics</option>' +
+    S.mechanics.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
+}
+function renderTimeReports() {
+  const period = document.getElementById('tr-period').value;
+  const mechF  = document.getElementById('tr-mech').value;
+  let appts = S.appointments.filter(a => a.status==='completed' && inPeriod(a.date, period));
+  if (mechF) appts = appts.filter(a => a.mechId===mechF);
+
+  const totalActual  = appts.reduce((s,a)=>s+(a.actualDuration??a.serviceDuration??0),0);
+  const totalBilled  = appts.reduce((s,a)=>{
+    const wo = S.workOrders.find(w=>w.appointmentId===a.id);
+    return s + (wo ? woBilledHours(wo) : 0);
+  },0);
+  const avg = appts.length ? Math.round(totalActual/appts.length) : 0;
+
+  document.getElementById('tr-stat-cards').innerHTML = `
+    <div class="col-6 col-xl-3">
+      <div class="stat-card"><div class="stat-val">${fmtDur(totalActual)}</div><div class="stat-lbl">Total Actual Time</div></div>
+    </div>
+    <div class="col-6 col-xl-3">
+      <div class="stat-card"><div class="stat-val">${totalBilled.toFixed(1)}h</div><div class="stat-lbl">Billed Hours</div></div>
+    </div>
+    <div class="col-6 col-xl-3">
+      <div class="stat-card"><div class="stat-val">${appts.length}</div><div class="stat-lbl">Jobs Completed</div></div>
+    </div>
+    <div class="col-6 col-xl-3">
+      <div class="stat-card"><div class="stat-val">${fmtDur(avg)}</div><div class="stat-lbl">Avg Job Time</div></div>
+    </div>`;
+
+  // By mechanic
+  const byMech = {};
+  appts.forEach(a => { byMech[a.mechName]=(byMech[a.mechName]||0)+(a.actualDuration??a.serviceDuration??0); });
+  const maxM = Math.max(...Object.values(byMech),1);
+  document.getElementById('tr-by-mech').innerHTML = Object.keys(byMech).length
+    ? Object.entries(byMech).sort((a,b)=>b[1]-a[1]).map(([nm,mins])=>`
+        <div class="hrs-row">
+          <div style="width:80px;font-size:.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${nm}</div>
+          <div style="flex:1"><div class="hrs-bar" style="width:${Math.round(mins/maxM*100)}%"></div></div>
+          <div style="width:46px;text-align:right;font-size:.8rem;color:#64748b">${fmtDur(mins)}</div>
+        </div>`).join('')
+    : '<div class="small text-muted">No data for this period</div>';
+
+  // By day
+  const byDay = {};
+  appts.forEach(a => { byDay[a.date]=(byDay[a.date]||0)+(a.actualDuration??a.serviceDuration??0); });
+  const maxD = Math.max(...Object.values(byDay),1);
+  document.getElementById('tr-by-day').innerHTML = Object.keys(byDay).length
+    ? Object.entries(byDay).sort((a,b)=>a[0].localeCompare(b[0])).map(([d,mins])=>`
+        <div class="hrs-row">
+          <div style="width:86px;font-size:.82rem;font-weight:600">${fmtDate(d)}</div>
+          <div style="flex:1"><div class="hrs-bar" style="width:${Math.round(mins/maxD*100)}%;background:var(--slate)"></div></div>
+          <div style="width:46px;text-align:right;font-size:.8rem;color:#64748b">${fmtDur(mins)}</div>
+        </div>`).join('')
+    : '<div class="small text-muted">No data for this period</div>';
+
+  // Session log
+  const sorted = [...appts].sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time));
+  document.getElementById('tr-session-log').innerHTML = sorted.length
+    ? sorted.map(a => {
+        const wo = S.workOrders.find(w=>w.appointmentId===a.id);
+        const billed = wo ? woBilledHours(wo).toFixed(2) : '—';
+        const actual = a.actualDuration ?? a.serviceDuration;
+        return `<tr>
+          <td>${fmtDate(a.date)}</td>
+          <td>${a.clientName}</td>
+          <td>${vehicleLabel(a.vehicle)}</td>
+          <td>${a.serviceName}</td>
+          <td>${a.mechName}</td>
+          <td>${a.startedAt ? new Date(a.startedAt).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}) : '—'}</td>
+          <td>${a.completedAt ? new Date(a.completedAt).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}) : '—'}</td>
+          <td><strong>${fmtDur(actual)}</strong></td>
+          <td>${billed === '—' ? '—' : billed + 'h'}</td>
+        </tr>`;
+      }).join('')
+    : '<tr><td colspan="9" class="text-center text-muted py-3">No completed jobs</td></tr>';
+}
+function exportTrCsv() {
+  const period = document.getElementById('tr-period').value;
+  const mechF  = document.getElementById('tr-mech').value;
+  let appts = S.appointments.filter(a=>a.status==='completed'&&inPeriod(a.date,period));
+  if (mechF) appts = appts.filter(a=>a.mechId===mechF);
+  const rows = [['Date','Client','Vehicle','Service','Mechanic','Clock-In','Clock-Out','Actual Duration (min)','Billed Hours']];
+  appts.sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time)).forEach(a=>{
+    const wo = S.workOrders.find(w=>w.appointmentId===a.id);
+    rows.push([a.date, a.clientName, vehicleLabel(a.vehicle), a.serviceName, a.mechName,
+      a.startedAt?new Date(a.startedAt).toISOString():'',
+      a.completedAt?new Date(a.completedAt).toISOString():'',
+      a.actualDuration??a.serviceDuration,
+      wo?woBilledHours(wo).toFixed(2):'']);
+  });
+  dlCsv('time-report.csv', rows);
+}
+
+// ── Revenue ────────────────────────────────────────────────────
+function fillRevMechFilter() {
+  document.getElementById('rev-mech').innerHTML = '<option value="">All Mechanics</option>' +
+    S.mechanics.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
+}
+function renderRevenue() {
+  const period = document.getElementById('rev-period').value;
+  const mechF  = document.getElementById('rev-mech').value;
+  // Revenue comes from completed work orders
+  let pairs = S.workOrders
+    .filter(w => w.status==='completed')
+    .map(w => ({ wo:w, appt:S.appointments.find(a=>a.id===w.appointmentId) }))
+    .filter(x => x.appt && inPeriod(x.appt.date, period));
+  if (mechF) pairs = pairs.filter(x=>x.appt.mechId===mechF);
+
+  const totalRev   = pairs.reduce((s,x)=>s+woTotal(x.wo),0);
+  const totalLabor = pairs.reduce((s,x)=>s+woLaborTotal(x.wo),0);
+  const totalParts = pairs.reduce((s,x)=>s+woPartsTotal(x.wo),0);
+  const avg = pairs.length ? totalRev/pairs.length : 0;
+
+  document.getElementById('rev-stat-cards').innerHTML = `
+    <div class="col-6 col-xl-3">
+      <div class="stat-card"><div class="stat-val" style="color:#16a34a">${fmtMoney(totalRev)}</div><div class="stat-lbl">Total Revenue</div></div>
+    </div>
+    <div class="col-6 col-xl-3">
+      <div class="stat-card"><div class="stat-val">${fmtMoney(totalLabor)}</div><div class="stat-lbl">Labor Revenue</div></div>
+    </div>
+    <div class="col-6 col-xl-3">
+      <div class="stat-card"><div class="stat-val">${fmtMoney(totalParts)}</div><div class="stat-lbl">Parts Revenue</div></div>
+    </div>
+    <div class="col-6 col-xl-3">
+      <div class="stat-card"><div class="stat-val">${fmtMoney(avg)}</div><div class="stat-lbl">Avg Ticket</div></div>
+    </div>`;
+
+  // By mechanic
+  const byMech = {};
+  pairs.forEach(x=>{ byMech[x.appt.mechName]=(byMech[x.appt.mechName]||0)+woTotal(x.wo); });
+  const maxM = Math.max(...Object.values(byMech),1);
+  document.getElementById('rev-by-mech').innerHTML = Object.keys(byMech).length
+    ? Object.entries(byMech).sort((a,b)=>b[1]-a[1]).map(([nm,rev])=>`
+        <div class="hrs-row">
+          <div style="width:80px;font-size:.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${nm}</div>
+          <div style="flex:1"><div class="hrs-bar" style="width:${Math.round(rev/maxM*100)}%"></div></div>
+          <div style="width:64px;text-align:right;font-size:.8rem;color:#64748b">${fmtMoney(rev)}</div>
+        </div>`).join('')
+    : '<div class="small text-muted">No data</div>';
+
+  // By service
+  const bySvc = {};
+  pairs.forEach(x=>{ bySvc[x.appt.serviceName]=(bySvc[x.appt.serviceName]||0)+woTotal(x.wo); });
+  const maxS = Math.max(...Object.values(bySvc),1);
+  document.getElementById('rev-by-svc').innerHTML = Object.keys(bySvc).length
+    ? Object.entries(bySvc).sort((a,b)=>b[1]-a[1]).map(([nm,rev])=>`
+        <div class="hrs-row">
+          <div style="width:120px;font-size:.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${nm}</div>
+          <div style="flex:1"><div class="hrs-bar" style="width:${Math.round(rev/maxS*100)}%;background:var(--slate)"></div></div>
+          <div style="width:64px;text-align:right;font-size:.8rem;color:#64748b">${fmtMoney(rev)}</div>
+        </div>`).join('')
+    : '<div class="small text-muted">No data</div>';
+
+  // Table
+  const sorted = [...pairs].sort((a,b)=>(b.appt.date+b.appt.time).localeCompare(a.appt.date+a.appt.time));
+  document.getElementById('rev-tbody').innerHTML = sorted.length
+    ? sorted.map(({wo,appt})=>`<tr>
+        <td>${fmtDate(appt.date)}<br><small class="text-muted">${fmtTime(appt.time)}</small></td>
+        <td>${appt.clientName}</td>
+        <td>${vehicleLabel(appt.vehicle)}</td>
+        <td>${appt.serviceName}</td>
+        <td>${appt.mechName}</td>
+        <td>${fmtMoney(woLaborTotal(wo))}</td>
+        <td>${fmtMoney(woPartsTotal(wo))}</td>
+        <td><strong style="color:#16a34a">${fmtMoney(woTotal(wo))}</strong></td>
+      </tr>`).join('')
+    : '<tr><td colspan="8" class="text-center text-muted py-3">No completed work orders</td></tr>';
+}
+function exportRevCsv() {
+  const period = document.getElementById('rev-period').value;
+  const mechF  = document.getElementById('rev-mech').value;
+  let pairs = S.workOrders.filter(w=>w.status==='completed')
+    .map(w=>({wo:w,appt:S.appointments.find(a=>a.id===w.appointmentId)}))
+    .filter(x=>x.appt&&inPeriod(x.appt.date,period));
+  if (mechF) pairs = pairs.filter(x=>x.appt.mechId===mechF);
+  const rows=[['Date','Time','Client','Phone','Vehicle','Service','Mechanic','Labor ($)','Parts ($)','Total ($)']];
+  pairs.sort((a,b)=>(b.appt.date+b.appt.time).localeCompare(a.appt.date+a.appt.time)).forEach(({wo,appt})=>{
+    rows.push([appt.date, appt.time, appt.clientName, appt.clientPhone, vehicleLabel(appt.vehicle),
+      appt.serviceName, appt.mechName, woLaborTotal(wo).toFixed(2), woPartsTotal(wo).toFixed(2), woTotal(wo).toFixed(2)]);
+  });
+  dlCsv('revenue-report.csv', rows);
+}
+
+// ── CSV Download ───────────────────────────────────────────────
+function dlCsv(filename, rows) {
+  const csv = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download = filename; a.click();
+}
+
+// ── Services CRUD ──────────────────────────────────────────────
+function renderSvcTable() {
+  document.getElementById('svc-tbody').innerHTML = S.services.length
+    ? S.services.map(s=>`<tr>
+        <td><strong>${s.name}</strong></td>
+        <td>${fmtDur(s.duration)}</td>
+        <td>${fmtMoney(s.price)}</td>
+        <td>
+          <button class="btn btn-sm btn-outline-secondary" onclick="editSvc('${s.id}')"><i class="bi bi-pencil"></i></button>
+          <button class="btn btn-sm btn-outline-danger ms-1" onclick="deleteSvc('${s.id}')"><i class="bi bi-trash"></i></button>
+        </td>
+      </tr>`).join('')
+    : '<tr><td colspan="4" class="text-center text-muted py-3">No services configured</td></tr>';
+}
+function saveService() {
+  const name  = document.getElementById('svc-name-inp').value.trim();
+  const dur   = parseInt(document.getElementById('svc-dur-inp').value);
+  const price = parseFloat(document.getElementById('svc-price-inp').value);
+  const editId= document.getElementById('svc-edit-id').value;
+  if (!name||!dur||isNaN(price)) { alert('Name, duration, and price are required.'); return; }
+  if (editId) {
+    const idx = S.services.findIndex(s=>s.id===editId);
+    if (idx>-1) Object.assign(S.services[idx],{name,duration:dur,price});
+  } else {
+    S.services.push({id:uid(),name,duration:dur,price});
+  }
+  save(); clearSvcForm(); renderSvcTable();
+}
+function editSvc(id) {
+  const s = S.services.find(x=>x.id===id); if (!s) return;
+  document.getElementById('svc-edit-id').value  = id;
+  document.getElementById('svc-name-inp').value = s.name;
+  document.getElementById('svc-dur-inp').value  = s.duration;
+  document.getElementById('svc-price-inp').value= s.price;
+  document.getElementById('svc-form-title').textContent = 'Edit Service';
+}
+function deleteSvc(id) {
+  if (!confirm('Delete this service?')) return;
+  S.services = S.services.filter(s=>s.id!==id); save(); renderSvcTable();
+}
+function clearSvcForm() {
+  ['svc-edit-id','svc-name-inp','svc-dur-inp','svc-price-inp'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('svc-form-title').textContent = 'Add Service';
+}
+
+// ── Mechanics CRUD ─────────────────────────────────────────────
+function renderMechTable() {
+  document.getElementById('mech-tbody').innerHTML = S.mechanics.length
+    ? S.mechanics.map(m=>`<tr>
+        <td>
+          <div class="d-flex align-items-center gap-2">
+            <div class="mech-ava-sm">${m.name[0]}</div>
+            <strong>${m.name}</strong>
+          </div>
+        </td>
+        <td>${m.specialty||'<span class="text-muted">—</span>'}</td>
+        <td>${fmtMoney(m.laborRate||0)}/hr</td>
+        <td>${m.active?'<span class="bconfirmed">Active</span>':'<span class="bcancelled">Inactive</span>'}</td>
+        <td>
+          <button class="btn btn-sm btn-outline-secondary" onclick="editMech('${m.id}')"><i class="bi bi-pencil"></i></button>
+          <button class="btn btn-sm ${m.active?'btn-outline-warning':'btn-outline-success'} ms-1" onclick="toggleMech('${m.id}')">${m.active?'Deactivate':'Activate'}</button>
+          <button class="btn btn-sm btn-outline-danger ms-1" onclick="deleteMech('${m.id}')"><i class="bi bi-trash"></i></button>
+        </td>
+      </tr>`).join('')
+    : '<tr><td colspan="5" class="text-center text-muted py-3">No mechanics configured</td></tr>';
+}
+function saveMech() {
+  const name = document.getElementById('mech-name-inp').value.trim();
+  const spec = document.getElementById('mech-spec-inp').value.trim();
+  const rate = parseFloat(document.getElementById('mech-rate-inp').value);
+  const editId = document.getElementById('mech-edit-id').value;
+  if (!name)     { alert('Name is required.'); return; }
+  if (isNaN(rate)||rate<0) { alert('A valid labor rate is required.'); return; }
+  if (editId) {
+    const idx = S.mechanics.findIndex(m=>m.id===editId);
+    if (idx>-1) Object.assign(S.mechanics[idx],{name,specialty:spec,laborRate:rate});
+  } else {
+    S.mechanics.push({id:uid(),name,specialty:spec,laborRate:rate,active:true});
+  }
+  save(); clearMechForm(); renderMechTable();
+}
+function editMech(id) {
+  const m = S.mechanics.find(x=>x.id===id); if (!m) return;
+  document.getElementById('mech-edit-id').value   = id;
+  document.getElementById('mech-name-inp').value  = m.name;
+  document.getElementById('mech-spec-inp').value  = m.specialty||'';
+  document.getElementById('mech-rate-inp').value  = m.laborRate||'';
+  document.getElementById('mech-form-title').textContent = 'Edit Mechanic';
+}
+function toggleMech(id) {
+  const m = S.mechanics.find(x=>x.id===id); if (!m) return;
+  m.active = !m.active; save(); renderMechTable();
+}
+function deleteMech(id) {
+  if (!confirm('Delete this mechanic?')) return;
+  S.mechanics = S.mechanics.filter(m=>m.id!==id); save(); renderMechTable();
+}
+function clearMechForm() {
+  ['mech-edit-id','mech-name-inp','mech-spec-inp','mech-rate-inp'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('mech-form-title').textContent = 'Add Mechanic';
+}
+
+// ── Init ───────────────────────────────────────────────────────
+load();
+applySettings();
+showBooking();
+</script>
+</body>
+</html>
+
