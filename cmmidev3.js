@@ -1803,8 +1803,8 @@ function updateStats(rows){
   document.getElementById('stat-total').textContent = rows.length;
   document.getElementById('stat-ml2').textContent   = rows.filter(function(d){return d.level==='ML2';}).length;
   document.getElementById('stat-ml3').textContent   = rows.filter(function(d){return d.level==='ML3';}).length;
-  document.getElementById('stat-ml4').textContent   = rows.filter(function(d){return d.level==='ML4';}).length;
-  document.getElementById('stat-ml5').textContent   = rows.filter(function(d){return d.level==='ML5';}).length;
+  document.getElementById('stat-core').textContent  = rows.filter(function(d){return d.domain==='All';}).length;
+  document.getElementById('stat-dev').textContent   = rows.filter(function(d){return d.domain==='Development';}).length;
   document.getElementById('stat-pas').textContent   = paCount;
   document.getElementById('filter-summary').textContent =
     paCount+' Practice Area'+(paCount!==1?'s':'')+' · '+rows.length+' Practice'+(rows.length!==1?'s':'');
@@ -1973,18 +1973,92 @@ function downloadExcel(){
   XLSX.writeFile(wb,filename);
 }
 
+/* ── Evidence section renderer ────────────────────────────────────────── */
+function renderEvidence(){
+  var lvlMap={};
+  CMMI_DATA.forEach(function(d){
+    if(!lvlMap[d.pa]) lvlMap[d.pa]=d.level;
+  });
+
+  function buildGrid(gridId, level){
+    var el=document.getElementById(gridId);
+    if(!el) return;
+    var html='';
+    var lvlBg  = level==='ML2' ? 'rgba(13,110,253,.08)' : 'rgba(25,135,84,.08)';
+    var lvlClr = level==='ML2' ? '#6ea8fe' : '#75b798';
+    var lvlBorder = level==='ML2' ? 'rgba(13,110,253,.25)' : 'rgba(25,135,84,.25)';
+
+    Object.keys(EVIDENCE).forEach(function(pa,idx){
+      if(lvlMap[pa]!==level) return;
+      var e=EVIDENCE[pa];
+      var fullName='';
+      for(var i=0;i<CMMI_DATA.length;i++){
+        if(CMMI_DATA[i].pa===pa){ fullName=CMMI_DATA[i].paFull; break; }
+      }
+      var isDev=(function(){
+        for(var i=0;i<CMMI_DATA.length;i++){
+          if(CMMI_DATA[i].pa===pa) return CMMI_DATA[i].domain==='Development';
+        }
+        return false;
+      })();
+      var tipId='ev-tip-'+pa;
+      var artHtml='<ul class="small mb-2 ps-3">';
+      e.artifacts.forEach(function(a){ artHtml+='<li class="mb-1">'+escH(a)+'</li>'; });
+      artHtml+='</ul>';
+
+      var badgeHtml = isDev
+        ? '<span class="badge bg-primary ms-auto" style="font-size:.62rem">DEV</span>'
+        : '<span class="badge" style="background:rgba(var(--bs-primary-rgb),.12);color:var(--bs-primary);font-size:.62rem;border:1px solid rgba(var(--bs-primary-rgb),.2)">Core</span>';
+
+      html+='<div class="col"><div class="card h-100" style="border-color:'+lvlBorder+'">'
+        +'<div class="card-header d-flex align-items-center gap-2 py-2" style="background:'+lvlBg+';cursor:pointer" data-bs-toggle="collapse" data-bs-target="#'+tipId+'" aria-expanded="false">'
+        +'<span class="pa-badge">'+escH(pa)+'</span>'
+        +'<span class="fw-semibold small flex-grow-1">'+escH(fullName)+'</span>'
+        +badgeHtml
+        +'<i class="bi bi-lightbulb ms-1 text-warning" style="font-size:.8rem" title="Click for appraiser tip"></i>'
+        +'</div>'
+        +'<div class="card-body py-2">'
+        +artHtml
+        +'<div class="collapse" id="'+tipId+'">'
+        +'<div class="mt-2 p-2 rounded small" style="background:rgba(255,193,7,.08);border:1px solid rgba(255,193,7,.2);color:var(--bs-body-color)">'
+        +'<i class="bi bi-lightbulb-fill text-warning me-1"></i><strong>Appraiser Tip:</strong> '+escH(e.tips)
+        +'</div></div>'
+        +'</div></div></div>';
+    });
+    el.innerHTML=html||'<p class="text-muted small p-2">No evidence entries for this level.</p>';
+  }
+
+  buildGrid('ev-ml2-grid','ML2');
+  buildGrid('ev-ml3-grid','ML3');
+}
+
 /* ── Init ─────────────────────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded',function(){
   populatePADropdown();
   renderTable(CMMI_DATA);
+  renderEvidence();
+
   ['ctrl-level','ctrl-pa','ctrl-domain'].forEach(function(id){
     document.getElementById(id).addEventListener('change',applyFilters);
   });
   document.getElementById('ctrl-search').addEventListener('input',applyFilters);
+
   document.getElementById('btn-reset').addEventListener('click',function(){
     ['ctrl-level','ctrl-pa','ctrl-domain'].forEach(function(id){ document.getElementById(id).value=''; });
     document.getElementById('ctrl-search').value='';
     renderTable(CMMI_DATA);
   });
   document.getElementById('btn-export').addEventListener('click',downloadExcel);
+
+  /* Expand / collapse all */
+  document.getElementById('btn-expand-all').addEventListener('click',function(){
+    document.querySelectorAll('#results-table .collapse:not(.show)').forEach(function(el){
+      bootstrap.Collapse.getOrCreateInstance(el).show();
+    });
+  });
+  document.getElementById('btn-collapse-all').addEventListener('click',function(){
+    document.querySelectorAll('#results-table .collapse.show').forEach(function(el){
+      bootstrap.Collapse.getOrCreateInstance(el).hide();
+    });
+  });
 });

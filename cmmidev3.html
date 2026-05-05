@@ -115,16 +115,16 @@
         <div class="col-6 col-md-4 col-lg-2">
           <div class="card text-center stat-card h-100">
             <div class="card-body py-3">
-              <div class="num" style="color:#fd7e14" id="stat-ml4">6</div>
-              <div class="lbl">ML4 Quantitative</div>
+              <div class="num" style="color:#0891b2" id="stat-core">—</div>
+              <div class="lbl">Core PAs</div>
             </div>
           </div>
         </div>
         <div class="col-6 col-md-4 col-lg-2">
           <div class="card text-center stat-card h-100">
             <div class="card-body py-3">
-              <div class="num text-danger" id="stat-ml5">6</div>
-              <div class="lbl">ML5 Optimizing</div>
+              <div class="num text-primary" id="stat-dev">—</div>
+              <div class="lbl">Dev PAs</div>
             </div>
           </div>
         </div>
@@ -158,16 +158,13 @@
             <option value="">All</option>
             <option value="ML2">ML2 — Managed</option>
             <option value="ML3">ML3 — Defined</option>
-            <option value="ML4">ML4 — Quantitative</option>
-            <option value="ML5">ML5 — Optimizing</option>
           </select>
         </div>
         <div class="col-6 col-md-2">
           <label class="form-label small fw-semibold mb-1">Domain</label>
           <select id="ctrl-domain" class="form-select form-select-sm">
-            <option value="">All Domains</option>
+            <option value="">All</option>
             <option value="Development">Development</option>
-            <option value="Services">Services</option>
           </select>
         </div>
         <div class="col-12 col-md-2 d-flex gap-2">
@@ -182,6 +179,10 @@
       <div class="d-flex align-items-center gap-3 mb-2 flex-wrap">
         <span class="fw-semibold small" id="filter-summary">— Practice Areas &nbsp;·&nbsp; — Practices</span>
         <span class="text-secondary small" id="filter-label"></span>
+        <div class="ms-auto d-flex gap-2">
+          <button class="btn btn-sm btn-outline-secondary" id="btn-expand-all">Expand All</button>
+          <button class="btn btn-sm btn-outline-secondary" id="btn-collapse-all">Collapse All</button>
+        </div>
       </div>
       <div class="table-responsive" style="max-height:65vh;overflow-y:auto;">
         <div id="results-table"><p class="text-muted p-3">Loading practices…</p></div>
@@ -224,303 +225,26 @@
       </div>
     </section>
 
-    <!-- Evidence Section -->
+    <!-- Evidence Section — rendered dynamically from EVIDENCE object in cmmidev3.js -->
     <section class="container pb-5" id="evidence-section">
       <h2 class="h4 fw-bold mb-1">Required Evidence by Practice Area</h2>
-      <p class="text-secondary small mb-4">What appraisers need to see for each PA. ⭐ = Domain-specific (proven through execution in that domain).</p>
+      <p class="text-secondary small mb-4">Artifacts and appraiser tips for each PA — click any card to reveal the appraiser tip. Sourced from CMMI v2.0 DEV.</p>
 
-      <!-- ML2 Evidence -->
+      <!-- ML2 dynamic grid -->
       <h3 class="h6 fw-bold text-uppercase mb-3" style="letter-spacing:.08em;color:var(--bs-primary)">&#128310; Maturity Level 2 — Required Artifacts</h3>
-      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 mb-5">
-
-        <div class="col"><div class="card h-100"><div class="card-header d-flex align-items-center gap-2 py-2">
-          <span class="pa-badge">CM</span><span class="fw-semibold small flex-grow-1">Configuration Management</span>
-          <span class="badge" style="background:rgba(13,110,253,.15);color:#6ea8fe;font-size:.65rem">ML2</span>
-        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
-          <li>Version control system (Git, SVN, etc.)</li>
-          <li>Baseline definition — code, configs, docs under CM</li>
-          <li>Change control process with tickets tied to commits</li>
-          <li>Audit trail — who changed what, when</li>
-        </ul></div></div></div>
-
-        <div class="col"><div class="card h-100"><div class="card-header d-flex align-items-center gap-2 py-2">
-          <span class="pa-badge">GOV</span><span class="fw-semibold small flex-grow-1">Governance</span>
-          <span class="badge" style="background:rgba(13,110,253,.15);color:#6ea8fe;font-size:.65rem">ML2</span>
-        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
-          <li>Defined roles and responsibilities (RACI or equivalent)</li>
-          <li>Management oversight evidence — reviews, approvals</li>
-          <li>Policy framework showing who enforces what</li>
-        </ul></div></div></div>
-
-        <div class="col"><div class="card h-100"><div class="card-header d-flex align-items-center gap-2 py-2">
-          <span class="pa-badge">II</span><span class="fw-semibold small flex-grow-1">Implementation Infrastructure</span>
-          <span class="badge" style="background:rgba(13,110,253,.15);color:#6ea8fe;font-size:.65rem">ML2</span>
-        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
-          <li>Documented tools and environments (Dev, Test, Prod)</li>
-          <li>CI/CD pipeline configurations and execution logs</li>
-          <li>Access provisioning records for required tools</li>
-          <li>Standards and templates available to teams</li>
-        </ul></div></div></div>
-
-        <div class="col"><div class="card h-100"><div class="card-header d-flex align-items-center gap-2 py-2">
-          <span class="pa-badge">MPM</span><span class="fw-semibold small flex-grow-1">Managing Performance &amp; Measurement</span>
-          <span class="badge" style="background:rgba(13,110,253,.15);color:#6ea8fe;font-size:.65rem">ML2</span>
-        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
-          <li>Defined metrics — velocity, defects, cycle time, etc.</li>
-          <li>Dashboards or reports showing metrics over time</li>
-          <li>Regular review cadence evidence (weekly/monthly records)</li>
-        </ul></div></div></div>
-
-        <div class="col"><div class="card h-100"><div class="card-header d-flex align-items-center gap-2 py-2">
-          <span class="pa-badge">MC</span><span class="fw-semibold small flex-grow-1">Monitor and Control</span>
-          <span class="badge" style="background:rgba(13,110,253,.15);color:#6ea8fe;font-size:.65rem">ML2</span>
-        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
-          <li>Status tracking artifacts (Jira, Azure DevOps, etc.)</li>
-          <li>Variance management records — schedule/cost/scope deltas</li>
-          <li>Corrective action logs when things slip</li>
-        </ul></div></div></div>
-
-        <div class="col"><div class="card h-100"><div class="card-header d-flex align-items-center gap-2 py-2">
-          <span class="pa-badge">PLAN</span><span class="fw-semibold small flex-grow-1">Planning</span>
-          <span class="badge" style="background:rgba(13,110,253,.15);color:#6ea8fe;font-size:.65rem">ML2</span>
-        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
-          <li>Project plans covering scope, schedule, and resources</li>
-          <li>Sprint and release planning artifacts</li>
-          <li>Dependencies identified and tracked</li>
-        </ul></div></div></div>
-
-        <div class="col"><div class="card h-100"><div class="card-header d-flex align-items-center gap-2 py-2">
-          <span class="pa-badge">PQA</span><span class="fw-semibold small flex-grow-1">Process Quality Assurance</span>
-          <span class="badge" style="background:rgba(13,110,253,.15);color:#6ea8fe;font-size:.65rem">ML2</span>
-        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
-          <li>Internal audit or QA check records</li>
-          <li>Evidence of noncompliance tracking</li>
-          <li>Corrective action tickets or logs</li>
-        </ul></div></div></div>
-
-        <div class="col"><div class="card h-100 border-primary"><div class="card-header d-flex align-items-center gap-2 py-2" style="background:rgba(13,110,253,.08)">
-          <span class="pa-badge">RDM</span><span class="fw-semibold small flex-grow-1">Requirements Dev &amp; Management</span>
-          <span class="badge bg-primary ms-auto" style="font-size:.65rem">&#11088; DEV CORE</span>
-        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
-          <li>Requirements documentation (user stories, specs, use cases)</li>
-          <li>Traceability matrix: Requirement &#8594; Design &#8594; Code &#8594; Test</li>
-          <li>Change management records for requirements</li>
-          <li>Stakeholder approval and validation records</li>
-        </ul></div></div></div>
-
-        <div class="col"><div class="card h-100 border-primary"><div class="card-header d-flex align-items-center gap-2 py-2" style="background:rgba(13,110,253,.08)">
-          <span class="pa-badge">SAM</span><span class="fw-semibold small flex-grow-1">Supplier Agreement Management</span>
-          <span class="badge bg-primary ms-auto" style="font-size:.65rem">&#11088; OPTIONAL</span>
-        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
-          <li>Supplier selection criteria and evaluation records</li>
-          <li>Supplier agreements / contracts with defined deliverables and acceptance criteria</li>
-          <li>Supplier progress monitoring records and status reviews</li>
-          <li>Work product evaluation results and acceptance documentation</li>
-          <li>Delivery and transition records</li>
-        </ul></div></div></div>
-
-        <div class="col"><div class="card h-100 border-success"><div class="card-header d-flex align-items-center gap-2 py-2" style="background:rgba(25,135,84,.08)">
-          <span class="pa-badge">SD</span><span class="fw-semibold small flex-grow-1">Service Delivery</span>
-          <span class="badge bg-success ms-auto" style="font-size:.65rem">&#11088; SERVICES</span>
-        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
-          <li>Service agreements / SLAs defining services and service levels</li>
-          <li>Service performance reports vs. defined targets</li>
-          <li>Service delivery readiness checklists</li>
-          <li>Customer review meeting minutes addressing gaps</li>
-          <li>Service continuity and recovery plans</li>
-        </ul></div></div></div>
-
-        <div class="col"><div class="card h-100 border-success"><div class="card-header d-flex align-items-center gap-2 py-2" style="background:rgba(25,135,84,.08)">
-          <span class="pa-badge">IRP</span><span class="fw-semibold small flex-grow-1">Incident Resolution and Prevention</span>
-          <span class="badge bg-success ms-auto" style="font-size:.65rem">&#11088; SERVICES</span>
-        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
-          <li>Incident classification criteria and severity matrix</li>
-          <li>Incident log / ticketing system records with resolution times</li>
-          <li>Stakeholder notification records</li>
-          <li>Root cause analysis reports for recurring incidents</li>
-          <li>Preventative action implementation records</li>
-        </ul></div></div></div>
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 mb-5" id="ev-ml2-grid">
 
       </div>
 
-      <!-- ML3 Evidence -->
+      <!-- ML3 dynamic grid -->
       <h3 class="h6 fw-bold text-uppercase mb-3" style="letter-spacing:.08em;color:var(--bs-success)">&#128310; Maturity Level 3 — Required Artifacts</h3>
-      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 mb-5">
-
-        <div class="col"><div class="card h-100"><div class="card-header d-flex align-items-center gap-2 py-2">
-          <span class="pa-badge">EST</span><span class="fw-semibold small flex-grow-1">Estimation</span>
-          <span class="badge" style="background:rgba(25,135,84,.15);color:#75b798;font-size:.65rem">ML3</span>
-        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
-          <li>Documented estimation method (story points, hours, parametric, etc.)</li>
-          <li>Historical data used from past sprints or projects</li>
-          <li>Estimates tied to actuals with variance tracking</li>
-          <li>Organizational estimating parameters and calibrated models</li>
-        </ul></div></div></div>
-
-        <div class="col"><div class="card h-100"><div class="card-header d-flex align-items-center gap-2 py-2">
-          <span class="pa-badge">RSK</span><span class="fw-semibold small flex-grow-1">Risk and Opportunity Management</span>
-          <span class="badge" style="background:rgba(25,135,84,.15);color:#75b798;font-size:.65rem">ML3</span>
-        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
-          <li>Risk register with identified risks and opportunities</li>
-          <li>Risk scoring and prioritization evidence</li>
-          <li>Mitigation plans per risk item</li>
-          <li>Periodic risk review meeting records</li>
-          <li>Organizational risk framework / standard approach</li>
-        </ul></div></div></div>
-
-        <div class="col"><div class="card h-100"><div class="card-header d-flex align-items-center gap-2 py-2">
-          <span class="pa-badge">CAR</span><span class="fw-semibold small flex-grow-1">Causal Analysis and Resolution</span>
-          <span class="badge" style="background:rgba(25,135,84,.15);color:#75b798;font-size:.65rem">ML3</span>
-        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
-          <li>Root cause analysis (RCA) documentation on defects/issues</li>
-          <li>Trend analysis showing recurring issue patterns</li>
-          <li>Preventative actions implemented and tracked to closure</li>
-        </ul></div></div></div>
-
-        <div class="col"><div class="card h-100"><div class="card-header d-flex align-items-center gap-2 py-2">
-          <span class="pa-badge">DAR</span><span class="fw-semibold small flex-grow-1">Decision Analysis and Resolution</span>
-          <span class="badge" style="background:rgba(25,135,84,.15);color:#75b798;font-size:.65rem">ML3</span>
-        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
-          <li>Formal decision-making process documentation</li>
-          <li>Trade studies for tools, architecture, or vendor selection</li>
-          <li>Criteria-based evaluation matrices with scoring</li>
-        </ul></div></div></div>
-
-        <div class="col"><div class="card h-100"><div class="card-header d-flex align-items-center gap-2 py-2">
-          <span class="pa-badge">OT</span><span class="fw-semibold small flex-grow-1">Organizational Training</span>
-          <span class="badge" style="background:rgba(25,135,84,.15);color:#75b798;font-size:.65rem">ML3</span>
-        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
-          <li>Training plans defined per role</li>
-          <li>Completion records (LMS exports or certificates)</li>
-          <li>Skills gap identification documentation</li>
-        </ul></div></div></div>
-
-        <div class="col"><div class="card h-100 border-primary"><div class="card-header d-flex align-items-center gap-2 py-2" style="background:rgba(13,110,253,.08)">
-          <span class="pa-badge">PR</span><span class="fw-semibold small flex-grow-1">Peer Reviews</span>
-          <span class="badge bg-primary ms-auto" style="font-size:.65rem">&#11088; DEV CORE</span>
-        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
-          <li>Code review records (pull requests with actual comments)</li>
-          <li>Design review meeting notes or checklists</li>
-          <li>Review checklists or entry/exit criteria</li>
-          <li>Evidence reviews are actually happening — not just "LGTM"</li>
-        </ul></div></div></div>
-
-        <div class="col"><div class="card h-100"><div class="card-header d-flex align-items-center gap-2 py-2">
-          <span class="pa-badge">PAD</span><span class="fw-semibold small flex-grow-1">Process Asset Development</span>
-          <span class="badge" style="background:rgba(25,135,84,.15);color:#75b798;font-size:.65rem">ML3</span>
-        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
-          <li>Standard process documentation (SOPs, templates, playbooks)</li>
-          <li>Central repository (SharePoint, Confluence, etc.)</li>
-          <li>Versioning history of process documents</li>
-        </ul></div></div></div>
-
-        <div class="col"><div class="card h-100"><div class="card-header d-flex align-items-center gap-2 py-2">
-          <span class="pa-badge">PCM</span><span class="fw-semibold small flex-grow-1">Process Management</span>
-          <span class="badge" style="background:rgba(25,135,84,.15);color:#75b798;font-size:.65rem">ML3</span>
-        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
-          <li>Organizational standard processes documented</li>
-          <li>Tailoring guidelines — how projects adapt processes</li>
-          <li>Governance records over process usage and compliance</li>
-        </ul></div></div></div>
-
-        <div class="col"><div class="card h-100 border-primary"><div class="card-header d-flex align-items-center gap-2 py-2" style="background:rgba(13,110,253,.08)">
-          <span class="pa-badge">PI</span><span class="fw-semibold small flex-grow-1">Product Integration</span>
-          <span class="badge bg-primary ms-auto" style="font-size:.65rem">&#11088; DEV CORE</span>
-        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
-          <li>Integration strategy document</li>
-          <li>Build process documentation and logs</li>
-          <li>Integration testing evidence and results</li>
-          <li>CI/CD pipelines executing integration builds</li>
-        </ul></div></div></div>
-
-        <div class="col"><div class="card h-100 border-primary"><div class="card-header d-flex align-items-center gap-2 py-2" style="background:rgba(13,110,253,.08)">
-          <span class="pa-badge">TS</span><span class="fw-semibold small flex-grow-1">Technical Solution</span>
-          <span class="badge bg-primary ms-auto" style="font-size:.65rem">&#11088; DEV CORE</span>
-        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
-          <li>System and software design documentation</li>
-          <li>Architecture decision records (ADRs)</li>
-          <li>Implementation artifacts aligned to requirements</li>
-          <li>Coding standards with evidence of adherence</li>
-        </ul></div></div></div>
-
-        <div class="col"><div class="card h-100 border-primary"><div class="card-header d-flex align-items-center gap-2 py-2" style="background:rgba(13,110,253,.08)">
-          <span class="pa-badge">VV</span><span class="fw-semibold small flex-grow-1">Verification and Validation</span>
-          <span class="badge bg-primary ms-auto" style="font-size:.65rem">&#11088; DEV CORE</span>
-        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
-          <li>Test plans — unit, integration, system</li>
-          <li>Test execution results with pass/fail status</li>
-          <li>Requirement-to-test traceability (coverage matrix)</li>
-          <li>Acceptance validation records (customer or user sign-off)</li>
-        </ul></div></div></div>
-
-        <div class="col"><div class="card h-100 border-success"><div class="card-header d-flex align-items-center gap-2 py-2" style="background:rgba(25,135,84,.08)">
-          <span class="pa-badge">STSM</span><span class="fw-semibold small flex-grow-1">Strategic Service Management</span>
-          <span class="badge bg-success ms-auto" style="font-size:.65rem">&#11088; SERVICES</span>
-        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
-          <li>Strategic service plan aligned to organizational goals</li>
-          <li>Service catalog describing services, SLA tiers, and constraints</li>
-          <li>Service capability and capacity assessments</li>
-          <li>Service strategy review records with improvement actions</li>
-        </ul></div></div></div>
-
-        <div class="col"><div class="card h-100 border-success"><div class="card-header d-flex align-items-center gap-2 py-2" style="background:rgba(25,135,84,.08)">
-          <span class="pa-badge">SSD</span><span class="fw-semibold small flex-grow-1">Service System Development</span>
-          <span class="badge bg-success ms-auto" style="font-size:.65rem">&#11088; SERVICES</span>
-        </div><div class="card-body py-2"><ul class="small mb-0 ps-3">
-          <li>Service system requirements document</li>
-          <li>Service system design and architecture documentation</li>
-          <li>Integration and verification plan for service system components</li>
-          <li>Service system verification and validation results</li>
-          <li>Service readiness review records</li>
-        </ul></div></div></div>
-
-      </div>
-
-      <!-- ML4/ML5 Evidence -->
-      <h3 class="h6 fw-bold text-uppercase mb-3" style="letter-spacing:.08em;color:#fd7e14">&#128310; Maturity Levels 4 &amp; 5 — Required Artifacts</h3>
-      <p class="text-secondary small mb-3">ML4 and ML5 have no domain-specific Practice Areas — quantitative management and optimization apply universally through <strong>OPM (Organizational Performance Management)</strong>.</p>
-      <div class="row row-cols-1 row-cols-md-2 g-3 mb-4">
-
-        <div class="col"><div class="card h-100" style="border-color:rgba(253,126,20,.4)"><div class="card-header d-flex align-items-center gap-2 py-2" style="background:rgba(253,126,20,.08)">
-          <span class="pa-badge">OPM</span><span class="fw-semibold small flex-grow-1">Organizational Performance Management</span>
-          <span class="badge ms-auto" style="background:rgba(253,126,20,.2);color:#fd7e14;font-size:.65rem">ML4 — Quantitative</span>
-        </div><div class="card-body py-2">
-          <div class="fw-semibold small mb-1" style="color:#fd7e14">PG1–PG3: Establish &amp; Manage Quantitatively</div>
-          <ul class="small mb-0 ps-3">
-            <li>Quantitative performance objectives aligned to business goals</li>
-            <li>Process performance baselines — control charts, capability data (Cp/Cpk)</li>
-            <li>Statistical analysis reports showing SPC or regression use</li>
-            <li>Quantitative project management plans referencing org baselines</li>
-            <li>Performance monitoring dashboards with quantitative thresholds</li>
-            <li>Corrective action records tied to statistical deviations</li>
-          </ul>
-        </div></div></div>
-
-        <div class="col"><div class="card h-100" style="border-color:rgba(220,53,69,.4)"><div class="card-header d-flex align-items-center gap-2 py-2" style="background:rgba(220,53,69,.08)">
-          <span class="pa-badge">OPM</span><span class="fw-semibold small flex-grow-1">Organizational Performance Management</span>
-          <span class="badge ms-auto" style="background:rgba(220,53,69,.2);color:#ea868f;font-size:.65rem">ML5 — Optimizing</span>
-        </div><div class="card-body py-2">
-          <div class="fw-semibold small mb-1" style="color:#ea868f">PG4–PG5: Identify &amp; Deploy Innovations</div>
-          <ul class="small mb-0 ps-3">
-            <li>Innovation proposals with quantitative benefit/risk evaluation</li>
-            <li>Candidate improvement pipeline records (proposals → evaluated → selected)</li>
-            <li>Deployment plans for selected process or technology improvements</li>
-            <li>Pilot results before org-wide deployment</li>
-            <li>Before-and-after performance measurement records for deployed improvements</li>
-            <li>Institutionalization evidence — improvements embedded in standard processes</li>
-          </ul>
-        </div></div></div>
-
-      </div>
-
-      <div class="alert small mb-4" style="background:rgba(253,126,20,.1);border:1px solid rgba(253,126,20,.3);color:var(--bs-body-color)">
-        <strong style="color:#fd7e14">&#128202; ML4 Appraiser Focus:</strong> Statistical rigor is non-negotiable. Appraisers expect actual control charts, capability indices, and prediction models — not just dashboards. Show that quantitative objectives drive management decisions at both project and organizational level.
-        <br><strong style="color:#ea868f">&#128640; ML5 Appraiser Focus:</strong> Innovation must be systematic, not ad hoc. Show a repeatable pipeline where improvements are quantitatively evaluated before adoption, piloted, deployed with a plan, and measured for outcome. "We tried something new" is not ML5 evidence.
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 mb-5" id="ev-ml3-grid">
+        <!-- JS fills these -->
       </div>
 
       <!-- Appraiser Focus -->
       <div class="card border-danger">
-        <div class="card-header fw-bold" style="background:rgba(220,53,69,.15);color:#ea868f">&#128293; What Appraisers Will Actually Drill You On (ML2–ML5)</div>
+        <div class="card-header fw-bold" style="background:rgba(220,53,69,.15);color:#ea868f">&#128293; What Appraisers Will Actually Drill You On — CMMI DEV ML3</div>
         <div class="card-body">
           <div class="row g-3 mb-4">
             <div class="col-md-6 col-lg-3">
