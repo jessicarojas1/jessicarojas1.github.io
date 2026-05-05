@@ -773,9 +773,7 @@ const DFLT = {
     { name: 'Full Style & Groom', duration: 60, price: 65 }
   ],
   staff: [
-    { name: 'Marcus', specialty: 'Fades & Tapers', active: true },
-    { name: 'Deja', specialty: 'Classic Cuts & Color', active: true },
-    { name: 'Carlos', specialty: 'Beards & Hot Towel Shaves', active: true }
+    { name: 'Fernando Cuevas', specialty: '', active: true }
   ]
 };
 
@@ -839,13 +837,18 @@ function badge(status) {
 }
 
 // ── Persistence ───────────────────────────────────────────────
+const OLD_PLACEHOLDER_NAMES = new Set(['Marcus', 'Deja', 'Carlos']);
+
 function load() {
   const raw = localStorage.getItem('barberpro_v1');
   if (raw) {
     const p = JSON.parse(raw);
     S.appointments = p.appointments || [];
     S.services = p.services?.length ? p.services : DFLT.services.map(s => ({ id: uid(), ...s }));
-    S.staff = p.staff?.length ? p.staff : DFLT.staff.map(s => ({ id: uid(), ...s }));
+    // Replace old placeholder staff with Fernando Cuevas if no real staff has been added
+    const savedStaff = p.staff || [];
+    const hasRealStaff = savedStaff.some(s => !OLD_PLACEHOLDER_NAMES.has(s.name));
+    S.staff = hasRealStaff ? savedStaff : DFLT.staff.map(s => ({ id: uid(), ...s }));
     S.settings = { ...DFLT.settings, ...(p.settings || {}) };
   } else {
     S.services = DFLT.services.map(s => ({ id: uid(), ...s }));
