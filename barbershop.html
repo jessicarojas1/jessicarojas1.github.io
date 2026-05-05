@@ -1,0 +1,1714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BarberPro — Booking & Shop Management</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<style>
+/* ── Variables ── */
+:root {
+  --gold: #c9973c;
+  --gold-dark: #a87a28;
+  --gold-bg: rgba(201,151,60,.1);
+  --navy: #111827;
+  --navy-mid: #1f2937;
+  --cream: #faf8f3;
+  --sidebar-w: 240px;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+
+/* ============================================================
+   BOOKING VIEW
+   ============================================================ */
+#booking-view { background: var(--cream); min-height: 100vh; }
+
+.bk-hero {
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+  color: #fff; padding: 3.5rem 1rem 2.5rem; text-align: center; position: relative;
+}
+.bk-hero h1 { font-size: 2.3rem; font-weight: 800; letter-spacing: -1px; margin-bottom: .3rem; }
+.bk-hero h1 span { color: var(--gold); }
+.bk-hero p.tagline { color: rgba(255,255,255,.65); font-size: 1rem; margin-bottom: 1rem; }
+.bk-hero-meta { display: flex; justify-content: center; gap: 1.8rem; font-size: .8rem; color: rgba(255,255,255,.45); }
+.bk-hero-meta span { display: flex; align-items: center; gap: 5px; }
+.bk-admin-link {
+  position: absolute; top: 14px; right: 16px;
+  color: rgba(255,255,255,.3); font-size: .75rem; text-decoration: none; transition: color .2s;
+}
+.bk-admin-link:hover { color: rgba(255,255,255,.7); }
+
+.bk-steps { max-width: 780px; margin: 2rem auto; padding: 0 1rem 3rem; }
+
+.step-card {
+  background: #fff; border-radius: 14px; border: 1px solid #e5e7eb;
+  margin-bottom: 1.2rem; overflow: hidden; box-shadow: 0 1px 6px rgba(0,0,0,.04);
+}
+.step-hdr {
+  background: var(--navy); color: #fff; padding: 10px 18px;
+  font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .8px;
+  display: flex; align-items: center; gap: 8px;
+}
+.step-num {
+  width: 22px; height: 22px; border-radius: 50%; background: var(--gold); color: var(--navy);
+  font-weight: 800; font-size: .75rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.step-body { padding: 18px; }
+
+/* Service grid */
+.svc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)); gap: 10px; }
+.svc-card {
+  border: 2px solid #e5e7eb; border-radius: 10px; padding: 14px; cursor: pointer;
+  transition: all .15s; background: #fff; position: relative;
+}
+.svc-card:hover { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,151,60,.12); }
+.svc-card.selected { border-color: var(--gold); background: var(--gold-bg); }
+.svc-card .svc-name { font-weight: 700; font-size: .88rem; color: var(--navy); }
+.svc-card .svc-meta { font-size: .75rem; color: #6b7280; margin-top: 3px; }
+.svc-card .svc-price { font-size: 1.1rem; font-weight: 800; color: var(--gold-dark); margin-top: 6px; }
+.svc-chk { position: absolute; top: 8px; right: 10px; color: var(--gold); font-size: 1.1rem; display: none; }
+.svc-card.selected .svc-chk { display: block; }
+
+/* Staff grid */
+.staff-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+.staff-card {
+  border: 2px solid #e5e7eb; border-radius: 10px; padding: 14px 20px;
+  cursor: pointer; transition: all .15s; text-align: center; min-width: 120px;
+}
+.staff-card:hover { border-color: var(--gold); }
+.staff-card.selected { border-color: var(--gold); background: var(--gold-bg); }
+.staff-avatar-sm {
+  width: 44px; height: 44px; border-radius: 50%; background: var(--navy); color: var(--gold);
+  font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px;
+}
+.staff-nm { font-weight: 600; font-size: .88rem; color: var(--navy); }
+.staff-sp { font-size: .7rem; color: #6b7280; margin-top: 2px; }
+
+/* Time slots */
+.time-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.time-slot {
+  border: 2px solid #e5e7eb; border-radius: 8px; padding: 7px 14px;
+  cursor: pointer; font-size: .85rem; font-weight: 600; transition: all .15s; background: #fff;
+}
+.time-slot:hover { border-color: var(--gold); }
+.time-slot.selected { background: var(--navy); color: #fff; border-color: var(--navy); }
+.time-slot.unavail { background: #f3f4f6; color: #d1d5db; cursor: not-allowed; text-decoration: line-through; pointer-events: none; }
+
+/* Gold button */
+.btn-gold {
+  background: var(--gold); color: var(--navy); font-weight: 700; border: none;
+  padding: .7rem 2rem; border-radius: 10px; font-size: 1rem; cursor: pointer; transition: background .15s;
+  display: inline-flex; align-items: center; gap: 7px;
+}
+.btn-gold:hover { background: var(--gold-dark); color: #fff; }
+.btn-gold:disabled { opacity: .5; cursor: not-allowed; }
+
+/* Booking confirm */
+#booking-confirm {
+  background: #fff; border-radius: 14px; border: 1px solid #e5e7eb;
+  padding: 3rem; text-align: center; display: none;
+}
+.confirm-icon { font-size: 3.5rem; color: #16a34a; margin-bottom: 1rem; }
+.confirm-ref { font-size: .75rem; color: #9ca3af; margin-top: .5rem; font-family: monospace; }
+
+/* ============================================================
+   ADMIN LOGIN
+   ============================================================ */
+#admin-login {
+  min-height: 100vh; display: none; background: var(--navy);
+  align-items: center; justify-content: center;
+}
+.login-card {
+  background: #fff; border-radius: 16px; padding: 2.5rem; width: 360px; max-width: 92%;
+  box-shadow: 0 20px 60px rgba(0,0,0,.45);
+}
+.login-logo { font-size: 2.5rem; margin-bottom: 1rem; text-align: center; }
+.login-card h2 { font-weight: 800; color: var(--navy); text-align: center; margin-bottom: .25rem; }
+.login-card p { font-size: .82rem; color: #6b7280; text-align: center; margin-bottom: 1.5rem; }
+
+/* ============================================================
+   ADMIN VIEW
+   ============================================================ */
+#admin-view { display: none; min-height: 100vh; }
+
+/* Sidebar */
+#adm-sidebar {
+  width: var(--sidebar-w); min-height: 100vh; background: #0f172a;
+  position: fixed; top: 0; left: 0; z-index: 200;
+  display: flex; flex-direction: column; overflow-y: auto;
+}
+.adm-brand { padding: 20px 16px 12px; border-bottom: 1px solid rgba(255,255,255,.07); }
+.adm-brand .shop-nm { font-size: 1rem; font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.adm-brand .shop-nm span { color: var(--gold); }
+.adm-brand .shop-sub { font-size: .6rem; color: rgba(255,255,255,.28); text-transform: uppercase; letter-spacing: 1.5px; margin-top: 2px; }
+.adm-sect { padding: 12px 16px 3px; font-size: .6rem; color: rgba(255,255,255,.22); text-transform: uppercase; letter-spacing: 2px; }
+.adm-link {
+  color: rgba(255,255,255,.55); padding: 8px 14px; border-radius: 7px; margin: 1px 8px;
+  font-size: .83rem; display: flex; align-items: center; gap: 9px; cursor: pointer;
+  transition: all .13s; border: none; background: none; width: calc(100% - 16px); text-align: left;
+}
+.adm-link:hover { background: rgba(255,255,255,.06); color: #fff; }
+.adm-link.active { background: rgba(201,151,60,.18); color: var(--gold); font-weight: 600; }
+.adm-link .bi { font-size: .9rem; width: 16px; text-align: center; }
+.adm-link .badge { margin-left: auto; font-size: .6rem; padding: 2px 6px; }
+.adm-sidebar-btm { margin-top: auto; padding: 12px 8px; border-top: 1px solid rgba(255,255,255,.07); }
+
+/* Main content */
+#adm-main { margin-left: var(--sidebar-w); min-height: 100vh; background: #f0f2f5; }
+#adm-topbar {
+  background: #fff; border-bottom: 1px solid #e5e7eb; padding: 0 24px; height: 54px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 4px rgba(0,0,0,.04);
+}
+#adm-topbar .page-title { font-size: 1.05rem; font-weight: 700; color: var(--navy); }
+#adm-content { padding: 22px 24px; }
+.adm-mod { display: none; }
+.adm-mod.active { display: block; }
+
+/* Stat cards */
+.stat-card { background: #fff; border-radius: 12px; padding: 18px 20px; border: 1px solid #e5e7eb; }
+.stat-val { font-size: 2rem; font-weight: 800; line-height: 1.1; color: var(--navy); }
+.stat-lbl { font-size: .78rem; color: #6b7280; font-weight: 500; margin-top: 2px; }
+.stat-ico { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+
+/* Table */
+.tbl-card { background: #fff; border-radius: 12px; border: 1px solid #e5e7eb; overflow: hidden; }
+.table th { font-size: .72rem; text-transform: uppercase; letter-spacing: .6px; color: #9ca3af; font-weight: 600; border-bottom: 1px solid #f3f4f6; white-space: nowrap; }
+.table td { vertical-align: middle; font-size: .86rem; }
+
+/* Status badges */
+.bpending   { background: #fef3c7; color: #92400e; border-radius: 5px; padding: 2px 8px; font-size: .72rem; font-weight: 600; white-space: nowrap; }
+.bconfirmed { background: #d1fae5; color: #065f46; border-radius: 5px; padding: 2px 8px; font-size: .72rem; font-weight: 600; white-space: nowrap; }
+.binprogress{ background: #dbeafe; color: #1e40af; border-radius: 5px; padding: 2px 8px; font-size: .72rem; font-weight: 600; white-space: nowrap; }
+.bcompleted { background: #f3f4f6; color: #374151; border-radius: 5px; padding: 2px 8px; font-size: .72rem; font-weight: 600; white-space: nowrap; }
+.bcancelled  { background: #fee2e2; color: #991b1b; border-radius: 5px; padding: 2px 8px; font-size: .72rem; font-weight: 600; white-space: nowrap; }
+.bnoshow    { background: #ede9fe; color: #5b21b6; border-radius: 5px; padding: 2px 8px; font-size: .72rem; font-weight: 600; white-space: nowrap; }
+
+/* Filter bar */
+.filter-bar {
+  background: #fff; border-radius: 10px; padding: 12px 16px;
+  margin-bottom: 14px; border: 1px solid #e5e7eb; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+}
+
+/* Hours bar */
+.hrs-bar { height: 9px; border-radius: 5px; background: var(--gold); transition: width .3s; }
+.hrs-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f3f4f6; }
+.hrs-row:last-child { border-bottom: none; }
+
+/* Timer */
+.timer-txt { font-family: monospace; font-size: .9rem; font-weight: 700; color: #1e40af; white-space: nowrap; }
+
+/* Section title */
+.sec-title { font-size: 1rem; font-weight: 700; color: var(--navy); margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; }
+
+/* Avatar */
+.barber-ava {
+  width: 32px; height: 32px; border-radius: 50%; background: var(--navy); color: var(--gold);
+  font-weight: 700; font-size: .82rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  #adm-sidebar { transform: translateX(-100%); transition: transform .25s; }
+  #adm-sidebar.open { transform: translateX(0); }
+  #adm-main { margin-left: 0; }
+  #adm-content { padding: 14px; }
+  .bk-hero h1 { font-size: 1.75rem; }
+  .svc-grid { grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     BOOKING VIEW
+     ============================================================ -->
+<div id="booking-view">
+  <div class="bk-hero">
+    <a class="bk-admin-link" href="#" onclick="showAdminLogin();return false;">
+      <i class="bi bi-gear-fill"></i> Admin
+    </a>
+    <h1 id="hero-name">✂ <span>BarberPro</span></h1>
+    <p class="tagline" id="hero-tagline">Premium cuts, clean shaves — book your seat in seconds</p>
+    <div class="bk-hero-meta">
+      <span><i class="bi bi-clock"></i> <span id="hero-hours">Mon–Sat 9 AM – 7 PM</span></span>
+      <span><i class="bi bi-geo-alt"></i> Walk-ins welcome</span>
+      <span><i class="bi bi-telephone"></i> Call us anytime</span>
+    </div>
+  </div>
+
+  <div class="bk-steps">
+    <div id="bk-form-area">
+
+      <!-- Step 1: Service -->
+      <div class="step-card">
+        <div class="step-hdr"><span class="step-num">1</span> Choose a Service</div>
+        <div class="step-body">
+          <div class="svc-grid" id="svc-grid">
+            <div class="text-muted small">Loading services…</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Barber -->
+      <div class="step-card">
+        <div class="step-hdr"><span class="step-num">2</span> Choose Your Barber</div>
+        <div class="step-body">
+          <div class="staff-grid" id="bk-staff-grid">
+            <div class="text-muted small">Loading barbers…</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Date -->
+      <div class="step-card">
+        <div class="step-hdr"><span class="step-num">3</span> Pick a Date</div>
+        <div class="step-body">
+          <input type="date" id="bk-date" class="form-control" style="max-width:220px;" oninput="updateTimeSlots()">
+        </div>
+      </div>
+
+      <!-- Step 4: Time -->
+      <div class="step-card">
+        <div class="step-hdr"><span class="step-num">4</span> Choose a Time</div>
+        <div class="step-body">
+          <div class="time-grid" id="time-grid">
+            <div class="text-muted small">Select service, barber, and date first.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 5: Contact info -->
+      <div class="step-card">
+        <div class="step-hdr"><span class="step-num">5</span> Your Information</div>
+        <div class="step-body">
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <label class="form-label fw-semibold small">Full Name *</label>
+              <input type="text" id="bk-name" class="form-control" placeholder="Jane Smith">
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label fw-semibold small">Phone *</label>
+              <input type="tel" id="bk-phone" class="form-control" placeholder="(555) 000-0000">
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label fw-semibold small">Email (optional)</label>
+              <input type="email" id="bk-email" class="form-control" placeholder="jane@example.com">
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label fw-semibold small">Special Requests (optional)</label>
+              <input type="text" id="bk-notes" class="form-control" placeholder="Any notes for your barber?">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div id="bk-summary-card" class="step-card" style="display:none">
+        <div class="step-hdr" style="background:var(--gold);color:var(--navy);">
+          <i class="bi bi-receipt"></i> Booking Summary
+        </div>
+        <div class="step-body" id="bk-summary-body"></div>
+      </div>
+
+      <div id="bk-error" class="alert alert-danger" style="display:none;border-radius:10px;"></div>
+
+      <button class="btn-gold w-100" style="justify-content:center;" onclick="submitBooking()">
+        <i class="bi bi-calendar-check-fill"></i> Confirm Appointment
+      </button>
+    </div>
+
+    <!-- Confirmation -->
+    <div id="booking-confirm">
+      <div class="confirm-icon"><i class="bi bi-check-circle-fill"></i></div>
+      <h3 style="color:var(--navy);font-weight:800;">You're all set!</h3>
+      <p class="text-muted" id="confirm-msg"></p>
+      <div class="confirm-ref" id="confirm-ref"></div>
+      <button class="btn-gold mt-4" onclick="resetBooking()">Book Another Appointment</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     ADMIN LOGIN
+     ============================================================ -->
+<div id="admin-login">
+  <div class="login-card">
+    <div class="login-logo">✂</div>
+    <h2>Admin Login</h2>
+    <p>BarberPro Shop Management</p>
+    <div class="mb-3">
+      <label class="form-label fw-semibold small">Password</label>
+      <input type="password" id="adm-pw" class="form-control" placeholder="Enter admin password"
+             onkeydown="if(event.key==='Enter')adminLogin()">
+    </div>
+    <div id="login-err" class="alert alert-danger small py-2" style="display:none;"></div>
+    <button class="btn-gold w-100" style="justify-content:center;" onclick="adminLogin()">Sign In</button>
+    <div class="text-center mt-3">
+      <a href="#" onclick="showBooking();return false;" style="font-size:.82rem;color:#6b7280;text-decoration:none;">
+        ← Back to Booking Page
+      </a>
+    </div>
+    <div class="text-center mt-2">
+      <span style="font-size:.72rem;color:#9ca3af;">Default password: <code>admin123</code></span>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     ADMIN VIEW
+     ============================================================ -->
+<div id="admin-view">
+
+  <!-- Sidebar -->
+  <nav id="adm-sidebar">
+    <div class="adm-brand">
+      <div class="shop-nm" id="adm-nm">✂ <span>BarberPro</span></div>
+      <div class="shop-sub">Admin Dashboard</div>
+    </div>
+
+    <div class="adm-sect">Overview</div>
+    <button class="adm-link active" data-mod="dashboard" onclick="showMod('dashboard',this)">
+      <i class="bi bi-grid-1x2-fill"></i> Dashboard
+    </button>
+
+    <div class="adm-sect">Appointments</div>
+    <button class="adm-link" data-mod="appointments" onclick="showMod('appointments',this)">
+      <i class="bi bi-calendar3"></i> All Appointments
+      <span class="badge bg-warning text-dark" id="sb-pending-badge" style="display:none"></span>
+    </button>
+    <button class="adm-link" data-mod="add-appt" onclick="showMod('add-appt',this)">
+      <i class="bi bi-plus-circle-fill"></i> Add Appointment
+    </button>
+
+    <div class="adm-sect">Reports</div>
+    <button class="adm-link" data-mod="time-reports" onclick="showMod('time-reports',this)">
+      <i class="bi bi-clock-history"></i> Time Reports
+    </button>
+    <button class="adm-link" data-mod="revenue" onclick="showMod('revenue',this)">
+      <i class="bi bi-cash-stack"></i> Revenue
+    </button>
+
+    <div class="adm-sect">Configuration</div>
+    <button class="adm-link" data-mod="services-mgmt" onclick="showMod('services-mgmt',this)">
+      <i class="bi bi-scissors"></i> Services
+    </button>
+    <button class="adm-link" data-mod="staff-mgmt" onclick="showMod('staff-mgmt',this)">
+      <i class="bi bi-people-fill"></i> Staff / Barbers
+    </button>
+    <button class="adm-link" data-mod="settings" onclick="showMod('settings',this)">
+      <i class="bi bi-gear-fill"></i> Settings
+    </button>
+
+    <div class="adm-sidebar-btm">
+      <button class="adm-link" onclick="showBooking()">
+        <i class="bi bi-arrow-left-circle"></i> Booking Page
+      </button>
+      <button class="adm-link" onclick="adminLogout()">
+        <i class="bi bi-box-arrow-left"></i> Sign Out
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <div id="adm-main">
+    <div id="adm-topbar">
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-sm btn-light d-md-none" onclick="toggleSidebar()">
+          <i class="bi bi-list fs-5"></i>
+        </button>
+        <div class="page-title" id="adm-page-title">Dashboard</div>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <span class="text-muted" style="font-size:.77rem;" id="live-clock"></span>
+        <span class="badge" style="background:rgba(201,151,60,.15);color:#92400e;font-size:.68rem;padding:3px 8px;">Admin</span>
+      </div>
+    </div>
+
+    <div id="adm-content">
+
+      <!-- ── DASHBOARD ─────────────────────────────────── -->
+      <div class="adm-mod active" id="mod-dashboard">
+        <div class="row g-3 mb-4" id="dash-stats"></div>
+        <div class="row g-3">
+          <div class="col-lg-8">
+            <div class="tbl-card">
+              <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+                <div class="fw-bold" style="color:var(--navy)">Today's Schedule</div>
+                <span class="text-muted small" id="dash-date-lbl"></span>
+              </div>
+              <div class="table-responsive">
+                <table class="table mb-0">
+                  <thead><tr><th>Time</th><th>Client</th><th>Service</th><th>Barber</th><th>Status</th><th>Actions</th></tr></thead>
+                  <tbody id="dash-today-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4 d-flex flex-column gap-3">
+            <div class="tbl-card p-3">
+              <div class="fw-bold mb-2" style="color:var(--navy);font-size:.92rem;"><i class="bi bi-hourglass-split text-warning"></i> Awaiting Confirmation</div>
+              <div id="dash-pending-list"></div>
+            </div>
+            <div class="tbl-card p-3">
+              <div class="fw-bold mb-2" style="color:var(--navy);font-size:.92rem;"><i class="bi bi-clock-history" style="color:var(--gold)"></i> Today's Hours by Barber</div>
+              <div id="dash-hours-today"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ALL APPOINTMENTS ──────────────────────────── -->
+      <div class="adm-mod" id="mod-appointments">
+        <div class="filter-bar">
+          <input type="date" id="af-date" class="form-control form-control-sm" style="width:160px;" onchange="renderAppointments()">
+          <select id="af-barber" class="form-select form-select-sm" style="width:155px;" onchange="renderAppointments()">
+            <option value="">All Barbers</option>
+          </select>
+          <select id="af-status" class="form-select form-select-sm" style="width:155px;" onchange="renderAppointments()">
+            <option value="">All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="in_progress">In Progress</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+            <option value="no_show">No Show</option>
+          </select>
+          <button class="btn btn-sm btn-outline-secondary" onclick="clearApptFilters()">Clear</button>
+          <div class="ms-auto small text-muted" id="af-count"></div>
+        </div>
+        <div class="tbl-card">
+          <div class="table-responsive">
+            <table class="table mb-0">
+              <thead><tr><th>Date & Time</th><th>Client</th><th>Service</th><th>Barber</th><th>Duration</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody id="appt-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ADD APPOINTMENT ───────────────────────────── -->
+      <div class="adm-mod" id="mod-add-appt">
+        <div style="max-width:620px;">
+          <div class="tbl-card p-4">
+            <div class="sec-title"><i class="bi bi-plus-circle-fill text-warning"></i> Add Appointment</div>
+            <div class="row g-3">
+              <div class="col-sm-6">
+                <label class="form-label fw-semibold small">Client Name *</label>
+                <input type="text" id="aa-name" class="form-control" placeholder="Full name">
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label fw-semibold small">Phone *</label>
+                <input type="tel" id="aa-phone" class="form-control" placeholder="(555) 000-0000">
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label fw-semibold small">Email (optional)</label>
+                <input type="email" id="aa-email" class="form-control" placeholder="">
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label fw-semibold small">Service *</label>
+                <select id="aa-service" class="form-select"></select>
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label fw-semibold small">Barber *</label>
+                <select id="aa-barber" class="form-select" onchange="aaRefreshSlots()"></select>
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label fw-semibold small">Date *</label>
+                <input type="date" id="aa-date" class="form-control" oninput="aaRefreshSlots()">
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label fw-semibold small">Time *</label>
+                <select id="aa-time" class="form-select"></select>
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label fw-semibold small">Status</label>
+                <select id="aa-status" class="form-select">
+                  <option value="confirmed">Confirmed</option>
+                  <option value="pending">Pending</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-semibold small">Notes (optional)</label>
+                <input type="text" id="aa-notes" class="form-control" placeholder="">
+              </div>
+            </div>
+            <div id="aa-msg" class="alert mt-3" style="display:none;font-size:.85rem;"></div>
+            <button class="btn-gold mt-4 w-100" style="justify-content:center;" onclick="adminAddAppt()">
+              <i class="bi bi-calendar-plus-fill"></i> Add Appointment
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TIME REPORTS ──────────────────────────────── -->
+      <div class="adm-mod" id="mod-time-reports">
+        <div class="filter-bar">
+          <select id="tr-period" class="form-select form-select-sm" style="width:155px;" onchange="renderTimeReports()">
+            <option value="today">Today</option>
+            <option value="week">This Week</option>
+            <option value="month" selected>This Month</option>
+            <option value="all">All Time</option>
+          </select>
+          <select id="tr-barber" class="form-select form-select-sm" style="width:155px;" onchange="renderTimeReports()">
+            <option value="">All Barbers</option>
+          </select>
+        </div>
+        <div class="row g-3 mb-3" id="tr-stat-cards"></div>
+        <div class="row g-3 mb-3">
+          <div class="col-lg-6">
+            <div class="tbl-card p-3 h-100">
+              <div class="fw-bold mb-3" style="color:var(--navy);font-size:.92rem;">Hours by Barber</div>
+              <div id="tr-by-barber"></div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="tbl-card p-3 h-100">
+              <div class="fw-bold mb-3" style="color:var(--navy);font-size:.92rem;">Hours by Day</div>
+              <div id="tr-by-day"></div>
+            </div>
+          </div>
+        </div>
+        <div class="tbl-card">
+          <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+            <div class="fw-bold" style="color:var(--navy);">Session Log</div>
+            <button class="btn btn-sm btn-outline-secondary" onclick="exportTrCsv()"><i class="bi bi-download"></i> CSV</button>
+          </div>
+          <div class="table-responsive">
+            <table class="table mb-0">
+              <thead><tr><th>Date</th><th>Client</th><th>Service</th><th>Barber</th><th>Scheduled</th><th>Started</th><th>Completed</th><th>Actual Duration</th></tr></thead>
+              <tbody id="tr-session-log"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── REVENUE ────────────────────────────────────── -->
+      <div class="adm-mod" id="mod-revenue">
+        <div class="filter-bar">
+          <select id="rev-period" class="form-select form-select-sm" style="width:155px;" onchange="renderRevenue()">
+            <option value="today">Today</option>
+            <option value="week">This Week</option>
+            <option value="month" selected>This Month</option>
+            <option value="all">All Time</option>
+          </select>
+        </div>
+        <div class="row g-3 mb-3" id="rev-stat-cards"></div>
+        <div class="tbl-card">
+          <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+            <div class="fw-bold" style="color:var(--navy);">Completed Appointments</div>
+            <button class="btn btn-sm btn-outline-secondary" onclick="exportRevCsv()"><i class="bi bi-download"></i> CSV</button>
+          </div>
+          <div class="table-responsive">
+            <table class="table mb-0">
+              <thead><tr><th>Date & Time</th><th>Client</th><th>Service</th><th>Barber</th><th>Duration</th><th>Price</th></tr></thead>
+              <tbody id="rev-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SERVICES MANAGEMENT ────────────────────────── -->
+      <div class="adm-mod" id="mod-services-mgmt">
+        <div class="row g-3">
+          <div class="col-lg-5">
+            <div class="tbl-card p-4">
+              <div class="sec-title"><i class="bi bi-scissors text-warning"></i> <span id="svc-form-title">Add Service</span></div>
+              <input type="hidden" id="svc-edit-id">
+              <div class="mb-3">
+                <label class="form-label fw-semibold small">Service Name *</label>
+                <input type="text" id="svc-name-inp" class="form-control" placeholder="e.g. Haircut & Fade">
+              </div>
+              <div class="row g-2 mb-3">
+                <div class="col-6">
+                  <label class="form-label fw-semibold small">Duration (min) *</label>
+                  <input type="number" id="svc-dur-inp" class="form-control" placeholder="30" min="5" step="5">
+                </div>
+                <div class="col-6">
+                  <label class="form-label fw-semibold small">Price ($) *</label>
+                  <input type="number" id="svc-price-inp" class="form-control" placeholder="28" min="0" step="0.50">
+                </div>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn-gold flex-fill" style="justify-content:center;" onclick="saveService()">Save Service</button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="clearSvcForm()">Clear</button>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-7">
+            <div class="tbl-card">
+              <div class="table-responsive">
+                <table class="table mb-0">
+                  <thead><tr><th>Service</th><th>Duration</th><th>Price</th><th>Actions</th></tr></thead>
+                  <tbody id="svc-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STAFF MANAGEMENT ──────────────────────────── -->
+      <div class="adm-mod" id="mod-staff-mgmt">
+        <div class="row g-3">
+          <div class="col-lg-4">
+            <div class="tbl-card p-4">
+              <div class="sec-title"><i class="bi bi-person-plus-fill text-warning"></i> <span id="staff-form-title">Add Barber</span></div>
+              <input type="hidden" id="staff-edit-id">
+              <div class="mb-3">
+                <label class="form-label fw-semibold small">Name *</label>
+                <input type="text" id="staff-name-inp" class="form-control" placeholder="Barber name">
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold small">Specialty (optional)</label>
+                <input type="text" id="staff-spec-inp" class="form-control" placeholder="e.g. Fades & Tapers">
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn-gold flex-fill" style="justify-content:center;" onclick="saveStaff()">Save</button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="clearStaffForm()">Clear</button>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-8">
+            <div class="tbl-card">
+              <div class="table-responsive">
+                <table class="table mb-0">
+                  <thead><tr><th>Barber</th><th>Specialty</th><th>Status</th><th>Actions</th></tr></thead>
+                  <tbody id="staff-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SETTINGS ───────────────────────────────────── -->
+      <div class="adm-mod" id="mod-settings">
+        <div style="max-width:580px;">
+          <div class="tbl-card p-4">
+            <div class="sec-title"><i class="bi bi-gear-fill text-warning"></i> Shop Settings</div>
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label fw-semibold small">Shop Name</label>
+                <input type="text" id="set-name" class="form-control" placeholder="BarberPro">
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-semibold small">Tagline</label>
+                <input type="text" id="set-tag" class="form-control" placeholder="Premium cuts, clean shaves">
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label fw-semibold small">Opening Time</label>
+                <input type="time" id="set-open" class="form-control">
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label fw-semibold small">Closing Time</label>
+                <input type="time" id="set-close" class="form-control">
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label fw-semibold small">Booking Slot Interval</label>
+                <select id="set-interval" class="form-select">
+                  <option value="15">15 minutes</option>
+                  <option value="30">30 minutes</option>
+                  <option value="45">45 minutes</option>
+                  <option value="60">60 minutes</option>
+                </select>
+              </div>
+              <div class="col-12"><hr style="margin:.5rem 0;"></div>
+              <div class="col-12 fw-semibold small text-muted" style="margin-bottom:-8px;">Change Admin Password</div>
+              <div class="col-sm-6">
+                <label class="form-label fw-semibold small">Current Password</label>
+                <input type="password" id="set-pw-old" class="form-control" placeholder="">
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label fw-semibold small">New Password</label>
+                <input type="password" id="set-pw-new" class="form-control" placeholder="Leave blank to keep">
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label fw-semibold small">Confirm New Password</label>
+                <input type="password" id="set-pw-cfm" class="form-control" placeholder="">
+              </div>
+            </div>
+            <div id="set-msg" class="alert mt-3" style="display:none;font-size:.85rem;"></div>
+            <button class="btn-gold mt-3 w-100" style="justify-content:center;" onclick="saveSettings()">
+              <i class="bi bi-floppy-fill"></i> Save Settings
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /#adm-content -->
+  </div><!-- /#adm-main -->
+</div><!-- /#admin-view -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+/* =============================================================
+   BarberPro — Full App Logic
+   ============================================================= */
+
+// ── State ────────────────────────────────────────────────────
+const S = { appointments: [], services: [], staff: [], settings: {} };
+let bk = { svcId: null, barberId: null, date: null, time: null };
+const timers = {};
+
+// ── Defaults ─────────────────────────────────────────────────
+const DFLT = {
+  settings: {
+    shopName: 'BarberPro',
+    tagline: 'Premium cuts, clean shaves — book your seat in seconds',
+    openTime: '09:00',
+    closeTime: '19:00',
+    slotInterval: 30,
+    adminPw: 'admin123'
+  },
+  services: [
+    { name: 'Haircut', duration: 30, price: 28 },
+    { name: 'Haircut & Fade', duration: 45, price: 38 },
+    { name: 'Beard Trim', duration: 20, price: 18 },
+    { name: 'Haircut & Beard', duration: 50, price: 50 },
+    { name: 'Clean Shave', duration: 30, price: 28 },
+    { name: "Kids Cut (under 12)", duration: 20, price: 18 },
+    { name: 'Full Style & Groom', duration: 60, price: 65 }
+  ],
+  staff: [
+    { name: 'Marcus', specialty: 'Fades & Tapers', active: true },
+    { name: 'Deja', specialty: 'Classic Cuts & Color', active: true },
+    { name: 'Carlos', specialty: 'Beards & Hot Towel Shaves', active: true }
+  ]
+};
+
+// ── Utils ─────────────────────────────────────────────────────
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+
+function fmtTime(t) {
+  if (!t) return '';
+  const [h, m] = t.split(':').map(Number);
+  return `${h % 12 || 12}:${String(m).padStart(2,'0')} ${h < 12 ? 'AM' : 'PM'}`;
+}
+
+function fmtDate(d) {
+  if (!d) return '';
+  return new Date(d + 'T12:00:00').toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
+}
+
+function fmtDur(mins) {
+  if (mins == null) return '—';
+  const h = Math.floor(mins / 60), m = mins % 60;
+  if (h === 0) return `${m}m`;
+  if (m === 0) return `${h}h`;
+  return `${h}h ${m}m`;
+}
+
+function fmtMoney(n) { return '$' + (n || 0).toFixed(2); }
+
+function fmtTS(ts) {
+  if (!ts) return '—';
+  return new Date(ts).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+}
+
+function elapsedMin(ts) { return Math.round((Date.now() - ts) / 60000); }
+
+function todayStr() { return new Date().toISOString().slice(0, 10); }
+
+function inPeriod(dateStr, period) {
+  const d = new Date(dateStr + 'T12:00:00');
+  const today = new Date(); today.setHours(12, 0, 0, 0);
+  if (period === 'today') return d.toDateString() === today.toDateString();
+  if (period === 'week') {
+    const wk = new Date(today); wk.setDate(today.getDate() - today.getDay());
+    const we = new Date(wk); we.setDate(wk.getDate() + 6);
+    return d >= wk && d <= we;
+  }
+  if (period === 'month') return d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear();
+  return true;
+}
+
+function badge(status) {
+  const map = {
+    pending:     ['bpending',    'Pending'],
+    confirmed:   ['bconfirmed',  'Confirmed'],
+    in_progress: ['binprogress', '⏱ In Progress'],
+    completed:   ['bcompleted',  'Completed'],
+    cancelled:   ['bcancelled',  'Cancelled'],
+    no_show:     ['bnoshow',     'No Show']
+  };
+  const [cls, lbl] = map[status] || ['bg-secondary text-white', status];
+  return `<span class="${cls}">${lbl}</span>`;
+}
+
+// ── Persistence ───────────────────────────────────────────────
+function load() {
+  const raw = localStorage.getItem('barberpro_v1');
+  if (raw) {
+    const p = JSON.parse(raw);
+    S.appointments = p.appointments || [];
+    S.services = p.services?.length ? p.services : DFLT.services.map(s => ({ id: uid(), ...s }));
+    S.staff = p.staff?.length ? p.staff : DFLT.staff.map(s => ({ id: uid(), ...s }));
+    S.settings = { ...DFLT.settings, ...(p.settings || {}) };
+  } else {
+    S.services = DFLT.services.map(s => ({ id: uid(), ...s }));
+    S.staff = DFLT.staff.map(s => ({ id: uid(), ...s }));
+    S.settings = { ...DFLT.settings };
+  }
+}
+
+function save() { localStorage.setItem('barberpro_v1', JSON.stringify(S)); }
+
+// ── Navigation ────────────────────────────────────────────────
+function showBooking() {
+  document.getElementById('booking-view').style.display = 'block';
+  document.getElementById('admin-login').style.display = 'none';
+  document.getElementById('admin-view').style.display = 'none';
+  applySettings();
+  populateBookingForm();
+}
+
+function showAdminLogin() {
+  document.getElementById('booking-view').style.display = 'none';
+  document.getElementById('admin-login').style.display = 'flex';
+  document.getElementById('admin-view').style.display = 'none';
+  document.getElementById('adm-pw').value = '';
+  document.getElementById('login-err').style.display = 'none';
+  setTimeout(() => document.getElementById('adm-pw').focus(), 80);
+}
+
+function showAdmin() {
+  document.getElementById('booking-view').style.display = 'none';
+  document.getElementById('admin-login').style.display = 'none';
+  document.getElementById('admin-view').style.display = 'block';
+  applySettings();
+  updatePendingBadge();
+  renderDashboard();
+  startClock();
+}
+
+const MOD_TITLES = {
+  dashboard: 'Dashboard', appointments: 'All Appointments', 'add-appt': 'Add Appointment',
+  'time-reports': 'Time Reports', revenue: 'Revenue',
+  'services-mgmt': 'Services', 'staff-mgmt': 'Staff / Barbers', settings: 'Settings'
+};
+
+function showMod(name, btn) {
+  document.querySelectorAll('.adm-mod').forEach(m => m.classList.remove('active'));
+  document.querySelectorAll('.adm-link').forEach(b => b.classList.remove('active'));
+  document.getElementById('mod-' + name).classList.add('active');
+  if (btn) btn.classList.add('active');
+  document.getElementById('adm-page-title').textContent = MOD_TITLES[name] || name;
+  const render = {
+    dashboard: renderDashboard,
+    appointments: () => { fillApptBarberFilter(); renderAppointments(); },
+    'add-appt': populateAddApptForm,
+    'time-reports': () => { fillTrBarberFilter(); renderTimeReports(); },
+    revenue: renderRevenue,
+    'services-mgmt': renderSvcTable,
+    'staff-mgmt': renderStaffTable,
+    settings: populateSettings
+  };
+  if (render[name]) render[name]();
+}
+
+function toggleSidebar() { document.getElementById('adm-sidebar').classList.toggle('open'); }
+
+// ── Auth ──────────────────────────────────────────────────────
+function adminLogin() {
+  const pw = document.getElementById('adm-pw').value;
+  if (pw === S.settings.adminPw) {
+    showAdmin();
+  } else {
+    const el = document.getElementById('login-err');
+    el.textContent = 'Incorrect password.';
+    el.style.display = 'block';
+  }
+}
+function adminLogout() { showBooking(); }
+
+// ── Clock ─────────────────────────────────────────────────────
+let clockTick = null;
+function startClock() {
+  if (clockTick) clearInterval(clockTick);
+  const el = document.getElementById('live-clock');
+  const tick = () => { el.textContent = new Date().toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit', second:'2-digit' }); };
+  tick(); clockTick = setInterval(tick, 1000);
+}
+
+// ── Settings ──────────────────────────────────────────────────
+function applySettings() {
+  const s = S.settings;
+  document.title = s.shopName + ' — Booking';
+  document.getElementById('hero-name').innerHTML = '✂ <span>' + s.shopName + '</span>';
+  document.getElementById('hero-tagline').textContent = s.tagline;
+  document.getElementById('hero-hours').textContent = 'Mon–Sat ' + fmtTime(s.openTime) + ' – ' + fmtTime(s.closeTime);
+  document.getElementById('adm-nm').innerHTML = '✂ <span>' + s.shopName + '</span>';
+}
+
+function populateSettings() {
+  const s = S.settings;
+  document.getElementById('set-name').value = s.shopName;
+  document.getElementById('set-tag').value = s.tagline;
+  document.getElementById('set-open').value = s.openTime;
+  document.getElementById('set-close').value = s.closeTime;
+  document.getElementById('set-interval').value = String(s.slotInterval);
+  document.getElementById('set-pw-old').value = '';
+  document.getElementById('set-pw-new').value = '';
+  document.getElementById('set-pw-cfm').value = '';
+  document.getElementById('set-msg').style.display = 'none';
+}
+
+function saveSettings() {
+  const name = document.getElementById('set-name').value.trim();
+  if (!name) { settingsMsg('Shop name is required.', 'danger'); return; }
+  S.settings.shopName = name;
+  S.settings.tagline = document.getElementById('set-tag').value.trim();
+  S.settings.openTime = document.getElementById('set-open').value;
+  S.settings.closeTime = document.getElementById('set-close').value;
+  S.settings.slotInterval = parseInt(document.getElementById('set-interval').value);
+
+  const oldPw = document.getElementById('set-pw-old').value;
+  const newPw = document.getElementById('set-pw-new').value;
+  const cfmPw = document.getElementById('set-pw-cfm').value;
+  if (newPw) {
+    if (oldPw !== S.settings.adminPw) { settingsMsg('Current password incorrect.', 'danger'); return; }
+    if (newPw !== cfmPw) { settingsMsg('New passwords do not match.', 'danger'); return; }
+    if (newPw.length < 6) { settingsMsg('Password must be at least 6 characters.', 'danger'); return; }
+    S.settings.adminPw = newPw;
+  }
+  save(); applySettings();
+  settingsMsg('Settings saved!', 'success');
+}
+
+function settingsMsg(msg, type) {
+  const el = document.getElementById('set-msg');
+  el.className = 'alert alert-' + type + ' mt-3'; el.textContent = msg; el.style.display = 'block';
+}
+
+// ── Time Slots ────────────────────────────────────────────────
+function genSlots(open, close, interval) {
+  const slots = [];
+  const [oh, om] = open.split(':').map(Number);
+  const [ch, cm] = close.split(':').map(Number);
+  let cur = oh * 60 + om;
+  const end = ch * 60 + cm;
+  while (cur < end) {
+    slots.push(`${String(Math.floor(cur/60)).padStart(2,'0')}:${String(cur%60).padStart(2,'0')}`);
+    cur += interval;
+  }
+  return slots;
+}
+
+function bookedSlots(barberId, date, excludeId) {
+  const taken = new Set();
+  S.appointments.forEach(a => {
+    if (a.date !== date || a.barberId !== barberId || a.id === excludeId) return;
+    if (['cancelled','no_show'].includes(a.status)) return;
+    const svc = S.services.find(s => s.id === a.serviceId);
+    const dur = svc ? svc.duration : 30;
+    const interval = S.settings.slotInterval;
+    const [ah, am] = a.time.split(':').map(Number);
+    const start = ah * 60 + am;
+    const need = Math.ceil(dur / interval);
+    for (let i = 0; i < need; i++) {
+      const t = start + i * interval;
+      taken.add(`${String(Math.floor(t/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')}`);
+    }
+  });
+  return taken;
+}
+
+// ── Booking Form ──────────────────────────────────────────────
+function populateBookingForm() {
+  const di = document.getElementById('bk-date');
+  di.min = todayStr();
+  if (!di.value) di.value = todayStr();
+
+  const grid = document.getElementById('svc-grid');
+  if (!S.services.length) {
+    grid.innerHTML = '<div class="text-muted small">No services available yet.</div>';
+  } else {
+    grid.innerHTML = S.services.map((s, i) => `
+      <div class="svc-card" data-idx="${i}" onclick="selectSvc('${s.id}',this)">
+        <i class="bi bi-check-circle-fill svc-chk"></i>
+        <div class="svc-name">${s.name}</div>
+        <div class="svc-meta"><i class="bi bi-clock"></i> ${fmtDur(s.duration)}</div>
+        <div class="svc-price">${fmtMoney(s.price)}</div>
+      </div>`).join('');
+  }
+
+  const activeStaff = S.staff.filter(s => s.active);
+  const sg = document.getElementById('bk-staff-grid');
+  if (!activeStaff.length) {
+    sg.innerHTML = '<div class="text-muted small">No barbers available.</div>';
+  } else {
+    sg.innerHTML = activeStaff.map(s => `
+      <div class="staff-card" data-id="${s.id}" onclick="selectBarber('${s.id}',this)">
+        <div class="staff-avatar-sm">${s.name[0]}</div>
+        <div class="staff-nm">${s.name}</div>
+        ${s.specialty ? `<div class="staff-sp">${s.specialty}</div>` : ''}
+      </div>`).join('');
+  }
+
+  bk = { svcId: null, barberId: null, date: di.value, time: null };
+  updateTimeSlots();
+}
+
+function selectSvc(id, el) {
+  bk.svcId = id;
+  document.querySelectorAll('.svc-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  updateTimeSlots(); updateSummary();
+}
+
+function selectBarber(id, el) {
+  bk.barberId = id;
+  document.querySelectorAll('.staff-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  updateTimeSlots(); updateSummary();
+}
+
+function updateTimeSlots() {
+  bk.date = document.getElementById('bk-date').value;
+  const grid = document.getElementById('time-grid');
+  if (!bk.svcId || !bk.barberId || !bk.date) {
+    grid.innerHTML = '<div class="text-muted small">Complete steps 1–3 above to see available times.</div>';
+    bk.time = null; return;
+  }
+  const { openTime, closeTime, slotInterval } = S.settings;
+  const slots = genSlots(openTime, closeTime, slotInterval);
+  const taken = bookedSlots(bk.barberId, bk.date, null);
+  const now = new Date();
+  const isToday = bk.date === todayStr();
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  if (taken.has(bk.time)) bk.time = null;
+
+  grid.innerHTML = slots.map(slot => {
+    const [sh, sm] = slot.split(':').map(Number);
+    const past = isToday && (sh * 60 + sm) <= nowMin;
+    const busy = taken.has(slot);
+    const unav = past || busy;
+    const sel = !unav && slot === bk.time;
+    return `<div class="time-slot${unav?' unavail':''}${sel?' selected':''}"
+      ${unav ? '' : `onclick="pickTime('${slot}',this)"`}>${fmtTime(slot)}</div>`;
+  }).join('');
+}
+
+function pickTime(t, el) {
+  bk.time = t;
+  document.querySelectorAll('.time-slot').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  updateSummary();
+}
+
+function updateSummary() {
+  const card = document.getElementById('bk-summary-card');
+  if (!bk.svcId || !bk.barberId || !bk.date || !bk.time) { card.style.display = 'none'; return; }
+  const svc = S.services.find(s => s.id === bk.svcId);
+  const barber = S.staff.find(s => s.id === bk.barberId);
+  card.style.display = 'block';
+  document.getElementById('bk-summary-body').innerHTML = `
+    <div class="row g-2">
+      <div class="col-6"><div class="small text-muted">SERVICE</div><div class="fw-semibold">${svc?.name}</div></div>
+      <div class="col-6"><div class="small text-muted">BARBER</div><div class="fw-semibold">${barber?.name}</div></div>
+      <div class="col-6"><div class="small text-muted">DATE</div><div class="fw-semibold">${fmtDate(bk.date)}</div></div>
+      <div class="col-6"><div class="small text-muted">TIME</div><div class="fw-semibold">${fmtTime(bk.time)}</div></div>
+      <div class="col-6"><div class="small text-muted">DURATION</div><div class="fw-semibold">${fmtDur(svc?.duration)}</div></div>
+      <div class="col-6"><div class="small text-muted">PRICE</div><div class="fw-semibold" style="color:var(--gold-dark)">${fmtMoney(svc?.price)}</div></div>
+    </div>`;
+}
+
+function submitBooking() {
+  const name = document.getElementById('bk-name').value.trim();
+  const phone = document.getElementById('bk-phone').value.trim();
+  const email = document.getElementById('bk-email').value.trim();
+  const notes = document.getElementById('bk-notes').value.trim();
+  const errEl = document.getElementById('bk-error');
+  errEl.style.display = 'none';
+
+  if (!bk.svcId)   { bkErr('Please select a service (Step 1).'); return; }
+  if (!bk.barberId) { bkErr('Please choose a barber (Step 2).'); return; }
+  if (!bk.date)    { bkErr('Please pick a date (Step 3).'); return; }
+  if (!bk.time)    { bkErr('Please choose a time slot (Step 4).'); return; }
+  if (!name)       { bkErr('Please enter your name (Step 5).'); return; }
+  if (!phone)      { bkErr('Please enter your phone number (Step 5).'); return; }
+
+  const svc = S.services.find(s => s.id === bk.svcId);
+  const barber = S.staff.find(s => s.id === bk.barberId);
+  const appt = {
+    id: uid(), clientName: name, clientPhone: phone, clientEmail: email, notes,
+    serviceId: bk.svcId, serviceName: svc.name, serviceDuration: svc.duration, servicePrice: svc.price,
+    barberId: bk.barberId, barberName: barber.name, date: bk.date, time: bk.time,
+    status: 'pending', startedAt: null, completedAt: null, actualDuration: null, createdAt: Date.now()
+  };
+  S.appointments.push(appt); save();
+  document.getElementById('bk-form-area').style.display = 'none';
+  document.getElementById('booking-confirm').style.display = 'block';
+  document.getElementById('confirm-msg').innerHTML =
+    `Your <strong>${svc.name}</strong> with <strong>${barber.name}</strong> on <strong>${fmtDate(bk.date)}</strong> at <strong>${fmtTime(bk.time)}</strong> has been received. We'll see you soon, ${name.split(' ')[0]}!`;
+  document.getElementById('confirm-ref').textContent = 'Ref: ' + appt.id.toUpperCase();
+}
+
+function bkErr(msg) {
+  const el = document.getElementById('bk-error');
+  el.textContent = msg; el.style.display = 'block';
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function resetBooking() {
+  document.getElementById('bk-form-area').style.display = 'block';
+  document.getElementById('booking-confirm').style.display = 'none';
+  ['bk-name','bk-phone','bk-email','bk-notes'].forEach(id => document.getElementById(id).value = '');
+  bk = { svcId: null, barberId: null, date: todayStr(), time: null };
+  document.getElementById('bk-date').value = todayStr();
+  populateBookingForm();
+}
+
+// ── Appointment Actions ───────────────────────────────────────
+function apptActions(a) {
+  let html = '';
+  if (a.status === 'pending') {
+    html += `<button class="btn btn-success btn-sm" onclick="updateAppt('${a.id}',{status:'confirmed'})"><i class="bi bi-check-lg"></i> Confirm</button>`;
+    html += `<button class="btn btn-outline-danger btn-sm" onclick="cancelAppt('${a.id}')">Cancel</button>`;
+  }
+  if (a.status === 'confirmed') {
+    html += `<button class="btn btn-primary btn-sm" onclick="startAppt('${a.id}')"><i class="bi bi-play-fill"></i> Start</button>`;
+    html += `<button class="btn btn-outline-secondary btn-sm" onclick="noShowAppt('${a.id}')">No Show</button>`;
+    html += `<button class="btn btn-outline-danger btn-sm" onclick="cancelAppt('${a.id}')">Cancel</button>`;
+  }
+  if (a.status === 'in_progress') {
+    html += `<span class="timer-txt" id="timer-${a.id}">${fmtDur(elapsedMin(a.startedAt))}</span>`;
+    html += `<button class="btn btn-success btn-sm" onclick="completeAppt('${a.id}')"><i class="bi bi-stop-fill"></i> Complete</button>`;
+    startTimer(a.id, a.startedAt);
+  }
+  if (a.status === 'completed') {
+    html += `<span class="text-muted small">${fmtDur(a.actualDuration)} actual</span>`;
+  }
+  if (['completed','cancelled','no_show'].includes(a.status)) {
+    html += `<button class="btn btn-outline-secondary btn-sm" onclick="deleteAppt('${a.id}')" title="Delete"><i class="bi bi-trash"></i></button>`;
+  }
+  return html;
+}
+
+function updateAppt(id, changes) {
+  const idx = S.appointments.findIndex(a => a.id === id);
+  if (idx === -1) return;
+  Object.assign(S.appointments[idx], changes);
+  save(); updatePendingBadge(); refreshCurrentMod();
+}
+
+function startAppt(id) { updateAppt(id, { status: 'in_progress', startedAt: Date.now() }); }
+
+function completeAppt(id) {
+  const a = S.appointments.find(x => x.id === id);
+  if (!a) return;
+  clearTimer(id);
+  const now = Date.now();
+  const actual = a.startedAt ? Math.round((now - a.startedAt) / 60000) : a.serviceDuration;
+  updateAppt(id, { status: 'completed', completedAt: now, actualDuration: actual });
+}
+
+function cancelAppt(id) {
+  if (!confirm('Cancel this appointment?')) return;
+  clearTimer(id); updateAppt(id, { status: 'cancelled' });
+}
+
+function noShowAppt(id) { updateAppt(id, { status: 'no_show' }); }
+
+function deleteAppt(id) {
+  if (!confirm('Permanently delete this appointment?')) return;
+  S.appointments = S.appointments.filter(a => a.id !== id);
+  save(); updatePendingBadge(); refreshCurrentMod();
+}
+
+function refreshCurrentMod() {
+  const active = document.querySelector('.adm-link.active');
+  const mod = active?.dataset.mod || 'dashboard';
+  const r = {
+    dashboard: renderDashboard, appointments: renderAppointments,
+    'time-reports': renderTimeReports, revenue: renderRevenue
+  };
+  if (r[mod]) r[mod]();
+}
+
+// ── Timers ────────────────────────────────────────────────────
+function startTimer(id, startedAt) {
+  if (timers[id]) return;
+  timers[id] = setInterval(() => {
+    const el = document.getElementById('timer-' + id);
+    if (el) el.textContent = fmtDur(elapsedMin(startedAt));
+    else clearTimer(id);
+  }, 60000);
+}
+function clearTimer(id) { clearInterval(timers[id]); delete timers[id]; }
+
+// ── Pending badge ─────────────────────────────────────────────
+function updatePendingBadge() {
+  const n = S.appointments.filter(a => a.status === 'pending').length;
+  const el = document.getElementById('sb-pending-badge');
+  if (n > 0) { el.textContent = n; el.style.display = ''; } else { el.style.display = 'none'; }
+}
+
+// ── Dashboard ─────────────────────────────────────────────────
+function renderDashboard() {
+  const today = todayStr();
+  const todayAppts = S.appointments.filter(a => a.date === today);
+  const pending = S.appointments.filter(a => a.status === 'pending');
+  const completed = todayAppts.filter(a => a.status === 'completed');
+  const hoursToday = completed.reduce((s, a) => s + (a.actualDuration ?? a.serviceDuration ?? 0), 0);
+  const revToday = completed.reduce((s, a) => s + (a.servicePrice ?? 0), 0);
+  const inProg = todayAppts.filter(a => a.status === 'in_progress').length;
+
+  document.getElementById('dash-stats').innerHTML = `
+    <div class="col-6 col-xl-3">
+      <div class="stat-card d-flex align-items-start justify-content-between">
+        <div><div class="stat-val">${todayAppts.length}</div><div class="stat-lbl">Appointments Today</div></div>
+        <div class="stat-ico" style="background:#eff6ff;color:#1d4ed8"><i class="bi bi-calendar-check"></i></div>
+      </div>
+    </div>
+    <div class="col-6 col-xl-3">
+      <div class="stat-card d-flex align-items-start justify-content-between">
+        <div><div class="stat-val">${fmtDur(hoursToday)}</div><div class="stat-lbl">Hours Cut Today</div></div>
+        <div class="stat-ico" style="background:#fff7ed;color:#ea580c"><i class="bi bi-clock-history"></i></div>
+      </div>
+    </div>
+    <div class="col-6 col-xl-3">
+      <div class="stat-card d-flex align-items-start justify-content-between">
+        <div><div class="stat-val" style="color:#16a34a">${fmtMoney(revToday)}</div><div class="stat-lbl">Revenue Today</div></div>
+        <div class="stat-ico" style="background:#f0fdf4;color:#16a34a"><i class="bi bi-cash-stack"></i></div>
+      </div>
+    </div>
+    <div class="col-6 col-xl-3">
+      <div class="stat-card d-flex align-items-start justify-content-between">
+        <div><div class="stat-val" style="color:#d97706">${pending.length}</div><div class="stat-lbl">Awaiting Confirmation</div></div>
+        <div class="stat-ico" style="background:#fffbeb;color:#d97706"><i class="bi bi-hourglass-split"></i></div>
+      </div>
+    </div>`;
+
+  document.getElementById('dash-date-lbl').textContent =
+    new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
+
+  const sorted = [...todayAppts].sort((a, b) => a.time.localeCompare(b.time));
+  const tbody = document.getElementById('dash-today-tbody');
+  tbody.innerHTML = sorted.length
+    ? sorted.map(a => `<tr>
+        <td><strong>${fmtTime(a.time)}</strong></td>
+        <td>${a.clientName}<br><small class="text-muted">${a.clientPhone}</small></td>
+        <td>${a.serviceName}<br><small class="text-muted">${fmtDur(a.serviceDuration)}</small></td>
+        <td>${a.barberName}</td>
+        <td>${badge(a.status)}</td>
+        <td><div class="d-flex gap-1 flex-wrap">${apptActions(a)}</div></td>
+      </tr>`).join('')
+    : '<tr><td colspan="6" class="text-center text-muted py-4">No appointments scheduled today</td></tr>';
+
+  const pendEl = document.getElementById('dash-pending-list');
+  pendEl.innerHTML = pending.length
+    ? pending.slice(0, 6).map(a => `
+        <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+          <div>
+            <div class="fw-semibold" style="font-size:.85rem">${a.clientName}</div>
+            <div class="text-muted" style="font-size:.73rem">${fmtDate(a.date)} ${fmtTime(a.time)} · ${a.barberName}</div>
+          </div>
+          <div class="d-flex gap-1">
+            <button class="btn btn-success btn-sm" style="font-size:.7rem;padding:2px 8px"
+              onclick="updateAppt('${a.id}',{status:'confirmed'})">✓</button>
+            <button class="btn btn-outline-danger btn-sm" style="font-size:.7rem;padding:2px 6px"
+              onclick="cancelAppt('${a.id}')">✕</button>
+          </div>
+        </div>`).join('') +
+      (pending.length > 6 ? `<div class="small text-muted">+${pending.length-6} more in All Appointments</div>` : '')
+    : '<div class="small text-muted">No pending bookings</div>';
+
+  const byBarber = {};
+  completed.forEach(a => {
+    byBarber[a.barberName] = (byBarber[a.barberName] || 0) + (a.actualDuration ?? a.serviceDuration ?? 0);
+  });
+  if (inProg) {
+    S.appointments.filter(a => a.status === 'in_progress' && a.date === today).forEach(a => {
+      byBarber[a.barberName] = (byBarber[a.barberName] || 0) + elapsedMin(a.startedAt);
+    });
+  }
+  const maxH = Math.max(...Object.values(byBarber), 1);
+  const hoursEl = document.getElementById('dash-hours-today');
+  hoursEl.innerHTML = Object.keys(byBarber).length
+    ? Object.entries(byBarber).map(([nm, mins]) => `
+        <div class="hrs-row">
+          <div style="width:68px;font-size:.82rem;font-weight:600">${nm}</div>
+          <div style="flex:1"><div class="hrs-bar" style="width:${Math.round(mins/maxH*100)}%"></div></div>
+          <div style="width:44px;text-align:right;font-size:.8rem;color:#6b7280">${fmtDur(mins)}</div>
+        </div>`).join('')
+    : '<div class="small text-muted">No sessions completed yet</div>';
+}
+
+// ── All Appointments ──────────────────────────────────────────
+function fillApptBarberFilter() {
+  const sel = document.getElementById('af-barber');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">All Barbers</option>' +
+    S.staff.map(s => `<option value="${s.id}"${s.id===cur?' selected':''}>${s.name}</option>`).join('');
+}
+
+function clearApptFilters() {
+  ['af-date','af-barber','af-status'].forEach(id => document.getElementById(id).value = '');
+  renderAppointments();
+}
+
+function renderAppointments() {
+  const date = document.getElementById('af-date').value;
+  const barb = document.getElementById('af-barber').value;
+  const stat = document.getElementById('af-status').value;
+  let appts = [...S.appointments];
+  if (date) appts = appts.filter(a => a.date === date);
+  if (barb) appts = appts.filter(a => a.barberId === barb);
+  if (stat) appts = appts.filter(a => a.status === stat);
+  appts.sort((a, b) => (b.date + b.time).localeCompare(a.date + a.time));
+  document.getElementById('af-count').textContent = `${appts.length} record${appts.length!==1?'s':''}`;
+  const tbody = document.getElementById('appt-tbody');
+  tbody.innerHTML = appts.length
+    ? appts.map(a => `<tr>
+        <td><strong>${fmtDate(a.date)}</strong><br><span class="small">${fmtTime(a.time)}</span></td>
+        <td>${a.clientName}<br><small class="text-muted">${a.clientPhone}</small></td>
+        <td>${a.serviceName}<br><small class="text-muted">${fmtDur(a.serviceDuration)}</small></td>
+        <td>${a.barberName}</td>
+        <td>${a.actualDuration!=null
+          ? `<strong>${fmtDur(a.actualDuration)}</strong><br><small class="text-muted">sched: ${fmtDur(a.serviceDuration)}</small>`
+          : fmtDur(a.serviceDuration)}</td>
+        <td>${badge(a.status)}</td>
+        <td><div class="d-flex gap-1 flex-wrap">${apptActions(a)}</div></td>
+      </tr>`).join('')
+    : '<tr><td colspan="7" class="text-center text-muted py-4">No appointments found</td></tr>';
+}
+
+// ── Add Appointment ───────────────────────────────────────────
+function populateAddApptForm() {
+  const svcSel = document.getElementById('aa-service');
+  svcSel.innerHTML = S.services.map(s =>
+    `<option value="${s.id}">${s.name} (${fmtDur(s.duration)} · ${fmtMoney(s.price)})</option>`).join('');
+
+  const barbSel = document.getElementById('aa-barber');
+  barbSel.innerHTML = S.staff.filter(s => s.active).map(s =>
+    `<option value="${s.id}">${s.name}</option>`).join('');
+
+  const di = document.getElementById('aa-date');
+  if (!di.value) di.value = todayStr();
+  di.min = todayStr();
+  aaRefreshSlots();
+}
+
+function aaRefreshSlots() {
+  const date = document.getElementById('aa-date').value;
+  const barberId = document.getElementById('aa-barber').value;
+  const timeSel = document.getElementById('aa-time');
+  if (!date || !barberId) { timeSel.innerHTML = '<option>Select barber & date first</option>'; return; }
+
+  const { openTime, closeTime, slotInterval } = S.settings;
+  const slots = genSlots(openTime, closeTime, slotInterval);
+  const taken = bookedSlots(barberId, date, null);
+  const now = new Date();
+  const isToday = date === todayStr();
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  const avail = slots.filter(s => {
+    const [h, m] = s.split(':').map(Number);
+    if (isToday && h * 60 + m <= nowMin) return false;
+    return !taken.has(s);
+  });
+  timeSel.innerHTML = avail.length
+    ? avail.map(t => `<option value="${t}">${fmtTime(t)}</option>`).join('')
+    : '<option>No slots available</option>';
+}
+
+function adminAddAppt() {
+  const name  = document.getElementById('aa-name').value.trim();
+  const phone = document.getElementById('aa-phone').value.trim();
+  const email = document.getElementById('aa-email').value.trim();
+  const svcId = document.getElementById('aa-service').value;
+  const barbId = document.getElementById('aa-barber').value;
+  const date  = document.getElementById('aa-date').value;
+  const time  = document.getElementById('aa-time').value;
+  const status = document.getElementById('aa-status').value;
+  const notes = document.getElementById('aa-notes').value.trim();
+  const msgEl = document.getElementById('aa-msg');
+  msgEl.style.display = 'none';
+
+  if (!name || !phone || !svcId || !barbId || !date)
+    { aaMsg('All required fields must be filled.', 'danger'); return; }
+  if (!time || time.startsWith('No') || time.startsWith('Select'))
+    { aaMsg('No valid time slot available — pick another date or barber.', 'danger'); return; }
+
+  const svc = S.services.find(s => s.id === svcId);
+  const barber = S.staff.find(s => s.id === barbId);
+  S.appointments.push({
+    id: uid(), clientName: name, clientPhone: phone, clientEmail: email, notes,
+    serviceId: svcId, serviceName: svc.name, serviceDuration: svc.duration, servicePrice: svc.price,
+    barberId: barbId, barberName: barber.name, date, time, status,
+    startedAt: null, completedAt: null, actualDuration: null, createdAt: Date.now()
+  });
+  save(); updatePendingBadge();
+  ['aa-name','aa-phone','aa-email','aa-notes'].forEach(id => document.getElementById(id).value = '');
+  aaMsg(`Appointment added for ${name} on ${fmtDate(date)} at ${fmtTime(time)}.`, 'success');
+  setTimeout(() => { msgEl.style.display = 'none'; }, 4000);
+}
+
+function aaMsg(msg, type) {
+  const el = document.getElementById('aa-msg');
+  el.className = 'alert alert-' + type + ' mt-3'; el.textContent = msg; el.style.display = 'block';
+}
+
+// ── Time Reports ──────────────────────────────────────────────
+function fillTrBarberFilter() {
+  const sel = document.getElementById('tr-barber');
+  sel.innerHTML = '<option value="">All Barbers</option>' +
+    S.staff.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+}
+
+function renderTimeReports() {
+  const period = document.getElementById('tr-period').value;
+  const barbF = document.getElementById('tr-barber').value;
+  let appts = S.appointments.filter(a => a.status === 'completed' && inPeriod(a.date, period));
+  if (barbF) appts = appts.filter(a => a.barberId === barbF);
+
+  const totalMins = appts.reduce((s, a) => s + (a.actualDuration ?? a.serviceDuration ?? 0), 0);
+  const totalH = (totalMins / 60).toFixed(1);
+  const avg = appts.length ? Math.round(totalMins / appts.length) : 0;
+  const overtime = appts.filter(a => a.actualDuration && a.actualDuration > a.serviceDuration).length;
+
+  document.getElementById('tr-stat-cards').innerHTML = `
+    <div class="col-6 col-xl-3">
+      <div class="stat-card"><div class="stat-val">${fmtDur(totalMins)}</div><div class="stat-lbl">Total Time Cut</div></div>
+    </div>
+    <div class="col-6 col-xl-3">
+      <div class="stat-card"><div class="stat-val">${totalH}</div><div class="stat-lbl">Hours (decimal)</div></div>
+    </div>
+    <div class="col-6 col-xl-3">
+      <div class="stat-card"><div class="stat-val">${appts.length}</div><div class="stat-lbl">Sessions Completed</div></div>
+    </div>
+    <div class="col-6 col-xl-3">
+      <div class="stat-card"><div class="stat-val">${fmtDur(avg)}</div><div class="stat-lbl">Avg Session Length</div></div>
+    </div>`;
+
+  const byBarber = {};
+  appts.forEach(a => {
+    byBarber[a.barberName] = (byBarber[a.barberName] || 0) + (a.actualDuration ?? a.serviceDuration ?? 0);
+  });
+  const maxB = Math.max(...Object.values(byBarber), 1);
+  document.getElementById('tr-by-barber').innerHTML = Object.keys(byBarber).length
+    ? Object.entries(byBarber).sort((a,b)=>b[1]-a[1]).map(([nm, mins]) => `
+        <div class="hrs-row">
+          <div style="width:72px;font-size:.82rem;font-weight:600">${nm}</div>
+          <div style="flex:1"><div class="hrs-bar" style="width:${Math.round(mins/maxB*100)}%;height:10px"></div></div>
+          <div style="width:50px;text-align:right;font-size:.8rem;color:#6b7280">${fmtDur(mins)}</div>
+        </div>`).join('')
+    : '<div class="small text-muted">No completed sessions in this period</div>';
+
+  const byDay = {};
+  appts.forEach(a => {
+    byDay[a.date] = (byDay[a.date] || 0) + (a.actualDuration ?? a.serviceDuration ?? 0);
+  });
+  const maxD = Math.max(...Object.values(byDay), 1);
+  document.getElementById('tr-by-day').innerHTML = Object.keys(byDay).length
+    ? Object.entries(byDay).sort((a,b)=>a[0].localeCompare(b[0])).map(([d, mins]) => `
+        <div class="hrs-row">
+          <div style="width:82px;font-size:.82rem;font-weight:600">${fmtDate(d)}</div>
+          <div style="flex:1"><div class="hrs-bar" style="width:${Math.round(mins/maxD*100)}%;height:10px;background:var(--navy)"></div></div>
+          <div style="width:50px;text-align:right;font-size:.8rem;color:#6b7280">${fmtDur(mins)}</div>
+        </div>`).join('')
+    : '<div class="small text-muted">No data for this period</div>';
+
+  const logSorted = [...appts].sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time));
+  document.getElementById('tr-session-log').innerHTML = logSorted.length
+    ? logSorted.map(a => {
+        const actual = a.actualDuration ?? a.serviceDuration;
+        const diff = a.actualDuration && a.actualDuration !== a.serviceDuration
+          ? `<small class="text-muted"> (sched: ${fmtDur(a.serviceDuration)})</small>` : '';
+        return `<tr>
+          <td>${fmtDate(a.date)}</td>
+          <td>${a.clientName}</td>
+          <td>${a.serviceName}</td>
+          <td>${a.barberName}</td>
+          <td>${fmtTime(a.time)}</td>
+          <td>${fmtTS(a.startedAt)}</td>
+          <td>${fmtTS(a.completedAt)}</td>
+          <td><strong>${fmtDur(actual)}</strong>${diff}</td>
+        </tr>`;
+      }).join('')
+    : '<tr><td colspan="8" class="text-center text-muted py-3">No completed sessions</td></tr>';
+}
+
+function exportTrCsv() {
+  const period = document.getElementById('tr-period').value;
+  const barbF = document.getElementById('tr-barber').value;
+  let appts = S.appointments.filter(a => a.status === 'completed' && inPeriod(a.date, period));
+  if (barbF) appts = appts.filter(a => a.barberId === barbF);
+  const rows = [['Date','Client','Service','Barber','Scheduled Time','Started At','Completed At','Actual Duration (min)','Scheduled Duration (min)']];
+  appts.sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time)).forEach(a => {
+    rows.push([a.date, a.clientName, a.serviceName, a.barberName, a.time,
+      a.startedAt ? new Date(a.startedAt).toISOString() : '',
+      a.completedAt ? new Date(a.completedAt).toISOString() : '',
+      a.actualDuration ?? '', a.serviceDuration]);
+  });
+  dlCsv('time-report.csv', rows);
+}
+
+// ── Revenue ───────────────────────────────────────────────────
+function renderRevenue() {
+  const period = document.getElementById('rev-period').value;
+  const appts = S.appointments.filter(a => a.status === 'completed' && inPeriod(a.date, period));
+  const total = appts.reduce((s, a) => s + (a.servicePrice ?? 0), 0);
+  const avg = appts.length ? total / appts.length : 0;
+
+  document.getElementById('rev-stat-cards').innerHTML = `
+    <div class="col-6 col-xl-3">
+      <div class="stat-card"><div class="stat-val" style="color:#16a34a">${fmtMoney(total)}</div><div class="stat-lbl">Total Revenue</div></div>
+    </div>
+    <div class="col-6 col-xl-3">
+      <div class="stat-card"><div class="stat-val">${appts.length}</div><div class="stat-lbl">Clients Served</div></div>
+    </div>
+    <div class="col-6 col-xl-3">
+      <div class="stat-card"><div class="stat-val">${fmtMoney(avg)}</div><div class="stat-lbl">Avg Ticket</div></div>
+    </div>
+    <div class="col-6 col-xl-3">
+      <div class="stat-card"><div class="stat-val">${fmtMoney(total * 0.08)}</div><div class="stat-lbl">Est. Tax (8%)</div></div>
+    </div>`;
+
+  const sorted = [...appts].sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time));
+  document.getElementById('rev-tbody').innerHTML = sorted.length
+    ? sorted.map(a => `<tr>
+        <td>${fmtDate(a.date)} ${fmtTime(a.time)}</td>
+        <td>${a.clientName}</td>
+        <td>${a.serviceName}</td>
+        <td>${a.barberName}</td>
+        <td>${fmtDur(a.actualDuration ?? a.serviceDuration)}</td>
+        <td><strong style="color:#16a34a">${fmtMoney(a.servicePrice)}</strong></td>
+      </tr>`).join('')
+    : '<tr><td colspan="6" class="text-center text-muted py-3">No completed appointments</td></tr>';
+}
+
+function exportRevCsv() {
+  const period = document.getElementById('rev-period').value;
+  const appts = S.appointments.filter(a => a.status === 'completed' && inPeriod(a.date, period));
+  const rows = [['Date','Time','Client','Phone','Service','Barber','Duration (min)','Price']];
+  appts.sort((a,b)=>(b.date+b.time).localeCompare(a.date+a.time)).forEach(a => {
+    rows.push([a.date, a.time, a.clientName, a.clientPhone, a.serviceName, a.barberName,
+      a.actualDuration ?? a.serviceDuration, a.servicePrice]);
+  });
+  dlCsv('revenue-report.csv', rows);
+}
+
+function dlCsv(filename, rows) {
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+  a.download = filename; a.click();
+}
+
+// ── Services CRUD ─────────────────────────────────────────────
+function renderSvcTable() {
+  document.getElementById('svc-tbody').innerHTML = S.services.length
+    ? S.services.map(s => `<tr>
+        <td><strong>${s.name}</strong></td>
+        <td>${fmtDur(s.duration)}</td>
+        <td>${fmtMoney(s.price)}</td>
+        <td>
+          <button class="btn btn-sm btn-outline-secondary" onclick="editSvc('${s.id}')"><i class="bi bi-pencil"></i></button>
+          <button class="btn btn-sm btn-outline-danger ms-1" onclick="deleteSvc('${s.id}')"><i class="bi bi-trash"></i></button>
+        </td>
+      </tr>`).join('')
+    : '<tr><td colspan="4" class="text-center text-muted py-3">No services configured</td></tr>';
+}
+
+function saveService() {
+  const name = document.getElementById('svc-name-inp').value.trim();
+  const dur = parseInt(document.getElementById('svc-dur-inp').value);
+  const price = parseFloat(document.getElementById('svc-price-inp').value);
+  const editId = document.getElementById('svc-edit-id').value;
+  if (!name || !dur || isNaN(price)) { alert('Name, duration, and price are required.'); return; }
+  if (editId) {
+    const idx = S.services.findIndex(s => s.id === editId);
+    if (idx > -1) Object.assign(S.services[idx], { name, duration: dur, price });
+  } else {
+    S.services.push({ id: uid(), name, duration: dur, price });
+  }
+  save(); clearSvcForm(); renderSvcTable();
+}
+
+function editSvc(id) {
+  const s = S.services.find(x => x.id === id); if (!s) return;
+  document.getElementById('svc-edit-id').value = id;
+  document.getElementById('svc-name-inp').value = s.name;
+  document.getElementById('svc-dur-inp').value = s.duration;
+  document.getElementById('svc-price-inp').value = s.price;
+  document.getElementById('svc-form-title').textContent = 'Edit Service';
+}
+
+function deleteSvc(id) {
+  if (!confirm('Delete this service?')) return;
+  S.services = S.services.filter(s => s.id !== id);
+  save(); renderSvcTable();
+}
+
+function clearSvcForm() {
+  ['svc-edit-id','svc-name-inp','svc-dur-inp','svc-price-inp'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('svc-form-title').textContent = 'Add Service';
+}
+
+// ── Staff CRUD ────────────────────────────────────────────────
+function renderStaffTable() {
+  document.getElementById('staff-tbody').innerHTML = S.staff.length
+    ? S.staff.map(s => `<tr>
+        <td><div class="d-flex align-items-center gap-2">
+          <div class="barber-ava">${s.name[0]}</div>
+          <strong>${s.name}</strong>
+        </div></td>
+        <td>${s.specialty || '<span class="text-muted">—</span>'}</td>
+        <td>${s.active ? '<span class="bconfirmed">Active</span>' : '<span class="bcancelled">Inactive</span>'}</td>
+        <td>
+          <button class="btn btn-sm btn-outline-secondary" onclick="editStaff('${s.id}')"><i class="bi bi-pencil"></i></button>
+          <button class="btn btn-sm ${s.active?'btn-outline-warning':'btn-outline-success'} ms-1" onclick="toggleStaff('${s.id}')">${s.active?'Deactivate':'Activate'}</button>
+          <button class="btn btn-sm btn-outline-danger ms-1" onclick="deleteStaff('${s.id}')"><i class="bi bi-trash"></i></button>
+        </td>
+      </tr>`).join('')
+    : '<tr><td colspan="4" class="text-center text-muted py-3">No staff configured</td></tr>';
+}
+
+function saveStaff() {
+  const name = document.getElementById('staff-name-inp').value.trim();
+  const spec = document.getElementById('staff-spec-inp').value.trim();
+  const editId = document.getElementById('staff-edit-id').value;
+  if (!name) { alert('Name is required.'); return; }
+  if (editId) {
+    const idx = S.staff.findIndex(s => s.id === editId);
+    if (idx > -1) Object.assign(S.staff[idx], { name, specialty: spec });
+  } else {
+    S.staff.push({ id: uid(), name, specialty: spec, active: true });
+  }
+  save(); clearStaffForm(); renderStaffTable();
+}
+
+function editStaff(id) {
+  const s = S.staff.find(x => x.id === id); if (!s) return;
+  document.getElementById('staff-edit-id').value = id;
+  document.getElementById('staff-name-inp').value = s.name;
+  document.getElementById('staff-spec-inp').value = s.specialty || '';
+  document.getElementById('staff-form-title').textContent = 'Edit Barber';
+}
+
+function toggleStaff(id) {
+  const s = S.staff.find(x => x.id === id); if (!s) return;
+  s.active = !s.active; save(); renderStaffTable();
+}
+
+function deleteStaff(id) {
+  if (!confirm('Delete this barber?')) return;
+  S.staff = S.staff.filter(s => s.id !== id); save(); renderStaffTable();
+}
+
+function clearStaffForm() {
+  ['staff-edit-id','staff-name-inp','staff-spec-inp'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('staff-form-title').textContent = 'Add Barber';
+}
+
+// ── Init ──────────────────────────────────────────────────────
+load();
+applySettings();
+showBooking();
+</script>
+</body>
+</html>
