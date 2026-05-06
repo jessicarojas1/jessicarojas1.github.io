@@ -1018,11 +1018,12 @@ body {
 }
 @keyframes cyberFoxPulse {
   0%, 100% {
-    filter: drop-shadow(0 0 5px #00ffff) drop-shadow(0 0 14px rgba(0,255,255,.4));
+    filter: drop-shadow(0 0 5px #00ffff) drop-shadow(0 0 14px rgba(0,255,255,.4))
+            drop-shadow(0 0 4px rgba(255,34,0,.3));
   }
   50% {
-    filter: drop-shadow(0 0 12px #00ffff) drop-shadow(0 0 28px rgba(0,255,255,.65))
-            drop-shadow(0 0 5px rgba(255,0,136,.45));
+    filter: drop-shadow(0 0 14px #00ffff) drop-shadow(0 0 30px rgba(0,255,255,.7))
+            drop-shadow(0 0 10px rgba(255,34,0,.6));
   }
 }
 

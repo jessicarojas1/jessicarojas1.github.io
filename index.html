@@ -80,56 +80,92 @@
       <canvas id="matrix-canvas" aria-hidden="true"></canvas>
       <div class="container text-center hero-content">
         <h1 class="display-3 fw-bold glitch-text" data-text="Jessica Rojas">Jessica Rojas</h1>
-        <div class="cyber-fox" aria-label="cyber fox">
-          <svg class="cyber-fox-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="110" height="110" aria-hidden="true">
-            <!-- Hex frame -->
-            <polygon points="100,8 168,50 168,150 100,192 32,150 32,50" fill="none" stroke="#00ffff" stroke-width="1.2" opacity="0.22"/>
-            <circle cx="100" cy="8"   r="3"   fill="#ff0088" opacity="0.75"/>
-            <circle cx="168" cy="50"  r="2.5" fill="#00ffff" opacity="0.65"/>
-            <circle cx="168" cy="150" r="2.5" fill="#00ffff" opacity="0.65"/>
-            <circle cx="100" cy="192" r="3"   fill="#ff0088" opacity="0.75"/>
-            <circle cx="32"  cy="150" r="2.5" fill="#00ffff" opacity="0.65"/>
-            <circle cx="32"  cy="50"  r="2.5" fill="#00ffff" opacity="0.65"/>
-            <!-- Left ear -->
-            <polygon points="48,92 80,72 28,28"  fill="#050510" stroke="#00ffff" stroke-width="1.8"/>
-            <polygon points="52,89 78,73 35,32"  fill="#ff0088" opacity="0.4"/>
+        <div class="cyber-fox" aria-label="cyber wolf">
+          <svg class="cyber-fox-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="130" height="130" aria-hidden="true">
+            <!-- Cracked hex frame segments (aggressive, not a closed ring) -->
+            <polyline points="100,5  175,46"  fill="none" stroke="#ff2200" stroke-width="1.8" opacity="0.8"/>
+            <polyline points="178,52 178,148" fill="none" stroke="#00ffff" stroke-width="1.4" opacity="0.55"/>
+            <polyline points="175,154 100,195" fill="none" stroke="#ff2200" stroke-width="1.8" opacity="0.8"/>
+            <polyline points="25,154  100,195" fill="none" stroke="#ff2200" stroke-width="1.4" opacity="0.6"/>
+            <polyline points="22,52   22,148"  fill="none" stroke="#00ffff" stroke-width="1.4" opacity="0.55"/>
+            <polyline points="25,46   88,10"   fill="none" stroke="#00ffff" stroke-width="1.2" opacity="0.45"/>
+            <!-- Corner tick marks -->
+            <line x1="172" y1="43" x2="166" y2="50" stroke="#ff2200" stroke-width="2.5"/>
+            <line x1="28"  y1="43" x2="34"  y2="50" stroke="#ff2200" stroke-width="2.5"/>
+            <line x1="172" y1="157" x2="166" y2="150" stroke="#ff2200" stroke-width="2.5"/>
+            <line x1="28"  y1="157" x2="34"  y2="150" stroke="#ff2200" stroke-width="2.5"/>
+            <!-- Frame nodes -->
+            <circle cx="100" cy="5"   r="4"   fill="#ff2200"/>
+            <circle cx="178" cy="48"  r="3"   fill="#00ffff" opacity="0.85"/>
+            <circle cx="178" cy="152" r="3"   fill="#00ffff" opacity="0.85"/>
+            <circle cx="100" cy="195" r="4"   fill="#ff2200"/>
+            <circle cx="22"  cy="152" r="3"   fill="#00ffff" opacity="0.85"/>
+            <circle cx="22"  cy="48"  r="3"   fill="#00ffff" opacity="0.85"/>
+
+            <!-- Left ear (blade-sharp) -->
+            <polygon points="44,86 74,62 12,10"  fill="#050510" stroke="#00ffff" stroke-width="2"/>
+            <polygon points="48,83 72,65 20,16"  fill="#ff2200" opacity="0.3"/>
             <!-- Right ear -->
-            <polygon points="152,92 120,72 172,28" fill="#050510" stroke="#00ffff" stroke-width="1.8"/>
-            <polygon points="148,89 122,73 165,32" fill="#ff0088" opacity="0.4"/>
-            <!-- Face -->
-            <polygon points="100,55 152,92 138,158 100,165 62,158 48,92" fill="#050510" stroke="#00ffff" stroke-width="2"/>
-            <!-- Forehead center stripe -->
-            <polygon points="100,55 89,95 100,108 111,95" fill="#0a0a22" stroke="#00ffff" stroke-width="0.6" opacity="0.5"/>
-            <!-- Cheekbone line -->
-            <line x1="48" y1="115" x2="152" y2="115" stroke="#00ffff" stroke-width="0.7" opacity="0.2"/>
-            <!-- Brow lines -->
-            <line x1="64"  y1="100" x2="88"  y2="106" stroke="#00ffff" stroke-width="1.2" opacity="0.5"/>
-            <line x1="136" y1="100" x2="112" y2="106" stroke="#00ffff" stroke-width="1.2" opacity="0.5"/>
-            <!-- Left eye -->
-            <polygon points="80,100 94,112 80,124 66,112" fill="#00ffff"/>
-            <polygon points="80,104 84,112 80,120 76,112" fill="#050510"/>
-            <polygon points="80,100 94,112 80,124 66,112" fill="none" stroke="#00ffff" stroke-width="2"/>
-            <!-- Right eye -->
-            <polygon points="120,100 134,112 120,124 106,112" fill="#00ffff"/>
-            <polygon points="120,104 124,112 120,120 116,112" fill="#050510"/>
-            <polygon points="120,100 134,112 120,124 106,112" fill="none" stroke="#00ffff" stroke-width="2"/>
-            <!-- Nose bridge -->
-            <line x1="100" y1="124" x2="100" y2="139" stroke="#00ffff" stroke-width="0.8" opacity="0.45"/>
-            <!-- Nose -->
-            <polygon points="100,148 91,139 109,139" fill="#ff0088"/>
-            <polygon points="100,148 91,139 109,139" fill="none" stroke="#ff0088" stroke-width="1" opacity="0.8"/>
-            <!-- Whisker lines -->
-            <line x1="91"  y1="139" x2="74"  y2="144" stroke="#00ffff" stroke-width="0.8" opacity="0.4"/>
-            <line x1="109" y1="139" x2="126" y2="144" stroke="#00ffff" stroke-width="0.8" opacity="0.4"/>
+            <polygon points="156,86 126,62 188,10" fill="#050510" stroke="#00ffff" stroke-width="2"/>
+            <polygon points="152,83 128,65 180,16" fill="#ff2200" opacity="0.3"/>
+
+            <!-- Main wolf head -->
+            <polygon points="100,40 158,82 148,162 100,174 52,162 42,82" fill="#050510" stroke="#00ffff" stroke-width="2.2"/>
+
+            <!-- Muzzle panel -->
+            <polygon points="84,126 116,126 118,162 100,170 82,162" fill="#070720"/>
+            <polygon points="84,126 116,126 118,162 100,170 82,162" fill="none" stroke="#00ffff" stroke-width="0.9" opacity="0.45"/>
+
+            <!-- Angry brow (left) – harsh downward angle toward nose -->
+            <line x1="46"  y1="88" x2="82"  y2="96" stroke="#00ffff" stroke-width="2.2" opacity="0.85"/>
+            <line x1="46"  y1="88" x2="50"  y2="96" stroke="#00ffff" stroke-width="1.5" opacity="0.6"/>
+            <!-- Angry brow (right) -->
+            <line x1="154" y1="88" x2="118" y2="96" stroke="#00ffff" stroke-width="2.2" opacity="0.85"/>
+            <line x1="154" y1="88" x2="150" y2="96" stroke="#00ffff" stroke-width="1.5" opacity="0.6"/>
+
+            <!-- Left eye (parallelogram – slanted / menacing) -->
+            <polygon points="62,102 84,95 88,114 66,121" fill="#ff2200" opacity="0.18"/>
+            <polygon points="66,103 81,98  85,113 70,118" fill="#00ffff"/>
+            <polygon points="71,104 78,101 80,110 73,113" fill="#050510"/>
+            <polygon points="66,103 81,98  85,113 70,118" fill="none" stroke="#00ffff" stroke-width="2"/>
+            <!-- Left eye inner glow line -->
+            <line x1="66" y1="103" x2="85" y2="113" stroke="#00ffff" stroke-width="0.8" opacity="0.5"/>
+
+            <!-- Right eye (mirrored parallelogram) -->
+            <polygon points="138,102 116,95 112,114 134,121" fill="#ff2200" opacity="0.18"/>
+            <polygon points="134,103 119,98  115,113 130,118" fill="#00ffff"/>
+            <polygon points="129,104 122,101 120,110 127,113" fill="#050510"/>
+            <polygon points="134,103 119,98  115,113 130,118" fill="none" stroke="#00ffff" stroke-width="2"/>
+            <line x1="134" y1="103" x2="115" y2="113" stroke="#00ffff" stroke-width="0.8" opacity="0.5"/>
+
+            <!-- Nose (wide wolf nostrils) -->
+            <polygon points="93,130 107,130 104,138 100,140 96,138" fill="#0a0a22" stroke="#00ffff" stroke-width="1" opacity="0.8"/>
+
+            <!-- Snarl — open mouth -->
+            <!-- Mouth cavity (glowing red interior) -->
+            <polygon points="85,148 115,148 113,166 100,172 87,166" fill="#1a0000"/>
+            <polygon points="85,148 115,148 113,166 100,172 87,166" fill="none" stroke="#ff2200" stroke-width="1" opacity="0.7"/>
+            <!-- Red glow inside mouth -->
+            <polygon points="90,152 110,152 108,164 100,168 92,164" fill="#ff2200" opacity="0.12"/>
+            <!-- Upper lip line -->
+            <line x1="85" y1="148" x2="115" y2="148" stroke="#00ffff" stroke-width="1.4" opacity="0.65"/>
+            <!-- Left fang -->
+            <polygon points="89,148 96,148 93,164" fill="#ddeeff"/>
+            <!-- Right fang -->
+            <polygon points="111,148 104,148 107,164" fill="#ddeeff"/>
+            <!-- Small incisors between fangs -->
+            <polygon points="96,148 100,148 98,156" fill="#c0cce0" opacity="0.75"/>
+            <polygon points="100,148 104,148 102,156" fill="#c0cce0" opacity="0.75"/>
+
             <!-- Circuit lines face→frame -->
-            <line x1="62"  y1="158" x2="32"  y2="150" stroke="#00ffff" stroke-width="0.8" opacity="0.3"/>
-            <line x1="138" y1="158" x2="168" y2="150" stroke="#00ffff" stroke-width="0.8" opacity="0.3"/>
-            <line x1="100" y1="165" x2="100" y2="192" stroke="#00ffff" stroke-width="0.8" opacity="0.3"/>
-            <!-- Outline nodes -->
-            <circle cx="100" cy="55"  r="2.5" fill="#00ffff" opacity="0.8"/>
-            <circle cx="100" cy="165" r="2.5" fill="#00ffff" opacity="0.7"/>
-            <circle cx="62"  cy="158" r="2"   fill="#00ffff" opacity="0.5"/>
-            <circle cx="138" cy="158" r="2"   fill="#00ffff" opacity="0.5"/>
+            <line x1="52"  y1="162" x2="22"  y2="152" stroke="#00ffff" stroke-width="0.9" opacity="0.4"/>
+            <line x1="148" y1="162" x2="178" y2="152" stroke="#00ffff" stroke-width="0.9" opacity="0.4"/>
+            <line x1="100" y1="174" x2="100" y2="195" stroke="#ff2200" stroke-width="0.9" opacity="0.5"/>
+
+            <!-- Head nodes -->
+            <circle cx="100" cy="40"  r="3"   fill="#00ffff" opacity="0.9"/>
+            <circle cx="52"  cy="162" r="2.2" fill="#00ffff" opacity="0.6"/>
+            <circle cx="148" cy="162" r="2.2" fill="#00ffff" opacity="0.6"/>
           </svg>
         </div>
         <p class="lead mb-4 hero-subtitle"></p>
