@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; img-src 'self' https://cdn.jsdelivr.net data: blob:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self' https://cdn.jsdelivr.net; worker-src blob:; object-src 'none'; base-uri 'self';">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../theme.css" />
+  <title>CMMI v2.0 Overview — Capability Maturity Model Reference | Jessica Rojas</title>
+  <meta name="description" content="Comprehensive CMMI v2.0 reference covering all maturity levels (ML1–ML5), all 27 practice areas across Core, Development, and Services domains. Filter and explore the full framework." />
+  <style>
+    /* ── Maturity Level pills ── */
+    .ml-pill { display:inline-block; padding:2px 9px; border-radius:20px; font-size:.7rem; font-weight:700; white-space:nowrap; font-family:monospace; letter-spacing:.04em; }
+    .ml-1 { background:rgba(108,117,125,.15); color:#adb5bd; border:1px solid rgba(108,117,125,.3); }
+    .ml-2 { background:rgba(13,110,253,.15); color:#6ea8fe; border:1px solid rgba(13,110,253,.3); }
+    .ml-3 { background:rgba(25,135,84,.15); color:#75b798; border:1px solid rgba(25,135,84,.3); }
+    .ml-4 { background:rgba(255,193,7,.15); color:#ffc107; border:1px solid rgba(255,193,7,.3); }
+    .ml-5 { background:rgba(220,53,69,.15); color:#ea868f; border:1px solid rgba(220,53,69,.3); }
+
+    /* ── Domain badges ── */
+    .domain-badge { display:inline-block; padding:2px 7px; border-radius:4px; font-size:.67rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; }
+    .domain-core { background:rgba(13,202,240,.12); color:var(--bs-info); border:1px solid rgba(13,202,240,.28); }
+    .domain-dev  { background:rgba(102,16,242,.12); color:#a78bfa; border:1px solid rgba(102,16,242,.28); }
+    .domain-svc  { background:rgba(25,135,84,.12); color:#75b798; border:1px solid rgba(25,135,84,.28); }
+
+    /* ── PA abbreviation tag ── */
+    .pa-abbr { font-size:.76rem; font-weight:700; font-family:monospace; padding:2px 8px; border-radius:4px; background:rgba(var(--bs-primary-rgb),.15); color:var(--bs-primary); }
+
+    /* ── PA cards ── */
+    .pa-card {
+      background:var(--bs-secondary-bg);
+      border:1px solid var(--bs-border-color);
+      border-radius:.5rem;
+      transition:transform .25s, box-shadow .25s, border-color .25s;
+      position:relative; overflow:hidden;
+    }
+    .pa-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:2px;
+      background:linear-gradient(90deg,var(--bs-primary),transparent);
+      opacity:0; transition:opacity .3s;
+    }
+    .pa-card:hover { transform:translateY(-4px); box-shadow:0 0 0 1px rgba(255,88,17,.4),0 12px 30px rgba(0,0,0,.4); border-color:rgba(255,88,17,.35); }
+    .pa-card:hover::before { opacity:1; }
+    .pa-card .card-body { padding:1.1rem 1.2rem; }
+    .pa-card .card-title { font-size:.91rem; font-weight:700; margin-bottom:.25rem; }
+    .pa-card .card-text { font-size:.8rem; color:var(--bs-secondary-color); line-height:1.5; }
+
+    /* ── PA grid ── */
+    .pa-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.1rem; }
+    @media(max-width:991.98px) { .pa-grid { grid-template-columns:repeat(2,1fr); } }
+    @media(max-width:575.98px) { .pa-grid { grid-template-columns:1fr; } }
+
+    /* ── Maturity level overview cards ── */
+    .ml-overview-card {
+      border-radius:.5rem;
+      background:var(--bs-secondary-bg);
+      border:1px solid var(--bs-border-color);
+      border-left:3px solid;
+      padding:1.25rem 1.5rem;
+      transition:box-shadow .25s, transform .25s;
+    }
+    .ml-overview-card:hover { box-shadow:0 8px 28px rgba(0,0,0,.35); transform:translateY(-3px); }
+    .ml-overview-card .ml-num { font-size:2.4rem; font-weight:800; line-height:1; }
+    .ml-overview-card .ml-name { font-size:.8rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; }
+    .ml-overview-card.lv1 { border-left-color:#6c757d; }  .ml-overview-card.lv1 .ml-num { color:#6c757d; }
+    .ml-overview-card.lv2 { border-left-color:#0d6efd; }  .ml-overview-card.lv2 .ml-num { color:#6ea8fe; }
+    .ml-overview-card.lv3 { border-left-color:#198754; }  .ml-overview-card.lv3 .ml-num { color:#75b798; }
+    .ml-overview-card.lv4 { border-left-color:#ffc107; }  .ml-overview-card.lv4 .ml-num { color:#ffc107; }
+    .ml-overview-card.lv5 { border-left-color:#dc3545; }  .ml-overview-card.lv5 .ml-num { color:#ea868f; }
+
+    /* ── Stats ── */
+    .cmmi-stat-num { font-size:1.85rem; font-weight:800; color:var(--bs-primary); line-height:1; font-variant-numeric:tabular-nums; }
+    .cmmi-stat-lbl { font-size:.74rem; color:var(--bs-secondary-color); text-transform:uppercase; letter-spacing:.08em; }
+
+    /* ── Section heading ── */
+    .cmmi-section-hd {
+      font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em;
+      color:var(--bs-secondary-color); border-bottom:1px solid var(--bs-border-color);
+      padding-bottom:.5rem; margin-bottom:1.25rem; position:relative;
+    }
+    .cmmi-section-hd::after {
+      content:''; position:absolute; bottom:-1px; left:0; width:40px; height:1px;
+      background:var(--bs-primary); box-shadow:0 0 8px rgba(255,88,17,.5);
+    }
+
+    /* ── Filter buttons ── */
+    .cmmi-filter-btn { transition:transform .15s, box-shadow .2s; }
+    .cmmi-filter-btn:hover { transform:translateY(-1px); }
+    .cmmi-filter-btn.active { box-shadow:0 0 14px rgba(255,88,17,.3); }
+
+    /* ── Resource link cards ── */
+    .resource-card {
+      background:var(--bs-secondary-bg);
+      border:1px solid var(--bs-border-color);
+      border-radius:.5rem;
+      padding:1.25rem 1.5rem;
+      transition:border-color .25s, box-shadow .25s;
+      text-decoration:none; color:inherit; display:block;
+    }
+    .resource-card:hover { border-color:rgba(255,88,17,.45); box-shadow:0 0 20px rgba(255,88,17,.15); color:inherit; }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="../index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="../about.html">About</a></li>
+          <li class="nav-item"><a class="nav-link active" href="../projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="../timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="../cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="../consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="../services.html">Services</a></li>
+          <li class="nav-item"><a class="nav-link" href="../contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="../blog.html">Blog</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="../compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="../jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" id="nav-dataanalysis-link" style="display:none"><a class="nav-link" href="../dataanalysis.html">Data Analysis</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="../admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content">
+
+    <!-- ── Hero ── -->
+    <section class="py-5 reveal">
+      <div class="container">
+        <div class="d-flex align-items-start gap-3 flex-wrap">
+          <div>
+            <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+              <span class="badge bg-primary px-3 py-2">CMMI v2.0</span>
+              <span class="badge bg-secondary px-3 py-2">All Levels</span>
+              <span class="badge bg-warning text-dark px-3 py-2">27 Practice Areas</span>
+            </div>
+            <h1 class="section-title mb-2">CMMI — Capability Maturity Model Integration</h1>
+            <p class="text-secondary mb-0" style="max-width:800px">
+              A comprehensive reference for CMMI v2.0 — covering all five maturity levels, all 27 practice areas across the Core, Development, and Services domains. Use this as a framework map to understand what each level requires and where every practice area fits in the improvement continuum.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Stats Bar ── -->
+    <section class="py-3 border-top border-bottom reveal">
+      <div class="container">
+        <div class="d-flex flex-wrap gap-4 align-items-center">
+          <div class="text-center">
+            <div class="cmmi-stat-num">5</div>
+            <div class="cmmi-stat-lbl">Maturity Levels</div>
+          </div>
+          <div class="text-center">
+            <div class="cmmi-stat-num">27</div>
+            <div class="cmmi-stat-lbl">Practice Areas</div>
+          </div>
+          <div class="text-center">
+            <div class="cmmi-stat-num">18</div>
+            <div class="cmmi-stat-lbl">Core PAs</div>
+          </div>
+          <div class="text-center">
+            <div class="cmmi-stat-num">3</div>
+            <div class="cmmi-stat-lbl">Dev View PAs</div>
+          </div>
+          <div class="text-center">
+            <div class="cmmi-stat-num">6</div>
+            <div class="cmmi-stat-lbl">Services PAs</div>
+          </div>
+          <div class="vr d-none d-md-block"></div>
+          <div class="d-flex flex-wrap gap-2 align-items-center">
+            <span class="badge text-bg-info fs-6 fw-normal px-3 py-2">CMMI Institute</span>
+            <span class="badge text-bg-secondary fs-6 fw-normal px-3 py-2">Version 2.0</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Maturity Levels ── -->
+    <section class="py-5 reveal">
+      <div class="container">
+        <h2 class="cmmi-section-hd">Maturity Levels</h2>
+        <p class="text-secondary small mb-4" style="max-width:720px">Maturity levels represent defined evolutionary plateaus for process improvement. An organization at a given level has satisfied all goals of the practice areas at that level and all lower levels.</p>
+        <div class="row g-3">
+
+          <div class="col-12 col-sm-6 col-lg">
+            <div class="ml-overview-card lv1 h-100">
+              <div class="ml-num">1</div>
+              <div class="ml-name mb-2">Initial</div>
+              <p class="small text-secondary mb-2">Processes are unpredictable, poorly controlled, and reactive. Success depends on individual heroics rather than repeatable process.</p>
+              <span class="ml-pill ml-1">ML1</span>
+            </div>
+          </div>
+
+          <div class="col-12 col-sm-6 col-lg">
+            <div class="ml-overview-card lv2 h-100">
+              <div class="ml-num">2</div>
+              <div class="ml-name mb-2">Managed</div>
+              <p class="small text-secondary mb-2">Projects are planned, monitored, and controlled. Requirements are managed; processes are established and followed on individual projects.</p>
+              <span class="ml-pill ml-2">ML2</span>
+            </div>
+          </div>
+
+          <div class="col-12 col-sm-6 col-lg">
+            <div class="ml-overview-card lv3 h-100">
+              <div class="ml-num">3</div>
+              <div class="ml-name mb-2">Defined</div>
+              <p class="small text-secondary mb-2">Processes are well-characterized, standardized, and drawn from the organization's process library. Proactive rather than reactive improvement.</p>
+              <span class="ml-pill ml-3">ML3</span>
+            </div>
+          </div>
+
+          <div class="col-12 col-sm-6 col-lg">
+            <div class="ml-overview-card lv4 h-100">
+              <div class="ml-num">4</div>
+              <div class="ml-name mb-2">Quantitatively Managed</div>
+              <p class="small text-secondary mb-2">Quantitative objectives for quality and performance are established. Statistical methods are used to understand and control process variation.</p>
+              <span class="ml-pill ml-4">ML4</span>
+            </div>
+          </div>
+
+          <div class="col-12 col-sm-6 col-lg">
+            <div class="ml-overview-card lv5 h-100">
+              <div class="ml-num">5</div>
+              <div class="ml-name mb-2">Optimizing</div>
+              <p class="small text-secondary mb-2">Continuous process improvement is enabled through quantitative feedback and from piloting innovative ideas and technologies.</p>
+              <span class="ml-pill ml-5">ML5</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Practice Areas ── -->
+    <section class="py-5 border-top reveal">
+      <div class="container">
+        <h2 class="cmmi-section-hd">Practice Areas</h2>
+
+        <!-- Search + Filters -->
+        <div class="row g-3 align-items-center mb-4">
+          <div class="col-md-5 col-lg-4">
+            <input type="search" class="form-control" id="pa-search" placeholder="Search practice areas…" aria-label="Search practice areas" />
+          </div>
+          <div class="col-md-7 col-lg-8 d-flex flex-wrap gap-2">
+            <button class="btn btn-sm btn-primary cmmi-filter-btn active" data-filter="all">All</button>
+            <button class="btn btn-sm btn-outline-secondary cmmi-filter-btn" data-filter="ml2">ML2 Managed</button>
+            <button class="btn btn-sm btn-outline-success cmmi-filter-btn" data-filter="ml3">ML3 Defined</button>
+            <button class="btn btn-sm btn-outline-warning cmmi-filter-btn" data-filter="ml4">ML4 / ML5</button>
+            <button class="btn btn-sm btn-outline-info cmmi-filter-btn" data-filter="core">Core</button>
+            <button class="btn btn-sm btn-outline-primary cmmi-filter-btn" data-filter="dev">Development</button>
+            <button class="btn btn-sm btn-outline-success cmmi-filter-btn" data-filter="svc">Services</button>
+          </div>
+        </div>
+
+        <!-- Count badge -->
+        <p class="small text-secondary mb-3">Showing <span id="pa-count" class="fw-bold text-body">27</span> practice areas</p>
+
+        <!-- Grid -->
+        <div class="pa-grid" id="pa-grid">
+
+          <!-- ── CORE PAs ── -->
+
+          <div class="pa-card" data-domain="core" data-levels="ml2 ml3">
+            <div class="card-body d-flex flex-column gap-2">
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="pa-abbr">EST</span>
+                <span class="domain-badge domain-core">Core</span>
+                <span class="ml-pill ml-2">ML2</span>
+                <span class="ml-pill ml-3">ML3</span>
+              </div>
+              <h3 class="card-title mb-0">Estimating</h3>
+              <p class="card-text">Establish and maintain estimates of the size, effort, duration, and cost of work, and provide a rationale for those estimates.</p>
+            </div>
+          </div>
+
+          <div class="pa-card" data-domain="core" data-levels="ml2 ml3">
+            <div class="card-body d-flex flex-column gap-2">
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="pa-abbr">PLAN</span>
+                <span class="domain-badge domain-core">Core</span>
+                <span class="ml-pill ml-2">ML2</span>
+                <span class="ml-pill ml-3">ML3</span>
+              </div>
+              <h3 class="card-title mb-0">Planning</h3>
+              <p class="card-text">Establish and maintain plans that define the work to be performed, the resources required, and the approach to delivering value.</p>
+            </div>
+          </div>
+
+          <div class="pa-card" data-domain="core" data-levels="ml2 ml3">
+            <div class="card-body d-flex flex-column gap-2">
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="pa-abbr">MC</span>
+                <span class="domain-badge domain-core">Core</span>
+                <span class="ml-pill ml-2">ML2</span>
+                <span class="ml-pill ml-3">ML3</span>
+              </div>
+              <h3 class="card-title mb-0">Monitor and Control</h3>
+              <p class="card-text">Track actual performance against plans, identify deviations, and take corrective action to achieve planned performance.</p>
+            </div>
+          </div>
+
+          <div class="pa-card" data-domain="core" data-levels="ml2 ml3">
+            <div class="card-body d-flex flex-column gap-2">
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="pa-abbr">GOV</span>
+                <span class="domain-badge domain-core">Core</span>
+                <span class="ml-pill ml-2">ML2</span>
+                <span class="ml-pill ml-3">ML3</span>
+              </div>
+              <h3 class="card-title mb-0">Governance</h3>
+              <p class="card-text">Ensure that executive-level sponsorship, sponsorship direction, and organizational authority are in place to sustain process improvement.</p>
+            </div>
+          </div>
+
+          <div class="pa-card" data-domain="core" data-levels="ml2 ml3">
+            <div class="card-body d-flex flex-column gap-2">
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="pa-abbr">II</span>
+                <span class="domain-badge domain-core">Core</span>
+                <span class="ml-pill ml-2">ML2</span>
+                <span class="ml-pill ml-3">ML3</span>
+              </div>
+              <h3 class="card-title mb-0">Implementation Infrastructure</h3>
+              <p class="card-text">Establish and maintain the infrastructure needed to plan and implement the process improvement effort.</p>
+            </div>
+          </div>
+
+          <div class="pa-card" data-domain="core" data-levels="ml2 ml3">
+            <div class="card-body d-flex flex-column gap-2">
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="pa-abbr">CM</span>
+                <span class="domain-badge domain-core">Core</span>
+                <span class="ml-pill ml-2">ML2</span>
+                <span class="ml-pill ml-3">ML3</span>
+              </div>
+              <h3 class="card-title mb-0">Configuration Management</h3>
+              <p class="card-text">Establish and maintain the integrity of identified work products using configuration identification, control, status accounting, and audits.</p>
+            </div>
+          </div>
+
+          <div class="pa-card" data-domain="core" data-levels="ml2 ml3">
+            <div class="card-body d-flex flex-column gap-2">
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="pa-abbr">PQA</span>
+                <span class="domain-badge domain-core">Core</span>
+                <span class="ml-pill ml-2">ML2</span>
+                <span class="ml-pill ml-3">ML3</span>
+              </div>
+              <h3 class="card-title mb-0">Process Quality Assurance</h3>
+              <p class="card-text">Objectively evaluate processes and work products against applicable process descriptions, standards, and procedures.</p>
+            </div>
+          </div>
+
+          <div class="pa-card" data-domain="core" data-levels="ml2 ml3">
+            <div class="card-body d-flex flex-column gap-2">
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="pa-abbr">WM</span>
+                <span class="domain-badge domain-core">Core</span>
+                <span class="ml-pill ml-2">ML2</span>
+                <span class="ml-pill ml-3">ML3</span>
+              </div>
+              <h3 class="card-title mb-0">Workforce Management</h3>
+              <p class="card-text">Identify, develop, and retain the knowledge, skills, and abilities the organization needs to accomplish its work.</p>
+            </div>
+          </div>
+
+          <div class="pa-card" data-domain="core" data-levels="ml2 ml3 ml4">
+            <div class="card-body d-flex flex-column gap-2">
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="pa-abbr">MPM</span>
+                <span class="domain-badge domain-core">Core</span>
+                <span class="ml-pill ml-2">ML2</span>
+                <span class="ml-pill ml-3">ML3</span>
+                <span class="ml-pill ml-4">ML4</span>
+              </div>
+              <h3 class="card-title mb-0">Managing Performance and Measurement</h3>
+              <p class="card-text">Establish and maintain the measurement infrastructure to support management information needs across the organization.</p>
+            </div>
+          </div>
+
+          <div class="pa-card" data-domain="core" data-levels="ml2 ml3">
+            <div class="card-body d-flex flex-column gap-2">
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="pa-abbr">RSK</span>
+                <span class="domain-badge domain-core">Core</span>
+                <span class="ml-pill ml-2">ML2</span>
+                <span class="ml-pill ml-3">ML3</span>
+              </div>
+              <h3 class="card-title mb-0">Risk and Opportunity Management</h3>
+              <p class="card-text">Identify and manage risks and opportunities to proactively reduce the likelihood of negative impacts and increase the likelihood of positive ones.</p>
+            </div>
+          </div>
+
+          <div class="pa-card" data-domain="core" data-levels="ml2 ml3">
+            <div class="card-body d-flex flex-column gap-2">
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="pa-abbr">RDM</span>
+                <span class="domain-badge domain-core">Core</span>
+                <span class="ml-pill ml-2">ML2</span>
+                <span class="ml-pill ml-3">ML3</span>
+              </div>
+              <h3 class="card-title mb-0">Requirements Development and Management</h3>
+              <p class="card-text">Develop and manage customer, product, and product-component requirements and ensure alignment between those requirements and plans and work products.</p>
+            </div>
+          </div>
+
+          <div class="pa-card" data-domain="core" data-levels="ml2 ml3">
+            <div class="card-body d-flex flex-column gap-2">
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="pa-abbr">SAM</span>
+                <span class="domain-badge domain-core">Core</span>
+                <span class="ml-pill ml-2">ML2</span>
+                <span class="ml-pill ml-3">ML3</span>
+              </div>
+              <h3 class="card-title mb-0">Supplier Agreement Management</h3>
+              <p class="card-text">Manage the acquisition of products and services from suppliers to satisfy requirements while managing risk throughout the agreement.</p>
+            </div>
+          </div>
+
+          <div class="pa-card" data-domain="core" data-levels="ml3">
+            <div class="card-body d-flex flex-column gap-2">
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="pa-abbr">PR</span>
+                <span class="domain-badge domain-core">Core</span>
+                <span class="ml-pill ml-3">ML3</span>
+              </div>
+              <h3 class="card-title mb-0">Peer Reviews</h3>
+              <p class="card-text">Systematically identify and remove defects early using structured peer reviews, inspections, and walkthroughs of work products.</p>
+            </div>
+          </div>
+
+          <div class="pa-card" data-domain="core" data-levels="ml3">
+            <div class="card-body d-flex flex-column gap-2">
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="pa-abbr">OT</span>
+                <span class="domain-badge domain-core">Core</span>
+                <span class="ml-pill ml-3">ML3</span>
+              </div>
+              <h3 class="card-title mb-0">Organizational Training</h3>
+              <p class="card-text">Develop the skills and knowledge to ensure people can perform their roles effectively and support organizational performance.</p>
+            </div>
+          </div>
+
+          <div class="pa-card" data-domain="core" data-levels="ml3">
+            <div class="card-body d-flex flex-column gap-2">
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="pa-abbr">DAR</span>
+                <span class="domain-badge domain-core">Core</span>
+                <span class="ml-pill ml-3">ML3</span>
+              </div>
+              <h3 class="card-title mb-0">Decision Analysis and Resolution</h3>
+              <p class="card-text">Analyze possible decisions using a formal evaluation process that identifies alternatives against established criteria.</p>
+            </div>
+          </div>
+
+          <div class="pa-card" data-domain="core" data-levels="ml3">
+            <div class="card-body d-flex flex-column gap-2">
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="pa-abbr">PAD</span>
+                <span class="domain-badge domain-core">Core</span>
+                <span class="ml-pill ml-3">ML3</span>
+              </div>
+              <h3 class="card-title mb-0">Process Asset Development</h3>
+              <p class="card-text">Establish and maintain the organization's process library — the set of standard processes, guidelines, and tools available to projects.</p>
+            </div>
+          </div>
+
+          <div class="pa-card" data-domain="core" data-levels="ml3 ml4 ml5">
+            <div class="card-body d-flex flex-column gap-2">
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="pa-abbr">PCM</span>
+                <span class="domain-badge domain-core">Core</span>
+                <span class="ml-pill ml-3">ML3</span>
+                <span class="ml-pill ml-4">ML4</span>
+                <span class="ml-pill ml-5">ML5</span>
+              </div>
+              <h3 class="card-title mb-0">Process Change Management</h3>
+              <p class="card-text">Continually improve process capability by identifying process improvements and deploying them across the organization.</p>
+            </div>
+          </div>
+
+          <div class="pa-card" data-domain="core" data-levels="ml4 ml5">
+            <div class="card-body d-flex flex-column gap-2">
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="pa-abbr">CAR</span>
+                <span class="domain-badge domain-core">Core</span>
+                <span class="ml-pill ml-4">ML4</span>
+                <span class="ml-pill ml-5">ML5</span>
+              </div>
+              <h3 class="card-title mb-0">Causal Analysis and Resolution</h3>
+              <p class="card-text">Identify the causes of selected outcomes and take actions to prevent adverse outcomes from recurring and propagate positive outcomes.</p>
+            </div>
+          </div>
+
+          <!-- ── DEVELOPMENT VIEW PAs ── -->
+
+          <div class="pa-card" data-domain="dev" data-levels="ml3">
+            <div class="card-body d-flex flex-column gap-2">
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="pa-abbr">TS</span>
+                <span class="domain-badge domain-dev">Development</span>
+                <span class="ml-pill ml-3">ML3</span>
+              </div>
+              <h3 class="card-title mb-0">Technical Solution</h3>
+              <p class="card-text">Select, design, and implement solutions to requirements, including evaluating alternative solution approaches and architecting the product.</p>
+            </div>
+          </div>
+
+          <div class="pa-card" data-domain="dev" data-levels="ml3">
+            <div class="card-body d-flex flex-column gap-2">
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="pa-abbr">PI</span>
+                <span class="domain-badge domain-dev">Development</span>
+                <span class="ml-pill ml-3">ML3</span>
+              </div>
+              <h3 class="card-title mb-0">Product Integration</h3>
+              <p class="card-text">Assemble product components and deliver the product by ensuring components are compatible, integrated in the correct sequence, and tested as an assembly.</p>
+            </div>
+          </div>
+
+          <div class="pa-card" data-domain="dev" data-levels="ml3">
+            <div class="card-body d-flex flex-column gap-2">
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="pa-abbr">VV</span>
+                <span class="domain-badge domain-dev">Development</span>
+                <span class="ml-pill ml-3">ML3</span>
+              </div>
+              <h3 class="card-title mb-0">Verification and Validation</h3>
+              <p class="card-text">Confirm that work products and the final product meet specified requirements (verification) and fulfill intended use (validation).</p>
+            </div>
+          </div>
+
+          <!-- ── SERVICES VIEW PAs ── -->
+
+          <div class="pa-card" data-domain="svc" data-levels="ml2 ml3">
+            <div class="card-body d-flex flex-column gap-2">
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="pa-abbr">SD</span>
+                <span class="domain-badge domain-svc">Services</span>
+                <span class="ml-pill ml-2">ML2</span>
+                <span class="ml-pill ml-3">ML3</span>
+              </div>
+              <h3 class="card-title mb-0">Service Delivery</h3>
+              <p class="card-text">Deliver services in accordance with service agreements, manage service delivery, and meet established service levels.</p>
+            </div>
+          </div>
+
+          <div class="pa-card" data-domain="svc" data-levels="ml2 ml3">
+            <div class="card-body d-flex flex-column gap-2">
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="pa-abbr">IRP</span>
+                <span class="domain-badge domain-svc">Services</span>
+                <span class="ml-pill ml-2">ML2</span>
+                <span class="ml-pill ml-3">ML3</span>
+              </div>
+              <h3 class="card-title mb-0">Incident Resolution and Prevention</h3>
+              <p class="card-text">Identify, control, and address incidents and service requests in a timely manner to restore normal service and prevent recurrence.</p>
+            </div>
+          </div>
+
+          <div class="pa-card" data-domain="svc" data-levels="ml3">
+            <div class="card-body d-flex flex-column gap-2">
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="pa-abbr">CONT</span>
+                <span class="domain-badge domain-svc">Services</span>
+                <span class="ml-pill ml-3">ML3</span>
+              </div>
+              <h3 class="card-title mb-0">Continuity</h3>
+              <p class="card-text">Establish and maintain plans to ensure continuity of service delivery when significant disruptions occur.</p>
+            </div>
+          </div>
+
+          <div class="pa-card" data-domain="svc" data-levels="ml3">
+            <div class="card-body d-flex flex-column gap-2">
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="pa-abbr">SSD</span>
+                <span class="domain-badge domain-svc">Services</span>
+                <span class="ml-pill ml-3">ML3</span>
+              </div>
+              <h3 class="card-title mb-0">Service System Development</h3>
+              <p class="card-text">Analyze, design, develop, integrate, verify, and validate service systems that satisfy existing or anticipated service agreements.</p>
+            </div>
+          </div>
+
+          <div class="pa-card" data-domain="svc" data-levels="ml3">
+            <div class="card-body d-flex flex-column gap-2">
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="pa-abbr">SST</span>
+                <span class="domain-badge domain-svc">Services</span>
+                <span class="ml-pill ml-3">ML3</span>
+              </div>
+              <h3 class="card-title mb-0">Service System Transition</h3>
+              <p class="card-text">Deploy new or significantly changed service system components into the operational environment while maintaining service continuity.</p>
+            </div>
+          </div>
+
+          <div class="pa-card" data-domain="svc" data-levels="ml3">
+            <div class="card-body d-flex flex-column gap-2">
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="pa-abbr">STSM</span>
+                <span class="domain-badge domain-svc">Services</span>
+                <span class="ml-pill ml-3">ML3</span>
+              </div>
+              <h3 class="card-title mb-0">Strategic Service Management</h3>
+              <p class="card-text">Establish and maintain standard services in accordance with strategic needs and plans, and ensure services align with organizational goals.</p>
+            </div>
+          </div>
+
+        </div><!-- /.pa-grid -->
+      </div>
+    </section>
+
+    <!-- ── Related Resources ── -->
+    <section class="py-5 border-top reveal">
+      <div class="container">
+        <h2 class="cmmi-section-hd">Related References</h2>
+        <div class="row g-3">
+          <div class="col-md-6 col-lg-4">
+            <a href="../cmmidev3.html" class="resource-card h-100 d-flex flex-column gap-2">
+              <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-success px-2 py-1">ML3 Detailed</span>
+                <span class="badge bg-secondary px-2 py-1">Development</span>
+              </div>
+              <div class="fw-bold">CMMI v2.0 DEV — ML3 Practice Reference</div>
+              <p class="small text-secondary mb-0">Full ML3 Development reference with every practice statement, elaboration, and concrete compliance examples. Searchable and filterable.</p>
+              <span class="small text-primary mt-auto">View reference →</span>
+            </a>
+          </div>
+          <div class="col-md-6 col-lg-4">
+            <a href="../compliancetracker.html" class="resource-card h-100 d-flex flex-column gap-2">
+              <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-primary px-2 py-1">Interactive</span>
+                <span class="badge bg-secondary px-2 py-1">CMMC / NIST</span>
+              </div>
+              <div class="fw-bold">Compliance Tracker</div>
+              <p class="small text-secondary mb-0">Track compliance against CMMC, NIST 800-171, and related frameworks. Includes SSP preview, POAM, pie chart dashboard, and evidence linking.</p>
+              <span class="small text-primary mt-auto">Open tracker →</span>
+            </a>
+          </div>
+          <div class="col-md-6 col-lg-4">
+            <a href="../isms/index.html" class="resource-card h-100 d-flex flex-column gap-2">
+              <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-warning text-dark px-2 py-1">Document Library</span>
+                <span class="badge bg-secondary px-2 py-1">ISO 27001</span>
+              </div>
+              <div class="fw-bold">ISMS Document Library</div>
+              <p class="small text-secondary mb-0">Audit-ready collection of ISO/IEC 27001:2022 policies, procedures, and templates — 42 documents across 3 document types.</p>
+              <span class="small text-primary mt-auto">View library →</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- RBAC Login Modal -->
+  <div class="modal" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="rbacModalLabel">&#128274; Login</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body"><!-- roles.js injects login form here --></div>
+        <div class="modal-footer border-0 pt-0">
+          <p class="text-secondary small mb-0">Session clears when you close this tab.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" />
+      </a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" />
+      </a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="../privacy.html">Privacy Policy</a> &middot; <a href="../terms.html">Terms</a></p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmyQWuGmUhSBQOVCp7p5pT1gkTJ" crossorigin="anonymous"></script>
+  <script src="../users.js" defer></script>
+  <script src="../roles.js" defer></script>
+  <script src="../script.js" defer></script>
+  <script src="../analytics.js" defer></script>
+  <script src="../siteSearch.js" defer></script>
+
+  <script>
+  (function () {
+    var grid      = document.getElementById('pa-grid');
+    var countEl   = document.getElementById('pa-count');
+    var searchEl  = document.getElementById('pa-search');
+    var filterBtns = document.querySelectorAll('.cmmi-filter-btn');
+
+    var activeFilter = 'all';
+    var activeSearch = '';
+
+    function applyFilters() {
+      var cards = grid.querySelectorAll('.pa-card');
+      var visible = 0;
+      cards.forEach(function (card) {
+        var domain = card.dataset.domain || '';
+        var levels = card.dataset.levels || '';
+        var text   = card.innerText.toLowerCase();
+
+        var filterMatch = true;
+        if (activeFilter === 'ml2')  filterMatch = levels.indexOf('ml2') !== -1;
+        else if (activeFilter === 'ml3')  filterMatch = levels.indexOf('ml3') !== -1;
+        else if (activeFilter === 'ml4')  filterMatch = levels.indexOf('ml4') !== -1 || levels.indexOf('ml5') !== -1;
+        else if (activeFilter === 'core') filterMatch = domain === 'core';
+        else if (activeFilter === 'dev')  filterMatch = domain === 'dev';
+        else if (activeFilter === 'svc')  filterMatch = domain === 'svc';
+
+        var searchMatch = activeSearch === '' || text.indexOf(activeSearch.toLowerCase()) !== -1;
+
+        var show = filterMatch && searchMatch;
+        card.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+      countEl.textContent = visible;
+    }
+
+    filterBtns.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        filterBtns.forEach(function (b) {
+          b.classList.remove('active', 'btn-primary', 'btn-secondary', 'btn-success', 'btn-warning', 'btn-info');
+          b.classList.add(b.dataset.filter === 'all'  ? 'btn-outline-primary'  :
+                          b.dataset.filter === 'ml2'  ? 'btn-outline-secondary':
+                          b.dataset.filter === 'ml3'  ? 'btn-outline-success'  :
+                          b.dataset.filter === 'ml4'  ? 'btn-outline-warning'  :
+                          b.dataset.filter === 'core' ? 'btn-outline-info'     :
+                          b.dataset.filter === 'dev'  ? 'btn-outline-primary'  :
+                                                        'btn-outline-success');
+        });
+        btn.classList.remove(
+          'btn-outline-primary','btn-outline-secondary','btn-outline-success',
+          'btn-outline-warning','btn-outline-info'
+        );
+        var f = btn.dataset.filter;
+        btn.classList.add(
+          f === 'all'  ? 'btn-primary'  :
+          f === 'ml2'  ? 'btn-secondary':
+          f === 'ml3'  ? 'btn-success'  :
+          f === 'ml4'  ? 'btn-warning'  :
+          f === 'core' ? 'btn-info'     :
+          f === 'dev'  ? 'btn-primary'  :
+                         'btn-success',
+          'active'
+        );
+        activeFilter = f;
+        applyFilters();
+      });
+    });
+
+    searchEl.addEventListener('input', function () {
+      activeSearch = searchEl.value;
+      applyFilters();
+    });
+
+    applyFilters();
+  })();
+  </script>
+
+  <!-- bot-trap -->
+  <div aria-hidden="true" style="position:absolute;left:-99999px;top:auto;width:1px;height:1px;overflow:hidden">
+    <a href="../honeypot.html" tabindex="-1">admin-legacy-export</a>
+  </div>
+</body>
+</html>
