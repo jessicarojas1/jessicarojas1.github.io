@@ -1010,6 +1010,22 @@ body {
   border-color: rgba(var(--cerulean-rgb), 0.4) !important;
 }
 
+/* ── Cyber Fox ────────────────────────────────────────────────── */
+.cyber-fox { display:inline-block; margin:.25rem 0; }
+.cyber-fox-svg {
+  filter: drop-shadow(0 0 5px #00ffff) drop-shadow(0 0 16px rgba(0,255,255,.45));
+  animation: cyberFoxPulse 3s ease-in-out infinite;
+}
+@keyframes cyberFoxPulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 5px #00ffff) drop-shadow(0 0 14px rgba(0,255,255,.4));
+  }
+  50% {
+    filter: drop-shadow(0 0 12px #00ffff) drop-shadow(0 0 28px rgba(0,255,255,.65))
+            drop-shadow(0 0 5px rgba(255,0,136,.45));
+  }
+}
+
 /* ── Respect reduced motion ───────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
