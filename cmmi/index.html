@@ -1,0 +1,1517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; img-src 'self' https://cdn.jsdelivr.net data: blob:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self' https://cdn.jsdelivr.net; worker-src blob:; object-src 'none'; base-uri 'self';">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../theme.css" />
+  <title>CMMI v2.0 — Full Practice Reference (All Levels) | Jessica Rojas</title>
+  <meta name="description" content="Complete CMMI v2.0 practice reference covering all maturity levels (ML2–ML3), all 21 practice areas, every practice group, every practice statement with elaboration and compliance examples. Filter by level, domain, and search." />
+  <style>
+    /* ── Level pills ── */
+    .lv-pill { display:inline-block; padding:2px 9px; border-radius:20px; font-size:.69rem; font-weight:700; white-space:nowrap; font-family:monospace; letter-spacing:.04em; }
+    .lv-ml2 { background:rgba(13,110,253,.15); color:#6ea8fe; border:1px solid rgba(13,110,253,.3); }
+    .lv-ml3 { background:rgba(25,135,84,.15); color:#75b798; border:1px solid rgba(25,135,84,.3); }
+
+    /* ── Domain badges ── */
+    .dom-badge { display:inline-block; padding:2px 7px; border-radius:4px; font-size:.66rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; }
+    .dom-core { background:rgba(13,202,240,.12); color:var(--bs-info); border:1px solid rgba(13,202,240,.28); }
+    .dom-dev  { background:rgba(102,16,242,.12); color:#a78bfa; border:1px solid rgba(102,16,242,.28); }
+
+    /* ── PA abbreviation tag ── */
+    .pa-abbr { font-size:.78rem; font-weight:700; font-family:monospace; padding:2px 9px; border-radius:4px; background:rgba(var(--bs-primary-rgb),.15); color:var(--bs-primary); }
+
+    /* ── PA accordion header ── */
+    .pa-header {
+      background: var(--bs-secondary-bg);
+      border: 1px solid var(--bs-border-color);
+      border-left: 3px solid var(--bs-primary);
+      border-radius: .5rem;
+      padding: .9rem 1.2rem;
+      cursor: pointer;
+      user-select: none;
+      transition: border-color .2s, box-shadow .2s;
+      position: relative;
+    }
+    .pa-header:hover { border-color: rgba(255,88,17,.5); box-shadow: 0 4px 16px rgba(0,0,0,.3); }
+    .pa-header .pa-chevron { transition: transform .25s; font-size:.85rem; color:var(--bs-secondary-color); }
+    .pa-header[aria-expanded="true"] .pa-chevron { transform: rotate(90deg); }
+    .pa-name { font-size:.94rem; font-weight:700; }
+    .pa-desc { font-size:.78rem; color:var(--bs-secondary-color); }
+
+    /* ── Practice Group header ── */
+    .pg-header {
+      background: rgba(var(--bs-primary-rgb),.06);
+      border-left: 2px solid rgba(var(--bs-primary-rgb),.4);
+      border-radius: 0 .35rem .35rem 0;
+      padding: .55rem 1rem;
+      font-size: .75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--bs-secondary-color);
+      margin: .6rem 0 .3rem 0;
+    }
+
+    /* ── Practice row ── */
+    .practice-row {
+      border: 1px solid var(--bs-border-color);
+      border-radius: .4rem;
+      margin-bottom: .35rem;
+      overflow: hidden;
+      transition: border-color .2s;
+    }
+    .practice-row:hover { border-color: rgba(255,88,17,.35); }
+
+    .practice-trigger {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .65rem 1rem;
+      cursor: pointer;
+      background: var(--bs-body-bg);
+      transition: background .15s;
+    }
+    .practice-trigger:hover { background: rgba(var(--bs-primary-rgb),.04); }
+    .practice-trigger[aria-expanded="true"] { background: rgba(var(--bs-primary-rgb),.07); }
+    .practice-trigger[aria-expanded="true"] .p-chevron { transform: rotate(90deg); }
+    .p-chevron { transition: transform .2s; font-size:.75rem; color:var(--bs-secondary-color); flex-shrink:0; }
+    .p-num { font-family: monospace; font-size:.78rem; font-weight:700; color:var(--bs-primary); white-space:nowrap; flex-shrink:0; min-width:4.5rem; }
+    .p-stmt-preview { font-size:.83rem; color:var(--bs-body-color); flex:1; }
+
+    /* ── Practice expanded detail ── */
+    .practice-detail { display:none; padding:1rem 1.2rem 1rem 1.2rem; background:rgba(var(--bs-secondary-bg-rgb,32,37,41),0.6); border-top:1px solid var(--bs-border-color); }
+    .practice-detail.open { display:block; }
+    .detail-label { font-size:.67rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--bs-primary); margin-bottom:.3rem; }
+    .detail-statement { font-size:.88rem; font-style:italic; line-height:1.6; margin-bottom:1rem; color:var(--bs-body-color); }
+    .detail-elaboration { font-size:.82rem; line-height:1.65; color:var(--bs-secondary-color); margin-bottom:1rem; }
+    .detail-examples { list-style:none; padding:0; margin:0; }
+    .detail-examples li { font-size:.8rem; color:var(--bs-secondary-color); padding:.3rem 0 .3rem .9rem; border-left:2px solid rgba(var(--bs-primary-rgb),.25); margin-bottom:.3rem; line-height:1.55; }
+    .detail-examples li::before { content:'▸ '; color:var(--bs-primary); font-size:.65rem; margin-left:-.85rem; margin-right:.15rem; }
+
+    /* ── Stats bar ── */
+    .cmmi-stat-num { font-size:1.8rem; font-weight:800; color:var(--bs-primary); line-height:1; font-variant-numeric:tabular-nums; }
+    .cmmi-stat-lbl { font-size:.73rem; color:var(--bs-secondary-color); text-transform:uppercase; letter-spacing:.08em; }
+
+    /* ── Filter bar ── */
+    .filter-bar { background:var(--bs-secondary-bg); border:1px solid var(--bs-border-color); border-radius:.5rem; padding:.9rem 1.1rem; margin-bottom:1.5rem; }
+    .cmmi-filter-btn { transition:transform .12s, box-shadow .2s; }
+    .cmmi-filter-btn:hover { transform:translateY(-1px); }
+    .cmmi-filter-btn.active { box-shadow:0 0 12px rgba(255,88,17,.3); }
+
+    /* ── Section heading ── */
+    .cmmi-sh { font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--bs-secondary-color); border-bottom:1px solid var(--bs-border-color); padding-bottom:.5rem; margin-bottom:1.1rem; position:relative; }
+    .cmmi-sh::after { content:''; position:absolute; bottom:-1px; left:0; width:36px; height:1px; background:var(--bs-primary); box-shadow:0 0 8px rgba(255,88,17,.5); }
+
+    /* ── No-results ── */
+    #no-results { display:none; padding:2.5rem; text-align:center; color:var(--bs-secondary-color); }
+
+    /* ── Status badge button ── */
+    .status-btn {
+      flex-shrink: 0;
+      border: none;
+      background: none;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: .82rem;
+      line-height: 1;
+      transition: opacity .15s;
+      margin-left: auto;
+    }
+    .status-btn:hover { opacity: .75; }
+    .status-btn.s-ns  { color: var(--bs-secondary-color); }
+    .status-btn.s-ip  { color: var(--bs-warning); }
+    .status-btn.s-done{ color: var(--bs-success); }
+    .status-btn.s-na  { color: var(--bs-secondary-color); opacity:.5; }
+
+    /* ── Note indicator ── */
+    .note-indicator { font-size:.65rem; color: var(--bs-primary); opacity:.8; flex-shrink:0; }
+
+    /* ── Notes textarea ── */
+    .notes-section { margin-top:1rem; }
+    .notes-textarea {
+      width:100%; border-radius:.35rem; border:1px solid var(--bs-border-color);
+      background:var(--bs-body-bg); color:var(--bs-body-color);
+      padding:.5rem .75rem; font-size:.8rem; resize:vertical; min-height:70px;
+      font-family:inherit; transition:border-color .2s;
+    }
+    .notes-textarea:focus { outline:none; border-color:rgba(255,88,17,.5); }
+    .notes-saved-indicator { font-size:.65rem; color:var(--bs-success); margin-left:.5rem; opacity:0; transition:opacity .4s; }
+    .notes-saved-indicator.show { opacity:1; }
+
+    /* ── Progress dashboard ── */
+    #progress-dashboard {
+      background: var(--bs-secondary-bg);
+      border: 1px solid var(--bs-border-color);
+      border-radius: .5rem;
+      padding: .9rem 1.1rem;
+      margin-bottom: 1.2rem;
+    }
+    .progress-overall-bar { height: 10px; border-radius: 5px; }
+    .pa-progress-grid { display:flex; flex-wrap:wrap; gap:.4rem; margin-top:.6rem; }
+    .pa-pill-progress {
+      display:inline-flex; align-items:center; gap:.3rem;
+      font-size:.68rem; font-weight:700; font-family:monospace;
+      padding:2px 7px; border-radius:12px; border:1px solid var(--bs-border-color);
+      background:var(--bs-body-bg); white-space:nowrap;
+    }
+    .pa-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+    .pa-dot-green  { background:#198754; }
+    .pa-dot-yellow { background:#ffc107; }
+    .pa-dot-gray   { background:#6c757d; }
+
+    /* ── Jump navigation ── */
+    #jump-nav {
+      position: sticky;
+      top: 56px;
+      z-index: 100;
+      background: var(--bs-body-bg);
+      border-bottom: 1px solid var(--bs-border-color);
+      padding: .45rem 0;
+      margin-bottom: .75rem;
+    }
+    .jump-nav-inner {
+      display: flex;
+      gap: .35rem;
+      overflow-x: auto;
+      padding: .1rem .25rem;
+      scrollbar-width: thin;
+    }
+    .jump-nav-inner::-webkit-scrollbar { height: 3px; }
+    .jump-nav-inner::-webkit-scrollbar-thumb { background: rgba(255,88,17,.3); border-radius:2px; }
+    .jump-pill {
+      display: inline-flex; align-items:center; gap:.25rem;
+      padding: 3px 9px; border-radius:20px;
+      font-size:.68rem; font-weight:700; font-family:monospace;
+      border: 1px solid var(--bs-border-color);
+      background: var(--bs-secondary-bg);
+      color: var(--bs-body-color);
+      cursor: pointer; white-space:nowrap;
+      transition: border-color .15s, background .15s;
+      text-decoration: none;
+    }
+    .jump-pill:hover { border-color:rgba(255,88,17,.5); background:rgba(var(--bs-primary-rgb),.08); color:var(--bs-body-color); }
+    .jump-pill .jp-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+
+    /* ── Evidence Guide panel ── */
+    .evidence-panel {
+      margin-top: .75rem;
+      border: 1px solid var(--bs-border-color);
+      border-left: 3px solid rgba(255,193,7,.5);
+      border-radius: .4rem;
+      overflow: hidden;
+    }
+    .evidence-toggle-btn {
+      width: 100%;
+      padding: .55rem 1rem;
+      background: rgba(255,193,7,.06);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      font-size: .74rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--bs-secondary-color);
+      text-align: left;
+      transition: background .15s;
+    }
+    .evidence-toggle-btn:hover { background: rgba(255,193,7,.12); }
+    .evidence-panel-body { display:none; padding:.9rem 1rem; }
+    .evidence-panel-body.open { display:block; }
+    .ev-artifact-item { display:flex; align-items:flex-start; gap:.5rem; margin-bottom:.35rem; font-size:.8rem; color:var(--bs-secondary-color); }
+    .ev-artifact-item input[type=checkbox] { flex-shrink:0; margin-top:.15rem; accent-color:var(--bs-primary); cursor:pointer; }
+    .ev-tips-box { background:rgba(255,193,7,.08); border:1px solid rgba(255,193,7,.25); border-radius:.35rem; padding:.65rem .85rem; margin-top:.75rem; font-size:.79rem; color:var(--bs-body-color); line-height:1.6; }
+    .ev-tips-label { font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:#ffc107; display:block; margin-bottom:.3rem; }
+
+    /* ── Search highlight ── */
+    mark { background:rgba(255,193,7,.35); color:inherit; padding:0 1px; border-radius:2px; }
+
+    /* ── Category filter buttons ── */
+    .cat-btn { padding:3px 11px; border-radius:20px; font-size:.72rem; font-weight:700; letter-spacing:.03em; border:1px solid var(--bs-border-color); background:transparent; color:var(--bs-secondary-color); cursor:pointer; transition:background .15s,color .15s,border-color .15s,transform .12s; white-space:nowrap; }
+    .cat-btn:hover { transform:translateY(-1px); }
+    .cat-btn-all.active  { background:rgba(128,128,128,.15); border-color:rgba(255,255,255,.35); color:var(--bs-body-color); }
+    .cat-btn-managing.active  { background:rgba(13,110,253,.15); border-color:rgba(13,110,253,.5); color:#6ea8fe; }
+    .cat-btn-doing.active     { background:rgba(25,135,84,.15);  border-color:rgba(25,135,84,.5);  color:#75b798; }
+    .cat-btn-enabling.active  { background:rgba(13,202,240,.15); border-color:rgba(13,202,240,.5); color:#0dcaf0; }
+    .cat-btn-improving.active { background:rgba(255,88,17,.15);  border-color:rgba(255,88,17,.5);  color:var(--bs-primary); }
+
+    /* ── PA progress fraction in header ── */
+    .pa-progress-frac { font-size:.71rem; font-family:monospace; color:var(--bs-secondary-color); font-weight:600; padding:1px 7px; border-radius:10px; border:1px solid var(--bs-border-color); background:var(--bs-body-bg); white-space:nowrap; }
+    .pa-progress-frac.frac-done { color:var(--bs-success); border-color:rgba(25,135,84,.4); }
+    .pa-progress-frac.frac-ip   { color:var(--bs-warning); border-color:rgba(255,193,7,.4); }
+
+    /* ── Category badges in PA header ── */
+    .cat-badge { display:inline-block; padding:1px 7px; border-radius:20px; font-size:.62rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase; }
+    .cat-badge-managing  { background:rgba(13,110,253,.12); color:#6ea8fe; border:1px solid rgba(13,110,253,.3); }
+    .cat-badge-doing     { background:rgba(25,135,84,.12);  color:#75b798; border:1px solid rgba(25,135,84,.3); }
+    .cat-badge-enabling  { background:rgba(13,202,240,.12); color:#0dcaf0; border:1px solid rgba(13,202,240,.3); }
+    .cat-badge-improving { background:rgba(255,88,17,.12);  color:var(--bs-primary); border:1px solid rgba(255,88,17,.3); }
+
+    /* ── Interaction Map ── */
+    .imap-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; }
+    @media (max-width:991.98px) { .imap-grid { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:575.98px) { .imap-grid { grid-template-columns:1fr; } }
+    .imap-group { border-radius:.5rem; padding:1rem; border:1px solid var(--bs-border-color); transition:box-shadow .2s,transform .2s; }
+    .imap-group:hover { box-shadow:0 6px 20px rgba(0,0,0,.3); transform:translateY(-2px); }
+    .imap-group-managing { border-color:rgba(13,110,253,.3);  background:rgba(13,110,253,.05);  }
+    .imap-group-doing    { border-color:rgba(25,135,84,.3);   background:rgba(25,135,84,.05);   }
+    .imap-group-enabling { border-color:rgba(13,202,240,.3);  background:rgba(13,202,240,.05);  }
+    .imap-group-improving{ border-color:rgba(255,88,17,.3);   background:rgba(255,88,17,.05);   }
+    .imap-title { font-size:.72rem; font-weight:800; text-transform:uppercase; letter-spacing:.1em; margin-bottom:.5rem; display:flex; align-items:center; gap:.4rem; }
+    .imap-title-managing  { color:#6ea8fe; }
+    .imap-title-doing     { color:#75b798; }
+    .imap-title-enabling  { color:#0dcaf0; }
+    .imap-title-improving { color:var(--bs-primary); }
+    .imap-desc { font-size:.71rem; color:var(--bs-secondary-color); margin-bottom:.6rem; line-height:1.5; min-height:2.4em; }
+    .imap-pill { display:inline-block; padding:2px 9px; border-radius:20px; font-size:.68rem; font-weight:700; font-family:monospace; margin:2px; cursor:pointer; transition:background .15s,transform .1s; white-space:nowrap; text-decoration:none; }
+    .imap-pill:hover { transform:translateY(-1px); }
+    .imap-pill-managing  { border:1px solid rgba(13,110,253,.4); color:#6ea8fe; background:transparent; }
+    .imap-pill-managing:hover  { background:rgba(13,110,253,.15); color:#6ea8fe; }
+    .imap-pill-doing     { border:1px solid rgba(25,135,84,.4);  color:#75b798; background:transparent; }
+    .imap-pill-doing:hover     { background:rgba(25,135,84,.15); color:#75b798; }
+    .imap-pill-enabling  { border:1px solid rgba(13,202,240,.4); color:#0dcaf0; background:transparent; }
+    .imap-pill-enabling:hover  { background:rgba(13,202,240,.15); color:#0dcaf0; }
+    .imap-pill-improving { border:1px solid rgba(255,88,17,.4);  color:var(--bs-primary); background:transparent; }
+    .imap-pill-improving:hover { background:rgba(255,88,17,.15); color:var(--bs-primary); }
+
+    /* ── ML level bars in dashboard ── */
+    .ml-bar-row { display:flex; gap:1.25rem; flex-wrap:wrap; margin-bottom:.6rem; }
+    .ml-bar-block { flex:1; min-width:160px; }
+    .ml-bar-label { display:flex; justify-content:space-between; align-items:center; margin-bottom:.3rem; }
+
+    /* ── Print styles ── */
+    @media print {
+      #mainNav, footer, .filter-bar, .no-print, .navbar, #jump-nav, #progress-dashboard { display:none !important; }
+      .practice-detail { display:block !important; }
+      .practice-trigger .p-chevron { display:none; }
+      .evidence-panel-body { display:block !important; }
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="../index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="../about.html">About</a></li>
+          <li class="nav-item"><a class="nav-link active" href="../projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="../timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="../cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="../consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="../services.html">Services</a></li>
+          <li class="nav-item"><a class="nav-link" href="../contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="../blog.html">Blog</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="../compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="../jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" id="nav-dataanalysis-link" style="display:none"><a class="nav-link" href="../dataanalysis.html">Data Analysis</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="../admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content">
+
+    <!-- ── Hero ── -->
+    <section class="py-5 reveal">
+      <div class="container">
+        <div class="d-flex align-items-start gap-3 flex-wrap">
+          <div>
+            <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+              <span class="badge bg-primary px-3 py-2">CMMI v2.0</span>
+              <span class="badge bg-secondary px-3 py-2">ML2 + ML3</span>
+              <span class="badge bg-warning text-dark px-3 py-2">All Practice Areas</span>
+            </div>
+            <h1 class="section-title mb-2">CMMI v2.0 — Full Practice Reference</h1>
+            <p class="text-secondary mb-0" style="max-width:820px">
+              Every practice area, every practice group, every practice — with the CMMI v2.0 practice statement, elaboration, and concrete compliance examples. Covers all 21 Core and Development practice areas across Maturity Levels 2 and 3. Click any practice to expand full detail. Track your implementation status and export a gap analysis to Excel.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Stats Bar ── -->
+    <section class="py-3 border-top border-bottom reveal">
+      <div class="container">
+        <div class="d-flex flex-wrap gap-4 align-items-center">
+          <div class="text-center">
+            <div class="cmmi-stat-num" id="stat-pa">—</div>
+            <div class="cmmi-stat-lbl">Practice Areas</div>
+          </div>
+          <div class="text-center">
+            <div class="cmmi-stat-num" id="stat-pg">—</div>
+            <div class="cmmi-stat-lbl">Practice Groups</div>
+          </div>
+          <div class="text-center">
+            <div class="cmmi-stat-num" id="stat-practices">—</div>
+            <div class="cmmi-stat-lbl">Practices</div>
+          </div>
+          <div class="text-center">
+            <div class="cmmi-stat-num" id="stat-ml2">—</div>
+            <div class="cmmi-stat-lbl">ML2 Practices</div>
+          </div>
+          <div class="text-center">
+            <div class="cmmi-stat-num" id="stat-ml3">—</div>
+            <div class="cmmi-stat-lbl">ML3 Practices</div>
+          </div>
+          <div class="vr d-none d-md-block"></div>
+          <div class="d-flex flex-wrap gap-2">
+            <span class="badge text-bg-info fs-6 fw-normal px-3 py-2">CMMI Institute</span>
+            <span class="badge text-bg-secondary fs-6 fw-normal px-3 py-2">Version 2.0</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Main Reference ── -->
+    <section class="py-5 reveal" id="pa-accordion-section">
+      <div class="container">
+
+        <!-- Filter bar -->
+        <div class="filter-bar no-print">
+          <div class="row g-2 align-items-end mb-2">
+            <div class="col-12 col-sm-6 col-md-3">
+              <label class="form-label small fw-semibold mb-1">Search <kbd class="ms-1" style="font-size:.6rem">/</kbd></label>
+              <input type="search" class="form-control form-control-sm" id="search-input" placeholder="Practice area, statement, keyword…" />
+            </div>
+            <div class="col-6 col-sm-3 col-md-2">
+              <label class="form-label small fw-semibold mb-1">Level</label>
+              <select class="form-select form-select-sm" id="filter-level">
+                <option value="">All Levels</option>
+                <option value="ML2">ML2 — Managed</option>
+                <option value="ML3">ML3 — Defined</option>
+              </select>
+            </div>
+            <div class="col-6 col-sm-3 col-md-2">
+              <label class="form-label small fw-semibold mb-1">Domain</label>
+              <select class="form-select form-select-sm" id="filter-domain">
+                <option value="">All Domains</option>
+                <option value="All">Core (All)</option>
+                <option value="Development">Development</option>
+              </select>
+            </div>
+            <div class="col-6 col-sm-3 col-md-2">
+              <label class="form-label small fw-semibold mb-1">Show Status</label>
+              <select class="form-select form-select-sm" id="filter-status">
+                <option value="">All Statuses</option>
+                <option value="ns">Not Started ○</option>
+                <option value="ip">In Progress ◐</option>
+                <option value="done">Implemented ✓</option>
+                <option value="na">N/A —</option>
+                <option value="notes">Has Notes ✏</option>
+              </select>
+            </div>
+            <div class="col-6 col-sm-3 col-md-3 d-flex align-items-end gap-1 flex-wrap">
+              <button class="btn btn-sm btn-outline-secondary" id="btn-expand-all">Expand All</button>
+              <button class="btn btn-sm btn-outline-secondary" id="btn-collapse-all">Collapse</button>
+              <button class="btn btn-sm btn-outline-danger" id="btn-reset">Reset</button>
+              <button class="btn btn-sm btn-outline-success" id="btn-export-excel" title="Export to Excel"><i class="bi bi-file-earmark-spreadsheet"></i></button>
+              <span class="text-secondary small ms-auto align-self-center" id="visible-count"></span>
+            </div>
+          </div>
+          <!-- Category filter -->
+          <div class="d-flex align-items-center gap-2 flex-wrap pt-1" style="border-top:1px solid var(--bs-border-color);">
+            <span class="small text-secondary fw-semibold" style="white-space:nowrap;font-size:.71rem">Category:</span>
+            <button class="cat-btn cat-btn-all active" data-cat="">All</button>
+            <button class="cat-btn cat-btn-managing" data-cat="Managing"><span class="bi bi-bar-chart-fill me-1"></span>Managing</button>
+            <button class="cat-btn cat-btn-doing" data-cat="Doing"><span class="bi bi-gear-fill me-1"></span>Doing</button>
+            <button class="cat-btn cat-btn-enabling" data-cat="Enabling"><span class="bi bi-lightning-fill me-1"></span>Enabling</button>
+            <button class="cat-btn cat-btn-improving" data-cat="Improving"><span class="bi bi-arrow-repeat me-1"></span>Improving</button>
+            <span class="text-secondary ms-2" style="font-size:.68rem" id="cat-description"></span>
+          </div>
+        </div>
+
+        <!-- Progress Dashboard -->
+        <div id="progress-dashboard" class="no-print">
+          <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
+            <div>
+              <span class="fw-semibold small">Implementation Progress</span>
+              <span class="text-secondary small ms-2" id="progress-text">0 of 0 implemented</span>
+            </div>
+            <div class="d-flex gap-1 flex-wrap align-items-center">
+              <button class="btn btn-sm btn-outline-info" id="btn-export-json" style="font-size:.71rem;padding:2px 8px" title="Export all status &amp; notes to JSON"><i class="bi bi-download me-1"></i>Export JSON</button>
+              <label class="btn btn-sm btn-outline-info" style="font-size:.71rem;padding:2px 8px;cursor:pointer;margin:0" title="Import status &amp; notes from JSON">
+                <i class="bi bi-upload me-1"></i>Import JSON
+                <input type="file" id="import-json-input" accept=".json" style="display:none">
+              </label>
+              <button class="btn btn-sm btn-outline-danger" id="btn-clear-progress" style="font-size:.71rem;padding:2px 8px">Clear All</button>
+            </div>
+          </div>
+          <div class="progress progress-overall-bar mb-2" role="progressbar" aria-label="Overall implementation progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar bg-success" id="progress-bar-fill" style="width:0%;transition:width .4s"></div>
+          </div>
+          <!-- ML2 / ML3 readiness bars -->
+          <div class="ml-bar-row">
+            <div class="ml-bar-block">
+              <div class="ml-bar-label">
+                <span class="lv-pill lv-ml2">ML2 — Managed</span>
+                <span class="text-secondary" style="font-size:.71rem" id="ml2-progress-text">0%</span>
+              </div>
+              <div class="progress" style="height:5px;border-radius:3px">
+                <div class="progress-bar" style="background:#6ea8fe;width:0%;transition:width .5s" id="ml2-bar"></div>
+              </div>
+            </div>
+            <div class="ml-bar-block">
+              <div class="ml-bar-label">
+                <span class="lv-pill lv-ml3">ML3 — Defined</span>
+                <span class="text-secondary" style="font-size:.71rem" id="ml3-progress-text">0%</span>
+              </div>
+              <div class="progress" style="height:5px;border-radius:3px">
+                <div class="progress-bar bg-success" style="width:0%;transition:width .5s" id="ml3-bar"></div>
+              </div>
+            </div>
+          </div>
+          <div class="pa-progress-grid" id="pa-progress-grid"></div>
+        </div>
+
+        <!-- Jump navigation -->
+        <div id="jump-nav" class="no-print">
+          <div class="container">
+            <div class="jump-nav-inner" id="jump-nav-inner" role="navigation" aria-label="Jump to practice area"></div>
+          </div>
+        </div>
+
+        <!-- Practice area accordion -->
+        <div id="pa-container">
+          <p class="text-secondary p-4 text-center">Loading practices…</p>
+        </div>
+        <div id="no-results">No practices match your filters.</div>
+
+      </div>
+    </section>
+
+    <!-- ── PA Interaction Map ── -->
+    <section class="py-5 border-top reveal">
+      <div class="container">
+        <h2 class="cmmi-sh">Practice Area Interaction Map</h2>
+        <p class="small text-secondary mb-4" style="max-width:720px">Practice areas are organized into four functional categories that reflect how they interact in a maturing organization. Click any PA pill to jump to it in the accordion above, or use the <strong>Category</strong> filter to focus your view.</p>
+        <div class="imap-grid">
+
+          <div class="imap-group imap-group-managing">
+            <div class="imap-title imap-title-managing"><span class="bi bi-bar-chart-fill"></span> Managing</div>
+            <div class="imap-desc">Plan, monitor, and control project execution. These PAs ensure work is scoped, tracked, estimated, and measured.</div>
+            <div>
+              <a class="imap-pill imap-pill-managing" data-imap-pa="PLAN" href="#">PLAN</a>
+              <a class="imap-pill imap-pill-managing" data-imap-pa="MC" href="#">MC</a>
+              <a class="imap-pill imap-pill-managing" data-imap-pa="EST" href="#">EST</a>
+              <a class="imap-pill imap-pill-managing" data-imap-pa="MPM" href="#">MPM</a>
+            </div>
+            <div class="mt-2" style="font-size:.67rem;color:var(--bs-secondary-color)">ML2: PLAN, MC &nbsp;|&nbsp; ML3: EST, MPM</div>
+          </div>
+
+          <div class="imap-group imap-group-doing">
+            <div class="imap-title imap-title-doing"><span class="bi bi-gear-fill"></span> Doing</div>
+            <div class="imap-desc">Execute technical and delivery work. These PAs govern what the team actually builds, acquires, integrates, and verifies.</div>
+            <div>
+              <a class="imap-pill imap-pill-doing" data-imap-pa="SAM" href="#">SAM</a>
+              <a class="imap-pill imap-pill-doing" data-imap-pa="RDM" href="#">RDM</a>
+              <a class="imap-pill imap-pill-doing" data-imap-pa="TS" href="#">TS</a>
+              <a class="imap-pill imap-pill-doing" data-imap-pa="PI" href="#">PI</a>
+              <a class="imap-pill imap-pill-doing" data-imap-pa="VV" href="#">VV</a>
+              <a class="imap-pill imap-pill-doing" data-imap-pa="PR" href="#">PR</a>
+              <a class="imap-pill imap-pill-doing" data-imap-pa="WM" href="#">WM</a>
+            </div>
+            <div class="mt-2" style="font-size:.67rem;color:var(--bs-secondary-color)">ML2: SAM, RDM, WM &nbsp;|&nbsp; ML3: TS, PI, VV, PR</div>
+          </div>
+
+          <div class="imap-group imap-group-enabling">
+            <div class="imap-title imap-title-enabling"><span class="bi bi-lightning-fill"></span> Enabling</div>
+            <div class="imap-desc">Provide infrastructure and decision support. These PAs create the conditions all other PAs depend on.</div>
+            <div>
+              <a class="imap-pill imap-pill-enabling" data-imap-pa="DAR" href="#">DAR</a>
+              <a class="imap-pill imap-pill-enabling" data-imap-pa="RSK" href="#">RSK</a>
+              <a class="imap-pill imap-pill-enabling" data-imap-pa="CM" href="#">CM</a>
+              <a class="imap-pill imap-pill-enabling" data-imap-pa="II" href="#">II</a>
+            </div>
+            <div class="mt-2" style="font-size:.67rem;color:var(--bs-secondary-color)">ML2: CM, II &nbsp;|&nbsp; ML3: DAR, RSK</div>
+          </div>
+
+          <div class="imap-group imap-group-improving">
+            <div class="imap-title imap-title-improving"><span class="bi bi-arrow-repeat"></span> Improving</div>
+            <div class="imap-desc">Drive continuous improvement and governance. These PAs institutionalize learning and organizational oversight.</div>
+            <div>
+              <a class="imap-pill imap-pill-improving" data-imap-pa="GOV" href="#">GOV</a>
+              <a class="imap-pill imap-pill-improving" data-imap-pa="PAD" href="#">PAD</a>
+              <a class="imap-pill imap-pill-improving" data-imap-pa="OT" href="#">OT</a>
+              <a class="imap-pill imap-pill-improving" data-imap-pa="PCM" href="#">PCM</a>
+              <a class="imap-pill imap-pill-improving" data-imap-pa="PQA" href="#">PQA</a>
+              <a class="imap-pill imap-pill-improving" data-imap-pa="CAR" href="#">CAR</a>
+            </div>
+            <div class="mt-2" style="font-size:.67rem;color:var(--bs-secondary-color)">ML2: GOV, PQA &nbsp;|&nbsp; ML3: PAD, OT, PCM, CAR</div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Framework Guide ── -->
+    <section class="py-5 border-top reveal">
+      <div class="container">
+        <h2 class="cmmi-sh">Framework Guide</h2>
+        <div class="row g-4">
+
+          <div class="col-md-6">
+            <div class="card h-100">
+              <div class="card-body">
+                <h3 class="h6 fw-bold mb-3">ML2 — Managed (Core + Development)</h3>
+                <p class="small text-secondary mb-2">At ML2 a project establishes and maintains basic discipline. Processes are planned, monitored, and controlled at the project level. Seven Core PAs apply to any organization; Development adds RDM and SAM.</p>
+                <p class="small text-secondary mb-1"><strong>Core (7):</strong> CM, GOV, II, MC, MPM, PLAN, PQA</p>
+                <p class="small text-secondary mb-1"><strong>Development (2):</strong> RDM (requirements management), SAM (supplier agreements)</p>
+                <p class="small text-secondary mb-0"><strong>WM:</strong> Workforce Management spans ML2 and ML3.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="card h-100">
+              <div class="card-body">
+                <h3 class="h6 fw-bold mb-3">ML3 — Defined (Core + Development)</h3>
+                <p class="small text-secondary mb-2">At ML3 standard processes are established organization-wide. Projects tailor standard processes rather than defining them from scratch. Seven Core PAs and four Development PAs are added.</p>
+                <p class="small text-secondary mb-1"><strong>Core (7):</strong> CAR, DAR, EST, OT, PAD, PCM, RSK</p>
+                <p class="small text-secondary mb-0"><strong>Development (4):</strong> TS (technical solution), PI (product integration), VV (verification &amp; validation), PR (peer reviews)</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="card h-100">
+              <div class="card-body">
+                <h3 class="h6 fw-bold mb-3">Practice Group Structure</h3>
+                <p class="small text-secondary mb-2">Each Practice Area is divided into Practice Groups (PG 1, PG 2, PG 3…) that represent a logical sequence of activities within the PA. Within each group, individual numbered practices specify the work to perform.</p>
+                <p class="small text-secondary mb-0">Practice numbers use the format <code>PA X.Y</code> — where PA is the abbreviation, X is the Practice Group number, and Y is the practice sequence within that group.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="card h-100">
+              <div class="card-body">
+                <h3 class="h6 fw-bold mb-3">How to Read a Practice</h3>
+                <p class="small text-secondary mb-2"><strong>Practice Statement</strong> — the imperative that defines exactly what must be done to satisfy the practice.</p>
+                <p class="small text-secondary mb-2"><strong>Elaboration</strong> — additional context explaining the intent, rationale, and what makes the practice meaningful in practice.</p>
+                <p class="small text-secondary mb-0"><strong>Compliance Examples</strong> — concrete, real-world artifacts and activities that demonstrate the practice is satisfied during a CMMI appraisal.</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Related Resources ── -->
+    <section class="py-4 border-top reveal">
+      <div class="container">
+        <h2 class="cmmi-sh">Related References</h2>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <a href="../cmmidev3.html" class="text-decoration-none">
+              <div class="card h-100 border" style="transition:border-color .2s,box-shadow .2s;" onmouseover="this.style.borderColor='rgba(255,88,17,.45)';this.style.boxShadow='0 0 16px rgba(255,88,17,.15)'" onmouseout="this.style.borderColor='';this.style.boxShadow=''">
+                <div class="card-body">
+                  <div class="d-flex gap-2 mb-2"><span class="badge bg-success">ML3 Dev</span><span class="badge bg-secondary">Interactive Table</span></div>
+                  <div class="fw-bold small mb-1">CMMI v2.0 DEV ML3 — Practice Table</div>
+                  <p class="text-secondary" style="font-size:.78rem;margin:0">Sortable, filterable table view with Excel export. Drill into any ML3 Development practice.</p>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="col-md-4">
+            <a href="../compliancetracker.html" class="text-decoration-none">
+              <div class="card h-100 border" style="transition:border-color .2s,box-shadow .2s;" onmouseover="this.style.borderColor='rgba(255,88,17,.45)';this.style.boxShadow='0 0 16px rgba(255,88,17,.15)'" onmouseout="this.style.borderColor='';this.style.boxShadow=''">
+                <div class="card-body">
+                  <div class="d-flex gap-2 mb-2"><span class="badge bg-primary">Interactive</span><span class="badge bg-secondary">CMMC / NIST</span></div>
+                  <div class="fw-bold small mb-1">Compliance Tracker</div>
+                  <p class="text-secondary" style="font-size:.78rem;margin:0">Track compliance status with SSP preview, POAM, pie chart dashboard, and evidence linking.</p>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="col-md-4">
+            <a href="../isms/index.html" class="text-decoration-none">
+              <div class="card h-100 border" style="transition:border-color .2s,box-shadow .2s;" onmouseover="this.style.borderColor='rgba(255,88,17,.45)';this.style.boxShadow='0 0 16px rgba(255,88,17,.15)'" onmouseout="this.style.borderColor='';this.style.boxShadow=''">
+                <div class="card-body">
+                  <div class="d-flex gap-2 mb-2"><span class="badge bg-warning text-dark">Doc Library</span><span class="badge bg-secondary">ISO 27001</span></div>
+                  <div class="fw-bold small mb-1">ISMS Document Library</div>
+                  <p class="text-secondary" style="font-size:.78rem;margin:0">Audit-ready ISO/IEC 27001:2022 policies, procedures, and templates — 42 documents.</p>
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- RBAC Login Modal -->
+  <div class="modal" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="rbacModalLabel">&#128274; Login</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body"><!-- roles.js injects login form here --></div>
+        <div class="modal-footer border-0 pt-0">
+          <p class="text-secondary small mb-0">Session clears when you close this tab.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" />
+      </a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" />
+      </a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="../privacy.html">Privacy Policy</a> &middot; <a href="../terms.html">Terms</a></p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmyQWuGmUhSBQOVCp7p5pT1gkTJ" crossorigin="anonymous"></script>
+  <script src="../users.js" defer></script>
+  <script src="../roles.js" defer></script>
+  <script src="../script.js" defer></script>
+  <script src="../analytics.js" defer></script>
+  <script src="../siteSearch.js" defer></script>
+
+  <!-- Load shared CMMI data -->
+  <script src="../cmmidev3.js"></script>
+
+  <!-- Load xlsx for Excel export -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+  <script>
+  /* ══════════════════════════════════════════════════════════════════════════
+     CMMI v2.0 Full Practice Reference — Interactive Tool
+     Features: Status Tracker, Progress Dashboard, Jump Nav, Evidence Guide,
+               Search Highlighting, Excel Export, Practice Notes, Keyboard Shortcuts
+  ══════════════════════════════════════════════════════════════════════════ */
+
+  /* ── Supplemental data: Workforce Management (WM) ──────────────────────── */
+  var WM_DATA = [
+    { pa:'WM', paFull:'Workforce Management', paDesc:'Develop and retain the knowledge, skills, and abilities needed to perform organizational roles.',
+      practiceNum:'WM 1.1', practiceGroup:'PG 1 – Identify Workforce Needs',
+      practiceStatement:'Identify the knowledge, skills, and abilities required to perform the organization\'s work.',
+      elaboration:'Understanding workforce needs begins with a systematic analysis of the roles, competencies, and staffing levels required to accomplish strategic and operational objectives. This analysis drives recruiting, training, and retention decisions and must be reviewed periodically as the work environment changes.',
+      examples:['A competency matrix maps each role to required skills with proficiency levels; the matrix is reviewed annually','Job descriptions in the HR system are tied to process roles; each description includes required skills updated during strategic planning','A gap analysis compares current staff competencies against the target matrix and identifies positions to hire, skills to train, and contractors to engage','Department managers complete a quarterly workforce needs form listing anticipated headcount changes and new skills needed'],
+      level:'ML2', domain:'All' },
+    { pa:'WM', paFull:'Workforce Management', paDesc:'Develop and retain the knowledge, skills, and abilities needed to perform organizational roles.',
+      practiceNum:'WM 1.2', practiceGroup:'PG 1 – Identify Workforce Needs',
+      practiceStatement:'Establish and maintain a plan for developing the organizational workforce.',
+      elaboration:'A workforce development plan translates identified needs into actionable recruiting, onboarding, and development activities with owners and timelines. The plan is a living document adjusted as the organization grows, as new technology is adopted, and as the strategic direction evolves.',
+      examples:['An annual Workforce Development Plan covers hiring targets, training budgets, succession candidates, and key retention risks','The plan includes a training calendar linking each required competency to a course or certification with a scheduled date','New-hire onboarding checklists are tied to the workforce plan; completion is tracked in HR and reported to management quarterly','The workforce plan is reviewed during annual strategic planning; changes are version-controlled in the document management system'],
+      level:'ML2', domain:'All' },
+    { pa:'WM', paFull:'Workforce Management', paDesc:'Develop and retain the knowledge, skills, and abilities needed to perform organizational roles.',
+      practiceNum:'WM 2.1', practiceGroup:'PG 2 – Develop People',
+      practiceStatement:'Provide training and development opportunities to build the knowledge, skills, and abilities needed.',
+      elaboration:'Developing people means delivering the training and growth experiences identified in the workforce plan. Effective development combines formal training, structured on-the-job experiences, and mentoring. Development activities must be tracked to confirm completion and effectiveness.',
+      examples:['Employees have individual development plans co-created with managers; completion is tracked in the performance management system','The organization pays for and tracks completion of certifications relevant to each role; records are maintained in the HR system','A quarterly internal tech talk series allows practitioners to share knowledge; attendance is logged and topics align to identified skill gaps','New process owners complete a structured role orientation with sign-off from the process area lead before taking over'],
+      level:'ML2', domain:'All' },
+    { pa:'WM', paFull:'Workforce Management', paDesc:'Develop and retain the knowledge, skills, and abilities needed to perform organizational roles.',
+      practiceNum:'WM 2.2', practiceGroup:'PG 2 – Develop People',
+      practiceStatement:'Provide opportunities for workforce members to apply their knowledge, skills, and abilities.',
+      elaboration:'Training only becomes competency when people apply what they have learned. Managers create deliberate opportunities where staff exercise new skills in a supported environment. This practice closes the gap between training attendance and demonstrated performance.',
+      examples:['Employees who complete a security awareness course lead the next quarterly phishing simulation to apply their knowledge','After a project management course, a team lead manages a small internal project independently with PM coaching','Sprint retrospectives include a skills-applied check-in where members note new competencies used; data feeds back into IDPs','Cross-training rotations with defined learning objectives and feedback debriefs are scheduled for analysts'],
+      level:'ML2', domain:'All' },
+    { pa:'WM', paFull:'Workforce Management', paDesc:'Develop and retain the knowledge, skills, and abilities needed to perform organizational roles.',
+      practiceNum:'WM 3.1', practiceGroup:'PG 3 – Retain and Motivate People',
+      practiceStatement:'Evaluate the degree to which workforce members\' capabilities meet organizational needs and address gaps.',
+      elaboration:'Ongoing evaluation of workforce capability ensures the organization knows whether its people can actually perform required work at the needed level. Gaps identified through evaluation feed back into training and staffing decisions. Evaluation methods must be objective and consistent across the organization.',
+      examples:['Annual performance reviews assess each employee against the competency matrix; results are aggregated to show organization-wide capability gaps','Post-project assessments include a capability reflection: self-assessment validated by managers, feeding results into the next workforce plan','Quarterly skill assessments using a standardized rubric are conducted for technical roles; results determine eligibility for advanced assignments','Exit interviews capture reasons for departure; HR analyzes trends and presents a retention risk report to leadership quarterly'],
+      level:'ML3', domain:'All' },
+    { pa:'WM', paFull:'Workforce Management', paDesc:'Develop and retain the knowledge, skills, and abilities needed to perform organizational roles.',
+      practiceNum:'WM 3.2', practiceGroup:'PG 3 – Retain and Motivate People',
+      practiceStatement:'Establish and maintain a work environment and culture that supports workforce effectiveness and retention.',
+      elaboration:'Retaining capable people requires more than compensation. The work environment, recognition practices, career path clarity, and psychological safety all drive whether skilled staff stay and contribute at their best. This practice asks the organization to actively manage culture and environment as a process asset.',
+      examples:['An annual employee engagement survey measures satisfaction, recognition, career growth, and culture; action plans are published','Formal recognition programs are documented, budgeted, and consistently applied across the organization','Career ladder documents for each role family define criteria for advancement; employees reference these in development planning conversations','A psychological safety policy with manager training is in place; annual training attendance is tracked'],
+      level:'ML3', domain:'All' }
+  ];
+
+  /* ── Merge datasets ─────────────────────────────────────────────────────── */
+  var ALL_DATA = (typeof CMMI_DATA !== 'undefined' ? CMMI_DATA : []).concat(WM_DATA);
+
+  /* ── PA display order ───────────────────────────────────────────────────── */
+  var PA_ORDER = ['PLAN','MC','GOV','II','CM','PQA','MPM','WM','RDM','SAM',
+                  'EST','RSK','DAR','OT','PAD','PCM','CAR','PR','TS','PI','VV'];
+
+  /* ── PA category groupings (from CMMI interaction diagram) ──────────────── */
+  var PA_CATEGORY = {
+    Managing:  ['PLAN','MC','EST','MPM'],
+    Doing:     ['SAM','RDM','TS','PI','VV','PR','WM'],
+    Enabling:  ['DAR','RSK','CM','II'],
+    Improving: ['GOV','PAD','OT','PCM','PQA','CAR']
+  };
+  var PA_TO_CATEGORY = {};
+  Object.keys(PA_CATEGORY).forEach(function(cat) {
+    PA_CATEGORY[cat].forEach(function(pa) { PA_TO_CATEGORY[pa] = cat; });
+  });
+  var CAT_DESCRIPTIONS = {
+    Managing:  '4 PAs — planning, monitoring, estimation, measurement',
+    Doing:     '7 PAs — requirements, supplier, technical, workforce',
+    Enabling:  '4 PAs — decisions, risk, configuration, implementation',
+    Improving: '6 PAs — governance, training, quality, improvement'
+  };
+
+  var _filterCategory = '';
+
+  /* ── PA metadata ────────────────────────────────────────────────────────── */
+  var PA_META = {};
+  ALL_DATA.forEach(function(p) {
+    if (!PA_META[p.pa]) {
+      PA_META[p.pa] = { full: p.paFull, desc: p.paDesc || '', levels: [], domain: p.domain };
+    }
+    if (PA_META[p.pa].levels.indexOf(p.level) === -1) PA_META[p.pa].levels.push(p.level);
+    if (p.domain !== 'All') PA_META[p.pa].domain = p.domain;
+  });
+  /* Attach category info to PA_META */
+  Object.keys(PA_TO_CATEGORY).forEach(function(pa) {
+    if (PA_META[pa]) PA_META[pa].category = PA_TO_CATEGORY[pa];
+  });
+
+  /* ── Status helpers ─────────────────────────────────────────────────────── */
+  var STATUS_CYCLE = ['ns', 'ip', 'done', 'na'];
+  var STATUS_DISPLAY = { ns:'○', ip:'◐', done:'✓', na:'—' };
+  var STATUS_CLASS   = { ns:'s-ns', ip:'s-ip', done:'s-done', na:'s-na' };
+  var STATUS_LABEL   = { ns:'Not Started', ip:'In Progress', done:'Implemented', na:'N/A' };
+
+  function getStatus(practiceNum) {
+    return localStorage.getItem('cmmi2_s_' + practiceNum) || 'ns';
+  }
+  function setStatus(practiceNum, status) {
+    localStorage.setItem('cmmi2_s_' + practiceNum, status);
+  }
+  function cycleStatus(practiceNum) {
+    var cur = getStatus(practiceNum);
+    var idx = STATUS_CYCLE.indexOf(cur);
+    var next = STATUS_CYCLE[(idx + 1) % STATUS_CYCLE.length];
+    setStatus(practiceNum, next);
+    return next;
+  }
+  function getNote(practiceNum) {
+    return localStorage.getItem('cmmi2_n_' + practiceNum) || '';
+  }
+  function setNote(practiceNum, text) {
+    if (text) {
+      localStorage.setItem('cmmi2_n_' + practiceNum, text);
+    } else {
+      localStorage.removeItem('cmmi2_n_' + practiceNum);
+    }
+  }
+
+  /* ── Search highlight ───────────────────────────────────────────────────── */
+  function highlightText(text, term) {
+    if (!term) return escHtml(text);
+    var escaped = escHtml(text);
+    var escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return escaped.replace(new RegExp('(' + escapedTerm + ')', 'gi'), '<mark>$1</mark>');
+  }
+  function escHtml(s) {
+    return String(s)
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;');
+  }
+
+  /* ── Build render data ──────────────────────────────────────────────────── */
+  function buildStructure(data) {
+    var byPA = {};
+    data.forEach(function(p) {
+      if (!byPA[p.pa]) byPA[p.pa] = {};
+      if (!byPA[p.pa][p.practiceGroup]) byPA[p.pa][p.practiceGroup] = [];
+      byPA[p.pa][p.practiceGroup].push(p);
+    });
+    return byPA;
+  }
+
+  /* ── Render helpers ─────────────────────────────────────────────────────── */
+  function levelPill(lvl) {
+    return '<span class="lv-pill lv-' + lvl.toLowerCase() + '">' + lvl + '</span>';
+  }
+  function domBadge(domain) {
+    if (domain === 'All') return '<span class="dom-badge dom-core">Core</span>';
+    return '<span class="dom-badge dom-dev">Development</span>';
+  }
+  function statusBtnHtml(practiceNum) {
+    var s = getStatus(practiceNum);
+    return '<button class="status-btn ' + STATUS_CLASS[s] + '" data-practice="' + escHtml(practiceNum) + '" title="Status: ' + STATUS_LABEL[s] + ' (click to cycle)" aria-label="Status: ' + STATUS_LABEL[s] + '">' + STATUS_DISPLAY[s] + '</button>';
+  }
+  function noteIndicatorHtml(practiceNum) {
+    var note = getNote(practiceNum);
+    return note ? '<span class="note-indicator bi bi-pencil-fill" title="Has notes"></span>' : '<span class="note-indicator bi bi-pencil-fill" title="Has notes" style="display:none"></span>';
+  }
+
+  /* ── Render a single PA block ───────────────────────────────────────────── */
+  function renderPA(pa, byPA, filterSearch) {
+    var meta = PA_META[pa];
+    if (!meta) return '';
+    var groups = byPA[pa] || {};
+    if (!Object.keys(groups).length) return '';
+
+    var lvlPills = meta.levels.slice().sort().map(levelPill).join(' ');
+
+    /* Progress fraction across ALL practices for this PA (not just filtered) */
+    var allPAPractices = ALL_DATA.filter(function(p){ return p.pa === pa; });
+    var paFracDone = 0, paFracNa = 0;
+    allPAPractices.forEach(function(p) {
+      var s = getStatus(p.practiceNum);
+      if (s === 'done') paFracDone++;
+      if (s === 'na') paFracNa++;
+    });
+    var paFracCountable = allPAPractices.length - paFracNa;
+    var fracCls = (paFracDone > 0 && paFracDone === paFracCountable) ? 'pa-progress-frac frac-done' :
+                  (paFracDone > 0) ? 'pa-progress-frac frac-ip' : 'pa-progress-frac';
+    var fracHtml = '<span class="' + fracCls + '" title="' + paFracDone + ' of ' + paFracCountable + ' implemented">' + paFracDone + '/' + paFracCountable + ' ✓</span>';
+
+    /* Category badge */
+    var catName = meta.category || '';
+    var catBadgeHtml = catName ? '<span class="cat-badge cat-badge-' + catName.toLowerCase() + '">' + catName + '</span>' : '';
+
+    var pgHtml = '';
+    Object.keys(groups).forEach(function(pgName) {
+      pgHtml += '<div class="pg-header">' + escHtml(pgName) + '</div>';
+      groups[pgName].forEach(function(p) {
+        var examples = (p.examples || []).map(function(ex) {
+          return '<li>' + highlightText(ex, filterSearch) + '</li>';
+        }).join('');
+        var noteVal = escHtml(getNote(p.practiceNum));
+        pgHtml += [
+          '<div class="practice-row" data-practice-num="' + escHtml(p.practiceNum) + '">',
+          '  <div class="practice-trigger" aria-expanded="false" role="button" tabindex="0" data-practice="' + escHtml(p.practiceNum) + '">',
+          '    <span class="p-chevron bi bi-chevron-right"></span>',
+          '    <span class="p-num">' + escHtml(p.practiceNum) + '</span>',
+          '    <span class="p-stmt-preview">' + highlightText(p.practiceStatement || '', filterSearch) + '</span>',
+          '    ' + levelPill(p.level),
+          '    ' + noteIndicatorHtml(p.practiceNum),
+          '    ' + statusBtnHtml(p.practiceNum),
+          '  </div>',
+          '  <div class="practice-detail">',
+          '    <div class="detail-label">Practice Statement</div>',
+          '    <div class="detail-statement">' + highlightText(p.practiceStatement || '', filterSearch) + '</div>',
+          (p.elaboration ? [
+            '    <div class="detail-label">Elaboration</div>',
+            '    <div class="detail-elaboration">' + highlightText(p.elaboration, filterSearch) + '</div>'
+          ].join('') : ''),
+          (examples ? [
+            '    <div class="detail-label">Compliance Examples</div>',
+            '    <ul class="detail-examples">' + examples + '</ul>'
+          ].join('') : ''),
+          '    <div class="notes-section">',
+          '      <div class="detail-label d-flex align-items-center gap-1">Notes <span class="notes-saved-indicator" id="saved-' + escHtml(p.practiceNum).replace(/\s/g,'-') + '">Saved</span></div>',
+          '      <textarea class="notes-textarea" data-practice="' + escHtml(p.practiceNum) + '" placeholder="Add implementation notes, evidence references, owner…" rows="3">' + noteVal + '</textarea>',
+          '    </div>',
+          '  </div>',
+          '</div>'
+        ].join('\n');
+      });
+    });
+
+    /* Evidence Guide panel */
+    var evHtml = '';
+    var ev = (typeof EVIDENCE !== 'undefined') ? EVIDENCE[pa] : null;
+    if (ev) {
+      var artItems = ev.artifacts.map(function(art, idx) {
+        var checked = localStorage.getItem('cmmi2_ev_' + pa + '_' + idx) === '1' ? 'checked' : '';
+        return '<label class="ev-artifact-item"><input type="checkbox" data-ev-pa="' + escHtml(pa) + '" data-ev-idx="' + idx + '" ' + checked + '> <span>' + escHtml(art) + '</span></label>';
+      }).join('');
+      evHtml = [
+        '<div class="evidence-panel">',
+        '  <button class="evidence-toggle-btn" type="button" aria-expanded="false">',
+        '    <span class="bi bi-lightbulb me-1" style="color:#ffc107"></span>',
+        '    Evidence &amp; Appraiser Tips',
+        '    <span class="bi bi-chevron-right ms-auto ev-chevron" style="font-size:.7rem;transition:transform .2s"></span>',
+        '  </button>',
+        '  <div class="evidence-panel-body">',
+        '    <div class="detail-label mb-2">Evidence Artifacts</div>',
+        artItems,
+        '    <div class="ev-tips-box">',
+        '      <span class="ev-tips-label"><span class="bi bi-lightbulb-fill me-1"></span>Appraiser Tips</span>',
+        escHtml(ev.tips),
+        '    </div>',
+        '  </div>',
+        '</div>'
+      ].join('\n');
+    }
+
+    return [
+      '<div class="pa-block mb-4" data-pa="' + pa + '" id="pa-block-' + pa + '">',
+      '  <div class="pa-header d-flex align-items-center gap-2 flex-wrap" aria-expanded="true" role="button" tabindex="0">',
+      '    <span class="pa-chevron bi bi-chevron-right" style="transform:rotate(90deg)"></span>',
+      '    <span class="pa-abbr">' + pa + '</span>',
+      '    <span class="pa-name">' + escHtml(meta.full) + '</span>',
+      '    ' + domBadge(meta.domain),
+      catBadgeHtml,
+      '    <span class="ms-auto d-flex align-items-center gap-2 flex-wrap">' + fracHtml + lvlPills + '</span>',
+      '  </div>',
+      '  <div class="pa-body ps-2 pt-1 pb-1">',
+      (meta.desc ? '  <p class="small text-secondary mb-2 mt-2 ps-2">' + escHtml(meta.desc) + '</p>' : ''),
+      pgHtml,
+      evHtml,
+      '  </div>',
+      '</div>'
+    ].join('\n');
+  }
+
+  /* ── Main render ────────────────────────────────────────────────────────── */
+  var _lastVisiblePAs = [];
+
+  function render() {
+    var filterLevel  = document.getElementById('filter-level').value;
+    var filterDomain = document.getElementById('filter-domain').value;
+    var filterSearch = document.getElementById('search-input').value.trim().toLowerCase();
+    var filterStatus = document.getElementById('filter-status').value;
+
+    var data = ALL_DATA;
+    if (filterLevel)  data = data.filter(function(p){ return p.level === filterLevel; });
+    if (filterDomain) data = data.filter(function(p){ return p.domain === filterDomain; });
+    if (filterSearch) data = data.filter(function(p){
+      var hay = ((p.practiceNum||'') + ' ' + (p.paFull||'') + ' ' + (p.practiceStatement||'') + ' ' + (p.elaboration||'')).toLowerCase();
+      return hay.indexOf(filterSearch) !== -1;
+    });
+    if (filterStatus) {
+      if (filterStatus === 'notes') {
+        data = data.filter(function(p){ return getNote(p.practiceNum) !== ''; });
+      } else {
+        data = data.filter(function(p){ return getStatus(p.practiceNum) === filterStatus; });
+      }
+    }
+
+    var byPA = buildStructure(data);
+    var html = '';
+    var pasSeen = 0, pgsSeen = {}, practicesSeen = 0;
+    var visiblePAs = [];
+
+    /* Apply category filter to PA order */
+    var orderedPAs = _filterCategory ? (PA_CATEGORY[_filterCategory] || PA_ORDER) : PA_ORDER;
+    var toRender = orderedPAs.filter(function(pa){ return byPA[pa]; });
+    if (!_filterCategory) {
+      Object.keys(byPA).forEach(function(pa){ if (orderedPAs.indexOf(pa) === -1) toRender.push(pa); });
+    }
+
+    toRender.forEach(function(pa) {
+      if (!byPA[pa]) return;
+      html += renderPA(pa, byPA, filterSearch);
+      pasSeen++;
+      visiblePAs.push(pa);
+      Object.keys(byPA[pa]).forEach(function(pg){ pgsSeen[pa + '|' + pg] = true; });
+      Object.keys(byPA[pa]).forEach(function(pg){ practicesSeen += byPA[pa][pg].length; });
+    });
+
+    _lastVisiblePAs = visiblePAs;
+
+    var container = document.getElementById('pa-container');
+    var noResults = document.getElementById('no-results');
+    container.innerHTML = html || '';
+    noResults.style.display = html ? 'none' : 'block';
+
+    /* Stats (only when no filters active) */
+    if (!filterLevel && !filterDomain && !filterSearch) {
+      document.getElementById('stat-pa').textContent = pasSeen;
+      document.getElementById('stat-pg').textContent = Object.keys(pgsSeen).length;
+      document.getElementById('stat-practices').textContent = practicesSeen;
+      var ml2c = ALL_DATA.filter(function(p){return p.level==='ML2';}).length;
+      var ml3c = ALL_DATA.filter(function(p){return p.level==='ML3';}).length;
+      document.getElementById('stat-ml2').textContent = ml2c;
+      document.getElementById('stat-ml3').textContent = ml3c;
+    }
+    document.getElementById('visible-count').textContent = practicesSeen + ' practices';
+
+    attachEvents();
+    updateProgressDashboard();
+    renderJumpNav();
+  }
+
+  /* ── Attach events after DOM rebuild ───────────────────────────────────── */
+  function attachEvents() {
+    /* PA header toggle */
+    document.querySelectorAll('.pa-header').forEach(function(hdr) {
+      hdr.addEventListener('click', togglePA);
+      hdr.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); togglePA.call(hdr); } });
+    });
+
+    /* Practice row toggle — exclude clicks on status btn and textarea */
+    document.querySelectorAll('.practice-trigger').forEach(function(trg) {
+      trg.addEventListener('click', function(e) {
+        if (e.target.closest('.status-btn')) return;
+        togglePractice.call(trg);
+      });
+      trg.addEventListener('keydown', function(e){
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); togglePractice.call(trg); }
+      });
+    });
+
+    /* Status buttons */
+    document.querySelectorAll('.status-btn').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var pNum = btn.getAttribute('data-practice');
+        var next = cycleStatus(pNum);
+        btn.textContent = STATUS_DISPLAY[next];
+        btn.className = 'status-btn ' + STATUS_CLASS[next];
+        btn.title = 'Status: ' + STATUS_LABEL[next] + ' (click to cycle)';
+        btn.setAttribute('aria-label', 'Status: ' + STATUS_LABEL[next]);
+        updateProgressDashboard();
+        renderJumpNav();
+      });
+    });
+
+    /* Evidence checkboxes */
+    document.querySelectorAll('[data-ev-pa]').forEach(function(cb) {
+      cb.addEventListener('change', function() {
+        var pa = cb.getAttribute('data-ev-pa');
+        var idx = cb.getAttribute('data-ev-idx');
+        if (cb.checked) {
+          localStorage.setItem('cmmi2_ev_' + pa + '_' + idx, '1');
+        } else {
+          localStorage.removeItem('cmmi2_ev_' + pa + '_' + idx);
+        }
+      });
+    });
+
+    /* Evidence panel toggles */
+    document.querySelectorAll('.evidence-toggle-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var body = btn.nextElementSibling;
+        var chevron = btn.querySelector('.ev-chevron');
+        var isOpen = body.classList.contains('open');
+        body.classList.toggle('open', !isOpen);
+        btn.setAttribute('aria-expanded', String(!isOpen));
+        if (chevron) chevron.style.transform = isOpen ? '' : 'rotate(90deg)';
+      });
+    });
+
+    /* Notes textareas */
+    document.querySelectorAll('.notes-textarea').forEach(function(ta) {
+      var timer = null;
+      ta.addEventListener('input', function() {
+        clearTimeout(timer);
+        timer = setTimeout(function() {
+          var pNum = ta.getAttribute('data-practice');
+          setNote(pNum, ta.value.trim());
+          /* Show saved indicator */
+          var savedId = 'saved-' + pNum.replace(/\s/g,'-');
+          var indicator = document.getElementById(savedId);
+          if (indicator) {
+            indicator.classList.add('show');
+            setTimeout(function(){ indicator.classList.remove('show'); }, 1500);
+          }
+          /* Update note indicator on trigger row */
+          var row = ta.closest('.practice-row');
+          if (row) {
+            var noteInd = row.querySelector('.note-indicator');
+            if (noteInd) noteInd.style.display = ta.value.trim() ? '' : 'none';
+          }
+        }, 400);
+      });
+    });
+  }
+
+  function togglePA() {
+    var hdr = this;
+    var body = hdr.nextElementSibling;
+    var chevron = hdr.querySelector('.pa-chevron');
+    var expanded = hdr.getAttribute('aria-expanded') === 'true';
+    hdr.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+    chevron.style.transform = expanded ? 'rotate(0deg)' : 'rotate(90deg)';
+    body.style.display = expanded ? 'none' : '';
+  }
+
+  function togglePractice() {
+    var trg = this;
+    var detail = trg.nextElementSibling;
+    var chevron = trg.querySelector('.p-chevron');
+    var expanded = trg.getAttribute('aria-expanded') === 'true';
+    trg.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+    chevron.style.transform = expanded ? 'rotate(0deg)' : 'rotate(90deg)';
+    detail.classList.toggle('open', !expanded);
+  }
+
+  /* ── Progress Dashboard ─────────────────────────────────────────────────── */
+  function updateProgressDashboard() {
+    var total = ALL_DATA.length;
+    var done = 0, naCount = 0;
+    ALL_DATA.forEach(function(p) {
+      var s = getStatus(p.practiceNum);
+      if (s === 'done') done++;
+      if (s === 'na') naCount++;
+    });
+    var countable = total - naCount;
+    var pct = countable > 0 ? Math.round((done / countable) * 100) : 0;
+
+    document.getElementById('progress-text').textContent = done + ' of ' + countable + ' implemented (' + pct + '%)';
+    var bar = document.getElementById('progress-bar-fill');
+    bar.style.width = pct + '%';
+    bar.parentElement.setAttribute('aria-valuenow', pct);
+
+    /* ML2 / ML3 readiness bars */
+    ['ML2','ML3'].forEach(function(lvl) {
+      var lvlData = ALL_DATA.filter(function(p){ return p.level === lvl; });
+      var lvlDone = 0, lvlNa = 0;
+      lvlData.forEach(function(p) {
+        var s = getStatus(p.practiceNum);
+        if (s === 'done') lvlDone++;
+        if (s === 'na') lvlNa++;
+      });
+      var lvlCountable = lvlData.length - lvlNa;
+      var lvlPct = lvlCountable > 0 ? Math.round(lvlDone / lvlCountable * 100) : 0;
+      var barEl  = document.getElementById(lvl.toLowerCase() + '-bar');
+      var textEl = document.getElementById(lvl.toLowerCase() + '-progress-text');
+      if (barEl)  barEl.style.width = lvlPct + '%';
+      if (textEl) textEl.textContent = lvlDone + '/' + lvlCountable + ' (' + lvlPct + '%)';
+    });
+
+    /* Per-PA pill grid (show fraction) */
+    var grid = document.getElementById('pa-progress-grid');
+    var gridHtml = '';
+    PA_ORDER.forEach(function(pa) {
+      var practices = ALL_DATA.filter(function(p){ return p.pa === pa; });
+      if (!practices.length) return;
+      var paDone = 0, paNa = 0;
+      practices.forEach(function(p) {
+        var s = getStatus(p.practiceNum);
+        if (s === 'done') paDone++;
+        if (s === 'na') paNa++;
+      });
+      var paCountable = practices.length - paNa;
+      var dotClass = 'pa-dot-gray';
+      if (paCountable > 0 && paDone === paCountable) dotClass = 'pa-dot-green';
+      else if (paDone > 0) dotClass = 'pa-dot-yellow';
+      gridHtml += '<span class="pa-pill-progress" title="' + (PA_META[pa] ? escHtml(PA_META[pa].full) : pa) + ': ' + paDone + '/' + paCountable + ' implemented">';
+      gridHtml += '<span class="pa-dot ' + dotClass + '"></span>' + pa + ' <span style="opacity:.6;font-size:.62rem">' + paDone + '/' + paCountable + '</span>';
+      gridHtml += '</span>';
+    });
+    grid.innerHTML = gridHtml;
+  }
+
+  /* ── Jump Navigation ────────────────────────────────────────────────────── */
+  function renderJumpNav() {
+    var inner = document.getElementById('jump-nav-inner');
+    if (!inner) return;
+    var html = '';
+    PA_ORDER.forEach(function(pa) {
+      var practices = ALL_DATA.filter(function(p){ return p.pa === pa; });
+      if (!practices.length) return;
+      var paDone = 0, paNa = 0, paIp = 0;
+      practices.forEach(function(p) {
+        var s = getStatus(p.practiceNum);
+        if (s === 'done') paDone++;
+        else if (s === 'na') paNa++;
+        else if (s === 'ip') paIp++;
+      });
+      var paCountable = practices.length - paNa;
+      var dotClass = 'pa-dot-gray';
+      if (paCountable > 0 && paDone === paCountable) dotClass = 'pa-dot-green';
+      else if (paDone > 0 || paIp > 0) dotClass = 'pa-dot-yellow';
+      html += '<a href="#" class="jump-pill" data-jump-pa="' + pa + '" title="Jump to ' + (PA_META[pa] ? escHtml(PA_META[pa].full) : pa) + '">';
+      html += '<span class="jp-dot ' + dotClass + '"></span>' + pa;
+      html += '</a>';
+    });
+    inner.innerHTML = html;
+
+    inner.querySelectorAll('.jump-pill').forEach(function(pill) {
+      pill.addEventListener('click', function(e) {
+        e.preventDefault();
+        var pa = pill.getAttribute('data-jump-pa');
+        var block = document.getElementById('pa-block-' + pa);
+        if (block) {
+          /* Make sure PA is expanded */
+          var hdr = block.querySelector('.pa-header');
+          if (hdr && hdr.getAttribute('aria-expanded') === 'false') {
+            togglePA.call(hdr);
+          }
+          block.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+          /* PA may be filtered out */
+          var toast = document.createElement('div');
+          toast.style.cssText = 'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--bs-secondary-bg);border:1px solid var(--bs-border-color);border-radius:.4rem;padding:.55rem 1.1rem;font-size:.8rem;color:var(--bs-body-color);z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.3)';
+          toast.textContent = pa + ' is not visible with the current filters.';
+          document.body.appendChild(toast);
+          setTimeout(function(){ toast.remove(); }, 2500);
+        }
+      });
+    });
+  }
+
+  /* ── Excel Export ───────────────────────────────────────────────────────── */
+  function exportExcel() {
+    if (typeof XLSX === 'undefined') {
+      alert('Excel library not loaded yet. Please wait a moment and try again.');
+      return;
+    }
+    var wb = XLSX.utils.book_new();
+
+    /* Sheet 1: All Practices */
+    var allRows = [['PA','Practice Group','Practice #','Practice Statement','Level','Domain','Status','Notes']];
+    ALL_DATA.forEach(function(p) {
+      allRows.push([
+        p.pa,
+        p.practiceGroup,
+        p.practiceNum,
+        p.practiceStatement || '',
+        p.level,
+        p.domain === 'All' ? 'Core' : p.domain,
+        STATUS_LABEL[getStatus(p.practiceNum)],
+        getNote(p.practiceNum)
+      ]);
+    });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(allRows), 'All Practices');
+
+    /* Sheet 2: Gap Analysis */
+    var gapRows = [['PA','Full Name','Domain','Total','Implemented','In Progress','Not Started','N/A','% Complete']];
+    PA_ORDER.forEach(function(pa) {
+      var practices = ALL_DATA.filter(function(p){ return p.pa === pa; });
+      if (!practices.length) return;
+      var meta = PA_META[pa];
+      var counts = { done:0, ip:0, ns:0, na:0 };
+      practices.forEach(function(p) { counts[getStatus(p.practiceNum)]++; });
+      var countable = practices.length - counts.na;
+      var pct = countable > 0 ? Math.round((counts.done / countable) * 100) : 0;
+      gapRows.push([
+        pa,
+        meta ? meta.full : pa,
+        meta ? (meta.domain === 'All' ? 'Core' : meta.domain) : '',
+        practices.length,
+        counts.done,
+        counts.ip,
+        counts.ns,
+        counts.na,
+        pct + '%'
+      ]);
+    });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(gapRows), 'Gap Analysis');
+
+    /* Sheet 3: Evidence Guide */
+    var evRows = [['PA','Artifact','Appraiser Tips']];
+    if (typeof EVIDENCE !== 'undefined') {
+      Object.keys(EVIDENCE).forEach(function(pa) {
+        var e = EVIDENCE[pa];
+        e.artifacts.forEach(function(art, i) {
+          evRows.push([pa, art, i === 0 ? e.tips : '']);
+        });
+        evRows.push(['','','']);
+      });
+    }
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(evRows), 'Evidence Guide');
+
+    XLSX.writeFile(wb, 'CMMI_v2_Practice_Reference_' + new Date().toISOString().slice(0,10) + '.xlsx');
+  }
+
+  /* ── JSON Export ────────────────────────────────────────────────────────── */
+  function exportJSON() {
+    var snapshot = {};
+    ALL_DATA.forEach(function(p) {
+      var s = getStatus(p.practiceNum);
+      var n = getNote(p.practiceNum);
+      if (s !== 'ns') snapshot['cmmi2_s_' + p.practiceNum] = s;
+      if (n) snapshot['cmmi2_n_' + p.practiceNum] = n;
+    });
+    if (typeof EVIDENCE !== 'undefined') {
+      Object.keys(EVIDENCE).forEach(function(pa) {
+        EVIDENCE[pa].artifacts.forEach(function(_, idx) {
+          var v = localStorage.getItem('cmmi2_ev_' + pa + '_' + idx);
+          if (v) snapshot['cmmi2_ev_' + pa + '_' + idx] = v;
+        });
+      });
+    }
+    var json = JSON.stringify({ _exported: new Date().toISOString(), data: snapshot }, null, 2);
+    var blob = new Blob([json], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'CMMI_progress_' + new Date().toISOString().slice(0,10) + '.json';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+  }
+
+  /* ── JSON Import ────────────────────────────────────────────────────────── */
+  function importJSON(file) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        var parsed = JSON.parse(e.target.result);
+        var dataObj = parsed.data || parsed; /* support both wrapped and raw formats */
+        var count = 0;
+        Object.keys(dataObj).forEach(function(key) {
+          if (key.indexOf('cmmi2_') === 0) {
+            localStorage.setItem(key, dataObj[key]);
+            count++;
+          }
+        });
+        alert('Imported ' + count + ' records successfully.' + (parsed._exported ? '\nOriginal export date: ' + parsed._exported.slice(0,10) : ''));
+        render();
+      } catch(err) {
+        alert('Could not read JSON file: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  /* ── Expand / Collapse all ──────────────────────────────────────────────── */
+  document.addEventListener('DOMContentLoaded', function() {
+
+    document.getElementById('btn-expand-all').addEventListener('click', function() {
+      document.querySelectorAll('.practice-trigger').forEach(function(trg) {
+        trg.setAttribute('aria-expanded', 'true');
+        var chev = trg.querySelector('.p-chevron');
+        if (chev) chev.style.transform = 'rotate(90deg)';
+        if (trg.nextElementSibling) trg.nextElementSibling.classList.add('open');
+      });
+      document.querySelectorAll('.pa-header').forEach(function(hdr) {
+        hdr.setAttribute('aria-expanded', 'true');
+        var chev = hdr.querySelector('.pa-chevron');
+        if (chev) chev.style.transform = 'rotate(90deg)';
+        if (hdr.nextElementSibling) hdr.nextElementSibling.style.display = '';
+      });
+    });
+
+    document.getElementById('btn-collapse-all').addEventListener('click', function() {
+      document.querySelectorAll('.practice-trigger').forEach(function(trg) {
+        trg.setAttribute('aria-expanded', 'false');
+        var chev = trg.querySelector('.p-chevron');
+        if (chev) chev.style.transform = 'rotate(0deg)';
+        if (trg.nextElementSibling) trg.nextElementSibling.classList.remove('open');
+      });
+      document.querySelectorAll('.pa-header').forEach(function(hdr) {
+        hdr.setAttribute('aria-expanded', 'false');
+        var chev = hdr.querySelector('.pa-chevron');
+        if (chev) chev.style.transform = 'rotate(0deg)';
+        if (hdr.nextElementSibling) hdr.nextElementSibling.style.display = 'none';
+      });
+    });
+
+    document.getElementById('btn-reset').addEventListener('click', function() {
+      document.getElementById('filter-level').value = '';
+      document.getElementById('filter-domain').value = '';
+      document.getElementById('search-input').value = '';
+      document.getElementById('filter-status').value = '';
+      _filterCategory = '';
+      document.querySelectorAll('.cat-btn').forEach(function(b){ b.classList.remove('active'); });
+      var allBtn = document.querySelector('.cat-btn-all');
+      if (allBtn) allBtn.classList.add('active');
+      var catDesc = document.getElementById('cat-description');
+      if (catDesc) catDesc.textContent = '';
+      render();
+    });
+
+    document.getElementById('btn-export-excel').addEventListener('click', exportExcel);
+
+    /* JSON export / import */
+    document.getElementById('btn-export-json').addEventListener('click', exportJSON);
+    document.getElementById('import-json-input').addEventListener('change', function(e) {
+      var file = e.target.files[0];
+      if (file) { importJSON(file); e.target.value = ''; }
+    });
+
+    /* Category filter buttons */
+    document.querySelectorAll('.cat-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.cat-btn').forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
+        _filterCategory = btn.getAttribute('data-cat');
+        var catDesc = document.getElementById('cat-description');
+        if (catDesc) catDesc.textContent = _filterCategory ? CAT_DESCRIPTIONS[_filterCategory] || '' : '';
+        render();
+      });
+    });
+
+    /* Status filter */
+    document.getElementById('filter-status').addEventListener('change', render);
+
+    /* Interaction map PA pills → jump to accordion */
+    document.querySelectorAll('[data-imap-pa]').forEach(function(pill) {
+      pill.addEventListener('click', function(e) {
+        e.preventDefault();
+        var pa = pill.getAttribute('data-imap-pa');
+        var accSection = document.getElementById('pa-accordion-section');
+        if (accSection) accSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setTimeout(function() {
+          var block = document.getElementById('pa-block-' + pa);
+          if (block) {
+            var hdr = block.querySelector('.pa-header');
+            if (hdr && hdr.getAttribute('aria-expanded') === 'false') togglePA.call(hdr);
+            block.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 350);
+      });
+    });
+
+    document.getElementById('btn-clear-progress').addEventListener('click', function() {
+      if (!confirm('Clear all implementation status and notes? This cannot be undone.')) return;
+      ALL_DATA.forEach(function(p) {
+        localStorage.removeItem('cmmi2_s_' + p.practiceNum);
+        localStorage.removeItem('cmmi2_n_' + p.practiceNum);
+      });
+      /* Clear evidence checkboxes */
+      if (typeof EVIDENCE !== 'undefined') {
+        Object.keys(EVIDENCE).forEach(function(pa) {
+          EVIDENCE[pa].artifacts.forEach(function(_, idx) {
+            localStorage.removeItem('cmmi2_ev_' + pa + '_' + idx);
+          });
+        });
+      }
+      render();
+    });
+
+    document.getElementById('filter-level').addEventListener('change', render);
+    document.getElementById('filter-domain').addEventListener('change', render);
+    document.getElementById('search-input').addEventListener('input', render);
+    /* filter-status change listener registered above with category buttons */
+
+    /* ── Keyboard shortcuts ── */
+    document.addEventListener('keydown', function(e) {
+      var si = document.getElementById('search-input');
+      var tag = document.activeElement ? document.activeElement.tagName : '';
+      var isInput = (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT');
+      if (e.key === '/' && !isInput) {
+        e.preventDefault();
+        si.focus();
+        si.select();
+      }
+      if (e.key === 'Escape' && document.activeElement === si) {
+        si.value = '';
+        si.blur();
+        render();
+      }
+    });
+
+    render();
+  });
+  </script>
+
+  <!-- bot-trap -->
+  <div aria-hidden="true" style="position:absolute;left:-99999px;top:auto;width:1px;height:1px;overflow:hidden">
+    <a href="../honeypot.html" tabindex="-1">admin-legacy-export</a>
+  </div>
+</body>
+</html>
