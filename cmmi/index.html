@@ -308,6 +308,36 @@
     .pa-bulk-btn:hover { opacity:1; background:rgba(255,255,255,.07); }
     .pa-bulk-menu { font-size:.78rem; }
 
+    /* ── Heat map ── */
+    .heat-map-wrap { background:var(--bs-secondary-bg); border:1px solid var(--bs-border-color); border-radius:.5rem; padding:.9rem 1rem; }
+    .hm-legend { display:flex; gap:1rem; font-size:.67rem; color:var(--bs-secondary-color); flex-wrap:wrap; align-items:center; margin-bottom:.75rem; }
+    .hm-cell-sample { display:inline-block; width:11px; height:11px; border-radius:2px; vertical-align:middle; margin-right:3px; }
+    .hm-category { margin-bottom:.7rem; }
+    .hm-cat-label { font-size:.65rem; font-weight:800; text-transform:uppercase; letter-spacing:.1em; margin-bottom:.3rem; padding-bottom:.22rem; border-bottom:1px solid var(--bs-border-color); }
+    .hm-cat-managing  { color:#6ea8fe; } .hm-cat-doing     { color:#75b798; }
+    .hm-cat-enabling  { color:#0dcaf0; } .hm-cat-improving { color:var(--bs-primary); }
+    .hm-row { display:flex; align-items:center; gap:.45rem; margin-bottom:.22rem; }
+    .hm-pa-label { font-size:.67rem; font-weight:700; font-family:monospace; width:40px; flex-shrink:0; color:var(--bs-secondary-color); }
+    .hm-cells { display:flex; gap:2px; flex-wrap:wrap; align-items:center; }
+    .hm-pg-group { display:flex; gap:2px; padding:2px 3px; border-radius:3px; }
+    .hm-pg-spacer { width:4px; }
+    .hm-cell { width:13px; height:13px; border-radius:2px; cursor:pointer; transition:transform .1s; flex-shrink:0; position:relative; }
+    .hm-cell:hover { transform:scale(1.55); z-index:10; }
+    .hm-ns   { background:rgba(108,117,125,.18); border:1px solid rgba(108,117,125,.28); }
+    .hm-ip   { background:rgba(255,193,7,.55);  border:1px solid rgba(255,193,7,.7); }
+    .hm-done { background:rgba(25,135,84,.65);  border:1px solid rgba(25,135,84,.8); }
+    .hm-na   { background:rgba(108,117,125,.06); border:1px dashed rgba(108,117,125,.22); }
+
+    /* ── What's Next panel ── */
+    .what-next-item { padding:.6rem .85rem; background:var(--bs-secondary-bg); border:1px solid var(--bs-border-color); border-left:3px solid var(--bs-border-color); border-radius:0 .4rem .4rem 0; cursor:pointer; transition:border-color .15s,background .15s; }
+    .what-next-item:hover { background:rgba(var(--bs-primary-rgb),.04); border-color:rgba(255,88,17,.35); border-left-color:rgba(255,88,17,.5); }
+    .wn-p1 { border-left-color:var(--bs-warning) !important; }
+    .wn-p2 { border-left-color:rgba(13,202,240,.5) !important; }
+    .wn-p3 { border-left-color:rgba(108,117,125,.45) !important; }
+
+    /* ── Quick tools bar ── */
+    .quick-tools-bar { background:var(--bs-secondary-bg); border:1px solid var(--bs-border-color); border-radius:.4rem; padding:.5rem .85rem; }
+
     /* ── Print styles ── */
     @media print {
       #mainNav, footer, .filter-bar, .no-print, .navbar, #jump-nav, #progress-dashboard { display:none !important; }
@@ -528,6 +558,25 @@
           <div class="pa-progress-grid" id="pa-progress-grid"></div>
         </div>
 
+        <!-- Quick Tools -->
+        <div class="quick-tools-bar d-flex gap-2 flex-wrap align-items-center mb-2 no-print">
+          <span class="small text-secondary fw-semibold" style="font-size:.71rem;flex-shrink:0">Tools:</span>
+          <button class="btn btn-sm btn-outline-secondary" id="btn-heat-map" title="Visual heat map — all 21 PAs × every practice colored by status"><span class="bi bi-grid-3x3 me-1"></span>Heat Map <kbd style="font-size:.6rem">H</kbd></button>
+          <button class="btn btn-sm btn-outline-secondary" id="btn-what-next" title="Smart recommendations for your next implementation steps"><span class="bi bi-compass me-1"></span>What's Next <kbd style="font-size:.6rem">N</kbd></button>
+          <button class="btn btn-sm btn-outline-secondary" id="btn-readiness-report" title="Generate a printable appraisal readiness report" data-bs-toggle="modal" data-bs-target="#readinessReportModal"><span class="bi bi-file-text me-1"></span>Readiness Report</button>
+          <button class="btn btn-sm btn-outline-secondary ms-auto" title="Keyboard shortcuts" data-bs-toggle="modal" data-bs-target="#shortcutsModal"><kbd style="font-size:.68rem;pointer-events:none">?</kbd></button>
+        </div>
+
+        <!-- Heat Map panel -->
+        <div id="heat-map-panel" style="display:none" class="mb-3 no-print">
+          <div id="heat-map-container"></div>
+        </div>
+
+        <!-- What's Next panel -->
+        <div id="what-next-panel" style="display:none" class="mb-3 no-print">
+          <div id="what-next-container"></div>
+        </div>
+
         <!-- Jump navigation -->
         <div id="jump-nav" class="no-print">
           <div class="container">
@@ -705,6 +754,49 @@
     </section>
 
   </main>
+
+  <!-- Readiness Report Modal -->
+  <div class="modal fade" id="readinessReportModal" tabindex="-1" aria-labelledby="rrModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-6 fw-bold" id="rrModalLabel"><span class="bi bi-file-text me-2"></span>CMMI Appraisal Readiness Report</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0" id="readiness-report-body" style="font-size:.82rem">
+          <p class="text-secondary p-4">Generating report…</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-sm btn-outline-secondary" onclick="window.print()"><span class="bi bi-printer me-1"></span>Print</button>
+          <button class="btn btn-sm btn-outline-secondary" id="btn-copy-report"><span class="bi bi-clipboard me-1"></span>Copy as Text</button>
+          <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Keyboard Shortcuts Modal -->
+  <div class="modal fade" id="shortcutsModal" tabindex="-1" aria-labelledby="shortcutsModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:400px">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-6 fw-bold" id="shortcutsModalLabel">Keyboard Shortcuts</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0">
+          <table class="table table-sm mb-0" style="font-size:.83rem">
+            <tbody>
+              <tr><td style="width:70px"><kbd>/</kbd></td><td>Focus search input</td></tr>
+              <tr><td><kbd>Esc</kbd></td><td>Clear search &amp; blur</td></tr>
+              <tr><td><kbd>?</kbd></td><td>Show this shortcuts reference</td></tr>
+              <tr><td><kbd>H</kbd></td><td>Toggle heat map panel</td></tr>
+              <tr><td><kbd>N</kbd></td><td>Toggle What's Next panel</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- RBAC Login Modal -->
   <div class="modal" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
@@ -1510,6 +1602,214 @@
     reader.readAsText(file);
   }
 
+  /* ── Heat Map ──────────────────────────────────────────────────────────── */
+  function renderHeatMap() {
+    var container = document.getElementById('heat-map-container');
+    if (!container) return;
+    var catOrder = ['Managing','Doing','Enabling','Improving'];
+    var html = '<div class="heat-map-wrap">';
+    html += '<div class="hm-legend">';
+    html += '<span><span class="hm-cell-sample hm-done"></span>Implemented</span>';
+    html += '<span><span class="hm-cell-sample hm-ip"></span>In Progress</span>';
+    html += '<span><span class="hm-cell-sample hm-ns"></span>Not Started</span>';
+    html += '<span><span class="hm-cell-sample hm-na"></span>N/A</span>';
+    html += '<span class="ms-auto text-secondary" style="font-size:.63rem">Hover a cell for practice detail &nbsp;·&nbsp; Click to jump</span>';
+    html += '</div>';
+    catOrder.forEach(function(cat) {
+      var pas = PA_CATEGORY[cat] || [];
+      html += '<div class="hm-category">';
+      html += '<div class="hm-cat-label hm-cat-' + cat.toLowerCase() + '">' + cat + '</div>';
+      pas.forEach(function(pa) {
+        var practices = ALL_DATA.filter(function(p){ return p.pa === pa; });
+        if (!practices.length) return;
+        /* Group by practice group preserving order */
+        var pgSeen = [], pgMap = {};
+        practices.forEach(function(p) {
+          if (!pgMap[p.practiceGroup]) { pgMap[p.practiceGroup] = []; pgSeen.push(p.practiceGroup); }
+          pgMap[p.practiceGroup].push(p);
+        });
+        html += '<div class="hm-row">';
+        html += '<div class="hm-pa-label" title="' + escHtml(PA_META[pa] ? PA_META[pa].full : pa) + '">' + pa + '</div>';
+        html += '<div class="hm-cells">';
+        pgSeen.forEach(function(pg, i) {
+          if (i > 0) html += '<div class="hm-pg-spacer"></div>';
+          html += '<div class="hm-pg-group" title="' + escHtml(pg) + '">';
+          pgMap[pg].forEach(function(p) {
+            var s = getStatus(p.practiceNum);
+            html += '<div class="hm-cell hm-' + s + '" data-hm-practice="' + escHtml(p.practiceNum) + '" title="' + escHtml(p.practiceNum + ': ' + (p.practiceStatement || '').slice(0, 90) + (p.practiceStatement && p.practiceStatement.length > 90 ? '…' : '')) + '"></div>';
+          });
+          html += '</div>';
+        });
+        html += '</div></div>';
+      });
+      html += '</div>';
+    });
+    html += '</div>';
+    container.innerHTML = html;
+    /* Click on heat map cell → jump to practice */
+    container.querySelectorAll('[data-hm-practice]').forEach(function(cell) {
+      cell.addEventListener('click', function() {
+        jumpToPractice(cell.getAttribute('data-hm-practice'));
+      });
+    });
+  }
+
+  /* ── Jump to practice ───────────────────────────────────────────────────── */
+  function jumpToPractice(practiceNum) {
+    /* Scroll accordion into view first if needed */
+    var accSection = document.getElementById('pa-accordion-section');
+    var row = document.querySelector('.practice-row[data-practice-num="' + practiceNum + '"]');
+    if (!row && accSection) accSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setTimeout(function() {
+      var r = document.querySelector('.practice-row[data-practice-num="' + practiceNum + '"]');
+      if (!r) return;
+      var paBlock = r.closest('.pa-block');
+      if (paBlock) {
+        var hdr = paBlock.querySelector('.pa-header');
+        if (hdr && hdr.getAttribute('aria-expanded') === 'false') togglePA.call(hdr);
+      }
+      var trigger = r.querySelector('.practice-trigger');
+      if (trigger && trigger.getAttribute('aria-expanded') === 'false') togglePractice.call(trigger);
+      setTimeout(function() { r.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 120);
+    }, 350);
+  }
+
+  /* ── What's Next ────────────────────────────────────────────────────────── */
+  function renderWhatNext() {
+    var container = document.getElementById('what-next-container');
+    if (!container) return;
+    /* Priority 1: in-progress practices */
+    var p1 = ALL_DATA.filter(function(p){ return getStatus(p.practiceNum) === 'ip'; });
+    /* Priority 2: not-started in PAs where some progress exists */
+    var activePAs = {};
+    ALL_DATA.forEach(function(p) {
+      var s = getStatus(p.practiceNum);
+      if (s === 'ip' || s === 'done') activePAs[p.pa] = true;
+    });
+    var p2 = ALL_DATA.filter(function(p){ return getStatus(p.practiceNum) === 'ns' && activePAs[p.pa]; });
+    /* Priority 3: ML2 not-started (foundation) */
+    var p3 = ALL_DATA.filter(function(p){ return getStatus(p.practiceNum) === 'ns' && p.level === 'ML2'; });
+
+    var suggestions = [];
+    var seen = {};
+    function addSugg(arr, reason, cls) {
+      arr.forEach(function(p) {
+        if (suggestions.length < 6 && !seen[p.practiceNum]) {
+          suggestions.push({ p: p, reason: reason, cls: cls });
+          seen[p.practiceNum] = true;
+        }
+      });
+    }
+    addSugg(p1, 'Continue — already in progress', 'wn-p1');
+    addSugg(p2, 'Next in an active PA (' + '' + ') — keep the momentum', 'wn-p2');
+    addSugg(p3, 'ML2 foundation — complete managed level first', 'wn-p3');
+
+    var doneAll = ALL_DATA.every(function(p){ var s = getStatus(p.practiceNum); return s === 'done' || s === 'na'; });
+
+    var html = '<div class="heat-map-wrap">';
+    html += '<div class="cmmi-sh mb-3">What\'s Next — Recommended Actions</div>';
+    if (doneAll) {
+      html += '<div class="text-success fw-semibold p-2"><span class="bi bi-check-circle-fill me-2"></span>All practices have been addressed — appraisal-ready!</div>';
+    } else if (!suggestions.length) {
+      html += '<p class="text-secondary small">Start tracking practices using the status buttons (○) in any accordion row to get personalized recommendations.</p>';
+    } else {
+      html += '<div class="d-flex flex-column gap-2">';
+      suggestions.forEach(function(item) {
+        var p = item.p;
+        /* Fix priority 2 reason to include the PA name */
+        var reason = item.reason.replace("('')", '(' + p.pa + ')').replace("('')", '(' + p.pa + ')');
+        if (item.cls === 'wn-p2') reason = 'Next in active PA ' + p.pa + ' — keep the momentum';
+        html += '<div class="what-next-item ' + item.cls + '" onclick="jumpToPractice(\'' + escHtml(p.practiceNum) + '\')">';
+        html += '<div class="d-flex align-items-start gap-2">';
+        html += '<span class="p-num" style="min-width:4.5rem;flex-shrink:0">' + escHtml(p.practiceNum) + '</span>';
+        html += '<span style="font-size:.81rem;line-height:1.5;flex:1">' + escHtml((p.practiceStatement || '').slice(0, 120)) + (p.practiceStatement && p.practiceStatement.length > 120 ? '…' : '') + '</span>';
+        html += '</div>';
+        html += '<div style="font-size:.67rem;color:var(--bs-secondary-color);margin-top:.25rem;padding-left:5.5rem">' + escHtml(reason) + '</div>';
+        html += '</div>';
+      });
+      html += '</div>';
+      html += '<div class="text-secondary mt-2" style="font-size:.68rem">Click any item to expand it in the accordion above.</div>';
+    }
+    html += '</div>';
+    container.innerHTML = html;
+  }
+
+  /* ── Readiness Report ───────────────────────────────────────────────────── */
+  function generateReadinessReport() {
+    var body = document.getElementById('readiness-report-body');
+    if (!body) return;
+    var total = ALL_DATA.length;
+    var counts = { done:0, ip:0, ns:0, na:0 };
+    ALL_DATA.forEach(function(p){ counts[getStatus(p.practiceNum)]++; });
+    var countable = total - counts.na;
+    var overallPct = countable > 0 ? Math.round(counts.done / countable * 100) : 0;
+    var today = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+
+    function lvlGate(lvl) {
+      var data = ALL_DATA.filter(function(p){ return p.level === lvl; });
+      var d=0, na=0;
+      data.forEach(function(p){ var s=getStatus(p.practiceNum); if(s==='done')d++; if(s==='na')na++; });
+      var c = data.length - na;
+      var pct = c > 0 ? Math.round(d/c*100) : 0;
+      return { done:d, countable:c, pct:pct, status: c>0 && d===c ? 'Ready' : d>0 ? 'Partial' : 'Not Started' };
+    }
+    var ml2g = lvlGate('ML2'), ml3g = lvlGate('ML3');
+
+    var html = '<div style="padding:1rem 1.5rem">';
+    /* Header */
+    html += '<div style="border-bottom:2px solid var(--bs-primary);padding-bottom:.75rem;margin-bottom:1rem">';
+    html += '<div class="d-flex justify-content-between flex-wrap gap-1">';
+    html += '<div><div class="fw-bold" style="font-size:1rem">CMMI v2.0 Implementation Status</div><div class="text-secondary" style="font-size:.75rem">Generated: ' + escHtml(today) + '</div></div>';
+    html += '<div class="text-end"><div class="fw-bold" style="font-size:1.4rem;color:var(--bs-primary)">' + overallPct + '%</div><div class="text-secondary" style="font-size:.72rem">Overall</div></div>';
+    html += '</div>';
+    html += '</div>';
+    /* Gate summary */
+    html += '<div class="d-flex gap-4 mb-1 flex-wrap" style="font-size:.8rem">';
+    ['ML2','ML3'].forEach(function(lvl) {
+      var g = lvl === 'ML2' ? ml2g : ml3g;
+      var color = g.status === 'Ready' ? 'var(--bs-success)' : g.status === 'Partial' ? 'var(--bs-warning)' : 'var(--bs-secondary-color)';
+      html += '<div><strong>' + lvl + ' Gate:</strong> <span style="color:' + color + '">' + g.status + '</span> (' + g.done + '/' + g.countable + ' — ' + g.pct + '%)</div>';
+    });
+    html += '<div><strong>Implemented:</strong> ' + counts.done + ' &nbsp;<strong>In Progress:</strong> ' + counts.ip + ' &nbsp;<strong>Gaps:</strong> ' + counts.ns + '</div>';
+    html += '</div>';
+
+    /* Per-category breakdown */
+    var catOrder = ['Managing','Doing','Enabling','Improving'];
+    catOrder.forEach(function(cat) {
+      var pas = PA_CATEGORY[cat] || [];
+      html += '<div style="margin-top:1rem">';
+      html += '<div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--bs-border-color);padding-bottom:.25rem;margin-bottom:.4rem">' + escHtml(cat) + '</div>';
+      html += '<table style="width:100%;border-collapse:collapse;font-size:.79rem">';
+      html += '<thead><tr style="color:var(--bs-secondary-color);font-size:.68rem;text-transform:uppercase">';
+      html += '<th style="padding:3px 6px;text-align:left;width:50%">Practice Area</th>';
+      html += '<th style="padding:3px 6px;text-align:center">Done</th><th style="padding:3px 6px;text-align:center">IP</th>';
+      html += '<th style="padding:3px 6px;text-align:center">Gaps</th><th style="padding:3px 6px;text-align:center">N/A</th>';
+      html += '<th style="padding:3px 6px;text-align:center;width:90px">Readiness</th>';
+      html += '</tr></thead><tbody>';
+      pas.forEach(function(pa) {
+        var data = ALL_DATA.filter(function(p){ return p.pa === pa; });
+        if (!data.length) return;
+        var c = { done:0, ip:0, ns:0, na:0 };
+        data.forEach(function(p){ c[getStatus(p.practiceNum)]++; });
+        var cnt = data.length - c.na;
+        var pct = cnt > 0 ? Math.round(c.done/cnt*100) : 0;
+        var statusColor = pct === 100 ? '#198754' : pct > 0 ? '#ffc107' : 'var(--bs-secondary-color)';
+        var rowBg = pct === 100 ? 'rgba(25,135,84,.06)' : pct > 0 ? 'rgba(255,193,7,.05)' : '';
+        html += '<tr style="background:' + rowBg + ';border-bottom:1px solid var(--bs-border-color)">';
+        html += '<td style="padding:4px 6px"><strong>' + pa + '</strong> <span style="color:var(--bs-secondary-color);font-size:.73rem">' + escHtml(PA_META[pa] ? PA_META[pa].full : '') + '</span></td>';
+        html += '<td style="padding:4px 6px;text-align:center;color:var(--bs-success)">' + c.done + '</td>';
+        html += '<td style="padding:4px 6px;text-align:center;color:var(--bs-warning)">' + c.ip + '</td>';
+        html += '<td style="padding:4px 6px;text-align:center;color:var(--bs-danger)">' + c.ns + '</td>';
+        html += '<td style="padding:4px 6px;text-align:center;color:var(--bs-secondary-color)">' + c.na + '</td>';
+        html += '<td style="padding:4px 6px;text-align:center;font-weight:700;color:' + statusColor + '">' + pct + '%</td>';
+        html += '</tr>';
+      });
+      html += '</tbody></table></div>';
+    });
+    html += '</div>';
+    body.innerHTML = html;
+  }
+
   /* ── Expand / Collapse all ──────────────────────────────────────────────── */
   document.addEventListener('DOMContentLoaded', function() {
 
@@ -1621,6 +1921,39 @@
     document.getElementById('search-input').addEventListener('input', render);
     /* filter-status change listener registered above with category buttons */
 
+    /* ── Heat map toggle ── */
+    document.getElementById('btn-heat-map').addEventListener('click', function() {
+      var panel = document.getElementById('heat-map-panel');
+      var open = panel.style.display !== 'none';
+      panel.style.display = open ? 'none' : '';
+      this.classList.toggle('active', !open);
+      if (!open) renderHeatMap();
+    });
+
+    /* ── What's Next toggle ── */
+    document.getElementById('btn-what-next').addEventListener('click', function() {
+      var panel = document.getElementById('what-next-panel');
+      var open = panel.style.display !== 'none';
+      panel.style.display = open ? 'none' : '';
+      this.classList.toggle('active', !open);
+      if (!open) renderWhatNext();
+    });
+
+    /* ── Readiness Report: populate before modal shows ── */
+    document.getElementById('readinessReportModal').addEventListener('show.bs.modal', function() {
+      generateReadinessReport();
+    });
+    document.getElementById('btn-copy-report').addEventListener('click', function() {
+      var el = document.getElementById('readiness-report-body');
+      if (!el) return;
+      var text = el.innerText || el.textContent || '';
+      navigator.clipboard.writeText(text).then(function() {
+        var btn = document.getElementById('btn-copy-report');
+        btn.textContent = '✓ Copied!';
+        setTimeout(function(){ btn.innerHTML = '<span class="bi bi-clipboard me-1"></span>Copy as Text'; }, 1800);
+      }).catch(function() { alert('Copy failed — please select and copy manually.'); });
+    });
+
     /* ── Keyboard shortcuts ── */
     document.addEventListener('keydown', function(e) {
       var si = document.getElementById('search-input');
@@ -1635,6 +1968,18 @@
         si.value = '';
         si.blur();
         render();
+      }
+      if (!isInput) {
+        if (e.key === '?') {
+          var shModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('shortcutsModal'));
+          shModal.show();
+        }
+        if (e.key === 'h' || e.key === 'H') {
+          document.getElementById('btn-heat-map').click();
+        }
+        if (e.key === 'n' || e.key === 'N') {
+          document.getElementById('btn-what-next').click();
+        }
       }
     });
 
