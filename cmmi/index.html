@@ -289,6 +289,25 @@
     .ml-bar-block { flex:1; min-width:160px; }
     .ml-bar-label { display:flex; justify-content:space-between; align-items:center; margin-bottom:.3rem; }
 
+    /* ── Status distribution bar ── */
+    .status-dist-bar { display:flex; height:8px; border-radius:4px; overflow:hidden; margin-bottom:.35rem; background:rgba(128,128,128,.12); }
+    .sdb-done { background:var(--bs-success); transition:width .5s ease; min-width:0; }
+    .sdb-ip   { background:var(--bs-warning); transition:width .5s ease; min-width:0; }
+    .sdb-na   { background:rgba(108,117,125,.35); transition:width .5s ease; min-width:0; }
+    .sdb-legend { display:flex; gap:.85rem; font-size:.67rem; color:var(--bs-secondary-color); flex-wrap:wrap; margin-bottom:.6rem; }
+    .sdb-dot { width:7px; height:7px; border-radius:50%; display:inline-block; flex-shrink:0; vertical-align:middle; margin-right:2px; }
+
+    /* ── Readiness gate badges ── */
+    .gate-badge { display:inline-flex; align-items:center; gap:.3rem; padding:4px 11px; border-radius:20px; font-size:.72rem; font-weight:700; border:1px solid; }
+    .gate-ready   { color:#75b798; border-color:rgba(25,135,84,.45); background:rgba(25,135,84,.1); }
+    .gate-partial { color:#ffc107; border-color:rgba(255,193,7,.45); background:rgba(255,193,7,.1); }
+    .gate-pending { color:var(--bs-secondary-color); border-color:var(--bs-border-color); background:transparent; }
+
+    /* ── PA bulk action button ── */
+    .pa-bulk-btn { padding:2px 8px; opacity:.45; border:none; background:none; color:var(--bs-secondary-color); cursor:pointer; font-size:.88rem; line-height:1; border-radius:4px; transition:opacity .15s,background .15s; flex-shrink:0; }
+    .pa-bulk-btn:hover { opacity:1; background:rgba(255,255,255,.07); }
+    .pa-bulk-menu { font-size:.78rem; }
+
     /* ── Print styles ── */
     @media print {
       #mainNav, footer, .filter-bar, .no-print, .navbar, #jump-nav, #progress-dashboard { display:none !important; }
@@ -465,6 +484,18 @@
               <button class="btn btn-sm btn-outline-danger" id="btn-clear-progress" style="font-size:.71rem;padding:2px 8px">Clear All</button>
             </div>
           </div>
+          <!-- Status distribution bar -->
+          <div class="status-dist-bar mb-1" id="status-dist-bar">
+            <div class="sdb-done" id="sdb-done" style="width:0%"></div>
+            <div class="sdb-ip"   id="sdb-ip"   style="width:0%"></div>
+            <div class="sdb-na"   id="sdb-na"   style="width:0%"></div>
+          </div>
+          <div class="sdb-legend">
+            <span><span class="sdb-dot" style="background:var(--bs-success)"></span><span id="sdb-done-lbl">0 Implemented</span></span>
+            <span><span class="sdb-dot" style="background:var(--bs-warning)"></span><span id="sdb-ip-lbl">0 In Progress</span></span>
+            <span><span class="sdb-dot" style="background:rgba(108,117,125,.6)"></span><span id="sdb-na-lbl">0 N/A</span></span>
+            <span><span class="sdb-dot" style="background:rgba(128,128,128,.3)"></span><span id="sdb-ns-lbl">0 Not Started</span></span>
+          </div>
           <div class="progress progress-overall-bar mb-2" role="progressbar" aria-label="Overall implementation progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
             <div class="progress-bar bg-success" id="progress-bar-fill" style="width:0%;transition:width .4s"></div>
           </div>
@@ -488,6 +519,11 @@
                 <div class="progress-bar bg-success" style="width:0%;transition:width .5s" id="ml3-bar"></div>
               </div>
             </div>
+          </div>
+          <!-- Appraisal readiness gates -->
+          <div class="d-flex gap-2 flex-wrap mb-2" id="gate-row">
+            <span class="gate-badge gate-pending" id="gate-ml2"><span class="bi bi-circle me-1"></span>ML2 Gate: Not Started</span>
+            <span class="gate-badge gate-pending" id="gate-ml3"><span class="bi bi-circle me-1"></span>ML3 Gate: Not Started</span>
           </div>
           <div class="pa-progress-grid" id="pa-progress-grid"></div>
         </div>
@@ -965,6 +1001,21 @@
       ].join('\n');
     }
 
+    /* Bulk action dropdown HTML */
+    var bulkHtml = [
+      '<div class="dropdown" onclick="event.stopPropagation()">',
+      '  <button class="pa-bulk-btn dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false" title="Bulk status actions for ' + escHtml(meta.full) + '" data-bulk-pa="' + pa + '">⋯</button>',
+      '  <ul class="dropdown-menu dropdown-menu-end pa-bulk-menu">',
+      '    <li><h6 class="dropdown-header" style="font-size:.68rem">' + escHtml(pa) + ' — Bulk Actions</h6></li>',
+      '    <li><a class="dropdown-item" href="#" data-bulk-pa="' + pa + '" data-bulk-set="ip"><span class="text-warning me-2">◐</span>Mark all In Progress</a></li>',
+      '    <li><a class="dropdown-item" href="#" data-bulk-pa="' + pa + '" data-bulk-set="done"><span class="text-success me-2">✓</span>Mark all Implemented</a></li>',
+      '    <li><a class="dropdown-item" href="#" data-bulk-pa="' + pa + '" data-bulk-set="na"><span class="text-secondary me-2">—</span>Mark all N/A</a></li>',
+      '    <li><hr class="dropdown-divider"></li>',
+      '    <li><a class="dropdown-item text-danger" href="#" data-bulk-pa="' + pa + '" data-bulk-set="ns"><span class="me-2">○</span>Reset all to Not Started</a></li>',
+      '  </ul>',
+      '</div>'
+    ].join('');
+
     return [
       '<div class="pa-block mb-4" data-pa="' + pa + '" id="pa-block-' + pa + '">',
       '  <div class="pa-header d-flex align-items-center gap-2 flex-wrap" aria-expanded="true" role="button" tabindex="0">',
@@ -973,7 +1024,7 @@
       '    <span class="pa-name">' + escHtml(meta.full) + '</span>',
       '    ' + domBadge(meta.domain),
       catBadgeHtml,
-      '    <span class="ms-auto d-flex align-items-center gap-2 flex-wrap">' + fracHtml + lvlPills + '</span>',
+      '    <span class="ms-auto d-flex align-items-center gap-2 flex-wrap">' + fracHtml + lvlPills + bulkHtml + '</span>',
       '  </div>',
       '  <div class="pa-body ps-2 pt-1 pb-1">',
       (meta.desc ? '  <p class="small text-secondary mb-2 mt-2 ps-2">' + escHtml(meta.desc) + '</p>' : ''),
@@ -1087,6 +1138,44 @@
       });
     });
 
+    /* Bulk PA status actions */
+    document.querySelectorAll('[data-bulk-set]').forEach(function(item) {
+      item.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var pa = item.getAttribute('data-bulk-pa');
+        var setTo = item.getAttribute('data-bulk-set');
+        var practices = ALL_DATA.filter(function(p){ return p.pa === pa; });
+        practices.forEach(function(p) {
+          setStatus(p.practiceNum, setTo);
+          /* Update any visible status button for this practice */
+          var btn = document.querySelector('.status-btn[data-practice="' + p.practiceNum + '"]');
+          if (btn) {
+            btn.textContent = STATUS_DISPLAY[setTo];
+            btn.className = 'status-btn ' + STATUS_CLASS[setTo];
+            btn.title = 'Status: ' + STATUS_LABEL[setTo] + ' (click to cycle)';
+            btn.setAttribute('aria-label', 'Status: ' + STATUS_LABEL[setTo]);
+          }
+        });
+        /* Update the fraction in this PA header */
+        var block = document.getElementById('pa-block-' + pa);
+        if (block) {
+          var fracEl = block.querySelector('.pa-header .pa-progress-frac');
+          if (fracEl) {
+            var allPA = ALL_DATA.filter(function(p){ return p.pa === pa; });
+            var fDone = allPA.filter(function(p){ return getStatus(p.practiceNum) === 'done'; }).length;
+            var fNa   = allPA.filter(function(p){ return getStatus(p.practiceNum) === 'na'; }).length;
+            var fC    = allPA.length - fNa;
+            fracEl.textContent = fDone + '/' + fC + ' ✓';
+            fracEl.className = (fDone > 0 && fDone === fC) ? 'pa-progress-frac frac-done' :
+                               (fDone > 0) ? 'pa-progress-frac frac-ip' : 'pa-progress-frac';
+          }
+        }
+        updateProgressDashboard();
+        renderJumpNav();
+      });
+    });
+
     /* Evidence checkboxes */
     document.querySelectorAll('[data-ev-pa]').forEach(function(cb) {
       cb.addEventListener('change', function() {
@@ -1161,12 +1250,9 @@
   /* ── Progress Dashboard ─────────────────────────────────────────────────── */
   function updateProgressDashboard() {
     var total = ALL_DATA.length;
-    var done = 0, naCount = 0;
-    ALL_DATA.forEach(function(p) {
-      var s = getStatus(p.practiceNum);
-      if (s === 'done') done++;
-      if (s === 'na') naCount++;
-    });
+    var counts = { done:0, ip:0, ns:0, na:0 };
+    ALL_DATA.forEach(function(p) { counts[getStatus(p.practiceNum)]++; });
+    var done = counts.done, naCount = counts.na;
     var countable = total - naCount;
     var pct = countable > 0 ? Math.round((done / countable) * 100) : 0;
 
@@ -1174,6 +1260,51 @@
     var bar = document.getElementById('progress-bar-fill');
     bar.style.width = pct + '%';
     bar.parentElement.setAttribute('aria-valuenow', pct);
+
+    /* Status distribution bar */
+    var donePct = total > 0 ? (counts.done / total * 100).toFixed(1) : 0;
+    var ipPct   = total > 0 ? (counts.ip   / total * 100).toFixed(1) : 0;
+    var naPct   = total > 0 ? (counts.na   / total * 100).toFixed(1) : 0;
+    var sdbDone = document.getElementById('sdb-done'); if (sdbDone) sdbDone.style.width = donePct + '%';
+    var sdbIp   = document.getElementById('sdb-ip');   if (sdbIp)   sdbIp.style.width   = ipPct   + '%';
+    var sdbNa   = document.getElementById('sdb-na');   if (sdbNa)   sdbNa.style.width   = naPct   + '%';
+    var lDone = document.getElementById('sdb-done-lbl'); if (lDone) lDone.textContent = counts.done + ' Implemented';
+    var lIp   = document.getElementById('sdb-ip-lbl');   if (lIp)   lIp.textContent   = counts.ip   + ' In Progress';
+    var lNa   = document.getElementById('sdb-na-lbl');   if (lNa)   lNa.textContent   = counts.na   + ' N/A';
+    var lNs   = document.getElementById('sdb-ns-lbl');   if (lNs)   lNs.textContent   = counts.ns   + ' Not Started';
+
+    /* Appraisal readiness gates */
+    function gateStatus(level) {
+      var lvlPAs = PA_ORDER.filter(function(pa) {
+        return ALL_DATA.some(function(p){ return p.pa === pa && p.level === level; });
+      });
+      var allReady = true, anyProgress = false;
+      lvlPAs.forEach(function(pa) {
+        var practices = ALL_DATA.filter(function(p){ return p.pa === pa && p.level === level; });
+        var paDone = 0, paNa = 0;
+        practices.forEach(function(p){ var s=getStatus(p.practiceNum); if(s==='done') paDone++; if(s==='na') paNa++; });
+        var paC = practices.length - paNa;
+        if (paC > 0 && paDone < paC) allReady = false;
+        if (paDone > 0) anyProgress = true;
+      });
+      if (allReady && anyProgress) return 'ready';
+      if (anyProgress) return 'partial';
+      return 'pending';
+    }
+    var gateInfo = {
+      ready:   { cls:'gate-ready',   icon:'bi-check-circle-fill', label:'Ready' },
+      partial: { cls:'gate-partial', icon:'bi-circle-half',       label:'Partial' },
+      pending: { cls:'gate-pending', icon:'bi-circle',            label:'Not Started' }
+    };
+    ['ML2','ML3'].forEach(function(lvl) {
+      var st = gateStatus(lvl);
+      var gi = gateInfo[st];
+      var el = document.getElementById('gate-' + lvl.toLowerCase());
+      if (el) {
+        el.className = 'gate-badge ' + gi.cls;
+        el.innerHTML = '<span class="bi ' + gi.icon + ' me-1"></span>' + lvl + ' Gate: ' + gi.label;
+      }
+    });
 
     /* ML2 / ML3 readiness bars */
     ['ML2','ML3'].forEach(function(lvl) {
@@ -1234,8 +1365,10 @@
       var dotClass = 'pa-dot-gray';
       if (paCountable > 0 && paDone === paCountable) dotClass = 'pa-dot-green';
       else if (paDone > 0 || paIp > 0) dotClass = 'pa-dot-yellow';
-      html += '<a href="#" class="jump-pill" data-jump-pa="' + pa + '" title="Jump to ' + (PA_META[pa] ? escHtml(PA_META[pa].full) : pa) + '">';
-      html += '<span class="jp-dot ' + dotClass + '"></span>' + pa;
+      var paPct = paCountable > 0 ? Math.round(paDone / paCountable * 100) : 0;
+      var paPctHtml = paPct > 0 ? ' <span style="font-size:.6rem;opacity:.65">' + paPct + '%</span>' : '';
+      html += '<a href="#" class="jump-pill" data-jump-pa="' + pa + '" title="' + (PA_META[pa] ? escHtml(PA_META[pa].full) : pa) + ': ' + paDone + '/' + paCountable + ' implemented">';
+      html += '<span class="jp-dot ' + dotClass + '"></span>' + pa + paPctHtml;
       html += '</a>';
     });
     inner.innerHTML = html;
