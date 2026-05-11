@@ -1013,6 +1013,8 @@
   function setEvidence(domain, idx, v){ lsSet('cmmc2_ev_'+domain+'_'+idx, v ? '1' : ''); }
   function getRisk(domain, id)   { return lsGet('cmmc2_r_'+domain+'_'+id, ''); }
   function setRisk(domain, id, v){ lsSet('cmmc2_r_'+domain+'_'+id, v || ''); }
+  function getEffort(domain, id)   { return lsGet('cmmc2_ef_'+domain+'_'+id, ''); }
+  function setEffort(domain, id, v){ lsSet('cmmc2_ef_'+domain+'_'+id, v || ''); }
 
   /* ── Data loading ────────────────────────────────────────────────────── */
   function loadData() {
@@ -1334,6 +1336,16 @@
     if (pracNum) pracNum.textContent = _assessLevel === 1 ? '17' : _assessLevel === 3 ? '110' : '110';
     if (pracLbl) pracLbl.textContent = _assessLevel === 3 ? 'Practices (L2+L3)' : 'Practices (L2)';
 
+    // Effort estimate
+    var ef = computeEffort();
+    var efEl = document.getElementById('stat-effort');
+    if (efEl) efEl.textContent = ef.hours > 0 ? (ef.hours >= 200 ? Math.round(ef.hours/200)+'mo' : ef.hours >= 40 ? Math.round(ef.hours/40)+'w' : ef.hours + 'h') : '—';
+    var efLbl = document.getElementById('stat-effort-lbl');
+    if (efLbl) efLbl.textContent = 'across ' + ef.count + ' rated control' + (ef.count===1?'':'s');
+
+    // Radar chart
+    drawRadarChart();
+
     // Refresh heat map and what's next if open
     if (document.getElementById('hm-body') && document.getElementById('hm-body').classList.contains('open')) renderHeatMap();
     if (document.getElementById('wn-body') && document.getElementById('wn-body').classList.contains('open')) renderWhatNext();
@@ -1403,6 +1415,22 @@
       '</div>' +
       '<div id="dc-' + domId + '" style="padding-left:.5rem;margin-top:.4rem">';
 
+    // Assessment question bank
+    var qList = ASSESSMENT_QUESTIONS[domId] || [];
+    if (qList.length) {
+      html += '<div class="qa-panel mb-2 no-print">' +
+        '<button class="qa-toggle" onclick="toggleQA(this,\'qa-body-'+esc(domId)+'\')">' +
+          '<i class="bi bi-question-circle me-1" style="color:var(--bs-info)"></i>C3PAO Assessor Questions (' + qList.length + ')' +
+          '<i class="bi bi-chevron-right ms-auto" style="font-size:.65rem"></i>' +
+        '</button>' +
+        '<div class="qa-body" id="qa-body-'+esc(domId)+'">' +
+          qList.map(function(q2, i) {
+            return '<div class="qa-item"><span class="qa-num">Q'+(i+1)+'.</span><span>'+esc(q2)+'</span></div>';
+          }).join('') +
+        '</div>' +
+      '</div>';
+    }
+
     pracs.forEach(function(p) {
       html += renderControlRow(domain, p, q);
     });
@@ -1419,6 +1447,9 @@
     var hasNote = !!getNote(domId, p.id);
     var owner   = getOwner(domId, p.id);
     var risk    = getRisk(domId, p.id);
+    var effort  = getEffort(domId, p.id);
+    var EFFORT_META = { sm:{cls:'effort-sm',lbl:'<8h'}, md:{cls:'effort-md',lbl:'1-5d'}, lg:{cls:'effort-lg',lbl:'1-3w'}, xl:{cls:'effort-xl',lbl:'1mo+'} };
+    var efBadge = (effort && EFFORT_META[effort]) ? '<span class="effort-badge '+EFFORT_META[effort].cls+'">'+EFFORT_META[effort].lbl+'</span>' : '';
     var isL1    = p.level1;
     var rowId   = 'cr-' + domId + '-' + p.id.replace(/\./g,'-');
     var detailId = 'cd-' + domId + '-' + p.id.replace(/\./g,'-');
@@ -1441,6 +1472,7 @@
         '<div class="c-title"><div class="c-title-inner">' + titleHtml + '</div></div>' +
         (owner ? '<span class="owner-badge" title="Owner: '+esc(owner)+'">' + esc(owner) + '</span>' : '') +
         (risk ? '<span class="risk-badge risk-'+esc(risk)+'">' + esc(risk) + '</span>' : '') +
+        efBadge +
         (hasNote ? '<span class="note-dot bi bi-pencil-fill" title="Has notes"></span>' : '') +
         statusBtnHtml(domId, p.id, status) +
         '<button class="flag-btn' + (flagged ? ' flagged' : '') + '" data-domain="'+esc(domId)+'" data-id="'+esc(p.id)+'" title="Flag for follow-up">⚑</button>' +
@@ -1460,6 +1492,7 @@
     var owner  = getOwner(domId, p.id);
     var date   = getDate(domId, p.id);
     var risk   = getRisk(domId, p.id);
+    var effort = getEffort(domId, p.id);
     var needsPoam = !p.level3 && (status === 'partial' || status === 'not-met');
     var idSlug = domId + '-' + p.id.replace(/\./g,'-');
 
@@ -1512,12 +1545,12 @@
         '<textarea class="notes-textarea" data-domain="'+esc(domId)+'" data-id="'+esc(p.id)+'" placeholder="Document implementation evidence, weaknesses, or remediation plan…" oninput="saveNoteDebounced(this)">' + esc(note) + '</textarea>' +
         '<span class="saved-flash" id="nf-'+esc(idSlug)+'"></span>' +
       '</div>' +
-      '<div class="col-md-5">' +
+      '<div class="col-md-4">' +
         '<div class="detail-label">Control Owner</div>' +
         '<input type="text" class="owner-input" data-domain="'+esc(domId)+'" data-id="'+esc(p.id)+'" value="'+esc(owner)+'" placeholder="Name or team" oninput="saveOwnerDebounced(this)">' +
       '</div>' +
-      '<div class="col-md-4">' +
-        '<div class="detail-label">Target Completion Date</div>' +
+      '<div class="col-md-3">' +
+        '<div class="detail-label">Target Date</div>' +
         '<input type="date" class="date-input" data-domain="'+esc(domId)+'" data-id="'+esc(p.id)+'" value="'+esc(date)+'" onchange="saveDateField(this)">' +
       '</div>' +
       '<div class="col-md-3">' +
@@ -1527,6 +1560,16 @@
           '<option value="high"'  + (risk==='high'   ? ' selected':'')+'>High</option>' +
           '<option value="medium"'+ (risk==='medium' ? ' selected':'')+'>Medium</option>' +
           '<option value="low"'   + (risk==='low'    ? ' selected':'')+'>Low</option>' +
+        '</select>' +
+      '</div>' +
+      '<div class="col-md-2">' +
+        '<div class="detail-label">Effort</div>' +
+        '<select class="owner-input" data-domain="'+esc(domId)+'" data-id="'+esc(p.id)+'" onchange="saveEffortField(this)" style="font-size:.78rem">' +
+          '<option value="">—</option>' +
+          '<option value="sm"'+(effort==='sm'?' selected':'')+'>Small &lt;8h</option>' +
+          '<option value="md"'+(effort==='md'?' selected':'')+'>Medium 1-5d</option>' +
+          '<option value="lg"'+(effort==='lg'?' selected':'')+'>Large 1-3w</option>' +
+          '<option value="xl"'+(effort==='xl'?' selected':'')+'>Critical 1mo+</option>' +
         '</select>' +
       '</div>' +
       '<div class="col-md-3">' +
@@ -2016,6 +2059,47 @@
     }
   }
 
+  /* ── Effort field save ──────────────────────────────────────────────── */
+  function saveEffortField(el) {
+    var dom = el.getAttribute('data-domain');
+    var id  = el.getAttribute('data-id');
+    setEffort(dom, id, el.value);
+    var idSlug = dom + '-' + id.replace(/\./g,'-');
+    var rowEl = document.getElementById('cr-' + idSlug);
+    if (rowEl) {
+      var EFFORT_META = { sm:{cls:'effort-sm',lbl:'<8h'}, md:{cls:'effort-md',lbl:'1-5d'}, lg:{cls:'effort-lg',lbl:'1-3w'}, xl:{cls:'effort-xl',lbl:'1mo+'} };
+      var existingEf = rowEl.querySelector('.effort-badge');
+      if (el.value && EFFORT_META[el.value]) {
+        if (existingEf) { existingEf.className = 'effort-badge '+EFFORT_META[el.value].cls; existingEf.textContent = EFFORT_META[el.value].lbl; }
+        else {
+          var noteEl = rowEl.querySelector('.note-dot');
+          var statusEl = rowEl.querySelector('.status-btn');
+          var ref = noteEl || statusEl;
+          if (ref) {
+            var nb = document.createElement('span');
+            nb.className = 'effort-badge ' + EFFORT_META[el.value].cls;
+            nb.textContent = EFFORT_META[el.value].lbl;
+            ref.parentNode.insertBefore(nb, ref);
+          }
+        }
+      } else if (existingEf) { existingEf.remove(); }
+    }
+    updateDashboard();
+  }
+
+  /* ── Effort calculation ──────────────────────────────────────────────── */
+  var EFFORT_HOURS = { sm: 6, md: 24, lg: 100, xl: 200 };
+  function computeEffort() {
+    var total = 0, count = 0;
+    ALL_DOMAINS.forEach(function(d) {
+      activePractices(d).forEach(function(p) {
+        var ef = getEffort(d.domain_id, p.id);
+        if (ef && EFFORT_HOURS[ef]) { total += EFFORT_HOURS[ef]; count++; }
+      });
+    });
+    return { hours: total, count: count };
+  }
+
   /* ── Bulk domain actions ─────────────────────────────────────────────── */
   function toggleBulkDropdown(domId, evt) {
     evt.stopPropagation();
@@ -2358,6 +2442,345 @@
     w.document.write('.sprs-stat-card .val{font-size:1.4rem;font-weight:800;font-family:monospace;line-height:1.1}');
     w.document.write('.sprs-stat-card .lbl{font-size:.63rem;color:#6c757d;text-transform:uppercase;letter-spacing:.07em}</style>');
     w.document.write('</head><body>' + content.innerHTML + '</body></html>');
+    w.document.close();
+    setTimeout(function(){ w.print(); }, 500);
+  }
+
+  /* ── Assessment Question Bank data ──────────────────────────────────── */
+  var ASSESSMENT_QUESTIONS = {
+    AC: [
+      'How does your organization limit system access to only authorized users, processes, and devices? Walk me through the mechanism.',
+      'Describe your account provisioning and termination process — who has authority to grant and revoke CUI access?',
+      'How is separation of duties enforced for privileged accounts and administrative functions?',
+      'What remote access policy and controls are in place? How is remote CUI access authenticated?',
+      'How does your organization handle unsuccessful logon attempts — lockout thresholds and alerting?',
+      'Describe how session lock and session termination are configured on CUI workstations.'
+    ],
+    AT: [
+      'When was security awareness training last conducted? What topics were covered, and who was required to complete it?',
+      'How do you document and track training completion records?',
+      'Describe your insider threat awareness program — what do employees learn about recognizing and reporting suspicious behavior?',
+      'How is role-based security training tailored for personnel with privileged or administrative CUI access?',
+      'Have you conducted phishing simulation exercises? What was the click rate, and what happened as a result?'
+    ],
+    AU: [
+      'What events does your organization log across CUI systems? Show me your audit policy configuration.',
+      'How long are audit logs retained, and where are they stored? Are they protected from modification?',
+      'Who reviews audit logs and how frequently? Is this a manual or automated process?',
+      'How are audit failures detected and reported — what happens when logging stops or fills up?',
+      'How do you ensure audit log integrity? Can you demonstrate that logs have not been tampered with?',
+      'How does your SIEM or log aggregation platform support detection of security events?'
+    ],
+    CM: [
+      'How does your organization establish, document, and maintain baseline configurations for CUI systems?',
+      'Walk me through your change management process — how are changes to CUI systems authorized and tested?',
+      'How do you control software installation on CUI systems? Who can install software, and how is it tracked?',
+      'Describe your hardware and software inventory process — how do you know what is on your network?',
+      'How do you enforce software whitelisting or application control on CUI endpoints?',
+      'How are non-essential programs, functions, ports, and services removed or restricted on CUI systems?'
+    ],
+    IA: [
+      'How are users and devices authenticated before accessing CUI systems? Describe the mechanism.',
+      'What are your password complexity, length, and rotation requirements? How are they enforced technically?',
+      'Describe how multi-factor authentication is implemented — which systems require MFA, and what factors are used?',
+      'How do you manage authenticator lifecycle — initial provisioning, refresh, revocation, and storage?',
+      'How are privileged accounts managed differently from standard user accounts?',
+      'What happens to authentication credentials when an employee leaves? How quickly are they revoked?'
+    ],
+    IR: [
+      'Describe your incident response plan — who is on the IR team and what are their roles?',
+      'Walk me through how you would detect and respond to a suspected exfiltration of CUI.',
+      'When was your last incident response tabletop or drill? What gaps were identified?',
+      'How and when do you report CUI-related incidents to the DoD and US-CERT/CISA?',
+      'How are incidents documented from detection through recovery and lessons-learned?',
+      'Do you have documented playbooks for specific incident types (ransomware, insider threat, phishing)?'
+    ],
+    MA: [
+      'How is maintenance on CUI systems authorized and documented? Who approves maintenance activities?',
+      'What controls are in place for remote maintenance sessions — how is access granted and audited?',
+      'How do you sanitize or remove CUI from equipment before it leaves for maintenance?',
+      'How are maintenance personnel screened if they do not have existing system access?',
+      'Describe your process for approving and logging nonlocal (remote) maintenance activities.'
+    ],
+    MP: [
+      'How does your organization identify and track all media containing CUI (USB drives, laptops, backup tapes)?',
+      'Describe your media sanitization and destruction procedures — what standard do you follow (NIST 800-88)?',
+      'What technical controls prevent unauthorized CUI transfer to removable media?',
+      'How is CUI on mobile devices protected — encryption, MDM, remote wipe?',
+      'What controls govern transport of CUI media outside your facility — approval process and tracking?'
+    ],
+    PE: [
+      'Describe physical access controls to your CUI processing areas — who can enter, and how is access controlled?',
+      'How do you control and log visitor access to areas where CUI is processed or stored?',
+      'How is physical access to CUI systems monitored — cameras, access logs, badge records?',
+      'What environmental controls protect CUI systems — fire suppression, temperature, UPS?',
+      'How do you protect CUI from individuals who may have physical access to common areas?'
+    ],
+    PS: [
+      'What personnel screening is conducted for employees and contractors who access CUI — background checks, clearances?',
+      'How do you protect CUI during personnel actions — suspension, termination, or transfer?',
+      'What is your process for immediate access revocation when a CUI-cleared employee is terminated for cause?',
+      'How do you handle personnel security agreements — NDAs, acceptable use agreements?'
+    ],
+    RA: [
+      'When was your last formal risk assessment, who conducted it, and what was the scope?',
+      'Describe your vulnerability scanning program — what tools do you use, how often do you scan, and what is covered?',
+      'How do you prioritize vulnerability remediation — what is your SLA for critical and high findings?',
+      'How does your risk assessment process drive security investments and control decisions?',
+      'How do you track open risks from assessment to remediation closure?'
+    ],
+    CA: [
+      'Describe your security control assessment program — how do you verify controls are implemented and effective?',
+      'When was your last assessment, and what was the scope? Was it conducted by internal staff or a third party?',
+      'How is your System Security Plan (SSP) maintained — who owns it, when was it last updated?',
+      'How does your Plan of Action & Milestones (POA&M) process work — how do open findings get tracked?',
+      'How do you implement and monitor your continuous monitoring strategy?',
+      'Describe how you manage and document authority to operate (ATO) or equivalent authorization decisions.'
+    ],
+    SC: [
+      'Describe your network segmentation — how are CUI systems isolated from untrusted networks and systems?',
+      'What encryption is used for CUI in transit and at rest? What standard do you follow (FIPS 140-2/3)?',
+      'How does your boundary protection work — firewalls, proxies, DLP at egress points?',
+      'Describe your remote access architecture — VPN, jump servers, zero-trust gateway?',
+      'How do you prevent unauthorized connections from CUI systems to the public internet?',
+      'How is DNS filtering or web content filtering used to protect CUI systems?'
+    ],
+    SI: [
+      'Describe your patch management program — how quickly do you patch critical vulnerabilities on CUI systems?',
+      'What anti-malware solution is deployed? How is it updated and managed? Are scans scheduled?',
+      'How do you monitor for security alerts, vendor advisories, and US-CERT/CISA notifications?',
+      'Describe your system integrity monitoring — how do you detect unauthorized changes to CUI system files?',
+      'How are security flaws tracked and remediated — what is your process from discovery to closure?',
+      'What security information and event monitoring capabilities do you have for CUI environments?'
+    ]
+  };
+
+  /* ── QA panel toggle ─────────────────────────────────────────────────── */
+  function toggleQA(btn, bodyId) {
+    var body = document.getElementById(bodyId);
+    if (!body) return;
+    var open = body.classList.contains('open');
+    body.classList.toggle('open', !open);
+    var chev = btn.querySelector('.bi-chevron-right,.bi-chevron-down');
+    if (chev) chev.className = open ? 'bi bi-chevron-right ms-auto' : 'bi bi-chevron-down ms-auto';
+  }
+
+  /* ── Radar Chart ─────────────────────────────────────────────────────── */
+  function drawRadarChart() {
+    var canvas = document.getElementById('radar-canvas');
+    if (!canvas || !canvas.getContext) return;
+    var ctx = canvas.getContext('2d');
+    var W = canvas.width, H = canvas.height, cx = W/2, cy = H/2;
+    var r = Math.min(W, H) * 0.36;
+    ctx.clearRect(0, 0, W, H);
+    var domains = ALL_DOMAINS.filter(function(d){ return activePractices(d).length > 0; });
+    var N = domains.length;
+    if (N === 0) return;
+    var step = (Math.PI * 2) / N;
+    var isDark = document.documentElement.getAttribute('data-bs-theme') !== 'light';
+    var gridColor  = isDark ? 'rgba(255,255,255,.09)' : 'rgba(0,0,0,.08)';
+    var labelColor = isDark ? 'rgba(255,255,255,.45)' : 'rgba(0,0,0,.45)';
+
+    // Rings
+    [1, 0.67, 0.33].forEach(function(s) {
+      ctx.beginPath();
+      for (var i = 0; i < N; i++) {
+        var a = step * i - Math.PI/2;
+        var x = cx + Math.cos(a) * r * s, y = cy + Math.sin(a) * r * s;
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.closePath(); ctx.strokeStyle = gridColor; ctx.lineWidth = 1; ctx.stroke();
+    });
+    // Spokes
+    for (var i = 0; i < N; i++) {
+      var a = step * i - Math.PI/2;
+      ctx.beginPath(); ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + Math.cos(a)*r, cy + Math.sin(a)*r);
+      ctx.strokeStyle = gridColor; ctx.lineWidth = 1; ctx.stroke();
+    }
+    // Data
+    var vals = domains.map(function(d) {
+      var pracs = activePractices(d), met = 0, tot = 0;
+      pracs.forEach(function(p){ var s=getStatus(d.domain_id,p.id); if(s!=='na'){tot++;if(s==='met')met++;} });
+      return tot > 0 ? met/tot : 0;
+    });
+    ctx.beginPath();
+    vals.forEach(function(v, i) {
+      var a = step * i - Math.PI/2;
+      var x = cx + Math.cos(a)*r*v, y = cy + Math.sin(a)*r*v;
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(255,88,17,.18)'; ctx.fill();
+    ctx.strokeStyle = 'rgba(255,88,17,.75)'; ctx.lineWidth = 1.5; ctx.stroke();
+    // Points + labels
+    ctx.font = 'bold 7px monospace';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    vals.forEach(function(v, i) {
+      var a = step * i - Math.PI/2;
+      var px = cx + Math.cos(a)*r*v, py = cy + Math.sin(a)*r*v;
+      ctx.beginPath(); ctx.arc(px, py, 2.5, 0, Math.PI*2);
+      ctx.fillStyle = '#ff5811'; ctx.fill();
+      var lx = cx + Math.cos(a)*(r+13), ly = cy + Math.sin(a)*(r+13);
+      ctx.fillStyle = labelColor;
+      ctx.fillText(domains[i].domain_id, lx, ly);
+    });
+  }
+
+  /* ── SSP Generator ───────────────────────────────────────────────────── */
+  var SSP_IMPL_GUIDANCE = {
+    AC: 'The organization employs role-based access controls, user account management procedures, and session management configurations to limit system access to authorized individuals, processes, and devices.',
+    AT: 'The organization delivers security awareness training to all personnel with system access annually and provides role-based training to individuals with significant security responsibilities.',
+    AU: 'The organization enables audit logging across all CUI systems, reviews logs regularly, and protects audit records from unauthorized access, modification, and deletion.',
+    CM: 'The organization maintains documented baseline configurations, controls software installation, and manages system component inventory through an established configuration management process.',
+    IA: 'The organization enforces identification and authentication requirements through technically-enforced password policies, multi-factor authentication, and authenticator lifecycle management.',
+    IR: 'The organization maintains an incident response capability that includes a documented plan, trained personnel, regular exercises, and mechanisms for reporting incidents to appropriate authorities.',
+    MA: 'The organization controls, monitors, and documents all maintenance activities on CUI systems, including vetting of maintenance personnel and sanitization of equipment prior to off-site maintenance.',
+    MP: 'The organization identifies, protects, sanitizes, and controls the disposal of all media containing CUI in accordance with documented media protection procedures.',
+    PE: 'The organization controls physical access to facilities and systems processing CUI through layered physical access controls, visitor management, and environmental protections.',
+    PS: 'The organization screens individuals prior to granting access to CUI, terminates access promptly upon departure or role change, and enforces personnel security agreements.',
+    RA: 'The organization conducts periodic risk assessments, performs vulnerability scanning on a defined schedule, and tracks findings through a formal remediation process.',
+    CA: 'The organization periodically assesses security controls, maintains a System Security Plan, tracks open findings in a Plan of Action & Milestones, and implements continuous monitoring.',
+    SC: 'The organization employs boundary protection, network segmentation, encryption of CUI in transit and at rest, and monitoring of communications at system boundaries.',
+    SI: 'The organization identifies, reports, and corrects system flaws; employs anti-malware protections; monitors systems for security alerts; and verifies system integrity.'
+  };
+
+  function renderSSP() {
+    var body = document.getElementById('ssp-body');
+    if (!body) return;
+    var profile = {};
+    try { profile = JSON.parse(lsGet('cmmc2_profile','{}')) || {}; } catch(e) {}
+    var level = parseInt(profile.level || '2', 10);
+    var sc = computeSprs();
+
+    var html = '<div id="ssp-content">';
+
+    // Cover page info
+    html += '<div class="mb-4 p-3" style="background:rgba(var(--bs-primary-rgb),.05);border:1px solid rgba(var(--bs-primary-rgb),.15);border-radius:.5rem">';
+    html += '<div class="row g-2">';
+    var fields = [
+      ['System Name', profile.system || '[System Name]'],
+      ['Organization', profile.company || '[Company Name]'],
+      ['CAGE Code', profile.cage || '[CAGE Code]'],
+      ['Assessment Level', 'CMMC Level ' + level + (level===3?' (DIBCAC)':'')],
+      ['System Owner', profile.assessor || '[Assessor / Owner Name]'],
+      ['Date Prepared', profile.date || new Date().toLocaleDateString()],
+      ['SPRS Score (Estimated)', sc.nonNa > 0 ? sc.sprs.toFixed(1) + ' / 110' : 'Not yet calculated'],
+      ['Contract Type', profile.contract || '[Prime / Sub-Contractor]']
+    ];
+    fields.forEach(function(f) {
+      html += '<div class="col-md-3 col-6"><div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--bs-secondary-color)">'+esc(f[0])+'</div><div style="font-size:.82rem;font-weight:600">'+esc(f[1])+'</div></div>';
+    });
+    html += '</div></div>';
+
+    html += '<div class="alert alert-warning py-2 mb-3" style="font-size:.78rem"><i class="bi bi-exclamation-triangle-fill me-2"></i><strong>This is an auto-generated template only.</strong> Review, customize, and have this SSP reviewed by a qualified compliance professional before submission. It does not constitute legal or regulatory advice.</div>';
+
+    // Per-domain sections
+    ALL_DOMAINS.forEach(function(domain) {
+      var pracs = activePractices(domain).filter(function(p){ return !p.level3; });
+      if (pracs.length === 0) return;
+      var domId = domain.domain_id;
+
+      var metCnt=0, naCnt=0;
+      pracs.forEach(function(p) {
+        var s = getStatus(domId, p.id);
+        if(s==='met')metCnt++;else if(s==='na')naCnt++;
+      });
+      var assessed = pracs.length - naCnt;
+      var pct = assessed > 0 ? Math.round(metCnt/assessed*100) : 0;
+      var statusColor = pct>=100?'#198754':pct>=50?'#ffc107':pct>0?'#fd7e14':'#6c757d';
+
+      html += '<div class="ssp-domain-block">';
+      html += '<div class="ssp-domain-head d-flex align-items-center gap-2">';
+      html += '<span class="ctrl-id">'+esc(domId)+'</span>';
+      html += '<span>'+esc(domain.domain_name)+'</span>';
+      html += '<span class="ms-auto" style="font-size:.7rem;color:'+statusColor+';font-family:monospace;font-weight:700">'+metCnt+'/'+assessed+' met ('+pct+'%)</span>';
+      html += '</div>';
+
+      // Policy statement
+      html += '<div class="ssp-ctrl-row" style="background:rgba(var(--bs-primary-rgb),.03)">';
+      html += '<div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--bs-primary);margin-bottom:.3rem">Implementation Summary</div>';
+      html += '<div style="font-size:.8rem;font-style:italic;color:var(--bs-secondary-color)">'+esc(SSP_IMPL_GUIDANCE[domId]||'Implementation details are documented below per control.')+'</div>';
+      html += '</div>';
+
+      // Per-control rows
+      pracs.forEach(function(p) {
+        var s = getStatus(domId, p.id);
+        var sm = STATUS_META[s] || STATUS_META['not-assessed'];
+        var note = getNote(domId, p.id);
+        var owner = getOwner(domId, p.id);
+        var date = getDate(domId, p.id);
+        var risk = getRisk(domId, p.id);
+
+        html += '<div class="ssp-ctrl-row">';
+        html += '<div class="d-flex align-items-center gap-2 mb-1 flex-wrap">';
+        html += '<span class="ctrl-id'+(p.level1?' ctrl-id-l1':'')+'" style="font-size:.7rem">'+esc(domId+' '+p.id)+'</span>';
+        html += '<span class="status-btn '+sm.cls+' no-cycle" style="font-size:.72rem">'+esc(sm.short+' '+s.replace(/-/g,' '))+'</span>';
+        if(risk) html += '<span class="risk-badge risk-'+risk+'">'+risk+' risk</span>';
+        if(owner) html += '<span class="owner-badge">'+esc(owner)+'</span>';
+        if(date)  html += '<span style="font-size:.65rem;color:var(--bs-secondary-color);font-family:monospace">'+esc(date)+'</span>';
+        html += '</div>';
+        html += '<div style="font-size:.77rem;color:var(--bs-secondary-color);margin-bottom:.3rem;font-style:italic">'+esc(p.title)+'</div>';
+        if (note) {
+          html += '<div style="font-size:.78rem;color:var(--bs-body-color)">';
+          html += '<span style="font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--bs-primary)">Implementation Statement: </span>';
+          html += esc(note);
+          html += '</div>';
+        } else {
+          html += '<div style="font-size:.75rem;color:var(--bs-secondary-color);font-style:italic">';
+          html += '[Implementation statement not documented. Add notes to this control to populate this section.]';
+          html += '</div>';
+        }
+        html += '</div>';
+      });
+
+      // L3 practices if level 3
+      if (level === 3) {
+        var l3pracs = domain.practices.filter(function(p){ return p.level3; });
+        if (l3pracs.length) {
+          html += '<div class="ssp-ctrl-row" style="background:rgba(111,66,193,.05)">';
+          html += '<div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#a98eda;margin-bottom:.3rem">Level 3 Enhanced Requirements (NIST SP 800-172 / DIBCAC)</div>';
+          l3pracs.forEach(function(p) {
+            var s = getStatus(domId, p.id);
+            var sm = STATUS_META[s] || STATUS_META['not-assessed'];
+            var note = getNote(domId, p.id);
+            html += '<div style="margin-bottom:.5rem;padding:.4rem .6rem;border:1px solid rgba(111,66,193,.2);border-radius:.3rem">';
+            html += '<div style="font-size:.7rem;font-family:monospace;font-weight:700;color:#a98eda;margin-bottom:.2rem">'+esc(domId+' '+p.id)+' <span class="status-btn '+sm.cls+' no-cycle" style="font-size:.65rem">'+esc(sm.short)+'</span></div>';
+            html += '<div style="font-size:.75rem;color:var(--bs-secondary-color);font-style:italic;margin-bottom:.2rem">'+esc(p.title.slice(0,80))+'&#8230;</div>';
+            if (note) html += '<div style="font-size:.75rem">'+esc(note)+'</div>';
+            html += '</div>';
+          });
+          html += '</div>';
+        }
+      }
+
+      html += '</div>';
+    });
+
+    html += '</div>'; // ssp-content
+    body.innerHTML = html;
+  }
+
+  function printSSP() {
+    var content = document.getElementById('ssp-content');
+    if (!content) return;
+    var profile = {};
+    try { profile = JSON.parse(lsGet('cmmc2_profile','{}')) || {}; } catch(e) {}
+    var w = window.open('', '_blank');
+    w.document.write('<!DOCTYPE html><html><head><title>SSP — '+(profile.company||'')+'</title>');
+    w.document.write('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">');
+    w.document.write('<style>body{font-family:system-ui,sans-serif;font-size:.85rem;padding:2rem;background:#fff;color:#212529}');
+    w.document.write('.ssp-domain-block{margin-bottom:1.5rem;border:1px solid #dee2e6;border-radius:.4rem;overflow:hidden;page-break-inside:avoid}');
+    w.document.write('.ssp-domain-head{background:#f8f9fa;padding:.65rem 1rem;font-size:.82rem;font-weight:700;border-bottom:1px solid #dee2e6}');
+    w.document.write('.ssp-ctrl-row{padding:.5rem 1rem;border-bottom:1px solid #f0f0f0}');
+    w.document.write('.ctrl-id{font-size:.74rem;font-weight:700;font-family:monospace;padding:2px 7px;border-radius:4px;background:#f0f0f0;color:#555}');
+    w.document.write('.ctrl-id-l1{background:#fff3cd;color:#856404}');
+    w.document.write('.status-btn{padding:2px 8px;border-radius:5px;font-size:.72rem;border:none;font-weight:600}');
+    w.document.write('.s-met{color:#198754;background:rgba(25,135,84,.1)}.s-partial{color:#856404;background:rgba(255,193,7,.15)}.s-not-met{color:#dc3545;background:rgba(220,53,69,.1)}.s-planned{color:#0d6efd;background:rgba(13,110,253,.1)}.s-not-assessed{color:#6c757d}');
+    w.document.write('.risk-badge{font-size:.62rem;font-weight:700;text-transform:uppercase;padding:1px 6px;border-radius:10px}.risk-high{background:rgba(220,53,69,.1);color:#dc3545}.risk-medium{background:rgba(253,126,20,.1);color:#fd7e14}.risk-low{background:rgba(255,193,7,.1);color:#856404}');
+    w.document.write('.owner-badge{font-size:.65rem;color:#0d6efd;background:rgba(13,110,253,.08);border:1px solid rgba(13,110,253,.2);padding:1px 7px;border-radius:20px}');
+    w.document.write('@media print{.ssp-domain-block{page-break-inside:avoid}}</style>');
+    w.document.write('</head><body>'+content.innerHTML+'</body></html>');
     w.document.close();
     setTimeout(function(){ w.print(); }, 500);
   }
