@@ -1,0 +1,2796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' blob:; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; img-src 'self' https://cdn.jsdelivr.net data: blob:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self' https://cdn.jsdelivr.net blob:; worker-src blob:; object-src 'none'; base-uri 'self';">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../theme.css" />
+  <title>CMMC 2.0 Readiness Assessment Platform | Jessica Rojas</title>
+  <meta name="description" content="Production-grade CMMC 2.0 readiness assessment tool for DoD contractors. Track all 110 NIST 800-171 Rev 2 practices, calculate SPRS score, generate POA&M, and export to Excel. Level 1 (17 practices) and Level 2 (110 practices) supported." />
+  <style>
+    /* ── Control ID badge ── */
+    .ctrl-id { font-size:.76rem; font-weight:700; font-family:monospace; padding:2px 8px; border-radius:4px; background:rgba(var(--bs-primary-rgb),.15); color:var(--bs-primary); white-space:nowrap; flex-shrink:0; }
+    .ctrl-id-l1 { background:rgba(255,193,7,.18); color:#ffc107; }
+
+    /* ── Domain/PA header ── */
+    .domain-header {
+      background: var(--bs-secondary-bg);
+      border: 1px solid var(--bs-border-color);
+      border-left: 3px solid var(--bs-primary);
+      border-radius: .5rem;
+      padding: .9rem 1.2rem;
+      cursor: pointer;
+      user-select: none;
+      transition: border-color .2s, box-shadow .2s;
+      position: relative;
+    }
+    .domain-header:hover { border-color: rgba(255,88,17,.5); box-shadow: 0 4px 16px rgba(0,0,0,.3); }
+    .domain-header .d-chevron { transition: transform .25s; font-size:.85rem; color:var(--bs-secondary-color); }
+    .domain-header[aria-expanded="true"] .d-chevron { transform: rotate(90deg); }
+    .domain-name { font-size:.94rem; font-weight:700; }
+
+    /* ── Control row ── */
+    .control-row {
+      border: 1px solid var(--bs-border-color);
+      border-radius: .4rem;
+      margin-bottom: .3rem;
+      overflow: hidden;
+      transition: border-color .2s;
+    }
+    .control-row:hover { border-color: rgba(255,88,17,.35); }
+    .control-trigger {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      padding: .6rem .9rem;
+      cursor: pointer;
+      background: var(--bs-body-bg);
+      transition: background .15s;
+    }
+    .control-trigger:hover { background: rgba(var(--bs-primary-rgb),.04); }
+    .control-trigger[aria-expanded="true"] { background: rgba(var(--bs-primary-rgb),.07); }
+    .control-trigger[aria-expanded="true"] .c-chevron { transform: rotate(90deg); }
+    .c-chevron { transition: transform .2s; font-size:.75rem; color:var(--bs-secondary-color); flex-shrink:0; }
+    .c-title { font-size:.82rem; color:var(--bs-body-color); flex:1; min-width:0; }
+    .c-title-inner { display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; }
+
+    /* ── Control expanded detail ── */
+    .control-detail { display:none; padding:1rem 1.1rem; background:rgba(var(--bs-secondary-bg-rgb,32,37,41),0.6); border-top:1px solid var(--bs-border-color); }
+    .control-detail.open { display:block; }
+    .detail-label { font-size:.67rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--bs-primary); margin-bottom:.3rem; }
+    .detail-statement { font-size:.87rem; font-style:italic; line-height:1.65; margin-bottom:1rem; color:var(--bs-body-color); }
+
+    /* ── Status buttons ── */
+    .status-btn {
+      flex-shrink:0; border:none; background:none; cursor:pointer;
+      padding:3px 7px; border-radius:5px; font-size:.8rem; line-height:1;
+      transition:opacity .15s, background .15s; white-space:nowrap;
+    }
+    .status-btn:hover { opacity:.75; }
+    .s-not-assessed { color:var(--bs-secondary-color); opacity:.5; }
+    .s-met          { color:#198754; background:rgba(25,135,84,.12); }
+    .s-partial      { color:#ffc107; background:rgba(255,193,7,.12); }
+    .s-not-met      { color:#dc3545; background:rgba(220,53,69,.12); }
+    .s-planned      { color:#0dcaf0; background:rgba(13,202,240,.12); }
+    .s-na           { color:var(--bs-secondary-color); opacity:.45; }
+
+    /* ── Flag button ── */
+    .flag-btn { flex-shrink:0; border:none; background:none; cursor:pointer; padding:2px 5px; font-size:.82rem; line-height:1; color:var(--bs-secondary-color); opacity:.3; transition:opacity .15s,color .15s; }
+    .flag-btn:hover { opacity:.8; }
+    .flag-btn.flagged { color:#ffc107; opacity:1; }
+
+    /* ── Note indicator ── */
+    .note-dot { font-size:.65rem; color:var(--bs-primary); opacity:.8; flex-shrink:0; }
+
+    /* ── Objectives list ── */
+    .obj-list { list-style:none; padding:0; margin:0; }
+    .obj-list li { font-size:.8rem; color:var(--bs-secondary-color); padding:.28rem 0 .28rem .9rem; border-left:2px solid rgba(var(--bs-primary-rgb),.2); margin-bottom:.25rem; line-height:1.55; }
+    .obj-id { font-family:monospace; font-size:.72rem; color:var(--bs-primary); margin-right:.4rem; }
+
+    /* ── Filter bar ── */
+    .filter-bar { background:var(--bs-secondary-bg); border:1px solid var(--bs-border-color); border-radius:.5rem; padding:.9rem 1.1rem; margin-bottom:1rem; }
+
+    /* ── SPRS Dashboard ── */
+    #sprs-dashboard {
+      background: var(--bs-secondary-bg);
+      border: 1px solid var(--bs-border-color);
+      border-radius: .5rem;
+      padding: .9rem 1.1rem;
+      margin-bottom: 1rem;
+    }
+    .sprs-score-num { font-size:3.2rem; font-weight:900; font-family:monospace; line-height:1; font-variant-numeric:tabular-nums; }
+    .sprs-green  { color:#198754; }
+    .sprs-yellow { color:#ffc107; }
+    .sprs-orange { color:#fd7e14; }
+    .sprs-red    { color:#dc3545; }
+
+    /* ── Domain mini bars ── */
+    .domain-mini-row { display:flex; align-items:center; gap:.5rem; margin-bottom:.2rem; }
+    .domain-mini-abbr { font-size:.65rem; font-weight:700; font-family:monospace; width:28px; flex-shrink:0; color:var(--bs-secondary-color); }
+    .domain-mini-bar-wrap { flex:1; height:5px; background:rgba(128,128,128,.15); border-radius:3px; overflow:hidden; }
+    .domain-mini-bar-fill { height:100%; border-radius:3px; transition:width .4s; }
+    .domain-mini-frac { font-size:.62rem; font-family:monospace; color:var(--bs-secondary-color); white-space:nowrap; width:38px; text-align:right; flex-shrink:0; }
+
+    /* ── Status distribution bar ── */
+    .status-dist-bar { display:flex; height:8px; border-radius:4px; overflow:hidden; margin:.3rem 0; background:rgba(128,128,128,.12); }
+    .sdb-met      { background:#198754; transition:width .5s; min-width:0; }
+    .sdb-partial  { background:#ffc107; transition:width .5s; min-width:0; }
+    .sdb-notmet   { background:#dc3545; transition:width .5s; min-width:0; }
+    .sdb-planned  { background:#0dcaf0; transition:width .5s; min-width:0; }
+    .sdb-na       { background:rgba(108,117,125,.35); transition:width .5s; min-width:0; }
+    .sdb-legend   { display:flex; gap:.7rem; font-size:.65rem; color:var(--bs-secondary-color); flex-wrap:wrap; margin-bottom:.4rem; }
+    .sdb-dot      { width:7px; height:7px; border-radius:50%; display:inline-block; flex-shrink:0; vertical-align:middle; margin-right:2px; }
+
+    /* ── Gate badges ── */
+    .gate-badge { display:inline-flex; align-items:center; gap:.3rem; padding:4px 11px; border-radius:20px; font-size:.72rem; font-weight:700; border:1px solid; }
+    .gate-ready   { color:#75b798; border-color:rgba(25,135,84,.45); background:rgba(25,135,84,.1); }
+    .gate-partial { color:#ffc107; border-color:rgba(255,193,7,.45); background:rgba(255,193,7,.1); }
+    .gate-fail    { color:#dc3545; border-color:rgba(220,53,69,.45); background:rgba(220,53,69,.1); }
+    .gate-pending { color:var(--bs-secondary-color); border-color:var(--bs-border-color); background:transparent; }
+
+    /* ── Jump navigation ── */
+    #jump-nav {
+      position:sticky; top:56px; z-index:100;
+      background:var(--bs-body-bg); border-bottom:1px solid var(--bs-border-color);
+      padding:.4rem 0; margin-bottom:.75rem;
+    }
+    .jump-nav-inner { display:flex; gap:.3rem; overflow-x:auto; padding:.1rem .25rem; scrollbar-width:thin; }
+    .jump-nav-inner::-webkit-scrollbar { height:3px; }
+    .jump-nav-inner::-webkit-scrollbar-thumb { background:rgba(255,88,17,.3); border-radius:2px; }
+    .jump-pill {
+      display:inline-flex; align-items:center; gap:.25rem;
+      padding:3px 9px; border-radius:20px;
+      font-size:.68rem; font-weight:700; font-family:monospace;
+      border:1px solid var(--bs-border-color); background:var(--bs-secondary-bg);
+      color:var(--bs-body-color); cursor:pointer; white-space:nowrap;
+      transition:border-color .15s,background .15s; text-decoration:none;
+    }
+    .jump-pill:hover { border-color:rgba(255,88,17,.5); background:rgba(var(--bs-primary-rgb),.08); color:var(--bs-body-color); }
+    .jp-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+    .jp-pct { font-size:.6rem; font-weight:400; }
+
+    /* ── Profile panel ── */
+    #profile-panel { background:var(--bs-secondary-bg); border:1px solid var(--bs-border-color); border-radius:.5rem; margin-bottom:1rem; overflow:hidden; }
+    #profile-summary-bar { background:rgba(var(--bs-primary-rgb),.08); border-bottom:1px solid var(--bs-border-color); padding:.45rem 1rem; font-size:.75rem; cursor:pointer; display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; }
+    #profile-summary-bar:hover { background:rgba(var(--bs-primary-rgb),.13); }
+    .profile-form { padding:1rem 1.1rem; }
+    .profile-input { width:100%; border-radius:.3rem; border:1px solid var(--bs-border-color); background:var(--bs-body-bg); color:var(--bs-body-color); padding:.35rem .65rem; font-size:.82rem; font-family:inherit; transition:border-color .2s; }
+    .profile-input:focus { outline:none; border-color:rgba(255,88,17,.5); }
+
+    /* ── Evidence panel ── */
+    .evidence-panel { margin-top:.75rem; border:1px solid var(--bs-border-color); border-left:3px solid rgba(255,193,7,.5); border-radius:.4rem; overflow:hidden; }
+    .ev-toggle-btn { width:100%; padding:.5rem 1rem; background:rgba(255,193,7,.06); border:none; cursor:pointer; display:flex; align-items:center; gap:.5rem; font-size:.73rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--bs-secondary-color); text-align:left; transition:background .15s; }
+    .ev-toggle-btn:hover { background:rgba(255,193,7,.12); }
+    .ev-body { display:none; padding:.85rem 1rem; }
+    .ev-body.open { display:block; }
+    .ev-item { display:flex; align-items:flex-start; gap:.5rem; margin-bottom:.3rem; font-size:.79rem; color:var(--bs-secondary-color); }
+    .ev-item input[type=checkbox] { flex-shrink:0; margin-top:.15rem; accent-color:var(--bs-primary); cursor:pointer; }
+
+    /* ── Notes / owner / date ── */
+    .notes-textarea { width:100%; border-radius:.35rem; border:1px solid var(--bs-border-color); background:var(--bs-body-bg); color:var(--bs-body-color); padding:.5rem .75rem; font-size:.8rem; resize:vertical; min-height:64px; font-family:inherit; transition:border-color .2s; }
+    .notes-textarea:focus { outline:none; border-color:rgba(255,88,17,.5); }
+    .owner-input, .date-input, .milestone-input { width:100%; border-radius:.3rem; border:1px solid var(--bs-border-color); background:var(--bs-body-bg); color:var(--bs-body-color); padding:.33rem .6rem; font-size:.8rem; font-family:inherit; transition:border-color .2s; }
+    .owner-input:focus, .date-input:focus, .milestone-input:focus { outline:none; border-color:rgba(255,88,17,.5); }
+    .saved-flash { font-size:.63rem; color:var(--bs-success); opacity:0; transition:opacity .4s; margin-left:.4rem; }
+    .saved-flash.show { opacity:1; }
+
+    /* ── POA&M indicator ── */
+    .poam-indicator { display:inline-flex; align-items:center; gap:.3rem; padding:2px 8px; border-radius:12px; font-size:.67rem; font-weight:700; background:rgba(220,53,69,.12); color:#dc3545; border:1px solid rgba(220,53,69,.3); margin-top:.5rem; }
+
+    /* ── Section heading ── */
+    .cmmc-sh { font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--bs-secondary-color); border-bottom:1px solid var(--bs-border-color); padding-bottom:.5rem; margin-bottom:1.1rem; position:relative; }
+    .cmmc-sh::after { content:''; position:absolute; bottom:-1px; left:0; width:36px; height:1px; background:var(--bs-primary); box-shadow:0 0 8px rgba(255,88,17,.5); }
+
+    /* ── POA&M table view ── */
+    #poam-panel { display:none; }
+    #poam-panel.open { display:block; }
+    .poam-table { font-size:.78rem; }
+    .poam-table td, .poam-table th { vertical-align:middle; padding:.45rem .6rem; }
+    .poam-table input { background:var(--bs-body-bg); border:1px solid var(--bs-border-color); border-radius:.25rem; color:var(--bs-body-color); padding:.2rem .4rem; font-size:.76rem; width:100%; }
+    .poam-table input:focus { outline:none; border-color:rgba(255,88,17,.5); }
+
+    /* ── Stat numbers ── */
+    .cmmc-stat-num { font-size:1.8rem; font-weight:800; color:var(--bs-primary); line-height:1; font-variant-numeric:tabular-nums; }
+    .cmmc-stat-lbl { font-size:.7rem; color:var(--bs-secondary-color); text-transform:uppercase; letter-spacing:.08em; }
+
+    /* ── Consulting CTA section ── */
+    .cta-section { background: linear-gradient(135deg, rgba(var(--bs-primary-rgb),.08) 0%, rgba(var(--bs-primary-rgb),.03) 100%); border: 1px solid rgba(var(--bs-primary-rgb),.2); border-radius:.75rem; padding:2.5rem; }
+    .service-card { background:var(--bs-secondary-bg); border:1px solid var(--bs-border-color); border-radius:.5rem; padding:1.5rem; height:100%; transition:border-color .2s, box-shadow .2s, transform .2s; }
+    .service-card:hover { border-color:rgba(255,88,17,.45); box-shadow:0 6px 20px rgba(0,0,0,.3); transform:translateY(-3px); }
+    .service-icon { font-size:2rem; color:var(--bs-primary); margin-bottom:.75rem; display:block; }
+
+    /* ── PA progress fraction ── */
+    .pa-progress-frac { font-size:.7rem; font-family:monospace; color:var(--bs-secondary-color); font-weight:600; padding:1px 7px; border-radius:10px; border:1px solid var(--bs-border-color); background:var(--bs-body-bg); white-space:nowrap; }
+    .frac-done { color:#75b798; border-color:rgba(25,135,84,.4); }
+    .frac-partial { color:#ffc107; border-color:rgba(255,193,7,.4); }
+
+    /* ── Owner / Due badges in row ── */
+    .owner-badge { font-size:.6rem; color:var(--bs-info); background:rgba(13,202,240,.1); border:1px solid rgba(13,202,240,.25); padding:1px 6px; border-radius:20px; white-space:nowrap; max-width:100px; overflow:hidden; text-overflow:ellipsis; flex-shrink:0; }
+
+    /* ── Search highlight ── */
+    mark { background:rgba(255,193,7,.35); color:inherit; padding:0 1px; border-radius:2px; }
+
+    /* ── Obj count badge ── */
+    .obj-count { font-size:.6rem; color:var(--bs-secondary-color); background:var(--bs-body-bg); border:1px solid var(--bs-border-color); padding:1px 5px; border-radius:10px; flex-shrink:0; font-family:monospace; }
+
+    /* ── No-results ── */
+    #no-results { display:none; padding:2.5rem; text-align:center; color:var(--bs-secondary-color); }
+
+    /* ── Print ── */
+    @media print {
+      #mainNav, footer, .filter-bar, .no-print, #jump-nav, #sprs-dashboard, #profile-panel { display:none !important; }
+      .control-detail { display:block !important; }
+    }
+
+    /* ── Readiness % bar ── */
+    .readiness-pct-bar { height:10px; border-radius:5px; }
+
+    /* ── Overview stat card ── */
+    .sprs-stat-card { background:var(--bs-body-bg); border:1px solid var(--bs-border-color); border-radius:.4rem; padding:.65rem .85rem; text-align:center; }
+    .sprs-stat-card .val { font-size:1.4rem; font-weight:800; font-family:monospace; line-height:1.1; }
+    .sprs-stat-card .lbl { font-size:.63rem; color:var(--bs-secondary-color); text-transform:uppercase; letter-spacing:.07em; }
+
+    /* ── Heat map ── */
+    #heat-map-panel { background:var(--bs-secondary-bg); border:1px solid var(--bs-border-color); border-radius:.5rem; margin-bottom:.75rem; }
+    .hm-toggle { width:100%; padding:.55rem 1rem; background:rgba(var(--bs-primary-rgb),.06); border:none; cursor:pointer; display:flex; align-items:center; gap:.5rem; font-size:.73rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--bs-secondary-color); text-align:left; transition:background .15s; border-radius:.5rem; }
+    .hm-toggle:hover { background:rgba(var(--bs-primary-rgb),.12); }
+    .hm-body { display:none; padding:.85rem 1rem; }
+    .hm-body.open { display:block; }
+    .hm-domain { margin-bottom:.9rem; }
+    .hm-domain-label { font-size:.65rem; font-weight:700; font-family:monospace; color:var(--bs-secondary-color); margin-bottom:.35rem; letter-spacing:.05em; }
+    .hm-grid { display:flex; flex-wrap:wrap; gap:3px; }
+    .hm-cell { width:14px; height:14px; border-radius:2px; cursor:pointer; transition:transform .12s,box-shadow .12s; position:relative; flex-shrink:0; }
+    .hm-cell:hover { transform:scale(1.5); box-shadow:0 2px 8px rgba(0,0,0,.5); z-index:10; }
+    .hm-cell-ns      { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1); }
+    .hm-cell-met     { background:#198754; }
+    .hm-cell-partial { background:#ffc107; }
+    .hm-cell-notmet  { background:#dc3545; }
+    .hm-cell-planned { background:#0dcaf0; }
+    .hm-cell-na      { background:rgba(108,117,125,.2); border:1px solid rgba(108,117,125,.15); }
+    .hm-legend { display:flex; gap:.9rem; flex-wrap:wrap; margin-top:.6rem; }
+    .hm-leg-item { display:flex; align-items:center; gap:.3rem; font-size:.65rem; color:var(--bs-secondary-color); }
+    .hm-leg-dot { width:10px; height:10px; border-radius:2px; flex-shrink:0; }
+
+    /* ── What's Next panel ── */
+    #whatsnext-panel { background:var(--bs-secondary-bg); border:1px solid var(--bs-border-color); border-left:3px solid var(--bs-primary); border-radius:.5rem; margin-bottom:.75rem; }
+    .wn-toggle { width:100%; padding:.55rem 1rem; background:rgba(var(--bs-primary-rgb),.06); border:none; cursor:pointer; display:flex; align-items:center; gap:.5rem; font-size:.73rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--bs-secondary-color); text-align:left; transition:background .15s; }
+    .wn-toggle:hover { background:rgba(var(--bs-primary-rgb),.12); }
+    .wn-body { display:none; padding:.75rem 1rem; }
+    .wn-body.open { display:block; }
+    .wn-item { display:flex; align-items:center; gap:.6rem; padding:.45rem .75rem; border-radius:.4rem; margin-bottom:.3rem; background:var(--bs-body-bg); border:1px solid var(--bs-border-color); cursor:pointer; transition:border-color .15s; font-size:.8rem; }
+    .wn-item:hover { border-color:rgba(255,88,17,.45); background:rgba(var(--bs-primary-rgb),.04); }
+    .wn-priority { font-size:.58rem; font-weight:800; text-transform:uppercase; letter-spacing:.1em; padding:2px 7px; border-radius:10px; flex-shrink:0; white-space:nowrap; }
+    .wn-p-critical { background:rgba(220,53,69,.15); color:#dc3545; }
+    .wn-p-high     { background:rgba(253,126,20,.15); color:#fd7e14; }
+    .wn-p-medium   { background:rgba(255,193,7,.15); color:#ffc107; }
+    .wn-p-info     { background:rgba(13,202,240,.1);  color:#0dcaf0; }
+
+    /* ── Risk rating ── */
+    .risk-badge { font-size:.58rem; font-weight:800; text-transform:uppercase; padding:1px 6px; border-radius:10px; flex-shrink:0; letter-spacing:.05em; white-space:nowrap; }
+    .risk-high   { background:rgba(220,53,69,.15);  color:#dc3545; border:1px solid rgba(220,53,69,.3); }
+    .risk-medium { background:rgba(253,126,20,.15); color:#fd7e14; border:1px solid rgba(253,126,20,.3); }
+    .risk-low    { background:rgba(255,193,7,.15);  color:#ffc107; border:1px solid rgba(255,193,7,.3); }
+
+    /* ── Bulk domain action button ── */
+    .domain-bulk-wrap { position:relative; flex-shrink:0; margin-left:auto; }
+    .domain-bulk-btn { border:none; background:none; cursor:pointer; padding:3px 9px; border-radius:4px; font-size:.75rem; color:var(--bs-secondary-color); transition:color .15s,background .15s; }
+    .domain-bulk-btn:hover { color:var(--bs-body-color); background:rgba(128,128,128,.12); }
+    .bulk-dropdown { position:absolute; right:0; top:110%; background:var(--bs-secondary-bg); border:1px solid var(--bs-border-color); border-radius:.4rem; padding:.3rem 0; min-width:175px; z-index:300; box-shadow:0 8px 24px rgba(0,0,0,.45); display:none; }
+    .bulk-dropdown.open { display:block; }
+    .bulk-dd-item { display:block; width:100%; padding:.38rem .9rem; background:none; border:none; color:var(--bs-body-color); font-size:.78rem; cursor:pointer; text-align:left; transition:background .1s; white-space:nowrap; }
+    .bulk-dd-item:hover { background:rgba(var(--bs-primary-rgb),.1); }
+    .bulk-dd-sep { margin:.25rem 0; border-color:var(--bs-border-color); }
+
+    /* ── Snapshot history ── */
+    .snapshot-item { background:var(--bs-body-bg); border:1px solid var(--bs-border-color); border-radius:.4rem; padding:.65rem .9rem; margin-bottom:.4rem; display:flex; align-items:center; gap:1rem; flex-wrap:wrap; }
+    .snapshot-label { font-size:.82rem; font-weight:700; flex:1; min-width:100px; }
+    .snapshot-date { font-size:.66rem; color:var(--bs-secondary-color); font-family:monospace; }
+    .snapshot-score { font-size:1.3rem; font-weight:800; font-family:monospace; color:var(--bs-primary); flex-shrink:0; }
+    .snap-del-btn { border:none; background:none; cursor:pointer; color:var(--bs-secondary-color); font-size:.85rem; padding:2px 7px; border-radius:3px; flex-shrink:0; transition:color .15s; line-height:1; }
+    .snap-del-btn:hover { color:#dc3545; }
+
+    /* ── Executive summary ── */
+    .exec-section-head { font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--bs-primary); border-bottom:1px solid var(--bs-border-color); padding-bottom:.4rem; margin:1.1rem 0 .65rem; }
+    .exec-domain-row { display:flex; align-items:center; gap:.5rem; padding:.22rem 0; font-size:.78rem; border-bottom:1px solid rgba(128,128,128,.08); }
+    .exec-domain-bar { flex:1; height:5px; background:rgba(128,128,128,.15); border-radius:3px; overflow:hidden; }
+    .exec-domain-bar-fill { height:100%; border-radius:3px; transition:width .4s; }
+    /* ── L3 enhanced badge ── */
+    .ctrl-id-l3 { background:rgba(111,66,193,.2); color:#a98eda; }
+    .l3-gate-banner { background:rgba(111,66,193,.08); border:1px solid rgba(111,66,193,.3); border-radius:.4rem; padding:.55rem .85rem; font-size:.77rem; margin-top:.75rem; }
+
+    /* ── Radar chart ── */
+    #radar-canvas { image-rendering:crisp-edges; }
+
+    /* ── Effort badge ── */
+    .effort-badge { font-size:.58rem; font-weight:800; text-transform:uppercase; padding:1px 6px; border-radius:10px; flex-shrink:0; letter-spacing:.05em; white-space:nowrap; }
+    .effort-sm { background:rgba(25,135,84,.12);  color:#75b798;  border:1px solid rgba(25,135,84,.3); }
+    .effort-md { background:rgba(255,193,7,.12);  color:#ffc107;  border:1px solid rgba(255,193,7,.3); }
+    .effort-lg { background:rgba(253,126,20,.12); color:#fd7e14;  border:1px solid rgba(253,126,20,.3); }
+    .effort-xl { background:rgba(220,53,69,.12);  color:#dc3545;  border:1px solid rgba(220,53,69,.3); }
+
+    /* ── Assessment question bank ── */
+    .qa-panel { margin-bottom:.5rem; border:1px solid var(--bs-border-color); border-left:3px solid rgba(13,202,240,.4); border-radius:.4rem; overflow:hidden; }
+    .qa-toggle { width:100%; padding:.42rem .9rem; background:rgba(13,202,240,.05); border:none; cursor:pointer; display:flex; align-items:center; gap:.5rem; font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--bs-secondary-color); text-align:left; transition:background .15s; }
+    .qa-toggle:hover { background:rgba(13,202,240,.1); }
+    .qa-body { display:none; padding:.7rem 1rem; }
+    .qa-body.open { display:block; }
+    .qa-item { display:flex; gap:.6rem; margin-bottom:.5rem; font-size:.8rem; color:var(--bs-body-color); line-height:1.55; }
+    .qa-num { font-size:.68rem; font-weight:700; color:var(--bs-info); flex-shrink:0; font-family:monospace; min-width:22px; padding-top:.1rem; }
+
+    /* ── SSP generator ── */
+    .ssp-domain-block { margin-bottom:1.2rem; border:1px solid var(--bs-border-color); border-radius:.4rem; overflow:hidden; }
+    .ssp-domain-head  { background:rgba(var(--bs-primary-rgb),.06); padding:.65rem 1rem; font-size:.82rem; font-weight:700; border-bottom:1px solid var(--bs-border-color); }
+    .ssp-ctrl-row     { padding:.5rem 1rem; border-bottom:1px solid rgba(128,128,128,.07); }
+    .ssp-ctrl-row:last-child { border-bottom:none; }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="../index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="../about.html">About</a></li>
+          <li class="nav-item"><a class="nav-link active" href="../projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="../resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="../timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="../cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="../consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="../services.html">Services</a></li>
+          <li class="nav-item"><a class="nav-link" href="../contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="../blog.html">Blog</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="../compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="../jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" id="nav-dataanalysis-link" style="display:none"><a class="nav-link" href="../dataanalysis.html">Data Analysis</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="../admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content">
+
+    <!-- ── Hero ── -->
+    <section class="py-5 reveal">
+      <div class="container">
+        <div class="d-flex align-items-start gap-3 flex-wrap">
+          <div>
+            <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+              <span class="badge bg-primary px-3 py-2">CMMC 2.0</span>
+              <span class="badge bg-secondary px-3 py-2">NIST 800-171 Rev 2</span>
+              <span class="badge bg-warning text-dark px-3 py-2">SPRS Score Calculator</span>
+              <span class="badge bg-info text-dark px-3 py-2">DoD Contractors</span>
+              <span class="badge px-3 py-2" style="background:rgba(111,66,193,.25);color:#c9b8f0;border:1px solid rgba(111,66,193,.4)">Level 3 — NIST 800-172</span>
+            </div>
+            <h1 class="section-title mb-2">CMMC 2.0 Readiness Assessment Platform</h1>
+            <p class="text-secondary mb-0" style="max-width:820px">
+              The most complete free CMMC 2.0 readiness tool available. Assess all 110 NIST SP 800-171 Rev 2 practices across 14 domains, calculate your official SPRS score, build a POA&amp;M, and export to Excel. Now includes <strong>Level 3 support</strong> — all 24 enhanced NIST SP 800-172 practices for DIBCAC assessment preparation. Designed for DoD prime contractors, sub-contractors, and their consultants. All data stays in your browser.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Stats Bar ── -->
+    <section class="py-3 border-top border-bottom reveal">
+      <div class="container">
+        <div class="d-flex flex-wrap gap-4 align-items-center">
+          <div class="text-center">
+            <div class="cmmc-stat-num" id="stat-domains">14</div>
+            <div class="cmmc-stat-lbl">Domains</div>
+          </div>
+          <div class="text-center">
+            <div class="cmmc-stat-num" id="stat-practices">110</div>
+            <div class="cmmc-stat-lbl" id="stat-practices-lbl">Practices (L2)</div>
+          </div>
+          <div class="text-center">
+            <div class="cmmc-stat-num">17</div>
+            <div class="cmmc-stat-lbl">L1 Practices</div>
+          </div>
+          <div class="text-center" id="stat-l3-block" style="display:none">
+            <div class="cmmc-stat-num" style="color:#a98eda">24</div>
+            <div class="cmmc-stat-lbl">L3 Enhanced</div>
+          </div>
+          <div class="text-center">
+            <div class="cmmc-stat-num" id="stat-assessed">0</div>
+            <div class="cmmc-stat-lbl">Assessed</div>
+          </div>
+          <div class="vr d-none d-md-block"></div>
+          <div class="d-flex flex-wrap gap-2">
+            <span class="badge text-bg-success fs-6 fw-normal px-3 py-2">32 CFR Part 170</span>
+            <span class="badge text-bg-secondary fs-6 fw-normal px-3 py-2">DFARS 252.204-7021</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Main Assessment ── -->
+    <section class="py-4 reveal" id="assessment-section">
+      <div class="container">
+
+        <!-- Loading spinner -->
+        <div id="loading-spinner" class="text-center py-5">
+          <div class="spinner-border text-primary mb-3" role="status"><span class="visually-hidden">Loading…</span></div>
+          <p class="text-secondary small">Loading CMMC practice data…</p>
+        </div>
+
+        <!-- Error state -->
+        <div id="load-error" style="display:none" class="alert alert-danger">
+          <strong>Failed to load practice data.</strong> Please ensure <code>cmmc_l1_data.json</code> and <code>cmmc_l2_data.json</code> are accessible. <button class="btn btn-sm btn-danger ms-2" onclick="loadData()">Retry</button>
+        </div>
+
+        <!-- Main content (hidden until loaded) -->
+        <div id="main-loaded" style="display:none">
+
+          <!-- ── Company Profile Panel ── -->
+          <div id="profile-panel" class="no-print">
+            <div id="profile-summary-bar" onclick="toggleProfile()" aria-expanded="false" aria-controls="profile-form-body">
+              <span class="bi bi-building me-1" style="color:var(--bs-primary)"></span>
+              <strong style="font-size:.75rem;color:var(--bs-primary)">Company Profile</strong>
+              <span class="bi bi-chevron-right ms-1" id="profile-chevron" style="font-size:.7rem;transition:transform .2s;color:var(--bs-secondary-color)"></span>
+              <span id="profile-summary-text" class="ms-2 text-secondary" style="font-size:.73rem">Click to set company info &amp; assessment level</span>
+              <span class="ms-auto badge bg-primary" id="profile-level-badge">Level 2 — 110 Practices</span>
+            </div>
+            <div id="profile-form-body" class="profile-form" style="display:none">
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold mb-1">Company Name</label>
+                  <input type="text" class="profile-input" id="p-company" placeholder="Acme Defense Solutions, LLC">
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label small fw-semibold mb-1">CAGE Code</label>
+                  <input type="text" class="profile-input" id="p-cage" placeholder="1A2B3" maxlength="10">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label small fw-semibold mb-1">Contract Type</label>
+                  <select class="profile-input" id="p-contract">
+                    <option value="">Select…</option>
+                    <option value="prime">DoD Prime Contractor</option>
+                    <option value="sub">Sub-Contractor</option>
+                    <option value="both">Both</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label small fw-semibold mb-1">Assessment Level</label>
+                  <select class="profile-input" id="p-level">
+                    <option value="2">Level 2 — All 110 Practices</option>
+                    <option value="1">Level 1 — 17 Practices (FAR basic)</option>
+                    <option value="3">Level 3 — 134 Practices (DIBCAC)</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold mb-1">System / Enclave Name</label>
+                  <input type="text" class="profile-input" id="p-system" placeholder="CUI Processing Environment">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label small fw-semibold mb-1">Assessment Date</label>
+                  <input type="date" class="profile-input" id="p-date">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label small fw-semibold mb-1">Assessor Name</label>
+                  <input type="text" class="profile-input" id="p-assessor" placeholder="Jane Smith">
+                </div>
+                <div class="col-12">
+                  <button class="btn btn-primary btn-sm" onclick="saveProfile()">Save Profile</button>
+                  <span class="saved-flash ms-2" id="profile-saved">Saved ✓</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Filter Bar ── -->
+          <div class="filter-bar no-print">
+            <div class="row g-2 align-items-end mb-2">
+              <div class="col-12 col-sm-6 col-md-3">
+                <label class="form-label small fw-semibold mb-1">Search <kbd class="ms-1" style="font-size:.6rem">/</kbd></label>
+                <input type="search" class="form-control form-control-sm" id="search-input" placeholder="Control ID, title, objective keyword…">
+              </div>
+              <div class="col-6 col-sm-3 col-md-2">
+                <label class="form-label small fw-semibold mb-1">Domain</label>
+                <select class="form-select form-select-sm" id="filter-domain">
+                  <option value="">All Domains</option>
+                </select>
+              </div>
+              <div class="col-6 col-sm-3 col-md-2">
+                <label class="form-label small fw-semibold mb-1">Status</label>
+                <select class="form-select form-select-sm" id="filter-status">
+                  <option value="">All Statuses</option>
+                  <option value="met">Met ✓</option>
+                  <option value="partial">Partial ◐</option>
+                  <option value="not-met">Not Implemented ✗</option>
+                  <option value="planned">Planned →</option>
+                  <option value="na">N/A —</option>
+                  <option value="not-assessed">Not Assessed ○</option>
+                  <option value="notes">Has Notes ✏</option>
+                  <option value="flagged">Flagged ⚑</option>
+                  <option value="risk-high">Risk: High 🔴</option>
+                  <option value="risk-medium">Risk: Medium 🟠</option>
+                  <option value="risk-low">Risk: Low 🟡</option>
+                </select>
+              </div>
+              <div class="col-6 col-sm-3 col-md-2">
+                <label class="form-label small fw-semibold mb-1">View</label>
+                <select class="form-select form-select-sm" id="filter-view">
+                  <option value="all">Full Accordion</option>
+                  <option value="poam">POA&amp;M View</option>
+                </select>
+              </div>
+              <div class="col-12 col-sm-6 col-md-3 d-flex align-items-end gap-1 flex-wrap">
+                <button class="btn btn-sm btn-outline-secondary" id="btn-expand-all" title="Expand all domains">Expand All</button>
+                <button class="btn btn-sm btn-outline-secondary" id="btn-collapse-all" title="Collapse all">Collapse</button>
+                <button class="btn btn-sm btn-outline-success" id="btn-export-excel" title="Export to Excel (3 sheets)"><i class="bi bi-file-earmark-spreadsheet"></i></button>
+                <button class="btn btn-sm btn-outline-danger" id="btn-reset-all" title="Reset all assessment data">Reset</button>
+                <span class="text-secondary small ms-auto align-self-center" id="visible-count"></span>
+              </div>
+            </div>
+            <div class="d-flex align-items-center gap-2 flex-wrap pt-1" style="border-top:1px solid var(--bs-border-color)">
+              <span class="small text-secondary fw-semibold" style="font-size:.71rem;white-space:nowrap">Tools:</span>
+              <button class="btn btn-sm btn-outline-info" id="btn-export-json" style="font-size:.71rem;padding:2px 8px"><i class="bi bi-download me-1"></i>Export JSON</button>
+              <label class="btn btn-sm btn-outline-info" style="font-size:.71rem;padding:2px 8px;cursor:pointer;margin:0">
+                <i class="bi bi-upload me-1"></i>Import JSON
+                <input type="file" id="import-json-input" accept=".json" style="display:none">
+              </label>
+              <button class="btn btn-sm btn-outline-secondary" style="font-size:.71rem;padding:2px 8px" data-bs-toggle="modal" data-bs-target="#sspModal" onclick="renderSSP()"><i class="bi bi-file-text me-1"></i>SSP</button>
+              <button class="btn btn-sm btn-outline-warning" style="font-size:.71rem;padding:2px 8px" data-bs-toggle="modal" data-bs-target="#snapshotModal" onclick="renderSnapshotList()"><i class="bi bi-clock-history me-1"></i>Snapshots</button>
+              <button class="btn btn-sm btn-outline-info" style="font-size:.71rem;padding:2px 8px" data-bs-toggle="modal" data-bs-target="#execSummaryModal" onclick="renderExecSummary()"><i class="bi bi-file-earmark-bar-graph me-1"></i>Exec Summary</button>
+              <button class="btn btn-sm btn-outline-secondary ms-auto" title="Keyboard shortcuts ?" data-bs-toggle="modal" data-bs-target="#shortcutsModal"><kbd style="font-size:.68rem;pointer-events:none">?</kbd></button>
+            </div>
+          </div>
+
+          <!-- ── SPRS Score Dashboard ── -->
+          <div id="sprs-dashboard" class="no-print">
+            <div class="row g-3 align-items-start">
+
+              <!-- SPRS Score -->
+              <div class="col-12 col-md-3 text-center">
+                <div class="sprs-score-num sprs-red" id="sprs-score-display">—</div>
+                <div style="font-size:.7rem;color:var(--bs-secondary-color);margin-top:.2rem">/ 110</div>
+                <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--bs-secondary-color);margin-top:.1rem">Estimated SPRS Score</div>
+                <div style="font-size:.63rem;margin-top:.4rem">
+                  <a href="https://www.sprs.csd.disa.mil" target="_blank" rel="noopener" class="text-secondary text-decoration-none" title="Submit official score at DISA SPRS">Submit at DISA SPRS <i class="bi bi-box-arrow-up-right" style="font-size:.55rem"></i></a>
+                </div>
+                <div class="mt-2 d-flex justify-content-center gap-1 flex-wrap" id="gate-badges">
+                  <span class="gate-badge gate-pending" id="gate-l1"><i class="bi bi-circle me-1"></i>L1 Gate</span>
+                  <span class="gate-badge gate-pending" id="gate-poam"><i class="bi bi-circle me-1"></i>POA&amp;M: 0</span>
+                  <span class="gate-badge gate-pending" id="gate-l3" style="display:none"><i class="bi bi-circle me-1"></i>L3: 0/24</span>
+                </div>
+                <div id="l3-dibcac-banner" class="l3-gate-banner" style="display:none">
+                  <i class="bi bi-shield-shaded me-1" style="color:#a98eda"></i>
+                  <strong style="color:#a98eda">CMMC Level 3</strong>
+                  <span class="text-secondary"> — Requires government-led assessment by </span>
+                  <strong>DIBCAC</strong>
+                  <span class="text-secondary">. SPRS score reflects Level 2 controls only.</span>
+                  <span class="ms-2 badge" style="background:rgba(111,66,193,.2);color:#a98eda;font-size:.65rem" id="l3-enhanced-stat">0 / 24 L3 Enhanced</span>
+                </div>
+              </div>
+
+              <!-- Overview stats -->
+              <div class="col-12 col-md-3">
+                <div class="row g-1 mb-2">
+                  <div class="col-6"><div class="sprs-stat-card"><div class="val text-success" id="stat-met">0</div><div class="lbl">Met</div></div></div>
+                  <div class="col-6"><div class="sprs-stat-card"><div class="val text-warning" id="stat-partial">0</div><div class="lbl">Partial</div></div></div>
+                  <div class="col-6"><div class="sprs-stat-card"><div class="val text-danger" id="stat-notmet">0</div><div class="lbl">Not Met</div></div></div>
+                  <div class="col-6"><div class="sprs-stat-card"><div class="val text-info" id="stat-planned">0</div><div class="lbl">Planned</div></div></div>
+                </div>
+                <!-- Effort stat -->
+                <div class="d-flex align-items-center gap-2 mt-2 pt-2" style="border-top:1px solid var(--bs-border-color)">
+                  <span style="font-size:.65rem;color:var(--bs-secondary-color);text-transform:uppercase;letter-spacing:.08em">Est. Effort</span>
+                  <span id="stat-effort" class="fw-bold" style="font-size:1rem;font-family:monospace;color:var(--bs-primary)">—</span>
+                  <span style="font-size:.65rem;color:var(--bs-secondary-color)" id="stat-effort-lbl">across 0 rated controls</span>
+                </div>
+                <!-- Overall readiness bar -->
+                <div style="font-size:.67rem;color:var(--bs-secondary-color);margin-bottom:.2rem">Overall Readiness <span id="readiness-pct-text" class="fw-bold text-body">0%</span></div>
+                <div class="progress readiness-pct-bar" role="progressbar">
+                  <div class="progress-bar bg-success" id="readiness-bar" style="width:0%;transition:width .4s"></div>
+                </div>
+                <!-- Status dist bar -->
+                <div class="status-dist-bar mt-2" id="status-dist-bar">
+                  <div class="sdb-met"     id="sdb-met"     style="width:0%"></div>
+                  <div class="sdb-partial" id="sdb-partial" style="width:0%"></div>
+                  <div class="sdb-planned" id="sdb-planned" style="width:0%"></div>
+                  <div class="sdb-notmet"  id="sdb-notmet"  style="width:0%"></div>
+                  <div class="sdb-na"      id="sdb-na-bar"  style="width:0%"></div>
+                </div>
+                <div class="sdb-legend">
+                  <span><span class="sdb-dot" style="background:#198754"></span>Met</span>
+                  <span><span class="sdb-dot" style="background:#ffc107"></span>Partial</span>
+                  <span><span class="sdb-dot" style="background:#0dcaf0"></span>Planned</span>
+                  <span><span class="sdb-dot" style="background:#dc3545"></span>Not Met</span>
+                  <span><span class="sdb-dot" style="background:rgba(108,117,125,.5)"></span>N/A</span>
+                </div>
+              </div>
+
+              <!-- Domain progress: radar + mini bars -->
+              <div class="col-12 col-md-6">
+                <div class="row g-0">
+                  <div class="col-auto d-flex align-items-center justify-content-center pe-3">
+                    <div>
+                      <div style="font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--bs-secondary-color);margin-bottom:.3rem;text-align:center">Radar</div>
+                      <canvas id="radar-canvas" width="160" height="160" style="display:block;max-width:160px"></canvas>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div style="font-size:.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--bs-secondary-color);margin-bottom:.5rem">Domain Progress</div>
+                    <div id="domain-mini-bars" style="columns:2;column-gap:1rem;"></div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- ── Jump Navigation ── -->
+          <div id="jump-nav" class="no-print">
+            <div class="container px-0">
+              <div class="jump-nav-inner" id="jump-nav-inner" role="navigation" aria-label="Jump to domain"></div>
+            </div>
+          </div>
+
+          <!-- ── Heat Map Panel ── -->
+          <div id="heat-map-panel" class="no-print">
+            <button class="hm-toggle" onclick="toggleHeatMap(this)">
+              <i class="bi bi-grid-3x3-gap me-1" style="color:var(--bs-primary)"></i>Status Heat Map
+              <span class="badge bg-secondary ms-1" id="hm-badge" style="font-size:.6rem"></span>
+              <i class="bi bi-chevron-right ms-auto" style="font-size:.65rem;transition:transform .2s" id="hm-chevron"></i>
+            </button>
+            <div class="hm-body" id="hm-body">
+              <div id="hm-grid-container"></div>
+              <div class="hm-legend">
+                <div class="hm-leg-item"><div class="hm-leg-dot" style="background:#198754"></div>Met</div>
+                <div class="hm-leg-item"><div class="hm-leg-dot" style="background:#ffc107"></div>Partial</div>
+                <div class="hm-leg-item"><div class="hm-leg-dot" style="background:#dc3545"></div>Not Met</div>
+                <div class="hm-leg-item"><div class="hm-leg-dot" style="background:#0dcaf0"></div>Planned</div>
+                <div class="hm-leg-item"><div class="hm-leg-dot" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1)"></div>Not Assessed</div>
+                <div class="hm-leg-item"><div class="hm-leg-dot" style="background:rgba(108,117,125,.2)"></div>N/A</div>
+              </div>
+              <div class="mt-2 text-secondary" style="font-size:.65rem">Each cell = 1 practice. Hover for control ID &amp; title. Click to jump to that control.</div>
+            </div>
+          </div>
+
+          <!-- ── What's Next Panel ── -->
+          <div id="whatsnext-panel" class="no-print">
+            <button class="wn-toggle" onclick="toggleWhatNext(this)">
+              <i class="bi bi-lightbulb me-1" style="color:var(--bs-primary)"></i>What's Next — Priority Actions
+              <span class="badge bg-primary ms-1" id="wn-count-badge" style="font-size:.6rem">0</span>
+              <i class="bi bi-chevron-right ms-auto" style="font-size:.65rem;transition:transform .2s" id="wn-chevron"></i>
+            </button>
+            <div class="wn-body" id="wn-body">
+              <div id="wn-items-container">
+                <p class="text-secondary small mb-0">Complete your assessment to see priority recommendations.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── POA&M Panel ── -->
+          <div id="poam-panel" class="mb-3 no-print">
+            <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
+              <h2 class="cmmc-sh mb-0" style="flex:1">Plan of Action &amp; Milestones (POA&amp;M)</h2>
+              <button class="btn btn-sm btn-outline-success" id="btn-export-poam-excel"><i class="bi bi-file-earmark-spreadsheet me-1"></i>Export POA&amp;M</button>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-sm table-hover poam-table" id="poam-table">
+                <thead>
+                  <tr class="table-secondary">
+                    <th style="width:100px">Control ID</th>
+                    <th>Title</th>
+                    <th style="width:90px">Status</th>
+                    <th style="width:130px">Owner</th>
+                    <th style="width:110px">Target Date</th>
+                    <th>Notes / Weakness</th>
+                    <th>Milestone</th>
+                  </tr>
+                </thead>
+                <tbody id="poam-tbody"></tbody>
+              </table>
+              <p id="poam-empty" class="text-secondary text-center py-3" style="display:none">No controls require a POA&amp;M. All controls are either Met, N/A, or Not Assessed.</p>
+            </div>
+          </div>
+
+          <!-- ── Domain Accordion ── -->
+          <div id="domain-container">
+            <p class="text-secondary text-center py-4">Rendering practices…</p>
+          </div>
+          <div id="no-results">
+            <i class="bi bi-search fs-2 d-block mb-2"></i>
+            No practices match your filters. <button class="btn btn-sm btn-link" onclick="clearFilters()">Clear filters</button>
+          </div>
+
+        </div><!-- /main-loaded -->
+      </div>
+    </section>
+
+    <!-- ── Consulting CTA ── -->
+    <section class="py-5 border-top reveal" id="cta-section">
+      <div class="container">
+        <div class="cta-section">
+          <div class="text-center mb-4">
+            <span class="badge bg-primary px-3 py-2 mb-2">Expert Guidance Available</span>
+            <h2 class="fw-bold mb-2">Your CMMC journey doesn't have to be a solo mission</h2>
+            <p class="text-secondary mb-0" style="max-width:620px;margin:0 auto">DoD contract eligibility under DFARS 252.204-7021 depends on achieving your CMMC certification. A verified SPRS score of 110 is the gold standard — let's get you there.</p>
+          </div>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="service-card">
+                <i class="bi bi-clipboard2-pulse service-icon"></i>
+                <h3 class="h6 fw-bold mb-2">Gap Assessment</h3>
+                <p class="text-secondary small mb-3">We conduct a thorough review of your current security posture against all 110 NIST 800-171 Rev 2 practices. You receive a prioritized gap report, root-cause analysis, and a realistic SPRS baseline score — in 5 business days.</p>
+                <a href="../consultant.html" class="btn btn-outline-primary btn-sm">Book a Consultation</a>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="service-card">
+                <i class="bi bi-journal-check service-icon"></i>
+                <h3 class="h6 fw-bold mb-2">POA&amp;M Development</h3>
+                <p class="text-secondary small mb-3">A well-structured Plan of Action &amp; Milestones isn't just a compliance artifact — it's your roadmap to certification. We build a DFARS-compliant POA&amp;M with measurable milestones, resource estimates, and risk ratings ready for submission.</p>
+                <a href="../consultant.html" class="btn btn-outline-primary btn-sm">Book a Consultation</a>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="service-card">
+                <i class="bi bi-shield-check service-icon"></i>
+                <h3 class="h6 fw-bold mb-2">SPRS Submission Support</h3>
+                <p class="text-secondary small mb-3">We prepare and validate your official self-assessment score, help you navigate the DISA SPRS portal, and ensure your System Security Plan accurately reflects your implemented controls — so your score stands up to scrutiny during a C3PAO audit.</p>
+                <a href="../consultant.html" class="btn btn-outline-primary btn-sm">Book a Consultation</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Resources Section ── -->
+    <section class="py-4 border-top reveal">
+      <div class="container">
+        <h2 class="cmmc-sh">Related Resources</h2>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <a href="../cmmi/index.html" class="text-decoration-none">
+              <div class="card h-100 border" style="transition:border-color .2s,box-shadow .2s" onmouseover="this.style.borderColor='rgba(255,88,17,.45)';this.style.boxShadow='0 0 16px rgba(255,88,17,.15)'" onmouseout="this.style.borderColor='';this.style.boxShadow=''">
+                <div class="card-body">
+                  <div class="d-flex gap-2 mb-2"><span class="badge bg-warning text-dark">CMMI v2.0</span><span class="badge bg-secondary">ML2+ML3</span></div>
+                  <div class="fw-bold small mb-1">CMMI v2.0 Practice Reference</div>
+                  <p class="text-secondary" style="font-size:.78rem;margin:0">Every practice area, practice group, and practice statement with elaboration and compliance examples.</p>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="col-md-4">
+            <a href="../compliancetracker.html" class="text-decoration-none">
+              <div class="card h-100 border" style="transition:border-color .2s,box-shadow .2s" onmouseover="this.style.borderColor='rgba(255,88,17,.45)';this.style.boxShadow='0 0 16px rgba(255,88,17,.15)'" onmouseout="this.style.borderColor='';this.style.boxShadow=''">
+                <div class="card-body">
+                  <div class="d-flex gap-2 mb-2"><span class="badge bg-primary">Interactive</span><span class="badge bg-secondary">CMMC / NIST</span></div>
+                  <div class="fw-bold small mb-1">CMMC / NIST Compliance Tracker</div>
+                  <p class="text-secondary" style="font-size:.78rem;margin:0">Track compliance status with SSP preview, POA&amp;M, pie chart dashboard, and evidence linking.</p>
+                </div>
+              </div>
+            </a>
+          </div>
+          <div class="col-md-4">
+            <a href="../isms/index.html" class="text-decoration-none">
+              <div class="card h-100 border" style="transition:border-color .2s,box-shadow .2s" onmouseover="this.style.borderColor='rgba(255,88,17,.45)';this.style.boxShadow='0 0 16px rgba(255,88,17,.15)'" onmouseout="this.style.borderColor='';this.style.boxShadow=''">
+                <div class="card-body">
+                  <div class="d-flex gap-2 mb-2"><span class="badge bg-warning text-dark">Doc Library</span><span class="badge bg-secondary">ISO 27001</span></div>
+                  <div class="fw-bold small mb-1">ISO 27001 ISMS Library</div>
+                  <p class="text-secondary" style="font-size:.78rem;margin:0">Audit-ready ISO/IEC 27001:2022 policies, procedures, and templates — 42 documents.</p>
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── Keyboard Shortcuts Modal ── -->
+  <div class="modal fade" id="shortcutsModal" tabindex="-1" aria-labelledby="shortcutsModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:420px">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-6 fw-bold" id="shortcutsModalLabel">Keyboard Shortcuts</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0">
+          <table class="table table-sm mb-0" style="font-size:.83rem">
+            <tbody>
+              <tr><td style="width:80px"><kbd>/</kbd></td><td>Focus search input</td></tr>
+              <tr><td><kbd>Esc</kbd></td><td>Clear search &amp; blur</td></tr>
+              <tr><td><kbd>?</kbd></td><td>Show this shortcuts reference</td></tr>
+              <tr><td><kbd>E</kbd></td><td>Expand all domains</td></tr>
+              <tr><td><kbd>C</kbd></td><td>Collapse all domains</td></tr>
+              <tr><td><kbd>P</kbd></td><td>Toggle POA&amp;M view</td></tr>
+              <tr><td><kbd>H</kbd></td><td>Toggle Status Heat Map</td></tr>
+              <tr><td><kbd>W</kbd></td><td>Toggle What's Next panel</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RBAC Login Modal -->
+  <div class="modal" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="rbacModalLabel">&#128274; Login</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body"><!-- roles.js injects login form here --></div>
+        <div class="modal-footer border-0 pt-0">
+          <p class="text-secondary small mb-0">Session clears when you close this tab.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" />
+      </a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" />
+      </a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="../privacy.html">Privacy Policy</a> &middot; <a href="../terms.html">Terms</a></p>
+  </footer>
+
+  <!-- bot-trap -->
+  <div aria-hidden="true" style="position:absolute;left:-99999px;top:auto;width:1px;height:1px;overflow:hidden">
+    <a href="../honeypot.html" tabindex="-1">cmmc-assessment-legacy-export</a>
+  </div>
+
+  <!-- ── SSP Generator Modal ── -->
+  <div class="modal fade" id="sspModal" tabindex="-1" aria-labelledby="sspModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-6 fw-bold" id="sspModalLabel"><i class="bi bi-file-text me-2"></i>System Security Plan (SSP) — Generated Template</h2>
+          <button type="button" class="btn btn-sm btn-outline-secondary me-2" onclick="printSSP()"><i class="bi bi-printer me-1"></i>Print / Export</button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0" id="ssp-body" style="max-height:78vh;overflow-y:auto;padding:1.25rem !important"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Snapshot History Modal ── -->
+  <div class="modal fade" id="snapshotModal" tabindex="-1" aria-labelledby="snapshotModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-6 fw-bold" id="snapshotModalLabel"><i class="bi bi-clock-history me-2"></i>Assessment Snapshots</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-secondary small mb-3">Save named snapshots of your SPRS score and domain progress. Compare snapshots to track improvement over time. Up to 20 snapshots are stored.</p>
+          <div class="d-flex gap-2 mb-3">
+            <input type="text" class="form-control form-control-sm" id="snapshot-label-input" placeholder="Snapshot name (e.g. Initial Gap Assessment, Post-Remediation Q1)">
+            <button class="btn btn-sm btn-primary text-nowrap" onclick="saveSnapshot()"><i class="bi bi-save me-1"></i>Save</button>
+          </div>
+          <div id="snapshot-list">
+            <p class="text-secondary text-center py-3 mb-0">No snapshots saved yet.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Executive Summary Modal ── -->
+  <div class="modal fade" id="execSummaryModal" tabindex="-1" aria-labelledby="execSummaryModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-6 fw-bold" id="execSummaryModalLabel"><i class="bi bi-file-earmark-bar-graph me-2"></i>Executive Assessment Summary</h2>
+          <button type="button" class="btn btn-sm btn-outline-secondary me-2" onclick="printExecSummary()"><i class="bi bi-printer me-1"></i>Print / Save PDF</button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="exec-summary-body" style="max-height:75vh;overflow-y:auto"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmyQWuGmUhSBQOVCp7p5pT1gkTJ" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <script src="../users.js" defer></script>
+  <script src="../roles.js" defer></script>
+  <script src="../script.js" defer></script>
+  <script src="../analytics.js" defer></script>
+  <script src="../siteSearch.js" defer></script>
+
+  <script>
+  /* ══════════════════════════════════════════════════════════════════════════
+     CMMC 2.0 Readiness Assessment Platform
+     Features: SPRS Score, POA&M, Excel Export, JSON Save/Restore,
+               Status Cycling, Evidence Artifacts, Keyboard Shortcuts,
+               Domain Jump Nav, Company Profile, Full Filter Suite
+  ══════════════════════════════════════════════════════════════════════════ */
+
+  /* ── L1 control IDs ──────────────────────────────────────────────────── */
+  var L1_IDS = {
+    'AC':  ['3.1.1','3.1.2','3.1.20','3.1.22'],
+    'IA':  ['3.5.1','3.5.2'],
+    'MP':  ['3.8.3'],
+    'PE':  ['3.10.1','3.10.3','3.10.4','3.10.5'],
+    'SC':  ['3.13.1','3.13.5'],
+    'SI':  ['3.14.1','3.14.2','3.14.4','3.14.5']
+  };
+  var L1_SET = {};
+  Object.keys(L1_IDS).forEach(function(dom) {
+    L1_IDS[dom].forEach(function(id) { L1_SET[dom + '_' + id] = true; });
+  });
+
+  /* ── Evidence artifacts per domain ──────────────────────────────────── */
+  var EVIDENCE = {
+    AC: ["Access control policy","Account management procedures","User access list/roster","Remote access policy and configuration","Session timeout configuration","MFA configuration documentation"],
+    AT: ["Security awareness training policy","Training completion records","Insider threat training documentation","Annual training schedule"],
+    AU: ["Audit policy","Audit log configuration screenshots","Log review procedures","SIEM/log management tool evidence","Audit failure alerting configuration"],
+    CM: ["System inventory (hardware and software)","Baseline configuration documents","Change management policy and procedures","Software whitelist/blacklist","Configuration scan results"],
+    IA: ["Identification and authentication policy","Password policy","MFA implementation evidence","Account management procedures","Inactive account review records"],
+    IR: ["Incident response plan","Incident tracking/ticketing records","IR testing records and lessons learned","Incident reporting contacts and procedures"],
+    MA: ["Maintenance policy","Scheduled maintenance records","Maintenance personnel authorization list","Media sanitization records for maintenance","Nonlocal maintenance authorization procedures"],
+    MP: ["Media protection policy","CUI media inventory","Media sanitization/destruction records","Media transport procedures and logs","Removable media policy and controls"],
+    PE: ["Physical access policy","Visitor access logs","Physical access control system records","Physical access device inventory","Alternate work site security measures"],
+    PS: ["Personnel security policy","Background check documentation","Onboarding/offboarding procedures","Role-based access change records"],
+    RA: ["Risk assessment report","Vulnerability scan results","Vulnerability remediation tracking","Risk management strategy document"],
+    CA: ["System security plan (SSP)","Security assessment plan and report","Plan of action and milestones (POA&M)","Continuous monitoring strategy"],
+    SC: ["Network diagram with CUI boundary","Firewall rules and configuration","Encryption policy and configuration","Boundary protection architecture document","FIPS 140-2/140-3 cryptography evidence"],
+    SI: ["Patch management policy and records","Anti-malware configuration and scan logs","Security alert subscriptions/feeds","Flaw remediation tracking","System monitoring procedures and logs"]
+  };
+
+  /* ── Domain full names ───────────────────────────────────────────────── */
+  var DOMAIN_NAMES = {
+    AC:'Access Control', AT:'Awareness & Training', AU:'Audit & Accountability',
+    CM:'Configuration Management', IA:'Identification & Authentication',
+    IR:'Incident Response', MA:'Maintenance', MP:'Media Protection',
+    PE:'Physical Protection', PS:'Personnel Security', RA:'Risk Assessment',
+    CA:'Security Assessment', SC:'System & Comm. Protection', SI:'System & Info. Integrity'
+  };
+
+  /* ── Status config ───────────────────────────────────────────────────── */
+  var STATUS_ORDER = ['not-assessed','met','partial','not-met','planned','na'];
+  var STATUS_META = {
+    'not-assessed': { label:'○ Not Assessed', short:'○', cls:'s-not-assessed', points:0 },
+    'met':          { label:'✓ Met',           short:'✓', cls:'s-met',          points:1.0 },
+    'partial':      { label:'◐ Partial',       short:'◐', cls:'s-partial',      points:0.5 },
+    'not-met':      { label:'✗ Not Met',        short:'✗', cls:'s-not-met',      points:0 },
+    'planned':      { label:'→ Planned',        short:'→', cls:'s-planned',      points:0.25 },
+    'na':           { label:'— N/A',            short:'—', cls:'s-na',           points:0 }
+  };
+
+  /* ── Global state ────────────────────────────────────────────────────── */
+  var ALL_DOMAINS = [];   // [{domain_id, domain_name, practices:[{id,title,objectives,level1,level3}]}]
+  var _filterDomain = '';
+  var _filterStatus = '';
+  var _filterSearch = '';
+  var _assessLevel  = 2;  // 1, 2, or 3
+  var _viewMode     = 'all'; // 'all' or 'poam'
+
+  /* ── localStorage helpers ────────────────────────────────────────────── */
+  function lsGet(k, def) { try { var v = localStorage.getItem(k); return v === null ? def : v; } catch(e) { return def; } }
+  function lsSet(k, v)   { try { localStorage.setItem(k, v); } catch(e) {} }
+  function lsRemove(k)   { try { localStorage.removeItem(k); } catch(e) {} }
+
+  function getStatus(domain, id) { return lsGet('cmmc2_s_'+domain+'_'+id, 'not-assessed'); }
+  function setStatus(domain, id, val) { lsSet('cmmc2_s_'+domain+'_'+id, val); }
+  function getNote(domain, id)   { return lsGet('cmmc2_n_'+domain+'_'+id, ''); }
+  function setNote(domain, id, v){ lsSet('cmmc2_n_'+domain+'_'+id, v); }
+  function getOwner(domain, id)  { return lsGet('cmmc2_o_'+domain+'_'+id, ''); }
+  function setOwner(domain, id, v){ lsSet('cmmc2_o_'+domain+'_'+id, v); }
+  function getDate(domain, id)   { return lsGet('cmmc2_d_'+domain+'_'+id, ''); }
+  function setDate(domain, id, v){ lsSet('cmmc2_d_'+domain+'_'+id, v); }
+  function getFlag(domain, id)   { return lsGet('cmmc2_f_'+domain+'_'+id, '') === '1'; }
+  function setFlag(domain, id, v){ lsSet('cmmc2_f_'+domain+'_'+id, v ? '1' : ''); }
+  function getMilestone(domain, id){ return lsGet('cmmc2_m_'+domain+'_'+id, ''); }
+  function setMilestone(domain, id, v){ lsSet('cmmc2_m_'+domain+'_'+id, v); }
+  function getEvidence(domain, idx){ return lsGet('cmmc2_ev_'+domain+'_'+idx, '') === '1'; }
+  function setEvidence(domain, idx, v){ lsSet('cmmc2_ev_'+domain+'_'+idx, v ? '1' : ''); }
+  function getRisk(domain, id)   { return lsGet('cmmc2_r_'+domain+'_'+id, ''); }
+  function setRisk(domain, id, v){ lsSet('cmmc2_r_'+domain+'_'+id, v || ''); }
+  function getEffort(domain, id)   { return lsGet('cmmc2_ef_'+domain+'_'+id, ''); }
+  function setEffort(domain, id, v){ lsSet('cmmc2_ef_'+domain+'_'+id, v || ''); }
+
+  /* ── Data loading ────────────────────────────────────────────────────── */
+  function loadData() {
+    document.getElementById('loading-spinner').style.display = '';
+    document.getElementById('load-error').style.display = 'none';
+    document.getElementById('main-loaded').style.display = 'none';
+
+    Promise.all([
+      fetch('../cmmc_l2_data.json').then(function(r){ if(!r.ok) throw new Error('L2 fetch failed'); return r.json(); }),
+      fetch('../cmmc_l1_data.json').then(function(r){ if(!r.ok) throw new Error('L1 fetch failed'); return r.json(); }),
+      fetch('../cmmc_l3_data.json').then(function(r){ if(!r.ok) throw new Error('L3 fetch failed'); return r.json(); })
+    ]).then(function(results) {
+      var l2 = results[0];
+      var l3 = results[2];
+      // Mark L1 practices
+      l2.forEach(function(domain) {
+        domain.practices.forEach(function(p) {
+          p.level1 = !!L1_SET[domain.domain_id + '_' + p.id];
+          p.level3 = false;
+        });
+      });
+      // Merge L3 enhanced practices into existing domain blocks
+      var l2DomainMap = {};
+      l2.forEach(function(d){ l2DomainMap[d.domain_id] = d; });
+      l3.forEach(function(l3dom) {
+        var target = l2DomainMap[l3dom.domain_id];
+        if (!target) return;
+        l3dom.practices.forEach(function(p) {
+          p.level1 = false;
+          p.level3 = true;
+          target.practices.push(p);
+        });
+      });
+      ALL_DOMAINS = l2;
+      document.getElementById('loading-spinner').style.display = 'none';
+      document.getElementById('main-loaded').style.display = '';
+      init();
+    }).catch(function(err) {
+      console.error('CMMC data load error:', err);
+      document.getElementById('loading-spinner').style.display = 'none';
+      document.getElementById('load-error').style.display = '';
+    });
+  }
+
+  /* ── Init ────────────────────────────────────────────────────────────── */
+  function init() {
+    loadProfile();
+    buildDomainFilter();
+    buildJumpNav();
+    render();
+    bindEvents();
+  }
+
+  /* ── Profile ─────────────────────────────────────────────────────────── */
+  function loadProfile() {
+    try {
+      var p = JSON.parse(lsGet('cmmc2_profile','{}')) || {};
+      if (p.company)  document.getElementById('p-company').value  = p.company;
+      if (p.cage)     document.getElementById('p-cage').value     = p.cage;
+      if (p.contract) document.getElementById('p-contract').value = p.contract;
+      if (p.level)    document.getElementById('p-level').value    = p.level;
+      if (p.system)   document.getElementById('p-system').value   = p.system;
+      if (p.date)     document.getElementById('p-date').value     = p.date;
+      if (p.assessor) document.getElementById('p-assessor').value = p.assessor;
+      _assessLevel = parseInt(p.level || '2', 10);
+      updateProfileSummary(p);
+    } catch(e) {}
+  }
+
+  function saveProfile() {
+    var p = {
+      company:  document.getElementById('p-company').value.trim(),
+      cage:     document.getElementById('p-cage').value.trim(),
+      contract: document.getElementById('p-contract').value,
+      level:    document.getElementById('p-level').value,
+      system:   document.getElementById('p-system').value.trim(),
+      date:     document.getElementById('p-date').value,
+      assessor: document.getElementById('p-assessor').value.trim()
+    };
+    lsSet('cmmc2_profile', JSON.stringify(p));
+    _assessLevel = parseInt(p.level, 10);
+    updateProfileSummary(p);
+    var fl = document.getElementById('profile-saved');
+    fl.classList.add('show');
+    setTimeout(function(){ fl.classList.remove('show'); }, 1800);
+    render();
+  }
+
+  function updateProfileSummary(p) {
+    var parts = [];
+    if (p.company)  parts.push('<strong>' + esc(p.company) + '</strong>');
+    if (p.cage)     parts.push('CAGE: ' + esc(p.cage));
+    if (p.assessor) parts.push('Assessor: ' + esc(p.assessor));
+    if (p.date)     parts.push(esc(p.date));
+    document.getElementById('profile-summary-text').innerHTML = parts.length ? parts.join(' &nbsp;·&nbsp; ') : 'Click to set company info &amp; assessment level';
+    var lvl = parseInt(p.level || '2', 10);
+    document.getElementById('profile-level-badge').textContent =
+      lvl === 1 ? 'Level 1 — 17 Practices' : lvl === 3 ? 'Level 3 — 134 Practices (DIBCAC)' : 'Level 2 — 110 Practices';
+  }
+
+  function toggleProfile() {
+    var body = document.getElementById('profile-form-body');
+    var chev = document.getElementById('profile-chevron');
+    var bar  = document.getElementById('profile-summary-bar');
+    var open = body.style.display !== 'none';
+    body.style.display = open ? 'none' : '';
+    chev.style.transform = open ? '' : 'rotate(90deg)';
+    bar.setAttribute('aria-expanded', String(!open));
+  }
+
+  /* ── Build domain filter select ─────────────────────────────────────── */
+  function buildDomainFilter() {
+    var sel = document.getElementById('filter-domain');
+    ALL_DOMAINS.forEach(function(d) {
+      var o = document.createElement('option');
+      o.value = d.domain_id;
+      o.textContent = d.domain_id + ' — ' + d.domain_name;
+      sel.appendChild(o);
+    });
+  }
+
+  /* ── Build jump nav ──────────────────────────────────────────────────── */
+  function buildJumpNav() {
+    var nav = document.getElementById('jump-nav-inner');
+    nav.innerHTML = '';
+    ALL_DOMAINS.forEach(function(d) {
+      var pill = document.createElement('a');
+      pill.className = 'jump-pill';
+      pill.href = '#domain-block-' + d.domain_id;
+      pill.id = 'jp-' + d.domain_id;
+      pill.innerHTML = '<span class="jp-dot" id="jp-dot-'+d.domain_id+'" style="background:#6c757d"></span>' + d.domain_id + ' <span class="jp-pct" id="jp-pct-'+d.domain_id+'">0%</span>';
+      pill.addEventListener('click', function(e) {
+        e.preventDefault();
+        var block = document.getElementById('domain-block-' + d.domain_id);
+        if (block) block.scrollIntoView({ behavior:'smooth', block:'start' });
+      });
+      nav.appendChild(pill);
+    });
+  }
+
+  /* ── Active practices (respects level filter) ────────────────────────── */
+  function activePractices(domain) {
+    if (_assessLevel === 1) return domain.practices.filter(function(p){ return p.level1; });
+    if (_assessLevel === 2) return domain.practices.filter(function(p){ return !p.level3; });
+    return domain.practices; // Level 3: all practices including enhanced
+  }
+
+  /* ── Escape HTML ─────────────────────────────────────────────────────── */
+  function esc(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  /* ── Highlight search terms ──────────────────────────────────────────── */
+  function highlight(text, term) {
+    if (!term || !text) return esc(text);
+    var re = new RegExp('(' + term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')', 'gi');
+    return esc(text).replace(re, '<mark>$1</mark>');
+  }
+
+  /* ── Status cycle ────────────────────────────────────────────────────── */
+  function cycleStatus(domain, id) {
+    var cur = getStatus(domain, id);
+    var idx = STATUS_ORDER.indexOf(cur);
+    var next = STATUS_ORDER[(idx + 1) % STATUS_ORDER.length];
+    setStatus(domain, id, next);
+    return next;
+  }
+
+  /* ── Compute SPRS score ──────────────────────────────────────────────── */
+  function computeSprs() {
+    var total = 0, assessed = 0, met = 0, partial = 0, notMet = 0, planned = 0, na = 0;
+    ALL_DOMAINS.forEach(function(domain) {
+      activePractices(domain).forEach(function(p) {
+        if (p.level3) return; // SPRS only covers L2 (NIST SP 800-171 Rev 2)
+        var s = getStatus(domain.domain_id, p.id);
+        if (s === 'na') { na++; return; }
+        assessed++;
+        var pts = STATUS_META[s] ? STATUS_META[s].points : 0;
+        total += pts;
+        if (s === 'met')     met++;
+        else if (s === 'partial') partial++;
+        else if (s === 'not-met') notMet++;
+        else if (s === 'planned') planned++;
+      });
+    });
+    // Count active L2 practices (exclude L3 enhanced from SPRS count)
+    var activeCount = 0;
+    ALL_DOMAINS.forEach(function(d){ activeCount += activePractices(d).filter(function(p){ return !p.level3; }).length; });
+    var nonNa = activeCount - na;
+    // Normalize to 110
+    var sprs = nonNa > 0 ? Math.round((total / nonNa) * 110 * 10) / 10 : 0;
+    // L1 gate
+    var l1Met = 0, l1Total = 0;
+    ALL_DOMAINS.forEach(function(domain) {
+      domain.practices.forEach(function(p) {
+        if (!p.level1) return;
+        l1Total++;
+        var s = getStatus(domain.domain_id, p.id);
+        if (s === 'met') l1Met++;
+        else if (s === 'na') l1Total--;
+      });
+    });
+    var poamCount = 0;
+    ALL_DOMAINS.forEach(function(domain) {
+      activePractices(domain).forEach(function(p) {
+        if (p.level3) return;
+        var s = getStatus(domain.domain_id, p.id);
+        if (s === 'partial' || s === 'not-met') poamCount++;
+      });
+    });
+    return { sprs:sprs, assessed:assessed, met:met, partial:partial, notMet:notMet, planned:planned, na:na,
+             activeCount:activeCount, nonNa:nonNa, l1Met:l1Met, l1Total:l1Total, poamCount:poamCount };
+  }
+
+  /* ── Update SPRS dashboard ───────────────────────────────────────────── */
+  function updateDashboard() {
+    var sc = computeSprs();
+    // SPRS number + color
+    var sprsEl = document.getElementById('sprs-score-display');
+    sprsEl.textContent = sc.nonNa > 0 ? sc.sprs.toFixed(1) : '—';
+    sprsEl.className = 'sprs-score-num ';
+    if (sc.nonNa === 0)    sprsEl.className += 'sprs-red';
+    else if (sc.sprs >= 90) sprsEl.className += 'sprs-green';
+    else if (sc.sprs >= 70) sprsEl.className += 'sprs-yellow';
+    else if (sc.sprs >= 50) sprsEl.className += 'sprs-orange';
+    else                    sprsEl.className += 'sprs-red';
+
+    // Stats
+    document.getElementById('stat-met').textContent     = sc.met;
+    document.getElementById('stat-partial').textContent  = sc.partial;
+    document.getElementById('stat-notmet').textContent   = sc.notMet;
+    document.getElementById('stat-planned').textContent  = sc.planned;
+    document.getElementById('stat-assessed').textContent = sc.assessed;
+
+    // Readiness bar (% met of non-NA)
+    var readPct = sc.nonNa > 0 ? Math.round((sc.met / sc.nonNa) * 100) : 0;
+    document.getElementById('readiness-bar').style.width = readPct + '%';
+    document.getElementById('readiness-pct-text').textContent = readPct + '%';
+
+    // Status dist bar
+    var total = sc.activeCount || 1;
+    function pct(n){ return (n / total * 100).toFixed(1) + '%'; }
+    document.getElementById('sdb-met').style.width     = pct(sc.met);
+    document.getElementById('sdb-partial').style.width = pct(sc.partial);
+    document.getElementById('sdb-planned').style.width = pct(sc.planned);
+    document.getElementById('sdb-notmet').style.width  = pct(sc.notMet);
+    document.getElementById('sdb-na-bar').style.width  = pct(sc.na);
+
+    // L1 gate
+    var gateL1 = document.getElementById('gate-l1');
+    if (sc.l1Total === 0) {
+      gateL1.className = 'gate-badge gate-pending'; gateL1.innerHTML = '<i class="bi bi-circle me-1"></i>L1 Gate: —';
+    } else if (sc.l1Met === sc.l1Total) {
+      gateL1.className = 'gate-badge gate-ready'; gateL1.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>L1 Gate: Ready';
+    } else if (sc.l1Met > 0) {
+      gateL1.className = 'gate-badge gate-partial'; gateL1.innerHTML = '<i class="bi bi-circle-half me-1"></i>L1 Gate: Partial';
+    } else {
+      gateL1.className = 'gate-badge gate-fail'; gateL1.innerHTML = '<i class="bi bi-x-circle-fill me-1"></i>L1 Gate: Not Compliant';
+    }
+    // POA&M count
+    var gatePoam = document.getElementById('gate-poam');
+    gatePoam.className = sc.poamCount > 0 ? 'gate-badge gate-partial' : 'gate-badge gate-ready';
+    gatePoam.innerHTML = (sc.poamCount > 0 ? '<i class="bi bi-exclamation-triangle-fill me-1"></i>' : '<i class="bi bi-check-circle-fill me-1"></i>') + 'POA&amp;M: ' + sc.poamCount;
+
+    // L3 gate & banner
+    var gateL3 = document.getElementById('gate-l3');
+    var l3Banner = document.getElementById('l3-dibcac-banner');
+    var l3Stat = document.getElementById('l3-enhanced-stat');
+    if (_assessLevel === 3) {
+      var l3Met = 0, l3Total = 0;
+      ALL_DOMAINS.forEach(function(domain) {
+        domain.practices.forEach(function(p) {
+          if (!p.level3) return;
+          l3Total++;
+          if (getStatus(domain.domain_id, p.id) === 'met') l3Met++;
+        });
+      });
+      gateL3.style.display = '';
+      gateL3.className = l3Met === l3Total && l3Total > 0 ? 'gate-badge gate-ready' : l3Met > 0 ? 'gate-badge gate-partial' : 'gate-badge gate-pending';
+      gateL3.innerHTML = (l3Met === l3Total && l3Total > 0 ? '<i class="bi bi-check-circle-fill me-1"></i>' : '<i class="bi bi-circle me-1"></i>') + 'L3: ' + l3Met + '/' + l3Total;
+      l3Banner.style.display = '';
+      if (l3Stat) l3Stat.textContent = l3Met + ' / ' + l3Total + ' L3 Enhanced';
+    } else {
+      gateL3.style.display = 'none';
+      l3Banner.style.display = 'none';
+    }
+
+    // Domain mini bars
+    var miniContainer = document.getElementById('domain-mini-bars');
+    var miniHtml = '';
+    ALL_DOMAINS.forEach(function(domain) {
+      var pracs = activePractices(domain);
+      var domMet = 0, domTotal = 0;
+      pracs.forEach(function(p) {
+        var s = getStatus(domain.domain_id, p.id);
+        if (s !== 'na') { domTotal++; if (s === 'met') domMet++; }
+      });
+      var domPct = domTotal > 0 ? Math.round(domMet / domTotal * 100) : 0;
+      var barColor = domPct >= 100 ? '#198754' : domPct >= 50 ? '#ffc107' : domPct > 0 ? '#fd7e14' : '#6c757d';
+      miniHtml += '<div class="domain-mini-row">' +
+        '<div class="domain-mini-abbr">' + esc(domain.domain_id) + '</div>' +
+        '<div class="domain-mini-bar-wrap"><div class="domain-mini-bar-fill" style="width:'+domPct+'%;background:'+barColor+'"></div></div>' +
+        '<div class="domain-mini-frac">'+domMet+'/'+domTotal+'</div>' +
+        '</div>';
+      // Update jump nav dot
+      var dot = document.getElementById('jp-dot-' + domain.domain_id);
+      var pctEl = document.getElementById('jp-pct-' + domain.domain_id);
+      if (dot) dot.style.background = barColor;
+      if (pctEl) pctEl.textContent = domPct + '%';
+    });
+    miniContainer.innerHTML = miniHtml;
+
+    // L3 stat block toggle
+    var l3Block = document.getElementById('stat-l3-block');
+    var pracNum = document.getElementById('stat-practices');
+    var pracLbl = document.getElementById('stat-practices-lbl');
+    if (l3Block) l3Block.style.display = _assessLevel === 3 ? '' : 'none';
+    if (pracNum) pracNum.textContent = _assessLevel === 1 ? '17' : _assessLevel === 3 ? '110' : '110';
+    if (pracLbl) pracLbl.textContent = _assessLevel === 3 ? 'Practices (L2+L3)' : 'Practices (L2)';
+
+    // Effort estimate
+    var ef = computeEffort();
+    var efEl = document.getElementById('stat-effort');
+    if (efEl) efEl.textContent = ef.hours > 0 ? (ef.hours >= 200 ? Math.round(ef.hours/200)+'mo' : ef.hours >= 40 ? Math.round(ef.hours/40)+'w' : ef.hours + 'h') : '—';
+    var efLbl = document.getElementById('stat-effort-lbl');
+    if (efLbl) efLbl.textContent = 'across ' + ef.count + ' rated control' + (ef.count===1?'':'s');
+
+    // Radar chart
+    drawRadarChart();
+
+    // Refresh heat map and what's next if open
+    if (document.getElementById('hm-body') && document.getElementById('hm-body').classList.contains('open')) renderHeatMap();
+    if (document.getElementById('wn-body') && document.getElementById('wn-body').classList.contains('open')) renderWhatNext();
+  }
+
+  /* ── Filter a single practice ────────────────────────────────────────── */
+  function practiceVisible(domain, p) {
+    if (_assessLevel === 1 && !p.level1) return false;
+    if (_assessLevel === 2 && p.level3) return false;
+    if (_filterDomain && domain.domain_id !== _filterDomain) return false;
+    var s = getStatus(domain.domain_id, p.id);
+    if (_filterStatus) {
+      if (_filterStatus === 'notes')   { if (!getNote(domain.domain_id, p.id)) return false; }
+      else if (_filterStatus === 'flagged')  { if (!getFlag(domain.domain_id, p.id)) return false; }
+      else if (_filterStatus === 'risk-high')   { if (getRisk(domain.domain_id, p.id) !== 'high')   return false; }
+      else if (_filterStatus === 'risk-medium') { if (getRisk(domain.domain_id, p.id) !== 'medium') return false; }
+      else if (_filterStatus === 'risk-low')    { if (getRisk(domain.domain_id, p.id) !== 'low')    return false; }
+      else if (s !== _filterStatus) return false;
+    }
+    if (_filterSearch) {
+      var q = _filterSearch.toLowerCase();
+      var inId    = p.id.toLowerCase().includes(q);
+      var inTitle = p.title.toLowerCase().includes(q);
+      var inObj   = (p.objectives||[]).some(function(o){ return o.text.toLowerCase().includes(q); });
+      if (!inId && !inTitle && !inObj) return false;
+    }
+    return true;
+  }
+
+  /* ── Render status button HTML ───────────────────────────────────────── */
+  function statusBtnHtml(domain, id, status) {
+    var m = STATUS_META[status] || STATUS_META['not-assessed'];
+    return '<button class="status-btn ' + m.cls + '" data-domain="'+esc(domain)+'" data-id="'+esc(id)+'" title="'+m.label+' — click to cycle status">'+m.short+'</button>';
+  }
+
+  /* ── Render single domain block ──────────────────────────────────────── */
+  function renderDomainBlock(domain, q) {
+    var pracs = domain.practices.filter(function(p){ return practiceVisible(domain, p); });
+    if (pracs.length === 0) return '';
+
+    var domId = domain.domain_id;
+    var allPracs = activePractices(domain);
+    var metCount = 0;
+    allPracs.forEach(function(p){ if (getStatus(domId, p.id) === 'met') metCount++; });
+    var fracCls = metCount === allPracs.length ? 'frac-done' : metCount > 0 ? 'frac-partial' : '';
+    var domPct = allPracs.length > 0 ? Math.round(metCount / allPracs.length * 100) : 0;
+    var barColor = domPct >= 100 ? '#198754' : domPct >= 50 ? '#ffc107' : domPct > 0 ? '#fd7e14' : 'rgba(128,128,128,.2)';
+
+    var html = '<div class="mb-3" id="domain-block-' + domId + '">' +
+      '<div class="domain-header d-flex align-items-center gap-2" onclick="toggleDomain(this,\'dc-'+domId+'\')" aria-expanded="true" aria-controls="dc-'+domId+'" role="button" tabindex="0" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){this.click();event.preventDefault();}">' +
+        '<i class="bi bi-chevron-right d-chevron"></i>' +
+        '<span class="ctrl-id">' + esc(domId) + '</span>' +
+        '<span class="domain-name">' + esc(domain.domain_name) + '</span>' +
+        '<span class="pa-progress-frac ms-2 ' + fracCls + '">' + metCount + '/' + allPracs.length + ' met</span>' +
+        '<div style="flex:1;margin-left:.5rem;max-width:180px;height:4px;background:rgba(128,128,128,.15);border-radius:2px;overflow:hidden"><div style="height:100%;border-radius:2px;background:'+barColor+';width:'+domPct+'%;transition:width .4s"></div></div>' +
+        '<div class="domain-bulk-wrap" onclick="event.stopPropagation()">' +
+          '<button class="domain-bulk-btn" onclick="toggleBulkDropdown(\''+esc(domId)+'\',event)" title="Bulk actions"><i class="bi bi-three-dots-vertical"></i></button>' +
+          '<div class="bulk-dropdown" id="bulk-dd-'+esc(domId)+'">' +
+            '<button class="bulk-dd-item" onclick="bulkDomainAction(\''+esc(domId)+'\',\'met\',event)"><i class="bi bi-check-all me-2 text-success"></i>Mark All Met</button>' +
+            '<button class="bulk-dd-item" onclick="bulkDomainAction(\''+esc(domId)+'\',\'planned\',event)"><i class="bi bi-arrow-right me-2 text-info"></i>Mark All Planned</button>' +
+            '<button class="bulk-dd-item" onclick="bulkDomainAction(\''+esc(domId)+'\',\'not-met\',event)"><i class="bi bi-x-circle me-2 text-danger"></i>Mark All Not Met</button>' +
+            '<button class="bulk-dd-item" onclick="bulkDomainAction(\''+esc(domId)+'\',\'not-assessed\',event)"><i class="bi bi-circle me-2"></i>Mark All Not Assessed</button>' +
+            '<hr class="bulk-dd-sep">' +
+            '<button class="bulk-dd-item" style="color:#dc3545" onclick="bulkDomainAction(\''+esc(domId)+'\',\'reset\',event)"><i class="bi bi-arrow-counterclockwise me-2"></i>Reset Domain</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div id="dc-' + domId + '" style="padding-left:.5rem;margin-top:.4rem">';
+
+    // Assessment question bank
+    var qList = ASSESSMENT_QUESTIONS[domId] || [];
+    if (qList.length) {
+      html += '<div class="qa-panel mb-2 no-print">' +
+        '<button class="qa-toggle" onclick="toggleQA(this,\'qa-body-'+esc(domId)+'\')">' +
+          '<i class="bi bi-question-circle me-1" style="color:var(--bs-info)"></i>C3PAO Assessor Questions (' + qList.length + ')' +
+          '<i class="bi bi-chevron-right ms-auto" style="font-size:.65rem"></i>' +
+        '</button>' +
+        '<div class="qa-body" id="qa-body-'+esc(domId)+'">' +
+          qList.map(function(q2, i) {
+            return '<div class="qa-item"><span class="qa-num">Q'+(i+1)+'.</span><span>'+esc(q2)+'</span></div>';
+          }).join('') +
+        '</div>' +
+      '</div>';
+    }
+
+    pracs.forEach(function(p) {
+      html += renderControlRow(domain, p, q);
+    });
+
+    html += '</div></div>';
+    return html;
+  }
+
+  /* ── Render single control row ───────────────────────────────────────── */
+  function renderControlRow(domain, p, q) {
+    var domId  = domain.domain_id;
+    var status = getStatus(domId, p.id);
+    var flagged = getFlag(domId, p.id);
+    var hasNote = !!getNote(domId, p.id);
+    var owner   = getOwner(domId, p.id);
+    var risk    = getRisk(domId, p.id);
+    var effort  = getEffort(domId, p.id);
+    var EFFORT_META = { sm:{cls:'effort-sm',lbl:'<8h'}, md:{cls:'effort-md',lbl:'1-5d'}, lg:{cls:'effort-lg',lbl:'1-3w'}, xl:{cls:'effort-xl',lbl:'1mo+'} };
+    var efBadge = (effort && EFFORT_META[effort]) ? '<span class="effort-badge '+EFFORT_META[effort].cls+'">'+EFFORT_META[effort].lbl+'</span>' : '';
+    var isL1    = p.level1;
+    var rowId   = 'cr-' + domId + '-' + p.id.replace(/\./g,'-');
+    var detailId = 'cd-' + domId + '-' + p.id.replace(/\./g,'-');
+    var objCount = (p.objectives || []).length;
+
+    var isL3    = p.level3;
+    var idBadgeCls = isL1 ? 'ctrl-id ctrl-id-l1' : isL3 ? 'ctrl-id ctrl-id-l3' : 'ctrl-id';
+    var l1Tag = isL1 ? '<span style="font-size:.58rem;font-weight:700;background:rgba(255,193,7,.18);color:#ffc107;border-radius:3px;padding:1px 5px;font-family:monospace;margin-left:3px">L1</span>' : '';
+    var l3Tag = isL3 ? '<span style="font-size:.58rem;font-weight:700;background:rgba(111,66,193,.2);color:#a98eda;border-radius:3px;padding:1px 5px;font-family:monospace;margin-left:3px">L3</span>' : '';
+
+    var titleHtml = highlight(p.title, q);
+
+    var sm = STATUS_META[status] || STATUS_META['not-assessed'];
+
+    var html = '<div class="control-row" id="' + rowId + '">' +
+      '<div class="control-trigger" onclick="toggleControl(this,\'' + detailId + '\')" aria-expanded="false" aria-controls="' + detailId + '" role="button" tabindex="0" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){this.click();event.preventDefault();}">' +
+        '<i class="bi bi-chevron-right c-chevron"></i>' +
+        '<span class="' + idBadgeCls + '">' + esc(domId) + ' ' + esc(p.id) + '</span>' + l1Tag + l3Tag +
+        (objCount ? '<span class="obj-count">' + objCount + ' obj</span>' : '') +
+        '<div class="c-title"><div class="c-title-inner">' + titleHtml + '</div></div>' +
+        (owner ? '<span class="owner-badge" title="Owner: '+esc(owner)+'">' + esc(owner) + '</span>' : '') +
+        (risk ? '<span class="risk-badge risk-'+esc(risk)+'">' + esc(risk) + '</span>' : '') +
+        efBadge +
+        (hasNote ? '<span class="note-dot bi bi-pencil-fill" title="Has notes"></span>' : '') +
+        statusBtnHtml(domId, p.id, status) +
+        '<button class="flag-btn' + (flagged ? ' flagged' : '') + '" data-domain="'+esc(domId)+'" data-id="'+esc(p.id)+'" title="Flag for follow-up">⚑</button>' +
+      '</div>' +
+      '<div class="control-detail" id="' + detailId + '">' +
+        renderControlDetail(domain, p, q) +
+      '</div>' +
+    '</div>';
+    return html;
+  }
+
+  /* ── Render control detail (expanded) ───────────────────────────────── */
+  function renderControlDetail(domain, p, q) {
+    var domId  = domain.domain_id;
+    var status = getStatus(domId, p.id);
+    var note   = getNote(domId, p.id);
+    var owner  = getOwner(domId, p.id);
+    var date   = getDate(domId, p.id);
+    var risk   = getRisk(domId, p.id);
+    var effort = getEffort(domId, p.id);
+    var needsPoam = !p.level3 && (status === 'partial' || status === 'not-met');
+    var idSlug = domId + '-' + p.id.replace(/\./g,'-');
+
+    var html = '';
+    if (p.level3) {
+      html += '<div style="font-size:.72rem;background:rgba(111,66,193,.08);border:1px solid rgba(111,66,193,.25);border-radius:.35rem;padding:.45rem .85rem;margin-bottom:.75rem;color:#a98eda">' +
+        '<i class="bi bi-shield-shaded me-1"></i><strong>Level 3 Enhanced Practice</strong> &nbsp;&middot;&nbsp; Source: NIST SP 800-172 &nbsp;&middot;&nbsp; Assessment led by <strong>DIBCAC</strong> — not included in SPRS score.' +
+      '</div>';
+    }
+    html += '<div class="detail-label">Control Statement</div>' +
+      '<div class="detail-statement">' + highlight(p.title, q) + '</div>';
+
+    // Objectives
+    if (p.objectives && p.objectives.length) {
+      html += '<div class="detail-label">Assessment Objectives</div><ul class="obj-list mb-3">';
+      p.objectives.forEach(function(obj) {
+        html += '<li><span class="obj-id">' + esc(obj.id) + '</span>' + highlight(obj.text, q) + '</li>';
+      });
+      html += '</ul>';
+    }
+
+    // Evidence artifacts
+    var evList = EVIDENCE[domId] || [];
+    if (evList.length) {
+      html += '<div class="evidence-panel">' +
+        '<button class="ev-toggle-btn" onclick="toggleEv(this,\'ev-body-'+esc(idSlug)+'\')">' +
+          '<i class="bi bi-folder2-open me-1"></i>Evidence Artifacts (' + evList.length + ')' +
+          '<i class="bi bi-chevron-right ms-auto" style="font-size:.65rem"></i>' +
+        '</button>' +
+        '<div class="ev-body" id="ev-body-' + esc(idSlug) + '">';
+      evList.forEach(function(artifact, idx) {
+        var checked = getEvidence(domId, idx) ? 'checked' : '';
+        html += '<div class="ev-item">' +
+          '<input type="checkbox" ' + checked + ' onchange="saveEvidence(this,\''+esc(domId)+'\','+idx+')" id="ev-'+esc(idSlug)+'-'+idx+'">' +
+          '<label for="ev-' + esc(idSlug) + '-' + idx + '">' + esc(artifact) + '</label>' +
+        '</div>';
+      });
+      html += '</div></div>';
+    }
+
+    // POA&M indicator
+    if (needsPoam) {
+      html += '<div class="poam-indicator"><i class="bi bi-exclamation-triangle-fill me-1"></i>POA&amp;M Required — document remediation plan below</div>';
+    }
+
+    // Notes / Owner / Date
+    html += '<div class="row g-2 mt-2">' +
+      '<div class="col-12">' +
+        '<div class="detail-label">Assessment Notes / Weakness Description</div>' +
+        '<textarea class="notes-textarea" data-domain="'+esc(domId)+'" data-id="'+esc(p.id)+'" placeholder="Document implementation evidence, weaknesses, or remediation plan…" oninput="saveNoteDebounced(this)">' + esc(note) + '</textarea>' +
+        '<span class="saved-flash" id="nf-'+esc(idSlug)+'"></span>' +
+      '</div>' +
+      '<div class="col-md-4">' +
+        '<div class="detail-label">Control Owner</div>' +
+        '<input type="text" class="owner-input" data-domain="'+esc(domId)+'" data-id="'+esc(p.id)+'" value="'+esc(owner)+'" placeholder="Name or team" oninput="saveOwnerDebounced(this)">' +
+      '</div>' +
+      '<div class="col-md-3">' +
+        '<div class="detail-label">Target Date</div>' +
+        '<input type="date" class="date-input" data-domain="'+esc(domId)+'" data-id="'+esc(p.id)+'" value="'+esc(date)+'" onchange="saveDateField(this)">' +
+      '</div>' +
+      '<div class="col-md-3">' +
+        '<div class="detail-label">Risk Rating</div>' +
+        '<select class="owner-input" data-domain="'+esc(domId)+'" data-id="'+esc(p.id)+'" onchange="saveRiskField(this)" style="font-size:.78rem">' +
+          '<option value="">— Not Rated</option>' +
+          '<option value="high"'  + (risk==='high'   ? ' selected':'')+'>High</option>' +
+          '<option value="medium"'+ (risk==='medium' ? ' selected':'')+'>Medium</option>' +
+          '<option value="low"'   + (risk==='low'    ? ' selected':'')+'>Low</option>' +
+        '</select>' +
+      '</div>' +
+      '<div class="col-md-2">' +
+        '<div class="detail-label">Effort</div>' +
+        '<select class="owner-input" data-domain="'+esc(domId)+'" data-id="'+esc(p.id)+'" onchange="saveEffortField(this)" style="font-size:.78rem">' +
+          '<option value="">—</option>' +
+          '<option value="sm"'+(effort==='sm'?' selected':'')+'>Small &lt;8h</option>' +
+          '<option value="md"'+(effort==='md'?' selected':'')+'>Medium 1-5d</option>' +
+          '<option value="lg"'+(effort==='lg'?' selected':'')+'>Large 1-3w</option>' +
+          '<option value="xl"'+(effort==='xl'?' selected':'')+'>Critical 1mo+</option>' +
+        '</select>' +
+      '</div>' +
+      '<div class="col-md-3">' +
+        '<div class="detail-label">Status</div>' +
+        '<div>' + statusBtnHtml(domId, p.id, status) + ' <span style="font-size:.75rem;color:var(--bs-secondary-color)">' + esc(STATUS_META[status].label) + '</span></div>' +
+      '</div>' +
+    '</div>';
+
+    return html;
+  }
+
+  /* ── Toggle domain accordion ─────────────────────────────────────────── */
+  function toggleDomain(hdr, contentId) {
+    var content = document.getElementById(contentId);
+    if (!content) return;
+    var open = hdr.getAttribute('aria-expanded') === 'true';
+    hdr.setAttribute('aria-expanded', String(!open));
+    content.style.display = open ? 'none' : '';
+  }
+
+  /* ── Toggle control detail ───────────────────────────────────────────── */
+  function toggleControl(trigger, detailId) {
+    var detail = document.getElementById(detailId);
+    if (!detail) return;
+    var open = trigger.getAttribute('aria-expanded') === 'true';
+    trigger.setAttribute('aria-expanded', String(!open));
+    detail.classList.toggle('open', !open);
+  }
+
+  /* ── Toggle evidence panel ───────────────────────────────────────────── */
+  function toggleEv(btn, bodyId) {
+    var body = document.getElementById(bodyId);
+    if (!body) return;
+    var open = body.classList.contains('open');
+    body.classList.toggle('open', !open);
+    var chev = btn.querySelector('.bi-chevron-right,.bi-chevron-down');
+    if (chev) { chev.className = open ? 'bi bi-chevron-right ms-auto' : 'bi bi-chevron-down ms-auto'; }
+  }
+
+  /* ── Main render ─────────────────────────────────────────────────────── */
+  function render() {
+    _filterDomain = document.getElementById('filter-domain').value;
+    _filterStatus = document.getElementById('filter-status').value;
+    _filterSearch = document.getElementById('search-input').value.trim();
+    _viewMode     = document.getElementById('filter-view').value;
+    var q = _filterSearch.toLowerCase();
+
+    updateDashboard();
+
+    // POA&M view
+    if (_viewMode === 'poam') {
+      document.getElementById('domain-container').style.display = 'none';
+      document.getElementById('poam-panel').classList.add('open');
+      document.getElementById('poam-panel').style.display = '';
+      renderPoamView();
+      document.getElementById('no-results').style.display = 'none';
+      return;
+    }
+
+    // Normal accordion
+    document.getElementById('poam-panel').classList.remove('open');
+    document.getElementById('poam-panel').style.display = 'none';
+    document.getElementById('domain-container').style.display = '';
+
+    var html = '';
+    var visibleCount = 0;
+
+    ALL_DOMAINS.forEach(function(domain) {
+      var block = renderDomainBlock(domain, q);
+      if (block) { html += block; visibleCount += activePractices(domain).filter(function(p){ return practiceVisible(domain, p); }).length; }
+    });
+
+    document.getElementById('domain-container').innerHTML = html || '';
+    document.getElementById('no-results').style.display = html ? 'none' : '';
+
+    // Count display
+    var total = 0;
+    ALL_DOMAINS.forEach(function(d){ total += activePractices(d).length; });
+    document.getElementById('visible-count').textContent = visibleCount < total ? visibleCount + ' of ' + total : total + ' practices';
+
+    // Re-bind status buttons (event delegation via container)
+  }
+
+  /* ── Render POA&M view ───────────────────────────────────────────────── */
+  function renderPoamView() {
+    var tbody = document.getElementById('poam-tbody');
+    var emptyMsg = document.getElementById('poam-empty');
+    var rows = [];
+
+    ALL_DOMAINS.forEach(function(domain) {
+      activePractices(domain).forEach(function(p) {
+        var s = getStatus(domain.domain_id, p.id);
+        if (s !== 'partial' && s !== 'not-met') return;
+        rows.push({ domain: domain, p: p, status: s });
+      });
+    });
+
+    if (rows.length === 0) {
+      tbody.innerHTML = '';
+      emptyMsg.style.display = '';
+      return;
+    }
+    emptyMsg.style.display = 'none';
+
+    var html = '';
+    rows.forEach(function(r) {
+      var dom = r.domain.domain_id;
+      var id  = r.p.id;
+      var sm  = STATUS_META[r.status];
+      var note = getNote(dom, id);
+      var owner = getOwner(dom, id);
+      var date  = getDate(dom, id);
+      var milestone = getMilestone(dom, id);
+      var idSlug = dom + '-' + id.replace(/\./g,'-');
+      html += '<tr>' +
+        '<td><span class="ctrl-id' + (r.p.level1 ? ' ctrl-id-l1' : '') + '">' + esc(dom) + ' ' + esc(id) + '</span></td>' +
+        '<td style="font-size:.77rem;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(r.p.title)+'">' + esc(r.p.title) + '</td>' +
+        '<td><span class="status-btn ' + sm.cls + ' no-cycle">' + sm.short + ' ' + esc(r.status.replace(/-/g,' ')) + '</span></td>' +
+        '<td><input class="owner-input" data-domain="'+esc(dom)+'" data-id="'+esc(id)+'" value="'+esc(owner)+'" placeholder="Owner" oninput="saveOwnerDebounced(this)"></td>' +
+        '<td><input type="date" class="date-input" data-domain="'+esc(dom)+'" data-id="'+esc(id)+'" value="'+esc(date)+'" onchange="saveDateField(this)"></td>' +
+        '<td><input class="owner-input" data-domain="'+esc(dom)+'" data-id="'+esc(id)+'-note" value="'+esc(note)+'" placeholder="Weakness / notes" oninput="savePoamNote(this,\''+esc(dom)+'\',\''+esc(id)+'\')"></td>' +
+        '<td><input class="milestone-input" data-domain="'+esc(dom)+'" data-id="'+esc(id)+'" value="'+esc(milestone)+'" placeholder="Milestone / action" oninput="saveMilestoneDebounced(this)"></td>' +
+      '</tr>';
+    });
+    tbody.innerHTML = html;
+  }
+
+  /* ── Save helpers ────────────────────────────────────────────────────── */
+  var _noteTimers = {};
+  function saveNoteDebounced(el) {
+    var dom = el.getAttribute('data-domain');
+    var id  = el.getAttribute('data-id');
+    var key = dom + '_' + id;
+    clearTimeout(_noteTimers[key]);
+    _noteTimers[key] = setTimeout(function() {
+      setNote(dom, id, el.value);
+      var idSlug = dom + '-' + id.replace(/\./g,'-');
+      var fl = document.getElementById('nf-' + idSlug);
+      if (fl) { fl.textContent = 'Saved ✓'; fl.classList.add('show'); setTimeout(function(){ fl.classList.remove('show'); }, 1600); }
+      updateDashboard();
+    }, 500);
+  }
+
+  var _ownerTimers = {};
+  function saveOwnerDebounced(el) {
+    var dom = el.getAttribute('data-domain');
+    var id  = el.getAttribute('data-id');
+    var key = dom + '_' + id;
+    clearTimeout(_ownerTimers[key]);
+    _ownerTimers[key] = setTimeout(function() {
+      setOwner(dom, id, el.value);
+      updateDashboard();
+    }, 500);
+  }
+
+  var _milestoneTimers = {};
+  function saveMilestoneDebounced(el) {
+    var dom = el.getAttribute('data-domain');
+    var id  = el.getAttribute('data-id');
+    var key = dom + '_' + id;
+    clearTimeout(_milestoneTimers[key]);
+    _milestoneTimers[key] = setTimeout(function() {
+      setMilestone(dom, id, el.value);
+    }, 500);
+  }
+
+  function saveDateField(el) {
+    var dom = el.getAttribute('data-domain');
+    var id  = el.getAttribute('data-id');
+    setDate(dom, id, el.value);
+    updateDashboard();
+  }
+
+  function savePoamNote(el, dom, id) {
+    clearTimeout(_noteTimers[dom+'_'+id]);
+    _noteTimers[dom+'_'+id] = setTimeout(function(){ setNote(dom, id, el.value); }, 500);
+  }
+
+  function saveEvidence(el, domain, idx) {
+    setEvidence(domain, idx, el.checked);
+  }
+
+  /* ── Event delegation for status buttons & flags ─────────────────────── */
+  function bindEvents() {
+    var container = document.getElementById('domain-container');
+    container.addEventListener('click', function(e) {
+      // Status button
+      var sbtn = e.target.closest('.status-btn:not(.no-cycle)');
+      if (sbtn && !sbtn.closest('.control-detail')) {
+        var dom = sbtn.getAttribute('data-domain');
+        var id  = sbtn.getAttribute('data-id');
+        var next = cycleStatus(dom, id);
+        var sm = STATUS_META[next];
+        sbtn.textContent = sm.short;
+        sbtn.className = 'status-btn ' + sm.cls;
+        sbtn.title = sm.label + ' — click to cycle status';
+        updateDashboard();
+        return;
+      }
+      // Status button in detail panel (also cycle)
+      var sbtn2 = e.target.closest('.status-btn:not(.no-cycle)');
+      if (sbtn2) {
+        var dom2 = sbtn2.getAttribute('data-domain');
+        var id2  = sbtn2.getAttribute('data-id');
+        cycleStatus(dom2, id2);
+        render();
+        return;
+      }
+      // Flag button
+      var fbtn = e.target.closest('.flag-btn');
+      if (fbtn) {
+        e.stopPropagation();
+        var dom3 = fbtn.getAttribute('data-domain');
+        var id3  = fbtn.getAttribute('data-id');
+        var cur = getFlag(dom3, id3);
+        setFlag(dom3, id3, !cur);
+        fbtn.classList.toggle('flagged', !cur);
+        return;
+      }
+    });
+
+    // Expand/collapse all
+    document.getElementById('btn-expand-all').addEventListener('click', function() {
+      document.querySelectorAll('.domain-header').forEach(function(h) {
+        h.setAttribute('aria-expanded', 'true');
+        var id = h.getAttribute('aria-controls');
+        var el = document.getElementById(id);
+        if (el) el.style.display = '';
+      });
+    });
+    document.getElementById('btn-collapse-all').addEventListener('click', function() {
+      document.querySelectorAll('.domain-header').forEach(function(h) {
+        h.setAttribute('aria-expanded', 'false');
+        var id = h.getAttribute('aria-controls');
+        var el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+      });
+    });
+
+    document.getElementById('btn-reset-all').addEventListener('click', function() {
+      if (!confirm('Reset ALL assessment data? This will clear all statuses, notes, owners, dates, flags, and evidence. This cannot be undone.')) return;
+      var keys = [];
+      try {
+        for (var i = 0; i < localStorage.length; i++) {
+          var k = localStorage.key(i);
+          if (k && k.startsWith('cmmc2_')) keys.push(k);
+        }
+        keys.forEach(function(k){ localStorage.removeItem(k); });
+      } catch(e) {}
+      render();
+    });
+
+    // Filter changes
+    ['filter-domain','filter-status','filter-view'].forEach(function(id) {
+      document.getElementById(id).addEventListener('change', render);
+    });
+    document.getElementById('search-input').addEventListener('input', render);
+    document.getElementById('p-level').addEventListener('change', function() {
+      _assessLevel = parseInt(this.value, 10);
+      render();
+    });
+
+    // Export excel
+    document.getElementById('btn-export-excel').addEventListener('click', exportExcel);
+    document.getElementById('btn-export-poam-excel').addEventListener('click', exportPoamExcel);
+
+    // JSON export/import
+    document.getElementById('btn-export-json').addEventListener('click', exportJson);
+    document.getElementById('import-json-input').addEventListener('change', function(e) {
+      var f = e.target.files[0];
+      if (f) { importJson(f); e.target.value = ''; }
+    });
+
+    // Close bulk dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.domain-bulk-wrap')) {
+        document.querySelectorAll('.bulk-dropdown.open').forEach(function(el){ el.classList.remove('open'); });
+      }
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+      var si = document.getElementById('search-input');
+      var tag = document.activeElement ? document.activeElement.tagName : '';
+      var isInput = (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT');
+      if (e.key === '/' && !isInput) { e.preventDefault(); si.focus(); si.select(); }
+      if (e.key === 'Escape' && document.activeElement === si) { si.value = ''; si.blur(); render(); }
+      if (!isInput) {
+        if (e.key === '?') { bootstrap.Modal.getOrCreateInstance(document.getElementById('shortcutsModal')).show(); }
+        if (e.key === 'e' || e.key === 'E') { document.getElementById('btn-expand-all').click(); }
+        if (e.key === 'c' || e.key === 'C') { document.getElementById('btn-collapse-all').click(); }
+        if (e.key === 'p' || e.key === 'P') {
+          var vSel = document.getElementById('filter-view');
+          vSel.value = vSel.value === 'poam' ? 'all' : 'poam';
+          render();
+        }
+        if (e.key === 'h' || e.key === 'H') {
+          var hmBtn = document.querySelector('.hm-toggle');
+          if (hmBtn) hmBtn.click();
+        }
+        if (e.key === 'w' || e.key === 'W') {
+          var wnBtn = document.querySelector('.wn-toggle');
+          if (wnBtn) wnBtn.click();
+        }
+      }
+    });
+  }
+
+  /* ── clearFilters helper ─────────────────────────────────────────────── */
+  function clearFilters() {
+    document.getElementById('search-input').value = '';
+    document.getElementById('filter-domain').value = '';
+    document.getElementById('filter-status').value = '';
+    document.getElementById('filter-view').value = 'all';
+    render();
+  }
+
+  /* ── Excel Export (3 sheets) ─────────────────────────────────────────── */
+  function exportExcel() {
+    if (typeof XLSX === 'undefined') { alert('XLSX library not loaded. Check your internet connection.'); return; }
+    var wb = XLSX.utils.book_new();
+
+    // Sheet 1: All practices
+    var rows1 = [['Domain','Control ID','Title','Level','Status','Points','Risk Rating','Owner','Target Date','Flagged','Notes']];
+    ALL_DOMAINS.forEach(function(domain) {
+      activePractices(domain).forEach(function(p) {
+        var s = getStatus(domain.domain_id, p.id);
+        var sm = STATUS_META[s] || STATUS_META['not-assessed'];
+        var levelLabel = p.level3 ? 'L3 Enhanced' : p.level1 ? 'L1 (Basic)' : 'L2';
+        rows1.push([
+          domain.domain_name, domain.domain_id + ' ' + p.id, p.title,
+          levelLabel, sm.label, p.level3 ? 'N/A' : sm.points,
+          getRisk(domain.domain_id, p.id) || '',
+          getOwner(domain.domain_id, p.id), getDate(domain.domain_id, p.id),
+          getFlag(domain.domain_id, p.id) ? 'Yes' : '',
+          getNote(domain.domain_id, p.id)
+        ]);
+      });
+    });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows1), 'Assessment Results');
+
+    // Sheet 2: Gap Analysis / POA&M
+    var rows2 = [['Domain','Control ID','Title','Status','Risk Rating','Owner','Target Date','Notes / Weakness','Milestone','Level 1']];
+    ALL_DOMAINS.forEach(function(domain) {
+      activePractices(domain).forEach(function(p) {
+        var s = getStatus(domain.domain_id, p.id);
+        if (s !== 'partial' && s !== 'not-met') return;
+        var sm = STATUS_META[s];
+        rows2.push([
+          domain.domain_name, domain.domain_id + ' ' + p.id, p.title, sm.label,
+          getRisk(domain.domain_id, p.id) || '',
+          getOwner(domain.domain_id, p.id), getDate(domain.domain_id, p.id),
+          getNote(domain.domain_id, p.id), getMilestone(domain.domain_id, p.id),
+          p.level1 ? 'Yes' : 'No'
+        ]);
+      });
+    });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows2), 'Gap Analysis POA&M');
+
+    // Sheet 3: Domain Summary
+    var sc = computeSprs();
+    var rows3 = [['Domain ID','Domain Name','Total Controls','Met','Partial','Not Met','Planned','N/A','Not Assessed','% Met','SPRS Points']];
+    ALL_DOMAINS.forEach(function(domain) {
+      var pracs = activePractices(domain);
+      var cnt = {met:0, partial:0, 'not-met':0, planned:0, na:0, 'not-assessed':0};
+      var domPoints = 0;
+      pracs.forEach(function(p) {
+        var s = getStatus(domain.domain_id, p.id);
+        cnt[s] = (cnt[s]||0) + 1;
+        domPoints += STATUS_META[s] ? STATUS_META[s].points : 0;
+      });
+      var nonNa = pracs.length - (cnt['na']||0);
+      var pctMet = nonNa > 0 ? Math.round(cnt.met / nonNa * 100) : 0;
+      rows3.push([
+        domain.domain_id, domain.domain_name, pracs.length,
+        cnt.met||0, cnt.partial||0, cnt['not-met']||0, cnt.planned||0,
+        cnt.na||0, cnt['not-assessed']||0, pctMet + '%',
+        domPoints.toFixed(2)
+      ]);
+    });
+    rows3.push(['','','','','','','','','','SPRS Score:', sc.sprs.toFixed(1) + ' / 110']);
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows3), 'Domain Summary');
+
+    // Sheet 4 (L3 only): Level 3 Enhanced Practices
+    if (_assessLevel === 3) {
+      var rows4 = [['Domain','Control ID','Title','Status','Risk Rating','Owner','Target Date','Notes','Source']];
+      ALL_DOMAINS.forEach(function(domain) {
+        domain.practices.filter(function(p){ return p.level3; }).forEach(function(p) {
+          var s = getStatus(domain.domain_id, p.id);
+          var sm = STATUS_META[s] || STATUS_META['not-assessed'];
+          rows4.push([
+            domain.domain_name, domain.domain_id + ' ' + p.id, p.title, sm.label,
+            getRisk(domain.domain_id, p.id) || '',
+            getOwner(domain.domain_id, p.id), getDate(domain.domain_id, p.id),
+            getNote(domain.domain_id, p.id),
+            'NIST SP 800-172 / CMMC L3'
+          ]);
+        });
+      });
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows4), 'L3 Enhanced Practices');
+    }
+
+    XLSX.writeFile(wb, 'CMMC2_Assessment_' + new Date().toISOString().slice(0,10) + '.xlsx');
+  }
+
+  function exportPoamExcel() {
+    if (typeof XLSX === 'undefined') { alert('XLSX library not loaded.'); return; }
+    var wb = XLSX.utils.book_new();
+    var rows = [['Domain','Control ID','Title','Status','Risk Rating','Owner','Target Date','Notes / Weakness','Milestone','Level 1']];
+    ALL_DOMAINS.forEach(function(domain) {
+      activePractices(domain).forEach(function(p) {
+        var s = getStatus(domain.domain_id, p.id);
+        if (s !== 'partial' && s !== 'not-met') return;
+        var sm = STATUS_META[s];
+        rows.push([
+          domain.domain_name, domain.domain_id + ' ' + p.id, p.title, sm.label,
+          getRisk(domain.domain_id, p.id) || '',
+          getOwner(domain.domain_id, p.id), getDate(domain.domain_id, p.id),
+          getNote(domain.domain_id, p.id), getMilestone(domain.domain_id, p.id),
+          p.level1 ? 'Yes' : 'No'
+        ]);
+      });
+    });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), 'POA&M');
+    XLSX.writeFile(wb, 'CMMC2_POAM_' + new Date().toISOString().slice(0,10) + '.xlsx');
+  }
+
+  /* ── JSON Export / Import ────────────────────────────────────────────── */
+  function exportJson() {
+    var data = {};
+    try {
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k && k.startsWith('cmmc2_')) data[k] = localStorage.getItem(k);
+      }
+    } catch(e) {}
+    var blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'cmmc2_assessment_' + new Date().toISOString().slice(0,10) + '.json';
+    a.click();
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+  }
+
+  function importJson(file) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        var data = JSON.parse(e.target.result);
+        if (typeof data !== 'object') throw new Error('Invalid JSON');
+        var count = 0;
+        Object.keys(data).forEach(function(k) {
+          if (k.startsWith('cmmc2_')) { lsSet(k, data[k]); count++; }
+        });
+        alert('Imported ' + count + ' assessment records successfully.');
+        loadProfile();
+        render();
+      } catch(err) {
+        alert('Import failed: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  /* ── Risk field save ────────────────────────────────────────────────── */
+  function saveRiskField(el) {
+    var dom = el.getAttribute('data-domain');
+    var id  = el.getAttribute('data-id');
+    setRisk(dom, id, el.value);
+    // Refresh the row badge without full re-render
+    var idSlug = dom + '-' + id.replace(/\./g,'-');
+    var rowEl = document.getElementById('cr-' + idSlug);
+    if (rowEl) {
+      var badgeEl = rowEl.querySelector('.risk-badge');
+      if (el.value) {
+        if (badgeEl) { badgeEl.className = 'risk-badge risk-'+el.value; badgeEl.textContent = el.value; }
+        else {
+          var flagBtn = rowEl.querySelector('.flag-btn');
+          if (flagBtn) {
+            var nb = document.createElement('span');
+            nb.className = 'risk-badge risk-' + el.value;
+            nb.textContent = el.value;
+            flagBtn.parentNode.insertBefore(nb, flagBtn);
+          }
+        }
+      } else if (badgeEl) { badgeEl.remove(); }
+    }
+  }
+
+  /* ── Effort field save ──────────────────────────────────────────────── */
+  function saveEffortField(el) {
+    var dom = el.getAttribute('data-domain');
+    var id  = el.getAttribute('data-id');
+    setEffort(dom, id, el.value);
+    var idSlug = dom + '-' + id.replace(/\./g,'-');
+    var rowEl = document.getElementById('cr-' + idSlug);
+    if (rowEl) {
+      var EFFORT_META = { sm:{cls:'effort-sm',lbl:'<8h'}, md:{cls:'effort-md',lbl:'1-5d'}, lg:{cls:'effort-lg',lbl:'1-3w'}, xl:{cls:'effort-xl',lbl:'1mo+'} };
+      var existingEf = rowEl.querySelector('.effort-badge');
+      if (el.value && EFFORT_META[el.value]) {
+        if (existingEf) { existingEf.className = 'effort-badge '+EFFORT_META[el.value].cls; existingEf.textContent = EFFORT_META[el.value].lbl; }
+        else {
+          var noteEl = rowEl.querySelector('.note-dot');
+          var statusEl = rowEl.querySelector('.status-btn');
+          var ref = noteEl || statusEl;
+          if (ref) {
+            var nb = document.createElement('span');
+            nb.className = 'effort-badge ' + EFFORT_META[el.value].cls;
+            nb.textContent = EFFORT_META[el.value].lbl;
+            ref.parentNode.insertBefore(nb, ref);
+          }
+        }
+      } else if (existingEf) { existingEf.remove(); }
+    }
+    updateDashboard();
+  }
+
+  /* ── Effort calculation ──────────────────────────────────────────────── */
+  var EFFORT_HOURS = { sm: 6, md: 24, lg: 100, xl: 200 };
+  function computeEffort() {
+    var total = 0, count = 0;
+    ALL_DOMAINS.forEach(function(d) {
+      activePractices(d).forEach(function(p) {
+        var ef = getEffort(d.domain_id, p.id);
+        if (ef && EFFORT_HOURS[ef]) { total += EFFORT_HOURS[ef]; count++; }
+      });
+    });
+    return { hours: total, count: count };
+  }
+
+  /* ── Bulk domain actions ─────────────────────────────────────────────── */
+  function toggleBulkDropdown(domId, evt) {
+    evt.stopPropagation();
+    var dd = document.getElementById('bulk-dd-' + domId);
+    if (!dd) return;
+    var wasOpen = dd.classList.contains('open');
+    document.querySelectorAll('.bulk-dropdown.open').forEach(function(el){ el.classList.remove('open'); });
+    if (!wasOpen) dd.classList.add('open');
+  }
+
+  function bulkDomainAction(domId, action, evt) {
+    if (evt) evt.stopPropagation();
+    var dd = document.getElementById('bulk-dd-' + domId);
+    if (dd) dd.classList.remove('open');
+    if (action === 'reset' && !confirm('Reset all statuses in the ' + domId + ' domain?')) return;
+    var domain = ALL_DOMAINS.find(function(d){ return d.domain_id === domId; });
+    if (!domain) return;
+    activePractices(domain).forEach(function(p) {
+      if (action === 'reset') { lsRemove('cmmc2_s_' + domId + '_' + p.id); }
+      else { setStatus(domId, p.id, action); }
+    });
+    render();
+  }
+
+  /* ── Heat map ────────────────────────────────────────────────────────── */
+  function toggleHeatMap(btn) {
+    var body = document.getElementById('hm-body');
+    var chev = document.getElementById('hm-chevron');
+    if (!body) return;
+    var open = body.classList.contains('open');
+    body.classList.toggle('open', !open);
+    if (chev) chev.style.transform = open ? '' : 'rotate(90deg)';
+    if (!open) renderHeatMap();
+  }
+
+  function renderHeatMap() {
+    var container = document.getElementById('hm-grid-container');
+    if (!container) return;
+    var html = '';
+    ALL_DOMAINS.forEach(function(domain) {
+      var pracs = activePractices(domain);
+      if (!pracs.length) return;
+      html += '<div class="hm-domain"><div class="hm-domain-label">' + esc(domain.domain_id) + ' — ' + esc(domain.domain_name) + '</div><div class="hm-grid">';
+      pracs.forEach(function(p) {
+        var s = getStatus(domain.domain_id, p.id);
+        var cellCls = 'hm-cell ';
+        if      (s === 'met')      cellCls += 'hm-cell-met';
+        else if (s === 'partial')  cellCls += 'hm-cell-partial';
+        else if (s === 'not-met')  cellCls += 'hm-cell-notmet';
+        else if (s === 'planned')  cellCls += 'hm-cell-planned';
+        else if (s === 'na')       cellCls += 'hm-cell-na';
+        else                       cellCls += 'hm-cell-ns';
+        var tip = domain.domain_id + ' ' + p.id + ' — ' + p.title.slice(0, 65) + (p.title.length > 65 ? '…' : '');
+        html += '<div class="' + cellCls + '" title="' + esc(tip) + '" onclick="jumpToControl(\'' + esc(domain.domain_id) + '\',\'' + esc(p.id) + '\')"></div>';
+      });
+      html += '</div></div>';
+    });
+    container.innerHTML = html;
+    // Update badge
+    var sc = computeSprs();
+    var badge = document.getElementById('hm-badge');
+    if (badge) badge.textContent = sc.met + ' met / ' + sc.activeCount + ' total';
+  }
+
+  function jumpToControl(domId, ctrlId) {
+    // Switch to accordion view if in POA&M
+    var viewSel = document.getElementById('filter-view');
+    if (viewSel && viewSel.value === 'poam') { viewSel.value = 'all'; }
+    // Ensure domain and status filters don't hide this control
+    var filterDom = document.getElementById('filter-domain');
+    var filterSt  = document.getElementById('filter-status');
+    if (filterDom && filterDom.value && filterDom.value !== domId) filterDom.value = '';
+    if (filterSt && filterSt.value) filterSt.value = '';
+    render();
+    setTimeout(function() {
+      var block = document.getElementById('domain-block-' + domId);
+      if (block) {
+        block.scrollIntoView({ behavior:'smooth', block:'start' });
+        var hdr = block.querySelector('.domain-header');
+        if (hdr && hdr.getAttribute('aria-expanded') === 'false') hdr.click();
+      }
+      setTimeout(function() {
+        var idSlug = domId + '-' + ctrlId.replace(/\./g, '-');
+        var trigger = document.querySelector('#cr-' + idSlug + ' .control-trigger');
+        if (trigger && trigger.getAttribute('aria-expanded') !== 'true') trigger.click();
+        var row = document.getElementById('cr-' + idSlug);
+        if (row) row.scrollIntoView({ behavior:'smooth', block:'center' });
+      }, 200);
+    }, 100);
+  }
+
+  /* ── What's Next ─────────────────────────────────────────────────────── */
+  function toggleWhatNext(btn) {
+    var body = document.getElementById('wn-body');
+    var chev = document.getElementById('wn-chevron');
+    if (!body) return;
+    var open = body.classList.contains('open');
+    body.classList.toggle('open', !open);
+    if (chev) chev.style.transform = open ? '' : 'rotate(90deg)';
+    if (!open) renderWhatNext();
+  }
+
+  function renderWhatNext() {
+    var container = document.getElementById('wn-items-container');
+    if (!container) return;
+    var items = [];
+    var today = new Date(); today.setHours(0,0,0,0);
+
+    ALL_DOMAINS.forEach(function(domain) {
+      activePractices(domain).forEach(function(p) {
+        var s = getStatus(domain.domain_id, p.id);
+        if (s === 'met' || s === 'na' || s === 'not-assessed') return;
+        var priority, priorityCls, priorityLabel, reason, score;
+        if      (s === 'not-met' && p.level1) { priority='critical'; priorityCls='wn-p-critical'; priorityLabel='CRITICAL'; reason='L1 not met — blocks CMMC Level 1 eligibility'; score=6; }
+        else if (s === 'not-met' && p.level3) { priority='critical'; priorityCls='wn-p-critical'; priorityLabel='L3 GAP';   reason='L3 enhanced not met — required for DIBCAC assessment'; score=5; }
+        else if (s === 'not-met')              { priority='high';     priorityCls='wn-p-high';     priorityLabel='HIGH';     reason='Not implemented — required for L2 certification'; score=4; }
+        else if (s === 'partial' && p.level1)  { priority='high';     priorityCls='wn-p-high';     priorityLabel='HIGH';     reason='L1 partially met — must be fully implemented'; score=3; }
+        else if (s === 'partial' && p.level3)  { priority='high';     priorityCls='wn-p-high';     priorityLabel='L3 PARTIAL'; reason='L3 enhanced partially implemented'; score=3; }
+        else if (s === 'partial')              { priority='medium';   priorityCls='wn-p-medium';   priorityLabel='MEDIUM';   reason='Partially implemented — gap requires remediation'; score=2; }
+        else {
+          // planned — check overdue
+          var td = getDate(domain.domain_id, p.id);
+          if (td) {
+            var due = new Date(td + 'T00:00:00');
+            var daysLeft = Math.round((due - today) / 86400000);
+            if (daysLeft < 0) { priority='high'; priorityCls='wn-p-high'; priorityLabel='OVERDUE'; reason='Target date passed ' + Math.abs(daysLeft) + 'd ago — escalate'; score=3; }
+            else if (daysLeft <= 7) { priority='medium'; priorityCls='wn-p-medium'; priorityLabel='DUE SOON'; reason='Due in ' + daysLeft + 'd — verify on track'; score=2; }
+            else { priority='info'; priorityCls='wn-p-info'; priorityLabel='PLANNED'; reason='Planned — ensure milestone is tracked'; score=1; }
+          } else { priority='info'; priorityCls='wn-p-info'; priorityLabel='PLANNED'; reason='Planned — set a target date'; score=1; }
+        }
+        items.push({ domain:domain, p:p, status:s, priorityCls:priorityCls, priorityLabel:priorityLabel, reason:reason, score:score });
+      });
+    });
+
+    items.sort(function(a,b){ return b.score - a.score; });
+    var badge = document.getElementById('wn-count-badge');
+    if (badge) badge.textContent = items.length;
+
+    if (items.length === 0) {
+      container.innerHTML = '<div class="alert alert-success py-2 small mb-0"><i class="bi bi-check-circle-fill me-2"></i>No priority actions — all assessed controls are Met, Planned, or N/A.</div>';
+      return;
+    }
+    var shown = items.slice(0, 10);
+    var html = shown.map(function(item) {
+      var domId = item.domain.domain_id;
+      return '<div class="wn-item" onclick="jumpToControl(\'' + esc(domId) + '\',\'' + esc(item.p.id) + '\')">' +
+        '<span class="wn-priority ' + item.priorityCls + '">' + esc(item.priorityLabel) + '</span>' +
+        '<span class="ctrl-id' + (item.p.level1 ? ' ctrl-id-l1' : '') + '" style="font-size:.68rem;padding:1px 6px">' + esc(domId) + ' ' + esc(item.p.id) + '</span>' +
+        '<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.79rem">' + esc(item.p.title.slice(0, 65)) + '</span>' +
+        '<span style="font-size:.67rem;color:var(--bs-secondary-color);flex-shrink:0;display:none;display:flex;align-items:center">' + esc(item.reason) + '</span>' +
+      '</div>';
+    }).join('');
+    if (items.length > 10) {
+      html += '<div class="text-secondary text-center mt-2" style="font-size:.72rem">+ ' + (items.length - 10) + ' more items — use Status filter to view all</div>';
+    }
+    container.innerHTML = html;
+  }
+
+  /* ── Snapshot history ───────────────────────────────────────────────── */
+  function saveSnapshot() {
+    var labelEl = document.getElementById('snapshot-label-input');
+    var name = (labelEl ? labelEl.value.trim() : '') || ('Snapshot ' + new Date().toLocaleDateString());
+    var sc = computeSprs();
+    var snap = {
+      id: Date.now(),
+      label: name,
+      date: new Date().toISOString(),
+      sprs: sc.sprs,
+      met: sc.met, partial: sc.partial, notMet: sc.notMet, planned: sc.planned, na: sc.na,
+      activeCount: sc.activeCount
+    };
+    var snaps = loadSnapshots();
+    snaps.unshift(snap);
+    if (snaps.length > 20) snaps = snaps.slice(0, 20);
+    lsSet('cmmc2_snapshots', JSON.stringify(snaps));
+    if (labelEl) labelEl.value = '';
+    renderSnapshotList();
+  }
+
+  function loadSnapshots() {
+    try { return JSON.parse(lsGet('cmmc2_snapshots', '[]')) || []; }
+    catch(e) { return []; }
+  }
+
+  function deleteSnapshot(id) {
+    var snaps = loadSnapshots().filter(function(s){ return s.id !== id; });
+    lsSet('cmmc2_snapshots', JSON.stringify(snaps));
+    renderSnapshotList();
+  }
+
+  function renderSnapshotList() {
+    var container = document.getElementById('snapshot-list');
+    if (!container) return;
+    var snaps = loadSnapshots();
+    if (snaps.length === 0) {
+      container.innerHTML = '<p class="text-secondary text-center py-3 mb-0">No snapshots saved yet. Click "Save" above to capture the current SPRS score.</p>';
+      return;
+    }
+    var html = '';
+    snaps.forEach(function(snap, idx) {
+      var prev = snaps[idx + 1];
+      var delta = (prev != null) ? (snap.sprs - prev.sprs) : null;
+      var deltaHtml = '';
+      if (delta !== null) {
+        var sign = delta > 0 ? '+' : '';
+        var cls = delta > 0 ? 'text-success' : delta < 0 ? 'text-danger' : 'text-secondary';
+        deltaHtml = '<span class="' + cls + ' fw-bold" style="font-size:.75rem">' + sign + delta.toFixed(1) + ' vs prev</span>';
+      }
+      var dateStr = new Date(snap.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'});
+      html += '<div class="snapshot-item">' +
+        '<div style="flex:1;min-width:120px"><div class="snapshot-label">' + esc(snap.label) + '</div><div class="snapshot-date">' + dateStr + '</div></div>' +
+        '<div class="snapshot-score">' + snap.sprs.toFixed(1) + '<span style="font-size:.65rem;color:var(--bs-secondary-color);font-weight:400"> / 110</span></div>' +
+        (deltaHtml ? '<div>' + deltaHtml + '</div>' : '<div style="font-size:.65rem;color:var(--bs-secondary-color)">Baseline</div>') +
+        '<div style="font-size:.7rem;line-height:1.6">' +
+          '<span class="text-success fw-semibold">' + snap.met + ' met</span><br>' +
+          '<span class="text-warning fw-semibold">' + (snap.partial||0) + ' partial</span> · ' +
+          '<span class="text-danger fw-semibold">' + (snap.notMet||0) + ' not-met</span>' +
+        '</div>' +
+        '<button class="snap-del-btn" onclick="deleteSnapshot(' + snap.id + ')" title="Delete snapshot">×</button>' +
+      '</div>';
+    });
+    container.innerHTML = html;
+  }
+
+  /* ── Executive Summary ──────────────────────────────────────────────── */
+  function renderExecSummary() {
+    var body = document.getElementById('exec-summary-body');
+    if (!body) return;
+    var sc = computeSprs();
+    var profile = {};
+    try { profile = JSON.parse(lsGet('cmmc2_profile','{}')) || {}; } catch(e) {}
+    var scoreColor = sc.sprs >= 90 ? '#198754' : sc.sprs >= 70 ? '#ffc107' : sc.sprs >= 50 ? '#fd7e14' : '#dc3545';
+    var readPct = sc.nonNa > 0 ? Math.round(sc.met / sc.nonNa * 100) : 0;
+    var level = parseInt(profile.level || '2', 10);
+
+    var html = '<div id="exec-summary-content">';
+    // Header
+    html += '<div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">';
+    html += '<div><h3 class="fw-bold mb-1">' + esc(profile.company || 'Company Name') + '</h3>';
+    html += '<div style="font-size:.8rem;color:var(--bs-secondary-color)">';
+    if (profile.system)   html += 'System: <strong>' + esc(profile.system) + '</strong> &nbsp;&middot;&nbsp; ';
+    if (profile.cage)     html += 'CAGE: ' + esc(profile.cage) + ' &nbsp;&middot;&nbsp; ';
+    if (profile.assessor) html += 'Assessor: ' + esc(profile.assessor) + ' &nbsp;&middot;&nbsp; ';
+    html += 'Generated: ' + new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+    html += '</div></div>';
+    html += '<div class="text-end"><div style="font-size:2.8rem;font-weight:900;font-family:monospace;color:' + scoreColor + ';line-height:1">' + (sc.nonNa > 0 ? sc.sprs.toFixed(1) : '—') + '</div>';
+    html += '<div style="font-size:.68rem;color:var(--bs-secondary-color)">Estimated SPRS Score / 110</div>';
+    html += '<div style="font-size:.7rem;margin-top:.2rem">CMMC Level ' + level + ' &nbsp;·&nbsp; ' + sc.activeCount + ' controls</div></div></div>';
+
+    // Status distribution bar
+    var total = sc.activeCount || 1;
+    function pctOf(n){ return (n/total*100).toFixed(1)+'%'; }
+    html += '<div style="display:flex;height:10px;border-radius:5px;overflow:hidden;margin-bottom:.3rem">';
+    html += '<div style="background:#198754;width:'+pctOf(sc.met)+'"></div>';
+    html += '<div style="background:#ffc107;width:'+pctOf(sc.partial)+'"></div>';
+    html += '<div style="background:#0dcaf0;width:'+pctOf(sc.planned)+'"></div>';
+    html += '<div style="background:#dc3545;width:'+pctOf(sc.notMet)+'"></div>';
+    html += '<div style="background:rgba(108,117,125,.3);width:'+pctOf(sc.na)+'"></div>';
+    html += '</div>';
+
+    // Stat cards
+    html += '<div class="row g-2 mb-3">';
+    [{v:sc.met,l:'Met',c:'#198754'},{v:sc.partial,l:'Partial',c:'#ffc107'},{v:sc.notMet,l:'Not Met',c:'#dc3545'},
+     {v:sc.planned,l:'Planned',c:'#0dcaf0'},{v:sc.poamCount,l:'POA&M Items',c:'#fd7e14'},{v:readPct+'%',l:'Readiness',c:scoreColor}
+    ].forEach(function(si){
+      html += '<div class="col-4 col-md-2"><div class="sprs-stat-card"><div class="val" style="color:'+si.c+'">'+si.v+'</div><div class="lbl">'+si.l+'</div></div></div>';
+    });
+    html += '</div>';
+
+    // Domain breakdown
+    html += '<div class="exec-section-head">Domain Progress Breakdown</div>';
+    ALL_DOMAINS.forEach(function(domain) {
+      var pracs = activePractices(domain);
+      var met = 0, total = 0;
+      pracs.forEach(function(p){ var s=getStatus(domain.domain_id,p.id); if(s!=='na'){total++;if(s==='met')met++;} });
+      var pct = total > 0 ? Math.round(met/total*100) : 0;
+      var bc = pct>=100?'#198754':pct>=50?'#ffc107':pct>0?'#fd7e14':'#6c757d';
+      html += '<div class="exec-domain-row">' +
+        '<span style="width:32px;font-family:monospace;font-size:.7rem;font-weight:700;color:var(--bs-secondary-color);flex-shrink:0">'+esc(domain.domain_id)+'</span>' +
+        '<span style="width:170px;font-size:.75rem;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(domain.domain_name)+'</span>' +
+        '<div class="exec-domain-bar"><div class="exec-domain-bar-fill" style="width:'+pct+'%;background:'+bc+'"></div></div>' +
+        '<span style="width:55px;text-align:right;font-family:monospace;font-size:.72rem;flex-shrink:0">'+met+'/'+total+'</span>' +
+        '<span style="width:42px;text-align:right;font-family:monospace;font-size:.72rem;flex-shrink:0;color:'+bc+'">'+pct+'%</span>' +
+      '</div>';
+    });
+
+    // Gap summary
+    html += '<div class="exec-section-head">Controls Requiring Attention (POA&amp;M)</div>';
+    var gaps = [];
+    ALL_DOMAINS.forEach(function(domain) {
+      activePractices(domain).forEach(function(p) {
+        var s = getStatus(domain.domain_id,p.id);
+        if (s==='not-met'||s==='partial') gaps.push({domId:domain.domain_id,id:p.id,title:p.title,status:s,l1:p.level1});
+      });
+    });
+    gaps.sort(function(a,b){ var as=(a.status==='not-met'?2:1)+(a.l1?2:0), bs=(b.status==='not-met'?2:1)+(b.l1?2:0); return bs-as; });
+    if (gaps.length === 0) {
+      html += '<div class="alert alert-success py-2 small mb-0"><i class="bi bi-check-circle-fill me-2"></i>No gaps — all assessed controls are Met or N/A.</div>';
+    } else {
+      html += '<div class="table-responsive"><table class="table table-sm table-hover" style="font-size:.78rem"><thead class="table-secondary"><tr><th>Control</th><th>Title</th><th>Status</th><th>Risk</th><th>Owner</th><th>Target Date</th></tr></thead><tbody>';
+      gaps.slice(0,25).forEach(function(g){
+        var sm = STATUS_META[g.status];
+        var rsk = getRisk(g.domId,g.id);
+        html += '<tr>' +
+          '<td><span class="ctrl-id'+(g.l1?' ctrl-id-l1':'')+'" style="font-size:.68rem">'+esc(g.domId)+' '+esc(g.id)+'</span></td>' +
+          '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(g.title)+'">'+esc(g.title.slice(0,55))+'</td>' +
+          '<td><span class="status-btn '+sm.cls+' no-cycle" style="font-size:.72rem">'+esc(sm.short)+' '+esc(g.status.replace(/-/g,' '))+'</span></td>' +
+          '<td>'+(rsk?'<span class="risk-badge risk-'+rsk+'">'+rsk+'</span>':'<span class="text-secondary" style="font-size:.7rem">—</span>')+'</td>' +
+          '<td style="font-size:.75rem">'+esc(getOwner(g.domId,g.id)||'—')+'</td>' +
+          '<td style="font-size:.75rem;font-family:monospace">'+esc(getDate(g.domId,g.id)||'—')+'</td>' +
+        '</tr>';
+      });
+      if (gaps.length > 25) html += '<tr><td colspan="6" class="text-center text-secondary" style="font-size:.72rem">+' + (gaps.length-25) + ' more gaps not shown</td></tr>';
+      html += '</tbody></table></div>';
+    }
+    html += '</div>';
+    body.innerHTML = html;
+  }
+
+  function printExecSummary() {
+    var content = document.getElementById('exec-summary-content');
+    if (!content) return;
+    var profile = {};
+    try { profile = JSON.parse(lsGet('cmmc2_profile','{}')) || {}; } catch(e) {}
+    var w = window.open('', '_blank');
+    w.document.write('<!DOCTYPE html><html><head><title>CMMC Executive Summary — ' + (profile.company||'') + '</title>');
+    w.document.write('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">');
+    w.document.write('<style>body{font-family:system-ui,sans-serif;font-size:.88rem;padding:2rem;background:#fff;color:#212529}');
+    w.document.write('.ctrl-id{font-size:.74rem;font-weight:700;font-family:monospace;padding:2px 7px;border-radius:4px;background:#f0f0f0;color:#555}');
+    w.document.write('.ctrl-id-l1{background:#fff3cd;color:#856404}');
+    w.document.write('.status-btn{padding:2px 8px;border-radius:5px;font-size:.78rem;border:none}');
+    w.document.write('.s-met{color:#198754;background:rgba(25,135,84,.12)}.s-partial{color:#856404;background:rgba(255,193,7,.2)}.s-not-met{color:#dc3545;background:rgba(220,53,69,.12)}');
+    w.document.write('.risk-badge{font-size:.62rem;font-weight:800;text-transform:uppercase;padding:1px 6px;border-radius:10px}');
+    w.document.write('.risk-high{background:rgba(220,53,69,.15);color:#dc3545}.risk-medium{background:rgba(253,126,20,.15);color:#fd7e14}.risk-low{background:rgba(255,193,7,.15);color:#856404}');
+    w.document.write('.exec-section-head{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#0d6efd;border-bottom:1px solid #dee2e6;padding-bottom:.4rem;margin:1rem 0 .65rem}');
+    w.document.write('.exec-domain-row{display:flex;align-items:center;gap:.5rem;padding:.22rem 0;font-size:.78rem;border-bottom:1px solid #f0f0f0}');
+    w.document.write('.exec-domain-bar{flex:1;height:5px;background:#f0f0f0;border-radius:3px;overflow:hidden}');
+    w.document.write('.exec-domain-bar-fill{height:100%;border-radius:3px}');
+    w.document.write('.sprs-stat-card{background:#f8f9fa;border:1px solid #dee2e6;border-radius:.4rem;padding:.65rem .85rem;text-align:center}');
+    w.document.write('.sprs-stat-card .val{font-size:1.4rem;font-weight:800;font-family:monospace;line-height:1.1}');
+    w.document.write('.sprs-stat-card .lbl{font-size:.63rem;color:#6c757d;text-transform:uppercase;letter-spacing:.07em}</style>');
+    w.document.write('</head><body>' + content.innerHTML + '</body></html>');
+    w.document.close();
+    setTimeout(function(){ w.print(); }, 500);
+  }
+
+  /* ── Assessment Question Bank data ──────────────────────────────────── */
+  var ASSESSMENT_QUESTIONS = {
+    AC: [
+      'How does your organization limit system access to only authorized users, processes, and devices? Walk me through the mechanism.',
+      'Describe your account provisioning and termination process — who has authority to grant and revoke CUI access?',
+      'How is separation of duties enforced for privileged accounts and administrative functions?',
+      'What remote access policy and controls are in place? How is remote CUI access authenticated?',
+      'How does your organization handle unsuccessful logon attempts — lockout thresholds and alerting?',
+      'Describe how session lock and session termination are configured on CUI workstations.'
+    ],
+    AT: [
+      'When was security awareness training last conducted? What topics were covered, and who was required to complete it?',
+      'How do you document and track training completion records?',
+      'Describe your insider threat awareness program — what do employees learn about recognizing and reporting suspicious behavior?',
+      'How is role-based security training tailored for personnel with privileged or administrative CUI access?',
+      'Have you conducted phishing simulation exercises? What was the click rate, and what happened as a result?'
+    ],
+    AU: [
+      'What events does your organization log across CUI systems? Show me your audit policy configuration.',
+      'How long are audit logs retained, and where are they stored? Are they protected from modification?',
+      'Who reviews audit logs and how frequently? Is this a manual or automated process?',
+      'How are audit failures detected and reported — what happens when logging stops or fills up?',
+      'How do you ensure audit log integrity? Can you demonstrate that logs have not been tampered with?',
+      'How does your SIEM or log aggregation platform support detection of security events?'
+    ],
+    CM: [
+      'How does your organization establish, document, and maintain baseline configurations for CUI systems?',
+      'Walk me through your change management process — how are changes to CUI systems authorized and tested?',
+      'How do you control software installation on CUI systems? Who can install software, and how is it tracked?',
+      'Describe your hardware and software inventory process — how do you know what is on your network?',
+      'How do you enforce software whitelisting or application control on CUI endpoints?',
+      'How are non-essential programs, functions, ports, and services removed or restricted on CUI systems?'
+    ],
+    IA: [
+      'How are users and devices authenticated before accessing CUI systems? Describe the mechanism.',
+      'What are your password complexity, length, and rotation requirements? How are they enforced technically?',
+      'Describe how multi-factor authentication is implemented — which systems require MFA, and what factors are used?',
+      'How do you manage authenticator lifecycle — initial provisioning, refresh, revocation, and storage?',
+      'How are privileged accounts managed differently from standard user accounts?',
+      'What happens to authentication credentials when an employee leaves? How quickly are they revoked?'
+    ],
+    IR: [
+      'Describe your incident response plan — who is on the IR team and what are their roles?',
+      'Walk me through how you would detect and respond to a suspected exfiltration of CUI.',
+      'When was your last incident response tabletop or drill? What gaps were identified?',
+      'How and when do you report CUI-related incidents to the DoD and US-CERT/CISA?',
+      'How are incidents documented from detection through recovery and lessons-learned?',
+      'Do you have documented playbooks for specific incident types (ransomware, insider threat, phishing)?'
+    ],
+    MA: [
+      'How is maintenance on CUI systems authorized and documented? Who approves maintenance activities?',
+      'What controls are in place for remote maintenance sessions — how is access granted and audited?',
+      'How do you sanitize or remove CUI from equipment before it leaves for maintenance?',
+      'How are maintenance personnel screened if they do not have existing system access?',
+      'Describe your process for approving and logging nonlocal (remote) maintenance activities.'
+    ],
+    MP: [
+      'How does your organization identify and track all media containing CUI (USB drives, laptops, backup tapes)?',
+      'Describe your media sanitization and destruction procedures — what standard do you follow (NIST 800-88)?',
+      'What technical controls prevent unauthorized CUI transfer to removable media?',
+      'How is CUI on mobile devices protected — encryption, MDM, remote wipe?',
+      'What controls govern transport of CUI media outside your facility — approval process and tracking?'
+    ],
+    PE: [
+      'Describe physical access controls to your CUI processing areas — who can enter, and how is access controlled?',
+      'How do you control and log visitor access to areas where CUI is processed or stored?',
+      'How is physical access to CUI systems monitored — cameras, access logs, badge records?',
+      'What environmental controls protect CUI systems — fire suppression, temperature, UPS?',
+      'How do you protect CUI from individuals who may have physical access to common areas?'
+    ],
+    PS: [
+      'What personnel screening is conducted for employees and contractors who access CUI — background checks, clearances?',
+      'How do you protect CUI during personnel actions — suspension, termination, or transfer?',
+      'What is your process for immediate access revocation when a CUI-cleared employee is terminated for cause?',
+      'How do you handle personnel security agreements — NDAs, acceptable use agreements?'
+    ],
+    RA: [
+      'When was your last formal risk assessment, who conducted it, and what was the scope?',
+      'Describe your vulnerability scanning program — what tools do you use, how often do you scan, and what is covered?',
+      'How do you prioritize vulnerability remediation — what is your SLA for critical and high findings?',
+      'How does your risk assessment process drive security investments and control decisions?',
+      'How do you track open risks from assessment to remediation closure?'
+    ],
+    CA: [
+      'Describe your security control assessment program — how do you verify controls are implemented and effective?',
+      'When was your last assessment, and what was the scope? Was it conducted by internal staff or a third party?',
+      'How is your System Security Plan (SSP) maintained — who owns it, when was it last updated?',
+      'How does your Plan of Action & Milestones (POA&M) process work — how do open findings get tracked?',
+      'How do you implement and monitor your continuous monitoring strategy?',
+      'Describe how you manage and document authority to operate (ATO) or equivalent authorization decisions.'
+    ],
+    SC: [
+      'Describe your network segmentation — how are CUI systems isolated from untrusted networks and systems?',
+      'What encryption is used for CUI in transit and at rest? What standard do you follow (FIPS 140-2/3)?',
+      'How does your boundary protection work — firewalls, proxies, DLP at egress points?',
+      'Describe your remote access architecture — VPN, jump servers, zero-trust gateway?',
+      'How do you prevent unauthorized connections from CUI systems to the public internet?',
+      'How is DNS filtering or web content filtering used to protect CUI systems?'
+    ],
+    SI: [
+      'Describe your patch management program — how quickly do you patch critical vulnerabilities on CUI systems?',
+      'What anti-malware solution is deployed? How is it updated and managed? Are scans scheduled?',
+      'How do you monitor for security alerts, vendor advisories, and US-CERT/CISA notifications?',
+      'Describe your system integrity monitoring — how do you detect unauthorized changes to CUI system files?',
+      'How are security flaws tracked and remediated — what is your process from discovery to closure?',
+      'What security information and event monitoring capabilities do you have for CUI environments?'
+    ]
+  };
+
+  /* ── QA panel toggle ─────────────────────────────────────────────────── */
+  function toggleQA(btn, bodyId) {
+    var body = document.getElementById(bodyId);
+    if (!body) return;
+    var open = body.classList.contains('open');
+    body.classList.toggle('open', !open);
+    var chev = btn.querySelector('.bi-chevron-right,.bi-chevron-down');
+    if (chev) chev.className = open ? 'bi bi-chevron-right ms-auto' : 'bi bi-chevron-down ms-auto';
+  }
+
+  /* ── Radar Chart ─────────────────────────────────────────────────────── */
+  function drawRadarChart() {
+    var canvas = document.getElementById('radar-canvas');
+    if (!canvas || !canvas.getContext) return;
+    var ctx = canvas.getContext('2d');
+    var W = canvas.width, H = canvas.height, cx = W/2, cy = H/2;
+    var r = Math.min(W, H) * 0.36;
+    ctx.clearRect(0, 0, W, H);
+    var domains = ALL_DOMAINS.filter(function(d){ return activePractices(d).length > 0; });
+    var N = domains.length;
+    if (N === 0) return;
+    var step = (Math.PI * 2) / N;
+    var isDark = document.documentElement.getAttribute('data-bs-theme') !== 'light';
+    var gridColor  = isDark ? 'rgba(255,255,255,.09)' : 'rgba(0,0,0,.08)';
+    var labelColor = isDark ? 'rgba(255,255,255,.45)' : 'rgba(0,0,0,.45)';
+
+    // Rings
+    [1, 0.67, 0.33].forEach(function(s) {
+      ctx.beginPath();
+      for (var i = 0; i < N; i++) {
+        var a = step * i - Math.PI/2;
+        var x = cx + Math.cos(a) * r * s, y = cy + Math.sin(a) * r * s;
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.closePath(); ctx.strokeStyle = gridColor; ctx.lineWidth = 1; ctx.stroke();
+    });
+    // Spokes
+    for (var i = 0; i < N; i++) {
+      var a = step * i - Math.PI/2;
+      ctx.beginPath(); ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + Math.cos(a)*r, cy + Math.sin(a)*r);
+      ctx.strokeStyle = gridColor; ctx.lineWidth = 1; ctx.stroke();
+    }
+    // Data
+    var vals = domains.map(function(d) {
+      var pracs = activePractices(d), met = 0, tot = 0;
+      pracs.forEach(function(p){ var s=getStatus(d.domain_id,p.id); if(s!=='na'){tot++;if(s==='met')met++;} });
+      return tot > 0 ? met/tot : 0;
+    });
+    ctx.beginPath();
+    vals.forEach(function(v, i) {
+      var a = step * i - Math.PI/2;
+      var x = cx + Math.cos(a)*r*v, y = cy + Math.sin(a)*r*v;
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(255,88,17,.18)'; ctx.fill();
+    ctx.strokeStyle = 'rgba(255,88,17,.75)'; ctx.lineWidth = 1.5; ctx.stroke();
+    // Points + labels
+    ctx.font = 'bold 7px monospace';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    vals.forEach(function(v, i) {
+      var a = step * i - Math.PI/2;
+      var px = cx + Math.cos(a)*r*v, py = cy + Math.sin(a)*r*v;
+      ctx.beginPath(); ctx.arc(px, py, 2.5, 0, Math.PI*2);
+      ctx.fillStyle = '#ff5811'; ctx.fill();
+      var lx = cx + Math.cos(a)*(r+13), ly = cy + Math.sin(a)*(r+13);
+      ctx.fillStyle = labelColor;
+      ctx.fillText(domains[i].domain_id, lx, ly);
+    });
+  }
+
+  /* ── SSP Generator ───────────────────────────────────────────────────── */
+  var SSP_IMPL_GUIDANCE = {
+    AC: 'The organization employs role-based access controls, user account management procedures, and session management configurations to limit system access to authorized individuals, processes, and devices.',
+    AT: 'The organization delivers security awareness training to all personnel with system access annually and provides role-based training to individuals with significant security responsibilities.',
+    AU: 'The organization enables audit logging across all CUI systems, reviews logs regularly, and protects audit records from unauthorized access, modification, and deletion.',
+    CM: 'The organization maintains documented baseline configurations, controls software installation, and manages system component inventory through an established configuration management process.',
+    IA: 'The organization enforces identification and authentication requirements through technically-enforced password policies, multi-factor authentication, and authenticator lifecycle management.',
+    IR: 'The organization maintains an incident response capability that includes a documented plan, trained personnel, regular exercises, and mechanisms for reporting incidents to appropriate authorities.',
+    MA: 'The organization controls, monitors, and documents all maintenance activities on CUI systems, including vetting of maintenance personnel and sanitization of equipment prior to off-site maintenance.',
+    MP: 'The organization identifies, protects, sanitizes, and controls the disposal of all media containing CUI in accordance with documented media protection procedures.',
+    PE: 'The organization controls physical access to facilities and systems processing CUI through layered physical access controls, visitor management, and environmental protections.',
+    PS: 'The organization screens individuals prior to granting access to CUI, terminates access promptly upon departure or role change, and enforces personnel security agreements.',
+    RA: 'The organization conducts periodic risk assessments, performs vulnerability scanning on a defined schedule, and tracks findings through a formal remediation process.',
+    CA: 'The organization periodically assesses security controls, maintains a System Security Plan, tracks open findings in a Plan of Action & Milestones, and implements continuous monitoring.',
+    SC: 'The organization employs boundary protection, network segmentation, encryption of CUI in transit and at rest, and monitoring of communications at system boundaries.',
+    SI: 'The organization identifies, reports, and corrects system flaws; employs anti-malware protections; monitors systems for security alerts; and verifies system integrity.'
+  };
+
+  function renderSSP() {
+    var body = document.getElementById('ssp-body');
+    if (!body) return;
+    var profile = {};
+    try { profile = JSON.parse(lsGet('cmmc2_profile','{}')) || {}; } catch(e) {}
+    var level = parseInt(profile.level || '2', 10);
+    var sc = computeSprs();
+
+    var html = '<div id="ssp-content">';
+
+    // Cover page info
+    html += '<div class="mb-4 p-3" style="background:rgba(var(--bs-primary-rgb),.05);border:1px solid rgba(var(--bs-primary-rgb),.15);border-radius:.5rem">';
+    html += '<div class="row g-2">';
+    var fields = [
+      ['System Name', profile.system || '[System Name]'],
+      ['Organization', profile.company || '[Company Name]'],
+      ['CAGE Code', profile.cage || '[CAGE Code]'],
+      ['Assessment Level', 'CMMC Level ' + level + (level===3?' (DIBCAC)':'')],
+      ['System Owner', profile.assessor || '[Assessor / Owner Name]'],
+      ['Date Prepared', profile.date || new Date().toLocaleDateString()],
+      ['SPRS Score (Estimated)', sc.nonNa > 0 ? sc.sprs.toFixed(1) + ' / 110' : 'Not yet calculated'],
+      ['Contract Type', profile.contract || '[Prime / Sub-Contractor]']
+    ];
+    fields.forEach(function(f) {
+      html += '<div class="col-md-3 col-6"><div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--bs-secondary-color)">'+esc(f[0])+'</div><div style="font-size:.82rem;font-weight:600">'+esc(f[1])+'</div></div>';
+    });
+    html += '</div></div>';
+
+    html += '<div class="alert alert-warning py-2 mb-3" style="font-size:.78rem"><i class="bi bi-exclamation-triangle-fill me-2"></i><strong>This is an auto-generated template only.</strong> Review, customize, and have this SSP reviewed by a qualified compliance professional before submission. It does not constitute legal or regulatory advice.</div>';
+
+    // Per-domain sections
+    ALL_DOMAINS.forEach(function(domain) {
+      var pracs = activePractices(domain).filter(function(p){ return !p.level3; });
+      if (pracs.length === 0) return;
+      var domId = domain.domain_id;
+
+      var metCnt=0, naCnt=0;
+      pracs.forEach(function(p) {
+        var s = getStatus(domId, p.id);
+        if(s==='met')metCnt++;else if(s==='na')naCnt++;
+      });
+      var assessed = pracs.length - naCnt;
+      var pct = assessed > 0 ? Math.round(metCnt/assessed*100) : 0;
+      var statusColor = pct>=100?'#198754':pct>=50?'#ffc107':pct>0?'#fd7e14':'#6c757d';
+
+      html += '<div class="ssp-domain-block">';
+      html += '<div class="ssp-domain-head d-flex align-items-center gap-2">';
+      html += '<span class="ctrl-id">'+esc(domId)+'</span>';
+      html += '<span>'+esc(domain.domain_name)+'</span>';
+      html += '<span class="ms-auto" style="font-size:.7rem;color:'+statusColor+';font-family:monospace;font-weight:700">'+metCnt+'/'+assessed+' met ('+pct+'%)</span>';
+      html += '</div>';
+
+      // Policy statement
+      html += '<div class="ssp-ctrl-row" style="background:rgba(var(--bs-primary-rgb),.03)">';
+      html += '<div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--bs-primary);margin-bottom:.3rem">Implementation Summary</div>';
+      html += '<div style="font-size:.8rem;font-style:italic;color:var(--bs-secondary-color)">'+esc(SSP_IMPL_GUIDANCE[domId]||'Implementation details are documented below per control.')+'</div>';
+      html += '</div>';
+
+      // Per-control rows
+      pracs.forEach(function(p) {
+        var s = getStatus(domId, p.id);
+        var sm = STATUS_META[s] || STATUS_META['not-assessed'];
+        var note = getNote(domId, p.id);
+        var owner = getOwner(domId, p.id);
+        var date = getDate(domId, p.id);
+        var risk = getRisk(domId, p.id);
+
+        html += '<div class="ssp-ctrl-row">';
+        html += '<div class="d-flex align-items-center gap-2 mb-1 flex-wrap">';
+        html += '<span class="ctrl-id'+(p.level1?' ctrl-id-l1':'')+'" style="font-size:.7rem">'+esc(domId+' '+p.id)+'</span>';
+        html += '<span class="status-btn '+sm.cls+' no-cycle" style="font-size:.72rem">'+esc(sm.short+' '+s.replace(/-/g,' '))+'</span>';
+        if(risk) html += '<span class="risk-badge risk-'+risk+'">'+risk+' risk</span>';
+        if(owner) html += '<span class="owner-badge">'+esc(owner)+'</span>';
+        if(date)  html += '<span style="font-size:.65rem;color:var(--bs-secondary-color);font-family:monospace">'+esc(date)+'</span>';
+        html += '</div>';
+        html += '<div style="font-size:.77rem;color:var(--bs-secondary-color);margin-bottom:.3rem;font-style:italic">'+esc(p.title)+'</div>';
+        if (note) {
+          html += '<div style="font-size:.78rem;color:var(--bs-body-color)">';
+          html += '<span style="font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--bs-primary)">Implementation Statement: </span>';
+          html += esc(note);
+          html += '</div>';
+        } else {
+          html += '<div style="font-size:.75rem;color:var(--bs-secondary-color);font-style:italic">';
+          html += '[Implementation statement not documented. Add notes to this control to populate this section.]';
+          html += '</div>';
+        }
+        html += '</div>';
+      });
+
+      // L3 practices if level 3
+      if (level === 3) {
+        var l3pracs = domain.practices.filter(function(p){ return p.level3; });
+        if (l3pracs.length) {
+          html += '<div class="ssp-ctrl-row" style="background:rgba(111,66,193,.05)">';
+          html += '<div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#a98eda;margin-bottom:.3rem">Level 3 Enhanced Requirements (NIST SP 800-172 / DIBCAC)</div>';
+          l3pracs.forEach(function(p) {
+            var s = getStatus(domId, p.id);
+            var sm = STATUS_META[s] || STATUS_META['not-assessed'];
+            var note = getNote(domId, p.id);
+            html += '<div style="margin-bottom:.5rem;padding:.4rem .6rem;border:1px solid rgba(111,66,193,.2);border-radius:.3rem">';
+            html += '<div style="font-size:.7rem;font-family:monospace;font-weight:700;color:#a98eda;margin-bottom:.2rem">'+esc(domId+' '+p.id)+' <span class="status-btn '+sm.cls+' no-cycle" style="font-size:.65rem">'+esc(sm.short)+'</span></div>';
+            html += '<div style="font-size:.75rem;color:var(--bs-secondary-color);font-style:italic;margin-bottom:.2rem">'+esc(p.title.slice(0,80))+'&#8230;</div>';
+            if (note) html += '<div style="font-size:.75rem">'+esc(note)+'</div>';
+            html += '</div>';
+          });
+          html += '</div>';
+        }
+      }
+
+      html += '</div>';
+    });
+
+    html += '</div>'; // ssp-content
+    body.innerHTML = html;
+  }
+
+  function printSSP() {
+    var content = document.getElementById('ssp-content');
+    if (!content) return;
+    var profile = {};
+    try { profile = JSON.parse(lsGet('cmmc2_profile','{}')) || {}; } catch(e) {}
+    var w = window.open('', '_blank');
+    w.document.write('<!DOCTYPE html><html><head><title>SSP — '+(profile.company||'')+'</title>');
+    w.document.write('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">');
+    w.document.write('<style>body{font-family:system-ui,sans-serif;font-size:.85rem;padding:2rem;background:#fff;color:#212529}');
+    w.document.write('.ssp-domain-block{margin-bottom:1.5rem;border:1px solid #dee2e6;border-radius:.4rem;overflow:hidden;page-break-inside:avoid}');
+    w.document.write('.ssp-domain-head{background:#f8f9fa;padding:.65rem 1rem;font-size:.82rem;font-weight:700;border-bottom:1px solid #dee2e6}');
+    w.document.write('.ssp-ctrl-row{padding:.5rem 1rem;border-bottom:1px solid #f0f0f0}');
+    w.document.write('.ctrl-id{font-size:.74rem;font-weight:700;font-family:monospace;padding:2px 7px;border-radius:4px;background:#f0f0f0;color:#555}');
+    w.document.write('.ctrl-id-l1{background:#fff3cd;color:#856404}');
+    w.document.write('.status-btn{padding:2px 8px;border-radius:5px;font-size:.72rem;border:none;font-weight:600}');
+    w.document.write('.s-met{color:#198754;background:rgba(25,135,84,.1)}.s-partial{color:#856404;background:rgba(255,193,7,.15)}.s-not-met{color:#dc3545;background:rgba(220,53,69,.1)}.s-planned{color:#0d6efd;background:rgba(13,110,253,.1)}.s-not-assessed{color:#6c757d}');
+    w.document.write('.risk-badge{font-size:.62rem;font-weight:700;text-transform:uppercase;padding:1px 6px;border-radius:10px}.risk-high{background:rgba(220,53,69,.1);color:#dc3545}.risk-medium{background:rgba(253,126,20,.1);color:#fd7e14}.risk-low{background:rgba(255,193,7,.1);color:#856404}');
+    w.document.write('.owner-badge{font-size:.65rem;color:#0d6efd;background:rgba(13,110,253,.08);border:1px solid rgba(13,110,253,.2);padding:1px 7px;border-radius:20px}');
+    w.document.write('@media print{.ssp-domain-block{page-break-inside:avoid}}</style>');
+    w.document.write('</head><body>'+content.innerHTML+'</body></html>');
+    w.document.close();
+    setTimeout(function(){ w.print(); }, 500);
+  }
+
+  /* ── DOMContentLoaded ────────────────────────────────────────────────── */
+  document.addEventListener('DOMContentLoaded', function() {
+    loadData();
+    // Year
+    document.querySelectorAll('[data-year]').forEach(function(el){ el.textContent = new Date().getFullYear(); });
+  });
+  </script>
+</body>
+</html>

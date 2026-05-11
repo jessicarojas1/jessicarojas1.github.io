@@ -236,6 +236,139 @@
     /* ── Search highlight ── */
     mark { background:rgba(255,193,7,.35); color:inherit; padding:0 1px; border-radius:2px; }
 
+    /* ── Category filter buttons ── */
+    .cat-btn { padding:3px 11px; border-radius:20px; font-size:.72rem; font-weight:700; letter-spacing:.03em; border:1px solid var(--bs-border-color); background:transparent; color:var(--bs-secondary-color); cursor:pointer; transition:background .15s,color .15s,border-color .15s,transform .12s; white-space:nowrap; }
+    .cat-btn:hover { transform:translateY(-1px); }
+    .cat-btn-all.active  { background:rgba(128,128,128,.15); border-color:rgba(255,255,255,.35); color:var(--bs-body-color); }
+    .cat-btn-managing.active  { background:rgba(13,110,253,.15); border-color:rgba(13,110,253,.5); color:#6ea8fe; }
+    .cat-btn-doing.active     { background:rgba(25,135,84,.15);  border-color:rgba(25,135,84,.5);  color:#75b798; }
+    .cat-btn-enabling.active  { background:rgba(13,202,240,.15); border-color:rgba(13,202,240,.5); color:#0dcaf0; }
+    .cat-btn-improving.active { background:rgba(255,88,17,.15);  border-color:rgba(255,88,17,.5);  color:var(--bs-primary); }
+
+    /* ── PA progress fraction in header ── */
+    .pa-progress-frac { font-size:.71rem; font-family:monospace; color:var(--bs-secondary-color); font-weight:600; padding:1px 7px; border-radius:10px; border:1px solid var(--bs-border-color); background:var(--bs-body-bg); white-space:nowrap; }
+    .pa-progress-frac.frac-done { color:var(--bs-success); border-color:rgba(25,135,84,.4); }
+    .pa-progress-frac.frac-ip   { color:var(--bs-warning); border-color:rgba(255,193,7,.4); }
+
+    /* ── Category badges in PA header ── */
+    .cat-badge { display:inline-block; padding:1px 7px; border-radius:20px; font-size:.62rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase; }
+    .cat-badge-managing  { background:rgba(13,110,253,.12); color:#6ea8fe; border:1px solid rgba(13,110,253,.3); }
+    .cat-badge-doing     { background:rgba(25,135,84,.12);  color:#75b798; border:1px solid rgba(25,135,84,.3); }
+    .cat-badge-enabling  { background:rgba(13,202,240,.12); color:#0dcaf0; border:1px solid rgba(13,202,240,.3); }
+    .cat-badge-improving { background:rgba(255,88,17,.12);  color:var(--bs-primary); border:1px solid rgba(255,88,17,.3); }
+
+    /* ── Interaction Map ── */
+    .imap-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; }
+    @media (max-width:991.98px) { .imap-grid { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:575.98px) { .imap-grid { grid-template-columns:1fr; } }
+    .imap-group { border-radius:.5rem; padding:1rem; border:1px solid var(--bs-border-color); transition:box-shadow .2s,transform .2s; }
+    .imap-group:hover { box-shadow:0 6px 20px rgba(0,0,0,.3); transform:translateY(-2px); }
+    .imap-group-managing { border-color:rgba(13,110,253,.3);  background:rgba(13,110,253,.05);  }
+    .imap-group-doing    { border-color:rgba(25,135,84,.3);   background:rgba(25,135,84,.05);   }
+    .imap-group-enabling { border-color:rgba(13,202,240,.3);  background:rgba(13,202,240,.05);  }
+    .imap-group-improving{ border-color:rgba(255,88,17,.3);   background:rgba(255,88,17,.05);   }
+    .imap-title { font-size:.72rem; font-weight:800; text-transform:uppercase; letter-spacing:.1em; margin-bottom:.5rem; display:flex; align-items:center; gap:.4rem; }
+    .imap-title-managing  { color:#6ea8fe; }
+    .imap-title-doing     { color:#75b798; }
+    .imap-title-enabling  { color:#0dcaf0; }
+    .imap-title-improving { color:var(--bs-primary); }
+    .imap-desc { font-size:.71rem; color:var(--bs-secondary-color); margin-bottom:.6rem; line-height:1.5; min-height:2.4em; }
+    .imap-pill { display:inline-block; padding:2px 9px; border-radius:20px; font-size:.68rem; font-weight:700; font-family:monospace; margin:2px; cursor:pointer; transition:background .15s,transform .1s; white-space:nowrap; text-decoration:none; }
+    .imap-pill:hover { transform:translateY(-1px); }
+    .imap-pill-managing  { border:1px solid rgba(13,110,253,.4); color:#6ea8fe; background:transparent; }
+    .imap-pill-managing:hover  { background:rgba(13,110,253,.15); color:#6ea8fe; }
+    .imap-pill-doing     { border:1px solid rgba(25,135,84,.4);  color:#75b798; background:transparent; }
+    .imap-pill-doing:hover     { background:rgba(25,135,84,.15); color:#75b798; }
+    .imap-pill-enabling  { border:1px solid rgba(13,202,240,.4); color:#0dcaf0; background:transparent; }
+    .imap-pill-enabling:hover  { background:rgba(13,202,240,.15); color:#0dcaf0; }
+    .imap-pill-improving { border:1px solid rgba(255,88,17,.4);  color:var(--bs-primary); background:transparent; }
+    .imap-pill-improving:hover { background:rgba(255,88,17,.15); color:var(--bs-primary); }
+
+    /* ── ML level bars in dashboard ── */
+    .ml-bar-row { display:flex; gap:1.25rem; flex-wrap:wrap; margin-bottom:.6rem; }
+    .ml-bar-block { flex:1; min-width:160px; }
+    .ml-bar-label { display:flex; justify-content:space-between; align-items:center; margin-bottom:.3rem; }
+
+    /* ── Status distribution bar ── */
+    .status-dist-bar { display:flex; height:8px; border-radius:4px; overflow:hidden; margin-bottom:.35rem; background:rgba(128,128,128,.12); }
+    .sdb-done { background:var(--bs-success); transition:width .5s ease; min-width:0; }
+    .sdb-ip   { background:var(--bs-warning); transition:width .5s ease; min-width:0; }
+    .sdb-na   { background:rgba(108,117,125,.35); transition:width .5s ease; min-width:0; }
+    .sdb-legend { display:flex; gap:.85rem; font-size:.67rem; color:var(--bs-secondary-color); flex-wrap:wrap; margin-bottom:.6rem; }
+    .sdb-dot { width:7px; height:7px; border-radius:50%; display:inline-block; flex-shrink:0; vertical-align:middle; margin-right:2px; }
+
+    /* ── Readiness gate badges ── */
+    .gate-badge { display:inline-flex; align-items:center; gap:.3rem; padding:4px 11px; border-radius:20px; font-size:.72rem; font-weight:700; border:1px solid; }
+    .gate-ready   { color:#75b798; border-color:rgba(25,135,84,.45); background:rgba(25,135,84,.1); }
+    .gate-partial { color:#ffc107; border-color:rgba(255,193,7,.45); background:rgba(255,193,7,.1); }
+    .gate-pending { color:var(--bs-secondary-color); border-color:var(--bs-border-color); background:transparent; }
+
+    /* ── PA bulk action button ── */
+    .pa-bulk-btn { padding:2px 8px; opacity:.45; border:none; background:none; color:var(--bs-secondary-color); cursor:pointer; font-size:.88rem; line-height:1; border-radius:4px; transition:opacity .15s,background .15s; flex-shrink:0; }
+    .pa-bulk-btn:hover { opacity:1; background:rgba(255,255,255,.07); }
+    .pa-bulk-menu { font-size:.78rem; }
+
+    /* ── Heat map ── */
+    .heat-map-wrap { background:var(--bs-secondary-bg); border:1px solid var(--bs-border-color); border-radius:.5rem; padding:.9rem 1rem; }
+    .hm-legend { display:flex; gap:1rem; font-size:.67rem; color:var(--bs-secondary-color); flex-wrap:wrap; align-items:center; margin-bottom:.75rem; }
+    .hm-cell-sample { display:inline-block; width:11px; height:11px; border-radius:2px; vertical-align:middle; margin-right:3px; }
+    .hm-category { margin-bottom:.7rem; }
+    .hm-cat-label { font-size:.65rem; font-weight:800; text-transform:uppercase; letter-spacing:.1em; margin-bottom:.3rem; padding-bottom:.22rem; border-bottom:1px solid var(--bs-border-color); }
+    .hm-cat-managing  { color:#6ea8fe; } .hm-cat-doing     { color:#75b798; }
+    .hm-cat-enabling  { color:#0dcaf0; } .hm-cat-improving { color:var(--bs-primary); }
+    .hm-row { display:flex; align-items:center; gap:.45rem; margin-bottom:.22rem; }
+    .hm-pa-label { font-size:.67rem; font-weight:700; font-family:monospace; width:40px; flex-shrink:0; color:var(--bs-secondary-color); }
+    .hm-cells { display:flex; gap:2px; flex-wrap:wrap; align-items:center; }
+    .hm-pg-group { display:flex; gap:2px; padding:2px 3px; border-radius:3px; }
+    .hm-pg-spacer { width:4px; }
+    .hm-cell { width:13px; height:13px; border-radius:2px; cursor:pointer; transition:transform .1s; flex-shrink:0; position:relative; }
+    .hm-cell:hover { transform:scale(1.55); z-index:10; }
+    .hm-ns   { background:rgba(108,117,125,.18); border:1px solid rgba(108,117,125,.28); }
+    .hm-ip   { background:rgba(255,193,7,.55);  border:1px solid rgba(255,193,7,.7); }
+    .hm-done { background:rgba(25,135,84,.65);  border:1px solid rgba(25,135,84,.8); }
+    .hm-na   { background:rgba(108,117,125,.06); border:1px dashed rgba(108,117,125,.22); }
+
+    /* ── What's Next panel ── */
+    .what-next-item { padding:.6rem .85rem; background:var(--bs-secondary-bg); border:1px solid var(--bs-border-color); border-left:3px solid var(--bs-border-color); border-radius:0 .4rem .4rem 0; cursor:pointer; transition:border-color .15s,background .15s; }
+    .what-next-item:hover { background:rgba(var(--bs-primary-rgb),.04); border-color:rgba(255,88,17,.35); border-left-color:rgba(255,88,17,.5); }
+    .wn-p1 { border-left-color:var(--bs-warning) !important; }
+    .wn-p2 { border-left-color:rgba(13,202,240,.5) !important; }
+    .wn-p3 { border-left-color:rgba(108,117,125,.45) !important; }
+
+    /* ── Quick tools bar ── */
+    .quick-tools-bar { background:var(--bs-secondary-bg); border:1px solid var(--bs-border-color); border-radius:.4rem; padding:.5rem .85rem; }
+
+    /* ── Flag button ── */
+    .flag-btn { flex-shrink:0; border:none; background:none; cursor:pointer; padding:2px 4px; font-size:.82rem; line-height:1; color:var(--bs-secondary-color); opacity:.35; transition:opacity .15s,color .15s; }
+    .flag-btn:hover { opacity:.8; }
+    .flag-btn.flagged { color:#ffc107; opacity:1; }
+
+    /* ── Owner badge in row ── */
+    .owner-badge { font-size:.62rem; color:var(--bs-info); background:rgba(13,202,240,.1); border:1px solid rgba(13,202,240,.25); padding:1px 6px; border-radius:20px; white-space:nowrap; max-width:110px; overflow:hidden; text-overflow:ellipsis; flex-shrink:0; }
+
+    /* ── Due/overdue badges in row ── */
+    .due-badge { font-size:.62rem; padding:1px 6px; border-radius:20px; white-space:nowrap; flex-shrink:0; border:1px solid; }
+    .due-badge-overdue { color:#dc3545; border-color:rgba(220,53,69,.35); background:rgba(220,53,69,.1); }
+    .due-badge-soon    { color:#fd7e14; border-color:rgba(253,126,20,.35); background:rgba(253,126,20,.08); }
+
+    /* ── Owner / Target Date inputs in practice detail ── */
+    .owner-date-row { display:flex; gap:.75rem; flex-wrap:wrap; margin-top:.75rem; }
+    .owner-date-block { flex:1; min-width:160px; }
+    .owner-input,.date-input { width:100%; border-radius:.3rem; border:1px solid var(--bs-border-color); background:var(--bs-body-bg); color:var(--bs-body-color); padding:.35rem .65rem; font-size:.8rem; font-family:inherit; transition:border-color .2s; }
+    .owner-input:focus,.date-input:focus { outline:none; border-color:rgba(255,88,17,.5); }
+
+    /* ── Evidence progress bar (per PA) ── */
+    .ev-prog-wrap { margin-bottom:.5rem; }
+    .ev-prog-bar { height:3px; border-radius:2px; background:rgba(128,128,128,.15); margin-top:2px; }
+    .ev-prog-fill { height:100%; border-radius:2px; background:rgba(255,193,7,.7); transition:width .4s; }
+
+    /* ── Appraisal readiness score badge ── */
+    .readiness-score { display:inline-flex; align-items:center; gap:.3rem; padding:2px 9px; border-radius:20px; font-size:.72rem; font-weight:800; font-family:monospace; border:1px solid; white-space:nowrap; }
+    .rs-green  { color:#75b798; border-color:rgba(25,135,84,.45); background:rgba(25,135,84,.1); }
+    .rs-yellow { color:#ffc107; border-color:rgba(255,193,7,.45); background:rgba(255,193,7,.1); }
+    .rs-orange { color:#fd7e14; border-color:rgba(253,126,20,.45); background:rgba(253,126,20,.08); }
+    .rs-red    { color:var(--bs-secondary-color); border-color:var(--bs-border-color); background:transparent; }
+
     /* ── Print styles ── */
     @media print {
       #mainNav, footer, .filter-bar, .no-print, .navbar, #jump-nav, #progress-dashboard { display:none !important; }
@@ -339,25 +472,25 @@
     </section>
 
     <!-- ── Main Reference ── -->
-    <section class="py-5 reveal">
+    <section class="py-5 reveal" id="pa-accordion-section">
       <div class="container">
 
         <!-- Filter bar -->
         <div class="filter-bar no-print">
-          <div class="row g-3 align-items-end">
-            <div class="col-12 col-md-4 col-lg-3">
+          <div class="row g-2 align-items-end mb-2">
+            <div class="col-12 col-sm-6 col-md-3">
               <label class="form-label small fw-semibold mb-1">Search <kbd class="ms-1" style="font-size:.6rem">/</kbd></label>
               <input type="search" class="form-control form-control-sm" id="search-input" placeholder="Practice area, statement, keyword…" />
             </div>
-            <div class="col-6 col-md-3 col-lg-2">
-              <label class="form-label small fw-semibold mb-1">Maturity Level</label>
+            <div class="col-6 col-sm-3 col-md-2">
+              <label class="form-label small fw-semibold mb-1">Level</label>
               <select class="form-select form-select-sm" id="filter-level">
                 <option value="">All Levels</option>
                 <option value="ML2">ML2 — Managed</option>
                 <option value="ML3">ML3 — Defined</option>
               </select>
             </div>
-            <div class="col-6 col-md-3 col-lg-2">
+            <div class="col-6 col-sm-3 col-md-2">
               <label class="form-label small fw-semibold mb-1">Domain</label>
               <select class="form-select form-select-sm" id="filter-domain">
                 <option value="">All Domains</option>
@@ -365,13 +498,37 @@
                 <option value="Development">Development</option>
               </select>
             </div>
-            <div class="col-12 col-md-2 col-lg-5 d-flex align-items-end gap-2 flex-wrap">
+            <div class="col-6 col-sm-3 col-md-2">
+              <label class="form-label small fw-semibold mb-1">Show Status</label>
+              <select class="form-select form-select-sm" id="filter-status">
+                <option value="">All Statuses</option>
+                <option value="ns">Not Started ○</option>
+                <option value="ip">In Progress ◐</option>
+                <option value="done">Implemented ✓</option>
+                <option value="na">N/A —</option>
+                <option value="notes">Has Notes ✏</option>
+                <option value="flagged">Flagged ⚑</option>
+                <option value="owner">Has Owner</option>
+                <option value="overdue">Overdue / Due Soon</option>
+              </select>
+            </div>
+            <div class="col-6 col-sm-3 col-md-3 d-flex align-items-end gap-1 flex-wrap">
               <button class="btn btn-sm btn-outline-secondary" id="btn-expand-all">Expand All</button>
-              <button class="btn btn-sm btn-outline-secondary" id="btn-collapse-all">Collapse All</button>
+              <button class="btn btn-sm btn-outline-secondary" id="btn-collapse-all">Collapse</button>
               <button class="btn btn-sm btn-outline-danger" id="btn-reset">Reset</button>
-              <button class="btn btn-sm btn-outline-success" id="btn-export-excel"><i class="bi bi-file-earmark-spreadsheet me-1"></i>Export Excel</button>
+              <button class="btn btn-sm btn-outline-success" id="btn-export-excel" title="Export to Excel"><i class="bi bi-file-earmark-spreadsheet"></i></button>
               <span class="text-secondary small ms-auto align-self-center" id="visible-count"></span>
             </div>
+          </div>
+          <!-- Category filter -->
+          <div class="d-flex align-items-center gap-2 flex-wrap pt-1" style="border-top:1px solid var(--bs-border-color);">
+            <span class="small text-secondary fw-semibold" style="white-space:nowrap;font-size:.71rem">Category:</span>
+            <button class="cat-btn cat-btn-all active" data-cat="">All</button>
+            <button class="cat-btn cat-btn-managing" data-cat="Managing"><span class="bi bi-bar-chart-fill me-1"></span>Managing</button>
+            <button class="cat-btn cat-btn-doing" data-cat="Doing"><span class="bi bi-gear-fill me-1"></span>Doing</button>
+            <button class="cat-btn cat-btn-enabling" data-cat="Enabling"><span class="bi bi-lightning-fill me-1"></span>Enabling</button>
+            <button class="cat-btn cat-btn-improving" data-cat="Improving"><span class="bi bi-arrow-repeat me-1"></span>Improving</button>
+            <span class="text-secondary ms-2" style="font-size:.68rem" id="cat-description"></span>
           </div>
         </div>
 
@@ -379,15 +536,85 @@
         <div id="progress-dashboard" class="no-print">
           <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
             <div>
-              <span class="fw-semibold small">Implementation Progress</span>
-              <span class="text-secondary small ms-2" id="progress-text">0 of 0 implemented</span>
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="fw-semibold small">Implementation Progress</span>
+                <span class="text-secondary small" id="progress-text">0 of 0 implemented</span>
+              </div>
+              <div class="d-flex gap-2 flex-wrap align-items-center mt-1">
+                <span id="readiness-score" class="readiness-score rs-red" title="Weighted score: 50% implementation + 30% evidence collected + 20% notes documented">Score: 0/100</span>
+                <span id="flagged-count" class="small" style="display:none;color:#ffc107;font-size:.71rem"><span class="bi bi-flag-fill me-1"></span><span id="flagged-count-num">0</span> flagged</span>
+              </div>
             </div>
-            <button class="btn btn-sm btn-outline-danger" id="btn-clear-progress" style="font-size:.72rem;padding:2px 8px">Clear All Progress</button>
+            <div class="d-flex gap-1 flex-wrap align-items-center">
+              <button class="btn btn-sm btn-outline-info" id="btn-export-json" style="font-size:.71rem;padding:2px 8px" title="Export all status &amp; notes to JSON"><i class="bi bi-download me-1"></i>Export JSON</button>
+              <label class="btn btn-sm btn-outline-info" style="font-size:.71rem;padding:2px 8px;cursor:pointer;margin:0" title="Import status &amp; notes from JSON">
+                <i class="bi bi-upload me-1"></i>Import JSON
+                <input type="file" id="import-json-input" accept=".json" style="display:none">
+              </label>
+              <button class="btn btn-sm btn-outline-danger" id="btn-clear-progress" style="font-size:.71rem;padding:2px 8px">Clear All</button>
+            </div>
+          </div>
+          <!-- Status distribution bar -->
+          <div class="status-dist-bar mb-1" id="status-dist-bar">
+            <div class="sdb-done" id="sdb-done" style="width:0%"></div>
+            <div class="sdb-ip"   id="sdb-ip"   style="width:0%"></div>
+            <div class="sdb-na"   id="sdb-na"   style="width:0%"></div>
+          </div>
+          <div class="sdb-legend">
+            <span><span class="sdb-dot" style="background:var(--bs-success)"></span><span id="sdb-done-lbl">0 Implemented</span></span>
+            <span><span class="sdb-dot" style="background:var(--bs-warning)"></span><span id="sdb-ip-lbl">0 In Progress</span></span>
+            <span><span class="sdb-dot" style="background:rgba(108,117,125,.6)"></span><span id="sdb-na-lbl">0 N/A</span></span>
+            <span><span class="sdb-dot" style="background:rgba(128,128,128,.3)"></span><span id="sdb-ns-lbl">0 Not Started</span></span>
           </div>
           <div class="progress progress-overall-bar mb-2" role="progressbar" aria-label="Overall implementation progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
             <div class="progress-bar bg-success" id="progress-bar-fill" style="width:0%;transition:width .4s"></div>
           </div>
+          <!-- ML2 / ML3 readiness bars -->
+          <div class="ml-bar-row">
+            <div class="ml-bar-block">
+              <div class="ml-bar-label">
+                <span class="lv-pill lv-ml2">ML2 — Managed</span>
+                <span class="text-secondary" style="font-size:.71rem" id="ml2-progress-text">0%</span>
+              </div>
+              <div class="progress" style="height:5px;border-radius:3px">
+                <div class="progress-bar" style="background:#6ea8fe;width:0%;transition:width .5s" id="ml2-bar"></div>
+              </div>
+            </div>
+            <div class="ml-bar-block">
+              <div class="ml-bar-label">
+                <span class="lv-pill lv-ml3">ML3 — Defined</span>
+                <span class="text-secondary" style="font-size:.71rem" id="ml3-progress-text">0%</span>
+              </div>
+              <div class="progress" style="height:5px;border-radius:3px">
+                <div class="progress-bar bg-success" style="width:0%;transition:width .5s" id="ml3-bar"></div>
+              </div>
+            </div>
+          </div>
+          <!-- Appraisal readiness gates -->
+          <div class="d-flex gap-2 flex-wrap mb-2" id="gate-row">
+            <span class="gate-badge gate-pending" id="gate-ml2"><span class="bi bi-circle me-1"></span>ML2 Gate: Not Started</span>
+            <span class="gate-badge gate-pending" id="gate-ml3"><span class="bi bi-circle me-1"></span>ML3 Gate: Not Started</span>
+          </div>
           <div class="pa-progress-grid" id="pa-progress-grid"></div>
+        </div>
+
+        <!-- Quick Tools -->
+        <div class="quick-tools-bar d-flex gap-2 flex-wrap align-items-center mb-2 no-print">
+          <span class="small text-secondary fw-semibold" style="font-size:.71rem;flex-shrink:0">Tools:</span>
+          <button class="btn btn-sm btn-outline-secondary" id="btn-heat-map" title="Visual heat map — all 21 PAs × every practice colored by status"><span class="bi bi-grid-3x3 me-1"></span>Heat Map <kbd style="font-size:.6rem">H</kbd></button>
+          <button class="btn btn-sm btn-outline-secondary" id="btn-what-next" title="Smart recommendations for your next implementation steps"><span class="bi bi-compass me-1"></span>What's Next <kbd style="font-size:.6rem">N</kbd></button>
+          <button class="btn btn-sm btn-outline-secondary" id="btn-readiness-report" title="Generate a printable appraisal readiness report" data-bs-toggle="modal" data-bs-target="#readinessReportModal"><span class="bi bi-file-text me-1"></span>Readiness Report</button>
+          <button class="btn btn-sm btn-outline-secondary ms-auto" title="Keyboard shortcuts" data-bs-toggle="modal" data-bs-target="#shortcutsModal"><kbd style="font-size:.68rem;pointer-events:none">?</kbd></button>
+        </div>
+
+        <!-- Heat Map panel -->
+        <div id="heat-map-panel" style="display:none" class="mb-3 no-print">
+          <div id="heat-map-container"></div>
+        </div>
+
+        <!-- What's Next panel -->
+        <div id="what-next-panel" style="display:none" class="mb-3 no-print">
+          <div id="what-next-container"></div>
         </div>
 
         <!-- Jump navigation -->
@@ -403,6 +630,70 @@
         </div>
         <div id="no-results">No practices match your filters.</div>
 
+      </div>
+    </section>
+
+    <!-- ── PA Interaction Map ── -->
+    <section class="py-5 border-top reveal">
+      <div class="container">
+        <h2 class="cmmi-sh">Practice Area Interaction Map</h2>
+        <p class="small text-secondary mb-4" style="max-width:720px">Practice areas are organized into four functional categories that reflect how they interact in a maturing organization. Click any PA pill to jump to it in the accordion above, or use the <strong>Category</strong> filter to focus your view.</p>
+        <div class="imap-grid">
+
+          <div class="imap-group imap-group-managing">
+            <div class="imap-title imap-title-managing"><span class="bi bi-bar-chart-fill"></span> Managing</div>
+            <div class="imap-desc">Plan, monitor, and control project execution. These PAs ensure work is scoped, tracked, estimated, and measured.</div>
+            <div>
+              <a class="imap-pill imap-pill-managing" data-imap-pa="PLAN" href="#">PLAN</a>
+              <a class="imap-pill imap-pill-managing" data-imap-pa="MC" href="#">MC</a>
+              <a class="imap-pill imap-pill-managing" data-imap-pa="EST" href="#">EST</a>
+              <a class="imap-pill imap-pill-managing" data-imap-pa="MPM" href="#">MPM</a>
+            </div>
+            <div class="mt-2" style="font-size:.67rem;color:var(--bs-secondary-color)">ML2: PLAN, MC &nbsp;|&nbsp; ML3: EST, MPM</div>
+          </div>
+
+          <div class="imap-group imap-group-doing">
+            <div class="imap-title imap-title-doing"><span class="bi bi-gear-fill"></span> Doing</div>
+            <div class="imap-desc">Execute technical and delivery work. These PAs govern what the team actually builds, acquires, integrates, and verifies.</div>
+            <div>
+              <a class="imap-pill imap-pill-doing" data-imap-pa="SAM" href="#">SAM</a>
+              <a class="imap-pill imap-pill-doing" data-imap-pa="RDM" href="#">RDM</a>
+              <a class="imap-pill imap-pill-doing" data-imap-pa="TS" href="#">TS</a>
+              <a class="imap-pill imap-pill-doing" data-imap-pa="PI" href="#">PI</a>
+              <a class="imap-pill imap-pill-doing" data-imap-pa="VV" href="#">VV</a>
+              <a class="imap-pill imap-pill-doing" data-imap-pa="PR" href="#">PR</a>
+              <a class="imap-pill imap-pill-doing" data-imap-pa="WM" href="#">WM</a>
+            </div>
+            <div class="mt-2" style="font-size:.67rem;color:var(--bs-secondary-color)">ML2: SAM, RDM, WM &nbsp;|&nbsp; ML3: TS, PI, VV, PR</div>
+          </div>
+
+          <div class="imap-group imap-group-enabling">
+            <div class="imap-title imap-title-enabling"><span class="bi bi-lightning-fill"></span> Enabling</div>
+            <div class="imap-desc">Provide infrastructure and decision support. These PAs create the conditions all other PAs depend on.</div>
+            <div>
+              <a class="imap-pill imap-pill-enabling" data-imap-pa="DAR" href="#">DAR</a>
+              <a class="imap-pill imap-pill-enabling" data-imap-pa="RSK" href="#">RSK</a>
+              <a class="imap-pill imap-pill-enabling" data-imap-pa="CM" href="#">CM</a>
+              <a class="imap-pill imap-pill-enabling" data-imap-pa="II" href="#">II</a>
+            </div>
+            <div class="mt-2" style="font-size:.67rem;color:var(--bs-secondary-color)">ML2: CM, II &nbsp;|&nbsp; ML3: DAR, RSK</div>
+          </div>
+
+          <div class="imap-group imap-group-improving">
+            <div class="imap-title imap-title-improving"><span class="bi bi-arrow-repeat"></span> Improving</div>
+            <div class="imap-desc">Drive continuous improvement and governance. These PAs institutionalize learning and organizational oversight.</div>
+            <div>
+              <a class="imap-pill imap-pill-improving" data-imap-pa="GOV" href="#">GOV</a>
+              <a class="imap-pill imap-pill-improving" data-imap-pa="PAD" href="#">PAD</a>
+              <a class="imap-pill imap-pill-improving" data-imap-pa="OT" href="#">OT</a>
+              <a class="imap-pill imap-pill-improving" data-imap-pa="PCM" href="#">PCM</a>
+              <a class="imap-pill imap-pill-improving" data-imap-pa="PQA" href="#">PQA</a>
+              <a class="imap-pill imap-pill-improving" data-imap-pa="CAR" href="#">CAR</a>
+            </div>
+            <div class="mt-2" style="font-size:.67rem;color:var(--bs-secondary-color)">ML2: GOV, PQA &nbsp;|&nbsp; ML3: PAD, OT, PCM, CAR</div>
+          </div>
+
+        </div>
       </div>
     </section>
 
@@ -504,6 +795,49 @@
 
   </main>
 
+  <!-- Readiness Report Modal -->
+  <div class="modal fade" id="readinessReportModal" tabindex="-1" aria-labelledby="rrModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-6 fw-bold" id="rrModalLabel"><span class="bi bi-file-text me-2"></span>CMMI Appraisal Readiness Report</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0" id="readiness-report-body" style="font-size:.82rem">
+          <p class="text-secondary p-4">Generating report…</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-sm btn-outline-secondary" onclick="window.print()"><span class="bi bi-printer me-1"></span>Print</button>
+          <button class="btn btn-sm btn-outline-secondary" id="btn-copy-report"><span class="bi bi-clipboard me-1"></span>Copy as Text</button>
+          <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Keyboard Shortcuts Modal -->
+  <div class="modal fade" id="shortcutsModal" tabindex="-1" aria-labelledby="shortcutsModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:400px">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-6 fw-bold" id="shortcutsModalLabel">Keyboard Shortcuts</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0">
+          <table class="table table-sm mb-0" style="font-size:.83rem">
+            <tbody>
+              <tr><td style="width:70px"><kbd>/</kbd></td><td>Focus search input</td></tr>
+              <tr><td><kbd>Esc</kbd></td><td>Clear search &amp; blur</td></tr>
+              <tr><td><kbd>?</kbd></td><td>Show this shortcuts reference</td></tr>
+              <tr><td><kbd>H</kbd></td><td>Toggle heat map panel</td></tr>
+              <tr><td><kbd>N</kbd></td><td>Toggle What's Next panel</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- RBAC Login Modal -->
   <div class="modal" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
     <div class="modal-dialog modal-dialog-centered">
@@ -600,6 +934,26 @@
   var PA_ORDER = ['PLAN','MC','GOV','II','CM','PQA','MPM','WM','RDM','SAM',
                   'EST','RSK','DAR','OT','PAD','PCM','CAR','PR','TS','PI','VV'];
 
+  /* ── PA category groupings (from CMMI interaction diagram) ──────────────── */
+  var PA_CATEGORY = {
+    Managing:  ['PLAN','MC','EST','MPM'],
+    Doing:     ['SAM','RDM','TS','PI','VV','PR','WM'],
+    Enabling:  ['DAR','RSK','CM','II'],
+    Improving: ['GOV','PAD','OT','PCM','PQA','CAR']
+  };
+  var PA_TO_CATEGORY = {};
+  Object.keys(PA_CATEGORY).forEach(function(cat) {
+    PA_CATEGORY[cat].forEach(function(pa) { PA_TO_CATEGORY[pa] = cat; });
+  });
+  var CAT_DESCRIPTIONS = {
+    Managing:  '4 PAs — planning, monitoring, estimation, measurement',
+    Doing:     '7 PAs — requirements, supplier, technical, workforce',
+    Enabling:  '4 PAs — decisions, risk, configuration, implementation',
+    Improving: '6 PAs — governance, training, quality, improvement'
+  };
+
+  var _filterCategory = '';
+
   /* ── PA metadata ────────────────────────────────────────────────────────── */
   var PA_META = {};
   ALL_DATA.forEach(function(p) {
@@ -608,6 +962,10 @@
     }
     if (PA_META[p.pa].levels.indexOf(p.level) === -1) PA_META[p.pa].levels.push(p.level);
     if (p.domain !== 'All') PA_META[p.pa].domain = p.domain;
+  });
+  /* Attach category info to PA_META */
+  Object.keys(PA_TO_CATEGORY).forEach(function(pa) {
+    if (PA_META[pa]) PA_META[pa].category = PA_TO_CATEGORY[pa];
   });
 
   /* ── Status helpers ─────────────────────────────────────────────────────── */
@@ -638,6 +996,34 @@
     } else {
       localStorage.removeItem('cmmi2_n_' + practiceNum);
     }
+  }
+
+  /* ── Flag / Owner / Target Date helpers ────────────────────────────────── */
+  function getFlag(pNum)       { return localStorage.getItem('cmmi2_f_' + pNum) === '1'; }
+  function setFlag(pNum, val)  { val ? localStorage.setItem('cmmi2_f_' + pNum, '1') : localStorage.removeItem('cmmi2_f_' + pNum); }
+  function getOwner(pNum)      { return localStorage.getItem('cmmi2_o_' + pNum) || ''; }
+  function setOwner(pNum, val) { val ? localStorage.setItem('cmmi2_o_' + pNum, val) : localStorage.removeItem('cmmi2_o_' + pNum); }
+  function getTargetDate(pNum) { return localStorage.getItem('cmmi2_td_' + pNum) || ''; }
+  function setTargetDate(pNum, val) { val ? localStorage.setItem('cmmi2_td_' + pNum, val) : localStorage.removeItem('cmmi2_td_' + pNum); }
+
+  function dueBadgeHtml(pNum) {
+    var td = getTargetDate(pNum);
+    var s  = getStatus(pNum);
+    if (!td || s === 'done' || s === 'na') return '';
+    var today    = new Date(); today.setHours(0,0,0,0);
+    var due      = new Date(td + 'T00:00:00');
+    var daysLeft = Math.round((due - today) / 86400000);
+    if (daysLeft < 0)  return '<span class="due-badge due-badge-overdue">Overdue ' + Math.abs(daysLeft) + 'd</span>';
+    if (daysLeft <= 7) return '<span class="due-badge due-badge-soon">Due in ' + daysLeft + 'd</span>';
+    return '';
+  }
+  function flagBtnHtml(pNum) {
+    var f = getFlag(pNum);
+    return '<button class="flag-btn' + (f ? ' flagged' : '') + '" data-flag-practice="' + escHtml(pNum) + '" title="' + (f ? 'Flagged — click to remove flag' : 'Flag for follow-up') + '" aria-label="' + (f ? 'Flagged' : 'Flag') + '">⚑</button>';
+  }
+  function ownerBadgeHtml(pNum) {
+    var o = getOwner(pNum);
+    return o ? '<span class="owner-badge" title="Owner: ' + escHtml(o) + '">' + escHtml(o.slice(0,16)) + '</span>' : '';
   }
 
   /* ── Search highlight ───────────────────────────────────────────────────── */
@@ -692,6 +1078,23 @@
 
     var lvlPills = meta.levels.slice().sort().map(levelPill).join(' ');
 
+    /* Progress fraction across ALL practices for this PA (not just filtered) */
+    var allPAPractices = ALL_DATA.filter(function(p){ return p.pa === pa; });
+    var paFracDone = 0, paFracNa = 0;
+    allPAPractices.forEach(function(p) {
+      var s = getStatus(p.practiceNum);
+      if (s === 'done') paFracDone++;
+      if (s === 'na') paFracNa++;
+    });
+    var paFracCountable = allPAPractices.length - paFracNa;
+    var fracCls = (paFracDone > 0 && paFracDone === paFracCountable) ? 'pa-progress-frac frac-done' :
+                  (paFracDone > 0) ? 'pa-progress-frac frac-ip' : 'pa-progress-frac';
+    var fracHtml = '<span class="' + fracCls + '" title="' + paFracDone + ' of ' + paFracCountable + ' implemented">' + paFracDone + '/' + paFracCountable + ' ✓</span>';
+
+    /* Category badge */
+    var catName = meta.category || '';
+    var catBadgeHtml = catName ? '<span class="cat-badge cat-badge-' + catName.toLowerCase() + '">' + catName + '</span>' : '';
+
     var pgHtml = '';
     Object.keys(groups).forEach(function(pgName) {
       pgHtml += '<div class="pg-header">' + escHtml(pgName) + '</div>';
@@ -700,6 +1103,8 @@
           return '<li>' + highlightText(ex, filterSearch) + '</li>';
         }).join('');
         var noteVal = escHtml(getNote(p.practiceNum));
+        var ownerVal = escHtml(getOwner(p.practiceNum));
+        var dateVal  = escHtml(getTargetDate(p.practiceNum));
         pgHtml += [
           '<div class="practice-row" data-practice-num="' + escHtml(p.practiceNum) + '">',
           '  <div class="practice-trigger" aria-expanded="false" role="button" tabindex="0" data-practice="' + escHtml(p.practiceNum) + '">',
@@ -707,7 +1112,10 @@
           '    <span class="p-num">' + escHtml(p.practiceNum) + '</span>',
           '    <span class="p-stmt-preview">' + highlightText(p.practiceStatement || '', filterSearch) + '</span>',
           '    ' + levelPill(p.level),
+          '    ' + ownerBadgeHtml(p.practiceNum),
+          '    ' + dueBadgeHtml(p.practiceNum),
           '    ' + noteIndicatorHtml(p.practiceNum),
+          '    ' + flagBtnHtml(p.practiceNum),
           '    ' + statusBtnHtml(p.practiceNum),
           '  </div>',
           '  <div class="practice-detail">',
@@ -723,13 +1131,37 @@
           ].join('') : ''),
           '    <div class="notes-section">',
           '      <div class="detail-label d-flex align-items-center gap-1">Notes <span class="notes-saved-indicator" id="saved-' + escHtml(p.practiceNum).replace(/\s/g,'-') + '">Saved</span></div>',
-          '      <textarea class="notes-textarea" data-practice="' + escHtml(p.practiceNum) + '" placeholder="Add implementation notes, evidence references, owner…" rows="3">' + noteVal + '</textarea>',
+          '      <textarea class="notes-textarea" data-practice="' + escHtml(p.practiceNum) + '" placeholder="Add implementation notes, evidence references, findings…" rows="3">' + noteVal + '</textarea>',
+          '    </div>',
+          '    <div class="owner-date-row">',
+          '      <div class="owner-date-block">',
+          '        <div class="detail-label">Owner / Responsible</div>',
+          '        <input class="owner-input" type="text" data-practice="' + escHtml(p.practiceNum) + '" placeholder="Team member or role…" value="' + ownerVal + '" autocomplete="off">',
+          '      </div>',
+          '      <div class="owner-date-block">',
+          '        <div class="detail-label">Target Date</div>',
+          '        <input class="date-input" type="date" data-practice="' + escHtml(p.practiceNum) + '" value="' + dateVal + '">',
+          '      </div>',
           '    </div>',
           '  </div>',
           '</div>'
         ].join('\n');
       });
     });
+
+    /* Evidence progress bar (above evidence panel) */
+    var evProgressHtml = '';
+    var evForProg = (typeof EVIDENCE !== 'undefined') ? EVIDENCE[pa] : null;
+    if (evForProg && evForProg.artifacts.length > 0) {
+      var evChecked = 0;
+      evForProg.artifacts.forEach(function(_, idx) {
+        if (localStorage.getItem('cmmi2_ev_' + pa + '_' + idx) === '1') evChecked++;
+      });
+      var evPct = Math.round(evChecked / evForProg.artifacts.length * 100);
+      evProgressHtml = '<div class="ev-prog-wrap ps-2">' +
+        '<div class="ev-prog-bar" title="Evidence collected: ' + evChecked + ' of ' + evForProg.artifacts.length + ' artifacts (' + evPct + '%)">' +
+        '<div class="ev-prog-fill" style="width:' + evPct + '%"></div></div></div>';
+    }
 
     /* Evidence Guide panel */
     var evHtml = '';
@@ -758,17 +1190,34 @@
       ].join('\n');
     }
 
+    /* Bulk action dropdown HTML */
+    var bulkHtml = [
+      '<div class="dropdown" onclick="event.stopPropagation()">',
+      '  <button class="pa-bulk-btn dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false" title="Bulk status actions for ' + escHtml(meta.full) + '" data-bulk-pa="' + pa + '">⋯</button>',
+      '  <ul class="dropdown-menu dropdown-menu-end pa-bulk-menu">',
+      '    <li><h6 class="dropdown-header" style="font-size:.68rem">' + escHtml(pa) + ' — Bulk Actions</h6></li>',
+      '    <li><a class="dropdown-item" href="#" data-bulk-pa="' + pa + '" data-bulk-set="ip"><span class="text-warning me-2">◐</span>Mark all In Progress</a></li>',
+      '    <li><a class="dropdown-item" href="#" data-bulk-pa="' + pa + '" data-bulk-set="done"><span class="text-success me-2">✓</span>Mark all Implemented</a></li>',
+      '    <li><a class="dropdown-item" href="#" data-bulk-pa="' + pa + '" data-bulk-set="na"><span class="text-secondary me-2">—</span>Mark all N/A</a></li>',
+      '    <li><hr class="dropdown-divider"></li>',
+      '    <li><a class="dropdown-item text-danger" href="#" data-bulk-pa="' + pa + '" data-bulk-set="ns"><span class="me-2">○</span>Reset all to Not Started</a></li>',
+      '  </ul>',
+      '</div>'
+    ].join('');
+
     return [
       '<div class="pa-block mb-4" data-pa="' + pa + '" id="pa-block-' + pa + '">',
-      '  <div class="pa-header d-flex align-items-center gap-3 flex-wrap" aria-expanded="true" role="button" tabindex="0">',
+      '  <div class="pa-header d-flex align-items-center gap-2 flex-wrap" aria-expanded="true" role="button" tabindex="0">',
       '    <span class="pa-chevron bi bi-chevron-right" style="transform:rotate(90deg)"></span>',
       '    <span class="pa-abbr">' + pa + '</span>',
       '    <span class="pa-name">' + escHtml(meta.full) + '</span>',
       '    ' + domBadge(meta.domain),
-      '    <span class="ms-auto d-flex gap-1 flex-wrap">' + lvlPills + '</span>',
+      catBadgeHtml,
+      '    <span class="ms-auto d-flex align-items-center gap-2 flex-wrap">' + fracHtml + lvlPills + bulkHtml + '</span>',
       '  </div>',
       '  <div class="pa-body ps-2 pt-1 pb-1">',
       (meta.desc ? '  <p class="small text-secondary mb-2 mt-2 ps-2">' + escHtml(meta.desc) + '</p>' : ''),
+      evProgressHtml,
       pgHtml,
       evHtml,
       '  </div>',
@@ -783,22 +1232,44 @@
     var filterLevel  = document.getElementById('filter-level').value;
     var filterDomain = document.getElementById('filter-domain').value;
     var filterSearch = document.getElementById('search-input').value.trim().toLowerCase();
+    var filterStatus = document.getElementById('filter-status').value;
 
     var data = ALL_DATA;
     if (filterLevel)  data = data.filter(function(p){ return p.level === filterLevel; });
     if (filterDomain) data = data.filter(function(p){ return p.domain === filterDomain; });
     if (filterSearch) data = data.filter(function(p){
-      var hay = ((p.practiceNum||'') + ' ' + (p.paFull||'') + ' ' + (p.practiceStatement||'') + ' ' + (p.elaboration||'')).toLowerCase();
+      var hay = ((p.practiceNum||'') + ' ' + (p.paFull||'') + ' ' + (p.practiceStatement||'') + ' ' + (p.elaboration||'') + ' ' + getNote(p.practiceNum) + ' ' + getOwner(p.practiceNum)).toLowerCase();
       return hay.indexOf(filterSearch) !== -1;
     });
+    if (filterStatus) {
+      var todayStr = new Date().toISOString().slice(0,10);
+      if (filterStatus === 'notes') {
+        data = data.filter(function(p){ return getNote(p.practiceNum) !== ''; });
+      } else if (filterStatus === 'flagged') {
+        data = data.filter(function(p){ return getFlag(p.practiceNum); });
+      } else if (filterStatus === 'owner') {
+        data = data.filter(function(p){ return getOwner(p.practiceNum) !== ''; });
+      } else if (filterStatus === 'overdue') {
+        data = data.filter(function(p){
+          var td = getTargetDate(p.practiceNum); var s = getStatus(p.practiceNum);
+          return td && td <= new Date(new Date().getTime() + 7*86400000).toISOString().slice(0,10) && s !== 'done' && s !== 'na';
+        });
+      } else {
+        data = data.filter(function(p){ return getStatus(p.practiceNum) === filterStatus; });
+      }
+    }
 
     var byPA = buildStructure(data);
     var html = '';
     var pasSeen = 0, pgsSeen = {}, practicesSeen = 0;
     var visiblePAs = [];
 
-    var toRender = PA_ORDER.filter(function(pa){ return byPA[pa]; });
-    Object.keys(byPA).forEach(function(pa){ if (PA_ORDER.indexOf(pa) === -1) toRender.push(pa); });
+    /* Apply category filter to PA order */
+    var orderedPAs = _filterCategory ? (PA_CATEGORY[_filterCategory] || PA_ORDER) : PA_ORDER;
+    var toRender = orderedPAs.filter(function(pa){ return byPA[pa]; });
+    if (!_filterCategory) {
+      Object.keys(byPA).forEach(function(pa){ if (orderedPAs.indexOf(pa) === -1) toRender.push(pa); });
+    }
 
     toRender.forEach(function(pa) {
       if (!byPA[pa]) return;
@@ -862,6 +1333,99 @@
         btn.className = 'status-btn ' + STATUS_CLASS[next];
         btn.title = 'Status: ' + STATUS_LABEL[next] + ' (click to cycle)';
         btn.setAttribute('aria-label', 'Status: ' + STATUS_LABEL[next]);
+        updateProgressDashboard();
+        renderJumpNav();
+      });
+    });
+
+    /* Flag buttons */
+    document.querySelectorAll('.flag-btn').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var pNum = btn.getAttribute('data-flag-practice');
+        var nowFlagged = !getFlag(pNum);
+        setFlag(pNum, nowFlagged);
+        btn.classList.toggle('flagged', nowFlagged);
+        btn.title = nowFlagged ? 'Flagged — click to remove flag' : 'Flag for follow-up';
+        updateProgressDashboard();
+      });
+    });
+
+    /* Owner inputs */
+    document.querySelectorAll('.owner-input').forEach(function(inp) {
+      var timer;
+      inp.addEventListener('input', function() {
+        clearTimeout(timer);
+        timer = setTimeout(function() {
+          var pNum = inp.getAttribute('data-practice');
+          setOwner(pNum, inp.value.trim());
+          var row = inp.closest('.practice-row');
+          if (!row) return;
+          var trigger = row.querySelector('.practice-trigger');
+          var existing = trigger && trigger.querySelector('.owner-badge');
+          if (inp.value.trim()) {
+            if (existing) { existing.textContent = inp.value.trim().slice(0,16); existing.title = 'Owner: ' + inp.value.trim(); }
+            else if (trigger) {
+              var span = document.createElement('span');
+              span.className = 'owner-badge'; span.textContent = inp.value.trim().slice(0,16); span.title = 'Owner: ' + inp.value.trim();
+              trigger.insertBefore(span, trigger.querySelector('.note-indicator'));
+            }
+          } else if (existing) { existing.remove(); }
+        }, 450);
+      });
+    });
+
+    /* Target date inputs */
+    document.querySelectorAll('.date-input').forEach(function(inp) {
+      inp.addEventListener('change', function() {
+        var pNum = inp.getAttribute('data-practice');
+        setTargetDate(pNum, inp.value);
+        var row = inp.closest('.practice-row');
+        if (!row) return;
+        var trigger = row.querySelector('.practice-trigger');
+        var old = trigger && trigger.querySelector('.due-badge');
+        if (old) old.remove();
+        var html = dueBadgeHtml(pNum);
+        if (html && trigger) {
+          var tmp = document.createElement('template'); tmp.innerHTML = html.trim();
+          trigger.insertBefore(tmp.content.firstChild, trigger.querySelector('.note-indicator'));
+        }
+      });
+    });
+
+    /* Bulk PA status actions */
+    document.querySelectorAll('[data-bulk-set]').forEach(function(item) {
+      item.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var pa = item.getAttribute('data-bulk-pa');
+        var setTo = item.getAttribute('data-bulk-set');
+        var practices = ALL_DATA.filter(function(p){ return p.pa === pa; });
+        practices.forEach(function(p) {
+          setStatus(p.practiceNum, setTo);
+          /* Update any visible status button for this practice */
+          var btn = document.querySelector('.status-btn[data-practice="' + p.practiceNum + '"]');
+          if (btn) {
+            btn.textContent = STATUS_DISPLAY[setTo];
+            btn.className = 'status-btn ' + STATUS_CLASS[setTo];
+            btn.title = 'Status: ' + STATUS_LABEL[setTo] + ' (click to cycle)';
+            btn.setAttribute('aria-label', 'Status: ' + STATUS_LABEL[setTo]);
+          }
+        });
+        /* Update the fraction in this PA header */
+        var block = document.getElementById('pa-block-' + pa);
+        if (block) {
+          var fracEl = block.querySelector('.pa-header .pa-progress-frac');
+          if (fracEl) {
+            var allPA = ALL_DATA.filter(function(p){ return p.pa === pa; });
+            var fDone = allPA.filter(function(p){ return getStatus(p.practiceNum) === 'done'; }).length;
+            var fNa   = allPA.filter(function(p){ return getStatus(p.practiceNum) === 'na'; }).length;
+            var fC    = allPA.length - fNa;
+            fracEl.textContent = fDone + '/' + fC + ' ✓';
+            fracEl.className = (fDone > 0 && fDone === fC) ? 'pa-progress-frac frac-done' :
+                               (fDone > 0) ? 'pa-progress-frac frac-ip' : 'pa-progress-frac';
+          }
+        }
         updateProgressDashboard();
         renderJumpNav();
       });
@@ -941,12 +1505,9 @@
   /* ── Progress Dashboard ─────────────────────────────────────────────────── */
   function updateProgressDashboard() {
     var total = ALL_DATA.length;
-    var done = 0, naCount = 0;
-    ALL_DATA.forEach(function(p) {
-      var s = getStatus(p.practiceNum);
-      if (s === 'done') done++;
-      if (s === 'na') naCount++;
-    });
+    var counts = { done:0, ip:0, ns:0, na:0 };
+    ALL_DATA.forEach(function(p) { counts[getStatus(p.practiceNum)]++; });
+    var done = counts.done, naCount = counts.na;
     var countable = total - naCount;
     var pct = countable > 0 ? Math.round((done / countable) * 100) : 0;
 
@@ -955,7 +1516,94 @@
     bar.style.width = pct + '%';
     bar.parentElement.setAttribute('aria-valuenow', pct);
 
-    /* Per-PA grid */
+    /* Status distribution bar */
+    var donePct = total > 0 ? (counts.done / total * 100).toFixed(1) : 0;
+    var ipPct   = total > 0 ? (counts.ip   / total * 100).toFixed(1) : 0;
+    var naPct   = total > 0 ? (counts.na   / total * 100).toFixed(1) : 0;
+    var sdbDone = document.getElementById('sdb-done'); if (sdbDone) sdbDone.style.width = donePct + '%';
+    var sdbIp   = document.getElementById('sdb-ip');   if (sdbIp)   sdbIp.style.width   = ipPct   + '%';
+    var sdbNa   = document.getElementById('sdb-na');   if (sdbNa)   sdbNa.style.width   = naPct   + '%';
+    var lDone = document.getElementById('sdb-done-lbl'); if (lDone) lDone.textContent = counts.done + ' Implemented';
+    var lIp   = document.getElementById('sdb-ip-lbl');   if (lIp)   lIp.textContent   = counts.ip   + ' In Progress';
+    var lNa   = document.getElementById('sdb-na-lbl');   if (lNa)   lNa.textContent   = counts.na   + ' N/A';
+    var lNs   = document.getElementById('sdb-ns-lbl');   if (lNs)   lNs.textContent   = counts.ns   + ' Not Started';
+
+    /* Appraisal readiness gates */
+    function gateStatus(level) {
+      var lvlPAs = PA_ORDER.filter(function(pa) {
+        return ALL_DATA.some(function(p){ return p.pa === pa && p.level === level; });
+      });
+      var allReady = true, anyProgress = false;
+      lvlPAs.forEach(function(pa) {
+        var practices = ALL_DATA.filter(function(p){ return p.pa === pa && p.level === level; });
+        var paDone = 0, paNa = 0;
+        practices.forEach(function(p){ var s=getStatus(p.practiceNum); if(s==='done') paDone++; if(s==='na') paNa++; });
+        var paC = practices.length - paNa;
+        if (paC > 0 && paDone < paC) allReady = false;
+        if (paDone > 0) anyProgress = true;
+      });
+      if (allReady && anyProgress) return 'ready';
+      if (anyProgress) return 'partial';
+      return 'pending';
+    }
+    var gateInfo = {
+      ready:   { cls:'gate-ready',   icon:'bi-check-circle-fill', label:'Ready' },
+      partial: { cls:'gate-partial', icon:'bi-circle-half',       label:'Partial' },
+      pending: { cls:'gate-pending', icon:'bi-circle',            label:'Not Started' }
+    };
+    ['ML2','ML3'].forEach(function(lvl) {
+      var st = gateStatus(lvl);
+      var gi = gateInfo[st];
+      var el = document.getElementById('gate-' + lvl.toLowerCase());
+      if (el) {
+        el.className = 'gate-badge ' + gi.cls;
+        el.innerHTML = '<span class="bi ' + gi.icon + ' me-1"></span>' + lvl + ' Gate: ' + gi.label;
+      }
+    });
+
+    /* ML2 / ML3 readiness bars */
+    ['ML2','ML3'].forEach(function(lvl) {
+      var lvlData = ALL_DATA.filter(function(p){ return p.level === lvl; });
+      var lvlDone = 0, lvlNa = 0;
+      lvlData.forEach(function(p) {
+        var s = getStatus(p.practiceNum);
+        if (s === 'done') lvlDone++;
+        if (s === 'na') lvlNa++;
+      });
+      var lvlCountable = lvlData.length - lvlNa;
+      var lvlPct = lvlCountable > 0 ? Math.round(lvlDone / lvlCountable * 100) : 0;
+      var barEl  = document.getElementById(lvl.toLowerCase() + '-bar');
+      var textEl = document.getElementById(lvl.toLowerCase() + '-progress-text');
+      if (barEl)  barEl.style.width = lvlPct + '%';
+      if (textEl) textEl.textContent = lvlDone + '/' + lvlCountable + ' (' + lvlPct + '%)';
+    });
+
+    /* Appraisal readiness score (50% impl + 30% evidence + 20% notes) */
+    var implScore = countable > 0 ? counts.done / countable : 0;
+    var totalEv = 0, checkedEv = 0;
+    if (typeof EVIDENCE !== 'undefined') {
+      Object.keys(EVIDENCE).forEach(function(pa) {
+        var e = EVIDENCE[pa];
+        totalEv += e.artifacts.length;
+        e.artifacts.forEach(function(_, idx) { if (localStorage.getItem('cmmi2_ev_' + pa + '_' + idx) === '1') checkedEv++; });
+      });
+    }
+    var evScore = totalEv > 0 ? checkedEv / totalEv : 0;
+    var withNotes = ALL_DATA.filter(function(p){ return getStatus(p.practiceNum) !== 'na' && getNote(p.practiceNum) !== ''; }).length;
+    var notesScore = countable > 0 ? withNotes / countable : 0;
+    var readiness = Math.round((implScore * 0.5 + evScore * 0.3 + notesScore * 0.2) * 100);
+    var rsCls = readiness >= 75 ? 'rs-green' : readiness >= 50 ? 'rs-yellow' : readiness >= 25 ? 'rs-orange' : 'rs-red';
+    var rsEl = document.getElementById('readiness-score');
+    if (rsEl) { rsEl.className = 'readiness-score ' + rsCls; rsEl.textContent = 'Score: ' + readiness + '/100'; }
+
+    /* Flagged count */
+    var flaggedCount = ALL_DATA.filter(function(p){ return getFlag(p.practiceNum); }).length;
+    var fcEl = document.getElementById('flagged-count');
+    var fcNum = document.getElementById('flagged-count-num');
+    if (fcEl) fcEl.style.display = flaggedCount > 0 ? '' : 'none';
+    if (fcNum) fcNum.textContent = flaggedCount;
+
+    /* Per-PA pill grid (show fraction) */
     var grid = document.getElementById('pa-progress-grid');
     var gridHtml = '';
     PA_ORDER.forEach(function(pa) {
@@ -971,8 +1619,8 @@
       var dotClass = 'pa-dot-gray';
       if (paCountable > 0 && paDone === paCountable) dotClass = 'pa-dot-green';
       else if (paDone > 0) dotClass = 'pa-dot-yellow';
-      gridHtml += '<span class="pa-pill-progress" title="' + (PA_META[pa] ? escHtml(PA_META[pa].full) : pa) + ': ' + paDone + '/' + paCountable + '">';
-      gridHtml += '<span class="pa-dot ' + dotClass + '"></span>' + pa;
+      gridHtml += '<span class="pa-pill-progress" title="' + (PA_META[pa] ? escHtml(PA_META[pa].full) : pa) + ': ' + paDone + '/' + paCountable + ' implemented">';
+      gridHtml += '<span class="pa-dot ' + dotClass + '"></span>' + pa + ' <span style="opacity:.6;font-size:.62rem">' + paDone + '/' + paCountable + '</span>';
       gridHtml += '</span>';
     });
     grid.innerHTML = gridHtml;
@@ -997,8 +1645,10 @@
       var dotClass = 'pa-dot-gray';
       if (paCountable > 0 && paDone === paCountable) dotClass = 'pa-dot-green';
       else if (paDone > 0 || paIp > 0) dotClass = 'pa-dot-yellow';
-      html += '<a href="#" class="jump-pill" data-jump-pa="' + pa + '" title="Jump to ' + (PA_META[pa] ? escHtml(PA_META[pa].full) : pa) + '">';
-      html += '<span class="jp-dot ' + dotClass + '"></span>' + pa;
+      var paPct = paCountable > 0 ? Math.round(paDone / paCountable * 100) : 0;
+      var paPctHtml = paPct > 0 ? ' <span style="font-size:.6rem;opacity:.65">' + paPct + '%</span>' : '';
+      html += '<a href="#" class="jump-pill" data-jump-pa="' + pa + '" title="' + (PA_META[pa] ? escHtml(PA_META[pa].full) : pa) + ': ' + paDone + '/' + paCountable + ' implemented">';
+      html += '<span class="jp-dot ' + dotClass + '"></span>' + pa + paPctHtml;
       html += '</a>';
     });
     inner.innerHTML = html;
@@ -1036,7 +1686,7 @@
     var wb = XLSX.utils.book_new();
 
     /* Sheet 1: All Practices */
-    var allRows = [['PA','Practice Group','Practice #','Practice Statement','Level','Domain','Status','Notes']];
+    var allRows = [['PA','Practice Group','Practice #','Practice Statement','Level','Domain','Status','Notes','Owner','Target Date','Flagged']];
     ALL_DATA.forEach(function(p) {
       allRows.push([
         p.pa,
@@ -1046,7 +1696,10 @@
         p.level,
         p.domain === 'All' ? 'Core' : p.domain,
         STATUS_LABEL[getStatus(p.practiceNum)],
-        getNote(p.practiceNum)
+        getNote(p.practiceNum),
+        getOwner(p.practiceNum),
+        getTargetDate(p.practiceNum),
+        getFlag(p.practiceNum) ? 'Yes' : ''
       ]);
     });
     XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(allRows), 'All Practices');
@@ -1091,6 +1744,266 @@
     XLSX.writeFile(wb, 'CMMI_v2_Practice_Reference_' + new Date().toISOString().slice(0,10) + '.xlsx');
   }
 
+  /* ── JSON Export ────────────────────────────────────────────────────────── */
+  function exportJSON() {
+    var snapshot = {};
+    ALL_DATA.forEach(function(p) {
+      var s = getStatus(p.practiceNum), n = getNote(p.practiceNum);
+      var o = getOwner(p.practiceNum), d = getTargetDate(p.practiceNum);
+      if (s !== 'ns') snapshot['cmmi2_s_'  + p.practiceNum] = s;
+      if (n) snapshot['cmmi2_n_'  + p.practiceNum] = n;
+      if (o) snapshot['cmmi2_o_'  + p.practiceNum] = o;
+      if (d) snapshot['cmmi2_td_' + p.practiceNum] = d;
+      if (getFlag(p.practiceNum)) snapshot['cmmi2_f_' + p.practiceNum] = '1';
+    });
+    if (typeof EVIDENCE !== 'undefined') {
+      Object.keys(EVIDENCE).forEach(function(pa) {
+        EVIDENCE[pa].artifacts.forEach(function(_, idx) {
+          var v = localStorage.getItem('cmmi2_ev_' + pa + '_' + idx);
+          if (v) snapshot['cmmi2_ev_' + pa + '_' + idx] = v;
+        });
+      });
+    }
+    var json = JSON.stringify({ _exported: new Date().toISOString(), data: snapshot }, null, 2);
+    var blob = new Blob([json], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'CMMI_progress_' + new Date().toISOString().slice(0,10) + '.json';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+  }
+
+  /* ── JSON Import ────────────────────────────────────────────────────────── */
+  function importJSON(file) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        var parsed = JSON.parse(e.target.result);
+        var dataObj = parsed.data || parsed; /* support both wrapped and raw formats */
+        var count = 0;
+        Object.keys(dataObj).forEach(function(key) {
+          if (key.indexOf('cmmi2_') === 0) {
+            localStorage.setItem(key, dataObj[key]);
+            count++;
+          }
+        });
+        alert('Imported ' + count + ' records successfully.' + (parsed._exported ? '\nOriginal export date: ' + parsed._exported.slice(0,10) : ''));
+        render();
+      } catch(err) {
+        alert('Could not read JSON file: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  /* ── Heat Map ──────────────────────────────────────────────────────────── */
+  function renderHeatMap() {
+    var container = document.getElementById('heat-map-container');
+    if (!container) return;
+    var catOrder = ['Managing','Doing','Enabling','Improving'];
+    var html = '<div class="heat-map-wrap">';
+    html += '<div class="hm-legend">';
+    html += '<span><span class="hm-cell-sample hm-done"></span>Implemented</span>';
+    html += '<span><span class="hm-cell-sample hm-ip"></span>In Progress</span>';
+    html += '<span><span class="hm-cell-sample hm-ns"></span>Not Started</span>';
+    html += '<span><span class="hm-cell-sample hm-na"></span>N/A</span>';
+    html += '<span class="ms-auto text-secondary" style="font-size:.63rem">Hover a cell for practice detail &nbsp;·&nbsp; Click to jump</span>';
+    html += '</div>';
+    catOrder.forEach(function(cat) {
+      var pas = PA_CATEGORY[cat] || [];
+      html += '<div class="hm-category">';
+      html += '<div class="hm-cat-label hm-cat-' + cat.toLowerCase() + '">' + cat + '</div>';
+      pas.forEach(function(pa) {
+        var practices = ALL_DATA.filter(function(p){ return p.pa === pa; });
+        if (!practices.length) return;
+        /* Group by practice group preserving order */
+        var pgSeen = [], pgMap = {};
+        practices.forEach(function(p) {
+          if (!pgMap[p.practiceGroup]) { pgMap[p.practiceGroup] = []; pgSeen.push(p.practiceGroup); }
+          pgMap[p.practiceGroup].push(p);
+        });
+        html += '<div class="hm-row">';
+        html += '<div class="hm-pa-label" title="' + escHtml(PA_META[pa] ? PA_META[pa].full : pa) + '">' + pa + '</div>';
+        html += '<div class="hm-cells">';
+        pgSeen.forEach(function(pg, i) {
+          if (i > 0) html += '<div class="hm-pg-spacer"></div>';
+          html += '<div class="hm-pg-group" title="' + escHtml(pg) + '">';
+          pgMap[pg].forEach(function(p) {
+            var s = getStatus(p.practiceNum);
+            html += '<div class="hm-cell hm-' + s + '" data-hm-practice="' + escHtml(p.practiceNum) + '" title="' + escHtml(p.practiceNum + ': ' + (p.practiceStatement || '').slice(0, 90) + (p.practiceStatement && p.practiceStatement.length > 90 ? '…' : '')) + '"></div>';
+          });
+          html += '</div>';
+        });
+        html += '</div></div>';
+      });
+      html += '</div>';
+    });
+    html += '</div>';
+    container.innerHTML = html;
+    /* Click on heat map cell → jump to practice */
+    container.querySelectorAll('[data-hm-practice]').forEach(function(cell) {
+      cell.addEventListener('click', function() {
+        jumpToPractice(cell.getAttribute('data-hm-practice'));
+      });
+    });
+  }
+
+  /* ── Jump to practice ───────────────────────────────────────────────────── */
+  function jumpToPractice(practiceNum) {
+    /* Scroll accordion into view first if needed */
+    var accSection = document.getElementById('pa-accordion-section');
+    var row = document.querySelector('.practice-row[data-practice-num="' + practiceNum + '"]');
+    if (!row && accSection) accSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setTimeout(function() {
+      var r = document.querySelector('.practice-row[data-practice-num="' + practiceNum + '"]');
+      if (!r) return;
+      var paBlock = r.closest('.pa-block');
+      if (paBlock) {
+        var hdr = paBlock.querySelector('.pa-header');
+        if (hdr && hdr.getAttribute('aria-expanded') === 'false') togglePA.call(hdr);
+      }
+      var trigger = r.querySelector('.practice-trigger');
+      if (trigger && trigger.getAttribute('aria-expanded') === 'false') togglePractice.call(trigger);
+      setTimeout(function() { r.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 120);
+    }, 350);
+  }
+
+  /* ── What's Next ────────────────────────────────────────────────────────── */
+  function renderWhatNext() {
+    var container = document.getElementById('what-next-container');
+    if (!container) return;
+    /* Priority 1: in-progress practices */
+    var p1 = ALL_DATA.filter(function(p){ return getStatus(p.practiceNum) === 'ip'; });
+    /* Priority 2: not-started in PAs where some progress exists */
+    var activePAs = {};
+    ALL_DATA.forEach(function(p) {
+      var s = getStatus(p.practiceNum);
+      if (s === 'ip' || s === 'done') activePAs[p.pa] = true;
+    });
+    var p2 = ALL_DATA.filter(function(p){ return getStatus(p.practiceNum) === 'ns' && activePAs[p.pa]; });
+    /* Priority 3: ML2 not-started (foundation) */
+    var p3 = ALL_DATA.filter(function(p){ return getStatus(p.practiceNum) === 'ns' && p.level === 'ML2'; });
+
+    var suggestions = [];
+    var seen = {};
+    function addSugg(arr, reason, cls) {
+      arr.forEach(function(p) {
+        if (suggestions.length < 6 && !seen[p.practiceNum]) {
+          suggestions.push({ p: p, reason: reason, cls: cls });
+          seen[p.practiceNum] = true;
+        }
+      });
+    }
+    addSugg(p1, 'Continue — already in progress', 'wn-p1');
+    addSugg(p2, 'Next in an active PA (' + '' + ') — keep the momentum', 'wn-p2');
+    addSugg(p3, 'ML2 foundation — complete managed level first', 'wn-p3');
+
+    var doneAll = ALL_DATA.every(function(p){ var s = getStatus(p.practiceNum); return s === 'done' || s === 'na'; });
+
+    var html = '<div class="heat-map-wrap">';
+    html += '<div class="cmmi-sh mb-3">What\'s Next — Recommended Actions</div>';
+    if (doneAll) {
+      html += '<div class="text-success fw-semibold p-2"><span class="bi bi-check-circle-fill me-2"></span>All practices have been addressed — appraisal-ready!</div>';
+    } else if (!suggestions.length) {
+      html += '<p class="text-secondary small">Start tracking practices using the status buttons (○) in any accordion row to get personalized recommendations.</p>';
+    } else {
+      html += '<div class="d-flex flex-column gap-2">';
+      suggestions.forEach(function(item) {
+        var p = item.p;
+        /* Fix priority 2 reason to include the PA name */
+        var reason = item.reason.replace("('')", '(' + p.pa + ')').replace("('')", '(' + p.pa + ')');
+        if (item.cls === 'wn-p2') reason = 'Next in active PA ' + p.pa + ' — keep the momentum';
+        html += '<div class="what-next-item ' + item.cls + '" onclick="jumpToPractice(\'' + escHtml(p.practiceNum) + '\')">';
+        html += '<div class="d-flex align-items-start gap-2">';
+        html += '<span class="p-num" style="min-width:4.5rem;flex-shrink:0">' + escHtml(p.practiceNum) + '</span>';
+        html += '<span style="font-size:.81rem;line-height:1.5;flex:1">' + escHtml((p.practiceStatement || '').slice(0, 120)) + (p.practiceStatement && p.practiceStatement.length > 120 ? '…' : '') + '</span>';
+        html += '</div>';
+        html += '<div style="font-size:.67rem;color:var(--bs-secondary-color);margin-top:.25rem;padding-left:5.5rem">' + escHtml(reason) + '</div>';
+        html += '</div>';
+      });
+      html += '</div>';
+      html += '<div class="text-secondary mt-2" style="font-size:.68rem">Click any item to expand it in the accordion above.</div>';
+    }
+    html += '</div>';
+    container.innerHTML = html;
+  }
+
+  /* ── Readiness Report ───────────────────────────────────────────────────── */
+  function generateReadinessReport() {
+    var body = document.getElementById('readiness-report-body');
+    if (!body) return;
+    var total = ALL_DATA.length;
+    var counts = { done:0, ip:0, ns:0, na:0 };
+    ALL_DATA.forEach(function(p){ counts[getStatus(p.practiceNum)]++; });
+    var countable = total - counts.na;
+    var overallPct = countable > 0 ? Math.round(counts.done / countable * 100) : 0;
+    var today = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+
+    function lvlGate(lvl) {
+      var data = ALL_DATA.filter(function(p){ return p.level === lvl; });
+      var d=0, na=0;
+      data.forEach(function(p){ var s=getStatus(p.practiceNum); if(s==='done')d++; if(s==='na')na++; });
+      var c = data.length - na;
+      var pct = c > 0 ? Math.round(d/c*100) : 0;
+      return { done:d, countable:c, pct:pct, status: c>0 && d===c ? 'Ready' : d>0 ? 'Partial' : 'Not Started' };
+    }
+    var ml2g = lvlGate('ML2'), ml3g = lvlGate('ML3');
+
+    var html = '<div style="padding:1rem 1.5rem">';
+    /* Header */
+    html += '<div style="border-bottom:2px solid var(--bs-primary);padding-bottom:.75rem;margin-bottom:1rem">';
+    html += '<div class="d-flex justify-content-between flex-wrap gap-1">';
+    html += '<div><div class="fw-bold" style="font-size:1rem">CMMI v2.0 Implementation Status</div><div class="text-secondary" style="font-size:.75rem">Generated: ' + escHtml(today) + '</div></div>';
+    html += '<div class="text-end"><div class="fw-bold" style="font-size:1.4rem;color:var(--bs-primary)">' + overallPct + '%</div><div class="text-secondary" style="font-size:.72rem">Overall</div></div>';
+    html += '</div>';
+    html += '</div>';
+    /* Gate summary */
+    html += '<div class="d-flex gap-4 mb-1 flex-wrap" style="font-size:.8rem">';
+    ['ML2','ML3'].forEach(function(lvl) {
+      var g = lvl === 'ML2' ? ml2g : ml3g;
+      var color = g.status === 'Ready' ? 'var(--bs-success)' : g.status === 'Partial' ? 'var(--bs-warning)' : 'var(--bs-secondary-color)';
+      html += '<div><strong>' + lvl + ' Gate:</strong> <span style="color:' + color + '">' + g.status + '</span> (' + g.done + '/' + g.countable + ' — ' + g.pct + '%)</div>';
+    });
+    html += '<div><strong>Implemented:</strong> ' + counts.done + ' &nbsp;<strong>In Progress:</strong> ' + counts.ip + ' &nbsp;<strong>Gaps:</strong> ' + counts.ns + '</div>';
+    html += '</div>';
+
+    /* Per-category breakdown */
+    var catOrder = ['Managing','Doing','Enabling','Improving'];
+    catOrder.forEach(function(cat) {
+      var pas = PA_CATEGORY[cat] || [];
+      html += '<div style="margin-top:1rem">';
+      html += '<div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--bs-border-color);padding-bottom:.25rem;margin-bottom:.4rem">' + escHtml(cat) + '</div>';
+      html += '<table style="width:100%;border-collapse:collapse;font-size:.79rem">';
+      html += '<thead><tr style="color:var(--bs-secondary-color);font-size:.68rem;text-transform:uppercase">';
+      html += '<th style="padding:3px 6px;text-align:left;width:50%">Practice Area</th>';
+      html += '<th style="padding:3px 6px;text-align:center">Done</th><th style="padding:3px 6px;text-align:center">IP</th>';
+      html += '<th style="padding:3px 6px;text-align:center">Gaps</th><th style="padding:3px 6px;text-align:center">N/A</th>';
+      html += '<th style="padding:3px 6px;text-align:center;width:90px">Readiness</th>';
+      html += '</tr></thead><tbody>';
+      pas.forEach(function(pa) {
+        var data = ALL_DATA.filter(function(p){ return p.pa === pa; });
+        if (!data.length) return;
+        var c = { done:0, ip:0, ns:0, na:0 };
+        data.forEach(function(p){ c[getStatus(p.practiceNum)]++; });
+        var cnt = data.length - c.na;
+        var pct = cnt > 0 ? Math.round(c.done/cnt*100) : 0;
+        var statusColor = pct === 100 ? '#198754' : pct > 0 ? '#ffc107' : 'var(--bs-secondary-color)';
+        var rowBg = pct === 100 ? 'rgba(25,135,84,.06)' : pct > 0 ? 'rgba(255,193,7,.05)' : '';
+        html += '<tr style="background:' + rowBg + ';border-bottom:1px solid var(--bs-border-color)">';
+        html += '<td style="padding:4px 6px"><strong>' + pa + '</strong> <span style="color:var(--bs-secondary-color);font-size:.73rem">' + escHtml(PA_META[pa] ? PA_META[pa].full : '') + '</span></td>';
+        html += '<td style="padding:4px 6px;text-align:center;color:var(--bs-success)">' + c.done + '</td>';
+        html += '<td style="padding:4px 6px;text-align:center;color:var(--bs-warning)">' + c.ip + '</td>';
+        html += '<td style="padding:4px 6px;text-align:center;color:var(--bs-danger)">' + c.ns + '</td>';
+        html += '<td style="padding:4px 6px;text-align:center;color:var(--bs-secondary-color)">' + c.na + '</td>';
+        html += '<td style="padding:4px 6px;text-align:center;font-weight:700;color:' + statusColor + '">' + pct + '%</td>';
+        html += '</tr>';
+      });
+      html += '</tbody></table></div>';
+    });
+    html += '</div>';
+    body.innerHTML = html;
+  }
+
   /* ── Expand / Collapse all ──────────────────────────────────────────────── */
   document.addEventListener('DOMContentLoaded', function() {
 
@@ -1128,16 +2041,64 @@
       document.getElementById('filter-level').value = '';
       document.getElementById('filter-domain').value = '';
       document.getElementById('search-input').value = '';
+      document.getElementById('filter-status').value = '';
+      _filterCategory = '';
+      document.querySelectorAll('.cat-btn').forEach(function(b){ b.classList.remove('active'); });
+      var allBtn = document.querySelector('.cat-btn-all');
+      if (allBtn) allBtn.classList.add('active');
+      var catDesc = document.getElementById('cat-description');
+      if (catDesc) catDesc.textContent = '';
       render();
     });
 
     document.getElementById('btn-export-excel').addEventListener('click', exportExcel);
 
+    /* JSON export / import */
+    document.getElementById('btn-export-json').addEventListener('click', exportJSON);
+    document.getElementById('import-json-input').addEventListener('change', function(e) {
+      var file = e.target.files[0];
+      if (file) { importJSON(file); e.target.value = ''; }
+    });
+
+    /* Category filter buttons */
+    document.querySelectorAll('.cat-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.cat-btn').forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
+        _filterCategory = btn.getAttribute('data-cat');
+        var catDesc = document.getElementById('cat-description');
+        if (catDesc) catDesc.textContent = _filterCategory ? CAT_DESCRIPTIONS[_filterCategory] || '' : '';
+        render();
+      });
+    });
+
+    /* Status filter */
+    document.getElementById('filter-status').addEventListener('change', render);
+
+    /* Interaction map PA pills → jump to accordion */
+    document.querySelectorAll('[data-imap-pa]').forEach(function(pill) {
+      pill.addEventListener('click', function(e) {
+        e.preventDefault();
+        var pa = pill.getAttribute('data-imap-pa');
+        var accSection = document.getElementById('pa-accordion-section');
+        if (accSection) accSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setTimeout(function() {
+          var block = document.getElementById('pa-block-' + pa);
+          if (block) {
+            var hdr = block.querySelector('.pa-header');
+            if (hdr && hdr.getAttribute('aria-expanded') === 'false') togglePA.call(hdr);
+            block.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 350);
+      });
+    });
+
     document.getElementById('btn-clear-progress').addEventListener('click', function() {
-      if (!confirm('Clear all implementation status and notes? This cannot be undone.')) return;
+      if (!confirm('Clear all status, notes, owners, dates, and flags? This cannot be undone.')) return;
       ALL_DATA.forEach(function(p) {
-        localStorage.removeItem('cmmi2_s_' + p.practiceNum);
-        localStorage.removeItem('cmmi2_n_' + p.practiceNum);
+        ['cmmi2_s_','cmmi2_n_','cmmi2_o_','cmmi2_td_','cmmi2_f_'].forEach(function(k){
+          localStorage.removeItem(k + p.practiceNum);
+        });
       });
       /* Clear evidence checkboxes */
       if (typeof EVIDENCE !== 'undefined') {
@@ -1153,6 +2114,40 @@
     document.getElementById('filter-level').addEventListener('change', render);
     document.getElementById('filter-domain').addEventListener('change', render);
     document.getElementById('search-input').addEventListener('input', render);
+    /* filter-status change listener registered above with category buttons */
+
+    /* ── Heat map toggle ── */
+    document.getElementById('btn-heat-map').addEventListener('click', function() {
+      var panel = document.getElementById('heat-map-panel');
+      var open = panel.style.display !== 'none';
+      panel.style.display = open ? 'none' : '';
+      this.classList.toggle('active', !open);
+      if (!open) renderHeatMap();
+    });
+
+    /* ── What's Next toggle ── */
+    document.getElementById('btn-what-next').addEventListener('click', function() {
+      var panel = document.getElementById('what-next-panel');
+      var open = panel.style.display !== 'none';
+      panel.style.display = open ? 'none' : '';
+      this.classList.toggle('active', !open);
+      if (!open) renderWhatNext();
+    });
+
+    /* ── Readiness Report: populate before modal shows ── */
+    document.getElementById('readinessReportModal').addEventListener('show.bs.modal', function() {
+      generateReadinessReport();
+    });
+    document.getElementById('btn-copy-report').addEventListener('click', function() {
+      var el = document.getElementById('readiness-report-body');
+      if (!el) return;
+      var text = el.innerText || el.textContent || '';
+      navigator.clipboard.writeText(text).then(function() {
+        var btn = document.getElementById('btn-copy-report');
+        btn.textContent = '✓ Copied!';
+        setTimeout(function(){ btn.innerHTML = '<span class="bi bi-clipboard me-1"></span>Copy as Text'; }, 1800);
+      }).catch(function() { alert('Copy failed — please select and copy manually.'); });
+    });
 
     /* ── Keyboard shortcuts ── */
     document.addEventListener('keydown', function(e) {
@@ -1168,6 +2163,18 @@
         si.value = '';
         si.blur();
         render();
+      }
+      if (!isInput) {
+        if (e.key === '?') {
+          var shModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('shortcutsModal'));
+          shModal.show();
+        }
+        if (e.key === 'h' || e.key === 'H') {
+          document.getElementById('btn-heat-map').click();
+        }
+        if (e.key === 'n' || e.key === 'N') {
+          document.getElementById('btn-what-next').click();
+        }
       }
     });
 
