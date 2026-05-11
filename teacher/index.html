@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../theme.css" />
+  <title>5th Grade Teacher Hub | Jessica Rojas</title>
+  <meta name="description" content="5th grade Utah public school teacher resource hub — lesson planner, activity library, printable templates, Utah Core Standards, and classroom tools." />
+  <style>
+    .tab-section { min-height: 60vh; }
+    .nav-tabs .nav-link { font-size: .88rem; font-weight: 600; }
+    .nav-tabs .nav-link.active { color: var(--bs-primary); border-bottom-color: var(--bs-primary); }
+
+    /* Activity cards */
+    .act-card { border: 1px solid var(--bs-border-color); border-radius: .5rem; padding: 1rem; margin-bottom: .75rem; cursor: pointer; transition: border-color .2s, box-shadow .2s; background: var(--bs-secondary-bg); }
+    .act-card:hover { border-color: var(--bs-primary); box-shadow: 0 2px 10px rgba(0,0,0,.2); }
+    .act-detail { display:none; margin-top:.75rem; padding-top:.75rem; border-top:1px solid var(--bs-border-color); font-size:.85rem; }
+    .act-detail.open { display:block; }
+    .subject-badge { font-size:.7rem; font-weight:700; padding:2px 8px; border-radius:4px; }
+    .badge-ela { background:rgba(13,110,253,.2); color:#6ea8fe; }
+    .badge-math { background:rgba(25,135,84,.2); color:#75b798; }
+    .badge-sci { background:rgba(111,66,193,.2); color:#c29ffa; }
+    .badge-ss { background:rgba(255,193,7,.2); color:#ffda6a; }
+    .badge-type { background:rgba(var(--bs-secondary-rgb),.2); color:var(--bs-secondary-color); }
+
+    /* Template cards */
+    .tmpl-card { border:1px solid var(--bs-border-color); border-radius:.5rem; background:var(--bs-secondary-bg); padding:1.1rem; text-align:center; cursor:pointer; transition:border-color .2s, transform .15s; }
+    .tmpl-card:hover { border-color:var(--bs-primary); transform:translateY(-2px); }
+    .tmpl-icon { font-size:2rem; color:var(--bs-primary); margin-bottom:.5rem; }
+    .tmpl-name { font-size:.85rem; font-weight:700; margin-bottom:.25rem; }
+    .tmpl-desc { font-size:.75rem; color:var(--bs-secondary-color); }
+
+    /* Standards */
+    .std-domain { border-left:3px solid var(--bs-primary); padding-left:1rem; margin-bottom:1.5rem; }
+    .std-item { font-size:.83rem; background:var(--bs-secondary-bg); border:1px solid var(--bs-border-color); border-radius:.35rem; padding:.5rem .8rem; margin-bottom:.4rem; display:flex; justify-content:space-between; align-items:center; gap:.5rem; }
+    .std-code { font-family:monospace; font-size:.75rem; font-weight:700; color:var(--bs-primary); white-space:nowrap; }
+
+    /* Lesson planner */
+    .lp-label { font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--bs-primary); margin-bottom:.3rem; }
+    .saved-plan { border:1px solid var(--bs-border-color); border-radius:.4rem; padding:.6rem .9rem; margin-bottom:.4rem; display:flex; justify-content:space-between; align-items:center; background:var(--bs-secondary-bg); font-size:.83rem; cursor:pointer; }
+    .saved-plan:hover { border-color:var(--bs-primary); }
+
+    /* Tools */
+    .tool-card { border:1px solid var(--bs-border-color); border-radius:.6rem; padding:1.4rem; background:var(--bs-secondary-bg); }
+    #noiseBar { height:32px; border-radius:6px; background:linear-gradient(90deg,#198754,#ffc107,#dc3545); width:100%; position:relative; }
+    #noiseIndicator { position:absolute; top:0; height:100%; width:6px; background:white; border-radius:3px; transition:left .1s; box-shadow:0 0 6px rgba(0,0,0,.5); }
+    #timerDisplay { font-size:3rem; font-family:monospace; font-weight:700; color:var(--bs-primary); }
+    .student-result { font-size:2.2rem; font-weight:800; color:var(--bs-primary); min-height:3rem; text-align:center; transition:opacity .15s; }
+
+    @media print {
+      nav, footer, .no-print { display:none!important; }
+      body { font-size:11pt; color:#000!important; background:#fff!important; }
+    }
+  </style>
+</head>
+<body>
+<a href="#main" class="visually-hidden-focusable">Skip to content</a>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg sticky-top border-bottom">
+  <div class="container-xl">
+    <a class="navbar-brand fw-bold" href="../">JR</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navMain">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item"><a class="nav-link" href="../">Home</a></li>
+        <li class="nav-item"><a class="nav-link active" href="#">Teacher Hub</a></li>
+        <li class="nav-item"><a class="nav-link" href="../cmmc2/">CMMC 2.0</a></li>
+      </ul>
+      <div class="d-flex gap-2 align-items-center">
+        <button class="btn btn-sm btn-outline-secondary" onclick="toggleTheme()" title="Toggle theme">
+          <i class="bi bi-circle-half"></i>
+        </button>
+        <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#settingsModal" title="Settings">
+          <i class="bi bi-gear"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Settings Modal -->
+<div class="modal fade" id="settingsModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-gear me-2"></i>Teacher Settings</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="lp-label">Teacher Name</label>
+          <input type="text" class="form-control" id="settingTeacherName" placeholder="e.g. Mrs. Rojas">
+        </div>
+        <div class="mb-3">
+          <label class="lp-label">School Name</label>
+          <input type="text" class="form-control" id="settingSchoolName" placeholder="e.g. Sunrise Elementary">
+        </div>
+        <div class="mb-3">
+          <label class="lp-label">Grade / Class</label>
+          <input type="text" class="form-control" id="settingGrade" placeholder="5th Grade" value="5th Grade">
+        </div>
+        <div class="mb-3">
+          <label class="lp-label">Student Names (one per line, for random picker)</label>
+          <textarea class="form-control" id="settingStudents" rows="6" placeholder="Alex&#10;Jordan&#10;Taylor&#10;..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main id="main" class="container-xl py-4">
+  <div class="mb-4">
+    <h1 class="h3 fw-bold mb-1"><i class="bi bi-mortarboard-fill me-2" style="color:var(--bs-primary)"></i>5th Grade Teacher Hub</h1>
+    <p class="text-secondary mb-0" id="teacherSubtitle">Utah Public School &mdash; Resource Center</p>
+  </div>
+
+  <!-- Tabs -->
+  <ul class="nav nav-tabs mb-4" id="mainTabs">
+    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabPlanner"><i class="bi bi-pencil-square me-1"></i>Lesson Planner</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabActivities"><i class="bi bi-lightning-charge me-1"></i>Activities</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabTemplates"><i class="bi bi-file-earmark-text me-1"></i>Templates</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabStandards"><i class="bi bi-list-check me-1"></i>Standards</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabTools"><i class="bi bi-tools me-1"></i>Tools</button></li>
+  </ul>
+
+  <div class="tab-content">
+
+    <!-- ══════════════════════════════════════════
+         TAB 1: LESSON PLANNER
+    ══════════════════════════════════════════ -->
+    <div class="tab-pane fade show active tab-section" id="tabPlanner">
+      <div class="row g-4">
+        <!-- Saved Plans sidebar -->
+        <div class="col-lg-3">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="lp-label mb-0">Saved Plans</span>
+            <button class="btn btn-sm btn-outline-secondary" onclick="newPlan()"><i class="bi bi-plus-lg"></i> New</button>
+          </div>
+          <div id="savedPlansList"></div>
+          <div class="text-secondary" style="font-size:.75rem;margin-top:.5rem;">Up to 10 plans stored locally.</div>
+        </div>
+
+        <!-- Planner form -->
+        <div class="col-lg-9">
+          <div class="row g-3">
+            <div class="col-md-7">
+              <label class="lp-label">Lesson Title</label>
+              <input type="text" class="form-control" id="lpTitle" placeholder="e.g. Fractions on a Number Line">
+            </div>
+            <div class="col-md-3">
+              <label class="lp-label">Subject</label>
+              <select class="form-select" id="lpSubject">
+                <option value="">— Select —</option>
+                <option>ELA</option><option>Math</option><option>Science</option>
+                <option>Social Studies</option><option>Health</option><option>Art</option>
+                <option>PE</option><option>Other</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label class="lp-label">Date</label>
+              <input type="date" class="form-control" id="lpDate">
+            </div>
+            <div class="col-md-3">
+              <label class="lp-label">Duration</label>
+              <select class="form-select" id="lpDuration">
+                <option>30 min</option><option>45 min</option>
+                <option selected>60 min</option><option>90 min</option><option>Custom</option>
+              </select>
+            </div>
+            <div class="col-md-9">
+              <label class="lp-label">Utah Core Standard(s)</label>
+              <input type="text" class="form-control" id="lpStandards" placeholder="e.g. 5.NF.A.1, RL.5.2">
+            </div>
+            <div class="col-12">
+              <label class="lp-label">Learning Objectives (SWBAT)</label>
+              <textarea class="form-control" id="lpObjectives" rows="2" placeholder="Students will be able to…"></textarea>
+            </div>
+            <div class="col-md-6">
+              <label class="lp-label">Key Vocabulary</label>
+              <input type="text" class="form-control" id="lpVocab" placeholder="e.g. numerator, denominator, equivalent">
+            </div>
+            <div class="col-md-6">
+              <label class="lp-label">Materials / Resources</label>
+              <input type="text" class="form-control" id="lpMaterials" placeholder="e.g. fraction tiles, whiteboard, worksheet">
+            </div>
+            <div class="col-12">
+              <label class="lp-label">Hook / Engagement (5 min)</label>
+              <textarea class="form-control" id="lpHook" rows="2" placeholder="How will you capture student interest?"></textarea>
+            </div>
+            <div class="col-md-6">
+              <label class="lp-label">I Do — Direct Instruction</label>
+              <textarea class="form-control" id="lpIDo" rows="3" placeholder="Model and explain…"></textarea>
+            </div>
+            <div class="col-md-6">
+              <label class="lp-label">We Do — Guided Practice</label>
+              <textarea class="form-control" id="lpWeDo" rows="3" placeholder="Together we practice…"></textarea>
+            </div>
+            <div class="col-md-6">
+              <label class="lp-label">You Do — Independent Practice</label>
+              <textarea class="form-control" id="lpYouDo" rows="3" placeholder="Students independently…"></textarea>
+            </div>
+            <div class="col-md-6">
+              <label class="lp-label">Closure / Exit Ticket</label>
+              <textarea class="form-control" id="lpClosure" rows="3" placeholder="How will students summarize learning?"></textarea>
+            </div>
+            <div class="col-md-6">
+              <label class="lp-label">Assessment / Evidence of Learning</label>
+              <textarea class="form-control" id="lpAssess" rows="2" placeholder="How will you know they got it?"></textarea>
+            </div>
+            <div class="col-md-6">
+              <label class="lp-label">Differentiation / Accommodations</label>
+              <textarea class="form-control" id="lpDiff" rows="2" placeholder="IEP, ELL, enrichment notes…"></textarea>
+            </div>
+            <div class="col-12">
+              <label class="lp-label">Teacher Notes</label>
+              <textarea class="form-control" id="lpNotes" rows="2" placeholder="Reminders, what worked, what to change…"></textarea>
+            </div>
+          </div>
+          <div class="d-flex gap-2 mt-3 flex-wrap">
+            <button class="btn btn-primary" onclick="savePlan()"><i class="bi bi-floppy me-1"></i>Save Plan</button>
+            <button class="btn btn-outline-secondary" onclick="printLessonPlan()"><i class="bi bi-printer me-1"></i>Print</button>
+            <button class="btn btn-outline-danger" onclick="clearPlanForm()"><i class="bi bi-trash me-1"></i>Clear</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         TAB 2: ACTIVITIES
+    ══════════════════════════════════════════ -->
+    <div class="tab-pane fade tab-section" id="tabActivities">
+      <div class="row g-2 mb-3 align-items-end">
+        <div class="col-sm-auto">
+          <label class="lp-label">Subject</label>
+          <select class="form-select form-select-sm" id="actSubjectFilter" onchange="filterActivities()">
+            <option value="">All Subjects</option>
+            <option value="ELA">ELA</option>
+            <option value="Math">Math</option>
+            <option value="Science">Science</option>
+            <option value="Social Studies">Social Studies</option>
+          </select>
+        </div>
+        <div class="col-sm-auto">
+          <label class="lp-label">Type</label>
+          <select class="form-select form-select-sm" id="actTypeFilter" onchange="filterActivities()">
+            <option value="">All Types</option>
+            <option value="Collaborative">Collaborative</option>
+            <option value="Individual">Individual</option>
+            <option value="Hands-On">Hands-On</option>
+            <option value="Discussion">Discussion</option>
+            <option value="Game">Game</option>
+            <option value="Writing">Writing</option>
+            <option value="Project">Project</option>
+          </select>
+        </div>
+        <div class="col-sm-auto">
+          <label class="lp-label">Duration</label>
+          <select class="form-select form-select-sm" id="actDurFilter" onchange="filterActivities()">
+            <option value="">Any Duration</option>
+            <option value="15">≤ 15 min</option>
+            <option value="30">≤ 30 min</option>
+            <option value="45">≤ 45 min</option>
+            <option value="60">≤ 60 min</option>
+          </select>
+        </div>
+        <div class="col-sm">
+          <label class="lp-label">Search</label>
+          <input type="text" class="form-control form-control-sm" id="actSearch" placeholder="Search activities…" oninput="filterActivities()">
+        </div>
+        <div class="col-sm-auto">
+          <span class="text-secondary" style="font-size:.78rem;" id="actCount"></span>
+        </div>
+      </div>
+      <div id="activitiesList" class="row g-3"></div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         TAB 3: TEMPLATES
+    ══════════════════════════════════════════ -->
+    <div class="tab-pane fade tab-section" id="tabTemplates">
+      <p class="text-secondary mb-4" style="font-size:.88rem;">Click a template to open it in a print-ready window. All fields are editable before printing.</p>
+      <div class="row g-3" id="templatesGrid"></div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         TAB 4: STANDARDS
+    ══════════════════════════════════════════ -->
+    <div class="tab-pane fade tab-section" id="tabStandards">
+      <ul class="nav nav-pills mb-4" id="stdTabs">
+        <li class="nav-item"><button class="nav-link active" onclick="showStd('ela',this)">ELA</button></li>
+        <li class="nav-item"><button class="nav-link" onclick="showStd('math',this)">Math</button></li>
+        <li class="nav-item"><button class="nav-link" onclick="showStd('science',this)">Science (SEEd)</button></li>
+        <li class="nav-item"><button class="nav-link" onclick="showStd('ss',this)">Social Studies</button></li>
+      </ul>
+      <div id="stdContent"></div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         TAB 5: TOOLS
+    ══════════════════════════════════════════ -->
+    <div class="tab-pane fade tab-section" id="tabTools">
+      <div class="row g-4">
+
+        <!-- Timer -->
+        <div class="col-md-6">
+          <div class="tool-card">
+            <h6 class="fw-bold mb-3"><i class="bi bi-stopwatch me-2" style="color:var(--bs-primary)"></i>Countdown Timer</h6>
+            <div id="timerDisplay" class="mb-3">05:00</div>
+            <div class="d-flex gap-2 mb-3">
+              <input type="number" class="form-control form-control-sm" id="timerMinutes" value="5" min="1" max="60" style="width:80px"> min
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+              <button class="btn btn-success btn-sm" onclick="startTimer()"><i class="bi bi-play-fill"></i> Start</button>
+              <button class="btn btn-warning btn-sm" onclick="pauseTimer()"><i class="bi bi-pause-fill"></i> Pause</button>
+              <button class="btn btn-danger btn-sm" onclick="resetTimer()"><i class="bi bi-stop-fill"></i> Reset</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Random Student Picker -->
+        <div class="col-md-6">
+          <div class="tool-card">
+            <h6 class="fw-bold mb-3"><i class="bi bi-people me-2" style="color:var(--bs-primary)"></i>Random Student Picker</h6>
+            <div class="student-result mb-3" id="pickerResult">—</div>
+            <div class="text-secondary mb-3" style="font-size:.78rem;">Add student names in <strong>Settings</strong> (gear icon).</div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-primary btn-sm" onclick="pickStudent()"><i class="bi bi-shuffle me-1"></i>Pick Student</button>
+              <button class="btn btn-outline-secondary btn-sm" onclick="resetPicker()"><i class="bi bi-arrow-counterclockwise me-1"></i>Reset</button>
+            </div>
+            <div class="mt-2 text-secondary" style="font-size:.75rem;" id="pickerRemaining"></div>
+          </div>
+        </div>
+
+        <!-- Exit Ticket Generator -->
+        <div class="col-md-6">
+          <div class="tool-card">
+            <h6 class="fw-bold mb-3"><i class="bi bi-ticket-perforated me-2" style="color:var(--bs-primary)"></i>Exit Ticket Generator</h6>
+            <div class="mb-3">
+              <label class="lp-label">Subject</label>
+              <select class="form-select form-select-sm" id="etSubject">
+                <option>ELA</option><option>Math</option><option>Science</option><option>Social Studies</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="lp-label">Prompt Style</label>
+              <select class="form-select form-select-sm" id="etStyle">
+                <option value="3-2-1">3-2-1 (3 things, 2 questions, 1 connection)</option>
+                <option value="muddiest">Muddiest Point</option>
+                <option value="summary">One-Sentence Summary</option>
+                <option value="rating">Rate Your Understanding</option>
+              </select>
+            </div>
+            <button class="btn btn-primary btn-sm mb-3" onclick="generateExitTicket()"><i class="bi bi-magic me-1"></i>Generate</button>
+            <div id="etOutput" class="p-3 rounded" style="background:var(--bs-body-bg);border:1px solid var(--bs-border-color);font-size:.85rem;min-height:60px;"></div>
+            <button class="btn btn-outline-secondary btn-sm mt-2 no-print" onclick="printExitTicket()"><i class="bi bi-printer me-1"></i>Print</button>
+          </div>
+        </div>
+
+        <!-- Noise Meter -->
+        <div class="col-md-6">
+          <div class="tool-card">
+            <h6 class="fw-bold mb-3"><i class="bi bi-volume-up me-2" style="color:var(--bs-primary)"></i>Classroom Noise Meter</h6>
+            <div class="mb-2 text-center fw-bold" id="noiseLabel" style="font-size:1.1rem;">Level 3 — Partner Talk</div>
+            <div id="noiseBar" class="mb-3"><div id="noiseIndicator"></div></div>
+            <input type="range" class="form-range" id="noiseSlider" min="0" max="5" value="2" oninput="updateNoise(this.value)">
+            <div class="d-flex justify-content-between text-secondary" style="font-size:.7rem;">
+              <span>Silence</span><span>Whisper</span><span>Partner</span><span>Group</span><span>Presenter</span><span>Emergency</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- tab-content -->
+</main>
+
+<footer class="border-top mt-5 py-3 text-center text-secondary" style="font-size:.78rem;">
+  <div class="container-xl">Teacher Hub &mdash; Jessica Rojas &mdash; Built for Utah 5th Grade</div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmE5AFFL7sN/EI2igmv/4dKDetK+" crossorigin="anonymous"></script>
+<script>
+'use strict';
+
+/* ─── Theme toggle ─────────────────────────────────────── */
+function toggleTheme(){
+  var t = document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-bs-theme', t);
+  localStorage.setItem('bsTheme', t);
+}
+
+/* ─── Settings ─────────────────────────────────────────── */
+function loadSettings(){
+  var s = JSON.parse(localStorage.getItem('teacher_settings') || '{}');
+  document.getElementById('settingTeacherName').value = s.name || '';
+  document.getElementById('settingSchoolName').value = s.school || '';
+  document.getElementById('settingGrade').value = s.grade || '5th Grade';
+  document.getElementById('settingStudents').value = (s.students || []).join('\n');
+  if(s.name || s.school){
+    document.getElementById('teacherSubtitle').textContent =
+      (s.name ? s.name + ' — ' : '') + (s.school || '') + (s.grade ? ' — ' + s.grade : '');
+  }
+}
+function saveSettings(){
+  var students = document.getElementById('settingStudents').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  var s = {
+    name: document.getElementById('settingTeacherName').value.trim(),
+    school: document.getElementById('settingSchoolName').value.trim(),
+    grade: document.getElementById('settingGrade').value.trim(),
+    students: students
+  };
+  localStorage.setItem('teacher_settings', JSON.stringify(s));
+  bootstrap.Modal.getInstance(document.getElementById('settingsModal')).hide();
+  loadSettings();
+  _pickerPool = null;
+}
+
+/* ─── Lesson Planner ───────────────────────────────────── */
+var LP_FIELDS = ['lpTitle','lpSubject','lpDate','lpDuration','lpStandards','lpObjectives','lpVocab','lpMaterials','lpHook','lpIDo','lpWeDo','lpYouDo','lpClosure','lpAssess','lpDiff','lpNotes'];
+var _currentPlanId = null;
+
+function getPlanData(){
+  var d = {};
+  LP_FIELDS.forEach(function(id){ d[id] = (document.getElementById(id)||{}).value || ''; });
+  return d;
+}
+function setPlanData(d){
+  LP_FIELDS.forEach(function(id){ if(document.getElementById(id)) document.getElementById(id).value = d[id]||''; });
+}
+function getPlans(){ return JSON.parse(localStorage.getItem('teacher_plans') || '[]'); }
+function savePlans(plans){ localStorage.setItem('teacher_plans', JSON.stringify(plans)); }
+
+function renderSavedPlans(){
+  var plans = getPlans();
+  var el = document.getElementById('savedPlansList');
+  if(!plans.length){ el.innerHTML = '<div class="text-secondary" style="font-size:.78rem;">No saved plans yet.</div>'; return; }
+  el.innerHTML = plans.map(function(p){
+    return '<div class="saved-plan" onclick="loadPlan(\''+p.id+'\')">' +
+      '<span>'+(p.data.lpTitle||'Untitled')+' <span class="text-secondary" style="font-size:.7rem;">'+(p.data.lpSubject||'')+'</span></span>' +
+      '<button class="btn btn-sm btn-link text-danger p-0" onclick="deletePlan(\''+p.id+'\',event)" title="Delete"><i class="bi bi-x-lg"></i></button>' +
+    '</div>';
+  }).join('');
+}
+function savePlan(){
+  var plans = getPlans();
+  var data = getPlanData();
+  if(!data.lpTitle){ alert('Please enter a lesson title.'); return; }
+  if(_currentPlanId){
+    plans = plans.map(function(p){ return p.id===_currentPlanId ? {id:p.id,data:data} : p; });
+  } else {
+    if(plans.length >= 10){ alert('Max 10 saved plans. Delete one first.'); return; }
+    _currentPlanId = Date.now().toString();
+    plans.push({id:_currentPlanId, data:data});
+  }
+  savePlans(plans);
+  renderSavedPlans();
+}
+function loadPlan(id){
+  var p = getPlans().find(function(x){ return x.id===id; });
+  if(!p) return;
+  _currentPlanId = id;
+  setPlanData(p.data);
+}
+function deletePlan(id, evt){
+  evt.stopPropagation();
+  if(!confirm('Delete this plan?')) return;
+  var plans = getPlans().filter(function(p){ return p.id!==id; });
+  savePlans(plans);
+  if(_currentPlanId===id){ _currentPlanId=null; clearPlanForm(); }
+  renderSavedPlans();
+}
+function newPlan(){ _currentPlanId=null; clearPlanForm(); }
+function clearPlanForm(){ LP_FIELDS.forEach(function(id){ if(document.getElementById(id)) document.getElementById(id).value=''; }); }
+
+function printLessonPlan(){
+  var d = getPlanData();
+  var s = JSON.parse(localStorage.getItem('teacher_settings')||'{}');
+  var teacher = s.name||''; var school = s.school||''; var grade = s.grade||'5th Grade';
+  var w = window.open('','_blank','width=900,height=700');
+  w.document.write('<!DOCTYPE html><html><head><title>Lesson Plan</title><style>' +
+    'body{font-family:Georgia,serif;font-size:11pt;color:#000;margin:1.5cm;} h1{font-size:16pt;margin-bottom:4px;} ' +
+    'h2{font-size:11pt;border-bottom:1pt solid #000;margin-top:14pt;margin-bottom:4pt;} ' +
+    '.meta{display:flex;gap:24px;font-size:9pt;color:#555;margin-bottom:12pt;} ' +
+    '.section{margin-bottom:10pt;} p{margin:2pt 0 0 0;font-size:10pt;line-height:1.5;} ' +
+    '.header{border-bottom:2pt solid #000;padding-bottom:6pt;margin-bottom:8pt;} ' +
+    '@media print{@page{margin:1.5cm;}}' +
+  '</style></head><body>');
+  w.document.write('<div class="header"><h1>'+(d.lpTitle||'Lesson Plan')+'</h1>');
+  w.document.write('<div class="meta"><span>Teacher: '+(teacher||'_______________')+'</span><span>School: '+(school||'_______________')+'</span><span>Grade: '+grade+'</span>');
+  if(d.lpDate) w.document.write('<span>Date: '+d.lpDate+'</span>');
+  if(d.lpSubject) w.document.write('<span>Subject: '+d.lpSubject+'</span>');
+  if(d.lpDuration) w.document.write('<span>Duration: '+d.lpDuration+'</span>');
+  w.document.write('</div></div>');
+  function sec(label, val){ if(val) w.document.write('<div class="section"><h2>'+label+'</h2><p>'+val.replace(/\n/g,'<br>')+'</p></div>'); }
+  sec('Utah Core Standard(s)', d.lpStandards);
+  sec('Learning Objectives', d.lpObjectives);
+  sec('Key Vocabulary', d.lpVocab);
+  sec('Materials / Resources', d.lpMaterials);
+  sec('Hook / Engagement', d.lpHook);
+  sec('I Do — Direct Instruction', d.lpIDo);
+  sec('We Do — Guided Practice', d.lpWeDo);
+  sec('You Do — Independent Practice', d.lpYouDo);
+  sec('Closure / Exit Ticket', d.lpClosure);
+  sec('Assessment', d.lpAssess);
+  sec('Differentiation / Accommodations', d.lpDiff);
+  sec('Teacher Notes', d.lpNotes);
+  w.document.write('</body></html>');
+  w.document.close();
+  w.print();
+}
+
+/* ─── Activities Data ──────────────────────────────────── */
+var ACTIVITIES = [
+  // ELA
+  {id:1,subject:'ELA',type:'Collaborative',duration:30,title:'Socratic Seminar',desc:'Student-led discussion where the teacher facilitates rather than lectures. Students respond to a text-based question.',materials:'Anchor text, discussion question, talking chips',steps:['Select complex text and craft a central question','Students read and annotate','Arrange desks in a circle','Students discuss, using text evidence','Debrief: what did you hear, what changed your thinking?'],standard:'RL.5.1, SL.5.1',tip:'Use talking chips (each student has 3 tokens; lose one each time they speak) to ensure equity.'},
+  {id:2,subject:'ELA',type:'Writing',duration:45,title:'Four Square Writing',desc:'Graphic organizer strategy for structured paragraph or essay writing. Works for opinion, informational, and narrative.',materials:'Four-square template (printed or drawn)',steps:['Introduce the topic/claim in center','Write 3 supporting details in 3 boxes','Add voice/elaboration in 4th box','Students draft paragraph from organizer'],standard:'W.5.1, W.5.2',tip:'Great for ELL students — visual structure reduces anxiety.'},
+  {id:3,subject:'ELA',type:'Game',duration:20,title:'Vocabulary Kahoot! Sprint',desc:'Fast-paced digital vocabulary review game. Use the week\'s word wall words.',materials:'Kahoot account, devices, projector',steps:['Pre-build Kahoot with vocabulary words','Project on screen','Students join on devices','Play 10–15 questions','Review missed words together'],standard:'L.5.4',tip:'Have students write the definition in their own words for missed questions.'},
+  {id:4,subject:'ELA',type:'Hands-On',duration:40,title:'Story Mapping with Sticky Notes',desc:'Students map story elements on a large anchor chart using color-coded sticky notes.',materials:'Sticky notes (4 colors), anchor chart paper, markers',steps:['Assign: yellow=character, pink=setting, blue=conflict, green=resolution','Read/recall the story','Students write on stickies and place on chart','Class reviews and discusses'],standard:'RL.5.3',tip:'Leave the chart up all week for reference.'},
+  {id:5,subject:'ELA',type:'Individual',duration:25,title:'Close Reading Annotation',desc:'Students read a short complex text 3 times with different lenses: what it says, how it works, what it means.',materials:'Printed text, colored pencils',steps:['1st read: circle unknown words','2nd read: underline key ideas, margin notes','3rd read: write 1-sentence summary, identify author\'s purpose','Partner share'],standard:'RI.5.6',tip:'Use the same 3-read protocol all year to build habit.'},
+  {id:6,subject:'ELA',type:'Collaborative',duration:35,title:'Literature Circles',desc:'Small groups each reading the same book discuss assigned roles: Discussion Director, Passage Picker, Word Wizard, Connector.',materials:'Group novels (4–6 copies), role sheets',steps:['Assign roles and reading section','Students prepare their role independently','Groups meet and each shares their role','Groups rotate roles each meeting'],standard:'RL.5.2, SL.5.1',tip:'Post the role descriptions on the wall for reference.'},
+  {id:7,subject:'ELA',type:'Writing',duration:60,title:'RAFT Writing Prompt',desc:'Students write from a specific Role, Audience, Format, and Topic — sparks creative thinking about purpose and voice.',materials:'RAFT card (teacher-created)',steps:['Introduce RAFT concept','Assign or let students choose a RAFT card','Students plan their writing','Students draft','Share with a partner'],standard:'W.5.3, W.5.4',tip:'Let students design their own RAFT cards as an extension.'},
+  {id:8,subject:'ELA',type:'Discussion',duration:15,title:'Turn & Talk Sentence Frames',desc:'Structured partner discussion using academic language sentence frames. Good for activating prior knowledge or checking understanding.',materials:'Sentence frame anchor chart',steps:['Post sentence frames on board','Pose a discussion question','Signal Turn & Talk','Students use frames','Cold-call 2–3 pairs to share'],standard:'SL.5.1, L.5.6',tip:'Rotate partners weekly.'},
+  {id:9,subject:'ELA',type:'Individual',duration:30,title:'Reading Response Journals',desc:'Students respond to independent reading using a structured prompt. Builds reading accountability and written expression.',materials:'Composition notebook or journal',steps:['Students read independently 15–20 min','Post the response prompt','Students write for 10 min','Optional share'],standard:'RL.5.1, W.5.10',tip:'Alternate between prompted and free-response entries.'},
+  {id:10,subject:'ELA',type:'Hands-On',duration:45,title:'Word Sort — Roots & Affixes',desc:'Students sort vocabulary cards by root word, prefix, or suffix to discover patterns in word meaning.',materials:'Pre-cut word cards, sorting mats',steps:['Distribute word card sets','Students sort cards into categories','Groups explain their sorting logic','Create anchor chart of discovered patterns','Students find 2 more examples in their reading'],standard:'L.5.4.B',tip:'Have students glue their sort into interactive notebooks.'},
+  // Math
+  {id:11,subject:'Math',type:'Game',duration:25,title:'Math War — Fraction Edition',desc:'Card game where students compare fractions (or decimals). Great for building fluency.',materials:'Deck of cards (remove face cards)',steps:['Partner up','Each player flips 2 cards to make a fraction','Compare fractions — higher value wins the round','Player with most cards at end wins'],standard:'5.NF.A',tip:'Add a rule: if equal (war!), flip 3 more cards.'},
+  {id:12,subject:'Math',type:'Hands-On',duration:40,title:'Fraction Tile Exploration',desc:'Concrete-representational-abstract lesson using manipulatives to model equivalent fractions.',materials:'Fraction tiles or strips, worksheet',steps:['Students use tiles to model 1/2','Find all fractions equivalent to 1/2','Record findings','Write the rule in their own words','Practice with 1/3 and 1/4'],standard:'5.NF.A.1',tip:'Photo the tile models before moving to abstract notation.'},
+  {id:13,subject:'Math',type:'Collaborative',duration:35,title:'Which One Doesn\'t Belong?',desc:'Students examine 4 numbers/shapes/graphs and justify which one doesn\'t belong — no single right answer.',materials:'WODB prompt (projected)',steps:['Project a WODB prompt','Think time (1 min)','Partner discuss','Groups share reasoning — all answers valid with justification','Debrief: multiple perspectives in math'],standard:'Mathematical Practice 3',tip:'Visit wouldntbelong.ca for free prompts.'},
+  {id:14,subject:'Math',type:'Individual',duration:30,title:'Math Journals — Number Talks',desc:'Students solve a mental math problem, record thinking strategies, and explain their reasoning in writing.',materials:'Math journal, timer',steps:['Flash the problem (no pencils)','Think time: 1 min','Students write their strategies','2–3 students share methods','Connect strategies to place value or properties'],standard:'5.NBT.A, Mathematical Practice 6',tip:'Collect journals weekly to check for misconceptions.'},
+  {id:15,subject:'Math',type:'Hands-On',duration:50,title:'Decimal Place Value with Base Ten Blocks',desc:'Concrete model for decimal place value (tenths, hundredths) using base ten blocks re-designated.',materials:'Base ten blocks, recording sheet',steps:['Designate: flat=1, rod=0.1, unit=0.01','Model 1.34 with blocks','Students build assigned decimals','Sketch and label','Order 5 decimals from least to greatest'],standard:'5.NBT.A.1, 5.NBT.A.3',tip:'Have students take photos of their models for digital portfolios.'},
+  {id:16,subject:'Math',type:'Game',duration:20,title:'Around the World — Multiplication Facts',desc:'Classic fluency game. Student at desk races standing student to answer a multiplication fact.',materials:'Flash cards or math facts projected',steps:['One student stands by first desk','Teacher shows a fact','First to answer correctly moves to next desk','Continue around the room'],standard:'5.NBT.B.5',tip:'Vary: use division, fractions, or order of operations instead.'},
+  {id:17,subject:'Math',type:'Discussion',duration:25,title:'3-Act Math Task',desc:'Real-world photo/video problem in 3 acts: notice/wonder, solve with given info, extend.',materials:'3-Act task video/image (Dan Meyer or teacher-created)',steps:['Act 1: Show image/video. What do you notice? What do you wonder?','Students estimate and guess','Act 2: What info do you need? Provide it.','Students solve','Act 3: Reveal the answer. Discuss discrepancies'],standard:'5.MD.B, Mathematical Practice 1',tip:'Start a class list of all estimates — celebrate the range.'},
+  {id:18,subject:'Math',type:'Collaborative',duration:45,title:'Gallery Walk — Data Graphing',desc:'Groups create a data display (line plot, bar graph, or line graph) and post it. Class does a gallery walk to interpret.',materials:'Graph paper, rulers, markers, data sets',steps:['Assign each group a data set','Groups create graph and write 3 observations','Post graphs around room','Students walk and leave sticky note comments','Debrief: what makes a graph clear?'],standard:'5.MD.B.2',tip:'Give students a feedback prompt: "I notice… I wonder…"'},
+  {id:19,subject:'Math',type:'Project',duration:60,title:'Measurement Olympics',desc:'Students design 3 Olympic-style events, measure results in customary and metric units, and convert.',materials:'Rulers, meter sticks, stopwatches, recording sheets',steps:['Introduce conversion reference chart','Students complete events (paper toss, straw javelin, finger flick)','Measure in inches and centimeters','Convert all measurements','Create a class leaderboard'],standard:'5.MD.A.1',tip:'Have students write an equation for each conversion.'},
+  {id:20,subject:'Math',type:'Individual',duration:30,title:'Error Analysis — Find My Mistake',desc:'Students analyze worked examples with intentional errors, identify the mistake, and correct it.',materials:'Error analysis worksheet or projected problems',steps:['Show a worked problem with an error','Students identify the error independently','Write a note to "help" the fictional student','Share corrections','Discuss why the error is common'],standard:'Mathematical Practice 3, 6',tip:'Use real (anonymized) student work for the most authentic practice.'},
+  // Science
+  {id:21,subject:'Science',type:'Hands-On',duration:50,title:'Matter Investigation — States of Matter',desc:'Students observe and classify substances into solid, liquid, gas, and plasma through hands-on stations.',materials:'Ice, water, balloon, flashlight, cornstarch mixture',steps:['Set up 5 stations','Students rotate every 8 min','Observe and record properties','Classify state of matter','Discuss: what determines a state?'],standard:'Utah SEEd 5.1.1',tip:'The cornstarch/water mixture (oobleck) sparks great discussion about non-Newtonian fluids.'},
+  {id:22,subject:'Science',type:'Hands-On',duration:60,title:'Paper Chromatography — Mixtures',desc:'Students separate the pigments in black markers using water and coffee filters to explore mixtures and solutions.',materials:'Black markers (washable), coffee filters, water, cups',steps:['Cut filter into strips','Draw a dot 1 cm from bottom with marker','Place in shallow water (dot above waterline)','Observe as water wicks up','Record colors separated, discuss mixture concepts'],standard:'Utah SEEd 5.1.2',tip:'Compare different brands — results vary dramatically!'},
+  {id:23,subject:'Science',type:'Project',duration:90,title:'Ecosystem Diorama',desc:'Students research and build a diorama of a Utah ecosystem, including producers, consumers, and decomposers.',materials:'Shoe boxes, art supplies, research materials',steps:['Assign or choose ecosystem (desert, wetland, forest, alpine)','Research organisms and food web','Build diorama','Label with organism names and roles','Present to class'],standard:'Utah SEEd 5.2.1',tip:'Require at least one decomposer — often forgotten!'},
+  {id:24,subject:'Science',type:'Discussion',duration:30,title:'Food Web Jenga',desc:'Adapted Jenga where removing a block represents removing a species. Students predict and discuss ecosystem effects.',materials:'Jenga set, species labels',steps:['Label each Jenga block with a Utah organism','Discuss food web relationships','Students take turns removing a "species"','After each removal: what is affected? Who loses food?','Reflect: what happens when keystone species are removed?'],standard:'Utah SEEd 5.2.2',tip:'Start with the apex predator removed to spark the most discussion.'},
+  {id:25,subject:'Science',type:'Hands-On',duration:45,title:'Water Cycle in a Bag',desc:'Students seal water in a zip-lock bag taped to a sunny window to observe evaporation, condensation, and precipitation.',materials:'Zip-lock bags, water, blue food coloring, tape',steps:['Add 1/3 cup colored water to bag','Seal and tape to window','Observe over 2–3 days','Draw and label what they see each day','Connect to water cycle vocabulary'],standard:'Utah SEEd 5.3.1',tip:'Works best with direct sunlight — south-facing windows ideal.'},
+  {id:26,subject:'Science',type:'Collaborative',duration:40,title:'Rock Cycle Stations',desc:'Students simulate the rock cycle processes at four stations: weathering, erosion, melting, cooling.',materials:'Colored crayons, cheese grater, foil, hot plate (or hot water)',steps:['Station 1: Grate crayon (weathering/erosion) → sediment','Station 2: Press layers (sedimentary)','Station 3: Melt in foil cup (igneous)','Station 4: Cool and observe','Create a cycle diagram connecting all stages'],standard:'Utah SEEd 5.4.1',tip:'Crayons are perfect — the layered melted result looks exactly like igneous rock.'},
+  {id:27,subject:'Science',type:'Individual',duration:30,title:'Science Notebook Claim-Evidence-Reasoning',desc:'Structured scientific writing where students make a claim, support with evidence from data, and explain the reasoning.',materials:'Science notebook, completed lab data',steps:['Introduce the CER framework on anchor chart','Students write Claim: one sentence','Evidence: cite 3+ specific data points','Reasoning: explain connection using science concepts','Peer review with CER checklist'],standard:'NGSS crosscutting concept: cause and effect',tip:'Display strong examples (anonymized) as mentor texts.'},
+  {id:28,subject:'Science',type:'Hands-On',duration:55,title:'Sun-Earth-Moon Model',desc:'Students use a flashlight (sun), foam ball (moon), and student head (earth) to model phases and eclipses.',materials:'Flashlight, foam balls (1 per student), dark room',steps:['Darken room','Student holds foam ball at arm\'s length','Teacher has flashlight (or use window)','Students rotate: observe phases change','Model solar and lunar eclipses'],standard:'Utah SEEd 5.3.2',tip:'Have students sketch and label each phase as they observe.'},
+  {id:29,subject:'Science',type:'Game',duration:25,title:'Science Vocabulary Pictionary',desc:'Teams draw science vocabulary while teammates guess — reinforces visual representations of abstract concepts.',materials:'Whiteboards or large paper, markers, vocabulary list',steps:['Divide class into 4 teams','Rotate drawers each round','Draw the assigned vocabulary term','Team guesses — 60 seconds','First correct guess wins the round'],standard:'All SEEd strands',tip:'Use this as a review game at the end of each unit.'},
+  {id:30,subject:'Science',type:'Project',duration:120,title:'Simple Machines Museum',desc:'Student groups research and build a model of one simple machine. Class opens a "museum" where they are expert docents.',materials:'Cardboard, tape, craft supplies, research books',steps:['Assign: lever, pulley, wheel/axle, incline, wedge, screw','Research: how it works, real-world examples','Build a working model','Write 3 exhibit cards','Host museum for another class or parents'],standard:'Utah SEEd 5.1.3',tip:'Invite another class or parents — authentic audience increases effort dramatically.'},
+  {id:31,subject:'Science',type:'Hands-On',duration:40,title:'Density Tower',desc:'Students layer liquids of different densities to create a rainbow tower, observing that density determines position.',materials:'Honey, corn syrup, dish soap, water, oil, rubbing alcohol, food coloring, clear cups',steps:['Color each liquid','Slowly pour in order from most to least dense','Observe layers','Drop small objects (grape, cork, marble) and predict where they\'ll float','Record and explain results'],standard:'Utah SEEd 5.1.1',tip:'Use a turkey baster for easier slow pouring.'},
+  // Social Studies
+  {id:32,subject:'Social Studies',type:'Project',duration:90,title:'Colonial America Living Museum',desc:'Each student researches a colonial American figure and presents in character at a "living museum" event.',materials:'Research books, costume elements, display cards',steps:['Assign or choose colonial figure','Research: biography, role, perspective','Write a first-person monograph (2 min speech)','Create a display card','Host museum — students stand by their display, visitors press the "button" (shoulder) to hear the speech'],standard:'SS.5.3',tip:'Invite another class, parents, or administrators for authentic audience.'},
+  {id:33,subject:'Social Studies',type:'Discussion',duration:35,title:'Founding Principles Fishbowl',desc:'Inner circle debates a constitutional principle while outer circle observes and takes notes, then switches.',materials:'Discussion question cards, note-taking sheet',steps:['4–5 students sit in inner circle with a question','Inner circle discusses while outer takes notes','Signal swap','Outer becomes inner with follow-up question','Whole class debrief'],standard:'SS.5.4',tip:'Questions like "Was the Declaration of Independence truly universal?" work well.'},
+  {id:34,subject:'Social Studies',type:'Hands-On',duration:45,title:'Trail of Tears Mapping',desc:'Students trace the routes of the forced removal of Native Nations using primary source maps and accounts.',materials:'Blank U.S. maps, colored pencils, primary source excerpts',steps:['Read excerpt from Cherokee account','Identify start and end points on map','Trace the route','Add distance and estimated travel time','Discuss: what does this tell us about US history?'],standard:'SS.5.2',tip:'Pair with a primary source from the perspective of a Cherokee child.'},
+  {id:35,subject:'Social Studies',type:'Collaborative',duration:40,title:'Revolutionary War Newspaper',desc:'Groups produce a one-page newspaper from either the Patriot or Loyalist perspective using historical facts.',materials:'Newspaper template, research books, art supplies',steps:['Assign perspective: Patriot or Loyalist','Groups write a headline story, editorial, and advertisement','Include at least 3 historical facts','Share newspapers and compare perspectives','Discuss: how does perspective shape history?'],standard:'SS.5.3',tip:'Compare the two newspapers side-by-side for a vivid lesson in perspective.'},
+  {id:36,subject:'Social Studies',type:'Game',duration:30,title:'Geography Bee Prep — US Regions',desc:'Quick-fire geography review game covering the five US regions, state capitals, and physical features.',materials:'US map (projected), whiteboards',steps:['Divide class into 5 teams (one per region)','Ask questions about states, capitals, landforms','Teams write answers on whiteboards','Reveal simultaneously','Teams earn points for correct answers'],standard:'SS.5.1',tip:'Add a "Daily Double" round where points can be doubled if students justify their answer.'},
+  {id:37,subject:'Social Studies',type:'Hands-On',duration:50,title:'Primary Source Analysis — Document Detective',desc:'Students analyze a primary source document using the SOAPS method: Subject, Occasion, Audience, Purpose, Speaker.',materials:'Printed primary source, SOAPS graphic organizer',steps:['Distribute document','Students observe without reading: What format? Handwritten?','Read once without stopping','Complete SOAPS organizer','Share analysis and discuss: what can we learn? What are the limits?'],standard:'SS.5.3, SS.5.4',tip:'Use sources from both marginalized and dominant voices for balanced history.'},
+  {id:38,subject:'Social Studies',type:'Writing',duration:45,title:'Persuasive Letter to a Founder',desc:'Students write a persuasive letter to a Founding Father arguing for or against a specific policy or constitutional provision.',materials:'Letter template, rubric, reference notes',steps:['Review the constitutional principle','Students choose their position','Plan with a graphic organizer','Draft the letter with greeting, 3 arguments, closing','Peer review using rubric'],standard:'SS.5.4, W.5.1',tip:'Students enjoy "sending" the letter by displaying it in a class mailbox.'},
+  {id:39,subject:'Social Studies',type:'Project',duration:120,title:'Utah Pioneer Journey Simulation',desc:'Students simulate decision-making on the pioneer trail using resource cards, weather events, and choice points.',materials:'Resource cards, route map, journal pages',steps:['Assign family roles','Distribute starting resources','Read trail events — students make decisions','Track resources after each event','Final reflection: what was hardest? What did you learn about pioneer life?'],standard:'SS.5.5 (Utah History context)'},
+  {id:40,subject:'Social Studies',type:'Discussion',duration:25,title:'Would You Rather — Historical Dilemmas',desc:'Students vote on historical dilemmas and defend their choice with historical reasoning.',materials:'Dilemma cards (teacher-created)',steps:['Present dilemma (e.g. "Would you rather be a Patriot or Loyalist in 1776?")','Students move to sides of room','Groups share reasoning','Switch sides: argue the other perspective','Debrief: what did you learn from the other side?'],standard:'SS.5.3',tip:'No judgment — focus on historical reasoning, not personal values.'},
+  {id:41,subject:'Social Studies',type:'Individual',duration:30,title:'State Research Brochure',desc:'Students create a tri-fold brochure about an assigned US state, including geography, history, economy, and fun facts.',materials:'Blank brochure template, research books or approved websites',steps:['Assign or choose a state','Research the four categories','Plan brochure layout','Create and illustrate brochure','Share with class'],standard:'SS.5.1',tip:'Bind all brochures into a class "US Travel Guide."'},
+  {id:42,subject:'Social Studies',type:'Collaborative',duration:40,title:'Constitutional Convention Role-Play',desc:'Students take on roles at a simulated Constitutional Convention, debating key compromises.',materials:'Role cards, debate topics, "vote" ballots',steps:['Assign delegate roles (large state, small state, slaveholding, abolitionist)','Read background on their position','Debate the Great Compromise and 3/5 Compromise','Vote','Debrief: whose voices were missing? What were the trade-offs?'],standard:'SS.5.4',tip:'Hold the debrief in a circle for more equity of voice.'}
+];
+
+function badgeClass(subj){
+  if(subj==='ELA') return 'badge-ela';
+  if(subj==='Math') return 'badge-math';
+  if(subj==='Science') return 'badge-sci';
+  return 'badge-ss';
+}
+
+function filterActivities(){
+  var subj = document.getElementById('actSubjectFilter').value;
+  var type = document.getElementById('actTypeFilter').value;
+  var dur = parseInt(document.getElementById('actDurFilter').value)||9999;
+  var q = document.getElementById('actSearch').value.toLowerCase();
+  var filtered = ACTIVITIES.filter(function(a){
+    if(subj && a.subject!==subj) return false;
+    if(type && a.type!==type) return false;
+    if(a.duration > dur) return false;
+    if(q && !(a.title.toLowerCase().includes(q) || a.desc.toLowerCase().includes(q))) return false;
+    return true;
+  });
+  document.getElementById('actCount').textContent = filtered.length + ' of ' + ACTIVITIES.length + ' activities';
+  var html = '';
+  filtered.forEach(function(a){
+    html += '<div class="col-md-6 col-lg-4"><div class="act-card" onclick="toggleAct('+a.id+')">' +
+      '<div class="d-flex gap-2 align-items-start mb-1">' +
+        '<span class="subject-badge '+badgeClass(a.subject)+'">'+a.subject+'</span>' +
+        '<span class="subject-badge badge-type">'+a.type+'</span>' +
+        '<span class="subject-badge badge-type ms-auto">'+a.duration+' min</span>' +
+      '</div>' +
+      '<div class="fw-bold" style="font-size:.9rem;margin-bottom:.3rem;">'+a.title+'</div>' +
+      '<div class="text-secondary" style="font-size:.8rem;">'+a.desc+'</div>' +
+      '<div class="act-detail" id="act-'+a.id+'">' +
+        (a.materials?'<div class="lp-label mt-2">Materials</div><div style="font-size:.8rem;">'+a.materials+'</div>':'') +
+        '<div class="lp-label mt-2">Steps</div><ol style="font-size:.8rem;padding-left:1.2rem;margin:0;">'+
+          a.steps.map(function(s){return '<li>'+s+'</li>';}).join('')+'</ol>' +
+        (a.standard?'<div class="lp-label mt-2">Standard</div><div style="font-size:.78rem;font-family:monospace;">'+a.standard+'</div>':'')+
+        (a.tip?'<div class="mt-2 p-2 rounded" style="background:rgba(var(--bs-primary-rgb),.08);font-size:.78rem;"><i class="bi bi-lightbulb me-1" style="color:var(--bs-primary)"></i>'+a.tip+'</div>':'') +
+      '</div>' +
+    '</div></div>';
+  });
+  document.getElementById('activitiesList').innerHTML = html || '<div class="col-12 text-center text-secondary py-5">No activities match your filters.</div>';
+}
+
+function toggleAct(id){
+  var el = document.getElementById('act-'+id);
+  if(el) el.classList.toggle('open');
+}
+
+/* ─── Templates ────────────────────────────────────────── */
+var TEMPLATES = [
+  {icon:'bi-newspaper',name:'Weekly Newsletter',desc:'Family communication template',fn:'tplNewsletter'},
+  {icon:'bi-person-badge',name:'Sub Plans',desc:'Substitute teacher daily plan',fn:'tplSubPlans'},
+  {icon:'bi-envelope',name:'Parent Letter',desc:'Formal parent communication',fn:'tplParentLetter'},
+  {icon:'bi-chat-left-text',name:'Conference Notes',desc:'Parent-teacher conference record',fn:'tplConference'},
+  {icon:'bi-123',name:'3-2-1 Exit Ticket',desc:'3 things, 2 questions, 1 connection',fn:'tplExitTicket321'},
+  {icon:'bi-check-circle',name:'Quick-Check Exit Ticket',desc:'Rate understanding + explain',fn:'tplExitQuick'},
+  {icon:'bi-emoji-frown',name:'Behavior Reflection',desc:'Student self-reflection form',fn:'tplBehavior'},
+  {icon:'bi-book',name:'Reading Log',desc:'Weekly independent reading tracker',fn:'tplReadingLog'},
+  {icon:'bi-eyedropper',name:'Science Lab Report',desc:'Hypothesis-method-results format',fn:'tplLabReport'},
+  {icon:'bi-search',name:'Research Planning Guide',desc:'Topic, sources, note organizer',fn:'tplResearch'},
+  {icon:'bi-bounding-box',name:'CUBES Math Template',desc:'Problem-solving strategy sheet',fn:'tplCubes'},
+  {icon:'bi-alphabet',name:'Vocabulary Word Map',desc:'Definition, picture, examples',fn:'tplVocab'}
+];
+
+function renderTemplates(){
+  var s = JSON.parse(localStorage.getItem('teacher_settings')||'{}');
+  var teacher = s.name||''; var school = s.school||''; var grade = s.grade||'5th Grade';
+  var html = TEMPLATES.map(function(t){
+    return '<div class="col-6 col-md-4 col-lg-3"><div class="tmpl-card" onclick="'+t.fn+'(\''+teacher+'\',\''+school+'\',\''+grade+'\')">' +
+      '<i class="bi '+t.icon+' tmpl-icon"></i>' +
+      '<div class="tmpl-name">'+t.name+'</div>' +
+      '<div class="tmpl-desc">'+t.desc+'</div>' +
+    '</div></div>';
+  }).join('');
+  document.getElementById('templatesGrid').innerHTML = html;
+}
+
+function printWindow(title, bodyHtml){
+  var w = window.open('','_blank','width=850,height=700');
+  w.document.write('<!DOCTYPE html><html><head><title>'+title+'</title><style>'+
+    'body{font-family:Arial,sans-serif;font-size:11pt;color:#000;margin:1.5cm;background:#fff;}'+
+    'h1{font-size:15pt;margin-bottom:4px;}h2{font-size:12pt;border-bottom:1pt solid #333;margin-top:16pt;margin-bottom:6pt;}'+
+    '.field{border-bottom:1pt solid #aaa;min-height:24pt;margin-bottom:8pt;padding:2pt;}'+
+    '.label{font-size:8pt;font-weight:bold;text-transform:uppercase;letter-spacing:.05em;color:#555;margin-bottom:2pt;}'+
+    'table{width:100%;border-collapse:collapse;} td,th{border:1pt solid #aaa;padding:5pt;font-size:9pt;}'+
+    'th{background:#f0f0f0;font-weight:bold;}'+
+    '.grid{display:grid;grid-template-columns:1fr 1fr;gap:12pt;}'+
+    '@media print{@page{margin:1.5cm;}}'+
+  '</style></head><body>'+bodyHtml+'<script>window.print();<\/script></body></html>');
+  w.document.close();
+}
+
+function tplNewsletter(t,s,g){
+  printWindow('Weekly Newsletter', '<h1>Weekly Classroom Newsletter</h1>'+
+    '<div style="display:flex;gap:20pt;font-size:9pt;color:#555;margin-bottom:12pt;">'+
+    '<span>Teacher: '+(t||'_______________')+'</span><span>School: '+(s||'_______________')+'</span>'+
+    '<span>Grade: '+g+'</span><span>Week of: <span contenteditable style="border-bottom:1pt solid #aaa;min-width:60pt;display:inline-block;"></span></span></div>'+
+    '<h2>&#128218; What We\'re Learning</h2><div class="field" contenteditable style="min-height:50pt;"></div>'+
+    '<h2>&#128197; Important Dates</h2><div class="field" contenteditable style="min-height:40pt;"></div>'+
+    '<h2>&#127968; Homework</h2><div class="field" contenteditable style="min-height:40pt;"></div>'+
+    '<h2>&#128172; From the Teacher</h2><div class="field" contenteditable style="min-height:50pt;"></div>'+
+    '<div style="margin-top:16pt;font-size:9pt;color:#555;">Contact: <span contenteditable style="border-bottom:1pt solid #aaa;min-width:120pt;display:inline-block;"></span></div>');
+}
+
+function tplSubPlans(t,s,g){
+  printWindow('Substitute Teacher Plans', '<h1>Substitute Teacher Plans</h1>'+
+    '<div style="display:flex;gap:16pt;font-size:9pt;color:#555;margin-bottom:10pt;">'+
+    '<span>Teacher: '+(t||'_______________')+'</span><span>School: '+(s||'_______________')+'</span>'+
+    '<span>Date: <span contenteditable style="border-bottom:1pt solid #aaa;min-width:60pt;display:inline-block;"></span></span></div>'+
+    '<h2>Class Information</h2>'+
+    '<div class="label">Classroom rules to know:</div><div class="field" contenteditable style="min-height:36pt;"></div>'+
+    '<div class="label">Students who can help you:</div><div class="field" contenteditable></div>'+
+    '<div class="label">Students who need extra support (confidential):</div><div class="field" contenteditable></div>'+
+    '<h2>Schedule</h2>'+
+    '<table><tr><th>Time</th><th>Subject</th><th>What to Do</th><th>Materials</th></tr>'+
+    '<tr><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td></tr>'.repeat(7)+
+    '</table>'+
+    '<h2>Emergency Info</h2>'+
+    '<div class="label">Office phone / procedure:</div><div class="field" contenteditable></div>'+
+    '<div class="label">Emergency substitute folder location:</div><div class="field" contenteditable></div>');
+}
+
+function tplParentLetter(t,s,g){
+  printWindow('Parent Letter', '<div style="text-align:right;font-size:9pt;margin-bottom:16pt;">Date: <span contenteditable style="border-bottom:1pt solid #aaa;min-width:80pt;display:inline-block;"></span></div>'+
+    '<div style="margin-bottom:8pt;">Dear <span contenteditable style="border-bottom:1pt solid #aaa;min-width:120pt;display:inline-block;"></span>,</div>'+
+    '<div class="field" contenteditable style="min-height:120pt;border:none;border-bottom:1pt solid #aaa;"></div>'+
+    '<div style="margin-top:16pt;">Sincerely,</div>'+
+    '<div style="margin-top:24pt;border-bottom:1pt solid #aaa;width:200pt;"></div>'+
+    '<div>'+(t||'Teacher\'s Name')+'</div>'+
+    '<div>'+g+' &mdash; '+(s||'School Name')+'</div>'+
+    '<hr style="margin-top:24pt;border:1pt dashed #aaa;"><div style="font-size:9pt;">Please sign and return the bottom portion. &#9986;</div>'+
+    '<div style="margin-top:8pt;">Parent/Guardian signature: <span style="border-bottom:1pt solid #aaa;min-width:150pt;display:inline-block;"></span> Date: <span style="border-bottom:1pt solid #aaa;min-width:60pt;display:inline-block;"></span></div>'+
+    '<div class="label" style="margin-top:6pt;">Comments:</div><div class="field" contenteditable style="min-height:30pt;"></div>');
+}
+
+function tplConference(t,s,g){
+  printWindow('Conference Notes', '<h1>Parent-Teacher Conference Notes</h1>'+
+    '<div class="grid" style="margin-bottom:12pt;">'+
+    '<div><div class="label">Student Name</div><div class="field" contenteditable></div></div>'+
+    '<div><div class="label">Date / Time</div><div class="field" contenteditable></div></div>'+
+    '<div><div class="label">Parent / Guardian</div><div class="field" contenteditable></div></div>'+
+    '<div><div class="label">Teacher</div><div class="field">'+(t||'')+'</div></div></div>'+
+    '<h2>Strengths</h2><div class="field" contenteditable style="min-height:50pt;"></div>'+
+    '<h2>Areas for Growth</h2><div class="field" contenteditable style="min-height:50pt;"></div>'+
+    '<h2>Action Steps (Student / Parent / Teacher)</h2><div class="field" contenteditable style="min-height:50pt;"></div>'+
+    '<h2>Parent Comments / Questions</h2><div class="field" contenteditable style="min-height:50pt;"></div>'+
+    '<div class="label" style="margin-top:12pt;">Follow-up needed?</div><div class="field" contenteditable></div>');
+}
+
+function tplExitTicket321(t,s,g){
+  printWindow('3-2-1 Exit Ticket', '<h1>3-2-1 Exit Ticket</h1>'+
+    '<div style="font-size:9pt;color:#555;margin-bottom:10pt;">Name: <span style="border-bottom:1pt solid #aaa;min-width:150pt;display:inline-block;"></span> &nbsp; Date: <span style="border-bottom:1pt solid #aaa;min-width:80pt;display:inline-block;"></span> &nbsp; Subject: <span style="border-bottom:1pt solid #aaa;min-width:80pt;display:inline-block;"></span></div>'+
+    '<div style="background:#f5f5f5;padding:10pt;border-radius:4pt;margin-bottom:10pt;"><span style="font-size:18pt;font-weight:bold;">3</span> things I learned today:<div class="field" contenteditable style="min-height:40pt;"></div></div>'+
+    '<div style="background:#f5f5f5;padding:10pt;border-radius:4pt;margin-bottom:10pt;"><span style="font-size:18pt;font-weight:bold;">2</span> questions I still have:<div class="field" contenteditable style="min-height:30pt;"></div></div>'+
+    '<div style="background:#f5f5f5;padding:10pt;border-radius:4pt;"><span style="font-size:18pt;font-weight:bold;">1</span> connection I can make to my life:<div class="field" contenteditable style="min-height:30pt;"></div></div>');
+}
+
+function tplExitQuick(t,s,g){
+  printWindow('Quick-Check Exit Ticket', '<h1>Exit Ticket</h1>'+
+    '<div style="font-size:9pt;color:#555;margin-bottom:12pt;">Name: <span style="border-bottom:1pt solid #aaa;min-width:150pt;display:inline-block;"></span> &nbsp; Date: <span style="border-bottom:1pt solid #aaa;min-width:80pt;display:inline-block;"></span></div>'+
+    '<div class="label">Today\'s learning objective:</div><div class="field" contenteditable style="min-height:28pt;"></div>'+
+    '<div class="label" style="margin-top:10pt;">Rate your understanding:</div>'+
+    '<div style="display:flex;gap:12pt;margin-bottom:12pt;">'+
+    ['1 — I need more help','2 — I\'m almost there','3 — I got it!','4 — I can teach it!'].map(function(l){
+      return '<div style="border:1pt solid #aaa;padding:6pt 10pt;border-radius:4pt;font-size:9pt;">&#9633; '+l+'</div>';
+    }).join('')+'</div>'+
+    '<div class="label">Show what you know (answer the question or solve the problem):</div>'+
+    '<div class="field" contenteditable style="min-height:80pt;"></div>');
+}
+
+function tplBehavior(t,s,g){
+  printWindow('Behavior Reflection', '<h1>Behavior Reflection</h1>'+
+    '<div style="font-size:9pt;margin-bottom:12pt;">Name: <span style="border-bottom:1pt solid #aaa;min-width:150pt;display:inline-block;"></span> &nbsp; Date: <span style="border-bottom:1pt solid #aaa;min-width:80pt;display:inline-block;"></span></div>'+
+    '<div class="label">What happened?</div><div class="field" contenteditable style="min-height:40pt;"></div>'+
+    '<div class="label">How did my behavior affect others?</div><div class="field" contenteditable style="min-height:40pt;"></div>'+
+    '<div class="label">What could I have done differently?</div><div class="field" contenteditable style="min-height:40pt;"></div>'+
+    '<div class="label">What will I do next time?</div><div class="field" contenteditable style="min-height:40pt;"></div>'+
+    '<div style="margin-top:16pt;display:flex;gap:40pt;">'+
+    '<div>Student signature: <span style="border-bottom:1pt solid #aaa;min-width:120pt;display:inline-block;"></span></div>'+
+    '<div>Teacher signature: <span style="border-bottom:1pt solid #aaa;min-width:120pt;display:inline-block;"></span></div></div>');
+}
+
+function tplReadingLog(t,s,g){
+  printWindow('Reading Log', '<h1>Weekly Reading Log</h1>'+
+    '<div style="font-size:9pt;margin-bottom:10pt;">Name: <span style="border-bottom:1pt solid #aaa;min-width:150pt;display:inline-block;"></span> &nbsp; Week of: <span style="border-bottom:1pt solid #aaa;min-width:80pt;display:inline-block;"></span> &nbsp; Goal: <span style="border-bottom:1pt solid #aaa;min-width:40pt;display:inline-block;"></span> min/night</div>'+
+    '<table><tr><th>Day</th><th>Book Title / Author</th><th>Pages Read</th><th>Minutes</th><th>Parent Initials</th></tr>'+
+    ['Monday','Tuesday','Wednesday','Thursday','Friday','Weekend'].map(function(d){
+      return '<tr><td>'+d+'</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td></tr>';
+    }).join('')+
+    '<tr><td colspan="2"><strong>Weekly Total</strong></td><td contenteditable></td><td contenteditable></td><td></td></tr>'+
+    '</table>'+
+    '<div class="label" style="margin-top:10pt;">What I\'m enjoying about my book:</div><div class="field" contenteditable style="min-height:30pt;"></div>');
+}
+
+function tplLabReport(t,s,g){
+  printWindow('Science Lab Report', '<h1>Science Lab Report</h1>'+
+    '<div style="font-size:9pt;margin-bottom:10pt;">Name: <span style="border-bottom:1pt solid #aaa;min-width:150pt;display:inline-block;"></span> &nbsp; Date: <span style="border-bottom:1pt solid #aaa;min-width:80pt;display:inline-block;"></span></div>'+
+    '<div class="label">Lab Title / Question</div><div class="field" contenteditable></div>'+
+    '<div class="label">Hypothesis (If… then… because…)</div><div class="field" contenteditable style="min-height:36pt;"></div>'+
+    '<div class="label">Materials</div><div class="field" contenteditable style="min-height:36pt;"></div>'+
+    '<div class="label">Procedure (numbered steps)</div><div class="field" contenteditable style="min-height:60pt;"></div>'+
+    '<div class="label">Data / Observations (include drawings if helpful)</div><div class="field" contenteditable style="min-height:80pt;border:1pt solid #aaa;"></div>'+
+    '<div class="label">Conclusion: Was your hypothesis supported?</div><div class="field" contenteditable style="min-height:50pt;"></div>'+
+    '<div class="label">New questions I have:</div><div class="field" contenteditable style="min-height:30pt;"></div>');
+}
+
+function tplResearch(t,s,g){
+  printWindow('Research Planning Guide', '<h1>Research Planning Guide</h1>'+
+    '<div style="font-size:9pt;margin-bottom:10pt;">Name: <span style="border-bottom:1pt solid #aaa;min-width:150pt;display:inline-block;"></span> &nbsp; Date: <span style="border-bottom:1pt solid #aaa;min-width:80pt;display:inline-block;"></span></div>'+
+    '<div class="label">My Research Topic</div><div class="field" contenteditable style="font-size:13pt;"></div>'+
+    '<div class="label">3 Research Questions I Want to Answer</div>'+
+    '<div class="field" contenteditable style="min-height:50pt;"></div>'+
+    '<h2>Source Notes</h2>'+
+    [1,2,3].map(function(n){
+      return '<div style="border:1pt solid #aaa;padding:8pt;border-radius:4pt;margin-bottom:10pt;">'+
+        '<div class="label">Source '+n+': Title / Author / Website</div><div class="field" contenteditable></div>'+
+        '<div class="label">Notes (key facts, page numbers)</div><div class="field" contenteditable style="min-height:40pt;"></div></div>';
+    }).join('')+
+    '<div class="label">Summary of What I Learned</div><div class="field" contenteditable style="min-height:50pt;"></div>');
+}
+
+function tplCubes(t,s,g){
+  printWindow('CUBES Math Problem Solving', '<h1>CUBES Problem-Solving Strategy</h1>'+
+    '<div style="font-size:9pt;margin-bottom:10pt;">Name: <span style="border-bottom:1pt solid #aaa;min-width:150pt;display:inline-block;"></span> &nbsp; Date: <span style="border-bottom:1pt solid #aaa;min-width:80pt;display:inline-block;"></span></div>'+
+    '<div class="label">The Problem:</div><div class="field" contenteditable style="min-height:50pt;border:1pt solid #aaa;font-size:12pt;"></div>'+
+    '<table style="margin-top:10pt;"><tr><th width="15%">Letter</th><th width="35%">Meaning</th><th width="50%">What I did</th></tr>'+
+    [['C','Circle the numbers'],['U','Underline the question'],['B','Box key words'],['E','Eliminate extra info'],['S','Solve and check']].map(function(r){
+      return '<tr><td style="font-size:14pt;font-weight:bold;text-align:center;">'+r[0]+'</td><td>'+r[1]+'</td><td contenteditable style="min-height:30pt;"></td></tr>';
+    }).join('')+'</table>'+
+    '<div class="label" style="margin-top:10pt;">My work:</div>'+
+    '<div style="border:1pt solid #aaa;min-height:120pt;padding:6pt;" contenteditable></div>'+
+    '<div class="label" style="margin-top:6pt;">My answer:</div><div class="field" contenteditable style="font-size:13pt;"></div>');
+}
+
+function tplVocab(t,s,g){
+  printWindow('Vocabulary Word Map', '<h1>Vocabulary Word Map</h1>'+
+    '<div style="font-size:9pt;margin-bottom:10pt;">Name: <span style="border-bottom:1pt solid #aaa;min-width:150pt;display:inline-block;"></span></div>'+
+    '<table style="height:320pt;"><tr>'+
+    '<td style="width:50%;vertical-align:top;padding:10pt;"><div class="label">Definition (in my own words)</div><div style="border:1pt solid #aaa;min-height:80pt;padding:6pt;" contenteditable></div></td>'+
+    '<td rowspan="2" style="text-align:center;vertical-align:middle;padding:16pt;font-size:18pt;font-weight:bold;border:2pt solid #333;" contenteditable>WORD</td></tr>'+
+    '<tr><td style="vertical-align:top;padding:10pt;"><div class="label">Illustration / Symbol</div><div style="border:1pt solid #aaa;min-height:80pt;"></div></td></tr>'+
+    '<tr>'+
+    '<td style="vertical-align:top;padding:10pt;"><div class="label">Example sentences (2)</div><div style="border:1pt solid #aaa;min-height:60pt;padding:6pt;" contenteditable></div></td>'+
+    '<td style="vertical-align:top;padding:10pt;"><div class="label">Non-examples / Antonyms</div><div style="border:1pt solid #aaa;min-height:60pt;padding:6pt;" contenteditable></div></td></tr>'+
+    '</table>');
+}
+
+/* ─── Standards ────────────────────────────────────────── */
+var STANDARDS = {
+  ela: [
+    {domain:'Reading Literature (RL)',items:[
+      {code:'RL.5.1',text:'Quote accurately from a text and explain what the text says explicitly and what is inferred.'},
+      {code:'RL.5.2',text:'Determine a theme from details in the text, including how characters respond to challenges.'},
+      {code:'RL.5.3',text:'Compare and contrast two or more characters, settings, or events in a story.'},
+      {code:'RL.5.4',text:'Determine the meaning of words and phrases, including figurative language.'},
+      {code:'RL.5.5',text:'Explain how chapters, scenes, or stanzas fit into the overall structure of a story.'},
+      {code:'RL.5.6',text:'Describe how a narrator\'s or speaker\'s point of view influences how events are described.'},
+      {code:'RL.5.7',text:'Analyze how visual and multimedia elements contribute to the meaning of a text.'},
+      {code:'RL.5.9',text:'Compare and contrast stories in the same genre on their approaches to similar themes.'}
+    ]},
+    {domain:'Reading Informational (RI)',items:[
+      {code:'RI.5.1',text:'Quote accurately from text and explain what is inferred.'},
+      {code:'RI.5.2',text:'Determine two or more main ideas and explain how they are supported by key details; summarize.'},
+      {code:'RI.5.3',text:'Explain relationships between events, concepts, or steps based on specific information.'},
+      {code:'RI.5.4',text:'Determine the meaning of general academic and domain-specific words and phrases.'},
+      {code:'RI.5.5',text:'Compare and contrast the overall structure of two or more texts.'},
+      {code:'RI.5.6',text:'Analyze multiple accounts of the same event from different points of view.'},
+      {code:'RI.5.8',text:'Explain how an author uses reasons and evidence to support points.'},
+      {code:'RI.5.9',text:'Integrate information from several texts on the same topic.'}
+    ]},
+    {domain:'Writing (W)',items:[
+      {code:'W.5.1',text:'Write opinion pieces using logical reasons, evidence, and a conclusion.'},
+      {code:'W.5.2',text:'Write informative/explanatory texts using facts, definitions, and elaboration.'},
+      {code:'W.5.3',text:'Write narratives using effective technique, descriptive details, and event sequences.'},
+      {code:'W.5.4',text:'Produce clear and coherent writing appropriate to task, purpose, and audience.'},
+      {code:'W.5.5',text:'Develop and strengthen writing by planning, revising, editing, and rewriting.'},
+      {code:'W.5.7',text:'Conduct short research projects using multiple sources.'},
+      {code:'W.5.9',text:'Draw evidence from literary or informational texts to support analysis and reflection.'},
+      {code:'W.5.10',text:'Write routinely over extended and shorter time frames.'}
+    ]},
+    {domain:'Speaking & Listening (SL)',items:[
+      {code:'SL.5.1',text:'Engage effectively in collaborative discussions; follow agreed-upon rules.'},
+      {code:'SL.5.2',text:'Summarize a written text read aloud or presented in diverse media.'},
+      {code:'SL.5.3',text:'Summarize the points a speaker makes, explaining how each claim is supported.'},
+      {code:'SL.5.4',text:'Report on a topic using appropriate facts; speak clearly at an understandable pace.'},
+      {code:'SL.5.5',text:'Include multimedia components in presentations to enhance understanding.'},
+      {code:'SL.5.6',text:'Adapt speech to context and task; use formal English when appropriate.'}
+    ]},
+    {domain:'Language (L)',items:[
+      {code:'L.5.1',text:'Demonstrate command of conventions of standard English grammar and usage.'},
+      {code:'L.5.2',text:'Demonstrate command of conventions of standard English capitalization, punctuation, and spelling.'},
+      {code:'L.5.3',text:'Use knowledge of language and its conventions when writing, speaking, reading, or listening.'},
+      {code:'L.5.4',text:'Determine or clarify meaning of unknown words using context clues, affixes, or reference materials.'},
+      {code:'L.5.5',text:'Demonstrate understanding of figurative language, word relationships, and nuances.'},
+      {code:'L.5.6',text:'Acquire and use general academic and domain-specific words and phrases.'}
+    ]}
+  ],
+  math: [
+    {domain:'Operations & Algebraic Thinking (5.OA)',items:[
+      {code:'5.OA.A.1',text:'Use parentheses, brackets, or braces in numerical expressions; evaluate expressions.'},
+      {code:'5.OA.A.2',text:'Write simple expressions that record calculations, and interpret numerical expressions.'},
+      {code:'5.OA.B.3',text:'Generate two numerical patterns using two given rules; identify relationships.'}
+    ]},
+    {domain:'Number & Operations in Base Ten (5.NBT)',items:[
+      {code:'5.NBT.A.1',text:'Recognize that in a multi-digit number, a digit in one place is 10× the digit to its right.'},
+      {code:'5.NBT.A.2',text:'Explain patterns in the number of zeros when multiplying by powers of 10.'},
+      {code:'5.NBT.A.3',text:'Read, write, and compare decimals to thousandths.'},
+      {code:'5.NBT.A.4',text:'Use place value understanding to round decimals to any place.'},
+      {code:'5.NBT.B.5',text:'Fluently multiply multi-digit whole numbers using the standard algorithm.'},
+      {code:'5.NBT.B.6',text:'Find whole-number quotients and remainders with up to four-digit dividends.'},
+      {code:'5.NBT.B.7',text:'Add, subtract, multiply, and divide decimals to hundredths.'}
+    ]},
+    {domain:'Number & Operations — Fractions (5.NF)',items:[
+      {code:'5.NF.A.1',text:'Add and subtract fractions with unlike denominators.'},
+      {code:'5.NF.A.2',text:'Solve word problems involving addition and subtraction of fractions.'},
+      {code:'5.NF.B.3',text:'Interpret a fraction as division of the numerator by the denominator.'},
+      {code:'5.NF.B.4',text:'Apply and extend understanding of multiplication to multiply a fraction or whole number by a fraction.'},
+      {code:'5.NF.B.5',text:'Interpret multiplication as scaling (resizing).'},
+      {code:'5.NF.B.6',text:'Solve real world problems involving multiplication of fractions and mixed numbers.'},
+      {code:'5.NF.B.7',text:'Apply and extend understanding of division to divide unit fractions by whole numbers and whole numbers by unit fractions.'}
+    ]},
+    {domain:'Measurement & Data (5.MD)',items:[
+      {code:'5.MD.A.1',text:'Convert among different-sized standard measurement units; use conversions in solving multi-step problems.'},
+      {code:'5.MD.B.2',text:'Make a line plot to display data; use operations to solve problems with fraction data.'},
+      {code:'5.MD.C.3',text:'Recognize volume as an attribute of solid figures; understand concepts of volume measurement.'},
+      {code:'5.MD.C.4',text:'Measure volumes by counting unit cubes.'},
+      {code:'5.MD.C.5',text:'Relate volume to multiplication and addition; solve real world problems.'}
+    ]},
+    {domain:'Geometry (5.G)',items:[
+      {code:'5.G.A.1',text:'Use a pair of perpendicular number lines (axes) to define a coordinate system.'},
+      {code:'5.G.A.2',text:'Represent real world and mathematical problems by graphing points in the first quadrant.'},
+      {code:'5.G.B.3',text:'Understand that attributes belonging to a category of two-dimensional figures also belong to all subcategories.'},
+      {code:'5.G.B.4',text:'Classify two-dimensional figures in a hierarchy based on properties.'}
+    ]}
+  ],
+  science: [
+    {domain:'Strand 5.1 — Matter & Energy',items:[
+      {code:'Utah SEEd 5.1.1',text:'Develop a model to describe that matter is made of particles too small to be seen.'},
+      {code:'Utah SEEd 5.1.2',text:'Measure and graph quantities to provide evidence that regardless of the type of change that occurs, the total weight of matter is conserved.'},
+      {code:'Utah SEEd 5.1.3',text:'Make observations and measurements to identify materials based on their properties.'},
+      {code:'Utah SEEd 5.1.4',text:'Conduct an investigation to determine whether the mixing of two or more substances results in new substances.'}
+    ]},
+    {domain:'Strand 5.2 — Interactions Within Ecosystems',items:[
+      {code:'Utah SEEd 5.2.1',text:'Analyze and interpret data about the roles of producers, consumers, and decomposers in a local ecosystem.'},
+      {code:'Utah SEEd 5.2.2',text:'Construct an explanation that the changes in an ecosystem affect organisms living there.'},
+      {code:'Utah SEEd 5.2.3',text:'Engage in argument from evidence that the changes to the physical or biological components of an ecosystem affect populations.'}
+    ]},
+    {domain:'Strand 5.3 — Earth Systems',items:[
+      {code:'Utah SEEd 5.3.1',text:'Develop a model to describe ways the geosphere, biosphere, hydrosphere, and/or atmosphere interact.'},
+      {code:'Utah SEEd 5.3.2',text:'Describe and graph the amounts and percentages of water and fresh water in various reservoirs.'},
+      {code:'Utah SEEd 5.3.3',text:'Obtain and combine information about ways individual communities use science ideas to protect Earth\'s resources and environment.'}
+    ]},
+    {domain:'Strand 5.4 — Evidence of Common Ancestry',items:[
+      {code:'Utah SEEd 5.4.1',text:'Analyze and interpret data from fossils to provide evidence of the organisms and the environments in which they lived.'},
+      {code:'Utah SEEd 5.4.2',text:'Use evidence to construct an explanation for how the variations in characteristics among individuals of the same species may provide advantages.'},
+      {code:'Utah SEEd 5.4.3',text:'Construct an argument with evidence that in a particular habitat, some organisms can survive well, some survive less well, and some cannot survive at all.'}
+    ]}
+  ],
+  ss: [
+    {domain:'U.S. History — Colonial Era',items:[
+      {code:'SS.5.1',text:'Describe the geographic and economic characteristics of the three colonial regions (New England, Middle, Southern).'},
+      {code:'SS.5.2',text:'Explain the impact of European exploration and colonization on Native American peoples.'},
+      {code:'SS.5.3',text:'Analyze the causes and major events of the American Revolution, including the Declaration of Independence.'},
+      {code:'SS.5.4',text:'Describe the creation of the U.S. Constitution and Bill of Rights, including key compromises.'}
+    ]},
+    {domain:'Economics & Government',items:[
+      {code:'SS.5.5',text:'Explain the three branches of government and the concept of checks and balances.'},
+      {code:'SS.5.6',text:'Describe how citizens can participate in the democratic process.'},
+      {code:'SS.5.7',text:'Analyze how economic choices during the colonial era shaped American development.'}
+    ]},
+    {domain:'Geography',items:[
+      {code:'SS.5.8',text:'Use geographic tools to analyze how physical features influenced colonial settlement patterns.'},
+      {code:'SS.5.9',text:'Identify the five regions of the United States and their characteristics.'},
+      {code:'SS.5.10',text:'Describe Utah\'s geography and its influence on the state\'s history and development.'}
+    ]}
+  ]
+};
+
+function showStd(key, btn){
+  document.querySelectorAll('#stdTabs .nav-link').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  var data = STANDARDS[key];
+  var html = data.map(function(dom){
+    return '<div class="std-domain"><h6 class="fw-bold mb-2">'+dom.domain+'</h6>'+
+      dom.items.map(function(s){
+        return '<div class="std-item"><span><span class="std-code">'+s.code+'</span> &nbsp;'+s.text+'</span>'+
+          '<button class="btn btn-sm btn-outline-secondary flex-shrink-0" style="font-size:.7rem;padding:2px 8px;" onclick="navigator.clipboard.writeText(\''+s.code+'\');this.textContent=\'Copied!\';setTimeout(()=>this.textContent=\'Copy\',1200)">Copy</button>'+
+        '</div>';
+      }).join('')+'</div>';
+  }).join('');
+  document.getElementById('stdContent').innerHTML = html;
+}
+
+/* ─── Tools ────────────────────────────────────────────── */
+// Timer
+var _timerInterval = null;
+var _timerSeconds = 300;
+var _timerRunning = false;
+
+function fmtTime(s){ return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); }
+function startTimer(){
+  if(_timerRunning) return;
+  var mins = parseInt(document.getElementById('timerMinutes').value)||5;
+  if(_timerSeconds <= 0) _timerSeconds = mins * 60;
+  _timerRunning = true;
+  _timerInterval = setInterval(function(){
+    _timerSeconds--;
+    document.getElementById('timerDisplay').textContent = fmtTime(_timerSeconds);
+    if(_timerSeconds <= 0){
+      clearInterval(_timerInterval);
+      _timerRunning = false;
+      document.getElementById('timerDisplay').style.color = '#dc3545';
+      beep();
+    }
+  }, 1000);
+}
+function pauseTimer(){ clearInterval(_timerInterval); _timerRunning = false; }
+function resetTimer(){
+  clearInterval(_timerInterval);
+  _timerRunning = false;
+  var mins = parseInt(document.getElementById('timerMinutes').value)||5;
+  _timerSeconds = mins * 60;
+  document.getElementById('timerDisplay').textContent = fmtTime(_timerSeconds);
+  document.getElementById('timerDisplay').style.color = '';
+}
+function beep(){
+  try {
+    var ctx = new (window.AudioContext||window.webkitAudioContext)();
+    [880,1100,880].forEach(function(freq, i){
+      var o = ctx.createOscillator(), g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value = freq;
+      g.gain.setValueAtTime(0.3, ctx.currentTime + i*0.2);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i*0.2 + 0.18);
+      o.start(ctx.currentTime + i*0.2);
+      o.stop(ctx.currentTime + i*0.2 + 0.2);
+    });
+  } catch(e){}
+}
+
+// Student picker
+var _pickerPool = null;
+var _pickerUsed = [];
+
+function getStudents(){
+  var s = JSON.parse(localStorage.getItem('teacher_settings')||'{}');
+  return (s.students||[]).filter(Boolean);
+}
+function pickStudent(){
+  var students = getStudents();
+  if(!students.length){ document.getElementById('pickerResult').textContent = 'Add students in Settings!'; return; }
+  if(!_pickerPool || _pickerPool.length === 0){
+    _pickerPool = students.slice();
+    _pickerUsed = [];
+  }
+  var idx = Math.floor(Math.random() * _pickerPool.length);
+  var chosen = _pickerPool.splice(idx, 1)[0];
+  _pickerUsed.push(chosen);
+  var el = document.getElementById('pickerResult');
+  el.style.opacity = '0';
+  setTimeout(function(){ el.textContent = chosen; el.style.opacity = '1'; }, 150);
+  document.getElementById('pickerRemaining').textContent = _pickerPool.length + ' remaining, ' + _pickerUsed.length + ' called';
+}
+function resetPicker(){
+  _pickerPool = null; _pickerUsed = [];
+  document.getElementById('pickerResult').textContent = '—';
+  document.getElementById('pickerRemaining').textContent = '';
+}
+
+// Exit ticket generator
+var ET_PROMPTS = {
+  ELA: {
+    '3-2-1': '3 details from today\'s reading | 2 vocabulary words and their meanings | 1 connection to something you\'ve read before',
+    muddiest: 'What part of the reading or writing skill today is still confusing to you? Be specific.',
+    summary: 'Write one sentence that summarizes the main idea of what we read or discussed today.',
+    rating: 'Rate your understanding of today\'s ELA skill (1–4) and explain in 2–3 sentences what you understand and what you need help with.'
+  },
+  Math: {
+    '3-2-1': '3 steps you used to solve today\'s problems | 2 vocabulary terms with definitions | 1 real-world example of today\'s concept',
+    muddiest: 'Which step in today\'s math process is most confusing? Show the problem and where you got stuck.',
+    summary: 'Write one sentence explaining the math concept we practiced today in your own words.',
+    rating: 'Rate your confidence with today\'s math skill (1–4). Solve this quick check: [teacher inserts problem].'
+  },
+  Science: {
+    '3-2-1': '3 observations or facts from today\'s investigation | 2 science vocabulary words | 1 question you still have',
+    muddiest: 'What science concept or procedure from today is still unclear? Draw or write to explain your confusion.',
+    summary: 'In one sentence, state the science concept we investigated today and one piece of evidence that supports it.',
+    rating: 'Rate your understanding of today\'s science concept (1–4). Explain using the word "because."'
+  },
+  'Social Studies': {
+    '3-2-1': '3 important facts or events | 2 cause-and-effect relationships | 1 connection to today\'s world',
+    muddiest: 'What part of today\'s history or geography topic is still confusing? What question would help you understand?',
+    summary: 'Write one sentence summarizing the most important idea from today\'s social studies lesson.',
+    rating: 'Rate your understanding of today\'s social studies content (1–4). Explain what you know and what you\'re unsure about.'
+  }
+};
+
+function generateExitTicket(){
+  var subj = document.getElementById('etSubject').value;
+  var style = document.getElementById('etStyle').value;
+  var prompt = (ET_PROMPTS[subj]||{})[style] || 'Reflect on what you learned today.';
+  var styleLabels = {'3-2-1':'3-2-1 Reflection','muddiest':'Muddiest Point','summary':'One-Sentence Summary','rating':'Rate Your Understanding'};
+  document.getElementById('etOutput').innerHTML = '<strong>'+styleLabels[style]+' — '+subj+'</strong><hr style="margin:.5rem 0;">'+prompt;
+}
+function printExitTicket(){
+  var out = document.getElementById('etOutput').innerHTML;
+  if(!out) return;
+  var s = JSON.parse(localStorage.getItem('teacher_settings')||'{}');
+  printWindow('Exit Ticket',
+    '<h1>Exit Ticket</h1>'+
+    '<div style="font-size:9pt;margin-bottom:12pt;">Name: <span style="border-bottom:1pt solid #aaa;min-width:150pt;display:inline-block;"></span> &nbsp; Date: <span style="border-bottom:1pt solid #aaa;min-width:80pt;display:inline-block;"></span></div>'+
+    '<div style="font-size:11pt;line-height:1.7;">'+out+'</div>'+
+    '<div style="margin-top:20pt;border-top:1pt solid #aaa;padding-top:10pt;min-height:80pt;" contenteditable></div>');
+}
+
+// Noise meter
+var NOISE_LABELS = ['Level 0 — Silence (test/quiz)','Level 1 — Whisper (reading)','Level 2 — Quiet voices (individual work)','Level 3 — Partner Talk','Level 4 — Group Discussion','Level 5 — Presenter Voice'];
+function updateNoise(val){
+  var pct = (parseInt(val)/5)*100;
+  document.getElementById('noiseIndicator').style.left = 'calc('+pct+'% - 3px)';
+  document.getElementById('noiseLabel').textContent = NOISE_LABELS[val]||'';
+}
+
+/* ─── Init ─────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', function(){
+  loadSettings();
+  renderSavedPlans();
+  filterActivities();
+  renderTemplates();
+  showStd('ela', document.querySelector('#stdTabs .nav-link'));
+  document.getElementById('timerMinutes').addEventListener('change', resetTimer);
+  updateNoise(2);
+  // Sync timer display on load
+  var mins = parseInt(document.getElementById('timerMinutes').value)||5;
+  _timerSeconds = mins * 60;
+  document.getElementById('timerDisplay').textContent = fmtTime(_timerSeconds);
+});
+</script>
+</body>
+</html>
