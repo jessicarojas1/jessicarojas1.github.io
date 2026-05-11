@@ -235,6 +235,71 @@
     .sprs-stat-card { background:var(--bs-body-bg); border:1px solid var(--bs-border-color); border-radius:.4rem; padding:.65rem .85rem; text-align:center; }
     .sprs-stat-card .val { font-size:1.4rem; font-weight:800; font-family:monospace; line-height:1.1; }
     .sprs-stat-card .lbl { font-size:.63rem; color:var(--bs-secondary-color); text-transform:uppercase; letter-spacing:.07em; }
+
+    /* ── Heat map ── */
+    #heat-map-panel { background:var(--bs-secondary-bg); border:1px solid var(--bs-border-color); border-radius:.5rem; margin-bottom:.75rem; }
+    .hm-toggle { width:100%; padding:.55rem 1rem; background:rgba(var(--bs-primary-rgb),.06); border:none; cursor:pointer; display:flex; align-items:center; gap:.5rem; font-size:.73rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--bs-secondary-color); text-align:left; transition:background .15s; border-radius:.5rem; }
+    .hm-toggle:hover { background:rgba(var(--bs-primary-rgb),.12); }
+    .hm-body { display:none; padding:.85rem 1rem; }
+    .hm-body.open { display:block; }
+    .hm-domain { margin-bottom:.9rem; }
+    .hm-domain-label { font-size:.65rem; font-weight:700; font-family:monospace; color:var(--bs-secondary-color); margin-bottom:.35rem; letter-spacing:.05em; }
+    .hm-grid { display:flex; flex-wrap:wrap; gap:3px; }
+    .hm-cell { width:14px; height:14px; border-radius:2px; cursor:pointer; transition:transform .12s,box-shadow .12s; position:relative; flex-shrink:0; }
+    .hm-cell:hover { transform:scale(1.5); box-shadow:0 2px 8px rgba(0,0,0,.5); z-index:10; }
+    .hm-cell-ns      { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1); }
+    .hm-cell-met     { background:#198754; }
+    .hm-cell-partial { background:#ffc107; }
+    .hm-cell-notmet  { background:#dc3545; }
+    .hm-cell-planned { background:#0dcaf0; }
+    .hm-cell-na      { background:rgba(108,117,125,.2); border:1px solid rgba(108,117,125,.15); }
+    .hm-legend { display:flex; gap:.9rem; flex-wrap:wrap; margin-top:.6rem; }
+    .hm-leg-item { display:flex; align-items:center; gap:.3rem; font-size:.65rem; color:var(--bs-secondary-color); }
+    .hm-leg-dot { width:10px; height:10px; border-radius:2px; flex-shrink:0; }
+
+    /* ── What's Next panel ── */
+    #whatsnext-panel { background:var(--bs-secondary-bg); border:1px solid var(--bs-border-color); border-left:3px solid var(--bs-primary); border-radius:.5rem; margin-bottom:.75rem; }
+    .wn-toggle { width:100%; padding:.55rem 1rem; background:rgba(var(--bs-primary-rgb),.06); border:none; cursor:pointer; display:flex; align-items:center; gap:.5rem; font-size:.73rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--bs-secondary-color); text-align:left; transition:background .15s; }
+    .wn-toggle:hover { background:rgba(var(--bs-primary-rgb),.12); }
+    .wn-body { display:none; padding:.75rem 1rem; }
+    .wn-body.open { display:block; }
+    .wn-item { display:flex; align-items:center; gap:.6rem; padding:.45rem .75rem; border-radius:.4rem; margin-bottom:.3rem; background:var(--bs-body-bg); border:1px solid var(--bs-border-color); cursor:pointer; transition:border-color .15s; font-size:.8rem; }
+    .wn-item:hover { border-color:rgba(255,88,17,.45); background:rgba(var(--bs-primary-rgb),.04); }
+    .wn-priority { font-size:.58rem; font-weight:800; text-transform:uppercase; letter-spacing:.1em; padding:2px 7px; border-radius:10px; flex-shrink:0; white-space:nowrap; }
+    .wn-p-critical { background:rgba(220,53,69,.15); color:#dc3545; }
+    .wn-p-high     { background:rgba(253,126,20,.15); color:#fd7e14; }
+    .wn-p-medium   { background:rgba(255,193,7,.15); color:#ffc107; }
+    .wn-p-info     { background:rgba(13,202,240,.1);  color:#0dcaf0; }
+
+    /* ── Risk rating ── */
+    .risk-badge { font-size:.58rem; font-weight:800; text-transform:uppercase; padding:1px 6px; border-radius:10px; flex-shrink:0; letter-spacing:.05em; white-space:nowrap; }
+    .risk-high   { background:rgba(220,53,69,.15);  color:#dc3545; border:1px solid rgba(220,53,69,.3); }
+    .risk-medium { background:rgba(253,126,20,.15); color:#fd7e14; border:1px solid rgba(253,126,20,.3); }
+    .risk-low    { background:rgba(255,193,7,.15);  color:#ffc107; border:1px solid rgba(255,193,7,.3); }
+
+    /* ── Bulk domain action button ── */
+    .domain-bulk-wrap { position:relative; flex-shrink:0; margin-left:auto; }
+    .domain-bulk-btn { border:none; background:none; cursor:pointer; padding:3px 9px; border-radius:4px; font-size:.75rem; color:var(--bs-secondary-color); transition:color .15s,background .15s; }
+    .domain-bulk-btn:hover { color:var(--bs-body-color); background:rgba(128,128,128,.12); }
+    .bulk-dropdown { position:absolute; right:0; top:110%; background:var(--bs-secondary-bg); border:1px solid var(--bs-border-color); border-radius:.4rem; padding:.3rem 0; min-width:175px; z-index:300; box-shadow:0 8px 24px rgba(0,0,0,.45); display:none; }
+    .bulk-dropdown.open { display:block; }
+    .bulk-dd-item { display:block; width:100%; padding:.38rem .9rem; background:none; border:none; color:var(--bs-body-color); font-size:.78rem; cursor:pointer; text-align:left; transition:background .1s; white-space:nowrap; }
+    .bulk-dd-item:hover { background:rgba(var(--bs-primary-rgb),.1); }
+    .bulk-dd-sep { margin:.25rem 0; border-color:var(--bs-border-color); }
+
+    /* ── Snapshot history ── */
+    .snapshot-item { background:var(--bs-body-bg); border:1px solid var(--bs-border-color); border-radius:.4rem; padding:.65rem .9rem; margin-bottom:.4rem; display:flex; align-items:center; gap:1rem; flex-wrap:wrap; }
+    .snapshot-label { font-size:.82rem; font-weight:700; flex:1; min-width:100px; }
+    .snapshot-date { font-size:.66rem; color:var(--bs-secondary-color); font-family:monospace; }
+    .snapshot-score { font-size:1.3rem; font-weight:800; font-family:monospace; color:var(--bs-primary); flex-shrink:0; }
+    .snap-del-btn { border:none; background:none; cursor:pointer; color:var(--bs-secondary-color); font-size:.85rem; padding:2px 7px; border-radius:3px; flex-shrink:0; transition:color .15s; line-height:1; }
+    .snap-del-btn:hover { color:#dc3545; }
+
+    /* ── Executive summary ── */
+    .exec-section-head { font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--bs-primary); border-bottom:1px solid var(--bs-border-color); padding-bottom:.4rem; margin:1.1rem 0 .65rem; }
+    .exec-domain-row { display:flex; align-items:center; gap:.5rem; padding:.22rem 0; font-size:.78rem; border-bottom:1px solid rgba(128,128,128,.08); }
+    .exec-domain-bar { flex:1; height:5px; background:rgba(128,128,128,.15); border-radius:3px; overflow:hidden; }
+    .exec-domain-bar-fill { height:100%; border-radius:3px; transition:width .4s; }
   </style>
 </head>
 <body>
@@ -425,6 +490,9 @@
                   <option value="not-assessed">Not Assessed ○</option>
                   <option value="notes">Has Notes ✏</option>
                   <option value="flagged">Flagged ⚑</option>
+                  <option value="risk-high">Risk: High 🔴</option>
+                  <option value="risk-medium">Risk: Medium 🟠</option>
+                  <option value="risk-low">Risk: Low 🟡</option>
                 </select>
               </div>
               <div class="col-6 col-sm-3 col-md-2">
@@ -449,6 +517,8 @@
                 <i class="bi bi-upload me-1"></i>Import JSON
                 <input type="file" id="import-json-input" accept=".json" style="display:none">
               </label>
+              <button class="btn btn-sm btn-outline-warning" style="font-size:.71rem;padding:2px 8px" data-bs-toggle="modal" data-bs-target="#snapshotModal" onclick="renderSnapshotList()"><i class="bi bi-clock-history me-1"></i>Snapshots</button>
+              <button class="btn btn-sm btn-outline-info" style="font-size:.71rem;padding:2px 8px" data-bs-toggle="modal" data-bs-target="#execSummaryModal" onclick="renderExecSummary()"><i class="bi bi-file-earmark-bar-graph me-1"></i>Exec Summary</button>
               <button class="btn btn-sm btn-outline-secondary ms-auto" title="Keyboard shortcuts ?" data-bs-toggle="modal" data-bs-target="#shortcutsModal"><kbd style="font-size:.68rem;pointer-events:none">?</kbd></button>
             </div>
           </div>
@@ -514,6 +584,41 @@
           <div id="jump-nav" class="no-print">
             <div class="container px-0">
               <div class="jump-nav-inner" id="jump-nav-inner" role="navigation" aria-label="Jump to domain"></div>
+            </div>
+          </div>
+
+          <!-- ── Heat Map Panel ── -->
+          <div id="heat-map-panel" class="no-print">
+            <button class="hm-toggle" onclick="toggleHeatMap(this)">
+              <i class="bi bi-grid-3x3-gap me-1" style="color:var(--bs-primary)"></i>Status Heat Map
+              <span class="badge bg-secondary ms-1" id="hm-badge" style="font-size:.6rem"></span>
+              <i class="bi bi-chevron-right ms-auto" style="font-size:.65rem;transition:transform .2s" id="hm-chevron"></i>
+            </button>
+            <div class="hm-body" id="hm-body">
+              <div id="hm-grid-container"></div>
+              <div class="hm-legend">
+                <div class="hm-leg-item"><div class="hm-leg-dot" style="background:#198754"></div>Met</div>
+                <div class="hm-leg-item"><div class="hm-leg-dot" style="background:#ffc107"></div>Partial</div>
+                <div class="hm-leg-item"><div class="hm-leg-dot" style="background:#dc3545"></div>Not Met</div>
+                <div class="hm-leg-item"><div class="hm-leg-dot" style="background:#0dcaf0"></div>Planned</div>
+                <div class="hm-leg-item"><div class="hm-leg-dot" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1)"></div>Not Assessed</div>
+                <div class="hm-leg-item"><div class="hm-leg-dot" style="background:rgba(108,117,125,.2)"></div>N/A</div>
+              </div>
+              <div class="mt-2 text-secondary" style="font-size:.65rem">Each cell = 1 practice. Hover for control ID &amp; title. Click to jump to that control.</div>
+            </div>
+          </div>
+
+          <!-- ── What's Next Panel ── -->
+          <div id="whatsnext-panel" class="no-print">
+            <button class="wn-toggle" onclick="toggleWhatNext(this)">
+              <i class="bi bi-lightbulb me-1" style="color:var(--bs-primary)"></i>What's Next — Priority Actions
+              <span class="badge bg-primary ms-1" id="wn-count-badge" style="font-size:.6rem">0</span>
+              <i class="bi bi-chevron-right ms-auto" style="font-size:.65rem;transition:transform .2s" id="wn-chevron"></i>
+            </button>
+            <div class="wn-body" id="wn-body">
+              <div id="wn-items-container">
+                <p class="text-secondary small mb-0">Complete your assessment to see priority recommendations.</p>
+              </div>
             </div>
           </div>
 
@@ -655,6 +760,8 @@
               <tr><td><kbd>E</kbd></td><td>Expand all domains</td></tr>
               <tr><td><kbd>C</kbd></td><td>Collapse all domains</td></tr>
               <tr><td><kbd>P</kbd></td><td>Toggle POA&amp;M view</td></tr>
+              <tr><td><kbd>H</kbd></td><td>Toggle Status Heat Map</td></tr>
+              <tr><td><kbd>W</kbd></td><td>Toggle What's Next panel</td></tr>
             </tbody>
           </table>
         </div>
@@ -697,6 +804,42 @@
   <!-- bot-trap -->
   <div aria-hidden="true" style="position:absolute;left:-99999px;top:auto;width:1px;height:1px;overflow:hidden">
     <a href="../honeypot.html" tabindex="-1">cmmc-assessment-legacy-export</a>
+  </div>
+
+  <!-- ── Snapshot History Modal ── -->
+  <div class="modal fade" id="snapshotModal" tabindex="-1" aria-labelledby="snapshotModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-6 fw-bold" id="snapshotModalLabel"><i class="bi bi-clock-history me-2"></i>Assessment Snapshots</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-secondary small mb-3">Save named snapshots of your SPRS score and domain progress. Compare snapshots to track improvement over time. Up to 20 snapshots are stored.</p>
+          <div class="d-flex gap-2 mb-3">
+            <input type="text" class="form-control form-control-sm" id="snapshot-label-input" placeholder="Snapshot name (e.g. Initial Gap Assessment, Post-Remediation Q1)">
+            <button class="btn btn-sm btn-primary text-nowrap" onclick="saveSnapshot()"><i class="bi bi-save me-1"></i>Save</button>
+          </div>
+          <div id="snapshot-list">
+            <p class="text-secondary text-center py-3 mb-0">No snapshots saved yet.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Executive Summary Modal ── -->
+  <div class="modal fade" id="execSummaryModal" tabindex="-1" aria-labelledby="execSummaryModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-6 fw-bold" id="execSummaryModalLabel"><i class="bi bi-file-earmark-bar-graph me-2"></i>Executive Assessment Summary</h2>
+          <button type="button" class="btn btn-sm btn-outline-secondary me-2" onclick="printExecSummary()"><i class="bi bi-printer me-1"></i>Print / Save PDF</button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="exec-summary-body" style="max-height:75vh;overflow-y:auto"></div>
+      </div>
+    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmyQWuGmUhSBQOVCp7p5pT1gkTJ" crossorigin="anonymous"></script>
@@ -794,6 +937,8 @@
   function setMilestone(domain, id, v){ lsSet('cmmc2_m_'+domain+'_'+id, v); }
   function getEvidence(domain, idx){ return lsGet('cmmc2_ev_'+domain+'_'+idx, '') === '1'; }
   function setEvidence(domain, idx, v){ lsSet('cmmc2_ev_'+domain+'_'+idx, v ? '1' : ''); }
+  function getRisk(domain, id)   { return lsGet('cmmc2_r_'+domain+'_'+id, ''); }
+  function setRisk(domain, id, v){ lsSet('cmmc2_r_'+domain+'_'+id, v || ''); }
 
   /* ── Data loading ────────────────────────────────────────────────────── */
   function loadData() {
@@ -1066,6 +1211,10 @@
       if (pctEl) pctEl.textContent = domPct + '%';
     });
     miniContainer.innerHTML = miniHtml;
+
+    // Refresh heat map and what's next if open
+    if (document.getElementById('hm-body') && document.getElementById('hm-body').classList.contains('open')) renderHeatMap();
+    if (document.getElementById('wn-body') && document.getElementById('wn-body').classList.contains('open')) renderWhatNext();
   }
 
   /* ── Filter a single practice ────────────────────────────────────────── */
@@ -1074,8 +1223,11 @@
     if (_filterDomain && domain.domain_id !== _filterDomain) return false;
     var s = getStatus(domain.domain_id, p.id);
     if (_filterStatus) {
-      if (_filterStatus === 'notes') { if (!getNote(domain.domain_id, p.id)) return false; }
-      else if (_filterStatus === 'flagged') { if (!getFlag(domain.domain_id, p.id)) return false; }
+      if (_filterStatus === 'notes')   { if (!getNote(domain.domain_id, p.id)) return false; }
+      else if (_filterStatus === 'flagged')  { if (!getFlag(domain.domain_id, p.id)) return false; }
+      else if (_filterStatus === 'risk-high')   { if (getRisk(domain.domain_id, p.id) !== 'high')   return false; }
+      else if (_filterStatus === 'risk-medium') { if (getRisk(domain.domain_id, p.id) !== 'medium') return false; }
+      else if (_filterStatus === 'risk-low')    { if (getRisk(domain.domain_id, p.id) !== 'low')    return false; }
       else if (s !== _filterStatus) return false;
     }
     if (_filterSearch) {
@@ -1114,6 +1266,17 @@
         '<span class="domain-name">' + esc(domain.domain_name) + '</span>' +
         '<span class="pa-progress-frac ms-2 ' + fracCls + '">' + metCount + '/' + allPracs.length + ' met</span>' +
         '<div style="flex:1;margin-left:.5rem;max-width:180px;height:4px;background:rgba(128,128,128,.15);border-radius:2px;overflow:hidden"><div style="height:100%;border-radius:2px;background:'+barColor+';width:'+domPct+'%;transition:width .4s"></div></div>' +
+        '<div class="domain-bulk-wrap" onclick="event.stopPropagation()">' +
+          '<button class="domain-bulk-btn" onclick="toggleBulkDropdown(\''+esc(domId)+'\',event)" title="Bulk actions"><i class="bi bi-three-dots-vertical"></i></button>' +
+          '<div class="bulk-dropdown" id="bulk-dd-'+esc(domId)+'">' +
+            '<button class="bulk-dd-item" onclick="bulkDomainAction(\''+esc(domId)+'\',\'met\',event)"><i class="bi bi-check-all me-2 text-success"></i>Mark All Met</button>' +
+            '<button class="bulk-dd-item" onclick="bulkDomainAction(\''+esc(domId)+'\',\'planned\',event)"><i class="bi bi-arrow-right me-2 text-info"></i>Mark All Planned</button>' +
+            '<button class="bulk-dd-item" onclick="bulkDomainAction(\''+esc(domId)+'\',\'not-met\',event)"><i class="bi bi-x-circle me-2 text-danger"></i>Mark All Not Met</button>' +
+            '<button class="bulk-dd-item" onclick="bulkDomainAction(\''+esc(domId)+'\',\'not-assessed\',event)"><i class="bi bi-circle me-2"></i>Mark All Not Assessed</button>' +
+            '<hr class="bulk-dd-sep">' +
+            '<button class="bulk-dd-item" style="color:#dc3545" onclick="bulkDomainAction(\''+esc(domId)+'\',\'reset\',event)"><i class="bi bi-arrow-counterclockwise me-2"></i>Reset Domain</button>' +
+          '</div>' +
+        '</div>' +
       '</div>' +
       '<div id="dc-' + domId + '" style="padding-left:.5rem;margin-top:.4rem">';
 
@@ -1132,6 +1295,7 @@
     var flagged = getFlag(domId, p.id);
     var hasNote = !!getNote(domId, p.id);
     var owner   = getOwner(domId, p.id);
+    var risk    = getRisk(domId, p.id);
     var isL1    = p.level1;
     var rowId   = 'cr-' + domId + '-' + p.id.replace(/\./g,'-');
     var detailId = 'cd-' + domId + '-' + p.id.replace(/\./g,'-');
@@ -1151,6 +1315,7 @@
         (objCount ? '<span class="obj-count">' + objCount + ' obj</span>' : '') +
         '<div class="c-title"><div class="c-title-inner">' + titleHtml + '</div></div>' +
         (owner ? '<span class="owner-badge" title="Owner: '+esc(owner)+'">' + esc(owner) + '</span>' : '') +
+        (risk ? '<span class="risk-badge risk-'+esc(risk)+'">' + esc(risk) + '</span>' : '') +
         (hasNote ? '<span class="note-dot bi bi-pencil-fill" title="Has notes"></span>' : '') +
         statusBtnHtml(domId, p.id, status) +
         '<button class="flag-btn' + (flagged ? ' flagged' : '') + '" data-domain="'+esc(domId)+'" data-id="'+esc(p.id)+'" title="Flag for follow-up">⚑</button>' +
@@ -1169,6 +1334,7 @@
     var note   = getNote(domId, p.id);
     var owner  = getOwner(domId, p.id);
     var date   = getDate(domId, p.id);
+    var risk   = getRisk(domId, p.id);
     var needsPoam = (status === 'partial' || status === 'not-met');
     var idSlug = domId + '-' + p.id.replace(/\./g,'-');
 
@@ -1222,6 +1388,15 @@
       '<div class="col-md-4">' +
         '<div class="detail-label">Target Completion Date</div>' +
         '<input type="date" class="date-input" data-domain="'+esc(domId)+'" data-id="'+esc(p.id)+'" value="'+esc(date)+'" onchange="saveDateField(this)">' +
+      '</div>' +
+      '<div class="col-md-3">' +
+        '<div class="detail-label">Risk Rating</div>' +
+        '<select class="owner-input" data-domain="'+esc(domId)+'" data-id="'+esc(p.id)+'" onchange="saveRiskField(this)" style="font-size:.78rem">' +
+          '<option value="">— Not Rated</option>' +
+          '<option value="high"'  + (risk==='high'   ? ' selected':'')+'>High</option>' +
+          '<option value="medium"'+ (risk==='medium' ? ' selected':'')+'>Medium</option>' +
+          '<option value="low"'   + (risk==='low'    ? ' selected':'')+'>Low</option>' +
+        '</select>' +
       '</div>' +
       '<div class="col-md-3">' +
         '<div class="detail-label">Status</div>' +
@@ -1494,6 +1669,13 @@
       if (f) { importJson(f); e.target.value = ''; }
     });
 
+    // Close bulk dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.domain-bulk-wrap')) {
+        document.querySelectorAll('.bulk-dropdown.open').forEach(function(el){ el.classList.remove('open'); });
+      }
+    });
+
     // Keyboard shortcuts
     document.addEventListener('keydown', function(e) {
       var si = document.getElementById('search-input');
@@ -1509,6 +1691,14 @@
           var vSel = document.getElementById('filter-view');
           vSel.value = vSel.value === 'poam' ? 'all' : 'poam';
           render();
+        }
+        if (e.key === 'h' || e.key === 'H') {
+          var hmBtn = document.querySelector('.hm-toggle');
+          if (hmBtn) hmBtn.click();
+        }
+        if (e.key === 'w' || e.key === 'W') {
+          var wnBtn = document.querySelector('.wn-toggle');
+          if (wnBtn) wnBtn.click();
         }
       }
     });
@@ -1529,7 +1719,7 @@
     var wb = XLSX.utils.book_new();
 
     // Sheet 1: All practices
-    var rows1 = [['Domain','Control ID','Title','Level 1','Status','Points','Owner','Target Date','Flagged','Notes']];
+    var rows1 = [['Domain','Control ID','Title','Level 1','Status','Points','Risk Rating','Owner','Target Date','Flagged','Notes']];
     ALL_DOMAINS.forEach(function(domain) {
       activePractices(domain).forEach(function(p) {
         var s = getStatus(domain.domain_id, p.id);
@@ -1537,6 +1727,7 @@
         rows1.push([
           domain.domain_name, domain.domain_id + ' ' + p.id, p.title,
           p.level1 ? 'Yes' : 'No', sm.label, sm.points,
+          getRisk(domain.domain_id, p.id) || '',
           getOwner(domain.domain_id, p.id), getDate(domain.domain_id, p.id),
           getFlag(domain.domain_id, p.id) ? 'Yes' : '',
           getNote(domain.domain_id, p.id)
@@ -1546,7 +1737,7 @@
     XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows1), 'Assessment Results');
 
     // Sheet 2: Gap Analysis / POA&M
-    var rows2 = [['Domain','Control ID','Title','Status','Owner','Target Date','Notes / Weakness','Milestone','Level 1']];
+    var rows2 = [['Domain','Control ID','Title','Status','Risk Rating','Owner','Target Date','Notes / Weakness','Milestone','Level 1']];
     ALL_DOMAINS.forEach(function(domain) {
       activePractices(domain).forEach(function(p) {
         var s = getStatus(domain.domain_id, p.id);
@@ -1554,6 +1745,7 @@
         var sm = STATUS_META[s];
         rows2.push([
           domain.domain_name, domain.domain_id + ' ' + p.id, p.title, sm.label,
+          getRisk(domain.domain_id, p.id) || '',
           getOwner(domain.domain_id, p.id), getDate(domain.domain_id, p.id),
           getNote(domain.domain_id, p.id), getMilestone(domain.domain_id, p.id),
           p.level1 ? 'Yes' : 'No'
@@ -1592,7 +1784,7 @@
   function exportPoamExcel() {
     if (typeof XLSX === 'undefined') { alert('XLSX library not loaded.'); return; }
     var wb = XLSX.utils.book_new();
-    var rows = [['Domain','Control ID','Title','Status','Owner','Target Date','Notes / Weakness','Milestone','Level 1']];
+    var rows = [['Domain','Control ID','Title','Status','Risk Rating','Owner','Target Date','Notes / Weakness','Milestone','Level 1']];
     ALL_DOMAINS.forEach(function(domain) {
       activePractices(domain).forEach(function(p) {
         var s = getStatus(domain.domain_id, p.id);
@@ -1600,6 +1792,7 @@
         var sm = STATUS_META[s];
         rows.push([
           domain.domain_name, domain.domain_id + ' ' + p.id, p.title, sm.label,
+          getRisk(domain.domain_id, p.id) || '',
           getOwner(domain.domain_id, p.id), getDate(domain.domain_id, p.id),
           getNote(domain.domain_id, p.id), getMilestone(domain.domain_id, p.id),
           p.level1 ? 'Yes' : 'No'
@@ -1645,6 +1838,375 @@
       }
     };
     reader.readAsText(file);
+  }
+
+  /* ── Risk field save ────────────────────────────────────────────────── */
+  function saveRiskField(el) {
+    var dom = el.getAttribute('data-domain');
+    var id  = el.getAttribute('data-id');
+    setRisk(dom, id, el.value);
+    // Refresh the row badge without full re-render
+    var idSlug = dom + '-' + id.replace(/\./g,'-');
+    var rowEl = document.getElementById('cr-' + idSlug);
+    if (rowEl) {
+      var badgeEl = rowEl.querySelector('.risk-badge');
+      if (el.value) {
+        if (badgeEl) { badgeEl.className = 'risk-badge risk-'+el.value; badgeEl.textContent = el.value; }
+        else {
+          var flagBtn = rowEl.querySelector('.flag-btn');
+          if (flagBtn) {
+            var nb = document.createElement('span');
+            nb.className = 'risk-badge risk-' + el.value;
+            nb.textContent = el.value;
+            flagBtn.parentNode.insertBefore(nb, flagBtn);
+          }
+        }
+      } else if (badgeEl) { badgeEl.remove(); }
+    }
+  }
+
+  /* ── Bulk domain actions ─────────────────────────────────────────────── */
+  function toggleBulkDropdown(domId, evt) {
+    evt.stopPropagation();
+    var dd = document.getElementById('bulk-dd-' + domId);
+    if (!dd) return;
+    var wasOpen = dd.classList.contains('open');
+    document.querySelectorAll('.bulk-dropdown.open').forEach(function(el){ el.classList.remove('open'); });
+    if (!wasOpen) dd.classList.add('open');
+  }
+
+  function bulkDomainAction(domId, action, evt) {
+    if (evt) evt.stopPropagation();
+    var dd = document.getElementById('bulk-dd-' + domId);
+    if (dd) dd.classList.remove('open');
+    if (action === 'reset' && !confirm('Reset all statuses in the ' + domId + ' domain?')) return;
+    var domain = ALL_DOMAINS.find(function(d){ return d.domain_id === domId; });
+    if (!domain) return;
+    activePractices(domain).forEach(function(p) {
+      if (action === 'reset') { lsRemove('cmmc2_s_' + domId + '_' + p.id); }
+      else { setStatus(domId, p.id, action); }
+    });
+    render();
+  }
+
+  /* ── Heat map ────────────────────────────────────────────────────────── */
+  function toggleHeatMap(btn) {
+    var body = document.getElementById('hm-body');
+    var chev = document.getElementById('hm-chevron');
+    if (!body) return;
+    var open = body.classList.contains('open');
+    body.classList.toggle('open', !open);
+    if (chev) chev.style.transform = open ? '' : 'rotate(90deg)';
+    if (!open) renderHeatMap();
+  }
+
+  function renderHeatMap() {
+    var container = document.getElementById('hm-grid-container');
+    if (!container) return;
+    var html = '';
+    ALL_DOMAINS.forEach(function(domain) {
+      var pracs = activePractices(domain);
+      if (!pracs.length) return;
+      html += '<div class="hm-domain"><div class="hm-domain-label">' + esc(domain.domain_id) + ' — ' + esc(domain.domain_name) + '</div><div class="hm-grid">';
+      pracs.forEach(function(p) {
+        var s = getStatus(domain.domain_id, p.id);
+        var cellCls = 'hm-cell ';
+        if      (s === 'met')      cellCls += 'hm-cell-met';
+        else if (s === 'partial')  cellCls += 'hm-cell-partial';
+        else if (s === 'not-met')  cellCls += 'hm-cell-notmet';
+        else if (s === 'planned')  cellCls += 'hm-cell-planned';
+        else if (s === 'na')       cellCls += 'hm-cell-na';
+        else                       cellCls += 'hm-cell-ns';
+        var tip = domain.domain_id + ' ' + p.id + ' — ' + p.title.slice(0, 65) + (p.title.length > 65 ? '…' : '');
+        html += '<div class="' + cellCls + '" title="' + esc(tip) + '" onclick="jumpToControl(\'' + esc(domain.domain_id) + '\',\'' + esc(p.id) + '\')"></div>';
+      });
+      html += '</div></div>';
+    });
+    container.innerHTML = html;
+    // Update badge
+    var sc = computeSprs();
+    var badge = document.getElementById('hm-badge');
+    if (badge) badge.textContent = sc.met + ' met / ' + sc.activeCount + ' total';
+  }
+
+  function jumpToControl(domId, ctrlId) {
+    // Switch to accordion view if in POA&M
+    var viewSel = document.getElementById('filter-view');
+    if (viewSel && viewSel.value === 'poam') { viewSel.value = 'all'; }
+    // Ensure domain and status filters don't hide this control
+    var filterDom = document.getElementById('filter-domain');
+    var filterSt  = document.getElementById('filter-status');
+    if (filterDom && filterDom.value && filterDom.value !== domId) filterDom.value = '';
+    if (filterSt && filterSt.value) filterSt.value = '';
+    render();
+    setTimeout(function() {
+      var block = document.getElementById('domain-block-' + domId);
+      if (block) {
+        block.scrollIntoView({ behavior:'smooth', block:'start' });
+        var hdr = block.querySelector('.domain-header');
+        if (hdr && hdr.getAttribute('aria-expanded') === 'false') hdr.click();
+      }
+      setTimeout(function() {
+        var idSlug = domId + '-' + ctrlId.replace(/\./g, '-');
+        var trigger = document.querySelector('#cr-' + idSlug + ' .control-trigger');
+        if (trigger && trigger.getAttribute('aria-expanded') !== 'true') trigger.click();
+        var row = document.getElementById('cr-' + idSlug);
+        if (row) row.scrollIntoView({ behavior:'smooth', block:'center' });
+      }, 200);
+    }, 100);
+  }
+
+  /* ── What's Next ─────────────────────────────────────────────────────── */
+  function toggleWhatNext(btn) {
+    var body = document.getElementById('wn-body');
+    var chev = document.getElementById('wn-chevron');
+    if (!body) return;
+    var open = body.classList.contains('open');
+    body.classList.toggle('open', !open);
+    if (chev) chev.style.transform = open ? '' : 'rotate(90deg)';
+    if (!open) renderWhatNext();
+  }
+
+  function renderWhatNext() {
+    var container = document.getElementById('wn-items-container');
+    if (!container) return;
+    var items = [];
+    var today = new Date(); today.setHours(0,0,0,0);
+
+    ALL_DOMAINS.forEach(function(domain) {
+      activePractices(domain).forEach(function(p) {
+        var s = getStatus(domain.domain_id, p.id);
+        if (s === 'met' || s === 'na' || s === 'not-assessed') return;
+        var priority, priorityCls, priorityLabel, reason, score;
+        if      (s === 'not-met' && p.level1) { priority='critical'; priorityCls='wn-p-critical'; priorityLabel='CRITICAL'; reason='L1 not met — blocks CMMC Level 1 eligibility'; score=5; }
+        else if (s === 'not-met')              { priority='high';     priorityCls='wn-p-high';     priorityLabel='HIGH';     reason='Not implemented — required for L2 certification'; score=4; }
+        else if (s === 'partial' && p.level1)  { priority='high';     priorityCls='wn-p-high';     priorityLabel='HIGH';     reason='L1 partially met — must be fully implemented'; score=3; }
+        else if (s === 'partial')              { priority='medium';   priorityCls='wn-p-medium';   priorityLabel='MEDIUM';   reason='Partially implemented — gap requires remediation'; score=2; }
+        else {
+          // planned — check overdue
+          var td = getDate(domain.domain_id, p.id);
+          if (td) {
+            var due = new Date(td + 'T00:00:00');
+            var daysLeft = Math.round((due - today) / 86400000);
+            if (daysLeft < 0) { priority='high'; priorityCls='wn-p-high'; priorityLabel='OVERDUE'; reason='Target date passed ' + Math.abs(daysLeft) + 'd ago — escalate'; score=3; }
+            else if (daysLeft <= 7) { priority='medium'; priorityCls='wn-p-medium'; priorityLabel='DUE SOON'; reason='Due in ' + daysLeft + 'd — verify on track'; score=2; }
+            else { priority='info'; priorityCls='wn-p-info'; priorityLabel='PLANNED'; reason='Planned — ensure milestone is tracked'; score=1; }
+          } else { priority='info'; priorityCls='wn-p-info'; priorityLabel='PLANNED'; reason='Planned — set a target date'; score=1; }
+        }
+        items.push({ domain:domain, p:p, status:s, priorityCls:priorityCls, priorityLabel:priorityLabel, reason:reason, score:score });
+      });
+    });
+
+    items.sort(function(a,b){ return b.score - a.score; });
+    var badge = document.getElementById('wn-count-badge');
+    if (badge) badge.textContent = items.length;
+
+    if (items.length === 0) {
+      container.innerHTML = '<div class="alert alert-success py-2 small mb-0"><i class="bi bi-check-circle-fill me-2"></i>No priority actions — all assessed controls are Met, Planned, or N/A.</div>';
+      return;
+    }
+    var shown = items.slice(0, 10);
+    var html = shown.map(function(item) {
+      var domId = item.domain.domain_id;
+      return '<div class="wn-item" onclick="jumpToControl(\'' + esc(domId) + '\',\'' + esc(item.p.id) + '\')">' +
+        '<span class="wn-priority ' + item.priorityCls + '">' + esc(item.priorityLabel) + '</span>' +
+        '<span class="ctrl-id' + (item.p.level1 ? ' ctrl-id-l1' : '') + '" style="font-size:.68rem;padding:1px 6px">' + esc(domId) + ' ' + esc(item.p.id) + '</span>' +
+        '<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.79rem">' + esc(item.p.title.slice(0, 65)) + '</span>' +
+        '<span style="font-size:.67rem;color:var(--bs-secondary-color);flex-shrink:0;display:none;display:flex;align-items:center">' + esc(item.reason) + '</span>' +
+      '</div>';
+    }).join('');
+    if (items.length > 10) {
+      html += '<div class="text-secondary text-center mt-2" style="font-size:.72rem">+ ' + (items.length - 10) + ' more items — use Status filter to view all</div>';
+    }
+    container.innerHTML = html;
+  }
+
+  /* ── Snapshot history ───────────────────────────────────────────────── */
+  function saveSnapshot() {
+    var labelEl = document.getElementById('snapshot-label-input');
+    var name = (labelEl ? labelEl.value.trim() : '') || ('Snapshot ' + new Date().toLocaleDateString());
+    var sc = computeSprs();
+    var snap = {
+      id: Date.now(),
+      label: name,
+      date: new Date().toISOString(),
+      sprs: sc.sprs,
+      met: sc.met, partial: sc.partial, notMet: sc.notMet, planned: sc.planned, na: sc.na,
+      activeCount: sc.activeCount
+    };
+    var snaps = loadSnapshots();
+    snaps.unshift(snap);
+    if (snaps.length > 20) snaps = snaps.slice(0, 20);
+    lsSet('cmmc2_snapshots', JSON.stringify(snaps));
+    if (labelEl) labelEl.value = '';
+    renderSnapshotList();
+  }
+
+  function loadSnapshots() {
+    try { return JSON.parse(lsGet('cmmc2_snapshots', '[]')) || []; }
+    catch(e) { return []; }
+  }
+
+  function deleteSnapshot(id) {
+    var snaps = loadSnapshots().filter(function(s){ return s.id !== id; });
+    lsSet('cmmc2_snapshots', JSON.stringify(snaps));
+    renderSnapshotList();
+  }
+
+  function renderSnapshotList() {
+    var container = document.getElementById('snapshot-list');
+    if (!container) return;
+    var snaps = loadSnapshots();
+    if (snaps.length === 0) {
+      container.innerHTML = '<p class="text-secondary text-center py-3 mb-0">No snapshots saved yet. Click "Save" above to capture the current SPRS score.</p>';
+      return;
+    }
+    var html = '';
+    snaps.forEach(function(snap, idx) {
+      var prev = snaps[idx + 1];
+      var delta = (prev != null) ? (snap.sprs - prev.sprs) : null;
+      var deltaHtml = '';
+      if (delta !== null) {
+        var sign = delta > 0 ? '+' : '';
+        var cls = delta > 0 ? 'text-success' : delta < 0 ? 'text-danger' : 'text-secondary';
+        deltaHtml = '<span class="' + cls + ' fw-bold" style="font-size:.75rem">' + sign + delta.toFixed(1) + ' vs prev</span>';
+      }
+      var dateStr = new Date(snap.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'});
+      html += '<div class="snapshot-item">' +
+        '<div style="flex:1;min-width:120px"><div class="snapshot-label">' + esc(snap.label) + '</div><div class="snapshot-date">' + dateStr + '</div></div>' +
+        '<div class="snapshot-score">' + snap.sprs.toFixed(1) + '<span style="font-size:.65rem;color:var(--bs-secondary-color);font-weight:400"> / 110</span></div>' +
+        (deltaHtml ? '<div>' + deltaHtml + '</div>' : '<div style="font-size:.65rem;color:var(--bs-secondary-color)">Baseline</div>') +
+        '<div style="font-size:.7rem;line-height:1.6">' +
+          '<span class="text-success fw-semibold">' + snap.met + ' met</span><br>' +
+          '<span class="text-warning fw-semibold">' + (snap.partial||0) + ' partial</span> · ' +
+          '<span class="text-danger fw-semibold">' + (snap.notMet||0) + ' not-met</span>' +
+        '</div>' +
+        '<button class="snap-del-btn" onclick="deleteSnapshot(' + snap.id + ')" title="Delete snapshot">×</button>' +
+      '</div>';
+    });
+    container.innerHTML = html;
+  }
+
+  /* ── Executive Summary ──────────────────────────────────────────────── */
+  function renderExecSummary() {
+    var body = document.getElementById('exec-summary-body');
+    if (!body) return;
+    var sc = computeSprs();
+    var profile = {};
+    try { profile = JSON.parse(lsGet('cmmc2_profile','{}')) || {}; } catch(e) {}
+    var scoreColor = sc.sprs >= 90 ? '#198754' : sc.sprs >= 70 ? '#ffc107' : sc.sprs >= 50 ? '#fd7e14' : '#dc3545';
+    var readPct = sc.nonNa > 0 ? Math.round(sc.met / sc.nonNa * 100) : 0;
+    var level = parseInt(profile.level || '2', 10);
+
+    var html = '<div id="exec-summary-content">';
+    // Header
+    html += '<div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">';
+    html += '<div><h3 class="fw-bold mb-1">' + esc(profile.company || 'Company Name') + '</h3>';
+    html += '<div style="font-size:.8rem;color:var(--bs-secondary-color)">';
+    if (profile.system)   html += 'System: <strong>' + esc(profile.system) + '</strong> &nbsp;&middot;&nbsp; ';
+    if (profile.cage)     html += 'CAGE: ' + esc(profile.cage) + ' &nbsp;&middot;&nbsp; ';
+    if (profile.assessor) html += 'Assessor: ' + esc(profile.assessor) + ' &nbsp;&middot;&nbsp; ';
+    html += 'Generated: ' + new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+    html += '</div></div>';
+    html += '<div class="text-end"><div style="font-size:2.8rem;font-weight:900;font-family:monospace;color:' + scoreColor + ';line-height:1">' + (sc.nonNa > 0 ? sc.sprs.toFixed(1) : '—') + '</div>';
+    html += '<div style="font-size:.68rem;color:var(--bs-secondary-color)">Estimated SPRS Score / 110</div>';
+    html += '<div style="font-size:.7rem;margin-top:.2rem">CMMC Level ' + level + ' &nbsp;·&nbsp; ' + sc.activeCount + ' controls</div></div></div>';
+
+    // Status distribution bar
+    var total = sc.activeCount || 1;
+    function pctOf(n){ return (n/total*100).toFixed(1)+'%'; }
+    html += '<div style="display:flex;height:10px;border-radius:5px;overflow:hidden;margin-bottom:.3rem">';
+    html += '<div style="background:#198754;width:'+pctOf(sc.met)+'"></div>';
+    html += '<div style="background:#ffc107;width:'+pctOf(sc.partial)+'"></div>';
+    html += '<div style="background:#0dcaf0;width:'+pctOf(sc.planned)+'"></div>';
+    html += '<div style="background:#dc3545;width:'+pctOf(sc.notMet)+'"></div>';
+    html += '<div style="background:rgba(108,117,125,.3);width:'+pctOf(sc.na)+'"></div>';
+    html += '</div>';
+
+    // Stat cards
+    html += '<div class="row g-2 mb-3">';
+    [{v:sc.met,l:'Met',c:'#198754'},{v:sc.partial,l:'Partial',c:'#ffc107'},{v:sc.notMet,l:'Not Met',c:'#dc3545'},
+     {v:sc.planned,l:'Planned',c:'#0dcaf0'},{v:sc.poamCount,l:'POA&M Items',c:'#fd7e14'},{v:readPct+'%',l:'Readiness',c:scoreColor}
+    ].forEach(function(si){
+      html += '<div class="col-4 col-md-2"><div class="sprs-stat-card"><div class="val" style="color:'+si.c+'">'+si.v+'</div><div class="lbl">'+si.l+'</div></div></div>';
+    });
+    html += '</div>';
+
+    // Domain breakdown
+    html += '<div class="exec-section-head">Domain Progress Breakdown</div>';
+    ALL_DOMAINS.forEach(function(domain) {
+      var pracs = activePractices(domain);
+      var met = 0, total = 0;
+      pracs.forEach(function(p){ var s=getStatus(domain.domain_id,p.id); if(s!=='na'){total++;if(s==='met')met++;} });
+      var pct = total > 0 ? Math.round(met/total*100) : 0;
+      var bc = pct>=100?'#198754':pct>=50?'#ffc107':pct>0?'#fd7e14':'#6c757d';
+      html += '<div class="exec-domain-row">' +
+        '<span style="width:32px;font-family:monospace;font-size:.7rem;font-weight:700;color:var(--bs-secondary-color);flex-shrink:0">'+esc(domain.domain_id)+'</span>' +
+        '<span style="width:170px;font-size:.75rem;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(domain.domain_name)+'</span>' +
+        '<div class="exec-domain-bar"><div class="exec-domain-bar-fill" style="width:'+pct+'%;background:'+bc+'"></div></div>' +
+        '<span style="width:55px;text-align:right;font-family:monospace;font-size:.72rem;flex-shrink:0">'+met+'/'+total+'</span>' +
+        '<span style="width:42px;text-align:right;font-family:monospace;font-size:.72rem;flex-shrink:0;color:'+bc+'">'+pct+'%</span>' +
+      '</div>';
+    });
+
+    // Gap summary
+    html += '<div class="exec-section-head">Controls Requiring Attention (POA&amp;M)</div>';
+    var gaps = [];
+    ALL_DOMAINS.forEach(function(domain) {
+      activePractices(domain).forEach(function(p) {
+        var s = getStatus(domain.domain_id,p.id);
+        if (s==='not-met'||s==='partial') gaps.push({domId:domain.domain_id,id:p.id,title:p.title,status:s,l1:p.level1});
+      });
+    });
+    gaps.sort(function(a,b){ var as=(a.status==='not-met'?2:1)+(a.l1?2:0), bs=(b.status==='not-met'?2:1)+(b.l1?2:0); return bs-as; });
+    if (gaps.length === 0) {
+      html += '<div class="alert alert-success py-2 small mb-0"><i class="bi bi-check-circle-fill me-2"></i>No gaps — all assessed controls are Met or N/A.</div>';
+    } else {
+      html += '<div class="table-responsive"><table class="table table-sm table-hover" style="font-size:.78rem"><thead class="table-secondary"><tr><th>Control</th><th>Title</th><th>Status</th><th>Risk</th><th>Owner</th><th>Target Date</th></tr></thead><tbody>';
+      gaps.slice(0,25).forEach(function(g){
+        var sm = STATUS_META[g.status];
+        var rsk = getRisk(g.domId,g.id);
+        html += '<tr>' +
+          '<td><span class="ctrl-id'+(g.l1?' ctrl-id-l1':'')+'" style="font-size:.68rem">'+esc(g.domId)+' '+esc(g.id)+'</span></td>' +
+          '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(g.title)+'">'+esc(g.title.slice(0,55))+'</td>' +
+          '<td><span class="status-btn '+sm.cls+' no-cycle" style="font-size:.72rem">'+esc(sm.short)+' '+esc(g.status.replace(/-/g,' '))+'</span></td>' +
+          '<td>'+(rsk?'<span class="risk-badge risk-'+rsk+'">'+rsk+'</span>':'<span class="text-secondary" style="font-size:.7rem">—</span>')+'</td>' +
+          '<td style="font-size:.75rem">'+esc(getOwner(g.domId,g.id)||'—')+'</td>' +
+          '<td style="font-size:.75rem;font-family:monospace">'+esc(getDate(g.domId,g.id)||'—')+'</td>' +
+        '</tr>';
+      });
+      if (gaps.length > 25) html += '<tr><td colspan="6" class="text-center text-secondary" style="font-size:.72rem">+' + (gaps.length-25) + ' more gaps not shown</td></tr>';
+      html += '</tbody></table></div>';
+    }
+    html += '</div>';
+    body.innerHTML = html;
+  }
+
+  function printExecSummary() {
+    var content = document.getElementById('exec-summary-content');
+    if (!content) return;
+    var profile = {};
+    try { profile = JSON.parse(lsGet('cmmc2_profile','{}')) || {}; } catch(e) {}
+    var w = window.open('', '_blank');
+    w.document.write('<!DOCTYPE html><html><head><title>CMMC Executive Summary — ' + (profile.company||'') + '</title>');
+    w.document.write('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">');
+    w.document.write('<style>body{font-family:system-ui,sans-serif;font-size:.88rem;padding:2rem;background:#fff;color:#212529}');
+    w.document.write('.ctrl-id{font-size:.74rem;font-weight:700;font-family:monospace;padding:2px 7px;border-radius:4px;background:#f0f0f0;color:#555}');
+    w.document.write('.ctrl-id-l1{background:#fff3cd;color:#856404}');
+    w.document.write('.status-btn{padding:2px 8px;border-radius:5px;font-size:.78rem;border:none}');
+    w.document.write('.s-met{color:#198754;background:rgba(25,135,84,.12)}.s-partial{color:#856404;background:rgba(255,193,7,.2)}.s-not-met{color:#dc3545;background:rgba(220,53,69,.12)}');
+    w.document.write('.risk-badge{font-size:.62rem;font-weight:800;text-transform:uppercase;padding:1px 6px;border-radius:10px}');
+    w.document.write('.risk-high{background:rgba(220,53,69,.15);color:#dc3545}.risk-medium{background:rgba(253,126,20,.15);color:#fd7e14}.risk-low{background:rgba(255,193,7,.15);color:#856404}');
+    w.document.write('.exec-section-head{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#0d6efd;border-bottom:1px solid #dee2e6;padding-bottom:.4rem;margin:1rem 0 .65rem}');
+    w.document.write('.exec-domain-row{display:flex;align-items:center;gap:.5rem;padding:.22rem 0;font-size:.78rem;border-bottom:1px solid #f0f0f0}');
+    w.document.write('.exec-domain-bar{flex:1;height:5px;background:#f0f0f0;border-radius:3px;overflow:hidden}');
+    w.document.write('.exec-domain-bar-fill{height:100%;border-radius:3px}');
+    w.document.write('.sprs-stat-card{background:#f8f9fa;border:1px solid #dee2e6;border-radius:.4rem;padding:.65rem .85rem;text-align:center}');
+    w.document.write('.sprs-stat-card .val{font-size:1.4rem;font-weight:800;font-family:monospace;line-height:1.1}');
+    w.document.write('.sprs-stat-card .lbl{font-size:.63rem;color:#6c757d;text-transform:uppercase;letter-spacing:.07em}</style>');
+    w.document.write('</head><body>' + content.innerHTML + '</body></html>');
+    w.document.close();
+    setTimeout(function(){ w.print(); }, 500);
   }
 
   /* ── DOMContentLoaded ────────────────────────────────────────────────── */
