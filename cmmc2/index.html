@@ -300,6 +300,9 @@
     .exec-domain-row { display:flex; align-items:center; gap:.5rem; padding:.22rem 0; font-size:.78rem; border-bottom:1px solid rgba(128,128,128,.08); }
     .exec-domain-bar { flex:1; height:5px; background:rgba(128,128,128,.15); border-radius:3px; overflow:hidden; }
     .exec-domain-bar-fill { height:100%; border-radius:3px; transition:width .4s; }
+    /* ── L3 enhanced badge ── */
+    .ctrl-id-l3 { background:rgba(111,66,193,.2); color:#a98eda; }
+    .l3-gate-banner { background:rgba(111,66,193,.08); border:1px solid rgba(111,66,193,.3); border-radius:.4rem; padding:.55rem .85rem; font-size:.77rem; margin-top:.75rem; }
   </style>
 </head>
 <body>
@@ -353,10 +356,11 @@
               <span class="badge bg-secondary px-3 py-2">NIST 800-171 Rev 2</span>
               <span class="badge bg-warning text-dark px-3 py-2">SPRS Score Calculator</span>
               <span class="badge bg-info text-dark px-3 py-2">DoD Contractors</span>
+              <span class="badge px-3 py-2" style="background:rgba(111,66,193,.25);color:#c9b8f0;border:1px solid rgba(111,66,193,.4)">Level 3 — NIST 800-172</span>
             </div>
             <h1 class="section-title mb-2">CMMC 2.0 Readiness Assessment Platform</h1>
             <p class="text-secondary mb-0" style="max-width:820px">
-              The most complete free CMMC 2.0 readiness tool available. Assess all 110 NIST SP 800-171 Rev 2 practices across 14 domains, calculate your official SPRS score, build a POA&amp;M, track evidence artifacts, and export everything to Excel. Designed for DoD prime contractors, sub-contractors, and their consultants. All data stays in your browser — nothing is sent to a server.
+              The most complete free CMMC 2.0 readiness tool available. Assess all 110 NIST SP 800-171 Rev 2 practices across 14 domains, calculate your official SPRS score, build a POA&amp;M, and export to Excel. Now includes <strong>Level 3 support</strong> — all 24 enhanced NIST SP 800-172 practices for DIBCAC assessment preparation. Designed for DoD prime contractors, sub-contractors, and their consultants. All data stays in your browser.
             </p>
           </div>
         </div>
@@ -373,11 +377,15 @@
           </div>
           <div class="text-center">
             <div class="cmmc-stat-num" id="stat-practices">110</div>
-            <div class="cmmc-stat-lbl">Practices (L2)</div>
+            <div class="cmmc-stat-lbl" id="stat-practices-lbl">Practices (L2)</div>
           </div>
           <div class="text-center">
             <div class="cmmc-stat-num">17</div>
             <div class="cmmc-stat-lbl">L1 Practices</div>
+          </div>
+          <div class="text-center" id="stat-l3-block" style="display:none">
+            <div class="cmmc-stat-num" style="color:#a98eda">24</div>
+            <div class="cmmc-stat-lbl">L3 Enhanced</div>
           </div>
           <div class="text-center">
             <div class="cmmc-stat-num" id="stat-assessed">0</div>
@@ -443,6 +451,7 @@
                   <select class="profile-input" id="p-level">
                     <option value="2">Level 2 — All 110 Practices</option>
                     <option value="1">Level 1 — 17 Practices (FAR basic)</option>
+                    <option value="3">Level 3 — 134 Practices (DIBCAC)</option>
                   </select>
                 </div>
                 <div class="col-md-4">
@@ -538,6 +547,15 @@
                 <div class="mt-2 d-flex justify-content-center gap-1 flex-wrap" id="gate-badges">
                   <span class="gate-badge gate-pending" id="gate-l1"><i class="bi bi-circle me-1"></i>L1 Gate</span>
                   <span class="gate-badge gate-pending" id="gate-poam"><i class="bi bi-circle me-1"></i>POA&amp;M: 0</span>
+                  <span class="gate-badge gate-pending" id="gate-l3" style="display:none"><i class="bi bi-circle me-1"></i>L3: 0/24</span>
+                </div>
+                <div id="l3-dibcac-banner" class="l3-gate-banner" style="display:none">
+                  <i class="bi bi-shield-shaded me-1" style="color:#a98eda"></i>
+                  <strong style="color:#a98eda">CMMC Level 3</strong>
+                  <span class="text-secondary"> — Requires government-led assessment by </span>
+                  <strong>DIBCAC</strong>
+                  <span class="text-secondary">. SPRS score reflects Level 2 controls only.</span>
+                  <span class="ms-2 badge" style="background:rgba(111,66,193,.2);color:#a98eda;font-size:.65rem" id="l3-enhanced-stat">0 / 24 L3 Enhanced</span>
                 </div>
               </div>
 
@@ -911,11 +929,11 @@
   };
 
   /* ── Global state ────────────────────────────────────────────────────── */
-  var ALL_DOMAINS = [];   // [{domain_id, domain_name, practices:[{id,title,objectives,level1}]}]
+  var ALL_DOMAINS = [];   // [{domain_id, domain_name, practices:[{id,title,objectives,level1,level3}]}]
   var _filterDomain = '';
   var _filterStatus = '';
   var _filterSearch = '';
-  var _assessLevel  = 2;  // 1 or 2
+  var _assessLevel  = 2;  // 1, 2, or 3
   var _viewMode     = 'all'; // 'all' or 'poam'
 
   /* ── localStorage helpers ────────────────────────────────────────────── */
@@ -948,13 +966,28 @@
 
     Promise.all([
       fetch('../cmmc_l2_data.json').then(function(r){ if(!r.ok) throw new Error('L2 fetch failed'); return r.json(); }),
-      fetch('../cmmc_l1_data.json').then(function(r){ if(!r.ok) throw new Error('L1 fetch failed'); return r.json(); })
+      fetch('../cmmc_l1_data.json').then(function(r){ if(!r.ok) throw new Error('L1 fetch failed'); return r.json(); }),
+      fetch('../cmmc_l3_data.json').then(function(r){ if(!r.ok) throw new Error('L3 fetch failed'); return r.json(); })
     ]).then(function(results) {
       var l2 = results[0];
+      var l3 = results[2];
       // Mark L1 practices
       l2.forEach(function(domain) {
         domain.practices.forEach(function(p) {
           p.level1 = !!L1_SET[domain.domain_id + '_' + p.id];
+          p.level3 = false;
+        });
+      });
+      // Merge L3 enhanced practices into existing domain blocks
+      var l2DomainMap = {};
+      l2.forEach(function(d){ l2DomainMap[d.domain_id] = d; });
+      l3.forEach(function(l3dom) {
+        var target = l2DomainMap[l3dom.domain_id];
+        if (!target) return;
+        l3dom.practices.forEach(function(p) {
+          p.level1 = false;
+          p.level3 = true;
+          target.practices.push(p);
         });
       });
       ALL_DOMAINS = l2;
@@ -1020,7 +1053,8 @@
     if (p.date)     parts.push(esc(p.date));
     document.getElementById('profile-summary-text').innerHTML = parts.length ? parts.join(' &nbsp;·&nbsp; ') : 'Click to set company info &amp; assessment level';
     var lvl = parseInt(p.level || '2', 10);
-    document.getElementById('profile-level-badge').textContent = lvl === 1 ? 'Level 1 — 17 Practices' : 'Level 2 — 110 Practices';
+    document.getElementById('profile-level-badge').textContent =
+      lvl === 1 ? 'Level 1 — 17 Practices' : lvl === 3 ? 'Level 3 — 134 Practices (DIBCAC)' : 'Level 2 — 110 Practices';
   }
 
   function toggleProfile() {
@@ -1065,10 +1099,9 @@
 
   /* ── Active practices (respects level filter) ────────────────────────── */
   function activePractices(domain) {
-    if (_assessLevel === 1) {
-      return domain.practices.filter(function(p){ return p.level1; });
-    }
-    return domain.practices;
+    if (_assessLevel === 1) return domain.practices.filter(function(p){ return p.level1; });
+    if (_assessLevel === 2) return domain.practices.filter(function(p){ return !p.level3; });
+    return domain.practices; // Level 3: all practices including enhanced
   }
 
   /* ── Escape HTML ─────────────────────────────────────────────────────── */
@@ -1098,6 +1131,7 @@
     var total = 0, assessed = 0, met = 0, partial = 0, notMet = 0, planned = 0, na = 0;
     ALL_DOMAINS.forEach(function(domain) {
       activePractices(domain).forEach(function(p) {
+        if (p.level3) return; // SPRS only covers L2 (NIST SP 800-171 Rev 2)
         var s = getStatus(domain.domain_id, p.id);
         if (s === 'na') { na++; return; }
         assessed++;
@@ -1109,9 +1143,9 @@
         else if (s === 'planned') planned++;
       });
     });
-    // Count active practices
+    // Count active L2 practices (exclude L3 enhanced from SPRS count)
     var activeCount = 0;
-    ALL_DOMAINS.forEach(function(d){ activeCount += activePractices(d).length; });
+    ALL_DOMAINS.forEach(function(d){ activeCount += activePractices(d).filter(function(p){ return !p.level3; }).length; });
     var nonNa = activeCount - na;
     // Normalize to 110
     var sprs = nonNa > 0 ? Math.round((total / nonNa) * 110 * 10) / 10 : 0;
@@ -1129,6 +1163,7 @@
     var poamCount = 0;
     ALL_DOMAINS.forEach(function(domain) {
       activePractices(domain).forEach(function(p) {
+        if (p.level3) return;
         var s = getStatus(domain.domain_id, p.id);
         if (s === 'partial' || s === 'not-met') poamCount++;
       });
@@ -1187,6 +1222,29 @@
     gatePoam.className = sc.poamCount > 0 ? 'gate-badge gate-partial' : 'gate-badge gate-ready';
     gatePoam.innerHTML = (sc.poamCount > 0 ? '<i class="bi bi-exclamation-triangle-fill me-1"></i>' : '<i class="bi bi-check-circle-fill me-1"></i>') + 'POA&amp;M: ' + sc.poamCount;
 
+    // L3 gate & banner
+    var gateL3 = document.getElementById('gate-l3');
+    var l3Banner = document.getElementById('l3-dibcac-banner');
+    var l3Stat = document.getElementById('l3-enhanced-stat');
+    if (_assessLevel === 3) {
+      var l3Met = 0, l3Total = 0;
+      ALL_DOMAINS.forEach(function(domain) {
+        domain.practices.forEach(function(p) {
+          if (!p.level3) return;
+          l3Total++;
+          if (getStatus(domain.domain_id, p.id) === 'met') l3Met++;
+        });
+      });
+      gateL3.style.display = '';
+      gateL3.className = l3Met === l3Total && l3Total > 0 ? 'gate-badge gate-ready' : l3Met > 0 ? 'gate-badge gate-partial' : 'gate-badge gate-pending';
+      gateL3.innerHTML = (l3Met === l3Total && l3Total > 0 ? '<i class="bi bi-check-circle-fill me-1"></i>' : '<i class="bi bi-circle me-1"></i>') + 'L3: ' + l3Met + '/' + l3Total;
+      l3Banner.style.display = '';
+      if (l3Stat) l3Stat.textContent = l3Met + ' / ' + l3Total + ' L3 Enhanced';
+    } else {
+      gateL3.style.display = 'none';
+      l3Banner.style.display = 'none';
+    }
+
     // Domain mini bars
     var miniContainer = document.getElementById('domain-mini-bars');
     var miniHtml = '';
@@ -1212,6 +1270,14 @@
     });
     miniContainer.innerHTML = miniHtml;
 
+    // L3 stat block toggle
+    var l3Block = document.getElementById('stat-l3-block');
+    var pracNum = document.getElementById('stat-practices');
+    var pracLbl = document.getElementById('stat-practices-lbl');
+    if (l3Block) l3Block.style.display = _assessLevel === 3 ? '' : 'none';
+    if (pracNum) pracNum.textContent = _assessLevel === 1 ? '17' : _assessLevel === 3 ? '110' : '110';
+    if (pracLbl) pracLbl.textContent = _assessLevel === 3 ? 'Practices (L2+L3)' : 'Practices (L2)';
+
     // Refresh heat map and what's next if open
     if (document.getElementById('hm-body') && document.getElementById('hm-body').classList.contains('open')) renderHeatMap();
     if (document.getElementById('wn-body') && document.getElementById('wn-body').classList.contains('open')) renderWhatNext();
@@ -1220,6 +1286,7 @@
   /* ── Filter a single practice ────────────────────────────────────────── */
   function practiceVisible(domain, p) {
     if (_assessLevel === 1 && !p.level1) return false;
+    if (_assessLevel === 2 && p.level3) return false;
     if (_filterDomain && domain.domain_id !== _filterDomain) return false;
     var s = getStatus(domain.domain_id, p.id);
     if (_filterStatus) {
@@ -1301,8 +1368,10 @@
     var detailId = 'cd-' + domId + '-' + p.id.replace(/\./g,'-');
     var objCount = (p.objectives || []).length;
 
-    var idBadgeCls = isL1 ? 'ctrl-id ctrl-id-l1' : 'ctrl-id';
+    var isL3    = p.level3;
+    var idBadgeCls = isL1 ? 'ctrl-id ctrl-id-l1' : isL3 ? 'ctrl-id ctrl-id-l3' : 'ctrl-id';
     var l1Tag = isL1 ? '<span style="font-size:.58rem;font-weight:700;background:rgba(255,193,7,.18);color:#ffc107;border-radius:3px;padding:1px 5px;font-family:monospace;margin-left:3px">L1</span>' : '';
+    var l3Tag = isL3 ? '<span style="font-size:.58rem;font-weight:700;background:rgba(111,66,193,.2);color:#a98eda;border-radius:3px;padding:1px 5px;font-family:monospace;margin-left:3px">L3</span>' : '';
 
     var titleHtml = highlight(p.title, q);
 
@@ -1311,7 +1380,7 @@
     var html = '<div class="control-row" id="' + rowId + '">' +
       '<div class="control-trigger" onclick="toggleControl(this,\'' + detailId + '\')" aria-expanded="false" aria-controls="' + detailId + '" role="button" tabindex="0" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){this.click();event.preventDefault();}">' +
         '<i class="bi bi-chevron-right c-chevron"></i>' +
-        '<span class="' + idBadgeCls + '">' + esc(domId) + ' ' + esc(p.id) + '</span>' + l1Tag +
+        '<span class="' + idBadgeCls + '">' + esc(domId) + ' ' + esc(p.id) + '</span>' + l1Tag + l3Tag +
         (objCount ? '<span class="obj-count">' + objCount + ' obj</span>' : '') +
         '<div class="c-title"><div class="c-title-inner">' + titleHtml + '</div></div>' +
         (owner ? '<span class="owner-badge" title="Owner: '+esc(owner)+'">' + esc(owner) + '</span>' : '') +
@@ -1335,10 +1404,16 @@
     var owner  = getOwner(domId, p.id);
     var date   = getDate(domId, p.id);
     var risk   = getRisk(domId, p.id);
-    var needsPoam = (status === 'partial' || status === 'not-met');
+    var needsPoam = !p.level3 && (status === 'partial' || status === 'not-met');
     var idSlug = domId + '-' + p.id.replace(/\./g,'-');
 
-    var html = '<div class="detail-label">Control Statement</div>' +
+    var html = '';
+    if (p.level3) {
+      html += '<div style="font-size:.72rem;background:rgba(111,66,193,.08);border:1px solid rgba(111,66,193,.25);border-radius:.35rem;padding:.45rem .85rem;margin-bottom:.75rem;color:#a98eda">' +
+        '<i class="bi bi-shield-shaded me-1"></i><strong>Level 3 Enhanced Practice</strong> &nbsp;&middot;&nbsp; Source: NIST SP 800-172 &nbsp;&middot;&nbsp; Assessment led by <strong>DIBCAC</strong> — not included in SPRS score.' +
+      '</div>';
+    }
+    html += '<div class="detail-label">Control Statement</div>' +
       '<div class="detail-statement">' + highlight(p.title, q) + '</div>';
 
     // Objectives
@@ -1719,14 +1794,15 @@
     var wb = XLSX.utils.book_new();
 
     // Sheet 1: All practices
-    var rows1 = [['Domain','Control ID','Title','Level 1','Status','Points','Risk Rating','Owner','Target Date','Flagged','Notes']];
+    var rows1 = [['Domain','Control ID','Title','Level','Status','Points','Risk Rating','Owner','Target Date','Flagged','Notes']];
     ALL_DOMAINS.forEach(function(domain) {
       activePractices(domain).forEach(function(p) {
         var s = getStatus(domain.domain_id, p.id);
         var sm = STATUS_META[s] || STATUS_META['not-assessed'];
+        var levelLabel = p.level3 ? 'L3 Enhanced' : p.level1 ? 'L1 (Basic)' : 'L2';
         rows1.push([
           domain.domain_name, domain.domain_id + ' ' + p.id, p.title,
-          p.level1 ? 'Yes' : 'No', sm.label, sm.points,
+          levelLabel, sm.label, p.level3 ? 'N/A' : sm.points,
           getRisk(domain.domain_id, p.id) || '',
           getOwner(domain.domain_id, p.id), getDate(domain.domain_id, p.id),
           getFlag(domain.domain_id, p.id) ? 'Yes' : '',
@@ -1777,6 +1853,25 @@
     });
     rows3.push(['','','','','','','','','','SPRS Score:', sc.sprs.toFixed(1) + ' / 110']);
     XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows3), 'Domain Summary');
+
+    // Sheet 4 (L3 only): Level 3 Enhanced Practices
+    if (_assessLevel === 3) {
+      var rows4 = [['Domain','Control ID','Title','Status','Risk Rating','Owner','Target Date','Notes','Source']];
+      ALL_DOMAINS.forEach(function(domain) {
+        domain.practices.filter(function(p){ return p.level3; }).forEach(function(p) {
+          var s = getStatus(domain.domain_id, p.id);
+          var sm = STATUS_META[s] || STATUS_META['not-assessed'];
+          rows4.push([
+            domain.domain_name, domain.domain_id + ' ' + p.id, p.title, sm.label,
+            getRisk(domain.domain_id, p.id) || '',
+            getOwner(domain.domain_id, p.id), getDate(domain.domain_id, p.id),
+            getNote(domain.domain_id, p.id),
+            'NIST SP 800-172 / CMMC L3'
+          ]);
+        });
+      });
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows4), 'L3 Enhanced Practices');
+    }
 
     XLSX.writeFile(wb, 'CMMC2_Assessment_' + new Date().toISOString().slice(0,10) + '.xlsx');
   }
@@ -1978,9 +2073,11 @@
         var s = getStatus(domain.domain_id, p.id);
         if (s === 'met' || s === 'na' || s === 'not-assessed') return;
         var priority, priorityCls, priorityLabel, reason, score;
-        if      (s === 'not-met' && p.level1) { priority='critical'; priorityCls='wn-p-critical'; priorityLabel='CRITICAL'; reason='L1 not met — blocks CMMC Level 1 eligibility'; score=5; }
+        if      (s === 'not-met' && p.level1) { priority='critical'; priorityCls='wn-p-critical'; priorityLabel='CRITICAL'; reason='L1 not met — blocks CMMC Level 1 eligibility'; score=6; }
+        else if (s === 'not-met' && p.level3) { priority='critical'; priorityCls='wn-p-critical'; priorityLabel='L3 GAP';   reason='L3 enhanced not met — required for DIBCAC assessment'; score=5; }
         else if (s === 'not-met')              { priority='high';     priorityCls='wn-p-high';     priorityLabel='HIGH';     reason='Not implemented — required for L2 certification'; score=4; }
         else if (s === 'partial' && p.level1)  { priority='high';     priorityCls='wn-p-high';     priorityLabel='HIGH';     reason='L1 partially met — must be fully implemented'; score=3; }
+        else if (s === 'partial' && p.level3)  { priority='high';     priorityCls='wn-p-high';     priorityLabel='L3 PARTIAL'; reason='L3 enhanced partially implemented'; score=3; }
         else if (s === 'partial')              { priority='medium';   priorityCls='wn-p-medium';   priorityLabel='MEDIUM';   reason='Partially implemented — gap requires remediation'; score=2; }
         else {
           // planned — check overdue

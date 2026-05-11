@@ -1,0 +1,285 @@
+[
+  {
+    "domain_id": "AC",
+    "domain_name": "Access Control",
+    "practices": [
+      {
+        "id": "3.1.1e",
+        "title": "Establish and employ the use of supplemental controls for CUI that limit access to systems or components that process, store, or transmit CUI, including secure enclaves or CUI-specific processing environments isolated from systems and networks not used for CUI.",
+        "objectives": [
+          { "id": "3.1.1e[a]", "text": "Supplemental access controls for CUI are defined and documented." },
+          { "id": "3.1.1e[b]", "text": "CUI is processed, stored, and transmitted within isolated or enclave environments." },
+          { "id": "3.1.1e[c]", "text": "Access to CUI-specific environments is separately controlled and audited." }
+        ]
+      },
+      {
+        "id": "3.1.2e",
+        "title": "Employ dynamic access control approaches (e.g., attribute-based access control, just-in-time privileged access, zero-trust principles) that can be implemented with sufficient granularity to protect CUI from unauthorized access by internal and external threats.",
+        "objectives": [
+          { "id": "3.1.2e[a]", "text": "Dynamic access control approaches are selected and documented." },
+          { "id": "3.1.2e[b]", "text": "Attribute-based or just-in-time access mechanisms are implemented for CUI resources." },
+          { "id": "3.1.2e[c]", "text": "Access decisions are enforced at the granularity needed to protect CUI." }
+        ]
+      }
+    ]
+  },
+  {
+    "domain_id": "AT",
+    "domain_name": "Awareness & Training",
+    "practices": [
+      {
+        "id": "3.2.1e",
+        "title": "Provide awareness training focused on recognizing and responding to threats from advanced persistent threat (APT) actors, including threat tactics, techniques, and procedures (TTPs), social engineering, insider threats, and supply chain compromise.",
+        "objectives": [
+          { "id": "3.2.1e[a]", "text": "APT-focused security awareness training content is defined and current." },
+          { "id": "3.2.1e[b]", "text": "Training covers known adversary TTPs relevant to the organization's mission and CUI holdings." },
+          { "id": "3.2.1e[c]", "text": "All personnel with CUI access receive APT-focused awareness training." },
+          { "id": "3.2.1e[d]", "text": "Training is refreshed to reflect evolving threat intelligence." }
+        ]
+      },
+      {
+        "id": "3.2.2e",
+        "title": "Provide practical exercises (e.g., simulated phishing, tabletop exercises, breach simulations) and role-based training that exercise and validate the ability of individuals to detect and respond to advanced cyber threats targeting CUI.",
+        "objectives": [
+          { "id": "3.2.2e[a]", "text": "Practical exercise and simulation requirements are defined by role." },
+          { "id": "3.2.2e[b]", "text": "Role-based training exercises simulate realistic APT scenarios." },
+          { "id": "3.2.2e[c]", "text": "Exercise results are evaluated and used to improve security posture and training programs." }
+        ]
+      }
+    ]
+  },
+  {
+    "domain_id": "AU",
+    "domain_name": "Audit & Accountability",
+    "practices": [
+      {
+        "id": "3.3.1e",
+        "title": "Establish and operate a continuous monitoring strategy for CUI systems that integrates audit records from multiple sources, enables real-time alerting on indicators of compromise, and provides organization-wide situational awareness.",
+        "objectives": [
+          { "id": "3.3.1e[a]", "text": "A continuous monitoring strategy for CUI systems is documented and approved." },
+          { "id": "3.3.1e[b]", "text": "Audit records from relevant system components are aggregated into a centralized platform." },
+          { "id": "3.3.1e[c]", "text": "Real-time alerting on indicators of compromise is configured and tested." },
+          { "id": "3.3.1e[d]", "text": "Organization-wide audit visibility supports rapid detection and response." }
+        ]
+      },
+      {
+        "id": "3.3.2e",
+        "title": "Employ automated mechanisms to correlate, analyze, and derive actionable insight from audit records across organizational systems to detect advanced threats, lateral movement, privilege escalation, and exfiltration of CUI.",
+        "objectives": [
+          { "id": "3.3.2e[a]", "text": "Automated log correlation and analysis tools are deployed." },
+          { "id": "3.3.2e[b]", "text": "Detection rules are tuned to identify advanced threat behaviors (lateral movement, exfiltration, privilege escalation)." },
+          { "id": "3.3.2e[c]", "text": "Alerts are prioritized, triaged, and tracked to resolution." }
+        ]
+      }
+    ]
+  },
+  {
+    "domain_id": "CM",
+    "domain_name": "Configuration Management",
+    "practices": [
+      {
+        "id": "3.4.1e",
+        "title": "Establish and maintain a cyber threat hunting capability to proactively search for indicators of compromise, hidden adversary activity, and undetected threats within organizational systems that process, store, or transmit CUI.",
+        "objectives": [
+          { "id": "3.4.1e[a]", "text": "A threat hunting capability is established with defined scope, tools, and procedures." },
+          { "id": "3.4.1e[b]", "text": "Threat hunting activities are conducted regularly and driven by current threat intelligence." },
+          { "id": "3.4.1e[c]", "text": "Findings from threat hunting are documented and used to improve defenses." }
+        ]
+      },
+      {
+        "id": "3.4.2e",
+        "title": "Employ automated discovery and compliance tools to continuously detect misconfigured or unauthorized system components, software, services, and connections in CUI environments and initiate automated or manual remediation.",
+        "objectives": [
+          { "id": "3.4.2e[a]", "text": "Automated configuration compliance scanning is implemented for CUI system components." },
+          { "id": "3.4.2e[b]", "text": "Unauthorized or misconfigured components are detected and alerted on in near-real-time." },
+          { "id": "3.4.2e[c]", "text": "Remediation of detected issues is tracked to completion." }
+        ]
+      },
+      {
+        "id": "3.4.3e",
+        "title": "Employ a zero-trust architecture approach for CUI systems that requires explicit verification of all users, devices, and network flows, regardless of network location, before granting access to CUI resources.",
+        "objectives": [
+          { "id": "3.4.3e[a]", "text": "Zero-trust architecture principles are documented and applied to CUI environments." },
+          { "id": "3.4.3e[b]", "text": "All access requests to CUI resources are verified regardless of source network or prior authentication." },
+          { "id": "3.4.3e[c]", "text": "Microsegmentation and least-privilege access controls enforce zero-trust policies." }
+        ]
+      }
+    ]
+  },
+  {
+    "domain_id": "IA",
+    "domain_name": "Identification & Authentication",
+    "practices": [
+      {
+        "id": "3.5.1e",
+        "title": "Employ hardware-based, phishing-resistant multi-factor authentication mechanisms (e.g., PIV, CAC, FIDO2 hardware security keys) for all access to systems that process, store, or transmit CUI, particularly for privileged and remote access.",
+        "objectives": [
+          { "id": "3.5.1e[a]", "text": "Hardware-based MFA requirements for CUI system access are defined." },
+          { "id": "3.5.1e[b]", "text": "Hardware-based authenticators (PIV, CAC, FIDO2) are deployed and enforced." },
+          { "id": "3.5.1e[c]", "text": "Privileged and remote access uses hardware-based phishing-resistant MFA." }
+        ]
+      },
+      {
+        "id": "3.5.2e",
+        "title": "Bind identity credentials to specific devices to prevent credential theft, relay attacks, and lateral movement. Ensure authentication mechanisms validate both user identity and device identity before granting access to CUI.",
+        "objectives": [
+          { "id": "3.5.2e[a]", "text": "Requirements for binding credentials to devices are defined." },
+          { "id": "3.5.2e[b]", "text": "Device identity verification is integrated into the authentication process for CUI access." },
+          { "id": "3.5.2e[c]", "text": "Credential theft and relay attack mitigations are implemented and tested." }
+        ]
+      }
+    ]
+  },
+  {
+    "domain_id": "IR",
+    "domain_name": "Incident Response",
+    "practices": [
+      {
+        "id": "3.6.1e",
+        "title": "Establish and operate an advanced cyber incident response program with documented capabilities for detecting, analyzing, containing, eradicating, and recovering from sophisticated cyber incidents, including supply chain compromises, ransomware, and APT intrusions affecting CUI.",
+        "objectives": [
+          { "id": "3.6.1e[a]", "text": "An advanced incident response program with documented playbooks for APT scenarios is established." },
+          { "id": "3.6.1e[b]", "text": "Incident response capabilities include detection, analysis, containment, eradication, and recovery phases." },
+          { "id": "3.6.1e[c]", "text": "Program addresses CUI-specific incidents including supply chain compromise and ransomware." },
+          { "id": "3.6.1e[d]", "text": "Incident response capabilities are tested and updated based on lessons learned." }
+        ]
+      },
+      {
+        "id": "3.6.2e",
+        "title": "Conduct annual cyber incident response exercises (tabletops, functional drills, full-scale simulations) that exercise and validate response capabilities against realistic APT scenarios, document exercise results, and drive program improvements.",
+        "objectives": [
+          { "id": "3.6.2e[a]", "text": "Incident response exercises are conducted at least annually." },
+          { "id": "3.6.2e[b]", "text": "Exercises use realistic APT scenarios relevant to the organization's threat environment." },
+          { "id": "3.6.2e[c]", "text": "Exercise results are documented, reviewed, and used to improve the IR program." }
+        ]
+      }
+    ]
+  },
+  {
+    "domain_id": "RA",
+    "domain_name": "Risk Assessment",
+    "practices": [
+      {
+        "id": "3.11.1e",
+        "title": "Employ threat intelligence (e.g., ISAC feeds, US-CERT/CISA advisories, commercial threat intelligence, MITRE ATT&CK) to enrich organizational risk assessments, identify targeted attack patterns, and prioritize risk remediation for CUI systems.",
+        "objectives": [
+          { "id": "3.11.1e[a]", "text": "Threat intelligence sources relevant to the organization's sector and CUI are subscribed to and monitored." },
+          { "id": "3.11.1e[b]", "text": "Threat intelligence is systematically integrated into risk assessment processes." },
+          { "id": "3.11.1e[c]", "text": "Risk prioritization reflects current threat intelligence about adversary TTPs." }
+        ]
+      },
+      {
+        "id": "3.11.2e",
+        "title": "Define and maintain a criticality analysis of organizational operations, assets, data, and systems. Prioritize CUI protection measures based on the potential mission impact and adversarial value of each asset or system.",
+        "objectives": [
+          { "id": "3.11.2e[a]", "text": "Organizational operations, assets, and systems are inventoried and their criticality to mission is assessed." },
+          { "id": "3.11.2e[b]", "text": "CUI holdings are prioritized by their adversarial value and mission-criticality." },
+          { "id": "3.11.2e[c]", "text": "Protection measures are scaled to asset criticality." }
+        ]
+      },
+      {
+        "id": "3.11.3e",
+        "title": "Conduct cyber threat modeling and adversarial attack simulation (e.g., using MITRE ATT&CK framework) to identify attack paths targeting CUI, validate security control effectiveness, and prioritize countermeasure investments.",
+        "objectives": [
+          { "id": "3.11.3e[a]", "text": "Threat modeling is performed for CUI systems using a structured methodology." },
+          { "id": "3.11.3e[b]", "text": "Attack simulations map to adversary TTPs relevant to the organization (e.g., MITRE ATT&CK)." },
+          { "id": "3.11.3e[c]", "text": "Findings from threat modeling inform countermeasure selection and security architecture." }
+        ]
+      }
+    ]
+  },
+  {
+    "domain_id": "CA",
+    "domain_name": "Security Assessment",
+    "practices": [
+      {
+        "id": "3.12.1e",
+        "title": "Conduct penetration testing by qualified, independent testers on a regular basis to identify vulnerabilities in CUI systems, validate security control effectiveness, and prioritize remediation of exploitable weaknesses before adversaries can leverage them.",
+        "objectives": [
+          { "id": "3.12.1e[a]", "text": "Penetration testing is conducted by qualified, independent testers at a defined frequency." },
+          { "id": "3.12.1e[b]", "text": "Penetration testing scope encompasses CUI systems and supporting infrastructure." },
+          { "id": "3.12.1e[c]", "text": "Findings are documented, prioritized by severity, and tracked to remediation." }
+        ]
+      },
+      {
+        "id": "3.12.2e",
+        "title": "Employ red team exercises and adversarial assessments that simulate advanced persistent threat (APT) tactics, techniques, and procedures to evaluate the organization's ability to detect, respond to, and recover from sophisticated attacks targeting CUI.",
+        "objectives": [
+          { "id": "3.12.2e[a]", "text": "Red team exercises are conducted using APT-relevant TTPs." },
+          { "id": "3.12.2e[b]", "text": "Red team exercises include objective-based scenarios targeting CUI exfiltration or disruption." },
+          { "id": "3.12.2e[c]", "text": "Red team findings are used to improve detection, response, and resilience capabilities." }
+        ]
+      }
+    ]
+  },
+  {
+    "domain_id": "SC",
+    "domain_name": "System & Comm. Protection",
+    "practices": [
+      {
+        "id": "3.13.1e",
+        "title": "Implement architectural designs, software development techniques, and systems engineering principles that limit the blast radius of successful compromises, prevent lateral movement, and protect CUI from exfiltration by advanced adversaries.",
+        "objectives": [
+          { "id": "3.13.1e[a]", "text": "Security architecture principles (e.g., defense-in-depth, microsegmentation, immutable infrastructure) are documented and applied." },
+          { "id": "3.13.1e[b]", "text": "Architectural controls limit lateral movement and contain the impact of compromise." },
+          { "id": "3.13.1e[c]", "text": "CUI exfiltration controls (DLP, egress filtering, data-at-rest encryption) are implemented." }
+        ]
+      },
+      {
+        "id": "3.13.2e",
+        "title": "Employ hardware-based security mechanisms (e.g., Hardware Security Modules, Trusted Platform Modules, secure boot, UEFI Secure Boot, code signing, hardware-enforced memory protection) to protect CUI during processing and prevent unauthorized software execution.",
+        "objectives": [
+          { "id": "3.13.2e[a]", "text": "Hardware-based security mechanisms are identified and deployed for CUI systems." },
+          { "id": "3.13.2e[b]", "text": "Secure boot and code signing protect against unauthorized boot-level and software tampering." },
+          { "id": "3.13.2e[c]", "text": "HSMs or TPMs are used for cryptographic key protection in CUI environments." }
+        ]
+      },
+      {
+        "id": "3.13.3e",
+        "title": "Implement and enforce supply chain risk management (SCRM) practices for hardware, software, and services used in CUI systems, including vendor risk assessments, software bill of materials (SBOM) analysis, and counterfeit component prevention.",
+        "objectives": [
+          { "id": "3.13.3e[a]", "text": "Supply chain risk management requirements for CUI system components are defined." },
+          { "id": "3.13.3e[b]", "text": "Vendors and suppliers providing CUI system components are assessed for security risk." },
+          { "id": "3.13.3e[c]", "text": "Software Bill of Materials (SBOM) or equivalent is maintained for critical software components." },
+          { "id": "3.13.3e[d]", "text": "Counterfeit component detection measures are implemented." }
+        ]
+      }
+    ]
+  },
+  {
+    "domain_id": "SI",
+    "domain_name": "System & Info. Integrity",
+    "practices": [
+      {
+        "id": "3.14.1e",
+        "title": "Verify the integrity of security-critical firmware, bootloaders, operating system kernels, and security software for CUI systems using cryptographic verification and root-of-trust mechanisms prior to and during execution.",
+        "objectives": [
+          { "id": "3.14.1e[a]", "text": "Security-critical software and firmware components are identified." },
+          { "id": "3.14.1e[b]", "text": "Cryptographic integrity verification (e.g., hash verification, digital signatures) is implemented." },
+          { "id": "3.14.1e[c]", "text": "Root-of-trust mechanisms (TPM, Secure Boot) enforce integrity at startup." },
+          { "id": "3.14.1e[d]", "text": "Integrity violations are detected, alerted, and investigated." }
+        ]
+      },
+      {
+        "id": "3.14.2e",
+        "title": "Employ advanced security analytics, User and Entity Behavior Analytics (UEBA), and threat intelligence integration to detect anomalous and malicious activity indicative of APT compromise within CUI systems, including insider threats.",
+        "objectives": [
+          { "id": "3.14.2e[a]", "text": "Advanced behavioral analytics or UEBA tools are deployed for CUI systems." },
+          { "id": "3.14.2e[b]", "text": "Behavioral baselines are established and deviations trigger investigation." },
+          { "id": "3.14.2e[c]", "text": "Threat intelligence feeds are integrated to improve detection fidelity." },
+          { "id": "3.14.2e[d]", "text": "Insider threat detection capabilities address both malicious and negligent insider risk." }
+        ]
+      },
+      {
+        "id": "3.14.3e",
+        "title": "Establish a Security Operations Center (SOC) capability with 24/7 monitoring coverage for CUI systems, staffed by trained analysts supported by automated detection and response tooling, providing near-real-time visibility into threats.",
+        "objectives": [
+          { "id": "3.14.3e[a]", "text": "SOC capability (internal or managed) with CUI system monitoring scope is established." },
+          { "id": "3.14.3e[b]", "text": "SOC provides continuous (24/7) or covered monitoring with documented escalation procedures." },
+          { "id": "3.14.3e[c]", "text": "SOC analysts are trained on CUI-relevant threat detection and incident response." },
+          { "id": "3.14.3e[d]", "text": "Automated tooling (SIEM, SOAR) supports SOC detection and response workflows." }
+        ]
+      }
+    ]
+  }
+]
