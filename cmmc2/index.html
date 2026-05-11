@@ -303,6 +303,31 @@
     /* ── L3 enhanced badge ── */
     .ctrl-id-l3 { background:rgba(111,66,193,.2); color:#a98eda; }
     .l3-gate-banner { background:rgba(111,66,193,.08); border:1px solid rgba(111,66,193,.3); border-radius:.4rem; padding:.55rem .85rem; font-size:.77rem; margin-top:.75rem; }
+
+    /* ── Radar chart ── */
+    #radar-canvas { image-rendering:crisp-edges; }
+
+    /* ── Effort badge ── */
+    .effort-badge { font-size:.58rem; font-weight:800; text-transform:uppercase; padding:1px 6px; border-radius:10px; flex-shrink:0; letter-spacing:.05em; white-space:nowrap; }
+    .effort-sm { background:rgba(25,135,84,.12);  color:#75b798;  border:1px solid rgba(25,135,84,.3); }
+    .effort-md { background:rgba(255,193,7,.12);  color:#ffc107;  border:1px solid rgba(255,193,7,.3); }
+    .effort-lg { background:rgba(253,126,20,.12); color:#fd7e14;  border:1px solid rgba(253,126,20,.3); }
+    .effort-xl { background:rgba(220,53,69,.12);  color:#dc3545;  border:1px solid rgba(220,53,69,.3); }
+
+    /* ── Assessment question bank ── */
+    .qa-panel { margin-bottom:.5rem; border:1px solid var(--bs-border-color); border-left:3px solid rgba(13,202,240,.4); border-radius:.4rem; overflow:hidden; }
+    .qa-toggle { width:100%; padding:.42rem .9rem; background:rgba(13,202,240,.05); border:none; cursor:pointer; display:flex; align-items:center; gap:.5rem; font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--bs-secondary-color); text-align:left; transition:background .15s; }
+    .qa-toggle:hover { background:rgba(13,202,240,.1); }
+    .qa-body { display:none; padding:.7rem 1rem; }
+    .qa-body.open { display:block; }
+    .qa-item { display:flex; gap:.6rem; margin-bottom:.5rem; font-size:.8rem; color:var(--bs-body-color); line-height:1.55; }
+    .qa-num { font-size:.68rem; font-weight:700; color:var(--bs-info); flex-shrink:0; font-family:monospace; min-width:22px; padding-top:.1rem; }
+
+    /* ── SSP generator ── */
+    .ssp-domain-block { margin-bottom:1.2rem; border:1px solid var(--bs-border-color); border-radius:.4rem; overflow:hidden; }
+    .ssp-domain-head  { background:rgba(var(--bs-primary-rgb),.06); padding:.65rem 1rem; font-size:.82rem; font-weight:700; border-bottom:1px solid var(--bs-border-color); }
+    .ssp-ctrl-row     { padding:.5rem 1rem; border-bottom:1px solid rgba(128,128,128,.07); }
+    .ssp-ctrl-row:last-child { border-bottom:none; }
   </style>
 </head>
 <body>
@@ -526,6 +551,7 @@
                 <i class="bi bi-upload me-1"></i>Import JSON
                 <input type="file" id="import-json-input" accept=".json" style="display:none">
               </label>
+              <button class="btn btn-sm btn-outline-secondary" style="font-size:.71rem;padding:2px 8px" data-bs-toggle="modal" data-bs-target="#sspModal" onclick="renderSSP()"><i class="bi bi-file-text me-1"></i>SSP</button>
               <button class="btn btn-sm btn-outline-warning" style="font-size:.71rem;padding:2px 8px" data-bs-toggle="modal" data-bs-target="#snapshotModal" onclick="renderSnapshotList()"><i class="bi bi-clock-history me-1"></i>Snapshots</button>
               <button class="btn btn-sm btn-outline-info" style="font-size:.71rem;padding:2px 8px" data-bs-toggle="modal" data-bs-target="#execSummaryModal" onclick="renderExecSummary()"><i class="bi bi-file-earmark-bar-graph me-1"></i>Exec Summary</button>
               <button class="btn btn-sm btn-outline-secondary ms-auto" title="Keyboard shortcuts ?" data-bs-toggle="modal" data-bs-target="#shortcutsModal"><kbd style="font-size:.68rem;pointer-events:none">?</kbd></button>
@@ -567,6 +593,12 @@
                   <div class="col-6"><div class="sprs-stat-card"><div class="val text-danger" id="stat-notmet">0</div><div class="lbl">Not Met</div></div></div>
                   <div class="col-6"><div class="sprs-stat-card"><div class="val text-info" id="stat-planned">0</div><div class="lbl">Planned</div></div></div>
                 </div>
+                <!-- Effort stat -->
+                <div class="d-flex align-items-center gap-2 mt-2 pt-2" style="border-top:1px solid var(--bs-border-color)">
+                  <span style="font-size:.65rem;color:var(--bs-secondary-color);text-transform:uppercase;letter-spacing:.08em">Est. Effort</span>
+                  <span id="stat-effort" class="fw-bold" style="font-size:1rem;font-family:monospace;color:var(--bs-primary)">—</span>
+                  <span style="font-size:.65rem;color:var(--bs-secondary-color)" id="stat-effort-lbl">across 0 rated controls</span>
+                </div>
                 <!-- Overall readiness bar -->
                 <div style="font-size:.67rem;color:var(--bs-secondary-color);margin-bottom:.2rem">Overall Readiness <span id="readiness-pct-text" class="fw-bold text-body">0%</span></div>
                 <div class="progress readiness-pct-bar" role="progressbar">
@@ -589,10 +621,20 @@
                 </div>
               </div>
 
-              <!-- Domain mini bars -->
+              <!-- Domain progress: radar + mini bars -->
               <div class="col-12 col-md-6">
-                <div style="font-size:.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--bs-secondary-color);margin-bottom:.5rem">Domain Progress</div>
-                <div id="domain-mini-bars" style="columns:2;column-gap:1.2rem;"></div>
+                <div class="row g-0">
+                  <div class="col-auto d-flex align-items-center justify-content-center pe-3">
+                    <div>
+                      <div style="font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--bs-secondary-color);margin-bottom:.3rem;text-align:center">Radar</div>
+                      <canvas id="radar-canvas" width="160" height="160" style="display:block;max-width:160px"></canvas>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div style="font-size:.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--bs-secondary-color);margin-bottom:.5rem">Domain Progress</div>
+                    <div id="domain-mini-bars" style="columns:2;column-gap:1rem;"></div>
+                  </div>
+                </div>
               </div>
 
             </div>
@@ -822,6 +864,20 @@
   <!-- bot-trap -->
   <div aria-hidden="true" style="position:absolute;left:-99999px;top:auto;width:1px;height:1px;overflow:hidden">
     <a href="../honeypot.html" tabindex="-1">cmmc-assessment-legacy-export</a>
+  </div>
+
+  <!-- ── SSP Generator Modal ── -->
+  <div class="modal fade" id="sspModal" tabindex="-1" aria-labelledby="sspModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-6 fw-bold" id="sspModalLabel"><i class="bi bi-file-text me-2"></i>System Security Plan (SSP) — Generated Template</h2>
+          <button type="button" class="btn btn-sm btn-outline-secondary me-2" onclick="printSSP()"><i class="bi bi-printer me-1"></i>Print / Export</button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0" id="ssp-body" style="max-height:78vh;overflow-y:auto;padding:1.25rem !important"></div>
+      </div>
+    </div>
   </div>
 
   <!-- ── Snapshot History Modal ── -->
