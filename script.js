@@ -582,9 +582,10 @@ function initTerminal() {
   }
 
   function handleCommand(cmd) {
-    cmd = cmd.trim();
+    cmd = cmd.trim().substring(0, 100);
     if (!cmd) return;
     cmdHistory.unshift(cmd);
+    if (cmdHistory.length > 50) cmdHistory.length = 50;
     histIdx = -1;
 
     appendLine('');
@@ -596,7 +597,7 @@ function initTerminal() {
     if (key === 'status') { runStatus(); return; }
     if (key === 'scan')   { runScan();   return; }
 
-    if (RESPONSES[key]) {
+    if (Object.prototype.hasOwnProperty.call(RESPONSES, key)) {
       typeLines(RESPONSES[key], 0, null);
     } else {
       appendLine('<span class="t-err">command not found: ' + escHtml(cmd) + '</span>  <span class="t-dim">(try <span class="t-cmd">help</span>)</span>');
