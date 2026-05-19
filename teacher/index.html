@@ -14,6 +14,8 @@
     .nav-tabs .nav-link{font-size:.78rem;font-weight:600;padding:.4rem .62rem;}
     .nav-tabs .nav-link.active{color:var(--bs-primary);border-bottom-color:var(--bs-primary);}
     .tab-section{min-height:60vh;}
+    .tab-pane{display:none!important;}
+    .tab-pane.tab-visible{display:block!important;}
     .lp-label{font-size:.71rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--bs-primary);margin-bottom:.3rem;display:block;}
     .saved-plan{border:1px solid var(--bs-border-color);border-radius:.4rem;padding:.55rem .85rem;margin-bottom:.35rem;display:flex;justify-content:space-between;align-items:center;background:var(--bs-secondary-bg);font-size:.82rem;cursor:pointer;transition:border-color .15s;}
     .saved-plan:hover{border-color:var(--bs-primary);}
@@ -160,7 +162,7 @@
 
   <div class="tab-content">
 <!-- ══ TAB: LESSON PLANNER ══ -->
-<div class="tab-pane show active tab-section" id="tabPlanner">
+<div class="tab-pane tab-visible tab-section" id="tabPlanner">
   <div class="row g-4">
     <div class="col-lg-3">
       <div class="d-flex justify-content-between align-items-center mb-2">
@@ -427,10 +429,10 @@ function ha(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;')
 /* Main tab switcher — works without Bootstrap JS */
 function switchTab(id,btn){
   document.querySelectorAll('#mainTabs .nav-link').forEach(function(b){b.classList.remove('active');});
-  document.querySelectorAll('.tab-pane').forEach(function(p){p.classList.remove('show','active');p.style.display='none';});
+  document.querySelectorAll('.tab-pane').forEach(function(p){p.classList.remove('tab-visible');});
   if(btn)btn.classList.add('active');
   var pane=document.getElementById(id);
-  if(pane){pane.classList.add('show','active');pane.style.display='block';}
+  if(pane)pane.classList.add('tab-visible');
 }
 /* ── Theme & Settings ── */
 function toggleTheme(){var t=document.documentElement.getAttribute('data-bs-theme')==='dark'?'light':'dark';document.documentElement.setAttribute('data-bs-theme',t);localStorage.setItem('bsTheme',t);}
