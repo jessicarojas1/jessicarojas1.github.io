@@ -160,7 +160,7 @@
 
   <div class="tab-content">
 <!-- ══ TAB: LESSON PLANNER ══ -->
-<div class="tab-pane fade show active tab-section" id="tabPlanner">
+<div class="tab-pane show active tab-section" id="tabPlanner">
   <div class="row g-4">
     <div class="col-lg-3">
       <div class="d-flex justify-content-between align-items-center mb-2">
@@ -203,7 +203,7 @@
 </div>
 
 <!-- ══ TAB: ACTIVITIES ══ -->
-<div class="tab-pane fade tab-section" id="tabActivities">
+<div class="tab-pane tab-section" id="tabActivities">
   <div class="row g-2 mb-3 align-items-end">
     <div class="col-sm-auto"><label class="lp-label">Subject</label><select class="form-select form-select-sm" id="actSubjectFilter" onchange="filterActivities()"><option value="">All</option><option>ELA</option><option>Math</option><option>Science</option><option>Social Studies</option><option>Health</option></select></div>
     <div class="col-sm-auto"><label class="lp-label">Type</label><select class="form-select form-select-sm" id="actTypeFilter" onchange="filterActivities()"><option value="">All Types</option><option>Collaborative</option><option>Individual</option><option>Hands-On</option><option>Discussion</option><option>Game</option><option>Writing</option><option>Project</option><option>Brain Break</option></select></div>
@@ -215,13 +215,13 @@
 </div>
 
 <!-- ══ TAB: TEMPLATES ══ -->
-<div class="tab-pane fade tab-section" id="tabTemplates">
+<div class="tab-pane tab-section" id="tabTemplates">
   <p class="text-secondary mb-4" style="font-size:.85rem;">Click any template to open a fully editable, print-ready window.</p>
   <div class="row g-3" id="templatesGrid"></div>
 </div>
 
 <!-- ══ TAB: STANDARDS ══ -->
-<div class="tab-pane fade tab-section" id="tabStandards">
+<div class="tab-pane tab-section" id="tabStandards">
   <ul class="nav nav-pills mb-4 flex-wrap" id="stdTabs">
     <li class="nav-item"><button class="nav-link active" onclick="showStd('ela',this)">ELA</button></li>
     <li class="nav-item"><button class="nav-link" onclick="showStd('math',this)">Math</button></li>
@@ -234,7 +234,7 @@
 </div>
 
 <!-- ══ TAB: GRADEBOOK ══ -->
-<div class="tab-pane fade tab-section" id="tabGradebook">
+<div class="tab-pane tab-section" id="tabGradebook">
   <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
     <button class="btn btn-primary btn-sm" onclick="showAddAssignmentModal()"><i class="bi bi-plus-lg me-1"></i>Add Assignment</button>
     <button class="btn btn-outline-secondary btn-sm" onclick="exportGradesCSV()"><i class="bi bi-download me-1"></i>Export CSV</button>
@@ -247,7 +247,7 @@
 </div>
 
 <!-- ══ TAB: CLASS MANAGEMENT ══ -->
-<div class="tab-pane fade tab-section" id="tabClassMgmt">
+<div class="tab-pane tab-section" id="tabClassMgmt">
   <ul class="nav nav-pills mb-4 flex-wrap" id="mgmtPills">
     <li class="nav-item"><button class="nav-link active" onclick="showMgmt('comm',this)"><i class="bi bi-telephone me-1"></i>Communication</button></li>
     <li class="nav-item"><button class="nav-link" onclick="showMgmt('behavior',this)"><i class="bi bi-bar-chart me-1"></i>Behavior</button></li>
@@ -260,7 +260,7 @@
 </div>
 
 <!-- ══ TAB: CALENDAR ══ -->
-<div class="tab-pane fade tab-section" id="tabCalendar">
+<div class="tab-pane tab-section" id="tabCalendar">
   <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
     <div class="d-flex align-items-center gap-3">
       <button class="btn btn-sm btn-outline-secondary" onclick="calNav(-1)"><i class="bi bi-chevron-left"></i></button>
@@ -303,7 +303,7 @@
 </div>
 
 <!-- ══ TAB: RESOURCES ══ -->
-<div class="tab-pane fade tab-section" id="tabResources">
+<div class="tab-pane tab-section" id="tabResources">
   <ul class="nav nav-pills mb-4 flex-wrap" id="resPills">
     <li class="nav-item"><button class="nav-link active" onclick="showRes('mm',this)"><i class="bi bi-sun me-1"></i>Morning Meeting</button></li>
     <li class="nav-item"><button class="nav-link" onclick="showRes('wordwall',this)"><i class="bi bi-alphabet me-1"></i>Word Wall</button></li>
@@ -314,7 +314,7 @@
 </div>
 
 <!-- ══ TAB: PROGRESS ══ -->
-<div class="tab-pane fade tab-section" id="tabProgress">
+<div class="tab-pane tab-section" id="tabProgress">
   <ul class="nav nav-pills mb-4 flex-wrap" id="progPills">
     <li class="nav-item"><button class="nav-link active" onclick="showProg('levels',this)"><i class="bi bi-bar-chart-steps me-1"></i>Reading &amp; Math Levels</button></li>
     <li class="nav-item"><button class="nav-link" onclick="showProg('anecdotal',this)"><i class="bi bi-journal-text me-1"></i>Anecdotal Notes</button></li>
@@ -324,7 +324,7 @@
 </div>
 
 <!-- ══ TAB: TOOLS ══ -->
-<div class="tab-pane fade tab-section" id="tabTools">
+<div class="tab-pane tab-section" id="tabTools">
   <div class="row g-4">
     <div class="col-md-6 col-lg-4">
       <div class="tool-card">
@@ -427,10 +427,10 @@ function ha(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;')
 /* Main tab switcher — works without Bootstrap JS */
 function switchTab(id,btn){
   document.querySelectorAll('#mainTabs .nav-link').forEach(function(b){b.classList.remove('active');});
-  document.querySelectorAll('.tab-content>.tab-pane').forEach(function(p){p.classList.remove('show','active');});
+  document.querySelectorAll('.tab-pane').forEach(function(p){p.classList.remove('show','active');p.style.display='none';});
   if(btn)btn.classList.add('active');
   var pane=document.getElementById(id);
-  if(pane){pane.classList.add('show','active');}
+  if(pane){pane.classList.add('show','active');pane.style.display='block';}
 }
 /* ── Theme & Settings ── */
 function toggleTheme(){var t=document.documentElement.getAttribute('data-bs-theme')==='dark'?'light':'dark';document.documentElement.setAttribute('data-bs-theme',t);localStorage.setItem('bsTheme',t);}
