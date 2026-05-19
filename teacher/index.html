@@ -420,6 +420,10 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmE5AFFL7sN/EI2igmv/4dKDetK+" crossorigin="anonymous"></script>
 <script>
 'use strict';
+/* Escape single quotes in student names for safe use inside onclick='...' */
+function q(s){return String(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")}
+/* Escape HTML special chars for attribute values */
+function ha(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
 /* ── Theme & Settings ── */
 function toggleTheme(){var t=document.documentElement.getAttribute('data-bs-theme')==='dark'?'light':'dark';document.documentElement.setAttribute('data-bs-theme',t);localStorage.setItem('bsTheme',t);}
 function getSettings(){return JSON.parse(localStorage.getItem('teacher_settings')||'{}');}
@@ -1019,20 +1023,21 @@ function getGrades(){return JSON.parse(localStorage.getItem('gb_grades')||'{}');
 function saveGrades(g){localStorage.setItem('gb_grades',JSON.stringify(g));}
 
 function showAddAssignmentModal(){
-  var modal=new bootstrap.Modal(document.getElementById('addAssignmentModal'));
+  var modal=new bootstrap.Modal(document.getElementById('addAssignModal'));
   modal.show();
 }
 function addAssignment(){
-  var name=(document.getElementById('asgName').value||'').trim();
-  var pts=parseInt(document.getElementById('asgPoints').value)||100;
-  var type=document.getElementById('asgType').value;
+  var name=(document.getElementById('newAssignName').value||'').trim();
+  var pts=parseInt(document.getElementById('newAssignMax').value)||100;
+  var type=document.getElementById('newAssignCat').value;
+  var date=document.getElementById('newAssignDate').value;
   if(!name)return;
   var asgs=getAssignments();
-  asgs.push({id:Date.now().toString(),name:name,pts:pts,type:type});
+  asgs.push({id:Date.now().toString(),name:name,pts:pts,type:type,date:date});
   saveAssignments(asgs);
-  bootstrap.Modal.getInstance(document.getElementById('addAssignmentModal')).hide();
-  document.getElementById('asgName').value='';
-  document.getElementById('asgPoints').value=100;
+  bootstrap.Modal.getInstance(document.getElementById('addAssignModal')).hide();
+  document.getElementById('newAssignName').value='';
+  document.getElementById('newAssignMax').value=100;
   renderGradebook();
 }
 function deleteAssignment(id){
@@ -1077,7 +1082,7 @@ function renderGradebook(){
       var val=grades[key];
       var score=(val!==undefined&&val!=='')?parseFloat(val):null;
       if(score!==null){earned+=score;total+=a.pts;count++;}
-      tbody+='<td><input type="number" class="form-control form-control-sm p-0 px-1" style="width:64px;font-size:.78rem;" min="0" max="'+a.pts+'" value="'+(val!==undefined?val:'')+'" onchange="saveScore(\''+a.id+'\',\''+s+'\',this.value)" placeholder="—"></td>';
+      tbody+='<td><input type="number" class="form-control form-control-sm p-0 px-1" style="width:64px;font-size:.78rem;" min="0" max="'+a.pts+'" value="'+(val!==undefined?val:'')+'" onchange="saveScore(\''+a.id+'\',\''+q(s)+'\',this.value)" placeholder="—"></td>';
     });
     var avg=(total>0)?Math.round(earned/total*100):null;
     tbody+='<td style="font-size:.78rem;">'+((avg!==null)?avg+'% '+letterGrade(avg):'—')+'</td></tr>';
@@ -1191,10 +1196,10 @@ function renderBehavior(){
     html+='<tr><td style="font-size:.8rem;font-weight:500;">'+s+'</td>';
     html+='<td style="text-align:center;font-weight:bold;font-size:.95rem;">'+pts+'</td>';
     html+='<td style="text-align:center;white-space:nowrap;">';
-    html+='<button class="btn btn-success btn-sm py-0 px-2" onclick="bhvAdjust(\''+s+'\',1)">+</button> ';
-    html+='<button class="btn btn-danger btn-sm py-0 px-2" onclick="bhvAdjust(\''+s+'\',-1)">−</button>';
+    html+='<button class="btn btn-success btn-sm py-0 px-2" onclick="bhvAdjust(\''+q(s)+'\',1)">+</button> ';
+    html+='<button class="btn btn-danger btn-sm py-0 px-2" onclick="bhvAdjust(\''+q(s)+'\',-1)">−</button>';
     html+='</td>';
-    html+='<td><input type="text" class="form-control form-control-sm" value="'+notes+'" placeholder="Optional notes…" onchange="bhvNote(\''+s+'\',this.value)"></td>';
+    html+='<td><input type="text" class="form-control form-control-sm" value="'+ha(notes)+'" placeholder="Optional notes…" onchange="bhvNote(\''+q(s)+'\',this.value)"></td>';
     html+='</tr>';
   });
   html+='</tbody></table></div>';
@@ -1343,7 +1348,7 @@ function renderIEP(){
   var html='<div class="mb-2 text-secondary" style="font-size:.8rem;">Record IEP, 504, ELL, or gifted accommodations for each student. Auto-saved as you type.</div>';
   html+='<div class="row g-3">';
   html+=students.map(function(s){
-    return '<div class="col-sm-6 col-lg-4"><div class="p-3 rounded" style="background:var(--bs-secondary-bg);border:1px solid var(--bs-border-color);"><div class="fw-semibold mb-1" style="font-size:.82rem;">'+s+'</div><textarea class="form-control form-control-sm" rows="4" placeholder="Accommodations, goals, notes…" onchange="saveIEPEntry(\''+s+'\',this.value)" oninput="saveIEPEntry(\''+s+'\',this.value)">'+( notes[s]||'')+'</textarea></div></div>';
+    return '<div class="col-sm-6 col-lg-4"><div class="p-3 rounded" style="background:var(--bs-secondary-bg);border:1px solid var(--bs-border-color);"><div class="fw-semibold mb-1" style="font-size:.82rem;">'+s+'</div><textarea class="form-control form-control-sm" rows="4" placeholder="Accommodations, goals, notes…" onchange="saveIEPEntry(\''+q(s)+'\',this.value)" oninput="saveIEPEntry(\''+q(s)+'\',this.value)">'+( notes[s]||'')+'</textarea></div></div>';
   }).join('');
   html+='</div>';
   html+='<button class="btn btn-sm btn-outline-secondary mt-3" onclick="printIEP()"><i class="bi bi-printer me-1"></i>Print All</button>';
@@ -1418,7 +1423,7 @@ function renderCalendar(){
     var isToday=(today.getFullYear()===yr&&today.getMonth()===mo&&today.getDate()===d);
     var dayEvts=events.filter(function(e){return e.date===dateStr;});
     var evHtml=dayEvts.map(function(e){
-      return '<div class="cal-event ev-'+e.type+'" onclick="deleteCalEvent(\''+e.id+'\')" title="'+e.title+(e.notes?' — '+e.notes:'')+' (click to delete)">'+e.title+'</div>';
+      return '<div class="cal-event ev-'+e.type+'" onclick="deleteCalEvent(\''+e.id+'\')" title="'+ha(e.title)+(e.notes?' — '+ha(e.notes):'')+' (click to delete)">'+ha(e.title)+'</div>';
     }).join('');
     cells+='<div class="cal-cell'+(isToday?' today':'')+'"><div style="font-size:.72rem;font-weight:600;margin-bottom:3px;color:'+(isToday?'var(--bs-primary)':'inherit')+';">'+d+'</div>'+evHtml+'</div>';
   }
@@ -1713,10 +1718,10 @@ function renderLevels(){
   html+=students.map(function(s){
     var d=data[s]||{};
     return '<tr><td style="font-weight:500;font-size:.8rem;">'+s+'</td>'+
-      '<td><input type="text" class="form-control form-control-sm" style="width:80px;" value="'+(d.rdgLevel||'')+'" placeholder="e.g. M" onchange="saveLevel(\''+s+'\',\'rdgLevel\',this.value)"></td>'+
-      '<td><input type="text" class="form-control form-control-sm" style="width:80px;" value="'+(d.rdgGoal||'')+'" placeholder="e.g. P" onchange="saveLevel(\''+s+'\',\'rdgGoal\',this.value)"></td>'+
-      '<td><select class="form-select form-select-sm" style="width:130px;" onchange="saveLevel(\''+s+'\',\'mathLevel\',this.value)"><option value="">—</option><option '+(d.mathLevel==='Above Grade'?'selected':'')+'>Above Grade</option><option '+(d.mathLevel==='On Grade'?'selected':'')+'>On Grade</option><option '+(d.mathLevel==='Approaching'?'selected':'')+'>Approaching</option><option '+(d.mathLevel==='Intervention'?'selected':'')+'>Intervention</option></select></td>'+
-      '<td><input type="text" class="form-control form-control-sm" value="'+(d.notes||'')+'" placeholder="Notes…" onchange="saveLevel(\''+s+'\',\'notes\',this.value)"></td>'+
+      '<td><input type="text" class="form-control form-control-sm" style="width:80px;" value="'+ha(d.rdgLevel||'')+'" placeholder="e.g. M" onchange="saveLevel(\''+q(s)+'\',\'rdgLevel\',this.value)"></td>'+
+      '<td><input type="text" class="form-control form-control-sm" style="width:80px;" value="'+ha(d.rdgGoal||'')+'" placeholder="e.g. P" onchange="saveLevel(\''+q(s)+'\',\'rdgGoal\',this.value)"></td>'+
+      '<td><select class="form-select form-select-sm" style="width:130px;" onchange="saveLevel(\''+q(s)+'\',\'mathLevel\',this.value)"><option value="">—</option><option '+(d.mathLevel==='Above Grade'?'selected':'')+'>Above Grade</option><option '+(d.mathLevel==='On Grade'?'selected':'')+'>On Grade</option><option '+(d.mathLevel==='Approaching'?'selected':'')+'>Approaching</option><option '+(d.mathLevel==='Intervention'?'selected':'')+'>Intervention</option></select></td>'+
+      '<td><input type="text" class="form-control form-control-sm" value="'+ha(d.notes||'')+'" placeholder="Notes…" onchange="saveLevel(\''+q(s)+'\',\'notes\',this.value)"></td>'+
       '</tr>';
   }).join('');
   html+='</tbody></table></div>';
@@ -1827,7 +1832,7 @@ function renderFluencyTable(op){
       var val=data[key]||'';
       var num=parseInt(val)||0;
       if(num>best)best=num;
-      row+='<td><input type="number" class="form-control form-control-sm p-0 px-1 text-center" style="width:58px;font-size:.78rem;" min="0" max="100" value="'+val+'" placeholder="—" onchange="saveFluencyScore(\''+op+'\',\''+s+'\',\''+t+'\',this.value)"></td>';
+      row+='<td><input type="number" class="form-control form-control-sm p-0 px-1 text-center" style="width:58px;font-size:.78rem;" min="0" max="100" value="'+val+'" placeholder="—" onchange="saveFluencyScore(\''+q(op)+'\',\''+q(s)+'\',\''+q(t)+'\',this.value)"></td>';
     });
     row+='<td style="font-size:.8rem;font-weight:bold;text-align:center;">'+(best||'—')+'</td></tr>';
     return row;
