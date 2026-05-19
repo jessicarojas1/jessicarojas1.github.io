@@ -110,10 +110,11 @@
           <span class="badge bg-warning text-dark">CMMC L2</span>
           <span class="badge bg-danger">CMMI 2.0</span>
           <span class="badge" style="background:#7c3aed">ISO 42001</span>
-          <span class="badge bg-secondary">93 + 17 + 110 + 34 + 34 controls</span>
+          <span class="badge" style="background:#0891b2">NIST CSF 2.0</span>
+          <span class="badge bg-secondary">93 + 17 + 110 + 34 + 34 + 22 controls</span>
         </div>
         <h1 class="fw-bold">Unified Compliance Framework</h1>
-        <p class="lead text-body-secondary">ISO/IEC 27001:2022 &middot; CMMC Level 1 &middot; CMMC Level 2 &middot; CMMI 2.0 &middot; ISO/IEC 42001:2023 &mdash; Control tracking, cross-mapping, and gap analysis</p>
+        <p class="lead text-body-secondary">ISO/IEC 27001:2022 &middot; CMMC Level 1 &middot; CMMC Level 2 &middot; CMMI 2.0 &middot; ISO/IEC 42001:2023 &middot; NIST CSF 2.0 &mdash; Control tracking, cross-mapping, and gap analysis</p>
       </div>
     </section>
 
@@ -165,6 +166,15 @@
             </div>
           </div>
         </div>
+        <div class="col-md col-sm-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="card-title mb-1">NIST CSF 2.0 <span class="badge" style="background:#0891b2">22</span></h5>
+              <div class="progress mb-2"><div class="progress-bar" id="prog-csf" role="progressbar" style="width:0%;background:#0891b2">0%</div></div>
+              <small class="text-body-secondary" id="stats-csf"></small>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Navigation Tabs -->
@@ -175,6 +185,7 @@
         <li class="nav-item" role="presentation"><button class="nav-link" id="tab-l2" data-bs-toggle="tab" data-bs-target="#pane-l2" type="button" role="tab" aria-controls="pane-l2" aria-selected="false">CMMC Level 2</button></li>
         <li class="nav-item" role="presentation"><button class="nav-link" id="tab-cmmi" data-bs-toggle="tab" data-bs-target="#pane-cmmi" type="button" role="tab" aria-controls="pane-cmmi" aria-selected="false">CMMI 2.0</button></li>
         <li class="nav-item" role="presentation"><button class="nav-link" id="tab-iso42" data-bs-toggle="tab" data-bs-target="#pane-iso42" type="button" role="tab" aria-controls="pane-iso42" aria-selected="false">ISO 42001</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-csf" data-bs-toggle="tab" data-bs-target="#pane-csf" type="button" role="tab" aria-controls="pane-csf" aria-selected="false">NIST CSF 2.0</button></li>
         <li class="nav-item" role="presentation"><button class="nav-link" id="tab-mapping" data-bs-toggle="tab" data-bs-target="#pane-mapping" type="button" role="tab" aria-controls="pane-mapping" aria-selected="false">Control Nexus</button></li>
         <li class="nav-item" role="presentation"><button class="nav-link" id="tab-gap" data-bs-toggle="tab" data-bs-target="#pane-gap" type="button" role="tab" aria-controls="pane-gap" aria-selected="false">Gap Analysis</button></li>
       </ul>
@@ -297,6 +308,32 @@
             <span class="badge bg-secondary" id="iso42-count"></span>
           </div>
           <div id="iso42-content"></div>
+        </div>
+
+        <!-- NIST CSF 2.0 -->
+        <div class="tab-pane fade" id="pane-csf" role="tabpanel" aria-labelledby="tab-csf">
+          <div class="filter-bar d-flex gap-2 align-items-center flex-wrap">
+            <input type="search" class="form-control form-control-sm" id="csf-search" placeholder="Search categories..." style="max-width:250px;" />
+            <select class="form-select form-select-sm" id="csf-status-filter" style="max-width:160px;">
+              <option value="">All Statuses</option>
+              <option value="implemented">Implemented</option>
+              <option value="partial">Partial</option>
+              <option value="planned">Planned</option>
+              <option value="not-started">Not Started</option>
+              <option value="na">N/A</option>
+            </select>
+            <select class="form-select form-select-sm" id="csf-fn-filter" style="max-width:180px;">
+              <option value="">All Functions</option>
+              <option value="Govern">Govern</option>
+              <option value="Identify">Identify</option>
+              <option value="Protect">Protect</option>
+              <option value="Detect">Detect</option>
+              <option value="Respond">Respond</option>
+              <option value="Recover">Recover</option>
+            </select>
+            <span class="badge bg-secondary" id="csf-count"></span>
+          </div>
+          <div id="csf-content"></div>
         </div>
 
         <!-- CONTROL NEXUS -->
@@ -695,6 +732,37 @@
       {id:'A.10.4', family:'ThirdParty',   annex:'A.10', title:'Customers of AI Systems',                                iso27k:['5.19'],              cmmc:['SR.L2-3.15.1'],                      cmmi:['SAM-2.2']}
     ];
 
+    const NIST_CSF = [
+      // GV — Govern
+      {id:'GV.OC', fn:'Govern',   title:'Organizational Context: Circumstances surrounding the organization\'s cybersecurity risk management decisions are understood.',                                                                                          iso27k:['5.1','5.4','5.31'],        cmmc:['CA.L2-3.12.4'],                          cmmi:['GOV-2.1'],          iso42:['A.2.2']},
+      {id:'GV.RM', fn:'Govern',   title:'Risk Management Strategy: Priorities, constraints, risk tolerance and appetite statements, and assumptions are established, communicated, and used to support operational risk decisions.',                            iso27k:['5.7'],                     cmmc:['RA.L2-3.11.1'],                          cmmi:['RSK-2.1'],          iso42:['A.5.2']},
+      {id:'GV.RR', fn:'Govern',   title:'Roles, Responsibilities, and Authorities: Cybersecurity roles, responsibilities, and authorities to foster accountability and continuous improvement are established and communicated.',                               iso27k:['5.2','5.3'],               cmmc:['AC.L1-3.1.1','AC.L1-3.1.2'],             cmmi:['GOV-2.2'],          iso42:['A.3.2']},
+      {id:'GV.PO', fn:'Govern',   title:'Policy: Organizational cybersecurity policy is established, communicated, and enforced.',                                                                                                                              iso27k:['5.1','5.36'],              cmmc:['CA.L2-3.12.4'],                          cmmi:['GOV-2.1'],          iso42:['A.2.2']},
+      {id:'GV.OV', fn:'Govern',   title:'Oversight: Results of organization-wide cybersecurity risk management activities are used to inform, improve, and adjust the risk management strategy.',                                                               iso27k:['5.35','5.36'],             cmmc:['CA.L2-3.12.1','CA.L2-3.12.3'],           cmmi:['GOV-3.2'],          iso42:['A.2.3']},
+      {id:'GV.SC', fn:'Govern',   title:'Cybersecurity Supply Chain Risk Management: Cyber supply chain risk management processes are identified, established, managed, monitored, and improved by organizational stakeholders.',                               iso27k:['5.19','5.20','5.21'],       cmmc:['SR.L2-3.15.1','SR.L2-3.15.2'],           cmmi:['SAM-2.1'],          iso42:['A.10.2']},
+      // ID — Identify
+      {id:'ID.AM', fn:'Identify',  title:'Asset Management: Assets that enable the organization to achieve business purposes are identified and managed.',                                                                                                       iso27k:['5.9'],                     cmmc:['CM.L2-3.4.1'],                           cmmi:['CM-2.2'],           iso42:['A.6.1.3']},
+      {id:'ID.RA', fn:'Identify',  title:'Risk Assessment: The cybersecurity risk to the organization, assets, and individuals is understood by the organization.',                                                                                             iso27k:['5.7','8.8'],               cmmc:['RA.L2-3.11.1','RA.L2-3.11.2'],           cmmi:['RSK-2.2'],          iso42:['A.5.3']},
+      {id:'ID.IM', fn:'Identify',  title:'Improvement: Improvements to organizational cybersecurity risk management processes, procedures and activities are identified across all CSF Functions.',                                                              iso27k:['5.35','5.36'],             cmmc:['CA.L2-3.12.1'],                          cmmi:['CAR-3.2'],          iso42:['A.2.3']},
+      // PR — Protect
+      {id:'PR.AA', fn:'Protect',   title:'Identity Management, Authentication, and Access Control: Access to physical and logical assets is limited to authorized users, services, and hardware.',                                                              iso27k:['5.15','5.16','5.17'],       cmmc:['AC.L1-b.1.i','AC.L1-b.1.ii','IA.L1-b.1.v','IA.L1-b.1.vi'], cmmi:[],    iso42:['A.9.2']},
+      {id:'PR.AT', fn:'Protect',   title:'Awareness and Training: The organization\'s personnel are provided with cybersecurity awareness and training so that they can perform their cybersecurity-related tasks.',                                             iso27k:['6.3'],                     cmmc:['AT.L2-3.2.1','AT.L2-3.2.2'],             cmmi:['II-2.1'],           iso42:['A.4.3']},
+      {id:'PR.DS', fn:'Protect',   title:'Data Security: Data are managed consistent with the organization\'s risk strategy to protect the confidentiality, integrity, and availability of information.',                                                       iso27k:['8.10','8.11','8.12','8.24'],cmmc:['MP.L2-3.8.1','SC.L2-3.13.8','SC.L2-3.13.16'], cmmi:['CM-2.2'],  iso42:['A.7.2']},
+      {id:'PR.PS', fn:'Protect',   title:'Platform Security: The hardware, software, and services of physical and virtual platforms are managed consistent with the organization\'s risk strategy to protect their confidentiality, integrity, and availability.',iso27k:['8.8','8.9','8.19'],        cmmc:['CM.L2-3.4.1','CM.L2-3.4.2'],             cmmi:['CM-2.1'],           iso42:['A.6.1.3']},
+      {id:'PR.IR', fn:'Protect',   title:'Technology Infrastructure Resilience: Security architectures are managed with the organization\'s risk strategy to protect asset confidentiality, integrity, and availability.',                                      iso27k:['8.14','8.20','8.22'],       cmmc:['SC.L1-3.13.1','SC.L2-3.13.2'],           cmmi:[],                   iso42:[]},
+      // DE — Detect
+      {id:'DE.CM', fn:'Detect',    title:'Continuous Monitoring: Assets are monitored to find anomalies, indicators of compromise, and other potentially adverse events.',                                                                                      iso27k:['8.15','8.16'],             cmmc:['AU.L2-3.3.1','AU.L2-3.3.2','SI.L2-3.14.6'], cmmi:['MC-2.1'],        iso42:['A.6.2.6']},
+      {id:'DE.AE', fn:'Detect',    title:'Adverse Event Analysis: Anomalies, indicators of compromise, and other potentially adverse events are analyzed to characterize the events and detect cybersecurity incidents.',                                       iso27k:['5.25','8.16'],             cmmc:['IR.L2-3.6.1','AU.L2-3.3.5'],             cmmi:['MC-2.2'],           iso42:['A.9.4']},
+      // RS — Respond
+      {id:'RS.MA', fn:'Respond',   title:'Incident Management: Responses to detected cybersecurity incidents are managed.',                                                                                                                                     iso27k:['5.24','5.26'],             cmmc:['IR.L2-3.6.1','IR.L2-3.6.2'],             cmmi:['CAR-3.4'],          iso42:['A.9.4']},
+      {id:'RS.AN', fn:'Respond',   title:'Incident Analysis: Investigations are conducted to ensure effective response and support forensics and recovery activities.',                                                                                         iso27k:['5.25','5.28'],             cmmc:['IR.L2-3.6.1'],                           cmmi:['CAR-3.2'],          iso42:[]},
+      {id:'RS.CO', fn:'Respond',   title:'Incident Response Reporting and Communication: Response activities are coordinated with internal and external stakeholders.',                                                                                         iso27k:['5.26','6.8'],              cmmc:['IR.L2-3.6.2'],                           cmmi:['CAR-3.3'],          iso42:['A.8.4']},
+      {id:'RS.MI', fn:'Respond',   title:'Incident Mitigation: Activities are performed to prevent expansion of an event and mitigate its effects.',                                                                                                            iso27k:['5.26','5.29'],             cmmc:['IR.L2-3.6.1','IR.L2-3.6.2'],             cmmi:['CAR-3.4'],          iso42:[]},
+      // RC — Recover
+      {id:'RC.RP', fn:'Recover',   title:'Incident Recovery Plan Execution: Restoration activities are performed to ensure operational availability of systems and services affected by cybersecurity incidents.',                                               iso27k:['5.29','5.30','8.13'],       cmmc:['IR.L2-3.6.1'],                           cmmi:[],                   iso42:[]},
+      {id:'RC.CO', fn:'Recover',   title:'Incident Recovery Communication: Restoration activities are coordinated with internal and external parties.',                                                                                                         iso27k:['5.26','5.29'],             cmmc:['IR.L2-3.6.2'],                           cmmi:['CAR-3.3'],          iso42:['A.8.4']}
+    ];
+
     /* ================================================================
        STATUS MANAGEMENT
        ================================================================ */
@@ -793,6 +861,25 @@
       return ISO42001.filter(function(c){ return c.cmmi.indexOf(cmmiId) !== -1; }).map(function(c){ return c.id; });
     }
 
+    function csfBadges(arr) {
+      if (!arr || !arr.length) return '<span class="text-body-secondary small">None</span>';
+      return arr.map(function(c) {
+        return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:#0891b2!important" data-goto="csf-'+c+'" title="Jump to CSF '+c+'">CSF '+c+'</button>';
+      }).join(' ');
+    }
+    function csfMappingsForISO27k(iso27kId) {
+      return NIST_CSF.filter(function(c){ return c.iso27k.indexOf(iso27kId) !== -1; }).map(function(c){ return c.id; });
+    }
+    function csfMappingsForCMMC(cmmcId) {
+      return NIST_CSF.filter(function(c){ return c.cmmc.indexOf(cmmcId) !== -1; }).map(function(c){ return c.id; });
+    }
+    function csfMappingsForCMMI(cmmiId) {
+      return NIST_CSF.filter(function(c){ return c.cmmi.indexOf(cmmiId) !== -1; }).map(function(c){ return c.id; });
+    }
+    function csfMappingsForISO42(iso42Id) {
+      return NIST_CSF.filter(function(c){ return c.iso42.indexOf(iso42Id) !== -1; }).map(function(c){ return c.id; });
+    }
+
     /* ── Navigate to a control in any tab ──────────────────────────── */
     function navigateToControl(storeId) {
       var tabId;
@@ -801,6 +888,7 @@
       else if (storeId.indexOf('l2-') === 0) tabId = 'tab-l2';
       else if (storeId.indexOf('cmmi-') === 0) tabId = 'tab-cmmi';
       else if (storeId.indexOf('iso42-') === 0) tabId = 'tab-iso42';
+      else if (storeId.indexOf('csf-') === 0) tabId = 'tab-csf';
       else return;
 
       var tabEl = document.getElementById(tabId);
@@ -871,6 +959,9 @@
       var iso42Ids = ISO42001.map(function(c){return 'iso42-'+c.id;});
       var iso42S = calcStats(iso42Ids);
       upd('prog-iso42','stats-iso42',iso42S);
+      var csfIds = NIST_CSF.map(function(c){return 'csf-'+c.id;});
+      var csfS = calcStats(csfIds);
+      upd('prog-csf','stats-csf',csfS);
     }
 
     /* ================================================================
@@ -882,13 +973,15 @@
       var l2Ids = CMMC_L2.map(function(c){return 'l2-'+c.id;});
       var cmmiIds = CMMI_PA.map(function(c){return 'cmmi-'+c.id;});
       var iso42Ids = ISO42001.map(function(c){return 'iso42-'+c.id;});
-      var allIds = isoIds.concat(l1Ids).concat(l2Ids).concat(cmmiIds).concat(iso42Ids);
+      var csfIds = NIST_CSF.map(function(c){return 'csf-'+c.id;});
+      var allIds = isoIds.concat(l1Ids).concat(l2Ids).concat(cmmiIds).concat(iso42Ids).concat(csfIds);
       var all = calcStats(allIds);
       var isoS = calcStats(isoIds);
       var l1S = calcStats(l1Ids);
       var l2S = calcStats(l2Ids);
       var cmmiS = calcStats(cmmiIds);
       var iso42S = calcStats(iso42Ids);
+      var csfS = calcStats(csfIds);
 
       // Summary stats
       var statsHtml = '';
@@ -907,7 +1000,7 @@
 
       // Stacked progress bars
       var barsHtml = '';
-      [{name:'ISO 27001:2022',s:isoS},{name:'CMMC Level 1',s:l1S},{name:'CMMC Level 2',s:l2S},{name:'CMMI 2.0',s:cmmiS},{name:'ISO/IEC 42001',s:iso42S}].forEach(function(fw) {
+      [{name:'ISO 27001:2022',s:isoS},{name:'CMMC Level 1',s:l1S},{name:'CMMC Level 2',s:l2S},{name:'CMMI 2.0',s:cmmiS},{name:'ISO/IEC 42001',s:iso42S},{name:'NIST CSF 2.0',s:csfS}].forEach(function(fw) {
         var s = fw.s;
         var t = s.total || 1;
         barsHtml += '<div class="mb-3"><div class="d-flex justify-content-between mb-1"><strong>'+fw.name+'</strong><span>'+s.pct+'% complete</span></div>'+
@@ -988,6 +1081,18 @@
       });
       breakHtml += '</tbody></table>';
 
+      var csfFns = {};
+      NIST_CSF.forEach(function(c) {
+        if (!csfFns[c.fn]) csfFns[c.fn] = [];
+        csfFns[c.fn].push('csf-'+c.id);
+      });
+      breakHtml += '<h6 class="mt-3">NIST CSF 2.0 by Function</h6><table class="table table-sm"><thead><tr><th>Function</th><th>Categories</th><th>Implemented</th><th>%</th></tr></thead><tbody>';
+      Object.keys(csfFns).forEach(function(fn) {
+        var ds = calcStats(csfFns[fn]);
+        breakHtml += '<tr><td>'+fn+'</td><td>'+ds.total+'</td><td>'+ds.implemented+'</td><td>'+ds.pct+'%</td></tr>';
+      });
+      breakHtml += '</tbody></table>';
+
       document.getElementById('dash-domain-breakdown').innerHTML = breakHtml;
     }
 
@@ -1015,7 +1120,7 @@
       var html = '';
       themes.forEach(function(theme) {
         html += '<details open><summary>'+theme+' ('+themeMap[theme].length+' controls)</summary>';
-        html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr><th>ID</th><th>Theme</th><th>Title</th><th>Status</th><th>CMMC Mappings</th><th>CMMI 2.0</th><th>ISO 42001</th></tr></thead><tbody>';
+        html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr><th>ID</th><th>Theme</th><th>Title</th><th>Status</th><th>CMMC Mappings</th><th>CMMI 2.0</th><th>ISO 42001</th><th>NIST CSF</th></tr></thead><tbody>';
         themeMap[theme].forEach(function(c) {
           html += '<tr data-id="iso-'+c.id+'" data-theme="'+c.theme+'" data-status="'+getStatus('iso-'+c.id)+'">'+
             '<td class="ucf-mono">'+c.id+'</td>'+
@@ -1024,7 +1129,8 @@
             '<td>'+makeSelect('iso-'+c.id)+'</td>'+
             '<td>'+cmmcBadges(c.cmmc)+'</td>'+
             '<td>'+cmmiBadges(cmmiMappingsForISO(c.id))+'</td>'+
-            '<td>'+iso42Badges(iso42MappingsForISO27k(c.id))+'</td></tr>';
+            '<td>'+iso42Badges(iso42MappingsForISO27k(c.id))+'</td>'+
+            '<td>'+csfBadges(csfMappingsForISO27k(c.id))+'</td></tr>';
         });
         html += '</tbody></table></div></details>';
       });
@@ -1051,7 +1157,7 @@
         });
       }
 
-      var html = '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr><th>Practice ID</th><th>Domain</th><th>Practice Statement</th><th>Status</th><th>ISO 27001 Mappings</th><th>CMMI 2.0</th><th>ISO 42001</th></tr></thead><tbody>';
+      var html = '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr><th>Practice ID</th><th>Domain</th><th>Practice Statement</th><th>Status</th><th>ISO 27001 Mappings</th><th>CMMI 2.0</th><th>ISO 42001</th><th>NIST CSF</th></tr></thead><tbody>';
       CMMC_L1.forEach(function(c) {
         var isoMaps = isoMappingsFor(c.id);
         html += '<tr data-id="l1-'+c.id+'" data-domain="'+c.domain+'" data-status="'+getStatus('l1-'+c.id)+'">'+
@@ -1061,7 +1167,8 @@
           '<td>'+makeSelect('l1-'+c.id)+'</td>'+
           '<td>'+isoBadges(isoMaps)+'</td>'+
           '<td>'+cmmiBadges(cmmiMappingsForCMMC(c.id))+'</td>'+
-          '<td>'+iso42Badges(iso42MappingsForCMMC(c.id))+'</td></tr>';
+          '<td>'+iso42Badges(iso42MappingsForCMMC(c.id))+'</td>'+
+          '<td>'+csfBadges(csfMappingsForCMMC(c.id))+'</td></tr>';
       });
       html += '</tbody></table></div>';
       document.getElementById('l1-content').innerHTML = html;
@@ -1090,7 +1197,7 @@
       var html = '';
       domains.forEach(function(domain) {
         html += '<details open><summary>'+domain+' ('+domMap[domain].length+' practices)</summary>';
-        html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr><th>Practice ID</th><th>Domain</th><th>Practice Statement</th><th>Level</th><th>Status</th><th>ISO 27001 Mappings</th><th>CMMI 2.0</th><th>ISO 42001</th></tr></thead><tbody>';
+        html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr><th>Practice ID</th><th>Domain</th><th>Practice Statement</th><th>Level</th><th>Status</th><th>ISO 27001 Mappings</th><th>CMMI 2.0</th><th>ISO 42001</th><th>NIST CSF</th></tr></thead><tbody>';
         domMap[domain].forEach(function(c) {
           var isoMaps = isoMappingsFor(c.id);
           // Also check reverse: which ISO controls map to any L1 equivalent
@@ -1111,7 +1218,8 @@
             '<td>'+makeSelect(storeId)+'</td>'+
             '<td>'+isoBadges(isoMaps)+'</td>'+
             '<td>'+cmmiBadges(cmmiMappingsForCMMC(c.id))+'</td>'+
-            '<td>'+iso42Badges(iso42MappingsForCMMC(c.id))+'</td></tr>';
+            '<td>'+iso42Badges(iso42MappingsForCMMC(c.id))+'</td>'+
+            '<td>'+csfBadges(csfMappingsForCMMC(c.id))+'</td></tr>';
         });
         html += '</tbody></table></div></details>';
       });
@@ -1145,7 +1253,7 @@
       pas.forEach(function(pa) {
         html += '<details open><summary>'+pa+' ('+paMap[pa].length+' practices)</summary>';
         html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr>'+
-          '<th>Practice ID</th><th>Practice Area</th><th>Practice Statement</th><th>ML</th><th>Status</th><th>ISO 27001</th><th>CMMC</th><th>ISO 42001</th>'+
+          '<th>Practice ID</th><th>Practice Area</th><th>Practice Statement</th><th>ML</th><th>Status</th><th>ISO 27001</th><th>CMMC</th><th>ISO 42001</th><th>NIST CSF</th>'+
           '</tr></thead><tbody>';
         paMap[pa].forEach(function(c) {
           var storeId = 'cmmi-'+c.id;
@@ -1168,7 +1276,8 @@
             '<td>'+makeSelect(storeId)+'</td>'+
             '<td>'+isoLinks+'</td>'+
             '<td>'+cmmcLinks+'</td>'+
-            '<td>'+iso42Badges(iso42MappingsForCMMI(c.id))+'</td></tr>';
+            '<td>'+iso42Badges(iso42MappingsForCMMI(c.id))+'</td>'+
+            '<td>'+csfBadges(csfMappingsForCMMI(c.id))+'</td></tr>';
         });
         html += '</tbody></table></div></details>';
       });
@@ -1201,7 +1310,7 @@
       families.forEach(function(fam) {
         html += '<details open><summary>'+fam+' ('+famMap[fam].length+' controls)</summary>';
         html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr>'+
-          '<th>ID</th><th>Family</th><th>Control Title</th><th>Status</th><th>ISO 27001</th><th>CMMC</th><th>CMMI 2.0</th>'+
+          '<th>ID</th><th>Family</th><th>Control Title</th><th>Status</th><th>ISO 27001</th><th>CMMC</th><th>CMMI 2.0</th><th>NIST CSF</th>'+
           '</tr></thead><tbody>';
         famMap[fam].forEach(function(c) {
           var storeId = 'iso42-'+c.id;
@@ -1226,11 +1335,88 @@
             '<td>'+makeSelect(storeId)+'</td>'+
             '<td>'+isoLinks+'</td>'+
             '<td>'+cmmcLinks+'</td>'+
-            '<td>'+cmmiLinks+'</td></tr>';
+            '<td>'+cmmiLinks+'</td>'+
+            '<td>'+csfBadges(csfMappingsForISO42(c.id))+'</td></tr>';
         });
         html += '</tbody></table></div></details>';
       });
       document.getElementById('iso42-content').innerHTML = html;
+    }
+
+    /* ================================================================
+       NIST CSF 2.0 TAB
+       ================================================================ */
+    function renderCSF() {
+      var fns = ['Govern','Identify','Protect','Detect','Respond','Recover'];
+      var fnMap = {};
+      NIST_CSF.forEach(function(c) {
+        if (!fnMap[c.fn]) fnMap[c.fn] = [];
+        fnMap[c.fn].push(c);
+      });
+
+      var fnColors = {Govern:'primary',Identify:'info',Protect:'success',Detect:'warning',Respond:'danger',Recover:'secondary'};
+
+      var html = '';
+      fns.forEach(function(fn) {
+        if (!fnMap[fn] || !fnMap[fn].length) return;
+        html += '<details open><summary>'+fn+' ('+fnMap[fn].length+' categories)</summary>';
+        html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr>'+
+          '<th>ID</th><th>Function</th><th>Category Description</th><th>Status</th><th>ISO 27001</th><th>CMMC</th><th>CMMI</th><th>ISO 42001</th>'+
+          '</tr></thead><tbody>';
+        fnMap[fn].forEach(function(c) {
+          var storeId = 'csf-'+c.id;
+          var curStatus = getStatus(storeId);
+          var fnBadge = '<span class="badge bg-'+(fnColors[c.fn]||'secondary')+'">'+c.fn+'</span>';
+          var isoLinks = c.iso27k.length ? c.iso27k.map(function(id){
+            return '<button type="button" class="badge bg-info ucf-badge-map ucf-link border-0" data-goto="iso-'+id+'" title="ISO 27001 '+id+'">ISO '+id+'</button>';
+          }).join(' ') : '<span class="text-body-secondary small">None</span>';
+          var cmmcLinks = c.cmmc.length ? c.cmmc.map(function(id){
+            var isL1 = !!CMMC_L1.find(function(l){ return l.id === id; });
+            var cls = isL1 ? 'bg-success' : 'bg-warning text-dark';
+            var st = isL1 ? 'l1-'+id : 'l2-'+id;
+            return '<button type="button" class="badge '+cls+' ucf-badge-map ucf-link border-0" data-goto="'+st+'">'+id+'</button>';
+          }).join(' ') : '<span class="text-body-secondary small">None</span>';
+          var cmmiLinks = c.cmmi.length ? c.cmmi.map(function(id){
+            return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:#dc2626!important" data-goto="cmmi-'+id+'">'+id+'</button>';
+          }).join(' ') : '<span class="text-body-secondary small">None</span>';
+          var iso42Links = c.iso42.length ? c.iso42.map(function(id){
+            return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:#7c3aed!important" data-goto="iso42-'+id+'">42K '+id+'</button>';
+          }).join(' ') : '<span class="text-body-secondary small">None</span>';
+          html += '<tr data-id="'+storeId+'" data-fn="'+c.fn+'" data-status="'+curStatus+'">'+
+            '<td class="ucf-mono" style="color:#0891b2;white-space:nowrap">'+c.id+'</td>'+
+            '<td>'+fnBadge+'</td>'+
+            '<td style="font-size:.82rem">'+c.title+'</td>'+
+            '<td>'+makeSelect(storeId)+'</td>'+
+            '<td>'+isoLinks+'</td>'+
+            '<td>'+cmmcLinks+'</td>'+
+            '<td>'+cmmiLinks+'</td>'+
+            '<td>'+iso42Links+'</td></tr>';
+        });
+        html += '</tbody></table></div></details>';
+      });
+      document.getElementById('csf-content').innerHTML = html;
+    }
+
+    function applyFilterCSF() {
+      var search = document.getElementById('csf-search').value.toLowerCase();
+      var statusF = document.getElementById('csf-status-filter').value;
+      var fnF = document.getElementById('csf-fn-filter').value;
+      var container = document.getElementById('csf-content');
+      var rows = container.querySelectorAll('tr[data-id]');
+      var visible = 0;
+      rows.forEach(function(row) {
+        var id = row.getAttribute('data-id');
+        var text = row.textContent.toLowerCase();
+        var rowStatus = getStatus(id);
+        var rowFn = row.getAttribute('data-fn') || '';
+        var show = true;
+        if (search && text.indexOf(search) === -1) show = false;
+        if (statusF && rowStatus !== statusF) show = false;
+        if (fnF && rowFn !== fnF) show = false;
+        row.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+      document.getElementById('csf-count').textContent = visible + ' shown';
     }
 
     function applyFilterISO42() {
@@ -1529,6 +1715,13 @@
           gaps.push({ id:'iso42-'+c.id, displayId:c.id, framework:'ISO 42001', title:c.title, status:s, mappings:mapCount });
         }
       });
+      NIST_CSF.forEach(function(c) {
+        var s = getStatus('csf-'+c.id);
+        if (s === 'not-started' || s === 'planned') {
+          var mapCount = c.iso27k.length + c.cmmc.length + c.cmmi.length + c.iso42.length;
+          gaps.push({ id:'csf-'+c.id, displayId:c.id, framework:'NIST CSF', title:c.title, status:s, mappings:mapCount });
+        }
+      });
 
       // Identify high-leverage: ISO controls that map to CMMC, or CMMC that maps to ISO
       // "High leverage" = appears in multiple frameworks (mappings >= 2)
@@ -1543,12 +1736,14 @@
       var l2Gaps = gaps.filter(function(g){return g.framework==='CMMC L2';}).length;
       var cmmiGaps = gaps.filter(function(g){return g.framework==='CMMI 2.0';}).length;
       var iso42Gaps = gaps.filter(function(g){return g.framework==='ISO 42001';}).length;
+      var csfGaps = gaps.filter(function(g){return g.framework==='NIST CSF';}).length;
 
       var sumHtml = '<div class="col"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+isoGaps+'</div><small>ISO 27001 Gaps</small></div></div></div>'+
         '<div class="col"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+l1Gaps+'</div><small>CMMC L1 Gaps</small></div></div></div>'+
         '<div class="col"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+l2Gaps+'</div><small>CMMC L2 Gaps</small></div></div></div>'+
         '<div class="col"><div class="card"><div class="card-body text-center"><div class="h4 text-danger" id="cmmi-gap-count">'+cmmiGaps+'</div><small>CMMI 2.0 Gaps</small></div></div></div>'+
-        '<div class="col"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+iso42Gaps+'</div><small>ISO 42001 Gaps</small></div></div></div>';
+        '<div class="col"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+iso42Gaps+'</div><small>ISO 42001 Gaps</small></div></div></div>'+
+        '<div class="col"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+csfGaps+'</div><small>NIST CSF Gaps</small></div></div></div>';
       document.getElementById('gap-summary').innerHTML = sumHtml;
 
       if (!gaps.length) {
@@ -1557,11 +1752,11 @@
       }
 
       // Group by framework
-      var grouped = { 'ISO 27001':[], 'CMMC L1':[], 'CMMC L2':[], 'CMMI 2.0':[], 'ISO 42001':[] };
+      var grouped = { 'ISO 27001':[], 'CMMC L1':[], 'CMMC L2':[], 'CMMI 2.0':[], 'ISO 42001':[], 'NIST CSF':[] };
       gaps.forEach(function(g) { grouped[g.framework].push(g); });
 
       var html = '';
-      ['ISO 27001','CMMC L1','CMMC L2','CMMI 2.0','ISO 42001'].forEach(function(fw) {
+      ['ISO 27001','CMMC L1','CMMC L2','CMMI 2.0','ISO 42001','NIST CSF'].forEach(function(fw) {
         if (!grouped[fw].length) return;
         html += '<h6 class="mt-3">'+fw+' ('+grouped[fw].length+' gaps)</h6>';
         html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr><th>Control</th><th>Title</th><th>Status</th><th>Priority</th></tr></thead><tbody>';
@@ -1609,6 +1804,13 @@
         if (s==='not-started'||s==='planned') {
           var mc = c.iso27k.length + c.cmmc.length + c.cmmi.length;
           rows.push(['ISO 42001',c.id,'"'+c.title.replace(/"/g,'""')+'"',s,mc>=3?'High Leverage':'Standard']);
+        }
+      });
+      NIST_CSF.forEach(function(c) {
+        var s = getStatus('csf-'+c.id);
+        if (s==='not-started'||s==='planned') {
+          var mc = c.iso27k.length + c.cmmc.length + c.cmmi.length + c.iso42.length;
+          rows.push(['NIST CSF 2.0',c.id,'"'+c.title.replace(/"/g,'""')+'"',s,mc>=3?'High Leverage':'Standard']);
         }
       });
       var csv = rows.map(function(r){return r.join(',');}).join('\n');
@@ -1694,6 +1896,7 @@
       renderL2();
       renderCMMI();
       renderISO42();
+      renderCSF();
       renderMapping(); // calls renderNexus() internally
       renderGap();
     }
@@ -1731,6 +1934,9 @@
       document.getElementById('iso42-search').addEventListener('input', function(){ applyFilterISO42(); });
       document.getElementById('iso42-status-filter').addEventListener('change', function(){ applyFilterISO42(); });
       document.getElementById('iso42-family-filter').addEventListener('change', function(){ applyFilterISO42(); });
+      document.getElementById('csf-search').addEventListener('input', function(){ applyFilterCSF(); });
+      document.getElementById('csf-status-filter').addEventListener('change', function(){ applyFilterCSF(); });
+      document.getElementById('csf-fn-filter').addEventListener('change', function(){ applyFilterCSF(); });
 
       // Reset button
       document.getElementById('btn-reset-all').addEventListener('click', resetAll);
@@ -1745,6 +1951,7 @@
       ['iso','l1','l2'].forEach(function(prefix) { applyFilter(prefix); });
       applyFilterCMMI();
       applyFilterISO42();
+      applyFilterCSF();
     }
 
     // Run on DOM ready
