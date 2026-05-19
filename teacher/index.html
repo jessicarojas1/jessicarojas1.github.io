@@ -1006,7 +1006,7 @@ function showStd(key,btn){
   el.innerHTML='<div class="table-responsive"><table class="table table-sm table-hover"><thead><tr><th style="width:130px;">Standard</th><th>Description</th><th style="width:80px;text-align:center;">Taught?</th></tr></thead><tbody>'+
     data.map(function(s){
       var taught=JSON.parse(localStorage.getItem('std_taught')||'{}')[s.code]||false;
-      return '<tr><td><span class="badge bg-secondary" style="font-size:.72rem;">'+s.code+'</span></td><td style="font-size:.82rem;">'+s.desc+'</td><td style="text-align:center;"><input type="checkbox" class="form-check-input" '+(taught?'checked':'')+'onchange="toggleStd(\''+s.code+'\',this.checked)"></td></tr>';
+      return '<tr><td><span class="badge bg-secondary" style="font-size:.72rem;">'+s.code+'</span></td><td style="font-size:.82rem;">'+s.desc+'</td><td style="text-align:center;"><input type="checkbox" class="form-check-input" '+(taught?'checked ':'')+' onchange="toggleStd(\''+s.code+'\',this.checked)"></td></tr>';
     }).join('')+'</tbody></table></div>';
 }
 
