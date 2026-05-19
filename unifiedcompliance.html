@@ -938,7 +938,7 @@
         });
       }
 
-      var html = '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr><th>Practice ID</th><th>Domain</th><th>Practice Statement</th><th>Status</th><th>ISO 27001 Mappings</th></tr></thead><tbody>';
+      var html = '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr><th>Practice ID</th><th>Domain</th><th>Practice Statement</th><th>Status</th><th>ISO 27001 Mappings</th><th>CMMI 2.0</th></tr></thead><tbody>';
       CMMC_L1.forEach(function(c) {
         var isoMaps = isoMappingsFor(c.id);
         html += '<tr data-id="l1-'+c.id+'" data-domain="'+c.domain+'" data-status="'+getStatus('l1-'+c.id)+'">'+
@@ -946,7 +946,8 @@
           '<td>'+domainBadge(c.domain)+'</td>'+
           '<td>'+c.title+'</td>'+
           '<td>'+makeSelect('l1-'+c.id)+'</td>'+
-          '<td>'+isoBadges(isoMaps)+'</td></tr>';
+          '<td>'+isoBadges(isoMaps)+'</td>'+
+          '<td>'+cmmiBadges(cmmiMappingsForCMMC(c.id))+'</td></tr>';
       });
       html += '</tbody></table></div>';
       document.getElementById('l1-content').innerHTML = html;
@@ -975,7 +976,7 @@
       var html = '';
       domains.forEach(function(domain) {
         html += '<details open><summary>'+domain+' ('+domMap[domain].length+' practices)</summary>';
-        html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr><th>Practice ID</th><th>Domain</th><th>Practice Statement</th><th>Level</th><th>Status</th><th>ISO 27001 Mappings</th></tr></thead><tbody>';
+        html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr><th>Practice ID</th><th>Domain</th><th>Practice Statement</th><th>Level</th><th>Status</th><th>ISO 27001 Mappings</th><th>CMMI 2.0</th></tr></thead><tbody>';
         domMap[domain].forEach(function(c) {
           var isoMaps = isoMappingsFor(c.id);
           // Also check reverse: which ISO controls map to any L1 equivalent
@@ -994,11 +995,93 @@
             '<td>'+c.title+'</td>'+
             '<td>'+levelBadge+'</td>'+
             '<td>'+makeSelect(storeId)+'</td>'+
-            '<td>'+isoBadges(isoMaps)+'</td></tr>';
+            '<td>'+isoBadges(isoMaps)+'</td>'+
+            '<td>'+cmmiBadges(cmmiMappingsForCMMC(c.id))+'</td></tr>';
         });
         html += '</tbody></table></div></details>';
       });
       document.getElementById('l2-content').innerHTML = html;
+    }
+
+    /* ================================================================
+       CMMI 2.0 TAB
+       ================================================================ */
+    function renderCMMI() {
+      var pas = [];
+      var paMap = {};
+      CMMI_PA.forEach(function(c) {
+        if (!paMap[c.pa]) { paMap[c.pa] = []; pas.push(c.pa); }
+        paMap[c.pa].push(c);
+      });
+
+      var df = document.getElementById('cmmi-domain-filter');
+      if (df.options.length <= 1) {
+        pas.forEach(function(p) {
+          var o = document.createElement('option');
+          o.value = p; o.textContent = p;
+          df.appendChild(o);
+        });
+      }
+
+      var mlColors = {2:'primary', 3:'info', 4:'warning', 5:'success'};
+      var mlLabels = {2:'ML2 Managed', 3:'ML3 Defined', 4:'ML4 Quant Mgd', 5:'ML5 Optimizing'};
+
+      var html = '';
+      pas.forEach(function(pa) {
+        html += '<details open><summary>'+pa+' ('+paMap[pa].length+' practices)</summary>';
+        html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr>'+
+          '<th>Practice ID</th><th>Practice Area</th><th>Practice Statement</th><th>ML</th><th>Status</th><th>ISO 27001</th><th>CMMC</th>'+
+          '</tr></thead><tbody>';
+        paMap[pa].forEach(function(c) {
+          var storeId = 'cmmi-'+c.id;
+          var curStatus = getStatus(storeId);
+          var mlBadge = '<span class="badge bg-'+(mlColors[c.ml]||'secondary')+'">'+mlLabels[c.ml]+'</span>';
+          var isoLinks = c.iso.length ? c.iso.map(function(id){
+            return '<button type="button" class="badge bg-info ucf-badge-map ucf-link border-0" data-goto="iso-'+id+'" title="Jump to ISO '+id+'">ISO '+id+'</button>';
+          }).join(' ') : '<span class="text-body-secondary small">None</span>';
+          var cmmcLinks = c.cmmc.length ? c.cmmc.map(function(id){
+            var isL1 = !!CMMC_L1.find(function(l){ return l.id === id; });
+            var cls = isL1 ? 'bg-success' : 'bg-warning text-dark';
+            var storeTarget = isL1 ? 'l1-'+id : 'l2-'+id;
+            return '<button type="button" class="badge '+cls+' ucf-badge-map ucf-link border-0" data-goto="'+storeTarget+'" title="Jump to '+id+'">'+id+'</button>';
+          }).join(' ') : '<span class="text-body-secondary small">None</span>';
+          html += '<tr data-id="'+storeId+'" data-domain="'+c.pa+'" data-ml="'+c.ml+'" data-status="'+curStatus+'">'+
+            '<td class="ucf-mono">'+c.id+'</td>'+
+            '<td><span class="badge bg-danger">'+c.pa+'</span></td>'+
+            '<td>'+c.title+'</td>'+
+            '<td>'+mlBadge+'</td>'+
+            '<td>'+makeSelect(storeId)+'</td>'+
+            '<td>'+isoLinks+'</td>'+
+            '<td>'+cmmcLinks+'</td></tr>';
+        });
+        html += '</tbody></table></div></details>';
+      });
+      document.getElementById('cmmi-content').innerHTML = html;
+    }
+
+    function applyFilterCMMI() {
+      var search = document.getElementById('cmmi-search').value.toLowerCase();
+      var statusF = document.getElementById('cmmi-status-filter').value;
+      var domainF = document.getElementById('cmmi-domain-filter').value;
+      var mlF = document.getElementById('cmmi-ml-filter').value;
+      var container = document.getElementById('cmmi-content');
+      var rows = container.querySelectorAll('tr[data-id]');
+      var visible = 0;
+      rows.forEach(function(row) {
+        var id = row.getAttribute('data-id');
+        var text = row.textContent.toLowerCase();
+        var rowStatus = getStatus(id);
+        var rowDomain = row.getAttribute('data-domain') || '';
+        var rowML = row.getAttribute('data-ml') || '';
+        var show = true;
+        if (search && text.indexOf(search) === -1) show = false;
+        if (statusF && rowStatus !== statusF) show = false;
+        if (domainF && rowDomain !== domainF) show = false;
+        if (mlF && rowML !== mlF) show = false;
+        row.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+      document.getElementById('cmmi-count').textContent = visible + ' shown';
     }
 
     /* ================================================================
@@ -1236,6 +1319,13 @@
           gaps.push({ id:'l2-'+c.id, displayId:c.id, framework:'CMMC L2', title:c.title, status:s, mappings:mapCount });
         }
       });
+      CMMI_PA.forEach(function(c) {
+        var s = getStatus('cmmi-'+c.id);
+        if (s === 'not-started' || s === 'planned') {
+          var mapCount = c.iso.length + c.cmmc.length;
+          gaps.push({ id:'cmmi-'+c.id, displayId:c.id, framework:'CMMI 2.0', title:c.title, status:s, mappings:mapCount });
+        }
+      });
 
       // Identify high-leverage: ISO controls that map to CMMC, or CMMC that maps to ISO
       // "High leverage" = appears in multiple frameworks (mappings >= 2)
@@ -1248,10 +1338,12 @@
       var isoGaps = gaps.filter(function(g){return g.framework==='ISO 27001';}).length;
       var l1Gaps = gaps.filter(function(g){return g.framework==='CMMC L1';}).length;
       var l2Gaps = gaps.filter(function(g){return g.framework==='CMMC L2';}).length;
+      var cmmiGaps = gaps.filter(function(g){return g.framework==='CMMI 2.0';}).length;
 
-      var sumHtml = '<div class="col-4"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+isoGaps+'</div><small>ISO 27001 Gaps</small></div></div></div>'+
-        '<div class="col-4"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+l1Gaps+'</div><small>CMMC L1 Gaps</small></div></div></div>'+
-        '<div class="col-4"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+l2Gaps+'</div><small>CMMC L2 Gaps</small></div></div></div>';
+      var sumHtml = '<div class="col-3"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+isoGaps+'</div><small>ISO 27001 Gaps</small></div></div></div>'+
+        '<div class="col-3"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+l1Gaps+'</div><small>CMMC L1 Gaps</small></div></div></div>'+
+        '<div class="col-3"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+l2Gaps+'</div><small>CMMC L2 Gaps</small></div></div></div>'+
+        '<div class="col-3"><div class="card"><div class="card-body text-center"><div class="h4 text-danger" id="cmmi-gap-count">'+cmmiGaps+'</div><small>CMMI 2.0 Gaps</small></div></div></div>';
       document.getElementById('gap-summary').innerHTML = sumHtml;
 
       if (!gaps.length) {
@@ -1260,11 +1352,11 @@
       }
 
       // Group by framework
-      var grouped = { 'ISO 27001':[], 'CMMC L1':[], 'CMMC L2':[] };
+      var grouped = { 'ISO 27001':[], 'CMMC L1':[], 'CMMC L2':[], 'CMMI 2.0':[] };
       gaps.forEach(function(g) { grouped[g.framework].push(g); });
 
       var html = '';
-      ['ISO 27001','CMMC L1','CMMC L2'].forEach(function(fw) {
+      ['ISO 27001','CMMC L1','CMMC L2','CMMI 2.0'].forEach(function(fw) {
         if (!grouped[fw].length) return;
         html += '<h6 class="mt-3">'+fw+' ('+grouped[fw].length+' gaps)</h6>';
         html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr><th>Control</th><th>Title</th><th>Status</th><th>Priority</th></tr></thead><tbody>';
@@ -1298,6 +1390,13 @@
         if (s==='not-started'||s==='planned') {
           var mc = isoMappingsFor(c.id).length + (c.l1?1:0);
           rows.push(['CMMC L2',c.id,'"'+c.title.replace(/"/g,'""')+'"',s,mc>=2?'High Leverage':'Standard']);
+        }
+      });
+      CMMI_PA.forEach(function(c) {
+        var s = getStatus('cmmi-'+c.id);
+        if (s==='not-started'||s==='planned') {
+          var mc = c.iso.length + c.cmmc.length;
+          rows.push(['CMMI 2.0',c.id,'"'+c.title.replace(/"/g,'""')+'"',s,mc>=3?'High Leverage':'Standard']);
         }
       });
       var csv = rows.map(function(r){return r.join(',');}).join('\n');
@@ -1381,6 +1480,7 @@
       renderISO();
       renderL1();
       renderL2();
+      renderCMMI();
       renderMapping(); // calls renderNexus() internally
       renderGap();
     }
@@ -1411,6 +1511,10 @@
         document.getElementById(prefix+'-status-filter').addEventListener('change', function(){ applyFilter(prefix); });
         document.getElementById(prefix+'-domain-filter').addEventListener('change', function(){ applyFilter(prefix); });
       });
+      document.getElementById('cmmi-search').addEventListener('input', function(){ applyFilterCMMI(); });
+      document.getElementById('cmmi-status-filter').addEventListener('change', function(){ applyFilterCMMI(); });
+      document.getElementById('cmmi-domain-filter').addEventListener('change', function(){ applyFilterCMMI(); });
+      document.getElementById('cmmi-ml-filter').addEventListener('change', function(){ applyFilterCMMI(); });
 
       // Reset button
       document.getElementById('btn-reset-all').addEventListener('click', resetAll);
@@ -1423,6 +1527,7 @@
 
       // Initial count badges
       ['iso','l1','l2'].forEach(function(prefix) { applyFilter(prefix); });
+      applyFilterCMMI();
     }
 
     // Run on DOM ready
