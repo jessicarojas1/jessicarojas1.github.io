@@ -975,6 +975,19 @@
       });
       breakHtml += '</tbody></table>';
 
+      // ISO 42001 by family
+      var iso42Fams = {};
+      ISO42001.forEach(function(c) {
+        if (!iso42Fams[c.family]) iso42Fams[c.family] = [];
+        iso42Fams[c.family].push('iso42-'+c.id);
+      });
+      breakHtml += '<h6 class="mt-3">ISO 42001 by Family</h6><table class="table table-sm"><thead><tr><th>Family</th><th>Controls</th><th>Implemented</th><th>%</th></tr></thead><tbody>';
+      Object.keys(iso42Fams).forEach(function(f) {
+        var ds = calcStats(iso42Fams[f]);
+        breakHtml += '<tr><td>'+f+'</td><td>'+ds.total+'</td><td>'+ds.implemented+'</td><td>'+ds.pct+'%</td></tr>';
+      });
+      breakHtml += '</tbody></table>';
+
       document.getElementById('dash-domain-breakdown').innerHTML = breakHtml;
     }
 
@@ -1038,7 +1051,7 @@
         });
       }
 
-      var html = '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr><th>Practice ID</th><th>Domain</th><th>Practice Statement</th><th>Status</th><th>ISO 27001 Mappings</th><th>CMMI 2.0</th></tr></thead><tbody>';
+      var html = '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr><th>Practice ID</th><th>Domain</th><th>Practice Statement</th><th>Status</th><th>ISO 27001 Mappings</th><th>CMMI 2.0</th><th>ISO 42001</th></tr></thead><tbody>';
       CMMC_L1.forEach(function(c) {
         var isoMaps = isoMappingsFor(c.id);
         html += '<tr data-id="l1-'+c.id+'" data-domain="'+c.domain+'" data-status="'+getStatus('l1-'+c.id)+'">'+
@@ -1047,7 +1060,8 @@
           '<td>'+c.title+'</td>'+
           '<td>'+makeSelect('l1-'+c.id)+'</td>'+
           '<td>'+isoBadges(isoMaps)+'</td>'+
-          '<td>'+cmmiBadges(cmmiMappingsForCMMC(c.id))+'</td></tr>';
+          '<td>'+cmmiBadges(cmmiMappingsForCMMC(c.id))+'</td>'+
+          '<td>'+iso42Badges(iso42MappingsForCMMC(c.id))+'</td></tr>';
       });
       html += '</tbody></table></div>';
       document.getElementById('l1-content').innerHTML = html;
@@ -1076,7 +1090,7 @@
       var html = '';
       domains.forEach(function(domain) {
         html += '<details open><summary>'+domain+' ('+domMap[domain].length+' practices)</summary>';
-        html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr><th>Practice ID</th><th>Domain</th><th>Practice Statement</th><th>Level</th><th>Status</th><th>ISO 27001 Mappings</th><th>CMMI 2.0</th></tr></thead><tbody>';
+        html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr><th>Practice ID</th><th>Domain</th><th>Practice Statement</th><th>Level</th><th>Status</th><th>ISO 27001 Mappings</th><th>CMMI 2.0</th><th>ISO 42001</th></tr></thead><tbody>';
         domMap[domain].forEach(function(c) {
           var isoMaps = isoMappingsFor(c.id);
           // Also check reverse: which ISO controls map to any L1 equivalent
@@ -1096,7 +1110,8 @@
             '<td>'+levelBadge+'</td>'+
             '<td>'+makeSelect(storeId)+'</td>'+
             '<td>'+isoBadges(isoMaps)+'</td>'+
-            '<td>'+cmmiBadges(cmmiMappingsForCMMC(c.id))+'</td></tr>';
+            '<td>'+cmmiBadges(cmmiMappingsForCMMC(c.id))+'</td>'+
+            '<td>'+iso42Badges(iso42MappingsForCMMC(c.id))+'</td></tr>';
         });
         html += '</tbody></table></div></details>';
       });
@@ -1158,6 +1173,86 @@
         html += '</tbody></table></div></details>';
       });
       document.getElementById('cmmi-content').innerHTML = html;
+    }
+
+    /* ================================================================
+       ISO 42001 TAB
+       ================================================================ */
+    function renderISO42() {
+      var families = [];
+      var famMap = {};
+      ISO42001.forEach(function(c) {
+        if (!famMap[c.family]) { famMap[c.family] = []; families.push(c.family); }
+        famMap[c.family].push(c);
+      });
+
+      var df = document.getElementById('iso42-family-filter');
+      if (df.options.length <= 1) {
+        families.forEach(function(f) {
+          var o = document.createElement('option');
+          o.value = f; o.textContent = f;
+          df.appendChild(o);
+        });
+      }
+
+      var famColors = {Governance:'primary', Lifecycle:'success', Data:'info', Transparency:'warning', ThirdParty:'secondary'};
+
+      var html = '';
+      families.forEach(function(fam) {
+        html += '<details open><summary>'+fam+' ('+famMap[fam].length+' controls)</summary>';
+        html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr>'+
+          '<th>ID</th><th>Family</th><th>Control Title</th><th>Status</th><th>ISO 27001</th><th>CMMC</th><th>CMMI 2.0</th>'+
+          '</tr></thead><tbody>';
+        famMap[fam].forEach(function(c) {
+          var storeId = 'iso42-'+c.id;
+          var curStatus = getStatus(storeId);
+          var famBadge = '<span class="badge bg-'+(famColors[c.family]||'secondary')+'">'+c.family+'</span>';
+          var isoLinks = c.iso27k.length ? c.iso27k.map(function(id){
+            return '<button type="button" class="badge bg-info ucf-badge-map ucf-link border-0" data-goto="iso-'+id+'" title="Jump to ISO 27001 '+id+'">ISO '+id+'</button>';
+          }).join(' ') : '<span class="text-body-secondary small">None</span>';
+          var cmmcLinks = c.cmmc.length ? c.cmmc.map(function(id){
+            var isL1 = !!CMMC_L1.find(function(l){ return l.id === id; });
+            var cls = isL1 ? 'bg-success' : 'bg-warning text-dark';
+            var st = isL1 ? 'l1-'+id : 'l2-'+id;
+            return '<button type="button" class="badge '+cls+' ucf-badge-map ucf-link border-0" data-goto="'+st+'" title="Jump to '+id+'">'+id+'</button>';
+          }).join(' ') : '<span class="text-body-secondary small">None</span>';
+          var cmmiLinks = c.cmmi.length ? c.cmmi.map(function(id){
+            return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:#dc2626!important" data-goto="cmmi-'+id+'" title="Jump to CMMI '+id+'">'+id+'</button>';
+          }).join(' ') : '<span class="text-body-secondary small">None</span>';
+          html += '<tr data-id="'+storeId+'" data-family="'+c.family+'" data-status="'+curStatus+'">'+
+            '<td class="ucf-mono" style="color:#7c3aed">'+c.id+'</td>'+
+            '<td>'+famBadge+'</td>'+
+            '<td>'+c.title+'</td>'+
+            '<td>'+makeSelect(storeId)+'</td>'+
+            '<td>'+isoLinks+'</td>'+
+            '<td>'+cmmcLinks+'</td>'+
+            '<td>'+cmmiLinks+'</td></tr>';
+        });
+        html += '</tbody></table></div></details>';
+      });
+      document.getElementById('iso42-content').innerHTML = html;
+    }
+
+    function applyFilterISO42() {
+      var search = document.getElementById('iso42-search').value.toLowerCase();
+      var statusF = document.getElementById('iso42-status-filter').value;
+      var familyF = document.getElementById('iso42-family-filter').value;
+      var container = document.getElementById('iso42-content');
+      var rows = container.querySelectorAll('tr[data-id]');
+      var visible = 0;
+      rows.forEach(function(row) {
+        var id = row.getAttribute('data-id');
+        var text = row.textContent.toLowerCase();
+        var rowStatus = getStatus(id);
+        var rowFamily = row.getAttribute('data-family') || '';
+        var show = true;
+        if (search && text.indexOf(search) === -1) show = false;
+        if (statusF && rowStatus !== statusF) show = false;
+        if (familyF && rowFamily !== familyF) show = false;
+        row.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+      document.getElementById('iso42-count').textContent = visible + ' shown';
     }
 
     function applyFilterCMMI() {
@@ -1427,6 +1522,13 @@
           gaps.push({ id:'cmmi-'+c.id, displayId:c.id, framework:'CMMI 2.0', title:c.title, status:s, mappings:mapCount });
         }
       });
+      ISO42001.forEach(function(c) {
+        var s = getStatus('iso42-'+c.id);
+        if (s === 'not-started' || s === 'planned') {
+          var mapCount = c.iso27k.length + c.cmmc.length + c.cmmi.length;
+          gaps.push({ id:'iso42-'+c.id, displayId:c.id, framework:'ISO 42001', title:c.title, status:s, mappings:mapCount });
+        }
+      });
 
       // Identify high-leverage: ISO controls that map to CMMC, or CMMC that maps to ISO
       // "High leverage" = appears in multiple frameworks (mappings >= 2)
@@ -1440,11 +1542,13 @@
       var l1Gaps = gaps.filter(function(g){return g.framework==='CMMC L1';}).length;
       var l2Gaps = gaps.filter(function(g){return g.framework==='CMMC L2';}).length;
       var cmmiGaps = gaps.filter(function(g){return g.framework==='CMMI 2.0';}).length;
+      var iso42Gaps = gaps.filter(function(g){return g.framework==='ISO 42001';}).length;
 
-      var sumHtml = '<div class="col-3"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+isoGaps+'</div><small>ISO 27001 Gaps</small></div></div></div>'+
-        '<div class="col-3"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+l1Gaps+'</div><small>CMMC L1 Gaps</small></div></div></div>'+
-        '<div class="col-3"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+l2Gaps+'</div><small>CMMC L2 Gaps</small></div></div></div>'+
-        '<div class="col-3"><div class="card"><div class="card-body text-center"><div class="h4 text-danger" id="cmmi-gap-count">'+cmmiGaps+'</div><small>CMMI 2.0 Gaps</small></div></div></div>';
+      var sumHtml = '<div class="col"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+isoGaps+'</div><small>ISO 27001 Gaps</small></div></div></div>'+
+        '<div class="col"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+l1Gaps+'</div><small>CMMC L1 Gaps</small></div></div></div>'+
+        '<div class="col"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+l2Gaps+'</div><small>CMMC L2 Gaps</small></div></div></div>'+
+        '<div class="col"><div class="card"><div class="card-body text-center"><div class="h4 text-danger" id="cmmi-gap-count">'+cmmiGaps+'</div><small>CMMI 2.0 Gaps</small></div></div></div>'+
+        '<div class="col"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+iso42Gaps+'</div><small>ISO 42001 Gaps</small></div></div></div>';
       document.getElementById('gap-summary').innerHTML = sumHtml;
 
       if (!gaps.length) {
@@ -1453,11 +1557,11 @@
       }
 
       // Group by framework
-      var grouped = { 'ISO 27001':[], 'CMMC L1':[], 'CMMC L2':[], 'CMMI 2.0':[] };
+      var grouped = { 'ISO 27001':[], 'CMMC L1':[], 'CMMC L2':[], 'CMMI 2.0':[], 'ISO 42001':[] };
       gaps.forEach(function(g) { grouped[g.framework].push(g); });
 
       var html = '';
-      ['ISO 27001','CMMC L1','CMMC L2','CMMI 2.0'].forEach(function(fw) {
+      ['ISO 27001','CMMC L1','CMMC L2','CMMI 2.0','ISO 42001'].forEach(function(fw) {
         if (!grouped[fw].length) return;
         html += '<h6 class="mt-3">'+fw+' ('+grouped[fw].length+' gaps)</h6>';
         html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr><th>Control</th><th>Title</th><th>Status</th><th>Priority</th></tr></thead><tbody>';
@@ -1498,6 +1602,13 @@
         if (s==='not-started'||s==='planned') {
           var mc = c.iso.length + c.cmmc.length;
           rows.push(['CMMI 2.0',c.id,'"'+c.title.replace(/"/g,'""')+'"',s,mc>=3?'High Leverage':'Standard']);
+        }
+      });
+      ISO42001.forEach(function(c) {
+        var s = getStatus('iso42-'+c.id);
+        if (s==='not-started'||s==='planned') {
+          var mc = c.iso27k.length + c.cmmc.length + c.cmmi.length;
+          rows.push(['ISO 42001',c.id,'"'+c.title.replace(/"/g,'""')+'"',s,mc>=3?'High Leverage':'Standard']);
         }
       });
       var csv = rows.map(function(r){return r.join(',');}).join('\n');
@@ -1582,6 +1693,7 @@
       renderL1();
       renderL2();
       renderCMMI();
+      renderISO42();
       renderMapping(); // calls renderNexus() internally
       renderGap();
     }
@@ -1616,6 +1728,9 @@
       document.getElementById('cmmi-status-filter').addEventListener('change', function(){ applyFilterCMMI(); });
       document.getElementById('cmmi-domain-filter').addEventListener('change', function(){ applyFilterCMMI(); });
       document.getElementById('cmmi-ml-filter').addEventListener('change', function(){ applyFilterCMMI(); });
+      document.getElementById('iso42-search').addEventListener('input', function(){ applyFilterISO42(); });
+      document.getElementById('iso42-status-filter').addEventListener('change', function(){ applyFilterISO42(); });
+      document.getElementById('iso42-family-filter').addEventListener('change', function(){ applyFilterISO42(); });
 
       // Reset button
       document.getElementById('btn-reset-all').addEventListener('click', resetAll);
@@ -1629,6 +1744,7 @@
       // Initial count badges
       ['iso','l1','l2'].forEach(function(prefix) { applyFilter(prefix); });
       applyFilterCMMI();
+      applyFilterISO42();
     }
 
     // Run on DOM ready
