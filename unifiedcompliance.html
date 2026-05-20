@@ -202,7 +202,7 @@
         <div class="col-md col-sm-6">
           <div class="card h-100 ucf-fw-card" style="cursor:pointer" onclick="ucfSwitchTab('pane-cmmid',document.getElementById('tab-cmmid'))" title="View CMMI Dev L3 practices">
             <div class="card-body">
-              <h5 class="card-title mb-1">CMMI Dev L3 <span class="badge" style="background:#7e22ce">53</span></h5>
+              <h5 class="card-title mb-1">CMMI Dev L3 <span class="badge" style="background:#7e22ce">59</span></h5>
               <div class="progress mb-2"><div class="progress-bar" id="prog-cmmid" role="progressbar" style="width:0%;background:#7e22ce">0%</div></div>
               <small class="text-body-secondary" id="stats-cmmid"></small>
             </div>
@@ -331,7 +331,7 @@
 
         <!-- CMMI v3.0 Level 3 Development + SAM -->
         <div class="tab-pane" id="pane-cmmid" role="tabpanel" aria-labelledby="tab-cmmid">
-          <p class="text-body-secondary small mb-3">53 Level 3 practices for the CMMI Development constellation with Supplier Agreement Management in scope. Grouped by Practice Area.</p>
+          <p class="text-body-secondary small mb-3">59 Level 3 practices across all 20 core CMMI Development constellation practice areas including Supplier Agreement Management (SAM). Grouped by Practice Area.</p>
           <div class="filter-bar d-flex gap-2 align-items-center flex-wrap">
             <input type="search" class="form-control form-control-sm" id="cmmid-search" placeholder="Search practices..." style="max-width:250px;" />
             <select class="form-select form-select-sm" id="cmmid-status-filter" style="max-width:160px;">
@@ -1266,6 +1266,28 @@
       {id:'VV 3.4',paCode:'VV',pa:'Verification and Validation',category:'Doing',
        title:'Perform validation on selected product components or products against customer needs and document results.',
        iso27k:['8.29','8.31'],cmmc:[],cmmi:['VV 3.5']},
+
+      // CAR – Causal Analysis and Resolution (part of Dev constellation)
+      {id:'CAR 3.1',paCode:'CAR',pa:'Causal Analysis and Resolution',category:'Enabling',
+       title:'Establish and maintain a causal analysis approach including criteria for selecting defects and problems for analysis.',
+       iso27k:['5.36'],cmmc:[],cmmi:['CAR 5.1']},
+      {id:'CAR 3.2',paCode:'CAR',pa:'Causal Analysis and Resolution',category:'Enabling',
+       title:'Perform causal analysis of selected defects and problems to identify their root causes using defined methods.',
+       iso27k:['5.36'],cmmc:[],cmmi:['CAR 5.2']},
+      {id:'CAR 3.3',paCode:'CAR',pa:'Causal Analysis and Resolution',category:'Enabling',
+       title:'Develop and implement action proposals to address identified root causes and evaluate the effect of implemented changes.',
+       iso27k:['5.36'],cmmc:[],cmmi:['CAR 5.3']},
+
+      // MPM – Managing Performance and Measurement (part of Dev constellation)
+      {id:'MPM 3.1',paCode:'MPM',pa:'Managing Performance and Measurement',category:'Improving',
+       title:'Establish and maintain organizational measurement objectives derived from business and quality goals to support decision making.',
+       iso27k:['5.35'],cmmc:[],cmmi:['MPM 4.1']},
+      {id:'MPM 3.2',paCode:'MPM',pa:'Managing Performance and Measurement',category:'Improving',
+       title:'Specify, collect, and store project and organizational measures to address measurement objectives and support project tracking.',
+       iso27k:['5.35'],cmmc:[],cmmi:['MPM 4.2']},
+      {id:'MPM 3.3',paCode:'MPM',pa:'Managing Performance and Measurement',category:'Improving',
+       title:'Analyze measurement data to understand project and process performance and communicate results to relevant stakeholders.',
+       iso27k:['5.35'],cmmc:[],cmmi:['MPM 4.3','MPM 4.4']},
     ];
 
     /* ================================================================
