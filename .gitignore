@@ -1,2 +1,15 @@
 __pycache__/
 .claude/
+# C++ compiled binaries
+cpp/entropy-scanner/entropy-scanner
+cpp/cui-classifier/cui-classifier
+cpp/yara-lite/yara-lite
+cpp/packet-analyzer/packet-analyzer
+cpp/arinc429/arinc429-decoder
+cpp/mil-std-1553/mil1553-sim
+cpp/gps-antispoofing/gps-detector
+cpp/rf-anomaly/rf-anomaly
+cpp/aes-vault/aes-vault
+cpp/zt-policy-engine/zt-policy
+cpp/log-correlator/log-correlator
+cpp/memory-scanner/memory-scanner

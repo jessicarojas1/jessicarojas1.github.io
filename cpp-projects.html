@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; img-src 'self' https://cdn.jsdelivr.net data: blob:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self' https://cdn.jsdelivr.net; worker-src blob:; object-src 'none'; base-uri 'self';">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github-dark.min.css">
+  <link rel="stylesheet" href="theme.css" />
+  <title>C++ Projects | Jessica Rojas</title>
+  <meta name="description" content="C++ security and aerospace/defense tools — entropy scanner, CUI classifier, ARINC 429 decoder, MIL-STD-1553 simulator, AES vault, and more. With full build and deployment instructions." />
+  <style>
+    /* ── Page hero ──────────────────────────────────────────────── */
+    .cpp-hero {
+      padding: 5rem 1rem 3.5rem;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% -5%, rgba(99,102,241,.10) 0%, transparent 65%),
+        radial-gradient(ellipse 50% 40% at 90% 90%, rgba(255,88,17,.07) 0%, transparent 60%),
+        var(--bs-body-bg);
+      border-bottom: 1px solid var(--bs-border-color);
+      position: relative; overflow: hidden;
+    }
+    .cpp-hero::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, #6366f1, #ff5811, #22d3ee, transparent);
+      background-size: 200% 100%;
+      animation: shimmer 3.5s linear infinite;
+    }
+    .cpp-hero h1 {
+      font-size: clamp(2rem, 6vw, 4rem);
+      font-weight: 800;
+      background: linear-gradient(135deg, #6366f1 0%, #ff5811 50%, #22d3ee 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradient-shift 5s ease infinite;
+    }
+    .cpp-badge {
+      display: inline-flex; align-items: center; gap: .4rem;
+      background: rgba(99,102,241,.1); border: 1px solid rgba(99,102,241,.3);
+      border-radius: 2rem; padding: .3rem .9rem;
+      font-size: .72rem; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: #a5b4fc;
+    }
+
+    /* ── Stats ──────────────────────────────────────────────────── */
+    .cpp-stats { display:flex; flex-wrap:wrap; border-top:1px solid var(--bs-border-color); border-bottom:1px solid var(--bs-border-color); background:var(--bs-secondary-bg); }
+    .cpp-stat { flex:1 1 120px; padding:1.2rem 1rem; text-align:center; border-right:1px solid var(--bs-border-color); }
+    .cpp-stat:last-child { border-right:none; }
+    .cpp-stat .val { font-size:2rem; font-weight:800; color:var(--bs-emphasis-color); display:block; line-height:1; }
+    .cpp-stat .lbl { font-size:.68rem; text-transform:uppercase; letter-spacing:.1em; color:var(--bs-secondary-color); margin-top:.25rem; display:block; }
+
+    /* ── Filter tabs ────────────────────────────────────────────── */
+    .filter-tabs { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1.5rem; }
+    .filter-tab {
+      padding:.4rem 1rem; border-radius:2rem; font-size:.8rem; font-weight:600;
+      border:1px solid var(--bs-border-color); background:var(--bs-secondary-bg);
+      color:var(--bs-secondary-color); cursor:pointer; transition:all .15s;
+    }
+    .filter-tab:hover { border-color:rgba(255,88,17,.4); color:var(--bs-emphasis-color); }
+    .filter-tab.active { background:#ff5811; border-color:#ff5811; color:#000; }
+
+    /* ── Project cards ──────────────────────────────────────────── */
+    .proj-card {
+      background:var(--bs-secondary-bg); border:1px solid var(--bs-border-color);
+      border-radius:12px; overflow:hidden;
+      transition: border-color .2s, box-shadow .2s, transform .2s;
+    }
+    .proj-card:hover { transform:translateY(-2px); box-shadow:0 6px 28px rgba(0,0,0,.3); border-color:rgba(255,88,17,.3); }
+    .proj-card-top { padding:1.25rem; }
+    .proj-header { display:flex; align-items:flex-start; justify-content:space-between; gap:.75rem; margin-bottom:.6rem; }
+    .proj-title { font-size:1rem; font-weight:700; color:var(--bs-emphasis-color); margin:0; }
+    .proj-codename { font-family:'SFMono-Regular',Consolas,monospace; font-size:.72rem; color:var(--bs-secondary-color); letter-spacing:.1em; margin-bottom:.5rem; }
+    .proj-desc { font-size:.83rem; color:var(--bs-secondary-color); line-height:1.6; margin-bottom:.8rem; }
+    .proj-features { list-style:none; padding:0; margin:0 0 .8rem 0; }
+    .proj-features li { font-size:.78rem; color:var(--bs-secondary-color); padding:.1rem 0; display:flex; align-items:flex-start; gap:.5rem; }
+    .proj-features li::before { content:'▸'; color:#ff5811; flex-shrink:0; }
+    .build-box {
+      background:#0d1117; border:1px solid var(--bs-border-color); border-radius:7px;
+      padding:.65rem .9rem; font-family:'SFMono-Regular',Consolas,monospace;
+      font-size:.75rem; color:#3fb950; display:flex; align-items:center;
+      justify-content:space-between; gap:.5rem; margin-bottom:.6rem;
+    }
+    .build-box .copy-btn {
+      background:none; border:1px solid var(--bs-border-color); color:var(--bs-secondary-color);
+      padding:.15rem .5rem; border-radius:4px; font-size:.68rem; cursor:pointer;
+      white-space:nowrap; transition:all .15s; flex-shrink:0;
+    }
+    .build-box .copy-btn:hover { border-color:#ff5811; color:#ff5811; }
+    .proj-badges { display:flex; flex-wrap:wrap; gap:.3rem; }
+    .proj-badge {
+      font-size:.65rem; font-weight:700; padding:.18rem .55rem; border-radius:.3rem;
+      text-transform:uppercase; letter-spacing:.06em;
+    }
+    .badge-cat-sec   { background:rgba(239,68,68,.12);   color:#fca5a5; border:1px solid rgba(239,68,68,.25); }
+    .badge-cat-aed   { background:rgba(14,165,233,.12);  color:#7dd3fc; border:1px solid rgba(14,165,233,.25); }
+    .badge-cat-sys   { background:rgba(139,92,246,.12);  color:#c4b5fd; border:1px solid rgba(139,92,246,.25); }
+    .badge-wasm      { background:rgba(34,197,94,.1);    color:#4ade80; border:1px solid rgba(34,197,94,.25); }
+    .badge-native    { background:rgba(251,191,36,.1);   color:#fbbf24; border:1px solid rgba(251,191,36,.25); }
+    .badge-openssl   { background:rgba(255,88,17,.1);    color:#ff9966; border:1px solid rgba(255,88,17,.25); }
+    .badge-linux     { background:rgba(99,102,241,.1);   color:#a5b4fc; border:1px solid rgba(99,102,241,.25); }
+    .badge-nodep     { background:rgba(34,211,238,.1);   color:var(--cerulean); border:1px solid rgba(34,211,238,.25); }
+
+    /* Source code expander */
+    .src-toggle {
+      width:100%; background:var(--bs-tertiary-bg,#21262d); border:none;
+      border-top:1px solid var(--bs-border-color); padding:.5rem 1rem;
+      font-size:.75rem; color:var(--bs-secondary-color); cursor:pointer;
+      display:flex; align-items:center; justify-content:space-between;
+      transition:background .15s, color .15s;
+    }
+    .src-toggle:hover { background:rgba(255,88,17,.06); color:#ff5811; }
+    .src-toggle .arrow { transition:transform .2s; }
+    .src-toggle.open .arrow { transform:rotate(180deg); }
+    .src-panel { display:none; }
+    .src-panel.open { display:block; }
+    .src-panel pre { margin:0; border-radius:0; max-height:500px; overflow-y:auto; font-size:.75rem; }
+    .src-panel pre::-webkit-scrollbar { width:5px; }
+    .src-panel pre::-webkit-scrollbar-thumb { background:var(--bs-border-color); border-radius:4px; }
+
+    /* ── Deploy guide ─────────────────────────────────────────── */
+    .deploy-section { padding:3rem 0; }
+    .deploy-card {
+      background:var(--bs-secondary-bg); border:1px solid var(--bs-border-color);
+      border-radius:12px; padding:1.5rem; height:100%;
+    }
+    .deploy-card h4 { font-weight:700; color:var(--bs-emphasis-color); margin-bottom:.75rem; }
+    .deploy-step {
+      display:flex; gap:.75rem; margin-bottom:1rem; align-items:flex-start;
+    }
+    .deploy-step-num {
+      width:28px; height:28px; border-radius:50%; background:rgba(255,88,17,.15);
+      color:#ff5811; font-size:.78rem; font-weight:700; display:flex;
+      align-items:center; justify-content:center; flex-shrink:0; margin-top:.1rem;
+    }
+    .deploy-step-body { flex:1; }
+    .deploy-step-title { font-size:.85rem; font-weight:700; color:var(--bs-emphasis-color); margin-bottom:.2rem; }
+    .deploy-step-desc { font-size:.78rem; color:var(--bs-secondary-color); line-height:1.55; }
+    .cmd-block {
+      background:#0d1117; border:1px solid var(--bs-border-color); border-radius:6px;
+      padding:.6rem .9rem; font-family:'SFMono-Regular',Consolas,monospace;
+      font-size:.75rem; color:#3fb950; margin:.4rem 0; overflow-x:auto;
+      white-space:pre;
+    }
+    .cmd-comment { color:#484f58; }
+    .cmd-flag    { color:#ff9966; }
+    .cmd-file    { color:var(--cerulean); }
+
+    /* ── Build matrix table ───────────────────────────────────── */
+    .matrix-table td, .matrix-table th { vertical-align:middle; font-size:.82rem; }
+    .compat-yes  { color:#4ade80; font-weight:700; }
+    .compat-no   { color:#f87171; }
+    .compat-dep  { color:#fbbf24; }
+
+    /* ── Reveal ───────────────────────────────────────────────── */
+    .cpp-reveal { opacity:0; transform:translateY(18px); transition:opacity .55s ease, transform .55s ease; }
+    .cpp-reveal.visible { opacity:1; transform:none; }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+          <li class="nav-item"><a class="nav-link active" href="cpp-projects.html" aria-current="page">C++ Lab</a></li>
+          <li class="nav-item"><a class="nav-link" href="projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link" href="irad.html">IRAD</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none"><a class="nav-link" href="compliancetracker.html">Tracker</a></li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none"><a class="nav-link" href="jobtracker.html">Job Tracker</a></li>
+          <li class="nav-item" data-role-min="admin" style="display:none"><a class="nav-link" href="admin.html">User Admin</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content">
+
+    <!-- HERO -->
+    <section class="cpp-hero text-center">
+      <div class="container">
+        <div class="cpp-badge mb-3">&#9881; C++ Security &amp; Aerospace Lab</div>
+        <h1>C++ Projects</h1>
+        <p class="lead text-body-secondary mx-auto" style="max-width:660px">
+          12 native C++17 tools spanning cybersecurity, aerospace/defense protocols, and systems programming.
+          Every project includes full source, build commands, and strict deployment instructions.
+        </p>
+        <div class="d-flex justify-content-center gap-2 flex-wrap mt-4">
+          <a href="#projects" class="btn btn-primary btn-lg">View All Projects</a>
+          <a href="#deploy-guide" class="btn btn-outline-light btn-lg">Deployment Guide</a>
+          <a href="#build-matrix" class="btn btn-outline-secondary btn-lg">Build Matrix</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- STATS -->
+    <div class="cpp-stats">
+      <div class="cpp-stat"><span class="val" style="color:#ef4444">5</span><span class="lbl">Cybersecurity Tools</span></div>
+      <div class="cpp-stat"><span class="val" style="color:#0ea5e9">4</span><span class="lbl">Aerospace &amp; Defense</span></div>
+      <div class="cpp-stat"><span class="val" style="color:#8b5cf6">3</span><span class="lbl">Systems / ZT</span></div>
+      <div class="cpp-stat"><span class="val" style="color:#22c55e">7</span><span class="lbl">WASM-Compatible</span></div>
+      <div class="cpp-stat"><span class="val" style="color:#ff5811">3</span><span class="lbl">Zero External Deps</span></div>
+    </div>
+
+    <!-- IMPORTANT NOTICE -->
+    <div class="container py-3">
+      <div class="alert" style="background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.3);border-radius:10px;font-size:.85rem;" role="alert">
+        <strong style="color:#fbbf24">&#9888; C++ Deployment Requirement:</strong>
+        <span class="text-body-secondary"> C++ source code must be compiled before it can run. This is not Python or JavaScript — you cannot execute <code>.cpp</code> files directly. See the <a href="#deploy-guide" style="color:#fbbf24">Deployment Guide</a> below for exact steps per platform and the <a href="#build-matrix" style="color:#fbbf24">Build Matrix</a> for dependencies per project.</span>
+      </div>
+    </div>
+
+    <!-- PROJECTS -->
+    <section class="container py-3" id="projects">
+      <div class="d-flex align-items-center flex-wrap gap-3 mb-4">
+        <h2 class="section-title mb-0 cpp-reveal">Projects</h2>
+        <div class="filter-tabs ms-auto">
+          <button class="filter-tab active" data-filter="all">All (12)</button>
+          <button class="filter-tab" data-filter="cybersecurity">Cybersecurity (5)</button>
+          <button class="filter-tab" data-filter="aerospace">Aerospace &amp; Defense (4)</button>
+          <button class="filter-tab" data-filter="systems">Systems (3)</button>
+        </div>
+      </div>
+
+      <div class="row g-4" id="proj-grid">
+
+        <!-- ── 1. ENTROPY SCANNER ──────────────────────────────── -->
+        <div class="col-lg-6 col-xl-4 cpp-reveal proj-item" data-cat="cybersecurity">
+          <div class="proj-card">
+            <div class="proj-card-top">
+              <div class="proj-codename">// CPP-001 — ENTROPY-SCANNER</div>
+              <div class="proj-header">
+                <h3 class="proj-title">Binary Entropy Scanner</h3>
+              </div>
+              <p class="proj-desc">Detects packed, encrypted, and obfuscated binaries by computing Shannon entropy per file. High entropy (&ge;7.2 bits) strongly indicates AV-evasion techniques or ransomware encryption.</p>
+              <ul class="proj-features">
+                <li>Shannon entropy (0–8 scale) per file</li>
+                <li>Recursive directory scanning</li>
+                <li>Verdicts: PACKED/ENCRYPTED · COMPRESSED · PLAINTEXT</li>
+                <li>Exit code 2 on any high-entropy findings</li>
+              </ul>
+              <div class="build-box">
+                <span>g++ -std=c++17 -O2 entropy_scanner.cpp -o entropy-scanner</span>
+                <button class="copy-btn" data-copy="g++ -std=c++17 -O2 entropy_scanner.cpp -o entropy-scanner">Copy</button>
+              </div>
+              <div class="proj-badges">
+                <span class="proj-badge badge-cat-sec">Cybersecurity</span>
+                <span class="proj-badge badge-wasm">WASM ✓</span>
+                <span class="proj-badge badge-nodep">No Deps</span>
+              </div>
+            </div>
+            <button class="src-toggle" data-target="src-entropy">
+              <span>&#128196; View Source — entropy_scanner.cpp</span>
+              <span class="arrow">&#8964;</span>
+            </button>
+            <div class="src-panel" id="src-entropy">
+              <pre><code class="language-cpp" data-src="cpp/entropy-scanner/entropy_scanner.cpp">// Loading source...</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 2. CUI CLASSIFIER ──────────────────────────────── -->
+        <div class="col-lg-6 col-xl-4 cpp-reveal proj-item" data-cat="cybersecurity">
+          <div class="proj-card">
+            <div class="proj-card-top">
+              <div class="proj-codename">// CPP-002 — CUI-CLASSIFIER</div>
+              <div class="proj-header">
+                <h3 class="proj-title">CUI Pattern Classifier</h3>
+              </div>
+              <p class="proj-desc">Scans files and directories for Controlled Unclassified Information indicators using NARA CUI Registry categories. Supports CMMC data scoping and CUI boundary definition.</p>
+              <ul class="proj-features">
+                <li>12+ regex patterns: ITAR, EAR/CFR, SSN, CUI markings, CVE IDs</li>
+                <li>ICS/SCADA terms, HIPAA, credit card, passport patterns</li>
+                <li>Reports file path, line number, CUI category, matched context</li>
+                <li>Integrates directly with CMMC MP/AC domain evidence</li>
+              </ul>
+              <div class="build-box">
+                <span>g++ -std=c++17 -O2 cui_classifier.cpp -o cui-classifier</span>
+                <button class="copy-btn" data-copy="g++ -std=c++17 -O2 cui_classifier.cpp -o cui-classifier">Copy</button>
+              </div>
+              <div class="proj-badges">
+                <span class="proj-badge badge-cat-sec">Cybersecurity</span>
+                <span class="proj-badge badge-wasm">WASM ✓</span>
+                <span class="proj-badge badge-nodep">No Deps</span>
+              </div>
+            </div>
+            <button class="src-toggle" data-target="src-cui">
+              <span>&#128196; View Source — cui_classifier.cpp</span>
+              <span class="arrow">&#8964;</span>
+            </button>
+            <div class="src-panel" id="src-cui">
+              <pre><code class="language-cpp" data-src="cpp/cui-classifier/cui_classifier.cpp">// Loading source...</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 3. YARA-LITE ───────────────────────────────────── -->
+        <div class="col-lg-6 col-xl-4 cpp-reveal proj-item" data-cat="cybersecurity">
+          <div class="proj-card">
+            <div class="proj-card-top">
+              <div class="proj-codename">// CPP-003 — YARA-LITE</div>
+              <div class="proj-header">
+                <h3 class="proj-title">YARA-Lite Rule Engine</h3>
+              </div>
+              <p class="proj-desc">Lightweight YARA-inspired malware signature engine. Parses rule files with string, hex, and regex patterns, then scans target files reporting match offsets — the same logic used by enterprise AV/EDR platforms.</p>
+              <ul class="proj-features">
+                <li>Rule types: exact string · hex byte sequence · case-insensitive</li>
+                <li>5 built-in rules: MZ/ELF headers, PowerShell cradle, C2 UA, base64 PE</li>
+                <li>Reports rule name, match identifier, byte offset</li>
+                <li>Recursive directory scan mode</li>
+              </ul>
+              <div class="build-box">
+                <span>g++ -std=c++17 -O2 yara_lite.cpp -o yara-lite</span>
+                <button class="copy-btn" data-copy="g++ -std=c++17 -O2 yara_lite.cpp -o yara-lite">Copy</button>
+              </div>
+              <div class="proj-badges">
+                <span class="proj-badge badge-cat-sec">Cybersecurity</span>
+                <span class="proj-badge badge-wasm">WASM ✓</span>
+                <span class="proj-badge badge-nodep">No Deps</span>
+              </div>
+            </div>
+            <button class="src-toggle" data-target="src-yara">
+              <span>&#128196; View Source — yara_lite.cpp</span>
+              <span class="arrow">&#8964;</span>
+            </button>
+            <div class="src-panel" id="src-yara">
+              <pre><code class="language-cpp" data-src="cpp/yara-lite/yara_lite.cpp">// Loading source...</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 4. PACKET ANALYZER ─────────────────────────────── -->
+        <div class="col-lg-6 col-xl-4 cpp-reveal proj-item" data-cat="cybersecurity">
+          <div class="proj-card">
+            <div class="proj-card-top">
+              <div class="proj-codename">// CPP-004 — PACKET-ANALYZER</div>
+              <div class="proj-header">
+                <h3 class="proj-title">PCAP Packet Analyzer</h3>
+              </div>
+              <p class="proj-desc">Reads .pcap files and dissects Ethernet/IPv4/TCP/UDP frames without libpcap — parsing the binary format directly. Maps suspicious traffic patterns to MITRE ATT&amp;CK technique IDs.</p>
+              <ul class="proj-features">
+                <li>L2–L4 dissection: Ethernet, IPv4/6, TCP, UDP, DNS, HTTP, TLS SNI</li>
+                <li>Detects: beaconing, large transfers, DNS C2, HTTP C2</li>
+                <li>ATT&amp;CK mapping: T1071.001, T1071.004, T1041, T1568</li>
+                <li>No libpcap required — parses .pcap binary natively</li>
+              </ul>
+              <div class="build-box">
+                <span>g++ -std=c++17 -O2 packet_analyzer.cpp -o packet-analyzer</span>
+                <button class="copy-btn" data-copy="g++ -std=c++17 -O2 packet_analyzer.cpp -o packet-analyzer">Copy</button>
+              </div>
+              <div class="proj-badges">
+                <span class="proj-badge badge-cat-sec">Cybersecurity</span>
+                <span class="proj-badge badge-native">Native Only</span>
+                <span class="proj-badge badge-nodep">No Deps</span>
+              </div>
+            </div>
+            <button class="src-toggle" data-target="src-pcap">
+              <span>&#128196; View Source — packet_analyzer.cpp</span>
+              <span class="arrow">&#8964;</span>
+            </button>
+            <div class="src-panel" id="src-pcap">
+              <pre><code class="language-cpp" data-src="cpp/packet-analyzer/packet_analyzer.cpp">// Loading source...</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 5. AES VAULT ───────────────────────────────────── -->
+        <div class="col-lg-6 col-xl-4 cpp-reveal proj-item" data-cat="systems">
+          <div class="proj-card">
+            <div class="proj-card-top">
+              <div class="proj-codename">// CPP-005 — AES-VAULT</div>
+              <div class="proj-header">
+                <h3 class="proj-title">AES-256-GCM File Vault</h3>
+              </div>
+              <p class="proj-desc">Authenticated AES-256-GCM file encryption with PBKDF2 key derivation. Supports optional CUI classification labels embedded in the file header — production-ready crypto for sensitive DoD data.</p>
+              <ul class="proj-features">
+                <li>AES-256-GCM with random 12-byte IV per file</li>
+                <li>PBKDF2-HMAC-SHA256 (100k iterations) key stretching</li>
+                <li>Binary header: magic + version + salt + IV + GCM auth tag</li>
+                <li>Optional <code>--label CUI//SP-CTI</code> embedded in ciphertext header</li>
+              </ul>
+              <div class="build-box">
+                <span>g++ -std=c++17 -O2 aes_vault.cpp -lssl -lcrypto -o aes-vault</span>
+                <button class="copy-btn" data-copy="g++ -std=c++17 -O2 aes_vault.cpp -lssl -lcrypto -o aes-vault">Copy</button>
+              </div>
+              <div class="proj-badges">
+                <span class="proj-badge badge-cat-sys">Systems</span>
+                <span class="proj-badge badge-native">Native Only</span>
+                <span class="proj-badge badge-openssl">OpenSSL</span>
+              </div>
+            </div>
+            <button class="src-toggle" data-target="src-aes">
+              <span>&#128196; View Source — aes_vault.cpp</span>
+              <span class="arrow">&#8964;</span>
+            </button>
+            <div class="src-panel" id="src-aes">
+              <pre><code class="language-cpp" data-src="cpp/aes-vault/aes_vault.cpp">// Loading source...</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 6. ZT POLICY ENGINE ────────────────────────────── -->
+        <div class="col-lg-6 col-xl-4 cpp-reveal proj-item" data-cat="systems">
+          <div class="proj-card">
+            <div class="proj-card-top">
+              <div class="proj-codename">// CPP-006 — ZT-POLICY</div>
+              <div class="proj-header">
+                <h3 class="proj-title">Zero Trust Policy Engine</h3>
+              </div>
+              <p class="proj-desc">ABAC (Attribute-Based Access Control) policy evaluator aligned to NIST SP 800-207 and the DoD Zero Trust Strategy. Evaluates subject/resource/environment attributes against deny-overrides policy sets with full audit logging.</p>
+              <ul class="proj-features">
+                <li>Deny-overrides ABAC: subject + resource + environment attributes</li>
+                <li>Built-in policies: CMMC L2, CUI//SP-CTI, after-hours, guest network</li>
+                <li>Tamper-evident audit log per access decision</li>
+                <li>WASM-compatible for browser-based policy simulation</li>
+              </ul>
+              <div class="build-box">
+                <span>g++ -std=c++17 -O2 zt_policy.cpp -o zt-policy</span>
+                <button class="copy-btn" data-copy="g++ -std=c++17 -O2 zt_policy.cpp -o zt-policy">Copy</button>
+              </div>
+              <div class="proj-badges">
+                <span class="proj-badge badge-cat-sys">Systems</span>
+                <span class="proj-badge badge-wasm">WASM ✓</span>
+                <span class="proj-badge badge-nodep">No Deps</span>
+              </div>
+            </div>
+            <button class="src-toggle" data-target="src-zt">
+              <span>&#128196; View Source — zt_policy.cpp</span>
+              <span class="arrow">&#8964;</span>
+            </button>
+            <div class="src-panel" id="src-zt">
+              <pre><code class="language-cpp" data-src="cpp/zt-policy-engine/zt_policy.cpp">// Loading source...</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 7. LOG CORRELATOR ──────────────────────────────── -->
+        <div class="col-lg-6 col-xl-4 cpp-reveal proj-item" data-cat="systems">
+          <div class="proj-card">
+            <div class="proj-card-top">
+              <div class="proj-codename">// CPP-007 — LOG-CORRELATOR</div>
+              <div class="proj-header">
+                <h3 class="proj-title">Multi-Threaded Log Correlator</h3>
+              </div>
+              <p class="proj-desc">High-performance syslog correlator with a thread pool and sliding time-window event correlation engine. Detects brute force, privilege escalation, lateral movement, and data staging — with ATT&amp;CK mappings.</p>
+              <ul class="proj-features">
+                <li>RFC 3164/5424 syslog + Windows Event Log CSV parsing</li>
+                <li>Thread pool for parallel file ingestion</li>
+                <li>5-min sliding window correlation across 4 attack patterns</li>
+                <li>ATT&amp;CK: T1110 · T1078 · T1021 · T1074</li>
+              </ul>
+              <div class="build-box">
+                <span>g++ -std=c++17 -O2 -pthread log_correlator.cpp -o log-correlator</span>
+                <button class="copy-btn" data-copy="g++ -std=c++17 -O2 -pthread log_correlator.cpp -o log-correlator">Copy</button>
+              </div>
+              <div class="proj-badges">
+                <span class="proj-badge badge-cat-sys">Systems</span>
+                <span class="proj-badge badge-native">Native Only</span>
+                <span class="proj-badge badge-nodep">No Deps</span>
+              </div>
+            </div>
+            <button class="src-toggle" data-target="src-log">
+              <span>&#128196; View Source — log_correlator.cpp</span>
+              <span class="arrow">&#8964;</span>
+            </button>
+            <div class="src-panel" id="src-log">
+              <pre><code class="language-cpp" data-src="cpp/log-correlator/log_correlator.cpp">// Loading source...</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 8. ARINC 429 ───────────────────────────────────── -->
+        <div class="col-lg-6 col-xl-4 cpp-reveal proj-item" data-cat="aerospace">
+          <div class="proj-card">
+            <div class="proj-card-top">
+              <div class="proj-codename">// CPP-008 — ARINC-429</div>
+              <div class="proj-header">
+                <h3 class="proj-title">ARINC 429 Decoder</h3>
+              </div>
+              <p class="proj-desc">Decodes ARINC 429 avionics bus words — the standard data bus on commercial and military fixed-wing aircraft. Supports BNR and BCD data formats, odd parity checking, and 20+ common label assignments.</p>
+              <ul class="proj-features">
+                <li>32-bit word structure: label(8) + SDI(2) + data(18) + SSM(2) + parity(1)</li>
+                <li>BNR and BCD data type decoding with engineering units</li>
+                <li>Labels: airspeed, altitude, lat/lon, Mach, heading, track angle</li>
+                <li>Odd parity verification on all words</li>
+              </ul>
+              <div class="build-box">
+                <span>g++ -std=c++17 -O2 arinc429_decoder.cpp -o arinc429-decoder</span>
+                <button class="copy-btn" data-copy="g++ -std=c++17 -O2 arinc429_decoder.cpp -o arinc429-decoder">Copy</button>
+              </div>
+              <div class="proj-badges">
+                <span class="proj-badge badge-cat-aed">Aerospace</span>
+                <span class="proj-badge badge-wasm">WASM ✓</span>
+                <span class="proj-badge badge-nodep">No Deps</span>
+              </div>
+            </div>
+            <button class="src-toggle" data-target="src-arinc">
+              <span>&#128196; View Source — arinc429_decoder.cpp</span>
+              <span class="arrow">&#8964;</span>
+            </button>
+            <div class="src-panel" id="src-arinc">
+              <pre><code class="language-cpp" data-src="cpp/arinc429/arinc429_decoder.cpp">// Loading source...</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 9. MIL-STD-1553 ────────────────────────────────── -->
+        <div class="col-lg-6 col-xl-4 cpp-reveal proj-item" data-cat="aerospace">
+          <div class="proj-card">
+            <div class="proj-card-top">
+              <div class="proj-codename">// CPP-009 — MIL-STD-1553</div>
+              <div class="proj-header">
+                <h3 class="proj-title">MIL-STD-1553B Bus Simulator</h3>
+              </div>
+              <p class="proj-desc">Simulates the MIL-STD-1553B avionics data bus used in the F-16, Apache, and hundreds of weapons systems. Models Bus Controller, Remote Terminals, and Bus Monitor with realistic synthetic avionics data.</p>
+              <ul class="proj-features">
+                <li>BC/RT/BM roles; command, data, and status word structures</li>
+                <li>5 simulated RTs: INS, Radar, FCR, ECS, Display</li>
+                <li>BC→RT transmit and RT→BC receive transactions</li>
+                <li>Bus Monitor transcript with full message decode</li>
+              </ul>
+              <div class="build-box">
+                <span>g++ -std=c++17 -O2 mil1553_sim.cpp -o mil1553-sim</span>
+                <button class="copy-btn" data-copy="g++ -std=c++17 -O2 mil1553_sim.cpp -o mil1553-sim">Copy</button>
+              </div>
+              <div class="proj-badges">
+                <span class="proj-badge badge-cat-aed">Aerospace</span>
+                <span class="proj-badge badge-wasm">WASM ✓</span>
+                <span class="proj-badge badge-nodep">No Deps</span>
+              </div>
+            </div>
+            <button class="src-toggle" data-target="src-1553">
+              <span>&#128196; View Source — mil1553_sim.cpp</span>
+              <span class="arrow">&#8964;</span>
+            </button>
+            <div class="src-panel" id="src-1553">
+              <pre><code class="language-cpp" data-src="cpp/mil-std-1553/mil1553_sim.cpp">// Loading source...</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 10. GPS ANTI-SPOOFING ──────────────────────────── -->
+        <div class="col-lg-6 col-xl-4 cpp-reveal proj-item" data-cat="aerospace">
+          <div class="proj-card">
+            <div class="proj-card-top">
+              <div class="proj-codename">// CPP-010 — GPS-ANTISPOOFING</div>
+              <div class="proj-header">
+                <h3 class="proj-title">GPS Anti-Spoofing Detector</h3>
+              </div>
+              <p class="proj-desc">Parses NMEA 0183 GPS sentences and applies six statistical detection algorithms to identify GPS spoofing attacks — critical for UAS, autonomous vehicles, and precision-guided systems.</p>
+              <ul class="proj-features">
+                <li>Parses $GPGGA, $GPRMC, $GPGSV sentences</li>
+                <li>Detects: position jump, uniform signal strength, C/N0 anomaly</li>
+                <li>Velocity inconsistency, time step anomaly, &lt;4 SV with valid fix</li>
+                <li>Severity: NOMINAL / SUSPICIOUS / SPOOFED with per-fix scoring</li>
+              </ul>
+              <div class="build-box">
+                <span>g++ -std=c++17 -O2 gps_detector.cpp -o gps-detector</span>
+                <button class="copy-btn" data-copy="g++ -std=c++17 -O2 gps_detector.cpp -o gps-detector">Copy</button>
+              </div>
+              <div class="proj-badges">
+                <span class="proj-badge badge-cat-aed">Aerospace</span>
+                <span class="proj-badge badge-wasm">WASM ✓</span>
+                <span class="proj-badge badge-nodep">No Deps</span>
+              </div>
+            </div>
+            <button class="src-toggle" data-target="src-gps">
+              <span>&#128196; View Source — gps_detector.cpp</span>
+              <span class="arrow">&#8964;</span>
+            </button>
+            <div class="src-panel" id="src-gps">
+              <pre><code class="language-cpp" data-src="cpp/gps-antispoofing/gps_detector.cpp">// Loading source...</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 11. RF ANOMALY ─────────────────────────────────── -->
+        <div class="col-lg-6 col-xl-4 cpp-reveal proj-item" data-cat="aerospace">
+          <div class="proj-card">
+            <div class="proj-card-top">
+              <div class="proj-codename">// CPP-011 — RF-ANOMALY</div>
+              <div class="proj-header">
+                <h3 class="proj-title">RF Anomaly Detector</h3>
+              </div>
+              <p class="proj-desc">Processes raw IQ samples using a from-scratch Cooley-Tukey FFT to compute power spectral density, then flags jamming, narrowband interference, frequency hopping, and unknown emissions — no FFTW required.</p>
+              <ul class="proj-features">
+                <li>Radix-2 Cooley-Tukey FFT, standalone &lt;complex&gt; only</li>
+                <li>Detects: CW jamming, wideband noise elevation, hop events</li>
+                <li>Configurable: sample rate, center freq, FFT size, frame overlap</li>
+                <li>Built-in IQ synthetic data generator for demo/test</li>
+              </ul>
+              <div class="build-box">
+                <span>g++ -std=c++17 -O2 -march=native rf_anomaly.cpp -o rf-anomaly</span>
+                <button class="copy-btn" data-copy="g++ -std=c++17 -O2 -march=native rf_anomaly.cpp -o rf-anomaly">Copy</button>
+              </div>
+              <div class="proj-badges">
+                <span class="proj-badge badge-cat-aed">Aerospace</span>
+                <span class="proj-badge badge-native">Native Only</span>
+                <span class="proj-badge badge-nodep">No Deps</span>
+              </div>
+            </div>
+            <button class="src-toggle" data-target="src-rf">
+              <span>&#128196; View Source — rf_anomaly.cpp</span>
+              <span class="arrow">&#8964;</span>
+            </button>
+            <div class="src-panel" id="src-rf">
+              <pre><code class="language-cpp" data-src="cpp/rf-anomaly/rf_anomaly.cpp">// Loading source...</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 12. MEMORY SCANNER ─────────────────────────────── -->
+        <div class="col-lg-6 col-xl-4 cpp-reveal proj-item" data-cat="cybersecurity">
+          <div class="proj-card">
+            <div class="proj-card-top">
+              <div class="proj-codename">// CPP-012 — MEMORY-SCANNER</div>
+              <div class="proj-header">
+                <h3 class="proj-title">Process Memory IOC Scanner</h3>
+              </div>
+              <p class="proj-desc">Scans live Linux process memory via /proc/&lt;pid&gt;/maps and /proc/&lt;pid&gt;/mem for IOC strings — Meterpreter shellcode markers, Cobalt Strike beacon signatures, reflective DLL injection artifacts, and mimikatz strings.</p>
+              <ul class="proj-features">
+                <li>Reads /proc filesystem; no ptrace dependency</li>
+                <li>Built-in IOC list: CS beacon, Meterpreter, mimikatz, reflective DLL</li>
+                <li>Reports: PID, region range, IOC matched, hex dump context</li>
+                <li>Linux-only by design (compile-time static_assert)</li>
+              </ul>
+              <div class="build-box">
+                <span>g++ -std=c++17 -O2 memory_scanner.cpp -o memory-scanner</span>
+                <button class="copy-btn" data-copy="g++ -std=c++17 -O2 memory_scanner.cpp -o memory-scanner">Copy</button>
+              </div>
+              <div class="proj-badges">
+                <span class="proj-badge badge-cat-sec">Cybersecurity</span>
+                <span class="proj-badge badge-linux">Linux Only</span>
+                <span class="proj-badge badge-native">Native Only</span>
+              </div>
+            </div>
+            <button class="src-toggle" data-target="src-mem">
+              <span>&#128196; View Source — memory_scanner.cpp</span>
+              <span class="arrow">&#8964;</span>
+            </button>
+            <div class="src-panel" id="src-mem">
+              <pre><code class="language-cpp" data-src="cpp/memory-scanner/memory_scanner.cpp">// Loading source...</code></pre>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /proj-grid -->
+    </section>
+
+    <!-- BUILD MATRIX -->
+    <section class="container py-5" id="build-matrix">
+      <h2 class="section-title cpp-reveal">Build Matrix</h2>
+      <p class="text-body-secondary mb-4 cpp-reveal">Compatibility, dependencies, and WASM support at a glance.</p>
+      <div class="table-responsive cpp-reveal">
+        <table class="table table-hover align-middle matrix-table" style="font-size:.82rem;">
+          <thead>
+            <tr>
+              <th>Project</th>
+              <th>Category</th>
+              <th>Linux</th>
+              <th>macOS</th>
+              <th>Windows (MSVC)</th>
+              <th>WASM (Emscripten)</th>
+              <th>Dependencies</th>
+              <th>C++ Std</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Entropy Scanner</td>   <td><span class="badge" style="background:#991b1b;font-size:.7rem">Security</span></td>  <td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td>None</td><td>C++17</td></tr>
+            <tr><td>CUI Classifier</td>    <td><span class="badge" style="background:#991b1b;font-size:.7rem">Security</span></td>  <td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td>None</td><td>C++17</td></tr>
+            <tr><td>YARA-Lite</td>         <td><span class="badge" style="background:#991b1b;font-size:.7rem">Security</span></td>  <td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td>None</td><td>C++17</td></tr>
+            <tr><td>Packet Analyzer</td>   <td><span class="badge" style="background:#991b1b;font-size:.7rem">Security</span></td>  <td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-dep">⚠ MinGW</td><td class="compat-no">✗</td><td>None</td><td>C++17</td></tr>
+            <tr><td>AES-256 Vault</td>     <td><span class="badge" style="background:#6d28d9;font-size:.7rem">Systems</span></td>   <td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-dep">⚠ OpenSSL</td><td class="compat-dep">⚠ Emscripten OpenSSL port</td><td>OpenSSL 3.x</td><td>C++17</td></tr>
+            <tr><td>ZT Policy Engine</td>  <td><span class="badge" style="background:#6d28d9;font-size:.7rem">Systems</span></td>   <td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td>None</td><td>C++17</td></tr>
+            <tr><td>Log Correlator</td>    <td><span class="badge" style="background:#6d28d9;font-size:.7rem">Systems</span></td>   <td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-dep">⚠ MSVC std::thread</td><td class="compat-no">✗ (pthreads)</td><td>None (pthreads)</td><td>C++17</td></tr>
+            <tr><td>ARINC 429 Decoder</td> <td><span class="badge" style="background:#0369a1;font-size:.7rem">A&amp;D</span></td> <td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td>None</td><td>C++17</td></tr>
+            <tr><td>MIL-STD-1553 Sim</td>  <td><span class="badge" style="background:#0369a1;font-size:.7rem">A&amp;D</span></td> <td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td>None</td><td>C++17</td></tr>
+            <tr><td>GPS Anti-Spoof</td>    <td><span class="badge" style="background:#0369a1;font-size:.7rem">A&amp;D</span></td> <td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td>None</td><td>C++17</td></tr>
+            <tr><td>RF Anomaly Detector</td><td><span class="badge" style="background:#0369a1;font-size:.7rem">A&amp;D</span></td><td class="compat-yes">✓</td><td class="compat-yes">✓</td><td class="compat-dep">⚠ no -march=native</td><td class="compat-no">✗ (IQ file I/O)</td><td>None</td><td>C++17</td></tr>
+            <tr><td>Memory Scanner</td>    <td><span class="badge" style="background:#991b1b;font-size:.7rem">Security</span></td>  <td class="compat-yes">✓</td><td class="compat-no">✗</td><td class="compat-no">✗</td><td class="compat-no">✗</td><td>None (/proc)</td><td>C++17</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="text-body-secondary small mt-2 cpp-reveal"><strong>⚠</strong> = compiles with minor adjustments. <strong>✗</strong> = not supported by design (OS/hardware dependency). All projects require a C++17-capable compiler (GCC 9+, Clang 10+, MSVC 2019+).</p>
+    </section>
+
+    <!-- DEPLOY GUIDE -->
+    <section class="deploy-section" id="deploy-guide" style="background:var(--bs-secondary-bg);border-top:1px solid var(--bs-border-color);">
+      <div class="container">
+        <h2 class="section-title cpp-reveal">Deployment Guide</h2>
+        <p class="text-body-secondary mb-4 cpp-reveal">C++ must be compiled before it runs. Choose the deployment path that matches your target environment.</p>
+
+        <div class="row g-4">
+
+          <!-- Linux/macOS -->
+          <div class="col-lg-6 cpp-reveal">
+            <div class="deploy-card">
+              <h4>&#128039; Linux / macOS — Native Binary</h4>
+              <p class="text-body-secondary small mb-3">Fastest path. Produces a native binary that runs directly on your system. Recommended for all security tooling and any project marked <span class="proj-badge badge-native" style="font-size:.65rem">Native Only</span>.</p>
+              <div class="deploy-step">
+                <div class="deploy-step-num">1</div>
+                <div class="deploy-step-body">
+                  <div class="deploy-step-title">Install a C++17 compiler</div>
+                  <div class="deploy-step-desc">Ubuntu/Debian: <code>sudo apt install g++ build-essential</code><br>macOS: <code>xcode-select --install</code> (installs Clang)<br>Fedora/RHEL: <code>sudo dnf install gcc-c++</code></div>
+                </div>
+              </div>
+              <div class="deploy-step">
+                <div class="deploy-step-num">2</div>
+                <div class="deploy-step-body">
+                  <div class="deploy-step-title">Install OpenSSL (for AES Vault only)</div>
+                  <div class="deploy-step-desc">Ubuntu: <code>sudo apt install libssl-dev</code><br>macOS: <code>brew install openssl</code> then add <code>-I$(brew --prefix openssl)/include -L$(brew --prefix openssl)/lib</code></div>
+                </div>
+              </div>
+              <div class="deploy-step">
+                <div class="deploy-step-num">3</div>
+                <div class="deploy-step-body">
+                  <div class="deploy-step-title">Compile and run</div>
+                  <div class="cmd-block"><span class="cmd-comment"># Clone or download the project</span>
+cd cpp/entropy-scanner
+
+<span class="cmd-comment"># Compile (replace with project-specific command)</span>
+g++ -std=c++17 -O2 entropy_scanner.cpp -o entropy-scanner
+
+<span class="cmd-comment"># Run</span>
+./entropy-scanner /path/to/scan</div>
+                </div>
+              </div>
+              <div class="deploy-step">
+                <div class="deploy-step-num">4</div>
+                <div class="deploy-step-body">
+                  <div class="deploy-step-title">Strip and deploy</div>
+                  <div class="cmd-block"><span class="cmd-comment"># Reduce binary size</span>
+strip entropy-scanner
+
+<span class="cmd-comment"># Install system-wide (optional)</span>
+sudo cp entropy-scanner /usr/local/bin/</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Windows -->
+          <div class="col-lg-6 cpp-reveal">
+            <div class="deploy-card">
+              <h4>&#128252; Windows — MSVC or MinGW</h4>
+              <p class="text-body-secondary small mb-3">Two paths: Visual Studio (MSVC) for best Windows integration, or MinGW-w64 for GCC-compatible builds. Projects marked <span class="proj-badge badge-linux" style="font-size:.65rem">Linux Only</span> cannot run on Windows.</p>
+              <div class="deploy-step">
+                <div class="deploy-step-num">1</div>
+                <div class="deploy-step-body">
+                  <div class="deploy-step-title">Install Visual Studio 2022 (MSVC)</div>
+                  <div class="deploy-step-desc">Download Visual Studio Community (free). Select "Desktop development with C++" workload. This installs cl.exe, MSVC stdlib, and the Windows SDK.</div>
+                </div>
+              </div>
+              <div class="deploy-step">
+                <div class="deploy-step-num">2</div>
+                <div class="deploy-step-body">
+                  <div class="deploy-step-title">Or install MinGW-w64 (GCC for Windows)</div>
+                  <div class="deploy-step-desc">Install via <code>winget install GnuWin32.GnuMake</code> or download MSYS2 (<code>msys2.org</code>) and run: <code>pacman -S mingw-w64-x86_64-gcc</code></div>
+                </div>
+              </div>
+              <div class="deploy-step">
+                <div class="deploy-step-num">3</div>
+                <div class="deploy-step-body">
+                  <div class="deploy-step-title">Compile (Developer Command Prompt)</div>
+                  <div class="cmd-block"><span class="cmd-comment">:: MSVC</span>
+cl /std:c++17 /O2 /EHsc entropy_scanner.cpp /Fe:entropy-scanner.exe
+
+<span class="cmd-comment">:: MinGW (in MSYS2 shell)</span>
+g++ -std=c++17 -O2 entropy_scanner.cpp -o entropy-scanner.exe</div>
+                </div>
+              </div>
+              <div class="deploy-step">
+                <div class="deploy-step-num">4</div>
+                <div class="deploy-step-body">
+                  <div class="deploy-step-title">OpenSSL on Windows (AES Vault)</div>
+                  <div class="deploy-step-desc">Install via: <code>winget install ShiningLight.OpenSSL</code><br>Then add to link flags: <code>/I "C:\Program Files\OpenSSL-Win64\include" libssl.lib libcrypto.lib</code></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- WebAssembly -->
+          <div class="col-lg-6 cpp-reveal">
+            <div class="deploy-card">
+              <h4>&#127760; WebAssembly — Run in the Browser</h4>
+              <p class="text-body-secondary small mb-3">Compile C++ to <code>.wasm</code> using Emscripten, then host on GitHub Pages. Only projects marked <span class="proj-badge badge-wasm" style="font-size:.65rem">WASM ✓</span> are compatible (no OS-level system calls).</p>
+              <div class="deploy-step">
+                <div class="deploy-step-num">1</div>
+                <div class="deploy-step-body">
+                  <div class="deploy-step-title">Install Emscripten SDK</div>
+                  <div class="cmd-block">git clone https://github.com/emscripten-core/emsdk.git
+cd emsdk
+./emsdk install latest
+./emsdk activate latest
+source ./emsdk_env.sh  <span class="cmd-comment"># Linux/macOS</span>
+emsdk_env.bat          <span class="cmd-comment"># Windows</span></div>
+                </div>
+              </div>
+              <div class="deploy-step">
+                <div class="deploy-step-num">2</div>
+                <div class="deploy-step-body">
+                  <div class="deploy-step-title">Compile to WASM</div>
+                  <div class="cmd-block">em++ -std=c++17 -O2 entropy_scanner.cpp \
+  -o entropy_scanner.js \
+  -s EXPORTED_FUNCTIONS='["_main"]' \
+  -s ALLOW_MEMORY_GROWTH=1 \
+  -s MODULARIZE=1 \
+  --bind</div>
+                </div>
+              </div>
+              <div class="deploy-step">
+                <div class="deploy-step-num">3</div>
+                <div class="deploy-step-body">
+                  <div class="deploy-step-title">Host on GitHub Pages</div>
+                  <div class="deploy-step-desc">Copy the generated <code>.js</code> and <code>.wasm</code> files to your repo. Load the JS module in an HTML page. GitHub Pages serves <code>.wasm</code> with correct MIME type (<code>application/wasm</code>) automatically.</div>
+                </div>
+              </div>
+              <div class="deploy-step">
+                <div class="deploy-step-num">4</div>
+                <div class="deploy-step-body">
+                  <div class="deploy-step-title">Why WASM limitations exist</div>
+                  <div class="deploy-step-desc">Projects using raw sockets, <code>/proc</code>, <code>ptrace</code>, or hardware I/O cannot compile to WASM — the browser sandbox blocks OS-level calls. Projects marked <span class="proj-badge badge-native" style="font-size:.65rem">Native Only</span> fall into this category.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Docker -->
+          <div class="col-lg-6 cpp-reveal">
+            <div class="deploy-card">
+              <h4>&#127959; Docker — Reproducible Build Container</h4>
+              <p class="text-body-secondary small mb-3">Best for CI/CD, sharing pre-built binaries, or running Linux-only tools on Windows/macOS without dual-booting.</p>
+              <div class="deploy-step">
+                <div class="deploy-step-num">1</div>
+                <div class="deploy-step-body">
+                  <div class="deploy-step-title">Dockerfile (multi-stage build)</div>
+                  <div class="cmd-block">FROM gcc:13 AS builder
+WORKDIR /src
+COPY . .
+RUN g++ -std=c++17 -O2 -static \
+    entropy_scanner.cpp -o entropy-scanner
+
+FROM debian:bookworm-slim
+COPY --from=builder /src/entropy-scanner /usr/local/bin/
+ENTRYPOINT ["entropy-scanner"]</div>
+                </div>
+              </div>
+              <div class="deploy-step">
+                <div class="deploy-step-num">2</div>
+                <div class="deploy-step-body">
+                  <div class="deploy-step-title">Build and run</div>
+                  <div class="cmd-block">docker build -t entropy-scanner .
+docker run --rm -v $(pwd)/files:/scan \
+  entropy-scanner /scan</div>
+                </div>
+              </div>
+              <div class="deploy-step">
+                <div class="deploy-step-num">3</div>
+                <div class="deploy-step-body">
+                  <div class="deploy-step-title">Memory scanner (requires privileged)</div>
+                  <div class="cmd-block">docker run --rm --privileged \
+  --pid=host \
+  memory-scanner 1234</div>
+                </div>
+              </div>
+              <div class="deploy-step">
+                <div class="deploy-step-num">4</div>
+                <div class="deploy-step-body">
+                  <div class="deploy-step-title">GitHub Actions CI build</div>
+                  <div class="cmd-block">- name: Build C++ tools
+  run: |
+    sudo apt-get install -y libssl-dev
+    for dir in cpp/*/; do
+      cd "$dir" && g++ -std=c++17 -O2 *.cpp \
+        -lssl -lcrypto -o "$(basename $dir)" \
+        2>/dev/null || g++ -std=c++17 -O2 *.cpp \
+        -o "$(basename $dir)"; cd ../..
+    done</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /row -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- RBAC Login Modal -->
+  <div class="modal" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header"><h2 class="modal-title fs-5" id="rbacModalLabel">&#128274; Login</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+        <div class="modal-body"><!-- roles.js injects login form here --></div>
+        <div class="modal-footer border-0 pt-0"><p class="text-secondary small mb-0">Session clears when you close this tab.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" />
+      </a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" />
+      </a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="privacy.html">Privacy Policy</a> &middot; <a href="terms.html">Terms</a></p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmyQWuGmUhSBQOVCp7p5pT1gkTJ" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/cpp.min.js"></script>
+  <script src="users.js" defer></script>
+  <script src="roles.js" defer></script>
+  <script src="script.js" defer></script>
+
+  <script>
+  (function() {
+    /* ── Scroll reveal ─────────────────────────────────────── */
+    var io = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.08 });
+    document.querySelectorAll('.cpp-reveal').forEach(function(el) { io.observe(el); });
+
+    /* ── Filter tabs ────────────────────────────────────────── */
+    document.querySelectorAll('.filter-tab').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.filter-tab').forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        var filter = btn.getAttribute('data-filter');
+        document.querySelectorAll('.proj-item').forEach(function(card) {
+          var cat = card.getAttribute('data-cat');
+          card.style.display = (filter === 'all' || cat === filter) ? '' : 'none';
+        });
+      });
+    });
+
+    /* ── Source code toggle + lazy load ─────────────────────── */
+    var srcCache = {};
+    document.querySelectorAll('.src-toggle').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var targetId = btn.getAttribute('data-target');
+        var panel    = document.getElementById(targetId);
+        var isOpen   = panel.classList.contains('open');
+
+        // Close all
+        document.querySelectorAll('.src-panel.open').forEach(function(p) { p.classList.remove('open'); });
+        document.querySelectorAll('.src-toggle.open').forEach(function(b) { b.classList.remove('open'); });
+
+        if (!isOpen) {
+          panel.classList.add('open');
+          btn.classList.add('open');
+
+          // Lazy-load source file
+          var codeEl = panel.querySelector('code[data-src]');
+          if (codeEl && !codeEl.getAttribute('data-loaded')) {
+            var src = codeEl.getAttribute('data-src');
+            if (srcCache[src]) {
+              codeEl.textContent = srcCache[src];
+              hljs.highlightElement(codeEl);
+              codeEl.setAttribute('data-loaded', '1');
+            } else {
+              fetch(src)
+                .then(function(r) { return r.ok ? r.text() : '// Source not yet available — check back after build agents complete.'; })
+                .catch(function() { return '// Source file not found. See cpp/' + src.split('/').slice(-2).join('/'); })
+                .then(function(text) {
+                  srcCache[src] = text;
+                  codeEl.textContent = text;
+                  hljs.highlightElement(codeEl);
+                  codeEl.setAttribute('data-loaded', '1');
+                });
+            }
+          }
+        }
+      });
+    });
+
+    /* ── Copy-to-clipboard ──────────────────────────────────── */
+    document.querySelectorAll('.copy-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var text = btn.getAttribute('data-copy');
+        navigator.clipboard.writeText(text).then(function() {
+          var orig = btn.textContent;
+          btn.textContent = 'Copied!';
+          btn.style.color = '#4ade80';
+          setTimeout(function() { btn.textContent = orig; btn.style.color = ''; }, 1800);
+        }).catch(function() {
+          btn.textContent = 'Ctrl+C';
+          setTimeout(function() { btn.textContent = 'Copy'; }, 1800);
+        });
+      });
+    });
+  })();
+  </script>
+  <script src="analytics.js" defer></script>
+
+<!-- bot-trap -->
+<div aria-hidden="true" style="position:absolute;left:-99999px;top:auto;width:1px;height:1px;overflow:hidden">
+  <a href="honeypot.html" tabindex="-1">admin-legacy-export</a>
+</div>
+</body>
+</html>
