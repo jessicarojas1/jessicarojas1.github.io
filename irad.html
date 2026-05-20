@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; img-src 'self' https://cdn.jsdelivr.net data: blob:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self' https://cdn.jsdelivr.net; worker-src blob:; object-src 'none'; base-uri 'self';">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="theme.css" />
+  <title>IRAD Research Lab | Jessica Rojas</title>
+  <meta name="description" content="Independent Research and Development — advancing compliance automation, zero trust architecture, and AI-augmented cybersecurity for the defense industrial base." />
+  <style>
+    /* ── IRAD Hero ─────────────────────────────────────────────── */
+    .irad-hero {
+      padding: 5rem 1rem 4rem;
+      text-align: center;
+      background:
+        radial-gradient(ellipse 90% 70% at 50% -5%, rgba(34,211,238,0.10) 0%, transparent 65%),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(255,88,17,0.08) 0%, transparent 60%),
+        var(--bs-body-bg);
+      border-bottom: 1px solid var(--bs-border-color);
+      position: relative;
+      overflow: hidden;
+    }
+    .irad-hero::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--cerulean), #ff5811, #ff9966, var(--cerulean), transparent);
+      background-size: 200% 100%;
+      animation: shimmer 3s linear infinite;
+    }
+    .irad-hero h1 {
+      font-size: clamp(2.4rem, 7vw, 4.5rem);
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--cerulean) 0%, #ff5811 50%, #ff9966 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradient-shift 5s ease infinite;
+      line-height: 1.1;
+      margin-bottom: .75rem;
+    }
+    .irad-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      background: rgba(34,211,238,.08);
+      border: 1px solid rgba(34,211,238,.25);
+      border-radius: 2rem;
+      padding: .35rem 1rem;
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--cerulean);
+      margin-bottom: 1.2rem;
+    }
+    .irad-badge .pulse-ring {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--cerulean);
+      position: relative;
+      flex-shrink: 0;
+    }
+    .irad-badge .pulse-ring::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 1.5px solid var(--cerulean);
+      animation: ping 1.8s ease-out infinite;
+    }
+    @keyframes ping {
+      0%   { transform: scale(1); opacity: .8; }
+      100% { transform: scale(2.5); opacity: 0; }
+    }
+
+    /* ── Stat bar ──────────────────────────────────────────────── */
+    .irad-stats-bar {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0;
+      border-top: 1px solid var(--bs-border-color);
+      border-bottom: 1px solid var(--bs-border-color);
+      background: var(--bs-secondary-bg);
+    }
+    .irad-stat {
+      flex: 1 1 140px;
+      max-width: 200px;
+      padding: 1.4rem 1rem;
+      text-align: center;
+      border-right: 1px solid var(--bs-border-color);
+      position: relative;
+    }
+    .irad-stat:last-child { border-right: none; }
+    .irad-stat .val {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--bs-emphasis-color);
+      line-height: 1;
+      display: block;
+    }
+    .irad-stat .val.accent-orange { color: #ff5811; }
+    .irad-stat .val.accent-cyan   { color: var(--cerulean); }
+    .irad-stat .val.accent-green  { color: var(--neon-green); }
+    .irad-stat .lbl {
+      font-size: .68rem;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--bs-secondary-color);
+      margin-top: .3rem;
+      display: block;
+    }
+
+    /* ── Section container ─────────────────────────────────────── */
+    .irad-section { padding: 3.5rem 0; }
+    .irad-section + .irad-section { border-top: 1px solid var(--bs-border-color); }
+
+    /* ── Research initiative cards ─────────────────────────────── */
+    .initiative-card {
+      background: var(--bs-secondary-bg);
+      border: 1px solid var(--bs-border-color);
+      border-radius: 12px;
+      padding: 1.4rem;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      transition: border-color .2s, box-shadow .2s, transform .2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .initiative-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      border-radius: 12px 12px 0 0;
+    }
+    .initiative-card.trl-low::before    { background: linear-gradient(90deg, #6366f1, #8b5cf6); }
+    .initiative-card.trl-mid::before    { background: linear-gradient(90deg, #ff5811, #ff9966); }
+    .initiative-card.trl-high::before   { background: linear-gradient(90deg, #22c55e, #3fb950); }
+    .initiative-card.trl-advanced::before { background: linear-gradient(90deg, var(--cerulean), #60a5fa); }
+    .initiative-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 32px rgba(0,0,0,.35), 0 0 0 1px rgba(255,88,17,.15);
+      border-color: rgba(255,88,17,.3);
+    }
+    .init-codename {
+      font-family: 'SFMono-Regular', Consolas, monospace;
+      font-size: .72rem;
+      letter-spacing: .14em;
+      color: var(--bs-secondary-color);
+      text-transform: uppercase;
+      margin-bottom: .5rem;
+    }
+    .init-status {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      font-size: .72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      border-radius: 2rem;
+      padding: .2rem .65rem;
+      margin-bottom: .75rem;
+    }
+    .init-status.active      { background: rgba(59,246,96,.1);   color: #3fb950; border: 1px solid rgba(59,246,96,.25); }
+    .init-status.prototype   { background: rgba(255,88,17,.1);   color: #ff7a40; border: 1px solid rgba(255,88,17,.25); }
+    .init-status.research    { background: rgba(139,92,246,.1);  color: #a78bfa; border: 1px solid rgba(139,92,246,.25); }
+    .init-status.advanced    { background: rgba(34,211,238,.1);  color: var(--cerulean); border: 1px solid rgba(34,211,238,.25); }
+    .init-status .status-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      flex-shrink: 0;
+    }
+    .init-status.active .status-dot { animation: statusblink 1.5s ease-in-out infinite; }
+    @keyframes statusblink { 0%,100%{opacity:1;} 50%{opacity:.3;} }
+
+    .init-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--bs-emphasis-color);
+      margin-bottom: .5rem;
+      line-height: 1.3;
+    }
+    .init-desc {
+      font-size: .85rem;
+      color: var(--bs-secondary-color);
+      line-height: 1.6;
+      flex: 1;
+      margin-bottom: 1rem;
+    }
+
+    /* TRL Indicator */
+    .trl-block { margin-top: auto; }
+    .trl-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: .72rem;
+      color: var(--bs-secondary-color);
+      margin-bottom: .35rem;
+    }
+    .trl-label strong { color: var(--bs-emphasis-color); }
+    .trl-track {
+      display: flex;
+      gap: 3px;
+      margin-bottom: .75rem;
+    }
+    .trl-pip {
+      flex: 1;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--bs-tertiary-bg, #21262d);
+      transition: background .4s ease;
+    }
+    .trl-pip.filled.trl-low    { background: #8b5cf6; }
+    .trl-pip.filled.trl-mid    { background: #ff5811; }
+    .trl-pip.filled.trl-high   { background: #22c55e; }
+    .trl-pip.filled.trl-advanced { background: var(--cerulean); }
+    .trl-pip.current { box-shadow: 0 0 8px currentColor; }
+
+    /* Tech tags */
+    .tech-tags { display: flex; flex-wrap: wrap; gap: .3rem; }
+    .tech-tag {
+      font-size: .68rem;
+      font-weight: 600;
+      font-family: 'SFMono-Regular', Consolas, monospace;
+      padding: .15rem .55rem;
+      border-radius: .3rem;
+      background: var(--bs-tertiary-bg, #21262d);
+      color: var(--bs-secondary-color);
+      border: 1px solid var(--bs-border-color);
+      letter-spacing: .04em;
+    }
+
+    /* ── Focus area cards ─────────────────────────────────────── */
+    .focus-card {
+      background: var(--bs-secondary-bg);
+      border: 1px solid var(--bs-border-color);
+      border-radius: 10px;
+      padding: 1.25rem 1rem;
+      text-align: center;
+      transition: border-color .2s, box-shadow .2s, transform .2s;
+      cursor: default;
+    }
+    .focus-card:hover {
+      border-color: rgba(255,88,17,.4);
+      box-shadow: 0 0 0 1px rgba(255,88,17,.15), var(--glow-sm);
+      transform: translateY(-2px);
+    }
+    .focus-icon {
+      font-size: 2rem;
+      margin-bottom: .6rem;
+      display: block;
+      filter: drop-shadow(0 0 6px rgba(255,88,17,.3));
+    }
+    .focus-title { font-size: .85rem; font-weight: 700; color: var(--bs-emphasis-color); margin-bottom: .3rem; }
+    .focus-sub   { font-size: .73rem; color: var(--bs-secondary-color); line-height: 1.4; }
+
+    /* ── Research Roadmap / Timeline ──────────────────────────── */
+    .roadmap-track {
+      position: relative;
+      padding-left: 2rem;
+    }
+    .roadmap-track::before {
+      content: '';
+      position: absolute;
+      left: .7rem;
+      top: .5rem;
+      bottom: .5rem;
+      width: 2px;
+      background: linear-gradient(180deg, #8b5cf6, #ff5811, var(--cerulean));
+      border-radius: 2px;
+    }
+    .roadmap-item {
+      position: relative;
+      padding: 0 0 2rem 1.5rem;
+    }
+    .roadmap-item:last-child { padding-bottom: 0; }
+    .roadmap-dot {
+      position: absolute;
+      left: -1.35rem;
+      top: .35rem;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      border: 2px solid var(--bs-border-color);
+      background: var(--bs-secondary-bg);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .roadmap-dot.done      { background: #22c55e; border-color: #22c55e; box-shadow: 0 0 10px rgba(34,197,94,.5); }
+    .roadmap-dot.active    { background: #ff5811; border-color: #ff5811; box-shadow: 0 0 10px rgba(255,88,17,.6); animation: roadpulse 2s ease-in-out infinite; }
+    .roadmap-dot.upcoming  { background: var(--bs-tertiary-bg, #21262d); border-color: var(--bs-border-color); }
+    @keyframes roadpulse { 0%,100%{box-shadow:0 0 8px rgba(255,88,17,.5);} 50%{box-shadow:0 0 18px rgba(255,88,17,.9);} }
+    .roadmap-phase {
+      font-size: .7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--bs-secondary-color);
+      margin-bottom: .25rem;
+    }
+    .roadmap-title {
+      font-size: .95rem;
+      font-weight: 700;
+      color: var(--bs-emphasis-color);
+      margin-bottom: .3rem;
+    }
+    .roadmap-desc { font-size: .82rem; color: var(--bs-secondary-color); line-height: 1.55; }
+    .roadmap-milestones {
+      margin-top: .6rem;
+      display: flex;
+      flex-direction: column;
+      gap: .2rem;
+    }
+    .milestone-item {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      font-size: .78rem;
+      color: var(--bs-secondary-color);
+    }
+    .milestone-item.done  { color: #22c55e; }
+    .milestone-item.wip   { color: #ff9966; }
+    .milestone-tick { font-size: .8rem; flex-shrink: 0; }
+
+    /* ── IP Portfolio table ───────────────────────────────────── */
+    .ip-table td, .ip-table th { vertical-align: middle; }
+    .ip-status-pill {
+      display: inline-block;
+      font-size: .7rem;
+      font-weight: 700;
+      padding: .2rem .65rem;
+      border-radius: 2rem;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+    }
+    .ip-status-pill.pending   { background: rgba(250,204,21,.12); color: #fbbf24; border: 1px solid rgba(250,204,21,.25); }
+    .ip-status-pill.internal  { background: rgba(34,211,238,.1);  color: var(--cerulean); border: 1px solid rgba(34,211,238,.25); }
+    .ip-status-pill.open-m    { background: rgba(34,197,94,.1);   color: #4ade80; border: 1px solid rgba(34,197,94,.25); }
+    .ip-status-pill.research  { background: rgba(139,92,246,.1);  color: #c4b5fd; border: 1px solid rgba(139,92,246,.25); }
+
+    /* ── Terminal / code display ─────────────────────────────── */
+    .terminal-block {
+      background: #0d1117;
+      border: 1px solid var(--bs-border-color);
+      border-radius: 10px;
+      overflow: hidden;
+      font-family: 'SFMono-Regular', Consolas, monospace;
+    }
+    .terminal-bar {
+      background: var(--bs-tertiary-bg, #21262d);
+      border-bottom: 1px solid var(--bs-border-color);
+      padding: .5rem .75rem;
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+    }
+    .terminal-bar .dot { width:10px;height:10px;border-radius:50%; }
+    .terminal-bar .dot:nth-child(1) { background:#ef4444; }
+    .terminal-bar .dot:nth-child(2) { background:#fbbf24; }
+    .terminal-bar .dot:nth-child(3) { background:#22c55e; }
+    .terminal-bar .title-bar { margin-left:.4rem; font-size:.72rem; color: var(--bs-secondary-color); letter-spacing:.05em; }
+    .terminal-body { padding: 1rem 1.25rem; font-size: .82rem; line-height: 1.7; }
+    .term-comment  { color: #484f58; }
+    .term-key      { color: var(--cerulean); }
+    .term-val      { color: #ff9966; }
+    .term-green    { color: #3fb950; }
+    .term-orange   { color: #ff5811; }
+    .term-purple   { color: #c4b5fd; }
+    .term-prompt   { color: var(--bs-secondary-color); }
+
+    /* ── Collaboration CTA ───────────────────────────────────── */
+    .collab-card {
+      background: linear-gradient(135deg, rgba(255,88,17,.06) 0%, rgba(34,211,238,.06) 100%);
+      border: 1px solid var(--bs-border-color);
+      border-radius: 14px;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .collab-card:hover {
+      border-color: rgba(255,88,17,.3);
+      box-shadow: var(--glow-sm);
+    }
+    .collab-icon { font-size: 2.2rem; margin-bottom: .6rem; display: block; }
+    .collab-title { font-size: 1rem; font-weight: 700; color: var(--bs-emphasis-color); margin-bottom: .4rem; }
+    .collab-desc  { font-size: .82rem; color: var(--bs-secondary-color); line-height: 1.55; }
+
+    /* ── Metrics row ─────────────────────────────────────────── */
+    .metric-card {
+      border: 1px solid var(--bs-border-color);
+      background: var(--bs-secondary-bg);
+      border-radius: 10px;
+      padding: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .metric-icon-wrap {
+      width: 46px; height: 46px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+    .metric-icon-wrap.orange { background: rgba(255,88,17,.12); }
+    .metric-icon-wrap.cyan   { background: rgba(34,211,238,.1); }
+    .metric-icon-wrap.green  { background: rgba(34,197,94,.1); }
+    .metric-icon-wrap.purple { background: rgba(139,92,246,.1); }
+    .metric-val  { font-size: 1.6rem; font-weight: 800; color: var(--bs-emphasis-color); line-height: 1; }
+    .metric-lbl  { font-size: .75rem; color: var(--bs-secondary-color); margin-top: .15rem; }
+
+    /* ── Fade-in on scroll ───────────────────────────────────── */
+    .irad-reveal { opacity: 0; transform: translateY(20px); transition: opacity .6s ease, transform .6s ease; }
+    .irad-reveal.visible { opacity: 1; transform: none; }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="index.html"><span style="color:var(--bs-primary)">J</span>Rojas</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="about.html">About</a></li>
+          <li class="nav-item"><a class="nav-link" href="projects.html">Projects</a></li>
+          <li class="nav-item"><a class="nav-link" href="resume.html">Resume</a></li>
+          <li class="nav-item"><a class="nav-link" href="timeline.html">Timeline</a></li>
+          <li class="nav-item"><a class="nav-link" href="cybersecurity.html">Cybersecurity</a></li>
+          <li class="nav-item"><a class="nav-link" href="consultant.html">Consultant</a></li>
+          <li class="nav-item"><a class="nav-link active" href="irad.html" aria-current="page">IRAD</a></li>
+          <li class="nav-item"><a class="nav-link" href="services.html">Services</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="blog.html">Blog</a></li>
+          <li class="nav-item" id="nav-tracker-link" style="display:none">
+            <a class="nav-link" href="compliancetracker.html">Tracker</a>
+          </li>
+          <li class="nav-item" id="nav-jobtracker-link" style="display:none">
+            <a class="nav-link" href="jobtracker.html">Job Tracker</a>
+          </li>
+          <li class="nav-item" id="nav-dataanalysis-link" style="display:none">
+            <a class="nav-link" href="dataanalysis.html">Data Analysis</a>
+          </li>
+          <li class="nav-item" data-role-min="admin" style="display:none">
+            <a class="nav-link" href="admin.html">User Admin</a>
+          </li>
+        </ul>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+          <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
+          <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
+            <span id="rbac-role-badge" class="badge bg-secondary"></span>
+            <span id="rbac-username" class="text-body-secondary small fw-semibold"></span>
+            <button class="btn btn-sm btn-outline-danger" id="rbac-logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content">
+
+    <!-- ══ HERO ═══════════════════════════════════════════════════════ -->
+    <section class="irad-hero">
+      <div class="container">
+        <div class="irad-badge">
+          <span class="pulse-ring"></span>
+          Independent Research &amp; Development &mdash; Active Program
+        </div>
+        <h1>IRAD Research Lab</h1>
+        <p class="lead text-body-secondary mx-auto" style="max-width:680px">
+          Self-funded R&amp;D advancing compliance automation, zero trust architecture,
+          and AI-augmented cybersecurity for the Defense Industrial Base.
+        </p>
+        <div class="d-flex justify-content-center gap-2 flex-wrap mt-4">
+          <a href="#initiatives" class="btn btn-primary btn-lg">View Initiatives</a>
+          <a href="#roadmap" class="btn btn-outline-light btn-lg">Research Roadmap</a>
+          <a href="contact.html" class="btn btn-outline-secondary btn-lg">Collaborate</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ STATS BAR ═══════════════════════════════════════════════════ -->
+    <div class="irad-stats-bar">
+      <div class="irad-stat">
+        <span class="val accent-orange" data-count="6">0</span>
+        <span class="lbl">Active Initiatives</span>
+      </div>
+      <div class="irad-stat">
+        <span class="val accent-cyan" data-count="3">0</span>
+        <span class="lbl">Prototype Tools</span>
+      </div>
+      <div class="irad-stat">
+        <span class="val accent-green" data-count="4">0</span>
+        <span class="lbl">TRL Levels Reached</span>
+      </div>
+      <div class="irad-stat">
+        <span class="val" data-count="8">0</span>
+        <span class="lbl">Focus Domains</span>
+      </div>
+      <div class="irad-stat">
+        <span class="val accent-orange" data-count="2">0</span>
+        <span class="lbl">Patents Pending</span>
+      </div>
+    </div>
+
+    <!-- ══ ACTIVE INITIATIVES ════════════════════════════════════════ -->
+    <section class="irad-section" id="initiatives">
+      <div class="container">
+        <h2 class="section-title irad-reveal">Active Research Initiatives</h2>
+        <p class="text-body-secondary mb-4 irad-reveal">Six concurrent IRAD programs spanning technology readiness levels 3–6, targeting near-term transition to DoD contractor environments.</p>
+
+        <div class="row g-4">
+
+          <!-- CASSETTE -->
+          <div class="col-lg-4 col-md-6 irad-reveal">
+            <div class="initiative-card trl-mid">
+              <div class="init-codename">// PRJ-001 &mdash; CASSETTE</div>
+              <span class="init-status active"><span class="status-dot"></span>Active Development</span>
+              <div class="init-title">CMMC AutoScore Engine</div>
+              <div class="init-desc">
+                AI-powered CMMC Level 2 practice assessment engine. Ingests scan data, configuration baselines,
+                and artifact evidence to auto-score practices, generate pre-populated SSP narratives, and
+                produce a prioritized POA&amp;M with estimated remediation effort.
+              </div>
+              <div class="trl-block">
+                <div class="trl-label">
+                  <span>TRL Indicator</span>
+                  <strong>TRL 4 &mdash; Lab Validated</strong>
+                </div>
+                <div class="trl-track" aria-label="TRL 4 of 9">
+                  <div class="trl-pip filled trl-mid"></div>
+                  <div class="trl-pip filled trl-mid"></div>
+                  <div class="trl-pip filled trl-mid"></div>
+                  <div class="trl-pip filled trl-mid current"></div>
+                  <div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div>
+                </div>
+                <div class="tech-tags">
+                  <span class="tech-tag">Python</span>
+                  <span class="tech-tag">NLP</span>
+                  <span class="tech-tag">CMMC L2</span>
+                  <span class="tech-tag">NIST 800-171</span>
+                  <span class="tech-tag">ML Scoring</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- MERIDIAN -->
+          <div class="col-lg-4 col-md-6 irad-reveal">
+            <div class="initiative-card trl-low">
+              <div class="init-codename">// PRJ-002 &mdash; MERIDIAN</div>
+              <span class="init-status prototype"><span class="status-dot"></span>Prototype</span>
+              <div class="init-title">CUI Cartographer</div>
+              <div class="init-desc">
+                Automated Controlled Unclassified Information data flow discovery and boundary visualization.
+                Combines passive network fingerprinting with a classification ML model to map CUI across
+                systems, storage, and communication channels &mdash; producing live boundary diagrams
+                audit-ready for C3PAO review.
+              </div>
+              <div class="trl-block">
+                <div class="trl-label">
+                  <span>TRL Indicator</span>
+                  <strong>TRL 3 &mdash; Proof of Concept</strong>
+                </div>
+                <div class="trl-track" aria-label="TRL 3 of 9">
+                  <div class="trl-pip filled trl-low"></div>
+                  <div class="trl-pip filled trl-low"></div>
+                  <div class="trl-pip filled trl-low current"></div>
+                  <div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div>
+                </div>
+                <div class="tech-tags">
+                  <span class="tech-tag">Graph Theory</span>
+                  <span class="tech-tag">Network Scan</span>
+                  <span class="tech-tag">Zero Trust</span>
+                  <span class="tech-tag">Data Class.</span>
+                  <span class="tech-tag">D3.js</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- WATCHTOWER -->
+          <div class="col-lg-4 col-md-6 irad-reveal">
+            <div class="initiative-card trl-high">
+              <div class="init-codename">// PRJ-003 &mdash; WATCHTOWER</div>
+              <span class="init-status active"><span class="status-dot"></span>Active Development</span>
+              <div class="init-title">SENTINEL-ZT Framework</div>
+              <div class="init-desc">
+                Zero Trust Architecture reference implementation and maturity assessment framework
+                purpose-built for defense contractors. Aligns to NIST SP 800-207 and DoD ZT Strategy,
+                providing a scored roadmap from legacy perimeter-based security to full zero trust
+                in five measurable phases.
+              </div>
+              <div class="trl-block">
+                <div class="trl-label">
+                  <span>TRL Indicator</span>
+                  <strong>TRL 5 &mdash; Relevant Environment</strong>
+                </div>
+                <div class="trl-track" aria-label="TRL 5 of 9">
+                  <div class="trl-pip filled trl-high"></div>
+                  <div class="trl-pip filled trl-high"></div>
+                  <div class="trl-pip filled trl-high"></div>
+                  <div class="trl-pip filled trl-high"></div>
+                  <div class="trl-pip filled trl-high current"></div>
+                  <div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div>
+                </div>
+                <div class="tech-tags">
+                  <span class="tech-tag">Zero Trust</span>
+                  <span class="tech-tag">NIST 800-207</span>
+                  <span class="tech-tag">DoD ZT Strategy</span>
+                  <span class="tech-tag">Assessment</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- VIPER -->
+          <div class="col-lg-4 col-md-6 irad-reveal">
+            <div class="initiative-card trl-mid">
+              <div class="init-codename">// PRJ-004 &mdash; VIPER</div>
+              <span class="init-status active"><span class="status-dot"></span>Active Development</span>
+              <div class="init-title">ThreatMatrix Intelligence</div>
+              <div class="init-desc">
+                Adversarial threat intelligence aggregation platform with ML-powered TTP extraction
+                and auto-mapping to MITRE ATT&amp;CK for ICS and Enterprise. Ingests open-source
+                threat feeds, ISAC advisories, and CISA KEV to produce actor-tagged risk scores
+                aligned to active CMMC controls.
+              </div>
+              <div class="trl-block">
+                <div class="trl-label">
+                  <span>TRL Indicator</span>
+                  <strong>TRL 4 &mdash; Lab Validated</strong>
+                </div>
+                <div class="trl-track" aria-label="TRL 4 of 9">
+                  <div class="trl-pip filled trl-mid"></div>
+                  <div class="trl-pip filled trl-mid"></div>
+                  <div class="trl-pip filled trl-mid"></div>
+                  <div class="trl-pip filled trl-mid current"></div>
+                  <div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div>
+                </div>
+                <div class="tech-tags">
+                  <span class="tech-tag">MITRE ATT&amp;CK</span>
+                  <span class="tech-tag">Threat Intel</span>
+                  <span class="tech-tag">NLP</span>
+                  <span class="tech-tag">CISA KEV</span>
+                  <span class="tech-tag">Risk Scoring</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ANVIL -->
+          <div class="col-lg-4 col-md-6 irad-reveal">
+            <div class="initiative-card trl-advanced">
+              <div class="init-codename">// PRJ-005 &mdash; ANVIL</div>
+              <span class="init-status advanced"><span class="status-dot"></span>Advanced Prototype</span>
+              <div class="init-title">SSP Forge</div>
+              <div class="init-desc">
+                Automated System Security Plan generation engine that produces structured,
+                DoD-compliant SSP documents from control inventory scans and policy repositories.
+                Uses large language model fine-tuning to generate implementation narratives,
+                preserving technical accuracy while dramatically reducing authoring time from
+                months to days.
+              </div>
+              <div class="trl-block">
+                <div class="trl-label">
+                  <span>TRL Indicator</span>
+                  <strong>TRL 6 &mdash; Demonstrated</strong>
+                </div>
+                <div class="trl-track" aria-label="TRL 6 of 9">
+                  <div class="trl-pip filled trl-advanced"></div>
+                  <div class="trl-pip filled trl-advanced"></div>
+                  <div class="trl-pip filled trl-advanced"></div>
+                  <div class="trl-pip filled trl-advanced"></div>
+                  <div class="trl-pip filled trl-advanced"></div>
+                  <div class="trl-pip filled trl-advanced current"></div>
+                  <div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div>
+                </div>
+                <div class="tech-tags">
+                  <span class="tech-tag">LLM Fine-Tuning</span>
+                  <span class="tech-tag">SSP</span>
+                  <span class="tech-tag">DFARS</span>
+                  <span class="tech-tag">Python</span>
+                  <span class="tech-tag">FastAPI</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- LIGHTHOUSE -->
+          <div class="col-lg-4 col-md-6 irad-reveal">
+            <div class="initiative-card trl-low">
+              <div class="init-codename">// PRJ-006 &mdash; LIGHTHOUSE</div>
+              <span class="init-status research"><span class="status-dot"></span>Research Phase</span>
+              <div class="init-title">C-SCRM Radar</div>
+              <div class="init-desc">
+                Supply chain risk intelligence platform for defense contractors. Builds a vendor
+                dependency graph, auto-scores third-party risk against NIST SP 800-161 controls,
+                and flags critical single-source components. Designed to support CMMC SR domain
+                compliance and DFARS supply chain security requirements.
+              </div>
+              <div class="trl-block">
+                <div class="trl-label">
+                  <span>TRL Indicator</span>
+                  <strong>TRL 3 &mdash; Proof of Concept</strong>
+                </div>
+                <div class="trl-track" aria-label="TRL 3 of 9">
+                  <div class="trl-pip filled trl-low"></div>
+                  <div class="trl-pip filled trl-low"></div>
+                  <div class="trl-pip filled trl-low current"></div>
+                  <div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div>
+                </div>
+                <div class="tech-tags">
+                  <span class="tech-tag">C-SCRM</span>
+                  <span class="tech-tag">NIST 800-161</span>
+                  <span class="tech-tag">Graph Analysis</span>
+                  <span class="tech-tag">Risk Scoring</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ METRICS ROW ════════════════════════════════════════════════ -->
+    <section style="background:var(--bs-secondary-bg); border-top:1px solid var(--bs-border-color); border-bottom:1px solid var(--bs-border-color); padding:2rem 0;">
+      <div class="container">
+        <div class="row g-3">
+          <div class="col-md-3 col-sm-6 irad-reveal">
+            <div class="metric-card">
+              <div class="metric-icon-wrap orange">&#128736;</div>
+              <div>
+                <div class="metric-val" data-count="3">0</div>
+                <div class="metric-lbl">Prototype Tools Deployable</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6 irad-reveal">
+            <div class="metric-card">
+              <div class="metric-icon-wrap cyan">&#128202;</div>
+              <div>
+                <div class="metric-val" data-count="18">0</div>
+                <div class="metric-lbl">Months Active Research</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6 irad-reveal">
+            <div class="metric-card">
+              <div class="metric-icon-wrap green">&#9989;</div>
+              <div>
+                <div class="metric-val" data-count="14">0</div>
+                <div class="metric-lbl">Research Milestones Hit</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6 irad-reveal">
+            <div class="metric-card">
+              <div class="metric-icon-wrap purple">&#128214;</div>
+              <div>
+                <div class="metric-val" data-count="3">0</div>
+                <div class="metric-lbl">White Papers Drafted</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ FOCUS AREAS + TECH SNAPSHOT ═══════════════════════════════ -->
+    <section class="irad-section">
+      <div class="container">
+        <div class="row g-5">
+
+          <!-- Focus Areas -->
+          <div class="col-lg-7">
+            <h2 class="section-title irad-reveal">Research Focus Areas</h2>
+            <div class="row g-3">
+              <div class="col-6 col-sm-4 irad-reveal">
+                <div class="focus-card">
+                  <span class="focus-icon">&#129302;</span>
+                  <div class="focus-title">AI / ML Security</div>
+                  <div class="focus-sub">Adversarial defense, LLM fine-tuning, ML scoring models</div>
+                </div>
+              </div>
+              <div class="col-6 col-sm-4 irad-reveal">
+                <div class="focus-card">
+                  <span class="focus-icon">&#128274;</span>
+                  <div class="focus-title">Zero Trust</div>
+                  <div class="focus-sub">NIST 800-207, DoD ZT Strategy, maturity frameworks</div>
+                </div>
+              </div>
+              <div class="col-6 col-sm-4 irad-reveal">
+                <div class="focus-card">
+                  <span class="focus-icon">&#9878;</span>
+                  <div class="focus-title">Compliance Automation</div>
+                  <div class="focus-sub">CMMC, NIST RMF, automated evidence collection</div>
+                </div>
+              </div>
+              <div class="col-6 col-sm-4 irad-reveal">
+                <div class="focus-card">
+                  <span class="focus-icon">&#128279;</span>
+                  <div class="focus-title">Supply Chain</div>
+                  <div class="focus-sub">C-SCRM, NIST 800-161, third-party risk intelligence</div>
+                </div>
+              </div>
+              <div class="col-6 col-sm-4 irad-reveal">
+                <div class="focus-card">
+                  <span class="focus-icon">&#128265;</span>
+                  <div class="focus-title">Threat Intelligence</div>
+                  <div class="focus-sub">MITRE ATT&amp;CK, TTP extraction, DIB threat actors</div>
+                </div>
+              </div>
+              <div class="col-6 col-sm-4 irad-reveal">
+                <div class="focus-card">
+                  <span class="focus-icon">&#128196;</span>
+                  <div class="focus-title">SSP Automation</div>
+                  <div class="focus-sub">Generative AI for security documentation</div>
+                </div>
+              </div>
+              <div class="col-6 col-sm-4 irad-reveal">
+                <div class="focus-card">
+                  <span class="focus-icon">&#128270;</span>
+                  <div class="focus-title">CUI Management</div>
+                  <div class="focus-sub">Data flow discovery, classification, boundary viz</div>
+                </div>
+              </div>
+              <div class="col-6 col-sm-4 irad-reveal">
+                <div class="focus-card">
+                  <span class="focus-icon">&#128736;</span>
+                  <div class="focus-title">DIB Security</div>
+                  <div class="focus-sub">DoD contractor tooling, DFARS, ITAR operationalization</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tech Snapshot Terminal -->
+          <div class="col-lg-5">
+            <h2 class="section-title irad-reveal">Technology Stack</h2>
+            <div class="terminal-block irad-reveal">
+              <div class="terminal-bar">
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                <span class="title-bar">irad-lab ~ tech-stack.json</span>
+              </div>
+              <div class="terminal-body">
+<pre style="margin:0;font-size:inherit;background:transparent;color:inherit;padding:0"><span class="term-comment">// IRAD Technology Stack — FY2025</span>
+
+<span class="term-key">ai_ml</span>: {
+  <span class="term-key">frameworks</span>: [<span class="term-val">"PyTorch"</span>, <span class="term-val">"scikit-learn"</span>, <span class="term-val">"spaCy"</span>],
+  <span class="term-key">llm</span>:        [<span class="term-val">"Claude API"</span>, <span class="term-val">"Llama 3"</span>],
+  <span class="term-key">pipelines</span>:  [<span class="term-val">"LangChain"</span>, <span class="term-val">"Haystack"</span>]
+},
+
+<span class="term-key">backend</span>: {
+  <span class="term-key">language</span>: <span class="term-val">"Python 3.12"</span>,
+  <span class="term-key">api</span>:      [<span class="term-val">"FastAPI"</span>, <span class="term-val">"REST"</span>],
+  <span class="term-key">data</span>:     [<span class="term-val">"PostgreSQL"</span>, <span class="term-val">"Neo4j"</span>]
+},
+
+<span class="term-key">security_refs</span>: [
+  <span class="term-val">"CMMC v2.0"</span>,  <span class="term-val">"NIST 800-171"</span>,
+  <span class="term-val">"NIST 800-207"</span>, <span class="term-val">"MITRE ATT&CK"</span>,
+  <span class="term-val">"NIST 800-161"</span>, <span class="term-val">"CISA KEV"</span>
+],
+
+<span class="term-key">devops</span>: {
+  <span class="term-key">ci_cd</span>:      <span class="term-val">"GitHub Actions"</span>,
+  <span class="term-key">containers</span>: <span class="term-val">"Docker"</span>,
+  <span class="term-key">testing</span>:    [<span class="term-val">"pytest"</span>, <span class="term-val">"SAST"</span>]
+},
+
+<span class="term-key">status</span>: <span class="term-green">"ALL_SYSTEMS_GO"</span>  <span class="term-comment">// ✓</span></pre>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ RESEARCH ROADMAP ═══════════════════════════════════════════ -->
+    <section class="irad-section" id="roadmap" style="background:var(--bs-secondary-bg);">
+      <div class="container">
+        <div class="row g-5">
+          <div class="col-lg-8">
+            <h2 class="section-title irad-reveal">Research Roadmap</h2>
+            <div class="roadmap-track mt-4">
+
+              <div class="roadmap-item irad-reveal">
+                <div class="roadmap-dot done"></div>
+                <div class="roadmap-phase">Phase 1 &mdash; 2023</div>
+                <div class="roadmap-title">Foundation Research &amp; Problem Framing</div>
+                <div class="roadmap-desc">Established research agenda, identified gaps in DIB cybersecurity tooling, conducted literature review of CMMC automation challenges and zero trust implementation barriers.</div>
+                <div class="roadmap-milestones">
+                  <div class="milestone-item done"><span class="milestone-tick">&#10003;</span> DIB tooling gap analysis completed</div>
+                  <div class="milestone-item done"><span class="milestone-tick">&#10003;</span> Six research tracks scoped and prioritized</div>
+                  <div class="milestone-item done"><span class="milestone-tick">&#10003;</span> Initial CMMC AutoScore algorithm designed</div>
+                  <div class="milestone-item done"><span class="milestone-tick">&#10003;</span> SENTINEL-ZT framework architecture drafted</div>
+                </div>
+              </div>
+
+              <div class="roadmap-item irad-reveal">
+                <div class="roadmap-dot done"></div>
+                <div class="roadmap-phase">Phase 2 &mdash; 2024</div>
+                <div class="roadmap-title">Prototyping &amp; Lab Validation</div>
+                <div class="roadmap-desc">Built and validated initial prototypes in controlled lab environments. SSP Forge reached TRL 6 with successful demonstration against real CMMC assessment scenarios. ThreatMatrix and AutoScore reached TRL 4.</div>
+                <div class="roadmap-milestones">
+                  <div class="milestone-item done"><span class="milestone-tick">&#10003;</span> SSP Forge v0.9 demonstrated (TRL 6)</div>
+                  <div class="milestone-item done"><span class="milestone-tick">&#10003;</span> CMMC AutoScore lab-validated (TRL 4)</div>
+                  <div class="milestone-item done"><span class="milestone-tick">&#10003;</span> ThreatMatrix ATT&amp;CK mapping validated</div>
+                  <div class="milestone-item done"><span class="milestone-tick">&#10003;</span> CUI Cartographer PoC running on test network</div>
+                  <div class="milestone-item done"><span class="milestone-tick">&#10003;</span> SENTINEL-ZT v1 released for internal review</div>
+                  <div class="milestone-item done"><span class="milestone-tick">&#10003;</span> White papers drafted: ZT for DIB, AutoScore method</div>
+                </div>
+              </div>
+
+              <div class="roadmap-item irad-reveal">
+                <div class="roadmap-dot active"></div>
+                <div class="roadmap-phase">Phase 3 &mdash; 2025 (Current)</div>
+                <div class="roadmap-title">Operational Validation &amp; Contractor Pilots</div>
+                <div class="roadmap-desc">Transitioning top tools to contractor pilot environments. SSP Forge targeting TRL 8. AutoScore and SENTINEL-ZT targeted for TRL 6. C-SCRM Radar advancing from research to prototype.</div>
+                <div class="roadmap-milestones">
+                  <div class="milestone-item done"><span class="milestone-tick">&#10003;</span> SSP Forge pilot deployed — 3 contractors</div>
+                  <div class="milestone-item wip"><span class="milestone-tick">&#8594;</span> CMMC AutoScore contractor validation (in progress)</div>
+                  <div class="milestone-item wip"><span class="milestone-tick">&#8594;</span> SENTINEL-ZT v2 assessment module (in progress)</div>
+                  <div class="milestone-item wip"><span class="milestone-tick">&#8594;</span> ThreatMatrix ISAC feed integration (in progress)</div>
+                  <div class="milestone-item"><span class="milestone-tick">&#9675;</span> C-SCRM Radar graph engine build</div>
+                  <div class="milestone-item"><span class="milestone-tick">&#9675;</span> Patent filings: AutoScore algorithm, SSP generation method</div>
+                </div>
+              </div>
+
+              <div class="roadmap-item irad-reveal">
+                <div class="roadmap-dot upcoming"></div>
+                <div class="roadmap-phase">Phase 4 &mdash; 2026</div>
+                <div class="roadmap-title">Commercialization &amp; SBIR/STTR Transition</div>
+                <div class="roadmap-desc">Package mature tools for SBIR Phase I/II submission, explore licensing to C3PAOs and MSPs serving the DIB, and publish formal research findings in cybersecurity venues.</div>
+                <div class="roadmap-milestones">
+                  <div class="milestone-item"><span class="milestone-tick">&#9675;</span> SBIR Phase I proposal — CMMC AutoScore + SSP Forge</div>
+                  <div class="milestone-item"><span class="milestone-tick">&#9675;</span> Academic co-publication: ML in compliance automation</div>
+                  <div class="milestone-item"><span class="milestone-tick">&#9675;</span> Open-source release: SENTINEL-ZT framework</div>
+                  <div class="milestone-item"><span class="milestone-tick">&#9675;</span> Commercial licensing exploration with C3PAO partners</div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- TRL Legend sidebar -->
+          <div class="col-lg-4">
+            <h2 class="section-title irad-reveal">TRL Reference</h2>
+            <div class="irad-reveal" style="position:sticky;top:80px;">
+              <div class="card" style="border-color:var(--bs-border-color);">
+                <div class="card-body p-3">
+                  <p class="text-body-secondary small mb-3">Technology Readiness Levels (TRL) per DoD 5000.02 — standard metric for measuring maturity of a technology from basic research through operational deployment.</p>
+                  <div style="display:flex;flex-direction:column;gap:.55rem;">
+                    <div style="display:flex;align-items:center;gap:.6rem;font-size:.8rem;">
+                      <span style="width:28px;height:6px;border-radius:3px;background:#374151;flex-shrink:0;"></span>
+                      <span><strong>TRL 1–2</strong> <span class="text-body-secondary">— Basic research &amp; concept</span></span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:.6rem;font-size:.8rem;">
+                      <span style="width:28px;height:6px;border-radius:3px;background:#8b5cf6;flex-shrink:0;"></span>
+                      <span><strong>TRL 3</strong> <span class="text-body-secondary">— Proof of concept</span></span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:.6rem;font-size:.8rem;">
+                      <span style="width:28px;height:6px;border-radius:3px;background:#ff5811;flex-shrink:0;"></span>
+                      <span><strong>TRL 4</strong> <span class="text-body-secondary">— Lab validated</span></span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:.6rem;font-size:.8rem;">
+                      <span style="width:28px;height:6px;border-radius:3px;background:#22c55e;flex-shrink:0;"></span>
+                      <span><strong>TRL 5</strong> <span class="text-body-secondary">— Relevant environment</span></span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:.6rem;font-size:.8rem;">
+                      <span style="width:28px;height:6px;border-radius:3px;background:var(--cerulean);flex-shrink:0;"></span>
+                      <span><strong>TRL 6</strong> <span class="text-body-secondary">— Demonstrated</span></span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:.6rem;font-size:.8rem;">
+                      <span style="width:28px;height:6px;border-radius:3px;background:#60a5fa;flex-shrink:0;"></span>
+                      <span><strong>TRL 7–8</strong> <span class="text-body-secondary">— System prototype / qualified</span></span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:.6rem;font-size:.8rem;">
+                      <span style="width:28px;height:6px;border-radius:3px;background:linear-gradient(90deg,#ff5811,var(--cerulean));flex-shrink:0;"></span>
+                      <span><strong>TRL 9</strong> <span class="text-body-secondary">— Operational system proven</span></span>
+                    </div>
+                  </div>
+                  <hr style="border-color:var(--bs-border-color);">
+                  <div style="display:flex;justify-content:space-between;font-size:.75rem;color:var(--bs-secondary-color);">
+                    <span>Current portfolio range:</span>
+                    <strong style="color:var(--bs-emphasis-color);">TRL 3 &ndash; 6</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ IP PORTFOLIO ══════════════════════════════════════════════ -->
+    <section class="irad-section">
+      <div class="container">
+        <h2 class="section-title irad-reveal">IP Portfolio &amp; Methods</h2>
+        <p class="text-body-secondary mb-4 irad-reveal">Proprietary methods, frameworks, and algorithms developed through this IRAD program.</p>
+        <div class="table-responsive irad-reveal">
+          <table class="table table-hover align-middle ip-table" style="font-size:.875rem;">
+            <thead>
+              <tr>
+                <th>Method / IP</th>
+                <th>Description</th>
+                <th>Project</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="fw-700" style="font-weight:700;white-space:nowrap;">CMMC AutoScore Algorithm</td>
+                <td class="text-body-secondary">Multi-factor scoring model combining artifact coverage, configuration evidence, and historical assessment data to predict CMMC practice satisfaction probability.</td>
+                <td><span class="badge bg-secondary">CASSETTE</span></td>
+                <td><span class="ip-status-pill pending">Patent Pending</span></td>
+              </tr>
+              <tr>
+                <td class="fw-700" style="font-weight:700;white-space:nowrap;">CUI Flow Graph Model</td>
+                <td class="text-body-secondary">Directed graph representation of CUI data flows across organizational systems, enabling automated boundary detection and CMMC scoping support.</td>
+                <td><span class="badge bg-secondary">MERIDIAN</span></td>
+                <td><span class="ip-status-pill internal">Internal Method</span></td>
+              </tr>
+              <tr>
+                <td class="fw-700" style="font-weight:700;white-space:nowrap;">ZT Maturity Scoring Matrix</td>
+                <td class="text-body-secondary">Structured assessment matrix mapping 57 Zero Trust capabilities to DoD ZT pillars, generating a scored maturity profile and prioritized capability roadmap.</td>
+                <td><span class="badge bg-secondary">WATCHTOWER</span></td>
+                <td><span class="ip-status-pill open-m">Open Method</span></td>
+              </tr>
+              <tr>
+                <td class="fw-700" style="font-weight:700;white-space:nowrap;">TTP-to-Control Mapper</td>
+                <td class="text-body-secondary">NLP pipeline extracting TTPs from unstructured threat intelligence and mapping them to CMMC practices and NIST 800-171 controls for risk prioritization.</td>
+                <td><span class="badge bg-secondary">VIPER</span></td>
+                <td><span class="ip-status-pill internal">Internal Method</span></td>
+              </tr>
+              <tr>
+                <td class="fw-700" style="font-weight:700;white-space:nowrap;">SSP Narrative Generation Engine</td>
+                <td class="text-body-secondary">Fine-tuned language model producing audit-defensible SSP implementation statements from structured control data and organizational policy inputs.</td>
+                <td><span class="badge bg-secondary">ANVIL</span></td>
+                <td><span class="ip-status-pill pending">Patent Pending</span></td>
+              </tr>
+              <tr>
+                <td class="fw-700" style="font-weight:700;white-space:nowrap;">Vendor Risk Dependency Graph</td>
+                <td class="text-body-secondary">Graph-based supply chain risk model using BOM analysis and CISA advisory data to score vendor criticality and flag DFARS non-compliance risk paths.</td>
+                <td><span class="badge bg-secondary">LIGHTHOUSE</span></td>
+                <td><span class="ip-status-pill research">In Research</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ COLLABORATION CTA ══════════════════════════════════════════ -->
+    <section class="irad-section" style="background:var(--bs-secondary-bg);">
+      <div class="container">
+        <div class="text-center mb-4 irad-reveal">
+          <h2 class="section-title" style="display:inline-block">Partnership &amp; Collaboration</h2>
+          <p class="text-body-secondary mt-2">IRAD is strongest when combined with operational insight. Interested in piloting a tool, co-authoring research, or exploring SBIR opportunities?</p>
+        </div>
+        <div class="row g-4">
+          <div class="col-md-3 col-sm-6 irad-reveal">
+            <div class="collab-card">
+              <span class="collab-icon">&#127981;</span>
+              <div class="collab-title">Contractor Pilots</div>
+              <div class="collab-desc">Deploy IRAD prototype tools in your environment. Provide real-world feedback that shapes the next TRL advance.</div>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6 irad-reveal">
+            <div class="collab-card">
+              <span class="collab-icon">&#127891;</span>
+              <div class="collab-title">Academic Research</div>
+              <div class="collab-desc">Co-author research papers, share datasets, or pursue joint publications on compliance automation and AI security.</div>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6 irad-reveal">
+            <div class="collab-card">
+              <span class="collab-icon">&#128176;</span>
+              <div class="collab-title">SBIR / STTR</div>
+              <div class="collab-desc">Exploring Phase I submissions for CMMC automation topics. Looking for teaming partners and small business collaborators.</div>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6 irad-reveal">
+            <div class="collab-card">
+              <span class="collab-icon">&#128101;</span>
+              <div class="collab-title">C3PAO Partnerships</div>
+              <div class="collab-desc">Integrate IRAD tools into your assessment workflow. Licensing and white-label arrangements available for qualified assessors.</div>
+            </div>
+          </div>
+        </div>
+        <div class="text-center mt-5 irad-reveal">
+          <a href="contact.html" class="btn btn-primary btn-lg me-3">Start a Conversation</a>
+          <a href="consultant.html" class="btn btn-outline-primary btn-lg">View Consulting Services</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- RBAC Login Modal -->
+  <div class="modal" id="rbacLoginModal" tabindex="-1" aria-labelledby="rbacModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="rbacModalLabel">&#128274; Login</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body"><!-- roles.js injects login form here --></div>
+        <div class="modal-footer border-0 pt-0">
+          <p class="text-secondary small mb-0">Session clears when you close this tab.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="d-flex justify-content-center gap-3 mb-2">
+      <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub" class="social-icon" />
+      </a>
+      <a href="https://www.linkedin.com/in/jessica-rojas-33212918a" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linkedin/linkedin-original.svg" alt="LinkedIn" class="social-icon" />
+      </a>
+    </div>
+    <p>&copy; <span data-year></span> Jessica Rojas. All rights reserved.</p>
+    <p><a href="privacy.html">Privacy Policy</a> &middot; <a href="terms.html">Terms</a></p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmyQWuGmUhSBQOVCp7p5pT1gkTJ" crossorigin="anonymous"></script>
+  <script src="users.js" defer></script>
+  <script src="roles.js" defer></script>
+  <script src="script.js" defer></script>
+
+  <script>
+  (function() {
+    /* ── Scroll-reveal ──────────────────────────────────────── */
+    var revealEls = document.querySelectorAll('.irad-reveal');
+    var io = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    revealEls.forEach(function(el) { io.observe(el); });
+
+    /* ── Animated number counters ───────────────────────────── */
+    function animateCount(el, target, duration) {
+      var start = 0;
+      var step = target / (duration / 16);
+      var timer = setInterval(function() {
+        start += step;
+        if (start >= target) { start = target; clearInterval(timer); }
+        el.textContent = Math.floor(start);
+      }, 16);
+    }
+
+    var countObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          var el = entry.target;
+          var target = parseInt(el.getAttribute('data-count'), 10);
+          animateCount(el, target, 900);
+          countObserver.unobserve(el);
+        }
+      });
+    }, { threshold: 0.5 });
+
+    document.querySelectorAll('[data-count]').forEach(function(el) {
+      countObserver.observe(el);
+    });
+
+    /* ── TRL pip animation on reveal ────────────────────────── */
+    document.querySelectorAll('.initiative-card').forEach(function(card) {
+      var pips = card.querySelectorAll('.trl-pip');
+      pips.forEach(function(pip) { pip.style.opacity = '0'; });
+
+      var cardObserver = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            pips.forEach(function(pip, i) {
+              setTimeout(function() {
+                pip.style.transition = 'opacity .3s ease, background .3s ease';
+                pip.style.opacity = '1';
+              }, i * 60);
+            });
+            cardObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.3 });
+      cardObserver.observe(card);
+    });
+  })();
+  </script>
+  <script src="analytics.js" defer></script>
+
+<!-- bot-trap: hidden off-screen link, invisible to humans -->
+<div aria-hidden="true" style="position:absolute;left:-99999px;top:auto;width:1px;height:1px;overflow:hidden">
+  <a href="honeypot.html" tabindex="-1">admin-legacy-export</a>
+</div>
+</body>
+</html>
