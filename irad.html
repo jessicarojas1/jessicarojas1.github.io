@@ -423,6 +423,131 @@
     /* ── Fade-in on scroll ───────────────────────────────────── */
     .irad-reveal { opacity: 0; transform: translateY(20px); transition: opacity .6s ease, transform .6s ease; }
     .irad-reveal.visible { opacity: 1; transform: none; }
+
+    /* ── Aerospace & Defense section accent ─────────────────── */
+    .aed-section-header {
+      padding: 3.5rem 0 2rem;
+      position: relative;
+    }
+    .aed-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      background: rgba(14,165,233,.08);
+      border: 1px solid rgba(14,165,233,.25);
+      border-radius: 2rem;
+      padding: .3rem .9rem;
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: #38bdf8;
+      margin-bottom: .75rem;
+    }
+    .initiative-card.trl-aed::before {
+      background: linear-gradient(90deg, #0ea5e9, #38bdf8, #7dd3fc);
+    }
+    .trl-pip.filled.trl-aed { background: #0ea5e9; }
+    .init-status.aed-research {
+      background: rgba(14,165,233,.1);
+      color: #38bdf8;
+      border: 1px solid rgba(14,165,233,.25);
+    }
+    .init-status.aed-proto {
+      background: rgba(250,204,21,.1);
+      color: #fbbf24;
+      border: 1px solid rgba(250,204,21,.25);
+    }
+    .initiative-card.trl-concept::before {
+      background: linear-gradient(90deg, #475569, #94a3b8);
+    }
+    .trl-pip.filled.trl-concept { background: #64748b; }
+
+    /* Platform domain cards */
+    .platform-card {
+      background: var(--bs-secondary-bg);
+      border: 1px solid var(--bs-border-color);
+      border-radius: 10px;
+      padding: 1rem .85rem;
+      text-align: center;
+      transition: border-color .2s, box-shadow .2s, transform .2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .platform-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 2px;
+    }
+    .platform-card.pf-avionics::after  { background: linear-gradient(90deg, #0ea5e9, #38bdf8); }
+    .platform-card.pf-space::after     { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+    .platform-card.pf-uas::after       { background: linear-gradient(90deg, #22c55e, #4ade80); }
+    .platform-card.pf-ground::after    { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+    .platform-card.pf-naval::after     { background: linear-gradient(90deg, #06b6d4, #67e8f9); }
+    .platform-card.pf-ew::after        { background: linear-gradient(90deg, #ef4444, #f87171); }
+    .platform-card:hover {
+      border-color: rgba(14,165,233,.35);
+      box-shadow: 0 0 0 1px rgba(14,165,233,.12), 0 4px 20px rgba(0,0,0,.3);
+      transform: translateY(-2px);
+    }
+    .platform-icon { font-size: 1.8rem; margin-bottom: .4rem; display: block; }
+    .platform-title { font-size: .82rem; font-weight: 700; color: var(--bs-emphasis-color); margin-bottom: .2rem; }
+    .platform-sub   { font-size: .7rem; color: var(--bs-secondary-color); line-height: 1.35; }
+
+    /* Standards grid */
+    .std-card {
+      background: var(--bs-secondary-bg);
+      border: 1px solid var(--bs-border-color);
+      border-radius: 8px;
+      padding: .85rem 1rem;
+      transition: border-color .2s, transform .15s;
+    }
+    .std-card:hover {
+      border-color: rgba(14,165,233,.35);
+      transform: translateY(-1px);
+    }
+    .std-id {
+      font-family: 'SFMono-Regular', Consolas, monospace;
+      font-size: .8rem;
+      font-weight: 700;
+      color: #38bdf8;
+      margin-bottom: .25rem;
+    }
+    .std-name  { font-size: .8rem; font-weight: 600; color: var(--bs-emphasis-color); margin-bottom: .2rem; }
+    .std-scope { font-size: .72rem; color: var(--bs-secondary-color); line-height: 1.4; }
+
+    /* A&D divider hero */
+    .aed-divider {
+      background:
+        linear-gradient(135deg, rgba(14,165,233,.06) 0%, rgba(139,92,246,.05) 50%, rgba(255,88,17,.05) 100%),
+        var(--bs-body-bg);
+      border-top: 1px solid var(--bs-border-color);
+      border-bottom: 1px solid rgba(14,165,233,.2);
+      padding: 2.5rem 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .aed-divider::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #0ea5e9, #8b5cf6, #ff5811, transparent);
+      background-size: 200% 100%;
+      animation: shimmer 4s linear infinite;
+    }
+    .aed-headline {
+      font-size: clamp(1.5rem, 4vw, 2.5rem);
+      font-weight: 800;
+      background: linear-gradient(135deg, #38bdf8 0%, #8b5cf6 50%, #ff5811 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradient-shift 5s ease infinite;
+      margin-bottom: .5rem;
+    }
   </style>
 </head>
 <body>
@@ -1014,11 +1139,408 @@
       </div>
     </section>
 
+    <!-- ══ AEROSPACE & DEFENSE DIVIDER ════════════════════════════════ -->
+    <div class="aed-divider">
+      <div class="container">
+        <div class="row align-items-center g-4">
+          <div class="col-lg-8">
+            <div class="aed-badge">&#9992; Aerospace &amp; Defense Research Track</div>
+            <div class="aed-headline">Extending IRAD Into the Aerospace &amp; Defense Domain</div>
+            <p class="text-body-secondary mb-0" style="max-width:640px">
+              Four dedicated research tracks targeting the unique cybersecurity challenges of
+              defense platforms — from airworthiness-certified avionics and space-ground links
+              to unmanned systems and defense-grade embedded firmware. Aligned to DO-326A,
+              MIL-STD-882, STANAG, and Space Policy Directive 5.
+            </p>
+          </div>
+          <div class="col-lg-4">
+            <div class="d-flex flex-wrap gap-2 justify-content-lg-end">
+              <span class="badge rounded-pill" style="background:rgba(14,165,233,.15);color:#38bdf8;border:1px solid rgba(14,165,233,.3);font-size:.72rem;padding:.35rem .8rem;">DO-326A / DO-356A</span>
+              <span class="badge rounded-pill" style="background:rgba(139,92,246,.12);color:#c4b5fd;border:1px solid rgba(139,92,246,.3);font-size:.72rem;padding:.35rem .8rem;">MIL-STD-882E</span>
+              <span class="badge rounded-pill" style="background:rgba(34,211,238,.1);color:var(--cerulean);border:1px solid rgba(34,211,238,.25);font-size:.72rem;padding:.35rem .8rem;">STANAG 4586</span>
+              <span class="badge rounded-pill" style="background:rgba(34,197,94,.1);color:#4ade80;border:1px solid rgba(34,197,94,.25);font-size:.72rem;padding:.35rem .8rem;">Space Policy Dir. 5</span>
+              <span class="badge rounded-pill" style="background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.25);font-size:.72rem;padding:.35rem .8rem;">NIST SP 800-82</span>
+              <span class="badge rounded-pill" style="background:rgba(255,88,17,.1);color:#ff9966;border:1px solid rgba(255,88,17,.25);font-size:.72rem;padding:.35rem .8rem;">ARINC 664 / 429</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ A&D INITIATIVES ══════════════════════════════════════════════ -->
+    <section class="irad-section" id="aed-initiatives">
+      <div class="container">
+        <h2 class="section-title irad-reveal">Aerospace &amp; Defense Initiatives</h2>
+        <p class="text-body-secondary mb-4 irad-reveal">Four research tracks tackling platform-specific cybersecurity challenges across avionics, space systems, unmanned vehicles, and defense-grade embedded systems.</p>
+
+        <div class="row g-4">
+
+          <!-- AERO-SHIELD -->
+          <div class="col-lg-6 irad-reveal">
+            <div class="initiative-card trl-aed" style="min-height:360px">
+              <div class="init-codename">// PRJ-007 &mdash; AERO-SHIELD</div>
+              <span class="init-status aed-research"><span class="status-dot"></span>Research Phase</span>
+              <div class="init-title">Avionics Cybersecurity Compliance Toolkit</div>
+              <div class="init-desc">
+                Compliance automation toolkit for DO-326A / DO-356A airworthiness security assessments.
+                Automates the structured documentation of threat conditions, security objectives, and
+                vulnerability analyses required for FAA/EASA certification of modified avionics software.
+                Targets supplemental type certificate (STC) holders and Part 21J design organizations
+                who need repeatable, auditable security process evidence.
+              </div>
+              <div class="trl-block">
+                <div class="trl-label">
+                  <span>TRL Indicator</span>
+                  <strong>TRL 3 &mdash; Proof of Concept</strong>
+                </div>
+                <div class="trl-track" aria-label="TRL 3 of 9">
+                  <div class="trl-pip filled trl-aed"></div>
+                  <div class="trl-pip filled trl-aed"></div>
+                  <div class="trl-pip filled trl-aed current"></div>
+                  <div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div>
+                </div>
+                <div class="tech-tags">
+                  <span class="tech-tag">DO-326A</span>
+                  <span class="tech-tag">DO-356A</span>
+                  <span class="tech-tag">Airworthiness</span>
+                  <span class="tech-tag">ARINC 664</span>
+                  <span class="tech-tag">FAA / EASA</span>
+                  <span class="tech-tag">SAE ARP4754A</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ORBITAL -->
+          <div class="col-lg-6 irad-reveal">
+            <div class="initiative-card trl-concept" style="min-height:360px">
+              <div class="init-codename">// PRJ-008 &mdash; ORBITAL</div>
+              <span class="init-status research"><span class="status-dot"></span>Research Phase</span>
+              <div class="init-title">Space Systems Cyber Defense Framework</div>
+              <div class="init-desc">
+                Cybersecurity architecture and assessment framework for satellite command &amp; control
+                systems, ground control stations, and space-to-ground communication links.
+                Aligns to Space Policy Directive 5, NIST SP 800-82 Rev.3, CISA Space Systems
+                Security Guidance, and the Cybersecurity Framework for Satellite Operations.
+                Addresses link encryption, command authentication, and insider threat for
+                constellation operators and DoD space programs.
+              </div>
+              <div class="trl-block">
+                <div class="trl-label">
+                  <span>TRL Indicator</span>
+                  <strong>TRL 2 &mdash; Concept Formulated</strong>
+                </div>
+                <div class="trl-track" aria-label="TRL 2 of 9">
+                  <div class="trl-pip filled trl-concept"></div>
+                  <div class="trl-pip filled trl-concept current"></div>
+                  <div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div>
+                </div>
+                <div class="tech-tags">
+                  <span class="tech-tag">SPD-5</span>
+                  <span class="tech-tag">NIST 800-82</span>
+                  <span class="tech-tag">SATCOM</span>
+                  <span class="tech-tag">Ground Station</span>
+                  <span class="tech-tag">Link Encryption</span>
+                  <span class="tech-tag">CISA Space</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- IRON-CORE -->
+          <div class="col-lg-6 irad-reveal">
+            <div class="initiative-card trl-aed" style="min-height:360px">
+              <div class="init-codename">// PRJ-009 &mdash; IRON-CORE</div>
+              <span class="init-status aed-proto"><span class="status-dot"></span>Early Prototype</span>
+              <div class="init-title">Defense Embedded Systems Hardening Engine</div>
+              <div class="init-desc">
+                Static and dynamic security analysis engine purpose-built for defense-grade
+                real-time operating system (RTOS) environments including VxWorks, LynxOS, and
+                Green Hills INTEGRITY. Generates STIG-aligned hardening checklists, identifies
+                firmware-level attack surfaces, and produces RMF-ready vulnerability reports
+                for avionics computers, mission processors, and weapons system interfaces.
+              </div>
+              <div class="trl-block">
+                <div class="trl-label">
+                  <span>TRL Indicator</span>
+                  <strong>TRL 3 &mdash; Proof of Concept</strong>
+                </div>
+                <div class="trl-track" aria-label="TRL 3 of 9">
+                  <div class="trl-pip filled trl-aed"></div>
+                  <div class="trl-pip filled trl-aed"></div>
+                  <div class="trl-pip filled trl-aed current"></div>
+                  <div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div>
+                </div>
+                <div class="tech-tags">
+                  <span class="tech-tag">VxWorks</span>
+                  <span class="tech-tag">RTOS</span>
+                  <span class="tech-tag">Firmware</span>
+                  <span class="tech-tag">DoD STIG</span>
+                  <span class="tech-tag">NIST RMF</span>
+                  <span class="tech-tag">MIL-STD-882E</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SPECTRE-UAS -->
+          <div class="col-lg-6 irad-reveal">
+            <div class="initiative-card trl-concept" style="min-height:360px">
+              <div class="init-codename">// PRJ-010 &mdash; SPECTRE-UAS</div>
+              <span class="init-status research"><span class="status-dot"></span>Research Phase</span>
+              <div class="init-title">Unmanned Systems Cyber Resilience Framework</div>
+              <div class="init-desc">
+                Cyber resilience framework for Group 1–4 UAS and autonomous platform programs.
+                Addresses datalink security, GPS anti-spoofing and jamming resilience, RF spectrum
+                hardening, autonomous decision-chain integrity, and ground control station
+                protection. Maps to DoDI 8500.01, STANAG 4586 (UCS), and the DoD UAS Cybersecurity
+                Policy. Designed to support PEO Aviation and program office cyber certification.
+              </div>
+              <div class="trl-block">
+                <div class="trl-label">
+                  <span>TRL Indicator</span>
+                  <strong>TRL 2 &mdash; Concept Formulated</strong>
+                </div>
+                <div class="trl-track" aria-label="TRL 2 of 9">
+                  <div class="trl-pip filled trl-concept"></div>
+                  <div class="trl-pip filled trl-concept current"></div>
+                  <div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div>
+                </div>
+                <div class="tech-tags">
+                  <span class="tech-tag">UAS / sUAS</span>
+                  <span class="tech-tag">STANAG 4586</span>
+                  <span class="tech-tag">RF Hardening</span>
+                  <span class="tech-tag">GPS Anti-Spoof</span>
+                  <span class="tech-tag">DoDI 8500.01</span>
+                  <span class="tech-tag">Autonomous</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ PLATFORM DOMAINS ══════════════════════════════════════════ -->
+    <section class="irad-section" style="background:var(--bs-secondary-bg);">
+      <div class="container">
+        <div class="row g-5 align-items-start">
+
+          <!-- Platform domains grid -->
+          <div class="col-lg-7">
+            <h2 class="section-title irad-reveal">Platform Domains</h2>
+            <p class="text-body-secondary mb-4 irad-reveal">Research coverage spans six platform categories across air, space, land, sea, and the electromagnetic spectrum.</p>
+            <div class="row g-3">
+              <div class="col-4 col-sm-4 irad-reveal">
+                <div class="platform-card pf-avionics">
+                  <span class="platform-icon">&#9992;</span>
+                  <div class="platform-title">Fixed-Wing Avionics</div>
+                  <div class="platform-sub">DO-326A, ARINC 664, flight-critical systems</div>
+                </div>
+              </div>
+              <div class="col-4 col-sm-4 irad-reveal">
+                <div class="platform-card pf-space">
+                  <span class="platform-icon">&#128752;</span>
+                  <div class="platform-title">Space Systems</div>
+                  <div class="platform-sub">Satellite C2, ground stations, SPD-5</div>
+                </div>
+              </div>
+              <div class="col-4 col-sm-4 irad-reveal">
+                <div class="platform-card pf-uas">
+                  <span class="platform-icon">&#128641;</span>
+                  <div class="platform-title">UAS / Robotics</div>
+                  <div class="platform-sub">Group 1–4 UAS, STANAG 4586, datalinks</div>
+                </div>
+              </div>
+              <div class="col-4 col-sm-4 irad-reveal">
+                <div class="platform-card pf-ground">
+                  <span class="platform-icon">&#128664;</span>
+                  <div class="platform-title">Ground Vehicles</div>
+                  <div class="platform-sub">Vetronics, CAN bus, mission systems</div>
+                </div>
+              </div>
+              <div class="col-4 col-sm-4 irad-reveal">
+                <div class="platform-card pf-naval">
+                  <span class="platform-icon">&#9875;</span>
+                  <div class="platform-title">Naval / Maritime</div>
+                  <div class="platform-sub">Shipboard IT, C2 systems, SCADA/ICS</div>
+                </div>
+              </div>
+              <div class="col-4 col-sm-4 irad-reveal">
+                <div class="platform-card pf-ew">
+                  <span class="platform-icon">&#128268;</span>
+                  <div class="platform-title">Electronic Warfare</div>
+                  <div class="platform-sub">RF spectrum, EW system integrity, SIGINT</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Standards reference -->
+          <div class="col-lg-5">
+            <h2 class="section-title irad-reveal">A&amp;D Standards Coverage</h2>
+            <div class="row g-2">
+              <div class="col-12 irad-reveal">
+                <div class="std-card">
+                  <div class="std-id">DO-326A / ED-202A</div>
+                  <div class="std-name">Airworthiness Security Process Specification</div>
+                  <div class="std-scope">FAA/EASA security process requirements for aircraft systems and avionics software modifications.</div>
+                </div>
+              </div>
+              <div class="col-12 irad-reveal">
+                <div class="std-card">
+                  <div class="std-id">DO-356A / ED-203A</div>
+                  <div class="std-name">Airworthiness Security Methods &amp; Considerations</div>
+                  <div class="std-scope">Security analysis methods including threat conditions, vulnerability assessment, and security objectives.</div>
+                </div>
+              </div>
+              <div class="col-12 irad-reveal">
+                <div class="std-card">
+                  <div class="std-id">MIL-STD-882E</div>
+                  <div class="std-name">Department of Defense System Safety</div>
+                  <div class="std-scope">Integrated system safety program requirements for defense acquisition programs.</div>
+                </div>
+              </div>
+              <div class="col-12 irad-reveal">
+                <div class="std-card">
+                  <div class="std-id">STANAG 4586</div>
+                  <div class="std-name">UAS Control System Interoperability</div>
+                  <div class="std-scope">NATO standard for ground control station architecture and UAS command/control interfaces.</div>
+                </div>
+              </div>
+              <div class="col-12 irad-reveal">
+                <div class="std-card">
+                  <div class="std-id">Space Policy Directive 5</div>
+                  <div class="std-name">Cybersecurity Principles for Space Systems</div>
+                  <div class="std-scope">National-level principles for protecting space assets from cyber threats throughout lifecycle.</div>
+                </div>
+              </div>
+              <div class="col-12 irad-reveal">
+                <div class="std-card">
+                  <div class="std-id">NIST SP 800-82 Rev.3</div>
+                  <div class="std-name">Guide to OT / ICS Security</div>
+                  <div class="std-scope">Security for operational technology, industrial control systems, and defense platform networks.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ A&D TECH TERMINAL ════════════════════════════════════════ -->
+    <section class="irad-section">
+      <div class="container">
+        <div class="row g-5 align-items-start">
+
+          <div class="col-lg-5">
+            <h2 class="section-title irad-reveal">A&amp;D Research Architecture</h2>
+            <div class="terminal-block irad-reveal">
+              <div class="terminal-bar">
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                <span class="title-bar">irad-lab ~ aed-research-config.json</span>
+              </div>
+              <div class="terminal-body">
+<pre style="margin:0;font-size:.8rem;background:transparent;color:inherit;padding:0"><span class="term-comment">// A&D Research Stack — FY2025</span>
+
+<span class="term-key">avionics_track</span>: {
+  <span class="term-key">standards</span>:  [<span class="term-val">"DO-326A"</span>, <span class="term-val">"DO-356A"</span>, <span class="term-val">"DO-178C"</span>],
+  <span class="term-key">protocols</span>:  [<span class="term-val">"ARINC 664"</span>, <span class="term-val">"ARINC 429"</span>, <span class="term-val">"MIL-STD-1553"</span>],
+  <span class="term-key">tools</span>:      [<span class="term-val">"SCADE"</span>, <span class="term-val">"LDRA"</span>, <span class="term-val">"Polyspace"</span>]
+},
+
+<span class="term-key">space_track</span>: {
+  <span class="term-key">refs</span>:    [<span class="term-val">"SPD-5"</span>, <span class="term-val">"NIST 800-82"</span>, <span class="term-val">"CCSDS"</span>],
+  <span class="term-key">focus</span>:   [<span class="term-val">"Ground C2"</span>, <span class="term-val">"Link Auth"</span>, <span class="term-val">"Key Mgmt"</span>],
+  <span class="term-key">trl</span>:     <span class="term-val">2</span>
+},
+
+<span class="term-key">embedded_track</span>: {
+  <span class="term-key">rtos</span>:    [<span class="term-val">"VxWorks"</span>, <span class="term-val">"LynxOS"</span>, <span class="term-val">"INTEGRITY"</span>],
+  <span class="term-key">analysis</span>: [<span class="term-val">"SAST"</span>, <span class="term-val">"DAST"</span>, <span class="term-val">"Fuzz"</span>],
+  <span class="term-key">output</span>:  <span class="term-val">"STIG + RMF reports"</span>
+},
+
+<span class="term-key">uas_track</span>: {
+  <span class="term-key">standards</span>: [<span class="term-val">"STANAG 4586"</span>, <span class="term-val">"DoDI 8500.01"</span>],
+  <span class="term-key">rf_focus</span>:  [<span class="term-val">"Anti-Spoof"</span>, <span class="term-val">"Anti-Jam"</span>, <span class="term-val">"Freq Hop"</span>],
+  <span class="term-key">trl</span>:      <span class="term-val">2</span>
+},
+
+<span class="term-key">classification</span>: <span class="term-orange">"UNCLASSIFIED // FOUO"</span>
+<span class="term-key">all_systems</span>:    <span class="term-green">"NOMINAL"</span>  <span class="term-comment">// ✓</span></pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-7">
+            <h2 class="section-title irad-reveal">Why Aerospace &amp; Defense Cybersecurity</h2>
+            <div class="irad-reveal">
+              <p class="text-body-secondary mb-3">
+                Modern defense platforms are increasingly software-defined and network-connected —
+                yet cybersecurity processes for these systems lag years behind enterprise IT.
+                Avionics engineers are experts in safety, not security. Embedded developers
+                optimize for determinism, not threat modeling. The regulatory frameworks exist
+                (DO-326A, MIL-STD-882, RMF), but tooling to implement them efficiently does not.
+              </p>
+              <p class="text-body-secondary mb-4">
+                This IRAD track fills that gap — building tools that speak the language of
+                aerospace engineers: airworthiness evidence, safety case arguments, deterministic
+                RTOS constraints, and certification schedules — while delivering the rigor of
+                modern cybersecurity practice.
+              </p>
+            </div>
+            <div class="row g-3 irad-reveal">
+              <div class="col-sm-6">
+                <div class="metric-card">
+                  <div class="metric-icon-wrap cyan" style="background:rgba(14,165,233,.12)">&#9992;</div>
+                  <div>
+                    <div class="metric-val" style="font-size:1.2rem">DO-326A</div>
+                    <div class="metric-lbl">Airworthiness Security Standard</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="metric-card">
+                  <div class="metric-icon-wrap purple">&#128752;</div>
+                  <div>
+                    <div class="metric-val" style="font-size:1.2rem">SPD-5</div>
+                    <div class="metric-lbl">Space Systems Cyber Policy</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="metric-card">
+                  <div class="metric-icon-wrap green">&#128641;</div>
+                  <div>
+                    <div class="metric-val" style="font-size:1.2rem">STANAG 4586</div>
+                    <div class="metric-lbl">NATO UCS Standard</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="metric-card">
+                  <div class="metric-icon-wrap orange">&#128736;</div>
+                  <div>
+                    <div class="metric-val" style="font-size:1.2rem">MIL-STD-882E</div>
+                    <div class="metric-lbl">DoD System Safety</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
     <!-- ══ IP PORTFOLIO ══════════════════════════════════════════════ -->
     <section class="irad-section">
       <div class="container">
         <h2 class="section-title irad-reveal">IP Portfolio &amp; Methods</h2>
-        <p class="text-body-secondary mb-4 irad-reveal">Proprietary methods, frameworks, and algorithms developed through this IRAD program.</p>
+        <p class="text-body-secondary mb-4 irad-reveal">Proprietary methods, frameworks, and algorithms developed through this IRAD program — spanning both defense IT/cybersecurity and aerospace &amp; defense platform domains. <span style="color:#38bdf8">A&amp;D entries highlighted in blue.</span></p>
         <div class="table-responsive irad-reveal">
           <table class="table table-hover align-middle ip-table" style="font-size:.875rem;">
             <thead>
@@ -1066,6 +1588,30 @@
                 <td><span class="badge bg-secondary">LIGHTHOUSE</span></td>
                 <td><span class="ip-status-pill research">In Research</span></td>
               </tr>
+              <tr>
+                <td class="fw-700" style="font-weight:700;white-space:nowrap;color:#38bdf8">DO-326A Evidence Automation Model</td>
+                <td class="text-body-secondary">Structured method for generating airworthiness security evidence packages — threat conditions, security objectives, and vulnerability analysis — mapped to certification artifacts for FAA/EASA submission.</td>
+                <td><span class="badge" style="background:#0ea5e9">AERO-SHIELD</span></td>
+                <td><span class="ip-status-pill research">In Research</span></td>
+              </tr>
+              <tr>
+                <td class="fw-700" style="font-weight:700;white-space:nowrap;color:#38bdf8">Space Link Authentication Protocol</td>
+                <td class="text-body-secondary">Lightweight command authentication scheme for satellite uplink channels that maintains timing and bandwidth constraints of space-ground communication while providing cryptographic command integrity.</td>
+                <td><span class="badge" style="background:#0ea5e9">ORBITAL</span></td>
+                <td><span class="ip-status-pill research">In Research</span></td>
+              </tr>
+              <tr>
+                <td class="fw-700" style="font-weight:700;white-space:nowrap;color:#38bdf8">RTOS Hardening Automation Engine</td>
+                <td class="text-body-secondary">Automated STIG-to-configuration mapping engine for defense RTOS platforms. Translates DoD STIG requirements into platform-specific hardening scripts for VxWorks, LynxOS, and Green Hills INTEGRITY environments.</td>
+                <td><span class="badge" style="background:#0ea5e9">IRON-CORE</span></td>
+                <td><span class="ip-status-pill internal">Internal Method</span></td>
+              </tr>
+              <tr>
+                <td class="fw-700" style="font-weight:700;white-space:nowrap;color:#38bdf8">UAS RF Threat Assessment Matrix</td>
+                <td class="text-body-secondary">Structured threat assessment matrix for UAS datalink and RF systems, scoring GPS spoofing/jamming risk, command-link hijack exposure, and spectrum interference vulnerability against STANAG 4586 interface requirements.</td>
+                <td><span class="badge" style="background:#0ea5e9">SPECTRE-UAS</span></td>
+                <td><span class="ip-status-pill research">In Research</span></td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -1106,6 +1652,27 @@
               <span class="collab-icon">&#128101;</span>
               <div class="collab-title">C3PAO Partnerships</div>
               <div class="collab-desc">Integrate IRAD tools into your assessment workflow. Licensing and white-label arrangements available for qualified assessors.</div>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6 irad-reveal">
+            <div class="collab-card" style="border-color:rgba(14,165,233,.2)">
+              <span class="collab-icon">&#9992;</span>
+              <div class="collab-title">OEM &amp; Avionics Firms</div>
+              <div class="collab-desc">Partner on DO-326A tooling, airworthiness security evidence automation, and avionics cyber certification support for Part 21 organizations.</div>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6 irad-reveal">
+            <div class="collab-card" style="border-color:rgba(139,92,246,.2)">
+              <span class="collab-icon">&#128752;</span>
+              <div class="collab-title">Space &amp; Satellite Primes</div>
+              <div class="collab-desc">Co-develop space system security architectures, ground control cyber assessments, and SPD-5 compliance frameworks for satellite programs.</div>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6 irad-reveal">
+            <div class="collab-card" style="border-color:rgba(34,197,94,.2)">
+              <span class="collab-icon">&#128641;</span>
+              <div class="collab-title">UAS Program Offices</div>
+              <div class="collab-desc">Work with PEOs and program managers to apply the SPECTRE-UAS framework for cyber certification of Group 1–4 UAS acquisition programs.</div>
             </div>
           </div>
         </div>
