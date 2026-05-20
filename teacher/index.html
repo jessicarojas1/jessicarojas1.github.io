@@ -14,6 +14,8 @@
     .nav-tabs .nav-link{font-size:.78rem;font-weight:600;padding:.4rem .62rem;}
     .nav-tabs .nav-link.active{color:var(--bs-primary);border-bottom-color:var(--bs-primary);}
     .tab-section{min-height:60vh;}
+    .tab-pane{display:none!important;}
+    .tab-pane.tab-visible{display:block!important;}
     .lp-label{font-size:.71rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--bs-primary);margin-bottom:.3rem;display:block;}
     .saved-plan{border:1px solid var(--bs-border-color);border-radius:.4rem;padding:.55rem .85rem;margin-bottom:.35rem;display:flex;justify-content:space-between;align-items:center;background:var(--bs-secondary-bg);font-size:.82rem;cursor:pointer;transition:border-color .15s;}
     .saved-plan:hover{border-color:var(--bs-primary);}
@@ -146,21 +148,21 @@
 
   <!-- 10-tab nav -->
   <ul class="nav nav-tabs mb-4 flex-nowrap overflow-auto" id="mainTabs" style="padding-bottom:1px;">
-    <li class="nav-item flex-shrink-0"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabPlanner"><i class="bi bi-pencil-square me-1"></i>Planner</button></li>
-    <li class="nav-item flex-shrink-0"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabActivities"><i class="bi bi-lightning-charge me-1"></i>Activities</button></li>
-    <li class="nav-item flex-shrink-0"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabTemplates"><i class="bi bi-file-earmark-text me-1"></i>Templates</button></li>
-    <li class="nav-item flex-shrink-0"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabStandards"><i class="bi bi-list-check me-1"></i>Standards</button></li>
-    <li class="nav-item flex-shrink-0"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabGradebook"><i class="bi bi-table me-1"></i>Gradebook</button></li>
-    <li class="nav-item flex-shrink-0"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabClassMgmt"><i class="bi bi-people-fill me-1"></i>Class</button></li>
-    <li class="nav-item flex-shrink-0"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabCalendar"><i class="bi bi-calendar3 me-1"></i>Calendar</button></li>
-    <li class="nav-item flex-shrink-0"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabResources"><i class="bi bi-book me-1"></i>Resources</button></li>
-    <li class="nav-item flex-shrink-0"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabProgress"><i class="bi bi-graph-up me-1"></i>Progress</button></li>
-    <li class="nav-item flex-shrink-0"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabTools"><i class="bi bi-tools me-1"></i>Tools</button></li>
+    <li class="nav-item flex-shrink-0"><button class="nav-link active" onclick="switchTab('tabPlanner',this)"><i class="bi bi-pencil-square me-1"></i>Planner</button></li>
+    <li class="nav-item flex-shrink-0"><button class="nav-link" onclick="switchTab('tabActivities',this)"><i class="bi bi-lightning-charge me-1"></i>Activities</button></li>
+    <li class="nav-item flex-shrink-0"><button class="nav-link" onclick="switchTab('tabTemplates',this)"><i class="bi bi-file-earmark-text me-1"></i>Templates</button></li>
+    <li class="nav-item flex-shrink-0"><button class="nav-link" onclick="switchTab('tabStandards',this)"><i class="bi bi-list-check me-1"></i>Standards</button></li>
+    <li class="nav-item flex-shrink-0"><button class="nav-link" onclick="switchTab('tabGradebook',this)"><i class="bi bi-table me-1"></i>Gradebook</button></li>
+    <li class="nav-item flex-shrink-0"><button class="nav-link" onclick="switchTab('tabClassMgmt',this)"><i class="bi bi-people-fill me-1"></i>Class</button></li>
+    <li class="nav-item flex-shrink-0"><button class="nav-link" onclick="switchTab('tabCalendar',this)"><i class="bi bi-calendar3 me-1"></i>Calendar</button></li>
+    <li class="nav-item flex-shrink-0"><button class="nav-link" onclick="switchTab('tabResources',this)"><i class="bi bi-book me-1"></i>Resources</button></li>
+    <li class="nav-item flex-shrink-0"><button class="nav-link" onclick="switchTab('tabProgress',this)"><i class="bi bi-graph-up me-1"></i>Progress</button></li>
+    <li class="nav-item flex-shrink-0"><button class="nav-link" onclick="switchTab('tabTools',this)"><i class="bi bi-tools me-1"></i>Tools</button></li>
   </ul>
 
   <div class="tab-content">
 <!-- ══ TAB: LESSON PLANNER ══ -->
-<div class="tab-pane fade show active tab-section" id="tabPlanner">
+<div class="tab-pane tab-visible tab-section" id="tabPlanner">
   <div class="row g-4">
     <div class="col-lg-3">
       <div class="d-flex justify-content-between align-items-center mb-2">
@@ -203,7 +205,7 @@
 </div>
 
 <!-- ══ TAB: ACTIVITIES ══ -->
-<div class="tab-pane fade tab-section" id="tabActivities">
+<div class="tab-pane tab-section" id="tabActivities">
   <div class="row g-2 mb-3 align-items-end">
     <div class="col-sm-auto"><label class="lp-label">Subject</label><select class="form-select form-select-sm" id="actSubjectFilter" onchange="filterActivities()"><option value="">All</option><option>ELA</option><option>Math</option><option>Science</option><option>Social Studies</option><option>Health</option></select></div>
     <div class="col-sm-auto"><label class="lp-label">Type</label><select class="form-select form-select-sm" id="actTypeFilter" onchange="filterActivities()"><option value="">All Types</option><option>Collaborative</option><option>Individual</option><option>Hands-On</option><option>Discussion</option><option>Game</option><option>Writing</option><option>Project</option><option>Brain Break</option></select></div>
@@ -215,13 +217,13 @@
 </div>
 
 <!-- ══ TAB: TEMPLATES ══ -->
-<div class="tab-pane fade tab-section" id="tabTemplates">
+<div class="tab-pane tab-section" id="tabTemplates">
   <p class="text-secondary mb-4" style="font-size:.85rem;">Click any template to open a fully editable, print-ready window.</p>
   <div class="row g-3" id="templatesGrid"></div>
 </div>
 
 <!-- ══ TAB: STANDARDS ══ -->
-<div class="tab-pane fade tab-section" id="tabStandards">
+<div class="tab-pane tab-section" id="tabStandards">
   <ul class="nav nav-pills mb-4 flex-wrap" id="stdTabs">
     <li class="nav-item"><button class="nav-link active" onclick="showStd('ela',this)">ELA</button></li>
     <li class="nav-item"><button class="nav-link" onclick="showStd('math',this)">Math</button></li>
@@ -234,7 +236,7 @@
 </div>
 
 <!-- ══ TAB: GRADEBOOK ══ -->
-<div class="tab-pane fade tab-section" id="tabGradebook">
+<div class="tab-pane tab-section" id="tabGradebook">
   <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
     <button class="btn btn-primary btn-sm" onclick="showAddAssignmentModal()"><i class="bi bi-plus-lg me-1"></i>Add Assignment</button>
     <button class="btn btn-outline-secondary btn-sm" onclick="exportGradesCSV()"><i class="bi bi-download me-1"></i>Export CSV</button>
@@ -247,7 +249,7 @@
 </div>
 
 <!-- ══ TAB: CLASS MANAGEMENT ══ -->
-<div class="tab-pane fade tab-section" id="tabClassMgmt">
+<div class="tab-pane tab-section" id="tabClassMgmt">
   <ul class="nav nav-pills mb-4 flex-wrap" id="mgmtPills">
     <li class="nav-item"><button class="nav-link active" onclick="showMgmt('comm',this)"><i class="bi bi-telephone me-1"></i>Communication</button></li>
     <li class="nav-item"><button class="nav-link" onclick="showMgmt('behavior',this)"><i class="bi bi-bar-chart me-1"></i>Behavior</button></li>
@@ -260,7 +262,7 @@
 </div>
 
 <!-- ══ TAB: CALENDAR ══ -->
-<div class="tab-pane fade tab-section" id="tabCalendar">
+<div class="tab-pane tab-section" id="tabCalendar">
   <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
     <div class="d-flex align-items-center gap-3">
       <button class="btn btn-sm btn-outline-secondary" onclick="calNav(-1)"><i class="bi bi-chevron-left"></i></button>
@@ -303,7 +305,7 @@
 </div>
 
 <!-- ══ TAB: RESOURCES ══ -->
-<div class="tab-pane fade tab-section" id="tabResources">
+<div class="tab-pane tab-section" id="tabResources">
   <ul class="nav nav-pills mb-4 flex-wrap" id="resPills">
     <li class="nav-item"><button class="nav-link active" onclick="showRes('mm',this)"><i class="bi bi-sun me-1"></i>Morning Meeting</button></li>
     <li class="nav-item"><button class="nav-link" onclick="showRes('wordwall',this)"><i class="bi bi-alphabet me-1"></i>Word Wall</button></li>
@@ -314,7 +316,7 @@
 </div>
 
 <!-- ══ TAB: PROGRESS ══ -->
-<div class="tab-pane fade tab-section" id="tabProgress">
+<div class="tab-pane tab-section" id="tabProgress">
   <ul class="nav nav-pills mb-4 flex-wrap" id="progPills">
     <li class="nav-item"><button class="nav-link active" onclick="showProg('levels',this)"><i class="bi bi-bar-chart-steps me-1"></i>Reading &amp; Math Levels</button></li>
     <li class="nav-item"><button class="nav-link" onclick="showProg('anecdotal',this)"><i class="bi bi-journal-text me-1"></i>Anecdotal Notes</button></li>
@@ -324,7 +326,7 @@
 </div>
 
 <!-- ══ TAB: TOOLS ══ -->
-<div class="tab-pane fade tab-section" id="tabTools">
+<div class="tab-pane tab-section" id="tabTools">
   <div class="row g-4">
     <div class="col-md-6 col-lg-4">
       <div class="tool-card">
@@ -420,6 +422,18 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmE5AFFL7sN/EI2igmv/4dKDetK+" crossorigin="anonymous"></script>
 <script>
 'use strict';
+/* Escape single quotes in student names for safe use inside onclick='...' */
+function q(s){return String(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")}
+/* Escape HTML special chars for attribute values */
+function ha(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
+/* Main tab switcher — works without Bootstrap JS */
+function switchTab(id,btn){
+  document.querySelectorAll('#mainTabs .nav-link').forEach(function(b){b.classList.remove('active');});
+  document.querySelectorAll('.tab-pane').forEach(function(p){p.classList.remove('tab-visible');});
+  if(btn)btn.classList.add('active');
+  var pane=document.getElementById(id);
+  if(pane)pane.classList.add('tab-visible');
+}
 /* ── Theme & Settings ── */
 function toggleTheme(){var t=document.documentElement.getAttribute('data-bs-theme')==='dark'?'light':'dark';document.documentElement.setAttribute('data-bs-theme',t);localStorage.setItem('bsTheme',t);}
 function getSettings(){return JSON.parse(localStorage.getItem('teacher_settings')||'{}');}
@@ -1002,7 +1016,7 @@ function showStd(key,btn){
   el.innerHTML='<div class="table-responsive"><table class="table table-sm table-hover"><thead><tr><th style="width:130px;">Standard</th><th>Description</th><th style="width:80px;text-align:center;">Taught?</th></tr></thead><tbody>'+
     data.map(function(s){
       var taught=JSON.parse(localStorage.getItem('std_taught')||'{}')[s.code]||false;
-      return '<tr><td><span class="badge bg-secondary" style="font-size:.72rem;">'+s.code+'</span></td><td style="font-size:.82rem;">'+s.desc+'</td><td style="text-align:center;"><input type="checkbox" class="form-check-input" '+(taught?'checked':'')+'onchange="toggleStd(\''+s.code+'\',this.checked)"></td></tr>';
+      return '<tr><td><span class="badge bg-secondary" style="font-size:.72rem;">'+s.code+'</span></td><td style="font-size:.82rem;">'+s.desc+'</td><td style="text-align:center;"><input type="checkbox" class="form-check-input" '+(taught?'checked ':'')+' onchange="toggleStd(\''+s.code+'\',this.checked)"></td></tr>';
     }).join('')+'</tbody></table></div>';
 }
 
@@ -1019,20 +1033,21 @@ function getGrades(){return JSON.parse(localStorage.getItem('gb_grades')||'{}');
 function saveGrades(g){localStorage.setItem('gb_grades',JSON.stringify(g));}
 
 function showAddAssignmentModal(){
-  var modal=new bootstrap.Modal(document.getElementById('addAssignmentModal'));
+  var modal=new bootstrap.Modal(document.getElementById('addAssignModal'));
   modal.show();
 }
 function addAssignment(){
-  var name=(document.getElementById('asgName').value||'').trim();
-  var pts=parseInt(document.getElementById('asgPoints').value)||100;
-  var type=document.getElementById('asgType').value;
+  var name=(document.getElementById('newAssignName').value||'').trim();
+  var pts=parseInt(document.getElementById('newAssignMax').value)||100;
+  var type=document.getElementById('newAssignCat').value;
+  var date=document.getElementById('newAssignDate').value;
   if(!name)return;
   var asgs=getAssignments();
-  asgs.push({id:Date.now().toString(),name:name,pts:pts,type:type});
+  asgs.push({id:Date.now().toString(),name:name,pts:pts,type:type,date:date});
   saveAssignments(asgs);
-  bootstrap.Modal.getInstance(document.getElementById('addAssignmentModal')).hide();
-  document.getElementById('asgName').value='';
-  document.getElementById('asgPoints').value=100;
+  bootstrap.Modal.getInstance(document.getElementById('addAssignModal')).hide();
+  document.getElementById('newAssignName').value='';
+  document.getElementById('newAssignMax').value=100;
   renderGradebook();
 }
 function deleteAssignment(id){
@@ -1077,7 +1092,7 @@ function renderGradebook(){
       var val=grades[key];
       var score=(val!==undefined&&val!=='')?parseFloat(val):null;
       if(score!==null){earned+=score;total+=a.pts;count++;}
-      tbody+='<td><input type="number" class="form-control form-control-sm p-0 px-1" style="width:64px;font-size:.78rem;" min="0" max="'+a.pts+'" value="'+(val!==undefined?val:'')+'" onchange="saveScore(\''+a.id+'\',\''+s+'\',this.value)" placeholder="—"></td>';
+      tbody+='<td><input type="number" class="form-control form-control-sm p-0 px-1" style="width:64px;font-size:.78rem;" min="0" max="'+a.pts+'" value="'+(val!==undefined?val:'')+'" onchange="saveScore(\''+a.id+'\',\''+q(s)+'\',this.value)" placeholder="—"></td>';
     });
     var avg=(total>0)?Math.round(earned/total*100):null;
     tbody+='<td style="font-size:.78rem;">'+((avg!==null)?avg+'% '+letterGrade(avg):'—')+'</td></tr>';
@@ -1191,10 +1206,10 @@ function renderBehavior(){
     html+='<tr><td style="font-size:.8rem;font-weight:500;">'+s+'</td>';
     html+='<td style="text-align:center;font-weight:bold;font-size:.95rem;">'+pts+'</td>';
     html+='<td style="text-align:center;white-space:nowrap;">';
-    html+='<button class="btn btn-success btn-sm py-0 px-2" onclick="bhvAdjust(\''+s+'\',1)">+</button> ';
-    html+='<button class="btn btn-danger btn-sm py-0 px-2" onclick="bhvAdjust(\''+s+'\',-1)">−</button>';
+    html+='<button class="btn btn-success btn-sm py-0 px-2" onclick="bhvAdjust(\''+q(s)+'\',1)">+</button> ';
+    html+='<button class="btn btn-danger btn-sm py-0 px-2" onclick="bhvAdjust(\''+q(s)+'\',-1)">−</button>';
     html+='</td>';
-    html+='<td><input type="text" class="form-control form-control-sm" value="'+notes+'" placeholder="Optional notes…" onchange="bhvNote(\''+s+'\',this.value)"></td>';
+    html+='<td><input type="text" class="form-control form-control-sm" value="'+ha(notes)+'" placeholder="Optional notes…" onchange="bhvNote(\''+q(s)+'\',this.value)"></td>';
     html+='</tr>';
   });
   html+='</tbody></table></div>';
@@ -1343,7 +1358,7 @@ function renderIEP(){
   var html='<div class="mb-2 text-secondary" style="font-size:.8rem;">Record IEP, 504, ELL, or gifted accommodations for each student. Auto-saved as you type.</div>';
   html+='<div class="row g-3">';
   html+=students.map(function(s){
-    return '<div class="col-sm-6 col-lg-4"><div class="p-3 rounded" style="background:var(--bs-secondary-bg);border:1px solid var(--bs-border-color);"><div class="fw-semibold mb-1" style="font-size:.82rem;">'+s+'</div><textarea class="form-control form-control-sm" rows="4" placeholder="Accommodations, goals, notes…" onchange="saveIEPEntry(\''+s+'\',this.value)" oninput="saveIEPEntry(\''+s+'\',this.value)">'+( notes[s]||'')+'</textarea></div></div>';
+    return '<div class="col-sm-6 col-lg-4"><div class="p-3 rounded" style="background:var(--bs-secondary-bg);border:1px solid var(--bs-border-color);"><div class="fw-semibold mb-1" style="font-size:.82rem;">'+s+'</div><textarea class="form-control form-control-sm" rows="4" placeholder="Accommodations, goals, notes…" onchange="saveIEPEntry(\''+q(s)+'\',this.value)" oninput="saveIEPEntry(\''+q(s)+'\',this.value)">'+( notes[s]||'')+'</textarea></div></div>';
   }).join('');
   html+='</div>';
   html+='<button class="btn btn-sm btn-outline-secondary mt-3" onclick="printIEP()"><i class="bi bi-printer me-1"></i>Print All</button>';
@@ -1418,7 +1433,7 @@ function renderCalendar(){
     var isToday=(today.getFullYear()===yr&&today.getMonth()===mo&&today.getDate()===d);
     var dayEvts=events.filter(function(e){return e.date===dateStr;});
     var evHtml=dayEvts.map(function(e){
-      return '<div class="cal-event ev-'+e.type+'" onclick="deleteCalEvent(\''+e.id+'\')" title="'+e.title+(e.notes?' — '+e.notes:'')+' (click to delete)">'+e.title+'</div>';
+      return '<div class="cal-event ev-'+e.type+'" onclick="deleteCalEvent(\''+e.id+'\')" title="'+ha(e.title)+(e.notes?' — '+ha(e.notes):'')+' (click to delete)">'+ha(e.title)+'</div>';
     }).join('');
     cells+='<div class="cal-cell'+(isToday?' today':'')+'"><div style="font-size:.72rem;font-weight:600;margin-bottom:3px;color:'+(isToday?'var(--bs-primary)':'inherit')+';">'+d+'</div>'+evHtml+'</div>';
   }
@@ -1713,10 +1728,10 @@ function renderLevels(){
   html+=students.map(function(s){
     var d=data[s]||{};
     return '<tr><td style="font-weight:500;font-size:.8rem;">'+s+'</td>'+
-      '<td><input type="text" class="form-control form-control-sm" style="width:80px;" value="'+(d.rdgLevel||'')+'" placeholder="e.g. M" onchange="saveLevel(\''+s+'\',\'rdgLevel\',this.value)"></td>'+
-      '<td><input type="text" class="form-control form-control-sm" style="width:80px;" value="'+(d.rdgGoal||'')+'" placeholder="e.g. P" onchange="saveLevel(\''+s+'\',\'rdgGoal\',this.value)"></td>'+
-      '<td><select class="form-select form-select-sm" style="width:130px;" onchange="saveLevel(\''+s+'\',\'mathLevel\',this.value)"><option value="">—</option><option '+(d.mathLevel==='Above Grade'?'selected':'')+'>Above Grade</option><option '+(d.mathLevel==='On Grade'?'selected':'')+'>On Grade</option><option '+(d.mathLevel==='Approaching'?'selected':'')+'>Approaching</option><option '+(d.mathLevel==='Intervention'?'selected':'')+'>Intervention</option></select></td>'+
-      '<td><input type="text" class="form-control form-control-sm" value="'+(d.notes||'')+'" placeholder="Notes…" onchange="saveLevel(\''+s+'\',\'notes\',this.value)"></td>'+
+      '<td><input type="text" class="form-control form-control-sm" style="width:80px;" value="'+ha(d.rdgLevel||'')+'" placeholder="e.g. M" onchange="saveLevel(\''+q(s)+'\',\'rdgLevel\',this.value)"></td>'+
+      '<td><input type="text" class="form-control form-control-sm" style="width:80px;" value="'+ha(d.rdgGoal||'')+'" placeholder="e.g. P" onchange="saveLevel(\''+q(s)+'\',\'rdgGoal\',this.value)"></td>'+
+      '<td><select class="form-select form-select-sm" style="width:130px;" onchange="saveLevel(\''+q(s)+'\',\'mathLevel\',this.value)"><option value="">—</option><option '+(d.mathLevel==='Above Grade'?'selected':'')+'>Above Grade</option><option '+(d.mathLevel==='On Grade'?'selected':'')+'>On Grade</option><option '+(d.mathLevel==='Approaching'?'selected':'')+'>Approaching</option><option '+(d.mathLevel==='Intervention'?'selected':'')+'>Intervention</option></select></td>'+
+      '<td><input type="text" class="form-control form-control-sm" value="'+ha(d.notes||'')+'" placeholder="Notes…" onchange="saveLevel(\''+q(s)+'\',\'notes\',this.value)"></td>'+
       '</tr>';
   }).join('');
   html+='</tbody></table></div>';
@@ -1827,7 +1842,7 @@ function renderFluencyTable(op){
       var val=data[key]||'';
       var num=parseInt(val)||0;
       if(num>best)best=num;
-      row+='<td><input type="number" class="form-control form-control-sm p-0 px-1 text-center" style="width:58px;font-size:.78rem;" min="0" max="100" value="'+val+'" placeholder="—" onchange="saveFluencyScore(\''+op+'\',\''+s+'\',\''+t+'\',this.value)"></td>';
+      row+='<td><input type="number" class="form-control form-control-sm p-0 px-1 text-center" style="width:58px;font-size:.78rem;" min="0" max="100" value="'+val+'" placeholder="—" onchange="saveFluencyScore(\''+q(op)+'\',\''+q(s)+'\',\''+q(t)+'\',this.value)"></td>';
     });
     row+='<td style="font-size:.8rem;font-weight:bold;text-align:center;">'+(best||'—')+'</td></tr>';
     return row;
@@ -2061,8 +2076,122 @@ function showQuote(){
 }
 function nextQuote(){quoteIdx=(quoteIdx+1)%QUOTES.length;showQuote();}
 
+/* ── Demo Seed Data (runs once on first visit) ── */
+function seedDemoData(){
+  if(localStorage.getItem('teacher_settings'))return;
+  var students=['Alex','Brianna','Carlos','Destiny','Ethan','Faith','Gavin','Hannah','Isaac','Jade','Kevin','Lily','Marcus','Natalia','Oliver','Priya','Quinn','Riley','Sophia','Tyler'];
+  var today=new Date();
+  var addDays=function(d,n){var r=new Date(d);r.setDate(r.getDate()+n);return r;};
+  var fmtISO=function(d){return d.toISOString().split('T')[0];};
+  var fmtShort=function(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});};
+  var ago=function(n){return fmtShort(addDays(today,-n));};
+
+  localStorage.setItem('teacher_settings',JSON.stringify({name:'Mrs. Rojas',school:'Sunrise Elementary',grade:'5th Grade',pbisGoal:100,students:students}));
+
+  var asgs=[
+    {id:'a1',name:'Ch. 1 Vocab Quiz',pts:20,type:'quiz',date:fmtISO(addDays(today,-28))},
+    {id:'a2',name:'Fractions Test',pts:100,type:'test',date:fmtISO(addDays(today,-21))},
+    {id:'a3',name:'Weekly Reading Log',pts:25,type:'assignment',date:fmtISO(addDays(today,-14))},
+    {id:'a4',name:'Science Lab Report',pts:50,type:'project',date:fmtISO(addDays(today,-7))},
+    {id:'a5',name:'ELA Mid-Term',pts:100,type:'test',date:fmtISO(addDays(today,-2))}
+  ];
+  localStorage.setItem('gb_assignments',JSON.stringify(asgs));
+
+  var rawScores={Alex:[19,88,24,46,90],Brianna:[20,95,25,50,96],Carlos:[15,72,20,38,74],Destiny:[18,82,22,44,85],Ethan:[16,68,18,35,71],Faith:[20,97,25,49,98],Gavin:[14,65,19,32,66],Hannah:[19,91,24,47,92],Isaac:[17,78,21,42,80],Jade:[20,94,25,48,95],Kevin:[13,60,17,30,62],Lily:[18,85,23,45,87],Marcus:[15,74,20,40,76],Natalia:[20,92,25,48,93],Oliver:[16,70,19,36,72],Priya:[20,96,25,50,97],Quinn:[17,79,22,41,81],Riley:[19,89,24,46,90],Sophia:[20,93,25,49,94],Tyler:[14,63,18,33,64]};
+  var grades={};
+  students.forEach(function(s){(rawScores[s]||[15,75,20,38,77]).forEach(function(v,i){grades['a'+(i+1)+'_'+s]=v;});});
+  localStorage.setItem('gb_grades',JSON.stringify(grades));
+
+  var rawBeh={Alex:[8,0,'Strong participation in discussions'],Brianna:[12,0,''],Carlos:[5,2,'Occasional off-task'],Destiny:[9,1,''],Ethan:[4,3,'Working on listening skills'],Faith:[15,0,'Exceptional role model'],Gavin:[3,4,'Needs frequent redirection'],Hannah:[11,0,''],Isaac:[7,1,''],Jade:[13,0,''],Kevin:[2,5,'Struggling with impulse control — parent contact made'],Lily:[10,0,''],Marcus:[6,2,''],Natalia:[14,0,'Natural leadership qualities'],Oliver:[5,1,''],Priya:[15,0,'Outstanding classroom citizen'],Quinn:[8,0,''],Riley:[11,0,''],Sophia:[13,0,''],Tyler:[4,3,'Benefits from movement breaks']};
+  var beh={};students.forEach(function(s){var d=rawBeh[s]||[5,0,''];beh[s]={pos:d[0],neg:d[1],notes:d[2]};});
+  localStorage.setItem('behavior_data',JSON.stringify(beh));
+
+  localStorage.setItem('comm_log',JSON.stringify([
+    {student:'Kevin',date:ago(14),type:'call',note:'Called home regarding classroom behavior. Parent receptive and will reinforce expectations at home.',resolved:true},
+    {student:'Ethan',date:ago(7),type:'email',note:'Emailed parent about missing assignments — 3 reading logs not submitted this month.',resolved:false},
+    {student:'Gavin',date:ago(3),type:'note',note:'Sent home positive note recognizing improved effort in math this week.',resolved:true},
+    {student:'Faith',date:ago(1),type:'email',note:'Parent asked about enrichment opportunities. Shared GT screening info.',resolved:true}
+  ]));
+
+  localStorage.setItem('iep_notes',JSON.stringify({
+    'Ethan':'504 Plan: Extended time (1.5×) on all assessments. Preferential seating near front. Assignments may be chunked. Check for understanding before independent work.',
+    'Kevin':'IEP — SLD Reading: Small group pull-out Mon/Wed/Fri with Ms. Patterson. Read-aloud accommodation. Modified spelling list. Sentence starters for written responses.',
+    'Gavin':'ELL Student (Level 3 — Developing): Visual vocabulary supports and word banks. Allow native language dictionary. Pair with bilingual buddy during new concept instruction.'
+  }));
+
+  localStorage.setItem('pbis_data',JSON.stringify({pts:78,log:[
+    {pts:5,reason:'Whole class on task during independent math work',date:ago(14)},
+    {pts:10,reason:'Excellent behavior during school assembly',date:ago(7)},
+    {pts:3,reason:'Quiet hallway transition x3',date:ago(3)}
+  ]}));
+
+  var rawLevels={Alex:{rdgLevel:'S',rdgGoal:'U',mathLevel:'On Grade',notes:''},Brianna:{rdgLevel:'W',rdgGoal:'Y',mathLevel:'Above Grade',notes:''},Carlos:{rdgLevel:'N',rdgGoal:'Q',mathLevel:'Approaching',notes:'ELL support'},Destiny:{rdgLevel:'T',rdgGoal:'V',mathLevel:'On Grade',notes:''},Ethan:{rdgLevel:'P',rdgGoal:'S',mathLevel:'Approaching',notes:'504 — extended time'},Faith:{rdgLevel:'Z',rdgGoal:'Z+',mathLevel:'Above Grade',notes:'Enrichment math'},Gavin:{rdgLevel:'L',rdgGoal:'P',mathLevel:'Intervention',notes:'ELL Level 3'},Hannah:{rdgLevel:'U',rdgGoal:'W',mathLevel:'On Grade',notes:''},Isaac:{rdgLevel:'R',rdgGoal:'T',mathLevel:'On Grade',notes:''},Jade:{rdgLevel:'X',rdgGoal:'Z',mathLevel:'Above Grade',notes:''},Kevin:{rdgLevel:'M',rdgGoal:'P',mathLevel:'Intervention',notes:'IEP reading'},Lily:{rdgLevel:'V',rdgGoal:'X',mathLevel:'On Grade',notes:''},Marcus:{rdgLevel:'Q',rdgGoal:'S',mathLevel:'Approaching',notes:''},Natalia:{rdgLevel:'W',rdgGoal:'Y',mathLevel:'Above Grade',notes:''},Oliver:{rdgLevel:'O',rdgGoal:'R',mathLevel:'Approaching',notes:''},Priya:{rdgLevel:'Z',rdgGoal:'Z+',mathLevel:'Above Grade',notes:'Math competition team'},Quinn:{rdgLevel:'S',rdgGoal:'U',mathLevel:'On Grade',notes:''},Riley:{rdgLevel:'T',rdgGoal:'V',mathLevel:'On Grade',notes:''},Sophia:{rdgLevel:'X',rdgGoal:'Z',mathLevel:'Above Grade',notes:''},Tyler:{rdgLevel:'N',rdgGoal:'Q',mathLevel:'Intervention',notes:'Benefits from movement breaks'}};
+  var levels={};students.forEach(function(s){levels[s]=rawLevels[s]||{rdgLevel:'',rdgGoal:'',mathLevel:'On Grade',notes:''};});
+  localStorage.setItem('student_levels',JSON.stringify(levels));
+
+  localStorage.setItem('anecdotal_notes',JSON.stringify([
+    {student:'Faith',date:ago(10),note:'Demonstrated exceptional leadership during small group — helped peers explain fractions using visual models. Consider for peer tutor role.'},
+    {student:'Kevin',date:ago(7),note:'Struggled with multi-step word problems. Graphic organizer helped. Will revisit in small group with Ms. Patterson Friday.'},
+    {student:'Priya',date:ago(5),note:'Extended the fraction lesson independently — asked about decimal equivalents. Recommended Khan Academy advanced track.'},
+    {student:'Gavin',date:ago(3),note:'Made excellent progress with vocabulary support cards during science lab. Most engaged I have seen him this year.'},
+    {student:'Ethan',date:ago(1),note:'Completed full exit ticket independently for first time this unit. Chunked assignment format is working well.'}
+  ]));
+
+  var rawFluency={Alex:[95,98,0,0,0,0],Brianna:[100,100,0,0,0,0],Carlos:[72,80,0,0,0,0],Destiny:[88,92,0,0,0,0],Ethan:[60,68,0,0,0,0],Faith:[100,100,0,0,0,0],Gavin:[52,60,0,0,0,0],Hannah:[90,95,0,0,0,0],Isaac:[84,87,0,0,0,0],Jade:[98,100,0,0,0,0],Kevin:[48,55,0,0,0,0],Lily:[88,90,0,0,0,0],Marcus:[75,79,0,0,0,0],Natalia:[95,97,0,0,0,0],Oliver:[70,74,0,0,0,0],Priya:[100,100,0,0,0,0],Quinn:[82,85,0,0,0,0],Riley:[91,93,0,0,0,0],Sophia:[96,98,0,0,0,0],Tyler:[55,61,0,0,0,0]};
+  var fluency={};students.forEach(function(s){fluency[s]={'Multiplication':rawFluency[s]||[0,0,0,0,0,0]};});
+  localStorage.setItem('fluency_data',JSON.stringify(fluency));
+  localStorage.setItem('fluency_op','Multiplication');
+
+  localStorage.setItem('cal_events',JSON.stringify([
+    {id:'e1',date:fmtISO(addDays(today,3)),title:'Fractions Unit Test',type:'test',notes:'Chapters 4–6'},
+    {id:'e2',date:fmtISO(addDays(today,7)),title:'Fall Parent-Teacher Conferences',type:'meeting',notes:'4:00–7:00 PM'},
+    {id:'e3',date:fmtISO(addDays(today,10)),title:'Field Trip — Natural History Museum',type:'trip',notes:'Permission slips due Friday'},
+    {id:'e4',date:fmtISO(addDays(today,14)),title:'Reading Log Due',type:'due',notes:''},
+    {id:'e5',date:fmtISO(addDays(today,21)),title:'Q1 Report Cards',type:'due',notes:'Quarter 1 ends'},
+    {id:'e6',date:fmtISO(addDays(today,28)),title:'Halloween',type:'holiday',notes:'Costume parade at 2 PM'}
+  ]));
+
+  localStorage.setItem('supply_list',JSON.stringify([
+    {item:'#2 Pencils (box of 30)',qty:'2 boxes',have:false},
+    {item:'Dry-erase markers',qty:'4 sets',have:false},
+    {item:'Construction paper',qty:'1 pack',have:true},
+    {item:'Whiteboard cleaner',qty:'2 bottles',have:false},
+    {item:'Sticky notes (3×3)',qty:'5 packs',have:true},
+    {item:'Index cards',qty:'200',have:false},
+    {item:'Glue sticks',qty:'30',have:true},
+    {item:'Student scissors',qty:'5',have:false}
+  ]));
+
+  localStorage.setItem('tallies',JSON.stringify([
+    {label:'Line Points',count:7},
+    {label:'Star of the Day',count:3},
+    {label:'Helping Hand',count:5}
+  ]));
+
+  localStorage.setItem('teacher_plans',JSON.stringify([{
+    id:'demo1',
+    data:{
+      lpTitle:'Adding & Subtracting Fractions with Unlike Denominators',
+      lpSubject:'Math',lpDate:fmtISO(addDays(today,1)),lpDuration:'60 minutes',
+      lpStandards:'5.NF.A.1 — Add and subtract fractions with unlike denominators',
+      lpObjectives:'Students will be able to find a common denominator and add/subtract fractions with unlike denominators. Students will explain their reasoning using visual models.',
+      lpVocab:'numerator, denominator, common denominator, equivalent fraction, least common multiple (LCM)',
+      lpMaterials:'Fraction tiles, number lines, mini whiteboards, exit ticket slips',
+      lpHook:'Pizza problem: "If I ate 1/3 of a pizza and you ate 1/4, who ate more? How much did we eat together?" Students turn-and-talk for 2 minutes.',
+      lpIDo:'Model finding LCM of 3 and 4. Show how to rename fractions with a common denominator. Complete first example on board with think-aloud.',
+      lpWeDo:'Class solves 3 problems together using mini whiteboards. Students hold up boards — check for understanding and discuss misconceptions.',
+      lpYouDo:'Independent practice worksheet — 8 problems. Early finishers: word problems on back.',
+      lpClosure:'Exit ticket: solve 1/2 + 2/5. Write the answer and one sentence explaining your strategy.',
+      lpAssess:'Exit ticket reviewed tonight, observation during whiteboard practice, worksheet collected',
+      lpDiff:'Ethan & Kevin: fraction tile scaffold, reduced set (problems 1–5 only). Faith & Priya: mixed numbers extension on back of worksheet.',
+      lpNotes:'Check fraction tile supply before class. Pull Ethan and Kevin to small group during You Do if they appear lost.'
+    }
+  }]));
+}
+
 /* ── Init ── */
 function init(){
+  seedDemoData();
   // Theme
   var saved=localStorage.getItem('bsTheme')||'light';
   document.documentElement.setAttribute('data-bs-theme',saved);
