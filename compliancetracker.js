@@ -1,6 +1,6 @@
 /* ============================================================
    compliancetracker.js
-   Full compliance tracker: CMMC L2/L1, ISO 27001
+   Full compliance tracker: CMMC L2/L1
    - Objective-level tracking (Met / Not Met / In Progress / N/A)
    - Notes per objective/control (localStorage)
    - Evidence upload/remove (IndexedDB)
@@ -21,7 +21,6 @@ const App = {
 const STANDARDS = {
   cmmc_l2:  { file: 'cmmc_l2_data.json',  label: 'CMMC Level 2', objectiveLevel: true,  domainKey: 'domain_id', nameKey: 'domain_name', itemsKey: 'practices',  subKey: 'objectives' },
   cmmc_l1:  { file: 'cmmc_l1_data.json',  label: 'CMMC Level 1', objectiveLevel: false, domainKey: 'domain_id', nameKey: 'domain_name', itemsKey: 'practices',  subKey: null },
-  iso27001: { file: 'iso27001_data.json', label: 'ISO 27001:2022', objectiveLevel: false, domainKey: 'domain_id', nameKey: 'domain_name', itemsKey: 'controls',   subKey: null },
 };
 
 // ── IndexedDB ────────────────────────────────────────────────
