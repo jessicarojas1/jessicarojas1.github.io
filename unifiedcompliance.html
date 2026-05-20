@@ -108,17 +108,22 @@
           <span class="badge bg-info">ISO 27001:2022</span>
           <span class="badge bg-success">CMMC L1</span>
           <span class="badge bg-warning text-dark">CMMC L2</span>
-          <span class="badge bg-secondary">93 + 17 + 110 controls</span>
+          <span class="badge bg-danger">CMMI 2.0</span>
+          <span class="badge" style="background:#7c3aed">ISO 42001</span>
+          <span class="badge" style="background:#0891b2">NIST CSF 2.0</span>
+          <span class="badge" style="background:#059669">NIST AI RMF</span>
+          <span class="badge" style="background:#ea580c">CMMC L3</span>
+          <span class="badge bg-secondary">93 + 17 + 110 + 24 + 34 + 34 + 22 + 19 controls</span>
         </div>
         <h1 class="fw-bold">Unified Compliance Framework</h1>
-        <p class="lead text-body-secondary">ISO/IEC 27001:2022 &middot; CMMC Level 1 &middot; CMMC Level 2 &mdash; Control tracking, cross-mapping, and gap analysis</p>
+        <p class="lead text-body-secondary">ISO/IEC 27001:2022 &middot; CMMC Level 1 &middot; CMMC Level 2 &middot; CMMI 2.0 &middot; ISO/IEC 42001:2023 &middot; NIST CSF 2.0 &middot; NIST AI RMF 1.0 &middot; CMMC Level 3 &mdash; Control tracking, cross-mapping, and gap analysis</p>
       </div>
     </section>
 
     <div class="container py-4">
       <!-- Framework Progress Cards -->
       <div class="row g-3 mb-4" id="progress-cards">
-        <div class="col-md-4">
+        <div class="col-md col-sm-6">
           <div class="card h-100">
             <div class="card-body">
               <h5 class="card-title mb-1">ISO 27001:2022 <span class="badge bg-info">93</span></h5>
@@ -127,7 +132,7 @@
             </div>
           </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md col-sm-6">
           <div class="card h-100">
             <div class="card-body">
               <h5 class="card-title mb-1">CMMC Level 1 <span class="badge bg-success">17</span></h5>
@@ -136,12 +141,57 @@
             </div>
           </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md col-sm-6">
           <div class="card h-100">
             <div class="card-body">
               <h5 class="card-title mb-1">CMMC Level 2 <span class="badge bg-warning text-dark">110</span></h5>
               <div class="progress mb-2"><div class="progress-bar bg-success" id="prog-l2" role="progressbar" style="width:0%">0%</div></div>
               <small class="text-body-secondary" id="stats-l2"></small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md col-sm-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="card-title mb-1">CMMI 2.0 <span class="badge bg-danger">34</span></h5>
+              <div class="progress mb-2"><div class="progress-bar bg-success" id="prog-cmmi" role="progressbar" style="width:0%">0%</div></div>
+              <small class="text-body-secondary" id="stats-cmmi"></small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md col-sm-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="card-title mb-1">ISO 42001 <span class="badge" style="background:#7c3aed">34</span></h5>
+              <div class="progress mb-2"><div class="progress-bar" id="prog-iso42" role="progressbar" style="width:0%;background:#7c3aed">0%</div></div>
+              <small class="text-body-secondary" id="stats-iso42"></small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md col-sm-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="card-title mb-1">NIST CSF 2.0 <span class="badge" style="background:#0891b2">22</span></h5>
+              <div class="progress mb-2"><div class="progress-bar" id="prog-csf" role="progressbar" style="width:0%;background:#0891b2">0%</div></div>
+              <small class="text-body-secondary" id="stats-csf"></small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md col-sm-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="card-title mb-1">NIST AI RMF <span class="badge" style="background:#059669">19</span></h5>
+              <div class="progress mb-2"><div class="progress-bar" id="prog-airf" role="progressbar" style="width:0%;background:#059669">0%</div></div>
+              <small class="text-body-secondary" id="stats-airf"></small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md col-sm-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="card-title mb-1">CMMC Level 3 <span class="badge" style="background:#ea580c">24</span></h5>
+              <div class="progress mb-2"><div class="progress-bar" id="prog-l3" role="progressbar" style="width:0%;background:#ea580c">0%</div></div>
+              <small class="text-body-secondary" id="stats-l3"></small>
             </div>
           </div>
         </div>
@@ -153,6 +203,11 @@
         <li class="nav-item" role="presentation"><button class="nav-link" id="tab-iso" data-bs-toggle="tab" data-bs-target="#pane-iso" type="button" role="tab" aria-controls="pane-iso" aria-selected="false">ISO 27001</button></li>
         <li class="nav-item" role="presentation"><button class="nav-link" id="tab-l1" data-bs-toggle="tab" data-bs-target="#pane-l1" type="button" role="tab" aria-controls="pane-l1" aria-selected="false">CMMC Level 1</button></li>
         <li class="nav-item" role="presentation"><button class="nav-link" id="tab-l2" data-bs-toggle="tab" data-bs-target="#pane-l2" type="button" role="tab" aria-controls="pane-l2" aria-selected="false">CMMC Level 2</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-cmmi" data-bs-toggle="tab" data-bs-target="#pane-cmmi" type="button" role="tab" aria-controls="pane-cmmi" aria-selected="false">CMMI 2.0</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-iso42" data-bs-toggle="tab" data-bs-target="#pane-iso42" type="button" role="tab" aria-controls="pane-iso42" aria-selected="false">ISO 42001</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-csf" data-bs-toggle="tab" data-bs-target="#pane-csf" type="button" role="tab" aria-controls="pane-csf" aria-selected="false">NIST CSF 2.0</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-airf" data-bs-toggle="tab" data-bs-target="#pane-airf" type="button" role="tab" aria-controls="pane-airf" aria-selected="false">NIST AI RMF</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-l3" data-bs-toggle="tab" data-bs-target="#pane-l3" type="button" role="tab" aria-controls="pane-l3" aria-selected="false">CMMC Level 3</button></li>
         <li class="nav-item" role="presentation"><button class="nav-link" id="tab-mapping" data-bs-toggle="tab" data-bs-target="#pane-mapping" type="button" role="tab" aria-controls="pane-mapping" aria-selected="false">Control Nexus</button></li>
         <li class="nav-item" role="presentation"><button class="nav-link" id="tab-gap" data-bs-toggle="tab" data-bs-target="#pane-gap" type="button" role="tab" aria-controls="pane-gap" aria-selected="false">Gap Analysis</button></li>
       </ul>
@@ -230,6 +285,122 @@
             <span class="badge bg-secondary" id="l2-count"></span>
           </div>
           <div id="l2-content"></div>
+        </div>
+
+        <!-- CMMI 2.0 -->
+        <div class="tab-pane fade" id="pane-cmmi" role="tabpanel" aria-labelledby="tab-cmmi">
+          <div class="filter-bar d-flex gap-2 align-items-center flex-wrap">
+            <input type="search" class="form-control form-control-sm" id="cmmi-search" placeholder="Search practices..." style="max-width:250px;" />
+            <select class="form-select form-select-sm" id="cmmi-status-filter" style="max-width:160px;">
+              <option value="">All Statuses</option>
+              <option value="implemented">Implemented</option>
+              <option value="partial">Partial</option>
+              <option value="planned">Planned</option>
+              <option value="not-started">Not Started</option>
+              <option value="na">N/A</option>
+            </select>
+            <select class="form-select form-select-sm" id="cmmi-domain-filter" style="max-width:260px;">
+              <option value="">All Practice Areas</option>
+            </select>
+            <select class="form-select form-select-sm" id="cmmi-ml-filter" style="max-width:160px;">
+              <option value="">All Maturity Levels</option>
+              <option value="2">ML 2 – Managed</option>
+              <option value="3">ML 3 – Defined</option>
+            </select>
+            <span class="badge bg-secondary" id="cmmi-count"></span>
+          </div>
+          <div id="cmmi-content"></div>
+        </div>
+
+        <!-- ISO 42001 -->
+        <div class="tab-pane fade" id="pane-iso42" role="tabpanel" aria-labelledby="tab-iso42">
+          <div class="filter-bar d-flex gap-2 align-items-center flex-wrap">
+            <input type="search" class="form-control form-control-sm" id="iso42-search" placeholder="Search controls..." style="max-width:250px;" />
+            <select class="form-select form-select-sm" id="iso42-status-filter" style="max-width:160px;">
+              <option value="">All Statuses</option>
+              <option value="implemented">Implemented</option>
+              <option value="partial">Partial</option>
+              <option value="planned">Planned</option>
+              <option value="not-started">Not Started</option>
+              <option value="na">N/A</option>
+            </select>
+            <select class="form-select form-select-sm" id="iso42-family-filter" style="max-width:200px;">
+              <option value="">All Families</option>
+            </select>
+            <span class="badge bg-secondary" id="iso42-count"></span>
+          </div>
+          <div id="iso42-content"></div>
+        </div>
+
+        <!-- NIST CSF 2.0 -->
+        <div class="tab-pane fade" id="pane-csf" role="tabpanel" aria-labelledby="tab-csf">
+          <div class="filter-bar d-flex gap-2 align-items-center flex-wrap">
+            <input type="search" class="form-control form-control-sm" id="csf-search" placeholder="Search categories..." style="max-width:250px;" />
+            <select class="form-select form-select-sm" id="csf-status-filter" style="max-width:160px;">
+              <option value="">All Statuses</option>
+              <option value="implemented">Implemented</option>
+              <option value="partial">Partial</option>
+              <option value="planned">Planned</option>
+              <option value="not-started">Not Started</option>
+              <option value="na">N/A</option>
+            </select>
+            <select class="form-select form-select-sm" id="csf-fn-filter" style="max-width:180px;">
+              <option value="">All Functions</option>
+              <option value="Govern">Govern</option>
+              <option value="Identify">Identify</option>
+              <option value="Protect">Protect</option>
+              <option value="Detect">Detect</option>
+              <option value="Respond">Respond</option>
+              <option value="Recover">Recover</option>
+            </select>
+            <span class="badge bg-secondary" id="csf-count"></span>
+          </div>
+          <div id="csf-content"></div>
+        </div>
+
+        <!-- NIST AI RMF 1.0 -->
+        <div class="tab-pane fade" id="pane-airf" role="tabpanel" aria-labelledby="tab-airf">
+          <div class="filter-bar d-flex gap-2 align-items-center flex-wrap">
+            <input type="search" class="form-control form-control-sm" id="airf-search" placeholder="Search practices..." style="max-width:250px;" />
+            <select class="form-select form-select-sm" id="airf-status-filter" style="max-width:160px;">
+              <option value="">All Statuses</option>
+              <option value="implemented">Implemented</option>
+              <option value="partial">Partial</option>
+              <option value="planned">Planned</option>
+              <option value="not-started">Not Started</option>
+              <option value="na">N/A</option>
+            </select>
+            <select class="form-select form-select-sm" id="airf-fn-filter" style="max-width:180px;">
+              <option value="">All Functions</option>
+              <option value="Govern">Govern</option>
+              <option value="Map">Map</option>
+              <option value="Measure">Measure</option>
+              <option value="Manage">Manage</option>
+            </select>
+            <span class="badge bg-secondary" id="airf-count"></span>
+          </div>
+          <div id="airf-content"></div>
+        </div>
+
+        <!-- CMMC Level 3 -->
+        <div class="tab-pane fade" id="pane-l3" role="tabpanel" aria-labelledby="tab-l3">
+          <p class="text-body-secondary small mb-3">24 enhanced practices from NIST SP 800-172 required for CMMC Level 3 (in addition to all Level 2 practices). Applies to contractors handling CUI in the highest priority programs.</p>
+          <div class="filter-bar d-flex gap-2 align-items-center flex-wrap">
+            <input type="search" class="form-control form-control-sm" id="l3-search" placeholder="Search practices..." style="max-width:250px;" />
+            <select class="form-select form-select-sm" id="l3-status-filter" style="max-width:160px;">
+              <option value="">All Statuses</option>
+              <option value="implemented">Implemented</option>
+              <option value="partial">Partial</option>
+              <option value="planned">Planned</option>
+              <option value="not-started">Not Started</option>
+              <option value="na">N/A</option>
+            </select>
+            <select class="form-select form-select-sm" id="l3-domain-filter" style="max-width:260px;">
+              <option value="">All Domains</option>
+            </select>
+            <span class="badge bg-secondary" id="l3-count"></span>
+          </div>
+          <div id="l3-content"></div>
         </div>
 
         <!-- CONTROL NEXUS -->
@@ -536,6 +707,241 @@
       {id:'SR.L2-3.15.3',l1:null,domain:'Supply Chain Risk Management',nist:'3.15.3',title:'Employ penetration testing to identify vulnerabilities and opportunities for exploitation — include supply chain elements.'}
     ];
 
+    const CMMI_PA = [
+      // Governance (GOV) — Improving
+      {id:'GOV-2.1',pa:'Governance',group:'Improving',ml:2,title:'Establish and maintain governance and policy statements for organizational processes.',iso:['5.1','5.2','5.35','5.36'],cmmc:['CA.L2-3.12.4']},
+      {id:'GOV-2.2',pa:'Governance',group:'Improving',ml:2,title:'Clarify roles and responsibilities for organizational processes.',iso:['5.2','5.3'],cmmc:['AC.L1-3.1.1','AC.L1-3.1.2']},
+      {id:'GOV-2.3',pa:'Governance',group:'Improving',ml:2,title:'Train people for performing their assigned roles.',iso:['6.3'],cmmc:['AT.L2-3.2.1','AT.L2-3.2.2']},
+      {id:'GOV-3.1',pa:'Governance',group:'Improving',ml:3,title:'Establish and maintain organizational goals and strategies aligned to business objectives.',iso:['5.4'],cmmc:[]},
+      {id:'GOV-3.2',pa:'Governance',group:'Improving',ml:3,title:'Collect and use performance data to manage the organization.',iso:['5.35','5.36'],cmmc:['CA.L2-3.12.1','CA.L2-3.12.3']},
+      // Configuration Management (CM) — Managing
+      {id:'CM-2.1',pa:'Configuration Management',group:'Managing',ml:2,title:'Establish and maintain a configuration management system.',iso:['8.9','8.32'],cmmc:['CM.L2-3.4.1','CM.L2-3.4.2']},
+      {id:'CM-2.2',pa:'Configuration Management',group:'Managing',ml:2,title:'Establish and maintain baselines for identified configuration items.',iso:['8.9'],cmmc:['CM.L2-3.4.1']},
+      {id:'CM-2.3',pa:'Configuration Management',group:'Managing',ml:2,title:'Control changes to configuration items.',iso:['8.32'],cmmc:['CM.L2-3.4.3']},
+      {id:'CM-2.4',pa:'Configuration Management',group:'Managing',ml:2,title:'Establish and maintain records describing configuration items.',iso:['8.9','5.33'],cmmc:['CM.L2-3.4.1','AU.L2-3.3.1']},
+      {id:'CM-3.1',pa:'Configuration Management',group:'Managing',ml:3,title:'Ensure completeness, consistency, and correctness of configuration management.',iso:['8.9','8.32'],cmmc:['CM.L2-3.4.4','CM.L2-3.4.5']},
+      // Risk & Opportunity Management (RSK) — Doing
+      {id:'RSK-2.1',pa:'Risk & Opportunity Management',group:'Doing',ml:2,title:'Identify and document risks.',iso:['5.7'],cmmc:['RA.L2-3.11.1']},
+      {id:'RSK-2.2',pa:'Risk & Opportunity Management',group:'Doing',ml:2,title:'Evaluate, categorize, and prioritize risks.',iso:['5.7'],cmmc:['RA.L2-3.11.1','RA.L2-3.11.2']},
+      {id:'RSK-2.3',pa:'Risk & Opportunity Management',group:'Doing',ml:2,title:'Develop risk mitigation plans.',iso:['8.2'],cmmc:['RA.L2-3.11.3','CA.L2-3.12.2']},
+      {id:'RSK-2.4',pa:'Risk & Opportunity Management',group:'Doing',ml:2,title:'Implement risk mitigation plans and monitor risk status.',iso:['8.2'],cmmc:['RA.L2-3.11.3']},
+      {id:'RSK-3.1',pa:'Risk & Opportunity Management',group:'Doing',ml:3,title:'Identify and analyze opportunities for improvement.',iso:['5.7'],cmmc:[]},
+      // Process Quality Assurance (PQA) — Managing
+      {id:'PQA-2.1',pa:'Process Quality Assurance',group:'Managing',ml:2,title:'Objectively evaluate processes against applicable requirements.',iso:['5.35','5.36'],cmmc:['CA.L2-3.12.1']},
+      {id:'PQA-2.2',pa:'Process Quality Assurance',group:'Managing',ml:2,title:'Objectively evaluate work products against applicable requirements.',iso:['5.35','8.29','8.33'],cmmc:['CA.L2-3.12.1']},
+      {id:'PQA-2.3',pa:'Process Quality Assurance',group:'Managing',ml:2,title:'Communicate quality issues and ensure resolution.',iso:['5.36'],cmmc:['CA.L2-3.12.2']},
+      {id:'PQA-3.1',pa:'Process Quality Assurance',group:'Managing',ml:3,title:'Use quantitative techniques to analyze process performance.',iso:['5.35'],cmmc:['CA.L2-3.12.3']},
+      // Causal Analysis & Resolution (CAR) — Improving
+      {id:'CAR-3.1',pa:'Causal Analysis & Resolution',group:'Improving',ml:3,title:'Select outcomes for analysis.',iso:['5.25','5.27'],cmmc:['IR.L2-3.6.1']},
+      {id:'CAR-3.2',pa:'Causal Analysis & Resolution',group:'Improving',ml:3,title:'Analyze selected outcomes to determine root causes.',iso:['5.27'],cmmc:['IR.L2-3.6.3']},
+      {id:'CAR-3.3',pa:'Causal Analysis & Resolution',group:'Improving',ml:3,title:'Propose actions to address identified causes.',iso:['5.26','5.27'],cmmc:['IR.L2-3.6.2']},
+      {id:'CAR-3.4',pa:'Causal Analysis & Resolution',group:'Improving',ml:3,title:'Implement action proposals selected for resolution.',iso:['5.26'],cmmc:['IR.L2-3.6.2']},
+      // Monitor & Control (MC) — Doing
+      {id:'MC-2.1',pa:'Monitor & Control',group:'Doing',ml:2,title:'Monitor the work against the plan.',iso:['5.36','8.16'],cmmc:['AU.L2-3.3.1','CA.L2-3.12.3']},
+      {id:'MC-2.2',pa:'Monitor & Control',group:'Doing',ml:2,title:'Monitor the environment for new risks.',iso:['5.7','8.8'],cmmc:['RA.L2-3.11.1','SI.L2-3.14.6']},
+      {id:'MC-2.3',pa:'Monitor & Control',group:'Doing',ml:2,title:'Analyze issues and determine corrective actions.',iso:['5.25','5.26'],cmmc:['IR.L2-3.6.1','IR.L2-3.6.2']},
+      {id:'MC-3.1',pa:'Monitor & Control',group:'Doing',ml:3,title:'Identify and use measures for monitoring performance.',iso:['5.36'],cmmc:['CA.L2-3.12.3','AU.L2-3.3.1']},
+      // Supplier Agreement Management (SAM) — Doing
+      {id:'SAM-2.1',pa:'Supplier Agreement Management',group:'Doing',ml:2,title:'Establish and maintain supplier agreements.',iso:['5.19','5.20'],cmmc:['SR.L2-3.15.1','SR.L2-3.15.2']},
+      {id:'SAM-2.2',pa:'Supplier Agreement Management',group:'Doing',ml:2,title:'Satisfy supplier agreements.',iso:['5.22'],cmmc:['SR.L2-3.15.1']},
+      {id:'SAM-2.3',pa:'Supplier Agreement Management',group:'Doing',ml:2,title:'Evaluate selected supplier work products and services.',iso:['5.21','5.22'],cmmc:['SR.L2-3.15.2','SR.L2-3.15.3']},
+      {id:'SAM-3.1',pa:'Supplier Agreement Management',group:'Doing',ml:3,title:'Manage risks in the supply chain.',iso:['5.19','5.21'],cmmc:['SR.L2-3.15.3']},
+      // Implementation Infrastructure (II) — Improving
+      {id:'II-2.1',pa:'Implementation Infrastructure',group:'Improving',ml:2,title:'Enable people to perform their assigned roles.',iso:['6.3'],cmmc:['AT.L2-3.2.1','AT.L2-3.2.2']},
+      {id:'II-2.2',pa:'Implementation Infrastructure',group:'Improving',ml:2,title:'Provide necessary resources for performing work.',iso:['5.4'],cmmc:[]},
+      {id:'II-2.3',pa:'Implementation Infrastructure',group:'Improving',ml:2,title:'Coordinate and collaborate with relevant stakeholders.',iso:['5.5','5.6'],cmmc:['IR.L2-3.6.1']},
+      {id:'II-3.1',pa:'Implementation Infrastructure',group:'Improving',ml:3,title:'Define, collect, and use process performance measures.',iso:['5.36'],cmmc:['CA.L2-3.12.4']}
+    ];
+
+    const ISO42001 = [
+      // A.2 — Policies
+      {id:'A.2.2',  family:'Governance',   annex:'A.2',  title:'Policies for AI',                                        iso27k:['5.1','5.35','5.36'], cmmc:['CA.L2-3.12.4'],                      cmmi:['GOV-2.1']},
+      {id:'A.2.3',  family:'Governance',   annex:'A.2',  title:'Review of Policies for AI',                              iso27k:['5.35','5.36'],       cmmc:['CA.L2-3.12.4'],                      cmmi:['GOV-3.2']},
+      // A.3 — Internal Organisation
+      {id:'A.3.2',  family:'Governance',   annex:'A.3',  title:'AI Roles and Responsibilities',                          iso27k:['5.2','5.3'],         cmmc:['AC.L1-3.1.1','AC.L1-3.1.2'],        cmmi:['GOV-2.2']},
+      {id:'A.3.3',  family:'Governance',   annex:'A.3',  title:'Reporting of Concerns Related to AI Systems',            iso27k:['6.8'],               cmmc:['IR.L2-3.6.1'],                       cmmi:['MC-2.3']},
+      // A.4 — Resources
+      {id:'A.4.2',  family:'Governance',   annex:'A.4',  title:'Resources for AI Systems',                               iso27k:['6.3'],               cmmc:['AT.L2-3.2.1','AT.L2-3.2.2'],        cmmi:['II-2.1']},
+      {id:'A.4.3',  family:'Governance',   annex:'A.4',  title:'AI Awareness and Training',                              iso27k:['6.3'],               cmmc:['AT.L2-3.2.1','AT.L2-3.2.2'],        cmmi:['II-2.1']},
+      {id:'A.4.4',  family:'Governance',   annex:'A.4',  title:'System and Computing Resources',                         iso27k:['8.6'],               cmmc:['SC.L1-3.13.1'],                      cmmi:['II-2.2']},
+      // A.5 — Impact Assessment
+      {id:'A.5.2',  family:'Governance',   annex:'A.5',  title:'AI System Impact Assessment Process',                    iso27k:['5.7'],               cmmc:['RA.L2-3.11.1'],                      cmmi:['RSK-2.1']},
+      {id:'A.5.3',  family:'Governance',   annex:'A.5',  title:'Documenting AI System Impacts',                          iso27k:['5.7'],               cmmc:['RA.L2-3.11.2'],                      cmmi:['RSK-2.2']},
+      {id:'A.5.4',  family:'Governance',   annex:'A.5',  title:'Assessing Impacts on AI Subjects',                       iso27k:['5.7'],               cmmc:['RA.L2-3.11.1'],                      cmmi:['RSK-2.2']},
+      {id:'A.5.5',  family:'Governance',   annex:'A.5',  title:'Assessing Societal Impacts of AI Systems',               iso27k:['5.34'],              cmmc:[],                                    cmmi:[]},
+      // A.6 — AI System Life Cycle
+      {id:'A.6.1.2',family:'Lifecycle',    annex:'A.6',  title:'Objectives for Responsible Development of AI Systems',   iso27k:['5.8'],               cmmc:['CA.L2-3.12.4'],                      cmmi:['PLAN-2.1']},
+      {id:'A.6.1.3',family:'Lifecycle',    annex:'A.6',  title:'Processes for Responsible AI System Design and Development',iso27k:['5.37'],            cmmc:['CM.L2-3.4.1'],                       cmmi:['CM-2.1']},
+      {id:'A.6.2.2',family:'Lifecycle',    annex:'A.6',  title:'AI System Requirements and Specification',               iso27k:['8.25','8.26'],       cmmc:['CM.L2-3.4.2'],                       cmmi:['CM-2.2']},
+      {id:'A.6.2.3',family:'Lifecycle',    annex:'A.6',  title:'Documentation of AI System Design and Development',      iso27k:['8.25','8.27'],       cmmc:['CM.L2-3.4.2'],                       cmmi:['CM-2.4']},
+      {id:'A.6.2.4',family:'Lifecycle',    annex:'A.6',  title:'AI System Verification and Validation',                  iso27k:['8.29','8.33'],       cmmc:['CA.L2-3.12.1'],                      cmmi:['PQA-2.2']},
+      {id:'A.6.2.5',family:'Lifecycle',    annex:'A.6',  title:'AI System Deployment',                                   iso27k:['8.31'],              cmmc:['CM.L2-3.4.6'],                       cmmi:['PLAN-3.2']},
+      {id:'A.6.2.6',family:'Lifecycle',    annex:'A.6',  title:'AI System Operation and Monitoring',                     iso27k:['8.16'],              cmmc:['AU.L2-3.3.1','SI.L2-3.14.6'],        cmmi:['MC-2.1']},
+      {id:'A.6.2.7',family:'Lifecycle',    annex:'A.6',  title:'AI System Technical Documentation',                      iso27k:['5.37','8.9'],        cmmc:['CM.L2-3.4.1'],                       cmmi:['CM-2.4']},
+      // A.7 — Data
+      {id:'A.7.2',  family:'Data',         annex:'A.7',  title:'Data for Development of AI Systems',                     iso27k:['8.10','8.12'],       cmmc:['MP.L2-3.8.1','MP.L2-3.8.2'],        cmmi:['CM-2.2']},
+      {id:'A.7.3',  family:'Data',         annex:'A.7',  title:'Acquisition of Data for AI Systems',                     iso27k:['5.19'],              cmmc:['SR.L2-3.15.1'],                      cmmi:['SAM-2.1']},
+      {id:'A.7.4',  family:'Data',         annex:'A.7',  title:'Quality of Data for AI Systems',                         iso27k:['8.12'],              cmmc:[],                                    cmmi:['PQA-2.2']},
+      {id:'A.7.5',  family:'Data',         annex:'A.7',  title:'Data Provenance',                                        iso27k:['8.15','5.33'],       cmmc:['AU.L2-3.3.1'],                       cmmi:['CM-2.4']},
+      {id:'A.7.6',  family:'Data',         annex:'A.7',  title:'Data Preparation',                                       iso27k:['8.10'],              cmmc:['MP.L1-b.1.vii'],                     cmmi:[]},
+      // A.8 — Information / Transparency
+      {id:'A.8.2',  family:'Transparency', annex:'A.8',  title:'Information for Users of AI Systems',                    iso27k:['5.37'],              cmmc:['CM.L2-3.4.1'],                       cmmi:['CM-2.4']},
+      {id:'A.8.3',  family:'Transparency', annex:'A.8',  title:'External Reporting on AI Systems',                       iso27k:['5.34'],              cmmc:[],                                    cmmi:['GOV-3.1']},
+      {id:'A.8.4',  family:'Transparency', annex:'A.8',  title:'Communication of AI System Incidents',                   iso27k:['5.26'],              cmmc:['IR.L2-3.6.2'],                       cmmi:['CAR-3.3']},
+      {id:'A.8.5',  family:'Transparency', annex:'A.8',  title:'Information for Interested Parties',                     iso27k:['5.33'],              cmmc:['AU.L2-3.3.1'],                       cmmi:['MC-2.1']},
+      // A.9 — Use of AI Systems
+      {id:'A.9.2',  family:'Transparency', annex:'A.9',  title:'Processes for Responsible Use of AI Systems',            iso27k:['5.10'],              cmmc:['AC.L1-b.1.i'],                       cmmi:['GOV-2.1']},
+      {id:'A.9.3',  family:'Transparency', annex:'A.9',  title:'Objectives for Responsible Use of AI Systems',           iso27k:['8.16'],              cmmc:['AU.L2-3.3.1'],                       cmmi:['MC-2.1']},
+      {id:'A.9.4',  family:'Transparency', annex:'A.9',  title:'Intended Use of AI Systems',                             iso27k:['5.24','5.26'],       cmmc:['IR.L2-3.6.1'],                       cmmi:['CAR-3.4']},
+      // A.10 — Third-Party & Customer
+      {id:'A.10.2', family:'ThirdParty',   annex:'A.10', title:'Allocating AI Responsibilities with Third Parties',      iso27k:['5.19','5.20'],       cmmc:['SR.L2-3.15.1','SR.L2-3.15.2'],      cmmi:['SAM-2.1']},
+      {id:'A.10.3', family:'ThirdParty',   annex:'A.10', title:'Suppliers of AI Systems and Components',                 iso27k:['5.21','5.22'],       cmmc:['SR.L2-3.15.2','SR.L2-3.15.3'],      cmmi:['SAM-2.3']},
+      {id:'A.10.4', family:'ThirdParty',   annex:'A.10', title:'Customers of AI Systems',                                iso27k:['5.19'],              cmmc:['SR.L2-3.15.1'],                      cmmi:['SAM-2.2']}
+    ];
+
+    const NIST_CSF = [
+      // GV — Govern
+      {id:'GV.OC', fn:'Govern',   title:'Organizational Context: Circumstances surrounding the organization\'s cybersecurity risk management decisions are understood.',                                                                                          iso27k:['5.1','5.4','5.31'],        cmmc:['CA.L2-3.12.4'],                          cmmi:['GOV-2.1'],          iso42:['A.2.2']},
+      {id:'GV.RM', fn:'Govern',   title:'Risk Management Strategy: Priorities, constraints, risk tolerance and appetite statements, and assumptions are established, communicated, and used to support operational risk decisions.',                            iso27k:['5.7'],                     cmmc:['RA.L2-3.11.1'],                          cmmi:['RSK-2.1'],          iso42:['A.5.2']},
+      {id:'GV.RR', fn:'Govern',   title:'Roles, Responsibilities, and Authorities: Cybersecurity roles, responsibilities, and authorities to foster accountability and continuous improvement are established and communicated.',                               iso27k:['5.2','5.3'],               cmmc:['AC.L1-3.1.1','AC.L1-3.1.2'],             cmmi:['GOV-2.2'],          iso42:['A.3.2']},
+      {id:'GV.PO', fn:'Govern',   title:'Policy: Organizational cybersecurity policy is established, communicated, and enforced.',                                                                                                                              iso27k:['5.1','5.36'],              cmmc:['CA.L2-3.12.4'],                          cmmi:['GOV-2.1'],          iso42:['A.2.2']},
+      {id:'GV.OV', fn:'Govern',   title:'Oversight: Results of organization-wide cybersecurity risk management activities are used to inform, improve, and adjust the risk management strategy.',                                                               iso27k:['5.35','5.36'],             cmmc:['CA.L2-3.12.1','CA.L2-3.12.3'],           cmmi:['GOV-3.2'],          iso42:['A.2.3']},
+      {id:'GV.SC', fn:'Govern',   title:'Cybersecurity Supply Chain Risk Management: Cyber supply chain risk management processes are identified, established, managed, monitored, and improved by organizational stakeholders.',                               iso27k:['5.19','5.20','5.21'],       cmmc:['SR.L2-3.15.1','SR.L2-3.15.2'],           cmmi:['SAM-2.1'],          iso42:['A.10.2']},
+      // ID — Identify
+      {id:'ID.AM', fn:'Identify',  title:'Asset Management: Assets that enable the organization to achieve business purposes are identified and managed.',                                                                                                       iso27k:['5.9'],                     cmmc:['CM.L2-3.4.1'],                           cmmi:['CM-2.2'],           iso42:['A.6.1.3']},
+      {id:'ID.RA', fn:'Identify',  title:'Risk Assessment: The cybersecurity risk to the organization, assets, and individuals is understood by the organization.',                                                                                             iso27k:['5.7','8.8'],               cmmc:['RA.L2-3.11.1','RA.L2-3.11.2'],           cmmi:['RSK-2.2'],          iso42:['A.5.3']},
+      {id:'ID.IM', fn:'Identify',  title:'Improvement: Improvements to organizational cybersecurity risk management processes, procedures and activities are identified across all CSF Functions.',                                                              iso27k:['5.35','5.36'],             cmmc:['CA.L2-3.12.1'],                          cmmi:['CAR-3.2'],          iso42:['A.2.3']},
+      // PR — Protect
+      {id:'PR.AA', fn:'Protect',   title:'Identity Management, Authentication, and Access Control: Access to physical and logical assets is limited to authorized users, services, and hardware.',                                                              iso27k:['5.15','5.16','5.17'],       cmmc:['AC.L1-b.1.i','AC.L1-b.1.ii','IA.L1-b.1.v','IA.L1-b.1.vi'], cmmi:[],    iso42:['A.9.2']},
+      {id:'PR.AT', fn:'Protect',   title:'Awareness and Training: The organization\'s personnel are provided with cybersecurity awareness and training so that they can perform their cybersecurity-related tasks.',                                             iso27k:['6.3'],                     cmmc:['AT.L2-3.2.1','AT.L2-3.2.2'],             cmmi:['II-2.1'],           iso42:['A.4.3']},
+      {id:'PR.DS', fn:'Protect',   title:'Data Security: Data are managed consistent with the organization\'s risk strategy to protect the confidentiality, integrity, and availability of information.',                                                       iso27k:['8.10','8.11','8.12','8.24'],cmmc:['MP.L2-3.8.1','SC.L2-3.13.8','SC.L2-3.13.16'], cmmi:['CM-2.2'],  iso42:['A.7.2']},
+      {id:'PR.PS', fn:'Protect',   title:'Platform Security: The hardware, software, and services of physical and virtual platforms are managed consistent with the organization\'s risk strategy to protect their confidentiality, integrity, and availability.',iso27k:['8.8','8.9','8.19'],        cmmc:['CM.L2-3.4.1','CM.L2-3.4.2'],             cmmi:['CM-2.1'],           iso42:['A.6.1.3']},
+      {id:'PR.IR', fn:'Protect',   title:'Technology Infrastructure Resilience: Security architectures are managed with the organization\'s risk strategy to protect asset confidentiality, integrity, and availability.',                                      iso27k:['8.14','8.20','8.22'],       cmmc:['SC.L1-3.13.1','SC.L2-3.13.2'],           cmmi:[],                   iso42:[]},
+      // DE — Detect
+      {id:'DE.CM', fn:'Detect',    title:'Continuous Monitoring: Assets are monitored to find anomalies, indicators of compromise, and other potentially adverse events.',                                                                                      iso27k:['8.15','8.16'],             cmmc:['AU.L2-3.3.1','AU.L2-3.3.2','SI.L2-3.14.6'], cmmi:['MC-2.1'],        iso42:['A.6.2.6']},
+      {id:'DE.AE', fn:'Detect',    title:'Adverse Event Analysis: Anomalies, indicators of compromise, and other potentially adverse events are analyzed to characterize the events and detect cybersecurity incidents.',                                       iso27k:['5.25','8.16'],             cmmc:['IR.L2-3.6.1','AU.L2-3.3.5'],             cmmi:['MC-2.2'],           iso42:['A.9.4']},
+      // RS — Respond
+      {id:'RS.MA', fn:'Respond',   title:'Incident Management: Responses to detected cybersecurity incidents are managed.',                                                                                                                                     iso27k:['5.24','5.26'],             cmmc:['IR.L2-3.6.1','IR.L2-3.6.2'],             cmmi:['CAR-3.4'],          iso42:['A.9.4']},
+      {id:'RS.AN', fn:'Respond',   title:'Incident Analysis: Investigations are conducted to ensure effective response and support forensics and recovery activities.',                                                                                         iso27k:['5.25','5.28'],             cmmc:['IR.L2-3.6.1'],                           cmmi:['CAR-3.2'],          iso42:[]},
+      {id:'RS.CO', fn:'Respond',   title:'Incident Response Reporting and Communication: Response activities are coordinated with internal and external stakeholders.',                                                                                         iso27k:['5.26','6.8'],              cmmc:['IR.L2-3.6.2'],                           cmmi:['CAR-3.3'],          iso42:['A.8.4']},
+      {id:'RS.MI', fn:'Respond',   title:'Incident Mitigation: Activities are performed to prevent expansion of an event and mitigate its effects.',                                                                                                            iso27k:['5.26','5.29'],             cmmc:['IR.L2-3.6.1','IR.L2-3.6.2'],             cmmi:['CAR-3.4'],          iso42:[]},
+      // RC — Recover
+      {id:'RC.RP', fn:'Recover',   title:'Incident Recovery Plan Execution: Restoration activities are performed to ensure operational availability of systems and services affected by cybersecurity incidents.',                                               iso27k:['5.29','5.30','8.13'],       cmmc:['IR.L2-3.6.1'],                           cmmi:[],                   iso42:[]},
+      {id:'RC.CO', fn:'Recover',   title:'Incident Recovery Communication: Restoration activities are coordinated with internal and external parties.',                                                                                                         iso27k:['5.26','5.29'],             cmmc:['IR.L2-3.6.2'],                           cmmi:['CAR-3.3'],          iso42:['A.8.4']}
+    ];
+
+    const NIST_AIRMF = [
+      // GOVERN — Policies, accountability, culture
+      {id:'GOVERN-1', fn:'Govern', title:'Policies, processes, procedures, and practices across the organization related to the mapping, measuring, and managing of AI risks are in place, transparent, and implemented effectively.',        iso27k:['5.1','5.36'],        cmmc:['CA.L2-3.12.4'],                cmmi:['GOV-2.1'],     iso42:['A.2.2'],    csf:['GV.PO','GV.OV']},
+      {id:'GOVERN-2', fn:'Govern', title:'Accountability structures are in place so that the appropriate teams and individuals are empowered, responsible, and trained for mapping, measuring, and managing AI risks.',                      iso27k:['5.2','5.3'],         cmmc:['AC.L1-3.1.1'],                 cmmi:['GOV-2.2'],     iso42:['A.3.2'],    csf:['GV.RR']},
+      {id:'GOVERN-3', fn:'Govern', title:'Organizational teams are committed to a culture that considers and communicates AI risk.',                                                                                                         iso27k:['6.3'],               cmmc:['AT.L2-3.2.1','AT.L2-3.2.2'],   cmmi:['II-2.1'],      iso42:['A.4.3'],    csf:['PR.AT']},
+      {id:'GOVERN-4', fn:'Govern', title:'Organizational teams are committed to a culture that considers and communicates AI risk, including organizational teams, processes, and values related to transparency, explainability, and accountability.',iso27k:['5.4'],             cmmc:[],                              cmmi:['GOV-3.1'],     iso42:['A.8.3'],    csf:['GV.OC']},
+      {id:'GOVERN-5', fn:'Govern', title:'Organizational policies and practices are in place to enable risk management of AI systems in development and deployment contexts.',                                                               iso27k:['5.1','5.37'],        cmmc:['CM.L2-3.4.1'],                 cmmi:['GOV-2.1'],     iso42:['A.6.1.3'],  csf:['GV.PO']},
+      {id:'GOVERN-6', fn:'Govern', title:'Policies and procedures are in place for third-party entities including AI developers, operators, and product companies to appropriately share information and communicate about AI risks.',       iso27k:['5.19','5.20'],       cmmc:['SR.L2-3.15.1','SR.L2-3.15.2'], cmmi:['SAM-2.1'],     iso42:['A.10.2'],   csf:['GV.SC']},
+      // MAP — Context and risk categorization
+      {id:'MAP-1',    fn:'Map',    title:'Context is established for the AI risk assessment. The context encompasses the AI system\'s purpose, design, deployment environment, and impacted individuals and communities.',                  iso27k:['5.7','5.8'],         cmmc:['RA.L2-3.11.1'],                cmmi:['RSK-2.1'],     iso42:['A.5.2'],    csf:['GV.OC','ID.RA']},
+      {id:'MAP-2',    fn:'Map',    title:'Scientific and established practices related to AI risk are understood and applied to technical design and operational use of AI systems.',                                                       iso27k:['5.7'],               cmmc:['RA.L2-3.11.2'],                cmmi:['RSK-2.2'],     iso42:['A.5.3'],    csf:['ID.RA']},
+      {id:'MAP-3',    fn:'Map',    title:'AI risks and benefits are mapped from a technical and sociotechnical perspective. Risks are identified and categorized based on their potential impacts.',                                        iso27k:['5.7'],               cmmc:['RA.L2-3.11.1'],                cmmi:['RSK-2.2'],     iso42:['A.5.4'],    csf:['ID.RA']},
+      {id:'MAP-4',    fn:'Map',    title:'Risks and benefits are mapped in sufficient detail to enable decisions about how to prioritize and address them.',                                                                                iso27k:['5.7'],               cmmc:['RA.L2-3.11.3'],                cmmi:['RSK-2.3'],     iso42:['A.5.4'],    csf:['ID.RA']},
+      {id:'MAP-5',    fn:'Map',    title:'Likelihood and impact of AI risks are understood and factored into risk measurement and management activities.',                                                                                  iso27k:['5.7'],               cmmc:['RA.L2-3.11.3'],                cmmi:['RSK-2.4'],     iso42:['A.5.3'],    csf:['ID.RA','GV.RM']},
+      // MEASURE — Evaluation and metrics
+      {id:'MEASURE-1',fn:'Measure',title:'AI risk measurement approaches are identified and applied including quantitative and qualitative methods.',                                                                                       iso27k:['5.35'],              cmmc:['CA.L2-3.12.1'],                cmmi:['PQA-2.1'],     iso42:['A.5.2'],    csf:['ID.IM']},
+      {id:'MEASURE-2',fn:'Measure',title:'AI systems are evaluated for trustworthy characteristics such as accuracy, reliability, explainability, privacy, fairness, and safety.',                                                        iso27k:['8.29','8.33'],       cmmc:['CA.L2-3.12.1'],                cmmi:['PQA-2.2'],     iso42:['A.6.2.4'],  csf:['DE.CM']},
+      {id:'MEASURE-3',fn:'Measure',title:'AI risks are tracked and monitored over the operational lifecycle of AI systems, including performance degradation, emerging risks, and sociotechnical impacts.',                                iso27k:['8.16','5.36'],       cmmc:['AU.L2-3.3.1','CA.L2-3.12.3'], cmmi:['MC-2.1'],      iso42:['A.6.2.6'],  csf:['DE.CM','ID.IM']},
+      {id:'MEASURE-4',fn:'Measure',title:'Feedback about efficacy of risk measurement is gathered and evaluated, and risk measurement approaches are improved.',                                                                           iso27k:['5.35','5.27'],       cmmc:['CA.L2-3.12.1'],                cmmi:['CAR-3.2'],     iso42:['A.2.3'],    csf:['ID.IM']},
+      // MANAGE — Treatment and response
+      {id:'MANAGE-1', fn:'Manage', title:'AI risks based on assessments are prioritized and addressed through risk treatment options including risk avoidance, mitigation, transfer, or acceptance.',                                      iso27k:['5.7','8.2'],         cmmc:['RA.L2-3.11.3'],                cmmi:['RSK-2.3'],     iso42:['A.5.4'],    csf:['GV.RM','ID.RA']},
+      {id:'MANAGE-2', fn:'Manage', title:'Strategies to address identified AI risks are maintained, updated, and used to continuously improve the AI system and the organization\'s risk management practices.',                           iso27k:['5.36'],              cmmc:['CA.L2-3.12.2'],                cmmi:['RSK-2.4'],     iso42:['A.2.3'],    csf:['ID.IM']},
+      {id:'MANAGE-3', fn:'Manage', title:'AI risks of AI-acquired or developed by third parties are identified and addressed in a manner consistent with the organization\'s risk tolerance.',                                             iso27k:['5.19','5.21'],       cmmc:['SR.L2-3.15.3'],                cmmi:['SAM-2.3'],     iso42:['A.10.3'],   csf:['GV.SC']},
+      {id:'MANAGE-4', fn:'Manage', title:'Risk treatments, including response and recovery, and the residual risks after treatment are communicated and documented. Incidents are managed and tracked for continuous improvement.',        iso27k:['5.24','5.26','5.27'],cmmc:['IR.L2-3.6.1','IR.L2-3.6.2'],   cmmi:['CAR-3.4'],     iso42:['A.9.4'],    csf:['RS.MA','RS.CO']}
+    ];
+
+    const CMMC_L3 = [
+      // Access Control
+      {id:'AC.L3-3.1.2e', domain:'Access Control', nist:'3.1.2e', l2:null,
+       title:'Employ dynamic access control approaches that can be coordinated with other organizations implementing dynamic access control.',
+       iso27k:['5.15','8.3'], cmmi:['CM-2.1'], iso42:[], csf:['PR.AA'], airf:[]},
+      {id:'AC.L3-3.1.3e', domain:'Access Control', nist:'3.1.3e', l2:'AC.L2-3.1.3',
+       title:'Use secure information transfer solutions to control the flow of CUI across security domains on connected systems.',
+       iso27k:['5.14','8.24'], cmmi:[], iso42:[], csf:['PR.DS'], airf:[]},
+      // Awareness & Training
+      {id:'AT.L3-3.2.1e', domain:'Awareness & Training', nist:'3.2.1e', l2:'AT.L2-3.2.1',
+       title:'Provide awareness training focused on recognizing and responding to threats from social engineering, APT actors, and supply chain attacks.',
+       iso27k:['6.3'], cmmi:['II-2.1'], iso42:['A.4.3'], csf:['PR.AT'], airf:['GOVERN-3']},
+      // Security Assessment
+      {id:'CA.L3-3.12.1e', domain:'Security Assessment', nist:'3.12.1e', l2:'CA.L2-3.12.1',
+       title:'Plan and conduct assessments to validate compliance with organizational security requirements and the effectiveness of security controls against advanced threats.',
+       iso27k:['5.35','8.29'], cmmi:['PQA-3.1'], iso42:['A.6.2.4'], csf:['ID.IM'], airf:['MEASURE-1']},
+      // Configuration Management
+      {id:'CM.L3-3.4.1e', domain:'Configuration Management', nist:'3.4.1e', l2:'CM.L2-3.4.1',
+       title:'Establish and maintain an authoritative source and verified baseline for organizational systems that provides a basis for secure and trusted configurations.',
+       iso27k:['8.9'], cmmi:['CM-2.2','CM-3.1'], iso42:[], csf:['ID.AM'], airf:[]},
+      {id:'CM.L3-3.4.2e', domain:'Configuration Management', nist:'3.4.2e', l2:'CM.L2-3.4.2',
+       title:'Establish and maintain a verified, up-to-date baseline of approved configurations and immediately detect unauthorized changes.',
+       iso27k:['8.9','8.32'], cmmi:['CM-2.3','CM-3.1'], iso42:[], csf:['ID.AM','PR.PS'], airf:[]},
+      // Identification & Authentication
+      {id:'IA.L3-3.5.3e', domain:'Identification & Authentication', nist:'3.5.3e', l2:'IA.L2-3.5.3',
+       title:'Employ additional multifactor authentication for access to organizational systems containing CUI to decrease the risk of credential compromise.',
+       iso27k:['8.5'], cmmi:[], iso42:[], csf:['PR.AA'], airf:[]},
+      // Incident Response
+      {id:'IR.L3-3.6.1e', domain:'Incident Response', nist:'3.6.1e', l2:'IR.L2-3.6.1',
+       title:'Establish and maintain cyber incident response teams that can be deployed within 24 hours to investigate and contain cybersecurity incidents.',
+       iso27k:['5.24'], cmmi:['CAR-3.4'], iso42:['A.9.4'], csf:['RS.MA'], airf:['MANAGE-4']},
+      {id:'IR.L3-3.6.2e', domain:'Incident Response', nist:'3.6.2e', l2:'IR.L2-3.6.2',
+       title:'Establish and maintain cyber incident response teams capable of coordinating with external stakeholders, sector-specific agencies, and law enforcement.',
+       iso27k:['5.26'], cmmi:['CAR-3.3'], iso42:['A.8.4'], csf:['RS.CO'], airf:['MANAGE-4']},
+      // Maintenance
+      {id:'MA.L3-3.7.5e', domain:'Maintenance', nist:'3.7.5e', l2:'MA.L2-3.7.5',
+       title:'Require multifactor authentication to establish nonlocal maintenance sessions for all high-value assets and systems processing CUI.',
+       iso27k:['8.5'], cmmi:[], iso42:[], csf:['PR.AA'], airf:[]},
+      // Personnel Security
+      {id:'PS.L3-3.9.2e', domain:'Personnel Security', nist:'3.9.2e', l2:'PS.L2-3.9.2',
+       title:'Employ a diverse set of techniques to ensure that CUI is adequately protected throughout personnel lifecycle events including terminations and transfers.',
+       iso27k:['6.5'], cmmi:['GOV-2.2'], iso42:[], csf:['GV.RR'], airf:['GOVERN-2']},
+      // Risk Assessment
+      {id:'RA.L3-3.11.1e', domain:'Risk Assessment', nist:'3.11.1e', l2:'RA.L2-3.11.1',
+       title:'Employ threat-informed penetration testing and red teaming exercises to identify vulnerabilities and realistically assess organizational cyber defenses.',
+       iso27k:['5.7','8.8'], cmmi:['RSK-2.2'], iso42:['A.5.3'], csf:['ID.RA'], airf:['MAP-2']},
+      {id:'RA.L3-3.11.2e', domain:'Risk Assessment', nist:'3.11.2e', l2:'RA.L2-3.11.2',
+       title:'Correlate vulnerability scan results with threat intelligence information to prioritize remediation and understand exposure to active campaigns.',
+       iso27k:['5.7','8.8'], cmmi:['RSK-2.2'], iso42:[], csf:['ID.RA'], airf:['MEASURE-2']},
+      {id:'RA.L3-3.11.3e', domain:'Risk Assessment', nist:'3.11.3e', l2:'RA.L2-3.11.3',
+       title:'Employ penetration testing and red teaming to assess and validate organizational cybersecurity defenses across the enterprise, including physical and social vectors.',
+       iso27k:['5.7'], cmmi:['PQA-2.1'], iso42:[], csf:['ID.RA','ID.IM'], airf:['MAP-3']},
+      {id:'RA.L3-3.11.4e', domain:'Risk Assessment', nist:'3.11.4e', l2:null,
+       title:'Perform root cause analysis on vulnerabilities that are actively being exploited to understand the attack vector and prevent recurrence across the enterprise.',
+       iso27k:['5.27'], cmmi:['CAR-3.2'], iso42:[], csf:['ID.IM'], airf:['MEASURE-4']},
+      {id:'RA.L3-3.11.5e', domain:'Risk Assessment', nist:'3.11.5e', l2:null,
+       title:'Manage organizational exposure to supply chain threats through continuous assessment, monitoring of third-party risk, and contingency planning.',
+       iso27k:['5.21','5.22'], cmmi:['SAM-3.1'], iso42:['A.10.3'], csf:['GV.SC'], airf:['GOVERN-6']},
+      {id:'RA.L3-3.11.6e', domain:'Risk Assessment', nist:'3.11.6e', l2:null,
+       title:'Employ deception technologies and techniques to identify and understand adversarial tactics, techniques, and procedures through active engagement.',
+       iso27k:['5.7'], cmmi:['RSK-2.1'], iso42:[], csf:['DE.AE'], airf:['MAP-3']},
+      {id:'RA.L3-3.11.7e', domain:'Risk Assessment', nist:'3.11.7e', l2:'RA.L2-3.11.3',
+       title:'Verify that exploited vulnerabilities are mitigated or otherwise addressed within organizationally defined timeframes consistent with risk tolerance.',
+       iso27k:['8.8'], cmmi:['RSK-2.4'], iso42:[], csf:['ID.RA','ID.IM'], airf:['MANAGE-1']},
+      // System & Communications Protection
+      {id:'SC.L3-3.13.4e', domain:'System & Communications Protection', nist:'3.13.4e', l2:'SC.L2-3.13.4',
+       title:'Employ physical isolation techniques or logical isolation using encrypted information flows to prevent unauthorized flow of CUI across security domains.',
+       iso27k:['8.22'], cmmi:[], iso42:[], csf:['PR.IR'], airf:[]},
+      // System & Information Integrity
+      {id:'SI.L3-3.14.1e', domain:'System & Information Integrity', nist:'3.14.1e', l2:'SI.L1-3.14.1',
+       title:'Validate the integrity of security-critical or essential software using root of trust mechanisms or cryptographic signatures prior to execution.',
+       iso27k:['8.8','8.19'], cmmi:['CM-2.3'], iso42:[], csf:['PR.PS'], airf:['MEASURE-2']},
+      {id:'SI.L3-3.14.2e', domain:'System & Information Integrity', nist:'3.14.2e', l2:'SI.L1-3.14.2',
+       title:'Monitor individuals and system components on an ongoing and situational awareness basis using behavioral analytics to detect anomalous activity.',
+       iso27k:['8.16'], cmmi:['MC-2.1'], iso42:['A.6.2.6'], csf:['DE.CM'], airf:['MEASURE-3']},
+      {id:'SI.L3-3.14.3e', domain:'System & Information Integrity', nist:'3.14.3e', l2:null,
+       title:'Employ security orchestration, automation, and response (SOAR) technologies to support and automate incident response, threat hunting, and remediation operations.',
+       iso27k:['5.26'], cmmi:['CAR-3.4'], iso42:[], csf:['RS.MA'], airf:['MANAGE-4']},
+      {id:'SI.L3-3.14.4e', domain:'System & Information Integrity', nist:'3.14.4e', l2:null,
+       title:'Use threat indicator information and behaviors from external sources to proactively strengthen organizational security posture and detection capabilities.',
+       iso27k:['5.7'], cmmi:['RSK-2.1'], iso42:[], csf:['DE.AE','ID.RA'], airf:['MAP-2']},
+      {id:'SI.L3-3.14.6e', domain:'System & Information Integrity', nist:'3.14.6e', l2:'SI.L2-3.14.6',
+       title:'Analyze system behavior to detect and mitigate covert exfiltration of information using advanced behavioral analytics and traffic analysis techniques.',
+       iso27k:['8.16'], cmmi:['MC-2.2'], iso42:[], csf:['DE.AE','DE.CM'], airf:['MEASURE-3']}
+    ];
+
     /* ================================================================
        STATUS MANAGEMENT
        ================================================================ */
@@ -605,12 +1011,112 @@
       }).join(' ');
     }
 
+    function cmmiBadges(arr) {
+      if (!arr || !arr.length) return '<span class="text-body-secondary small">None</span>';
+      return arr.map(function(c) {
+        return '<button type="button" class="badge bg-danger ucf-badge-map ucf-link border-0" data-goto="cmmi-'+c+'" title="Jump to '+c+'">'+c+'</button>';
+      }).join(' ');
+    }
+    function cmmiMappingsForISO(isoId) {
+      return CMMI_PA.filter(function(c){ return c.iso.indexOf(isoId) !== -1; }).map(function(c){ return c.id; });
+    }
+    function cmmiMappingsForCMMC(cmmcId) {
+      return CMMI_PA.filter(function(c){ return c.cmmc.indexOf(cmmcId) !== -1; }).map(function(c){ return c.id; });
+    }
+
+    function iso42Badges(arr) {
+      if (!arr || !arr.length) return '<span class="text-body-secondary small">None</span>';
+      return arr.map(function(c) {
+        return '<button type="button" class="badge bg-purple ucf-badge-map ucf-link border-0" style="background:#7c3aed!important" data-goto="iso42-'+c+'" title="Jump to ISO 42001 '+c+'">42K '+c+'</button>';
+      }).join(' ');
+    }
+    function iso42MappingsForISO27k(iso27kId) {
+      return ISO42001.filter(function(c){ return c.iso27k.indexOf(iso27kId) !== -1; }).map(function(c){ return c.id; });
+    }
+    function iso42MappingsForCMMC(cmmcId) {
+      return ISO42001.filter(function(c){ return c.cmmc.indexOf(cmmcId) !== -1; }).map(function(c){ return c.id; });
+    }
+    function iso42MappingsForCMMI(cmmiId) {
+      return ISO42001.filter(function(c){ return c.cmmi.indexOf(cmmiId) !== -1; }).map(function(c){ return c.id; });
+    }
+
+    function csfBadges(arr) {
+      if (!arr || !arr.length) return '<span class="text-body-secondary small">None</span>';
+      return arr.map(function(c) {
+        return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:#0891b2!important" data-goto="csf-'+c+'" title="Jump to CSF '+c+'">CSF '+c+'</button>';
+      }).join(' ');
+    }
+    function csfMappingsForISO27k(iso27kId) {
+      return NIST_CSF.filter(function(c){ return c.iso27k.indexOf(iso27kId) !== -1; }).map(function(c){ return c.id; });
+    }
+    function csfMappingsForCMMC(cmmcId) {
+      return NIST_CSF.filter(function(c){ return c.cmmc.indexOf(cmmcId) !== -1; }).map(function(c){ return c.id; });
+    }
+    function csfMappingsForCMMI(cmmiId) {
+      return NIST_CSF.filter(function(c){ return c.cmmi.indexOf(cmmiId) !== -1; }).map(function(c){ return c.id; });
+    }
+    function csfMappingsForISO42(iso42Id) {
+      return NIST_CSF.filter(function(c){ return c.iso42.indexOf(iso42Id) !== -1; }).map(function(c){ return c.id; });
+    }
+
+    function airfBadges(arr) {
+      if (!arr || !arr.length) return '<span class="text-body-secondary small">None</span>';
+      return arr.map(function(c) {
+        return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:#059669!important" data-goto="airf-'+c+'" title="Jump to AI RMF '+c+'">RMF '+c+'</button>';
+      }).join(' ');
+    }
+    function airfMappingsForISO27k(iso27kId) {
+      return NIST_AIRMF.filter(function(c){ return c.iso27k.indexOf(iso27kId) !== -1; }).map(function(c){ return c.id; });
+    }
+    function airfMappingsForCMMC(cmmcId) {
+      return NIST_AIRMF.filter(function(c){ return c.cmmc.indexOf(cmmcId) !== -1; }).map(function(c){ return c.id; });
+    }
+    function airfMappingsForCMMI(cmmiId) {
+      return NIST_AIRMF.filter(function(c){ return c.cmmi.indexOf(cmmiId) !== -1; }).map(function(c){ return c.id; });
+    }
+    function airfMappingsForISO42(iso42Id) {
+      return NIST_AIRMF.filter(function(c){ return c.iso42.indexOf(iso42Id) !== -1; }).map(function(c){ return c.id; });
+    }
+    function airfMappingsForCSF(csfId) {
+      return NIST_AIRMF.filter(function(c){ return c.csf.indexOf(csfId) !== -1; }).map(function(c){ return c.id; });
+    }
+
+    function l3Badges(arr) {
+      if (!arr || !arr.length) return '<span class="text-body-secondary small">None</span>';
+      return arr.map(function(c) {
+        return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:#ea580c!important" data-goto="l3-'+c+'" title="Jump to CMMC L3 '+c+'">'+c+'</button>';
+      }).join(' ');
+    }
+    function l3MappingsForISO27k(iso27kId) {
+      return CMMC_L3.filter(function(c){ return c.iso27k.indexOf(iso27kId) !== -1; }).map(function(c){ return c.id; });
+    }
+    function l3MappingsForCMMI(cmmiId) {
+      return CMMC_L3.filter(function(c){ return c.cmmi.indexOf(cmmiId) !== -1; }).map(function(c){ return c.id; });
+    }
+    function l3MappingsForISO42(iso42Id) {
+      return CMMC_L3.filter(function(c){ return c.iso42.indexOf(iso42Id) !== -1; }).map(function(c){ return c.id; });
+    }
+    function l3MappingsForCSF(csfId) {
+      return CMMC_L3.filter(function(c){ return c.csf.indexOf(csfId) !== -1; }).map(function(c){ return c.id; });
+    }
+    function l3MappingsForAIRF(airfId) {
+      return CMMC_L3.filter(function(c){ return c.airf.indexOf(airfId) !== -1; }).map(function(c){ return c.id; });
+    }
+    function l3MappingsForL2(l2Id) {
+      return CMMC_L3.filter(function(c){ return c.l2 === l2Id; }).map(function(c){ return c.id; });
+    }
+
     /* ── Navigate to a control in any tab ──────────────────────────── */
     function navigateToControl(storeId) {
       var tabId;
       if (storeId.indexOf('iso-') === 0) tabId = 'tab-iso';
       else if (storeId.indexOf('l1-') === 0) tabId = 'tab-l1';
       else if (storeId.indexOf('l2-') === 0) tabId = 'tab-l2';
+      else if (storeId.indexOf('cmmi-') === 0) tabId = 'tab-cmmi';
+      else if (storeId.indexOf('iso42-') === 0) tabId = 'tab-iso42';
+      else if (storeId.indexOf('csf-') === 0) tabId = 'tab-csf';
+      else if (storeId.indexOf('airf-') === 0) tabId = 'tab-airf';
+      else if (storeId.indexOf('l3-') === 0) tabId = 'tab-l3';
       else return;
 
       var tabEl = document.getElementById(tabId);
@@ -675,6 +1181,21 @@
       upd('prog-iso','stats-iso',isoS);
       upd('prog-l1','stats-l1',l1S);
       upd('prog-l2','stats-l2',l2S);
+      var cmmiIds = CMMI_PA.map(function(c){return 'cmmi-'+c.id;});
+      var cmmiS = calcStats(cmmiIds);
+      upd('prog-cmmi','stats-cmmi',cmmiS);
+      var iso42Ids = ISO42001.map(function(c){return 'iso42-'+c.id;});
+      var iso42S = calcStats(iso42Ids);
+      upd('prog-iso42','stats-iso42',iso42S);
+      var csfIds = NIST_CSF.map(function(c){return 'csf-'+c.id;});
+      var csfS = calcStats(csfIds);
+      upd('prog-csf','stats-csf',csfS);
+      var airfIds = NIST_AIRMF.map(function(c){return 'airf-'+c.id;});
+      var airfS = calcStats(airfIds);
+      upd('prog-airf','stats-airf',airfS);
+      var l3Ids = CMMC_L3.map(function(c){return 'l3-'+c.id;});
+      var l3S = calcStats(l3Ids);
+      upd('prog-l3','stats-l3',l3S);
     }
 
     /* ================================================================
@@ -684,11 +1205,21 @@
       var isoIds = ISO_CONTROLS.map(function(c){return 'iso-'+c.id;});
       var l1Ids = CMMC_L1.map(function(c){return 'l1-'+c.id;});
       var l2Ids = CMMC_L2.map(function(c){return 'l2-'+c.id;});
-      var allIds = isoIds.concat(l1Ids).concat(l2Ids);
+      var cmmiIds = CMMI_PA.map(function(c){return 'cmmi-'+c.id;});
+      var iso42Ids = ISO42001.map(function(c){return 'iso42-'+c.id;});
+      var csfIds = NIST_CSF.map(function(c){return 'csf-'+c.id;});
+      var airfIds = NIST_AIRMF.map(function(c){return 'airf-'+c.id;});
+      var l3Ids = CMMC_L3.map(function(c){return 'l3-'+c.id;});
+      var allIds = isoIds.concat(l1Ids).concat(l2Ids).concat(cmmiIds).concat(iso42Ids).concat(csfIds).concat(airfIds).concat(l3Ids);
       var all = calcStats(allIds);
       var isoS = calcStats(isoIds);
       var l1S = calcStats(l1Ids);
       var l2S = calcStats(l2Ids);
+      var cmmiS = calcStats(cmmiIds);
+      var iso42S = calcStats(iso42Ids);
+      var csfS = calcStats(csfIds);
+      var airfS = calcStats(airfIds);
+      var l3S = calcStats(l3Ids);
 
       // Summary stats
       var statsHtml = '';
@@ -707,7 +1238,7 @@
 
       // Stacked progress bars
       var barsHtml = '';
-      [{name:'ISO 27001:2022',s:isoS},{name:'CMMC Level 1',s:l1S},{name:'CMMC Level 2',s:l2S}].forEach(function(fw) {
+      [{name:'ISO 27001:2022',s:isoS},{name:'CMMC Level 1',s:l1S},{name:'CMMC Level 2',s:l2S},{name:'CMMI 2.0',s:cmmiS},{name:'ISO/IEC 42001',s:iso42S},{name:'NIST CSF 2.0',s:csfS},{name:'NIST AI RMF 1.0',s:airfS},{name:'CMMC Level 3',s:l3S}].forEach(function(fw) {
         var s = fw.s;
         var t = s.total || 1;
         barsHtml += '<div class="mb-3"><div class="d-flex justify-content-between mb-1"><strong>'+fw.name+'</strong><span>'+s.pct+'% complete</span></div>'+
@@ -762,6 +1293,68 @@
       });
       breakHtml += '</tbody></table>';
 
+      // CMMI 2.0 by practice area
+      var cmmiPAs = {};
+      CMMI_PA.forEach(function(c) {
+        if (!cmmiPAs[c.pa]) cmmiPAs[c.pa] = [];
+        cmmiPAs[c.pa].push('cmmi-'+c.id);
+      });
+      breakHtml += '<h6 class="mt-3">CMMI 2.0 by Practice Area</h6><table class="table table-sm"><thead><tr><th>Practice Area</th><th>Practices</th><th>Implemented</th><th>%</th></tr></thead><tbody>';
+      Object.keys(cmmiPAs).forEach(function(pa) {
+        var ds = calcStats(cmmiPAs[pa]);
+        breakHtml += '<tr><td>'+pa+'</td><td>'+ds.total+'</td><td>'+ds.implemented+'</td><td>'+ds.pct+'%</td></tr>';
+      });
+      breakHtml += '</tbody></table>';
+
+      // ISO 42001 by family
+      var iso42Fams = {};
+      ISO42001.forEach(function(c) {
+        if (!iso42Fams[c.family]) iso42Fams[c.family] = [];
+        iso42Fams[c.family].push('iso42-'+c.id);
+      });
+      breakHtml += '<h6 class="mt-3">ISO 42001 by Family</h6><table class="table table-sm"><thead><tr><th>Family</th><th>Controls</th><th>Implemented</th><th>%</th></tr></thead><tbody>';
+      Object.keys(iso42Fams).forEach(function(f) {
+        var ds = calcStats(iso42Fams[f]);
+        breakHtml += '<tr><td>'+f+'</td><td>'+ds.total+'</td><td>'+ds.implemented+'</td><td>'+ds.pct+'%</td></tr>';
+      });
+      breakHtml += '</tbody></table>';
+
+      var csfFns = {};
+      NIST_CSF.forEach(function(c) {
+        if (!csfFns[c.fn]) csfFns[c.fn] = [];
+        csfFns[c.fn].push('csf-'+c.id);
+      });
+      breakHtml += '<h6 class="mt-3">NIST CSF 2.0 by Function</h6><table class="table table-sm"><thead><tr><th>Function</th><th>Categories</th><th>Implemented</th><th>%</th></tr></thead><tbody>';
+      Object.keys(csfFns).forEach(function(fn) {
+        var ds = calcStats(csfFns[fn]);
+        breakHtml += '<tr><td>'+fn+'</td><td>'+ds.total+'</td><td>'+ds.implemented+'</td><td>'+ds.pct+'%</td></tr>';
+      });
+      breakHtml += '</tbody></table>';
+
+      var airfFns = {};
+      NIST_AIRMF.forEach(function(c) {
+        if (!airfFns[c.fn]) airfFns[c.fn] = [];
+        airfFns[c.fn].push('airf-'+c.id);
+      });
+      breakHtml += '<h6 class="mt-3">NIST AI RMF 1.0 by Function</h6><table class="table table-sm"><thead><tr><th>Function</th><th>Practices</th><th>Implemented</th><th>%</th></tr></thead><tbody>';
+      Object.keys(airfFns).forEach(function(fn) {
+        var ds = calcStats(airfFns[fn]);
+        breakHtml += '<tr><td>'+fn+'</td><td>'+ds.total+'</td><td>'+ds.implemented+'</td><td>'+ds.pct+'%</td></tr>';
+      });
+      breakHtml += '</tbody></table>';
+
+      var l3Domains = {};
+      CMMC_L3.forEach(function(c) {
+        if (!l3Domains[c.domain]) l3Domains[c.domain] = [];
+        l3Domains[c.domain].push('l3-'+c.id);
+      });
+      breakHtml += '<h6 class="mt-3">CMMC Level 3 by Domain</h6><table class="table table-sm"><thead><tr><th>Domain</th><th>Practices</th><th>Implemented</th><th>%</th></tr></thead><tbody>';
+      Object.keys(l3Domains).forEach(function(d) {
+        var ds = calcStats(l3Domains[d]);
+        breakHtml += '<tr><td>'+d+'</td><td>'+ds.total+'</td><td>'+ds.implemented+'</td><td>'+ds.pct+'%</td></tr>';
+      });
+      breakHtml += '</tbody></table>';
+
       document.getElementById('dash-domain-breakdown').innerHTML = breakHtml;
     }
 
@@ -789,14 +1382,19 @@
       var html = '';
       themes.forEach(function(theme) {
         html += '<details open><summary>'+theme+' ('+themeMap[theme].length+' controls)</summary>';
-        html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr><th>ID</th><th>Theme</th><th>Title</th><th>Status</th><th>CMMC Mappings</th></tr></thead><tbody>';
+        html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr><th>ID</th><th>Theme</th><th>Title</th><th>Status</th><th>CMMC Mappings</th><th>CMMI 2.0</th><th>ISO 42001</th><th>NIST CSF</th><th>AI RMF</th><th>CMMC L3</th></tr></thead><tbody>';
         themeMap[theme].forEach(function(c) {
           html += '<tr data-id="iso-'+c.id+'" data-theme="'+c.theme+'" data-status="'+getStatus('iso-'+c.id)+'">'+
             '<td class="ucf-mono">'+c.id+'</td>'+
             '<td>'+themeBadge(c.theme)+'</td>'+
             '<td>'+c.title+'</td>'+
             '<td>'+makeSelect('iso-'+c.id)+'</td>'+
-            '<td>'+cmmcBadges(c.cmmc)+'</td></tr>';
+            '<td>'+cmmcBadges(c.cmmc)+'</td>'+
+            '<td>'+cmmiBadges(cmmiMappingsForISO(c.id))+'</td>'+
+            '<td>'+iso42Badges(iso42MappingsForISO27k(c.id))+'</td>'+
+            '<td>'+csfBadges(csfMappingsForISO27k(c.id))+'</td>'+
+            '<td>'+airfBadges(airfMappingsForISO27k(c.id))+'</td>'+
+            '<td>'+l3Badges(l3MappingsForISO27k(c.id))+'</td></tr>';
         });
         html += '</tbody></table></div></details>';
       });
@@ -823,7 +1421,7 @@
         });
       }
 
-      var html = '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr><th>Practice ID</th><th>Domain</th><th>Practice Statement</th><th>Status</th><th>ISO 27001 Mappings</th></tr></thead><tbody>';
+      var html = '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr><th>Practice ID</th><th>Domain</th><th>Practice Statement</th><th>Status</th><th>ISO 27001 Mappings</th><th>CMMI 2.0</th><th>ISO 42001</th><th>NIST CSF</th><th>AI RMF</th></tr></thead><tbody>';
       CMMC_L1.forEach(function(c) {
         var isoMaps = isoMappingsFor(c.id);
         html += '<tr data-id="l1-'+c.id+'" data-domain="'+c.domain+'" data-status="'+getStatus('l1-'+c.id)+'">'+
@@ -831,7 +1429,11 @@
           '<td>'+domainBadge(c.domain)+'</td>'+
           '<td>'+c.title+'</td>'+
           '<td>'+makeSelect('l1-'+c.id)+'</td>'+
-          '<td>'+isoBadges(isoMaps)+'</td></tr>';
+          '<td>'+isoBadges(isoMaps)+'</td>'+
+          '<td>'+cmmiBadges(cmmiMappingsForCMMC(c.id))+'</td>'+
+          '<td>'+iso42Badges(iso42MappingsForCMMC(c.id))+'</td>'+
+          '<td>'+csfBadges(csfMappingsForCMMC(c.id))+'</td>'+
+          '<td>'+airfBadges(airfMappingsForCMMC(c.id))+'</td></tr>';
       });
       html += '</tbody></table></div>';
       document.getElementById('l1-content').innerHTML = html;
@@ -860,7 +1462,7 @@
       var html = '';
       domains.forEach(function(domain) {
         html += '<details open><summary>'+domain+' ('+domMap[domain].length+' practices)</summary>';
-        html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr><th>Practice ID</th><th>Domain</th><th>Practice Statement</th><th>Level</th><th>Status</th><th>ISO 27001 Mappings</th></tr></thead><tbody>';
+        html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr><th>Practice ID</th><th>Domain</th><th>Practice Statement</th><th>Level</th><th>Status</th><th>ISO 27001 Mappings</th><th>CMMI 2.0</th><th>ISO 42001</th><th>NIST CSF</th><th>AI RMF</th><th>CMMC L3</th></tr></thead><tbody>';
         domMap[domain].forEach(function(c) {
           var isoMaps = isoMappingsFor(c.id);
           // Also check reverse: which ISO controls map to any L1 equivalent
@@ -879,11 +1481,420 @@
             '<td>'+c.title+'</td>'+
             '<td>'+levelBadge+'</td>'+
             '<td>'+makeSelect(storeId)+'</td>'+
-            '<td>'+isoBadges(isoMaps)+'</td></tr>';
+            '<td>'+isoBadges(isoMaps)+'</td>'+
+            '<td>'+cmmiBadges(cmmiMappingsForCMMC(c.id))+'</td>'+
+            '<td>'+iso42Badges(iso42MappingsForCMMC(c.id))+'</td>'+
+            '<td>'+csfBadges(csfMappingsForCMMC(c.id))+'</td>'+
+            '<td>'+airfBadges(airfMappingsForCMMC(c.id))+'</td>'+
+            '<td>'+l3Badges(l3MappingsForL2(c.id))+'</td></tr>';
         });
         html += '</tbody></table></div></details>';
       });
       document.getElementById('l2-content').innerHTML = html;
+    }
+
+    /* ================================================================
+       CMMI 2.0 TAB
+       ================================================================ */
+    function renderCMMI() {
+      var pas = [];
+      var paMap = {};
+      CMMI_PA.forEach(function(c) {
+        if (!paMap[c.pa]) { paMap[c.pa] = []; pas.push(c.pa); }
+        paMap[c.pa].push(c);
+      });
+
+      var df = document.getElementById('cmmi-domain-filter');
+      if (df.options.length <= 1) {
+        pas.forEach(function(p) {
+          var o = document.createElement('option');
+          o.value = p; o.textContent = p;
+          df.appendChild(o);
+        });
+      }
+
+      var mlColors = {2:'primary', 3:'info', 4:'warning', 5:'success'};
+      var mlLabels = {2:'ML2 Managed', 3:'ML3 Defined', 4:'ML4 Quant Mgd', 5:'ML5 Optimizing'};
+
+      var html = '';
+      pas.forEach(function(pa) {
+        html += '<details open><summary>'+pa+' ('+paMap[pa].length+' practices)</summary>';
+        html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr>'+
+          '<th>Practice ID</th><th>Practice Area</th><th>Practice Statement</th><th>ML</th><th>Status</th><th>ISO 27001</th><th>CMMC</th><th>ISO 42001</th><th>NIST CSF</th><th>AI RMF</th><th>CMMC L3</th>'+
+          '</tr></thead><tbody>';
+        paMap[pa].forEach(function(c) {
+          var storeId = 'cmmi-'+c.id;
+          var curStatus = getStatus(storeId);
+          var mlBadge = '<span class="badge bg-'+(mlColors[c.ml]||'secondary')+'">'+mlLabels[c.ml]+'</span>';
+          var isoLinks = c.iso.length ? c.iso.map(function(id){
+            return '<button type="button" class="badge bg-info ucf-badge-map ucf-link border-0" data-goto="iso-'+id+'" title="Jump to ISO '+id+'">ISO '+id+'</button>';
+          }).join(' ') : '<span class="text-body-secondary small">None</span>';
+          var cmmcLinks = c.cmmc.length ? c.cmmc.map(function(id){
+            var isL1 = !!CMMC_L1.find(function(l){ return l.id === id; });
+            var cls = isL1 ? 'bg-success' : 'bg-warning text-dark';
+            var storeTarget = isL1 ? 'l1-'+id : 'l2-'+id;
+            return '<button type="button" class="badge '+cls+' ucf-badge-map ucf-link border-0" data-goto="'+storeTarget+'" title="Jump to '+id+'">'+id+'</button>';
+          }).join(' ') : '<span class="text-body-secondary small">None</span>';
+          html += '<tr data-id="'+storeId+'" data-domain="'+c.pa+'" data-ml="'+c.ml+'" data-status="'+curStatus+'">'+
+            '<td class="ucf-mono">'+c.id+'</td>'+
+            '<td><span class="badge bg-danger">'+c.pa+'</span></td>'+
+            '<td>'+c.title+'</td>'+
+            '<td>'+mlBadge+'</td>'+
+            '<td>'+makeSelect(storeId)+'</td>'+
+            '<td>'+isoLinks+'</td>'+
+            '<td>'+cmmcLinks+'</td>'+
+            '<td>'+iso42Badges(iso42MappingsForCMMI(c.id))+'</td>'+
+            '<td>'+csfBadges(csfMappingsForCMMI(c.id))+'</td>'+
+            '<td>'+airfBadges(airfMappingsForCMMI(c.id))+'</td>'+
+            '<td>'+l3Badges(l3MappingsForCMMI(c.id))+'</td></tr>';
+        });
+        html += '</tbody></table></div></details>';
+      });
+      document.getElementById('cmmi-content').innerHTML = html;
+    }
+
+    /* ================================================================
+       ISO 42001 TAB
+       ================================================================ */
+    function renderISO42() {
+      var families = [];
+      var famMap = {};
+      ISO42001.forEach(function(c) {
+        if (!famMap[c.family]) { famMap[c.family] = []; families.push(c.family); }
+        famMap[c.family].push(c);
+      });
+
+      var df = document.getElementById('iso42-family-filter');
+      if (df.options.length <= 1) {
+        families.forEach(function(f) {
+          var o = document.createElement('option');
+          o.value = f; o.textContent = f;
+          df.appendChild(o);
+        });
+      }
+
+      var famColors = {Governance:'primary', Lifecycle:'success', Data:'info', Transparency:'warning', ThirdParty:'secondary'};
+
+      var html = '';
+      families.forEach(function(fam) {
+        html += '<details open><summary>'+fam+' ('+famMap[fam].length+' controls)</summary>';
+        html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr>'+
+          '<th>ID</th><th>Family</th><th>Control Title</th><th>Status</th><th>ISO 27001</th><th>CMMC</th><th>CMMI 2.0</th><th>NIST CSF</th><th>AI RMF</th><th>CMMC L3</th>'+
+          '</tr></thead><tbody>';
+        famMap[fam].forEach(function(c) {
+          var storeId = 'iso42-'+c.id;
+          var curStatus = getStatus(storeId);
+          var famBadge = '<span class="badge bg-'+(famColors[c.family]||'secondary')+'">'+c.family+'</span>';
+          var isoLinks = c.iso27k.length ? c.iso27k.map(function(id){
+            return '<button type="button" class="badge bg-info ucf-badge-map ucf-link border-0" data-goto="iso-'+id+'" title="Jump to ISO 27001 '+id+'">ISO '+id+'</button>';
+          }).join(' ') : '<span class="text-body-secondary small">None</span>';
+          var cmmcLinks = c.cmmc.length ? c.cmmc.map(function(id){
+            var isL1 = !!CMMC_L1.find(function(l){ return l.id === id; });
+            var cls = isL1 ? 'bg-success' : 'bg-warning text-dark';
+            var st = isL1 ? 'l1-'+id : 'l2-'+id;
+            return '<button type="button" class="badge '+cls+' ucf-badge-map ucf-link border-0" data-goto="'+st+'" title="Jump to '+id+'">'+id+'</button>';
+          }).join(' ') : '<span class="text-body-secondary small">None</span>';
+          var cmmiLinks = c.cmmi.length ? c.cmmi.map(function(id){
+            return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:#dc2626!important" data-goto="cmmi-'+id+'" title="Jump to CMMI '+id+'">'+id+'</button>';
+          }).join(' ') : '<span class="text-body-secondary small">None</span>';
+          html += '<tr data-id="'+storeId+'" data-family="'+c.family+'" data-status="'+curStatus+'">'+
+            '<td class="ucf-mono" style="color:#7c3aed">'+c.id+'</td>'+
+            '<td>'+famBadge+'</td>'+
+            '<td>'+c.title+'</td>'+
+            '<td>'+makeSelect(storeId)+'</td>'+
+            '<td>'+isoLinks+'</td>'+
+            '<td>'+cmmcLinks+'</td>'+
+            '<td>'+cmmiLinks+'</td>'+
+            '<td>'+csfBadges(csfMappingsForISO42(c.id))+'</td>'+
+            '<td>'+airfBadges(airfMappingsForISO42(c.id))+'</td>'+
+            '<td>'+l3Badges(l3MappingsForISO42(c.id))+'</td></tr>';
+        });
+        html += '</tbody></table></div></details>';
+      });
+      document.getElementById('iso42-content').innerHTML = html;
+    }
+
+    /* ================================================================
+       NIST CSF 2.0 TAB
+       ================================================================ */
+    function renderCSF() {
+      var fns = ['Govern','Identify','Protect','Detect','Respond','Recover'];
+      var fnMap = {};
+      NIST_CSF.forEach(function(c) {
+        if (!fnMap[c.fn]) fnMap[c.fn] = [];
+        fnMap[c.fn].push(c);
+      });
+
+      var fnColors = {Govern:'primary',Identify:'info',Protect:'success',Detect:'warning',Respond:'danger',Recover:'secondary'};
+
+      var html = '';
+      fns.forEach(function(fn) {
+        if (!fnMap[fn] || !fnMap[fn].length) return;
+        html += '<details open><summary>'+fn+' ('+fnMap[fn].length+' categories)</summary>';
+        html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr>'+
+          '<th>ID</th><th>Function</th><th>Category Description</th><th>Status</th><th>ISO 27001</th><th>CMMC</th><th>CMMI</th><th>ISO 42001</th><th>AI RMF</th><th>CMMC L3</th>'+
+          '</tr></thead><tbody>';
+        fnMap[fn].forEach(function(c) {
+          var storeId = 'csf-'+c.id;
+          var curStatus = getStatus(storeId);
+          var fnBadge = '<span class="badge bg-'+(fnColors[c.fn]||'secondary')+'">'+c.fn+'</span>';
+          var isoLinks = c.iso27k.length ? c.iso27k.map(function(id){
+            return '<button type="button" class="badge bg-info ucf-badge-map ucf-link border-0" data-goto="iso-'+id+'" title="ISO 27001 '+id+'">ISO '+id+'</button>';
+          }).join(' ') : '<span class="text-body-secondary small">None</span>';
+          var cmmcLinks = c.cmmc.length ? c.cmmc.map(function(id){
+            var isL1 = !!CMMC_L1.find(function(l){ return l.id === id; });
+            var cls = isL1 ? 'bg-success' : 'bg-warning text-dark';
+            var st = isL1 ? 'l1-'+id : 'l2-'+id;
+            return '<button type="button" class="badge '+cls+' ucf-badge-map ucf-link border-0" data-goto="'+st+'">'+id+'</button>';
+          }).join(' ') : '<span class="text-body-secondary small">None</span>';
+          var cmmiLinks = c.cmmi.length ? c.cmmi.map(function(id){
+            return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:#dc2626!important" data-goto="cmmi-'+id+'">'+id+'</button>';
+          }).join(' ') : '<span class="text-body-secondary small">None</span>';
+          var iso42Links = c.iso42.length ? c.iso42.map(function(id){
+            return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:#7c3aed!important" data-goto="iso42-'+id+'">42K '+id+'</button>';
+          }).join(' ') : '<span class="text-body-secondary small">None</span>';
+          html += '<tr data-id="'+storeId+'" data-fn="'+c.fn+'" data-status="'+curStatus+'">'+
+            '<td class="ucf-mono" style="color:#0891b2;white-space:nowrap">'+c.id+'</td>'+
+            '<td>'+fnBadge+'</td>'+
+            '<td style="font-size:.82rem">'+c.title+'</td>'+
+            '<td>'+makeSelect(storeId)+'</td>'+
+            '<td>'+isoLinks+'</td>'+
+            '<td>'+cmmcLinks+'</td>'+
+            '<td>'+cmmiLinks+'</td>'+
+            '<td>'+iso42Links+'</td>'+
+            '<td>'+airfBadges(airfMappingsForCSF(c.id))+'</td>'+
+            '<td>'+l3Badges(l3MappingsForCSF(c.id))+'</td></tr>';
+        });
+        html += '</tbody></table></div></details>';
+      });
+      document.getElementById('csf-content').innerHTML = html;
+    }
+
+    function applyFilterCSF() {
+      var search = document.getElementById('csf-search').value.toLowerCase();
+      var statusF = document.getElementById('csf-status-filter').value;
+      var fnF = document.getElementById('csf-fn-filter').value;
+      var container = document.getElementById('csf-content');
+      var rows = container.querySelectorAll('tr[data-id]');
+      var visible = 0;
+      rows.forEach(function(row) {
+        var id = row.getAttribute('data-id');
+        var text = row.textContent.toLowerCase();
+        var rowStatus = getStatus(id);
+        var rowFn = row.getAttribute('data-fn') || '';
+        var show = true;
+        if (search && text.indexOf(search) === -1) show = false;
+        if (statusF && rowStatus !== statusF) show = false;
+        if (fnF && rowFn !== fnF) show = false;
+        row.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+      document.getElementById('csf-count').textContent = visible + ' shown';
+    }
+
+    /* ================================================================
+       NIST AI RMF 1.0 TAB
+       ================================================================ */
+    function renderAIRMF() {
+      var fns = ['Govern','Map','Measure','Manage'];
+      var fnMap = {};
+      NIST_AIRMF.forEach(function(c) {
+        if (!fnMap[c.fn]) fnMap[c.fn] = [];
+        fnMap[c.fn].push(c);
+      });
+
+      var fnColors = {Govern:'primary', Map:'info', Measure:'warning', Manage:'success'};
+
+      var html = '';
+      fns.forEach(function(fn) {
+        if (!fnMap[fn] || !fnMap[fn].length) return;
+        html += '<details open><summary>'+fn+' ('+fnMap[fn].length+' practices)</summary>';
+        html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr>'+
+          '<th>ID</th><th>Function</th><th>Practice Description</th><th>Status</th><th>ISO 27001</th><th>CMMC</th><th>CMMI</th><th>ISO 42001</th><th>NIST CSF</th><th>CMMC L3</th>'+
+          '</tr></thead><tbody>';
+        fnMap[fn].forEach(function(c) {
+          var storeId = 'airf-'+c.id;
+          var curStatus = getStatus(storeId);
+          var fnBadge = '<span class="badge bg-'+(fnColors[c.fn]||'secondary')+'">'+c.fn+'</span>';
+          var isoLinks = c.iso27k.length ? c.iso27k.map(function(id){
+            return '<button type="button" class="badge bg-info ucf-badge-map ucf-link border-0" data-goto="iso-'+id+'">ISO '+id+'</button>';
+          }).join(' ') : '<span class="text-body-secondary small">None</span>';
+          var cmmcLinks = c.cmmc.length ? c.cmmc.map(function(id){
+            var isL1 = !!CMMC_L1.find(function(l){ return l.id === id; });
+            var cls = isL1 ? 'bg-success' : 'bg-warning text-dark';
+            var st = isL1 ? 'l1-'+id : 'l2-'+id;
+            return '<button type="button" class="badge '+cls+' ucf-badge-map ucf-link border-0" data-goto="'+st+'">'+id+'</button>';
+          }).join(' ') : '<span class="text-body-secondary small">None</span>';
+          var cmmiLinks = c.cmmi.length ? c.cmmi.map(function(id){
+            return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:#dc2626!important" data-goto="cmmi-'+id+'">'+id+'</button>';
+          }).join(' ') : '<span class="text-body-secondary small">None</span>';
+          var iso42Links = c.iso42.length ? c.iso42.map(function(id){
+            return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:#7c3aed!important" data-goto="iso42-'+id+'">42K '+id+'</button>';
+          }).join(' ') : '<span class="text-body-secondary small">None</span>';
+          var csfLinks = c.csf.length ? c.csf.map(function(id){
+            return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:#0891b2!important" data-goto="csf-'+id+'">CSF '+id+'</button>';
+          }).join(' ') : '<span class="text-body-secondary small">None</span>';
+          html += '<tr data-id="'+storeId+'" data-fn="'+c.fn+'" data-status="'+curStatus+'">'+
+            '<td class="ucf-mono" style="color:#059669;white-space:nowrap">'+c.id+'</td>'+
+            '<td>'+fnBadge+'</td>'+
+            '<td style="font-size:.82rem">'+c.title+'</td>'+
+            '<td>'+makeSelect(storeId)+'</td>'+
+            '<td>'+isoLinks+'</td>'+
+            '<td>'+cmmcLinks+'</td>'+
+            '<td>'+cmmiLinks+'</td>'+
+            '<td>'+iso42Links+'</td>'+
+            '<td>'+csfLinks+'</td>'+
+            '<td>'+l3Badges(l3MappingsForAIRF(c.id))+'</td></tr>';
+        });
+        html += '</tbody></table></div></details>';
+      });
+      document.getElementById('airf-content').innerHTML = html;
+    }
+
+    function applyFilterAIRMF() {
+      var search = document.getElementById('airf-search').value.toLowerCase();
+      var statusF = document.getElementById('airf-status-filter').value;
+      var fnF = document.getElementById('airf-fn-filter').value;
+      var container = document.getElementById('airf-content');
+      var rows = container.querySelectorAll('tr[data-id]');
+      var visible = 0;
+      rows.forEach(function(row) {
+        var id = row.getAttribute('data-id');
+        var text = row.textContent.toLowerCase();
+        var rowStatus = getStatus(id);
+        var rowFn = row.getAttribute('data-fn') || '';
+        var show = true;
+        if (search && text.indexOf(search) === -1) show = false;
+        if (statusF && rowStatus !== statusF) show = false;
+        if (fnF && rowFn !== fnF) show = false;
+        row.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+      document.getElementById('airf-count').textContent = visible + ' shown';
+    }
+
+    /* ================================================================
+       CMMC LEVEL 3 TAB
+       ================================================================ */
+    function renderL3() {
+      var domains = [];
+      var domMap = {};
+      CMMC_L3.forEach(function(c) {
+        if (!domMap[c.domain]) { domMap[c.domain] = []; domains.push(c.domain); }
+        domMap[c.domain].push(c);
+      });
+
+      var df = document.getElementById('l3-domain-filter');
+      if (df.options.length <= 1) {
+        domains.forEach(function(d) {
+          var o = document.createElement('option');
+          o.value = d; o.textContent = d;
+          df.appendChild(o);
+        });
+      }
+
+      var html = '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr>'+
+        '<th>Practice ID</th><th>Domain</th><th>Practice Statement</th><th>NIST Ref</th><th>Status</th><th>L2 Baseline</th><th>ISO 27001</th><th>CMMI</th><th>NIST CSF</th><th>AI RMF</th>'+
+        '</tr></thead><tbody>';
+      CMMC_L3.forEach(function(c) {
+        var storeId = 'l3-'+c.id;
+        var curStatus = getStatus(storeId);
+        var l2Link = c.l2 ? '<button type="button" class="badge bg-warning text-dark ucf-badge-map ucf-link border-0" data-goto="l2-'+c.l2+'">'+c.l2+'</button>' : '<span class="text-body-secondary small">New</span>';
+        var isoLinks = c.iso27k.length ? c.iso27k.map(function(id){
+          return '<button type="button" class="badge bg-info ucf-badge-map ucf-link border-0" data-goto="iso-'+id+'">ISO '+id+'</button>';
+        }).join(' ') : '<span class="text-body-secondary small">—</span>';
+        var cmmiLinks = c.cmmi.length ? c.cmmi.map(function(id){
+          return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:#dc2626!important" data-goto="cmmi-'+id+'">'+id+'</button>';
+        }).join(' ') : '<span class="text-body-secondary small">—</span>';
+        var csfLinks = c.csf.length ? c.csf.map(function(id){
+          return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:#0891b2!important" data-goto="csf-'+id+'">'+id+'</button>';
+        }).join(' ') : '<span class="text-body-secondary small">—</span>';
+        var airfLinks = c.airf.length ? c.airf.map(function(id){
+          return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:#059669!important" data-goto="airf-'+id+'">'+id+'</button>';
+        }).join(' ') : '<span class="text-body-secondary small">—</span>';
+        html += '<tr data-id="'+storeId+'" data-domain="'+c.domain+'" data-status="'+curStatus+'">'+
+          '<td class="ucf-mono" style="color:#ea580c;white-space:nowrap">'+c.id+'</td>'+
+          '<td>'+domainBadge(c.domain)+'</td>'+
+          '<td style="font-size:.82rem">'+c.title+'</td>'+
+          '<td class="ucf-mono" style="font-size:.75rem">'+c.nist+'</td>'+
+          '<td>'+makeSelect(storeId)+'</td>'+
+          '<td>'+l2Link+'</td>'+
+          '<td>'+isoLinks+'</td>'+
+          '<td>'+cmmiLinks+'</td>'+
+          '<td>'+csfLinks+'</td>'+
+          '<td>'+airfLinks+'</td></tr>';
+      });
+      html += '</tbody></table></div>';
+      document.getElementById('l3-content').innerHTML = html;
+    }
+
+    function applyFilterL3() {
+      var search = document.getElementById('l3-search').value.toLowerCase();
+      var statusF = document.getElementById('l3-status-filter').value;
+      var domainF = document.getElementById('l3-domain-filter').value;
+      var container = document.getElementById('l3-content');
+      var rows = container.querySelectorAll('tr[data-id]');
+      var visible = 0;
+      rows.forEach(function(row) {
+        var id = row.getAttribute('data-id');
+        var text = row.textContent.toLowerCase();
+        var rowStatus = getStatus(id);
+        var rowDomain = row.getAttribute('data-domain') || '';
+        var show = true;
+        if (search && text.indexOf(search) === -1) show = false;
+        if (statusF && rowStatus !== statusF) show = false;
+        if (domainF && rowDomain !== domainF) show = false;
+        row.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+      document.getElementById('l3-count').textContent = visible + ' shown';
+    }
+
+    function applyFilterISO42() {
+      var search = document.getElementById('iso42-search').value.toLowerCase();
+      var statusF = document.getElementById('iso42-status-filter').value;
+      var familyF = document.getElementById('iso42-family-filter').value;
+      var container = document.getElementById('iso42-content');
+      var rows = container.querySelectorAll('tr[data-id]');
+      var visible = 0;
+      rows.forEach(function(row) {
+        var id = row.getAttribute('data-id');
+        var text = row.textContent.toLowerCase();
+        var rowStatus = getStatus(id);
+        var rowFamily = row.getAttribute('data-family') || '';
+        var show = true;
+        if (search && text.indexOf(search) === -1) show = false;
+        if (statusF && rowStatus !== statusF) show = false;
+        if (familyF && rowFamily !== familyF) show = false;
+        row.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+      document.getElementById('iso42-count').textContent = visible + ' shown';
+    }
+
+    function applyFilterCMMI() {
+      var search = document.getElementById('cmmi-search').value.toLowerCase();
+      var statusF = document.getElementById('cmmi-status-filter').value;
+      var domainF = document.getElementById('cmmi-domain-filter').value;
+      var mlF = document.getElementById('cmmi-ml-filter').value;
+      var container = document.getElementById('cmmi-content');
+      var rows = container.querySelectorAll('tr[data-id]');
+      var visible = 0;
+      rows.forEach(function(row) {
+        var id = row.getAttribute('data-id');
+        var text = row.textContent.toLowerCase();
+        var rowStatus = getStatus(id);
+        var rowDomain = row.getAttribute('data-domain') || '';
+        var rowML = row.getAttribute('data-ml') || '';
+        var show = true;
+        if (search && text.indexOf(search) === -1) show = false;
+        if (statusF && rowStatus !== statusF) show = false;
+        if (domainF && rowDomain !== domainF) show = false;
+        if (mlF && rowML !== mlF) show = false;
+        row.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+      document.getElementById('cmmi-count').textContent = visible + ' shown';
     }
 
     /* ================================================================
@@ -1121,6 +2132,41 @@
           gaps.push({ id:'l2-'+c.id, displayId:c.id, framework:'CMMC L2', title:c.title, status:s, mappings:mapCount });
         }
       });
+      CMMI_PA.forEach(function(c) {
+        var s = getStatus('cmmi-'+c.id);
+        if (s === 'not-started' || s === 'planned') {
+          var mapCount = c.iso.length + c.cmmc.length;
+          gaps.push({ id:'cmmi-'+c.id, displayId:c.id, framework:'CMMI 2.0', title:c.title, status:s, mappings:mapCount });
+        }
+      });
+      ISO42001.forEach(function(c) {
+        var s = getStatus('iso42-'+c.id);
+        if (s === 'not-started' || s === 'planned') {
+          var mapCount = c.iso27k.length + c.cmmc.length + c.cmmi.length;
+          gaps.push({ id:'iso42-'+c.id, displayId:c.id, framework:'ISO 42001', title:c.title, status:s, mappings:mapCount });
+        }
+      });
+      NIST_CSF.forEach(function(c) {
+        var s = getStatus('csf-'+c.id);
+        if (s === 'not-started' || s === 'planned') {
+          var mapCount = c.iso27k.length + c.cmmc.length + c.cmmi.length + c.iso42.length;
+          gaps.push({ id:'csf-'+c.id, displayId:c.id, framework:'NIST CSF', title:c.title, status:s, mappings:mapCount });
+        }
+      });
+      NIST_AIRMF.forEach(function(c) {
+        var s = getStatus('airf-'+c.id);
+        if (s === 'not-started' || s === 'planned') {
+          var mapCount = c.iso27k.length + c.cmmc.length + c.cmmi.length + c.iso42.length + c.csf.length;
+          gaps.push({ id:'airf-'+c.id, displayId:c.id, framework:'NIST AI RMF', title:c.title, status:s, mappings:mapCount });
+        }
+      });
+      CMMC_L3.forEach(function(c) {
+        var s = getStatus('l3-'+c.id);
+        if (s === 'not-started' || s === 'planned') {
+          var mapCount = c.iso27k.length + c.cmmi.length + c.csf.length + c.airf.length + (c.l2 ? 1 : 0);
+          gaps.push({ id:'l3-'+c.id, displayId:c.id, framework:'CMMC L3', title:c.title, status:s, mappings:mapCount });
+        }
+      });
 
       // Identify high-leverage: ISO controls that map to CMMC, or CMMC that maps to ISO
       // "High leverage" = appears in multiple frameworks (mappings >= 2)
@@ -1133,10 +2179,20 @@
       var isoGaps = gaps.filter(function(g){return g.framework==='ISO 27001';}).length;
       var l1Gaps = gaps.filter(function(g){return g.framework==='CMMC L1';}).length;
       var l2Gaps = gaps.filter(function(g){return g.framework==='CMMC L2';}).length;
+      var cmmiGaps = gaps.filter(function(g){return g.framework==='CMMI 2.0';}).length;
+      var iso42Gaps = gaps.filter(function(g){return g.framework==='ISO 42001';}).length;
+      var csfGaps = gaps.filter(function(g){return g.framework==='NIST CSF';}).length;
+      var airfGaps = gaps.filter(function(g){return g.framework==='NIST AI RMF';}).length;
+      var l3Gaps = gaps.filter(function(g){return g.framework==='CMMC L3';}).length;
 
-      var sumHtml = '<div class="col-4"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+isoGaps+'</div><small>ISO 27001 Gaps</small></div></div></div>'+
-        '<div class="col-4"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+l1Gaps+'</div><small>CMMC L1 Gaps</small></div></div></div>'+
-        '<div class="col-4"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+l2Gaps+'</div><small>CMMC L2 Gaps</small></div></div></div>';
+      var sumHtml = '<div class="col"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+isoGaps+'</div><small>ISO 27001 Gaps</small></div></div></div>'+
+        '<div class="col"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+l1Gaps+'</div><small>CMMC L1 Gaps</small></div></div></div>'+
+        '<div class="col"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+l2Gaps+'</div><small>CMMC L2 Gaps</small></div></div></div>'+
+        '<div class="col"><div class="card"><div class="card-body text-center"><div class="h4 text-danger" id="cmmi-gap-count">'+cmmiGaps+'</div><small>CMMI 2.0 Gaps</small></div></div></div>'+
+        '<div class="col"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+iso42Gaps+'</div><small>ISO 42001 Gaps</small></div></div></div>'+
+        '<div class="col"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+csfGaps+'</div><small>NIST CSF Gaps</small></div></div></div>'+
+        '<div class="col"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+airfGaps+'</div><small>AI RMF Gaps</small></div></div></div>'+
+        '<div class="col"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+l3Gaps+'</div><small>CMMC L3 Gaps</small></div></div></div>';
       document.getElementById('gap-summary').innerHTML = sumHtml;
 
       if (!gaps.length) {
@@ -1145,11 +2201,11 @@
       }
 
       // Group by framework
-      var grouped = { 'ISO 27001':[], 'CMMC L1':[], 'CMMC L2':[] };
+      var grouped = { 'ISO 27001':[], 'CMMC L1':[], 'CMMC L2':[], 'CMMI 2.0':[], 'ISO 42001':[], 'NIST CSF':[], 'NIST AI RMF':[], 'CMMC L3':[] };
       gaps.forEach(function(g) { grouped[g.framework].push(g); });
 
       var html = '';
-      ['ISO 27001','CMMC L1','CMMC L2'].forEach(function(fw) {
+      ['ISO 27001','CMMC L1','CMMC L2','CMMI 2.0','ISO 42001','NIST CSF','NIST AI RMF','CMMC L3'].forEach(function(fw) {
         if (!grouped[fw].length) return;
         html += '<h6 class="mt-3">'+fw+' ('+grouped[fw].length+' gaps)</h6>';
         html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr><th>Control</th><th>Title</th><th>Status</th><th>Priority</th></tr></thead><tbody>';
@@ -1183,6 +2239,41 @@
         if (s==='not-started'||s==='planned') {
           var mc = isoMappingsFor(c.id).length + (c.l1?1:0);
           rows.push(['CMMC L2',c.id,'"'+c.title.replace(/"/g,'""')+'"',s,mc>=2?'High Leverage':'Standard']);
+        }
+      });
+      CMMI_PA.forEach(function(c) {
+        var s = getStatus('cmmi-'+c.id);
+        if (s==='not-started'||s==='planned') {
+          var mc = c.iso.length + c.cmmc.length;
+          rows.push(['CMMI 2.0',c.id,'"'+c.title.replace(/"/g,'""')+'"',s,mc>=3?'High Leverage':'Standard']);
+        }
+      });
+      ISO42001.forEach(function(c) {
+        var s = getStatus('iso42-'+c.id);
+        if (s==='not-started'||s==='planned') {
+          var mc = c.iso27k.length + c.cmmc.length + c.cmmi.length;
+          rows.push(['ISO 42001',c.id,'"'+c.title.replace(/"/g,'""')+'"',s,mc>=3?'High Leverage':'Standard']);
+        }
+      });
+      NIST_CSF.forEach(function(c) {
+        var s = getStatus('csf-'+c.id);
+        if (s==='not-started'||s==='planned') {
+          var mc = c.iso27k.length + c.cmmc.length + c.cmmi.length + c.iso42.length;
+          rows.push(['NIST CSF 2.0',c.id,'"'+c.title.replace(/"/g,'""')+'"',s,mc>=3?'High Leverage':'Standard']);
+        }
+      });
+      NIST_AIRMF.forEach(function(c) {
+        var s = getStatus('airf-'+c.id);
+        if (s==='not-started'||s==='planned') {
+          var mc = c.iso27k.length + c.cmmc.length + c.cmmi.length + c.iso42.length + c.csf.length;
+          rows.push(['NIST AI RMF',c.id,'"'+c.title.replace(/"/g,'""')+'"',s,mc>=3?'High Leverage':'Standard']);
+        }
+      });
+      CMMC_L3.forEach(function(c) {
+        var s = getStatus('l3-'+c.id);
+        if (s==='not-started'||s==='planned') {
+          var mc = c.iso27k.length + c.cmmi.length + c.csf.length + c.airf.length + (c.l2 ? 1 : 0);
+          rows.push(['CMMC L3',c.id,'"'+c.title.replace(/"/g,'""')+'"',s,mc>=3?'High Leverage':'Standard']);
         }
       });
       var csv = rows.map(function(r){return r.join(',');}).join('\n');
@@ -1266,6 +2357,11 @@
       renderISO();
       renderL1();
       renderL2();
+      renderCMMI();
+      renderISO42();
+      renderCSF();
+      renderAIRMF();
+      renderL3();
       renderMapping(); // calls renderNexus() internally
       renderGap();
     }
@@ -1296,6 +2392,22 @@
         document.getElementById(prefix+'-status-filter').addEventListener('change', function(){ applyFilter(prefix); });
         document.getElementById(prefix+'-domain-filter').addEventListener('change', function(){ applyFilter(prefix); });
       });
+      document.getElementById('cmmi-search').addEventListener('input', function(){ applyFilterCMMI(); });
+      document.getElementById('cmmi-status-filter').addEventListener('change', function(){ applyFilterCMMI(); });
+      document.getElementById('cmmi-domain-filter').addEventListener('change', function(){ applyFilterCMMI(); });
+      document.getElementById('cmmi-ml-filter').addEventListener('change', function(){ applyFilterCMMI(); });
+      document.getElementById('iso42-search').addEventListener('input', function(){ applyFilterISO42(); });
+      document.getElementById('iso42-status-filter').addEventListener('change', function(){ applyFilterISO42(); });
+      document.getElementById('iso42-family-filter').addEventListener('change', function(){ applyFilterISO42(); });
+      document.getElementById('csf-search').addEventListener('input', function(){ applyFilterCSF(); });
+      document.getElementById('csf-status-filter').addEventListener('change', function(){ applyFilterCSF(); });
+      document.getElementById('csf-fn-filter').addEventListener('change', function(){ applyFilterCSF(); });
+      document.getElementById('airf-search').addEventListener('input', function(){ applyFilterAIRMF(); });
+      document.getElementById('airf-status-filter').addEventListener('change', function(){ applyFilterAIRMF(); });
+      document.getElementById('airf-fn-filter').addEventListener('change', function(){ applyFilterAIRMF(); });
+      document.getElementById('l3-search').addEventListener('input', function(){ applyFilterL3(); });
+      document.getElementById('l3-status-filter').addEventListener('change', function(){ applyFilterL3(); });
+      document.getElementById('l3-domain-filter').addEventListener('change', function(){ applyFilterL3(); });
 
       // Reset button
       document.getElementById('btn-reset-all').addEventListener('click', resetAll);
@@ -1308,6 +2420,11 @@
 
       // Initial count badges
       ['iso','l1','l2'].forEach(function(prefix) { applyFilter(prefix); });
+      applyFilterCMMI();
+      applyFilterISO42();
+      applyFilterCSF();
+      applyFilterAIRMF();
+      applyFilterL3();
     }
 
     // Run on DOM ready
