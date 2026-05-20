@@ -28,6 +28,8 @@
     .high-leverage { border-left: 3px solid #ff5811; }
     .progress { height: 1.2rem; }
     .stat-card { border-left: 4px solid #ff5811; }
+    .tab-pane { display: none !important; }
+    .tab-pane.tab-visible { display: block !important; }
     .stat-card .stat-num { font-size: 2rem; font-weight: 700; color: var(--bs-emphasis-color); }
     .stat-card .stat-label { font-size: .8rem; text-transform: uppercase; color: var(--bs-secondary-color); }
     .tab-content .table { font-size: .875rem; }
@@ -199,24 +201,24 @@
 
       <!-- Navigation Tabs -->
       <ul class="nav nav-tabs mb-3" id="ucfTabs" role="tablist">
-        <li class="nav-item" role="presentation"><button class="nav-link active" id="tab-dashboard" data-bs-toggle="tab" data-bs-target="#pane-dashboard" type="button" role="tab" aria-controls="pane-dashboard" aria-selected="true">Dashboard</button></li>
-        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-iso" data-bs-toggle="tab" data-bs-target="#pane-iso" type="button" role="tab" aria-controls="pane-iso" aria-selected="false">ISO 27001</button></li>
-        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-l1" data-bs-toggle="tab" data-bs-target="#pane-l1" type="button" role="tab" aria-controls="pane-l1" aria-selected="false">CMMC Level 1</button></li>
-        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-l2" data-bs-toggle="tab" data-bs-target="#pane-l2" type="button" role="tab" aria-controls="pane-l2" aria-selected="false">CMMC Level 2</button></li>
-        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-cmmi" data-bs-toggle="tab" data-bs-target="#pane-cmmi" type="button" role="tab" aria-controls="pane-cmmi" aria-selected="false">CMMI 2.0</button></li>
-        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-iso42" data-bs-toggle="tab" data-bs-target="#pane-iso42" type="button" role="tab" aria-controls="pane-iso42" aria-selected="false">ISO 42001</button></li>
-        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-csf" data-bs-toggle="tab" data-bs-target="#pane-csf" type="button" role="tab" aria-controls="pane-csf" aria-selected="false">NIST CSF 2.0</button></li>
-        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-airf" data-bs-toggle="tab" data-bs-target="#pane-airf" type="button" role="tab" aria-controls="pane-airf" aria-selected="false">NIST AI RMF</button></li>
-        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-l3" data-bs-toggle="tab" data-bs-target="#pane-l3" type="button" role="tab" aria-controls="pane-l3" aria-selected="false">CMMC Level 3</button></li>
-        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-mapping" data-bs-toggle="tab" data-bs-target="#pane-mapping" type="button" role="tab" aria-controls="pane-mapping" aria-selected="false">Control Nexus</button></li>
-        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-gap" data-bs-toggle="tab" data-bs-target="#pane-gap" type="button" role="tab" aria-controls="pane-gap" aria-selected="false">Gap Analysis</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link active" id="tab-dashboard" type="button" onclick="ucfSwitchTab('pane-dashboard',this)">Dashboard</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-iso" type="button" onclick="ucfSwitchTab('pane-iso',this)">ISO 27001</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-l1" type="button" onclick="ucfSwitchTab('pane-l1',this)">CMMC Level 1</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-l2" type="button" onclick="ucfSwitchTab('pane-l2',this)">CMMC Level 2</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-cmmi" type="button" onclick="ucfSwitchTab('pane-cmmi',this)">CMMI 2.0</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-iso42" type="button" onclick="ucfSwitchTab('pane-iso42',this)">ISO 42001</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-csf" type="button" onclick="ucfSwitchTab('pane-csf',this)">NIST CSF 2.0</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-airf" type="button" onclick="ucfSwitchTab('pane-airf',this)">NIST AI RMF</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-l3" type="button" onclick="ucfSwitchTab('pane-l3',this)">CMMC Level 3</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-mapping" type="button" onclick="ucfSwitchTab('pane-mapping',this)">Control Nexus</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-gap" type="button" onclick="ucfSwitchTab('pane-gap',this)">Gap Analysis</button></li>
       </ul>
 
       <!-- Tab Content -->
       <div class="tab-content" id="ucfTabContent">
 
         <!-- DASHBOARD -->
-        <div class="tab-pane fade show active" id="pane-dashboard" role="tabpanel" aria-labelledby="tab-dashboard">
+        <div class="tab-pane tab-visible" id="pane-dashboard" role="tabpanel" aria-labelledby="tab-dashboard">
           <div class="row g-3 mb-4" id="dash-stats"></div>
           <h5 class="mt-4 mb-3">Framework Progress</h5>
           <div id="dash-bars"></div>
@@ -228,7 +230,7 @@
         </div>
 
         <!-- ISO 27001 -->
-        <div class="tab-pane fade" id="pane-iso" role="tabpanel" aria-labelledby="tab-iso">
+        <div class="tab-pane" id="pane-iso" role="tabpanel" aria-labelledby="tab-iso">
           <div class="filter-bar d-flex gap-2 align-items-center flex-wrap">
             <input type="search" class="form-control form-control-sm" id="iso-search" placeholder="Search controls..." style="max-width:250px;" />
             <select class="form-select form-select-sm" id="iso-status-filter" style="max-width:160px;">
@@ -248,7 +250,7 @@
         </div>
 
         <!-- CMMC L1 -->
-        <div class="tab-pane fade" id="pane-l1" role="tabpanel" aria-labelledby="tab-l1">
+        <div class="tab-pane" id="pane-l1" role="tabpanel" aria-labelledby="tab-l1">
           <div class="filter-bar d-flex gap-2 align-items-center flex-wrap">
             <input type="search" class="form-control form-control-sm" id="l1-search" placeholder="Search practices..." style="max-width:250px;" />
             <select class="form-select form-select-sm" id="l1-status-filter" style="max-width:160px;">
@@ -268,7 +270,7 @@
         </div>
 
         <!-- CMMC L2 -->
-        <div class="tab-pane fade" id="pane-l2" role="tabpanel" aria-labelledby="tab-l2">
+        <div class="tab-pane" id="pane-l2" role="tabpanel" aria-labelledby="tab-l2">
           <div class="filter-bar d-flex gap-2 align-items-center flex-wrap">
             <input type="search" class="form-control form-control-sm" id="l2-search" placeholder="Search practices..." style="max-width:250px;" />
             <select class="form-select form-select-sm" id="l2-status-filter" style="max-width:160px;">
@@ -288,7 +290,7 @@
         </div>
 
         <!-- CMMI 2.0 -->
-        <div class="tab-pane fade" id="pane-cmmi" role="tabpanel" aria-labelledby="tab-cmmi">
+        <div class="tab-pane" id="pane-cmmi" role="tabpanel" aria-labelledby="tab-cmmi">
           <div class="filter-bar d-flex gap-2 align-items-center flex-wrap">
             <input type="search" class="form-control form-control-sm" id="cmmi-search" placeholder="Search practices..." style="max-width:250px;" />
             <select class="form-select form-select-sm" id="cmmi-status-filter" style="max-width:160px;">
@@ -313,7 +315,7 @@
         </div>
 
         <!-- ISO 42001 -->
-        <div class="tab-pane fade" id="pane-iso42" role="tabpanel" aria-labelledby="tab-iso42">
+        <div class="tab-pane" id="pane-iso42" role="tabpanel" aria-labelledby="tab-iso42">
           <div class="filter-bar d-flex gap-2 align-items-center flex-wrap">
             <input type="search" class="form-control form-control-sm" id="iso42-search" placeholder="Search controls..." style="max-width:250px;" />
             <select class="form-select form-select-sm" id="iso42-status-filter" style="max-width:160px;">
@@ -333,7 +335,7 @@
         </div>
 
         <!-- NIST CSF 2.0 -->
-        <div class="tab-pane fade" id="pane-csf" role="tabpanel" aria-labelledby="tab-csf">
+        <div class="tab-pane" id="pane-csf" role="tabpanel" aria-labelledby="tab-csf">
           <div class="filter-bar d-flex gap-2 align-items-center flex-wrap">
             <input type="search" class="form-control form-control-sm" id="csf-search" placeholder="Search categories..." style="max-width:250px;" />
             <select class="form-select form-select-sm" id="csf-status-filter" style="max-width:160px;">
@@ -359,7 +361,7 @@
         </div>
 
         <!-- NIST AI RMF 1.0 -->
-        <div class="tab-pane fade" id="pane-airf" role="tabpanel" aria-labelledby="tab-airf">
+        <div class="tab-pane" id="pane-airf" role="tabpanel" aria-labelledby="tab-airf">
           <div class="filter-bar d-flex gap-2 align-items-center flex-wrap">
             <input type="search" class="form-control form-control-sm" id="airf-search" placeholder="Search practices..." style="max-width:250px;" />
             <select class="form-select form-select-sm" id="airf-status-filter" style="max-width:160px;">
@@ -383,7 +385,7 @@
         </div>
 
         <!-- CMMC Level 3 -->
-        <div class="tab-pane fade" id="pane-l3" role="tabpanel" aria-labelledby="tab-l3">
+        <div class="tab-pane" id="pane-l3" role="tabpanel" aria-labelledby="tab-l3">
           <p class="text-body-secondary small mb-3">24 enhanced practices from NIST SP 800-172 required for CMMC Level 3 (in addition to all Level 2 practices). Applies to contractors handling CUI in the highest priority programs.</p>
           <div class="filter-bar d-flex gap-2 align-items-center flex-wrap">
             <input type="search" class="form-control form-control-sm" id="l3-search" placeholder="Search practices..." style="max-width:250px;" />
@@ -404,7 +406,7 @@
         </div>
 
         <!-- CONTROL NEXUS -->
-        <div class="tab-pane fade" id="pane-mapping" role="tabpanel" aria-labelledby="tab-mapping">
+        <div class="tab-pane" id="pane-mapping" role="tabpanel" aria-labelledby="tab-mapping">
           <p class="text-body-secondary small mb-3">Controls from all three frameworks grouped by functional domain. Click any control ID badge to jump directly to that control. Status icons reflect current tracking state.</p>
           <div id="nexus-content"></div>
           <hr class="my-4" />
@@ -418,7 +420,7 @@
         </div>
 
         <!-- GAP ANALYSIS -->
-        <div class="tab-pane fade" id="pane-gap" role="tabpanel" aria-labelledby="tab-gap">
+        <div class="tab-pane" id="pane-gap" role="tabpanel" aria-labelledby="tab-gap">
           <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
             <h5 class="mb-0">Gap Analysis</h5>
             <button class="btn btn-sm btn-outline-primary" id="btn-export-csv">Export CSV</button>
@@ -943,6 +945,17 @@
     ];
 
     /* ================================================================
+       TAB SWITCHER
+       ================================================================ */
+    function ucfSwitchTab(paneId, btn) {
+      document.querySelectorAll('#ucfTabs .nav-link').forEach(function(b) { b.classList.remove('active'); });
+      document.querySelectorAll('#ucfTabContent .tab-pane').forEach(function(p) { p.classList.remove('tab-visible'); });
+      if (btn) btn.classList.add('active');
+      var pane = document.getElementById(paneId);
+      if (pane) pane.classList.add('tab-visible');
+    }
+
+    /* ================================================================
        STATUS MANAGEMENT
        ================================================================ */
     const STORE = 'ucf2_';
@@ -1121,23 +1134,8 @@
 
       var tabEl = document.getElementById(tabId);
       if (tabEl) {
-        if (typeof bootstrap !== 'undefined') {
-          bootstrap.Tab.getOrCreateInstance(tabEl).show();
-        } else {
-          // Fallback: manually toggle tabs
-          document.querySelectorAll('#ucfTabs .nav-link').forEach(function(btn) {
-            btn.classList.remove('active');
-            btn.setAttribute('aria-selected','false');
-          });
-          document.querySelectorAll('#ucfTabContent .tab-pane').forEach(function(p) {
-            p.classList.remove('show','active');
-          });
-          tabEl.classList.add('active');
-          tabEl.setAttribute('aria-selected','true');
-          var panelId = tabEl.getAttribute('data-bs-target').replace('#','');
-          var panel = document.getElementById(panelId);
-          if (panel) { panel.classList.add('show','active'); }
-        }
+        var panelId = tabId.replace(/^tab-/, 'pane-');
+        ucfSwitchTab(panelId, tabEl);
       }
 
       setTimeout(function() {
