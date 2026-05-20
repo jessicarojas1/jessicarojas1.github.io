@@ -110,15 +110,16 @@
           <span class="badge bg-info">ISO 27001:2022</span>
           <span class="badge bg-success">CMMC L1</span>
           <span class="badge bg-warning text-dark">CMMC L2</span>
-          <span class="badge bg-danger">CMMI 2.0</span>
+          <span class="badge bg-danger">CMMI v3.0</span>
           <span class="badge" style="background:#7c3aed">ISO 42001</span>
           <span class="badge" style="background:#0891b2">NIST CSF 2.0</span>
           <span class="badge" style="background:#059669">NIST AI RMF</span>
           <span class="badge" style="background:#ea580c">CMMC L3</span>
-          <span class="badge bg-secondary">93 + 17 + 110 + 24 + 34 + 34 + 22 + 19 controls</span>
+          <span class="badge" style="background:#7e22ce">CMMI v3.0 L3 Dev+SAM</span>
+          <span class="badge bg-secondary">93 + 17 + 110 + 88 + 34 + 34 + 22 + 19 + 55 controls</span>
         </div>
         <h1 class="fw-bold">Unified Compliance Framework</h1>
-        <p class="lead text-body-secondary">ISO/IEC 27001:2022 &middot; CMMC Level 1 &middot; CMMC Level 2 &middot; CMMI 2.0 &middot; ISO/IEC 42001:2023 &middot; NIST CSF 2.0 &middot; NIST AI RMF 1.0 &middot; CMMC Level 3 &mdash; Control tracking, cross-mapping, and gap analysis</p>
+        <p class="lead text-body-secondary">ISO/IEC 27001:2022 &middot; CMMC Level 1 &middot; CMMC Level 2 &middot; CMMI v3.0 &middot; ISO/IEC 42001:2023 &middot; NIST CSF 2.0 &middot; NIST AI RMF 1.0 &middot; CMMC Level 3 &middot; CMMI Dev L3 &mdash; Control tracking, cross-mapping, and gap analysis</p>
       </div>
     </section>
 
@@ -155,7 +156,7 @@
         <div class="col-md col-sm-6">
           <div class="card h-100">
             <div class="card-body">
-              <h5 class="card-title mb-1">CMMI 2.0 <span class="badge bg-danger">34</span></h5>
+              <h5 class="card-title mb-1">CMMI v3.0 <span class="badge bg-danger">88</span></h5>
               <div class="progress mb-2"><div class="progress-bar bg-success" id="prog-cmmi" role="progressbar" style="width:0%">0%</div></div>
               <small class="text-body-secondary" id="stats-cmmi"></small>
             </div>
@@ -197,6 +198,15 @@
             </div>
           </div>
         </div>
+        <div class="col-md col-sm-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5 class="card-title mb-1">CMMI Dev L3 <span class="badge" style="background:#7e22ce">53</span></h5>
+              <div class="progress mb-2"><div class="progress-bar" id="prog-cmmid" role="progressbar" style="width:0%;background:#7e22ce">0%</div></div>
+              <small class="text-body-secondary" id="stats-cmmid"></small>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Navigation Tabs -->
@@ -205,11 +215,12 @@
         <li class="nav-item" role="presentation"><button class="nav-link" id="tab-iso" type="button" onclick="ucfSwitchTab('pane-iso',this)">ISO 27001</button></li>
         <li class="nav-item" role="presentation"><button class="nav-link" id="tab-l1" type="button" onclick="ucfSwitchTab('pane-l1',this)">CMMC Level 1</button></li>
         <li class="nav-item" role="presentation"><button class="nav-link" id="tab-l2" type="button" onclick="ucfSwitchTab('pane-l2',this)">CMMC Level 2</button></li>
-        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-cmmi" type="button" onclick="ucfSwitchTab('pane-cmmi',this)">CMMI 2.0</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-cmmi" type="button" onclick="ucfSwitchTab('pane-cmmi',this)">CMMI v3.0</button></li>
         <li class="nav-item" role="presentation"><button class="nav-link" id="tab-iso42" type="button" onclick="ucfSwitchTab('pane-iso42',this)">ISO 42001</button></li>
         <li class="nav-item" role="presentation"><button class="nav-link" id="tab-csf" type="button" onclick="ucfSwitchTab('pane-csf',this)">NIST CSF 2.0</button></li>
         <li class="nav-item" role="presentation"><button class="nav-link" id="tab-airf" type="button" onclick="ucfSwitchTab('pane-airf',this)">NIST AI RMF</button></li>
         <li class="nav-item" role="presentation"><button class="nav-link" id="tab-l3" type="button" onclick="ucfSwitchTab('pane-l3',this)">CMMC Level 3</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" id="tab-cmmid" type="button" onclick="ucfSwitchTab('pane-cmmid',this)">CMMI Dev L3</button></li>
         <li class="nav-item" role="presentation"><button class="nav-link" id="tab-mapping" type="button" onclick="ucfSwitchTab('pane-mapping',this)">Control Nexus</button></li>
         <li class="nav-item" role="presentation"><button class="nav-link" id="tab-gap" type="button" onclick="ucfSwitchTab('pane-gap',this)">Gap Analysis</button></li>
       </ul>
@@ -289,8 +300,9 @@
           <div id="l2-content"></div>
         </div>
 
-        <!-- CMMI 2.0 -->
+        <!-- CMMI v3.0 Full -->
         <div class="tab-pane" id="pane-cmmi" role="tabpanel" aria-labelledby="tab-cmmi">
+          <p class="text-body-secondary small mb-3">88 practices across 20 Practice Areas and 4 categories (Doing, Managing, Enabling, Improving) from CMMI v3.0.</p>
           <div class="filter-bar d-flex gap-2 align-items-center flex-wrap">
             <input type="search" class="form-control form-control-sm" id="cmmi-search" placeholder="Search practices..." style="max-width:250px;" />
             <select class="form-select form-select-sm" id="cmmi-status-filter" style="max-width:160px;">
@@ -308,10 +320,33 @@
               <option value="">All Maturity Levels</option>
               <option value="2">ML 2 – Managed</option>
               <option value="3">ML 3 – Defined</option>
+              <option value="4">ML 4 – Quantitatively Managed</option>
+              <option value="5">ML 5 – Optimizing</option>
             </select>
             <span class="badge bg-secondary" id="cmmi-count"></span>
           </div>
           <div id="cmmi-content"></div>
+        </div>
+
+        <!-- CMMI v3.0 Level 3 Development + SAM -->
+        <div class="tab-pane" id="pane-cmmid" role="tabpanel" aria-labelledby="tab-cmmid">
+          <p class="text-body-secondary small mb-3">53 Level 3 practices for the CMMI Development constellation with Supplier Agreement Management in scope. Grouped by Practice Area.</p>
+          <div class="filter-bar d-flex gap-2 align-items-center flex-wrap">
+            <input type="search" class="form-control form-control-sm" id="cmmid-search" placeholder="Search practices..." style="max-width:250px;" />
+            <select class="form-select form-select-sm" id="cmmid-status-filter" style="max-width:160px;">
+              <option value="">All Statuses</option>
+              <option value="implemented">Implemented</option>
+              <option value="partial">Partial</option>
+              <option value="planned">Planned</option>
+              <option value="not-started">Not Started</option>
+              <option value="na">N/A</option>
+            </select>
+            <select class="form-select form-select-sm" id="cmmid-pa-filter" style="max-width:260px;">
+              <option value="">All Practice Areas</option>
+            </select>
+            <span class="badge bg-secondary" id="cmmid-count"></span>
+          </div>
+          <div id="cmmid-content"></div>
         </div>
 
         <!-- ISO 42001 -->
@@ -525,7 +560,7 @@
       {id:'7.1',theme:'Physical',title:'Physical security perimeters',cmmc:['PE.L1-b.1.viii']},
       {id:'7.2',theme:'Physical',title:'Physical entry',cmmc:['PE.L1-b.1.viii','PE.L1-b.1.ix']},
       {id:'7.3',theme:'Physical',title:'Securing offices, rooms and facilities',cmmc:['PE.L1-b.1.viii']},
-      {id:'7.4',theme:'Physical',title:'Physical security monitoring',cmmc:['PE.L1-b.1.x','PE.L2-3.10.6']},
+      {id:'7.4',theme:'Physical',title:'Physical security monitoring',cmmc:['PE.L2-3.10.2','PE.L1-3.10.4']},
       {id:'7.5',theme:'Physical',title:'Protecting against physical and environmental threats',cmmc:['PE.L1-b.1.viii']},
       {id:'7.6',theme:'Physical',title:'Working in secure areas',cmmc:['PE.L1-b.1.ix']},
       {id:'7.7',theme:'Physical',title:'Clear desk and clear screen',cmmc:['AC.L2-3.1.10']},
@@ -573,28 +608,28 @@
     ];
 
     const CMMC_L1 = [
-      {id:'AC.L1-b.1.i',domain:'Access Control',title:'Limit information system access to authorized users, processes acting on behalf of authorized users, and devices (including other information systems).'},
-      {id:'AC.L1-b.1.ii',domain:'Access Control',title:'Limit information system access to the types of transactions and functions that authorized users are permitted to execute.'},
-      {id:'AC.L1-b.1.iii',domain:'Access Control',title:'Verify and control/limit connections to external information systems.'},
-      {id:'AC.L1-b.1.iv',domain:'Access Control',title:'Control information posted or processed on publicly accessible information systems.'},
-      {id:'IA.L1-b.1.v',domain:'Identification & Authentication',title:'Identify information system users, processes acting on behalf of users, or devices.'},
-      {id:'IA.L1-b.1.vi',domain:'Identification & Authentication',title:'Authenticate (or verify) the identities of those users, processes, or devices, as a prerequisite to allowing access.'},
-      {id:'MP.L1-b.1.vii',domain:'Media Protection',title:'Sanitize or destroy information system media before disposal or reuse.'},
-      {id:'PE.L1-b.1.viii',domain:'Physical Protection',title:'Limit physical access to organizational information systems, equipment, and the respective operating environments to authorized individuals.'},
-      {id:'PE.L1-b.1.ix',domain:'Physical Protection',title:'Escort visitors and monitor visitor activity; maintain audit logs of physical access.'},
-      {id:'PE.L1-b.1.x',domain:'Physical Protection',title:'Maintain audit logs of physical access.'},
-      {id:'PE.L1-b.1.xi',domain:'Physical Protection',title:'Control and manage physical access devices.'},
-      {id:'SC.L1-b.1.xii',domain:'System & Communications Protection',title:'Monitor, control, and protect organizational communications (i.e., information transmitted or received) at the external boundaries and key internal boundaries of the information system.'},
-      {id:'SC.L1-b.1.xiii',domain:'System & Communications Protection',title:'Implement subnetworks for publicly accessible system components that are physically or logically separated from internal networks.'},
-      {id:'SI.L1-b.1.xiv',domain:'System & Information Integrity',title:'Identify, report, and correct information and information system flaws in a timely manner.'},
-      {id:'SI.L1-b.1.xv',domain:'System & Information Integrity',title:'Provide protection from malicious code at appropriate locations within organizational information systems.'},
-      {id:'SI.L1-b.1.xvi',domain:'System & Information Integrity',title:'Update malicious code protection mechanisms when new releases are available.'},
-      {id:'SI.L1-b.1.xvii',domain:'System & Information Integrity',title:'Perform periodic scans of the information system and real-time scans of files from external sources as files are downloaded, opened, or executed.'}
+      {id:'AC.L1-3.1.1',  domain:'Access Control',               title:'Limit information system access to authorized users, processes acting on behalf of authorized users, and devices (including other information systems).',         iso:['5.15','5.18','8.2','8.3'],    l2:'AC.L1-3.1.1'},
+      {id:'AC.L1-3.1.2',  domain:'Access Control',               title:'Limit information system access to the types of transactions and functions that authorized users are permitted to execute.',                                         iso:['5.15','8.3'],                  l2:'AC.L1-3.1.2'},
+      {id:'AC.L1-3.1.20', domain:'Access Control',               title:'Verify and control/limit connections to external information systems.',                                                                                              iso:['5.20','5.22','8.20'],          l2:'AC.L1-3.1.20'},
+      {id:'AC.L1-3.1.22', domain:'Access Control',               title:'Control information posted or processed on publicly accessible information systems.',                                                                               iso:['5.14'],                        l2:'AC.L1-3.1.22'},
+      {id:'IA.L1-3.5.1',  domain:'Identification & Auth',        title:'Identify information system users, processes acting on behalf of users, and devices.',                                                                              iso:['5.16','8.5'],                  l2:'IA.L1-3.5.1'},
+      {id:'IA.L1-3.5.2',  domain:'Identification & Auth',        title:'Authenticate (or verify) the identities of those users, processes, or devices, as a prerequisite to allowing access to organizational information systems.',         iso:['5.17','8.5'],                  l2:'IA.L1-3.5.2'},
+      {id:'MP.L1-3.8.3',  domain:'Media Protection',             title:'Sanitize or destroy information system media containing Federal Contract Information before disposal or reuse.',                                                     iso:['7.10','8.10'],                 l2:'MP.L1-3.8.3'},
+      {id:'PE.L1-3.10.1', domain:'Physical Protection',          title:'Limit physical access to organizational information systems, equipment, and the respective operating environments to authorized individuals.',                        iso:['7.1','7.2'],                   l2:'PE.L1-3.10.1'},
+      {id:'PE.L1-3.10.3', domain:'Physical Protection',          title:'Escort visitors and monitor visitor activity.',                                                                                                                iso:['7.2','7.3'],                   l2:'PE.L1-3.10.3'},
+      {id:'PE.L1-3.10.4', domain:'Physical Protection',          title:'Maintain audit logs of physical access.',                                                                                                                           iso:['5.33','7.4'],                  l2:'PE.L1-3.10.4'},
+      {id:'PE.L1-3.10.5', domain:'Physical Protection',          title:'Control and manage physical access devices.',                                                                                                                       iso:['7.2'],                         l2:'PE.L1-3.10.5'},
+      {id:'SC.L1-3.13.1', domain:'System & Comms Protection',    title:'Monitor, control, and protect organizational communications at the external boundaries and key internal boundaries of information systems.',                         iso:['8.20','8.21','8.22'],          l2:'SC.L1-3.13.1'},
+      {id:'SC.L1-3.13.5', domain:'System & Comms Protection',    title:'Implement subnetworks for publicly accessible system components that are physically or logically separated from internal networks.',                                  iso:['8.20','8.22'],                 l2:'SC.L1-3.13.5'},
+      {id:'SI.L1-3.14.1', domain:'System & Info Integrity',      title:'Identify, report, and correct information and information system flaws in a timely manner.',                                                                        iso:['8.8'],                         l2:'SI.L1-3.14.1'},
+      {id:'SI.L1-3.14.2', domain:'System & Info Integrity',      title:'Provide protection from malicious code at appropriate locations within organizational information systems.',                                                         iso:['8.7'],                         l2:'SI.L1-3.14.2'},
+      {id:'SI.L1-3.14.4', domain:'System & Info Integrity',      title:'Update malicious code protection mechanisms when new releases are available.',                                                                                      iso:['8.7','8.8'],                   l2:'SI.L1-3.14.4'},
+      {id:'SI.L1-3.14.5', domain:'System & Info Integrity',      title:'Perform periodic scans of the information system and real-time scans of files from external sources as files are downloaded, opened, or executed.',                 iso:['8.7','8.16'],                  l2:'SI.L1-3.14.5'},
     ];
 
     const CMMC_L2 = [
-      {id:'AC.L1-3.1.1',l1:'AC.L1-b.1.i',domain:'Access Control',nist:'3.1.1',title:'Limit system access to authorized users, processes, and devices.'},
-      {id:'AC.L1-3.1.2',l1:'AC.L1-b.1.ii',domain:'Access Control',nist:'3.1.2',title:'Limit system access to the types of transactions and functions authorized users are permitted to execute.'},
+      {id:'AC.L1-3.1.1',l1:'AC.L1-3.1.1',domain:'Access Control',nist:'3.1.1',title:'Limit system access to authorized users, processes, and devices.'},
+      {id:'AC.L1-3.1.2',l1:'AC.L1-3.1.2',domain:'Access Control',nist:'3.1.2',title:'Limit system access to the types of transactions and functions authorized users are permitted to execute.'},
       {id:'AC.L2-3.1.3',l1:null,domain:'Access Control',nist:'3.1.3',title:'Control the flow of CUI in accordance with approved authorizations.'},
       {id:'AC.L2-3.1.4',l1:null,domain:'Access Control',nist:'3.1.4',title:'Separate the duties of individuals to reduce the risk of malevolent activity.'},
       {id:'AC.L2-3.1.5',l1:null,domain:'Access Control',nist:'3.1.5',title:'Employ the principle of least privilege, including for specific security functions and privileged accounts.'},
@@ -612,9 +647,9 @@
       {id:'AC.L2-3.1.17',l1:null,domain:'Access Control',nist:'3.1.17',title:'Protect wireless access using authentication and encryption.'},
       {id:'AC.L2-3.1.18',l1:null,domain:'Access Control',nist:'3.1.18',title:'Control connection of mobile devices.'},
       {id:'AC.L2-3.1.19',l1:null,domain:'Access Control',nist:'3.1.19',title:'Encrypt CUI on mobile devices and mobile computing platforms.'},
-      {id:'AC.L2-3.1.20',l1:null,domain:'Access Control',nist:'3.1.20',title:'Verify and control connections to external systems.'},
+      {id:'AC.L1-3.1.20',l1:'AC.L1-3.1.20',domain:'Access Control',nist:'3.1.20',title:'Verify and control connections to external systems.'},
       {id:'AC.L2-3.1.21',l1:null,domain:'Access Control',nist:'3.1.21',title:'Limit use of portable storage devices on external systems.'},
-      {id:'AC.L2-3.1.22',l1:null,domain:'Access Control',nist:'3.1.22',title:'Control CUI posted or processed on publicly accessible systems.'},
+      {id:'AC.L1-3.1.22',l1:'AC.L1-3.1.22',domain:'Access Control',nist:'3.1.22',title:'Control CUI posted or processed on publicly accessible systems.'},
       {id:'AT.L2-3.2.1',l1:null,domain:'Awareness & Training',nist:'3.2.1',title:'Ensure personnel are aware of security risks associated with their activities.'},
       {id:'AT.L2-3.2.2',l1:null,domain:'Awareness & Training',nist:'3.2.2',title:'Ensure personnel are trained to carry out assigned security responsibilities.'},
       {id:'AT.L2-3.2.3',l1:null,domain:'Awareness & Training',nist:'3.2.3',title:'Provide security awareness training on recognizing and reporting threats.'},
@@ -636,8 +671,8 @@
       {id:'CM.L2-3.4.7',l1:null,domain:'Configuration Management',nist:'3.4.7',title:'Restrict, disable, or prevent the use of nonessential programs, functions, ports, protocols, and services.'},
       {id:'CM.L2-3.4.8',l1:null,domain:'Configuration Management',nist:'3.4.8',title:'Apply deny-by-exception policy to prevent use of unauthorized software.'},
       {id:'CM.L2-3.4.9',l1:null,domain:'Configuration Management',nist:'3.4.9',title:'Control and monitor user-installed software.'},
-      {id:'IA.L1-3.5.1',l1:'IA.L1-b.1.v',domain:'Identification & Authentication',nist:'3.5.1',title:'Identify system users, processes, and devices.'},
-      {id:'IA.L1-3.5.2',l1:'IA.L1-b.1.vi',domain:'Identification & Authentication',nist:'3.5.2',title:'Authenticate users, processes, and devices before allowing access.'},
+      {id:'IA.L1-3.5.1',l1:'IA.L1-3.5.1',domain:'Identification & Authentication',nist:'3.5.1',title:'Identify system users, processes, and devices.'},
+      {id:'IA.L1-3.5.2',l1:'IA.L1-3.5.2',domain:'Identification & Authentication',nist:'3.5.2',title:'Authenticate users, processes, and devices before allowing access.'},
       {id:'IA.L2-3.5.3',l1:null,domain:'Identification & Authentication',nist:'3.5.3',title:'Use multifactor authentication for local and network access to privileged accounts.'},
       {id:'IA.L2-3.5.4',l1:null,domain:'Identification & Authentication',nist:'3.5.4',title:'Employ replay-resistant authentication mechanisms.'},
       {id:'IA.L2-3.5.5',l1:null,domain:'Identification & Authentication',nist:'3.5.5',title:'Employ identifier management to prevent reuse of identifiers for a defined period.'},
@@ -656,7 +691,7 @@
       {id:'MA.L2-3.7.4',l1:null,domain:'Maintenance',nist:'3.7.4',title:'Check media containing diagnostic programs for malicious code.'},
       {id:'MA.L2-3.7.5',l1:null,domain:'Maintenance',nist:'3.7.5',title:'Require MFA to establish nonlocal maintenance sessions.'},
       {id:'MA.L2-3.7.6',l1:null,domain:'Maintenance',nist:'3.7.6',title:'Supervise maintenance activities of personnel without required access authorization.'},
-      {id:'MP.L1-3.8.3',l1:'MP.L1-b.1.vii',domain:'Media Protection',nist:'3.8.3',title:'Sanitize or destroy system media before disposal or reuse.'},
+      {id:'MP.L1-3.8.3',l1:'MP.L1-3.8.3',domain:'Media Protection',nist:'3.8.3',title:'Sanitize or destroy system media before disposal or reuse.'},
       {id:'MP.L2-3.8.1',l1:null,domain:'Media Protection',nist:'3.8.1',title:'Protect system media containing CUI, both paper and digital.'},
       {id:'MP.L2-3.8.2',l1:null,domain:'Media Protection',nist:'3.8.2',title:'Limit access to CUI on system media to authorized users.'},
       {id:'MP.L2-3.8.4',l1:null,domain:'Media Protection',nist:'3.8.4',title:'Mark media with necessary CUI markings and distribution limitations.'},
@@ -667,11 +702,11 @@
       {id:'MP.L2-3.8.9',l1:null,domain:'Media Protection',nist:'3.8.9',title:'Protect the backup copies of CUI at storage locations.'},
       {id:'PS.L2-3.9.1',l1:null,domain:'Personnel Security',nist:'3.9.1',title:'Screen individuals prior to authorizing access to systems containing CUI.'},
       {id:'PS.L2-3.9.2',l1:null,domain:'Personnel Security',nist:'3.9.2',title:'Ensure CUI is protected during and after personnel actions such as terminations and transfers.'},
-      {id:'PE.L1-3.10.1',l1:'PE.L1-b.1.viii',domain:'Physical Protection',nist:'3.10.1',title:'Limit physical access to systems, equipment, and operating environments to authorized individuals.'},
-      {id:'PE.L1-3.10.3',l1:'PE.L1-b.1.ix',domain:'Physical Protection',nist:'3.10.3',title:'Escort visitors and monitor visitor activity.'},
-      {id:'PE.L1-3.10.4',l1:'PE.L1-b.1.x',domain:'Physical Protection',nist:'3.10.4',title:'Maintain audit logs of physical access.'},
-      {id:'PE.L1-3.10.5',l1:'PE.L1-b.1.xi',domain:'Physical Protection',nist:'3.10.5',title:'Control and manage physical access devices.'},
+      {id:'PE.L1-3.10.1',l1:'PE.L1-3.10.1',domain:'Physical Protection',nist:'3.10.1',title:'Limit physical access to systems, equipment, and operating environments to authorized individuals.'},
       {id:'PE.L2-3.10.2',l1:null,domain:'Physical Protection',nist:'3.10.2',title:'Protect and monitor the physical facility and support infrastructure.'},
+      {id:'PE.L1-3.10.3',l1:'PE.L1-3.10.3',domain:'Physical Protection',nist:'3.10.3',title:'Escort visitors and monitor visitor activity.'},
+      {id:'PE.L1-3.10.4',l1:'PE.L1-3.10.4',domain:'Physical Protection',nist:'3.10.4',title:'Maintain audit logs of physical access.'},
+      {id:'PE.L1-3.10.5',l1:'PE.L1-3.10.5',domain:'Physical Protection',nist:'3.10.5',title:'Control and manage physical access devices.'},
       {id:'PE.L2-3.10.6',l1:null,domain:'Physical Protection',nist:'3.10.6',title:'Enforce safeguarding measures for CUI at alternate work sites.'},
       {id:'RA.L2-3.11.1',l1:null,domain:'Risk Assessment',nist:'3.11.1',title:'Periodically assess the risk to operations, assets, and individuals.'},
       {id:'RA.L2-3.11.2',l1:null,domain:'Risk Assessment',nist:'3.11.2',title:'Scan for vulnerabilities in systems periodically and when new vulnerabilities are identified.'},
@@ -680,8 +715,8 @@
       {id:'CA.L2-3.12.2',l1:null,domain:'Security Assessment',nist:'3.12.2',title:'Develop and implement plans of action designed to correct deficiencies.'},
       {id:'CA.L2-3.12.3',l1:null,domain:'Security Assessment',nist:'3.12.3',title:'Monitor security controls on an ongoing basis to ensure the continued effectiveness.'},
       {id:'CA.L2-3.12.4',l1:null,domain:'Security Assessment',nist:'3.12.4',title:'Develop, document, and periodically update system security plans.'},
-      {id:'SC.L1-3.13.1',l1:'SC.L1-b.1.xii',domain:'System & Communications Protection',nist:'3.13.1',title:'Monitor, control, and protect communications at external boundaries and key internal boundaries.'},
-      {id:'SC.L1-3.13.5',l1:'SC.L1-b.1.xiii',domain:'System & Communications Protection',nist:'3.13.5',title:'Implement subnetworks for publicly accessible system components separated from internal networks.'},
+      {id:'SC.L1-3.13.1',l1:'SC.L1-3.13.1',domain:'System & Communications Protection',nist:'3.13.1',title:'Monitor, control, and protect communications at external boundaries and key internal boundaries.'},
+      {id:'SC.L1-3.13.5',l1:'SC.L1-3.13.5',domain:'System & Communications Protection',nist:'3.13.5',title:'Implement subnetworks for publicly accessible system components separated from internal networks.'},
       {id:'SC.L2-3.13.2',l1:null,domain:'System & Communications Protection',nist:'3.13.2',title:'Employ architectural designs, software development techniques, and systems engineering principles.'},
       {id:'SC.L2-3.13.3',l1:null,domain:'System & Communications Protection',nist:'3.13.3',title:'Separate user functionality from system management functionality.'},
       {id:'SC.L2-3.13.4',l1:null,domain:'System & Communications Protection',nist:'3.13.4',title:'Prevent unauthorized and unintended information transfer.'},
@@ -696,63 +731,154 @@
       {id:'SC.L2-3.13.14',l1:null,domain:'System & Communications Protection',nist:'3.13.14',title:'Control and monitor the use of VoIP technologies.'},
       {id:'SC.L2-3.13.15',l1:null,domain:'System & Communications Protection',nist:'3.13.15',title:'Protect the authenticity of communications sessions.'},
       {id:'SC.L2-3.13.16',l1:null,domain:'System & Communications Protection',nist:'3.13.16',title:'Protect CUI at rest.'},
-      {id:'SI.L1-3.14.1',l1:'SI.L1-b.1.xiv',domain:'System & Information Integrity',nist:'3.14.1',title:'Identify, report, and correct information and system flaws in a timely manner.'},
-      {id:'SI.L1-3.14.2',l1:'SI.L1-b.1.xv',domain:'System & Information Integrity',nist:'3.14.2',title:'Provide protection from malicious code at appropriate locations.'},
-      {id:'SI.L1-3.14.4',l1:'SI.L1-b.1.xvi',domain:'System & Information Integrity',nist:'3.14.4',title:'Update malicious code protection mechanisms when new releases are available.'},
-      {id:'SI.L1-3.14.5',l1:'SI.L1-b.1.xvii',domain:'System & Information Integrity',nist:'3.14.5',title:'Perform periodic scans and real-time scans of files from external sources.'},
+      {id:'SI.L1-3.14.1',l1:'SI.L1-3.14.1',domain:'System & Information Integrity',nist:'3.14.1',title:'Identify, report, and correct information and system flaws in a timely manner.'},
+      {id:'SI.L1-3.14.2',l1:'SI.L1-3.14.2',domain:'System & Information Integrity',nist:'3.14.2',title:'Provide protection from malicious code at appropriate locations.'},
+      {id:'SI.L1-3.14.4',l1:'SI.L1-3.14.4',domain:'System & Information Integrity',nist:'3.14.4',title:'Update malicious code protection mechanisms when new releases are available.'},
+      {id:'SI.L1-3.14.5',l1:'SI.L1-3.14.5',domain:'System & Information Integrity',nist:'3.14.5',title:'Perform periodic scans and real-time scans of files from external sources.'},
       {id:'SI.L2-3.14.3',l1:null,domain:'System & Information Integrity',nist:'3.14.3',title:'Monitor system security alerts and advisories and take action in response.'},
       {id:'SI.L2-3.14.6',l1:null,domain:'System & Information Integrity',nist:'3.14.6',title:'Monitor systems to detect attacks and indicators of potential attacks.'},
       {id:'SI.L2-3.14.7',l1:null,domain:'System & Information Integrity',nist:'3.14.7',title:'Identify unauthorized use of organizational systems.'},
-      /* Supply Chain Risk Management — NIST SP 800-171 Rev 2 domain 3.15 */
-      {id:'SR.L2-3.15.1',l1:null,domain:'Supply Chain Risk Management',nist:'3.15.1',title:'Establish a supply chain risk management strategy to identify, assess, and mitigate supply chain risks.'},
-      {id:'SR.L2-3.15.2',l1:null,domain:'Supply Chain Risk Management',nist:'3.15.2',title:'Use assessment and review processes to assess the risks of supply chain components before selection, acceptance, and use.'},
-      {id:'SR.L2-3.15.3',l1:null,domain:'Supply Chain Risk Management',nist:'3.15.3',title:'Employ penetration testing to identify vulnerabilities and opportunities for exploitation — include supply chain elements.'}
     ];
 
     const CMMI_PA = [
-      // Governance (GOV) — Improving
-      {id:'GOV-2.1',pa:'Governance',group:'Improving',ml:2,title:'Establish and maintain governance and policy statements for organizational processes.',iso:['5.1','5.2','5.35','5.36'],cmmc:['CA.L2-3.12.4']},
-      {id:'GOV-2.2',pa:'Governance',group:'Improving',ml:2,title:'Clarify roles and responsibilities for organizational processes.',iso:['5.2','5.3'],cmmc:['AC.L1-3.1.1','AC.L1-3.1.2']},
-      {id:'GOV-2.3',pa:'Governance',group:'Improving',ml:2,title:'Train people for performing their assigned roles.',iso:['6.3'],cmmc:['AT.L2-3.2.1','AT.L2-3.2.2']},
-      {id:'GOV-3.1',pa:'Governance',group:'Improving',ml:3,title:'Establish and maintain organizational goals and strategies aligned to business objectives.',iso:['5.4'],cmmc:[]},
-      {id:'GOV-3.2',pa:'Governance',group:'Improving',ml:3,title:'Collect and use performance data to manage the organization.',iso:['5.35','5.36'],cmmc:['CA.L2-3.12.1','CA.L2-3.12.3']},
-      // Configuration Management (CM) — Managing
-      {id:'CM-2.1',pa:'Configuration Management',group:'Managing',ml:2,title:'Establish and maintain a configuration management system.',iso:['8.9','8.32'],cmmc:['CM.L2-3.4.1','CM.L2-3.4.2']},
-      {id:'CM-2.2',pa:'Configuration Management',group:'Managing',ml:2,title:'Establish and maintain baselines for identified configuration items.',iso:['8.9'],cmmc:['CM.L2-3.4.1']},
-      {id:'CM-2.3',pa:'Configuration Management',group:'Managing',ml:2,title:'Control changes to configuration items.',iso:['8.32'],cmmc:['CM.L2-3.4.3']},
-      {id:'CM-2.4',pa:'Configuration Management',group:'Managing',ml:2,title:'Establish and maintain records describing configuration items.',iso:['8.9','5.33'],cmmc:['CM.L2-3.4.1','AU.L2-3.3.1']},
-      {id:'CM-3.1',pa:'Configuration Management',group:'Managing',ml:3,title:'Ensure completeness, consistency, and correctness of configuration management.',iso:['8.9','8.32'],cmmc:['CM.L2-3.4.4','CM.L2-3.4.5']},
-      // Risk & Opportunity Management (RSK) — Doing
-      {id:'RSK-2.1',pa:'Risk & Opportunity Management',group:'Doing',ml:2,title:'Identify and document risks.',iso:['5.7'],cmmc:['RA.L2-3.11.1']},
-      {id:'RSK-2.2',pa:'Risk & Opportunity Management',group:'Doing',ml:2,title:'Evaluate, categorize, and prioritize risks.',iso:['5.7'],cmmc:['RA.L2-3.11.1','RA.L2-3.11.2']},
-      {id:'RSK-2.3',pa:'Risk & Opportunity Management',group:'Doing',ml:2,title:'Develop risk mitigation plans.',iso:['8.2'],cmmc:['RA.L2-3.11.3','CA.L2-3.12.2']},
-      {id:'RSK-2.4',pa:'Risk & Opportunity Management',group:'Doing',ml:2,title:'Implement risk mitigation plans and monitor risk status.',iso:['8.2'],cmmc:['RA.L2-3.11.3']},
-      {id:'RSK-3.1',pa:'Risk & Opportunity Management',group:'Doing',ml:3,title:'Identify and analyze opportunities for improvement.',iso:['5.7'],cmmc:[]},
-      // Process Quality Assurance (PQA) — Managing
-      {id:'PQA-2.1',pa:'Process Quality Assurance',group:'Managing',ml:2,title:'Objectively evaluate processes against applicable requirements.',iso:['5.35','5.36'],cmmc:['CA.L2-3.12.1']},
-      {id:'PQA-2.2',pa:'Process Quality Assurance',group:'Managing',ml:2,title:'Objectively evaluate work products against applicable requirements.',iso:['5.35','8.29','8.33'],cmmc:['CA.L2-3.12.1']},
-      {id:'PQA-2.3',pa:'Process Quality Assurance',group:'Managing',ml:2,title:'Communicate quality issues and ensure resolution.',iso:['5.36'],cmmc:['CA.L2-3.12.2']},
-      {id:'PQA-3.1',pa:'Process Quality Assurance',group:'Managing',ml:3,title:'Use quantitative techniques to analyze process performance.',iso:['5.35'],cmmc:['CA.L2-3.12.3']},
-      // Causal Analysis & Resolution (CAR) — Improving
-      {id:'CAR-3.1',pa:'Causal Analysis & Resolution',group:'Improving',ml:3,title:'Select outcomes for analysis.',iso:['5.25','5.27'],cmmc:['IR.L2-3.6.1']},
-      {id:'CAR-3.2',pa:'Causal Analysis & Resolution',group:'Improving',ml:3,title:'Analyze selected outcomes to determine root causes.',iso:['5.27'],cmmc:['IR.L2-3.6.3']},
-      {id:'CAR-3.3',pa:'Causal Analysis & Resolution',group:'Improving',ml:3,title:'Propose actions to address identified causes.',iso:['5.26','5.27'],cmmc:['IR.L2-3.6.2']},
-      {id:'CAR-3.4',pa:'Causal Analysis & Resolution',group:'Improving',ml:3,title:'Implement action proposals selected for resolution.',iso:['5.26'],cmmc:['IR.L2-3.6.2']},
-      // Monitor & Control (MC) — Doing
-      {id:'MC-2.1',pa:'Monitor & Control',group:'Doing',ml:2,title:'Monitor the work against the plan.',iso:['5.36','8.16'],cmmc:['AU.L2-3.3.1','CA.L2-3.12.3']},
-      {id:'MC-2.2',pa:'Monitor & Control',group:'Doing',ml:2,title:'Monitor the environment for new risks.',iso:['5.7','8.8'],cmmc:['RA.L2-3.11.1','SI.L2-3.14.6']},
-      {id:'MC-2.3',pa:'Monitor & Control',group:'Doing',ml:2,title:'Analyze issues and determine corrective actions.',iso:['5.25','5.26'],cmmc:['IR.L2-3.6.1','IR.L2-3.6.2']},
-      {id:'MC-3.1',pa:'Monitor & Control',group:'Doing',ml:3,title:'Identify and use measures for monitoring performance.',iso:['5.36'],cmmc:['CA.L2-3.12.3','AU.L2-3.3.1']},
-      // Supplier Agreement Management (SAM) — Doing
-      {id:'SAM-2.1',pa:'Supplier Agreement Management',group:'Doing',ml:2,title:'Establish and maintain supplier agreements.',iso:['5.19','5.20'],cmmc:['SR.L2-3.15.1','SR.L2-3.15.2']},
-      {id:'SAM-2.2',pa:'Supplier Agreement Management',group:'Doing',ml:2,title:'Satisfy supplier agreements.',iso:['5.22'],cmmc:['SR.L2-3.15.1']},
-      {id:'SAM-2.3',pa:'Supplier Agreement Management',group:'Doing',ml:2,title:'Evaluate selected supplier work products and services.',iso:['5.21','5.22'],cmmc:['SR.L2-3.15.2','SR.L2-3.15.3']},
-      {id:'SAM-3.1',pa:'Supplier Agreement Management',group:'Doing',ml:3,title:'Manage risks in the supply chain.',iso:['5.19','5.21'],cmmc:['SR.L2-3.15.3']},
-      // Implementation Infrastructure (II) — Improving
-      {id:'II-2.1',pa:'Implementation Infrastructure',group:'Improving',ml:2,title:'Enable people to perform their assigned roles.',iso:['6.3'],cmmc:['AT.L2-3.2.1','AT.L2-3.2.2']},
-      {id:'II-2.2',pa:'Implementation Infrastructure',group:'Improving',ml:2,title:'Provide necessary resources for performing work.',iso:['5.4'],cmmc:[]},
-      {id:'II-2.3',pa:'Implementation Infrastructure',group:'Improving',ml:2,title:'Coordinate and collaborate with relevant stakeholders.',iso:['5.5','5.6'],cmmc:['IR.L2-3.6.1']},
-      {id:'II-3.1',pa:'Implementation Infrastructure',group:'Improving',ml:3,title:'Define, collect, and use process performance measures.',iso:['5.36'],cmmc:['CA.L2-3.12.4']}
+      // ── DOING ──────────────────────────────────────────────────────────────────
+      // CM – Configuration Management
+      {id:'CM.L2-1',paCode:'CM',pa:'Configuration Management',category:'Doing',level:2,title:'Establish and maintain a configuration management system to control configuration items throughout the project lifecycle.',iso27k:['8.32'],cmmc:['CM.L2-3.4.1','CM.L2-3.4.2']},
+      {id:'CM.L2-2',paCode:'CM',pa:'Configuration Management',category:'Doing',level:2,title:'Identify and document the configuration items that will be placed under configuration management.',iso27k:['8.32'],cmmc:['CM.L2-3.4.1']},
+      {id:'CM.L2-3',paCode:'CM',pa:'Configuration Management',category:'Doing',level:2,title:'Control changes to configuration items using a defined change control process.',iso27k:['8.32'],cmmc:['CM.L2-3.4.3']},
+      {id:'CM.L2-4',paCode:'CM',pa:'Configuration Management',category:'Doing',level:2,title:'Establish and maintain configuration baselines at defined points throughout the project.',iso27k:['8.32'],cmmc:['CM.L2-3.4.1']},
+      {id:'CM.L2-5',paCode:'CM',pa:'Configuration Management',category:'Doing',level:2,title:'Track the status of configuration items and make this information available to those who need it.',iso27k:['5.9','8.32'],cmmc:['CM.L2-3.4.2']},
+      {id:'CM.L3-1',paCode:'CM',pa:'Configuration Management',category:'Doing',level:3,title:'Establish and maintain configuration management plans using organizational standard processes and assets.',iso27k:['8.32'],cmmc:['CM.L2-3.4.1']},
+      {id:'CM.L3-2',paCode:'CM',pa:'Configuration Management',category:'Doing',level:3,title:'Conduct configuration audits to verify configuration items conform to requirements and configuration management processes.',iso27k:['5.35','8.32'],cmmc:['CA.L2-3.12.1']},
+
+      // PI – Product Integration
+      {id:'PI.L3-1',paCode:'PI',pa:'Product Integration',category:'Doing',level:3,title:'Establish and maintain integration procedures and criteria for integrating product components.',iso27k:['8.25','8.31'],cmmc:[]},
+      {id:'PI.L3-2',paCode:'PI',pa:'Product Integration',category:'Doing',level:3,title:'Establish and maintain an environment for product integration that meets requirements.',iso27k:['8.25'],cmmc:[]},
+      {id:'PI.L3-3',paCode:'PI',pa:'Product Integration',category:'Doing',level:3,title:'Ensure interface compatibility among the product components before integration.',iso27k:['8.26'],cmmc:[]},
+      {id:'PI.L3-4',paCode:'PI',pa:'Product Integration',category:'Doing',level:3,title:'Assemble the product components according to the established integration procedures.',iso27k:['8.25','8.31'],cmmc:[]},
+      {id:'PI.L3-5',paCode:'PI',pa:'Product Integration',category:'Doing',level:3,title:'Evaluate assembled product components for integration completeness and correctness against established criteria.',iso27k:['8.29','8.31'],cmmc:[]},
+
+      // PQA – Process Quality Assurance
+      {id:'PQA.L2-1',paCode:'PQA',pa:'Process Quality Assurance',category:'Doing',level:2,title:'Objectively evaluate performed processes against applicable process descriptions and standards.',iso27k:['5.35','5.36'],cmmc:['CA.L2-3.12.1']},
+      {id:'PQA.L2-2',paCode:'PQA',pa:'Process Quality Assurance',category:'Doing',level:2,title:'Objectively evaluate selected work products against applicable process descriptions and standards.',iso27k:['5.35','8.29'],cmmc:['CA.L2-3.12.1']},
+      {id:'PQA.L2-3',paCode:'PQA',pa:'Process Quality Assurance',category:'Doing',level:2,title:'Communicate noncompliance issues to relevant stakeholders and ensure they are resolved.',iso27k:['5.35','6.4'],cmmc:['CA.L2-3.12.2']},
+      {id:'PQA.L3-1',paCode:'PQA',pa:'Process Quality Assurance',category:'Doing',level:3,title:'Establish and maintain organizational quality assurance capability using organizational standard processes.',iso27k:['5.35','5.36'],cmmc:['CA.L2-3.12.4']},
+
+      // PR – Peer Reviews
+      {id:'PR.L3-1',paCode:'PR',pa:'Peer Reviews',category:'Doing',level:3,title:'Prepare for peer reviews by defining criteria, selecting reviewers, and distributing work products in advance.',iso27k:['8.29'],cmmc:['CA.L2-3.12.1']},
+      {id:'PR.L3-2',paCode:'PR',pa:'Peer Reviews',category:'Doing',level:3,title:'Conduct peer reviews using defined procedures, entry and exit criteria, and record data on defects and issues.',iso27k:['8.29'],cmmc:['CA.L2-3.12.1']},
+      {id:'PR.L3-3',paCode:'PR',pa:'Peer Reviews',category:'Doing',level:3,title:'Analyze peer review data to identify causes of defects and drive process improvement.',iso27k:['8.29'],cmmc:[]},
+
+      // RDM – Requirements Development and Management
+      {id:'RDM.L2-1',paCode:'RDM',pa:'Requirements Development and Management',category:'Doing',level:2,title:'Obtain and document requirements from relevant stakeholders.',iso27k:['5.8'],cmmc:[]},
+      {id:'RDM.L2-2',paCode:'RDM',pa:'Requirements Development and Management',category:'Doing',level:2,title:'Establish and maintain a requirements baseline and manage changes to requirements.',iso27k:['5.8'],cmmc:[]},
+      {id:'RDM.L2-3',paCode:'RDM',pa:'Requirements Development and Management',category:'Doing',level:2,title:'Ensure alignment between work products and requirements through bidirectional traceability.',iso27k:['5.8'],cmmc:[]},
+      {id:'RDM.L3-1',paCode:'RDM',pa:'Requirements Development and Management',category:'Doing',level:3,title:'Elicit stakeholder needs, expectations, constraints, and interfaces and transform them into prioritized stakeholder requirements.',iso27k:['5.8'],cmmc:[]},
+      {id:'RDM.L3-2',paCode:'RDM',pa:'Requirements Development and Management',category:'Doing',level:3,title:'Establish and maintain product and product-component requirements derived from the stakeholder requirements.',iso27k:['5.8'],cmmc:[]},
+      {id:'RDM.L3-3',paCode:'RDM',pa:'Requirements Development and Management',category:'Doing',level:3,title:'Establish and maintain interface requirements for the product and product components.',iso27k:['5.8','8.26'],cmmc:[]},
+      {id:'RDM.L3-4',paCode:'RDM',pa:'Requirements Development and Management',category:'Doing',level:3,title:'Develop and maintain an operational concept and representative scenarios to drive requirements analysis.',iso27k:['5.8'],cmmc:[]},
+      {id:'RDM.L3-5',paCode:'RDM',pa:'Requirements Development and Management',category:'Doing',level:3,title:'Validate requirements to ensure they reflect actual stakeholder needs using operational scenarios.',iso27k:['5.8'],cmmc:[]},
+
+      // SAM – Supplier Agreement Management
+      {id:'SAM.L2-1',paCode:'SAM',pa:'Supplier Agreement Management',category:'Doing',level:2,title:'Determine the type of acquisition and identify potential suppliers for products or services to be acquired.',iso27k:['5.19','5.21'],cmmc:[]},
+      {id:'SAM.L2-2',paCode:'SAM',pa:'Supplier Agreement Management',category:'Doing',level:2,title:'Establish and maintain supplier agreements that include technical requirements and acceptance criteria.',iso27k:['5.20','5.21'],cmmc:[]},
+      {id:'SAM.L2-3',paCode:'SAM',pa:'Supplier Agreement Management',category:'Doing',level:2,title:'Monitor the selected supplier\'s progress and performance against the supplier agreement.',iso27k:['5.19','5.22'],cmmc:[]},
+      {id:'SAM.L2-4',paCode:'SAM',pa:'Supplier Agreement Management',category:'Doing',level:2,title:'Accept acquired products or services and ensure the supplier agreement is satisfied before closing.',iso27k:['5.22'],cmmc:[]},
+      {id:'SAM.L3-1',paCode:'SAM',pa:'Supplier Agreement Management',category:'Doing',level:3,title:'Evaluate and select suppliers using defined evaluation criteria derived from product and project requirements.',iso27k:['5.19','5.21'],cmmc:[]},
+      {id:'SAM.L3-2',paCode:'SAM',pa:'Supplier Agreement Management',category:'Doing',level:3,title:'Perform supplier reviews and coordinate with suppliers to resolve technical and agreement issues.',iso27k:['5.22'],cmmc:[]},
+
+      // TS – Technical Solution
+      {id:'TS.L3-1',paCode:'TS',pa:'Technical Solution',category:'Doing',level:3,title:'Develop alternative solutions and selection criteria as a basis for selecting product component solutions.',iso27k:['8.25'],cmmc:[]},
+      {id:'TS.L3-2',paCode:'TS',pa:'Technical Solution',category:'Doing',level:3,title:'Select product component solutions using established evaluation criteria.',iso27k:['8.25'],cmmc:[]},
+      {id:'TS.L3-3',paCode:'TS',pa:'Technical Solution',category:'Doing',level:3,title:'Design product components and their interfaces using established design principles and methods.',iso27k:['8.25','8.26'],cmmc:[]},
+      {id:'TS.L3-4',paCode:'TS',pa:'Technical Solution',category:'Doing',level:3,title:'Implement the design by creating product components from established design documents using organizational standard practices.',iso27k:['8.25'],cmmc:[]},
+      {id:'TS.L3-5',paCode:'TS',pa:'Technical Solution',category:'Doing',level:3,title:'Establish and maintain technical data packages to support production and lifecycle support of the product.',iso27k:['5.9','8.25'],cmmc:[]},
+
+      // VV – Verification and Validation
+      {id:'VV.L3-1',paCode:'VV',pa:'Verification and Validation',category:'Doing',level:3,title:'Select work products to be verified and determine the verification methods and criteria to be used.',iso27k:['8.29'],cmmc:[]},
+      {id:'VV.L3-2',paCode:'VV',pa:'Verification and Validation',category:'Doing',level:3,title:'Establish and maintain a verification and validation environment that matches the target environment.',iso27k:['8.29'],cmmc:[]},
+      {id:'VV.L3-3',paCode:'VV',pa:'Verification and Validation',category:'Doing',level:3,title:'Perform verification on selected work products using established procedures, criteria, and environment.',iso27k:['8.29','8.31'],cmmc:[]},
+      {id:'VV.L3-4',paCode:'VV',pa:'Verification and Validation',category:'Doing',level:3,title:'Select products or product components to be validated and determine validation methods and criteria.',iso27k:['8.29'],cmmc:[]},
+      {id:'VV.L3-5',paCode:'VV',pa:'Verification and Validation',category:'Doing',level:3,title:'Perform validation and address identified deficiencies.',iso27k:['8.29','8.31'],cmmc:[]},
+
+      // ── MANAGING ───────────────────────────────────────────────────────────────
+      // EST – Estimation
+      {id:'EST.L2-1',paCode:'EST',pa:'Estimation',category:'Managing',level:2,title:'Establish and maintain an approach to estimating the size of the work products and tasks.',iso27k:['5.8'],cmmc:[]},
+      {id:'EST.L2-2',paCode:'EST',pa:'Estimation',category:'Managing',level:2,title:'Estimate the scope of the project including major milestones and deliverables.',iso27k:['5.8'],cmmc:[]},
+      {id:'EST.L2-3',paCode:'EST',pa:'Estimation',category:'Managing',level:2,title:'Estimate the effort and duration of the project work activities.',iso27k:['5.8'],cmmc:[]},
+      {id:'EST.L2-4',paCode:'EST',pa:'Estimation',category:'Managing',level:2,title:'Estimate the costs of the project as a basis for budget and schedule planning.',iso27k:['5.8'],cmmc:[]},
+      {id:'EST.L3-1',paCode:'EST',pa:'Estimation',category:'Managing',level:3,title:'Establish and maintain estimating models and organizational estimation data to improve future estimates.',iso27k:['5.8'],cmmc:[]},
+
+      // MC – Monitor and Control
+      {id:'MC.L2-1',paCode:'MC',pa:'Monitor and Control',category:'Managing',level:2,title:'Monitor the project against the plan and take corrective action when actual progress deviates significantly.',iso27k:['5.35'],cmmc:['CA.L2-3.12.3']},
+      {id:'MC.L2-2',paCode:'MC',pa:'Monitor and Control',category:'Managing',level:2,title:'Monitor commitments from relevant stakeholders and resolve issues when commitments are not being met.',iso27k:['5.35'],cmmc:[]},
+      {id:'MC.L2-3',paCode:'MC',pa:'Monitor and Control',category:'Managing',level:2,title:'Conduct progress reviews with relevant stakeholders to address issues and risks.',iso27k:['5.35'],cmmc:['CA.L2-3.12.3']},
+      {id:'MC.L2-4',paCode:'MC',pa:'Monitor and Control',category:'Managing',level:2,title:'Manage corrective actions to closure when issues are identified during project monitoring.',iso27k:['5.35','5.36'],cmmc:['CA.L2-3.12.3']},
+      {id:'MC.L3-1',paCode:'MC',pa:'Monitor and Control',category:'Managing',level:3,title:'Conduct milestone reviews with senior management using organizational measurement data and agreed-upon criteria.',iso27k:['5.35','5.36'],cmmc:['CA.L2-3.12.3']},
+
+      // PLAN – Planning
+      {id:'PLAN.L2-1',paCode:'PLAN',pa:'Planning',category:'Managing',level:2,title:'Establish and maintain an approach to planning.',iso27k:['5.8','5.36'],cmmc:['CA.L2-3.12.4']},
+      {id:'PLAN.L2-2',paCode:'PLAN',pa:'Planning',category:'Managing',level:2,title:'Develop and maintain a project plan that includes commitments, schedule, budget, milestones, and identified risks.',iso27k:['5.8'],cmmc:['CA.L2-3.12.4']},
+      {id:'PLAN.L2-3',paCode:'PLAN',pa:'Planning',category:'Managing',level:2,title:'Obtain commitment from relevant stakeholders to the project plan.',iso27k:['5.36'],cmmc:[]},
+      {id:'PLAN.L3-1',paCode:'PLAN',pa:'Planning',category:'Managing',level:3,title:'Establish and maintain the project\'s defined process using organizational standard processes and tailoring guidelines.',iso27k:['5.36'],cmmc:['CA.L2-3.12.4']},
+      {id:'PLAN.L3-2',paCode:'PLAN',pa:'Planning',category:'Managing',level:3,title:'Establish and maintain a project lifecycle model that defines phases and key milestones.',iso27k:['5.8'],cmmc:[]},
+
+      // RSK – Risk and Opportunity Management
+      {id:'RSK.L3-1',paCode:'RSK',pa:'Risk and Opportunity Management',category:'Managing',level:3,title:'Identify and document risks using a defined risk taxonomy and risk management approach.',iso27k:['5.7','6.1'],cmmc:['RA.L2-3.11.1']},
+      {id:'RSK.L3-2',paCode:'RSK',pa:'Risk and Opportunity Management',category:'Managing',level:3,title:'Analyze each identified risk to determine its likelihood and consequence.',iso27k:['5.7','6.1'],cmmc:['RA.L2-3.11.2']},
+      {id:'RSK.L3-3',paCode:'RSK',pa:'Risk and Opportunity Management',category:'Managing',level:3,title:'Develop and implement risk mitigation plans for risks classified above the established threshold.',iso27k:['5.7','6.1'],cmmc:['RA.L2-3.11.3']},
+      {id:'RSK.L3-4',paCode:'RSK',pa:'Risk and Opportunity Management',category:'Managing',level:3,title:'Identify opportunities and evaluate them for potential benefit and feasibility.',iso27k:['5.7'],cmmc:[]},
+
+      // ── ENABLING ───────────────────────────────────────────────────────────────
+      // CAR – Causal Analysis and Resolution
+      {id:'CAR.L5-1',paCode:'CAR',pa:'Causal Analysis and Resolution',category:'Enabling',level:5,title:'Select defects and other problems for causal analysis based on established criteria.',iso27k:['5.36'],cmmc:[]},
+      {id:'CAR.L5-2',paCode:'CAR',pa:'Causal Analysis and Resolution',category:'Enabling',level:5,title:'Perform causal analysis of selected defects and other problems and propose actions to address their causes.',iso27k:['5.36'],cmmc:[]},
+      {id:'CAR.L5-3',paCode:'CAR',pa:'Causal Analysis and Resolution',category:'Enabling',level:5,title:'Implement action proposals selected through causal analysis and evaluate their effect.',iso27k:['5.36'],cmmc:[]},
+
+      // DAR – Decision Analysis and Resolution
+      {id:'DAR.L3-1',paCode:'DAR',pa:'Decision Analysis and Resolution',category:'Enabling',level:3,title:'Establish and maintain guidelines for determining which issues are subject to a formal evaluation process.',iso27k:['5.36'],cmmc:[]},
+      {id:'DAR.L3-2',paCode:'DAR',pa:'Decision Analysis and Resolution',category:'Enabling',level:3,title:'Establish evaluation criteria for alternatives and the relative rankings of those criteria.',iso27k:['5.36'],cmmc:[]},
+      {id:'DAR.L3-3',paCode:'DAR',pa:'Decision Analysis and Resolution',category:'Enabling',level:3,title:'Identify alternative solutions to address issues and evaluate them using established criteria.',iso27k:['5.36'],cmmc:[]},
+
+      // GOV – Governance
+      {id:'GOV.L2-1',paCode:'GOV',pa:'Governance',category:'Enabling',level:2,title:'Ensure that organizational leadership sponsors the implementation and sustainability of processes.',iso27k:['5.1','5.2'],cmmc:['CA.L2-3.12.4']},
+      {id:'GOV.L2-2',paCode:'GOV',pa:'Governance',category:'Enabling',level:2,title:'Establish accountability for implementation of processes.',iso27k:['5.2','5.36'],cmmc:['CA.L2-3.12.4']},
+      {id:'GOV.L3-1',paCode:'GOV',pa:'Governance',category:'Enabling',level:3,title:'Address systemic performance risks and opportunities at the organizational level.',iso27k:['5.1','5.35'],cmmc:['CA.L2-3.12.4']},
+      {id:'GOV.L3-2',paCode:'GOV',pa:'Governance',category:'Enabling',level:3,title:'Establish and maintain organizational governance measures and objectives aligned with business objectives.',iso27k:['5.1','5.36'],cmmc:['CA.L2-3.12.4']},
+      {id:'GOV.L4-1',paCode:'GOV',pa:'Governance',category:'Enabling',level:4,title:'Use statistical and quantitative techniques to monitor governance objectives and identify opportunities for improvement.',iso27k:['5.1','5.35'],cmmc:[]},
+
+      // II – Implementation Infrastructure
+      {id:'II.L2-1',paCode:'II',pa:'Implementation Infrastructure',category:'Enabling',level:2,title:'Provide resources for effective implementation of planned processes within the organizational unit.',iso27k:['5.36','7.1'],cmmc:[]},
+      {id:'II.L2-2',paCode:'II',pa:'Implementation Infrastructure',category:'Enabling',level:2,title:'Establish and maintain the infrastructure needed to support the work group in implementing processes.',iso27k:['5.36','7.1'],cmmc:[]},
+      {id:'II.L3-1',paCode:'II',pa:'Implementation Infrastructure',category:'Enabling',level:3,title:'Establish and maintain organizational implementation resources including tools, methods, and facilities to support standard processes.',iso27k:['5.36','7.1'],cmmc:[]},
+      {id:'II.L3-2',paCode:'II',pa:'Implementation Infrastructure',category:'Enabling',level:3,title:'Coordinate implementation resources and infrastructure across organizational units to enable consistent process execution.',iso27k:['5.36'],cmmc:[]},
+
+      // OT – Organizational Training
+      {id:'OT.L3-1',paCode:'OT',pa:'Organizational Training',category:'Enabling',level:3,title:'Identify and prioritize the strategic training needs of the organization based on its business objectives.',iso27k:['6.3'],cmmc:['AT.L2-3.2.1']},
+      {id:'OT.L3-2',paCode:'OT',pa:'Organizational Training',category:'Enabling',level:3,title:'Establish and maintain an organizational training capability to address strategic training needs.',iso27k:['6.3'],cmmc:['AT.L2-3.2.1']},
+      {id:'OT.L3-3',paCode:'OT',pa:'Organizational Training',category:'Enabling',level:3,title:'Provide training using established organizational training capability and coordinate with project training activities.',iso27k:['6.3'],cmmc:['AT.L2-3.2.2']},
+      {id:'OT.L3-4',paCode:'OT',pa:'Organizational Training',category:'Enabling',level:3,title:'Evaluate the effectiveness of organizational training using feedback and metrics.',iso27k:['6.3'],cmmc:['AT.L2-3.2.3']},
+
+      // PAD – Process Asset Development
+      {id:'PAD.L3-1',paCode:'PAD',pa:'Process Asset Development',category:'Enabling',level:3,title:'Establish and maintain organizational process assets including standard processes, tailoring guidelines, and measurement definitions.',iso27k:['5.36'],cmmc:['CA.L2-3.12.4']},
+      {id:'PAD.L3-2',paCode:'PAD',pa:'Process Asset Development',category:'Enabling',level:3,title:'Make organizational process assets available to relevant stakeholders.',iso27k:['5.36'],cmmc:[]},
+      {id:'PAD.L3-3',paCode:'PAD',pa:'Process Asset Development',category:'Enabling',level:3,title:'Store and control changes to organizational process assets.',iso27k:['5.36','8.32'],cmmc:['CM.L2-3.4.3']},
+      {id:'PAD.L3-4',paCode:'PAD',pa:'Process Asset Development',category:'Enabling',level:3,title:'Receive and incorporate process asset improvement proposals from the organization\'s projects.',iso27k:['5.36'],cmmc:[]},
+
+      // ── IMPROVING ──────────────────────────────────────────────────────────────
+      // MPM – Managing Performance and Measurement
+      {id:'MPM.L4-1',paCode:'MPM',pa:'Managing Performance and Measurement',category:'Improving',level:4,title:'Establish and maintain organizational measurement objectives derived from business objectives.',iso27k:['5.35'],cmmc:[]},
+      {id:'MPM.L4-2',paCode:'MPM',pa:'Managing Performance and Measurement',category:'Improving',level:4,title:'Define measures and analytic procedures for process performance monitoring.',iso27k:['5.35'],cmmc:[]},
+      {id:'MPM.L4-3',paCode:'MPM',pa:'Managing Performance and Measurement',category:'Improving',level:4,title:'Establish and maintain organizational process performance baselines using statistical analysis.',iso27k:['5.35'],cmmc:[]},
+      {id:'MPM.L4-4',paCode:'MPM',pa:'Managing Performance and Measurement',category:'Improving',level:4,title:'Use process performance models to predict achievement of quality and process performance objectives.',iso27k:['5.35'],cmmc:[]},
+      {id:'MPM.L5-1',paCode:'MPM',pa:'Managing Performance and Measurement',category:'Improving',level:5,title:'Identify and analyze common causes of process performance variation to drive organizational improvement.',iso27k:['5.35','5.36'],cmmc:[]},
+
+      // PCM – Process Management
+      {id:'PCM.L3-1',paCode:'PCM',pa:'Process Management',category:'Improving',level:3,title:'Establish and maintain organizational process governance including accountability for standard process implementation.',iso27k:['5.36'],cmmc:['CA.L2-3.12.4']},
+      {id:'PCM.L3-2',paCode:'PCM',pa:'Process Management',category:'Improving',level:3,title:'Plan and implement organizational process improvement activities based on understanding of strengths and weaknesses.',iso27k:['5.36'],cmmc:[]},
+      {id:'PCM.L3-3',paCode:'PCM',pa:'Process Management',category:'Improving',level:3,title:'Deploy organizational process assets and incorporate lessons learned into process assets.',iso27k:['5.36'],cmmc:['CA.L2-3.12.4']},
+      {id:'PCM.L4-1',paCode:'PCM',pa:'Process Management',category:'Improving',level:4,title:'Establish and maintain quantitative process improvement objectives aligned with business objectives.',iso27k:['5.35','5.36'],cmmc:[]},
+      {id:'PCM.L5-1',paCode:'PCM',pa:'Process Management',category:'Improving',level:5,title:'Select and implement improvements based on statistical analysis of process performance variation and defect causation.',iso27k:['5.35','5.36'],cmmc:[]},
     ];
 
     const ISO42001 = [
@@ -944,6 +1070,203 @@
        iso27k:['8.16'], cmmi:['MC-2.2'], iso42:[], csf:['DE.AE','DE.CM'], airf:['MEASURE-3']}
     ];
 
+    const CMMI_DEV3 = [
+      // CM – Configuration Management (L3 practices)
+      {id:'DEV3.CM.1',paCode:'CM',pa:'Configuration Management',category:'Doing',
+       title:'Establish and maintain configuration management plans for the project using organizational standard processes and assets.',
+       iso27k:['8.32'],cmmc:['CM.L2-3.4.1'],cmmi:['CM.L3-1']},
+      {id:'DEV3.CM.2',paCode:'CM',pa:'Configuration Management',category:'Doing',
+       title:'Conduct configuration audits to verify that configuration items conform to requirements, plans, and configuration management processes.',
+       iso27k:['5.35','8.32'],cmmc:['CA.L2-3.12.1'],cmmi:['CM.L3-2']},
+
+      // DAR – Decision Analysis and Resolution
+      {id:'DEV3.DAR.1',paCode:'DAR',pa:'Decision Analysis and Resolution',category:'Enabling',
+       title:'Establish and maintain guidelines for determining which decisions are subject to a formal evaluation process.',
+       iso27k:['5.36'],cmmc:[],cmmi:['DAR.L3-1']},
+      {id:'DEV3.DAR.2',paCode:'DAR',pa:'Decision Analysis and Resolution',category:'Enabling',
+       title:'Establish and apply evaluation criteria and methods for comparing alternatives and selecting a solution.',
+       iso27k:['5.36'],cmmc:[],cmmi:['DAR.L3-2','DAR.L3-3']},
+
+      // EST – Estimation (L3)
+      {id:'DEV3.EST.1',paCode:'EST',pa:'Estimation',category:'Managing',
+       title:'Revise project estimates using organizational estimation data and update the project plan to reflect revised estimates.',
+       iso27k:['5.8'],cmmc:[],cmmi:['EST.L3-1']},
+
+      // GOV – Governance (L3)
+      {id:'DEV3.GOV.1',paCode:'GOV',pa:'Governance',category:'Enabling',
+       title:'Address systemic performance risks and opportunities to achieving business objectives at the organizational level.',
+       iso27k:['5.1','5.35'],cmmc:['CA.L2-3.12.4'],cmmi:['GOV.L3-1']},
+      {id:'DEV3.GOV.2',paCode:'GOV',pa:'Governance',category:'Enabling',
+       title:'Establish organizational governance measures and objectives aligned with business strategy.',
+       iso27k:['5.1','5.36'],cmmc:['CA.L2-3.12.4'],cmmi:['GOV.L3-2']},
+
+      // II – Implementation Infrastructure (L3)
+      {id:'DEV3.II.1',paCode:'II',pa:'Implementation Infrastructure',category:'Enabling',
+       title:'Establish and maintain organizational implementation resources including tools, methods, training, and facilities for standard process execution.',
+       iso27k:['5.36','7.1'],cmmc:[],cmmi:['II.L3-1']},
+      {id:'DEV3.II.2',paCode:'II',pa:'Implementation Infrastructure',category:'Enabling',
+       title:'Coordinate implementation resources across organizational units to support consistent process performance.',
+       iso27k:['5.36'],cmmc:[],cmmi:['II.L3-2']},
+
+      // MC – Monitor and Control (L3)
+      {id:'DEV3.MC.1',paCode:'MC',pa:'Monitor and Control',category:'Managing',
+       title:'Conduct milestone reviews with senior management using organizational measurement data and agreed-upon performance criteria.',
+       iso27k:['5.35','5.36'],cmmc:['CA.L2-3.12.3'],cmmi:['MC.L3-1']},
+
+      // OT – Organizational Training
+      {id:'DEV3.OT.1',paCode:'OT',pa:'Organizational Training',category:'Enabling',
+       title:'Identify and prioritize strategic training needs of the organization based on its business objectives and process requirements.',
+       iso27k:['6.3'],cmmc:['AT.L2-3.2.1'],cmmi:['OT.L3-1']},
+      {id:'DEV3.OT.2',paCode:'OT',pa:'Organizational Training',category:'Enabling',
+       title:'Establish and maintain an organizational training capability that addresses identified strategic training needs.',
+       iso27k:['6.3'],cmmc:['AT.L2-3.2.1'],cmmi:['OT.L3-2']},
+      {id:'DEV3.OT.3',paCode:'OT',pa:'Organizational Training',category:'Enabling',
+       title:'Provide training to project personnel using the organizational training capability.',
+       iso27k:['6.3'],cmmc:['AT.L2-3.2.2'],cmmi:['OT.L3-3']},
+      {id:'DEV3.OT.4',paCode:'OT',pa:'Organizational Training',category:'Enabling',
+       title:'Evaluate the effectiveness of organizational training using feedback and performance metrics.',
+       iso27k:['6.3'],cmmc:['AT.L2-3.2.3'],cmmi:['OT.L3-4']},
+
+      // PAD – Process Asset Development
+      {id:'DEV3.PAD.1',paCode:'PAD',pa:'Process Asset Development',category:'Enabling',
+       title:'Establish and maintain organizational process assets: standard processes, tailoring guidelines, measurement definitions, and process documentation.',
+       iso27k:['5.36'],cmmc:['CA.L2-3.12.4'],cmmi:['PAD.L3-1']},
+      {id:'DEV3.PAD.2',paCode:'PAD',pa:'Process Asset Development',category:'Enabling',
+       title:'Make organizational process assets available to relevant stakeholders across the organization.',
+       iso27k:['5.36'],cmmc:[],cmmi:['PAD.L3-2']},
+      {id:'DEV3.PAD.3',paCode:'PAD',pa:'Process Asset Development',category:'Enabling',
+       title:'Store process assets in a process asset library and control changes to them.',
+       iso27k:['5.36','8.32'],cmmc:['CM.L2-3.4.3'],cmmi:['PAD.L3-3']},
+      {id:'DEV3.PAD.4',paCode:'PAD',pa:'Process Asset Development',category:'Enabling',
+       title:'Receive, review, and incorporate process improvement proposals from projects into organizational process assets.',
+       iso27k:['5.36'],cmmc:[],cmmi:['PAD.L3-4']},
+
+      // PCM – Process Management
+      {id:'DEV3.PCM.1',paCode:'PCM',pa:'Process Management',category:'Improving',
+       title:'Establish and maintain organizational process governance including responsibilities for standard process compliance.',
+       iso27k:['5.36'],cmmc:['CA.L2-3.12.4'],cmmi:['PCM.L3-1']},
+      {id:'DEV3.PCM.2',paCode:'PCM',pa:'Process Management',category:'Improving',
+       title:'Plan and implement organizational process improvement based on understood strengths, weaknesses, and opportunities.',
+       iso27k:['5.36'],cmmc:[],cmmi:['PCM.L3-2']},
+      {id:'DEV3.PCM.3',paCode:'PCM',pa:'Process Management',category:'Improving',
+       title:'Deploy organizational process assets and incorporate lessons learned from projects into the process asset library.',
+       iso27k:['5.36'],cmmc:['CA.L2-3.12.4'],cmmi:['PCM.L3-3']},
+
+      // PI – Product Integration
+      {id:'DEV3.PI.1',paCode:'PI',pa:'Product Integration',category:'Doing',
+       title:'Establish and maintain integration procedures and criteria for integrating product components into the product.',
+       iso27k:['8.25','8.31'],cmmc:[],cmmi:['PI.L3-1']},
+      {id:'DEV3.PI.2',paCode:'PI',pa:'Product Integration',category:'Doing',
+       title:'Establish and maintain a product integration environment that supports integration, verification, and validation activities.',
+       iso27k:['8.25'],cmmc:[],cmmi:['PI.L3-2']},
+      {id:'DEV3.PI.3',paCode:'PI',pa:'Product Integration',category:'Doing',
+       title:'Confirm prior to integration that each product component interface meets its requirements.',
+       iso27k:['8.26'],cmmc:[],cmmi:['PI.L3-3']},
+      {id:'DEV3.PI.4',paCode:'PI',pa:'Product Integration',category:'Doing',
+       title:'Assemble product components and evaluate the assembled product for completeness and correctness.',
+       iso27k:['8.25','8.31'],cmmc:[],cmmi:['PI.L3-4','PI.L3-5']},
+
+      // PLAN – Planning (L3)
+      {id:'DEV3.PLAN.1',paCode:'PLAN',pa:'Planning',category:'Managing',
+       title:'Establish and maintain the project\'s defined process by selecting and tailoring from organizational standard processes.',
+       iso27k:['5.36'],cmmc:['CA.L2-3.12.4'],cmmi:['PLAN.L3-1']},
+      {id:'DEV3.PLAN.2',paCode:'PLAN',pa:'Planning',category:'Managing',
+       title:'Use organizational process assets and lessons learned in planning the project.',
+       iso27k:['5.8','5.36'],cmmc:[],cmmi:['PLAN.L3-2']},
+
+      // PQA – Process Quality Assurance (L3)
+      {id:'DEV3.PQA.1',paCode:'PQA',pa:'Process Quality Assurance',category:'Doing',
+       title:'Establish and maintain organizational quality assurance using organizational standard processes, guidelines, and measures.',
+       iso27k:['5.35','5.36'],cmmc:['CA.L2-3.12.4'],cmmi:['PQA.L3-1']},
+
+      // PR – Peer Reviews
+      {id:'DEV3.PR.1',paCode:'PR',pa:'Peer Reviews',category:'Doing',
+       title:'Prepare for peer reviews by selecting appropriate work products, defining review criteria, and distributing materials in advance.',
+       iso27k:['8.29'],cmmc:['CA.L2-3.12.1'],cmmi:['PR.L3-1']},
+      {id:'DEV3.PR.2',paCode:'PR',pa:'Peer Reviews',category:'Doing',
+       title:'Conduct peer reviews using defined review procedures, entry and exit criteria, and record data on defects and issues found.',
+       iso27k:['8.29'],cmmc:['CA.L2-3.12.1'],cmmi:['PR.L3-2']},
+      {id:'DEV3.PR.3',paCode:'PR',pa:'Peer Reviews',category:'Doing',
+       title:'Analyze peer review data and use results to drive process improvement and prevent future defects.',
+       iso27k:['8.29'],cmmc:[],cmmi:['PR.L3-3']},
+
+      // RDM – Requirements Development and Management (L3)
+      {id:'DEV3.RDM.1',paCode:'RDM',pa:'Requirements Development and Management',category:'Doing',
+       title:'Elicit stakeholder needs and expectations and transform them into documented and prioritized stakeholder requirements.',
+       iso27k:['5.8'],cmmc:[],cmmi:['RDM.L3-1']},
+      {id:'DEV3.RDM.2',paCode:'RDM',pa:'Requirements Development and Management',category:'Doing',
+       title:'Establish and maintain product and product-component requirements derived from the stakeholder requirements.',
+       iso27k:['5.8'],cmmc:[],cmmi:['RDM.L3-2']},
+      {id:'DEV3.RDM.3',paCode:'RDM',pa:'Requirements Development and Management',category:'Doing',
+       title:'Establish and maintain interface requirements among product components and with external entities.',
+       iso27k:['5.8','8.26'],cmmc:[],cmmi:['RDM.L3-3']},
+      {id:'DEV3.RDM.4',paCode:'RDM',pa:'Requirements Development and Management',category:'Doing',
+       title:'Develop an operational concept and scenarios to drive requirements analysis and validation.',
+       iso27k:['5.8'],cmmc:[],cmmi:['RDM.L3-4']},
+      {id:'DEV3.RDM.5',paCode:'RDM',pa:'Requirements Development and Management',category:'Doing',
+       title:'Validate requirements to ensure they reflect actual stakeholder needs by analyzing against operational concepts and scenarios.',
+       iso27k:['5.8'],cmmc:[],cmmi:['RDM.L3-5']},
+
+      // RSK – Risk and Opportunity Management
+      {id:'DEV3.RSK.1',paCode:'RSK',pa:'Risk and Opportunity Management',category:'Managing',
+       title:'Identify and document risks using a defined risk taxonomy and risk identification approach.',
+       iso27k:['5.7','6.1'],cmmc:['RA.L2-3.11.1'],cmmi:['RSK.L3-1']},
+      {id:'DEV3.RSK.2',paCode:'RSK',pa:'Risk and Opportunity Management',category:'Managing',
+       title:'Analyze identified risks to determine their likelihood, consequence, and priority for mitigation.',
+       iso27k:['5.7','6.1'],cmmc:['RA.L2-3.11.2'],cmmi:['RSK.L3-2']},
+      {id:'DEV3.RSK.3',paCode:'RSK',pa:'Risk and Opportunity Management',category:'Managing',
+       title:'Develop and implement risk mitigation plans for risks classified above the established risk threshold.',
+       iso27k:['5.7','6.1'],cmmc:['RA.L2-3.11.3'],cmmi:['RSK.L3-3']},
+      {id:'DEV3.RSK.4',paCode:'RSK',pa:'Risk and Opportunity Management',category:'Managing',
+       title:'Identify and analyze opportunities and develop plans to implement those that offer sufficient benefit.',
+       iso27k:['5.7'],cmmc:[],cmmi:['RSK.L3-4']},
+
+      // SAM – Supplier Agreement Management (L3) — the focal point of this constellation
+      {id:'DEV3.SAM.1',paCode:'SAM',pa:'Supplier Agreement Management',category:'Doing',
+       title:'Evaluate and select suppliers using criteria derived from product requirements, project plan, and organizational policies.',
+       iso27k:['5.19','5.21'],cmmc:[],cmmi:['SAM.L3-1']},
+      {id:'DEV3.SAM.2',paCode:'SAM',pa:'Supplier Agreement Management',category:'Doing',
+       title:'Establish and maintain a formal supplier agreement that includes technical requirements, acceptance criteria, and performance expectations.',
+       iso27k:['5.20','5.21'],cmmc:[],cmmi:['SAM.L3-2']},
+      {id:'DEV3.SAM.3',paCode:'SAM',pa:'Supplier Agreement Management',category:'Doing',
+       title:'Perform joint technical reviews with selected suppliers to assess progress, address issues, and ensure technical alignment.',
+       iso27k:['5.22'],cmmc:[],cmmi:['SAM.L3-2']},
+      {id:'DEV3.SAM.4',paCode:'SAM',pa:'Supplier Agreement Management',category:'Doing',
+       title:'Monitor selected suppliers\' progress and performance against the supplier agreement and escalate issues as needed.',
+       iso27k:['5.19','5.22'],cmmc:[],cmmi:['SAM.L3-2']},
+      {id:'DEV3.SAM.5',paCode:'SAM',pa:'Supplier Agreement Management',category:'Doing',
+       title:'Evaluate supplier work products using defined acceptance criteria before integrating them into the product.',
+       iso27k:['5.22','8.29'],cmmc:[],cmmi:['SAM.L3-1','SAM.L3-2']},
+
+      // TS – Technical Solution
+      {id:'DEV3.TS.1',paCode:'TS',pa:'Technical Solution',category:'Doing',
+       title:'Develop and document alternative solutions and selection criteria as a basis for selecting the technical approach.',
+       iso27k:['8.25'],cmmc:[],cmmi:['TS.L3-1','TS.L3-2']},
+      {id:'DEV3.TS.2',paCode:'TS',pa:'Technical Solution',category:'Doing',
+       title:'Design product components and their interfaces using established design principles and organizational standard practices.',
+       iso27k:['8.25','8.26'],cmmc:[],cmmi:['TS.L3-3']},
+      {id:'DEV3.TS.3',paCode:'TS',pa:'Technical Solution',category:'Doing',
+       title:'Implement the design using established implementation practices derived from organizational standard processes.',
+       iso27k:['8.25'],cmmc:[],cmmi:['TS.L3-4']},
+      {id:'DEV3.TS.4',paCode:'TS',pa:'Technical Solution',category:'Doing',
+       title:'Establish and maintain technical data packages for the product that support production and lifecycle support activities.',
+       iso27k:['5.9','8.25'],cmmc:[],cmmi:['TS.L3-5']},
+
+      // VV – Verification and Validation
+      {id:'DEV3.VV.1',paCode:'VV',pa:'Verification and Validation',category:'Doing',
+       title:'Select work products to be verified and validated and establish verification and validation methods, environment, and criteria.',
+       iso27k:['8.29'],cmmc:[],cmmi:['VV.L3-1','VV.L3-2','VV.L3-4']},
+      {id:'DEV3.VV.2',paCode:'VV',pa:'Verification and Validation',category:'Doing',
+       title:'Establish and maintain a verification and validation environment appropriate to the methods and environment of the target product.',
+       iso27k:['8.29'],cmmc:[],cmmi:['VV.L3-2']},
+      {id:'DEV3.VV.3',paCode:'VV',pa:'Verification and Validation',category:'Doing',
+       title:'Perform verification on selected work products against established criteria and document results.',
+       iso27k:['8.29','8.31'],cmmc:[],cmmi:['VV.L3-3']},
+      {id:'DEV3.VV.4',paCode:'VV',pa:'Verification and Validation',category:'Doing',
+       title:'Perform validation on selected product components or products against customer needs and document results.',
+       iso27k:['8.29','8.31'],cmmc:[],cmmi:['VV.L3-5']},
+    ];
+
     /* ================================================================
        TAB SWITCHER
        ================================================================ */
@@ -1031,7 +1354,7 @@
       }).join(' ');
     }
     function cmmiMappingsForISO(isoId) {
-      return CMMI_PA.filter(function(c){ return c.iso.indexOf(isoId) !== -1; }).map(function(c){ return c.id; });
+      return CMMI_PA.filter(function(c){ return (c.iso27k||c.iso||[]).indexOf(isoId) !== -1; }).map(function(c){ return c.id; });
     }
     function cmmiMappingsForCMMC(cmmcId) {
       return CMMI_PA.filter(function(c){ return c.cmmc.indexOf(cmmcId) !== -1; }).map(function(c){ return c.id; });
@@ -1119,6 +1442,31 @@
       return CMMC_L3.filter(function(c){ return c.l2 === l2Id; }).map(function(c){ return c.id; });
     }
 
+    function cmmidBadges(arr) {
+      if (!arr || !arr.length) return '<span class="text-body-secondary small">None</span>';
+      return arr.map(function(c) {
+        return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:#7e22ce!important" data-goto="cmmid-'+c+'" title="Jump to CMMI Dev L3 '+c+'">'+c+'</button>';
+      }).join(' ');
+    }
+    function cmmidMappingsForISO27k(id) {
+      return CMMI_DEV3.filter(function(c){ return c.iso27k.indexOf(id) !== -1; }).map(function(c){ return c.id; });
+    }
+    function cmmidMappingsForL2(id) {
+      return CMMI_DEV3.filter(function(c){ return c.cmmc.indexOf(id) !== -1; }).map(function(c){ return c.id; });
+    }
+    function cmmidMappingsForCMMI(id) {
+      return CMMI_DEV3.filter(function(c){ return c.cmmi.indexOf(id) !== -1; }).map(function(c){ return c.id; });
+    }
+    function cmmidMappingsForCSF(id) {
+      return CMMI_DEV3.filter(function(c){ return (c.csf||[]).indexOf(id) !== -1; }).map(function(c){ return c.id; });
+    }
+    function cmmidMappingsForAIRF(id) {
+      return CMMI_DEV3.filter(function(c){ return (c.airf||[]).indexOf(id) !== -1; }).map(function(c){ return c.id; });
+    }
+    function cmmidMappingsForL3(id) {
+      return CMMI_DEV3.filter(function(c){ return (c.l3||[]).indexOf(id) !== -1; }).map(function(c){ return c.id; });
+    }
+
     /* ── Navigate to a control in any tab ──────────────────────────── */
     function navigateToControl(storeId) {
       var tabId;
@@ -1129,6 +1477,7 @@
       else if (storeId.indexOf('iso42-') === 0) tabId = 'tab-iso42';
       else if (storeId.indexOf('csf-') === 0) tabId = 'tab-csf';
       else if (storeId.indexOf('airf-') === 0) tabId = 'tab-airf';
+      else if (storeId.indexOf('cmmid-') === 0) tabId = 'tab-cmmid';
       else if (storeId.indexOf('l3-') === 0) tabId = 'tab-l3';
       else return;
 
@@ -1194,6 +1543,9 @@
       var l3Ids = CMMC_L3.map(function(c){return 'l3-'+c.id;});
       var l3S = calcStats(l3Ids);
       upd('prog-l3','stats-l3',l3S);
+      var cmmidIds = CMMI_DEV3.map(function(c){return 'cmmid-'+c.id;});
+      var cmmidS = calcStats(cmmidIds);
+      upd('prog-cmmid','stats-cmmid',cmmidS);
     }
 
     /* ================================================================
@@ -1208,7 +1560,8 @@
       var csfIds = NIST_CSF.map(function(c){return 'csf-'+c.id;});
       var airfIds = NIST_AIRMF.map(function(c){return 'airf-'+c.id;});
       var l3Ids = CMMC_L3.map(function(c){return 'l3-'+c.id;});
-      var allIds = isoIds.concat(l1Ids).concat(l2Ids).concat(cmmiIds).concat(iso42Ids).concat(csfIds).concat(airfIds).concat(l3Ids);
+      var cmmidIds = CMMI_DEV3.map(function(c){return 'cmmid-'+c.id;});
+      var allIds = isoIds.concat(l1Ids).concat(l2Ids).concat(cmmiIds).concat(iso42Ids).concat(csfIds).concat(airfIds).concat(l3Ids).concat(cmmidIds);
       var all = calcStats(allIds);
       var isoS = calcStats(isoIds);
       var l1S = calcStats(l1Ids);
@@ -1218,6 +1571,7 @@
       var csfS = calcStats(csfIds);
       var airfS = calcStats(airfIds);
       var l3S = calcStats(l3Ids);
+      var cmmidS = calcStats(cmmidIds);
 
       // Summary stats
       var statsHtml = '';
@@ -1236,7 +1590,7 @@
 
       // Stacked progress bars
       var barsHtml = '';
-      [{name:'ISO 27001:2022',s:isoS},{name:'CMMC Level 1',s:l1S},{name:'CMMC Level 2',s:l2S},{name:'CMMI 2.0',s:cmmiS},{name:'ISO/IEC 42001',s:iso42S},{name:'NIST CSF 2.0',s:csfS},{name:'NIST AI RMF 1.0',s:airfS},{name:'CMMC Level 3',s:l3S}].forEach(function(fw) {
+      [{name:'ISO 27001:2022',s:isoS},{name:'CMMC Level 1',s:l1S},{name:'CMMC Level 2',s:l2S},{name:'CMMI v3.0',s:cmmiS},{name:'ISO/IEC 42001',s:iso42S},{name:'NIST CSF 2.0',s:csfS},{name:'NIST AI RMF 1.0',s:airfS},{name:'CMMC Level 3',s:l3S},{name:'CMMI Dev L3',s:cmmidS}].forEach(function(fw) {
         var s = fw.s;
         var t = s.total || 1;
         barsHtml += '<div class="mb-3"><div class="d-flex justify-content-between mb-1"><strong>'+fw.name+'</strong><span>'+s.pct+'% complete</span></div>'+
@@ -1353,6 +1707,18 @@
       });
       breakHtml += '</tbody></table>';
 
+      var cmmidPAs = {};
+      CMMI_DEV3.forEach(function(c) {
+        if (!cmmidPAs[c.pa]) cmmidPAs[c.pa] = [];
+        cmmidPAs[c.pa].push('cmmid-'+c.id);
+      });
+      breakHtml += '<h6 class="mt-3">CMMI Dev L3 by Practice Area</h6><table class="table table-sm"><thead><tr><th>Practice Area</th><th>Practices</th><th>Implemented</th><th>%</th></tr></thead><tbody>';
+      Object.keys(cmmidPAs).forEach(function(pa) {
+        var ds = calcStats(cmmidPAs[pa]);
+        breakHtml += '<tr><td>'+pa+'</td><td>'+ds.total+'</td><td>'+ds.implemented+'</td><td>'+ds.pct+'%</td></tr>';
+      });
+      breakHtml += '</tbody></table>';
+
       document.getElementById('dash-domain-breakdown').innerHTML = breakHtml;
     }
 
@@ -1380,7 +1746,7 @@
       var html = '';
       themes.forEach(function(theme) {
         html += '<details open><summary>'+theme+' ('+themeMap[theme].length+' controls)</summary>';
-        html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr><th>ID</th><th>Theme</th><th>Title</th><th>Status</th><th>CMMC Mappings</th><th>CMMI 2.0</th><th>ISO 42001</th><th>NIST CSF</th><th>AI RMF</th><th>CMMC L3</th></tr></thead><tbody>';
+        html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr><th>ID</th><th>Theme</th><th>Title</th><th>Status</th><th>CMMC Mappings</th><th>CMMI v3.0</th><th>ISO 42001</th><th>NIST CSF</th><th>AI RMF</th><th>CMMC L3</th><th>CMMI Dev L3</th></tr></thead><tbody>';
         themeMap[theme].forEach(function(c) {
           html += '<tr data-id="iso-'+c.id+'" data-theme="'+c.theme+'" data-status="'+getStatus('iso-'+c.id)+'">'+
             '<td class="ucf-mono">'+c.id+'</td>'+
@@ -1392,7 +1758,8 @@
             '<td>'+iso42Badges(iso42MappingsForISO27k(c.id))+'</td>'+
             '<td>'+csfBadges(csfMappingsForISO27k(c.id))+'</td>'+
             '<td>'+airfBadges(airfMappingsForISO27k(c.id))+'</td>'+
-            '<td>'+l3Badges(l3MappingsForISO27k(c.id))+'</td></tr>';
+            '<td>'+l3Badges(l3MappingsForISO27k(c.id))+'</td>'+
+            '<td>'+cmmidBadges(cmmidMappingsForISO27k(c.id))+'</td></tr>';
         });
         html += '</tbody></table></div></details>';
       });
@@ -1460,7 +1827,7 @@
       var html = '';
       domains.forEach(function(domain) {
         html += '<details open><summary>'+domain+' ('+domMap[domain].length+' practices)</summary>';
-        html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr><th>Practice ID</th><th>Domain</th><th>Practice Statement</th><th>Level</th><th>Status</th><th>ISO 27001 Mappings</th><th>CMMI 2.0</th><th>ISO 42001</th><th>NIST CSF</th><th>AI RMF</th><th>CMMC L3</th></tr></thead><tbody>';
+        html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr><th>Practice ID</th><th>Domain</th><th>Practice Statement</th><th>Level</th><th>Status</th><th>ISO 27001 Mappings</th><th>CMMI v3.0</th><th>ISO 42001</th><th>NIST CSF</th><th>AI RMF</th><th>CMMC L3</th><th>CMMI Dev L3</th></tr></thead><tbody>';
         domMap[domain].forEach(function(c) {
           var isoMaps = isoMappingsFor(c.id);
           // Also check reverse: which ISO controls map to any L1 equivalent
@@ -1484,7 +1851,8 @@
             '<td>'+iso42Badges(iso42MappingsForCMMC(c.id))+'</td>'+
             '<td>'+csfBadges(csfMappingsForCMMC(c.id))+'</td>'+
             '<td>'+airfBadges(airfMappingsForCMMC(c.id))+'</td>'+
-            '<td>'+l3Badges(l3MappingsForL2(c.id))+'</td></tr>';
+            '<td>'+l3Badges(l3MappingsForL2(c.id))+'</td>'+
+            '<td>'+cmmidBadges(cmmidMappingsForL2(c.id))+'</td></tr>';
         });
         html += '</tbody></table></div></details>';
       });
@@ -1492,18 +1860,24 @@
     }
 
     /* ================================================================
-       CMMI 2.0 TAB
+       CMMI v3.0 FULL TAB
        ================================================================ */
     function renderCMMI() {
-      var pas = [];
-      var paMap = {};
+      var categories = ['Doing','Managing','Enabling','Improving'];
+      var catMap = {};
       CMMI_PA.forEach(function(c) {
-        if (!paMap[c.pa]) { paMap[c.pa] = []; pas.push(c.pa); }
-        paMap[c.pa].push(c);
+        var cat = c.category || 'Doing';
+        if (!catMap[cat]) catMap[cat] = [];
+        catMap[cat].push(c);
       });
 
       var df = document.getElementById('cmmi-domain-filter');
       if (df.options.length <= 1) {
+        var pas = [];
+        var pasSeen = {};
+        CMMI_PA.forEach(function(c){
+          if (!pasSeen[c.pa]) { pasSeen[c.pa]=true; pas.push(c.pa); }
+        });
         pas.forEach(function(p) {
           var o = document.createElement('option');
           o.value = p; o.textContent = p;
@@ -1515,16 +1889,18 @@
       var mlLabels = {2:'ML2 Managed', 3:'ML3 Defined', 4:'ML4 Quant Mgd', 5:'ML5 Optimizing'};
 
       var html = '';
-      pas.forEach(function(pa) {
-        html += '<details open><summary>'+pa+' ('+paMap[pa].length+' practices)</summary>';
+      categories.forEach(function(cat) {
+        if (!catMap[cat] || !catMap[cat].length) return;
+        html += '<details open><summary>'+cat+' ('+catMap[cat].length+' practices)</summary>';
         html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr>'+
-          '<th>Practice ID</th><th>Practice Area</th><th>Practice Statement</th><th>ML</th><th>Status</th><th>ISO 27001</th><th>CMMC</th><th>ISO 42001</th><th>NIST CSF</th><th>AI RMF</th><th>CMMC L3</th>'+
+          '<th>Practice ID</th><th>Practice Area</th><th>Practice Statement</th><th>ML</th><th>Status</th><th>ISO 27001</th><th>CMMC</th><th>ISO 42001</th><th>NIST CSF</th><th>AI RMF</th><th>CMMC L3</th><th>CMMI Dev L3</th>'+
           '</tr></thead><tbody>';
-        paMap[pa].forEach(function(c) {
+        catMap[cat].forEach(function(c) {
           var storeId = 'cmmi-'+c.id;
           var curStatus = getStatus(storeId);
-          var mlBadge = '<span class="badge bg-'+(mlColors[c.ml]||'secondary')+'">'+mlLabels[c.ml]+'</span>';
-          var isoLinks = c.iso.length ? c.iso.map(function(id){
+          var lv = c.level || c.ml || 2;
+          var mlBadge = '<span class="badge bg-'+(mlColors[lv]||'secondary')+'">'+mlLabels[lv]+'</span>';
+          var isoLinks = (c.iso27k||c.iso||[]).length ? (c.iso27k||c.iso).map(function(id){
             return '<button type="button" class="badge bg-info ucf-badge-map ucf-link border-0" data-goto="iso-'+id+'" title="Jump to ISO '+id+'">ISO '+id+'</button>';
           }).join(' ') : '<span class="text-body-secondary small">None</span>';
           var cmmcLinks = c.cmmc.length ? c.cmmc.map(function(id){
@@ -1533,8 +1909,8 @@
             var storeTarget = isL1 ? 'l1-'+id : 'l2-'+id;
             return '<button type="button" class="badge '+cls+' ucf-badge-map ucf-link border-0" data-goto="'+storeTarget+'" title="Jump to '+id+'">'+id+'</button>';
           }).join(' ') : '<span class="text-body-secondary small">None</span>';
-          html += '<tr data-id="'+storeId+'" data-domain="'+c.pa+'" data-ml="'+c.ml+'" data-status="'+curStatus+'">'+
-            '<td class="ucf-mono">'+c.id+'</td>'+
+          html += '<tr data-id="'+storeId+'" data-domain="'+c.pa+'" data-ml="'+(c.level||c.ml||2)+'" data-status="'+curStatus+'">'+
+            '<td class="ucf-mono"><span class="badge bg-secondary me-1">'+c.paCode+'</span>'+c.id+'</td>'+
             '<td><span class="badge bg-danger">'+c.pa+'</span></td>'+
             '<td>'+c.title+'</td>'+
             '<td>'+mlBadge+'</td>'+
@@ -1544,7 +1920,8 @@
             '<td>'+iso42Badges(iso42MappingsForCMMI(c.id))+'</td>'+
             '<td>'+csfBadges(csfMappingsForCMMI(c.id))+'</td>'+
             '<td>'+airfBadges(airfMappingsForCMMI(c.id))+'</td>'+
-            '<td>'+l3Badges(l3MappingsForCMMI(c.id))+'</td></tr>';
+            '<td>'+l3Badges(l3MappingsForCMMI(c.id))+'</td>'+
+            '<td>'+cmmidBadges(cmmidMappingsForCMMI(c.id))+'</td></tr>';
         });
         html += '</tbody></table></div></details>';
       });
@@ -1896,6 +2273,89 @@
     }
 
     /* ================================================================
+       CMMI DEV L3 TAB
+       ================================================================ */
+    function renderCMMID() {
+      var categories = ['Doing','Managing','Enabling','Improving'];
+      var catMap = {};
+      CMMI_DEV3.forEach(function(c) {
+        var cat = c.category || 'Doing';
+        if (!catMap[cat]) catMap[cat] = [];
+        catMap[cat].push(c);
+      });
+
+      var df = document.getElementById('cmmid-pa-filter');
+      if (df.options.length <= 1) {
+        var pas = []; var pasSeen = {};
+        CMMI_DEV3.forEach(function(c){
+          if (!pasSeen[c.pa]) { pasSeen[c.pa]=true; pas.push(c.pa); }
+        });
+        pas.forEach(function(p) {
+          var o = document.createElement('option');
+          o.value = p; o.textContent = p;
+          df.appendChild(o);
+        });
+      }
+
+      var html = '';
+      categories.forEach(function(cat) {
+        if (!catMap[cat] || !catMap[cat].length) return;
+        html += '<details open><summary>'+cat+' ('+catMap[cat].length+' practices)</summary>';
+        html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr>'+
+          '<th>Practice ID</th><th>Practice Area</th><th>Practice Statement</th><th>Status</th><th>ISO 27001</th><th>CMMC</th><th>CMMI v3.0</th>'+
+          '</tr></thead><tbody>';
+        catMap[cat].forEach(function(c) {
+          var storeId = 'cmmid-'+c.id;
+          var curStatus = getStatus(storeId);
+          var isoLinks = c.iso27k.length ? c.iso27k.map(function(id){
+            return '<button type="button" class="badge bg-info ucf-badge-map ucf-link border-0" data-goto="iso-'+id+'">ISO '+id+'</button>';
+          }).join(' ') : '<span class="text-body-secondary small">None</span>';
+          var cmmcLinks = c.cmmc.length ? c.cmmc.map(function(id){
+            var isL1 = !!CMMC_L1.find(function(l){ return l.id === id; });
+            var cls = isL1 ? 'bg-success' : 'bg-warning text-dark';
+            var st = isL1 ? 'l1-'+id : 'l2-'+id;
+            return '<button type="button" class="badge '+cls+' ucf-badge-map ucf-link border-0" data-goto="'+st+'">'+id+'</button>';
+          }).join(' ') : '<span class="text-body-secondary small">None</span>';
+          var cmmiLinks = c.cmmi.length ? c.cmmi.map(function(id){
+            return '<button type="button" class="badge ucf-badge-map ucf-link border-0" style="background:#dc2626!important" data-goto="cmmi-'+id+'">'+id+'</button>';
+          }).join(' ') : '<span class="text-body-secondary small">None</span>';
+          html += '<tr data-id="'+storeId+'" data-pa="'+c.pa+'" data-status="'+curStatus+'">'+
+            '<td class="ucf-mono" style="color:#7e22ce"><span class="badge bg-secondary me-1">'+c.paCode+'</span>'+c.id+'</td>'+
+            '<td><span class="badge" style="background:#7e22ce">'+c.pa+'</span></td>'+
+            '<td>'+c.title+'</td>'+
+            '<td>'+makeSelect(storeId)+'</td>'+
+            '<td>'+isoLinks+'</td>'+
+            '<td>'+cmmcLinks+'</td>'+
+            '<td>'+cmmiLinks+'</td></tr>';
+        });
+        html += '</tbody></table></div></details>';
+      });
+      document.getElementById('cmmid-content').innerHTML = html;
+    }
+
+    function applyFilterCMMID() {
+      var search = document.getElementById('cmmid-search').value.toLowerCase();
+      var statusF = document.getElementById('cmmid-status-filter').value;
+      var paF = document.getElementById('cmmid-pa-filter').value;
+      var container = document.getElementById('cmmid-content');
+      var rows = container.querySelectorAll('tr[data-id]');
+      var visible = 0;
+      rows.forEach(function(row) {
+        var id = row.getAttribute('data-id');
+        var text = row.textContent.toLowerCase();
+        var rowStatus = getStatus(id);
+        var rowPA = row.getAttribute('data-pa') || '';
+        var show = true;
+        if (search && text.indexOf(search) === -1) show = false;
+        if (statusF && rowStatus !== statusF) show = false;
+        if (paF && rowPA !== paF) show = false;
+        row.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+      document.getElementById('cmmid-count').textContent = visible + ' shown';
+    }
+
+    /* ================================================================
        CONTROL NEXUS TAB
        ================================================================ */
     function renderMapping() {
@@ -2133,7 +2593,7 @@
       CMMI_PA.forEach(function(c) {
         var s = getStatus('cmmi-'+c.id);
         if (s === 'not-started' || s === 'planned') {
-          var mapCount = c.iso.length + c.cmmc.length;
+          var mapCount = (c.iso27k||c.iso||[]).length + c.cmmc.length;
           gaps.push({ id:'cmmi-'+c.id, displayId:c.id, framework:'CMMI 2.0', title:c.title, status:s, mappings:mapCount });
         }
       });
@@ -2165,6 +2625,13 @@
           gaps.push({ id:'l3-'+c.id, displayId:c.id, framework:'CMMC L3', title:c.title, status:s, mappings:mapCount });
         }
       });
+      CMMI_DEV3.forEach(function(c) {
+        var s = getStatus('cmmid-'+c.id);
+        if (s === 'not-started' || s === 'planned') {
+          var mapCount = c.iso27k.length + c.cmmc.length + c.cmmi.length;
+          gaps.push({ id:'cmmid-'+c.id, displayId:c.id, framework:'CMMI Dev L3', title:c.title, status:s, mappings:mapCount });
+        }
+      });
 
       // Identify high-leverage: ISO controls that map to CMMC, or CMMC that maps to ISO
       // "High leverage" = appears in multiple frameworks (mappings >= 2)
@@ -2182,6 +2649,7 @@
       var csfGaps = gaps.filter(function(g){return g.framework==='NIST CSF';}).length;
       var airfGaps = gaps.filter(function(g){return g.framework==='NIST AI RMF';}).length;
       var l3Gaps = gaps.filter(function(g){return g.framework==='CMMC L3';}).length;
+      var cmmidGaps = gaps.filter(function(g){return g.framework==='CMMI Dev L3';}).length;
 
       var sumHtml = '<div class="col"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+isoGaps+'</div><small>ISO 27001 Gaps</small></div></div></div>'+
         '<div class="col"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+l1Gaps+'</div><small>CMMC L1 Gaps</small></div></div></div>'+
@@ -2190,7 +2658,8 @@
         '<div class="col"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+iso42Gaps+'</div><small>ISO 42001 Gaps</small></div></div></div>'+
         '<div class="col"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+csfGaps+'</div><small>NIST CSF Gaps</small></div></div></div>'+
         '<div class="col"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+airfGaps+'</div><small>AI RMF Gaps</small></div></div></div>'+
-        '<div class="col"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+l3Gaps+'</div><small>CMMC L3 Gaps</small></div></div></div>';
+        '<div class="col"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+l3Gaps+'</div><small>CMMC L3 Gaps</small></div></div></div>'+
+        '<div class="col"><div class="card"><div class="card-body text-center"><div class="h4 text-danger">'+cmmidGaps+'</div><small>CMMI Dev L3 Gaps</small></div></div></div>';
       document.getElementById('gap-summary').innerHTML = sumHtml;
 
       if (!gaps.length) {
@@ -2199,11 +2668,11 @@
       }
 
       // Group by framework
-      var grouped = { 'ISO 27001':[], 'CMMC L1':[], 'CMMC L2':[], 'CMMI 2.0':[], 'ISO 42001':[], 'NIST CSF':[], 'NIST AI RMF':[], 'CMMC L3':[] };
+      var grouped = { 'ISO 27001':[], 'CMMC L1':[], 'CMMC L2':[], 'CMMI 2.0':[], 'ISO 42001':[], 'NIST CSF':[], 'NIST AI RMF':[], 'CMMC L3':[], 'CMMI Dev L3':[] };
       gaps.forEach(function(g) { grouped[g.framework].push(g); });
 
       var html = '';
-      ['ISO 27001','CMMC L1','CMMC L2','CMMI 2.0','ISO 42001','NIST CSF','NIST AI RMF','CMMC L3'].forEach(function(fw) {
+      ['ISO 27001','CMMC L1','CMMC L2','CMMI 2.0','ISO 42001','NIST CSF','NIST AI RMF','CMMC L3','CMMI Dev L3'].forEach(function(fw) {
         if (!grouped[fw].length) return;
         html += '<h6 class="mt-3">'+fw+' ('+grouped[fw].length+' gaps)</h6>';
         html += '<div class="table-responsive"><table class="table table-sm table-hover align-middle"><thead><tr><th>Control</th><th>Title</th><th>Status</th><th>Priority</th></tr></thead><tbody>';
@@ -2242,7 +2711,7 @@
       CMMI_PA.forEach(function(c) {
         var s = getStatus('cmmi-'+c.id);
         if (s==='not-started'||s==='planned') {
-          var mc = c.iso.length + c.cmmc.length;
+          var mc = (c.iso27k||c.iso||[]).length + c.cmmc.length;
           rows.push(['CMMI 2.0',c.id,'"'+c.title.replace(/"/g,'""')+'"',s,mc>=3?'High Leverage':'Standard']);
         }
       });
@@ -2272,6 +2741,13 @@
         if (s==='not-started'||s==='planned') {
           var mc = c.iso27k.length + c.cmmi.length + c.csf.length + c.airf.length + (c.l2 ? 1 : 0);
           rows.push(['CMMC L3',c.id,'"'+c.title.replace(/"/g,'""')+'"',s,mc>=3?'High Leverage':'Standard']);
+        }
+      });
+      CMMI_DEV3.forEach(function(c) {
+        var s = getStatus('cmmid-'+c.id);
+        if (s==='not-started'||s==='planned') {
+          var mc = c.iso27k.length + c.cmmc.length + c.cmmi.length;
+          rows.push(['CMMI Dev L3',c.id,'"'+c.title.replace(/"/g,'""')+'"',s,mc>=3?'High Leverage':'Standard']);
         }
       });
       var csv = rows.map(function(r){return r.join(',');}).join('\n');
@@ -2360,6 +2836,7 @@
       renderCSF();
       renderAIRMF();
       renderL3();
+      renderCMMID();
       renderMapping(); // calls renderNexus() internally
       renderGap();
     }
@@ -2406,6 +2883,9 @@
       document.getElementById('l3-search').addEventListener('input', function(){ applyFilterL3(); });
       document.getElementById('l3-status-filter').addEventListener('change', function(){ applyFilterL3(); });
       document.getElementById('l3-domain-filter').addEventListener('change', function(){ applyFilterL3(); });
+      document.getElementById('cmmid-search').addEventListener('input', function(){ applyFilterCMMID(); });
+      document.getElementById('cmmid-status-filter').addEventListener('change', function(){ applyFilterCMMID(); });
+      document.getElementById('cmmid-pa-filter').addEventListener('change', function(){ applyFilterCMMID(); });
 
       // Reset button
       document.getElementById('btn-reset-all').addEventListener('click', resetAll);
@@ -2423,6 +2903,7 @@
       applyFilterCSF();
       applyFilterAIRMF();
       applyFilterL3();
+      applyFilterCMMID();
     }
 
     // Run on DOM ready
