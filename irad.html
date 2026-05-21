@@ -650,7 +650,7 @@
     <section class="irad-section" id="initiatives">
       <div class="container">
         <h2 class="section-title irad-reveal">Active Research Initiatives</h2>
-        <p class="text-body-secondary mb-4 irad-reveal">Eight concurrent IRAD programs spanning technology readiness levels 3–6, targeting near-term transition to DoD contractor environments.</p>
+        <p class="text-body-secondary mb-4 irad-reveal">Eleven concurrent IRAD programs spanning technology readiness levels 3–6, targeting near-term transition to DoD contractor environments.</p>
 
         <div class="row g-4">
 
@@ -938,6 +938,110 @@
             </div>
           </div>
 
+          <!-- SENTINEL — Zero Trust Micro-Segmentation -->
+          <div class="col-lg-4 col-md-6 irad-reveal">
+            <div class="initiative-card trl-mid">
+              <div class="init-codename">// PRJ-009 &mdash; SENTINEL</div>
+              <span class="init-status prototype"><span class="status-dot"></span>Prototype</span>
+              <div class="init-title">Zero Trust Micro-Segmentation Engine</div>
+              <div class="init-desc">
+                Policy-as-code engine for dynamic micro-segmentation in DoD enclave networks.
+                Ingests network topology, user identity attributes, and device posture signals to
+                auto-generate deny-by-default segment rules aligned to NIST SP 800-207 and DoD
+                Zero Trust Strategy pillars.
+              </div>
+              <div class="trl-block">
+                <div class="trl-label">
+                  <span>TRL Indicator</span>
+                  <strong>TRL 4 &mdash; Lab Validated</strong>
+                </div>
+                <div class="trl-track" aria-label="TRL 4 of 9">
+                  <div class="trl-pip filled trl-mid"></div>
+                  <div class="trl-pip filled trl-mid"></div>
+                  <div class="trl-pip filled trl-mid"></div>
+                  <div class="trl-pip filled trl-mid current"></div>
+                  <div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div>
+                </div>
+                <div class="tech-tags">
+                  <span class="tech-tag">Zero Trust</span>
+                  <span class="tech-tag">NIST 800-207</span>
+                  <span class="tech-tag">OPA / Rego</span>
+                  <span class="tech-tag">eBPF</span>
+                  <span class="tech-tag">Network Policy</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PHANTOM — AI Threat Hunting -->
+          <div class="col-lg-4 col-md-6 irad-reveal">
+            <div class="initiative-card trl-low">
+              <div class="init-codename">// PRJ-010 &mdash; PHANTOM</div>
+              <span class="init-status research"><span class="status-dot"></span>Research Phase</span>
+              <div class="init-title">AI-Driven Threat Hunt Platform</div>
+              <div class="init-desc">
+                Unsupervised ML pipeline for proactive threat hunting across SIEM telemetry.
+                Applies graph-based anomaly detection to identify low-and-slow lateral movement
+                patterns that evade signature rules, with ATT&amp;CK technique annotations and
+                automated hypothesis generation for analyst review.
+              </div>
+              <div class="trl-block">
+                <div class="trl-label">
+                  <span>TRL Indicator</span>
+                  <strong>TRL 3 &mdash; Proof of Concept</strong>
+                </div>
+                <div class="trl-track" aria-label="TRL 3 of 9">
+                  <div class="trl-pip filled trl-low"></div>
+                  <div class="trl-pip filled trl-low"></div>
+                  <div class="trl-pip filled trl-low current"></div>
+                  <div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div>
+                </div>
+                <div class="tech-tags">
+                  <span class="tech-tag">Graph ML</span>
+                  <span class="tech-tag">ATT&amp;CK</span>
+                  <span class="tech-tag">SIEM</span>
+                  <span class="tech-tag">Anomaly Detection</span>
+                  <span class="tech-tag">Python</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- BASTION — DevSecOps Pipeline -->
+          <div class="col-lg-4 col-md-6 irad-reveal">
+            <div class="initiative-card trl-mid">
+              <div class="init-codename">// PRJ-011 &mdash; BASTION</div>
+              <span class="init-status active"><span class="status-dot"></span>Active Development</span>
+              <div class="init-title">Hardened DevSecOps Pipeline</div>
+              <div class="init-desc">
+                Containerized CI/CD security gateway for classified development environments.
+                Integrates SAST, SCA, container image scanning, and SBOM generation into a
+                single pipeline stage with automatic CMMC control mapping and artifact signing
+                for software supply chain integrity.
+              </div>
+              <div class="trl-block">
+                <div class="trl-label">
+                  <span>TRL Indicator</span>
+                  <strong>TRL 4 &mdash; Lab Validated</strong>
+                </div>
+                <div class="trl-track" aria-label="TRL 4 of 9">
+                  <div class="trl-pip filled trl-mid"></div>
+                  <div class="trl-pip filled trl-mid"></div>
+                  <div class="trl-pip filled trl-mid"></div>
+                  <div class="trl-pip filled trl-mid current"></div>
+                  <div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div>
+                </div>
+                <div class="tech-tags">
+                  <span class="tech-tag">Docker</span>
+                  <span class="tech-tag">SBOM</span>
+                  <span class="tech-tag">SAST / SCA</span>
+                  <span class="tech-tag">CMMC</span>
+                  <span class="tech-tag">GitLab CI</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </section>
@@ -950,7 +1054,7 @@
             <div class="metric-card">
               <div class="metric-icon-wrap orange">&#128736;</div>
               <div>
-                <div class="metric-val" data-count="5">0</div>
+                <div class="metric-val" data-count="7">0</div>
                 <div class="metric-lbl">Prototype Tools Deployable</div>
               </div>
             </div>
@@ -968,7 +1072,7 @@
             <div class="metric-card">
               <div class="metric-icon-wrap green">&#9989;</div>
               <div>
-                <div class="metric-val" data-count="14">0</div>
+                <div class="metric-val" data-count="19">0</div>
                 <div class="metric-lbl">Research Milestones Hit</div>
               </div>
             </div>
@@ -982,6 +1086,50 @@
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ LIVE LAB DEMOS ════════════════════════════════════════════ -->
+    <section class="irad-section" id="lab-demos">
+      <div class="container">
+        <h2 class="section-title irad-reveal">Live Lab Demos</h2>
+        <p class="text-body-secondary mb-4 irad-reveal">Interactive prototypes running directly in your browser — no installation required. Each demo exercises real cryptographic primitives and security logic from the corresponding IRAD initiative.</p>
+
+        <div class="row g-4">
+
+          <!-- C++ Lab embed -->
+          <div class="col-lg-6 irad-reveal">
+            <div style="background:var(--bs-secondary-bg);border:1px solid var(--bs-border-color);border-radius:16px;overflow:hidden;">
+              <div style="background:rgba(34,197,94,.06);border-bottom:1px solid var(--bs-border-color);padding:.85rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;">
+                <div>
+                  <div style="font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#4ade80;margin-bottom:.15rem;">PRJ-007 — IRONFORGE</div>
+                  <div style="font-weight:700;font-size:.95rem;">C++ Security Toolchain Lab</div>
+                </div>
+                <a href="cpp-projects.html" target="_blank" rel="noopener" class="btn btn-sm" style="background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:#4ade80;white-space:nowrap;flex-shrink:0;">Open Full Page ↗</a>
+              </div>
+              <iframe src="cpp-projects.html" title="C++ Security Toolchain Lab" loading="lazy"
+                style="width:100%;height:560px;border:none;display:block;"
+                sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe>
+            </div>
+          </div>
+
+          <!-- CAC Login embed -->
+          <div class="col-lg-6 irad-reveal">
+            <div style="background:var(--bs-secondary-bg);border:1px solid var(--bs-border-color);border-radius:16px;overflow:hidden;">
+              <div style="background:rgba(99,102,241,.06);border-bottom:1px solid var(--bs-border-color);padding:.85rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;">
+                <div>
+                  <div style="font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#a5b4fc;margin-bottom:.15rem;">PRJ-008 — KEYSTONE</div>
+                  <div style="font-weight:700;font-size:.95rem;">CAC / PIV Smart Card Auth Demo</div>
+                </div>
+                <a href="caclogin.html" target="_blank" rel="noopener" class="btn btn-sm" style="background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.3);color:#a5b4fc;white-space:nowrap;flex-shrink:0;">Open Full Page ↗</a>
+              </div>
+              <iframe src="caclogin.html" title="CAC / PIV Smart Card Authentication Demo" loading="lazy"
+                style="width:100%;height:560px;border:none;display:block;"
+                sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe>
+            </div>
+          </div>
+
         </div>
       </div>
     </section>
