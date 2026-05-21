@@ -74,7 +74,7 @@ function verifyPin(array $user, string $pin): bool
 
     // First-run convenience: well-known defaults.
     if ((getenv('NEXUS_ALLOW_DEFAULT_PINS') ?: '') === '1') {
-        $defaults = ['rojas' => '654321', 'smith' => '112233', 'brown' => '999999'];
+        $defaults = ['rojas' => '1231', 'smith' => '112233', 'brown' => '999999'];
         $uid = $user['id'] ?? '';
         if (isset($defaults[$uid]) && hash_equals($defaults[$uid], $pin)) {
             return true;

@@ -72,7 +72,7 @@ const state = {
 
 // Three known CAC identities (UI only — server still bcrypt-verifies the PIN).
 const IDENTITIES = [
-  { id: 'rojas', name: 'Jessica Rojas', role: 'admin',  clearance: 'SECRET',       org: 'DIA',  defaultPin: '654321' },
+  { id: 'rojas', name: 'Jessica Rojas', role: 'admin',  clearance: 'SECRET',       org: 'DIA',  defaultPin: '1231' },
   { id: 'smith', name: 'John Smith',    role: 'member', clearance: 'TS/SCI',       org: 'NSA',  defaultPin: '112233' },
   { id: 'brown', name: 'Sarah Brown',   role: 'viewer', clearance: 'UNCLASSIFIED', org: 'DISA', defaultPin: '999999' },
 ];
@@ -80,6 +80,7 @@ const IDENTITIES = [
 // ── DOM helpers ────────────────────────────────────────────────────
 const $  = (s, root = document) => root.querySelector(s);
 const $$ = (s, root = document) => Array.from(root.querySelectorAll(s));
+const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const el = (tag, attrs = {}, ...children) => {
   const n = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs)) {
@@ -197,6 +198,9 @@ async function showApp() {
   $('#auth-gate').classList.add('d-none');
   $('#app').classList.remove('d-none');
   renderUserChip();
+  // Show Users nav only for admins
+  const navUsers = $('#nav-users');
+  if (navUsers) navUsers.style.display = state.user?.role === 'admin' ? '' : 'none';
   await loadProjects();
   if (state.projects.length) {
     state.currentProject = state.projects[0];
@@ -278,6 +282,7 @@ function switchView(view) {
 }
 
 function render() {
+  if (state.currentView === 'users') { renderUsersAdmin(); return; }
   if (!state.currentProject) return;
   if      (state.currentView === 'board')   renderBoard();
   else if (state.currentView === 'backlog') renderBacklog();
@@ -689,6 +694,7 @@ function bindUI() {
   // Buttons
   $('#new-ticket-btn').addEventListener('click', openNewTicket);
   $('#new-sprint-btn').addEventListener('click', newSprint);
+  $('#new-user-btn')?.addEventListener('click', openNewUserModal);
   $('#ticket-form-submit').addEventListener('click', submitNewTicket);
   $$('[data-modal-close]').forEach(b => b.addEventListener('click', closeNewTicket));
   $('#drawer-close').addEventListener('click', closeDrawer);
@@ -710,6 +716,106 @@ function bindUI() {
     if (e.target.closest('#notif-popover') || e.target.closest('#bell-btn')) return;
     pop.classList.add('d-none');
   });
+}
+
+// ── Users Administration ────────────────────────────────────────────
+async function renderUsersAdmin() {
+  const container = $('#users-list');
+  if (!container) return;
+  container.innerHTML = '<p style="color:#8b949e">Loading…</p>';
+  try {
+    const r = await API.get('/users');
+    const users = r.data;
+    container.innerHTML = '';
+
+    const table = el('table', { class: 'users-table' });
+    table.innerHTML = `
+      <thead><tr>
+        <th>Name</th><th>ID</th><th>Role</th><th>Clearance</th><th>Org</th><th>Actions</th>
+      </tr></thead>
+    `;
+    const tbody = el('tbody');
+    for (const u of users) {
+      const tr = el('tr');
+      tr.innerHTML = `
+        <td><strong>${esc(u.displayName)}</strong></td>
+        <td style="font-family:monospace;font-size:.8rem">${esc(u.id)}</td>
+        <td><span class="role-pill ${u.role}">${esc(u.role)}</span></td>
+        <td style="font-size:.82rem">${esc(u.clearance ?? '—')}</td>
+        <td style="font-size:.82rem">${esc(u.org ?? '—')}</td>
+        <td></td>
+      `;
+      const actionsCell = tr.querySelector('td:last-child');
+      // Change PIN button
+      const pinBtn = el('button', { class: 'btn btn-sm btn-outline-secondary' }, 'Change PIN');
+      pinBtn.onclick = () => openChangePinModal(u);
+      actionsCell.append(pinBtn);
+
+      // Edit role (can't edit self)
+      if (u.id !== state.user?.id) {
+        const editBtn = el('button', { class: 'btn btn-sm btn-outline-primary' }, 'Edit');
+        editBtn.style.marginLeft = '.35rem';
+        editBtn.onclick = () => openEditUserModal(u);
+        actionsCell.append(editBtn);
+
+        const delBtn = el('button', { class: 'btn btn-sm btn-outline-danger' }, 'Delete');
+        delBtn.style.marginLeft = '.35rem';
+        delBtn.onclick = () => deleteUser(u);
+        actionsCell.append(delBtn);
+      }
+      tbody.append(tr);
+    }
+    table.append(tbody);
+    container.append(table);
+  } catch (e) {
+    container.innerHTML = `<p style="color:#ef4444">${esc(e.message)}</p>`;
+  }
+}
+
+function openChangePinModal(u) {
+  const pin = prompt(`New PIN for ${u.displayName} (4–8 digits):`);
+  if (!pin) return;
+  if (!/^\d{4,8}$/.test(pin)) { toast('PIN must be 4–8 digits', 'error'); return; }
+  API.patch(`/users/${u.id}/pin`, { pin })
+    .then(() => toast('PIN updated', 'success'))
+    .catch(e => toast(e.message, 'error'));
+}
+
+function openEditUserModal(u) {
+  const role = prompt(`Role for ${u.displayName} (admin / member / viewer):`, u.role);
+  if (!role) return;
+  if (!['admin','member','viewer'].includes(role)) { toast('Invalid role', 'error'); return; }
+  API.patch(`/users/${u.id}`, { role })
+    .then(() => { toast('User updated', 'success'); renderUsersAdmin(); })
+    .catch(e => toast(e.message, 'error'));
+}
+
+async function deleteUser(u) {
+  if (!confirm(`Delete user ${u.displayName}? This cannot be undone.`)) return;
+  try {
+    await API.delete(`/users/${u.id}`);
+    toast(`${u.displayName} deleted`, 'info');
+    renderUsersAdmin();
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+function openNewUserModal() {
+  const id        = prompt('User ID (e.g. jones):');
+  if (!id?.trim()) return;
+  const firstName = prompt('First name:');
+  if (!firstName?.trim()) return;
+  const lastName  = prompt('Last name:');
+  if (!lastName?.trim()) return;
+  const role      = prompt('Role (admin / member / viewer):', 'member');
+  if (!['admin','member','viewer'].includes(role)) { toast('Invalid role', 'error'); return; }
+  const clearance = prompt('Clearance level:', 'UNCLASSIFIED');
+  const org       = prompt('Organization:');
+  const pin       = prompt('Initial PIN (4–8 digits):');
+  if (!pin || !/^\d{4,8}$/.test(pin)) { toast('PIN must be 4–8 digits', 'error'); return; }
+
+  API.post('/users', { id: id.trim(), firstName: firstName.trim(), lastName: lastName.trim(), role, clearance: clearance || 'UNCLASSIFIED', org: org || '', pin })
+    .then(() => { toast('User created', 'success'); renderUsersAdmin(); })
+    .catch(e => toast(e.message, 'error'));
 }
 
 // ── Expose a tiny namespace for the API layer's 401 handler ───────

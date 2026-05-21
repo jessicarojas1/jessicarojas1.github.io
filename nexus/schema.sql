@@ -144,7 +144,7 @@ CREATE INDEX idx_notifications_user ON notifications(user_id, read);
 --   smith / 112233  · member
 --   brown / 999999  · viewer
 INSERT INTO users (id, username, display_name, first_name, last_name, role, clearance, org, pin_hash) VALUES
-  ('rojas', 'rojas', 'Jessica Rojas', 'Jessica', 'Rojas', 'admin',  'SECRET',       'DIA',  '$2y$12$dHw..V78PS.pRGT3Dqc4r..8et.mxmWGtb0A2K137HQ/FVZK0g.s2'),
+  ('rojas', 'rojas', 'Jessica Rojas', 'Jessica', 'Rojas', 'admin',  'SECRET',       'DIA',  '$2y$12$CrtVDv20oUIvMZ8yvc.C/.yxz/FOaM.fMnURyg0tTzM08pl1du7Uq'),
   ('smith', 'smith', 'John Smith',    'John',    'Smith', 'member', 'TS/SCI',       'NSA',  '$2y$12$6c7mDFKaoCNAWHMuAh4WB.Ibt88/h28iTW1SF3/P0h1EPDN8QwwUW'),
   ('brown', 'brown', 'Sarah Brown',   'Sarah',   'Brown', 'viewer', 'UNCLASSIFIED', 'DISA', '$2y$12$G69IfpcRABdTiLLEKa/uc.kaW2vd2nWCM/G/TjPIAFyG8VN.egCfK');
 

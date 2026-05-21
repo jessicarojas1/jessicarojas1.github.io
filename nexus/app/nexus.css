@@ -378,5 +378,21 @@ body { margin: 0; }
 .toast-msg.error   { border-left: 3px solid var(--danger); }
 .toast-msg.info    { border-left: 3px solid var(--info); }
 
+/* ── USERS ADMIN TABLE ───────────────────────────────────────────── */
+.users-table {
+  width: 100%; border-collapse: collapse; font-size: .88rem;
+}
+.users-table th {
+  text-align: left; padding: .5rem .75rem;
+  font-size: .7rem; text-transform: uppercase; letter-spacing: .07em;
+  color: var(--dim); border-bottom: 1px solid var(--border);
+}
+.users-table td {
+  padding: .6rem .75rem; border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.users-table tr:hover td { background: rgba(99,102,241,.05); }
+.users-table .btn + .btn { margin-left: .3rem; }
+
 /* Utility */
 .d-none { display: none !important; }

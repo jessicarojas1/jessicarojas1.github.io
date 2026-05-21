@@ -83,6 +83,7 @@
         <button class="nav-btn" data-view="backlog">Backlog</button>
         <button class="nav-btn" data-view="sprints">Sprints</button>
         <button class="nav-btn" data-view="history">History</button>
+        <button class="nav-btn" data-view="users" id="nav-users" style="display:none">Users</button>
       </nav>
       <div class="app-user">
         <button class="icon-btn position-relative" id="bell-btn" title="Notifications">
@@ -137,6 +138,15 @@
           <h2 class="view-title">Project history</h2>
         </div>
         <div class="history-feed" id="history-feed"></div>
+      </section>
+
+      <!-- USERS ADMIN -->
+      <section class="view view-users d-none" data-view="users">
+        <div class="toolbar">
+          <h2 class="view-title">User Administration</h2>
+          <button class="btn btn-sm btn-primary ms-auto" id="new-user-btn">+ Add User</button>
+        </div>
+        <div id="users-list"></div>
       </section>
     </main>
 
