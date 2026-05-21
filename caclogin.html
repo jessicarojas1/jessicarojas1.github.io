@@ -422,6 +422,86 @@
       .reader-col { width: 100%; border-right: none; border-bottom: 1px solid var(--bs-border-color); }
       .widget-body { flex-direction: column; }
     }
+
+    /* ── Register button ─────────────────────────────────────── */
+    .btn-register {
+      background: rgba(99,102,241,.1);
+      border: 1px solid rgba(99,102,241,.35);
+      color: #a5b4fc;
+      transition: all .2s;
+    }
+    .btn-register:hover { background: rgba(99,102,241,.18); border-color: rgba(99,102,241,.6); color: #c7d2fe; }
+
+    /* ── Live event log ──────────────────────────────────────── */
+    .live-log-panel {
+      background: var(--bs-secondary-bg);
+      border: 1px solid var(--bs-border-color);
+      border-radius: 12px; overflow: hidden;
+    }
+    .live-log-header {
+      background: rgba(0,0,0,.2);
+      border-bottom: 1px solid var(--bs-border-color);
+      padding: .65rem 1.25rem;
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: .8rem; font-weight: 700; letter-spacing: .04em;
+    }
+    .live-log-body {
+      max-height: 220px; overflow-y: auto;
+      padding: .25rem 0;
+      font-family: 'SFMono-Regular', Consolas, monospace;
+      font-size: .72rem;
+    }
+    .log-entry {
+      display: grid;
+      grid-template-columns: 85px 145px 1fr;
+      gap: .5rem;
+      padding: .3rem 1.25rem;
+      border-bottom: 1px solid rgba(255,255,255,.03);
+      animation: fade-in .2s ease both;
+    }
+    .log-ts     { color: #6b7280; }
+    .log-type   { font-weight: 700; }
+    .log-detail { color: var(--bs-secondary-color); word-break: break-word; }
+    .log-type.success { color: #4ade80; }
+    .log-type.failure { color: #f87171; }
+    .log-type.warning { color: #fbbf24; }
+    .log-type.info    { color: #60a5fa; }
+    .log-type.request { color: #c4b5fd; }
+    .log-empty { padding: .75rem 1.25rem; color: #6b7280; font-size: .75rem; font-style: italic;
+                 font-family: 'SFMono-Regular', Consolas, monospace; }
+
+    /* ── Admin center ────────────────────────────────────────── */
+    .admin-widget {
+      background: var(--bs-secondary-bg);
+      border: 1px solid var(--bs-border-color);
+      border-radius: 12px; overflow: hidden;
+    }
+    .admin-widget-header {
+      background: rgba(139,92,246,.06);
+      border-bottom: 1px solid var(--bs-border-color);
+      padding: 1rem 1.5rem;
+      display: flex; align-items: center; gap: .75rem;
+    }
+    .request-row {
+      display: flex; flex-wrap: wrap; align-items: flex-start;
+      gap: 1rem; padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--bs-border-color);
+      animation: fade-in .3s ease both;
+      transition: background .2s;
+    }
+    .request-row:last-child { border-bottom: none; }
+    .request-row.approved { background: rgba(34,197,94,.04); }
+    .request-row.denied   { background: rgba(239,68,68,.04); }
+    .request-info { flex: 1; min-width: 230px; }
+    .request-name { font-weight: 700; font-size: .9rem; margin-bottom: .25rem; }
+    .request-meta { font-size: .75rem; color: var(--bs-secondary-color); line-height: 1.75; }
+    .request-access-box {
+      background: rgba(99,102,241,.06); border: 1px solid rgba(99,102,241,.2);
+      border-radius: 8px; padding: .6rem .9rem; font-size: .78rem; min-width: 175px; flex-shrink: 0;
+    }
+    .request-actions { display: flex; gap: .4rem; align-items: center; flex-shrink: 0; }
+    .admin-empty { padding: 2rem 1.5rem; text-align: center; color: var(--bs-secondary-color);
+                   font-size: .84rem; font-style: italic; }
   </style>
 </head>
 <body>
@@ -600,6 +680,12 @@
                 </button>
                 <div class="text-center mt-2" style="font-size:.72rem;color:var(--bs-secondary-color)">Simulates PCSC (PC/SC) card detection event</div>
               </div>
+              <div class="mt-3">
+                <button class="btn btn-register w-100" id="registerBtn" data-bs-toggle="modal" data-bs-target="#registerModal">
+                  📋 Register Card &amp; Request Access
+                </button>
+                <div class="text-center mt-1" style="font-size:.72rem;color:var(--bs-secondary-color)">Submit a new access request for administrator review</div>
+              </div>
             </div>
 
             <!-- STEP 1: Certificate Selection -->
@@ -721,6 +807,42 @@
           </div><!-- /content-col -->
         </div><!-- /widget-body -->
       </div><!-- /auth-widget -->
+    </div>
+
+    <!-- LIVE EVENT LOG -->
+    <div class="container pb-4">
+      <div class="live-log-panel">
+        <div class="live-log-header">
+          <div class="d-flex align-items-center gap-2">
+            <span style="width:8px;height:8px;border-radius:50%;background:#22c55e;animation:pulse-green 2s ease infinite;display:inline-block;flex-shrink:0"></span>
+            <span>Live Authentication Events</span>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-secondary" id="logCountBadge">0 events</span>
+            <button class="btn btn-sm btn-outline-secondary" id="clearLogBtn" style="font-size:.68rem;padding:.18rem .5rem">Clear</button>
+          </div>
+        </div>
+        <div class="live-log-body" id="liveLogBody">
+          <div class="log-empty">No events yet — insert your card to begin authentication.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADMIN CENTER -->
+    <div class="container pb-5">
+      <div class="admin-widget">
+        <div class="admin-widget-header">
+          <span style="font-size:1.1rem">🛡️</span>
+          <div>
+            <div class="fw-bold" style="font-size:.95rem">Access Request Admin Center</div>
+            <div style="font-size:.72rem;color:var(--bs-secondary-color)">Review and approve card registration &amp; access requests</div>
+          </div>
+          <span class="badge bg-secondary ms-auto" id="pendingBadge">0 pending</span>
+        </div>
+        <div id="adminRequestsList">
+          <div class="admin-empty">No access requests yet. Use "Register Card &amp; Request Access" to submit one.</div>
+        </div>
+      </div>
     </div>
 
     <!-- PKI CHAIN -->
@@ -872,6 +994,95 @@
         <div class="modal-header"><h2 class="modal-title fs-5" id="rbacModalLabel">🔐 Login</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
         <div class="modal-body"><!-- roles.js injects form --></div>
         <div class="modal-footer border-0 pt-0"><p class="text-secondary small mb-0">Session clears when you close this tab.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Register Card & Request Access Modal -->
+  <div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header" style="background:rgba(99,102,241,.07);border-bottom-color:rgba(99,102,241,.2)">
+          <h2 class="modal-title fs-5" id="registerModalLabel">📋 Register Card &amp; Request Access</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body pb-2">
+
+          <!-- Auto-detected card info -->
+          <div class="mb-4 p-3 rounded-3" style="background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2)">
+            <div style="font-size:.7rem;font-weight:700;color:#4ade80;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.75rem">🪪 Card Information (Auto-detected)</div>
+            <div class="row g-2" style="font-size:.83rem">
+              <div class="col-sm-6 d-flex gap-2">
+                <span class="text-body-secondary" style="white-space:nowrap">Cardholder:</span>
+                <strong id="regCardName" class="font-monospace">—</strong>
+              </div>
+              <div class="col-sm-6 d-flex gap-2">
+                <span class="text-body-secondary" style="white-space:nowrap">EDIPI:</span>
+                <strong id="regEdipi" class="font-monospace">—</strong>
+              </div>
+              <div class="col-sm-6 d-flex gap-2">
+                <span class="text-body-secondary" style="white-space:nowrap">Organization:</span>
+                <strong id="regOrg">—</strong>
+              </div>
+              <div class="col-sm-6 d-flex gap-2">
+                <span class="text-body-secondary" style="white-space:nowrap">Current Clearance:</span>
+                <strong id="regClearance">—</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold" for="regEmail">
+              Email Address <span class="text-danger">*</span>
+            </label>
+            <input type="email" class="form-control" id="regEmail"
+                   placeholder="firstname.lastname@mail.mil" autocomplete="email" required>
+          </div>
+
+          <!-- Requested access level -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold" for="regAccessType">
+              Requested Access Level <span class="text-danger">*</span>
+            </label>
+            <select class="form-select" id="regAccessType">
+              <option value="ReadOnly">ReadOnly — View data, no modifications</option>
+              <option value="Analyst">Analyst — Read and analyze, limited write</option>
+              <option value="SysAdmin" selected>SysAdmin — Full system administration</option>
+              <option value="Admin">Admin — Administrative portal access</option>
+            </select>
+          </div>
+
+          <!-- Time window -->
+          <div class="row g-3 mb-3">
+            <div class="col-sm-6">
+              <label class="form-label fw-semibold" for="regAccessStart">
+                Access Start <span class="text-danger">*</span>
+              </label>
+              <input type="datetime-local" class="form-control" id="regAccessStart" required>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label fw-semibold" for="regAccessEnd">
+                Access End <span class="text-danger">*</span>
+              </label>
+              <input type="datetime-local" class="form-control" id="regAccessEnd" required>
+            </div>
+          </div>
+
+          <!-- Justification -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold" for="regReason">Justification / Reason</label>
+            <textarea class="form-control" id="regReason" rows="2"
+                      placeholder="Briefly describe why this access is needed…"></textarea>
+          </div>
+
+          <div id="regError"   class="alert alert-danger  py-2 d-none small" role="alert"></div>
+          <div id="regSuccess" class="alert alert-success py-2 d-none small" role="alert"></div>
+        </div>
+        <div class="modal-footer" style="border-top-color:rgba(99,102,241,.15)">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-success" id="submitRequestBtn">📤 Submit Request</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1250,9 +1461,18 @@
     }
 
     /* ── Audit log helper ──────────────────────────────────────────── */
+    const EVENT_CSS = {
+      CARD_INSERT:'info', ATR_OK:'info', CERT_SELECT:'info',
+      PIN_OK:'info', PIN_FAIL:'warning', PIN_BLOCKED:'failure',
+      AUTH_START:'info', SIGN_OK:'info',
+      VERIFY_OK:'success', VERIFY_FAIL:'failure',
+      SESSION_OK:'success', ACCESS_GRANTED:'success',
+      ACCESS_REQ:'request',
+    };
     function addAudit(event, detail) {
       const ts = new Date().toISOString().replace('T',' ').split('.')[0];
       state.auditLog.push({ ts, event, detail });
+      appendLiveLog(EVENT_CSS[event] || 'info', event, detail);
     }
 
     /* ── Delay helper ──────────────────────────────────────────────── */
@@ -1392,8 +1612,177 @@
     $('resetBtn').addEventListener('click', resetAll);
     $('unlockBtn').addEventListener('click', resetAll);
 
+    /* ── Live log ──────────────────────────────────────────────────── */
+    let logEventCount = 0;
+    function appendLiveLog(cssType, code, detail) {
+      const body = $('liveLogBody');
+      const empty = body.querySelector('.log-empty');
+      if (empty) empty.remove();
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      const ts = new Date().toLocaleTimeString('en-US', { hour12: false });
+      entry.innerHTML =
+        `<span class="log-ts">${ts}</span>` +
+        `<span class="log-type ${cssType}">${code}</span>` +
+        `<span class="log-detail">${detail}</span>`;
+      body.appendChild(entry);
+      body.scrollTop = body.scrollHeight;
+      logEventCount++;
+      $('logCountBadge').textContent = logEventCount + ' event' + (logEventCount !== 1 ? 's' : '');
+    }
+    $('clearLogBtn').addEventListener('click', () => {
+      $('liveLogBody').innerHTML = '<div class="log-empty">Log cleared.</div>';
+      logEventCount = 0;
+      $('logCountBadge').textContent = '0 events';
+    });
+
+    /* ── Access requests (localStorage) ───────────────────────────── */
+    const REQUESTS_KEY = 'cac_access_requests';
+    function getRequests()   { try { return JSON.parse(localStorage.getItem(REQUESTS_KEY)) || []; } catch(e) { return []; } }
+    function saveRequests(r) { localStorage.setItem(REQUESTS_KEY, JSON.stringify(r)); }
+
+    function renderAdminCenter() {
+      const reqs     = getRequests();
+      const pending  = reqs.filter(r => r.status === 'pending').length;
+      const badge    = $('pendingBadge');
+      badge.textContent = pending + ' pending';
+      badge.className   = 'badge ms-auto ' + (pending > 0 ? 'bg-warning text-dark' : 'bg-secondary');
+
+      const container = $('adminRequestsList');
+      if (reqs.length === 0) {
+        container.innerHTML = '<div class="admin-empty">No access requests yet. Use "Register Card &amp; Request Access" to submit one.</div>';
+        return;
+      }
+      container.innerHTML = reqs.map(req => {
+        const submittedAt = new Date(req.timestamp).toLocaleString();
+        const startStr = req.accessStart ? new Date(req.accessStart).toLocaleString() : '—';
+        const endStr   = req.accessEnd   ? new Date(req.accessEnd).toLocaleString()   : '—';
+        const statusBadge = req.status === 'approved'
+          ? `<span class="badge bg-success" style="font-size:.75rem">✓ Approved</span>`
+          : req.status === 'denied'
+          ? `<span class="badge bg-danger" style="font-size:.75rem">✗ Denied</span>`
+          : `<div class="d-flex gap-1">
+               <button class="btn btn-success btn-sm" style="font-size:.75rem" data-action="approve" data-req-id="${req.id}">✓ Approve</button>
+               <button class="btn btn-outline-danger btn-sm" style="font-size:.75rem" data-action="deny" data-req-id="${req.id}">✗ Deny</button>
+             </div>`;
+        return `<div class="request-row ${req.status}">
+          <div class="request-info">
+            <div class="request-name">${req.cardName}</div>
+            <div class="request-meta">
+              📧 ${req.email}<br>
+              🪪 EDIPI: ${req.edipi} &nbsp;·&nbsp; 🏢 ${req.org} &nbsp;·&nbsp; 🔐 ${req.clearance}<br>
+              🕐 Submitted: ${submittedAt}
+            </div>
+            ${req.reason ? `<div class="mt-1" style="font-size:.75rem;color:var(--bs-secondary-color);font-style:italic">"${req.reason}"</div>` : ''}
+          </div>
+          <div class="request-access-box">
+            <div style="color:var(--bs-secondary-color);font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.3rem">Requested Access</div>
+            <div class="fw-bold">${req.accessType}</div>
+            <div style="font-size:.7rem;color:var(--bs-secondary-color);margin-top:.3rem">
+              ▶ ${startStr}<br>⏹ ${endStr}
+            </div>
+          </div>
+          <div class="request-actions">${statusBadge}</div>
+        </div>`;
+      }).join('');
+    }
+
+    /* Event delegation for approve / deny buttons */
+    $('adminRequestsList').addEventListener('click', e => {
+      const btn = e.target.closest('button[data-action]');
+      if (!btn) return;
+      const id     = btn.dataset.reqId;
+      const action = btn.dataset.action;
+      const reqs   = getRequests();
+      const req    = reqs.find(r => r.id === id);
+      if (!req) return;
+      req.status    = action === 'approve' ? 'approved' : 'denied';
+      req.decidedAt = new Date().toISOString();
+      saveRequests(reqs);
+      const cssType = action === 'approve' ? 'success' : 'failure';
+      const verb    = action === 'approve' ? 'APPROVED' : 'DENIED';
+      appendLiveLog(cssType, 'ACCESS_' + verb, req.cardName + ' (' + req.accessType + ') — ' + req.email);
+      renderAdminCenter();
+    });
+
+    /* ── Register modal: pre-populate & submit ─────────────────────── */
+    function toDateTimeLocal(d) {
+      const off = d.getTimezoneOffset();
+      return new Date(d.getTime() - off * 60000).toISOString().slice(0, 16);
+    }
+
+    document.getElementById('registerModal').addEventListener('show.bs.modal', () => {
+      const d  = IDENTITIES[state.identity];
+      const cn = d.lastName + '.' + d.firstName + '.' + d.middle;
+      $('regCardName').textContent  = cn;
+      $('regEdipi').textContent     = d.edipi;
+      $('regOrg').textContent       = d.org;
+      $('regClearance').textContent = d.clearance;
+      // Default time window: now → +8 hours
+      const now = new Date();
+      $('regAccessStart').value = toDateTimeLocal(now);
+      $('regAccessEnd').value   = toDateTimeLocal(new Date(now.getTime() + 8 * 3600000));
+      // Reset form state
+      $('regEmail').value   = '';
+      $('regReason').value  = '';
+      $('regError').classList.add('d-none');
+      $('regSuccess').classList.add('d-none');
+      $('submitRequestBtn').disabled = false;
+    });
+
+    $('submitRequestBtn').addEventListener('click', () => {
+      const d     = IDENTITIES[state.identity];
+      const cn    = d.lastName + '.' + d.firstName + '.' + d.middle;
+      const email = $('regEmail').value.trim();
+      const type  = $('regAccessType').value;
+      const start = $('regAccessStart').value;
+      const end   = $('regAccessEnd').value;
+      const reason= $('regReason').value.trim();
+
+      $('regError').classList.add('d-none');
+      if (!email) { showRegError('Email address is required.'); return; }
+      if (!email.includes('@')) { showRegError('Enter a valid email address.'); return; }
+      if (!start || !end) { showRegError('Access start and end times are required.'); return; }
+      if (new Date(end) <= new Date(start)) { showRegError('Access end must be after start.'); return; }
+
+      const reqs = getRequests();
+      reqs.unshift({
+        id:          'req_' + Date.now(),
+        timestamp:   new Date().toISOString(),
+        cardName:    cn,
+        edipi:       d.edipi,
+        org:         d.org,
+        clearance:   d.clearance,
+        email,
+        accessType:  type,
+        accessStart: start,
+        accessEnd:   end,
+        reason,
+        status:      'pending'
+      });
+      saveRequests(reqs);
+
+      addAudit('ACCESS_REQ', cn + ' requested ' + type + ' access · ' + email);
+      renderAdminCenter();
+
+      $('regSuccess').textContent = '✓ Request submitted! An administrator will review your request.';
+      $('regSuccess').classList.remove('d-none');
+      $('submitRequestBtn').disabled = true;
+      setTimeout(() => {
+        const modal = bootstrap.Modal.getInstance($('registerModal'));
+        if (modal) modal.hide();
+        $('submitRequestBtn').disabled = false;
+      }, 2200);
+    });
+
+    function showRegError(msg) {
+      $('regError').textContent = msg;
+      $('regError').classList.remove('d-none');
+    }
+
     // Init
     updateCardFace(state.identity);
+    renderAdminCenter();
 
   })();
   </script>
