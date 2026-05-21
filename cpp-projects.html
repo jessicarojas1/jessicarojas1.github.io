@@ -105,6 +105,7 @@
     .badge-openssl   { background:rgba(255,88,17,.1);    color:#ff9966; border:1px solid rgba(255,88,17,.25); }
     .badge-linux     { background:rgba(99,102,241,.1);   color:#a5b4fc; border:1px solid rgba(99,102,241,.25); }
     .badge-nodep     { background:rgba(34,211,238,.1);   color:var(--cerulean); border:1px solid rgba(34,211,238,.25); }
+    .badge-download  { background:rgba(99,102,241,.08); color:#a5b4fc; border:1px solid rgba(99,102,241,.25); text-decoration:none; }
 
     /* Source code expander */
     .src-toggle {
@@ -222,9 +223,9 @@
     <div class="cpp-stats">
       <div class="cpp-stat"><span class="val" style="color:#ef4444">5</span><span class="lbl">Cybersecurity Tools</span></div>
       <div class="cpp-stat"><span class="val" style="color:#0ea5e9">4</span><span class="lbl">Aerospace &amp; Defense</span></div>
-      <div class="cpp-stat"><span class="val" style="color:#8b5cf6">3</span><span class="lbl">Systems / ZT</span></div>
+      <div class="cpp-stat"><span class="val" style="color:#8b5cf6">3</span><span class="lbl">Systems / Zero Trust</span></div>
       <div class="cpp-stat"><span class="val" style="color:#22c55e">7</span><span class="lbl">WASM-Compatible</span></div>
-      <div class="cpp-stat"><span class="val" style="color:#ff5811">3</span><span class="lbl">Zero External Deps</span></div>
+      <div class="cpp-stat"><span class="val" style="color:#ff5811">11</span><span class="lbl">Pure C++ / No Ext Libs</span></div>
     </div>
 
     <!-- IMPORTANT NOTICE -->
@@ -253,16 +254,16 @@
         <div class="col-lg-6 col-xl-4 cpp-reveal proj-item" data-cat="cybersecurity">
           <div class="proj-card">
             <div class="proj-card-top">
-              <div class="proj-codename">// CPP-001 — ENTROPY-SCANNER</div>
+              <div class="proj-codename">// CPP-001 — ENTROPY-SCANNER · 380 LOC</div>
               <div class="proj-header">
                 <h3 class="proj-title">Binary Entropy Scanner</h3>
               </div>
-              <p class="proj-desc">Detects packed, encrypted, and obfuscated binaries by computing Shannon entropy per file. High entropy (&ge;7.2 bits) strongly indicates AV-evasion techniques or ransomware encryption.</p>
+              <p class="proj-desc">Detects packed, encrypted, and obfuscated binaries using two independent statistical tests: Shannon entropy and a chi-square uniformity test. Both together nearly eliminate false positives — encrypted files score high-entropy AND RANDOM (χ²≈255) simultaneously.</p>
               <ul class="proj-features">
-                <li>Shannon entropy (0–8 scale) per file</li>
-                <li>Recursive directory scanning</li>
+                <li>Shannon entropy (0–8) + chi-square uniformity test (df=255)</li>
+                <li>Parallel multi-core scanning via <code>--parallel N</code> (std::async)</li>
                 <li>Verdicts: PACKED/ENCRYPTED · COMPRESSED · PLAINTEXT</li>
-                <li>Exit code 2 on any high-entropy findings</li>
+                <li>JSON output mode for SIEM ingest; ANSI colour in terminal</li>
               </ul>
               <div class="build-box">
                 <span>g++ -std=c++17 -O2 entropy_scanner.cpp -o entropy-scanner</span>
@@ -272,6 +273,7 @@
                 <span class="proj-badge badge-cat-sec">Cybersecurity</span>
                 <span class="proj-badge badge-wasm">WASM ✓</span>
                 <span class="proj-badge badge-nodep">No Deps</span>
+                <a class="proj-badge badge-download" href="cpp/entropy-scanner/entropy_scanner.cpp" download>⬇ .cpp</a>
               </div>
             </div>
             <button class="src-toggle" data-target="src-entropy">
@@ -288,7 +290,7 @@
         <div class="col-lg-6 col-xl-4 cpp-reveal proj-item" data-cat="cybersecurity">
           <div class="proj-card">
             <div class="proj-card-top">
-              <div class="proj-codename">// CPP-002 — CUI-CLASSIFIER</div>
+              <div class="proj-codename">// CPP-002 — CUI-CLASSIFIER · 372 LOC</div>
               <div class="proj-header">
                 <h3 class="proj-title">CUI Pattern Classifier</h3>
               </div>
@@ -307,6 +309,7 @@
                 <span class="proj-badge badge-cat-sec">Cybersecurity</span>
                 <span class="proj-badge badge-wasm">WASM ✓</span>
                 <span class="proj-badge badge-nodep">No Deps</span>
+                <a class="proj-badge badge-download" href="cpp/cui-classifier/cui_classifier.cpp" download>⬇ .cpp</a>
               </div>
             </div>
             <button class="src-toggle" data-target="src-cui">
@@ -323,7 +326,7 @@
         <div class="col-lg-6 col-xl-4 cpp-reveal proj-item" data-cat="cybersecurity">
           <div class="proj-card">
             <div class="proj-card-top">
-              <div class="proj-codename">// CPP-003 — YARA-LITE</div>
+              <div class="proj-codename">// CPP-003 — YARA-LITE · 586 LOC</div>
               <div class="proj-header">
                 <h3 class="proj-title">YARA-Lite Rule Engine</h3>
               </div>
@@ -342,6 +345,7 @@
                 <span class="proj-badge badge-cat-sec">Cybersecurity</span>
                 <span class="proj-badge badge-wasm">WASM ✓</span>
                 <span class="proj-badge badge-nodep">No Deps</span>
+                <a class="proj-badge badge-download" href="cpp/yara-lite/yara_lite.cpp" download>⬇ .cpp</a>
               </div>
             </div>
             <button class="src-toggle" data-target="src-yara">
@@ -358,7 +362,7 @@
         <div class="col-lg-6 col-xl-4 cpp-reveal proj-item" data-cat="cybersecurity">
           <div class="proj-card">
             <div class="proj-card-top">
-              <div class="proj-codename">// CPP-004 — PACKET-ANALYZER</div>
+              <div class="proj-codename">// CPP-004 — PACKET-ANALYZER · 712 LOC</div>
               <div class="proj-header">
                 <h3 class="proj-title">PCAP Packet Analyzer</h3>
               </div>
@@ -377,6 +381,7 @@
                 <span class="proj-badge badge-cat-sec">Cybersecurity</span>
                 <span class="proj-badge badge-native">Native Only</span>
                 <span class="proj-badge badge-nodep">No Deps</span>
+                <a class="proj-badge badge-download" href="cpp/packet-analyzer/packet_analyzer.cpp" download>⬇ .cpp</a>
               </div>
             </div>
             <button class="src-toggle" data-target="src-pcap">
@@ -393,7 +398,7 @@
         <div class="col-lg-6 col-xl-4 cpp-reveal proj-item" data-cat="systems">
           <div class="proj-card">
             <div class="proj-card-top">
-              <div class="proj-codename">// CPP-005 — AES-VAULT</div>
+              <div class="proj-codename">// CPP-005 — AES-VAULT · 372 LOC</div>
               <div class="proj-header">
                 <h3 class="proj-title">AES-256-GCM File Vault</h3>
               </div>
@@ -412,6 +417,7 @@
                 <span class="proj-badge badge-cat-sys">Systems</span>
                 <span class="proj-badge badge-native">Native Only</span>
                 <span class="proj-badge badge-openssl">OpenSSL</span>
+                <a class="proj-badge badge-download" href="cpp/aes-vault/aes_vault.cpp" download>⬇ .cpp</a>
               </div>
             </div>
             <button class="src-toggle" data-target="src-aes">
@@ -428,7 +434,7 @@
         <div class="col-lg-6 col-xl-4 cpp-reveal proj-item" data-cat="systems">
           <div class="proj-card">
             <div class="proj-card-top">
-              <div class="proj-codename">// CPP-006 — ZT-POLICY</div>
+              <div class="proj-codename">// CPP-006 — ZT-POLICY · 529 LOC</div>
               <div class="proj-header">
                 <h3 class="proj-title">Zero Trust Policy Engine</h3>
               </div>
@@ -447,6 +453,7 @@
                 <span class="proj-badge badge-cat-sys">Systems</span>
                 <span class="proj-badge badge-wasm">WASM ✓</span>
                 <span class="proj-badge badge-nodep">No Deps</span>
+                <a class="proj-badge badge-download" href="cpp/zt-policy-engine/zt_policy.cpp" download>⬇ .cpp</a>
               </div>
             </div>
             <button class="src-toggle" data-target="src-zt">
@@ -463,16 +470,16 @@
         <div class="col-lg-6 col-xl-4 cpp-reveal proj-item" data-cat="systems">
           <div class="proj-card">
             <div class="proj-card-top">
-              <div class="proj-codename">// CPP-007 — LOG-CORRELATOR</div>
+              <div class="proj-codename">// CPP-007 — LOG-CORRELATOR · 734 LOC</div>
               <div class="proj-header">
                 <h3 class="proj-title">Multi-Threaded Log Correlator</h3>
               </div>
               <p class="proj-desc">High-performance syslog correlator with a thread pool and sliding time-window event correlation engine. Detects brute force, privilege escalation, lateral movement, and data staging — with ATT&amp;CK mappings.</p>
               <ul class="proj-features">
                 <li>RFC 3164/5424 syslog + Windows Event Log CSV parsing</li>
-                <li>Thread pool for parallel file ingestion</li>
-                <li>5-min sliding window correlation across 4 attack patterns</li>
-                <li>ATT&amp;CK: T1110 · T1078 · T1021 · T1074</li>
+                <li>Thread pool for parallel multi-file ingestion</li>
+                <li>5-min sliding window correlation across 7 ATT&amp;CK techniques</li>
+                <li>T1110 · T1078 · T1021 · T1074 · T1003 · T1059.001 · T1136</li>
               </ul>
               <div class="build-box">
                 <span>g++ -std=c++17 -O2 -pthread log_correlator.cpp -o log-correlator</span>
@@ -482,6 +489,7 @@
                 <span class="proj-badge badge-cat-sys">Systems</span>
                 <span class="proj-badge badge-native">Native Only</span>
                 <span class="proj-badge badge-nodep">No Deps</span>
+                <a class="proj-badge badge-download" href="cpp/log-correlator/log_correlator.cpp" download>⬇ .cpp</a>
               </div>
             </div>
             <button class="src-toggle" data-target="src-log">
@@ -498,7 +506,7 @@
         <div class="col-lg-6 col-xl-4 cpp-reveal proj-item" data-cat="aerospace">
           <div class="proj-card">
             <div class="proj-card-top">
-              <div class="proj-codename">// CPP-008 — ARINC-429</div>
+              <div class="proj-codename">// CPP-008 — ARINC-429 · 379 LOC</div>
               <div class="proj-header">
                 <h3 class="proj-title">ARINC 429 Decoder</h3>
               </div>
@@ -517,6 +525,7 @@
                 <span class="proj-badge badge-cat-aed">Aerospace</span>
                 <span class="proj-badge badge-wasm">WASM ✓</span>
                 <span class="proj-badge badge-nodep">No Deps</span>
+                <a class="proj-badge badge-download" href="cpp/arinc429/arinc429_decoder.cpp" download>⬇ .cpp</a>
               </div>
             </div>
             <button class="src-toggle" data-target="src-arinc">
@@ -533,7 +542,7 @@
         <div class="col-lg-6 col-xl-4 cpp-reveal proj-item" data-cat="aerospace">
           <div class="proj-card">
             <div class="proj-card-top">
-              <div class="proj-codename">// CPP-009 — MIL-STD-1553</div>
+              <div class="proj-codename">// CPP-009 — MIL-STD-1553 · 537 LOC</div>
               <div class="proj-header">
                 <h3 class="proj-title">MIL-STD-1553B Bus Simulator</h3>
               </div>
@@ -552,6 +561,7 @@
                 <span class="proj-badge badge-cat-aed">Aerospace</span>
                 <span class="proj-badge badge-wasm">WASM ✓</span>
                 <span class="proj-badge badge-nodep">No Deps</span>
+                <a class="proj-badge badge-download" href="cpp/mil-std-1553/mil1553_sim.cpp" download>⬇ .cpp</a>
               </div>
             </div>
             <button class="src-toggle" data-target="src-1553">
@@ -568,7 +578,7 @@
         <div class="col-lg-6 col-xl-4 cpp-reveal proj-item" data-cat="aerospace">
           <div class="proj-card">
             <div class="proj-card-top">
-              <div class="proj-codename">// CPP-010 — GPS-ANTISPOOFING</div>
+              <div class="proj-codename">// CPP-010 — GPS-ANTISPOOFING · 601 LOC</div>
               <div class="proj-header">
                 <h3 class="proj-title">GPS Anti-Spoofing Detector</h3>
               </div>
@@ -587,6 +597,7 @@
                 <span class="proj-badge badge-cat-aed">Aerospace</span>
                 <span class="proj-badge badge-wasm">WASM ✓</span>
                 <span class="proj-badge badge-nodep">No Deps</span>
+                <a class="proj-badge badge-download" href="cpp/gps-antispoofing/gps_detector.cpp" download>⬇ .cpp</a>
               </div>
             </div>
             <button class="src-toggle" data-target="src-gps">
@@ -603,7 +614,7 @@
         <div class="col-lg-6 col-xl-4 cpp-reveal proj-item" data-cat="aerospace">
           <div class="proj-card">
             <div class="proj-card-top">
-              <div class="proj-codename">// CPP-011 — RF-ANOMALY</div>
+              <div class="proj-codename">// CPP-011 — RF-ANOMALY · 671 LOC</div>
               <div class="proj-header">
                 <h3 class="proj-title">RF Anomaly Detector</h3>
               </div>
@@ -622,6 +633,7 @@
                 <span class="proj-badge badge-cat-aed">Aerospace</span>
                 <span class="proj-badge badge-native">Native Only</span>
                 <span class="proj-badge badge-nodep">No Deps</span>
+                <a class="proj-badge badge-download" href="cpp/rf-anomaly/rf_anomaly.cpp" download>⬇ .cpp</a>
               </div>
             </div>
             <button class="src-toggle" data-target="src-rf">
@@ -638,7 +650,7 @@
         <div class="col-lg-6 col-xl-4 cpp-reveal proj-item" data-cat="cybersecurity">
           <div class="proj-card">
             <div class="proj-card-top">
-              <div class="proj-codename">// CPP-012 — MEMORY-SCANNER</div>
+              <div class="proj-codename">// CPP-012 — MEMORY-SCANNER · 450 LOC</div>
               <div class="proj-header">
                 <h3 class="proj-title">Process Memory IOC Scanner</h3>
               </div>
@@ -657,6 +669,7 @@
                 <span class="proj-badge badge-cat-sec">Cybersecurity</span>
                 <span class="proj-badge badge-linux">Linux Only</span>
                 <span class="proj-badge badge-native">Native Only</span>
+                <a class="proj-badge badge-download" href="cpp/memory-scanner/memory_scanner.cpp" download>⬇ .cpp</a>
               </div>
             </div>
             <button class="src-toggle" data-target="src-mem">

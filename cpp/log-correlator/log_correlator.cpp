@@ -61,6 +61,9 @@ enum class EventType {
     FILE_WRITE_LARGE,
     NETWORK_CONNECT,
     PROCESS_EXEC,
+    CREDENTIAL_ACCESS, // T1003: shadow/lsass/hashdump/mimikatz indicators
+    POWERSHELL_EXEC,   // T1059.001: obfuscated/suspicious PowerShell
+    ACCOUNT_CREATE,    // T1136: new OS account creation
 };
 
 struct LogEvent {
@@ -300,6 +303,35 @@ static void classify_event(LogEvent& ev)
         static const std::regex ip_re(R"(\b(\d{1,3}(?:\.\d{1,3}){3})\b)");
         std::smatch m;
         if (std::regex_search(msg, m, ip_re)) ev.ip = m[1];
+
+    } else if (ci(msg, "/etc/shadow") || ci(msg, "/etc/passwd") ||
+               ci(msg, "lsass")       || ci(msg, "hashdump")   ||
+               ci(msg, "secretsdump") || ci(msg, "sekurlsa")   ||
+               ci(msg, "mimikatz")    || ci(msg, "ntds.dit")   ||
+               ci(msg, "sam database")) {
+        ev.type = EventType::CREDENTIAL_ACCESS;
+
+        static const std::regex user_re(R"((?:user|for)\s+(\S+))",
+                                        std::regex_constants::icase);
+        std::smatch m;
+        if (std::regex_search(msg, m, user_re)) ev.user = m[1];
+
+    } else if (ci(msg, "powershell") && (
+               ci(msg, "-encodedcommand") || ci(msg, "invoke-expression") ||
+               ci(msg, "downloadstring")  || ci(msg, "downloadfile")      ||
+               ci(msg, "-noprofile")      || ci(msg, "bypass")            ||
+               ci(msg, "iex ("))) {
+        ev.type = EventType::POWERSHELL_EXEC;
+
+    } else if (ci(msg, "useradd")          || ci(msg, "adduser")          ||
+               ci(msg, "new user account") || ci(msg, "account was created") ||
+               (ci(msg, "net user") && ci(msg, "/add"))) {
+        ev.type = EventType::ACCOUNT_CREATE;
+
+        static const std::regex user_re(R"((?:user|account|username)\s+['\"]?(\S+?)['\"]?(?:\s|$))",
+                                        std::regex_constants::icase);
+        std::smatch m;
+        if (std::regex_search(msg, m, user_re)) ev.user = m[1];
     }
 }
 
@@ -556,6 +588,109 @@ static void correlate(const std::vector<LogEvent>& events, long long window_secs
                 emit_alert(std::move(a));
                 break;
             }
+        }
+    }
+
+    // T1003 — OS Credential Dumping: any access to credential stores
+    // Each matching event generates a critical-severity alert immediately;
+    // credential access indicators are always high-priority and should not
+    // be gated behind a minimum occurrence count.
+    {
+        for (auto* ev : sorted) {
+            if (ev->type != EventType::CREDENTIAL_ACCESS) continue;
+            Alert a;
+            a.timestamp   = tp_to_string(ev->timestamp);
+            a.attack_id   = "T1003";
+            a.technique   = "OS Credential Dumping";
+            a.severity    = 4;  // Critical
+            a.description = "Credential store access indicator on host " +
+                ev->host + ": possible LSASS dump, /etc/shadow read, "
+                "or credential harvesting tool.";
+            a.evidence.push_back(ev->message.substr(0, 120));
+            // Corroborate: look for network connection in the same window
+            for (auto* nc : sorted) {
+                if (nc == ev) continue;
+                if (nc->type != EventType::NETWORK_CONNECT) continue;
+                if (in_window(ev->timestamp, nc->timestamp) && nc->host == ev->host) {
+                    a.severity = 4;
+                    a.description += " Exfil candidate: outbound connection within window.";
+                    a.evidence.push_back(nc->message.substr(0, 120));
+                    break;
+                }
+            }
+            emit_alert(std::move(a));
+        }
+    }
+
+    // T1059.001 — PowerShell: >=2 suspicious PowerShell executions on same host
+    // Single invocations are noisy (legitimate admin use); repeated use of
+    // encoded commands, download cradles, or bypass flags is a reliable signal.
+    {
+        std::map<std::string, std::vector<const LogEvent*>> ps_by_host;
+        for (auto* ev : sorted)
+            if (ev->type == EventType::POWERSHELL_EXEC)
+                ps_by_host[ev->host].push_back(ev);
+
+        for (auto& [host, list] : ps_by_host) {
+            for (size_t i = 0; i < list.size(); ) {
+                size_t j = i;
+                while (j < list.size() &&
+                       in_window(list[i]->timestamp, list[j]->timestamp))
+                    ++j;
+                if (j - i >= 2) {
+                    Alert a;
+                    a.timestamp  = tp_to_string(list[i]->timestamp);
+                    a.attack_id  = "T1059.001";
+                    a.technique  = "Command and Scripting Interpreter: PowerShell";
+                    a.severity   = 3;
+                    a.description = std::to_string(j - i) +
+                        " suspicious PowerShell executions (encoded cmd / download "
+                        "cradle / execution-policy bypass) on host " + host +
+                        " within " + std::to_string(window_secs) + "s window.";
+                    for (size_t k = i; k < j && k < i + 3; ++k)
+                        a.evidence.push_back(list[k]->message.substr(0, 120));
+                    emit_alert(std::move(a));
+                }
+                i = j ? j : i + 1;
+            }
+        }
+    }
+
+    // T1136 — Create Account: new local account created; severity escalates if
+    // the account logs in within the same window (persistence confirmation).
+    {
+        for (size_t i = 0; i < sorted.size(); ++i) {
+            const auto* ca = sorted[i];
+            if (ca->type != EventType::ACCOUNT_CREATE) continue;
+
+            Alert a;
+            a.timestamp  = tp_to_string(ca->timestamp);
+            a.attack_id  = "T1136";
+            a.technique  = "Create Account";
+            a.severity   = 3;
+            a.description = "New local account created on host " + ca->host + ".";
+            if (!ca->user.empty())
+                a.description += " Account name: " + ca->user + ".";
+            a.evidence.push_back(ca->message.substr(0, 120));
+
+            // Escalate: if the new account logs in within the window,
+            // this is confirmed persistence — raise severity to critical.
+            for (size_t j = i + 1; j < sorted.size(); ++j) {
+                const auto* ls = sorted[j];
+                if (!in_window(ca->timestamp, ls->timestamp)) break;
+                if (ls->type != EventType::LOGIN_SUCCESS) continue;
+                if (!ca->user.empty() && ls->user != ca->user) continue;
+
+                using namespace std::chrono;
+                long long delta = duration_cast<Seconds>(
+                    ls->timestamp - ca->timestamp).count();
+                a.severity = 4;
+                a.description += " Account used " + std::to_string(delta) +
+                    "s after creation — persistence confirmed.";
+                a.evidence.push_back(ls->message.substr(0, 120));
+                break;
+            }
+            emit_alert(std::move(a));
         }
     }
 }
