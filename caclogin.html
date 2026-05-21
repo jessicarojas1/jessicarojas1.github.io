@@ -507,6 +507,29 @@
     .request-actions { display: flex; gap: .4rem; align-items: center; flex-shrink: 0; }
     .admin-empty { padding: 2rem 1.5rem; text-align: center; color: var(--bs-secondary-color);
                    font-size: .84rem; font-style: italic; }
+
+    /* ── Modal overlay (ensures correct behaviour when Bootstrap CSS is unavailable) */
+    .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%;
+             overflow-x: hidden; overflow-y: auto; z-index: 1055; outline: 0; }
+    .modal.show { display: block; }
+    .modal-dialog { position: relative; width: auto; margin: 1.75rem auto; pointer-events: none; }
+    .modal-dialog-centered { display: flex; align-items: center; min-height: calc(100% - 3.5rem); }
+    .modal-lg .modal-dialog, .modal-lg { max-width: 800px; }
+    .modal-content { position: relative; display: flex; flex-direction: column; pointer-events: all;
+                     background: var(--bs-secondary-bg, #161b22);
+                     border: 1px solid var(--bs-border-color, #30363d); border-radius: .5rem; }
+    .modal-header { display: flex; align-items: center; justify-content: space-between;
+                    padding: 1rem 1.25rem; border-bottom: 1px solid var(--bs-border-color, #30363d); }
+    .modal-title  { font-size: 1.1rem; font-weight: 600; margin: 0; }
+    .modal-body   { padding: 1rem 1.25rem; }
+    .modal-footer { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap;
+                    gap: .5rem; padding: .75rem 1.25rem;
+                    border-top: 1px solid var(--bs-border-color, #30363d); }
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 1040; }
+    body.modal-open { overflow: hidden; }
+    .btn-close { background: transparent; border: 0; font-size: 1.2rem; cursor: pointer;
+                 color: var(--bs-body-color, #c9d1d9); padding: .25rem; line-height: 1; }
+    .btn-close::before { content: '×'; }
   </style>
 </head>
 <body>
@@ -1107,6 +1130,61 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmyQWuGmUhSBQOVCp7p5pT1gkTJ" crossorigin="anonymous"></script>
+  <!-- Lightweight modal fallback — active only when Bootstrap JS fails to load from CDN -->
+  <script>
+  (function () {
+    function waitForBootstrap(attempts) {
+      if (window.bootstrap && window.bootstrap.Modal) return; // Bootstrap loaded fine
+      if (attempts <= 0) activateFallback();
+      else setTimeout(function() { waitForBootstrap(attempts - 1); }, 100);
+    }
+
+    function activateFallback() {
+      var activeBackdrop = null;
+
+      function showModal(el) {
+        var evt = new CustomEvent('show.bs.modal', { bubbles: true, cancelable: true });
+        el.dispatchEvent(evt);
+        if (evt.defaultPrevented) return;
+        activeBackdrop = document.createElement('div');
+        activeBackdrop.className = 'modal-backdrop';
+        document.body.appendChild(activeBackdrop);
+        document.body.classList.add('modal-open');
+        el.style.display = 'block';
+        el.classList.add('show');
+        activeBackdrop.addEventListener('click', function() { hideModal(el); });
+        setTimeout(function() {
+          el.dispatchEvent(new CustomEvent('shown.bs.modal', { bubbles: true }));
+        }, 0);
+      }
+
+      function hideModal(el) {
+        el.classList.remove('show');
+        el.style.display = '';
+        document.body.classList.remove('modal-open');
+        if (activeBackdrop) { activeBackdrop.remove(); activeBackdrop = null; }
+        el.dispatchEvent(new CustomEvent('hidden.bs.modal', { bubbles: true }));
+      }
+
+      document.addEventListener('click', function(e) {
+        var toggle = e.target.closest('[data-bs-toggle="modal"]');
+        if (toggle) {
+          var target = document.querySelector(toggle.getAttribute('data-bs-target'));
+          if (target) showModal(target);
+        }
+        var dismiss = e.target.closest('[data-bs-dismiss="modal"]');
+        if (dismiss) {
+          var modal = dismiss.closest('.modal');
+          if (modal) hideModal(modal);
+        }
+      });
+
+      window._lightModal = { show: showModal, hide: hideModal };
+    }
+
+    waitForBootstrap(10); // wait up to ~1s for Bootstrap CDN
+  })();
+  </script>
   <script src="users.js" defer></script>
   <script src="roles.js" defer></script>
   <script src="script.js" defer></script>
@@ -1795,8 +1873,13 @@
       $('regSuccess').classList.remove('d-none');
       $('submitRequestBtn').disabled = true;
       setTimeout(() => {
-        const modal = bootstrap.Modal.getInstance($('registerModal'));
-        if (modal) modal.hide();
+        const modalEl = $('registerModal');
+        if (window.bootstrap && window.bootstrap.Modal) {
+          const inst = bootstrap.Modal.getInstance(modalEl);
+          if (inst) inst.hide();
+        } else if (window._lightModal) {
+          window._lightModal.hide(modalEl);
+        }
         $('submitRequestBtn').disabled = false;
       }, 2200);
     });
