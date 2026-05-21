@@ -446,22 +446,27 @@
       font-size: .8rem; font-weight: 700; letter-spacing: .04em;
     }
     .live-log-body {
-      max-height: 220px; overflow-y: auto;
+      max-height: 220px; overflow-y: auto; overflow-x: hidden;
       padding: .25rem 0;
       font-family: 'SFMono-Regular', Consolas, monospace;
       font-size: .72rem;
     }
     .log-entry {
       display: grid;
-      grid-template-columns: 85px 145px 1fr;
-      gap: .5rem;
-      padding: .3rem 1.25rem;
+      grid-template-columns: 80px 130px 1fr;
+      gap: .4rem;
+      padding: .28rem 1.25rem;
       border-bottom: 1px solid rgba(255,255,255,.03);
       animation: fade-in .2s ease both;
     }
+    @media (max-width: 540px) {
+      .log-entry { grid-template-columns: 70px 1fr; }
+      .log-type  { grid-column: 2; }
+      .log-detail{ grid-column: 1 / -1; padding-left: 70px; }
+    }
     .log-ts     { color: #6b7280; }
     .log-type   { font-weight: 700; }
-    .log-detail { color: var(--bs-secondary-color); word-break: break-word; }
+    .log-detail { color: var(--bs-secondary-color); word-break: break-word; min-width: 0; }
     .log-type.success { color: #4ade80; }
     .log-type.failure { color: #f87171; }
     .log-type.warning { color: #fbbf24; }
@@ -680,11 +685,11 @@
                 </button>
                 <div class="text-center mt-2" style="font-size:.72rem;color:var(--bs-secondary-color)">Simulates PCSC (PC/SC) card detection event</div>
               </div>
-              <div class="mt-3">
+              <div>
                 <button class="btn btn-register w-100" id="registerBtn" data-bs-toggle="modal" data-bs-target="#registerModal">
                   📋 Register Card &amp; Request Access
                 </button>
-                <div class="text-center mt-1" style="font-size:.72rem;color:var(--bs-secondary-color)">Submit a new access request for administrator review</div>
+                <div class="text-center mt-1" style="font-size:.72rem;color:var(--bs-secondary-color)">New user? Submit an access request for administrator review</div>
               </div>
             </div>
 
@@ -838,6 +843,7 @@
             <div style="font-size:.72rem;color:var(--bs-secondary-color)">Review and approve card registration &amp; access requests</div>
           </div>
           <span class="badge bg-secondary ms-auto" id="pendingBadge">0 pending</span>
+          <button class="btn btn-sm btn-outline-secondary" id="clearResolvedBtn" style="font-size:.68rem;padding:.2rem .55rem;white-space:nowrap">Clear resolved</button>
         </div>
         <div id="adminRequestsList">
           <div class="admin-empty">No access requests yet. Use "Register Card &amp; Request Access" to submit one.</div>
@@ -1175,9 +1181,8 @@
         c.classList.toggle('done', done.includes(i));
       }
     }
-    function setLed(state) { // idle reading ready error
-      const led = $('readerLed');
-      led.className = 'reader-led ' + state;
+    function setLed(ledClass) {
+      $('readerLed').className = 'reader-led ' + ledClass;
     }
 
     /* ── Card face update ──────────────────────────────────────────── */
@@ -1520,9 +1525,9 @@
     // PIN submit
     $('pinSubmitBtn').addEventListener('click', async () => {
       if (state.pinStr.length < 6) return;
+      $('pinSubmitBtn').disabled = true;
 
-      // Simulate PIN verification (any 6-8 digit PIN is accepted)
-      // Incorrect: if PIN is exactly "000000" or "111111" (demo only)
+      // Demo: any 6-8 digit PIN is accepted except these obvious patterns
       const rejected = ['000000','111111','123456'].includes(state.pinStr);
 
       if (rejected) {
@@ -1604,13 +1609,23 @@
       $('cryptoToken').textContent   = 'pending…';
       $('cryptoToken').className     = 'crypto-val pend';
       $('runAuthBtn').disabled       = false;
+      $('pinSubmitBtn').disabled     = true;
       $('certDetailPanel').style.display = 'none';
       $('auditPanel').style.display  = 'none';
+      $('viewCertBtn').textContent   = '📜 View Full Certificate';
+      $('viewAuditBtn').textContent  = '📋 Audit Log';
       $('attemptWarn').textContent   = '';
       sessionStorage.removeItem('cac_session');
     }
     $('resetBtn').addEventListener('click', resetAll);
     $('unlockBtn').addEventListener('click', resetAll);
+
+    /* ── HTML escape helper ────────────────────────────────────────── */
+    function escHtml(s) {
+      return String(s)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
 
     /* ── Live log ──────────────────────────────────────────────────── */
     let logEventCount = 0;
@@ -1618,13 +1633,23 @@
       const body = $('liveLogBody');
       const empty = body.querySelector('.log-empty');
       if (empty) empty.remove();
+
       const entry = document.createElement('div');
       entry.className = 'log-entry';
-      const ts = new Date().toLocaleTimeString('en-US', { hour12: false });
-      entry.innerHTML =
-        `<span class="log-ts">${ts}</span>` +
-        `<span class="log-type ${cssType}">${code}</span>` +
-        `<span class="log-detail">${detail}</span>`;
+
+      const tsSpan = document.createElement('span');
+      tsSpan.className = 'log-ts';
+      tsSpan.textContent = new Date().toLocaleTimeString('en-US', { hour12: false });
+
+      const codeSpan = document.createElement('span');
+      codeSpan.className = 'log-type ' + cssType;
+      codeSpan.textContent = code;
+
+      const detailSpan = document.createElement('span');
+      detailSpan.className = 'log-detail';
+      detailSpan.textContent = detail;
+
+      entry.append(tsSpan, codeSpan, detailSpan);
       body.appendChild(entry);
       body.scrollTop = body.scrollHeight;
       logEventCount++;
@@ -1657,29 +1682,30 @@
         const submittedAt = new Date(req.timestamp).toLocaleString();
         const startStr = req.accessStart ? new Date(req.accessStart).toLocaleString() : '—';
         const endStr   = req.accessEnd   ? new Date(req.accessEnd).toLocaleString()   : '—';
+        const safeId   = escHtml(req.id);
         const statusBadge = req.status === 'approved'
           ? `<span class="badge bg-success" style="font-size:.75rem">✓ Approved</span>`
           : req.status === 'denied'
           ? `<span class="badge bg-danger" style="font-size:.75rem">✗ Denied</span>`
           : `<div class="d-flex gap-1">
-               <button class="btn btn-success btn-sm" style="font-size:.75rem" data-action="approve" data-req-id="${req.id}">✓ Approve</button>
-               <button class="btn btn-outline-danger btn-sm" style="font-size:.75rem" data-action="deny" data-req-id="${req.id}">✗ Deny</button>
+               <button class="btn btn-success btn-sm" style="font-size:.75rem" data-action="approve" data-req-id="${safeId}">✓ Approve</button>
+               <button class="btn btn-outline-danger btn-sm" style="font-size:.75rem" data-action="deny" data-req-id="${safeId}">✗ Deny</button>
              </div>`;
-        return `<div class="request-row ${req.status}">
+        return `<div class="request-row ${escHtml(req.status)}">
           <div class="request-info">
-            <div class="request-name">${req.cardName}</div>
+            <div class="request-name">${escHtml(req.cardName)}</div>
             <div class="request-meta">
-              📧 ${req.email}<br>
-              🪪 EDIPI: ${req.edipi} &nbsp;·&nbsp; 🏢 ${req.org} &nbsp;·&nbsp; 🔐 ${req.clearance}<br>
-              🕐 Submitted: ${submittedAt}
+              📧 ${escHtml(req.email)}<br>
+              🪪 EDIPI: ${escHtml(req.edipi)} &nbsp;·&nbsp; 🏢 ${escHtml(req.org)} &nbsp;·&nbsp; 🔐 ${escHtml(req.clearance)}<br>
+              🕐 Submitted: ${escHtml(submittedAt)}
             </div>
-            ${req.reason ? `<div class="mt-1" style="font-size:.75rem;color:var(--bs-secondary-color);font-style:italic">"${req.reason}"</div>` : ''}
+            ${req.reason ? `<div class="mt-1" style="font-size:.75rem;color:var(--bs-secondary-color);font-style:italic">"${escHtml(req.reason)}"</div>` : ''}
           </div>
           <div class="request-access-box">
             <div style="color:var(--bs-secondary-color);font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.3rem">Requested Access</div>
-            <div class="fw-bold">${req.accessType}</div>
+            <div class="fw-bold">${escHtml(req.accessType)}</div>
             <div style="font-size:.7rem;color:var(--bs-secondary-color);margin-top:.3rem">
-              ▶ ${startStr}<br>⏹ ${endStr}
+              ▶ ${escHtml(startStr)}<br>⏹ ${escHtml(endStr)}
             </div>
           </div>
           <div class="request-actions">${statusBadge}</div>
@@ -1780,9 +1806,17 @@
       $('regError').classList.remove('d-none');
     }
 
+    /* ── Clear resolved requests ───────────────────────────────────── */
+    $('clearResolvedBtn').addEventListener('click', () => {
+      const remaining = getRequests().filter(r => r.status === 'pending');
+      saveRequests(remaining);
+      renderAdminCenter();
+    });
+
     // Init
     updateCardFace(state.identity);
     renderAdminCenter();
+    appendLiveLog('info', 'SYSTEM_READY', 'CAC/PIV demo initialized — select an identity and insert your card');
 
   })();
   </script>
