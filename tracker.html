@@ -652,6 +652,386 @@
       .td-grid { grid-template-columns: 1fr; }
       .matrix-wrap { grid-template-columns: 70px repeat(4, 1fr); }
     }
+
+    /* ─────────── Filter bar ─────────── */
+    .filter-bar {
+      display: flex; align-items: center; gap: .5rem;
+      flex-wrap: wrap;
+      padding: .55rem .75rem;
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+    .filter-bar-label {
+      font-size: .68rem; font-weight: 700; letter-spacing: .08em;
+      text-transform: uppercase; color: #6b7280;
+      margin-right: .25rem;
+    }
+    .filter-select {
+      background: #0d1117; border: 1px solid #30363d;
+      color: #c9d1d9; border-radius: 6px; padding: .25rem .5rem;
+      font-size: .75rem;
+    }
+    .filter-select:focus { outline: none; border-color: #6366f1; }
+    .filter-chip {
+      display: inline-flex; align-items: center; gap: .35rem;
+      font-size: .7rem; font-weight: 600;
+      padding: .2rem .5rem; border-radius: 99px;
+      background: rgba(99,102,241,.15);
+      border: 1px solid rgba(99,102,241,.4);
+      color: #a5b4fc;
+    }
+    .filter-chip .chip-x {
+      cursor: pointer; opacity: .75; font-size: .85rem; line-height: 1;
+    }
+    .filter-chip .chip-x:hover { opacity: 1; color: #f87171; }
+    .filter-chip.priority-chip { background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.35); color: #fca5a5; }
+    .filter-chip.type-chip { background: rgba(34,197,94,.12); border-color: rgba(34,197,94,.35); color: #86efac; }
+    .filter-chip.assignee-chip { background: rgba(6,182,212,.12); border-color: rgba(6,182,212,.35); color: #67e8f9; }
+    .filter-chip.label-chip-f { background: rgba(168,85,247,.12); border-color: rgba(168,85,247,.35); color: #d8b4fe; }
+
+    /* ─────────── Notifications ─────────── */
+    .notif-btn {
+      position: relative;
+      background: transparent;
+      border: 1px solid #30363d;
+      color: #c9d1d9;
+      border-radius: 6px;
+      padding: .3rem .55rem;
+      cursor: pointer;
+      font-size: 1rem;
+      line-height: 1;
+    }
+    .notif-btn:hover { border-color: #6366f1; }
+    .notif-badge {
+      position: absolute;
+      top: -5px; right: -5px;
+      background: #ef4444;
+      color: #fff;
+      font-size: .6rem;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 99px;
+      min-width: 16px;
+      text-align: center;
+      border: 2px solid #161b22;
+      line-height: 1.1;
+    }
+    .notif-panel {
+      position: absolute;
+      top: 50px;
+      right: 16px;
+      width: 360px; max-height: 440px;
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      box-shadow: 0 12px 32px rgba(0,0,0,.5);
+      z-index: 2500;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .notif-panel.open { display: flex; }
+    .notif-header {
+      padding: .65rem .85rem;
+      border-bottom: 1px solid #30363d;
+      display: flex; align-items: center; justify-content: space-between;
+      font-weight: 700; color: #f0f6fc; font-size: .85rem;
+    }
+    .notif-list {
+      flex: 1; overflow-y: auto; padding: .25rem;
+    }
+    .notif-item {
+      display: flex; align-items: flex-start; gap: .5rem;
+      padding: .55rem .65rem;
+      border-bottom: 1px solid rgba(48,54,61,.5);
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .notif-item:hover { background: rgba(99,102,241,.06); }
+    .notif-item.unread { background: rgba(99,102,241,.04); }
+    .notif-item-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #6366f1; margin-top: .4rem; flex-shrink: 0;
+      visibility: hidden;
+    }
+    .notif-item.unread .notif-item-dot { visibility: visible; }
+    .notif-item-body { flex: 1; font-size: .78rem; color: #c9d1d9; line-height: 1.4; }
+    .notif-item-meta { font-size: .68rem; color: #6b7280; margin-top: .2rem; }
+    .notif-item-x {
+      color: #6b7280; cursor: pointer; padding: 0 .3rem; line-height: 1; font-size: 1.1rem;
+    }
+    .notif-item-x:hover { color: #f87171; }
+    .notif-empty { padding: 1.5rem 1rem; text-align: center; color: #6b7280; font-size: .82rem; }
+
+    /* ─────────── Calendar view ─────────── */
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      background: #30363d;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .cal-head {
+      background: #0d1117;
+      padding: .4rem;
+      text-align: center;
+      font-size: .7rem; font-weight: 700;
+      color: #8b949e;
+      text-transform: uppercase; letter-spacing: .08em;
+    }
+    .cal-cell {
+      background: #161b22;
+      min-height: 90px;
+      padding: .35rem .4rem;
+      display: flex; flex-direction: column; gap: .2rem;
+      font-size: .75rem;
+      overflow: hidden;
+    }
+    .cal-cell.other-month { background: rgba(22,27,34,.4); color: #4b5563; }
+    .cal-cell.today { background: rgba(99,102,241,.08); border: 1px solid #6366f1; }
+    .cal-day-num {
+      font-weight: 700; color: #c9d1d9; font-size: .78rem; margin-bottom: .15rem;
+    }
+    .cal-cell.other-month .cal-day-num { color: #4b5563; }
+    .cal-cell.today .cal-day-num { color: #a5b4fc; }
+    .cal-chip {
+      display: block;
+      font-size: .65rem; font-weight: 600;
+      padding: .1rem .35rem; border-radius: 4px;
+      color: #fff;
+      cursor: pointer;
+      overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+      line-height: 1.3;
+      border: 1px solid rgba(255,255,255,.1);
+    }
+    .cal-chip:hover { filter: brightness(1.2); }
+    .cal-nav {
+      display: flex; align-items: center; gap: .5rem; margin-bottom: 1rem;
+    }
+    .cal-title { font-weight: 700; color: #f0f6fc; font-size: 1.05rem; min-width: 180px; }
+
+    /* ─────────── Sprint ─────────── */
+    .sprint-card {
+      background: #161b22;
+      border: 1px solid rgba(99,102,241,.4);
+      border-left: 3px solid #6366f1;
+      border-radius: 8px;
+      padding: .85rem 1rem;
+      margin-bottom: 1rem;
+    }
+    .sprint-header-row {
+      display: flex; align-items: center; gap: .75rem;
+      flex-wrap: wrap;
+    }
+    .sprint-name { font-weight: 700; color: #f0f6fc; font-size: .95rem; }
+    .sprint-dates { font-size: .75rem; color: #8b949e; font-family: monospace; }
+    .sprint-status-pill {
+      font-size: .6rem; font-weight: 700; padding: .15rem .4rem;
+      border-radius: 4px; text-transform: uppercase; letter-spacing: .05em;
+    }
+    .sprint-status-active { background: rgba(34,197,94,.15); color: #4ade80; border: 1px solid rgba(34,197,94,.35); }
+    .sprint-status-planning { background: rgba(234,179,8,.15); color: #facc15; border: 1px solid rgba(234,179,8,.35); }
+    .sprint-status-completed { background: rgba(107,114,128,.15); color: #9ca3af; border: 1px solid rgba(107,114,128,.35); }
+    .sprint-progress {
+      height: 6px; background: rgba(255,255,255,.06);
+      border-radius: 3px; overflow: hidden; margin-top: .55rem;
+    }
+    .sprint-progress-fill {
+      height: 100%; background: linear-gradient(90deg, #22c55e, #6366f1);
+      transition: width .3s;
+    }
+    .sprint-meta { font-size: .72rem; color: #8b949e; margin-top: .35rem; }
+    .sprint-empty {
+      padding: 1rem; text-align: center;
+      background: #161b22; border: 1px dashed #30363d;
+      border-radius: 8px; margin-bottom: 1rem;
+      color: #6b7280; font-size: .85rem;
+    }
+
+    /* ─────────── Markdown ─────────── */
+    .md-rendered { font-size: .85rem; color: #c9d1d9; line-height: 1.55; }
+    .md-rendered h3 { font-size: 1.05rem; color: #f0f6fc; margin: .85rem 0 .4rem; font-weight: 700; }
+    .md-rendered h4 { font-size: .95rem; color: #f0f6fc; margin: .7rem 0 .35rem; font-weight: 700; }
+    .md-rendered p { margin: 0 0 .65rem; }
+    .md-rendered ul, .md-rendered ol { margin: 0 0 .65rem 1.25rem; padding-left: .5rem; }
+    .md-rendered li { margin-bottom: .2rem; }
+    .md-rendered code {
+      background: #0d1117; border: 1px solid #30363d;
+      padding: .05rem .35rem; border-radius: 4px;
+      font-family: monospace; font-size: .82rem; color: #f0a8a8;
+    }
+    .md-rendered strong { color: #f0f6fc; font-weight: 700; }
+    .md-rendered em { color: #e6e6e6; font-style: italic; }
+    .md-rendered s { color: #6b7280; }
+    .md-rendered a { color: #6366f1; text-decoration: underline; }
+    .md-rendered a:hover { color: #a5b4fc; }
+    .md-preview-wrap {
+      background: #0d1117; border: 1px solid #30363d;
+      border-radius: 6px; padding: .65rem .8rem;
+      min-height: 100px;
+      cursor: pointer;
+    }
+    .md-preview-wrap:hover { border-color: #4b5563; }
+    .md-toolbar {
+      display: flex; gap: .25rem; padding: .35rem;
+      background: #0d1117; border: 1px solid #30363d;
+      border-bottom: none; border-radius: 6px 6px 0 0;
+    }
+    .md-toolbar-btn {
+      background: transparent; border: 1px solid transparent;
+      color: #c9d1d9; padding: .2rem .5rem;
+      cursor: pointer; border-radius: 4px;
+      font-size: .8rem; font-weight: 600; font-family: monospace;
+    }
+    .md-toolbar-btn:hover { background: rgba(99,102,241,.15); border-color: rgba(99,102,241,.3); }
+    .md-edit-area {
+      border-top: none;
+      border-top-left-radius: 0; border-top-right-radius: 0;
+    }
+
+    /* ─────────── Sub-tasks ─────────── */
+    .subtask-list { display: flex; flex-direction: column; gap: .25rem; }
+    .subtask-item {
+      display: flex; align-items: center; gap: .55rem;
+      padding: .35rem .55rem;
+      background: #0d1117; border: 1px solid #30363d;
+      border-radius: 6px;
+      font-size: .8rem;
+      cursor: pointer;
+      transition: border-color .15s;
+    }
+    .subtask-item:hover { border-color: #6366f1; }
+    .subtask-item input[type="checkbox"] { cursor: pointer; }
+    .subtask-id {
+      font-family: monospace; font-size: .7rem; color: #8b949e;
+      min-width: 60px;
+    }
+    .subtask-title { flex: 1; color: #c9d1d9; }
+    .subtask-item.done .subtask-title { text-decoration: line-through; color: #6b7280; }
+    .subtask-status {
+      font-size: .6rem; padding: .1rem .35rem; border-radius: 4px;
+      background: rgba(255,255,255,.06); color: #c9d1d9;
+    }
+    .subtask-add-row {
+      display: flex; gap: .35rem; margin-top: .35rem;
+    }
+    .subtask-count-pill {
+      display: inline-flex; align-items: center; gap: .2rem;
+      font-size: .62rem; font-weight: 700;
+      padding: .1rem .35rem; border-radius: 4px;
+      background: rgba(168,85,247,.15); color: #c4b5fd;
+    }
+
+    /* ─────────── Time-in-status SLA ─────────── */
+    .tis-line { font-size: .72rem; color: #8b949e; margin-top: .35rem; }
+    .tis-line.over-sla { color: #f87171; font-weight: 600; }
+    .tis-card-badge {
+      display: inline-flex; align-items: center; gap: .2rem;
+      font-size: .62rem; color: #f59e0b;
+      background: rgba(245,158,11,.1);
+      border: 1px solid rgba(245,158,11,.3);
+      padding: .05rem .35rem; border-radius: 99px;
+      font-weight: 600;
+    }
+    .tis-card-badge.over { color: #f87171; background: rgba(239,68,68,.1); border-color: rgba(239,68,68,.3); }
+
+    /* ─────────── Burndown / sparkline ─────────── */
+    .burndown-wrap { display: flex; flex-direction: column; gap: .35rem; }
+    .burndown-svg { width: 100%; height: 220px; display: block; }
+    .sparkline-svg { width: 100%; height: 60px; display: block; }
+    .burndown-legend {
+      display: flex; gap: 1rem; font-size: .72rem; color: #8b949e; margin-top: .35rem;
+    }
+    .burndown-legend-dot {
+      display: inline-block; width: 10px; height: 2px;
+      margin-right: .35rem; vertical-align: middle;
+    }
+
+    /* ─────────── Shortcut help overlay ─────────── */
+    .shortcut-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: .55rem 1.25rem;
+    }
+    .shortcut-row {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: .82rem; color: #c9d1d9;
+      padding: .25rem 0;
+    }
+    .shortcut-keys {
+      display: inline-flex; gap: .25rem;
+    }
+    .kbd {
+      background: #0d1117; border: 1px solid #30363d;
+      border-bottom-width: 2px;
+      color: #f0f6fc; font-family: monospace; font-size: .75rem;
+      padding: .1rem .4rem; border-radius: 4px;
+      font-weight: 700;
+    }
+
+    /* ─────────── Toast enhancements ─────────── */
+    .toast-msg {
+      position: relative;
+      display: flex; align-items: flex-start; gap: .5rem;
+      padding-right: 1.25rem;
+      overflow: hidden;
+    }
+    .toast-icon {
+      flex-shrink: 0; font-size: 1rem; line-height: 1.25;
+    }
+    .toast-msg.success { border-left-color: #22c55e; }
+    .toast-msg.info { border-left-color: #6366f1; }
+    .toast-progress {
+      position: absolute; bottom: 0; left: 0; height: 2px;
+      background: rgba(255,255,255,.15);
+      animation: toast-progress 3s linear forwards;
+    }
+    @keyframes toast-progress { from { width: 100%; } to { width: 0%; } }
+
+    /* ─────────── Quick-add FAB ─────────── */
+    .quick-add-fab {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6366f1, #ec4899);
+      border: none;
+      color: #fff; font-size: 1.6rem; font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(99,102,241,.5);
+      z-index: 1000;
+      display: flex; align-items: center; justify-content: center;
+      transition: transform .15s, box-shadow .15s;
+    }
+    .quick-add-fab:hover {
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 0 8px 24px rgba(99,102,241,.65);
+    }
+    .quick-add-fab:active { transform: scale(.95); }
+
+    /* ─────────── View animations + improved empty states ─────────── */
+    @keyframes view-enter {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .view-enter { animation: view-enter .25s ease both; }
+    .empty-state-large {
+      text-align: center; padding: 3rem 1.5rem;
+      color: #6b7280;
+      background: #161b22;
+      border: 1px dashed #30363d;
+      border-radius: 12px;
+    }
+    .empty-state-large-icon { font-size: 3rem; margin-bottom: .65rem; opacity: .5; }
+    .empty-state-large-title { font-size: 1rem; font-weight: 700; color: #c9d1d9; margin-bottom: .35rem; }
+    .empty-state-large-sub { font-size: .85rem; color: #8b949e; max-width: 360px; margin: 0 auto; }
+    .empty-state-large kbd, .empty-state-large .kbd-inline {
+      background: #0d1117; border: 1px solid #30363d; padding: .05rem .35rem;
+      border-radius: 4px; font-family: monospace; font-size: .78rem;
+      color: #c9d1d9;
+    }
   </style>
 </head>
 <body>
@@ -763,6 +1143,19 @@
       <input type="text" id="globalSearch" placeholder="Search tickets, projects, comments..." aria-label="Global search" />
     </div>
     <div style="flex: 1;"></div>
+    <div style="position: relative;">
+      <button class="notif-btn" id="notifBtn" title="Notifications" aria-label="Notifications">
+        🔔
+        <span class="notif-badge" id="notifBadge" style="display:none">0</span>
+      </button>
+      <div class="notif-panel" id="notifPanel">
+        <div class="notif-header">
+          <span>Notifications</span>
+          <button class="btn btn-ghost btn-sm" id="notifMarkAllBtn">Mark all read</button>
+        </div>
+        <div class="notif-list" id="notifList"></div>
+      </div>
+    </div>
     <div class="app-user">
       <div class="app-user-avatar" id="userAvatar">??</div>
       <div class="app-user-info">
@@ -786,6 +1179,7 @@
           <li><a class="sidebar-link" data-view="backlog"><span class="sidebar-link-icon">📚</span><span>Backlog</span></a></li>
           <li><a class="sidebar-link" data-view="matrix"><span class="sidebar-link-icon">🎯</span><span>Impact Matrix</span></a></li>
           <li><a class="sidebar-link" data-view="timeline"><span class="sidebar-link-icon">📅</span><span>Timeline</span></a></li>
+          <li><a class="sidebar-link" data-view="calendar"><span class="sidebar-link-icon">🗓️</span><span>Calendar</span></a></li>
           <li id="navSettings" style="display:none"><a class="sidebar-link" data-view="settings"><span class="sidebar-link-icon">⚙️</span><span>Settings</span></a></li>
         </ul>
       </div>
@@ -837,6 +1231,35 @@
 </div>
 
 <div class="toast-container" id="toastContainer"></div>
+
+<!-- ═════════════ Keyboard Shortcut Help Modal ═════════════ -->
+<div class="modal" id="shortcutModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">⌨️ Keyboard Shortcuts</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="shortcut-grid">
+          <div class="shortcut-row"><span>New ticket</span><span class="shortcut-keys"><span class="kbd">n</span></span></div>
+          <div class="shortcut-row"><span>Focus search</span><span class="shortcut-keys"><span class="kbd">/</span></span></div>
+          <div class="shortcut-row"><span>Close modal</span><span class="shortcut-keys"><span class="kbd">Esc</span></span></div>
+          <div class="shortcut-row"><span>Show this help</span><span class="shortcut-keys"><span class="kbd">?</span></span></div>
+          <div class="shortcut-row"><span>Board view</span><span class="shortcut-keys"><span class="kbd">b</span></span></div>
+          <div class="shortcut-row"><span>Go to Dashboard</span><span class="shortcut-keys"><span class="kbd">g</span><span class="kbd">d</span></span></div>
+          <div class="shortcut-row"><span>Go to Board</span><span class="shortcut-keys"><span class="kbd">g</span><span class="kbd">b</span></span></div>
+          <div class="shortcut-row"><span>Go to Backlog</span><span class="shortcut-keys"><span class="kbd">g</span><span class="kbd">k</span></span></div>
+          <div class="shortcut-row"><span>Go to Matrix</span><span class="shortcut-keys"><span class="kbd">g</span><span class="kbd">m</span></span></div>
+          <div class="shortcut-row"><span>Go to Timeline</span><span class="shortcut-keys"><span class="kbd">g</span><span class="kbd">t</span></span></div>
+          <div class="shortcut-row"><span>Go to Calendar</span><span class="shortcut-keys"><span class="kbd">g</span><span class="kbd">c</span></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<button class="quick-add-fab" id="quickAddFab" title="Quick add ticket (n)">+</button>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc4s9bIOgUxi8T/jzmyQWuGmUhSBQOVCp7p5pT1gkTJ" crossorigin="anonymous"></script>
 
@@ -915,7 +1338,8 @@
     comments: 'tracker_comments',
     history:  'tracker_history',
     backlogOrder: 'tracker_backlog_order',
-    currentProject: 'tracker_current_project'
+    currentProject: 'tracker_current_project',
+    notifications: 'tracker_notifications'
   };
   function lsGet(key, fallback) {
     try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
@@ -959,6 +1383,7 @@
   };
 
   // ─────────── App state ───────────
+  const _now = new Date();
   const state = {
     user: null,           // active user (from session)
     projects: [],
@@ -967,8 +1392,12 @@
     sprints: [],
     comments: [],
     history: [],
+    notifications: [],
     currentProjectId: null,
     currentView: 'dashboard',
+    filters: { priority: null, type: null, assigneeId: null, labelId: null },
+    calendarMonth: { year: _now.getFullYear(), month: _now.getMonth() },
+    sprintCollapsed: false,
     auth: {
       identity: 'rojas',
       step: 0,
@@ -1003,7 +1432,14 @@
   }
   function clear(node){ while (node.firstChild) node.removeChild(node.firstChild); }
   function toast(msg, kind) {
-    const t = el('div', { class: 'toast-msg' + (kind ? ' ' + kind : ''), text: msg });
+    const icons = { success: '✅', warn: '⚠️', info: 'ℹ️', error: '❌' };
+    const k = kind || 'success';
+    const ic = icons[k] || icons.success;
+    const t = el('div', { class: 'toast-msg ' + k },
+      el('span', { class: 'toast-icon', text: ic }),
+      el('span', { style: { flex: 1 }, text: msg }),
+      el('div', { class: 'toast-progress' })
+    );
     $('toastContainer').appendChild(t);
     setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity .3s'; setTimeout(() => t.remove(), 300); }, 3000);
   }
@@ -1030,14 +1466,17 @@
     state.sprints  = lsGet(LS_KEYS.sprints, []);
     state.comments = lsGet(LS_KEYS.comments, []);
     state.history  = lsGet(LS_KEYS.history, []);
+    state.notifications = lsGet(LS_KEYS.notifications, []);
     state.currentProjectId = lsGet(LS_KEYS.currentProject, null);
     if (state.projects.length === 0) seedData();
   }
   function saveProjects(){ lsSet(LS_KEYS.projects, state.projects); }
   function saveTickets(){ lsSet(LS_KEYS.tickets, state.tickets); }
   function saveLabels(){ lsSet(LS_KEYS.labels, state.labels); }
+  function saveSprints(){ lsSet(LS_KEYS.sprints, state.sprints); }
   function saveComments(){ lsSet(LS_KEYS.comments, state.comments); }
   function saveHistory(){ lsSet(LS_KEYS.history, state.history); }
+  function saveNotifications(){ lsSet(LS_KEYS.notifications, state.notifications); }
   function saveCurrentProject(){ lsSet(LS_KEYS.currentProject, state.currentProjectId); }
 
   function logHistory(ticketId, action, field, oldVal, newVal) {
@@ -1491,18 +1930,448 @@
   }
 
   // ═══════════════════════════════════════════════════════════════════
+  //   MARKDOWN RENDERER (XSS-safe)
+  // ═══════════════════════════════════════════════════════════════════
+  function escapeHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+  function renderMarkdown(text) {
+    if (!text) return '';
+    // First escape ALL HTML entities — content is now safe
+    let safe = escapeHtml(text);
+
+    // Split into lines for block-level handling
+    const lines = safe.split(/\r?\n/);
+    const out = [];
+    let i = 0;
+    function inline(s) {
+      // Code first (so other transforms don't run inside)
+      s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
+      // Bold
+      s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      // Strikethrough
+      s = s.replace(/~~([^~]+)~~/g, '<s>$1</s>');
+      // Italic — single * not inside word, or _underscore_
+      s = s.replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g, '$1<em>$2</em>');
+      s = s.replace(/(^|[^_a-zA-Z0-9])_([^_\n]+)_(?![_a-zA-Z0-9])/g, '$1<em>$2</em>');
+      // URL autolink (http/https)
+      s = s.replace(/(https?:\/\/[^\s<]+)/g, function(url){
+        return '<a href="' + url + '" target="_blank" rel="noopener">' + url + '</a>';
+      });
+      return s;
+    }
+    while (i < lines.length) {
+      const line = lines[i];
+      // Headings
+      let m;
+      if ((m = line.match(/^##\s+(.+)$/))) { out.push('<h4>' + inline(m[1]) + '</h4>'); i++; continue; }
+      if ((m = line.match(/^#\s+(.+)$/)))  { out.push('<h3>' + inline(m[1]) + '</h3>'); i++; continue; }
+      // Unordered list
+      if (/^[-*]\s+/.test(line)) {
+        const items = [];
+        while (i < lines.length && /^[-*]\s+/.test(lines[i])) {
+          items.push('<li>' + inline(lines[i].replace(/^[-*]\s+/, '')) + '</li>');
+          i++;
+        }
+        out.push('<ul>' + items.join('') + '</ul>');
+        continue;
+      }
+      // Ordered list
+      if (/^\d+\.\s+/.test(line)) {
+        const items = [];
+        while (i < lines.length && /^\d+\.\s+/.test(lines[i])) {
+          items.push('<li>' + inline(lines[i].replace(/^\d+\.\s+/, '')) + '</li>');
+          i++;
+        }
+        out.push('<ol>' + items.join('') + '</ol>');
+        continue;
+      }
+      // Blank line → paragraph separator
+      if (/^\s*$/.test(line)) { i++; continue; }
+      // Paragraph: combine consecutive non-blank non-block lines
+      const para = [];
+      while (i < lines.length && !/^\s*$/.test(lines[i])
+        && !/^#{1,2}\s+/.test(lines[i])
+        && !/^[-*]\s+/.test(lines[i])
+        && !/^\d+\.\s+/.test(lines[i])) {
+        para.push(inline(lines[i]));
+        i++;
+      }
+      if (para.length) out.push('<p>' + para.join('<br>') + '</p>');
+    }
+    return out.join('');
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  //   TIME-IN-STATUS / SLA
+  // ═══════════════════════════════════════════════════════════════════
+  function timeInStatus(t) {
+    // Find latest status_change → use newValue's timestamp; else use createdAt
+    const events = state.history.filter(h => h.ticketId === t.id && h.action === 'status_change');
+    let startIso = t.createdAt;
+    if (events.length) {
+      // history is unshifted so newest first; the most recent status change defines current
+      startIso = events[0].createdAt;
+    }
+    const start = new Date(startIso).getTime();
+    const ms = Math.max(0, Date.now() - start);
+    const days = Math.floor(ms / 86400000);
+    const hours = Math.floor((ms % 86400000) / 3600000);
+    // Business-day approximation: days * 5/7
+    const businessDays = days * (5/7);
+    const isOverSLA = (t.status !== 'Done') && (businessDays > 5);
+    return { days, hours, isOverSLA, ms };
+  }
+  function fmtDuration(d, h) {
+    if (d === 0 && h === 0) return 'less than an hour';
+    if (d === 0) return h + 'h';
+    if (h === 0) return d + 'd';
+    return d + 'd ' + h + 'h';
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  //   NOTIFICATIONS
+  // ═══════════════════════════════════════════════════════════════════
+  function generateNotificationsFromHistory() {
+    if (!state.user) return;
+    const userId = state.user.userId;
+    // Build a lookup of existing notification key (userId + historyId or ticket+action+timestamp)
+    const existingKeys = new Set(state.notifications.map(n => n.sourceKey || ''));
+    const additions = [];
+    state.history.forEach(h => {
+      const t = getTicket(h.ticketId);
+      if (!t) return;
+      const key = userId + '_' + h.id;
+      if (existingKeys.has(key)) return;
+
+      let relevant = false;
+      let message = '';
+      const actor = getUser(h.userId);
+      const actorName = actor ? (actor.first + ' ' + actor.last) : (h.userId || 'system');
+
+      // Assigned to current user
+      if (t.assigneeId === userId) {
+        if (h.action === 'status_change') {
+          relevant = true;
+          message = actorName + ' moved ' + t.id + ' to ' + (h.newValue || '?');
+        } else if (h.action === 'created' && h.userId !== userId) {
+          relevant = true;
+          message = actorName + ' assigned you ' + t.id;
+        }
+      }
+      // Comment on watched ticket
+      if (!relevant && h.action === 'comment') {
+        t.watchers = t.watchers || [];
+        if (t.watchers.includes(userId) && h.userId !== userId) {
+          relevant = true;
+          message = actorName + ' commented on ' + t.id;
+        }
+      }
+      // Skip self-actions
+      if (h.userId === userId) return;
+
+      if (relevant) {
+        additions.push({
+          id: uid('notif'),
+          userId: userId,
+          ticketId: t.id,
+          message: message,
+          read: false,
+          createdAt: h.createdAt,
+          sourceKey: key
+        });
+      }
+    });
+    if (additions.length) {
+      state.notifications = additions.concat(state.notifications);
+      // Cap at 100
+      if (state.notifications.length > 100) state.notifications.length = 100;
+      saveNotifications();
+    }
+  }
+  function userNotifications() {
+    if (!state.user) return [];
+    return state.notifications.filter(n => n.userId === state.user.userId);
+  }
+  function unreadCount() {
+    return userNotifications().filter(n => !n.read).length;
+  }
+  function renderNotifBadge() {
+    const c = unreadCount();
+    const badge = $('notifBadge');
+    if (!badge) return;
+    if (c > 0) {
+      badge.textContent = c > 99 ? '99+' : String(c);
+      badge.style.display = '';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+  function renderNotifPanel() {
+    const list = $('notifList');
+    if (!list) return;
+    clear(list);
+    const items = userNotifications().slice().sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+    if (items.length === 0) {
+      list.appendChild(el('div', { class: 'notif-empty', text: 'No notifications. You\'re all caught up.' }));
+      return;
+    }
+    items.forEach(n => {
+      const row = el('div', {
+        class: 'notif-item' + (n.read ? '' : ' unread'),
+        onclick: (e) => {
+          if (e.target.classList && e.target.classList.contains('notif-item-x')) return;
+          if (!n.read) { n.read = true; saveNotifications(); renderNotifBadge(); renderNotifPanel(); }
+          $('notifPanel').classList.remove('open');
+          openTicketModal(n.ticketId);
+        }
+      },
+        el('span', { class: 'notif-item-dot' }),
+        el('div', { class: 'notif-item-body' },
+          el('div', { text: n.message }),
+          el('div', { class: 'notif-item-meta', text: n.ticketId + ' · ' + timeAgo(n.createdAt) })
+        ),
+        el('span', { class: 'notif-item-x', title: 'Mark read', onclick: (e) => {
+          e.stopPropagation();
+          state.notifications = state.notifications.filter(x => x.id !== n.id);
+          saveNotifications();
+          renderNotifBadge();
+          renderNotifPanel();
+        } }, '×')
+      );
+      list.appendChild(row);
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  //   FILTERS
+  // ═══════════════════════════════════════════════════════════════════
+  function applyFilters(list) {
+    const f = state.filters;
+    return list.filter(t => {
+      if (f.priority && t.priority !== f.priority) return false;
+      if (f.type && t.type !== f.type) return false;
+      if (f.assigneeId) {
+        if (f.assigneeId === '__unassigned__') { if (t.assigneeId) return false; }
+        else if (t.assigneeId !== f.assigneeId) return false;
+      }
+      if (f.labelId && !(t.labels || []).includes(f.labelId)) return false;
+      return true;
+    });
+  }
+  function hasActiveFilters() {
+    const f = state.filters;
+    return !!(f.priority || f.type || f.assigneeId || f.labelId);
+  }
+  function buildFilterBar() {
+    const p = currentProject();
+    const f = state.filters;
+    const bar = el('div', { class: 'filter-bar' });
+    bar.appendChild(el('span', { class: 'filter-bar-label', text: 'Filter:' }));
+
+    // Priority select
+    const priSel = el('select', { class: 'filter-select' },
+      el('option', { value: '', text: 'All priorities' }),
+      ...PRIORITIES.map(p => el('option', { value: p, text: PRIORITY_LABELS[p] }))
+    );
+    priSel.value = f.priority || '';
+    priSel.addEventListener('change', () => { state.filters.priority = priSel.value || null; renderView(); });
+    bar.appendChild(priSel);
+
+    // Type select
+    const typeSel = el('select', { class: 'filter-select' },
+      el('option', { value: '', text: 'All types' }),
+      ...TYPES.map(t => el('option', { value: t, text: t }))
+    );
+    typeSel.value = f.type || '';
+    typeSel.addEventListener('change', () => { state.filters.type = typeSel.value || null; renderView(); });
+    bar.appendChild(typeSel);
+
+    // Assignee select
+    const asgSel = el('select', { class: 'filter-select' });
+    asgSel.appendChild(el('option', { value: '', text: 'All assignees' }));
+    asgSel.appendChild(el('option', { value: '__unassigned__', text: 'Unassigned' }));
+    (p ? p.members : Object.keys(IDENTITIES)).forEach(uid => {
+      const u = IDENTITIES[uid];
+      if (u) asgSel.appendChild(el('option', { value: uid, text: displayName(u) }));
+    });
+    asgSel.value = f.assigneeId || '';
+    asgSel.addEventListener('change', () => { state.filters.assigneeId = asgSel.value || null; renderView(); });
+    bar.appendChild(asgSel);
+
+    // Label select
+    const lblSel = el('select', { class: 'filter-select' },
+      el('option', { value: '', text: 'All labels' }),
+      ...state.labels.map(l => el('option', { value: l.id, text: l.name }))
+    );
+    lblSel.value = f.labelId || '';
+    lblSel.addEventListener('change', () => { state.filters.labelId = lblSel.value || null; renderView(); });
+    bar.appendChild(lblSel);
+
+    // Active filter chips
+    if (f.priority) bar.appendChild(filterChip('priority-chip', 'Priority: ' + PRIORITY_LABELS[f.priority], () => { state.filters.priority = null; renderView(); }));
+    if (f.type) bar.appendChild(filterChip('type-chip', 'Type: ' + f.type, () => { state.filters.type = null; renderView(); }));
+    if (f.assigneeId) {
+      const lbl = f.assigneeId === '__unassigned__' ? 'Unassigned' : (IDENTITIES[f.assigneeId] ? displayName(IDENTITIES[f.assigneeId]) : f.assigneeId);
+      bar.appendChild(filterChip('assignee-chip', 'Assignee: ' + lbl, () => { state.filters.assigneeId = null; renderView(); }));
+    }
+    if (f.labelId) {
+      const l = getLabel(f.labelId);
+      bar.appendChild(filterChip('label-chip-f', 'Label: ' + (l ? l.name : '?'), () => { state.filters.labelId = null; renderView(); }));
+    }
+
+    if (hasActiveFilters()) {
+      bar.appendChild(el('button', { class: 'btn btn-ghost btn-sm', style: { marginLeft: 'auto' }, onclick: () => {
+        state.filters = { priority: null, type: null, assigneeId: null, labelId: null };
+        renderView();
+      } }, 'Clear all'));
+    }
+
+    return bar;
+  }
+  function filterChip(cls, label, onx) {
+    return el('span', { class: 'filter-chip ' + cls },
+      el('span', { text: label }),
+      el('span', { class: 'chip-x', onclick: onx, text: '×' })
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  //   SPRINTS
+  // ═══════════════════════════════════════════════════════════════════
+  function activeSprint() {
+    const p = currentProject();
+    if (!p) return null;
+    return state.sprints.find(s => s.projectId === p.id && s.status === 'active') || null;
+  }
+  function projectSprints() {
+    const p = currentProject();
+    if (!p) return [];
+    return state.sprints.filter(s => s.projectId === p.id);
+  }
+  function startSprintModal() {
+    if (state.user.role !== 'admin') { toast('Admin only', 'error'); return; }
+    const p = currentProject();
+    if (!p) return;
+    $('genericModalTitle').textContent = 'Start New Sprint';
+    const body = $('genericModalBody');
+    clear(body);
+    const name = el('input', { class: 'form-input', placeholder: 'Sprint name (e.g. Sprint 12)', value: 'Sprint ' + (projectSprints().length + 1) });
+    const goal = el('textarea', { class: 'form-textarea', rows: 2, placeholder: 'Sprint goal (optional)' });
+    const today = new Date();
+    const twoWeeks = new Date(today.getTime() + 14 * 86400000);
+    const startD = el('input', { type: 'date', class: 'form-input', value: today.toISOString().slice(0,10) });
+    const endD = el('input', { type: 'date', class: 'form-input', value: twoWeeks.toISOString().slice(0,10) });
+    body.appendChild(formField('Name', name));
+    body.appendChild(formField('Goal', goal));
+    const row = el('div', { style: { display:'grid', gridTemplateColumns:'1fr 1fr', gap:'.5rem' } });
+    row.appendChild(formField('Start date', startD));
+    row.appendChild(formField('End date', endD));
+    body.appendChild(row);
+    const foot = $('genericModalFooter');
+    clear(foot);
+    foot.appendChild(el('button', { class: 'btn btn-outline', onclick: () => hideModal($('genericModal')) }, 'Cancel'));
+    foot.appendChild(el('button', { class: 'btn btn-primary', onclick: () => {
+      if (!name.value.trim()) { toast('Name required', 'error'); return; }
+      // Mark any active sprint as completed
+      state.sprints.forEach(s => { if (s.projectId === p.id && s.status === 'active') s.status = 'completed'; });
+      const sp = {
+        id: uid('sprint'),
+        projectId: p.id,
+        name: name.value.trim(),
+        goal: goal.value.trim(),
+        startDate: startD.value,
+        endDate: endD.value,
+        status: 'active',
+        createdAt: new Date().toISOString()
+      };
+      state.sprints.push(sp);
+      saveSprints();
+      hideModal($('genericModal'));
+      toast('Sprint started: ' + sp.name);
+      renderView();
+    } }, 'Start Sprint'));
+    showModal($('genericModal'));
+  }
+  function completeSprint(sp) {
+    if (state.user.role !== 'admin') { toast('Admin only', 'error'); return; }
+    if (!confirm('Complete "' + sp.name + '"? Done tickets will be moved out of the sprint.')) return;
+    sp.status = 'completed';
+    // Remove sprintId from Done tickets
+    state.tickets.forEach(t => { if (t.sprintId === sp.id && t.status === 'Done') t.sprintId = null; });
+    saveSprints();
+    saveTickets();
+    toast('Sprint completed', 'info');
+    renderView();
+  }
+  function buildSprintCard(sp) {
+    const tix = state.tickets.filter(t => t.sprintId === sp.id);
+    const doneCount = tix.filter(t => t.status === 'Done').length;
+    const pct = tix.length ? Math.round(100 * doneCount / tix.length) : 0;
+    const card = el('div', { class: 'sprint-card' });
+    const header = el('div', { class: 'sprint-header-row' },
+      el('span', { class: 'sprint-name', text: sp.name }),
+      el('span', { class: 'sprint-status-pill sprint-status-' + sp.status, text: sp.status }),
+      el('span', { class: 'sprint-dates', text: sp.startDate + ' → ' + sp.endDate }),
+      el('span', { style: { marginLeft: 'auto', display: 'flex', gap: '.4rem' } },
+        el('button', { class: 'btn btn-ghost btn-sm', onclick: () => { state.sprintCollapsed = !state.sprintCollapsed; renderView(); } }, state.sprintCollapsed ? '▼ Expand' : '▲ Collapse'),
+        (state.user.role === 'admin' && sp.status === 'active')
+          ? el('button', { class: 'btn btn-outline btn-sm', onclick: () => completeSprint(sp) }, 'Complete Sprint')
+          : null
+      )
+    );
+    card.appendChild(header);
+    if (sp.goal) card.appendChild(el('div', { class: 'sprint-meta', style: { fontStyle:'italic', marginTop:'.4rem' }, text: '“' + sp.goal + '”' }));
+    card.appendChild(el('div', { class: 'sprint-meta', text: doneCount + ' / ' + tix.length + ' tickets done · ' + pct + '%' }));
+    card.appendChild(el('div', { class: 'sprint-progress' },
+      el('div', { class: 'sprint-progress-fill', style: { width: pct + '%' } })
+    ));
+    if (!state.sprintCollapsed && tix.length) {
+      const body = el('div', { style: { marginTop:'.75rem', display:'flex', flexDirection:'column', gap:'.3rem' } });
+      tix.forEach(t => {
+        body.appendChild(el('div', { class: 'my-ticket', onclick: () => openTicketModal(t.id) },
+          el('span', { class: 'my-ticket-id', text: t.id }),
+          el('span', { class: 'my-ticket-title', text: t.title }),
+          el('span', { class: 'pill pri-bg-' + t.priority, style: { marginRight: '.4rem' }, text: PRIORITY_LABELS[t.priority] }),
+          el('span', { class: 'my-ticket-status', text: t.status })
+        ));
+      });
+      card.appendChild(body);
+    }
+    return card;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  //   SUB-TASKS
+  // ═══════════════════════════════════════════════════════════════════
+  function subTasksOf(t) {
+    return state.tickets.filter(x => x.type === 'subtask' && x.epicId === t.id);
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
   //   VIEW DISPATCH
   // ═══════════════════════════════════════════════════════════════════
   function renderView(searchQuery) {
     const main = $('appMain');
     clear(main);
+    main.classList.remove('view-enter');
+    // Force reflow then add anim
+    void main.offsetWidth;
+    main.classList.add('view-enter');
     const v = state.currentView;
     if (v === 'dashboard') renderDashboard(main, searchQuery);
     else if (v === 'board') renderBoard(main, searchQuery);
     else if (v === 'backlog') renderBacklog(main, searchQuery);
     else if (v === 'matrix') renderMatrix(main);
     else if (v === 'timeline') renderTimeline(main);
+    else if (v === 'calendar') renderCalendar(main);
     else if (v === 'settings') renderSettings(main);
+    renderNotifBadge();
   }
 
   // ─────────── DASHBOARD ───────────
@@ -1572,6 +2441,58 @@
     layout.appendChild(statPanel);
 
     main.appendChild(layout);
+
+    // Sparkline — tickets closed per day (last 14 days)
+    const sparkPanel = el('div', { class: 'panel', style: { marginBottom:'1rem' } });
+    sparkPanel.appendChild(el('div', { class: 'panel-header' }, 'Tickets Closed — Last 14 Days'));
+    const sparkBody = el('div', { class: 'panel-body' });
+    (function buildSparkline() {
+      const days = 14;
+      const counts = [];
+      const labels = [];
+      for (let i = days - 1; i >= 0; i--) {
+        const d = new Date(); d.setDate(d.getDate() - i); d.setHours(0,0,0,0);
+        const next = new Date(d); next.setDate(d.getDate() + 1);
+        const closed = state.history.filter(h => {
+          if (h.event !== 'status_change' || h.to !== 'Done') return false;
+          const t = getTicket(h.ticketId);
+          if (!t || t.projectId !== p.id) return false;
+          const ts = new Date(h.timestamp);
+          return ts >= d && ts < next;
+        }).length;
+        counts.push(closed);
+        labels.push(d.toLocaleDateString('default', { month:'short', day:'numeric' }));
+      }
+      const maxVal = Math.max(...counts, 1);
+      const W = 100, H = 60, pad = 4;
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+      svg.setAttribute('class', 'sparkline-svg');
+      svg.style.overflow = 'visible';
+      const barW = (W - pad * 2) / days - 1;
+      counts.forEach((c, i) => {
+        const x = pad + i * ((W - pad * 2) / days);
+        const barH = c === 0 ? 1 : ((c / maxVal) * (H - pad * 2));
+        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        rect.setAttribute('x', x); rect.setAttribute('width', barW);
+        rect.setAttribute('y', H - pad - barH); rect.setAttribute('height', barH);
+        rect.setAttribute('fill', c > 0 ? '#22c55e' : 'rgba(255,255,255,.08)');
+        rect.setAttribute('rx', '2');
+        const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+        title.textContent = labels[i] + ': ' + c + ' closed';
+        rect.appendChild(title);
+        svg.appendChild(rect);
+      });
+      const total = counts.reduce((a,b) => a+b, 0);
+      const avg = total > 0 ? (total / days).toFixed(1) : '0';
+      const info = el('div', { style:{ display:'flex', gap:'1.5rem', fontSize:'.78rem', color:'#6b7280', marginTop:'.4rem' } });
+      info.appendChild(el('span', {}, el('strong', { style:{color:'#22c55e'} }, String(total)), ' tickets closed'));
+      info.appendChild(el('span', {}, el('strong', { style:{color:'#c9d1d9'} }, avg), ' per day avg'));
+      sparkBody.appendChild(svg);
+      sparkBody.appendChild(info);
+    })();
+    sparkPanel.appendChild(sparkBody);
+    main.appendChild(sparkPanel);
 
     const bottom = el('div', { style: { display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1rem' } });
 
@@ -1665,6 +2586,7 @@
     if (!p) { main.appendChild(emptyState('No project selected', '')); return; }
     let tickets = projectTickets();
     if (q) tickets = tickets.filter(t => t.title.toLowerCase().includes(q) || t.id.toLowerCase().includes(q));
+    tickets = applyFilters(tickets);
 
     const swimlane = state._boardSwimlane || 'none';
 
@@ -1688,6 +2610,14 @@
         canCreate() ? el('button', { class: 'btn btn-primary', onclick: () => openNewTicketModal() }, '+ New') : null
       )
     ));
+
+    main.appendChild(buildFilterBar());
+
+    if (tickets.length === 0) {
+      main.appendChild(largeEmptyState('📋', 'No tickets to show',
+        hasActiveFilters() ? 'No tickets match the current filters.' : 'Press n to create one, or click the + button.'));
+      return;
+    }
 
     if (swimlane === 'none') {
       main.appendChild(buildBoardLane(p, tickets, null));
@@ -1753,6 +2683,24 @@
     labels.slice(0, 3).forEach(l => {
       lblWrap.appendChild(el('span', { class: 'label-chip', style: { background: l.color }, text: l.name }));
     });
+    // Sub-task count
+    const subs = subTasksOf(t);
+    if (subs.length) {
+      const subDone = subs.filter(s => s.status === 'Done').length;
+      lblWrap.appendChild(el('span', { class: 'subtask-count-pill', title: 'Sub-tasks', text: '☑ ' + subDone + '/' + subs.length }));
+    }
+    // SLA / time-in-status badge for stuck tickets
+    if (t.status !== 'Done') {
+      const tis = timeInStatus(t);
+      if (tis.days >= 2) {
+        const isOver = tis.isOverSLA;
+        lblWrap.appendChild(el('span', {
+          class: 'tis-card-badge' + (isOver ? ' over' : ''),
+          title: 'In ' + t.status + ' for ' + fmtDuration(tis.days, tis.hours),
+          text: '⏱ ' + tis.days + 'd'
+        }));
+      }
+    }
     meta.appendChild(lblWrap);
     const right = el('div', { style: { display:'flex', gap:'.3rem', alignItems:'center' } });
     if (t.storyPoints != null) right.appendChild(el('span', { class: 'ticket-points', text: String(t.storyPoints) }));
@@ -1795,6 +2743,7 @@
     if (!p) { main.appendChild(emptyState('No project', '')); return; }
     let tickets = projectTickets().filter(t => t.status !== 'Done');
     if (q) tickets = tickets.filter(t => t.title.toLowerCase().includes(q) || t.id.toLowerCase().includes(q));
+    tickets = applyFilters(tickets);
 
     // Sort by stored backlog order if available, else by created
     const orderMap = lsGet(LS_KEYS.backlogOrder + '_' + p.id, {});
@@ -1815,6 +2764,29 @@
         canCreate() ? el('button', { class: 'btn btn-primary', onclick: () => openNewTicketModal() }, '+ New Ticket') : null
       )
     ));
+
+    // Sprint section
+    const sp = activeSprint();
+    if (sp) {
+      main.appendChild(buildSprintCard(sp));
+    } else {
+      const empty = el('div', { class: 'sprint-empty' });
+      empty.appendChild(el('div', { style: { marginBottom: '.4rem', fontWeight: 600, color: '#c9d1d9' }, text: 'No active sprint' }));
+      if (state.user.role === 'admin') {
+        empty.appendChild(el('button', { class: 'btn btn-primary btn-sm', onclick: startSprintModal }, '▶ Start Sprint'));
+      } else {
+        empty.appendChild(el('div', { style: { fontSize: '.78rem' }, text: 'Wait for an admin to start the next sprint.' }));
+      }
+      main.appendChild(empty);
+    }
+
+    main.appendChild(buildFilterBar());
+
+    if (tickets.length === 0) {
+      main.appendChild(largeEmptyState('📚', 'Backlog is empty',
+        hasActiveFilters() ? 'No tickets match the current filters.' : 'Press n to create one, or click the + button.'));
+      return;
+    }
 
     // Bulk action bar
     const bulkBar = el('div', { id: 'bulkBar', style: { display:'none', alignItems:'center', gap:'.5rem', padding:'.5rem .75rem', background:'rgba(99,102,241,.08)', border:'1px solid rgba(99,102,241,.3)', borderRadius:'6px', marginBottom:'.5rem' } });
@@ -1839,7 +2811,8 @@
         el('th', { text: 'Effort' }),
         el('th', { text: 'Assignee' }),
         el('th', { text: 'Pts' }),
-        el('th', { text: 'Due' })
+        el('th', { text: 'Due' }),
+        el('th', { text: 'Sprint' })
       )
     );
     table.appendChild(thead);
@@ -1888,7 +2861,15 @@
     tr.appendChild(el('td', { onclick: (e) => e.stopPropagation() }, chk));
     tr.appendChild(el('td', { style: { fontFamily:'monospace', fontSize:'.78rem', color:'#8b949e' }, text: t.id }));
     tr.appendChild(el('td', {}, el('span', { class: 'type-pill type-' + t.type, text: t.type })));
-    tr.appendChild(el('td', { style: { color:'#f0f6fc' }, text: t.title }));
+    // Title cell with optional sub-task count pill
+    const titleCell = el('td', { style: { color:'#f0f6fc' } }, t.title);
+    const subs = subTasksOf(t);
+    if (subs.length) {
+      const subDone = subs.filter(s => s.status === 'Done').length;
+      titleCell.appendChild(document.createTextNode(' '));
+      titleCell.appendChild(el('span', { class: 'subtask-count-pill', title: 'Sub-tasks', text: '☑ ' + subDone + '/' + subs.length }));
+    }
+    tr.appendChild(titleCell);
     tr.appendChild(el('td', {}, el('span', { class: 'pill', style: { background: 'rgba(255,255,255,.06)', color: '#c9d1d9' }, text: t.status })));
     tr.appendChild(el('td', {}, el('span', { class: 'pill pri-bg-' + t.priority, text: PRIORITY_LABELS[t.priority] })));
     tr.appendChild(el('td', { style: { color:'#c9d1d9', fontSize:'.78rem' }, text: EFFORT_LABELS[t.effort].replace(' Effort', '') }));
@@ -1899,6 +2880,25 @@
     tr.appendChild(el('td', { style: { fontFamily:'monospace', color:'#c9d1d9' }, text: t.storyPoints != null ? String(t.storyPoints) : '—' }));
     tr.appendChild(el('td', { style: { fontFamily:'monospace', fontSize:'.78rem', color: t.dueDate && new Date(t.dueDate) < new Date() ? '#f87171' : '#8b949e' },
       text: t.dueDate ? new Date(t.dueDate).toLocaleDateString() : '—' }));
+    // Sprint cell — add/remove from active sprint
+    const sp = activeSprint();
+    const sprCell = el('td', { onclick: (e) => e.stopPropagation() });
+    if (sp) {
+      if (t.sprintId === sp.id) {
+        sprCell.appendChild(el('button', { class: 'btn btn-sm btn-outline', onclick: () => {
+          if (!canEditTicket(t) && state.user.role !== 'admin') { toast('Permission denied', 'error'); return; }
+          t.sprintId = null; saveTickets(); toast('Removed from sprint', 'info'); renderView();
+        } }, '✕ Sprint'));
+      } else {
+        sprCell.appendChild(el('button', { class: 'btn btn-sm btn-primary', onclick: () => {
+          if (!canEditTicket(t) && state.user.role !== 'admin') { toast('Permission denied', 'error'); return; }
+          t.sprintId = sp.id; saveTickets(); toast('Added to ' + sp.name); renderView();
+        } }, '+ Sprint'));
+      }
+    } else {
+      sprCell.appendChild(document.createTextNode('—'));
+    }
+    tr.appendChild(sprCell);
     return tr;
   }
   function updateBulkBar() {
@@ -2130,6 +3130,115 @@
       });
       main.appendChild(grp);
     });
+  }
+
+  // ─────────── SETTINGS ───────────
+  function renderCalendar(main) {
+    const p = currentProject();
+    if (!p) { main.appendChild(emptyState('No project selected', '')); return; }
+
+    const cm = state.calendarMonth;
+    const firstDay = new Date(cm.year, cm.month, 1);
+    const lastDay  = new Date(cm.year, cm.month + 1, 0);
+    const monthName = firstDay.toLocaleString('default', { month: 'long', year: 'numeric' });
+
+    // Header
+    const hdr = el('div', { class: 'page-header' },
+      el('div', { style: { display:'flex', alignItems:'center', gap:'.75rem' } },
+        el('button', { class: 'btn btn-outline btn-sm', onclick: () => { state.calendarMonth = prevMonth(cm); renderView(); } }, '‹'),
+        el('h1', { class: 'page-title', style: { margin:0 }, text: monthName }),
+        el('button', { class: 'btn btn-outline btn-sm', onclick: () => { state.calendarMonth = nextMonth(cm); renderView(); } }, '›'),
+        el('button', { class: 'btn btn-outline btn-sm', style: { marginLeft:'.25rem' }, onclick: () => {
+          const n = new Date(); state.calendarMonth = { year: n.getFullYear(), month: n.getMonth() }; renderView();
+        } }, 'Today')
+      )
+    );
+    main.appendChild(hdr);
+
+    // Day-of-week header row
+    const calWrap = el('div', { style: { overflowX:'auto' } });
+    const grid = el('div', { style: { display:'grid', gridTemplateColumns:'repeat(7,1fr)', gap:'2px', minWidth:'700px' } });
+    ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach(d => {
+      grid.appendChild(el('div', { style: { textAlign:'center', fontSize:'.72rem', fontWeight:700, letterSpacing:'.05em',
+        color:'#6b7280', padding:'.4rem 0', background:'var(--bs-secondary-bg)', borderRadius:'4px' }, text: d }));
+    });
+
+    // All tickets with due dates this month
+    const ticketsThisMonth = state.tickets.filter(t => {
+      if (t.projectId !== p.id || !t.dueDate) return false;
+      const d = new Date(t.dueDate);
+      return d.getFullYear() === cm.year && d.getMonth() === cm.month;
+    });
+    const ticketsByDay = {};
+    ticketsThisMonth.forEach(t => {
+      const day = new Date(t.dueDate).getDate();
+      if (!ticketsByDay[day]) ticketsByDay[day] = [];
+      ticketsByDay[day].push(t);
+    });
+
+    // Offset: Monday = 0
+    const today = new Date();
+    let startDow = firstDay.getDay(); // 0=Sun
+    startDow = startDow === 0 ? 6 : startDow - 1; // convert to Mon=0
+
+    // Empty cells before first
+    for (let i = 0; i < startDow; i++) {
+      grid.appendChild(el('div', { style: { minHeight:'90px', background:'rgba(255,255,255,.02)', borderRadius:'6px' } }));
+    }
+
+    // Day cells
+    for (let day = 1; day <= lastDay.getDate(); day++) {
+      const isToday = today.getFullYear() === cm.year && today.getMonth() === cm.month && today.getDate() === day;
+      const cell = el('div', { style: {
+        minHeight:'90px', background: isToday ? 'rgba(99,102,241,.08)' : 'var(--bs-secondary-bg)',
+        border: isToday ? '1px solid rgba(99,102,241,.5)' : '1px solid var(--bs-border-color)',
+        borderRadius:'6px', padding:'.35rem .4rem', cursor:'default'
+      }});
+      const dayNum = el('div', { style: { fontSize:'.78rem', fontWeight: isToday ? 700 : 400, color: isToday ? '#a5b4fc' : '#6b7280',
+        marginBottom:'.25rem' }, text: String(day) });
+      cell.appendChild(dayNum);
+      (ticketsByDay[day] || []).forEach(t => {
+        const col = PRIORITY_COLORS[t.priority] || '#6b7280';
+        const chip = el('div', { style: { background: col + '22', border:'1px solid ' + col + '66', borderRadius:'3px',
+          fontSize:'.65rem', padding:'1px 4px', marginBottom:'2px', cursor:'pointer', whiteSpace:'nowrap',
+          overflow:'hidden', textOverflow:'ellipsis', color: col }, title: t.title });
+        chip.textContent = t.id;
+        chip.addEventListener('click', () => openTicketModal(t.id));
+        cell.appendChild(chip);
+      });
+      grid.appendChild(cell);
+    }
+
+    calWrap.appendChild(grid);
+    main.appendChild(calWrap);
+
+    // Unscheduled tickets
+    const unscheduled = state.tickets.filter(t => t.projectId === p.id && !t.dueDate && t.status !== 'Done');
+    if (unscheduled.length) {
+      const sec = el('div', { style: { marginTop:'1.5rem' } });
+      sec.appendChild(el('div', { style: { fontSize:'.78rem', fontWeight:700, letterSpacing:'.06em',
+        color:'#6b7280', textTransform:'uppercase', marginBottom:'.5rem' }, text: 'Unscheduled' }));
+      const chips = el('div', { style: { display:'flex', flexWrap:'wrap', gap:'.35rem' } });
+      unscheduled.forEach(t => {
+        const col = PRIORITY_COLORS[t.priority] || '#6b7280';
+        const c = el('div', { style: { background:'var(--bs-secondary-bg)', border:'1px solid var(--bs-border-color)',
+          borderRadius:'6px', padding:'.3rem .6rem', fontSize:'.78rem', cursor:'pointer', display:'flex', gap:'.4rem', alignItems:'center' } });
+        const idSpan = el('span', { style: { color:'#a5b4fc', fontWeight:600 } }); idSpan.textContent = t.id;
+        const titleSpan = el('span', { style: { color:'#c9d1d9' } }); titleSpan.textContent = truncate(t.title, 40);
+        const stSpan = el('span', { style: { color:'#6b7280', fontSize:'.7rem' } }); stSpan.textContent = t.status;
+        c.appendChild(idSpan); c.appendChild(titleSpan); c.appendChild(stSpan);
+        c.addEventListener('click', () => openTicketModal(t.id));
+        chips.appendChild(c);
+      });
+      sec.appendChild(chips);
+      main.appendChild(sec);
+    }
+  }
+  function prevMonth(cm) {
+    return cm.month === 0 ? { year: cm.year - 1, month: 11 } : { year: cm.year, month: cm.month - 1 };
+  }
+  function nextMonth(cm) {
+    return cm.month === 11 ? { year: cm.year + 1, month: 0 } : { year: cm.year, month: cm.month + 1 };
   }
 
   // ─────────── SETTINGS ───────────
@@ -2464,6 +3573,82 @@
       });
     }
     left.appendChild(stWrap);
+
+    // Sub-tasks
+    const subs = subTasksOf(t);
+    const subWrap = el('div', { style: { marginTop:'1.25rem' } });
+    const subHdr = el('div', { style: { display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'.5rem' } });
+    const subDoneCount = subs.filter(s => s.status === 'Done').length;
+    subHdr.appendChild(el('span', { class: 'td-section-label', style: { margin:0 },
+      text: 'Sub-tasks' + (subs.length ? ' (' + subDoneCount + '/' + subs.length + ')' : '') }));
+    if (canEdit) {
+      const addSubBtn = el('button', { class: 'btn btn-outline btn-sm', style: { fontSize:'.72rem' }, text: '+ Add Sub-task',
+        onclick: () => {
+          const inp = el('input', { type:'text', class:'td-input', placeholder:'Sub-task title…', style:{ flex:1 } });
+          const saveBtn = el('button', { class:'btn btn-primary btn-sm', text:'Add' });
+          const row = el('div', { style:{ display:'flex', gap:'.4rem', marginTop:'.35rem' } });
+          row.appendChild(inp); row.appendChild(saveBtn);
+          saveBtn.addEventListener('click', () => {
+            const title = inp.value.trim();
+            if (!title) return;
+            const sub = {
+              id: t.projectId + '-' + (++currentProject().__ticketSeq),
+              projectId: t.projectId, title, description: '',
+              type: 'subtask', status: 'To Do', priority: t.priority,
+              effort: t.effort, labels: [], assigneeId: t.assigneeId,
+              reporterId: state.user.userId, dueDate: null,
+              epicId: t.id, storyPoints: null, sprintId: t.sprintId || null,
+              watchers: [], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
+            };
+            // Ensure sequential IDs
+            const p2 = currentProject();
+            const existing = state.tickets.filter(x => x.projectId === p2.id);
+            const nums = existing.map(x => parseInt(x.id.split('-')[1],10)).filter(n => !isNaN(n));
+            sub.id = p2.key + '-' + (Math.max(0, ...nums) + 1);
+            state.tickets.push(sub);
+            saveTickets();
+            logHistory(sub.id, 'created', null, null, null);
+            toast('Sub-task ' + sub.id + ' created');
+            hideModal($('ticketModal'));
+            openTicketModal(t.id);
+          });
+          inp.addEventListener('keydown', e => { if (e.key === 'Enter') saveBtn.click(); if (e.key === 'Escape') row.remove(); });
+          subWrap.appendChild(row);
+          inp.focus();
+        }
+      });
+      subHdr.appendChild(addSubBtn);
+    }
+    subWrap.appendChild(subHdr);
+
+    if (subs.length === 0) {
+      subWrap.appendChild(el('div', { style:{ color:'#6b7280', fontSize:'.8rem', fontStyle:'italic' }, text: 'No sub-tasks yet.' }));
+    } else {
+      const subList = el('div', { class: 'subtask-list' });
+      subs.forEach(s => {
+        const isDone = s.status === 'Done';
+        const row = el('div', { class: 'subtask-item' + (isDone ? ' done' : '') });
+        const chk = el('input', { type:'checkbox' });
+        chk.checked = isDone;
+        chk.disabled = !canEdit;
+        chk.addEventListener('change', () => {
+          s.status = chk.checked ? 'Done' : 'To Do';
+          s.updatedAt = new Date().toISOString();
+          saveTickets();
+          logHistory(s.id, 'status_change', 'status', chk.checked ? 'To Do' : 'Done', s.status);
+          hideModal($('ticketModal'));
+          openTicketModal(t.id);
+        });
+        const idLink = el('span', { class: 'subtask-id' }); idLink.textContent = s.id;
+        idLink.addEventListener('click', () => { hideModal($('ticketModal')); openTicketModal(s.id); });
+        const titleEl = el('span', { class: 'subtask-title' }); titleEl.textContent = s.title;
+        const stEl = el('span', { class: 'subtask-status' }); stEl.textContent = s.status;
+        row.appendChild(chk); row.appendChild(idLink); row.appendChild(titleEl); row.appendChild(stEl);
+        subList.appendChild(row);
+      });
+      subWrap.appendChild(subList);
+    }
+    left.appendChild(subWrap);
 
     // Comments
     left.appendChild(el('div', { class: 'td-section-label', style: { marginTop:'1.25rem' }, text: 'Comments' }));
