@@ -650,7 +650,7 @@
     <section class="irad-section" id="initiatives">
       <div class="container">
         <h2 class="section-title irad-reveal">Active Research Initiatives</h2>
-        <p class="text-body-secondary mb-4 irad-reveal">Six concurrent IRAD programs spanning technology readiness levels 3–6, targeting near-term transition to DoD contractor environments.</p>
+        <p class="text-body-secondary mb-4 irad-reveal">Eight concurrent IRAD programs spanning technology readiness levels 3–6, targeting near-term transition to DoD contractor environments.</p>
 
         <div class="row g-4">
 
@@ -863,6 +863,81 @@
             </div>
           </div>
 
+          <!-- IRONFORGE — C++ Security Lab -->
+          <div class="col-lg-4 col-md-6 irad-reveal">
+            <div class="initiative-card trl-high">
+              <div class="init-codename">// PRJ-007 &mdash; IRONFORGE</div>
+              <span class="init-status active"><span class="status-dot"></span>Active Development</span>
+              <div class="init-title">C++ Security Toolchain Lab</div>
+              <div class="init-desc">
+                Suite of twelve production-grade C++ security and systems tools covering entropy
+                analysis, log correlation with ATT&amp;CK rule matching, network forensics, and
+                vulnerability scoring. Tools are designed for deployment in air-gapped DoD
+                environments where Python runtimes are unavailable.
+              </div>
+              <div class="trl-block">
+                <div class="trl-label">
+                  <span>TRL Indicator</span>
+                  <strong>TRL 5 &mdash; System Validated</strong>
+                </div>
+                <div class="trl-track" aria-label="TRL 5 of 9">
+                  <div class="trl-pip filled trl-high"></div>
+                  <div class="trl-pip filled trl-high"></div>
+                  <div class="trl-pip filled trl-high"></div>
+                  <div class="trl-pip filled trl-high"></div>
+                  <div class="trl-pip filled trl-high current"></div>
+                  <div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div>
+                </div>
+                <div class="tech-tags">
+                  <span class="tech-tag">C++17</span>
+                  <span class="tech-tag">ATT&amp;CK</span>
+                  <span class="tech-tag">PCAP</span>
+                  <span class="tech-tag">Entropy Analysis</span>
+                  <span class="tech-tag">Chi-Square</span>
+                </div>
+              </div>
+              <a href="cpp-projects.html" class="btn btn-sm mt-3" style="background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:#4ade80;">View Lab &rarr;</a>
+            </div>
+          </div>
+
+          <!-- KEYSTONE — CAC/PIV Auth Demo -->
+          <div class="col-lg-4 col-md-6 irad-reveal">
+            <div class="initiative-card trl-advanced">
+              <div class="init-codename">// PRJ-008 &mdash; KEYSTONE</div>
+              <span class="init-status active"><span class="status-dot"></span>Active Development</span>
+              <div class="init-title">CAC / PIV Smart Card Auth</div>
+              <div class="init-desc">
+                Interactive simulation of DoD Common Access Card (CAC) and NIST FIPS 201 PIV
+                authentication using real ECDSA P-256 cryptography via the Web Crypto API.
+                Demonstrates the full 4-step PKI chain, challenge-response signing, PIN lockout,
+                and an access-request workflow with administrator review center.
+              </div>
+              <div class="trl-block">
+                <div class="trl-label">
+                  <span>TRL Indicator</span>
+                  <strong>TRL 6 &mdash; System Demonstrated</strong>
+                </div>
+                <div class="trl-track" aria-label="TRL 6 of 9">
+                  <div class="trl-pip filled trl-advanced"></div>
+                  <div class="trl-pip filled trl-advanced"></div>
+                  <div class="trl-pip filled trl-advanced"></div>
+                  <div class="trl-pip filled trl-advanced"></div>
+                  <div class="trl-pip filled trl-advanced"></div>
+                  <div class="trl-pip filled trl-advanced current"></div>
+                  <div class="trl-pip"></div><div class="trl-pip"></div><div class="trl-pip"></div>
+                </div>
+                <div class="tech-tags">
+                  <span class="tech-tag">WebAuthn / FIDO2</span>
+                  <span class="tech-tag">ECDSA P-256</span>
+                  <span class="tech-tag">FIPS 201-3</span>
+                  <span class="tech-tag">DoD PKI</span>
+                  <span class="tech-tag">Web Crypto API</span>
+                </div>
+              </div>
+              <a href="caclogin.html" class="btn btn-sm mt-3" style="background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.3);color:#a5b4fc;">View Demo &rarr;</a>
+            </div>
+          </div>
+
         </div>
       </div>
     </section>
@@ -875,7 +950,7 @@
             <div class="metric-card">
               <div class="metric-icon-wrap orange">&#128736;</div>
               <div>
-                <div class="metric-val" data-count="3">0</div>
+                <div class="metric-val" data-count="5">0</div>
                 <div class="metric-lbl">Prototype Tools Deployable</div>
               </div>
             </div>
