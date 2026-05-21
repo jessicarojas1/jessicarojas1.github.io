@@ -1,9 +1,6 @@
 <?php
 /**
  * NEXUS - SPA shell.
- *
- * This is the single HTML entry point. All data is fetched from /api/*.
- * The frontend logic lives in /app/nexus.js and is served as a static asset.
  */
 ?><!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
@@ -11,14 +8,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>NEXUS · Project Tracker</title>
-  <meta name="description" content="NEXUS — DoD-grade project + ticket tracker. PHP + PostgreSQL backend with CAC/PIV simulated auth and full RBAC." />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%236366f1'/%3E%3Cpath d='M16 18l16 14 16-14M16 46l16-14 16 14' stroke='white' stroke-width='4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" crossorigin="anonymous">
   <link rel="stylesheet" href="/app/nexus.css" />
 </head>
 <body>
 
-  <!-- ─────────── AUTH GATE ─────────── -->
+  <!-- ── AUTH GATE ─────────────────────────────────────────────── -->
   <div id="auth-gate" class="auth-gate">
     <div class="auth-shell">
       <div class="auth-shell-header">
@@ -42,24 +38,21 @@
           <div class="reader-state" id="reader-state">Reader idle</div>
         </div>
         <div class="auth-content-col">
-          <!-- Step 1 -->
           <section class="auth-step" data-step="1">
             <h3 class="auth-h">Select identity</h3>
             <p class="auth-sub">Choose a simulated CAC/PIV identity to authenticate.</p>
             <div class="identity-grid" id="identity-grid"></div>
           </section>
-          <!-- Step 2 -->
           <section class="auth-step d-none" data-step="2">
             <h3 class="auth-h">Enter PIN</h3>
             <p class="auth-sub" id="pin-sub">PIN required to unlock private key.</p>
             <div class="pin-pad">
-              <input type="password" inputmode="numeric" autocomplete="off" maxlength="6" id="pin-input" class="pin-field" placeholder="••••••" />
+              <input type="password" inputmode="numeric" autocomplete="off" maxlength="8" id="pin-input" class="pin-field" placeholder="••••••" />
               <button class="btn btn-success" id="pin-submit">Authenticate</button>
               <button class="btn btn-outline-secondary" id="pin-back">Back</button>
             </div>
             <div class="auth-err" id="pin-err"></div>
           </section>
-          <!-- Step 3 -->
           <section class="auth-step d-none" data-step="3">
             <h3 class="auth-h">Authenticating…</h3>
             <div class="auth-spinner" aria-hidden="true"></div>
@@ -70,34 +63,60 @@
     </div>
   </div>
 
-  <!-- ─────────── APP SHELL ─────────── -->
+  <!-- ── APP SHELL ──────────────────────────────────────────────── -->
   <div id="app" class="app-shell d-none">
+
+    <!-- Top header — always visible -->
     <header class="app-header">
-      <div class="brand">
+      <div class="brand" id="brand-home" style="cursor:pointer">
         <span class="brand-mark">⬡</span>
         <span class="brand-text">NEXUS</span>
-        <span class="brand-tag">Project Tracker</span>
       </div>
-      <nav class="app-nav">
-        <button class="nav-btn active" data-view="board">Board</button>
-        <button class="nav-btn" data-view="backlog">Backlog</button>
-        <button class="nav-btn" data-view="sprints">Sprints</button>
-        <button class="nav-btn" data-view="history">History</button>
+
+      <!-- Project context bar — shown when inside a project -->
+      <div class="project-bar d-none" id="project-bar">
+        <button class="back-btn" id="back-home-btn">← Projects</button>
+        <span class="project-bar-sep"></span>
+        <span class="project-bar-icon" id="project-bar-icon"></span>
+        <span class="project-bar-name" id="project-bar-name"></span>
+        <nav class="project-nav" id="project-nav">
+          <button class="nav-btn active" data-view="board">Board</button>
+          <button class="nav-btn" data-view="backlog">Backlog</button>
+          <button class="nav-btn" data-view="sprints">Sprints</button>
+          <button class="nav-btn" data-view="history">History</button>
+        </nav>
+      </div>
+
+      <!-- Global nav — shown on home -->
+      <nav class="app-nav" id="global-nav">
         <button class="nav-btn" data-view="users" id="nav-users" style="display:none">Users</button>
       </nav>
+
       <div class="app-user">
-        <button class="icon-btn position-relative" id="bell-btn" title="Notifications">
+        <button class="icon-btn" id="bell-btn" title="Notifications">
           🔔 <span id="bell-badge" class="bell-badge d-none">0</span>
         </button>
-        <select id="project-select" class="form-select form-select-sm"></select>
         <div class="user-chip" id="user-chip"></div>
         <button class="btn btn-sm btn-outline-light" id="logout-btn">Sign out</button>
       </div>
     </header>
 
     <main class="app-main">
+
+      <!-- HOME — project grid -->
+      <section class="view view-home" data-view="home">
+        <div class="home-header">
+          <div>
+            <h1 class="home-title">Projects</h1>
+            <p class="home-sub" id="home-sub"></p>
+          </div>
+          <button class="btn btn-primary" id="new-project-btn" style="display:none">+ New Project</button>
+        </div>
+        <div class="project-grid" id="project-grid"></div>
+      </section>
+
       <!-- BOARD -->
-      <section class="view view-board" data-view="board">
+      <section class="view view-board d-none" data-view="board">
         <div class="toolbar">
           <input type="search" class="form-control form-control-sm" id="search-input" placeholder="Search tickets…" />
           <select id="filter-priority" class="form-select form-select-sm">
@@ -110,7 +129,7 @@
           <select id="filter-assignee" class="form-select form-select-sm">
             <option value="">All assignees</option>
           </select>
-          <button class="btn btn-sm btn-primary ms-auto" id="new-ticket-btn">+ New ticket</button>
+          <button class="btn btn-sm btn-primary ms-auto" id="new-ticket-btn">+ New Ticket</button>
         </div>
         <div class="board" id="board"></div>
       </section>
@@ -119,6 +138,7 @@
       <section class="view view-backlog d-none" data-view="backlog">
         <div class="toolbar">
           <h2 class="view-title">Backlog</h2>
+          <button class="btn btn-sm btn-primary ms-auto" id="new-ticket-btn-bl">+ New Ticket</button>
         </div>
         <div class="backlog-list" id="backlog-list"></div>
       </section>
@@ -127,16 +147,14 @@
       <section class="view view-sprints d-none" data-view="sprints">
         <div class="toolbar">
           <h2 class="view-title">Sprints</h2>
-          <button class="btn btn-sm btn-primary ms-auto" id="new-sprint-btn">+ New sprint</button>
+          <button class="btn btn-sm btn-primary ms-auto" id="new-sprint-btn">+ New Sprint</button>
         </div>
         <div class="sprints-list" id="sprints-list"></div>
       </section>
 
       <!-- HISTORY -->
       <section class="view view-history d-none" data-view="history">
-        <div class="toolbar">
-          <h2 class="view-title">Project history</h2>
-        </div>
+        <div class="toolbar"><h2 class="view-title">Project History</h2></div>
         <div class="history-feed" id="history-feed"></div>
       </section>
 
@@ -148,13 +166,14 @@
         </div>
         <div id="users-list"></div>
       </section>
+
     </main>
 
-    <!-- Ticket detail drawer -->
+    <!-- Ticket drawer -->
     <aside class="drawer d-none" id="ticket-drawer">
       <div class="drawer-header">
         <h2 id="drawer-title">Ticket</h2>
-        <button class="btn-close" id="drawer-close" aria-label="Close"></button>
+        <button class="btn-close" id="drawer-close"></button>
       </div>
       <div class="drawer-body" id="drawer-body"></div>
     </aside>
@@ -168,20 +187,21 @@
       <div class="notif-list" id="notif-list"></div>
     </div>
 
-    <!-- New ticket modal -->
+    <!-- New Ticket modal -->
     <div class="modal-shell d-none" id="ticket-modal">
       <div class="modal-card">
         <div class="modal-card-head">
-          <h3>New ticket</h3>
+          <h3>New Ticket</h3>
           <button class="btn-close" data-modal-close></button>
         </div>
         <form id="ticket-form" class="modal-card-body">
           <label class="form-label">Title</label>
-          <input class="form-control" name="title" required />
+          <input class="form-control" name="title" required placeholder="Short, descriptive title" />
           <label class="form-label mt-2">Description</label>
-          <textarea class="form-control" name="description" rows="3"></textarea>
+          <textarea class="form-control" name="description" rows="3" placeholder="Context, acceptance criteria, links…"></textarea>
           <div class="row g-2 mt-2">
-            <div class="col"><label class="form-label">Type</label>
+            <div class="col">
+              <label class="form-label">Type</label>
               <select class="form-select" name="type">
                 <option value="task">Task</option>
                 <option value="bug">Bug</option>
@@ -189,7 +209,8 @@
                 <option value="epic">Epic</option>
               </select>
             </div>
-            <div class="col"><label class="form-label">Priority</label>
+            <div class="col">
+              <label class="form-label">Priority</label>
               <select class="form-select" name="priority">
                 <option value="low">Low</option>
                 <option value="medium" selected>Medium</option>
@@ -197,7 +218,8 @@
                 <option value="critical">Critical</option>
               </select>
             </div>
-            <div class="col"><label class="form-label">Effort</label>
+            <div class="col">
+              <label class="form-label">Effort</label>
               <select class="form-select" name="effort">
                 <option value="minimal">Minimal</option>
                 <option value="moderate" selected>Moderate</option>
@@ -214,6 +236,12 @@
               </select>
             </div>
             <div class="col">
+              <label class="form-label">Sprint</label>
+              <select class="form-select" name="sprintId" id="ticket-form-sprint">
+                <option value="">— No sprint —</option>
+              </select>
+            </div>
+            <div class="col">
               <label class="form-label">Due date</label>
               <input type="date" class="form-control" name="dueDate" />
             </div>
@@ -221,7 +249,47 @@
         </form>
         <div class="modal-card-foot">
           <button class="btn btn-outline-secondary" data-modal-close>Cancel</button>
-          <button class="btn btn-primary" id="ticket-form-submit">Create</button>
+          <button class="btn btn-primary" id="ticket-form-submit">Create Ticket</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- New Project modal -->
+    <div class="modal-shell d-none" id="project-modal">
+      <div class="modal-card">
+        <div class="modal-card-head">
+          <h3>New Project</h3>
+          <button class="btn-close" data-project-modal-close></button>
+        </div>
+        <form id="project-form" class="modal-card-body">
+          <div class="row g-2">
+            <div class="col-8">
+              <label class="form-label">Project Name</label>
+              <input class="form-control" name="name" required placeholder="e.g. Security Platform" />
+            </div>
+            <div class="col-4">
+              <label class="form-label">Key</label>
+              <input class="form-control" name="key" required placeholder="SEC" maxlength="10" id="project-key-input" />
+              <small class="text-muted">2–10 uppercase letters</small>
+            </div>
+          </div>
+          <label class="form-label mt-2">Description</label>
+          <textarea class="form-control" name="description" rows="2" placeholder="What is this project about?"></textarea>
+          <div class="row g-2 mt-2">
+            <div class="col-3">
+              <label class="form-label">Icon</label>
+              <input class="form-control text-center" name="icon" maxlength="4" value="🚀" id="project-icon-input" />
+            </div>
+            <div class="col-9">
+              <label class="form-label">Color</label>
+              <div class="color-swatches" id="color-swatches"></div>
+              <input type="hidden" name="color" id="project-color-input" value="#6366f1" />
+            </div>
+          </div>
+        </form>
+        <div class="modal-card-foot">
+          <button class="btn btn-outline-secondary" data-project-modal-close>Cancel</button>
+          <button class="btn btn-primary" id="project-form-submit">Create Project</button>
         </div>
       </div>
     </div>

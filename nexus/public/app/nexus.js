@@ -198,16 +198,13 @@ async function showApp() {
   $('#auth-gate').classList.add('d-none');
   $('#app').classList.remove('d-none');
   renderUserChip();
-  // Show Users nav only for admins
-  const navUsers = $('#nav-users');
-  if (navUsers) navUsers.style.display = state.user?.role === 'admin' ? '' : 'none';
-  await loadProjects();
-  if (state.projects.length) {
-    state.currentProject = state.projects[0];
-    await loadProjectData();
+  if (state.user?.role === 'admin') {
+    $('#nav-users').style.display = '';
+    $('#new-project-btn').style.display = '';
   }
+  await loadProjects();
   await loadNotifications();
-  render();
+  goHome();
 }
 
 function renderUserChip() {
@@ -223,11 +220,6 @@ function renderUserChip() {
 async function loadProjects() {
   const r = await API.get('/projects');
   state.projects = r.data;
-  const sel = $('#project-select');
-  sel.innerHTML = '';
-  for (const p of state.projects) {
-    sel.appendChild(el('option', { value: p.id }, `${p.icon || '•'} ${p.key} — ${p.name}`));
-  }
 }
 
 async function loadProjectData() {
@@ -245,7 +237,7 @@ async function loadProjectData() {
   state.labels         = labels.data;
   state.sprints        = sprints.data;
 
-  // Populate assignee filter
+  // Populate assignee filter + ticket form
   const sel = $('#filter-assignee');
   sel.innerHTML = '<option value="">All assignees</option>';
   for (const m of state.members) {
@@ -256,6 +248,74 @@ async function loadProjectData() {
   for (const m of state.members) {
     fa.appendChild(el('option', { value: m.id }, m.displayName));
   }
+  // Populate sprint selector in ticket form
+  const fs = $('#ticket-form-sprint');
+  fs.innerHTML = '<option value="">— No sprint —</option>';
+  for (const s of state.sprints.filter(s => s.status === 'active')) {
+    fs.appendChild(el('option', { value: s.id }, s.name));
+  }
+}
+
+// ── Home page ─────────────────────────────────────────────────────
+function goHome() {
+  state.currentProject = null;
+  state.currentView = 'home';
+
+  // Header: hide project bar, show global nav
+  $('#project-bar').classList.add('d-none');
+  $('#global-nav').classList.remove('d-none');
+
+  // Show only the home view
+  $$('.view').forEach(v => v.classList.toggle('d-none', v.dataset.view !== 'home'));
+  $$('.nav-btn').forEach(b => b.classList.remove('active'));
+
+  renderHome();
+}
+
+function renderHome() {
+  const grid = $('#project-grid');
+  grid.innerHTML = '';
+
+  const sub = $('#home-sub');
+  if (sub) sub.textContent = state.projects.length
+    ? `${state.projects.length} project${state.projects.length > 1 ? 's' : ''} · select one to get started`
+    : 'No projects yet. Create your first one above.';
+
+  if (!state.projects.length) {
+    grid.innerHTML = '<p style="color:#8b949e;text-align:center;padding:3rem">No projects found.</p>';
+    return;
+  }
+
+  for (const p of state.projects) {
+    const openCount = (p.ticketCount ?? 0);
+    const card = el('div', { class: 'project-card', onclick: () => enterProject(p) });
+    card.style.borderTopColor = p.color || '#6366f1';
+    card.innerHTML = `
+      <div class="project-card-icon">${esc(p.icon || '📁')}</div>
+      <div class="project-card-body">
+        <div class="project-card-key">${esc(p.key)}</div>
+        <div class="project-card-name">${esc(p.name)}</div>
+        <div class="project-card-desc">${esc(p.description || '')}</div>
+      </div>
+      <div class="project-card-meta">
+        <span>${openCount} ticket${openCount !== 1 ? 's' : ''}</span>
+      </div>
+    `;
+    grid.append(card);
+  }
+}
+
+async function enterProject(p) {
+  state.currentProject = p;
+  await loadProjectData();
+
+  // Header: show project bar, hide global nav
+  $('#project-bar').classList.remove('d-none');
+  $('#global-nav').classList.add('d-none');
+  $('#project-bar-icon').textContent = p.icon || '📁';
+  $('#project-bar-name').textContent = p.name;
+
+  switchView('board');
 }
 
 async function loadNotifications() {
@@ -276,13 +336,15 @@ async function loadNotifications() {
 // ── View routing ───────────────────────────────────────────────────
 function switchView(view) {
   state.currentView = view;
-  $$('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+  // Only mark nav-btn active for project views (inside project-bar)
+  $$('#project-nav .nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === view));
   $$('.view').forEach(s => s.classList.toggle('d-none', s.dataset.view !== view));
   render();
 }
 
 function render() {
-  if (state.currentView === 'users') { renderUsersAdmin(); return; }
+  if (state.currentView === 'home')    { renderHome(); return; }
+  if (state.currentView === 'users')   { renderUsersAdmin(); return; }
   if (!state.currentProject) return;
   if      (state.currentView === 'board')   renderBoard();
   else if (state.currentView === 'backlog') renderBacklog();
@@ -676,28 +738,59 @@ function bindUI() {
   $('#pin-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') submitPin(); });
   $('#pin-back').addEventListener('click', () => setAuthStep(1));
 
-  // Nav
-  $$('.nav-btn').forEach(b => b.addEventListener('click', () => switchView(b.dataset.view)));
+  // Project-scoped nav buttons
+  $$('#project-nav .nav-btn').forEach(b => b.addEventListener('click', () => switchView(b.dataset.view)));
 
-  // Project switcher
-  $('#project-select').addEventListener('change', async (e) => {
-    state.currentProject = state.projects.find(p => p.id === e.target.value);
-    await loadProjectData();
-    render();
+  // Global nav (users)
+  $('#nav-users').addEventListener('click', () => {
+    $('#project-bar').classList.add('d-none');
+    $('#global-nav').classList.remove('d-none');
+    $$('.view').forEach(v => v.classList.toggle('d-none', v.dataset.view !== 'users'));
+    state.currentView = 'users';
+    renderUsersAdmin();
   });
+
+  // Back to home
+  $('#brand-home').addEventListener('click', goHome);
+  $('#back-home-btn').addEventListener('click', goHome);
 
   // Filters
   $('#search-input').addEventListener('input',     (e) => { state.filters.search   = e.target.value; renderBoard(); });
   $('#filter-priority').addEventListener('change', (e) => { state.filters.priority = e.target.value; renderBoard(); });
   $('#filter-assignee').addEventListener('change', (e) => { state.filters.assignee = e.target.value; renderBoard(); });
 
-  // Buttons
+  // Ticket buttons
   $('#new-ticket-btn').addEventListener('click', openNewTicket);
+  $('#new-ticket-btn-bl').addEventListener('click', openNewTicket);
   $('#new-sprint-btn').addEventListener('click', newSprint);
   $('#new-user-btn')?.addEventListener('click', openNewUserModal);
   $('#ticket-form-submit').addEventListener('click', submitNewTicket);
   $$('[data-modal-close]').forEach(b => b.addEventListener('click', closeNewTicket));
   $('#drawer-close').addEventListener('click', closeDrawer);
+
+  // Project creation
+  $('#new-project-btn').addEventListener('click', openProjectModal);
+  $('#project-form-submit').addEventListener('click', submitProjectForm);
+  $$('[data-project-modal-close]').forEach(b => b.addEventListener('click', closeProjectModal));
+  // Auto-generate key from name
+  $('#project-form [name="name"]')?.addEventListener('input', (e) => {
+    const key = e.target.value.replace(/[^a-zA-Z]/g, '').substring(0, 6).toUpperCase();
+    $('#project-key-input').value = key;
+  });
+  // Color swatches
+  const colors = ['#6366f1','#22c55e','#3b82f6','#f59e0b','#ef4444','#a855f7','#14b8a6','#f97316'];
+  const swatchContainer = $('#color-swatches');
+  colors.forEach(c => {
+    const s = el('span', { class: 'color-swatch', title: c });
+    s.style.background = c;
+    s.onclick = () => {
+      $$('.color-swatch').forEach(x => x.classList.remove('selected'));
+      s.classList.add('selected');
+      $('#project-color-input').value = c;
+    };
+    swatchContainer.append(s);
+  });
+  swatchContainer.firstChild?.click();
   $('#bell-btn').addEventListener('click', toggleNotifs);
   $('#notif-readall').addEventListener('click', async () => {
     try { await API.post('/notifications/read-all', {}); await loadNotifications(); toggleNotifs(); toggleNotifs(); }
@@ -816,6 +909,40 @@ function openNewUserModal() {
   API.post('/users', { id: id.trim(), firstName: firstName.trim(), lastName: lastName.trim(), role, clearance: clearance || 'UNCLASSIFIED', org: org || '', pin })
     .then(() => { toast('User created', 'success'); renderUsersAdmin(); })
     .catch(e => toast(e.message, 'error'));
+}
+
+// ── Project modal ─────────────────────────────────────────────────
+function openProjectModal() {
+  $('#project-modal').classList.remove('d-none');
+  $('#project-form').reset();
+  $('#project-icon-input').value = '🚀';
+  $('#color-swatches')?.firstElementChild?.click();
+}
+
+function closeProjectModal() {
+  $('#project-modal').classList.add('d-none');
+}
+
+async function submitProjectForm() {
+  const f = $('#project-form');
+  const data = Object.fromEntries(new FormData(f));
+  const name  = (data.name || '').trim();
+  const key   = (data.key  || '').trim().toUpperCase();
+  if (!name || !key) { toast('Name and Key are required', 'error'); return; }
+  if (!/^[A-Z]{2,10}$/.test(key)) { toast('Key must be 2–10 uppercase letters', 'error'); return; }
+  try {
+    const r = await API.post('/projects', {
+      name,
+      key,
+      description: data.description || '',
+      icon:        data.icon  || '🚀',
+      color:       data.color || '#6366f1',
+    });
+    toast('Project created: ' + r.data.name, 'success');
+    closeProjectModal();
+    await loadProjects();
+    renderHome();
+  } catch (e) { toast(e.message, 'error'); }
 }
 
 // ── Expose a tiny namespace for the API layer's 401 handler ───────
