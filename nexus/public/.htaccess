@@ -1,0 +1,13 @@
+Options -MultiViews -Indexes
+RewriteEngine On
+
+# Let real files and directories pass through unchanged
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Route all /api/* requests through the API dispatcher
+RewriteRule ^api/(.*)$ api/index.php [QSA,L]
+
+# Everything else -> SPA shell
+RewriteRule ^ index.php [L]

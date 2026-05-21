@@ -1,0 +1,28 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: nexus
+      POSTGRES_USER: nexus
+      POSTGRES_PASSWORD: nexus
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  app:
+    build: .
+    ports:
+      - "8080:80"
+    environment:
+      DATABASE_URL: postgresql://nexus:nexus@db:5432/nexus
+      JWT_SECRET: dev-secret-do-not-use-in-production
+      APP_ENV: development
+      NEXUS_ALLOW_DEFAULT_PINS: "1"
+    depends_on:
+      - db
+    volumes:
+      - .:/var/www/html
+
+volumes:
+  pgdata:
