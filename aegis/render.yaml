@@ -16,7 +16,7 @@ services:
       - key: APP_NAME
         value: AEGIS GRC
       - key: ADMIN_EMAIL
-        value: admin@aegisgrc.local
+        sync: false
       - key: ADMIN_PASSWORD
         generateValue: true
 
