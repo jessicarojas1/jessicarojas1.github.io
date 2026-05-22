@@ -90,6 +90,8 @@ class RiskController {
             'category_id'          => $categoryId,
             'likelihood'           => $likelihood,
             'impact'               => $impact,
+            'inherent_score'       => $likelihood * $impact,
+            'residual_score'       => $likelihood * $impact,
             'treatment_type'       => $treatment,
             'treatment_description' => $treatDesc,
             'owner_id'             => $ownerId,
@@ -147,9 +149,12 @@ class RiskController {
         $treatDesc  = Security::sanitizeInput($_POST['treatment_description'] ?? '');
         $reviewDate = Security::sanitizeInput($_POST['review_date'] ?? '');
 
+        $inherentScore = $likelihood * $impact;
+        $residualScore = ($resLikelihood ?? $likelihood) * ($resImpact ?? $impact);
+
         Database::query(
-            "UPDATE risks SET likelihood=?, impact=?, residual_likelihood=?, residual_impact=?, status=?, treatment_type=?, treatment_description=?, review_date=?, updated_at=NOW() WHERE id=?",
-            [$likelihood, $impact, $resLikelihood, $resImpact, $status, $treatment, $treatDesc, $reviewDate ?: null, $id]
+            "UPDATE risks SET likelihood=?, impact=?, inherent_score=?, residual_likelihood=?, residual_impact=?, residual_score=?, status=?, treatment_type=?, treatment_description=?, review_date=?, updated_at=NOW() WHERE id=?",
+            [$likelihood, $impact, $inherentScore, $resLikelihood, $resImpact, $residualScore, $status, $treatment, $treatDesc, $reviewDate ?: null, $id]
         );
 
         if (!empty($_POST['add_treatment'])) {

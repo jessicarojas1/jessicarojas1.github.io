@@ -35,7 +35,15 @@ log_msg('[AEGIS] Starting database installation...');
 try {
     $pdo = Database::getInstance();
     $schema = file_get_contents(AEGIS_ROOT . '/database/schema.sql');
-    $pdo->exec($schema);
+
+    // Execute each statement individually for compatibility and clear error reporting
+    $statements = array_filter(
+        array_map('trim', explode(';', $schema)),
+        fn($s) => strlen($s) > 5 && !preg_match('/^\s*--/', $s)
+    );
+    foreach ($statements as $stmt) {
+        $pdo->exec($stmt);
+    }
     log_msg('[AEGIS] Schema created.');
 
     // Default admin
