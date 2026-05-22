@@ -202,7 +202,7 @@ async function showApp() {
     $('#global-new-ticket-btn').classList.remove('d-none');
   }
   if (state.user?.role === 'admin') {
-    $('#nav-users').style.display = '';
+    $('#nav-admin').style.display = '';
     $('#new-project-btn').style.display = '';
   }
   await loadProjects();
@@ -347,7 +347,7 @@ function switchView(view) {
 
 function render() {
   if (state.currentView === 'home')      { renderHome(); return; }
-  if (state.currentView === 'users')     { renderUsersAdmin(); return; }
+  if (state.currentView === 'admin')     { renderAdmin(); return; }
   if (!state.currentProject) return;
   if      (state.currentView === 'dashboard') renderDashboard();
   else if (state.currentView === 'board')     renderBoard();
@@ -1024,14 +1024,17 @@ function bindUI() {
   // Project-scoped nav buttons
   $$('#project-nav .nav-btn').forEach(b => b.addEventListener('click', () => switchView(b.dataset.view)));
 
-  // Global nav (users)
-  $('#nav-users').addEventListener('click', () => {
+  // Global nav (admin)
+  $('#nav-admin').addEventListener('click', () => {
+    state.currentProject = null;
     $('#project-bar').classList.add('d-none');
     $('#global-nav').classList.remove('d-none');
-    $$('.view').forEach(v => v.classList.toggle('d-none', v.dataset.view !== 'users'));
-    state.currentView = 'users';
-    renderUsersAdmin();
+    $$('.view').forEach(v => v.classList.toggle('d-none', v.dataset.view !== 'admin'));
+    state.currentView = 'admin';
+    renderAdmin();
   });
+  // Admin sidebar tabs
+  $$('.admin-nav-btn').forEach(b => b.addEventListener('click', () => renderAdmin(b.dataset.adminTab)));
 
   // Back to home
   $('#brand-home').addEventListener('click', goHome);
@@ -1049,7 +1052,6 @@ function bindUI() {
   // Dynamic project selector in ticket form
   $('#ticket-form-project').addEventListener('change', (e) => loadTicketFormData(e.target.value));
   $('#new-sprint-btn').addEventListener('click', newSprint);
-  $('#new-user-btn')?.addEventListener('click', openNewUserModal);
   $('#ticket-form-submit').addEventListener('click', submitNewTicket);
   $$('[data-modal-close]').forEach(b => b.addEventListener('click', closeNewTicket));
   $('#drawer-close').addEventListener('click', closeDrawer);
@@ -1102,58 +1104,303 @@ function bindUI() {
   });
 }
 
-// ── Users Administration ────────────────────────────────────────────
-async function renderUsersAdmin() {
-  const container = $('#users-list');
-  if (!container) return;
-  container.innerHTML = '<p style="color:#8b949e">Loading…</p>';
+// ── Admin Center ────────────────────────────────────────────────────
+let adminTab = 'users';
+
+function renderAdmin(tab) {
+  if (tab) adminTab = tab;
+  $$('.admin-nav-btn').forEach(b => b.classList.toggle('active', b.dataset.adminTab === adminTab));
+  switch (adminTab) {
+    case 'users':       return renderAdminUsers();
+    case 'workflows':   return renderAdminWorkflows();
+    case 'labels':      return renderAdminLabels();
+    case 'permissions': return renderAdminPermissions();
+    case 'risk':        return renderAdminRiskMatrix();
+  }
+}
+
+async function renderAdminUsers() {
+  const c = $('#admin-content');
+  c.innerHTML = '<p style="color:#8b949e">Loading…</p>';
   try {
     const r = await API.get('/users');
-    const users = r.data;
-    container.innerHTML = '';
-
+    c.innerHTML = '';
+    c.appendChild(el('div', { class: 'admin-section-head' },
+      el('h3', { class: 'admin-section-title' }, 'Users'),
+      el('button', { class: 'btn btn-sm btn-primary', onclick: openNewUserModal }, '+ Add User'),
+    ));
     const table = el('table', { class: 'users-table' });
-    table.innerHTML = `
-      <thead><tr>
-        <th>Name</th><th>ID</th><th>Role</th><th>Clearance</th><th>Org</th><th>Actions</th>
-      </tr></thead>
-    `;
+    table.innerHTML = `<thead><tr>
+      <th>User</th><th>Role</th><th>Clearance</th><th>Org</th><th>Actions</th>
+    </tr></thead>`;
     const tbody = el('tbody');
-    for (const u of users) {
+    for (const u of r.data) {
+      const initials = u.displayName.split(' ').map(s => s[0]).join('').toUpperCase();
       const tr = el('tr');
       tr.innerHTML = `
-        <td><strong>${esc(u.displayName)}</strong></td>
-        <td style="font-family:monospace;font-size:.8rem">${esc(u.id)}</td>
+        <td><div style="display:flex;align-items:center;gap:.6rem">
+          <div class="user-avatar">${esc(initials)}</div>
+          <div>
+            <div style="font-weight:600;color:#f0f6fc">${esc(u.displayName)}</div>
+            <div style="font-size:.7rem;color:#8b949e;font-family:monospace">${esc(u.id)}</div>
+          </div>
+        </div></td>
         <td><span class="role-pill ${u.role}">${esc(u.role)}</span></td>
         <td style="font-size:.82rem">${esc(u.clearance ?? '—')}</td>
         <td style="font-size:.82rem">${esc(u.org ?? '—')}</td>
-        <td></td>
-      `;
-      const actionsCell = tr.querySelector('td:last-child');
-      // Change PIN button
-      const pinBtn = el('button', { class: 'btn btn-sm btn-outline-secondary' }, 'Change PIN');
+        <td></td>`;
+      const act = tr.querySelector('td:last-child');
+      const pinBtn = el('button', { class: 'btn btn-sm btn-outline-secondary' }, 'PIN');
       pinBtn.onclick = () => openChangePinModal(u);
-      actionsCell.append(pinBtn);
-
-      // Edit role (can't edit self)
+      act.append(pinBtn);
       if (u.id !== state.user?.id) {
-        const editBtn = el('button', { class: 'btn btn-sm btn-outline-primary' }, 'Edit');
-        editBtn.style.marginLeft = '.35rem';
+        const editBtn = el('button', { class: 'btn btn-sm btn-outline-primary', style: 'margin-left:.3rem' }, 'Edit');
         editBtn.onclick = () => openEditUserModal(u);
-        actionsCell.append(editBtn);
-
-        const delBtn = el('button', { class: 'btn btn-sm btn-outline-danger' }, 'Delete');
-        delBtn.style.marginLeft = '.35rem';
+        act.append(editBtn);
+        const delBtn = el('button', { class: 'btn btn-sm btn-outline-danger', style: 'margin-left:.3rem' }, 'Del');
         delBtn.onclick = () => deleteUser(u);
-        actionsCell.append(delBtn);
+        act.append(delBtn);
       }
       tbody.append(tr);
     }
     table.append(tbody);
-    container.append(table);
-  } catch (e) {
-    container.innerHTML = `<p style="color:#ef4444">${esc(e.message)}</p>`;
+    c.append(table);
+  } catch (e) { $('#admin-content').innerHTML = `<p style="color:#ef4444">${esc(e.message)}</p>`; }
+}
+
+async function renderAdminWorkflows() {
+  const c = $('#admin-content');
+  c.innerHTML = '<p style="color:#8b949e">Loading…</p>';
+  try {
+    const r = await API.get('/projects');
+    c.innerHTML = '';
+    c.appendChild(el('div', { class: 'admin-section-head' },
+      el('h3', { class: 'admin-section-title' }, 'Workflows'),
+      el('p', { style: 'color:#8b949e;font-size:.85rem;margin:0' }, 'Customize status columns per project.'),
+    ));
+
+    for (const p of r.data) {
+      const statuses = [...(p.statuses || ['Backlog','To Do','In Progress','In Review','Blocked','Done'])];
+      const section = el('div', { class: 'workflow-project' });
+      section.appendChild(el('div', { class: 'workflow-project-head' },
+        el('span', {}, `${p.icon || '📁'} ${esc(p.name)}`),
+        el('span', { style: 'font-family:monospace;font-size:.7rem;color:#8b949e' }, p.key),
+      ));
+
+      const statusList = el('div', { class: 'workflow-status-list' });
+      const rebuild = () => {
+        statusList.innerHTML = '';
+        statuses.forEach((s, i) => {
+          const upBtn = el('button', { class: 'btn-xs', disabled: i === 0 || undefined }, '↑');
+          upBtn.onclick = () => { if (i > 0) { [statuses[i-1],statuses[i]] = [statuses[i],statuses[i-1]]; rebuild(); } };
+          const dnBtn = el('button', { class: 'btn-xs', disabled: i === statuses.length - 1 || undefined }, '↓');
+          dnBtn.onclick = () => { if (i < statuses.length-1) { [statuses[i+1],statuses[i]] = [statuses[i],statuses[i+1]]; rebuild(); } };
+          const rmBtn = el('button', { class: 'btn-xs btn-danger-xs' }, '×');
+          rmBtn.onclick = () => { statuses.splice(i, 1); rebuild(); };
+          statusList.appendChild(el('div', { class: 'workflow-status-row' },
+            el('span', { class: 'workflow-status-name' }, s),
+            el('div', { class: 'workflow-status-btns' }, upBtn, dnBtn, rmBtn),
+          ));
+        });
+      };
+      rebuild();
+      section.appendChild(statusList);
+
+      const addInp = el('input', { class: 'form-control form-control-sm', placeholder: 'New status…', type: 'text', style: 'max-width:180px' });
+      const addBtn = el('button', { class: 'btn btn-sm btn-outline-secondary' }, 'Add');
+      addBtn.onclick = () => { const v = addInp.value.trim(); if (v && !statuses.includes(v)) { statuses.push(v); addInp.value = ''; rebuild(); } };
+      addInp.addEventListener('keydown', e => { if (e.key === 'Enter') addBtn.click(); });
+      section.appendChild(el('div', { class: 'workflow-add-row' }, addInp, addBtn));
+
+      const saveBtn = el('button', { class: 'btn btn-sm btn-primary', style: 'margin-top:.5rem' }, 'Save Workflow');
+      saveBtn.onclick = async () => {
+        try {
+          await API.patch('/projects/' + p.id, { statuses });
+          toast('Workflow saved for ' + p.name, 'success');
+          if (state.currentProject?.id === p.id) state.currentProject.statuses = [...statuses];
+        } catch (e) { toast(e.message, 'error'); }
+      };
+      section.appendChild(saveBtn);
+      c.appendChild(section);
+    }
+  } catch (e) { $('#admin-content').innerHTML = `<p style="color:#ef4444">${esc(e.message)}</p>`; }
+}
+
+async function renderAdminLabels() {
+  const c = $('#admin-content');
+  c.innerHTML = '<p style="color:#8b949e">Loading…</p>';
+  try {
+    const r = await API.get('/projects');
+    c.innerHTML = '';
+    c.appendChild(el('div', { class: 'admin-section-head' },
+      el('h3', { class: 'admin-section-title' }, 'Labels'),
+      el('p', { style: 'color:#8b949e;font-size:.85rem;margin:0' }, 'Manage labels per project.'),
+    ));
+    for (const p of r.data) {
+      const section = el('div', { class: 'workflow-project' });
+      section.appendChild(el('div', { class: 'workflow-project-head' },
+        el('span', {}, `${p.icon || '📁'} ${esc(p.name)}`),
+        el('span', { style: 'font-family:monospace;font-size:.7rem;color:#8b949e' }, p.key),
+      ));
+      const lblList = el('div', { class: 'admin-label-list' });
+      section.appendChild(lblList);
+
+      const refresh = async () => {
+        lblList.innerHTML = '';
+        try {
+          const lr = await API.get('/projects/' + p.id + '/labels');
+          for (const lbl of lr.data) {
+            const chip = el('div', { class: 'admin-label-chip' },
+              el('span', { class: 'admin-label-dot', style: `background:${esc(lbl.color)}` }),
+              el('span', {}, lbl.name),
+            );
+            const rm = el('button', { class: 'label-chip-rm' }, '×');
+            rm.onclick = async () => { try { await API.delete('/labels/' + lbl.id); await refresh(); } catch (e) { toast(e.message, 'error'); } };
+            chip.appendChild(rm);
+            lblList.appendChild(chip);
+          }
+          // Add row
+          const nameInp  = el('input', { class: 'form-control form-control-sm', placeholder: 'Label name…', type: 'text', style: 'max-width:150px' });
+          const colorInp = el('input', { type: 'color', value: '#6b7280', class: 'form-control form-control-sm form-control-color', style: 'width:44px;padding:.15rem' });
+          const addBtn   = el('button', { class: 'btn btn-sm btn-outline-secondary' }, 'Add');
+          addBtn.onclick = async () => {
+            const name = nameInp.value.trim();
+            if (!name) return;
+            try { await API.post('/projects/' + p.id + '/labels', { name, color: colorInp.value }); nameInp.value = ''; await refresh(); }
+            catch (e) { toast(e.message, 'error'); }
+          };
+          nameInp.addEventListener('keydown', e => { if (e.key === 'Enter') addBtn.click(); });
+          lblList.appendChild(el('div', { class: 'workflow-add-row', style: 'margin-top:.4rem' }, nameInp, colorInp, addBtn));
+        } catch (e) { lblList.innerHTML = `<span style="color:#ef4444">${esc(e.message)}</span>`; }
+      };
+      await refresh();
+      c.appendChild(section);
+    }
+  } catch (e) { $('#admin-content').innerHTML = `<p style="color:#ef4444">${esc(e.message)}</p>`; }
+}
+
+function renderAdminPermissions() {
+  const c = $('#admin-content');
+  c.innerHTML = '';
+  c.appendChild(el('div', { class: 'admin-section-head' },
+    el('h3', { class: 'admin-section-title' }, 'Permissions'),
+    el('p', { style: 'color:#8b949e;font-size:.85rem;margin:0' }, 'Role-based access control matrix.'),
+  ));
+  const matrix = [
+    { action: 'View projects & tickets',   admin: 1, member: 1, viewer: 1 },
+    { action: 'Create tickets',            admin: 1, member: 1, viewer: 0 },
+    { action: 'Edit ticket fields',        admin: 1, member: 1, viewer: 0 },
+    { action: 'Change ticket status',      admin: 1, member: 1, viewer: 0 },
+    { action: 'Comment on tickets',        admin: 1, member: 1, viewer: 0 },
+    { action: 'Watch / follow tickets',    admin: 1, member: 1, viewer: 1 },
+    { action: 'Assign tickets',            admin: 1, member: 1, viewer: 0 },
+    { action: 'Delete tickets',            admin: 1, member: 0, viewer: 0 },
+    { action: 'Create & manage sprints',   admin: 1, member: 0, viewer: 0 },
+    { action: 'Start / complete sprints',  admin: 1, member: 0, viewer: 0 },
+    { action: 'Create projects',           admin: 1, member: 0, viewer: 0 },
+    { action: 'Edit project settings',     admin: 1, member: 0, viewer: 0 },
+    { action: 'Manage labels',             admin: 1, member: 0, viewer: 0 },
+    { action: 'Manage project members',    admin: 1, member: 0, viewer: 0 },
+    { action: 'Manage workflow statuses',  admin: 1, member: 0, viewer: 0 },
+    { action: 'Manage all users',          admin: 1, member: 0, viewer: 0 },
+    { action: 'Change own PIN',            admin: 1, member: 1, viewer: 1 },
+    { action: 'Change any user PIN',       admin: 1, member: 0, viewer: 0 },
+  ];
+  const table = el('table', { class: 'users-table perm-table' });
+  table.innerHTML = `<thead><tr>
+    <th style="width:50%">Action</th>
+    <th style="text-align:center">Admin</th>
+    <th style="text-align:center">Member</th>
+    <th style="text-align:center">Viewer</th>
+  </tr></thead>`;
+  const tbody = el('tbody');
+  for (const row of matrix) {
+    tbody.innerHTML += `<tr>
+      <td>${esc(row.action)}</td>
+      <td style="text-align:center">${row.admin  ? '<span style="color:#22c55e">✓</span>' : '<span style="color:#8b949e">—</span>'}</td>
+      <td style="text-align:center">${row.member ? '<span style="color:#22c55e">✓</span>' : '<span style="color:#8b949e">—</span>'}</td>
+      <td style="text-align:center">${row.viewer ? '<span style="color:#22c55e">✓</span>' : '<span style="color:#8b949e">—</span>'}</td>
+    </tr>`;
   }
+  table.appendChild(tbody);
+  c.appendChild(table);
+}
+
+function renderAdminRiskMatrix() {
+  const c = $('#admin-content');
+  c.innerHTML = '';
+  c.appendChild(el('div', { class: 'admin-section-head' },
+    el('h3', { class: 'admin-section-title' }, 'Risk Matrix'),
+    el('p', { style: 'color:#8b949e;font-size:.85rem;margin:0' }, 'Priority mapping and effort definitions.'),
+  ));
+
+  // Priority definitions
+  const priorities = [
+    { p: 'critical', color: '#ef4444', desc: 'Immediate action required. System down, security breach, or mission failure. No workaround available.' },
+    { p: 'high',     color: '#f59e0b', desc: 'Address within 24 hours. Major functionality impaired or significant security risk.' },
+    { p: 'medium',   color: '#3b82f6', desc: 'Address within the sprint. Moderate impact, workaround available.' },
+    { p: 'low',      color: '#6b7280', desc: 'Address when capacity allows. Minor inconvenience, negligible mission impact.' },
+  ];
+  const defWrap = el('div', { class: 'risk-defs' });
+  defWrap.appendChild(el('h4', { class: 'dash-section-title' }, 'Priority Definitions'));
+  for (const { p, color, desc } of priorities) {
+    defWrap.appendChild(el('div', { class: 'risk-def-row' },
+      el('span', { class: 'risk-badge', style: `background:${color}18;color:${color};border:1px solid ${color}40` }, p),
+      el('span', { class: 'risk-def-desc' }, desc),
+    ));
+  }
+  c.appendChild(defWrap);
+
+  // Likelihood × Impact matrix
+  const riskMap = {
+    'High-High': { l: 'critical', c: '#ef4444' }, 'High-Medium': { l: 'high',     c: '#f59e0b' }, 'High-Low': { l: 'medium',   c: '#3b82f6' },
+    'Med-High':  { l: 'high',     c: '#f59e0b' }, 'Med-Medium':  { l: 'medium',   c: '#3b82f6' }, 'Med-Low':  { l: 'low',      c: '#6b7280' },
+    'Low-High':  { l: 'medium',   c: '#3b82f6' }, 'Low-Medium':  { l: 'low',      c: '#6b7280' }, 'Low-Low':  { l: 'low',      c: '#6b7280' },
+  };
+  const impacts      = ['High', 'Medium', 'Low'];
+  const likelihoods  = ['High', 'Med', 'Low'];
+
+  const matrixWrap = el('div', { class: 'risk-matrix-wrap' });
+  matrixWrap.appendChild(el('h4', { class: 'dash-section-title' }, 'Likelihood × Impact → Priority'));
+  const grid = el('div', { class: 'risk-grid' });
+
+  // Header row
+  const hRow = el('div', { class: 'risk-row' });
+  hRow.appendChild(el('div', { class: 'risk-cell risk-corner' }, 'Likelihood ↓  Impact →'));
+  for (const imp of impacts) hRow.appendChild(el('div', { class: 'risk-cell risk-header' }, imp + ' Impact'));
+  grid.appendChild(hRow);
+
+  for (const lkl of likelihoods) {
+    const row = el('div', { class: 'risk-row' });
+    row.appendChild(el('div', { class: 'risk-cell risk-header' }, lkl + ' Likelihood'));
+    for (const imp of impacts) {
+      const key = `${lkl}-${imp}`;
+      const r = riskMap[key] || { l: 'low', c: '#6b7280' };
+      row.appendChild(el('div', {
+        class: 'risk-cell risk-data',
+        style: `background:${r.c}18;border-color:${r.c}35;color:${r.c}`,
+      }, r.l));
+    }
+    grid.appendChild(row);
+  }
+  matrixWrap.appendChild(grid);
+  c.appendChild(matrixWrap);
+
+  // Effort definitions
+  const effortWrap = el('div', { class: 'risk-defs', style: 'margin-top:1.5rem' });
+  effortWrap.appendChild(el('h4', { class: 'dash-section-title' }, 'Effort Levels'));
+  [
+    { l: 'minimal',     desc: '< 4 hours — quick fix, config change, or trivial update.' },
+    { l: 'moderate',    desc: '< 2 days — standard feature work or bug fix with testing.' },
+    { l: 'substantial', desc: '< 1 week — complex feature, integration, or refactor.' },
+    { l: 'intensive',   desc: '1+ weeks — major architecture change, research, or system redesign.' },
+  ].forEach(({ l, desc }) => {
+    effortWrap.appendChild(el('div', { class: 'risk-def-row' },
+      el('span', { class: 'risk-badge', style: 'background:rgba(99,102,241,.15);color:#c7d2fe;border:1px solid rgba(99,102,241,.3)' }, l),
+      el('span', { class: 'risk-def-desc' }, desc),
+    ));
+  });
+  c.appendChild(effortWrap);
 }
 
 function openChangePinModal(u) {

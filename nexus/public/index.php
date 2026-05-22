@@ -90,7 +90,7 @@
 
       <!-- Global nav — shown on home -->
       <nav class="app-nav" id="global-nav">
-        <button class="nav-btn" data-view="users" id="nav-users" style="display:none">Users</button>
+        <button class="nav-btn" data-view="admin" id="nav-admin" style="display:none">⚙ Admin</button>
       </nav>
 
       <div class="app-user">
@@ -166,13 +166,21 @@
         <div class="history-feed" id="history-feed"></div>
       </section>
 
-      <!-- USERS ADMIN -->
-      <section class="view view-users d-none" data-view="users">
-        <div class="toolbar">
-          <h2 class="view-title">User Administration</h2>
-          <button class="btn btn-sm btn-primary ms-auto" id="new-user-btn">+ Add User</button>
+      <!-- ADMIN CENTER -->
+      <section class="view view-admin d-none" data-view="admin">
+        <div class="admin-layout">
+          <nav class="admin-sidebar">
+            <div class="admin-sidebar-title">Admin Center</div>
+            <button class="admin-nav-btn" data-admin-tab="users">👥 Users</button>
+            <button class="admin-nav-btn" data-admin-tab="workflows">🔄 Workflows</button>
+            <button class="admin-nav-btn" data-admin-tab="labels">🏷 Labels</button>
+            <button class="admin-nav-btn" data-admin-tab="permissions">🔒 Permissions</button>
+            <button class="admin-nav-btn" data-admin-tab="risk">⚠ Risk Matrix</button>
+          </nav>
+          <div class="admin-content" id="admin-content">
+            <div class="admin-placeholder">Select a section from the left panel.</div>
+          </div>
         </div>
-        <div id="users-list"></div>
       </section>
 
     </main>

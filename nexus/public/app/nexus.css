@@ -394,6 +394,110 @@ body { margin: 0; }
 .users-table tr:hover td { background: rgba(99,102,241,.05); }
 .users-table .btn + .btn { margin-left: .3rem; }
 
+/* ── ADMIN CENTER ────────────────────────────────────────────────── */
+.admin-layout {
+  display: flex; min-height: calc(100vh - 130px);
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden;
+}
+.admin-sidebar {
+  width: 185px; flex-shrink: 0;
+  background: rgba(0,0,0,.18); border-right: 1px solid var(--border);
+  padding: 1rem 0;
+}
+.admin-sidebar-title {
+  font-size: .68rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .1em; color: var(--text-dim);
+  padding: 0 1rem .75rem; border-bottom: 1px solid var(--border); margin-bottom: .4rem;
+}
+.admin-nav-btn {
+  display: block; width: 100%; text-align: left;
+  background: transparent; border: 0; border-left: 3px solid transparent;
+  color: var(--text-dim); padding: .55rem 1rem;
+  cursor: pointer; font-size: .88rem; transition: all .12s;
+}
+.admin-nav-btn:hover  { color: var(--text); background: rgba(99,102,241,.07); }
+.admin-nav-btn.active { color: #f0f6fc; border-left-color: var(--accent); background: rgba(99,102,241,.12); }
+
+.admin-content { flex: 1; padding: 1.25rem; overflow: auto; }
+.admin-placeholder { color: var(--text-dim); font-size: .9rem; padding: 2rem; text-align: center; }
+.admin-section-head {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: .5rem; margin-bottom: 1.1rem;
+}
+.admin-section-title { font-size: 1.05rem; font-weight: 700; color: #f0f6fc; margin: 0; }
+
+/* User avatar pill */
+.user-avatar {
+  width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--accent), #8b5cf6);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: .78rem; font-weight: 700; color: #fff;
+}
+
+/* ── WORKFLOW EDITOR ─────────────────────────────────────────────── */
+.workflow-project {
+  background: var(--panel-2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 1rem; margin-bottom: 1rem;
+}
+.workflow-project-head {
+  display: flex; align-items: center; justify-content: space-between;
+  font-weight: 600; color: #f0f6fc; margin-bottom: .75rem;
+}
+.workflow-status-list  { display: flex; flex-direction: column; gap: .3rem; margin-bottom: .6rem; }
+.workflow-status-row {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 6px; padding: .35rem .65rem; font-size: .88rem;
+}
+.workflow-status-name { color: #f0f6fc; flex: 1; }
+.workflow-status-btns { display: flex; gap: .25rem; }
+.btn-xs {
+  background: transparent; border: 1px solid var(--border);
+  color: var(--text-dim); border-radius: 4px;
+  padding: 1px 7px; font-size: .72rem; cursor: pointer;
+}
+.btn-xs:hover:not([disabled]) { color: var(--text); border-color: var(--text-dim); }
+.btn-xs[disabled]   { opacity: .3; cursor: default; pointer-events: none; }
+.btn-danger-xs      { color: #ef4444 !important; border-color: rgba(239,68,68,.3) !important; }
+.btn-danger-xs:hover { background: rgba(239,68,68,.1) !important; }
+.workflow-add-row   { display: flex; gap: .4rem; align-items: center; }
+
+/* ── LABELS ADMIN ────────────────────────────────────────────────── */
+.admin-label-list { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .5rem; }
+.admin-label-chip {
+  display: inline-flex; align-items: center; gap: .35rem;
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 999px; padding: .25rem .7rem; font-size: .8rem; color: var(--text);
+}
+.admin-label-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+/* ── PERMISSIONS TABLE ───────────────────────────────────────────── */
+.perm-table td { font-size: .88rem; }
+
+/* ── RISK MATRIX ─────────────────────────────────────────────────── */
+.risk-defs     { display: flex; flex-direction: column; gap: .55rem; margin-bottom: 1.25rem; }
+.risk-def-row  { display: flex; align-items: flex-start; gap: .75rem; font-size: .88rem; }
+.risk-badge {
+  display: inline-block; padding: .2rem .7rem; border-radius: 999px;
+  font-size: .72rem; font-weight: 600; text-transform: capitalize;
+  white-space: nowrap; flex-shrink: 0;
+}
+.risk-def-desc { color: var(--text-dim); line-height: 1.45; }
+.risk-matrix-wrap {
+  background: var(--panel-2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 1rem; margin-bottom: 1rem;
+}
+.risk-grid   { display: table; border-collapse: separate; border-spacing: 5px; width: 100%; }
+.risk-row    { display: table-row; }
+.risk-cell   { display: table-cell; padding: .55rem .7rem; border-radius: 6px; vertical-align: middle; text-align: center; }
+.risk-corner { font-size: .7rem; color: var(--text-dim); text-align: left; }
+.risk-header { font-size: .78rem; font-weight: 600; color: var(--text-dim); }
+.risk-data   {
+  font-size: .82rem; font-weight: 600; text-transform: capitalize;
+  border: 1px solid transparent; border-radius: 6px;
+}
+
 /* ── DASHBOARD ───────────────────────────────────────────────────── */
 .dash-stats {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
