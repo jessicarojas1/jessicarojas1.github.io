@@ -60,9 +60,9 @@ class Database {
 
     public static function tableExists(string $table): bool {
         $row = self::fetchOne(
-            "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = ?)",
+            "SELECT COUNT(*) as cnt FROM information_schema.tables WHERE table_name = ? AND table_schema = 'public'",
             [$table]
         );
-        return $row && $row['exists'] === 't';
+        return (int)($row['cnt'] ?? 0) > 0;
     }
 }
