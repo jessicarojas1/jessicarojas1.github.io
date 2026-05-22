@@ -1,6 +1,4 @@
--- AEGIS GRC Database Schema
-CREATE SCHEMA IF NOT EXISTS aegis;
-SET search_path TO aegis;
+-- AEGIS GRC Database Schema (all tables created in the 'aegis' schema)
 
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,

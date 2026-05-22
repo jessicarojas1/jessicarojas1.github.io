@@ -34,12 +34,19 @@ log_msg('[AEGIS] Starting database installation...');
 
 try {
     $pdo = Database::getInstance();
+
+    // Ensure the aegis schema exists and pin the search path
+    $pdo->exec("CREATE SCHEMA IF NOT EXISTS aegis");
+    $pdo->exec("SET search_path TO aegis");
+    log_msg('[AEGIS] Schema namespace ready.');
+
     $schema = file_get_contents(AEGIS_ROOT . '/database/schema.sql');
 
-    // Execute each statement individually for compatibility and clear error reporting
+    // Strip SQL line comments, split on semicolons, execute each statement
+    $stripped = preg_replace('/--[^\n]*/m', '', $schema);
     $statements = array_filter(
-        array_map('trim', explode(';', $schema)),
-        fn($s) => strlen($s) > 5 && !preg_match('/^\s*--/', $s)
+        array_map('trim', explode(';', $stripped)),
+        fn($s) => strlen($s) > 5
     );
     foreach ($statements as $stmt) {
         $pdo->exec($stmt);
