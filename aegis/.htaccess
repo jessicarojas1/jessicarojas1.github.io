@@ -1,0 +1,26 @@
+Options -Indexes -MultiViews
+RewriteEngine On
+
+# Security headers
+Header always set X-Frame-Options "SAMEORIGIN"
+Header always set X-XSS-Protection "1; mode=block"
+Header always set X-Content-Type-Options "nosniff"
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
+Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+
+# Deny access to sensitive directories
+RewriteRule ^(config|src|database|scripts)(/|$) - [F,L]
+RewriteRule ^\.env - [F,L]
+
+# Allow direct access to public assets
+RewriteCond %{REQUEST_URI} ^/public/
+RewriteRule ^ - [L]
+
+# Route everything else through index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]
+
+# Block common attack patterns
+RewriteCond %{QUERY_STRING} (union.*select|insert.*into|delete.*from|drop.*table) [NC]
+RewriteRule .* - [F,L]

@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: aegis-grc
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: aegis-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: APP_ENV
+        value: production
+      - key: APP_NAME
+        value: AEGIS GRC
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        generateValue: true
+
+databases:
+  - name: aegis-db
+    plan: free
+    databaseName: aegis
+    user: aegis
