@@ -1,38 +1,105 @@
 /* AEGIS GRC — app.js */
 
-// Sidebar toggle
-function toggleSidebar() {
-  document.querySelector('.sidebar').classList.toggle('open');
+/* ─── Sidebar ──────────────────────────────────────────────── */
+function openSidebar() {
+  const sidebar  = document.getElementById('sidebar');
+  const backdrop = document.getElementById('sidebarBackdrop');
+  if (!sidebar) return;
+  sidebar.classList.add('open');
+  if (backdrop) backdrop.classList.add('open');
+  document.body.style.overflow = 'hidden';
 }
 
-// Close sidebar on overlay click (mobile)
+function closeSidebar() {
+  const sidebar  = document.getElementById('sidebar');
+  const backdrop = document.getElementById('sidebarBackdrop');
+  if (!sidebar) return;
+  sidebar.classList.remove('open');
+  if (backdrop) backdrop.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  if (sidebar && sidebar.classList.contains('open')) {
+    closeSidebar();
+  } else {
+    openSidebar();
+  }
+}
+
+// Close sidebar when clicking outside it (desktop)
 document.addEventListener('click', function (e) {
-  const sidebar = document.querySelector('.sidebar');
-  if (sidebar && sidebar.classList.contains('open') && !sidebar.contains(e.target)) {
-    const btn = document.querySelector('.sidebar-toggle');
-    if (btn && !btn.contains(e.target)) sidebar.classList.remove('open');
+  const sidebar = document.getElementById('sidebar');
+  if (!sidebar || !sidebar.classList.contains('open')) return;
+  const toggle = document.querySelector('.sidebar-toggle');
+  const bottomMenuBtn = document.querySelector('.bottom-nav-item[onclick="toggleSidebar()"]');
+  if (
+    !sidebar.contains(e.target) &&
+    !(toggle && toggle.contains(e.target)) &&
+    !(bottomMenuBtn && bottomMenuBtn.contains(e.target))
+  ) {
+    closeSidebar();
   }
 });
 
-// Alert panel
-const alertPanel = document.getElementById('alertPanel');
+// Close sidebar on Escape
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape') {
+    closeSidebar();
+    document.querySelectorAll('.modal-overlay').forEach(function (m) {
+      m.style.display = 'none';
+    });
+  }
+});
+
+/* ─── Touch swipe to open / close sidebar ──────────────────── */
+(function () {
+  var touchStartX = 0;
+  var touchStartY = 0;
+  var swiping = false;
+  var THRESHOLD = 60;
+  var EDGE_ZONE = 24; // px from left edge to trigger open swipe
+
+  document.addEventListener('touchstart', function (e) {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    swiping = true;
+  }, { passive: true });
+
+  document.addEventListener('touchend', function (e) {
+    if (!swiping) return;
+    var dx = e.changedTouches[0].clientX - touchStartX;
+    var dy = e.changedTouches[0].clientY - touchStartY;
+    swiping = false;
+
+    // Only act if mostly horizontal swipe
+    if (Math.abs(dy) > Math.abs(dx) * 1.2) return;
+
+    var sidebar = document.getElementById('sidebar');
+    if (!sidebar) return;
+
+    if (dx > THRESHOLD && touchStartX < EDGE_ZONE && !sidebar.classList.contains('open')) {
+      openSidebar();
+    } else if (dx < -THRESHOLD && sidebar.classList.contains('open')) {
+      closeSidebar();
+    }
+  }, { passive: true });
+})();
+
+/* ─── Alert panel ───────────────────────────────────────────── */
+var alertPanel = document.getElementById('alertPanel');
+var alertOverlay = document.getElementById('alertOverlay');
 
 function toggleAlertPanel() {
   if (!alertPanel) return;
-  alertPanel.classList.toggle('open');
+  var isOpen = alertPanel.classList.toggle('open');
+  if (alertOverlay) alertOverlay.classList.toggle('open', isOpen);
 }
 
-document.addEventListener('click', function (e) {
-  if (!alertPanel) return;
-  const bell = document.getElementById('alertBell');
-  if (alertPanel.classList.contains('open') && !alertPanel.contains(e.target) && bell && !bell.contains(e.target)) {
-    alertPanel.classList.remove('open');
-  }
-});
-
 function markAlertRead(id, el) {
-  const csrfMeta = document.querySelector('meta[name="csrf-token"]');
-  const csrf = csrfMeta ? csrfMeta.content : '';
+  var csrfMeta = document.querySelector('meta[name="csrf-token"]');
+  var csrf = csrfMeta ? csrfMeta.content : '';
 
   fetch('/alerts/' + id + '/read', {
     method: 'POST',
@@ -40,11 +107,11 @@ function markAlertRead(id, el) {
     body: 'csrf_token=' + encodeURIComponent(csrf),
   }).then(function (r) {
     if (r.ok) {
-      const item = el ? el.closest('.alert-panel-item') : null;
-      if (item) item.classList.add('read');
-      const dot = document.querySelector('.alert-badge');
+      var item = el ? el.closest('.alert-item') : null;
+      if (item) item.classList.replace('unread', 'read');
+      var dot = document.querySelector('.alert-badge');
       if (dot) {
-        const current = parseInt(dot.textContent) || 0;
+        var current = parseInt(dot.textContent) || 0;
         if (current <= 1) dot.style.display = 'none';
         else dot.textContent = current - 1;
       }
@@ -52,13 +119,7 @@ function markAlertRead(id, el) {
   });
 }
 
-function markAllRead() {
-  document.querySelectorAll('.alert-panel-item:not(.read) .alert-read-btn').forEach(function (btn) {
-    btn.click();
-  });
-}
-
-// Flash message auto-dismiss
+/* ─── Flash message auto-dismiss ───────────────────────────── */
 document.querySelectorAll('.alert-box').forEach(function (box) {
   setTimeout(function () {
     box.style.transition = 'opacity 0.4s';
@@ -67,56 +128,63 @@ document.querySelectorAll('.alert-box').forEach(function (box) {
   }, 6000);
 });
 
-// Modal helpers (also declared inline in views — safe to redefine here)
+/* ─── Modal helpers ─────────────────────────────────────────── */
 window.showModal = function (id) {
-  const el = document.getElementById(id);
+  var el = document.getElementById(id);
   if (el) el.style.display = 'flex';
 };
 window.closeModal = function (id) {
-  const el = document.getElementById(id);
+  var el = document.getElementById(id);
   if (el) el.style.display = 'none';
 };
 
-// Close modals on Escape
-document.addEventListener('keydown', function (e) {
-  if (e.key === 'Escape') {
-    document.querySelectorAll('.modal-overlay').forEach(function (m) {
-      m.style.display = 'none';
-    });
-  }
-});
-
-// Time-ago helper
+/* ─── Time-ago ───────────────────────────────────────────────── */
 function timeAgo(dateStr) {
-  const date = new Date(dateStr);
-  const now = new Date();
-  const diff = Math.floor((now - date) / 1000);
-  if (diff < 60) return diff + 's ago';
-  if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+  var date = new Date(dateStr);
+  var now = new Date();
+  var diff = Math.floor((now - date) / 1000);
+  if (diff < 60)    return diff + 's ago';
+  if (diff < 3600)  return Math.floor(diff / 60) + 'm ago';
   if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
   return Math.floor(diff / 86400) + 'd ago';
 }
 
-// Populate time-ago spans
 document.querySelectorAll('[data-timeago]').forEach(function (el) {
   el.textContent = timeAgo(el.dataset.timeago);
 });
 
-// Permission matrix: toggle row highlight on checkbox change
+/* ─── Permission matrix ─────────────────────────────────────── */
 document.querySelectorAll('.perm-checkbox').forEach(function (cb) {
   cb.addEventListener('change', function () {
-    const row = cb.closest('tr');
-    if (row) row.classList.toggle('perm-row-modified', true);
+    var row = cb.closest('tr');
+    if (row) row.classList.add('perm-row-modified');
   });
 });
 
-// Permission matrix: select-all per module column
 document.querySelectorAll('.perm-col-all').forEach(function (btn) {
   btn.addEventListener('click', function () {
-    const module = btn.dataset.module;
-    const perm = btn.dataset.perm;
-    const boxes = document.querySelectorAll('.perm-checkbox[data-module="' + module + '"][data-perm="' + perm + '"]');
-    const anyUnchecked = Array.from(boxes).some(function (b) { return !b.checked; });
-    boxes.forEach(function (b) { b.checked = anyUnchecked; b.dispatchEvent(new Event('change')); });
+    var module = btn.dataset.module;
+    var perm   = btn.dataset.perm;
+    var boxes  = document.querySelectorAll(
+      '.perm-checkbox[data-module="' + module + '"][data-perm="' + perm + '"]'
+    );
+    var anyUnchecked = Array.from(boxes).some(function (b) { return !b.checked; });
+    boxes.forEach(function (b) {
+      b.checked = anyUnchecked;
+      b.dispatchEvent(new Event('change'));
+    });
   });
 });
+
+/* ─── Wrap wide tables for horizontal scroll on mobile ─────── */
+(function () {
+  if (window.innerWidth > 768) return;
+  document.querySelectorAll('.card-body.p0').forEach(function (container) {
+    var table = container.querySelector('table.table');
+    if (table && !container.classList.contains('table-scroll-applied')) {
+      container.style.overflowX = 'auto';
+      container.style.webkitOverflowScrolling = 'touch';
+      container.classList.add('table-scroll-applied');
+    }
+  });
+})();

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title><?= Security::h($pageTitle ?? 'AEGIS GRC') ?> — AEGIS GRC</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -13,6 +13,9 @@
 <body>
 
 <?php $u = Auth::user(); ?>
+
+<!-- Sidebar backdrop (mobile) -->
+<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebar()"></div>
 
 <!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
@@ -179,6 +182,27 @@
     <?= $content ?? '' ?>
   </main>
 </div>
+
+<!-- Mobile bottom navigation -->
+<nav class="bottom-nav" id="bottomNav" aria-label="Mobile navigation">
+  <div class="bottom-nav-inner">
+    <a href="/" class="bottom-nav-item <?= $activeModule === 'dashboard' ? 'active' : '' ?>">
+      <i class="bi bi-grid-1x2-fill"></i><span>Home</span>
+    </a>
+    <a href="/compliance" class="bottom-nav-item <?= in_array($activeModule, ['compliance','import']) ? 'active' : '' ?>">
+      <i class="bi bi-shield-check"></i><span>Comply</span>
+    </a>
+    <a href="/risk" class="bottom-nav-item <?= in_array($activeModule, ['risk','risk_matrix']) ? 'active' : '' ?>">
+      <i class="bi bi-exclamation-triangle-fill"></i><span>Risk</span>
+    </a>
+    <a href="/audit" class="bottom-nav-item <?= $activeModule === 'audit' ? 'active' : '' ?>">
+      <i class="bi bi-clipboard2-check-fill"></i><span>Audits</span>
+    </a>
+    <button class="bottom-nav-item" onclick="toggleSidebar()" aria-label="Open menu">
+      <i class="bi bi-list"></i><span>Menu</span>
+    </button>
+  </div>
+</nav>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <script src="/public/js/app.js"></script>
