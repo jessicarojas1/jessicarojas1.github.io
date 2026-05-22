@@ -94,6 +94,7 @@
       </nav>
 
       <div class="app-user">
+        <button class="btn btn-sm btn-primary d-none" id="global-new-ticket-btn">+ New Ticket</button>
         <button class="icon-btn" id="bell-btn" title="Notifications">
           🔔 <span id="bell-badge" class="bell-badge d-none">0</span>
         </button>
@@ -202,7 +203,11 @@
           <button class="btn-close" data-modal-close></button>
         </div>
         <form id="ticket-form" class="modal-card-body">
-          <label class="form-label">Title</label>
+          <label class="form-label">Project</label>
+          <select class="form-select" name="projectId" id="ticket-form-project">
+            <option value="">— Select project —</option>
+          </select>
+          <label class="form-label mt-2">Title</label>
           <input class="form-control" name="title" required placeholder="Short, descriptive title" />
           <label class="form-label mt-2">Description</label>
           <textarea class="form-control" name="description" rows="3" placeholder="Context, acceptance criteria, links…"></textarea>

@@ -198,6 +198,9 @@ async function showApp() {
   $('#auth-gate').classList.add('d-none');
   $('#app').classList.remove('d-none');
   renderUserChip();
+  if (state.user?.role !== 'viewer') {
+    $('#global-new-ticket-btn').classList.remove('d-none');
+  }
   if (state.user?.role === 'admin') {
     $('#nav-users').style.display = '';
     $('#new-project-btn').style.display = '';
@@ -889,33 +892,81 @@ function closeDrawer() {
 }
 
 // ── New ticket modal ──────────────────────────────────────────────
-function openNewTicket() {
+async function openNewTicket() {
   if (!canEdit()) { toast('Viewers cannot create tickets', 'error'); return; }
-  $('#ticket-modal').classList.remove('d-none');
   $('#ticket-form').reset();
+
+  // Populate project dropdown
+  const projSel = $('#ticket-form-project');
+  projSel.innerHTML = '<option value="">— Select project —</option>';
+  for (const p of state.projects) {
+    const opt = el('option', { value: p.id }, `${p.icon || '📁'} ${p.key} · ${p.name}`);
+    if (state.currentProject?.id === p.id) opt.selected = true;
+    projSel.appendChild(opt);
+  }
+
+  // Load form data for pre-selected project (if inside one)
+  if (state.currentProject) {
+    await loadTicketFormData(state.currentProject.id);
+  } else {
+    $('#ticket-form-assignee').innerHTML = '<option value="">— Unassigned —</option>';
+    $('#ticket-form-sprint').innerHTML   = '<option value="">— No sprint —</option>';
+  }
+
+  $('#ticket-modal').classList.remove('d-none');
 }
+
 function closeNewTicket() { $('#ticket-modal').classList.add('d-none'); }
+
+async function loadTicketFormData(projectId) {
+  if (!projectId) {
+    $('#ticket-form-assignee').innerHTML = '<option value="">— Unassigned —</option>';
+    $('#ticket-form-sprint').innerHTML   = '<option value="">— No sprint —</option>';
+    return;
+  }
+  try {
+    const [proj, sprints] = await Promise.all([
+      API.get('/projects/' + projectId),
+      API.get('/projects/' + projectId + '/sprints'),
+    ]);
+    const members = proj.data.members || [];
+    const fa = $('#ticket-form-assignee');
+    fa.innerHTML = '<option value="">— Unassigned —</option>';
+    for (const m of members) fa.appendChild(el('option', { value: m.id }, m.displayName));
+    const fs = $('#ticket-form-sprint');
+    fs.innerHTML = '<option value="">— No sprint —</option>';
+    for (const s of sprints.data.filter(s => s.status === 'active'))
+      fs.appendChild(el('option', { value: s.id }, s.name));
+  } catch (e) { toast(e.message, 'error'); }
+}
 
 async function submitNewTicket() {
   const f = $('#ticket-form');
   const data = Object.fromEntries(new FormData(f));
-  if (!data.title) { toast('Title required', 'error'); return; }
+  if (!data.projectId) { toast('Select a project', 'error'); return; }
+  if (!data.title)     { toast('Title required', 'error'); return; }
   try {
     const body = {
-      projectId:   state.currentProject.id,
+      projectId:   data.projectId,
       title:       data.title,
       description: data.description || '',
       type:        data.type        || 'task',
       priority:    data.priority    || 'medium',
       effort:      data.effort      || 'moderate',
       assigneeId:  data.assigneeId  || null,
+      sprintId:    data.sprintId    || null,
       dueDate:     data.dueDate     || null,
     };
     const r = await API.post('/tickets', body);
     toast('Created ' + r.data.id, 'success');
     closeNewTicket();
-    await loadProjectData();
-    render();
+    if (state.currentProject?.id === data.projectId) {
+      await loadProjectData();
+      render();
+    } else {
+      await loadProjects();
+      if (state.currentView === 'home') renderHome();
+    }
   } catch (e) { toast(e.message, 'error'); }
 }
 
@@ -992,8 +1043,11 @@ function bindUI() {
   $('#filter-assignee').addEventListener('change', (e) => { state.filters.assignee = e.target.value; renderBoard(); });
 
   // Ticket buttons
+  $('#global-new-ticket-btn').addEventListener('click', openNewTicket);
   $('#new-ticket-btn').addEventListener('click', openNewTicket);
   $('#new-ticket-btn-bl').addEventListener('click', openNewTicket);
+  // Dynamic project selector in ticket form
+  $('#ticket-form-project').addEventListener('change', (e) => loadTicketFormData(e.target.value));
   $('#new-sprint-btn').addEventListener('click', newSprint);
   $('#new-user-btn')?.addEventListener('click', openNewUserModal);
   $('#ticket-form-submit').addEventListener('click', submitNewTicket);
