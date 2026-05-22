@@ -1,5 +1,6 @@
 -- AEGIS GRC Database Schema
-SET search_path TO public;
+CREATE SCHEMA IF NOT EXISTS aegis;
+SET search_path TO aegis;
 
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,

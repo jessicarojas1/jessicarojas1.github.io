@@ -24,5 +24,5 @@ function getDatabaseConfig(): array {
 
 function getDSN(): string {
     $cfg = getDatabaseConfig();
-    return "pgsql:host={$cfg['host']};port={$cfg['port']};dbname={$cfg['dbname']};options='--search_path=public'";
+    return "pgsql:host={$cfg['host']};port={$cfg['port']};dbname={$cfg['dbname']};options='--search_path=aegis,public'";
 }
