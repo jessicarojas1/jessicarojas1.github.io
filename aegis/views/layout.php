@@ -46,6 +46,13 @@
       <i class="bi bi-file-earmark-text-fill"></i><span>Policies</span>
     </a>
 
+    <a href="/metrics" class="nav-item <?= $activeModule === 'metrics' ? 'active' : '' ?>">
+      <i class="bi bi-graph-up-arrow"></i><span>Metrics</span>
+    </a>
+    <a href="/export" class="nav-item <?= $activeModule === 'export' ? 'active' : '' ?>">
+      <i class="bi bi-download"></i><span>Export</span>
+    </a>
+
     <div class="nav-section-label">Risk</div>
     <a href="/risk" class="nav-item <?= $activeModule === 'risk' ? 'active' : '' ?>">
       <i class="bi bi-exclamation-triangle-fill"></i><span>Risk Register</span>

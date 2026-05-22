@@ -70,6 +70,70 @@ ob_start();
   </div>
 </div>
 
+<!-- Due Items Widget -->
+<?php
+$totalDue = array_sum(array_map('count', $dueBuckets));
+$bucketMeta = [
+  'expired' => ['label'=>'Expired',       'color'=>'#6b7280', 'bg'=>'#f1f5f9', 'icon'=>'bi-x-circle-fill'],
+  'overdue' => ['label'=>'Overdue',        'color'=>'#dc2626', 'bg'=>'#fee2e2', 'icon'=>'bi-exclamation-octagon-fill'],
+  'due7'    => ['label'=>'Due in 7 Days',  'color'=>'#d97706', 'bg'=>'#fef3c7', 'icon'=>'bi-exclamation-triangle-fill'],
+  'due30'   => ['label'=>'Due in 30 Days', 'color'=>'#0284c7', 'bg'=>'#dbeafe', 'icon'=>'bi-clock-fill'],
+];
+?>
+<?php if ($totalDue > 0): ?>
+<div class="card due-items-card" style="margin-bottom:20px">
+  <div class="card-header">
+    <h3 class="card-title"><i class="bi bi-alarm-fill" style="color:#dc2626"></i> Action Required</h3>
+    <div class="due-filter-bar">
+      <button class="due-tab active" data-bucket="all">All <span class="due-count-pill"><?= $totalDue ?></span></button>
+      <?php foreach ($bucketMeta as $key => $meta): ?>
+        <?php $cnt = count($dueBuckets[$key]); if (!$cnt) continue; ?>
+        <button class="due-tab" data-bucket="<?= $key ?>" style="--tab-color:<?= $meta['color'] ?>">
+          <?= $meta['label'] ?>
+          <span class="due-count-pill" style="background:<?= $meta['bg'] ?>;color:<?= $meta['color'] ?>"><?= $cnt ?></span>
+        </button>
+      <?php endforeach; ?>
+    </div>
+  </div>
+  <div class="card-body p0">
+    <?php foreach ($bucketMeta as $key => $meta): ?>
+      <?php if (!count($dueBuckets[$key])) continue; ?>
+      <div class="due-section" data-bucket="<?= $key ?>">
+        <div class="due-section-header" style="background:<?= $meta['bg'] ?>;color:<?= $meta['color'] ?>">
+          <i class="bi <?= $meta['icon'] ?>"></i>
+          <span><?= $meta['label'] ?></span>
+          <span class="due-section-count"><?= count($dueBuckets[$key]) ?> item<?= count($dueBuckets[$key]) != 1 ? 's' : '' ?></span>
+        </div>
+        <?php foreach ($dueBuckets[$key] as $item): ?>
+          <?php
+            $daysVal  = (new DateTimeImmutable($item['due_date']))->diff(new DateTimeImmutable('today'));
+            $daysDiff = (int)$daysVal->format('%r%a');
+            $dateLabel = $daysDiff < 0
+              ? abs($daysDiff) . 'd overdue'
+              : ($daysDiff === 0 ? 'Due today' : 'In ' . $daysDiff . 'd');
+          ?>
+          <div class="due-item" data-bucket="<?= $key ?>">
+            <div class="due-item-type" style="background:<?= $meta['bg'] ?>;color:<?= $meta['color'] ?>">
+              <?= Security::h($item['item_type']) ?>
+            </div>
+            <div class="due-item-body">
+              <a href="<?= Security::h($item['url']) ?>" class="due-item-name"><?= Security::h($item['name']) ?></a>
+              <?php if ($item['owner']): ?>
+                <span class="due-item-owner"><i class="bi bi-person"></i> <?= Security::h($item['owner']) ?></span>
+              <?php endif; ?>
+            </div>
+            <div class="due-item-date" style="color:<?= $meta['color'] ?>">
+              <div class="due-date-label"><?= $dateLabel ?></div>
+              <div class="due-date-actual"><?= date('M j, Y', strtotime($item['due_date'])) ?></div>
+            </div>
+          </div>
+        <?php endforeach; ?>
+      </div>
+    <?php endforeach; ?>
+  </div>
+</div>
+<?php endif; ?>
+
 <!-- Charts + Activity Row -->
 <div class="dashboard-grid">
   <!-- Compliance by package chart -->
@@ -207,6 +271,18 @@ ob_start();
 </div>
 
 <script>
+// Due items tab filter
+document.querySelectorAll('.due-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.due-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const bucket = btn.dataset.bucket;
+    document.querySelectorAll('.due-section').forEach(s => {
+      s.style.display = (bucket === 'all' || s.dataset.bucket === bucket) ? '' : 'none';
+    });
+  });
+});
+
 const complianceData = <?= json_encode($complianceByPackage) ?>;
 const riskData = <?= json_encode($riskDistribution) ?>;
 

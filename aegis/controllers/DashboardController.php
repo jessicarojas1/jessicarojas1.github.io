@@ -77,6 +77,68 @@ class DashboardController {
              ORDER BY al.created_at DESC LIMIT 10"
         );
 
+        // Due items widget — covers all overdue + due in 30 days across every module
+        $dueItems = Database::fetchAll(
+            "SELECT 'Policy Review' AS item_type, p.id, p.title AS name,
+                    p.next_review_date AS due_date, u.name AS owner,
+                    '/policy/' || p.id AS url
+             FROM policies p
+             LEFT JOIN users u ON p.owner_id = u.id
+             WHERE p.next_review_date IS NOT NULL
+               AND p.next_review_date <= CURRENT_DATE + INTERVAL '30 days'
+               AND p.status NOT IN ('archived')
+
+             UNION ALL
+
+             SELECT 'Risk Review', r.id, r.title, r.review_date, u.name,
+                    '/risk/' || r.id
+             FROM risks r
+             LEFT JOIN users u ON r.owner_id = u.id
+             WHERE r.review_date IS NOT NULL
+               AND r.review_date <= CURRENT_DATE + INTERVAL '30 days'
+               AND r.status = 'open'
+
+             UNION ALL
+
+             SELECT 'Audit', a.id, a.name, a.scheduled_date, u.name,
+                    '/audit/' || a.id
+             FROM audits a
+             LEFT JOIN users u ON a.auditor_id = u.id
+             WHERE a.scheduled_date IS NOT NULL
+               AND a.scheduled_date <= CURRENT_DATE + INTERVAL '30 days'
+               AND a.status NOT IN ('completed')
+
+             UNION ALL
+
+             SELECT 'Control', ci.id,
+                    co.code || ': ' || LEFT(co.title, 55),
+                    ci.due_date, u.name,
+                    '/compliance/' || co.package_id || '/objective/' || co.id
+             FROM control_implementations ci
+             JOIN compliance_objectives co ON ci.objective_id = co.id
+             LEFT JOIN users u ON ci.assigned_to = u.id
+             WHERE ci.due_date IS NOT NULL
+               AND ci.due_date <= CURRENT_DATE + INTERVAL '30 days'
+               AND ci.status NOT IN ('compliant','not_applicable')
+
+             ORDER BY due_date ASC"
+        );
+
+        // Bucket by date distance
+        $today   = new DateTimeImmutable('today');
+        $d7      = new DateTimeImmutable('+7 days');
+        $d30     = new DateTimeImmutable('+30 days');
+        $expired = new DateTimeImmutable('-60 days');
+
+        $dueBuckets = ['expired' => [], 'overdue' => [], 'due7' => [], 'due30' => []];
+        foreach ($dueItems as $item) {
+            $date = new DateTimeImmutable($item['due_date']);
+            if ($date < $expired)      $dueBuckets['expired'][] = $item;
+            elseif ($date < $today)    $dueBuckets['overdue'][] = $item;
+            elseif ($date <= $d7)      $dueBuckets['due7'][]    = $item;
+            else                       $dueBuckets['due30'][]   = $item;
+        }
+
         require AEGIS_ROOT . '/views/dashboard/index.php';
     }
 

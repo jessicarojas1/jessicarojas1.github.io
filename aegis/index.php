@@ -77,6 +77,8 @@ $routes = [
         '/admin/alerts'               => ['AdminController', 'alerts'],
         '/admin/api-keys'             => ['AdminController', 'apiKeys'],
         '/admin/permissions'          => ['AdminController', 'permissions'],
+        '/export'                     => ['ExportController', 'index'],
+        '/metrics'                    => ['MetricsController', 'index'],
     ],
     'POST' => [
         '/login'                         => ['AuthController', 'login'],
@@ -88,6 +90,8 @@ $routes = [
         '/admin/risk-matrix/update'      => ['AdminController', 'updateRiskMatrix'],
         '/admin/workflows/create'        => ['AdminController', 'createWorkflow'],
         '/admin/api-keys/create'         => ['AdminController', 'createApiKey'],
+        '/export/download'               => ['ExportController', 'download'],
+        '/export/download-all'           => ['ExportController', 'downloadAll'],
     ],
 ];
 
