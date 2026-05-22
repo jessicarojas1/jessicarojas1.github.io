@@ -394,6 +394,103 @@ body { margin: 0; }
 .users-table tr:hover td { background: rgba(99,102,241,.05); }
 .users-table .btn + .btn { margin-left: .3rem; }
 
+/* ── DASHBOARD ───────────────────────────────────────────────────── */
+.dash-stats {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem; margin-bottom: 1.25rem;
+}
+.dash-stat {
+  background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+  padding: 1rem; text-align: center;
+}
+.dash-stat.danger { border-color: rgba(239,68,68,.5); background: rgba(239,68,68,.06); }
+.dash-stat-icon { font-size: 1.5rem; margin-bottom: .4rem; }
+.dash-stat-val  { font-size: 1.8rem; font-weight: 700; color: #f0f6fc; line-height: 1; }
+.dash-stat-lbl  { font-size: .75rem; color: var(--text-dim); margin-top: .3rem; }
+
+.dash-cols {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;
+}
+@media (max-width: 700px) { .dash-cols { grid-template-columns: 1fr; } }
+
+.dash-section {
+  background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+  padding: 1rem; margin-bottom: 1rem;
+}
+.dash-section-title {
+  font-size: .75rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--text-dim); margin: 0 0 .75rem;
+}
+.dash-bar-row   { display: flex; align-items: center; gap: .5rem; margin-bottom: .4rem; }
+.dash-bar-label { min-width: 90px; font-size: .8rem; color: var(--text); text-transform: capitalize; }
+.dash-bar-track { flex: 1; height: 8px; background: var(--panel-2); border-radius: 999px; overflow: hidden; }
+.dash-bar-fill  { height: 100%; background: var(--accent); border-radius: 999px; transition: width .4s ease; }
+.dash-bar-fill.success { background: var(--accent-2); }
+.dash-bar-val   { min-width: 20px; font-size: .78rem; color: var(--text-dim); text-align: right; }
+
+/* ── BOARD CARD EXTRAS ───────────────────────────────────────────── */
+.board-card-due         { font-size: .68rem; color: var(--text-dim); margin-top: .3rem; }
+.board-card-due.overdue { color: #ef4444; font-weight: 600; }
+
+/* ── SPRINT CARDS (enhanced) ─────────────────────────────────────── */
+.sprint-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
+.sprint-btns      { display: flex; gap: .4rem; flex-shrink: 0; }
+.sprint-progress-row { display: flex; align-items: center; gap: .65rem; margin: .65rem 0 .35rem; }
+.sprint-pct       { font-size: .78rem; color: var(--text-dim); white-space: nowrap; }
+.sprint-tickets   { margin-top: .6rem; display: flex; flex-direction: column; gap: .3rem; }
+.sprint-ticket-row {
+  display: flex; align-items: center; gap: .5rem;
+  padding: .4rem .55rem; border-radius: 6px; cursor: pointer;
+  background: var(--panel-2); font-size: .83rem;
+  transition: background .12s;
+}
+.sprint-ticket-row:hover    { background: rgba(99,102,241,.14); }
+.sprint-ticket-id    { font-family: ui-monospace, monospace; font-size: .7rem; color: var(--text-dim); min-width: 72px; }
+.sprint-ticket-title { flex: 1; color: #f0f6fc; }
+
+/* ── LABELS ──────────────────────────────────────────────────────── */
+.label-row  { display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; }
+.label-chip {
+  display: inline-flex; align-items: center; gap: .3rem;
+  background: rgba(168,85,247,.18); color: #e9d5ff;
+  border-radius: 999px; padding: 2px 8px; font-size: .72rem; font-weight: 500;
+}
+.label-chip-rm {
+  background: transparent; border: 0; color: #c4b5fd; cursor: pointer;
+  padding: 0; font-size: .9rem; line-height: 1;
+}
+.label-chip-rm:hover { color: #fff; }
+.label-pill { background: rgba(168,85,247,.18); color: #e9d5ff; }
+.label-input {
+  background: var(--panel-2); border: 1px solid var(--border); color: var(--text);
+  border-radius: 999px; padding: 2px 10px; font-size: .72rem; width: 110px; outline: none;
+}
+.label-input:focus { border-color: var(--accent); }
+
+/* ── BACKLOG SPRINT SELECTOR ─────────────────────────────────────── */
+.backlog-sprint-sel {
+  max-width: 160px; font-size: .78rem !important;
+  padding-top: .2rem !important; padding-bottom: .2rem !important;
+}
+
+/* ── PROFILE ─────────────────────────────────────────────────────── */
+.profile-avatar {
+  width: 68px; height: 68px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), #8b5cf6);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; font-weight: 700; color: #fff;
+}
+.profile-name   { font-size: 1.15rem; font-weight: 700; color: #f0f6fc; margin-top: .5rem; }
+.profile-detail {
+  background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px;
+  padding: .75rem; display: flex; flex-direction: column; gap: .5rem;
+}
+.profile-row { display: flex; gap: .75rem; align-items: center; font-size: .88rem; }
+.profile-key {
+  color: var(--text-dim); min-width: 80px; font-size: .75rem;
+  text-transform: uppercase; letter-spacing: .05em;
+}
+
 /* ── HOME / PROJECT GRID ─────────────────────────────────────────── */
 .home-header {
   display: flex; align-items: flex-start; justify-content: space-between;

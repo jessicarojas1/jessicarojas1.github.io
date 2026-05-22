@@ -80,7 +80,8 @@
         <span class="project-bar-icon" id="project-bar-icon"></span>
         <span class="project-bar-name" id="project-bar-name"></span>
         <nav class="project-nav" id="project-nav">
-          <button class="nav-btn active" data-view="board">Board</button>
+          <button class="nav-btn active" data-view="dashboard">Dashboard</button>
+          <button class="nav-btn" data-view="board">Board</button>
           <button class="nav-btn" data-view="backlog">Backlog</button>
           <button class="nav-btn" data-view="sprints">Sprints</button>
           <button class="nav-btn" data-view="history">History</button>
@@ -96,7 +97,7 @@
         <button class="icon-btn" id="bell-btn" title="Notifications">
           🔔 <span id="bell-badge" class="bell-badge d-none">0</span>
         </button>
-        <div class="user-chip" id="user-chip"></div>
+        <div class="user-chip" id="user-chip" style="cursor:pointer" title="My profile"></div>
         <button class="btn btn-sm btn-outline-light" id="logout-btn">Sign out</button>
       </div>
     </header>
@@ -113,6 +114,12 @@
           <button class="btn btn-primary" id="new-project-btn" style="display:none">+ New Project</button>
         </div>
         <div class="project-grid" id="project-grid"></div>
+      </section>
+
+      <!-- DASHBOARD -->
+      <section class="view view-dashboard d-none" data-view="dashboard">
+        <div class="toolbar"><h2 class="view-title">Dashboard</h2></div>
+        <div id="dashboard-body"></div>
       </section>
 
       <!-- BOARD -->
@@ -290,6 +297,21 @@
         <div class="modal-card-foot">
           <button class="btn btn-outline-secondary" data-project-modal-close>Cancel</button>
           <button class="btn btn-primary" id="project-form-submit">Create Project</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile modal -->
+    <div class="modal-shell d-none" id="profile-modal">
+      <div class="modal-card" style="max-width:420px">
+        <div class="modal-card-head">
+          <h3>My Profile</h3>
+          <button class="btn-close" data-profile-close></button>
+        </div>
+        <div class="modal-card-body" id="profile-body"></div>
+        <div class="modal-card-foot">
+          <button class="btn btn-outline-secondary" data-profile-close>Close</button>
+          <button class="btn btn-primary" id="profile-pin-btn">Change PIN</button>
         </div>
       </div>
     </div>

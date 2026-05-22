@@ -315,7 +315,7 @@ async function enterProject(p) {
   $('#project-bar-icon').textContent = p.icon || '📁';
   $('#project-bar-name').textContent = p.name;
 
-  switchView('board');
+  switchView('dashboard');
 }
 
 async function loadNotifications() {
@@ -343,13 +343,14 @@ function switchView(view) {
 }
 
 function render() {
-  if (state.currentView === 'home')    { renderHome(); return; }
-  if (state.currentView === 'users')   { renderUsersAdmin(); return; }
+  if (state.currentView === 'home')      { renderHome(); return; }
+  if (state.currentView === 'users')     { renderUsersAdmin(); return; }
   if (!state.currentProject) return;
-  if      (state.currentView === 'board')   renderBoard();
-  else if (state.currentView === 'backlog') renderBacklog();
-  else if (state.currentView === 'sprints') renderSprints();
-  else if (state.currentView === 'history') renderHistory();
+  if      (state.currentView === 'dashboard') renderDashboard();
+  else if (state.currentView === 'board')     renderBoard();
+  else if (state.currentView === 'backlog')   renderBacklog();
+  else if (state.currentView === 'sprints')   renderSprints();
+  else if (state.currentView === 'history')   renderHistory();
 }
 
 function filteredTickets() {
@@ -363,6 +364,113 @@ function filteredTickets() {
     }
     return true;
   });
+}
+
+function renderDashboard() {
+  const wrap = $('#dashboard-body');
+  if (!wrap || !state.currentProject) return;
+
+  const tickets = state.tickets;
+  const statuses = state.currentProject.statuses || ['Backlog','To Do','In Progress','In Review','Blocked','Done'];
+  const total = tickets.length;
+  const byStatus = {};
+  for (const s of statuses) byStatus[s] = 0;
+  for (const t of tickets) byStatus[t.status] = (byStatus[t.status] || 0) + 1;
+
+  const byPriority = { critical: 0, high: 0, medium: 0, low: 0 };
+  for (const t of tickets) byPriority[t.priority] = (byPriority[t.priority] || 0) + 1;
+
+  const now = new Date();
+  const activeSprint = state.sprints.find(s => s.status === 'active');
+  const sprintTickets = activeSprint ? tickets.filter(t => t.sprintId === activeSprint.id) : [];
+  const sprintDone = sprintTickets.filter(t => t.status === 'Done').length;
+  const overdue = tickets.filter(t => t.dueDate && new Date(t.dueDate) < now && t.status !== 'Done');
+
+  wrap.innerHTML = '';
+
+  // Stat cards
+  const statsRow = el('div', { class: 'dash-stats' });
+  [
+    { label: 'Total Tickets',  value: total,                     icon: '🎫', cls: '' },
+    { label: 'In Progress',    value: byStatus['In Progress']||0, icon: '⚙️', cls: '' },
+    { label: 'Done',           value: byStatus['Done']||0,        icon: '✅', cls: '' },
+    { label: 'Overdue',        value: overdue.length,             icon: '⚠️', cls: overdue.length ? 'danger' : '' },
+  ].forEach(sc => {
+    statsRow.appendChild(el('div', { class: 'dash-stat ' + sc.cls },
+      el('div', { class: 'dash-stat-icon' }, sc.icon),
+      el('div', { class: 'dash-stat-val' }, String(sc.value)),
+      el('div', { class: 'dash-stat-lbl' }, sc.label),
+    ));
+  });
+  wrap.appendChild(statsRow);
+
+  // Two-column layout
+  const cols = el('div', { class: 'dash-cols' });
+
+  // Left: status breakdown
+  const left = el('div', { class: 'dash-section' });
+  left.appendChild(el('h3', { class: 'dash-section-title' }, 'By Status'));
+  for (const s of statuses) {
+    const count = byStatus[s] || 0;
+    const pct = total ? Math.round(count / total * 100) : 0;
+    left.appendChild(el('div', { class: 'dash-bar-row' },
+      el('div', { class: 'dash-bar-label' }, s),
+      el('div', { class: 'dash-bar-track' },
+        el('div', { class: 'dash-bar-fill', style: `width:${pct}%` }),
+      ),
+      el('div', { class: 'dash-bar-val' }, String(count)),
+    ));
+  }
+
+  // Right column
+  const right = el('div');
+  if (activeSprint) {
+    const sprintPct = sprintTickets.length ? Math.round(sprintDone / sprintTickets.length * 100) : 0;
+    const ss = el('div', { class: 'dash-section' });
+    ss.appendChild(el('h3', { class: 'dash-section-title' }, '🏃 ' + esc(activeSprint.name)));
+    ss.appendChild(el('div', { class: 'sprint-progress-row' },
+      el('div', { class: 'dash-bar-track', style: 'flex:1' },
+        el('div', { class: 'dash-bar-fill success', style: `width:${sprintPct}%` }),
+      ),
+      el('span', { class: 'sprint-pct' }, `${sprintDone}/${sprintTickets.length} done · ${sprintPct}%`),
+    ));
+    if (activeSprint.goal) ss.appendChild(el('p', { style: 'color:#8b949e;font-size:.82rem;margin:.5rem 0 0' }, activeSprint.goal));
+    right.appendChild(ss);
+  }
+
+  const ps = el('div', { class: 'dash-section' });
+  ps.appendChild(el('h3', { class: 'dash-section-title' }, 'By Priority'));
+  [['critical','#ef4444'],['high','#f59e0b'],['medium','#3b82f6'],['low','#6b7280']].forEach(([p, color]) => {
+    const count = byPriority[p] || 0;
+    const pct = total ? Math.round(count / total * 100) : 0;
+    ps.appendChild(el('div', { class: 'dash-bar-row' },
+      el('div', { class: 'dash-bar-label' }, p),
+      el('div', { class: 'dash-bar-track' },
+        el('div', { class: 'dash-bar-fill', style: `width:${pct}%;background:${color}` }),
+      ),
+      el('div', { class: 'dash-bar-val' }, String(count)),
+    ));
+  });
+  right.appendChild(ps);
+
+  cols.appendChild(left);
+  cols.appendChild(right);
+  wrap.appendChild(cols);
+
+  // Overdue list
+  if (overdue.length) {
+    const os = el('div', { class: 'dash-section' });
+    os.appendChild(el('h3', { class: 'dash-section-title', style: 'color:#ef4444' }, `⚠ Overdue (${overdue.length})`));
+    for (const t of overdue) {
+      os.appendChild(el('div', { class: 'backlog-row', onclick: () => openTicket(t.id) },
+        el('span', { class: 'id' }, t.id),
+        el('span', { class: 'title' }, t.title),
+        el('span', { class: 'pill priority-' + t.priority }, t.priority),
+        el('span', { style: 'color:#ef4444;font-size:.78rem;margin-left:auto' }, 'Due ' + fmt.date(t.dueDate)),
+      ));
+    }
+    wrap.appendChild(os);
+  }
 }
 
 function renderBoard() {
@@ -388,31 +496,60 @@ function renderBoard() {
 
 function renderTicketCard(t) {
   const assignee = state.members.find(m => m.id === t.assigneeId);
-  return el('div', { class: 'board-card', onclick: () => openTicket(t.id) },
+  const due = t.dueDate ? new Date(t.dueDate) : null;
+  const overdue = due && due < new Date() && t.status !== 'Done';
+
+  const card = el('div', { class: 'board-card', onclick: () => openTicket(t.id) },
     el('div', { class: 'board-card-id' }, t.id),
     el('div', { class: 'board-card-title' }, t.title),
     el('div', { class: 'board-card-meta' },
       el('span', { class: 'pill priority-' + t.priority }, t.priority),
       el('span', { class: 'pill type-' + t.type }, t.type),
       assignee ? el('span', { class: 'pill assignee' }, assignee.displayName.split(' ').map(s => s[0]).join('')) : null,
+      ...(t.labels || []).map(l => el('span', { class: 'pill label-pill' }, l)),
     ),
   );
+  if (due) {
+    card.appendChild(el('div', { class: 'board-card-due' + (overdue ? ' overdue' : '') },
+      (overdue ? '⚠ ' : '📅 ') + fmt.date(t.dueDate),
+    ));
+  }
+  return card;
 }
 
 function renderBacklog() {
   const list = $('#backlog-list');
   list.innerHTML = '';
   const tickets = [...state.tickets].sort((a, b) => (a.backlogOrder || 0) - (b.backlogOrder || 0));
+  const activeSprints = state.sprints.filter(s => s.status !== 'completed');
+
   for (const t of tickets) {
-    list.appendChild(
-      el('div', { class: 'backlog-row', onclick: () => openTicket(t.id) },
-        el('span', { class: 'id' }, t.id),
-        el('span', { class: 'title' }, t.title),
-        el('span', { class: 'pill priority-' + t.priority }, t.priority),
-        el('span', { class: 'pill type-' + t.type }, t.type),
-        el('span', {}, t.status),
-      ),
+    const row = el('div', { class: 'backlog-row' },
+      el('span', { class: 'id' }, t.id),
+      el('span', { class: 'title', style: 'cursor:pointer', onclick: () => openTicket(t.id) }, t.title),
+      el('span', { class: 'pill priority-' + t.priority }, t.priority),
+      el('span', { class: 'pill type-' + t.type }, t.type),
+      el('span', { style: 'color:#8b949e;font-size:.8rem;min-width:80px' }, t.status),
     );
+
+    if (canEdit() && activeSprints.length) {
+      const sel = el('select', { class: 'form-select form-select-sm backlog-sprint-sel' });
+      sel.appendChild(el('option', { value: '' }, '— Sprint —'));
+      for (const s of activeSprints) {
+        sel.appendChild(el('option', { value: s.id, selected: s.id === t.sprintId ? 'selected' : false }, s.name));
+      }
+      sel.onchange = async (e) => {
+        try {
+          await API.patch('/tickets/' + t.id, { sprintId: e.target.value || null });
+          toast('Sprint updated', 'success');
+          await loadProjectData();
+          renderBacklog();
+        } catch (er) { toast(er.message, 'error'); }
+      };
+      row.appendChild(sel);
+    }
+
+    list.appendChild(row);
   }
 }
 
@@ -424,13 +561,74 @@ function renderSprints() {
     return;
   }
   for (const s of state.sprints) {
-    wrap.appendChild(
-      el('div', { class: 'sprint-card' },
-        el('h3', {}, s.name),
-        el('div', { class: 'sprint-meta' }, `${s.status} · ${fmt.date(s.startDate)} → ${fmt.date(s.endDate)}`),
-        s.goal ? el('div', {}, s.goal) : null,
-      ),
-    );
+    const spTickets = state.tickets.filter(t => t.sprintId === s.id);
+    const done = spTickets.filter(t => t.status === 'Done').length;
+    const pct = spTickets.length ? Math.round(done / spTickets.length * 100) : 0;
+
+    const card = el('div', { class: 'sprint-card' });
+
+    // Header: name + status badge + controls
+    const head = el('div', { class: 'sprint-card-head' });
+    const headLeft = el('div');
+    headLeft.appendChild(el('h3', { style: 'margin:0' }, s.name));
+    headLeft.appendChild(el('div', { class: 'sprint-meta' },
+      `${s.status} · ${fmt.date(s.startDate)} → ${fmt.date(s.endDate)}`,
+    ));
+    if (s.goal) headLeft.appendChild(el('div', { style: 'color:#8b949e;font-size:.82rem;margin-top:.2rem' }, s.goal));
+    head.appendChild(headLeft);
+
+    if (state.user?.role === 'admin') {
+      const btns = el('div', { class: 'sprint-btns' });
+      if (s.status === 'planning') {
+        const b = el('button', { class: 'btn btn-sm btn-success' }, 'Start Sprint');
+        b.onclick = async () => {
+          try {
+            await API.patch('/sprints/' + s.id, { status: 'active', startDate: new Date().toISOString().split('T')[0] });
+            toast('Sprint started', 'success');
+            const r = await API.get('/projects/' + state.currentProject.id + '/sprints');
+            state.sprints = r.data; renderSprints();
+          } catch (e) { toast(e.message, 'error'); }
+        };
+        btns.appendChild(b);
+      } else if (s.status === 'active') {
+        const b = el('button', { class: 'btn btn-sm btn-outline-secondary' }, 'Complete Sprint');
+        b.onclick = async () => {
+          if (!confirm('Complete sprint? Unfinished tickets return to backlog.')) return;
+          try {
+            await API.patch('/sprints/' + s.id, { status: 'completed', endDate: new Date().toISOString().split('T')[0] });
+            toast('Sprint completed', 'success');
+            await loadProjectData(); renderSprints();
+          } catch (e) { toast(e.message, 'error'); }
+        };
+        btns.appendChild(b);
+      }
+      head.appendChild(btns);
+    }
+    card.appendChild(head);
+
+    // Progress bar
+    if (spTickets.length) {
+      card.appendChild(el('div', { class: 'sprint-progress-row' },
+        el('div', { class: 'dash-bar-track', style: 'flex:1' },
+          el('div', { class: 'dash-bar-fill success', style: `width:${pct}%` }),
+        ),
+        el('span', { class: 'sprint-pct' }, `${done}/${spTickets.length} done · ${pct}%`),
+      ));
+
+      // Ticket list
+      const tList = el('div', { class: 'sprint-tickets' });
+      for (const t of spTickets) {
+        tList.appendChild(el('div', { class: 'sprint-ticket-row', onclick: () => openTicket(t.id) },
+          el('span', { class: 'pill priority-' + t.priority }, t.priority),
+          el('span', { class: 'sprint-ticket-id' }, t.id),
+          el('span', { class: 'sprint-ticket-title' }, t.title),
+          el('span', { class: 'pill ' + (t.status === 'Done' ? 'type-task' : '') }, t.status),
+        ));
+      }
+      card.appendChild(tList);
+    }
+
+    wrap.appendChild(card);
   }
 }
 
@@ -557,6 +755,40 @@ function renderDrawer(t, comments, history) {
       },
     }, t.description || ''),
   ));
+
+  // Labels
+  const lblWrap = el('div', { class: 'drawer-field' });
+  lblWrap.appendChild(el('label', {}, 'Labels'));
+  const lblRow = el('div', { class: 'label-row' });
+  for (const lbl of (t.labels || [])) {
+    const chip = el('span', { class: 'label-chip' }, lbl);
+    if (editable) {
+      const rm = el('button', { class: 'label-chip-rm', title: 'Remove' }, '×');
+      rm.onclick = async () => {
+        try {
+          await API.patch('/tickets/' + t.id, { labels: t.labels.filter(l => l !== lbl) });
+          await refreshTicket(t.id);
+        } catch (e) { toast(e.message, 'error'); }
+      };
+      chip.appendChild(rm);
+    }
+    lblRow.appendChild(chip);
+  }
+  if (editable) {
+    const inp = el('input', { class: 'label-input', type: 'text', placeholder: 'Add label…' });
+    inp.addEventListener('keydown', async (e) => {
+      if (e.key !== 'Enter') return;
+      const v = inp.value.trim();
+      if (!v || (t.labels || []).includes(v)) { inp.value = ''; return; }
+      try {
+        await API.patch('/tickets/' + t.id, { labels: [...(t.labels || []), v] });
+        await refreshTicket(t.id);
+      } catch (er) { toast(er.message, 'error'); }
+    });
+    lblRow.appendChild(inp);
+  }
+  lblWrap.appendChild(lblRow);
+  body.appendChild(lblWrap);
 
   // Meta
   body.appendChild(el('div', { class: 'text-muted', style: 'font-size:.78rem' },
@@ -791,6 +1023,11 @@ function bindUI() {
     swatchContainer.append(s);
   });
   swatchContainer.firstChild?.click();
+  // Profile
+  $('#user-chip').addEventListener('click', openProfile);
+  $$('[data-profile-close]').forEach(b => b.addEventListener('click', closeProfile));
+  $('#profile-pin-btn').addEventListener('click', changeMyPin);
+
   $('#bell-btn').addEventListener('click', toggleNotifs);
   $('#notif-readall').addEventListener('click', async () => {
     try { await API.post('/notifications/read-all', {}); await loadNotifications(); toggleNotifs(); toggleNotifs(); }
@@ -909,6 +1146,39 @@ function openNewUserModal() {
   API.post('/users', { id: id.trim(), firstName: firstName.trim(), lastName: lastName.trim(), role, clearance: clearance || 'UNCLASSIFIED', org: org || '', pin })
     .then(() => { toast('User created', 'success'); renderUsersAdmin(); })
     .catch(e => toast(e.message, 'error'));
+}
+
+// ── Profile ───────────────────────────────────────────────────────
+function openProfile() {
+  const u = state.user;
+  if (!u) return;
+  const initials = u.displayName.split(' ').map(s => s[0]).join('').toUpperCase();
+  $('#profile-body').innerHTML = `
+    <div style="text-align:center;margin-bottom:1.25rem">
+      <div class="profile-avatar">${esc(initials)}</div>
+      <div class="profile-name">${esc(u.displayName)}</div>
+      <div class="profile-role" style="margin-top:.4rem"><span class="role-pill ${u.role}">${esc(u.role)}</span></div>
+    </div>
+    <div class="profile-detail">
+      <div class="profile-row"><span class="profile-key">ID</span><code>${esc(u.id)}</code></div>
+      <div class="profile-row"><span class="profile-key">Clearance</span><span>${esc(u.clearance || '—')}</span></div>
+      <div class="profile-row"><span class="profile-key">Org</span><span>${esc(u.org || '—')}</span></div>
+    </div>
+  `;
+  $('#profile-modal').classList.remove('d-none');
+}
+
+function closeProfile() { $('#profile-modal').classList.add('d-none'); }
+
+async function changeMyPin() {
+  const pin = prompt('New PIN (4–8 digits):');
+  if (!pin) return;
+  if (!/^\d{4,8}$/.test(pin)) { toast('PIN must be 4–8 digits', 'error'); return; }
+  try {
+    await API.patch('/users/' + state.user.id + '/pin', { pin });
+    toast('PIN updated successfully', 'success');
+    closeProfile();
+  } catch (e) { toast(e.message, 'error'); }
 }
 
 // ── Project modal ─────────────────────────────────────────────────
