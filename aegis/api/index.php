@@ -1,6 +1,11 @@
 <?php
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
+$_allowedOrigin = rtrim($_ENV['APP_URL'] ?? '', '/');
+$_requestOrigin = $_SERVER['HTTP_ORIGIN'] ?? '';
+if ($_allowedOrigin && $_requestOrigin === $_allowedOrigin) {
+    header('Access-Control-Allow-Origin: ' . $_requestOrigin);
+    header('Vary: Origin');
+}
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Authorization, Content-Type, X-API-Key');
 

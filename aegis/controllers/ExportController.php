@@ -162,10 +162,15 @@ class ExportController {
         header('Content-Disposition: attachment; filename="' . $fname . '.csv"');
         header('Cache-Control: no-store');
 
+        $sanitize = static function(mixed $v): string {
+            $s = (string)($v ?? '');
+            return preg_match('/^[=+\-@\t\r]/', $s) ? "'" . $s : $s;
+        };
+
         $out = fopen('php://output', 'w');
-        fputcsv($out, $headers);
+        fputcsv($out, array_map($sanitize, $headers));
         foreach ($rows as $row) {
-            fputcsv($out, array_values($row));
+            fputcsv($out, array_map($sanitize, array_values($row)));
         }
         fclose($out);
         exit;

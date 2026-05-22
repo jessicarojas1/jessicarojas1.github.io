@@ -28,6 +28,7 @@ class AuthController {
         if (Auth::login($email, $password)) {
             $redirect = $_SESSION['redirect_after_login'] ?? '/';
             unset($_SESSION['redirect_after_login']);
+            if (!preg_match('#^/[a-zA-Z0-9/_?=&%.@-]*$#', $redirect)) $redirect = '/';
             header('Location: ' . $redirect); exit;
         }
 

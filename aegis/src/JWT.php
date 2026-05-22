@@ -18,7 +18,8 @@ class JWT {
 
         $data = json_decode(self::base64urlDecode($payload), true);
         if (!$data) return null;
-        if (isset($data['exp']) && $data['exp'] < time()) return null;
+        if (!isset($data['exp'])) return null;
+        if ($data['exp'] < time()) return null;
 
         return $data;
     }

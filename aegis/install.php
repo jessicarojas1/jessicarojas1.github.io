@@ -146,8 +146,10 @@ function seedStandards(PDO $pdo): void {
             }
         }
     }
-    $total = $pdo->query("SELECT COUNT(*) FROM compliance_objectives WHERE package_id = {$pkgId}")->fetchColumn();
-    $pdo->exec("UPDATE compliance_packages SET objectives_count = {$total} WHERE id = {$pkgId}");
+    $countStmt = $pdo->prepare("SELECT COUNT(*) FROM compliance_objectives WHERE package_id = ?");
+    $countStmt->execute([$pkgId]);
+    $total = (int)$countStmt->fetchColumn();
+    $pdo->prepare("UPDATE compliance_packages SET objectives_count = ? WHERE id = ?")->execute([$total, $pkgId]);
     log_msg("[AEGIS] CMMC 2.0 L2 seeded ({$total} objectives).");
 
     // --- ISO 27001:2022 ---
@@ -249,8 +251,10 @@ function seedISO27001(PDO $pdo, int $pkgId): void {
                 ->execute([$pkgId, $themeId, $ctrl, $title, $name, $sort++]);
         }
     }
-    $total = $pdo->query("SELECT COUNT(*) FROM compliance_objectives WHERE package_id = {$pkgId}")->fetchColumn();
-    $pdo->exec("UPDATE compliance_packages SET objectives_count = {$total} WHERE id = {$pkgId}");
+    $countStmt = $pdo->prepare("SELECT COUNT(*) FROM compliance_objectives WHERE package_id = ?");
+    $countStmt->execute([$pkgId]);
+    $total = (int)$countStmt->fetchColumn();
+    $pdo->prepare("UPDATE compliance_packages SET objectives_count = ? WHERE id = ?")->execute([$total, $pkgId]);
     log_msg("[AEGIS] ISO 27001:2022 seeded ({$total} controls).");
 }
 
@@ -336,7 +340,9 @@ function seedISO42001(PDO $pdo, int $pkgId): void {
                 ->execute([$pkgId, $clauseId, $ctrl, $title, $name, $sort++]);
         }
     }
-    $total = $pdo->query("SELECT COUNT(*) FROM compliance_objectives WHERE package_id = {$pkgId}")->fetchColumn();
-    $pdo->exec("UPDATE compliance_packages SET objectives_count = {$total} WHERE id = {$pkgId}");
+    $countStmt = $pdo->prepare("SELECT COUNT(*) FROM compliance_objectives WHERE package_id = ?");
+    $countStmt->execute([$pkgId]);
+    $total = (int)$countStmt->fetchColumn();
+    $pdo->prepare("UPDATE compliance_packages SET objectives_count = ? WHERE id = ?")->execute([$total, $pkgId]);
     log_msg("[AEGIS] ISO 42001:2023 seeded ({$total} items).");
 }

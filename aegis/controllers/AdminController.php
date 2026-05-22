@@ -239,7 +239,9 @@ class AdminController {
 
         $userId  = (int)($_POST['user_id'] ?? Auth::id());
         $name    = Security::sanitizeInput($_POST['name'] ?? '');
-        $perms   = $_POST['permissions'] ?? ['read'];
+        $allowedPerms = ['read', 'write', 'admin'];
+        $perms   = array_values(array_intersect((array)($_POST['permissions'] ?? ['read']), $allowedPerms));
+        if (empty($perms)) $perms = ['read'];
         $expires = !empty($_POST['expires_at']) ? Security::sanitizeInput($_POST['expires_at']) : null;
 
         $keyData = Security::generateApiKey();

@@ -151,7 +151,7 @@ class ComplianceController {
         if ($importType === 'json' && !empty($_FILES['package_file']['tmp_name'])) {
             $file = $_FILES['package_file'];
             if ($file['size'] > 5 * 1024 * 1024) { $errors[] = 'File too large (max 5MB).'; }
-            elseif (!in_array($file['type'], ['application/json', 'text/plain'])) { $errors[] = 'Only JSON files allowed.'; }
+            elseif (!in_array((new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']), ['application/json', 'text/plain'])) { $errors[] = 'Only JSON files allowed.'; }
             else {
                 $json = file_get_contents($file['tmp_name']);
                 $data = json_decode($json, true);
