@@ -77,8 +77,10 @@ $routes = [
         '/admin/alerts'               => ['AdminController', 'alerts'],
         '/admin/api-keys'             => ['AdminController', 'apiKeys'],
         '/admin/permissions'          => ['AdminController', 'permissions'],
+        '/admin/logs'                 => ['AdminController', 'logs'],
         '/export'                     => ['ExportController', 'index'],
         '/metrics'                    => ['MetricsController', 'index'],
+        '/docs'                       => ['DocsController', 'index'],
     ],
     'POST' => [
         '/login'                         => ['AuthController', 'login'],
@@ -124,6 +126,7 @@ $dynamicRoutes = [
         '#^/admin/workflows/(\d+)/toggle$#'            => ['AdminController', 'toggleWorkflow'],
         '#^/admin/api-keys/(\d+)/revoke$#'             => ['AdminController', 'revokeApiKey'],
         '#^/admin/permissions/(\d+)/update$#'          => ['AdminController', 'updatePermissions'],
+        '#^/admin/logs/export$#'                        => ['AdminController', 'exportLogs'],
         '#^/alerts/(\d+)/read$#'                       => ['DashboardController', 'markAlertRead'],
     ],
 ];

@@ -272,6 +272,105 @@ class AdminController {
         header('Location: /admin/api-keys?revoked=1');
     }
 
+    public function logs(): void {
+        Auth::requireAdmin();
+
+        $userId     = !empty($_GET['user_id']) ? (int)$_GET['user_id'] : null;
+        $action     = Security::sanitizeInput($_GET['action'] ?? '');
+        $entityType = Security::sanitizeInput($_GET['entity_type'] ?? '');
+        $ipAddr     = Security::sanitizeInput($_GET['ip'] ?? '');
+        $dateFrom   = Security::sanitizeInput($_GET['from'] ?? '');
+        $dateTo     = Security::sanitizeInput($_GET['to'] ?? '');
+        $page       = max(1, (int)($_GET['page'] ?? 1));
+        $perPage    = 50;
+        $offset     = ($page - 1) * $perPage;
+
+        $where  = ['1=1'];
+        $params = [];
+        if ($userId)     { $where[] = 'al.user_id = ?';         $params[] = $userId; }
+        if ($action)     { $where[] = 'al.action ILIKE ?';       $params[] = '%' . $action . '%'; }
+        if ($entityType) { $where[] = 'al.entity_type = ?';      $params[] = $entityType; }
+        if ($ipAddr)     { $where[] = 'al.ip_address ILIKE ?';   $params[] = '%' . $ipAddr . '%'; }
+        if ($dateFrom)   { $where[] = 'al.created_at >= ?';      $params[] = $dateFrom . ' 00:00:00'; }
+        if ($dateTo)     { $where[] = 'al.created_at <= ?';      $params[] = $dateTo . ' 23:59:59'; }
+        $whereStr = implode(' AND ', $where);
+
+        $totalRows  = (int)(Database::fetchOne("SELECT COUNT(*) as c FROM activity_log al WHERE {$whereStr}", $params)['c'] ?? 0);
+        $totalPages = max(1, (int)ceil($totalRows / $perPage));
+        $page       = min($page, $totalPages);
+        $offset     = ($page - 1) * $perPage;
+
+        $logs = Database::fetchAll(
+            "SELECT al.*, u.name as user_name, u.email as user_email, u.role as user_role
+             FROM activity_log al
+             LEFT JOIN users u ON al.user_id = u.id
+             WHERE {$whereStr}
+             ORDER BY al.created_at DESC
+             LIMIT {$perPage} OFFSET {$offset}",
+            $params
+        );
+
+        $users       = Database::fetchAll("SELECT id, name FROM users ORDER BY name");
+        $actionTypes = Database::fetchAll("SELECT DISTINCT action FROM activity_log WHERE action IS NOT NULL ORDER BY action");
+        $entityTypes = Database::fetchAll("SELECT DISTINCT entity_type FROM activity_log WHERE entity_type IS NOT NULL ORDER BY entity_type");
+
+        $stats = [
+            'total'        => Database::fetchOne("SELECT COUNT(*) as c FROM activity_log")['c'] ?? 0,
+            'today'        => Database::fetchOne("SELECT COUNT(*) as c FROM activity_log WHERE created_at >= CURRENT_DATE")['c'] ?? 0,
+            'week_users'   => Database::fetchOne("SELECT COUNT(DISTINCT user_id) as c FROM activity_log WHERE created_at >= NOW() - INTERVAL '7 days'")['c'] ?? 0,
+            'top_action'   => Database::fetchOne("SELECT action, COUNT(*) as c FROM activity_log GROUP BY action ORDER BY c DESC LIMIT 1")['action'] ?? '—',
+        ];
+
+        $topUsers = Database::fetchAll(
+            "SELECT u.name, COUNT(al.id) as c
+             FROM activity_log al LEFT JOIN users u ON al.user_id = u.id
+             WHERE al.created_at >= NOW() - INTERVAL '30 days'
+             GROUP BY u.name ORDER BY c DESC LIMIT 5"
+        );
+
+        $actionBreakdown = Database::fetchAll(
+            "SELECT action, COUNT(*) as c FROM activity_log GROUP BY action ORDER BY c DESC LIMIT 10"
+        );
+
+        require AEGIS_ROOT . '/views/admin/logs.php';
+    }
+
+    public function exportLogs(): void {
+        Auth::requireAdmin();
+
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403); return;
+        }
+
+        $logs = Database::fetchAll(
+            "SELECT al.id, COALESCE(u.name,'System') as user_name, u.email as user_email, u.role as user_role,
+                    al.action, al.entity_type, al.entity_id, al.changes, al.ip_address, al.created_at
+             FROM activity_log al LEFT JOIN users u ON al.user_id = u.id
+             ORDER BY al.created_at DESC"
+        );
+
+        $sanitize = static function(mixed $v): string {
+            $s = (string)($v ?? '');
+            return preg_match('/^[=+\-@\t\r]/', $s) ? "'" . $s : $s;
+        };
+
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="aegis_activity_log_' . date('Ymd_His') . '.csv"');
+        header('Cache-Control: no-store');
+
+        $out = fopen('php://output', 'w');
+        fputcsv($out, ['ID','User','Email','Role','Action','Entity Type','Entity ID','Changes','IP Address','Timestamp']);
+        foreach ($logs as $r) {
+            fputcsv($out, array_map($sanitize, [
+                $r['id'], $r['user_name'], $r['user_email'] ?? '', $r['user_role'] ?? '',
+                $r['action'], $r['entity_type'] ?? '', $r['entity_id'] ?? '',
+                $r['changes'] ?? '', $r['ip_address'] ?? '', $r['created_at'],
+            ]));
+        }
+        fclose($out);
+        exit;
+    }
+
     public function permissions(): void {
         Auth::requireAdmin();
 

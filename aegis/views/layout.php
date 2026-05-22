@@ -53,6 +53,11 @@
       <i class="bi bi-download"></i><span>Export</span>
     </a>
 
+    <div class="nav-section-label">Resources</div>
+    <a href="/docs" class="nav-item <?= $activeModule === 'docs' ? 'active' : '' ?>">
+      <i class="bi bi-book-fill"></i><span>Documentation</span>
+    </a>
+
     <div class="nav-section-label">Risk</div>
     <a href="/risk" class="nav-item <?= $activeModule === 'risk' ? 'active' : '' ?>">
       <i class="bi bi-exclamation-triangle-fill"></i><span>Risk Register</span>
@@ -83,6 +88,9 @@
     </a>
     <a href="/admin/permissions" class="nav-item <?= $activeModule === 'admin_permissions' ? 'active' : '' ?>">
       <i class="bi bi-shield-lock-fill"></i><span>Permissions</span>
+    </a>
+    <a href="/admin/logs" class="nav-item <?= $activeModule === 'admin_logs' ? 'active' : '' ?>">
+      <i class="bi bi-journal-text"></i><span>Activity Logs</span>
     </a>
     <?php endif; ?>
   </nav>
