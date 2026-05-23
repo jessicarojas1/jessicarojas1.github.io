@@ -28,17 +28,22 @@ function toggleSidebar() {
   }
 }
 
-// Close sidebar when clicking outside it (desktop)
+// Stop menu-button clicks from reaching the document close-handler
+(function () {
+  document.querySelectorAll('.sidebar-toggle').forEach(function (btn) {
+    btn.addEventListener('click', function (e) { e.stopPropagation(); });
+  });
+  var menuBtn = document.querySelector('[aria-label="Open menu"]');
+  if (menuBtn) menuBtn.addEventListener('click', function (e) { e.stopPropagation(); });
+  var backdropEl = document.getElementById('sidebarBackdrop');
+  if (backdropEl) backdropEl.addEventListener('click', function (e) { e.stopPropagation(); });
+})();
+
+// Close sidebar when clicking outside it
 document.addEventListener('click', function (e) {
   const sidebar = document.getElementById('sidebar');
   if (!sidebar || !sidebar.classList.contains('open')) return;
-  const toggle = document.querySelector('.sidebar-toggle');
-  const bottomMenuBtn = document.querySelector('.bottom-nav-item[onclick="toggleSidebar()"]');
-  if (
-    !sidebar.contains(e.target) &&
-    !(toggle && toggle.contains(e.target)) &&
-    !(bottomMenuBtn && bottomMenuBtn.contains(e.target))
-  ) {
+  if (!sidebar.contains(e.target)) {
     closeSidebar();
   }
 });

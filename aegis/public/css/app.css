@@ -217,6 +217,8 @@ body {
   padding: 4px;
   border-radius: 6px;
   transition: color var(--transition);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 .sidebar-toggle:hover { color: var(--text); }
 
@@ -1273,6 +1275,7 @@ input[type="range"] {
   cursor: pointer;
   padding: 0;
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
   position: relative;
 }
 .bottom-nav-item i { font-size: 22px; line-height: 1; }
