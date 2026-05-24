@@ -54,7 +54,7 @@ require __DIR__ . '/notifications.php';
 
 // Health check
 $router->get('/api/health', function () {
-    Response::ok(['ok' => true, 'service' => 'nexus-api', 'time' => date('c')]);
+    Response::ok(['ok' => true, 'service' => 'apex-api', 'time' => date('c')]);
 });
 
 // ── Dispatch with a global exception guard ───────────────────────────
@@ -62,7 +62,7 @@ try {
     $router->dispatch($method, $path);
 } catch (\Throwable $e) {
     // Log to stderr (visible in Render logs / Apache error log).
-    error_log('[nexus-api] ' . $e::class . ': ' . $e->getMessage());
+    error_log('[apex-api] ' . $e::class . ': ' . $e->getMessage());
     if ((getenv('APP_ENV') ?: 'development') !== 'production') {
         Response::json([
             'error' => $e->getMessage(),

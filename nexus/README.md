@@ -1,4 +1,4 @@
-# NEXUS · Project Tracker
+# APEX · Project Tracker
 
 A DoD-grade project + ticket tracker. PHP 8.2 + PostgreSQL backend, simple
 HTML/CSS/vanilla-JS SPA frontend, CAC/PIV-simulated authentication with
@@ -80,7 +80,7 @@ php -S 0.0.0.0:8080 -t public/
 
 The seed `pin_hash` column is a real `password_hash($pin, PASSWORD_BCRYPT)`
 value — bcrypt-verified server-side. The fallback env var
-`NEXUS_ALLOW_DEFAULT_PINS=1` additionally accepts the plain PINs above so
+`APEX_ALLOW_DEFAULT_PINS=1` additionally accepts the plain PINs above so
 first-run deploys "just work"; flip it to `0` in production.
 
 ---
@@ -181,5 +181,5 @@ nexus/
   bypass the project membership check).
 - Every ticket mutation writes an audit row to `history`. Notifications
   fan out to the assignee + the watcher set on status changes & comments.
-- Production: set `NEXUS_ALLOW_DEFAULT_PINS=0` once you've rotated the
+- Production: set `APEX_ALLOW_DEFAULT_PINS=0` once you've rotated the
   seed PINs, and rotate `JWT_SECRET` if it's ever logged.

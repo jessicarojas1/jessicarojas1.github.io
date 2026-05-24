@@ -8,7 +8,7 @@
  *   - bcrypt-verify the PIN
  *   - issue a JWT, set HttpOnly cookie, return the token + user blob
  *
- * For convenience on first-run deploys, when NEXUS_ALLOW_DEFAULT_PINS=1
+ * For convenience on first-run deploys, when APEX_ALLOW_DEFAULT_PINS=1
  * we ALSO accept the well-known default PINs (654321/112233/999999) so
  * the operator can log in even if the seed bcrypt hashes were tampered
  * with. This fallback should be disabled in production.
@@ -73,7 +73,7 @@ function verifyPin(array $user, string $pin): bool
     }
 
     // First-run convenience: well-known defaults.
-    if ((getenv('NEXUS_ALLOW_DEFAULT_PINS') ?: '') === '1') {
+    if ((getenv('APEX_ALLOW_DEFAULT_PINS') ?: '') === '1') {
         $defaults = ['rojas' => '1231', 'smith' => '112233', 'brown' => '999999'];
         $uid = $user['id'] ?? '';
         if (isset($defaults[$uid]) && hash_equals($defaults[$uid], $pin)) {

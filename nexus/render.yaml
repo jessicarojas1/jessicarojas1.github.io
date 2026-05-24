@@ -13,7 +13,7 @@ services:
         generateValue: true
       - key: APP_ENV
         value: production
-      - key: NEXUS_ALLOW_DEFAULT_PINS
+      - key: APEX_ALLOW_DEFAULT_PINS
         value: "1"
 
 databases:

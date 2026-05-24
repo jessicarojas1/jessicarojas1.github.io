@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════
-   NEXUS  ·  Frontend
+   APEX  ·  Frontend
    ───────────────────────────────────────────────────────────────────
    This is a full rewrite of the original tracker.html SPA — all
    `localStorage` reads/writes have been replaced with `fetch()` calls
@@ -10,12 +10,12 @@
 
 // ── API layer ──────────────────────────────────────────────────────
 const API = {
-  _token: localStorage.getItem('nexus_jwt') || null,
+  _token: localStorage.getItem('apex_jwt') || null,
 
   setToken(t) {
     this._token = t;
-    if (t) localStorage.setItem('nexus_jwt', t);
-    else   localStorage.removeItem('nexus_jwt');
+    if (t) localStorage.setItem('apex_jwt', t);
+    else   localStorage.removeItem('apex_jwt');
   },
 
   async request(method, path, body) {

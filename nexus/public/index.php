@@ -1,14 +1,14 @@
 <?php
 /**
- * NEXUS - SPA shell.
+ * APEX - SPA shell.
  */
 ?><!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>NEXUS · Project Tracker</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%236366f1'/%3E%3Cpath d='M16 18l16 14 16-14M16 46l16-14 16 14' stroke='white' stroke-width='4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+  <title>APEX · Project Tracker</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%234f46e5'/%3E%3Cpolygon points='32,10 54,52 10,52' fill='none' stroke='white' stroke-width='4.5' stroke-linejoin='round'/%3E%3Cline x1='21' y1='40' x2='43' y2='40' stroke='white' stroke-width='4.5' stroke-linecap='round'/%3E%3C/svg%3E" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" crossorigin="anonymous">
   <link rel="stylesheet" href="/app/nexus.css" />
 </head>
@@ -18,7 +18,7 @@
   <div id="auth-gate" class="auth-gate">
     <div class="auth-shell">
       <div class="auth-shell-header">
-        <div class="auth-shell-title">NEXUS · Secure Access</div>
+        <div class="auth-shell-title">APEX · Secure Access</div>
         <div class="step-track" id="auth-steps">
           <div class="step-node active" data-step="1"><div class="step-circle">1</div><div class="step-lbl">Identity</div></div>
           <div class="step-connector"></div>
@@ -69,8 +69,8 @@
     <!-- Top header — always visible -->
     <header class="app-header">
       <div class="brand" id="brand-home" style="cursor:pointer">
-        <span class="brand-mark">⬡</span>
-        <span class="brand-text">NEXUS</span>
+        <span class="brand-mark">▲</span>
+        <span class="brand-text">APEX</span>
       </div>
 
       <!-- Project context bar — shown when inside a project -->
