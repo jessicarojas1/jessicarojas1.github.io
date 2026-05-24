@@ -1,0 +1,28 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: apex
+      POSTGRES_USER: apex
+      POSTGRES_PASSWORD: apex
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  app:
+    build: .
+    ports:
+      - "8080:80"
+    environment:
+      DATABASE_URL: postgresql://apex:apex@db:5432/apex
+      JWT_SECRET: dev-secret-do-not-use-in-production
+      APP_ENV: development
+      APEX_ALLOW_DEFAULT_PINS: "1"
+    depends_on:
+      - db
+    volumes:
+      - .:/var/www/html
+
+volumes:
+  pgdata:
