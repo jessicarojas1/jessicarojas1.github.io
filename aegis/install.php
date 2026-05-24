@@ -25,9 +25,9 @@ function log_msg(string $msg): void {
 }
 
 // Check if already installed
-if (Database::tableExists('users')) {
-    log_msg('[AEGIS] Database already installed, skipping.');
-    exit(0);
+$needsFullInstall = !Database::tableExists('users');
+if (!$needsFullInstall) {
+    log_msg('[AEGIS] Database already installed, running migrations...');
 }
 
 log_msg('[AEGIS] Starting database installation...');
@@ -40,17 +40,14 @@ try {
     $pdo->exec("SET search_path TO aegis");
     log_msg('[AEGIS] Schema namespace ready.');
 
-    $schema = file_get_contents(AEGIS_ROOT . '/database/schema.sql');
+if (!$needsFullInstall) {
+    runMigrations($pdo);
+    log_msg('[AEGIS] Done.');
+    exit(0);
+}
 
-    // Strip SQL line comments, split on semicolons, execute each statement
-    $stripped = preg_replace('/--[^\n]*/m', '', $schema);
-    $statements = array_filter(
-        array_map('trim', explode(';', $stripped)),
-        fn($s) => strlen($s) > 5
-    );
-    foreach ($statements as $stmt) {
-        $pdo->exec($stmt);
-    }
+    $schema = file_get_contents(AEGIS_ROOT . '/database/schema.sql');
+    $pdo->exec($schema);
     log_msg('[AEGIS] Schema created.');
 
     // Default admin
@@ -107,6 +104,7 @@ try {
     log_msg('[AEGIS] Default settings saved.');
 
     log_msg('[AEGIS] Installation complete!');
+    runMigrations($pdo);
     exit(0);
 
 } catch (Exception $e) {
@@ -146,10 +144,8 @@ function seedStandards(PDO $pdo): void {
             }
         }
     }
-    $countStmt = $pdo->prepare("SELECT COUNT(*) FROM compliance_objectives WHERE package_id = ?");
-    $countStmt->execute([$pkgId]);
-    $total = (int)$countStmt->fetchColumn();
-    $pdo->prepare("UPDATE compliance_packages SET objectives_count = ? WHERE id = ?")->execute([$total, $pkgId]);
+    $total = $pdo->query("SELECT COUNT(*) FROM compliance_objectives WHERE package_id = {$pkgId}")->fetchColumn();
+    $pdo->exec("UPDATE compliance_packages SET objectives_count = {$total} WHERE id = {$pkgId}");
     log_msg("[AEGIS] CMMC 2.0 L2 seeded ({$total} objectives).");
 
     // --- ISO 27001:2022 ---
@@ -251,10 +247,8 @@ function seedISO27001(PDO $pdo, int $pkgId): void {
                 ->execute([$pkgId, $themeId, $ctrl, $title, $name, $sort++]);
         }
     }
-    $countStmt = $pdo->prepare("SELECT COUNT(*) FROM compliance_objectives WHERE package_id = ?");
-    $countStmt->execute([$pkgId]);
-    $total = (int)$countStmt->fetchColumn();
-    $pdo->prepare("UPDATE compliance_packages SET objectives_count = ? WHERE id = ?")->execute([$total, $pkgId]);
+    $total = $pdo->query("SELECT COUNT(*) FROM compliance_objectives WHERE package_id = {$pkgId}")->fetchColumn();
+    $pdo->exec("UPDATE compliance_packages SET objectives_count = {$total} WHERE id = {$pkgId}");
     log_msg("[AEGIS] ISO 27001:2022 seeded ({$total} controls).");
 }
 
@@ -340,9 +334,153 @@ function seedISO42001(PDO $pdo, int $pkgId): void {
                 ->execute([$pkgId, $clauseId, $ctrl, $title, $name, $sort++]);
         }
     }
-    $countStmt = $pdo->prepare("SELECT COUNT(*) FROM compliance_objectives WHERE package_id = ?");
-    $countStmt->execute([$pkgId]);
-    $total = (int)$countStmt->fetchColumn();
-    $pdo->prepare("UPDATE compliance_packages SET objectives_count = ? WHERE id = ?")->execute([$total, $pkgId]);
+    $total = $pdo->query("SELECT COUNT(*) FROM compliance_objectives WHERE package_id = {$pkgId}")->fetchColumn();
+    $pdo->exec("UPDATE compliance_packages SET objectives_count = {$total} WHERE id = {$pkgId}");
     log_msg("[AEGIS] ISO 42001:2023 seeded ({$total} items).");
+}
+
+function runMigrations(PDO $pdo): void {
+    $pdo->exec("SET search_path TO aegis");
+
+    // ── Incidents ────────────────────────────────────────────────────────────
+    $pdo->exec("CREATE TABLE IF NOT EXISTS aegis.incidents (
+        id               SERIAL PRIMARY KEY,
+        incident_number  VARCHAR(20) UNIQUE NOT NULL,
+        title            VARCHAR(255) NOT NULL,
+        description      TEXT,
+        severity         VARCHAR(20) DEFAULT 'medium',
+        category         VARCHAR(100),
+        status           VARCHAR(30) DEFAULT 'open',
+        reported_by      INTEGER REFERENCES aegis.users(id),
+        assigned_to      INTEGER REFERENCES aegis.users(id),
+        affected_systems TEXT,
+        impact_description TEXT,
+        root_cause       TEXT,
+        lessons_learned  TEXT,
+        detected_at      TIMESTAMP,
+        contained_at     TIMESTAMP,
+        resolved_at      TIMESTAMP,
+        created_at       TIMESTAMP DEFAULT NOW(),
+        updated_at       TIMESTAMP DEFAULT NOW()
+    )");
+    $pdo->exec("CREATE TABLE IF NOT EXISTS aegis.incident_updates (
+        id           SERIAL PRIMARY KEY,
+        incident_id  INTEGER NOT NULL REFERENCES aegis.incidents(id) ON DELETE CASCADE,
+        user_id      INTEGER REFERENCES aegis.users(id),
+        content      TEXT NOT NULL,
+        update_type  VARCHAR(20) DEFAULT 'comment',
+        created_at   TIMESTAMP DEFAULT NOW()
+    )");
+
+    // ── Vendors ───────────────────────────────────────────────────────────────
+    $pdo->exec("CREATE TABLE IF NOT EXISTS aegis.vendors (
+        id               SERIAL PRIMARY KEY,
+        vendor_code      VARCHAR(20) UNIQUE NOT NULL,
+        name             VARCHAR(255) NOT NULL,
+        category         VARCHAR(100),
+        website          VARCHAR(255),
+        primary_contact  VARCHAR(100),
+        contact_email    VARCHAR(255),
+        risk_tier        VARCHAR(20) DEFAULT 'medium',
+        status           VARCHAR(20) DEFAULT 'active',
+        country          VARCHAR(100),
+        description      TEXT,
+        contract_start   DATE,
+        contract_end     DATE,
+        data_access      BOOLEAN DEFAULT FALSE,
+        critical_service BOOLEAN DEFAULT FALSE,
+        created_at       TIMESTAMP DEFAULT NOW(),
+        updated_at       TIMESTAMP DEFAULT NOW()
+    )");
+    $pdo->exec("CREATE TABLE IF NOT EXISTS aegis.vendor_assessments (
+        id                   SERIAL PRIMARY KEY,
+        vendor_id            INTEGER NOT NULL REFERENCES aegis.vendors(id) ON DELETE CASCADE,
+        assessment_type      VARCHAR(50) DEFAULT 'security',
+        status               VARCHAR(20) DEFAULT 'planned',
+        overall_score        SMALLINT,
+        risk_rating          VARCHAR(20),
+        findings             TEXT,
+        recommendations      TEXT,
+        assessed_by          INTEGER REFERENCES aegis.users(id),
+        scheduled_date       DATE,
+        completed_date       DATE,
+        next_assessment_date DATE,
+        created_at           TIMESTAMP DEFAULT NOW()
+    )");
+
+    // ── Issues / Remediations ────────────────────────────────────────────────
+    $pdo->exec("CREATE TABLE IF NOT EXISTS aegis.issues (
+        id                    SERIAL PRIMARY KEY,
+        issue_number          VARCHAR(20) UNIQUE NOT NULL,
+        title                 VARCHAR(255) NOT NULL,
+        description           TEXT,
+        severity              VARCHAR(20) DEFAULT 'medium',
+        status                VARCHAR(30) DEFAULT 'open',
+        source_type           VARCHAR(50),
+        source_id             INTEGER,
+        assigned_to           INTEGER REFERENCES aegis.users(id),
+        created_by            INTEGER REFERENCES aegis.users(id),
+        due_date              DATE,
+        resolved_at           TIMESTAMP,
+        resolution            TEXT,
+        recurrence_prevention TEXT,
+        created_at            TIMESTAMP DEFAULT NOW(),
+        updated_at            TIMESTAMP DEFAULT NOW()
+    )");
+    $pdo->exec("CREATE TABLE IF NOT EXISTS aegis.issue_updates (
+        id          SERIAL PRIMARY KEY,
+        issue_id    INTEGER NOT NULL REFERENCES aegis.issues(id) ON DELETE CASCADE,
+        user_id     INTEGER REFERENCES aegis.users(id),
+        content     TEXT NOT NULL,
+        update_type VARCHAR(20) DEFAULT 'comment',
+        created_at  TIMESTAMP DEFAULT NOW()
+    )");
+
+    // ── Evidence Files ────────────────────────────────────────────────────────
+    $pdo->exec("CREATE TABLE IF NOT EXISTS aegis.evidence_files (
+        id            SERIAL PRIMARY KEY,
+        entity_type   VARCHAR(50) NOT NULL,
+        entity_id     INTEGER NOT NULL,
+        original_name VARCHAR(255) NOT NULL,
+        stored_name   VARCHAR(255) NOT NULL,
+        mime_type     VARCHAR(100),
+        file_size     INTEGER,
+        file_hash     VARCHAR(64),
+        description   TEXT,
+        expires_at    DATE,
+        uploaded_by   INTEGER REFERENCES aegis.users(id),
+        created_at    TIMESTAMP DEFAULT NOW()
+    )");
+
+    // ── MFA columns on users ──────────────────────────────────────────────────
+    $pdo->exec("ALTER TABLE aegis.users ADD COLUMN IF NOT EXISTS mfa_secret  VARCHAR(64)");
+    $pdo->exec("ALTER TABLE aegis.users ADD COLUMN IF NOT EXISTS mfa_enabled BOOLEAN DEFAULT FALSE");
+
+    // ── New settings ──────────────────────────────────────────────────────────
+    $newSettings = [
+        ['smtp_host',            '',              'string',  'SMTP server hostname'],
+        ['smtp_port',            '587',           'integer', 'SMTP server port'],
+        ['smtp_user',            '',              'string',  'SMTP username'],
+        ['smtp_pass',            '',              'string',  'SMTP password'],
+        ['smtp_from',            '',              'string',  'From email address'],
+        ['smtp_from_name',       'AEGIS GRC',     'string',  'From display name'],
+        ['smtp_tls',             '1',             'boolean', 'Enable STARTTLS'],
+        ['email_notifications',  '0',             'boolean', 'Enable email notifications'],
+        ['upload_max_size_mb',   '20',            'integer', 'Max upload size (MB)'],
+        ['upload_allowed_types', 'pdf,doc,docx,xls,xlsx,png,jpg,jpeg,gif,txt,csv,zip', 'string', 'Allowed file extensions'],
+        ['version',              '2.0.0',         'string',  'AEGIS version'],
+    ];
+    foreach ($newSettings as $s) {
+        $stmt = $pdo->prepare("INSERT INTO aegis.settings (key, value, type, description) VALUES (?,?,?,?) ON CONFLICT (key) DO NOTHING");
+        $stmt->execute($s);
+    }
+
+    // ── Indexes ───────────────────────────────────────────────────────────────
+    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_incidents_status   ON aegis.incidents(status)");
+    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_incidents_severity ON aegis.incidents(severity)");
+    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_vendors_risk_tier  ON aegis.vendors(risk_tier)");
+    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_issues_status      ON aegis.issues(status)");
+    $pdo->exec("CREATE INDEX IF NOT EXISTS idx_evidence_entity    ON aegis.evidence_files(entity_type, entity_id)");
+
+    log_msg('[AEGIS] Migrations applied.');
 }

@@ -439,4 +439,89 @@ class AdminController {
         Auth::log('update_permissions', 'users', $userId);
         header('Location: /admin/permissions?saved=' . $userId);
     }
+
+    // ─── Email settings ───────────────────────────────────────────────────────
+    public function email(): void {
+        Auth::requireAdmin();
+        $rows     = Database::fetchAll("SELECT key, value FROM settings WHERE key LIKE 'smtp_%' OR key = 'email_notifications'");
+        $settings = array_column($rows, 'value', 'key');
+        $pageTitle    = 'Email Settings';
+        $activeModule = 'admin';
+        $breadcrumbs  = [['Admin', '/admin'], ['Email Settings', null]];
+        require AEGIS_ROOT . '/views/admin/email.php';
+    }
+
+    public function saveEmail(): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403); return;
+        }
+        $fields = ['smtp_host','smtp_port','smtp_user','smtp_from','smtp_from_name'];
+        foreach ($fields as $key) {
+            $val = Security::sanitizeInput($_POST[$key] ?? '');
+            Database::query("INSERT INTO settings (key, value, type, description) VALUES (?,?,'string','') ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value", [$key, $val]);
+        }
+        // Password only updated if provided
+        $pass = $_POST['smtp_pass'] ?? '';
+        if ($pass !== '') {
+            Database::query("INSERT INTO settings (key, value, type, description) VALUES ('smtp_pass',?,'string','') ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value", [$pass]);
+        }
+        $tls   = isset($_POST['smtp_tls'])            ? '1' : '0';
+        $notif = isset($_POST['email_notifications']) ? '1' : '0';
+        Database::query("INSERT INTO settings (key, value, type, description) VALUES ('smtp_tls',?,'boolean','') ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value",   [$tls]);
+        Database::query("INSERT INTO settings (key, value, type, description) VALUES ('email_notifications',?,'boolean','') ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value", [$notif]);
+
+        Auth::log('update_email_settings', 'settings', 0);
+        $_SESSION['flash_success'] = 'Email settings saved.';
+        header('Location: /admin/email');
+    }
+
+    public function testEmail(): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403); return;
+        }
+        $to = Security::sanitizeInput($_POST['test_email'] ?? '');
+        if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
+            $_SESSION['flash_error'] = 'Invalid email address.';
+            header('Location: /admin/email'); return;
+        }
+        require_once AEGIS_ROOT . '/src/Mailer.php';
+        $ok = Mailer::sendFromSettings($to, $to, 'AEGIS GRC — Test Email',
+            '<h2>Test Email</h2><p>Your AEGIS GRC email configuration is working correctly.</p>');
+        if ($ok) {
+            $_SESSION['flash_success'] = "Test email sent to {$to}.";
+        } else {
+            $_SESSION['flash_error'] = 'Failed to send test email. Check SMTP settings and server logs.';
+        }
+        header('Location: /admin/email');
+    }
+
+    // ─── System settings ──────────────────────────────────────────────────────
+    public function settings(): void {
+        Auth::requireAdmin();
+        $rows     = Database::fetchAll("SELECT key, value, type, description FROM settings ORDER BY key");
+        $settings = array_column($rows, null, 'key');
+        $pageTitle    = 'System Settings';
+        $activeModule = 'admin';
+        $breadcrumbs  = [['Admin', '/admin'], ['System Settings', null]];
+        require AEGIS_ROOT . '/views/admin/settings.php';
+    }
+
+    public function saveSettings(): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403); return;
+        }
+        $allowed = ['org_name','date_format','timezone','session_timeout'];
+        foreach ($allowed as $key) {
+            if (isset($_POST[$key])) {
+                $val = Security::sanitizeInput($_POST[$key]);
+                Database::query("INSERT INTO settings (key, value, type, description) VALUES (?,?,'string','') ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value", [$key, $val]);
+            }
+        }
+        Auth::log('update_settings', 'settings', 0);
+        $_SESSION['flash_success'] = 'Settings saved.';
+        header('Location: /admin/settings');
+    }
 }

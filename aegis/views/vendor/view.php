@@ -1,0 +1,278 @@
+<?php
+$tierColors   = ['critical'=>'#dc2626','high'=>'#d97706','medium'=>'#0284c7','low'=>'#059669'];
+$statusColors = ['active'=>'#059669','inactive'=>'#64748b','under_review'=>'#d97706','terminated'=>'#dc2626'];
+$tierColor    = $tierColors[$vendor['risk_tier']] ?? '#64748b';
+$stColor      = $statusColors[$vendor['status']] ?? '#64748b';
+$pageTitle    = 'Vendor: ' . Security::h($vendor['vendor_code']);
+$activeModule = 'vendor';
+$breadcrumbs  = [['Vendor Risk', '/vendor'], [$vendor['vendor_code'], null]];
+ob_start();
+?>
+
+<div class="page-header">
+  <div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <h1 class="page-title" style="margin:0"><?= Security::h($vendor['name']) ?></h1>
+      <span class="status-chip" style="background:<?= $tierColor ?>20;color:<?= $tierColor ?>;border:1px solid <?= $tierColor ?>40;"><?= ucfirst(Security::h($vendor['risk_tier'])) ?> Risk</span>
+      <span class="status-chip" style="background:<?= $stColor ?>20;color:<?= $stColor ?>;border:1px solid <?= $stColor ?>40;"><?= ucfirst(str_replace('_',' ',Security::h($vendor['status']))) ?></span>
+    </div>
+    <p class="page-subtitle"><?= Security::h($vendor['vendor_code']) ?><?= $vendor['category'] ? ' · ' . Security::h($vendor['category']) : '' ?><?= $vendor['country'] ? ' · ' . Security::h($vendor['country']) : '' ?></p>
+  </div>
+  <div class="page-actions">
+    <?php if (Auth::can('vendor.write')): ?>
+      <button onclick="showModal('editModal')" class="btn btn-secondary"><i class="bi bi-pencil"></i> Edit</button>
+      <button onclick="showModal('assessModal')" class="btn btn-primary"><i class="bi bi-clipboard-check"></i> Schedule Assessment</button>
+    <?php endif; ?>
+  </div>
+</div>
+
+<div class="two-col-layout">
+  <!-- Left column -->
+  <div style="display:flex;flex-direction:column;gap:20px;">
+
+    <?php if ($vendor['description']): ?>
+    <div class="card">
+      <div class="card-header"><div class="card-header-left"><i class="bi bi-file-text" style="color:var(--primary)"></i><span class="card-title">About</span></div></div>
+      <div class="card-body"><p style="white-space:pre-wrap;margin:0"><?= Security::h($vendor['description']) ?></p></div>
+    </div>
+    <?php endif; ?>
+
+    <!-- Assessments -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-left"><i class="bi bi-clipboard-check" style="color:#7c3aed"></i><span class="card-title">Assessments</span></div>
+      </div>
+      <div class="card-body">
+        <?php if ($assessments): foreach ($assessments as $a):
+          $aColors=['planned'=>'#64748b','in_progress'=>'#d97706','completed'=>'#059669','overdue'=>'#dc2626'];
+          $rColors=['critical'=>'#dc2626','high'=>'#d97706','medium'=>'#0284c7','low'=>'#059669','acceptable'=>'#059669'];
+          $ac = $aColors[$a['status']] ?? '#64748b';
+          $rc = $rColors[$a['risk_rating'] ?? ''] ?? '#64748b';
+        ?>
+          <div style="padding:14px 0;border-bottom:1px solid var(--border);">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;">
+              <strong style="font-size:13px"><?= ucfirst(str_replace('_',' ',Security::h($a['assessment_type']))) ?> Assessment</strong>
+              <span class="status-chip" style="background:<?= $ac ?>20;color:<?= $ac ?>"><?= ucfirst(str_replace('_',' ',$a['status'])) ?></span>
+              <?php if ($a['risk_rating']): ?>
+                <span class="status-chip" style="background:<?= $rc ?>20;color:<?= $rc ?>"><?= ucfirst($a['risk_rating']) ?> Risk</span>
+              <?php endif; ?>
+              <?php if ($a['overall_score'] !== null): ?>
+                <span style="font-size:12px;color:var(--text-muted)">Score: <?= $a['overall_score'] ?>/100</span>
+              <?php endif; ?>
+            </div>
+            <div style="font-size:12px;color:var(--text-muted);display:flex;gap:16px;flex-wrap:wrap;">
+              <?php if ($a['assessed_by_name']): ?><span><i class="bi bi-person"></i> <?= Security::h($a['assessed_by_name']) ?></span><?php endif; ?>
+              <?php if ($a['scheduled_date']): ?><span><i class="bi bi-calendar"></i> Scheduled <?= date('M j, Y', strtotime($a['scheduled_date'])) ?></span><?php endif; ?>
+              <?php if ($a['completed_date']): ?><span><i class="bi bi-check-circle"></i> Completed <?= date('M j, Y', strtotime($a['completed_date'])) ?></span><?php endif; ?>
+            </div>
+            <?php if ($a['findings']): ?>
+              <p style="margin:8px 0 0;font-size:13px;white-space:pre-wrap"><?= Security::h($a['findings']) ?></p>
+            <?php endif; ?>
+            <?php if (Auth::can('vendor.write') && $a['status'] !== 'completed'): ?>
+              <button onclick="showUpdateAssessModal(<?= $a['id'] ?>, '<?= Security::h($a['status']) ?>')" class="btn btn-ghost" style="margin-top:8px;font-size:12px;padding:4px 10px"><i class="bi bi-pencil"></i> Update</button>
+            <?php endif; ?>
+          </div>
+        <?php endforeach; else: ?>
+          <p style="color:var(--text-muted);text-align:center;padding:20px 0">No assessments scheduled yet.</p>
+        <?php endif; ?>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Right column -->
+  <div style="display:flex;flex-direction:column;gap:20px;">
+    <div class="card">
+      <div class="card-header"><div class="card-header-left"><i class="bi bi-info-circle" style="color:var(--primary)"></i><span class="card-title">Vendor Details</span></div></div>
+      <div class="card-body">
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <?php $rows=[
+            ['Risk Tier',    '<span class="status-chip" style="background:'.$tierColor.'20;color:'.$tierColor.'">' . ucfirst(Security::h($vendor['risk_tier'])) . ' Risk</span>'],
+            ['Status',       '<span class="status-chip" style="background:'.$stColor.'20;color:'.$stColor.'">' . ucfirst(str_replace('_',' ',Security::h($vendor['status']))) . '</span>'],
+            ['Category',     Security::h($vendor['category'] ?? '—')],
+            ['Country',      Security::h($vendor['country'] ?? '—')],
+            ['Website',      $vendor['website'] ? '<a href="'.Security::h($vendor['website']).'" target="_blank" rel="noopener">'.Security::h($vendor['website']).'</a>' : '—'],
+            ['Data Access',  $vendor['data_access'] ? '<span style="color:#dc2626">Yes</span>' : 'No'],
+            ['Critical Service', $vendor['critical_service'] ? '<span style="color:#dc2626">Yes</span>' : 'No'],
+            ['Contract Start', $vendor['contract_start'] ? date('M j, Y', strtotime($vendor['contract_start'])) : '—'],
+            ['Contract End',   $vendor['contract_end'] ? date('M j, Y', strtotime($vendor['contract_end'])) : '—'],
+            ['Added',        date('M j, Y', strtotime($vendor['created_at']))],
+          ]; foreach ($rows as [$label, $val]): ?>
+          <tr style="border-bottom:1px solid var(--border-light)">
+            <td style="padding:8px 0;color:var(--text-muted);width:130px"><?= $label ?></td>
+            <td style="padding:8px 0"><?= $val ?></td>
+          </tr>
+          <?php endforeach; ?>
+        </table>
+      </div>
+    </div>
+
+    <?php if ($vendor['primary_contact'] || $vendor['contact_email']): ?>
+    <div class="card">
+      <div class="card-header"><div class="card-header-left"><i class="bi bi-person-lines-fill" style="color:#d97706"></i><span class="card-title">Contact</span></div></div>
+      <div class="card-body" style="font-size:14px;">
+        <?php if ($vendor['primary_contact']): ?>
+          <div style="margin-bottom:6px"><i class="bi bi-person" style="color:var(--text-muted)"></i> <?= Security::h($vendor['primary_contact']) ?></div>
+        <?php endif; ?>
+        <?php if ($vendor['contact_email']): ?>
+          <div><i class="bi bi-envelope" style="color:var(--text-muted)"></i> <a href="mailto:<?= Security::h($vendor['contact_email']) ?>"><?= Security::h($vendor['contact_email']) ?></a></div>
+        <?php endif; ?>
+      </div>
+    </div>
+    <?php endif; ?>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<?php if (Auth::can('vendor.write')): ?>
+<div class="modal-overlay" id="editModal" style="display:none">
+  <div class="modal" style="max-width:680px;width:100%">
+    <div class="modal-header">
+      <span>Edit Vendor</span>
+      <button onclick="closeModal('editModal')" style="background:none;border:none;cursor:pointer;font-size:18px">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form method="post" action="/vendor/<?= $vendor['id'] ?>/update">
+        <input type="hidden" name="csrf_token" value="<?= Security::generateCsrfToken() ?>">
+        <div class="form-row">
+          <div class="form-group" style="flex:2"><label class="form-label">Name *</label><input name="name" class="form-control" value="<?= Security::h($vendor['name']) ?>" required></div>
+          <div class="form-group" style="flex:1"><label class="form-label">Category</label>
+            <select name="category" class="form-control">
+              <option value="">—</option>
+              <?php foreach (['Cloud Provider','SaaS','Hardware','Professional Services','Financial','Legal','Other'] as $c): ?>
+                <option value="<?= $c ?>" <?= $vendor['category']===$c?'selected':'' ?>><?= $c ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="flex:1"><label class="form-label">Risk Tier</label>
+            <select name="risk_tier" class="form-control">
+              <?php foreach (['critical','high','medium','low'] as $t): ?>
+                <option value="<?= $t ?>" <?= $vendor['risk_tier']===$t?'selected':'' ?>><?= ucfirst($t) ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="form-group" style="flex:1"><label class="form-label">Status</label>
+            <select name="status" class="form-control">
+              <?php foreach (['active','inactive','under_review','terminated'] as $s): ?>
+                <option value="<?= $s ?>" <?= $vendor['status']===$s?'selected':'' ?>><?= ucfirst(str_replace('_',' ',$s)) ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="form-group" style="flex:1"><label class="form-label">Country</label><input name="country" class="form-control" value="<?= Security::h($vendor['country'] ?? '') ?>"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="flex:1"><label class="form-label">Primary Contact</label><input name="primary_contact" class="form-control" value="<?= Security::h($vendor['primary_contact'] ?? '') ?>"></div>
+          <div class="form-group" style="flex:1"><label class="form-label">Contact Email</label><input type="email" name="contact_email" class="form-control" value="<?= Security::h($vendor['contact_email'] ?? '') ?>"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="flex:1"><label class="form-label">Website</label><input type="url" name="website" class="form-control" value="<?= Security::h($vendor['website'] ?? '') ?>"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="flex:1"><label class="form-label">Contract Start</label><input type="date" name="contract_start" class="form-control" value="<?= $vendor['contract_start'] ? date('Y-m-d', strtotime($vendor['contract_start'])) : '' ?>"></div>
+          <div class="form-group" style="flex:1"><label class="form-label">Contract End</label><input type="date" name="contract_end" class="form-control" value="<?= $vendor['contract_end'] ? date('Y-m-d', strtotime($vendor['contract_end'])) : '' ?>"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="3"><?= Security::h($vendor['description'] ?? '') ?></textarea></div>
+        <div style="display:flex;gap:20px;padding:4px 0">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px"><input type="checkbox" name="data_access" value="1" <?= $vendor['data_access']?'checked':'' ?>> Has data access</label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px"><input type="checkbox" name="critical_service" value="1" <?= $vendor['critical_service']?'checked':'' ?>> Critical service</label>
+        </div>
+        <div class="modal-footer">
+          <button type="button" onclick="closeModal('editModal')" class="btn btn-secondary">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Schedule Assessment Modal -->
+<div class="modal-overlay" id="assessModal" style="display:none">
+  <div class="modal" style="max-width:480px;width:100%">
+    <div class="modal-header">
+      <span>Schedule Assessment</span>
+      <button onclick="closeModal('assessModal')" style="background:none;border:none;cursor:pointer;font-size:18px">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form method="post" action="/vendor/<?= $vendor['id'] ?>/assessment">
+        <input type="hidden" name="csrf_token" value="<?= Security::generateCsrfToken() ?>">
+        <div class="form-group"><label class="form-label">Assessment Type</label>
+          <select name="assessment_type" class="form-control">
+            <?php foreach (['security'=>'Security','privacy'=>'Privacy','business_continuity'=>'Business Continuity','financial'=>'Financial','operational'=>'Operational'] as $v=>$l): ?>
+              <option value="<?= $v ?>"><?= $l ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Scheduled Date *</label><input type="date" name="scheduled_date" class="form-control" required></div>
+        <div class="form-group"><label class="form-label">Assessor</label>
+          <select name="assessed_by" class="form-control">
+            <?php foreach ($users as $u): ?>
+              <option value="<?= $u['id'] ?>" <?= Auth::id()==$u['id']?'selected':'' ?>><?= Security::h($u['name']) ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <div class="modal-footer">
+          <button type="button" onclick="closeModal('assessModal')" class="btn btn-secondary">Cancel</button>
+          <button type="submit" class="btn btn-primary">Schedule</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Update Assessment Modal (populated by JS) -->
+<div class="modal-overlay" id="updateAssessModal" style="display:none">
+  <div class="modal" style="max-width:520px;width:100%">
+    <div class="modal-header">
+      <span>Update Assessment</span>
+      <button onclick="closeModal('updateAssessModal')" style="background:none;border:none;cursor:pointer;font-size:18px">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="updateAssessForm" method="post">
+        <input type="hidden" name="csrf_token" value="<?= Security::generateCsrfToken() ?>">
+        <div class="form-row">
+          <div class="form-group" style="flex:1"><label class="form-label">Status</label>
+            <select name="status" class="form-control">
+              <?php foreach (['planned'=>'Planned','in_progress'=>'In Progress','completed'=>'Completed','overdue'=>'Overdue'] as $v=>$l): ?>
+                <option value="<?= $v ?>"><?= $l ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="form-group" style="flex:1"><label class="form-label">Risk Rating</label>
+            <select name="risk_rating" class="form-control">
+              <option value="">— None —</option>
+              <?php foreach (['critical','high','medium','low','acceptable'] as $r): ?>
+                <option value="<?= $r ?>"><?= ucfirst($r) ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="form-group" style="flex:1"><label class="form-label">Score (0–100)</label><input type="number" name="overall_score" class="form-control" min="0" max="100" placeholder="—"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Findings</label><textarea name="findings" class="form-control" rows="3"></textarea></div>
+        <div class="form-group"><label class="form-label">Recommendations</label><textarea name="recommendations" class="form-control" rows="3"></textarea></div>
+        <div class="form-row">
+          <div class="form-group" style="flex:1"><label class="form-label">Completed Date</label><input type="date" name="completed_date" class="form-control"></div>
+          <div class="form-group" style="flex:1"><label class="form-label">Next Assessment</label><input type="date" name="next_assessment_date" class="form-control"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" onclick="closeModal('updateAssessModal')" class="btn btn-secondary">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+function showUpdateAssessModal(assessId, currentStatus) {
+  const form = document.getElementById('updateAssessForm');
+  form.action = '/vendor/<?= $vendor['id'] ?>/assessment/' + assessId + '/update';
+  const sel = form.querySelector('select[name="status"]');
+  if (sel) { for (let o of sel.options) { o.selected = (o.value === currentStatus); } }
+  showModal('updateAssessModal');
+}
+</script>
+<?php endif; ?>
+
+<?php $content = ob_get_clean(); require AEGIS_ROOT . '/views/layout.php'; ?>
