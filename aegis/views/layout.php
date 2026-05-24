@@ -45,6 +45,12 @@
     <a href="/policy" class="nav-item <?= $activeModule === 'policy' ? 'active' : '' ?>">
       <i class="bi bi-file-earmark-text-fill"></i><span>Policies</span>
     </a>
+    <a href="/incident" class="nav-item <?= $activeModule === 'incident' ? 'active' : '' ?>">
+      <i class="bi bi-fire"></i><span>Incidents</span>
+    </a>
+    <a href="/issue" class="nav-item <?= $activeModule === 'issue' ? 'active' : '' ?>">
+      <i class="bi bi-bug-fill"></i><span>Issues</span>
+    </a>
 
     <div class="nav-section-label">Risk</div>
     <a href="/risk" class="nav-item <?= $activeModule === 'risk' ? 'active' : '' ?>">
@@ -52,6 +58,25 @@
     </a>
     <a href="/risk/matrix" class="nav-item <?= $activeModule === 'risk_matrix' ? 'active' : '' ?>">
       <i class="bi bi-grid-3x3-gap-fill"></i><span>Risk Matrix</span>
+    </a>
+    <a href="/vendor" class="nav-item <?= $activeModule === 'vendor' ? 'active' : '' ?>">
+      <i class="bi bi-building"></i><span>Vendor Risk</span>
+    </a>
+
+    <div class="nav-section-label">Analytics</div>
+    <a href="/metrics" class="nav-item <?= $activeModule === 'metrics' ? 'active' : '' ?>">
+      <i class="bi bi-graph-up-arrow"></i><span>Metrics</span>
+    </a>
+    <a href="/report" class="nav-item <?= $activeModule === 'report' ? 'active' : '' ?>">
+      <i class="bi bi-file-earmark-bar-graph-fill"></i><span>Reports</span>
+    </a>
+    <a href="/export" class="nav-item <?= $activeModule === 'export' ? 'active' : '' ?>">
+      <i class="bi bi-download"></i><span>Export</span>
+    </a>
+
+    <div class="nav-section-label">Resources</div>
+    <a href="/docs" class="nav-item <?= $activeModule === 'docs' ? 'active' : '' ?>">
+      <i class="bi bi-book-fill"></i><span>Documentation</span>
     </a>
 
     <?php if (Auth::can('admin') || Auth::role() === 'admin'): ?>
@@ -77,7 +102,20 @@
     <a href="/admin/permissions" class="nav-item <?= $activeModule === 'admin_permissions' ? 'active' : '' ?>">
       <i class="bi bi-shield-lock-fill"></i><span>Permissions</span>
     </a>
+    <a href="/admin/logs" class="nav-item <?= $activeModule === 'admin_logs' ? 'active' : '' ?>">
+      <i class="bi bi-journal-text"></i><span>Activity Logs</span>
+    </a>
+    <a href="/admin/email" class="nav-item <?= $activeModule === 'admin_email' ? 'active' : '' ?>">
+      <i class="bi bi-envelope-fill"></i><span>Email Settings</span>
+    </a>
+    <a href="/admin/settings" class="nav-item <?= $activeModule === 'admin_settings' ? 'active' : '' ?>">
+      <i class="bi bi-gear-fill"></i><span>System Settings</span>
+    </a>
     <?php endif; ?>
+    <div class="nav-section-label">Account</div>
+    <a href="/mfa/setup" class="nav-item <?= $activeModule === 'profile' ? 'active' : '' ?>">
+      <i class="bi bi-shield-lock-fill"></i><span>Two-Factor Auth</span>
+    </a>
   </nav>
 
   <div class="sidebar-footer">

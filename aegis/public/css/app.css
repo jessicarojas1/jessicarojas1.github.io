@@ -1314,3 +1314,90 @@ input[type="range"] {
 
 .text-xs { font-size: 11px; }
 .fw-600  { font-weight: 600; }
+
+/* ============================================================
+   Due Items Widget
+   ============================================================ */
+.due-filter-bar { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+
+.due-tab {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 20px;
+  padding: 4px 12px; font-size: 12px; font-weight: 600; cursor: pointer;
+  display: flex; align-items: center; gap: 6px; transition: all var(--transition);
+  color: var(--text-muted);
+}
+.due-tab:hover { border-color: var(--primary); color: var(--primary); }
+.due-tab.active { background: var(--primary); border-color: var(--primary); color: white; }
+.due-tab.active .due-count-pill { background: rgba(255,255,255,.25) !important; color: white !important; }
+
+.due-count-pill {
+  background: var(--bg); border-radius: 20px; padding: 1px 7px;
+  font-size: 11px; font-weight: 700;
+}
+
+.due-section-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 16px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px;
+}
+.due-section-count { margin-left: auto; font-weight: 600; font-size: 12px; }
+
+.due-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 16px; border-bottom: 1px solid var(--border-light);
+  transition: background var(--transition);
+}
+.due-item:last-child { border-bottom: none; }
+.due-item:hover { background: #f8fafc; }
+
+.due-item-type {
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px;
+  padding: 3px 8px; border-radius: 4px; white-space: nowrap; flex-shrink: 0;
+}
+
+.due-item-body { flex: 1; min-width: 0; }
+.due-item-name {
+  display: block; font-size: 13px; font-weight: 500; color: var(--text);
+  text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.due-item-name:hover { color: var(--primary); }
+.due-item-owner { font-size: 11px; color: var(--text-muted); }
+
+.due-item-date { text-align: right; flex-shrink: 0; }
+.due-date-label { font-size: 12px; font-weight: 700; }
+.due-date-actual { font-size: 11px; color: var(--text-muted); }
+
+/* ── Status chips ─────────────────────────────────────────────────────────── */
+.status-chip {
+  display: inline-flex; align-items: center;
+  font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
+  padding: 2px 10px; border-radius: 99px;
+  white-space: nowrap;
+}
+
+/* ── Card header with icon ────────────────────────────────────────────────── */
+.card-header-left {
+  display: flex; align-items: center; gap: 8px;
+}
+.card-header-left i { font-size: 16px; flex-shrink: 0; }
+
+/* ── Flash alert banners ──────────────────────────────────────────────────── */
+.alert {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px; border-radius: 8px; font-size: 14px; font-weight: 500;
+}
+.alert i { flex-shrink: 0; font-size: 16px; }
+.alert-success { background: #05966915; color: #047857; border: 1px solid #05966930; }
+.alert-error   { background: #dc262615; color: #b91c1c; border: 1px solid #dc262630; }
+.alert-warning { background: #d9770615; color: #b45309; border: 1px solid #d9770630; }
+
+/* ── Detail row (key–value pair) ──────────────────────────────────────────── */
+.detail-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 0; border-bottom: 1px solid var(--border-light);
+  font-size: 13px;
+}
+.detail-row:last-child { border-bottom: none; }
+.detail-row span { color: var(--text-muted); }
+
+/* ── bg-subtle for table headers ─────────────────────────────────────────��─ */
+.bg-subtle { background: var(--bg-subtle); }
