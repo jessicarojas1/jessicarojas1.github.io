@@ -111,8 +111,25 @@
     <a href="/admin/settings" class="nav-item <?= $activeModule === 'admin_settings' ? 'active' : '' ?>">
       <i class="bi bi-gear-fill"></i><span>System Settings</span>
     </a>
+    <a href="/admin/settings/sso" class="nav-item <?= $activeModule === 'admin_sso' ? 'active' : '' ?>">
+      <i class="bi bi-person-badge-fill"></i><span>SSO / OIDC</span>
+    </a>
     <?php endif; ?>
     <div class="nav-section-label">Account</div>
+    <a href="/approvals" class="nav-item <?= $activeModule === 'approvals' ? 'active' : '' ?>">
+      <i class="bi bi-check2-square"></i><span>Approvals</span>
+      <?php
+        $pendingApprovals = Database::fetchOne(
+          "SELECT COUNT(*) as c FROM approval_requests ar
+           JOIN approval_request_steps ars ON ars.request_id = ar.id AND ars.step_number = ar.current_step
+           WHERE ar.status = 'pending' AND (ars.required_user_id = ? OR ars.required_role = ? OR ? = 'admin')",
+          [$u['id'], $u['role'], $u['role']]
+        );
+        if (($pendingApprovals['c'] ?? 0) > 0):
+      ?>
+        <span class="nav-badge"><?= (int)$pendingApprovals['c'] ?></span>
+      <?php endif; ?>
+    </a>
     <a href="/mfa/setup" class="nav-item <?= $activeModule === 'profile' ? 'active' : '' ?>">
       <i class="bi bi-shield-lock-fill"></i><span>Two-Factor Auth</span>
     </a>

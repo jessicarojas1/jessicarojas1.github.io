@@ -121,10 +121,16 @@ class Security {
 
     public static function setSecurityHeaders(): void {
         if (!headers_sent()) {
-            header('X-Frame-Options: SAMEORIGIN');
+            header('X-Frame-Options: DENY');
             header('X-Content-Type-Options: nosniff');
             header('X-XSS-Protection: 1; mode=block');
             header('Referrer-Policy: strict-origin-when-cross-origin');
+            header('Cross-Origin-Opener-Policy: same-origin');
+            header('Cross-Origin-Resource-Policy: same-origin');
+            // HSTS and CSP are set via .htaccess for Apache; set here as fallback
+            // for CLI-invoked PHP or non-Apache environments
+            if (empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && empty($_SERVER['HTTPS'])) return;
+            header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
         }
     }
 }

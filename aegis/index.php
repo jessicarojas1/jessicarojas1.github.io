@@ -52,6 +52,7 @@ require_once AEGIS_ROOT . '/src/Database.php';
 require_once AEGIS_ROOT . '/src/Security.php';
 require_once AEGIS_ROOT . '/src/Auth.php';
 require_once AEGIS_ROOT . '/src/JWT.php';
+require_once AEGIS_ROOT . '/src/SSO.php';
 
 Security::setSecurityHeaders();
 
@@ -106,6 +107,10 @@ $routes = [
         '/mfa/verify'                 => ['AuthController', 'mfaVerifyForm'],
         '/mfa/setup'                  => ['AuthController', 'mfaSetupForm'],
         '/evidence/list'              => ['EvidenceController', 'listForEntity'],
+        '/sso/login'                  => ['SSOController', 'login'],
+        '/sso/callback'               => ['SSOController', 'callback'],
+        '/admin/settings/sso'         => ['SSOController', 'settingsForm'],
+        '/approvals'                  => ['ApprovalController', 'pending'],
     ],
     'POST' => [
         '/login'                         => ['AuthController', 'login'],
@@ -125,6 +130,7 @@ $routes = [
         '/admin/email/test'              => ['AdminController', 'testEmail'],
         '/admin/settings/save'           => ['AdminController', 'saveSettings'],
         '/admin/logs/export'             => ['AdminController', 'exportLogs'],
+        '/admin/settings/sso/save'       => ['SSOController', 'saveSettings'],
         '/export/download'               => ['ExportController', 'download'],
         '/export/download-all'           => ['ExportController', 'downloadAll'],
         '/incident/create'               => ['IncidentController', 'create'],
@@ -177,6 +183,8 @@ $dynamicRoutes = [
         '#^/issue/(\d+)/update$#'                      => ['IssueController', 'update'],
         '#^/issue/(\d+)/add-update$#'                  => ['IssueController', 'addUpdate'],
         '#^/evidence/(\d+)/delete$#'                   => ['EvidenceController', 'delete'],
+        '#^/approvals/(\d+)/review$#'                  => ['ApprovalController', 'review'],
+        '#^/approvals/(\d+)/decide$#'                  => ['ApprovalController', 'decide'],
     ],
 ];
 
