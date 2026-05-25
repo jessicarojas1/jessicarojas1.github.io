@@ -75,6 +75,13 @@
 |------|--------|-------|
 | Job queue (async email, workflow triggers) | ✅ Complete | `aegis/scripts/send_notifications.php` — 5-category cron (overdue controls, policy review, approvals, risk assignment, aging incidents); self-bootstraps `notification_log` + `user_notification_prefs` tables |
 | File storage abstraction (S3/object store) | ✅ Complete | `aegis/src/Storage.php` — local + S3 (Sig V4) adapters; swap via `storage_driver` setting; Admin → Storage UI (`/admin/storage`) |
+| Risk Exception Management | ✅ Complete | `aegis/controllers/RiskExceptionController.php` + 3 views; formal accept/waive with approval, expiry tracking, cron auto-expire |
+| Compliance Calendar | ✅ Complete | `aegis/controllers/CalendarController.php` + `views/calendar/index.php`; unified due-date view (controls, reviews, audits, treatments) |
+| Data Export | ✅ Complete | `aegis/controllers/ExportController.php` + `views/export/index.php`; CSV/JSON single + bulk ZIP; 8 entity types |
+| In-app Documentation | ✅ Complete | `aegis/controllers/DocsController.php` + `views/docs/index.php`; 12-section user guide + admin reference |
+| Data Retention Policy | ✅ Complete | `aegis/controllers/AdminController::retention()` + `views/admin/retention.php`; 4 configurable policies, "Run Now" button |
+| Active Session Management | ✅ Complete | `aegis/controllers/AdminController::sessions()` + `views/admin/sessions.php`; real-time session table, kill button |
+| Audit Evidence Package Export | ✅ Complete | `AuditController::exportPackage()` — ZIP of all evidence + findings.csv + README.txt |
 | DB connection pooling (PgBouncer) | ⏳ Pending | Document in deployment guide |
 | Health check endpoint `/health` | ✅ Complete | `GET /health` — DB ping, disk space, PHP version, latency; returns 200/503 |
 | Segregation of Duties enforcement | ✅ Complete | `ApprovalController::decide()` — blocks self-approval and creator-approval; logs SoD violations |
@@ -167,3 +174,4 @@ Set in the `settings` table or Admin → System Settings:
 | 2026-05-25 | Phase 3 complete: webhooks (Slack/Jira/PagerDuty/ServiceNow), SIEM ingest API (Tenable/Qualys/Wiz), questionnaire builder, change management, BCP/DR, asset inventory, risk roadmap, executive board dashboard, PWA/mobile, AI advisor |
 | 2026-05-25 | Architecture backlog: nonce-based CSP (removed unsafe-inline), /health endpoint, S3 storage adapter (Sig V4), SoD enforcement in approvals, AI gap suggestions wired into compliance package view |
 | 2026-05-25 | Dashboard metrics (critical risks, open incidents, BCP/assets/questionnaire stats, GRC score from snapshots); Admin storage UI (/admin/storage) with S3 test endpoint; email notification cron (5 categories, dedup via notification_log); user notification prefs page (/profile/notifications); OpenAPI 3.0 spec + Swagger UI (/api/docs); Docker production stack (php-fpm + nginx + postgres + cron); Storage nav link; POST /admin/storage/save + test wired |
+| 2026-05-25 | Risk Exception Management (formal accept/waive + approval + expiry); Compliance Calendar (unified due-date view); Data Export (CSV/JSON/ZIP, 8 entity types, GDPR portability); In-app Documentation (12-section guide); Data Retention Policy (admin-configurable auto-purge); Active Session Management (real-time kill); Audit Evidence Package Export (ZIP); ExportController + DocsController (fixing missing 500 errors for /export and /docs nav links) |
