@@ -1015,4 +1015,42 @@ class AdminController {
         $_SESSION['flash_success'] = 'Risk appetite saved.';
         header('Location: /admin/risk-appetite');
     }
+
+    // ─── Incident SLA Policy ──────────────────────────────────────────────────
+
+    public function slaPolicy(): void {
+        Auth::requireAdmin();
+        $policies = Database::fetchAll(
+            "SELECT * FROM incident_sla_policies ORDER BY CASE severity WHEN 'critical' THEN 1 WHEN 'high' THEN 2 WHEN 'medium' THEN 3 WHEN 'low' THEN 4 END"
+        );
+        $pageTitle    = 'Incident SLA Policy';
+        $activeModule = 'admin_sla';
+        $breadcrumbs  = [['Administration', '/admin'], ['SLA Policy', null]];
+        ob_start();
+        require AEGIS_ROOT . '/views/admin/sla_policy.php';
+        $content = ob_get_clean();
+        require AEGIS_ROOT . '/views/layout.php';
+    }
+
+    public function saveSlaPolicy(): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $ids  = (array)($_POST['id'] ?? []);
+        $acks = (array)($_POST['acknowledge_hours'] ?? []);
+        $ress = (array)($_POST['resolve_hours'] ?? []);
+        $escs = (array)($_POST['escalate_hours'] ?? []);
+        foreach ($ids as $i => $id) {
+            $id  = (int)$id;
+            $ack = max(1, (int)($acks[$i] ?? 4));
+            $res = max(1, (int)($ress[$i] ?? 72));
+            $esc = ($escs[$i] ?? '') !== '' ? max(1, (int)$escs[$i]) : null;
+            Database::query(
+                "UPDATE incident_sla_policies SET acknowledge_hours=?, resolve_hours=?, escalate_hours=? WHERE id=?",
+                [$ack, $res, $esc, $id]
+            );
+        }
+        Auth::log('sla_policy_updated', 'incident_sla_policies', 0, []);
+        $_SESSION['flash_success'] = 'SLA policy saved.';
+        header('Location: /admin/sla-policy');
+    }
 }

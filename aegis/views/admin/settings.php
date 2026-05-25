@@ -79,6 +79,14 @@ ob_start();
   <div style="display:flex;flex-direction:column;gap:20px">
 
     <div class="card">
+      <div class="card-header"><div class="card-header-left"><i class="bi bi-stopwatch" style="color:#d97706"></i><span class="card-title">Incident SLA Policy</span></div></div>
+      <div class="card-body" style="font-size:13px">
+        <p style="margin:0 0 12px;color:var(--text-muted)">Configure time-to-acknowledge and time-to-resolve targets per incident severity.</p>
+        <a href="/admin/sla-policy" class="btn btn-secondary btn-sm"><i class="bi bi-arrow-right-circle"></i> Manage SLA Policy</a>
+      </div>
+    </div>
+
+    <div class="card">
       <div class="card-header"><div class="card-header-left"><i class="bi bi-info-circle" style="color:var(--primary)"></i><span class="card-title">System Info</span></div></div>
       <div class="card-body">
         <table style="width:100%;border-collapse:collapse;font-size:13px">
