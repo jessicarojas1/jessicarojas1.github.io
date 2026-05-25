@@ -153,6 +153,244 @@ ob_start();
   </div>
 </div>
 
+<!-- ── Playbooks Section ────────────────────────────────────────────── -->
+<?php
+$csrfTokenPlaybook = Security::generateCsrfToken();
+?>
+<div style="margin-top:24px">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-left">
+        <i class="bi bi-journal-bookmark-fill" style="color:#6366f1"></i>
+        <span class="card-title">Playbooks</span>
+      </div>
+      <div class="card-header-right">
+        <a href="/playbooks" style="font-size:12px;color:var(--primary)">Browse all playbooks</a>
+      </div>
+    </div>
+    <div class="card-body" style="display:flex;flex-direction:column;gap:20px">
+
+      <?php if (empty($playbookRuns)): ?>
+        <p style="color:var(--text-muted);margin:0">No playbooks attached to this incident yet.</p>
+      <?php else: ?>
+        <?php foreach ($playbookRuns as $run):
+          $totalSteps = (int)$run['total_steps'];
+          $doneSteps  = (int)$run['done_steps'];
+          $pct        = $totalSteps > 0 ? round($doneSteps / $totalSteps * 100) : 0;
+          $isComplete = (bool)$run['completed_at'];
+          $runSteps   = $playbookRunSteps[$run['id']] ?? [];
+        ?>
+          <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden">
+            <!-- Run header -->
+            <div style="padding:12px 16px;background:var(--bg-secondary);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;cursor:pointer"
+                 onclick="togglePlaybookRun(<?= (int)$run['id'] ?>)">
+              <div>
+                <div style="font-weight:600"><?= Security::h($run['playbook_title']) ?></div>
+                <div style="font-size:12px;color:var(--text-muted)">
+                  Started by <?= Security::h($run['started_by_name'] ?? '—') ?>
+                  on <?= date('M j, Y g:ia', strtotime($run['started_at'])) ?>
+                  <?php if ($isComplete): ?>
+                    &middot; Completed <?= date('M j, Y g:ia', strtotime($run['completed_at'])) ?>
+                  <?php endif; ?>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px">
+                <?php if ($isComplete): ?>
+                  <span class="status-chip" style="background:#05966920;color:#059669;border:1px solid #05966940">
+                    <i class="bi bi-check-circle-fill"></i> Complete
+                  </span>
+                <?php else: ?>
+                  <span class="status-chip" style="background:#d9770620;color:#d97706;border:1px solid #d9770640">In Progress</span>
+                <?php endif; ?>
+                <span style="font-size:12px;color:var(--text-muted)"><?= $doneSteps ?>/<?= $totalSteps ?> steps</span>
+                <i class="bi bi-chevron-down" id="pb-chevron-<?= (int)$run['id'] ?>" style="color:var(--text-muted);transition:transform .2s"></i>
+              </div>
+            </div>
+
+            <!-- Progress bar -->
+            <div style="height:4px;background:var(--border);position:relative">
+              <div id="pb-bar-<?= (int)$run['id'] ?>" style="height:100%;background:<?= $isComplete ? '#059669' : '#6366f1' ?>;width:<?= $pct ?>%;transition:width .3s"></div>
+            </div>
+
+            <!-- Steps checklist (collapsible) -->
+            <div id="pb-steps-<?= (int)$run['id'] ?>" style="display:none;padding:8px 0">
+              <?php foreach ($runSteps as $stepIdx => $step):
+                $completed = !empty($step['completion_id']);
+              ?>
+                <div class="pb-step-row" id="pb-step-row-<?= (int)$run['id'] ?>-<?= (int)$step['id'] ?>"
+                     style="padding:10px 16px;display:flex;gap:12px;align-items:flex-start;<?= $stepIdx > 0 ? 'border-top:1px solid var(--border-light)' : '' ?>;<?= $completed ? 'opacity:.7' : '' ?>">
+                  <div style="flex-shrink:0;margin-top:2px">
+                    <?php if (!$isComplete && !$completed && Auth::can('incident.write')): ?>
+                      <button
+                        type="button"
+                        class="pb-complete-btn"
+                        title="Mark complete"
+                        style="width:20px;height:20px;border-radius:50%;border:2px solid #6366f1;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0"
+                        data-run-id="<?= (int)$run['id'] ?>"
+                        data-step-id="<?= (int)$step['id'] ?>"
+                        data-csrf="<?= Security::h($csrfTokenPlaybook) ?>"
+                      ></button>
+                    <?php elseif ($completed): ?>
+                      <div style="width:20px;height:20px;border-radius:50%;background:#059669;display:flex;align-items:center;justify-content:center">
+                        <i class="bi bi-check" style="color:#fff;font-size:11px"></i>
+                      </div>
+                    <?php else: ?>
+                      <div style="width:20px;height:20px;border-radius:50%;border:2px solid var(--border)"></div>
+                    <?php endif; ?>
+                  </div>
+                  <div style="flex:1;min-width:0">
+                    <div style="font-size:13px;font-weight:<?= $completed ? '400' : '600' ?>;<?= $completed ? 'text-decoration:line-through;color:var(--text-muted)' : '' ?>">
+                      <?= Security::h($step['step_number']) ?>. <?= Security::h($step['title']) ?>
+                    </div>
+                    <?php if ($step['description']): ?>
+                      <div style="font-size:12px;color:var(--text-muted);margin-top:2px"><?= Security::h($step['description']) ?></div>
+                    <?php endif; ?>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;font-size:11px;color:var(--text-muted)">
+                      <?php if ($step['owner_role']): ?>
+                        <span><i class="bi bi-person"></i> <?= Security::h($step['owner_role']) ?></span>
+                      <?php endif; ?>
+                      <?php if ($step['due_minutes']): ?>
+                        <?php
+                        $mins = (int)$step['due_minutes'];
+                        if ($mins >= 1440) {
+                            $dl = round($mins/1440,1).' day'.(round($mins/1440,1)!=1?'s':'');
+                        } elseif ($mins >= 60) {
+                            $dl = round($mins/60,1).' hr'.(round($mins/60,1)!=1?'s':'');
+                        } else {
+                            $dl = $mins.' min';
+                        }
+                        ?>
+                        <span><i class="bi bi-clock"></i> Due within <?= Security::h($dl) ?></span>
+                      <?php endif; ?>
+                      <?php if ($completed): ?>
+                        <span style="color:#059669"><i class="bi bi-check-circle"></i>
+                          Completed by <?= Security::h($step['completed_by_name'] ?? '—') ?>
+                          at <?= date('M j, Y g:ia', strtotime($step['completed_at'])) ?>
+                        </span>
+                        <?php if ($step['completion_notes']): ?>
+                          <span title="<?= Security::h($step['completion_notes']) ?>"><i class="bi bi-chat-left-text"></i> Has notes</span>
+                        <?php endif; ?>
+                      <?php endif; ?>
+                    </div>
+                  </div>
+                </div>
+              <?php endforeach; ?>
+            </div>
+          </div>
+        <?php endforeach; ?>
+      <?php endif; ?>
+
+      <!-- Start a new playbook run -->
+      <?php if (!empty($availablePlaybooks) && Auth::can('incident.write')): ?>
+        <div style="border-top:1px solid var(--border);padding-top:16px">
+          <form method="post" action="/incident/<?= (int)$incident['id'] ?>/playbook/start" id="pb-start-form">
+            <?= Security::csrfField() ?>
+            <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+              <div class="form-group" style="flex:1;min-width:200px;margin:0">
+                <label class="form-label" style="font-size:13px">Attach a Playbook</label>
+                <select name="playbook_id" class="form-control" required>
+                  <option value="">— Select a playbook —</option>
+                  <?php foreach ($availablePlaybooks as $pb): ?>
+                    <option value="<?= (int)$pb['id'] ?>">
+                      <?= Security::h($pb['title']) ?>
+                      <?php if ($pb['severity_filter']): ?>
+                        (<?= Security::h(ucfirst($pb['severity_filter'])) ?>)
+                      <?php endif; ?>
+                    </option>
+                  <?php endforeach; ?>
+                </select>
+              </div>
+              <button type="submit" class="btn btn-primary" style="flex-shrink:0">
+                <i class="bi bi-play-circle"></i> Start Playbook
+              </button>
+            </div>
+          </form>
+        </div>
+      <?php elseif (empty($availablePlaybooks) && empty($playbookRuns)): ?>
+        <p style="color:var(--text-muted);font-size:13px;margin:0">
+          No active playbooks available. <a href="/playbooks/create">Create a playbook</a> to get started.
+        </p>
+      <?php elseif (empty($availablePlaybooks) && !empty($playbookRuns)): ?>
+        <p style="color:var(--text-muted);font-size:13px;margin:0">All active playbooks are already attached to this incident.</p>
+      <?php endif; ?>
+
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // Toggle collapsible step list
+  window.togglePlaybookRun = function(runId) {
+    var el  = document.getElementById('pb-steps-' + runId);
+    var chv = document.getElementById('pb-chevron-' + runId);
+    if (!el) return;
+    var isOpen = el.style.display !== 'none';
+    el.style.display = isOpen ? 'none' : 'block';
+    if (chv) chv.style.transform = isOpen ? '' : 'rotate(180deg)';
+  };
+
+  // AJAX step completion
+  document.querySelectorAll('.pb-complete-btn').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var runId  = btn.dataset.runId;
+      var stepId = btn.dataset.stepId;
+      var csrf   = btn.dataset.csrf;
+      var notes  = ''; // Future: prompt for notes
+
+      var fd = new FormData();
+      fd.append('step_id',    stepId);
+      fd.append('notes',      notes);
+      fd.append('csrf_token', csrf);
+
+      btn.disabled = true;
+      btn.style.opacity = '0.5';
+
+      fetch('/playbooks/run/' + runId + '/complete-step', {
+        method: 'POST',
+        body: fd,
+        credentials: 'same-origin'
+      })
+      .then(function(resp) { return resp.json(); })
+      .then(function(data) {
+        if (!data.ok) { btn.disabled = false; btn.style.opacity = '1'; return; }
+
+        // Swap button for green check
+        var rowEl = document.getElementById('pb-step-row-' + runId + '-' + stepId);
+        if (rowEl) {
+          var btnWrap = rowEl.querySelector('.pb-complete-btn').parentNode;
+          btnWrap.innerHTML = '<div style="width:20px;height:20px;border-radius:50%;background:#059669;display:flex;align-items:center;justify-content:center"><i class="bi bi-check" style="color:#fff;font-size:11px"></i></div>';
+          var titleEl = rowEl.querySelector('div[style*="font-weight"]');
+          if (titleEl) {
+            titleEl.style.textDecoration = 'line-through';
+            titleEl.style.color = 'var(--text-muted)';
+            titleEl.style.fontWeight = '400';
+          }
+        }
+
+        // Update progress bar and count
+        var bar = document.getElementById('pb-bar-' + runId);
+        var pct = data.total > 0 ? Math.round(data.done / data.total * 100) : 0;
+        if (bar) {
+          bar.style.width = pct + '%';
+          if (data.done >= data.total) bar.style.background = '#059669';
+        }
+        // Update the done/total text (sibling of chevron)
+        var header = bar ? bar.parentNode.previousElementSibling : null;
+        if (header) {
+          var countEl = header.querySelector('span[style*="font-size:12px"]');
+          if (countEl) countEl.textContent = data.done + '/' + data.total + ' steps';
+        }
+      })
+      .catch(function() { btn.disabled = false; btn.style.opacity = '1'; });
+    });
+  });
+}());
+</script>
+
 <!-- Edit Modal -->
 <?php if (Auth::can('incident.write')): ?>
 <div class="modal-overlay" id="editModal" style="display:none">
