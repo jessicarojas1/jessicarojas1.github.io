@@ -132,6 +132,24 @@ class ComplianceController {
         header('Location: /compliance/' . (int)$pkgId . '/objective/' . $objId . '?saved=1');
     }
 
+    public function aiSuggestions(string $pkgId): void {
+        Auth::requireAuth();
+        header('Content-Type: application/json');
+        $pkgId = (int)$pkgId;
+        $pkg = Database::fetchOne(
+            "SELECT cp.*, s.name AS standard_name FROM compliance_packages cp JOIN standards s ON s.id = cp.standard_id WHERE cp.id = ?",
+            [$pkgId]
+        );
+        if (!$pkg) { http_response_code(404); echo json_encode(['error' => 'Package not found']); return; }
+        $suggestions = AIAdvisor::suggestControlGaps($pkgId);
+        $narrative   = !empty($suggestions) ? AIAdvisor::generateNarrative($pkgId) : '';
+        echo json_encode([
+            'ai_enabled'  => !empty($suggestions),
+            'suggestions' => $suggestions,
+            'narrative'   => $narrative,
+        ]);
+    }
+
     public function importForm(): void {
         Auth::requirePermission('compliance.write');
         $standards = Database::fetchAll("SELECT * FROM standards ORDER BY name");

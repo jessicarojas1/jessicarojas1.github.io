@@ -194,6 +194,34 @@ class ApprovalController {
             header("Location: /approvals/{$id}"); exit;
         }
 
+        // Segregation of Duties: the requester cannot approve their own request
+        if ((int)$req['requested_by'] === $userId) {
+            Auth::log('sod_violation_blocked', $req['entity_type'], $req['entity_id'], [
+                'action'      => 'self_approval_attempt',
+                'request_id'  => $id,
+            ]);
+            $_SESSION['flash_error'] = 'Segregation of Duties: you cannot approve a request you submitted.';
+            header("Location: /approvals/{$id}"); exit;
+        }
+
+        // SoD: the entity creator cannot approve the entity (for risk/policy/change)
+        $entityCreatorMap = [
+            'risk'     => "SELECT created_by FROM risks WHERE id = ?",
+            'policy'   => "SELECT created_by FROM policies WHERE id = ?",
+            'change'   => "SELECT submitter_id AS created_by FROM change_requests WHERE id = ?",
+        ];
+        if (isset($entityCreatorMap[$req['entity_type']])) {
+            $creator = Database::fetchOne($entityCreatorMap[$req['entity_type']], [$req['entity_id']]);
+            if ($creator && (int)($creator['created_by'] ?? 0) === $userId) {
+                Auth::log('sod_violation_blocked', $req['entity_type'], $req['entity_id'], [
+                    'action'     => 'creator_approval_attempt',
+                    'request_id' => $id,
+                ]);
+                $_SESSION['flash_error'] = 'Segregation of Duties: you cannot approve an item you created.';
+                header("Location: /approvals/{$id}"); exit;
+            }
+        }
+
         // Record the decision on this step
         Database::query(
             "UPDATE approval_request_steps

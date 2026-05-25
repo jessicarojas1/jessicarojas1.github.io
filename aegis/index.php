@@ -61,6 +61,39 @@ $uri    = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 $uri    = '/' . ltrim($uri, '/');
 $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
 
+// Health check — unauthenticated, no session required (load balancer / uptime monitoring)
+if ($uri === '/health' && $method === 'GET') {
+    header('Content-Type: application/json');
+    $dbOk = false;
+    $dbLatencyMs = 0;
+    try {
+        $t0 = microtime(true);
+        Database::fetchOne("SELECT 1 AS ok");
+        $dbLatencyMs = round((microtime(true) - $t0) * 1000, 2);
+        $dbOk = true;
+    } catch (Throwable) {}
+    $diskFree = disk_free_space(AEGIS_ROOT);
+    $diskTotal = disk_total_space(AEGIS_ROOT);
+    $overall = $dbOk ? 'healthy' : 'degraded';
+    http_response_code($dbOk ? 200 : 503);
+    echo json_encode([
+        'status'    => $overall,
+        'version'   => '3.0',
+        'timestamp' => date('c'),
+        'uptime_ms' => round((microtime(true) - AEGIS_START) * 1000, 2),
+        'checks'    => [
+            'database' => ['status' => $dbOk ? 'ok' : 'error', 'latency_ms' => $dbLatencyMs],
+            'disk'     => [
+                'status'     => ($diskFree !== false && $diskFree > 100 * 1024 * 1024) ? 'ok' : 'low',
+                'free_mb'    => $diskFree !== false ? round($diskFree / 1048576) : null,
+                'total_mb'   => $diskTotal !== false ? round($diskTotal / 1048576) : null,
+            ],
+            'php'      => ['version' => PHP_VERSION],
+        ],
+    ], JSON_PRETTY_PRINT);
+    exit;
+}
+
 // API handler
 if (str_starts_with($uri, '/api/')) {
     require_once AEGIS_ROOT . '/api/index.php';
@@ -117,6 +150,7 @@ $routes = [
         '/documents'                  => ['DocumentController', 'index'],
         '/documents/create'           => ['DocumentController', 'createForm'],
         '/report/board'               => ['ReportController', 'board'],
+        '/admin/storage'              => ['AdminController', 'storage'],
         '/risk/roadmap'               => ['RiskController', 'roadmap'],
         '/admin/webhooks'             => ['WebhookController', 'index'],
         '/admin/webhooks/create'      => ['WebhookController', 'createForm'],
@@ -168,6 +202,7 @@ $routes = [
 // Dynamic route patterns
 $dynamicRoutes = [
     'GET' => [
+        '#^/compliance/(\d+)/ai-suggestions$#'      => ['ComplianceController', 'aiSuggestions'],
         '#^/compliance/(\d+)$#'                     => ['ComplianceController', 'viewPackage'],
         '#^/compliance/(\d+)/objective/(\d+)$#'     => ['ComplianceController', 'viewObjective'],
         '#^/audit/(\d+)$#'                          => ['AuditController', 'view'],

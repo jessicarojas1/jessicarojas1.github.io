@@ -74,13 +74,14 @@
 | Item | Status | Notes |
 |------|--------|-------|
 | Job queue (async email, workflow triggers) | 🔄 Partial — cron scripts created in Phase 1 | Full async queue needs Redis or DB-backed worker |
-| File storage abstraction (S3/object store) | ⏳ Pending | Current: local `uploads/` — needs adapter pattern |
+| File storage abstraction (S3/object store) | ✅ Complete | `aegis/src/Storage.php` — local + S3 (Sig V4) adapters; swap via `storage_driver` setting |
 | DB connection pooling (PgBouncer) | ⏳ Pending | Document in deployment guide |
-| Health check endpoint `/health` | ⏳ Pending | Add to `index.php` as unauthenticated JSON response |
-| Segregation of Duties enforcement | ⏳ Pending | No user can be both creator and approver of same entity |
+| Health check endpoint `/health` | ✅ Complete | `GET /health` — DB ping, disk space, PHP version, latency; returns 200/503 |
+| Segregation of Duties enforcement | ✅ Complete | `ApprovalController::decide()` — blocks self-approval and creator-approval; logs SoD violations |
 | Multi-tenancy (org scoping) | ⏳ Pending | Add `org_id` to all entity tables; routing by subdomain |
 | Redis-backed rate limiting | ⏳ Pending | Current: PostgreSQL `rate_limits` table — survives restarts |
-| Nonce-based CSP (eliminate unsafe-inline) | ⏳ Pending | Requires threading nonce through all view renders |
+| Nonce-based CSP (eliminate unsafe-inline) | ✅ Complete | `Security::nonce()` + dynamic CSP header; `unsafe-inline` removed from script-src |
+| AI gap analysis in compliance UI | ✅ Complete | Lazy-loaded panel on package view; `GET /compliance/{id}/ai-suggestions` JSON endpoint |
 
 ---
 
@@ -161,3 +162,4 @@ Set in the `settings` table or Admin → System Settings:
 | 2026-05-25 | Phase 1 complete: HSTS/CSP, hash-chained audit log, OIDC SSO, workflow executor, approval chains |
 | 2026-05-25 | Phase 2 complete: SOC2/NIST/HIPAA/PCI-DSS seeds, cross-framework mapping, scheduled reports, bulk CSV import, custom fields, metrics trending, document management |
 | 2026-05-25 | Phase 3 complete: webhooks (Slack/Jira/PagerDuty/ServiceNow), SIEM ingest API (Tenable/Qualys/Wiz), questionnaire builder, change management, BCP/DR, asset inventory, risk roadmap, executive board dashboard, PWA/mobile, AI advisor |
+| 2026-05-25 | Architecture backlog: nonce-based CSP (removed unsafe-inline), /health endpoint, S3 storage adapter (Sig V4), SoD enforcement in approvals, AI gap suggestions wired into compliance package view |

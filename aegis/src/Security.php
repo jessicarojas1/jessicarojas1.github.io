@@ -119,17 +119,43 @@ class Security {
         Database::query("DELETE FROM rate_limits WHERE key = ?", [$identifier]);
     }
 
+    private static string $_nonce = '';
+
+    /** Per-request CSP nonce — generated once, reused across all script tags */
+    public static function nonce(): string {
+        if (self::$_nonce === '') {
+            self::$_nonce = base64_encode(random_bytes(18));
+        }
+        return self::$_nonce;
+    }
+
     public static function setSecurityHeaders(): void {
-        if (!headers_sent()) {
-            header('X-Frame-Options: DENY');
-            header('X-Content-Type-Options: nosniff');
-            header('X-XSS-Protection: 1; mode=block');
-            header('Referrer-Policy: strict-origin-when-cross-origin');
-            header('Cross-Origin-Opener-Policy: same-origin');
-            header('Cross-Origin-Resource-Policy: same-origin');
-            // HSTS and CSP are set via .htaccess for Apache; set here as fallback
-            // for CLI-invoked PHP or non-Apache environments
-            if (empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && empty($_SERVER['HTTPS'])) return;
+        if (headers_sent()) return;
+
+        $nonce = self::nonce();
+        // Nonce eliminates unsafe-inline for scripts; styles keep unsafe-inline for icon fonts
+        $csp = implode('; ', [
+            "default-src 'self'",
+            "script-src 'self' 'nonce-{$nonce}'",
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
+            "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net",
+            "img-src 'self' data: blob:",
+            "connect-src 'self'",
+            "frame-ancestors 'none'",
+            "base-uri 'self'",
+            "form-action 'self'",
+        ]);
+        header('Content-Security-Policy: ' . $csp);
+        header('X-Frame-Options: DENY');
+        header('X-Content-Type-Options: nosniff');
+        header('X-XSS-Protection: 1; mode=block');
+        header('Referrer-Policy: strict-origin-when-cross-origin');
+        header('Cross-Origin-Opener-Policy: same-origin');
+        header('Cross-Origin-Resource-Policy: same-origin');
+        header('Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=()');
+        if (($_SERVER['REQUEST_SCHEME'] ?? '') === 'https'
+            || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https'
+            || !empty($_SERVER['HTTPS'])) {
             header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
         }
     }
