@@ -2,25 +2,23 @@
 
 /* ─── Sidebar ──────────────────────────────────────────────── */
 function openSidebar() {
-  const sidebar  = document.getElementById('sidebar');
-  const backdrop = document.getElementById('sidebarBackdrop');
+  var sidebar  = document.getElementById('sidebar');
+  var backdrop = document.getElementById('sidebarBackdrop');
   if (!sidebar) return;
   sidebar.classList.add('open');
   if (backdrop) backdrop.classList.add('open');
-  document.body.style.overflow = 'hidden';
 }
 
 function closeSidebar() {
-  const sidebar  = document.getElementById('sidebar');
-  const backdrop = document.getElementById('sidebarBackdrop');
+  var sidebar  = document.getElementById('sidebar');
+  var backdrop = document.getElementById('sidebarBackdrop');
   if (!sidebar) return;
   sidebar.classList.remove('open');
   if (backdrop) backdrop.classList.remove('open');
-  document.body.style.overflow = '';
 }
 
 function toggleSidebar() {
-  const sidebar = document.getElementById('sidebar');
+  var sidebar = document.getElementById('sidebar');
   if (sidebar && sidebar.classList.contains('open')) {
     closeSidebar();
   } else {
@@ -28,20 +26,37 @@ function toggleSidebar() {
   }
 }
 
-// Stop menu-button clicks from reaching the document close-handler.
-// stopPropagation is also set inline on the button for iOS Safari reliability.
-(function () {
-  document.querySelectorAll('.sidebar-toggle').forEach(function (btn) {
-    btn.addEventListener('click', function (e) { e.stopPropagation(); });
-  });
-})();
+// Wire sidebar toggle and backdrop in DOMContentLoaded.
+// Use touchend on mobile to bypass iOS Safari's click-event quirks —
+// preventDefault() on touchend stops the synthesised click that would
+// otherwise race with the document-level close handler.
+document.addEventListener('DOMContentLoaded', function () {
+  var toggle = document.querySelector('.sidebar-toggle');
+  if (toggle) {
+    var toggleTouched = false;
+    toggle.addEventListener('touchend', function (e) {
+      toggleTouched = true;
+      e.preventDefault();
+      toggleSidebar();
+    }, { passive: false });
+    toggle.addEventListener('click', function () {
+      if (toggleTouched) { toggleTouched = false; return; }
+      toggleSidebar();
+    });
+  }
 
-// Close sidebar when clicking outside it
-document.addEventListener('click', function (e) {
-  const sidebar = document.getElementById('sidebar');
-  if (!sidebar || !sidebar.classList.contains('open')) return;
-  if (!sidebar.contains(e.target)) {
-    closeSidebar();
+  var backdrop = document.getElementById('sidebarBackdrop');
+  if (backdrop) {
+    var backdropTouched = false;
+    backdrop.addEventListener('touchend', function (e) {
+      backdropTouched = true;
+      e.preventDefault();
+      closeSidebar();
+    }, { passive: false });
+    backdrop.addEventListener('click', function () {
+      if (backdropTouched) { backdropTouched = false; return; }
+      closeSidebar();
+    });
   }
 });
 

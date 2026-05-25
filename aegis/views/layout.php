@@ -129,13 +129,13 @@
     </div>
   </div>
 </aside>
-<div id="sidebarBackdrop" class="sidebar-backdrop" onclick="closeSidebar()"></div>
+<div id="sidebarBackdrop" class="sidebar-backdrop"></div>
 
 <!-- Main content -->
 <div class="main-content" id="mainContent">
   <header class="topbar">
     <div class="topbar-left">
-      <button class="sidebar-toggle" onclick="toggleSidebar(); event.stopPropagation();">
+      <button class="sidebar-toggle" aria-label="Open menu" type="button">
         <i class="bi bi-list"></i>
       </button>
       <div class="breadcrumb-area">
