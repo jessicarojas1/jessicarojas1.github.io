@@ -361,6 +361,61 @@ class ComplianceController {
         header("Location: /compliance/control/{$objId}/test");
     }
 
+    public function gapAnalysis(): void {
+        Auth::requireAuth();
+        // Per-package compliance stats
+        $packages = Database::fetchAll(
+            "SELECT cp.id, cp.name, s.name as standard_name, s.code as standard_code,
+                    COUNT(co.id) FILTER (WHERE co.level=2) as total_controls,
+                    COUNT(ci.id) FILTER (WHERE ci.status='implemented' AND co.level=2) as implemented,
+                    COUNT(ci.id) FILTER (WHERE ci.status='in_progress' AND co.level=2) as in_progress,
+                    COUNT(co.id) FILTER (WHERE (ci.status IS NULL OR ci.status='not_started') AND co.level=2) as not_started,
+                    COUNT(co.id) FILTER (WHERE ci.due_date < CURRENT_DATE AND ci.status != 'implemented' AND co.level=2) as overdue
+             FROM compliance_packages cp
+             JOIN standards s ON s.id = cp.standard_id
+             LEFT JOIN compliance_objectives co ON co.package_id = cp.id
+             LEFT JOIN control_implementations ci ON ci.objective_id = co.id
+             WHERE cp.is_active = TRUE
+             GROUP BY cp.id, cp.name, s.name, s.code
+             ORDER BY s.code, cp.name"
+        );
+        // Top gaps — controls not started or overdue across all packages
+        $gaps = Database::fetchAll(
+            "SELECT co.code, co.title, co.description, cp.name as package_name, s.code as standard_code,
+                    ci.status, ci.due_date, u.name as assigned_name
+             FROM compliance_objectives co
+             JOIN compliance_packages cp ON cp.id = co.package_id
+             JOIN standards s ON s.id = cp.standard_id
+             LEFT JOIN control_implementations ci ON ci.objective_id = co.id
+             LEFT JOIN users u ON u.id = ci.assigned_to
+             WHERE co.level = 2 AND cp.is_active = TRUE
+               AND (ci.status IS NULL OR ci.status IN ('not_started') OR (ci.due_date < CURRENT_DATE AND ci.status != 'implemented'))
+             ORDER BY ci.due_date ASC NULLS LAST, co.code ASC
+             LIMIT 100"
+        );
+        // Cross-framework: controls that appear in multiple packages with gaps
+        $crossFramework = Database::fetchAll(
+            "SELECT co.title, COUNT(DISTINCT cp.id) as framework_count,
+                    STRING_AGG(DISTINCT s.code, ', ' ORDER BY s.code) as frameworks,
+                    COUNT(CASE WHEN ci.status='implemented' THEN 1 END) as implemented_in
+             FROM compliance_objectives co
+             JOIN compliance_packages cp ON cp.id = co.package_id
+             JOIN standards s ON s.id = cp.standard_id
+             LEFT JOIN control_implementations ci ON ci.objective_id = co.id
+             WHERE co.level=2 AND cp.is_active=TRUE
+             GROUP BY co.title HAVING COUNT(DISTINCT cp.id) > 1
+             ORDER BY framework_count DESC, co.title
+             LIMIT 20"
+        );
+        $pageTitle    = 'Compliance Gap Analysis';
+        $activeModule = 'compliance_gap';
+        $breadcrumbs  = [['Compliance', '/compliance'], ['Gap Analysis', null]];
+        ob_start();
+        require AEGIS_ROOT . '/views/compliance/gap_analysis.php';
+        $content = ob_get_clean();
+        require AEGIS_ROOT . '/views/layout.php';
+    }
+
     public function testingDashboard(): void {
         Auth::requireAuth();
         // Controls by result
