@@ -65,6 +65,9 @@
     <a href="/bcp" class="nav-item <?= $activeModule === 'bcp' ? 'active' : '' ?>">
       <i class="bi bi-shield-fill-exclamation"></i><span>BCP / DR</span>
     </a>
+    <a href="/incident/sla" class="nav-item <?= $activeModule === 'incident_sla' ? 'active' : '' ?>">
+      <i class="bi bi-stopwatch-fill"></i><span>Incident SLA</span>
+    </a>
     <a href="/questionnaire" class="nav-item <?= $activeModule === 'questionnaire' ? 'active' : '' ?>">
       <i class="bi bi-ui-checks-grid"></i><span>Questionnaires</span>
     </a>
@@ -81,6 +84,15 @@
     </a>
     <a href="/risk/exceptions" class="nav-item <?= $activeModule === 'risk_exceptions' ? 'active' : '' ?>">
       <i class="bi bi-shield-slash"></i><span>Exceptions</span>
+    </a>
+    <a href="/threats" class="nav-item <?= $activeModule === 'threats' ? 'active' : '' ?>">
+      <i class="bi bi-biohazard"></i><span>Threat Register</span>
+    </a>
+    <a href="/treatment" class="nav-item <?= $activeModule === 'treatment_plans' ? 'active' : '' ?>">
+      <i class="bi bi-tools"></i><span>Treatment Plans</span>
+    </a>
+    <a href="/kris" class="nav-item <?= $activeModule === 'kris' ? 'active' : '' ?>">
+      <i class="bi bi-activity"></i><span>KRI Dashboard</span>
     </a>
     <a href="/vendor" class="nav-item <?= $activeModule === 'vendor' ? 'active' : '' ?>">
       <i class="bi bi-building"></i><span>Vendor Risk</span>
@@ -191,6 +203,9 @@
     <a href="/policy/attestations" class="nav-item <?= $activeModule === 'policy_attestations' ? 'active' : '' ?>">
       <i class="bi bi-pen-fill"></i><span>Attestations</span>
     </a>
+    <a href="/admin/sla-policy" class="nav-item <?= $activeModule === 'admin_sla' ? 'active' : '' ?>">
+      <i class="bi bi-stopwatch-fill"></i><span>SLA Policy</span>
+    </a>
     <?php endif; ?>
     <div class="nav-section-label">Account</div>
     <a href="/approvals" class="nav-item <?= $activeModule === 'approvals' ? 'active' : '' ?>">
@@ -218,6 +233,9 @@
     </a>
     <a href="/mfa/setup" class="nav-item <?= $activeModule === 'profile' ? 'active' : '' ?>">
       <i class="bi bi-shield-lock-fill"></i><span>Two-Factor Auth</span>
+    </a>
+    <a href="/mfa/backup-codes" class="nav-item <?= $activeModule === 'mfa_backup' ? 'active' : '' ?>">
+      <i class="bi bi-key-fill"></i><span>Backup Codes</span>
     </a>
   </nav>
 

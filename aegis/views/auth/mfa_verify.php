@@ -53,6 +53,45 @@
     <div style="text-align:center;margin-top:16px;font-size:13px;color:var(--text-muted)">
       <a href="/logout" style="color:var(--text-muted)">Cancel &amp; Log Out</a>
     </div>
+
+    <!-- Backup code toggle -->
+    <div style="text-align:center;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+      <button type="button" id="toggleBackupBtn" onclick="toggleBackupForm()"
+              style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--primary);text-decoration:underline;padding:0">
+        Use a backup code instead
+      </button>
+    </div>
+
+    <!-- Backup code form (hidden by default) -->
+    <div id="backupCodeSection" style="display:none;margin-top:16px">
+      <form method="POST" action="/mfa/backup-verify" id="backupForm">
+        <input type="hidden" name="csrf_token" value="<?= Security::generateCsrfToken() ?>">
+        <div style="margin-bottom:12px">
+          <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--text)">
+            Recovery Code
+          </label>
+          <input type="text" name="backup_code" id="backupCodeInput"
+                 class="form-control"
+                 placeholder="XXXX-XXXX"
+                 autocomplete="off"
+                 style="text-align:center;font-family:monospace;font-size:16px;letter-spacing:0.1em;text-transform:uppercase"
+                 maxlength="9">
+          <p style="font-size:12px;color:var(--text-muted);margin:6px 0 0">
+            Enter one of the 8-character backup codes you saved when enabling MFA.
+          </p>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%">
+          <i class="bi bi-key"></i> Verify Backup Code
+        </button>
+      </form>
+      <div style="text-align:center;margin-top:10px">
+        <button type="button" onclick="toggleBackupForm()"
+                style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--text-muted);text-decoration:underline;padding:0">
+          Back to authenticator code
+        </button>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -90,7 +129,38 @@ function assembleCode() {
   document.getElementById('codeInput').value = code;
 }
 
+function toggleBackupForm() {
+  var totpSection  = document.getElementById('digitBoxes');
+  var totpSubmit   = document.querySelector('#mfaForm button[type="submit"]');
+  var backupSec    = document.getElementById('backupCodeSection');
+  var toggleBtn    = document.getElementById('toggleBackupBtn');
+  var isShowingBackup = backupSec.style.display !== 'none';
+
+  if (isShowingBackup) {
+    backupSec.style.display    = 'none';
+    totpSection.style.display  = '';
+    totpSubmit.style.display   = '';
+    toggleBtn.textContent      = 'Use a backup code instead';
+    document.getElementById('d0').focus();
+  } else {
+    backupSec.style.display    = 'block';
+    totpSection.style.display  = 'none';
+    totpSubmit.style.display   = 'none';
+    toggleBtn.textContent      = 'Use authenticator code instead';
+    document.getElementById('backupCodeInput').focus();
+  }
+}
+
 document.getElementById('d0').focus();
+
+// Auto-format backup code input: insert hyphen after 4 chars
+document.getElementById('backupCodeInput').addEventListener('input', function() {
+  var val = this.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+  if (val.length > 4) {
+    val = val.slice(0, 4) + '-' + val.slice(4, 8);
+  }
+  this.value = val;
+});
 </script>
 </body>
 </html>

@@ -308,4 +308,103 @@ class AuthController {
         $_SESSION['flash_success'] = 'Your password has been reset. You can now sign in with your new password.';
         header('Location: /login'); exit;
     }
+
+    public function backupCodesForm(): void {
+        Auth::requireAuth();
+        $u = Auth::user();
+        if (!($u['mfa_enabled'] ?? false)) {
+            $_SESSION['flash_error'] = 'Enable MFA first before generating backup codes.';
+            header('Location: /mfa/setup'); return;
+        }
+        $existingCount = Database::fetchOne(
+            "SELECT COUNT(*) as c FROM mfa_backup_codes WHERE user_id=? AND used_at IS NULL", [Auth::id()]
+        )['c'] ?? 0;
+        $pageTitle    = 'MFA Backup Codes';
+        $activeModule = 'profile';
+        $breadcrumbs  = [['Two-Factor Auth', '/mfa/setup'], ['Backup Codes', null]];
+        $codes        = [];
+        ob_start();
+        require AEGIS_ROOT . '/views/auth/backup_codes.php';
+        $content = ob_get_clean();
+        require AEGIS_ROOT . '/views/layout.php';
+    }
+
+    public function generateBackupCodes(): void {
+        Auth::requireAuth();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $u = Auth::user();
+        if (!($u['mfa_enabled'] ?? false)) {
+            $_SESSION['flash_error'] = 'MFA must be enabled first.';
+            header('Location: /mfa/setup'); return;
+        }
+        // Invalidate existing codes
+        Database::query("DELETE FROM mfa_backup_codes WHERE user_id=?", [Auth::id()]);
+        // Generate 8 codes: format XXXX-XXXX
+        $codes = [];
+        for ($i = 0; $i < 8; $i++) {
+            $raw       = strtoupper(bin2hex(random_bytes(4)));
+            $formatted = substr($raw, 0, 4) . '-' . substr($raw, 4, 4);
+            $codes[]   = $formatted;
+            Database::insert('mfa_backup_codes', [
+                'user_id'   => Auth::id(),
+                'code_hash' => password_hash($formatted, PASSWORD_ARGON2ID),
+            ]);
+        }
+        Auth::log('backup_codes_generated', 'mfa_backup_codes', Auth::id(), []);
+        // Pass codes through session for one-time display
+        $_SESSION['new_backup_codes'] = $codes;
+        header('Location: /mfa/backup-codes');
+    }
+
+    public function mfaBackupVerify(): void {
+        // Called from the MFA verify page when user uses a backup code
+        if (empty($_SESSION['mfa_pending_user_id'])) {
+            // Also support the key used in mfaVerify flow
+            if (empty($_SESSION['mfa_pending']) || empty($_SESSION['mfa_user_id'])) {
+                header('Location: /login'); return;
+            }
+            $_SESSION['mfa_pending_user_id'] = (int)$_SESSION['mfa_user_id'];
+        }
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $code   = strtoupper(trim(Security::sanitizeInput($_POST['backup_code'] ?? '')));
+        $userId = (int)$_SESSION['mfa_pending_user_id'];
+        // Remove hyphens for flexible entry
+        $codeNorm = str_replace('-', '', $code);
+        $stored   = Database::fetchAll(
+            "SELECT id, code_hash FROM mfa_backup_codes WHERE user_id=? AND used_at IS NULL", [$userId]
+        );
+        $matched = null;
+        foreach ($stored as $row) {
+            // Normalize stored: try matching with and without hyphens
+            if (password_verify($code, $row['code_hash']) || password_verify($codeNorm, $row['code_hash'])) {
+                $matched = $row['id'];
+                break;
+            }
+            // Try formatted version XXXX-XXXX
+            $formatted = substr($codeNorm, 0, 4) . '-' . substr($codeNorm, 4, 4);
+            if (password_verify($formatted, $row['code_hash'])) {
+                $matched = $row['id'];
+                break;
+            }
+        }
+        if (!$matched) {
+            $_SESSION['flash_error'] = 'Invalid or already used backup code.';
+            header('Location: /mfa/verify'); return;
+        }
+        // Mark code as used
+        Database::query("UPDATE mfa_backup_codes SET used_at=NOW() WHERE id=?", [$matched]);
+        // Complete login
+        $user = Database::fetchOne("SELECT * FROM users WHERE id=?", [$userId]);
+        $redirect = $_SESSION['mfa_redirect'] ?? '/';
+        unset($_SESSION['mfa_pending_user_id'], $_SESSION['mfa_pending'], $_SESSION['mfa_user_id']);
+        $_SESSION['user'] = [
+            'id'          => $user['id'],
+            'name'        => $user['name'],
+            'email'       => $user['email'],
+            'role'        => $user['role'],
+            'mfa_enabled' => (bool)$user['mfa_enabled'],
+        ];
+        Auth::log('mfa_backup_code_used', 'users', $user['id'], []);
+        header('Location: ' . $redirect);
+    }
 }

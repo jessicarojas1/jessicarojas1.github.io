@@ -169,6 +169,113 @@ ob_start();
     <?php endif; ?>
   </div>
 
+  <!-- Treatment Plans -->
+  <?php
+  $treatmentPlans = Database::fetchAll(
+      "SELECT tp.*, u.name as owner_name,
+              COUNT(tm.id) as total_milestones,
+              COUNT(tm.completed_at) as completed_milestones
+       FROM treatment_plans tp
+       LEFT JOIN users u ON u.id = tp.owner_id
+       LEFT JOIN treatment_milestones tm ON tm.plan_id = tp.id
+       WHERE tp.risk_id = ?
+       GROUP BY tp.id, u.name
+       ORDER BY tp.created_at DESC",
+      [$risk['id']]
+  );
+  $tpStrategyColors = [
+      'mitigate' => ['bg'=>'#3b82f620','color'=>'#3b82f6','border'=>'#3b82f640'],
+      'transfer' => ['bg'=>'#8b5cf620','color'=>'#8b5cf6','border'=>'#8b5cf640'],
+      'accept'   => ['bg'=>'#f59e0b20','color'=>'#f59e0b','border'=>'#f59e0b40'],
+      'avoid'    => ['bg'=>'#ef444420','color'=>'#ef4444','border'=>'#ef444440'],
+  ];
+  $tpStatusStyles = [
+      'draft'     => ['bg'=>'#94a3b820','color'=>'#94a3b8','border'=>'#94a3b840'],
+      'active'    => ['bg'=>'#6366f120','color'=>'#6366f1','border'=>'#6366f140'],
+      'completed' => ['bg'=>'#05966920','color'=>'#059669','border'=>'#05966940'],
+      'cancelled' => ['bg'=>'#94a3b820','color'=>'#94a3b8','border'=>'#94a3b840'],
+  ];
+  ?>
+  <div class="card" style="margin-top:0">
+    <div class="card-header">
+      <h3 class="card-title"><i class="bi bi-shield-check"></i> Treatment Plans</h3>
+      <?php if (Auth::can('risk.write')): ?>
+        <a href="/risk/<?= (int)$risk['id'] ?>/treatment/create" class="btn btn-sm btn-primary">
+          <i class="bi bi-plus-lg"></i> Add Plan
+        </a>
+      <?php endif; ?>
+    </div>
+    <?php if (empty($treatmentPlans)): ?>
+      <div class="card-body" style="text-align:center;padding:28px 20px;color:var(--text-muted);font-size:13px">
+        No treatment plans yet.
+        <?php if (Auth::can('risk.write')): ?>
+          <a href="/risk/<?= (int)$risk['id'] ?>/treatment/create" style="color:var(--primary)">Create one</a>.
+        <?php endif; ?>
+      </div>
+    <?php else: ?>
+      <div class="card-body" style="padding:0">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Plan Title</th>
+              <th>Strategy</th>
+              <th>Status</th>
+              <th>Progress</th>
+              <th>Owner</th>
+              <th>Target Date</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php foreach ($treatmentPlans as $tp):
+              $tpSc = $tpStrategyColors[$tp['strategy']] ?? $tpStrategyColors['mitigate'];
+              $tpSt = $tpStatusStyles[$tp['status']] ?? $tpStatusStyles['draft'];
+              $tpTotal     = (int)$tp['total_milestones'];
+              $tpCompleted = (int)$tp['completed_milestones'];
+              $tpPct       = $tpTotal > 0 ? (int)round(($tpCompleted / $tpTotal) * 100) : 0;
+              $tpOverdue   = $tp['target_date'] && $tp['target_date'] < date('Y-m-d') && $tp['status'] === 'active';
+            ?>
+            <tr>
+              <td style="font-weight:500"><?= Security::h($tp['title']) ?></td>
+              <td>
+                <span class="status-chip" style="background:<?= $tpSc['bg'] ?>;color:<?= $tpSc['color'] ?>;border:1px solid <?= $tpSc['border'] ?>">
+                  <?= ucfirst(Security::h($tp['strategy'])) ?>
+                </span>
+              </td>
+              <td>
+                <span class="status-chip" style="background:<?= $tpSt['bg'] ?>;color:<?= $tpSt['color'] ?>;border:1px solid <?= $tpSt['border'] ?>">
+                  <?= ucfirst(Security::h($tp['status'])) ?>
+                </span>
+              </td>
+              <td style="min-width:120px">
+                <?php if ($tpTotal > 0): ?>
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <div style="flex:1;height:6px;background:var(--border);border-radius:4px;overflow:hidden">
+                      <div style="height:100%;width:<?= $tpPct ?>%;background:<?= $tpPct >= 100 ? '#059669' : '#6366f1' ?>;border-radius:4px"></div>
+                    </div>
+                    <span style="font-size:11px;color:var(--text-muted)"><?= $tpCompleted ?>/<?= $tpTotal ?></span>
+                  </div>
+                <?php else: ?>
+                  <span style="font-size:12px;color:var(--text-muted)">No milestones</span>
+                <?php endif; ?>
+              </td>
+              <td class="text-sm"><?= Security::h($tp['owner_name'] ?? '—') ?></td>
+              <td class="text-sm <?= $tpOverdue ? '' : '' ?>" style="color:<?= $tpOverdue ? '#ef4444' : 'inherit' ?>">
+                <?= $tp['target_date'] ? date('M j, Y', strtotime($tp['target_date'])) : '—' ?>
+              </td>
+              <td>
+                <a href="/treatment/<?= (int)$tp['id'] ?>" class="btn btn-sm btn-secondary">
+                  <i class="bi bi-eye"></i> View
+                </a>
+              </td>
+            </tr>
+            <?php endforeach; ?>
+          </tbody>
+        </table>
+      </div>
+    <?php endif; ?>
+  </div>
+
   <!-- Sidebar info -->
   <div class="risk-sidebar">
     <div class="card">

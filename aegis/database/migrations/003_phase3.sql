@@ -552,3 +552,43 @@ CREATE TABLE IF NOT EXISTS kri_values (
 );
 CREATE INDEX IF NOT EXISTS idx_kv_kri ON kri_values(kri_id);
 CREATE INDEX IF NOT EXISTS idx_kv_recorded ON kri_values(recorded_at);
+
+-- ─────────────────────────────────────────────
+-- 3.19 MFA Backup Codes
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS mfa_backup_codes (
+    id          SERIAL PRIMARY KEY,
+    user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    code_hash   VARCHAR(255) NOT NULL,
+    used_at     TIMESTAMP,
+    created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_mbc_user ON mfa_backup_codes(user_id);
+
+-- ─────────────────────────────────────────────
+-- 3.20 Incident SLAs
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS incident_sla_policies (
+    id                    SERIAL PRIMARY KEY,
+    severity              VARCHAR(20) NOT NULL UNIQUE,
+    acknowledge_hours     INTEGER NOT NULL DEFAULT 4,
+    resolve_hours         INTEGER NOT NULL DEFAULT 72,
+    escalate_hours        INTEGER,
+    is_active             BOOLEAN NOT NULL DEFAULT TRUE
+);
+INSERT INTO incident_sla_policies (severity, acknowledge_hours, resolve_hours, escalate_hours) VALUES
+    ('critical', 1,  24,  8),
+    ('high',     4,  72,  24),
+    ('medium',   8,  168, NULL),
+    ('low',      24, 336, NULL)
+ON CONFLICT (severity) DO NOTHING;
+
+CREATE TABLE IF NOT EXISTS incident_sla_events (
+    id           SERIAL PRIMARY KEY,
+    incident_id  INTEGER NOT NULL REFERENCES incidents(id) ON DELETE CASCADE,
+    event_type   VARCHAR(30) NOT NULL CHECK (event_type IN ('acknowledged','resolved','escalated','breach')),
+    occurred_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    recorded_by  INTEGER REFERENCES users(id),
+    notes        TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_sla_incident ON incident_sla_events(incident_id);

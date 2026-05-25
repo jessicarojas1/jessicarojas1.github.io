@@ -7,6 +7,48 @@ $pageTitle    = 'Incident: ' . $incident['incident_number'];
 $activeModule = 'incident';
 $breadcrumbs  = [['Incidents','/incident'],[$incident['incident_number'],null]];
 ob_start();
+
+// ── SLA data ──────────────────────────────────────────────────────────────
+$slaPolicy = Database::fetchOne(
+    "SELECT * FROM incident_sla_policies WHERE severity=?", [$incident['severity']]
+);
+$slaEvents = Database::fetchAll(
+    "SELECT * FROM incident_sla_events WHERE incident_id=? ORDER BY occurred_at", [$incident['id']]
+);
+$acknowledgedAt = null;
+$resolvedAt     = null;
+foreach ($slaEvents as $ev) {
+    if ($ev['event_type'] === 'acknowledged') $acknowledgedAt = $ev['occurred_at'];
+    if ($ev['event_type'] === 'resolved')     $resolvedAt     = $ev['occurred_at'];
+}
+// SLA status helper (inline)
+$calcSlaStatus = function(?string $startedAt, ?string $eventAt, ?int $hoursAllowed): string {
+    if (!$startedAt || !$hoursAllowed) return 'n/a';
+    if ($eventAt) return 'met';
+    $elapsed = (time() - strtotime($startedAt)) / 3600;
+    if ($elapsed > $hoursAllowed) return 'breached';
+    if ($elapsed > $hoursAllowed * 0.75) return 'at_risk';
+    return 'on_track';
+};
+$ackStatus = $calcSlaStatus($incident['created_at'], $acknowledgedAt, $slaPolicy['acknowledge_hours'] ?? null);
+$resStatus = $calcSlaStatus($incident['created_at'], $resolvedAt,     $slaPolicy['resolve_hours'] ?? null);
+$slaBadgeStyle = function(string $status): string {
+    $map = [
+        'on_track' => ['#059669', 'On Track'],
+        'at_risk'  => ['#d97706', 'At Risk'],
+        'breached' => ['#dc2626', 'Breached'],
+        'met'      => ['#64748b', 'Met'],
+        'n/a'      => ['#94a3b8', 'N/A'],
+    ];
+    [$color, $label] = $map[$status] ?? ['#94a3b8', ucfirst($status)];
+    $extra = $status === 'met' ? 'text-decoration:line-through;' : '';
+    return '<span style="display:inline-block;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;'
+         . 'background:' . $color . '20;color:' . $color . ';border:1px solid ' . $color . '40;' . $extra . '">'
+         . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</span>';
+};
+$ageSeconds  = time() - strtotime($incident['created_at']);
+$ageHours    = round($ageSeconds / 3600, 1);
+$ageDisplay  = $ageHours >= 48 ? round($ageHours / 24, 1) . ' days' : $ageHours . ' hrs';
 ?>
 <div class="page-header">
   <div>
@@ -31,6 +73,83 @@ ob_start();
     <?php endif; ?>
   </div>
 </div>
+
+<!-- ── SLA Status Card ─────────────────────────────────────────────────── -->
+<?php if ($slaPolicy): ?>
+<div class="card" style="margin-bottom:20px">
+  <div class="card-header">
+    <div class="card-header-left">
+      <i class="bi bi-stopwatch" style="color:var(--primary)"></i>
+      <span class="card-title">SLA Status</span>
+      <span style="font-size:12px;color:var(--text-muted);margin-left:8px">Age: <strong><?= Security::h($ageDisplay) ?></strong></span>
+    </div>
+    <div class="card-header-right">
+      <a href="/incident/sla" style="font-size:12px;color:var(--primary)">
+        <i class="bi bi-bar-chart"></i> SLA Report
+      </a>
+    </div>
+  </div>
+  <div class="card-body">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+      <!-- Acknowledge SLA -->
+      <div style="border:1px solid var(--border);border-radius:8px;padding:14px">
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);margin-bottom:6px">
+          Acknowledge SLA
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <?= $slaBadgeStyle($ackStatus) ?>
+          <span style="font-size:12px;color:var(--text-muted)">
+            within <?= (int)$slaPolicy['acknowledge_hours'] ?> hr<?= $slaPolicy['acknowledge_hours'] != 1 ? 's' : '' ?>
+          </span>
+        </div>
+        <div style="margin-top:6px;font-size:12px;color:var(--text-muted)">
+          <?php if ($acknowledgedAt): ?>
+            Acknowledged: <?= date('M j, Y g:ia', strtotime($acknowledgedAt)) ?>
+          <?php else: ?>
+            <span style="color:<?= $ackStatus === 'breached' ? '#dc2626' : 'var(--text-muted)' ?>">
+              <?= $ackStatus === 'breached' ? 'OVERDUE — not yet acknowledged' : 'Pending acknowledgement' ?>
+            </span>
+          <?php endif; ?>
+        </div>
+      </div>
+
+      <!-- Resolve SLA -->
+      <div style="border:1px solid var(--border);border-radius:8px;padding:14px">
+        <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);margin-bottom:6px">
+          Resolve SLA
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <?= $slaBadgeStyle($resStatus) ?>
+          <?php $rh = (int)$slaPolicy['resolve_hours']; ?>
+          <span style="font-size:12px;color:var(--text-muted)">
+            within <?= $rh ?> hr<?= $rh != 1 ? 's' : '' ?>
+            <?= $rh >= 24 ? '(' . round($rh / 24, 1) . ' days)' : '' ?>
+          </span>
+        </div>
+        <div style="margin-top:6px;font-size:12px;color:var(--text-muted)">
+          <?php if ($resolvedAt): ?>
+            Resolved: <?= date('M j, Y g:ia', strtotime($resolvedAt)) ?>
+          <?php else: ?>
+            <span style="color:<?= $resStatus === 'breached' ? '#dc2626' : 'var(--text-muted)' ?>">
+              <?= $resStatus === 'breached' ? 'OVERDUE — not yet resolved' : 'Pending resolution' ?>
+            </span>
+          <?php endif; ?>
+        </div>
+      </div>
+    </div>
+
+    <!-- Acknowledge button (if not yet acknowledged and incident is open) -->
+    <?php if (!$acknowledgedAt && in_array($incident['status'], ['open','investigating','contained']) && Auth::can('incident.write')): ?>
+    <form method="POST" action="/incident/<?= (int)$incident['id'] ?>/acknowledge" style="display:inline">
+      <?= Security::csrfField() ?>
+      <button type="submit" class="btn btn-primary btn-sm">
+        <i class="bi bi-check2-circle"></i> Acknowledge Incident
+      </button>
+    </form>
+    <?php endif; ?>
+  </div>
+</div>
+<?php endif; ?>
 
 <div class="two-col-layout">
   <!-- Left column -->
