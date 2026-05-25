@@ -20,7 +20,7 @@ foreach (['.env.local', '.env'] as $envFile) {
 ini_set('session.cookie_httponly', '1');
 ini_set('session.cookie_samesite', 'Lax');
 ini_set('session.use_strict_mode', '1');
-if ($_SERVER['REQUEST_SCHEME'] ?? '' === 'https' || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https') {
+if (($_SERVER['REQUEST_SCHEME'] ?? '') === 'https' || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https') {
     ini_set('session.cookie_secure', '1');
 }
 session_start();

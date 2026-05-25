@@ -56,7 +56,7 @@ ob_start();
       </div>
       <div class="card-body">
         <div class="policy-content">
-          <?= $policy['content'] ? $policy['content'] : '<p class="text-muted">No content yet. <a href="/policy/'.$policy['id'].'/edit">Add content</a>.</p>' ?>
+          <?= $policy['content'] ? nl2br(Security::h($policy['content'])) : '<p class="text-muted">No content yet. <a href="/policy/'.Security::h((string)$policy['id']).'/edit">Add content</a>.</p>' ?>
         </div>
       </div>
     </div>
