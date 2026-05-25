@@ -28,15 +28,12 @@ function toggleSidebar() {
   }
 }
 
-// Stop menu-button clicks from reaching the document close-handler
+// Stop menu-button clicks from reaching the document close-handler.
+// stopPropagation is also set inline on the button for iOS Safari reliability.
 (function () {
   document.querySelectorAll('.sidebar-toggle').forEach(function (btn) {
     btn.addEventListener('click', function (e) { e.stopPropagation(); });
   });
-  var menuBtn = document.querySelector('[aria-label="Open menu"]');
-  if (menuBtn) menuBtn.addEventListener('click', function (e) { e.stopPropagation(); });
-  var backdropEl = document.getElementById('sidebarBackdrop');
-  if (backdropEl) backdropEl.addEventListener('click', function (e) { e.stopPropagation(); });
 })();
 
 // Close sidebar when clicking outside it
