@@ -1,0 +1,129 @@
+{
+  "name": "PCI DSS v4.0 — Payment Card Industry Data Security Standard",
+  "version": "v4.0 (2022)",
+  "description": "PCI DSS requirements for protecting cardholder data. Applies to all entities that store, process, or transmit cardholder data or sensitive authentication data.",
+  "standard": { "code": "PCI-DSS", "name": "PCI DSS", "authority": "PCI Security Standards Council", "category": "Payment Card" },
+  "domains": [
+    {
+      "code": "REQ1", "title": "Req 1 — Install and Maintain Network Security Controls",
+      "controls": [
+        { "code": "1.1", "title": "Network Security Control Processes", "description": "Processes and mechanisms for installing and maintaining network security controls are defined and understood." },
+        { "code": "1.2", "title": "Network Security Controls Configuration", "description": "Network security controls are configured and maintained." },
+        { "code": "1.3", "title": "Network Access to and from the CDE Restricted", "description": "Network access to and from the cardholder data environment is restricted." },
+        { "code": "1.4", "title": "Network Connections Between Trusted and Untrusted Networks", "description": "Network connections between trusted and untrusted networks are controlled." },
+        { "code": "1.5", "title": "Risks from Computing Devices to CDE Mitigated", "description": "Risks to the CDE from computing devices that are able to connect to both untrusted networks and the CDE are mitigated." }
+      ]
+    },
+    {
+      "code": "REQ2", "title": "Req 2 — Apply Secure Configurations to All System Components",
+      "controls": [
+        { "code": "2.1", "title": "Secure Configuration Processes", "description": "Processes and mechanisms for applying secure configurations to all system components are defined and understood." },
+        { "code": "2.2", "title": "System Components Configured Securely", "description": "System components are configured and managed securely." },
+        { "code": "2.3", "title": "Wireless Environments Configured and Managed Securely", "description": "Wireless environments are configured and managed securely." }
+      ]
+    },
+    {
+      "code": "REQ3", "title": "Req 3 — Protect Stored Account Data",
+      "controls": [
+        { "code": "3.1", "title": "Account Data Storage Processes", "description": "Processes and mechanisms for protecting stored account data are defined and understood." },
+        { "code": "3.2", "title": "Storage of Account Data is Minimized", "description": "Storage of account data is kept to a minimum." },
+        { "code": "3.3", "title": "Sensitive Authentication Data Not Stored After Authorization", "description": "Sensitive authentication data (SAD) is not retained after authorization." },
+        { "code": "3.4", "title": "Primary Account Number Secured Where Stored", "description": "Access to displays of full PAN and ability to copy PAN are restricted." },
+        { "code": "3.5", "title": "Primary Account Number Secured with Strong Cryptography", "description": "Primary account number is secured wherever it is stored." }
+      ]
+    },
+    {
+      "code": "REQ4", "title": "Req 4 — Protect Cardholder Data with Strong Cryptography During Transmission",
+      "controls": [
+        { "code": "4.1", "title": "Transmission Security Processes", "description": "Processes and mechanisms for protecting cardholder data with strong cryptography during transmission over open, public networks are defined and understood." },
+        { "code": "4.2", "title": "PAN Secured During Transmission", "description": "PAN is protected with strong cryptography during transmission." }
+      ]
+    },
+    {
+      "code": "REQ5", "title": "Req 5 — Protect All Systems and Networks from Malicious Software",
+      "controls": [
+        { "code": "5.1", "title": "Malicious Software Protection Processes", "description": "Processes and mechanisms for protecting all systems and networks from malicious software are defined and understood." },
+        { "code": "5.2", "title": "Malicious Software Prevented, Detected, Addressed", "description": "Malicious software is prevented, or detected and addressed." },
+        { "code": "5.3", "title": "Anti-Malware Mechanisms Active, Maintained, Monitored", "description": "Anti-malware mechanisms and processes are active, maintained, and monitored." },
+        { "code": "5.4", "title": "Anti-Phishing Mechanisms Protect Users", "description": "Anti-phishing mechanisms protect users against phishing attacks." }
+      ]
+    },
+    {
+      "code": "REQ6", "title": "Req 6 — Develop and Maintain Secure Systems and Software",
+      "controls": [
+        { "code": "6.1", "title": "Secure Development Processes", "description": "Processes and mechanisms for developing and maintaining secure systems and software are defined and understood." },
+        { "code": "6.2", "title": "Bespoke and Custom Software Developed Securely", "description": "Bespoke and custom software are developed securely." },
+        { "code": "6.3", "title": "Security Vulnerabilities Identified and Addressed", "description": "Security vulnerabilities are identified and addressed." },
+        { "code": "6.4", "title": "Public-Facing Web Applications Protected Against Attacks", "description": "Public-facing web applications are protected against attacks." },
+        { "code": "6.5", "title": "Changes to All System Components Managed Securely", "description": "Changes to all system components are managed securely." }
+      ]
+    },
+    {
+      "code": "REQ7", "title": "Req 7 — Restrict Access to System Components and Cardholder Data by Business Need to Know",
+      "controls": [
+        { "code": "7.1", "title": "Access Control Processes", "description": "Processes and mechanisms for restricting access to system components and cardholder data by business need to know are defined and understood." },
+        { "code": "7.2", "title": "Access to System Components and Data Appropriately Defined and Assigned", "description": "Access to system components and data is appropriately defined and assigned." },
+        { "code": "7.3", "title": "Access to System Components and Data Confirmed Via Access Control System(s)", "description": "Access to system components and data is managed via an access control system(s)." }
+      ]
+    },
+    {
+      "code": "REQ8", "title": "Req 8 — Identify Users and Authenticate Access to System Components",
+      "controls": [
+        { "code": "8.1", "title": "User Identification and Authentication Processes", "description": "Processes and mechanisms for identifying users and authenticating access to system components are defined and understood." },
+        { "code": "8.2", "title": "User Identification and Related Accounts Managed", "description": "User identification and related accounts for users and administrators are strictly managed throughout an account's lifecycle." },
+        { "code": "8.3", "title": "User Authentication Managed", "description": "User authentication is managed throughout an account's lifecycle." },
+        { "code": "8.4", "title": "Multi-Factor Authentication Implemented", "description": "Multi-factor authentication (MFA) is implemented to secure access into the CDE." },
+        { "code": "8.5", "title": "Multi-Factor Authentication Systems Configured Properly", "description": "Multi-factor authentication (MFA) systems are configured to prevent misuse." },
+        { "code": "8.6", "title": "Use of Application and System Accounts and Associated Authentication Factors Managed", "description": "Use of application and system accounts and associated authentication factors is strictly managed." }
+      ]
+    },
+    {
+      "code": "REQ9", "title": "Req 9 — Restrict Physical Access to Cardholder Data",
+      "controls": [
+        { "code": "9.1", "title": "Physical Access Control Processes", "description": "Processes and mechanisms for restricting physical access to cardholder data are defined and understood." },
+        { "code": "9.2", "title": "Physical Access Controls for CDE", "description": "Physical access controls manage entry into facilities and systems containing the CDE." },
+        { "code": "9.3", "title": "Physical Access for Personnel and Visitors", "description": "Physical access for personnel and visitors is authorized and managed." },
+        { "code": "9.4", "title": "Media with Cardholder Data Secured", "description": "Media with cardholder data is securely stored, accessed, distributed, and destroyed." },
+        { "code": "9.5", "title": "Point-of-Interaction Devices Protected", "description": "Point-of-interaction (POI) devices are protected from tampering and unauthorized substitution." }
+      ]
+    },
+    {
+      "code": "REQ10", "title": "Req 10 — Log and Monitor All Access to System Components and Cardholder Data",
+      "controls": [
+        { "code": "10.1", "title": "Audit Log Processes", "description": "Processes and mechanisms for logging and monitoring all access to system components and cardholder data are defined and documented." },
+        { "code": "10.2", "title": "Audit Logs Capture All Critical Events", "description": "Audit logs capture all critical events." },
+        { "code": "10.3", "title": "Audit Logs Protected from Destruction and Unauthorized Modifications", "description": "Audit logs are protected from destruction and unauthorized modifications." },
+        { "code": "10.4", "title": "Audit Logs Reviewed to Identify Anomalies or Suspicious Activity", "description": "Audit logs are reviewed to identify anomalies or suspicious activity." },
+        { "code": "10.5", "title": "Audit Log History Retained and Available for Analysis", "description": "Audit log history is retained and available for analysis." },
+        { "code": "10.6", "title": "Time-Synchronization Mechanisms Configured and Monitored", "description": "Time-synchronization mechanisms support consistent time settings across all systems." },
+        { "code": "10.7", "title": "Failures of Critical Security Controls Detected, Reported, and Responded to Promptly", "description": "Failures of critical security controls are detected, alerted, and addressed promptly." }
+      ]
+    },
+    {
+      "code": "REQ11", "title": "Req 11 — Test Security of Systems and Networks Regularly",
+      "controls": [
+        { "code": "11.1", "title": "Security Testing Processes", "description": "Processes and mechanisms for regularly testing security of systems and networks are defined and understood." },
+        { "code": "11.2", "title": "Wireless Access Points Managed", "description": "Wireless access points are identified and monitored, and unauthorized wireless access points are addressed." },
+        { "code": "11.3", "title": "External and Internal Vulnerabilities Regularly Identified, Prioritized, and Addressed", "description": "External and internal vulnerabilities are regularly identified, prioritized, and addressed." },
+        { "code": "11.4", "title": "External and Internal Penetration Testing Regularly Performed", "description": "External and internal penetration testing is regularly performed, and exploitable vulnerabilities and security weaknesses are corrected." },
+        { "code": "11.5", "title": "Network Intrusions and Unexpected File Changes Detected and Responded To", "description": "Network intrusions and unexpected file changes are detected and responded to." },
+        { "code": "11.6", "title": "Unauthorized Changes on Payment Pages Detected and Responded To", "description": "Unauthorized changes on payment pages are detected and responded to." }
+      ]
+    },
+    {
+      "code": "REQ12", "title": "Req 12 — Support Information Security with Organizational Policies and Programs",
+      "controls": [
+        { "code": "12.1",  "title": "Comprehensive Information Security Policy Established", "description": "A comprehensive information security policy is established, published, maintained, and disseminated." },
+        { "code": "12.2",  "title": "Acceptable Use Policies Implemented", "description": "Acceptable use policies for end-user technologies are documented and implemented." },
+        { "code": "12.3",  "title": "Risks to the CDE Formally Identified, Evaluated, and Managed", "description": "Risks to the cardholder data environment are formally identified, evaluated, and managed." },
+        { "code": "12.4",  "title": "PCI DSS Compliance Managed", "description": "PCI DSS compliance is managed." },
+        { "code": "12.5",  "title": "PCI DSS Scope is Documented and Validated", "description": "PCI DSS scope is documented and validated." },
+        { "code": "12.6",  "title": "Security Awareness Education Ongoing", "description": "A security awareness program is implemented to make all personnel aware of the entity's information security policy and procedures, and their role in protecting the cardholder data." },
+        { "code": "12.7",  "title": "Personnel Screened to Reduce Insider Threats", "description": "Personnel are screened to reduce risks from insider threats." },
+        { "code": "12.8",  "title": "Third-Party Service Providers with Whom Account Data is Shared are Managed", "description": "Risk to information assets associated with third-party service provider (TPSP) relationships is managed." },
+        { "code": "12.9",  "title": "Third-Party Service Providers Support PCI DSS Compliance", "description": "Third-party service providers (TPSPs) support their customers' PCI DSS compliance." },
+        { "code": "12.10", "title": "Suspected and Confirmed Security Incidents Responded to Immediately", "description": "Suspected and confirmed security incidents that could impact the CDE are responded to immediately." }
+      ]
+    }
+  ]
+}

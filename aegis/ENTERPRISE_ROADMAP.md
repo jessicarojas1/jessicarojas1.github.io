@@ -38,16 +38,16 @@
 
 | # | Feature | Status | Files Created / Modified |
 |---|---------|--------|--------------------------|
-| 2.1 | SOC 2 Type II framework package (JSON seed) | ⏳ Pending | `aegis/database/seeds/soc2.json` |
-| 2.2 | NIST 800-53 Rev 5 framework package | ⏳ Pending | `aegis/database/seeds/nist80053.json` |
-| 2.3 | HIPAA framework package | ⏳ Pending | `aegis/database/seeds/hipaa.json` |
-| 2.4 | PCI-DSS v4 framework package | ⏳ Pending | `aegis/database/seeds/pcidss.json` |
-| 2.5 | Cross-framework control mapping | ⏳ Pending | `aegis/database/migrations/002_cross_framework.sql`, `aegis/controllers/ComplianceController.php`, views |
-| 2.6 | Scheduled report delivery via email | ⏳ Pending | `aegis/scripts/send_scheduled_reports.php`, `aegis/database/migrations/002_cross_framework.sql` |
-| 2.7 | Bulk CSV import (risks, vendors, incidents) | ⏳ Pending | `aegis/controllers/ImportController.php`, `aegis/views/import/` |
-| 2.8 | Custom fields (extensible metadata per entity) | ⏳ Pending | `aegis/database/migrations/002_cross_framework.sql`, `aegis/src/CustomFields.php` |
-| 2.9 | Metrics trending (daily snapshots → trend charts) | ⏳ Pending | `aegis/database/migrations/002_cross_framework.sql`, `aegis/scripts/capture_metrics_snapshot.php`, `aegis/controllers/MetricsController.php` |
-| 2.10 | Document management with version control + DLP metadata | ⏳ Pending | `aegis/controllers/DocumentController.php`, `aegis/views/documents/` |
+| 2.1 | SOC 2 Type II framework package (JSON seed) | ✅ Complete | `aegis/database/seeds/soc2.json` |
+| 2.2 | NIST 800-53 Rev 5 framework package | ✅ Complete | `aegis/database/seeds/nist80053.json` |
+| 2.3 | HIPAA framework package | ✅ Complete | `aegis/database/seeds/hipaa.json` |
+| 2.4 | PCI-DSS v4 framework package | ✅ Complete | `aegis/database/seeds/pcidss.json` |
+| 2.5 | Cross-framework control mapping | ✅ Complete | `aegis/database/migrations/002_phase2.sql`, `aegis/controllers/ComplianceController.php` |
+| 2.6 | Scheduled report delivery via email | ✅ Complete | `aegis/scripts/send_scheduled_reports.php`, `aegis/database/migrations/002_phase2.sql` |
+| 2.7 | Bulk CSV import (risks, vendors, incidents) | ✅ Complete | `aegis/controllers/ImportController.php`, `aegis/views/import/index.php` |
+| 2.8 | Custom fields (extensible metadata per entity) | ✅ Complete | `aegis/database/migrations/002_phase2.sql`, `aegis/src/CustomFields.php` |
+| 2.9 | Metrics trending (daily snapshots → trend charts) | ✅ Complete | `aegis/database/migrations/002_phase2.sql`, `aegis/scripts/capture_metrics_snapshot.php`, `aegis/controllers/MetricsController.php`, `aegis/views/metrics/index.php` |
+| 2.10 | Document management with version control + DLP metadata | ✅ Complete | `aegis/controllers/DocumentController.php`, `aegis/views/documents/index.php`, `aegis/views/documents/create.php`, `aegis/views/documents/view.php` |
 
 ---
 
@@ -126,3 +126,4 @@ Set these keys in the `settings` table or via Admin → SSO Settings:
 |------|----------------|
 | 2026-05-25 | Initial security audit hardening (17 files): CSRF rotation, IDOR/path traversal on evidence, SMTP injection prevention, API CORS restriction, session hardening, XSS escaping, SQL injection (LIMIT/OFFSET parameterization), install.php HTTP block |
 | 2026-05-25 | Phase 1 complete: HSTS/CSP, hash-chained audit log, OIDC SSO, workflow executor, approval chains |
+| 2026-05-25 | Phase 2 complete: SOC2/NIST/HIPAA/PCI-DSS seeds, cross-framework mapping, scheduled reports, bulk CSV import, custom fields, metrics trending, document management |

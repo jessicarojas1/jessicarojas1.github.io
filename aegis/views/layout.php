@@ -37,6 +37,9 @@
     <a href="/compliance/import" class="nav-item <?= $activeModule === 'import' ? 'active' : '' ?>">
       <i class="bi bi-cloud-upload"></i><span>Import Standard</span>
     </a>
+    <a href="/import" class="nav-item <?= $activeModule === 'bulk_import' ? 'active' : '' ?>">
+      <i class="bi bi-table"></i><span>Bulk Import</span>
+    </a>
 
     <div class="nav-section-label">Operations</div>
     <a href="/audit" class="nav-item <?= $activeModule === 'audit' ? 'active' : '' ?>">
@@ -65,7 +68,10 @@
 
     <div class="nav-section-label">Analytics</div>
     <a href="/metrics" class="nav-item <?= $activeModule === 'metrics' ? 'active' : '' ?>">
-      <i class="bi bi-graph-up-arrow"></i><span>Metrics</span>
+      <i class="bi bi-graph-up-arrow"></i><span>Metrics &amp; Trends</span>
+    </a>
+    <a href="/documents" class="nav-item <?= $activeModule === 'documents' ? 'active' : '' ?>">
+      <i class="bi bi-folder2-open"></i><span>Documents</span>
     </a>
     <a href="/report" class="nav-item <?= $activeModule === 'report' ? 'active' : '' ?>">
       <i class="bi bi-file-earmark-bar-graph-fill"></i><span>Reports</span>

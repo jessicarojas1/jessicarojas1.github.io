@@ -1,0 +1,141 @@
+{
+  "name": "NIST SP 800-53 Rev 5 — Security and Privacy Controls",
+  "version": "Rev 5 (2020)",
+  "description": "Security and privacy controls for information systems and organizations published by NIST. Applicable to all U.S. federal information systems and widely adopted in private sector as best-practice baseline.",
+  "standard": { "code": "NIST800-53", "name": "NIST SP 800-53", "authority": "NIST", "category": "Government" },
+  "domains": [
+    {
+      "code": "AC", "title": "Access Control",
+      "controls": [
+        { "code": "AC-1",  "title": "Policy and Procedures", "description": "Develop, document, and disseminate access control policy and procedures." },
+        { "code": "AC-2",  "title": "Account Management", "description": "Manage information system accounts, including establishing, activating, modifying, reviewing, disabling, and removing accounts." },
+        { "code": "AC-3",  "title": "Access Enforcement", "description": "Enforce approved authorizations for logical access to information and system resources." },
+        { "code": "AC-4",  "title": "Information Flow Enforcement", "description": "Enforce approved authorizations for controlling the flow of information within the system and between systems." },
+        { "code": "AC-5",  "title": "Separation of Duties", "description": "Separate duties of individuals to reduce the risk of malevolent activity without collusion." },
+        { "code": "AC-6",  "title": "Least Privilege", "description": "Employ the principle of least privilege, allowing only authorized accesses for users that are necessary to accomplish assigned tasks." },
+        { "code": "AC-7",  "title": "Unsuccessful Logon Attempts", "description": "Enforce a limit of consecutive invalid access attempts by a user during a specified time period." },
+        { "code": "AC-11", "title": "Device Lock", "description": "Prevent further access to the system by initiating a session lock after a period of inactivity." },
+        { "code": "AC-17", "title": "Remote Access", "description": "Establish and document usage restrictions, configuration and connection requirements for each type of remote access." },
+        { "code": "AC-22", "title": "Publicly Accessible Content", "description": "Designate individuals authorized to post information onto a publicly accessible system." }
+      ]
+    },
+    {
+      "code": "AT", "title": "Awareness and Training",
+      "controls": [
+        { "code": "AT-1", "title": "Policy and Procedures", "description": "Develop, document, and disseminate security awareness and training policy and procedures." },
+        { "code": "AT-2", "title": "Literacy Training and Awareness", "description": "Provide basic security and privacy literacy training to system users as part of initial training for new users." },
+        { "code": "AT-3", "title": "Role-Based Training", "description": "Provide role-based security and privacy training to personnel with assigned security and privacy roles and responsibilities." },
+        { "code": "AT-4", "title": "Training Records", "description": "Document and monitor information security and privacy training activities." }
+      ]
+    },
+    {
+      "code": "AU", "title": "Audit and Accountability",
+      "controls": [
+        { "code": "AU-1",  "title": "Policy and Procedures", "description": "Develop, document, and disseminate audit and accountability policy and procedures." },
+        { "code": "AU-2",  "title": "Event Logging", "description": "Identify the types of events that the system is capable of logging in support of the audit function." },
+        { "code": "AU-3",  "title": "Content of Audit Records", "description": "Ensure that audit records contain sufficient information to establish what events occurred." },
+        { "code": "AU-6",  "title": "Audit Record Review, Analysis, and Reporting", "description": "Review and analyze system audit records for indications of inappropriate or unusual activity." },
+        { "code": "AU-9",  "title": "Protection of Audit Information", "description": "Protect audit information and audit tools from unauthorized access, modification, and deletion." },
+        { "code": "AU-11", "title": "Audit Record Retention", "description": "Retain audit records for a defined period to provide support for after-the-fact investigations." },
+        { "code": "AU-12", "title": "Audit Record Generation", "description": "Provide audit record generation capability for the event types defined in AU-2." }
+      ]
+    },
+    {
+      "code": "CA", "title": "Assessment, Authorization, and Monitoring",
+      "controls": [
+        { "code": "CA-1", "title": "Policy and Procedures", "description": "Develop, document, and disseminate assessment, authorization, and monitoring policy." },
+        { "code": "CA-2", "title": "Control Assessments", "description": "Select the appropriate assessor or assessment team and assess the controls in the system and its environment of operation." },
+        { "code": "CA-3", "title": "Information Exchange", "description": "Approve and manage the exchange of information between the system and other systems using interconnection security agreements." },
+        { "code": "CA-5", "title": "Plan of Action and Milestones", "description": "Develop a plan of action and milestones for the system to document the planned remediation actions." },
+        { "code": "CA-6", "title": "Authorization", "description": "Assign a senior official as the authorizing official for the system." },
+        { "code": "CA-7", "title": "Continuous Monitoring", "description": "Develop a system-level continuous monitoring strategy and implement continuous monitoring." }
+      ]
+    },
+    {
+      "code": "CM", "title": "Configuration Management",
+      "controls": [
+        { "code": "CM-1", "title": "Policy and Procedures", "description": "Develop, document, and disseminate configuration management policy and procedures." },
+        { "code": "CM-2", "title": "Baseline Configuration", "description": "Develop, document, and maintain a current baseline configuration of the information system." },
+        { "code": "CM-4", "title": "Impact Analyses", "description": "Analyze changes to the system to determine potential security and privacy impacts prior to change implementation." },
+        { "code": "CM-6", "title": "Configuration Settings", "description": "Establish and document configuration settings for information technology products employed within the information system." },
+        { "code": "CM-7", "title": "Least Functionality", "description": "Configure the system to provide only essential capabilities, prohibiting or restricting the use of functions, ports, protocols, and services not required." },
+        { "code": "CM-8", "title": "System Component Inventory", "description": "Develop and document an inventory of system components that accurately reflects the current system." }
+      ]
+    },
+    {
+      "code": "CP", "title": "Contingency Planning",
+      "controls": [
+        { "code": "CP-1",  "title": "Policy and Procedures", "description": "Develop, document, and disseminate contingency planning policy and procedures." },
+        { "code": "CP-2",  "title": "Contingency Plan", "description": "Develop a contingency plan for the system that identifies essential missions and business functions." },
+        { "code": "CP-4",  "title": "Contingency Plan Testing", "description": "Test the contingency plan for the system to determine the effectiveness of the plan." },
+        { "code": "CP-9",  "title": "System Backup", "description": "Conduct backups of user-level information, system-level information, and system documentation." },
+        { "code": "CP-10", "title": "System Recovery and Reconstitution", "description": "Provide for the recovery and reconstitution of the system to a known state after a disruption." }
+      ]
+    },
+    {
+      "code": "IA", "title": "Identification and Authentication",
+      "controls": [
+        { "code": "IA-1", "title": "Policy and Procedures", "description": "Develop, document, and disseminate identification and authentication policy and procedures." },
+        { "code": "IA-2", "title": "Identification and Authentication (Organizational Users)", "description": "Uniquely identify and authenticate organizational users and associate that unique identification with processes acting on behalf of those users." },
+        { "code": "IA-3", "title": "Device Identification and Authentication", "description": "Uniquely identify and authenticate devices before establishing connections." },
+        { "code": "IA-5", "title": "Authenticator Management", "description": "Manage information system authenticators by verifying the identity of the individual, group, role, or device receiving the authenticator." },
+        { "code": "IA-8", "title": "Identification and Authentication (Non-Organizational Users)", "description": "Uniquely identify and authenticate non-organizational users or processes acting on behalf of non-organizational users." },
+        { "code": "IA-12", "title": "Identity Proofing", "description": "Identity-proof users who require accounts for logical access to systems based on appropriate identity assurance level requirements." }
+      ]
+    },
+    {
+      "code": "IR", "title": "Incident Response",
+      "controls": [
+        { "code": "IR-1", "title": "Policy and Procedures", "description": "Develop, document, and disseminate incident response policy and procedures." },
+        { "code": "IR-2", "title": "Incident Response Training", "description": "Provide incident response training to system users consistent with assigned roles and responsibilities." },
+        { "code": "IR-4", "title": "Incident Handling", "description": "Implement an incident handling capability for security incidents that includes preparation, detection and analysis, containment, eradication, and recovery." },
+        { "code": "IR-5", "title": "Incident Monitoring", "description": "Track and document system security incidents." },
+        { "code": "IR-6", "title": "Incident Reporting", "description": "Require personnel to report suspected incidents to the organizational incident response capability." },
+        { "code": "IR-8", "title": "Incident Response Plan", "description": "Develop an incident response plan that provides the organization with a roadmap for implementing its incident response capability." }
+      ]
+    },
+    {
+      "code": "RA", "title": "Risk Assessment",
+      "controls": [
+        { "code": "RA-1", "title": "Policy and Procedures", "description": "Develop, document, and disseminate risk assessment policy and procedures." },
+        { "code": "RA-2", "title": "Security Categorization", "description": "Categorize the system and information it processes, stores, and transmits." },
+        { "code": "RA-3", "title": "Risk Assessment", "description": "Conduct a risk assessment, including the likelihood and magnitude of harm from unauthorized access, use, disclosure, disruption, modification, or destruction." },
+        { "code": "RA-5", "title": "Vulnerability Monitoring and Scanning", "description": "Monitor and scan for vulnerabilities in the system and hosted applications periodically and when new vulnerabilities are identified." },
+        { "code": "RA-7", "title": "Risk Response", "description": "Respond to findings from security and privacy assessments, monitoring, and audits." }
+      ]
+    },
+    {
+      "code": "SC", "title": "System and Communications Protection",
+      "controls": [
+        { "code": "SC-1",  "title": "Policy and Procedures", "description": "Develop, document, and disseminate system and communications protection policy and procedures." },
+        { "code": "SC-5",  "title": "Denial of Service Protection", "description": "Implement protections against or limit the effects of denial-of-service attacks." },
+        { "code": "SC-7",  "title": "Boundary Protection", "description": "Monitor and control communications at the external boundary of the system and at key internal boundaries within the system." },
+        { "code": "SC-8",  "title": "Transmission Confidentiality and Integrity", "description": "Implement cryptographic mechanisms to prevent unauthorized disclosure of information during transmission." },
+        { "code": "SC-12", "title": "Cryptographic Key Establishment and Management", "description": "Establish and manage cryptographic keys when cryptography is employed within the system." },
+        { "code": "SC-28", "title": "Protection of Information at Rest", "description": "Implement cryptographic mechanisms to prevent unauthorized disclosure and modification of information at rest." }
+      ]
+    },
+    {
+      "code": "SI", "title": "System and Information Integrity",
+      "controls": [
+        { "code": "SI-1",  "title": "Policy and Procedures", "description": "Develop, document, and disseminate system and information integrity policy and procedures." },
+        { "code": "SI-2",  "title": "Flaw Remediation", "description": "Identify, report, and correct information system flaws; test software and firmware updates related to flaw remediation." },
+        { "code": "SI-3",  "title": "Malicious Code Protection", "description": "Implement malicious code protection mechanisms at system entry and exit points." },
+        { "code": "SI-4",  "title": "System Monitoring", "description": "Monitor the system to detect attacks and indicators of potential attacks, and unauthorized local, network, and remote connections." },
+        { "code": "SI-7",  "title": "Software, Firmware, and Information Integrity", "description": "Employ integrity verification tools to detect unauthorized changes to software, firmware, and information." },
+        { "code": "SI-10", "title": "Information Input Validation", "description": "Check the validity of the following information inputs: defined information inputs to the system." },
+        { "code": "SI-12", "title": "Information Management and Retention", "description": "Manage and retain information within the system and information output from the system in accordance with applicable laws, regulations, and organizational policies." }
+      ]
+    },
+    {
+      "code": "SR", "title": "Supply Chain Risk Management",
+      "controls": [
+        { "code": "SR-1", "title": "Policy and Procedures", "description": "Develop, document, and disseminate supply chain risk management policy and procedures." },
+        { "code": "SR-2", "title": "Supply Chain Risk Management Plan", "description": "Develop a plan for managing supply chain risks associated with the research and development, design, manufacturing, acquisition, delivery, integration, operations, maintenance, and disposal of systems, components, or services." },
+        { "code": "SR-3", "title": "Supply Chain Controls and Processes", "description": "Establish a process or processes to identify and address weaknesses or deficiencies in the supply chain elements and processes of the system." },
+        { "code": "SR-5", "title": "Acquisition Strategies, Tools, and Methods", "description": "Employ acquisition strategies, contract tools, and procurement methods to protect against, identify, and mitigate supply chain risks." },
+        { "code": "SR-8", "title": "Notification Agreements", "description": "Establish agreements and procedures with entities involved in the supply chain for the system, component, or service for notifying the relevant parties of cybersecurity incidents and breaches." }
+      ]
+    }
+  ]
+}

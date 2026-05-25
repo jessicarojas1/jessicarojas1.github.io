@@ -177,6 +177,22 @@ class ComplianceController {
         $version = Security::sanitizeInput($data['version'] ?? '1.0');
         $description = Security::sanitizeInput($data['description'] ?? '');
 
+        // If the JSON carries a standard definition, upsert it
+        if (!$standardId && !empty($data['standard']['code'])) {
+            $std = $data['standard'];
+            $existing = Database::fetchOne("SELECT id FROM standards WHERE code = ?", [$std['code']]);
+            if ($existing) {
+                $standardId = $existing['id'];
+            } else {
+                Database::query(
+                    "INSERT INTO standards (code, name, authority, category, is_builtin, is_active)
+                     VALUES (?,?,?,?,FALSE,TRUE)",
+                    [$std['code'], $std['name'] ?? $std['code'], $std['authority'] ?? '', $std['category'] ?? '']
+                );
+                $standardId = Database::fetchOne("SELECT id FROM standards WHERE code = ?", [$std['code']])['id'];
+            }
+        }
+
         $pkgId = Database::insert('compliance_packages', [
             'standard_id'  => $standardId ?: null,
             'name'         => $name,
@@ -186,12 +202,42 @@ class ComplianceController {
             'imported_at'  => date('Y-m-d H:i:s'),
         ]);
 
-        $sort = 0;
-        foreach ($data['objectives'] ?? $data['controls'] ?? [] as $item) {
-            Database::query(
-                "INSERT INTO compliance_objectives (package_id, code, title, description, category, level, sort_order) VALUES (?,?,?,?,?,1,?)",
-                [$pkgId, $item['code'] ?? '', $item['title'] ?? $item['name'] ?? '', $item['description'] ?? '', $item['category'] ?? '', $sort++]
-            );
+        $controlCount = 0;
+
+        // 2-level (domains → controls)
+        if (!empty($data['domains'])) {
+            $domainSort = 0;
+            foreach ($data['domains'] as $domain) {
+                Database::query(
+                    "INSERT INTO compliance_objectives (package_id, code, title, description, level, sort_order)
+                     VALUES (?,?,?,?,1,?)",
+                    [$pkgId, $domain['code'] ?? '', $domain['title'] ?? '', $domain['description'] ?? '', $domainSort++]
+                );
+                $domainRow = Database::fetchOne(
+                    "SELECT id FROM compliance_objectives WHERE package_id = ? AND code = ? AND level = 1 ORDER BY id DESC LIMIT 1",
+                    [$pkgId, $domain['code'] ?? '']
+                );
+                $domainId   = $domainRow['id'];
+                $ctrlSort   = 0;
+                foreach ($domain['controls'] ?? [] as $ctrl) {
+                    Database::query(
+                        "INSERT INTO compliance_objectives (package_id, parent_id, code, title, description, level, sort_order)
+                         VALUES (?,?,?,?,?,2,?)",
+                        [$pkgId, $domainId, $ctrl['code'] ?? '', $ctrl['title'] ?? '', $ctrl['description'] ?? '', $ctrlSort++]
+                    );
+                    $controlCount++;
+                }
+            }
+        } else {
+            // Flat 1-level import (legacy format)
+            $sort = 0;
+            foreach ($data['objectives'] ?? $data['controls'] ?? [] as $item) {
+                Database::query(
+                    "INSERT INTO compliance_objectives (package_id, code, title, description, category, level, sort_order) VALUES (?,?,?,?,?,1,?)",
+                    [$pkgId, $item['code'] ?? '', $item['title'] ?? $item['name'] ?? '', $item['description'] ?? '', $item['category'] ?? '', $sort++]
+                );
+                $controlCount++;
+            }
         }
 
         $total = Database::fetchOne("SELECT COUNT(*) as c FROM compliance_objectives WHERE package_id = ?", [$pkgId])['c'];

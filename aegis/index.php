@@ -111,6 +111,11 @@ $routes = [
         '/sso/callback'               => ['SSOController', 'callback'],
         '/admin/settings/sso'         => ['SSOController', 'settingsForm'],
         '/approvals'                  => ['ApprovalController', 'pending'],
+        '/admin/approval-templates'   => ['ApprovalController', 'templates'],
+        '/import'                     => ['ImportController', 'index'],
+        '/metrics'                    => ['MetricsController', 'index'],
+        '/documents'                  => ['DocumentController', 'index'],
+        '/documents/create'           => ['DocumentController', 'createForm'],
     ],
     'POST' => [
         '/login'                         => ['AuthController', 'login'],
@@ -131,6 +136,9 @@ $routes = [
         '/admin/settings/save'           => ['AdminController', 'saveSettings'],
         '/admin/logs/export'             => ['AdminController', 'exportLogs'],
         '/admin/settings/sso/save'       => ['SSOController', 'saveSettings'],
+        '/import/upload'                 => ['ImportController', 'upload'],
+        '/metrics/schedule/save'         => ['MetricsController', 'saveSchedule'],
+        '/documents/create'              => ['DocumentController', 'create'],
         '/export/download'               => ['ExportController', 'download'],
         '/export/download-all'           => ['ExportController', 'downloadAll'],
         '/incident/create'               => ['IncidentController', 'create'],
@@ -185,6 +193,10 @@ $dynamicRoutes = [
         '#^/evidence/(\d+)/delete$#'                   => ['EvidenceController', 'delete'],
         '#^/approvals/(\d+)/review$#'                  => ['ApprovalController', 'review'],
         '#^/approvals/(\d+)/decide$#'                  => ['ApprovalController', 'decide'],
+        '#^/metrics/schedule/(\d+)/delete$#'           => ['MetricsController', 'deleteSchedule'],
+        '#^/documents/(\d+)$#'                         => ['DocumentController', 'view'],
+        '#^/documents/(\d+)/update$#'                  => ['DocumentController', 'update'],
+        '#^/documents/(\d+)/upload-version$#'          => ['DocumentController', 'uploadVersion'],
     ],
 ];
 
