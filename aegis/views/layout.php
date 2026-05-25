@@ -125,7 +125,10 @@
         <div class="user-name"><?= Security::h($u['name']) ?></div>
         <div class="user-role"><?= ucfirst(Security::h($u['role'])) ?></div>
       </div>
-      <a href="/logout" class="btn-logout" title="Logout"><i class="bi bi-box-arrow-right"></i></a>
+      <form method="POST" action="/logout" style="display:inline;margin:0;padding:0">
+        <input type="hidden" name="csrf_token" value="<?= Security::generateCsrfToken() ?>">
+        <button type="submit" class="btn-logout" title="Logout" style="background:none;border:none;cursor:pointer;padding:0"><i class="bi bi-box-arrow-right"></i></button>
+      </form>
     </div>
   </div>
 </aside>
@@ -188,7 +191,7 @@
             <div class="alert-item-time"><?= date('M j, g:ia', strtotime($al['created_at'])) ?></div>
           </div>
           <?php if (!$al['is_read']): ?>
-            <button class="mark-read-btn" onclick="markAlertRead(<?= $al['id'] ?>)"><i class="bi bi-check"></i></button>
+            <button class="mark-read-btn" onclick="markAlertRead(<?= (int)$al['id'] ?>, this)"><i class="bi bi-check"></i></button>
           <?php endif; ?>
         </div>
       <?php endforeach; else: ?>

@@ -53,6 +53,10 @@ class AuthController {
     }
 
     public function logout(): void {
+        Auth::requireAuth();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403); return;
+        }
         Auth::log('logout', null, null);
         Auth::logout();
         header('Location: /login'); exit;

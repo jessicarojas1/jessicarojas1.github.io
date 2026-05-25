@@ -91,7 +91,14 @@ ob_start();
             ['Status',       '<span class="status-chip" style="background:'.$stColor.'20;color:'.$stColor.'">' . ucfirst(str_replace('_',' ',Security::h($vendor['status']))) . '</span>'],
             ['Category',     Security::h($vendor['category'] ?? '—')],
             ['Country',      Security::h($vendor['country'] ?? '—')],
-            ['Website',      $vendor['website'] ? '<a href="'.Security::h($vendor['website']).'" target="_blank" rel="noopener">'.Security::h($vendor['website']).'</a>' : '—'],
+            ['Website',      (function() use ($vendor) {
+              $url = $vendor['website'] ?? '';
+              if (!$url) return '—';
+              // Only allow http/https to prevent javascript: URIs
+              $scheme = strtolower(parse_url($url, PHP_URL_SCHEME) ?? '');
+              if (!in_array($scheme, ['http', 'https'])) return Security::h($url);
+              return '<a href="'.Security::h($url).'" target="_blank" rel="noopener noreferrer">'.Security::h($url).'</a>';
+            })()],
             ['Data Access',  $vendor['data_access'] ? '<span style="color:#dc2626">Yes</span>' : 'No'],
             ['Critical Service', $vendor['critical_service'] ? '<span style="color:#dc2626">Yes</span>' : 'No'],
             ['Contract Start', $vendor['contract_start'] ? date('M j, Y', strtotime($vendor['contract_start'])) : '—'],

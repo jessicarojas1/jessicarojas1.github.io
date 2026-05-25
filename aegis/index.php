@@ -5,6 +5,12 @@ declare(strict_types=1);
 define('AEGIS_ROOT', __DIR__);
 define('AEGIS_START', microtime(true));
 
+// Suppress PHP error display to users — errors go to the log only
+@ini_set('display_errors', '0');
+@ini_set('display_startup_errors', '0');
+@ini_set('log_errors', '1');
+error_reporting(E_ALL);
+
 // Load environment
 foreach (['.env.local', '.env'] as $envFile) {
     if (file_exists(AEGIS_ROOT . '/' . $envFile)) {
@@ -18,12 +24,17 @@ foreach (['.env.local', '.env'] as $envFile) {
 
 // Session config
 ini_set('session.cookie_httponly', '1');
-ini_set('session.cookie_samesite', 'Lax');
+ini_set('session.cookie_samesite', 'Strict');
 ini_set('session.use_strict_mode', '1');
-if ($_SERVER['REQUEST_SCHEME'] ?? '' === 'https' || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https') {
+ini_set('session.use_only_cookies', '1');
+if (($_SERVER['REQUEST_SCHEME'] ?? '') === 'https' || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https') {
     ini_set('session.cookie_secure', '1');
 }
 session_start();
+
+// Suppress version disclosure headers
+header_remove('X-Powered-By');
+@ini_set('expose_php', '0');
 
 // Autoload core classes
 spl_autoload_register(function (string $class): void {
@@ -60,7 +71,6 @@ $routes = [
     'GET'  => [
         '/'                           => ['DashboardController', 'index'],
         '/login'                      => ['AuthController', 'loginForm'],
-        '/logout'                     => ['AuthController', 'logout'],
         '/compliance'                 => ['ComplianceController', 'index'],
         '/compliance/import'          => ['ComplianceController', 'importForm'],
         '/audit'                      => ['AuditController', 'index'],
@@ -99,6 +109,7 @@ $routes = [
     ],
     'POST' => [
         '/login'                         => ['AuthController', 'login'],
+        '/logout'                        => ['AuthController', 'logout'],
         '/mfa/verify'                    => ['AuthController', 'mfaVerify'],
         '/mfa/setup/verify'              => ['AuthController', 'mfaSetupVerify'],
         '/mfa/disable'                   => ['AuthController', 'mfaDisable'],
@@ -113,6 +124,7 @@ $routes = [
         '/admin/email/save'              => ['AdminController', 'saveEmail'],
         '/admin/email/test'              => ['AdminController', 'testEmail'],
         '/admin/settings/save'           => ['AdminController', 'saveSettings'],
+        '/admin/logs/export'             => ['AdminController', 'exportLogs'],
         '/export/download'               => ['ExportController', 'download'],
         '/export/download-all'           => ['ExportController', 'downloadAll'],
         '/incident/create'               => ['IncidentController', 'create'],

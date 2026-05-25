@@ -1,6 +1,12 @@
 <?php
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
+header_remove('X-Powered-By');
+$_allowedOrigin = rtrim($_ENV['APP_URL'] ?? '', '/');
+$_requestOrigin = $_SERVER['HTTP_ORIGIN'] ?? '';
+if ($_allowedOrigin && $_requestOrigin === $_allowedOrigin) {
+    header('Access-Control-Allow-Origin: ' . $_requestOrigin);
+    header('Vary: Origin');
+}
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Authorization, Content-Type, X-API-Key');
 
@@ -68,12 +74,19 @@ $input  = json_decode(file_get_contents('php://input'), true) ?? [];
 
 // Public endpoint: token issue
 if ($method === 'POST' && $uri === '/auth/token') {
-    $email    = $input['email'] ?? '';
+    // Rate-limit the token endpoint by IP (same mechanism as web login)
+    $loginRateLimitKey = 'login_' . ($ip);
+    if (!Security::checkRateLimit($loginRateLimitKey)) {
+        apiError('Too many authentication attempts. Please try again later.', 429);
+    }
+    $email    = strtolower(trim($input['email'] ?? ''));
     $password = $input['password'] ?? '';
-    $user = Database::fetchOne("SELECT * FROM users WHERE email = ? AND is_active = TRUE", [strtolower($email)]);
+    $user = Database::fetchOne("SELECT * FROM users WHERE email = ? AND is_active = TRUE", [$email]);
     if (!$user || !Security::verifyPassword($password, $user['password_hash'])) {
+        // Don't reset rate limit on failure — only on success
         apiError('Invalid credentials', 401);
     }
+    Security::resetRateLimit($loginRateLimitKey);
     $token = JWT::issue($user['id'], $user['role'], 3600 * 24);
     apiResponse(['token' => $token, 'expires_in' => 86400, 'user' => ['id' => $user['id'], 'name' => $user['name'], 'role' => $user['role']]]);
 }
@@ -154,5 +167,5 @@ match (true) {
     $method === 'GET' && $uri === '/users' && $authUser['role'] === 'admin'
         => apiResponse(Database::fetchAll("SELECT id, name, email, role, department, is_active, created_at FROM users ORDER BY name")),
 
-    default => apiError("Endpoint not found: {$method} {$uri}", 404),
+    default => apiError("Endpoint not found", 404),
 };

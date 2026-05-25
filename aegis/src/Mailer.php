@@ -24,6 +24,26 @@ class Mailer {
         );
     }
 
+    /**
+     * Strip CR/LF from a string to prevent header injection.
+     */
+    private static function sanitizeHeaderValue(string $value): string {
+        return str_replace(["\r", "\n", "\0"], '', $value);
+    }
+
+    /**
+     * Validate an email address and strip it of any characters that could
+     * break SMTP commands (angle brackets, CR/LF, NUL).
+     * Returns the sanitized address or empty string if invalid.
+     */
+    private static function sanitizeAddress(string $addr): string {
+        $addr = str_replace(["\r", "\n", "\0", '<', '>'], '', $addr);
+        if (!filter_var($addr, FILTER_VALIDATE_EMAIL)) {
+            return '';
+        }
+        return $addr;
+    }
+
     public static function send(
         string $to,
         string $toName,
@@ -37,6 +57,20 @@ class Mailer {
         string $fromName = 'AEGIS GRC',
         bool   $tls = true
     ): bool {
+        // Sanitize addresses to prevent SMTP injection
+        $to       = self::sanitizeAddress($to);
+        $fromAddr = self::sanitizeAddress($from ?: $user);
+        if (!$to || !$fromAddr) {
+            error_log("[Mailer] Invalid or missing email address (to={$to}, from={$fromAddr})");
+            return false;
+        }
+
+        // Sanitize free-text values used in headers
+        $toName   = self::sanitizeHeaderValue($toName);
+        $fromName = self::sanitizeHeaderValue($fromName);
+        $subject  = self::sanitizeHeaderValue($subject);
+        $host     = self::sanitizeHeaderValue($host);
+
         try {
             $errno  = 0;
             $errstr = '';
@@ -67,14 +101,13 @@ class Mailer {
                 self::command($socket, base64_encode($pass), 235);
             }
 
-            $fromAddr = $from ?: $user;
             self::command($socket, "MAIL FROM:<{$fromAddr}>", 250);
             self::command($socket, "RCPT TO:<{$to}>", 250);
             self::command($socket, "DATA", 354);
 
             $msgId  = '<' . bin2hex(random_bytes(8)) . '@aegisgrc>';
             $date   = date('r');
-            $encSubject = '=?UTF-8?B?' . base64_encode($subject) . '?=';
+            $encSubject  = '=?UTF-8?B?' . base64_encode($subject) . '?=';
             $encFromName = '=?UTF-8?B?' . base64_encode($fromName) . '?=';
             $encToName   = $toName ? '=?UTF-8?B?' . base64_encode($toName) . '?= ' : '';
 

@@ -15,7 +15,10 @@ class Security {
             unset($_SESSION['csrf_token'], $_SESSION['csrf_time']);
             return false;
         }
-        return hash_equals($_SESSION['csrf_token'], $token);
+        if (!hash_equals($_SESSION['csrf_token'], $token)) return false;
+        // Rotate token after successful validation to prevent replay attacks
+        unset($_SESSION['csrf_token'], $_SESSION['csrf_time']);
+        return true;
     }
 
     public static function csrfField(): string {

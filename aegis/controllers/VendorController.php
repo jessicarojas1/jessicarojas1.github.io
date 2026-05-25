@@ -77,7 +77,13 @@ class VendorController {
 
         $name           = Security::sanitizeInput($_POST['name'] ?? '');
         $category       = Security::sanitizeInput($_POST['category'] ?? '');
-        $website        = Security::sanitizeInput($_POST['website'] ?? '');
+        $rawWebsite     = Security::sanitizeInput($_POST['website'] ?? '');
+        // Validate website URL — only http/https allowed
+        $website        = '';
+        if ($rawWebsite) {
+            $scheme = strtolower(parse_url($rawWebsite, PHP_URL_SCHEME) ?? '');
+            $website = in_array($scheme, ['http', 'https']) ? $rawWebsite : '';
+        }
         $description    = Security::sanitizeInput($_POST['description'] ?? '');
         $riskTier       = Security::sanitizeInput($_POST['risk_tier'] ?? 'medium');
         $status         = Security::sanitizeInput($_POST['status'] ?? 'active');
@@ -175,7 +181,13 @@ class VendorController {
 
         $name           = Security::sanitizeInput($_POST['name'] ?? '');
         $category       = Security::sanitizeInput($_POST['category'] ?? '');
-        $website        = Security::sanitizeInput($_POST['website'] ?? '');
+        $rawWebsite     = Security::sanitizeInput($_POST['website'] ?? '');
+        // Validate website URL — only http/https allowed
+        $website        = '';
+        if ($rawWebsite) {
+            $scheme = strtolower(parse_url($rawWebsite, PHP_URL_SCHEME) ?? '');
+            $website = in_array($scheme, ['http', 'https']) ? $rawWebsite : '';
+        }
         $description    = Security::sanitizeInput($_POST['description'] ?? '');
         $riskTier       = Security::sanitizeInput($_POST['risk_tier'] ?? 'medium');
         $status         = Security::sanitizeInput($_POST['status'] ?? 'active');

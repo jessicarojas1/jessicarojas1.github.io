@@ -1,5 +1,12 @@
 <?php
 declare(strict_types=1);
+
+// Block web access to the installer — it must only run via CLI or during initial deploy
+if (php_sapi_name() !== 'cli' && !defined('AEGIS_INSTALL_ALLOWED')) {
+    http_response_code(403);
+    die('Installer is not accessible via HTTP. Run from CLI: php install.php');
+}
+
 define('AEGIS_ROOT', __DIR__);
 
 // Load env

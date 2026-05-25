@@ -82,6 +82,13 @@ class DashboardController {
 
     public function markAlertRead(string $id): void {
         Auth::requireAuth();
+        $token = $_POST['csrf_token'] ?? ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
+        if (!Security::validateCsrf($token)) {
+            http_response_code(403);
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'error' => 'CSRF validation failed']);
+            return;
+        }
         Database::query("UPDATE alerts SET is_read = TRUE, read_at = NOW() WHERE id = ? AND user_id = ?", [(int)$id, Auth::id()]);
         header('Content-Type: application/json');
         echo json_encode(['success' => true]);

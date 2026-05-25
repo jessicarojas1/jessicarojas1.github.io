@@ -61,7 +61,7 @@ ob_start();
             <?php foreach (['low'=>'Low','medium'=>'Medium','high'=>'High','critical'=>'Critical'] as $k=>$l): ?>
               <div class="form-group" style="text-align:center">
                 <label class="form-label text-sm"><?= $l ?></label>
-                <input type="color" name="color_<?= $k ?>" value="<?= $colors[$k] ?>" class="color-input">
+                <input type="color" name="color_<?= $k ?>" value="<?= Security::h($colors[$k] ?? '#000000') ?>" class="color-input">
               </div>
             <?php endforeach; ?>
           </div>
@@ -89,8 +89,9 @@ ob_start();
             <?php for ($col = 1; $col <= $c; $col++):
               $score = $row * $col;
               $bg = $score > $thresholds['high'] ? $colors['critical'] : ($score > $thresholds['medium'] ? $colors['high'] : ($score > $thresholds['low'] ? $colors['medium'] : $colors['low']));
+              $bgSafe = Security::h($bg);
             ?>
-              <div style="flex:1;height:40px;border-radius:4px;background:<?= $bg ?>30;border:1px solid <?= $bg ?>50;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:<?= $bg ?>">
+              <div style="flex:1;height:40px;border-radius:4px;background:<?= $bgSafe ?>30;border:1px solid <?= $bgSafe ?>50;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:<?= $bgSafe ?>">
                 <?= $score ?>
               </div>
             <?php endfor; ?>

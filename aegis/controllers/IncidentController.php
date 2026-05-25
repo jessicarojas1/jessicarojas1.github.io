@@ -220,7 +220,7 @@ class IncidentController {
     }
 
     public function addUpdate(string $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('incident.write');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);

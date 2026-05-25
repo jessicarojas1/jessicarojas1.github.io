@@ -33,7 +33,7 @@ ob_start();
               </div>
             </td>
             <td><?= Security::h($u['email']) ?></td>
-            <td><span class="role-badge role-<?= $u['role'] ?>"><?= ucfirst($u['role']) ?></span></td>
+            <td><span class="role-badge role-<?= Security::h($u['role']) ?>"><?= Security::h(ucfirst($u['role'])) ?></span></td>
             <td><?= Security::h($u['department'] ?? '—') ?></td>
             <td><?= $u['is_active'] ? '<span class="badge badge-green">Active</span>' : '<span class="badge badge-gray">Inactive</span>' ?></td>
             <td class="text-muted text-sm"><?= $u['last_login'] ? date('M j, Y g:ia', strtotime($u['last_login'])) : 'Never' ?></td>
