@@ -202,3 +202,60 @@ CREATE TABLE IF NOT EXISTS asset_risk_links (
 ALTER TABLE risks ADD COLUMN IF NOT EXISTS source              VARCHAR(100);
 ALTER TABLE risks ADD COLUMN IF NOT EXISTS source_external_id  VARCHAR(500);
 CREATE INDEX IF NOT EXISTS idx_risks_source_ext ON risks(source_external_id) WHERE source_external_id IS NOT NULL;
+
+-- Risk Exception / Acceptance Management
+CREATE TABLE IF NOT EXISTS risk_exceptions (
+    id SERIAL PRIMARY KEY,
+    risk_id INTEGER NOT NULL REFERENCES risks(id) ON DELETE CASCADE,
+    requested_by INTEGER NOT NULL REFERENCES users(id),
+    approved_by INTEGER REFERENCES users(id),
+    status VARCHAR(30) NOT NULL DEFAULT 'pending', -- pending, approved, rejected, expired
+    exception_type VARCHAR(30) NOT NULL DEFAULT 'accept', -- accept, transfer, defer
+    rationale TEXT NOT NULL,
+    compensating_controls TEXT,
+    residual_risk_acknowledged BOOLEAN NOT NULL DEFAULT FALSE,
+    expiry_date DATE,
+    approved_at TIMESTAMP,
+    rejected_at TIMESTAMP,
+    rejection_reason TEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_risk_exceptions_risk_id ON risk_exceptions(risk_id);
+CREATE INDEX IF NOT EXISTS idx_risk_exceptions_status ON risk_exceptions(status);
+CREATE INDEX IF NOT EXISTS idx_risk_exceptions_expiry ON risk_exceptions(expiry_date) WHERE expiry_date IS NOT NULL;
+
+-- ─────────────────────────────────────────────
+-- 3.6  Data Retention Policies
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS data_retention_policies (
+    id             SERIAL PRIMARY KEY,
+    entity_type    VARCHAR(100) NOT NULL UNIQUE,
+    retention_days INTEGER NOT NULL DEFAULT 365,
+    action         VARCHAR(30) NOT NULL DEFAULT 'delete',
+    is_enabled     BOOLEAN NOT NULL DEFAULT FALSE,
+    last_run_at    TIMESTAMP,
+    created_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO data_retention_policies (entity_type, retention_days, action, is_enabled) VALUES
+    ('activity_log',       365, 'delete', FALSE),
+    ('notification_log',    90, 'delete', FALSE),
+    ('webhook_deliveries', 180, 'delete', FALSE),
+    ('alerts',              90, 'delete', FALSE)
+ON CONFLICT (entity_type) DO NOTHING;
+
+-- ─────────────────────────────────────────────
+-- 3.7  Active Session Tracking
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS active_sessions (
+    id           VARCHAR(255) PRIMARY KEY,
+    user_id      INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    ip_address   VARCHAR(45),
+    user_agent   TEXT,
+    last_seen_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_active_sessions_user      ON active_sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_active_sessions_last_seen ON active_sessions(last_seen_at);

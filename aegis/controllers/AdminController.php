@@ -589,4 +589,164 @@ class AdminController {
             echo json_encode(['ok' => false, 'error' => $e->getMessage()]);
         }
     }
+
+    // ─── Data Retention ───────────────────────────────────────────────────────
+
+    public function retention(): void {
+        Auth::requireAdmin();
+        $policies     = Database::fetchAll("SELECT * FROM data_retention_policies ORDER BY entity_type");
+        $pageTitle    = 'Data Retention';
+        $activeModule = 'admin_retention';
+        $breadcrumbs  = [['Admin', '/admin'], ['Data Retention', null]];
+        ob_start();
+        require AEGIS_ROOT . '/views/admin/retention.php';
+        $content = ob_get_clean();
+        require AEGIS_ROOT . '/views/layout.php';
+    }
+
+    public function saveRetention(): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403); return;
+        }
+        $rows = $_POST['policies'] ?? [];
+        if (!is_array($rows)) {
+            $_SESSION['flash_error'] = 'Invalid input.';
+            header('Location: /admin/retention'); return;
+        }
+        foreach ($rows as $row) {
+            $id      = (int)($row['id'] ?? 0);
+            $days    = (int)($row['retention_days'] ?? 0);
+            $action  = $row['action'] ?? '';
+            $enabled = !empty($row['is_enabled']);
+
+            if ($days < 1 || $days > 3650) continue;
+            if (!in_array($action, ['delete', 'archive'], true)) continue;
+
+            Database::query(
+                "UPDATE data_retention_policies SET retention_days=?, action=?, is_enabled=?, updated_at=NOW() WHERE id=?",
+                [$days, $action, $enabled, $id]
+            );
+        }
+        Auth::log('update_retention_policies', 'data_retention_policies', null);
+        $_SESSION['flash_success'] = 'Data retention policies saved.';
+        header('Location: /admin/retention');
+    }
+
+    public function runRetention(): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403); return;
+        }
+
+        $policies = Database::fetchAll(
+            "SELECT * FROM data_retention_policies WHERE is_enabled = TRUE"
+        );
+
+        $results = [];
+        foreach ($policies as $policy) {
+            $days       = (int)$policy['retention_days'];
+            $entityType = $policy['entity_type'];
+            $deleted    = 0;
+
+            try {
+                switch ($entityType) {
+                    case 'activity_log':
+                        $res     = Database::query(
+                            "DELETE FROM activity_log WHERE created_at < NOW() - ($1 * INTERVAL '1 day')",
+                            [$days]
+                        );
+                        break;
+                    case 'notification_log':
+                        $res     = Database::query(
+                            "DELETE FROM notification_log WHERE sent_at < NOW() - ($1 * INTERVAL '1 day')",
+                            [$days]
+                        );
+                        break;
+                    case 'webhook_deliveries':
+                        $res     = Database::query(
+                            "DELETE FROM webhook_deliveries WHERE created_at < NOW() - ($1 * INTERVAL '1 day') AND status IN ('delivered','failed')",
+                            [$days]
+                        );
+                        break;
+                    case 'alerts':
+                        $res     = Database::query(
+                            "DELETE FROM alerts WHERE created_at < NOW() - ($1 * INTERVAL '1 day') AND is_read = TRUE",
+                            [$days]
+                        );
+                        break;
+                    default:
+                        $res = null;
+                }
+
+                // Get affected row count if driver supports it
+                if ($res && method_exists($res, 'rowCount')) {
+                    $deleted = $res->rowCount();
+                }
+
+                Database::query(
+                    "UPDATE data_retention_policies SET last_run_at = NOW() WHERE id = ?",
+                    [(int)$policy['id']]
+                );
+
+                $results[] = ['entity_type' => $entityType, 'deleted' => $deleted];
+            } catch (Throwable $e) {
+                $results[] = ['entity_type' => $entityType, 'deleted' => 0, 'error' => $e->getMessage()];
+            }
+        }
+
+        Auth::log('data_retention_run', 'data_retention_policies', null, ['policies_run' => count($results)]);
+
+        if (($_POST['format'] ?? '') === 'json') {
+            header('Content-Type: application/json');
+            echo json_encode(['ok' => true, 'results' => $results]);
+            return;
+        }
+
+        $_SESSION['flash_success'] = 'Data retention enforcement completed.';
+        header('Location: /admin/retention');
+    }
+
+    // ─── Active Session Management ────────────────────────────────────────────
+
+    public function sessions(): void {
+        Auth::requireAdmin();
+        $activeSessions = Database::fetchAll(
+            "SELECT s.*, u.name as user_name, u.email, u.role
+             FROM active_sessions s
+             JOIN users u ON u.id = s.user_id
+             WHERE s.last_seen_at > NOW() - INTERVAL '2 hours'
+             ORDER BY s.last_seen_at DESC"
+        );
+        $totalCount   = count($activeSessions);
+        $uniqueUsers  = count(array_unique(array_column($activeSessions, 'user_id')));
+
+        $pageTitle    = 'Active Sessions';
+        $activeModule = 'admin_sessions';
+        $breadcrumbs  = [['Admin', '/admin'], ['Active Sessions', null]];
+        ob_start();
+        require AEGIS_ROOT . '/views/admin/sessions.php';
+        $content = ob_get_clean();
+        require AEGIS_ROOT . '/views/layout.php';
+    }
+
+    public function killSession(string $sessionId): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403);
+            header('Content-Type: application/json');
+            echo json_encode(['ok' => false, 'error' => 'CSRF validation failed']);
+            return;
+        }
+        if ($sessionId === session_id()) {
+            http_response_code(400);
+            header('Content-Type: application/json');
+            echo json_encode(['ok' => false, 'error' => 'Cannot terminate your own session']);
+            return;
+        }
+        Database::query("DELETE FROM active_sessions WHERE id = ?", [$sessionId]);
+        Auth::log('kill_session', 'active_sessions', null, ['session_id' => substr($sessionId, 0, 8) . '…']);
+        header('Content-Type: application/json');
+        echo json_encode(['ok' => true]);
+    }
 }

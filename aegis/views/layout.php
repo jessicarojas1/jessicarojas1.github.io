@@ -76,6 +76,9 @@
     <a href="/risk/roadmap" class="nav-item <?= $activeModule === 'risk_roadmap' ? 'active' : '' ?>">
       <i class="bi bi-kanban-fill"></i><span>Treatment Roadmap</span>
     </a>
+    <a href="/risk/exceptions" class="nav-item <?= $activeModule === 'risk_exceptions' ? 'active' : '' ?>">
+      <i class="bi bi-shield-slash"></i><span>Exceptions</span>
+    </a>
     <a href="/vendor" class="nav-item <?= $activeModule === 'vendor' ? 'active' : '' ?>">
       <i class="bi bi-building"></i><span>Vendor Risk</span>
     </a>
@@ -98,6 +101,9 @@
     </a>
     <a href="/export" class="nav-item <?= $activeModule === 'export' ? 'active' : '' ?>">
       <i class="bi bi-download"></i><span>Export</span>
+    </a>
+    <a href="/calendar" class="nav-item <?= $activeModule === 'calendar' ? 'active' : '' ?>">
+      <i class="bi bi-calendar3"></i><span>Calendar</span>
     </a>
 
     <div class="nav-section-label">Resources</div>
@@ -145,6 +151,12 @@
     </a>
     <a href="/admin/storage" class="nav-item <?= $activeModule === 'admin_storage' ? 'active' : '' ?>">
       <i class="bi bi-hdd-fill"></i><span>Storage</span>
+    </a>
+    <a href="/admin/retention" class="nav-item <?= $activeModule === 'admin_retention' ? 'active' : '' ?>">
+      <i class="bi bi-clock-history"></i><span>Data Retention</span>
+    </a>
+    <a href="/admin/sessions" class="nav-item <?= $activeModule === 'admin_sessions' ? 'active' : '' ?>">
+      <i class="bi bi-people-fill"></i><span>Sessions</span>
     </a>
     <?php endif; ?>
     <div class="nav-section-label">Account</div>

@@ -19,6 +19,7 @@ ob_start();
     $lc = $levelColors[$level];
     ?>
     <span class="risk-badge-lg risk-<?= strtolower($level) ?>"><?= $level ?> Risk</span>
+    <a href="/risk/<?= $risk['id'] ?>/exception/create" class="btn btn-warning"><i class="bi bi-shield-exclamation"></i> Request Exception</a>
     <a href="/risk" class="btn btn-ghost"><i class="bi bi-arrow-left"></i> Back</a>
   </div>
 </div>

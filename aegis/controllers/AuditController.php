@@ -218,4 +218,144 @@ class AuditController {
         $users    = Database::fetchAll("SELECT id, name FROM users WHERE is_active = TRUE ORDER BY name");
         require AEGIS_ROOT . '/views/audit/create.php';
     }
+
+    public function exportPackage(string $id): void {
+        Auth::requirePermission('audit.read');
+        $id = (int)$id;
+
+        $audit = Database::fetchOne(
+            "SELECT a.*, cp.name as package_name, s.name as standard_name,
+               u.name as auditor_name
+             FROM audits a
+             LEFT JOIN compliance_packages cp ON a.package_id = cp.id
+             LEFT JOIN standards s ON s.id = cp.standard_id
+             LEFT JOIN users u ON a.auditor_id = u.id
+             WHERE a.id = ?", [$id]
+        );
+        if (!$audit) { http_response_code(404); echo 'Audit not found.'; return; }
+
+        $items = Database::fetchAll(
+            "SELECT ai.*, co.id as obj_id, co.code, co.title, co.category
+             FROM audit_items ai
+             JOIN compliance_objectives co ON co.id = ai.objective_id
+             WHERE ai.audit_id = ? ORDER BY co.sort_order",
+            [$id]
+        );
+
+        // Collect evidence: directly on audit + on each control objective
+        $objIds = array_column($items, 'obj_id');
+        $auditEvidence = Database::fetchAll(
+            "SELECT ef.*, u.name as uploaded_by_name
+             FROM evidence_files ef LEFT JOIN users u ON u.id = ef.uploaded_by
+             WHERE ef.entity_type = 'audit' AND ef.entity_id = ?",
+            [$id]
+        );
+        $controlEvidence = [];
+        if ($objIds) {
+            $placeholders = implode(',', array_fill(0, count($objIds), '?'));
+            $controlEvidence = Database::fetchAll(
+                "SELECT ef.*, ef.entity_id as objective_id, u.name as uploaded_by_name
+                 FROM evidence_files ef LEFT JOIN users u ON u.id = ef.uploaded_by
+                 WHERE ef.entity_type = 'control' AND ef.entity_id IN ({$placeholders})",
+                $objIds
+            );
+        }
+
+        if (!class_exists('ZipArchive')) {
+            http_response_code(500);
+            echo 'ZipArchive extension not available on this server.';
+            return;
+        }
+
+        $tmpFile = tempnam(sys_get_temp_dir(), 'aegis_audit_') . '.zip';
+        $zip = new ZipArchive();
+        if ($zip->open($tmpFile, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
+            http_response_code(500); echo 'Could not create ZIP archive.'; return;
+        }
+
+        $uploadDir = AEGIS_ROOT . '/uploads';
+        $addedFiles = [];
+
+        // Add audit-level evidence files
+        foreach ($auditEvidence as $ef) {
+            $storedName = basename($ef['stored_name']);
+            if (!preg_match('/^[0-9a-f]+\.[a-z0-9]+$/i', $storedName)) continue;
+            $path = $uploadDir . '/' . $storedName;
+            if (!file_exists($path)) continue;
+            $zipPath = 'audit-evidence/' . $ef['original_name'];
+            $zipPath = $this->uniqueZipPath($zipPath, $addedFiles);
+            $zip->addFile($path, $zipPath);
+            $addedFiles[] = $zipPath;
+        }
+
+        // Add control-level evidence files grouped by control code
+        $codeMap = array_column($items, 'code', 'obj_id');
+        foreach ($controlEvidence as $ef) {
+            $storedName = basename($ef['stored_name']);
+            if (!preg_match('/^[0-9a-f]+\.[a-z0-9]+$/i', $storedName)) continue;
+            $path = $uploadDir . '/' . $storedName;
+            if (!file_exists($path)) continue;
+            $code = preg_replace('/[^A-Za-z0-9._-]/', '_', $codeMap[$ef['objective_id']] ?? 'unknown');
+            $zipPath = "controls/{$code}/{$ef['original_name']}";
+            $zipPath = $this->uniqueZipPath($zipPath, $addedFiles);
+            $zip->addFile($path, $zipPath);
+            $addedFiles[] = $zipPath;
+        }
+
+        // Build findings manifest CSV
+        $csv = "Control Code,Title,Category,Status,Finding,Evidence Notes,Risk Level,Remediation\n";
+        foreach ($items as $item) {
+            $csv .= implode(',', array_map(
+                fn($v) => '"' . str_replace('"', '""', (string)($v ?? '')) . '"',
+                [$item['code'], $item['title'], $item['category'],
+                 $item['status'], $item['finding'], $item['evidence'],
+                 $item['risk_level'], $item['remediation']]
+            )) . "\n";
+        }
+        $zip->addFromString('findings.csv', $csv);
+
+        // Build audit summary text
+        $total     = count($items);
+        $compliant = count(array_filter($items, fn($i) => $i['status'] === 'compliant'));
+        $score     = $total > 0 ? round(($compliant / $total) * 100, 1) : 0;
+        $summary   = "AEGIS GRC — Audit Evidence Package\n";
+        $summary  .= str_repeat('=', 60) . "\n";
+        $summary  .= "Audit:         {$audit['name']}\n";
+        $summary  .= "Framework:     {$audit['package_name']} ({$audit['standard_name']})\n";
+        $summary  .= "Auditor:       {$audit['auditor_name']}\n";
+        $summary  .= "Scheduled:     {$audit['scheduled_date']}\n";
+        $summary  .= "Status:        {$audit['status']}\n";
+        $summary  .= "Score:         {$score}% ({$compliant}/{$total} controls compliant)\n";
+        $summary  .= "Exported:      " . date('Y-m-d H:i:s') . " UTC\n";
+        $summary  .= "Exported by:   " . (Auth::user()['name'] ?? '') . "\n\n";
+        $summary  .= "Evidence Files:\n";
+        foreach ($addedFiles as $f) { $summary .= "  - {$f}\n"; }
+        $zip->addFromString('README.txt', $summary);
+
+        $zip->close();
+
+        Auth::log('export_audit_package', 'audits', $id);
+
+        $filename = 'audit-' . $id . '-' . preg_replace('/[^a-z0-9]+/', '-', strtolower($audit['name'])) . '-evidence.zip';
+        header('Content-Type: application/zip');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Content-Length: ' . filesize($tmpFile));
+        header('Cache-Control: private, no-cache');
+        readfile($tmpFile);
+        @unlink($tmpFile);
+        exit;
+    }
+
+    private function uniqueZipPath(string $path, array $existing): string {
+        if (!in_array($path, $existing)) return $path;
+        $ext  = pathinfo($path, PATHINFO_EXTENSION);
+        $base = pathinfo($path, PATHINFO_FILENAME);
+        $dir  = pathinfo($path, PATHINFO_DIRNAME);
+        $i = 1;
+        do {
+            $candidate = ($dir !== '.' ? $dir . '/' : '') . $base . "_{$i}." . $ext;
+            $i++;
+        } while (in_array($candidate, $existing));
+        return $candidate;
+    }
 }

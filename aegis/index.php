@@ -158,7 +158,11 @@ $routes = [
         '/documents/create'           => ['DocumentController', 'createForm'],
         '/report/board'               => ['ReportController', 'board'],
         '/admin/storage'              => ['AdminController', 'storage'],
+        '/admin/retention'            => ['AdminController', 'retention'],
+        '/admin/sessions'             => ['AdminController', 'sessions'],
+        '/calendar'                   => ['CalendarController', 'index'],
         '/risk/roadmap'               => ['RiskController', 'roadmap'],
+        '/risk/exceptions'            => ['RiskExceptionController', 'index'],
         '/admin/webhooks'             => ['WebhookController', 'index'],
         '/admin/webhooks/create'      => ['WebhookController', 'createForm'],
         '/questionnaire'              => ['QuestionnaireController', 'index'],
@@ -206,6 +210,8 @@ $routes = [
         '/assets/create'                 => ['AssetController', 'create'],
         '/admin/storage/save'            => ['AdminController', 'saveStorage'],
         '/admin/storage/test'            => ['AdminController', 'testStorage'],
+        '/admin/retention/save'          => ['AdminController', 'saveRetention'],
+        '/admin/retention/run'           => ['AdminController', 'runRetention'],
     ],
 ];
 
@@ -217,8 +223,11 @@ $dynamicRoutes = [
         '#^/compliance/(\d+)/objective/(\d+)$#'     => ['ComplianceController', 'viewObjective'],
         '#^/audit/(\d+)$#'                          => ['AuditController', 'view'],
         '#^/audit/(\d+)/edit$#'                     => ['AuditController', 'editForm'],
+        '#^/audit/(\d+)/export$#'                   => ['AuditController', 'exportPackage'],
         '#^/policy/(\d+)$#'                         => ['PolicyController', 'view'],
         '#^/policy/(\d+)/edit$#'                    => ['PolicyController', 'editForm'],
+        '#^/risk/(\d+)/exception/create$#'          => ['RiskExceptionController', 'createForm'],
+        '#^/risk/exception/(\d+)$#'                 => ['RiskExceptionController', 'view'],
         '#^/risk/(\d+)$#'                           => ['RiskController', 'view'],
         '#^/risk/(\d+)/edit$#'                      => ['RiskController', 'editForm'],
         '#^/admin/users/(\d+)/edit$#'               => ['AdminController', 'editUser'],
@@ -234,6 +243,7 @@ $dynamicRoutes = [
         '#^/change/(\d+)$#'                         => ['ChangeController', 'view'],
         '#^/bcp/(\d+)$#'                            => ['BCPController', 'view'],
         '#^/assets/(\d+)$#'                         => ['AssetController', 'view'],
+        '#^/calendar/feed$#'                        => ['CalendarController', 'feed'],
     ],
     'POST' => [
         '#^/compliance/(\d+)/objective/(\d+)/update$#' => ['ComplianceController', 'updateObjective'],
@@ -243,6 +253,8 @@ $dynamicRoutes = [
         '#^/policy/(\d+)/update$#'                     => ['PolicyController', 'update'],
         '#^/policy/(\d+)/map$#'                        => ['PolicyController', 'mapObjective'],
         '#^/policy/(\d+)/unmap/(\d+)$#'                => ['PolicyController', 'unmapObjective'],
+        '#^/risk/(\d+)/exception/create$#'              => ['RiskExceptionController', 'create'],
+        '#^/risk/exception/(\d+)/decide$#'             => ['RiskExceptionController', 'decide'],
         '#^/risk/(\d+)/update$#'                       => ['RiskController', 'update'],
         '#^/risk/(\d+)/delete$#'                       => ['RiskController', 'delete'],
         '#^/admin/users/(\d+)/update$#'                => ['AdminController', 'updateUser'],
@@ -278,6 +290,7 @@ $dynamicRoutes = [
         '#^/assets/(\d+)/update$#'                              => ['AssetController', 'update'],
         '#^/assets/(\d+)/link-risk$#'                           => ['AssetController', 'linkRisk'],
         '#^/assets/(\d+)/unlink-risk/(\d+)$#'                   => ['AssetController', 'unlinkRisk'],
+        '#^/admin/sessions/([a-zA-Z0-9]+)/kill$#'               => ['AdminController', 'killSession'],
     ],
 ];
 
@@ -288,6 +301,21 @@ function dispatch(string $controller, string $action, array $params = []): void 
     $ctrl = new $controller();
     if (!method_exists($ctrl, $action)) { http_response_code(404); die('Action not found'); }
     $ctrl->$action(...$params);
+}
+
+// Track active session for admin session management
+if (!empty($_SESSION['user_id']) || !empty($_SESSION['user']['id'])) {
+    try {
+        $trackUserId = (int)($_SESSION['user']['id'] ?? $_SESSION['user_id'] ?? 0);
+        if ($trackUserId > 0 && session_id() !== '') {
+            Database::query(
+                "INSERT INTO active_sessions (id, user_id, ip_address, user_agent, last_seen_at)
+                 VALUES (?,?,?,?,NOW())
+                 ON CONFLICT (id) DO UPDATE SET last_seen_at=NOW(), ip_address=EXCLUDED.ip_address",
+                [session_id(), $trackUserId, $_SERVER['REMOTE_ADDR'] ?? '', substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 500)]
+            );
+        }
+    } catch (Throwable) {}
 }
 
 // Static routes
