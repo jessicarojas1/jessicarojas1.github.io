@@ -964,4 +964,55 @@ class AdminController {
         $_SESSION['flash_success'] = "Custom field '{$field['label']}' deleted.";
         header('Location: /admin/custom-fields');
     }
+
+    public function riskAppetite(): void {
+        Auth::requireAdmin();
+        $rows = Database::fetchAll("SELECT * FROM risk_appetite ORDER BY category");
+        $pageTitle    = 'Risk Appetite';
+        $activeModule = 'admin_risk_appetite';
+        $breadcrumbs  = [['Administration', '/admin'], ['Risk Appetite', null]];
+        ob_start();
+        require AEGIS_ROOT . '/views/admin/risk_appetite.php';
+        $content = ob_get_clean();
+        require AEGIS_ROOT . '/views/layout.php';
+    }
+
+    public function saveRiskAppetite(): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $ids        = (array)($_POST['id'] ?? []);
+        $categories = (array)($_POST['category'] ?? []);
+        $appetites  = (array)($_POST['appetite'] ?? []);
+        $statements = (array)($_POST['statement'] ?? []);
+        $maxScores  = (array)($_POST['max_score'] ?? []);
+        $valid      = ['zero','low','moderate','high'];
+        foreach ($ids as $i => $id) {
+            $id        = (int)$id;
+            $category  = trim(Security::sanitizeInput($categories[$i] ?? ''));
+            $appetite  = in_array($appetites[$i] ?? '', $valid, true) ? $appetites[$i] : 'low';
+            $statement = trim(Security::sanitizeInput($statements[$i] ?? ''));
+            $maxScore  = ($maxScores[$i] ?? '') !== '' ? (int)$maxScores[$i] : null;
+            if (!$id || !$category || !$statement) continue;
+            Database::query(
+                "UPDATE risk_appetite SET category=?, appetite=?, statement=?, max_score=?, updated_by=?, updated_at=NOW() WHERE id=?",
+                [$category, $appetite, $statement, $maxScore, Auth::id(), $id]
+            );
+        }
+        // Handle new rows
+        $newCats = (array)($_POST['new_category'] ?? []);
+        $newApps = (array)($_POST['new_appetite'] ?? []);
+        $newStmts = (array)($_POST['new_statement'] ?? []);
+        $newMax  = (array)($_POST['new_max_score'] ?? []);
+        foreach ($newCats as $i => $cat) {
+            $cat  = trim(Security::sanitizeInput($cat));
+            $app  = in_array($newApps[$i] ?? '', $valid, true) ? $newApps[$i] : 'low';
+            $stmt = trim(Security::sanitizeInput($newStmts[$i] ?? ''));
+            $max  = ($newMax[$i] ?? '') !== '' ? (int)$newMax[$i] : null;
+            if (!$cat || !$stmt) continue;
+            Database::insert('risk_appetite', ['category'=>$cat,'appetite'=>$app,'statement'=>$stmt,'max_score'=>$max,'updated_by'=>Auth::id()]);
+        }
+        Auth::log('risk_appetite_updated', 'risk_appetite', 0, []);
+        $_SESSION['flash_success'] = 'Risk appetite saved.';
+        header('Location: /admin/risk-appetite');
+    }
 }

@@ -311,3 +311,118 @@ CREATE TABLE IF NOT EXISTS entity_tags (
 );
 CREATE INDEX IF NOT EXISTS idx_entity_tags_entity ON entity_tags(entity_type, entity_id);
 CREATE INDEX IF NOT EXISTS idx_entity_tags_tag ON entity_tags(tag_id);
+
+-- ─────────────────────────────────────────────
+-- 3.11  Policy Attestation
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS policy_attestations (
+    id          SERIAL PRIMARY KEY,
+    policy_id   INTEGER NOT NULL REFERENCES policies(id) ON DELETE CASCADE,
+    user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    attested_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    ip_address  VARCHAR(45),
+    notes       TEXT,
+    CONSTRAINT uq_policy_attestation UNIQUE (policy_id, user_id)
+);
+CREATE INDEX IF NOT EXISTS idx_pa_policy ON policy_attestations(policy_id);
+CREATE INDEX IF NOT EXISTS idx_pa_user ON policy_attestations(user_id);
+
+CREATE TABLE IF NOT EXISTS policy_attestation_campaigns (
+    id           SERIAL PRIMARY KEY,
+    policy_id    INTEGER NOT NULL REFERENCES policies(id) ON DELETE CASCADE,
+    title        VARCHAR(255) NOT NULL,
+    due_date     DATE,
+    is_active    BOOLEAN NOT NULL DEFAULT TRUE,
+    created_by   INTEGER REFERENCES users(id),
+    created_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ─────────────────────────────────────────────
+-- 3.12 Risk Appetite
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS risk_appetite (
+    id           SERIAL PRIMARY KEY,
+    category     VARCHAR(100) NOT NULL,
+    appetite     VARCHAR(20)  NOT NULL CHECK (appetite IN ('zero','low','moderate','high')),
+    statement    TEXT         NOT NULL,
+    max_score    INTEGER,
+    updated_by   INTEGER REFERENCES users(id),
+    updated_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+INSERT INTO risk_appetite (category, appetite, statement, max_score)
+VALUES
+  ('Operational',  'low',      'We accept minimal operational disruption. Controls must reduce residual risk to Low or lower.', 6),
+  ('Financial',    'low',      'Financial losses above $50,000 are unacceptable without board approval.', 6),
+  ('Reputational', 'zero',     'Reputational risks are not tolerated. Any risk that could harm public trust must be mitigated to residual score ≤ 3.', 3),
+  ('Regulatory',   'zero',     'Compliance violations carry zero tolerance. All regulatory requirements must be met.', 2),
+  ('Strategic',    'moderate', 'Moderate strategic risk is acceptable when pursuing growth objectives with documented rationale.', 12),
+  ('Technology',   'low',      'Technology risks must be mitigated to Low. Critical system downtime tolerance is < 4 hours RTO.', 6)
+ON CONFLICT DO NOTHING;
+
+-- ─────────────────────────────────────────────
+-- 3.13 Control Testing
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS control_tests (
+    id               SERIAL PRIMARY KEY,
+    objective_id     INTEGER NOT NULL REFERENCES compliance_objectives(id) ON DELETE CASCADE,
+    package_id       INTEGER NOT NULL,
+    test_date        DATE    NOT NULL DEFAULT CURRENT_DATE,
+    tester_id        INTEGER REFERENCES users(id),
+    result           VARCHAR(20) NOT NULL CHECK (result IN ('pass','fail','partial','not_tested')),
+    effectiveness    INTEGER CHECK (effectiveness BETWEEN 0 AND 100),
+    method           VARCHAR(50),
+    findings         TEXT,
+    evidence_refs    TEXT,
+    next_test_date   DATE,
+    created_at       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_ct_objective ON control_tests(objective_id);
+CREATE INDEX IF NOT EXISTS idx_ct_package ON control_tests(package_id);
+
+-- ─────────────────────────────────────────────
+-- 3.14 Incident Response Playbooks
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS playbooks (
+    id              SERIAL PRIMARY KEY,
+    title           VARCHAR(255) NOT NULL,
+    category        VARCHAR(50)  NOT NULL DEFAULT 'general',
+    severity_filter VARCHAR(20),
+    description     TEXT,
+    is_active       BOOLEAN NOT NULL DEFAULT TRUE,
+    created_by      INTEGER REFERENCES users(id),
+    created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS playbook_steps (
+    id            SERIAL PRIMARY KEY,
+    playbook_id   INTEGER NOT NULL REFERENCES playbooks(id) ON DELETE CASCADE,
+    step_number   INTEGER NOT NULL,
+    title         VARCHAR(255) NOT NULL,
+    description   TEXT,
+    owner_role    VARCHAR(50),
+    due_minutes   INTEGER,
+    sort_order    INTEGER NOT NULL DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS idx_ps_playbook ON playbook_steps(playbook_id);
+
+CREATE TABLE IF NOT EXISTS incident_playbook_runs (
+    id            SERIAL PRIMARY KEY,
+    incident_id   INTEGER NOT NULL REFERENCES incidents(id) ON DELETE CASCADE,
+    playbook_id   INTEGER NOT NULL REFERENCES playbooks(id),
+    started_by    INTEGER REFERENCES users(id),
+    started_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    completed_at  TIMESTAMP,
+    CONSTRAINT uq_incident_playbook UNIQUE (incident_id, playbook_id)
+);
+
+CREATE TABLE IF NOT EXISTS playbook_step_completions (
+    id          SERIAL PRIMARY KEY,
+    run_id      INTEGER NOT NULL REFERENCES incident_playbook_runs(id) ON DELETE CASCADE,
+    step_id     INTEGER NOT NULL REFERENCES playbook_steps(id) ON DELETE CASCADE,
+    completed_by INTEGER REFERENCES users(id),
+    completed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    notes       TEXT,
+    CONSTRAINT uq_run_step UNIQUE (run_id, step_id)
+);
+CREATE INDEX IF NOT EXISTS idx_psc_run ON playbook_step_completions(run_id);

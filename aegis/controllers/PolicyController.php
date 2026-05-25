@@ -232,4 +232,166 @@ class PolicyController {
         $users = Database::fetchAll("SELECT id, name FROM users WHERE is_active = TRUE ORDER BY name");
         require AEGIS_ROOT . '/views/policy/create.php';
     }
+
+    // List all attestation campaigns (admin/manager)
+    public function attestations(): void {
+        Auth::requireAuth();
+        // load campaigns with policy name, attested count, total user count
+        $campaigns = Database::fetchAll(
+            "SELECT pac.*, p.title as policy_title,
+                    COUNT(DISTINCT pa.user_id) as attested_count,
+                    (SELECT COUNT(*) FROM users WHERE is_active = TRUE) as total_users
+             FROM policy_attestation_campaigns pac
+             JOIN policies p ON p.id = pac.policy_id
+             LEFT JOIN policy_attestations pa ON pa.policy_id = pac.policy_id
+             GROUP BY pac.id, p.title ORDER BY pac.created_at DESC"
+        );
+        $pageTitle    = 'Policy Attestations';
+        $activeModule = 'policy_attestations';
+        $breadcrumbs  = [['Policies', '/policy'], ['Attestations', null]];
+        ob_start();
+        require AEGIS_ROOT . '/views/policy/attestations.php';
+        $content = ob_get_clean();
+        require AEGIS_ROOT . '/views/layout.php';
+    }
+
+    // Create attestation campaign
+    public function createCampaign(): void {
+        Auth::requirePermission('policy.write');
+        $policies = Database::fetchAll("SELECT id, title FROM policies WHERE status='approved' ORDER BY title");
+        $pageTitle    = 'New Attestation Campaign';
+        $activeModule = 'policy_attestations';
+        $breadcrumbs  = [['Policies', '/policy'], ['Attestations', '/policy/attestations'], ['New Campaign', null]];
+        ob_start();
+        require AEGIS_ROOT . '/views/policy/campaign_create.php';
+        $content = ob_get_clean();
+        require AEGIS_ROOT . '/views/layout.php';
+    }
+
+    public function saveCampaign(): void {
+        Auth::requirePermission('policy.write');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $policyId = (int)($_POST['policy_id'] ?? 0);
+        $title    = trim(Security::sanitizeInput($_POST['title'] ?? ''));
+        $dueDate  = Security::sanitizeInput($_POST['due_date'] ?? '');
+        if (!$policyId || !$title) {
+            $_SESSION['flash_error'] = 'Policy and title are required.';
+            header('Location: /policy/attestations/create'); return;
+        }
+        $policy = Database::fetchOne("SELECT id FROM policies WHERE id=?", [$policyId]);
+        if (!$policy) { http_response_code(404); return; }
+        $id = Database::insert('policy_attestation_campaigns', [
+            'policy_id'  => $policyId,
+            'title'      => $title,
+            'due_date'   => $dueDate ?: null,
+            'is_active'  => true,
+            'created_by' => Auth::id(),
+        ]);
+        Auth::log('campaign_created', 'policy_attestation_campaigns', $id, ['title'=>$title]);
+        $_SESSION['flash_success'] = 'Campaign created.';
+        header("Location: /policy/attestations/{$id}");
+    }
+
+    // View a campaign — shows attestation matrix (who signed, who hasn't)
+    public function viewCampaign(string $id): void {
+        Auth::requireAuth();
+        $id = (int)$id;
+        $campaign = Database::fetchOne(
+            "SELECT pac.*, p.title as policy_title, p.id as pid FROM policy_attestation_campaigns pac
+             JOIN policies p ON p.id = pac.policy_id WHERE pac.id=?", [$id]
+        );
+        if (!$campaign) { http_response_code(404); require AEGIS_ROOT.'/views/errors/404.php'; return; }
+        $attested = Database::fetchAll(
+            "SELECT pa.*, u.name as user_name, u.email FROM policy_attestations pa
+             JOIN users u ON u.id = pa.user_id WHERE pa.policy_id=? ORDER BY pa.attested_at DESC",
+            [$campaign['pid']]
+        );
+        $pending = Database::fetchAll(
+            "SELECT u.id, u.name, u.email FROM users u
+             WHERE u.is_active=TRUE
+               AND u.id NOT IN (SELECT user_id FROM policy_attestations WHERE policy_id=?)
+             ORDER BY u.name",
+            [$campaign['pid']]
+        );
+        $pageTitle    = 'Campaign: ' . $campaign['title'];
+        $activeModule = 'policy_attestations';
+        $breadcrumbs  = [['Policies', '/policy'], ['Attestations', '/policy/attestations'], [$campaign['title'], null]];
+        ob_start();
+        require AEGIS_ROOT . '/views/policy/campaign_view.php';
+        $content = ob_get_clean();
+        require AEGIS_ROOT . '/views/layout.php';
+    }
+
+    // User reads and signs off on a policy
+    public function attestForm(string $policyId): void {
+        Auth::requireAuth();
+        $policyId = (int)$policyId;
+        $policy = Database::fetchOne("SELECT * FROM policies WHERE id=?", [$policyId]);
+        if (!$policy) { http_response_code(404); require AEGIS_ROOT.'/views/errors/404.php'; return; }
+        $existing = Database::fetchOne(
+            "SELECT * FROM policy_attestations WHERE policy_id=? AND user_id=?",
+            [$policyId, Auth::id()]
+        );
+        $pageTitle    = 'Attest: ' . $policy['title'];
+        $activeModule = 'policy';
+        $breadcrumbs  = [['Policies', '/policy'], [$policy['title'], "/policy/{$policyId}"], ['Attest', null]];
+        ob_start();
+        require AEGIS_ROOT . '/views/policy/attest.php';
+        $content = ob_get_clean();
+        require AEGIS_ROOT . '/views/layout.php';
+    }
+
+    public function attest(string $policyId): void {
+        Auth::requireAuth();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $policyId = (int)$policyId;
+        $policy = Database::fetchOne("SELECT id, title FROM policies WHERE id=?", [$policyId]);
+        if (!$policy) { http_response_code(404); return; }
+        if (empty($_POST['confirmed'])) {
+            $_SESSION['flash_error'] = 'You must check the confirmation box.';
+            header("Location: /policy/{$policyId}/attest"); return;
+        }
+        $notes = trim(Security::sanitizeInput($_POST['notes'] ?? ''));
+        try {
+            Database::query(
+                "INSERT INTO policy_attestations (policy_id, user_id, ip_address, notes)
+                 VALUES (?,?,?,?)
+                 ON CONFLICT (policy_id, user_id) DO UPDATE SET attested_at=NOW(), ip_address=EXCLUDED.ip_address, notes=EXCLUDED.notes",
+                [$policyId, Auth::id(), $_SERVER['REMOTE_ADDR'] ?? '', $notes]
+            );
+            Auth::log('policy_attested', 'policy_attestations', $policyId, ['notes' => $notes]);
+            $_SESSION['flash_success'] = 'Policy attested successfully.';
+        } catch (Throwable $e) {
+            $_SESSION['flash_error'] = 'Attestation failed.';
+        }
+        header("Location: /policy/{$policyId}");
+    }
+
+    // My attestations (profile page)
+    public function myAttestations(): void {
+        Auth::requireAuth();
+        $records = Database::fetchAll(
+            "SELECT pa.*, p.title as policy_title, p.id as policy_id FROM policy_attestations pa
+             JOIN policies p ON p.id = pa.policy_id
+             WHERE pa.user_id=? ORDER BY pa.attested_at DESC",
+            [Auth::id()]
+        );
+        // Campaigns where user hasn't attested
+        $pending = Database::fetchAll(
+            "SELECT pac.*, p.title as policy_title, p.id as policy_id
+             FROM policy_attestation_campaigns pac
+             JOIN policies p ON p.id = pac.policy_id
+             WHERE pac.is_active=TRUE
+               AND p.id NOT IN (SELECT policy_id FROM policy_attestations WHERE user_id=?)
+             ORDER BY pac.due_date ASC NULLS LAST",
+            [Auth::id()]
+        );
+        $pageTitle    = 'My Attestations';
+        $activeModule = 'my_attestations';
+        $breadcrumbs  = [['My Attestations', null]];
+        ob_start();
+        require AEGIS_ROOT . '/views/policy/my_attestations.php';
+        $content = ob_get_clean();
+        require AEGIS_ROOT . '/views/layout.php';
+    }
 }
