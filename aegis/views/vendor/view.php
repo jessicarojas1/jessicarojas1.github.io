@@ -20,11 +20,26 @@ ob_start();
   </div>
   <div class="page-actions">
     <?php if (Auth::can('vendor.write')): ?>
+      <form method="POST" action="/vendor/<?= $vendor['id'] ?>/portal-link" style="display:inline">
+        <?= Security::csrfField() ?>
+        <button class="btn btn-secondary"><i class="bi bi-share"></i> Generate Assessment Link</button>
+      </form>
       <button onclick="showModal('editModal')" class="btn btn-secondary"><i class="bi bi-pencil"></i> Edit</button>
       <button onclick="showModal('assessModal')" class="btn btn-primary"><i class="bi bi-clipboard-check"></i> Schedule Assessment</button>
     <?php endif; ?>
   </div>
 </div>
+
+<?php if (!empty($_SESSION['portal_link'])): ?>
+<div class="card" style="margin-bottom:16px;border-left:3px solid #059669">
+  <div class="card-body">
+    <strong>Portal link generated:</strong>
+    <input type="text" value="<?= Security::h($_SESSION['portal_link']) ?>" style="width:100%;margin-top:8px;font-family:monospace;padding:6px;border:1px solid #d1d5db;border-radius:6px" readonly onclick="this.select()">
+    <small style="color:#64748b">Share this link with the vendor. It expires in 30 days.</small>
+  </div>
+</div>
+<?php unset($_SESSION['portal_link']); ?>
+<?php endif; ?>
 
 <div class="two-col-layout">
   <!-- Left column -->

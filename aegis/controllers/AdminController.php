@@ -749,4 +749,219 @@ class AdminController {
         header('Content-Type: application/json');
         echo json_encode(['ok' => true]);
     }
+
+    // ─── Security Policy ──────────────────────────────────────────────────────
+
+    public function securityPolicy(): void {
+        Auth::requireAdmin();
+
+        $keys = [
+            'password_min_length'       => 12,
+            'password_require_uppercase' => '1',
+            'password_require_numbers'   => '1',
+            'password_require_special'   => '1',
+            'password_expiry_days'       => '0',
+            'mfa_enforcement'            => 'optional',
+            'session_timeout_minutes'    => '480',
+            'max_failed_logins'          => '5',
+            'account_lockout_minutes'    => '30',
+            'allowed_ip_ranges'          => '',
+        ];
+
+        $policy = [];
+        foreach ($keys as $key => $default) {
+            $row = Database::fetchOne("SELECT value FROM settings WHERE key = ?", [$key]);
+            $policy[$key] = $row['value'] ?? $default;
+        }
+
+        $pageTitle    = 'Security Policy';
+        $activeModule = 'admin_security';
+        $breadcrumbs  = [['Admin', '/admin'], ['Security Policy', null]];
+
+        ob_start();
+        require AEGIS_ROOT . '/views/admin/security_policy.php';
+        $content = ob_get_clean();
+        require AEGIS_ROOT . '/views/layout.php';
+    }
+
+    public function saveSecurityPolicy(): void {
+        Auth::requireAdmin();
+
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403); return;
+        }
+
+        $updates = [];
+
+        // password_min_length: integer 8-128
+        $minLen = (int)($_POST['password_min_length'] ?? 12);
+        $updates['password_min_length'] = (string)max(8, min(128, $minLen));
+
+        // checkboxes: cast to '1'/'0'
+        $updates['password_require_uppercase'] = isset($_POST['password_require_uppercase']) ? '1' : '0';
+        $updates['password_require_numbers']   = isset($_POST['password_require_numbers'])   ? '1' : '0';
+        $updates['password_require_special']   = isset($_POST['password_require_special'])   ? '1' : '0';
+
+        // password_expiry_days: integer 0-365
+        $expiryDays = (int)($_POST['password_expiry_days'] ?? 0);
+        $updates['password_expiry_days'] = (string)max(0, min(365, $expiryDays));
+
+        // mfa_enforcement: enum
+        $mfaOpts = ['optional', 'admin_required', 'manager_required', 'all_required'];
+        $mfa = $_POST['mfa_enforcement'] ?? 'optional';
+        $updates['mfa_enforcement'] = in_array($mfa, $mfaOpts, true) ? $mfa : 'optional';
+
+        // session_timeout_minutes: integer 15-10080
+        $sessionTimeout = (int)($_POST['session_timeout_minutes'] ?? 480);
+        $updates['session_timeout_minutes'] = (string)max(15, min(10080, $sessionTimeout));
+
+        // max_failed_logins: integer 3-20
+        $maxFailed = (int)($_POST['max_failed_logins'] ?? 5);
+        $updates['max_failed_logins'] = (string)max(3, min(20, $maxFailed));
+
+        // account_lockout_minutes: integer 5-1440
+        $lockout = (int)($_POST['account_lockout_minutes'] ?? 30);
+        $updates['account_lockout_minutes'] = (string)max(5, min(1440, $lockout));
+
+        // allowed_ip_ranges: strip dangerous chars, allow empty
+        $ipRanges = preg_replace('/[^0-9a-fA-F.:\/\n\r ,\-]/', '', $_POST['allowed_ip_ranges'] ?? '');
+        $updates['allowed_ip_ranges'] = trim($ipRanges ?? '');
+
+        foreach ($updates as $k => $v) {
+            Database::query(
+                "INSERT INTO settings (key, value) VALUES (?,?) ON CONFLICT (key) DO UPDATE SET value=?, updated_at=NOW()",
+                [$k, $v, $v]
+            );
+        }
+
+        Auth::log('update_security_policy', 'settings', null);
+        $_SESSION['flash_success'] = 'Security policy saved successfully.';
+        header('Location: /admin/security-policy');
+    }
+
+    // ─── Custom Fields ────────────────────────────────────────────────────────
+
+    public function customFields(): void {
+        Auth::requireAdmin();
+
+        $rows = Database::fetchAll(
+            "SELECT * FROM custom_field_definitions ORDER BY entity_type, sort_order, id"
+        );
+
+        $fields = [];
+        foreach ($rows as $row) {
+            $fields[$row['entity_type']][] = $row;
+        }
+
+        $pageTitle    = 'Custom Fields';
+        $activeModule = 'admin_custom_fields';
+        $breadcrumbs  = [['Admin', '/admin'], ['Custom Fields', null]];
+        ob_start();
+        require AEGIS_ROOT . '/views/admin/custom_fields.php';
+        $content = ob_get_clean();
+        require AEGIS_ROOT . '/views/layout.php';
+    }
+
+    public function saveCustomField(): void {
+        Auth::requireAdmin();
+
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403); return;
+        }
+
+        $allowedEntities = ['risk','policy','audit','incident','vendor','control','asset'];
+        $allowedTypes    = ['text','textarea','number','date','select','checkbox','url'];
+
+        $entityType = Security::sanitizeInput($_POST['entity_type'] ?? '');
+        $fieldKey   = strtolower(Security::sanitizeInput($_POST['field_key'] ?? ''));
+        $fieldKey   = preg_replace('/\s+/', '_', $fieldKey);
+        $label      = Security::sanitizeInput($_POST['label'] ?? '');
+        $fieldType  = Security::sanitizeInput($_POST['field_type'] ?? '');
+        $sortOrder  = (int)($_POST['sort_order'] ?? 0);
+        $required   = isset($_POST['required']) ? true : false;
+        $options    = null;
+
+        if (!in_array($entityType, $allowedEntities, true)) {
+            $_SESSION['flash_error'] = 'Invalid entity type.';
+            header('Location: /admin/custom-fields'); return;
+        }
+        if (!preg_match('/^[a-z][a-z0-9_]{1,49}$/', $fieldKey)) {
+            $_SESSION['flash_error'] = 'Field key must start with a letter, use only lowercase letters, numbers, and underscores (2–50 chars).';
+            header('Location: /admin/custom-fields'); return;
+        }
+        if (!$label) {
+            $_SESSION['flash_error'] = 'Label is required.';
+            header('Location: /admin/custom-fields'); return;
+        }
+        if (!in_array($fieldType, $allowedTypes, true)) {
+            $_SESSION['flash_error'] = 'Invalid field type.';
+            header('Location: /admin/custom-fields'); return;
+        }
+
+        if ($fieldType === 'select') {
+            $rawOptions = Security::sanitizeInput($_POST['options'] ?? '');
+            $optArr = array_filter(array_map('trim', explode("\n", $rawOptions)));
+            $options = !empty($optArr) ? json_encode(array_values($optArr)) : null;
+        }
+
+        $existing = Database::fetchOne(
+            "SELECT id FROM custom_field_definitions WHERE entity_type = ? AND field_key = ?",
+            [$entityType, $fieldKey]
+        );
+        if ($existing) {
+            $_SESSION['flash_error'] = "A field with key '{$fieldKey}' already exists for entity type '{$entityType}'.";
+            header('Location: /admin/custom-fields'); return;
+        }
+
+        $fieldId = Database::insert('custom_field_definitions', [
+            'entity_type' => $entityType,
+            'field_key'   => $fieldKey,
+            'label'       => $label,
+            'field_type'  => $fieldType,
+            'options'     => $options,
+            'is_required' => $required,
+            'sort_order'  => $sortOrder,
+        ]);
+
+        Auth::log('create_custom_field', 'custom_field_definitions', $fieldId, [
+            'entity_type' => $entityType,
+            'field_key'   => $fieldKey,
+            'field_type'  => $fieldType,
+        ]);
+        $_SESSION['flash_success'] = "Custom field '{$label}' created.";
+        header('Location: /admin/custom-fields');
+    }
+
+    public function deleteCustomField(string $id): void {
+        Auth::requireAdmin();
+
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403); return;
+        }
+
+        $id = (int)$id;
+        $field = Database::fetchOne("SELECT * FROM custom_field_definitions WHERE id = ?", [$id]);
+        if (!$field) {
+            $_SESSION['flash_error'] = 'Custom field not found.';
+            header('Location: /admin/custom-fields'); return;
+        }
+
+        $valueCount = (int)(Database::fetchOne(
+            "SELECT COUNT(*) as c FROM custom_field_values WHERE field_id = ?", [$id]
+        )['c'] ?? 0);
+
+        if ($valueCount > 0 && empty($_GET['force']) && empty($_POST['force'])) {
+            $_SESSION['flash_error'] = "This field has {$valueCount} stored value(s). Append ?force=1 to the URL or submit with force=1 to delete anyway.";
+            header('Location: /admin/custom-fields'); return;
+        }
+
+        Database::query("DELETE FROM custom_field_definitions WHERE id = ?", [$id]);
+        Auth::log('delete_custom_field', 'custom_field_definitions', $id, [
+            'entity_type' => $field['entity_type'],
+            'field_key'   => $field['field_key'],
+            'had_values'  => $valueCount,
+        ]);
+        $_SESSION['flash_success'] = "Custom field '{$field['label']}' deleted.";
+        header('Location: /admin/custom-fields');
+    }
 }

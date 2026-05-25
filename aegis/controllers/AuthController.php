@@ -167,4 +167,145 @@ class AuthController {
         $_SESSION['flash_success'] = 'Two-factor authentication disabled.';
         header('Location: /mfa/setup'); exit;
     }
+
+    public function forgotPasswordForm(): void {
+        if (Auth::check()) { header('Location: /'); exit; }
+        $error   = $_SESSION['flash_error']   ?? null;
+        $success = $_SESSION['flash_success'] ?? null;
+        unset($_SESSION['flash_error'], $_SESSION['flash_success']);
+        require AEGIS_ROOT . '/views/auth/forgot_password.php';
+    }
+
+    public function forgotPassword(): void {
+        if (Auth::check()) { header('Location: /'); exit; }
+
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            $_SESSION['flash_error'] = 'Invalid request. Please try again.';
+            header('Location: /forgot-password'); exit;
+        }
+
+        require_once AEGIS_ROOT . '/src/Mailer.php';
+
+        $email = strtolower(Security::sanitizeInput($_POST['email'] ?? ''));
+
+        $user = Database::fetchOne(
+            "SELECT id, name, email FROM users WHERE email = ? AND is_active = TRUE",
+            [$email]
+        );
+
+        if ($user) {
+            $token  = bin2hex(random_bytes(32));
+            $expiry = date('Y-m-d H:i:s', time() + 3600);
+
+            Database::query(
+                "INSERT INTO password_reset_tokens (user_id, token_hash, expires_at)
+                 VALUES (?,?,?)
+                 ON CONFLICT (user_id) DO UPDATE SET token_hash=?, expires_at=?, used=FALSE",
+                [$user['id'], hash('sha256', $token), $expiry, hash('sha256', $token), $expiry]
+            );
+
+            $appUrl  = rtrim($_ENV['APP_URL'] ?? 'http://localhost', '/');
+            $url     = $appUrl . '/reset-password/' . $token;
+            $htmlBody = '
+                <div style="font-family:Inter,Arial,sans-serif;max-width:560px;margin:0 auto">
+                  <h2 style="color:#1e293b">Password Reset Request</h2>
+                  <p>Hello ' . htmlspecialchars($user['name'], ENT_QUOTES, 'UTF-8') . ',</p>
+                  <p>We received a request to reset your AEGIS GRC password. Click the button below to choose a new password:</p>
+                  <p style="text-align:center;margin:32px 0">
+                    <a href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '"
+                       style="display:inline-block;padding:12px 28px;background:#6366f1;color:#fff;text-decoration:none;border-radius:8px;font-weight:600">
+                      Reset Password
+                    </a>
+                  </p>
+                  <p>Or copy and paste this link into your browser:<br>
+                     <a href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '</a>
+                  </p>
+                  <p style="color:#6b7280;font-size:13px">This link expires in 1 hour. If you did not request a password reset, you can safely ignore this email.</p>
+                  <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0">
+                  <p style="color:#9ca3af;font-size:12px">AEGIS GRC &mdash; Enterprise Governance &amp; Compliance Platform</p>
+                </div>
+            ';
+
+            Mailer::sendFromSettings(
+                $user['email'],
+                $user['name'],
+                'Password Reset Request',
+                $htmlBody
+            );
+
+            Auth::log('password_reset_request', 'users', $user['id']);
+        }
+
+        // Always show the same message — do not leak whether the email exists
+        $_SESSION['flash_success'] = 'If that email is registered, a reset link has been sent.';
+        header('Location: /forgot-password'); exit;
+    }
+
+    public function resetPasswordForm(string $token): void {
+        if (Auth::check()) { header('Location: /'); exit; }
+
+        $row = Database::fetchOne(
+            "SELECT * FROM password_reset_tokens WHERE token_hash = ? AND used = FALSE AND expires_at > NOW()",
+            [hash('sha256', $token)]
+        );
+
+        if (!$row) {
+            $_SESSION['flash_error'] = 'This password reset link is invalid or has expired. Please request a new one.';
+            header('Location: /forgot-password'); exit;
+        }
+
+        $error   = $_SESSION['flash_error']   ?? null;
+        $success = $_SESSION['flash_success'] ?? null;
+        unset($_SESSION['flash_error'], $_SESSION['flash_success']);
+        require AEGIS_ROOT . '/views/auth/reset_password.php';
+    }
+
+    public function resetPassword(string $token): void {
+        if (Auth::check()) { header('Location: /'); exit; }
+
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            $_SESSION['flash_error'] = 'Invalid request. Please try again.';
+            header('Location: /reset-password/' . rawurlencode($token)); exit;
+        }
+
+        $row = Database::fetchOne(
+            "SELECT * FROM password_reset_tokens WHERE token_hash = ? AND used = FALSE AND expires_at > NOW()",
+            [hash('sha256', $token)]
+        );
+
+        if (!$row) {
+            $_SESSION['flash_error'] = 'This password reset link is invalid or has expired. Please request a new one.';
+            header('Location: /forgot-password'); exit;
+        }
+
+        $new     = $_POST['new_password']     ?? '';
+        $confirm = $_POST['confirm_password'] ?? '';
+
+        if ($new !== $confirm) {
+            $_SESSION['flash_error'] = 'Passwords do not match.';
+            header('Location: /reset-password/' . rawurlencode($token)); exit;
+        }
+
+        $policyErrors = Security::validatePasswordPolicy($new);
+        if ($policyErrors) {
+            $_SESSION['flash_error'] = implode(' ', $policyErrors);
+            header('Location: /reset-password/' . rawurlencode($token)); exit;
+        }
+
+        Database::query(
+            "UPDATE users SET password_hash=?, updated_at=NOW() WHERE id=?",
+            [Security::hashPassword($new), (int)$row['user_id']]
+        );
+
+        Database::query(
+            "UPDATE password_reset_tokens SET used=TRUE WHERE token_hash=?",
+            [hash('sha256', $token)]
+        );
+
+        // Log the reset (no active session — use logSystem)
+        Auth::logSystem('password_reset', 'users', (int)$row['user_id']);
+
+        $_SESSION['flash_success'] = 'Your password has been reset. You can now sign in with your new password.';
+        header('Location: /login'); exit;
+    }
 }

@@ -281,6 +281,102 @@ class ApprovalController {
         require AEGIS_ROOT . '/views/layout.php';
     }
 
+    // ── Admin: template management ────────────────────────────────────────────
+
+    public function createTemplate(): void {
+        Auth::requireAdmin();
+        $users = Database::fetchAll(
+            "SELECT id, name, role FROM users WHERE is_active = TRUE ORDER BY name"
+        );
+        $pageTitle    = 'New Approval Template';
+        $activeModule = 'admin';
+        $breadcrumbs  = [
+            ['Admin', '/admin'],
+            ['Approval Templates', '/admin/approval-templates'],
+            ['New', null],
+        ];
+        $template = null;
+        $steps    = [];
+        ob_start();
+        require AEGIS_ROOT . '/views/approval/template_create.php';
+        $content = ob_get_clean();
+        require AEGIS_ROOT . '/views/layout.php';
+    }
+
+    public function saveTemplate(): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403);
+            return;
+        }
+
+        $name       = Security::sanitizeInput($_POST['name'] ?? '');
+        $entityType = Security::sanitizeInput($_POST['entity_type'] ?? '');
+        $conditions = Security::sanitizeInput($_POST['conditions'] ?? '{}');
+
+        if (!$name || !in_array($entityType, ['risk', 'policy', 'change', 'audit', 'incident', 'vendor'])) {
+            $_SESSION['flash_error'] = 'Name and valid entity type required.';
+            header('Location: /admin/approval-templates');
+            return;
+        }
+
+        $tid = Database::insert('approval_templates', [
+            'name'        => $name,
+            'entity_type' => $entityType,
+            'conditions'  => ($conditions ?: '{}'),
+            'is_active'   => isset($_POST['is_active']),
+        ]);
+
+        // Save steps
+        $stepLabels = $_POST['step_label']    ?? [];
+        $stepRoles  = $_POST['step_role']     ?? [];
+        $stepUsers  = $_POST['step_user']     ?? [];
+        $stepDues   = $_POST['step_due_hours'] ?? [];
+
+        foreach ($stepLabels as $i => $label) {
+            $label = Security::sanitizeInput($label);
+            if (!$label) continue;
+            Database::insert('approval_template_steps', [
+                'template_id'      => $tid,
+                'step_number'      => $i + 1,
+                'label'            => $label,
+                'required_role'    => !empty($stepRoles[$i])
+                                        ? Security::sanitizeInput($stepRoles[$i])
+                                        : null,
+                'required_user_id' => !empty($stepUsers[$i]) ? (int)$stepUsers[$i] : null,
+                'due_hours'        => !empty($stepDues[$i]) ? (int)$stepDues[$i] : null,
+            ]);
+        }
+
+        Auth::log('create_approval_template', 'approval_templates', $tid);
+        $_SESSION['flash_success'] = 'Approval template created.';
+        header('Location: /admin/approval-templates');
+    }
+
+    public function toggleTemplate(string $id): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403);
+            return;
+        }
+
+        $t = Database::fetchOne(
+            "SELECT * FROM approval_templates WHERE id = ?",
+            [(int)$id]
+        );
+        if (!$t) {
+            http_response_code(404);
+            return;
+        }
+
+        Database::query(
+            "UPDATE approval_templates SET is_active = NOT is_active WHERE id = ?",
+            [(int)$id]
+        );
+        Auth::log('toggle_approval_template', 'approval_templates', (int)$id);
+        header('Location: /admin/approval-templates');
+    }
+
     // ── Internals ─────────────────────────────────────────────────────────────
 
     private static function findTemplate(string $entityType, array $entityData): ?array {

@@ -259,3 +259,55 @@ CREATE TABLE IF NOT EXISTS active_sessions (
 );
 CREATE INDEX IF NOT EXISTS idx_active_sessions_user      ON active_sessions(user_id);
 CREATE INDEX IF NOT EXISTS idx_active_sessions_last_seen ON active_sessions(last_seen_at);
+
+-- ─────────────────────────────────────────────
+-- 3.8  Password Reset Tokens
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
+    id         SERIAL PRIMARY KEY,
+    user_id    INTEGER NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+    token_hash VARCHAR(64) NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    used       BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_prt_token ON password_reset_tokens(token_hash);
+
+-- ─────────────────────────────────────────────
+-- 3.9  Vendor External Assessment Tokens
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS vendor_portal_tokens (
+    id SERIAL PRIMARY KEY,
+    vendor_id INTEGER NOT NULL REFERENCES vendors(id) ON DELETE CASCADE,
+    token_hash VARCHAR(64) NOT NULL UNIQUE,
+    title VARCHAR(255) NOT NULL DEFAULT 'Vendor Self-Assessment',
+    questions JSONB NOT NULL DEFAULT '[]',
+    expires_at TIMESTAMP NOT NULL,
+    used_at TIMESTAMP,
+    response JSONB,
+    created_by INTEGER REFERENCES users(id),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_vpt_vendor ON vendor_portal_tokens(vendor_id);
+CREATE INDEX IF NOT EXISTS idx_vpt_token ON vendor_portal_tokens(token_hash);
+
+-- ─────────────────────────────────────────────
+-- 3.10  Tags & Entity Tags
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS tags (
+    id         SERIAL PRIMARY KEY,
+    name       VARCHAR(50) NOT NULL UNIQUE,
+    color      VARCHAR(7)  NOT NULL DEFAULT '#6366f1',
+    created_at TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS entity_tags (
+    id          SERIAL PRIMARY KEY,
+    tag_id      INTEGER NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
+    entity_type VARCHAR(30) NOT NULL,
+    entity_id   INTEGER NOT NULL,
+    created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT uq_entity_tag UNIQUE (tag_id, entity_type, entity_id)
+);
+CREATE INDEX IF NOT EXISTS idx_entity_tags_entity ON entity_tags(entity_type, entity_id);
+CREATE INDEX IF NOT EXISTS idx_entity_tags_tag ON entity_tags(tag_id);

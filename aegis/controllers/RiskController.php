@@ -203,6 +203,44 @@ class RiskController {
         $this->view($id);
     }
 
+    public function bulkUpdate(): void {
+        Auth::requirePermission('risk.write');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403); return;
+        }
+        $ids    = array_filter(array_map('intval', (array)($_POST['ids'] ?? [])));
+        $action = Security::sanitizeInput($_POST['bulk_action'] ?? '');
+        if (empty($ids) || !$action) {
+            $_SESSION['flash_error'] = 'No risks selected or no action chosen.';
+            header('Location: /risk'); return;
+        }
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $affected = 0;
+        switch ($action) {
+            case 'status_open':
+                Database::query("UPDATE risks SET status='open', updated_at=NOW() WHERE id IN ({$placeholders})", $ids);
+                $affected = count($ids); break;
+            case 'status_closed':
+                Database::query("UPDATE risks SET status='closed', updated_at=NOW() WHERE id IN ({$placeholders})", $ids);
+                $affected = count($ids); break;
+            case 'status_transferred':
+                Database::query("UPDATE risks SET status='transferred', updated_at=NOW() WHERE id IN ({$placeholders})", $ids);
+                $affected = count($ids); break;
+            case 'treatment_accept':
+                Database::query("UPDATE risks SET treatment_type='accept', updated_at=NOW() WHERE id IN ({$placeholders})", $ids);
+                $affected = count($ids); break;
+            case 'treatment_mitigate':
+                Database::query("UPDATE risks SET treatment_type='mitigate', updated_at=NOW() WHERE id IN ({$placeholders})", $ids);
+                $affected = count($ids); break;
+            default:
+                $_SESSION['flash_error'] = 'Invalid action.';
+                header('Location: /risk'); return;
+        }
+        Auth::log('bulk_update_risks', 'risks', 0, ['action'=>$action,'ids'=>$ids,'affected'=>$affected]);
+        $_SESSION['flash_success'] = "Updated {$affected} risk(s).";
+        header('Location: /risk');
+    }
+
     public function roadmap(): void {
         Auth::requireAuth();
         $users = Database::fetchAll("SELECT id, name FROM users WHERE is_active = TRUE ORDER BY name");

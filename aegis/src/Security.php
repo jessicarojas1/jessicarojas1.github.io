@@ -63,6 +63,43 @@ class Security {
         return $errors;
     }
 
+    public static function validatePasswordPolicy(string $password): array {
+        $errors = [];
+        // Load policy from settings (with defaults if not set)
+        static $policy = null;
+        if ($policy === null) {
+            $defaults = [
+                'password_min_length'        => 12,
+                'password_require_uppercase' => '1',
+                'password_require_numbers'   => '1',
+                'password_require_special'   => '1',
+            ];
+            $policy = $defaults;
+            try {
+                $rows = Database::fetchAll(
+                    "SELECT key, value FROM settings WHERE key IN ('password_min_length','password_require_uppercase','password_require_numbers','password_require_special')"
+                );
+                foreach ($rows as $r) {
+                    $policy[$r['key']] = $r['value'];
+                }
+            } catch (Throwable) {}
+        }
+        $minLen = (int)($policy['password_min_length'] ?? 12);
+        if (strlen($password) < $minLen) {
+            $errors[] = "Password must be at least {$minLen} characters.";
+        }
+        if (($policy['password_require_uppercase'] ?? '1') === '1' && !preg_match('/[A-Z]/', $password)) {
+            $errors[] = 'Password must contain at least one uppercase letter.';
+        }
+        if (($policy['password_require_numbers'] ?? '1') === '1' && !preg_match('/[0-9]/', $password)) {
+            $errors[] = 'Password must contain at least one number.';
+        }
+        if (($policy['password_require_special'] ?? '1') === '1' && !preg_match('/[^a-zA-Z0-9]/', $password)) {
+            $errors[] = 'Password must contain at least one special character.';
+        }
+        return $errors;
+    }
+
     public static function generateApiKey(): array {
         $key = 'aegis_' . bin2hex(random_bytes(32));
         $prefix = substr($key, 0, 12);

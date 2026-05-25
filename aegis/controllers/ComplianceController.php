@@ -189,6 +189,42 @@ class ComplianceController {
         header('Location: /compliance'); exit;
     }
 
+    public function scorecard(string $pkgId): void {
+        Auth::requireAuth();
+        $pkgId = (int)$pkgId;
+        $package = Database::fetchOne("SELECT cp.*, s.name as standard_name, s.code as standard_code FROM compliance_packages cp JOIN standards s ON s.id = cp.standard_id WHERE cp.id = ?", [$pkgId]);
+        if (!$package) { http_response_code(404); require AEGIS_ROOT . '/views/errors/404.php'; return; }
+
+        // All controls (level 2) grouped by domain (level 1)
+        $domains = Database::fetchAll("SELECT * FROM compliance_objectives WHERE package_id = ? AND level = 1 ORDER BY sort_order", [$pkgId]);
+        $controls = Database::fetchAll(
+            "SELECT co.*, ci.status, ci.due_date, ci.completion_date, ci.notes,
+                    u.name as assigned_name
+             FROM compliance_objectives co
+             LEFT JOIN control_implementations ci ON ci.objective_id = co.id
+             LEFT JOIN users u ON u.id = ci.assigned_to
+             WHERE co.package_id = ? AND co.level = 2
+             ORDER BY co.sort_order", [$pkgId]
+        );
+        $byDomain = [];
+        foreach ($controls as $c) {
+            $byDomain[(int)($c['parent_id'] ?? 0)][] = $c;
+        }
+
+        $total = count($controls);
+        $compliant = count(array_filter($controls, fn($c) => $c['status'] === 'compliant'));
+        $nonCompliant = count(array_filter($controls, fn($c) => $c['status'] === 'non_compliant'));
+        $partial = count(array_filter($controls, fn($c) => $c['status'] === 'partial'));
+        $notApplicable = count(array_filter($controls, fn($c) => $c['status'] === 'not_applicable'));
+        $notAssessed = $total - $compliant - $nonCompliant - $partial - $notApplicable;
+        $pct = ($total - $notApplicable) > 0 ? round($compliant / ($total - $notApplicable) * 100) : 0;
+
+        $pageTitle = $package['name'] . ' — Scorecard';
+        $activeModule = 'compliance';
+        $breadcrumbs = [['Compliance','/compliance'],[$package['name'],'/compliance/'.$pkgId],['Scorecard',null]];
+        require AEGIS_ROOT . '/views/compliance/scorecard.php';
+    }
+
     private function processJsonImport(array $data): void {
         $standardId = (int)($_POST['standard_id'] ?? 0);
         $name = Security::sanitizeInput($data['name'] ?? 'Imported Package');

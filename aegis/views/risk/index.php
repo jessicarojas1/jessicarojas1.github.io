@@ -17,6 +17,8 @@ ob_start();
 </div>
 
 <?php if (!empty($_GET['deleted'])): ?><div class="alert-box success"><i class="bi bi-check-circle-fill"></i> Risk deleted.</div><?php endif; ?>
+<?php if (!empty($_SESSION['flash_success'])): ?><div class="alert-box success"><i class="bi bi-check-circle-fill"></i> <?= Security::h($_SESSION['flash_success']) ?></div><?php unset($_SESSION['flash_success']); endif; ?>
+<?php if (!empty($_SESSION['flash_error'])): ?><div class="alert-box error"><i class="bi bi-exclamation-circle-fill"></i> <?= Security::h($_SESSION['flash_error']) ?></div><?php unset($_SESSION['flash_error']); endif; ?>
 
 <!-- Summary KPIs -->
 <div class="risk-kpi-grid">
@@ -55,11 +57,34 @@ ob_start();
   </form>
 </div>
 
+<div id="bulkBar" style="display:none;background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:12px 16px;margin-bottom:12px;align-items:center;gap:12px;flex-wrap:wrap">
+  <span id="bulkCount" style="font-weight:600;color:#0369a1">0 selected</span>
+  <form method="POST" action="/risk/bulk-update" id="bulkForm" style="display:flex;gap:8px;align-items:center">
+    <?= Security::csrfField() ?>
+    <div id="bulkIdsContainer"></div>
+    <select name="bulk_action" class="form-control" style="width:auto">
+      <option value="">Choose action…</option>
+      <optgroup label="Set Status">
+        <option value="status_open">Mark Open</option>
+        <option value="status_closed">Mark Closed</option>
+        <option value="status_transferred">Mark Transferred</option>
+      </optgroup>
+      <optgroup label="Set Treatment">
+        <option value="treatment_accept">Accept Risk</option>
+        <option value="treatment_mitigate">Set to Mitigate</option>
+      </optgroup>
+    </select>
+    <button type="submit" class="btn btn-primary btn-sm" onclick="return injectIds()">Apply</button>
+    <button type="button" class="btn btn-ghost btn-sm" onclick="clearSelection()">Clear</button>
+  </form>
+</div>
+
 <div class="card">
   <div class="card-body p0">
     <table class="table risk-table">
       <thead>
         <tr>
+          <th style="width:32px"><input type="checkbox" id="selectAll" onchange="toggleAll(this)"></th>
           <th>Risk ID</th><th>Title</th><th>Category</th>
           <th>Likelihood</th><th>Impact</th><th>Score</th><th>Level</th>
           <th>Residual</th><th>Status</th><th>Owner</th><th></th>
@@ -72,6 +97,7 @@ ob_start();
           $resLevel = riskLevel((int)$resScore);
         ?>
           <tr>
+            <td><input type="checkbox" class="risk-cb" value="<?= $risk['id'] ?>" onchange="updateBulk()"></td>
             <td><span class="mono text-sm"><?= Security::h($risk['risk_id'] ?? '—') ?></span></td>
             <td><a href="/risk/<?= $risk['id'] ?>" class="table-link fw-500"><?= Security::h($risk['title']) ?></a></td>
             <td>
@@ -98,7 +124,7 @@ ob_start();
             </td>
           </tr>
         <?php endforeach; else: ?>
-          <tr><td colspan="11" class="empty-row">
+          <tr><td colspan="12" class="empty-row">
             <div class="empty-state-sm"><i class="bi bi-shield-check"></i><p>No risks match your filters. <a href="/risk/create">Log a risk</a>.</p></div>
           </td></tr>
         <?php endif; ?>
@@ -107,6 +133,35 @@ ob_start();
   </div>
 </div>
 
+<script>
+function updateBulk() {
+  var checked = document.querySelectorAll('.risk-cb:checked');
+  var bar = document.getElementById('bulkBar');
+  bar.style.display = checked.length > 0 ? 'flex' : 'none';
+  document.getElementById('bulkCount').textContent = checked.length + ' selected';
+}
+function toggleAll(cb) {
+  document.querySelectorAll('.risk-cb').forEach(function(c){ c.checked = cb.checked; });
+  updateBulk();
+}
+function injectIds() {
+  var container = document.getElementById('bulkIdsContainer');
+  container.innerHTML = '';
+  document.querySelectorAll('.risk-cb:checked').forEach(function(c) {
+    var inp = document.createElement('input');
+    inp.type = 'hidden'; inp.name = 'ids[]'; inp.value = c.value;
+    container.appendChild(inp);
+  });
+  var action = document.querySelector('[name="bulk_action"]').value;
+  if (!action) { alert('Please choose an action.'); return false; }
+  return document.querySelectorAll('.risk-cb:checked').length > 0;
+}
+function clearSelection() {
+  document.querySelectorAll('.risk-cb').forEach(function(c){ c.checked = false; });
+  document.getElementById('selectAll').checked = false;
+  updateBulk();
+}
+</script>
 <?php
 function riskLevel(int $score): string {
   return $score > 14 ? 'Critical' : ($score > 9 ? 'High' : ($score > 4 ? 'Medium' : 'Low'));

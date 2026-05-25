@@ -107,6 +107,9 @@
     </a>
 
     <div class="nav-section-label">Resources</div>
+    <a href="/search" class="nav-item <?= $activeModule === 'search' ? 'active' : '' ?>">
+      <i class="bi bi-search"></i><span>Search</span>
+    </a>
     <a href="/docs" class="nav-item <?= $activeModule === 'docs' ? 'active' : '' ?>">
       <i class="bi bi-book-fill"></i><span>Documentation</span>
     </a>
@@ -155,6 +158,18 @@
     <a href="/admin/retention" class="nav-item <?= $activeModule === 'admin_retention' ? 'active' : '' ?>">
       <i class="bi bi-clock-history"></i><span>Data Retention</span>
     </a>
+    <a href="/admin/security-policy" class="nav-item <?= $activeModule === 'admin_security_policy' ? 'active' : '' ?>">
+      <i class="bi bi-shield-fill-check"></i><span>Security Policy</span>
+    </a>
+    <a href="/admin/custom-fields" class="nav-item <?= $activeModule === 'admin_custom_fields' ? 'active' : '' ?>">
+      <i class="bi bi-input-cursor-text"></i><span>Custom Fields</span>
+    </a>
+    <a href="/admin/tags" class="nav-item <?= $activeModule === 'admin_tags' ? 'active' : '' ?>">
+      <i class="bi bi-tags-fill"></i><span>Tags</span>
+    </a>
+    <a href="/admin/approval-templates" class="nav-item <?= $activeModule === 'admin_approval_templates' ? 'active' : '' ?>">
+      <i class="bi bi-list-check"></i><span>Approval Templates</span>
+    </a>
     <a href="/admin/sessions" class="nav-item <?= $activeModule === 'admin_sessions' ? 'active' : '' ?>">
       <i class="bi bi-people-fill"></i><span>Sessions</span>
     </a>
@@ -176,6 +191,9 @@
     </a>
     <a href="/profile/notifications" class="nav-item <?= $activeModule === 'profile_notifications' ? 'active' : '' ?>">
       <i class="bi bi-bell-fill"></i><span>Notifications</span>
+    </a>
+    <a href="/profile/edit" class="nav-item <?= $activeModule === 'profile_edit' ? 'active' : '' ?>">
+      <i class="bi bi-person-fill-gear"></i><span>Edit Profile</span>
     </a>
     <a href="/mfa/setup" class="nav-item <?= $activeModule === 'profile' ? 'active' : '' ?>">
       <i class="bi bi-shield-lock-fill"></i><span>Two-Factor Auth</span>

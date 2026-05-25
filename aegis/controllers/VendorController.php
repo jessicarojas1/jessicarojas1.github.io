@@ -285,6 +285,210 @@ class VendorController {
         header('Location: /vendor/' . $vendorId . '?assess_added=1');
     }
 
+    // ------------------------------------------- generatePortalLink
+    public function generatePortalLink(string $id): void {
+        Auth::requirePermission('vendor.write');
+
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403);
+            echo 'CSRF error';
+            return;
+        }
+
+        $id = (int)$id;
+        $vendor = Database::fetchOne("SELECT id, name FROM vendors WHERE id = ?", [$id]);
+        if (!$vendor) {
+            http_response_code(404);
+            return;
+        }
+
+        $defaultQuestions = [
+            ['id'=>1,'text'=>'Describe your information security management system (ISMS) and any certifications held (ISO 27001, SOC 2, etc.).','required'=>true],
+            ['id'=>2,'text'=>'Do you have a dedicated security team or CISO? If yes, describe their responsibilities.','required'=>true],
+            ['id'=>3,'text'=>'How do you handle and protect customer/client data? Describe encryption practices.','required'=>true],
+            ['id'=>4,'text'=>'Describe your incident response and breach notification procedures.','required'=>true],
+            ['id'=>5,'text'=>'Do you conduct regular penetration testing or security audits? How often?','required'=>false],
+            ['id'=>6,'text'=>'How do you manage access controls and privileged access management (PAM)?','required'=>false],
+            ['id'=>7,'text'=>'Describe your business continuity and disaster recovery plans.','required'=>false],
+            ['id'=>8,'text'=>'What third-party subprocessors do you use and how are they managed?','required'=>false],
+            ['id'=>9,'text'=>'Have you had any security incidents in the past 24 months? If yes, describe.','required'=>false],
+            ['id'=>10,'text'=>'Provide your data retention and deletion policies.','required'=>false],
+        ];
+
+        $token    = bin2hex(random_bytes(32));
+        $tokenHash = hash('sha256', $token);
+        $expiresAt = date('Y-m-d H:i:s', strtotime('+30 days'));
+
+        Database::query(
+            "INSERT INTO vendor_portal_tokens (vendor_id, token_hash, title, questions, expires_at, created_by)
+             VALUES (?, ?, ?, ?, ?, ?)",
+            [
+                $id,
+                $tokenHash,
+                'Vendor Self-Assessment',
+                json_encode($defaultQuestions),
+                $expiresAt,
+                Auth::id(),
+            ]
+        );
+
+        Auth::log('generate_portal_link', 'vendors', $id, ['vendor_name' => $vendor['name']]);
+
+        $portalUrl = rtrim($_ENV['APP_URL'] ?? '', '/') . '/vendor/portal/' . $token;
+        $_SESSION['portal_link'] = $portalUrl;
+        header('Location: /vendor/' . $id . '?portal=1');
+    }
+
+    // ------------------------------------------- portalView (PUBLIC — no auth)
+    public function portalView(string $token): void {
+        // Sanitize token — only hex chars allowed
+        $token = preg_replace('/[^a-f0-9]/i', '', $token);
+        $tokenHash = hash('sha256', $token);
+
+        $rec = Database::fetchOne(
+            "SELECT * FROM vendor_portal_tokens WHERE token_hash = ? AND expires_at > NOW()",
+            [$tokenHash]
+        );
+
+        if (!$rec) {
+            http_response_code(404);
+            echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Link Invalid or Expired</title>
+            <style>body{font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:#f8fafc}
+            .box{text-align:center;padding:40px;background:#fff;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.1);max-width:400px}
+            h2{color:#dc2626;margin-top:0}p{color:#64748b}</style></head>
+            <body><div class="box"><h2>Link Invalid or Expired</h2>
+            <p>This assessment link is no longer valid. Please contact the organization that sent you this link to request a new one.</p></div></body></html>';
+            return;
+        }
+
+        if (!empty($rec['used_at'])) {
+            http_response_code(410);
+            echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Assessment Already Submitted</title>
+            <style>body{font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:#f8fafc}
+            .box{text-align:center;padding:40px;background:#fff;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.1);max-width:400px}
+            h2{color:#059669;margin-top:0}p{color:#64748b}</style></head>
+            <body><div class="box"><h2>Assessment Already Submitted</h2>
+            <p>This assessment has already been completed. Thank you for your response. Please contact the organization if you need to make changes.</p></div></body></html>';
+            return;
+        }
+
+        $vendor    = Database::fetchOne("SELECT name FROM vendors WHERE id = ?", [$rec['vendor_id']]);
+        $questions = json_decode($rec['questions'], true) ?? [];
+        require AEGIS_ROOT . '/views/vendor/portal.php';
+    }
+
+    // ------------------------------------------- portalSubmit (PUBLIC — no auth)
+    public function portalSubmit(string $token): void {
+        // Sanitize token — only hex chars allowed
+        $token = preg_replace('/[^a-f0-9]/i', '', $token);
+        $tokenHash = hash('sha256', $token);
+
+        $rec = Database::fetchOne(
+            "SELECT * FROM vendor_portal_tokens WHERE token_hash = ? AND expires_at > NOW()",
+            [$tokenHash]
+        );
+
+        if (!$rec || !empty($rec['used_at'])) {
+            http_response_code(410);
+            echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Submission Error</title>
+            <style>body{font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;background:#f8fafc}
+            .box{text-align:center;padding:40px;background:#fff;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.1);max-width:400px}
+            h2{color:#dc2626;margin-top:0}p{color:#64748b}</style></head>
+            <body><div class="box"><h2>Submission Error</h2>
+            <p>This assessment link is no longer valid or has already been submitted.</p></div></body></html>';
+            return;
+        }
+
+        // Validate simple CSRF: sha256 of portal token stored in hidden field
+        $expectedCsrf = hash('sha256', $token);
+        $submittedCsrf = $_POST['csrf_token'] ?? '';
+        if (!hash_equals($expectedCsrf, $submittedCsrf)) {
+            http_response_code(403);
+            echo 'Security validation failed. Please go back and try again.';
+            return;
+        }
+
+        $questions = json_decode($rec['questions'], true) ?? [];
+        $rawAnswers = $_POST['answers'] ?? [];
+
+        // Validate required questions
+        $errors = [];
+        foreach ($questions as $q) {
+            if (!empty($q['required'])) {
+                $ans = trim($rawAnswers[$q['id']] ?? '');
+                if ($ans === '') {
+                    $errors[] = 'Question ' . $q['id'] . ' is required.';
+                }
+            }
+        }
+
+        if ($errors) {
+            http_response_code(422);
+            echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Validation Error</title>
+            <style>body{font-family:sans-serif;max-width:600px;margin:40px auto;padding:0 20px}
+            .err{background:#fee2e2;color:#991b1b;padding:16px;border-radius:8px;margin-bottom:16px}
+            a{color:#4f46e5}</style></head><body>
+            <div class="err"><strong>Please fix the following:</strong><ul>';
+            foreach ($errors as $e) {
+                echo '<li>' . htmlspecialchars($e, ENT_QUOTES | ENT_HTML5, 'UTF-8') . '</li>';
+            }
+            echo '</ul></div><a href="javascript:history.back()">← Go back</a></body></html>';
+            return;
+        }
+
+        // Build answers array
+        $answers = [];
+        foreach ($questions as $q) {
+            $answers[(int)$q['id']] = trim($rawAnswers[$q['id']] ?? '');
+        }
+
+        // Save response
+        Database::query(
+            "UPDATE vendor_portal_tokens SET response = ?, used_at = NOW() WHERE token_hash = ?",
+            [json_encode($answers), $tokenHash]
+        );
+
+        // Optionally create a vendor_assessment record (best-effort)
+        try {
+            Database::insert('vendor_assessments', [
+                'vendor_id'       => $rec['vendor_id'],
+                'assessment_type' => 'security',
+                'status'          => 'completed',
+                'scheduled_date'  => date('Y-m-d'),
+                'completed_date'  => date('Y-m-d'),
+                'findings'        => 'Submitted via vendor portal self-assessment.',
+            ]);
+        } catch (Throwable) {
+            // Non-fatal — assessment record is optional
+        }
+
+        // Success page
+        echo '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Assessment Submitted</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+        <style>
+          body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f8fafc;color:#1e293b;margin:0;padding:0}
+          .header{background:#0f172a;color:white;padding:20px 40px;display:flex;align-items:center;gap:12px}
+          .header h1{margin:0;font-size:18px}
+          .content{max-width:560px;margin:60px auto;padding:0 20px;text-align:center}
+          .icon{font-size:56px;color:#059669;display:block;margin-bottom:16px}
+          h2{font-size:24px;margin-bottom:12px}
+          p{color:#64748b;line-height:1.6}
+          .footer{text-align:center;color:#94a3b8;font-size:13px;padding:20px}
+        </style></head><body>
+        <div class="header">
+          <i class="bi bi-shield-fill-check" style="font-size:24px;color:#818cf8"></i>
+          <div><h1>AEGIS GRC — Vendor Security Assessment</h1></div>
+        </div>
+        <div class="content">
+          <i class="bi bi-check-circle-fill icon"></i>
+          <h2>Assessment Submitted Successfully</h2>
+          <p>Thank you for completing the vendor security assessment. Your responses have been securely recorded and will be reviewed by our team.</p>
+          <p style="margin-top:24px;font-size:13px;color:#94a3b8">You may now close this window.</p>
+        </div>
+        <div class="footer">Powered by AEGIS GRC</div>
+        </body></html>';
+    }
+
     // --------------------------------------------------- updateAssessment
     public function updateAssessment(string $vendorId, string $assessId): void {
         Auth::requirePermission('vendor.write');
