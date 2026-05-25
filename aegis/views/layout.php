@@ -53,6 +53,9 @@
     <a href="/incident" class="nav-item <?= $activeModule === 'incident' ? 'active' : '' ?>">
       <i class="bi bi-fire"></i><span>Incidents</span>
     </a>
+    <a href="/playbooks" class="nav-item <?= $activeModule === 'playbooks' ? 'active' : '' ?>">
+      <i class="bi bi-journal-code"></i><span>Playbooks</span>
+    </a>
     <a href="/issue" class="nav-item <?= $activeModule === 'issue' ? 'active' : '' ?>">
       <i class="bi bi-bug-fill"></i><span>Issues</span>
     </a>
@@ -82,6 +85,9 @@
     <a href="/vendor" class="nav-item <?= $activeModule === 'vendor' ? 'active' : '' ?>">
       <i class="bi bi-building"></i><span>Vendor Risk</span>
     </a>
+    <a href="/vendor/contracts" class="nav-item <?= $activeModule === 'vendor_contracts' ? 'active' : '' ?>">
+      <i class="bi bi-file-earmark-check-fill"></i><span>Contracts</span>
+    </a>
     <a href="/assets" class="nav-item <?= $activeModule === 'assets' ? 'active' : '' ?>">
       <i class="bi bi-server"></i><span>Asset Inventory</span>
     </a>
@@ -104,6 +110,12 @@
     </a>
     <a href="/calendar" class="nav-item <?= $activeModule === 'calendar' ? 'active' : '' ?>">
       <i class="bi bi-calendar3"></i><span>Calendar</span>
+    </a>
+    <a href="/compliance/testing" class="nav-item <?= $activeModule === 'control_testing' ? 'active' : '' ?>">
+      <i class="bi bi-clipboard2-pulse-fill"></i><span>Control Testing</span>
+    </a>
+    <a href="/compliance/gap-analysis" class="nav-item <?= $activeModule === 'compliance_gap' ? 'active' : '' ?>">
+      <i class="bi bi-bar-chart-steps"></i><span>Gap Analysis</span>
     </a>
 
     <div class="nav-section-label">Resources</div>
@@ -173,6 +185,12 @@
     <a href="/admin/sessions" class="nav-item <?= $activeModule === 'admin_sessions' ? 'active' : '' ?>">
       <i class="bi bi-people-fill"></i><span>Sessions</span>
     </a>
+    <a href="/admin/risk-appetite" class="nav-item <?= $activeModule === 'admin_risk_appetite' ? 'active' : '' ?>">
+      <i class="bi bi-speedometer"></i><span>Risk Appetite</span>
+    </a>
+    <a href="/policy/attestations" class="nav-item <?= $activeModule === 'policy_attestations' ? 'active' : '' ?>">
+      <i class="bi bi-pen-fill"></i><span>Attestations</span>
+    </a>
     <?php endif; ?>
     <div class="nav-section-label">Account</div>
     <a href="/approvals" class="nav-item <?= $activeModule === 'approvals' ? 'active' : '' ?>">
@@ -194,6 +212,9 @@
     </a>
     <a href="/profile/edit" class="nav-item <?= $activeModule === 'profile_edit' ? 'active' : '' ?>">
       <i class="bi bi-person-fill-gear"></i><span>Edit Profile</span>
+    </a>
+    <a href="/my-attestations" class="nav-item <?= $activeModule === 'my_attestations' ? 'active' : '' ?>">
+      <i class="bi bi-pen-fill"></i><span>My Attestations</span>
     </a>
     <a href="/mfa/setup" class="nav-item <?= $activeModule === 'profile' ? 'active' : '' ?>">
       <i class="bi bi-shield-lock-fill"></i><span>Two-Factor Auth</span>

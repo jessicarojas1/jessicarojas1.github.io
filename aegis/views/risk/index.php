@@ -20,6 +20,44 @@ ob_start();
 <?php if (!empty($_SESSION['flash_success'])): ?><div class="alert-box success"><i class="bi bi-check-circle-fill"></i> <?= Security::h($_SESSION['flash_success']) ?></div><?php unset($_SESSION['flash_success']); endif; ?>
 <?php if (!empty($_SESSION['flash_error'])): ?><div class="alert-box error"><i class="bi bi-exclamation-circle-fill"></i> <?= Security::h($_SESSION['flash_error']) ?></div><?php unset($_SESSION['flash_error']); endif; ?>
 
+<!-- Risk Appetite Summary -->
+<?php
+$_appetiteRows = [];
+try {
+    $_appetiteRows = Database::fetchAll("SELECT category, appetite, max_score FROM risk_appetite ORDER BY category") ?: [];
+} catch (Throwable $_e) { $_appetiteRows = []; }
+if (!empty($_appetiteRows)):
+$_appColorMap = [
+    'zero'     => ['bg'=>'#fef2f2','text'=>'#dc2626','border'=>'#fca5a5','label'=>'Zero'],
+    'low'      => ['bg'=>'#fffbeb','text'=>'#d97706','border'=>'#fcd34d','label'=>'Low'],
+    'moderate' => ['bg'=>'#eff6ff','text'=>'#2563eb','border'=>'#93c5fd','label'=>'Moderate'],
+    'high'     => ['bg'=>'#f0fdf4','text'=>'#16a34a','border'=>'#86efac','label'=>'High'],
+];
+?>
+<div class="card" style="margin-bottom:16px;padding:0">
+  <div style="display:flex;align-items:center;gap:0;overflow-x:auto;min-height:68px;padding:0 16px">
+    <span style="font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;margin-right:14px;flex-shrink:0">
+      <i class="bi bi-shield-fill-exclamation" style="color:#6366f1;margin-right:4px"></i>Risk Appetite
+    </span>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:10px 0">
+      <?php foreach ($_appetiteRows as $_ar):
+        $_ac = $_appColorMap[$_ar['appetite']] ?? $_appColorMap['low'];
+      ?>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px;background:<?= $_ac['bg'] ?>;border:1px solid <?= $_ac['border'] ?>;border-radius:8px;padding:4px 10px;min-width:90px">
+        <span style="font-size:11px;font-weight:700;color:<?= $_ac['text'] ?>"><?= Security::h($_ar['category']) ?></span>
+        <span style="font-size:10px;color:<?= $_ac['text'] ?>;opacity:.85"><?= $_ac['label'] ?><?= $_ar['max_score'] !== null ? ' · max '.Security::h($_ar['max_score']) : '' ?></span>
+      </div>
+      <?php endforeach; ?>
+    </div>
+    <?php if (Auth::can('admin') || Auth::role() === 'admin'): ?>
+    <a href="/admin/risk-appetite" style="margin-left:auto;flex-shrink:0;font-size:12px;color:#6366f1;text-decoration:none;white-space:nowrap;padding-left:12px">
+      <i class="bi bi-pencil-fill"></i> Edit
+    </a>
+    <?php endif; ?>
+  </div>
+</div>
+<?php endif; ?>
+
 <!-- Summary KPIs -->
 <div class="risk-kpi-grid">
   <div class="risk-kpi critical"><i class="bi bi-exclamation-octagon-fill"></i><span class="kpi-num"><?= $summary['critical'] ?></span><span>Critical</span></div>

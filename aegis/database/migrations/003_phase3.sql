@@ -426,3 +426,27 @@ CREATE TABLE IF NOT EXISTS playbook_step_completions (
     CONSTRAINT uq_run_step UNIQUE (run_id, step_id)
 );
 CREATE INDEX IF NOT EXISTS idx_psc_run ON playbook_step_completions(run_id);
+
+-- ─────────────────────────────────────────────
+-- 3.15 Vendor Contracts
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS vendor_contracts (
+    id              SERIAL PRIMARY KEY,
+    vendor_id       INTEGER NOT NULL REFERENCES vendors(id) ON DELETE CASCADE,
+    title           VARCHAR(255) NOT NULL,
+    contract_number VARCHAR(100),
+    status          VARCHAR(20) NOT NULL DEFAULT 'active' CHECK (status IN ('draft','active','expired','terminated')),
+    value           NUMERIC(15,2),
+    currency        VARCHAR(3) NOT NULL DEFAULT 'USD',
+    start_date      DATE NOT NULL,
+    end_date        DATE,
+    auto_renewal    BOOLEAN NOT NULL DEFAULT FALSE,
+    renewal_notice_days INTEGER DEFAULT 30,
+    description     TEXT,
+    owner_id        INTEGER REFERENCES users(id),
+    created_by      INTEGER REFERENCES users(id),
+    created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_vc_vendor ON vendor_contracts(vendor_id);
+CREATE INDEX IF NOT EXISTS idx_vc_end_date ON vendor_contracts(end_date);

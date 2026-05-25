@@ -145,6 +145,97 @@ ob_start();
   </div>
 </div>
 
+<!-- Contracts Section -->
+<?php
+$contracts = Database::fetchAll(
+    "SELECT * FROM vendor_contracts WHERE vendor_id=? ORDER BY end_date ASC NULLS LAST",
+    [$vendor['id']]
+);
+?>
+<div class="card" style="margin-top:20px">
+  <div class="card-header">
+    <div class="card-header-left">
+      <i class="bi bi-file-earmark-text" style="color:#0284c7"></i>
+      <span class="card-title">Contracts</span>
+    </div>
+    <?php if (Auth::can('vendor.write')): ?>
+    <div class="card-header-right">
+      <a href="/vendor/<?= (int)$vendor['id'] ?>/contract/create" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-lg"></i> Add Contract
+      </a>
+    </div>
+    <?php endif; ?>
+  </div>
+  <div class="card-body" style="padding:0">
+    <?php if ($contracts): ?>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Status</th>
+          <th>Value</th>
+          <th>End Date</th>
+          <th>Auto-Renewal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php foreach ($contracts as $vc):
+          $vcStatusMap = [
+            'active'     => ['color'=>'#059669','bg'=>'#dcfce7','label'=>'Active'],
+            'draft'      => ['color'=>'#64748b','bg'=>'#f1f5f9','label'=>'Draft'],
+            'expired'    => ['color'=>'#dc2626','bg'=>'#fee2e2','label'=>'Expired'],
+            'terminated' => ['color'=>'#94a3b8','bg'=>'#f8fafc','label'=>'Terminated'],
+          ];
+          $vcBadge = $vcStatusMap[$vc['status']] ?? ['color'=>'#64748b','bg'=>'#f1f5f9','label'=>ucfirst($vc['status'])];
+          $vcDaysLeft = $vc['end_date'] ? (int)ceil((strtotime($vc['end_date']) - time()) / 86400) : null;
+          $vcEndColor = ($vc['status']==='active' && $vcDaysLeft !== null && $vcDaysLeft <= 30) ? '#dc2626'
+                      : (($vc['status']==='active' && $vcDaysLeft !== null && $vcDaysLeft <= 60) ? '#d97706' : 'inherit');
+        ?>
+        <tr>
+          <td style="font-weight:500"><?= Security::h($vc['title']) ?><?= $vc['contract_number'] ? ' <small style="color:#94a3b8;font-weight:400">('.Security::h($vc['contract_number']).')</small>' : '' ?></td>
+          <td>
+            <span class="status-chip" style="background:<?= $vcBadge['bg'] ?>;color:<?= $vcBadge['color'] ?>">
+              <?= $vcBadge['label'] ?>
+            </span>
+          </td>
+          <td style="font-size:13px">
+            <?= $vc['value'] !== null ? Security::h($vc['currency']) . ' ' . number_format((float)$vc['value'], 2) : '—' ?>
+          </td>
+          <td style="font-size:13px;white-space:nowrap">
+            <?php if ($vc['end_date']): ?>
+              <span style="color:<?= $vcEndColor ?>">
+                <?= date('M j, Y', strtotime($vc['end_date'])) ?>
+                <?php if ($vc['status']==='active' && $vcDaysLeft !== null && $vcDaysLeft <= 60): ?>
+                  <small>(<?= $vcDaysLeft ?>d)</small>
+                <?php endif; ?>
+              </span>
+            <?php else: ?>—<?php endif; ?>
+          </td>
+          <td style="text-align:center">
+            <?php if ($vc['auto_renewal']): ?>
+              <span style="color:#059669" title="Auto-renews <?= (int)$vc['renewal_notice_days'] ?> days before expiry"><i class="bi bi-check-circle-fill"></i></span>
+            <?php else: ?>
+              <span style="color:#d1d5db"><i class="bi bi-dash-circle"></i></span>
+            <?php endif; ?>
+          </td>
+        </tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
+    <?php else: ?>
+    <div style="text-align:center;padding:32px 20px;color:#94a3b8">
+      <i class="bi bi-file-earmark-text" style="font-size:32px;display:block;margin-bottom:10px"></i>
+      <p style="margin:0;font-size:14px">No contracts on file.</p>
+      <?php if (Auth::can('vendor.write')): ?>
+        <a href="/vendor/<?= (int)$vendor['id'] ?>/contract/create" class="btn btn-primary btn-sm" style="margin-top:12px">
+          <i class="bi bi-plus-lg"></i> Add Contract
+        </a>
+      <?php endif; ?>
+    </div>
+    <?php endif; ?>
+  </div>
+</div>
+
 <!-- Edit Modal -->
 <?php if (Auth::can('vendor.write')): ?>
 <div class="modal-overlay" id="editModal" style="display:none">

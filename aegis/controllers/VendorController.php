@@ -489,6 +489,116 @@ class VendorController {
         </body></html>';
     }
 
+    // --------------------------------------------------- contracts
+    public function contracts(): void {
+        Auth::requireAuth();
+        // Expiring soon (within 60 days)
+        $expiring = Database::fetchAll(
+            "SELECT vc.*, v.name as vendor_name FROM vendor_contracts vc
+             JOIN vendors v ON v.id = vc.vendor_id
+             WHERE vc.status='active' AND vc.end_date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '60 days'
+             ORDER BY vc.end_date ASC"
+        );
+        $contracts = Database::fetchAll(
+            "SELECT vc.*, v.name as vendor_name, u.name as owner_name
+             FROM vendor_contracts vc
+             JOIN vendors v ON v.id = vc.vendor_id
+             LEFT JOIN users u ON u.id = vc.owner_id
+             ORDER BY vc.end_date ASC NULLS LAST, v.name ASC"
+        );
+        $pageTitle    = 'Vendor Contracts';
+        $activeModule = 'vendor_contracts';
+        $breadcrumbs  = [['Vendors', '/vendor'], ['Contracts', null]];
+        ob_start();
+        require AEGIS_ROOT . '/views/vendor/contracts.php';
+        $content = ob_get_clean();
+        require AEGIS_ROOT . '/views/layout.php';
+    }
+
+    // --------------------------------------------------- createContract
+    public function createContract(string $vendorId): void {
+        Auth::requirePermission('vendor.write');
+        $vendorId = (int)$vendorId;
+        $vendor = Database::fetchOne("SELECT id, name FROM vendors WHERE id=?", [$vendorId]);
+        if (!$vendor) { http_response_code(404); require AEGIS_ROOT.'/views/errors/404.php'; return; }
+        $users = Database::fetchAll("SELECT id, name FROM users WHERE is_active=TRUE ORDER BY name");
+        $pageTitle    = 'New Contract — ' . $vendor['name'];
+        $activeModule = 'vendor_contracts';
+        $breadcrumbs  = [['Vendors', '/vendor'], [$vendor['name'], "/vendor/{$vendorId}"], ['New Contract', null]];
+        ob_start();
+        require AEGIS_ROOT . '/views/vendor/contract_create.php';
+        $content = ob_get_clean();
+        require AEGIS_ROOT . '/views/layout.php';
+    }
+
+    // --------------------------------------------------- saveContract
+    public function saveContract(string $vendorId): void {
+        Auth::requirePermission('vendor.write');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $vendorId = (int)$vendorId;
+        $vendor = Database::fetchOne("SELECT id FROM vendors WHERE id=?", [$vendorId]);
+        if (!$vendor) { http_response_code(404); return; }
+        $title  = trim(Security::sanitizeInput($_POST['title'] ?? ''));
+        $start  = Security::sanitizeInput($_POST['start_date'] ?? '');
+        if (!$title || !$start) {
+            $_SESSION['flash_error'] = 'Title and start date are required.';
+            header("Location: /vendor/{$vendorId}/contract/create"); return;
+        }
+        $validStatuses = ['draft','active','expired','terminated'];
+        $status = in_array($_POST['status'] ?? '', $validStatuses, true) ? $_POST['status'] : 'active';
+        $value  = is_numeric($_POST['value'] ?? '') ? (float)$_POST['value'] : null;
+        $id = Database::insert('vendor_contracts', [
+            'vendor_id'           => $vendorId,
+            'title'               => $title,
+            'contract_number'     => Security::sanitizeInput($_POST['contract_number'] ?? ''),
+            'status'              => $status,
+            'value'               => $value,
+            'currency'            => strtoupper(substr(Security::sanitizeInput($_POST['currency'] ?? 'USD'), 0, 3)),
+            'start_date'          => $start,
+            'end_date'            => Security::sanitizeInput($_POST['end_date'] ?? '') ?: null,
+            'auto_renewal'        => !empty($_POST['auto_renewal']),
+            'renewal_notice_days' => (int)($_POST['renewal_notice_days'] ?? 30),
+            'description'         => Security::sanitizeInput($_POST['description'] ?? ''),
+            'owner_id'            => (int)($_POST['owner_id'] ?? 0) ?: null,
+            'created_by'          => Auth::id(),
+        ]);
+        Auth::log('contract_created', 'vendor_contracts', $id, ['title'=>$title,'vendor_id'=>$vendorId]);
+        $_SESSION['flash_success'] = 'Contract saved.';
+        header("Location: /vendor/{$vendorId}");
+    }
+
+    // --------------------------------------------------- updateContract
+    public function updateContract(string $id): void {
+        Auth::requirePermission('vendor.write');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $id  = (int)$id;
+        $contract = Database::fetchOne("SELECT * FROM vendor_contracts WHERE id=?", [$id]);
+        if (!$contract) { http_response_code(404); return; }
+        $validStatuses = ['draft','active','expired','terminated'];
+        $status = in_array($_POST['status'] ?? '', $validStatuses, true) ? $_POST['status'] : $contract['status'];
+        $value  = is_numeric($_POST['value'] ?? '') ? (float)$_POST['value'] : null;
+        Database::query(
+            "UPDATE vendor_contracts SET title=?,contract_number=?,status=?,value=?,currency=?,start_date=?,end_date=?,
+             auto_renewal=?,renewal_notice_days=?,description=?,owner_id=?,updated_at=NOW() WHERE id=?",
+            [
+                trim(Security::sanitizeInput($_POST['title'] ?? $contract['title'])),
+                Security::sanitizeInput($_POST['contract_number'] ?? ''),
+                $status, $value,
+                strtoupper(substr(Security::sanitizeInput($_POST['currency'] ?? 'USD'), 0, 3)),
+                Security::sanitizeInput($_POST['start_date'] ?? $contract['start_date']),
+                Security::sanitizeInput($_POST['end_date'] ?? '') ?: null,
+                !empty($_POST['auto_renewal']),
+                (int)($_POST['renewal_notice_days'] ?? 30),
+                Security::sanitizeInput($_POST['description'] ?? ''),
+                (int)($_POST['owner_id'] ?? 0) ?: null,
+                $id,
+            ]
+        );
+        Auth::log('contract_updated', 'vendor_contracts', $id, ['status'=>$status]);
+        $_SESSION['flash_success'] = 'Contract updated.';
+        header("Location: /vendor/{$contract['vendor_id']}");
+    }
+
     // --------------------------------------------------- updateAssessment
     public function updateAssessment(string $vendorId, string $assessId): void {
         Auth::requirePermission('vendor.write');

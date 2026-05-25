@@ -160,6 +160,53 @@ class IncidentController {
 
         $users = Database::fetchAll("SELECT id, name FROM users WHERE is_active = TRUE ORDER BY name");
 
+        // Playbook runs for this incident
+        $playbookRuns = Database::fetchAll(
+            "SELECT ipr.*, p.title as playbook_title,
+                    u.name as started_by_name,
+                    COUNT(ps.id) as total_steps,
+                    COUNT(psc.id) as done_steps
+             FROM incident_playbook_runs ipr
+             JOIN playbooks p ON p.id = ipr.playbook_id
+             LEFT JOIN users u ON u.id = ipr.started_by
+             LEFT JOIN playbook_steps ps ON ps.playbook_id = p.id
+             LEFT JOIN playbook_step_completions psc ON psc.run_id = ipr.id AND psc.step_id = ps.id
+             WHERE ipr.incident_id = ?
+             GROUP BY ipr.id, p.title, u.name
+             ORDER BY ipr.started_at ASC",
+            [$id]
+        );
+
+        // For each run load its steps with completion state
+        $playbookRunSteps = [];
+        foreach ($playbookRuns as $run) {
+            $playbookRunSteps[$run['id']] = Database::fetchAll(
+                "SELECT ps.*,
+                        psc.id as completion_id,
+                        psc.completed_by,
+                        psc.completed_at,
+                        psc.notes as completion_notes,
+                        cu.name as completed_by_name
+                 FROM playbook_steps ps
+                 LEFT JOIN playbook_step_completions psc ON psc.step_id = ps.id AND psc.run_id = ?
+                 LEFT JOIN users cu ON cu.id = psc.completed_by
+                 WHERE ps.playbook_id = ?
+                 ORDER BY ps.sort_order, ps.step_number",
+                [$run['id'], $run['playbook_id']]
+            );
+        }
+
+        // Active playbooks available to start (not already running)
+        $attachedPlaybookIds = array_column($playbookRuns, 'playbook_id');
+        $availablePlaybooks = Database::fetchAll(
+            "SELECT id, title, category, severity_filter FROM playbooks WHERE is_active = TRUE ORDER BY title"
+        );
+        // Filter out already-attached ones in PHP to avoid parameter binding complexity
+        $availablePlaybooks = array_values(array_filter(
+            $availablePlaybooks,
+            fn($p) => !in_array((int)$p['id'], array_map('intval', $attachedPlaybookIds))
+        ));
+
         require AEGIS_ROOT . '/views/incident/view.php';
     }
 

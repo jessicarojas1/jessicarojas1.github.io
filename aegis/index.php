@@ -181,6 +181,15 @@ $routes = [
         '/admin/tags'                 => ['TagController', 'index'],
         '/admin/approval-templates/create' => ['ApprovalController', 'createTemplate'],
         '/tags/entity'                => ['TagController', 'entityTags'],
+        '/policy/attestations'        => ['PolicyController', 'attestations'],
+        '/policy/attestations/create' => ['PolicyController', 'createCampaign'],
+        '/my-attestations'            => ['PolicyController', 'myAttestations'],
+        '/admin/risk-appetite'        => ['AdminController', 'riskAppetite'],
+        '/compliance/testing'         => ['ComplianceController', 'testingDashboard'],
+        '/playbooks'                  => ['PlaybookController', 'index'],
+        '/playbooks/create'           => ['PlaybookController', 'createForm'],
+        '/vendor/contracts'           => ['VendorController', 'contracts'],
+        '/compliance/gap-analysis'    => ['ComplianceController', 'gapAnalysis'],
     ],
     'POST' => [
         '/profile/notifications'         => ['ProfileController', 'notifications'],
@@ -230,6 +239,9 @@ $routes = [
         '/risk/bulk-update'              => ['RiskController', 'bulkUpdate'],
         '/tags/add'                      => ['TagController', 'addToEntity'],
         '/tags/remove'                   => ['TagController', 'removeFromEntity'],
+        '/policy/attestations/save'      => ['PolicyController', 'saveCampaign'],
+        '/admin/risk-appetite/save'      => ['AdminController', 'saveRiskAppetite'],
+        '/playbooks/create'              => ['PlaybookController', 'create'],
     ],
 ];
 
@@ -265,6 +277,11 @@ $dynamicRoutes = [
         '#^/reset-password/([A-Za-z0-9+/=_-]+)$#'  => ['AuthController', 'resetPasswordForm'],
         '#^/compliance/(\d+)/scorecard$#'            => ['ComplianceController', 'scorecard'],
         '#^/vendor/portal/([A-Za-z0-9_-]+)$#'       => ['VendorController', 'portalView'],
+        '#^/policy/attestations/(\d+)$#'            => ['PolicyController', 'viewCampaign'],
+        '#^/policy/(\d+)/attest$#'                  => ['PolicyController', 'attestForm'],
+        '#^/compliance/control/(\d+)/test$#'         => ['ComplianceController', 'testControl'],
+        '#^/playbooks/(\d+)$#'                       => ['PlaybookController', 'view'],
+        '#^/vendor/(\d+)/contract/create$#'          => ['VendorController', 'createContract'],
     ],
     'POST' => [
         '#^/compliance/(\d+)/objective/(\d+)/update$#' => ['ComplianceController', 'updateObjective'],
@@ -318,6 +335,13 @@ $dynamicRoutes = [
         '#^/admin/custom-fields/(\d+)/delete$#'                  => ['AdminController', 'deleteCustomField'],
         '#^/admin/tags/(\d+)/delete$#'                           => ['TagController', 'delete'],
         '#^/admin/approval-templates/(\d+)/toggle$#'             => ['ApprovalController', 'toggleTemplate'],
+        '#^/policy/(\d+)/attest$#'                               => ['PolicyController', 'attest'],
+        '#^/compliance/control/(\d+)/test/save$#'                => ['ComplianceController', 'saveTest'],
+        '#^/playbooks/(\d+)/toggle$#'                            => ['PlaybookController', 'toggle'],
+        '#^/incident/(\d+)/playbook/start$#'                     => ['PlaybookController', 'startRun'],
+        '#^/playbooks/run/(\d+)/complete-step$#'                 => ['PlaybookController', 'completeStep'],
+        '#^/vendor/(\d+)/contract/save$#'                        => ['VendorController', 'saveContract'],
+        '#^/vendor/contract/(\d+)/update$#'                      => ['VendorController', 'updateContract'],
     ],
 ];
 

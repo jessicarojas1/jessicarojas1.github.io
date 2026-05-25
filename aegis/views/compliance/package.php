@@ -190,6 +190,9 @@ function loadAiSuggestions(pkgId) {
         <a href="/compliance/<?= $package['id'] ?>/objective/<?= $ctrl['id'] ?>" class="btn btn-ghost btn-sm">
           <i class="bi bi-pencil-fill"></i> Assess
         </a>
+        <a href="/compliance/control/<?= $ctrl['id'] ?>/test" class="btn btn-ghost btn-sm" title="Record test result" style="color:#6366f1">
+          <i class="bi bi-clipboard2-check"></i> Test
+        </a>
       </div>
     <?php endforeach; ?>
   </div>
