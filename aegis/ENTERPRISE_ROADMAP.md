@@ -56,16 +56,16 @@
 
 | # | Feature | Status | Files Created / Modified |
 |---|---------|--------|--------------------------|
-| 3.1 | Outbound webhook framework (Jira, Slack, ServiceNow, PagerDuty) | ⏳ Pending | `aegis/src/Webhook.php`, `aegis/scripts/dispatch_webhooks.php` |
-| 3.2 | SIEM/scanner ingestion API (Tenable, Qualys, Wiz) | ⏳ Pending | `aegis/api/ingest.php`, `aegis/controllers/IngestController.php` |
-| 3.3 | Assessment questionnaire builder + response ingestion | ⏳ Pending | `aegis/controllers/QuestionnaireController.php`, `aegis/views/questionnaire/` |
-| 3.4 | Change management module (RFC process, CAB approval) | ⏳ Pending | `aegis/controllers/ChangeController.php`, `aegis/views/change/` |
-| 3.5 | Business continuity / DR module (BCP plans, RTO/RPO, tabletop) | ⏳ Pending | `aegis/controllers/BCPController.php`, `aegis/views/bcp/` |
-| 3.6 | Data classification + asset inventory | ⏳ Pending | `aegis/controllers/AssetController.php`, `aegis/views/assets/` |
-| 3.7 | Treatment plan Gantt / roadmap view | ⏳ Pending | `aegis/views/risk/roadmap.php` |
-| 3.8 | Executive board dashboard with GRC score trends | ⏳ Pending | `aegis/views/report/board.php` |
-| 3.9 | Mobile-responsive overhaul + PWA manifest | ⏳ Pending | `aegis/public/manifest.json`, CSS overhaul |
-| 3.10 | AI-assisted control gap suggestions | ⏳ Pending | `aegis/src/AIAdvisor.php` |
+| 3.1 | Outbound webhook framework (Jira, Slack, ServiceNow, PagerDuty) | ✅ Complete | `aegis/src/Webhook.php`, `aegis/scripts/dispatch_webhooks.php`, `aegis/controllers/WebhookController.php`, `aegis/views/admin/webhooks.php`, `aegis/views/admin/webhook_deliveries.php` |
+| 3.2 | SIEM/scanner ingestion API (Tenable, Qualys, Wiz) | ✅ Complete | `aegis/api/ingest.php` (POST /api/v1/ingest/{tenable\|qualys\|wiz\|generic}) |
+| 3.3 | Assessment questionnaire builder + response ingestion | ✅ Complete | `aegis/controllers/QuestionnaireController.php`, `aegis/views/questionnaire/` (index, create, view, respond) |
+| 3.4 | Change management module (RFC process, CAB approval) | ✅ Complete | `aegis/controllers/ChangeController.php`, `aegis/views/change/` (index, create, view) |
+| 3.5 | Business continuity / DR module (BCP plans, RTO/RPO, tabletop) | ✅ Complete | `aegis/controllers/BCPController.php`, `aegis/views/bcp/` (index, create, view) |
+| 3.6 | Data classification + asset inventory | ✅ Complete | `aegis/controllers/AssetController.php`, `aegis/views/assets/` (index, create, view) |
+| 3.7 | Treatment plan Gantt / roadmap view | ✅ Complete | `aegis/views/risk/roadmap.php`, `aegis/controllers/RiskController.php::roadmap()` |
+| 3.8 | Executive board dashboard with GRC score trends | ✅ Complete | `aegis/views/report/board.php`, `aegis/controllers/ReportController.php::board()` |
+| 3.9 | Mobile-responsive overhaul + PWA manifest | ✅ Complete | `aegis/public/manifest.json`, CSS + JS mobile additions |
+| 3.10 | AI-assisted control gap suggestions | ✅ Complete | `aegis/src/AIAdvisor.php` (Claude/OpenAI dual support) |
 
 ---
 
@@ -118,6 +118,39 @@ Set these keys in the `settings` table or via Admin → SSO Settings:
 0 8 * * * php /var/www/aegis/scripts/run_workflows.php --mode=approval-reminders >> /var/log/aegis-approvals.log 2>&1
 ```
 
+### Phase 3 crontabs
+```bash
+# Webhook dispatch — every minute
+* * * * * php /var/www/aegis/scripts/dispatch_webhooks.php >> /var/log/aegis-webhooks.log 2>&1
+
+# Metrics snapshot — daily at midnight
+0 0 * * * php /var/www/aegis/scripts/capture_metrics_snapshot.php >> /var/log/aegis-metrics.log 2>&1
+
+# Scheduled report delivery — hourly
+0 * * * * php /var/www/aegis/scripts/send_scheduled_reports.php >> /var/log/aegis-reports.log 2>&1
+```
+
+### SIEM Ingestion API
+```bash
+# Tenable.io example (POST findings as JSON)
+curl -X POST https://your-aegis-instance/api/v1/ingest/tenable \
+  -H "X-API-Key: <your-api-key>" \
+  -H "Content-Type: application/json" \
+  -d '{"vulnerabilities": [{"plugin_id": "19506", "plugin_name": "...", "severity": "high", ...}]}'
+
+# Wiz example
+curl -X POST https://your-aegis-instance/api/v1/ingest/wiz \
+  -H "X-API-Key: <your-api-key>" \
+  -d '{"issues": [{"id": "...", "severity": "CRITICAL", "control": {...}}]}'
+```
+
+### AI Advisor setup
+Set in the `settings` table or Admin → System Settings:
+| Key | Value |
+|-----|-------|
+| `ai_provider` | `claude` or `openai` |
+| `ai_api_key` | Your Anthropic or OpenAI API key |
+
 ---
 
 ## Session Log
@@ -127,3 +160,4 @@ Set these keys in the `settings` table or via Admin → SSO Settings:
 | 2026-05-25 | Initial security audit hardening (17 files): CSRF rotation, IDOR/path traversal on evidence, SMTP injection prevention, API CORS restriction, session hardening, XSS escaping, SQL injection (LIMIT/OFFSET parameterization), install.php HTTP block |
 | 2026-05-25 | Phase 1 complete: HSTS/CSP, hash-chained audit log, OIDC SSO, workflow executor, approval chains |
 | 2026-05-25 | Phase 2 complete: SOC2/NIST/HIPAA/PCI-DSS seeds, cross-framework mapping, scheduled reports, bulk CSV import, custom fields, metrics trending, document management |
+| 2026-05-25 | Phase 3 complete: webhooks (Slack/Jira/PagerDuty/ServiceNow), SIEM ingest API (Tenable/Qualys/Wiz), questionnaire builder, change management, BCP/DR, asset inventory, risk roadmap, executive board dashboard, PWA/mobile, AI advisor |

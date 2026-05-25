@@ -72,6 +72,12 @@ $uri    = preg_replace('#^/api/v1#', '', $uri);
 $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
 $input  = json_decode(file_get_contents('php://input'), true) ?? [];
 
+// Scanner / SIEM ingestion — handled by dedicated file
+if ($method === 'POST' && preg_match('#^/ingest/(tenable|qualys|wiz|generic)$#', $uri)) {
+    require_once AEGIS_ROOT . '/api/ingest.php';
+    exit;
+}
+
 // Public endpoint: token issue
 if ($method === 'POST' && $uri === '/auth/token') {
     // Rate-limit the token endpoint by IP (same mechanism as web login)

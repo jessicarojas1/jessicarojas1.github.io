@@ -202,4 +202,35 @@ class RiskController {
     public function editForm(string $id): void {
         $this->view($id);
     }
+
+    public function roadmap(): void {
+        Auth::requireAuth();
+        $users = Database::fetchAll("SELECT id, name FROM users WHERE is_active = TRUE ORDER BY name");
+        $ownerFilter = !empty($_GET['owner']) ? (int)$_GET['owner'] : null;
+        $levelFilter = $_GET['level'] ?? '';
+        $statusFilter = $_GET['status'] ?? '';
+
+        $where = ["r.status NOT IN ('closed','accepted')"];
+        $params = [];
+        if ($ownerFilter) { $where[] = "r.owner_id = ?"; $params[] = $ownerFilter; }
+        if ($statusFilter) { $where[] = "r.status = ?"; $params[] = $statusFilter; }
+        if ($levelFilter === 'critical') { $where[] = "r.inherent_score >= 20"; }
+        elseif ($levelFilter === 'high') { $where[] = "r.inherent_score BETWEEN 15 AND 19"; }
+        elseif ($levelFilter === 'medium') { $where[] = "r.inherent_score BETWEEN 8 AND 14"; }
+        elseif ($levelFilter === 'low') { $where[] = "r.inherent_score < 8"; }
+
+        $whereClause = implode(' AND ', $where);
+        $risks = Database::fetchAll(
+            "SELECT r.*, u.name as owner_name
+             FROM risks r LEFT JOIN users u ON u.id = r.owner_id
+             WHERE {$whereClause}
+             ORDER BY r.inherent_score DESC, r.review_date ASC",
+            $params
+        );
+
+        $pageTitle    = 'Risk Treatment Roadmap';
+        $activeModule = 'risk_matrix';
+        $breadcrumbs  = [['Risk', '/risk'], ['Treatment Roadmap', null]];
+        require AEGIS_ROOT . '/views/risk/roadmap.php';
+    }
 }

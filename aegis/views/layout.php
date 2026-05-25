@@ -8,6 +8,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <link rel="stylesheet" href="/public/css/app.css">
+<link rel="manifest" href="/public/manifest.json">
+<meta name="theme-color" content="#6366f1">
 <meta name="csrf-token" content="<?= Security::generateCsrfToken() ?>">
 </head>
 <body>
@@ -54,6 +56,15 @@
     <a href="/issue" class="nav-item <?= $activeModule === 'issue' ? 'active' : '' ?>">
       <i class="bi bi-bug-fill"></i><span>Issues</span>
     </a>
+    <a href="/change" class="nav-item <?= $activeModule === 'change' ? 'active' : '' ?>">
+      <i class="bi bi-arrow-repeat"></i><span>Change Requests</span>
+    </a>
+    <a href="/bcp" class="nav-item <?= $activeModule === 'bcp' ? 'active' : '' ?>">
+      <i class="bi bi-shield-fill-exclamation"></i><span>BCP / DR</span>
+    </a>
+    <a href="/questionnaire" class="nav-item <?= $activeModule === 'questionnaire' ? 'active' : '' ?>">
+      <i class="bi bi-ui-checks-grid"></i><span>Questionnaires</span>
+    </a>
 
     <div class="nav-section-label">Risk</div>
     <a href="/risk" class="nav-item <?= $activeModule === 'risk' ? 'active' : '' ?>">
@@ -62,8 +73,14 @@
     <a href="/risk/matrix" class="nav-item <?= $activeModule === 'risk_matrix' ? 'active' : '' ?>">
       <i class="bi bi-grid-3x3-gap-fill"></i><span>Risk Matrix</span>
     </a>
+    <a href="/risk/roadmap" class="nav-item <?= $activeModule === 'risk_roadmap' ? 'active' : '' ?>">
+      <i class="bi bi-kanban-fill"></i><span>Treatment Roadmap</span>
+    </a>
     <a href="/vendor" class="nav-item <?= $activeModule === 'vendor' ? 'active' : '' ?>">
       <i class="bi bi-building"></i><span>Vendor Risk</span>
+    </a>
+    <a href="/assets" class="nav-item <?= $activeModule === 'assets' ? 'active' : '' ?>">
+      <i class="bi bi-server"></i><span>Asset Inventory</span>
     </a>
 
     <div class="nav-section-label">Analytics</div>
@@ -75,6 +92,9 @@
     </a>
     <a href="/report" class="nav-item <?= $activeModule === 'report' ? 'active' : '' ?>">
       <i class="bi bi-file-earmark-bar-graph-fill"></i><span>Reports</span>
+    </a>
+    <a href="/report/board" class="nav-item <?= $activeModule === 'report_board' ? 'active' : '' ?>">
+      <i class="bi bi-tv-fill"></i><span>Board Dashboard</span>
     </a>
     <a href="/export" class="nav-item <?= $activeModule === 'export' ? 'active' : '' ?>">
       <i class="bi bi-download"></i><span>Export</span>
@@ -104,6 +124,9 @@
     </a>
     <a href="/admin/api-keys" class="nav-item <?= $activeModule === 'admin_api_keys' ? 'active' : '' ?>">
       <i class="bi bi-key-fill"></i><span>API Keys</span>
+    </a>
+    <a href="/admin/webhooks" class="nav-item <?= $activeModule === 'admin_webhooks' ? 'active' : '' ?>">
+      <i class="bi bi-broadcast"></i><span>Webhooks</span>
     </a>
     <a href="/admin/permissions" class="nav-item <?= $activeModule === 'admin_permissions' ? 'active' : '' ?>">
       <i class="bi bi-shield-lock-fill"></i><span>Permissions</span>

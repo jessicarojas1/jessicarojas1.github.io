@@ -120,3 +120,24 @@ document.querySelectorAll('.perm-col-all').forEach(function (btn) {
     boxes.forEach(function (b) { b.checked = anyUnchecked; b.dispatchEvent(new Event('change')); });
   });
 });
+
+// ── Mobile sidebar overlay ──────────────────────────────────────────────────
+(function() {
+  var overlay = document.createElement('div');
+  overlay.className = 'sidebar-overlay';
+  overlay.onclick = function() { closeMobileSidebar(); };
+  document.body.appendChild(overlay);
+
+  window.toggleSidebar = function() {
+    var s = document.getElementById('sidebar');
+    if (!s) return;
+    if (s.classList.contains('open')) { closeMobileSidebar(); }
+    else { s.classList.add('open'); overlay.classList.add('open'); }
+  };
+
+  function closeMobileSidebar() {
+    var s = document.getElementById('sidebar');
+    if (s) s.classList.remove('open');
+    overlay.classList.remove('open');
+  }
+})();

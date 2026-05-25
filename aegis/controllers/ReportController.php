@@ -126,6 +126,85 @@ class ReportController {
         require AEGIS_ROOT . '/views/report/executive.php';
     }
 
+    public function board(): void {
+        Auth::requireAuth();
+
+        $totalCtrl     = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM control_implementations")['c'] ?? 0);
+        $compliantCtrl = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM control_implementations WHERE status = 'compliant'")['c'] ?? 0);
+        $compliancePct = $totalCtrl > 0 ? round($compliantCtrl / $totalCtrl * 100) : 0;
+
+        $totalRisks = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM risks WHERE status NOT IN ('closed','accepted')")['c'] ?? 0);
+        $critRisks  = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM risks WHERE inherent_score >= 20 AND status NOT IN ('closed','accepted')")['c'] ?? 0);
+        $highRisks  = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM risks WHERE inherent_score BETWEEN 15 AND 19 AND status NOT IN ('closed','accepted')")['c'] ?? 0);
+        $riskHealth = $totalRisks > 0 ? max(0, round(100 - (($critRisks * 20 + $highRisks * 10) / max($totalRisks, 1) * 100))) : 100;
+
+        $totalPolicies = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM policies")['c'] ?? 0);
+        $publishedPols = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM policies WHERE status = 'published'")['c'] ?? 0);
+        $policyHealth  = $totalPolicies > 0 ? round($publishedPols / $totalPolicies * 100) : 0;
+
+        $totalAudits    = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM audits WHERE scheduled_date >= NOW() - INTERVAL '90 days'")['c'] ?? 0);
+        $completedAudits = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM audits WHERE status = 'completed' AND scheduled_date >= NOW() - INTERVAL '90 days'")['c'] ?? 0);
+        $auditHealth    = $totalAudits > 0 ? round($completedAudits / $totalAudits * 100) : 100;
+
+        $grcScore = (int)round($compliancePct * 0.4 + $riskHealth * 0.3 + $policyHealth * 0.2 + $auditHealth * 0.1);
+
+        $riskCounts = Database::fetchOne(
+            "SELECT
+               COUNT(*) FILTER (WHERE inherent_score >= 20) AS critical,
+               COUNT(*) FILTER (WHERE inherent_score BETWEEN 15 AND 19) AS high,
+               COUNT(*) FILTER (WHERE inherent_score BETWEEN 8 AND 14) AS medium,
+               COUNT(*) FILTER (WHERE inherent_score < 8) AS low
+             FROM risks WHERE status NOT IN ('closed','accepted')"
+        ) ?? ['critical'=>0,'high'=>0,'medium'=>0,'low'=>0];
+
+        $topRisks = Database::fetchAll(
+            "SELECT r.title, r.inherent_score, r.status, u.name AS owner_name
+             FROM risks r LEFT JOIN users u ON u.id = r.owner_id
+             WHERE r.status NOT IN ('closed')
+             ORDER BY r.inherent_score DESC LIMIT 5"
+        );
+
+        $frameworks = Database::fetchAll(
+            "SELECT s.name,
+               COUNT(ci.id) FILTER (WHERE ci.status = 'compliant') AS compliant_count,
+               COUNT(ci.id) AS total_count
+             FROM compliance_packages cp
+             JOIN standards s ON s.id = cp.standard_id
+             LEFT JOIN compliance_objectives co ON co.package_id = cp.id AND co.level = 2
+             LEFT JOIN control_implementations ci ON ci.objective_id = co.id
+             WHERE cp.is_active = TRUE
+             GROUP BY s.name ORDER BY s.name"
+        );
+        foreach ($frameworks as &$fw) {
+            $fw['compliant_pct'] = $fw['total_count'] > 0 ? round($fw['compliant_count'] / $fw['total_count'] * 100) : 0;
+        }
+        unset($fw);
+
+        $trend = Database::fetchAll(
+            "SELECT snapshot_date, grc_score, compliance_pct, risk_health_pct
+             FROM metrics_snapshots
+             WHERE snapshot_date >= CURRENT_DATE - INTERVAL '90 days'
+             ORDER BY snapshot_date ASC"
+        ) ?? [];
+
+        $incidents30d = 0;
+        try {
+            $incidents30d = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM incidents WHERE created_at >= NOW() - INTERVAL '30 days'")['c'] ?? 0);
+        } catch (Exception) {}
+
+        $policiesExpiring = 0;
+        try {
+            $policiesExpiring = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM policies WHERE next_review_date BETWEEN NOW() AND NOW() + INTERVAL '30 days' AND status = 'published'")['c'] ?? 0);
+        } catch (Exception) {}
+
+        $boardData = compact('grcScore', 'compliancePct', 'riskCounts', 'riskHealth', 'topRisks', 'frameworks', 'trend', 'incidents30d', 'policiesExpiring');
+
+        $pageTitle    = 'Executive Board Dashboard';
+        $activeModule = 'report';
+        $breadcrumbs  = [['Reports', '/report'], ['Board Dashboard', null]];
+        require AEGIS_ROOT . '/views/report/board.php';
+    }
+
     public function risk(): void {
         Auth::requireAuth();
 
