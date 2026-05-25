@@ -450,3 +450,105 @@ CREATE TABLE IF NOT EXISTS vendor_contracts (
 );
 CREATE INDEX IF NOT EXISTS idx_vc_vendor ON vendor_contracts(vendor_id);
 CREATE INDEX IF NOT EXISTS idx_vc_end_date ON vendor_contracts(end_date);
+
+-- ─────────────────────────────────────────────
+-- 3.16 Threat Register
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS threats (
+    id              SERIAL PRIMARY KEY,
+    title           VARCHAR(255) NOT NULL,
+    category        VARCHAR(30)  NOT NULL DEFAULT 'technology'
+                    CHECK (category IN ('people','process','technology','natural','regulatory','financial')),
+    description     TEXT,
+    likelihood      INTEGER      CHECK (likelihood BETWEEN 1 AND 5),
+    impact          INTEGER      CHECK (impact BETWEEN 1 AND 5),
+    status          VARCHAR(20)  NOT NULL DEFAULT 'active'
+                    CHECK (status IN ('active','mitigated','accepted','retired')),
+    source          VARCHAR(255),
+    mitigations     TEXT,
+    owner_id        INTEGER REFERENCES users(id),
+    created_by      INTEGER REFERENCES users(id),
+    created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_threats_category ON threats(category);
+CREATE INDEX IF NOT EXISTS idx_threats_status ON threats(status);
+
+CREATE TABLE IF NOT EXISTS threat_risk_links (
+    id         SERIAL PRIMARY KEY,
+    threat_id  INTEGER NOT NULL REFERENCES threats(id) ON DELETE CASCADE,
+    risk_id    INTEGER NOT NULL REFERENCES risks(id) ON DELETE CASCADE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT uq_threat_risk UNIQUE (threat_id, risk_id)
+);
+CREATE INDEX IF NOT EXISTS idx_trl_threat ON threat_risk_links(threat_id);
+CREATE INDEX IF NOT EXISTS idx_trl_risk ON threat_risk_links(risk_id);
+
+-- ─────────────────────────────────────────────
+-- 3.17 Risk Treatment Plans
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS treatment_plans (
+    id           SERIAL PRIMARY KEY,
+    risk_id      INTEGER NOT NULL REFERENCES risks(id) ON DELETE CASCADE,
+    title        VARCHAR(255) NOT NULL,
+    strategy     VARCHAR(20)  NOT NULL DEFAULT 'mitigate'
+                 CHECK (strategy IN ('mitigate','transfer','accept','avoid')),
+    target_score INTEGER,
+    owner_id     INTEGER REFERENCES users(id),
+    start_date   DATE,
+    target_date  DATE,
+    status       VARCHAR(20)  NOT NULL DEFAULT 'draft'
+                 CHECK (status IN ('draft','active','completed','cancelled')),
+    description  TEXT,
+    created_by   INTEGER REFERENCES users(id),
+    created_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_tp_risk   ON treatment_plans(risk_id);
+CREATE INDEX IF NOT EXISTS idx_tp_status ON treatment_plans(status);
+
+CREATE TABLE IF NOT EXISTS treatment_milestones (
+    id           SERIAL PRIMARY KEY,
+    plan_id      INTEGER NOT NULL REFERENCES treatment_plans(id) ON DELETE CASCADE,
+    title        VARCHAR(255) NOT NULL,
+    description  TEXT,
+    due_date     DATE,
+    completed_at TIMESTAMP,
+    completed_by INTEGER REFERENCES users(id),
+    sort_order   INTEGER NOT NULL DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS idx_tm_plan ON treatment_milestones(plan_id);
+
+-- ─────────────────────────────────────────────
+-- 3.18 Key Risk Indicators
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS kris (
+    id              SERIAL PRIMARY KEY,
+    title           VARCHAR(255) NOT NULL,
+    description     TEXT,
+    unit            VARCHAR(50)  NOT NULL DEFAULT 'count',
+    direction       VARCHAR(10)  NOT NULL DEFAULT 'higher_worse'
+                    CHECK (direction IN ('higher_worse','lower_worse')),
+    threshold_green NUMERIC(15,4) NOT NULL,
+    threshold_amber NUMERIC(15,4) NOT NULL,
+    threshold_red   NUMERIC(15,4) NOT NULL,
+    frequency       VARCHAR(20)  NOT NULL DEFAULT 'monthly'
+                    CHECK (frequency IN ('daily','weekly','monthly','quarterly')),
+    owner_id        INTEGER REFERENCES users(id),
+    linked_risk_id  INTEGER REFERENCES risks(id) ON DELETE SET NULL,
+    is_active       BOOLEAN NOT NULL DEFAULT TRUE,
+    created_by      INTEGER REFERENCES users(id),
+    created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS kri_values (
+    id          SERIAL PRIMARY KEY,
+    kri_id      INTEGER NOT NULL REFERENCES kris(id) ON DELETE CASCADE,
+    value       NUMERIC(15,4) NOT NULL,
+    recorded_at DATE NOT NULL DEFAULT CURRENT_DATE,
+    notes       TEXT,
+    recorded_by INTEGER REFERENCES users(id),
+    created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_kv_kri ON kri_values(kri_id);
+CREATE INDEX IF NOT EXISTS idx_kv_recorded ON kri_values(recorded_at);
