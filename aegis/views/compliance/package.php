@@ -12,6 +12,7 @@ ob_start();
     <p class="page-subtitle"><?= Security::h($package['standard_name']) ?> · <?= Security::h($package['authority'] ?? '') ?></p>
   </div>
   <div class="page-actions">
+    <a href="/compliance/gap-analysis" class="btn btn-ghost"><i class="bi bi-diagram-3"></i> View Gap Analysis</a>
     <a href="/compliance/<?= (int)$package['id'] ?>/scorecard" class="btn btn-ghost"><i class="bi bi-printer"></i> Scorecard</a>
     <a href="/audit/create" class="btn btn-primary"><i class="bi bi-clipboard2-plus"></i> Start Audit</a>
   </div>
