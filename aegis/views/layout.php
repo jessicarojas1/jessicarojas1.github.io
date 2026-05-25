@@ -143,6 +143,9 @@
     <a href="/admin/settings/sso" class="nav-item <?= $activeModule === 'admin_sso' ? 'active' : '' ?>">
       <i class="bi bi-person-badge-fill"></i><span>SSO / OIDC</span>
     </a>
+    <a href="/admin/storage" class="nav-item <?= $activeModule === 'admin_storage' ? 'active' : '' ?>">
+      <i class="bi bi-hdd-fill"></i><span>Storage</span>
+    </a>
     <?php endif; ?>
     <div class="nav-section-label">Account</div>
     <a href="/approvals" class="nav-item <?= $activeModule === 'approvals' ? 'active' : '' ?>">
@@ -158,6 +161,9 @@
       ?>
         <span class="nav-badge"><?= (int)$pendingApprovals['c'] ?></span>
       <?php endif; ?>
+    </a>
+    <a href="/profile/notifications" class="nav-item <?= $activeModule === 'profile_notifications' ? 'active' : '' ?>">
+      <i class="bi bi-bell-fill"></i><span>Notifications</span>
     </a>
     <a href="/mfa/setup" class="nav-item <?= $activeModule === 'profile' ? 'active' : '' ?>">
       <i class="bi bi-shield-lock-fill"></i><span>Two-Factor Auth</span>

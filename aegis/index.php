@@ -94,6 +94,12 @@ if ($uri === '/health' && $method === 'GET') {
     exit;
 }
 
+// API docs (Swagger UI — no auth required)
+if ($uri === '/api/docs' && $method === 'GET') {
+    require_once AEGIS_ROOT . '/api/docs.php';
+    exit;
+}
+
 // API handler
 if (str_starts_with($uri, '/api/')) {
     require_once AEGIS_ROOT . '/api/index.php';
@@ -104,6 +110,7 @@ if (str_starts_with($uri, '/api/')) {
 $routes = [
     'GET'  => [
         '/'                           => ['DashboardController', 'index'],
+        '/profile/notifications'      => ['ProfileController', 'notifications'],
         '/login'                      => ['AuthController', 'loginForm'],
         '/compliance'                 => ['ComplianceController', 'index'],
         '/compliance/import'          => ['ComplianceController', 'importForm'],
@@ -164,6 +171,7 @@ $routes = [
         '/assets/create'              => ['AssetController', 'createForm'],
     ],
     'POST' => [
+        '/profile/notifications'         => ['ProfileController', 'notifications'],
         '/login'                         => ['AuthController', 'login'],
         '/logout'                        => ['AuthController', 'logout'],
         '/mfa/verify'                    => ['AuthController', 'mfaVerify'],
@@ -196,6 +204,8 @@ $routes = [
         '/change/create'                 => ['ChangeController', 'create'],
         '/bcp/create'                    => ['BCPController', 'create'],
         '/assets/create'                 => ['AssetController', 'create'],
+        '/admin/storage/save'            => ['AdminController', 'saveStorage'],
+        '/admin/storage/test'            => ['AdminController', 'testStorage'],
     ],
 ];
 

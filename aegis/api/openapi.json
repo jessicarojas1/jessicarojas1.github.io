@@ -1,0 +1,1466 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "AEGIS GRC Platform API",
+    "version": "1.0.0",
+    "description": "Enterprise Governance, Risk & Compliance REST API. All endpoints except POST /auth/token require authentication via X-API-Key header or Bearer JWT token.",
+    "contact": {
+      "name": "AEGIS GRC Support",
+      "url": "https://your-aegis-instance"
+    },
+    "license": {
+      "name": "Proprietary"
+    }
+  },
+  "servers": [
+    {
+      "url": "/api/v1",
+      "description": "AEGIS GRC API v1"
+    }
+  ],
+  "security": [
+    { "ApiKey": [] },
+    { "BearerJWT": [] }
+  ],
+  "tags": [
+    { "name": "Auth", "description": "Authentication and token management" },
+    { "name": "Compliance", "description": "Compliance packages, standards, objectives and controls" },
+    { "name": "Risk", "description": "Risk register and risk management" },
+    { "name": "Scanning", "description": "Vulnerability scanner ingestion endpoints" },
+    { "name": "Admin", "description": "Administrative operations (admin role required)" },
+    { "name": "Dashboard", "description": "Dashboard and summary statistics" },
+    { "name": "Policies", "description": "Policy management" },
+    { "name": "Audits", "description": "Audit management" }
+  ],
+  "paths": {
+    "/auth/token": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Get JWT token",
+        "description": "Exchange valid credentials for a signed JWT bearer token. This endpoint does not require authentication.",
+        "operationId": "postAuthToken",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthTokenRequest"
+              },
+              "example": {
+                "username": "admin@example.com",
+                "password": "s3cr3tP@ssword"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "JWT token issued successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthTokenResponse"
+                },
+                "example": {
+                  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+                  "expires_at": "2026-05-26T00:00:00Z",
+                  "token_type": "Bearer"
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" }
+        }
+      }
+    },
+    "/compliance/packages": {
+      "get": {
+        "tags": ["Compliance"],
+        "summary": "List compliance packages",
+        "description": "Returns all compliance packages available in the system, such as SOC 2, ISO 27001, PCI-DSS, HIPAA, etc.",
+        "operationId": "listCompliancePackages",
+        "parameters": [
+          { "$ref": "#/components/parameters/PageParam" },
+          { "$ref": "#/components/parameters/LimitParam" },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter by package status",
+            "schema": {
+              "type": "string",
+              "enum": ["active", "inactive", "archived"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of compliance packages",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/CompliancePackage" }
+                    },
+                    "meta": { "$ref": "#/components/schemas/PaginationMeta" }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": 1,
+                      "name": "SOC 2 Type II",
+                      "slug": "soc2",
+                      "version": "2017",
+                      "status": "active",
+                      "objectives_count": 64,
+                      "completion_pct": 72.5
+                    },
+                    {
+                      "id": 2,
+                      "name": "ISO 27001:2022",
+                      "slug": "iso27001",
+                      "version": "2022",
+                      "status": "active",
+                      "objectives_count": 93,
+                      "completion_pct": 48.0
+                    }
+                  ],
+                  "meta": { "page": 1, "limit": 25, "total": 2 }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" }
+        }
+      }
+    },
+    "/compliance/packages/{id}": {
+      "get": {
+        "tags": ["Compliance"],
+        "summary": "Get package details",
+        "description": "Returns full details for a single compliance package, including progress summary and metadata.",
+        "operationId": "getCompliancePackage",
+        "parameters": [
+          { "$ref": "#/components/parameters/IdPath" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Compliance package detail",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CompliancePackage" },
+                "example": {
+                  "id": 1,
+                  "name": "SOC 2 Type II",
+                  "slug": "soc2",
+                  "version": "2017",
+                  "status": "active",
+                  "objectives_count": 64,
+                  "completion_pct": 72.5,
+                  "created_at": "2025-01-15T08:00:00Z",
+                  "updated_at": "2026-04-10T14:22:00Z"
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" }
+        }
+      }
+    },
+    "/compliance/packages/{id}/objectives": {
+      "get": {
+        "tags": ["Compliance"],
+        "summary": "List objectives for package",
+        "description": "Returns all control objectives belonging to a compliance package, optionally filtered by control status.",
+        "operationId": "listPackageObjectives",
+        "parameters": [
+          { "$ref": "#/components/parameters/IdPath" },
+          { "$ref": "#/components/parameters/PageParam" },
+          { "$ref": "#/components/parameters/LimitParam" },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter by control status",
+            "schema": {
+              "type": "string",
+              "enum": ["not_started", "in_progress", "compliant", "non_compliant", "na"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of objectives for the compliance package",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Objective" }
+                    },
+                    "meta": { "$ref": "#/components/schemas/PaginationMeta" }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": 101,
+                      "package_id": 1,
+                      "ref_code": "CC6.1",
+                      "title": "Logical and Physical Access Controls",
+                      "description": "The entity implements logical access security measures to protect against threats from sources outside its system boundaries.",
+                      "status": "compliant",
+                      "owner": "security-team@example.com",
+                      "evidence_count": 3,
+                      "last_reviewed_at": "2026-03-01T09:00:00Z"
+                    }
+                  ],
+                  "meta": { "page": 1, "limit": 25, "total": 64 }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" }
+        }
+      }
+    },
+    "/standards": {
+      "get": {
+        "tags": ["Compliance"],
+        "summary": "List standards",
+        "description": "Returns all regulatory and industry standards tracked in the platform.",
+        "operationId": "listStandards",
+        "parameters": [
+          { "$ref": "#/components/parameters/PageParam" },
+          { "$ref": "#/components/parameters/LimitParam" }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of standards",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Standard" }
+                    },
+                    "meta": { "$ref": "#/components/schemas/PaginationMeta" }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": 1,
+                      "name": "NIST CSF 2.0",
+                      "short_name": "NIST-CSF",
+                      "version": "2.0",
+                      "type": "framework",
+                      "mapped_packages": ["soc2", "iso27001"]
+                    }
+                  ],
+                  "meta": { "page": 1, "limit": 25, "total": 8 }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" }
+        }
+      }
+    },
+    "/risks": {
+      "get": {
+        "tags": ["Risk"],
+        "summary": "List risks",
+        "description": "Returns the risk register, paginated and optionally filtered by severity, status, or owner.",
+        "operationId": "listRisks",
+        "parameters": [
+          { "$ref": "#/components/parameters/PageParam" },
+          { "$ref": "#/components/parameters/LimitParam" },
+          {
+            "name": "severity",
+            "in": "query",
+            "description": "Filter by risk severity level",
+            "schema": {
+              "type": "string",
+              "enum": ["critical", "high", "medium", "low", "informational"]
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter by risk treatment status",
+            "schema": {
+              "type": "string",
+              "enum": ["open", "in_treatment", "accepted", "mitigated", "closed"]
+            }
+          },
+          {
+            "name": "owner",
+            "in": "query",
+            "description": "Filter by owner user ID or email",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of risks",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Risk" }
+                    },
+                    "meta": { "$ref": "#/components/schemas/PaginationMeta" }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": 42,
+                      "title": "Unpatched critical CVE in production web server",
+                      "description": "Apache HTTP Server vulnerable to CVE-2024-38477. Exploitable remotely.",
+                      "severity": "critical",
+                      "likelihood": 4,
+                      "impact": 5,
+                      "risk_score": 20,
+                      "status": "in_treatment",
+                      "owner": "ops-team@example.com",
+                      "due_date": "2026-06-01",
+                      "created_at": "2026-05-10T10:00:00Z"
+                    }
+                  ],
+                  "meta": { "page": 1, "limit": 25, "total": 1 }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" }
+        }
+      },
+      "post": {
+        "tags": ["Risk"],
+        "summary": "Create risk",
+        "description": "Adds a new risk entry to the risk register.",
+        "operationId": "createRisk",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RiskCreateRequest" },
+              "example": {
+                "title": "Third-party vendor data breach exposure",
+                "description": "Critical SaaS vendor stores PII without adequate encryption at rest.",
+                "severity": "high",
+                "likelihood": 3,
+                "impact": 4,
+                "owner": "ciso@example.com",
+                "due_date": "2026-07-31",
+                "treatment": "mitigate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Risk created successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Risk" },
+                "example": {
+                  "id": 43,
+                  "title": "Third-party vendor data breach exposure",
+                  "description": "Critical SaaS vendor stores PII without adequate encryption at rest.",
+                  "severity": "high",
+                  "likelihood": 3,
+                  "impact": 4,
+                  "risk_score": 12,
+                  "status": "open",
+                  "owner": "ciso@example.com",
+                  "due_date": "2026-07-31",
+                  "treatment": "mitigate",
+                  "created_at": "2026-05-25T12:00:00Z"
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" }
+        }
+      }
+    },
+    "/risks/{id}": {
+      "get": {
+        "tags": ["Risk"],
+        "summary": "Get risk",
+        "description": "Returns full detail for a single risk entry including treatment history and linked controls.",
+        "operationId": "getRisk",
+        "parameters": [
+          { "$ref": "#/components/parameters/IdPath" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Risk detail",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Risk" },
+                "example": {
+                  "id": 42,
+                  "title": "Unpatched critical CVE in production web server",
+                  "description": "Apache HTTP Server vulnerable to CVE-2024-38477. Exploitable remotely.",
+                  "severity": "critical",
+                  "likelihood": 4,
+                  "impact": 5,
+                  "risk_score": 20,
+                  "status": "in_treatment",
+                  "owner": "ops-team@example.com",
+                  "due_date": "2026-06-01",
+                  "treatment": "mitigate",
+                  "linked_controls": ["CC6.1", "CC7.2"],
+                  "created_at": "2026-05-10T10:00:00Z",
+                  "updated_at": "2026-05-20T08:30:00Z"
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" }
+        }
+      }
+    },
+    "/policies": {
+      "get": {
+        "tags": ["Policies"],
+        "summary": "List policies",
+        "description": "Returns all information security and compliance policies stored in the platform.",
+        "operationId": "listPolicies",
+        "parameters": [
+          { "$ref": "#/components/parameters/PageParam" },
+          { "$ref": "#/components/parameters/LimitParam" },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter by policy lifecycle status",
+            "schema": {
+              "type": "string",
+              "enum": ["draft", "in_review", "approved", "retired"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of policies",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Policy" }
+                    },
+                    "meta": { "$ref": "#/components/schemas/PaginationMeta" }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": 5,
+                      "title": "Acceptable Use Policy",
+                      "version": "3.1",
+                      "status": "approved",
+                      "owner": "hr@example.com",
+                      "approved_by": "ciso@example.com",
+                      "effective_date": "2026-01-01",
+                      "review_date": "2027-01-01"
+                    }
+                  ],
+                  "meta": { "page": 1, "limit": 25, "total": 12 }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" }
+        }
+      }
+    },
+    "/audits": {
+      "get": {
+        "tags": ["Audits"],
+        "summary": "List audits",
+        "description": "Returns all audits including internal assessments and external certifications.",
+        "operationId": "listAudits",
+        "parameters": [
+          { "$ref": "#/components/parameters/PageParam" },
+          { "$ref": "#/components/parameters/LimitParam" },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter by audit status",
+            "schema": {
+              "type": "string",
+              "enum": ["planned", "in_progress", "completed", "cancelled"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of audits",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Audit" }
+                    },
+                    "meta": { "$ref": "#/components/schemas/PaginationMeta" }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": 7,
+                      "name": "SOC 2 Type II Annual Audit",
+                      "package": "soc2",
+                      "auditor": "Deloitte",
+                      "status": "in_progress",
+                      "period_start": "2025-11-01",
+                      "period_end": "2026-10-31",
+                      "findings_count": 3
+                    }
+                  ],
+                  "meta": { "page": 1, "limit": 25, "total": 4 }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" }
+        }
+      }
+    },
+    "/compliance/objectives/{id}/status": {
+      "put": {
+        "tags": ["Compliance"],
+        "summary": "Update control status",
+        "description": "Updates the compliance status of a specific control objective. Optionally attach a note or link evidence.",
+        "operationId": "updateObjectiveStatus",
+        "parameters": [
+          { "$ref": "#/components/parameters/IdPath" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ObjectiveStatusUpdateRequest" },
+              "example": {
+                "status": "compliant",
+                "note": "MFA enforced org-wide via Okta. Evidence uploaded.",
+                "evidence_ids": [201, 202]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Objective status updated",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Objective" },
+                "example": {
+                  "id": 101,
+                  "package_id": 1,
+                  "ref_code": "CC6.1",
+                  "title": "Logical and Physical Access Controls",
+                  "status": "compliant",
+                  "note": "MFA enforced org-wide via Okta. Evidence uploaded.",
+                  "evidence_ids": [201, 202],
+                  "last_reviewed_at": "2026-05-25T12:00:00Z"
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" }
+        }
+      }
+    },
+    "/dashboard/stats": {
+      "get": {
+        "tags": ["Dashboard"],
+        "summary": "Dashboard summary stats",
+        "description": "Returns aggregate statistics for the authenticated user's tenant: risk counts by severity, compliance progress, open findings, upcoming audit dates, etc.",
+        "operationId": "getDashboardStats",
+        "responses": {
+          "200": {
+            "description": "Dashboard summary statistics",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/DashboardStats" },
+                "example": {
+                  "risks": {
+                    "total": 87,
+                    "critical": 4,
+                    "high": 18,
+                    "medium": 41,
+                    "low": 24
+                  },
+                  "compliance": {
+                    "packages_active": 3,
+                    "overall_completion_pct": 64.3,
+                    "controls_compliant": 118,
+                    "controls_non_compliant": 21,
+                    "controls_in_progress": 46
+                  },
+                  "findings": {
+                    "open": 34,
+                    "in_remediation": 12,
+                    "closed_this_month": 8
+                  },
+                  "audits": {
+                    "active": 1,
+                    "next_due": "2026-10-31"
+                  },
+                  "policies": {
+                    "approved": 10,
+                    "pending_review": 2
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "List users (admin only)",
+        "description": "Returns all users in the tenant. Requires the `admin` role. Non-admin callers receive 403.",
+        "operationId": "listUsers",
+        "parameters": [
+          { "$ref": "#/components/parameters/PageParam" },
+          { "$ref": "#/components/parameters/LimitParam" },
+          {
+            "name": "role",
+            "in": "query",
+            "description": "Filter by user role",
+            "schema": {
+              "type": "string",
+              "enum": ["admin", "auditor", "editor", "viewer"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/User" }
+                    },
+                    "meta": { "$ref": "#/components/schemas/PaginationMeta" }
+                  }
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": 1,
+                      "name": "Jessica Rojas",
+                      "email": "jessica@example.com",
+                      "role": "admin",
+                      "active": true,
+                      "last_login_at": "2026-05-24T09:15:00Z"
+                    }
+                  ],
+                  "meta": { "page": 1, "limit": 25, "total": 14 }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" }
+        }
+      }
+    },
+    "/ingest/tenable": {
+      "post": {
+        "tags": ["Scanning"],
+        "summary": "Ingest Tenable findings",
+        "description": "Accepts a Tenable.io or Tenable.sc vulnerability export payload and creates or updates findings in the AEGIS risk register.",
+        "operationId": "ingestTenable",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/IngestTenableRequest" },
+              "example": {
+                "scan_id": "12345",
+                "scan_name": "Weekly Production Scan",
+                "scanned_at": "2026-05-24T04:00:00Z",
+                "vulnerabilities": [
+                  {
+                    "plugin_id": 151103,
+                    "plugin_name": "Apache HTTP Server Vulnerability",
+                    "severity": "critical",
+                    "cvss_score": 9.8,
+                    "cve": ["CVE-2024-38477"],
+                    "asset_ip": "10.0.1.50",
+                    "asset_hostname": "web-prod-01",
+                    "port": 443,
+                    "protocol": "tcp",
+                    "solution": "Upgrade to Apache 2.4.60 or later."
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ingestion result summary",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IngestResult" },
+                "example": {
+                  "ingested": 1,
+                  "created": 1,
+                  "updated": 0,
+                  "skipped": 0,
+                  "errors": []
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" }
+        }
+      }
+    },
+    "/ingest/qualys": {
+      "post": {
+        "tags": ["Scanning"],
+        "summary": "Ingest Qualys findings",
+        "description": "Accepts a Qualys VMDR or WAS findings export and creates or updates findings in the AEGIS risk register.",
+        "operationId": "ingestQualys",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/IngestQualysRequest" },
+              "example": {
+                "report_id": "Q-2026-05",
+                "scanned_at": "2026-05-23T22:00:00Z",
+                "findings": [
+                  {
+                    "qid": 38173,
+                    "title": "SSL Certificate Expiring Soon",
+                    "severity": 3,
+                    "cvss_base": 5.3,
+                    "cve_id": null,
+                    "ip": "203.0.113.10",
+                    "hostname": "api.example.com",
+                    "port": 443,
+                    "protocol": "tcp",
+                    "diagnosis": "SSL certificate expires within 30 days.",
+                    "solution": "Renew the SSL certificate."
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ingestion result summary",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IngestResult" },
+                "example": {
+                  "ingested": 1,
+                  "created": 0,
+                  "updated": 1,
+                  "skipped": 0,
+                  "errors": []
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" }
+        }
+      }
+    },
+    "/ingest/wiz": {
+      "post": {
+        "tags": ["Scanning"],
+        "summary": "Ingest Wiz findings",
+        "description": "Accepts a Wiz Issues or Vulnerabilities export payload and creates or updates findings in the AEGIS risk register.",
+        "operationId": "ingestWiz",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/IngestWizRequest" },
+              "example": {
+                "export_id": "wiz-export-abc123",
+                "exported_at": "2026-05-25T06:00:00Z",
+                "issues": [
+                  {
+                    "id": "iss-001",
+                    "title": "Publicly exposed S3 bucket",
+                    "severity": "CRITICAL",
+                    "status": "OPEN",
+                    "resource_type": "S3Bucket",
+                    "resource_name": "company-data-prod",
+                    "cloud_account": "123456789012",
+                    "cloud_provider": "AWS",
+                    "region": "us-east-1",
+                    "created_at": "2026-05-20T08:00:00Z",
+                    "remediation": "Enable bucket Block Public Access settings."
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ingestion result summary",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IngestResult" },
+                "example": {
+                  "ingested": 1,
+                  "created": 1,
+                  "updated": 0,
+                  "skipped": 0,
+                  "errors": []
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" }
+        }
+      }
+    },
+    "/ingest/generic": {
+      "post": {
+        "tags": ["Scanning"],
+        "summary": "Ingest generic findings",
+        "description": "Accepts a normalized generic findings payload from any vulnerability scanner or security tool. Useful for custom integrations.",
+        "operationId": "ingestGeneric",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/IngestGenericRequest" },
+              "example": {
+                "source": "custom-script-v2",
+                "scanned_at": "2026-05-25T05:00:00Z",
+                "findings": [
+                  {
+                    "external_id": "EXT-001",
+                    "title": "Weak SSH cipher suites enabled",
+                    "description": "Server accepts deprecated CBC cipher suites over SSH.",
+                    "severity": "medium",
+                    "cvss_score": 5.9,
+                    "cve": null,
+                    "asset": "bastion.internal",
+                    "asset_type": "server",
+                    "port": 22,
+                    "protocol": "tcp",
+                    "remediation": "Disable CBC cipher suites in sshd_config."
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ingestion result summary",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IngestResult" },
+                "example": {
+                  "ingested": 1,
+                  "created": 1,
+                  "updated": 0,
+                  "skipped": 0,
+                  "errors": []
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": { "$ref": "#/components/responses/Forbidden" },
+          "429": { "$ref": "#/components/responses/TooManyRequests" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key"
+      },
+      "BearerJWT": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "parameters": {
+      "IdPath": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "Numeric resource identifier",
+        "schema": {
+          "type": "integer",
+          "format": "int64",
+          "minimum": 1
+        }
+      },
+      "PageParam": {
+        "name": "page",
+        "in": "query",
+        "description": "Page number for pagination (1-based)",
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1
+        }
+      },
+      "LimitParam": {
+        "name": "limit",
+        "in": "query",
+        "description": "Number of results per page",
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200,
+          "default": 25
+        }
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "Missing or invalid authentication credentials",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "example": {
+              "error": "Unauthorized",
+              "message": "Invalid or expired credentials.",
+              "status": 401
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "Caller lacks the required role or permission",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "example": {
+              "error": "Forbidden",
+              "message": "You do not have permission to perform this action.",
+              "status": 403
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Requested resource not found",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "example": {
+              "error": "Not Found",
+              "message": "The requested resource does not exist.",
+              "status": 404
+            }
+          }
+        }
+      },
+      "TooManyRequests": {
+        "description": "Rate limit exceeded",
+        "headers": {
+          "Retry-After": {
+            "description": "Seconds to wait before retrying",
+            "schema": { "type": "integer" }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "example": {
+              "error": "Too Many Requests",
+              "message": "Rate limit exceeded. Please slow down.",
+              "status": 429
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "AuthTokenRequest": {
+        "type": "object",
+        "required": ["username", "password"],
+        "properties": {
+          "username": {
+            "type": "string",
+            "format": "email",
+            "description": "User email address"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "description": "User password"
+          }
+        }
+      },
+      "AuthTokenResponse": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "Signed JWT bearer token"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Token expiration timestamp (ISO 8601)"
+          },
+          "token_type": {
+            "type": "string",
+            "enum": ["Bearer"],
+            "description": "Token type, always Bearer"
+          }
+        }
+      },
+      "CompliancePackage": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int64" },
+          "name": { "type": "string", "description": "Full package name" },
+          "slug": { "type": "string", "description": "URL-friendly identifier" },
+          "version": { "type": "string", "description": "Standard version" },
+          "status": {
+            "type": "string",
+            "enum": ["active", "inactive", "archived"]
+          },
+          "objectives_count": { "type": "integer" },
+          "completion_pct": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Objective": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int64" },
+          "package_id": { "type": "integer", "format": "int64" },
+          "ref_code": { "type": "string", "description": "Control reference code, e.g. CC6.1" },
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "status": {
+            "type": "string",
+            "enum": ["not_started", "in_progress", "compliant", "non_compliant", "na"]
+          },
+          "owner": { "type": "string", "description": "Owner email or team identifier" },
+          "note": { "type": "string", "description": "Reviewer note" },
+          "evidence_ids": {
+            "type": "array",
+            "items": { "type": "integer" }
+          },
+          "evidence_count": { "type": "integer" },
+          "last_reviewed_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "ObjectiveStatusUpdateRequest": {
+        "type": "object",
+        "required": ["status"],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["not_started", "in_progress", "compliant", "non_compliant", "na"]
+          },
+          "note": { "type": "string", "maxLength": 2000 },
+          "evidence_ids": {
+            "type": "array",
+            "items": { "type": "integer" },
+            "description": "IDs of pre-uploaded evidence records to attach"
+          }
+        }
+      },
+      "Standard": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int64" },
+          "name": { "type": "string" },
+          "short_name": { "type": "string" },
+          "version": { "type": "string" },
+          "type": {
+            "type": "string",
+            "enum": ["framework", "regulation", "guideline"]
+          },
+          "mapped_packages": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Package slugs that map to this standard"
+          }
+        }
+      },
+      "Risk": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int64" },
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "severity": {
+            "type": "string",
+            "enum": ["critical", "high", "medium", "low", "informational"]
+          },
+          "likelihood": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5,
+            "description": "Likelihood rating 1 (unlikely) to 5 (almost certain)"
+          },
+          "impact": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5,
+            "description": "Impact rating 1 (negligible) to 5 (catastrophic)"
+          },
+          "risk_score": {
+            "type": "integer",
+            "description": "Calculated as likelihood * impact"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["open", "in_treatment", "accepted", "mitigated", "closed"]
+          },
+          "treatment": {
+            "type": "string",
+            "enum": ["mitigate", "accept", "transfer", "avoid"]
+          },
+          "owner": { "type": "string" },
+          "due_date": { "type": "string", "format": "date" },
+          "linked_controls": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "RiskCreateRequest": {
+        "type": "object",
+        "required": ["title", "severity", "likelihood", "impact"],
+        "properties": {
+          "title": { "type": "string", "maxLength": 255 },
+          "description": { "type": "string", "maxLength": 5000 },
+          "severity": {
+            "type": "string",
+            "enum": ["critical", "high", "medium", "low", "informational"]
+          },
+          "likelihood": { "type": "integer", "minimum": 1, "maximum": 5 },
+          "impact": { "type": "integer", "minimum": 1, "maximum": 5 },
+          "owner": { "type": "string" },
+          "due_date": { "type": "string", "format": "date" },
+          "treatment": {
+            "type": "string",
+            "enum": ["mitigate", "accept", "transfer", "avoid"]
+          }
+        }
+      },
+      "Policy": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int64" },
+          "title": { "type": "string" },
+          "version": { "type": "string" },
+          "status": {
+            "type": "string",
+            "enum": ["draft", "in_review", "approved", "retired"]
+          },
+          "owner": { "type": "string" },
+          "approved_by": { "type": "string" },
+          "effective_date": { "type": "string", "format": "date" },
+          "review_date": { "type": "string", "format": "date" }
+        }
+      },
+      "Audit": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int64" },
+          "name": { "type": "string" },
+          "package": { "type": "string", "description": "Compliance package slug" },
+          "auditor": { "type": "string" },
+          "status": {
+            "type": "string",
+            "enum": ["planned", "in_progress", "completed", "cancelled"]
+          },
+          "period_start": { "type": "string", "format": "date" },
+          "period_end": { "type": "string", "format": "date" },
+          "findings_count": { "type": "integer" }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int64" },
+          "name": { "type": "string" },
+          "email": { "type": "string", "format": "email" },
+          "role": {
+            "type": "string",
+            "enum": ["admin", "auditor", "editor", "viewer"]
+          },
+          "active": { "type": "boolean" },
+          "last_login_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "DashboardStats": {
+        "type": "object",
+        "properties": {
+          "risks": {
+            "type": "object",
+            "properties": {
+              "total": { "type": "integer" },
+              "critical": { "type": "integer" },
+              "high": { "type": "integer" },
+              "medium": { "type": "integer" },
+              "low": { "type": "integer" }
+            }
+          },
+          "compliance": {
+            "type": "object",
+            "properties": {
+              "packages_active": { "type": "integer" },
+              "overall_completion_pct": { "type": "number", "format": "float" },
+              "controls_compliant": { "type": "integer" },
+              "controls_non_compliant": { "type": "integer" },
+              "controls_in_progress": { "type": "integer" }
+            }
+          },
+          "findings": {
+            "type": "object",
+            "properties": {
+              "open": { "type": "integer" },
+              "in_remediation": { "type": "integer" },
+              "closed_this_month": { "type": "integer" }
+            }
+          },
+          "audits": {
+            "type": "object",
+            "properties": {
+              "active": { "type": "integer" },
+              "next_due": { "type": "string", "format": "date" }
+            }
+          },
+          "policies": {
+            "type": "object",
+            "properties": {
+              "approved": { "type": "integer" },
+              "pending_review": { "type": "integer" }
+            }
+          }
+        }
+      },
+      "IngestResult": {
+        "type": "object",
+        "properties": {
+          "ingested": { "type": "integer", "description": "Total findings processed" },
+          "created": { "type": "integer", "description": "New findings created" },
+          "updated": { "type": "integer", "description": "Existing findings updated" },
+          "skipped": { "type": "integer", "description": "Findings skipped (duplicates or filtered)" },
+          "errors": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Per-finding error messages, if any"
+          }
+        }
+      },
+      "IngestTenableRequest": {
+        "type": "object",
+        "required": ["scan_id", "scanned_at", "vulnerabilities"],
+        "properties": {
+          "scan_id": { "type": "string" },
+          "scan_name": { "type": "string" },
+          "scanned_at": { "type": "string", "format": "date-time" },
+          "vulnerabilities": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "plugin_id": { "type": "integer" },
+                "plugin_name": { "type": "string" },
+                "severity": { "type": "string", "enum": ["critical", "high", "medium", "low", "informational"] },
+                "cvss_score": { "type": "number" },
+                "cve": { "type": "array", "items": { "type": "string" } },
+                "asset_ip": { "type": "string" },
+                "asset_hostname": { "type": "string" },
+                "port": { "type": "integer" },
+                "protocol": { "type": "string" },
+                "solution": { "type": "string" }
+              }
+            }
+          }
+        }
+      },
+      "IngestQualysRequest": {
+        "type": "object",
+        "required": ["scanned_at", "findings"],
+        "properties": {
+          "report_id": { "type": "string" },
+          "scanned_at": { "type": "string", "format": "date-time" },
+          "findings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "qid": { "type": "integer", "description": "Qualys QID" },
+                "title": { "type": "string" },
+                "severity": { "type": "integer", "minimum": 1, "maximum": 5, "description": "Qualys severity 1-5" },
+                "cvss_base": { "type": "number" },
+                "cve_id": { "type": "string", "nullable": true },
+                "ip": { "type": "string" },
+                "hostname": { "type": "string" },
+                "port": { "type": "integer" },
+                "protocol": { "type": "string" },
+                "diagnosis": { "type": "string" },
+                "solution": { "type": "string" }
+              }
+            }
+          }
+        }
+      },
+      "IngestWizRequest": {
+        "type": "object",
+        "required": ["exported_at", "issues"],
+        "properties": {
+          "export_id": { "type": "string" },
+          "exported_at": { "type": "string", "format": "date-time" },
+          "issues": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "title": { "type": "string" },
+                "severity": { "type": "string", "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW", "INFORMATIONAL"] },
+                "status": { "type": "string", "enum": ["OPEN", "IN_PROGRESS", "RESOLVED", "REJECTED"] },
+                "resource_type": { "type": "string" },
+                "resource_name": { "type": "string" },
+                "cloud_account": { "type": "string" },
+                "cloud_provider": { "type": "string", "enum": ["AWS", "Azure", "GCP", "OCI"] },
+                "region": { "type": "string" },
+                "created_at": { "type": "string", "format": "date-time" },
+                "remediation": { "type": "string" }
+              }
+            }
+          }
+        }
+      },
+      "IngestGenericRequest": {
+        "type": "object",
+        "required": ["scanned_at", "findings"],
+        "properties": {
+          "source": { "type": "string", "description": "Identifier for the originating tool or script" },
+          "scanned_at": { "type": "string", "format": "date-time" },
+          "findings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["title", "severity"],
+              "properties": {
+                "external_id": { "type": "string", "description": "Source-system unique identifier" },
+                "title": { "type": "string" },
+                "description": { "type": "string" },
+                "severity": { "type": "string", "enum": ["critical", "high", "medium", "low", "informational"] },
+                "cvss_score": { "type": "number", "nullable": true },
+                "cve": { "type": "string", "nullable": true },
+                "asset": { "type": "string", "description": "Hostname, IP, or resource identifier" },
+                "asset_type": { "type": "string", "enum": ["server", "endpoint", "cloud_resource", "application", "other"] },
+                "port": { "type": "integer", "nullable": true },
+                "protocol": { "type": "string", "nullable": true },
+                "remediation": { "type": "string" }
+              }
+            }
+          }
+        }
+      },
+      "PaginationMeta": {
+        "type": "object",
+        "properties": {
+          "page": { "type": "integer", "description": "Current page number" },
+          "limit": { "type": "integer", "description": "Results per page" },
+          "total": { "type": "integer", "description": "Total records available" }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": { "type": "string", "description": "Short error label" },
+          "message": { "type": "string", "description": "Human-readable error detail" },
+          "status": { "type": "integer", "description": "HTTP status code" }
+        }
+      }
+    }
+  }
+}

@@ -4,17 +4,46 @@ class DashboardController {
         Auth::requireAuth();
 
         $stats = [
-            'packages'     => Database::fetchOne("SELECT COUNT(*) as c FROM compliance_packages WHERE is_active = TRUE")['c'] ?? 0,
-            'controls'     => Database::fetchOne("SELECT COUNT(*) as c FROM compliance_objectives WHERE level = 2")['c'] ?? 0,
-            'compliant'    => Database::fetchOne("SELECT COUNT(*) as c FROM control_implementations WHERE status = 'compliant'")['c'] ?? 0,
-            'open_risks'   => Database::fetchOne("SELECT COUNT(*) as c FROM risks WHERE status = 'open'")['c'] ?? 0,
-            'policies'     => Database::fetchOne("SELECT COUNT(*) as c FROM policies")['c'] ?? 0,
-            'audits_due'   => Database::fetchOne("SELECT COUNT(*) as c FROM audits WHERE status != 'completed' AND scheduled_date <= CURRENT_DATE + INTERVAL '30 days'")['c'] ?? 0,
-            'reviews_due'  => Database::fetchOne("SELECT COUNT(*) as c FROM policies WHERE next_review_date <= CURRENT_DATE + INTERVAL '30 days' AND status = 'published'")['c'] ?? 0,
+            'packages'      => Database::fetchOne("SELECT COUNT(*) as c FROM compliance_packages WHERE is_active = TRUE")['c'] ?? 0,
+            'controls'      => Database::fetchOne("SELECT COUNT(*) as c FROM compliance_objectives WHERE level = 2")['c'] ?? 0,
+            'compliant'     => Database::fetchOne("SELECT COUNT(*) as c FROM control_implementations WHERE status = 'compliant'")['c'] ?? 0,
+            'open_risks'    => Database::fetchOne("SELECT COUNT(*) as c FROM risks WHERE status = 'open'")['c'] ?? 0,
+            'critical_risks'=> Database::fetchOne("SELECT COUNT(*) as c FROM risks WHERE status = 'open' AND inherent_score >= 20")['c'] ?? 0,
+            'policies'      => Database::fetchOne("SELECT COUNT(*) as c FROM policies")['c'] ?? 0,
+            'audits_due'    => Database::fetchOne("SELECT COUNT(*) as c FROM audits WHERE status != 'completed' AND scheduled_date <= CURRENT_DATE + INTERVAL '30 days'")['c'] ?? 0,
+            'reviews_due'   => Database::fetchOne("SELECT COUNT(*) as c FROM policies WHERE next_review_date <= CURRENT_DATE + INTERVAL '30 days' AND status = 'published'")['c'] ?? 0,
+            'pending_approvals' => Database::fetchOne(
+                "SELECT COUNT(*) as c FROM approval_requests ar
+                 JOIN approval_request_steps ars ON ars.request_id = ar.id AND ars.step_number = ar.current_step
+                 WHERE ar.status = 'pending' AND (ars.required_user_id = ? OR ars.required_role = ? OR ? = 'admin')",
+                [Auth::id(), Auth::role(), Auth::role()]
+            )['c'] ?? 0,
         ];
+
+        // New module stats — safe try/catch for environments running older migrations
+        foreach ([
+            'open_incidents'  => "SELECT COUNT(*) as c FROM incidents WHERE status NOT IN ('resolved','closed')",
+            'open_changes'    => "SELECT COUNT(*) as c FROM change_requests WHERE status NOT IN ('implemented','closed','rejected')",
+            'active_bcp'      => "SELECT COUNT(*) as c FROM bcp_plans WHERE status = 'active'",
+            'total_assets'    => "SELECT COUNT(*) as c FROM assets WHERE status = 'active'",
+            'critical_assets' => "SELECT COUNT(*) as c FROM assets WHERE criticality = 'critical' AND status = 'active'",
+            'pending_questionnaires' => "SELECT COUNT(*) as c FROM questionnaire_assignments WHERE status = 'pending' AND assigned_to = " . (int)Auth::id(),
+            'webhook_failures_24h'   => "SELECT COUNT(*) as c FROM webhook_deliveries WHERE status = 'failed' AND created_at >= NOW() - INTERVAL '24 hours'",
+        ] as $key => $sql) {
+            try { $stats[$key] = (int)(Database::fetchOne($sql)['c'] ?? 0); }
+            catch (Throwable) { $stats[$key] = 0; }
+        }
 
         $totalControls = (int)($stats['controls'] ?: 1);
         $stats['compliance_pct'] = round(($stats['compliant'] / $totalControls) * 100);
+
+        // GRC score from latest daily snapshot
+        try {
+            $snap = Database::fetchOne("SELECT grc_score FROM metrics_snapshots ORDER BY snapshot_date DESC LIMIT 1");
+            $stats['grc_score'] = (int)($snap['grc_score'] ?? $stats['compliance_pct']);
+        } catch (Throwable) {
+            $stats['grc_score'] = $stats['compliance_pct'];
+        }
 
         $recentRisks = Database::fetchAll(
             "SELECT r.*, rc.name as category_name, rc.color as category_color, u.name as owner_name
@@ -76,6 +105,22 @@ class DashboardController {
              LEFT JOIN users u ON al.user_id = u.id
              ORDER BY al.created_at DESC LIMIT 10"
         );
+
+        $recentChanges = [];
+        $openIncidents = [];
+        try {
+            $recentChanges = Database::fetchAll(
+                "SELECT cr.id, cr.title, cr.status, cr.change_type, cr.risk_level, u.name as submitter_name
+                 FROM change_requests cr LEFT JOIN users u ON u.id = cr.submitter_id
+                 WHERE cr.status NOT IN ('implemented','closed','rejected')
+                 ORDER BY cr.created_at DESC LIMIT 5"
+            );
+            $openIncidents = Database::fetchAll(
+                "SELECT id, title, severity, status, created_at FROM incidents
+                 WHERE status NOT IN ('resolved','closed')
+                 ORDER BY created_at DESC LIMIT 5"
+            );
+        } catch (Throwable) {}
 
         require AEGIS_ROOT . '/views/dashboard/index.php';
     }

@@ -73,8 +73,8 @@
 
 | Item | Status | Notes |
 |------|--------|-------|
-| Job queue (async email, workflow triggers) | 🔄 Partial — cron scripts created in Phase 1 | Full async queue needs Redis or DB-backed worker |
-| File storage abstraction (S3/object store) | ✅ Complete | `aegis/src/Storage.php` — local + S3 (Sig V4) adapters; swap via `storage_driver` setting |
+| Job queue (async email, workflow triggers) | ✅ Complete | `aegis/scripts/send_notifications.php` — 5-category cron (overdue controls, policy review, approvals, risk assignment, aging incidents); self-bootstraps `notification_log` + `user_notification_prefs` tables |
+| File storage abstraction (S3/object store) | ✅ Complete | `aegis/src/Storage.php` — local + S3 (Sig V4) adapters; swap via `storage_driver` setting; Admin → Storage UI (`/admin/storage`) |
 | DB connection pooling (PgBouncer) | ⏳ Pending | Document in deployment guide |
 | Health check endpoint `/health` | ✅ Complete | `GET /health` — DB ping, disk space, PHP version, latency; returns 200/503 |
 | Segregation of Duties enforcement | ✅ Complete | `ApprovalController::decide()` — blocks self-approval and creator-approval; logs SoD violations |
@@ -82,6 +82,9 @@
 | Redis-backed rate limiting | ⏳ Pending | Current: PostgreSQL `rate_limits` table — survives restarts |
 | Nonce-based CSP (eliminate unsafe-inline) | ✅ Complete | `Security::nonce()` + dynamic CSP header; `unsafe-inline` removed from script-src |
 | AI gap analysis in compliance UI | ✅ Complete | Lazy-loaded panel on package view; `GET /compliance/{id}/ai-suggestions` JSON endpoint |
+| User notification preferences UI | ✅ Complete | `aegis/views/profile/notifications.php` — per-user toggle for 5 notification types; `aegis/controllers/ProfileController.php` |
+| OpenAPI 3.0 documentation | ✅ Complete | `aegis/api/openapi.json` (53 KB, 18 endpoints); `aegis/api/docs.php` Swagger UI at `/api/docs` |
+| Docker production deployment | ✅ Complete | `aegis/Dockerfile` (php:8.3-fpm-alpine + opcache hardening); `aegis/docker-compose.yml` (app + db + nginx + cron); `aegis/docker/nginx.conf`; `aegis/.env.example` |
 
 ---
 
@@ -163,3 +166,4 @@ Set in the `settings` table or Admin → System Settings:
 | 2026-05-25 | Phase 2 complete: SOC2/NIST/HIPAA/PCI-DSS seeds, cross-framework mapping, scheduled reports, bulk CSV import, custom fields, metrics trending, document management |
 | 2026-05-25 | Phase 3 complete: webhooks (Slack/Jira/PagerDuty/ServiceNow), SIEM ingest API (Tenable/Qualys/Wiz), questionnaire builder, change management, BCP/DR, asset inventory, risk roadmap, executive board dashboard, PWA/mobile, AI advisor |
 | 2026-05-25 | Architecture backlog: nonce-based CSP (removed unsafe-inline), /health endpoint, S3 storage adapter (Sig V4), SoD enforcement in approvals, AI gap suggestions wired into compliance package view |
+| 2026-05-25 | Dashboard metrics (critical risks, open incidents, BCP/assets/questionnaire stats, GRC score from snapshots); Admin storage UI (/admin/storage) with S3 test endpoint; email notification cron (5 categories, dedup via notification_log); user notification prefs page (/profile/notifications); OpenAPI 3.0 spec + Swagger UI (/api/docs); Docker production stack (php-fpm + nginx + postgres + cron); Storage nav link; POST /admin/storage/save + test wired |

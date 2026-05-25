@@ -524,4 +524,69 @@ class AdminController {
         $_SESSION['flash_success'] = 'Settings saved.';
         header('Location: /admin/settings');
     }
+
+    public function storage(): void {
+        Auth::requireAdmin();
+        $keys = ['storage_driver','s3_bucket','s3_region','s3_access_key','s3_endpoint','s3_public_url'];
+        $rows = Database::fetchAll(
+            "SELECT key, value FROM settings WHERE key = ANY(?::text[])",
+            ['{' . implode(',', $keys) . '}']
+        );
+        $storageSettings = array_column($rows, 'value', 'key');
+        // Never expose the secret key in the UI
+        $pageTitle    = 'Storage Settings';
+        $activeModule = 'admin_storage';
+        $breadcrumbs  = [['Admin', '/admin'], ['Storage', null]];
+        require AEGIS_ROOT . '/views/admin/storage.php';
+    }
+
+    public function saveStorage(): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403); return;
+        }
+        $driver = in_array($_POST['storage_driver'] ?? '', ['local','s3']) ? $_POST['storage_driver'] : 'local';
+        $fields = [
+            'storage_driver' => $driver,
+            's3_bucket'      => Security::sanitizeInput($_POST['s3_bucket'] ?? ''),
+            's3_region'      => Security::sanitizeInput($_POST['s3_region'] ?? 'us-east-1'),
+            's3_access_key'  => Security::sanitizeInput($_POST['s3_access_key'] ?? ''),
+            's3_endpoint'    => Security::sanitizeInput($_POST['s3_endpoint'] ?? ''),
+            's3_public_url'  => Security::sanitizeInput($_POST['s3_public_url'] ?? ''),
+        ];
+        // Only update secret key if a new one is supplied (avoid blanking it)
+        if (!empty($_POST['s3_secret_key'])) {
+            $fields['s3_secret_key'] = Security::sanitizeInput($_POST['s3_secret_key']);
+        }
+        foreach ($fields as $key => $val) {
+            Database::query(
+                "INSERT INTO settings (key, value, type, description) VALUES (?,?,'string','') ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value",
+                [$key, $val]
+            );
+        }
+        // Bust the Storage class cache
+        if (class_exists('Storage')) { Storage::clearCache(); }
+        Auth::log('update_storage_settings', 'settings', 0, ['driver' => $driver]);
+        $_SESSION['flash_success'] = 'Storage settings saved.';
+        header('Location: /admin/storage');
+    }
+
+    public function testStorage(): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403); echo json_encode(['ok'=>false,'error'=>'CSRF']); return;
+        }
+        header('Content-Type: application/json');
+        try {
+            // Write a small test object then delete it
+            $tmpFile = tempnam(sys_get_temp_dir(), 'aegis_storage_test_');
+            file_put_contents($tmpFile, 'AEGIS storage test ' . date('c'));
+            $key = Storage::put('uploads/.tests', $tmpFile, 'storage_test.txt');
+            unlink($tmpFile);
+            Storage::delete($key);
+            echo json_encode(['ok' => true, 'message' => 'Storage test passed.']);
+        } catch (Throwable $e) {
+            echo json_encode(['ok' => false, 'error' => $e->getMessage()]);
+        }
+    }
 }
