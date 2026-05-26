@@ -258,7 +258,7 @@
 <div class="main-content" id="mainContent">
   <header class="topbar">
     <div class="topbar-left">
-      <button class="sidebar-toggle" onclick="toggleSidebar()">
+      <button class="sidebar-toggle" aria-label="Open menu" type="button" onclick="toggleSidebar()">
         <i class="bi bi-list"></i>
       </button>
       <div class="breadcrumb-area">
