@@ -210,8 +210,73 @@ CREATE TABLE IF NOT EXISTS risks (
     tags JSONB DEFAULT '[]',
     created_by INTEGER REFERENCES users(id),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    -- Enterprise columns
+    velocity INTEGER DEFAULT 3 CHECK (velocity BETWEEN 1 AND 5),
+    proximity VARCHAR(20) DEFAULT 'medium_term'
+        CHECK (proximity IN ('immediate','short_term','medium_term','long_term')),
+    financial_min     DECIMAL(15,2),
+    financial_likely  DECIMAL(15,2),
+    financial_max     DECIMAL(15,2),
+    financial_currency VARCHAR(3) DEFAULT 'USD',
+    parent_risk_id INTEGER REFERENCES risks(id),
+    assessment_status VARCHAR(20) NOT NULL DEFAULT 'draft'
+        CHECK (assessment_status IN ('draft','pending_review','approved')),
+    reviewed_by INTEGER REFERENCES users(id),
+    reviewed_at TIMESTAMP,
+    review_notes TEXT,
+    risk_source VARCHAR(50)
+        CHECK (risk_source IN ('strategic','operational','financial','compliance','technology',
+                               'reputational','external','people','project') OR risk_source IS NULL),
+    confidence VARCHAR(10) DEFAULT 'medium' CHECK (confidence IN ('low','medium','high')),
+    target_likelihood INTEGER CHECK (target_likelihood BETWEEN 1 AND 5),
+    target_impact INTEGER CHECK (target_impact BETWEEN 1 AND 5)
 );
+
+CREATE TABLE IF NOT EXISTS risk_score_history (
+    id                   SERIAL PRIMARY KEY,
+    risk_id              INTEGER NOT NULL REFERENCES risks(id) ON DELETE CASCADE,
+    likelihood           INTEGER NOT NULL,
+    impact               INTEGER NOT NULL,
+    score                INTEGER NOT NULL,
+    residual_likelihood  INTEGER,
+    residual_impact      INTEGER,
+    residual_score       INTEGER,
+    status               VARCHAR(50),
+    treatment_strategies JSONB,
+    changed_by           INTEGER REFERENCES users(id),
+    note                 TEXT,
+    created_at           TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_rsh_risk    ON risk_score_history(risk_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_rsh_created ON risk_score_history(created_at);
+
+CREATE TABLE IF NOT EXISTS risk_control_links (
+    id                         SERIAL PRIMARY KEY,
+    risk_id                    INTEGER NOT NULL REFERENCES risks(id) ON DELETE CASCADE,
+    control_implementation_id  INTEGER NOT NULL REFERENCES control_implementations(id) ON DELETE CASCADE,
+    effectiveness              VARCHAR(20) NOT NULL DEFAULT 'partial'
+                               CHECK (effectiveness IN ('none','partial','substantial','full')),
+    notes                      TEXT,
+    created_by                 INTEGER REFERENCES users(id),
+    created_at                 TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(risk_id, control_implementation_id)
+);
+CREATE INDEX IF NOT EXISTS idx_rcl_risk    ON risk_control_links(risk_id);
+CREATE INDEX IF NOT EXISTS idx_rcl_control ON risk_control_links(control_implementation_id);
+
+CREATE TABLE IF NOT EXISTS risk_related_links (
+    id          SERIAL PRIMARY KEY,
+    risk_id     INTEGER NOT NULL REFERENCES risks(id) ON DELETE CASCADE,
+    related_id  INTEGER NOT NULL REFERENCES risks(id) ON DELETE CASCADE,
+    link_type   VARCHAR(50) NOT NULL DEFAULT 'related'
+                CHECK (link_type IN ('related','causes','caused_by','aggregates')),
+    created_by  INTEGER REFERENCES users(id),
+    created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(risk_id, related_id)
+);
+CREATE INDEX IF NOT EXISTS idx_rrl_risk    ON risk_related_links(risk_id);
+CREATE INDEX IF NOT EXISTS idx_rrl_related ON risk_related_links(related_id);
 
 CREATE TABLE IF NOT EXISTS risk_treatments (
     id SERIAL PRIMARY KEY,

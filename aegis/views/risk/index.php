@@ -11,6 +11,7 @@ ob_start();
     <p class="page-subtitle">Track, assess, and treat organizational risks</p>
   </div>
   <div class="page-actions">
+    <a href="/risk/dashboard" class="btn btn-ghost"><i class="bi bi-speedometer2"></i> Dashboard</a>
     <a href="/risk/matrix" class="btn btn-ghost"><i class="bi bi-grid-3x3-gap-fill"></i> Matrix View</a>
     <a href="/risk/create" class="btn btn-danger"><i class="bi bi-plus-lg"></i> Log Risk</a>
   </div>
@@ -91,6 +92,12 @@ $_appColorMap = [
         <option value="<?= $sv ?>" <?= ($_GET['treatment']??'')===$sv?'selected':'' ?>><?= $sl ?></option>
       <?php endforeach; ?>
     </select>
+    <select name="source" class="form-control form-control-sm" onchange="this.form.submit()">
+      <option value="">All sources</option>
+      <?php foreach (['strategic'=>'Strategic','operational'=>'Operational','financial'=>'Financial','compliance'=>'Compliance','technology'=>'Technology','reputational'=>'Reputational','external'=>'External','people'=>'People','project'=>'Project'] as $sv=>$sl): ?>
+        <option value="<?= $sv ?>" <?= ($_GET['source']??'')===$sv?'selected':'' ?>><?= $sl ?></option>
+      <?php endforeach; ?>
+    </select>
     <select name="level" class="form-control form-control-sm" onchange="this.form.submit()">
       <option value="">All levels</option>
       <option value="critical" <?= ($_GET['level']??'')==='critical'?'selected':'' ?>>Critical (>14)</option>
@@ -138,7 +145,7 @@ $_appColorMap = [
           <th style="width:32px"><input type="checkbox" id="selectAll" onchange="toggleAll(this)"></th>
           <th>Risk ID</th><th>Title</th><th>Category</th>
           <th>Likelihood</th><th>Impact</th><th>Score</th><th>Level</th>
-          <th>Residual</th><th>Status</th><th>Strategy</th><th>Owner</th><th></th>
+          <th>Residual</th><th>Status</th><th>Strategy</th><th>Assessment</th><th>Owner</th><th></th>
         </tr>
       </thead>
       <tbody>
@@ -179,6 +186,15 @@ $_appColorMap = [
               </span>
               <?php endforeach; if (empty($strategies)): ?>—<?php endif; ?>
             </td>
+            <td>
+              <?php
+              $aStatus = $risk['assessment_status'] ?? 'draft';
+              $aColors = ['draft'=>['#64748b','#f1f5f9'],'pending_review'=>['#d97706','#fffbeb'],'approved'=>['#16a34a','#f0fdf4']];
+              [$aFg,$aBg] = $aColors[$aStatus] ?? $aColors['draft'];
+              $aLabel = ['draft'=>'Draft','pending_review'=>'Pending Review','approved'=>'Approved'][$aStatus] ?? ucfirst($aStatus);
+              ?>
+              <span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;background:<?= $aBg ?>;color:<?= $aFg ?>;white-space:nowrap"><?= $aLabel ?></span>
+            </td>
             <td><?= Security::h($risk['owner_name'] ?? '—') ?></td>
             <td>
               <div class="action-btns">
@@ -187,7 +203,7 @@ $_appColorMap = [
             </td>
           </tr>
         <?php endforeach; else: ?>
-          <tr><td colspan="13" class="empty-row">
+          <tr><td colspan="14" class="empty-row">
             <div class="empty-state-sm"><i class="bi bi-shield-check"></i><p>No risks match your filters. <a href="/risk/create">Log a risk</a>.</p></div>
           </td></tr>
         <?php endif; ?>
