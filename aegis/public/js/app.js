@@ -109,6 +109,20 @@ document.querySelectorAll('.perm-col-all').forEach(function (btn) {
   });
 });
 
+// ── Accordion nav groups ────────────────────────────────────────────────────
+document.querySelectorAll('.nav-group-header').forEach(function (header) {
+  header.addEventListener('click', function () {
+    var group = header.closest('.nav-group');
+    if (!group) return;
+    var isOpen = group.classList.contains('open');
+    // Close all sibling groups, then open this one (unless already open — acts as toggle)
+    document.querySelectorAll('.nav-group.open').forEach(function (g) {
+      g.classList.remove('open');
+    });
+    if (!isOpen) group.classList.add('open');
+  });
+});
+
 // ── Mobile sidebar overlay ──────────────────────────────────────────────────
 (function() {
   var overlay = document.createElement('div');
