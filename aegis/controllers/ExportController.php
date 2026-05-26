@@ -1,296 +1,212 @@
 <?php
+declare(strict_types=1);
+
 class ExportController {
-    private static array $modules = ['risks', 'standards', 'audits', 'policies', 'controls', 'evidence'];
+
+    private static array $exportTypes = [
+        'risks'       => ['label' => 'Risk Register',         'perm' => 'risk.read'],
+        'policies'    => ['label' => 'Policies',              'perm' => 'policy.read'],
+        'audits'      => ['label' => 'Audits',                'perm' => 'audit.read'],
+        'incidents'   => ['label' => 'Incidents',             'perm' => 'incident.read'],
+        'vendors'     => ['label' => 'Vendors',               'perm' => 'vendor.read'],
+        'controls'    => ['label' => 'Control Implementations','perm' => 'compliance.read'],
+        'assets'      => ['label' => 'Asset Inventory',       'perm' => 'read'],
+        'activity_log'=> ['label' => 'Activity Log',          'perm' => 'admin'],
+    ];
 
     public function index(): void {
-        Auth::requirePermission('compliance.read');
+        Auth::requireAuth();
+        $pageTitle    = 'Export Data';
+        $activeModule = 'export';
+        $breadcrumbs  = [['Export', null]];
+        $exportTypes  = self::$exportTypes;
         require AEGIS_ROOT . '/views/export/index.php';
     }
 
-    public function downloadAll(): void {
-        Auth::requirePermission('compliance.read');
+    public function download(): void {
+        Auth::requireAuth();
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403); return;
         }
 
-        $tmp = tempnam(sys_get_temp_dir(), 'aegis_full_');
-        $zip = new ZipArchive();
-        $zip->open($tmp, ZipArchive::OVERWRITE);
+        $type   = Security::sanitizeInput($_POST['type'] ?? '');
+        $format = in_array($_POST['format'] ?? '', ['csv', 'json']) ? $_POST['format'] : 'csv';
 
-        foreach (self::$modules as $module) {
-            $rows    = $this->getData($module);
-            $headers = $rows ? array_keys($rows[0]) : [];
-            ob_start();
-            $out = fopen('php://output', 'w');
-            fputcsv($out, $headers);
-            foreach ($rows as $row) fputcsv($out, array_values($row));
-            fclose($out);
-            $zip->addFromString('aegis_' . $module . '.csv', ob_get_clean());
+        if (!array_key_exists($type, self::$exportTypes)) {
+            http_response_code(400); echo 'Invalid export type.'; return;
         }
-        $zip->close();
 
-        header('Content-Type: application/zip');
-        header('Content-Disposition: attachment; filename="aegis_full_export_' . date('Ymd') . '.zip"');
-        header('Content-Length: ' . filesize($tmp));
-        readfile($tmp);
-        unlink($tmp);
+        $meta = self::$exportTypes[$type];
+        if ($meta['perm'] === 'admin') {
+            Auth::requireAdmin();
+        } else {
+            Auth::requirePermission($meta['perm']);
+        }
+
+        $data = self::fetchData($type);
+        Auth::log('export_data', $type, 0, ['format' => $format, 'rows' => count($data)]);
+
+        $filename = $type . '-' . date('Y-m-d');
+        if ($format === 'json') {
+            header('Content-Type: application/json');
+            header("Content-Disposition: attachment; filename=\"{$filename}.json\"");
+            echo json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        } else {
+            header('Content-Type: text/csv; charset=UTF-8');
+            header("Content-Disposition: attachment; filename=\"{$filename}.csv\"");
+            echo "\xEF\xBB\xBF"; // UTF-8 BOM for Excel
+            $out = fopen('php://output', 'w');
+            if ($data) {
+                fputcsv($out, array_keys($data[0]));
+                foreach ($data as $row) fputcsv($out, $row);
+            }
+            fclose($out);
+        }
         exit;
     }
 
-    public function download(): void {
-        Auth::requirePermission('compliance.read');
+    public function downloadAll(): void {
+        Auth::requireAuth();
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403); return;
         }
 
-        $module = Security::sanitizeInput($_POST['module'] ?? '');
-        $format = in_array($_POST['format'] ?? '', ['csv', 'xlsx']) ? $_POST['format'] : 'csv';
-
-        if (!in_array($module, self::$modules)) {
-            http_response_code(400); return;
+        $selected = $_POST['types'] ?? [];
+        if (!is_array($selected) || empty($selected)) {
+            $_SESSION['flash_error'] = 'Select at least one data type to export.';
+            header('Location: /export'); return;
         }
 
-        $rows    = $this->getData($module);
-        $headers = $rows ? array_keys($rows[0]) : [];
-        $fname   = 'aegis_' . $module . '_' . date('Ymd_His');
-
-        if ($format === 'xlsx') {
-            $this->sendXlsx($fname, $headers, $rows);
-        } else {
-            $this->sendCsv($fname, $headers, $rows);
+        if (!class_exists('ZipArchive')) {
+            $_SESSION['flash_error'] = 'ZipArchive extension not available.';
+            header('Location: /export'); return;
         }
+
+        $tmpFile = tempnam(sys_get_temp_dir(), 'aegis_export_') . '.zip';
+        $zip = new ZipArchive();
+        if ($zip->open($tmpFile, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
+            $_SESSION['flash_error'] = 'Could not create ZIP.';
+            header('Location: /export'); return;
+        }
+
+        $exported = [];
+        foreach ($selected as $type) {
+            $type = Security::sanitizeInput($type);
+            if (!array_key_exists($type, self::$exportTypes)) continue;
+            $meta = self::$exportTypes[$type];
+            if ($meta['perm'] === 'admin' && Auth::role() !== 'admin') continue;
+            if ($meta['perm'] !== 'admin' && !Auth::can($meta['perm'])) continue;
+
+            $data = self::fetchData($type);
+            if (!$data) {
+                $zip->addFromString("{$type}.csv", "No data available.\n");
+                $exported[] = $type;
+                continue;
+            }
+
+            ob_start();
+            $out = fopen('php://output', 'w');
+            fputcsv($out, array_keys($data[0]));
+            foreach ($data as $row) fputcsv($out, $row);
+            fclose($out);
+            $csv = ob_get_clean();
+
+            $zip->addFromString("{$type}.csv", "\xEF\xBB\xBF" . $csv);
+            $exported[] = $type;
+        }
+
+        // Add manifest
+        $manifest = "AEGIS GRC — Data Export\n";
+        $manifest .= "Exported: " . date('Y-m-d H:i:s') . " UTC\n";
+        $manifest .= "Exported by: " . (Auth::user()['name'] ?? '') . "\n\n";
+        $manifest .= "Files included:\n";
+        foreach ($exported as $t) { $manifest .= "  - {$t}.csv\n"; }
+        $zip->addFromString('README.txt', $manifest);
+        $zip->close();
+
+        Auth::log('export_data_all', 'export', 0, ['types' => $exported]);
+
+        $filename = 'aegis-export-' . date('Y-m-d') . '.zip';
+        header('Content-Type: application/zip');
+        header("Content-Disposition: attachment; filename=\"{$filename}\"");
+        header('Content-Length: ' . filesize($tmpFile));
+        header('Cache-Control: private, no-cache');
+        readfile($tmpFile);
+        @unlink($tmpFile);
+        exit;
     }
 
-    private function getData(string $module): array {
-        return match($module) {
+    private static function fetchData(string $type): array {
+        return match ($type) {
             'risks' => Database::fetchAll(
-                "SELECT r.risk_id, r.title, r.description,
-                        rc.name AS category, r.likelihood, r.impact,
-                        r.inherent_score,
+                "SELECT r.risk_id, r.title, r.description, rc.name as category,
+                        r.likelihood, r.impact, r.inherent_score,
                         r.residual_likelihood, r.residual_impact, r.residual_score,
-                        r.status, r.treatment_type, r.treatment_description,
-                        u.name AS owner, r.review_date, r.identified_date,
-                        r.created_at
+                        r.treatment_type, r.status, r.target_date,
+                        u.name as owner, r.created_at
                  FROM risks r
-                 LEFT JOIN risk_categories rc ON r.category_id = rc.id
-                 LEFT JOIN users u ON r.owner_id = u.id
-                 ORDER BY r.inherent_score DESC, r.created_at DESC"
-            ),
-            'standards' => Database::fetchAll(
-                "SELECT s.code, s.name, s.version, s.category, s.authority,
-                        cp.name AS package_name,
-                        COUNT(co.id) AS total_objectives,
-                        COUNT(ci.id) FILTER (WHERE ci.status = 'compliant') AS compliant,
-                        COUNT(ci.id) FILTER (WHERE ci.status = 'non_compliant') AS non_compliant,
-                        COUNT(ci.id) FILTER (WHERE ci.status = 'partial') AS partial,
-                        COUNT(ci.id) FILTER (WHERE ci.status = 'not_started') AS not_started
-                 FROM standards s
-                 LEFT JOIN compliance_packages cp ON cp.standard_id = s.id
-                 LEFT JOIN compliance_objectives co ON co.package_id = cp.id AND co.level = 2
-                 LEFT JOIN control_implementations ci ON ci.objective_id = co.id
-                 WHERE s.is_active = TRUE
-                 GROUP BY s.id, s.code, s.name, s.version, s.category, s.authority, cp.name
-                 ORDER BY s.code"
-            ),
-            'audits' => Database::fetchAll(
-                "SELECT a.name, a.audit_type, a.status, a.frequency,
-                        cp.name AS package,
-                        a.scheduled_date, a.start_date, a.completed_date,
-                        u.name AS auditor,
-                        a.score,
-                        COUNT(ai.id) AS total_items,
-                        COUNT(ai.id) FILTER (WHERE ai.status = 'compliant') AS compliant_items,
-                        COUNT(ai.id) FILTER (WHERE ai.status = 'finding') AS findings,
-                        a.notes, a.created_at
-                 FROM audits a
-                 LEFT JOIN compliance_packages cp ON a.package_id = cp.id
-                 LEFT JOIN users u ON a.auditor_id = u.id
-                 LEFT JOIN audit_items ai ON ai.audit_id = a.id
-                 GROUP BY a.id, cp.name, u.name
-                 ORDER BY a.created_at DESC"
+                 LEFT JOIN risk_categories rc ON rc.id = r.category_id
+                 LEFT JOIN users u ON u.id = r.owner_id
+                 ORDER BY r.inherent_score DESC"
             ),
             'policies' => Database::fetchAll(
-                "SELECT p.policy_number, p.title, p.category, p.version, p.status,
-                        u_owner.name AS owner, u_approver.name AS approver,
-                        p.review_frequency, p.next_review_date,
-                        p.approved_at, p.published_at,
-                        COUNT(pm.id) AS mapped_controls,
-                        p.created_at
-                 FROM policies p
-                 LEFT JOIN users u_owner    ON p.owner_id    = u_owner.id
-                 LEFT JOIN users u_approver ON p.approver_id = u_approver.id
-                 LEFT JOIN policy_mappings pm ON pm.policy_id = p.id
-                 GROUP BY p.id, u_owner.name, u_approver.name
-                 ORDER BY p.status, p.title"
+                "SELECT p.title, p.version, p.status, p.effective_date,
+                        p.next_review_date, p.review_frequency, p.document_type,
+                        u.name as owner, p.created_at
+                 FROM policies p LEFT JOIN users u ON u.id = p.owner_id
+                 ORDER BY p.title"
+            ),
+            'audits' => Database::fetchAll(
+                "SELECT a.name, a.audit_type, a.status, a.scheduled_date,
+                        a.start_date, a.completed_date, a.score,
+                        cp.name as framework, u.name as auditor, a.created_at
+                 FROM audits a
+                 LEFT JOIN compliance_packages cp ON cp.id = a.package_id
+                 LEFT JOIN users u ON u.id = a.auditor_id
+                 ORDER BY a.scheduled_date DESC"
+            ),
+            'incidents' => Database::fetchAll(
+                "SELECT i.title, i.severity, i.status, i.incident_type,
+                        i.description, i.resolution, i.created_at, i.resolved_at,
+                        u.name as owner
+                 FROM incidents i LEFT JOIN users u ON u.id = i.owner_id
+                 ORDER BY i.created_at DESC"
+            ),
+            'vendors' => Database::fetchAll(
+                "SELECT v.name, v.vendor_type, v.risk_tier, v.status,
+                        v.contact_name, v.contact_email,
+                        v.contract_start, v.contract_end, v.created_at
+                 FROM vendors v ORDER BY v.name"
             ),
             'controls' => Database::fetchAll(
-                "SELECT cp.name AS package, co.code, co.title,
-                        co.category, co.level,
-                        COALESCE(ci.status, 'not_started') AS status,
-                        ci.implementation_notes,
-                        ci.evidence,
-                        u.name AS assigned_to, ci.due_date, ci.last_reviewed
-                 FROM compliance_objectives co
-                 JOIN compliance_packages cp ON co.package_id = cp.id
-                 LEFT JOIN control_implementations ci ON ci.objective_id = co.id
-                 LEFT JOIN users u ON ci.assigned_to = u.id
-                 WHERE co.level = 2
+                "SELECT co.code, co.title, cp.name as framework,
+                        ci.status, ci.due_date, ci.completion_date,
+                        ci.notes, u.name as assigned_to
+                 FROM control_implementations ci
+                 JOIN compliance_objectives co ON co.id = ci.objective_id
+                 JOIN compliance_packages cp ON cp.id = co.package_id
+                 LEFT JOIN users u ON u.id = ci.assigned_to
                  ORDER BY cp.name, co.sort_order"
             ),
-            'evidence' => Database::fetchAll(
-                "SELECT cp.name AS package, co.code, co.title AS control,
-                        COALESCE(ci.status, 'not_started') AS status,
-                        ci.implementation_notes,
-                        ci.evidence,
-                        ci.last_reviewed,
-                        u.name AS reviewed_by
-                 FROM compliance_objectives co
-                 JOIN compliance_packages cp ON co.package_id = cp.id
-                 LEFT JOIN control_implementations ci ON ci.objective_id = co.id
-                 LEFT JOIN users u ON ci.reviewed_by = u.id
-                 WHERE co.level = 2 AND (ci.evidence IS NOT NULL AND ci.evidence != '')
-                 ORDER BY cp.name, co.sort_order"
+            'assets' => (function() {
+                try {
+                    return Database::fetchAll(
+                        "SELECT a.name, a.asset_type, a.criticality, a.status,
+                                a.ip_address, a.owner, a.location, a.created_at
+                         FROM assets a ORDER BY a.criticality DESC, a.name"
+                    );
+                } catch (Throwable) { return []; }
+            })(),
+            'activity_log' => Database::fetchAll(
+                "SELECT al.action, al.entity_type, al.entity_id,
+                        u.name as user_name, u.email,
+                        al.ip_address, al.created_at
+                 FROM activity_log al LEFT JOIN users u ON u.id = al.user_id
+                 ORDER BY al.created_at DESC LIMIT 50000"
             ),
             default => [],
         };
-    }
-
-    private function sendCsv(string $fname, array $headers, array $rows): void {
-        header('Content-Type: text/csv; charset=utf-8');
-        header('Content-Disposition: attachment; filename="' . $fname . '.csv"');
-        header('Cache-Control: no-store');
-
-        $sanitize = static function(mixed $v): string {
-            $s = (string)($v ?? '');
-            return preg_match('/^[=+\-@\t\r]/', $s) ? "'" . $s : $s;
-        };
-
-        $out = fopen('php://output', 'w');
-        fputcsv($out, array_map($sanitize, $headers));
-        foreach ($rows as $row) {
-            fputcsv($out, array_map($sanitize, array_values($row)));
-        }
-        fclose($out);
-        exit;
-    }
-
-    private function sendXlsx(string $fname, array $headers, array $rows): void {
-        // Pure PHP XLSX writer — no external library needed
-        $strings = [];
-        $strIdx  = [];
-
-        $addStr = function(string $s) use (&$strings, &$strIdx): int {
-            if (!isset($strIdx[$s])) {
-                $strIdx[$s] = count($strings);
-                $strings[]  = $s;
-            }
-            return $strIdx[$s];
-        };
-
-        // Build worksheet XML
-        $wsRows = '';
-        $r = 1;
-
-        // Header row
-        $wsRows .= '<row r="' . $r . '">';
-        foreach ($headers as $ci => $h) {
-            $col = $this->xlsxCol($ci + 1) . $r;
-            $si  = $addStr((string)$h);
-            $wsRows .= '<c r="' . $col . '" t="s"><v>' . $si . '</v></c>';
-        }
-        $wsRows .= '</row>';
-        $r++;
-
-        // Data rows
-        foreach ($rows as $row) {
-            $wsRows .= '<row r="' . $r . '">';
-            $ci = 0;
-            foreach (array_values($row) as $val) {
-                $col  = $this->xlsxCol($ci + 1) . $r;
-                $sval = (string)($val ?? '');
-                if (is_numeric($val) && $val !== '' && $val !== null) {
-                    $wsRows .= '<c r="' . $col . '"><v>' . htmlspecialchars($sval, ENT_XML1) . '</v></c>';
-                } else {
-                    $si = $addStr($sval);
-                    $wsRows .= '<c r="' . $col . '" t="s"><v>' . $si . '</v></c>';
-                }
-                $ci++;
-            }
-            $wsRows .= '</row>';
-            $r++;
-        }
-
-        $colCount = count($headers);
-        $lastCol  = $this->xlsxCol($colCount) . ($r - 1);
-        $wsXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-               . '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
-               . '<sheetData>' . $wsRows . '</sheetData>'
-               . '</worksheet>';
-
-        // Shared strings
-        $ssXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-               . '<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="' . count($strings) . '" uniqueCount="' . count($strings) . '">';
-        foreach ($strings as $s) {
-            $ssXml .= '<si><t xml:space="preserve">' . htmlspecialchars($s, ENT_XML1) . '</t></si>';
-        }
-        $ssXml .= '</sst>';
-
-        // Workbook
-        $wbXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-               . '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
-               . '<sheets><sheet name="Export" sheetId="1" r:id="rId1"/></sheets>'
-               . '</workbook>';
-
-        $wbRels = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-                . '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
-                . '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>'
-                . '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/>'
-                . '</Relationships>';
-
-        $contentTypes = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-            . '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
-            . '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
-            . '<Default Extension="xml" ContentType="application/xml"/>'
-            . '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'
-            . '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'
-            . '<Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/>'
-            . '</Types>';
-
-        $pkgRels = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-            . '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
-            . '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>'
-            . '</Relationships>';
-
-        // Build ZIP in memory
-        $tmp = tempnam(sys_get_temp_dir(), 'aegis_xlsx_');
-        $zip = new ZipArchive();
-        $zip->open($tmp, ZipArchive::OVERWRITE);
-        $zip->addFromString('[Content_Types].xml',       $contentTypes);
-        $zip->addFromString('_rels/.rels',               $pkgRels);
-        $zip->addFromString('xl/workbook.xml',           $wbXml);
-        $zip->addFromString('xl/_rels/workbook.xml.rels', $wbRels);
-        $zip->addFromString('xl/worksheets/sheet1.xml', $wsXml);
-        $zip->addFromString('xl/sharedStrings.xml',     $ssXml);
-        $zip->close();
-
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment; filename="' . $fname . '.xlsx"');
-        header('Content-Length: ' . filesize($tmp));
-        header('Cache-Control: no-store');
-        readfile($tmp);
-        unlink($tmp);
-        exit;
-    }
-
-    private function xlsxCol(int $n): string {
-        $col = '';
-        while ($n > 0) {
-            $n--;
-            $col = chr(65 + ($n % 26)) . $col;
-            $n   = intdiv($n, 26);
-        }
-        return $col;
     }
 }

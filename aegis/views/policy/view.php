@@ -27,6 +27,7 @@ ob_start();
         <button class="btn btn-success"><i class="bi bi-check-lg"></i> Approve & Publish</button>
       <?php endif; ?>
     </form>
+    <a href="/policy/<?= $policy['id'] ?>/attest" class="btn btn-primary"><i class="bi bi-pen-fill"></i> Attest Policy</a>
     <a href="/policy/<?= $policy['id'] ?>/edit" class="btn btn-ghost"><i class="bi bi-pencil"></i> Edit</a>
   </div>
 </div>
@@ -146,6 +147,46 @@ ob_start();
         <?php endforeach; ?>
       </div>
     </div>
+  </div>
+</div>
+
+<?php
+// Attestation summary for this policy
+$attestCount = Database::fetchOne(
+    "SELECT COUNT(*) as total,
+            MAX(attested_at) as last_attested
+     FROM policy_attestations WHERE policy_id=?",
+    [$policy['id']]
+);
+$totalUsers = Database::fetchOne("SELECT COUNT(*) as cnt FROM users WHERE is_active=TRUE");
+?>
+
+<!-- Attestation Summary -->
+<div class="card" style="margin-top:16px">
+  <div class="card-header">
+    <h3 class="card-title"><i class="bi bi-pen-fill"></i> Attestations</h3>
+    <a href="/policy/<?= $policy['id'] ?>/attest" class="btn btn-primary btn-sm"><i class="bi bi-pen-fill"></i> Attest Now</a>
+  </div>
+  <div class="card-body">
+    <?php $cnt = (int)($attestCount['total'] ?? 0); $total = (int)($totalUsers['cnt'] ?? 0); $pct = $total > 0 ? round($cnt / $total * 100) : 0; ?>
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:12px">
+      <div style="font-size:2rem;font-weight:700;color:var(--primary)"><?= $cnt ?></div>
+      <div>
+        <div style="font-weight:600">of <?= $total ?> active users attested</div>
+        <?php if ($attestCount['last_attested']): ?>
+          <div class="text-muted text-sm">Last attested <?= date('M j, Y g:i A', strtotime($attestCount['last_attested'])) ?></div>
+        <?php endif; ?>
+      </div>
+    </div>
+    <div style="background:#e5e7eb;border-radius:999px;height:8px;overflow:hidden">
+      <div style="width:<?= $pct ?>%;background:<?= $pct >= 80 ? '#059669' : ($pct >= 50 ? '#d97706' : '#dc2626') ?>;height:100%;border-radius:999px;transition:width .3s"></div>
+    </div>
+    <div class="text-muted text-sm" style="margin-top:6px"><?= $pct ?>% completion</div>
+    <?php if (Auth::can('policy.write')): ?>
+      <div style="margin-top:12px">
+        <a href="/policy/attestations" class="btn btn-ghost btn-sm"><i class="bi bi-people"></i> Manage Campaigns</a>
+      </div>
+    <?php endif; ?>
   </div>
 </div>
 

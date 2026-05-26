@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
     job_title VARCHAR(255),
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     last_login TIMESTAMP,
+    email_verified_at TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -202,6 +203,7 @@ CREATE TABLE IF NOT EXISTS risks (
     residual_score INTEGER NOT NULL DEFAULT 0,
     status VARCHAR(50) NOT NULL DEFAULT 'open',
     treatment_type VARCHAR(50),
+    treatment_strategies JSONB NOT NULL DEFAULT '[]',
     treatment_description TEXT,
     owner_id INTEGER REFERENCES users(id),
     review_date DATE,
@@ -209,8 +211,73 @@ CREATE TABLE IF NOT EXISTS risks (
     tags JSONB DEFAULT '[]',
     created_by INTEGER REFERENCES users(id),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    -- Enterprise columns
+    velocity INTEGER DEFAULT 3 CHECK (velocity BETWEEN 1 AND 5),
+    proximity VARCHAR(20) DEFAULT 'medium_term'
+        CHECK (proximity IN ('immediate','short_term','medium_term','long_term')),
+    financial_min     DECIMAL(15,2),
+    financial_likely  DECIMAL(15,2),
+    financial_max     DECIMAL(15,2),
+    financial_currency VARCHAR(3) DEFAULT 'USD',
+    parent_risk_id INTEGER REFERENCES risks(id),
+    assessment_status VARCHAR(20) NOT NULL DEFAULT 'draft'
+        CHECK (assessment_status IN ('draft','pending_review','approved')),
+    reviewed_by INTEGER REFERENCES users(id),
+    reviewed_at TIMESTAMP,
+    review_notes TEXT,
+    risk_source VARCHAR(50)
+        CHECK (risk_source IN ('strategic','operational','financial','compliance','technology',
+                               'reputational','external','people','project') OR risk_source IS NULL),
+    confidence VARCHAR(10) DEFAULT 'medium' CHECK (confidence IN ('low','medium','high')),
+    target_likelihood INTEGER CHECK (target_likelihood BETWEEN 1 AND 5),
+    target_impact INTEGER CHECK (target_impact BETWEEN 1 AND 5)
 );
+
+CREATE TABLE IF NOT EXISTS risk_score_history (
+    id                   SERIAL PRIMARY KEY,
+    risk_id              INTEGER NOT NULL REFERENCES risks(id) ON DELETE CASCADE,
+    likelihood           INTEGER NOT NULL,
+    impact               INTEGER NOT NULL,
+    score                INTEGER NOT NULL,
+    residual_likelihood  INTEGER,
+    residual_impact      INTEGER,
+    residual_score       INTEGER,
+    status               VARCHAR(50),
+    treatment_strategies JSONB,
+    changed_by           INTEGER REFERENCES users(id),
+    note                 TEXT,
+    created_at           TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_rsh_risk    ON risk_score_history(risk_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_rsh_created ON risk_score_history(created_at);
+
+CREATE TABLE IF NOT EXISTS risk_control_links (
+    id                         SERIAL PRIMARY KEY,
+    risk_id                    INTEGER NOT NULL REFERENCES risks(id) ON DELETE CASCADE,
+    control_implementation_id  INTEGER NOT NULL REFERENCES control_implementations(id) ON DELETE CASCADE,
+    effectiveness              VARCHAR(20) NOT NULL DEFAULT 'partial'
+                               CHECK (effectiveness IN ('none','partial','substantial','full')),
+    notes                      TEXT,
+    created_by                 INTEGER REFERENCES users(id),
+    created_at                 TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(risk_id, control_implementation_id)
+);
+CREATE INDEX IF NOT EXISTS idx_rcl_risk    ON risk_control_links(risk_id);
+CREATE INDEX IF NOT EXISTS idx_rcl_control ON risk_control_links(control_implementation_id);
+
+CREATE TABLE IF NOT EXISTS risk_related_links (
+    id          SERIAL PRIMARY KEY,
+    risk_id     INTEGER NOT NULL REFERENCES risks(id) ON DELETE CASCADE,
+    related_id  INTEGER NOT NULL REFERENCES risks(id) ON DELETE CASCADE,
+    link_type   VARCHAR(50) NOT NULL DEFAULT 'related'
+                CHECK (link_type IN ('related','causes','caused_by','aggregates')),
+    created_by  INTEGER REFERENCES users(id),
+    created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(risk_id, related_id)
+);
+CREATE INDEX IF NOT EXISTS idx_rrl_risk    ON risk_related_links(risk_id);
+CREATE INDEX IF NOT EXISTS idx_rrl_related ON risk_related_links(related_id);
 
 CREATE TABLE IF NOT EXISTS risk_treatments (
     id SERIAL PRIMARY KEY,
@@ -223,6 +290,7 @@ CREATE TABLE IF NOT EXISTS risk_treatments (
     status VARCHAR(50) NOT NULL DEFAULT 'planned',
     owner_id INTEGER REFERENCES users(id),
     completion_date DATE,
+    completion_notes TEXT,
     notes TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -325,6 +393,120 @@ CREATE INDEX IF NOT EXISTS idx_ci_objective ON control_implementations(objective
 CREATE INDEX IF NOT EXISTS idx_ci_status    ON control_implementations(status);
 CREATE INDEX IF NOT EXISTS idx_ai_audit     ON audit_items(audit_id);
 CREATE INDEX IF NOT EXISTS idx_risks_status ON risks(status);
+
+-- ──────────────────────────────────────────────────────────────
+-- Core operational tables (incidents, issues, vendors, evidence)
+-- ──────────────────────────────────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS incidents (
+    id                 SERIAL PRIMARY KEY,
+    incident_number    VARCHAR(20) UNIQUE NOT NULL,
+    title              VARCHAR(255) NOT NULL,
+    description        TEXT,
+    severity           VARCHAR(20) NOT NULL DEFAULT 'medium'
+                       CHECK (severity IN ('critical','high','medium','low')),
+    category           VARCHAR(100),
+    status             VARCHAR(20) NOT NULL DEFAULT 'open'
+                       CHECK (status IN ('open','investigating','resolved','closed')),
+    reported_by        INTEGER REFERENCES users(id),
+    assigned_to        INTEGER REFERENCES users(id),
+    affected_systems   TEXT,
+    impact_description TEXT,
+    detected_at        TIMESTAMP,
+    resolved_at        TIMESTAMP,
+    created_at         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_incidents_status   ON incidents(status);
+CREATE INDEX IF NOT EXISTS idx_incidents_severity ON incidents(severity);
+
+CREATE TABLE IF NOT EXISTS incident_updates (
+    id          SERIAL PRIMARY KEY,
+    incident_id INTEGER NOT NULL REFERENCES incidents(id) ON DELETE CASCADE,
+    user_id     INTEGER REFERENCES users(id),
+    content     TEXT NOT NULL,
+    created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_iu_incident ON incident_updates(incident_id);
+
+CREATE TABLE IF NOT EXISTS issues (
+    id           SERIAL PRIMARY KEY,
+    issue_number VARCHAR(20) UNIQUE NOT NULL,
+    title        VARCHAR(255) NOT NULL,
+    description  TEXT,
+    severity     VARCHAR(20) NOT NULL DEFAULT 'medium'
+                 CHECK (severity IN ('critical','high','medium','low')),
+    status       VARCHAR(20) NOT NULL DEFAULT 'open'
+                 CHECK (status IN ('open','in_progress','resolved','closed')),
+    source_type  VARCHAR(100),
+    source_id    INTEGER,
+    assigned_to  INTEGER REFERENCES users(id),
+    created_by   INTEGER REFERENCES users(id),
+    due_date     DATE,
+    resolved_at  TIMESTAMP,
+    created_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_issues_status ON issues(status);
+
+CREATE TABLE IF NOT EXISTS issue_updates (
+    id         SERIAL PRIMARY KEY,
+    issue_id   INTEGER NOT NULL REFERENCES issues(id) ON DELETE CASCADE,
+    user_id    INTEGER REFERENCES users(id),
+    content    TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS vendors (
+    id               SERIAL PRIMARY KEY,
+    name             VARCHAR(255) NOT NULL,
+    category         VARCHAR(100),
+    status           VARCHAR(20) NOT NULL DEFAULT 'active'
+                     CHECK (status IN ('active','inactive','under_review')),
+    risk_rating      VARCHAR(20) DEFAULT 'medium'
+                     CHECK (risk_rating IN ('critical','high','medium','low')),
+    contact_name     VARCHAR(255),
+    contact_email    VARCHAR(255),
+    contact_phone    VARCHAR(50),
+    website          VARCHAR(255),
+    description      TEXT,
+    notes            TEXT,
+    owner_id         INTEGER REFERENCES users(id),
+    created_by       INTEGER REFERENCES users(id),
+    created_at       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_vendors_status ON vendors(status);
+
+CREATE TABLE IF NOT EXISTS vendor_assessments (
+    id              SERIAL PRIMARY KEY,
+    vendor_id       INTEGER NOT NULL REFERENCES vendors(id) ON DELETE CASCADE,
+    assessment_type VARCHAR(50) NOT NULL DEFAULT 'security',
+    status          VARCHAR(20) NOT NULL DEFAULT 'planned'
+                    CHECK (status IN ('planned','in_progress','completed','cancelled')),
+    assessed_by     INTEGER REFERENCES users(id),
+    scheduled_date  DATE,
+    completed_date  DATE,
+    score           INTEGER CHECK (score BETWEEN 0 AND 100),
+    findings        TEXT,
+    recommendations TEXT,
+    created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_va_vendor ON vendor_assessments(vendor_id);
+
+CREATE TABLE IF NOT EXISTS evidence (
+    id           SERIAL PRIMARY KEY,
+    entity_type  VARCHAR(50) NOT NULL,
+    entity_id    INTEGER NOT NULL,
+    filename     VARCHAR(255) NOT NULL,
+    stored_name  VARCHAR(255) NOT NULL,
+    file_size    INTEGER,
+    mime_type    VARCHAR(100),
+    uploaded_by  INTEGER REFERENCES users(id),
+    created_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_evidence_entity ON evidence(entity_type, entity_id);
 CREATE INDEX IF NOT EXISTS idx_risks_owner  ON risks(owner_id);
 CREATE INDEX IF NOT EXISTS idx_pm_policy    ON policy_mappings(policy_id);
 CREATE INDEX IF NOT EXISTS idx_pm_objective ON policy_mappings(objective_id);
@@ -332,3 +514,254 @@ CREATE INDEX IF NOT EXISTS idx_alerts_user  ON alerts(user_id, is_read);
 CREATE INDEX IF NOT EXISTS idx_al_user      ON activity_log(user_id);
 CREATE INDEX IF NOT EXISTS idx_al_entity    ON activity_log(entity_type, entity_id);
 CREATE INDEX IF NOT EXISTS idx_up_user      ON user_permissions(user_id);
+
+-- Evidence files (replaces the simpler `evidence` table; supports full upload lifecycle)
+CREATE TABLE IF NOT EXISTS evidence_files (
+    id            SERIAL PRIMARY KEY,
+    entity_type   VARCHAR(50) NOT NULL,
+    entity_id     INTEGER NOT NULL,
+    original_name VARCHAR(255) NOT NULL,
+    stored_name   VARCHAR(255) NOT NULL,
+    mime_type     VARCHAR(100),
+    file_size     INTEGER,
+    file_hash     VARCHAR(64),
+    description   TEXT,
+    expires_at    TIMESTAMP,
+    uploaded_by   INTEGER REFERENCES users(id),
+    created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_ef_entity ON evidence_files(entity_type, entity_id);
+
+-- Notification log (used by data-retention cleanup in AdminController)
+CREATE TABLE IF NOT EXISTS notification_log (
+    id                  SERIAL PRIMARY KEY,
+    notification_type   VARCHAR(100) NOT NULL,
+    entity_id           INTEGER,
+    recipient_email     VARCHAR(255),
+    sent_at             TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_nl_sent_at   ON notification_log(sent_at);
+CREATE INDEX IF NOT EXISTS idx_nl_type      ON notification_log(notification_type, entity_id, sent_at);
+CREATE INDEX IF NOT EXISTS idx_nl_recipient ON notification_log(recipient_email);
+
+CREATE TABLE IF NOT EXISTS email_templates (
+    id          SERIAL PRIMARY KEY,
+    type        VARCHAR(100) NOT NULL UNIQUE,
+    name        VARCHAR(255) NOT NULL,
+    subject     VARCHAR(500) NOT NULL,
+    body_html   TEXT NOT NULL,
+    body_text   TEXT,
+    variables   JSONB NOT NULL DEFAULT '[]',
+    is_active   BOOLEAN NOT NULL DEFAULT TRUE,
+    updated_by  INTEGER REFERENCES users(id),
+    created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS report_schedules (
+    id              SERIAL PRIMARY KEY,
+    name            VARCHAR(255) NOT NULL,
+    report_type     VARCHAR(100) NOT NULL,
+    frequency       VARCHAR(50) NOT NULL DEFAULT 'weekly'
+                    CHECK (frequency IN ('daily','weekly','monthly','quarterly')),
+    day_of_week     INTEGER DEFAULT 1,
+    day_of_month    INTEGER DEFAULT 1,
+    send_time       TIME NOT NULL DEFAULT '08:00',
+    recipients      JSONB NOT NULL DEFAULT '[]',
+    filters         JSONB NOT NULL DEFAULT '{}',
+    format          VARCHAR(10) NOT NULL DEFAULT 'html' CHECK (format IN ('html','csv','both')),
+    is_active       BOOLEAN NOT NULL DEFAULT TRUE,
+    last_sent_at    TIMESTAMP,
+    next_send_at    TIMESTAMP,
+    created_by      INTEGER REFERENCES users(id),
+    created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS email_verification_tokens (
+    id          SERIAL PRIMARY KEY,
+    user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token_hash  VARCHAR(64) NOT NULL UNIQUE,
+    expires_at  TIMESTAMP NOT NULL,
+    used_at     TIMESTAMP,
+    created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_evt_user ON email_verification_tokens(user_id);
+
+CREATE TABLE IF NOT EXISTS email_bounces (
+    id          SERIAL PRIMARY KEY,
+    email       VARCHAR(255) NOT NULL,
+    bounce_type VARCHAR(50) NOT NULL DEFAULT 'hard'
+                CHECK (bounce_type IN ('hard','soft','complaint')),
+    reason      TEXT,
+    recorded_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_eb_email ON email_bounces(email);
+
+CREATE TABLE IF NOT EXISTS email_unsubscribes (
+    id                  SERIAL PRIMARY KEY,
+    user_id             INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    email               VARCHAR(255) NOT NULL,
+    token               VARCHAR(64) NOT NULL UNIQUE,
+    notification_type   VARCHAR(100),
+    unsubscribed_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_eu_email ON email_unsubscribes(email);
+CREATE INDEX IF NOT EXISTS idx_eu_token ON email_unsubscribes(token);
+
+CREATE TABLE IF NOT EXISTS risk_reviews (
+    id                  SERIAL PRIMARY KEY,
+    title               VARCHAR(500) NOT NULL,
+    review_type         VARCHAR(50) NOT NULL DEFAULT 'periodic'
+                        CHECK (review_type IN ('periodic','triggered','ad_hoc','board')),
+    scheduled_date      DATE NOT NULL,
+    completed_date      DATE,
+    status              VARCHAR(30) NOT NULL DEFAULT 'planned'
+                        CHECK (status IN ('planned','in_progress','completed','cancelled')),
+    lead_reviewer_id    INTEGER REFERENCES users(id),
+    scope_description   TEXT,
+    scope_filter        JSONB NOT NULL DEFAULT '{}',
+    total_risks         INTEGER NOT NULL DEFAULT 0,
+    reviewed_count      INTEGER NOT NULL DEFAULT 0,
+    escalated_count     INTEGER NOT NULL DEFAULT 0,
+    conclusion          TEXT,
+    sign_off_by         INTEGER REFERENCES users(id),
+    sign_off_at         TIMESTAMP,
+    sign_off_notes      TEXT,
+    created_by          INTEGER REFERENCES users(id),
+    created_at          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_rr_status    ON risk_reviews(status);
+CREATE INDEX IF NOT EXISTS idx_rr_scheduled ON risk_reviews(scheduled_date);
+
+CREATE TABLE IF NOT EXISTS risk_review_items (
+    id                  SERIAL PRIMARY KEY,
+    review_id           INTEGER NOT NULL REFERENCES risk_reviews(id) ON DELETE CASCADE,
+    risk_id             INTEGER NOT NULL REFERENCES risks(id) ON DELETE CASCADE,
+    status              VARCHAR(30) NOT NULL DEFAULT 'pending'
+                        CHECK (status IN ('pending','reviewed','escalated','deferred','not_applicable')),
+    score_confirmed     BOOLEAN,
+    new_likelihood      INTEGER CHECK (new_likelihood BETWEEN 1 AND 5),
+    new_impact          INTEGER CHECK (new_impact BETWEEN 1 AND 5),
+    treatment_adequate  BOOLEAN,
+    action_required     TEXT,
+    reviewer_notes      TEXT,
+    reviewed_by         INTEGER REFERENCES users(id),
+    reviewed_at         TIMESTAMP,
+    created_at          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(review_id, risk_id)
+);
+CREATE INDEX IF NOT EXISTS idx_rri_review ON risk_review_items(review_id);
+CREATE INDEX IF NOT EXISTS idx_rri_risk   ON risk_review_items(risk_id);
+
+-- ─────────────────────────────────────────────
+-- Risk Acceptances
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS risk_acceptances (
+    id                       SERIAL PRIMARY KEY,
+    risk_id                  INTEGER NOT NULL REFERENCES risks(id) ON DELETE CASCADE,
+    accepted_by              INTEGER NOT NULL REFERENCES users(id),
+    acceptance_reason        TEXT NOT NULL,
+    conditions               TEXT,
+    valid_until              DATE NOT NULL,
+    status                   VARCHAR(20) NOT NULL DEFAULT 'active'
+                             CHECK (status IN ('active','expired','revoked','superseded')),
+    risk_score_at_acceptance INTEGER,
+    risk_level_at_acceptance VARCHAR(20),
+    renewal_required         BOOLEAN NOT NULL DEFAULT FALSE,
+    renewed_from             INTEGER REFERENCES risk_acceptances(id),
+    revoked_by               INTEGER REFERENCES users(id),
+    revoked_at               TIMESTAMP,
+    revocation_reason        TEXT,
+    created_at               TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at               TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_ra_risk_id ON risk_acceptances(risk_id);
+CREATE INDEX IF NOT EXISTS idx_ra_status  ON risk_acceptances(status);
+
+-- ─────────────────────────────────────────────
+-- Risk Bowtie – Causes
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS risk_bowtie_causes (
+    id                      SERIAL PRIMARY KEY,
+    risk_id                 INTEGER NOT NULL REFERENCES risks(id) ON DELETE CASCADE,
+    description             TEXT NOT NULL,
+    cause_type              VARCHAR(30) NOT NULL DEFAULT 'threat'
+                            CHECK (cause_type IN ('threat','vulnerability','hazard','event')),
+    likelihood_contribution VARCHAR(10) NOT NULL DEFAULT 'medium'
+                            CHECK (likelihood_contribution IN ('low','medium','high')),
+    sort_order              INTEGER NOT NULL DEFAULT 0,
+    created_by              INTEGER REFERENCES users(id),
+    created_at              TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_rbc_risk_id ON risk_bowtie_causes(risk_id);
+
+-- ─────────────────────────────────────────────
+-- Risk Bowtie – Consequences
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS risk_bowtie_consequences (
+    id               SERIAL PRIMARY KEY,
+    risk_id          INTEGER NOT NULL REFERENCES risks(id) ON DELETE CASCADE,
+    description      TEXT NOT NULL,
+    consequence_type VARCHAR(30) NOT NULL DEFAULT 'impact'
+                     CHECK (consequence_type IN ('financial','operational','reputational','legal','safety','impact')),
+    severity         VARCHAR(20) NOT NULL DEFAULT 'medium'
+                     CHECK (severity IN ('low','medium','high','critical')),
+    sort_order       INTEGER NOT NULL DEFAULT 0,
+    created_by       INTEGER REFERENCES users(id),
+    created_at       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_rbcons_risk_id ON risk_bowtie_consequences(risk_id);
+
+-- ─────────────────────────────────────────────
+-- Risk Bowtie – Barriers
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS risk_bowtie_barriers (
+    id                          SERIAL PRIMARY KEY,
+    risk_id                     INTEGER NOT NULL REFERENCES risks(id) ON DELETE CASCADE,
+    side                        VARCHAR(10) NOT NULL CHECK (side IN ('left','right')),
+    description                 TEXT NOT NULL,
+    barrier_type                VARCHAR(30) NOT NULL DEFAULT 'control'
+                                CHECK (barrier_type IN ('control','procedure','training','technology','monitoring')),
+    effectiveness               VARCHAR(20) NOT NULL DEFAULT 'partial'
+                                CHECK (effectiveness IN ('degraded','partial','substantial','full')),
+    control_implementation_id   INTEGER REFERENCES control_implementations(id) ON DELETE SET NULL,
+    sort_order                  INTEGER NOT NULL DEFAULT 0,
+    created_by                  INTEGER REFERENCES users(id),
+    created_at                  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_rbb_risk_id ON risk_bowtie_barriers(risk_id);
+
+-- ─────────────────────────────────────────────
+-- Risk Scenarios
+-- ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS risk_scenarios (
+    id                    SERIAL PRIMARY KEY,
+    risk_id               INTEGER NOT NULL REFERENCES risks(id) ON DELETE CASCADE,
+    name                  VARCHAR(255) NOT NULL,
+    description           TEXT,
+    scenario_type         VARCHAR(30) NOT NULL DEFAULT 'stress'
+                          CHECK (scenario_type IN ('stress','base','optimistic','catastrophic','regulatory')),
+    likelihood_multiplier NUMERIC(4,2) NOT NULL DEFAULT 1.0,
+    impact_multiplier     NUMERIC(4,2) NOT NULL DEFAULT 1.0,
+    scenario_likelihood   INTEGER CHECK (scenario_likelihood BETWEEN 1 AND 5),
+    scenario_impact       INTEGER CHECK (scenario_impact BETWEEN 1 AND 5),
+    scenario_score        INTEGER,
+    financial_impact_est  NUMERIC(15,2),
+    probability           NUMERIC(5,2),
+    assumptions           TEXT,
+    created_by            INTEGER REFERENCES users(id),
+    created_at            TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_rs_risk_id ON risk_scenarios(risk_id);
+
+-- ─────────────────────────────────────────────
+-- Risk Appetite – heat-map thresholds
+-- ─────────────────────────────────────────────
+ALTER TABLE risk_appetite
+    ADD COLUMN IF NOT EXISTS amber_threshold INTEGER,
+    ADD COLUMN IF NOT EXISTS red_threshold   INTEGER;
+
+COMMENT ON COLUMN risk_appetite.amber_threshold IS 'Score at or above which risk shows amber (warning) on heat maps';
+COMMENT ON COLUMN risk_appetite.red_threshold   IS 'Score at or above which risk shows red (critical) on heat maps';

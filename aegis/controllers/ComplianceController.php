@@ -132,6 +132,24 @@ class ComplianceController {
         header('Location: /compliance/' . (int)$pkgId . '/objective/' . $objId . '?saved=1');
     }
 
+    public function aiSuggestions(string $pkgId): void {
+        Auth::requireAuth();
+        header('Content-Type: application/json');
+        $pkgId = (int)$pkgId;
+        $pkg = Database::fetchOne(
+            "SELECT cp.*, s.name AS standard_name FROM compliance_packages cp JOIN standards s ON s.id = cp.standard_id WHERE cp.id = ?",
+            [$pkgId]
+        );
+        if (!$pkg) { http_response_code(404); echo json_encode(['error' => 'Package not found']); return; }
+        $suggestions = AIAdvisor::suggestControlGaps($pkgId);
+        $narrative   = !empty($suggestions) ? AIAdvisor::generateNarrative($pkgId) : '';
+        echo json_encode([
+            'ai_enabled'  => !empty($suggestions),
+            'suggestions' => $suggestions,
+            'narrative'   => $narrative,
+        ]);
+    }
+
     public function importForm(): void {
         Auth::requirePermission('compliance.write');
         $standards = Database::fetchAll("SELECT * FROM standards ORDER BY name");
@@ -171,11 +189,63 @@ class ComplianceController {
         header('Location: /compliance'); exit;
     }
 
+    public function scorecard(string $pkgId): void {
+        Auth::requireAuth();
+        $pkgId = (int)$pkgId;
+        $package = Database::fetchOne("SELECT cp.*, s.name as standard_name, s.code as standard_code FROM compliance_packages cp JOIN standards s ON s.id = cp.standard_id WHERE cp.id = ?", [$pkgId]);
+        if (!$package) { http_response_code(404); require AEGIS_ROOT . '/views/errors/404.php'; return; }
+
+        // All controls (level 2) grouped by domain (level 1)
+        $domains = Database::fetchAll("SELECT * FROM compliance_objectives WHERE package_id = ? AND level = 1 ORDER BY sort_order", [$pkgId]);
+        $controls = Database::fetchAll(
+            "SELECT co.*, ci.status, ci.due_date, ci.completion_date, ci.notes,
+                    u.name as assigned_name
+             FROM compliance_objectives co
+             LEFT JOIN control_implementations ci ON ci.objective_id = co.id
+             LEFT JOIN users u ON u.id = ci.assigned_to
+             WHERE co.package_id = ? AND co.level = 2
+             ORDER BY co.sort_order", [$pkgId]
+        );
+        $byDomain = [];
+        foreach ($controls as $c) {
+            $byDomain[(int)($c['parent_id'] ?? 0)][] = $c;
+        }
+
+        $total = count($controls);
+        $compliant = count(array_filter($controls, fn($c) => $c['status'] === 'compliant'));
+        $nonCompliant = count(array_filter($controls, fn($c) => $c['status'] === 'non_compliant'));
+        $partial = count(array_filter($controls, fn($c) => $c['status'] === 'partial'));
+        $notApplicable = count(array_filter($controls, fn($c) => $c['status'] === 'not_applicable'));
+        $notAssessed = $total - $compliant - $nonCompliant - $partial - $notApplicable;
+        $pct = ($total - $notApplicable) > 0 ? round($compliant / ($total - $notApplicable) * 100) : 0;
+
+        $pageTitle = $package['name'] . ' — Scorecard';
+        $activeModule = 'compliance';
+        $breadcrumbs = [['Compliance','/compliance'],[$package['name'],'/compliance/'.$pkgId],['Scorecard',null]];
+        require AEGIS_ROOT . '/views/compliance/scorecard.php';
+    }
+
     private function processJsonImport(array $data): void {
         $standardId = (int)($_POST['standard_id'] ?? 0);
         $name = Security::sanitizeInput($data['name'] ?? 'Imported Package');
         $version = Security::sanitizeInput($data['version'] ?? '1.0');
         $description = Security::sanitizeInput($data['description'] ?? '');
+
+        // If the JSON carries a standard definition, upsert it
+        if (!$standardId && !empty($data['standard']['code'])) {
+            $std = $data['standard'];
+            $existing = Database::fetchOne("SELECT id FROM standards WHERE code = ?", [$std['code']]);
+            if ($existing) {
+                $standardId = $existing['id'];
+            } else {
+                Database::query(
+                    "INSERT INTO standards (code, name, authority, category, is_builtin, is_active)
+                     VALUES (?,?,?,?,FALSE,TRUE)",
+                    [$std['code'], $std['name'] ?? $std['code'], $std['authority'] ?? '', $std['category'] ?? '']
+                );
+                $standardId = Database::fetchOne("SELECT id FROM standards WHERE code = ?", [$std['code']])['id'];
+            }
+        }
 
         $pkgId = Database::insert('compliance_packages', [
             'standard_id'  => $standardId ?: null,
@@ -186,16 +256,199 @@ class ComplianceController {
             'imported_at'  => date('Y-m-d H:i:s'),
         ]);
 
-        $sort = 0;
-        foreach ($data['objectives'] ?? $data['controls'] ?? [] as $item) {
-            Database::query(
-                "INSERT INTO compliance_objectives (package_id, code, title, description, category, level, sort_order) VALUES (?,?,?,?,?,1,?)",
-                [$pkgId, $item['code'] ?? '', $item['title'] ?? $item['name'] ?? '', $item['description'] ?? '', $item['category'] ?? '', $sort++]
-            );
+        $controlCount = 0;
+
+        // 2-level (domains → controls)
+        if (!empty($data['domains'])) {
+            $domainSort = 0;
+            foreach ($data['domains'] as $domain) {
+                Database::query(
+                    "INSERT INTO compliance_objectives (package_id, code, title, description, level, sort_order)
+                     VALUES (?,?,?,?,1,?)",
+                    [$pkgId, $domain['code'] ?? '', $domain['title'] ?? '', $domain['description'] ?? '', $domainSort++]
+                );
+                $domainRow = Database::fetchOne(
+                    "SELECT id FROM compliance_objectives WHERE package_id = ? AND code = ? AND level = 1 ORDER BY id DESC LIMIT 1",
+                    [$pkgId, $domain['code'] ?? '']
+                );
+                $domainId   = $domainRow['id'];
+                $ctrlSort   = 0;
+                foreach ($domain['controls'] ?? [] as $ctrl) {
+                    Database::query(
+                        "INSERT INTO compliance_objectives (package_id, parent_id, code, title, description, level, sort_order)
+                         VALUES (?,?,?,?,?,2,?)",
+                        [$pkgId, $domainId, $ctrl['code'] ?? '', $ctrl['title'] ?? '', $ctrl['description'] ?? '', $ctrlSort++]
+                    );
+                    $controlCount++;
+                }
+            }
+        } else {
+            // Flat 1-level import (legacy format)
+            $sort = 0;
+            foreach ($data['objectives'] ?? $data['controls'] ?? [] as $item) {
+                Database::query(
+                    "INSERT INTO compliance_objectives (package_id, code, title, description, category, level, sort_order) VALUES (?,?,?,?,?,1,?)",
+                    [$pkgId, $item['code'] ?? '', $item['title'] ?? $item['name'] ?? '', $item['description'] ?? '', $item['category'] ?? '', $sort++]
+                );
+                $controlCount++;
+            }
         }
 
         $total = Database::fetchOne("SELECT COUNT(*) as c FROM compliance_objectives WHERE package_id = ?", [$pkgId])['c'];
         Database::query("UPDATE compliance_packages SET objectives_count = ? WHERE id = ?", [$total, $pkgId]);
         Auth::log('import_package', 'compliance_packages', $pkgId);
+    }
+
+    public function testControl(string $objId): void {
+        Auth::requirePermission('audit.write');
+        $objId = (int)$objId;
+        $obj = Database::fetchOne(
+            "SELECT co.*, cp.id as package_id, cp.name as package_name, s.name as standard_name
+             FROM compliance_objectives co
+             JOIN compliance_packages cp ON cp.id = co.package_id
+             JOIN standards s ON s.id = cp.standard_id
+             WHERE co.id=?", [$objId]
+        );
+        if (!$obj) { http_response_code(404); require AEGIS_ROOT.'/views/errors/404.php'; return; }
+        $history = Database::fetchAll(
+            "SELECT ct.*, u.name as tester_name FROM control_tests ct
+             LEFT JOIN users u ON u.id = ct.tester_id
+             WHERE ct.objective_id=? ORDER BY ct.test_date DESC LIMIT 10", [$objId]
+        );
+        $pageTitle    = 'Test Control: ' . $obj['code'];
+        $activeModule = 'compliance';
+        $breadcrumbs  = [
+            ['Compliance', '/compliance'],
+            [$obj['package_name'], "/compliance/{$obj['package_id']}"],
+            ['Test Control', null],
+        ];
+        ob_start();
+        require AEGIS_ROOT . '/views/compliance/test_control.php';
+        $content = ob_get_clean();
+        require AEGIS_ROOT . '/views/layout.php';
+    }
+
+    public function saveTest(string $objId): void {
+        Auth::requirePermission('audit.write');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $objId = (int)$objId;
+        $obj = Database::fetchOne("SELECT id, package_id FROM compliance_objectives WHERE id=?", [$objId]);
+        if (!$obj) { http_response_code(404); return; }
+        $validResults = ['pass','fail','partial','not_tested'];
+        $result = in_array($_POST['result'] ?? '', $validResults, true) ? $_POST['result'] : 'not_tested';
+        $effectiveness = isset($_POST['effectiveness']) ? max(0, min(100, (int)$_POST['effectiveness'])) : null;
+        $testDate = Security::sanitizeInput($_POST['test_date'] ?? date('Y-m-d'));
+        $nextDate = Security::sanitizeInput($_POST['next_test_date'] ?? '');
+        $id = Database::insert('control_tests', [
+            'objective_id'   => $objId,
+            'package_id'     => $obj['package_id'],
+            'test_date'      => $testDate,
+            'tester_id'      => Auth::id(),
+            'result'         => $result,
+            'effectiveness'  => $effectiveness,
+            'method'         => Security::sanitizeInput($_POST['method'] ?? ''),
+            'findings'       => Security::sanitizeInput($_POST['findings'] ?? ''),
+            'evidence_refs'  => Security::sanitizeInput($_POST['evidence_refs'] ?? ''),
+            'next_test_date' => $nextDate ?: null,
+        ]);
+        // Update the effectiveness on the control_implementation too
+        Database::query(
+            "UPDATE control_implementations SET notes = COALESCE(notes,'') || '' WHERE objective_id=?",
+            [$objId]
+        );
+        Auth::log('control_tested', 'control_tests', $id, ['result'=>$result,'effectiveness'=>$effectiveness]);
+        $_SESSION['flash_success'] = 'Test result recorded.';
+        header("Location: /compliance/control/{$objId}/test");
+    }
+
+    public function gapAnalysis(): void {
+        Auth::requireAuth();
+        // Per-package compliance stats
+        $packages = Database::fetchAll(
+            "SELECT cp.id, cp.name, s.name as standard_name, s.code as standard_code,
+                    COUNT(co.id) FILTER (WHERE co.level=2) as total_controls,
+                    COUNT(ci.id) FILTER (WHERE ci.status='implemented' AND co.level=2) as implemented,
+                    COUNT(ci.id) FILTER (WHERE ci.status='in_progress' AND co.level=2) as in_progress,
+                    COUNT(co.id) FILTER (WHERE (ci.status IS NULL OR ci.status='not_started') AND co.level=2) as not_started,
+                    COUNT(co.id) FILTER (WHERE ci.due_date < CURRENT_DATE AND ci.status != 'implemented' AND co.level=2) as overdue
+             FROM compliance_packages cp
+             JOIN standards s ON s.id = cp.standard_id
+             LEFT JOIN compliance_objectives co ON co.package_id = cp.id
+             LEFT JOIN control_implementations ci ON ci.objective_id = co.id
+             WHERE cp.is_active = TRUE
+             GROUP BY cp.id, cp.name, s.name, s.code
+             ORDER BY s.code, cp.name"
+        );
+        // Top gaps — controls not started or overdue across all packages
+        $gaps = Database::fetchAll(
+            "SELECT co.code, co.title, co.description, cp.name as package_name, s.code as standard_code,
+                    ci.status, ci.due_date, u.name as assigned_name
+             FROM compliance_objectives co
+             JOIN compliance_packages cp ON cp.id = co.package_id
+             JOIN standards s ON s.id = cp.standard_id
+             LEFT JOIN control_implementations ci ON ci.objective_id = co.id
+             LEFT JOIN users u ON u.id = ci.assigned_to
+             WHERE co.level = 2 AND cp.is_active = TRUE
+               AND (ci.status IS NULL OR ci.status IN ('not_started') OR (ci.due_date < CURRENT_DATE AND ci.status != 'implemented'))
+             ORDER BY ci.due_date ASC NULLS LAST, co.code ASC
+             LIMIT 100"
+        );
+        // Cross-framework: controls that appear in multiple packages with gaps
+        $crossFramework = Database::fetchAll(
+            "SELECT co.title, COUNT(DISTINCT cp.id) as framework_count,
+                    STRING_AGG(DISTINCT s.code, ', ' ORDER BY s.code) as frameworks,
+                    COUNT(CASE WHEN ci.status='implemented' THEN 1 END) as implemented_in
+             FROM compliance_objectives co
+             JOIN compliance_packages cp ON cp.id = co.package_id
+             JOIN standards s ON s.id = cp.standard_id
+             LEFT JOIN control_implementations ci ON ci.objective_id = co.id
+             WHERE co.level=2 AND cp.is_active=TRUE
+             GROUP BY co.title HAVING COUNT(DISTINCT cp.id) > 1
+             ORDER BY framework_count DESC, co.title
+             LIMIT 20"
+        );
+        $pageTitle    = 'Compliance Gap Analysis';
+        $activeModule = 'compliance_gap';
+        $breadcrumbs  = [['Compliance', '/compliance'], ['Gap Analysis', null]];
+        ob_start();
+        require AEGIS_ROOT . '/views/compliance/gap_analysis.php';
+        $content = ob_get_clean();
+        require AEGIS_ROOT . '/views/layout.php';
+    }
+
+    public function testingDashboard(): void {
+        Auth::requireAuth();
+        // Controls by result
+        $summary = Database::fetchAll(
+            "SELECT result, COUNT(*) as cnt FROM control_tests
+             WHERE id IN (SELECT MAX(id) FROM control_tests GROUP BY objective_id)
+             GROUP BY result"
+        );
+        // Recently tested
+        $recent = Database::fetchAll(
+            "SELECT ct.*, co.code, co.title, cp.name as package_name, u.name as tester_name
+             FROM control_tests ct
+             JOIN compliance_objectives co ON co.id = ct.objective_id
+             JOIN compliance_packages cp ON cp.id = ct.package_id
+             LEFT JOIN users u ON u.id = ct.tester_id
+             ORDER BY ct.test_date DESC LIMIT 20"
+        );
+        // Overdue next tests
+        $overdue = Database::fetchAll(
+            "SELECT ct.*, co.code, co.title, cp.name as package_name
+             FROM control_tests ct
+             JOIN compliance_objectives co ON co.id = ct.objective_id
+             JOIN compliance_packages cp ON cp.id = ct.package_id
+             WHERE ct.next_test_date < CURRENT_DATE
+               AND ct.id IN (SELECT MAX(id) FROM control_tests GROUP BY objective_id)
+             ORDER BY ct.next_test_date ASC"
+        );
+        $pageTitle    = 'Control Testing Dashboard';
+        $activeModule = 'control_testing';
+        $breadcrumbs  = [['Compliance', '/compliance'], ['Control Testing', null]];
+        ob_start();
+        require AEGIS_ROOT . '/views/compliance/testing_dashboard.php';
+        $content = ob_get_clean();
+        require AEGIS_ROOT . '/views/layout.php';
     }
 }

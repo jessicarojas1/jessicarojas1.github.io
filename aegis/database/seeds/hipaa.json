@@ -1,0 +1,92 @@
+{
+  "name": "HIPAA Security Rule — Administrative, Physical, and Technical Safeguards",
+  "version": "45 CFR Part 164 (2013 Omnibus)",
+  "description": "Health Insurance Portability and Accountability Act Security Rule requirements for protecting electronic Protected Health Information (ePHI). R = Required; A = Addressable implementation specification.",
+  "standard": { "code": "HIPAA", "name": "HIPAA Security Rule", "authority": "HHS / OCR", "category": "Healthcare" },
+  "domains": [
+    {
+      "code": "AS", "title": "Administrative Safeguards (§164.308)",
+      "controls": [
+        { "code": "AS-1",   "title": "Security Management Process (R)", "description": "Implement policies and procedures to prevent, detect, contain, and correct security violations. Includes risk analysis and risk management." },
+        { "code": "AS-1a",  "title": "Risk Analysis (R)", "description": "Conduct an accurate and thorough assessment of the potential risks and vulnerabilities to the confidentiality, integrity, and availability of ePHI." },
+        { "code": "AS-1b",  "title": "Risk Management (R)", "description": "Implement security measures sufficient to reduce risks and vulnerabilities to a reasonable and appropriate level." },
+        { "code": "AS-1c",  "title": "Sanction Policy (R)", "description": "Apply appropriate sanctions against workforce members who fail to comply with the security policies and procedures." },
+        { "code": "AS-1d",  "title": "Information System Activity Review (R)", "description": "Implement procedures to regularly review records of information system activity, such as audit logs, access reports, and security incident tracking reports." },
+        { "code": "AS-2",   "title": "Assigned Security Responsibility (R)", "description": "Identify the security official who is responsible for the development and implementation of the policies and procedures." },
+        { "code": "AS-3",   "title": "Workforce Security", "description": "Implement policies and procedures to ensure that all members of the workforce have appropriate access to ePHI." },
+        { "code": "AS-3a",  "title": "Authorization and/or Supervision (A)", "description": "Implement procedures for the authorization and/or supervision of workforce members who work with ePHI." },
+        { "code": "AS-3b",  "title": "Workforce Clearance Procedure (A)", "description": "Implement procedures to determine that the access of a workforce member to ePHI is appropriate." },
+        { "code": "AS-3c",  "title": "Termination Procedures (A)", "description": "Implement procedures for terminating access to ePHI when the employment of, or other arrangement with, a workforce member ends." },
+        { "code": "AS-4",   "title": "Information Access Management", "description": "Implement policies and procedures for authorizing access to ePHI." },
+        { "code": "AS-4a",  "title": "Isolating Healthcare Clearinghouse Functions (R)", "description": "If a healthcare clearinghouse is part of a larger organization, implement policies and procedures to protect ePHI from the larger organization." },
+        { "code": "AS-4b",  "title": "Access Authorization (A)", "description": "Implement policies and procedures for granting access to ePHI." },
+        { "code": "AS-4c",  "title": "Access Establishment and Modification (A)", "description": "Implement policies and procedures that, based upon the covered entity's access authorization policies, establish, document, review, and modify a user's right of access to a workstation, transaction, program, or process." },
+        { "code": "AS-5",   "title": "Security Awareness and Training", "description": "Implement a security awareness and training program for all members of its workforce." },
+        { "code": "AS-5a",  "title": "Security Reminders (A)", "description": "Periodic security updates." },
+        { "code": "AS-5b",  "title": "Protection from Malicious Software (A)", "description": "Procedures for guarding against, detecting, and reporting malicious software." },
+        { "code": "AS-5c",  "title": "Log-in Monitoring (A)", "description": "Procedures for monitoring log-in attempts and reporting discrepancies." },
+        { "code": "AS-5d",  "title": "Password Management (A)", "description": "Procedures for creating, changing, and safeguarding passwords." },
+        { "code": "AS-6",   "title": "Security Incident Procedures (R)", "description": "Implement policies and procedures to address security incidents. Includes identifying and responding to suspected or known security incidents, mitigating harmful effects, and documenting incidents and their outcomes." },
+        { "code": "AS-7",   "title": "Contingency Plan", "description": "Establish and implement policies and procedures for responding to an emergency or other occurrence that damages systems containing ePHI." },
+        { "code": "AS-7a",  "title": "Data Backup Plan (R)", "description": "Establish and implement procedures to create and maintain retrievable exact copies of ePHI." },
+        { "code": "AS-7b",  "title": "Disaster Recovery Plan (R)", "description": "Establish and implement procedures to restore any loss of data." },
+        { "code": "AS-7c",  "title": "Emergency Mode Operation Plan (R)", "description": "Establish and implement procedures to enable continuation of critical business processes that protect ePHI while operating in emergency mode." },
+        { "code": "AS-7d",  "title": "Testing and Revision Procedures (A)", "description": "Implement procedures for periodic testing and revision of contingency plans." },
+        { "code": "AS-7e",  "title": "Applications and Data Criticality Analysis (A)", "description": "Assess the relative criticality of specific applications and data in support of other contingency plan components." },
+        { "code": "AS-8",   "title": "Evaluation (R)", "description": "Perform a periodic technical and nontechnical evaluation, based initially upon the standards implemented under this rule and subsequently in response to environmental or operational changes affecting the security of ePHI." },
+        { "code": "AS-9",   "title": "Business Associate Contracts and Other Arrangements (R)", "description": "A covered entity may permit a business associate to create, receive, maintain, or transmit ePHI only if the covered entity obtains satisfactory assurances that the business associate will appropriately safeguard the information." }
+      ]
+    },
+    {
+      "code": "PS", "title": "Physical Safeguards (§164.310)",
+      "controls": [
+        { "code": "PS-1",  "title": "Facility Access Controls", "description": "Implement policies and procedures to limit physical access to electronic information systems and the facility or facilities in which they are housed." },
+        { "code": "PS-1a", "title": "Contingency Operations (A)", "description": "Establish and implement procedures that allow facility access in support of restoration of lost data under the disaster recovery plan and emergency mode operations plan." },
+        { "code": "PS-1b", "title": "Facility Security Plan (A)", "description": "Implement policies and procedures to safeguard the facility and the equipment therein from unauthorized physical access, tampering, and theft." },
+        { "code": "PS-1c", "title": "Access Control and Validation Procedures (A)", "description": "Implement procedures to control and validate a person's access to facilities based on their role or function." },
+        { "code": "PS-1d", "title": "Maintenance Records (A)", "description": "Implement policies and procedures to document repairs and modifications to the physical components of a facility." },
+        { "code": "PS-2",  "title": "Workstation Use (R)", "description": "Implement policies and procedures that specify the proper functions to be performed, the manner in which those functions are to be performed, and the physical attributes of the surroundings of a specific workstation." },
+        { "code": "PS-3",  "title": "Workstation Security (R)", "description": "Implement physical safeguards for all workstations that access ePHI to restrict access to authorized users." },
+        { "code": "PS-4",  "title": "Device and Media Controls", "description": "Implement policies and procedures that govern the receipt and removal of hardware and electronic media that contain ePHI into and out of a facility." },
+        { "code": "PS-4a", "title": "Disposal (R)", "description": "Implement policies and procedures to address the final disposition of ePHI and/or the hardware or electronic media on which it is stored." },
+        { "code": "PS-4b", "title": "Media Re-use (R)", "description": "Implement procedures for removal of ePHI from electronic media before the media are made available for re-use." },
+        { "code": "PS-4c", "title": "Accountability (A)", "description": "Maintain a record of the movements of hardware and electronic media and any person responsible therefore." },
+        { "code": "PS-4d", "title": "Data Backup and Storage (A)", "description": "Create a retrievable, exact copy of ePHI, when needed, before movement of equipment." }
+      ]
+    },
+    {
+      "code": "TS", "title": "Technical Safeguards (§164.312)",
+      "controls": [
+        { "code": "TS-1",  "title": "Access Control", "description": "Implement technical policies and procedures for electronic information systems that maintain ePHI to allow access only to those persons or software programs that have been granted access rights." },
+        { "code": "TS-1a", "title": "Unique User Identification (R)", "description": "Assign a unique name and/or number for identifying and tracking user identity." },
+        { "code": "TS-1b", "title": "Emergency Access Procedure (R)", "description": "Establish and implement procedures for obtaining necessary ePHI during an emergency." },
+        { "code": "TS-1c", "title": "Automatic Logoff (A)", "description": "Implement electronic procedures that terminate an electronic session after a predetermined time of inactivity." },
+        { "code": "TS-1d", "title": "Encryption and Decryption (A)", "description": "Implement a mechanism to encrypt and decrypt ePHI." },
+        { "code": "TS-2",  "title": "Audit Controls (R)", "description": "Implement hardware, software, and/or procedural mechanisms that record and examine activity in information systems that contain or use ePHI." },
+        { "code": "TS-3",  "title": "Integrity", "description": "Implement policies and procedures to protect ePHI from improper alteration or destruction." },
+        { "code": "TS-3a", "title": "Authentication (A)", "description": "Implement electronic mechanisms to corroborate that ePHI has not been altered or destroyed in an unauthorized manner." },
+        { "code": "TS-4",  "title": "Person or Entity Authentication (R)", "description": "Implement procedures to verify that a person or entity seeking access to ePHI is the one claimed." },
+        { "code": "TS-5",  "title": "Transmission Security", "description": "Implement technical security measures to guard against unauthorized access to ePHI that is being transmitted over an electronic communications network." },
+        { "code": "TS-5a", "title": "Integrity Controls (A)", "description": "Implement security measures to ensure that electronically transmitted ePHI is not improperly modified without detection until disposed of." },
+        { "code": "TS-5b", "title": "Encryption (A)", "description": "Implement a mechanism to encrypt ePHI in transit whenever deemed appropriate." }
+      ]
+    },
+    {
+      "code": "OR", "title": "Organizational Requirements (§164.314)",
+      "controls": [
+        { "code": "OR-1", "title": "Business Associate Contracts or Other Arrangements (R)", "description": "The contract or other arrangement between the covered entity and its business associate must meet the requirements of §164.314(a)." },
+        { "code": "OR-2", "title": "Requirements for Group Health Plans (R)", "description": "Ensure that the group health plan documents include provisions to enable the plan sponsor to comply with the applicable requirements." }
+      ]
+    },
+    {
+      "code": "PD", "title": "Policies, Procedures, and Documentation (§164.316)",
+      "controls": [
+        { "code": "PD-1", "title": "Policies and Procedures (R)", "description": "Implement reasonable and appropriate policies and procedures to comply with the standards, implementation specifications, and other requirements of this subpart." },
+        { "code": "PD-2", "title": "Documentation (R)", "description": "Maintain the policies and procedures implemented to comply with this subpart in written (which may be electronic) form." },
+        { "code": "PD-2a", "title": "Time Limit (R)", "description": "Retain the documentation for 6 years from the date of its creation or the date when it last was in effect, whichever is later." },
+        { "code": "PD-2b", "title": "Availability (R)", "description": "Make documentation available to those persons responsible for implementing the procedures to which the documentation pertains." },
+        { "code": "PD-2c", "title": "Updates (R)", "description": "Review documentation periodically and update as needed in response to environmental or operational changes affecting the security of ePHI." }
+      ]
+    }
+  ]
+}

@@ -122,9 +122,41 @@ class Auth {
 
     public static function log(string $action, ?string $entityType, ?int $entityId, ?array $changes = null): void {
         if (!self::check()) return;
+        $ip        = $_SERVER['REMOTE_ADDR'] ?? '';
+        $userAgent = substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 500);
+        $changesJson = $changes ? json_encode($changes) : null;
+
+        // Hash chain: SHA-256( prev_hash | userId | action | entityType | entityId | changes | ip | now )
+        $prev = Database::fetchOne("SELECT log_hash FROM activity_log ORDER BY id DESC LIMIT 1");
+        $prevHash = $prev['log_hash'] ?? 'genesis';
+        $payload  = implode('|', [
+            $prevHash,
+            (string)self::id(),
+            $action,
+            (string)$entityType,
+            (string)$entityId,
+            (string)$changesJson,
+            $ip,
+        ]);
+        $logHash = hash('sha256', $payload);
+
         Database::query(
-            "INSERT INTO activity_log (user_id, action, entity_type, entity_id, changes, ip_address) VALUES (?,?,?,?,?,?)",
-            [self::id(), $action, $entityType, $entityId, $changes ? json_encode($changes) : null, $_SERVER['REMOTE_ADDR'] ?? '']
+            "INSERT INTO activity_log (user_id, action, entity_type, entity_id, changes, ip_address, user_agent, log_hash)
+             VALUES (?,?,?,?,?,?,?,?)",
+            [self::id(), $action, $entityType, $entityId, $changesJson, $ip, $userAgent, $logHash]
+        );
+    }
+
+    public static function logSystem(string $action, ?string $entityType = null, ?int $entityId = null): void {
+        $ip = $_SERVER['REMOTE_ADDR'] ?? 'system';
+        $prev = Database::fetchOne("SELECT log_hash FROM activity_log ORDER BY id DESC LIMIT 1");
+        $prevHash = $prev['log_hash'] ?? 'genesis';
+        $payload  = implode('|', [$prevHash, 'system', $action, (string)$entityType, (string)$entityId, '', $ip]);
+        $logHash  = hash('sha256', $payload);
+        Database::query(
+            "INSERT INTO activity_log (user_id, action, entity_type, entity_id, ip_address, log_hash)
+             VALUES (NULL,?,?,?,?,?)",
+            [$action, $entityType, $entityId, $ip, $logHash]
         );
     }
 }

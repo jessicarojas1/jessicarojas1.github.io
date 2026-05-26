@@ -12,6 +12,8 @@ ob_start();
     <p class="page-subtitle"><?= Security::h($package['standard_name']) ?> · <?= Security::h($package['authority'] ?? '') ?></p>
   </div>
   <div class="page-actions">
+    <a href="/compliance/gap-analysis" class="btn btn-ghost"><i class="bi bi-diagram-3"></i> View Gap Analysis</a>
+    <a href="/compliance/<?= (int)$package['id'] ?>/scorecard" class="btn btn-ghost"><i class="bi bi-printer"></i> Scorecard</a>
     <a href="/audit/create" class="btn btn-primary"><i class="bi bi-clipboard2-plus"></i> Start Audit</a>
   </div>
 </div>
@@ -52,6 +54,65 @@ ob_start();
   </div>
   <?php endif; ?>
 </div>
+
+<!-- AI Gap Analysis panel (lazy-loaded) -->
+<div class="card" id="aiPanel" style="margin-bottom:16px;border-left:3px solid #6366f1">
+  <div class="card-header" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center"
+       onclick="loadAiSuggestions(<?= (int)$package['id'] ?>)">
+    <div style="display:flex;align-items:center;gap:10px">
+      <i class="bi bi-stars" style="color:#6366f1;font-size:18px"></i>
+      <h3 style="margin:0">AI Gap Analysis</h3>
+    </div>
+    <span id="aiToggleIcon" class="text-muted text-sm">Click to analyze</span>
+  </div>
+  <div id="aiPanelBody" style="display:none">
+    <div class="card-body" id="aiContent">
+      <div style="text-align:center;padding:24px;color:#9ca3af">
+        <i class="bi bi-hourglass-split" style="font-size:24px;display:block;margin-bottom:8px"></i>
+        Analyzing compliance gaps…
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+var _aiLoaded = false;
+function loadAiSuggestions(pkgId) {
+  var panel = document.getElementById('aiPanelBody');
+  var icon  = document.getElementById('aiToggleIcon');
+  if (panel.style.display === 'block') {
+    panel.style.display = 'none'; icon.textContent = 'Click to analyze'; return;
+  }
+  panel.style.display = 'block';
+  if (_aiLoaded) return;
+  icon.textContent = 'Analyzing…';
+  fetch('/compliance/' + pkgId + '/ai-suggestions')
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      _aiLoaded = true;
+      var c = document.getElementById('aiContent');
+      if (!data.ai_enabled || !data.suggestions || !data.suggestions.length) {
+        c.innerHTML = '<p class="text-muted" style="padding:16px">AI analysis is not configured. Set <code>ai_provider</code> and <code>ai_api_key</code> in Admin → System Settings to enable gap suggestions.</p>';
+        icon.textContent = 'Not configured';
+        return;
+      }
+      icon.textContent = data.suggestions.length + ' suggestions';
+      var html = '';
+      if (data.narrative) {
+        html += '<div style="padding:16px 20px;background:#f8f7ff;border-bottom:1px solid #e5e7eb;color:#374151;line-height:1.6">' + data.narrative.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>';
+      }
+      html += '<ul style="margin:0;padding:16px 20px 16px 36px;display:flex;flex-direction:column;gap:8px">';
+      data.suggestions.forEach(function(s, i) {
+        html += '<li style="color:#374151;line-height:1.5"><span style="color:#6366f1;font-weight:600">' + (i+1) + '.</span> ' + s.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</li>';
+      });
+      html += '</ul>';
+      c.innerHTML = html;
+    })
+    .catch(function() {
+      document.getElementById('aiContent').innerHTML = '<p class="text-muted" style="padding:16px">Failed to load AI suggestions.</p>';
+      icon.textContent = 'Error';
+    });
+}
+</script>
 
 <!-- Filter bar -->
 <div class="filter-bar card">
@@ -129,6 +190,9 @@ ob_start();
         </div>
         <a href="/compliance/<?= $package['id'] ?>/objective/<?= $ctrl['id'] ?>" class="btn btn-ghost btn-sm">
           <i class="bi bi-pencil-fill"></i> Assess
+        </a>
+        <a href="/compliance/control/<?= $ctrl['id'] ?>/test" class="btn btn-ghost btn-sm" title="Record test result" style="color:#6366f1">
+          <i class="bi bi-clipboard2-check"></i> Test
         </a>
       </div>
     <?php endforeach; ?>

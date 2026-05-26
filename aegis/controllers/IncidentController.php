@@ -160,6 +160,53 @@ class IncidentController {
 
         $users = Database::fetchAll("SELECT id, name FROM users WHERE is_active = TRUE ORDER BY name");
 
+        // Playbook runs for this incident
+        $playbookRuns = Database::fetchAll(
+            "SELECT ipr.*, p.title as playbook_title,
+                    u.name as started_by_name,
+                    COUNT(ps.id) as total_steps,
+                    COUNT(psc.id) as done_steps
+             FROM incident_playbook_runs ipr
+             JOIN playbooks p ON p.id = ipr.playbook_id
+             LEFT JOIN users u ON u.id = ipr.started_by
+             LEFT JOIN playbook_steps ps ON ps.playbook_id = p.id
+             LEFT JOIN playbook_step_completions psc ON psc.run_id = ipr.id AND psc.step_id = ps.id
+             WHERE ipr.incident_id = ?
+             GROUP BY ipr.id, p.title, u.name
+             ORDER BY ipr.started_at ASC",
+            [$id]
+        );
+
+        // For each run load its steps with completion state
+        $playbookRunSteps = [];
+        foreach ($playbookRuns as $run) {
+            $playbookRunSteps[$run['id']] = Database::fetchAll(
+                "SELECT ps.*,
+                        psc.id as completion_id,
+                        psc.completed_by,
+                        psc.completed_at,
+                        psc.notes as completion_notes,
+                        cu.name as completed_by_name
+                 FROM playbook_steps ps
+                 LEFT JOIN playbook_step_completions psc ON psc.step_id = ps.id AND psc.run_id = ?
+                 LEFT JOIN users cu ON cu.id = psc.completed_by
+                 WHERE ps.playbook_id = ?
+                 ORDER BY ps.sort_order, ps.step_number",
+                [$run['id'], $run['playbook_id']]
+            );
+        }
+
+        // Active playbooks available to start (not already running)
+        $attachedPlaybookIds = array_column($playbookRuns, 'playbook_id');
+        $availablePlaybooks = Database::fetchAll(
+            "SELECT id, title, category, severity_filter FROM playbooks WHERE is_active = TRUE ORDER BY title"
+        );
+        // Filter out already-attached ones in PHP to avoid parameter binding complexity
+        $availablePlaybooks = array_values(array_filter(
+            $availablePlaybooks,
+            fn($p) => !in_array((int)$p['id'], array_map('intval', $attachedPlaybookIds))
+        ));
+
         require AEGIS_ROOT . '/views/incident/view.php';
     }
 
@@ -220,7 +267,7 @@ class IncidentController {
     }
 
     public function addUpdate(string $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('incident.write');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -298,5 +345,69 @@ class IncidentController {
 
         $_SESSION['flash_success'] = 'Incident closed successfully.';
         header('Location: /incident/' . $id);
+    }
+
+    public function acknowledge(string $id): void {
+        Auth::requirePermission('incident.write');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $id       = (int)$id;
+        $incident = Database::fetchOne("SELECT id, severity FROM incidents WHERE id=?", [$id]);
+        if (!$incident) { http_response_code(404); return; }
+        // Check not already acknowledged
+        $existing = Database::fetchOne(
+            "SELECT id FROM incident_sla_events WHERE incident_id=? AND event_type='acknowledged'", [$id]
+        );
+        if (!$existing) {
+            Database::insert('incident_sla_events', [
+                'incident_id' => $id,
+                'event_type'  => 'acknowledged',
+                'recorded_by' => Auth::id(),
+                'notes'       => Security::sanitizeInput($_POST['notes'] ?? ''),
+            ]);
+            Auth::log('incident_acknowledged', 'incidents', $id, []);
+            $_SESSION['flash_success'] = 'Incident acknowledged.';
+        } else {
+            $_SESSION['flash_error'] = 'Already acknowledged.';
+        }
+        header("Location: /incident/{$id}");
+    }
+
+    public function slaReport(): void {
+        Auth::requireAuth();
+        // Active incidents with SLA status
+        $incidents = Database::fetchAll(
+            "SELECT i.*, isp.acknowledge_hours, isp.resolve_hours,
+                    ack_evt.occurred_at as acknowledged_at,
+                    res_evt.occurred_at as resolved_at
+             FROM incidents i
+             LEFT JOIN incident_sla_policies isp ON isp.severity = i.severity
+             LEFT JOIN incident_sla_events ack_evt ON ack_evt.incident_id=i.id AND ack_evt.event_type='acknowledged'
+             LEFT JOIN incident_sla_events res_evt ON res_evt.incident_id=i.id AND res_evt.event_type='resolved'
+             WHERE i.status != 'closed'
+             ORDER BY i.created_at DESC"
+        );
+        // Add computed SLA fields
+        foreach ($incidents as &$inc) {
+            $inc['ack_sla_status']     = self::slaStatus($inc['created_at'], $inc['acknowledged_at'], $inc['acknowledge_hours']);
+            $inc['resolve_sla_status'] = self::slaStatus($inc['created_at'], $inc['resolved_at'], $inc['resolve_hours']);
+            $inc['age_hours']          = round((time() - strtotime($inc['created_at'])) / 3600, 1);
+        }
+        unset($inc);
+        $pageTitle    = 'SLA Report';
+        $activeModule = 'incident_sla';
+        $breadcrumbs  = [['Incidents', '/incident'], ['SLA Report', null]];
+        ob_start();
+        require AEGIS_ROOT . '/views/incident/sla_report.php';
+        $content = ob_get_clean();
+        require AEGIS_ROOT . '/views/layout.php';
+    }
+
+    private static function slaStatus(?string $startedAt, ?string $eventAt, ?int $hoursAllowed): string {
+        if (!$startedAt || !$hoursAllowed) return 'n/a';
+        if ($eventAt) return 'met'; // Completed within SLA (assume met if done)
+        $elapsed = (time() - strtotime($startedAt)) / 3600;
+        if ($elapsed > $hoursAllowed) return 'breached';
+        if ($elapsed > $hoursAllowed * 0.75) return 'at_risk';
+        return 'on_track';
     }
 }

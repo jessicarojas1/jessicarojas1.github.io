@@ -162,6 +162,17 @@ body {
 }
 
 .nav-item i { font-size: 16px; flex-shrink: 0; }
+.nav-badge {
+  margin-left: auto;
+  background: #ef4444;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 1px 6px;
+  min-width: 18px;
+  text-align: center;
+}
 
 .sidebar-footer {
   padding: 16px;
@@ -1412,3 +1423,68 @@ input[type="range"] {
 
 /* ── bg-subtle for table headers ─────────────────────────────────────────��─ */
 .bg-subtle { background: var(--bg-subtle); }
+
+/* ============================================================
+   PWA + Mobile Responsive Overhaul
+   ============================================================ */
+@media (max-width: 768px) {
+  /* Sidebar collapses off-screen; toggled by .sidebar-open class */
+  .sidebar {
+    position: fixed;
+    left: -280px;
+    top: 0; bottom: 0;
+    z-index: 200;
+    transition: left .25s ease;
+    width: 260px;
+  }
+  .sidebar.open { left: 0; }
+  .main-content { margin-left: 0 !important; }
+
+  /* Topbar */
+  .topbar { padding: 0 12px; }
+  .sidebar-toggle { display: flex; }
+
+  /* Page header stacks */
+  .page-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .page-header > div:last-child { align-self: stretch; }
+  .page-header .btn { width: 100%; justify-content: center; }
+
+  /* Cards full-width */
+  .card { border-radius: 8px; }
+
+  /* Tables scroll horizontally */
+  .data-table-wrap, .card:has(.data-table) { overflow-x: auto; }
+  .data-table { min-width: 600px; }
+
+  /* Form rows stack */
+  .form-row { flex-direction: column; }
+
+  /* KPI cards: 2-up on mobile */
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+
+  /* Charts full width */
+  .chart-grid { grid-template-columns: 1fr; }
+
+  /* Sidebar overlay */
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.4);
+    z-index: 199;
+  }
+  .sidebar-overlay.open { display: block; }
+}
+
+@media (max-width: 480px) {
+  .kpi-grid { grid-template-columns: 1fr; }
+  .topbar-right .topbar-user span { display: none; }
+}
+
+/* Print styles for board dashboard */
+@media print {
+  .sidebar, .topbar, .sidebar-toggle, .alert-bell, .btn-logout { display: none !important; }
+  .main-content { margin: 0 !important; }
+  .page-content { padding: 0 !important; }
+  .card { break-inside: avoid; box-shadow: none; border: 1px solid #e5e7eb; }
+}

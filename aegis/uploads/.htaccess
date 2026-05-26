@@ -1,0 +1,7 @@
+# Deny direct HTTP access to uploaded files.
+# All downloads must go through EvidenceController::download() which enforces auth.
+Options -Indexes
+<FilesMatch ".*">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>

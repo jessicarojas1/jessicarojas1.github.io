@@ -20,11 +20,26 @@ ob_start();
   </div>
   <div class="page-actions">
     <?php if (Auth::can('vendor.write')): ?>
+      <form method="POST" action="/vendor/<?= $vendor['id'] ?>/portal-link" style="display:inline">
+        <?= Security::csrfField() ?>
+        <button class="btn btn-secondary"><i class="bi bi-share"></i> Generate Assessment Link</button>
+      </form>
       <button onclick="showModal('editModal')" class="btn btn-secondary"><i class="bi bi-pencil"></i> Edit</button>
       <button onclick="showModal('assessModal')" class="btn btn-primary"><i class="bi bi-clipboard-check"></i> Schedule Assessment</button>
     <?php endif; ?>
   </div>
 </div>
+
+<?php if (!empty($_SESSION['portal_link'])): ?>
+<div class="card" style="margin-bottom:16px;border-left:3px solid #059669">
+  <div class="card-body">
+    <strong>Portal link generated:</strong>
+    <input type="text" value="<?= Security::h($_SESSION['portal_link']) ?>" style="width:100%;margin-top:8px;font-family:monospace;padding:6px;border:1px solid #d1d5db;border-radius:6px" readonly onclick="this.select()">
+    <small style="color:#64748b">Share this link with the vendor. It expires in 30 days.</small>
+  </div>
+</div>
+<?php unset($_SESSION['portal_link']); ?>
+<?php endif; ?>
 
 <div class="two-col-layout">
   <!-- Left column -->
@@ -91,7 +106,14 @@ ob_start();
             ['Status',       '<span class="status-chip" style="background:'.$stColor.'20;color:'.$stColor.'">' . ucfirst(str_replace('_',' ',Security::h($vendor['status']))) . '</span>'],
             ['Category',     Security::h($vendor['category'] ?? '—')],
             ['Country',      Security::h($vendor['country'] ?? '—')],
-            ['Website',      $vendor['website'] ? '<a href="'.Security::h($vendor['website']).'" target="_blank" rel="noopener">'.Security::h($vendor['website']).'</a>' : '—'],
+            ['Website',      (function() use ($vendor) {
+              $url = $vendor['website'] ?? '';
+              if (!$url) return '—';
+              // Only allow http/https to prevent javascript: URIs
+              $scheme = strtolower(parse_url($url, PHP_URL_SCHEME) ?? '');
+              if (!in_array($scheme, ['http', 'https'])) return Security::h($url);
+              return '<a href="'.Security::h($url).'" target="_blank" rel="noopener noreferrer">'.Security::h($url).'</a>';
+            })()],
             ['Data Access',  $vendor['data_access'] ? '<span style="color:#dc2626">Yes</span>' : 'No'],
             ['Critical Service', $vendor['critical_service'] ? '<span style="color:#dc2626">Yes</span>' : 'No'],
             ['Contract Start', $vendor['contract_start'] ? date('M j, Y', strtotime($vendor['contract_start'])) : '—'],
@@ -118,6 +140,97 @@ ob_start();
           <div><i class="bi bi-envelope" style="color:var(--text-muted)"></i> <a href="mailto:<?= Security::h($vendor['contact_email']) ?>"><?= Security::h($vendor['contact_email']) ?></a></div>
         <?php endif; ?>
       </div>
+    </div>
+    <?php endif; ?>
+  </div>
+</div>
+
+<!-- Contracts Section -->
+<?php
+$contracts = Database::fetchAll(
+    "SELECT * FROM vendor_contracts WHERE vendor_id=? ORDER BY end_date ASC NULLS LAST",
+    [$vendor['id']]
+);
+?>
+<div class="card" style="margin-top:20px">
+  <div class="card-header">
+    <div class="card-header-left">
+      <i class="bi bi-file-earmark-text" style="color:#0284c7"></i>
+      <span class="card-title">Contracts</span>
+    </div>
+    <?php if (Auth::can('vendor.write')): ?>
+    <div class="card-header-right">
+      <a href="/vendor/<?= (int)$vendor['id'] ?>/contract/create" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-lg"></i> Add Contract
+      </a>
+    </div>
+    <?php endif; ?>
+  </div>
+  <div class="card-body" style="padding:0">
+    <?php if ($contracts): ?>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Status</th>
+          <th>Value</th>
+          <th>End Date</th>
+          <th>Auto-Renewal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php foreach ($contracts as $vc):
+          $vcStatusMap = [
+            'active'     => ['color'=>'#059669','bg'=>'#dcfce7','label'=>'Active'],
+            'draft'      => ['color'=>'#64748b','bg'=>'#f1f5f9','label'=>'Draft'],
+            'expired'    => ['color'=>'#dc2626','bg'=>'#fee2e2','label'=>'Expired'],
+            'terminated' => ['color'=>'#94a3b8','bg'=>'#f8fafc','label'=>'Terminated'],
+          ];
+          $vcBadge = $vcStatusMap[$vc['status']] ?? ['color'=>'#64748b','bg'=>'#f1f5f9','label'=>ucfirst($vc['status'])];
+          $vcDaysLeft = $vc['end_date'] ? (int)ceil((strtotime($vc['end_date']) - time()) / 86400) : null;
+          $vcEndColor = ($vc['status']==='active' && $vcDaysLeft !== null && $vcDaysLeft <= 30) ? '#dc2626'
+                      : (($vc['status']==='active' && $vcDaysLeft !== null && $vcDaysLeft <= 60) ? '#d97706' : 'inherit');
+        ?>
+        <tr>
+          <td style="font-weight:500"><?= Security::h($vc['title']) ?><?= $vc['contract_number'] ? ' <small style="color:#94a3b8;font-weight:400">('.Security::h($vc['contract_number']).')</small>' : '' ?></td>
+          <td>
+            <span class="status-chip" style="background:<?= $vcBadge['bg'] ?>;color:<?= $vcBadge['color'] ?>">
+              <?= $vcBadge['label'] ?>
+            </span>
+          </td>
+          <td style="font-size:13px">
+            <?= $vc['value'] !== null ? Security::h($vc['currency']) . ' ' . number_format((float)$vc['value'], 2) : '—' ?>
+          </td>
+          <td style="font-size:13px;white-space:nowrap">
+            <?php if ($vc['end_date']): ?>
+              <span style="color:<?= $vcEndColor ?>">
+                <?= date('M j, Y', strtotime($vc['end_date'])) ?>
+                <?php if ($vc['status']==='active' && $vcDaysLeft !== null && $vcDaysLeft <= 60): ?>
+                  <small>(<?= $vcDaysLeft ?>d)</small>
+                <?php endif; ?>
+              </span>
+            <?php else: ?>—<?php endif; ?>
+          </td>
+          <td style="text-align:center">
+            <?php if ($vc['auto_renewal']): ?>
+              <span style="color:#059669" title="Auto-renews <?= (int)$vc['renewal_notice_days'] ?> days before expiry"><i class="bi bi-check-circle-fill"></i></span>
+            <?php else: ?>
+              <span style="color:#d1d5db"><i class="bi bi-dash-circle"></i></span>
+            <?php endif; ?>
+          </td>
+        </tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
+    <?php else: ?>
+    <div style="text-align:center;padding:32px 20px;color:#94a3b8">
+      <i class="bi bi-file-earmark-text" style="font-size:32px;display:block;margin-bottom:10px"></i>
+      <p style="margin:0;font-size:14px">No contracts on file.</p>
+      <?php if (Auth::can('vendor.write')): ?>
+        <a href="/vendor/<?= (int)$vendor['id'] ?>/contract/create" class="btn btn-primary btn-sm" style="margin-top:12px">
+          <i class="bi bi-plus-lg"></i> Add Contract
+        </a>
+      <?php endif; ?>
     </div>
     <?php endif; ?>
   </div>

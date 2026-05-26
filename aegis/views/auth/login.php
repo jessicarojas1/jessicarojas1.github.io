@@ -54,6 +54,25 @@
         </div>
       <?php endif; ?>
 
+      <?php
+        // Require SSO.php for SSO check on login page
+        if (!class_exists('SSO')) @require_once AEGIS_ROOT . '/src/SSO.php';
+        $ssoEnabled = class_exists('SSO') && SSO::isEnabled();
+        $ssoName    = $ssoEnabled ? (SSO::config()['sso_provider_name'] ?: 'SSO') : '';
+      ?>
+
+      <?php if ($ssoEnabled): ?>
+        <a href="/sso/login" class="btn btn-secondary btn-full btn-lg" style="margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:8px">
+          <i class="bi bi-box-arrow-in-right"></i>
+          Sign in with <?= Security::h($ssoName) ?>
+        </a>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+          <hr style="flex:1;border:none;border-top:1px solid #e5e7eb">
+          <span style="color:#9ca3af;font-size:12px;white-space:nowrap">or use password</span>
+          <hr style="flex:1;border:none;border-top:1px solid #e5e7eb">
+        </div>
+      <?php endif; ?>
+
       <form method="POST" action="/login" class="auth-form" autocomplete="off">
         <?= Security::csrfField() ?>
 
@@ -83,7 +102,7 @@
 
       <div class="auth-form-footer">
         <p>AEGIS GRC &copy; <?= date('Y') ?> &mdash; Enterprise Security Platform</p>
-        <p style="margin-top:6px;font-size:11px;color:var(--text-muted)">Protected by rate limiting and session security</p>
+        <p style="margin-top:6px;font-size:11px;color:var(--text-muted)">Protected by rate limiting, MFA, and session security</p>
       </div>
     </div>
   </div>

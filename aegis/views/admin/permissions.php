@@ -80,7 +80,7 @@ ob_start();
               <div>
                 <div class="fw-600 text-sm"><?= Security::h($u['name']) ?></div>
                 <div class="text-muted text-xs"><?= Security::h($u['email']) ?></div>
-                <span class="role-badge role-<?= $u['role'] ?>"><?= ucfirst($u['role']) ?></span>
+                <span class="role-badge role-<?= Security::h($u['role']) ?>"><?= Security::h(ucfirst($u['role'])) ?></span>
               </div>
             </td>
             <?php foreach ($modules as $mod): ?>

@@ -30,6 +30,8 @@ ob_start();
         <button class="btn btn-success" onclick="return confirm('Complete this audit?')"><i class="bi bi-check-lg"></i> Complete Audit</button>
       </form>
     <?php endif; ?>
+    <a href="/audit/<?= $audit['id'] ?>/export" class="btn btn-secondary"><i class="bi bi-file-earmark-zip"></i> Export Package</a>
+    <a href="/audit" class="btn btn-ghost"><i class="bi bi-arrow-left"></i> Back</a>
   </div>
 </div>
 

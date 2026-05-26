@@ -1,0 +1,111 @@
+{
+  "name": "SOC 2 Type II — Trust Services Criteria",
+  "version": "2017",
+  "description": "AICPA Trust Services Criteria for Security, Availability, Processing Integrity, Confidentiality, and Privacy. The Security category (CC) is mandatory; others are selected based on applicable trust service categories.",
+  "standard": { "code": "SOC2", "name": "SOC 2", "authority": "AICPA", "category": "Assurance" },
+  "domains": [
+    {
+      "code": "CC1", "title": "Control Environment",
+      "controls": [
+        { "code": "CC1.1", "title": "COSO Principle 1 — Integrity and Ethical Values", "description": "The entity demonstrates a commitment to integrity and ethical values." },
+        { "code": "CC1.2", "title": "COSO Principle 2 — Board Independence and Oversight", "description": "The board of directors demonstrates independence from management and exercises oversight of the development and performance of internal control." },
+        { "code": "CC1.3", "title": "COSO Principle 3 — Organizational Structure and Accountability", "description": "Management establishes, with board oversight, structures, reporting lines, and appropriate authorities and responsibilities in the pursuit of objectives." },
+        { "code": "CC1.4", "title": "COSO Principle 4 — Commitment to Competence", "description": "The entity demonstrates a commitment to attract, develop, and retain competent individuals in alignment with objectives." },
+        { "code": "CC1.5", "title": "COSO Principle 5 — Accountability", "description": "The entity holds individuals accountable for their internal control responsibilities in the pursuit of objectives." }
+      ]
+    },
+    {
+      "code": "CC2", "title": "Communication and Information",
+      "controls": [
+        { "code": "CC2.1", "title": "COSO Principle 13 — Uses Relevant Information", "description": "The entity obtains or generates and uses relevant, quality information to support the functioning of internal control." },
+        { "code": "CC2.2", "title": "COSO Principle 14 — Internal Communication", "description": "The entity internally communicates information, including objectives and responsibilities for internal control, necessary to support the functioning of internal control." },
+        { "code": "CC2.3", "title": "COSO Principle 15 — External Communication", "description": "The entity communicates with external parties regarding matters affecting the functioning of internal control." }
+      ]
+    },
+    {
+      "code": "CC3", "title": "Risk Assessment",
+      "controls": [
+        { "code": "CC3.1", "title": "COSO Principle 6 — Specifies Suitable Objectives", "description": "The entity specifies objectives with sufficient clarity to enable the identification and assessment of risks relating to objectives." },
+        { "code": "CC3.2", "title": "COSO Principle 7 — Identifies and Analyzes Risk", "description": "The entity identifies risks to the achievement of its objectives across the entity and analyzes risks as a basis for determining how the risks should be managed." },
+        { "code": "CC3.3", "title": "COSO Principle 8 — Assesses Fraud Risk", "description": "The entity considers the potential for fraud in assessing risks to the achievement of objectives." },
+        { "code": "CC3.4", "title": "COSO Principle 9 — Identifies and Analyzes Significant Change", "description": "The entity identifies and assesses changes that could significantly impact the system of internal control." }
+      ]
+    },
+    {
+      "code": "CC4", "title": "Monitoring Activities",
+      "controls": [
+        { "code": "CC4.1", "title": "COSO Principle 16 — Conducts Ongoing or Separate Evaluations", "description": "The entity selects, develops, and performs ongoing and/or separate evaluations to ascertain whether the components of internal control are present and functioning." },
+        { "code": "CC4.2", "title": "COSO Principle 17 — Evaluates and Communicates Deficiencies", "description": "The entity evaluates and communicates internal control deficiencies in a timely manner to those parties responsible for taking corrective action." }
+      ]
+    },
+    {
+      "code": "CC5", "title": "Control Activities",
+      "controls": [
+        { "code": "CC5.1", "title": "COSO Principle 10 — Selects and Develops Control Activities", "description": "The entity selects and develops control activities that contribute to the mitigation of risks to the achievement of objectives to acceptable levels." },
+        { "code": "CC5.2", "title": "COSO Principle 11 — Selects and Develops General Controls Over Technology", "description": "The entity also selects and develops general control activities over technology to support the achievement of objectives." },
+        { "code": "CC5.3", "title": "COSO Principle 12 — Deploys Through Policies and Procedures", "description": "The entity deploys control activities through policies that establish what is expected and in procedures that put policies into action." }
+      ]
+    },
+    {
+      "code": "CC6", "title": "Logical and Physical Access Controls",
+      "controls": [
+        { "code": "CC6.1", "title": "Logical Access Security Measures", "description": "The entity implements logical access security software, infrastructure, and architectures over protected information assets to protect them from security events." },
+        { "code": "CC6.2", "title": "Access Provisioning and Removal", "description": "Prior to issuing system credentials and granting system access, the entity registers and authorizes new internal and external users whose access is administered by the entity." },
+        { "code": "CC6.3", "title": "Role-Based Access and Least Privilege", "description": "The entity authorizes, modifies, or removes access to data, software, functions, and other protected information assets based on approved, documented requests." },
+        { "code": "CC6.4", "title": "Physical Access Restrictions", "description": "The entity restricts physical access to facilities and protected information assets to authorized personnel." },
+        { "code": "CC6.5", "title": "Logical and Physical Protections Against Threats", "description": "The entity discontinues logical and physical protections over physical assets only after the ability to read or recover data and software from those assets has been diminished." },
+        { "code": "CC6.6", "title": "Threats from Outside System Boundaries", "description": "The entity implements controls to prevent or detect and act upon the introduction of unauthorized or malicious software." },
+        { "code": "CC6.7", "title": "Transmission and Movement of Information", "description": "The entity restricts the transmission, movement, and removal of information to authorized internal and external users and processes." },
+        { "code": "CC6.8", "title": "Prevention and Detection of Unauthorized Software", "description": "The entity implements controls to prevent or detect and act upon the introduction of unauthorized or malicious software." }
+      ]
+    },
+    {
+      "code": "CC7", "title": "System Operations",
+      "controls": [
+        { "code": "CC7.1", "title": "Vulnerability and Configuration Management", "description": "To meet its objectives, the entity uses detection and monitoring procedures to identify changes to configurations that introduce new vulnerabilities." },
+        { "code": "CC7.2", "title": "Monitoring for Anomalies and Security Events", "description": "The entity monitors system components and the operation of those components for anomalies that are indicative of malicious acts, natural disasters, and errors." },
+        { "code": "CC7.3", "title": "Evaluation of Security Events", "description": "The entity evaluates security events to determine whether they could or have resulted in a failure of the entity to meet its objectives." },
+        { "code": "CC7.4", "title": "Incident Response", "description": "The entity responds to identified security incidents by executing a defined incident response program." },
+        { "code": "CC7.5", "title": "Recovery from Identified Security Incidents", "description": "The entity identifies, develops, and implements activities to recover from identified security incidents." }
+      ]
+    },
+    {
+      "code": "CC8", "title": "Change Management",
+      "controls": [
+        { "code": "CC8.1", "title": "Change Management Process", "description": "The entity authorizes, designs, develops or acquires, configures, documents, tests, approves, and implements changes to infrastructure, data, software, and procedures." }
+      ]
+    },
+    {
+      "code": "CC9", "title": "Risk Mitigation",
+      "controls": [
+        { "code": "CC9.1", "title": "Risk Mitigation Activities", "description": "The entity identifies, selects, and develops risk mitigation activities for risks arising from potential business disruptions." },
+        { "code": "CC9.2", "title": "Vendor and Business Partner Risk Management", "description": "The entity assesses and manages risks associated with vendors and business partners." }
+      ]
+    },
+    {
+      "code": "A1", "title": "Availability",
+      "controls": [
+        { "code": "A1.1", "title": "Capacity Planning", "description": "The entity maintains, monitors, and evaluates current processing capacity and use of system components to manage capacity demand." },
+        { "code": "A1.2", "title": "Environmental Protections", "description": "The entity authorizes, designs, develops or acquires, implements, operates, approves, maintains, and monitors environmental protections, software, data backup processes." },
+        { "code": "A1.3", "title": "Recovery Plan Testing", "description": "The entity tests recovery plan procedures supporting system availability to meet its objectives." }
+      ]
+    },
+    {
+      "code": "C1", "title": "Confidentiality",
+      "controls": [
+        { "code": "C1.1", "title": "Identification and Classification of Confidential Information", "description": "The entity identifies and maintains confidential information to meet the entity's objectives related to confidentiality." },
+        { "code": "C1.2", "title": "Disposal of Confidential Information", "description": "The entity disposes of confidential information to meet the entity's objectives related to confidentiality." }
+      ]
+    },
+    {
+      "code": "PI1", "title": "Processing Integrity",
+      "controls": [
+        { "code": "PI1.1", "title": "Complete, Accurate, and Timely Processing", "description": "The entity obtains or generates, uses, and communicates relevant, quality information regarding the objectives related to processing." },
+        { "code": "PI1.2", "title": "System Inputs Completely Processed", "description": "The entity implements policies and procedures over system inputs, including controls over completeness and accuracy." },
+        { "code": "PI1.3", "title": "System Processing Complete and Accurate", "description": "The entity implements policies and procedures over system processing to result in products, services, and reporting." },
+        { "code": "PI1.4", "title": "System Outputs Complete, Accurate, and Distributed", "description": "The entity implements policies and procedures to make available or deliver output completely, accurately, and timely." },
+        { "code": "PI1.5", "title": "Stored Items Complete and Accurate", "description": "The entity implements policies and procedures to store inputs, items in processing, and outputs completely and accurately." }
+      ]
+    }
+  ]
+}

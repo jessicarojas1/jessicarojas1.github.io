@@ -15,7 +15,10 @@ class Security {
             unset($_SESSION['csrf_token'], $_SESSION['csrf_time']);
             return false;
         }
-        return hash_equals($_SESSION['csrf_token'], $token);
+        if (!hash_equals($_SESSION['csrf_token'], $token)) return false;
+        // Rotate token after successful validation to prevent replay attacks
+        unset($_SESSION['csrf_token'], $_SESSION['csrf_time']);
+        return true;
     }
 
     public static function csrfField(): string {
@@ -57,6 +60,43 @@ class Security {
         if ($p['require_special'] && !preg_match('/[^a-zA-Z0-9]/', $password))
             $errors[] = "Password must contain a special character.";
 
+        return $errors;
+    }
+
+    public static function validatePasswordPolicy(string $password): array {
+        $errors = [];
+        // Load policy from settings (with defaults if not set)
+        static $policy = null;
+        if ($policy === null) {
+            $defaults = [
+                'password_min_length'        => 12,
+                'password_require_uppercase' => '1',
+                'password_require_numbers'   => '1',
+                'password_require_special'   => '1',
+            ];
+            $policy = $defaults;
+            try {
+                $rows = Database::fetchAll(
+                    "SELECT key, value FROM settings WHERE key IN ('password_min_length','password_require_uppercase','password_require_numbers','password_require_special')"
+                );
+                foreach ($rows as $r) {
+                    $policy[$r['key']] = $r['value'];
+                }
+            } catch (Throwable) {}
+        }
+        $minLen = (int)($policy['password_min_length'] ?? 12);
+        if (strlen($password) < $minLen) {
+            $errors[] = "Password must be at least {$minLen} characters.";
+        }
+        if (($policy['password_require_uppercase'] ?? '1') === '1' && !preg_match('/[A-Z]/', $password)) {
+            $errors[] = 'Password must contain at least one uppercase letter.';
+        }
+        if (($policy['password_require_numbers'] ?? '1') === '1' && !preg_match('/[0-9]/', $password)) {
+            $errors[] = 'Password must contain at least one number.';
+        }
+        if (($policy['password_require_special'] ?? '1') === '1' && !preg_match('/[^a-zA-Z0-9]/', $password)) {
+            $errors[] = 'Password must contain at least one special character.';
+        }
         return $errors;
     }
 
@@ -116,16 +156,44 @@ class Security {
         Database::query("DELETE FROM rate_limits WHERE key = ?", [$identifier]);
     }
 
+    private static string $_nonce = '';
+
+    /** Per-request CSP nonce — generated once, reused across all script tags */
+    public static function nonce(): string {
+        if (self::$_nonce === '') {
+            self::$_nonce = base64_encode(random_bytes(18));
+        }
+        return self::$_nonce;
+    }
+
     public static function setSecurityHeaders(): void {
-        if (!headers_sent()) {
-            header('X-Frame-Options: SAMEORIGIN');
-            header('X-Content-Type-Options: nosniff');
-            header('X-XSS-Protection: 1; mode=block');
-            header('Referrer-Policy: strict-origin-when-cross-origin');
-            header("Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'");
-            if (($_SERVER['REQUEST_SCHEME'] ?? '') === 'https' || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https') {
-                header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
-            }
+        if (headers_sent()) return;
+
+        $nonce = self::nonce();
+        // Nonce eliminates unsafe-inline for scripts; styles keep unsafe-inline for icon fonts
+        $csp = implode('; ', [
+            "default-src 'self'",
+            "script-src 'self' 'nonce-{$nonce}'",
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
+            "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net",
+            "img-src 'self' data: blob:",
+            "connect-src 'self'",
+            "frame-ancestors 'none'",
+            "base-uri 'self'",
+            "form-action 'self'",
+        ]);
+        header('Content-Security-Policy: ' . $csp);
+        header('X-Frame-Options: DENY');
+        header('X-Content-Type-Options: nosniff');
+        header('X-XSS-Protection: 1; mode=block');
+        header('Referrer-Policy: strict-origin-when-cross-origin');
+        header('Cross-Origin-Opener-Policy: same-origin');
+        header('Cross-Origin-Resource-Policy: same-origin');
+        header('Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=()');
+        if (($_SERVER['REQUEST_SCHEME'] ?? '') === 'https'
+            || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https'
+            || !empty($_SERVER['HTTPS'])) {
+            header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
         }
     }
 }

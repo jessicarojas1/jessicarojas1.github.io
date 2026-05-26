@@ -1,298 +1,207 @@
 <?php
-$pageTitle    = 'Metrics';
-$activeModule = 'metrics';
-$breadcrumbs  = [['Metrics', null]];
-ob_start();
+$trendDates  = array_column($trend, 'snapshot_date');
+$trendGRC    = array_column($trend, 'grc_score');
+$trendComp   = array_column($trend, 'compliance_pct');
+$trendRisk   = array_column($trend, 'risk_health');
+$isAdmin     = Auth::role() === 'admin';
+
+$classColors = ['public'=>'#22c55e','internal'=>'#3b82f6','confidential'=>'#f59e0b','restricted'=>'#ef4444'];
 ?>
 
 <div class="page-header">
-  <h1 class="page-title">GRC Metrics</h1>
-  <div class="page-actions">
-    <a href="/export" class="btn btn-ghost"><i class="bi bi-download"></i> Export Data</a>
+  <div>
+    <h1 class="page-title">Metrics &amp; Trends</h1>
+    <p class="page-subtitle">90-day GRC posture history and scheduled report delivery.</p>
   </div>
 </div>
 
-<!-- KPI Row -->
-<div class="metrics-kpi-row">
+<?php if (!empty($_SESSION['flash_success'])): ?>
+  <div class="alert-box success"><i class="bi bi-check-circle-fill"></i> <?= Security::h($_SESSION['flash_success']) ?></div>
+  <?php unset($_SESSION['flash_success']); ?>
+<?php endif; ?>
 
-  <div class="metrics-kpi">
-    <div class="mkpi-icon" style="background:#eef2ff;color:#4f46e5"><i class="bi bi-shield-check"></i></div>
-    <div class="mkpi-body">
-      <div class="mkpi-value"><?= $kpi['compliance_pct'] ?>%</div>
-      <div class="mkpi-label">Overall Compliance</div>
+<!-- KPI row -->
+<?php $s = $snapshot ?? []; ?>
+<div class="stats-grid" style="margin-bottom:24px">
+  <?php
+  $kpis = [
+    ['GRC Score',      number_format((float)($s['grc_score'] ?? 0),1) . '%',   'bi-shield-fill-check', '#1e3a5f'],
+    ['Compliance',     number_format((float)($s['compliance_pct'] ?? 0),1) . '%', 'bi-shield-check', '#0284c7'],
+    ['Risk Health',    number_format((float)($s['risk_health'] ?? 0),1) . '%',  'bi-exclamation-triangle-fill', '#d97706'],
+    ['Policy Health',  number_format((float)($s['policy_health'] ?? 0),1) . '%','bi-file-earmark-text-fill', '#7c3aed'],
+  ];
+  foreach ($kpis as [$label, $val, $icon, $color]): ?>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:<?= $color ?>20;color:<?= $color ?>"><i class="bi <?= $icon ?>"></i></div>
+      <div class="stat-info">
+        <div class="stat-value"><?= $val ?></div>
+        <div class="stat-label"><?= $label ?></div>
+      </div>
     </div>
-    <svg class="mkpi-ring" viewBox="0 0 36 36">
-      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#e2e8f0" stroke-width="3"/>
-      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#4f46e5" stroke-width="3" stroke-dasharray="<?= $kpi['compliance_pct'] ?>, 100" stroke-linecap="round"/>
-    </svg>
-  </div>
-
-  <div class="metrics-kpi">
-    <div class="mkpi-icon" style="background:#fee2e2;color:#dc2626"><i class="bi bi-exclamation-triangle-fill"></i></div>
-    <div class="mkpi-body">
-      <div class="mkpi-value"><?= $kpi['open_risks'] ?></div>
-      <div class="mkpi-label">Open Risks</div>
-      <div class="mkpi-sub"><?= $kpi['critical_risks'] ?> critical</div>
-    </div>
-  </div>
-
-  <div class="metrics-kpi">
-    <div class="mkpi-icon" style="background:#dbeafe;color:#0284c7"><i class="bi bi-clipboard2-check-fill"></i></div>
-    <div class="mkpi-body">
-      <div class="mkpi-value"><?= $kpi['audit_completion'] ?>%</div>
-      <div class="mkpi-label">Audit Completion</div>
-      <div class="mkpi-sub"><?= $kpi['completed_audits'] ?> of <?= $kpi['total_audits'] ?></div>
-    </div>
-  </div>
-
-  <div class="metrics-kpi">
-    <div class="mkpi-icon" style="background:#d1fae5;color:#059669"><i class="bi bi-file-earmark-text-fill"></i></div>
-    <div class="mkpi-body">
-      <div class="mkpi-value"><?= $kpi['published_policies'] ?></div>
-      <div class="mkpi-label">Published Policies</div>
-      <div class="mkpi-sub"><?= $kpi['total_policies'] ?> total</div>
-    </div>
-  </div>
-
+  <?php endforeach; ?>
 </div>
 
-<!-- Charts Row 1 -->
-<div class="metrics-grid">
-
-  <!-- Compliance by Package (stacked bar) -->
-  <div class="card metrics-card-wide">
-    <div class="card-header">
-      <h3 class="card-title"><i class="bi bi-bar-chart-steps"></i> Compliance by Package</h3>
-      <a href="/compliance" class="btn btn-ghost btn-sm">View All</a>
-    </div>
-    <div class="card-body"><canvas id="pkgCompChart" height="260"></canvas></div>
+<!-- Trend chart -->
+<?php if (!empty($trend)): ?>
+<div class="card" style="margin-bottom:24px">
+  <div class="card-header"><h3>90-Day GRC Score Trend</h3></div>
+  <div class="card-body">
+    <canvas id="trendChart" height="100"></canvas>
   </div>
+</div>
+<?php endif; ?>
 
-  <!-- Control Status (doughnut) -->
-  <div class="card">
-    <div class="card-header"><h3 class="card-title"><i class="bi bi-pie-chart-fill"></i> Control Status</h3></div>
-    <div class="card-body" style="display:flex;align-items:center;justify-content:center"><canvas id="ctrlStatusChart" height="260"></canvas></div>
-  </div>
-
+<!-- Compliance by framework -->
+<div class="card" style="margin-bottom:24px">
+  <div class="card-header"><h3>Compliance by Framework</h3></div>
+  <table class="data-table">
+    <thead><tr><th>Framework</th><th>Compliant</th><th>Partial</th><th>Non-Compliant</th><th>N/A</th><th>Total</th><th>%</th></tr></thead>
+    <tbody>
+      <?php foreach ($frameworks as $fw):
+        $pct = $fw['total_controls'] > 0 ? round($fw['compliant'] / $fw['total_controls'] * 100) : 0;
+        $barColor = $pct >= 80 ? '#22c55e' : ($pct >= 50 ? '#f59e0b' : '#ef4444');
+      ?>
+        <tr>
+          <td class="fw-600"><?= Security::h($fw['name']) ?></td>
+          <td style="color:#22c55e"><?= (int)$fw['compliant'] ?></td>
+          <td style="color:#f59e0b"><?= (int)$fw['partial'] ?></td>
+          <td style="color:#ef4444"><?= (int)$fw['non_compliant'] ?></td>
+          <td class="text-muted"><?= (int)$fw['na'] ?></td>
+          <td><?= (int)$fw['total_controls'] ?></td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div style="flex:1;height:6px;background:#e5e7eb;border-radius:3px">
+                <div style="width:<?= $pct ?>%;height:100%;background:<?= $barColor ?>;border-radius:3px"></div>
+              </div>
+              <span style="min-width:36px;font-weight:600;color:<?= $barColor ?>"><?= $pct ?>%</span>
+            </div>
+          </td>
+        </tr>
+      <?php endforeach; ?>
+    </tbody>
+  </table>
 </div>
 
-<!-- Charts Row 2 -->
-<div class="metrics-grid">
-
-  <!-- Risk by category (horizontal bar) -->
-  <div class="card">
-    <div class="card-header">
-      <h3 class="card-title"><i class="bi bi-layers-fill"></i> Risk by Category</h3>
-      <a href="/risk" class="btn btn-ghost btn-sm">Register</a>
-    </div>
-    <div class="card-body"><canvas id="riskCatChart" height="280"></canvas></div>
+<!-- Scheduled reports (admin only) -->
+<?php if ($isAdmin): ?>
+<div class="card" style="margin-bottom:24px">
+  <div class="card-header" style="display:flex;justify-content:space-between;align-items:center">
+    <h3>Scheduled Report Delivery</h3>
+    <button class="btn btn-primary btn-sm" onclick="document.getElementById('scheduleModal').classList.add('open')">
+      <i class="bi bi-plus-lg"></i> Add Schedule
+    </button>
   </div>
-
-  <!-- Risk trend (line) -->
-  <div class="card">
-    <div class="card-header"><h3 class="card-title"><i class="bi bi-graph-up-arrow"></i> Risk Intake Trend (12 mo)</h3></div>
-    <div class="card-body"><canvas id="riskTrendChart" height="280"></canvas></div>
-  </div>
-
-  <!-- Audit score trend (line) -->
-  <div class="card">
-    <div class="card-header"><h3 class="card-title"><i class="bi bi-award-fill"></i> Audit Score Trend (12 mo)</h3></div>
-    <div class="card-body"><canvas id="auditTrendChart" height="280"></canvas></div>
-  </div>
-
+  <?php if (empty($reportSchedules)): ?>
+    <div class="card-body text-muted">No scheduled reports configured. Click "Add Schedule" to set up automated report delivery.</div>
+  <?php else: ?>
+    <table class="data-table">
+      <thead><tr><th>Name</th><th>Type</th><th>Frequency</th><th>Recipients</th><th>Last Sent</th><th>Active</th><th></th></tr></thead>
+      <tbody>
+        <?php foreach ($reportSchedules as $rs): ?>
+          <tr>
+            <td class="fw-600"><?= Security::h($rs['name']) ?></td>
+            <td><?= Security::h(ucfirst($rs['report_type'])) ?></td>
+            <td><?= Security::h(ucfirst($rs['frequency'])) ?></td>
+            <td class="text-sm text-muted"><?= count(json_decode($rs['recipients'], true) ?? []) ?> recipient(s)</td>
+            <td class="text-sm text-muted"><?= $rs['last_sent_at'] ? date('M j, Y', strtotime($rs['last_sent_at'])) : 'Never' ?></td>
+            <td><?= $rs['is_active'] ? '<span class="badge badge-green">Active</span>' : '<span class="badge badge-gray">Paused</span>' ?></td>
+            <td>
+              <form method="POST" action="/metrics/schedule/<?= (int)$rs['id'] ?>/delete" style="display:inline">
+                <?= Security::csrfField() ?>
+                <button class="btn btn-sm btn-danger" onclick="return confirm('Delete this schedule?')">Delete</button>
+              </form>
+            </td>
+          </tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
+  <?php endif; ?>
 </div>
 
-<!-- Tables Row -->
-<div class="two-col-layout" style="margin-top:20px">
-
-  <!-- Top open risks -->
-  <div class="card">
-    <div class="card-header"><h3 class="card-title"><i class="bi bi-fire"></i> Top Open Risks</h3></div>
-    <div class="card-body p0">
-      <table class="table">
-        <thead><tr><th>ID</th><th>Title</th><th>Category</th><th>Score</th><th>Residual</th></tr></thead>
-        <tbody>
-          <?php if ($topRisks): foreach ($topRisks as $r): ?>
-            <?php $lvl = $r['inherent_score'] > 14 ? 'Critical' : ($r['inherent_score'] > 9 ? 'High' : ($r['inherent_score'] > 4 ? 'Medium' : 'Low')); ?>
-            <tr>
-              <td><span class="mono"><?= Security::h($r['risk_id'] ?? '—') ?></span></td>
-              <td><?= Security::h($r['title']) ?></td>
-              <td>
-                <?php if ($r['category']): ?>
-                  <span class="tag" style="background:<?= $r['color'] ?>20;color:<?= $r['color'] ?>"><?= Security::h($r['category']) ?></span>
-                <?php else: ?>—<?php endif; ?>
-              </td>
-              <td><span class="risk-badge risk-<?= strtolower($lvl) ?>"><?= $r['inherent_score'] ?></span></td>
-              <td class="text-muted"><?= $r['residual_score'] ?></td>
-            </tr>
-          <?php endforeach; else: ?>
-            <tr><td colspan="5" class="empty-row">No open risks</td></tr>
-          <?php endif; ?>
-        </tbody>
-      </table>
+<!-- Schedule modal -->
+<div id="scheduleModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal-card" style="max-width:520px">
+    <div class="modal-header">
+      <h3>New Report Schedule</h3>
+      <button onclick="document.getElementById('scheduleModal').classList.remove('open')" class="btn-icon"><i class="bi bi-x-lg"></i></button>
     </div>
+    <form method="POST" action="/metrics/schedule/save">
+      <?= Security::csrfField() ?>
+      <div class="modal-body" style="display:flex;flex-direction:column;gap:16px">
+        <div class="form-group">
+          <label class="form-label">Schedule Name <span class="required">*</span></label>
+          <input type="text" name="name" class="form-control" placeholder="Weekly Executive Summary" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Report Type</label>
+            <select name="report_type" class="form-control">
+              <option value="executive">Executive Summary</option>
+              <option value="compliance">Compliance</option>
+              <option value="risk">Risk Register</option>
+              <option value="audit">Audit Status</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Frequency</label>
+            <select name="frequency" class="form-control">
+              <option value="daily">Daily</option>
+              <option value="weekly" selected>Weekly</option>
+              <option value="monthly">Monthly</option>
+              <option value="quarterly">Quarterly</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Recipients (one email per line) <span class="required">*</span></label>
+          <textarea name="recipients" class="form-control" rows="4" placeholder="ciso@company.com&#10;board@company.com" required></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Active</label>
+          <label class="toggle-switch">
+            <input type="hidden" name="is_active" value="0">
+            <input type="checkbox" name="is_active" value="1" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary">Save Schedule</button>
+        <button type="button" class="btn btn-secondary" onclick="document.getElementById('scheduleModal').classList.remove('open')">Cancel</button>
+      </div>
+    </form>
   </div>
-
-  <!-- Audit stats by type -->
-  <div class="card">
-    <div class="card-header"><h3 class="card-title"><i class="bi bi-clipboard2-data-fill"></i> Audit Performance by Type</h3></div>
-    <div class="card-body p0">
-      <table class="table">
-        <thead><tr><th>Type</th><th>Total</th><th>Completed</th><th>Avg Score</th></tr></thead>
-        <tbody>
-          <?php if ($auditStats): foreach ($auditStats as $a): ?>
-            <tr>
-              <td><?= ucfirst(str_replace('_',' ', Security::h($a['audit_type']))) ?></td>
-              <td><?= $a['total'] ?></td>
-              <td>
-                <?= $a['completed'] ?>
-                <small class="text-muted">(<?= $a['total'] > 0 ? round($a['completed']/$a['total']*100) : 0 ?>%)</small>
-              </td>
-              <td><?= $a['avg_score'] ? $a['avg_score'] . '%' : '—' ?></td>
-            </tr>
-          <?php endforeach; else: ?>
-            <tr><td colspan="4" class="empty-row">No audits yet</td></tr>
-          <?php endif; ?>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
 </div>
-
-<script>
-const pkgData      = <?= json_encode($complianceByPackage) ?>;
-const ctrlData     = <?= json_encode($controlStatus) ?>;
-const riskCatData  = <?= json_encode($riskByCategory) ?>;
-const riskTrend    = <?= json_encode($riskTrend) ?>;
-const auditTrend   = <?= json_encode($auditTrend) ?>;
-
-const STATUS_COLORS = {
-  compliant:      '#22c55e',
-  non_compliant:  '#ef4444',
-  partial:        '#f59e0b',
-  not_started:    '#94a3b8',
-  not_applicable: '#cbd5e1',
-};
-
-document.addEventListener('DOMContentLoaded', () => {
-
-  // Compliance by package — stacked bar
-  if (pkgData.length) {
-    new Chart(document.getElementById('pkgCompChart'), {
-      type: 'bar',
-      data: {
-        labels: pkgData.map(p => p.name.length > 22 ? p.name.slice(0,22)+'…' : p.name),
-        datasets: [
-          { label:'Compliant',     data: pkgData.map(p=>+p.compliant),     backgroundColor:'#22c55e', borderRadius:4 },
-          { label:'Partial',       data: pkgData.map(p=>+p.partial),       backgroundColor:'#f59e0b', borderRadius:4 },
-          { label:'Non-compliant', data: pkgData.map(p=>+p.non_compliant), backgroundColor:'#ef4444', borderRadius:4 },
-          { label:'Not started',   data: pkgData.map(p=>+p.not_started),   backgroundColor:'#e2e8f0', borderRadius:4 },
-        ]
-      },
-      options: { responsive:true, maintainAspectRatio:false,
-        scales: { x:{ stacked:true, grid:{display:false} }, y:{ stacked:true, beginAtZero:true } },
-        plugins: { legend:{ position:'top', labels:{boxWidth:12} } }
-      }
-    });
-  }
-
-  // Control status doughnut
-  if (ctrlData.length) {
-    const labels = ctrlData.map(c => (c.status||'not_started').replace('_',' '));
-    const colors = ctrlData.map(c => STATUS_COLORS[c.status] || '#94a3b8');
-    new Chart(document.getElementById('ctrlStatusChart'), {
-      type: 'doughnut',
-      data: { labels, datasets: [{ data: ctrlData.map(c=>+c.count), backgroundColor: colors, borderWidth:0, hoverOffset:8 }] },
-      options: { responsive:true, maintainAspectRatio:false, cutout:'60%', plugins:{ legend:{ position:'bottom', labels:{boxWidth:12} } } }
-    });
-  }
-
-  // Risk by category — horizontal bar
-  if (riskCatData.length) {
-    new Chart(document.getElementById('riskCatChart'), {
-      type: 'bar',
-      data: {
-        labels: riskCatData.map(r => r.name || 'Uncategorized'),
-        datasets: [
-          { label:'Critical', data: riskCatData.map(r=>+r.critical), backgroundColor:'#ef4444', borderRadius:4 },
-          { label:'High',     data: riskCatData.map(r=>+r.high),     backgroundColor:'#f97316', borderRadius:4 },
-          { label:'Medium',   data: riskCatData.map(r=>+r.medium),   backgroundColor:'#f59e0b', borderRadius:4 },
-          { label:'Low',      data: riskCatData.map(r=>+r.low),      backgroundColor:'#22c55e', borderRadius:4 },
-        ]
-      },
-      options: {
-        indexAxis:'y', responsive:true, maintainAspectRatio:false,
-        scales: { x:{ stacked:true, beginAtZero:true, grid:{display:false} }, y:{ stacked:true } },
-        plugins: { legend:{ position:'top', labels:{boxWidth:12} } }
-      }
-    });
-  }
-
-  // Risk intake trend — line
-  if (riskTrend.length) {
-    new Chart(document.getElementById('riskTrendChart'), {
-      type: 'line',
-      data: {
-        labels: riskTrend.map(r => r.month),
-        datasets: [
-          { label:'Total Risks', data: riskTrend.map(r=>+r.total), borderColor:'#4f46e5', backgroundColor:'#4f46e520', fill:true, tension:.35, pointRadius:4 },
-          { label:'Critical',    data: riskTrend.map(r=>+r.critical), borderColor:'#ef4444', backgroundColor:'transparent', tension:.35, pointRadius:4 },
-        ]
-      },
-      options: { responsive:true, maintainAspectRatio:false,
-        scales: { x:{ grid:{display:false} }, y:{ beginAtZero:true } },
-        plugins: { legend:{ position:'top', labels:{boxWidth:12} } }
-      }
-    });
-  }
-
-  // Audit score trend — line
-  const atCtx = document.getElementById('auditTrendChart');
-  if (auditTrend.length) {
-    new Chart(atCtx, {
-      type: 'line',
-      data: {
-        labels: auditTrend.map(a => a.month),
-        datasets: [{
-          label: 'Avg Score (%)',
-          data: auditTrend.map(a=>+a.avg_score),
-          borderColor:'#0284c7', backgroundColor:'#0284c720', fill:true, tension:.35, pointRadius:4,
-        }]
-      },
-      options: { responsive:true, maintainAspectRatio:false,
-        scales: { x:{ grid:{display:false} }, y:{ beginAtZero:true, max:100 } },
-        plugins: { legend:{ display:false } }
-      }
-    });
-  } else {
-    atCtx.closest('.card-body').innerHTML = '<div class="empty-state-sm"><i class="bi bi-bar-chart"></i><p>Complete audits to see score trends</p></div>';
-  }
-
-});
-</script>
 
 <style>
-.metrics-kpi-row { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:20px; }
-@media(max-width:900px) { .metrics-kpi-row { grid-template-columns:repeat(2,1fr); } }
-
-.metrics-kpi {
-  background:var(--card-bg); border:1px solid var(--border); border-radius:var(--radius);
-  padding:20px; display:flex; align-items:center; gap:16px; box-shadow:var(--shadow); position:relative;
-}
-.mkpi-icon { width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
-.mkpi-body { flex:1; }
-.mkpi-value { font-size:28px; font-weight:800; line-height:1; }
-.mkpi-label { font-size:12px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.4px; margin-top:4px; }
-.mkpi-sub   { font-size:11px; color:var(--text-muted); }
-.mkpi-ring  { width:44px; height:44px; flex-shrink:0; }
-
-.metrics-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-bottom:20px; }
-.metrics-card-wide { grid-column:span 2; }
-@media(max-width:1100px) { .metrics-grid { grid-template-columns:1fr 1fr; } .metrics-card-wide { grid-column:span 2; } }
-@media(max-width:700px)  { .metrics-grid { grid-template-columns:1fr; } .metrics-card-wide { grid-column:span 1; } }
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000; align-items:center; justify-content:center; }
+.modal-overlay.open { display:flex; }
+.modal-card { background:#fff; border-radius:12px; width:100%; max-height:90vh; overflow-y:auto; }
+.modal-header { padding:20px 24px; border-bottom:1px solid #e5e7eb; display:flex; justify-content:space-between; align-items:center; }
+.modal-body { padding:24px; }
+.modal-footer { padding:16px 24px; border-top:1px solid #e5e7eb; display:flex; gap:8px; justify-content:flex-end; }
 </style>
+<?php endif; ?>
 
-<?php
-$content = ob_get_clean();
-require AEGIS_ROOT . '/views/layout.php';
+<?php if (!empty($trend)): ?>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+const ctx = document.getElementById('trendChart').getContext('2d');
+new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: <?= json_encode($trendDates) ?>,
+    datasets: [
+      { label: 'GRC Score',   data: <?= json_encode($trendGRC) ?>,  borderColor:'#1e3a5f', backgroundColor:'#1e3a5f20', tension:.3, fill:true },
+      { label: 'Compliance',  data: <?= json_encode($trendComp) ?>, borderColor:'#0284c7', backgroundColor:'transparent', tension:.3 },
+      { label: 'Risk Health', data: <?= json_encode($trendRisk) ?>, borderColor:'#d97706', backgroundColor:'transparent', tension:.3 },
+    ]
+  },
+  options: {
+    responsive:true,
+    plugins:{ legend:{ position:'top' } },
+    scales:{ y:{ min:0, max:100, ticks:{ callback: v => v + '%' } } }
+  }
+});
+</script>
+<?php endif; ?>
