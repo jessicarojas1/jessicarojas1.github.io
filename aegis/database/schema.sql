@@ -446,3 +446,36 @@ CREATE INDEX IF NOT EXISTS idx_alerts_user  ON alerts(user_id, is_read);
 CREATE INDEX IF NOT EXISTS idx_al_user      ON activity_log(user_id);
 CREATE INDEX IF NOT EXISTS idx_al_entity    ON activity_log(entity_type, entity_id);
 CREATE INDEX IF NOT EXISTS idx_up_user      ON user_permissions(user_id);
+
+-- Evidence files (replaces the simpler `evidence` table; supports full upload lifecycle)
+CREATE TABLE IF NOT EXISTS evidence_files (
+    id            SERIAL PRIMARY KEY,
+    entity_type   VARCHAR(50) NOT NULL,
+    entity_id     INTEGER NOT NULL,
+    original_name VARCHAR(255) NOT NULL,
+    stored_name   VARCHAR(255) NOT NULL,
+    mime_type     VARCHAR(100),
+    file_size     INTEGER,
+    file_hash     VARCHAR(64),
+    description   TEXT,
+    expires_at    TIMESTAMP,
+    uploaded_by   INTEGER REFERENCES users(id),
+    created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_ef_entity ON evidence_files(entity_type, entity_id);
+
+-- Notification log (used by data-retention cleanup in AdminController)
+CREATE TABLE IF NOT EXISTS notification_log (
+    id          SERIAL PRIMARY KEY,
+    type        VARCHAR(100) NOT NULL DEFAULT 'email',
+    recipient   VARCHAR(255),
+    subject     VARCHAR(500),
+    body        TEXT,
+    status      VARCHAR(50) NOT NULL DEFAULT 'sent',
+    error       TEXT,
+    related_type VARCHAR(100),
+    related_id  INTEGER,
+    sent_by     INTEGER REFERENCES users(id),
+    sent_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_nl_sent_at ON notification_log(sent_at);
