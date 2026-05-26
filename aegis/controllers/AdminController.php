@@ -630,10 +630,7 @@ class AdminController {
         $pageTitle    = 'Data Retention';
         $activeModule = 'admin_retention';
         $breadcrumbs  = [['Admin', '/admin'], ['Data Retention', null]];
-        ob_start();
         require AEGIS_ROOT . '/views/admin/retention.php';
-        $content = ob_get_clean();
-        require AEGIS_ROOT . '/views/layout.php';
     }
 
     public function saveRetention(): void {
@@ -756,10 +753,7 @@ class AdminController {
         $pageTitle    = 'Active Sessions';
         $activeModule = 'admin_sessions';
         $breadcrumbs  = [['Admin', '/admin'], ['Active Sessions', null]];
-        ob_start();
         require AEGIS_ROOT . '/views/admin/sessions.php';
-        $content = ob_get_clean();
-        require AEGIS_ROOT . '/views/layout.php';
     }
 
     public function killSession(string $sessionId): void {
@@ -1103,10 +1097,7 @@ class AdminController {
         $pageTitle    = 'Email Templates';
         $activeModule = 'admin';
         $breadcrumbs  = [['Admin', '/admin'], ['Email Templates', null]];
-        ob_start();
         require AEGIS_ROOT . '/views/admin/email_templates.php';
-        $content = ob_get_clean();
-        require AEGIS_ROOT . '/views/layout.php';
     }
 
     public function emailTemplateForm(string $id): void {
@@ -1117,10 +1108,7 @@ class AdminController {
         $pageTitle    = 'Edit Template: ' . $template['name'];
         $activeModule = 'admin';
         $breadcrumbs  = [['Admin', '/admin'], ['Email Templates', '/admin/email-templates'], ['Edit', null]];
-        ob_start();
         require AEGIS_ROOT . '/views/admin/email_template_form.php';
-        $content = ob_get_clean();
-        require AEGIS_ROOT . '/views/layout.php';
     }
 
     public function updateEmailTemplate(string $id): void {
@@ -1170,10 +1158,7 @@ class AdminController {
         $pageTitle    = 'Scheduled Reports';
         $activeModule = 'admin';
         $breadcrumbs  = [['Admin', '/admin'], ['Scheduled Reports', null]];
-        ob_start();
         require AEGIS_ROOT . '/views/admin/scheduled_reports.php';
-        $content = ob_get_clean();
-        require AEGIS_ROOT . '/views/layout.php';
     }
 
     public function scheduledReportForm(string $id = ''): void {
@@ -1186,10 +1171,7 @@ class AdminController {
         $pageTitle    = $schedule ? 'Edit Report Schedule' : 'New Report Schedule';
         $activeModule = 'admin';
         $breadcrumbs  = [['Admin', '/admin'], ['Scheduled Reports', '/admin/scheduled-reports'], [$schedule ? 'Edit' : 'New', null]];
-        ob_start();
         require AEGIS_ROOT . '/views/admin/scheduled_report_form.php';
-        $content = ob_get_clean();
-        require AEGIS_ROOT . '/views/layout.php';
     }
 
     public function createScheduledReport(): void {
@@ -1295,10 +1277,7 @@ class AdminController {
         $pageTitle    = 'Email Delivery Log';
         $activeModule = 'admin';
         $breadcrumbs  = [['Admin', '/admin'], ['Email Delivery Log', null]];
-        ob_start();
         require AEGIS_ROOT . '/views/admin/email_delivery.php';
-        $content = ob_get_clean();
-        require AEGIS_ROOT . '/views/layout.php';
     }
 
     // ─── Alert Config ─────────────────────────────────────────────────────────
@@ -1315,10 +1294,7 @@ class AdminController {
         $pageTitle    = $config ? 'Edit Alert Config' : 'New Alert Config';
         $activeModule = 'admin';
         $breadcrumbs  = [['Admin', '/admin'], ['Alerts', '/admin/alerts'], [$config ? 'Edit' : 'New', null]];
-        ob_start();
         require AEGIS_ROOT . '/views/admin/alert_config_form.php';
-        $content = ob_get_clean();
-        require AEGIS_ROOT . '/views/layout.php';
     }
 
     public function saveAlertConfig(): void {
