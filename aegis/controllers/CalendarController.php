@@ -14,7 +14,7 @@ class CalendarController {
         if ($year < 2000) $year = 2000;
         if ($year > 2099) $year = 2099;
 
-        $daysInMonth    = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+        $daysInMonth    = (int)date('t', mktime(0, 0, 0, $month, 1, $year));
         $firstDayOfWeek = (int)date('w', mktime(0, 0, 0, $month, 1, $year)); // 0=Sun
 
         $events = self::getEvents($year, $month);
@@ -57,7 +57,7 @@ class CalendarController {
     }
 
     private static function getEvents(int $year, int $month): array {
-        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+        $daysInMonth = (int)date('t', mktime(0, 0, 0, $month, 1, $year));
         $start = sprintf('%04d-%02d-01', $year, $month);
         $end   = sprintf('%04d-%02d-%02d', $year, $month, $daysInMonth);
 

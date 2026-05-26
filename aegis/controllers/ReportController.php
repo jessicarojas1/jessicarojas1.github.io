@@ -149,14 +149,16 @@ class ReportController {
             ORDER BY r.inherent_score DESC LIMIT 10");
 
         // Compliance summary per package
-        $compliance = Database::fetchAll("SELECT cp.name, cp.standard,
+        $compliance = Database::fetchAll("SELECT cp.name, s.name AS standard,
             COUNT(ci.id) AS total_controls,
             COUNT(ci.id) FILTER (WHERE ci.status='compliant') AS compliant,
             COUNT(ci.id) FILTER (WHERE ci.status='non_compliant') AS non_compliant,
             ROUND(COUNT(ci.id) FILTER (WHERE ci.status='compliant')::numeric / NULLIF(COUNT(ci.id),0) * 100) AS pct
-            FROM compliance_packages cp LEFT JOIN compliance_objectives co ON co.package_id=cp.id
+            FROM compliance_packages cp
+            LEFT JOIN standards s ON s.id = cp.standard_id
+            LEFT JOIN compliance_objectives co ON co.package_id=cp.id
             LEFT JOIN control_implementations ci ON ci.objective_id=co.id
-            GROUP BY cp.id, cp.name, cp.standard ORDER BY pct DESC");
+            GROUP BY cp.id, cp.name, s.name ORDER BY pct DESC");
 
         // Risk trend last 12 weeks
         $riskTrend = Database::fetchAll("SELECT DATE_TRUNC('week',created_at) AS week,
