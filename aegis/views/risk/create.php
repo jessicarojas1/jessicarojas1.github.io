@@ -91,22 +91,22 @@ ob_start();
           </div>
         </div>
 
-        <!-- Treatment -->
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Treatment Type</label>
-            <select name="treatment_type" class="form-control">
-              <option value="">Not yet determined</option>
-              <option value="mitigate">Mitigate</option>
-              <option value="accept">Accept</option>
-              <option value="avoid">Avoid</option>
-              <option value="transfer">Transfer</option>
-            </select>
+        <!-- Response Strategy -->
+        <div class="form-group" style="margin-top:4px">
+          <label class="form-label">Response Strategy <span class="form-hint" style="margin:0">(select all that apply)</span></label>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:6px" id="strategyGrid">
+            <?php foreach (['mitigate'=>'Mitigate','accept'=>'Accept','transfer'=>'Transfer','avoid'=>'Avoid'] as $k=>$l): ?>
+            <label style="display:flex;flex-direction:column;align-items:center;gap:5px;padding:12px 8px;border-radius:8px;border:2px solid var(--border);background:var(--bg-secondary);cursor:pointer;text-align:center;transition:all .15s" class="strat-lbl" id="slbl_<?= $k ?>">
+              <input type="checkbox" name="treatment_strategies[]" value="<?= $k ?>" style="position:absolute;opacity:0" onchange="toggleStrat('<?= $k ?>')">
+              <span style="font-size:18px"><?= match($k){'mitigate'=>'🛡️','accept'=>'✅','transfer'=>'↔️','avoid'=>'🚫'} ?></span>
+              <span style="font-weight:600;font-size:13px"><?= $l ?></span>
+            </label>
+            <?php endforeach; ?>
           </div>
-          <div class="form-group flex-2">
-            <label class="form-label">Treatment Description</label>
-            <input type="text" name="treatment_description" class="form-control" placeholder="Describe the treatment plan...">
-          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Treatment Notes</label>
+          <input type="text" name="treatment_description" class="form-control" placeholder="Briefly describe your response approach...">
         </div>
 
         <div class="form-actions">
@@ -133,6 +133,17 @@ ob_start();
 </div>
 
 <script>
+function toggleStrat(key) {
+  const lbl = document.getElementById('slbl_' + key);
+  const cb  = lbl.querySelector('input');
+  if (cb.checked) {
+    lbl.style.borderColor = 'var(--primary)';
+    lbl.style.background  = 'color-mix(in srgb, var(--primary) 10%, transparent)';
+  } else {
+    lbl.style.borderColor = 'var(--border)';
+    lbl.style.background  = 'var(--bg-secondary)';
+  }
+}
 function updateScore() {
   const l = parseInt(document.getElementById('likelihood').value);
   const i = parseInt(document.getElementById('impact').value);

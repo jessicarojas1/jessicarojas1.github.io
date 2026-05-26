@@ -65,7 +65,9 @@ $_appColorMap = [
   <div class="risk-kpi medium"><i class="bi bi-exclamation-circle-fill"></i><span class="kpi-num"><?= $summary['medium'] ?></span><span>Medium</span></div>
   <div class="risk-kpi low"><i class="bi bi-info-circle-fill"></i><span class="kpi-num"><?= $summary['low'] ?></span><span>Low</span></div>
   <div class="risk-kpi open"><i class="bi bi-circle-fill"></i><span class="kpi-num"><?= $summary['open'] ?></span><span>Open</span></div>
-  <div class="risk-kpi mitigated"><i class="bi bi-check-circle-fill"></i><span class="kpi-num"><?= $summary['mitigated'] ?></span><span>Mitigated</span></div>
+  <div class="risk-kpi" style="color:#16a34a"><i class="bi bi-eye-fill"></i><span class="kpi-num"><?= $summary['monitoring'] ?></span><span>Monitoring</span></div>
+  <div class="risk-kpi accepted" style="color:#d97706"><i class="bi bi-check-circle-fill"></i><span class="kpi-num"><?= $summary['accepted'] ?></span><span>Accepted</span></div>
+  <div class="risk-kpi" style="color:#64748b"><i class="bi bi-lock-fill"></i><span class="kpi-num"><?= $summary['closed'] ?></span><span>Closed</span></div>
 </div>
 
 <!-- Filters -->
@@ -79,8 +81,14 @@ $_appColorMap = [
     </select>
     <select name="status" class="form-control form-control-sm" onchange="this.form.submit()">
       <option value="">All statuses</option>
-      <?php foreach (['open','accepted','mitigated','closed','transferred'] as $s): ?>
-        <option value="<?= $s ?>" <?= ($_GET['status']??'')===$s?'selected':'' ?>><?= ucfirst($s) ?></option>
+      <?php foreach (['open'=>'Open','in_review'=>'In Review','monitoring'=>'Monitoring','accepted'=>'Accepted','closed'=>'Closed','transferred'=>'Transferred'] as $sv=>$sl): ?>
+        <option value="<?= $sv ?>" <?= ($_GET['status']??'')===$sv?'selected':'' ?>><?= $sl ?></option>
+      <?php endforeach; ?>
+    </select>
+    <select name="treatment" class="form-control form-control-sm" onchange="this.form.submit()">
+      <option value="">All strategies</option>
+      <?php foreach (['mitigate'=>'Mitigate','accept'=>'Accept','transfer'=>'Transfer','avoid'=>'Avoid'] as $sv=>$sl): ?>
+        <option value="<?= $sv ?>" <?= ($_GET['treatment']??'')===$sv?'selected':'' ?>><?= $sl ?></option>
       <?php endforeach; ?>
     </select>
     <select name="level" class="form-control form-control-sm" onchange="this.form.submit()">
@@ -103,13 +111,18 @@ $_appColorMap = [
     <select name="bulk_action" class="form-control" style="width:auto">
       <option value="">Choose action…</option>
       <optgroup label="Set Status">
-        <option value="status_open">Mark Open</option>
-        <option value="status_closed">Mark Closed</option>
-        <option value="status_transferred">Mark Transferred</option>
+        <option value="status_open">Open</option>
+        <option value="status_in_review">In Review</option>
+        <option value="status_monitoring">Monitoring</option>
+        <option value="status_accepted">Accepted</option>
+        <option value="status_closed">Closed</option>
+        <option value="status_transferred">Transferred</option>
       </optgroup>
-      <optgroup label="Set Treatment">
-        <option value="treatment_accept">Accept Risk</option>
-        <option value="treatment_mitigate">Set to Mitigate</option>
+      <optgroup label="Set Strategy">
+        <option value="strategy_mitigate">Mitigate</option>
+        <option value="strategy_accept">Accept</option>
+        <option value="strategy_transfer">Transfer</option>
+        <option value="strategy_avoid">Avoid</option>
       </optgroup>
     </select>
     <button type="submit" class="btn btn-primary btn-sm" onclick="return injectIds()">Apply</button>
@@ -125,7 +138,7 @@ $_appColorMap = [
           <th style="width:32px"><input type="checkbox" id="selectAll" onchange="toggleAll(this)"></th>
           <th>Risk ID</th><th>Title</th><th>Category</th>
           <th>Likelihood</th><th>Impact</th><th>Score</th><th>Level</th>
-          <th>Residual</th><th>Status</th><th>Owner</th><th></th>
+          <th>Residual</th><th>Status</th><th>Strategy</th><th>Owner</th><th></th>
         </tr>
       </thead>
       <tbody>
@@ -153,7 +166,19 @@ $_appColorMap = [
                 <span class="risk-badge risk-<?= strtolower($resLevel) ?>"><?= $resScore ?></span>
               <?php else: ?>—<?php endif; ?>
             </td>
-            <td><span class="badge badge-<?= $risk['status'] ?>"><?= ucfirst($risk['status']) ?></span></td>
+            <td><span class="badge badge-<?= $risk['status'] ?>"><?= ucfirst(str_replace('_',' ',$risk['status'])) ?></span></td>
+            <td>
+              <?php
+              $strategies = json_decode($risk['treatment_strategies'] ?? '[]', true) ?: [];
+              $stratColors = ['mitigate'=>'#2563eb','accept'=>'#b45309','transfer'=>'#7c3aed','avoid'=>'#dc2626'];
+              foreach ($strategies as $strat):
+                $sc = $stratColors[$strat] ?? '#64748b';
+              ?>
+              <span style="font-size:11px;font-weight:600;padding:2px 7px;border-radius:20px;background:<?= $sc ?>18;color:<?= $sc ?>;border:1px solid <?= $sc ?>30;white-space:nowrap;margin-right:2px">
+                <?= ucfirst($strat) ?>
+              </span>
+              <?php endforeach; if (empty($strategies)): ?>—<?php endif; ?>
+            </td>
             <td><?= Security::h($risk['owner_name'] ?? '—') ?></td>
             <td>
               <div class="action-btns">
@@ -162,7 +187,7 @@ $_appColorMap = [
             </td>
           </tr>
         <?php endforeach; else: ?>
-          <tr><td colspan="12" class="empty-row">
+          <tr><td colspan="13" class="empty-row">
             <div class="empty-state-sm"><i class="bi bi-shield-check"></i><p>No risks match your filters. <a href="/risk/create">Log a risk</a>.</p></div>
           </td></tr>
         <?php endif; ?>

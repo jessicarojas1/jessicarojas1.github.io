@@ -202,6 +202,7 @@ CREATE TABLE IF NOT EXISTS risks (
     residual_score INTEGER GENERATED ALWAYS AS (COALESCE(residual_likelihood, likelihood) * COALESCE(residual_impact, impact)) STORED,
     status VARCHAR(50) NOT NULL DEFAULT 'open',
     treatment_type VARCHAR(50),
+    treatment_strategies JSONB NOT NULL DEFAULT '[]',
     treatment_description TEXT,
     owner_id INTEGER REFERENCES users(id),
     review_date DATE,
@@ -223,6 +224,7 @@ CREATE TABLE IF NOT EXISTS risk_treatments (
     status VARCHAR(50) NOT NULL DEFAULT 'planned',
     owner_id INTEGER REFERENCES users(id),
     completion_date DATE,
+    completion_notes TEXT,
     notes TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
