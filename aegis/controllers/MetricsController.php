@@ -54,7 +54,7 @@ class MetricsController {
                     COUNT(*) FILTER (WHERE severity IN ('critical','high')) as critical_high
              FROM incidents
              WHERE created_at >= CURRENT_DATE - INTERVAL '12 months'
-             GROUP BY month ORDER BY month"
+             GROUP BY TO_CHAR(created_at, 'YYYY-MM') ORDER BY 1"
         );
 
         // Scheduled reports
