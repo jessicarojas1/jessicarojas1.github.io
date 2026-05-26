@@ -19,6 +19,8 @@ services:
         sync: false
       - key: ADMIN_PASSWORD
         generateValue: true
+      - key: APP_URL
+        sync: false
 
 databases:
   - name: aegis-db
