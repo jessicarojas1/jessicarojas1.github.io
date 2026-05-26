@@ -10,12 +10,12 @@ if (!isset($roadmapRisks)) {
     $filterOwner    = Security::sanitizeInput($_GET['owner_id'] ?? '');
     $filterLevel    = Security::sanitizeInput($_GET['level']    ?? '');
 
-    $where  = ["(r.treatment_plan IS NOT NULL OR r.due_date IS NOT NULL)"];
+    $where  = ["(r.treatment_description IS NOT NULL OR r.review_date IS NOT NULL)"];
     $params = [];
 
     $validStatuses = ['open','accepted','mitigated','closed','transferred','in_progress'];
     if ($filterStatus && in_array($filterStatus, $validStatuses, true)) {
-        $where[]  = 'r.treatment_status = ?';
+        $where[]  = 'r.status = ?';
         $params[] = $filterStatus;
     }
     if ($filterOwner && (int)$filterOwner > 0) {
@@ -35,12 +35,14 @@ if (!isset($roadmapRisks)) {
 
     $roadmapRisks = Database::fetchAll(
         "SELECT r.id, r.title, r.risk_id, r.likelihood, r.impact, r.status,
-                r.treatment_plan, r.treatment_status, r.due_date,
+                r.treatment_description AS treatment_plan,
+                r.status                AS treatment_status,
+                r.review_date           AS due_date,
                 u.name AS owner_name, u.id AS owner_id
          FROM risks r
          LEFT JOIN users u ON u.id = r.owner_id
          WHERE {$whereSQL}
-         ORDER BY (r.likelihood * r.impact) DESC, r.due_date ASC NULLS LAST",
+         ORDER BY (r.likelihood * r.impact) DESC, r.review_date ASC NULLS LAST",
         $params
     );
 

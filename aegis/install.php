@@ -507,6 +507,7 @@ function runMigrations(PDO $pdo): void {
         '005_risk_enterprise.sql',
         '006_email_risk_review.sql',
         '007_risk_extensions.sql',
+        '008_notification_prefs.sql',
     ];
     foreach ($migrationFiles as $file) {
         $path = AEGIS_ROOT . '/database/migrations/' . $file;
