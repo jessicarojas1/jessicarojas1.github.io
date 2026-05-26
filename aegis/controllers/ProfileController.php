@@ -33,7 +33,7 @@ class ProfileController {
             'overdue_controls','policy_review_due','pending_approval',
             'new_risk_assigned','open_incident_aging','risk_review_overdue',
             'treatment_due','risk_score_worsened','vendor_assessment_expiring',
-            'document_expiring','assessment_pending_stale',
+            'document_expiring','assessment_pending_stale','evidence_expiring',
         ];
         foreach ($types as $type) {
             $enabled = isset($_POST['types'][$type]);

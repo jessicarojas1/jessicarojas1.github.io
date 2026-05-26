@@ -54,8 +54,10 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
           <thead>
             <tr>
               <th style="width:160px">Category</th>
-              <th style="width:160px">Appetite Level</th>
-              <th style="width:120px">Max Score</th>
+              <th style="width:140px">Appetite Level</th>
+              <th style="width:90px">Max Score</th>
+              <th style="width:90px">Amber ≥</th>
+              <th style="width:90px">Red ≥</th>
               <th>Statement</th>
               <th style="width:80px">Actions</th>
             </tr>
@@ -92,6 +94,16 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
                 <input type="number" name="max_score[]" class="form-control form-control-sm"
                        value="<?= $row['max_score'] !== null ? (int)$row['max_score'] : '' ?>"
                        min="0" max="100" placeholder="—">
+              </td>
+              <td>
+                <input type="number" name="amber_threshold[]" class="form-control form-control-sm"
+                       value="<?= $row['amber_threshold'] !== null ? (int)$row['amber_threshold'] : '' ?>"
+                       min="0" max="25" placeholder="—" title="Score at or above which risk shows amber on heat maps">
+              </td>
+              <td>
+                <input type="number" name="red_threshold[]" class="form-control form-control-sm"
+                       value="<?= $row['red_threshold'] !== null ? (int)$row['red_threshold'] : '' ?>"
+                       min="0" max="25" placeholder="—" title="Score at or above which risk shows red on heat maps">
               </td>
               <td>
                 <textarea name="statement[]" class="form-control form-control-sm"
@@ -139,6 +151,12 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
     </td>
     <td>
       <input type="number" name="new_max_score[]" class="form-control form-control-sm" min="0" max="100" placeholder="—">
+    </td>
+    <td>
+      <input type="number" name="new_amber_threshold[]" class="form-control form-control-sm" min="0" max="25" placeholder="—">
+    </td>
+    <td>
+      <input type="number" name="new_red_threshold[]" class="form-control form-control-sm" min="0" max="25" placeholder="—">
     </td>
     <td>
       <textarea name="new_statement[]" class="form-control form-control-sm" rows="2" style="resize:vertical" placeholder="Describe the risk tolerance for this category..." required></textarea>

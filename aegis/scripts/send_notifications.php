@@ -201,6 +201,7 @@ $sentScoreWorsened   = 0;
 $sentVendorAssess    = 0;
 $sentDocExpiring     = 0;
 $sentAssessStale     = 0;
+$sentEvidenceExpiry  = 0;
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 1. OVERDUE CONTROLS
@@ -1155,6 +1156,96 @@ HTML;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// 12. EVIDENCE FILE EXPIRY
+// Query: evidence_files WHERE expires_at BETWEEN today AND today + 30 days
+//        AND uploaded_by IS NOT NULL
+// Send to: uploader; throttle once per evidence file per 7 days
+// ═══════════════════════════════════════════════════════════════════════════════
+try {
+    $evRows = Database::fetchAll(
+        "SELECT ef.id, ef.filename, ef.entity_type, ef.entity_id, ef.expires_at, ef.uploaded_by,
+                u.id AS user_id, u.email, u.name AS user_name
+         FROM evidence_files ef
+         JOIN users u ON u.id = ef.uploaded_by
+         WHERE ef.expires_at BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '30 days'
+           AND ef.uploaded_by IS NOT NULL
+           AND u.is_active = TRUE",
+        []
+    );
+
+    $evByUser = [];
+    foreach ($evRows as $row) {
+        $evByUser[$row['user_id']][] = $row;
+    }
+
+    foreach ($evByUser as $userId => $files) {
+        $userId = (int) $userId;
+
+        if (!notifEnabled($userId, 'evidence_expiring')) {
+            continue;
+        }
+
+        $email    = $files[0]['email'];
+        $userName = $files[0]['user_name'];
+
+        foreach ($files as $ef) {
+            if (alreadyNotified($userId, 'evidence_expiring', 'evidence_files', (int) $ef['id'], 604800)) {
+                continue;
+            }
+
+            $dueDate       = date('M j, Y', strtotime($ef['expires_at']));
+            $daysRemaining = (int) ceil((strtotime($ef['expires_at']) - time()) / 86400);
+            $fileName      = htmlspecialchars($ef['filename'], ENT_QUOTES, 'UTF-8');
+            $entityRef     = htmlspecialchars(ucfirst(str_replace('_', ' ', $ef['entity_type'])) . ' #' . $ef['entity_id'], ENT_QUOTES, 'UTF-8');
+            $dayColor      = $daysRemaining <= 7 ? '#ef4444' : '#f59e0b';
+            $dayWord       = $daysRemaining === 1 ? '' : 's';
+
+            $inner = <<<HTML
+<p style="margin-top:0">Hi {$userName},</p>
+<p>An evidence file you uploaded is expiring soon and may no longer satisfy compliance requirements:</p>
+<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px">
+  <tr style="background:#f3f4f6">
+    <th style="padding:8px;text-align:left">Field</th>
+    <th style="padding:8px;text-align:left">Value</th>
+  </tr>
+  <tr>
+    <td style="padding:8px;border-bottom:1px solid #e5e7eb;color:#6b7280;font-weight:600">File</td>
+    <td style="padding:8px;border-bottom:1px solid #e5e7eb;font-weight:600">{$fileName}</td>
+  </tr>
+  <tr>
+    <td style="padding:8px;border-bottom:1px solid #e5e7eb;color:#6b7280;font-weight:600">Linked To</td>
+    <td style="padding:8px;border-bottom:1px solid #e5e7eb">{$entityRef}</td>
+  </tr>
+  <tr>
+    <td style="padding:8px;border-bottom:1px solid #e5e7eb;color:#6b7280;font-weight:600">Expiry Date</td>
+    <td style="padding:8px;border-bottom:1px solid #e5e7eb">{$dueDate}</td>
+  </tr>
+  <tr>
+    <td style="padding:8px;color:#6b7280;font-weight:600">Days Remaining</td>
+    <td style="padding:8px;font-weight:700;color:{$dayColor}">{$daysRemaining} day{$dayWord}</td>
+  </tr>
+</table>
+<p style="margin-bottom:0;font-size:13px;color:#6b7280">Please log in to AEGIS GRC to upload a fresh evidence file before it expires.</p>
+HTML;
+
+            $subject = "[AEGIS] Evidence file expiring: {$ef['filename']}";
+            $body    = emailShell('Evidence File Expiring', $inner);
+
+            $sent = maybeSendOrQueue(
+                $userId, 'evidence_expiring', $email, $userName, $subject, $body,
+                ['evidence' => $ef, 'dueDate' => $dueDate, 'daysRemaining' => $daysRemaining]
+            );
+            if ($sent) {
+                logNotification($userId, 'evidence_expiring', 'evidence_files', (int) $ef['id']);
+                $sentEvidenceExpiry++;
+            }
+        }
+    }
+} catch (\Throwable $e) {
+    fwrite(STDERR, "[evidence_expiring] ERROR: " . $e->getMessage() . "\n");
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // DIGEST: send one combined email per user who has queued notifications
 // ═══════════════════════════════════════════════════════════════════════════════
 $sentDigests = 0;
@@ -1173,6 +1264,7 @@ if (!empty($digestQueue)) {
         'vendor_assessment_expiring' => 'Vendor Assessments Due',
         'document_expiring'          => 'Documents Expiring Soon',
         'assessment_pending_stale'   => 'Stale Risk Assessments',
+        'evidence_expiring'          => 'Evidence Files Expiring',
     ];
 
     foreach ($digestQueue as $digestUserId => $items) {
@@ -1269,6 +1361,7 @@ HTML;
                     'vendor_assessment_expiring' => 'vendor',
                     'document_expiring'          => 'document',
                     'assessment_pending_stale'   => 'risk',
+                    'evidence_expiring'          => 'evidence_files',
                     default                      => 'entity',
                 };
                 // Determine entity_id from data — best-effort
@@ -1284,6 +1377,7 @@ HTML;
                     'vendor_assessment_expiring' => (int) ($data['vendor']['vendor_id'] ?? 0),
                     'document_expiring'          => (int) ($data['document']['id'] ?? 0),
                     'assessment_pending_stale'   => (int) ($data['risk']['id'] ?? 0),
+                    'evidence_expiring'          => (int) ($data['evidence']['id'] ?? 0),
                     default                      => 0,
                 };
 
@@ -1302,4 +1396,4 @@ echo "[{$timestamp}] Notifications: {$sentOverdue} overdue, {$sentPolicy} review
    . "{$sentApprovals} approvals, {$sentRisks} risk assignments, {$sentIncidents} aging incidents, "
    . "{$sentRiskReview} risk reviews, {$sentTreatment} treatments, {$sentScoreWorsened} score alerts, "
    . "{$sentVendorAssess} vendor assessments, {$sentDocExpiring} doc expiry, {$sentAssessStale} stale assessments, "
-   . "{$sentDigests} digest(s) sent\n";
+   . "{$sentEvidenceExpiry} evidence expiry, {$sentDigests} digest(s) sent\n";

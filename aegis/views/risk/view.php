@@ -766,6 +766,125 @@ ob_start();
     </div>
     <?php endif; ?>
 
+    <!-- Acceptance Certificate -->
+    <?php if ($activeAcceptance || Auth::can('risk.write')): ?>
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title"><i class="bi bi-patch-check-fill" style="color:#16a34a"></i> Risk Acceptance</h3>
+        <?php if (Auth::can('risk.write')): ?>
+          <a href="/risk/<?= (int)$risk['id'] ?>/accept" class="btn btn-ghost btn-sm"><i class="bi bi-plus-lg"></i> Issue</a>
+        <?php endif; ?>
+      </div>
+      <div class="card-body" style="padding:12px 16px">
+        <?php if ($activeAcceptance): ?>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <span style="background:#f0fdf4;color:#16a34a;border:1px solid #86efac;border-radius:20px;font-size:11px;font-weight:700;padding:2px 10px">Active</span>
+            <span style="font-size:12px;color:var(--text-muted)">until <?= date('M j, Y', strtotime($activeAcceptance['valid_until'])) ?></span>
+          </div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:6px">
+            Accepted by <strong><?= Security::h($activeAcceptance['acceptor_name']) ?></strong>
+          </div>
+          <?php if ($activeAcceptance['conditions']): ?>
+            <div style="font-size:11px;color:var(--text-muted);font-style:italic;margin-bottom:8px"><?= Security::h(mb_strimwidth($activeAcceptance['conditions'], 0, 100, '…')) ?></div>
+          <?php endif; ?>
+          <?php if (strtotime($activeAcceptance['valid_until']) < strtotime('+30 days')): ?>
+            <div style="font-size:11px;color:#d97706;font-weight:600;margin-bottom:8px"><i class="bi bi-exclamation-triangle"></i> Expiring soon</div>
+          <?php endif; ?>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <a href="/risk-acceptances/<?= (int)$activeAcceptance['id'] ?>/renew" class="btn btn-ghost btn-sm" style="font-size:11px"><i class="bi bi-arrow-repeat"></i> Renew</a>
+            <form method="POST" action="/risk-acceptances/<?= (int)$activeAcceptance['id'] ?>/revoke" style="margin:0" onsubmit="return confirm('Revoke this acceptance certificate?')">
+              <?= Security::csrfField() ?>
+              <button type="submit" class="btn btn-ghost btn-sm" style="font-size:11px;color:#ef4444"><i class="bi bi-x-circle"></i> Revoke</button>
+            </form>
+          </div>
+        <?php else: ?>
+          <p class="text-muted" style="font-size:12px;margin:0">No active acceptance certificate. <a href="/risk/<?= (int)$risk['id'] ?>/accept">Issue one</a> if this risk is formally accepted.</p>
+        <?php endif; ?>
+      </div>
+    </div>
+    <?php endif; ?>
+
+    <!-- Linked KRIs -->
+    <?php if (!empty($linkedKRIs)): ?>
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title"><i class="bi bi-activity" style="color:#7c3aed"></i> Key Risk Indicators</h3>
+        <a href="/kris" class="btn btn-ghost btn-sm" style="font-size:11px">All KRIs</a>
+      </div>
+      <div class="card-body" style="padding:8px 0">
+        <?php foreach ($linkedKRIs as $kri):
+          $kriStatus = $kri['status'] ?? 'normal';
+          $kriColor  = match($kriStatus) { 'red' => '#ef4444', 'amber' => '#f59e0b', default => '#22c55e' };
+          $kriIcon   = match($kriStatus) { 'red' => 'exclamation-octagon-fill', 'amber' => 'exclamation-triangle-fill', default => 'check-circle-fill' };
+        ?>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 16px;border-bottom:1px solid var(--border)">
+          <i class="bi bi-<?= $kriIcon ?>" style="color:<?= $kriColor ?>;font-size:14px;flex-shrink:0"></i>
+          <div style="flex:1;min-width:0">
+            <a href="/kris/<?= (int)$kri['id'] ?>" style="font-size:12px;font-weight:500;display:block;color:inherit"><?= Security::h($kri['name']) ?></a>
+            <?php if ($kri['current_value'] !== null): ?>
+              <span style="font-size:11px;color:var(--text-muted)"><?= number_format((float)$kri['current_value'], 2) ?> <?= Security::h($kri['unit'] ?? '') ?></span>
+            <?php else: ?>
+              <span style="font-size:11px;color:var(--text-muted)">No readings yet</span>
+            <?php endif; ?>
+          </div>
+          <span style="font-size:10px;font-weight:700;color:<?= $kriColor ?>;text-transform:uppercase"><?= ucfirst($kriStatus) ?></span>
+        </div>
+        <?php endforeach; ?>
+      </div>
+    </div>
+    <?php endif; ?>
+
+    <!-- Scenarios & Bow-Tie links -->
+    <div class="card">
+      <div class="card-body" style="padding:10px 12px;display:flex;flex-direction:column;gap:8px">
+        <a href="/risk/<?= (int)$risk['id'] ?>/bowtie" class="btn btn-ghost btn-sm" style="justify-content:flex-start;gap:8px;text-align:left">
+          <i class="bi bi-diagram-3" style="color:#7c3aed"></i>
+          <div><strong style="display:block;font-size:12px">Bow-Tie Analysis</strong><span style="font-size:11px;color:var(--text-muted)">Causes, barriers &amp; consequences</span></div>
+        </a>
+        <a href="/risk/<?= (int)$risk['id'] ?>/scenario/create" class="btn btn-ghost btn-sm" style="justify-content:flex-start;gap:8px;text-align:left">
+          <i class="bi bi-graph-up-arrow" style="color:#2563eb"></i>
+          <div><strong style="display:block;font-size:12px">Add Scenario<?php if (!empty($scenarios)): ?> <span style="font-weight:400;color:var(--text-muted)">(<?= count($scenarios) ?>)</span><?php endif; ?></strong><span style="font-size:11px;color:var(--text-muted)">Stress-test &amp; model outcomes</span></div>
+        </a>
+        <?php if ($controlEffSuggestion && ($resScore > $controlEffSuggestion['score'])): ?>
+        <div style="background:var(--bg-secondary);border-radius:8px;padding:10px;border:1px solid var(--border)">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px"><i class="bi bi-lightbulb-fill" style="color:#f59e0b"></i> Residual Score Suggestion</div>
+          <div style="font-size:12px">Based on <strong><?= ucfirst($controlEffSuggestion['effectiveness']) ?></strong> control effectiveness,
+            consider setting residual to <strong><?= $controlEffSuggestion['score'] ?></strong>
+            (L<?= $controlEffSuggestion['likelihood'] ?>×I<?= $controlEffSuggestion['impact'] ?>)</div>
+        </div>
+        <?php endif; ?>
+      </div>
+    </div>
+
+    <!-- Scenarios list -->
+    <?php if (!empty($scenarios)): ?>
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title"><i class="bi bi-graph-up-arrow" style="color:#2563eb"></i> Risk Scenarios</h3>
+        <a href="/risk/<?= (int)$risk['id'] ?>/scenario/create" class="btn btn-ghost btn-sm"><i class="bi bi-plus-lg"></i></a>
+      </div>
+      <div class="card-body p0">
+        <?php foreach ($scenarios as $sc):
+          $scColor = $sc['scenario_score'] > 14 ? '#ef4444' : ($sc['scenario_score'] > 9 ? '#f97316' : ($sc['scenario_score'] > 4 ? '#f59e0b' : '#22c55e'));
+          $scTypeColors = ['stress'=>'#ef4444','catastrophic'=>'#7c3aed','regulatory'=>'#d97706','base'=>'#2563eb','optimistic'=>'#16a34a'];
+          $scTypeColor  = $scTypeColors[$sc['scenario_type']] ?? '#64748b';
+        ?>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid var(--border)">
+          <span style="background:<?= $scColor ?>20;color:<?= $scColor ?>;font-size:13px;font-weight:700;width:28px;text-align:center;border-radius:4px;padding:2px 0"><?= (int)$sc['scenario_score'] ?></span>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12px;font-weight:500"><?= Security::h(mb_strimwidth($sc['name'], 0, 40, '…')) ?></div>
+            <span style="font-size:10px;color:<?= $scTypeColor ?>;font-weight:700;text-transform:uppercase"><?= ucfirst($sc['scenario_type']) ?></span>
+          </div>
+          <form method="POST" action="/risk-scenarios/<?= (int)$sc['id'] ?>/delete" style="margin:0" onsubmit="return confirm('Delete this scenario?')">
+            <?= Security::csrfField() ?>
+            <button type="submit" class="btn btn-ghost btn-sm" style="padding:2px 5px;color:var(--text-muted)"><i class="bi bi-trash3" style="font-size:11px"></i></button>
+          </form>
+        </div>
+        <?php endforeach; ?>
+      </div>
+    </div>
+    <?php endif; ?>
+
   </div><!-- /r-sidebar -->
 </div><!-- /r-layout -->
 

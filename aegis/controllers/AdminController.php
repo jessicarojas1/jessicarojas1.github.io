@@ -1012,36 +1012,45 @@ class AdminController {
     public function saveRiskAppetite(): void {
         Auth::requireAdmin();
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
-        $ids        = (array)($_POST['id'] ?? []);
-        $categories = (array)($_POST['category'] ?? []);
-        $appetites  = (array)($_POST['appetite'] ?? []);
-        $statements = (array)($_POST['statement'] ?? []);
-        $maxScores  = (array)($_POST['max_score'] ?? []);
-        $valid      = ['zero','low','moderate','high'];
+        $ids             = (array)($_POST['id'] ?? []);
+        $categories      = (array)($_POST['category'] ?? []);
+        $appetites       = (array)($_POST['appetite'] ?? []);
+        $statements      = (array)($_POST['statement'] ?? []);
+        $maxScores       = (array)($_POST['max_score'] ?? []);
+        $amberThresholds = (array)($_POST['amber_threshold'] ?? []);
+        $redThresholds   = (array)($_POST['red_threshold'] ?? []);
+        $valid           = ['zero','low','moderate','high'];
         foreach ($ids as $i => $id) {
-            $id        = (int)$id;
-            $category  = trim(Security::sanitizeInput($categories[$i] ?? ''));
-            $appetite  = in_array($appetites[$i] ?? '', $valid, true) ? $appetites[$i] : 'low';
-            $statement = trim(Security::sanitizeInput($statements[$i] ?? ''));
-            $maxScore  = ($maxScores[$i] ?? '') !== '' ? (int)$maxScores[$i] : null;
+            $id             = (int)$id;
+            $category       = trim(Security::sanitizeInput($categories[$i] ?? ''));
+            $appetite       = in_array($appetites[$i] ?? '', $valid, true) ? $appetites[$i] : 'low';
+            $statement      = trim(Security::sanitizeInput($statements[$i] ?? ''));
+            $maxScore       = ($maxScores[$i] ?? '') !== '' ? (int)$maxScores[$i] : null;
+            $amberThreshold = ($amberThresholds[$i] ?? '') !== '' ? (int)$amberThresholds[$i] : null;
+            $redThreshold   = ($redThresholds[$i] ?? '') !== '' ? (int)$redThresholds[$i] : null;
             if (!$id || !$category || !$statement) continue;
             Database::query(
-                "UPDATE risk_appetite SET category=?, appetite=?, statement=?, max_score=?, updated_by=?, updated_at=NOW() WHERE id=?",
-                [$category, $appetite, $statement, $maxScore, Auth::id(), $id]
+                "UPDATE risk_appetite SET category=?, appetite=?, statement=?, max_score=?,
+                  amber_threshold=?, red_threshold=?, updated_by=?, updated_at=NOW() WHERE id=?",
+                [$category, $appetite, $statement, $maxScore, $amberThreshold, $redThreshold, Auth::id(), $id]
             );
         }
         // Handle new rows
-        $newCats = (array)($_POST['new_category'] ?? []);
-        $newApps = (array)($_POST['new_appetite'] ?? []);
-        $newStmts = (array)($_POST['new_statement'] ?? []);
-        $newMax  = (array)($_POST['new_max_score'] ?? []);
+        $newCats   = (array)($_POST['new_category'] ?? []);
+        $newApps   = (array)($_POST['new_appetite'] ?? []);
+        $newStmts  = (array)($_POST['new_statement'] ?? []);
+        $newMax    = (array)($_POST['new_max_score'] ?? []);
+        $newAmber  = (array)($_POST['new_amber_threshold'] ?? []);
+        $newRed    = (array)($_POST['new_red_threshold'] ?? []);
         foreach ($newCats as $i => $cat) {
-            $cat  = trim(Security::sanitizeInput($cat));
-            $app  = in_array($newApps[$i] ?? '', $valid, true) ? $newApps[$i] : 'low';
-            $stmt = trim(Security::sanitizeInput($newStmts[$i] ?? ''));
-            $max  = ($newMax[$i] ?? '') !== '' ? (int)$newMax[$i] : null;
+            $cat   = trim(Security::sanitizeInput($cat));
+            $app   = in_array($newApps[$i] ?? '', $valid, true) ? $newApps[$i] : 'low';
+            $stmt  = trim(Security::sanitizeInput($newStmts[$i] ?? ''));
+            $max   = ($newMax[$i] ?? '') !== '' ? (int)$newMax[$i] : null;
+            $amber = ($newAmber[$i] ?? '') !== '' ? (int)$newAmber[$i] : null;
+            $red   = ($newRed[$i] ?? '') !== '' ? (int)$newRed[$i] : null;
             if (!$cat || !$stmt) continue;
-            Database::insert('risk_appetite', ['category'=>$cat,'appetite'=>$app,'statement'=>$stmt,'max_score'=>$max,'updated_by'=>Auth::id()]);
+            Database::insert('risk_appetite', ['category'=>$cat,'appetite'=>$app,'statement'=>$stmt,'max_score'=>$max,'amber_threshold'=>$amber,'red_threshold'=>$red,'updated_by'=>Auth::id()]);
         }
         Auth::log('risk_appetite_updated', 'risk_appetite', 0, []);
         $_SESSION['flash_success'] = 'Risk appetite saved.';

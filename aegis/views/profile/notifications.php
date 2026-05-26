@@ -31,6 +31,41 @@ $NOTIF_TYPES = [
         'description' => 'When an incident you own remains unresolved for 48+ hours',
         'icon'        => 'fire',
     ],
+    'risk_review_overdue' => [
+        'label'       => 'Risk review overdue',
+        'description' => 'When risks you own are past their scheduled review date',
+        'icon'        => 'calendar-x-fill',
+    ],
+    'treatment_due' => [
+        'label'       => 'Treatment actions due',
+        'description' => 'When risk treatment actions are approaching their due date',
+        'icon'        => 'tools',
+    ],
+    'risk_score_worsened' => [
+        'label'       => 'Risk score increases',
+        'description' => 'When a risk score increases since last assessment',
+        'icon'        => 'graph-up-arrow',
+    ],
+    'vendor_assessment_expiring' => [
+        'label'       => 'Vendor assessments due',
+        'description' => 'When a vendor assessment is expiring within 30 days',
+        'icon'        => 'building-gear',
+    ],
+    'document_expiring' => [
+        'label'       => 'Documents expiring',
+        'description' => 'When a document you own is approaching its expiry date',
+        'icon'        => 'file-earmark-x-fill',
+    ],
+    'assessment_pending_stale' => [
+        'label'       => 'Stale risk assessments',
+        'description' => 'When a risk assessment has been waiting for approval for 48+ hours',
+        'icon'        => 'hourglass-bottom',
+    ],
+    'evidence_expiring' => [
+        'label'       => 'Evidence files expiring',
+        'description' => 'When evidence files you uploaded are approaching their expiry date',
+        'icon'        => 'paperclip',
+    ],
 ];
 
 // ── Handle POST ───────────────────────────────────────────────────────────────

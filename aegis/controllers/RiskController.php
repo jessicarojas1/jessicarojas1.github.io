@@ -450,6 +450,65 @@ class RiskController {
             [$id]
         );
 
+        // Linked KRIs
+        $linkedKRIs = [];
+        try {
+            $linkedKRIs = Database::fetchAll(
+                "SELECT k.id, k.name, k.unit, k.threshold_red, k.threshold_amber,
+                        k.current_value, k.status, k.direction
+                 FROM kris k
+                 WHERE k.linked_risk_id = ? AND k.is_active = TRUE
+                 ORDER BY k.name",
+                [$id]
+            );
+        } catch (Throwable) {}
+
+        // Active acceptance certificate
+        $activeAcceptance = null;
+        try {
+            $activeAcceptance = Database::fetchOne(
+                "SELECT ra.*, u.name AS acceptor_name
+                 FROM risk_acceptances ra
+                 JOIN users u ON u.id = ra.accepted_by
+                 WHERE ra.risk_id = ? AND ra.status = 'active'
+                 LIMIT 1",
+                [$id]
+            );
+        } catch (Throwable) {}
+
+        // Scenarios
+        $scenarios = [];
+        try {
+            $scenarios = Database::fetchAll(
+                "SELECT * FROM risk_scenarios WHERE risk_id = ? ORDER BY scenario_score DESC NULLS LAST",
+                [$id]
+            );
+        } catch (Throwable) {}
+
+        // Control effectiveness → suggested residual score
+        $controlEffSuggestion = null;
+        if (!empty($linkedControls) && (int)$risk['likelihood'] > 0 && (int)$risk['impact'] > 0) {
+            $effMap = ['full' => 0.5, 'substantial' => 0.65, 'partial' => 0.8, 'none' => 1.0];
+            $bestEff = 'none';
+            $order   = ['full', 'substantial', 'partial', 'none'];
+            foreach ($linkedControls as $lc) {
+                $eff = $lc['effectiveness'] ?? 'none';
+                if (array_search($eff, $order, true) < array_search($bestEff, $order, true)) {
+                    $bestEff = $eff;
+                }
+            }
+            $mult  = $effMap[$bestEff] ?? 1.0;
+            $sugL  = max(1, (int)round((int)$risk['likelihood'] * $mult));
+            $sugI  = max(1, (int)round((int)$risk['impact'] * $mult));
+            $controlEffSuggestion = [
+                'effectiveness'  => $bestEff,
+                'multiplier'     => $mult,
+                'likelihood'     => $sugL,
+                'impact'         => $sugI,
+                'score'          => $sugL * $sugI,
+            ];
+        }
+
         require AEGIS_ROOT . '/views/risk/view.php';
     }
 

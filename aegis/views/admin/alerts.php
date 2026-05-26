@@ -7,6 +7,7 @@ ob_start();
 
 <div class="page-header">
   <h1 class="page-title">Alert Management</h1>
+  <a href="/admin/alerts/config/create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New Alert Config</a>
 </div>
 
 <div class="two-col-layout">
@@ -38,12 +39,19 @@ ob_start();
       <div class="card-header"><h3 class="card-title"><i class="bi bi-gear"></i> Alert Configurations</h3></div>
       <div class="card-body">
         <?php if ($configs): foreach ($configs as $cfg): ?>
-          <div class="alert-config-item">
+          <div class="alert-config-item" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--border)">
             <div>
               <strong><?= Security::h($cfg['name']) ?></strong>
               <div class="text-muted text-sm"><?= Security::h($cfg['type']) ?></div>
             </div>
-            <span class="badge <?= $cfg['is_active'] ? 'badge-green' : 'badge-gray' ?>"><?= $cfg['is_active'] ? 'Active' : 'Inactive' ?></span>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="badge <?= $cfg['is_active'] ? 'badge-green' : 'badge-gray' ?>"><?= $cfg['is_active'] ? 'Active' : 'Inactive' ?></span>
+              <a href="/admin/alerts/config/<?= (int)$cfg['id'] ?>/edit" class="btn btn-ghost btn-sm"><i class="bi bi-pencil"></i></a>
+              <form method="POST" action="/admin/alerts/config/<?= (int)$cfg['id'] ?>/delete" style="margin:0" onsubmit="return confirm('Delete this alert config?')">
+                <?= Security::csrfField() ?>
+                <button type="submit" class="btn btn-ghost btn-sm" style="color:#ef4444"><i class="bi bi-trash3"></i></button>
+              </form>
+            </div>
           </div>
         <?php endforeach; else: ?>
           <p class="text-muted">No alert configurations yet.</p>

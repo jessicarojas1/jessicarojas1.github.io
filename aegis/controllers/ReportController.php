@@ -129,80 +129,113 @@ class ReportController {
     public function board(): void {
         Auth::requireAuth();
 
-        $totalCtrl     = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM control_implementations")['c'] ?? 0);
-        $compliantCtrl = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM control_implementations WHERE status = 'compliant'")['c'] ?? 0);
-        $compliancePct = $totalCtrl > 0 ? round($compliantCtrl / $totalCtrl * 100) : 0;
+        // Date range: default last 90 days
+        $asOf = date('Y-m-d');
 
-        $totalRisks = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM risks WHERE status NOT IN ('closed','accepted')")['c'] ?? 0);
-        $critRisks  = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM risks WHERE inherent_score >= 20 AND status NOT IN ('closed','accepted')")['c'] ?? 0);
-        $highRisks  = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM risks WHERE inherent_score BETWEEN 15 AND 19 AND status NOT IN ('closed','accepted')")['c'] ?? 0);
-        $riskHealth = $totalRisks > 0 ? max(0, round(100 - (($critRisks * 20 + $highRisks * 10) / max($totalRisks, 1) * 100))) : 100;
+        // Executive summary stats
+        $riskSummary = Database::fetchOne("SELECT
+            COUNT(*) AS total,
+            COUNT(*) FILTER (WHERE inherent_score > 14 AND status NOT IN ('closed','transferred')) AS critical,
+            COUNT(*) FILTER (WHERE inherent_score BETWEEN 10 AND 14 AND status NOT IN ('closed','transferred')) AS high,
+            COUNT(*) FILTER (WHERE status = 'accepted') AS accepted,
+            COUNT(*) FILTER (WHERE assessment_status = 'approved') AS approved,
+            COUNT(*) FILTER (WHERE review_date < CURRENT_DATE AND status NOT IN ('closed','transferred','accepted')) AS overdue_review
+        FROM risks");
 
-        $totalPolicies = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM policies")['c'] ?? 0);
-        $publishedPols = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM policies WHERE status = 'published'")['c'] ?? 0);
-        $policyHealth  = $totalPolicies > 0 ? round($publishedPols / $totalPolicies * 100) : 0;
+        // Top risks (critical + high, open)
+        $topRisks = Database::fetchAll("SELECT r.*, rc.name AS category_name, u.name AS owner_name
+            FROM risks r LEFT JOIN risk_categories rc ON rc.id=r.category_id LEFT JOIN users u ON u.id=r.owner_id
+            WHERE r.status NOT IN ('closed','transferred') AND r.inherent_score >= 10
+            ORDER BY r.inherent_score DESC LIMIT 10");
 
-        $totalAudits    = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM audits WHERE scheduled_date >= NOW() - INTERVAL '90 days'")['c'] ?? 0);
-        $completedAudits = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM audits WHERE status = 'completed' AND scheduled_date >= NOW() - INTERVAL '90 days'")['c'] ?? 0);
-        $auditHealth    = $totalAudits > 0 ? round($completedAudits / $totalAudits * 100) : 100;
+        // Compliance summary per package
+        $compliance = Database::fetchAll("SELECT cp.name, cp.standard,
+            COUNT(ci.id) AS total_controls,
+            COUNT(ci.id) FILTER (WHERE ci.status='compliant') AS compliant,
+            COUNT(ci.id) FILTER (WHERE ci.status='non_compliant') AS non_compliant,
+            ROUND(COUNT(ci.id) FILTER (WHERE ci.status='compliant')::numeric / NULLIF(COUNT(ci.id),0) * 100) AS pct
+            FROM compliance_packages cp LEFT JOIN compliance_objectives co ON co.package_id=cp.id
+            LEFT JOIN control_implementations ci ON ci.objective_id=co.id
+            GROUP BY cp.id, cp.name, cp.standard ORDER BY pct DESC");
 
-        $grcScore = (int)round($compliancePct * 0.4 + $riskHealth * 0.3 + $policyHealth * 0.2 + $auditHealth * 0.1);
+        // Risk trend last 12 weeks
+        $riskTrend = Database::fetchAll("SELECT DATE_TRUNC('week',created_at) AS week,
+            ROUND(AVG(score),1) AS avg_score, COUNT(DISTINCT risk_id) AS count
+            FROM risk_score_history WHERE created_at >= NOW()-INTERVAL '12 weeks'
+            GROUP BY DATE_TRUNC('week',created_at) ORDER BY week");
 
-        $riskCounts = Database::fetchOne(
-            "SELECT
-               COUNT(*) FILTER (WHERE inherent_score >= 20) AS critical,
-               COUNT(*) FILTER (WHERE inherent_score BETWEEN 15 AND 19) AS high,
-               COUNT(*) FILTER (WHERE inherent_score BETWEEN 8 AND 14) AS medium,
-               COUNT(*) FILTER (WHERE inherent_score < 8) AS low
-             FROM risks WHERE status NOT IN ('closed','accepted')"
-        ) ?? ['critical'=>0,'high'=>0,'medium'=>0,'low'=>0];
+        // Incident summary
+        $incidentSummary = Database::fetchOne("SELECT COUNT(*) AS total,
+            COUNT(*) FILTER (WHERE status NOT IN ('resolved','closed')) AS open,
+            COUNT(*) FILTER (WHERE severity IN ('critical','high')) AS high_severity,
+            COUNT(*) FILTER (WHERE created_at >= NOW()-INTERVAL '30 days') AS last_30_days
+            FROM incidents");
 
-        $topRisks = Database::fetchAll(
-            "SELECT r.title, r.inherent_score, r.status, u.name AS owner_name
-             FROM risks r LEFT JOIN users u ON u.id = r.owner_id
-             WHERE r.status NOT IN ('closed')
-             ORDER BY r.inherent_score DESC LIMIT 5"
-        );
+        // Upcoming reviews
+        $upcomingReviews = Database::fetchAll("SELECT r.title, r.risk_id, r.inherent_score, r.review_date, u.name AS owner_name
+            FROM risks r LEFT JOIN users u ON u.id=r.owner_id
+            WHERE r.review_date BETWEEN CURRENT_DATE AND CURRENT_DATE+30 AND r.status NOT IN ('closed','transferred')
+            ORDER BY r.review_date LIMIT 8");
 
-        $frameworks = Database::fetchAll(
-            "SELECT s.name,
-               COUNT(ci.id) FILTER (WHERE ci.status = 'compliant') AS compliant_count,
-               COUNT(ci.id) AS total_count
-             FROM compliance_packages cp
-             JOIN standards s ON s.id = cp.standard_id
-             LEFT JOIN compliance_objectives co ON co.package_id = cp.id AND co.level = 2
-             LEFT JOIN control_implementations ci ON ci.objective_id = co.id
-             WHERE cp.is_active = TRUE
-             GROUP BY s.name ORDER BY s.name"
-        );
-        foreach ($frameworks as &$fw) {
-            $fw['compliant_pct'] = $fw['total_count'] > 0 ? round($fw['compliant_count'] / $fw['total_count'] * 100) : 0;
-        }
-        unset($fw);
+        // Risk appetite breaches
+        $appetiteBreaches = Database::fetchAll("SELECT r.title, r.risk_id, r.inherent_score, ra.max_score, ra.appetite, rc.name AS category_name
+            FROM risks r JOIN risk_categories rc ON rc.id=r.category_id
+            JOIN risk_appetite ra ON ra.category=rc.name
+            WHERE ra.max_score IS NOT NULL AND r.inherent_score > ra.max_score
+            AND r.status NOT IN ('closed','transferred') ORDER BY (r.inherent_score-ra.max_score) DESC LIMIT 6");
 
-        $trend = Database::fetchAll(
-            "SELECT snapshot_date, grc_score, compliance_pct, risk_health_pct
-             FROM metrics_snapshots
-             WHERE snapshot_date >= CURRENT_DATE - INTERVAL '90 days'
-             ORDER BY snapshot_date ASC"
-        ) ?? [];
+        // Treatment action backlog
+        $treatmentBacklog = Database::fetchOne("SELECT COUNT(*) AS total,
+            COUNT(*) FILTER (WHERE status='planned') AS planned,
+            COUNT(*) FILTER (WHERE status='in_progress') AS in_progress,
+            COUNT(*) FILTER (WHERE due_date < CURRENT_DATE AND status NOT IN ('completed','cancelled')) AS overdue
+            FROM risk_treatments");
 
-        $incidents30d = 0;
-        try {
-            $incidents30d = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM incidents WHERE created_at >= NOW() - INTERVAL '30 days'")['c'] ?? 0);
-        } catch (Exception) {}
+        // KRI health
+        $kriHealth = Database::fetchAll("SELECT k.title, k.unit, k.threshold_red, k.threshold_amber,
+            kv.value AS latest_value, kv.recorded_at AS latest_date, r.title AS risk_title
+            FROM kris k LEFT JOIN risks r ON r.id=k.linked_risk_id
+            LEFT JOIN kri_values kv ON kv.id=(SELECT id FROM kri_values WHERE kri_id=k.id ORDER BY recorded_at DESC LIMIT 1)
+            WHERE k.is_active=TRUE ORDER BY k.title");
 
-        $policiesExpiring = 0;
-        try {
-            $policiesExpiring = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM policies WHERE next_review_date BETWEEN NOW() AND NOW() + INTERVAL '30 days' AND status = 'published'")['c'] ?? 0);
-        } catch (Exception) {}
+        $reportDate = date('F j, Y');
+        $orgName = Database::fetchOne("SELECT value FROM settings WHERE key='org_name'")['value'] ?? 'Organisation';
 
-        $boardData = compact('grcScore', 'compliancePct', 'riskCounts', 'riskHealth', 'topRisks', 'frameworks', 'trend', 'incidents30d', 'policiesExpiring');
-
-        $pageTitle    = 'Executive Board Dashboard';
-        $activeModule = 'report';
-        $breadcrumbs  = [['Reports', '/report'], ['Board Dashboard', null]];
+        $pageTitle    = 'Board Pack';
+        $activeModule = 'reports';
+        $breadcrumbs  = [['Reports', '/report'], ['Board Pack', null]];
+        ob_start();
         require AEGIS_ROOT . '/views/report/board.php';
+        $content = ob_get_clean();
+        require AEGIS_ROOT . '/views/layout.php';
+    }
+
+    public function riskDetail(): void {
+        Auth::requireAuth();
+        $status = Security::sanitizeInput($_GET['status'] ?? '');
+        $level  = Security::sanitizeInput($_GET['level'] ?? '');
+
+        $where = ['r.status NOT IN (\'closed\',\'transferred\')'];
+        $params = [];
+        if ($status) { $where[] = 'r.status = ?'; $params[] = $status; }
+        if ($level === 'critical') { $where[] = 'r.inherent_score > 14'; }
+        elseif ($level === 'high') { $where[] = 'r.inherent_score BETWEEN 10 AND 14'; }
+
+        $risks = Database::fetchAll(
+            "SELECT r.*, rc.name AS category_name, u.name AS owner_name,
+             (SELECT COUNT(*) FROM risk_treatments WHERE risk_id=r.id AND status NOT IN ('completed','cancelled')) AS open_treatments,
+             (SELECT COUNT(*) FROM risk_control_links WHERE risk_id=r.id) AS control_count
+             FROM risks r LEFT JOIN risk_categories rc ON rc.id=r.category_id LEFT JOIN users u ON u.id=r.owner_id
+             WHERE " . implode(' AND ',$where) . " ORDER BY r.inherent_score DESC", $params
+        );
+
+        $pageTitle    = 'Risk Register Report';
+        $activeModule = 'reports';
+        $breadcrumbs  = [['Reports','/report'],['Risk Register Report',null]];
+        ob_start();
+        require AEGIS_ROOT . '/views/report/risk_detail.php';
+        $content = ob_get_clean();
+        require AEGIS_ROOT . '/views/layout.php';
     }
 
     public function risk(): void {
