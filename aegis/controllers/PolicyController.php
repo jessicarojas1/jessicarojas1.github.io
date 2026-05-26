@@ -48,7 +48,7 @@ class PolicyController {
         $title    = Security::sanitizeInput($_POST['title'] ?? '');
         $number   = Security::sanitizeInput($_POST['policy_number'] ?? '');
         $desc     = Security::sanitizeInput($_POST['description'] ?? '');
-        $content  = $_POST['content'] ?? '';
+        $content  = Security::sanitizeHtml($_POST['content'] ?? '');
         $category = Security::sanitizeInput($_POST['category'] ?? '');
         $ownerId  = !empty($_POST['owner_id']) ? (int)$_POST['owner_id'] : Auth::id();
         $approverId = !empty($_POST['approver_id']) ? (int)$_POST['approver_id'] : null;
@@ -166,7 +166,7 @@ class PolicyController {
         } else {
             $title   = Security::sanitizeInput($_POST['title'] ?? '');
             $desc    = Security::sanitizeInput($_POST['description'] ?? '');
-            $content = $_POST['content'] ?? '';
+            $content = Security::sanitizeHtml($_POST['content'] ?? '');
             $reviewDate = Security::sanitizeInput($_POST['next_review_date'] ?? '');
             $newVersion = $_POST['new_version'] ?? '';
 

@@ -394,10 +394,17 @@ class AuthController {
         }
         // Mark code as used
         Database::query("UPDATE mfa_backup_codes SET used_at=NOW() WHERE id=?", [$matched]);
-        // Complete login
-        $user = Database::fetchOne("SELECT * FROM users WHERE id=?", [$userId]);
+        // Complete login — regenerate session to prevent session fixation
+        $user     = Database::fetchOne("SELECT * FROM users WHERE id=?", [$userId]);
         $redirect = $_SESSION['mfa_redirect'] ?? '/';
-        unset($_SESSION['mfa_pending_user_id'], $_SESSION['mfa_pending'], $_SESSION['mfa_user_id']);
+        // Validate redirect to same-origin path only
+        if (!preg_match('#^/[a-zA-Z0-9/_?=&%.@-]*$#', $redirect)) {
+            $redirect = '/';
+        }
+        session_unset();
+        session_destroy();
+        session_start();
+        session_regenerate_id(true);
         $_SESSION['user'] = [
             'id'          => $user['id'],
             'name'        => $user['name'],
@@ -405,7 +412,9 @@ class AuthController {
             'role'        => $user['role'],
             'mfa_enabled' => (bool)$user['mfa_enabled'],
         ];
+        $_SESSION['last_activity'] = time();
         Auth::log('mfa_backup_code_used', 'users', $user['id'], []);
+        Database::query("UPDATE users SET last_login = NOW() WHERE id = ?", [$user['id']]);
         header('Location: ' . $redirect);
     }
 }

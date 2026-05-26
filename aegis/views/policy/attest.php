@@ -30,7 +30,7 @@
     <div class="card-body">
       <div id="policy-content-box" style="max-height:400px;overflow-y:scroll;border:1px solid var(--border);border-radius:var(--radius);padding:20px;background:#f8fafc;line-height:1.7">
         <?php if ($policy['content']): ?>
-          <?= $policy['content'] ?>
+          <?= Security::sanitizeHtml($policy['content']) ?>
         <?php else: ?>
           <p class="text-muted"><em>No content has been added to this policy yet.</em></p>
         <?php endif; ?>

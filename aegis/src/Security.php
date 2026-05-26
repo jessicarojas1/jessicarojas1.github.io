@@ -34,6 +34,77 @@ class Security {
         return trim(strip_tags($input));
     }
 
+    /**
+     * Sanitize rich HTML content (policy bodies, etc.) by stripping dangerous
+     * tags and event-handler attributes while preserving safe formatting.
+     * Uses DOMDocument to handle malformed HTML safely.
+     */
+    public static function sanitizeHtml(string $html): string {
+        if (trim($html) === '') return '';
+
+        // Dangerous tags to remove entirely (including children)
+        $blockedTags = ['script','style','iframe','object','embed','applet',
+                        'form','input','button','select','textarea','link','meta','base'];
+
+        // Dangerous attribute prefixes
+        $blockedAttrPrefixes = ['on']; // onclick, onload, onerror, etc.
+        $blockedAttrs = ['href', 'src', 'action', 'formaction', 'data', 'srcdoc'];
+
+        $dom = new \DOMDocument();
+        libxml_use_internal_errors(true);
+        $dom->loadHTML('<div>' . $html . '</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+        libxml_clear_errors();
+
+        $xpath  = new \DOMXPath($dom);
+        $remove = [];
+
+        // Queue blocked tag nodes for removal
+        foreach ($blockedTags as $tag) {
+            foreach ($xpath->query('//' . $tag) as $node) {
+                $remove[] = $node;
+            }
+        }
+        foreach ($remove as $node) {
+            $node->parentNode?->removeChild($node);
+        }
+
+        // Strip dangerous attributes from all remaining elements
+        foreach ($xpath->query('//*') as $node) {
+            if (!($node instanceof \DOMElement)) continue;
+            $attrsToRemove = [];
+            foreach ($node->attributes as $attr) {
+                $name = strtolower($attr->nodeName);
+                // Remove event handlers (onclick, onload, …)
+                foreach ($blockedAttrPrefixes as $prefix) {
+                    if (str_starts_with($name, $prefix)) {
+                        $attrsToRemove[] = $attr->nodeName;
+                        continue 2;
+                    }
+                }
+                // Remove javascript: hrefs and data: srcs
+                if (in_array($name, $blockedAttrs, true)) {
+                    $val = strtolower(trim($attr->nodeValue));
+                    if (str_starts_with($val, 'javascript:') || str_starts_with($val, 'data:text')) {
+                        $attrsToRemove[] = $attr->nodeName;
+                    }
+                }
+            }
+            foreach ($attrsToRemove as $a) {
+                $node->removeAttribute($a);
+            }
+        }
+
+        // Extract the inner HTML of our wrapper div
+        $wrapper = $dom->getElementById('') ?? $dom->getElementsByTagName('div')->item(0);
+        if (!$wrapper) return strip_tags($html);
+
+        $inner = '';
+        foreach ($wrapper->childNodes as $child) {
+            $inner .= $dom->saveHTML($child);
+        }
+        return $inner;
+    }
+
     public static function hashPassword(string $password): string {
         return password_hash($password, PASSWORD_ARGON2ID, [
             'memory_cost' => 65536,
@@ -173,7 +244,7 @@ class Security {
         // Nonce eliminates unsafe-inline for scripts; styles keep unsafe-inline for icon fonts
         $csp = implode('; ', [
             "default-src 'self'",
-            "script-src 'self' 'nonce-{$nonce}'",
+            "script-src 'self' 'nonce-{$nonce}' 'unsafe-inline'",
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
             "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net",
             "img-src 'self' data: blob:",
