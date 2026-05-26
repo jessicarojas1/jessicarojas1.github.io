@@ -111,7 +111,7 @@ class WebhookController {
             return;
         }
 
-        Database::insert('webhook_endpoints', [
+        $newId = Database::insert('webhook_endpoints', [
             'name'           => $name,
             'url'            => $url,
             'secret'         => $secret,
@@ -122,7 +122,7 @@ class WebhookController {
             'created_by'     => Auth::id(),
         ]);
 
-        Auth::log('webhook_created', ['name' => $name, 'provider' => $provider]);
+        Auth::log('webhook_created', 'webhook_endpoints', $newId, ['name' => $name, 'provider' => $provider]);
 
         header('Location: /admin/webhooks?created=1');
     }
@@ -233,7 +233,7 @@ class WebhookController {
             ]
         );
 
-        Auth::log('webhook_updated', ['id' => (int) $id, 'name' => $name]);
+        Auth::log('webhook_updated', 'webhook_endpoints', (int) $id, ['name' => $name]);
 
         header('Location: /admin/webhooks?updated=1');
     }
@@ -265,7 +265,7 @@ class WebhookController {
             [$newState, (int) $id]
         );
 
-        Auth::log('webhook_toggled', ['id' => (int) $id, 'is_active' => $newState]);
+        Auth::log('webhook_toggled', 'webhook_endpoints', (int) $id, ['is_active' => $newState]);
 
         header('Location: /admin/webhooks');
     }
@@ -325,7 +325,7 @@ class WebhookController {
             [(int) $id]
         );
 
-        Auth::log('webhook_deleted', ['id' => (int) $id, 'name' => $endpoint['name']]);
+        Auth::log('webhook_deleted', 'webhook_endpoints', (int) $id, ['name' => $endpoint['name']]);
 
         header('Location: /admin/webhooks?deleted=1');
     }
