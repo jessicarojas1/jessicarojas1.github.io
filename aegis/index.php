@@ -42,6 +42,13 @@ foreach (['.env.local', '.env'] as $envFile) {
     }
 }
 
+// Merge system environment into $_ENV.
+// php.ini-production sets variables_order="GPCS" (no 'E'), so $_ENV is empty
+// on Docker/Render/Heroku even though env vars are set. getenv() always works.
+foreach ((getenv() ?: []) as $k => $v) {
+    if (!isset($_ENV[$k])) $_ENV[$k] = $v;
+}
+
 // Session config
 ini_set('session.cookie_httponly', '1');
 ini_set('session.cookie_samesite', 'Strict');
