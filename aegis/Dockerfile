@@ -14,8 +14,9 @@ RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
     && echo "expose_php = Off" >> "$PHP_INI_DIR/php.ini" \
     && echo "display_errors = Off" >> "$PHP_INI_DIR/php.ini" \
     && echo "log_errors = On" >> "$PHP_INI_DIR/php.ini" \
-    && echo "opcache.enable=1\nopcache.memory_consumption=128\nopcache.validate_timestamps=0" \
-       >> "$PHP_INI_DIR/conf.d/opcache.ini"
+    && echo 'opcache.enable=1'                  >> "$PHP_INI_DIR/conf.d/opcache.ini" \
+    && echo 'opcache.memory_consumption=128'   >> "$PHP_INI_DIR/conf.d/opcache.ini" \
+    && echo 'opcache.validate_timestamps=0'    >> "$PHP_INI_DIR/conf.d/opcache.ini"
 
 WORKDIR /var/www/aegis
 COPY . .
