@@ -71,19 +71,24 @@ class DocumentController {
             header('Location: /documents/create'); exit;
         }
 
-        Database::query(
-            "INSERT INTO documents (title, doc_number, description, category, classification, status,
-             owner_id, approver_id, review_frequency, next_review_date, expiry_date, tags, created_by)
-             VALUES (?,?,?,?,?,'draft',?,?,?,?,?,?,?)",
-            [$title, $docNumber, $description, $category, $classification,
-             $ownerId, $approverId, $reviewFreq, $nextReview, $expiry,
-             json_encode(array_values($tags)), Auth::id()]
-        );
-        $doc = Database::fetchOne("SELECT id FROM documents WHERE title = ? AND created_by = ? ORDER BY id DESC LIMIT 1",
-            [$title, Auth::id()]);
+        $newId = Database::insert('documents', [
+            'title'           => $title,
+            'doc_number'      => $docNumber,
+            'description'     => $description,
+            'category'        => $category,
+            'classification'  => $classification,
+            'status'          => 'draft',
+            'owner_id'        => $ownerId,
+            'approver_id'     => $approverId,
+            'review_frequency'=> $reviewFreq,
+            'next_review_date'=> $nextReview,
+            'expiry_date'     => $expiry,
+            'tags'            => json_encode(array_values($tags)),
+            'created_by'      => Auth::id(),
+        ]);
 
-        Auth::log('create_document', 'documents', $doc['id'] ?? null);
-        header('Location: /documents/' . ($doc['id'] ?? '')); exit;
+        Auth::log('create_document', 'documents', $newId, []);
+        header('Location: /documents/' . $newId); exit;
     }
 
     public function view(string $id): void {

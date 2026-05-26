@@ -365,7 +365,7 @@ ON CONFLICT DO NOTHING;
 CREATE TABLE IF NOT EXISTS control_tests (
     id               SERIAL PRIMARY KEY,
     objective_id     INTEGER NOT NULL REFERENCES compliance_objectives(id) ON DELETE CASCADE,
-    package_id       INTEGER NOT NULL,
+    package_id       INTEGER NOT NULL REFERENCES compliance_packages(id) ON DELETE CASCADE,
     test_date        DATE    NOT NULL DEFAULT CURRENT_DATE,
     tester_id        INTEGER REFERENCES users(id),
     result           VARCHAR(20) NOT NULL CHECK (result IN ('pass','fail','partial','not_tested')),

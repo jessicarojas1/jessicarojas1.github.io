@@ -101,6 +101,15 @@ if (!$needsFullInstall) {
         ['session_timeout', '480', 'integer', 'Session timeout in minutes'],
         ['installed_at', date('Y-m-d H:i:s'), 'string', 'Installation timestamp'],
         ['version', '1.0.0', 'string', 'AEGIS version'],
+        ['ai_settings', '{"provider":"","api_key":"","model":""}', 'string', 'AI advisor configuration (JSON)'],
+        ['upload_allowed_types', 'pdf,doc,docx,xls,xlsx,png,jpg,jpeg,gif,txt,csv,zip', 'string', 'Allowed upload file extensions'],
+        ['upload_max_size_mb', '20', 'integer', 'Maximum file upload size in MB'],
+        ['smtp_host', '', 'string', 'SMTP server hostname'],
+        ['smtp_port', '587', 'integer', 'SMTP server port'],
+        ['smtp_user', '', 'string', 'SMTP username'],
+        ['smtp_pass', '', 'string', 'SMTP password'],
+        ['smtp_from', '', 'string', 'Default from address for outbound email'],
+        ['smtp_from_name', 'AEGIS GRC', 'string', 'Default from name for outbound email'],
     ];
     foreach ($settings as $s) {
         Database::query(
