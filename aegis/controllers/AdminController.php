@@ -54,6 +54,38 @@ class AdminController {
             'job_title'     => $title,
         ]);
 
+        // Send email verification
+        try {
+            require_once AEGIS_ROOT . '/src/Mailer.php';
+            $token  = bin2hex(random_bytes(32));
+            $expiry = date('Y-m-d H:i:s', time() + 86400);
+            Database::query(
+                "INSERT INTO email_verification_tokens (user_id, token_hash, expires_at) VALUES (?, ?, ?)",
+                [$userId, hash('sha256', $token), $expiry]
+            );
+            $appUrl  = rtrim($_ENV['APP_URL'] ?? 'http://localhost', '/');
+            $verifyUrl = $appUrl . '/verify-email/' . $token;
+            $html = '<div style="font-family:Inter,Arial,sans-serif;max-width:560px;margin:0 auto">
+                <div style="background:#6366f1;padding:20px 28px;border-radius:8px 8px 0 0">
+                  <h2 style="color:#fff;margin:0">Welcome to AEGIS GRC</h2>
+                </div>
+                <div style="background:#fff;padding:24px 28px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 8px 8px">
+                  <p>Hello ' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . ',</p>
+                  <p>Your AEGIS GRC account has been created. Please verify your email address to activate it.</p>
+                  <p style="text-align:center;margin:28px 0">
+                    <a href="' . htmlspecialchars($verifyUrl, ENT_QUOTES, 'UTF-8') . '"
+                       style="display:inline-block;padding:12px 28px;background:#6366f1;color:#fff;text-decoration:none;border-radius:8px;font-weight:600">
+                      Verify Email Address
+                    </a>
+                  </p>
+                  <p style="color:#6b7280;font-size:13px">This link expires in 24 hours. Your temporary password was provided by your administrator.</p>
+                </div>
+              </div>';
+            Mailer::sendFromSettings($email, $name, 'Verify your AEGIS GRC account', $html);
+        } catch (Throwable $e) {
+            // Non-fatal — user can still log in, just unverified
+        }
+
         Auth::log('create_user', 'users', $userId);
         header('Location: /admin/users?created=1');
     }
@@ -1052,5 +1084,277 @@ class AdminController {
         Auth::log('sla_policy_updated', 'incident_sla_policies', 0, []);
         $_SESSION['flash_success'] = 'SLA policy saved.';
         header('Location: /admin/sla-policy');
+    }
+
+    // ─── Email Templates ──────────────────────────────────────────────────────
+
+    public function emailTemplates(): void {
+        Auth::requireAdmin();
+        $templates    = Database::fetchAll("SELECT * FROM email_templates ORDER BY type");
+        $pageTitle    = 'Email Templates';
+        $activeModule = 'admin';
+        $breadcrumbs  = [['Admin', '/admin'], ['Email Templates', null]];
+        ob_start();
+        require AEGIS_ROOT . '/views/admin/email_templates.php';
+        $content = ob_get_clean();
+        require AEGIS_ROOT . '/views/layout.php';
+    }
+
+    public function emailTemplateForm(string $id): void {
+        Auth::requireAdmin();
+        $template = Database::fetchOne("SELECT * FROM email_templates WHERE id = ?", [(int)$id]);
+        if (!$template) { http_response_code(404); return; }
+        $template['variables'] = json_decode($template['variables'] ?? '[]', true) ?: [];
+        $pageTitle    = 'Edit Template: ' . $template['name'];
+        $activeModule = 'admin';
+        $breadcrumbs  = [['Admin', '/admin'], ['Email Templates', '/admin/email-templates'], ['Edit', null]];
+        ob_start();
+        require AEGIS_ROOT . '/views/admin/email_template_form.php';
+        $content = ob_get_clean();
+        require AEGIS_ROOT . '/views/layout.php';
+    }
+
+    public function updateEmailTemplate(string $id): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403); return;
+        }
+        $id = (int)$id;
+        $template = Database::fetchOne("SELECT id FROM email_templates WHERE id = ?", [$id]);
+        if (!$template) { http_response_code(404); return; }
+
+        Database::query(
+            "UPDATE email_templates SET name=?, subject=?, body_html=?, body_text=?, is_active=?, updated_by=?, updated_at=NOW() WHERE id=?",
+            [
+                Security::sanitizeInput($_POST['name'] ?? ''),
+                Security::sanitizeInput($_POST['subject'] ?? ''),
+                $_POST['body_html'] ?? '',
+                $_POST['body_text'] ?? '',
+                isset($_POST['is_active']) ? true : false,
+                Auth::id(),
+                $id,
+            ]
+        );
+        Auth::log('update_email_template', 'email_templates', $id);
+        $_SESSION['flash_success'] = 'Template updated.';
+        header('Location: /admin/email-templates/' . $id . '/edit');
+    }
+
+    public function previewEmailTemplate(string $id): void {
+        Auth::requireAdmin();
+        $template = Database::fetchOne("SELECT body_html, variables FROM email_templates WHERE id = ?", [(int)$id]);
+        if (!$template) { http_response_code(404); return; }
+        $vars = json_decode($template['variables'] ?? '[]', true) ?: [];
+        $html = $template['body_html'];
+        foreach ($vars as $v) {
+            $html = str_replace('{{' . $v . '}}', '<span style="background:#fef08a;padding:0 3px;border-radius:3px">[' . htmlspecialchars($v, ENT_QUOTES) . ']</span>', $html);
+        }
+        header('Content-Type: text/html; charset=utf-8');
+        echo $html;
+    }
+
+    // ─── Scheduled Reports ────────────────────────────────────────────────────
+
+    public function scheduledReports(): void {
+        Auth::requireAdmin();
+        $schedules    = Database::fetchAll("SELECT * FROM report_schedules ORDER BY name");
+        $pageTitle    = 'Scheduled Reports';
+        $activeModule = 'admin';
+        $breadcrumbs  = [['Admin', '/admin'], ['Scheduled Reports', null]];
+        ob_start();
+        require AEGIS_ROOT . '/views/admin/scheduled_reports.php';
+        $content = ob_get_clean();
+        require AEGIS_ROOT . '/views/layout.php';
+    }
+
+    public function scheduledReportForm(string $id = ''): void {
+        Auth::requireAdmin();
+        $schedule = $id ? Database::fetchOne("SELECT * FROM report_schedules WHERE id = ?", [(int)$id]) : null;
+        if ($id && !$schedule) { http_response_code(404); return; }
+        if ($schedule) {
+            $schedule['recipients_arr'] = implode("\n", json_decode($schedule['recipients'] ?? '[]', true) ?: []);
+        }
+        $pageTitle    = $schedule ? 'Edit Report Schedule' : 'New Report Schedule';
+        $activeModule = 'admin';
+        $breadcrumbs  = [['Admin', '/admin'], ['Scheduled Reports', '/admin/scheduled-reports'], [$schedule ? 'Edit' : 'New', null]];
+        ob_start();
+        require AEGIS_ROOT . '/views/admin/scheduled_report_form.php';
+        $content = ob_get_clean();
+        require AEGIS_ROOT . '/views/layout.php';
+    }
+
+    public function createScheduledReport(): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403); return;
+        }
+        $recipients = array_filter(array_map('trim', explode("\n", $_POST['recipients'] ?? '')));
+        $newId = Database::insert('report_schedules', [
+            'name'          => Security::sanitizeInput($_POST['name'] ?? ''),
+            'report_type'   => Security::sanitizeInput($_POST['report_type'] ?? 'risk_register'),
+            'frequency'     => Security::sanitizeInput($_POST['frequency'] ?? 'weekly'),
+            'day_of_week'   => !empty($_POST['day_of_week']) ? (int)$_POST['day_of_week'] : 1,
+            'day_of_month'  => !empty($_POST['day_of_month']) ? (int)$_POST['day_of_month'] : 1,
+            'send_time'     => Security::sanitizeInput($_POST['send_time'] ?? '08:00'),
+            'recipients'    => json_encode(array_values($recipients)),
+            'format'        => in_array($_POST['format'] ?? '', ['html','csv','both']) ? $_POST['format'] : 'html',
+            'is_active'     => isset($_POST['is_active']),
+            'created_by'    => Auth::id(),
+        ]);
+        Auth::log('create_report_schedule', 'report_schedules', $newId);
+        $_SESSION['flash_success'] = 'Report schedule created.';
+        header('Location: /admin/scheduled-reports');
+    }
+
+    public function updateScheduledReport(string $id): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403); return;
+        }
+        $id = (int)$id;
+        $recipients = array_filter(array_map('trim', explode("\n", $_POST['recipients'] ?? '')));
+        Database::query(
+            "UPDATE report_schedules SET name=?, report_type=?, frequency=?, day_of_week=?, day_of_month=?,
+             send_time=?, recipients=?, format=?, is_active=?, updated_at=NOW() WHERE id=?",
+            [
+                Security::sanitizeInput($_POST['name'] ?? ''),
+                Security::sanitizeInput($_POST['report_type'] ?? 'risk_register'),
+                Security::sanitizeInput($_POST['frequency'] ?? 'weekly'),
+                !empty($_POST['day_of_week']) ? (int)$_POST['day_of_week'] : 1,
+                !empty($_POST['day_of_month']) ? (int)$_POST['day_of_month'] : 1,
+                Security::sanitizeInput($_POST['send_time'] ?? '08:00'),
+                json_encode(array_values($recipients)),
+                in_array($_POST['format'] ?? '', ['html','csv','both']) ? $_POST['format'] : 'html',
+                isset($_POST['is_active']),
+                $id,
+            ]
+        );
+        Auth::log('update_report_schedule', 'report_schedules', $id);
+        $_SESSION['flash_success'] = 'Report schedule updated.';
+        header('Location: /admin/scheduled-reports');
+    }
+
+    public function deleteScheduledReport(string $id): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403); return;
+        }
+        Database::query("DELETE FROM report_schedules WHERE id = ?", [(int)$id]);
+        Auth::log('delete_report_schedule', 'report_schedules', (int)$id);
+        $_SESSION['flash_success'] = 'Report schedule deleted.';
+        header('Location: /admin/scheduled-reports');
+    }
+
+    // ─── Email Delivery Log ───────────────────────────────────────────────────
+
+    public function emailDelivery(): void {
+        Auth::requireAdmin();
+        $type       = Security::sanitizeInput($_GET['type'] ?? '');
+        $recipient  = Security::sanitizeInput($_GET['recipient'] ?? '');
+        $from       = Security::sanitizeInput($_GET['from'] ?? '');
+        $to         = Security::sanitizeInput($_GET['to'] ?? '');
+        $page       = max(1, (int)($_GET['page'] ?? 1));
+        $perPage    = 50;
+        $offset     = ($page - 1) * $perPage;
+
+        $where  = ['1=1'];
+        $params = [];
+        if ($type)      { $where[] = 'notification_type = ?'; $params[] = $type; }
+        if ($recipient) { $where[] = 'recipient_email ILIKE ?'; $params[] = "%{$recipient}%"; }
+        if ($from)      { $where[] = 'sent_at >= ?'; $params[] = $from . ' 00:00:00'; }
+        if ($to)        { $where[] = 'sent_at <= ?'; $params[] = $to . ' 23:59:59'; }
+        $whereSQL = implode(' AND ', $where);
+
+        $logs  = Database::fetchAll(
+            "SELECT * FROM notification_log WHERE {$whereSQL} ORDER BY sent_at DESC LIMIT {$perPage} OFFSET {$offset}",
+            $params
+        );
+        $total = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM notification_log WHERE {$whereSQL}", $params)['c'] ?? 0);
+        $pages = (int)ceil($total / $perPage);
+
+        $stats = Database::fetchOne(
+            "SELECT
+               COUNT(*) AS total_all,
+               COUNT(*) FILTER (WHERE sent_at >= CURRENT_DATE) AS today,
+               COUNT(*) FILTER (WHERE sent_at >= date_trunc('week', CURRENT_DATE)) AS this_week,
+               COUNT(*) FILTER (WHERE sent_at >= date_trunc('month', CURRENT_DATE)) AS this_month
+             FROM notification_log"
+        );
+
+        $types = Database::fetchAll("SELECT DISTINCT notification_type FROM notification_log ORDER BY notification_type");
+
+        $pageTitle    = 'Email Delivery Log';
+        $activeModule = 'admin';
+        $breadcrumbs  = [['Admin', '/admin'], ['Email Delivery Log', null]];
+        ob_start();
+        require AEGIS_ROOT . '/views/admin/email_delivery.php';
+        $content = ob_get_clean();
+        require AEGIS_ROOT . '/views/layout.php';
+    }
+
+    // ─── Alert Config ─────────────────────────────────────────────────────────
+
+    public function alertConfigForm(string $id = ''): void {
+        Auth::requireAdmin();
+        $config = $id ? Database::fetchOne("SELECT * FROM alert_configs WHERE id = ?", [(int)$id]) : null;
+        if ($id && !$config) { http_response_code(404); return; }
+        if ($config) {
+            $config['recipients'] = json_decode($config['recipients'] ?? '[]', true) ?: [];
+            $config['channels']   = json_decode($config['channels']   ?? '["in_app"]', true) ?: ['in_app'];
+            $config['trigger_config'] = json_decode($config['trigger_config'] ?? '{}', true) ?: [];
+        }
+        $pageTitle    = $config ? 'Edit Alert Config' : 'New Alert Config';
+        $activeModule = 'admin';
+        $breadcrumbs  = [['Admin', '/admin'], ['Alerts', '/admin/alerts'], [$config ? 'Edit' : 'New', null]];
+        ob_start();
+        require AEGIS_ROOT . '/views/admin/alert_config_form.php';
+        $content = ob_get_clean();
+        require AEGIS_ROOT . '/views/layout.php';
+    }
+
+    public function saveAlertConfig(): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403); return;
+        }
+        $id         = !empty($_POST['id']) ? (int)$_POST['id'] : null;
+        $name       = Security::sanitizeInput($_POST['name'] ?? '');
+        $type       = Security::sanitizeInput($_POST['type'] ?? '');
+        $recipients = array_filter(array_map('trim', explode("\n", $_POST['recipients'] ?? '')));
+        $channels   = array_intersect((array)($_POST['channels'] ?? ['in_app']), ['in_app','email','webhook']);
+        $isActive   = isset($_POST['is_active']);
+        $triggerRaw = $_POST['trigger_config'] ?? '{}';
+        $triggerCfg = json_decode($triggerRaw, true) ?: [];
+
+        if ($id) {
+            Database::query(
+                "UPDATE alert_configs SET name=?, type=?, trigger_config=?::jsonb, recipients=?::jsonb, channels=?::jsonb, is_active=?, updated_at=NOW() WHERE id=?",
+                [$name, $type, json_encode($triggerCfg), json_encode(array_values($recipients)), json_encode(array_values($channels)), $isActive, $id]
+            );
+            Auth::log('update_alert_config', 'alert_configs', $id);
+        } else {
+            $id = Database::insert('alert_configs', [
+                'name'           => $name,
+                'type'           => $type,
+                'trigger_config' => json_encode($triggerCfg),
+                'recipients'     => json_encode(array_values($recipients)),
+                'channels'       => json_encode(array_values($channels)),
+                'is_active'      => $isActive,
+            ]);
+            Auth::log('create_alert_config', 'alert_configs', $id);
+        }
+        $_SESSION['flash_success'] = 'Alert configuration saved.';
+        header('Location: /admin/alerts');
+    }
+
+    public function deleteAlertConfig(string $id): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403); return;
+        }
+        Database::query("DELETE FROM alert_configs WHERE id = ?", [(int)$id]);
+        Auth::log('delete_alert_config', 'alert_configs', (int)$id);
+        $_SESSION['flash_success'] = 'Alert configuration deleted.';
+        header('Location: /admin/alerts');
     }
 }

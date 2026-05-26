@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
     job_title VARCHAR(255),
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     last_login TIMESTAMP,
+    email_verified_at TIMESTAMP,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -533,16 +534,123 @@ CREATE INDEX IF NOT EXISTS idx_ef_entity ON evidence_files(entity_type, entity_i
 
 -- Notification log (used by data-retention cleanup in AdminController)
 CREATE TABLE IF NOT EXISTS notification_log (
-    id          SERIAL PRIMARY KEY,
-    type        VARCHAR(100) NOT NULL DEFAULT 'email',
-    recipient   VARCHAR(255),
-    subject     VARCHAR(500),
-    body        TEXT,
-    status      VARCHAR(50) NOT NULL DEFAULT 'sent',
-    error       TEXT,
-    related_type VARCHAR(100),
-    related_id  INTEGER,
-    sent_by     INTEGER REFERENCES users(id),
-    sent_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    id                  SERIAL PRIMARY KEY,
+    notification_type   VARCHAR(100) NOT NULL,
+    entity_id           INTEGER,
+    recipient_email     VARCHAR(255),
+    sent_at             TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-CREATE INDEX IF NOT EXISTS idx_nl_sent_at ON notification_log(sent_at);
+CREATE INDEX IF NOT EXISTS idx_nl_sent_at   ON notification_log(sent_at);
+CREATE INDEX IF NOT EXISTS idx_nl_type      ON notification_log(notification_type, entity_id, sent_at);
+CREATE INDEX IF NOT EXISTS idx_nl_recipient ON notification_log(recipient_email);
+
+CREATE TABLE IF NOT EXISTS email_templates (
+    id          SERIAL PRIMARY KEY,
+    type        VARCHAR(100) NOT NULL UNIQUE,
+    name        VARCHAR(255) NOT NULL,
+    subject     VARCHAR(500) NOT NULL,
+    body_html   TEXT NOT NULL,
+    body_text   TEXT,
+    variables   JSONB NOT NULL DEFAULT '[]',
+    is_active   BOOLEAN NOT NULL DEFAULT TRUE,
+    updated_by  INTEGER REFERENCES users(id),
+    created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS report_schedules (
+    id              SERIAL PRIMARY KEY,
+    name            VARCHAR(255) NOT NULL,
+    report_type     VARCHAR(100) NOT NULL,
+    frequency       VARCHAR(50) NOT NULL DEFAULT 'weekly'
+                    CHECK (frequency IN ('daily','weekly','monthly','quarterly')),
+    day_of_week     INTEGER DEFAULT 1,
+    day_of_month    INTEGER DEFAULT 1,
+    send_time       TIME NOT NULL DEFAULT '08:00',
+    recipients      JSONB NOT NULL DEFAULT '[]',
+    filters         JSONB NOT NULL DEFAULT '{}',
+    format          VARCHAR(10) NOT NULL DEFAULT 'html' CHECK (format IN ('html','csv','both')),
+    is_active       BOOLEAN NOT NULL DEFAULT TRUE,
+    last_sent_at    TIMESTAMP,
+    next_send_at    TIMESTAMP,
+    created_by      INTEGER REFERENCES users(id),
+    created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS email_verification_tokens (
+    id          SERIAL PRIMARY KEY,
+    user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token_hash  VARCHAR(64) NOT NULL UNIQUE,
+    expires_at  TIMESTAMP NOT NULL,
+    used_at     TIMESTAMP,
+    created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_evt_user ON email_verification_tokens(user_id);
+
+CREATE TABLE IF NOT EXISTS email_bounces (
+    id          SERIAL PRIMARY KEY,
+    email       VARCHAR(255) NOT NULL,
+    bounce_type VARCHAR(50) NOT NULL DEFAULT 'hard'
+                CHECK (bounce_type IN ('hard','soft','complaint')),
+    reason      TEXT,
+    recorded_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_eb_email ON email_bounces(email);
+
+CREATE TABLE IF NOT EXISTS email_unsubscribes (
+    id                  SERIAL PRIMARY KEY,
+    user_id             INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    email               VARCHAR(255) NOT NULL,
+    token               VARCHAR(64) NOT NULL UNIQUE,
+    notification_type   VARCHAR(100),
+    unsubscribed_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_eu_email ON email_unsubscribes(email);
+CREATE INDEX IF NOT EXISTS idx_eu_token ON email_unsubscribes(token);
+
+CREATE TABLE IF NOT EXISTS risk_reviews (
+    id                  SERIAL PRIMARY KEY,
+    title               VARCHAR(500) NOT NULL,
+    review_type         VARCHAR(50) NOT NULL DEFAULT 'periodic'
+                        CHECK (review_type IN ('periodic','triggered','ad_hoc','board')),
+    scheduled_date      DATE NOT NULL,
+    completed_date      DATE,
+    status              VARCHAR(30) NOT NULL DEFAULT 'planned'
+                        CHECK (status IN ('planned','in_progress','completed','cancelled')),
+    lead_reviewer_id    INTEGER REFERENCES users(id),
+    scope_description   TEXT,
+    scope_filter        JSONB NOT NULL DEFAULT '{}',
+    total_risks         INTEGER NOT NULL DEFAULT 0,
+    reviewed_count      INTEGER NOT NULL DEFAULT 0,
+    escalated_count     INTEGER NOT NULL DEFAULT 0,
+    conclusion          TEXT,
+    sign_off_by         INTEGER REFERENCES users(id),
+    sign_off_at         TIMESTAMP,
+    sign_off_notes      TEXT,
+    created_by          INTEGER REFERENCES users(id),
+    created_at          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_rr_status    ON risk_reviews(status);
+CREATE INDEX IF NOT EXISTS idx_rr_scheduled ON risk_reviews(scheduled_date);
+
+CREATE TABLE IF NOT EXISTS risk_review_items (
+    id                  SERIAL PRIMARY KEY,
+    review_id           INTEGER NOT NULL REFERENCES risk_reviews(id) ON DELETE CASCADE,
+    risk_id             INTEGER NOT NULL REFERENCES risks(id) ON DELETE CASCADE,
+    status              VARCHAR(30) NOT NULL DEFAULT 'pending'
+                        CHECK (status IN ('pending','reviewed','escalated','deferred','not_applicable')),
+    score_confirmed     BOOLEAN,
+    new_likelihood      INTEGER CHECK (new_likelihood BETWEEN 1 AND 5),
+    new_impact          INTEGER CHECK (new_impact BETWEEN 1 AND 5),
+    treatment_adequate  BOOLEAN,
+    action_required     TEXT,
+    reviewer_notes      TEXT,
+    reviewed_by         INTEGER REFERENCES users(id),
+    reviewed_at         TIMESTAMP,
+    created_at          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(review_id, risk_id)
+);
+CREATE INDEX IF NOT EXISTS idx_rri_review ON risk_review_items(review_id);
+CREATE INDEX IF NOT EXISTS idx_rri_risk   ON risk_review_items(risk_id);

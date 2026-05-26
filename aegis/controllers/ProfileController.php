@@ -4,7 +4,69 @@ declare(strict_types=1);
 class ProfileController {
 
     public function notifications(): void {
+        Auth::requireAuth();
+        $prefs = [];
+        $rows  = Database::fetchAll(
+            "SELECT notification_type, enabled, digest_mode, digest_time FROM user_notification_prefs WHERE user_id = ?",
+            [Auth::id()]
+        );
+        foreach ($rows as $row) {
+            $prefs[$row['notification_type']] = $row;
+        }
+        // Digest preference stored as special '__digest__' row
+        $digestRow = $prefs['__digest__'] ?? null;
+        $pageTitle    = 'Notification Preferences';
+        $activeModule = 'profile';
+        $breadcrumbs  = [['Notification Preferences', null]];
+        ob_start();
         require AEGIS_ROOT . '/views/profile/notifications.php';
+        $content = ob_get_clean();
+        require AEGIS_ROOT . '/views/layout.php';
+    }
+
+    public function saveNotifications(): void {
+        Auth::requireAuth();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403); return;
+        }
+        $types = [
+            'overdue_controls','policy_review_due','pending_approval',
+            'new_risk_assigned','open_incident_aging','risk_review_overdue',
+            'treatment_due','risk_score_worsened','vendor_assessment_expiring',
+            'document_expiring','assessment_pending_stale',
+        ];
+        foreach ($types as $type) {
+            $enabled = isset($_POST['types'][$type]);
+            Database::query(
+                "INSERT INTO user_notification_prefs (user_id, notification_type, enabled)
+                 VALUES (?, ?, ?)
+                 ON CONFLICT (user_id, notification_type) DO UPDATE SET enabled = EXCLUDED.enabled",
+                [Auth::id(), $type, $enabled]
+            );
+        }
+        Auth::log('update_notification_prefs', 'users', Auth::id());
+        $_SESSION['flash_success'] = 'Notification preferences saved.';
+        header('Location: /profile/notifications');
+    }
+
+    public function saveNotificationDigest(): void {
+        Auth::requireAuth();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403); return;
+        }
+        $digestMode = in_array($_POST['digest_mode'] ?? '', ['immediate','daily','weekly'], true)
+            ? $_POST['digest_mode'] : 'immediate';
+        $digestTime = Security::sanitizeInput($_POST['digest_time'] ?? '08:00');
+
+        Database::query(
+            "INSERT INTO user_notification_prefs (user_id, notification_type, enabled, digest_mode, digest_time)
+             VALUES (?, '__digest__', TRUE, ?, ?)
+             ON CONFLICT (user_id, notification_type) DO UPDATE SET digest_mode = EXCLUDED.digest_mode, digest_time = EXCLUDED.digest_time",
+            [Auth::id(), $digestMode, $digestTime]
+        );
+        Auth::log('update_notification_digest', 'users', Auth::id());
+        $_SESSION['flash_success'] = 'Delivery preferences saved.';
+        header('Location: /profile/notifications');
     }
 
     public function editForm(): void {
