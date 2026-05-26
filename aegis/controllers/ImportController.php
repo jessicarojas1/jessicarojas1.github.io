@@ -169,19 +169,19 @@ class ImportController {
             $tier = in_array(($row['risk_tier'] ?? 'medium'), ['critical','high','medium','low'])
                 ? $row['risk_tier'] : 'medium';
 
-            $code = 'VEN-' . str_pad((string)$seq++, 3, '0', STR_PAD_LEFT);
+            $seq++;
 
             Database::query(
-                "INSERT INTO vendors (vendor_code, name, category, website, description, risk_tier, status)
+                "INSERT INTO vendors (name, category, website, description, risk_rating, status, created_by)
                  VALUES (?,?,?,?,?,?,?)",
                 [
-                    $code,
                     Security::sanitizeInput($name),
                     Security::sanitizeInput($row['category'] ?? ''),
                     $website,
                     Security::sanitizeInput($row['description'] ?? ''),
                     $tier,
                     'active',
+                    Auth::id(),
                 ]
             );
             $imported++;
@@ -204,10 +204,14 @@ class ImportController {
             $severity = in_array(($row['severity'] ?? 'medium'), ['critical','high','medium','low'])
                 ? $row['severity'] : 'medium';
 
+            $maxRow = Database::fetchOne("SELECT COALESCE(MAX(id), 0) AS max_id FROM incidents");
+            $incidentNumber = 'INC-' . str_pad((string)(((int)$maxRow['max_id']) + 1), 4, '0', STR_PAD_LEFT);
+
             Database::query(
-                "INSERT INTO incidents (title, description, severity, status, created_by)
-                 VALUES (?,?,?,'open',?)",
+                "INSERT INTO incidents (incident_number, title, description, severity, status, reported_by)
+                 VALUES (?,?,?,?,'open',?)",
                 [
+                    $incidentNumber,
                     Security::sanitizeInput($title),
                     Security::sanitizeInput($row['description'] ?? ''),
                     $severity,

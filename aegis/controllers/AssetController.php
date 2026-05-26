@@ -262,10 +262,10 @@ class AssetController {
 
         if ($riskId) {
             Database::query(
-                "INSERT INTO asset_risk_links (asset_id, risk_id, linked_by, linked_at)
-                 VALUES (?, ?, ?, NOW())
+                "INSERT INTO asset_risk_links (asset_id, risk_id)
+                 VALUES (?, ?)
                  ON CONFLICT (asset_id, risk_id) DO NOTHING",
-                [$assetId, $riskId, Auth::id()]
+                [$assetId, $riskId]
             );
             Auth::log('link_risk_to_asset', 'assets', $assetId, ['risk_id' => $riskId]);
         }
