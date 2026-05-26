@@ -325,6 +325,120 @@ CREATE INDEX IF NOT EXISTS idx_ci_objective ON control_implementations(objective
 CREATE INDEX IF NOT EXISTS idx_ci_status    ON control_implementations(status);
 CREATE INDEX IF NOT EXISTS idx_ai_audit     ON audit_items(audit_id);
 CREATE INDEX IF NOT EXISTS idx_risks_status ON risks(status);
+
+-- ──────────────────────────────────────────────────────────────
+-- Core operational tables (incidents, issues, vendors, evidence)
+-- ──────────────────────────────────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS incidents (
+    id                 SERIAL PRIMARY KEY,
+    incident_number    VARCHAR(20) UNIQUE NOT NULL,
+    title              VARCHAR(255) NOT NULL,
+    description        TEXT,
+    severity           VARCHAR(20) NOT NULL DEFAULT 'medium'
+                       CHECK (severity IN ('critical','high','medium','low')),
+    category           VARCHAR(100),
+    status             VARCHAR(20) NOT NULL DEFAULT 'open'
+                       CHECK (status IN ('open','investigating','resolved','closed')),
+    reported_by        INTEGER REFERENCES users(id),
+    assigned_to        INTEGER REFERENCES users(id),
+    affected_systems   TEXT,
+    impact_description TEXT,
+    detected_at        TIMESTAMP,
+    resolved_at        TIMESTAMP,
+    created_at         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_incidents_status   ON incidents(status);
+CREATE INDEX IF NOT EXISTS idx_incidents_severity ON incidents(severity);
+
+CREATE TABLE IF NOT EXISTS incident_updates (
+    id          SERIAL PRIMARY KEY,
+    incident_id INTEGER NOT NULL REFERENCES incidents(id) ON DELETE CASCADE,
+    user_id     INTEGER REFERENCES users(id),
+    content     TEXT NOT NULL,
+    created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_iu_incident ON incident_updates(incident_id);
+
+CREATE TABLE IF NOT EXISTS issues (
+    id           SERIAL PRIMARY KEY,
+    issue_number VARCHAR(20) UNIQUE NOT NULL,
+    title        VARCHAR(255) NOT NULL,
+    description  TEXT,
+    severity     VARCHAR(20) NOT NULL DEFAULT 'medium'
+                 CHECK (severity IN ('critical','high','medium','low')),
+    status       VARCHAR(20) NOT NULL DEFAULT 'open'
+                 CHECK (status IN ('open','in_progress','resolved','closed')),
+    source_type  VARCHAR(100),
+    source_id    INTEGER,
+    assigned_to  INTEGER REFERENCES users(id),
+    created_by   INTEGER REFERENCES users(id),
+    due_date     DATE,
+    resolved_at  TIMESTAMP,
+    created_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_issues_status ON issues(status);
+
+CREATE TABLE IF NOT EXISTS issue_updates (
+    id         SERIAL PRIMARY KEY,
+    issue_id   INTEGER NOT NULL REFERENCES issues(id) ON DELETE CASCADE,
+    user_id    INTEGER REFERENCES users(id),
+    content    TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS vendors (
+    id               SERIAL PRIMARY KEY,
+    name             VARCHAR(255) NOT NULL,
+    category         VARCHAR(100),
+    status           VARCHAR(20) NOT NULL DEFAULT 'active'
+                     CHECK (status IN ('active','inactive','under_review')),
+    risk_rating      VARCHAR(20) DEFAULT 'medium'
+                     CHECK (risk_rating IN ('critical','high','medium','low')),
+    contact_name     VARCHAR(255),
+    contact_email    VARCHAR(255),
+    contact_phone    VARCHAR(50),
+    website          VARCHAR(255),
+    description      TEXT,
+    notes            TEXT,
+    owner_id         INTEGER REFERENCES users(id),
+    created_by       INTEGER REFERENCES users(id),
+    created_at       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_vendors_status ON vendors(status);
+
+CREATE TABLE IF NOT EXISTS vendor_assessments (
+    id              SERIAL PRIMARY KEY,
+    vendor_id       INTEGER NOT NULL REFERENCES vendors(id) ON DELETE CASCADE,
+    assessment_type VARCHAR(50) NOT NULL DEFAULT 'security',
+    status          VARCHAR(20) NOT NULL DEFAULT 'planned'
+                    CHECK (status IN ('planned','in_progress','completed','cancelled')),
+    assessed_by     INTEGER REFERENCES users(id),
+    scheduled_date  DATE,
+    completed_date  DATE,
+    score           INTEGER CHECK (score BETWEEN 0 AND 100),
+    findings        TEXT,
+    recommendations TEXT,
+    created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_va_vendor ON vendor_assessments(vendor_id);
+
+CREATE TABLE IF NOT EXISTS evidence (
+    id           SERIAL PRIMARY KEY,
+    entity_type  VARCHAR(50) NOT NULL,
+    entity_id    INTEGER NOT NULL,
+    filename     VARCHAR(255) NOT NULL,
+    stored_name  VARCHAR(255) NOT NULL,
+    file_size    INTEGER,
+    mime_type    VARCHAR(100),
+    uploaded_by  INTEGER REFERENCES users(id),
+    created_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_evidence_entity ON evidence(entity_type, entity_id);
 CREATE INDEX IF NOT EXISTS idx_risks_owner  ON risks(owner_id);
 CREATE INDEX IF NOT EXISTS idx_pm_policy    ON policy_mappings(policy_id);
 CREATE INDEX IF NOT EXISTS idx_pm_objective ON policy_mappings(objective_id);

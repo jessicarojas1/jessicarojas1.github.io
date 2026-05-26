@@ -155,7 +155,6 @@ $routes = [
         '/approvals'                  => ['ApprovalController', 'pending'],
         '/admin/approval-templates'   => ['ApprovalController', 'templates'],
         '/import'                     => ['ImportController', 'index'],
-        '/metrics'                    => ['MetricsController', 'index'],
         '/documents'                  => ['DocumentController', 'index'],
         '/documents/create'           => ['DocumentController', 'createForm'],
         '/report/board'               => ['ReportController', 'board'],
