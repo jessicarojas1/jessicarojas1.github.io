@@ -11,6 +11,26 @@ define('AEGIS_START', microtime(true));
 @ini_set('log_errors', '1');
 error_reporting(E_ALL);
 
+// Top-level exception handler: show a readable error page instead of blank screen
+set_exception_handler(function (Throwable $e): void {
+    error_log('[AEGIS] Uncaught: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
+    if (!headers_sent()) {
+        http_response_code(500);
+        header('Content-Type: text/html; charset=utf-8');
+    }
+    $msg = htmlspecialchars($e->getMessage(), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    echo "<!DOCTYPE html><html><head><meta charset='utf-8'><title>AEGIS — Configuration Error</title>"
+       . "<style>body{font-family:system-ui,sans-serif;background:#0f172a;color:#f1f5f9;display:flex;"
+       . "align-items:center;justify-content:center;min-height:100vh;margin:0}"
+       . ".box{background:#1e293b;border:1px solid #ef4444;border-radius:12px;padding:40px;max-width:540px}"
+       . "h1{color:#ef4444;margin:0 0 12px}p{color:#94a3b8;margin:0 0 8px}code{color:#fbbf24}</style></head>"
+       . "<body><div class='box'><h1>&#9888; Configuration Error</h1>"
+       . "<p>{$msg}</p>"
+       . "<p style='margin-top:16px'>Check that all required environment variables are set in your Render dashboard:<br>"
+       . "<code>JWT_SECRET</code>, <code>DATABASE_URL</code>, <code>APP_URL</code></p></div></body></html>";
+    exit(1);
+});
+
 // Load environment
 foreach (['.env.local', '.env'] as $envFile) {
     if (file_exists(AEGIS_ROOT . '/' . $envFile)) {

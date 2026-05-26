@@ -3,11 +3,7 @@ return [
     'name'        => $_ENV['APP_NAME'] ?? 'AEGIS GRC',
     'env'         => $_ENV['APP_ENV'] ?? 'production',
     'url'         => $_ENV['APP_URL'] ?? '',
-    'jwt_secret'  => (function() {
-        $s = $_ENV['JWT_SECRET'] ?? '';
-        if (!$s) throw new \RuntimeException('JWT_SECRET environment variable must be set');
-        return $s;
-    })(),
+    'jwt_secret'  => $_ENV['JWT_SECRET'] ?? '',
     'session_lifetime' => 3600 * 8,
     'csrf_lifetime'    => 3600 * 2,
     'rate_limit'  => [
