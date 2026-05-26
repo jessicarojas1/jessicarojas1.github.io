@@ -12,13 +12,18 @@ class DashboardController {
             'policies'      => Database::fetchOne("SELECT COUNT(*) as c FROM policies")['c'] ?? 0,
             'audits_due'    => Database::fetchOne("SELECT COUNT(*) as c FROM audits WHERE status != 'completed' AND scheduled_date <= CURRENT_DATE + INTERVAL '30 days'")['c'] ?? 0,
             'reviews_due'   => Database::fetchOne("SELECT COUNT(*) as c FROM policies WHERE next_review_date <= CURRENT_DATE + INTERVAL '30 days' AND status = 'published'")['c'] ?? 0,
-            'pending_approvals' => Database::fetchOne(
+        ];
+        // approval_requests lives in the enterprise phase1 migration — guard in case not yet applied
+        try {
+            $stats['pending_approvals'] = (int)(Database::fetchOne(
                 "SELECT COUNT(*) as c FROM approval_requests ar
                  JOIN approval_request_steps ars ON ars.request_id = ar.id AND ars.step_number = ar.current_step
                  WHERE ar.status = 'pending' AND (ars.required_user_id = ? OR ars.required_role = ? OR ? = 'admin')",
                 [Auth::id(), Auth::role(), Auth::role()]
-            )['c'] ?? 0,
-        ];
+            )['c'] ?? 0);
+        } catch (Throwable) {
+            $stats['pending_approvals'] = 0;
+        }
 
         // New module stats — safe try/catch for environments running older migrations
         foreach ([

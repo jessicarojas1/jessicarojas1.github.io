@@ -498,5 +498,26 @@ function runMigrations(PDO $pdo): void {
     $pdo->exec("CREATE INDEX IF NOT EXISTS idx_issues_status      ON aegis.issues(status)");
     $pdo->exec("CREATE INDEX IF NOT EXISTS idx_evidence_entity    ON aegis.evidence_files(entity_type, entity_id)");
 
+    // ── SQL migration files ───────────────────────────────────────────────────
+    $migrationFiles = [
+        '001_enterprise_phase1.sql',
+        '002_phase2.sql',
+        '003_phase3.sql',
+        '004_risk_enhancements.sql',
+        '005_risk_enterprise.sql',
+        '006_email_risk_review.sql',
+        '007_risk_extensions.sql',
+    ];
+    foreach ($migrationFiles as $file) {
+        $path = AEGIS_ROOT . '/database/migrations/' . $file;
+        if (!file_exists($path)) continue;
+        try {
+            $pdo->exec(file_get_contents($path));
+            log_msg("[AEGIS] Applied migration: {$file}");
+        } catch (PDOException $e) {
+            log_msg("[AEGIS] Migration {$file} warning: " . $e->getMessage());
+        }
+    }
+
     log_msg('[AEGIS] Migrations applied.');
 }
