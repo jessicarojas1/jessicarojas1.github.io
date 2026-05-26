@@ -1433,9 +1433,12 @@ input[type="range"] {
     position: fixed;
     left: -280px;
     top: 0; bottom: 0;
-    z-index: 200;
+    height: 100vh;
+    z-index: 1000;
     transition: left .25s ease;
     width: 260px;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
   }
   .sidebar.open { left: 0; }
   .main-content { margin-left: 0 !important; }
@@ -1471,7 +1474,7 @@ input[type="range"] {
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,.4);
-    z-index: 199;
+    z-index: 999;
   }
   .sidebar-overlay.open { display: block; }
 }

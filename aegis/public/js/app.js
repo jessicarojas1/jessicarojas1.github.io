@@ -1,18 +1,6 @@
 /* AEGIS GRC — app.js */
 
-// Sidebar toggle
-function toggleSidebar() {
-  document.querySelector('.sidebar').classList.toggle('open');
-}
-
-// Close sidebar on overlay click (mobile)
-document.addEventListener('click', function (e) {
-  const sidebar = document.querySelector('.sidebar');
-  if (sidebar && sidebar.classList.contains('open') && !sidebar.contains(e.target)) {
-    const btn = document.querySelector('.sidebar-toggle');
-    if (btn && !btn.contains(e.target)) sidebar.classList.remove('open');
-  }
-});
+// toggleSidebar is defined below in the mobile sidebar IIFE
 
 // Alert panel
 const alertPanel = document.getElementById('alertPanel');
