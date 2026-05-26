@@ -122,6 +122,46 @@ class DashboardController {
             );
         } catch (Throwable) {}
 
+        // Due-items widget — policies and audits bucketed by urgency
+        $dueBuckets = ['expired' => [], 'overdue' => [], 'due7' => [], 'due30' => []];
+        try {
+            $dueItems = Database::fetchAll(
+                "SELECT due_date, item_type, url, name, owner FROM (
+                   SELECT p.next_review_date AS due_date,
+                          'Policy Review'    AS item_type,
+                          '/policy/' || p.id AS url,
+                          p.title            AS name,
+                          u.name             AS owner
+                   FROM policies p
+                   LEFT JOIN users u ON p.owner_id = u.id
+                   WHERE p.status = 'published'
+                     AND p.next_review_date IS NOT NULL
+                     AND p.next_review_date <= CURRENT_DATE + INTERVAL '30 days'
+                   UNION ALL
+                   SELECT a.scheduled_date   AS due_date,
+                          'Audit'            AS item_type,
+                          '/audit/' || a.id  AS url,
+                          a.title            AS name,
+                          u.name             AS owner
+                   FROM audits a
+                   LEFT JOIN users u ON a.auditor_id = u.id
+                   WHERE a.status != 'completed'
+                     AND a.scheduled_date IS NOT NULL
+                     AND a.scheduled_date <= CURRENT_DATE + INTERVAL '30 days'
+                 ) t
+                 ORDER BY due_date ASC"
+            );
+            $today = new DateTimeImmutable('today');
+            foreach ($dueItems as $item) {
+                $d = new DateTimeImmutable($item['due_date']);
+                $diff = (int)$today->diff($d)->format('%r%a');
+                if ($diff < -30)     $dueBuckets['expired'][] = $item;
+                elseif ($diff < 0)   $dueBuckets['overdue'][] = $item;
+                elseif ($diff <= 7)  $dueBuckets['due7'][]    = $item;
+                else                 $dueBuckets['due30'][]   = $item;
+            }
+        } catch (Throwable) {}
+
         require AEGIS_ROOT . '/views/dashboard/index.php';
     }
 
