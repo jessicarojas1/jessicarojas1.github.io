@@ -756,12 +756,3 @@ CREATE TABLE IF NOT EXISTS risk_scenarios (
 );
 CREATE INDEX IF NOT EXISTS idx_rs_risk_id ON risk_scenarios(risk_id);
 
--- ─────────────────────────────────────────────
--- Risk Appetite – heat-map thresholds
--- ─────────────────────────────────────────────
-ALTER TABLE risk_appetite
-    ADD COLUMN IF NOT EXISTS amber_threshold INTEGER,
-    ADD COLUMN IF NOT EXISTS red_threshold   INTEGER;
-
-COMMENT ON COLUMN risk_appetite.amber_threshold IS 'Score at or above which risk shows amber (warning) on heat maps';
-COMMENT ON COLUMN risk_appetite.red_threshold   IS 'Score at or above which risk shows red (critical) on heat maps';

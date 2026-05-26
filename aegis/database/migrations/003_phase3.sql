@@ -359,6 +359,13 @@ VALUES
   ('Technology',   'low',      'Technology risks must be mitigated to Low. Critical system downtime tolerance is < 4 hours RTO.', 6)
 ON CONFLICT DO NOTHING;
 
+ALTER TABLE risk_appetite
+    ADD COLUMN IF NOT EXISTS amber_threshold INTEGER,
+    ADD COLUMN IF NOT EXISTS red_threshold   INTEGER;
+
+COMMENT ON COLUMN risk_appetite.amber_threshold IS 'Score at or above which risk shows amber (warning) on heat maps';
+COMMENT ON COLUMN risk_appetite.red_threshold   IS 'Score at or above which risk shows red (critical) on heat maps';
+
 -- ─────────────────────────────────────────────
 -- 3.13 Control Testing
 -- ─────────────────────────────────────────────
