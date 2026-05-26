@@ -296,21 +296,238 @@ All tables live in the `aegis` PostgreSQL schema (isolated from `public`). The s
 
 ## Security
 
-| Control | Implementation |
+AEGIS was designed with security as a first-class concern throughout. The following measures are implemented across the application layer, transport layer, and infrastructure layer.
+
+---
+
+### Authentication & Session Management
+
+**Password hashing — Argon2ID**
+All passwords are hashed using PHP's `PASSWORD_ARGON2ID` algorithm with hardened parameters: 65,536 KB memory cost, 4 time-cost iterations, and 2 parallel threads. These exceed OWASP's minimum recommended parameters and make offline brute-force attacks computationally prohibitive. Plaintext passwords are never stored, logged, or compared directly.
+
+**Session fixation prevention**
+The session ID is regenerated using `session_regenerate_id(true)` immediately after every successful authentication event — including password login, TOTP MFA verification, and MFA backup code use. This prevents an attacker who can observe a pre-login session ID from hijacking the authenticated session.
+
+**Session hardening**
+Sessions are configured with the following flags in every environment:
+
+| Flag | Value | Effect |
+|---|---|---|
+| `session.cookie_httponly` | `1` | Prevents JavaScript access to the session cookie |
+| `session.cookie_samesite` | `Strict` | Blocks the cookie from being sent in cross-site requests |
+| `session.use_strict_mode` | `1` | Rejects unrecognised session IDs (prevents session adoption) |
+| `session.use_only_cookies` | `1` | Prevents session ID from appearing in URLs |
+| `session.cookie_secure` | `1` (HTTPS only) | Cookie is never sent over plain HTTP |
+
+**Session timeout**
+Authenticated sessions expire after 60 minutes of inactivity. The `last_activity` timestamp is checked on every request in `Auth::requireAuth()` and the session is destroyed and redirected to login if the threshold is exceeded.
+
+**Secure logout**
+`Auth::logout()` calls `session_destroy()` followed by `session_start()` to clear all session state server-side. The logout endpoint requires a valid CSRF token (POST method) to prevent logout CSRF attacks.
+
+---
+
+### Multi-Factor Authentication (MFA)
+
+TOTP-based MFA is supported for all user accounts using the standard RFC 6238 algorithm, compatible with Google Authenticator, Authy, and any standards-compliant authenticator app.
+
+- The TOTP secret is stored encrypted server-side and never returned to the client after initial setup
+- MFA verification is a separate session state (`mfa_pending`) — the full authenticated session is only established after the code is validated
+- **Backup codes**: Eight single-use recovery codes are generated at setup time, hashed with `password_hash` (bcrypt), and stored as hashes only. Each code is marked as used after consumption
+- Failed MFA attempts follow the same rate-limiting path as login attempts (see below)
+
+---
+
+### Brute-Force & Rate Limiting
+
+All authentication endpoints are rate-limited per IP address using a database-backed token-bucket implementation in `Security::checkRateLimit()`:
+
+- **Login**: 5 failed attempts per 5-minute sliding window → 15-minute lockout
+- **API token endpoint**: same policy, independently tracked
+- **API endpoints**: 60 requests per minute per IP (separate counter)
+- Rate limit state is stored in the `rate_limits` table; `Security::resetRateLimit()` clears the counter on successful authentication
+
+On lockout, the response is deliberately generic — the error message does not distinguish between "account not found", "wrong password", and "locked out" to prevent user enumeration.
+
+---
+
+### CSRF Protection
+
+Every state-changing request (all HTTP POST handlers, including logout) requires a valid CSRF token. The implementation in `Security.php`:
+
+- Tokens are generated with `random_bytes(32)` and stored in the session
+- Tokens have a 2-hour expiry and are rotated after each successful validation
+- Comparison uses `hash_equals()` — constant-time string comparison that prevents timing attacks
+- All forms include a `<?= Security::csrfField() ?>` hidden input; all POST controllers call `Security::validateCsrf()` as the first operation before any data access
+
+API endpoints are authenticated via API key or JWT header rather than cookies, so CSRF does not apply to the API surface.
+
+---
+
+### SQL Injection Prevention
+
+The application uses **PDO with parameterized prepared statements exclusively**. The `Database` class (`src/Database.php`) exposes only four query methods — `query()`, `fetchOne()`, `fetchAll()`, and `insert()` — all of which accept SQL strings with `?` placeholders and a separate parameter array. User input is never interpolated directly into a SQL string anywhere in the codebase.
+
+The database connection uses `search_path=aegis`, isolating all application tables in a dedicated PostgreSQL schema and preventing accidental access to `public` schema objects.
+
+---
+
+### Cross-Site Scripting (XSS) Prevention
+
+**Output encoding**
+All user-supplied values rendered into HTML views pass through `Security::h()`, which applies `htmlspecialchars()` with `ENT_QUOTES | ENT_HTML5` encoding. This is enforced by convention throughout every template, converting `<`, `>`, `"`, `'`, and `&` into their safe HTML entities.
+
+**Rich HTML content sanitization**
+Policy documents and similar fields that intentionally store formatted HTML are sanitized using `Security::sanitizeHtml()` — a server-side DOMDocument-based sanitizer that:
+- Removes the entire subtree of dangerous tags: `<script>`, `<style>`, `<iframe>`, `<object>`, `<embed>`, `<form>`, `<link>`, `<meta>`, `<base>`, and others
+- Strips all event-handler attributes (`onclick`, `onload`, `onerror`, `onmouseover`, etc.) from every element
+- Strips `javascript:` and `data:text/` URI schemes from `href` and `src` attributes
+
+Sanitization is applied at both write time (in the controller before the value reaches the database) and read time (in the view before the value reaches the browser), providing defense in depth.
+
+---
+
+### Content Security Policy (CSP)
+
+A `Content-Security-Policy` header is set on every response by `Security::setSecurityHeaders()`, called from the front controller before any output. The policy:
+
+```
+default-src 'self';
+script-src 'self' 'nonce-{per-request-nonce}' 'unsafe-inline';
+style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net;
+font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net;
+img-src 'self' data: blob:;
+connect-src 'self';
+frame-ancestors 'none';
+base-uri 'self';
+form-action 'self';
+```
+
+Key points:
+- A cryptographically random **per-request nonce** (`random_bytes(18)` → base64) is generated once per request and injected into every `<script nonce="...">` tag and the CSP header simultaneously. Nonce values are unpredictable and unreusable
+- `frame-ancestors 'none'` prevents the application being embedded in iframes on other origins (clickjacking defence, complementing the `X-Frame-Options: DENY` header)
+- `form-action 'self'` prevents forms from being submitted to external origins
+- `base-uri 'self'` prevents `<base>` tag injection from redirecting relative URLs
+
+---
+
+### HTTP Security Headers
+
+The following headers are set on every response:
+
+| Header | Value | Purpose |
+|---|---|---|
+| `Strict-Transport-Security` | `max-age=31536000; includeSubDomains; preload` | Forces HTTPS for one year; eligible for browser preload lists |
+| `X-Frame-Options` | `DENY` | Prevents all iframe embedding (clickjacking defence) |
+| `X-Content-Type-Options` | `nosniff` | Prevents MIME-type sniffing of responses |
+| `X-XSS-Protection` | `1; mode=block` | Legacy browser XSS filter (complementary) |
+| `Referrer-Policy` | `strict-origin-when-cross-origin` | Limits referrer leakage on cross-origin navigation |
+| `Permissions-Policy` | `geolocation=(), microphone=(), camera=(), payment=()` | Explicitly disables sensitive browser APIs |
+| `Cross-Origin-Opener-Policy` | `same-origin` | Prevents cross-origin window references |
+| `Cross-Origin-Resource-Policy` | `same-origin` | Prevents cross-origin resource loading |
+| `X-Powered-By` | *(removed)* | Suppresses PHP version disclosure |
+
+HSTS is set both in `.htaccess` (via `mod_headers`) and in PHP (via `Security::setSecurityHeaders()`), so it is present regardless of which layer handles the response first.
+
+---
+
+### File Upload Security
+
+Evidence file uploads are handled by `EvidenceController` with the following controls:
+
+- **Extension allowlist**: only the extensions configured in the admin settings (default: `pdf`, `doc`, `docx`, `xls`, `xlsx`, `png`, `jpg`, `jpeg`, `gif`, `txt`, `csv`, `zip`) are accepted. The check is performed on the server-side extension after `pathinfo()`, not on the client-supplied `Content-Type` header
+- **Size limit**: configurable maximum (default: 20 MB); enforced before the file is moved from the temp directory
+- **Randomised filenames**: uploaded files are stored using `bin2hex(random_bytes(16))` as the filename. The original filename is preserved in the database for display but never used as a filesystem path
+- **SHA-256 integrity hash**: a hash of the stored file is computed immediately after upload and recorded in `evidence_files.file_hash`, enabling future integrity verification
+- **No web-accessible storage**: the `/uploads/` directory is blocked at two layers — the main `.htaccess` denies HTTP requests matching `^(uploads)(/|$)`, and a dedicated `/uploads/.htaccess` denies all access with `Deny from all`, disables `ExecCGI`, and explicitly blocks PHP execution via `php_flag engine off`
+- **Access control on download**: the download endpoint verifies that the requesting user has read permission on the owning entity (risk, control, audit, etc.) before serving the file via PHP, preventing direct-object-reference bypasses
+
+---
+
+### Open Redirect Prevention
+
+The post-login redirect destination is taken from the session (never directly from a query parameter on the login form) and validated against a strict same-origin regex pattern before the `Location` header is set:
+
+```php
+if (!preg_match('#^/[a-zA-Z0-9/_?=&%.@-]*$#', $redirect)) {
+    $redirect = '/';
+}
+```
+
+This pattern requires the path to start with `/`, permits only safe URL characters, and rejects any value containing `://`, `//`, encoded sequences, or other characters that could construct an off-site redirect. The same validation is applied in the MFA verification flow, the MFA backup-code flow, and the `redirectBack()` helper used by evidence uploads.
+
+---
+
+### API Security
+
+The REST API (`/api/`) supports two authentication methods:
+
+**API keys**
+Keys are generated with `random_bytes(32)`, displayed once at creation, and stored only as a SHA-256 hash in the `api_keys` table — the raw key is never persisted. Verification computes the hash of the submitted key and compares it to the stored hash (constant-time via PDO parameter binding).
+
+**JWT**
+Tokens are issued as HS256 JWTs signed with `JWT_SECRET` (a long random value from the environment). The `exp` claim is mandatory and enforced on every verification. Tokens expire after 24 hours and cannot be renewed — clients must re-authenticate.
+
+**CORS**
+The `Origin` header is validated against `APP_URL` on every API request. Requests from unlisted origins receive a 403 response before any handler executes. No wildcard (`*`) origin is permitted.
+
+**Rate limiting**
+API requests are rate-limited to 60 per minute per IP address using the same database-backed mechanism as login rate limiting. The `/api/auth/token` endpoint has its own independent counter.
+
+---
+
+### Role-Based Access Control (RBAC)
+
+Every controller method calls one of `Auth::requireAuth()`, `Auth::requireAdmin()`, or `Auth::requirePermission($module)` as its first statement. The permission model has two layers:
+
+1. **Role defaults** — five built-in roles (`admin`, `manager`, `auditor`, `analyst`, `viewer`) each carry a predefined set of module read/write/edit grants
+2. **Per-user overrides** — the `user_permissions` table allows individual grants to extend or restrict the role default for a specific user and module combination
+
+Permission checks are performed server-side on every request. There is no client-side permission state that could be tampered with.
+
+---
+
+### Audit Logging
+
+Every significant user action is recorded in the `activity_log` table via `Auth::log()`. Log entries include the authenticated user ID, action type, entity type and ID, IP address, user agent, a JSON snapshot of changed fields, and a **SHA-256 hash chain** that links each entry to the previous one:
+
+```
+log_hash = SHA-256( prev_hash | user_id | action | entity_type | entity_id | changes | ip )
+```
+
+The hash chain makes retroactive tampering detectable — altering or deleting any row breaks the chain for all subsequent entries. The chain is anchored at a `genesis` string for the first entry.
+
+---
+
+### Sensitive Directory Protection
+
+The `.htaccess` front controller blocks direct HTTP access to all sensitive application directories:
+
+```apache
+RewriteRule ^(config|src|database|scripts|uploads)(/|$) - [F,L]
+RewriteRule ^\.env - [F,L]
+RewriteRule ^\.git - [F,L]
+RewriteRule ^install\.php$ - [F,L]
+```
+
+The `uploads/` directory additionally carries its own `.htaccess` with `Deny from all`, `Options -Indexes -ExecCGI`, and `php_flag engine off` to prevent PHP execution even if the rewrite rule were somehow bypassed.
+
+The `Options -Indexes` directive is set globally, preventing directory listing across the entire application.
+
+---
+
+### Input Validation & Output Encoding Summary
+
+| Source | Treatment |
 |---|---|
-| Password hashing | Argon2ID — 65536 KB memory, 4 time cost, 2 threads |
-| CSRF protection | Session-bound tokens, 2-hour lifetime, `hash_equals` comparison |
-| JWT | Pure-PHP HS256; `exp` claim required; secret from environment |
-| Brute-force lockout | 5 failed attempts per 5-minute window → 15-minute lockout |
-| Content Security Policy | Scripts and styles restricted to `self` + explicit CDN allowlist |
-| HSTS | `Strict-Transport-Security` header enforced on HTTPS |
-| install.php | Blocked at `.htaccess` level after initial deployment |
-| CSV export safety | Dangerous leading characters (`=`, `+`, `-`, `@`) prefixed to prevent formula injection |
-| File upload validation | MIME type verified via `finfo` (ignores client-supplied `Content-Type`) |
-| Open-redirect prevention | Post-login redirect target validated against internal path whitelist |
-| Database isolation | All tables in `aegis` schema; PDO prepared statements throughout; no raw interpolation |
-| Session hardening | `httponly`, `samesite=strict`, `secure` (on HTTPS), session timeout enforced |
-| CORS | API origin restricted to `APP_URL` — no wildcard `*` |
+| `$_POST` plain text fields | `Security::sanitizeInput()` — `strip_tags()` + `trim()` |
+| `$_POST` rich HTML fields (policy content) | `Security::sanitizeHtml()` — DOMDocument tag/attribute allowlist |
+| `$_GET` numeric IDs | Cast to `(int)` immediately; negative values rejected by query constraints |
+| `$_GET` string filters | `Security::sanitizeInput()` then matched against explicit allowlists |
+| Database values rendered in HTML | `Security::h()` — `htmlspecialchars(ENT_QUOTES\|ENT_HTML5)` |
+| Database values rendered in JSON | `json_encode()` — encodes all special characters by default |
+| CSV/XLSX exports | Leading `=`, `+`, `-`, `@` characters prefixed with `'` to prevent spreadsheet formula injection |
+| File upload filenames | `basename()` + `pathinfo()` extension extracted; stored filename replaced with random hex |
 
 ---
 
