@@ -192,7 +192,7 @@ class ChangeController {
         $updateData = [
             'status'      => $newStatus,
             'cab_reviewer_id' => Auth::id(),
-            'updated_at'  => date('Y-m-d H:i:s'),
+            'updated_at'      => date('Y-m-d H:i:s'),
         ];
 
         if ($newStatus === 'implemented') {

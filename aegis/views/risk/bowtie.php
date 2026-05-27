@@ -417,7 +417,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
         ?>
           <div class="bt-item-card">
             <?php if (Auth::can('risk.write')): ?>
-            <form method="POST" action="/risk/bowtie/cause/<?= (int)$cause['id'] ?>/remove" style="display:inline">
+            <form method="POST" action="/risk-bowtie/cause/<?= (int)$cause['id'] ?>/remove" style="display:inline">
               <?= Security::csrfField() ?>
               <button type="submit" class="bt-item-delete" title="Remove" onclick="return confirm('Remove this cause?')">
                 <i class="bi bi-x-lg"></i>
@@ -450,7 +450,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
         ?>
           <div class="bt-barrier-pill" style="--ring-color:<?= Security::h($eff['ring']) ?>">
             <?php if (Auth::can('risk.write')): ?>
-            <form method="POST" action="/risk/bowtie/barrier/<?= (int)$bar['id'] ?>/remove" style="display:inline">
+            <form method="POST" action="/risk-bowtie/barrier/<?= (int)$bar['id'] ?>/remove" style="display:inline">
               <?= Security::csrfField() ?>
               <button type="submit" class="bt-item-delete" title="Remove" onclick="return confirm('Remove this barrier?')">
                 <i class="bi bi-x-lg"></i>
@@ -513,7 +513,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
         ?>
           <div class="bt-barrier-pill" style="--ring-color:<?= Security::h($eff['ring']) ?>">
             <?php if (Auth::can('risk.write')): ?>
-            <form method="POST" action="/risk/bowtie/barrier/<?= (int)$bar['id'] ?>/remove" style="display:inline">
+            <form method="POST" action="/risk-bowtie/barrier/<?= (int)$bar['id'] ?>/remove" style="display:inline">
               <?= Security::csrfField() ?>
               <button type="submit" class="bt-item-delete" title="Remove" onclick="return confirm('Remove this barrier?')">
                 <i class="bi bi-x-lg"></i>
@@ -546,7 +546,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
         ?>
           <div class="bt-item-card">
             <?php if (Auth::can('risk.write')): ?>
-            <form method="POST" action="/risk/bowtie/consequence/<?= (int)$con['id'] ?>/remove" style="display:inline">
+            <form method="POST" action="/risk-bowtie/consequence/<?= (int)$con['id'] ?>/remove" style="display:inline">
               <?= Security::csrfField() ?>
               <button type="submit" class="bt-item-delete" title="Remove" onclick="return confirm('Remove this consequence?')">
                 <i class="bi bi-x-lg"></i>
@@ -632,7 +632,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
       <p style="font-size:13px;color:#64748b;margin-bottom:14px">
         Add <strong>causes</strong> — threats, vulnerabilities, hazards, or events that could trigger this risk.
       </p>
-      <form method="POST" action="/risk/<?= (int)$risk['id'] ?>/bowtie/cause">
+      <form method="POST" action="/risk/<?= (int)$risk['id'] ?>/bowtie/add-cause">
         <?= Security::csrfField() ?>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:12px;align-items:end">
           <div class="form-group" style="margin:0">
@@ -671,7 +671,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
       <p style="font-size:13px;color:#64748b;margin-bottom:14px">
         Add <strong>preventive barriers</strong> — controls that stop the risk event from occurring.
       </p>
-      <form method="POST" action="/risk/<?= (int)$risk['id'] ?>/bowtie/barrier">
+      <form method="POST" action="/risk/<?= (int)$risk['id'] ?>/bowtie/add-barrier">
         <?= Security::csrfField() ?>
         <input type="hidden" name="side" value="left">
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:12px;align-items:end">
@@ -724,7 +724,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
       <p style="font-size:13px;color:#64748b;margin-bottom:14px">
         Add <strong>recovery barriers</strong> — controls that limit damage after the risk event occurs.
       </p>
-      <form method="POST" action="/risk/<?= (int)$risk['id'] ?>/bowtie/barrier">
+      <form method="POST" action="/risk/<?= (int)$risk['id'] ?>/bowtie/add-barrier">
         <?= Security::csrfField() ?>
         <input type="hidden" name="side" value="right">
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:12px;align-items:end">
@@ -777,7 +777,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
       <p style="font-size:13px;color:#64748b;margin-bottom:14px">
         Add <strong>consequences</strong> — the impacts or outcomes if this risk materialises.
       </p>
-      <form method="POST" action="/risk/<?= (int)$risk['id'] ?>/bowtie/consequence">
+      <form method="POST" action="/risk/<?= (int)$risk['id'] ?>/bowtie/add-consequence">
         <?= Security::csrfField() ?>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:12px;align-items:end">
           <div class="form-group" style="margin:0">

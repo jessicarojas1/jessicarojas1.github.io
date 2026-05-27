@@ -8,7 +8,25 @@ const alertPanel = document.getElementById('alertPanel');
 function toggleAlertPanel() {
   if (!alertPanel) return;
   alertPanel.classList.toggle('open');
+  const overlay = document.getElementById('alertOverlay');
+  if (overlay) overlay.classList.toggle('open', alertPanel.classList.contains('open'));
 }
+
+// Wire up layout alert bell, panel close, and overlay (previously used inline onclick)
+(function () {
+  var bell = document.getElementById('alertBell');
+  if (bell) bell.addEventListener('click', toggleAlertPanel);
+
+  var closeBtn = document.getElementById('alertPanelClose');
+  if (closeBtn) closeBtn.addEventListener('click', toggleAlertPanel);
+
+  var overlay = document.getElementById('alertOverlay');
+  if (overlay) overlay.addEventListener('click', toggleAlertPanel);
+
+  // Sidebar toggle button
+  var sidebarToggleBtn = document.querySelector('.sidebar-toggle');
+  if (sidebarToggleBtn) sidebarToggleBtn.addEventListener('click', function () { toggleSidebar && toggleSidebar(); });
+})();
 
 document.addEventListener('click', function (e) {
   if (!alertPanel) return;
@@ -55,7 +73,16 @@ document.querySelectorAll('.alert-box').forEach(function (box) {
   }, 6000);
 });
 
-// Modal helpers (also declared inline in views — safe to redefine here)
+// Mark-read buttons use data-alert-id attribute
+document.addEventListener('click', function (e) {
+  var btn = e.target.closest('.mark-read-btn');
+  if (btn) {
+    var id = parseInt(btn.dataset.alertId, 10);
+    if (id) markAlertRead(id, btn);
+  }
+});
+
+// Modal helpers
 window.showModal = function (id) {
   const el = document.getElementById(id);
   if (el) el.style.display = 'flex';
@@ -64,6 +91,17 @@ window.closeModal = function (id) {
   const el = document.getElementById(id);
   if (el) el.style.display = 'none';
 };
+// openModal fallback (pages may define their own openModal; only set if not already defined)
+if (!window.openModal) window.openModal = window.showModal;
+
+// Data-attribute modal triggers: <button data-modal-open="id"> and <button data-modal-close="id">
+document.addEventListener('click', function (e) {
+  var opener = e.target.closest('[data-modal-open]');
+  if (opener) { var m = document.getElementById(opener.dataset.modalOpen); if (m) m.style.display = 'flex'; }
+
+  var closer = e.target.closest('[data-modal-close]');
+  if (closer) { var mc = document.getElementById(closer.dataset.modalClose); if (mc) mc.style.display = 'none'; }
+});
 
 // Close modals on Escape
 document.addEventListener('keydown', function (e) {

@@ -196,7 +196,7 @@
 <div class="main-content" id="mainContent">
   <header class="topbar">
     <div class="topbar-left">
-      <button class="sidebar-toggle" aria-label="Open menu" type="button" onclick="toggleSidebar()">
+      <button class="sidebar-toggle" aria-label="Open menu" type="button">
         <i class="bi bi-list"></i>
       </button>
       <div class="breadcrumb-area">
@@ -218,7 +218,7 @@
       <?php
       $unreadAlerts = Database::fetchOne("SELECT COUNT(*) as c FROM alerts WHERE user_id = ? AND is_read = FALSE", [Auth::id()])['c'] ?? 0;
       ?>
-      <div class="alert-bell" onclick="toggleAlertPanel()">
+      <div class="alert-bell" id="alertBell">
         <i class="bi bi-bell<?= $unreadAlerts > 0 ? '-fill' : '' ?>"></i>
         <?php if ($unreadAlerts > 0): ?>
           <span class="alert-badge"><?= min($unreadAlerts, 99) ?></span>
@@ -235,7 +235,7 @@
   <div class="alert-panel" id="alertPanel">
     <div class="alert-panel-header">
       <span>Notifications</span>
-      <button onclick="toggleAlertPanel()"><i class="bi bi-x-lg"></i></button>
+      <button id="alertPanelClose"><i class="bi bi-x-lg"></i></button>
     </div>
     <div class="alert-panel-body" id="alertPanelBody">
       <?php
@@ -250,7 +250,7 @@
             <div class="alert-item-time"><?= date('M j, g:ia', strtotime($al['created_at'])) ?></div>
           </div>
           <?php if (!$al['is_read']): ?>
-            <button class="mark-read-btn" onclick="markAlertRead(<?= (int)$al['id'] ?>, this)"><i class="bi bi-check"></i></button>
+            <button class="mark-read-btn" data-alert-id="<?= (int)$al['id'] ?>"><i class="bi bi-check"></i></button>
           <?php endif; ?>
         </div>
       <?php endforeach; else: ?>
@@ -258,7 +258,7 @@
       <?php endif; ?>
     </div>
   </div>
-  <div class="alert-overlay" id="alertOverlay" onclick="toggleAlertPanel()"></div>
+  <div class="alert-overlay" id="alertOverlay"></div>
 
   <main class="page-content">
     <?= $content ?? '' ?>

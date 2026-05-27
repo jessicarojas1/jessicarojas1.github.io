@@ -240,11 +240,10 @@ class Security {
     public static function setSecurityHeaders(): void {
         if (headers_sent()) return;
 
-        $nonce = self::nonce();
-        // Nonce eliminates unsafe-inline for scripts; styles keep unsafe-inline for icon fonts
+        // Allow inline scripts (app uses inline handlers throughout); CDN for chart.js + icons
         $csp = implode('; ', [
             "default-src 'self'",
-            "script-src 'self' 'nonce-{$nonce}' 'unsafe-inline'",
+            "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
             "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net",
             "img-src 'self' data: blob:",
