@@ -141,10 +141,7 @@ class RiskController {
         $pageTitle    = 'Risk Dashboard';
         $activeModule = 'risk';
         $breadcrumbs  = [['Risk', '/risk'], ['Dashboard', null]];
-        ob_start();
         require AEGIS_ROOT . '/views/risk/dashboard.php';
-        $content = ob_get_clean();
-        require AEGIS_ROOT . '/views/layout.php';
     }
 
     // ─────────────────────────────────────────── index ──────────────────────

@@ -630,10 +630,7 @@ class AdminController {
         $pageTitle    = 'Data Retention';
         $activeModule = 'admin_retention';
         $breadcrumbs  = [['Admin', '/admin'], ['Data Retention', null]];
-        ob_start();
         require AEGIS_ROOT . '/views/admin/retention.php';
-        $content = ob_get_clean();
-        require AEGIS_ROOT . '/views/layout.php';
     }
 
     public function saveRetention(): void {
@@ -756,10 +753,7 @@ class AdminController {
         $pageTitle    = 'Active Sessions';
         $activeModule = 'admin_sessions';
         $breadcrumbs  = [['Admin', '/admin'], ['Active Sessions', null]];
-        ob_start();
         require AEGIS_ROOT . '/views/admin/sessions.php';
-        $content = ob_get_clean();
-        require AEGIS_ROOT . '/views/layout.php';
     }
 
     public function killSession(string $sessionId): void {

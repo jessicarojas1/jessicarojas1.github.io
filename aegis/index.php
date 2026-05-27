@@ -58,12 +58,73 @@ Security::setSecurityHeaders();
 
 // Runtime schema migrations — safe to run on every request (no-op when already applied)
 try {
+    // KRI unit column: varchar(10) → varchar(50)
     $__col = Database::fetchOne(
         "SELECT character_maximum_length FROM information_schema.columns WHERE table_name='kris' AND column_name='unit' AND table_schema='public'"
     );
     if ($__col && ($__col['character_maximum_length'] ?? 50) < 50) {
         Database::query("ALTER TABLE kris ALTER COLUMN unit TYPE varchar(50)");
     }
+} catch (Throwable) {}
+
+try {
+    // Vendors: add enterprise columns missing from base schema
+    $__vcols = Database::fetchAll(
+        "SELECT column_name FROM information_schema.columns WHERE table_name='vendors' AND table_schema='public'"
+    );
+    $__existing = array_column($__vcols, 'column_name');
+    $__vendorMigrations = [
+        'vendor_code'     => "ALTER TABLE vendors ADD COLUMN vendor_code VARCHAR(20)",
+        'risk_tier'       => "ALTER TABLE vendors ADD COLUMN risk_tier VARCHAR(20) DEFAULT 'medium' CHECK (risk_tier IN ('critical','high','medium','low'))",
+        'primary_contact' => "ALTER TABLE vendors ADD COLUMN primary_contact VARCHAR(255)",
+        'country'         => "ALTER TABLE vendors ADD COLUMN country VARCHAR(100)",
+        'data_access'     => "ALTER TABLE vendors ADD COLUMN data_access BOOLEAN NOT NULL DEFAULT FALSE",
+        'critical_service'=> "ALTER TABLE vendors ADD COLUMN critical_service BOOLEAN NOT NULL DEFAULT FALSE",
+        'contract_start'  => "ALTER TABLE vendors ADD COLUMN contract_start DATE",
+        'contract_end'    => "ALTER TABLE vendors ADD COLUMN contract_end DATE",
+    ];
+    foreach ($__vendorMigrations as $__col => $__sql) {
+        if (!in_array($__col, $__existing, true)) {
+            Database::query($__sql);
+        }
+    }
+    unset($__vcols, $__existing, $__vendorMigrations, $__col, $__sql);
+} catch (Throwable) {}
+
+try {
+    // Risk matrix config: seed default row if table is empty
+    $__rmCount = Database::fetchOne("SELECT COUNT(*) AS cnt FROM risk_matrix_config");
+    if (($__rmCount['cnt'] ?? 0) == 0) {
+        Database::query(
+            "INSERT INTO risk_matrix_config (name, rows, cols, row_label, col_label, row_labels, col_labels, thresholds, colors, is_active)
+             VALUES ('Default', 5, 5, 'Likelihood', 'Impact',
+               '[\"Rare\",\"Unlikely\",\"Possible\",\"Likely\",\"Almost Certain\"]'::jsonb,
+               '[\"Negligible\",\"Minor\",\"Moderate\",\"Major\",\"Critical\"]'::jsonb,
+               '{\"low\":4,\"high\":14,\"medium\":9,\"critical\":25}'::jsonb,
+               '{\"low\":\"#22c55e\",\"high\":\"#f97316\",\"medium\":\"#f59e0b\",\"critical\":\"#ef4444\"}'::jsonb,
+               true)"
+        );
+    }
+    unset($__rmCount);
+} catch (Throwable) {}
+
+try {
+    // Risks: add roadmap columns missing from base schema
+    $__rcols = Database::fetchAll(
+        "SELECT column_name FROM information_schema.columns WHERE table_name='risks' AND table_schema='public'"
+    );
+    $__rexisting = array_column($__rcols, 'column_name');
+    $__riskMigrations = [
+        'treatment_plan'   => "ALTER TABLE risks ADD COLUMN treatment_plan TEXT",
+        'treatment_status' => "ALTER TABLE risks ADD COLUMN treatment_status VARCHAR(50)",
+        'due_date'         => "ALTER TABLE risks ADD COLUMN due_date DATE",
+    ];
+    foreach ($__riskMigrations as $__col => $__sql) {
+        if (!in_array($__col, $__rexisting, true)) {
+            Database::query($__sql);
+        }
+    }
+    unset($__rcols, $__rexisting, $__riskMigrations, $__col, $__sql);
 } catch (Throwable) {}
 
 // Parse route

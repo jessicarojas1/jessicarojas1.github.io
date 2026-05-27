@@ -34,8 +34,8 @@ class ChangeController {
                     u.name AS submitter_name,
                     r.name AS reviewer_name
              FROM change_requests cr
-             LEFT JOIN users u ON cr.submitted_by = u.id
-             LEFT JOIN users r ON cr.reviewed_by = r.id
+             LEFT JOIN users u ON cr.submitter_id = u.id
+             LEFT JOIN users r ON cr.cab_reviewer_id = r.id
              WHERE {$whereSQL}
              ORDER BY cr.created_at DESC",
             $params
@@ -104,7 +104,7 @@ class ChangeController {
             'impact_analysis'     => $impactAnalysis,
             'testing_plan'        => $testingPlan,
             'status'              => 'draft',
-            'submitted_by'        => Auth::id(),
+            'submitter_id'        => Auth::id(),
             'created_at'          => date('Y-m-d H:i:s'),
         ]);
 
@@ -123,8 +123,8 @@ class ChangeController {
                     u.name  AS submitter_name,
                     r.name  AS reviewer_name
              FROM change_requests cr
-             LEFT JOIN users u ON cr.submitted_by = u.id
-             LEFT JOIN users r ON cr.reviewed_by = r.id
+             LEFT JOIN users u ON cr.submitter_id = u.id
+             LEFT JOIN users r ON cr.cab_reviewer_id = r.id
              WHERE cr.id = ?",
             [$id]
         );
@@ -191,8 +191,8 @@ class ChangeController {
 
         $updateData = [
             'status'      => $newStatus,
-            'reviewed_by' => Auth::id(),
-            'updated_at'  => date('Y-m-d H:i:s'),
+            'cab_reviewer_id' => Auth::id(),
+            'updated_at'      => date('Y-m-d H:i:s'),
         ];
 
         if ($newStatus === 'implemented') {
@@ -200,7 +200,7 @@ class ChangeController {
         }
 
         Database::query(
-            "UPDATE change_requests SET status = ?, reviewed_by = ?, updated_at = ? WHERE id = ?",
+            "UPDATE change_requests SET status = ?, cab_reviewer_id = ?, updated_at = ? WHERE id = ?",
             [$newStatus, Auth::id(), date('Y-m-d H:i:s'), $id]
         );
 

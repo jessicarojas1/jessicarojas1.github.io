@@ -41,10 +41,7 @@ class DocumentController {
         $pageTitle    = 'New Document';
         $activeModule = 'documents';
         $breadcrumbs  = [['Documents', '/documents'], ['New', null]];
-        ob_start();
         require AEGIS_ROOT . '/views/documents/create.php';
-        $content = ob_get_clean();
-        require AEGIS_ROOT . '/views/layout.php';
     }
 
     public function create(): void {
