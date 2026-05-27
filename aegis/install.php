@@ -525,9 +525,8 @@ function runMigrations(PDO $pdo): void {
     // ── Remove auto-seeded compliance packages (idempotent safety net) ────────
     try {
         $pdo->exec("DELETE FROM aegis.audit_items WHERE objective_id IN (
-            SELECT co.id FROM aegis.compliance_objectives co
-            JOIN aegis.compliance_domains cd ON co.domain_id = cd.id
-            WHERE cd.package_id IN (SELECT id FROM aegis.compliance_packages WHERE imported_by IS NULL)
+            SELECT id FROM aegis.compliance_objectives
+            WHERE package_id IN (SELECT id FROM aegis.compliance_packages WHERE imported_by IS NULL)
         )");
         $pdo->exec("UPDATE aegis.audits SET package_id = NULL WHERE package_id IN (SELECT id FROM aegis.compliance_packages WHERE imported_by IS NULL)");
         $pdo->exec("DELETE FROM aegis.audit_schedules WHERE package_id IN (SELECT id FROM aegis.compliance_packages WHERE imported_by IS NULL)");

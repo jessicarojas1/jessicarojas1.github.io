@@ -104,12 +104,10 @@ class ComplianceController {
     }
 
     private function deletePackageById(int $id): void {
-        // Must delete audit_items referencing objectives of this package first (no CASCADE on FK)
+        // audit_items FK → compliance_objectives has no CASCADE; domains are level=1 rows in the same table
         Database::query(
             "DELETE FROM audit_items WHERE objective_id IN (
-                SELECT co.id FROM compliance_objectives co
-                JOIN compliance_domains cd ON co.domain_id = cd.id
-                WHERE cd.package_id = ?
+                SELECT id FROM compliance_objectives WHERE package_id = ?
             )",
             [$id]
         );
@@ -515,13 +513,8 @@ class ComplianceController {
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403); return;
         }
-        // audit_items FK → compliance_objectives has no CASCADE, must delete first
-        Database::query(
-            "DELETE FROM audit_items WHERE objective_id IN (
-                SELECT co.id FROM compliance_objectives co
-                JOIN compliance_domains cd ON co.domain_id = cd.id
-            )"
-        );
+        // audit_items FK → compliance_objectives has no CASCADE; delete all first
+        Database::query("DELETE FROM audit_items WHERE objective_id IN (SELECT id FROM compliance_objectives)");
         Database::query("UPDATE audits SET package_id = NULL WHERE package_id IS NOT NULL");
         Database::query("DELETE FROM audit_schedules WHERE package_id IS NOT NULL");
         Database::query("DELETE FROM compliance_packages");
