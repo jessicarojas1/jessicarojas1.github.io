@@ -4,13 +4,15 @@ class ComplianceController {
         Auth::requireAuth();
 
         $packages = Database::fetchAll(
-            "SELECT cp.*, s.name as standard_name, s.code as standard_code, s.category as standard_category,
+            "SELECT cp.*, COALESCE(s.name, cp.name) as standard_name,
+               COALESCE(s.code, 'CUSTOM') as standard_code,
+               COALESCE(s.category, 'custom') as standard_category,
                COUNT(co.id) FILTER (WHERE co.level = 2) as control_count,
                COUNT(ci.id) FILTER (WHERE ci.status = 'compliant') as compliant_count,
                COUNT(ci.id) FILTER (WHERE ci.status = 'partial') as partial_count,
                COUNT(ci.id) FILTER (WHERE ci.status = 'non_compliant') as non_compliant_count
              FROM compliance_packages cp
-             JOIN standards s ON s.id = cp.standard_id
+             LEFT JOIN standards s ON s.id = cp.standard_id
              LEFT JOIN compliance_objectives co ON co.package_id = cp.id AND co.level = 2
              LEFT JOIN control_implementations ci ON ci.objective_id = co.id
              WHERE cp.is_active = TRUE
@@ -21,14 +23,196 @@ class ComplianceController {
         require AEGIS_ROOT . '/views/compliance/index.php';
     }
 
+    // ─── Manual Package Creation ───────────────────────────────────────────────
+
+    public function createForm(): void {
+        Auth::requirePermission('compliance.write');
+        $standards   = Database::fetchAll("SELECT * FROM standards WHERE is_active = TRUE ORDER BY name");
+        $pageTitle   = 'Create Package';
+        $activeModule = 'compliance';
+        $breadcrumbs = [['Compliance','/compliance'],['Create Package',null]];
+        require AEGIS_ROOT . '/views/compliance/create.php';
+    }
+
+    public function create(): void {
+        Auth::requirePermission('compliance.write');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+
+        $name        = Security::sanitizeInput($_POST['name'] ?? '');
+        $version     = Security::sanitizeInput($_POST['version'] ?? '1.0');
+        $description = Security::sanitizeInput($_POST['description'] ?? '');
+        $standardId  = (int)($_POST['standard_id'] ?? 0) ?: null;
+
+        if (!$name) {
+            $_SESSION['flash_error'] = 'Package name is required.';
+            header('Location: /compliance/create'); return;
+        }
+
+        $pkgId = Database::insert('compliance_packages', [
+            'standard_id' => $standardId,
+            'name'        => $name,
+            'version'     => $version ?: '1.0',
+            'description' => $description,
+            'imported_by' => Auth::id(),
+            'imported_at' => date('Y-m-d H:i:s'),
+        ]);
+        Auth::log('create_package', 'compliance_packages', $pkgId);
+        header('Location: /compliance/' . $pkgId . '?created=1');
+    }
+
+    public function updatePackage(string $id): void {
+        Auth::requirePermission('compliance.write');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $id = (int)$id;
+        $name        = Security::sanitizeInput($_POST['name'] ?? '');
+        $version     = Security::sanitizeInput($_POST['version'] ?? '1.0');
+        $description = Security::sanitizeInput($_POST['description'] ?? '');
+        $standardId  = (int)($_POST['standard_id'] ?? 0) ?: null;
+        if (!$name) {
+            $_SESSION['flash_error'] = 'Package name is required.';
+            header('Location: /compliance/' . $id); return;
+        }
+        Database::query(
+            "UPDATE compliance_packages SET name=?, version=?, description=?, standard_id=? WHERE id=?",
+            [$name, $version ?: '1.0', $description, $standardId, $id]
+        );
+        Auth::log('update_package', 'compliance_packages', $id);
+        $_SESSION['flash_success'] = 'Package updated.';
+        header('Location: /compliance/' . $id);
+    }
+
+    public function deletePackage(string $id): void {
+        Auth::requirePermission('compliance.write');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $id = (int)$id;
+        Database::query("UPDATE audits SET package_id = NULL WHERE package_id = ?", [$id]);
+        Database::query("DELETE FROM audit_schedules WHERE package_id = ?", [$id]);
+        Database::query("DELETE FROM compliance_packages WHERE id = ?", [$id]);
+        Auth::log('delete_package', 'compliance_packages', $id);
+        $_SESSION['flash_success'] = 'Package deleted.';
+        header('Location: /compliance');
+    }
+
+    // ─── Domain Management ─────────────────────────────────────────────────────
+
+    public function addDomain(string $pkgId): void {
+        Auth::requirePermission('compliance.write');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $pkgId = (int)$pkgId;
+        $code  = Security::sanitizeInput($_POST['code'] ?? '');
+        $title = Security::sanitizeInput($_POST['title'] ?? '');
+        if (!$code || !$title) {
+            $_SESSION['flash_error'] = 'Domain code and title are required.';
+            header('Location: /compliance/' . $pkgId); return;
+        }
+        $sort = (int)(Database::fetchOne(
+            "SELECT COALESCE(MAX(sort_order),0)+1 as s FROM compliance_objectives WHERE package_id=? AND level=1",
+            [$pkgId]
+        )['s'] ?? 0);
+        Database::insert('compliance_objectives', [
+            'package_id' => $pkgId, 'code' => $code, 'title' => $title,
+            'level' => 1, 'sort_order' => $sort,
+        ]);
+        header('Location: /compliance/' . $pkgId . '#domains');
+    }
+
+    public function updateDomain(string $pkgId, string $domainId): void {
+        Auth::requirePermission('compliance.write');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $pkgId = (int)$pkgId; $domainId = (int)$domainId;
+        $code  = Security::sanitizeInput($_POST['code'] ?? '');
+        $title = Security::sanitizeInput($_POST['title'] ?? '');
+        if (!$code || !$title) {
+            $_SESSION['flash_error'] = 'Domain code and title are required.';
+            header('Location: /compliance/' . $pkgId); return;
+        }
+        Database::query(
+            "UPDATE compliance_objectives SET code=?, title=? WHERE id=? AND package_id=? AND level=1",
+            [$code, $title, $domainId, $pkgId]
+        );
+        header('Location: /compliance/' . $pkgId);
+    }
+
+    public function deleteDomain(string $pkgId, string $domainId): void {
+        Auth::requirePermission('compliance.write');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $pkgId = (int)$pkgId; $domainId = (int)$domainId;
+        // child controls cascade via ON DELETE CASCADE on parent_id
+        Database::query("DELETE FROM compliance_objectives WHERE id=? AND package_id=?", [$domainId, $pkgId]);
+        $this->syncCount($pkgId);
+        header('Location: /compliance/' . $pkgId);
+    }
+
+    // ─── Control Management ────────────────────────────────────────────────────
+
+    public function addControl(string $pkgId, string $domainId): void {
+        Auth::requirePermission('compliance.write');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $pkgId = (int)$pkgId; $domainId = (int)$domainId;
+        $code  = Security::sanitizeInput($_POST['code'] ?? '');
+        $title = Security::sanitizeInput($_POST['title'] ?? '');
+        $desc  = Security::sanitizeInput($_POST['description'] ?? '');
+        if (!$code || !$title) {
+            $_SESSION['flash_error'] = 'Control code and title are required.';
+            header('Location: /compliance/' . $pkgId); return;
+        }
+        $sort = (int)(Database::fetchOne(
+            "SELECT COALESCE(MAX(sort_order),0)+1 as s FROM compliance_objectives WHERE parent_id=?",
+            [$domainId]
+        )['s'] ?? 0);
+        Database::insert('compliance_objectives', [
+            'package_id' => $pkgId, 'parent_id' => $domainId,
+            'code' => $code, 'title' => $title, 'description' => $desc,
+            'level' => 2, 'sort_order' => $sort,
+        ]);
+        $this->syncCount($pkgId);
+        header('Location: /compliance/' . $pkgId);
+    }
+
+    public function updateControl(string $pkgId, string $ctrlId): void {
+        Auth::requirePermission('compliance.write');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $pkgId = (int)$pkgId; $ctrlId = (int)$ctrlId;
+        $code  = Security::sanitizeInput($_POST['code'] ?? '');
+        $title = Security::sanitizeInput($_POST['title'] ?? '');
+        $desc  = Security::sanitizeInput($_POST['description'] ?? '');
+        if (!$code || !$title) {
+            $_SESSION['flash_error'] = 'Control code and title are required.';
+            header('Location: /compliance/' . $pkgId); return;
+        }
+        Database::query(
+            "UPDATE compliance_objectives SET code=?, title=?, description=? WHERE id=? AND package_id=?",
+            [$code, $title, $desc, $ctrlId, $pkgId]
+        );
+        header('Location: /compliance/' . $pkgId);
+    }
+
+    public function deleteControl(string $pkgId, string $ctrlId): void {
+        Auth::requirePermission('compliance.write');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $pkgId = (int)$pkgId; $ctrlId = (int)$ctrlId;
+        Database::query("DELETE FROM compliance_objectives WHERE id=? AND package_id=? AND level=2", [$ctrlId, $pkgId]);
+        $this->syncCount($pkgId);
+        header('Location: /compliance/' . $pkgId);
+    }
+
+    private function syncCount(int $pkgId): void {
+        Database::query(
+            "UPDATE compliance_packages SET objectives_count = (SELECT COUNT(*) FROM compliance_objectives WHERE package_id=? AND level=2) WHERE id=?",
+            [$pkgId, $pkgId]
+        );
+    }
+
     public function viewPackage(string $id): void {
         Auth::requireAuth();
         $id = (int)$id;
 
         $package = Database::fetchOne(
-            "SELECT cp.*, s.name as standard_name, s.code as standard_code, s.description as standard_desc,
-               s.authority, s.url as standard_url
-             FROM compliance_packages cp JOIN standards s ON s.id = cp.standard_id
+            "SELECT cp.*, COALESCE(s.name, cp.name) as standard_name,
+               COALESCE(s.code, 'CUSTOM') as standard_code,
+               s.description as standard_desc, s.authority, s.url as standard_url
+             FROM compliance_packages cp
+             LEFT JOIN standards s ON s.id = cp.standard_id
              WHERE cp.id = ?", [$id]
         );
         if (!$package) { http_response_code(404); require AEGIS_ROOT . '/views/errors/404.php'; return; }
@@ -166,19 +350,37 @@ class ComplianceController {
         $importType = $_POST['import_type'] ?? 'json';
         $errors = [];
 
-        if ($importType === 'json' && !empty($_FILES['package_file']['tmp_name'])) {
+        if (!empty($_FILES['package_file']['tmp_name'])) {
             $file = $_FILES['package_file'];
-            if ($file['size'] > 5 * 1024 * 1024) { $errors[] = 'File too large (max 5MB).'; }
-            elseif (!in_array((new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']), ['application/json', 'text/plain'])) { $errors[] = 'Only JSON files allowed.'; }
-            else {
+            $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
+
+            if ($file['size'] > 20 * 1024 * 1024) {
+                $errors[] = 'File too large (max 20MB).';
+            } elseif ($importType === 'json' && in_array($mime, ['application/json', 'text/plain'])) {
                 $json = file_get_contents($file['tmp_name']);
                 $data = json_decode($json, true);
                 if (!$data) { $errors[] = 'Invalid JSON file.'; }
-                else {
-                    $this->processJsonImport($data);
-                    header('Location: /compliance?imported=1'); exit;
-                }
+                else { $this->processJsonImport($data); header('Location: /compliance?imported=1'); exit; }
+            } elseif ($importType === 'csv' && in_array($mime, ['text/csv', 'text/plain', 'application/csv', 'application/vnd.ms-excel'])) {
+                $result = $this->processCsvImport($file['tmp_name']);
+                if ($result !== true) { $errors[] = $result; }
+                else { header('Location: /compliance?imported=1'); exit; }
+            } elseif ($importType === 'excel' && in_array($mime, [
+                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    'application/vnd.ms-excel', 'application/zip', 'application/octet-stream',
+                ])) {
+                $result = $this->processExcelImport($file['tmp_name']);
+                if ($result !== true) { $errors[] = $result; }
+                else { header('Location: /compliance?imported=1'); exit; }
+            } elseif ($importType === 'pdf' && in_array($mime, ['application/pdf'])) {
+                $result = $this->processPdfImport($file['tmp_name'], $file['name']);
+                if ($result !== true) { $errors[] = $result; }
+                else { header('Location: /compliance?imported=1'); exit; }
+            } else {
+                $errors[] = 'File type does not match selected import format.';
             }
+        } else {
+            $errors[] = 'No file uploaded.';
         }
 
         if ($errors) {
@@ -187,6 +389,374 @@ class ComplianceController {
         }
 
         header('Location: /compliance'); exit;
+    }
+
+    public function downloadCsvTemplate(): void {
+        Auth::requirePermission('compliance.write');
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="compliance_template.csv"');
+        $out = fopen('php://output', 'w');
+        fputcsv($out, ['package_name','package_version','package_description','domain_code','domain_title','control_code','control_title','control_description']);
+        fputcsv($out, ['My Compliance Framework','1.0','Internal security controls','D1','Access Control','D1.1','User Access Management','Ensure all user accounts are reviewed quarterly']);
+        fputcsv($out, ['My Compliance Framework','1.0','Internal security controls','D1','Access Control','D1.2','Privileged Access','Privileged access must require MFA and be logged']);
+        fputcsv($out, ['My Compliance Framework','1.0','Internal security controls','D2','Risk Management','D2.1','Risk Assessment','Conduct annual risk assessments for all critical systems']);
+        fclose($out);
+        exit;
+    }
+
+    public function downloadExcelTemplate(): void {
+        Auth::requirePermission('compliance.write');
+        $rows = [
+            ['package_name','package_version','package_description','domain_code','domain_title','control_code','control_title','control_description'],
+            ['My Compliance Framework','1.0','Internal security controls','D1','Access Control','D1.1','User Access Management','Ensure all user accounts are reviewed quarterly'],
+            ['My Compliance Framework','1.0','Internal security controls','D1','Access Control','D1.2','Privileged Access','Privileged access must require MFA and be logged'],
+            ['My Compliance Framework','1.0','Internal security controls','D2','Risk Management','D2.1','Risk Assessment','Conduct annual risk assessments for all critical systems'],
+        ];
+        $xlsx = $this->buildXlsx($rows);
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="compliance_template.xlsx"');
+        header('Content-Length: ' . strlen($xlsx));
+        echo $xlsx;
+        exit;
+    }
+
+    private function buildXlsx(array $rows): string {
+        $sharedStrings = [];
+        $siIndex = [];
+        $rowXml = '';
+        foreach ($rows as $r => $row) {
+            $rowXml .= '<row r="' . ($r + 1) . '">';
+            foreach ($row as $c => $cell) {
+                $col = chr(65 + $c) . ($r + 1);
+                $v = (string)$cell;
+                if (!isset($siIndex[$v])) { $siIndex[$v] = count($sharedStrings); $sharedStrings[] = $v; }
+                $rowXml .= '<c r="' . $col . '" t="s"><v>' . $siIndex[$v] . '</v></c>';
+            }
+            $rowXml .= '</row>';
+        }
+        $siXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            . '<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="' . count($sharedStrings) . '" uniqueCount="' . count($sharedStrings) . '">';
+        foreach ($sharedStrings as $s) {
+            $siXml .= '<si><t>' . htmlspecialchars($s, ENT_XML1, 'UTF-8') . '</t></si>';
+        }
+        $siXml .= '</sst>';
+
+        $sheetXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            . '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+            . '<sheetData>' . $rowXml . '</sheetData></worksheet>';
+
+        $workbookXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            . '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"'
+            . ' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
+            . '<sheets><sheet name="Controls" sheetId="1" r:id="rId1"/></sheets></workbook>';
+
+        $workbookRels = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            . '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+            . '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>'
+            . '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/>'
+            . '</Relationships>';
+
+        $contentTypes = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            . '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+            . '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+            . '<Default Extension="xml" ContentType="application/xml"/>'
+            . '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'
+            . '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'
+            . '<Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/>'
+            . '</Types>';
+
+        $rootRels = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            . '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+            . '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>'
+            . '</Relationships>';
+
+        $tmp = tempnam(sys_get_temp_dir(), 'xlsx_');
+        $zip = new ZipArchive();
+        $zip->open($tmp, ZipArchive::OVERWRITE);
+        $zip->addFromString('[Content_Types].xml',        $contentTypes);
+        $zip->addFromString('_rels/.rels',                $rootRels);
+        $zip->addFromString('xl/workbook.xml',            $workbookXml);
+        $zip->addFromString('xl/_rels/workbook.xml.rels', $workbookRels);
+        $zip->addFromString('xl/worksheets/sheet1.xml',   $sheetXml);
+        $zip->addFromString('xl/sharedStrings.xml',       $siXml);
+        $zip->close();
+        $data = file_get_contents($tmp);
+        unlink($tmp);
+        return $data;
+    }
+
+    public function clearAll(): void {
+        Auth::requirePermission('compliance.write');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403); return;
+        }
+        // Nullify package_id on audits/schedules (no CASCADE), then cascade-delete packages
+        Database::query("UPDATE audits SET package_id = NULL WHERE package_id IS NOT NULL");
+        Database::query("DELETE FROM audit_schedules WHERE package_id IS NOT NULL");
+        Database::query("DELETE FROM compliance_packages");
+        header('Location: /compliance?cleared=1'); exit;
+    }
+
+    // Add a single control to an existing package via POST form
+    public function addSingleControl(): void {
+        Auth::requirePermission('compliance.write');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+
+        $pkgId  = (int)($_POST['package_id'] ?? 0);
+        $dCode  = Security::sanitizeInput($_POST['domain_code'] ?? '');
+        $dTitle = Security::sanitizeInput($_POST['domain_title'] ?? '');
+        $cCode  = Security::sanitizeInput($_POST['control_code'] ?? '');
+        $cTitle = Security::sanitizeInput($_POST['control_title'] ?? '');
+        $cDesc  = Security::sanitizeInput($_POST['control_description'] ?? '');
+
+        if (!$pkgId || !$dCode || !$dTitle || !$cCode || !$cTitle) {
+            $_SESSION['import_errors'] = ['All fields except description are required.'];
+            header('Location: /compliance/import#manual'); return;
+        }
+
+        // Find or create domain
+        $domain = Database::fetchOne(
+            "SELECT id FROM compliance_objectives WHERE package_id=? AND code=? AND level=1",
+            [$pkgId, $dCode]
+        );
+        if (!$domain) {
+            $sort = (int)(Database::fetchOne(
+                "SELECT COALESCE(MAX(sort_order),0)+1 as s FROM compliance_objectives WHERE package_id=? AND level=1",
+                [$pkgId]
+            )['s'] ?? 0);
+            $domainId = Database::insert('compliance_objectives', [
+                'package_id' => $pkgId, 'code' => $dCode, 'title' => $dTitle,
+                'level' => 1, 'sort_order' => $sort,
+            ]);
+        } else {
+            $domainId = $domain['id'];
+        }
+
+        $sort = (int)(Database::fetchOne(
+            "SELECT COALESCE(MAX(sort_order),0)+1 as s FROM compliance_objectives WHERE parent_id=?",
+            [$domainId]
+        )['s'] ?? 0);
+        Database::insert('compliance_objectives', [
+            'package_id' => $pkgId, 'parent_id' => $domainId,
+            'code' => $cCode, 'title' => $cTitle, 'description' => $cDesc,
+            'level' => 2, 'sort_order' => $sort,
+        ]);
+        $this->syncCount($pkgId);
+        Auth::log('add_single_control', 'compliance_packages', $pkgId);
+        $_SESSION['flash_success'] = "Control $cCode added.";
+        header('Location: /compliance/' . $pkgId);
+    }
+
+    private function processExcelImport(string $tmpPath): bool|string {
+        if (!class_exists('ZipArchive')) return 'Excel import requires ZipArchive PHP extension.';
+        $zip = new ZipArchive();
+        if ($zip->open($tmpPath) !== true) return 'Could not open Excel file. Make sure it is a valid .xlsx file.';
+
+        $sharedStrings = [];
+        $si = $zip->getFromName('xl/sharedStrings.xml');
+        if ($si) {
+            $xml = simplexml_load_string($si);
+            foreach ($xml->si as $s) {
+                // Concatenate all <t> elements (for rich text)
+                $str = '';
+                foreach ($s->r ?? [$s] as $r) {
+                    $str .= (string)($r->t ?? $r);
+                }
+                $sharedStrings[] = $str;
+            }
+        }
+
+        $sheetXml = $zip->getFromName('xl/worksheets/sheet1.xml');
+        $zip->close();
+        if (!$sheetXml) return 'Could not read sheet data from Excel file.';
+
+        $sheet = simplexml_load_string($sheetXml);
+        $rows  = [];
+        foreach ($sheet->sheetData->row ?? [] as $row) {
+            $rowData = [];
+            foreach ($row->c ?? [] as $cell) {
+                $t = (string)($cell['t'] ?? '');
+                $v = (string)($cell->v ?? '');
+                $rowData[] = ($t === 's') ? ($sharedStrings[(int)$v] ?? '') : $v;
+            }
+            $rows[] = $rowData;
+        }
+
+        if (!$rows) return 'Excel file appears to be empty.';
+
+        // Convert to CSV temp file and reuse CSV processor
+        $tmp = tempnam(sys_get_temp_dir(), 'xlsx_csv_');
+        $fh  = fopen($tmp, 'w');
+        foreach ($rows as $r) { fputcsv($fh, $r); }
+        fclose($fh);
+        $result = $this->processCsvImport($tmp);
+        unlink($tmp);
+        return $result;
+    }
+
+    private function processCsvImport(string $tmpPath): bool|string {
+        $handle = fopen($tmpPath, 'r');
+        if (!$handle) return 'Could not read CSV file.';
+
+        $headers = fgetcsv($handle);
+        if (!$headers) return 'CSV file is empty.';
+        $headers = array_map('trim', $headers);
+
+        $required = ['package_name', 'domain_code', 'domain_title', 'control_code', 'control_title'];
+        foreach ($required as $r) {
+            if (!in_array($r, $headers)) return "CSV missing required column: $r";
+        }
+
+        $idx = array_flip($headers);
+        $rows = [];
+        while (($row = fgetcsv($handle)) !== false) {
+            if (count($row) < count($required)) continue;
+            $rows[] = $row;
+        }
+        fclose($handle);
+        if (!$rows) return 'CSV has no data rows.';
+
+        // Use first row for package-level info
+        $first = $rows[0];
+        $pkgName    = trim($first[$idx['package_name']] ?? 'Imported Package');
+        $pkgVersion = trim($first[$idx['package_version'] ?? -1] ?? '1.0');
+        $pkgDesc    = trim($first[$idx['package_description'] ?? -1] ?? '');
+        $standardId = (int)($_POST['standard_id'] ?? 0) ?: null;
+
+        $pkgId = Database::insert('compliance_packages', [
+            'standard_id'  => $standardId,
+            'name'         => $pkgName,
+            'version'      => $pkgVersion,
+            'description'  => $pkgDesc,
+            'imported_by'  => Auth::id(),
+            'imported_at'  => date('Y-m-d H:i:s'),
+        ]);
+
+        // Group by domain
+        $domains = [];
+        foreach ($rows as $row) {
+            $dc = trim($row[$idx['domain_code']]);
+            $dt = trim($row[$idx['domain_title']]);
+            $cc = trim($row[$idx['control_code']]);
+            $ct = trim($row[$idx['control_title']]);
+            $cd = trim($row[$idx['control_description'] ?? -1] ?? '');
+            if (!$dc || !$cc) continue;
+            if (!isset($domains[$dc])) $domains[$dc] = ['title' => $dt, 'controls' => []];
+            $domains[$dc]['controls'][] = ['code' => $cc, 'title' => $ct, 'description' => $cd];
+        }
+
+        $domainSort = 0;
+        foreach ($domains as $dCode => $domain) {
+            $domainId = Database::insert('compliance_objectives', [
+                'package_id' => $pkgId,
+                'code'       => $dCode,
+                'title'      => $domain['title'],
+                'level'      => 1,
+                'sort_order' => $domainSort++,
+            ]);
+            $ctrlSort = 0;
+            foreach ($domain['controls'] as $ctrl) {
+                Database::insert('compliance_objectives', [
+                    'package_id' => $pkgId,
+                    'parent_id'  => $domainId,
+                    'code'       => $ctrl['code'],
+                    'title'      => $ctrl['title'],
+                    'description'=> $ctrl['description'],
+                    'level'      => 2,
+                    'sort_order' => $ctrlSort++,
+                ]);
+            }
+        }
+        return true;
+    }
+
+    private function processPdfImport(string $tmpPath, string $originalName): bool|string {
+        if (!shell_exec('which pdftotext')) {
+            return 'PDF import requires poppler-utils on the server. Please use CSV or JSON import instead.';
+        }
+
+        $textFile = sys_get_temp_dir() . '/' . uniqid('pdf_') . '.txt';
+        $escaped  = escapeshellarg($tmpPath);
+        $escapedOut = escapeshellarg($textFile);
+        exec("pdftotext -layout $escaped $escapedOut 2>/dev/null", $out, $code);
+        if ($code !== 0 || !file_exists($textFile)) return 'Could not extract text from PDF.';
+
+        $text = file_get_contents($textFile);
+        unlink($textFile);
+        if (!$text) return 'PDF appears to be empty or image-only (no selectable text).';
+
+        // Derive package name from filename
+        $pkgName = preg_replace('/\.(pdf)$/i', '', $originalName);
+        $pkgName = preg_replace('/[-_]+/', ' ', $pkgName);
+        $pkgName = trim(ucwords($pkgName));
+        $standardId = (int)($_POST['standard_id'] ?? 0) ?: null;
+
+        $pkgId = Database::insert('compliance_packages', [
+            'standard_id'  => $standardId,
+            'name'         => $pkgName,
+            'version'      => '1.0',
+            'description'  => 'Imported from PDF: ' . $originalName,
+            'imported_by'  => Auth::id(),
+            'imported_at'  => date('Y-m-d H:i:s'),
+        ]);
+
+        // Parse controls — matches patterns like: A.5.1, CC6.1, 5.1.1, PR.AC-1, D1.1
+        $lines   = explode("\n", $text);
+        $domains = [];
+        $current = null;
+
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if (!$line || strlen($line) < 4) continue;
+
+            // Domain-level heading: short numbered section with no lowercase body (e.g. "5.1 Access Control")
+            if (preg_match('/^([A-Z]{1,3}[\.\-]?\d{1,2}(?:\.\d{1,2})?)\s{2,}(.{4,80})$/', $line, $m) ||
+                preg_match('/^(\d{1,2}(?:\.\d{1,2})?)\s{2,}([A-Z][A-Za-z\s&\/\-]{4,60})$/', $line, $m)) {
+                $code  = trim($m[1]);
+                $title = trim($m[2]);
+                // Decide if it looks like a domain (shorter code) or control
+                $depth = substr_count($code, '.') + substr_count($code, '-');
+                if ($depth <= 1) {
+                    $current = $code;
+                    if (!isset($domains[$code])) $domains[$code] = ['title' => $title, 'controls' => []];
+                } else {
+                    if (!$current) { $current = 'GEN'; $domains['GEN'] = ['title' => 'General', 'controls' => []]; }
+                    $domains[$current]['controls'][] = ['code' => $code, 'title' => $title, 'description' => ''];
+                }
+            }
+        }
+
+        // If no structured controls found, create one placeholder domain
+        if (!$domains) {
+            $domains['GEN'] = ['title' => 'General', 'controls' => [
+                ['code' => 'GEN.1', 'title' => 'Review PDF and populate controls manually', 'description' => 'The PDF could not be auto-parsed. Please edit this package to add controls.']
+            ]];
+        }
+
+        $domainSort = 0;
+        foreach ($domains as $dCode => $domain) {
+            if (!$domain['controls']) continue; // skip domains with no controls
+            $domainId = Database::insert('compliance_objectives', [
+                'package_id' => $pkgId,
+                'code'       => $dCode,
+                'title'      => $domain['title'],
+                'level'      => 1,
+                'sort_order' => $domainSort++,
+            ]);
+            $ctrlSort = 0;
+            foreach ($domain['controls'] as $ctrl) {
+                Database::insert('compliance_objectives', [
+                    'package_id' => $pkgId,
+                    'parent_id'  => $domainId,
+                    'code'       => $ctrl['code'],
+                    'title'      => $ctrl['title'],
+                    'description'=> $ctrl['description'],
+                    'level'      => 2,
+                    'sort_order' => $ctrlSort++,
+                ]);
+            }
+        }
+        return true;
     }
 
     public function scorecard(string $pkgId): void {

@@ -56,6 +56,12 @@ ob_start();
         <a href="/admin/permissions" class="admin-module-card">
           <i class="bi bi-shield-lock-fill"></i><span>Permissions</span>
         </a>
+        <a href="/admin/module-visibility" class="admin-module-card" style="border-color:#4f46e5;background:rgba(79,70,229,.06)">
+          <i class="bi bi-grid-fill" style="color:#4f46e5"></i><span style="color:#4f46e5">Module Visibility</span>
+        </a>
+        <a href="/admin/settings" class="admin-module-card">
+          <i class="bi bi-gear-fill"></i><span>Settings</span>
+        </a>
       </div>
     </div>
   </div>
