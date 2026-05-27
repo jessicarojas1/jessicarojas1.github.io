@@ -23,9 +23,7 @@ function toggleAlertPanel() {
   var overlay = document.getElementById('alertOverlay');
   if (overlay) overlay.addEventListener('click', toggleAlertPanel);
 
-  // Sidebar toggle button
-  var sidebarToggleBtn = document.querySelector('.sidebar-toggle');
-  if (sidebarToggleBtn) sidebarToggleBtn.addEventListener('click', function () { toggleSidebar && toggleSidebar(); });
+  // Sidebar toggle button is wired in the mobile sidebar IIFE below.
 })();
 
 document.addEventListener('click', function (e) {

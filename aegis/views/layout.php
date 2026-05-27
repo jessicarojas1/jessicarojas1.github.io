@@ -266,6 +266,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js" nonce="<?= Security::nonce() ?>"></script>
-<script src="/public/js/app.js?v=5" nonce="<?= Security::nonce() ?>"></script>
+<script src="/public/js/app.js?v=6" nonce="<?= Security::nonce() ?>"></script>
 </body>
 </html>
