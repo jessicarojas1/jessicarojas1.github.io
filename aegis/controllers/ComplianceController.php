@@ -166,19 +166,30 @@ class ComplianceController {
         $importType = $_POST['import_type'] ?? 'json';
         $errors = [];
 
-        if ($importType === 'json' && !empty($_FILES['package_file']['tmp_name'])) {
+        if (!empty($_FILES['package_file']['tmp_name'])) {
             $file = $_FILES['package_file'];
-            if ($file['size'] > 5 * 1024 * 1024) { $errors[] = 'File too large (max 5MB).'; }
-            elseif (!in_array($file['type'], ['application/json', 'text/plain'])) { $errors[] = 'Only JSON files allowed.'; }
-            else {
+            $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
+
+            if ($file['size'] > 20 * 1024 * 1024) {
+                $errors[] = 'File too large (max 20MB).';
+            } elseif ($importType === 'json' && in_array($mime, ['application/json', 'text/plain'])) {
                 $json = file_get_contents($file['tmp_name']);
                 $data = json_decode($json, true);
                 if (!$data) { $errors[] = 'Invalid JSON file.'; }
-                else {
-                    $this->processJsonImport($data);
-                    header('Location: /compliance?imported=1'); exit;
-                }
+                else { $this->processJsonImport($data); header('Location: /compliance?imported=1'); exit; }
+            } elseif ($importType === 'csv' && in_array($mime, ['text/csv', 'text/plain', 'application/csv', 'application/vnd.ms-excel'])) {
+                $result = $this->processCsvImport($file['tmp_name']);
+                if ($result !== true) { $errors[] = $result; }
+                else { header('Location: /compliance?imported=1'); exit; }
+            } elseif ($importType === 'pdf' && in_array($mime, ['application/pdf'])) {
+                $result = $this->processPdfImport($file['tmp_name'], $file['name']);
+                if ($result !== true) { $errors[] = $result; }
+                else { header('Location: /compliance?imported=1'); exit; }
+            } else {
+                $errors[] = 'File type does not match selected import format.';
             }
+        } else {
+            $errors[] = 'No file uploaded.';
         }
 
         if ($errors) {
@@ -187,6 +198,183 @@ class ComplianceController {
         }
 
         header('Location: /compliance'); exit;
+    }
+
+    public function downloadCsvTemplate(): void {
+        Auth::requirePermission('compliance.write');
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="compliance_package_template.csv"');
+        $out = fopen('php://output', 'w');
+        fputcsv($out, ['package_name', 'package_version', 'package_description', 'domain_code', 'domain_title', 'control_code', 'control_title', 'control_description']);
+        // Example rows
+        fputcsv($out, ['My Compliance Framework', '1.0', 'Internal security controls', 'D1', 'Access Control', 'D1.1', 'User Access Management', 'Ensure all user accounts are reviewed quarterly']);
+        fputcsv($out, ['My Compliance Framework', '1.0', 'Internal security controls', 'D1', 'Access Control', 'D1.2', 'Privileged Access', 'Privileged access must require MFA and be logged']);
+        fputcsv($out, ['My Compliance Framework', '1.0', 'Internal security controls', 'D2', 'Risk Management', 'D2.1', 'Risk Assessment', 'Conduct annual risk assessments for all critical systems']);
+        fclose($out);
+        exit;
+    }
+
+    public function clearAll(): void {
+        Auth::requirePermission('admin');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403); return;
+        }
+        // Nullify package_id on audits/schedules (no CASCADE), then cascade-delete packages
+        Database::query("UPDATE audits SET package_id = NULL WHERE package_id IS NOT NULL");
+        Database::query("DELETE FROM audit_schedules WHERE package_id IS NOT NULL");
+        Database::query("DELETE FROM compliance_packages");
+        header('Location: /compliance?cleared=1'); exit;
+    }
+
+    private function processCsvImport(string $tmpPath): bool|string {
+        $handle = fopen($tmpPath, 'r');
+        if (!$handle) return 'Could not read CSV file.';
+
+        $headers = fgetcsv($handle);
+        if (!$headers) return 'CSV file is empty.';
+        $headers = array_map('trim', $headers);
+
+        $required = ['package_name', 'domain_code', 'domain_title', 'control_code', 'control_title'];
+        foreach ($required as $r) {
+            if (!in_array($r, $headers)) return "CSV missing required column: $r";
+        }
+
+        $idx = array_flip($headers);
+        $rows = [];
+        while (($row = fgetcsv($handle)) !== false) {
+            if (count($row) < count($required)) continue;
+            $rows[] = $row;
+        }
+        fclose($handle);
+        if (!$rows) return 'CSV has no data rows.';
+
+        // Use first row for package-level info
+        $first = $rows[0];
+        $pkgName    = trim($first[$idx['package_name']] ?? 'Imported Package');
+        $pkgVersion = trim($first[$idx['package_version'] ?? -1] ?? '1.0');
+        $pkgDesc    = trim($first[$idx['package_description'] ?? -1] ?? '');
+        $standardId = (int)($_POST['standard_id'] ?? 0) ?: null;
+
+        $pkgId = Database::insert('compliance_packages', [
+            'standard_id'  => $standardId,
+            'name'         => $pkgName,
+            'version'      => $pkgVersion,
+            'description'  => $pkgDesc,
+            'imported_by'  => Auth::id(),
+            'imported_at'  => date('Y-m-d H:i:s'),
+        ]);
+
+        // Group by domain
+        $domains = [];
+        foreach ($rows as $row) {
+            $dc = trim($row[$idx['domain_code']]);
+            $dt = trim($row[$idx['domain_title']]);
+            $cc = trim($row[$idx['control_code']]);
+            $ct = trim($row[$idx['control_title']]);
+            $cd = trim($row[$idx['control_description'] ?? -1] ?? '');
+            if (!$dc || !$cc) continue;
+            if (!isset($domains[$dc])) $domains[$dc] = ['title' => $dt, 'controls' => []];
+            $domains[$dc]['controls'][] = ['code' => $cc, 'title' => $ct, 'description' => $cd];
+        }
+
+        $domainSort = 0;
+        foreach ($domains as $dCode => $domain) {
+            Database::query(
+                "INSERT INTO compliance_objectives (package_id, code, title, level, sort_order) VALUES (?,?,?,1,?)",
+                [$pkgId, $dCode, $domain['title'], $domainSort++]
+            );
+            $domainId = Database::fetchOne("SELECT id FROM compliance_objectives WHERE package_id=? AND code=? AND level=1 ORDER BY id DESC LIMIT 1", [$pkgId, $dCode])['id'];
+            $ctrlSort = 0;
+            foreach ($domain['controls'] as $ctrl) {
+                Database::query(
+                    "INSERT INTO compliance_objectives (package_id, parent_id, code, title, description, level, sort_order) VALUES (?,?,?,?,?,2,?)",
+                    [$pkgId, $domainId, $ctrl['code'], $ctrl['title'], $ctrl['description'], $ctrlSort++]
+                );
+            }
+        }
+        return true;
+    }
+
+    private function processPdfImport(string $tmpPath, string $originalName): bool|string {
+        if (!shell_exec('which pdftotext')) {
+            return 'PDF import requires poppler-utils on the server. Please use CSV or JSON import instead.';
+        }
+
+        $textFile = sys_get_temp_dir() . '/' . uniqid('pdf_') . '.txt';
+        $escaped  = escapeshellarg($tmpPath);
+        $escapedOut = escapeshellarg($textFile);
+        exec("pdftotext -layout $escaped $escapedOut 2>/dev/null", $out, $code);
+        if ($code !== 0 || !file_exists($textFile)) return 'Could not extract text from PDF.';
+
+        $text = file_get_contents($textFile);
+        unlink($textFile);
+        if (!$text) return 'PDF appears to be empty or image-only (no selectable text).';
+
+        // Derive package name from filename
+        $pkgName = preg_replace('/\.(pdf)$/i', '', $originalName);
+        $pkgName = preg_replace('/[-_]+/', ' ', $pkgName);
+        $pkgName = trim(ucwords($pkgName));
+        $standardId = (int)($_POST['standard_id'] ?? 0) ?: null;
+
+        $pkgId = Database::insert('compliance_packages', [
+            'standard_id'  => $standardId,
+            'name'         => $pkgName,
+            'version'      => '1.0',
+            'description'  => 'Imported from PDF: ' . $originalName,
+            'imported_by'  => Auth::id(),
+            'imported_at'  => date('Y-m-d H:i:s'),
+        ]);
+
+        // Parse controls — matches patterns like: A.5.1, CC6.1, 5.1.1, PR.AC-1, D1.1
+        $lines   = explode("\n", $text);
+        $domains = [];
+        $current = null;
+
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if (!$line || strlen($line) < 4) continue;
+
+            // Domain-level heading: short numbered section with no lowercase body (e.g. "5.1 Access Control")
+            if (preg_match('/^([A-Z]{1,3}[\.\-]?\d{1,2}(?:\.\d{1,2})?)\s{2,}(.{4,80})$/', $line, $m) ||
+                preg_match('/^(\d{1,2}(?:\.\d{1,2})?)\s{2,}([A-Z][A-Za-z\s&\/\-]{4,60})$/', $line, $m)) {
+                $code  = trim($m[1]);
+                $title = trim($m[2]);
+                // Decide if it looks like a domain (shorter code) or control
+                $depth = substr_count($code, '.') + substr_count($code, '-');
+                if ($depth <= 1) {
+                    $current = $code;
+                    if (!isset($domains[$code])) $domains[$code] = ['title' => $title, 'controls' => []];
+                } else {
+                    if (!$current) { $current = 'GEN'; $domains['GEN'] = ['title' => 'General', 'controls' => []]; }
+                    $domains[$current]['controls'][] = ['code' => $code, 'title' => $title, 'description' => ''];
+                }
+            }
+        }
+
+        // If no structured controls found, create one placeholder domain
+        if (!$domains) {
+            $domains['GEN'] = ['title' => 'General', 'controls' => [
+                ['code' => 'GEN.1', 'title' => 'Review PDF and populate controls manually', 'description' => 'The PDF could not be auto-parsed. Please edit this package to add controls.']
+            ]];
+        }
+
+        $domainSort = 0;
+        foreach ($domains as $dCode => $domain) {
+            if (!$domain['controls']) continue; // skip domains with no controls
+            Database::query(
+                "INSERT INTO compliance_objectives (package_id, code, title, level, sort_order) VALUES (?,?,?,1,?)",
+                [$pkgId, $dCode, $domain['title'], $domainSort++]
+            );
+            $domainId = Database::fetchOne("SELECT id FROM compliance_objectives WHERE package_id=? AND code=? AND level=1 ORDER BY id DESC LIMIT 1", [$pkgId, $dCode])['id'];
+            $ctrlSort = 0;
+            foreach ($domain['controls'] as $ctrl) {
+                Database::query(
+                    "INSERT INTO compliance_objectives (package_id, parent_id, code, title, description, level, sort_order) VALUES (?,?,?,?,?,2,?)",
+                    [$pkgId, $domainId, $ctrl['code'], $ctrl['title'], $ctrl['description'], $ctrlSort++]
+                );
+            }
+        }
+        return true;
     }
 
     public function scorecard(string $pkgId): void {

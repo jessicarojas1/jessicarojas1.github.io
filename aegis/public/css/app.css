@@ -1480,3 +1480,18 @@ input[type="range"] {
   .page-content { padding: 0 !important; }
   .card { break-inside: avoid; box-shadow: none; border: 1px solid #e5e7eb; }
 }
+
+/* ============================================================
+   Tab bar (import page and general use)
+   ============================================================ */
+.tab-bar { display: flex; gap: 4px; border-bottom: 2px solid var(--border); padding-bottom: 0; }
+.tab-btn {
+  background: none; border: none; cursor: pointer;
+  padding: 8px 18px; font-size: 13px; font-weight: 600;
+  color: var(--text-muted); border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  border-bottom: 2px solid transparent; margin-bottom: -2px;
+  transition: color var(--transition), border-color var(--transition);
+  display: flex; align-items: center; gap: 6px;
+}
+.tab-btn:hover { color: var(--primary); }
+.tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); background: rgba(79,70,229,.05); }

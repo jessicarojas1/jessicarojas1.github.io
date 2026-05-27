@@ -12,6 +12,12 @@ ob_start();
     <p class="page-subtitle">Manage your standards and compliance frameworks</p>
   </div>
   <div class="page-actions">
+    <?php if ($packages): ?>
+    <form method="POST" action="/compliance/clear-all" onsubmit="return confirm('Delete ALL compliance packages and their controls? This cannot be undone.')">
+      <?= Security::csrfField() ?>
+      <button type="submit" class="btn btn-danger"><i class="bi bi-trash3-fill"></i> Clear All</button>
+    </form>
+    <?php endif; ?>
     <a href="/compliance/import" class="btn btn-primary"><i class="bi bi-cloud-upload"></i> Import Standard</a>
   </div>
 </div>

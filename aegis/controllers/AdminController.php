@@ -1366,4 +1366,42 @@ class AdminController {
         $_SESSION['flash_success'] = 'Alert configuration deleted.';
         header('Location: /admin/alerts');
     }
+
+    // ─── Module Visibility ────────────────────────────────────────────────────
+    public function moduleVisibility(): void {
+        Auth::requireAdmin();
+        $rows = Database::fetchAll("SELECT key, value FROM settings WHERE key LIKE 'module_hide_%'");
+        $hidden = array_column($rows, 'value', 'key');
+        $pageTitle    = 'Module Visibility';
+        $activeModule = 'admin_settings';
+        $breadcrumbs  = [['Admin', '/admin'], ['Module Visibility', null]];
+        require AEGIS_ROOT . '/views/admin/module_visibility.php';
+    }
+
+    public function saveModuleVisibility(): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403); return;
+        }
+        $modules = [
+            'compliance','control_testing','compliance_gap','import',
+            'audit','policy','incident','playbooks','issue','change','bcp','incident_sla','questionnaire',
+            'risk','risk_matrix','risk_roadmap','risk_exceptions','threats','treatment_plans','kris','vendor','vendor_contracts','assets',
+            'metrics','documents','report','report_board','export','calendar',
+            'search','docs',
+        ];
+        foreach ($modules as $mod) {
+            // Checkbox is checked = module is VISIBLE → hide = '0'
+            // Checkbox is unchecked = module is HIDDEN → hide = '1'
+            $hide = isset($_POST['hide'][$mod]) ? '0' : '1';
+            Database::query(
+                "INSERT INTO settings (key, value, type, description) VALUES (?,?,'boolean','Module visibility')
+                 ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value",
+                ['module_hide_' . $mod, $hide]
+            );
+        }
+        Auth::log('update_module_visibility', 'settings', 0);
+        $_SESSION['flash_success'] = 'Module visibility saved.';
+        header('Location: /admin/module-visibility');
+    }
 }
