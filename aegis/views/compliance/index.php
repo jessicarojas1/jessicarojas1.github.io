@@ -19,7 +19,7 @@ ob_start();
       <?= Security::csrfField() ?>
       <div id="selectedHiddenInputs"></div>
       <button type="submit" class="btn btn-danger" id="deleteSelectedBtn" style="display:none">
-        <i class="bi bi-trash3-fill"></i> Delete Selected (<span id="selectedCount">0</span>)
+        <i class="bi bi-trash3-fill"></i> <span id="deleteSelectedLabel">Clear 0 packages</span>
       </button>
     </form>
     <!-- Clear all -->
@@ -144,11 +144,12 @@ ob_start();
 function updateSelection() {
   const checked = document.querySelectorAll('.pkg-checkbox:checked');
   const btn = document.getElementById('deleteSelectedBtn');
-  const countEl = document.getElementById('selectedCount');
   const inputsDiv = document.getElementById('selectedHiddenInputs');
 
-  countEl.textContent = checked.length;
-  btn.style.display = checked.length > 0 ? '' : 'none';
+  const n = checked.length;
+  document.getElementById('deleteSelectedLabel').textContent =
+    'Clear ' + n + (n === 1 ? ' package' : ' packages');
+  btn.style.display = n > 0 ? '' : 'none';
 
   inputsDiv.innerHTML = '';
   checked.forEach(cb => {
