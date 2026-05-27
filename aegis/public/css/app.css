@@ -179,11 +179,14 @@ body {
   transform: rotate(180deg);
 }
 
-/* Items container — animated open/close on mobile (height set by JS) */
+/* Items container — animated open/close on mobile */
 .nav-group-items {
   overflow: hidden;
   max-height: 0;
-  transition: max-height 0.28s ease;
+  transition: max-height 0.3s ease;
+}
+.nav-group.open > .nav-group-items {
+  max-height: 800px; /* large enough for any group */
 }
 
 /* On desktop sidebar is always open — show all items */
