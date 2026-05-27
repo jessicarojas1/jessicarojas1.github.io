@@ -53,11 +53,11 @@ $packages = Database::fetchAll("SELECT id, name FROM compliance_packages WHERE i
           </div>
           <div class="form-group">
             <label class="form-label">CSV File</label>
-            <div class="file-drop" id="fileDropCsv" onclick="document.getElementById('csvFile').click()">
+            <label class="file-drop" id="fileDropCsv" for="csvFile">
               <i class="bi bi-filetype-csv" style="font-size:2rem;color:#059669"></i>
               <p>Drag & drop or <strong>click to upload</strong></p>
               <p class="text-muted">.csv format, max 20MB</p>
-            </div>
+            </label>
             <input type="file" id="csvFile" name="package_file" accept=".csv,text/csv" style="display:none"
                    onchange="showFile(this,'fileDropCsv','csvName','#059669')">
             <div id="csvName" style="margin-top:8px;color:#059669;display:none"><i class="bi bi-file-earmark-check"></i> <span></span></div>
@@ -88,11 +88,11 @@ $packages = Database::fetchAll("SELECT id, name FROM compliance_packages WHERE i
           </div>
           <div class="form-group">
             <label class="form-label">Excel File (.xlsx)</label>
-            <div class="file-drop" id="fileDropExcel" onclick="document.getElementById('excelFile').click()">
+            <label class="file-drop" id="fileDropExcel" for="excelFile">
               <i class="bi bi-file-earmark-excel-fill" style="font-size:2rem;color:#217346"></i>
               <p>Drag & drop or <strong>click to upload</strong></p>
               <p class="text-muted">.xlsx format, max 20MB</p>
-            </div>
+            </label>
             <input type="file" id="excelFile" name="package_file"
                    accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                    style="display:none" onchange="showFile(this,'fileDropExcel','excelName','#217346')">
@@ -129,11 +129,11 @@ $packages = Database::fetchAll("SELECT id, name FROM compliance_packages WHERE i
           </div>
           <div class="form-group">
             <label class="form-label">PDF File</label>
-            <div class="file-drop" id="fileDropPdf" onclick="document.getElementById('pdfFile').click()">
+            <label class="file-drop" id="fileDropPdf" for="pdfFile">
               <i class="bi bi-file-earmark-pdf-fill" style="font-size:2rem;color:#dc2626"></i>
               <p>Drag & drop or <strong>click to upload</strong></p>
               <p class="text-muted">.pdf, max 20MB — must have selectable text</p>
-            </div>
+            </label>
             <input type="file" id="pdfFile" name="package_file" accept=".pdf,application/pdf"
                    style="display:none" onchange="showFile(this,'fileDropPdf','pdfName','#dc2626')">
             <div id="pdfName" style="margin-top:8px;color:#dc2626;display:none"><i class="bi bi-file-earmark-check"></i> <span></span></div>
@@ -161,11 +161,11 @@ $packages = Database::fetchAll("SELECT id, name FROM compliance_packages WHERE i
           </div>
           <div class="form-group">
             <label class="form-label">JSON File</label>
-            <div class="file-drop" id="fileDropJson" onclick="document.getElementById('jsonFile').click()">
+            <label class="file-drop" id="fileDropJson" for="jsonFile">
               <i class="bi bi-filetype-json" style="font-size:2rem;color:#4f46e5"></i>
               <p>Drag & drop or <strong>click to upload</strong></p>
               <p class="text-muted">.json format, max 20MB</p>
-            </div>
+            </label>
             <input type="file" id="jsonFile" name="package_file" accept=".json,application/json"
                    style="display:none" onchange="showFile(this,'fileDropJson','jsonName','#4f46e5')">
             <div id="jsonName" style="margin-top:8px;color:#4f46e5;display:none"><i class="bi bi-file-earmark-check"></i> <span></span></div>
