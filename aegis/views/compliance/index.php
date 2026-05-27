@@ -12,7 +12,7 @@ ob_start();
     <p class="page-subtitle">Manage your standards and compliance frameworks</p>
   </div>
   <div class="page-actions">
-    <?php if ($packages): ?>
+    <?php if ($packages && Auth::can('compliance.write')): ?>
     <form method="POST" action="/compliance/clear-all" onsubmit="return confirm('Delete ALL compliance packages and their controls? This cannot be undone.')">
       <?= Security::csrfField() ?>
       <button type="submit" class="btn btn-danger"><i class="bi bi-trash3-fill"></i> Clear All</button>

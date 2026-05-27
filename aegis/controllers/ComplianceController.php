@@ -399,7 +399,7 @@ class ComplianceController {
     }
 
     public function clearAll(): void {
-        Auth::requirePermission('admin');
+        Auth::requirePermission('compliance.write');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403); return;
         }
