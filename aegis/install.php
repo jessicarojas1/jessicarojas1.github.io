@@ -498,5 +498,11 @@ function runMigrations(PDO $pdo): void {
     $pdo->exec("CREATE INDEX IF NOT EXISTS idx_issues_status      ON aegis.issues(status)");
     $pdo->exec("CREATE INDEX IF NOT EXISTS idx_evidence_entity    ON aegis.evidence_files(entity_type, entity_id)");
 
+    // ── 008: Remove auto-seeded compliance packages ───────────────────────────
+    // Packages without imported_by were seeded automatically; users create their own.
+    $pdo->exec("UPDATE aegis.audits SET package_id = NULL WHERE package_id IN (SELECT id FROM aegis.compliance_packages WHERE imported_by IS NULL)");
+    $pdo->exec("DELETE FROM aegis.audit_schedules WHERE package_id IN (SELECT id FROM aegis.compliance_packages WHERE imported_by IS NULL)");
+    $pdo->exec("DELETE FROM aegis.compliance_packages WHERE imported_by IS NULL");
+
     log_msg('[AEGIS] Migrations applied.');
 }

@@ -365,6 +365,13 @@ class ComplianceController {
                 $result = $this->processCsvImport($file['tmp_name']);
                 if ($result !== true) { $errors[] = $result; }
                 else { header('Location: /compliance?imported=1'); exit; }
+            } elseif ($importType === 'excel' && in_array($mime, [
+                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    'application/vnd.ms-excel', 'application/zip', 'application/octet-stream',
+                ])) {
+                $result = $this->processExcelImport($file['tmp_name']);
+                if ($result !== true) { $errors[] = $result; }
+                else { header('Location: /compliance?imported=1'); exit; }
             } elseif ($importType === 'pdf' && in_array($mime, ['application/pdf'])) {
                 $result = $this->processPdfImport($file['tmp_name'], $file['name']);
                 if ($result !== true) { $errors[] = $result; }
@@ -387,15 +394,95 @@ class ComplianceController {
     public function downloadCsvTemplate(): void {
         Auth::requirePermission('compliance.write');
         header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="compliance_package_template.csv"');
+        header('Content-Disposition: attachment; filename="compliance_template.csv"');
         $out = fopen('php://output', 'w');
-        fputcsv($out, ['package_name', 'package_version', 'package_description', 'domain_code', 'domain_title', 'control_code', 'control_title', 'control_description']);
-        // Example rows
-        fputcsv($out, ['My Compliance Framework', '1.0', 'Internal security controls', 'D1', 'Access Control', 'D1.1', 'User Access Management', 'Ensure all user accounts are reviewed quarterly']);
-        fputcsv($out, ['My Compliance Framework', '1.0', 'Internal security controls', 'D1', 'Access Control', 'D1.2', 'Privileged Access', 'Privileged access must require MFA and be logged']);
-        fputcsv($out, ['My Compliance Framework', '1.0', 'Internal security controls', 'D2', 'Risk Management', 'D2.1', 'Risk Assessment', 'Conduct annual risk assessments for all critical systems']);
+        fputcsv($out, ['package_name','package_version','package_description','domain_code','domain_title','control_code','control_title','control_description']);
+        fputcsv($out, ['My Compliance Framework','1.0','Internal security controls','D1','Access Control','D1.1','User Access Management','Ensure all user accounts are reviewed quarterly']);
+        fputcsv($out, ['My Compliance Framework','1.0','Internal security controls','D1','Access Control','D1.2','Privileged Access','Privileged access must require MFA and be logged']);
+        fputcsv($out, ['My Compliance Framework','1.0','Internal security controls','D2','Risk Management','D2.1','Risk Assessment','Conduct annual risk assessments for all critical systems']);
         fclose($out);
         exit;
+    }
+
+    public function downloadExcelTemplate(): void {
+        Auth::requirePermission('compliance.write');
+        $rows = [
+            ['package_name','package_version','package_description','domain_code','domain_title','control_code','control_title','control_description'],
+            ['My Compliance Framework','1.0','Internal security controls','D1','Access Control','D1.1','User Access Management','Ensure all user accounts are reviewed quarterly'],
+            ['My Compliance Framework','1.0','Internal security controls','D1','Access Control','D1.2','Privileged Access','Privileged access must require MFA and be logged'],
+            ['My Compliance Framework','1.0','Internal security controls','D2','Risk Management','D2.1','Risk Assessment','Conduct annual risk assessments for all critical systems'],
+        ];
+        $xlsx = $this->buildXlsx($rows);
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="compliance_template.xlsx"');
+        header('Content-Length: ' . strlen($xlsx));
+        echo $xlsx;
+        exit;
+    }
+
+    private function buildXlsx(array $rows): string {
+        $sharedStrings = [];
+        $siIndex = [];
+        $rowXml = '';
+        foreach ($rows as $r => $row) {
+            $rowXml .= '<row r="' . ($r + 1) . '">';
+            foreach ($row as $c => $cell) {
+                $col = chr(65 + $c) . ($r + 1);
+                $v = (string)$cell;
+                if (!isset($siIndex[$v])) { $siIndex[$v] = count($sharedStrings); $sharedStrings[] = $v; }
+                $rowXml .= '<c r="' . $col . '" t="s"><v>' . $siIndex[$v] . '</v></c>';
+            }
+            $rowXml .= '</row>';
+        }
+        $siXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            . '<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="' . count($sharedStrings) . '" uniqueCount="' . count($sharedStrings) . '">';
+        foreach ($sharedStrings as $s) {
+            $siXml .= '<si><t>' . htmlspecialchars($s, ENT_XML1, 'UTF-8') . '</t></si>';
+        }
+        $siXml .= '</sst>';
+
+        $sheetXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            . '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+            . '<sheetData>' . $rowXml . '</sheetData></worksheet>';
+
+        $workbookXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            . '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"'
+            . ' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
+            . '<sheets><sheet name="Controls" sheetId="1" r:id="rId1"/></sheets></workbook>';
+
+        $workbookRels = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            . '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+            . '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>'
+            . '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/>'
+            . '</Relationships>';
+
+        $contentTypes = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            . '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+            . '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+            . '<Default Extension="xml" ContentType="application/xml"/>'
+            . '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'
+            . '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'
+            . '<Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/>'
+            . '</Types>';
+
+        $rootRels = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            . '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+            . '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>'
+            . '</Relationships>';
+
+        $tmp = tempnam(sys_get_temp_dir(), 'xlsx_');
+        $zip = new ZipArchive();
+        $zip->open($tmp, ZipArchive::OVERWRITE);
+        $zip->addFromString('[Content_Types].xml',        $contentTypes);
+        $zip->addFromString('_rels/.rels',                $rootRels);
+        $zip->addFromString('xl/workbook.xml',            $workbookXml);
+        $zip->addFromString('xl/_rels/workbook.xml.rels', $workbookRels);
+        $zip->addFromString('xl/worksheets/sheet1.xml',   $sheetXml);
+        $zip->addFromString('xl/sharedStrings.xml',       $siXml);
+        $zip->close();
+        $data = file_get_contents($tmp);
+        unlink($tmp);
+        return $data;
     }
 
     public function clearAll(): void {
@@ -408,6 +495,103 @@ class ComplianceController {
         Database::query("DELETE FROM audit_schedules WHERE package_id IS NOT NULL");
         Database::query("DELETE FROM compliance_packages");
         header('Location: /compliance?cleared=1'); exit;
+    }
+
+    // Add a single control to an existing package via POST form
+    public function addSingleControl(): void {
+        Auth::requirePermission('compliance.write');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+
+        $pkgId  = (int)($_POST['package_id'] ?? 0);
+        $dCode  = Security::sanitizeInput($_POST['domain_code'] ?? '');
+        $dTitle = Security::sanitizeInput($_POST['domain_title'] ?? '');
+        $cCode  = Security::sanitizeInput($_POST['control_code'] ?? '');
+        $cTitle = Security::sanitizeInput($_POST['control_title'] ?? '');
+        $cDesc  = Security::sanitizeInput($_POST['control_description'] ?? '');
+
+        if (!$pkgId || !$dCode || !$dTitle || !$cCode || !$cTitle) {
+            $_SESSION['import_errors'] = ['All fields except description are required.'];
+            header('Location: /compliance/import#manual'); return;
+        }
+
+        // Find or create domain
+        $domain = Database::fetchOne(
+            "SELECT id FROM compliance_objectives WHERE package_id=? AND code=? AND level=1",
+            [$pkgId, $dCode]
+        );
+        if (!$domain) {
+            $sort = (int)(Database::fetchOne(
+                "SELECT COALESCE(MAX(sort_order),0)+1 as s FROM compliance_objectives WHERE package_id=? AND level=1",
+                [$pkgId]
+            )['s'] ?? 0);
+            $domainId = Database::insert('compliance_objectives', [
+                'package_id' => $pkgId, 'code' => $dCode, 'title' => $dTitle,
+                'level' => 1, 'sort_order' => $sort,
+            ]);
+        } else {
+            $domainId = $domain['id'];
+        }
+
+        $sort = (int)(Database::fetchOne(
+            "SELECT COALESCE(MAX(sort_order),0)+1 as s FROM compliance_objectives WHERE parent_id=?",
+            [$domainId]
+        )['s'] ?? 0);
+        Database::insert('compliance_objectives', [
+            'package_id' => $pkgId, 'parent_id' => $domainId,
+            'code' => $cCode, 'title' => $cTitle, 'description' => $cDesc,
+            'level' => 2, 'sort_order' => $sort,
+        ]);
+        $this->syncCount($pkgId);
+        Auth::log('add_single_control', 'compliance_packages', $pkgId);
+        $_SESSION['flash_success'] = "Control $cCode added.";
+        header('Location: /compliance/' . $pkgId);
+    }
+
+    private function processExcelImport(string $tmpPath): bool|string {
+        if (!class_exists('ZipArchive')) return 'Excel import requires ZipArchive PHP extension.';
+        $zip = new ZipArchive();
+        if ($zip->open($tmpPath) !== true) return 'Could not open Excel file. Make sure it is a valid .xlsx file.';
+
+        $sharedStrings = [];
+        $si = $zip->getFromName('xl/sharedStrings.xml');
+        if ($si) {
+            $xml = simplexml_load_string($si);
+            foreach ($xml->si as $s) {
+                // Concatenate all <t> elements (for rich text)
+                $str = '';
+                foreach ($s->r ?? [$s] as $r) {
+                    $str .= (string)($r->t ?? $r);
+                }
+                $sharedStrings[] = $str;
+            }
+        }
+
+        $sheetXml = $zip->getFromName('xl/worksheets/sheet1.xml');
+        $zip->close();
+        if (!$sheetXml) return 'Could not read sheet data from Excel file.';
+
+        $sheet = simplexml_load_string($sheetXml);
+        $rows  = [];
+        foreach ($sheet->sheetData->row ?? [] as $row) {
+            $rowData = [];
+            foreach ($row->c ?? [] as $cell) {
+                $t = (string)($cell['t'] ?? '');
+                $v = (string)($cell->v ?? '');
+                $rowData[] = ($t === 's') ? ($sharedStrings[(int)$v] ?? '') : $v;
+            }
+            $rows[] = $rowData;
+        }
+
+        if (!$rows) return 'Excel file appears to be empty.';
+
+        // Convert to CSV temp file and reuse CSV processor
+        $tmp = tempnam(sys_get_temp_dir(), 'xlsx_csv_');
+        $fh  = fopen($tmp, 'w');
+        foreach ($rows as $r) { fputcsv($fh, $r); }
+        fclose($fh);
+        $result = $this->processCsvImport($tmp);
+        unlink($tmp);
+        return $result;
     }
 
     private function processCsvImport(string $tmpPath): bool|string {
