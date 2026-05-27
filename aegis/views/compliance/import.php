@@ -45,13 +45,6 @@ $packages = Database::fetchAll("SELECT id, name FROM compliance_packages WHERE i
           <?= Security::csrfField() ?>
           <input type="hidden" name="import_type" value="csv">
           <div class="form-group">
-            <label class="form-label">Base Standard (optional)</label>
-            <select name="standard_id" class="form-control">
-              <option value="">— Custom Standard —</option>
-              <?php foreach ($standards as $s): ?><option value="<?= $s['id'] ?>"><?= Security::h($s['name']) ?> (<?= Security::h($s['code']) ?>)</option><?php endforeach; ?>
-            </select>
-          </div>
-          <div class="form-group">
             <label class="form-label">CSV File</label>
             <label class="file-drop" id="fileDropCsv" for="csvFile">
               <i class="bi bi-filetype-csv" style="font-size:2rem;color:#059669"></i>
@@ -79,13 +72,6 @@ $packages = Database::fetchAll("SELECT id, name FROM compliance_packages WHERE i
         <form method="POST" action="/compliance/import" enctype="multipart/form-data">
           <?= Security::csrfField() ?>
           <input type="hidden" name="import_type" value="excel">
-          <div class="form-group">
-            <label class="form-label">Base Standard (optional)</label>
-            <select name="standard_id" class="form-control">
-              <option value="">— Custom Standard —</option>
-              <?php foreach ($standards as $s): ?><option value="<?= $s['id'] ?>"><?= Security::h($s['name']) ?> (<?= Security::h($s['code']) ?>)</option><?php endforeach; ?>
-            </select>
-          </div>
           <div class="form-group">
             <label class="form-label">Excel File (.xlsx)</label>
             <label class="file-drop" id="fileDropExcel" for="excelFile">
@@ -121,13 +107,6 @@ $packages = Database::fetchAll("SELECT id, name FROM compliance_packages WHERE i
           <?= Security::csrfField() ?>
           <input type="hidden" name="import_type" value="pdf">
           <div class="form-group">
-            <label class="form-label">Base Standard (optional)</label>
-            <select name="standard_id" class="form-control">
-              <option value="">— Custom Standard —</option>
-              <?php foreach ($standards as $s): ?><option value="<?= $s['id'] ?>"><?= Security::h($s['name']) ?> (<?= Security::h($s['code']) ?>)</option><?php endforeach; ?>
-            </select>
-          </div>
-          <div class="form-group">
             <label class="form-label">PDF File</label>
             <label class="file-drop" id="fileDropPdf" for="pdfFile">
               <i class="bi bi-file-earmark-pdf-fill" style="font-size:2rem;color:#dc2626"></i>
@@ -152,13 +131,6 @@ $packages = Database::fetchAll("SELECT id, name FROM compliance_packages WHERE i
         <form method="POST" action="/compliance/import" enctype="multipart/form-data">
           <?= Security::csrfField() ?>
           <input type="hidden" name="import_type" value="json">
-          <div class="form-group">
-            <label class="form-label">Base Standard (optional)</label>
-            <select name="standard_id" class="form-control">
-              <option value="">— Custom Standard —</option>
-              <?php foreach ($standards as $s): ?><option value="<?= $s['id'] ?>"><?= Security::h($s['name']) ?> (<?= Security::h($s['code']) ?>)</option><?php endforeach; ?>
-            </select>
-          </div>
           <div class="form-group">
             <label class="form-label">JSON File</label>
             <label class="file-drop" id="fileDropJson" for="jsonFile">

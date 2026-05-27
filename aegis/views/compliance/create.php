@@ -38,17 +38,6 @@ ob_start();
                       placeholder="Brief description of this compliance package…"><?= Security::h($_POST['description'] ?? '') ?></textarea>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Base Standard <span class="text-muted">(optional)</span></label>
-            <select name="standard_id" class="form-control">
-              <option value="">— Custom / No standard —</option>
-              <?php foreach ($standards as $s): ?>
-                <option value="<?= $s['id'] ?>"><?= Security::h($s['name']) ?> (<?= Security::h($s['code']) ?>)</option>
-              <?php endforeach; ?>
-            </select>
-            <p class="text-muted" style="font-size:12px;margin-top:4px">Link to a built-in standard for reporting purposes, or leave blank for a fully custom package.</p>
-          </div>
-
           <div style="display:flex;gap:10px">
             <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Create Package</button>
             <a href="/compliance" class="btn btn-ghost">Cancel</a>

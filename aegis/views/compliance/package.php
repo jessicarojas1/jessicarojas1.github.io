@@ -236,13 +236,13 @@ function statusIcon(string $s): string {
 <!-- ══════════════════════════════════════════════════════════════
      MODAL OVERLAY SYSTEM
 ════════════════════════════════════════════════════════════════ -->
-<div id="modal-overlay" onclick="closeModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;padding:16px"></div>
+<div id="modal-overlay" onclick="pkgCloseModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;padding:16px"></div>
 
 <!-- Edit Package -->
 <div id="modal-edit-pkg" class="aegis-modal" style="display:none">
   <div class="modal-header">
     <h3>Edit Package</h3>
-    <button class="modal-close" onclick="closeModal()"><i class="bi bi-x-lg"></i></button>
+    <button class="modal-close" onclick="pkgCloseModal()"><i class="bi bi-x-lg"></i></button>
   </div>
   <form method="POST" action="/compliance/<?= (int)$package['id'] ?>/update">
     <?= Security::csrfField() ?>
@@ -259,21 +259,10 @@ function statusIcon(string $s): string {
         <label class="form-label">Description</label>
         <textarea name="description" class="form-control" rows="3"><?= Security::h($package['description'] ?? '') ?></textarea>
       </div>
-      <div class="form-group" style="margin:0">
-        <label class="form-label">Base Standard</label>
-        <select name="standard_id" class="form-control">
-          <option value="">— Custom / None —</option>
-          <?php foreach (Database::fetchAll("SELECT * FROM standards WHERE is_active=TRUE ORDER BY name") as $s): ?>
-            <option value="<?= $s['id'] ?>" <?= $package['standard_id'] == $s['id'] ? 'selected' : '' ?>>
-              <?= Security::h($s['name']) ?> (<?= Security::h($s['code']) ?>)
-            </option>
-          <?php endforeach; ?>
-        </select>
-      </div>
     </div>
     <div class="modal-footer">
       <button type="submit" class="btn btn-primary">Save Changes</button>
-      <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button type="button" class="btn btn-ghost" onclick="pkgCloseModal()">Cancel</button>
     </div>
   </form>
 </div>
@@ -282,7 +271,7 @@ function statusIcon(string $s): string {
 <div id="modal-add-domain" class="aegis-modal" style="display:none">
   <div class="modal-header">
     <h3><i class="bi bi-plus-circle-fill" style="color:#4f46e5"></i> Add Domain</h3>
-    <button class="modal-close" onclick="closeModal()"><i class="bi bi-x-lg"></i></button>
+    <button class="modal-close" onclick="pkgCloseModal()"><i class="bi bi-x-lg"></i></button>
   </div>
   <form method="POST" action="/compliance/<?= (int)$package['id'] ?>/domain/add">
     <?= Security::csrfField() ?>
@@ -299,7 +288,7 @@ function statusIcon(string $s): string {
     </div>
     <div class="modal-footer">
       <button type="submit" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add Domain</button>
-      <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button type="button" class="btn btn-ghost" onclick="pkgCloseModal()">Cancel</button>
     </div>
   </form>
 </div>
@@ -311,7 +300,7 @@ function statusIcon(string $s): string {
 <div id="modal-edit-domain-<?= $domain['id'] ?>" class="aegis-modal" style="display:none">
   <div class="modal-header">
     <h3><i class="bi bi-pencil-fill"></i> Edit Domain</h3>
-    <button class="modal-close" onclick="closeModal()"><i class="bi bi-x-lg"></i></button>
+    <button class="modal-close" onclick="pkgCloseModal()"><i class="bi bi-x-lg"></i></button>
   </div>
   <form method="POST" action="/compliance/<?= (int)$package['id'] ?>/domain/<?= (int)$domain['id'] ?>/update">
     <?= Security::csrfField() ?>
@@ -327,7 +316,7 @@ function statusIcon(string $s): string {
     </div>
     <div class="modal-footer">
       <button type="submit" class="btn btn-primary">Save</button>
-      <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button type="button" class="btn btn-ghost" onclick="pkgCloseModal()">Cancel</button>
     </div>
   </form>
 </div>
@@ -336,7 +325,7 @@ function statusIcon(string $s): string {
 <div id="modal-add-ctrl-<?= $domain['id'] ?>" class="aegis-modal" style="display:none">
   <div class="modal-header">
     <h3><i class="bi bi-plus-circle-fill" style="color:#059669"></i> Add Control — <?= Security::h($domain['code']) ?></h3>
-    <button class="modal-close" onclick="closeModal()"><i class="bi bi-x-lg"></i></button>
+    <button class="modal-close" onclick="pkgCloseModal()"><i class="bi bi-x-lg"></i></button>
   </div>
   <form method="POST" action="/compliance/<?= (int)$package['id'] ?>/domain/<?= (int)$domain['id'] ?>/control/add">
     <?= Security::csrfField() ?>
@@ -356,7 +345,7 @@ function statusIcon(string $s): string {
     </div>
     <div class="modal-footer">
       <button type="submit" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add Control</button>
-      <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button type="button" class="btn btn-ghost" onclick="pkgCloseModal()">Cancel</button>
       <a href="/compliance/import" class="btn btn-ghost" style="margin-left:auto;font-size:12px" title="Import many controls at once">
         <i class="bi bi-cloud-upload"></i> Import instead
       </a>
@@ -375,7 +364,7 @@ foreach ($ctrlsForModal as $cm): ?>
 <div id="modal-edit-ctrl-<?= $cm['id'] ?>" class="aegis-modal" style="display:none">
   <div class="modal-header">
     <h3><i class="bi bi-sliders"></i> Edit Control</h3>
-    <button class="modal-close" onclick="closeModal()"><i class="bi bi-x-lg"></i></button>
+    <button class="modal-close" onclick="pkgCloseModal()"><i class="bi bi-x-lg"></i></button>
   </div>
   <form method="POST" action="/compliance/<?= (int)$package['id'] ?>/control/<?= (int)$cm['id'] ?>/update">
     <?= Security::csrfField() ?>
@@ -395,7 +384,7 @@ foreach ($ctrlsForModal as $cm): ?>
     </div>
     <div class="modal-footer">
       <button type="submit" class="btn btn-primary">Save</button>
-      <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button type="button" class="btn btn-ghost" onclick="pkgCloseModal()">Cancel</button>
     </div>
   </form>
 </div>
@@ -431,11 +420,11 @@ function openModal(id) {
   var inp = m.querySelector('input,textarea,select');
   if (inp) { setTimeout(function(){ inp.focus(); inp.select && inp.select(); }, 80); }
 }
-function closeModal() {
+function pkgCloseModal() {
   overlay.style.display = 'none';
   if (activeModal) { activeModal.style.display = 'none'; activeModal = null; }
 }
-document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeModal(); });
+document.addEventListener('keydown', function(e){ if (e.key === 'Escape') pkgCloseModal(); });
 </script>
 
 <style>
