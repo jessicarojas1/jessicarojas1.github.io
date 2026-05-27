@@ -39,7 +39,9 @@ ob_start();
             <td class="text-muted text-sm"><?= $u['last_login'] ? date('M j, Y g:ia', strtotime($u['last_login'])) : 'Never' ?></td>
             <td>
               <div class="action-btns">
-                <button class="btn btn-ghost btn-sm" onclick="editUser(<?= htmlspecialchars(json_encode($u)) ?>)"><i class="bi bi-pencil"></i></button>
+                <button type="button" class="btn btn-ghost btn-sm"
+                        data-user="<?= htmlspecialchars(json_encode($u), ENT_QUOTES, 'UTF-8') ?>"
+                        onclick="editUserFromBtn(this)"><i class="bi bi-pencil"></i></button>
                 <?php if ($u['id'] !== Auth::id()): ?>
                 <form method="POST" action="/admin/users/<?= $u['id'] ?>/delete" style="display:inline">
                   <?= Security::csrfField() ?>
@@ -127,13 +129,16 @@ ob_start();
 <script>
 function showModal(id) { document.getElementById(id).style.display = 'flex'; }
 function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+function editUserFromBtn(btn) {
+  editUser(JSON.parse(btn.getAttribute('data-user')));
+}
 function editUser(u) {
   document.getElementById('editUserForm').action = '/admin/users/' + u.id + '/update';
   document.getElementById('eu_name').value  = u.name;
   document.getElementById('eu_dept').value  = u.department || '';
   document.getElementById('eu_title').value = u.job_title || '';
   document.getElementById('eu_role').value  = u.role;
-  document.getElementById('eu_active').checked = u.is_active === '1' || u.is_active === true;
+  document.getElementById('eu_active').checked = u.is_active === '1' || u.is_active === true || u.is_active === 't';
   showModal('editUserModal');
 }
 </script>
