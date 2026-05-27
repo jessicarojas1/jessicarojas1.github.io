@@ -279,17 +279,24 @@ class ComplianceController {
 
         $domainSort = 0;
         foreach ($domains as $dCode => $domain) {
-            Database::query(
-                "INSERT INTO compliance_objectives (package_id, code, title, level, sort_order) VALUES (?,?,?,1,?)",
-                [$pkgId, $dCode, $domain['title'], $domainSort++]
-            );
-            $domainId = Database::fetchOne("SELECT id FROM compliance_objectives WHERE package_id=? AND code=? AND level=1 ORDER BY id DESC LIMIT 1", [$pkgId, $dCode])['id'];
+            $domainId = Database::insert('compliance_objectives', [
+                'package_id' => $pkgId,
+                'code'       => $dCode,
+                'title'      => $domain['title'],
+                'level'      => 1,
+                'sort_order' => $domainSort++,
+            ]);
             $ctrlSort = 0;
             foreach ($domain['controls'] as $ctrl) {
-                Database::query(
-                    "INSERT INTO compliance_objectives (package_id, parent_id, code, title, description, level, sort_order) VALUES (?,?,?,?,?,2,?)",
-                    [$pkgId, $domainId, $ctrl['code'], $ctrl['title'], $ctrl['description'], $ctrlSort++]
-                );
+                Database::insert('compliance_objectives', [
+                    'package_id' => $pkgId,
+                    'parent_id'  => $domainId,
+                    'code'       => $ctrl['code'],
+                    'title'      => $ctrl['title'],
+                    'description'=> $ctrl['description'],
+                    'level'      => 2,
+                    'sort_order' => $ctrlSort++,
+                ]);
             }
         }
         return true;
@@ -361,17 +368,24 @@ class ComplianceController {
         $domainSort = 0;
         foreach ($domains as $dCode => $domain) {
             if (!$domain['controls']) continue; // skip domains with no controls
-            Database::query(
-                "INSERT INTO compliance_objectives (package_id, code, title, level, sort_order) VALUES (?,?,?,1,?)",
-                [$pkgId, $dCode, $domain['title'], $domainSort++]
-            );
-            $domainId = Database::fetchOne("SELECT id FROM compliance_objectives WHERE package_id=? AND code=? AND level=1 ORDER BY id DESC LIMIT 1", [$pkgId, $dCode])['id'];
+            $domainId = Database::insert('compliance_objectives', [
+                'package_id' => $pkgId,
+                'code'       => $dCode,
+                'title'      => $domain['title'],
+                'level'      => 1,
+                'sort_order' => $domainSort++,
+            ]);
             $ctrlSort = 0;
             foreach ($domain['controls'] as $ctrl) {
-                Database::query(
-                    "INSERT INTO compliance_objectives (package_id, parent_id, code, title, description, level, sort_order) VALUES (?,?,?,?,?,2,?)",
-                    [$pkgId, $domainId, $ctrl['code'], $ctrl['title'], $ctrl['description'], $ctrlSort++]
-                );
+                Database::insert('compliance_objectives', [
+                    'package_id' => $pkgId,
+                    'parent_id'  => $domainId,
+                    'code'       => $ctrl['code'],
+                    'title'      => $ctrl['title'],
+                    'description'=> $ctrl['description'],
+                    'level'      => 2,
+                    'sort_order' => $ctrlSort++,
+                ]);
             }
         }
         return true;

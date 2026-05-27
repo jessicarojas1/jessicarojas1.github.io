@@ -6,6 +6,7 @@ $groups = [
     'control_testing' => 'Control Testing',
     'compliance_gap'  => 'Gap Analysis',
     'import'          => 'Import Standard',
+    'bulk_import'     => 'Bulk Import',
   ],
   'Operations' => [
     'audit'         => 'Audits',

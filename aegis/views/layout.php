@@ -42,7 +42,7 @@
       <i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span>
     </a>
 
-    <?php if (moduleVisible('compliance', $__mv) || moduleVisible('import', $__mv) || moduleVisible('control_testing', $__mv) || moduleVisible('compliance_gap', $__mv)): ?>
+    <?php if (moduleVisible('compliance', $__mv) || moduleVisible('import', $__mv) || moduleVisible('bulk_import', $__mv) || moduleVisible('control_testing', $__mv) || moduleVisible('compliance_gap', $__mv)): ?>
     <div class="nav-section-label">Compliance</div>
     <?php if (moduleVisible('compliance', $__mv)): ?>
     <a href="/compliance" class="nav-item <?= $activeModule === 'compliance' ? 'active' : '' ?>">

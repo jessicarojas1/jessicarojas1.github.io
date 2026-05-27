@@ -1373,7 +1373,7 @@ class AdminController {
         $rows = Database::fetchAll("SELECT key, value FROM settings WHERE key LIKE 'module_hide_%'");
         $hidden = array_column($rows, 'value', 'key');
         $pageTitle    = 'Module Visibility';
-        $activeModule = 'admin_settings';
+        $activeModule = 'admin_module_visibility';
         $breadcrumbs  = [['Admin', '/admin'], ['Module Visibility', null]];
         require AEGIS_ROOT . '/views/admin/module_visibility.php';
     }
@@ -1384,7 +1384,7 @@ class AdminController {
             http_response_code(403); return;
         }
         $modules = [
-            'compliance','control_testing','compliance_gap','import',
+            'compliance','control_testing','compliance_gap','import','bulk_import',
             'audit','policy','incident','playbooks','issue','change','bcp','incident_sla','questionnaire',
             'risk','risk_matrix','risk_roadmap','risk_exceptions','threats','treatment_plans','kris','vendor','vendor_contracts','assets',
             'metrics','documents','report','report_board','export','calendar',
