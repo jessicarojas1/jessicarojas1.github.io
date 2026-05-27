@@ -7,15 +7,19 @@ $rowLabels    = json_decode($cfg['row_labels'], true);
 $colLabels    = json_decode($cfg['col_labels'], true);
 $thresholds   = json_decode($cfg['thresholds'], true);
 $colors       = json_decode($cfg['colors'], true);
+$cells        = json_decode($cfg['cells'] ?? '{}', true) ?: [];
 $rows         = (int)$cfg['rows'];
 $cols         = (int)$cfg['cols'];
 
-function cellColor(int $r, int $c, array $thresholds, array $colors): string {
+function getCellData(int $r, int $c, array $cells, array $thresholds, array $colors): array {
+  $key = "{$r}_{$c}";
+  if (!empty($cells[$key])) { return $cells[$key]; }
+  // Fallback to threshold-based color
   $score = $r * $c;
-  if ($score > $thresholds['high'])   return $colors['critical'];
-  if ($score > $thresholds['medium']) return $colors['high'];
-  if ($score > $thresholds['low'])    return $colors['medium'];
-  return $colors['low'];
+  $color = $score > $thresholds['high'] ? $colors['critical']
+         : ($score > $thresholds['medium'] ? $colors['high']
+         : ($score > $thresholds['low']    ? $colors['medium'] : $colors['low']));
+  return ['title' => '', 'desc' => '', 'color' => $color];
 }
 
 ob_start();
@@ -57,22 +61,33 @@ ob_start();
           <div class="matrix-header-row">
             <div class="matrix-corner"></div>
             <?php for ($c = 1; $c <= $cols; $c++): ?>
-              <div class="matrix-col-header"><?= Security::h($colLabels[$c-1] ?? $c) ?></div>
+              <div class="matrix-col-header">
+                <?= Security::h($colLabels[$c-1] ?? $c) ?>
+                <span class="matrix-idx-badge">[<?= $c ?>]</span>
+              </div>
             <?php endfor; ?>
           </div>
 
           <!-- Matrix rows (high likelihood at top) -->
-          <?php for ($r = $rows; $r >= 1; $r--): ?>
+          <?php for ($r = $rows; $r >= 1; $r--):
+            $displayIdx = $r - 1;
+            $rowLabel   = $rowLabels[$r-1] ?? "Level $r";
+          ?>
             <div class="matrix-row">
-              <div class="matrix-row-header"><?= Security::h($rowLabels[$r-1] ?? $r) ?></div>
-              <?php for ($c = 1; $c <= $cols; $c++): ?>
-                <?php
-                $cellColor = cellColor($r, $c, $thresholds, $colors);
-                $score = $r * $c;
+              <div class="matrix-row-header">
+                <div><?= Security::h($rowLabel) ?></div>
+                <div class="matrix-idx-badge">[<?= $displayIdx ?>]</div>
+              </div>
+              <?php for ($c = 1; $c <= $cols; $c++):
+                $cd        = getCellData($r, $c, $cells, $thresholds, $colors);
+                $cellColor = htmlspecialchars($cd['color'], ENT_QUOTES, 'UTF-8');
                 $cellRisks = array_filter($risks, fn($risk) => (int)$risk['likelihood'] === $r && (int)$risk['impact'] === $c);
-                ?>
-                <div class="matrix-cell" style="background:<?= $cellColor ?>20;border:1px solid <?= $cellColor ?>40" data-r="<?= $r ?>" data-c="<?= $c ?>" onclick="showCellRisks(<?= $r ?>,<?= $c ?>)">
-                  <div class="cell-score" style="color:<?= $cellColor ?>"><?= $score ?></div>
+              ?>
+                <div class="matrix-cell" style="background:<?= $cellColor ?>20;border:1px solid <?= $cellColor ?>40"
+                     data-r="<?= $r ?>" data-c="<?= $c ?>" onclick="showCellRisks(<?= $r ?>,<?= $c ?>)">
+                  <?php if (!empty($cd['title'])): ?>
+                    <div class="cell-treatment" style="color:<?= $cellColor ?>"><?= Security::h($cd['title']) ?></div>
+                  <?php endif; ?>
                   <?php if ($cellRisks): ?>
                     <div class="cell-risks">
                       <?php foreach (array_slice($cellRisks, 0, 3) as $cr): ?>

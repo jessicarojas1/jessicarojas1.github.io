@@ -910,15 +910,16 @@ input[type="range"] {
 .matrix-x-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); text-align: center; margin-top: 8px; }
 .matrix-inner { display: flex; flex-direction: column; gap: 3px; }
 .matrix-header-row { display: flex; gap: 3px; }
-.matrix-corner     { width: 80px; flex-shrink: 0; }
-.matrix-col-header { flex: 1; text-align: center; font-size: 11px; font-weight: 600; color: var(--text-muted); padding: 4px; }
+.matrix-corner     { width: 100px; flex-shrink: 0; }
+.matrix-col-header { flex: 1; text-align: center; font-size: 11px; font-weight: 600; color: var(--text-muted); padding: 4px; line-height: 1.3; }
 .matrix-row        { display: flex; gap: 3px; }
-.matrix-row-header { width: 80px; font-size: 11px; font-weight: 500; color: var(--text-muted); display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; flex-shrink: 0; text-align: right; }
+.matrix-row-header { width: 100px; font-size: 11px; font-weight: 500; color: var(--text-muted); display: flex; flex-direction: column; align-items: flex-end; justify-content: center; padding-right: 8px; flex-shrink: 0; text-align: right; gap: 2px; }
+.matrix-idx-badge  { font-size: 10px; font-weight: 700; opacity: .6; }
 
 .matrix-cell {
   flex: 1;
-  min-width: 70px;
-  min-height: 64px;
+  min-width: 80px;
+  min-height: 72px;
   border-radius: 8px;
   display: flex;
   flex-direction: column;
@@ -927,9 +928,12 @@ input[type="range"] {
   cursor: pointer;
   transition: transform var(--transition), filter var(--transition);
   position: relative;
+  padding: 6px 4px;
+  gap: 2px;
 }
 .matrix-cell:hover { transform: scale(1.05); filter: brightness(1.1); }
 .cell-score { font-size: 18px; font-weight: 800; }
+.cell-treatment { font-size: 10px; font-weight: 700; text-align: center; line-height: 1.2; }
 .cell-risks { display: flex; gap: 3px; flex-wrap: wrap; justify-content: center; margin-top: 4px; }
 .cell-risk-dot { width: 8px; height: 8px; border-radius: 50%; }
 .cell-risk-more { font-size: 10px; font-weight: 700; }

@@ -154,34 +154,48 @@ class AdminController {
 
     public function updateRiskMatrix(): void {
         Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
-        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
-            http_response_code(403); return;
-        }
-
-        $id = (int)($_POST['matrix_id'] ?? 1);
+        $id        = (int)($_POST['matrix_id'] ?? 1);
+        $name      = Security::sanitizeInput($_POST['name'] ?? 'Default 5x5');
+        $desc      = Security::sanitizeInput($_POST['description'] ?? '');
         $rowLabels = array_map('trim', explode(',', $_POST['row_labels'] ?? ''));
         $colLabels = array_map('trim', explode(',', $_POST['col_labels'] ?? ''));
-        $rows = count($rowLabels);
-        $cols = count($colLabels);
+        $rows      = count($rowLabels);
+        $cols      = count($colLabels);
+
+        // Parse per-cell data from the submitted JSON blob
+        $cellsJson = $_POST['cells_json'] ?? '{}';
+        $cells     = json_decode($cellsJson, true);
+        if (!is_array($cells)) { $cells = []; }
+
+        // Sanitize each cell
+        $cleanCells = [];
+        foreach ($cells as $key => $cell) {
+            if (!preg_match('/^\d+_\d+$/', $key)) continue;
+            $cleanCells[$key] = [
+                'title' => Security::sanitizeInput($cell['title'] ?? ''),
+                'desc'  => Security::sanitizeInput($cell['desc']  ?? ''),
+                'color' => preg_match('/^#[0-9a-fA-F]{6}$/', $cell['color'] ?? '') ? $cell['color'] : '#22c55e',
+            ];
+        }
 
         $thresholds = [
-            'low'      => (int)($_POST['thresh_low'] ?? 4),
+            'low'      => (int)($_POST['thresh_low']    ?? 4),
             'medium'   => (int)($_POST['thresh_medium'] ?? 9),
-            'high'     => (int)($_POST['thresh_high'] ?? 14),
+            'high'     => (int)($_POST['thresh_high']   ?? 14),
             'critical' => $rows * $cols,
         ];
-
         $colors = [
-            'low'      => Security::sanitizeInput($_POST['color_low'] ?? '#22c55e'),
-            'medium'   => Security::sanitizeInput($_POST['color_medium'] ?? '#f59e0b'),
-            'high'     => Security::sanitizeInput($_POST['color_high'] ?? '#f97316'),
-            'critical' => Security::sanitizeInput($_POST['color_critical'] ?? '#ef4444'),
+            'low'      => '#22c55e',
+            'medium'   => '#f59e0b',
+            'high'     => '#f97316',
+            'critical' => '#ef4444',
         ];
 
         Database::query(
-            "UPDATE risk_matrix_config SET rows=?, cols=?, row_labels=?, col_labels=?, thresholds=?, colors=?, updated_at=NOW() WHERE id=?",
-            [$rows, $cols, json_encode($rowLabels), json_encode($colLabels), json_encode($thresholds), json_encode($colors), $id]
+            "UPDATE risk_matrix_config SET name=?, description=?, rows=?, cols=?, row_labels=?, col_labels=?, thresholds=?, colors=?, cells=?, updated_at=NOW() WHERE id=?",
+            [$name, $desc, $rows, $cols, json_encode($rowLabels), json_encode($colLabels), json_encode($thresholds), json_encode($colors), json_encode($cleanCells), $id]
         );
 
         Auth::log('update_risk_matrix', 'risk_matrix_config', $id);

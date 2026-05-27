@@ -509,6 +509,7 @@ function runMigrations(PDO $pdo): void {
         '007_risk_extensions.sql',
         '008_notification_prefs.sql',
         '009_remove_seeded_packages.sql',
+        '010_risk_matrix_cells.sql',
     ];
     foreach ($migrationFiles as $file) {
         $path = AEGIS_ROOT . '/database/migrations/' . $file;
