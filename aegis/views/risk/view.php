@@ -989,7 +989,8 @@ function updateScores(){
   const l=+document.getElementById('s_l').value,i=+document.getElementById('s_i').value;
   const rl=+document.getElementById('s_rl').value,ri=+document.getElementById('s_ri').value;
   const tl=+document.getElementById('s_tl').value,ti=+document.getElementById('s_ti').value;
-  ['l','i','rl','ri','tl','ti'].forEach(k=>{const e=document.getElementById('v_'+k);if(e)e.textContent=eval(k)});
+  const vals={l,i,rl,ri,tl,ti};
+  ['l','i','rl','ri','tl','ti'].forEach(k=>{const e=document.getElementById('v_'+k);if(e)e.textContent=vals[k]});
   chip('chip_i','sc_i',l*i);chip('chip_r','sc_r',rl*ri);chip('chip_t','sc_t',tl*ti);
   onStratChange();
 }

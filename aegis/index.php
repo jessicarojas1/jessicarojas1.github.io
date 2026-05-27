@@ -56,6 +56,16 @@ require_once AEGIS_ROOT . '/src/SSO.php';
 
 Security::setSecurityHeaders();
 
+// Runtime schema migrations — safe to run on every request (no-op when already applied)
+try {
+    $__col = Database::fetchOne(
+        "SELECT character_maximum_length FROM information_schema.columns WHERE table_name='kris' AND column_name='unit' AND table_schema='public'"
+    );
+    if ($__col && ($__col['character_maximum_length'] ?? 50) < 50) {
+        Database::query("ALTER TABLE kris ALTER COLUMN unit TYPE varchar(50)");
+    }
+} catch (Throwable) {}
+
 // Parse route
 $uri    = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 $uri    = '/' . ltrim($uri, '/');
