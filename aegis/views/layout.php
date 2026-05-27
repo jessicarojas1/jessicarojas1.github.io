@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-<link rel="stylesheet" href="/public/css/app.css">
+<link rel="stylesheet" href="/public/css/app.css?v=3">
 <link rel="manifest" href="/public/manifest.json">
 <meta name="theme-color" content="#6366f1">
 <meta name="csrf-token" content="<?= Security::generateCsrfToken() ?>">
@@ -47,7 +47,7 @@
 
     <!-- ── Overview ──────────────────────────────────────── -->
     <div class="nav-group <?= $activeGroup === 'overview' ? 'open' : '' ?>">
-      <button class="nav-group-header" type="button">
+      <button class="nav-group-header" type="button" onclick="toggleNavGroup(this)">
         <span><i class="bi bi-grid-1x2-fill"></i> Overview</span>
         <i class="bi bi-chevron-down nav-group-arrow"></i>
       </button>
@@ -60,7 +60,7 @@
 
     <!-- ── Compliance ─────────────────────────────────────── -->
     <div class="nav-group <?= $activeGroup === 'compliance' ? 'open' : '' ?>">
-      <button class="nav-group-header" type="button">
+      <button class="nav-group-header" type="button" onclick="toggleNavGroup(this)">
         <span><i class="bi bi-shield-check"></i> Compliance</span>
         <i class="bi bi-chevron-down nav-group-arrow"></i>
       </button>
@@ -85,7 +85,7 @@
 
     <!-- ── Operations ─────────────────────────────────────── -->
     <div class="nav-group <?= $activeGroup === 'operations' ? 'open' : '' ?>">
-      <button class="nav-group-header" type="button">
+      <button class="nav-group-header" type="button" onclick="toggleNavGroup(this)">
         <span><i class="bi bi-clipboard2-check-fill"></i> Operations</span>
         <i class="bi bi-chevron-down nav-group-arrow"></i>
       </button>
@@ -122,7 +122,7 @@
 
     <!-- ── Risk ───────────────────────────────────────────── -->
     <div class="nav-group <?= $activeGroup === 'risk' ? 'open' : '' ?>">
-      <button class="nav-group-header" type="button">
+      <button class="nav-group-header" type="button" onclick="toggleNavGroup(this)">
         <span><i class="bi bi-exclamation-triangle-fill"></i> Risk</span>
         <i class="bi bi-chevron-down nav-group-arrow"></i>
       </button>
@@ -162,7 +162,7 @@
 
     <!-- ── Analytics ──────────────────────────────────────── -->
     <div class="nav-group <?= $activeGroup === 'analytics' ? 'open' : '' ?>">
-      <button class="nav-group-header" type="button">
+      <button class="nav-group-header" type="button" onclick="toggleNavGroup(this)">
         <span><i class="bi bi-graph-up-arrow"></i> Analytics</span>
         <i class="bi bi-chevron-down nav-group-arrow"></i>
       </button>
@@ -190,7 +190,7 @@
 
     <!-- ── Resources ──────────────────────────────────────── -->
     <div class="nav-group <?= $activeGroup === 'resources' ? 'open' : '' ?>">
-      <button class="nav-group-header" type="button">
+      <button class="nav-group-header" type="button" onclick="toggleNavGroup(this)">
         <span><i class="bi bi-book-fill"></i> Resources</span>
         <i class="bi bi-chevron-down nav-group-arrow"></i>
       </button>
@@ -207,7 +207,7 @@
     <!-- ── Administration ─────────────────────────────────── -->
     <?php if (Auth::can('admin') || Auth::role() === 'admin'): ?>
     <div class="nav-group <?= $activeGroup === 'admin' ? 'open' : '' ?>">
-      <button class="nav-group-header" type="button">
+      <button class="nav-group-header" type="button" onclick="toggleNavGroup(this)">
         <span><i class="bi bi-gear-fill"></i> Administration</span>
         <i class="bi bi-chevron-down nav-group-arrow"></i>
       </button>
@@ -284,7 +284,7 @@
 
     <!-- ── Account ────────────────────────────────────────── -->
     <div class="nav-group <?= $activeGroup === 'account' ? 'open' : '' ?>">
-      <button class="nav-group-header" type="button">
+      <button class="nav-group-header" type="button" onclick="toggleNavGroup(this)">
         <span><i class="bi bi-person-circle"></i> Account</span>
         <i class="bi bi-chevron-down nav-group-arrow"></i>
       </button>
@@ -414,6 +414,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js" nonce="<?= Security::nonce() ?>"></script>
-<script src="/public/js/app.js" nonce="<?= Security::nonce() ?>"></script>
+<script src="/public/js/app.js?v=3" nonce="<?= Security::nonce() ?>"></script>
 </body>
 </html>

@@ -110,20 +110,18 @@ document.querySelectorAll('.perm-col-all').forEach(function (btn) {
 });
 
 // ── Accordion nav groups ────────────────────────────────────────────────────
-// CSS handles max-height transition via .nav-group.open > .nav-group-items { max-height: 800px }
-document.querySelectorAll('.nav-group-header').forEach(function (header) {
-  header.addEventListener('click', function () {
-    var group = header.closest('.nav-group');
-    if (!group) return;
-    var isOpen = group.classList.contains('open');
-    // Close all open groups
-    document.querySelectorAll('.nav-group.open').forEach(function (g) {
-      g.classList.remove('open');
-    });
-    // Open this one if it was closed
-    if (!isOpen) group.classList.add('open');
+// Called by onclick="toggleNavGroup(this)" on each .nav-group-header button
+window.toggleNavGroup = function (btn) {
+  var group = btn.closest('.nav-group');
+  if (!group) return;
+  var isOpen = group.classList.contains('open');
+  // Close all open groups
+  document.querySelectorAll('.nav-group.open').forEach(function (g) {
+    g.classList.remove('open');
   });
-});
+  // Open this one if it was closed
+  if (!isOpen) group.classList.add('open');
+};
 
 // ── Mobile sidebar overlay ──────────────────────────────────────────────────
 (function() {
