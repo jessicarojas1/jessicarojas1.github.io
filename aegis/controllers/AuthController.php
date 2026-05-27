@@ -45,7 +45,13 @@ class AuthController {
 
             $redirect = $_SESSION['redirect_after_login'] ?? '/';
             unset($_SESSION['redirect_after_login']);
-            if (!preg_match('#^/[a-zA-Z0-9/_?=&%.@-]*$#', $redirect)) $redirect = '/';
+            // Only honour the stored redirect if it's a non-admin, non-auth page
+            if (!preg_match('#^/[a-zA-Z0-9/_?=&%.@-]*$#', $redirect)
+                || str_starts_with($redirect, '/admin')
+                || str_starts_with($redirect, '/login')
+                || str_starts_with($redirect, '/mfa')) {
+                $redirect = '/';
+            }
             header('Location: ' . $redirect); exit;
         }
 
@@ -95,7 +101,12 @@ class AuthController {
         }
 
         // MFA passed — establish full session
-        $redirect = $_SESSION['mfa_redirect'] ?? '/';
+        $mfaRedir = $_SESSION['mfa_redirect'] ?? '/';
+        $redirect = (preg_match('#^/[a-zA-Z0-9/_?=&%.@-]*$#', $mfaRedir)
+                     && !str_starts_with($mfaRedir, '/admin')
+                     && !str_starts_with($mfaRedir, '/login')
+                     && !str_starts_with($mfaRedir, '/mfa'))
+                    ? $mfaRedir : '/';
         session_unset();
         session_destroy();
         session_start();

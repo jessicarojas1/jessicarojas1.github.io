@@ -179,23 +179,18 @@ body {
   transform: rotate(180deg);
 }
 
-/* Items container — animated open/close on mobile */
+/* Items container — animated open/close on mobile (height set by JS) */
 .nav-group-items {
   overflow: hidden;
   max-height: 0;
   transition: max-height 0.28s ease;
 }
-.nav-group.open > .nav-group-items {
-  max-height: 2000px; /* large enough for any group */
-}
 
 /* On desktop sidebar is always open — show all items */
 @media (min-width: 769px) {
-  .nav-group-items { max-height: none !important; }
+  .nav-group-items { max-height: none !important; overflow: visible; }
   .nav-group-arrow { display: none; }
-  .nav-group-header {
-    pointer-events: none; /* category labels, not buttons, on desktop */
-  }
+  .nav-group-header { pointer-events: none; cursor: default; }
 }
 
 .nav-item {

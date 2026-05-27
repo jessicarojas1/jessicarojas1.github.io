@@ -110,18 +110,39 @@ document.querySelectorAll('.perm-col-all').forEach(function (btn) {
 });
 
 // ── Accordion nav groups ────────────────────────────────────────────────────
-document.querySelectorAll('.nav-group-header').forEach(function (header) {
-  header.addEventListener('click', function () {
-    var group = header.closest('.nav-group');
-    if (!group) return;
-    var isOpen = group.classList.contains('open');
-    // Close all sibling groups, then open this one (unless already open — acts as toggle)
-    document.querySelectorAll('.nav-group.open').forEach(function (g) {
-      g.classList.remove('open');
-    });
-    if (!isOpen) group.classList.add('open');
+(function () {
+  function openGroup(group) {
+    var items = group.querySelector('.nav-group-items');
+    if (!items) return;
+    group.classList.add('open');
+    items.style.maxHeight = items.scrollHeight + 'px';
+  }
+  function closeGroup(group) {
+    var items = group.querySelector('.nav-group-items');
+    if (!items) return;
+    group.classList.remove('open');
+    items.style.maxHeight = '0';
+  }
+
+  // Initialise: set pixel height for any server-rendered open groups
+  document.querySelectorAll('.nav-group.open').forEach(function (g) {
+    var items = g.querySelector('.nav-group-items');
+    if (items) items.style.maxHeight = items.scrollHeight + 'px';
   });
-});
+
+  // Wire click handlers
+  document.querySelectorAll('.nav-group-header').forEach(function (header) {
+    header.addEventListener('click', function () {
+      var group = header.closest('.nav-group');
+      if (!group) return;
+      var isOpen = group.classList.contains('open');
+      // Close all groups first
+      document.querySelectorAll('.nav-group').forEach(closeGroup);
+      // Open this one if it was closed
+      if (!isOpen) openGroup(group);
+    });
+  });
+})();
 
 // ── Mobile sidebar overlay ──────────────────────────────────────────────────
 (function() {
