@@ -147,4 +147,3 @@ document.querySelectorAll('.perm-col-all').forEach(function (btn) {
     }
   });
 })();
-})();
