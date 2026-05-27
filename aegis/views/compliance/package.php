@@ -391,7 +391,7 @@ foreach ($ctrlsForModal as $cm): ?>
 <?php endforeach; ?>
 <?php endforeach; ?>
 
-<script>
+<script nonce="<?= Security::nonce() ?>">
 function toggleDomain(id) {
   const el  = document.getElementById('controls-' + id);
   const ch  = document.getElementById('chevron-' + id);

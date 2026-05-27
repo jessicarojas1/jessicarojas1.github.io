@@ -140,7 +140,7 @@ ob_start();
 }
 </style>
 
-<script>
+<script nonce="<?= Security::nonce() ?>">
 function updateSelection() {
   const checked = document.querySelectorAll('.pkg-checkbox:checked');
   const btn = document.getElementById('deleteSelectedBtn');

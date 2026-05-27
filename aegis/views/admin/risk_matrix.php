@@ -242,7 +242,7 @@ ob_start();
 .btn-icon-danger:hover { background: #fee2e2; color: #ef4444; border-color: #fca5a5; }
 </style>
 
-<script>
+<script nonce="<?= Security::nonce() ?>">
 const cellData = <?= json_encode($cells) ?>;
 const defaultCells = <?= json_encode($defaultCells) ?>;
 

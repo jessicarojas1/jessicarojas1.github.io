@@ -267,7 +267,7 @@ $packages = Database::fetchAll("SELECT id, name FROM compliance_packages WHERE i
 
 </div><!-- /two-col-layout -->
 
-<script>
+<script nonce="<?= Security::nonce() ?>">
 function switchTab(name, btn) {
   document.querySelectorAll('.tab-panel').forEach(p => p.style.display = 'none');
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
