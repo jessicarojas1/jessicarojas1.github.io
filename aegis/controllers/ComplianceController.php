@@ -4,13 +4,15 @@ class ComplianceController {
         Auth::requireAuth();
 
         $packages = Database::fetchAll(
-            "SELECT cp.*, s.name as standard_name, s.code as standard_code, s.category as standard_category,
+            "SELECT cp.*, COALESCE(s.name, cp.name) as standard_name,
+               COALESCE(s.code, 'CUSTOM') as standard_code,
+               COALESCE(s.category, 'custom') as standard_category,
                COUNT(co.id) FILTER (WHERE co.level = 2) as control_count,
                COUNT(ci.id) FILTER (WHERE ci.status = 'compliant') as compliant_count,
                COUNT(ci.id) FILTER (WHERE ci.status = 'partial') as partial_count,
                COUNT(ci.id) FILTER (WHERE ci.status = 'non_compliant') as non_compliant_count
              FROM compliance_packages cp
-             JOIN standards s ON s.id = cp.standard_id
+             LEFT JOIN standards s ON s.id = cp.standard_id
              LEFT JOIN compliance_objectives co ON co.package_id = cp.id AND co.level = 2
              LEFT JOIN control_implementations ci ON ci.objective_id = co.id
              WHERE cp.is_active = TRUE
@@ -21,14 +23,196 @@ class ComplianceController {
         require AEGIS_ROOT . '/views/compliance/index.php';
     }
 
+    // ─── Manual Package Creation ───────────────────────────────────────────────
+
+    public function createForm(): void {
+        Auth::requirePermission('compliance.write');
+        $standards   = Database::fetchAll("SELECT * FROM standards WHERE is_active = TRUE ORDER BY name");
+        $pageTitle   = 'Create Package';
+        $activeModule = 'compliance';
+        $breadcrumbs = [['Compliance','/compliance'],['Create Package',null]];
+        require AEGIS_ROOT . '/views/compliance/create.php';
+    }
+
+    public function create(): void {
+        Auth::requirePermission('compliance.write');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+
+        $name        = Security::sanitizeInput($_POST['name'] ?? '');
+        $version     = Security::sanitizeInput($_POST['version'] ?? '1.0');
+        $description = Security::sanitizeInput($_POST['description'] ?? '');
+        $standardId  = (int)($_POST['standard_id'] ?? 0) ?: null;
+
+        if (!$name) {
+            $_SESSION['flash_error'] = 'Package name is required.';
+            header('Location: /compliance/create'); return;
+        }
+
+        $pkgId = Database::insert('compliance_packages', [
+            'standard_id' => $standardId,
+            'name'        => $name,
+            'version'     => $version ?: '1.0',
+            'description' => $description,
+            'imported_by' => Auth::id(),
+            'imported_at' => date('Y-m-d H:i:s'),
+        ]);
+        Auth::log('create_package', 'compliance_packages', $pkgId);
+        header('Location: /compliance/' . $pkgId . '?created=1');
+    }
+
+    public function updatePackage(string $id): void {
+        Auth::requirePermission('compliance.write');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $id = (int)$id;
+        $name        = Security::sanitizeInput($_POST['name'] ?? '');
+        $version     = Security::sanitizeInput($_POST['version'] ?? '1.0');
+        $description = Security::sanitizeInput($_POST['description'] ?? '');
+        $standardId  = (int)($_POST['standard_id'] ?? 0) ?: null;
+        if (!$name) {
+            $_SESSION['flash_error'] = 'Package name is required.';
+            header('Location: /compliance/' . $id); return;
+        }
+        Database::query(
+            "UPDATE compliance_packages SET name=?, version=?, description=?, standard_id=? WHERE id=?",
+            [$name, $version ?: '1.0', $description, $standardId, $id]
+        );
+        Auth::log('update_package', 'compliance_packages', $id);
+        $_SESSION['flash_success'] = 'Package updated.';
+        header('Location: /compliance/' . $id);
+    }
+
+    public function deletePackage(string $id): void {
+        Auth::requirePermission('compliance.write');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $id = (int)$id;
+        Database::query("UPDATE audits SET package_id = NULL WHERE package_id = ?", [$id]);
+        Database::query("DELETE FROM audit_schedules WHERE package_id = ?", [$id]);
+        Database::query("DELETE FROM compliance_packages WHERE id = ?", [$id]);
+        Auth::log('delete_package', 'compliance_packages', $id);
+        $_SESSION['flash_success'] = 'Package deleted.';
+        header('Location: /compliance');
+    }
+
+    // ─── Domain Management ─────────────────────────────────────────────────────
+
+    public function addDomain(string $pkgId): void {
+        Auth::requirePermission('compliance.write');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $pkgId = (int)$pkgId;
+        $code  = Security::sanitizeInput($_POST['code'] ?? '');
+        $title = Security::sanitizeInput($_POST['title'] ?? '');
+        if (!$code || !$title) {
+            $_SESSION['flash_error'] = 'Domain code and title are required.';
+            header('Location: /compliance/' . $pkgId); return;
+        }
+        $sort = (int)(Database::fetchOne(
+            "SELECT COALESCE(MAX(sort_order),0)+1 as s FROM compliance_objectives WHERE package_id=? AND level=1",
+            [$pkgId]
+        )['s'] ?? 0);
+        Database::insert('compliance_objectives', [
+            'package_id' => $pkgId, 'code' => $code, 'title' => $title,
+            'level' => 1, 'sort_order' => $sort,
+        ]);
+        header('Location: /compliance/' . $pkgId . '#domains');
+    }
+
+    public function updateDomain(string $pkgId, string $domainId): void {
+        Auth::requirePermission('compliance.write');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $pkgId = (int)$pkgId; $domainId = (int)$domainId;
+        $code  = Security::sanitizeInput($_POST['code'] ?? '');
+        $title = Security::sanitizeInput($_POST['title'] ?? '');
+        if (!$code || !$title) {
+            $_SESSION['flash_error'] = 'Domain code and title are required.';
+            header('Location: /compliance/' . $pkgId); return;
+        }
+        Database::query(
+            "UPDATE compliance_objectives SET code=?, title=? WHERE id=? AND package_id=? AND level=1",
+            [$code, $title, $domainId, $pkgId]
+        );
+        header('Location: /compliance/' . $pkgId);
+    }
+
+    public function deleteDomain(string $pkgId, string $domainId): void {
+        Auth::requirePermission('compliance.write');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $pkgId = (int)$pkgId; $domainId = (int)$domainId;
+        // child controls cascade via ON DELETE CASCADE on parent_id
+        Database::query("DELETE FROM compliance_objectives WHERE id=? AND package_id=?", [$domainId, $pkgId]);
+        $this->syncCount($pkgId);
+        header('Location: /compliance/' . $pkgId);
+    }
+
+    // ─── Control Management ────────────────────────────────────────────────────
+
+    public function addControl(string $pkgId, string $domainId): void {
+        Auth::requirePermission('compliance.write');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $pkgId = (int)$pkgId; $domainId = (int)$domainId;
+        $code  = Security::sanitizeInput($_POST['code'] ?? '');
+        $title = Security::sanitizeInput($_POST['title'] ?? '');
+        $desc  = Security::sanitizeInput($_POST['description'] ?? '');
+        if (!$code || !$title) {
+            $_SESSION['flash_error'] = 'Control code and title are required.';
+            header('Location: /compliance/' . $pkgId); return;
+        }
+        $sort = (int)(Database::fetchOne(
+            "SELECT COALESCE(MAX(sort_order),0)+1 as s FROM compliance_objectives WHERE parent_id=?",
+            [$domainId]
+        )['s'] ?? 0);
+        Database::insert('compliance_objectives', [
+            'package_id' => $pkgId, 'parent_id' => $domainId,
+            'code' => $code, 'title' => $title, 'description' => $desc,
+            'level' => 2, 'sort_order' => $sort,
+        ]);
+        $this->syncCount($pkgId);
+        header('Location: /compliance/' . $pkgId);
+    }
+
+    public function updateControl(string $pkgId, string $ctrlId): void {
+        Auth::requirePermission('compliance.write');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $pkgId = (int)$pkgId; $ctrlId = (int)$ctrlId;
+        $code  = Security::sanitizeInput($_POST['code'] ?? '');
+        $title = Security::sanitizeInput($_POST['title'] ?? '');
+        $desc  = Security::sanitizeInput($_POST['description'] ?? '');
+        if (!$code || !$title) {
+            $_SESSION['flash_error'] = 'Control code and title are required.';
+            header('Location: /compliance/' . $pkgId); return;
+        }
+        Database::query(
+            "UPDATE compliance_objectives SET code=?, title=?, description=? WHERE id=? AND package_id=?",
+            [$code, $title, $desc, $ctrlId, $pkgId]
+        );
+        header('Location: /compliance/' . $pkgId);
+    }
+
+    public function deleteControl(string $pkgId, string $ctrlId): void {
+        Auth::requirePermission('compliance.write');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $pkgId = (int)$pkgId; $ctrlId = (int)$ctrlId;
+        Database::query("DELETE FROM compliance_objectives WHERE id=? AND package_id=? AND level=2", [$ctrlId, $pkgId]);
+        $this->syncCount($pkgId);
+        header('Location: /compliance/' . $pkgId);
+    }
+
+    private function syncCount(int $pkgId): void {
+        Database::query(
+            "UPDATE compliance_packages SET objectives_count = (SELECT COUNT(*) FROM compliance_objectives WHERE package_id=? AND level=2) WHERE id=?",
+            [$pkgId, $pkgId]
+        );
+    }
+
     public function viewPackage(string $id): void {
         Auth::requireAuth();
         $id = (int)$id;
 
         $package = Database::fetchOne(
-            "SELECT cp.*, s.name as standard_name, s.code as standard_code, s.description as standard_desc,
-               s.authority, s.url as standard_url
-             FROM compliance_packages cp JOIN standards s ON s.id = cp.standard_id
+            "SELECT cp.*, COALESCE(s.name, cp.name) as standard_name,
+               COALESCE(s.code, 'CUSTOM') as standard_code,
+               s.description as standard_desc, s.authority, s.url as standard_url
+             FROM compliance_packages cp
+             LEFT JOIN standards s ON s.id = cp.standard_id
              WHERE cp.id = ?", [$id]
         );
         if (!$package) { http_response_code(404); require AEGIS_ROOT . '/views/errors/404.php'; return; }

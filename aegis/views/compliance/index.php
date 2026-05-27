@@ -18,7 +18,8 @@ ob_start();
       <button type="submit" class="btn btn-danger"><i class="bi bi-trash3-fill"></i> Clear All</button>
     </form>
     <?php endif; ?>
-    <a href="/compliance/import" class="btn btn-primary"><i class="bi bi-cloud-upload"></i> Import Standard</a>
+    <a href="/compliance/import" class="btn btn-ghost"><i class="bi bi-cloud-upload"></i> Import</a>
+    <a href="/compliance/create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Create Package</a>
   </div>
 </div>
 
@@ -86,8 +87,11 @@ ob_start();
   <div class="empty-state card col-span-3">
     <div class="empty-icon"><i class="bi bi-shield-x"></i></div>
     <h3>No compliance packages</h3>
-    <p>Import your first standard to get started with compliance tracking.</p>
-    <a href="/compliance/import" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Import Standard</a>
+    <p>Create a custom package and add controls manually, or import an existing standard.</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <a href="/compliance/create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Create Package</a>
+      <a href="/compliance/import" class="btn btn-ghost"><i class="bi bi-cloud-upload"></i> Import Standard</a>
+    </div>
   </div>
 <?php endif; ?>
 </div>
