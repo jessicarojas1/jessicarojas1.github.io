@@ -255,6 +255,7 @@ $routes = [
         '/compliance/import'             => ['ComplianceController', 'import'],
         '/compliance/add-single-control' => ['ComplianceController', 'addSingleControl'],
         '/compliance/clear-all'          => ['ComplianceController', 'clearAll'],
+        '/compliance/delete-selected'    => ['ComplianceController', 'deleteSelected'],
         '/audit/create'                  => ['AuditController', 'create'],
         '/policy/create'                 => ['PolicyController', 'create'],
         '/risk/create'                   => ['RiskController', 'create'],

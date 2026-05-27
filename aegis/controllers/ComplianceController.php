@@ -85,12 +85,37 @@ class ComplianceController {
         Auth::requirePermission('compliance.write');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $id = (int)$id;
-        Database::query("UPDATE audits SET package_id = NULL WHERE package_id = ?", [$id]);
-        Database::query("DELETE FROM audit_schedules WHERE package_id = ?", [$id]);
-        Database::query("DELETE FROM compliance_packages WHERE id = ?", [$id]);
+        $this->deletePackageById($id);
         Auth::log('delete_package', 'compliance_packages', $id);
         $_SESSION['flash_success'] = 'Package deleted.';
         header('Location: /compliance');
+    }
+
+    public function deleteSelected(): void {
+        Auth::requirePermission('compliance.write');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
+        $ids = array_map('intval', (array)($_POST['package_ids'] ?? []));
+        $ids = array_filter($ids);
+        if (empty($ids)) { header('Location: /compliance'); exit; }
+        foreach ($ids as $id) { $this->deletePackageById($id); }
+        Auth::log('delete_selected_packages', 'compliance_packages', implode(',', $ids));
+        $_SESSION['flash_success'] = count($ids) . ' package(s) deleted.';
+        header('Location: /compliance'); exit;
+    }
+
+    private function deletePackageById(int $id): void {
+        // Must delete audit_items referencing objectives of this package first (no CASCADE on FK)
+        Database::query(
+            "DELETE FROM audit_items WHERE objective_id IN (
+                SELECT co.id FROM compliance_objectives co
+                JOIN compliance_domains cd ON co.domain_id = cd.id
+                WHERE cd.package_id = ?
+            )",
+            [$id]
+        );
+        Database::query("UPDATE audits SET package_id = NULL WHERE package_id = ?", [$id]);
+        Database::query("DELETE FROM audit_schedules WHERE package_id = ?", [$id]);
+        Database::query("DELETE FROM compliance_packages WHERE id = ?", [$id]);
     }
 
     // ─── Domain Management ─────────────────────────────────────────────────────
@@ -490,7 +515,13 @@ class ComplianceController {
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403); return;
         }
-        // Nullify package_id on audits/schedules (no CASCADE), then cascade-delete packages
+        // audit_items FK → compliance_objectives has no CASCADE, must delete first
+        Database::query(
+            "DELETE FROM audit_items WHERE objective_id IN (
+                SELECT co.id FROM compliance_objectives co
+                JOIN compliance_domains cd ON co.domain_id = cd.id
+            )"
+        );
         Database::query("UPDATE audits SET package_id = NULL WHERE package_id IS NOT NULL");
         Database::query("DELETE FROM audit_schedules WHERE package_id IS NOT NULL");
         Database::query("DELETE FROM compliance_packages");

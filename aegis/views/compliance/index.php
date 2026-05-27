@@ -11,8 +11,18 @@ ob_start();
     <h1 class="page-title">Compliance Packages</h1>
     <p class="page-subtitle">Manage your standards and compliance frameworks</p>
   </div>
-  <div class="page-actions">
+  <div class="page-actions" id="pageActions">
     <?php if ($packages && Auth::can('compliance.write')): ?>
+    <!-- Delete selected (hidden until checkboxes selected) -->
+    <form method="POST" action="/compliance/delete-selected" id="deleteSelectedForm"
+          onsubmit="return confirm('Delete selected package(s) and all their controls? This cannot be undone.')">
+      <?= Security::csrfField() ?>
+      <div id="selectedHiddenInputs"></div>
+      <button type="submit" class="btn btn-danger" id="deleteSelectedBtn" style="display:none">
+        <i class="bi bi-trash3-fill"></i> Delete Selected (<span id="selectedCount">0</span>)
+      </button>
+    </form>
+    <!-- Clear all -->
     <form method="POST" action="/compliance/clear-all" onsubmit="return confirm('Delete ALL compliance packages and their controls? This cannot be undone.')">
       <?= Security::csrfField() ?>
       <button type="submit" class="btn btn-danger"><i class="bi bi-trash3-fill"></i> Clear All</button>
@@ -24,6 +34,7 @@ ob_start();
 </div>
 
 <!-- Package cards -->
+<form id="pkgSelectForm">
 <div class="package-grid">
 <?php foreach ($packages as $pkg):
   $total     = max(1, (int)$pkg['control_count']);
@@ -32,7 +43,15 @@ ob_start();
   $pct       = round(($compliant / $total) * 100);
   $color     = $pct >= 80 ? '#059669' : ($pct >= 50 ? '#d97706' : '#dc2626');
 ?>
-  <div class="package-card">
+  <div class="package-card" id="pkgcard-<?= $pkg['id'] ?>">
+    <?php if (Auth::can('compliance.write')): ?>
+    <label class="pkg-select-label">
+      <input type="checkbox" class="pkg-checkbox" value="<?= $pkg['id'] ?>"
+             onchange="updateSelection()" aria-label="Select <?= Security::h($pkg['name']) ?>">
+      <span class="pkg-select-indicator"><i class="bi bi-check-lg"></i></span>
+    </label>
+    <?php endif; ?>
+
     <div class="package-card-header">
       <div class="package-badge" style="background:<?= categoryColor($pkg['standard_category']) ?>20;border-color:<?= categoryColor($pkg['standard_category']) ?>40">
         <i class="bi bi-<?= categoryIcon($pkg['standard_category']) ?>" style="color:<?= categoryColor($pkg['standard_category']) ?>"></i>
@@ -95,6 +114,58 @@ ob_start();
   </div>
 <?php endif; ?>
 </div>
+</form>
+
+<style>
+.package-card { position: relative; }
+.pkg-select-label {
+  position: absolute; top: 12px; right: 12px; z-index: 2;
+  cursor: pointer; display: flex; align-items: center;
+}
+.pkg-select-label input[type=checkbox] { display: none; }
+.pkg-select-indicator {
+  width: 22px; height: 22px; border-radius: 6px;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; color: transparent;
+  transition: all .15s;
+}
+.pkg-select-label input:checked + .pkg-select-indicator {
+  background: #ef4444; border-color: #ef4444; color: #fff;
+}
+.package-card.selected {
+  outline: 2px solid #ef4444;
+  outline-offset: 2px;
+}
+</style>
+
+<script>
+function updateSelection() {
+  const checked = document.querySelectorAll('.pkg-checkbox:checked');
+  const btn = document.getElementById('deleteSelectedBtn');
+  const countEl = document.getElementById('selectedCount');
+  const inputsDiv = document.getElementById('selectedHiddenInputs');
+
+  countEl.textContent = checked.length;
+  btn.style.display = checked.length > 0 ? '' : 'none';
+
+  inputsDiv.innerHTML = '';
+  checked.forEach(cb => {
+    const card = document.getElementById('pkgcard-' + cb.value);
+    if (card) card.classList.add('selected');
+    const inp = document.createElement('input');
+    inp.type = 'hidden'; inp.name = 'package_ids[]'; inp.value = cb.value;
+    inputsDiv.appendChild(inp);
+  });
+
+  // Remove selected class from unchecked
+  document.querySelectorAll('.pkg-checkbox:not(:checked)').forEach(cb => {
+    const card = document.getElementById('pkgcard-' + cb.value);
+    if (card) card.classList.remove('selected');
+  });
+}
+</script>
 
 <?php
 function categoryColor(string $cat): string {
