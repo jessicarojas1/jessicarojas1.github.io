@@ -136,14 +136,13 @@ document.querySelectorAll('.perm-col-all').forEach(function (btn) {
     else { openSidebar(); }
   };
 
-  // Wire the hamburger button directly — more reliable than onclick=""
-  document.addEventListener('DOMContentLoaded', function() {
-    var btn = document.querySelector('.sidebar-toggle');
-    if (btn) {
-      btn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        window.toggleSidebar();
-      });
-    }
-  });
+  // Wire the hamburger button directly.
+  // Script is at bottom of <body> so .sidebar-toggle is already in the DOM.
+  var btn = document.querySelector('.sidebar-toggle');
+  if (btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      window.toggleSidebar();
+    });
+  }
 })();
