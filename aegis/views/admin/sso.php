@@ -1,7 +1,6 @@
 <?php
 $cfg = $cfg ?? SSO::config();
 $roles = ['admin', 'manager', 'auditor', 'analyst', 'viewer'];
-ob_start();
 ?>
 <div class="page-header">
   <div>
@@ -126,4 +125,3 @@ ob_start();
 </form>
 
 <?php
-$content = ob_get_clean();

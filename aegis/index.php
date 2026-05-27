@@ -154,6 +154,46 @@ try {
     unset($__rcols, $__rexisting, $__riskMigrations, $__col, $__sql);
 } catch (Throwable) {}
 
+try {
+    // user_notification_prefs: create if missing
+    $__notifExists = Database::fetchOne(
+        "SELECT 1 FROM information_schema.tables WHERE table_name='user_notification_prefs' AND table_schema='public'"
+    );
+    if (!$__notifExists) {
+        Database::query(
+            "CREATE TABLE user_notification_prefs (
+               id                SERIAL PRIMARY KEY,
+               user_id           INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+               notification_type VARCHAR(100) NOT NULL,
+               enabled           BOOLEAN NOT NULL DEFAULT TRUE,
+               digest_mode       VARCHAR(20),
+               digest_time       TIME,
+               UNIQUE(user_id, notification_type)
+             )"
+        );
+    }
+    unset($__notifExists);
+} catch (Throwable) {}
+
+try {
+    // vendor_assessments: add missing columns
+    $__vacols = Database::fetchAll(
+        "SELECT column_name FROM information_schema.columns WHERE table_name='vendor_assessments' AND table_schema='public'"
+    );
+    $__vaexisting = array_column($__vacols, 'column_name');
+    $__vaMigrations = [
+        'overall_score'        => "ALTER TABLE vendor_assessments ADD COLUMN overall_score INTEGER CHECK (overall_score >= 0 AND overall_score <= 100)",
+        'risk_rating'          => "ALTER TABLE vendor_assessments ADD COLUMN risk_rating VARCHAR(20)",
+        'next_assessment_date' => "ALTER TABLE vendor_assessments ADD COLUMN next_assessment_date DATE",
+    ];
+    foreach ($__vaMigrations as $__col => $__sql) {
+        if (!in_array($__col, $__vaexisting, true)) {
+            Database::query($__sql);
+        }
+    }
+    unset($__vacols, $__vaexisting, $__vaMigrations, $__col, $__sql);
+} catch (Throwable) {}
+
 // Parse route
 $uri    = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 $uri    = '/' . ltrim($uri, '/');
@@ -310,7 +350,6 @@ $routes = [
         '/admin/scheduled-reports'    => ['AdminController', 'scheduledReports'],
         '/admin/scheduled-reports/create' => ['AdminController', 'scheduledReportForm'],
         '/admin/email-delivery'       => ['AdminController', 'emailDelivery'],
-        '/profile/notifications'      => ['ProfileController', 'notifications'],
         '/risk-acceptances'           => ['RiskAcceptanceController', 'index'],
         '/risk/scenarios'             => ['ScenarioController', 'index'],
     ],

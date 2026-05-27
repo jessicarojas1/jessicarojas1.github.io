@@ -181,7 +181,7 @@ $avgScore = count($scenarios) > 0 ? round($totalScoreSum / count($scenarios), 1)
           <!-- Delete -->
           <?php if (Auth::can('risk.write')): ?>
           <td style="padding:12px 10px;text-align:center">
-            <form method="POST" action="/risk/scenario/<?= (int)$sc['id'] ?>/delete"
+            <form method="POST" action="/risk-scenarios/<?= (int)$sc['id'] ?>/delete"
                   onsubmit="return confirm('Delete scenario \'<?= addslashes(Security::h($sc['name'])) ?>\'?')">
               <?= Security::csrfField() ?>
               <button type="submit"

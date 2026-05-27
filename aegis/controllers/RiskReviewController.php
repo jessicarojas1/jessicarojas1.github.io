@@ -26,10 +26,7 @@ class RiskReviewController {
         $pageTitle    = 'Risk Review Sessions';
         $activeModule = 'risk';
         $breadcrumbs  = [['Risk Register', '/risk'], ['Review Sessions', null]];
-        ob_start();
         require AEGIS_ROOT . '/views/risk/reviews.php';
-        $content = ob_get_clean();
-        require AEGIS_ROOT . '/views/layout.php';
     }
 
     // ─────────────────────────────────────────── createForm ──────────────────
@@ -43,10 +40,7 @@ class RiskReviewController {
         $pageTitle    = 'Schedule Risk Review';
         $activeModule = 'risk';
         $breadcrumbs  = [['Risk Register', '/risk'], ['Review Sessions', '/risk/reviews'], ['Schedule', null]];
-        ob_start();
         require AEGIS_ROOT . '/views/risk/review_form.php';
-        $content = ob_get_clean();
-        require AEGIS_ROOT . '/views/layout.php';
     }
 
     // ─────────────────────────────────────────── create ──────────────────────
@@ -218,10 +212,7 @@ class RiskReviewController {
         $pageTitle    = Security::h($review['title']) . ' — Review';
         $activeModule = 'risk';
         $breadcrumbs  = [['Risk Register', '/risk'], ['Review Sessions', '/risk/reviews'], [$review['title'], null]];
-        ob_start();
         require AEGIS_ROOT . '/views/risk/review_view.php';
-        $content = ob_get_clean();
-        require AEGIS_ROOT . '/views/layout.php';
     }
 
     // ─────────────────────────────────────────── updateItem ──────────────────

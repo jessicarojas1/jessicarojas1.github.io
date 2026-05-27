@@ -52,7 +52,7 @@ ob_start();
   <div class="audit-meta-card">
     <div class="audit-meta-label">Progress</div>
     <div class="progress-mini-wrap">
-      <?php $total=$summary['total']??1; $assessed=$total-($summary['not_assessed']??0); $pct=round($assessed/$total*100); ?>
+      <?php $total=max(1,(int)($summary['total']??0)); $assessed=$total-($summary['not_assessed']??0); $pct=round($assessed/$total*100); ?>
       <div class="progress-bar-wrap">
         <div class="progress-fill" style="width:<?= $pct ?>%;background:#4f46e5"></div>
       </div>

@@ -217,7 +217,7 @@ ob_start();
 </style>
 
 <div style="max-width:640px">
-  <form method="POST" action="/profile/notifications">
+  <form method="POST" action="/profile/notifications/save">
     <input type="hidden" name="csrf_token" value="<?= Security::generateCsrfToken() ?>">
 
     <div class="card">

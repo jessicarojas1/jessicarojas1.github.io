@@ -18,10 +18,7 @@ class ProfileController {
         $pageTitle    = 'Notification Preferences';
         $activeModule = 'profile';
         $breadcrumbs  = [['Notification Preferences', null]];
-        ob_start();
         require AEGIS_ROOT . '/views/profile/notifications.php';
-        $content = ob_get_clean();
-        require AEGIS_ROOT . '/views/layout.php';
     }
 
     public function saveNotifications(): void {
