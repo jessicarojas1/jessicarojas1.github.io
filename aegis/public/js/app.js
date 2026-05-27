@@ -113,19 +113,38 @@ document.querySelectorAll('.perm-col-all').forEach(function (btn) {
 (function() {
   var overlay = document.createElement('div');
   overlay.className = 'sidebar-overlay';
-  overlay.onclick = function() { closeMobileSidebar(); };
+  overlay.addEventListener('click', function() { closeMobileSidebar(); });
   document.body.appendChild(overlay);
 
-  window.toggleSidebar = function() {
+  function openSidebar() {
     var s = document.getElementById('sidebar');
     if (!s) return;
-    if (s.classList.contains('open')) { closeMobileSidebar(); }
-    else { s.classList.add('open'); overlay.classList.add('open'); }
-  };
+    s.classList.add('open');
+    overlay.classList.add('open');
+  }
 
   function closeMobileSidebar() {
     var s = document.getElementById('sidebar');
     if (s) s.classList.remove('open');
     overlay.classList.remove('open');
   }
+
+  window.toggleSidebar = function() {
+    var s = document.getElementById('sidebar');
+    if (!s) return;
+    if (s.classList.contains('open')) { closeMobileSidebar(); }
+    else { openSidebar(); }
+  };
+
+  // Wire the hamburger button directly — more reliable than onclick=""
+  document.addEventListener('DOMContentLoaded', function() {
+    var btn = document.querySelector('.sidebar-toggle');
+    if (btn) {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        window.toggleSidebar();
+      });
+    }
+  });
+})();
 })();

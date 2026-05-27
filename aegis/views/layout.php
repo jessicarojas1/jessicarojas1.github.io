@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-<link rel="stylesheet" href="/public/css/app.css?v=4">
+<link rel="stylesheet" href="/public/css/app.css?v=5">
 <link rel="manifest" href="/public/manifest.json">
 <meta name="theme-color" content="#6366f1">
 <meta name="csrf-token" content="<?= Security::generateCsrfToken() ?>">
@@ -259,7 +259,7 @@
 <div class="main-content" id="mainContent">
   <header class="topbar">
     <div class="topbar-left">
-      <button class="sidebar-toggle" aria-label="Open menu" type="button" onclick="toggleSidebar()">
+      <button class="sidebar-toggle" aria-label="Open menu" type="button">
         <i class="bi bi-list"></i>
       </button>
       <div class="breadcrumb-area">
@@ -329,6 +329,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js" nonce="<?= Security::nonce() ?>"></script>
-<script src="/public/js/app.js?v=4" nonce="<?= Security::nonce() ?>"></script>
+<script src="/public/js/app.js?v=5" nonce="<?= Security::nonce() ?>"></script>
 </body>
 </html>
