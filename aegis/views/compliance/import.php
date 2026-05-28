@@ -192,6 +192,10 @@ $packages = Database::fetchAll("SELECT id, name FROM compliance_packages WHERE i
             <label class="form-label">Description <span class="text-muted">(optional)</span></label>
             <textarea name="control_description" class="form-control" rows="3" placeholder="What does this control require?"></textarea>
           </div>
+          <div class="form-group">
+            <label class="form-label">Additional Information <span class="text-muted">(optional)</span></label>
+            <textarea name="control_additional_information" class="form-control" rows="3" placeholder="Guidance, references, implementation notes…"></textarea>
+          </div>
           <p class="text-muted" style="font-size:12px;margin-bottom:12px">If the domain code already exists in the package, the control will be added to it. Otherwise a new domain is created automatically.</p>
           <button type="submit" class="btn btn-primary btn-full"><i class="bi bi-plus-lg"></i> Add Control</button>
         </form>
@@ -236,6 +240,7 @@ $packages = Database::fetchAll("SELECT id, name FROM compliance_packages WHERE i
             ['package_name','✓'],['package_version',''],['package_description',''],
             ['domain_code','✓'],['domain_title','✓'],
             ['control_code','✓'],['control_title','✓'],['control_description',''],
+            ['control_additional_information',''],
           ] as [$col,$req]): ?>
             <tr style="border-bottom:1px solid var(--border-light)">
               <td style="padding:4px 8px;font-family:monospace;font-size:11px"><?= $col ?></td>
@@ -247,22 +252,6 @@ $packages = Database::fetchAll("SELECT id, name FROM compliance_packages WHERE i
       </div>
     </div>
 
-    <?php if ($standards): ?>
-    <div class="card" style="margin-top:16px">
-      <div class="card-header"><h3 class="card-title"><i class="bi bi-info-circle-fill"></i> Built-in Standards</h3></div>
-      <div class="card-body p0">
-        <?php foreach ($standards as $s): ?>
-          <div class="list-item">
-            <div class="list-item-body">
-              <div class="list-item-title"><?= Security::h($s['name']) ?></div>
-              <div class="list-item-sub"><?= Security::h($s['code']) ?> · <?= Security::h($s['authority']) ?></div>
-            </div>
-            <span class="badge badge-green">Built-in</span>
-          </div>
-        <?php endforeach; ?>
-      </div>
-    </div>
-    <?php endif; ?>
   </div>
 
 </div><!-- /two-col-layout -->

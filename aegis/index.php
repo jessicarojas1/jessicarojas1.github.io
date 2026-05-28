@@ -195,6 +195,17 @@ try {
 } catch (Throwable) {}
 
 try {
+    // compliance_objectives: add additional_information column if missing
+    $__coCol = Database::fetchOne(
+        "SELECT 1 FROM information_schema.columns WHERE table_name='compliance_objectives' AND column_name='additional_information' AND table_schema='public'"
+    );
+    if (!$__coCol) {
+        Database::query("ALTER TABLE compliance_objectives ADD COLUMN additional_information TEXT");
+    }
+    unset($__coCol);
+} catch (Throwable) {}
+
+try {
     // Risk appetite: remove duplicate rows (keep lowest id per category), then seed defaults if empty
     Database::query(
         "DELETE FROM risk_appetite WHERE id NOT IN (

@@ -461,10 +461,10 @@ class ComplianceController {
         header('Content-Type: text/csv');
         header('Content-Disposition: attachment; filename="compliance_template.csv"');
         $out = fopen('php://output', 'w');
-        fputcsv($out, ['package_name','package_version','package_description','domain_code','domain_title','control_code','control_title','control_description']);
-        fputcsv($out, ['My Compliance Framework','1.0','Internal security controls','D1','Access Control','D1.1','User Access Management','Ensure all user accounts are reviewed quarterly']);
-        fputcsv($out, ['My Compliance Framework','1.0','Internal security controls','D1','Access Control','D1.2','Privileged Access','Privileged access must require MFA and be logged']);
-        fputcsv($out, ['My Compliance Framework','1.0','Internal security controls','D2','Risk Management','D2.1','Risk Assessment','Conduct annual risk assessments for all critical systems']);
+        fputcsv($out, ['package_name','package_version','package_description','domain_code','domain_title','control_code','control_title','control_description','control_additional_information']);
+        fputcsv($out, ['My Compliance Framework','1.0','Internal security controls','D1','Access Control','D1.1','User Access Management','Ensure all user accounts are reviewed quarterly','Additional guidance or references here']);
+        fputcsv($out, ['My Compliance Framework','1.0','Internal security controls','D1','Access Control','D1.2','Privileged Access','Privileged access must require MFA and be logged','']);
+        fputcsv($out, ['My Compliance Framework','1.0','Internal security controls','D2','Risk Management','D2.1','Risk Assessment','Conduct annual risk assessments for all critical systems','']);
         fclose($out);
         exit;
     }
@@ -472,10 +472,10 @@ class ComplianceController {
     public function downloadExcelTemplate(): void {
         Auth::requirePermission('compliance.write');
         $rows = [
-            ['package_name','package_version','package_description','domain_code','domain_title','control_code','control_title','control_description'],
-            ['My Compliance Framework','1.0','Internal security controls','D1','Access Control','D1.1','User Access Management','Ensure all user accounts are reviewed quarterly'],
-            ['My Compliance Framework','1.0','Internal security controls','D1','Access Control','D1.2','Privileged Access','Privileged access must require MFA and be logged'],
-            ['My Compliance Framework','1.0','Internal security controls','D2','Risk Management','D2.1','Risk Assessment','Conduct annual risk assessments for all critical systems'],
+            ['package_name','package_version','package_description','domain_code','domain_title','control_code','control_title','control_description','control_additional_information'],
+            ['My Compliance Framework','1.0','Internal security controls','D1','Access Control','D1.1','User Access Management','Ensure all user accounts are reviewed quarterly','Additional guidance or references here'],
+            ['My Compliance Framework','1.0','Internal security controls','D1','Access Control','D1.2','Privileged Access','Privileged access must require MFA and be logged',''],
+            ['My Compliance Framework','1.0','Internal security controls','D2','Risk Management','D2.1','Risk Assessment','Conduct annual risk assessments for all critical systems',''],
         ];
         $xlsx = $this->buildXlsx($rows);
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -574,6 +574,7 @@ class ComplianceController {
         $cCode  = Security::sanitizeInput($_POST['control_code'] ?? '');
         $cTitle = Security::sanitizeInput($_POST['control_title'] ?? '');
         $cDesc  = Security::sanitizeInput($_POST['control_description'] ?? '');
+        $cInfo  = Security::sanitizeInput($_POST['control_additional_information'] ?? '');
 
         if (!$pkgId || !$dCode || !$dTitle || !$cCode || !$cTitle) {
             $_SESSION['import_errors'] = ['All fields except description are required.'];
@@ -603,8 +604,12 @@ class ComplianceController {
             [$domainId]
         )['s'] ?? 0);
         Database::insert('compliance_objectives', [
-            'package_id' => $pkgId, 'parent_id' => $domainId,
-            'code' => $cCode, 'title' => $cTitle, 'description' => $cDesc,
+            'package_id'             => $pkgId,
+            'parent_id'              => $domainId,
+            'code'                   => $cCode,
+            'title'                  => $cTitle,
+            'description'            => $cDesc,
+            'additional_information' => $cInfo,
             'level' => 2, 'sort_order' => $sort,
         ]);
         $this->syncCount($pkgId);
@@ -706,9 +711,10 @@ class ComplianceController {
             $cc = trim($row[$idx['control_code']]);
             $ct = trim($row[$idx['control_title']]);
             $cd = trim($row[$idx['control_description'] ?? -1] ?? '');
+            $ci = trim($row[$idx['control_additional_information'] ?? -1] ?? '');
             if (!$dc || !$cc) continue;
             if (!isset($domains[$dc])) $domains[$dc] = ['title' => $dt, 'controls' => []];
-            $domains[$dc]['controls'][] = ['code' => $cc, 'title' => $ct, 'description' => $cd];
+            $domains[$dc]['controls'][] = ['code' => $cc, 'title' => $ct, 'description' => $cd, 'additional_information' => $ci];
         }
 
         $domainSort = 0;
@@ -723,13 +729,14 @@ class ComplianceController {
             $ctrlSort = 0;
             foreach ($domain['controls'] as $ctrl) {
                 Database::insert('compliance_objectives', [
-                    'package_id' => $pkgId,
-                    'parent_id'  => $domainId,
-                    'code'       => $ctrl['code'],
-                    'title'      => $ctrl['title'],
-                    'description'=> $ctrl['description'],
-                    'level'      => 2,
-                    'sort_order' => $ctrlSort++,
+                    'package_id'             => $pkgId,
+                    'parent_id'              => $domainId,
+                    'code'                   => $ctrl['code'],
+                    'title'                  => $ctrl['title'],
+                    'description'            => $ctrl['description'],
+                    'additional_information' => $ctrl['additional_information'] ?? '',
+                    'level'                  => 2,
+                    'sort_order'             => $ctrlSort++,
                 ]);
             }
         }
@@ -812,13 +819,14 @@ class ComplianceController {
             $ctrlSort = 0;
             foreach ($domain['controls'] as $ctrl) {
                 Database::insert('compliance_objectives', [
-                    'package_id' => $pkgId,
-                    'parent_id'  => $domainId,
-                    'code'       => $ctrl['code'],
-                    'title'      => $ctrl['title'],
-                    'description'=> $ctrl['description'],
-                    'level'      => 2,
-                    'sort_order' => $ctrlSort++,
+                    'package_id'             => $pkgId,
+                    'parent_id'              => $domainId,
+                    'code'                   => $ctrl['code'],
+                    'title'                  => $ctrl['title'],
+                    'description'            => $ctrl['description'],
+                    'additional_information' => $ctrl['additional_information'] ?? '',
+                    'level'                  => 2,
+                    'sort_order'             => $ctrlSort++,
                 ]);
             }
         }
