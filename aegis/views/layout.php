@@ -92,7 +92,7 @@
     <?php if (moduleVisible('risk_matrix',      $__mv)): ?><a href="/risk/matrix"       class="nav-item <?= $activeModule==='risk_matrix'?'active':'' ?>"><i class="bi bi-grid-3x3-gap-fill"></i><span>Risk Matrix</span></a><?php endif; ?>
     <?php if (moduleVisible('risk_roadmap',     $__mv)): ?><a href="/risk/roadmap"      class="nav-item <?= $activeModule==='risk_roadmap'?'active':'' ?>"><i class="bi bi-kanban-fill"></i><span>Treatment Roadmap</span></a><?php endif; ?>
     <?php if (moduleVisible('risk_exceptions',  $__mv)): ?><a href="/risk/exceptions"   class="nav-item <?= $activeModule==='risk_exceptions'?'active':'' ?>"><i class="bi bi-shield-slash"></i><span>Exceptions</span></a><?php endif; ?>
-    <?php if (moduleVisible('threats',          $__mv)): ?><a href="/threats"           class="nav-item <?= $activeModule==='threats'?'active':'' ?>"><i class="bi bi-biohazard"></i><span>Threat Register</span></a><?php endif; ?>
+    <?php if (moduleVisible('threats',          $__mv)): ?><a href="/threats"           class="nav-item <?= $activeModule==='threats'?'active':'' ?>"><i class="bi bi-shield-exclamation"></i><span>Threat Register</span></a><?php endif; ?>
     <?php if (moduleVisible('treatment_plans',  $__mv)): ?><a href="/treatment"         class="nav-item <?= $activeModule==='treatment_plans'?'active':'' ?>"><i class="bi bi-tools"></i><span>Treatment Plans</span></a><?php endif; ?>
     <?php if (moduleVisible('kris',             $__mv)): ?><a href="/kris"              class="nav-item <?= $activeModule==='kris'?'active':'' ?>"><i class="bi bi-activity"></i><span>KRI Dashboard</span></a><?php endif; ?>
     <?php if (moduleVisible('vendor',           $__mv)): ?><a href="/vendor"            class="nav-item <?= $activeModule==='vendor'?'active':'' ?>"><i class="bi bi-building"></i><span>Vendor Risk</span></a><?php endif; ?>
@@ -266,6 +266,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js" nonce="<?= Security::nonce() ?>"></script>
-<script src="/public/js/app.js?v=6" nonce="<?= Security::nonce() ?>"></script>
+<script src="/public/js/app.js?v=7" nonce="<?= Security::nonce() ?>"></script>
 </body>
 </html>

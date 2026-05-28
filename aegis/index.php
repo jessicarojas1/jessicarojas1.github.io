@@ -194,6 +194,33 @@ try {
     unset($__vacols, $__vaexisting, $__vaMigrations, $__col, $__sql);
 } catch (Throwable) {}
 
+try {
+    // Risk appetite: remove duplicate rows (keep lowest id per category), then seed defaults if empty
+    Database::query(
+        "DELETE FROM risk_appetite WHERE id NOT IN (
+           SELECT MIN(id) FROM risk_appetite GROUP BY category
+         )"
+    );
+    $__raCount = Database::fetchOne("SELECT COUNT(*) AS cnt FROM risk_appetite");
+    if (($__raCount['cnt'] ?? 0) == 0) {
+        $__raDefaults = [
+            ['Financial',    'Low',    6,  'Financial losses above $50,000 require board approval'],
+            ['Operational',  'Medium', 12, 'Operational disruptions should be resolved within 48 hours'],
+            ['Strategic',    'Medium', 10, 'Strategic risks require executive review before acceptance'],
+            ['Compliance',   'Low',    4,  'Compliance violations are not tolerated; immediate remediation required'],
+            ['Technology',   'Medium', 12, 'Technology risks above threshold require CISO sign-off'],
+            ['Reputational', 'Low',    6,  'Reputational risks must be escalated to leadership immediately'],
+        ];
+        foreach ($__raDefaults as [$__cat, $__app, $__max, $__stmt]) {
+            Database::query(
+                "INSERT INTO risk_appetite (category, appetite, max_score, statement) VALUES (?, ?, ?, ?)",
+                [$__cat, $__app, $__max, $__stmt]
+            );
+        }
+    }
+    unset($__raCount, $__raDefaults, $__cat, $__app, $__max, $__stmt);
+} catch (Throwable) {}
+
 // Parse route
 $uri    = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 $uri    = '/' . ltrim($uri, '/');
