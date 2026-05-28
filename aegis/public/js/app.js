@@ -181,4 +181,14 @@ document.querySelectorAll('.perm-col-all').forEach(function (btn) {
       window.toggleSidebar();
     });
   }
+
+  // Persist sidebar scroll position across page navigations
+  var sidebar = document.getElementById('sidebar');
+  if (sidebar) {
+    var saved = sessionStorage.getItem('sidebarScroll');
+    if (saved) { sidebar.scrollTop = parseInt(saved, 10); }
+    sidebar.addEventListener('scroll', function() {
+      sessionStorage.setItem('sidebarScroll', sidebar.scrollTop);
+    });
+  }
 })();

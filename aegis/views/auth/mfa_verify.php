@@ -129,29 +129,51 @@ function assembleCode() {
   document.getElementById('codeInput').value = code;
 }
 
-function toggleBackupForm() {
+function showBackupSection() {
   var totpSection  = document.getElementById('digitBoxes');
   var totpSubmit   = document.querySelector('#mfaForm button[type="submit"]');
   var backupSec    = document.getElementById('backupCodeSection');
   var toggleBtn    = document.getElementById('toggleBackupBtn');
-  var isShowingBackup = backupSec.style.display !== 'none';
+  backupSec.style.display   = 'block';
+  totpSection.style.display = 'none';
+  totpSubmit.style.display  = 'none';
+  toggleBtn.textContent     = 'Use authenticator code instead';
+  backupSec.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  setTimeout(function() { document.getElementById('backupCodeInput').focus(); }, 100);
+}
 
-  if (isShowingBackup) {
-    backupSec.style.display    = 'none';
-    totpSection.style.display  = '';
-    totpSubmit.style.display   = '';
-    toggleBtn.textContent      = 'Use a backup code instead';
+function hideBackupSection() {
+  var totpSection  = document.getElementById('digitBoxes');
+  var totpSubmit   = document.querySelector('#mfaForm button[type="submit"]');
+  var backupSec    = document.getElementById('backupCodeSection');
+  var toggleBtn    = document.getElementById('toggleBackupBtn');
+  backupSec.style.display   = 'none';
+  totpSection.style.display = '';
+  totpSubmit.style.display  = '';
+  toggleBtn.textContent     = 'Use a backup code instead';
+  if (!window.matchMedia('(hover: none)').matches) {
     document.getElementById('d0').focus();
-  } else {
-    backupSec.style.display    = 'block';
-    totpSection.style.display  = 'none';
-    totpSubmit.style.display   = 'none';
-    toggleBtn.textContent      = 'Use authenticator code instead';
-    document.getElementById('backupCodeInput').focus();
   }
 }
 
-document.getElementById('d0').focus();
+function toggleBackupForm() {
+  var backupSec = document.getElementById('backupCodeSection');
+  if (backupSec.style.display !== 'none') {
+    hideBackupSection();
+  } else {
+    showBackupSection();
+  }
+}
+
+// Only auto-focus the digit box on non-touch (desktop) devices
+if (!window.matchMedia('(hover: none)').matches) {
+  document.getElementById('d0').focus();
+}
+
+// Auto-open backup section if redirected back after a failed backup attempt
+if (new URLSearchParams(window.location.search).get('mode') === 'backup') {
+  showBackupSection();
+}
 
 // Auto-format backup code input: insert hyphen after 4 chars
 document.getElementById('backupCodeInput').addEventListener('input', function() {

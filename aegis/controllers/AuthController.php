@@ -400,8 +400,8 @@ class AuthController {
             }
         }
         if (!$matched) {
-            $_SESSION['flash_error'] = 'Invalid or already used backup code.';
-            header('Location: /mfa/verify'); return;
+            $_SESSION['mfa_error'] = 'Invalid or already used backup code. Please try again.';
+            header('Location: /mfa/verify?mode=backup'); return;
         }
         // Mark code as used
         Database::query("UPDATE mfa_backup_codes SET used_at=NOW() WHERE id=?", [$matched]);
