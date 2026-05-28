@@ -261,6 +261,72 @@ class ComplianceController {
         echo json_encode(['ok' => true, 'updated' => count($validIds), 'new_csrf' => Security::generateCsrfToken()]);
     }
 
+    public function bulkAssess(string $pkgId): void {
+        Auth::requirePermission('compliance.write');
+        header('Content-Type: application/json');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            echo json_encode(['ok' => false, 'error' => 'Invalid CSRF token']); return;
+        }
+        $pkgId   = (int)$pkgId;
+        $allowed = ['compliant', 'partial', 'non_compliant', 'not_started', 'not_applicable'];
+        $status  = Security::sanitizeInput($_POST['status'] ?? '');
+        if (!in_array($status, $allowed, true)) {
+            echo json_encode(['ok' => false, 'error' => 'Invalid status']); return;
+        }
+        $ids = array_map('intval', (array)($_POST['ids'] ?? []));
+        $ids = array_filter($ids);
+        if (empty($ids)) {
+            echo json_encode(['ok' => false, 'error' => 'No controls selected']); return;
+        }
+
+        $notes      = Security::sanitizeInput($_POST['implementation_notes'] ?? '');
+        $evidence   = Security::sanitizeInput($_POST['evidence'] ?? '');
+        $dueDate    = !empty($_POST['due_date']) ? Security::sanitizeInput($_POST['due_date']) : null;
+        $assignedTo = !empty($_POST['assigned_to']) ? (int)$_POST['assigned_to'] : null;
+
+        // Only update controls that belong to this package
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $validRows = Database::fetchAll(
+            "SELECT id FROM compliance_objectives WHERE id IN ($placeholders) AND package_id = ? AND level = 2",
+            array_merge($ids, [$pkgId])
+        );
+        $validIds = array_column($validRows, 'id');
+
+        foreach ($validIds as $objId) {
+            $existing = Database::fetchOne("SELECT id FROM control_implementations WHERE objective_id = ?", [$objId]);
+            if ($existing) {
+                Database::query(
+                    "UPDATE control_implementations
+                     SET status=?, implementation_notes=?, evidence=?, due_date=?, assigned_to=?,
+                         last_reviewed=NOW(), reviewed_by=?, updated_at=NOW()
+                     WHERE objective_id=?",
+                    [$status, $notes, $evidence, $dueDate, $assignedTo, Auth::id(), $objId]
+                );
+            } else {
+                Database::query(
+                    "INSERT INTO control_implementations
+                     (objective_id, status, implementation_notes, evidence, due_date, assigned_to, last_reviewed, reviewed_by)
+                     VALUES (?,?,?,?,?,?,NOW(),?)",
+                    [$objId, $status, $notes, $evidence, $dueDate, $assignedTo, Auth::id()]
+                );
+            }
+        }
+
+        $assignedName = null;
+        if ($assignedTo) {
+            $u = Database::fetchOne("SELECT name FROM users WHERE id = ?", [$assignedTo]);
+            $assignedName = $u ? $u['name'] : null;
+        }
+
+        Auth::log('bulk_assess_controls', 'compliance_packages', $pkgId, ['status' => $status, 'count' => count($validIds)]);
+        echo json_encode([
+            'ok'            => true,
+            'updated'       => count($validIds),
+            'assigned_name' => $assignedName,
+            'new_csrf'      => Security::generateCsrfToken(),
+        ]);
+    }
+
     private function syncCount(int $pkgId): void {
         Database::query(
             "UPDATE compliance_packages SET objectives_count = (SELECT COUNT(*) FROM compliance_objectives WHERE package_id=? AND level=2) WHERE id=?",

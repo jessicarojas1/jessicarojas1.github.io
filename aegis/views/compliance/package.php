@@ -87,6 +87,7 @@ ob_start();
   <button class="bulk-status-btn" data-status="non_compliant" style="background:#dc2626;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="bi bi-x-circle-fill"></i> Non-Compliant</button>
   <button class="bulk-status-btn" data-status="not_started"   style="background:#475569;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="bi bi-circle"></i> Not Started</button>
   <button class="bulk-status-btn" data-status="not_applicable" style="background:#334155;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="bi bi-slash-circle-fill"></i> N/A</button>
+  <button id="bulk-assess-btn" onclick="openBulkAssess()" style="background:#4f46e5;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="bi bi-clipboard2-check-fill"></i> Bulk Assess</button>
   <button onclick="clearSelection()" style="margin-left:auto;background:none;border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:6px;padding:6px 10px;font-size:12px;cursor:pointer">✕ Clear</button>
 </div>
 
@@ -556,15 +557,178 @@ document.querySelectorAll('.bulk-status-btn').forEach(function(btn) {
   });
 });
 
-function showToast(msg) {
+function showToast(msg, color) {
   var t = document.createElement('div');
   t.textContent = msg;
-  t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#059669;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.2);pointer-events:none';
+  t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:' + (color||'#059669') + ';color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.2);pointer-events:none';
   document.body.appendChild(t);
   setTimeout(function(){ t.style.opacity='0'; t.style.transition='opacity .4s'; }, 2000);
   setTimeout(function(){ t.remove(); }, 2500);
 }
+
+// ── Bulk Assess modal ──────────────────────────────────────────────────────
+function openBulkAssess() {
+  var checked = getChecked();
+  if (checked.length === 0) return;
+  // Reset form
+  document.getElementById('ba-notes').value = '';
+  document.getElementById('ba-evidence').value = '';
+  document.getElementById('ba-due').value = '';
+  document.getElementById('ba-assigned').value = '';
+  var radios = document.querySelectorAll('input[name="ba_status"]');
+  radios.forEach(function(r){ r.checked = r.value === 'not_started'; });
+  // Show modal via existing openModal system
+  openModal('bulk-assess');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('form-bulk-assess').addEventListener('submit', function(e) {
+  e.preventDefault();
+  var checked = getChecked();
+  if (checked.length === 0) { pkgCloseModal(); return; }
+  var ids = checked.map(function(cb){ return parseInt(cb.dataset.id); });
+
+  var status     = document.querySelector('input[name="ba_status"]:checked').value;
+  var assignedTo = document.getElementById('ba-assigned').value;
+  var notes      = document.getElementById('ba-notes').value;
+  var evidence   = document.getElementById('ba-evidence').value;
+  var dueDate    = document.getElementById('ba-due').value;
+
+  var btn = document.getElementById('ba-submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+
+  var fd = new FormData();
+  fd.append('csrf_token', _csrf);
+  fd.append('status', status);
+  if (assignedTo) fd.append('assigned_to', assignedTo);
+  if (notes)      fd.append('implementation_notes', notes);
+  if (evidence)   fd.append('evidence', evidence);
+  if (dueDate)    fd.append('due_date', dueDate);
+  ids.forEach(function(id){ fd.append('ids[]', id); });
+
+  fetch('/compliance/' + _pkgId + '/bulk-assess', { method: 'POST', body: fd })
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      if (!data.ok) { alert('Error: ' + (data.error || 'Unknown error')); return; }
+
+      var iconMap = {
+        compliant:'check-circle-fill', partial:'dash-circle-fill',
+        non_compliant:'x-circle-fill', not_started:'circle', not_applicable:'slash-circle-fill'
+      };
+      var statusLabels = {
+        compliant:'Compliant', partial:'Partial', non_compliant:'Non-Compliant',
+        not_started:'Not Started', not_applicable:'N/A'
+      };
+      var label = statusLabels[status] || status;
+      checked.forEach(function(cb) {
+        var row = cb.closest('.control-row');
+        if (!row) return;
+        row.dataset.status = status;
+        var icon = row.querySelector('.control-status-icon');
+        if (icon) {
+          icon.className = 'control-status-icon status-' + status;
+          icon.title = label;
+          var i = icon.querySelector('i');
+          if (i) i.className = 'bi bi-' + (iconMap[status] || 'circle');
+        }
+        // Update assignee display if present
+        var infoEl = row.querySelector('.control-assignee');
+        if (data.assigned_name) {
+          if (infoEl) { infoEl.innerHTML = '<i class="bi bi-person-fill"></i> ' + data.assigned_name; }
+          else {
+            var info = row.querySelector('.control-info');
+            if (info) {
+              var span = document.createElement('span');
+              span.className = 'control-assignee';
+              span.innerHTML = '<i class="bi bi-person-fill"></i> ' + data.assigned_name;
+              info.appendChild(span);
+            }
+          }
+        }
+      });
+
+      _csrf = data.new_csrf || _csrf;
+      pkgCloseModal();
+      clearSelection();
+      showToast(data.updated + ' control' + (data.updated !== 1 ? 's' : '') + ' assessed', '#4f46e5');
+    })
+    .catch(function(){ alert('Network error — please try again.'); })
+    .finally(function() {
+      btn.disabled = false;
+      btn.textContent = 'Save Assessment';
+    });
+  });
+});
 </script>
+
+<!-- Bulk Assess Modal -->
+<div id="modal-bulk-assess" class="aegis-modal" style="display:none;max-width:540px">
+  <div class="modal-header">
+    <h3><i class="bi bi-clipboard2-check-fill" style="color:#4f46e5"></i> Bulk Assess Controls</h3>
+    <button class="modal-close" onclick="pkgCloseModal()"><i class="bi bi-x-lg"></i></button>
+  </div>
+  <form id="form-bulk-assess">
+    <div class="card-body" style="display:flex;flex-direction:column;gap:16px;max-height:70vh;overflow-y:auto;padding:20px">
+
+      <div class="form-group" style="margin:0">
+        <label class="form-label" style="font-weight:700;margin-bottom:10px">Implementation Status <span style="color:#dc2626">*</span></label>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <?php foreach ([
+            ['not_started',   'circle',              '#64748b', 'Not Started',   'No implementation work has begun'],
+            ['compliant',     'check-circle-fill',   '#059669', 'Compliant',     'Control is fully implemented and meets requirements'],
+            ['partial',       'dash-circle-fill',    '#d97706', 'Partial',       'Control is partially implemented'],
+            ['non_compliant', 'x-circle-fill',       '#dc2626', 'Non-Compliant', 'Control is not implemented or fails requirements'],
+            ['not_applicable','slash-circle-fill',   '#94a3b8', 'Not Applicable','This control does not apply'],
+          ] as [$val, $icon, $color, $label, $hint]): ?>
+          <label style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:2px solid var(--border);border-radius:8px;cursor:pointer;transition:border-color .15s" class="ba-status-label">
+            <input type="radio" name="ba_status" value="<?= $val ?>" style="margin-top:2px;accent-color:<?= $color ?>" <?= $val === 'not_started' ? 'checked' : '' ?>>
+            <div>
+              <div style="display:flex;align-items:center;gap:6px;font-weight:600;font-size:13px">
+                <i class="bi bi-<?= $icon ?>" style="color:<?= $color ?>"></i>
+                <?= $label ?>
+              </div>
+              <div style="font-size:11px;color:var(--text-muted);margin-top:2px"><?= $hint ?></div>
+            </div>
+          </label>
+          <?php endforeach; ?>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Assigned To</label>
+        <select id="ba-assigned" name="assigned_to" class="form-control">
+          <option value="">— Unassigned —</option>
+          <?php foreach ($users as $u): ?>
+            <option value="<?= (int)$u['id'] ?>"><?= Security::h($u['name']) ?></option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Due Date</label>
+        <input type="date" id="ba-due" name="due_date" class="form-control">
+      </div>
+
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Implementation Notes</label>
+        <textarea id="ba-notes" name="implementation_notes" class="form-control" rows="3"
+          placeholder="Describe how these controls are implemented, gaps, or planned actions…"></textarea>
+      </div>
+
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Evidence</label>
+        <textarea id="ba-evidence" name="evidence" class="form-control" rows="3"
+          placeholder="Links to evidence, documentation, system screenshots, audit reports…"></textarea>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button type="submit" id="ba-submit-btn" class="btn btn-primary"><i class="bi bi-check-lg"></i> Save Assessment</button>
+      <button type="button" class="btn btn-ghost" onclick="pkgCloseModal()">Cancel</button>
+    </div>
+  </form>
+</div>
 
 <style>
 .aegis-modal {
