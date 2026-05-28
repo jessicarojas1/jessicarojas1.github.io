@@ -477,77 +477,29 @@ class ComplianceController {
             ['My Compliance Framework','1.0','Internal security controls','D1','Access Control','D1.2','Privileged Access','Privileged access must require MFA and be logged',''],
             ['My Compliance Framework','1.0','Internal security controls','D2','Risk Management','D2.1','Risk Assessment','Conduct annual risk assessments for all critical systems',''],
         ];
-        $xlsx = $this->buildXlsx($rows);
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment; filename="compliance_template.xlsx"');
-        header('Content-Length: ' . strlen($xlsx));
-        echo $xlsx;
-        exit;
-    }
-
-    private function buildXlsx(array $rows): string {
-        $sharedStrings = [];
-        $siIndex = [];
-        $rowXml = '';
-        foreach ($rows as $r => $row) {
-            $rowXml .= '<row r="' . ($r + 1) . '">';
-            foreach ($row as $c => $cell) {
-                $col = chr(65 + $c) . ($r + 1);
-                $v = (string)$cell;
-                if (!isset($siIndex[$v])) { $siIndex[$v] = count($sharedStrings); $sharedStrings[] = $v; }
-                $rowXml .= '<c r="' . $col . '" t="s"><v>' . $siIndex[$v] . '</v></c>';
+        // Use SpreadsheetML (Excel 2003 XML) — no ZipArchive extension required
+        $xml  = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+        $xml .= "<?mso-application progid=\"Excel.Sheet\"?>\n";
+        $xml .= '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"'
+              . ' xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">';
+        $xml .= '<Styles><Style ss:ID="h"><Font ss:Bold="1"/></Style></Styles>';
+        $xml .= '<Worksheet ss:Name="Controls"><Table>';
+        foreach ($rows as $i => $row) {
+            $xml .= '<Row>';
+            foreach ($row as $cell) {
+                $styleAttr = $i === 0 ? ' ss:StyleID="h"' : '';
+                $xml .= '<Cell' . $styleAttr . '><Data ss:Type="String">'
+                      . htmlspecialchars((string)$cell, ENT_XML1, 'UTF-8')
+                      . '</Data></Cell>';
             }
-            $rowXml .= '</row>';
+            $xml .= '</Row>';
         }
-        $siXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-            . '<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="' . count($sharedStrings) . '" uniqueCount="' . count($sharedStrings) . '">';
-        foreach ($sharedStrings as $s) {
-            $siXml .= '<si><t>' . htmlspecialchars($s, ENT_XML1, 'UTF-8') . '</t></si>';
-        }
-        $siXml .= '</sst>';
-
-        $sheetXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-            . '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
-            . '<sheetData>' . $rowXml . '</sheetData></worksheet>';
-
-        $workbookXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-            . '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"'
-            . ' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
-            . '<sheets><sheet name="Controls" sheetId="1" r:id="rId1"/></sheets></workbook>';
-
-        $workbookRels = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-            . '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
-            . '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>'
-            . '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/>'
-            . '</Relationships>';
-
-        $contentTypes = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-            . '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
-            . '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
-            . '<Default Extension="xml" ContentType="application/xml"/>'
-            . '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'
-            . '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'
-            . '<Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/>'
-            . '</Types>';
-
-        $rootRels = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-            . '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
-            . '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>'
-            . '</Relationships>';
-
-        $tmp = tempnam(sys_get_temp_dir(), 'xlsx_');
-        $zip = new ZipArchive();
-        $zip->open($tmp, ZipArchive::OVERWRITE);
-        $zip->addFromString('[Content_Types].xml',        $contentTypes);
-        $zip->addFromString('_rels/.rels',                $rootRels);
-        $zip->addFromString('xl/workbook.xml',            $workbookXml);
-        $zip->addFromString('xl/_rels/workbook.xml.rels', $workbookRels);
-        $zip->addFromString('xl/worksheets/sheet1.xml',   $sheetXml);
-        $zip->addFromString('xl/sharedStrings.xml',       $siXml);
-        $zip->close();
-        $data = file_get_contents($tmp);
-        unlink($tmp);
-        return $data;
+        $xml .= '</Table></Worksheet></Workbook>';
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment; filename="compliance_template.xls"');
+        header('Content-Length: ' . strlen($xml));
+        echo $xml;
+        exit;
     }
 
     public function clearAll(): void {
