@@ -76,6 +76,20 @@ ob_start();
   <?php endif; ?>
 </div>
 
+<!-- Bulk action bar (appears when controls are selected) -->
+<div id="bulk-bar" style="display:none;position:sticky;top:0;z-index:200;background:#1e1b4b;color:#fff;
+     padding:10px 16px;border-radius:10px;margin-bottom:12px;
+     display:none;align-items:center;gap:10px;flex-wrap:wrap;box-shadow:0 4px 20px rgba(79,70,229,.4)">
+  <span id="bulk-count" style="font-size:13px;font-weight:600;margin-right:4px"></span>
+  <span style="font-size:12px;opacity:.7;margin-right:8px">Set status to:</span>
+  <button class="bulk-status-btn" data-status="compliant"     style="background:#059669;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="bi bi-check-circle-fill"></i> Compliant</button>
+  <button class="bulk-status-btn" data-status="partial"       style="background:#d97706;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="bi bi-dash-circle-fill"></i> Partial</button>
+  <button class="bulk-status-btn" data-status="non_compliant" style="background:#dc2626;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="bi bi-x-circle-fill"></i> Non-Compliant</button>
+  <button class="bulk-status-btn" data-status="not_started"   style="background:#475569;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="bi bi-circle"></i> Not Started</button>
+  <button class="bulk-status-btn" data-status="not_applicable" style="background:#334155;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="bi bi-slash-circle-fill"></i> N/A</button>
+  <button onclick="clearSelection()" style="margin-left:auto;background:none;border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:6px;padding:6px 10px;font-size:12px;cursor:pointer">✕ Clear</button>
+</div>
+
 <!-- Filter bar -->
 <div class="filter-bar card" id="domains">
   <form method="GET" class="filter-form">
@@ -115,7 +129,11 @@ ob_start();
 ?>
 <div class="domain-block card" id="domain-<?= $domain['id'] ?>">
   <div class="domain-header" onclick="toggleDomain(<?= $domain['id'] ?>)" style="cursor:pointer">
-    <div class="domain-header-left">
+    <div class="domain-header-left" style="display:flex;align-items:center;gap:8px">
+      <input type="checkbox" class="domain-select-all" data-domain="<?= $domain['id'] ?>"
+             onclick="event.stopPropagation();toggleDomainAll(this,<?= $domain['id'] ?>)"
+             title="Select all in this domain"
+             style="width:16px;height:16px;cursor:pointer;accent-color:#6366f1;flex-shrink:0">
       <div class="domain-code"><?= Security::h($domain['code']) ?></div>
       <div class="domain-title"><?= Security::h($domain['title']) ?></div>
     </div>
@@ -172,8 +190,11 @@ ob_start();
       if ($sf && $implStatus !== $sf) continue;
       $visibleCount++;
     ?>
-      <div class="control-row" data-status="<?= Security::h($implStatus) ?>">
+      <div class="control-row" data-status="<?= Security::h($implStatus) ?>" data-domain="<?= $domain['id'] ?>">
         <div class="control-row-left">
+          <input type="checkbox" class="ctrl-checkbox" data-id="<?= (int)$ctrl['id'] ?>"
+                 onchange="onCtrlCheck()"
+                 style="width:16px;height:16px;cursor:pointer;accent-color:#6366f1;flex-shrink:0;margin-right:4px">
           <span class="control-status-icon status-<?= Security::h($implStatus) ?>" title="<?= ucwords(str_replace('_',' ',$implStatus)) ?>">
             <i class="bi bi-<?= statusIcon($implStatus) ?>"></i>
           </span>
@@ -392,6 +413,7 @@ foreach ($ctrlsForModal as $cm): ?>
 <?php endforeach; ?>
 
 <script nonce="<?= Security::nonce() ?>">
+// ── Domain toggle ──────────────────────────────────────────────────────────
 function toggleDomain(id) {
   const el  = document.getElementById('controls-' + id);
   const ch  = document.getElementById('chevron-' + id);
@@ -399,32 +421,149 @@ function toggleDomain(id) {
   el.style.display = vis ? 'none' : 'block';
   ch.style.transform = vis ? '' : 'rotate(180deg)';
 }
-// Auto-open first domain
 document.addEventListener('DOMContentLoaded', function() {
   var first = document.querySelector('.domain-block');
-  if (first) { var id = first.id.replace('domain-', ''); toggleDomain(id); }
+  if (first) { toggleDomain(first.id.replace('domain-', '')); }
 });
 
-// Modal system
+// ── Modal system ───────────────────────────────────────────────────────────
 var overlay = document.getElementById('modal-overlay');
 var activeModal = null;
-
 function openModal(id) {
-  if (activeModal) { activeModal.style.display = 'none'; }
+  if (activeModal) activeModal.style.display = 'none';
   var m = document.getElementById('modal-' + id);
   if (!m) return;
   activeModal = m;
   overlay.style.display = 'flex';
   m.style.display = 'block';
-  // Focus first input
   var inp = m.querySelector('input,textarea,select');
-  if (inp) { setTimeout(function(){ inp.focus(); inp.select && inp.select(); }, 80); }
+  if (inp) setTimeout(function(){ inp.focus(); inp.select && inp.select(); }, 80);
 }
 function pkgCloseModal() {
   overlay.style.display = 'none';
   if (activeModal) { activeModal.style.display = 'none'; activeModal = null; }
 }
 document.addEventListener('keydown', function(e){ if (e.key === 'Escape') pkgCloseModal(); });
+
+// ── Bulk selection ─────────────────────────────────────────────────────────
+var bulkBar   = document.getElementById('bulk-bar');
+var bulkCount = document.getElementById('bulk-count');
+var _csrf     = <?= json_encode(Security::generateCsrfToken()) ?>;
+var _pkgId    = <?= (int)$package['id'] ?>;
+
+function getChecked() {
+  return Array.from(document.querySelectorAll('.ctrl-checkbox:checked'));
+}
+
+function onCtrlCheck() {
+  var checked = getChecked();
+  if (checked.length > 0) {
+    bulkBar.style.display = 'flex';
+    bulkCount.textContent = checked.length + ' control' + (checked.length !== 1 ? 's' : '') + ' selected';
+  } else {
+    bulkBar.style.display = 'none';
+  }
+  // Sync domain-level select-all checkboxes
+  document.querySelectorAll('.domain-select-all').forEach(function(sa) {
+    var domainId = sa.dataset.domain;
+    var all  = document.querySelectorAll('.ctrl-checkbox[data-id]');
+    var rows = Array.from(document.querySelectorAll('.control-row[data-domain="' + domainId + '"] .ctrl-checkbox'));
+    var visibleRows = rows.filter(function(cb) {
+      return cb.closest('.control-row').style.display !== 'none';
+    });
+    if (visibleRows.length === 0) { sa.indeterminate = false; sa.checked = false; return; }
+    var checkedInDomain = visibleRows.filter(function(cb){ return cb.checked; }).length;
+    sa.indeterminate = checkedInDomain > 0 && checkedInDomain < visibleRows.length;
+    sa.checked = checkedInDomain === visibleRows.length;
+  });
+}
+
+function toggleDomainAll(selectAllCb, domainId) {
+  var rows = document.querySelectorAll('.control-row[data-domain="' + domainId + '"] .ctrl-checkbox');
+  var visibleRows = Array.from(rows).filter(function(cb) {
+    return cb.closest('.control-row').style.display !== 'none';
+  });
+  visibleRows.forEach(function(cb){ cb.checked = selectAllCb.checked; });
+  onCtrlCheck();
+}
+
+function clearSelection() {
+  document.querySelectorAll('.ctrl-checkbox').forEach(function(cb){ cb.checked = false; });
+  document.querySelectorAll('.domain-select-all').forEach(function(cb){ cb.checked = false; cb.indeterminate = false; });
+  bulkBar.style.display = 'none';
+}
+
+// Bulk status apply
+document.querySelectorAll('.bulk-status-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var status  = this.dataset.status;
+    var checked = getChecked();
+    if (checked.length === 0) return;
+    var ids = checked.map(function(cb){ return parseInt(cb.dataset.id); });
+
+    var statusLabels = {
+      compliant:'Compliant', partial:'Partial', non_compliant:'Non-Compliant',
+      not_started:'Not Started', not_applicable:'N/A'
+    };
+    var label = statusLabels[status] || status;
+
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+
+    var fd = new FormData();
+    fd.append('csrf_token', _csrf);
+    fd.append('status', status);
+    ids.forEach(function(id){ fd.append('ids[]', id); });
+
+    fetch('/compliance/' + _pkgId + '/bulk-status', { method: 'POST', body: fd })
+      .then(function(r){ return r.json(); })
+      .then(function(data) {
+        if (!data.ok) { alert('Error: ' + (data.error || 'Unknown error')); return; }
+
+        // Update each row's status icon + data-status attribute
+        var iconMap = {
+          compliant:'check-circle-fill', partial:'dash-circle-fill',
+          non_compliant:'x-circle-fill', not_started:'circle', not_applicable:'slash-circle-fill'
+        };
+        checked.forEach(function(cb) {
+          var row = cb.closest('.control-row');
+          if (!row) return;
+          row.dataset.status = status;
+          var icon = row.querySelector('.control-status-icon');
+          if (icon) {
+            icon.className = 'control-status-icon status-' + status;
+            icon.title = label;
+            var i = icon.querySelector('i');
+            if (i) i.className = 'bi bi-' + (iconMap[status] || 'circle');
+          }
+        });
+
+        clearSelection();
+        // Refresh CSRF token for next batch
+        _csrf = data.new_csrf || _csrf;
+
+        // Show brief success toast
+        showToast(data.updated + ' control' + (data.updated !== 1 ? 's' : '') + ' set to ' + label);
+      })
+      .catch(function(){ alert('Network error — please try again.'); })
+      .finally(function() {
+        btn.disabled = false;
+        // Restore original button content
+        var icons = {compliant:'check-circle-fill', partial:'dash-circle-fill', non_compliant:'x-circle-fill', not_started:'circle', not_applicable:'slash-circle-fill'};
+        var labels = {compliant:'Compliant', partial:'Partial', non_compliant:'Non-Compliant', not_started:'Not Started', not_applicable:'N/A'};
+        btn.innerHTML = '<i class="bi bi-' + (icons[status]||'circle') + '"></i> ' + (labels[status]||status);
+      });
+  });
+});
+
+function showToast(msg) {
+  var t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#059669;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.2);pointer-events:none';
+  document.body.appendChild(t);
+  setTimeout(function(){ t.style.opacity='0'; t.style.transition='opacity .4s'; }, 2000);
+  setTimeout(function(){ t.remove(); }, 2500);
+}
 </script>
 
 <style>

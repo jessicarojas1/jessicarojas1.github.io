@@ -577,6 +577,7 @@ $dynamicRoutes = [
         '#^/compliance/(\d+)/domain/(\d+)/control/add$#'         => ['ComplianceController', 'addControl'],
         '#^/compliance/(\d+)/control/(\d+)/update$#'             => ['ComplianceController', 'updateControl'],
         '#^/compliance/(\d+)/control/(\d+)/delete$#'             => ['ComplianceController', 'deleteControl'],
+        '#^/compliance/(\d+)/bulk-status$#'                      => ['ComplianceController', 'bulkStatus'],
         '#^/playbooks/(\d+)/toggle$#'                            => ['PlaybookController', 'toggle'],
         '#^/incident/(\d+)/playbook/start$#'                     => ['PlaybookController', 'startRun'],
         '#^/playbooks/run/(\d+)/complete-step$#'                 => ['PlaybookController', 'completeStep'],

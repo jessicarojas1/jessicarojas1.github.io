@@ -219,6 +219,48 @@ class ComplianceController {
         header('Location: /compliance/' . $pkgId);
     }
 
+    public function bulkStatus(string $pkgId): void {
+        Auth::requirePermission('compliance.write');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            header('Content-Type: application/json');
+            echo json_encode(['ok' => false, 'error' => 'Invalid CSRF token']);
+            return;
+        }
+        $pkgId  = (int)$pkgId;
+        $status = Security::sanitizeInput($_POST['status'] ?? '');
+        $ids    = array_map('intval', (array)($_POST['ids'] ?? []));
+        $allowed = ['compliant', 'partial', 'non_compliant', 'not_started', 'not_applicable'];
+        if (!in_array($status, $allowed, true) || empty($ids)) {
+            header('Content-Type: application/json');
+            echo json_encode(['ok' => false, 'error' => 'Invalid input']);
+            return;
+        }
+        // Only update controls that belong to this package
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $validIds = Database::fetchAll(
+            "SELECT id FROM compliance_objectives WHERE id IN ($placeholders) AND package_id = ? AND level = 2",
+            array_merge($ids, [$pkgId])
+        );
+        $validIds = array_column($validIds, 'id');
+        foreach ($validIds as $objId) {
+            $existing = Database::fetchOne("SELECT id FROM control_implementations WHERE objective_id = ?", [$objId]);
+            if ($existing) {
+                Database::query(
+                    "UPDATE control_implementations SET status=?, last_reviewed=NOW(), reviewed_by=?, updated_at=NOW() WHERE objective_id=?",
+                    [$status, Auth::id(), $objId]
+                );
+            } else {
+                Database::query(
+                    "INSERT INTO control_implementations (objective_id, status, last_reviewed, reviewed_by) VALUES (?,?,NOW(),?)",
+                    [$objId, $status, Auth::id()]
+                );
+            }
+        }
+        Auth::log('bulk_update_controls', 'compliance_packages', $pkgId, ['status' => $status, 'count' => count($validIds)]);
+        header('Content-Type: application/json');
+        echo json_encode(['ok' => true, 'updated' => count($validIds), 'new_csrf' => Security::generateCsrfToken()]);
+    }
+
     private function syncCount(int $pkgId): void {
         Database::query(
             "UPDATE compliance_packages SET objectives_count = (SELECT COUNT(*) FROM compliance_objectives WHERE package_id=? AND level=2) WHERE id=?",
