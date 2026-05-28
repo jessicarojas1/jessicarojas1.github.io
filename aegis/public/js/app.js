@@ -145,6 +145,57 @@ document.querySelectorAll('.perm-col-all').forEach(function (btn) {
   });
 });
 
+// ── Accordion nav ───────────────────────────────────────────────────────────
+(function() {
+  var STORE = 'aegisNavAcc';
+
+  function loadState() {
+    try { return JSON.parse(sessionStorage.getItem(STORE) || '{}'); } catch(e) { return {}; }
+  }
+  function saveState(s) {
+    try { sessionStorage.setItem(STORE, JSON.stringify(s)); } catch(e) {}
+  }
+
+  function applySection(key, open) {
+    var h = document.querySelector('[data-acc="' + key + '"]');
+    var b = document.getElementById('nav-acc-' + key);
+    if (!h || !b) return;
+    if (open) { h.classList.add('open'); b.classList.add('open'); }
+    else       { h.classList.remove('open'); b.classList.remove('open'); }
+  }
+
+  window.toggleAccordion = function(key) {
+    var b = document.getElementById('nav-acc-' + key);
+    if (!b) return;
+    var nowOpen = !b.classList.contains('open');
+    applySection(key, nowOpen);
+    var s = loadState();
+    s[key] = nowOpen;
+    saveState(s);
+  };
+
+  // Init: disable transitions, set open/closed, re-enable after two frames
+  var bodies = document.querySelectorAll('.nav-acc-body');
+  bodies.forEach(function(b) { b.style.transition = 'none'; });
+
+  var state = loadState();
+  document.querySelectorAll('[data-acc]').forEach(function(h) {
+    var key = h.dataset.acc;
+    var b = document.getElementById('nav-acc-' + key);
+    if (!b) return;
+    var hasActive = !!b.querySelector('.nav-item.active');
+    var isOpen = state.hasOwnProperty(key) ? state[key] : hasActive;
+    applySection(key, isOpen);
+  });
+
+  // Re-enable transitions after paint
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+      bodies.forEach(function(b) { b.style.transition = ''; });
+    });
+  });
+})();
+
 // ── Mobile sidebar overlay ──────────────────────────────────────────────────
 (function() {
   var overlay = document.createElement('div');
