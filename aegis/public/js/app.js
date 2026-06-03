@@ -243,3 +243,137 @@ document.querySelectorAll('.perm-col-all').forEach(function (btn) {
     });
   }
 })();
+
+// ── CSP-safe event delegation ────────────────────────────────────────────────
+// Replaces inline onclick/onchange/oninput/onsubmit attributes.
+// Views use data-* attributes; handlers are resolved from window scope.
+//
+//   data-click="fnName"               — calls window.fnName()
+//   data-click="fnName" data-arg="v"  — calls window.fnName(v)
+//   data-click="fnName" data-args='[1,"b"]' — calls window.fnName(1,"b")
+//   data-print                        — window.print()
+//   data-change="fnName"              — called on change event
+//   data-autosubmit                   — submits the element's form on change
+//   data-input="fnName"               — called on input event
+//   data-input-val                    — passes this.value as argument
+//   data-confirm="message"            — confirm() guard on the parent form
+//   data-confirm-click="message"      — confirm() guard on click (for buttons)
+//   data-toggle-class="cls"           — toggles CSS class on target (data-target="#id")
+//   data-add-class="cls"              — adds CSS class on target
+//   data-remove-class="cls"           — removes CSS class on target
+//   data-close-modal="id"             — calls closeModal(id) or pkgCloseModal()
+//   data-show-modal="id"              — calls openModal(id) or showModal(id)
+//   data-toggle-visible="id"          — toggles display:none/block on element by id
+(function () {
+  function resolve(name) {
+    return name.split('.').reduce(function (o, k) { return o && o[k]; }, window);
+  }
+  function callFn(el, name) {
+    var fn = resolve(name);
+    if (typeof fn !== 'function') return;
+    var args = [];
+    if (el.dataset.args) {
+      try { args = JSON.parse(el.dataset.args); } catch (e) {}
+    } else if (el.dataset.arg !== undefined) {
+      args = [el.dataset.arg];
+    }
+    fn.apply(el, args);
+  }
+
+  // ── click ──────────────────────────────────────────────────────────────────
+  document.addEventListener('click', function (e) {
+    var el = e.target;
+
+    // data-print
+    if (el.closest('[data-print]')) { window.print(); return; }
+
+    // data-confirm-click
+    var cc = el.closest('[data-confirm-click]');
+    if (cc) {
+      if (!confirm(cc.dataset.confirmClick)) { e.preventDefault(); return; }
+    }
+
+    // data-close-modal
+    var cm = el.closest('[data-close-modal]');
+    if (cm) {
+      var cmId = cm.dataset.closeModal;
+      if (cmId && typeof window.closeModal === 'function') window.closeModal(cmId);
+      else if (typeof window.pkgCloseModal === 'function') window.pkgCloseModal();
+      return;
+    }
+
+    // data-show-modal
+    var sm = el.closest('[data-show-modal]');
+    if (sm) {
+      var smId = sm.dataset.showModal;
+      if (typeof window.showModal === 'function') window.showModal(smId);
+      else if (typeof window.openModal === 'function') window.openModal(smId);
+      return;
+    }
+
+    // data-toggle-visible
+    var tv = el.closest('[data-toggle-visible]');
+    if (tv) {
+      var tvEl = document.getElementById(tv.dataset.toggleVisible);
+      if (tvEl) tvEl.style.display = tvEl.style.display === 'none' ? 'block' : 'none';
+      return;
+    }
+
+    // data-toggle-class / data-add-class / data-remove-class
+    var tc = el.closest('[data-toggle-class]');
+    if (tc) {
+      var tcTarget = tc.dataset.target ? document.querySelector(tc.dataset.target) : tc;
+      if (tcTarget) tcTarget.classList.toggle(tc.dataset.toggleClass);
+      return;
+    }
+    var ac = el.closest('[data-add-class]');
+    if (ac) {
+      var acTarget = ac.dataset.target ? document.querySelector(ac.dataset.target) : ac;
+      if (acTarget) acTarget.classList.add(ac.dataset.addClass);
+      return;
+    }
+    var rc = el.closest('[data-remove-class]');
+    if (rc) {
+      var rcTarget = rc.dataset.target ? document.querySelector(rc.dataset.target) : rc;
+      if (rcTarget) rcTarget.classList.remove(rc.dataset.removeClass);
+      return;
+    }
+
+    // data-click (generic function call)
+    var dc = el.closest('[data-click]');
+    if (dc) { callFn(dc, dc.dataset.click); }
+  });
+
+  // ── change ─────────────────────────────────────────────────────────────────
+  document.addEventListener('change', function (e) {
+    var el = e.target;
+    if (el.dataset.autosubmit !== undefined) { if (el.form) el.form.submit(); return; }
+    if (el.dataset.change) callFn(el, el.dataset.change);
+  });
+
+  // ── input ──────────────────────────────────────────────────────────────────
+  document.addEventListener('input', function (e) {
+    var el = e.target;
+    if (!el.dataset.input) return;
+    var fn = resolve(el.dataset.input);
+    if (typeof fn !== 'function') return;
+    if (el.dataset.inputVal !== undefined) fn.call(el, el.value);
+    else fn.call(el, e);
+  });
+
+  // ── submit (confirm guard) ─────────────────────────────────────────────────
+  document.addEventListener('submit', function (e) {
+    var form = e.target;
+    if (form.dataset.confirm && !confirm(form.dataset.confirm)) {
+      e.preventDefault();
+    }
+  });
+
+  // ── accordion: wire data-acc buttons (replaces onclick="toggleAccordion()") ──
+  document.querySelectorAll('.nav-acc-header[data-acc]').forEach(function (btn) {
+    btn.removeAttribute('onclick');
+    btn.addEventListener('click', function () {
+      if (typeof window.toggleAccordion === 'function') window.toggleAccordion(btn.dataset.acc);
+    });
+  });
+}());
