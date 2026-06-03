@@ -47,14 +47,26 @@ class SSOController {
             require AEGIS_ROOT . '/views/auth/sso_error.php'; exit;
         }
 
+        // If user has MFA enabled, route through the MFA step before establishing session
+        $dbUser = Database::fetchOne("SELECT mfa_enabled, mfa_secret FROM users WHERE id = ?", [$user['id']]);
+        if (!empty($dbUser['mfa_enabled']) && !empty($dbUser['mfa_secret'])) {
+            session_regenerate_id(true);
+            $_SESSION['mfa_pending']  = true;
+            $_SESSION['mfa_user_id']  = $user['id'];
+            $_SESSION['mfa_redirect'] = $_SESSION['redirect_after_login'] ?? '/';
+            unset($_SESSION['redirect_after_login']);
+            header('Location: /mfa/verify'); exit;
+        }
+
         // Establish session (same structure as password login)
         session_regenerate_id(true);
         $_SESSION['user'] = [
-            'id'    => $user['id'],
-            'name'  => $user['name'],
-            'email' => $user['email'],
-            'role'  => $user['role'],
-            'sso'   => true,
+            'id'         => $user['id'],
+            'name'       => $user['name'],
+            'email'      => $user['email'],
+            'role'       => $user['role'],
+            'sso'        => true,
+            'login_time' => time(),
         ];
         $_SESSION['last_activity'] = time();
 
@@ -63,6 +75,13 @@ class SSOController {
 
         $redirect = $_SESSION['redirect_after_login'] ?? '/';
         unset($_SESSION['redirect_after_login']);
+        // Validate redirect: same-origin paths only (prevent open redirect)
+        if (!preg_match('#^/[a-zA-Z0-9/_?=&%.@-]*$#', $redirect)
+            || str_starts_with($redirect, '/admin')
+            || str_starts_with($redirect, '/login')
+            || str_starts_with($redirect, '/mfa')) {
+            $redirect = '/';
+        }
         header('Location: ' . $redirect); exit;
     }
 

@@ -5,7 +5,7 @@ class EvidenceController {
 
     private static function uploadDir(): string {
         $dir = AEGIS_ROOT . '/uploads';
-        if (!is_dir($dir)) mkdir($dir, 0755, true);
+        if (!is_dir($dir)) mkdir($dir, 0750, true);
         return $dir;
     }
 
@@ -38,6 +38,16 @@ class EvidenceController {
             $this->redirectBack(); return;
         }
 
+        // Verify the uploading user has write permission to the target entity module (IDOR prevention)
+        $moduleMap = ['control'=>'compliance','risk'=>'risk','audit'=>'audit',
+                      'incident'=>'incident','policy'=>'policy','vendor'=>'vendor','issue'=>'issue'];
+        $module = $moduleMap[$entityType] ?? null;
+        if (!$module || !Auth::can($module . '.write')) {
+            http_response_code(403);
+            $_SESSION['flash_error'] = 'You do not have permission to upload evidence for this item.';
+            $this->redirectBack(); return;
+        }
+
         if (empty($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
             $_SESSION['flash_error'] = 'File upload failed or no file selected.';
             $this->redirectBack(); return;
@@ -56,6 +66,22 @@ class EvidenceController {
             $this->redirectBack(); return;
         }
 
+        // Validate actual MIME type from the temp file BEFORE moving it to storage
+        $detectedMime = mime_content_type($file['tmp_name']) ?: '';
+        $allowedMimes = [
+            'application/pdf','text/plain','text/csv',
+            'image/png','image/jpeg','image/gif',
+            'application/zip',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/msword','application/vnd.ms-excel',
+            'application/octet-stream',
+        ];
+        if ($detectedMime && !in_array($detectedMime, $allowedMimes)) {
+            $_SESSION['flash_error'] = 'File content type is not allowed.';
+            $this->redirectBack(); return;
+        }
+
         $stored = bin2hex(random_bytes(16)) . '.' . $ext;
         $dest   = self::uploadDir() . '/' . $stored;
 
@@ -71,7 +97,7 @@ class EvidenceController {
             'entity_id'    => $entityId,
             'original_name'=> $origName,
             'stored_name'  => $stored,
-            'mime_type'    => mime_content_type($dest) ?: 'application/octet-stream',
+            'mime_type'    => $detectedMime ?: 'application/octet-stream',
             'file_size'    => $file['size'],
             'file_hash'    => $hash,
             'description'  => $description ?: null,

@@ -42,6 +42,13 @@ class SSO {
         if (self::$discovery !== null) return self::$discovery;
         $url = self::config()['sso_discovery_url'];
         if (!$url) return null;
+        // SSRF prevention: only allow HTTPS to public hosts (not private/loopback IPs)
+        if (!preg_match('#^https://#i', $url)) return null;
+        $host = parse_url($url, PHP_URL_HOST);
+        if (!$host) return null;
+        $resolved = gethostbyname($host);
+        if (filter_var($resolved, FILTER_VALIDATE_IP,
+                FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) return null;
         $ctx  = stream_context_create(['http' => ['timeout' => 8, 'method' => 'GET']]);
         $body = @file_get_contents($url, false, $ctx);
         if (!$body) return null;
