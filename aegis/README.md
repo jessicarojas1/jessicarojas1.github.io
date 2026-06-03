@@ -650,7 +650,138 @@ Rate limit: **60 requests per minute** per IP.
 
 ---
 
-## License
+## Implementation Roadmap
+
+This section documents the full development history of AEGIS — what was built, what was fixed, and what is planned next.
+
+---
+
+### Phase 1 — Core Platform
+
+The initial build established the foundational architecture, data model, and all primary GRC modules.
+
+#### Delivered
+
+| Area | What was built |
+|---|---|
+| **Front controller + routing** | `index.php` with a static route table and a regex dynamic route table; spl_autoload for controllers and src classes |
+| **Authentication** | Session-based login with Argon2ID password hashing, session fixation prevention, 60-minute inactivity timeout, and secure logout |
+| **Multi-Factor Authentication** | TOTP (RFC 6238) setup flow, verification form, single-use backup codes (bcrypt-hashed), and `mfa_pending` session state |
+| **RBAC** | Five built-in roles with per-user per-module override grants; `user_permissions` table; `Auth::requirePermission()` enforced in every controller |
+| **Compliance Management** | Compliance packages linked to standards; two-level domain/control tree (`compliance_objectives`); `control_implementations` with status, evidence, notes, assignee, due date, and reviewer |
+| **Risk Register** | Risk CRUD with likelihood × impact scoring; configurable 5×5 risk matrix with editable labels, thresholds, and cell colors; risk treatments; BowTie diagram view |
+| **Audit Workflows** | Audit create/view/complete; checklist items mapped to compliance objectives; audit schedules; per-item scoring |
+| **Policy Lifecycle** | Policy CRUD; draft → review → approved → published → retired status flow; version snapshots; control mappings; review scheduling |
+| **GRC Metrics** | KPI summary cards; Chart.js charts (compliance %, risk trends, audit scores, policy lifecycle); scheduled metric snapshots |
+| **Vendor Management** | Vendor register with risk tier, data access, contract dates; vendor assessments; portal link generation for external responses |
+| **Incident Management** | Incident CRUD; severity, SLA tracking; update timeline; acknowledge and close flows |
+| **REST API v1** | Full CRUD API for risks, compliance, audits, policies, and metrics; API key + JWT authentication; 60 req/min rate limiting; CORS origin enforcement |
+| **Export Engine** | CSV/XLSX per-module exports; full-platform ZIP bundle; formula-injection-safe cell encoding |
+| **Admin Panel** | User management; risk matrix configurator; workflow builder; alert configurations; API key management; per-user permission matrix; module visibility settings |
+| **Security layer** | CSP with per-request nonce; HSTS; CSRF tokens (CSPRNG, 2-hour expiry, constant-time comparison); SQL injection prevention (PDO parameterized statements throughout); XSS encoding via `Security::h()`; DOMDocument HTML sanitizer for rich content; open-redirect prevention; audit log with SHA-256 hash chain |
+| **Infrastructure** | Docker (`php:8.2-apache`); `render.yaml` Render.com manifest; `scripts/startup.sh` idempotent startup hook; PostgreSQL `aegis` schema isolation |
+| **Additional Modules** | Issue tracker; Document management with version uploads; Change management; Business Continuity Plans; Asset register with risk linking; Threat register; Key Risk Indicators (KRIs); Risk treatment plans; Risk exceptions; Risk reviews; Risk acceptance; Approval workflows; Questionnaires; Calendar; Playbooks; Tags system; Evidence file upload (randomised filenames, SHA-256 integrity, PHP-gated download); SSO (SAML/OIDC) settings; Scheduled reports; Email templates; Webhook configurations; Search |
+
+---
+
+### Phase 2 — Architecture Hardening & Bug Resolution
+
+A comprehensive audit identified and resolved structural issues before feature work continued.
+
+#### Delivered
+
+| Fix | Detail |
+|---|---|
+| **Double layout.php inclusion** | All controller methods that wrapped views in `ob_start()`/`require layout.php` were rewritten to use the self-contained view pattern (`ob_start()` in the view, `$content = ob_get_clean()`, `require layout.php` at the end of the view) |
+| **500 errors on missing schema columns** | Runtime migration block in `index.php` added for each column gap discovered; migrations use `information_schema` checks so they are safe no-ops after first run |
+| **CSP blocking inline JavaScript** | Every inline `<script>` tag across all views had `nonce="<?= Security::nonce() ?>"` added; CSP header updated to use the nonce-based policy |
+| **Eval in risk scoring sliders** | Risk matrix view replaced `eval()` with direct property access; eliminated the CSP `unsafe-eval` exception |
+| **BowTie form action URLs** | BowTie controller routes were registered in the dynamic route table; broken form actions corrected |
+| **Add Domain modal conflict** | `closeModal()` function name conflicted with a global helper; compliance package view renamed its function to `pkgCloseModal()` throughout |
+| **Mobile sidebar double-fire** | Hamburger button event listener was registered inside `DOMContentLoaded` and also via inline `onclick`, causing the sidebar to open and immediately close on mobile; reduced to a single `addEventListener` |
+| **File upload drop zone click** | File drop zones used `onclick` on a `<div>` that did not receive click events on iOS; replaced with `<label for="...">` wrapping the hidden `<input type="file">` |
+| **Compliance package delete cascade** | `compliance_domains` table referenced in delete query did not exist in the schema; corrected to use `compliance_objectives` with the `package_id` FK |
+| **Compliance Clear All permission** | Action was incorrectly gated on `admin` role; changed to `compliance.write` to match all other write operations in the module |
+| **User edit inline JSON** | Inline `onclick` passing a PHP-encoded JSON object caused XSS-filter false positives and broke on special characters in names; replaced with `data-*` attributes |
+| **KRI unit column length** | `kris.unit` was `VARCHAR(10)`, truncating common unit strings; migrated to `VARCHAR(50)` |
+
+---
+
+### Phase 3 — Compliance Import Expansion
+
+Extended the compliance import system to support multiple file formats and manual entry.
+
+#### Delivered
+
+| Feature | Detail |
+|---|---|
+| **CSV import** | Upload a `.csv` file with headers `package_name`, `package_version`, `package_description`, `domain_code`, `domain_title`, `control_code`, `control_title`, `control_description`; auto-groups rows by domain; creates a new package on import |
+| **Excel import (.xlsx)** | Upload an `.xlsx` file; server-side parser reads `xl/sharedStrings.xml` and `xl/worksheets/sheet1.xml` via ZipArchive; converts to CSV format and reuses the CSV processor |
+| **PDF import** | Extracts text via `pdftotext` (poppler-utils); regex parser auto-detects section and control codes from the extracted text; creates domains and controls automatically; falls back to a single placeholder control if the PDF cannot be parsed |
+| **JSON import** | Existing JSON format; supports both 2-level (domains → controls) and flat (legacy) structures; can carry an embedded `standard` definition that is upserted into the `standards` table |
+| **Single-control manual entry** | "Single Control" tab on the import page; form with package selector, domain code/title, control code/title, description; finds or creates the domain automatically |
+| **CSV template download** | `/compliance/csv-template` endpoint; serves a pre-filled `.csv` with correct headers and three example rows |
+| **Excel template download (SpreadsheetML)** | `/compliance/excel-template` endpoint; generates SpreadsheetML (Excel 2003 XML format) — no ZipArchive or other PHP extensions required; downloads as `.xls` |
+| **Module visibility admin** | Admin panel controls which modules appear in the sidebar; stored in `settings` table; resolved discoverability issues where new modules were hidden by default |
+| **Multi-select package delete** | Compliance index page gained checkboxes and a "Delete Selected" action with a count-specific confirmation label |
+| **Redesigned risk matrix** | Per-cell editable treatment configuration; cells show risk level, score range, and recommended treatment; configurable via admin panel |
+
+---
+
+### Phase 4 — UX Polish & Mobile Fixes
+
+Quality-of-life improvements focused on mobile usability and data integrity.
+
+#### Delivered
+
+| Feature / Fix | Detail |
+|---|---|
+| **Threat Register sidebar icon** | `bi-biohazard` does not exist in Bootstrap Icons 1.11.3; changed to `bi-shield-exclamation` |
+| **Risk appetite deduplication** | Runtime migration in `index.php` deletes duplicate rows (keeping the lowest `id` per category) then seeds six default categories (Financial, Operational, Strategic, Compliance, Technology, Reputational) if the table is empty |
+| **Backup code button — mobile** | The TOTP verify page auto-focused the code input on load, which raised the virtual keyboard on iOS/Android and pushed the "Use Backup Code" button off-screen; auto-focus now only runs on non-touch devices (`window.matchMedia('(hover: none)')`) |
+| **Backup verify silent failure** | `mfaBackupVerify()` stored its error in `$_SESSION['flash_error']`; the MFA verify view reads `$_SESSION['mfa_error']`; the session key was corrected and the failure redirect now includes `?mode=backup` so the backup section auto-opens |
+| **Sidebar scroll persistence** | On each page navigation the sidebar `overflow-y: auto` container scrolled back to the top; the current scroll position is now saved to `sessionStorage` on `beforeunload` and restored on `DOMContentLoaded` |
+
+---
+
+### Phase 5 — Accordion Navigation & Compliance Bulk Operations
+
+Major UX feature additions: collapsible sidebar nav, bulk compliance actions, and extended import fields.
+
+#### Delivered
+
+| Feature | Detail |
+|---|---|
+| **Collapsible accordion sidebar** | The flat sidebar nav was reorganised into eight labelled accordion sections: Overview, Compliance, Operations, Risk, Analytics, Resources, Administration, Account. Each section has a chevron that animates on open/close. State (which sections are open or closed) is persisted in `sessionStorage` so the layout is preserved across page navigations. On first load, the section containing the active page is opened automatically. Transitions are disabled during initial paint to prevent a "flash of collapsed content" |
+| **Accordion mobile compatibility** | Section headers have `min-height: 44px` (Apple HIG touch target), `-webkit-tap-highlight-color: transparent`, and `touch-action: manipulation` to prevent the 300 ms tap delay and eliminate the blue flash on iOS. Tested on iOS Safari and Android Chrome |
+| **Compliance bulk status update** | Each control row in the compliance package view gained a checkbox; each domain header gained a select-all checkbox with indeterminate state. A sticky floating action bar (indigo, `position: sticky; top: 0`) appears when any controls are selected showing the count and five one-click status buttons (Compliant, Partial, Non-Compliant, Not Started, N/A). Clicking a button POSTs to `/compliance/{id}/bulk-status` via `fetch`; the response updates the status icons inline without a page reload; CSRF token is refreshed from `new_csrf` in the JSON response for consecutive operations |
+| **`control_additional_information` column** | New optional column added to CSV/Excel import format and the single-control manual entry form; `additional_information TEXT` column added to `compliance_objectives` via runtime migration; stored and displayed on the individual control assess page |
+| **Remove built-in standards from import** | The "Built-in Standards" card was removed from the import page; standards are now only managed through the admin panel or embedded in JSON imports |
+| **Excel template fix** | The Excel template download was crashing with "Class ZipArchive not found" on Render because the PHP ZipArchive extension is not installed. The `downloadExcelTemplate()` method was rewritten to generate SpreadsheetML (Excel 2003 XML) format which requires no PHP extensions, and the file is now served as `.xls` with `application/vnd.ms-excel` content type |
+| **Bulk Assess modal** | The compliance package bulk action bar gained a "Bulk Assess" button (indigo). Clicking it opens a modal that mirrors the individual control assess page: radio buttons for Implementation Status (styled with colour and description), Assigned To user dropdown, Due Date picker, Implementation Notes textarea, and Evidence textarea. Submitting POSTs to `/compliance/{id}/bulk-assess` via `fetch`; all selected controls are upserted with every field simultaneously; the control row status icons and assignee names update inline; a purple toast confirms the count |
+
+---
+
+### Planned — Phase 6
+
+The following items are scoped for future development.
+
+| Area | Description |
+|---|---|
+| **AI-Assisted Gap Analysis** | Claude API integration to analyse a compliance package, identify unaddressed control gaps relative to existing policies and risks, and generate a prioritised remediation narrative |
+| **Control Testing Dashboard** | Dedicated dashboard aggregating all control test results (`control_tests` table) with pass/fail trend charts, overdue retests, and effectiveness heatmap by domain |
+| **Evidence Attachments on Controls** | File upload directly from the control assess page and the bulk assess modal, linked to `control_implementations` rather than the generic evidence store |
+| **Compliance Scorecard PDF Export** | One-click PDF export of the per-package scorecard view (domain breakdown, compliance percentages, non-compliant control list) using a server-side HTML-to-PDF renderer |
+| **Risk Roadmap Gantt** | Gantt-style visualisation of open treatment plans on the risk roadmap view, with drag-to-reschedule and owner swimlanes |
+| **Automated Evidence Collection** | Webhook receiver that accepts structured evidence payloads from CI/CD pipelines, cloud platforms, and security tools and attaches them to mapped controls automatically |
+| **Attestation Campaigns v2** | Bulk-assign policy attestation campaigns by role or department; track completion percentage; send reminder emails via the configured SMTP provider |
+| **SSO / SAML2 live integration** | Complete the SAML2 authentication flow (`SSOController`) with IdP metadata exchange, SP-initiated login, and attribute mapping for role assignment |
+| **Multi-tenant organisations** | Namespace all tables under an `organisation_id` to allow a single AEGIS instance to serve multiple independent tenants with data isolation |
+| **Mobile-first view layer** | Responsive card-based views for the compliance package and risk register pages optimised for small screens; swipe gestures for quick status updates |
+
+---
+
+
 
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
 
