@@ -749,7 +749,7 @@ document.addEventListener('DOMContentLoaded', function() {
   z-index: 1001;
   width: 100%;
   max-width: 480px;
-  background: var(--bg-card);
+  background: var(--card-bg);
   border-radius: 12px;
   box-shadow: 0 20px 60px rgba(0,0,0,.25);
   overflow: hidden;
@@ -770,7 +770,7 @@ document.addEventListener('DOMContentLoaded', function() {
   align-items: center;
   padding: 14px 20px;
   border-top: 1px solid var(--border);
-  background: var(--bg-secondary);
+  background: var(--bg);
 }
 @media (max-width: 520px) {
   .aegis-modal { max-width: calc(100vw - 32px); }
