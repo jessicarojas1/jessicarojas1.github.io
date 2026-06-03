@@ -27,7 +27,18 @@ class AuthController {
 
         if (Auth::login($email, $password)) {
             // Check if MFA is enabled for this user
-            $user = Database::fetchOne("SELECT mfa_enabled, mfa_secret FROM users WHERE id = ?", [Auth::id()]);
+            $user = Database::fetchOne("SELECT mfa_enabled, mfa_secret, role FROM users WHERE id = ?", [Auth::id()]);
+
+            // Enforce MFA for privileged roles if policy requires it (NIST 800-171 IA.3.083)
+            $mfaEnfRow     = Database::fetchOne("SELECT value FROM settings WHERE key = 'mfa_enforcement'");
+            $enforcedRoles = array_filter(array_map('trim', explode(',', $mfaEnfRow['value'] ?? '')));
+            if (!empty($enforcedRoles) && in_array($user['role'], $enforcedRoles)
+                && (empty($user['mfa_enabled']) || empty($user['mfa_secret']))) {
+                // Log in but immediately require MFA setup
+                $_SESSION['user']['force_mfa_setup'] = true;
+                $_SESSION['flash_warning'] = 'Your role requires two-factor authentication. Please set it up now.';
+                header('Location: /mfa/setup'); exit;
+            }
             if (!empty($user['mfa_enabled']) && !empty($user['mfa_secret'])) {
                 // Store that password was verified, require MFA step
                 $_SESSION['mfa_pending']  = true;
@@ -89,16 +100,50 @@ class AuthController {
         $code   = preg_replace('/\s/', '', $_POST['code'] ?? '');
         $userId = (int)($_SESSION['mfa_user_id'] ?? 0);
 
+        // Rate-limit MFA attempts to prevent brute-force (NIST 800-171 IA.3.082)
+        if (!Security::checkRateLimit('mfa_' . $userId)) {
+            $_SESSION['mfa_error'] = 'Too many failed attempts. Please wait before trying again.';
+            header('Location: /mfa/verify'); exit;
+        }
+
         $user = Database::fetchOne("SELECT * FROM users WHERE id = ? AND is_active = TRUE", [$userId]);
         if (!$user || empty($user['mfa_secret'])) {
             header('Location: /login'); exit;
         }
 
         require_once AEGIS_ROOT . '/src/TOTP.php';
-        if (!TOTP::verify($user['mfa_secret'], $code)) {
+
+        // Find which time-window the code matches (for replay detection)
+        $counter = (int)floor(time() / 30);
+        $matchedCounter = null;
+        foreach ([-1, 0, 1] as $offset) {
+            if (hash_equals(TOTP::getCode($user['mfa_secret'], $offset), $code)) {
+                $matchedCounter = $counter + $offset;
+                break;
+            }
+        }
+
+        if ($matchedCounter === null) {
             $_SESSION['mfa_error'] = 'Invalid code. Please try again.';
             header('Location: /mfa/verify'); exit;
         }
+
+        // Prevent TOTP replay within the 90-second window (NIST 800-171 IA.3.083)
+        $alreadyUsed = Database::fetchOne(
+            "SELECT 1 FROM totp_used_codes WHERE user_id = ? AND window_counter = ?",
+            [$userId, $matchedCounter]
+        );
+        if ($alreadyUsed) {
+            $_SESSION['mfa_error'] = 'This code has already been used. Please wait for a new code.';
+            header('Location: /mfa/verify'); exit;
+        }
+        Database::query(
+            "INSERT INTO totp_used_codes (user_id, window_counter) VALUES (?,?) ON CONFLICT (user_id, window_counter) DO NOTHING",
+            [$userId, $matchedCounter]
+        );
+        Database::query("DELETE FROM totp_used_codes WHERE used_at < NOW() - INTERVAL '10 minutes'");
+
+        Security::resetRateLimit('mfa_' . $userId);
 
         // MFA passed — establish full session
         $mfaRedir = $_SESSION['mfa_redirect'] ?? '/';
@@ -117,6 +162,7 @@ class AuthController {
             'email'      => $user['email'],
             'role'       => $user['role'],
             'department' => $user['department'] ?? '',
+            'login_time' => time(),
         ];
         $_SESSION['last_activity'] = time();
 
@@ -422,6 +468,7 @@ class AuthController {
             'email'       => $user['email'],
             'role'        => $user['role'],
             'mfa_enabled' => (bool)$user['mfa_enabled'],
+            'login_time'  => time(),
         ];
         $_SESSION['last_activity'] = time();
         Auth::log('mfa_backup_code_used', 'users', $user['id'], []);

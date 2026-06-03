@@ -259,7 +259,8 @@ class Security {
         header('Referrer-Policy: strict-origin-when-cross-origin');
         header('Cross-Origin-Opener-Policy: same-origin');
         header('Cross-Origin-Resource-Policy: same-origin');
-        header('Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=()');
+        header('X-Permitted-Cross-Domain-Policies: none');
+        header('Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=(), interest-cohort=()');
         if (($_SERVER['REQUEST_SCHEME'] ?? '') === 'https'
             || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https'
             || !empty($_SERVER['HTTPS'])) {

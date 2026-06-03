@@ -92,9 +92,18 @@ if ($method === 'POST' && $uri === '/auth/token') {
         // Don't reset rate limit on failure — only on success
         apiError('Invalid credentials', 401);
     }
+    // Require TOTP verification if user has MFA enabled (prevent MFA bypass via API)
+    if (!empty($user['mfa_enabled']) && !empty($user['mfa_secret'])) {
+        $totpCode = preg_replace('/\s/', '', $input['totp_code'] ?? '');
+        require_once AEGIS_ROOT . '/src/TOTP.php';
+        if (!$totpCode || !TOTP::verify($user['mfa_secret'], $totpCode)) {
+            apiError('MFA code required for accounts with two-factor authentication enabled. Include totp_code in the request body.', 401);
+        }
+    }
     Security::resetRateLimit($loginRateLimitKey);
-    $token = JWT::issue($user['id'], $user['role'], 3600 * 24);
-    apiResponse(['token' => $token, 'expires_in' => 86400, 'user' => ['id' => $user['id'], 'name' => $user['name'], 'role' => $user['role']]]);
+    // 1-hour JWT lifetime (not 24h) — clients must re-authenticate regularly
+    $token = JWT::issue($user['id'], $user['role'], 3600);
+    apiResponse(['token' => $token, 'expires_in' => 3600, 'user' => ['id' => $user['id'], 'name' => $user['name'], 'role' => $user['role']]]);
 }
 
 $authUser = authenticateApi();

@@ -74,6 +74,40 @@ class Auth {
             header('Location: /login?reason=timeout');
             exit;
         }
+
+        // Server-side session revocation: if an admin deactivated this account
+        // after our login, force immediate logout (SOC 2 CC6.5, NIST 800-53 AC-2)
+        try {
+            $dbUser = Database::fetchOne(
+                "SELECT sessions_revoked_at, force_password_change FROM users WHERE id = ? AND is_active = TRUE",
+                [self::id()]
+            );
+            if (!$dbUser) {
+                // Account deactivated — force logout
+                self::logout();
+                header('Location: /login?reason=account_disabled');
+                exit;
+            }
+            $loginTime = $_SESSION['user']['login_time'] ?? 0;
+            if (!empty($dbUser['sessions_revoked_at'])
+                && strtotime($dbUser['sessions_revoked_at']) > $loginTime) {
+                self::logout();
+                header('Location: /login?reason=revoked');
+                exit;
+            }
+            // Force password change check (N171-G3 / IA-5)
+            if (!empty($dbUser['force_password_change'])
+                && !in_array($_SERVER['REQUEST_URI'], ['/profile/edit', '/logout'])) {
+                // Allow only profile/edit so they can change it; redirect everything else
+                $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+                if (!in_array($uri, ['/profile/edit', '/logout', '/login'])) {
+                    $_SESSION['flash_warning'] = 'You must change your password before continuing.';
+                    header('Location: /profile/edit');
+                    exit;
+                }
+            }
+        } catch (Throwable) {}
+
         $_SESSION['last_activity'] = time();
     }
 
@@ -97,16 +131,32 @@ class Auth {
         if (!Security::checkRateLimit('login_' . $ip)) return false;
 
         $user = Database::fetchOne("SELECT * FROM users WHERE email = ? AND is_active = TRUE", [$email]);
-        if (!$user || !Security::verifyPassword($password, $user['password_hash'])) return false;
+        if (!$user || !Security::verifyPassword($password, $user['password_hash'])) {
+            // Log the failed attempt for audit trail (NIST 800-53 AU-2, CMMC AC.L1-3.1.1)
+            try {
+                $prev = Database::fetchOne("SELECT log_hash FROM activity_log ORDER BY id DESC LIMIT 1");
+                $prevHash = $prev['log_hash'] ?? 'genesis';
+                $ts = date('Y-m-d\TH:i:s\Z');
+                $payload = implode('|', [$prevHash, 'system', 'login_failed', 'users', '0', $email, $ip, $ts]);
+                $logHash = hash('sha256', $payload);
+                Database::query(
+                    "INSERT INTO activity_log (user_id, action, entity_type, ip_address, user_agent, log_hash)
+                     VALUES (NULL, 'login_failed', 'users', ?, ?, ?)",
+                    [$ip, substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 500), $logHash]
+                );
+            } catch (Throwable) {}
+            return false;
+        }
 
         Security::resetRateLimit('login_' . $ip);
         session_regenerate_id(true);
 
         $_SESSION['user'] = [
-            'id'    => $user['id'],
-            'name'  => $user['name'],
-            'email' => $user['email'],
-            'role'  => $user['role'],
+            'id'         => $user['id'],
+            'name'       => $user['name'],
+            'email'      => $user['email'],
+            'role'       => $user['role'],
+            'login_time' => time(),
         ];
         $_SESSION['last_activity'] = time();
 
@@ -126,9 +176,11 @@ class Auth {
         $userAgent = substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 500);
         $changesJson = $changes ? json_encode($changes) : null;
 
-        // Hash chain: SHA-256( prev_hash | userId | action | entityType | entityId | changes | ip | now )
+        // Hash chain: SHA-256( prev_hash | userId | action | entityType | entityId | changes | ip | timestamp )
+        // Timestamp is included to prevent log truncation attacks (NIST 800-53 AU-9)
         $prev = Database::fetchOne("SELECT log_hash FROM activity_log ORDER BY id DESC LIMIT 1");
         $prevHash = $prev['log_hash'] ?? 'genesis';
+        $ts = date('Y-m-d\TH:i:s\Z');
         $payload  = implode('|', [
             $prevHash,
             (string)self::id(),
@@ -137,6 +189,7 @@ class Auth {
             (string)$entityId,
             (string)$changesJson,
             $ip,
+            $ts,
         ]);
         $logHash = hash('sha256', $payload);
 

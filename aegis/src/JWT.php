@@ -100,6 +100,13 @@ class JWT {
     }
 
     private static function fetchJwks(string $url): ?array {
+        // SSRF prevention: only allow HTTPS to public hosts
+        if (!preg_match('#^https://#i', $url)) return null;
+        $host = parse_url($url, PHP_URL_HOST);
+        if (!$host) return null;
+        $resolved = gethostbyname($host);
+        if (filter_var($resolved, FILTER_VALIDATE_IP,
+                FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) return null;
         $ctx  = stream_context_create(['http' => ['timeout' => 5, 'method' => 'GET']]);
         $body = @file_get_contents($url, false, $ctx);
         if ($body === false) return null;

@@ -36,7 +36,7 @@ class AdminController {
         $dept       = Security::sanitizeInput($_POST['department'] ?? '');
         $title      = Security::sanitizeInput($_POST['job_title'] ?? '');
 
-        $errors = Security::validatePassword($password);
+        $errors = Security::validatePasswordPolicy($password);
         if (!$name || !$email) $errors[] = 'Name and email are required.';
         if (Database::fetchOne("SELECT id FROM users WHERE email = ?", [$email])) $errors[] = 'Email already in use.';
 
@@ -111,10 +111,16 @@ class AdminController {
 
         if (!empty($_POST['new_password'])) {
             $pwd = $_POST['new_password'];
-            $errors = Security::validatePassword($pwd);
+            $errors = Security::validatePasswordPolicy($pwd);
             if (!$errors) {
                 Database::query("UPDATE users SET password_hash=? WHERE id=?", [Security::hashPassword($pwd), $id]);
             }
+        }
+
+        // Revoke active sessions and API keys if account is being deactivated
+        if (!$isActive) {
+            Database::query("UPDATE users SET sessions_revoked_at = NOW() WHERE id = ?", [$id]);
+            Database::query("UPDATE api_keys SET is_active = FALSE WHERE user_id = ?", [$id]);
         }
 
         Auth::log('update_user', 'users', $id);
@@ -134,7 +140,9 @@ class AdminController {
             header('Location: /admin/users'); return;
         }
 
-        Database::query("UPDATE users SET is_active = FALSE WHERE id = ?", [$id]);
+        // Soft-delete: deactivate and revoke all active sessions + API keys
+        Database::query("UPDATE users SET is_active = FALSE, sessions_revoked_at = NOW() WHERE id = ?", [$id]);
+        Database::query("UPDATE api_keys SET is_active = FALSE WHERE user_id = ?", [$id]);
         Auth::log('delete_user', 'users', $id);
         header('Location: /admin/users?deleted=1');
     }
@@ -1139,8 +1147,8 @@ class AdminController {
             [
                 Security::sanitizeInput($_POST['name'] ?? ''),
                 Security::sanitizeInput($_POST['subject'] ?? ''),
-                $_POST['body_html'] ?? '',
-                $_POST['body_text'] ?? '',
+                Security::sanitizeHtml($_POST['body_html'] ?? ''),
+                Security::sanitizeInput($_POST['body_text'] ?? ''),
                 isset($_POST['is_active']) ? true : false,
                 Auth::id(),
                 $id,

@@ -49,6 +49,11 @@ foreach ((getenv() ?: []) as $k => $v) {
     if (!isset($_ENV[$k])) $_ENV[$k] = $v;
 }
 
+// Startup guard: JWT_SECRET must be present and strong enough to sign tokens
+if (empty($_ENV['JWT_SECRET']) || strlen($_ENV['JWT_SECRET']) < 32) {
+    throw new RuntimeException('JWT_SECRET must be set and at least 32 characters. Set it in your Render/environment dashboard.');
+}
+
 // Session config
 ini_set('session.cookie_httponly', '1');
 ini_set('session.cookie_samesite', 'Strict');
@@ -206,6 +211,47 @@ try {
 } catch (Throwable) {}
 
 try {
+    // totp_used_codes: prevent TOTP replay attacks within the 90-second window
+    $__totpTable = Database::fetchOne(
+        "SELECT 1 FROM information_schema.tables WHERE table_name='totp_used_codes' AND table_schema='public'"
+    );
+    if (!$__totpTable) {
+        Database::query(
+            "CREATE TABLE totp_used_codes (
+               id             SERIAL PRIMARY KEY,
+               user_id        INTEGER NOT NULL,
+               window_counter BIGINT  NOT NULL,
+               used_at        TIMESTAMP NOT NULL DEFAULT NOW(),
+               UNIQUE(user_id, window_counter)
+             )"
+        );
+    }
+    unset($__totpTable);
+} catch (Throwable) {}
+
+try {
+    // users: add sessions_revoked_at for server-side session invalidation
+    $__sraCol = Database::fetchOne(
+        "SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='sessions_revoked_at' AND table_schema='public'"
+    );
+    if (!$__sraCol) {
+        Database::query("ALTER TABLE users ADD COLUMN sessions_revoked_at TIMESTAMP");
+    }
+    unset($__sraCol);
+} catch (Throwable) {}
+
+try {
+    // users: add force_password_change for first-login enforcement
+    $__fpcCol = Database::fetchOne(
+        "SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='force_password_change' AND table_schema='public'"
+    );
+    if (!$__fpcCol) {
+        Database::query("ALTER TABLE users ADD COLUMN force_password_change BOOLEAN NOT NULL DEFAULT FALSE");
+    }
+    unset($__fpcCol);
+} catch (Throwable) {}
+
+try {
     // Risk appetite: remove duplicate rows (keep lowest id per category), then seed defaults if empty
     Database::query(
         "DELETE FROM risk_appetite WHERE id NOT IN (
@@ -249,24 +295,17 @@ if ($uri === '/health' && $method === 'GET') {
         $dbOk = true;
     } catch (Throwable) {}
     $diskFree = disk_free_space(AEGIS_ROOT);
-    $diskTotal = disk_total_space(AEGIS_ROOT);
     $overall = $dbOk ? 'healthy' : 'degraded';
     http_response_code($dbOk ? 200 : 503);
+    // Return minimal information to avoid fingerprinting/info disclosure (OWASP API3)
     echo json_encode([
         'status'    => $overall,
-        'version'   => '3.0',
         'timestamp' => date('c'),
-        'uptime_ms' => round((microtime(true) - AEGIS_START) * 1000, 2),
         'checks'    => [
-            'database' => ['status' => $dbOk ? 'ok' : 'error', 'latency_ms' => $dbLatencyMs],
-            'disk'     => [
-                'status'     => ($diskFree !== false && $diskFree > 100 * 1024 * 1024) ? 'ok' : 'low',
-                'free_mb'    => $diskFree !== false ? round($diskFree / 1048576) : null,
-                'total_mb'   => $diskTotal !== false ? round($diskTotal / 1048576) : null,
-            ],
-            'php'      => ['version' => PHP_VERSION],
+            'database' => $dbOk ? 'ok' : 'error',
+            'disk'     => ($diskFree !== false && $diskFree > 100 * 1024 * 1024) ? 'ok' : 'low',
         ],
-    ], JSON_PRETTY_PRINT);
+    ]);
     exit;
 }
 
