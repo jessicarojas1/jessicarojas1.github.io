@@ -60,9 +60,6 @@ ob_start();
         <div class="package-code"><?= Security::h($pkg['standard_code']) ?></div>
         <div class="package-version">v<?= Security::h($pkg['version'] ?? '1.0') ?></div>
       </div>
-      <?php if ($pkg['is_paid']): ?>
-        <span class="badge badge-gold"><i class="bi bi-star-fill"></i> Premium</span>
-      <?php endif; ?>
     </div>
 
     <h3 class="package-name"><?= Security::h($pkg['name']) ?></h3>

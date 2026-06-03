@@ -73,7 +73,7 @@
   <div class="card-header"><h3><i class="bi bi-shield-check"></i> Compliance</h3></div>
   <div class="card-body docs-body">
     <h4>Importing a Framework</h4>
-    <p>Navigate to <strong>Compliance → Import Standard</strong>. Upload a JSON framework file or choose from built-in packages (ISO 27001, SOC 2 Type II, NIST 800-53 Rev 5, HIPAA, PCI-DSS v4, CMMC Level 2).</p>
+    <p>Navigate to <strong>Compliance → Import Standard</strong>. Upload a JSON framework file to add any compliance standard (ISO 27001, SOC 2, NIST 800-53, HIPAA, PCI-DSS, CMMC, etc.).</p>
 
     <h4>Control Implementation Statuses</h4>
     <table class="table">

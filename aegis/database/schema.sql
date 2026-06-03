@@ -37,7 +37,6 @@ CREATE TABLE IF NOT EXISTS standards (
     category VARCHAR(100),
     authority VARCHAR(255),
     url VARCHAR(500),
-    is_builtin BOOLEAN NOT NULL DEFAULT FALSE,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -48,7 +47,6 @@ CREATE TABLE IF NOT EXISTS compliance_packages (
     name VARCHAR(255) NOT NULL,
     version VARCHAR(50),
     description TEXT,
-    is_paid BOOLEAN NOT NULL DEFAULT FALSE,
     price DECIMAL(10,2),
     objectives_count INTEGER DEFAULT 0,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,

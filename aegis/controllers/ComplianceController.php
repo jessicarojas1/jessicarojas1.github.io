@@ -903,8 +903,8 @@ class ComplianceController {
                 $standardId = $existing['id'];
             } else {
                 Database::query(
-                    "INSERT INTO standards (code, name, authority, category, is_builtin, is_active)
-                     VALUES (?,?,?,?,FALSE,TRUE)",
+                    "INSERT INTO standards (code, name, authority, category, is_active)
+                     VALUES (?,?,?,?,TRUE)",
                     [$std['code'], $std['name'] ?? $std['code'], $std['authority'] ?? '', $std['category'] ?? '']
                 );
                 $standardId = Database::fetchOne("SELECT id FROM standards WHERE code = ?", [$std['code']])['id'];

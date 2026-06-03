@@ -281,6 +281,7 @@ function runMigrations(PDO $pdo): void {
         '008_notification_prefs.sql',
         '009_remove_seeded_packages.sql',
         '010_risk_matrix_cells.sql',
+        '011_drop_builtin_columns.sql',
     ];
     foreach ($migrationFiles as $file) {
         $path = AEGIS_ROOT . '/database/migrations/' . $file;
@@ -291,19 +292,6 @@ function runMigrations(PDO $pdo): void {
         } catch (PDOException $e) {
             log_msg("[AEGIS] Migration {$file} warning: " . $e->getMessage());
         }
-    }
-
-    // ── Remove auto-seeded compliance packages (idempotent safety net) ────────
-    try {
-        $pdo->exec("DELETE FROM aegis.audit_items WHERE objective_id IN (
-            SELECT id FROM aegis.compliance_objectives
-            WHERE package_id IN (SELECT id FROM aegis.compliance_packages WHERE imported_by IS NULL)
-        )");
-        $pdo->exec("UPDATE aegis.audits SET package_id = NULL WHERE package_id IN (SELECT id FROM aegis.compliance_packages WHERE imported_by IS NULL)");
-        $pdo->exec("DELETE FROM aegis.audit_schedules WHERE package_id IN (SELECT id FROM aegis.compliance_packages WHERE imported_by IS NULL)");
-        $pdo->exec("DELETE FROM aegis.compliance_packages WHERE imported_by IS NULL");
-    } catch (PDOException $e) {
-        log_msg("[AEGIS] Seeded package cleanup warning: " . $e->getMessage());
     }
 
     log_msg('[AEGIS] Migrations applied.');

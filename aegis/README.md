@@ -5,13 +5,13 @@
 ![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 
-AEGIS is a self-hosted Governance, Risk, and Compliance (GRC) platform built with PHP 8.2 and PostgreSQL. It consolidates compliance tracking, risk management, audit workflows, and policy lifecycle management into a single cohesive application — with no external framework dependencies, no build pipeline, and a single Docker container deployment model. AEGIS ships with a pre-seeded CMMC 2.0 Level 2 compliance package and supports importing custom standards via JSON.
+AEGIS is a self-hosted Governance, Risk, and Compliance (GRC) platform built with PHP 8.2 and PostgreSQL. It consolidates compliance tracking, risk management, audit workflows, and policy lifecycle management into a single cohesive application — with no external framework dependencies, no build pipeline, and a single Docker container deployment model. Import any compliance standard via JSON or create custom packages from scratch.
 
 ---
 
 ## Features
 
-- **Compliance Management** — Track compliance packages against standards (CMMC, custom), manage control implementations, attach evidence, and link policies to objectives
+- **Compliance Management** — Track compliance packages against any imported standard, manage control implementations, attach evidence, and link policies to objectives
 - **Risk Register** — Create and score risks using a configurable likelihood × impact matrix, assign owners, record treatments, and visualize exposure on a 5×5 heatmap
 - **Audit Workflows** — Schedule and conduct audits against compliance packages, manage checklist items, and record scores through to completion
 - **Policy Lifecycle** — Draft, version, approve, publish, and review policies with full mapping to compliance controls
@@ -110,7 +110,7 @@ aegis/
 ├── database/
 │   ├── schema.sql                 # 18 CREATE TABLE statements in aegis schema + 13 indexes
 │   └── seeds/
-│       └── cmmc_l2.json           # CMMC 2.0 Level 2 seed data (domains, practices, objectives)
+│       └── seed_frameworks.php    # CLI tool for importing framework JSON files
 │
 ├── scripts/
 │   └── startup.sh                 # Docker CMD: runs install.php (idempotent) then starts Apache
@@ -269,7 +269,7 @@ All tables live in the `aegis` PostgreSQL schema (isolated from `public`). The s
 |---|---|
 | `users` | User accounts: email, hashed password, role, active flag |
 | `api_keys` | API keys per user: SHA-256 hash of the key, name, last-used timestamp |
-| `standards` | Compliance framework definitions (e.g., CMMC 2.0) |
+| `standards` | Compliance framework definitions (ISO 27001, NIST, SOC 2, etc.) |
 | `compliance_packages` | Instances of a standard assigned for tracking within the org |
 | `compliance_objectives` | Individual controls/practices within a package; tree structure via `parent_id` |
 | `control_implementations` | One-to-one implementation record per objective: status, evidence, assignee, reviewer |
@@ -557,7 +557,7 @@ The `Options -Indexes` directive is set globally, preventing directory listing a
    | `ADMIN_PASSWORD` | Password for the initial admin account |
 
 4. **Deploy.** Render builds the Docker image and runs `scripts/startup.sh` as the container command, which:
-   - Executes `php install.php` (idempotent — safe to re-run on redeploy; creates the schema and seeds CMMC 2.0 data on first run)
+   - Executes `php install.php` (idempotent — safe to re-run on redeploy; creates the schema on first run)
    - Starts Apache via `apache2-foreground`
 
 5. **Access the application** at your Render URL. Log in with the `ADMIN_EMAIL` / `ADMIN_PASSWORD` credentials set in step 3.

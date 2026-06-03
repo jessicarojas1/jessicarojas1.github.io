@@ -48,8 +48,8 @@ foreach ($seeds as $file) {
     $standard = Database::fetchOne("SELECT id FROM standards WHERE code = ?", [$code]);
     if (!$standard) {
         Database::query(
-            "INSERT INTO standards (code, name, version, authority, category, is_builtin, is_active)
-             VALUES (?,?,?,?,?,TRUE,TRUE)",
+            "INSERT INTO standards (code, name, version, authority, category, is_active)
+             VALUES (?,?,?,?,?,TRUE)",
             [$code, $std['name'] ?? $code, $data['version'] ?? '1.0', $std['authority'] ?? '', $std['category'] ?? '']
         );
         $standard = Database::fetchOne("SELECT id FROM standards WHERE code = ?", [$code]);

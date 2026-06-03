@@ -22,7 +22,7 @@
         </div>
       </div>
       <div class="auth-features">
-        <div class="auth-feature"><i class="bi bi-shield-check"></i><span>CMMC, ISO 27001, ISO 42001 built-in</span></div>
+        <div class="auth-feature"><i class="bi bi-shield-check"></i><span>Import any compliance framework via JSON</span></div>
         <div class="auth-feature"><i class="bi bi-clipboard2-check"></i><span>Automated audit scheduling &amp; tracking</span></div>
         <div class="auth-feature"><i class="bi bi-exclamation-triangle"></i><span>Real-time risk matrix &amp; treatment plans</span></div>
         <div class="auth-feature"><i class="bi bi-file-earmark-text"></i><span>Policy lifecycle management</span></div>

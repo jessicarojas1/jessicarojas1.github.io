@@ -24,7 +24,7 @@ ob_start();
       <div class="form-row">
         <div class="form-group flex-2">
           <label class="form-label required">Audit Name</label>
-          <input type="text" name="name" class="form-control" placeholder="e.g. CMMC Level 2 Annual Audit" value="<?= Security::h($audit['name'] ?? '') ?>" required>
+          <input type="text" name="name" class="form-control" placeholder="e.g. ISO 27001 Annual Audit" value="<?= Security::h($audit['name'] ?? '') ?>" required>
         </div>
         <div class="form-group">
           <label class="form-label">Audit Type</label>
