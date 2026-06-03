@@ -6,7 +6,7 @@
 <title>Two-Factor Authentication — AEGIS GRC</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="/public/vendor/bootstrap-icons/bootstrap-icons.min.css">
 <link rel="stylesheet" href="/public/css/app.css">
 <style>
   body { background: var(--bg-body); display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
