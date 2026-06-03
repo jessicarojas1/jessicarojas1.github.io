@@ -393,7 +393,7 @@ A `Content-Security-Policy` header is set on every response by `Security::setSec
 
 ```
 default-src 'self';
-script-src 'self' 'nonce-{per-request-nonce}' 'unsafe-inline';
+script-src 'self' 'nonce-{per-request-nonce}';
 style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net;
 font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net;
 img-src 'self' data: blob:;
@@ -647,6 +647,46 @@ Rate limit: **60 requests per minute** per IP.
 | `POST` | `/api/auth/token` | Exchange credentials for a JWT |
 
 > Full request/response schemas and example payloads are documented in the in-app documentation module at `/docs`.
+
+---
+
+## Limitations
+
+The following are known constraints and trade-offs in the current release.
+
+### Infrastructure & Deployment
+
+| Limitation | Detail |
+|---|---|
+| **Ephemeral file storage** | Uploaded evidence files are stored on the container's local filesystem. On Render's free tier (or any ephemeral container), a redeploy or restart wipes all uploads unless a persistent disk is attached and `UPLOAD_PATH` is pointed to the mounted volume |
+| **No horizontal scaling** | PHP file-based sessions and local file storage mean the application cannot run behind a load balancer with multiple replicas without additional session-sharing infrastructure |
+| **Render free-tier cold starts** | On Render's free plan the service spins down after 15 minutes of inactivity. The first request after a cold start can take 30–60 seconds while the container restarts |
+| **PostgreSQL only** | The database layer uses PostgreSQL-specific SQL (schemas, `SERIAL`, `ON CONFLICT`). MySQL, MariaDB, and SQLite are not supported |
+
+### Features & Functionality
+
+| Limitation | Detail |
+|---|---|
+| **No compliance frameworks included** | The platform ships with no pre-loaded standards. All compliance packages must be imported via JSON, CSV, or Excel upload, or created manually |
+| **No background job runner** | There is no built-in cron or queue system. Scheduled features (metric snapshots, due-date reminders, SLA alerts) rely on web-request triggers or an external cron call; missed triggers are not retried |
+| **SMTP required for email** | Email notifications, review reminders, and attestation campaigns only function when a working SMTP server is configured in admin settings. Failed sends are silently dropped — there is no queue or retry mechanism |
+| **SSO (SAML2/OIDC) not yet live** | The settings UI and placeholder controller exist but the full authentication flow is not implemented. Scoped for a future phase |
+| **Single-tenant only** | All data lives in one PostgreSQL schema. There is no multi-organisation mode; separate deployments are required for data isolation between organisations |
+| **AI Advisor requires an API key** | The AI-assisted gap analysis and risk advisor features require an Anthropic (Claude) API key configured in admin settings. Without it those features are inactive |
+
+### Export & Import
+
+| Limitation | Detail |
+|---|---|
+| **XLSX uses Excel 2003 XML format** | Exports use SpreadsheetML (`.xls`) rather than modern OOXML (`.xlsx`), avoiding a ZipArchive dependency. Modern Excel features (tables, charts, rich formatting) are not available |
+| **PDF import quality varies** | The PDF import path calls the `pdftotext` binary (poppler-utils). Parsing quality depends on the PDF's embedded text layer; scanned PDFs without OCR will produce empty or incomplete extractions |
+
+### Performance & Scalability
+
+| Limitation | Detail |
+|---|---|
+| **Rate limiting is database-backed** | API rate limit counters are stored in the `rate_limits` PostgreSQL table rather than an in-memory store (Redis, Memcached). Under sustained high request volume this can create database contention |
+| **No query caching** | All data reads go directly to PostgreSQL. Dashboards with many aggregations (compliance %, risk counts) re-query on every page load |
 
 ---
 
