@@ -495,6 +495,13 @@ $routes = [
         '/admin/email-delivery'       => ['AdminController', 'emailDelivery'],
         '/risk-acceptances'           => ['RiskAcceptanceController', 'index'],
         '/risk/scenarios'             => ['ScenarioController', 'index'],
+        '/awareness'                  => ['AwarenessController', 'index'],
+        '/awareness/create'           => ['AwarenessController', 'createForm'],
+        '/account-reviews'            => ['AccountReviewController', 'index'],
+        '/account-reviews/create'     => ['AccountReviewController', 'createForm'],
+        '/privacy'                    => ['PrivacyController', 'index'],
+        '/privacy/create'             => ['PrivacyController', 'createForm'],
+        '/privacy/requests'           => ['PrivacyController', 'requests'],
     ],
     'POST' => [
         '/profile/notifications/save'    => ['ProfileController', 'saveNotifications'],
@@ -562,6 +569,10 @@ $routes = [
         '/admin/email-templates/update' => ['AdminController', 'updateEmailTemplate'],
         '/admin/scheduled-reports/create'       => ['AdminController', 'createScheduledReport'],
         '/admin/alerts/config/save'             => ['AdminController', 'saveAlertConfig'],
+        '/awareness/create'                     => ['AwarenessController', 'create'],
+        '/account-reviews/create'               => ['AccountReviewController', 'create'],
+        '/privacy/create'                       => ['PrivacyController', 'create'],
+        '/privacy/requests/create'              => ['PrivacyController', 'createRequest'],
     ],
 ];
 
@@ -619,6 +630,9 @@ $dynamicRoutes = [
         '#^/risk-acceptances/(\d+)/renew$#'  => ['RiskAcceptanceController', 'renew'],
         '#^/risk/(\d+)/bowtie$#'             => ['BowTieController', 'view'],
         '#^/risk/(\d+)/scenario/create$#'    => ['ScenarioController', 'createForm'],
+        '#^/awareness/(\d+)$#'               => ['AwarenessController', 'view'],
+        '#^/account-reviews/(\d+)$#'         => ['AccountReviewController', 'view'],
+        '#^/privacy/(\d+)$#'                 => ['PrivacyController', 'view'],
     ],
     'POST' => [
         '#^/compliance/(\d+)/objective/(\d+)/update$#' => ['ComplianceController', 'updateObjective'],
@@ -729,6 +743,14 @@ $dynamicRoutes = [
         '#^/risk-bowtie/barrier/(\d+)/remove$#'     => ['BowTieController', 'removeBarrier'],
         '#^/risk/(\d+)/scenario/create$#'           => ['ScenarioController', 'create'],
         '#^/risk-scenarios/(\d+)/delete$#'          => ['ScenarioController', 'delete'],
+        '#^/awareness/(\d+)/complete$#'             => ['AwarenessController', 'complete'],
+        '#^/awareness/(\d+)/assign$#'               => ['AwarenessController', 'assign'],
+        '#^/awareness/(\d+)/delete$#'               => ['AwarenessController', 'delete'],
+        '#^/account-reviews/(\d+)/add-item$#'       => ['AccountReviewController', 'addItem'],
+        '#^/account-reviews/(\d+)/item/(\d+)/decide$#' => ['AccountReviewController', 'decide'],
+        '#^/account-reviews/(\d+)/delete$#'         => ['AccountReviewController', 'delete'],
+        '#^/privacy/(\d+)/delete$#'                 => ['PrivacyController', 'delete'],
+        '#^/privacy/requests/(\d+)/update$#'        => ['PrivacyController', 'updateRequest'],
     ],
 ];
 

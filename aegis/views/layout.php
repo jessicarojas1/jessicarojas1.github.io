@@ -67,7 +67,7 @@
     <?php endif; ?>
 
     <!-- Operations -->
-    <?php $__opsVisible = array_filter(['audit','policy','incident','playbooks','issue','change','bcp','incident_sla','questionnaire'], fn($m) => moduleVisible($m, $__mv));
+    <?php $__opsVisible = array_filter(['audit','policy','incident','playbooks','issue','change','bcp','incident_sla','questionnaire','awareness','account_reviews','privacy'], fn($m) => moduleVisible($m, $__mv));
     if ($__opsVisible): ?>
     <div class="nav-acc">
       <button type="button" class="nav-acc-header" data-acc="operations">
@@ -82,7 +82,10 @@
         <?php if (moduleVisible('change',        $__mv)): ?><a href="/change"       class="nav-item <?= $activeModule==='change'?'active':'' ?>"><i class="bi bi-arrow-repeat"></i><span>Change Requests</span></a><?php endif; ?>
         <?php if (moduleVisible('bcp',           $__mv)): ?><a href="/bcp"          class="nav-item <?= $activeModule==='bcp'?'active':'' ?>"><i class="bi bi-shield-fill-exclamation"></i><span>BCP / DR</span></a><?php endif; ?>
         <?php if (moduleVisible('incident_sla',  $__mv)): ?><a href="/incident/sla" class="nav-item <?= $activeModule==='incident_sla'?'active':'' ?>"><i class="bi bi-stopwatch-fill"></i><span>Incident SLA</span></a><?php endif; ?>
-        <?php if (moduleVisible('questionnaire', $__mv)): ?><a href="/questionnaire" class="nav-item <?= $activeModule==='questionnaire'?'active':'' ?>"><i class="bi bi-ui-checks-grid"></i><span>Questionnaires</span></a><?php endif; ?>
+        <?php if (moduleVisible('questionnaire',  $__mv)): ?><a href="/questionnaire"   class="nav-item <?= $activeModule==='questionnaire'?'active':'' ?>"><i class="bi bi-ui-checks-grid"></i><span>Questionnaires</span></a><?php endif; ?>
+        <?php if (moduleVisible('awareness',      $__mv)): ?><a href="/awareness"       class="nav-item <?= $activeModule==='awareness'?'active':'' ?>"><i class="bi bi-mortarboard-fill"></i><span>Awareness Training</span></a><?php endif; ?>
+        <?php if (moduleVisible('account_reviews',$__mv)): ?><a href="/account-reviews" class="nav-item <?= $activeModule==='account_reviews'?'active':'' ?>"><i class="bi bi-person-check-fill"></i><span>Account Reviews</span></a><?php endif; ?>
+        <?php if (moduleVisible('privacy',        $__mv)): ?><a href="/privacy"         class="nav-item <?= $activeModule==='privacy'?'active':'' ?>"><i class="bi bi-shield-lock-fill"></i><span>Data Privacy</span></a><?php endif; ?>
       </div>
     </div>
     <?php endif; ?>
