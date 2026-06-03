@@ -373,7 +373,7 @@ if ($plan['target_date']) {
 
 </div><!-- /grid -->
 
-<script>
+<script nonce="<?= Security::nonce() ?>">
 (function () {
   'use strict';
 

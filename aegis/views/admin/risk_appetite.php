@@ -170,7 +170,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
   </tr>
 </template>
 
-<script>
+<script nonce="<?= Security::nonce() ?>">
 var _appetiteColors = {
   'zero':     {bg:'#fef2f2',border:'#fca5a5',text:'#dc2626',label:'Zero Tolerance'},
   'low':      {bg:'#fffbeb',border:'#fcd34d',text:'#d97706',label:'Low'},

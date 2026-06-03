@@ -103,7 +103,7 @@
 
 </div>
 
-<script>
+<script nonce="<?= Security::nonce() ?>">
 function toggleS3Fields() {
   var driver = document.getElementById('driverSelect').value;
   document.getElementById('s3Fields').style.display = driver === 's3' ? 'block' : 'none';

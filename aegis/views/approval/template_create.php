@@ -213,7 +213,7 @@
   </div><!-- /max-width wrapper -->
 </form>
 
-<script>
+<script nonce="<?= Security::nonce() ?>">
 (function () {
   'use strict';
 

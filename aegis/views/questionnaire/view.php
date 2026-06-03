@@ -221,7 +221,7 @@ ob_start();
 
 </div>
 
-<script>
+<script nonce="<?= Security::nonce() ?>">
 // Animate accordion chevrons
 document.querySelectorAll('.section-accordion').forEach(function (el) {
   el.addEventListener('toggle', function () {

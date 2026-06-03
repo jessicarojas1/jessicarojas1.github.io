@@ -70,7 +70,7 @@
 
   <div class="footer">Powered by AEGIS GRC &mdash; Responses are encrypted and stored securely.</div>
 </div>
-<script>
+<script nonce="<?= Security::nonce() ?>">
 function updateProgress() {
   var textareas = document.querySelectorAll('textarea');
   var filled = 0;

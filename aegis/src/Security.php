@@ -171,6 +171,42 @@ class Security {
         return $errors;
     }
 
+    /**
+     * Encrypt a sensitive setting value (AES-256-GCM via sodium).
+     * Returns 'enc:' + base64(nonce + ciphertext) so we can distinguish
+     * encrypted values from legacy plaintext during migration.
+     */
+    public static function encryptSetting(string $value): string {
+        if ($value === '') return '';
+        $key   = self::_settingsKey();
+        $nonce = random_bytes(SODIUM_CRYPTO_AEAD_AES256GCM_NPUBBYTES);
+        $ct    = sodium_crypto_aead_aes256gcm_encrypt($value, '', $nonce, $key);
+        return 'enc:' . base64_encode($nonce . $ct);
+    }
+
+    /**
+     * Decrypt a setting encrypted with encryptSetting().
+     * If the value is not prefixed with 'enc:' (legacy plaintext), returns it as-is.
+     */
+    public static function decryptSetting(string $value): string {
+        if ($value === '' || !str_starts_with($value, 'enc:')) return $value;
+        $key  = self::_settingsKey();
+        $blob = base64_decode(substr($value, 4), true);
+        if ($blob === false) return '';
+        $npub = SODIUM_CRYPTO_AEAD_AES256GCM_NPUBBYTES;
+        if (strlen($blob) <= $npub) return '';
+        $nonce = substr($blob, 0, $npub);
+        $ct    = substr($blob, $npub);
+        $pt    = @sodium_crypto_aead_aes256gcm_decrypt($ct, '', $nonce, $key);
+        return $pt === false ? '' : $pt;
+    }
+
+    private static function _settingsKey(): string {
+        // Derive a 32-byte key from JWT_SECRET using SHA-256 with a domain separator
+        $secret = $_ENV['JWT_SECRET'] ?? '';
+        return hash('sha256', 'aegis_settings_v1:' . $secret, true);
+    }
+
     public static function generateApiKey(): array {
         $key = 'aegis_' . bin2hex(random_bytes(32));
         $prefix = substr($key, 0, 12);
@@ -240,10 +276,11 @@ class Security {
     public static function setSecurityHeaders(): void {
         if (headers_sent()) return;
 
-        // Allow inline scripts (app uses inline handlers throughout); CDN for chart.js + icons
+        // Nonce-based script CSP — removes 'unsafe-inline' (nonce is generated once per request)
+        $n = self::nonce();
         $csp = implode('; ', [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
+            "script-src 'self' 'nonce-{$n}' https://cdn.jsdelivr.net",
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
             "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net",
             "img-src 'self' data: blob:",

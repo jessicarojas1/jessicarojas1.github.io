@@ -112,7 +112,7 @@
   </div>
 </div>
 
-<script>
+<script nonce="<?= Security::nonce() ?>">
 function toggleNoticeField() {
   var checked = document.getElementById('autoRenewalCheck').checked;
   document.getElementById('renewalNoticeDaysGroup').style.display = checked ? 'block' : 'none';

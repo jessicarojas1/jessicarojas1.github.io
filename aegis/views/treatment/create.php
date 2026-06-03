@@ -190,7 +190,7 @@
   </div>
 </form>
 
-<script>
+<script nonce="<?= Security::nonce() ?>">
 (function () {
   'use strict';
 

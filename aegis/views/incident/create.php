@@ -132,7 +132,7 @@ ob_start();
   </div>
 </form>
 
-<script>
+<script nonce="<?= Security::nonce() ?>">
 const sevData = {
   critical: { color: '#dc2626', label: 'Critical', desc: 'Severe impact; requires immediate response and escalation.' },
   high:     { color: '#d97706', label: 'High',     desc: 'Significant impact; must be addressed urgently.' },

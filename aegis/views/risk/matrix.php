@@ -153,7 +153,7 @@ ob_start();
   </div>
 </div>
 
-<script>
+<script nonce="<?= Security::nonce() ?>">
 const allRisks = <?= json_encode(array_values($risks)) ?>;
 const colors   = <?= json_encode($colors) ?>;
 

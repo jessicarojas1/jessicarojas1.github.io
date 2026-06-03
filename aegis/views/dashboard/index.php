@@ -270,7 +270,7 @@ $bucketMeta = [
   </div>
 </div>
 
-<script>
+<script nonce="<?= Security::nonce() ?>">
 // Due items tab filter
 document.querySelectorAll('.due-tab').forEach(btn => {
   btn.addEventListener('click', () => {

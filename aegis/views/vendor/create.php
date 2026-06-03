@@ -156,7 +156,7 @@ ob_start();
   </div>
 </form>
 
-<script>
+<script nonce="<?= Security::nonce() ?>">
 const tierData = {
   critical: { color:'#dc2626', label:'Critical Risk', desc:'Continuous monitoring; executive oversight required.' },
   high:     { color:'#d97706', label:'High Risk',     desc:'Frequent assessments; formal approval needed.' },

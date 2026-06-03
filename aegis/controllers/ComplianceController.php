@@ -335,7 +335,7 @@ class ComplianceController {
     }
 
     public function viewPackage(string $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('compliance.read');
         $id = (int)$id;
 
         $package = Database::fetchOne(
@@ -370,7 +370,7 @@ class ComplianceController {
     }
 
     public function viewObjective(string $pkgId, string $objId): void {
-        Auth::requireAuth();
+        Auth::requirePermission('compliance.read');
         $pkgId = (int)$pkgId;
         $objId = (int)$objId;
 
@@ -462,6 +462,7 @@ class ComplianceController {
             'ai_enabled'  => !empty($suggestions),
             'suggestions' => $suggestions,
             'narrative'   => $narrative,
+            'disclaimer'  => 'AI-generated suggestions are for informational purposes only and do not constitute legal, regulatory, or compliance advice. Results may be inaccurate or incomplete. All recommendations must be reviewed by qualified personnel before implementation (ISO 42001).',
         ]);
     }
 
@@ -776,10 +777,11 @@ class ComplianceController {
         unlink($textFile);
         if (!$text) return 'PDF appears to be empty or image-only (no selectable text).';
 
-        // Derive package name from filename
-        $pkgName = preg_replace('/\.(pdf)$/i', '', $originalName);
-        $pkgName = preg_replace('/[-_]+/', ' ', $pkgName);
-        $pkgName = trim(ucwords($pkgName));
+        // Derive package name from filename — sanitize to remove special chars (F23)
+        $safeName = preg_replace('/[^a-zA-Z0-9._\- ]/', '', basename($originalName));
+        $pkgName  = preg_replace('/\.(pdf)$/i', '', $safeName);
+        $pkgName  = preg_replace('/[-_]+/', ' ', $pkgName);
+        $pkgName  = trim(ucwords($pkgName)) ?: 'Imported PDF Package';
         $standardId = (int)($_POST['standard_id'] ?? 0) ?: null;
 
         $pkgId = Database::insert('compliance_packages', [

@@ -133,7 +133,7 @@ ob_start();
   </div>
 </form>
 
-<script>
+<script nonce="<?= Security::nonce() ?>">
 function highlightTypeCards() {
   var radios = document.querySelectorAll('input[name="exception_type"]');
   radios.forEach(function(r) {

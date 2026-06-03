@@ -153,7 +153,7 @@ ob_start();
   </div>
 </div>
 
-<script>
+<script nonce="<?= Security::nonce() ?>">
 function updateStatusUI(radio) {
   document.querySelectorAll('.status-opt').forEach(o => {
     o.classList.remove('selected');

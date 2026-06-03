@@ -75,7 +75,7 @@ $hasNewCodes = !empty($newCodes);
     </div>
   </div>
 
-  <script>
+  <script nonce="<?= Security::nonce() ?>">
   var backupCodes = <?= json_encode($newCodes) ?>;
 
   function downloadCodes() {

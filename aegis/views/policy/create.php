@@ -120,7 +120,7 @@ ob_start();
   </div>
 </div>
 
-<script>
+<script nonce="<?= Security::nonce() ?>">
 function fmt(cmd, val = null) { document.execCommand(cmd, false, val); }
 const editor = document.getElementById('editor');
 const input  = document.getElementById('contentInput');

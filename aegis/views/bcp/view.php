@@ -184,7 +184,7 @@ ob_start(); ?>
 </div>
 <?php endif; ?>
 
-<script>
+<script nonce="<?= Security::nonce() ?>">
 function showTab(tab, btn) {
   document.getElementById('tab-sections').classList.toggle('hidden', tab !== 'sections');
   document.getElementById('tab-exercises').classList.toggle('hidden', tab !== 'exercises');
