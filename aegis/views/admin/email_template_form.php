@@ -111,7 +111,7 @@ ob_start();
         <div class="card-footer" style="padding:16px 20px;border-top:1px solid var(--border,#e5e7eb);display:flex;gap:10px;align-items:center">
           <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Save Template</button>
           <a href="/admin/email-templates" class="btn btn-ghost">Cancel</a>
-          <button type="button" class="btn btn-secondary" style="margin-left:auto" onclick="openPreviewModal()">
+          <button type="button" class="btn btn-secondary" style="margin-left:auto" data-click="openPreviewModal">
             <i class="bi bi-eye"></i> Preview Email
           </button>
         </div>
@@ -140,7 +140,7 @@ ob_start();
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
                   <code style="font-size:12px;color:#6d28d9;word-break:break-all"><?= Security::h($placeholder) ?></code>
                   <button type="button"
-                          onclick="copyVar(<?= htmlspecialchars(json_encode($placeholder), ENT_QUOTES) ?>)"
+                          data-click="copyVar" data-arg="<?= Security::h($placeholder) ?>"
                           class="btn btn-ghost btn-sm"
                           title="Copy placeholder"
                           style="padding:2px 6px;flex-shrink:0">
@@ -175,7 +175,7 @@ ob_start();
   <div style="background:#fff;border-radius:12px;width:90vw;max-width:820px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3)">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #e5e7eb">
       <h3 style="margin:0;font-size:16px;font-weight:600">Email Preview</h3>
-      <button type="button" onclick="closePreviewModal()" style="background:none;border:none;cursor:pointer;font-size:20px;color:#6b7280;line-height:1">
+      <button type="button" data-click="closePreviewModal" style="background:none;border:none;cursor:pointer;font-size:20px;color:#6b7280;line-height:1">
         <i class="bi bi-x-lg"></i>
       </button>
     </div>

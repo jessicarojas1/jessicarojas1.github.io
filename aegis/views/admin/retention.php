@@ -81,7 +81,7 @@
       <button type="submit" class="btn btn-primary">
         <i class="bi bi-save"></i> Save Policies
       </button>
-      <button type="button" class="btn btn-danger" id="runNowBtn" onclick="runRetentionNow()">
+      <button type="button" class="btn btn-danger" id="runNowBtn" data-click="runRetentionNow">
         <i class="bi bi-play-circle"></i> Run Now
       </button>
     </div>

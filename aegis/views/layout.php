@@ -40,7 +40,7 @@
 
     <!-- Overview -->
     <div class="nav-acc">
-      <button type="button" class="nav-acc-header" data-acc="overview" onclick="toggleAccordion('overview')">
+      <button type="button" class="nav-acc-header" data-acc="overview">
         <span>Overview</span><i class="bi bi-chevron-down nav-acc-chevron"></i>
       </button>
       <div class="nav-acc-body" id="nav-acc-overview">
@@ -53,7 +53,7 @@
     <!-- Compliance -->
     <?php if (moduleVisible('compliance', $__mv) || moduleVisible('import', $__mv) || moduleVisible('bulk_import', $__mv) || moduleVisible('control_testing', $__mv) || moduleVisible('compliance_gap', $__mv)): ?>
     <div class="nav-acc">
-      <button type="button" class="nav-acc-header" data-acc="compliance" onclick="toggleAccordion('compliance')">
+      <button type="button" class="nav-acc-header" data-acc="compliance">
         <span>Compliance</span><i class="bi bi-chevron-down nav-acc-chevron"></i>
       </button>
       <div class="nav-acc-body" id="nav-acc-compliance">
@@ -70,7 +70,7 @@
     <?php $__opsVisible = array_filter(['audit','policy','incident','playbooks','issue','change','bcp','incident_sla','questionnaire'], fn($m) => moduleVisible($m, $__mv));
     if ($__opsVisible): ?>
     <div class="nav-acc">
-      <button type="button" class="nav-acc-header" data-acc="operations" onclick="toggleAccordion('operations')">
+      <button type="button" class="nav-acc-header" data-acc="operations">
         <span>Operations</span><i class="bi bi-chevron-down nav-acc-chevron"></i>
       </button>
       <div class="nav-acc-body" id="nav-acc-operations">
@@ -91,7 +91,7 @@
     <?php $__riskVisible = array_filter(['risk','risk_matrix','risk_roadmap','risk_exceptions','threats','treatment_plans','kris','vendor','vendor_contracts','assets'], fn($m) => moduleVisible($m, $__mv));
     if ($__riskVisible): ?>
     <div class="nav-acc">
-      <button type="button" class="nav-acc-header" data-acc="risk" onclick="toggleAccordion('risk')">
+      <button type="button" class="nav-acc-header" data-acc="risk">
         <span>Risk</span><i class="bi bi-chevron-down nav-acc-chevron"></i>
       </button>
       <div class="nav-acc-body" id="nav-acc-risk">
@@ -113,7 +113,7 @@
     <?php $__anaVisible = array_filter(['metrics','documents','report','report_board','export','calendar'], fn($m) => moduleVisible($m, $__mv));
     if ($__anaVisible): ?>
     <div class="nav-acc">
-      <button type="button" class="nav-acc-header" data-acc="analytics" onclick="toggleAccordion('analytics')">
+      <button type="button" class="nav-acc-header" data-acc="analytics">
         <span>Analytics</span><i class="bi bi-chevron-down nav-acc-chevron"></i>
       </button>
       <div class="nav-acc-body" id="nav-acc-analytics">
@@ -131,7 +131,7 @@
     <?php $__resVisible = array_filter(['search','docs'], fn($m) => moduleVisible($m, $__mv));
     if ($__resVisible): ?>
     <div class="nav-acc">
-      <button type="button" class="nav-acc-header" data-acc="resources" onclick="toggleAccordion('resources')">
+      <button type="button" class="nav-acc-header" data-acc="resources">
         <span>Resources</span><i class="bi bi-chevron-down nav-acc-chevron"></i>
       </button>
       <div class="nav-acc-body" id="nav-acc-resources">
@@ -144,7 +144,7 @@
     <!-- Administration -->
     <?php if (Auth::can('admin') || Auth::role() === 'admin'): ?>
     <div class="nav-acc">
-      <button type="button" class="nav-acc-header" data-acc="administration" onclick="toggleAccordion('administration')">
+      <button type="button" class="nav-acc-header" data-acc="administration">
         <span>Administration</span><i class="bi bi-chevron-down nav-acc-chevron"></i>
       </button>
       <div class="nav-acc-body" id="nav-acc-administration">
@@ -177,7 +177,7 @@
 
     <!-- Account -->
     <div class="nav-acc">
-      <button type="button" class="nav-acc-header" data-acc="account" onclick="toggleAccordion('account')">
+      <button type="button" class="nav-acc-header" data-acc="account">
         <span>Account</span><i class="bi bi-chevron-down nav-acc-chevron"></i>
       </button>
       <div class="nav-acc-body" id="nav-acc-account">

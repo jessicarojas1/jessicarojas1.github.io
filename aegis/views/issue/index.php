@@ -82,19 +82,19 @@ $statusColors = [
 <div class="card" style="margin-bottom:1.5rem">
   <div class="card-body" style="padding:.75rem 1rem">
     <form method="GET" class="filter-form" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center">
-      <select name="severity" class="form-control form-control-sm" onchange="this.form.submit()">
+      <select name="severity" class="form-control form-control-sm" data-autosubmit>
         <option value="">All severities</option>
         <?php foreach (['critical' => 'Critical', 'high' => 'High', 'medium' => 'Medium', 'low' => 'Low'] as $v => $l): ?>
           <option value="<?= $v ?>" <?= ($_GET['severity'] ?? '') === $v ? 'selected' : '' ?>><?= $l ?></option>
         <?php endforeach; ?>
       </select>
-      <select name="status" class="form-control form-control-sm" onchange="this.form.submit()">
+      <select name="status" class="form-control form-control-sm" data-autosubmit>
         <option value="">All statuses</option>
         <?php foreach (['open' => 'Open', 'in_progress' => 'In Progress', 'pending_review' => 'Pending Review', 'resolved' => 'Resolved', 'closed' => 'Closed', 'wont_fix' => "Won't Fix"] as $v => $l): ?>
           <option value="<?= $v ?>" <?= ($_GET['status'] ?? '') === $v ? 'selected' : '' ?>><?= $l ?></option>
         <?php endforeach; ?>
       </select>
-      <select name="assigned_to" class="form-control form-control-sm" onchange="this.form.submit()">
+      <select name="assigned_to" class="form-control form-control-sm" data-autosubmit>
         <option value="">All assignees</option>
         <?php foreach ($users as $u): ?>
           <option value="<?= $u['id'] ?>" <?= (int)($_GET['assigned_to'] ?? 0) === (int)$u['id'] ? 'selected' : '' ?>><?= Security::h($u['name']) ?></option>

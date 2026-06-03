@@ -82,7 +82,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
               </td>
               <td>
                 <select name="appetite[]" class="form-control form-control-sm appetite-select"
-                        onchange="updateRowColor(this)">
+                        data-change="updateRowColor">
                   <option value="zero"     <?= $app==='zero'     ? 'selected':'' ?>>Zero Tolerance</option>
                   <option value="low"      <?= $app==='low'      ? 'selected':'' ?>>Low</option>
                   <option value="moderate" <?= $app==='moderate' ? 'selected':'' ?>>Moderate</option>
@@ -111,7 +111,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
               </td>
               <td>
                 <button type="button" class="btn btn-ghost btn-sm" title="Remove row"
-                        onclick="removeRow(this)" style="color:#dc2626">
+                        data-click="removeRow" style="color:#dc2626">
                   <i class="bi bi-trash3"></i>
                 </button>
               </td>
@@ -125,7 +125,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
       </div>
     </div>
     <div class="card-body" style="border-top:1px solid var(--border);padding:12px 20px;display:flex;justify-content:space-between;align-items:center">
-      <button type="button" class="btn btn-ghost btn-sm" onclick="addNewRow()">
+      <button type="button" class="btn btn-ghost btn-sm" data-click="addNewRow">
         <i class="bi bi-plus-circle"></i> Add Category
       </button>
       <button type="submit" class="btn btn-primary">
@@ -141,7 +141,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
       <input type="text" name="new_category[]" class="form-control form-control-sm" placeholder="Category name" required>
     </td>
     <td>
-      <select name="new_appetite[]" class="form-control form-control-sm appetite-select" onchange="updateRowColor(this)">
+      <select name="new_appetite[]" class="form-control form-control-sm appetite-select" data-change="updateRowColor">
         <option value="zero">Zero Tolerance</option>
         <option value="low" selected>Low</option>
         <option value="moderate">Moderate</option>
@@ -163,7 +163,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
     </td>
     <td>
       <button type="button" class="btn btn-ghost btn-sm" title="Remove row"
-              onclick="removeRow(this)" style="color:#dc2626">
+              data-click="removeRow" style="color:#dc2626">
         <i class="bi bi-trash3"></i>
       </button>
     </td>

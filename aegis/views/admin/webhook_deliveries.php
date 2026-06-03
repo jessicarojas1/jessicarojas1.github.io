@@ -138,7 +138,7 @@ $failed    = count(array_filter($deliveries, fn($d) => $d['status'] === 'failed'
             <td>
               <?php if ($d['response_body']): ?>
                 <button class="btn btn-ghost btn-sm"
-                        onclick="showResponseModal(<?= (int) $d['id'] ?>)"
+                        data-click="showResponseModal" data-arg="<?= (int)$d['id'] ?>"
                         title="View response body">
                   <i class="bi bi-eye"></i>
                 </button>
@@ -165,12 +165,11 @@ $failed    = count(array_filter($deliveries, fn($d) => $d['status'] === 'failed'
 </div>
 
 <!-- Response body modal -->
-<div class="modal-overlay" id="responseModal" style="display:none"
-     onclick="if(event.target===this)closeModal('responseModal')">
+<div class="modal-overlay" id="responseModal" style="display:none">
   <div class="modal" style="max-width:640px">
     <div class="modal-header">
       <h3><i class="bi bi-code-square"></i> Response Body</h3>
-      <button onclick="closeModal('responseModal')"><i class="bi bi-x-lg"></i></button>
+      <button data-close-modal="responseModal"><i class="bi bi-x-lg"></i></button>
     </div>
     <div class="modal-body">
       <pre id="responseBodyContent"
@@ -183,6 +182,9 @@ $failed    = count(array_filter($deliveries, fn($d) => $d['status'] === 'failed'
 <script nonce="<?= Security::nonce() ?>">
 function showModal(id)  { document.getElementById(id).style.display = 'flex'; }
 function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+document.getElementById('responseModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal('responseModal');
+});
 
 function showResponseModal(deliveryId) {
   const body = document.getElementById('resp-' + deliveryId);

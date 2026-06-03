@@ -112,7 +112,7 @@ ob_start();
               </a>
               <form method="post" action="/admin/scheduled-reports/<?= (int)$sched['id'] ?>/delete"
                     style="display:inline"
-                    onsubmit="return confirm('Delete this scheduled report? This cannot be undone.')">
+                    data-confirm="Delete this scheduled report? This cannot be undone.">
                 <?= Security::csrfField() ?>
                 <button type="submit" class="btn btn-ghost btn-sm" style="color:#ef4444" title="Delete">
                   <i class="bi bi-trash3"></i>

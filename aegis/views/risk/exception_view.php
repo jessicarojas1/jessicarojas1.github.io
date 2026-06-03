@@ -119,7 +119,7 @@ ob_start();
           <?= Security::csrfField() ?>
           <input type="hidden" name="action" value="approve">
           <button type="submit" class="btn btn-primary"
-                  onclick="return confirm('Approve this risk exception?')">
+                  data-confirm-click="Approve this risk exception?">
             <i class="bi bi-check-circle"></i> Approve Exception
           </button>
         </form>
@@ -136,7 +136,7 @@ ob_start();
                       placeholder="Explain why this exception is being rejected…"></textarea>
           </div>
           <button type="submit" class="btn btn-danger"
-                  onclick="return confirm('Reject this risk exception?')">
+                  data-confirm-click="Reject this risk exception?">
             <i class="bi bi-x-circle"></i> Reject Exception
           </button>
         </form>

@@ -71,7 +71,7 @@ ob_start();
                        class="form-range"
                        min="1" max="5" step="1"
                        value="<?= (int)($existingVal ?? 3) ?>"
-                       oninput="document.getElementById('scale_val_<?= $qId ?>').textContent=this.value"
+                       data-value-display="scale_val_<?= $qId ?>"
                        style="flex:1"
                        <?= $isRequired ? 'required' : '' ?>>
                 <span class="text-muted text-sm" style="white-space:nowrap">5 (High)</span>

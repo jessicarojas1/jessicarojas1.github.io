@@ -87,12 +87,12 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
       </form>
     <?php endif; ?>
     <?php if ($review['status'] === 'in_progress' && Auth::can('risk.write')): ?>
-      <button class="btn btn-success" onclick="document.getElementById('completeModal').classList.add('open')">
+      <button class="btn btn-success" data-show-modal="completeModal">
         <i class="bi bi-check2-circle"></i> Complete Review
       </button>
     <?php endif; ?>
     <?php if (in_array($review['status'],['planned','in_progress']) && Auth::can('risk.write')): ?>
-      <form method="POST" action="/risk/reviews/<?= $review['id'] ?>/cancel" onsubmit="return confirm('Cancel this review session?')">
+      <form method="POST" action="/risk/reviews/<?= $review['id'] ?>/cancel" data-confirm="Cancel this review session?">
         <?= Security::csrfField() ?>
         <button class="btn btn-ghost"><i class="bi bi-x-circle"></i> Cancel</button>
       </form>
@@ -272,7 +272,7 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
       </div>
       <div style="display:flex;gap:8px;margin-top:16px">
         <button type="submit" class="btn btn-success"><i class="bi bi-check2-circle"></i> Complete &amp; Sign Off</button>
-        <button type="button" class="btn btn-ghost" onclick="document.getElementById('completeModal').classList.remove('open')">Cancel</button>
+        <button type="button" class="btn btn-ghost" data-close-modal="completeModal">Cancel</button>
       </div>
     </form>
   </div>

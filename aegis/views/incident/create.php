@@ -48,7 +48,7 @@ ob_start();
             </div>
             <div class="form-group">
               <label class="form-label" for="severity">Severity</label>
-              <select id="severity" name="severity" class="form-control" onchange="updateSeverityPreview(this.value)">
+              <select id="severity" name="severity" class="form-control" data-change="updateSeverityPreview" data-input-val="1">
                 <option value="critical">Critical</option>
                 <option value="high">High</option>
                 <option value="medium" selected>Medium</option>

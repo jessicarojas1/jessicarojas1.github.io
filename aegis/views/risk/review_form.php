@@ -44,7 +44,7 @@ ob_start();
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
             <div class="form-group">
               <label class="form-label required">Review Type</label>
-              <select name="review_type" class="form-control" id="reviewTypeSelect" onchange="updateTypeDesc()">
+              <select name="review_type" class="form-control" id="reviewTypeSelect" data-change="updateTypeDesc">
                 <option value="periodic"  <?= ($_POST['review_type'] ?? 'periodic') === 'periodic'  ? 'selected' : '' ?>>Periodic</option>
                 <option value="triggered" <?= ($_POST['review_type'] ?? '') === 'triggered' ? 'selected' : '' ?>>Triggered</option>
                 <option value="ad_hoc"   <?= ($_POST['review_type'] ?? '') === 'ad_hoc'    ? 'selected' : '' ?>>Ad Hoc</option>

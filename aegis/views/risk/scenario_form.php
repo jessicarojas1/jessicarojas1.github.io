@@ -109,7 +109,7 @@ function scenarioLevelClass(int $s): string {
                   $checked = ($selectedType === $val) ? 'checked' : '';
               ?>
               <label class="type-opt" style="--accent-color:<?= $meta['color'] ?>;--accent-bg:<?= $meta['bg'] ?>">
-                <input type="radio" name="scenario_type" value="<?= $val ?>" <?= $checked ?> onchange="updatePreview()">
+                <input type="radio" name="scenario_type" value="<?= $val ?>" <?= $checked ?> data-change="updatePreview">
                 <div class="type-card">
                   <i class="bi <?= $meta['icon'] ?>" style="font-size:18px;color:<?= $meta['color'] ?>"></i>
                   <?= $meta['label'] ?>
@@ -150,7 +150,7 @@ function scenarioLevelClass(int $s): string {
                 <input type="range" class="mult-slider risk-slider" id="lMult"
                        name="likelihood_multiplier" min="0.1" max="3.0" step="0.1"
                        value="<?= htmlspecialchars($_POST['likelihood_multiplier'] ?? '1.0') ?>"
-                       oninput="updatePreview()">
+                       data-input="updatePreview">
                 <span class="mult-val" id="lMultVal"><?= htmlspecialchars($_POST['likelihood_multiplier'] ?? '1.0') ?>×</span>
               </div>
               <div class="mult-desc" id="lMultDesc">e.g. 1.5 = 50% more likely than the base assessment</div>
@@ -164,7 +164,7 @@ function scenarioLevelClass(int $s): string {
                 <input type="range" class="mult-slider risk-slider" id="iMult"
                        name="impact_multiplier" min="0.1" max="3.0" step="0.1"
                        value="<?= htmlspecialchars($_POST['impact_multiplier'] ?? '1.0') ?>"
-                       oninput="updatePreview()">
+                       data-input="updatePreview">
                 <span class="mult-val" id="iMultVal"><?= htmlspecialchars($_POST['impact_multiplier'] ?? '1.0') ?>×</span>
               </div>
               <div class="mult-desc" id="iMultDesc">e.g. 2.0 = double the base impact</div>

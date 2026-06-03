@@ -97,7 +97,7 @@ $entityTypeLabels = [
                   method="POST"
                   action="/admin/approval-templates/<?= (int)$tmpl['id'] ?>/toggle"
                   style="display:inline"
-                  onsubmit="return confirm('<?= $isActive ? 'Deactivate' : 'Activate' ?> this template?')"
+                  data-confirm="<?= $isActive ? 'Deactivate' : 'Activate' ?> this template?"
                 >
                   <?= Security::csrfField() ?>
                   <button

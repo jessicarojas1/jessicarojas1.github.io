@@ -82,8 +82,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
       <?= $stCfg['label'] ?>
     </span>
     <?php if (Auth::can('risk.write')): ?>
-      <button class="btn btn-ghost"
-              onclick="document.getElementById('editPanel').classList.toggle('d-none');">
+      <button class="btn btn-ghost" data-toggle-class="d-none" data-target="#editPanel">
         <i class="bi bi-pencil-square"></i> Edit
       </button>
     <?php endif; ?>
@@ -157,7 +156,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
     <?php if (Auth::can('risk.write')): ?>
     <div class="card">
       <div id="editPanel" class="d-none">
-        <div class="card-header" style="cursor:pointer;" onclick="document.getElementById('editPanel').classList.add('d-none')">
+        <div class="card-header" style="cursor:pointer;" data-add-class="d-none" data-target="#editPanel">
           <h3 class="card-title"><i class="bi bi-pencil-square"></i> Edit Threat</h3>
           <span style="font-size:12px;color:var(--text-muted);">Click header to collapse</span>
         </div>
@@ -201,7 +200,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
             <div class="form-row" style="display:flex;gap:16px;">
               <div class="form-group" style="flex:1;">
                 <label class="form-label">Likelihood</label>
-                <select name="likelihood" id="editLikelihood" class="form-control" onchange="updateEditScore()">
+                <select name="likelihood" id="editLikelihood" class="form-control" data-change="updateEditScore">
                   <?php foreach ([1=>'1 — Rare',2=>'2 — Unlikely',3=>'3 — Possible',4=>'4 — Likely',5=>'5 — Almost Certain'] as $val => $lbl): ?>
                     <option value="<?= $val ?>" <?= ((int)$threat['likelihood'] === $val) ? 'selected' : '' ?>><?= $lbl ?></option>
                   <?php endforeach; ?>
@@ -209,7 +208,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
               </div>
               <div class="form-group" style="flex:1;">
                 <label class="form-label">Impact</label>
-                <select name="impact" id="editImpact" class="form-control" onchange="updateEditScore()">
+                <select name="impact" id="editImpact" class="form-control" data-change="updateEditScore">
                   <?php foreach ([1=>'1 — Negligible',2=>'2 — Minor',3=>'3 — Moderate',4=>'4 — Major',5=>'5 — Catastrophic'] as $val => $lbl): ?>
                     <option value="<?= $val ?>" <?= ((int)$threat['impact'] === $val) ? 'selected' : '' ?>><?= $lbl ?></option>
                   <?php endforeach; ?>
@@ -257,8 +256,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
 
             <div style="display:flex;gap:12px;margin-top:8px;">
               <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Save Changes</button>
-              <button type="button" class="btn btn-ghost"
-                      onclick="document.getElementById('editPanel').classList.add('d-none')">Cancel</button>
+              <button type="button" class="btn btn-ghost" data-add-class="d-none" data-target="#editPanel">Cancel</button>
             </div>
           </form>
         </div>
@@ -271,7 +269,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
       <div class="card-header">
         <h3 class="card-title"><i class="bi bi-shield-exclamation"></i> Linked Risks</h3>
         <?php if (Auth::can('risk.write') && !empty($unlinkdRisks)): ?>
-          <button class="btn btn-primary btn-sm" onclick="document.getElementById('linkRiskPanel').classList.toggle('d-none')">
+          <button class="btn btn-primary btn-sm" data-toggle-class="d-none" data-target="#linkRiskPanel">
             <i class="bi bi-plus-lg"></i> Link Risk
           </button>
         <?php endif; ?>
@@ -294,7 +292,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
             <i class="bi bi-link-45deg"></i> Link
           </button>
           <button type="button" class="btn btn-ghost btn-sm" style="flex-shrink:0;"
-                  onclick="document.getElementById('linkRiskPanel').classList.add('d-none')">Cancel</button>
+                  data-add-class="d-none" data-target="#linkRiskPanel">Cancel</button>
         </form>
       </div>
       <?php endif; ?>
@@ -345,7 +343,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
                   <?php if (Auth::can('risk.write')): ?>
                     <td>
                       <form method="POST" action="/threats/<?= (int)$threat['id'] ?>/unlink-risk/<?= (int)$r['id'] ?>"
-                            onsubmit="return confirm('Unlink this risk from the threat?')">
+                            data-confirm="Unlink this risk from the threat?">
                         <?= Security::csrfField() ?>
                         <button type="submit" class="btn btn-ghost btn-sm" title="Unlink risk">
                           <i class="bi bi-x-lg" style="color:#ef4444;"></i>
@@ -363,7 +361,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
             <p style="color:var(--text-muted);margin:0;">No risks linked to this threat yet.</p>
             <?php if (Auth::can('risk.write') && !empty($unlinkdRisks)): ?>
               <button class="btn btn-primary btn-sm" style="margin-top:12px;"
-                      onclick="document.getElementById('linkRiskPanel').classList.remove('d-none')">
+                      data-remove-class="d-none" data-target="#linkRiskPanel">
                 <i class="bi bi-plus-lg"></i> Link a Risk
               </button>
             <?php endif; ?>

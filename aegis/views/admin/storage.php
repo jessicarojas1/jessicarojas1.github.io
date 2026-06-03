@@ -20,7 +20,7 @@
     <div class="card-body" style="display:flex;flex-direction:column;gap:16px">
       <div class="form-group">
         <label class="form-label">Driver</label>
-        <select name="storage_driver" class="form-control" id="driverSelect" onchange="toggleS3Fields()">
+        <select name="storage_driver" class="form-control" id="driverSelect" data-change="toggleS3Fields">
           <option value="local" <?= ($storageSettings['storage_driver'] ?? 'local') === 'local' ? 'selected' : '' ?>>Local Disk (uploads/ directory)</option>
           <option value="s3" <?= ($storageSettings['storage_driver'] ?? '') === 's3' ? 'selected' : '' ?>>S3 / MinIO / Cloudflare R2</option>
         </select>
@@ -67,7 +67,7 @@
   <div class="card">
     <div class="card-footer" style="display:flex;gap:8px;padding:16px">
       <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Save Settings</button>
-      <button type="button" class="btn btn-secondary" id="testBtn" onclick="testStorage()"><i class="bi bi-lightning-charge"></i> Test Connection</button>
+      <button type="button" class="btn btn-secondary" id="testBtn" data-click="testStorage"><i class="bi bi-lightning-charge"></i> Test Connection</button>
     </div>
   </div>
 </form>

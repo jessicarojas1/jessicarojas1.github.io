@@ -153,7 +153,7 @@ function riskScoreLevel(int $score): string {
     <!-- Edit panel (collapsible, policy.write only) -->
     <?php if (Auth::can('risk.write')): ?>
     <div class="card">
-      <div class="card-header" style="cursor:pointer;" onclick="document.getElementById('editPanel').classList.toggle('d-none');">
+      <div class="card-header" style="cursor:pointer;" data-toggle-class="d-none" data-target="#editPanel">
         <h3 class="card-title"><i class="bi bi-pencil-square"></i> Edit Asset</h3>
         <span style="font-size:12px;color:var(--text-muted);">Click to expand / collapse</span>
       </div>
@@ -259,7 +259,7 @@ function riskScoreLevel(int $score): string {
 
             <div style="display:flex;gap:12px;margin-top:8px;">
               <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Save Changes</button>
-              <button type="button" class="btn btn-ghost" onclick="document.getElementById('editPanel').classList.add('d-none')">Cancel</button>
+              <button type="button" class="btn btn-ghost" data-add-class="d-none" data-target="#editPanel">Cancel</button>
             </div>
           </form>
         </div>
@@ -276,7 +276,7 @@ function riskScoreLevel(int $score): string {
       <div class="card-header">
         <h3 class="card-title"><i class="bi bi-shield-exclamation"></i> Linked Risks</h3>
         <?php if (Auth::can('risk.write')): ?>
-          <button class="btn btn-primary btn-sm" onclick="showModal('linkRiskModal')">
+          <button class="btn btn-primary btn-sm" data-show-modal="linkRiskModal">
             <i class="bi bi-plus-lg"></i> Link Risk
           </button>
         <?php endif; ?>
@@ -317,7 +317,7 @@ function riskScoreLevel(int $score): string {
                   <?php if (Auth::can('risk.write')): ?>
                     <td>
                       <form method="POST" action="/assets/<?= (int)$asset['id'] ?>/unlink-risk/<?= (int)$r['id'] ?>"
-                            onsubmit="return confirm('Unlink this risk from the asset?')">
+                            data-confirm="Unlink this risk from the asset?">
                         <?= Security::csrfField() ?>
                         <button type="submit" class="btn btn-ghost btn-sm" title="Unlink risk">
                           <i class="bi bi-x-lg" style="color:#ef4444;"></i>
@@ -375,7 +375,7 @@ function riskScoreLevel(int $score): string {
   <div style="background:#fff;border-radius:12px;width:100%;max-width:520px;box-shadow:0 8px 32px rgba(0,0,0,.2);padding:0;overflow:hidden;">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border);">
       <h3 style="margin:0;font-size:16px;font-weight:600;"><i class="bi bi-shield-plus" style="margin-right:8px;color:var(--primary);"></i> Link Risk to Asset</h3>
-      <button onclick="closeModal('linkRiskModal')" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text-muted);">&times;</button>
+      <button data-close-modal="linkRiskModal" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text-muted);">&times;</button>
     </div>
     <form method="POST" action="/assets/<?= (int)$asset['id'] ?>/link-risk">
       <?= Security::csrfField() ?>
@@ -398,7 +398,7 @@ function riskScoreLevel(int $score): string {
         </div>
       </div>
       <div style="display:flex;gap:12px;justify-content:flex-end;padding:16px 24px;border-top:1px solid var(--border);background:#fafbfc;">
-        <button type="button" onclick="closeModal('linkRiskModal')" class="btn btn-ghost">Cancel</button>
+        <button type="button" data-close-modal="linkRiskModal" class="btn btn-ghost">Cancel</button>
         <button type="submit" class="btn btn-primary" <?= empty($allRisks) ? 'disabled' : '' ?>>
           <i class="bi bi-link-45deg"></i> Link Risk
         </button>

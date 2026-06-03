@@ -103,7 +103,7 @@ ob_start();
                 <td>
                   <form method="POST" action="/policy/<?= $policy['id'] ?>/unmap/<?= $m['id'] ?>">
                     <?= Security::csrfField() ?>
-                    <button class="btn btn-ghost btn-sm text-danger" onclick="return confirm('Remove mapping?')"><i class="bi bi-x-lg"></i></button>
+                    <button class="btn btn-ghost btn-sm text-danger" data-confirm-click="Remove mapping?"><i class="bi bi-x-lg"></i></button>
                   </form>
                 </td>
               </tr>

@@ -46,7 +46,7 @@
     <p style="color:#64748b;margin-top:0">Please answer each question as completely as possible. Required questions are marked with <span class="required-star">*</span>. Your responses are encrypted in transit and stored securely.</p>
   </div>
 
-  <form method="POST" action="/vendor/portal/<?= Security::h($token) ?>/submit" onsubmit="return validateForm()">
+  <form method="POST" action="/vendor/portal/<?= Security::h($token) ?>/submit" id="vendorPortalForm">
     <input type="hidden" name="csrf_token" value="<?= Security::h(hash('sha256', $token)) ?>">
 
     <?php foreach ($questions as $i => $q): ?>
@@ -57,7 +57,7 @@
       </label>
       <textarea id="ans-<?= (int)$q['id'] ?>" name="answers[<?= (int)$q['id'] ?>]"
                 placeholder="Your response…"
-                oninput="updateProgress()"
+                data-input="updateProgress"
                 <?= !empty($q['required']) ? 'data-required="1"' : '' ?>></textarea>
     </div>
     <?php endforeach; ?>
@@ -71,6 +71,9 @@
   <div class="footer">Powered by AEGIS GRC &mdash; Responses are encrypted and stored securely.</div>
 </div>
 <script nonce="<?= Security::nonce() ?>">
+document.getElementById('vendorPortalForm').addEventListener('submit', function(e) {
+  if (!validateForm()) e.preventDefault();
+});
 function updateProgress() {
   var textareas = document.querySelectorAll('textarea');
   var filled = 0;

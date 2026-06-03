@@ -91,7 +91,7 @@ $severityColors = [
               <i class="bi bi-eye"></i> View
             </a>
             <?php if (Auth::can('incident.write')): ?>
-              <form method="post" action="/playbooks/<?= (int)$pb['id'] ?>/toggle" style="display:inline" onsubmit="return confirm('<?= $isActive ? 'Deactivate' : 'Activate' ?> this playbook?')">
+              <form method="post" action="/playbooks/<?= (int)$pb['id'] ?>/toggle" style="display:inline" data-confirm="<?= $isActive ? 'Deactivate' : 'Activate' ?> this playbook?">
                 <?= Security::csrfField() ?>
                 <button type="submit" class="btn btn-sm <?= $isActive ? 'btn-ghost' : 'btn-primary' ?>">
                   <i class="bi bi-<?= $isActive ? 'pause-circle' : 'play-circle' ?>"></i>

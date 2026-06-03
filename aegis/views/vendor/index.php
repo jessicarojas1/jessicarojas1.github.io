@@ -64,7 +64,7 @@ ob_start();
     <form method="GET" style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end">
       <div class="form-group" style="margin:0;flex:1;min-width:180px">
         <label class="form-label" style="font-size:12px;margin-bottom:4px">Risk Tier</label>
-        <select name="risk_tier" class="form-control" onchange="this.form.submit()">
+        <select name="risk_tier" class="form-control" data-autosubmit>
           <option value="">All Tiers</option>
           <?php foreach (['critical' => 'Critical', 'high' => 'High', 'medium' => 'Medium', 'low' => 'Low'] as $v => $l): ?>
             <option value="<?= $v ?>" <?= ($_GET['risk_tier'] ?? '') === $v ? 'selected' : '' ?>><?= $l ?></option>
@@ -73,7 +73,7 @@ ob_start();
       </div>
       <div class="form-group" style="margin:0;flex:1;min-width:180px">
         <label class="form-label" style="font-size:12px;margin-bottom:4px">Status</label>
-        <select name="status" class="form-control" onchange="this.form.submit()">
+        <select name="status" class="form-control" data-autosubmit>
           <option value="">All Statuses</option>
           <?php foreach (['active' => 'Active', 'inactive' => 'Inactive', 'under_review' => 'Under Review', 'terminated' => 'Terminated'] as $v => $l): ?>
             <option value="<?= $v ?>" <?= ($_GET['status'] ?? '') === $v ? 'selected' : '' ?>><?= $l ?></option>

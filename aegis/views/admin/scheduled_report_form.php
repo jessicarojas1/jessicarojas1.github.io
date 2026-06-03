@@ -89,7 +89,7 @@ ob_start();
 
         <div class="form-group" style="flex:1">
           <label class="form-label" for="sched_frequency">Frequency <span style="color:#ef4444">*</span></label>
-          <select id="sched_frequency" name="frequency" class="form-control" required onchange="onFrequencyChange(this.value)">
+          <select id="sched_frequency" name="frequency" class="form-control" required data-change="onFrequencyChange" data-input-val="1">
             <?php
             $freqs  = ['daily' => 'Daily', 'weekly' => 'Weekly', 'monthly' => 'Monthly', 'quarterly' => 'Quarterly'];
             $curFreq = $v('frequency', 'weekly');

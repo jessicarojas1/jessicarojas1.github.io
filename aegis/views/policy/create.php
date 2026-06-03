@@ -85,15 +85,15 @@ ob_start();
       <div class="form-group">
         <label class="form-label">Policy Content</label>
         <div class="editor-toolbar">
-          <button type="button" onclick="fmt('bold')"><i class="bi bi-type-bold"></i></button>
-          <button type="button" onclick="fmt('italic')"><i class="bi bi-type-italic"></i></button>
-          <button type="button" onclick="fmt('insertUnorderedList')"><i class="bi bi-list-ul"></i></button>
-          <button type="button" onclick="fmt('insertOrderedList')"><i class="bi bi-list-ol"></i></button>
-          <button type="button" onclick="fmt('justifyLeft')"><i class="bi bi-justify-left"></i></button>
+          <button type="button" data-click="fmt" data-arg="bold"><i class="bi bi-type-bold"></i></button>
+          <button type="button" data-click="fmt" data-arg="italic"><i class="bi bi-type-italic"></i></button>
+          <button type="button" data-click="fmt" data-arg="insertUnorderedList"><i class="bi bi-list-ul"></i></button>
+          <button type="button" data-click="fmt" data-arg="insertOrderedList"><i class="bi bi-list-ol"></i></button>
+          <button type="button" data-click="fmt" data-arg="justifyLeft"><i class="bi bi-justify-left"></i></button>
           <span class="editor-sep">|</span>
-          <button type="button" onclick="fmt('formatBlock','h2')">H2</button>
-          <button type="button" onclick="fmt('formatBlock','h3')">H3</button>
-          <button type="button" onclick="fmt('formatBlock','p')">¶</button>
+          <button type="button" data-click="fmt" data-args='["formatBlock","h2"]'>H2</button>
+          <button type="button" data-click="fmt" data-args='["formatBlock","h3"]'>H3</button>
+          <button type="button" data-click="fmt" data-args='["formatBlock","p"]'>¶</button>
         </div>
         <div id="editor" class="rich-editor" contenteditable="true"><?= $policy['content'] ?? '' ?></div>
         <textarea name="content" id="contentInput" style="display:none"><?= Security::h($policy['content'] ?? '') ?></textarea>

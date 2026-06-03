@@ -62,9 +62,9 @@ $ageDisplay  = $ageHours >= 48 ? round($ageHours / 24, 1) . ' days' : $ageHours 
   <div class="page-actions">
     <?php if (in_array($incident['status'], ['open','investigating','contained'])): ?>
       <?php if (Auth::can('incident.write')): ?>
-        <button onclick="showModal('editModal')" class="btn btn-secondary"><i class="bi bi-pencil"></i> Edit</button>
+        <button data-show-modal="editModal" class="btn btn-secondary"><i class="bi bi-pencil"></i> Edit</button>
         <?php if ($incident['status'] !== 'closed'): ?>
-          <form method="post" action="/incident/<?= $incident['id'] ?>/close" style="display:inline" onsubmit="return confirm('Close this incident?')">
+          <form method="post" action="/incident/<?= $incident['id'] ?>/close" style="display:inline" data-confirm="Close this incident?">
             <input type="hidden" name="csrf_token" value="<?= Security::generateCsrfToken() ?>">
             <button type="submit" class="btn btn-danger"><i class="bi bi-x-circle"></i> Close</button>
           </form>
@@ -302,7 +302,7 @@ $csrfTokenPlaybook = Security::generateCsrfToken();
           <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden">
             <!-- Run header -->
             <div style="padding:12px 16px;background:var(--bg-secondary);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;cursor:pointer"
-                 onclick="togglePlaybookRun(<?= (int)$run['id'] ?>)">
+                 data-click="togglePlaybookRun" data-arg="<?= (int)$run['id'] ?>">
               <div>
                 <div style="font-weight:600"><?= Security::h($run['playbook_title']) ?></div>
                 <div style="font-size:12px;color:var(--text-muted)">
@@ -516,7 +516,7 @@ $csrfTokenPlaybook = Security::generateCsrfToken();
   <div class="modal" style="max-width:640px;width:100%">
     <div class="modal-header">
       <span>Edit Incident</span>
-      <button onclick="closeModal('editModal')" style="background:none;border:none;cursor:pointer;font-size:18px">&times;</button>
+      <button data-close-modal="editModal" style="background:none;border:none;cursor:pointer;font-size:18px">&times;</button>
     </div>
     <div class="modal-body">
       <form method="post" action="/incident/<?= $incident['id'] ?>/update">
@@ -555,7 +555,7 @@ $csrfTokenPlaybook = Security::generateCsrfToken();
         <div class="form-group"><label class="form-label">Impact Description</label><textarea name="impact_description" class="form-control" rows="2"><?= Security::h($incident['impact_description'] ?? '') ?></textarea></div>
         <div class="form-group"><label class="form-label">Root Cause</label><textarea name="root_cause" class="form-control" rows="2"><?= Security::h($incident['root_cause'] ?? '') ?></textarea></div>
         <div class="form-group"><label class="form-label">Lessons Learned</label><textarea name="lessons_learned" class="form-control" rows="2"><?= Security::h($incident['lessons_learned'] ?? '') ?></textarea></div>
-        <div class="modal-footer"><button type="button" onclick="closeModal('editModal')" class="btn btn-secondary">Cancel</button><button type="submit" class="btn btn-primary">Save Changes</button></div>
+        <div class="modal-footer"><button type="button" data-close-modal="editModal" class="btn btn-secondary">Cancel</button><button type="submit" class="btn btn-primary">Save Changes</button></div>
       </form>
     </div>
   </div>

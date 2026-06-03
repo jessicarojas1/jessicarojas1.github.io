@@ -87,7 +87,7 @@ $classColors = ['public'=>'#22c55e','internal'=>'#3b82f6','confidential'=>'#f59e
 <div class="card" style="margin-bottom:24px">
   <div class="card-header" style="display:flex;justify-content:space-between;align-items:center">
     <h3>Scheduled Report Delivery</h3>
-    <button class="btn btn-primary btn-sm" onclick="document.getElementById('scheduleModal').classList.add('open')">
+    <button class="btn btn-primary btn-sm" data-add-class="open" data-target="#scheduleModal">
       <i class="bi bi-plus-lg"></i> Add Schedule
     </button>
   </div>
@@ -108,7 +108,7 @@ $classColors = ['public'=>'#22c55e','internal'=>'#3b82f6','confidential'=>'#f59e
             <td>
               <form method="POST" action="/metrics/schedule/<?= (int)$rs['id'] ?>/delete" style="display:inline">
                 <?= Security::csrfField() ?>
-                <button class="btn btn-sm btn-danger" onclick="return confirm('Delete this schedule?')">Delete</button>
+                <button class="btn btn-sm btn-danger" data-confirm-click="Delete this schedule?">Delete</button>
               </form>
             </td>
           </tr>
@@ -119,11 +119,11 @@ $classColors = ['public'=>'#22c55e','internal'=>'#3b82f6','confidential'=>'#f59e
 </div>
 
 <!-- Schedule modal -->
-<div id="scheduleModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)this.classList.remove('open')">
+<div id="scheduleModal" class="modal-overlay" style="display:none">
   <div class="modal-card" style="max-width:520px">
     <div class="modal-header">
       <h3>New Report Schedule</h3>
-      <button onclick="document.getElementById('scheduleModal').classList.remove('open')" class="btn-icon"><i class="bi bi-x-lg"></i></button>
+      <button data-remove-class="open" data-target="#scheduleModal" class="btn-icon"><i class="bi bi-x-lg"></i></button>
     </div>
     <form method="POST" action="/metrics/schedule/save">
       <?= Security::csrfField() ?>
@@ -167,7 +167,7 @@ $classColors = ['public'=>'#22c55e','internal'=>'#3b82f6','confidential'=>'#f59e
       </div>
       <div class="modal-footer">
         <button type="submit" class="btn btn-primary">Save Schedule</button>
-        <button type="button" class="btn btn-secondary" onclick="document.getElementById('scheduleModal').classList.remove('open')">Cancel</button>
+        <button type="button" class="btn btn-secondary" data-remove-class="open" data-target="#scheduleModal">Cancel</button>
       </div>
     </form>
   </div>
@@ -186,6 +186,11 @@ $classColors = ['public'=>'#22c55e','internal'=>'#3b82f6','confidential'=>'#f59e
 <?php if (!empty($trend)): ?>
 <script src="/public/vendor/chart.js/chart.umd.js" integrity="sha384-tgbB5AKnszdcfwcZtTfuhR3Ko1XZdlDfsLtkxiiAZiVkkXCkFmp+FQFh+V/UTo54" crossorigin="anonymous" nonce="<?= Security::nonce() ?>"></script>
 <script nonce="<?= Security::nonce() ?>">
+// Close schedule modal when clicking overlay background
+(function() {
+  var m = document.getElementById('scheduleModal');
+  if (m) m.addEventListener('click', function(e) { if (e.target === m) m.classList.remove('open'); });
+})();
 const ctx = document.getElementById('trendChart').getContext('2d');
 new Chart(ctx, {
   type: 'line',

@@ -134,7 +134,7 @@ unset($_SESSION['flash_error']);
                    placeholder="e.g. 5"
                    value="<?= Security::h((string)($_POST['threshold_green'] ?? '')) ?>"
                    style="border-color:#16a34a44;background:#f0fdf4;"
-                   oninput="updatePreview()">
+                   data-input="updatePreview">
             <div style="font-size:11px;color:#16a34a;margin-top:3px;" id="greenHint">On-track level</div>
           </div>
 
@@ -147,7 +147,7 @@ unset($_SESSION['flash_error']);
                    placeholder="e.g. 10"
                    value="<?= Security::h((string)($_POST['threshold_amber'] ?? '')) ?>"
                    style="border-color:#d9770644;background:#fffbeb;"
-                   oninput="updatePreview()">
+                   data-input="updatePreview">
             <div style="font-size:11px;color:#d97706;margin-top:3px;" id="amberHint">Caution level</div>
           </div>
 
@@ -160,7 +160,7 @@ unset($_SESSION['flash_error']);
                    placeholder="e.g. 20"
                    value="<?= Security::h((string)($_POST['threshold_red'] ?? '')) ?>"
                    style="border-color:#dc262644;background:#fef2f2;"
-                   oninput="updatePreview()">
+                   data-input="updatePreview">
             <div style="font-size:11px;color:#dc2626;margin-top:3px;" id="redHint">Danger level</div>
           </div>
 

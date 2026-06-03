@@ -113,7 +113,7 @@ $avgScore = count($scenarios) > 0 ? round($totalScoreSum / count($scenarios), 1)
                 <?php if ($sc['assumptions']): ?>
                 <div style="margin-top:4px">
                   <button type="button"
-                          onclick="var el=document.getElementById('<?= $uniqueId ?>');el.style.display=el.style.display==='none'?'block':'none';this.innerHTML=el.style.display!=='none'?'<i class=&quot;bi bi-chevron-up&quot;></i> Hide assumptions':'<i class=&quot;bi bi-chevron-down&quot;></i> Show assumptions'"
+                          data-expand="<?= $uniqueId ?>"
                           style="background:none;border:none;padding:0;font-size:11px;color:var(--primary);cursor:pointer;font-weight:600">
                     <i class="bi bi-chevron-down"></i> Show assumptions
                   </button>
@@ -182,7 +182,7 @@ $avgScore = count($scenarios) > 0 ? round($totalScoreSum / count($scenarios), 1)
           <?php if (Auth::can('risk.write')): ?>
           <td style="padding:12px 10px;text-align:center">
             <form method="POST" action="/risk-scenarios/<?= (int)$sc['id'] ?>/delete"
-                  onsubmit="return confirm('Delete scenario \'<?= addslashes(Security::h($sc['name'])) ?>\'?')">
+                  data-confirm="Delete scenario &#39;<?= Security::h($sc['name']) ?>&#39;?">
               <?= Security::csrfField() ?>
               <button type="submit"
                       style="background:none;border:none;padding:4px 6px;cursor:pointer;color:#ef4444;border-radius:4px"

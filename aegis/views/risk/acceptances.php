@@ -109,7 +109,7 @@ if ($filterStatus !== '') {
 <div class="filter-bar card" style="margin-bottom:20px;">
   <form method="GET" class="filter-form" style="display:flex;align-items:center;gap:12px;padding:12px 16px;">
     <label style="font-size:13px;font-weight:500;color:var(--text-muted);white-space:nowrap;">Filter by status:</label>
-    <select name="status" class="form-control form-control-sm" onchange="this.form.submit()" style="width:auto;min-width:160px;">
+    <select name="status" class="form-control form-control-sm" data-autosubmit style="width:auto;min-width:160px;">
       <option value="">All statuses</option>
       <?php foreach ($statusConfig as $sv => $sc): ?>
         <option value="<?= $sv ?>" <?= $filterStatus === $sv ? 'selected' : '' ?>><?= $sc['label'] ?></option>
@@ -217,7 +217,7 @@ if ($filterStatus !== '') {
               <button type="button"
                       class="btn btn-ghost btn-sm"
                       style="font-size:11px;padding:1px 6px;margin-top:2px;"
-                      onclick="toggleConditions('<?= $rowId ?>')">
+                      data-click="toggleConditions" data-arg="<?= $rowId ?>">
                 <i class="bi bi-chevron-down" id="chevron-<?= $rowId ?>"></i> Conditions
               </button>
             <?php endif; ?>
@@ -253,7 +253,7 @@ if ($filterStatus !== '') {
               <button type="button"
                       class="btn btn-sm"
                       style="background:#fef2f2;color:#dc2626;border:1px solid #fca5a5;"
-                      onclick="toggleRevoke('revoke-<?= (int)$acc['id'] ?>')"
+                      data-click="toggleRevoke" data-arg="revoke-<?= (int)$acc['id'] ?>"
                       title="Revoke">
                 <i class="bi bi-x-circle"></i> Revoke
               </button>
@@ -281,7 +281,7 @@ if ($filterStatus !== '') {
         <tr id="revoke-<?= (int)$acc['id'] ?>" style="display:none;">
           <td colspan="8" style="background:#fef2f2;padding:14px 20px 16px;border-top:1px solid #fca5a5;">
             <form method="POST" action="/risk-acceptances/<?= (int)$acc['id'] ?>/revoke"
-                  onsubmit="return confirm('Are you sure you want to revoke this acceptance certificate? This action cannot be undone.')">
+                  data-confirm="Are you sure you want to revoke this acceptance certificate? This action cannot be undone.">
               <?= Security::csrfField() ?>
               <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
                 <div style="flex:1;min-width:240px;">
@@ -294,7 +294,7 @@ if ($filterStatus !== '') {
                 </div>
                 <div style="display:flex;gap:8px;flex-shrink:0;">
                   <button type="button" class="btn btn-ghost btn-sm"
-                          onclick="toggleRevoke('revoke-<?= (int)$acc['id'] ?>')">Cancel</button>
+                          data-click="toggleRevoke" data-arg="revoke-<?= (int)$acc['id'] ?>">Cancel</button>
                   <button type="submit" class="btn btn-sm" style="background:#dc2626;color:#fff;border:none;">
                     <i class="bi bi-x-circle-fill"></i> Confirm Revoke
                   </button>
@@ -320,7 +320,7 @@ if ($filterStatus !== '') {
 <script nonce="<?= Security::nonce() ?>">
 function toggleConditions(rowId) {
   var row    = document.getElementById(rowId);
-  var btn    = document.querySelector('[onclick="toggleConditions(\'' + rowId + '\')"]');
+  var btn    = document.querySelector('[data-click="toggleConditions"][data-arg="' + rowId + '"]');
   var chev   = document.getElementById('chevron-' + rowId);
   if (!row) return;
   var isHidden = row.style.display === 'none' || row.style.display === '';

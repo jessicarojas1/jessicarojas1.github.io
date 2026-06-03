@@ -89,7 +89,7 @@
           </label>
           <div class="input-group">
             <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required autocomplete="current-password">
-            <button type="button" class="input-addon" onclick="togglePassword('password')">
+            <button type="button" class="input-addon" data-click="togglePassword" data-arg="password">
               <i class="bi bi-eye" id="toggleIcon"></i>
             </button>
           </div>

@@ -36,10 +36,10 @@ $hasNewCodes = !empty($newCodes);
         <span class="card-title">Your Recovery Codes</span>
       </div>
       <div class="card-header-right" style="display:flex;gap:8px">
-        <button type="button" class="btn btn-secondary btn-sm" onclick="downloadCodes()">
+        <button type="button" class="btn btn-secondary btn-sm" data-click="downloadCodes">
           <i class="bi bi-download"></i> Download
         </button>
-        <button type="button" class="btn btn-secondary btn-sm" onclick="window.print()">
+        <button type="button" class="btn btn-secondary btn-sm" data-print>
           <i class="bi bi-printer"></i> Print
         </button>
       </div>
@@ -126,7 +126,7 @@ $hasNewCodes = !empty($newCodes);
       </div>
 
       <form method="POST" action="/mfa/backup-codes/generate"
-            onsubmit="return confirm('Regenerate all backup codes? This will invalidate your existing codes.')">
+            data-confirm="Regenerate all backup codes? This will invalidate your existing codes.">
         <?= Security::csrfField() ?>
         <button type="submit" class="btn btn-primary">
           <i class="bi bi-arrow-clockwise"></i> Regenerate Backup Codes

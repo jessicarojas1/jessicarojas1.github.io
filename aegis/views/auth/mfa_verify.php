@@ -40,12 +40,12 @@
       <div class="mfa-digits" id="digitBoxes">
         <?php for ($i = 0; $i < 6; $i++): ?>
           <input type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" autocomplete="off"
-                 id="d<?= $i ?>" onkeyup="digitNext(this, <?= $i ?>)" onpaste="handlePaste(event)">
+                 id="d<?= $i ?>">
         <?php endfor; ?>
       </div>
       <input type="hidden" name="code" id="codeInput">
 
-      <button type="submit" class="btn btn-primary" style="width:100%;margin-top:8px" onclick="assembleCode()">
+      <button type="submit" class="btn btn-primary" style="width:100%;margin-top:8px" data-click="assembleCode">
         <i class="bi bi-shield-check"></i> Verify
       </button>
     </form>
@@ -56,7 +56,7 @@
 
     <!-- Backup code toggle -->
     <div style="text-align:center;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
-      <button type="button" id="toggleBackupBtn" onclick="toggleBackupForm()"
+      <button type="button" id="toggleBackupBtn" data-click="toggleBackupForm"
               style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--primary);text-decoration:underline;padding:0">
         Use a backup code instead
       </button>
@@ -85,7 +85,7 @@
         </button>
       </form>
       <div style="text-align:center;margin-top:10px">
-        <button type="button" onclick="toggleBackupForm()"
+        <button type="button" data-click="toggleBackupForm"
                 style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--text-muted);text-decoration:underline;padding:0">
           Back to authenticator code
         </button>
@@ -164,6 +164,12 @@ function toggleBackupForm() {
     showBackupSection();
   }
 }
+
+// Wire keyup/paste on digit inputs (replaces inline onkeyup/onpaste)
+document.querySelectorAll('#digitBoxes input').forEach(function(inp, idx) {
+  inp.addEventListener('keyup', function() { digitNext(inp, idx); });
+  inp.addEventListener('paste', function(ev) { handlePaste(ev); });
+});
 
 // Only auto-focus the digit box on non-touch (desktop) devices
 if (!window.matchMedia('(hover: none)').matches) {

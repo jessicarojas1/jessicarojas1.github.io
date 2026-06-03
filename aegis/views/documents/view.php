@@ -18,7 +18,7 @@ $canEdit = Auth::can('policy.write');
   </div>
   <?php if ($canEdit): ?>
   <div>
-    <button class="btn btn-secondary" onclick="document.getElementById('editPanel').classList.toggle('hidden')">
+    <button class="btn btn-secondary" data-toggle-class="hidden" data-target="#editPanel">
       <i class="bi bi-pencil"></i> Edit
     </button>
   </div>
@@ -64,7 +64,7 @@ $canEdit = Auth::can('policy.write');
     <div class="card-header" style="display:flex;justify-content:space-between;align-items:center">
       <h3>Version History</h3>
       <?php if ($canEdit): ?>
-        <button class="btn btn-sm btn-primary" onclick="document.getElementById('uploadModal').classList.add('open')">
+        <button class="btn btn-sm btn-primary" data-show-modal="uploadModal">
           <i class="bi bi-upload"></i> Upload Version
         </button>
       <?php endif; ?>
@@ -143,11 +143,11 @@ $canEdit = Auth::can('policy.write');
 </div>
 
 <!-- Upload version modal -->
-<div id="uploadModal" class="modal-overlay" onclick="if(event.target===this)this.classList.remove('open')">
+<div id="uploadModal" class="modal-overlay">
   <div class="modal-card" style="max-width:480px">
     <div class="modal-header">
       <h3>Upload New Version</h3>
-      <button onclick="document.getElementById('uploadModal').classList.remove('open')" class="btn-icon"><i class="bi bi-x-lg"></i></button>
+      <button data-close-modal="uploadModal" class="btn-icon"><i class="bi bi-x-lg"></i></button>
     </div>
     <form method="POST" action="/documents/<?= (int)$doc['id'] ?>/upload-version" enctype="multipart/form-data">
       <?= Security::csrfField() ?>

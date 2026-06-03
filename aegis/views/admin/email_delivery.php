@@ -61,7 +61,7 @@ $typeColors = [
 <!-- Filters -->
 <div class="filter-bar card" style="margin-bottom:16px">
   <form method="GET" class="filter-form" style="flex-wrap:wrap;gap:8px">
-    <select name="type" class="form-control form-control-sm" onchange="this.form.submit()">
+    <select name="type" class="form-control form-control-sm" data-autosubmit>
       <option value="">All types</option>
       <?php foreach ($types as $t): ?>
         <option value="<?= Security::h($t['notification_type']) ?>" <?= ($_GET['type']??'')===$t['notification_type']?'selected':'' ?>><?= $typeLabels[$t['notification_type']] ?? Security::h($t['notification_type']) ?></option>

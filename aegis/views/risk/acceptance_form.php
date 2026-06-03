@@ -178,7 +178,7 @@ ob_start();
               <input type="checkbox" name="renewal_required" value="1"
                      <?= $prefillRenewal ? 'checked' : '' ?>
                      style="margin-top:2px;flex-shrink:0;"
-                     onchange="document.getElementById('renewal-label').style.borderColor=this.checked?'var(--primary)':'var(--border)'">
+                     data-change="onRenewalChange">
               <div>
                 <div style="font-weight:600;font-size:13px;"><i class="bi bi-arrow-clockwise"></i> Renewal Required</div>
                 <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">
@@ -307,6 +307,9 @@ ob_start();
 </style>
 
 <script nonce="<?= Security::nonce() ?>">
+function onRenewalChange() {
+  document.getElementById('renewal-label').style.borderColor = this.checked ? 'var(--primary)' : 'var(--border)';
+}
 // Highlight renewal checkbox border on load
 (function() {
   var cb = document.querySelector('input[name="renewal_required"]');

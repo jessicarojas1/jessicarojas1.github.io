@@ -89,9 +89,9 @@ ob_start();
                     <?php endforeach; ?>
                 </div>
                 <div class="mt-2">
-                    <button type="button" class="btn btn-sm btn-link p-0" onclick="toggleAllEvents(true)">Select all</button>
+                    <button type="button" class="btn btn-sm btn-link p-0" data-click="toggleAllEvents" data-args='[true]'>Select all</button>
                     &nbsp;·&nbsp;
-                    <button type="button" class="btn btn-sm btn-link p-0" onclick="toggleAllEvents(false)">Deselect all</button>
+                    <button type="button" class="btn btn-sm btn-link p-0" data-click="toggleAllEvents" data-args='[false]'>Deselect all</button>
                 </div>
             </div>
 

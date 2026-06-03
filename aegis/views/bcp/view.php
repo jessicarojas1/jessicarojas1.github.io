@@ -15,7 +15,7 @@ ob_start(); ?>
     </p>
   </div>
   <?php if ($canEdit): ?>
-    <button class="btn btn-secondary" onclick="document.getElementById('editPanel').classList.toggle('hidden')">
+    <button class="btn btn-secondary" data-toggle-class="hidden" data-target="#editPanel">
       <i class="bi bi-pencil"></i> Edit
     </button>
   <?php endif; ?>
@@ -27,8 +27,8 @@ ob_start(); ?>
 
 <!-- Tabs -->
 <div style="display:flex;gap:0;border-bottom:2px solid #e5e7eb;margin-bottom:24px">
-  <button class="tab-btn active" onclick="showTab('sections',this)">Plan Sections</button>
-  <button class="tab-btn" onclick="showTab('exercises',this)" id="exercises-tab">Exercises</button>
+  <button class="tab-btn active" data-tab="sections">Plan Sections</button>
+  <button class="tab-btn" data-tab="exercises" id="exercises-tab">Exercises</button>
 </div>
 
 <div id="tab-sections">
@@ -36,7 +36,7 @@ ob_start(); ?>
     <div class="card"><div class="card-body text-muted">No sections defined yet.</div></div>
   <?php else: foreach ($sections as $sec): ?>
     <div class="card" style="margin-bottom:12px">
-      <div class="card-header" style="cursor:pointer" onclick="this.nextElementSibling.classList.toggle('hidden')">
+      <div class="card-header" style="cursor:pointer" data-toggle-sibling="hidden">
         <span style="text-transform:uppercase;font-size:11px;color:#6366f1;font-weight:600"><?= Security::h($sec['section_type']) ?></span>
         <h3 style="margin:4px 0 0"><?= Security::h($sec['title']) ?></h3>
       </div>
@@ -191,6 +191,9 @@ function showTab(tab, btn) {
   document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
   btn.classList.add('active');
 }
+document.querySelectorAll('[data-tab]').forEach(function(btn) {
+  btn.addEventListener('click', function() { showTab(btn.dataset.tab, btn); });
+});
 </script>
 <style>
 .tab-btn { background:none;border:none;padding:10px 20px;cursor:pointer;font-size:14px;font-weight:500;color:#6b7280;border-bottom:2px solid transparent;margin-bottom:-2px; }

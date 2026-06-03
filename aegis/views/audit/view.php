@@ -27,7 +27,7 @@ ob_start();
     <?php elseif ($audit['status'] === 'in_progress'): ?>
       <form method="POST" action="/audit/<?= $audit['id'] ?>/complete">
         <?= Security::csrfField() ?>
-        <button class="btn btn-success" onclick="return confirm('Complete this audit?')"><i class="bi bi-check-lg"></i> Complete Audit</button>
+        <button class="btn btn-success" data-confirm-click="Complete this audit?"><i class="bi bi-check-lg"></i> Complete Audit</button>
       </form>
     <?php endif; ?>
     <a href="/audit/<?= $audit['id'] ?>/export" class="btn btn-secondary"><i class="bi bi-file-earmark-zip"></i> Export Package</a>
@@ -83,17 +83,17 @@ ob_start();
         <span class="control-title"><?= Security::h($item['title']) ?></span>
       </div>
       <div class="audit-item-controls">
-        <select class="status-select-inline" onchange="saveAuditItem(<?= $item['id'] ?>, <?= $audit['id'] ?>, this)" data-item="<?= $item['id'] ?>">
+        <select class="status-select-inline" data-change="saveAuditItem" data-args='[<?= $item['id'] ?>,<?= $audit['id'] ?>]' data-item="<?= $item['id'] ?>">
           <?php foreach (['not_assessed'=>'Not Assessed','compliant'=>'Compliant','partial'=>'Partial','non_compliant'=>'Non-Compliant','not_applicable'=>'N/A'] as $val=>$label): ?>
             <option value="<?= $val ?>" <?= $item['status']===$val?'selected':'' ?>><?= $label ?></option>
           <?php endforeach; ?>
         </select>
-        <button class="btn btn-ghost btn-sm" onclick="toggleFinding(<?= $item['id'] ?>)">
+        <button class="btn btn-ghost btn-sm" data-click="toggleFinding" data-arg="<?= $item['id'] ?>">
           <i class="bi bi-pencil"></i>
         </button>
       </div>
       <div class="audit-finding-panel" id="finding-<?= $item['id'] ?>" style="display:none">
-        <form class="finding-form" onsubmit="saveFinding(event, <?= $item['id'] ?>, <?= $audit['id'] ?>)">
+        <form class="finding-form" data-submit="saveFinding" data-args='[<?= $item['id'] ?>,<?= $audit['id'] ?>]'>
           <?= Security::csrfField() ?>
           <input type="hidden" name="status" class="finding-status-input" value="<?= Security::h($item['status']) ?>">
           <div class="form-row">
@@ -136,7 +136,8 @@ function toggleFinding(id) {
   panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
 }
 
-function saveAuditItem(itemId, auditId, select) {
+function saveAuditItem(itemId, auditId) {
+  const select = this;
   const status = select.value;
   const formData = new FormData();
   formData.append('status', status);

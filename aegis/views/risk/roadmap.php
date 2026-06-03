@@ -103,21 +103,21 @@ ob_start();
 <!-- Filters -->
 <div class="filter-bar card" style="margin-bottom:20px;">
   <form method="GET" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:14px 16px;">
-    <select name="status" class="form-control form-control-sm" onchange="this.form.submit()">
+    <select name="status" class="form-control form-control-sm" data-autosubmit>
       <option value="">All Statuses</option>
       <?php foreach (['open'=>'Open','in_progress'=>'In Progress','mitigated'=>'Mitigated','accepted'=>'Accepted','closed'=>'Closed'] as $v=>$l): ?>
         <option value="<?= $v ?>" <?= $filterStatus === $v ? 'selected' : '' ?>><?= $l ?></option>
       <?php endforeach; ?>
     </select>
 
-    <select name="owner_id" class="form-control form-control-sm" onchange="this.form.submit()">
+    <select name="owner_id" class="form-control form-control-sm" data-autosubmit>
       <option value="">All Owners</option>
       <?php foreach ($allUsers as $u): ?>
         <option value="<?= (int)$u['id'] ?>" <?= ((int)$filterOwner === (int)$u['id']) ? 'selected' : '' ?>><?= Security::h($u['name']) ?></option>
       <?php endforeach; ?>
     </select>
 
-    <select name="level" class="form-control form-control-sm" onchange="this.form.submit()">
+    <select name="level" class="form-control form-control-sm" data-autosubmit>
       <option value="">All Risk Levels</option>
       <?php foreach (['critical'=>'Critical','high'=>'High','medium'=>'Medium','low'=>'Low'] as $v=>$l): ?>
         <option value="<?= $v ?>" <?= $filterLevel === $v ? 'selected' : '' ?>><?= $l ?></option>

@@ -274,7 +274,7 @@ $nonce = Security::nonce();
   </div>
   <div class="page-actions">
     <a href="/report/risk-detail" class="btn btn-ghost btn-sm"><i class="bi bi-table"></i> Risk Register Report</a>
-    <button class="bp-print-btn" onclick="window.print()"><i class="bi bi-printer"></i> Print / Export PDF</button>
+    <button class="bp-print-btn" data-print><i class="bi bi-printer"></i> Print / Export PDF</button>
   </div>
 </div>
 

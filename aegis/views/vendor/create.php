@@ -108,7 +108,7 @@ ob_start();
 
           <div class="form-group">
             <label class="form-label" for="risk_tier">Risk Tier</label>
-            <select id="risk_tier" name="risk_tier" class="form-control" onchange="updateTierPreview(this.value)">
+            <select id="risk_tier" name="risk_tier" class="form-control" data-change="updateTierPreview" data-input-val="1">
               <option value="critical">Critical</option>
               <option value="high">High</option>
               <option value="medium" selected>Medium</option>

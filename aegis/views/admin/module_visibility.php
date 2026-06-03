@@ -72,8 +72,7 @@ $groups = [
             </div>
             <label class="toggle-switch">
               <input type="checkbox" name="hide[<?= $key ?>]" value="1" <?= $isHidden ? '' : 'checked' ?>
-                     onchange="this.closest('.list-item').querySelector('.vis-badge').textContent = this.checked ? 'Visible' : 'Hidden';
-                               this.closest('.list-item').querySelector('.vis-badge').className = 'badge ' + (this.checked ? 'badge-green' : 'badge-red')">
+                     data-change="updateVisBadge">
               <span class="toggle-slider"></span>
             </label>
             <span class="vis-badge badge <?= $isHidden ? 'badge-red' : 'badge-green' ?>" style="margin-left:8px;min-width:52px;text-align:center">
@@ -92,6 +91,15 @@ $groups = [
   </div>
 </form>
 
+<script nonce="<?= Security::nonce() ?>">
+function updateVisBadge() {
+  var badge = this.closest('.list-item').querySelector('.vis-badge');
+  if (badge) {
+    badge.textContent = this.checked ? 'Visible' : 'Hidden';
+    badge.className = 'badge ' + (this.checked ? 'badge-green' : 'badge-red');
+  }
+}
+</script>
 <style>
 .toggle-switch { position:relative; display:inline-block; width:40px; height:22px; flex-shrink:0; }
 .toggle-switch input { opacity:0; width:0; height:0; }

@@ -48,13 +48,13 @@ ob_start();
 <div class="card" style="margin-bottom:1rem">
   <div class="card-body" style="padding:0.75rem 1rem">
     <form method="GET" action="/incident" style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap">
-      <select name="severity" class="form-control" style="width:auto;min-width:140px" onchange="this.form.submit()">
+      <select name="severity" class="form-control" style="width:auto;min-width:140px" data-autosubmit>
         <option value="">All severities</option>
         <?php foreach (['critical'=>'Critical','high'=>'High','medium'=>'Medium','low'=>'Low'] as $val => $label): ?>
           <option value="<?= $val ?>" <?= ($_GET['severity'] ?? '') === $val ? 'selected' : '' ?>><?= $label ?></option>
         <?php endforeach; ?>
       </select>
-      <select name="status" class="form-control" style="width:auto;min-width:150px" onchange="this.form.submit()">
+      <select name="status" class="form-control" style="width:auto;min-width:150px" data-autosubmit>
         <option value="">All statuses</option>
         <?php foreach (['open'=>'Open','investigating'=>'Investigating','contained'=>'Contained','resolved'=>'Resolved','closed'=>'Closed'] as $val => $label): ?>
           <option value="<?= $val ?>" <?= ($_GET['status'] ?? '') === $val ? 'selected' : '' ?>><?= $label ?></option>

@@ -123,7 +123,7 @@ $mfaEnabled = !empty($dbUser['mfa_enabled']);
                  class="form-control"
                  required
                  autocomplete="new-password"
-                 oninput="updateStrength(this.value)">
+                 data-input="updateStrength" data-input-val="1">
           <!-- Strength meter -->
           <div id="strength-meter-wrap" style="margin-top:8px">
             <div style="height:6px;border-radius:3px;background:#e5e7eb;overflow:hidden">

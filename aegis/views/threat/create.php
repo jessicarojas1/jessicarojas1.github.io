@@ -116,7 +116,7 @@
           <!-- Likelihood -->
           <div class="form-group">
             <label class="form-label">Likelihood</label>
-            <select name="likelihood" id="likelihood" class="form-control" onchange="updateScore()">
+            <select name="likelihood" id="likelihood" class="form-control" data-change="updateScore">
               <?php
               $likelihoodOpts = [
                   1 => '1 — Rare',
@@ -136,7 +136,7 @@
           <!-- Impact -->
           <div class="form-group">
             <label class="form-label">Impact</label>
-            <select name="impact" id="impact" class="form-control" onchange="updateScore()">
+            <select name="impact" id="impact" class="form-control" data-change="updateScore">
               <?php
               $impactOpts = [
                   1 => '1 — Negligible',

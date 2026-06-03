@@ -32,7 +32,7 @@ ob_start();
 
 <!-- Print bar (hidden when printing) -->
 <div class="no-print" style="margin-bottom:16px">
-  <button onclick="window.print()" class="btn btn-primary"><i class="bi bi-printer"></i> Print / Save PDF</button>
+  <button data-print class="btn btn-primary"><i class="bi bi-printer"></i> Print / Save PDF</button>
   <a href="/compliance/<?= $pkgId ?>" class="btn btn-ghost">← Back to Package</a>
 </div>
 

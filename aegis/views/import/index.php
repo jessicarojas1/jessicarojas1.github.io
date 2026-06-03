@@ -24,7 +24,7 @@ $templates = [
 
       <div class="form-group">
         <label class="form-label">Entity Type <span class="required">*</span></label>
-        <select name="import_type" id="importType" class="form-control" onchange="updateTemplate()">
+        <select name="import_type" id="importType" class="form-control" data-change="updateTemplate">
           <option value="">— Select —</option>
           <option value="risks">Risks</option>
           <option value="vendors">Vendors</option>
@@ -38,7 +38,7 @@ $templates = [
           <code id="templateHeaders" style="font-size:12px"></code>
         </div>
         <div style="margin-top:8px">
-          <button type="button" onclick="downloadTemplate()" class="btn btn-sm btn-secondary">
+          <button type="button" data-click="downloadTemplate" class="btn btn-sm btn-secondary">
             <i class="bi bi-download"></i> Download Template
           </button>
         </div>

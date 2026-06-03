@@ -129,10 +129,10 @@ ob_start();
   $dColor = $dPct >= 80 ? '#059669' : ($dPct >= 50 ? '#d97706' : '#dc2626');
 ?>
 <div class="domain-block card" id="domain-<?= $domain['id'] ?>">
-  <div class="domain-header" onclick="toggleDomain(<?= $domain['id'] ?>)" style="cursor:pointer">
+  <div class="domain-header" data-click="toggleDomain" data-arg="<?= $domain['id'] ?>" style="cursor:pointer">
     <div class="domain-header-left" style="display:flex;align-items:center;gap:8px">
       <input type="checkbox" class="domain-select-all" data-domain="<?= $domain['id'] ?>"
-             onclick="event.stopPropagation();toggleDomainAll(this,<?= $domain['id'] ?>)"
+             data-change="domainSelectAllChange"
              title="Select all in this domain"
              style="width:16px;height:16px;cursor:pointer;accent-color:#6366f1;flex-shrink:0">
       <div class="domain-code"><?= Security::h($domain['code']) ?></div>

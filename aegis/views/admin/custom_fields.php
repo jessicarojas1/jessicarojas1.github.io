@@ -12,14 +12,14 @@ if (!in_array($activeTab, $entityTypes, true)) $activeTab = 'risk';
     <h1 class="page-title">Custom Fields</h1>
     <p class="page-subtitle">Define extra metadata fields for each entity type</p>
   </div>
-  <button class="btn btn-primary" onclick="toggleAddForm()"><i class="bi bi-plus-lg"></i> Add Field</button>
+  <button class="btn btn-primary" data-click="toggleAddForm"><i class="bi bi-plus-lg"></i> Add Field</button>
 </div>
 
 <!-- Add Field Form -->
 <div id="addFieldCard" class="card" style="display:none;margin-bottom:20px">
   <div class="card-header" style="display:flex;justify-content:space-between;align-items:center">
     <strong>Add Custom Field</strong>
-    <button type="button" class="btn btn-ghost btn-sm" onclick="toggleAddForm()"><i class="bi bi-x-lg"></i></button>
+    <button type="button" class="btn btn-ghost btn-sm" data-click="toggleAddForm"><i class="bi bi-x-lg"></i></button>
   </div>
   <div class="card-body">
     <form method="POST" action="/admin/custom-fields/save">
@@ -44,7 +44,7 @@ if (!in_array($activeTab, $entityTypes, true)) $activeTab = 'risk';
         </div>
         <div class="form-group">
           <label class="form-label">Field Type <span class="required">*</span></label>
-          <select name="field_type" class="form-control" required onchange="toggleOptionsField(this.value)">
+          <select name="field_type" class="form-control" required data-change="toggleOptionsFieldChange">
             <option value="text">Text</option>
             <option value="textarea">Textarea</option>
             <option value="number">Number</option>
@@ -73,7 +73,7 @@ if (!in_array($activeTab, $entityTypes, true)) $activeTab = 'risk';
       </div>
       <div style="display:flex;gap:8px;margin-top:8px">
         <button type="submit" class="btn btn-primary">Save Field</button>
-        <button type="button" class="btn btn-ghost" onclick="toggleAddForm()">Cancel</button>
+        <button type="button" class="btn btn-ghost" data-click="toggleAddForm">Cancel</button>
       </div>
     </form>
   </div>
@@ -127,7 +127,7 @@ if (!in_array($activeTab, $entityTypes, true)) $activeTab = 'risk';
           <td><?= $f['is_required'] ? '<span class="badge badge-green">Yes</span>' : '<span class="badge badge-gray">No</span>' ?></td>
           <td class="text-muted"><?= (int)$f['sort_order'] ?></td>
           <td>
-            <form method="POST" action="/admin/custom-fields/<?= (int)$f['id'] ?>/delete" onsubmit="return confirm('Delete this custom field? This cannot be undone.')">
+            <form method="POST" action="/admin/custom-fields/<?= (int)$f['id'] ?>/delete" data-confirm="Delete this custom field? This cannot be undone.">
               <?= Security::csrfField() ?>
               <button type="submit" class="btn btn-ghost btn-sm" style="color:var(--danger,#ef4444)" title="Delete field">
                 <i class="bi bi-trash"></i>
@@ -142,7 +142,7 @@ if (!in_array($activeTab, $entityTypes, true)) $activeTab = 'risk';
     <div class="empty-state-sm" style="padding:48px;text-align:center">
       <i class="bi bi-sliders" style="font-size:2rem;color:var(--text-muted)"></i>
       <p style="margin-top:12px;color:var(--text-muted)">No custom fields defined for <strong><?= ucfirst($activeTab) ?></strong> yet.</p>
-      <button class="btn btn-primary btn-sm" onclick="toggleAddForm()" style="margin-top:8px"><i class="bi bi-plus-lg"></i> Add the first field</button>
+      <button class="btn btn-primary btn-sm" data-click="toggleAddForm" style="margin-top:8px"><i class="bi bi-plus-lg"></i> Add the first field</button>
     </div>
     <?php endif; ?>
   </div>
@@ -158,5 +158,8 @@ function toggleAddForm() {
 }
 function toggleOptionsField(val) {
   document.getElementById('optionsGroup').style.display = val === 'select' ? 'block' : 'none';
+}
+function toggleOptionsFieldChange(e) {
+  toggleOptionsField(e && e.target ? e.target.value : this.value);
 }
 </script>

@@ -84,14 +84,14 @@ function threatScoreBg(int $score): string {
 <!-- Filter bar -->
 <div class="card" style="margin-bottom:20px;">
   <form method="GET" action="/threats" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:16px;">
-    <select name="category" class="form-control form-control-sm" onchange="this.form.submit()">
+    <select name="category" class="form-control form-control-sm" data-autosubmit>
       <option value="">All Categories</option>
       <?php foreach ($catConfig as $val => $cfg): ?>
         <option value="<?= $val ?>" <?= ($filter === $val) ? 'selected' : '' ?>><?= $cfg['label'] ?></option>
       <?php endforeach; ?>
     </select>
 
-    <select name="status" class="form-control form-control-sm" onchange="this.form.submit()">
+    <select name="status" class="form-control form-control-sm" data-autosubmit>
       <option value="">All Statuses</option>
       <?php foreach ($statusConfig as $val => $cfg): ?>
         <option value="<?= $val ?>" <?= ($statusF === $val) ? 'selected' : '' ?>><?= $cfg['label'] ?></option>

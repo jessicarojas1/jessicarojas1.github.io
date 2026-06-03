@@ -248,22 +248,26 @@ document.querySelectorAll('.perm-col-all').forEach(function (btn) {
 // Replaces inline onclick/onchange/oninput/onsubmit attributes.
 // Views use data-* attributes; handlers are resolved from window scope.
 //
-//   data-click="fnName"               — calls window.fnName()
-//   data-click="fnName" data-arg="v"  — calls window.fnName(v)
-//   data-click="fnName" data-args='[1,"b"]' — calls window.fnName(1,"b")
-//   data-print                        — window.print()
-//   data-change="fnName"              — called on change event
-//   data-autosubmit                   — submits the element's form on change
-//   data-input="fnName"               — called on input event
-//   data-input-val                    — passes this.value as argument
-//   data-confirm="message"            — confirm() guard on the parent form
-//   data-confirm-click="message"      — confirm() guard on click (for buttons)
-//   data-toggle-class="cls"           — toggles CSS class on target (data-target="#id")
-//   data-add-class="cls"              — adds CSS class on target
-//   data-remove-class="cls"           — removes CSS class on target
-//   data-close-modal="id"             — calls closeModal(id) or pkgCloseModal()
-//   data-show-modal="id"              — calls openModal(id) or showModal(id)
-//   data-toggle-visible="id"          — toggles display:none/block on element by id
+//   data-click="fnName"                  — calls window.fnName(el) with this=el
+//   data-click="fnName" data-arg="v"     — calls window.fnName(v)
+//   data-click="fnName" data-args='[1]'  — calls window.fnName(1) via JSON.parse
+//   data-print                           — window.print()
+//   data-change="fnName"                 — called on change (data-input-val: passes value)
+//   data-autosubmit                      — submits the element's form on change
+//   data-input="fnName"                  — called on input event
+//   data-input-val                       — passes this.value as argument to input/change fn
+//   data-value-display="id"              — on input: sets textContent of #id to this.value
+//   data-confirm="message"               — confirm() guard on the parent form
+//   data-confirm-click="message"         — confirm() guard on click
+//   data-submit="fnName"                 — custom form submit handler: fn(event, ...data-args)
+//   data-toggle-class="cls"              — toggles CSS class on target (data-target="#id")
+//   data-add-class="cls"                 — adds CSS class on target
+//   data-remove-class="cls"              — removes CSS class on target
+//   data-close-modal="id"                — calls closeModal(id) or pkgCloseModal()
+//   data-show-modal="id"                 — calls openModal(id) or showModal(id)
+//   data-toggle-visible="id"             — toggles display:none/block on element by id
+//   data-toggle-sibling="cls"            — toggles CSS class on the next sibling element
+//   data-expand="id"                     — toggles display of #id, updates button label
 (function () {
   function resolve(name) {
     return name.split('.').reduce(function (o, k) { return o && o[k]; }, window);
@@ -271,11 +275,13 @@ document.querySelectorAll('.perm-col-all').forEach(function (btn) {
   function callFn(el, name) {
     var fn = resolve(name);
     if (typeof fn !== 'function') return;
-    var args = [];
+    var args;
     if (el.dataset.args) {
-      try { args = JSON.parse(el.dataset.args); } catch (e) {}
+      try { args = JSON.parse(el.dataset.args); } catch (x) { args = []; }
     } else if (el.dataset.arg !== undefined) {
       args = [el.dataset.arg];
+    } else {
+      args = [el]; // pass element as first arg (mirrors onclick="fn(this)")
     }
     fn.apply(el, args);
   }
@@ -283,6 +289,12 @@ document.querySelectorAll('.perm-col-all').forEach(function (btn) {
   // ── click ──────────────────────────────────────────────────────────────────
   document.addEventListener('click', function (e) {
     var el = e.target;
+
+    // modal-overlay backdrop: clicking the overlay element itself closes it
+    if (el.classList && el.classList.contains('modal-overlay')) {
+      el.classList.remove('open');
+      return;
+    }
 
     // data-print
     if (el.closest('[data-print]')) { window.print(); return; }
@@ -308,6 +320,7 @@ document.querySelectorAll('.perm-col-all').forEach(function (btn) {
       var smId = sm.dataset.showModal;
       if (typeof window.showModal === 'function') window.showModal(smId);
       else if (typeof window.openModal === 'function') window.openModal(smId);
+      else { var smEl = document.getElementById(smId); if (smEl) smEl.classList.add('open'); }
       return;
     }
 
@@ -316,6 +329,28 @@ document.querySelectorAll('.perm-col-all').forEach(function (btn) {
     if (tv) {
       var tvEl = document.getElementById(tv.dataset.toggleVisible);
       if (tvEl) tvEl.style.display = tvEl.style.display === 'none' ? 'block' : 'none';
+      return;
+    }
+
+    // data-toggle-sibling: toggle a CSS class on the next sibling element
+    var tsi = el.closest('[data-toggle-sibling]');
+    if (tsi) {
+      var tsib = tsi.nextElementSibling;
+      if (tsib) tsib.classList.toggle(tsi.dataset.toggleSibling || 'hidden');
+      return;
+    }
+
+    // data-expand: toggle display of target element, update button label
+    var exp = el.closest('[data-expand]');
+    if (exp) {
+      var expEl = document.getElementById(exp.dataset.expand);
+      if (expEl) {
+        var shown = expEl.style.display !== 'none';
+        expEl.style.display = shown ? 'none' : 'block';
+        exp.innerHTML = shown
+          ? '<i class="bi bi-chevron-down"></i> Show assumptions'
+          : '<i class="bi bi-chevron-up"></i> Hide assumptions';
+      }
       return;
     }
 
@@ -348,12 +383,25 @@ document.querySelectorAll('.perm-col-all').forEach(function (btn) {
   document.addEventListener('change', function (e) {
     var el = e.target;
     if (el.dataset.autosubmit !== undefined) { if (el.form) el.form.submit(); return; }
-    if (el.dataset.change) callFn(el, el.dataset.change);
+    if (el.dataset.change) {
+      if (el.dataset.inputVal !== undefined) {
+        var fn = resolve(el.dataset.change);
+        if (typeof fn === 'function') fn.call(el, el.value);
+      } else {
+        callFn(el, el.dataset.change);
+      }
+    }
   });
 
   // ── input ──────────────────────────────────────────────────────────────────
   document.addEventListener('input', function (e) {
     var el = e.target;
+    // data-value-display: set textContent of another element to this.value
+    if (el.dataset.valueDisplay !== undefined) {
+      var vd = document.getElementById(el.dataset.valueDisplay);
+      if (vd) vd.textContent = el.value;
+      return;
+    }
     if (!el.dataset.input) return;
     var fn = resolve(el.dataset.input);
     if (typeof fn !== 'function') return;
@@ -361,11 +409,21 @@ document.querySelectorAll('.perm-col-all').forEach(function (btn) {
     else fn.call(el, e);
   });
 
-  // ── submit (confirm guard) ─────────────────────────────────────────────────
+  // ── submit ─────────────────────────────────────────────────────────────────
   document.addEventListener('submit', function (e) {
     var form = e.target;
     if (form.dataset.confirm && !confirm(form.dataset.confirm)) {
+      e.preventDefault(); return;
+    }
+    // data-submit: custom submit handler receives (event, ...data-args)
+    if (form.dataset.submit) {
       e.preventDefault();
+      var fn = resolve(form.dataset.submit);
+      if (typeof fn === 'function') {
+        var args = [];
+        if (form.dataset.args) try { args = JSON.parse(form.dataset.args); } catch (x) {}
+        fn.apply(form, [e].concat(args));
+      }
     }
   });
 

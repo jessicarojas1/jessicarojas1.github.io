@@ -56,7 +56,7 @@ ob_start();
   </div>
   <div class="page-actions">
     <a href="/risk/matrix" class="btn btn-ghost"><i class="bi bi-eye"></i> Preview Matrix</a>
-    <button type="button" class="btn btn-primary" onclick="document.getElementById('matrixSaveForm').submit()">
+    <button type="button" class="btn btn-primary" data-click="submitMatrixForm">
       <i class="bi bi-save-fill"></i> Save Matrix
     </button>
   </div>
@@ -120,16 +120,13 @@ ob_start();
                 Color: <span class="rm-color-swatch" style="background:<?= $color ?>"></span>
               </div>
               <div class="rm-cell-actions">
-                <button type="button" class="btn-icon" title="Edit cell"
-                        onclick="openCellEdit('<?= $key ?>',
-                          <?= htmlspecialchars(json_encode($cell['title']), ENT_QUOTES) ?>,
-                          <?= htmlspecialchars(json_encode($cell['desc']),  ENT_QUOTES) ?>,
-                          <?= htmlspecialchars(json_encode($cell['color']), ENT_QUOTES) ?>
-                        )">
+                <button type="button" class="btn-icon rm-edit-btn" title="Edit cell"
+                        data-click="openCellEdit"
+                        data-args='[<?= htmlspecialchars(json_encode($key), ENT_QUOTES) ?>,<?= htmlspecialchars(json_encode($cell['title']), ENT_QUOTES) ?>,<?= htmlspecialchars(json_encode($cell['desc']), ENT_QUOTES) ?>,<?= htmlspecialchars(json_encode($cell['color']), ENT_QUOTES) ?>]'>
                   <i class="bi bi-gear-fill"></i>
                 </button>
                 <button type="button" class="btn-icon btn-icon-danger" title="Reset to default"
-                        onclick="resetCell('<?= $key ?>', event)">
+                        data-click="resetCell" data-arg="<?= $key ?>">
                   <i class="bi bi-trash3-fill"></i>
                 </button>
               </div>
@@ -144,11 +141,11 @@ ob_start();
 </form>
 
 <!-- Cell edit modal -->
-<div class="modal-overlay" id="cellEditModal" style="display:none" onclick="if(event.target===this)closeCellEdit()">
+<div class="modal-overlay" id="cellEditModal" style="display:none">
   <div class="modal" style="max-width:420px">
     <div class="modal-header">
       <h3>Edit Cell</h3>
-      <button type="button" onclick="closeCellEdit()"><i class="bi bi-x-lg"></i></button>
+      <button type="button" data-click="closeCellEdit"><i class="bi bi-x-lg"></i></button>
     </div>
     <div class="modal-body">
       <input type="hidden" id="editKey">
@@ -172,23 +169,23 @@ ob_start();
           ] as $hex => $label): ?>
           <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px">
             <input type="radio" name="editColorPick" value="<?= $hex ?>"
-                   onchange="document.getElementById('editColor').value=this.value;updateColorPreview()">
+                   data-change="onEditColorPickChange">
             <span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:<?= $hex ?>"></span>
             <?= $label ?>
           </label>
           <?php endforeach; ?>
           <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px">
-            <input type="radio" name="editColorPick" value="custom" onchange="updateColorPreview()">
+            <input type="radio" name="editColorPick" value="custom" data-change="updateColorPreview">
             Custom:
-            <input type="color" id="editColor" value="#22c55e" oninput="document.querySelector('[name=editColorPick][value=custom]').checked=true;updateColorPreview()" style="width:40px;height:28px;border:none;cursor:pointer;border-radius:4px">
+            <input type="color" id="editColor" value="#22c55e" data-input="onEditColorInput" style="width:40px;height:28px;border:none;cursor:pointer;border-radius:4px">
           </label>
         </div>
         <div id="colorPreview" style="margin-top:10px;padding:8px 12px;border-radius:6px;font-size:13px;font-weight:600;text-align:center;color:#fff"></div>
       </div>
     </div>
     <div class="modal-footer" style="display:flex;justify-content:flex-end;gap:8px;padding:16px">
-      <button type="button" class="btn btn-ghost" onclick="closeCellEdit()">Cancel</button>
-      <button type="button" class="btn btn-primary" onclick="saveCellEdit()"><i class="bi bi-save-fill"></i> Save Cell</button>
+      <button type="button" class="btn btn-ghost" data-click="closeCellEdit">Cancel</button>
+      <button type="button" class="btn btn-primary" data-click="saveCellEdit"><i class="bi bi-save-fill"></i> Save Cell</button>
     </div>
   </div>
 </div>
@@ -243,6 +240,25 @@ ob_start();
 </style>
 
 <script nonce="<?= Security::nonce() ?>">
+// Close modal when clicking overlay background
+document.addEventListener('click', function(e) {
+  var modal = document.getElementById('cellEditModal');
+  if (modal && e.target === modal) closeCellEdit();
+});
+
+function submitMatrixForm() { document.getElementById('matrixSaveForm').submit(); }
+
+function onEditColorPickChange(e) {
+  var el = e && e.target ? e.target : this;
+  document.getElementById('editColor').value = el.value;
+  updateColorPreview();
+}
+
+function onEditColorInput(e) {
+  document.querySelector('[name=editColorPick][value=custom]').checked = true;
+  updateColorPreview();
+}
+
 const cellData = <?= json_encode($cells) ?>;
 const defaultCells = <?= json_encode($defaultCells) ?>;
 
@@ -286,8 +302,7 @@ function saveCellEdit() {
   closeCellEdit();
 }
 
-function resetCell(key, e) {
-  e.preventDefault();
+function resetCell(key) {
   if (!confirm('Reset this cell to default values?')) return;
   const def = defaultCells[key] || { title: 'Accept', desc: 'Accept', color: '#22c55e' };
   cellData[key] = { ...def };
@@ -302,11 +317,9 @@ function refreshCell(key) {
   td.querySelector('.rm-cell-title').textContent = cell.title;
   td.querySelector('.rm-cell-desc').textContent  = cell.desc.length > 22 ? cell.desc.slice(0, 22) + '...' : cell.desc;
   td.querySelector('.rm-color-swatch').style.background = cell.color;
-  // Update onclick for gear button
-  const gearBtn = td.querySelector('.btn-icon:not(.btn-icon-danger)');
-  gearBtn.setAttribute('onclick',
-    `openCellEdit('${key}', ${JSON.stringify(cell.title)}, ${JSON.stringify(cell.desc)}, ${JSON.stringify(cell.color)})`
-  );
+  // Update data-args for gear button
+  const gearBtn = td.querySelector('.rm-edit-btn');
+  if (gearBtn) gearBtn.dataset.args = JSON.stringify([key, cell.title, cell.desc, cell.color]);
 }
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCellEdit(); });

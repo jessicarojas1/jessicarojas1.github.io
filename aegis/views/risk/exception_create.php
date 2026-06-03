@@ -70,7 +70,7 @@ ob_start();
             " id="type-label-<?= $val ?>">
               <input type="radio" name="exception_type" value="<?= $val ?>"
                      <?= $selectedType === $val ? 'checked' : '' ?>
-                     onchange="highlightTypeCards()"
+                     data-change="highlightTypeCards"
                      style="margin-top:3px;flex-shrink:0;">
               <div>
                 <div style="font-weight:600;font-size:13px;display:flex;align-items:center;gap:6px;">

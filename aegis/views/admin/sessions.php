@@ -94,7 +94,7 @@ function parseOS(string $ua): string {
                 </button>
               <?php else: ?>
                 <button class="btn btn-danger btn-sm"
-                        onclick="killSession('<?= Security::h($s['id']) ?>', this)"
+                        data-click="killSession" data-args='["<?= Security::h($s['id']) ?>"]'
                         title="Terminate this session">
                   <i class="bi bi-x-circle"></i> Kill
                 </button>

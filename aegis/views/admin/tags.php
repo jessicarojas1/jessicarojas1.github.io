@@ -76,7 +76,7 @@
                   <td><?= (int)$tag['usage_count'] ?> entit<?= $tag['usage_count'] == 1 ? 'y' : 'ies' ?></td>
                   <td>
                     <?php if ((int)$tag['usage_count'] === 0): ?>
-                      <form method="POST" action="/admin/tags/<?= (int)$tag['id'] ?>/delete" style="display:inline" onsubmit="return confirm('Delete this tag?')">
+                      <form method="POST" action="/admin/tags/<?= (int)$tag['id'] ?>/delete" style="display:inline" data-confirm="Delete this tag?">
                         <?= Security::csrfField() ?>
                         <button type="submit" class="btn btn-sm btn-danger">Delete</button>
                       </form>

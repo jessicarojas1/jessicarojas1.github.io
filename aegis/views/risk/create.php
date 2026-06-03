@@ -96,7 +96,7 @@ ob_start();
             <div class="form-group">
               <label class="form-label">Likelihood (1–5)</label>
               <div class="slider-group">
-                <input type="range" name="likelihood" min="1" max="5" value="3" oninput="updateScore()" id="likelihood">
+                <input type="range" name="likelihood" min="1" max="5" value="3" data-input="updateScore" id="likelihood">
                 <div class="slider-labels"><span>1-Rare</span><span>3-Possible</span><span>5-Certain</span></div>
                 <div class="slider-value" id="likelihoodVal">3</div>
               </div>
@@ -104,7 +104,7 @@ ob_start();
             <div class="form-group">
               <label class="form-label">Impact (1–5)</label>
               <div class="slider-group">
-                <input type="range" name="impact" min="1" max="5" value="3" oninput="updateScore()" id="impact">
+                <input type="range" name="impact" min="1" max="5" value="3" data-input="updateScore" id="impact">
                 <div class="slider-labels"><span>1-Negligible</span><span>3-Moderate</span><span>5-Critical</span></div>
                 <div class="slider-value" id="impactVal">3</div>
               </div>
@@ -158,7 +158,7 @@ ob_start();
             <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:6px" id="strategyGrid">
               <?php foreach (['mitigate'=>'Mitigate','accept'=>'Accept','transfer'=>'Transfer','avoid'=>'Avoid'] as $k=>$l): ?>
               <label style="display:flex;flex-direction:column;align-items:center;gap:5px;padding:12px 8px;border-radius:8px;border:2px solid var(--border);background:var(--bg-secondary);cursor:pointer;text-align:center;transition:all .15s" class="strat-lbl" id="slbl_<?= $k ?>">
-                <input type="checkbox" name="treatment_strategies[]" value="<?= $k ?>" style="position:absolute;opacity:0" onchange="toggleStrat('<?= $k ?>')">
+                <input type="checkbox" name="treatment_strategies[]" value="<?= $k ?>" style="position:absolute;opacity:0" data-change="toggleStrat" data-arg="<?= $k ?>">
                 <span style="font-size:18px"><?= match($k){'mitigate'=>'🛡️','accept'=>'✅','transfer'=>'↔️','avoid'=>'🚫'} ?></span>
                 <span style="font-weight:600;font-size:13px"><?= $l ?></span>
               </label>
@@ -180,7 +180,7 @@ ob_start();
             <div class="form-group">
               <label class="form-label">Velocity <span class="form-hint" style="margin:0">(how fast could this materialise)</span></label>
               <div class="slider-group">
-                <input type="range" name="velocity" min="1" max="5" value="3" oninput="document.getElementById('velocityVal').textContent=this.value" id="velocitySlider">
+                <input type="range" name="velocity" min="1" max="5" value="3" data-value-display="velocityVal" id="velocitySlider">
                 <div class="slider-labels"><span>1-Slow</span><span>3-Medium</span><span>5-Rapid</span></div>
                 <div class="slider-value" id="velocityVal">3</div>
               </div>
