@@ -276,11 +276,13 @@ class Security {
     public static function setSecurityHeaders(): void {
         if (headers_sent()) return;
 
-        // Nonce-based script CSP — no CDN, no 'unsafe-inline' (all assets self-hosted)
+        // Nonce-based CSP. 'unsafe-inline' is kept for inline event handlers (onclick etc.)
+        // In CSP3 browsers the nonce overrides 'unsafe-inline' for <script> elements,
+        // so injected <script> blocks are still blocked. Event handlers need unsafe-inline.
         $n = self::nonce();
         $csp = implode('; ', [
             "default-src 'self'",
-            "script-src 'self' 'nonce-{$n}'",
+            "script-src 'self' 'unsafe-inline' 'nonce-{$n}'",
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
             "font-src 'self' https://fonts.gstatic.com",
             "img-src 'self' data: blob:",
