@@ -276,13 +276,13 @@ class Security {
     public static function setSecurityHeaders(): void {
         if (headers_sent()) return;
 
-        // Nonce-based script CSP — removes 'unsafe-inline' (nonce is generated once per request)
+        // Nonce-based script CSP — no CDN, no 'unsafe-inline' (all assets self-hosted)
         $n = self::nonce();
         $csp = implode('; ', [
             "default-src 'self'",
-            "script-src 'self' 'nonce-{$n}' https://cdn.jsdelivr.net",
-            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
-            "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net",
+            "script-src 'self' 'nonce-{$n}'",
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+            "font-src 'self' https://fonts.gstatic.com",
             "img-src 'self' data: blob:",
             "connect-src 'self'",
             "frame-ancestors 'none'",

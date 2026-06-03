@@ -184,7 +184,7 @@ $classColors = ['public'=>'#22c55e','internal'=>'#3b82f6','confidential'=>'#f59e
 <?php endif; ?>
 
 <?php if (!empty($trend)): ?>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" nonce="<?= Security::nonce() ?>"></script>
+<script src="/public/vendor/chart.js/chart.umd.js" integrity="sha384-tgbB5AKnszdcfwcZtTfuhR3Ko1XZdlDfsLtkxiiAZiVkkXCkFmp+FQFh+V/UTo54" crossorigin="anonymous" nonce="<?= Security::nonce() ?>"></script>
 <script nonce="<?= Security::nonce() ?>">
 const ctx = document.getElementById('trendChart').getContext('2d');
 new Chart(ctx, {
