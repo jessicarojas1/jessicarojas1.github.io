@@ -437,7 +437,7 @@ $csrfTokenPlaybook = Security::generateCsrfToken();
   </div>
 </div>
 
-<script>
+<script nonce="<?= Security::nonce() ?>">
 (function() {
   'use strict';
 

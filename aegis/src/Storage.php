@@ -29,6 +29,10 @@ class Storage {
         );
         $cfg = [];
         foreach ($rows as $r) { $cfg[$r['key']] = $r['value']; }
+        // Decrypt sensitive values at rest (NIST 800-53 SC-28)
+        if (isset($cfg['s3_secret_key'])) {
+            $cfg['s3_secret_key'] = Security::decryptSetting($cfg['s3_secret_key']);
+        }
         self::$_cfg = $cfg;
         return $cfg;
     }

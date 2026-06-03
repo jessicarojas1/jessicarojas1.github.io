@@ -515,10 +515,11 @@ class AdminController {
             $val = Security::sanitizeInput($_POST[$key] ?? '');
             Database::query("INSERT INTO settings (key, value, type, description) VALUES (?,?,'string','') ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value", [$key, $val]);
         }
-        // Password only updated if provided
+        // Password only updated if provided — encrypt at rest (NIST 800-53 SC-28)
         $pass = $_POST['smtp_pass'] ?? '';
         if ($pass !== '') {
-            Database::query("INSERT INTO settings (key, value, type, description) VALUES ('smtp_pass',?,'string','') ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value", [$pass]);
+            Database::query("INSERT INTO settings (key, value, type, description) VALUES ('smtp_pass',?,'string','') ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value",
+                [Security::encryptSetting($pass)]);
         }
         $tls   = isset($_POST['smtp_tls'])            ? '1' : '0';
         $notif = isset($_POST['email_notifications']) ? '1' : '0';
@@ -608,9 +609,9 @@ class AdminController {
             's3_endpoint'    => Security::sanitizeInput($_POST['s3_endpoint'] ?? ''),
             's3_public_url'  => Security::sanitizeInput($_POST['s3_public_url'] ?? ''),
         ];
-        // Only update secret key if a new one is supplied (avoid blanking it)
+        // Only update secret key if a new one is supplied — encrypt at rest (NIST 800-53 SC-28)
         if (!empty($_POST['s3_secret_key'])) {
-            $fields['s3_secret_key'] = Security::sanitizeInput($_POST['s3_secret_key']);
+            $fields['s3_secret_key'] = Security::encryptSetting(Security::sanitizeInput($_POST['s3_secret_key']));
         }
         foreach ($fields as $key => $val) {
             Database::query(
@@ -1278,10 +1279,13 @@ class AdminController {
         if ($to)        { $where[] = 'sent_at <= ?'; $params[] = $to . ' 23:59:59'; }
         $whereSQL = implode(' AND ', $where);
 
+        $params[] = $perPage;
+        $params[] = $offset;
         $logs  = Database::fetchAll(
-            "SELECT * FROM notification_log WHERE {$whereSQL} ORDER BY sent_at DESC LIMIT {$perPage} OFFSET {$offset}",
+            "SELECT * FROM notification_log WHERE {$whereSQL} ORDER BY sent_at DESC LIMIT ? OFFSET ?",
             $params
         );
+        array_pop($params); array_pop($params); // remove limit/offset for the count query
         $total = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM notification_log WHERE {$whereSQL}", $params)['c'] ?? 0);
         $pages = (int)ceil($total / $perPage);
 

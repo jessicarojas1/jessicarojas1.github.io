@@ -377,7 +377,7 @@ $contracts = Database::fetchAll(
   </div>
 </div>
 
-<script>
+<script nonce="<?= Security::nonce() ?>">
 function showUpdateAssessModal(assessId, currentStatus) {
   const form = document.getElementById('updateAssessForm');
   form.action = '/vendor/<?= $vendor['id'] ?>/assessment/' + assessId + '/update';

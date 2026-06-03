@@ -148,7 +148,7 @@ if (!in_array($activeTab, $entityTypes, true)) $activeTab = 'risk';
   </div>
 </div>
 
-<script>
+<script nonce="<?= Security::nonce() ?>">
 function toggleAddForm() {
   var card = document.getElementById('addFieldCard');
   card.style.display = card.style.display === 'none' ? 'block' : 'none';

@@ -235,7 +235,7 @@ function testResultBadge(string $result): string {
   </div>
 </div>
 
-<script>
+<script nonce="<?= Security::nonce() ?>">
 function updateEffBar(val) {
   var n   = parseInt(val, 10);
   var bar = document.getElementById('effBar');

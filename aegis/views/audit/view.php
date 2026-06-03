@@ -130,7 +130,7 @@ ob_start();
 </div>
 <?php endforeach; ?>
 
-<script>
+<script nonce="<?= Security::nonce() ?>">
 function toggleFinding(id) {
   const panel = document.getElementById('finding-' + id);
   panel.style.display = panel.style.display === 'none' ? 'block' : 'none';

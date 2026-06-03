@@ -85,7 +85,7 @@
     <a href="/bcp" class="btn btn-secondary">Cancel</a>
   </div>
 </form>
-<script>
+<script nonce="<?= Security::nonce() ?>">
 var sectionIdx = 1;
 function addSection() {
   var c = document.getElementById('sectionsContainer');

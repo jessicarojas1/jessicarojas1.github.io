@@ -202,7 +202,7 @@ $_appColors = ['zero'=>'#dc2626','low'=>'#d97706','moderate'=>'#2563eb','high'=>
   </div>
 </div>
 
-<script>
+<script nonce="<?= Security::nonce() ?>">
 function updateBulk() {
   var checked = document.querySelectorAll('.risk-cb:checked');
   var bar = document.getElementById('bulkBar');

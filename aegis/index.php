@@ -59,8 +59,13 @@ ini_set('session.cookie_httponly', '1');
 ini_set('session.cookie_samesite', 'Strict');
 ini_set('session.use_strict_mode', '1');
 ini_set('session.use_only_cookies', '1');
-if (($_SERVER['REQUEST_SCHEME'] ?? '') === 'https' || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https') {
+$_isHttps = ($_SERVER['REQUEST_SCHEME'] ?? '') === 'https'
+          || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https'
+          || !empty($_SERVER['HTTPS']);
+if ($_isHttps) {
     ini_set('session.cookie_secure', '1');
+    // __Host- prefix: forces Secure, Path=/, no Domain attribute (prevents subdomain hijack)
+    session_name('__Host-AEGIS');
 }
 session_start();
 
@@ -249,6 +254,67 @@ try {
         Database::query("ALTER TABLE users ADD COLUMN force_password_change BOOLEAN NOT NULL DEFAULT FALSE");
     }
     unset($__fpcCol);
+} catch (Throwable) {}
+
+try {
+    // ai_inference_log: track AI API calls for ISO 42001 governance & auditability (AI-G1)
+    $__aiLogTable = Database::fetchOne(
+        "SELECT 1 FROM information_schema.tables WHERE table_name='ai_inference_log' AND table_schema='public'"
+    );
+    if (!$__aiLogTable) {
+        Database::query(
+            "CREATE TABLE ai_inference_log (
+               id          SERIAL PRIMARY KEY,
+               user_id     INTEGER REFERENCES users(id) ON DELETE SET NULL,
+               provider    VARCHAR(50),
+               model       VARCHAR(100),
+               action      VARCHAR(100),
+               input_hash  VARCHAR(64),
+               tokens_used INTEGER,
+               duration_ms INTEGER,
+               success     BOOLEAN NOT NULL DEFAULT TRUE,
+               error_msg   TEXT,
+               created_at  TIMESTAMP NOT NULL DEFAULT NOW()
+             )"
+        );
+    }
+    unset($__aiLogTable);
+} catch (Throwable) {}
+
+try {
+    // password_history: prevent immediate password reuse (ISO 27001 A.9.4.3 / ISO-G2)
+    $__phTable = Database::fetchOne(
+        "SELECT 1 FROM information_schema.tables WHERE table_name='password_history' AND table_schema='public'"
+    );
+    if (!$__phTable) {
+        Database::query(
+            "CREATE TABLE password_history (
+               id            SERIAL PRIMARY KEY,
+               user_id       INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+               password_hash VARCHAR(255) NOT NULL,
+               created_at    TIMESTAMP NOT NULL DEFAULT NOW()
+             )"
+        );
+    }
+    unset($__phTable);
+} catch (Throwable) {}
+
+try {
+    // incidents: add HIPAA breach-notification tracking columns (HIPAA §164.400)
+    $__incCols = Database::fetchAll(
+        "SELECT column_name FROM information_schema.columns WHERE table_name='incidents' AND table_schema='public'"
+    );
+    $__incExisting = array_column($__incCols, 'column_name');
+    if (!in_array('phi_involved', $__incExisting)) {
+        Database::query("ALTER TABLE incidents ADD COLUMN phi_involved BOOLEAN NOT NULL DEFAULT FALSE");
+    }
+    if (!in_array('breach_notification_required', $__incExisting)) {
+        Database::query("ALTER TABLE incidents ADD COLUMN breach_notification_required BOOLEAN NOT NULL DEFAULT FALSE");
+    }
+    if (!in_array('breach_notification_sent_at', $__incExisting)) {
+        Database::query("ALTER TABLE incidents ADD COLUMN breach_notification_sent_at TIMESTAMP");
+    }
+    unset($__incCols, $__incExisting);
 } catch (Throwable) {}
 
 try {

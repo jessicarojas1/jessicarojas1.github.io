@@ -105,7 +105,7 @@
   </div>
 </div>
 
-<script>
+<script nonce="<?= Security::nonce() ?>">
 function updateStrength(pwd) {
     var score = 0;
     if (pwd.length >= 8)  score++;

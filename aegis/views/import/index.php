@@ -68,7 +68,7 @@ $templates = [
   </div>
 </div>
 
-<script>
+<script nonce="<?= Security::nonce() ?>">
 const templates = <?= json_encode($templates) ?>;
 function updateTemplate() {
   const type = document.getElementById('importType').value;

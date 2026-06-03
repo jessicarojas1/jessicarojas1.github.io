@@ -171,7 +171,7 @@ class AIAdvisor {
             if (is_array($parsed) && !empty($parsed['api_key'])) {
                 return [
                     'provider' => $parsed['provider'] ?? 'claude',
-                    'api_key'  => (string)$parsed['api_key'],
+                    'api_key'  => Security::decryptSetting((string)$parsed['api_key']),
                 ];
             }
         }
@@ -183,7 +183,7 @@ class AIAdvisor {
         $config = ['provider' => 'claude', 'api_key' => ''];
         foreach ($rows as $row) {
             if ($row['key'] === 'ai_provider') $config['provider'] = (string)$row['value'];
-            if ($row['key'] === 'ai_api_key')  $config['api_key']  = (string)$row['value'];
+            if ($row['key'] === 'ai_api_key')  $config['api_key']  = Security::decryptSetting((string)$row['value']);
         }
 
         return $config;
@@ -206,6 +206,7 @@ class AIAdvisor {
             ],
         ], JSON_UNESCAPED_UNICODE);
 
+        $t0 = microtime(true);
         $ch = curl_init('https://api.anthropic.com/v1/messages');
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
@@ -223,16 +224,33 @@ class AIAdvisor {
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $curlErr  = curl_error($ch);
         curl_close($ch);
+        $ms = (int)round((microtime(true) - $t0) * 1000);
 
         if ($curlErr) {
+            self::logInference('claude', 'claude-haiku-4-5-20251001', $prompt, 0, $ms, false, $curlErr);
             throw new \RuntimeException('Claude cURL error: ' . $curlErr);
         }
         if ($httpCode !== 200) {
+            self::logInference('claude', 'claude-haiku-4-5-20251001', $prompt, 0, $ms, false, 'HTTP ' . $httpCode);
             throw new \RuntimeException('Claude HTTP ' . $httpCode . ': ' . substr((string)$response, 0, 200));
         }
 
-        $data = json_decode((string)$response, true);
+        $data   = json_decode((string)$response, true);
+        $tokens = (int)(($data['usage']['input_tokens'] ?? 0) + ($data['usage']['output_tokens'] ?? 0));
+        self::logInference('claude', 'claude-haiku-4-5-20251001', $prompt, $tokens, $ms, true, null);
         return (string)($data['content'][0]['text'] ?? '');
+    }
+
+    private static function logInference(string $provider, string $model, string $prompt,
+                                          int $tokens, int $ms, bool $success, ?string $error): void {
+        try {
+            $userId = class_exists('Auth') ? Auth::id() : null;
+            Database::query(
+                "INSERT INTO ai_inference_log (user_id, provider, model, action, input_hash, tokens_used, duration_ms, success, error_msg)
+                 VALUES (?, ?, ?, 'compliance_analysis', ?, ?, ?, ?, ?)",
+                [$userId, $provider, $model, hash('sha256', $prompt), $tokens, $ms, $success, $error]
+            );
+        } catch (\Throwable) {}
     }
 
     /**
@@ -252,6 +270,7 @@ class AIAdvisor {
             'max_tokens' => 1024,
         ], JSON_UNESCAPED_UNICODE);
 
+        $t0 = microtime(true);
         $ch = curl_init('https://api.openai.com/v1/chat/completions');
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
@@ -268,15 +287,20 @@ class AIAdvisor {
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $curlErr  = curl_error($ch);
         curl_close($ch);
+        $ms = (int)round((microtime(true) - $t0) * 1000);
 
         if ($curlErr) {
+            self::logInference('openai', 'gpt-4o-mini', $prompt, 0, $ms, false, $curlErr);
             throw new \RuntimeException('OpenAI cURL error: ' . $curlErr);
         }
         if ($httpCode !== 200) {
+            self::logInference('openai', 'gpt-4o-mini', $prompt, 0, $ms, false, 'HTTP ' . $httpCode);
             throw new \RuntimeException('OpenAI HTTP ' . $httpCode . ': ' . substr((string)$response, 0, 200));
         }
 
-        $data = json_decode((string)$response, true);
+        $data   = json_decode((string)$response, true);
+        $tokens = (int)(($data['usage']['total_tokens'] ?? 0));
+        self::logInference('openai', 'gpt-4o-mini', $prompt, $tokens, $ms, true, null);
         return (string)($data['choices'][0]['message']['content'] ?? '');
     }
 

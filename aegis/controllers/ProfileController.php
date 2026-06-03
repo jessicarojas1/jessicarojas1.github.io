@@ -157,9 +157,34 @@ class ProfileController {
             header('Location: /profile/edit'); return;
         }
 
+        // Password history: reject reuse of last 10 passwords (ISO 27001 A.9.4.3)
+        $history = Database::fetchAll(
+            "SELECT password_hash FROM password_history WHERE user_id = ? ORDER BY created_at DESC LIMIT 10",
+            [Auth::id()]
+        );
+        foreach ($history as $h) {
+            if (Security::verifyPassword($new, $h['password_hash'])) {
+                $_SESSION['flash_error'] = 'You cannot reuse one of your last 10 passwords.';
+                header('Location: /profile/edit'); return;
+            }
+        }
+
+        $newHash = Security::hashPassword($new);
         Database::query(
-            "UPDATE users SET password_hash=?, updated_at=NOW() WHERE id=?",
-            [Security::hashPassword($new), Auth::id()]
+            "UPDATE users SET password_hash=?, force_password_change=FALSE, updated_at=NOW() WHERE id=?",
+            [$newHash, Auth::id()]
+        );
+        // Record in history for reuse prevention
+        Database::query(
+            "INSERT INTO password_history (user_id, password_hash) VALUES (?, ?)",
+            [Auth::id(), $newHash]
+        );
+        // Keep only the last 15 entries
+        Database::query(
+            "DELETE FROM password_history WHERE user_id = ? AND id NOT IN (
+               SELECT id FROM password_history WHERE user_id = ? ORDER BY created_at DESC LIMIT 15
+             )",
+            [Auth::id(), Auth::id()]
         );
 
         Auth::log('change_password', 'users', Auth::id());

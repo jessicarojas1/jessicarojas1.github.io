@@ -169,7 +169,7 @@ ob_start();
 
 <?php endif; ?>
 
-<script>
+<script nonce="<?= Security::nonce() ?>">
 // Collect checked permissions and inject hidden inputs on form submit
 document.querySelectorAll('.perm-form').forEach(function(form) {
   form.addEventListener('submit', function(e) {

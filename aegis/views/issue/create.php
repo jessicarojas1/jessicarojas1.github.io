@@ -111,7 +111,7 @@ ob_start();
   </div>
 </form>
 
-<script>
+<script nonce="<?= Security::nonce() ?>">
 const sevMeta = {
   critical: { color:'#dc2626', label:'Critical', desc:'Severe; requires immediate remediation.' },
   high:     { color:'#d97706', label:'High',     desc:'Significant risk; address urgently.' },

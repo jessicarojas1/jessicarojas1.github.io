@@ -95,7 +95,7 @@
   </div>
 </div>
 
-<script>
+<script nonce="<?= Security::nonce() ?>">
 function digitNext(el, idx) {
   const val = el.value.replace(/\D/g,'');
   el.value = val;

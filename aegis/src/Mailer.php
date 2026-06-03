@@ -17,7 +17,7 @@ class Mailer {
             $cfg['smtp_host'],
             (int)($cfg['smtp_port'] ?? 587),
             $cfg['smtp_user'] ?? '',
-            $cfg['smtp_pass'] ?? '',
+            Security::decryptSetting($cfg['smtp_pass'] ?? ''),
             $cfg['smtp_from'] ?? $cfg['smtp_user'] ?? '',
             $cfg['smtp_from_name'] ?? 'AEGIS GRC',
             (bool)($cfg['smtp_tls'] ?? true)

@@ -108,7 +108,7 @@
   </div>
 </div>
 
-<script>
+<script nonce="<?= Security::nonce() ?>">
 function togglePassword(id) {
   const input = document.getElementById(id);
   const icon  = document.getElementById('toggleIcon');
