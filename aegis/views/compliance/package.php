@@ -485,6 +485,10 @@ function onCtrlCheck() {
   });
 }
 
+function domainSelectAllChange(cb) {
+  toggleDomainAll(cb, cb.dataset.domain);
+}
+
 function toggleDomainAll(selectAllCb, domainId) {
   var rows = document.querySelectorAll('.control-row[data-domain="' + domainId + '"] .ctrl-checkbox');
   var visibleRows = Array.from(rows).filter(function(cb) {
