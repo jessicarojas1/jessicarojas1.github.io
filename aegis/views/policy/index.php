@@ -10,7 +10,10 @@ ob_start();
     <h1 class="page-title">Policy Library</h1>
     <p class="page-subtitle">Manage, review, and map policies to compliance frameworks</p>
   </div>
-  <a href="/policy/create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New Policy</a>
+  <div style="display:flex;gap:8px;">
+    <a href="/policy/mapping" class="btn btn-secondary"><i class="bi bi-diagram-2-fill"></i> Control Mapping</a>
+    <a href="/policy/create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New Policy</a>
+  </div>
 </div>
 
 <div class="stats-row">
@@ -20,12 +23,41 @@ ob_start();
   <div class="stat-mini"><i class="bi bi-exclamation-circle" style="color:#dc2626"></i><span class="stat-mini-num"><?= $summary['overdue'] ?? 0 ?></span><span>Review Overdue</span></div>
 </div>
 
-<!-- Filter tabs -->
-<div class="filter-bar card">
-  <a href="/policy" class="btn btn-sm <?= !($status??'') ? 'btn-primary' : 'btn-ghost' ?>">All</a>
-  <a href="/policy?status=draft" class="btn btn-sm <?= ($status??'')==='draft'?'btn-primary':'btn-ghost' ?>">Draft</a>
-  <a href="/policy?status=under_review" class="btn btn-sm <?= ($status??'')==='under_review'?'btn-primary':'btn-ghost' ?>">Under Review</a>
-  <a href="/policy?status=published" class="btn btn-sm <?= ($status??'')==='published'?'btn-primary':'btn-ghost' ?>">Published</a>
+<!-- Filters -->
+<div class="card" style="margin-bottom:16px;padding:14px 16px;">
+  <form method="GET" action="/policy" style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;">
+    <div>
+      <label style="display:block;font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;font-weight:600;">STATUS</label>
+      <div style="display:flex;gap:6px;">
+        <?php foreach ([''=>'All','draft'=>'Draft','under_review'=>'Under Review','published'=>'Published'] as $k=>$l): ?>
+        <a href="?<?= http_build_query(array_merge($_GET, ['status'=>$k])) ?>" class="btn btn-sm <?= ($status??'')===$k?'btn-primary':'btn-secondary' ?>"><?= $l ?></a>
+        <?php endforeach; ?>
+      </div>
+    </div>
+    <div>
+      <label style="display:block;font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;font-weight:600;">REVIEW DATE</label>
+      <select name="review" class="form-control" style="min-width:160px;height:32px;font-size:0.85rem;" onchange="this.form.submit()">
+        <option value="">All dates</option>
+        <option value="overdue"     <?= ($reviewFilter??'')==='overdue'?'selected':'' ?>>Overdue</option>
+        <option value="this_month"  <?= ($reviewFilter??'')==='this_month'?'selected':'' ?>>Due in 30 days</option>
+        <option value="this_quarter"<?= ($reviewFilter??'')==='this_quarter'?'selected':'' ?>>Due in 90 days</option>
+        <option value="no_date"     <?= ($reviewFilter??'')==='no_date'?'selected':'' ?>>No review date</option>
+      </select>
+    </div>
+    <div>
+      <label style="display:block;font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;font-weight:600;">COMPLIANCE PACKAGE</label>
+      <select name="package" class="form-control" style="min-width:180px;height:32px;font-size:0.85rem;" onchange="this.form.submit()">
+        <option value="">All packages</option>
+        <?php foreach ($packages as $pkg): ?>
+        <option value="<?= (int)$pkg['id'] ?>" <?= ($packageId??0)===(int)$pkg['id']?'selected':'' ?>><?= Security::h($pkg['name']) ?></option>
+        <?php endforeach; ?>
+      </select>
+    </div>
+    <?php if (!empty($status) || !empty($reviewFilter) || !empty($packageId)): ?>
+    <a href="/policy" class="btn btn-sm btn-secondary" style="align-self:flex-end;"><i class="bi bi-x-circle"></i> Clear</a>
+    <?php endif; ?>
+    <input type="hidden" name="status" value="<?= Security::h($status ?? '') ?>">
+  </form>
 </div>
 
 <div class="policy-grid">
@@ -55,13 +87,20 @@ ob_start();
 
     <div class="policy-footer">
       <div>
-        <div class="text-muted text-sm">
-          <?php if ($policy['next_review_date']): ?>
-            Review: <?= date('M j, Y', strtotime($policy['next_review_date'])) ?>
-          <?php else: ?>
-            v<?= Security::h($policy['version']) ?>
-          <?php endif; ?>
-        </div>
+        <?php if ($policy['next_review_date']): ?>
+          <?php $daysUntil = (int)ceil((strtotime($policy['next_review_date']) - time()) / 86400); ?>
+          <div style="font-size:0.78rem;<?= $overdue ? 'color:var(--danger);font-weight:600;' : ($daysUntil <= 30 ? 'color:var(--warning);font-weight:600;' : 'color:var(--text-muted);') ?>">
+            <i class="bi bi-<?= $overdue ? 'exclamation-circle-fill' : 'calendar3' ?>"></i>
+            Next Review: <?= date('M j, Y', strtotime($policy['next_review_date'])) ?>
+            <?php if ($overdue): ?>
+              (<?= abs($daysUntil) ?> days overdue)
+            <?php elseif ($daysUntil <= 30): ?>
+              (in <?= $daysUntil ?> days)
+            <?php endif; ?>
+          </div>
+        <?php else: ?>
+          <div class="text-muted text-sm">v<?= Security::h($policy['version']) ?> &mdash; No review date set</div>
+        <?php endif; ?>
       </div>
       <div class="policy-actions">
         <a href="/policy/<?= $policy['id'] ?>" class="btn btn-ghost btn-sm"><i class="bi bi-eye"></i></a>

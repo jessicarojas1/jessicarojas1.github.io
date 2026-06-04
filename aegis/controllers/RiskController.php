@@ -281,6 +281,7 @@ class RiskController {
             'category_id'           => $categoryId,
             'likelihood'            => $likelihood,
             'impact'                => $impact,
+            'inherent_score'        => $likelihood * $impact,
             'velocity'              => $velocity,
             'proximity'             => $proximity,
             'risk_source'           => $source,
@@ -551,7 +552,7 @@ class RiskController {
 
         Database::query(
             "UPDATE risks SET
-               likelihood=?, impact=?,
+               likelihood=?, impact=?, inherent_score=?,
                residual_likelihood=?, residual_impact=?,
                target_likelihood=?, target_impact=?,
                velocity=?, proximity=?, risk_source=?, confidence=?,
@@ -565,7 +566,7 @@ class RiskController {
                updated_at=NOW()
              WHERE id=?",
             [
-                $likelihood, $impact,
+                $likelihood, $impact, $likelihood * $impact,
                 $resLikelihood, $resImpact,
                 $tgtLikelihood, $tgtImpact,
                 $velocity, $proximity, $source, $confidence,

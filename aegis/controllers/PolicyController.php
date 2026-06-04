@@ -3,9 +3,36 @@ class PolicyController {
     public function index(): void {
         Auth::requireAuth();
 
-        $status = Security::sanitizeInput($_GET['status'] ?? '');
-        $where  = $status ? "WHERE p.status = ?" : "WHERE 1=1";
-        $params = $status ? [$status] : [];
+        $status        = Security::sanitizeInput($_GET['status']   ?? '');
+        $packageId     = (int)($_GET['package']  ?? 0);
+        $reviewFilter  = Security::sanitizeInput($_GET['review']   ?? '');
+
+        $conditions = ['1=1'];
+        $params     = [];
+
+        if ($status) {
+            $conditions[] = 'p.status = ?';
+            $params[]     = $status;
+        }
+        if ($packageId) {
+            $conditions[] = 'EXISTS (
+                SELECT 1 FROM policy_mappings pm2
+                JOIN compliance_objectives co2 ON co2.id = pm2.objective_id
+                WHERE pm2.policy_id = p.id AND co2.package_id = ?
+            )';
+            $params[] = $packageId;
+        }
+        if ($reviewFilter === 'overdue') {
+            $conditions[] = "p.next_review_date < CURRENT_DATE AND p.next_review_date IS NOT NULL";
+        } elseif ($reviewFilter === 'this_month') {
+            $conditions[] = "p.next_review_date >= CURRENT_DATE AND p.next_review_date <= (CURRENT_DATE + INTERVAL '30 days')";
+        } elseif ($reviewFilter === 'this_quarter') {
+            $conditions[] = "p.next_review_date >= CURRENT_DATE AND p.next_review_date <= (CURRENT_DATE + INTERVAL '90 days')";
+        } elseif ($reviewFilter === 'no_date') {
+            $conditions[] = 'p.next_review_date IS NULL';
+        }
+
+        $where = 'WHERE ' . implode(' AND ', $conditions);
 
         $policies = Database::fetchAll(
             "SELECT p.*, u.name as owner_name, u2.name as approver_name,
@@ -29,7 +56,56 @@ class PolicyController {
              FROM policies"
         );
 
+        $packages = Database::fetchAll("SELECT id, name FROM compliance_packages ORDER BY name");
+
         require AEGIS_ROOT . '/views/policy/index.php';
+    }
+
+    public function mapping(): void {
+        Auth::requireAuth();
+
+        $filterPackage = (int)($_GET['package'] ?? 0);
+        $filterPolicy  = (int)($_GET['policy']  ?? 0);
+
+        $conditions = ['1=1'];
+        $params     = [];
+
+        if ($filterPackage) {
+            $conditions[] = 'co.package_id = ?';
+            $params[]     = $filterPackage;
+        }
+        if ($filterPolicy) {
+            $conditions[] = 'p.id = ?';
+            $params[]     = $filterPolicy;
+        }
+
+        $where = implode(' AND ', $conditions);
+
+        $mappings = Database::fetchAll(
+            "SELECT p.id AS policy_id, p.title AS policy_title, p.status, p.next_review_date,
+                    cp.name AS package_name, co.code AS control_code, co.title AS control_title
+             FROM policy_mappings pm
+             JOIN policies p ON p.id = pm.policy_id
+             JOIN compliance_objectives co ON co.id = pm.objective_id
+             JOIN compliance_packages cp ON cp.id = co.package_id
+             WHERE {$where}
+             ORDER BY p.title, cp.name, co.code",
+            $params
+        );
+
+        $allPolicies = Database::fetchAll("SELECT id, title FROM policies ORDER BY title");
+        $packages    = Database::fetchAll("SELECT id, name FROM compliance_packages ORDER BY name");
+
+        $mappedIds       = array_unique(array_column($mappings, 'policy_id'));
+        $unmappedPolicies = array_filter($allPolicies, fn($p) => !in_array($p['id'], $mappedIds));
+
+        $pageTitle    = 'Policy & Control Mapping';
+        $activeModule = 'policy';
+        $breadcrumbs  = [['Policies', '/policy'], ['Control Mapping', null]];
+        ob_start();
+        require AEGIS_ROOT . '/views/policy/mapping.php';
+        $content = ob_get_clean();
+        require AEGIS_ROOT . '/views/layout.php';
     }
 
     public function createForm(): void {

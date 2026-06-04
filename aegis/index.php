@@ -344,6 +344,121 @@ try {
     unset($__raCount, $__raDefaults, $__cat, $__app, $__max, $__stmt);
 } catch (Throwable) {}
 
+try {
+    // Fix existing risks where inherent_score was never computed
+    Database::query(
+        "UPDATE risks SET inherent_score = likelihood * impact
+         WHERE (inherent_score IS NULL OR inherent_score = 0) AND likelihood > 0 AND impact > 0"
+    );
+} catch (Throwable) {}
+
+try {
+    // Awareness Training tables (migration 012)
+    Database::query(
+        "CREATE TABLE IF NOT EXISTS awareness_programs (
+            id           SERIAL PRIMARY KEY,
+            title        VARCHAR(255) NOT NULL,
+            description  TEXT,
+            content_type VARCHAR(30)  DEFAULT 'document',
+            content_body TEXT,
+            content_url  VARCHAR(500),
+            due_date     DATE,
+            status       VARCHAR(20)  DEFAULT 'active',
+            created_by   INTEGER REFERENCES users(id),
+            created_at   TIMESTAMP    DEFAULT NOW(),
+            updated_at   TIMESTAMP    DEFAULT NOW()
+         )"
+    );
+    Database::query(
+        "CREATE TABLE IF NOT EXISTS awareness_assignments (
+            id         SERIAL PRIMARY KEY,
+            program_id INTEGER NOT NULL REFERENCES awareness_programs(id) ON DELETE CASCADE,
+            user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            completed  BOOLEAN   DEFAULT FALSE,
+            completed_at TIMESTAMP,
+            notes      TEXT,
+            UNIQUE(program_id, user_id)
+         )"
+    );
+} catch (Throwable) {}
+
+try {
+    // Account Reviews tables (migration 012)
+    Database::query(
+        "CREATE TABLE IF NOT EXISTS account_reviews (
+            id           SERIAL PRIMARY KEY,
+            title        VARCHAR(255) NOT NULL,
+            description  TEXT,
+            scope        TEXT,
+            reviewer_id  INTEGER REFERENCES users(id),
+            status       VARCHAR(20)  DEFAULT 'pending',
+            due_date     DATE,
+            completed_at TIMESTAMP,
+            created_by   INTEGER REFERENCES users(id),
+            created_at   TIMESTAMP    DEFAULT NOW(),
+            updated_at   TIMESTAMP    DEFAULT NOW()
+         )"
+    );
+    Database::query(
+        "CREATE TABLE IF NOT EXISTS account_review_items (
+            id             SERIAL PRIMARY KEY,
+            review_id      INTEGER NOT NULL REFERENCES account_reviews(id) ON DELETE CASCADE,
+            account_name   VARCHAR(255) NOT NULL,
+            user_full_name VARCHAR(255),
+            system_name    VARCHAR(255),
+            access_level   VARCHAR(100),
+            decision       VARCHAR(20)  DEFAULT 'pending',
+            decision_notes TEXT,
+            reviewed_at    TIMESTAMP,
+            reviewed_by    INTEGER REFERENCES users(id)
+         )"
+    );
+} catch (Throwable) {}
+
+try {
+    // Data Privacy tables (migration 012)
+    Database::query(
+        "CREATE TABLE IF NOT EXISTS privacy_records (
+            id                      SERIAL PRIMARY KEY,
+            name                    VARCHAR(255) NOT NULL,
+            description             TEXT,
+            controller_name         VARCHAR(255),
+            processor_name          VARCHAR(255),
+            purpose                 TEXT,
+            legal_basis             VARCHAR(50),
+            data_subject_categories TEXT,
+            data_categories         TEXT,
+            recipients              TEXT,
+            third_country_transfers TEXT,
+            retention_period        VARCHAR(255),
+            security_measures       TEXT,
+            dpia_required           BOOLEAN   DEFAULT FALSE,
+            dpia_completed          BOOLEAN   DEFAULT FALSE,
+            dpia_date               DATE,
+            status                  VARCHAR(20) DEFAULT 'active',
+            created_by              INTEGER REFERENCES users(id),
+            created_at              TIMESTAMP   DEFAULT NOW(),
+            updated_at              TIMESTAMP   DEFAULT NOW()
+         )"
+    );
+    Database::query(
+        "CREATE TABLE IF NOT EXISTS data_subject_requests (
+            id            SERIAL PRIMARY KEY,
+            request_type  VARCHAR(50),
+            subject_name  VARCHAR(255),
+            subject_email VARCHAR(255),
+            description   TEXT,
+            status        VARCHAR(20) DEFAULT 'open',
+            due_date      DATE,
+            completed_at  TIMESTAMP,
+            assigned_to   INTEGER REFERENCES users(id),
+            notes         TEXT,
+            created_at    TIMESTAMP   DEFAULT NOW(),
+            updated_at    TIMESTAMP   DEFAULT NOW()
+         )"
+    );
+} catch (Throwable) {}
+
 // Parse route
 $uri    = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 $uri    = '/' . ltrim($uri, '/');
@@ -401,6 +516,7 @@ $routes = [
         '/audit'                      => ['AuditController', 'index'],
         '/audit/create'               => ['AuditController', 'createForm'],
         '/policy'                     => ['PolicyController', 'index'],
+        '/policy/mapping'             => ['PolicyController', 'mapping'],
         '/policy/create'              => ['PolicyController', 'createForm'],
         '/risk'                       => ['RiskController', 'index'],
         '/risk/dashboard'             => ['RiskController', 'dashboard'],
@@ -823,7 +939,16 @@ function dispatch(string $controller, string $action, array $params = []): void 
     require_once $file;
     $ctrl = new $controller();
     if (!method_exists($ctrl, $action)) { http_response_code(404); die('Action not found'); }
-    $params = array_map(fn($p) => ctype_digit($p) ? (int)$p : $p, $params);
+    if ($params) {
+        $refParams = (new ReflectionMethod($ctrl, $action))->getParameters();
+        foreach ($params as $i => &$p) {
+            $type = ($refParams[$i] ?? null)?->getType();
+            if ($type instanceof ReflectionNamedType && $type->isBuiltin()) {
+                settype($p, $type->getName());
+            }
+        }
+        unset($p);
+    }
     $ctrl->$action(...$params);
 }
 

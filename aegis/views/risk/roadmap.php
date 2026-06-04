@@ -291,7 +291,7 @@ foreach ($grouped as $level => $risks):
 <?php
 $content      = ob_get_clean();
 $pageTitle    = 'Risk Treatment Roadmap';
-$activeModule = 'risk_matrix';
+$activeModule = 'risk_roadmap';
 $breadcrumbs  = [['Risk', '/risk'], ['Treatment Roadmap', null]];
 require AEGIS_ROOT . '/views/layout.php';
 ?>

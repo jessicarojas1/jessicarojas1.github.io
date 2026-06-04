@@ -128,15 +128,16 @@ class ImportController {
                 ? $row['status'] : 'open';
 
             Database::query(
-                "INSERT INTO risks (title, description, category_id, likelihood, impact, status, treatment_type,
-                 identified_date, created_by)
-                 VALUES (?,?,?,?,?,?,?,CURRENT_DATE,?)",
+                "INSERT INTO risks (title, description, category_id, likelihood, impact, inherent_score,
+                 status, treatment_type, identified_date, created_by)
+                 VALUES (?,?,?,?,?,?,?,?,CURRENT_DATE,?)",
                 [
                     Security::sanitizeInput($title),
                     Security::sanitizeInput($row['description'] ?? ''),
                     $catId,
                     $likelihood,
                     $impact,
+                    $likelihood * $impact,
                     $status,
                     Security::sanitizeInput($row['treatment_type'] ?? ''),
                     Auth::id(),
