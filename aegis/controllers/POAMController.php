@@ -151,16 +151,15 @@ class POAMController {
         $poamNumber = 'POAM-' . str_pad((string)((int)($maxRow['max_num'] ?? 0) + 1), 4, '0', STR_PAD_LEFT);
 
         $id = Database::insert('poam_items', [
-            'poam_number'          => $poamNumber,
-            'title'                => $title,
-            'weakness_description' => Security::sanitizeInput($_POST['weakness_description'] ?? ''),
-            'required_resources'   => Security::sanitizeInput($_POST['required_resources']   ?? ''),
-            'package_id'           => !empty($_POST['package_id'])  ? (int)$_POST['package_id']  : null,
-            'owner_id'             => !empty($_POST['owner_id'])    ? (int)$_POST['owner_id']    : null,
-            'status'               => 'open',
-            'scheduled_completion' => !empty($_POST['scheduled_completion']) ? $_POST['scheduled_completion'] : null,
-            'notes'                => Security::sanitizeInput($_POST['notes'] ?? ''),
-            'created_by'           => Auth::id(),
+            'poam_number'           => $poamNumber,
+            'title'                 => $title,
+            'weakness_description'  => Security::sanitizeInput($_POST['weakness_description'] ?? ''),
+            'resource_requirements' => Security::sanitizeInput($_POST['required_resources']   ?? ''),
+            'package_id'            => !empty($_POST['package_id'])  ? (int)$_POST['package_id']  : null,
+            'owner_id'              => !empty($_POST['owner_id'])    ? (int)$_POST['owner_id']    : null,
+            'status'                => 'open',
+            'scheduled_completion'  => !empty($_POST['scheduled_completion']) ? $_POST['scheduled_completion'] : null,
+            'created_by'            => Auth::id(),
         ]);
 
         Auth::log('poam_manual_create', 'poam_items', $id, ['poam_number' => $poamNumber]);
@@ -253,16 +252,15 @@ class POAMController {
 
             $poamNumber = 'POAM-' . str_pad((string)$nextNum++, 4, '0', STR_PAD_LEFT);
             Database::insert('poam_items', [
-                'poam_number'          => $poamNumber,
-                'title'                => Security::sanitizeInput($title),
-                'weakness_description' => Security::sanitizeInput($data['weakness_description'] ?? ''),
-                'required_resources'   => Security::sanitizeInput($data['required_resources']   ?? ''),
-                'package_id'           => $pkgId,
-                'owner_id'             => $ownerId,
-                'status'               => 'open',
-                'scheduled_completion' => $scheduled,
-                'notes'                => Security::sanitizeInput($data['notes'] ?? ''),
-                'created_by'           => Auth::id(),
+                'poam_number'           => $poamNumber,
+                'title'                 => Security::sanitizeInput($title),
+                'weakness_description'  => Security::sanitizeInput($data['weakness_description'] ?? ''),
+                'resource_requirements' => Security::sanitizeInput($data['required_resources']   ?? ''),
+                'package_id'            => $pkgId,
+                'owner_id'              => $ownerId,
+                'status'                => 'open',
+                'scheduled_completion'  => $scheduled,
+                'created_by'            => Auth::id(),
             ]);
             $imported++;
         }

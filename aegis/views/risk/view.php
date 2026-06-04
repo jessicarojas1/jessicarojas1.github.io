@@ -302,11 +302,11 @@ ob_start();
 
           <div class="form-actions" style="display:flex;gap:8px;align-items:center">
             <button type="submit" class="btn btn-primary"><i class="bi bi-save-fill"></i> Save Changes</button>
-            <form method="POST" action="/risk/<?= $risk['id'] ?>/delete" style="display:inline">
-              <?= Security::csrfField() ?>
-              <button class="btn btn-ghost text-danger" data-confirm-click="Delete this risk permanently?"><i class="bi bi-trash"></i></button>
-            </form>
           </div>
+        </form>
+        <form method="POST" action="/risk/<?= $risk['id'] ?>/delete" style="margin-top:8px">
+          <?= Security::csrfField() ?>
+          <button class="btn btn-ghost text-danger" data-confirm-click="Delete this risk permanently?"><i class="bi bi-trash"></i> Delete Risk</button>
         </form>
       </div>
     </div>

@@ -856,13 +856,13 @@ class ComplianceController {
     public function scorecard(string $pkgId): void {
         Auth::requireAuth();
         $pkgId = (int)$pkgId;
-        $package = Database::fetchOne("SELECT cp.*, s.name as standard_name, s.code as standard_code FROM compliance_packages cp JOIN standards s ON s.id = cp.standard_id WHERE cp.id = ?", [$pkgId]);
+        $package = Database::fetchOne("SELECT cp.*, s.name as standard_name, s.code as standard_code FROM compliance_packages cp LEFT JOIN standards s ON s.id = cp.standard_id WHERE cp.id = ?", [$pkgId]);
         if (!$package) { http_response_code(404); require AEGIS_ROOT . '/views/errors/404.php'; return; }
 
         // All controls (level 2) grouped by domain (level 1)
         $domains = Database::fetchAll("SELECT * FROM compliance_objectives WHERE package_id = ? AND level = 1 ORDER BY sort_order", [$pkgId]);
         $controls = Database::fetchAll(
-            "SELECT co.*, ci.status, ci.due_date, ci.completion_date, ci.notes,
+            "SELECT co.*, ci.status, ci.due_date, ci.implementation_notes,
                     u.name as assigned_name
              FROM compliance_objectives co
              LEFT JOIN control_implementations ci ON ci.objective_id = co.id
@@ -970,7 +970,7 @@ class ComplianceController {
             "SELECT co.*, cp.id as package_id, cp.name as package_name, s.name as standard_name
              FROM compliance_objectives co
              JOIN compliance_packages cp ON cp.id = co.package_id
-             JOIN standards s ON s.id = cp.standard_id
+             LEFT JOIN standards s ON s.id = cp.standard_id
              WHERE co.id=?", [$objId]
         );
         if (!$obj) { http_response_code(404); require AEGIS_ROOT.'/views/errors/404.php'; return; }
@@ -1031,10 +1031,10 @@ class ComplianceController {
         $packages = Database::fetchAll(
             "SELECT cp.id, cp.name, s.name as standard_name, s.code as standard_code,
                     COUNT(co.id) FILTER (WHERE co.level=2) as total_controls,
-                    COUNT(ci.id) FILTER (WHERE ci.status='implemented' AND co.level=2) as implemented,
+                    COUNT(ci.id) FILTER (WHERE ci.status='compliant' AND co.level=2) as implemented,
                     COUNT(ci.id) FILTER (WHERE ci.status='in_progress' AND co.level=2) as in_progress,
                     COUNT(co.id) FILTER (WHERE (ci.status IS NULL OR ci.status='not_started') AND co.level=2) as not_started,
-                    COUNT(co.id) FILTER (WHERE ci.due_date < CURRENT_DATE AND ci.status != 'implemented' AND co.level=2) as overdue
+                    COUNT(co.id) FILTER (WHERE ci.due_date < CURRENT_DATE AND ci.status != 'compliant' AND co.level=2) as overdue
              FROM compliance_packages cp
              JOIN standards s ON s.id = cp.standard_id
              LEFT JOIN compliance_objectives co ON co.package_id = cp.id
@@ -1053,7 +1053,7 @@ class ComplianceController {
              LEFT JOIN control_implementations ci ON ci.objective_id = co.id
              LEFT JOIN users u ON u.id = ci.assigned_to
              WHERE co.level = 2 AND cp.is_active = TRUE
-               AND (ci.status IS NULL OR ci.status IN ('not_started') OR (ci.due_date < CURRENT_DATE AND ci.status != 'implemented'))
+               AND (ci.status IS NULL OR ci.status IN ('not_started') OR (ci.due_date < CURRENT_DATE AND ci.status != 'compliant'))
              ORDER BY ci.due_date ASC NULLS LAST, co.code ASC
              LIMIT 100"
         );
@@ -1061,7 +1061,7 @@ class ComplianceController {
         $crossFramework = Database::fetchAll(
             "SELECT co.title, COUNT(DISTINCT cp.id) as framework_count,
                     STRING_AGG(DISTINCT s.code, ', ' ORDER BY s.code) as frameworks,
-                    COUNT(CASE WHEN ci.status='implemented' THEN 1 END) as implemented_in
+                    COUNT(CASE WHEN ci.status='compliant' THEN 1 END) as implemented_in
              FROM compliance_objectives co
              JOIN compliance_packages cp ON cp.id = co.package_id
              JOIN standards s ON s.id = cp.standard_id

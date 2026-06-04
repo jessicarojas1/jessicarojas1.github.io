@@ -151,7 +151,7 @@ class AutomationController {
             switch ($rule['trigger_type']) {
                 case 'risk_score_high':
                     $threshold = (int)($config['threshold'] ?? 15);
-                    $risks = Database::fetchAll("SELECT id, title, score FROM risks WHERE score >= ? AND status='open' LIMIT 20", [$threshold]);
+                    $risks = Database::fetchAll("SELECT id, title, inherent_score FROM risks WHERE inherent_score >= ? AND status='open' LIMIT 20", [$threshold]);
                     $matches = ['message' => "Found " . count($risks) . " risks with score ≥ {$threshold}", 'items' => $risks];
                     break;
                 case 'control_non_compliant':
@@ -159,7 +159,7 @@ class AutomationController {
                     $matches = ['message' => "Found " . count($controls) . " non-compliant controls", 'items' => $controls];
                     break;
                 case 'audit_overdue':
-                    $audits = Database::fetchAll("SELECT id, title, due_date FROM audits WHERE status NOT IN ('completed') AND due_date < NOW() LIMIT 20");
+                    $audits = Database::fetchAll("SELECT id, name, scheduled_date FROM audits WHERE status NOT IN ('completed') AND scheduled_date < NOW() LIMIT 20");
                     $matches = ['message' => "Found " . count($audits) . " overdue audits", 'items' => $audits];
                     break;
                 case 'incident_created':

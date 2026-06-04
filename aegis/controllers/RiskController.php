@@ -452,11 +452,11 @@ class RiskController {
         $linkedKRIs = [];
         try {
             $linkedKRIs = Database::fetchAll(
-                "SELECT k.id, k.name, k.unit, k.threshold_red, k.threshold_amber,
-                        k.current_value, k.status, k.direction
+                "SELECT k.id, k.title, k.unit, k.threshold_red, k.threshold_amber,
+                        k.direction
                  FROM kris k
                  WHERE k.linked_risk_id = ? AND k.is_active = TRUE
-                 ORDER BY k.name",
+                 ORDER BY k.title",
                 [$id]
             );
         } catch (Throwable) {}

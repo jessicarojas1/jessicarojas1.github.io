@@ -79,7 +79,7 @@ ob_start();
 <!-- Bulk action bar (appears when controls are selected) -->
 <div id="bulk-bar" style="display:none;position:sticky;top:0;z-index:200;background:#1c2a1b;color:#fff;
      padding:10px 16px;border-radius:10px;margin-bottom:12px;
-     display:none;align-items:center;gap:10px;flex-wrap:wrap;box-shadow:0 4px 20px rgba(79,70,229,.4)">
+     align-items:center;gap:10px;flex-wrap:wrap;box-shadow:0 4px 20px rgba(79,70,229,.4)">
   <span id="bulk-count" style="font-size:13px;font-weight:600;margin-right:4px"></span>
   <span style="font-size:12px;opacity:.7;margin-right:8px">Set status to:</span>
   <button class="bulk-status-btn" data-status="compliant"     style="background:#059669;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="bi bi-check-circle-fill"></i> Compliant</button>

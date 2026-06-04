@@ -128,7 +128,7 @@ class CustomDashboardController {
                         default                 => 0,
                     };
                 case 'recent_risks':
-                    return Database::fetchAll("SELECT id, title, status, score FROM risks WHERE status='open' ORDER BY score DESC NULLS LAST LIMIT 5");
+                    return Database::fetchAll("SELECT id, title, status, inherent_score FROM risks WHERE status='open' ORDER BY inherent_score DESC NULLS LAST LIMIT 5");
                 case 'recent_incidents':
                     return Database::fetchAll("SELECT id, incident_number, title, severity, status FROM incidents ORDER BY created_at DESC LIMIT 5");
                 case 'compliance_summary':

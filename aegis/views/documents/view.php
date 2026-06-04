@@ -166,6 +166,13 @@ $canEdit = Auth::can('policy.write');
           <input type="file" id="docUploadFile" name="document_file" required style="display:none"
                  data-change="showFileChange" data-drop-id="fileDropDoc" data-name-id="docFileName" data-color="var(--primary)">
           <div id="docFileName" style="margin-top:8px;color:var(--primary);display:none"><i class="bi bi-file-earmark-check"></i> <span></span></div>
+          <div style="margin-top:8px;padding:8px 10px;background:var(--bg-secondary);border-radius:6px;border:1px solid var(--border);font-size:11px">
+            <div style="font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Upload Template Key</div>
+            <table style="width:100%;border-collapse:collapse;color:var(--text-muted)">
+              <thead><tr><th style="text-align:left;padding:2px 8px 2px 0;white-space:nowrap">Field</th><th style="text-align:left;padding:2px 8px 2px 0">Accepted Types</th><th style="text-align:left;padding:2px 4px 2px 0">Max Size</th><th style="text-align:left">Required</th></tr></thead>
+              <tbody><tr><td style="padding:2px 8px 2px 0;white-space:nowrap"><code>document_file</code></td><td style="padding:2px 8px 2px 0">PDF, DOC, DOCX, XLS, XLSX, TXT, CSV</td><td style="padding:2px 8px 2px 0">50 MB</td><td><strong style="color:#dc2626">Yes</strong></td></tr></tbody>
+            </table>
+          </div>
         </div>
         <div class="form-group">
           <label class="form-label">Change Summary</label>

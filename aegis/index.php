@@ -327,12 +327,12 @@ try {
     $__raCount = Database::fetchOne("SELECT COUNT(*) AS cnt FROM risk_appetite");
     if (($__raCount['cnt'] ?? 0) == 0) {
         $__raDefaults = [
-            ['Financial',    'Low',    6,  'Financial losses above $50,000 require board approval'],
-            ['Operational',  'Medium', 12, 'Operational disruptions should be resolved within 48 hours'],
-            ['Strategic',    'Medium', 10, 'Strategic risks require executive review before acceptance'],
-            ['Compliance',   'Low',    4,  'Compliance violations are not tolerated; immediate remediation required'],
-            ['Technology',   'Medium', 12, 'Technology risks above threshold require CISO sign-off'],
-            ['Reputational', 'Low',    6,  'Reputational risks must be escalated to leadership immediately'],
+            ['Financial',    'low',      6,  'Financial losses above $50,000 require board approval'],
+            ['Operational',  'moderate', 12, 'Operational disruptions should be resolved within 48 hours'],
+            ['Strategic',    'moderate', 10, 'Strategic risks require executive review before acceptance'],
+            ['Compliance',   'low',      4,  'Compliance violations are not tolerated; immediate remediation required'],
+            ['Technology',   'moderate', 12, 'Technology risks above threshold require CISO sign-off'],
+            ['Reputational', 'low',      6,  'Reputational risks must be escalated to leadership immediately'],
         ];
         foreach ($__raDefaults as [$__cat, $__app, $__max, $__stmt]) {
             Database::query(

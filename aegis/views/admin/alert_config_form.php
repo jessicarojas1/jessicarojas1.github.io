@@ -96,14 +96,14 @@ $alertTypes = [
         <div class="form-actions">
           <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Save Alert Config</button>
           <a href="/admin/alerts" class="btn btn-ghost">Cancel</a>
-          <?php if ($isEdit): ?>
-            <form method="POST" action="/admin/alerts/config/<?= (int)$config['id'] ?>/delete" style="margin:0" data-confirm="Delete this alert configuration?">
-              <?= Security::csrfField() ?>
-              <button type="submit" class="btn btn-ghost" style="color:#ef4444"><i class="bi bi-trash3"></i> Delete</button>
-            </form>
-          <?php endif; ?>
         </div>
       </form>
+      <?php if ($isEdit): ?>
+        <form method="POST" action="/admin/alerts/config/<?= (int)$config['id'] ?>/delete" style="margin:8px 0 0" data-confirm="Delete this alert configuration?">
+          <?= Security::csrfField() ?>
+          <button type="submit" class="btn btn-ghost" style="color:#ef4444"><i class="bi bi-trash3"></i> Delete</button>
+        </form>
+      <?php endif; ?>
     </div>
   </div>
 
