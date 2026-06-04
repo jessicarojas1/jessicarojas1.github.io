@@ -34,8 +34,10 @@
     $__mvRows = Database::fetchAll("SELECT key, value FROM settings WHERE key LIKE 'module_hide_%'");
     $__mv = array_column($__mvRows, 'value', 'key');
   } catch (Throwable) { $__mv = []; }
-  function moduleVisible(string $key, array $mv): bool {
-    return ($mv['module_hide_' . $key] ?? '0') !== '1';
+  if (!function_exists('moduleVisible')) {
+    function moduleVisible(string $key, array $mv): bool {
+      return ($mv['module_hide_' . $key] ?? '0') !== '1';
+    }
   }
   ?>
   <nav class="sidebar-nav">

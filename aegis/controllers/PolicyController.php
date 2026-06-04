@@ -102,10 +102,7 @@ class PolicyController {
         $pageTitle    = 'Policy & Control Mapping';
         $activeModule = 'policy';
         $breadcrumbs  = [['Policies', '/policy'], ['Control Mapping', null]];
-        ob_start();
         require AEGIS_ROOT . '/views/policy/mapping.php';
-        $content = ob_get_clean();
-        require AEGIS_ROOT . '/views/layout.php';
     }
 
     public function createForm(): void {

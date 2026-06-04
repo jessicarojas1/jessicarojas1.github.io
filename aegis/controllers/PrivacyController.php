@@ -27,10 +27,7 @@ class PrivacyController {
         $pageTitle    = 'Data Privacy';
         $activeModule = 'privacy';
         $breadcrumbs  = [['Data Privacy', null]];
-        ob_start();
         require AEGIS_ROOT . '/views/privacy/index.php';
-        $content = ob_get_clean();
-        require AEGIS_ROOT . '/views/layout.php';
     }
 
     public function createForm(): void {
@@ -38,10 +35,7 @@ class PrivacyController {
         $pageTitle    = 'New Processing Activity';
         $activeModule = 'privacy';
         $breadcrumbs  = [['Data Privacy', '/privacy'], ['New Activity', null]];
-        ob_start();
         require AEGIS_ROOT . '/views/privacy/create.php';
-        $content = ob_get_clean();
-        require AEGIS_ROOT . '/views/layout.php';
     }
 
     public function create(): void {
@@ -95,10 +89,7 @@ class PrivacyController {
         $pageTitle    = Security::h($record['name']);
         $activeModule = 'privacy';
         $breadcrumbs  = [['Data Privacy', '/privacy'], [$record['name'], null]];
-        ob_start();
         require AEGIS_ROOT . '/views/privacy/view.php';
-        $content = ob_get_clean();
-        require AEGIS_ROOT . '/views/layout.php';
     }
 
     public function delete(int $id): void {
@@ -124,10 +115,7 @@ class PrivacyController {
         $pageTitle    = 'Data Subject Requests';
         $activeModule = 'privacy';
         $breadcrumbs  = [['Data Privacy', '/privacy'], ['Subject Requests', null]];
-        ob_start();
         require AEGIS_ROOT . '/views/privacy/requests.php';
-        $content = ob_get_clean();
-        require AEGIS_ROOT . '/views/layout.php';
     }
 
     public function createRequest(): void {

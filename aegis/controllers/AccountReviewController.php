@@ -21,10 +21,7 @@ class AccountReviewController {
         $pageTitle    = 'Account Reviews';
         $activeModule = 'account_reviews';
         $breadcrumbs  = [['Account Reviews', null]];
-        ob_start();
         require AEGIS_ROOT . '/views/account_review/index.php';
-        $content = ob_get_clean();
-        require AEGIS_ROOT . '/views/layout.php';
     }
 
     public function createForm(): void {
@@ -33,10 +30,7 @@ class AccountReviewController {
         $pageTitle    = 'New Account Review';
         $activeModule = 'account_reviews';
         $breadcrumbs  = [['Account Reviews', '/account-reviews'], ['New Review', null]];
-        ob_start();
         require AEGIS_ROOT . '/views/account_review/create.php';
-        $content = ob_get_clean();
-        require AEGIS_ROOT . '/views/layout.php';
     }
 
     public function create(): void {
@@ -105,10 +99,7 @@ class AccountReviewController {
         $pageTitle    = Security::h($review['title']);
         $activeModule = 'account_reviews';
         $breadcrumbs  = [['Account Reviews', '/account-reviews'], [$review['title'], null]];
-        ob_start();
         require AEGIS_ROOT . '/views/account_review/view.php';
-        $content = ob_get_clean();
-        require AEGIS_ROOT . '/views/layout.php';
     }
 
     public function addItem(int $id): void {

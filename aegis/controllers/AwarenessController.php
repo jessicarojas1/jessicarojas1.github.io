@@ -19,10 +19,7 @@ class AwarenessController {
         $pageTitle    = 'Awareness Training';
         $activeModule = 'awareness';
         $breadcrumbs  = [['Awareness Training', null]];
-        ob_start();
         require AEGIS_ROOT . '/views/awareness/index.php';
-        $content = ob_get_clean();
-        require AEGIS_ROOT . '/views/layout.php';
     }
 
     public function createForm(): void {
@@ -31,10 +28,7 @@ class AwarenessController {
         $pageTitle    = 'New Awareness Program';
         $activeModule = 'awareness';
         $breadcrumbs  = [['Awareness Training', '/awareness'], ['New Program', null]];
-        ob_start();
         require AEGIS_ROOT . '/views/awareness/create.php';
-        $content = ob_get_clean();
-        require AEGIS_ROOT . '/views/layout.php';
     }
 
     public function create(): void {
@@ -107,10 +101,7 @@ class AwarenessController {
         $pageTitle    = Security::h($program['title']);
         $activeModule = 'awareness';
         $breadcrumbs  = [['Awareness Training', '/awareness'], [$program['title'], null]];
-        ob_start();
         require AEGIS_ROOT . '/views/awareness/view.php';
-        $content = ob_get_clean();
-        require AEGIS_ROOT . '/views/layout.php';
     }
 
     public function complete(int $id): void {
