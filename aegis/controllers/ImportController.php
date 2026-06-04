@@ -93,7 +93,8 @@ class ImportController {
 
         Auth::log("bulk_import_{$type}", $type, null, ['count' => $imported]);
         $_SESSION['flash_success'] = "Successfully imported {$imported} " . rtrim($type, 's') . "(s).";
-        header('Location: /' . $type); exit;
+        $redirectMap = ['risks' => '/risk', 'vendors' => '/vendor', 'incidents' => '/incident'];
+        header('Location: ' . ($redirectMap[$type] ?? '/import')); exit;
     }
 
     // ── Importers ─────────────────────────────────────────────────────────────
