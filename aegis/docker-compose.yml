@@ -1,4 +1,5 @@
 version: '3.8'
+
 services:
   app:
     build:
@@ -17,9 +18,16 @@ services:
       - DB_PASS=${DB_PASS}
       - APP_URL=${APP_URL:-http://localhost}
       - APP_ENV=${APP_ENV:-production}
+      - JWT_SECRET=${JWT_SECRET}
+      - SMTP_HOST=${SMTP_HOST:-}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USER=${SMTP_USER:-}
+      - SMTP_PASS=${SMTP_PASS:-}
+      - SMTP_FROM=${SMTP_FROM:-}
+      - STORAGE_DRIVER=${STORAGE_DRIVER:-local}
     volumes:
-      - uploads_data:/var/www/aegis/uploads
-      - ./logs:/var/log/aegis
+      - uploads_data:/var/www/html/uploads
+      - ./logs:/var/www/html/logs
     networks:
       - aegis_net
     healthcheck:
@@ -27,7 +35,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 30s
+      start_period: 40s
 
   db:
     image: postgres:16-alpine
@@ -56,13 +64,14 @@ services:
     container_name: aegis_nginx
     restart: unless-stopped
     depends_on:
-      - app
+      app:
+        condition: service_healthy
     ports:
       - "${HTTP_PORT:-80}:80"
       - "${HTTPS_PORT:-443}:443"
     volumes:
       - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./public:/var/www/aegis/public:ro
+      - ./public:/var/www/html/public:ro
       - ./docker/ssl:/etc/nginx/ssl:ro
     networks:
       - aegis_net
@@ -82,12 +91,15 @@ services:
       - DB_NAME=${DB_NAME:-aegis}
       - DB_USER=${DB_USER:-aegis}
       - DB_PASS=${DB_PASS}
+      - APP_URL=${APP_URL:-http://localhost}
+      - APP_ENV=${APP_ENV:-production}
+      - JWT_SECRET=${JWT_SECRET}
     volumes:
-      - uploads_data:/var/www/aegis/uploads
-      - ./logs:/var/log/aegis
+      - uploads_data:/var/www/html/uploads
+      - ./logs:/var/www/html/logs
     command: /bin/sh -c "while true; do
-        php /var/www/aegis/scripts/run_workflows.php >> /var/log/aegis/workflows.log 2>&1;
-        php /var/www/aegis/scripts/dispatch_webhooks.php >> /var/log/aegis/webhooks.log 2>&1;
+        php /var/www/html/scripts/run_workflows.php >> /var/www/html/logs/workflows.log 2>&1;
+        php /var/www/html/scripts/dispatch_webhooks.php >> /var/www/html/logs/webhooks.log 2>&1;
         sleep 60;
       done"
     networks:

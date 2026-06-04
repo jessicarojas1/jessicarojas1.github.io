@@ -1,0 +1,11 @@
+.git
+.gitignore
+*.md
+.env
+.env.local
+logs/
+*.log
+docker-compose*.yml
+Makefile
+.github/
+node_modules/
