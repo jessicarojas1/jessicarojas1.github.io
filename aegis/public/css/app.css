@@ -1455,6 +1455,14 @@ input[type="range"] {
 .alert-error   { background: #dc262615; color: #b91c1c; border: 1px solid #dc262630; }
 .alert-warning { background: #d9770615; color: #b45309; border: 1px solid #d9770630; }
 
+/* Inline banner utility classes */
+.inline-info-box    { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
+.inline-warn-box    { background: #fefce8; border: 1px solid #fde68a; color: #92400e; }
+.inline-danger-box  { background: #fef2f2; border: 1px solid #fca5a5; color: #b91c1c; }
+.inline-success-box { background: #f0fdf4; border: 1px solid #bbf7d0; color: #065f46; }
+.inline-info-box code    { background: #dbeafe; border-radius: 4px; padding: 1px 5px; }
+.inline-warn-box code    { background: #fef3c7; border-radius: 4px; padding: 1px 5px; }
+
 /* ── Detail row (key–value pair) ──────────────────────────────────────────── */
 .detail-row {
   display: flex; justify-content: space-between; align-items: center;
@@ -1581,7 +1589,7 @@ html[data-theme="dark"] {
   --border-light: #243047;
   --text: #f1f5f9;
   --text-muted: #94a3b8;
-  --text-light: #475569;
+  --text-light: #94a3b8;
   --bg-subtle: #253044;
 
   --sidebar-bg: #080e1a;
@@ -1677,7 +1685,7 @@ html[data-theme="dark"] .status-compliant                             { backgrou
 html[data-theme="dark"] .status-partial                               { background: #78350f; color: #f59e0b; }
 html[data-theme="dark"] .status-non_compliant                         { background: #7f1d1d; color: #ef4444; }
 html[data-theme="dark"] .status-not_applicable,
-html[data-theme="dark"] .status-not_started                           { background: #263351; color: #64748b; }
+html[data-theme="dark"] .status-not_started                           { background: #263351; color: #94a3b8; }
 
 /* Domain accordion mini stats */
 html[data-theme="dark"] .mini-stat.green { background: #064e3b; color: #6ee7b7; }
@@ -1707,3 +1715,68 @@ html[data-theme="dark"] .tab-btn.active { background: rgba(79,70,229,.15); }
 /* Auth page right panel */
 html[data-theme="dark"] .auth-right     { background: var(--bg); }
 html[data-theme="dark"] .auth-form-card { background: var(--card-bg); }
+
+/* Semantic colors — brighter in dark mode for readable inline text */
+html[data-theme="dark"] { --success: #10b981; --warning: #f59e0b; --danger: #f87171; --info: #38bdf8; }
+
+/* Rich text editor */
+html[data-theme="dark"] .rich-editor { background: var(--bg-subtle); color: var(--text); }
+
+/* Toggle switch off-state track */
+html[data-theme="dark"] .toggle-switch:not(.on) { background: #334155; }
+
+/* Pill-style toggles (scheduled reports, email templates) */
+html[data-theme="dark"] .pill-track { background: #334155 !important; }
+
+/* Inline info / warning / danger banner boxes */
+html[data-theme="dark"] .inline-info-box    { background: rgba(30,58,95,.4)  !important; border-color: rgba(59,130,246,.3)  !important; color: #93c5fd !important; }
+html[data-theme="dark"] .inline-warn-box    { background: rgba(120,53,15,.4) !important; border-color: rgba(253,211,77,.3)  !important; color: #fcd34d !important; }
+html[data-theme="dark"] .inline-danger-box  { background: rgba(127,29,29,.4) !important; border-color: rgba(252,165,165,.3) !important; color: #fca5a5 !important; }
+html[data-theme="dark"] .inline-success-box { background: rgba(6,78,59,.4)   !important; border-color: rgba(110,231,183,.3) !important; color: #6ee7b7 !important; }
+html[data-theme="dark"] .inline-info-box code    { background: rgba(30,58,95,.6) !important; color: #93c5fd !important; }
+html[data-theme="dark"] .inline-warn-box code    { background: rgba(120,53,15,.6) !important; color: #fcd34d !important; }
+
+/* Stat icon chips with hardcoded tinted backgrounds */
+html[data-theme="dark"] .stat-icon { filter: brightness(1.3); }
+
+/* Awareness card header tint */
+html[data-theme="dark"] .card-header[style*="background:#"] { background: var(--bg-subtle) !important; }
+
+/* KRI threshold row tints */
+html[data-theme="dark"] [style*="background:#f0fdf4"][style*="border:#bbf7d0"],
+html[data-theme="dark"] [style*="background:#f0fdf4"][style*="border:1px solid #bbf7d0"] { background: rgba(6,78,59,.25) !important; border-color: rgba(134,239,172,.3) !important; }
+html[data-theme="dark"] [style*="background:#fef2f2"][style*="border:#fecaca"],
+html[data-theme="dark"] [style*="background:#fef2f2"][style*="border:1px solid #fecaca"] { background: rgba(127,29,29,.25) !important; border-color: rgba(252,165,165,.3) !important; }
+
+/* Risk roadmap progress bar track */
+html[data-theme="dark"] [style*="background:#f1f5f9"][style*="border-radius:10px"] { background: #334155 !important; }
+
+/* Bowtie column headers */
+html[data-theme="dark"] .bt-col-header[style*="background:#fef2f2"] { background: rgba(127,29,29,.3) !important; border-color: rgba(252,165,165,.3) !important; color: #fca5a5 !important; }
+html[data-theme="dark"] .bt-col-header[style*="background:#eff6ff"] { background: rgba(30,58,95,.3)  !important; border-color: rgba(147,197,253,.3) !important; color: #93c5fd  !important; }
+html[data-theme="dark"] .bt-col-header[style*="background:#f0fdf4"] { background: rgba(6,78,59,.3)   !important; border-color: rgba(134,239,172,.3) !important; color: #6ee7b7  !important; }
+
+/* Table cells with inline light backgrounds */
+html[data-theme="dark"] td[style*="background:#f8fafc"]  { background: var(--bg-subtle) !important; }
+html[data-theme="dark"] td[style*="background:#fef2f2"]  { background: rgba(127,29,29,.2) !important; }
+
+/* Risk acceptance row inline styles */
+html[data-theme="dark"] [style*="background:#fef2f2"][style*="color:#dc2626"]  { background: rgba(127,29,29,.3) !important; border-color: rgba(252,165,165,.3) !important; color: #fca5a5 !important; }
+html[data-theme="dark"] [style*="background:#fef2f2"][style*="color:#b91c1c"]  { background: rgba(127,29,29,.3) !important; border-color: rgba(252,165,165,.3) !important; color: #fca5a5 !important; }
+
+/* Compliance/testing dashboard stat boxes */
+html[data-theme="dark"] [style*="background:#f1f5f9"][style*="border:1px solid #cbd5e1"] { background: var(--bg-subtle) !important; border-color: var(--border) !important; color: var(--text) !important; }
+html[data-theme="dark"] [style*="background:#eff6ff"][style*="border:1px solid #93c5fd"]  { background: rgba(30,58,95,.3) !important; border-color: rgba(147,197,253,.3) !important; color: #93c5fd !important; }
+html[data-theme="dark"] [style*="background:#fef2f2"][style*="border:1px solid #fca5a5"]  { background: rgba(127,29,29,.3) !important; border-color: rgba(252,165,165,.3) !important; color: #fca5a5 !important; }
+
+/* Donut chart inner label */
+html[data-theme="dark"] [style*="background:white"][style*="border-radius:50%"] { background: var(--card-bg) !important; color: var(--text) !important; }
+
+/* KRI chart tooltip label */
+html[data-theme="dark"] [style*="color:#1e293b"][style*="background:#fff"] { background: var(--card-bg) !important; color: var(--text) !important; border-color: var(--border) !important; }
+
+/* Module visibility / scheduled reports toggle track */
+html[data-theme="dark"] [style*="background:#cbd5e1"] { background: #334155 !important; }
+
+/* Scenarios / gap analysis neutral chip */
+html[data-theme="dark"] [style*="background:#f1f5f9"][style*="color:#64748b"] { background: var(--bg-subtle) !important; color: var(--text-muted) !important; border-color: var(--border) !important; }

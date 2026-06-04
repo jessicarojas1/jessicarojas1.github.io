@@ -14,7 +14,7 @@
 <?php if ($pending): ?>
   <div class="card" style="border:2px solid #fbbf24;margin-bottom:24px">
     <div class="card-header" style="background:#fffbeb">
-      <h3 class="card-title" style="color:#92400e">
+      <h3 class="card-title" style="color:var(--warning)">
         <i class="bi bi-exclamation-triangle-fill" style="color:#d97706"></i>
         Action Required — <?= count($pending) ?> Pending Attestation<?= count($pending) !== 1 ? 's' : '' ?>
       </h3>

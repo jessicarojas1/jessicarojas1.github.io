@@ -49,9 +49,9 @@ ob_start();
   </div>
 </div>
 
-<div style="background:#fefce8;border:1px solid #fde68a;border-radius:8px;padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;gap:10px;font-size:13px;color:#92400e">
+<div class="inline-warn-box" style="border-radius:8px;padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;gap:10px;font-size:13px">
   <i class="bi bi-clock-history" style="flex-shrink:0"></i>
-  <span>Scheduled reports are delivered via cron. Ensure <code style="background:#fef3c7;padding:1px 5px;border-radius:3px">send_scheduled_reports.php</code> runs hourly.</span>
+  <span>Scheduled reports are delivered via cron. Ensure <code style="padding:1px 5px;border-radius:3px">send_scheduled_reports.php</code> runs hourly.</span>
 </div>
 
 <div class="card">

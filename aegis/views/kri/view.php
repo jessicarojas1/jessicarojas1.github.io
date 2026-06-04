@@ -196,7 +196,7 @@ function fmtNum(float $n): string {
           <?php if ($markerPct !== null): ?>
             <div style="position:absolute;top:-4px;left:<?= $markerPct ?>%;transform:translateX(-50%);">
               <div style="width:4px;height:28px;background:#1e293b;border-radius:2px;"></div>
-              <div style="position:absolute;top:-18px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:10px;font-weight:700;color:#1e293b;background:#fff;border:1px solid #e2e8f0;padding:1px 5px;border-radius:4px;">
+              <div style="position:absolute;top:-18px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:10px;font-weight:700;color:var(--text);background:#fff;border:1px solid #e2e8f0;padding:1px 5px;border-radius:4px;">
                 <?= Security::h(fmtNum($latestVal)) ?> <?= Security::h($kri['unit'] ?? '') ?>
               </div>
             </div>

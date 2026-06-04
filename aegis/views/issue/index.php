@@ -159,22 +159,22 @@ $statusColors = [
                   <?php if ($isOverdue): ?><i class="bi bi-exclamation-circle" title="Overdue"></i><?php endif; ?>
                 </span>
               <?php else: ?>
-                <span style="color:#9ca3af">—</span>
+                <span style="color:var(--text-muted)">—</span>
               <?php endif; ?>
             </td>
             <td>
               <?php if ($issue['source_type']): ?>
-                <span class="status-chip" style="background:#6b728020;color:#6b7280;border:1px solid #6b728040;font-size:.75rem">
+                <span class="status-chip" style="background:#6b728020;color:var(--text-muted);border:1px solid #6b728040;font-size:.75rem">
                   <?= Security::h(ucfirst($issue['source_type'])) ?>
                 </span>
               <?php else: ?>—<?php endif; ?>
             </td>
-            <td style="color:#6b7280;font-size:.85rem"><?= Security::h(date('M j, Y', strtotime($issue['created_at']))) ?></td>
+            <td style="color:var(--text-muted);font-size:.85rem"><?= Security::h(date('M j, Y', strtotime($issue['created_at']))) ?></td>
           </tr>
         <?php endforeach; else: ?>
           <tr>
             <td colspan="8" style="text-align:center;padding:3rem">
-              <div style="display:flex;flex-direction:column;align-items:center;gap:.75rem;color:#9ca3af">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:.75rem;color:var(--text-muted)">
                 <i class="bi bi-check2-circle" style="font-size:2.5rem"></i>
                 <p style="margin:0;font-size:1rem;font-weight:500">No issues found</p>
                 <p style="margin:0;font-size:.875rem">

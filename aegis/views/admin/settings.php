@@ -109,7 +109,7 @@ ob_start();
     </div>
 
     <div class="card">
-      <div class="card-header"><div class="card-header-left"><i class="bi bi-list-ul" style="color:#64748b"></i><span class="card-title">All Settings</span></div></div>
+      <div class="card-header"><div class="card-header-left"><i class="bi bi-list-ul" style="color:var(--text-muted)"></i><span class="card-title">All Settings</span></div></div>
       <div class="card-body" style="padding:0;max-height:320px;overflow-y:auto">
         <table style="width:100%;border-collapse:collapse;font-size:12px">
           <?php foreach ($settings as $key => $row): ?>

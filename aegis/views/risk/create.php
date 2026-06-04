@@ -121,7 +121,7 @@ ob_start();
 
         <!-- Target (Residual) Score -->
         <div style="margin-top:16px;padding:14px;background:var(--bg-secondary);border-radius:8px;border:1px solid var(--border)">
-          <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin-bottom:10px"><i class="bi bi-bullseye"></i> Target Residual Score (after full treatment)</div>
+          <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:10px"><i class="bi bi-bullseye"></i> Target Residual Score (after full treatment)</div>
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Target Likelihood</label>
@@ -207,7 +207,7 @@ ob_start();
 
         <!-- Financial Exposure -->
         <div style="margin-top:16px;padding:14px;background:var(--bg-secondary);border-radius:8px;border:1px solid var(--border)">
-          <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin-bottom:10px"><i class="bi bi-currency-dollar"></i> Financial Exposure (optional)</div>
+          <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:10px"><i class="bi bi-currency-dollar"></i> Financial Exposure (optional)</div>
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Currency</label>
@@ -273,7 +273,7 @@ ob_start();
           <tr style="border-bottom:1px solid var(--border)">
             <td style="padding:5px 6px;font-weight:700;color:#6366f1;width:20px"><?= $v ?></td>
             <td style="padding:5px 6px;font-weight:600"><?= $l ?></td>
-            <td style="padding:5px 6px;color:#64748b"><?= $d ?></td>
+            <td style="padding:5px 6px;color:var(--text-muted)"><?= $d ?></td>
           </tr>
           <?php endforeach; ?>
         </table>

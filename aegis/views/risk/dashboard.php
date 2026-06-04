@@ -248,7 +248,7 @@ if (!empty($trendData)) {
     font-weight: 700;
 }
 .rdash-review-date .rday { font-size: 18px; font-weight: 800; line-height: 1; }
-.rdash-review-date.overdue { background: #fee2e2; color: #b91c1c; }
+.rdash-review-date.overdue { background: #fee2e2; color: var(--danger); }
 
 /* ── Appetite / uncontrolled list ─────────────────── */
 .rdash-list-item {
@@ -689,7 +689,7 @@ if (!empty($trendData)) {
       <i class="bi bi-shield-x" style="color:#f59e0b"></i>
       Uncontrolled Risks
       <?php if ($uncontrolledCount > 0): ?>
-        <span style="margin-left:auto;background:#fef3c7;color:#92400e;font-size:11px;padding:2px 8px;border-radius:20px;border:1px solid #fde68a"><?= $uncontrolledCount ?> risks</span>
+        <span style="margin-left:auto;background:#fef3c7;color:var(--warning);font-size:11px;padding:2px 8px;border-radius:20px;border:1px solid #fde68a"><?= $uncontrolledCount ?> risks</span>
       <?php endif; ?>
     </div>
     <?php if (empty($uncontrolled)): ?>
@@ -783,7 +783,7 @@ if (!empty($trendData)) {
     </div>
 
     <?php if ($abOverdue > 0): ?>
-    <div style="margin-top:12px;display:flex;align-items:center;gap:6px;padding:8px 10px;background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;font-size:12px;font-weight:600;color:#b91c1c">
+    <div style="margin-top:12px;display:flex;align-items:center;gap:6px;padding:8px 10px;background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;font-size:12px;font-weight:600;color:var(--danger)">
       <i class="bi bi-exclamation-circle-fill"></i>
       <?= $abOverdue ?> action<?= $abOverdue !== 1 ? 's' : '' ?> overdue — immediate attention required.
     </div>

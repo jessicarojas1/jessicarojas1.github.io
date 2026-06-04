@@ -25,7 +25,7 @@ function scIdxLevelClass(int $s): string {
 .sc-stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:20px}
 .sc-stat{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;text-align:center}
 .sc-stat .num{font-size:26px;font-weight:900;line-height:1}
-.sc-stat .lbl{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-top:3px}
+.sc-stat .lbl{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-top:3px}
 .sc-type-badge{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px}
 </style>
 
@@ -165,11 +165,11 @@ function scIdxLevelClass(int $s): string {
                 <i class="bi bi-arrow-up"></i> +<?= $delta ?>
               </span>
             <?php elseif ($delta < 0): ?>
-              <span style="display:inline-flex;align-items:center;gap:2px;font-size:12px;font-weight:700;padding:2px 7px;border-radius:20px;background:#d1fae5;color:#065f46">
+              <span style="display:inline-flex;align-items:center;gap:2px;font-size:12px;font-weight:700;padding:2px 7px;border-radius:20px;background:#d1fae5;color:var(--success)">
                 <i class="bi bi-arrow-down"></i> <?= $delta ?>
               </span>
             <?php else: ?>
-              <span style="display:inline-flex;align-items:center;font-size:12px;font-weight:600;padding:2px 7px;border-radius:20px;background:#f1f5f9;color:#64748b">
+              <span style="display:inline-flex;align-items:center;font-size:12px;font-weight:600;padding:2px 7px;border-radius:20px;background:#f1f5f9;color:var(--text-muted)">
                 &#177;0
               </span>
             <?php endif; ?>

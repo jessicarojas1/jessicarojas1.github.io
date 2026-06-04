@@ -35,7 +35,7 @@ ob_start();
   <div class="card-body">
     <strong>Portal link generated:</strong>
     <input type="text" value="<?= Security::h($_SESSION['portal_link']) ?>" style="width:100%;margin-top:8px;font-family:monospace;padding:6px;border:1px solid #d1d5db;border-radius:6px" readonly id="portal-link-input">
-    <small style="color:#64748b">Share this link with the vendor. It expires in 30 days.</small>
+    <small style="color:var(--text-muted)">Share this link with the vendor. It expires in 30 days.</small>
   </div>
 </div>
 <?php unset($_SESSION['portal_link']); ?>

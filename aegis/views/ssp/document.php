@@ -20,8 +20,8 @@
   .cover-meta td:first-child { color: #666; width: 160px; font-weight: 600; }
   .impact-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
   .impact-badge { padding: 2px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
-  .impact-low { background: #d1fae5; color: #065f46; }
-  .impact-moderate { background: #fef3c7; color: #92400e; }
+  .impact-low { background: #d1fae5; color: var(--success); }
+  .impact-moderate { background: #fef3c7; color: var(--warning); }
   .impact-high { background: #fee2e2; color: #991b1b; }
 
   /* TOC */
@@ -48,18 +48,18 @@
   .control-code { background: #4f46e5; color: #fff; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; white-space: nowrap; font-family: monospace; }
   .control-title { font-weight: 600; font-size: 0.9rem; flex: 1; }
   .status-badge { padding: 2px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; white-space: nowrap; }
-  .status-compliant      { background: #d1fae5; color: #065f46; }
-  .status-partial        { background: #fef3c7; color: #92400e; }
+  .status-compliant      { background: #d1fae5; color: var(--success); }
+  .status-partial        { background: #fef3c7; color: var(--warning); }
   .status-non_compliant  { background: #fee2e2; color: #991b1b; }
-  .status-not_applicable { background: #f1f5f9; color: #64748b; }
-  .status-default        { background: #f1f5f9; color: #64748b; }
+  .status-not_applicable { background: #f1f5f9; color: var(--text-muted); }
+  .status-default        { background: #f1f5f9; color: var(--text-muted); }
 
   .control-body { padding: 16px; }
-  .control-desc { font-size: 0.83rem; color: #475569; margin-bottom: 14px; line-height: 1.6; }
+  .control-desc { font-size: 0.83rem; color: var(--text-muted); margin-bottom: 14px; line-height: 1.6; }
   .control-desc:empty { display: none; }
 
   .field-block { margin-bottom: 14px; }
-  .field-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 6px; }
+  .field-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 6px; }
   .field-content { font-size: 0.86rem; line-height: 1.6; white-space: pre-wrap; }
   .field-empty { color: #94a3b8; font-style: italic; font-size: 0.83rem; }
 
@@ -71,7 +71,7 @@
   .save-status { font-size: 0.78rem; color: #10b981; display: none; }
   .save-status.error { color: #ef4444; }
 
-  .assignee-line { font-size: 0.8rem; color: #64748b; margin-top: 4px; }
+  .assignee-line { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
 
   /* Print */
   @media print {
@@ -128,7 +128,7 @@
   </div>
 
   <?php if ($plan['system_description']): ?>
-  <div style="max-width:600px;margin-top:32px;font-size:0.875rem;color:#475569;line-height:1.7;text-align:left;">
+  <div style="max-width:600px;margin-top:32px;font-size:0.875rem;color:var(--text-muted);line-height:1.7;text-align:left;">
     <strong>System Description:</strong> <?= Security::h($plan['system_description']) ?>
   </div>
   <?php endif; ?>

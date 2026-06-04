@@ -111,7 +111,7 @@ $alertTypes = [
   <div class="card">
     <div class="card-header"><h3 class="card-title"><i class="bi bi-question-circle"></i> Configuration Guide</h3></div>
     <div class="card-body" style="font-size:13px">
-      <p style="color:#64748b;margin-bottom:12px">Each alert type supports different trigger configuration parameters:</p>
+      <p style="color:var(--text-muted);margin-bottom:12px">Each alert type supports different trigger configuration parameters:</p>
       <div style="display:flex;flex-direction:column;gap:10px">
         <?php foreach ([
           'risk_score_threshold' => ['min_score'=>'int','status'=>'string'],

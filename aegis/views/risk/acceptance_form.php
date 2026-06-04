@@ -116,7 +116,7 @@ ob_start();
 
     <?php if ($existingActive): ?>
     <!-- Warning: active acceptance already exists -->
-    <div class="alert-box" style="background:#fffbeb;border-color:#f59e0b;color:#92400e;margin-bottom:20px;">
+    <div class="alert-box" style="background:#fffbeb;border-color:#f59e0b;color:var(--warning);margin-bottom:20px;">
       <i class="bi bi-exclamation-triangle-fill" style="color:#f59e0b;margin-right:6px;"></i>
       <strong>Active acceptance already exists.</strong>
       An acceptance certificate was issued by <strong><?= Security::h($existingActive['acceptor_name']) ?></strong>

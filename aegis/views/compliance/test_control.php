@@ -8,7 +8,7 @@ function testResultBadge(string $result): string {
         'pass'       => '<span class="badge" style="background:#dcfce7;color:#16a34a;border:1px solid #86efac">Pass</span>',
         'fail'       => '<span class="badge" style="background:#fef2f2;color:#dc2626;border:1px solid #fca5a5">Fail</span>',
         'partial'    => '<span class="badge" style="background:#fffbeb;color:#d97706;border:1px solid #fcd34d">Partial</span>',
-        'not_tested' => '<span class="badge" style="background:#f1f5f9;color:#64748b;border:1px solid #cbd5e1">Not Tested</span>',
+        'not_tested' => '<span class="badge" style="background:#f1f5f9;color:var(--text-muted);border:1px solid #cbd5e1">Not Tested</span>',
         default      => '<span class="badge">' . htmlspecialchars($result, ENT_QUOTES, 'UTF-8') . '</span>',
     };
 }
@@ -47,19 +47,19 @@ function testResultBadge(string $result): string {
   <div class="card-body">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
       <div>
-        <div class="form-label text-sm" style="color:#64748b;margin-bottom:4px">Control Code</div>
-        <div style="font-family:monospace;font-weight:700;font-size:16px;color:#1e293b"><?= Security::h($obj['code']) ?></div>
+        <div class="form-label text-sm" style="color:var(--text-muted);margin-bottom:4px">Control Code</div>
+        <div style="font-family:monospace;font-weight:700;font-size:16px;color:var(--text)"><?= Security::h($obj['code']) ?></div>
       </div>
       <div>
-        <div class="form-label text-sm" style="color:#64748b;margin-bottom:4px">Standard</div>
-        <div style="font-weight:600;color:#1e293b"><?= Security::h($obj['standard_name']) ?></div>
+        <div class="form-label text-sm" style="color:var(--text-muted);margin-bottom:4px">Standard</div>
+        <div style="font-weight:600;color:var(--text)"><?= Security::h($obj['standard_name']) ?></div>
       </div>
       <div>
-        <div class="form-label text-sm" style="color:#64748b;margin-bottom:4px">Package</div>
+        <div class="form-label text-sm" style="color:var(--text-muted);margin-bottom:4px">Package</div>
         <div><a href="/compliance/<?= (int)$obj['package_id'] ?>" style="color:#6366f1;text-decoration:none"><?= Security::h($obj['package_name']) ?></a></div>
       </div>
       <div>
-        <div class="form-label text-sm" style="color:#64748b;margin-bottom:4px">Current Status</div>
+        <div class="form-label text-sm" style="color:var(--text-muted);margin-bottom:4px">Current Status</div>
         <div>
           <?php
           $implStatus = $obj['status'] ?? 'not_started';
@@ -78,8 +78,8 @@ function testResultBadge(string $result): string {
     </div>
     <?php if (!empty($obj['description'])): ?>
     <div>
-      <div class="form-label text-sm" style="color:#64748b;margin-bottom:6px">Description</div>
-      <div style="color:#374151;line-height:1.6;font-size:14px"><?= Security::h($obj['description']) ?></div>
+      <div class="form-label text-sm" style="color:var(--text-muted);margin-bottom:6px">Description</div>
+      <div style="color:var(--text);line-height:1.6;font-size:14px"><?= Security::h($obj['description']) ?></div>
     </div>
     <?php endif; ?>
   </div>
@@ -91,7 +91,7 @@ function testResultBadge(string $result): string {
     <div class="card-header-left">
       <i class="bi bi-clock-history" style="color:var(--primary)"></i>
       <span class="card-title">Test History</span>
-      <span style="background:#e2e8f0;color:#64748b;border-radius:12px;padding:2px 10px;font-size:12px;font-weight:600"><?= count($history) ?></span>
+      <span style="background:#e2e8f0;color:var(--text-muted);border-radius:12px;padding:2px 10px;font-size:12px;font-weight:600"><?= count($history) ?></span>
     </div>
   </div>
   <?php if ($history): ?>
@@ -120,7 +120,7 @@ function testResultBadge(string $result): string {
               <div style="width:60px;height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden">
                 <div style="width:<?= (int)$h['effectiveness'] ?>%;height:100%;background:<?= $h['effectiveness'] >= 75 ? '#16a34a' : ($h['effectiveness'] >= 40 ? '#d97706' : '#dc2626') ?>;border-radius:3px"></div>
               </div>
-              <span style="font-size:12px;font-weight:600;color:#374151"><?= (int)$h['effectiveness'] ?>%</span>
+              <span style="font-size:12px;font-weight:600;color:var(--text)"><?= (int)$h['effectiveness'] ?>%</span>
             </div>
             <?php else: ?>—<?php endif; ?>
           </td>
@@ -196,7 +196,7 @@ function testResultBadge(string $result): string {
               <div style="height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden;margin-bottom:2px">
                 <div id="effBar" style="width:0%;height:100%;background:#16a34a;border-radius:4px;transition:width .2s"></div>
               </div>
-              <span id="effLabel" style="font-size:11px;color:#64748b">—</span>
+              <span id="effLabel" style="font-size:11px;color:var(--text-muted)">—</span>
             </div>
           </div>
         </div>

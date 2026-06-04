@@ -42,7 +42,7 @@
           <th style="padding:10px 8px;text-align:center;font-weight:600;color:#059669">Compliant</th>
           <th style="padding:10px 8px;text-align:center;font-weight:600;color:#d97706">Partial</th>
           <th style="padding:10px 8px;text-align:center;font-weight:600;color:#dc2626">Non-Compliant</th>
-          <th style="padding:10px 8px;text-align:center;font-weight:600;color:#64748b">Not Started</th>
+          <th style="padding:10px 8px;text-align:center;font-weight:600;color:var(--text-muted)">Not Started</th>
           <th style="padding:10px 16px;text-align:right;font-weight:600;color:var(--text-muted)">Score</th>
         </tr>
       </thead>
@@ -56,7 +56,7 @@
           <td style="padding:12px 8px;text-align:center;color:#059669"><?= $pkg['compliant'] ?></td>
           <td style="padding:12px 8px;text-align:center;color:#d97706"><?= $pkg['partial'] ?></td>
           <td style="padding:12px 8px;text-align:center;color:#dc2626"><?= $pkg['non_compliant'] ?></td>
-          <td style="padding:12px 8px;text-align:center;color:#64748b"><?= $pkg['not_started'] ?></td>
+          <td style="padding:12px 8px;text-align:center;color:var(--text-muted)"><?= $pkg['not_started'] ?></td>
           <td style="padding:12px 16px;text-align:right">
             <span style="font-weight:700;color:<?= $pct>=80?'#059669':($pct>=50?'#d97706':'#dc2626') ?>"><?= $pct ?>%</span>
             <div style="height:4px;background:var(--border);border-radius:2px;margin-top:4px;width:80px;margin-left:auto">

@@ -11,8 +11,8 @@ body{font-family:Inter,system-ui,sans-serif;background:#f8fafc;display:flex;alig
 .icon{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:32px}
 .icon.success{background:#f0fdf4;color:#16a34a}
 .icon.error{background:#fef2f2;color:#dc2626}
-h1{font-size:24px;font-weight:700;color:#0f172a;margin-bottom:12px}
-p{color:#64748b;line-height:1.6;margin-bottom:24px}
+h1{font-size:24px;font-weight:700;color:var(--text);margin-bottom:12px}
+p{color:var(--text-muted);line-height:1.6;margin-bottom:24px}
 .btn{display:inline-block;padding:12px 28px;background:#6366f1;color:#fff;text-decoration:none;border-radius:8px;font-weight:600;font-size:15px;transition:opacity .15s}
 .btn:hover{opacity:.9}
 .logo{font-size:13px;color:#94a3b8;margin-top:32px;padding-top:24px;border-top:1px solid #f1f5f9}

@@ -289,10 +289,10 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
     border-radius: 12px;
     padding: 32px 24px;
     text-align: center;
-    color: #64748b;
+    color: var(--text-muted);
     margin: 20px 0;
 }
-.bt-empty h3 { color: #1e293b; margin-bottom: 8px; font-size: 16px; }
+.bt-empty h3 { color: var(--text); margin-bottom: 8px; font-size: 16px; }
 .bt-empty p  { font-size: 13.5px; line-height: 1.6; max-width: 520px; margin: 0 auto 6px; }
 
 /* Tabs */
@@ -309,7 +309,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
     padding: 10px 18px;
     font-size: 13px;
     font-weight: 600;
-    color: #64748b;
+    color: var(--text-muted);
     cursor: pointer;
     border-bottom: 2px solid transparent;
     margin-bottom: -2px;
@@ -384,7 +384,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 <div class="card" style="margin-bottom:20px">
   <div class="card-header">
     <h3 class="card-title"><i class="bi bi-diagram-3-fill"></i> Bow-Tie Diagram</h3>
-    <span style="font-size:12px;color:#64748b">Left = causes &amp; preventive controls &nbsp;|&nbsp; Right = consequences &amp; recovery controls</span>
+    <span style="font-size:12px;color:var(--text-muted)">Left = causes &amp; preventive controls &nbsp;|&nbsp; Right = consequences &amp; recovery controls</span>
   </div>
   <div class="card-body" style="padding:16px">
 
@@ -572,8 +572,8 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
   <?php endif; // $isEmpty ?>
 
   <!-- Legend -->
-  <div style="display:flex;gap:20px;flex-wrap:wrap;margin-top:16px;padding-top:12px;border-top:1px solid var(--border);font-size:11.5px;color:#64748b">
-    <span style="font-weight:600;color:#1e293b">Barrier effectiveness:</span>
+  <div style="display:flex;gap:20px;flex-wrap:wrap;margin-top:16px;padding-top:12px;border-top:1px solid var(--border);font-size:11.5px;color:var(--text-muted)">
+    <span style="font-weight:600;color:var(--text)">Barrier effectiveness:</span>
     <?php foreach ($effectivenessMeta as $key => $em): ?>
     <span>
       <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:<?= Security::h($em['color']) ?>;margin-right:4px;vertical-align:middle"></span>
@@ -629,7 +629,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 
     <!-- ── Tab: Causes ──────────────────────────────────────────── -->
     <div class="bt-tab-panel active" id="bt-panel-causes">
-      <p style="font-size:13px;color:#64748b;margin-bottom:14px">
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px">
         Add <strong>causes</strong> — threats, vulnerabilities, hazards, or events that could trigger this risk.
       </p>
       <form method="POST" action="/risk/<?= (int)$risk['id'] ?>/bowtie/add-cause">
@@ -668,7 +668,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 
     <!-- ── Tab: Left Barriers (Preventive) ─────────────────────── -->
     <div class="bt-tab-panel" id="bt-panel-left-barriers">
-      <p style="font-size:13px;color:#64748b;margin-bottom:14px">
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px">
         Add <strong>preventive barriers</strong> — controls that stop the risk event from occurring.
       </p>
       <form method="POST" action="/risk/<?= (int)$risk['id'] ?>/bowtie/add-barrier">
@@ -721,7 +721,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 
     <!-- ── Tab: Right Barriers (Recovery) ──────────────────────── -->
     <div class="bt-tab-panel" id="bt-panel-right-barriers">
-      <p style="font-size:13px;color:#64748b;margin-bottom:14px">
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px">
         Add <strong>recovery barriers</strong> — controls that limit damage after the risk event occurs.
       </p>
       <form method="POST" action="/risk/<?= (int)$risk['id'] ?>/bowtie/add-barrier">
@@ -774,7 +774,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 
     <!-- ── Tab: Consequences ────────────────────────────────────── -->
     <div class="bt-tab-panel" id="bt-panel-consequences">
-      <p style="font-size:13px;color:#64748b;margin-bottom:14px">
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px">
         Add <strong>consequences</strong> — the impacts or outcomes if this risk materialises.
       </p>
       <form method="POST" action="/risk/<?= (int)$risk['id'] ?>/bowtie/add-consequence">
@@ -822,8 +822,8 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 <?php if ($isEmpty): ?>
 <div class="card" style="border-left:4px solid #6366f1">
   <div class="card-body" style="padding:20px 24px">
-    <h4 style="margin:0 0 10px;font-size:14px;color:#1e293b"><i class="bi bi-info-circle-fill" style="color:#6366f1"></i> About Bow-Tie Analysis</h4>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;font-size:13px;color:#475569">
+    <h4 style="margin:0 0 10px;font-size:14px;color:var(--text)"><i class="bi bi-info-circle-fill" style="color:#6366f1"></i> About Bow-Tie Analysis</h4>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;font-size:13px;color:var(--text-muted)">
       <div>
         <strong style="color:#dc2626"><i class="bi bi-exclamation-triangle-fill"></i> Left Side — Causes</strong>
         <p style="margin:6px 0 0">Threats, vulnerabilities, or events that could lead to the central risk event occurring. Each cause may have a different likelihood contribution.</p>

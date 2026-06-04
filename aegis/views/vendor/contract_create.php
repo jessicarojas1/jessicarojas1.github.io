@@ -77,14 +77,14 @@
           <input type="checkbox" name="auto_renewal" value="1" id="autoRenewalCheck" data-change="toggleNoticeField">
           <span>Auto-Renewal</span>
         </label>
-        <small style="color:#64748b;display:block;margin-top:4px">Check if this contract automatically renews at expiry.</small>
+        <small style="color:var(--text-muted);display:block;margin-top:4px">Check if this contract automatically renews at expiry.</small>
       </div>
 
       <!-- Renewal Notice Days (hidden unless auto_renewal checked) -->
       <div class="form-group" id="renewalNoticeDaysGroup" style="display:none">
         <label class="form-label">Renewal Notice Days</label>
         <input type="number" name="renewal_notice_days" class="form-control" value="30" min="1" max="365" style="max-width:160px">
-        <small style="color:#64748b">How many days before expiry to send a renewal notice.</small>
+        <small style="color:var(--text-muted)">How many days before expiry to send a renewal notice.</small>
       </div>
 
       <!-- Contract Owner -->

@@ -113,6 +113,8 @@ function updateVisBadge() {
 }
 .toggle-switch input:checked + .toggle-slider { background:#4f46e5; }
 .toggle-switch input:checked + .toggle-slider:before { transform:translateX(18px); }
+html[data-theme="dark"] .toggle-slider { background:#334155; }
+html[data-theme="dark"] .toggle-switch input:checked + .toggle-slider { background:#6366f1; }
 </style>
 
 <?php

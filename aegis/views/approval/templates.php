@@ -82,7 +82,7 @@ $entityTypeLabels = [
               <?php if ($isActive): ?>
                 <span class="badge badge-success">Active</span>
               <?php else: ?>
-                <span class="badge" style="background:#f3f4f6;color:#6b7280">Inactive</span>
+                <span class="badge" style="background:#f3f4f6;color:var(--text-muted)">Inactive</span>
               <?php endif; ?>
             </td>
             <td class="text-muted text-sm">

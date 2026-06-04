@@ -196,7 +196,7 @@ document.querySelectorAll('[data-tab]').forEach(function(btn) {
 });
 </script>
 <style>
-.tab-btn { background:none;border:none;padding:10px 20px;cursor:pointer;font-size:14px;font-weight:500;color:#6b7280;border-bottom:2px solid transparent;margin-bottom:-2px; }
+.tab-btn { background:none;border:none;padding:10px 20px;cursor:pointer;font-size:14px;font-weight:500;color:var(--text-muted);border-bottom:2px solid transparent;margin-bottom:-2px; }
 .tab-btn.active { color:#6366f1;border-bottom-color:#6366f1; }
 .hidden { display:none !important; }
 </style>

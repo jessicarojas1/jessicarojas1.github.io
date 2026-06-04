@@ -42,7 +42,7 @@ $statusIcons = [
                     <?= $i === 0 ? 'border-radius:8px 0 0 8px' : '' ?>
                     <?= $i === count($steps)-1 ? 'border-radius:0 8px 8px 0' : '' ?>
                     <?= $isCurrent ? 'border-color:#f59e0b;border-width:2px' : '' ?>">
-          <div style="font-size:11px;color:#6b7280;margin-bottom:4px">
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">
             Step <?= (int)$step['step_number'] ?>
           </div>
           <div class="fw-600 text-sm"><?= Security::h($step['label']) ?></div>

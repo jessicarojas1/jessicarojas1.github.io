@@ -82,10 +82,10 @@ if ($filterStatus !== '') {
   <div class="card" style="border-left:4px solid #64748b;">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
       <div style="width:44px;height:44px;border-radius:10px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-        <i class="bi bi-calendar-x-fill" style="font-size:20px;color:#64748b;"></i>
+        <i class="bi bi-calendar-x-fill" style="font-size:20px;color:var(--text-muted);"></i>
       </div>
       <div>
-        <div style="font-size:26px;font-weight:700;line-height:1;color:#64748b;"><?= $expiredCount ?></div>
+        <div style="font-size:26px;font-weight:700;line-height:1;color:var(--text-muted);"><?= $expiredCount ?></div>
         <div style="font-size:12px;color:var(--text-muted);margin-top:3px;">Expired</div>
       </div>
     </div>

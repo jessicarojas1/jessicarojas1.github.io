@@ -75,7 +75,7 @@ ob_start();
         </div>
         <div class="card-body" style="text-align:center;padding:1.5rem 1rem">
           <div id="sevBadge" style="display:inline-block;padding:0.4rem 1.2rem;border-radius:99px;font-size:1rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;background:#0284c720;color:#0284c7;border:2px solid #0284c740;margin-bottom:0.75rem">Medium</div>
-          <p id="sevDesc" style="font-size:0.85rem;color:#6b7280;margin:0">Moderate impact; address promptly.</p>
+          <p id="sevDesc" style="font-size:0.85rem;color:var(--text-muted);margin:0">Moderate impact; address promptly.</p>
         </div>
       </div>
 

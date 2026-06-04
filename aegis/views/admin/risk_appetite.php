@@ -26,8 +26,8 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
     <div style="display:flex;align-items:flex-start;gap:14px">
       <i class="bi bi-shield-fill-exclamation" style="color:#6366f1;font-size:28px;flex-shrink:0;margin-top:2px"></i>
       <div>
-        <p style="margin:0 0 6px;font-weight:600;color:#1e293b">What is a Risk Appetite Statement?</p>
-        <p style="margin:0;color:#475569;font-size:14px;line-height:1.6">
+        <p style="margin:0 0 6px;font-weight:600;color:var(--text)">What is a Risk Appetite Statement?</p>
+        <p style="margin:0;color:var(--text-muted);font-size:14px;line-height:1.6">
           A Risk Appetite Statement defines how much risk the organization is willing to accept in pursuit of its objectives.
           It provides auditors and stakeholders with a clear, documented framework for evaluating risk decisions.
           Each category can have a named appetite level and a maximum acceptable risk score.

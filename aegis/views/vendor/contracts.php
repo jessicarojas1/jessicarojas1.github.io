@@ -50,7 +50,7 @@ $urgent = array_filter($expiring, function($c) {
     <i class="bi bi-exclamation-triangle-fill" style="color:#dc2626;font-size:20px;flex-shrink:0"></i>
     <div>
       <strong style="color:#991b1b">Urgent: <?= count($urgent) ?> contract<?= count($urgent) !== 1 ? 's' : '' ?> expiring within 30 days</strong>
-      <p style="margin:2px 0 0;font-size:13px;color:#b91c1c">Review auto-renewal settings or begin renegotiation immediately.</p>
+      <p style="margin:2px 0 0;font-size:13px;color:var(--danger)">Review auto-renewal settings or begin renegotiation immediately.</p>
     </div>
   </div>
 </div>
@@ -62,7 +62,7 @@ $urgent = array_filter($expiring, function($c) {
   <h2 style="font-size:16px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:8px">
     <i class="bi bi-clock-history" style="color:#d97706"></i>
     Expiring Soon
-    <span style="font-size:12px;font-weight:400;color:#64748b;background:#f1f5f9;padding:2px 8px;border-radius:10px"><?= count($expiring) ?></span>
+    <span style="font-size:12px;font-weight:400;color:var(--text-muted);background:#f1f5f9;padding:2px 8px;border-radius:10px"><?= count($expiring) ?></span>
   </h2>
   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">
     <?php foreach ($expiring as $c):
@@ -74,7 +74,7 @@ $urgent = array_filter($expiring, function($c) {
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
           <div style="flex:1;min-width:0">
             <div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><?= Security::h($c['title']) ?></div>
-            <div style="font-size:12px;color:#64748b;margin-top:2px"><?= Security::h($c['vendor_name']) ?></div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:2px"><?= Security::h($c['vendor_name']) ?></div>
           </div>
           <?php if ($c['auto_renewal']): ?>
           <span style="font-size:11px;background:#dcfce7;color:#15803d;padding:2px 7px;border-radius:10px;white-space:nowrap;margin-left:8px">Auto-Renews</span>
@@ -86,7 +86,7 @@ $urgent = array_filter($expiring, function($c) {
             <?= $daysLeft > 0 ? $daysLeft . ' day' . ($daysLeft !== 1 ? 's' : '') . ' left' : 'Expiring today' ?>
           </span>
           <?php if ($c['value'] !== null): ?>
-          <span style="color:#475569"><?= Security::h($c['currency']) ?> <?= number_format((float)$c['value'], 0) ?></span>
+          <span style="color:var(--text-muted)"><?= Security::h($c['currency']) ?> <?= number_format((float)$c['value'], 0) ?></span>
           <?php endif; ?>
         </div>
         <div style="margin-top:10px">
@@ -140,7 +140,7 @@ $urgent = array_filter($expiring, function($c) {
           <tr>
             <td style="font-weight:500"><?= Security::h($c['vendor_name']) ?></td>
             <td><?= Security::h($c['title']) ?></td>
-            <td style="font-family:monospace;font-size:12px;color:#64748b"><?= $c['contract_number'] ? Security::h($c['contract_number']) : '—' ?></td>
+            <td style="font-family:monospace;font-size:12px;color:var(--text-muted)"><?= $c['contract_number'] ? Security::h($c['contract_number']) : '—' ?></td>
             <td>
               <span class="status-chip" style="background:<?= $badge['bg'] ?>;color:<?= $badge['color'] ?>;border:1px solid <?= $badge['color'] ?>30">
                 <?= $badge['label'] ?>

@@ -40,12 +40,12 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
 .rd-header-left h2 {
   font-size: 22px;
   font-weight: 800;
-  color: #1e293b;
+  color: var(--text);
   margin: 0 0 4px;
 }
 .rd-header-left p {
   font-size: 13px;
-  color: #64748b;
+  color: var(--text-muted);
   margin: 0;
 }
 .rd-print-btn {
@@ -81,7 +81,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
   text-align: center;
 }
 .rd-stat .val { font-size: 28px; font-weight: 800; line-height: 1; margin: 6px 0 5px; display: block; }
-.rd-stat .lbl { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: #64748b; }
+.rd-stat .lbl { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--text-muted); }
 
 .rd-table-wrap {
   background: #fff;
@@ -111,7 +111,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
   padding: 9px 10px;
   text-align: left;
   font-weight: 700;
-  color: #475569;
+  color: var(--text-muted);
   background: #f8fafc;
   border-bottom: 1px solid #e2e8f0;
   white-space: nowrap;
@@ -196,8 +196,8 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
   <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid #6366f1;">
     <i class="bi bi-shield-fill-check" style="font-size:28px;color:#6366f1;"></i>
     <div>
-      <div style="font-size:18px;font-weight:800;color:#1e293b;">AEGIS GRC &mdash; Risk Register Report</div>
-      <div style="font-size:12px;color:#64748b;"><?= Security::h($orgName) ?> &middot; <?= Security::h($reportDate) ?><?= Security::h($filterDesc) ?></div>
+      <div style="font-size:18px;font-weight:800;color:var(--text);">AEGIS GRC &mdash; Risk Register Report</div>
+      <div style="font-size:12px;color:var(--text-muted);"><?= Security::h($orgName) ?> &middot; <?= Security::h($reportDate) ?><?= Security::h($filterDesc) ?></div>
     </div>
     <div style="margin-left:auto;border:2px solid #6366f1;color:#6366f1;font-size:10px;font-weight:800;letter-spacing:.15em;padding:3px 10px;border-radius:4px;">CONFIDENTIAL</div>
   </div>
@@ -208,7 +208,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
   <i class="bi bi-funnel-fill"></i> <strong>Filter applied:</strong>
   <?php if ($filterLevel):  ?> Level: <strong><?= Security::h(ucfirst($filterLevel)) ?></strong><?php endif; ?>
   <?php if ($filterStatus): ?> &nbsp;Status: <strong><?= Security::h(ucfirst(str_replace('_',' ',$filterStatus))) ?></strong><?php endif; ?>
-  &nbsp;<a href="/report/risk-detail" style="color:#6d28d9;font-weight:600;">Clear filters</a>
+  &nbsp;<a href="/report/risk-detail" style="color:var(--secondary);font-weight:600;">Clear filters</a>
 </div>
 <?php endif; ?>
 
@@ -238,7 +238,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
 
 <!-- ── Filter Controls (screen only) ─────────────────────────────────────── -->
 <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;align-items:center;" class="no-print">
-  <span style="font-size:13px;font-weight:600;color:#475569;">Filter:</span>
+  <span style="font-size:13px;font-weight:600;color:var(--text-muted);">Filter:</span>
   <a href="/report/risk-detail"
      style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= (!$filterLevel && !$filterStatus) ? '#6366f1' : '#f1f5f9' ?>;color:<?= (!$filterLevel && !$filterStatus) ? '#fff' : '#475569' ?>;text-decoration:none;font-weight:600;">All</a>
   <a href="/report/risk-detail?level=critical"
@@ -308,14 +308,14 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
       <tr>
         <td style="font-weight:700;color:#6366f1;white-space:nowrap;font-size:11px;"><?= Security::h($r['risk_id'] ?? '#' . $r['id']) ?></td>
         <td style="max-width:200px;">
-          <div style="font-weight:600;color:#1e293b;"><?= Security::h($r['title']) ?></div>
+          <div style="font-weight:600;color:var(--text);"><?= Security::h($r['title']) ?></div>
           <?php if (!empty($r['description'])): ?>
           <div style="font-size:10px;color:#94a3b8;margin-top:2px;"><?= Security::h(mb_substr($r['description'], 0, 70)) ?><?= mb_strlen($r['description'] ?? '') > 70 ? '…' : '' ?></div>
           <?php endif; ?>
         </td>
-        <td style="color:#64748b;white-space:nowrap;"><?= Security::h($r['category_name'] ?? '—') ?></td>
-        <td class="center" style="color:#64748b;font-weight:600;"><?= $lik ?: '—' ?></td>
-        <td class="center" style="color:#64748b;font-weight:600;"><?= $imp ?: '—' ?></td>
+        <td style="color:var(--text-muted);white-space:nowrap;"><?= Security::h($r['category_name'] ?? '—') ?></td>
+        <td class="center" style="color:var(--text-muted);font-weight:600;"><?= $lik ?: '—' ?></td>
+        <td class="center" style="color:var(--text-muted);font-weight:600;"><?= $imp ?: '—' ?></td>
         <td class="center">
           <span class="score-badge" style="background:<?= $sc_bg ?>;color:<?= $sc_cl ?>;"><?= $sc ?></span>
         </td>
@@ -332,7 +332,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
         </td>
         <td>
           <?php if ($strategy && $strategy !== '—'): ?>
-          <span style="background:#ede9fe;color:#6d28d9;font-size:10px;font-weight:600;padding:2px 7px;border-radius:99px;display:inline-block;"><?= $strategy ?></span>
+          <span style="background:#ede9fe;color:var(--secondary);font-size:10px;font-weight:600;padding:2px 7px;border-radius:99px;display:inline-block;"><?= $strategy ?></span>
           <?php else: ?><span style="color:#cbd5e1;">—</span><?php endif; ?>
         </td>
         <td style="white-space:nowrap;"><?= Security::h($r['owner_name'] ?? '—') ?></td>

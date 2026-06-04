@@ -30,8 +30,8 @@ function scenarioLevelClass(int $s): string {
 .preview-score{font-size:22px;font-weight:900;line-height:1}
 .preview-delta{display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:700;padding:2px 8px;border-radius:20px}
 .delta-up{background:#fee2e2;color:#dc2626}
-.delta-down{background:#d1fae5;color:#065f46}
-.delta-neutral{background:#f1f5f9;color:#64748b}
+.delta-down{background:#d1fae5;color:var(--success)}
+.delta-neutral{background:#f1f5f9;color:var(--text-muted)}
 .multiplier-group{display:flex;flex-direction:column;gap:6px}
 .mult-row{display:flex;align-items:center;gap:12px}
 .mult-slider{flex:1}
@@ -281,7 +281,7 @@ function scenarioLevelClass(int $s): string {
               </tr>
               <tr>
                 <td><strong>1.0</strong></td>
-                <td style="color:#64748b">Baseline</td>
+                <td style="color:var(--text-muted)">Baseline</td>
                 <td>No change from base</td>
               </tr>
               <tr>

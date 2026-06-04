@@ -68,7 +68,7 @@
         </a>
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
           <hr style="flex:1;border:none;border-top:1px solid #e5e7eb">
-          <span style="color:#9ca3af;font-size:12px;white-space:nowrap">or use password</span>
+          <span style="color:var(--text-muted);font-size:12px;white-space:nowrap">or use password</span>
           <hr style="flex:1;border:none;border-top:1px solid #e5e7eb">
         </div>
       <?php endif; ?>

@@ -37,10 +37,10 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
 .rv-kpi-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
 .rv-kpi{flex:1;min-width:110px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;text-align:center}
 .rv-kpi .num{font-size:28px;font-weight:800;line-height:1}
-.rv-kpi .lbl{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-top:3px}
+.rv-kpi .lbl{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-top:3px}
 .progress-bar{height:10px;background:var(--bg-secondary);border-radius:5px;overflow:hidden;margin:6px 0}
 .progress-fill{height:100%;background:#6366f1;border-radius:5px;transition:width .3s}
-.section-tab{padding:8px 16px;font-size:13px;font-weight:600;border-radius:6px 6px 0 0;cursor:pointer;border:none;background:var(--bg-secondary);color:#64748b}
+.section-tab{padding:8px 16px;font-size:13px;font-weight:600;border-radius:6px 6px 0 0;cursor:pointer;border:none;background:var(--bg-secondary);color:var(--text-muted)}
 .section-tab.active{background:#6366f1;color:#fff}
 .risk-item-row td{vertical-align:top;padding:10px 12px;font-size:13px}
 .inline-review-form textarea{font-size:12px}
@@ -71,7 +71,7 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
         <?= ucfirst(str_replace('_',' ',$review['status'])) ?>
       </span>
     </div>
-    <div style="color:#64748b;font-size:13px">
+    <div style="color:var(--text-muted);font-size:13px">
       <span><?= $typeLabels[$review['review_type']] ?? $review['review_type'] ?> review</span>
       &nbsp;·&nbsp; Scheduled <?= Security::h($review['scheduled_date']) ?>
       <?php if ($review['lead_reviewer_name']): ?>
@@ -103,10 +103,10 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
 <?php if ($review['status'] === 'completed'): ?>
 <div class="card" style="margin-bottom:16px;border-left:4px solid #16a34a">
   <div class="card-body" style="display:flex;gap:24px;flex-wrap:wrap">
-    <div><div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.05em">Completed</div><div style="font-weight:600"><?= Security::h($review['completed_date'] ?? '—') ?></div></div>
-    <div><div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.05em">Signed Off By</div><div style="font-weight:600"><?= Security::h($review['sign_off_name'] ?? '—') ?></div></div>
+    <div><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">Completed</div><div style="font-weight:600"><?= Security::h($review['completed_date'] ?? '—') ?></div></div>
+    <div><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">Signed Off By</div><div style="font-weight:600"><?= Security::h($review['sign_off_name'] ?? '—') ?></div></div>
     <?php if ($review['conclusion']): ?>
-    <div style="flex:2"><div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.05em">Conclusion</div><div><?= Security::h($review['conclusion']) ?></div></div>
+    <div style="flex:2"><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">Conclusion</div><div><?= Security::h($review['conclusion']) ?></div></div>
     <?php endif; ?>
   </div>
 </div>
@@ -116,7 +116,7 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
 <div class="rv-kpi-row">
   <div class="rv-kpi"><div class="num"><?= $review['total_risks'] ?></div><div class="lbl">Total Risks</div></div>
   <div class="rv-kpi" style="border-color:#16a34a"><div class="num" style="color:#16a34a"><?= count($groups['reviewed']) + count($groups['escalated']) + count($groups['deferred']) + count($groups['not_applicable']) ?></div><div class="lbl">Reviewed</div></div>
-  <div class="rv-kpi" style="border-color:#64748b"><div class="num" style="color:#64748b"><?= count($groups['pending']) ?></div><div class="lbl">Pending</div></div>
+  <div class="rv-kpi" style="border-color:var(--text-muted)"><div class="num" style="color:var(--text-muted)"><?= count($groups['pending']) ?></div><div class="lbl">Pending</div></div>
   <div class="rv-kpi" style="border-color:#ef4444"><div class="num" style="color:#ef4444"><?= count($groups['escalated']) ?></div><div class="lbl">Escalated</div></div>
   <div class="rv-kpi" style="border-color:#f59e0b"><div class="num" style="color:#f59e0b"><?= count($groups['deferred']) ?></div><div class="lbl">Deferred</div></div>
   <div style="flex:3;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px">
@@ -124,7 +124,7 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
       <span>Overall Progress</span><span style="color:#6366f1"><?= $totalPct ?>%</span>
     </div>
     <div class="progress-bar"><div class="progress-fill" style="width:<?= $totalPct ?>%"></div></div>
-    <div style="font-size:12px;color:#64748b"><?= $review['reviewed_count'] ?> of <?= $review['total_risks'] ?> risks reviewed</div>
+    <div style="font-size:12px;color:var(--text-muted)"><?= $review['reviewed_count'] ?> of <?= $review['total_risks'] ?> risks reviewed</div>
   </div>
 </div>
 
@@ -135,7 +135,7 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
     <h3 class="card-title">
       <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:<?= $itemStatusColors[$groupStatus] ?>;margin-right:6px"></span>
       <?= ucfirst(str_replace('_',' ',$groupStatus)) ?>
-      <span style="font-size:12px;color:#64748b;font-weight:400;margin-left:6px"><?= count($groupItems) ?> risk<?= count($groupItems)!==1?'s':'' ?></span>
+      <span style="font-size:12px;color:var(--text-muted);font-weight:400;margin-left:6px"><?= count($groupItems) ?> risk<?= count($groupItems)!==1?'s':'' ?></span>
     </h3>
   </div>
   <div class="card-body p0">
@@ -196,7 +196,7 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
             <?php elseif ($item['treatment_adequate'] === 'f' || $item['treatment_adequate'] === false || $item['treatment_adequate'] === 0): ?>
               <span style="color:#ef4444">✗ Treatment inadequate</span><br>
             <?php endif; ?>
-            <?php if ($item['reviewer_notes']): ?><div style="color:#475569;margin-top:4px;font-style:italic"><?= Security::h($item['reviewer_notes']) ?></div><?php endif; ?>
+            <?php if ($item['reviewer_notes']): ?><div style="color:var(--text-muted);margin-top:4px;font-style:italic"><?= Security::h($item['reviewer_notes']) ?></div><?php endif; ?>
             <?php if ($item['reviewer_name']): ?><div style="color:#94a3b8;margin-top:4px">— <?= Security::h($item['reviewer_name']) ?></div><?php endif; ?>
           </td>
           <?php endif; ?>

@@ -4,7 +4,7 @@ function ctResultBadge(string $result): string {
         'pass'       => '<span class="badge" style="background:#dcfce7;color:#16a34a;border:1px solid #86efac">Pass</span>',
         'fail'       => '<span class="badge" style="background:#fef2f2;color:#dc2626;border:1px solid #fca5a5">Fail</span>',
         'partial'    => '<span class="badge" style="background:#fffbeb;color:#d97706;border:1px solid #fcd34d">Partial</span>',
-        'not_tested' => '<span class="badge" style="background:#f1f5f9;color:#64748b;border:1px solid #cbd5e1">Not Tested</span>',
+        'not_tested' => '<span class="badge" style="background:#f1f5f9;color:var(--text-muted);border:1px solid #cbd5e1">Not Tested</span>',
         default      => '<span class="badge">' . htmlspecialchars($result, ENT_QUOTES, 'UTF-8') . '</span>',
     };
 }
@@ -46,8 +46,8 @@ $cntTotal     = $cntPass + $cntFail + $cntPartial + $cntNotTested;
     <div style="font-size:13px;color:#d97706;margin-top:4px;font-weight:600">Partial</div>
   </div>
   <div style="flex:1;min-width:120px;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:12px;padding:16px 20px;text-align:center">
-    <div style="font-size:32px;font-weight:700;color:#64748b;line-height:1"><?= $cntNotTested ?></div>
-    <div style="font-size:13px;color:#64748b;margin-top:4px;font-weight:600">Not Tested</div>
+    <div style="font-size:32px;font-weight:700;color:var(--text-muted);line-height:1"><?= $cntNotTested ?></div>
+    <div style="font-size:13px;color:var(--text-muted);margin-top:4px;font-weight:600">Not Tested</div>
   </div>
   <?php if ($cntTotal > 0): ?>
   <div style="flex:1;min-width:140px;background:#eff6ff;border:1px solid #93c5fd;border-radius:12px;padding:16px 20px;text-align:center">
@@ -107,7 +107,7 @@ $cntTotal     = $cntPass + $cntFail + $cntPartial + $cntNotTested;
     <div class="card-header-left">
       <i class="bi bi-clock-history" style="color:var(--primary)"></i>
       <span class="card-title">Recent Tests</span>
-      <span style="background:#e2e8f0;color:#64748b;border-radius:12px;padding:2px 10px;font-size:12px;font-weight:600"><?= count($recent) ?></span>
+      <span style="background:#e2e8f0;color:var(--text-muted);border-radius:12px;padding:2px 10px;font-size:12px;font-weight:600"><?= count($recent) ?></span>
     </div>
   </div>
   <?php if ($recent): ?>
@@ -151,7 +151,7 @@ $cntTotal     = $cntPass + $cntFail + $cntPartial + $cntNotTested;
                 <div style="flex:1;height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden">
                   <div style="width:<?= (int)$r['effectiveness'] ?>%;height:100%;background:<?= $r['effectiveness'] >= 75 ? '#16a34a' : ($r['effectiveness'] >= 40 ? '#d97706' : '#dc2626') ?>;border-radius:4px"></div>
                 </div>
-                <span style="font-size:12px;font-weight:600;color:#374151;white-space:nowrap"><?= (int)$r['effectiveness'] ?>%</span>
+                <span style="font-size:12px;font-weight:600;color:var(--text);white-space:nowrap"><?= (int)$r['effectiveness'] ?>%</span>
               </div>
               <?php else: ?>
               <span style="color:#94a3b8;font-size:13px">—</span>

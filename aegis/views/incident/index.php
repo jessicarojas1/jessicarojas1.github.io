@@ -126,7 +126,7 @@ ob_start();
               </span>
             </td>
             <td><?= Security::h($inc['assigned_to_name'] ?? '—') ?></td>
-            <td style="font-size:0.85rem;color:#6b7280"><?= $detectedAt ?></td>
+            <td style="font-size:0.85rem;color:var(--text-muted)"><?= $detectedAt ?></td>
             <td>
               <a href="/incident/<?= (int)$inc['id'] ?>" class="btn btn-ghost btn-sm" title="View"><i class="bi bi-eye"></i></a>
             </td>
@@ -134,7 +134,7 @@ ob_start();
         <?php endforeach; else: ?>
           <tr>
             <td colspan="8" style="text-align:center;padding:3rem 1rem">
-              <div style="display:flex;flex-direction:column;align-items:center;gap:0.75rem;color:#9ca3af">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:0.75rem;color:var(--text-muted)">
                 <i class="bi bi-shield-check" style="font-size:2.5rem"></i>
                 <p style="margin:0;font-size:1rem">No incidents found.
                   <?php if (empty($_GET['severity']) && empty($_GET['status']) && empty($_GET['search'])): ?>

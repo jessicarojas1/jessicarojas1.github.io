@@ -138,7 +138,7 @@ ob_start();
             ?>
               <div style="border:1px solid var(--border,#e5e7eb);border-radius:6px;padding:8px 10px;background:var(--bg-secondary,#f8fafc)">
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
-                  <code style="font-size:12px;color:#6d28d9;word-break:break-all"><?= Security::h($placeholder) ?></code>
+                  <code style="font-size:12px;color:var(--secondary);word-break:break-all"><?= Security::h($placeholder) ?></code>
                   <button type="button"
                           data-click="copyVar" data-arg="<?= Security::h($placeholder) ?>"
                           class="btn btn-ghost btn-sm"
@@ -175,11 +175,11 @@ ob_start();
   <div style="background:#fff;border-radius:12px;width:90vw;max-width:820px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3)">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #e5e7eb">
       <h3 style="margin:0;font-size:16px;font-weight:600">Email Preview</h3>
-      <button type="button" data-click="closePreviewModal" style="background:none;border:none;cursor:pointer;font-size:20px;color:#6b7280;line-height:1">
+      <button type="button" data-click="closePreviewModal" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text-muted);line-height:1">
         <i class="bi bi-x-lg"></i>
       </button>
     </div>
-    <div id="previewLoading" style="padding:40px;text-align:center;color:#6b7280;display:none">
+    <div id="previewLoading" style="padding:40px;text-align:center;color:var(--text-muted);display:none">
       <i class="bi bi-arrow-repeat" style="font-size:1.5rem;animation:spin 1s linear infinite"></i>
       <p style="margin:12px 0 0">Rendering preview…</p>
     </div>

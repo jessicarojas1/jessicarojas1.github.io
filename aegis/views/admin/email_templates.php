@@ -27,9 +27,9 @@ ob_start();
   </div>
 </div>
 
-<div class="alert" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:flex-start;gap:12px;font-size:14px;color:#1e40af">
+<div class="inline-info-box" style="border-radius:8px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:flex-start;gap:12px;font-size:14px">
   <i class="bi bi-info-circle-fill" style="flex-shrink:0;margin-top:1px"></i>
-  <span>Templates use <code style="background:#dbeafe;padding:1px 5px;border-radius:4px;font-size:12px">{{variable}}</code> placeholders. Available variables are listed on the edit page for each template.</span>
+  <span>Templates use <code style="padding:1px 5px;border-radius:4px;font-size:12px">{{variable}}</code> placeholders. Available variables are listed on the edit page for each template.</span>
 </div>
 
 <div class="card">

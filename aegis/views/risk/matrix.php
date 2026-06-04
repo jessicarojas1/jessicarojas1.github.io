@@ -175,7 +175,7 @@ function showCellRisks(r, c) {
         <div style="min-width:40px;height:40px;border-radius:8px;background:${colors[level]}20;color:${colors[level]};display:flex;align-items:center;justify-content:center;font-weight:700">${risk.inherent_score}</div>
         <div>
           <div style="font-weight:600">${risk.title}</div>
-          <div style="font-size:12px;color:#64748b">${risk.risk_id || ''} · ${risk.category_name || 'Uncategorized'}</div>
+          <div style="font-size:12px;color:var(--text-muted)">${risk.risk_id || ''} · ${risk.category_name || 'Uncategorized'}</div>
         </div>
       </a>`
     ).join('');

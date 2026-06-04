@@ -146,12 +146,12 @@ $avgScore = count($scenarios) > 0 ? round($totalScoreSum / count($scenarios), 1)
               </span>
             <?php elseif ($delta < 0): ?>
               <span style="display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:700;
-                           padding:3px 8px;border-radius:20px;background:#d1fae5;color:#065f46">
+                           padding:3px 8px;border-radius:20px;background:#d1fae5;color:var(--success)">
                 <i class="bi bi-arrow-down"></i> <?= $delta ?>
               </span>
             <?php else: ?>
               <span style="display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:600;
-                           padding:3px 8px;border-radius:20px;background:#f1f5f9;color:#64748b">
+                           padding:3px 8px;border-radius:20px;background:#f1f5f9;color:var(--text-muted)">
                 &#177; 0
               </span>
             <?php endif; ?>

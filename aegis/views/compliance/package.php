@@ -62,7 +62,7 @@ ob_start();
     <div class="ov-stat"><span class="ov-num" style="color:#059669"><?= $compliant ?></span><span>Compliant</span></div>
     <div class="ov-stat"><span class="ov-num" style="color:#d97706"><?= $partial ?></span><span>Partial</span></div>
     <div class="ov-stat"><span class="ov-num" style="color:#dc2626"><?= $nonComp ?></span><span>Non-compliant</span></div>
-    <div class="ov-stat"><span class="ov-num" style="color:#64748b"><?= max(0,$total-$compliant-$partial-$nonComp) ?></span><span>Not Started</span></div>
+    <div class="ov-stat"><span class="ov-num" style="color:var(--text-muted)"><?= max(0,$total-$compliant-$partial-$nonComp) ?></span><span>Not Started</span></div>
   </div>
   <?php if ($package['standard_desc']): ?>
   <div class="overview-desc">

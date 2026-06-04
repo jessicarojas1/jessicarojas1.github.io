@@ -41,7 +41,7 @@ $totalGaps = count($gaps);
         </span>
         <div style="min-width:0">
           <div style="font-weight:600;font-size:14px;line-height:1.3"><?= Security::h($pkg['name']) ?></div>
-          <div style="font-size:12px;color:#64748b;margin-top:2px"><?= Security::h($pkg['standard_name']) ?></div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:2px"><?= Security::h($pkg['standard_name']) ?></div>
         </div>
       </div>
 
@@ -61,7 +61,7 @@ $totalGaps = count($gaps);
         <span style="background:#dbeafe;color:#1d4ed8;padding:3px 9px;border-radius:10px;font-weight:500">
           <i class="bi bi-arrow-repeat"></i> <?= $inProgress ?> In Progress
         </span>
-        <span style="background:#f1f5f9;color:#64748b;padding:3px 9px;border-radius:10px;font-weight:500">
+        <span style="background:#f1f5f9;color:var(--text-muted);padding:3px 9px;border-radius:10px;font-weight:500">
           <i class="bi bi-circle"></i> <?= $notStarted ?> Not Started
         </span>
         <?php if ($overdue > 0): ?>
@@ -91,7 +91,7 @@ $totalGaps = count($gaps);
     <i class="bi bi-exclamation-triangle" style="color:#d97706"></i>
     Control Gaps Requiring Attention
   </h2>
-  <span style="font-size:13px;color:#64748b;background:#f1f5f9;padding:4px 12px;border-radius:12px">
+  <span style="font-size:13px;color:var(--text-muted);background:#f1f5f9;padding:4px 12px;border-radius:12px">
     <?= $totalGaps ?> gap<?= $totalGaps !== 1 ? 's' : '' ?><?= $totalGaps >= 100 ? ' (showing top 100)' : '' ?>
   </span>
 </div>
@@ -171,7 +171,7 @@ $totalGaps = count($gaps);
       <i class="bi bi-diagram-3" style="color:#dc2626"></i>
       Controls Failing Across Multiple Frameworks
     </h2>
-    <p style="font-size:13px;color:#64748b;margin:0">
+    <p style="font-size:13px;color:var(--text-muted);margin:0">
       These control gaps affect multiple compliance programs simultaneously — remediate these first for the broadest impact.
     </p>
   </div>
@@ -211,7 +211,7 @@ $totalGaps = count($gaps);
             <td style="text-align:center">
               <span style="font-size:15px;font-weight:700;color:<?= $priority ?>"><?= $cfCount ?></span>
             </td>
-            <td style="text-align:center;font-size:13px;color:#64748b">
+            <td style="text-align:center;font-size:13px;color:var(--text-muted)">
               <?= $cfImplemented ?> / <?= $cfCount ?>
             </td>
           </tr>

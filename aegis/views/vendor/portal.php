@@ -6,7 +6,7 @@
   <title><?= Security::h($vendor['name']) ?> — Security Assessment</title>
   <link rel="stylesheet" href="/public/vendor/bootstrap-icons/bootstrap-icons.min.css">
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; color: #1e293b; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; color: var(--text); margin: 0; padding: 0; }
     .header { background: #0f172a; color: white; padding: 20px 40px; display: flex; align-items: center; gap: 12px; }
     .header h1 { margin: 0; font-size: 18px; }
     .content { max-width: 760px; margin: 40px auto; padding: 0 20px; }
@@ -21,7 +21,7 @@
     .btn-primary { background: #4f46e5; color: white; }
     .btn-primary:hover { background: #4338ca; }
     .footer { text-align: center; color: #94a3b8; font-size: 13px; padding: 20px; }
-    .meta { color: #64748b; font-size: 13px; margin-bottom: 20px; }
+    .meta { color: var(--text-muted); font-size: 13px; margin-bottom: 20px; }
     .progress-bar { height: 4px; background: #e2e8f0; border-radius: 2px; margin-bottom: 24px; }
     .progress-fill { height: 100%; background: #4f46e5; border-radius: 2px; transition: width .3s; }
   </style>
@@ -43,7 +43,7 @@
       <?= count($questions) ?> questions
     </div>
     <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
-    <p style="color:#64748b;margin-top:0">Please answer each question as completely as possible. Required questions are marked with <span class="required-star">*</span>. Your responses are encrypted in transit and stored securely.</p>
+    <p style="color:var(--text-muted);margin-top:0">Please answer each question as completely as possible. Required questions are marked with <span class="required-star">*</span>. Your responses are encrypted in transit and stored securely.</p>
   </div>
 
   <form method="POST" action="/vendor/portal/<?= Security::h($token) ?>/submit" id="vendorPortalForm">
@@ -63,7 +63,7 @@
     <?php endforeach; ?>
 
     <div class="card" style="text-align:center">
-      <p style="color:#64748b;margin-top:0">By submitting this form you confirm the information provided is accurate to the best of your knowledge.</p>
+      <p style="color:var(--text-muted);margin-top:0">By submitting this form you confirm the information provided is accurate to the best of your knowledge.</p>
       <button type="submit" class="btn btn-primary"><i class="bi bi-send-fill"></i> Submit Assessment</button>
     </div>
   </form>

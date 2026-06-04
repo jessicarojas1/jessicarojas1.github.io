@@ -18,15 +18,15 @@ ob_start();
 .sig-line { display: flex; gap: 40px; margin-bottom: 24px; }
 .sig-field { flex: 1; border-bottom: 1px solid #333; padding-bottom: 4px; }
 .scorecard-header { border-bottom: 2px solid #e5e7eb; margin-bottom: 24px; padding-bottom: 16px; }
-.scorecard-logo { font-size: 22px; font-weight: 700; color: #0f172a; letter-spacing: -0.5px; }
+.scorecard-logo { font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: -0.5px; }
 .scorecard-logo span { color: #4f46e5; }
 .domain-header-row { background: #1e293b; color: #fff; padding: 10px 14px; font-weight: 600; font-size: 13px; }
 .status-badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; }
 .badge-compliant { background: #dcfce7; color: #166534; }
 .badge-non_compliant { background: #fee2e2; color: #991b1b; }
 .badge-partial { background: #fef9c3; color: #854d0e; }
-.badge-not_applicable { background: #f1f5f9; color: #475569; }
-.badge-not_started { background: #f1f5f9; color: #475569; }
+.badge-not_applicable { background: #f1f5f9; color: var(--text-muted); }
+.badge-not_started { background: #f1f5f9; color: var(--text-muted); }
 .domain-section { margin-bottom: 24px; page-break-before: auto; }
 </style>
 
@@ -43,19 +43,19 @@ ob_start();
       <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
         <div>
           <div class="scorecard-logo">AEGIS <span>GRC</span></div>
-          <div style="font-size:13px;color:#64748b;margin-top:2px"><?= Security::h(Auth::user()['org_name'] ?? 'Enterprise') ?></div>
+          <div style="font-size:13px;color:var(--text-muted);margin-top:2px"><?= Security::h(Auth::user()['org_name'] ?? 'Enterprise') ?></div>
         </div>
-        <div style="text-align:right;font-size:13px;color:#64748b">
+        <div style="text-align:right;font-size:13px;color:var(--text-muted)">
           <div><strong>Framework:</strong> <?= Security::h($package['standard_name']) ?> (<?= Security::h($package['standard_code']) ?>)</div>
           <div><strong>Generated:</strong> <?= date('F j, Y') ?></div>
           <div><strong>Prepared by:</strong> <?= Security::h(Auth::user()['name'] ?? '—') ?></div>
         </div>
       </div>
-      <h2 style="margin:16px 0 0;font-size:20px;color:#0f172a">COMPLIANCE SCORECARD — <?= Security::h($package['name']) ?></h2>
+      <h2 style="margin:16px 0 0;font-size:20px;color:var(--text)">COMPLIANCE SCORECARD — <?= Security::h($package['name']) ?></h2>
     </div>
 
     <!-- Executive Summary -->
-    <h3 style="margin-bottom:12px;font-size:15px;color:#0f172a">Executive Summary</h3>
+    <h3 style="margin-bottom:12px;font-size:15px;color:var(--text)">Executive Summary</h3>
 
     <?php
       $pctColor = $pct >= 80 ? '#059669' : ($pct >= 60 ? '#d97706' : '#dc2626');
@@ -63,7 +63,7 @@ ob_start();
     ?>
 
     <div class="score-summary">
-      <div class="score-chip" style="background:#f1f5f9;color:#0f172a">
+      <div class="score-chip" style="background:#f1f5f9;color:var(--text)">
         <div style="font-size:22px;font-weight:700"><?= $total ?></div>
         <div style="font-size:12px;margin-top:4px">Total Controls</div>
       </div>
@@ -79,11 +79,11 @@ ob_start();
         <div style="font-size:22px;font-weight:700"><?= $partial ?></div>
         <div style="font-size:12px;margin-top:4px">Partial</div>
       </div>
-      <div class="score-chip" style="background:#f1f5f9;color:#475569">
+      <div class="score-chip" style="background:#f1f5f9;color:var(--text-muted)">
         <div style="font-size:22px;font-weight:700"><?= $notApplicable ?></div>
         <div style="font-size:12px;margin-top:4px">Not Applicable</div>
       </div>
-      <div class="score-chip" style="background:#f1f5f9;color:#475569">
+      <div class="score-chip" style="background:#f1f5f9;color:var(--text-muted)">
         <div style="font-size:22px;font-weight:700"><?= $notAssessed ?></div>
         <div style="font-size:12px;margin-top:4px">Not Assessed</div>
       </div>
@@ -119,7 +119,7 @@ ob_start();
         <div style="width:<?= $wNotAssessed ?>%;background:#e2e8f0" title="Not Assessed: <?= $notAssessed ?>"></div>
       <?php endif; ?>
     </div>
-    <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:#64748b;margin-bottom:4px">
+    <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text-muted);margin-bottom:4px">
       <span><span style="display:inline-block;width:10px;height:10px;background:#059669;border-radius:2px;margin-right:4px"></span>Compliant</span>
       <span><span style="display:inline-block;width:10px;height:10px;background:#d97706;border-radius:2px;margin-right:4px"></span>Partial</span>
       <span><span style="display:inline-block;width:10px;height:10px;background:#dc2626;border-radius:2px;margin-right:4px"></span>Non-Compliant</span>
@@ -130,7 +130,7 @@ ob_start();
 </div>
 
 <!-- Controls by Domain -->
-<h3 style="margin-bottom:12px;font-size:15px;color:#0f172a">Controls by Domain</h3>
+<h3 style="margin-bottom:12px;font-size:15px;color:var(--text)">Controls by Domain</h3>
 
 <?php foreach ($domains as $domain): ?>
 <div class="domain-section card" style="margin-bottom:16px">
@@ -167,12 +167,12 @@ ob_start();
         }
       ?>
       <tr style="border-bottom:1px solid #f1f5f9">
-        <td style="padding:7px 12px;font-family:monospace;font-size:11px;color:#475569"><?= Security::h($ctrl['code']) ?></td>
+        <td style="padding:7px 12px;font-family:monospace;font-size:11px;color:var(--text-muted)"><?= Security::h($ctrl['code']) ?></td>
         <td style="padding:7px 12px"><?= Security::h($ctrl['title']) ?></td>
         <td style="padding:7px 12px"><span class="status-badge <?= $badgeClass ?>"><?= $statusLabel ?></span></td>
-        <td style="padding:7px 12px;color:#64748b"><?= Security::h($ctrl['assigned_name'] ?? '—') ?></td>
-        <td style="padding:7px 12px;color:#64748b"><?= $ctrl['due_date'] ? date('M j, Y', strtotime($ctrl['due_date'])) : '—' ?></td>
-        <td style="padding:7px 12px;color:#64748b;font-size:11px"><?= Security::h($notes) ?></td>
+        <td style="padding:7px 12px;color:var(--text-muted)"><?= Security::h($ctrl['assigned_name'] ?? '—') ?></td>
+        <td style="padding:7px 12px;color:var(--text-muted)"><?= $ctrl['due_date'] ? date('M j, Y', strtotime($ctrl['due_date'])) : '—' ?></td>
+        <td style="padding:7px 12px;color:var(--text-muted);font-size:11px"><?= Security::h($notes) ?></td>
       </tr>
       <?php endforeach; ?>
     </tbody>
@@ -187,35 +187,35 @@ ob_start();
 <div class="card">
   <div class="card-body">
     <div class="sig-block">
-      <h3 style="margin-top:0;font-size:14px;color:#0f172a;margin-bottom:20px">Authorization &amp; Approval</h3>
+      <h3 style="margin-top:0;font-size:14px;color:var(--text);margin-bottom:20px">Authorization &amp; Approval</h3>
       <div class="sig-line">
         <div style="flex:2">
           <div class="sig-field">&nbsp;</div>
-          <div style="font-size:12px;color:#64748b;margin-top:6px">Prepared by</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:6px">Prepared by</div>
         </div>
         <div style="flex:1">
           <div class="sig-field">&nbsp;</div>
-          <div style="font-size:12px;color:#64748b;margin-top:6px">Date</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:6px">Date</div>
         </div>
       </div>
       <div class="sig-line">
         <div style="flex:2">
           <div class="sig-field">&nbsp;</div>
-          <div style="font-size:12px;color:#64748b;margin-top:6px">Reviewed by</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:6px">Reviewed by</div>
         </div>
         <div style="flex:1">
           <div class="sig-field">&nbsp;</div>
-          <div style="font-size:12px;color:#64748b;margin-top:6px">Date</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:6px">Date</div>
         </div>
       </div>
       <div class="sig-line">
         <div style="flex:2">
           <div class="sig-field">&nbsp;</div>
-          <div style="font-size:12px;color:#64748b;margin-top:6px">Approved by</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:6px">Approved by</div>
         </div>
         <div style="flex:1">
           <div class="sig-field">&nbsp;</div>
-          <div style="font-size:12px;color:#64748b;margin-top:6px">Date</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:6px">Date</div>
         </div>
       </div>
     </div>

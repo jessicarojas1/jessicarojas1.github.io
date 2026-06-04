@@ -52,7 +52,7 @@ $canEdit = Auth::can('policy.write');
         <?php endif; ?>
       </table>
       <?php if ($doc['description']): ?>
-        <p style="margin-top:12px;color:#374151"><?= Security::h($doc['description']) ?></p>
+        <p style="margin-top:12px;color:var(--text)"><?= Security::h($doc['description']) ?></p>
       <?php endif; ?>
     </div>
   </div>

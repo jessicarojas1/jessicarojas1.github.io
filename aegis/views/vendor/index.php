@@ -148,7 +148,7 @@ ob_start();
                 <?= Security::h($v['name']) ?>
               </a>
             </td>
-            <td><?= $v['category'] ? Security::h($v['category']) : '<span style="color:#9ca3af">—</span>' ?></td>
+            <td><?= $v['category'] ? Security::h($v['category']) : '<span style="color:var(--text-muted)">—</span>' ?></td>
             <td>
               <span class="status-chip" style="background:<?= $tierColor ?>20;color:<?= $tierColor ?>;border:1px solid <?= $tierColor ?>40;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap">
                 <?= ucfirst(Security::h($v['risk_tier'])) ?>
@@ -163,14 +163,14 @@ ob_start();
               <?php if ($v['data_access']): ?>
                 <span style="color:#d97706;font-weight:600;font-size:13px"><i class="bi bi-check-circle-fill"></i> Yes</span>
               <?php else: ?>
-                <span style="color:#9ca3af;font-size:13px">No</span>
+                <span style="color:var(--text-muted);font-size:13px">No</span>
               <?php endif; ?>
             </td>
             <td>
               <?php if ($v['critical_service']): ?>
                 <span style="color:#dc2626;font-weight:600;font-size:13px"><i class="bi bi-exclamation-triangle-fill"></i> Yes</span>
               <?php else: ?>
-                <span style="color:#9ca3af;font-size:13px">No</span>
+                <span style="color:var(--text-muted);font-size:13px">No</span>
               <?php endif; ?>
             </td>
             <td>
@@ -191,7 +191,7 @@ ob_start();
           </tr>
         <?php endforeach; else: ?>
           <tr>
-            <td colspan="9" style="text-align:center;padding:48px 24px;color:#6b7280">
+            <td colspan="9" style="text-align:center;padding:48px 24px;color:var(--text-muted)">
               <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
                 <i class="bi bi-buildings" style="font-size:32px;color:#d1d5db"></i>
                 <p style="margin:0;font-size:15px">No vendors found.</p>

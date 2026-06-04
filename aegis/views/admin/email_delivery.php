@@ -51,7 +51,7 @@ $typeColors = [
       <i class="bi <?= $icon ?>" style="font-size:24px;color:<?= $color ?>"></i>
       <div>
         <div style="font-size:26px;font-weight:800;color:<?= $color ?>"><?= number_format((int)($stats[$key]??0)) ?></div>
-        <div style="font-size:12px;color:#64748b"><?= $label ?></div>
+        <div style="font-size:12px;color:var(--text-muted)"><?= $label ?></div>
       </div>
     </div>
   </div>
@@ -92,7 +92,7 @@ $typeColors = [
           $tl = $typeLabels[$log['notification_type']] ?? $log['notification_type'];
         ?>
         <tr>
-          <td style="white-space:nowrap;font-size:12px;color:#64748b">
+          <td style="white-space:nowrap;font-size:12px;color:var(--text-muted)">
             <?= Security::h(date('Y-m-d H:i', strtotime($log['sent_at']))) ?>
           </td>
           <td>
@@ -101,7 +101,7 @@ $typeColors = [
             </span>
           </td>
           <td style="font-size:13px"><?= Security::h($log['recipient_email'] ?? '—') ?></td>
-          <td style="font-size:12px;color:#64748b">
+          <td style="font-size:12px;color:var(--text-muted)">
             <?php if ($log['entity_id']): ?>
               <?= Security::h(ucfirst(str_replace('_',' ', $log['notification_type']))) ?> #<?= (int)$log['entity_id'] ?>
             <?php else: ?>—<?php endif; ?>
@@ -130,7 +130,7 @@ $typeColors = [
     </a>
   <?php endfor; ?>
 </div>
-<div style="text-align:center;margin-top:8px;font-size:12px;color:#64748b">
+<div style="text-align:center;margin-top:8px;font-size:12px;color:var(--text-muted)">
   Showing <?= count($logs) ?> of <?= number_format($total) ?> records
 </div>
 <?php endif; ?>
