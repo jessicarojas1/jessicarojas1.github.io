@@ -239,12 +239,11 @@ $impactBadge = fn($v) => match($v) { 'high' => 'badge-danger', 'low' => 'badge-s
             <input type="file" id="editNetArchFile" name="network_arch_file" accept=".pdf,.png,.jpg,.jpeg,.gif,.svg,.vsdx,.docx,.pptx" style="display:none"
                    data-change="showFileChange" data-drop-id="fileDropEditNetArch" data-name-id="editNetArchName" data-color="var(--primary)">
             <div id="editNetArchName" style="margin-top:6px;color:var(--primary);display:none"><i class="bi bi-file-earmark-check"></i> <span></span></div>
-            <div style="margin-top:8px;padding:8px 10px;background:var(--bg-secondary);border-radius:6px;border:1px solid var(--border);font-size:11px">
-              <div style="font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Upload Template Key</div>
-              <table style="width:100%;border-collapse:collapse;color:var(--text-muted)">
-                <thead><tr><th style="text-align:left;padding:2px 8px 2px 0;white-space:nowrap">Field</th><th style="text-align:left;padding:2px 8px 2px 0">Accepted Types</th><th style="text-align:left;padding:2px 4px 2px 0">Max Size</th><th style="text-align:left">Required</th></tr></thead>
-                <tbody><tr><td style="padding:2px 8px 2px 0;white-space:nowrap"><code>network_arch_file</code></td><td style="padding:2px 8px 2px 0">PDF, PNG, JPG, SVG, VSDX, DOCX, PPTX</td><td style="padding:2px 8px 2px 0">10 MB</td><td>No</td></tr></tbody>
-              </table>
+            <!-- Diagram Upload Reference -->
+            <div style="margin-top:8px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:6px;padding:10px;font-size:0.78rem;">
+              <div style="font-weight:600;color:var(--text);margin-bottom:4px;"><i class="bi bi-info-circle" style="color:var(--primary)"></i> Network Architecture Diagram — Field Reference</div>
+              <div style="color:var(--text-muted);">Diagram should depict: system boundaries, network segments, connections to external systems, firewalls, load balancers, and trust zones.</div>
+              <div style="margin-top:4px;color:var(--text-muted);"><strong>Accepted:</strong> PDF, PNG, JPG, SVG, VSDX (Visio), DOCX, PPTX &nbsp;·&nbsp; <strong>Max:</strong> 10 MB &nbsp;·&nbsp; <strong>Required:</strong> No (optional)</div>
             </div>
           </div>
         </div>
@@ -264,12 +263,11 @@ $impactBadge = fn($v) => match($v) { 'high' => 'badge-danger', 'low' => 'badge-s
             <input type="file" id="editDataFlowFile" name="data_flow_file" accept=".pdf,.png,.jpg,.jpeg,.gif,.svg,.vsdx,.docx,.pptx" style="display:none"
                    data-change="showFileChange" data-drop-id="fileDropEditDataFlow" data-name-id="editDataFlowName" data-color="var(--primary)">
             <div id="editDataFlowName" style="margin-top:6px;color:var(--primary);display:none"><i class="bi bi-file-earmark-check"></i> <span></span></div>
-            <div style="margin-top:8px;padding:8px 10px;background:var(--bg-secondary);border-radius:6px;border:1px solid var(--border);font-size:11px">
-              <div style="font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Upload Template Key</div>
-              <table style="width:100%;border-collapse:collapse;color:var(--text-muted)">
-                <thead><tr><th style="text-align:left;padding:2px 8px 2px 0;white-space:nowrap">Field</th><th style="text-align:left;padding:2px 8px 2px 0">Accepted Types</th><th style="text-align:left;padding:2px 4px 2px 0">Max Size</th><th style="text-align:left">Required</th></tr></thead>
-                <tbody><tr><td style="padding:2px 8px 2px 0;white-space:nowrap"><code>data_flow_file</code></td><td style="padding:2px 8px 2px 0">PDF, PNG, JPG, SVG, VSDX, DOCX, PPTX</td><td style="padding:2px 8px 2px 0">10 MB</td><td>No</td></tr></tbody>
-              </table>
+            <!-- Diagram Upload Reference -->
+            <div style="margin-top:8px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:6px;padding:10px;font-size:0.78rem;">
+              <div style="font-weight:600;color:var(--text);margin-bottom:4px;"><i class="bi bi-info-circle" style="color:var(--primary)"></i> Data Flow Diagram — Field Reference</div>
+              <div style="color:var(--text-muted);">Diagram should depict: data inputs/outputs, processing steps, data stores, data classifications, and flow between system components and external entities.</div>
+              <div style="margin-top:4px;color:var(--text-muted);"><strong>Accepted:</strong> PDF, PNG, JPG, SVG, VSDX (Visio), DOCX, PPTX &nbsp;·&nbsp; <strong>Max:</strong> 10 MB &nbsp;·&nbsp; <strong>Required:</strong> No (optional)</div>
             </div>
           </div>
         </div>

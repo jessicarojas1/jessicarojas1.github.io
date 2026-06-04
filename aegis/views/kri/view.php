@@ -118,7 +118,7 @@ function fmtNum(float $n): string {
   <div style="display:flex;flex-direction:column;gap:20px;">
 
     <!-- Hero RAG Banner -->
-    <div class="card" style="border-left:6px solid <?= $ragColor ?>;background:<?= $ragBg ?>;">
+    <div class="card" style="border-left:6px solid <?= $ragColor ?>;background:<?= $ragColor ?>12;">
       <div class="card-body" style="padding:24px;">
         <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
           <div style="text-align:center;">
@@ -179,7 +179,7 @@ function fmtNum(float $n): string {
       <div class="card-body">
         <div style="position:relative;margin:20px 0 30px;">
           <!-- Bar -->
-          <div style="height:20px;border-radius:6px;overflow:hidden;display:flex;background:#e4e4e7;">
+          <div style="height:20px;border-radius:6px;overflow:hidden;display:flex;background:var(--bg-secondary);">
             <?php if ($dir === 'higher_worse'): ?>
               <div style="width:<?= $greenPct ?>%;background:#16a34a;" title="Green zone"></div>
               <div style="width:<?= $amberPct ?>%;background:#d97706;" title="Amber zone"></div>
@@ -195,8 +195,8 @@ function fmtNum(float $n): string {
           <!-- Value marker -->
           <?php if ($markerPct !== null): ?>
             <div style="position:absolute;top:-4px;left:<?= $markerPct ?>%;transform:translateX(-50%);">
-              <div style="width:4px;height:28px;background:#111111;border-radius:2px;"></div>
-              <div style="position:absolute;top:-18px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:10px;font-weight:700;color:var(--text);background:#fff;border:1px solid #e4e4e7;padding:1px 5px;border-radius:4px;">
+              <div style="width:4px;height:28px;background:var(--text);border-radius:2px;"></div>
+              <div style="position:absolute;top:-18px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:10px;font-weight:700;color:var(--text);background:var(--card-bg);border:1px solid var(--border);padding:1px 5px;border-radius:4px;">
                 <?= Security::h(fmtNum($latestVal)) ?> <?= Security::h($kri['unit'] ?? '') ?>
               </div>
             </div>
@@ -256,7 +256,7 @@ function fmtNum(float $n): string {
           <div>
             <div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:2px;">STATUS</div>
             <div style="font-size:14px;">
-              <span style="background:<?= $kri['is_active'] ? '#f0fdf4' : '#f9fafb' ?>;color:<?= $kri['is_active'] ? '#16a34a' : '#71717a' ?>;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:600;">
+              <span style="background:<?= $kri['is_active'] ? '#16a34a' : '#64748b' ?>20;color:<?= $kri['is_active'] ? '#16a34a' : '#64748b' ?>;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:600;">
                 <?= $kri['is_active'] ? 'Active' : 'Inactive' ?>
               </span>
             </div>
@@ -358,7 +358,7 @@ function fmtNum(float $n): string {
       </div>
     </div>
     <?php elseif (!$kri['is_active']): ?>
-    <div class="card" style="background:#f9fafb;border:1.5px dashed #e4e4e7;">
+    <div class="card" style="background:var(--bg-secondary);border:1.5px dashed var(--border);">
       <div class="card-body" style="text-align:center;padding:24px;">
         <i class="bi bi-pause-circle" style="font-size:32px;color:var(--text-light);display:block;margin-bottom:8px;"></i>
         <div style="font-size:13px;color:var(--text-muted);">This KRI is inactive. Reactivate it to record new values.</div>
@@ -372,7 +372,7 @@ function fmtNum(float $n): string {
         <h4 class="card-title"><i class="bi bi-bookmark-check"></i> Threshold Reference</h4>
       </div>
       <div class="card-body" style="display:flex;flex-direction:column;gap:10px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;background:#16a34a18;border:1px solid #16a34a40;border-radius:8px;padding:10px 14px;">
           <div style="display:flex;align-items:center;gap:8px;">
             <i class="bi bi-circle-fill" style="color:#16a34a;font-size:12px;"></i>
             <span style="font-weight:600;color:#16a34a;">Green</span>
@@ -381,7 +381,7 @@ function fmtNum(float $n): string {
             <?= $dir === 'higher_worse' ? '&le;' : '&ge;' ?> <?= Security::h(fmtNum($green)) ?> <?= Security::h($kri['unit'] ?? '') ?>
           </span>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px 14px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;background:#d9770618;border:1px solid #d9770640;border-radius:8px;padding:10px 14px;">
           <div style="display:flex;align-items:center;gap:8px;">
             <i class="bi bi-circle-fill" style="color:#d97706;font-size:12px;"></i>
             <span style="font-weight:600;color:#d97706;">Amber</span>
@@ -390,7 +390,7 @@ function fmtNum(float $n): string {
             <?= $dir === 'higher_worse' ? '&le;' : '&ge;' ?> <?= Security::h(fmtNum($amber)) ?> <?= Security::h($kri['unit'] ?? '') ?>
           </span>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px 14px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;background:#dc262618;border:1px solid #dc262640;border-radius:8px;padding:10px 14px;">
           <div style="display:flex;align-items:center;gap:8px;">
             <i class="bi bi-circle-fill" style="color:#dc2626;font-size:12px;"></i>
             <span style="font-weight:600;color:#dc2626;">Red</span>

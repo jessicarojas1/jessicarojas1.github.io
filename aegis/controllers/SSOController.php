@@ -3,6 +3,7 @@ class SSOController {
 
     public function login(): void {
         if (!SSO::isEnabled()) {
+            $_SESSION['sso_error'] = 'SSO is not configured on this instance. Contact your administrator.';
             header('Location: /login'); exit;
         }
         $appUrl = rtrim($_ENV['APP_URL'] ?? '', '/');

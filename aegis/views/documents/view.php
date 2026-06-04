@@ -166,12 +166,23 @@ $canEdit = Auth::can('policy.write');
           <input type="file" id="docUploadFile" name="document_file" required style="display:none"
                  data-change="showFileChange" data-drop-id="fileDropDoc" data-name-id="docFileName" data-color="var(--primary)">
           <div id="docFileName" style="margin-top:8px;color:var(--primary);display:none"><i class="bi bi-file-earmark-check"></i> <span></span></div>
-          <div style="margin-top:8px;padding:8px 10px;background:var(--bg-secondary);border-radius:6px;border:1px solid var(--border);font-size:11px">
-            <div style="font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Upload Template Key</div>
-            <table style="width:100%;border-collapse:collapse;color:var(--text-muted)">
-              <thead><tr><th style="text-align:left;padding:2px 8px 2px 0;white-space:nowrap">Field</th><th style="text-align:left;padding:2px 8px 2px 0">Accepted Types</th><th style="text-align:left;padding:2px 4px 2px 0">Max Size</th><th style="text-align:left">Required</th></tr></thead>
-              <tbody><tr><td style="padding:2px 8px 2px 0;white-space:nowrap"><code>document_file</code></td><td style="padding:2px 8px 2px 0">PDF, DOC, DOCX, XLS, XLSX, TXT, CSV</td><td style="padding:2px 8px 2px 0">50 MB</td><td><strong style="color:#dc2626">Yes</strong></td></tr></tbody>
+          <!-- File Upload Reference -->
+          <div style="margin-top:12px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;padding:12px;font-size:0.8rem;">
+            <div style="font-weight:600;color:var(--text);margin-bottom:6px;"><i class="bi bi-info-circle" style="color:var(--primary)"></i> Accepted File Formats</div>
+            <table style="width:100%;border-collapse:collapse;">
+              <thead><tr style="color:var(--text-muted);font-size:0.75rem;">
+                <th style="text-align:left;padding:3px 8px;">Format</th>
+                <th style="text-align:left;padding:3px 8px;">Extension</th>
+                <th style="text-align:left;padding:3px 8px;">Notes</th>
+              </tr></thead>
+              <tbody style="color:var(--text);">
+                <tr><td style="padding:3px 8px;">PDF Document</td><td style="padding:3px 8px;font-family:monospace">.pdf</td><td style="padding:3px 8px;color:var(--text-muted);">Preferred for finalized policies</td></tr>
+                <tr><td style="padding:3px 8px;">Word Document</td><td style="padding:3px 8px;font-family:monospace">.docx / .doc</td><td style="padding:3px 8px;color:var(--text-muted);">Editable drafts</td></tr>
+                <tr><td style="padding:3px 8px;">Excel Spreadsheet</td><td style="padding:3px 8px;font-family:monospace">.xlsx / .xls</td><td style="padding:3px 8px;color:var(--text-muted);">Data attachments</td></tr>
+                <tr><td style="padding:3px 8px;">Plain Text</td><td style="padding:3px 8px;font-family:monospace">.txt</td><td style="padding:3px 8px;color:var(--text-muted);">Simple text documents</td></tr>
+              </tbody>
             </table>
+            <div style="margin-top:6px;color:var(--text-muted);">Max file size: <strong>50 MB</strong></div>
           </div>
         </div>
         <div class="form-group">
@@ -189,10 +200,10 @@ $canEdit = Auth::can('policy.write');
 <style>
 .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000; align-items:center; justify-content:center; }
 .modal-overlay.open { display:flex; }
-.modal-card { background:#fff; border-radius:12px; width:100%; max-height:90vh; overflow-y:auto; }
-.modal-header { padding:20px 24px; border-bottom:1px solid #e4e4e7; display:flex; justify-content:space-between; align-items:center; }
+.modal-card { background:var(--card-bg); border:1px solid var(--border); border-radius:12px; width:100%; max-height:90vh; overflow-y:auto; }
+.modal-header { padding:20px 24px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
 .modal-body { padding:24px; }
-.modal-footer { padding:16px 24px; border-top:1px solid #e4e4e7; display:flex; gap:8px; justify-content:flex-end; }
+.modal-footer { padding:16px 24px; border-top:1px solid var(--border); display:flex; gap:8px; justify-content:flex-end; }
 .hidden { display:none !important; }
 </style>
 <?php endif; ?>

@@ -75,10 +75,10 @@ function riskScoreLevel(int $score): string {
     </p>
   </div>
   <div class="page-actions">
-    <span style="background:<?= $critBg ?>;color:<?= $critColor ?>;border:1px solid <?= $critColor ?>33;padding:4px 14px;border-radius:99px;font-size:12px;font-weight:600;">
+    <span style="background:<?= $critColor ?>18;color:<?= $critColor ?>;border:1px solid <?= $critColor ?>33;padding:4px 14px;border-radius:99px;font-size:12px;font-weight:600;">
       <?= ucfirst($criticality) ?> Criticality
     </span>
-    <span style="background:<?= $sBg ?>;color:<?= $sColor ?>;border:1px solid <?= $sColor ?>33;padding:4px 14px;border-radius:99px;font-size:12px;font-weight:600;">
+    <span style="background:<?= $sColor ?>18;color:<?= $sColor ?>;border:1px solid <?= $sColor ?>33;padding:4px 14px;border-radius:99px;font-size:12px;font-weight:600;">
       <?= ucfirst(Security::h($asset['status'] ?? '')) ?>
     </span>
     <a href="/assets" class="btn btn-ghost"><i class="bi bi-arrow-left"></i> Back</a>
@@ -115,16 +115,16 @@ function riskScoreLevel(int $score): string {
             ['Last Updated',     !empty($asset['updated_at']) ? date('M j, Y g:i A', strtotime($asset['updated_at'])) : '—'],
           ];
           foreach ($rows as $i => [$label, $value]):
-            $bg = $i % 2 === 0 ? '#fafbfc' : '#ffffff';
+            $bg = $i % 2 === 0 ? 'var(--bg-secondary)' : 'var(--card-bg)';
           ?>
             <dt style="background:<?= $bg ?>;padding:10px 12px;font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border-light);">
               <?= $label ?>
             </dt>
             <dd style="background:<?= $bg ?>;padding:10px 16px;font-size:13px;margin:0;border-bottom:1px solid var(--border-light);">
               <?php if ($label === 'Criticality'): ?>
-                <span style="background:<?= $critBg ?>;color:<?= $critColor ?>;padding:2px 10px;border-radius:99px;font-size:11px;font-weight:600;"><?= ucfirst($criticality) ?></span>
+                <span style="background:<?= $critColor ?>18;color:<?= $critColor ?>;padding:2px 10px;border-radius:99px;font-size:11px;font-weight:600;"><?= ucfirst($criticality) ?></span>
               <?php elseif ($label === 'Status'): ?>
-                <span style="background:<?= $sBg ?>;color:<?= $sColor ?>;padding:2px 10px;border-radius:99px;font-size:11px;font-weight:600;"><?= ucfirst(Security::h($asset['status'] ?? '')) ?></span>
+                <span style="background:<?= $sColor ?>18;color:<?= $sColor ?>;padding:2px 10px;border-radius:99px;font-size:11px;font-weight:600;"><?= ucfirst(Security::h($asset['status'] ?? '')) ?></span>
               <?php else: ?>
                 <?= Security::h((string)$value) ?>
               <?php endif; ?>
@@ -132,8 +132,8 @@ function riskScoreLevel(int $score): string {
           <?php endforeach; ?>
 
           <!-- Description -->
-          <dt style="padding:10px 12px;font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;background:#fafbfc;">Description</dt>
-          <dd style="padding:10px 16px;font-size:13px;margin:0;background:#fafbfc;">
+          <dt style="padding:10px 12px;font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;background:var(--bg-secondary);">Description</dt>
+          <dd style="padding:10px 16px;font-size:13px;margin:0;background:var(--bg-secondary);">
             <?= !empty($asset['description']) ? nl2br(Security::h($asset['description'])) : '<span style="color:var(--text-light);">—</span>' ?>
           </dd>
 
@@ -372,7 +372,7 @@ function riskScoreLevel(int $score): string {
 <!-- Link Risk Modal -->
 <?php if (Auth::can('risk.write')): ?>
 <div id="linkRiskModal" class="modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:center;justify-content:center;">
-  <div style="background:#fff;border-radius:12px;width:100%;max-width:520px;box-shadow:0 8px 32px rgba(0,0,0,.2);padding:0;overflow:hidden;">
+  <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:12px;width:100%;max-width:520px;box-shadow:0 8px 32px rgba(0,0,0,.2);padding:0;overflow:hidden;">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border);">
       <h3 style="margin:0;font-size:16px;font-weight:600;"><i class="bi bi-shield-plus" style="margin-right:8px;color:var(--primary);"></i> Link Risk to Asset</h3>
       <button data-close-modal="linkRiskModal" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text-muted);">&times;</button>
@@ -397,7 +397,7 @@ function riskScoreLevel(int $score): string {
           <?php endif; ?>
         </div>
       </div>
-      <div style="display:flex;gap:12px;justify-content:flex-end;padding:16px 24px;border-top:1px solid var(--border);background:#fafbfc;">
+      <div style="display:flex;gap:12px;justify-content:flex-end;padding:16px 24px;border-top:1px solid var(--border);background:var(--bg-secondary);">
         <button type="button" data-close-modal="linkRiskModal" class="btn btn-ghost">Cancel</button>
         <button type="submit" class="btn btn-primary" <?= empty($allRisks) ? 'disabled' : '' ?>>
           <i class="bi bi-link-45deg"></i> Link Risk

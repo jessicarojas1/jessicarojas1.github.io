@@ -1028,9 +1028,9 @@ class ComplianceController {
             'evidence_refs'  => Security::sanitizeInput($_POST['evidence_refs'] ?? ''),
             'next_test_date' => $nextDate ?: null,
         ]);
-        // Update the effectiveness on the control_implementation too
+        // Update last_reviewed on the control_implementation to reflect the test
         Database::query(
-            "UPDATE control_implementations SET notes = COALESCE(notes,'') || '' WHERE objective_id=?",
+            "UPDATE control_implementations SET last_reviewed = NOW(), updated_at = NOW() WHERE objective_id=?",
             [$objId]
         );
         Auth::log('control_tested', 'control_tests', $id, ['result'=>$result,'effectiveness'=>$effectiveness]);

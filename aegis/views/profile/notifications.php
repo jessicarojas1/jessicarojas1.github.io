@@ -114,7 +114,7 @@ ob_start();
 ?>
 
 <?php if (isset($_GET['saved'])): ?>
-<div class="alert alert-success" style="margin-bottom:20px">
+<div class="alert-box success" style="margin-bottom:20px">
   <i class="bi bi-check-circle-fill"></i>
   Notification preferences saved successfully.
 </div>
@@ -152,23 +152,24 @@ ob_start();
     width: 36px;
     height: 36px;
     border-radius: 8px;
-    background: #eff6ff;
-    color: #3b82f6;
+    background: var(--bg-secondary);
+    color: var(--primary);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 16px;
     flex-shrink: 0;
+    border: 1px solid var(--border);
 }
 .notif-toggle-text .notif-label {
     font-size: 14px;
     font-weight: 600;
-    color: var(--text-primary, #111827);
+    color: var(--text);
     margin-bottom: 2px;
 }
 .notif-toggle-text .notif-desc {
     font-size: 13px;
-    color: var(--text-muted, #6b7280);
+    color: var(--text-muted);
 }
 /* The actual pill toggle */
 .pill-toggle {
@@ -188,7 +189,7 @@ ob_start();
     position: absolute;
     inset: 0;
     border-radius: 24px;
-    background: #d1d5db;
+    background: var(--border);
     cursor: pointer;
     transition: background 0.2s;
 }

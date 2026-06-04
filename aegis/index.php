@@ -95,13 +95,21 @@ Security::setSecurityHeaders();
 
 // Runtime schema migrations — safe to run on every request (no-op when already applied)
 try {
-    // KRI unit column: varchar(10) → varchar(50)
-    $__col = Database::fetchOne(
-        "SELECT character_maximum_length FROM information_schema.columns WHERE table_name='kris' AND column_name='unit' AND table_schema='public'"
+    // KRI unit column: varchar(10) → varchar(50); direction: varchar(10) → varchar(20)
+    // (direction values 'higher_worse'=12, 'lower_worse'=11 exceed original varchar(10))
+    $__kriCols = Database::fetchAll(
+        "SELECT column_name, character_maximum_length FROM information_schema.columns
+         WHERE table_name='kris' AND column_name IN ('unit','direction') AND table_schema=ANY(ARRAY['public','aegis'])"
     );
-    if ($__col && ($__col['character_maximum_length'] ?? 50) < 50) {
-        Database::query("ALTER TABLE kris ALTER COLUMN unit TYPE varchar(50)");
+    foreach ($__kriCols as $__kc) {
+        if ($__kc['column_name'] === 'unit' && ($__kc['character_maximum_length'] ?? 50) < 50) {
+            Database::query("ALTER TABLE kris ALTER COLUMN unit TYPE varchar(50)");
+        }
+        if ($__kc['column_name'] === 'direction' && ($__kc['character_maximum_length'] ?? 20) < 20) {
+            Database::query("ALTER TABLE kris ALTER COLUMN direction TYPE varchar(20)");
+        }
     }
+    unset($__kriCols, $__kc);
 } catch (Throwable) {}
 
 try {

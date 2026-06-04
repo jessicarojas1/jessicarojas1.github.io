@@ -75,10 +75,10 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
     </p>
   </div>
   <div class="page-actions">
-    <span style="background:<?= $catCfg['bg'] ?>;color:<?= $catCfg['color'] ?>;border:1px solid <?= $catCfg['color'] ?>33;padding:4px 14px;border-radius:99px;font-size:12px;font-weight:600;">
+    <span style="background:<?= $catCfg['color'] ?>18;color:<?= $catCfg['color'] ?>;border:1px solid <?= $catCfg['color'] ?>33;padding:4px 14px;border-radius:99px;font-size:12px;font-weight:600;">
       <i class="bi <?= $catCfg['icon'] ?>"></i> <?= $catCfg['label'] ?>
     </span>
-    <span style="background:<?= $stCfg['bg'] ?>;color:<?= $stCfg['color'] ?>;border:1px solid <?= $stCfg['color'] ?>33;padding:4px 14px;border-radius:99px;font-size:12px;font-weight:600;">
+    <span style="background:<?= $stCfg['color'] ?>18;color:<?= $stCfg['color'] ?>;border:1px solid <?= $stCfg['color'] ?>33;padding:4px 14px;border-radius:99px;font-size:12px;font-weight:600;">
       <?= $stCfg['label'] ?>
     </span>
     <?php if (Auth::can('risk.write')): ?>
@@ -113,18 +113,18 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
               ['Last Updated',!empty($threat['updated_at']) ? date('M j, Y g:i A', strtotime($threat['updated_at'])) : '—'],
           ];
           foreach ($rows as $i => [$label, $value]):
-              $bg = $i % 2 === 0 ? '#fafbfc' : '#ffffff';
+              $bg = $i % 2 === 0 ? 'var(--bg-secondary)' : 'var(--card-bg)';
           ?>
             <dt style="background:<?= $bg ?>;padding:10px 12px;font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border-light);">
               <?= $label ?>
             </dt>
             <dd style="background:<?= $bg ?>;padding:10px 16px;font-size:13px;margin:0;border-bottom:1px solid var(--border-light);">
               <?php if ($label === 'Category'): ?>
-                <span style="display:inline-flex;align-items:center;gap:5px;background:<?= $catCfg['bg'] ?>;color:<?= $catCfg['color'] ?>;padding:2px 10px;border-radius:99px;font-size:11px;font-weight:600;">
+                <span style="display:inline-flex;align-items:center;gap:5px;background:<?= $catCfg['color'] ?>18;color:<?= $catCfg['color'] ?>;padding:2px 10px;border-radius:99px;font-size:11px;font-weight:600;">
                   <i class="bi <?= $catCfg['icon'] ?>"></i> <?= $catCfg['label'] ?>
                 </span>
               <?php elseif ($label === 'Status'): ?>
-                <span style="background:<?= $stCfg['bg'] ?>;color:<?= $stCfg['color'] ?>;padding:2px 10px;border-radius:99px;font-size:11px;font-weight:600;">
+                <span style="background:<?= $stCfg['color'] ?>18;color:<?= $stCfg['color'] ?>;padding:2px 10px;border-radius:99px;font-size:11px;font-weight:600;">
                   <?= $stCfg['label'] ?>
                 </span>
               <?php else: ?>
@@ -134,8 +134,8 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
           <?php endforeach; ?>
 
           <!-- Description -->
-          <dt style="padding:10px 12px;font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;background:#fafbfc;border-bottom:1px solid var(--border-light);">Description</dt>
-          <dd style="padding:10px 16px;font-size:13px;margin:0;background:#fafbfc;border-bottom:1px solid var(--border-light);">
+          <dt style="padding:10px 12px;font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;background:var(--bg-secondary);border-bottom:1px solid var(--border-light);">Description</dt>
+          <dd style="padding:10px 16px;font-size:13px;margin:0;background:var(--bg-secondary);border-bottom:1px solid var(--border-light);">
             <?= !empty($threat['description'])
                 ? nl2br(Security::h($threat['description']))
                 : '<span style="color:var(--text-light);">—</span>' ?>
@@ -276,7 +276,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
       </div>
 
       <?php if (Auth::can('risk.write')): ?>
-      <div id="linkRiskPanel" class="d-none" style="padding:16px;border-bottom:1px solid var(--border-light);background:#fafbfc;">
+      <div id="linkRiskPanel" class="d-none" style="padding:16px;border-bottom:1px solid var(--border-light);background:var(--bg-secondary);">
         <form method="POST" action="/threats/<?= (int)$threat['id'] ?>/link-risk" style="display:flex;gap:12px;align-items:flex-end;">
           <?= Security::csrfField() ?>
           <div class="form-group" style="flex:1;margin:0;">
@@ -311,18 +311,12 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
             <tbody>
               <?php foreach ($linkedRisks as $r):
                 $rs = (int)($r['inherent_score'] ?? 0);
-                if ($rs > 16)     { $rc = '#dc2626'; $rb = '#fef2f2'; }
-                elseif ($rs > 9)  { $rc = '#ea580c'; $rb = '#fff7ed'; }
-                elseif ($rs > 4)  { $rc = '#d97706'; $rb = '#fffbeb'; }
-                else              { $rc = '#16a34a'; $rb = '#f0fdf4'; }
-                $rStOpts = [
-                    'open'        => ['#f0fdf4','#16a34a'],
-                    'in_progress' => ['#eff6ff','#2563eb'],
-                    'mitigated'   => ['rgba(55,65,81,.05)','var(--secondary)'],
-                    'accepted'    => ['#fffbeb','#d97706'],
-                    'closed'      => ['#f9fafb','#71717a'],
-                ];
-                [$rStBg, $rStColor] = $rStOpts[$r['status'] ?? ''] ?? ['#f4f4f5','#71717a'];
+                if ($rs > 16)     { $rc = '#dc2626'; }
+                elseif ($rs > 9)  { $rc = '#ea580c'; }
+                elseif ($rs > 4)  { $rc = '#d97706'; }
+                else              { $rc = '#16a34a'; }
+                $rStColors = ['open'=>'#16a34a','in_progress'=>'#2563eb','mitigated'=>'#7c3aed','accepted'=>'#d97706','closed'=>'#64748b'];
+                $rStColor = $rStColors[$r['status'] ?? ''] ?? '#64748b';
               ?>
                 <tr>
                   <td>
@@ -331,12 +325,12 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
                     </a>
                   </td>
                   <td style="text-align:center;">
-                    <span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:<?= $rb ?>;color:<?= $rc ?>;font-weight:700;font-size:13px;border:2px solid <?= $rc ?>33;">
+                    <span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:<?= $rc ?>18;color:<?= $rc ?>;font-weight:700;font-size:13px;border:2px solid <?= $rc ?>33;">
                       <?= $rs ?>
                     </span>
                   </td>
                   <td>
-                    <span style="background:<?= $rStBg ?>;color:<?= $rStColor ?>;border:1px solid <?= $rStColor ?>33;padding:2px 10px;border-radius:99px;font-size:11px;font-weight:600;">
+                    <span style="background:<?= $rStColor ?>18;color:<?= $rStColor ?>;border:1px solid <?= $rStColor ?>33;padding:2px 10px;border-radius:99px;font-size:11px;font-weight:600;">
                       <?= ucfirst(str_replace('_', ' ', Security::h($r['status'] ?? ''))) ?>
                     </span>
                   </td>
@@ -383,7 +377,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
       <div class="card-body" style="text-align:center;">
 
         <!-- Large score circle -->
-        <div style="display:inline-flex;align-items:center;justify-content:center;width:120px;height:120px;border-radius:50%;background:<?= $scoreBg ?>;border:4px solid <?= $scoreColor ?>44;margin:8px auto 16px;">
+        <div style="display:inline-flex;align-items:center;justify-content:center;width:120px;height:120px;border-radius:50%;background:<?= $scoreColor ?>18;border:4px solid <?= $scoreColor ?>44;margin:8px auto 16px;">
           <div>
             <div style="font-size:48px;font-weight:900;color:<?= $scoreColor ?>;line-height:1;"><?= $score ?: '—' ?></div>
           </div>
@@ -393,16 +387,16 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
 
         <!-- L and I breakdown -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-          <div style="background:#fafbfc;border:1px solid var(--border-light);border-radius:10px;padding:14px;">
+          <div style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:10px;padding:14px;">
             <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-bottom:4px;">Likelihood</div>
-            <div style="font-size:28px;font-weight:800;color:var(--text-primary);line-height:1;"><?= $likelihood ?: '—' ?></div>
+            <div style="font-size:28px;font-weight:800;color:var(--text);line-height:1;"><?= $likelihood ?: '—' ?></div>
             <?php if ($likelihood > 0): ?>
               <div style="font-size:11px;color:var(--text-muted);margin-top:4px;"><?= $likelihoodLabels[$likelihood] ?? '' ?></div>
             <?php endif; ?>
           </div>
-          <div style="background:#fafbfc;border:1px solid var(--border-light);border-radius:10px;padding:14px;">
+          <div style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:10px;padding:14px;">
             <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-bottom:4px;">Impact</div>
-            <div style="font-size:28px;font-weight:800;color:var(--text-primary);line-height:1;"><?= $impact ?: '—' ?></div>
+            <div style="font-size:28px;font-weight:800;color:var(--text);line-height:1;"><?= $impact ?: '—' ?></div>
             <?php if ($impact > 0): ?>
               <div style="font-size:11px;color:var(--text-muted);margin-top:4px;"><?= $impactLabels[$impact] ?? '' ?></div>
             <?php endif; ?>

@@ -151,7 +151,7 @@ class AutomationController {
             switch ($rule['trigger_type']) {
                 case 'risk_score_high':
                     $threshold = (int)($config['threshold'] ?? 15);
-                    $risks = Database::fetchAll("SELECT id, title, inherent_score FROM risks WHERE inherent_score >= ? AND status='open' LIMIT 20", [$threshold]);
+                    $risks = Database::fetchAll("SELECT id, title, inherent_score AS score FROM risks WHERE inherent_score >= ? AND status='open' LIMIT 20", [$threshold]);
                     $matches = ['message' => "Found " . count($risks) . " risks with score ≥ {$threshold}", 'items' => $risks];
                     break;
                 case 'control_non_compliant':

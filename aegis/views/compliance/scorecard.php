@@ -63,7 +63,7 @@ ob_start();
     ?>
 
     <div class="score-summary">
-      <div class="score-chip" style="background:#f4f4f5;color:var(--text)">
+      <div class="score-chip" style="background:var(--bg-secondary);color:var(--text)">
         <div style="font-size:22px;font-weight:700"><?= $total ?></div>
         <div style="font-size:12px;margin-top:4px">Total Controls</div>
       </div>
@@ -79,11 +79,11 @@ ob_start();
         <div style="font-size:22px;font-weight:700"><?= $partial ?></div>
         <div style="font-size:12px;margin-top:4px">Partial</div>
       </div>
-      <div class="score-chip" style="background:#f4f4f5;color:var(--text-muted)">
+      <div class="score-chip" style="background:var(--bg-secondary);color:var(--text-muted)">
         <div style="font-size:22px;font-weight:700"><?= $notApplicable ?></div>
         <div style="font-size:12px;margin-top:4px">Not Applicable</div>
       </div>
-      <div class="score-chip" style="background:#f4f4f5;color:var(--text-muted)">
+      <div class="score-chip" style="background:var(--bg-secondary);color:var(--text-muted)">
         <div style="font-size:22px;font-weight:700"><?= $notAssessed ?></div>
         <div style="font-size:12px;margin-top:4px">Not Assessed</div>
       </div>
@@ -142,12 +142,12 @@ ob_start();
   <table style="width:100%;border-collapse:collapse;font-size:12px">
     <thead>
       <tr>
-        <th style="text-align:left;padding:8px 12px;background:#f9fafb;border-bottom:1px solid #e4e4e7;width:100px">Code</th>
-        <th style="text-align:left;padding:8px 12px;background:#f9fafb;border-bottom:1px solid #e4e4e7">Control Title</th>
-        <th style="text-align:left;padding:8px 12px;background:#f9fafb;border-bottom:1px solid #e4e4e7;width:120px">Status</th>
-        <th style="text-align:left;padding:8px 12px;background:#f9fafb;border-bottom:1px solid #e4e4e7;width:120px">Assigned To</th>
-        <th style="text-align:left;padding:8px 12px;background:#f9fafb;border-bottom:1px solid #e4e4e7;width:90px">Due Date</th>
-        <th style="text-align:left;padding:8px 12px;background:#f9fafb;border-bottom:1px solid #e4e4e7">Notes</th>
+        <th style="text-align:left;padding:8px 12px;background:var(--bg-secondary);border-bottom:1px solid var(--border);width:100px">Code</th>
+        <th style="text-align:left;padding:8px 12px;background:var(--bg-secondary);border-bottom:1px solid var(--border)">Control Title</th>
+        <th style="text-align:left;padding:8px 12px;background:var(--bg-secondary);border-bottom:1px solid var(--border);width:120px">Status</th>
+        <th style="text-align:left;padding:8px 12px;background:var(--bg-secondary);border-bottom:1px solid var(--border);width:120px">Assigned To</th>
+        <th style="text-align:left;padding:8px 12px;background:var(--bg-secondary);border-bottom:1px solid var(--border);width:90px">Due Date</th>
+        <th style="text-align:left;padding:8px 12px;background:var(--bg-secondary);border-bottom:1px solid var(--border)">Notes</th>
       </tr>
     </thead>
     <tbody>
@@ -166,7 +166,7 @@ ob_start();
             $notes = mb_substr($notes, 0, 100) . '…';
         }
       ?>
-      <tr style="border-bottom:1px solid #f4f4f5">
+      <tr style="border-bottom:1px solid var(--border)">
         <td style="padding:7px 12px;font-family:monospace;font-size:11px;color:var(--text-muted)"><?= Security::h($ctrl['code']) ?></td>
         <td style="padding:7px 12px"><?= Security::h($ctrl['title']) ?></td>
         <td style="padding:7px 12px"><span class="status-badge <?= $badgeClass ?>"><?= $statusLabel ?></span></td>
@@ -178,7 +178,7 @@ ob_start();
     </tbody>
   </table>
   <?php else: ?>
-    <div style="padding:12px 16px;color:#a1a1aa;font-size:13px">No controls in this domain.</div>
+    <div style="padding:12px 16px;color:var(--text-muted);font-size:13px">No controls in this domain.</div>
   <?php endif; ?>
 </div>
 <?php endforeach; ?>

@@ -9,6 +9,57 @@ class MetricsController {
             "SELECT * FROM metrics_snapshots ORDER BY snapshot_date DESC LIMIT 1"
         );
 
+        // Live KPI fallback — computed directly when no snapshot data exists
+        $live = [];
+        try {
+            $ciStats = Database::fetchOne(
+                "SELECT COUNT(*) as total,
+                        COUNT(*) FILTER (WHERE status='compliant') as compliant,
+                        COUNT(*) FILTER (WHERE status='partial') as partial
+                 FROM control_implementations"
+            );
+            $livePolicies = Database::fetchOne(
+                "SELECT COUNT(*) as total, COUNT(*) FILTER (WHERE status='approved') as approved FROM policies"
+            );
+            $liveRisks = Database::fetchOne(
+                "SELECT COUNT(*) as total,
+                        COUNT(*) FILTER (WHERE inherent_score >= 15) as critical,
+                        COUNT(*) FILTER (WHERE inherent_score BETWEEN 10 AND 14) as high
+                 FROM risks WHERE status NOT IN ('closed','transferred')"
+            );
+            $liveIncidents = Database::fetchOne(
+                "SELECT COUNT(*) as total, COUNT(*) FILTER (WHERE status IN ('open','investigating')) as open
+                 FROM incidents"
+            );
+            $liveAudits = Database::fetchOne(
+                "SELECT COUNT(*) as total, COUNT(*) FILTER (WHERE status='completed') as completed FROM audits"
+            );
+
+            $ciTotal      = (int)($ciStats['total'] ?? 0);
+            $compPct      = $ciTotal > 0 ? round($ciStats['compliant'] / $ciTotal * 100, 1) : 0;
+            $rTotal       = (int)($liveRisks['total'] ?? 0);
+            $riskHealth   = $rTotal > 0
+                ? round((1 - ($liveRisks['critical'] + $liveRisks['high']) / $rTotal) * 100, 1)
+                : 100;
+            $pTotal       = (int)($livePolicies['total'] ?? 0);
+            $policyHealth = $pTotal > 0 ? round($livePolicies['approved'] / $pTotal * 100, 1) : 0;
+            $grcScore     = $ciTotal > 0 ? round(($compPct + $riskHealth + $policyHealth) / 3, 1) : 0;
+
+            $live = [
+                'grc_score'      => $snapshot ? (float)$snapshot['grc_score']      : $grcScore,
+                'compliance_pct' => $snapshot ? (float)$snapshot['compliance_pct'] : $compPct,
+                'risk_health'    => $snapshot ? (float)$snapshot['risk_health']     : $riskHealth,
+                'policy_health'  => $snapshot ? (float)$snapshot['policy_health']   : $policyHealth,
+                'open_risks'     => $rTotal,
+                'open_incidents' => (int)($liveIncidents['open'] ?? 0),
+                'total_controls' => $ciTotal,
+                'total_policies' => $pTotal,
+                'total_audits'   => (int)($liveAudits['total'] ?? 0),
+            ];
+        } catch (Throwable) {
+            $live = [];
+        }
+
         // 90-day trend data for chart
         $trend = Database::fetchAll(
             "SELECT snapshot_date, grc_score, compliance_pct, risk_health, policy_health, audit_health,
