@@ -862,7 +862,7 @@ class ComplianceController {
         // All controls (level 2) grouped by domain (level 1)
         $domains = Database::fetchAll("SELECT * FROM compliance_objectives WHERE package_id = ? AND level = 1 ORDER BY sort_order", [$pkgId]);
         $controls = Database::fetchAll(
-            "SELECT co.*, ci.status, ci.due_date, ci.completion_date, ci.notes,
+            "SELECT co.*, ci.status, ci.due_date, ci.implementation_notes,
                     u.name as assigned_name
              FROM compliance_objectives co
              LEFT JOIN control_implementations ci ON ci.objective_id = co.id
@@ -1015,9 +1015,9 @@ class ComplianceController {
             'evidence_refs'  => Security::sanitizeInput($_POST['evidence_refs'] ?? ''),
             'next_test_date' => $nextDate ?: null,
         ]);
-        // Update the effectiveness on the control_implementation too
+        // Update last_reviewed on the control_implementation to reflect the test
         Database::query(
-            "UPDATE control_implementations SET notes = COALESCE(notes,'') || '' WHERE objective_id=?",
+            "UPDATE control_implementations SET last_reviewed = NOW(), updated_at = NOW() WHERE objective_id=?",
             [$objId]
         );
         Auth::log('control_tested', 'control_tests', $id, ['result'=>$result,'effectiveness'=>$effectiveness]);
