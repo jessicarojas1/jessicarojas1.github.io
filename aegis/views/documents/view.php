@@ -158,8 +158,14 @@ $canEdit = Auth::can('policy.write');
         </div>
         <div class="form-group">
           <label class="form-label">File <span class="required">*</span></label>
-          <input type="file" name="document_file" class="form-control" required>
-          <p class="form-hint">PDF, Word, Excel, plain text. Max 50MB.</p>
+          <label class="file-drop" id="fileDropDoc" for="docUploadFile">
+            <i class="bi bi-file-earmark-arrow-up" style="font-size:2rem;color:var(--primary)"></i>
+            <p>Drag &amp; drop or <strong>click to upload</strong></p>
+            <p class="text-muted">PDF, Word, Excel, plain text · max 50MB</p>
+          </label>
+          <input type="file" id="docUploadFile" name="document_file" required style="display:none"
+                 data-change="showFileChange" data-drop-id="fileDropDoc" data-name-id="docFileName" data-color="var(--primary)">
+          <div id="docFileName" style="margin-top:8px;color:var(--primary);display:none"><i class="bi bi-file-earmark-check"></i> <span></span></div>
         </div>
         <div class="form-group">
           <label class="form-label">Change Summary</label>
@@ -167,7 +173,7 @@ $canEdit = Auth::can('policy.write');
         </div>
       </div>
       <div class="modal-footer">
-        <button type="submit" class="btn btn-primary"><i class="bi bi-upload"></i> Upload</button>
+        <button type="submit" class="btn btn-primary btn-full"><i class="bi bi-upload"></i> Upload Version</button>
       </div>
     </form>
   </div>

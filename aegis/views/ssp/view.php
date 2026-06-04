@@ -226,27 +226,37 @@ $impactBadge = fn($v) => match($v) { 'high' => 'badge-danger', 'low' => 'badge-s
         <div class="form-group" style="grid-column:1/-1">
           <label class="form-label">Network Architecture</label>
           <textarea name="network_architecture" class="form-control" rows="2"><?= Security::h($plan['network_architecture'] ?? '') ?></textarea>
-          <div style="margin-top:8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-            <div style="flex:1;min-width:200px;">
-              <label style="font-size:0.78rem;color:var(--text-muted);">Replace diagram file <span style="font-weight:400;">(PDF, PNG, JPG, SVG, VSDX, max 10MB)</span></label>
-              <input type="file" name="network_arch_file" class="form-control" accept=".pdf,.png,.jpg,.jpeg,.gif,.svg,.vsdx,.docx,.pptx" style="font-size:0.85rem;margin-top:4px;">
-            </div>
+          <div style="margin-top:8px;">
             <?php if (!empty($plan['network_arch_filename'])): ?>
-            <div style="font-size:0.8rem;color:var(--text-muted);padding-top:18px;">Current: <a href="/ssp/<?= (int)$plan['id'] ?>/download/network-arch"><?= Security::h($plan['network_arch_filename']) ?></a></div>
+            <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:6px;">Current: <a href="/ssp/<?= (int)$plan['id'] ?>/download/network-arch"><?= Security::h($plan['network_arch_filename']) ?></a></div>
             <?php endif; ?>
+            <label style="font-size:0.78rem;color:var(--text-muted);margin-bottom:4px;display:block;">Replace diagram file <span style="font-weight:400;">(optional)</span></label>
+            <label class="file-drop" id="fileDropEditNetArch" for="editNetArchFile" style="padding:16px;">
+              <i class="bi bi-diagram-3" style="font-size:1.5rem;color:var(--primary)"></i>
+              <p style="margin:4px 0 0;font-size:0.875rem;">Drag &amp; drop or <strong>click to upload</strong></p>
+              <p class="text-muted" style="margin:3px 0 0;font-size:0.78rem;">PDF, PNG, JPG, SVG, VSDX · max 10MB</p>
+            </label>
+            <input type="file" id="editNetArchFile" name="network_arch_file" accept=".pdf,.png,.jpg,.jpeg,.gif,.svg,.vsdx,.docx,.pptx" style="display:none"
+                   data-change="showFileChange" data-drop-id="fileDropEditNetArch" data-name-id="editNetArchName" data-color="var(--primary)">
+            <div id="editNetArchName" style="margin-top:6px;color:var(--primary);display:none"><i class="bi bi-file-earmark-check"></i> <span></span></div>
           </div>
         </div>
         <div class="form-group" style="grid-column:1/-1">
           <label class="form-label">Data Flow</label>
           <textarea name="data_flow" class="form-control" rows="2"><?= Security::h($plan['data_flow'] ?? '') ?></textarea>
-          <div style="margin-top:8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-            <div style="flex:1;min-width:200px;">
-              <label style="font-size:0.78rem;color:var(--text-muted);">Replace diagram file <span style="font-weight:400;">(PDF, PNG, JPG, SVG, VSDX, max 10MB)</span></label>
-              <input type="file" name="data_flow_file" class="form-control" accept=".pdf,.png,.jpg,.jpeg,.gif,.svg,.vsdx,.docx,.pptx" style="font-size:0.85rem;margin-top:4px;">
-            </div>
+          <div style="margin-top:8px;">
             <?php if (!empty($plan['data_flow_filename'])): ?>
-            <div style="font-size:0.8rem;color:var(--text-muted);padding-top:18px;">Current: <a href="/ssp/<?= (int)$plan['id'] ?>/download/data-flow"><?= Security::h($plan['data_flow_filename']) ?></a></div>
+            <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:6px;">Current: <a href="/ssp/<?= (int)$plan['id'] ?>/download/data-flow"><?= Security::h($plan['data_flow_filename']) ?></a></div>
             <?php endif; ?>
+            <label style="font-size:0.78rem;color:var(--text-muted);margin-bottom:4px;display:block;">Replace diagram file <span style="font-weight:400;">(optional)</span></label>
+            <label class="file-drop" id="fileDropEditDataFlow" for="editDataFlowFile" style="padding:16px;">
+              <i class="bi bi-diagram-2" style="font-size:1.5rem;color:var(--primary)"></i>
+              <p style="margin:4px 0 0;font-size:0.875rem;">Drag &amp; drop or <strong>click to upload</strong></p>
+              <p class="text-muted" style="margin:3px 0 0;font-size:0.78rem;">PDF, PNG, JPG, SVG, VSDX · max 10MB</p>
+            </label>
+            <input type="file" id="editDataFlowFile" name="data_flow_file" accept=".pdf,.png,.jpg,.jpeg,.gif,.svg,.vsdx,.docx,.pptx" style="display:none"
+                   data-change="showFileChange" data-drop-id="fileDropEditDataFlow" data-name-id="editDataFlowName" data-color="var(--primary)">
+            <div id="editDataFlowName" style="margin-top:6px;color:var(--primary);display:none"><i class="bi bi-file-earmark-check"></i> <span></span></div>
           </div>
         </div>
         <div class="form-group">

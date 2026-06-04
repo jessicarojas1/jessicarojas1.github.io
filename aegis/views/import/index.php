@@ -90,12 +90,23 @@ $notes = [
 
         <div class="form-group">
           <label class="form-label">CSV File <span class="required">*</span></label>
-          <input type="file" name="csv_file" class="form-control" accept=".csv,.txt" required>
-          <p class="form-hint">Max 10 MB. First row must be the header row.</p>
+          <label class="file-drop" id="fileDropBulk" for="bulkCsvFile">
+            <i class="bi bi-filetype-csv" style="font-size:2rem;color:#059669"></i>
+            <p>Drag &amp; drop or <strong>click to upload</strong></p>
+            <p class="text-muted">.csv format, max 10MB</p>
+          </label>
+          <input type="file" id="bulkCsvFile" name="csv_file" accept=".csv,.txt" required style="display:none"
+                 data-change="showFileChange" data-drop-id="fileDropBulk" data-name-id="bulkCsvName" data-color="#059669">
+          <div id="bulkCsvName" style="margin-top:8px;color:#059669;display:none"><i class="bi bi-file-earmark-check"></i> <span></span></div>
         </div>
 
-        <button type="submit" class="btn btn-primary"><i class="bi bi-cloud-upload"></i> Import</button>
+        <button type="submit" class="btn btn-primary btn-full"><i class="bi bi-cloud-upload"></i> Import CSV</button>
       </form>
+      <div style="margin-top:10px;text-align:center">
+        <button type="button" id="btnDownloadTemplate2" class="btn btn-ghost btn-sm">
+          <i class="bi bi-download"></i> Download CSV Template
+        </button>
+      </div>
     </div>
   </div>
 
@@ -196,4 +207,5 @@ function downloadTemplate() {
 
 document.getElementById('importType').addEventListener('change', onTypeChange);
 document.getElementById('btnDownloadTemplate').addEventListener('click', downloadTemplate);
+document.getElementById('btnDownloadTemplate2').addEventListener('click', downloadTemplate);
 </script>

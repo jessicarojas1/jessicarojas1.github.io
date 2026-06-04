@@ -464,3 +464,33 @@ document.querySelectorAll('.perm-col-all').forEach(function (btn) {
     applyTheme(next);
   });
 }());
+
+// ── File drop zones ───────────────────────────────────────────────────────────
+window.showFileChange = function(arg) {
+  var input = (arg && arg.target) ? arg.target : (arg instanceof Element ? arg : this);
+  if (!input || !input.files || !input.files.length) return;
+  var dropEl = input.dataset.dropId ? document.getElementById(input.dataset.dropId) : null;
+  var nameEl = input.dataset.nameId ? document.getElementById(input.dataset.nameId) : null;
+  var color  = input.dataset.color || 'var(--primary)';
+  if (nameEl) {
+    nameEl.style.display = 'block';
+    nameEl.style.color   = color;
+    var span = nameEl.querySelector('span');
+    if (span) span.textContent = input.files[0].name;
+  }
+  if (dropEl) dropEl.style.borderColor = color;
+};
+document.querySelectorAll('.file-drop').forEach(function(drop) {
+  drop.addEventListener('dragover',  function(e) { e.preventDefault(); drop.classList.add('drag-over'); });
+  drop.addEventListener('dragleave', function()  { drop.classList.remove('drag-over'); });
+  drop.addEventListener('drop', function(e) {
+    e.preventDefault(); drop.classList.remove('drag-over');
+    var forId = drop.getAttribute('for');
+    var input = forId ? document.getElementById(forId) : null;
+    if (!input || !e.dataTransfer.files.length) return;
+    var dt = new DataTransfer();
+    dt.items.add(e.dataTransfer.files[0]);
+    input.files = dt.files;
+    input.dispatchEvent(new Event('change'));
+  });
+});

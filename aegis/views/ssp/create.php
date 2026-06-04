@@ -64,22 +64,30 @@
             <label class="form-label">Network Architecture</label>
             <textarea name="network_architecture" class="form-control" rows="3" placeholder="Describe network topology, connections, and data flows"></textarea>
             <div style="margin-top:10px;">
-              <label class="form-label" style="font-size:0.8rem;color:var(--text-muted);">Upload Diagram <span style="font-weight:400;">(optional — PDF, PNG, JPG, SVG, VSDX, max 10MB)</span></label>
-              <input type="file" name="network_arch_file" class="form-control" accept=".pdf,.png,.jpg,.jpeg,.gif,.svg,.vsdx,.docx,.pptx" style="font-size:0.85rem;">
-              <div style="margin-top:8px;background:var(--bg-secondary,#f8fafc);border-radius:6px;padding:10px 12px;font-size:0.78rem;color:var(--text-muted);">
-                <strong style="color:var(--text-primary);">Accepted formats:</strong> PDF (network diagrams), PNG / JPG / SVG (images), VSDX (Visio), DOCX / PPTX (documents). Text description above OR file upload — both are optional, both are stored.
-              </div>
+              <label class="form-label" style="font-size:0.8rem;color:var(--text-muted);">Upload Diagram <span style="font-weight:400;">(optional)</span></label>
+              <label class="file-drop" id="fileDropNetArch" for="netArchFile" style="padding:20px;">
+                <i class="bi bi-diagram-3" style="font-size:1.75rem;color:var(--primary)"></i>
+                <p style="margin:6px 0 0;">Drag &amp; drop or <strong>click to upload</strong></p>
+                <p class="text-muted" style="margin:4px 0 0;font-size:0.8rem;">PDF, PNG, JPG, SVG, VSDX · max 10MB</p>
+              </label>
+              <input type="file" id="netArchFile" name="network_arch_file" accept=".pdf,.png,.jpg,.jpeg,.gif,.svg,.vsdx,.docx,.pptx" style="display:none"
+                     data-change="showFileChange" data-drop-id="fileDropNetArch" data-name-id="netArchName" data-color="var(--primary)">
+              <div id="netArchName" style="margin-top:6px;color:var(--primary);display:none"><i class="bi bi-file-earmark-check"></i> <span></span></div>
             </div>
           </div>
           <div class="form-group">
             <label class="form-label">Data Flow</label>
             <textarea name="data_flow" class="form-control" rows="3" placeholder="Describe how data enters, is processed, and exits the system"></textarea>
             <div style="margin-top:10px;">
-              <label class="form-label" style="font-size:0.8rem;color:var(--text-muted);">Upload Diagram <span style="font-weight:400;">(optional — PDF, PNG, JPG, SVG, VSDX, max 10MB)</span></label>
-              <input type="file" name="data_flow_file" class="form-control" accept=".pdf,.png,.jpg,.jpeg,.gif,.svg,.vsdx,.docx,.pptx" style="font-size:0.85rem;">
-              <div style="margin-top:8px;background:var(--bg-secondary,#f8fafc);border-radius:6px;padding:10px 12px;font-size:0.78rem;color:var(--text-muted);">
-                <strong style="color:var(--text-primary);">Accepted formats:</strong> PDF, PNG / JPG / SVG, VSDX (Visio), DOCX / PPTX. Upload a data flow diagram (DFD) or process flow. Text description above is stored alongside the file.
-              </div>
+              <label class="form-label" style="font-size:0.8rem;color:var(--text-muted);">Upload Diagram <span style="font-weight:400;">(optional)</span></label>
+              <label class="file-drop" id="fileDropDataFlow" for="dataFlowFile" style="padding:20px;">
+                <i class="bi bi-diagram-2" style="font-size:1.75rem;color:var(--primary)"></i>
+                <p style="margin:6px 0 0;">Drag &amp; drop or <strong>click to upload</strong></p>
+                <p class="text-muted" style="margin:4px 0 0;font-size:0.8rem;">PDF, PNG, JPG, SVG, VSDX · max 10MB</p>
+              </label>
+              <input type="file" id="dataFlowFile" name="data_flow_file" accept=".pdf,.png,.jpg,.jpeg,.gif,.svg,.vsdx,.docx,.pptx" style="display:none"
+                     data-change="showFileChange" data-drop-id="fileDropDataFlow" data-name-id="dataFlowName" data-color="var(--primary)">
+              <div id="dataFlowName" style="margin-top:6px;color:var(--primary);display:none"><i class="bi bi-file-earmark-check"></i> <span></span></div>
             </div>
           </div>
         </div>
