@@ -1617,12 +1617,107 @@ html[data-theme="dark"] {
   --shadow: 0 1px 3px rgba(0,0,0,.5), 0 4px 16px rgba(0,0,0,.3);
   --shadow-md: 0 4px 12px rgba(0,0,0,.6);
   --shadow-lg: 0 8px 32px rgba(0,0,0,.75);
+
+  /* Bootstrap 5 variable overrides — prevent white Bootstrap defaults in dark mode */
+  --bs-body-bg: #0a0a0a;
+  --bs-body-color: #f5f5f5;
+  --bs-card-bg: #1c1c1c;
+  --bs-card-cap-bg: #252525;
+  --bs-card-border-color: #2e2e2e;
+  --bs-border-color: #2e2e2e;
+  --bs-border-color-translucent: rgba(255,255,255,.1);
+  --bs-table-bg: transparent;
+  --bs-table-color: #f5f5f5;
+  --bs-table-border-color: #2e2e2e;
+  --bs-table-striped-bg: rgba(255,255,255,.03);
+  --bs-table-striped-color: #f5f5f5;
+  --bs-table-hover-bg: rgba(255,255,255,.05);
+  --bs-table-hover-color: #f5f5f5;
+  --bs-table-active-bg: rgba(255,255,255,.07);
+  --bs-link-color: #22c55e;
+  --bs-link-hover-color: #86efac;
+  --bs-modal-bg: #1c1c1c;
+  --bs-modal-header-bg: #252525;
+  --bs-modal-footer-bg: #252525;
+  --bs-modal-border-color: #2e2e2e;
+  --bs-modal-color: #f5f5f5;
+  --bs-dropdown-bg: #1c1c1c;
+  --bs-dropdown-border-color: #2e2e2e;
+  --bs-dropdown-color: #f5f5f5;
+  --bs-dropdown-link-color: #f5f5f5;
+  --bs-dropdown-link-hover-color: #f5f5f5;
+  --bs-dropdown-link-hover-bg: #252525;
+  --bs-input-bg: #1c1c1c;
+  --bs-input-color: #f5f5f5;
+  --bs-input-border-color: #2e2e2e;
+  --bs-input-placeholder-color: #a3a3a3;
+  --bs-form-select-bg: #1c1c1c;
+  color-scheme: dark;
 }
+
+/* Bootstrap table rows: force dark cell backgrounds to override Bootstrap's computed white */
+html[data-theme="dark"] .table > :not(caption) > * > * {
+  background-color: var(--card-bg) !important;
+  color: var(--text);
+  border-bottom-color: var(--border);
+}
+html[data-theme="dark"] .table > thead > * > * {
+  background-color: var(--bg-subtle) !important;
+  color: var(--text-muted);
+}
+html[data-theme="dark"] .table-striped > tbody > tr:nth-of-type(odd) > * {
+  background-color: rgba(255,255,255,.025) !important;
+}
+html[data-theme="dark"] .table-hover > tbody > tr:hover > * {
+  background-color: rgba(255,255,255,.06) !important;
+}
+
+/* Bootstrap modals */
+html[data-theme="dark"] .modal-content   { background: var(--card-bg); color: var(--text); border-color: var(--border); }
+html[data-theme="dark"] .modal-header    { background: var(--bg-subtle); border-color: var(--border); }
+html[data-theme="dark"] .modal-footer    { background: var(--bg-subtle); border-color: var(--border); }
+
+/* Bootstrap dropdowns */
+html[data-theme="dark"] .dropdown-menu  { background: var(--card-bg); border-color: var(--border); }
+html[data-theme="dark"] .dropdown-item  { color: var(--text); }
+html[data-theme="dark"] .dropdown-item:hover,
+html[data-theme="dark"] .dropdown-item:focus { background: var(--bg-subtle); color: var(--text); }
+html[data-theme="dark"] .dropdown-divider { border-color: var(--border); }
+
+/* Bootstrap form elements */
+html[data-theme="dark"] .input-group-text { background: var(--bg-subtle); color: var(--text-muted); border-color: var(--border); }
+html[data-theme="dark"] .form-select      { background-color: var(--card-bg); color: var(--text); border-color: var(--border); }
+
+/* Bootstrap list-group */
+html[data-theme="dark"] .list-group-item  { background: var(--card-bg); color: var(--text); border-color: var(--border); }
+html[data-theme="dark"] .list-group-item:hover { background: var(--bg-subtle); }
+
+/* Bootstrap pagination */
+html[data-theme="dark"] .page-link        { background: var(--card-bg); color: var(--text-muted); border-color: var(--border); }
+html[data-theme="dark"] .page-item.active .page-link { background: var(--primary); border-color: var(--primary); color: #fff; }
+html[data-theme="dark"] .page-item.disabled .page-link { background: var(--bg-subtle); color: var(--text-light); }
+
+/* Bootstrap nav tabs */
+html[data-theme="dark"] .nav-tabs         { border-color: var(--border); }
+html[data-theme="dark"] .nav-tabs .nav-link        { color: var(--text-muted); }
+html[data-theme="dark"] .nav-tabs .nav-link:hover  { border-color: var(--border); color: var(--text); }
+html[data-theme="dark"] .nav-tabs .nav-link.active { background: var(--card-bg); border-color: var(--border); border-bottom-color: var(--card-bg); color: var(--text); }
+
+/* Bootstrap badges */
+html[data-theme="dark"] .bg-light  { background-color: var(--bg-subtle) !important; color: var(--text) !important; }
+html[data-theme="dark"] .bg-white  { background-color: var(--card-bg) !important; color: var(--text) !important; }
+html[data-theme="dark"] .text-dark { color: var(--text) !important; }
+html[data-theme="dark"] .text-muted { color: var(--text-muted) !important; }
+html[data-theme="dark"] .border    { border-color: var(--border) !important; }
+html[data-theme="dark"] .border-top,
+html[data-theme="dark"] .border-bottom,
+html[data-theme="dark"] .border-start,
+html[data-theme="dark"] .border-end { border-color: var(--border) !important; }
 
 /* Hardcoded backgrounds that need dark overrides */
 html[data-theme="dark"] .table th               { background: #252525; color: var(--text-muted); }
 html[data-theme="dark"] .table td               { color: var(--text); }
-html[data-theme="dark"] .table tbody tr:hover   { background: #252525; }
+html[data-theme="dark"] .table tbody tr:hover   { background: rgba(255,255,255,.06); }
 html[data-theme="dark"] .domain-header:hover    { background: #252525; }
 html[data-theme="dark"] .treatment-add-box      { background: #252525; border-color: #3f3f46; }
 html[data-theme="dark"] .audit-finding-panel    { background: #252525; }
@@ -1635,7 +1730,7 @@ html[data-theme="dark"] .api-auth-info          { background: #252525; }
 html[data-theme="dark"] .api-auth-info code     { background: #111111; color: #a5f3fc; }
 
 /* Global dark mode text safety — ensure text is always visible */
-html[data-theme="dark"] body                    { color: var(--text); }
+html[data-theme="dark"] body                    { background: var(--bg); color: var(--text); }
 html[data-theme="dark"] p, html[data-theme="dark"] span,
 html[data-theme="dark"] div, html[data-theme="dark"] li,
 html[data-theme="dark"] label, html[data-theme="dark"] td,
