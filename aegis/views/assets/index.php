@@ -67,7 +67,7 @@
 <!-- Filter bar -->
 <div class="filter-bar card" style="margin-bottom:20px;">
   <form method="GET" class="filter-form" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:16px;">
-    <select name="type" class="form-control form-control-sm" onchange="this.form.submit()">
+    <select name="type" id="assetTypeFilter" class="form-control form-control-sm">
       <option value="">All Types</option>
       <?php
       $typeLabels = [
@@ -88,14 +88,14 @@
       <?php endforeach; ?>
     </select>
 
-    <select name="criticality" class="form-control form-control-sm" onchange="this.form.submit()">
+    <select name="criticality" id="assetCritFilter" class="form-control form-control-sm">
       <option value="">All Criticality</option>
       <?php foreach (['critical'=>'Critical','high'=>'High','medium'=>'Medium','low'=>'Low'] as $val => $label): ?>
         <option value="<?= $val ?>" <?= (($_GET['criticality'] ?? '') === $val) ? 'selected' : '' ?>><?= $label ?></option>
       <?php endforeach; ?>
     </select>
 
-    <select name="status" class="form-control form-control-sm" onchange="this.form.submit()">
+    <select name="status" id="assetStatusFilter" class="form-control form-control-sm">
       <option value="">All Statuses</option>
       <?php foreach (['active'=>'Active','decommissioned'=>'Decommissioned','maintenance'=>'Maintenance'] as $val => $label): ?>
         <option value="<?= $val ?>" <?= (($_GET['status'] ?? '') === $val) ? 'selected' : '' ?>><?= $label ?></option>
@@ -222,6 +222,15 @@ function criticalityBadge(string $crit): string {
   </div>
 </div>
 
+<script nonce="<?= Security::nonce() ?>">
+(function() {
+  var form = document.querySelector('.filter-form');
+  ['assetTypeFilter','assetCritFilter','assetStatusFilter'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('change', function() { form.submit(); });
+  });
+})();
+</script>
 <?php
 $content      = ob_get_clean();
 $pageTitle    = 'Asset Inventory';
