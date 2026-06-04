@@ -283,6 +283,7 @@ function runMigrations(PDO $pdo): void {
         '010_risk_matrix_cells.sql',
         '011_drop_builtin_columns.sql',
         '012_awareness_account_reviews_privacy.sql',
+        '013_ssp.sql',
     ];
     foreach ($migrationFiles as $file) {
         $path = AEGIS_ROOT . '/database/migrations/' . $file;

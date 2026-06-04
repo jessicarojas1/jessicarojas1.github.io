@@ -51,7 +51,7 @@
     </div>
 
     <!-- Compliance -->
-    <?php if (moduleVisible('compliance', $__mv) || moduleVisible('import', $__mv) || moduleVisible('bulk_import', $__mv) || moduleVisible('control_testing', $__mv) || moduleVisible('compliance_gap', $__mv)): ?>
+    <?php if (moduleVisible('compliance', $__mv) || moduleVisible('import', $__mv) || moduleVisible('bulk_import', $__mv) || moduleVisible('control_testing', $__mv) || moduleVisible('compliance_gap', $__mv) || moduleVisible('ssp', $__mv)): ?>
     <div class="nav-acc">
       <button type="button" class="nav-acc-header" data-acc="compliance">
         <span>Compliance</span><i class="bi bi-chevron-down nav-acc-chevron"></i>
@@ -62,6 +62,7 @@
         <?php if (moduleVisible('bulk_import',    $__mv)): ?><a href="/import"               class="nav-item <?= $activeModule==='bulk_import'?'active':'' ?>"><i class="bi bi-table"></i><span>Bulk Import</span></a><?php endif; ?>
         <?php if (moduleVisible('control_testing',$__mv)): ?><a href="/compliance/testing"   class="nav-item <?= $activeModule==='control_testing'?'active':'' ?>"><i class="bi bi-clipboard2-pulse-fill"></i><span>Control Testing</span></a><?php endif; ?>
         <?php if (moduleVisible('compliance_gap', $__mv)): ?><a href="/compliance/gap-analysis" class="nav-item <?= $activeModule==='compliance_gap'?'active':'' ?>"><i class="bi bi-bar-chart-steps"></i><span>Gap Analysis</span></a><?php endif; ?>
+        <?php if (moduleVisible('ssp',            $__mv)): ?><a href="/ssp"                  class="nav-item <?= $activeModule==='ssp'?'active':'' ?>"><i class="bi bi-file-earmark-lock2-fill"></i><span>Sec. Plans (SSP)</span></a><?php endif; ?>
       </div>
     </div>
     <?php endif; ?>

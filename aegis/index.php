@@ -502,6 +502,8 @@ $routes = [
         '/privacy'                    => ['PrivacyController', 'index'],
         '/privacy/create'             => ['PrivacyController', 'createForm'],
         '/privacy/requests'           => ['PrivacyController', 'requests'],
+        '/ssp'                        => ['SSPController', 'index'],
+        '/ssp/create'                 => ['SSPController', 'createForm'],
     ],
     'POST' => [
         '/profile/notifications/save'    => ['ProfileController', 'saveNotifications'],
@@ -573,6 +575,7 @@ $routes = [
         '/account-reviews/create'               => ['AccountReviewController', 'create'],
         '/privacy/create'                       => ['PrivacyController', 'create'],
         '/privacy/requests/create'              => ['PrivacyController', 'createRequest'],
+        '/ssp/create'                           => ['SSPController', 'create'],
     ],
 ];
 
@@ -633,6 +636,8 @@ $dynamicRoutes = [
         '#^/awareness/(\d+)$#'               => ['AwarenessController', 'view'],
         '#^/account-reviews/(\d+)$#'         => ['AccountReviewController', 'view'],
         '#^/privacy/(\d+)$#'                 => ['PrivacyController', 'view'],
+        '#^/ssp/(\d+)$#'                     => ['SSPController', 'view'],
+        '#^/ssp/(\d+)/generate$#'            => ['SSPController', 'generate'],
     ],
     'POST' => [
         '#^/compliance/(\d+)/objective/(\d+)/update$#' => ['ComplianceController', 'updateObjective'],
@@ -751,6 +756,11 @@ $dynamicRoutes = [
         '#^/account-reviews/(\d+)/delete$#'         => ['AccountReviewController', 'delete'],
         '#^/privacy/(\d+)/delete$#'                 => ['PrivacyController', 'delete'],
         '#^/privacy/requests/(\d+)/update$#'        => ['PrivacyController', 'updateRequest'],
+        '#^/ssp/(\d+)/update$#'                     => ['SSPController', 'update'],
+        '#^/ssp/(\d+)/delete$#'                     => ['SSPController', 'delete'],
+        '#^/ssp/(\d+)/add-package$#'                => ['SSPController', 'addPackage'],
+        '#^/ssp/(\d+)/remove-package/(\d+)$#'       => ['SSPController', 'removePackage'],
+        '#^/ssp/(\d+)/statement/(\d+)/save$#'       => ['SSPController', 'saveStatement'],
     ],
 ];
 
