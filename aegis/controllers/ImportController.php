@@ -11,7 +11,7 @@ class ImportController {
     public function index(): void {
         Auth::requirePermission('compliance.write');
         $pageTitle    = 'Bulk Import';
-        $activeModule = 'import';
+        $activeModule = 'bulk_import';
         $breadcrumbs  = [['Import', null]];
         ob_start();
         require AEGIS_ROOT . '/views/import/index.php';
