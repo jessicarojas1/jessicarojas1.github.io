@@ -31,7 +31,7 @@ class AuditController {
 
     public function createForm(): void {
         Auth::requirePermission('audit.write');
-        $packages = Database::fetchAll("SELECT cp.id, cp.name, s.code FROM compliance_packages cp JOIN standards s ON s.id = cp.standard_id WHERE cp.is_active = TRUE ORDER BY cp.name");
+        $packages = Database::fetchAll("SELECT cp.id, cp.name, s.code FROM compliance_packages cp LEFT JOIN standards s ON s.id = cp.standard_id WHERE cp.is_active = TRUE ORDER BY cp.name");
         $users    = Database::fetchAll("SELECT id, name FROM users WHERE is_active = TRUE ORDER BY name");
         require AEGIS_ROOT . '/views/audit/create.php';
     }

@@ -452,7 +452,7 @@ class ComplianceController {
         header('Content-Type: application/json');
         $pkgId = (int)$pkgId;
         $pkg = Database::fetchOne(
-            "SELECT cp.*, s.name AS standard_name FROM compliance_packages cp JOIN standards s ON s.id = cp.standard_id WHERE cp.id = ?",
+            "SELECT cp.*, s.name AS standard_name FROM compliance_packages cp LEFT JOIN standards s ON s.id = cp.standard_id WHERE cp.id = ?",
             [$pkgId]
         );
         if (!$pkg) { http_response_code(404); echo json_encode(['error' => 'Package not found']); return; }
@@ -1036,7 +1036,7 @@ class ComplianceController {
                     COUNT(co.id) FILTER (WHERE (ci.status IS NULL OR ci.status='not_started') AND co.level=2) as not_started,
                     COUNT(co.id) FILTER (WHERE ci.due_date < CURRENT_DATE AND ci.status != 'compliant' AND co.level=2) as overdue
              FROM compliance_packages cp
-             JOIN standards s ON s.id = cp.standard_id
+             LEFT JOIN standards s ON s.id = cp.standard_id
              LEFT JOIN compliance_objectives co ON co.package_id = cp.id
              LEFT JOIN control_implementations ci ON ci.objective_id = co.id
              WHERE cp.is_active = TRUE
@@ -1049,7 +1049,7 @@ class ComplianceController {
                     ci.status, ci.due_date, u.name as assigned_name
              FROM compliance_objectives co
              JOIN compliance_packages cp ON cp.id = co.package_id
-             JOIN standards s ON s.id = cp.standard_id
+             LEFT JOIN standards s ON s.id = cp.standard_id
              LEFT JOIN control_implementations ci ON ci.objective_id = co.id
              LEFT JOIN users u ON u.id = ci.assigned_to
              WHERE co.level = 2 AND cp.is_active = TRUE
@@ -1064,7 +1064,7 @@ class ComplianceController {
                     COUNT(CASE WHEN ci.status='compliant' THEN 1 END) as implemented_in
              FROM compliance_objectives co
              JOIN compliance_packages cp ON cp.id = co.package_id
-             JOIN standards s ON s.id = cp.standard_id
+             LEFT JOIN standards s ON s.id = cp.standard_id
              LEFT JOIN control_implementations ci ON ci.objective_id = co.id
              WHERE co.level=2 AND cp.is_active=TRUE
              GROUP BY co.title HAVING COUNT(DISTINCT cp.id) > 1
