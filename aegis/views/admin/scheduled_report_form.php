@@ -89,7 +89,7 @@ ob_start();
 
         <div class="form-group" style="flex:1">
           <label class="form-label" for="sched_frequency">Frequency <span style="color:#ef4444">*</span></label>
-          <select id="sched_frequency" name="frequency" class="form-control" required onchange="onFrequencyChange(this.value)">
+          <select id="sched_frequency" name="frequency" class="form-control" required>
             <?php
             $freqs  = ['daily' => 'Daily', 'weekly' => 'Weekly', 'monthly' => 'Monthly', 'quarterly' => 'Quarterly'];
             $curFreq = $v('frequency', 'weekly');
@@ -208,6 +208,9 @@ function onFrequencyChange(freq) {
 }
 // Init on load
 onFrequencyChange(document.getElementById('sched_frequency').value);
+document.getElementById('sched_frequency').addEventListener('change', function() {
+    onFrequencyChange(this.value);
+});
 </script>
 
 <?php $content = ob_get_clean(); require AEGIS_ROOT . '/views/layout.php'; ?>

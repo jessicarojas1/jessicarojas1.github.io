@@ -12,7 +12,7 @@ if (!in_array($activeTab, $entityTypes, true)) $activeTab = 'risk';
     <h1 class="page-title">Custom Fields</h1>
     <p class="page-subtitle">Define extra metadata fields for each entity type</p>
   </div>
-  <button class="btn btn-primary" onclick="toggleAddForm()"><i class="bi bi-plus-lg"></i> Add Field</button>
+  <button class="btn btn-primary" id="openAddFieldBtn"><i class="bi bi-plus-lg"></i> Add Field</button>
 </div>
 
 <!-- Add Field Form -->

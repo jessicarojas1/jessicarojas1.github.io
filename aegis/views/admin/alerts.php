@@ -47,7 +47,7 @@ ob_start();
             <div style="display:flex;align-items:center;gap:8px">
               <span class="badge <?= $cfg['is_active'] ? 'badge-green' : 'badge-gray' ?>"><?= $cfg['is_active'] ? 'Active' : 'Inactive' ?></span>
               <a href="/admin/alerts/config/<?= (int)$cfg['id'] ?>/edit" class="btn btn-ghost btn-sm"><i class="bi bi-pencil"></i></a>
-              <form method="POST" action="/admin/alerts/config/<?= (int)$cfg['id'] ?>/delete" style="margin:0" onsubmit="return confirm('Delete this alert config?')">
+              <form method="POST" action="/admin/alerts/config/<?= (int)$cfg['id'] ?>/delete" style="margin:0" data-confirm="Delete this alert config?">
                 <?= Security::csrfField() ?>
                 <button type="submit" class="btn btn-ghost btn-sm" style="color:#ef4444"><i class="bi bi-trash3"></i></button>
               </form>
@@ -85,6 +85,14 @@ ob_start();
     </div>
   </div>
 </div>
+
+<script nonce="<?= Security::nonce() ?>">
+document.querySelectorAll('form[data-confirm]').forEach(function(f) {
+  f.addEventListener('submit', function(e) {
+    if (!confirm(f.dataset.confirm)) e.preventDefault();
+  });
+});
+</script>
 
 <?php
 $content = ob_get_clean();

@@ -109,7 +109,7 @@ function scenarioLevelClass(int $s): string {
                   $checked = ($selectedType === $val) ? 'checked' : '';
               ?>
               <label class="type-opt" style="--accent-color:<?= $meta['color'] ?>;--accent-bg:<?= $meta['bg'] ?>">
-                <input type="radio" name="scenario_type" value="<?= $val ?>" <?= $checked ?> onchange="updatePreview()">
+                <input type="radio" name="scenario_type" value="<?= $val ?>" <?= $checked ?> class="scenario-type-radio">
                 <div class="type-card">
                   <i class="bi <?= $meta['icon'] ?>" style="font-size:18px;color:<?= $meta['color'] ?>"></i>
                   <?= $meta['label'] ?>
@@ -149,8 +149,7 @@ function scenarioLevelClass(int $s): string {
               <div class="mult-row">
                 <input type="range" class="mult-slider risk-slider" id="lMult"
                        name="likelihood_multiplier" min="0.1" max="3.0" step="0.1"
-                       value="<?= htmlspecialchars($_POST['likelihood_multiplier'] ?? '1.0') ?>"
-                       oninput="updatePreview()">
+                       value="<?= htmlspecialchars($_POST['likelihood_multiplier'] ?? '1.0') ?>">
                 <span class="mult-val" id="lMultVal"><?= htmlspecialchars($_POST['likelihood_multiplier'] ?? '1.0') ?>×</span>
               </div>
               <div class="mult-desc" id="lMultDesc">e.g. 1.5 = 50% more likely than the base assessment</div>
@@ -163,8 +162,7 @@ function scenarioLevelClass(int $s): string {
               <div class="mult-row">
                 <input type="range" class="mult-slider risk-slider" id="iMult"
                        name="impact_multiplier" min="0.1" max="3.0" step="0.1"
-                       value="<?= htmlspecialchars($_POST['impact_multiplier'] ?? '1.0') ?>"
-                       oninput="updatePreview()">
+                       value="<?= htmlspecialchars($_POST['impact_multiplier'] ?? '1.0') ?>">
                 <span class="mult-val" id="iMultVal"><?= htmlspecialchars($_POST['impact_multiplier'] ?? '1.0') ?>×</span>
               </div>
               <div class="mult-desc" id="iMultDesc">e.g. 2.0 = double the base impact</div>
@@ -442,5 +440,14 @@ function scenarioLevelClass(int $s): string {
 
   // Init
   updatePreview();
+
+  // Wire up sliders
+  document.getElementById('lMult').addEventListener('input', function() { updatePreview(); });
+  document.getElementById('iMult').addEventListener('input', function() { updatePreview(); });
+
+  // Wire up scenario type radios
+  document.querySelectorAll('.scenario-type-radio').forEach(function(r) {
+    r.addEventListener('change', function() { updatePreview(); });
+  });
 })();
 </script>

@@ -54,7 +54,7 @@
     <hr>
     <div style="display:flex;justify-content:space-between;align-items:center">
       <h3 style="margin:0">Plan Sections</h3>
-      <button type="button" class="btn btn-sm btn-secondary" onclick="addSection()"><i class="bi bi-plus-lg"></i> Add Section</button>
+      <button type="button" class="btn btn-sm btn-secondary" id="btnAddSection"><i class="bi bi-plus-lg"></i> Add Section</button>
     </div>
     <div id="sectionsContainer">
       <div class="section-row card" style="padding:16px;margin-bottom:8px;background:#f8f9fa">
@@ -87,6 +87,7 @@
 </form>
 <script nonce="<?= Security::nonce() ?>">
 var sectionIdx = 1;
+document.getElementById('btnAddSection').addEventListener('click', addSection);
 function addSection() {
   var c = document.getElementById('sectionsContainer');
   var tpl = c.querySelector('.section-row').cloneNode(true);

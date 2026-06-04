@@ -81,7 +81,7 @@
       <button type="submit" class="btn btn-primary">
         <i class="bi bi-save"></i> Save Policies
       </button>
-      <button type="button" class="btn btn-danger" id="runNowBtn" onclick="runRetentionNow()">
+      <button type="button" class="btn btn-danger" id="runNowBtn">
         <i class="bi bi-play-circle"></i> Run Now
       </button>
     </div>
@@ -103,6 +103,7 @@
 </div>
 
 <script nonce="<?= Security::nonce() ?>">
+document.getElementById('runNowBtn').addEventListener('click', runRetentionNow);
 function runRetentionNow() {
     var btn = document.getElementById('runNowBtn');
     var res = document.getElementById('runResults');

@@ -97,7 +97,7 @@ $alertTypes = [
           <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Save Alert Config</button>
           <a href="/admin/alerts" class="btn btn-ghost">Cancel</a>
           <?php if ($isEdit): ?>
-            <form method="POST" action="/admin/alerts/config/<?= (int)$config['id'] ?>/delete" style="margin:0" onsubmit="return confirm('Delete this alert configuration?')">
+            <form method="POST" action="/admin/alerts/config/<?= (int)$config['id'] ?>/delete" style="margin:0" data-confirm="Delete this alert configuration?">
               <?= Security::csrfField() ?>
               <button type="submit" class="btn btn-ghost" style="color:#ef4444"><i class="bi bi-trash3"></i> Delete</button>
             </form>
@@ -129,6 +129,14 @@ $alertTypes = [
     </div>
   </div>
 </div>
+
+<script nonce="<?= Security::nonce() ?>">
+document.querySelectorAll('form[data-confirm]').forEach(function(f) {
+  f.addEventListener('submit', function(e) {
+    if (!confirm(f.dataset.confirm)) e.preventDefault();
+  });
+});
+</script>
 
 <?php
 $content = ob_get_clean();

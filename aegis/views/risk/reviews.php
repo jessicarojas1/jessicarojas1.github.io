@@ -207,6 +207,13 @@ ob_start();
   </div>
 </div>
 
+<script nonce="<?= Security::nonce() ?>">
+var reviewsStatusFilter = document.getElementById('reviewsStatusFilter');
+if (reviewsStatusFilter) {
+  reviewsStatusFilter.addEventListener('change', function() { this.form.submit(); });
+}
+</script>
+
 <?php
 $content = ob_get_clean();
 require AEGIS_ROOT . '/views/layout.php';

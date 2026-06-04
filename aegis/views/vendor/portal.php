@@ -90,6 +90,16 @@ function validateForm() {
   if (!ok) alert('Please fill in all required fields before submitting.');
   return ok;
 }
+// Wire up progress tracking and form validation via addEventListener
+document.querySelectorAll('textarea').forEach(function(t) {
+  t.addEventListener('input', updateProgress);
+});
+var portalForm = document.getElementById('portalForm');
+if (portalForm) {
+  portalForm.addEventListener('submit', function(e) {
+    if (!validateForm()) e.preventDefault();
+  });
+}
 </script>
 </body>
 </html>

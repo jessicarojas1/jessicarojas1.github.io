@@ -139,7 +139,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
       <input type="text" name="new_category[]" class="form-control form-control-sm" placeholder="Category name" required>
     </td>
     <td>
-      <select name="new_appetite[]" class="form-control form-control-sm appetite-select" onchange="updateRowColor(this)">
+      <select name="new_appetite[]" class="form-control form-control-sm appetite-select">
         <option value="zero">Zero Tolerance</option>
         <option value="low" selected>Low</option>
         <option value="moderate">Moderate</option>
@@ -160,8 +160,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
       <textarea name="new_statement[]" class="form-control form-control-sm" rows="2" style="resize:vertical" placeholder="Describe the risk tolerance for this category..." required></textarea>
     </td>
     <td>
-      <button type="button" class="btn btn-ghost btn-sm" title="Remove row"
-              onclick="removeRow(this)" style="color:#dc2626">
+      <button type="button" class="btn btn-ghost btn-sm remove-row-btn" title="Remove row" style="color:#dc2626">
         <i class="bi bi-trash3"></i>
       </button>
     </td>
@@ -191,7 +190,19 @@ function updateRowColor(sel) {
 function addNewRow() {
   var tmpl  = document.getElementById('newRowTemplate');
   var clone = tmpl.content.cloneNode(true);
-  document.getElementById('newRowsBody').appendChild(clone);
+  // Wire up the new row's select and remove button before inserting
+  var newBody = document.getElementById('newRowsBody');
+  newBody.appendChild(clone);
+  var lastRow = newBody.lastElementChild;
+  var sel = lastRow.querySelector('.appetite-select');
+  if (sel) {
+    sel.addEventListener('change', function() { updateRowColor(sel); });
+    updateRowColor(sel);
+  }
+  var rmBtn = lastRow.querySelector('.remove-row-btn');
+  if (rmBtn) {
+    rmBtn.addEventListener('click', function() { removeRow(rmBtn); });
+  }
 }
 
 function removeRow(btn) {
@@ -199,8 +210,16 @@ function removeRow(btn) {
   row.parentElement.removeChild(row);
 }
 
-// Init badge colors on load
+document.getElementById('addNewRowBtn').addEventListener('click', addNewRow);
+
+// Init badge colors on load and wire change listeners
 document.querySelectorAll('.appetite-select').forEach(function(sel) {
   updateRowColor(sel);
+  sel.addEventListener('change', function() { updateRowColor(sel); });
+});
+
+// Wire existing remove-row buttons
+document.querySelectorAll('.remove-row-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() { removeRow(btn); });
 });
 </script>

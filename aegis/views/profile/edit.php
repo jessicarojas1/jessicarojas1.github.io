@@ -123,7 +123,7 @@ $mfaEnabled = !empty($dbUser['mfa_enabled']);
                  class="form-control"
                  required
                  autocomplete="new-password"
-                 oninput="updateStrength(this.value)">
+                 id="new_password_profile">
           <!-- Strength meter -->
           <div id="strength-meter-wrap" style="margin-top:8px">
             <div style="height:6px;border-radius:3px;background:#e5e7eb;overflow:hidden">
@@ -153,6 +153,10 @@ $mfaEnabled = !empty($dbUser['mfa_enabled']);
 </div>
 
 <script nonce="<?= Security::nonce() ?>">
+document.getElementById('new_password_profile').addEventListener('input', function() {
+  updateStrength(this.value);
+});
+
 function updateStrength(pwd) {
     var score = 0;
     if (pwd.length >= 8)  score++;

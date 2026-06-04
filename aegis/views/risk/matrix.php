@@ -84,7 +84,7 @@ ob_start();
                 $cellRisks = array_filter($risks, fn($risk) => (int)$risk['likelihood'] === $r && (int)$risk['impact'] === $c);
               ?>
                 <div class="matrix-cell" style="background:<?= $cellColor ?>20;border:1px solid <?= $cellColor ?>40"
-                     data-r="<?= $r ?>" data-c="<?= $c ?>" onclick="showCellRisks(<?= $r ?>,<?= $c ?>)">
+                     data-r="<?= $r ?>" data-c="<?= $c ?>">
                   <?php if (!empty($cd['title'])): ?>
                     <div class="cell-treatment" style="color:<?= $cellColor ?>"><?= Security::h($cd['title']) ?></div>
                   <?php endif; ?>
@@ -146,9 +146,9 @@ ob_start();
 </div>
 
 <!-- Cell detail modal -->
-<div class="modal-overlay" id="cellModal" style="display:none" onclick="if(event.target===this)closeCellModal()">
+<div class="modal-overlay" id="cellModal" style="display:none">
   <div class="modal">
-    <div class="modal-header"><h3 id="cellModalTitle">Risks</h3><button onclick="closeCellModal()"><i class="bi bi-x-lg"></i></button></div>
+    <div class="modal-header"><h3 id="cellModalTitle">Risks</h3><button id="cellModalCloseBtn"><i class="bi bi-x-lg"></i></button></div>
     <div class="modal-body" id="cellModalBody"></div>
   </div>
 </div>
@@ -184,6 +184,22 @@ function showCellRisks(r, c) {
 }
 
 function closeCellModal() { document.getElementById('cellModal').style.display = 'none'; }
+
+// Wire up matrix cells
+document.querySelectorAll('.matrix-cell[data-r][data-c]').forEach(function(cell) {
+  cell.addEventListener('click', function() {
+    showCellRisks(parseInt(this.dataset.r), parseInt(this.dataset.c));
+  });
+});
+
+// Wire up modal close button and backdrop click
+var cellModalCloseBtn = document.getElementById('cellModalCloseBtn');
+if (cellModalCloseBtn) {
+  cellModalCloseBtn.addEventListener('click', function() { closeCellModal(); });
+}
+document.getElementById('cellModal').addEventListener('click', function(e) {
+  if (e.target === this) { closeCellModal(); }
+});
 </script>
 
 <?php

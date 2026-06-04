@@ -181,6 +181,34 @@ $classColors = ['public'=>'#22c55e','internal'=>'#3b82f6','confidential'=>'#f59e
 .modal-body { padding:24px; }
 .modal-footer { padding:16px 24px; border-top:1px solid #e5e7eb; display:flex; gap:8px; justify-content:flex-end; }
 </style>
+<script nonce="<?= Security::nonce() ?>">
+(function() {
+  var modal        = document.getElementById('scheduleModal');
+  var btnOpen      = document.getElementById('btnOpenScheduleModal');
+  var btnClose     = document.getElementById('btnCloseScheduleModal');
+  var btnCancel    = document.getElementById('btnCancelScheduleModal');
+
+  function openModal()  { modal.classList.add('open'); }
+  function closeModal() { modal.classList.remove('open'); }
+
+  if (btnOpen)   btnOpen.addEventListener('click',   openModal);
+  if (btnClose)  btnClose.addEventListener('click',  closeModal);
+  if (btnCancel) btnCancel.addEventListener('click', closeModal);
+
+  // Close on backdrop click
+  modal.addEventListener('click', function(e) {
+    if (e.target === modal) closeModal();
+  });
+
+  document.querySelectorAll('.schedule-delete-form').forEach(function(form) {
+    form.addEventListener('submit', function(e) {
+      if (!confirm(form.getAttribute('data-confirm'))) {
+        e.preventDefault();
+      }
+    });
+  });
+})();
+</script>
 <?php endif; ?>
 
 <?php if (!empty($trend)): ?>

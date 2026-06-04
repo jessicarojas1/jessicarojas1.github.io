@@ -129,7 +129,7 @@ $hasNewCodes = !empty($newCodes);
       </div>
 
       <form method="POST" action="/mfa/backup-codes/generate"
-            onsubmit="return confirm('Regenerate all backup codes? This will invalidate your existing codes.')">
+            id="regenerateCodesForm" data-confirm="Regenerate all backup codes? This will invalidate your existing codes.">
         <?= Security::csrfField() ?>
         <button type="submit" class="btn btn-primary">
           <i class="bi bi-arrow-clockwise"></i> Regenerate Backup Codes
@@ -138,6 +138,18 @@ $hasNewCodes = !empty($newCodes);
 
     </div>
   </div>
+  <script nonce="<?= Security::nonce() ?>">
+  (function() {
+    var form = document.getElementById('regenerateCodesForm');
+    if (form) {
+      form.addEventListener('submit', function(e) {
+        if (!confirm(form.getAttribute('data-confirm'))) {
+          e.preventDefault();
+        }
+      });
+    }
+  })();
+  </script>
 <?php endif; ?>
 
 <div class="card" style="max-width:640px;margin-top:20px">

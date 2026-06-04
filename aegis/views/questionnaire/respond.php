@@ -68,10 +68,10 @@ ob_start();
                 <input type="range"
                        name="answers[<?= $qId ?>]"
                        id="scale_<?= $qId ?>"
-                       class="form-range"
+                       class="form-range scale-input"
+                       data-target="scale_val_<?= $qId ?>"
                        min="1" max="5" step="1"
                        value="<?= (int)($existingVal ?? 3) ?>"
-                       oninput="document.getElementById('scale_val_<?= $qId ?>').textContent=this.value"
                        style="flex:1"
                        <?= $isRequired ? 'required' : '' ?>>
                 <span class="text-muted text-sm" style="white-space:nowrap">5 (High)</span>
@@ -148,6 +148,16 @@ ob_start();
     </div>
   <?php endif; ?>
 </form>
+
+<script nonce="<?= Security::nonce() ?>">
+document.querySelectorAll('.scale-input').forEach(function(input) {
+  var targetId = input.getAttribute('data-target');
+  input.addEventListener('input', function() {
+    var target = document.getElementById(targetId);
+    if (target) target.textContent = input.value;
+  });
+});
+</script>
 
 <?php
 $content = ob_get_clean();
