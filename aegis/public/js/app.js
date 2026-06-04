@@ -491,6 +491,6 @@ document.querySelectorAll('.file-drop').forEach(function(drop) {
     var dt = new DataTransfer();
     dt.items.add(e.dataTransfer.files[0]);
     input.files = dt.files;
-    input.dispatchEvent(new Event('change'));
+    window.showFileChange.call(input, input);
   });
 });

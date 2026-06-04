@@ -324,6 +324,6 @@
 </div>
 
 <script src="/public/vendor/chart.js/chart.umd.js" integrity="sha384-tgbB5AKnszdcfwcZtTfuhR3Ko1XZdlDfsLtkxiiAZiVkkXCkFmp+FQFh+V/UTo54" crossorigin="anonymous" nonce="<?= Security::nonce() ?>"></script>
-<script src="/public/js/app.js?v=9" nonce="<?= Security::nonce() ?>"></script>
+<script src="/public/js/app.js?v=10" nonce="<?= Security::nonce() ?>"></script>
 </body>
 </html>
