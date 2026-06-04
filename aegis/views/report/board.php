@@ -133,11 +133,12 @@ $nonce = Security::nonce();
 }
 .bp-section-header i { font-size: 16px; }
 .bp-section-body {
-  background: #fff;
-  border: 1px solid #e2e8f0;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
   border-top: none;
   border-radius: 0 0 10px 10px;
   padding: 20px;
+  color: var(--text);
 }
 
 /* Summary stat cards */
@@ -151,8 +152,8 @@ $nonce = Security::nonce();
 @media (max-width: 640px)  { .bp-stat-grid { grid-template-columns: repeat(2,1fr); } }
 
 .bp-stat {
-  background: #fff;
-  border: 1px solid #e2e8f0;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 20px 16px;
   text-align: center;
@@ -170,7 +171,7 @@ $nonce = Security::nonce();
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: .05em;
-  color: #64748b;
+  color: var(--text-muted);
 }
 .bp-stat i { font-size: 22px; }
 
@@ -205,7 +206,7 @@ $nonce = Security::nonce();
 .cp-bar-track {
   flex: 1;
   height: 12px;
-  background: #f1f5f9;
+  background: var(--bg-secondary);
   border-radius: 99px;
   overflow: hidden;
 }
@@ -243,6 +244,39 @@ $nonce = Security::nonce();
   padding-top: 12px;
   margin-top: 40px;
 }
+
+/* ── Dark mode overrides ─────────────────────────────────────────────────── */
+html[data-theme="dark"] .bp-stat {
+  background: var(--card-bg);
+  border-color: var(--border);
+}
+html[data-theme="dark"] .bp-stat .stat-lbl { color: var(--text-muted); }
+html[data-theme="dark"] .bp-section-body {
+  background: var(--card-bg);
+  border-color: var(--border);
+  color: var(--text);
+}
+html[data-theme="dark"] .bp-section-body table thead tr {
+  background: var(--bg-secondary) !important;
+}
+html[data-theme="dark"] .bp-section-body table thead th {
+  background: var(--bg-secondary) !important;
+  color: var(--text-muted) !important;
+  border-color: var(--border) !important;
+}
+html[data-theme="dark"] .bp-section-body table tr {
+  border-color: var(--border) !important;
+}
+html[data-theme="dark"] .bp-section-body table td { color: var(--text); }
+html[data-theme="dark"] .cp-bar-track { background: var(--bg-secondary); }
+html[data-theme="dark"] .cp-bar-label { color: var(--text); }
+html[data-theme="dark"] .cp-bar-label div:last-child { color: var(--text-muted); }
+/* Incident / Treatment mini-stat cards */
+html[data-theme="dark"] .bp-section-body > div > div[style*="background:#f8fafc"] {
+  background: var(--bg-secondary) !important;
+  border-color: var(--border) !important;
+}
+html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !important; }
 
 /* ── Print ───────────────────────────────────────────────────────────────── */
 @media print {
@@ -346,14 +380,14 @@ $nonce = Security::nonce();
     <?php if ($topRisks): ?>
     <table style="width:100%;border-collapse:collapse;font-size:13px;">
       <thead>
-        <tr style="background:#f8fafc;">
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:#475569;border-bottom:1px solid #e2e8f0;">Risk ID</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:#475569;border-bottom:1px solid #e2e8f0;">Title</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:#475569;border-bottom:1px solid #e2e8f0;">Category</th>
-          <th style="padding:10px 12px;text-align:center;font-weight:700;color:#475569;border-bottom:1px solid #e2e8f0;">Score</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:#475569;border-bottom:1px solid #e2e8f0;">Owner</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:#475569;border-bottom:1px solid #e2e8f0;">Strategy</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:#475569;border-bottom:1px solid #e2e8f0;">Review Date</th>
+        <tr style="background:var(--bg-secondary);">
+          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Risk ID</th>
+          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Title</th>
+          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Category</th>
+          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Score</th>
+          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Owner</th>
+          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Strategy</th>
+          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Review Date</th>
         </tr>
       </thead>
       <tbody>
@@ -371,7 +405,7 @@ $nonce = Security::nonce();
         <tr style="border-bottom:1px solid #f1f5f9;">
           <td style="padding:10px 12px;font-size:11px;font-weight:700;color:#6366f1;white-space:nowrap;"><?= Security::h($r['risk_id'] ?? '#' . $r['id']) ?></td>
           <td style="padding:10px 12px;font-weight:500;max-width:220px;">
-            <a href="/risk/<?= (int)$r['id'] ?>" style="color:#1e293b;text-decoration:none;"><?= Security::h($r['title']) ?></a>
+            <a href="/risk/<?= (int)$r['id'] ?>" style="color:var(--text);text-decoration:none;"><?= Security::h($r['title']) ?></a>
           </td>
           <td style="padding:10px 12px;color:#64748b;font-size:12px;"><?= Security::h($r['category_name'] ?? '—') ?></td>
           <td style="padding:10px 12px;text-align:center;">
@@ -449,13 +483,13 @@ $nonce = Security::nonce();
     <?php if ($appetiteBreaches): ?>
     <table style="width:100%;border-collapse:collapse;font-size:13px;">
       <thead>
-        <tr style="background:#f8fafc;">
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:#475569;border-bottom:1px solid #e2e8f0;">Risk</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:#475569;border-bottom:1px solid #e2e8f0;">Category</th>
-          <th style="padding:10px 12px;text-align:center;font-weight:700;color:#475569;border-bottom:1px solid #e2e8f0;">Score</th>
-          <th style="padding:10px 12px;text-align:center;font-weight:700;color:#475569;border-bottom:1px solid #e2e8f0;">Max Appetite</th>
-          <th style="padding:10px 12px;text-align:center;font-weight:700;color:#475569;border-bottom:1px solid #e2e8f0;">Breach</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:#475569;border-bottom:1px solid #e2e8f0;">Appetite Statement</th>
+        <tr style="background:var(--bg-secondary);">
+          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Risk</th>
+          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Category</th>
+          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Score</th>
+          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Max Appetite</th>
+          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Breach</th>
+          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Appetite Statement</th>
         </tr>
       </thead>
       <tbody>
@@ -488,19 +522,19 @@ $nonce = Security::nonce();
   <div class="bp-section-header"><i class="bi bi-fire"></i> Incident Overview</div>
   <div class="bp-section-body">
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;">
-      <div style="text-align:center;padding:16px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;">
+      <div style="text-align:center;padding:16px;background:var(--bg-secondary);border-radius:10px;border:1px solid var(--border);">
         <div style="font-size:28px;font-weight:800;color:#6366f1;"><?= $incTotal ?></div>
         <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em;">Total Incidents</div>
       </div>
-      <div style="text-align:center;padding:16px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;">
+      <div style="text-align:center;padding:16px;background:var(--bg-secondary);border-radius:10px;border:1px solid var(--border);">
         <div style="font-size:28px;font-weight:800;color:#f97316;"><?= $incOpen ?></div>
         <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em;">Open</div>
       </div>
-      <div style="text-align:center;padding:16px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;">
+      <div style="text-align:center;padding:16px;background:var(--bg-secondary);border-radius:10px;border:1px solid var(--border);">
         <div style="font-size:28px;font-weight:800;color:#dc2626;"><?= $incHighSev ?></div>
         <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em;">High Severity</div>
       </div>
-      <div style="text-align:center;padding:16px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;">
+      <div style="text-align:center;padding:16px;background:var(--bg-secondary);border-radius:10px;border:1px solid var(--border);">
         <div style="font-size:28px;font-weight:800;color:#d97706;"><?= $incLast30 ?></div>
         <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em;">Last 30 Days</div>
       </div>
@@ -513,15 +547,15 @@ $nonce = Security::nonce();
   <div class="bp-section-header"><i class="bi bi-tools"></i> Treatment Action Backlog</div>
   <div class="bp-section-body">
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;">
-      <div style="text-align:center;padding:16px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;">
+      <div style="text-align:center;padding:16px;background:var(--bg-secondary);border-radius:10px;border:1px solid var(--border);">
         <div style="font-size:28px;font-weight:800;color:#6366f1;"><?= $tbTotal ?></div>
         <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em;">Total Actions</div>
       </div>
-      <div style="text-align:center;padding:16px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;">
+      <div style="text-align:center;padding:16px;background:var(--bg-secondary);border-radius:10px;border:1px solid var(--border);">
         <div style="font-size:28px;font-weight:800;color:#64748b;"><?= $tbPlanned ?></div>
         <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em;">Planned</div>
       </div>
-      <div style="text-align:center;padding:16px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;">
+      <div style="text-align:center;padding:16px;background:var(--bg-secondary);border-radius:10px;border:1px solid var(--border);">
         <div style="font-size:28px;font-weight:800;color:#d97706;"><?= $tbInProg ?></div>
         <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em;">In Progress</div>
       </div>
@@ -540,14 +574,14 @@ $nonce = Security::nonce();
     <?php if ($kriHealth): ?>
     <table style="width:100%;border-collapse:collapse;font-size:13px;">
       <thead>
-        <tr style="background:#f8fafc;">
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:#475569;border-bottom:1px solid #e2e8f0;">KRI</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:#475569;border-bottom:1px solid #e2e8f0;">Linked Risk</th>
-          <th style="padding:10px 12px;text-align:center;font-weight:700;color:#475569;border-bottom:1px solid #e2e8f0;">Latest Value</th>
-          <th style="padding:10px 12px;text-align:center;font-weight:700;color:#475569;border-bottom:1px solid #e2e8f0;">Amber Threshold</th>
-          <th style="padding:10px 12px;text-align:center;font-weight:700;color:#475569;border-bottom:1px solid #e2e8f0;">Red Threshold</th>
-          <th style="padding:10px 12px;text-align:center;font-weight:700;color:#475569;border-bottom:1px solid #e2e8f0;">RAG</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:#475569;border-bottom:1px solid #e2e8f0;">Recorded</th>
+        <tr style="background:var(--bg-secondary);">
+          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">KRI</th>
+          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Linked Risk</th>
+          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Latest Value</th>
+          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Amber Threshold</th>
+          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Red Threshold</th>
+          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">RAG</th>
+          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Recorded</th>
         </tr>
       </thead>
       <tbody>
@@ -597,12 +631,12 @@ $nonce = Security::nonce();
     <?php if ($upcomingReviews): ?>
     <table style="width:100%;border-collapse:collapse;font-size:13px;">
       <thead>
-        <tr style="background:#f8fafc;">
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:#475569;border-bottom:1px solid #e2e8f0;">Risk ID</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:#475569;border-bottom:1px solid #e2e8f0;">Title</th>
-          <th style="padding:10px 12px;text-align:center;font-weight:700;color:#475569;border-bottom:1px solid #e2e8f0;">Score</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:#475569;border-bottom:1px solid #e2e8f0;">Owner</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:#475569;border-bottom:1px solid #e2e8f0;">Review Date</th>
+        <tr style="background:var(--bg-secondary);">
+          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Risk ID</th>
+          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Title</th>
+          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Score</th>
+          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Owner</th>
+          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid var(--border);">Review Date</th>
         </tr>
       </thead>
       <tbody>

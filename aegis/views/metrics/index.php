@@ -5,13 +5,24 @@ $trendComp   = array_column($trend, 'compliance_pct');
 $trendRisk   = array_column($trend, 'risk_health');
 $isAdmin     = Auth::role() === 'admin';
 
-$classColors = ['public'=>'#22c55e','internal'=>'#3b82f6','confidential'=>'#f59e0b','restricted'=>'#ef4444'];
+// Use live-computed values (always fresh; snapshot augments history only)
+$L = $live ?? [];
+$kpiGrc        = number_format((float)($L['grc_score']      ?? 0), 1);
+$kpiComp       = number_format((float)($L['compliance_pct'] ?? 0), 1);
+$kpiRisk       = number_format((float)($L['risk_health']    ?? 0), 1);
+$kpiPolicy     = number_format((float)($L['policy_health']  ?? 0), 1);
+$kpiOpenRisks  = (int)($L['open_risks']     ?? 0);
+$kpiOpenInc    = (int)($L['open_incidents'] ?? 0);
+
+function metricColor(float $pct): string {
+    return $pct >= 80 ? '#059669' : ($pct >= 60 ? '#d97706' : '#dc2626');
+}
 ?>
 
 <div class="page-header">
   <div>
     <h1 class="page-title">Metrics &amp; Trends</h1>
-    <p class="page-subtitle">90-day GRC posture history and scheduled report delivery.</p>
+    <p class="page-subtitle">Live GRC posture and 90-day historical trends.</p>
   </div>
 </div>
 
@@ -20,24 +31,34 @@ $classColors = ['public'=>'#22c55e','internal'=>'#3b82f6','confidential'=>'#f59e
   <?php unset($_SESSION['flash_success']); ?>
 <?php endif; ?>
 
-<!-- KPI row -->
-<?php $s = $snapshot ?? []; ?>
-<div class="stats-grid" style="margin-bottom:24px">
+<!-- KPI row — live values always shown -->
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:28px">
   <?php
   $kpis = [
-    ['GRC Score',      number_format((float)($s['grc_score'] ?? 0),1) . '%',   'bi-shield-fill-check', '#1e3a5f'],
-    ['Compliance',     number_format((float)($s['compliance_pct'] ?? 0),1) . '%', 'bi-shield-check', '#0284c7'],
-    ['Risk Health',    number_format((float)($s['risk_health'] ?? 0),1) . '%',  'bi-exclamation-triangle-fill', '#d97706'],
-    ['Policy Health',  number_format((float)($s['policy_health'] ?? 0),1) . '%','bi-file-earmark-text-fill', '#7c3aed'],
+    ['GRC Score',      $kpiGrc    . '%', 'bi-shield-fill-check',       metricColor((float)$kpiGrc),    null],
+    ['Compliance',     $kpiComp   . '%', 'bi-bar-chart-fill',           metricColor((float)$kpiComp),   null],
+    ['Risk Health',    $kpiRisk   . '%', 'bi-heart-pulse-fill',         metricColor((float)$kpiRisk),   null],
+    ['Policy Health',  $kpiPolicy . '%', 'bi-file-earmark-check-fill',  metricColor((float)$kpiPolicy), null],
+    ['Open Risks',     $kpiOpenRisks,    'bi-exclamation-triangle-fill','#f97316',                      '/risk'],
+    ['Open Incidents', $kpiOpenInc,      'bi-fire',                     '#ef4444',                      '/incidents'],
   ];
-  foreach ($kpis as [$label, $val, $icon, $color]): ?>
-    <div class="stat-card">
-      <div class="stat-icon" style="background:<?= $color ?>20;color:<?= $color ?>"><i class="bi <?= $icon ?>"></i></div>
-      <div class="stat-info">
-        <div class="stat-value"><?= $val ?></div>
-        <div class="stat-label"><?= $label ?></div>
-      </div>
+  foreach ($kpis as [$label, $val, $icon, $color, $href]):
+    $pctVal = is_string($val) && str_ends_with($val, '%') ? (float)$val : null;
+  ?>
+  <div class="card" style="padding:20px;text-align:center;<?= $href ? 'cursor:pointer' : '' ?>"
+       <?= $href ? "onclick=\"location.href='{$href}'\"" : '' ?>>
+    <div style="width:44px;height:44px;border-radius:12px;background:<?= $color ?>18;color:<?= $color ?>;
+         display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 12px">
+      <i class="bi <?= $icon ?>"></i>
     </div>
+    <div style="font-size:28px;font-weight:800;color:<?= $color ?>;line-height:1;margin-bottom:6px"><?= $val ?></div>
+    <?php if ($pctVal !== null): ?>
+    <div style="height:4px;background:var(--bg-secondary);border-radius:2px;margin-bottom:8px;overflow:hidden">
+      <div style="height:100%;width:<?= min(100,(int)$pctVal) ?>%;background:<?= $color ?>;border-radius:2px;transition:width .5s"></div>
+    </div>
+    <?php endif; ?>
+    <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em"><?= $label ?></div>
+  </div>
   <?php endforeach; ?>
 </div>
 
@@ -70,7 +91,7 @@ $classColors = ['public'=>'#22c55e','internal'=>'#3b82f6','confidential'=>'#f59e
           <td><?= (int)$fw['total_controls'] ?></td>
           <td>
             <div style="display:flex;align-items:center;gap:8px">
-              <div style="flex:1;height:6px;background:#e5e7eb;border-radius:3px">
+              <div style="flex:1;height:6px;background:var(--bg-secondary);border-radius:3px">
                 <div style="width:<?= $pct ?>%;height:100%;background:<?= $barColor ?>;border-radius:3px"></div>
               </div>
               <span style="min-width:36px;font-weight:600;color:<?= $barColor ?>"><?= $pct ?>%</span>
@@ -174,12 +195,12 @@ $classColors = ['public'=>'#22c55e','internal'=>'#3b82f6','confidential'=>'#f59e
 </div>
 
 <style>
-.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000; align-items:center; justify-content:center; }
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:1000; align-items:center; justify-content:center; }
 .modal-overlay.open { display:flex; }
-.modal-card { background:#fff; border-radius:12px; width:100%; max-height:90vh; overflow-y:auto; }
-.modal-header { padding:20px 24px; border-bottom:1px solid #e5e7eb; display:flex; justify-content:space-between; align-items:center; }
+.modal-card { background:var(--card-bg); border:1px solid var(--border); border-radius:12px; width:100%; max-height:90vh; overflow-y:auto; color:var(--text); }
+.modal-header { padding:20px 24px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
 .modal-body { padding:24px; }
-.modal-footer { padding:16px 24px; border-top:1px solid #e5e7eb; display:flex; gap:8px; justify-content:flex-end; }
+.modal-footer { padding:16px 24px; border-top:1px solid var(--border); display:flex; gap:8px; justify-content:flex-end; }
 </style>
 <?php endif; ?>
 
