@@ -823,6 +823,7 @@ function dispatch(string $controller, string $action, array $params = []): void 
     require_once $file;
     $ctrl = new $controller();
     if (!method_exists($ctrl, $action)) { http_response_code(404); die('Action not found'); }
+    $params = array_map(fn($p) => ctype_digit($p) ? (int)$p : $p, $params);
     $ctrl->$action(...$params);
 }
 
