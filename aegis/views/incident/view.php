@@ -1,6 +1,6 @@
 <?php
 $sevColors = ['critical'=>'#dc2626','high'=>'#d97706','medium'=>'#0284c7','low'=>'#059669'];
-$statusColors = ['open'=>'#dc2626','investigating'=>'#d97706','contained'=>'#7c3aed','resolved'=>'#059669','closed'=>'#64748b'];
+$statusColors = ['open'=>'#dc2626','investigating'=>'#d97706','contained'=>'var(--secondary)','resolved'=>'#059669','closed'=>'#64748b'];
 $sevColor = $sevColors[$incident['severity']] ?? '#64748b';
 $stColor  = $statusColors[$incident['status']] ?? '#64748b';
 $pageTitle    = 'Incident: ' . $incident['incident_number'];
@@ -177,7 +177,7 @@ $ageDisplay  = $ageHours >= 48 ? round($ageHours / 24, 1) . ' days' : $ageHours 
 
     <?php if ($incident['root_cause']): ?>
     <div class="card">
-      <div class="card-header"><div class="card-header-left"><i class="bi bi-search" style="color:#7c3aed"></i><span class="card-title">Root Cause</span></div></div>
+      <div class="card-header"><div class="card-header-left"><i class="bi bi-search" style="color:var(--secondary)"></i><span class="card-title">Root Cause</span></div></div>
       <div class="card-body"><p style="white-space:pre-wrap;margin:0"><?= Security::h($incident['root_cause']) ?></p></div>
     </div>
     <?php endif; ?>
@@ -202,7 +202,7 @@ $ageDisplay  = $ageHours >= 48 ? round($ageHours / 24, 1) . ' days' : $ageHours 
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
                 <strong style="font-size:13px"><?= Security::h($upd['user_name'] ?? 'System') ?></strong>
                 <span style="font-size:11px;color:var(--text-muted)"><?= date('M j, Y g:ia', strtotime($upd['created_at'])) ?></span>
-                <?php $typeColors=['status_change'=>'#7c3aed','containment'=>'#d97706','resolution'=>'#059669','assignment'=>'#0284c7','comment'=>'#64748b']; ?>
+                <?php $typeColors=['status_change'=>'var(--secondary)','containment'=>'#d97706','resolution'=>'#059669','assignment'=>'#0284c7','comment'=>'#64748b']; ?>
                 <span style="font-size:10px;padding:1px 6px;border-radius:3px;background:<?= ($typeColors[$upd['update_type']]??'#64748b') ?>20;color:<?= ($typeColors[$upd['update_type']]??'#64748b') ?>"><?= ucfirst(str_replace('_',' ',$upd['update_type'])) ?></span>
               </div>
               <p style="margin:0;white-space:pre-wrap;font-size:13px"><?= Security::h($upd['content']) ?></p>
@@ -280,7 +280,7 @@ $csrfTokenPlaybook = Security::generateCsrfToken();
   <div class="card">
     <div class="card-header">
       <div class="card-header-left">
-        <i class="bi bi-journal-bookmark-fill" style="color:#6366f1"></i>
+        <i class="bi bi-journal-bookmark-fill" style="color:var(--primary)"></i>
         <span class="card-title">Playbooks</span>
       </div>
       <div class="card-header-right">
@@ -328,7 +328,7 @@ $csrfTokenPlaybook = Security::generateCsrfToken();
 
             <!-- Progress bar -->
             <div style="height:4px;background:var(--border);position:relative">
-              <div id="pb-bar-<?= (int)$run['id'] ?>" style="height:100%;background:<?= $isComplete ? '#059669' : '#6366f1' ?>;width:<?= $pct ?>%;transition:width .3s"></div>
+              <div id="pb-bar-<?= (int)$run['id'] ?>" style="height:100%;background:<?= $isComplete ? '#059669' : 'var(--primary)' ?>;width:<?= $pct ?>%;transition:width .3s"></div>
             </div>
 
             <!-- Steps checklist (collapsible) -->
@@ -344,7 +344,7 @@ $csrfTokenPlaybook = Security::generateCsrfToken();
                         type="button"
                         class="pb-complete-btn"
                         title="Mark complete"
-                        style="width:20px;height:20px;border-radius:50%;border:2px solid #6366f1;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0"
+                        style="width:20px;height:20px;border-radius:50%;border:2px solid var(--primary);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0"
                         data-run-id="<?= (int)$run['id'] ?>"
                         data-step-id="<?= (int)$step['id'] ?>"
                         data-csrf="<?= Security::h($csrfTokenPlaybook) ?>"

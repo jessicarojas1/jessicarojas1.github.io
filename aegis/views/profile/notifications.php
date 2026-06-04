@@ -193,7 +193,7 @@ ob_start();
     transition: background 0.2s;
 }
 .pill-toggle input:checked + .pill-track {
-    background: #6366f1;
+    background: var(--primary);
 }
 .pill-track::before {
     content: '';
@@ -211,7 +211,7 @@ ob_start();
     transform: translateX(20px);
 }
 .pill-toggle input:focus-visible + .pill-track {
-    outline: 2px solid #6366f1;
+    outline: 2px solid var(--primary);
     outline-offset: 2px;
 }
 </style>
@@ -223,7 +223,7 @@ ob_start();
     <div class="card">
       <div class="card-header">
         <div class="card-header-left">
-          <i class="bi bi-bell-fill" style="color:var(--primary,#6366f1)"></i>
+          <i class="bi bi-bell-fill" style="color:var(--primary,var(--primary))"></i>
           <span class="card-title">Email Notification Settings</span>
         </div>
       </div>

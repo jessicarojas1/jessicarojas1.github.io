@@ -12,7 +12,7 @@ $monthName = date('F', mktime(0, 0, 0, $month, 1, $year));
 $typeColors = [
     'control'      => '#ef4444',
     'policy_review'=> '#3b82f6',
-    'audit'        => '#6366f1',
+    'audit'        => 'var(--primary)',
     'treatment'    => '#f97316',
 ];
 $typeLabels = [

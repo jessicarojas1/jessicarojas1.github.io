@@ -131,7 +131,7 @@ $cntTotal     = $cntPass + $cntFail + $cntPartial + $cntNotTested;
           <tr>
             <td>
               <a href="/compliance/control/<?= (int)$r['objective_id'] ?>/test"
-                 style="font-family:monospace;font-weight:700;color:#6366f1;text-decoration:none">
+                 style="font-family:monospace;font-weight:700;color:var(--primary);text-decoration:none">
                 <?= Security::h($r['code']) ?>
               </a>
             </td>

@@ -23,7 +23,7 @@ ob_start();
 
         <!-- Basic Info -->
         <div class="section-header" style="margin-bottom:12px">
-          <span style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6366f1"><i class="bi bi-info-circle-fill"></i> Basic Information</span>
+          <span style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--primary)"><i class="bi bi-info-circle-fill"></i> Basic Information</span>
         </div>
 
         <div class="form-row">
@@ -90,7 +90,7 @@ ob_start();
         <!-- Risk Scoring -->
         <div class="risk-scoring-section" style="margin-top:20px">
           <div class="section-header" style="margin-bottom:12px">
-            <span style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6366f1"><i class="bi bi-grid-3x3-gap-fill"></i> Risk Scoring</span>
+            <span style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--primary)"><i class="bi bi-grid-3x3-gap-fill"></i> Risk Scoring</span>
           </div>
           <div class="form-row">
             <div class="form-group">
@@ -151,7 +151,7 @@ ob_start();
         <!-- Response Strategy -->
         <div style="margin-top:20px">
           <div class="section-header" style="margin-bottom:12px">
-            <span style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6366f1"><i class="bi bi-shield-fill-check"></i> Response Strategy</span>
+            <span style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--primary)"><i class="bi bi-shield-fill-check"></i> Response Strategy</span>
           </div>
           <div class="form-group">
             <label class="form-label">Treatment Approach <span class="form-hint" style="margin:0">(select all that apply)</span></label>
@@ -174,7 +174,7 @@ ob_start();
         <!-- Enterprise Attributes -->
         <div style="margin-top:20px">
           <div class="section-header" style="margin-bottom:12px">
-            <span style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6366f1"><i class="bi bi-bar-chart-fill"></i> Risk Attributes</span>
+            <span style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--primary)"><i class="bi bi-bar-chart-fill"></i> Risk Attributes</span>
           </div>
           <div class="form-row">
             <div class="form-group">
@@ -271,7 +271,7 @@ ob_start();
             5 => ['Rapid','Imminent / days'],
           ] as $v => [$l, $d]): ?>
           <tr style="border-bottom:1px solid var(--border)">
-            <td style="padding:5px 6px;font-weight:700;color:#6366f1;width:20px"><?= $v ?></td>
+            <td style="padding:5px 6px;font-weight:700;color:var(--primary);width:20px"><?= $v ?></td>
             <td style="padding:5px 6px;font-weight:600"><?= $l ?></td>
             <td style="padding:5px 6px;color:var(--text-muted)"><?= $d ?></td>
           </tr>

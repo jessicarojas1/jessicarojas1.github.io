@@ -14,7 +14,7 @@
 <!-- Summary stats -->
 <div class="stats-grid" style="margin-bottom:24px">
   <div class="stat-card">
-    <div class="stat-icon" style="background:linear-gradient(135deg,#4f46e5,#7c3aed)"><i class="bi bi-shield-check"></i></div>
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--primary),var(--secondary))"><i class="bi bi-shield-check"></i></div>
     <div class="stat-body"><div class="stat-value"><?= $overallPct ?>%</div><div class="stat-label">Overall Compliance</div></div>
   </div>
   <div class="stat-card">

@@ -36,7 +36,7 @@ $priorityBadge = [
 <!-- Stats -->
 <div class="stats-grid">
   <div class="stat-card">
-    <div class="stat-icon" style="background:#6366f120;color:#6366f1"><i class="bi bi-briefcase-fill"></i></div>
+    <div class="stat-icon" style="background:rgba(11, 97, 4, .08);color:var(--primary)"><i class="bi bi-briefcase-fill"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['total'] ?? 0) ?></div>
       <div class="stat-label">Total Projects</div>

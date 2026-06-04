@@ -18,7 +18,7 @@ $lc       = riskLevelColor($score);
 $strategyMeta = [
     'mitigate' => ['label'=>'Mitigate', 'icon'=>'shield-fill-check',  'color'=>'#2563eb', 'hint'=>'Reduce likelihood or impact'],
     'accept'   => ['label'=>'Accept',   'icon'=>'check-circle-fill',   'color'=>'#b45309', 'hint'=>'Formally accept as-is'],
-    'transfer' => ['label'=>'Transfer', 'icon'=>'arrow-left-right',    'color'=>'#7c3aed', 'hint'=>'Insurance or third party'],
+    'transfer' => ['label'=>'Transfer', 'icon'=>'arrow-left-right',    'color'=>'var(--secondary)', 'hint'=>'Insurance or third party'],
     'avoid'    => ['label'=>'Avoid',    'icon'=>'x-octagon-fill',      'color'=>'#dc2626', 'hint'=>'Eliminate the risk source'],
 ];
 $statusLabels = [
@@ -27,7 +27,7 @@ $statusLabels = [
     'monitoring'  => ['label'=>'Monitoring',  'color'=>'#16a34a', 'bg'=>'#f0fdf4', 'border'=>'#86efac'],
     'accepted'    => ['label'=>'Accepted',    'color'=>'#d97706', 'bg'=>'#fffbeb', 'border'=>'#fcd34d'],
     'closed'      => ['label'=>'Closed',      'color'=>'#64748b', 'bg'=>'#f1f5f9', 'border'=>'#cbd5e1'],
-    'transferred' => ['label'=>'Transferred', 'color'=>'#7c3aed', 'bg'=>'#faf5ff', 'border'=>'#c4b5fd'],
+    'transferred' => ['label'=>'Transferred', 'color'=>'var(--secondary)', 'bg'=>'rgba(55,65,81,.06)', 'border'=>'#d1d5db'],
 ];
 $assessmentMeta = [
     'draft'          => ['label'=>'Draft',          'color'=>'#64748b', 'icon'=>'pencil-fill'],
@@ -581,7 +581,7 @@ ob_start();
     <!-- ── Treatment Plans ────────────────────────────────────────────────── -->
     <?php
     $tpStratColors = ['mitigate'=>['bg'=>'#3b82f620','c'=>'#3b82f6','b'=>'#3b82f640'],'transfer'=>['bg'=>'#8b5cf620','c'=>'#8b5cf6','b'=>'#8b5cf640'],'accept'=>['bg'=>'#f59e0b20','c'=>'#f59e0b','b'=>'#f59e0b40'],'avoid'=>['bg'=>'#ef444420','c'=>'#ef4444','b'=>'#ef444440']];
-    $tpStColors    = ['draft'=>['bg'=>'#94a3b820','c'=>'#94a3b8'],'active'=>['bg'=>'#6366f120','c'=>'#6366f1'],'completed'=>['bg'=>'#05966920','c'=>'#059669'],'cancelled'=>['bg'=>'#94a3b820','c'=>'#94a3b8']];
+    $tpStColors    = ['draft'=>['bg'=>'#94a3b820','c'=>'#94a3b8'],'active'=>['bg'=>'rgba(11, 97, 4, .08)','c'=>'var(--primary)'],'completed'=>['bg'=>'#05966920','c'=>'#059669'],'cancelled'=>['bg'=>'#94a3b820','c'=>'#94a3b8']];
     ?>
     <?php if (!empty($treatmentPlans)): ?>
     <div class="card">
@@ -606,7 +606,7 @@ ob_start();
             <td style="min-width:100px">
               <?php if ($tot > 0): ?>
               <div style="display:flex;align-items:center;gap:6px">
-                <div style="flex:1;height:5px;background:var(--border);border-radius:4px;overflow:hidden"><div style="height:100%;width:<?= $pct ?>%;background:<?= $pct>=100?'#059669':'#6366f1' ?>;border-radius:4px"></div></div>
+                <div style="flex:1;height:5px;background:var(--border);border-radius:4px;overflow:hidden"><div style="height:100%;width:<?= $pct ?>%;background:<?= $pct>=100?'#059669':'var(--primary)' ?>;border-radius:4px"></div></div>
                 <span style="font-size:11px;color:var(--text-muted)"><?= $done ?>/<?= $tot ?></span>
               </div>
               <?php else: ?><span class="text-muted text-sm">No milestones</span><?php endif; ?>
@@ -808,7 +808,7 @@ ob_start();
     <?php if (!empty($linkedKRIs)): ?>
     <div class="card">
       <div class="card-header">
-        <h3 class="card-title"><i class="bi bi-activity" style="color:#7c3aed"></i> Key Risk Indicators</h3>
+        <h3 class="card-title"><i class="bi bi-activity" style="color:var(--secondary)"></i> Key Risk Indicators</h3>
         <a href="/kris" class="btn btn-ghost btn-sm" style="font-size:11px">All KRIs</a>
       </div>
       <div class="card-body" style="padding:8px 0">
@@ -838,7 +838,7 @@ ob_start();
     <div class="card">
       <div class="card-body" style="padding:10px 12px;display:flex;flex-direction:column;gap:8px">
         <a href="/risk/<?= (int)$risk['id'] ?>/bowtie" class="btn btn-ghost btn-sm" style="justify-content:flex-start;gap:8px;text-align:left">
-          <i class="bi bi-diagram-3" style="color:#7c3aed"></i>
+          <i class="bi bi-diagram-3" style="color:var(--secondary)"></i>
           <div><strong style="display:block;font-size:12px">Bow-Tie Analysis</strong><span style="font-size:11px;color:var(--text-muted)">Causes, barriers &amp; consequences</span></div>
         </a>
         <a href="/risk/<?= (int)$risk['id'] ?>/scenario/create" class="btn btn-ghost btn-sm" style="justify-content:flex-start;gap:8px;text-align:left">
@@ -866,7 +866,7 @@ ob_start();
       <div class="card-body p0">
         <?php foreach ($scenarios as $sc):
           $scColor = $sc['scenario_score'] > 14 ? '#ef4444' : ($sc['scenario_score'] > 9 ? '#f97316' : ($sc['scenario_score'] > 4 ? '#f59e0b' : '#22c55e'));
-          $scTypeColors = ['stress'=>'#ef4444','catastrophic'=>'#7c3aed','regulatory'=>'#d97706','base'=>'#2563eb','optimistic'=>'#16a34a'];
+          $scTypeColors = ['stress'=>'#ef4444','catastrophic'=>'var(--secondary)','regulatory'=>'#d97706','base'=>'#2563eb','optimistic'=>'#16a34a'];
           $scTypeColor  = $scTypeColors[$sc['scenario_type']] ?? '#64748b';
         ?>
         <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid var(--border)">

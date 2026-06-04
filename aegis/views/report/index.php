@@ -16,13 +16,13 @@ ob_start();
 
   <a href="/report/executive" class="card" style="text-decoration:none;color:inherit;transition:box-shadow 0.2s" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,0.12)'" onmouseout="this.style.boxShadow=''">
     <div class="card-body" style="display:flex;gap:16px;align-items:flex-start;padding:24px">
-      <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#4f46e5,#7c3aed);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;flex-shrink:0">
         <i class="bi bi-graph-up-arrow" style="color:#fff;font-size:22px"></i>
       </div>
       <div>
         <div style="font-size:16px;font-weight:600;margin-bottom:4px">Executive Summary</div>
         <div style="font-size:13px;color:var(--text-muted)">GRC health score, top risks, upcoming reviews, and key metrics for leadership.</div>
-        <div style="margin-top:12px;font-size:12px;color:#4f46e5;font-weight:500">View Report <i class="bi bi-arrow-right"></i></div>
+        <div style="margin-top:12px;font-size:12px;color:var(--primary);font-weight:500">View Report <i class="bi bi-arrow-right"></i></div>
       </div>
     </div>
   </a>

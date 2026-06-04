@@ -52,7 +52,7 @@ $nonce = Security::nonce();
 <style nonce="<?= $nonce ?>">
 /* ── Board Pack Styles ───────────────────────────────────────────────────── */
 .bp-cover {
-  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 55%, #4338ca 100%);
+  background: linear-gradient(135deg, #111827 0%, #14532d 55%, #1c2a1b 100%);
   color: #fff;
   border-radius: 16px;
   padding: 48px 40px 40px;
@@ -123,7 +123,7 @@ $nonce = Security::nonce();
   align-items: center;
   gap: 10px;
   padding: 10px 16px;
-  background: #6366f1;
+  background: var(--primary);
   color: #fff;
   border-radius: 10px 10px 0 0;
   font-size: 13px;
@@ -221,7 +221,7 @@ $nonce = Security::nonce();
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: #6366f1;
+  background: var(--primary);
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -231,7 +231,7 @@ $nonce = Security::nonce();
   cursor: pointer;
   text-decoration: none;
 }
-.bp-print-btn:hover { background: #4f46e5; }
+.bp-print-btn:hover { background: var(--primary); }
 
 /* Page footer (print only) */
 .bp-footer {
@@ -269,7 +269,7 @@ $nonce = Security::nonce();
 <!-- Page header (screen only) -->
 <div class="page-header">
   <div>
-    <h1 class="page-title"><i class="bi bi-briefcase-fill" style="margin-right:8px;color:#6366f1;"></i><?= Security::h($pageTitle) ?></h1>
+    <h1 class="page-title"><i class="bi bi-briefcase-fill" style="margin-right:8px;color:var(--primary);"></i><?= Security::h($pageTitle) ?></h1>
     <p class="page-subtitle"><?= Security::h($orgName) ?> &mdash; <?= Security::h($reportDate) ?></p>
   </div>
   <div class="page-actions">
@@ -301,9 +301,9 @@ $nonce = Security::nonce();
 <!-- ── Executive Summary Cards ────────────────────────────────────────────── -->
 <div class="bp-stat-grid">
 
-  <div class="bp-stat" style="border-top:4px solid #6366f1;">
-    <i class="bi bi-list-check" style="color:#6366f1;"></i>
-    <span class="stat-val" style="color:#6366f1;"><?= $totalRisks ?></span>
+  <div class="bp-stat" style="border-top:4px solid var(--primary);">
+    <i class="bi bi-list-check" style="color:var(--primary);"></i>
+    <span class="stat-val" style="color:var(--primary);"><?= $totalRisks ?></span>
     <div class="stat-lbl">Total Risks</div>
   </div>
 
@@ -319,9 +319,9 @@ $nonce = Security::nonce();
     <div class="stat-lbl">High</div>
   </div>
 
-  <div class="bp-stat" style="border-top:4px solid #7c3aed;">
-    <i class="bi bi-shield-slash-fill" style="color:#7c3aed;"></i>
-    <span class="stat-val" style="color:#7c3aed;"><?= count($appetiteBreaches) ?></span>
+  <div class="bp-stat" style="border-top:4px solid var(--secondary);">
+    <i class="bi bi-shield-slash-fill" style="color:var(--secondary);"></i>
+    <span class="stat-val" style="color:var(--secondary);"><?= count($appetiteBreaches) ?></span>
     <div class="stat-lbl">Appetite Breaches</div>
   </div>
 
@@ -369,7 +369,7 @@ $nonce = Security::nonce();
           $isOverdue = $r['review_date'] && strtotime($r['review_date']) < time();
         ?>
         <tr style="border-bottom:1px solid #f1f5f9;">
-          <td style="padding:10px 12px;font-size:11px;font-weight:700;color:#6366f1;white-space:nowrap;"><?= Security::h($r['risk_id'] ?? '#' . $r['id']) ?></td>
+          <td style="padding:10px 12px;font-size:11px;font-weight:700;color:var(--primary);white-space:nowrap;"><?= Security::h($r['risk_id'] ?? '#' . $r['id']) ?></td>
           <td style="padding:10px 12px;font-weight:500;max-width:220px;">
             <a href="/risk/<?= (int)$r['id'] ?>" style="color:var(--text);text-decoration:none;"><?= Security::h($r['title']) ?></a>
           </td>
@@ -380,7 +380,7 @@ $nonce = Security::nonce();
           <td style="padding:10px 12px;font-size:12px;white-space:nowrap;"><?= Security::h($r['owner_name'] ?? '—') ?></td>
           <td style="padding:10px 12px;">
             <?php if ($strategy && $strategy !== '—'): ?>
-            <span style="display:inline-block;background:#ede9fe;color:var(--secondary);font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;"><?= $strategy ?></span>
+            <span style="display:inline-block;background:rgba(55,65,81,.08);color:var(--secondary);font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;"><?= $strategy ?></span>
             <?php else: ?>
             <span style="color:#94a3b8;font-size:12px;">—</span>
             <?php endif; ?>
@@ -489,7 +489,7 @@ $nonce = Security::nonce();
   <div class="bp-section-body">
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;">
       <div style="text-align:center;padding:16px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;">
-        <div style="font-size:28px;font-weight:800;color:#6366f1;"><?= $incTotal ?></div>
+        <div style="font-size:28px;font-weight:800;color:var(--primary);"><?= $incTotal ?></div>
         <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Total Incidents</div>
       </div>
       <div style="text-align:center;padding:16px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;">
@@ -514,7 +514,7 @@ $nonce = Security::nonce();
   <div class="bp-section-body">
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;">
       <div style="text-align:center;padding:16px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;">
-        <div style="font-size:28px;font-weight:800;color:#6366f1;"><?= $tbTotal ?></div>
+        <div style="font-size:28px;font-weight:800;color:var(--primary);"><?= $tbTotal ?></div>
         <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Total Actions</div>
       </div>
       <div style="text-align:center;padding:16px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;">
@@ -611,7 +611,7 @@ $nonce = Security::nonce();
           $sc2_cl = $sc2 > 14 ? '#dc2626' : ($sc2 >= 10 ? '#d97706' : '#64748b');
         ?>
         <tr style="border-bottom:1px solid #f1f5f9;">
-          <td style="padding:10px 12px;font-size:11px;font-weight:700;color:#6366f1;"><?= Security::h($ur['risk_id'] ?? '—') ?></td>
+          <td style="padding:10px 12px;font-size:11px;font-weight:700;color:var(--primary);"><?= Security::h($ur['risk_id'] ?? '—') ?></td>
           <td style="padding:10px 12px;font-weight:500;"><?= Security::h($ur['title']) ?></td>
           <td style="padding:10px 12px;text-align:center;">
             <span class="score-badge" style="background:<?= $sc2_cl ?>18;color:<?= $sc2_cl ?>;"><?= $sc2 ?></span>
@@ -694,7 +694,8 @@ $nonce = Security::nonce();
 
   // Line
   ctx.beginPath();
-  ctx.strokeStyle = '#6366f1';
+  var primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#0b6104';
+  ctx.strokeStyle = primaryColor;
   ctx.lineWidth = 2.5;
   ctx.lineJoin = 'round';
   ctx.lineCap  = 'round';
@@ -711,7 +712,7 @@ $nonce = Security::nonce();
   for (var k = 0; k < scores.length; k++) {
     ctx.beginPath();
     ctx.arc(xPos(k), yPos(scores[k]), 4, 0, Math.PI * 2);
-    ctx.fillStyle = '#6366f1';
+    ctx.fillStyle = primaryColor;
     ctx.fill();
     ctx.strokeStyle = '#fff';
     ctx.lineWidth = 2;

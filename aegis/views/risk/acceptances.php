@@ -13,7 +13,7 @@ $expiringSoon     = (int)($summary['expiring_soon_count'] ?? 0);
 $statusConfig = [
     'active'     => ['label' => 'Active',     'fg' => '#16a34a', 'bg' => '#f0fdf4', 'border' => '#86efac'],
     'expired'    => ['label' => 'Expired',    'fg' => '#64748b', 'bg' => '#f1f5f9', 'border' => '#cbd5e1'],
-    'superseded' => ['label' => 'Superseded', 'fg' => '#7c3aed', 'bg' => '#faf5ff', 'border' => '#c4b5fd'],
+    'superseded' => ['label' => 'Superseded', 'fg' => 'var(--secondary)', 'bg' => 'rgba(55,65,81,.06)', 'border' => '#d1d5db'],
     'revoked'    => ['label' => 'Revoked',    'fg' => '#dc2626', 'bg' => '#fef2f2', 'border' => '#fca5a5'],
 ];
 
@@ -35,7 +35,7 @@ if ($filterStatus !== '') {
 
 <div class="page-header">
   <div>
-    <h1 class="page-title"><i class="bi bi-patch-check-fill" style="color:#6366f1;margin-right:6px;"></i> Risk Acceptance Certificates</h1>
+    <h1 class="page-title"><i class="bi bi-patch-check-fill" style="color:var(--primary);margin-right:6px;"></i> Risk Acceptance Certificates</h1>
     <p class="page-subtitle">Formal documented acceptances of risk at their current level</p>
   </div>
   <div class="page-actions">
@@ -266,7 +266,7 @@ if ($filterStatus !== '') {
         <tr id="<?= $rowId ?>" style="display:none;">
           <td colspan="8" style="background:#f8fafc;padding:12px 20px 14px;border-top:none;">
             <div style="display:flex;gap:8px;align-items:flex-start;">
-              <i class="bi bi-bookmark-fill" style="color:#7c3aed;font-size:14px;flex-shrink:0;margin-top:2px;"></i>
+              <i class="bi bi-bookmark-fill" style="color:var(--secondary);font-size:14px;flex-shrink:0;margin-top:2px;"></i>
               <div>
                 <div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:4px;">Conditions of Acceptance</div>
                 <div style="font-size:13px;line-height:1.6;white-space:pre-wrap;"><?= Security::h($acc['conditions']) ?></div>

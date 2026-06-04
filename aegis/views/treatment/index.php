@@ -9,7 +9,7 @@ $strategyColors = [
 // Status badge styles
 $statusStyles = [
     'draft'     => ['bg' => '#94a3b820', 'color' => '#94a3b8', 'border' => '#94a3b840'],
-    'active'    => ['bg' => '#6366f120', 'color' => '#6366f1', 'border' => '#6366f140'],
+    'active'    => ['bg' => 'rgba(11, 97, 4, .08)', 'color' => 'var(--primary)', 'border' => 'rgba(11, 97, 4, .20)'],
     'completed' => ['bg' => '#05966920', 'color' => '#059669', 'border' => '#05966940'],
     'cancelled' => ['bg' => '#94a3b820', 'color' => '#94a3b8', 'border' => '#94a3b840'],
 ];
@@ -36,8 +36,8 @@ $statusStyles = [
 
 <!-- Stat chips -->
 <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px">
-  <div class="stat-chip" style="background:#6366f120;border:1px solid #6366f140;border-radius:10px;padding:12px 20px;min-width:130px">
-    <div style="font-size:24px;font-weight:700;color:#6366f1"><?= (int)($stats['active_count'] ?? 0) ?></div>
+  <div class="stat-chip" style="background:rgba(11, 97, 4, .08);border:1px solid rgba(11, 97, 4, .20);border-radius:10px;padding:12px 20px;min-width:130px">
+    <div style="font-size:24px;font-weight:700;color:var(--primary)"><?= (int)($stats['active_count'] ?? 0) ?></div>
     <div style="font-size:12px;color:var(--text-muted);margin-top:2px">Active Plans</div>
   </div>
   <div class="stat-chip" style="background:#05966920;border:1px solid #05966940;border-radius:10px;padding:12px 20px;min-width:130px">
@@ -107,7 +107,7 @@ $statusStyles = [
               <?php if ($total > 0): ?>
                 <div style="display:flex;align-items:center;gap:8px">
                   <div style="flex:1;height:6px;background:var(--border);border-radius:4px;overflow:hidden">
-                    <div style="height:100%;width:<?= $pct ?>%;background:<?= $pct >= 100 ? '#059669' : '#6366f1' ?>;border-radius:4px;transition:width .3s"></div>
+                    <div style="height:100%;width:<?= $pct ?>%;background:<?= $pct >= 100 ? '#059669' : 'var(--primary)' ?>;border-radius:4px;transition:width .3s"></div>
                   </div>
                   <span style="font-size:11px;color:var(--text-muted);white-space:nowrap"><?= $completed ?>/<?= $total ?></span>
                 </div>

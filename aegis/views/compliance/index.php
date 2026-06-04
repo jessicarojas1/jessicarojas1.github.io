@@ -169,8 +169,8 @@ function updateSelection() {
 function categoryColor(string $cat): string {
   return match(strtolower($cat)) {
     'cybersecurity' => '#ef4444',
-    'information security' => '#4f46e5',
-    'ai governance' => '#7c3aed',
+    'information security' => 'var(--primary)',
+    'ai governance' => 'var(--secondary)',
     default => '#0284c7'
   };
 }

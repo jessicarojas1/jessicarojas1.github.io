@@ -2,9 +2,9 @@
 // $threat, $linkedRisks, $unlinkdRisks, $users provided by ThreatController::view()
 
 $catConfig = [
-    'people'     => ['label' => 'People',     'color' => '#7c3aed', 'bg' => '#f5f3ff', 'icon' => 'bi-person-fill'],
+    'people'     => ['label' => 'People',     'color' => 'var(--secondary)', 'bg' => 'rgba(55,65,81,.05)', 'icon' => 'bi-person-fill'],
     'process'    => ['label' => 'Process',    'color' => '#2563eb', 'bg' => '#eff6ff', 'icon' => 'bi-diagram-3-fill'],
-    'technology' => ['label' => 'Technology', 'color' => '#4f46e5', 'bg' => '#eef2ff', 'icon' => 'bi-cpu-fill'],
+    'technology' => ['label' => 'Technology', 'color' => 'var(--primary)', 'bg' => 'rgba(11,97,4,.06)', 'icon' => 'bi-cpu-fill'],
     'natural'    => ['label' => 'Natural',    'color' => '#16a34a', 'bg' => '#f0fdf4', 'icon' => 'bi-cloud-lightning-rain-fill'],
     'regulatory' => ['label' => 'Regulatory', 'color' => '#ea580c', 'bg' => '#fff7ed', 'icon' => 'bi-file-earmark-ruled-fill'],
     'financial'  => ['label' => 'Financial',  'color' => '#ca8a04', 'bg' => '#fefce8', 'icon' => 'bi-currency-dollar'],
@@ -318,7 +318,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
                 $rStOpts = [
                     'open'        => ['#f0fdf4','#16a34a'],
                     'in_progress' => ['#eff6ff','#2563eb'],
-                    'mitigated'   => ['#f5f3ff','#7c3aed'],
+                    'mitigated'   => ['rgba(55,65,81,.05)','var(--secondary)'],
                     'accepted'    => ['#fffbeb','#d97706'],
                     'closed'      => ['#f8fafc','#64748b'],
                 ];

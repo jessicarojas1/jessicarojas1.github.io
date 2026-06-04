@@ -18,7 +18,7 @@ ob_start();
 <!-- Stats -->
 <div class="stats-grid">
   <div class="stat-card">
-    <div class="stat-icon" style="color:#6366f1"><i class="bi bi-exclamation-circle-fill"></i></div>
+    <div class="stat-icon" style="color:var(--primary)"><i class="bi bi-exclamation-circle-fill"></i></div>
     <div class="stat-value"><?= (int)($summary['total'] ?? 0) ?></div>
     <div class="stat-label">Total Incidents</div>
   </div>

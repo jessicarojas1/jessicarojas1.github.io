@@ -19,7 +19,7 @@ ob_start();
 .sig-field { flex: 1; border-bottom: 1px solid #333; padding-bottom: 4px; }
 .scorecard-header { border-bottom: 2px solid #e5e7eb; margin-bottom: 24px; padding-bottom: 16px; }
 .scorecard-logo { font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: -0.5px; }
-.scorecard-logo span { color: #4f46e5; }
+.scorecard-logo span { color: var(--primary); }
 .domain-header-row { background: #1e293b; color: #fff; padding: 10px 14px; font-weight: 600; font-size: 13px; }
 .status-badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; }
 .badge-compliant { background: #dcfce7; color: #166534; }

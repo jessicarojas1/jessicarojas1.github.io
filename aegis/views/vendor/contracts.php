@@ -24,7 +24,7 @@ $urgent = array_filter($expiring, function($c) {
 <div class="overview-bar" style="margin-bottom:20px">
   <div class="overview-stats" style="display:flex;gap:32px;flex-wrap:wrap;padding:16px 20px">
     <div class="ov-stat">
-      <span class="ov-num" style="color:#4f46e5"><?= $totalContracts ?></span>
+      <span class="ov-num" style="color:var(--primary)"><?= $totalContracts ?></span>
       <span>Total Contracts</span>
     </div>
     <div class="ov-stat">

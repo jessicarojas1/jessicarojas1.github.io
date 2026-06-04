@@ -7,7 +7,7 @@ $strategyColors = [
 ];
 $statusStyles = [
     'draft'     => ['bg' => '#94a3b820', 'color' => '#94a3b8', 'border' => '#94a3b840'],
-    'active'    => ['bg' => '#6366f120', 'color' => '#6366f1', 'border' => '#6366f140'],
+    'active'    => ['bg' => 'rgba(11, 97, 4, .08)', 'color' => 'var(--primary)', 'border' => 'rgba(11, 97, 4, .20)'],
     'completed' => ['bg' => '#05966920', 'color' => '#059669', 'border' => '#05966940'],
     'cancelled' => ['bg' => '#94a3b820', 'color' => '#94a3b8', 'border' => '#94a3b840'],
 ];
@@ -73,7 +73,7 @@ if ($plan['target_date']) {
           <span id="progress-label" style="font-size:22px;font-weight:700;color:var(--primary)"><?= $progressPct ?>%</span>
         </div>
         <div style="height:12px;background:var(--border);border-radius:8px;overflow:hidden">
-          <div id="progress-bar" style="height:100%;width:<?= $progressPct ?>%;background:<?= $progressPct >= 100 ? '#059669' : '#6366f1' ?>;border-radius:8px;transition:width .4s ease"></div>
+          <div id="progress-bar" style="height:100%;width:<?= $progressPct ?>%;background:<?= $progressPct >= 100 ? '#059669' : 'var(--primary)' ?>;border-radius:8px;transition:width .4s ease"></div>
         </div>
         <div style="margin-top:6px;font-size:13px;color:var(--text-muted)">
           <span id="progress-text"><?= $completedMilestones ?> of <?= $totalMilestones ?> milestone<?= $totalMilestones !== 1 ? 's' : '' ?> completed</span>
@@ -406,7 +406,7 @@ if ($plan['target_date']) {
     var cnt  = document.getElementById('milestone-count-label');
     if (bar) {
       bar.style.width = pct + '%';
-      bar.style.background = pct >= 100 ? '#059669' : '#6366f1';
+      bar.style.background = pct >= 100 ? '#059669' : 'var(--primary)';
     }
     if (lbl) lbl.textContent = pct + '%';
     if (txt) txt.textContent = progress + ' of ' + total + ' milestone' + (total !== 1 ? 's' : '') + ' completed';

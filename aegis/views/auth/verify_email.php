@@ -13,7 +13,7 @@ body{font-family:Inter,system-ui,sans-serif;background:#f8fafc;display:flex;alig
 .icon.error{background:#fef2f2;color:#dc2626}
 h1{font-size:24px;font-weight:700;color:var(--text);margin-bottom:12px}
 p{color:var(--text-muted);line-height:1.6;margin-bottom:24px}
-.btn{display:inline-block;padding:12px 28px;background:#6366f1;color:#fff;text-decoration:none;border-radius:8px;font-weight:600;font-size:15px;transition:opacity .15s}
+.btn{display:inline-block;padding:12px 28px;background:var(--primary);color:#fff;text-decoration:none;border-radius:8px;font-weight:600;font-size:15px;transition:opacity .15s}
 .btn:hover{opacity:.9}
 .logo{font-size:13px;color:#94a3b8;margin-top:32px;padding-top:24px;border-top:1px solid #f1f5f9}
 </style>

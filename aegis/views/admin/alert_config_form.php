@@ -122,7 +122,7 @@ $alertTypes = [
         ] as $t=>$params): ?>
         <div style="background:var(--bg-secondary);border-radius:6px;padding:10px">
           <div style="font-weight:600;margin-bottom:4px"><?= $alertTypes[$t] ?? $t ?></div>
-          <code style="font-size:11px;color:#6366f1"><?= Security::h(json_encode($params)) ?></code>
+          <code style="font-size:11px;color:var(--primary)"><?= Security::h(json_encode($params)) ?></code>
         </div>
         <?php endforeach; ?>
       </div>

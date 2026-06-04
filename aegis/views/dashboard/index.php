@@ -20,7 +20,7 @@ ob_start();
 <!-- KPI Cards -->
 <div class="stats-grid">
   <div class="stat-card">
-    <div class="stat-icon" style="background:linear-gradient(135deg,#4f46e5,#7c3aed)">
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--primary),var(--secondary))">
       <i class="bi bi-shield-check"></i>
     </div>
     <div class="stat-body">
@@ -29,7 +29,7 @@ ob_start();
       <div class="stat-sub"><?= $stats['compliant'] ?> of <?= $stats['controls'] ?> controls</div>
     </div>
     <div class="stat-progress">
-      <div class="progress-bar" style="width:<?= $stats['compliance_pct'] ?>%;background:linear-gradient(90deg,#4f46e5,#7c3aed)"></div>
+      <div class="progress-bar" style="width:<?= $stats['compliance_pct'] ?>%;background:linear-gradient(90deg,var(--primary),var(--secondary))"></div>
     </div>
   </div>
 
@@ -196,7 +196,7 @@ $bucketMeta = [
         <?php $overdue = $policy['next_review_date'] && strtotime($policy['next_review_date']) < time(); ?>
         <div class="list-item">
           <div class="list-item-icon">
-            <i class="bi bi-file-earmark-text" style="color:<?= $overdue ? '#ef4444' : '#4f46e5' ?>"></i>
+            <i class="bi bi-file-earmark-text" style="color:<?= $overdue ? '#ef4444' : 'var(--primary)' ?>"></i>
           </div>
           <div class="list-item-body">
             <div class="list-item-title"><a href="/policy/<?= $policy['id'] ?>"><?= Security::h($policy['title']) ?></a></div>
@@ -297,7 +297,7 @@ document.addEventListener('DOMContentLoaded', () => {
         datasets: [{
           label: 'Compliant',
           data: complianceData.map(p => p.compliant),
-          backgroundColor: '#4f46e5',
+          backgroundColor: 'var(--primary)',
           borderRadius: 6,
         },{
           label: 'Total Controls',
@@ -322,7 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
       type: 'doughnut',
       data: {
         labels: riskData.map(r => r.level),
-        datasets: [{ data: riskData.map(r => r.count), backgroundColor: riskData.map(r => colors[r.level] || '#6366f1'), borderWidth: 0, hoverOffset: 8 }]
+        datasets: [{ data: riskData.map(r => r.count), backgroundColor: riskData.map(r => colors[r.level] || 'var(--primary)'), borderWidth: 0, hoverOffset: 8 }]
       },
       options: {
         responsive: true, maintainAspectRatio: false, cutout: '65%',

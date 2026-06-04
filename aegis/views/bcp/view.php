@@ -37,7 +37,7 @@ ob_start(); ?>
   <?php else: foreach ($sections as $sec): ?>
     <div class="card" style="margin-bottom:12px">
       <div class="card-header" style="cursor:pointer" data-toggle-sibling="hidden">
-        <span style="text-transform:uppercase;font-size:11px;color:#6366f1;font-weight:600"><?= Security::h($sec['section_type']) ?></span>
+        <span style="text-transform:uppercase;font-size:11px;color:var(--primary);font-weight:600"><?= Security::h($sec['section_type']) ?></span>
         <h3 style="margin:4px 0 0"><?= Security::h($sec['title']) ?></h3>
       </div>
       <div class="card-body">
@@ -197,7 +197,7 @@ document.querySelectorAll('[data-tab]').forEach(function(btn) {
 </script>
 <style>
 .tab-btn { background:none;border:none;padding:10px 20px;cursor:pointer;font-size:14px;font-weight:500;color:var(--text-muted);border-bottom:2px solid transparent;margin-bottom:-2px; }
-.tab-btn.active { color:#6366f1;border-bottom-color:#6366f1; }
+.tab-btn.active { color:var(--primary);border-bottom-color:var(--primary); }
 .hidden { display:none !important; }
 </style>
 <?php $content = ob_get_clean();

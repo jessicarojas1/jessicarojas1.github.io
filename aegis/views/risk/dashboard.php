@@ -223,7 +223,7 @@ if (!empty($trendData)) {
 }
 .rdash-compact-table tr:last-child td { border-bottom: none; }
 .rdash-compact-table a.tlink {
-    color: var(--primary, #6366f1);
+    color: var(--primary, var(--primary));
     text-decoration: none;
     font-weight: 500;
 }
@@ -346,7 +346,7 @@ if (!empty($trendData)) {
      ════════════════════════════════════════════════════ -->
 <div class="page-header">
   <div>
-    <h1 class="page-title"><i class="bi bi-graph-up-arrow" style="color:var(--primary,#6366f1)"></i> Risk Dashboard</h1>
+    <h1 class="page-title"><i class="bi bi-graph-up-arrow" style="color:var(--primary,var(--primary))"></i> Risk Dashboard</h1>
     <p class="page-subtitle">Portfolio-level risk intelligence and exposure overview</p>
   </div>
   <div class="page-actions">
@@ -363,9 +363,9 @@ if (!empty($trendData)) {
 <div class="rdash-kpi-strip">
 
   <!-- Total -->
-  <div class="rdash-kpi" style="border-top:3px solid #6366f1">
-    <span class="kpi-icon" style="color:#6366f1"><i class="bi bi-shield-fill-exclamation"></i></span>
-    <span class="kpi-num" style="color:#6366f1"><?= (int)($summary['total'] ?? 0) ?></span>
+  <div class="rdash-kpi" style="border-top:3px solid var(--primary)">
+    <span class="kpi-icon" style="color:var(--primary)"><i class="bi bi-shield-fill-exclamation"></i></span>
+    <span class="kpi-num" style="color:var(--primary)"><?= (int)($summary['total'] ?? 0) ?></span>
     <span class="kpi-lbl">Total Risks</span>
   </div>
 
@@ -437,7 +437,7 @@ if (!empty($trendData)) {
     <!-- a) Portfolio Trend -->
     <div class="card">
       <div class="rdash-card-title">
-        <i class="bi bi-graph-up" style="color:#6366f1"></i>
+        <i class="bi bi-graph-up" style="color:var(--primary)"></i>
         Portfolio Risk Trend
         <span style="margin-left:auto;font-size:11px;font-weight:500;color:var(--text-muted)">12-week rolling avg score</span>
       </div>
@@ -590,7 +590,7 @@ if (!empty($trendData)) {
     <!-- d) Upcoming Reviews -->
     <div class="card">
       <div class="rdash-card-title">
-        <i class="bi bi-calendar-event-fill" style="color:#6366f1"></i>
+        <i class="bi bi-calendar-event-fill" style="color:var(--primary)"></i>
         Upcoming Reviews
         <span style="margin-left:auto;font-size:11px;color:var(--text-muted)">Next 45 days</span>
       </div>
@@ -715,7 +715,7 @@ if (!empty($trendData)) {
           <?php endif; ?>
         </div>
         <?php if (Auth::can('risk.write')): ?>
-        <a href="/risk/<?= (int)$uc['id'] ?>" style="flex-shrink:0;font-size:11px;font-weight:600;color:#6366f1;text-decoration:none;white-space:nowrap;padding:3px 8px;border-radius:6px;border:1px solid #c7d2fe;background:#eef2ff">
+        <a href="/risk/<?= (int)$uc['id'] ?>" style="flex-shrink:0;font-size:11px;font-weight:600;color:var(--primary);text-decoration:none;white-space:nowrap;padding:3px 8px;border-radius:6px;border:1px solid #c7d2fe;background:rgba(11,97,4,.06)">
           <i class="bi bi-link-45deg"></i> Link Controls
         </a>
         <?php endif; ?>
@@ -727,7 +727,7 @@ if (!empty($trendData)) {
   <!-- g) Action Backlog -->
   <div class="card">
     <div class="rdash-card-title">
-      <i class="bi bi-lightning-fill" style="color:#6366f1"></i>
+      <i class="bi bi-lightning-fill" style="color:var(--primary)"></i>
       Action Backlog
     </div>
     <?php
@@ -738,7 +738,7 @@ if (!empty($trendData)) {
     $abTotal      = $abPlanned + $abInProgress + $abCompleted + $abOverdue;
     $abTotal      = max($abTotal, 1); // avoid div-by-zero
     $bars = [
-        ['label' => 'Planned',     'count' => $abPlanned,    'color' => '#6366f1', 'bg' => '#eef2ff'],
+        ['label' => 'Planned',     'count' => $abPlanned,    'color' => 'var(--primary)', 'bg' => 'rgba(11,97,4,.06)'],
         ['label' => 'In Progress', 'count' => $abInProgress, 'color' => '#f97316', 'bg' => '#fff7ed'],
         ['label' => 'Completed',   'count' => $abCompleted,  'color' => '#22c55e', 'bg' => '#f0fdf4'],
         ['label' => 'Overdue',     'count' => $abOverdue,    'color' => '#ef4444', 'bg' => '#fef2f2'],
@@ -799,7 +799,7 @@ if (!empty($trendData)) {
 <?php if (!empty($recentChanges)): ?>
 <div class="card" style="margin-bottom:20px">
   <div class="rdash-card-title">
-    <i class="bi bi-clock-history" style="color:#6366f1"></i>
+    <i class="bi bi-clock-history" style="color:var(--primary)"></i>
     Recent Score Changes
   </div>
   <div class="rdash-changes-strip">
@@ -920,7 +920,7 @@ if (!empty($trendData)) {
     // ── Line ────────────────────────────────────────────
     ctx.beginPath();
     ctx.lineWidth = 2.5;
-    ctx.strokeStyle = '#6366f1';
+    ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#0b6104';
     ctx.lineJoin = 'round';
     data.forEach(function(pt, i) {
       if (i === 0) ctx.moveTo(xPos(i), yPos(pt.avg));

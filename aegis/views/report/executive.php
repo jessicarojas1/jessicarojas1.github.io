@@ -29,7 +29,7 @@ $scoreLabel = $grcScore >= 80 ? 'Good' : ($grcScore >= 60 ? 'Needs Attention' : 
     </div>
     <div style="flex:1;min-width:200px">
       <?php $metrics=[
-        ['Compliance',  $compliancePct,  '#4f46e5', '40% weight'],
+        ['Compliance',  $compliancePct,  'var(--primary)', '40% weight'],
         ['Risk Health', $riskHealth,     '#dc2626', '30% weight'],
         ['Policy',      $policyHealth,   '#0284c7', '20% weight'],
         ['Audit',       $auditHealth,    '#059669', '10% weight'],

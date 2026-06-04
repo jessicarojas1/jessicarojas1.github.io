@@ -14,7 +14,7 @@
 <!-- Summary stats -->
 <div class="stats-grid" style="margin-bottom:24px">
   <div class="stat-card">
-    <div class="stat-icon" style="background:linear-gradient(135deg,#4f46e5,#7c3aed)"><i class="bi bi-list-check"></i></div>
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--primary),var(--secondary))"><i class="bi bi-list-check"></i></div>
     <div class="stat-body"><div class="stat-value"><?= $stats['total'] ?></div><div class="stat-label">Total Risks</div></div>
   </div>
   <div class="stat-card">
@@ -50,7 +50,7 @@
         <?php foreach ($risks as $r):
           $sc = (int)$r['inherent_score'];
           $rc = $sc >= 20 ? '#dc2626' : ($sc >= 15 ? '#d97706' : ($sc >= 8 ? '#0284c7' : '#059669'));
-          $stColors=['open'=>'#dc2626','in_treatment'=>'#d97706','accepted'=>'#7c3aed','closed'=>'#64748b'];
+          $stColors=['open'=>'#dc2626','in_treatment'=>'#d97706','accepted'=>'var(--secondary)','closed'=>'#64748b'];
           $stc = $stColors[$r['status']] ?? '#64748b';
         ?>
         <tr style="border-top:1px solid var(--border)">

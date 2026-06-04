@@ -143,7 +143,7 @@ ob_start();
     <span style="display:inline-block;width:32px;height:10px;border-radius:4px;background:#f97316;"></span>Due ≤30 days
   </span>
   <span style="display:flex;align-items:center;gap:6px;font-size:12px;">
-    <span style="display:inline-block;width:32px;height:10px;border-radius:4px;background:#6366f1;"></span>On track
+    <span style="display:inline-block;width:32px;height:10px;border-radius:4px;background:var(--primary);"></span>On track
   </span>
   <span style="display:flex;align-items:center;gap:6px;font-size:12px;">
     <span style="display:inline-block;width:32px;height:10px;border-radius:4px;background:#d1d5db;"></span>No due date
@@ -185,7 +185,7 @@ foreach ($grouped as $level => $risks):
           $barWidth = min(100, round($daysUntil / $displayWindowDays * 100));
           $barLeft  = 0;
       } else {
-          $barColor = '#6366f1';
+          $barColor = 'var(--primary)';
           $barWidth = min(100, round($daysUntil / $displayWindowDays * 100));
           $barLeft  = 0;
       }
@@ -198,7 +198,7 @@ foreach ($grouped as $level => $risks):
           'mitigated'   => ['#f0fdf4','#16a34a'],
           'accepted'    => ['#fffbeb','#d97706'],
           'closed'      => ['#f8fafc','#64748b'],
-          'transferred' => ['#f5f3ff','#7c3aed'],
+          'transferred' => ['rgba(55,65,81,.05)','var(--secondary)'],
       ];
       [$tsBg, $tsFg] = $treatStatusColors[$treatStatus] ?? ['#f1f5f9','#64748b'];
     ?>

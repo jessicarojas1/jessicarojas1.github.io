@@ -87,7 +87,7 @@ if (!in_array($activeTab, $entityTypes, true)) $activeTab = 'risk';
        style="padding:10px 18px;text-decoration:none;font-weight:<?= $activeTab === $et ? '600' : '400' ?>;color:<?= $activeTab === $et ? 'var(--primary)' : 'var(--text-muted)' ?>;border-bottom:<?= $activeTab === $et ? '2px solid var(--primary)' : '2px solid transparent' ?>;margin-bottom:-2px">
       <?= ucfirst($et) ?>
       <?php $cnt = count($fields[$et] ?? []); if ($cnt): ?>
-        <span class="badge" style="margin-left:6px;background:var(--primary-light,#e0e7ff);color:var(--primary);font-size:11px"><?= $cnt ?></span>
+        <span class="badge" style="margin-left:6px;background:var(--primary-light,rgba(11,97,4,.08));color:var(--primary);font-size:11px"><?= $cnt ?></span>
       <?php endif; ?>
     </a>
   <?php endforeach; ?>

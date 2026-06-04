@@ -15,7 +15,7 @@ ob_start();
 <!-- Quick stats -->
 <div class="stats-grid">
   <div class="stat-card">
-    <div class="stat-icon" style="background:linear-gradient(135deg,#4f46e5,#7c3aed)"><i class="bi bi-people-fill"></i></div>
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--primary),var(--secondary))"><i class="bi bi-people-fill"></i></div>
     <div class="stat-body"><div class="stat-value"><?= $userCount ?></div><div class="stat-label">Total Users</div></div>
   </div>
   <div class="stat-card">
@@ -56,8 +56,8 @@ ob_start();
         <a href="/admin/permissions" class="admin-module-card">
           <i class="bi bi-shield-lock-fill"></i><span>Permissions</span>
         </a>
-        <a href="/admin/module-visibility" class="admin-module-card" style="border-color:#4f46e5;background:rgba(79,70,229,.06)">
-          <i class="bi bi-grid-fill" style="color:#4f46e5"></i><span style="color:#4f46e5">Module Visibility</span>
+        <a href="/admin/module-visibility" class="admin-module-card" style="border-color:var(--primary);background:rgba(79,70,229,.06)">
+          <i class="bi bi-grid-fill" style="color:var(--primary)"></i><span style="color:var(--primary)">Module Visibility</span>
         </a>
         <a href="/admin/settings" class="admin-module-card">
           <i class="bi bi-gear-fill"></i><span>Settings</span>

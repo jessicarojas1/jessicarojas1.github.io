@@ -19,9 +19,9 @@ $typeLabels = [
     'assessment_pending_stale'   => 'Assessment Stale',
 ];
 $typeColors = [
-    'overdue_controls'=>'#ef4444','policy_review_due'=>'#f59e0b','pending_approval'=>'#6366f1',
+    'overdue_controls'=>'#ef4444','policy_review_due'=>'#f59e0b','pending_approval'=>'var(--primary)',
     'new_risk_assigned'=>'#f97316','open_incident_aging'=>'#dc2626','risk_review_overdue'=>'#b45309',
-    'treatment_due'=>'#7c3aed','risk_score_worsened'=>'#ef4444','vendor_assessment_expiring'=>'#0891b2',
+    'treatment_due'=>'var(--secondary)','risk_score_worsened'=>'#ef4444','vendor_assessment_expiring'=>'#0891b2',
     'document_expiring'=>'#059669','assessment_pending_stale'=>'#64748b',
 ];
 ?>
@@ -41,7 +41,7 @@ $typeColors = [
 <!-- Stats -->
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
   <?php foreach ([
-    ['Total Sent','total_all','#6366f1','bi-envelope-fill'],
+    ['Total Sent','total_all','var(--primary)','bi-envelope-fill'],
     ['Today','today','#16a34a','bi-calendar-check-fill'],
     ['This Week','this_week','#f59e0b','bi-calendar-week-fill'],
     ['This Month','this_month','#3b82f6','bi-calendar-month-fill'],
@@ -125,7 +125,7 @@ $typeColors = [
     $qp = array_merge($_GET, ['page'=>$p]);
   ?>
     <a href="?<?= http_build_query($qp) ?>"
-       style="display:inline-block;padding:6px 12px;border-radius:6px;border:1px solid <?= $active?'#6366f1':'var(--border)' ?>;background:<?= $active?'#6366f1':'var(--bg-card)' ?>;color:<?= $active?'#fff':'inherit' ?>;text-decoration:none;font-size:13px;font-weight:<?= $active?'700':'400' ?>">
+       style="display:inline-block;padding:6px 12px;border-radius:6px;border:1px solid <?= $active?'var(--primary)':'var(--border)' ?>;background:<?= $active?'var(--primary)':'var(--bg-card)' ?>;color:<?= $active?'#fff':'inherit' ?>;text-decoration:none;font-size:13px;font-weight:<?= $active?'700':'400' ?>">
       <?= $p ?>
     </a>
   <?php endfor; ?>

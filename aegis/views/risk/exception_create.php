@@ -20,9 +20,9 @@ ob_start();
 <?php endif; ?>
 
 <!-- Risk context banner -->
-<div class="card" style="margin-bottom:20px;border-left:4px solid #6366f1;">
+<div class="card" style="margin-bottom:20px;border-left:4px solid var(--primary);">
   <div class="card-body" style="padding:16px 20px;display:flex;align-items:center;gap:16px;">
-    <i class="bi bi-exclamation-triangle-fill" style="font-size:24px;color:#6366f1;flex-shrink:0;"></i>
+    <i class="bi bi-exclamation-triangle-fill" style="font-size:24px;color:var(--primary);flex-shrink:0;"></i>
     <div>
       <div style="font-weight:600;font-size:14px;">
         <?= Security::h($risk['title']) ?>
@@ -140,7 +140,7 @@ function highlightTypeCards() {
     var lbl = document.getElementById('type-label-' + r.value);
     if (lbl) {
       lbl.style.borderColor = r.checked ? 'var(--primary)' : 'var(--border)';
-      lbl.style.background  = r.checked ? 'var(--primary-light, #eef2ff)' : '';
+      lbl.style.background  = r.checked ? 'var(--primary-light, rgba(11,97,4,.06))' : '';
     }
   });
 }

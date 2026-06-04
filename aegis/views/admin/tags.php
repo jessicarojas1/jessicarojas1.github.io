@@ -30,7 +30,7 @@
           <div class="form-group" style="margin-bottom:1.5rem">
             <label class="form-label">Color</label>
             <div style="display:flex;gap:.75rem;align-items:center">
-              <input type="color" name="color" value="#6366f1" style="width:48px;height:38px;padding:2px;border:1px solid var(--border-color);border-radius:6px;cursor:pointer">
+              <input type="color" name="color" value="var(--primary)" style="width:48px;height:38px;padding:2px;border:1px solid var(--border-color);border-radius:6px;cursor:pointer">
               <span style="font-size:.85rem;color:var(--text-muted)">Pick a badge color</span>
             </div>
           </div>

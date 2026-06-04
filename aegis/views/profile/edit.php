@@ -64,7 +64,7 @@ $mfaEnabled = !empty($dbUser['mfa_enabled']);
           <label class="form-label">Role</label>
           <div>
             <span class="badge badge-<?= Security::h($user['role'] ?? 'viewer') ?>"
-                  style="font-size:13px;padding:4px 12px;border-radius:20px;background:var(--primary-light,#eef2ff);color:var(--primary);font-weight:600">
+                  style="font-size:13px;padding:4px 12px;border-radius:20px;background:var(--primary-light,rgba(11,97,4,.06));color:var(--primary);font-weight:600">
               <?= Security::h(ucfirst($user['role'] ?? 'viewer')) ?>
             </span>
           </div>

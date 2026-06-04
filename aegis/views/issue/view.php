@@ -1,6 +1,6 @@
 <?php
 $sevColors = ['critical'=>'#dc2626','high'=>'#d97706','medium'=>'#0284c7','low'=>'#059669'];
-$statusColors = ['open'=>'#dc2626','in_progress'=>'#d97706','pending_review'=>'#7c3aed','resolved'=>'#059669','closed'=>'#64748b','wont_fix'=>'#64748b'];
+$statusColors = ['open'=>'#dc2626','in_progress'=>'#d97706','pending_review'=>'var(--secondary)','resolved'=>'#059669','closed'=>'#64748b','wont_fix'=>'#64748b'];
 $sevColor = $sevColors[$issue['severity']] ?? '#64748b';
 $stColor  = $statusColors[$issue['status']] ?? '#64748b';
 $pageTitle    = 'Issue: ' . $issue['issue_number'];
@@ -43,7 +43,7 @@ ob_start();
 
     <?php if ($issue['recurrence_prevention']): ?>
     <div class="card">
-      <div class="card-header"><div class="card-header-left"><i class="bi bi-shield-check" style="color:#7c3aed"></i><span class="card-title">Recurrence Prevention</span></div></div>
+      <div class="card-header"><div class="card-header-left"><i class="bi bi-shield-check" style="color:var(--secondary)"></i><span class="card-title">Recurrence Prevention</span></div></div>
       <div class="card-body"><p style="white-space:pre-wrap;margin:0"><?= Security::h($issue['recurrence_prevention']) ?></p></div>
     </div>
     <?php endif; ?>
@@ -61,7 +61,7 @@ ob_start();
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
                 <strong style="font-size:13px"><?= Security::h($upd['user_name'] ?? 'System') ?></strong>
                 <span style="font-size:11px;color:var(--text-muted)"><?= date('M j, Y g:ia', strtotime($upd['created_at'])) ?></span>
-                <?php $typeColors=['status_change'=>'#7c3aed','assignment'=>'#0284c7','comment'=>'#64748b']; ?>
+                <?php $typeColors=['status_change'=>'var(--secondary)','assignment'=>'#0284c7','comment'=>'#64748b']; ?>
                 <span style="font-size:10px;padding:1px 6px;border-radius:3px;background:<?= ($typeColors[$upd['update_type']]??'#64748b') ?>20;color:<?= ($typeColors[$upd['update_type']]??'#64748b') ?>"><?= ucfirst(str_replace('_',' ',$upd['update_type'])) ?></span>
               </div>
               <p style="margin:0;white-space:pre-wrap;font-size:13px"><?= Security::h($upd['content']) ?></p>

@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="/public/vendor/bootstrap-icons/bootstrap-icons.min.css" integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+" crossorigin="anonymous">
 <link rel="stylesheet" href="/public/css/app.css?v=7">
 <link rel="manifest" href="/public/manifest.json">
-<meta name="theme-color" content="#6366f1">
+<meta name="theme-color" content="var(--primary)">
 <meta name="csrf-token" content="<?= Security::generateCsrfToken() ?>">
 <script nonce="<?= Security::nonce() ?>">(function(){var t=localStorage.getItem('aegis-theme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})();</script>
 </head>

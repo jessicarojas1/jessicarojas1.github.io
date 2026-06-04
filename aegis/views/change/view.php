@@ -113,7 +113,7 @@ ob_start(); ?>
               <span class="text-xs text-muted"><?= date('M j, g:ia', strtotime($upd['created_at'])) ?></span>
             </div>
             <?php if ($upd['update_type'] === 'status_change'): ?>
-              <p style="color:#6366f1;font-style:italic;margin:4px 0 0"><?= Security::h($upd['content']) ?></p>
+              <p style="color:var(--primary);font-style:italic;margin:4px 0 0"><?= Security::h($upd['content']) ?></p>
             <?php else: ?>
               <p style="margin:4px 0 0;white-space:pre-wrap"><?= Security::h($upd['content']) ?></p>
             <?php endif; ?>

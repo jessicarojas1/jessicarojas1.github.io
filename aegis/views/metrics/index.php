@@ -28,7 +28,7 @@ $classColors = ['public'=>'#22c55e','internal'=>'#3b82f6','confidential'=>'#f59e
     ['GRC Score',      number_format((float)($s['grc_score'] ?? 0),1) . '%',   'bi-shield-fill-check', '#1e3a5f'],
     ['Compliance',     number_format((float)($s['compliance_pct'] ?? 0),1) . '%', 'bi-shield-check', '#0284c7'],
     ['Risk Health',    number_format((float)($s['risk_health'] ?? 0),1) . '%',  'bi-exclamation-triangle-fill', '#d97706'],
-    ['Policy Health',  number_format((float)($s['policy_health'] ?? 0),1) . '%','bi-file-earmark-text-fill', '#7c3aed'],
+    ['Policy Health',  number_format((float)($s['policy_health'] ?? 0),1) . '%','bi-file-earmark-text-fill', 'var(--secondary)'],
   ];
   foreach ($kpis as [$label, $val, $icon, $color]): ?>
     <div class="stat-card">

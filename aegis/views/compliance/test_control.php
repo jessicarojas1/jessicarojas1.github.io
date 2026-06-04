@@ -56,7 +56,7 @@ function testResultBadge(string $result): string {
       </div>
       <div>
         <div class="form-label text-sm" style="color:var(--text-muted);margin-bottom:4px">Package</div>
-        <div><a href="/compliance/<?= (int)$obj['package_id'] ?>" style="color:#6366f1;text-decoration:none"><?= Security::h($obj['package_name']) ?></a></div>
+        <div><a href="/compliance/<?= (int)$obj['package_id'] ?>" style="color:var(--primary);text-decoration:none"><?= Security::h($obj['package_name']) ?></a></div>
       </div>
       <div>
         <div class="form-label text-sm" style="color:var(--text-muted);margin-bottom:4px">Current Status</div>

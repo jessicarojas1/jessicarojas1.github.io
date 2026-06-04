@@ -24,7 +24,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 <div class="card" style="margin-bottom:20px">
   <div class="card-body" style="padding:16px 20px">
     <div style="display:flex;align-items:flex-start;gap:14px">
-      <i class="bi bi-shield-fill-exclamation" style="color:#6366f1;font-size:28px;flex-shrink:0;margin-top:2px"></i>
+      <i class="bi bi-shield-fill-exclamation" style="color:var(--primary);font-size:28px;flex-shrink:0;margin-top:2px"></i>
       <div>
         <p style="margin:0 0 6px;font-weight:600;color:var(--text)">What is a Risk Appetite Statement?</p>
         <p style="margin:0;color:var(--text-muted);font-size:14px;line-height:1.6">

@@ -39,9 +39,9 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
 .rv-kpi .num{font-size:28px;font-weight:800;line-height:1}
 .rv-kpi .lbl{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-top:3px}
 .progress-bar{height:10px;background:var(--bg-secondary);border-radius:5px;overflow:hidden;margin:6px 0}
-.progress-fill{height:100%;background:#6366f1;border-radius:5px;transition:width .3s}
+.progress-fill{height:100%;background:var(--primary);border-radius:5px;transition:width .3s}
 .section-tab{padding:8px 16px;font-size:13px;font-weight:600;border-radius:6px 6px 0 0;cursor:pointer;border:none;background:var(--bg-secondary);color:var(--text-muted)}
-.section-tab.active{background:#6366f1;color:#fff}
+.section-tab.active{background:var(--primary);color:#fff}
 .risk-item-row td{vertical-align:top;padding:10px 12px;font-size:13px}
 .inline-review-form textarea{font-size:12px}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center}
@@ -121,7 +121,7 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
   <div class="rv-kpi" style="border-color:#f59e0b"><div class="num" style="color:#f59e0b"><?= count($groups['deferred']) ?></div><div class="lbl">Deferred</div></div>
   <div style="flex:3;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px">
     <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:4px">
-      <span>Overall Progress</span><span style="color:#6366f1"><?= $totalPct ?>%</span>
+      <span>Overall Progress</span><span style="color:var(--primary)"><?= $totalPct ?>%</span>
     </div>
     <div class="progress-bar"><div class="progress-fill" style="width:<?= $totalPct ?>%"></div></div>
     <div style="font-size:12px;color:var(--text-muted)"><?= $review['reviewed_count'] ?> of <?= $review['total_risks'] ?> risks reviewed</div>
@@ -156,7 +156,7 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
           $iColor  = $riskColors[$iLevel];
           $rColor  = $riskColors[$rLevel];
           $strats  = json_decode($item['treatment_strategies'] ?? '[]', true) ?: [];
-          $sColors = ['mitigate'=>'#2563eb','accept'=>'#b45309','transfer'=>'#7c3aed','avoid'=>'#dc2626'];
+          $sColors = ['mitigate'=>'#2563eb','accept'=>'#b45309','transfer'=>'var(--secondary)','avoid'=>'#dc2626'];
         ?>
         <tr class="risk-item-row">
           <td>
@@ -168,7 +168,7 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
           <td>
             <?php if ($item['category_name']): ?>
               <span style="display:inline-flex;align-items:center;gap:4px;font-size:12px">
-                <span style="width:8px;height:8px;border-radius:50%;background:<?= Security::h($item['category_color']??'#6366f1') ?>"></span>
+                <span style="width:8px;height:8px;border-radius:50%;background:<?= Security::h($item['category_color']??'var(--primary)') ?>"></span>
                 <?= Security::h($item['category_name']) ?>
               </span>
             <?php else: ?>—<?php endif; ?>

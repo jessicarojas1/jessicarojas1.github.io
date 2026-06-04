@@ -1,10 +1,10 @@
 <?php
 $categoryColors = [
-    'general'         => '#6366f1',
+    'general'         => 'var(--primary)',
     'ransomware'      => '#dc2626',
     'data_breach'     => '#d97706',
     'ddos'            => '#0284c7',
-    'phishing'        => '#7c3aed',
+    'phishing'        => 'var(--secondary)',
     'insider_threat'  => '#db2777',
     'system_failure'  => '#64748b',
     'compliance'      => '#059669',
@@ -16,7 +16,7 @@ $severityColors = [
     'low'      => '#059669',
 ];
 $catKey   = strtolower(str_replace([' ','-'], '_', $playbook['category']));
-$catColor = $categoryColors[$catKey] ?? '#6366f1';
+$catColor = $categoryColors[$catKey] ?? 'var(--primary)';
 $catLabel = ucwords(str_replace('_', ' ', $playbook['category']));
 $isActive = (bool)$playbook['is_active'];
 $sevColor = $severityColors[strtolower($playbook['severity_filter'] ?? '')] ?? null;
@@ -206,10 +206,10 @@ $sevColor = $severityColors[strtolower($playbook['severity_filter'] ?? '')] ?? n
     </div>
 
     <!-- Testing Note -->
-    <div class="card" style="border-left:4px solid #6366f1">
+    <div class="card" style="border-left:4px solid var(--primary)">
       <div class="card-body">
         <div style="display:flex;gap:10px;align-items:flex-start">
-          <i class="bi bi-info-circle-fill" style="color:#6366f1;font-size:18px;flex-shrink:0;margin-top:1px"></i>
+          <i class="bi bi-info-circle-fill" style="color:var(--primary);font-size:18px;flex-shrink:0;margin-top:1px"></i>
           <div>
             <div style="font-weight:600;margin-bottom:4px">Using This Playbook</div>
             <p style="font-size:13px;color:var(--text-muted);margin:0">

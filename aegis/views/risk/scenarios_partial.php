@@ -207,7 +207,7 @@ $avgScore = count($scenarios) > 0 ? round($totalScoreSum / count($scenarios), 1)
         <?= scenPartialLevel($worstScore) ?>
       </span>
       <span>
-        <i class="bi bi-calculator-fill" style="color:#6366f1"></i>
+        <i class="bi bi-calculator-fill" style="color:var(--primary)"></i>
         <strong style="color:var(--text)">Average score:</strong> <?= $avgScore ?>
       </span>
       <?php if ($totalFinancial > 0): ?>

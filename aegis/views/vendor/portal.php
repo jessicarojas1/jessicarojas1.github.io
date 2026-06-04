@@ -16,19 +16,19 @@
     .question label { display: block; font-weight: 600; margin-bottom: 8px; }
     .required-star { color: #ef4444; }
     textarea { width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; min-height: 100px; resize: vertical; font-family: inherit; }
-    textarea:focus { outline: none; border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79,70,229,.1); }
+    textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79,70,229,.1); }
     .btn { padding: 12px 28px; border-radius: 8px; border: none; cursor: pointer; font-size: 15px; font-weight: 600; }
-    .btn-primary { background: #4f46e5; color: white; }
-    .btn-primary:hover { background: #4338ca; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-dark); }
     .footer { text-align: center; color: #94a3b8; font-size: 13px; padding: 20px; }
     .meta { color: var(--text-muted); font-size: 13px; margin-bottom: 20px; }
     .progress-bar { height: 4px; background: #e2e8f0; border-radius: 2px; margin-bottom: 24px; }
-    .progress-fill { height: 100%; background: #4f46e5; border-radius: 2px; transition: width .3s; }
+    .progress-fill { height: 100%; background: var(--primary); border-radius: 2px; transition: width .3s; }
   </style>
 </head>
 <body>
 <div class="header">
-  <i class="bi bi-shield-fill-check" style="font-size:24px;color:#818cf8"></i>
+  <i class="bi bi-shield-fill-check" style="font-size:24px;color:var(--primary-light)"></i>
   <div>
     <h1>AEGIS GRC — Vendor Security Assessment</h1>
     <div style="font-size:13px;opacity:.7">Confidential — <?= Security::h($vendor['name']) ?></div>

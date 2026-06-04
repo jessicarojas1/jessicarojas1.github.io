@@ -111,10 +111,10 @@ function updateVisBadge() {
   content:''; position:absolute; height:16px; width:16px; left:3px; bottom:3px;
   background:white; border-radius:50%; transition:.2s;
 }
-.toggle-switch input:checked + .toggle-slider { background:#4f46e5; }
+.toggle-switch input:checked + .toggle-slider { background:var(--primary); }
 .toggle-switch input:checked + .toggle-slider:before { transform:translateX(18px); }
 html[data-theme="dark"] .toggle-slider { background:#334155; }
-html[data-theme="dark"] .toggle-switch input:checked + .toggle-slider { background:#6366f1; }
+html[data-theme="dark"] .toggle-switch input:checked + .toggle-slider { background:var(--primary); }
 </style>
 
 <?php

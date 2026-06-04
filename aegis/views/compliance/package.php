@@ -50,7 +50,7 @@ ob_start();
     <svg width="80" height="80" viewBox="0 0 80 80">
       <circle cx="40" cy="40" r="34" fill="none" stroke="#e2e8f0" stroke-width="8"/>
       <?php if ($total > 0): ?>
-      <circle cx="40" cy="40" r="34" fill="none" stroke="#4f46e5" stroke-width="8"
+      <circle cx="40" cy="40" r="34" fill="none" stroke="var(--primary)" stroke-width="8"
         stroke-dasharray="<?= round(2*M_PI*34 * $pct/100, 2) ?> 999"
         stroke-linecap="round" transform="rotate(-90 40 40)"/>
       <?php endif; ?>
@@ -58,7 +58,7 @@ ob_start();
     <div class="overview-pct-num"><?= $pct ?>%</div>
   </div>
   <div class="overview-stats">
-    <div class="ov-stat"><span class="ov-num" style="color:#4f46e5"><?= $total ?></span><span>Total Controls</span></div>
+    <div class="ov-stat"><span class="ov-num" style="color:var(--primary)"><?= $total ?></span><span>Total Controls</span></div>
     <div class="ov-stat"><span class="ov-num" style="color:#059669"><?= $compliant ?></span><span>Compliant</span></div>
     <div class="ov-stat"><span class="ov-num" style="color:#d97706"><?= $partial ?></span><span>Partial</span></div>
     <div class="ov-stat"><span class="ov-num" style="color:#dc2626"><?= $nonComp ?></span><span>Non-compliant</span></div>
@@ -77,7 +77,7 @@ ob_start();
 </div>
 
 <!-- Bulk action bar (appears when controls are selected) -->
-<div id="bulk-bar" style="display:none;position:sticky;top:0;z-index:200;background:#1e1b4b;color:#fff;
+<div id="bulk-bar" style="display:none;position:sticky;top:0;z-index:200;background:#1c2a1b;color:#fff;
      padding:10px 16px;border-radius:10px;margin-bottom:12px;
      display:none;align-items:center;gap:10px;flex-wrap:wrap;box-shadow:0 4px 20px rgba(79,70,229,.4)">
   <span id="bulk-count" style="font-size:13px;font-weight:600;margin-right:4px"></span>
@@ -87,7 +87,7 @@ ob_start();
   <button class="bulk-status-btn" data-status="non_compliant" style="background:#dc2626;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="bi bi-x-circle-fill"></i> Non-Compliant</button>
   <button class="bulk-status-btn" data-status="not_started"   style="background:#475569;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="bi bi-circle"></i> Not Started</button>
   <button class="bulk-status-btn" data-status="not_applicable" style="background:#334155;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="bi bi-slash-circle-fill"></i> N/A</button>
-  <button id="bulk-assess-btn" data-click="openBulkAssess" style="background:#4f46e5;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="bi bi-clipboard2-check-fill"></i> Bulk Assess</button>
+  <button id="bulk-assess-btn" data-click="openBulkAssess" style="background:var(--primary);color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="bi bi-clipboard2-check-fill"></i> Bulk Assess</button>
   <button data-click="clearSelection" style="margin-left:auto;background:none;border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:6px;padding:6px 10px;font-size:12px;cursor:pointer">✕ Clear</button>
 </div>
 
@@ -134,7 +134,7 @@ ob_start();
       <input type="checkbox" class="domain-select-all" data-domain="<?= $domain['id'] ?>"
              data-change="domainSelectAllChange"
              title="Select all in this domain"
-             style="width:16px;height:16px;cursor:pointer;accent-color:#6366f1;flex-shrink:0">
+             style="width:16px;height:16px;cursor:pointer;accent-color:var(--primary);flex-shrink:0">
       <div class="domain-code"><?= Security::h($domain['code']) ?></div>
       <div class="domain-title"><?= Security::h($domain['title']) ?></div>
     </div>
@@ -195,7 +195,7 @@ ob_start();
         <div class="control-row-left">
           <input type="checkbox" class="ctrl-checkbox" data-id="<?= (int)$ctrl['id'] ?>"
                  data-change="onCtrlCheck"
-                 style="width:16px;height:16px;cursor:pointer;accent-color:#6366f1;flex-shrink:0;margin-right:4px">
+                 style="width:16px;height:16px;cursor:pointer;accent-color:var(--primary);flex-shrink:0;margin-right:4px">
           <span class="control-status-icon status-<?= Security::h($implStatus) ?>" title="<?= ucwords(str_replace('_',' ',$implStatus)) ?>">
             <i class="bi bi-<?= statusIcon($implStatus) ?>"></i>
           </span>
@@ -211,7 +211,7 @@ ob_start();
           <a href="/compliance/<?= $package['id'] ?>/objective/<?= $ctrl['id'] ?>" class="btn btn-ghost btn-sm" title="Assess compliance status">
             <i class="bi bi-pencil-fill"></i> Assess
           </a>
-          <a href="/compliance/control/<?= $ctrl['id'] ?>/test" class="btn btn-ghost btn-sm" title="Record test result" style="color:#6366f1">
+          <a href="/compliance/control/<?= $ctrl['id'] ?>/test" class="btn btn-ghost btn-sm" title="Record test result" style="color:var(--primary)">
             <i class="bi bi-clipboard2-check"></i> Test
           </a>
           <button class="btn btn-ghost btn-sm" title="Edit control details"
@@ -292,7 +292,7 @@ function statusIcon(string $s): string {
 <!-- Add Domain -->
 <div id="modal-add-domain" class="aegis-modal" style="display:none">
   <div class="modal-header">
-    <h3><i class="bi bi-plus-circle-fill" style="color:#4f46e5"></i> Add Domain</h3>
+    <h3><i class="bi bi-plus-circle-fill" style="color:var(--primary)"></i> Add Domain</h3>
     <button class="modal-close" data-click="pkgCloseModal"><i class="bi bi-x-lg"></i></button>
   </div>
   <form method="POST" action="/compliance/<?= (int)$package['id'] ?>/domain/add">
@@ -661,7 +661,7 @@ document.addEventListener('DOMContentLoaded', function() {
       _csrf = data.new_csrf || _csrf;
       pkgCloseModal();
       clearSelection();
-      showToast(data.updated + ' control' + (data.updated !== 1 ? 's' : '') + ' assessed', '#4f46e5');
+      showToast(data.updated + ' control' + (data.updated !== 1 ? 's' : '') + ' assessed', 'var(--primary)');
     })
     .catch(function(){ alert('Network error — please try again.'); })
     .finally(function() {
@@ -675,7 +675,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <!-- Bulk Assess Modal -->
 <div id="modal-bulk-assess" class="aegis-modal" style="display:none;max-width:540px">
   <div class="modal-header">
-    <h3><i class="bi bi-clipboard2-check-fill" style="color:#4f46e5"></i> Bulk Assess Controls</h3>
+    <h3><i class="bi bi-clipboard2-check-fill" style="color:var(--primary)"></i> Bulk Assess Controls</h3>
     <button class="modal-close" data-click="pkgCloseModal"><i class="bi bi-x-lg"></i></button>
   </div>
   <form id="form-bulk-assess">

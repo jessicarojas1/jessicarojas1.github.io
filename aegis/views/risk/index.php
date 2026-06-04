@@ -32,7 +32,7 @@ $_appColors = ['zero'=>'#dc2626','low'=>'#d97706','moderate'=>'#2563eb','high'=>
 ?>
 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px;padding:10px 14px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:10px">
   <span style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;flex-shrink:0">
-    <i class="bi bi-speedometer2" style="color:#6366f1;margin-right:3px"></i>Risk Appetite:
+    <i class="bi bi-speedometer2" style="color:var(--primary);margin-right:3px"></i>Risk Appetite:
   </span>
   <?php foreach ($_appetiteRows as $_ar):
     $_c = $_appColors[$_ar['appetite']] ?? '#64748b';
@@ -42,7 +42,7 @@ $_appColors = ['zero'=>'#dc2626','low'=>'#d97706','moderate'=>'#2563eb','high'=>
   </span>
   <?php endforeach; ?>
   <?php if (Auth::can('admin') || Auth::role() === 'admin'): ?>
-  <a href="/admin/risk-appetite" style="margin-left:auto;font-size:11px;color:#6366f1;text-decoration:none;white-space:nowrap;flex-shrink:0">
+  <a href="/admin/risk-appetite" style="margin-left:auto;font-size:11px;color:var(--primary);text-decoration:none;white-space:nowrap;flex-shrink:0">
     <i class="bi bi-pencil-fill"></i> Edit
   </a>
   <?php endif; ?>
@@ -167,7 +167,7 @@ $_appColors = ['zero'=>'#dc2626','low'=>'#d97706','moderate'=>'#2563eb','high'=>
             <td>
               <?php
               $strategies = json_decode($risk['treatment_strategies'] ?? '[]', true) ?: [];
-              $stratColors = ['mitigate'=>'#2563eb','accept'=>'#b45309','transfer'=>'#7c3aed','avoid'=>'#dc2626'];
+              $stratColors = ['mitigate'=>'#2563eb','accept'=>'#b45309','transfer'=>'var(--secondary)','avoid'=>'#dc2626'];
               foreach ($strategies as $strat):
                 $sc = $stratColors[$strat] ?? '#64748b';
               ?>

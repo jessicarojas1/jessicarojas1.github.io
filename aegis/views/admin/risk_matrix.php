@@ -165,7 +165,7 @@ ob_start();
             '#f59e0b' => 'Monitor (yellow)',
             '#f97316' => 'Transfer (orange)',
             '#ef4444' => 'Mitigate (red)',
-            '#7c3aed' => 'Avoid (purple)',
+            'var(--secondary)' => 'Avoid (purple)',
           ] as $hex => $label): ?>
           <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px">
             <input type="radio" name="editColorPick" value="<?= $hex ?>"

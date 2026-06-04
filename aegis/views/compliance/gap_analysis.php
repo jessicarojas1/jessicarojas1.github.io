@@ -36,7 +36,7 @@ $totalGaps = count($gaps);
     <div class="card-body" style="padding:18px">
       <!-- Header row -->
       <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:14px">
-        <span style="font-size:11px;font-weight:700;background:#ede9fe;color:#5b21b6;padding:3px 8px;border-radius:6px;white-space:nowrap;margin-top:2px">
+        <span style="font-size:11px;font-weight:700;background:rgba(55,65,81,.08);color:var(--text-muted);padding:3px 8px;border-radius:6px;white-space:nowrap;margin-top:2px">
           <?= Security::h($pkg['standard_code']) ?>
         </span>
         <div style="min-width:0">
@@ -129,7 +129,7 @@ $totalGaps = count($gaps);
           ?>
           <tr>
             <td>
-              <span style="font-size:11px;font-weight:700;background:#ede9fe;color:#5b21b6;padding:2px 7px;border-radius:5px">
+              <span style="font-size:11px;font-weight:700;background:rgba(55,65,81,.08);color:var(--text-muted);padding:2px 7px;border-radius:5px">
                 <?= Security::h($gap['standard_code']) ?>
               </span>
             </td>
@@ -202,7 +202,7 @@ $totalGaps = count($gaps);
             <td>
               <div style="display:flex;flex-wrap:wrap;gap:5px">
                 <?php foreach ($cfFrameworks as $fw): ?>
-                <span style="font-size:11px;font-weight:700;background:#ede9fe;color:#5b21b6;padding:2px 7px;border-radius:5px">
+                <span style="font-size:11px;font-weight:700;background:rgba(55,65,81,.08);color:var(--text-muted);padding:2px 7px;border-radius:5px">
                   <?= Security::h(trim($fw)) ?>
                 </span>
                 <?php endforeach; ?>

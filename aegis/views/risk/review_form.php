@@ -159,7 +159,7 @@ ob_start();
     <!-- Help Sidebar -->
     <div style="flex:1;min-width:240px;max-width:320px;">
 
-      <div class="card" style="margin-bottom:16px;border-left:4px solid #6366f1;">
+      <div class="card" style="margin-bottom:16px;border-left:4px solid var(--primary);">
         <div class="card-header">
           <h3 class="card-title" style="font-size:13px;"><i class="bi bi-question-circle"></i> Review Types</h3>
         </div>
@@ -174,7 +174,7 @@ ob_start();
               <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Initiated by a specific event — incident, change, or external threat.</div>
             </div>
             <div>
-              <div style="font-weight:600;font-size:12px;color:#7c3aed;">Ad Hoc</div>
+              <div style="font-weight:600;font-size:12px;color:var(--secondary);">Ad Hoc</div>
               <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Unplanned review of a specific subset of risks.</div>
             </div>
             <div>

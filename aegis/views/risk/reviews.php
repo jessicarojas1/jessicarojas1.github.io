@@ -18,7 +18,7 @@ $typeLabels = [
 $typeBadgeColors = [
     'periodic'  => ['#2563eb','#eff6ff'],
     'triggered' => ['#d97706','#fffbeb'],
-    'ad_hoc'    => ['#7c3aed','#f5f3ff'],
+    'ad_hoc'    => ['var(--secondary)','rgba(55,65,81,.05)'],
     'board'     => ['#0891b2','#ecfeff'],
 ];
 
@@ -191,7 +191,7 @@ ob_start();
               <?php endif; ?>
             </div>
             <div style="height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden;">
-              <div style="height:100%;width:<?= $pct ?>%;background:<?= $pct >= 100 ? '#16a34a' : ($pct > 50 ? '#d97706' : '#6366f1') ?>;border-radius:3px;transition:width .3s;"></div>
+              <div style="height:100%;width:<?= $pct ?>%;background:<?= $pct >= 100 ? '#16a34a' : ($pct > 50 ? '#d97706' : 'var(--primary)') ?>;border-radius:3px;transition:width .3s;"></div>
             </div>
           </td>
           <td>

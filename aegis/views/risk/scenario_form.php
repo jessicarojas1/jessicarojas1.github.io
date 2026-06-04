@@ -41,8 +41,8 @@ function scenarioLevelClass(int $s): string {
 .type-opt{position:relative}
 .type-opt input{position:absolute;opacity:0;width:0;height:0}
 .type-card{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;border:2px solid var(--border);border-radius:8px;cursor:pointer;text-align:center;font-size:12px;font-weight:600;transition:border-color .15s,background .15s}
-.type-card:hover{border-color:#6366f1;background:#f5f3ff}
-.type-opt input:checked+.type-card{border-color:var(--accent-color,#6366f1);background:var(--accent-bg,#f5f3ff);color:var(--accent-color,#6366f1)}
+.type-card:hover{border-color:var(--primary);background:rgba(55,65,81,.05)}
+.type-opt input:checked+.type-card{border-color:var(--accent-color,var(--primary));background:var(--accent-bg,rgba(55,65,81,.05));color:var(--accent-color,var(--primary))}
 .ref-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px}
 .ref-table th,.ref-table td{padding:5px 8px;border:1px solid var(--border)}
 .ref-table th{background:var(--bg-secondary);font-weight:600;color:var(--text-muted)}

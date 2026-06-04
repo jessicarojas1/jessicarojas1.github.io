@@ -54,7 +54,7 @@ ob_start();
   <div style="flex:2;min-width:280px;">
 
     <!-- Risk context -->
-    <div class="card" style="margin-bottom:16px;border-left:4px solid #6366f1;">
+    <div class="card" style="margin-bottom:16px;border-left:4px solid var(--primary);">
       <div class="card-body" style="padding:16px 20px;">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:6px;">Associated Risk</div>
         <div style="font-weight:600;font-size:15px;">
@@ -108,9 +108,9 @@ ob_start();
 
     <?php if ($canDecide): ?>
     <!-- Decision panel for admins/managers -->
-    <div class="card" style="border:2px solid #6366f1;">
-      <div class="card-header" style="background:#eef2ff;">
-        <h3 class="card-title" style="color:#6366f1;"><i class="bi bi-gavel"></i> Review Decision</h3>
+    <div class="card" style="border:2px solid var(--primary);">
+      <div class="card-header" style="background:rgba(11,97,4,.06);">
+        <h3 class="card-title" style="color:var(--primary);"><i class="bi bi-gavel"></i> Review Decision</h3>
       </div>
       <div class="card-body">
 

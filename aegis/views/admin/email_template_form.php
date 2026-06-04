@@ -125,7 +125,7 @@ ob_start();
     <div class="card" style="position:sticky;top:20px">
       <div class="card-header">
         <div class="card-header-left">
-          <i class="bi bi-braces" style="color:#7c3aed"></i>
+          <i class="bi bi-braces" style="color:var(--secondary)"></i>
           <span class="card-title">Available Variables</span>
         </div>
       </div>
@@ -159,7 +159,7 @@ ob_start();
 
         <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border,#e5e7eb)">
           <p style="font-size:12px;font-weight:600;color:var(--text-muted);margin:0 0 6px;text-transform:uppercase;letter-spacing:.04em">Syntax</p>
-          <div style="background:#1e1b4b;border-radius:6px;padding:10px 12px;font-family:monospace;font-size:12px;color:#a5b4fc;overflow-x:auto">
+          <div style="background:#1c2a1b;border-radius:6px;padding:10px 12px;font-family:monospace;font-size:12px;color:#86efac;overflow-x:auto">
             <span style="color:#6ee7b7">{{variable_name}}</span>
           </div>
           <p style="font-size:11px;color:var(--text-muted);margin:6px 0 0">Variable names are case-sensitive and must match exactly.</p>
@@ -195,7 +195,7 @@ ob_start();
 .pill-toggle { position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0 }
 .pill-toggle input[type="checkbox"] { opacity:0;width:0;height:0;position:absolute }
 .pill-track { position:absolute;inset:0;border-radius:24px;background:#d1d5db;cursor:pointer;transition:background .2s }
-.pill-toggle input:checked + .pill-track { background:#6366f1 }
+.pill-toggle input:checked + .pill-track { background:var(--primary) }
 .pill-track::before { content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .2s }
 .pill-toggle input:checked + .pill-track::before { transform:translateX(20px) }
 </style>

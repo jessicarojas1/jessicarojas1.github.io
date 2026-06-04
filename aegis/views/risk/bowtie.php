@@ -11,14 +11,14 @@ $scoreColor = $score > 14 ? '#dc2626' : ($score > 9 ? '#ea580c' : ($score > 4 ? 
 $causeTypeMeta = [
     'threat'          => ['label' => 'Threat',        'color' => '#dc2626', 'bg' => '#fef2f2', 'icon' => 'bi-exclamation-octagon-fill'],
     'vulnerability'   => ['label' => 'Vulnerability', 'color' => '#d97706', 'bg' => '#fffbeb', 'icon' => 'bi-shield-slash-fill'],
-    'hazard'          => ['label' => 'Hazard',         'color' => '#7c3aed', 'bg' => '#faf5ff', 'icon' => 'bi-biohazard'],
+    'hazard'          => ['label' => 'Hazard',         'color' => 'var(--secondary)', 'bg' => 'rgba(55,65,81,.06)', 'icon' => 'bi-biohazard'],
     'event'           => ['label' => 'Event',          'color' => '#0891b2', 'bg' => '#ecfeff', 'icon' => 'bi-lightning-fill'],
 ];
 
 $consequenceTypeMeta = [
     'financial'      => ['label' => 'Financial',     'color' => '#dc2626', 'bg' => '#fef2f2', 'icon' => 'bi-cash-coin'],
     'operational'    => ['label' => 'Operational',   'color' => '#d97706', 'bg' => '#fffbeb', 'icon' => 'bi-gear-fill'],
-    'reputational'   => ['label' => 'Reputational',  'color' => '#7c3aed', 'bg' => '#faf5ff', 'icon' => 'bi-star-fill'],
+    'reputational'   => ['label' => 'Reputational',  'color' => 'var(--secondary)', 'bg' => 'rgba(55,65,81,.06)', 'icon' => 'bi-star-fill'],
     'legal'          => ['label' => 'Legal',          'color' => '#0891b2', 'bg' => '#ecfeff', 'icon' => 'bi-balance-scale'],
     'safety'         => ['label' => 'Safety',         'color' => '#16a34a', 'bg' => '#f0fdf4', 'icon' => 'bi-heart-pulse-fill'],
     'impact'         => ['label' => 'Impact',         'color' => '#64748b', 'bg' => '#f1f5f9', 'icon' => 'bi-arrow-down-circle-fill'],
@@ -317,8 +317,8 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
     border-radius: 6px 6px 0 0;
     white-space: nowrap;
 }
-.bt-tab-btn:hover  { color: var(--primary, #6366f1); background: #f8fafc; }
-.bt-tab-btn.active { color: var(--primary, #6366f1); border-bottom-color: var(--primary, #6366f1); background: transparent; }
+.bt-tab-btn:hover  { color: var(--primary, var(--primary)); background: #f8fafc; }
+.bt-tab-btn.active { color: var(--primary, var(--primary)); border-bottom-color: var(--primary, var(--primary)); background: transparent; }
 
 .bt-tab-panel { display: none; }
 .bt-tab-panel.active { display: block; }
@@ -349,7 +349,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 .bt-section-barriers  { background: #f0f9ff; }
 .bt-section-event     { background: transparent; }
 .bt-section-recovery  { background: #f0fdf4; }
-.bt-section-conseq    { background: #faf5ff; }
+.bt-section-conseq    { background: rgba(55,65,81,.06); }
 </style>
 
 <?php if (!empty($_SESSION['flash_success'])): ?>
@@ -535,7 +535,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 
       <!-- ── (G) Consequences Column ────────────────────── -->
       <div class="bt-consequences-col">
-        <div class="bt-col-header" style="color:#7c3aed;background:#faf5ff;border:1px solid #c4b5fd">
+        <div class="bt-col-header" style="color:var(--secondary);background:rgba(55,65,81,.06);border:1px solid #d1d5db">
           <i class="bi bi-arrow-down-circle-fill"></i> Consequence / Impact
         </div>
         <?php if (empty($consequences)): ?>
@@ -619,10 +619,10 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
         <?php endif; ?>
       </button>
       <button class="bt-tab-btn" data-click="btTabBtn" data-arg="consequences" role="tab" aria-selected="false">
-        <i class="bi bi-arrow-down-circle-fill" style="color:#7c3aed"></i>
+        <i class="bi bi-arrow-down-circle-fill" style="color:var(--secondary)"></i>
         Consequences
         <?php if (!empty($consequences)): ?>
-          <span style="background:#7c3aed18;color:#7c3aed;font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px"><?= count($consequences) ?></span>
+          <span style="background:var(--secondary)18;color:var(--secondary);font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px"><?= count($consequences) ?></span>
         <?php endif; ?>
       </button>
     </div>
@@ -820,20 +820,20 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 
 <!-- ── Bow-Tie Explainer (if empty) ─────────────────────────────── -->
 <?php if ($isEmpty): ?>
-<div class="card" style="border-left:4px solid #6366f1">
+<div class="card" style="border-left:4px solid var(--primary)">
   <div class="card-body" style="padding:20px 24px">
-    <h4 style="margin:0 0 10px;font-size:14px;color:var(--text)"><i class="bi bi-info-circle-fill" style="color:#6366f1"></i> About Bow-Tie Analysis</h4>
+    <h4 style="margin:0 0 10px;font-size:14px;color:var(--text)"><i class="bi bi-info-circle-fill" style="color:var(--primary)"></i> About Bow-Tie Analysis</h4>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;font-size:13px;color:var(--text-muted)">
       <div>
         <strong style="color:#dc2626"><i class="bi bi-exclamation-triangle-fill"></i> Left Side — Causes</strong>
         <p style="margin:6px 0 0">Threats, vulnerabilities, or events that could lead to the central risk event occurring. Each cause may have a different likelihood contribution.</p>
       </div>
       <div>
-        <strong style="color:#6366f1"><i class="bi bi-shield-fill-check"></i> Barriers</strong>
+        <strong style="color:var(--primary)"><i class="bi bi-shield-fill-check"></i> Barriers</strong>
         <p style="margin:6px 0 0"><em>Preventive</em> barriers (left) stop the event from happening. <em>Recovery</em> barriers (right) limit harm after it occurs. Both map to your existing controls.</p>
       </div>
       <div>
-        <strong style="color:#7c3aed"><i class="bi bi-arrow-down-circle-fill"></i> Right Side — Consequences</strong>
+        <strong style="color:var(--secondary)"><i class="bi bi-arrow-down-circle-fill"></i> Right Side — Consequences</strong>
         <p style="margin:6px 0 0">The impacts that would materialise if the risk event occurs — financial, operational, reputational, legal, or safety in nature.</p>
       </div>
     </div>

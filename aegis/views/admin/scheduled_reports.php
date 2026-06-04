@@ -16,7 +16,7 @@ $reportTypeLabels = [
 $reportTypeBadgeColors = [
     'risk_register'      => '#dc2626',
     'compliance_summary' => '#2563eb',
-    'audit_status'       => '#7c3aed',
+    'audit_status'       => '#374151',
     'executive_summary'  => '#0891b2',
 ];
 $freqLabels = [

@@ -1,10 +1,10 @@
 <?php
 $categoryColors = [
-    'general'         => '#6366f1',
+    'general'         => 'var(--primary)',
     'ransomware'      => '#dc2626',
     'data_breach'     => '#d97706',
     'ddos'            => '#0284c7',
-    'phishing'        => '#7c3aed',
+    'phishing'        => 'var(--secondary)',
     'insider_threat'  => '#db2777',
     'system_failure'  => '#64748b',
     'compliance'      => '#059669',
@@ -43,7 +43,7 @@ $severityColors = [
   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px">
     <?php foreach ($playbooks as $pb):
       $catKey   = strtolower(str_replace([' ','-'], '_', $pb['category']));
-      $catColor = $categoryColors[$catKey] ?? '#6366f1';
+      $catColor = $categoryColors[$catKey] ?? 'var(--primary)';
       $catLabel = ucwords(str_replace('_', ' ', $pb['category']));
       $sevColor = $severityColors[strtolower($pb['severity_filter'] ?? '')] ?? null;
       $isActive = (bool)$pb['is_active'];

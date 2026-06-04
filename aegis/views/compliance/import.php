@@ -134,13 +134,13 @@ $packages = Database::fetchAll("SELECT id, name FROM compliance_packages WHERE i
           <div class="form-group">
             <label class="form-label">JSON File</label>
             <label class="file-drop" id="fileDropJson" for="jsonFile">
-              <i class="bi bi-filetype-json" style="font-size:2rem;color:#4f46e5"></i>
+              <i class="bi bi-filetype-json" style="font-size:2rem;color:var(--primary)"></i>
               <p>Drag & drop or <strong>click to upload</strong></p>
               <p class="text-muted">.json format, max 20MB</p>
             </label>
             <input type="file" id="jsonFile" name="package_file" accept=".json,application/json"
-                   style="display:none" data-change="showFileChange" data-drop-id="fileDropJson" data-name-id="jsonName" data-color="#4f46e5">
-            <div id="jsonName" style="margin-top:8px;color:#4f46e5;display:none"><i class="bi bi-file-earmark-check"></i> <span></span></div>
+                   style="display:none" data-change="showFileChange" data-drop-id="fileDropJson" data-name-id="jsonName" data-color="var(--primary)">
+            <div id="jsonName" style="margin-top:8px;color:var(--primary);display:none"><i class="bi bi-file-earmark-check"></i> <span></span></div>
           </div>
           <button type="submit" class="btn btn-primary btn-full"><i class="bi bi-cloud-upload"></i> Import JSON</button>
         </form>

@@ -58,7 +58,7 @@ ob_start();
         ['Policy Expiry Alert', 'Notifies owner when policy review date is due', 'policy_review_due', '#d97706'],
         ['Audit Overdue Alert', 'Escalates when an audit passes its scheduled date', 'audit_overdue', '#dc2626'],
         ['New Risk Notification', 'Notifies admins when a critical risk is logged', 'risk_created_critical', '#f97316'],
-        ['Compliance Drop Alert', 'Alerts when compliance score drops below threshold', 'compliance_score_drop', '#7c3aed'],
+        ['Compliance Drop Alert', 'Alerts when compliance score drops below threshold', 'compliance_score_drop', 'var(--secondary)'],
       ];
       foreach ($templates as [$name, $desc, $trigger, $color]): ?>
         <div class="workflow-template">

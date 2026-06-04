@@ -13,7 +13,7 @@
   .login-box { width: 100%; max-width: 400px; padding: 16px; }
   .login-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 40px 36px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
   .login-brand { text-align: center; margin-bottom: 28px; }
-  .login-brand-icon { width: 56px; height: 56px; border-radius: 14px; background: linear-gradient(135deg, #4f46e5, #7c3aed); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+  .login-brand-icon { width: 56px; height: 56px; border-radius: 14px; background: linear-gradient(135deg, var(--primary), var(--secondary)); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px; }
   .login-brand-icon i { color: #fff; font-size: 26px; }
   .login-title { font-size: 20px; font-weight: 700; margin: 0 0 4px; }
   .login-sub { font-size: 13px; color: var(--text-muted); margin: 0; }

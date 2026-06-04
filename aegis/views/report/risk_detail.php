@@ -52,7 +52,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: #6366f1;
+  background: var(--primary);
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -62,7 +62,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
   cursor: pointer;
   text-decoration: none;
 }
-.rd-print-btn:hover { background: #4f46e5; }
+.rd-print-btn:hover { background: var(--primary); }
 
 .rd-stat-row {
   display: grid;
@@ -95,7 +95,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
   align-items: center;
   gap: 10px;
   padding: 14px 16px;
-  background: #6366f1;
+  background: var(--primary);
   color: #fff;
   font-size: 13px;
   font-weight: 700;
@@ -182,7 +182,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
 <!-- Screen page header -->
 <div class="page-header">
   <div>
-    <h1 class="page-title"><i class="bi bi-table" style="margin-right:8px;color:#6366f1;"></i><?= Security::h($pageTitle) ?></h1>
+    <h1 class="page-title"><i class="bi bi-table" style="margin-right:8px;color:var(--primary);"></i><?= Security::h($pageTitle) ?></h1>
     <p class="page-subtitle"><?= Security::h($orgName) ?> &mdash; <?= Security::h($reportDate) ?><?= Security::h($filterDesc) ?></p>
   </div>
   <div class="page-actions">
@@ -193,18 +193,18 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
 
 <!-- Print-only doc header -->
 <div style="display:none;" class="rd-print-only">
-  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid #6366f1;">
-    <i class="bi bi-shield-fill-check" style="font-size:28px;color:#6366f1;"></i>
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:2px solid var(--primary);">
+    <i class="bi bi-shield-fill-check" style="font-size:28px;color:var(--primary);"></i>
     <div>
       <div style="font-size:18px;font-weight:800;color:var(--text);">AEGIS GRC &mdash; Risk Register Report</div>
       <div style="font-size:12px;color:var(--text-muted);"><?= Security::h($orgName) ?> &middot; <?= Security::h($reportDate) ?><?= Security::h($filterDesc) ?></div>
     </div>
-    <div style="margin-left:auto;border:2px solid #6366f1;color:#6366f1;font-size:10px;font-weight:800;letter-spacing:.15em;padding:3px 10px;border-radius:4px;">CONFIDENTIAL</div>
+    <div style="margin-left:auto;border:2px solid var(--primary);color:var(--primary);font-size:10px;font-weight:800;letter-spacing:.15em;padding:3px 10px;border-radius:4px;">CONFIDENTIAL</div>
   </div>
 </div>
 
 <?php if ($filterLevel || $filterStatus): ?>
-<div style="background:#ede9fe;border:1px solid #c4b5fd;border-radius:8px;padding:10px 16px;margin-bottom:20px;font-size:13px;color:#5b21b6;">
+<div style="background:rgba(55,65,81,.08);border:1px solid #d1d5db;border-radius:8px;padding:10px 16px;margin-bottom:20px;font-size:13px;color:var(--text-muted);">
   <i class="bi bi-funnel-fill"></i> <strong>Filter applied:</strong>
   <?php if ($filterLevel):  ?> Level: <strong><?= Security::h(ucfirst($filterLevel)) ?></strong><?php endif; ?>
   <?php if ($filterStatus): ?> &nbsp;Status: <strong><?= Security::h(ucfirst(str_replace('_',' ',$filterStatus))) ?></strong><?php endif; ?>
@@ -214,8 +214,8 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
 
 <!-- ── Summary Stats ───────────────────────────────────────────────────────── -->
 <div class="rd-stat-row">
-  <div class="rd-stat" style="border-top:4px solid #6366f1;">
-    <span class="val" style="color:#6366f1;"><?= $countTotal ?></span>
+  <div class="rd-stat" style="border-top:4px solid var(--primary);">
+    <span class="val" style="color:var(--primary);"><?= $countTotal ?></span>
     <div class="lbl">Total Risks</div>
   </div>
   <div class="rd-stat" style="border-top:4px solid #dc2626;">
@@ -240,7 +240,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
 <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;align-items:center;" class="no-print">
   <span style="font-size:13px;font-weight:600;color:var(--text-muted);">Filter:</span>
   <a href="/report/risk-detail"
-     style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= (!$filterLevel && !$filterStatus) ? '#6366f1' : '#f1f5f9' ?>;color:<?= (!$filterLevel && !$filterStatus) ? '#fff' : '#475569' ?>;text-decoration:none;font-weight:600;">All</a>
+     style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= (!$filterLevel && !$filterStatus) ? 'var(--primary)' : '#f1f5f9' ?>;color:<?= (!$filterLevel && !$filterStatus) ? '#fff' : '#475569' ?>;text-decoration:none;font-weight:600;">All</a>
   <a href="/report/risk-detail?level=critical"
      style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= $filterLevel === 'critical' ? '#dc2626' : '#fef2f2' ?>;color:<?= $filterLevel === 'critical' ? '#fff' : '#dc2626' ?>;text-decoration:none;font-weight:600;">Critical</a>
   <a href="/report/risk-detail?level=high"
@@ -250,7 +250,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
   <a href="/report/risk-detail?status=in_treatment"
      style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= $filterStatus === 'in_treatment' ? '#d97706' : '#fffbeb' ?>;color:<?= $filterStatus === 'in_treatment' ? '#fff' : '#d97706' ?>;text-decoration:none;font-weight:600;">In Treatment</a>
   <a href="/report/risk-detail?status=accepted"
-     style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= $filterStatus === 'accepted' ? '#7c3aed' : '#f5f3ff' ?>;color:<?= $filterStatus === 'accepted' ? '#fff' : '#7c3aed' ?>;text-decoration:none;font-weight:600;">Accepted</a>
+     style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= $filterStatus === 'accepted' ? 'var(--secondary)' : 'rgba(55,65,81,.05)' ?>;color:<?= $filterStatus === 'accepted' ? '#fff' : 'var(--secondary)' ?>;text-decoration:none;font-weight:600;">Accepted</a>
 </div>
 
 <!-- ── Risk Register Table ────────────────────────────────────────────────── -->
@@ -295,7 +295,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
         else                { $res_bg = '#f0fdf4'; $res_cl = '#16a34a'; }
 
         $statusColors = ['open' => ['#eff6ff','#1d4ed8'], 'in_treatment' => ['#fffbeb','#d97706'],
-                         'accepted' => ['#f5f3ff','#6d28d9'], 'closed' => ['#f8fafc','#64748b'],
+                         'accepted' => ['rgba(55,65,81,.05)','var(--text-muted)'], 'closed' => ['#f8fafc','#64748b'],
                          'transferred' => ['#f0fdf4','#059669']];
         $stColor = $statusColors[$r['status'] ?? ''] ?? ['#f8fafc','#475569'];
 
@@ -306,7 +306,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
         $ctrlCnt   = (int)($r['control_count']   ?? 0);
       ?>
       <tr>
-        <td style="font-weight:700;color:#6366f1;white-space:nowrap;font-size:11px;"><?= Security::h($r['risk_id'] ?? '#' . $r['id']) ?></td>
+        <td style="font-weight:700;color:var(--primary);white-space:nowrap;font-size:11px;"><?= Security::h($r['risk_id'] ?? '#' . $r['id']) ?></td>
         <td style="max-width:200px;">
           <div style="font-weight:600;color:var(--text);"><?= Security::h($r['title']) ?></div>
           <?php if (!empty($r['description'])): ?>
@@ -332,7 +332,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
         </td>
         <td>
           <?php if ($strategy && $strategy !== '—'): ?>
-          <span style="background:#ede9fe;color:var(--secondary);font-size:10px;font-weight:600;padding:2px 7px;border-radius:99px;display:inline-block;"><?= $strategy ?></span>
+          <span style="background:rgba(55,65,81,.08);color:var(--secondary);font-size:10px;font-weight:600;padding:2px 7px;border-radius:99px;display:inline-block;"><?= $strategy ?></span>
           <?php else: ?><span style="color:#cbd5e1;">—</span><?php endif; ?>
         </td>
         <td style="white-space:nowrap;"><?= Security::h($r['owner_name'] ?? '—') ?></td>

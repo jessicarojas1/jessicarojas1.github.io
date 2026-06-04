@@ -118,7 +118,7 @@ ob_start();
       <div class="card-body p0">
         <?php if ($mappedPolicies): foreach ($mappedPolicies as $pol): ?>
           <div class="list-item">
-            <i class="bi bi-file-earmark-text" style="color:#4f46e5;margin-right:8px"></i>
+            <i class="bi bi-file-earmark-text" style="color:var(--primary);margin-right:8px"></i>
             <div class="list-item-body">
               <a href="/policy/<?= $pol['id'] ?>" class="list-item-title"><?= Security::h($pol['title']) ?></a>
               <div class="list-item-sub">v<?= Security::h($pol['version']) ?></div>

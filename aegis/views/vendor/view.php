@@ -55,7 +55,7 @@ ob_start();
     <!-- Assessments -->
     <div class="card">
       <div class="card-header">
-        <div class="card-header-left"><i class="bi bi-clipboard-check" style="color:#7c3aed"></i><span class="card-title">Assessments</span></div>
+        <div class="card-header-left"><i class="bi bi-clipboard-check" style="color:var(--secondary)"></i><span class="card-title">Assessments</span></div>
       </div>
       <div class="card-body">
         <?php if ($assessments): foreach ($assessments as $a):

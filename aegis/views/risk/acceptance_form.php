@@ -33,7 +33,7 @@ if (!empty($risk['treatment_strategies'])) {
 $strategyLabels = [
     'mitigate' => ['label' => 'Mitigate', 'icon' => 'bi-shield-fill-check',   'color' => '#2563eb'],
     'accept'   => ['label' => 'Accept',   'icon' => 'bi-check-circle-fill',    'color' => '#b45309'],
-    'transfer' => ['label' => 'Transfer', 'icon' => 'bi-arrow-left-right',     'color' => '#7c3aed'],
+    'transfer' => ['label' => 'Transfer', 'icon' => 'bi-arrow-left-right',     'color' => 'var(--secondary)'],
     'avoid'    => ['label' => 'Avoid',    'icon' => 'bi-x-octagon-fill',       'color' => '#dc2626'],
 ];
 
@@ -53,7 +53,7 @@ ob_start();
 <div class="page-header">
   <div>
     <h1 class="page-title">
-      <i class="bi bi-patch-check-fill" style="color:#6366f1;margin-right:6px;"></i>
+      <i class="bi bi-patch-check-fill" style="color:var(--primary);margin-right:6px;"></i>
       <?= $isRenewal ? 'Renew Acceptance Certificate' : 'Issue Acceptance Certificate' ?>
     </h1>
     <p class="page-subtitle">
@@ -207,9 +207,9 @@ ob_start();
   <div>
 
     <!-- What this means -->
-    <div class="card" style="margin-bottom:16px;border-left:4px solid #6366f1;">
+    <div class="card" style="margin-bottom:16px;border-left:4px solid var(--primary);">
       <div class="card-header">
-        <h3 class="card-title" style="font-size:13px;"><i class="bi bi-info-circle-fill" style="color:#6366f1;"></i> What This Means</h3>
+        <h3 class="card-title" style="font-size:13px;"><i class="bi bi-info-circle-fill" style="color:var(--primary);"></i> What This Means</h3>
       </div>
       <div class="card-body" style="padding:16px;">
         <p style="font-size:13px;line-height:1.6;color:var(--text);margin:0 0 12px;">
@@ -255,7 +255,7 @@ ob_start();
         </div>
 
         <div>
-          <div style="font-size:12px;font-weight:700;color:#7c3aed;margin-bottom:4px;">
+          <div style="font-size:12px;font-weight:700;color:var(--secondary);margin-bottom:4px;">
             <i class="bi bi-bookmark-fill"></i> Setting Good Conditions
           </div>
           <ul style="font-size:12px;line-height:1.6;color:var(--text-muted);margin:0;padding-left:16px;">

@@ -56,21 +56,21 @@ ob_start();
       <div class="card-body">
         <div style="display:flex;flex-direction:column;gap:16px">
           <div style="display:flex;gap:12px;align-items:flex-start">
-            <div style="width:28px;height:28px;border-radius:50%;background:#4f46e5;color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0">1</div>
+            <div style="width:28px;height:28px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0">1</div>
             <div>
               <div style="font-weight:600;font-size:13px">Create the package</div>
               <div class="text-muted" style="font-size:12px">Give it a name and optional description.</div>
             </div>
           </div>
           <div style="display:flex;gap:12px;align-items:flex-start">
-            <div style="width:28px;height:28px;border-radius:50%;background:#4f46e5;color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0">2</div>
+            <div style="width:28px;height:28px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0">2</div>
             <div>
               <div style="font-weight:600;font-size:13px">Add domains / categories</div>
               <div class="text-muted" style="font-size:12px">Group your controls into logical sections (e.g. Access Control, Incident Response).</div>
             </div>
           </div>
           <div style="display:flex;gap:12px;align-items:flex-start">
-            <div style="width:28px;height:28px;border-radius:50%;background:#4f46e5;color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0">3</div>
+            <div style="width:28px;height:28px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0">3</div>
             <div>
               <div style="font-weight:600;font-size:13px">Add controls one-by-one or import</div>
               <div class="text-muted" style="font-size:12px">Type each control manually, or upload a CSV/PDF to populate a domain in bulk.</div>
