@@ -11,9 +11,10 @@ ob_start();
     <p class="page-subtitle">Track, assess, and treat organizational risks</p>
   </div>
   <div class="page-actions">
-    <a href="/risk/dashboard" class="btn btn-ghost"><i class="bi bi-speedometer2"></i> Dashboard</a>
-    <a href="/risk/matrix" class="btn btn-ghost"><i class="bi bi-grid-3x3-gap-fill"></i> Matrix View</a>
-    <a href="/risk/create" class="btn btn-danger"><i class="bi bi-plus-lg"></i> Log Risk</a>
+    <button data-print class="btn btn-ghost no-print"><i class="bi bi-printer"></i> Print / Export</button>
+    <a href="/risk/dashboard" class="btn btn-ghost no-print"><i class="bi bi-speedometer2"></i> Dashboard</a>
+    <a href="/risk/matrix" class="btn btn-ghost no-print"><i class="bi bi-grid-3x3-gap-fill"></i> Matrix View</a>
+    <a href="/risk/create" class="btn btn-danger no-print"><i class="bi bi-plus-lg"></i> Log Risk</a>
   </div>
 </div>
 
