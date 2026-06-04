@@ -69,6 +69,9 @@ class SSPController {
         $validTypes    = ['major_application','general_support_system','minor_application'];
         $validImpacts  = ['low','moderate','high'];
 
+        [$naFilename, $naData] = $this->handleFileUpload('network_arch_file', 10);
+        [$dfFilename, $dfData] = $this->handleFileUpload('data_flow_file', 10);
+
         $id = Database::insert('ssp_plans', [
             'title'                  => $title,
             'system_name'            => Security::sanitizeInput($_POST['system_name']           ?? ''),
@@ -80,6 +83,10 @@ class SSPController {
             'authorization_boundary' => Security::sanitizeInput($_POST['authorization_boundary']?? ''),
             'network_architecture'   => Security::sanitizeInput($_POST['network_architecture']  ?? ''),
             'data_flow'              => Security::sanitizeInput($_POST['data_flow']             ?? ''),
+            'network_arch_filename'  => $naFilename,
+            'network_arch_data'      => $naData,
+            'data_flow_filename'     => $dfFilename,
+            'data_flow_data'         => $dfData,
             'operational_status'     => in_array($_POST['operational_status'] ?? '', $validStatuses, true) ? $_POST['operational_status'] : 'operational',
             'system_type'            => in_array($_POST['system_type'] ?? '', $validTypes, true) ? $_POST['system_type'] : 'major_application',
             'confidentiality_impact' => in_array($_POST['confidentiality_impact'] ?? '', $validImpacts, true) ? $_POST['confidentiality_impact'] : 'moderate',
@@ -253,6 +260,20 @@ class SSPController {
         $validTypes    = ['major_application','general_support_system','minor_application'];
         $validImpacts  = ['low','moderate','high'];
 
+        [$naFilename, $naData] = $this->handleFileUpload('network_arch_file', 10);
+        [$dfFilename, $dfData] = $this->handleFileUpload('data_flow_file', 10);
+
+        $fileUpdates = '';
+        $fileParams  = [];
+        if ($naFilename !== null) {
+            $fileUpdates .= ', network_arch_filename=?, network_arch_data=?';
+            $fileParams[] = $naFilename; $fileParams[] = $naData;
+        }
+        if ($dfFilename !== null) {
+            $fileUpdates .= ', data_flow_filename=?, data_flow_data=?';
+            $fileParams[] = $dfFilename; $fileParams[] = $dfData;
+        }
+
         Database::query(
             "UPDATE ssp_plans SET
                title=?, system_name=?, system_description=?, system_owner=?,
@@ -260,7 +281,7 @@ class SSPController {
                authorization_boundary=?, network_architecture=?, data_flow=?,
                operational_status=?, system_type=?,
                confidentiality_impact=?, integrity_impact=?, availability_impact=?,
-               authorization_date=?, next_review_date=?, updated_at=NOW()
+               authorization_date=?, next_review_date=?{$fileUpdates}, updated_at=NOW()
              WHERE id=?",
             [
                 Security::sanitizeInput($_POST['title']                  ?? ''),
@@ -280,6 +301,7 @@ class SSPController {
                 in_array($_POST['availability_impact']?? '', $validImpacts, true) ? $_POST['availability_impact']: 'moderate',
                 $_POST['authorization_date'] ?: null,
                 $_POST['next_review_date']   ?: null,
+                ...$fileParams,
                 $id,
             ]
         );
@@ -294,6 +316,56 @@ class SSPController {
         Auth::log('ssp_deleted', 'ssp_plans', $id, []);
         $_SESSION['flash_success'] = 'SSP deleted.';
         header('Location: /ssp');
+    }
+
+    public function downloadNetworkArch(int $id): void {
+        Auth::requireAuth();
+        $plan = $this->getPlan($id);
+        if (!$plan || empty($plan['network_arch_data'])) { http_response_code(404); return; }
+        $this->serveFile($plan['network_arch_filename'] ?? 'network_architecture', $plan['network_arch_data']);
+    }
+
+    public function downloadDataFlow(int $id): void {
+        Auth::requireAuth();
+        $plan = $this->getPlan($id);
+        if (!$plan || empty($plan['data_flow_data'])) { http_response_code(404); return; }
+        $this->serveFile($plan['data_flow_filename'] ?? 'data_flow', $plan['data_flow_data']);
+    }
+
+    private function serveFile(string $filename, string $base64Data): void {
+        $ext  = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        $mime = match($ext) {
+            'pdf'  => 'application/pdf',
+            'png'  => 'image/png',
+            'jpg', 'jpeg' => 'image/jpeg',
+            'gif'  => 'image/gif',
+            'svg'  => 'image/svg+xml',
+            'vsdx' => 'application/vnd.ms-visio.drawing',
+            default => 'application/octet-stream',
+        };
+        $data = base64_decode($base64Data);
+        header('Content-Type: ' . $mime);
+        header('Content-Disposition: attachment; filename="' . addslashes($filename) . '"');
+        header('Content-Length: ' . strlen($data));
+        echo $data;
+        exit;
+    }
+
+    /** Returns [filename, base64data] or [null, null] if no file uploaded. */
+    private function handleFileUpload(string $fieldName, int $maxMB = 10): array {
+        $file = $_FILES[$fieldName] ?? null;
+        if (!$file || $file['error'] === UPLOAD_ERR_NO_FILE) return [null, null];
+        if ($file['error'] !== UPLOAD_ERR_OK) return [null, null];
+        if ($file['size'] > $maxMB * 1024 * 1024) return [null, null];
+
+        $allowed = ['pdf','png','jpg','jpeg','gif','svg','vsdx','docx','pptx'];
+        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        if (!in_array($ext, $allowed)) return [null, null];
+
+        $data = file_get_contents($file['tmp_name']);
+        if ($data === false) return [null, null];
+
+        return [basename($file['name']), base64_encode($data)];
     }
 
     private function getPlan(int $id): ?array {

@@ -33,6 +33,7 @@ class POAMController {
         $packages = Database::fetchAll(
             "SELECT id, name FROM compliance_packages WHERE is_active = TRUE ORDER BY name"
         );
+        $users = Database::fetchAll("SELECT id, name FROM users WHERE is_active = TRUE ORDER BY name");
 
         $pageTitle    = 'POA&M Items';
         $activeModule = 'poam';
@@ -124,6 +125,155 @@ class POAMController {
         } else {
             $_SESSION['flash_success'] = $created . ' POA&M item(s) generated for ' . $package['name'] . '.';
         }
+        header('Location: /poam');
+    }
+
+    // ──────────────────────────────────────────────────
+    // POST /poam/create  — manual single-item create
+    // ──────────────────────────────────────────────────
+    public function create(): void {
+        Auth::requirePermission('compliance.write');
+
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403); return;
+        }
+
+        $title = trim(Security::sanitizeInput($_POST['title'] ?? ''));
+        if (!$title) {
+            $_SESSION['flash_error'] = 'Title is required.';
+            header('Location: /poam'); return;
+        }
+
+        $maxRow = Database::fetchOne(
+            "SELECT MAX(CAST(SUBSTRING(poam_number FROM 6) AS INTEGER)) AS max_num
+             FROM poam_items WHERE poam_number ~ '^POAM-[0-9]+$'"
+        );
+        $poamNumber = 'POAM-' . str_pad((string)((int)($maxRow['max_num'] ?? 0) + 1), 4, '0', STR_PAD_LEFT);
+
+        $id = Database::insert('poam_items', [
+            'poam_number'          => $poamNumber,
+            'title'                => $title,
+            'weakness_description' => Security::sanitizeInput($_POST['weakness_description'] ?? ''),
+            'required_resources'   => Security::sanitizeInput($_POST['required_resources']   ?? ''),
+            'package_id'           => !empty($_POST['package_id'])  ? (int)$_POST['package_id']  : null,
+            'owner_id'             => !empty($_POST['owner_id'])    ? (int)$_POST['owner_id']    : null,
+            'status'               => 'open',
+            'scheduled_completion' => !empty($_POST['scheduled_completion']) ? $_POST['scheduled_completion'] : null,
+            'notes'                => Security::sanitizeInput($_POST['notes'] ?? ''),
+            'created_by'           => Auth::id(),
+        ]);
+
+        Auth::log('poam_manual_create', 'poam_items', $id, ['poam_number' => $poamNumber]);
+        $_SESSION['flash_success'] = "{$poamNumber} created successfully.";
+        header('Location: /poam/' . $id);
+    }
+
+    // ──────────────────────────────────────────────────
+    // POST /poam/import  — CSV bulk import
+    // ──────────────────────────────────────────────────
+    public function importCsv(): void {
+        Auth::requirePermission('compliance.write');
+
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403); return;
+        }
+
+        $file = $_FILES['csv_file'] ?? null;
+        if (!$file || $file['error'] !== UPLOAD_ERR_OK) {
+            $_SESSION['flash_error'] = 'No file uploaded or upload error.';
+            header('Location: /poam'); return;
+        }
+
+        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        if (!in_array($ext, ['csv', 'txt'])) {
+            $_SESSION['flash_error'] = 'Only CSV files are accepted.';
+            header('Location: /poam'); return;
+        }
+
+        if ($file['size'] > 5 * 1024 * 1024) {
+            $_SESSION['flash_error'] = 'File too large (max 5MB).';
+            header('Location: /poam'); return;
+        }
+
+        $handle = fopen($file['tmp_name'], 'r');
+        if (!$handle) {
+            $_SESSION['flash_error'] = 'Could not read file.';
+            header('Location: /poam'); return;
+        }
+
+        $headers = array_map('trim', fgetcsv($handle) ?: []);
+        if (!in_array('title', $headers)) {
+            fclose($handle);
+            $_SESSION['flash_error'] = "CSV must include a 'title' column.";
+            header('Location: /poam'); return;
+        }
+
+        // Build package name → id map
+        $pkgRows = Database::fetchAll("SELECT id, name FROM compliance_packages");
+        $pkgMap  = array_column($pkgRows, 'id', 'name');
+
+        // Build user email → id map
+        $userRows = Database::fetchAll("SELECT id, email FROM users WHERE is_active = TRUE");
+        $userMap  = array_column($userRows, 'id', 'email');
+
+        $maxRow  = Database::fetchOne(
+            "SELECT MAX(CAST(SUBSTRING(poam_number FROM 6) AS INTEGER)) AS max_num
+             FROM poam_items WHERE poam_number ~ '^POAM-[0-9]+$'"
+        );
+        $nextNum = (int)($maxRow['max_num'] ?? 0) + 1;
+
+        $imported = 0;
+        $errors   = [];
+        $line     = 1;
+
+        while (($row = fgetcsv($handle)) !== false) {
+            $line++;
+            if (count($row) !== count($headers)) {
+                $errors[] = "Row {$line}: column count mismatch."; continue;
+            }
+            $data = array_combine($headers, $row);
+
+            $title = trim($data['title'] ?? '');
+            if (!$title) { $errors[] = "Row {$line}: title is required."; continue; }
+
+            $pkgId  = null;
+            if (!empty($data['package'])) {
+                $pkgId = $pkgMap[trim($data['package'])] ?? null;
+            }
+            $ownerId = null;
+            if (!empty($data['owner_email'])) {
+                $ownerId = $userMap[trim($data['owner_email'])] ?? null;
+            }
+
+            $scheduled = null;
+            if (!empty($data['scheduled_completion'])) {
+                $ts = strtotime($data['scheduled_completion']);
+                if ($ts) $scheduled = date('Y-m-d', $ts);
+            }
+
+            $poamNumber = 'POAM-' . str_pad((string)$nextNum++, 4, '0', STR_PAD_LEFT);
+            Database::insert('poam_items', [
+                'poam_number'          => $poamNumber,
+                'title'                => Security::sanitizeInput($title),
+                'weakness_description' => Security::sanitizeInput($data['weakness_description'] ?? ''),
+                'required_resources'   => Security::sanitizeInput($data['required_resources']   ?? ''),
+                'package_id'           => $pkgId,
+                'owner_id'             => $ownerId,
+                'status'               => 'open',
+                'scheduled_completion' => $scheduled,
+                'notes'                => Security::sanitizeInput($data['notes'] ?? ''),
+                'created_by'           => Auth::id(),
+            ]);
+            $imported++;
+        }
+        fclose($handle);
+
+        if ($errors) {
+            $_SESSION['flash_error'] = 'Import completed with errors: ' . implode('; ', array_slice($errors, 0, 3));
+        } else {
+            $_SESSION['flash_success'] = "Successfully imported {$imported} POA&M item(s).";
+        }
+        Auth::log('poam_csv_import', 'poam_items', null, ['imported' => $imported]);
         header('Location: /poam');
     }
 

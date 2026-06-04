@@ -81,9 +81,18 @@ ob_start();
               <?php endforeach; ?>
             </select>
           </div>
-          <div class="form-group"><label class="form-label required">Password</label><input type="password" name="password" class="form-control" required minlength="12" placeholder="Min 12 chars, upper, number, special"></div>
+          <div class="form-group">
+            <label class="form-label required">Password</label>
+            <input type="password" id="newUserPassword" name="password" class="form-control" required minlength="12" placeholder="Min 12 chars, upper, number, special" autocomplete="new-password">
+            <div id="pwStrength" style="margin-top:8px;display:flex;flex-direction:column;gap:4px;font-size:0.8rem;">
+              <div id="pw-len"    style="color:var(--text-muted);"><i class="bi bi-x-circle-fill" style="margin-right:4px;"></i>At least 12 characters</div>
+              <div id="pw-upper"  style="color:var(--text-muted);"><i class="bi bi-x-circle-fill" style="margin-right:4px;"></i>At least 1 uppercase letter</div>
+              <div id="pw-num"    style="color:var(--text-muted);"><i class="bi bi-x-circle-fill" style="margin-right:4px;"></i>At least 1 number</div>
+              <div id="pw-special"style="color:var(--text-muted);"><i class="bi bi-x-circle-fill" style="margin-right:4px;"></i>At least 1 special character (!@#$%^&amp;*...)</div>
+            </div>
+          </div>
         </div>
-        <div class="form-actions"><button type="submit" class="btn btn-primary">Create User</button><button type="button" class="btn btn-ghost" data-close-modal="createUserModal">Cancel</button></div>
+        <div class="form-actions"><button type="submit" id="btnCreateUser" class="btn btn-primary" disabled>Create User</button><button type="button" class="btn btn-ghost" data-close-modal="createUserModal">Cancel</button></div>
       </form>
     </div>
   </div>
@@ -127,6 +136,31 @@ ob_start();
 </div>
 
 <script nonce="<?= Security::nonce() ?>">
+// Password strength checker for new user form
+(function() {
+  var pwInput  = document.getElementById('newUserPassword');
+  var createBtn = document.getElementById('btnCreateUser');
+  var rules = [
+    { id: 'pw-len',     test: function(v) { return v.length >= 12; } },
+    { id: 'pw-upper',   test: function(v) { return /[A-Z]/.test(v); } },
+    { id: 'pw-num',     test: function(v) { return /[0-9]/.test(v); } },
+    { id: 'pw-special', test: function(v) { return /[^A-Za-z0-9]/.test(v); } },
+  ];
+  pwInput.addEventListener('input', function() {
+    var val = pwInput.value;
+    var allOk = true;
+    rules.forEach(function(r) {
+      var ok = r.test(val);
+      var el = document.getElementById(r.id);
+      if (!ok) allOk = false;
+      el.style.color = ok ? 'var(--success)' : 'var(--text-muted)';
+      el.querySelector('i').className = ok ? 'bi bi-check-circle-fill' : 'bi bi-x-circle-fill';
+      el.querySelector('i').style.marginRight = '4px';
+    });
+    createBtn.disabled = !allOk;
+  });
+})();
+
 // Close modal when clicking overlay background
 ['createUserModal','editUserModal'].forEach(function(id) {
   var el = document.getElementById(id);

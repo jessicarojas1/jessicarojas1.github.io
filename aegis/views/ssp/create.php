@@ -6,7 +6,7 @@
   </div>
 </div>
 
-<form method="POST" action="/ssp/create">
+<form method="POST" action="/ssp/create" enctype="multipart/form-data">
   <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
 
   <div style="display:grid;grid-template-columns:2fr 1fr;gap:24px;align-items:start;">
@@ -63,10 +63,24 @@
           <div class="form-group">
             <label class="form-label">Network Architecture</label>
             <textarea name="network_architecture" class="form-control" rows="3" placeholder="Describe network topology, connections, and data flows"></textarea>
+            <div style="margin-top:10px;">
+              <label class="form-label" style="font-size:0.8rem;color:var(--text-muted);">Upload Diagram <span style="font-weight:400;">(optional — PDF, PNG, JPG, SVG, VSDX, max 10MB)</span></label>
+              <input type="file" name="network_arch_file" class="form-control" accept=".pdf,.png,.jpg,.jpeg,.gif,.svg,.vsdx,.docx,.pptx" style="font-size:0.85rem;">
+              <div style="margin-top:8px;background:var(--bg-secondary,#f8fafc);border-radius:6px;padding:10px 12px;font-size:0.78rem;color:var(--text-muted);">
+                <strong style="color:var(--text-primary);">Accepted formats:</strong> PDF (network diagrams), PNG / JPG / SVG (images), VSDX (Visio), DOCX / PPTX (documents). Text description above OR file upload — both are optional, both are stored.
+              </div>
+            </div>
           </div>
           <div class="form-group">
             <label class="form-label">Data Flow</label>
             <textarea name="data_flow" class="form-control" rows="3" placeholder="Describe how data enters, is processed, and exits the system"></textarea>
+            <div style="margin-top:10px;">
+              <label class="form-label" style="font-size:0.8rem;color:var(--text-muted);">Upload Diagram <span style="font-weight:400;">(optional — PDF, PNG, JPG, SVG, VSDX, max 10MB)</span></label>
+              <input type="file" name="data_flow_file" class="form-control" accept=".pdf,.png,.jpg,.jpeg,.gif,.svg,.vsdx,.docx,.pptx" style="font-size:0.85rem;">
+              <div style="margin-top:8px;background:var(--bg-secondary,#f8fafc);border-radius:6px;padding:10px 12px;font-size:0.78rem;color:var(--text-muted);">
+                <strong style="color:var(--text-primary);">Accepted formats:</strong> PDF, PNG / JPG / SVG, VSDX (Visio), DOCX / PPTX. Upload a data flow diagram (DFD) or process flow. Text description above is stored alongside the file.
+              </div>
+            </div>
           </div>
         </div>
       </div>

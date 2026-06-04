@@ -10,14 +10,14 @@ $statusBadge = ['open'=>'badge-danger','in_progress'=>'badge-warning','resolved'
   </div>
   <div style="display:flex;gap:10px;">
     <?php if (!in_array($finding['status'],['closed','resolved'])): ?>
-    <form method="POST" action="/audit-findings/<?= (int)$finding['id'] ?>/close" style="margin:0">
+    <form id="closeForm" method="POST" action="/audit-findings/<?= (int)$finding['id'] ?>/close" style="margin:0">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
-      <button type="submit" class="btn btn-secondary" onclick="return confirm('Mark as closed?')"><i class="bi bi-check-circle"></i> Close</button>
+      <button id="btnCloseFinding" type="button" class="btn btn-secondary"><i class="bi bi-check-circle"></i> Close</button>
     </form>
     <?php endif; ?>
-    <form method="POST" action="/audit-findings/<?= (int)$finding['id'] ?>/delete" onsubmit="return confirm('Delete this finding?')" style="margin:0">
+    <form id="deleteForm" method="POST" action="/audit-findings/<?= (int)$finding['id'] ?>/delete" style="margin:0">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
-      <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i></button>
+      <button id="btnDeleteFinding" type="button" class="btn btn-danger"><i class="bi bi-trash"></i></button>
     </form>
   </div>
 </div>
@@ -86,7 +86,11 @@ $statusBadge = ['open'=>'badge-danger','in_progress'=>'badge-warning','resolved'
         <div><div style="font-size:0.75rem;color:var(--text-muted);">Severity</div><span class="badge <?= $sevBadge[$finding['severity']] ?? 'badge-secondary' ?>"><?= ucfirst($finding['severity']) ?></span></div>
         <div><div style="font-size:0.75rem;color:var(--text-muted);">Status</div><span class="badge <?= $statusBadge[$finding['status']] ?? 'badge-secondary' ?>"><?= ucwords(str_replace('_',' ',$finding['status'])) ?></span></div>
         <div><div style="font-size:0.75rem;color:var(--text-muted);">Source</div><div><?= Security::h(ucwords(str_replace('_',' ',$finding['source']))) ?></div></div>
+        <?php if (!empty($finding['linked_audit_id'])): ?>
+        <div><div style="font-size:0.75rem;color:var(--text-muted);">Linked Audit</div><div><a href="/audit/<?= (int)$finding['linked_audit_id'] ?>"><?= Security::h($finding['linked_audit_name'] ?? $finding['audit_name'] ?? '—') ?></a></div></div>
+        <?php else: ?>
         <div><div style="font-size:0.75rem;color:var(--text-muted);">Audit / Engagement</div><div><?= Security::h($finding['audit_name'] ?: '—') ?></div></div>
+        <?php endif; ?>
         <div><div style="font-size:0.75rem;color:var(--text-muted);">Auditor / Firm</div><div><?= Security::h($finding['auditor_name'] ?: '—') ?></div></div>
         <div><div style="font-size:0.75rem;color:var(--text-muted);">Owner</div><div><?= Security::h($finding['owner_name'] ?: '—') ?></div></div>
         <div><div style="font-size:0.75rem;color:var(--text-muted);">Deadline</div>
@@ -109,3 +113,20 @@ $statusBadge = ['open'=>'badge-danger','in_progress'=>'badge-warning','resolved'
     </div>
   </div>
 </div>
+
+<script nonce="<?= Security::nonce() ?>">
+(function() {
+  var closeBtn = document.getElementById('btnCloseFinding');
+  var deleteBtn = document.getElementById('btnDeleteFinding');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', function() {
+      if (confirm('Mark this finding as closed?')) document.getElementById('closeForm').submit();
+    });
+  }
+  if (deleteBtn) {
+    deleteBtn.addEventListener('click', function() {
+      if (confirm('Permanently delete this finding?')) document.getElementById('deleteForm').submit();
+    });
+  }
+})();
+</script>

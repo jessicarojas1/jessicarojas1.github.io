@@ -345,6 +345,36 @@ try {
 } catch (Throwable) {}
 
 try {
+    // ssp_plans: add file-upload columns for network architecture and data flow diagrams
+    $__sspCols = Database::fetchAll(
+        "SELECT column_name FROM information_schema.columns WHERE table_name='ssp_plans' AND table_schema='public'"
+    );
+    $__sspExisting = array_column($__sspCols, 'column_name');
+    $__sspMigrations = [
+        'network_arch_filename' => "ALTER TABLE ssp_plans ADD COLUMN network_arch_filename TEXT",
+        'network_arch_data'     => "ALTER TABLE ssp_plans ADD COLUMN network_arch_data    TEXT",
+        'data_flow_filename'    => "ALTER TABLE ssp_plans ADD COLUMN data_flow_filename   TEXT",
+        'data_flow_data'        => "ALTER TABLE ssp_plans ADD COLUMN data_flow_data       TEXT",
+    ];
+    foreach ($__sspMigrations as $__col => $__sql) {
+        if (!in_array($__col, $__sspExisting)) Database::query($__sql);
+    }
+    unset($__sspCols, $__sspExisting, $__sspMigrations, $__col, $__sql);
+} catch (Throwable) {}
+
+try {
+    // audit_findings: add audit_id FK so findings can be linked to specific audits
+    $__afCols = Database::fetchAll(
+        "SELECT column_name FROM information_schema.columns WHERE table_name='audit_findings' AND table_schema='public'"
+    );
+    $__afExisting = array_column($__afCols, 'column_name');
+    if (!in_array('audit_id', $__afExisting)) {
+        Database::query("ALTER TABLE audit_findings ADD COLUMN audit_id INTEGER REFERENCES audits(id) ON DELETE SET NULL");
+    }
+    unset($__afCols, $__afExisting);
+} catch (Throwable) {}
+
+try {
     // Fix existing risks where inherent_score was never computed
     Database::query(
         "UPDATE risks SET inherent_score = likelihood * impact
@@ -705,6 +735,8 @@ $routes = [
         '/privacy/requests/create'              => ['PrivacyController', 'createRequest'],
         '/ssp/create'                           => ['SSPController', 'create'],
         '/poam/generate'                        => ['POAMController', 'generate'],
+        '/poam/create'                          => ['POAMController', 'create'],
+        '/poam/import'                          => ['POAMController', 'importCsv'],
         '/projects/create'                      => ['ProjectController', 'create'],
         '/audit-findings/create'                => ['AuditFindingController', 'create'],
         '/automation/create'                    => ['AutomationController', 'create'],
@@ -771,8 +803,10 @@ $dynamicRoutes = [
         '#^/awareness/(\d+)$#'               => ['AwarenessController', 'view'],
         '#^/account-reviews/(\d+)$#'         => ['AccountReviewController', 'view'],
         '#^/privacy/(\d+)$#'                 => ['PrivacyController', 'view'],
-        '#^/ssp/(\d+)$#'                     => ['SSPController', 'view'],
-        '#^/ssp/(\d+)/generate$#'            => ['SSPController', 'generate'],
+        '#^/ssp/(\d+)$#'                           => ['SSPController', 'view'],
+        '#^/ssp/(\d+)/generate$#'                  => ['SSPController', 'generate'],
+        '#^/ssp/(\d+)/download/network-arch$#'     => ['SSPController', 'downloadNetworkArch'],
+        '#^/ssp/(\d+)/download/data-flow$#'        => ['SSPController', 'downloadDataFlow'],
         '#^/poam/(\d+)$#'                    => ['POAMController', 'view'],
         '#^/projects/(\d+)$#'               => ['ProjectController', 'view'],
         '#^/audit-findings/(\d+)$#'         => ['AuditFindingController', 'view'],

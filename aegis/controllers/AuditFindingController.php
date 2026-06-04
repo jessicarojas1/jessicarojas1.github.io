@@ -14,11 +14,13 @@ class AuditFindingController {
             "SELECT af.*,
                     u.name  AS owner_name,
                     co.code AS control_code,
-                    cp.name AS package_name
+                    cp.name AS package_name,
+                    a.name  AS linked_audit_name
              FROM audit_findings af
              LEFT JOIN users u  ON u.id  = af.owner_id
              LEFT JOIN compliance_objectives co ON co.id = af.objective_id
              LEFT JOIN compliance_packages   cp ON cp.id = af.package_id
+             LEFT JOIN audits a ON a.id = af.audit_id
              ORDER BY
                CASE af.severity
                  WHEN 'critical' THEN 1
@@ -41,6 +43,7 @@ class AuditFindingController {
 
         $users    = Database::fetchAll("SELECT id, name FROM users WHERE is_active = TRUE ORDER BY name");
         $packages = Database::fetchAll("SELECT id, name FROM compliance_packages ORDER BY name");
+        $audits   = Database::fetchAll("SELECT id, name FROM audits ORDER BY scheduled_date DESC, name");
 
         $pageTitle    = 'External Audit Findings';
         $activeModule = 'audit_findings';
@@ -69,12 +72,19 @@ class AuditFindingController {
         $severity    = Security::sanitizeInput($_POST['severity']     ?? 'medium');
         $status      = Security::sanitizeInput($_POST['status']       ?? 'open');
         $source      = Security::sanitizeInput($_POST['source']       ?? 'external_audit');
+        $auditId     = !empty($_POST['audit_id'])     ? (int)$_POST['audit_id']     : null;
         $auditName   = Security::sanitizeInput($_POST['audit_name']   ?? '');
         $auditorName = Security::sanitizeInput($_POST['auditor_name'] ?? '');
         $deadline    = Security::sanitizeInput($_POST['deadline']     ?? '');
         $ownerId     = !empty($_POST['owner_id'])    ? (int)$_POST['owner_id']    : null;
         $packageId   = !empty($_POST['package_id'])  ? (int)$_POST['package_id']  : null;
         $objectiveId = !empty($_POST['objective_id']) ? (int)$_POST['objective_id'] : null;
+
+        // If linked to a specific audit, pull name from DB
+        if ($auditId && !$auditName) {
+            $auditRow  = Database::fetchOne("SELECT name FROM audits WHERE id = ?", [$auditId]);
+            $auditName = $auditRow['name'] ?? '';
+        }
 
         if (!$title) {
             $_SESSION['flash_error'] = 'Finding title is required.';
@@ -104,6 +114,7 @@ class AuditFindingController {
             'severity'       => $severity,
             'status'         => $status,
             'source'         => $source,
+            'audit_id'       => $auditId,
             'audit_name'     => $auditName   ?: null,
             'auditor_name'   => $auditorName ?: null,
             'deadline'       => $deadline    ?: null,
@@ -132,12 +143,15 @@ class AuditFindingController {
                     co.code AS control_code,
                     co.title AS control_title,
                     cp.name AS package_name,
-                    cb.name AS created_by_name
+                    cb.name AS created_by_name,
+                    a.name  AS linked_audit_name,
+                    a.id    AS linked_audit_id
              FROM audit_findings af
              LEFT JOIN users u    ON u.id    = af.owner_id
              LEFT JOIN users cb   ON cb.id   = af.created_by
              LEFT JOIN compliance_objectives co ON co.id = af.objective_id
              LEFT JOIN compliance_packages   cp ON cp.id = af.package_id
+             LEFT JOIN audits a ON a.id = af.audit_id
              WHERE af.id = ?",
             [$id]
         );
@@ -182,6 +196,7 @@ class AuditFindingController {
         $severity    = Security::sanitizeInput($_POST['severity']      ?? 'medium');
         $status      = Security::sanitizeInput($_POST['status']        ?? 'open');
         $source      = Security::sanitizeInput($_POST['source']        ?? 'external_audit');
+        $auditId     = !empty($_POST['audit_id'])   ? (int)$_POST['audit_id']   : null;
         $auditName   = Security::sanitizeInput($_POST['audit_name']    ?? '');
         $auditorName = Security::sanitizeInput($_POST['auditor_name']  ?? '');
         $deadline    = Security::sanitizeInput($_POST['deadline']      ?? '');
@@ -206,6 +221,7 @@ class AuditFindingController {
             'severity'       => $severity,
             'status'         => $status,
             'source'         => $source,
+            'audit_id'       => $auditId,
             'audit_name'     => $auditName   ?: null,
             'auditor_name'   => $auditorName ?: null,
             'deadline'       => $deadline    ?: null,

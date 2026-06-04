@@ -52,11 +52,23 @@ $impactBadge = fn($v) => match($v) { 'high' => 'badge-danger', 'low' => 'badge-s
         <?php if ($plan['authorization_boundary']): ?>
         <div style="margin-top:16px;"><div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:6px;">Authorization Boundary</div><p style="margin:0;"><?= nl2br(Security::h($plan['authorization_boundary'])) ?></p></div>
         <?php endif; ?>
-        <?php if ($plan['network_architecture']): ?>
-        <div style="margin-top:16px;"><div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:6px;">Network Architecture</div><p style="margin:0;"><?= nl2br(Security::h($plan['network_architecture'])) ?></p></div>
+        <?php if ($plan['network_architecture'] || !empty($plan['network_arch_filename'])): ?>
+        <div style="margin-top:16px;">
+          <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:6px;">Network Architecture</div>
+          <?php if ($plan['network_architecture']): ?><p style="margin:0 0 8px;"><?= nl2br(Security::h($plan['network_architecture'])) ?></p><?php endif; ?>
+          <?php if (!empty($plan['network_arch_filename'])): ?>
+          <a href="/ssp/<?= (int)$plan['id'] ?>/download/network-arch" class="btn btn-sm btn-secondary"><i class="bi bi-download"></i> <?= Security::h($plan['network_arch_filename']) ?></a>
+          <?php endif; ?>
+        </div>
         <?php endif; ?>
-        <?php if ($plan['data_flow']): ?>
-        <div style="margin-top:16px;"><div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:6px;">Data Flow</div><p style="margin:0;"><?= nl2br(Security::h($plan['data_flow'])) ?></p></div>
+        <?php if ($plan['data_flow'] || !empty($plan['data_flow_filename'])): ?>
+        <div style="margin-top:16px;">
+          <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:6px;">Data Flow</div>
+          <?php if ($plan['data_flow']): ?><p style="margin:0 0 8px;"><?= nl2br(Security::h($plan['data_flow'])) ?></p><?php endif; ?>
+          <?php if (!empty($plan['data_flow_filename'])): ?>
+          <a href="/ssp/<?= (int)$plan['id'] ?>/download/data-flow" class="btn btn-sm btn-secondary"><i class="bi bi-download"></i> <?= Security::h($plan['data_flow_filename']) ?></a>
+          <?php endif; ?>
+        </div>
         <?php endif; ?>
       </div>
     </div>
@@ -176,7 +188,7 @@ $impactBadge = fn($v) => match($v) { 'high' => 'badge-danger', 'low' => 'badge-s
       <h3 style="margin:0;">Edit System Security Plan</h3>
       <button onclick="document.getElementById('editModal').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:1.25rem;color:var(--text-muted);"><i class="bi bi-x-lg"></i></button>
     </div>
-    <form method="POST" action="/ssp/<?= (int)$plan['id'] ?>/update">
+    <form method="POST" action="/ssp/<?= (int)$plan['id'] ?>/update" enctype="multipart/form-data">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
         <div class="form-group" style="grid-column:1/-1">
@@ -214,10 +226,28 @@ $impactBadge = fn($v) => match($v) { 'high' => 'badge-danger', 'low' => 'badge-s
         <div class="form-group" style="grid-column:1/-1">
           <label class="form-label">Network Architecture</label>
           <textarea name="network_architecture" class="form-control" rows="2"><?= Security::h($plan['network_architecture'] ?? '') ?></textarea>
+          <div style="margin-top:8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+            <div style="flex:1;min-width:200px;">
+              <label style="font-size:0.78rem;color:var(--text-muted);">Replace diagram file <span style="font-weight:400;">(PDF, PNG, JPG, SVG, VSDX, max 10MB)</span></label>
+              <input type="file" name="network_arch_file" class="form-control" accept=".pdf,.png,.jpg,.jpeg,.gif,.svg,.vsdx,.docx,.pptx" style="font-size:0.85rem;margin-top:4px;">
+            </div>
+            <?php if (!empty($plan['network_arch_filename'])): ?>
+            <div style="font-size:0.8rem;color:var(--text-muted);padding-top:18px;">Current: <a href="/ssp/<?= (int)$plan['id'] ?>/download/network-arch"><?= Security::h($plan['network_arch_filename']) ?></a></div>
+            <?php endif; ?>
+          </div>
         </div>
         <div class="form-group" style="grid-column:1/-1">
           <label class="form-label">Data Flow</label>
           <textarea name="data_flow" class="form-control" rows="2"><?= Security::h($plan['data_flow'] ?? '') ?></textarea>
+          <div style="margin-top:8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+            <div style="flex:1;min-width:200px;">
+              <label style="font-size:0.78rem;color:var(--text-muted);">Replace diagram file <span style="font-weight:400;">(PDF, PNG, JPG, SVG, VSDX, max 10MB)</span></label>
+              <input type="file" name="data_flow_file" class="form-control" accept=".pdf,.png,.jpg,.jpeg,.gif,.svg,.vsdx,.docx,.pptx" style="font-size:0.85rem;margin-top:4px;">
+            </div>
+            <?php if (!empty($plan['data_flow_filename'])): ?>
+            <div style="font-size:0.8rem;color:var(--text-muted);padding-top:18px;">Current: <a href="/ssp/<?= (int)$plan['id'] ?>/download/data-flow"><?= Security::h($plan['data_flow_filename']) ?></a></div>
+            <?php endif; ?>
+          </div>
         </div>
         <div class="form-group">
           <label class="form-label">Operational Status</label>
