@@ -30,6 +30,15 @@ foreach (['.env.local', '.env'] as $f) {
 require_once AEGIS_ROOT . '/config/database.php';
 require_once AEGIS_ROOT . '/src/Database.php';
 
+// Pre-flight: ensure kris column widths accommodate the valid CHECK constraint values
+// (direction='higher_worse' is 12 chars; unit can be longer than 10 in practice)
+try {
+    Database::query("ALTER TABLE kris ALTER COLUMN direction TYPE VARCHAR(20)");
+} catch (Throwable) {}
+try {
+    Database::query("ALTER TABLE kris ALTER COLUMN unit TYPE VARCHAR(50)");
+} catch (Throwable) {}
+
 $force = in_array('--force', $argv ?? [], true);
 
 // Check if demo data already seeded (sentinel: demo CISO user)
