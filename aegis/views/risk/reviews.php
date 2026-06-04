@@ -115,7 +115,7 @@ ob_start();
 <!-- Filter Bar -->
 <div class="filter-bar card">
   <form method="GET" class="filter-form">
-    <select name="status" class="form-control form-control-sm" onchange="this.form.submit()">
+    <select name="status" class="form-control form-control-sm" id="reviewsStatusFilter">
       <option value="">All statuses</option>
       <?php foreach ($statusConfig as $sv => $sc): ?>
         <option value="<?= $sv ?>" <?= $filterStatus === $sv ? 'selected' : '' ?>><?= $sc['label'] ?></option>

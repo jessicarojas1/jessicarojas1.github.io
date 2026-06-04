@@ -375,7 +375,7 @@ function riskScoreLevel(int $score): string {
   <div style="background:#fff;border-radius:12px;width:100%;max-width:520px;box-shadow:0 8px 32px rgba(0,0,0,.2);padding:0;overflow:hidden;">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border);">
       <h3 style="margin:0;font-size:16px;font-weight:600;"><i class="bi bi-shield-plus" style="margin-right:8px;color:var(--primary);"></i> Link Risk to Asset</h3>
-      <button onclick="closeModal('linkRiskModal')" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text-muted);">&times;</button>
+      <button id="btnCloseLinkRiskModal" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text-muted);">&times;</button>
     </div>
     <form method="POST" action="/assets/<?= (int)$asset['id'] ?>/link-risk">
       <?= Security::csrfField() ?>
@@ -398,7 +398,7 @@ function riskScoreLevel(int $score): string {
         </div>
       </div>
       <div style="display:flex;gap:12px;justify-content:flex-end;padding:16px 24px;border-top:1px solid var(--border);background:#fafbfc;">
-        <button type="button" onclick="closeModal('linkRiskModal')" class="btn btn-ghost">Cancel</button>
+        <button type="button" id="btnCancelLinkRiskModal" class="btn btn-ghost">Cancel</button>
         <button type="submit" class="btn btn-primary" <?= empty($allRisks) ? 'disabled' : '' ?>>
           <i class="bi bi-link-45deg"></i> Link Risk
         </button>
@@ -411,3 +411,28 @@ function riskScoreLevel(int $score): string {
 <style>
 .d-none { display: none !important; }
 </style>
+<script nonce="<?= Security::nonce() ?>">
+(function() {
+  // Edit panel toggle
+  var btnToggleAssetEdit = document.getElementById('btnToggleAssetEdit');
+  if (btnToggleAssetEdit) { btnToggleAssetEdit.addEventListener('click', function() { document.getElementById('editPanel').classList.toggle('d-none'); }); }
+  var btnCancelAssetEdit = document.getElementById('btnCancelAssetEdit');
+  if (btnCancelAssetEdit) { btnCancelAssetEdit.addEventListener('click', function() { document.getElementById('editPanel').classList.add('d-none'); }); }
+
+  // Link risk modal open/close
+  var btnOpenLinkRiskModal = document.getElementById('btnOpenLinkRiskModal');
+  if (btnOpenLinkRiskModal) { btnOpenLinkRiskModal.addEventListener('click', function() { showModal('linkRiskModal'); }); }
+  var btnCloseLinkRiskModal = document.getElementById('btnCloseLinkRiskModal');
+  if (btnCloseLinkRiskModal) { btnCloseLinkRiskModal.addEventListener('click', function() { closeModal('linkRiskModal'); }); }
+  var btnCancelLinkRiskModal = document.getElementById('btnCancelLinkRiskModal');
+  if (btnCancelLinkRiskModal) { btnCancelLinkRiskModal.addEventListener('click', function() { closeModal('linkRiskModal'); }); }
+
+  // Confirm on unlink forms
+  document.querySelectorAll('.asset-unlink-risk-form').forEach(function(form) {
+    form.addEventListener('submit', function(e) {
+      var msg = this.dataset.confirm || 'Are you sure?';
+      if (!confirm(msg)) e.preventDefault();
+    });
+  });
+})();
+</script>

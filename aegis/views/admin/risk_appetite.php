@@ -109,8 +109,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
                           rows="2" style="resize:vertical" required><?= Security::h($row['statement']) ?></textarea>
               </td>
               <td>
-                <button type="button" class="btn btn-ghost btn-sm" title="Remove row"
-                        onclick="removeRow(this)" style="color:#dc2626">
+                <button type="button" class="btn btn-ghost btn-sm remove-row-btn" title="Remove row" style="color:#dc2626">
                   <i class="bi bi-trash3"></i>
                 </button>
               </td>
@@ -124,7 +123,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
       </div>
     </div>
     <div class="card-body" style="border-top:1px solid var(--border);padding:12px 20px;display:flex;justify-content:space-between;align-items:center">
-      <button type="button" class="btn btn-ghost btn-sm" onclick="addNewRow()">
+      <button type="button" class="btn btn-ghost btn-sm" id="addNewRowBtn">
         <i class="bi bi-plus-circle"></i> Add Category
       </button>
       <button type="submit" class="btn btn-primary">

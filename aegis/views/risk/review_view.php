@@ -87,12 +87,12 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
       </form>
     <?php endif; ?>
     <?php if ($review['status'] === 'in_progress' && Auth::can('risk.write')): ?>
-      <button class="btn btn-success" onclick="document.getElementById('completeModal').classList.add('open')">
+      <button class="btn btn-success" id="openCompleteModalBtn">
         <i class="bi bi-check2-circle"></i> Complete Review
       </button>
     <?php endif; ?>
     <?php if (in_array($review['status'],['planned','in_progress']) && Auth::can('risk.write')): ?>
-      <form method="POST" action="/risk/reviews/<?= $review['id'] ?>/cancel" onsubmit="return confirm('Cancel this review session?')">
+      <form method="POST" action="/risk/reviews/<?= $review['id'] ?>/cancel" data-confirm="Cancel this review session?">
         <?= Security::csrfField() ?>
         <button class="btn btn-ghost"><i class="bi bi-x-circle"></i> Cancel</button>
       </form>
@@ -272,7 +272,7 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
       </div>
       <div style="display:flex;gap:8px;margin-top:16px">
         <button type="submit" class="btn btn-success"><i class="bi bi-check2-circle"></i> Complete &amp; Sign Off</button>
-        <button type="button" class="btn btn-ghost" onclick="document.getElementById('completeModal').classList.remove('open')">Cancel</button>
+        <button type="button" class="btn btn-ghost" id="closeCompleteModalBtn">Cancel</button>
       </div>
     </form>
   </div>
@@ -281,6 +281,29 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
 <script nonce="<?= $nonce ?>">
 document.getElementById('completeModal').addEventListener('click', function(e) {
   if (e.target === this) this.classList.remove('open');
+});
+
+// Wire up "Complete Review" button to open modal
+var openCompleteModalBtn = document.getElementById('openCompleteModalBtn');
+if (openCompleteModalBtn) {
+  openCompleteModalBtn.addEventListener('click', function() {
+    document.getElementById('completeModal').classList.add('open');
+  });
+}
+
+// Wire up modal close button
+var closeCompleteModalBtn = document.getElementById('closeCompleteModalBtn');
+if (closeCompleteModalBtn) {
+  closeCompleteModalBtn.addEventListener('click', function() {
+    document.getElementById('completeModal').classList.remove('open');
+  });
+}
+
+// Wire up form confirm (cancel review form)
+document.querySelectorAll('form[data-confirm]').forEach(function(f) {
+  f.addEventListener('submit', function(e) {
+    if (!confirm(f.dataset.confirm)) { e.preventDefault(); }
+  });
 });
 </script>
 

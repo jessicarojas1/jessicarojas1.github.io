@@ -106,9 +106,9 @@ $classColors = ['public'=>'#22c55e','internal'=>'#3b82f6','confidential'=>'#f59e
             <td class="text-sm text-muted"><?= $rs['last_sent_at'] ? date('M j, Y', strtotime($rs['last_sent_at'])) : 'Never' ?></td>
             <td><?= $rs['is_active'] ? '<span class="badge badge-green">Active</span>' : '<span class="badge badge-gray">Paused</span>' ?></td>
             <td>
-              <form method="POST" action="/metrics/schedule/<?= (int)$rs['id'] ?>/delete" style="display:inline">
+              <form method="POST" action="/metrics/schedule/<?= (int)$rs['id'] ?>/delete" style="display:inline" class="schedule-delete-form" data-confirm="Delete this schedule?">
                 <?= Security::csrfField() ?>
-                <button class="btn btn-sm btn-danger" onclick="return confirm('Delete this schedule?')">Delete</button>
+                <button class="btn btn-sm btn-danger">Delete</button>
               </form>
             </td>
           </tr>
@@ -119,11 +119,11 @@ $classColors = ['public'=>'#22c55e','internal'=>'#3b82f6','confidential'=>'#f59e
 </div>
 
 <!-- Schedule modal -->
-<div id="scheduleModal" class="modal-overlay" style="display:none" onclick="if(event.target===this)this.classList.remove('open')">
+<div id="scheduleModal" class="modal-overlay" style="display:none">
   <div class="modal-card" style="max-width:520px">
     <div class="modal-header">
       <h3>New Report Schedule</h3>
-      <button onclick="document.getElementById('scheduleModal').classList.remove('open')" class="btn-icon"><i class="bi bi-x-lg"></i></button>
+      <button id="btnCloseScheduleModal" class="btn-icon"><i class="bi bi-x-lg"></i></button>
     </div>
     <form method="POST" action="/metrics/schedule/save">
       <?= Security::csrfField() ?>
@@ -167,7 +167,7 @@ $classColors = ['public'=>'#22c55e','internal'=>'#3b82f6','confidential'=>'#f59e
       </div>
       <div class="modal-footer">
         <button type="submit" class="btn btn-primary">Save Schedule</button>
-        <button type="button" class="btn btn-secondary" onclick="document.getElementById('scheduleModal').classList.remove('open')">Cancel</button>
+        <button type="button" class="btn btn-secondary" id="btnCancelScheduleModal">Cancel</button>
       </div>
     </form>
   </div>
