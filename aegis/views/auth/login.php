@@ -55,23 +55,38 @@
       <?php endif; ?>
 
       <?php
-        // Require SSO.php for SSO check on login page
+        // SSO availability check
         if (!class_exists('SSO')) @require_once AEGIS_ROOT . '/src/SSO.php';
-        $ssoEnabled = class_exists('SSO') && SSO::isEnabled();
-        $ssoName    = $ssoEnabled ? (SSO::config()['sso_provider_name'] ?: 'SSO') : '';
+        $ssoEnabled  = class_exists('SSO') && SSO::isEnabled();
+        $ssoCfg      = class_exists('SSO') ? SSO::config() : [];
+        $ssoName     = !empty($ssoCfg['sso_provider_name']) ? $ssoCfg['sso_provider_name'] : 'Enterprise SSO';
+        $ssoError    = $_SESSION['sso_error'] ?? '';
+        unset($_SESSION['sso_error']);
       ?>
+
+      <?php if ($ssoError): ?>
+        <div class="alert-box error" style="margin-bottom:12px">
+          <i class="bi bi-exclamation-circle-fill"></i>
+          <?= Security::h($ssoError) ?>
+        </div>
+      <?php endif; ?>
 
       <?php if ($ssoEnabled): ?>
         <a href="/sso/login" class="btn btn-secondary btn-full btn-lg" style="margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:8px">
-          <i class="bi bi-box-arrow-in-right"></i>
+          <i class="bi bi-shield-lock-fill"></i>
           Sign in with <?= Security::h($ssoName) ?>
         </a>
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
-          <hr style="flex:1;border:none;border-top:1px solid #e5e7eb">
-          <span style="color:#9ca3af;font-size:12px;white-space:nowrap">or use password</span>
-          <hr style="flex:1;border:none;border-top:1px solid #e5e7eb">
-        </div>
+      <?php else: ?>
+        <a href="/sso/login" class="btn btn-full btn-lg" style="margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:8px;background:var(--bg-secondary);border:1px solid var(--border);color:var(--text-muted);cursor:pointer;border-radius:var(--radius)">
+          <i class="bi bi-shield-lock-fill"></i>
+          Sign in with Enterprise SSO
+        </a>
       <?php endif; ?>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+        <hr style="flex:1;border:none;border-top:1px solid var(--border)">
+        <span style="color:var(--text-muted);font-size:12px;white-space:nowrap">or sign in with password</span>
+        <hr style="flex:1;border:none;border-top:1px solid var(--border)">
+      </div>
 
       <form method="POST" action="/login" class="auth-form" autocomplete="off">
         <?= Security::csrfField() ?>
