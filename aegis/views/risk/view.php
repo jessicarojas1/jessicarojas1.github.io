@@ -1005,6 +1005,31 @@ function onStratChange(){
 }
 updateScores();
 
+// Slider event listeners
+['s_l','s_i','s_rl','s_ri','s_tl','s_ti'].forEach(function(id){
+  var el=document.getElementById(id);if(el)el.addEventListener('input',function(){updateScores();});
+});
+
+// Wire up form[data-confirm] for delete/revoke forms
+document.querySelectorAll('form[data-confirm]').forEach(function(f){
+  f.addEventListener('submit',function(e){if(!confirm(f.dataset.confirm))e.preventDefault();});
+});
+
+// Wire up button[data-confirm] (e.g. control link remove)
+document.querySelectorAll('button[data-confirm]').forEach(function(b){
+  b.addEventListener('click',function(e){if(!confirm(b.dataset.confirm))e.preventDefault();});
+});
+
+// Wire up Approve / Reject modal buttons
+var openApproveBtn=document.getElementById('openApproveModalBtn');
+if(openApproveBtn){openApproveBtn.addEventListener('click',function(){document.getElementById('approveModal').style.display='flex';});}
+var openRejectBtn=document.getElementById('openRejectModalBtn');
+if(openRejectBtn){openRejectBtn.addEventListener('click',function(){document.getElementById('rejectModal').style.display='flex';});}
+var closeApproveBtn=document.getElementById('closeApproveModalBtn');
+if(closeApproveBtn){closeApproveBtn.addEventListener('click',function(){document.getElementById('approveModal').style.display='none';});}
+var closeRejectBtn=document.getElementById('closeRejectModalBtn');
+if(closeRejectBtn){closeRejectBtn.addEventListener('click',function(){document.getElementById('rejectModal').style.display='none';});}
+
 <?php if (!empty($scoreHistory)): ?>
 // Score history chart
 (function(){

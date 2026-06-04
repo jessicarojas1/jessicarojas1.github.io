@@ -72,8 +72,7 @@ $groups = [
             </div>
             <label class="toggle-switch">
               <input type="checkbox" name="hide[<?= $key ?>]" value="1" <?= $isHidden ? '' : 'checked' ?>
-                     onchange="this.closest('.list-item').querySelector('.vis-badge').textContent = this.checked ? 'Visible' : 'Hidden';
-                               this.closest('.list-item').querySelector('.vis-badge').className = 'badge ' + (this.checked ? 'badge-green' : 'badge-red')">
+                     class="module-visibility-toggle">
               <span class="toggle-slider"></span>
             </label>
             <span class="vis-badge badge <?= $isHidden ? 'badge-red' : 'badge-green' ?>" style="margin-left:8px;min-width:52px;text-align:center">
@@ -106,6 +105,19 @@ $groups = [
 .toggle-switch input:checked + .toggle-slider { background:#4f46e5; }
 .toggle-switch input:checked + .toggle-slider:before { transform:translateX(18px); }
 </style>
+
+<script nonce="<?= Security::nonce() ?>">
+function updateModuleVisibilityBadge(checkbox) {
+  var badge = checkbox.closest('.list-item').querySelector('.vis-badge');
+  if (!badge) return;
+  badge.textContent = checkbox.checked ? 'Visible' : 'Hidden';
+  badge.className = 'badge ' + (checkbox.checked ? 'badge-green' : 'badge-red');
+}
+
+document.querySelectorAll('.module-visibility-toggle').forEach(function(cb) {
+  cb.addEventListener('change', function() { updateModuleVisibilityBadge(cb); });
+});
+</script>
 
 <?php
 $content = ob_get_clean();

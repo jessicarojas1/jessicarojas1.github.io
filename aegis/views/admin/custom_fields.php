@@ -73,7 +73,7 @@ if (!in_array($activeTab, $entityTypes, true)) $activeTab = 'risk';
       </div>
       <div style="display:flex;gap:8px;margin-top:8px">
         <button type="submit" class="btn btn-primary">Save Field</button>
-        <button type="button" class="btn btn-ghost" onclick="toggleAddForm()">Cancel</button>
+        <button type="button" class="btn btn-ghost" id="cancelAddFieldBtn">Cancel</button>
       </div>
     </form>
   </div>
@@ -127,7 +127,7 @@ if (!in_array($activeTab, $entityTypes, true)) $activeTab = 'risk';
           <td><?= $f['is_required'] ? '<span class="badge badge-green">Yes</span>' : '<span class="badge badge-gray">No</span>' ?></td>
           <td class="text-muted"><?= (int)$f['sort_order'] ?></td>
           <td>
-            <form method="POST" action="/admin/custom-fields/<?= (int)$f['id'] ?>/delete" onsubmit="return confirm('Delete this custom field? This cannot be undone.')">
+            <form method="POST" action="/admin/custom-fields/<?= (int)$f['id'] ?>/delete" data-confirm="Delete this custom field? This cannot be undone.">
               <?= Security::csrfField() ?>
               <button type="submit" class="btn btn-ghost btn-sm" style="color:var(--danger,#ef4444)" title="Delete field">
                 <i class="bi bi-trash"></i>
@@ -142,7 +142,7 @@ if (!in_array($activeTab, $entityTypes, true)) $activeTab = 'risk';
     <div class="empty-state-sm" style="padding:48px;text-align:center">
       <i class="bi bi-sliders" style="font-size:2rem;color:var(--text-muted)"></i>
       <p style="margin-top:12px;color:var(--text-muted)">No custom fields defined for <strong><?= ucfirst($activeTab) ?></strong> yet.</p>
-      <button class="btn btn-primary btn-sm" onclick="toggleAddForm()" style="margin-top:8px"><i class="bi bi-plus-lg"></i> Add the first field</button>
+      <button class="btn btn-primary btn-sm" id="emptyAddFieldBtn" style="margin-top:8px"><i class="bi bi-plus-lg"></i> Add the first field</button>
     </div>
     <?php endif; ?>
   </div>
@@ -159,4 +159,20 @@ function toggleAddForm() {
 function toggleOptionsField(val) {
   document.getElementById('optionsGroup').style.display = val === 'select' ? 'block' : 'none';
 }
+
+document.getElementById('openAddFieldBtn').addEventListener('click', toggleAddForm);
+document.getElementById('closeAddFieldBtn').addEventListener('click', toggleAddForm);
+document.getElementById('cancelAddFieldBtn').addEventListener('click', toggleAddForm);
+var emptyBtn = document.getElementById('emptyAddFieldBtn');
+if (emptyBtn) { emptyBtn.addEventListener('click', toggleAddForm); }
+
+document.getElementById('fieldTypeSelect').addEventListener('change', function() {
+  toggleOptionsField(this.value);
+});
+
+document.querySelectorAll('form[data-confirm]').forEach(function(f) {
+  f.addEventListener('submit', function(e) {
+    if (!confirm(f.dataset.confirm)) e.preventDefault();
+  });
+});
 </script>
