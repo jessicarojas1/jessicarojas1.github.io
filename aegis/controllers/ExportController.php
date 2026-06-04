@@ -175,15 +175,15 @@ class ExportController {
                  ORDER BY i.created_at DESC"
             ),
             'vendors' => Database::fetchAll(
-                "SELECT v.name, v.vendor_type, v.risk_tier, v.status,
+                "SELECT v.name, v.category, v.risk_tier, v.status,
                         v.contact_name, v.contact_email,
                         v.contract_start, v.contract_end, v.created_at
                  FROM vendors v ORDER BY v.name"
             ),
             'controls' => Database::fetchAll(
                 "SELECT co.code, co.title, cp.name as framework,
-                        ci.status, ci.due_date, ci.completion_date,
-                        ci.notes, u.name as assigned_to
+                        ci.status, ci.due_date, ci.implementation_notes,
+                        u.name as assigned_to
                  FROM control_implementations ci
                  JOIN compliance_objectives co ON co.id = ci.objective_id
                  JOIN compliance_packages cp ON cp.id = co.package_id

@@ -46,7 +46,7 @@ function metricColor(float $pct): string {
     $pctVal = is_string($val) && str_ends_with($val, '%') ? (float)$val : null;
   ?>
   <div class="card" style="padding:20px;text-align:center;<?= $href ? 'cursor:pointer' : '' ?>"
-       <?= $href ? "onclick=\"location.href='{$href}'\"" : '' ?>>
+       <?= $href ? 'data-href="' . Security::h($href) . '"' : '' ?>>
     <div style="width:44px;height:44px;border-radius:12px;background:<?= $color ?>18;color:<?= $color ?>;
          display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 12px">
       <i class="bi <?= $icon ?>"></i>
@@ -207,6 +207,9 @@ function metricColor(float $pct): string {
 <?php if (!empty($trend)): ?>
 <script src="/public/vendor/chart.js/chart.umd.js" integrity="sha384-tgbB5AKnszdcfwcZtTfuhR3Ko1XZdlDfsLtkxiiAZiVkkXCkFmp+FQFh+V/UTo54" crossorigin="anonymous" nonce="<?= Security::nonce() ?>"></script>
 <script nonce="<?= Security::nonce() ?>">
+document.querySelectorAll('[data-href]').forEach(function(el) {
+  el.addEventListener('click', function() { location.href = el.dataset.href; });
+});
 // Close schedule modal when clicking overlay background
 (function() {
   var m = document.getElementById('scheduleModal');

@@ -66,7 +66,7 @@ $freqLabels = [
     $ringStyle = $isActive ? "outline:3px solid {$color};outline-offset:2px;" : '';
   ?>
   <a href="<?= $isActive ? '/kris' : '/kris?rag=' . $rag ?>" style="text-decoration:none;">
-    <div class="card" style="background:<?= $bg ?>;border:1.5px solid <?= $border ?>;cursor:pointer;transition:transform .15s;<?= $ringStyle ?>">
+    <div class="card" style="border:1.5px solid <?= $color ?>40;cursor:pointer;transition:transform .15s;<?= $ringStyle ?>">
       <div class="card-body" style="display:flex;align-items:center;gap:16px;padding:18px 20px;">
         <div style="width:52px;height:52px;border-radius:14px;background:<?= $color ?>22;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
           <i class="bi <?= $icon ?>" style="font-size:24px;color:<?= $color ?>;"></i>
@@ -164,7 +164,7 @@ $displayKris = $activeFilter
             <span style="background:var(--bg-subtle);color:var(--text-muted);padding:2px 9px;border-radius:99px;font-size:11px;font-weight:600;border:1px solid var(--border);">
               <?= $freqLabel ?>
             </span>
-            <span style="background:<?= $ragBg ?>;color:<?= $ragColor ?>;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:700;border:1px solid <?= $ragBorder ?>;">
+            <span style="background:<?= $ragColor ?>20;color:<?= $ragColor ?>;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:700;border:1px solid <?= $ragColor ?>40;">
               <i class="bi <?= $ragIcon ?>"></i> <?= $ragLabel ?>
             </span>
           </div>
@@ -191,7 +191,7 @@ $displayKris = $activeFilter
         <!-- Mini threshold bar -->
         <div style="margin-bottom:14px;">
           <div style="font-size:11px;color:var(--text-muted);font-weight:600;margin-bottom:4px;">Thresholds</div>
-          <div style="height:8px;border-radius:4px;overflow:hidden;display:flex;background:#e2e8f0;">
+          <div style="height:8px;border-radius:4px;overflow:hidden;display:flex;background:var(--bg-secondary);">
             <?php if ($k['direction'] === 'higher_worse'): ?>
               <div style="width:<?= $greenPct ?>%;background:#16a34a;" title="Green ≤ <?= Security::h((string)$green) ?>"></div>
               <div style="width:<?= $amberPct ?>%;background:#d97706;" title="Amber ≤ <?= Security::h((string)$amber) ?>"></div>
