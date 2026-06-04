@@ -7,10 +7,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/public/vendor/bootstrap-icons/bootstrap-icons.min.css" integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+" crossorigin="anonymous">
-<link rel="stylesheet" href="/public/css/app.css?v=6">
+<link rel="stylesheet" href="/public/css/app.css?v=7">
 <link rel="manifest" href="/public/manifest.json">
 <meta name="theme-color" content="#6366f1">
 <meta name="csrf-token" content="<?= Security::generateCsrfToken() ?>">
+<script nonce="<?= Security::nonce() ?>">(function(){var t=localStorage.getItem('aegis-theme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})();</script>
 </head>
 <body>
 
@@ -247,6 +248,9 @@
       <?php
       $unreadAlerts = Database::fetchOne("SELECT COUNT(*) as c FROM alerts WHERE user_id = ? AND is_read = FALSE", [Auth::id()])['c'] ?? 0;
       ?>
+      <button id="themeToggle" class="theme-toggle" title="Toggle dark mode" type="button">
+        <i class="bi bi-moon-fill" id="themeIcon"></i>
+      </button>
       <div class="alert-bell" id="alertBell">
         <i class="bi bi-bell<?= $unreadAlerts > 0 ? '-fill' : '' ?>"></i>
         <?php if ($unreadAlerts > 0): ?>
@@ -295,7 +299,7 @@
 </div>
 
 <script src="/public/vendor/chart.js/chart.umd.js" integrity="sha384-tgbB5AKnszdcfwcZtTfuhR3Ko1XZdlDfsLtkxiiAZiVkkXCkFmp+FQFh+V/UTo54" crossorigin="anonymous" nonce="<?= Security::nonce() ?>"></script>
-<script src="/public/js/app.js?v=7" nonce="<?= Security::nonce() ?>"></script>
+<script src="/public/js/app.js?v=8" nonce="<?= Security::nonce() ?>"></script>
 <script nonce="<?= Security::nonce() ?>">
 document.querySelectorAll('.nav-acc-header[data-acc]').forEach(function(btn) {
   btn.addEventListener('click', function() {

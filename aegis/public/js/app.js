@@ -243,3 +243,32 @@ document.querySelectorAll('.perm-col-all').forEach(function (btn) {
     });
   }
 })();
+
+// ── Dark mode toggle ─────────────────────────────────────────────────────────
+(function() {
+  var btn = document.getElementById('themeToggle');
+  if (!btn) return;
+
+  function getTheme() { return localStorage.getItem('aegis-theme') || 'light'; }
+
+  function applyTheme(theme) {
+    if (theme === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+    }
+    var icon = document.getElementById('themeIcon');
+    if (icon) {
+      icon.className = theme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+    }
+    btn.title = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+  }
+
+  applyTheme(getTheme());
+
+  btn.addEventListener('click', function() {
+    var next = getTheme() === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('aegis-theme', next);
+    applyTheme(next);
+  });
+})();
