@@ -70,7 +70,7 @@ $notes = [
 
         <div class="form-group">
           <label class="form-label">Entity Type <span class="required">*</span></label>
-          <select name="import_type" id="importType" class="form-control" onchange="onTypeChange()">
+          <select name="import_type" id="importType" class="form-control">
             <option value="">— Select type —</option>
             <option value="risks">Risks</option>
             <option value="vendors">Vendors</option>
@@ -82,7 +82,7 @@ $notes = [
           <p style="font-size:13px;margin:0 0 8px;color:var(--text-muted)"><strong style="color:var(--text)">Required CSV columns:</strong></p>
           <code id="templateHeaders" style="font-size:12px;word-break:break-all"></code>
           <div style="margin-top:10px">
-            <button type="button" onclick="downloadTemplate()" class="btn btn-sm btn-secondary">
+            <button type="button" id="btnDownloadTemplate" class="btn btn-sm btn-secondary">
               <i class="bi bi-download"></i> Download Template CSV
             </button>
           </div>
@@ -193,4 +193,7 @@ function downloadTemplate() {
   a.download = type + '_template.csv';
   a.click();
 }
+
+document.getElementById('importType').addEventListener('change', onTypeChange);
+document.getElementById('btnDownloadTemplate').addEventListener('click', downloadTemplate);
 </script>

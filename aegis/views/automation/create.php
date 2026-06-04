@@ -28,7 +28,7 @@
         <div class="card-body" style="display:flex;flex-direction:column;gap:14px;">
           <div class="form-group">
             <label class="form-label">Trigger Event</label>
-            <select name="trigger_type" class="form-control" id="triggerSelect" onchange="updateTriggerConfig()">
+            <select name="trigger_type" class="form-control" id="triggerSelect">
               <?php foreach ($triggerLabels as $v => $l): ?>
               <option value="<?= $v ?>"><?= Security::h($l) ?></option>
               <?php endforeach; ?>
@@ -51,7 +51,7 @@
         <div class="card-body" style="display:flex;flex-direction:column;gap:14px;">
           <div class="form-group">
             <label class="form-label">Action to Take</label>
-            <select name="action_type" class="form-control" id="actionSelect" onchange="updateActionConfig()">
+            <select name="action_type" class="form-control" id="actionSelect">
               <?php foreach ($actionLabels as $v => $l): ?>
               <option value="<?= $v ?>"><?= Security::h($l) ?></option>
               <?php endforeach; ?>
@@ -99,5 +99,7 @@ function updateActionConfig() {
   const el = document.getElementById('act_' + v);
   if (el) el.style.display = 'block';
 }
+document.getElementById('triggerSelect').addEventListener('change', updateTriggerConfig);
+document.getElementById('actionSelect').addEventListener('change', updateActionConfig);
 updateTriggerConfig();
 </script>

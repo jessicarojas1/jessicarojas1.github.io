@@ -12,7 +12,7 @@
   <form method="GET" action="/policy/mapping" style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;">
     <div>
       <label style="display:block;font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;font-weight:600;">COMPLIANCE PACKAGE</label>
-      <select name="package" class="form-control" style="min-width:200px;height:32px;font-size:0.85rem;" onchange="this.form.submit()">
+      <select name="package" id="filterPackage" class="form-control" style="min-width:200px;height:32px;font-size:0.85rem;">
         <option value="">All packages</option>
         <?php foreach ($packages as $pkg): ?>
         <option value="<?= (int)$pkg['id'] ?>" <?= ($filterPackage??0)===(int)$pkg['id']?'selected':'' ?>><?= Security::h($pkg['name']) ?></option>
@@ -21,7 +21,7 @@
     </div>
     <div>
       <label style="display:block;font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;font-weight:600;">POLICY</label>
-      <select name="policy" class="form-control" style="min-width:200px;height:32px;font-size:0.85rem;" onchange="this.form.submit()">
+      <select name="policy" id="filterPolicy" class="form-control" style="min-width:200px;height:32px;font-size:0.85rem;">
         <option value="">All policies</option>
         <?php foreach ($allPolicies as $p): ?>
         <option value="<?= (int)$p['id'] ?>" <?= ($filterPolicy??0)===(int)$p['id']?'selected':'' ?>><?= Security::h($p['title']) ?></option>
@@ -117,6 +117,10 @@
 </div>
 <?php endif; ?>
 
+<script nonce="<?= Security::nonce() ?>">
+document.getElementById('filterPackage').addEventListener('change', function(){ this.form.submit(); });
+document.getElementById('filterPolicy').addEventListener('change', function(){ this.form.submit(); });
+</script>
 <?php
 $content = ob_get_clean();
 require AEGIS_ROOT . '/views/layout.php';

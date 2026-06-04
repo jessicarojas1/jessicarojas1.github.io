@@ -5,8 +5,8 @@
     <p class="page-subtitle">CUI Record</p>
   </div>
   <div style="display:flex;gap:10px;">
-    <button class="btn btn-secondary" onclick="document.getElementById('editModal').style.display='flex'"><i class="bi bi-pencil"></i> Edit</button>
-    <form method="POST" action="/cui/<?= (int)$item['id'] ?>/delete" onsubmit="return confirm('Delete this CUI record?')" style="margin:0">
+    <button class="btn btn-secondary" id="btnOpenEditCui"><i class="bi bi-pencil"></i> Edit</button>
+    <form method="POST" action="/cui/<?= (int)$item['id'] ?>/delete" data-confirm="Delete this CUI record?" style="margin:0">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
       <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i></button>
     </form>
@@ -56,7 +56,7 @@
   <div style="background:var(--card-bg);border-radius:12px;padding:28px;width:680px;max-height:90vh;overflow-y:auto;max-width:95vw;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
       <h3 style="margin:0;">Edit CUI Record</h3>
-      <button onclick="document.getElementById('editModal').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:1.25rem;"><i class="bi bi-x-lg"></i></button>
+      <button id="btnCloseEditCui" style="background:none;border:none;cursor:pointer;font-size:1.25rem;"><i class="bi bi-x-lg"></i></button>
     </div>
     <form method="POST" action="/cui/<?= (int)$item['id'] ?>/update">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
@@ -89,8 +89,17 @@
       </div>
       <div style="display:flex;gap:10px;margin-top:20px;">
         <button type="submit" class="btn btn-primary">Save</button>
-        <button type="button" onclick="document.getElementById('editModal').style.display='none'" class="btn btn-secondary">Cancel</button>
+        <button type="button" id="btnCancelEditCui" class="btn btn-secondary">Cancel</button>
       </div>
     </form>
   </div>
 </div>
+<script nonce="<?= Security::nonce() ?>">
+var editModal = document.getElementById('editModal');
+document.getElementById('btnOpenEditCui').addEventListener('click', function(){ editModal.style.display = 'flex'; });
+document.getElementById('btnCloseEditCui').addEventListener('click', function(){ editModal.style.display = 'none'; });
+document.getElementById('btnCancelEditCui').addEventListener('click', function(){ editModal.style.display = 'none'; });
+document.querySelectorAll('[data-confirm]').forEach(function(el) {
+  el.addEventListener('submit', function(e) { if (!confirm(el.getAttribute('data-confirm'))) e.preventDefault(); });
+});
+</script>

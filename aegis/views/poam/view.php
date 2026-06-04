@@ -208,7 +208,7 @@ $completedMilestones = count(array_filter($milestones, fn($m) => $m['is_complete
       <div class="card-header"><strong style="color:var(--danger);">Danger Zone</strong></div>
       <div class="card-body">
         <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:12px;">Permanently delete this POA&amp;M item and all its milestones.</p>
-        <form method="POST" action="/poam/<?= (int)$item['id'] ?>/delete" onsubmit="return confirm('Delete this POA&M item? This cannot be undone.');">
+        <form method="POST" action="/poam/<?= (int)$item['id'] ?>/delete" data-confirm="Delete this POA&amp;M item? This cannot be undone.">
           <input type="hidden" name="csrf_token" value="<?= Security::generateCsrfToken() ?>">
           <button type="submit" class="btn btn-danger" style="width:100%;"><i class="bi bi-trash-fill"></i> Delete POA&amp;M</button>
         </form>
@@ -217,3 +217,8 @@ $completedMilestones = count(array_filter($milestones, fn($m) => $m['is_complete
   </div>
 
 </div>
+<script nonce="<?= Security::nonce() ?>">
+document.querySelectorAll('[data-confirm]').forEach(function(el) {
+  el.addEventListener('submit', function(e) { if (!confirm(el.getAttribute('data-confirm'))) e.preventDefault(); });
+});
+</script>

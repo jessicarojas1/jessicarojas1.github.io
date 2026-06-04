@@ -9,7 +9,7 @@
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
       <button type="submit" class="btn btn-secondary"><?= $rule['is_active'] ? 'Disable' : 'Enable' ?></button>
     </form>
-    <form method="POST" action="/automation/<?= (int)$rule['id'] ?>/delete" onsubmit="return confirm('Delete this rule?')" style="margin:0">
+    <form method="POST" action="/automation/<?= (int)$rule['id'] ?>/delete" data-confirm="Delete this rule?" style="margin:0">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
       <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i></button>
     </form>
@@ -44,7 +44,7 @@
     <div class="card">
       <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;">
         <h3 class="card-title">Dry Run Test</h3>
-        <button onclick="testRule()" class="btn btn-sm btn-secondary"><i class="bi bi-play-fill"></i> Run Test</button>
+        <button id="btnTestRule" class="btn btn-sm btn-secondary"><i class="bi bi-play-fill"></i> Run Test</button>
       </div>
       <div class="card-body">
         <p style="font-size:0.875rem;color:var(--text-muted);margin-bottom:12px;">Simulates the trigger without executing any actions. Shows what would be affected.</p>
@@ -87,6 +87,10 @@
 </div>
 
 <script nonce="<?= Security::nonce() ?>">
+document.getElementById('btnTestRule').addEventListener('click', testRule);
+document.querySelectorAll('[data-confirm]').forEach(function(el) {
+  el.addEventListener('submit', function(e) { if (!confirm(el.getAttribute('data-confirm'))) e.preventDefault(); });
+});
 let csrf = <?= json_encode(Security::generateCsrfToken()) ?>;
 async function testRule() {
   const pre = document.getElementById('testResult');

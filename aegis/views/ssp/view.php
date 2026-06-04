@@ -21,8 +21,8 @@ $impactBadge = fn($v) => match($v) { 'high' => 'badge-danger', 'low' => 'badge-s
   </div>
   <div style="display:flex;gap:10px;">
     <a href="/ssp/<?= (int)$plan['id'] ?>/generate" target="_blank" class="btn btn-primary"><i class="bi bi-file-earmark-text"></i> Generate Document</a>
-    <button class="btn btn-secondary" onclick="document.getElementById('editModal').style.display='flex'"><i class="bi bi-pencil"></i> Edit</button>
-    <form method="POST" action="/ssp/<?= (int)$plan['id'] ?>/delete" onsubmit="return confirm('Delete this SSP permanently?')" style="margin:0">
+    <button id="btnOpenEditSsp" class="btn btn-secondary"><i class="bi bi-pencil"></i> Edit</button>
+    <form method="POST" action="/ssp/<?= (int)$plan['id'] ?>/delete" data-confirm="Delete this SSP permanently?" style="margin:0">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
       <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i></button>
     </form>
@@ -78,14 +78,14 @@ $impactBadge = fn($v) => match($v) { 'high' => 'badge-danger', 'low' => 'badge-s
       <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;">
         <h3 class="card-title">Compliance Packages</h3>
         <?php if (!empty($allPackages)): ?>
-        <button class="btn btn-sm btn-primary" onclick="document.getElementById('addPkgModal').style.display='flex'"><i class="bi bi-plus-lg"></i> Add Package</button>
+        <button class="btn btn-sm btn-primary open-add-pkg-btn"><i class="bi bi-plus-lg"></i> Add Package</button>
         <?php endif; ?>
       </div>
       <?php if (empty($linkedPackages)): ?>
       <div class="card-body" style="text-align:center;padding:30px;">
         <p style="color:var(--text-muted);">No packages linked yet.</p>
         <?php if (!empty($allPackages)): ?>
-        <button class="btn btn-primary btn-sm" onclick="document.getElementById('addPkgModal').style.display='flex'">Add Package</button>
+        <button class="btn btn-primary btn-sm open-add-pkg-btn">Add Package</button>
         <?php endif; ?>
       </div>
       <?php else: ?>
@@ -111,7 +111,7 @@ $impactBadge = fn($v) => match($v) { 'high' => 'badge-danger', 'low' => 'badge-s
               </div>
             </td>
             <td>
-              <form method="POST" action="/ssp/<?= (int)$plan['id'] ?>/remove-package/<?= (int)$pkg['id'] ?>" onsubmit="return confirm('Remove this package from the SSP?')" style="margin:0">
+              <form method="POST" action="/ssp/<?= (int)$plan['id'] ?>/remove-package/<?= (int)$pkg['id'] ?>" data-confirm="Remove this package from the SSP?" style="margin:0">
                 <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
                 <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
               </form>
@@ -186,7 +186,7 @@ $impactBadge = fn($v) => match($v) { 'high' => 'badge-danger', 'low' => 'badge-s
   <div style="background:var(--card-bg);border-radius:12px;padding:28px;width:780px;max-height:90vh;overflow-y:auto;max-width:95vw;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
       <h3 style="margin:0;">Edit System Security Plan</h3>
-      <button onclick="document.getElementById('editModal').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:1.25rem;color:var(--text-muted);"><i class="bi bi-x-lg"></i></button>
+      <button id="btnCloseEditSsp" style="background:none;border:none;cursor:pointer;font-size:1.25rem;color:var(--text-muted);"><i class="bi bi-x-lg"></i></button>
     </div>
     <form method="POST" action="/ssp/<?= (int)$plan['id'] ?>/update" enctype="multipart/form-data">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
@@ -300,7 +300,7 @@ $impactBadge = fn($v) => match($v) { 'high' => 'badge-danger', 'low' => 'badge-s
       </div>
       <div style="display:flex;gap:10px;margin-top:20px;">
         <button type="submit" class="btn btn-primary">Save Changes</button>
-        <button type="button" class="btn btn-secondary" onclick="document.getElementById('editModal').style.display='none'">Cancel</button>
+        <button type="button" id="btnCancelEditSsp" class="btn btn-secondary">Cancel</button>
       </div>
     </form>
   </div>
@@ -312,7 +312,7 @@ $impactBadge = fn($v) => match($v) { 'high' => 'badge-danger', 'low' => 'badge-s
   <div style="background:var(--card-bg);border-radius:12px;padding:28px;width:480px;max-width:95vw;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
       <h3 style="margin:0;">Add Compliance Package</h3>
-      <button onclick="document.getElementById('addPkgModal').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:1.25rem;color:var(--text-muted);"><i class="bi bi-x-lg"></i></button>
+      <button id="btnCloseAddPkg" style="background:none;border:none;cursor:pointer;font-size:1.25rem;color:var(--text-muted);"><i class="bi bi-x-lg"></i></button>
     </div>
     <form method="POST" action="/ssp/<?= (int)$plan['id'] ?>/add-package">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
@@ -327,9 +327,30 @@ $impactBadge = fn($v) => match($v) { 'high' => 'badge-danger', 'low' => 'badge-s
       </div>
       <div style="display:flex;gap:10px;margin-top:16px;">
         <button type="submit" class="btn btn-primary">Add Package</button>
-        <button type="button" class="btn btn-secondary" onclick="document.getElementById('addPkgModal').style.display='none'">Cancel</button>
+        <button type="button" id="btnCancelAddPkg" class="btn btn-secondary">Cancel</button>
       </div>
     </form>
   </div>
 </div>
 <?php endif; ?>
+<script nonce="<?= Security::nonce() ?>">
+(function() {
+  var editModal = document.getElementById('editModal');
+  var addPkgModal = document.getElementById('addPkgModal');
+  function open(m)  { if (m) m.style.display = 'flex'; }
+  function close(m) { if (m) m.style.display = 'none'; }
+  document.getElementById('btnOpenEditSsp').addEventListener('click', function() { open(editModal); });
+  document.getElementById('btnCloseEditSsp').addEventListener('click', function() { close(editModal); });
+  document.getElementById('btnCancelEditSsp').addEventListener('click', function() { close(editModal); });
+  if (addPkgModal) {
+    document.querySelectorAll('.open-add-pkg-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() { open(addPkgModal); });
+    });
+    document.getElementById('btnCloseAddPkg').addEventListener('click', function() { close(addPkgModal); });
+    document.getElementById('btnCancelAddPkg').addEventListener('click', function() { close(addPkgModal); });
+  }
+  document.querySelectorAll('form[data-confirm]').forEach(function(f) {
+    f.addEventListener('submit', function(e) { if (!confirm(f.dataset.confirm)) e.preventDefault(); });
+  });
+})();
+</script>

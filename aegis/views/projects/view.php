@@ -14,8 +14,8 @@ $actual  = $project['budget_actual']  !== null ? (float)$project['budget_actual'
     <p class="page-subtitle"><?= Security::h($project['title']) ?></p>
   </div>
   <div style="display:flex;gap:10px;">
-    <button class="btn btn-secondary" onclick="document.getElementById('editModal').style.display='flex'"><i class="bi bi-pencil"></i> Edit</button>
-    <form method="POST" action="/projects/<?= (int)$project['id'] ?>/delete" onsubmit="return confirm('Delete this project?')" style="margin:0;">
+    <button id="btnOpenEdit" class="btn btn-secondary"><i class="bi bi-pencil"></i> Edit</button>
+    <form method="POST" action="/projects/<?= (int)$project['id'] ?>/delete" data-confirm="Delete this project?" style="margin:0;">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
       <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i></button>
     </form>
@@ -29,7 +29,7 @@ $actual  = $project['budget_actual']  !== null ? (float)$project['budget_actual'
     <div class="card">
       <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
         <h3 class="card-title">Tasks</h3>
-        <button class="btn btn-sm btn-secondary" onclick="document.getElementById('addTaskModal').style.display='flex'"><i class="bi bi-plus-lg"></i> Add Task</button>
+        <button id="btnOpenAddTask" class="btn btn-sm btn-secondary"><i class="bi bi-plus-lg"></i> Add Task</button>
       </div>
       <?php if ($taskCount > 0): ?>
       <div style="padding:12px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);">
@@ -72,7 +72,7 @@ $actual  = $project['budget_actual']  !== null ? (float)$project['budget_actual'
               <button type="submit" class="btn btn-sm btn-secondary" title="Mark done"><i class="bi bi-check-lg"></i></button>
             </form>
             <?php endif; ?>
-            <form method="POST" action="/projects/<?= (int)$project['id'] ?>/task/<?= (int)$t['id'] ?>/delete" onsubmit="return confirm('Delete task?')" style="margin:0;">
+            <form method="POST" action="/projects/<?= (int)$project['id'] ?>/task/<?= (int)$t['id'] ?>/delete" data-confirm="Delete task?" style="margin:0;">
               <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
               <button type="submit" class="btn btn-sm btn-danger" title="Delete"><i class="bi bi-trash"></i></button>
             </form>
@@ -87,7 +87,7 @@ $actual  = $project['budget_actual']  !== null ? (float)$project['budget_actual'
     <div class="card">
       <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
         <h3 class="card-title">Linked Items</h3>
-        <button class="btn btn-sm btn-secondary" onclick="document.getElementById('addLinkModal').style.display='flex'"><i class="bi bi-link-45deg"></i> Add Link</button>
+        <button id="btnOpenAddLink" class="btn btn-sm btn-secondary"><i class="bi bi-link-45deg"></i> Add Link</button>
       </div>
       <?php if (empty($links)): ?>
       <div class="card-body"><p style="color:var(--text-muted);font-size:0.875rem;">No linked items.</p></div>
@@ -102,7 +102,7 @@ $actual  = $project['budget_actual']  !== null ? (float)$project['budget_actual'
           <td>
             <form method="POST" action="/projects/<?= (int)$project['id'] ?>/link/<?= (int)$lk['id'] ?>/remove" style="margin:0;">
               <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
-              <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Remove link?')"><i class="bi bi-x-lg"></i></button>
+              <button type="submit" class="btn btn-sm btn-danger" data-confirm="Remove link?"><i class="bi bi-x-lg"></i></button>
             </form>
           </td>
         </tr>
@@ -153,7 +153,7 @@ $actual  = $project['budget_actual']  !== null ? (float)$project['budget_actual'
   <div style="background:var(--card-bg);border-radius:12px;padding:28px;width:560px;max-height:90vh;overflow-y:auto;max-width:95vw;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
       <h3 style="margin:0;">Edit Project</h3>
-      <button onclick="document.getElementById('editModal').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:1.25rem;"><i class="bi bi-x-lg"></i></button>
+      <button id="btnCloseEdit" style="background:none;border:none;cursor:pointer;font-size:1.25rem;"><i class="bi bi-x-lg"></i></button>
     </div>
     <form method="POST" action="/projects/<?= (int)$project['id'] ?>/update">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
@@ -191,7 +191,7 @@ $actual  = $project['budget_actual']  !== null ? (float)$project['budget_actual'
         </div>
         <div style="display:flex;gap:10px;margin-top:8px;">
           <button type="submit" class="btn btn-primary">Save Changes</button>
-          <button type="button" onclick="document.getElementById('editModal').style.display='none'" class="btn btn-secondary">Cancel</button>
+          <button type="button" id="btnCancelEdit" class="btn btn-secondary">Cancel</button>
         </div>
       </div>
     </form>
@@ -203,7 +203,7 @@ $actual  = $project['budget_actual']  !== null ? (float)$project['budget_actual'
   <div style="background:var(--card-bg);border-radius:12px;padding:28px;width:480px;max-width:95vw;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
       <h3 style="margin:0;">Add Task</h3>
-      <button onclick="document.getElementById('addTaskModal').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:1.25rem;"><i class="bi bi-x-lg"></i></button>
+      <button id="btnCloseAddTask" style="background:none;border:none;cursor:pointer;font-size:1.25rem;"><i class="bi bi-x-lg"></i></button>
     </div>
     <form method="POST" action="/projects/<?= (int)$project['id'] ?>/task/add">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
@@ -222,7 +222,7 @@ $actual  = $project['budget_actual']  !== null ? (float)$project['budget_actual'
       </div>
       <div style="display:flex;gap:10px;margin-top:16px;">
         <button type="submit" class="btn btn-primary">Add Task</button>
-        <button type="button" onclick="document.getElementById('addTaskModal').style.display='none'" class="btn btn-secondary">Cancel</button>
+        <button type="button" id="btnCancelAddTask" class="btn btn-secondary">Cancel</button>
       </div>
     </form>
   </div>
@@ -233,7 +233,7 @@ $actual  = $project['budget_actual']  !== null ? (float)$project['budget_actual'
   <div style="background:var(--card-bg);border-radius:12px;padding:28px;width:400px;max-width:95vw;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
       <h3 style="margin:0;">Link Item</h3>
-      <button onclick="document.getElementById('addLinkModal').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:1.25rem;"><i class="bi bi-x-lg"></i></button>
+      <button id="btnCloseAddLink" style="background:none;border:none;cursor:pointer;font-size:1.25rem;"><i class="bi bi-x-lg"></i></button>
     </div>
     <form method="POST" action="/projects/<?= (int)$project['id'] ?>/link/add">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
@@ -248,8 +248,32 @@ $actual  = $project['budget_actual']  !== null ? (float)$project['budget_actual'
       <div class="form-group"><label class="form-label">Entity ID <span style="color:var(--danger)">*</span></label><input type="number" name="entity_id" class="form-control" required min="1" placeholder="Enter numeric ID"></div>
       <div style="display:flex;gap:10px;margin-top:16px;">
         <button type="submit" class="btn btn-primary">Link</button>
-        <button type="button" onclick="document.getElementById('addLinkModal').style.display='none'" class="btn btn-secondary">Cancel</button>
+        <button type="button" id="btnCancelAddLink" class="btn btn-secondary">Cancel</button>
       </div>
     </form>
   </div>
 </div>
+<script nonce="<?= Security::nonce() ?>">
+(function() {
+  var editModal    = document.getElementById('editModal');
+  var taskModal    = document.getElementById('addTaskModal');
+  var linkModal    = document.getElementById('addLinkModal');
+  function open(m)  { if (m) m.style.display = 'flex'; }
+  function close(m) { if (m) m.style.display = 'none'; }
+  document.getElementById('btnOpenEdit').addEventListener('click', function() { open(editModal); });
+  document.getElementById('btnCloseEdit').addEventListener('click', function() { close(editModal); });
+  document.getElementById('btnCancelEdit').addEventListener('click', function() { close(editModal); });
+  document.getElementById('btnOpenAddTask').addEventListener('click', function() { open(taskModal); });
+  document.getElementById('btnCloseAddTask').addEventListener('click', function() { close(taskModal); });
+  document.getElementById('btnCancelAddTask').addEventListener('click', function() { close(taskModal); });
+  document.getElementById('btnOpenAddLink').addEventListener('click', function() { open(linkModal); });
+  document.getElementById('btnCloseAddLink').addEventListener('click', function() { close(linkModal); });
+  document.getElementById('btnCancelAddLink').addEventListener('click', function() { close(linkModal); });
+  document.querySelectorAll('form[data-confirm]').forEach(function(f) {
+    f.addEventListener('submit', function(e) { if (!confirm(f.dataset.confirm)) e.preventDefault(); });
+  });
+  document.querySelectorAll('button[data-confirm]').forEach(function(btn) {
+    btn.addEventListener('click', function(e) { if (!confirm(btn.dataset.confirm)) e.preventDefault(); });
+  });
+})();
+</script>

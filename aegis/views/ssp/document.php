@@ -91,7 +91,7 @@
 </head>
 <body>
 
-<button class="print-btn" onclick="window.print()"><i>⎙</i> Print / Save PDF</button>
+<button class="print-btn" id="btnPrint"><i>⎙</i> Print / Save PDF</button>
 
 <!-- Cover Page -->
 <div class="cover">
@@ -217,7 +217,7 @@
             data-obj="<?= (int)$ctrl['id'] ?>"
             placeholder="Describe how this control is implemented in your environment…"><?= Security::h($ctrl['implementation_statement'] ?? '') ?></textarea>
           <div class="save-row">
-            <button class="save-btn" onclick="saveStatement(this, 'implementation_statement')">Save</button>
+            <button class="save-btn" data-save-field="implementation_statement">Save</button>
             <span class="save-status"></span>
           </div>
         </div>
@@ -235,7 +235,7 @@
             placeholder="<?= Security::h($ctrl['code']) ?>[a]: …&#10;<?= Security::h($ctrl['code']) ?>[b]: …"
             rows="5"><?= Security::h($ctrl['objective_responses'] ?? '') ?></textarea>
           <div class="save-row">
-            <button class="save-btn" onclick="saveStatement(this, 'objective_responses')">Save</button>
+            <button class="save-btn" data-save-field="objective_responses">Save</button>
             <span class="save-status"></span>
           </div>
         </div>
@@ -251,7 +251,7 @@
             placeholder="e.g. CISO, System Administrator, Data Owner"
             rows="2"><?= Security::h($ctrl['responsible_roles'] ?? '') ?></textarea>
           <div class="save-row">
-            <button class="save-btn" onclick="saveStatement(this, 'responsible_roles')">Save</button>
+            <button class="save-btn" data-save-field="responsible_roles">Save</button>
             <span class="save-status"></span>
           </div>
         </div>
@@ -264,7 +264,11 @@
 </div>
 <?php endforeach; ?>
 
-<script>
+<script nonce="<?= Security::nonce() ?>">
+document.getElementById('btnPrint').addEventListener('click', function(){ window.print(); });
+document.querySelectorAll('.save-btn').forEach(function(btn) {
+  btn.addEventListener('click', function(){ saveStatement(btn, btn.dataset.saveField); });
+});
 let _csrf = <?= json_encode(Security::generateCsrfToken()) ?>;
 
 function saveStatement(btn, field) {

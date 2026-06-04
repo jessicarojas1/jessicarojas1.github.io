@@ -46,7 +46,7 @@
         </td>
         <td style="display:flex;gap:6px;">
           <a href="/automation/<?= (int)$rule['id'] ?>" class="btn btn-sm btn-secondary">View</a>
-          <form method="POST" action="/automation/<?= (int)$rule['id'] ?>/delete" onsubmit="return confirm('Delete this rule?')" style="margin:0">
+          <form method="POST" action="/automation/<?= (int)$rule['id'] ?>/delete" data-confirm="Delete this rule?" style="margin:0">
             <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
             <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></button>
           </form>
@@ -57,3 +57,8 @@
   </table>
 </div>
 <?php endif; ?>
+<script nonce="<?= Security::nonce() ?>">
+document.querySelectorAll('[data-confirm]').forEach(function(el) {
+  el.addEventListener('submit', function(e) { if (!confirm(el.getAttribute('data-confirm'))) e.preventDefault(); });
+});
+</script>

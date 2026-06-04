@@ -27,8 +27,8 @@ $widgetTypes = [
   <div style="display:flex;gap:10px;align-items:center;">
     <?php if ($dashboard['is_shared']): ?><span class="badge badge-info">Shared</span><?php endif; ?>
     <?php if ($isOwner): ?>
-    <button class="btn btn-secondary btn-sm" onclick="document.getElementById('addWidgetModal').style.display='flex'"><i class="bi bi-plus-lg"></i> Add Widget</button>
-    <form method="POST" action="/dashboards/<?= (int)$dashboard['id'] ?>/delete" onsubmit="return confirm('Delete this dashboard?')" style="margin:0;">
+    <button id="btnOpenWidget" class="btn btn-secondary btn-sm"><i class="bi bi-plus-lg"></i> Add Widget</button>
+    <form method="POST" action="/dashboards/<?= (int)$dashboard['id'] ?>/delete" data-confirm="Delete this dashboard?" style="margin:0;">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
       <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i></button>
     </form>
@@ -43,7 +43,7 @@ $widgetTypes = [
   <h3 style="margin:16px 0 8px;">No Widgets Yet</h3>
   <?php if ($isOwner): ?>
   <p style="color:var(--text-muted);margin-bottom:20px;">Add widgets to build your custom view.</p>
-  <button class="btn btn-primary" onclick="document.getElementById('addWidgetModal').style.display='flex'">Add First Widget</button>
+  <button class="btn btn-primary" id="btnOpenWidget2">Add First Widget</button>
   <?php else: ?>
   <p style="color:var(--text-muted);">This dashboard has no widgets.</p>
   <?php endif; ?>
@@ -55,7 +55,7 @@ $widgetTypes = [
     <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
       <h3 class="card-title"><?= Security::h($w['title']) ?></h3>
       <?php if ($isOwner): ?>
-      <form method="POST" action="/dashboards/<?= (int)$dashboard['id'] ?>/widget/<?= (int)$w['id'] ?>/remove" style="margin:0;" onsubmit="return confirm('Remove widget?')">
+      <form method="POST" action="/dashboards/<?= (int)$dashboard['id'] ?>/widget/<?= (int)$w['id'] ?>/remove" style="margin:0;" data-confirm="Remove widget?">
         <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
         <button type="submit" style="background:none;border:none;cursor:pointer;color:var(--text-muted);"><i class="bi bi-x-lg"></i></button>
       </form>
@@ -140,13 +140,13 @@ $widgetTypes = [
   <div style="background:var(--card-bg);border-radius:12px;padding:28px;width:460px;max-width:95vw;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
       <h3 style="margin:0;">Add Widget</h3>
-      <button onclick="document.getElementById('addWidgetModal').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:1.25rem;"><i class="bi bi-x-lg"></i></button>
+      <button id="btnCloseWidget" style="background:none;border:none;cursor:pointer;font-size:1.25rem;"><i class="bi bi-x-lg"></i></button>
     </div>
     <form method="POST" action="/dashboards/<?= (int)$dashboard['id'] ?>/add-widget">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
       <div class="form-group">
         <label class="form-label">Widget Type</label>
-        <select name="widget_type" class="form-control" id="widgetTypeSelect" onchange="toggleMetric()">
+        <select name="widget_type" class="form-control" id="widgetTypeSelect">
           <?php foreach ($widgetTypes as $v => $l): ?>
           <option value="<?= $v ?>"><?= Security::h($l) ?></option>
           <?php endforeach; ?>
@@ -166,16 +166,26 @@ $widgetTypes = [
       </div>
       <div style="display:flex;gap:10px;margin-top:20px;">
         <button type="submit" class="btn btn-primary">Add Widget</button>
-        <button type="button" onclick="document.getElementById('addWidgetModal').style.display='none'" class="btn btn-secondary">Cancel</button>
+        <button type="button" id="btnCancelWidget" class="btn btn-secondary">Cancel</button>
       </div>
     </form>
   </div>
 </div>
 <script nonce="<?= Security::nonce() ?>">
 function toggleMetric() {
-  const t = document.getElementById('widgetTypeSelect').value;
+  var t = document.getElementById('widgetTypeSelect').value;
   document.getElementById('metricGroup').style.display = t === 'stat_card' ? 'block' : 'none';
 }
+document.getElementById('widgetTypeSelect').addEventListener('change', toggleMetric);
 toggleMetric();
+var modal = document.getElementById('addWidgetModal');
+document.getElementById('btnOpenWidget').addEventListener('click', function(){ modal.style.display = 'flex'; });
+var btn2 = document.getElementById('btnOpenWidget2');
+if (btn2) btn2.addEventListener('click', function(){ modal.style.display = 'flex'; });
+document.getElementById('btnCloseWidget').addEventListener('click', function(){ modal.style.display = 'none'; });
+document.getElementById('btnCancelWidget').addEventListener('click', function(){ modal.style.display = 'none'; });
+document.querySelectorAll('[data-confirm]').forEach(function(el) {
+  el.addEventListener('submit', function(e) { if (!confirm(el.getAttribute('data-confirm'))) e.preventDefault(); });
+});
 </script>
 <?php endif; ?>

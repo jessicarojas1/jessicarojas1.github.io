@@ -36,7 +36,7 @@ ob_start();
     </div>
     <div>
       <label style="display:block;font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;font-weight:600;">REVIEW DATE</label>
-      <select name="review" class="form-control" style="min-width:160px;height:32px;font-size:0.85rem;" onchange="this.form.submit()">
+      <select name="review" id="filterReview" class="form-control" style="min-width:160px;height:32px;font-size:0.85rem;">
         <option value="">All dates</option>
         <option value="overdue"     <?= ($reviewFilter??'')==='overdue'?'selected':'' ?>>Overdue</option>
         <option value="this_month"  <?= ($reviewFilter??'')==='this_month'?'selected':'' ?>>Due in 30 days</option>
@@ -46,7 +46,7 @@ ob_start();
     </div>
     <div>
       <label style="display:block;font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;font-weight:600;">COMPLIANCE PACKAGE</label>
-      <select name="package" class="form-control" style="min-width:180px;height:32px;font-size:0.85rem;" onchange="this.form.submit()">
+      <select name="package" id="filterPackagePol" class="form-control" style="min-width:180px;height:32px;font-size:0.85rem;">
         <option value="">All packages</option>
         <?php foreach ($packages as $pkg): ?>
         <option value="<?= (int)$pkg['id'] ?>" <?= ($packageId??0)===(int)$pkg['id']?'selected':'' ?>><?= Security::h($pkg['name']) ?></option>
@@ -118,6 +118,10 @@ ob_start();
 <?php endif; ?>
 </div>
 
+<script nonce="<?= Security::nonce() ?>">
+document.getElementById('filterReview').addEventListener('change', function(){ this.form.submit(); });
+document.getElementById('filterPackagePol').addEventListener('change', function(){ this.form.submit(); });
+</script>
 <?php
 $content = ob_get_clean();
 require AEGIS_ROOT . '/views/layout.php';

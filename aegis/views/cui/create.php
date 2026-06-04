@@ -63,7 +63,7 @@
           </div>
           <div class="form-group">
             <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-              <input type="checkbox" name="is_encrypted" id="encCheck" onchange="document.getElementById('encDetails').style.display=this.checked?'block':'none'">
+              <input type="checkbox" name="is_encrypted" id="encCheck">
               <span class="form-label" style="margin:0;">Data is encrypted at rest</span>
             </label>
           </div>
@@ -104,3 +104,8 @@
     <a href="/cui" class="btn btn-secondary">Cancel</a>
   </div>
 </form>
+<script nonce="<?= Security::nonce() ?>">
+document.getElementById('encCheck').addEventListener('change', function() {
+  document.getElementById('encDetails').style.display = this.checked ? 'block' : 'none';
+});
+</script>
