@@ -52,7 +52,7 @@ $nonce = Security::nonce();
 <style nonce="<?= $nonce ?>">
 /* ── Board Pack Styles ───────────────────────────────────────────────────── */
 .bp-cover {
-  background: linear-gradient(135deg, #111827 0%, #14532d 55%, #1c2a1b 100%);
+  background: linear-gradient(135deg, #010409 0%, #0a1f0e 55%, #010b07 100%);
   color: #fff;
   border-radius: 16px;
   padding: 48px 40px 40px;
@@ -694,7 +694,7 @@ $nonce = Security::nonce();
 
   // Line
   ctx.beginPath();
-  var primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#0b6104';
+  var primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#16a34a';
   ctx.strokeStyle = primaryColor;
   ctx.lineWidth = 2.5;
   ctx.lineJoin = 'round';

@@ -7,7 +7,7 @@ $strategyColors = [
 ];
 $statusStyles = [
     'draft'     => ['bg' => '#a1a1aa20', 'color' => '#a1a1aa', 'border' => '#a1a1aa40'],
-    'active'    => ['bg' => 'rgba(11, 97, 4, .08)', 'color' => 'var(--primary)', 'border' => 'rgba(11, 97, 4, .20)'],
+    'active'    => ['bg' => 'rgba(22, 163, 74, .08)', 'color' => 'var(--primary)', 'border' => 'rgba(22, 163, 74, .20)'],
     'completed' => ['bg' => '#05966920', 'color' => '#059669', 'border' => '#05966940'],
     'cancelled' => ['bg' => '#a1a1aa20', 'color' => '#a1a1aa', 'border' => '#a1a1aa40'],
 ];
