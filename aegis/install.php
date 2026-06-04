@@ -284,6 +284,10 @@ function runMigrations(PDO $pdo): void {
         '011_drop_builtin_columns.sql',
         '012_awareness_account_reviews_privacy.sql',
         '013_ssp.sql',
+        '014_poam.sql',
+        '015_projects.sql',
+        '016_findings_automation.sql',
+        '017_dashboards_raci.sql',
     ];
     foreach ($migrationFiles as $file) {
         $path = AEGIS_ROOT . '/database/migrations/' . $file;

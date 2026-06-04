@@ -51,7 +51,7 @@
     </div>
 
     <!-- Compliance -->
-    <?php if (moduleVisible('compliance', $__mv) || moduleVisible('import', $__mv) || moduleVisible('bulk_import', $__mv) || moduleVisible('control_testing', $__mv) || moduleVisible('compliance_gap', $__mv) || moduleVisible('ssp', $__mv)): ?>
+    <?php if (moduleVisible('compliance', $__mv) || moduleVisible('import', $__mv) || moduleVisible('bulk_import', $__mv) || moduleVisible('control_testing', $__mv) || moduleVisible('compliance_gap', $__mv) || moduleVisible('ssp', $__mv) || moduleVisible('poam', $__mv) || moduleVisible('odp', $__mv) || moduleVisible('sprs', $__mv) || moduleVisible('raci', $__mv) || moduleVisible('audit_findings', $__mv)): ?>
     <div class="nav-acc">
       <button type="button" class="nav-acc-header" data-acc="compliance">
         <span>Compliance</span><i class="bi bi-chevron-down nav-acc-chevron"></i>
@@ -62,13 +62,18 @@
         <?php if (moduleVisible('bulk_import',    $__mv)): ?><a href="/import"               class="nav-item <?= $activeModule==='bulk_import'?'active':'' ?>"><i class="bi bi-table"></i><span>Bulk Import</span></a><?php endif; ?>
         <?php if (moduleVisible('control_testing',$__mv)): ?><a href="/compliance/testing"   class="nav-item <?= $activeModule==='control_testing'?'active':'' ?>"><i class="bi bi-clipboard2-pulse-fill"></i><span>Control Testing</span></a><?php endif; ?>
         <?php if (moduleVisible('compliance_gap', $__mv)): ?><a href="/compliance/gap-analysis" class="nav-item <?= $activeModule==='compliance_gap'?'active':'' ?>"><i class="bi bi-bar-chart-steps"></i><span>Gap Analysis</span></a><?php endif; ?>
-        <?php if (moduleVisible('ssp',            $__mv)): ?><a href="/ssp"                  class="nav-item <?= $activeModule==='ssp'?'active':'' ?>"><i class="bi bi-file-earmark-lock2-fill"></i><span>Sec. Plans (SSP)</span></a><?php endif; ?>
+        <?php if (moduleVisible('ssp',            $__mv)): ?><a href="/ssp"           class="nav-item <?= $activeModule==='ssp'?'active':'' ?>"><i class="bi bi-file-earmark-lock2-fill"></i><span>Sec. Plans (SSP)</span></a><?php endif; ?>
+        <?php if (moduleVisible('poam',           $__mv)): ?><a href="/poam"          class="nav-item <?= $activeModule==='poam'?'active':'' ?>"><i class="bi bi-list-check"></i><span>POA&amp;M</span></a><?php endif; ?>
+        <?php if (moduleVisible('audit_findings', $__mv)): ?><a href="/audit-findings" class="nav-item <?= $activeModule==='audit_findings'?'active':'' ?>"><i class="bi bi-journal-x"></i><span>Audit Findings</span></a><?php endif; ?>
+        <?php if (moduleVisible('odp',            $__mv)): ?><a href="/odp"           class="nav-item <?= $activeModule==='odp'?'active':'' ?>"><i class="bi bi-sliders"></i><span>ODP Center</span></a><?php endif; ?>
+        <?php if (moduleVisible('sprs',           $__mv)): ?><a href="/sprs"          class="nav-item <?= $activeModule==='sprs'?'active':'' ?>"><i class="bi bi-speedometer2"></i><span>SPRS Score</span></a><?php endif; ?>
+        <?php if (moduleVisible('raci',           $__mv)): ?><a href="/raci"          class="nav-item <?= $activeModule==='raci'?'active':'' ?>"><i class="bi bi-people-fill"></i><span>RACI Matrix</span></a><?php endif; ?>
       </div>
     </div>
     <?php endif; ?>
 
     <!-- Operations -->
-    <?php $__opsVisible = array_filter(['audit','policy','incident','playbooks','issue','change','bcp','incident_sla','questionnaire','awareness','account_reviews','privacy'], fn($m) => moduleVisible($m, $__mv));
+    <?php $__opsVisible = array_filter(['audit','policy','incident','playbooks','issue','change','bcp','incident_sla','questionnaire','awareness','account_reviews','privacy','projects'], fn($m) => moduleVisible($m, $__mv));
     if ($__opsVisible): ?>
     <div class="nav-acc">
       <button type="button" class="nav-acc-header" data-acc="operations">
@@ -87,6 +92,7 @@
         <?php if (moduleVisible('awareness',      $__mv)): ?><a href="/awareness"       class="nav-item <?= $activeModule==='awareness'?'active':'' ?>"><i class="bi bi-mortarboard-fill"></i><span>Awareness Training</span></a><?php endif; ?>
         <?php if (moduleVisible('account_reviews',$__mv)): ?><a href="/account-reviews" class="nav-item <?= $activeModule==='account_reviews'?'active':'' ?>"><i class="bi bi-person-check-fill"></i><span>Account Reviews</span></a><?php endif; ?>
         <?php if (moduleVisible('privacy',        $__mv)): ?><a href="/privacy"         class="nav-item <?= $activeModule==='privacy'?'active':'' ?>"><i class="bi bi-shield-lock-fill"></i><span>Data Privacy</span></a><?php endif; ?>
+        <?php if (moduleVisible('projects',       $__mv)): ?><a href="/projects"        class="nav-item <?= $activeModule==='projects'?'active':'' ?>"><i class="bi bi-briefcase-fill"></i><span>GRC Projects</span></a><?php endif; ?>
       </div>
     </div>
     <?php endif; ?>
@@ -114,7 +120,7 @@
     <?php endif; ?>
 
     <!-- Analytics -->
-    <?php $__anaVisible = array_filter(['metrics','documents','report','report_board','export','calendar'], fn($m) => moduleVisible($m, $__mv));
+    <?php $__anaVisible = array_filter(['metrics','documents','report','report_board','export','calendar','dashboards'], fn($m) => moduleVisible($m, $__mv));
     if ($__anaVisible): ?>
     <div class="nav-acc">
       <button type="button" class="nav-acc-header" data-acc="analytics">
@@ -127,6 +133,21 @@
         <?php if (moduleVisible('report_board', $__mv)): ?><a href="/report/board" class="nav-item <?= $activeModule==='report_board'?'active':'' ?>"><i class="bi bi-tv-fill"></i><span>Board Dashboard</span></a><?php endif; ?>
         <?php if (moduleVisible('export',       $__mv)): ?><a href="/export"       class="nav-item <?= $activeModule==='export'?'active':'' ?>"><i class="bi bi-download"></i><span>Export</span></a><?php endif; ?>
         <?php if (moduleVisible('calendar',     $__mv)): ?><a href="/calendar"     class="nav-item <?= $activeModule==='calendar'?'active':'' ?>"><i class="bi bi-calendar3"></i><span>Calendar</span></a><?php endif; ?>
+        <?php if (moduleVisible('dashboards',   $__mv)): ?><a href="/dashboards"   class="nav-item <?= $activeModule==='dashboards'?'active':'' ?>"><i class="bi bi-layout-wtf"></i><span>Custom Dashboards</span></a><?php endif; ?>
+      </div>
+    </div>
+    <?php endif; ?>
+
+    <!-- GRC Tools -->
+    <?php $__toolsVisible = array_filter(['automation','cui'], fn($m) => moduleVisible($m, $__mv));
+    if ($__toolsVisible): ?>
+    <div class="nav-acc">
+      <button type="button" class="nav-acc-header" data-acc="tools">
+        <span>GRC Tools</span><i class="bi bi-chevron-down nav-acc-chevron"></i>
+      </button>
+      <div class="nav-acc-body" id="nav-acc-tools">
+        <?php if (moduleVisible('automation', $__mv)): ?><a href="/automation" class="nav-item <?= $activeModule==='automation'?'active':'' ?>"><i class="bi bi-lightning-fill"></i><span>Automation Rules</span></a><?php endif; ?>
+        <?php if (moduleVisible('cui',        $__mv)): ?><a href="/cui"        class="nav-item <?= $activeModule==='cui'?'active':'' ?>"><i class="bi bi-lock-fill"></i><span>CUI Inventory</span></a><?php endif; ?>
       </div>
     </div>
     <?php endif; ?>
