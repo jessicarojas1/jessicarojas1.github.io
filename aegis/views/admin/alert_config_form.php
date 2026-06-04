@@ -130,6 +130,14 @@ $alertTypes = [
   </div>
 </div>
 
+<script nonce="<?= Security::nonce() ?>">
+document.querySelectorAll('form[data-confirm]').forEach(function(f) {
+  f.addEventListener('submit', function(e) {
+    if (!confirm(f.dataset.confirm)) e.preventDefault();
+  });
+});
+</script>
+
 <?php
 $content = ob_get_clean();
 require AEGIS_ROOT . '/views/layout.php';

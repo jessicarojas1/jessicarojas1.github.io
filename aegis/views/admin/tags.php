@@ -94,3 +94,11 @@
   </div>
 
 </div>
+
+<script nonce="<?= Security::nonce() ?>">
+document.querySelectorAll('form[data-confirm]').forEach(function(f) {
+  f.addEventListener('submit', function(e) {
+    if (!confirm(f.dataset.confirm)) e.preventDefault();
+  });
+});
+</script>
