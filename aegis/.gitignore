@@ -1,0 +1,19 @@
+# Environment secrets — never commit
+.env
+.env.local
+.env.*.local
+
+# Runtime logs
+logs/
+*.log
+
+# Uploaded files (use Docker volumes in production)
+uploads/evidence/*
+uploads/documents/*
+!uploads/evidence/.htaccess
+!uploads/documents/.gitkeep
+
+# Docker SSL certs
+docker/ssl/*.crt
+docker/ssl/*.key
+docker/ssl/*.pem

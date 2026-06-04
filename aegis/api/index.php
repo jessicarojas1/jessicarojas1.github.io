@@ -51,7 +51,7 @@ function authenticateApi(): array {
 }
 
 // Rate limit API
-$ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+$ip = Security::clientIp();
 $key = "api_{$ip}";
 $row = Database::fetchOne("SELECT attempts, window_start FROM rate_limits WHERE key = ?", [$key]);
 if ($row) {

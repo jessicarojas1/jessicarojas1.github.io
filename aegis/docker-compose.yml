@@ -27,9 +27,10 @@ services:
       - STORAGE_DRIVER=${STORAGE_DRIVER:-local}
     volumes:
       - uploads_data:/var/www/html/uploads
-      - ./logs:/var/www/html/logs
+      - logs_data:/var/www/html/logs
     networks:
-      - aegis_net
+      - frontend_net
+      - backend_net
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/health"]
       interval: 30s
@@ -52,7 +53,7 @@ services:
       - ./database/migrations/002_phase2.sql:/docker-entrypoint-initdb.d/03_migration2.sql
       - ./database/migrations/003_phase3.sql:/docker-entrypoint-initdb.d/04_migration3.sql
     networks:
-      - aegis_net
+      - backend_net
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-aegis} -d ${DB_NAME:-aegis}"]
       interval: 10s
@@ -74,7 +75,7 @@ services:
       - ./public:/var/www/html/public:ro
       - ./docker/ssl:/etc/nginx/ssl:ro
     networks:
-      - aegis_net
+      - frontend_net
 
   cron:
     build:
@@ -96,19 +97,22 @@ services:
       - JWT_SECRET=${JWT_SECRET}
     volumes:
       - uploads_data:/var/www/html/uploads
-      - ./logs:/var/www/html/logs
+      - logs_data:/var/www/html/logs
     command: /bin/sh -c "while true; do
         php /var/www/html/scripts/run_workflows.php >> /var/www/html/logs/workflows.log 2>&1;
         php /var/www/html/scripts/dispatch_webhooks.php >> /var/www/html/logs/webhooks.log 2>&1;
         sleep 60;
       done"
     networks:
-      - aegis_net
+      - backend_net
 
 volumes:
   pg_data:
   uploads_data:
+  logs_data:
 
 networks:
-  aegis_net:
+  frontend_net:
+    driver: bridge
+  backend_net:
     driver: bridge

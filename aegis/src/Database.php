@@ -38,15 +38,17 @@ class Database {
     }
 
     public static function insert(string $table, array $data): int {
-        $cols = implode(', ', array_keys($data));
+        $q = fn(string $id) => '"' . str_replace('"', '', $id) . '"';
+        $cols = implode(', ', array_map($q, array_keys($data)));
         $placeholders = implode(', ', array_fill(0, count($data), '?'));
-        $stmt = self::query("INSERT INTO {$table} ({$cols}) VALUES ({$placeholders}) RETURNING id", array_values($data));
+        $stmt = self::query("INSERT INTO {$q($table)} ({$cols}) VALUES ({$placeholders}) RETURNING id", array_values($data));
         return (int) $stmt->fetchColumn();
     }
 
     public static function update(string $table, array $data, string $where, array $whereParams = []): int {
-        $sets = implode(', ', array_map(fn($k) => "{$k} = ?", array_keys($data)));
-        $stmt = self::query("UPDATE {$table} SET {$sets}, updated_at = NOW() WHERE {$where}", [...array_values($data), ...$whereParams]);
+        $q = fn(string $id) => '"' . str_replace('"', '', $id) . '"';
+        $sets = implode(', ', array_map(fn($k) => "{$q($k)} = ?", array_keys($data)));
+        $stmt = self::query("UPDATE {$q($table)} SET {$sets}, updated_at = NOW() WHERE {$where}", [...array_values($data), ...$whereParams]);
         return $stmt->rowCount();
     }
 

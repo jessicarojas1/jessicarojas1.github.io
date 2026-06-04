@@ -450,6 +450,15 @@ class ComplianceController {
     public function aiSuggestions(string $pkgId): void {
         Auth::requireAuth();
         header('Content-Type: application/json');
+
+        // Per-user rate limit: 5 AI requests per hour (prevents API cost abuse)
+        $rateLimitKey = 'ai_suggest_' . Auth::id();
+        if (!Security::checkRateLimit($rateLimitKey)) {
+            http_response_code(429);
+            echo json_encode(['error' => 'AI suggestion rate limit reached. Please wait before requesting again.']);
+            return;
+        }
+
         $pkgId = (int)$pkgId;
         $pkg = Database::fetchOne(
             "SELECT cp.*, s.name AS standard_name FROM compliance_packages cp LEFT JOIN standards s ON s.id = cp.standard_id WHERE cp.id = ?",
@@ -768,13 +777,17 @@ class ComplianceController {
         }
 
         $textFile = sys_get_temp_dir() . '/' . uniqid('pdf_') . '.txt';
-        $escaped  = escapeshellarg($tmpPath);
+        $escaped    = escapeshellarg($tmpPath);
         $escapedOut = escapeshellarg($textFile);
         exec("pdftotext -layout $escaped $escapedOut 2>/dev/null", $out, $code);
-        if ($code !== 0 || !file_exists($textFile)) return 'Could not extract text from PDF.';
 
-        $text = file_get_contents($textFile);
-        unlink($textFile);
+        $text = false;
+        try {
+            if ($code !== 0 || !file_exists($textFile)) return 'Could not extract text from PDF.';
+            $text = file_get_contents($textFile);
+        } finally {
+            if (file_exists($textFile)) unlink($textFile);
+        }
         if (!$text) return 'PDF appears to be empty or image-only (no selectable text).';
 
         // Derive package name from filename — sanitize to remove special chars (F23)

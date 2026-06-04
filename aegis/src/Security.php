@@ -1,5 +1,17 @@
 <?php
 class Security {
+
+    /**
+     * Return the real client IP, trusting X-Real-IP set by our nginx proxy.
+     * Falls back to REMOTE_ADDR (e.g. in CLI/test contexts).
+     */
+    public static function clientIp(): string {
+        $realIp = $_SERVER['HTTP_X_REAL_IP'] ?? '';
+        if ($realIp && filter_var($realIp, FILTER_VALIDATE_IP)) {
+            return $realIp;
+        }
+        return $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+    }
     public static function generateCsrfToken(): string {
         if (empty($_SESSION['csrf_token'])) {
             $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -210,12 +222,12 @@ class Security {
     public static function generateApiKey(): array {
         $key = 'aegis_' . bin2hex(random_bytes(32));
         $prefix = substr($key, 0, 12);
-        $hash = hash('sha256', $key);
+        $hash = hash_hmac('sha256', $key, $_ENV['JWT_SECRET'] ?? '');
         return ['key' => $key, 'prefix' => $prefix, 'hash' => $hash];
     }
 
     public static function validateApiKey(string $key): bool {
-        $hash = hash('sha256', $key);
+        $hash = hash_hmac('sha256', $key, $_ENV['JWT_SECRET'] ?? '');
         $row = Database::fetchOne(
             "SELECT id FROM api_keys WHERE key_hash = ? AND is_active = TRUE AND (expires_at IS NULL OR expires_at > NOW())",
             [$hash]
@@ -282,7 +294,7 @@ class Security {
         $csp = implode('; ', [
             "default-src 'self'",
             "script-src 'self' 'nonce-{$n}' https://cdn.jsdelivr.net",
-            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
+            "style-src 'self' 'nonce-{$n}' https://fonts.googleapis.com https://cdn.jsdelivr.net",
             "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net",
             "img-src 'self' data: blob:",
             "connect-src 'self'",

@@ -57,10 +57,15 @@ if (!$needsFullInstall) {
     $pdo->exec($schema);
     log_msg('[AEGIS] Schema created.');
 
-    // Default admin
-    $adminEmail    = $_ENV['ADMIN_EMAIL']    ?? 'admin@aegisgrc.local';
-    $adminPassword = $_ENV['ADMIN_PASSWORD'] ?? 'Admin@aegis1!';
-    $adminHash     = Security::hashPassword($adminPassword);
+    // Default admin — ADMIN_EMAIL and ADMIN_PASSWORD must be set as env vars
+    $adminEmail    = $_ENV['ADMIN_EMAIL']    ?? null;
+    $adminPassword = $_ENV['ADMIN_PASSWORD'] ?? null;
+
+    if (!$adminEmail || !$adminPassword) {
+        log_msg('[AEGIS] FATAL: ADMIN_EMAIL and ADMIN_PASSWORD environment variables must be set before install.');
+        exit(1);
+    }
+    $adminHash = Security::hashPassword($adminPassword);
 
     Database::query(
         "INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, 'admin')",

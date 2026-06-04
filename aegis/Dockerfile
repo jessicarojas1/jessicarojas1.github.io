@@ -27,10 +27,14 @@ WORKDIR /var/www/html
 COPY . .
 RUN mkdir -p uploads/evidence uploads/documents logs \
     && chmod 750 uploads uploads/evidence uploads/documents \
-    && chown -R www-data:www-data uploads logs
+    && chown -R www-data:www-data /var/www/html/uploads /var/www/html/logs \
+    && chown -R www-data:www-data /var/www/html
 
 COPY scripts/startup.sh /startup.sh
 RUN chmod +x /startup.sh
 
+# Apache needs to bind :80 as root then drops to www-data for workers.
+# startup.sh runs apache2-foreground which handles the privilege drop.
+# Set file ownership above; keep PID 1 as root for signal handling.
 EXPOSE 80
 CMD ["/startup.sh"]

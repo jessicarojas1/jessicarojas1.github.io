@@ -344,8 +344,10 @@ class SSPController {
             default => 'application/octet-stream',
         };
         $data = base64_decode($base64Data);
-        header('Content-Type: ' . $mime);
-        header('Content-Disposition: attachment; filename="' . addslashes($filename) . '"');
+        // Force download as octet-stream to prevent browser execution of SVG/HTML
+        header('Content-Type: application/octet-stream');
+        $safeName = rawurlencode(preg_replace('/[^\w.\-]/', '_', $filename));
+        header("Content-Disposition: attachment; filename=\"{$safeName}\"; filename*=UTF-8''{$safeName}");
         header('Content-Length: ' . strlen($data));
         echo $data;
         exit;
@@ -358,9 +360,19 @@ class SSPController {
         if ($file['error'] !== UPLOAD_ERR_OK) return [null, null];
         if ($file['size'] > $maxMB * 1024 * 1024) return [null, null];
 
-        $allowed = ['pdf','png','jpg','jpeg','gif','svg','vsdx','docx','pptx'];
+        $allowed = ['pdf','png','jpg','jpeg','gif','vsdx','docx','pptx'];
         $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
         if (!in_array($ext, $allowed)) return [null, null];
+
+        // Validate actual MIME type (not just extension)
+        $allowedMimes = [
+            'application/pdf', 'image/png', 'image/jpeg', 'image/gif',
+            'application/vnd.ms-visio.drawing',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        ];
+        $detectedMime = mime_content_type($file['tmp_name']);
+        if (!in_array($detectedMime, $allowedMimes)) return [null, null];
 
         $data = file_get_contents($file['tmp_name']);
         if ($data === false) return [null, null];

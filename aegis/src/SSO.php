@@ -94,6 +94,25 @@ class SSO {
         if (!$disc || empty($disc['token_endpoint'])) return null;
         $c = self::config();
 
+        // SSRF prevention: token_endpoint must be HTTPS, same host as issuer, no private IPs
+        $tokenEndpoint = $disc['token_endpoint'];
+        if (!preg_match('#^https://#i', $tokenEndpoint)) {
+            error_log('[SSO] token_endpoint must use HTTPS');
+            return null;
+        }
+        $tokenHost   = parse_url($tokenEndpoint, PHP_URL_HOST);
+        $issuerHost  = parse_url($disc['issuer'] ?? '', PHP_URL_HOST);
+        if (!$tokenHost || $tokenHost !== $issuerHost) {
+            error_log('[SSO] token_endpoint host does not match issuer host');
+            return null;
+        }
+        $resolved = gethostbyname($tokenHost);
+        if (filter_var($resolved, FILTER_VALIDATE_IP,
+                FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+            error_log('[SSO] token_endpoint resolves to a private/reserved IP');
+            return null;
+        }
+
         // Exchange code for tokens
         $ctx = stream_context_create(['http' => [
             'method'  => 'POST',
@@ -107,7 +126,7 @@ class SSO {
                 'client_secret' => $c['sso_client_secret'],
             ]),
         ]]);
-        $body = @file_get_contents($disc['token_endpoint'], false, $ctx);
+        $body = @file_get_contents($tokenEndpoint, false, $ctx);
         if (!$body) { error_log('[SSO] Token endpoint request failed'); return null; }
 
         $tokens = json_decode($body, true);

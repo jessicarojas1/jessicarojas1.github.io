@@ -32,6 +32,6 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^ index.php [QSA,L]
 
-# Block common attack patterns
-RewriteCond %{QUERY_STRING} (union.*select|insert.*into|delete.*from|drop.*table) [NC]
-RewriteRule .* - [F,L]
+# Note: SQL injection prevention is handled by PDO prepared statements throughout
+# the application. The query-string WAF rule was removed as it only inspected
+# GET parameters (not POST body) and provided false protection.

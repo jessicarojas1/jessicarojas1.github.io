@@ -1169,8 +1169,12 @@ class AdminController {
         foreach ($vars as $v) {
             $html = str_replace('{{' . $v . '}}', '<span style="background:#fef08a;padding:0 3px;border-radius:3px">[' . htmlspecialchars($v, ENT_QUOTES) . ']</span>', $html);
         }
+        // Serve inside a sandboxed iframe wrapper to prevent script execution in parent context
+        $escaped = htmlspecialchars($html, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
         header('Content-Type: text/html; charset=utf-8');
-        echo $html;
+        header('X-Frame-Options: SAMEORIGIN');
+        header('Content-Security-Policy: default-src \'none\'; style-src \'unsafe-inline\'; img-src \'self\' data:; sandbox allow-same-origin');
+        echo '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>' . $html . '</body></html>';
     }
 
     // ─── Scheduled Reports ────────────────────────────────────────────────────

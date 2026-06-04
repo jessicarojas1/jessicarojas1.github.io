@@ -126,7 +126,7 @@ class Auth {
 
     public static function login(string $email, string $password): bool {
         $email = strtolower(trim($email));
-        $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+        $ip = Security::clientIp();
 
         if (!Security::checkRateLimit('login_' . $ip)) return false;
 
