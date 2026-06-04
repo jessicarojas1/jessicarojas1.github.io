@@ -321,10 +321,11 @@ class ApprovalController {
         }
 
         $tid = Database::insert('approval_templates', [
-            'name'        => $name,
-            'entity_type' => $entityType,
-            'conditions'  => ($conditions ?: '{}'),
-            'is_active'   => isset($_POST['is_active']),
+            'name'              => $name,
+            'entity_type'       => $entityType,
+            'trigger_condition' => ($conditions ?: '{}'),
+            'is_active'         => isset($_POST['is_active']),
+            'created_by'        => Auth::id(),
         ]);
 
         // Save steps
