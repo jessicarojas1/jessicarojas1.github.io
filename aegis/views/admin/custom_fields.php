@@ -19,7 +19,7 @@ if (!in_array($activeTab, $entityTypes, true)) $activeTab = 'risk';
 <div id="addFieldCard" class="card" style="display:none;margin-bottom:20px">
   <div class="card-header" style="display:flex;justify-content:space-between;align-items:center">
     <strong>Add Custom Field</strong>
-    <button type="button" class="btn btn-ghost btn-sm" onclick="toggleAddForm()"><i class="bi bi-x-lg"></i></button>
+    <button type="button" class="btn btn-ghost btn-sm" id="closeAddFieldBtn"><i class="bi bi-x-lg"></i></button>
   </div>
   <div class="card-body">
     <form method="POST" action="/admin/custom-fields/save">
@@ -44,7 +44,7 @@ if (!in_array($activeTab, $entityTypes, true)) $activeTab = 'risk';
         </div>
         <div class="form-group">
           <label class="form-label">Field Type <span class="required">*</span></label>
-          <select name="field_type" class="form-control" required onchange="toggleOptionsField(this.value)">
+          <select name="field_type" class="form-control" required id="fieldTypeSelect">
             <option value="text">Text</option>
             <option value="textarea">Textarea</option>
             <option value="number">Number</option>
