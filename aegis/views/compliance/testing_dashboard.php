@@ -4,7 +4,7 @@ function ctResultBadge(string $result): string {
         'pass'       => '<span class="badge" style="background:#dcfce7;color:#16a34a;border:1px solid #86efac">Pass</span>',
         'fail'       => '<span class="badge" style="background:#fef2f2;color:#dc2626;border:1px solid #fca5a5">Fail</span>',
         'partial'    => '<span class="badge" style="background:#fffbeb;color:#d97706;border:1px solid #fcd34d">Partial</span>',
-        'not_tested' => '<span class="badge" style="background:#f1f5f9;color:var(--text-muted);border:1px solid #cbd5e1">Not Tested</span>',
+        'not_tested' => '<span class="badge" style="background:#f4f4f5;color:var(--text-muted);border:1px solid #d4d4d8">Not Tested</span>',
         default      => '<span class="badge">' . htmlspecialchars($result, ENT_QUOTES, 'UTF-8') . '</span>',
     };
 }
@@ -45,7 +45,7 @@ $cntTotal     = $cntPass + $cntFail + $cntPartial + $cntNotTested;
     <div style="font-size:32px;font-weight:700;color:#d97706;line-height:1"><?= $cntPartial ?></div>
     <div style="font-size:13px;color:#d97706;margin-top:4px;font-weight:600">Partial</div>
   </div>
-  <div style="flex:1;min-width:120px;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:12px;padding:16px 20px;text-align:center">
+  <div style="flex:1;min-width:120px;background:#f4f4f5;border:1px solid #d4d4d8;border-radius:12px;padding:16px 20px;text-align:center">
     <div style="font-size:32px;font-weight:700;color:var(--text-muted);line-height:1"><?= $cntNotTested ?></div>
     <div style="font-size:13px;color:var(--text-muted);margin-top:4px;font-weight:600">Not Tested</div>
   </div>
@@ -107,7 +107,7 @@ $cntTotal     = $cntPass + $cntFail + $cntPartial + $cntNotTested;
     <div class="card-header-left">
       <i class="bi bi-clock-history" style="color:var(--primary)"></i>
       <span class="card-title">Recent Tests</span>
-      <span style="background:#e2e8f0;color:var(--text-muted);border-radius:12px;padding:2px 10px;font-size:12px;font-weight:600"><?= count($recent) ?></span>
+      <span style="background:#e4e4e7;color:var(--text-muted);border-radius:12px;padding:2px 10px;font-size:12px;font-weight:600"><?= count($recent) ?></span>
     </div>
   </div>
   <?php if ($recent): ?>
@@ -148,13 +148,13 @@ $cntTotal     = $cntPass + $cntFail + $cntPartial + $cntNotTested;
             <td>
               <?php if ($r['effectiveness'] !== null): ?>
               <div style="display:flex;align-items:center;gap:8px">
-                <div style="flex:1;height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden">
+                <div style="flex:1;height:8px;background:#e4e4e7;border-radius:4px;overflow:hidden">
                   <div style="width:<?= (int)$r['effectiveness'] ?>%;height:100%;background:<?= $r['effectiveness'] >= 75 ? '#16a34a' : ($r['effectiveness'] >= 40 ? '#d97706' : '#dc2626') ?>;border-radius:4px"></div>
                 </div>
                 <span style="font-size:12px;font-weight:600;color:var(--text);white-space:nowrap"><?= (int)$r['effectiveness'] ?>%</span>
               </div>
               <?php else: ?>
-              <span style="color:#94a3b8;font-size:13px">—</span>
+              <span style="color:#a1a1aa;font-size:13px">—</span>
               <?php endif; ?>
             </td>
             <td>
@@ -170,7 +170,7 @@ $cntTotal     = $cntPass + $cntFail + $cntPartial + $cntNotTested;
   </div>
   <?php else: ?>
   <div class="card-body">
-    <div style="text-align:center;padding:32px;color:#94a3b8">
+    <div style="text-align:center;padding:32px;color:#a1a1aa">
       <i class="bi bi-clipboard2-x" style="font-size:36px;display:block;margin-bottom:12px"></i>
       <p style="margin:0;font-size:15px">No control tests have been recorded yet.</p>
       <p style="margin:8px 0 0;font-size:13px">Navigate to a compliance package and click <strong>Test</strong> on a control to get started.</p>

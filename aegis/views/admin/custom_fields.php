@@ -114,8 +114,8 @@ if (!in_array($activeTab, $entityTypes, true)) $activeTab = 'risk';
         <?php foreach ($tabFields as $f): ?>
         <tr>
           <td><strong><?= Security::h($f['label']) ?></strong></td>
-          <td><code style="font-size:13px;background:var(--bg-subtle,#f8fafc);padding:2px 6px;border-radius:4px"><?= Security::h($f['field_key']) ?></code></td>
-          <td><span class="badge" style="background:var(--bg-subtle,#f1f5f9);color:var(--text)"><?= Security::h($f['field_type']) ?></span></td>
+          <td><code style="font-size:13px;background:var(--bg-subtle,#f9fafb);padding:2px 6px;border-radius:4px"><?= Security::h($f['field_key']) ?></code></td>
+          <td><span class="badge" style="background:var(--bg-subtle,#f4f4f5);color:var(--text)"><?= Security::h($f['field_type']) ?></span></td>
           <td>
             <?php if ($f['field_type'] === 'select' && $f['options']): ?>
               <?php $opts = json_decode($f['options'], true) ?: []; ?>

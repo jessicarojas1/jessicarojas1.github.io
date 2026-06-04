@@ -16,7 +16,7 @@ $ragColors = [
     'green' => ['#f0fdf4', '#16a34a', '#bbf7d0'],
     'amber' => ['#fffbeb', '#d97706', '#fde68a'],
     'red'   => ['#fef2f2', '#dc2626', '#fecaca'],
-    'grey'  => ['#f8fafc', '#64748b', '#e2e8f0'],
+    'grey'  => ['#f9fafb', '#71717a', '#e4e4e7'],
 ];
 
 // Active filter from query string
@@ -58,7 +58,7 @@ $freqLabels = [
     ['green', 'Green',   'bi-check-circle-fill', '#16a34a', '#f0fdf4', '#bbf7d0'],
     ['amber', 'Amber',   'bi-exclamation-triangle-fill', '#d97706', '#fffbeb', '#fde68a'],
     ['red',   'Red',     'bi-exclamation-octagon-fill', '#dc2626', '#fef2f2', '#fecaca'],
-    ['grey',  'No Data', 'bi-dash-circle-fill', '#64748b', '#f8fafc', '#e2e8f0'],
+    ['grey',  'No Data', 'bi-dash-circle-fill', '#71717a', '#f9fafb', '#e4e4e7'],
   ];
   foreach ($chipDefs as [$rag, $label, $icon, $color, $bg, $border]):
     $count   = $ragCounts[$rag];
@@ -191,7 +191,7 @@ $displayKris = $activeFilter
         <!-- Mini threshold bar -->
         <div style="margin-bottom:14px;">
           <div style="font-size:11px;color:var(--text-muted);font-weight:600;margin-bottom:4px;">Thresholds</div>
-          <div style="height:8px;border-radius:4px;overflow:hidden;display:flex;background:#e2e8f0;">
+          <div style="height:8px;border-radius:4px;overflow:hidden;display:flex;background:#e4e4e7;">
             <?php if ($k['direction'] === 'higher_worse'): ?>
               <div style="width:<?= $greenPct ?>%;background:#16a34a;" title="Green ≤ <?= Security::h((string)$green) ?>"></div>
               <div style="width:<?= $amberPct ?>%;background:#d97706;" title="Amber ≤ <?= Security::h((string)$amber) ?>"></div>

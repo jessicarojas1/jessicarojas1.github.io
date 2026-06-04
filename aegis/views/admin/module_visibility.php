@@ -104,7 +104,7 @@ function updateVisBadge() {
 .toggle-switch { position:relative; display:inline-block; width:40px; height:22px; flex-shrink:0; }
 .toggle-switch input { opacity:0; width:0; height:0; }
 .toggle-slider {
-  position:absolute; inset:0; background:#cbd5e1; border-radius:22px;
+  position:absolute; inset:0; background:#d4d4d8; border-radius:22px;
   cursor:pointer; transition:.2s;
 }
 .toggle-slider:before {
@@ -113,7 +113,7 @@ function updateVisBadge() {
 }
 .toggle-switch input:checked + .toggle-slider { background:var(--primary); }
 .toggle-switch input:checked + .toggle-slider:before { transform:translateX(18px); }
-html[data-theme="dark"] .toggle-slider { background:#334155; }
+html[data-theme="dark"] .toggle-slider { background:#3f3f46; }
 html[data-theme="dark"] .toggle-switch input:checked + .toggle-slider { background:var(--primary); }
 </style>
 

@@ -62,7 +62,7 @@ $urgent = array_filter($expiring, function($c) {
   <h2 style="font-size:16px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:8px">
     <i class="bi bi-clock-history" style="color:#d97706"></i>
     Expiring Soon
-    <span style="font-size:12px;font-weight:400;color:var(--text-muted);background:#f1f5f9;padding:2px 8px;border-radius:10px"><?= count($expiring) ?></span>
+    <span style="font-size:12px;font-weight:400;color:var(--text-muted);background:#f4f4f5;padding:2px 8px;border-radius:10px"><?= count($expiring) ?></span>
   </h2>
   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">
     <?php foreach ($expiring as $c):
@@ -131,11 +131,11 @@ $urgent = array_filter($expiring, function($c) {
           <?php foreach ($contracts as $c):
             $statusMap = [
               'active'     => ['color'=>'#059669','bg'=>'#dcfce7','label'=>'Active'],
-              'draft'      => ['color'=>'#64748b','bg'=>'#f1f5f9','label'=>'Draft'],
+              'draft'      => ['color'=>'#71717a','bg'=>'#f4f4f5','label'=>'Draft'],
               'expired'    => ['color'=>'#dc2626','bg'=>'#fee2e2','label'=>'Expired'],
-              'terminated' => ['color'=>'#94a3b8','bg'=>'#f8fafc','label'=>'Terminated'],
+              'terminated' => ['color'=>'#a1a1aa','bg'=>'#f9fafb','label'=>'Terminated'],
             ];
-            $badge = $statusMap[$c['status']] ?? ['color'=>'#64748b','bg'=>'#f1f5f9','label'=>ucfirst($c['status'])];
+            $badge = $statusMap[$c['status']] ?? ['color'=>'#71717a','bg'=>'#f4f4f5','label'=>ucfirst($c['status'])];
           ?>
           <tr>
             <td style="font-weight:500"><?= Security::h($c['vendor_name']) ?></td>
@@ -180,7 +180,7 @@ $urgent = array_filter($expiring, function($c) {
       </table>
     </div>
     <?php else: ?>
-    <div style="text-align:center;padding:48px 20px;color:#94a3b8">
+    <div style="text-align:center;padding:48px 20px;color:#a1a1aa">
       <i class="bi bi-file-earmark-text" style="font-size:40px;display:block;margin-bottom:12px"></i>
       <p style="font-size:15px;margin:0">No contracts found.</p>
       <p style="font-size:13px;margin:8px 0 0">Add contracts from the vendor detail page.</p>

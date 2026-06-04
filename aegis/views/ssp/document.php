@@ -43,16 +43,16 @@
   .domain-header h3 { margin: 0; font-size: 1rem; color: var(--primary-dark); }
 
   /* Control */
-  .control { border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 20px; overflow: hidden; }
-  .control-header { background: #f8fafc; padding: 12px 16px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: flex-start; gap: 12px; }
+  .control { border: 1px solid #e4e4e7; border-radius: 8px; margin-bottom: 20px; overflow: hidden; }
+  .control-header { background: #f9fafb; padding: 12px 16px; border-bottom: 1px solid #e4e4e7; display: flex; align-items: flex-start; gap: 12px; }
   .control-code { background: var(--primary); color: #fff; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; white-space: nowrap; font-family: monospace; }
   .control-title { font-weight: 600; font-size: 0.9rem; flex: 1; }
   .status-badge { padding: 2px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; white-space: nowrap; }
   .status-compliant      { background: #d1fae5; color: var(--success); }
   .status-partial        { background: #fef3c7; color: var(--warning); }
   .status-non_compliant  { background: #fee2e2; color: #991b1b; }
-  .status-not_applicable { background: #f1f5f9; color: var(--text-muted); }
-  .status-default        { background: #f1f5f9; color: var(--text-muted); }
+  .status-not_applicable { background: #f4f4f5; color: var(--text-muted); }
+  .status-default        { background: #f4f4f5; color: var(--text-muted); }
 
   .control-body { padding: 16px; }
   .control-desc { font-size: 0.83rem; color: var(--text-muted); margin-bottom: 14px; line-height: 1.6; }
@@ -61,9 +61,9 @@
   .field-block { margin-bottom: 14px; }
   .field-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 6px; }
   .field-content { font-size: 0.86rem; line-height: 1.6; white-space: pre-wrap; }
-  .field-empty { color: #94a3b8; font-style: italic; font-size: 0.83rem; }
+  .field-empty { color: #a1a1aa; font-style: italic; font-size: 0.83rem; }
 
-  .editable-area { width: 100%; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px; font-size: 0.86rem; font-family: inherit; line-height: 1.6; resize: vertical; min-height: 80px; transition: border-color 0.2s; background: #fff; color: inherit; }
+  .editable-area { width: 100%; border: 1px solid #e4e4e7; border-radius: 6px; padding: 10px 12px; font-size: 0.86rem; font-family: inherit; line-height: 1.6; resize: vertical; min-height: 80px; transition: border-color 0.2s; background: #fff; color: inherit; }
   .editable-area:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79,70,229,0.1); }
   .save-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
   .save-btn { background: var(--primary); color: #fff; border: none; border-radius: 6px; padding: 5px 14px; font-size: 0.8rem; cursor: pointer; font-family: inherit; }
@@ -141,7 +141,7 @@
     <?php foreach ($sections as $i => $sec): ?>
     <li>
       <a href="#section-<?= (int)$sec['package']['id'] ?>"><?= Security::h($sec['package']['standard_code']) ?> — <?= Security::h($sec['package']['name']) ?></a>
-      <span style="color:#94a3b8;">Section <?= ($i + 1) ?></span>
+      <span style="color:#a1a1aa;">Section <?= ($i + 1) ?></span>
     </li>
     <?php endforeach; ?>
   </ul>
@@ -158,7 +158,7 @@
   </div>
 
   <?php if (empty($sec['domains'])): ?>
-  <p style="color:#94a3b8;font-style:italic;">No domains found in this package.</p>
+  <p style="color:#a1a1aa;font-style:italic;">No domains found in this package.</p>
   <?php endif; ?>
 
   <?php foreach ($sec['domains'] as $domain): ?>
@@ -168,7 +168,7 @@
     </div>
 
     <?php if (empty($domain['controls'])): ?>
-    <p style="color:#94a3b8;font-size:0.83rem;padding-left:16px;">No controls in this domain.</p>
+    <p style="color:#a1a1aa;font-size:0.83rem;padding-left:16px;">No controls in this domain.</p>
     <?php endif; ?>
 
     <?php foreach ($domain['controls'] as $ctrl):
@@ -225,7 +225,7 @@
         <!-- Objective-level responses -->
         <div class="field-block">
           <div class="field-label">Objective-Level Responses
-            <span style="font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px;color:#94a3b8;font-size:0.7rem;">e.g. <?= Security::h($ctrl['code']) ?>[a]: The organization…</span>
+            <span style="font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px;color:#a1a1aa;font-size:0.7rem;">e.g. <?= Security::h($ctrl['code']) ?>[a]: The organization…</span>
           </div>
           <textarea
             class="editable-area"

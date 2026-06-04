@@ -12,7 +12,7 @@ $expiringSoon     = (int)($summary['expiring_soon_count'] ?? 0);
 // Status config
 $statusConfig = [
     'active'     => ['label' => 'Active',     'fg' => '#16a34a', 'bg' => '#f0fdf4', 'border' => '#86efac'],
-    'expired'    => ['label' => 'Expired',    'fg' => '#64748b', 'bg' => '#f1f5f9', 'border' => '#cbd5e1'],
+    'expired'    => ['label' => 'Expired',    'fg' => '#71717a', 'bg' => '#f4f4f5', 'border' => '#d4d4d8'],
     'superseded' => ['label' => 'Superseded', 'fg' => 'var(--secondary)', 'bg' => 'rgba(55,65,81,.06)', 'border' => '#d1d5db'],
     'revoked'    => ['label' => 'Revoked',    'fg' => '#dc2626', 'bg' => '#fef2f2', 'border' => '#fca5a5'],
 ];
@@ -67,21 +67,21 @@ if ($filterStatus !== '') {
     </div>
   </div>
 
-  <div class="card" style="border-left:4px solid <?= $expiringSoon > 0 ? '#f59e0b' : '#94a3b8' ?>;">
+  <div class="card" style="border-left:4px solid <?= $expiringSoon > 0 ? '#f59e0b' : '#a1a1aa' ?>;">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
-      <div style="width:44px;height:44px;border-radius:10px;background:<?= $expiringSoon > 0 ? '#fffbeb' : '#f1f5f9' ?>;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-        <i class="bi bi-alarm-fill" style="font-size:20px;color:<?= $expiringSoon > 0 ? '#f59e0b' : '#94a3b8' ?>;"></i>
+      <div style="width:44px;height:44px;border-radius:10px;background:<?= $expiringSoon > 0 ? '#fffbeb' : '#f4f4f5' ?>;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <i class="bi bi-alarm-fill" style="font-size:20px;color:<?= $expiringSoon > 0 ? '#f59e0b' : '#a1a1aa' ?>;"></i>
       </div>
       <div>
-        <div style="font-size:26px;font-weight:700;line-height:1;color:<?= $expiringSoon > 0 ? '#f59e0b' : '#94a3b8' ?>;"><?= $expiringSoon ?></div>
+        <div style="font-size:26px;font-weight:700;line-height:1;color:<?= $expiringSoon > 0 ? '#f59e0b' : '#a1a1aa' ?>;"><?= $expiringSoon ?></div>
         <div style="font-size:12px;color:var(--text-muted);margin-top:3px;">Expiring &lt;30 Days</div>
       </div>
     </div>
   </div>
 
-  <div class="card" style="border-left:4px solid #64748b;">
+  <div class="card" style="border-left:4px solid #71717a;">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
-      <div style="width:44px;height:44px;border-radius:10px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <div style="width:44px;height:44px;border-radius:10px;background:#f4f4f5;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
         <i class="bi bi-calendar-x-fill" style="font-size:20px;color:var(--text-muted);"></i>
       </div>
       <div>
@@ -152,7 +152,7 @@ if ($filterStatus !== '') {
       </thead>
       <tbody>
         <?php foreach ($displayed as $acc):
-          $sc = $statusConfig[$acc['status']] ?? ['label' => ucfirst($acc['status']), 'fg' => '#64748b', 'bg' => '#f1f5f9', 'border' => '#e2e8f0'];
+          $sc = $statusConfig[$acc['status']] ?? ['label' => ucfirst($acc['status']), 'fg' => '#71717a', 'bg' => '#f4f4f5', 'border' => '#e4e4e7'];
           $lc = $levelConfig[strtolower($acc['risk_level_at_acceptance'] ?? '')] ?? null;
 
           $acceptanceScore = (int)($acc['risk_score_at_acceptance'] ?? 0);
@@ -264,7 +264,7 @@ if ($filterStatus !== '') {
         <!-- Conditions expandable row -->
         <?php if (!empty($acc['conditions'])): ?>
         <tr id="<?= $rowId ?>" style="display:none;">
-          <td colspan="8" style="background:#f8fafc;padding:12px 20px 14px;border-top:none;">
+          <td colspan="8" style="background:#f9fafb;padding:12px 20px 14px;border-top:none;">
             <div style="display:flex;gap:8px;align-items:flex-start;">
               <i class="bi bi-bookmark-fill" style="color:var(--secondary);font-size:14px;flex-shrink:0;margin-top:2px;"></i>
               <div>

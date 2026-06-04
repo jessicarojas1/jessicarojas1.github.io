@@ -26,11 +26,11 @@ $statusLabels = [
     'in_review'   => ['label'=>'In Review',   'color'=>'#2563eb', 'bg'=>'#eff6ff', 'border'=>'#93c5fd'],
     'monitoring'  => ['label'=>'Monitoring',  'color'=>'#16a34a', 'bg'=>'#f0fdf4', 'border'=>'#86efac'],
     'accepted'    => ['label'=>'Accepted',    'color'=>'#d97706', 'bg'=>'#fffbeb', 'border'=>'#fcd34d'],
-    'closed'      => ['label'=>'Closed',      'color'=>'#64748b', 'bg'=>'#f1f5f9', 'border'=>'#cbd5e1'],
+    'closed'      => ['label'=>'Closed',      'color'=>'#71717a', 'bg'=>'#f4f4f5', 'border'=>'#d4d4d8'],
     'transferred' => ['label'=>'Transferred', 'color'=>'var(--secondary)', 'bg'=>'rgba(55,65,81,.06)', 'border'=>'#d1d5db'],
 ];
 $assessmentMeta = [
-    'draft'          => ['label'=>'Draft',          'color'=>'#64748b', 'icon'=>'pencil-fill'],
+    'draft'          => ['label'=>'Draft',          'color'=>'#71717a', 'icon'=>'pencil-fill'],
     'pending_review' => ['label'=>'Pending Review', 'color'=>'#d97706', 'icon'=>'hourglass-split'],
     'approved'       => ['label'=>'Approved',       'color'=>'#16a34a', 'icon'=>'patch-check-fill'],
 ];
@@ -485,8 +485,8 @@ ob_start();
         <?php foreach ($responseActions as $ra):
           $sm = $strategyMeta[$ra['treatment_type']] ?? $strategyMeta['mitigate'];
           $overdue = $ra['due_date'] && $ra['due_date'] < date('Y-m-d') && $ra['status'] !== 'completed';
-          $raStatusColors = ['planned'=>'#d97706','in_progress'=>'#2563eb','completed'=>'#059669','cancelled'=>'#94a3b8'];
-          $raColor = $raStatusColors[$ra['status']] ?? '#64748b';
+          $raStatusColors = ['planned'=>'#d97706','in_progress'=>'#2563eb','completed'=>'#059669','cancelled'=>'#a1a1aa'];
+          $raColor = $raStatusColors[$ra['status']] ?? '#71717a';
         ?>
         <div class="ra-item <?= $ra['status']==='completed'?'ra-done':'' ?>">
           <div style="display:flex;align-items:flex-start;gap:10px;flex:1;min-width:0">
@@ -581,7 +581,7 @@ ob_start();
     <!-- ── Treatment Plans ────────────────────────────────────────────────── -->
     <?php
     $tpStratColors = ['mitigate'=>['bg'=>'#3b82f620','c'=>'#3b82f6','b'=>'#3b82f640'],'transfer'=>['bg'=>'#8b5cf620','c'=>'#8b5cf6','b'=>'#8b5cf640'],'accept'=>['bg'=>'#f59e0b20','c'=>'#f59e0b','b'=>'#f59e0b40'],'avoid'=>['bg'=>'#ef444420','c'=>'#ef4444','b'=>'#ef444440']];
-    $tpStColors    = ['draft'=>['bg'=>'#94a3b820','c'=>'#94a3b8'],'active'=>['bg'=>'rgba(11, 97, 4, .08)','c'=>'var(--primary)'],'completed'=>['bg'=>'#05966920','c'=>'#059669'],'cancelled'=>['bg'=>'#94a3b820','c'=>'#94a3b8']];
+    $tpStColors    = ['draft'=>['bg'=>'#a1a1aa20','c'=>'#a1a1aa'],'active'=>['bg'=>'rgba(11, 97, 4, .08)','c'=>'var(--primary)'],'completed'=>['bg'=>'#05966920','c'=>'#059669'],'cancelled'=>['bg'=>'#a1a1aa20','c'=>'#a1a1aa']];
     ?>
     <?php if (!empty($treatmentPlans)): ?>
     <div class="card">
@@ -673,7 +673,7 @@ ob_start();
     </div>
 
     <!-- Risk Appetite -->
-    <?php if ($appetite): $ac=['zero'=>'#dc2626','low'=>'#d97706','moderate'=>'#2563eb','high'=>'#16a34a'][$appetite['appetite']] ?? '#64748b'; ?>
+    <?php if ($appetite): $ac=['zero'=>'#dc2626','low'=>'#d97706','moderate'=>'#2563eb','high'=>'#16a34a'][$appetite['appetite']] ?? '#71717a'; ?>
     <div class="card">
       <div class="card-header"><h3 class="card-title"><i class="bi bi-speedometer2"></i> Risk Appetite</h3></div>
       <div class="card-body">
@@ -867,7 +867,7 @@ ob_start();
         <?php foreach ($scenarios as $sc):
           $scColor = $sc['scenario_score'] > 14 ? '#ef4444' : ($sc['scenario_score'] > 9 ? '#f97316' : ($sc['scenario_score'] > 4 ? '#f59e0b' : '#22c55e'));
           $scTypeColors = ['stress'=>'#ef4444','catastrophic'=>'var(--secondary)','regulatory'=>'#d97706','base'=>'#2563eb','optimistic'=>'#16a34a'];
-          $scTypeColor  = $scTypeColors[$sc['scenario_type']] ?? '#64748b';
+          $scTypeColor  = $scTypeColors[$sc['scenario_type']] ?? '#71717a';
         ?>
         <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid var(--border)">
           <span style="background:<?= $scColor ?>20;color:<?= $scColor ?>;font-size:13px;font-weight:700;width:28px;text-align:center;border-radius:4px;padding:2px 0"><?= (int)$sc['scenario_score'] ?></span>
@@ -1024,7 +1024,7 @@ updateScores();
   // Gridlines
   ctx.strokeStyle='#00000012';ctx.lineWidth=1;
   [5,10,15,20,25].forEach(v=>{ctx.beginPath();ctx.moveTo(PAD.l,yp(v));ctx.lineTo(PAD.l+cW,yp(v));ctx.stroke();
-    ctx.fillStyle='#94a3b8';ctx.font='10px sans-serif';ctx.fillText(v,2,yp(v)+3);});
+    ctx.fillStyle='#a1a1aa';ctx.font='10px sans-serif';ctx.fillText(v,2,yp(v)+3);});
   // Inherent line
   ctx.beginPath();ctx.strokeStyle='#ef4444';ctx.lineWidth=2;
   data.forEach((d,i)=>{i===0?ctx.moveTo(xp(i),yp(d.s)):ctx.lineTo(xp(i),yp(d.s))});ctx.stroke();
@@ -1035,7 +1035,7 @@ updateScores();
   // Dots and labels
   data.forEach((d,i)=>{
     ctx.fillStyle='#ef4444';ctx.beginPath();ctx.arc(xp(i),yp(d.s),3,0,Math.PI*2);ctx.fill();
-    if(i===0||i===n-1||(n>8&&i%Math.ceil(n/6)===0)){ctx.fillStyle='#64748b';ctx.font='9px sans-serif';ctx.fillText(d.d,xp(i)-12,PAD.t+cH+14);}
+    if(i===0||i===n-1||(n>8&&i%Math.ceil(n/6)===0)){ctx.fillStyle='#71717a';ctx.font='9px sans-serif';ctx.fillText(d.d,xp(i)-12,PAD.t+cH+14);}
   });
   // Legend
   ctx.fillStyle='#ef4444';ctx.fillRect(W-130,8,12,3);ctx.fillStyle='#374151';ctx.font='10px sans-serif';ctx.fillText('Inherent',W-114,12);

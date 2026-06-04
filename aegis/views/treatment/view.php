@@ -6,10 +6,10 @@ $strategyColors = [
     'avoid'    => ['bg' => '#ef444420', 'color' => '#ef4444', 'border' => '#ef444440', 'label' => 'Avoid'],
 ];
 $statusStyles = [
-    'draft'     => ['bg' => '#94a3b820', 'color' => '#94a3b8', 'border' => '#94a3b840'],
+    'draft'     => ['bg' => '#a1a1aa20', 'color' => '#a1a1aa', 'border' => '#a1a1aa40'],
     'active'    => ['bg' => 'rgba(11, 97, 4, .08)', 'color' => 'var(--primary)', 'border' => 'rgba(11, 97, 4, .20)'],
     'completed' => ['bg' => '#05966920', 'color' => '#059669', 'border' => '#05966940'],
-    'cancelled' => ['bg' => '#94a3b820', 'color' => '#94a3b8', 'border' => '#94a3b840'],
+    'cancelled' => ['bg' => '#a1a1aa20', 'color' => '#a1a1aa', 'border' => '#a1a1aa40'],
 ];
 $sc  = $strategyColors[$plan['strategy']] ?? $strategyColors['mitigate'];
 $st  = $statusStyles[$plan['status']] ?? $statusStyles['draft'];

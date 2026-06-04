@@ -134,7 +134,7 @@ $nonce = Security::nonce();
 .bp-section-header i { font-size: 16px; }
 .bp-section-body {
   background: #fff;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #e4e4e7;
   border-top: none;
   border-radius: 0 0 10px 10px;
   padding: 20px;
@@ -152,7 +152,7 @@ $nonce = Security::nonce();
 
 .bp-stat {
   background: #fff;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #e4e4e7;
   border-radius: 12px;
   padding: 20px 16px;
   text-align: center;
@@ -205,7 +205,7 @@ $nonce = Security::nonce();
 .cp-bar-track {
   flex: 1;
   height: 12px;
-  background: #f1f5f9;
+  background: #f4f4f5;
   border-radius: 99px;
   overflow: hidden;
 }
@@ -238,8 +238,8 @@ $nonce = Security::nonce();
   display: none;
   text-align: center;
   font-size: 11px;
-  color: #94a3b8;
-  border-top: 1px solid #e2e8f0;
+  color: #a1a1aa;
+  border-top: 1px solid #e4e4e7;
   padding-top: 12px;
   margin-top: 40px;
 }
@@ -257,9 +257,9 @@ $nonce = Security::nonce();
   .bp-section    { page-break-before: always; }
   .bp-section:first-of-type { page-break-before: auto; }
   .bp-stat-grid  { grid-template-columns: repeat(6,1fr); gap: 8px; }
-  .bp-stat       { box-shadow: none; border: 1px solid #cbd5e1; padding: 12px 8px; }
+  .bp-stat       { box-shadow: none; border: 1px solid #d4d4d8; padding: 12px 8px; }
   .bp-stat .stat-val { font-size: 24px; }
-  .card          { box-shadow: none !important; border: 1px solid #e2e8f0 !important; }
+  .card          { box-shadow: none !important; border: 1px solid #e4e4e7 !important; }
   .bp-footer     { display: block !important; }
   canvas         { max-width: 100% !important; }
   a              { color: inherit !important; text-decoration: none !important; }
@@ -346,14 +346,14 @@ $nonce = Security::nonce();
     <?php if ($topRisks): ?>
     <table style="width:100%;border-collapse:collapse;font-size:13px;">
       <thead>
-        <tr style="background:#f8fafc;">
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e2e8f0;">Risk ID</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e2e8f0;">Title</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e2e8f0;">Category</th>
-          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e2e8f0;">Score</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e2e8f0;">Owner</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e2e8f0;">Strategy</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e2e8f0;">Review Date</th>
+        <tr style="background:#f9fafb;">
+          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e4e4e7;">Risk ID</th>
+          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e4e4e7;">Title</th>
+          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e4e4e7;">Category</th>
+          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e4e4e7;">Score</th>
+          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e4e4e7;">Owner</th>
+          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e4e4e7;">Strategy</th>
+          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e4e4e7;">Review Date</th>
         </tr>
       </thead>
       <tbody>
@@ -368,7 +368,7 @@ $nonce = Security::nonce();
           $reviewDt = $r['review_date'] ? date('j M Y', strtotime($r['review_date'])) : '—';
           $isOverdue = $r['review_date'] && strtotime($r['review_date']) < time();
         ?>
-        <tr style="border-bottom:1px solid #f1f5f9;">
+        <tr style="border-bottom:1px solid #f4f4f5;">
           <td style="padding:10px 12px;font-size:11px;font-weight:700;color:var(--primary);white-space:nowrap;"><?= Security::h($r['risk_id'] ?? '#' . $r['id']) ?></td>
           <td style="padding:10px 12px;font-weight:500;max-width:220px;">
             <a href="/risk/<?= (int)$r['id'] ?>" style="color:var(--text);text-decoration:none;"><?= Security::h($r['title']) ?></a>
@@ -382,10 +382,10 @@ $nonce = Security::nonce();
             <?php if ($strategy && $strategy !== '—'): ?>
             <span style="display:inline-block;background:rgba(55,65,81,.08);color:var(--secondary);font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;"><?= $strategy ?></span>
             <?php else: ?>
-            <span style="color:#94a3b8;font-size:12px;">—</span>
+            <span style="color:#a1a1aa;font-size:12px;">—</span>
             <?php endif; ?>
           </td>
-          <td style="padding:10px 12px;font-size:12px;white-space:nowrap;color:<?= $isOverdue ? '#dc2626' : '#475569' ?>;">
+          <td style="padding:10px 12px;font-size:12px;white-space:nowrap;color:<?= $isOverdue ? '#dc2626' : '#52525b' ?>;">
             <?= $reviewDt ?>
             <?php if ($isOverdue): ?><i class="bi bi-exclamation-circle-fill" style="color:#dc2626;margin-left:4px;"></i><?php endif; ?>
           </td>
@@ -394,7 +394,7 @@ $nonce = Security::nonce();
       </tbody>
     </table>
     <?php else: ?>
-    <p style="text-align:center;color:#94a3b8;padding:24px;">No critical or high risks found.</p>
+    <p style="text-align:center;color:#a1a1aa;padding:24px;">No critical or high risks found.</p>
     <?php endif; ?>
   </div>
 </div>
@@ -406,7 +406,7 @@ $nonce = Security::nonce();
     <?php if ($riskTrend): ?>
     <canvas id="bpTrendChart" height="280" style="max-width:100%;display:block;"></canvas>
     <?php else: ?>
-    <p style="text-align:center;color:#94a3b8;padding:32px 0;">No trend data available. Risk score history will appear here once recorded.</p>
+    <p style="text-align:center;color:#a1a1aa;padding:32px 0;">No trend data available. Risk score history will appear here once recorded.</p>
     <?php endif; ?>
   </div>
 </div>
@@ -425,19 +425,19 @@ $nonce = Security::nonce();
       <div class="cp-bar-label">
         <div style="font-weight:600;"><?= Security::h($cp['name']) ?></div>
         <?php if (!empty($cp['standard'])): ?>
-        <div style="font-size:11px;color:#94a3b8;"><?= Security::h($cp['standard']) ?></div>
+        <div style="font-size:11px;color:#a1a1aa;"><?= Security::h($cp['standard']) ?></div>
         <?php endif; ?>
       </div>
       <div class="cp-bar-track">
         <div class="cp-bar-fill" style="width:<?= $pct ?>%;background:<?= $bar_cl ?>;"></div>
       </div>
       <div class="cp-bar-pct" style="color:<?= $bar_cl ?>;"><?= $pct ?>%</div>
-      <div style="font-size:11px;color:#94a3b8;min-width:100px;text-align:right;">
+      <div style="font-size:11px;color:#a1a1aa;min-width:100px;text-align:right;">
         <?= (int)($cp['compliant'] ?? 0) ?>/<?= (int)($cp['total_controls'] ?? 0) ?> controls
       </div>
     </div>
     <?php endforeach; else: ?>
-    <p style="text-align:center;color:#94a3b8;padding:24px;">No compliance packages configured.</p>
+    <p style="text-align:center;color:#a1a1aa;padding:24px;">No compliance packages configured.</p>
     <?php endif; ?>
   </div>
 </div>
@@ -449,20 +449,20 @@ $nonce = Security::nonce();
     <?php if ($appetiteBreaches): ?>
     <table style="width:100%;border-collapse:collapse;font-size:13px;">
       <thead>
-        <tr style="background:#f8fafc;">
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e2e8f0;">Risk</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e2e8f0;">Category</th>
-          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e2e8f0;">Score</th>
-          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e2e8f0;">Max Appetite</th>
-          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e2e8f0;">Breach</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e2e8f0;">Appetite Statement</th>
+        <tr style="background:#f9fafb;">
+          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e4e4e7;">Risk</th>
+          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e4e4e7;">Category</th>
+          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e4e4e7;">Score</th>
+          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e4e4e7;">Max Appetite</th>
+          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e4e4e7;">Breach</th>
+          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e4e4e7;">Appetite Statement</th>
         </tr>
       </thead>
       <tbody>
         <?php foreach ($appetiteBreaches as $ab):
           $breach = (int)($ab['inherent_score'] ?? 0) - (int)($ab['max_score'] ?? 0);
         ?>
-        <tr style="border-bottom:1px solid #f1f5f9;">
+        <tr style="border-bottom:1px solid #f4f4f5;">
           <td style="padding:10px 12px;font-weight:500;"><?= Security::h($ab['title']) ?></td>
           <td style="padding:10px 12px;color:var(--text-muted);font-size:12px;"><?= Security::h($ab['category_name'] ?? '—') ?></td>
           <td style="padding:10px 12px;text-align:center;">
@@ -488,19 +488,19 @@ $nonce = Security::nonce();
   <div class="bp-section-header"><i class="bi bi-fire"></i> Incident Overview</div>
   <div class="bp-section-body">
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;">
-      <div style="text-align:center;padding:16px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;">
+      <div style="text-align:center;padding:16px;background:#f9fafb;border-radius:10px;border:1px solid #e4e4e7;">
         <div style="font-size:28px;font-weight:800;color:var(--primary);"><?= $incTotal ?></div>
         <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Total Incidents</div>
       </div>
-      <div style="text-align:center;padding:16px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;">
+      <div style="text-align:center;padding:16px;background:#f9fafb;border-radius:10px;border:1px solid #e4e4e7;">
         <div style="font-size:28px;font-weight:800;color:#f97316;"><?= $incOpen ?></div>
         <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Open</div>
       </div>
-      <div style="text-align:center;padding:16px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;">
+      <div style="text-align:center;padding:16px;background:#f9fafb;border-radius:10px;border:1px solid #e4e4e7;">
         <div style="font-size:28px;font-weight:800;color:#dc2626;"><?= $incHighSev ?></div>
         <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">High Severity</div>
       </div>
-      <div style="text-align:center;padding:16px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;">
+      <div style="text-align:center;padding:16px;background:#f9fafb;border-radius:10px;border:1px solid #e4e4e7;">
         <div style="font-size:28px;font-weight:800;color:#d97706;"><?= $incLast30 ?></div>
         <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Last 30 Days</div>
       </div>
@@ -513,19 +513,19 @@ $nonce = Security::nonce();
   <div class="bp-section-header"><i class="bi bi-tools"></i> Treatment Action Backlog</div>
   <div class="bp-section-body">
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;">
-      <div style="text-align:center;padding:16px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;">
+      <div style="text-align:center;padding:16px;background:#f9fafb;border-radius:10px;border:1px solid #e4e4e7;">
         <div style="font-size:28px;font-weight:800;color:var(--primary);"><?= $tbTotal ?></div>
         <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Total Actions</div>
       </div>
-      <div style="text-align:center;padding:16px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;">
+      <div style="text-align:center;padding:16px;background:#f9fafb;border-radius:10px;border:1px solid #e4e4e7;">
         <div style="font-size:28px;font-weight:800;color:var(--text-muted);"><?= $tbPlanned ?></div>
         <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Planned</div>
       </div>
-      <div style="text-align:center;padding:16px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;">
+      <div style="text-align:center;padding:16px;background:#f9fafb;border-radius:10px;border:1px solid #e4e4e7;">
         <div style="font-size:28px;font-weight:800;color:#d97706;"><?= $tbInProg ?></div>
         <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">In Progress</div>
       </div>
-      <div style="text-align:center;padding:16px;background:#f8fafc;border-radius:10px;border:1px solid <?= $tbOverdue > 0 ? '#dc2626' : '#e2e8f0' ?>;">
+      <div style="text-align:center;padding:16px;background:#f9fafb;border-radius:10px;border:1px solid <?= $tbOverdue > 0 ? '#dc2626' : '#e4e4e7' ?>;">
         <div style="font-size:28px;font-weight:800;color:<?= $tbOverdue > 0 ? '#dc2626' : '#059669' ?>;"><?= $tbOverdue ?></div>
         <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Overdue</div>
       </div>
@@ -540,14 +540,14 @@ $nonce = Security::nonce();
     <?php if ($kriHealth): ?>
     <table style="width:100%;border-collapse:collapse;font-size:13px;">
       <thead>
-        <tr style="background:#f8fafc;">
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e2e8f0;">KRI</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e2e8f0;">Linked Risk</th>
-          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e2e8f0;">Latest Value</th>
-          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e2e8f0;">Amber Threshold</th>
-          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e2e8f0;">Red Threshold</th>
-          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e2e8f0;">RAG</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e2e8f0;">Recorded</th>
+        <tr style="background:#f9fafb;">
+          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e4e4e7;">KRI</th>
+          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e4e4e7;">Linked Risk</th>
+          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e4e4e7;">Latest Value</th>
+          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e4e4e7;">Amber Threshold</th>
+          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e4e4e7;">Red Threshold</th>
+          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e4e4e7;">RAG</th>
+          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e4e4e7;">Recorded</th>
         </tr>
       </thead>
       <tbody>
@@ -556,7 +556,7 @@ $nonce = Security::nonce();
           $amber   = $kri['threshold_amber'];
           $red     = $kri['threshold_red'];
           if ($val === null) {
-              $ragColor = '#94a3b8'; $ragLabel = 'N/A';
+              $ragColor = '#a1a1aa'; $ragLabel = 'N/A';
           } elseif ($red !== null && (float)$val >= (float)$red) {
               $ragColor = '#dc2626'; $ragLabel = 'RED';
           } elseif ($amber !== null && (float)$val >= (float)$amber) {
@@ -566,7 +566,7 @@ $nonce = Security::nonce();
           }
           $recDate = $kri['latest_date'] ? date('j M Y', strtotime($kri['latest_date'])) : '—';
         ?>
-        <tr style="border-bottom:1px solid #f1f5f9;">
+        <tr style="border-bottom:1px solid #f4f4f5;">
           <td style="padding:10px 12px;font-weight:500;"><?= Security::h($kri['title']) ?></td>
           <td style="padding:10px 12px;color:var(--text-muted);font-size:12px;"><?= Security::h($kri['risk_title'] ?? '—') ?></td>
           <td style="padding:10px 12px;text-align:center;font-weight:700;">
@@ -585,7 +585,7 @@ $nonce = Security::nonce();
       </tbody>
     </table>
     <?php else: ?>
-    <p style="text-align:center;color:#94a3b8;padding:24px;">No active KRIs configured.</p>
+    <p style="text-align:center;color:#a1a1aa;padding:24px;">No active KRIs configured.</p>
     <?php endif; ?>
   </div>
 </div>
@@ -597,20 +597,20 @@ $nonce = Security::nonce();
     <?php if ($upcomingReviews): ?>
     <table style="width:100%;border-collapse:collapse;font-size:13px;">
       <thead>
-        <tr style="background:#f8fafc;">
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e2e8f0;">Risk ID</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e2e8f0;">Title</th>
-          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e2e8f0;">Score</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e2e8f0;">Owner</th>
-          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e2e8f0;">Review Date</th>
+        <tr style="background:#f9fafb;">
+          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e4e4e7;">Risk ID</th>
+          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e4e4e7;">Title</th>
+          <th style="padding:10px 12px;text-align:center;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e4e4e7;">Score</th>
+          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e4e4e7;">Owner</th>
+          <th style="padding:10px 12px;text-align:left;font-weight:700;color:var(--text-muted);border-bottom:1px solid #e4e4e7;">Review Date</th>
         </tr>
       </thead>
       <tbody>
         <?php foreach ($upcomingReviews as $ur):
           $sc2 = (int)($ur['inherent_score'] ?? 0);
-          $sc2_cl = $sc2 > 14 ? '#dc2626' : ($sc2 >= 10 ? '#d97706' : '#64748b');
+          $sc2_cl = $sc2 > 14 ? '#dc2626' : ($sc2 >= 10 ? '#d97706' : '#71717a');
         ?>
-        <tr style="border-bottom:1px solid #f1f5f9;">
+        <tr style="border-bottom:1px solid #f4f4f5;">
           <td style="padding:10px 12px;font-size:11px;font-weight:700;color:var(--primary);"><?= Security::h($ur['risk_id'] ?? '—') ?></td>
           <td style="padding:10px 12px;font-weight:500;"><?= Security::h($ur['title']) ?></td>
           <td style="padding:10px 12px;text-align:center;">
@@ -623,7 +623,7 @@ $nonce = Security::nonce();
       </tbody>
     </table>
     <?php else: ?>
-    <p style="text-align:center;color:#94a3b8;padding:24px;">No risk reviews due in the next 30 days.</p>
+    <p style="text-align:center;color:#a1a1aa;padding:24px;">No risk reviews due in the next 30 days.</p>
     <?php endif; ?>
   </div>
 </div>
@@ -667,7 +667,7 @@ $nonce = Security::nonce();
     var yg = padT + (s / steps) * chartH;
     ctx.beginPath(); ctx.moveTo(padL, yg); ctx.lineTo(padL + chartW, yg); ctx.stroke();
     var label = (maxVal - (s / steps) * range).toFixed(1);
-    ctx.fillStyle = '#94a3b8';
+    ctx.fillStyle = '#a1a1aa';
     ctx.font = '11px Inter, sans-serif';
     ctx.textAlign = 'right';
     ctx.fillText(label, padL - 6, yg + 4);
@@ -720,7 +720,7 @@ $nonce = Security::nonce();
   }
 
   // X-axis labels
-  ctx.fillStyle = '#94a3b8';
+  ctx.fillStyle = '#a1a1aa';
   ctx.font = '10px Inter, sans-serif';
   ctx.textAlign = 'center';
   for (var l = 0; l < labels.length; l++) {

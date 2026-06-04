@@ -15,7 +15,7 @@ $statusConfig = [
     'active'    => ['label' => 'Active',    'color' => '#16a34a', 'bg' => '#f0fdf4'],
     'mitigated' => ['label' => 'Mitigated', 'color' => '#2563eb', 'bg' => '#eff6ff'],
     'accepted'  => ['label' => 'Accepted',  'color' => '#d97706', 'bg' => '#fffbeb'],
-    'retired'   => ['label' => 'Retired',   'color' => '#64748b', 'bg' => '#f8fafc'],
+    'retired'   => ['label' => 'Retired',   'color' => '#71717a', 'bg' => '#f9fafb'],
 ];
 
 // Index stats by category
@@ -124,8 +124,8 @@ function threatScoreBg(int $score): string {
       <tbody>
         <?php if ($threats): foreach ($threats as $t):
           $cat     = $t['category'] ?? 'technology';
-          $catCfg  = $catConfig[$cat]    ?? ['label' => ucfirst($cat), 'color' => '#64748b', 'bg' => '#f1f5f9', 'icon' => 'bi-question'];
-          $stCfg   = $statusConfig[$t['status'] ?? 'active'] ?? ['label' => ucfirst($t['status'] ?? ''), 'color' => '#64748b', 'bg' => '#f8fafc'];
+          $catCfg  = $catConfig[$cat]    ?? ['label' => ucfirst($cat), 'color' => '#71717a', 'bg' => '#f4f4f5', 'icon' => 'bi-question'];
+          $stCfg   = $statusConfig[$t['status'] ?? 'active'] ?? ['label' => ucfirst($t['status'] ?? ''), 'color' => '#71717a', 'bg' => '#f9fafb'];
           $score   = (int)($t['likelihood'] ?? 0) * (int)($t['impact'] ?? 0);
           $sColor  = threatScoreColor($score);
           $sBg     = threatScoreBg($score);

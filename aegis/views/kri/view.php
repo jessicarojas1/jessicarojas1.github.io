@@ -9,7 +9,7 @@ $ragMap = [
     'green' => ['#16a34a', '#f0fdf4', '#bbf7d0', 'GREEN',   'bi-check-circle-fill'],
     'amber' => ['#d97706', '#fffbeb', '#fde68a', 'AMBER',   'bi-exclamation-triangle-fill'],
     'red'   => ['#dc2626', '#fef2f2', '#fecaca', 'RED',     'bi-exclamation-octagon-fill'],
-    'grey'  => ['#64748b', '#f8fafc', '#e2e8f0', 'NO DATA', 'bi-dash-circle-fill'],
+    'grey'  => ['#71717a', '#f9fafb', '#e4e4e7', 'NO DATA', 'bi-dash-circle-fill'],
 ];
 [$ragColor, $ragBg, $ragBorder, $ragLabel, $ragIcon] = $ragMap[$rag] ?? $ragMap['grey'];
 
@@ -158,7 +158,7 @@ function fmtNum(float $n): string {
               // For higher_worse: up trend is bad (red); for lower_worse: down trend is bad
               $trendBad = ($dir === 'higher_worse' && $trendUp) || ($dir === 'lower_worse' && $trendDown);
               $trendGood = ($dir === 'higher_worse' && $trendDown) || ($dir === 'lower_worse' && $trendUp);
-              $trendColor = $trendBad ? '#dc2626' : ($trendGood ? '#16a34a' : '#64748b');
+              $trendColor = $trendBad ? '#dc2626' : ($trendGood ? '#16a34a' : '#71717a');
               $trendIcon = $trendUp ? 'bi-arrow-up-circle-fill' : ($trendDown ? 'bi-arrow-down-circle-fill' : 'bi-dash-circle-fill');
               $trendText = $trendUp ? 'Trending ↑' : ($trendDown ? 'Trending ↓' : 'Flat');
               ?>
@@ -179,7 +179,7 @@ function fmtNum(float $n): string {
       <div class="card-body">
         <div style="position:relative;margin:20px 0 30px;">
           <!-- Bar -->
-          <div style="height:20px;border-radius:6px;overflow:hidden;display:flex;background:#e2e8f0;">
+          <div style="height:20px;border-radius:6px;overflow:hidden;display:flex;background:#e4e4e7;">
             <?php if ($dir === 'higher_worse'): ?>
               <div style="width:<?= $greenPct ?>%;background:#16a34a;" title="Green zone"></div>
               <div style="width:<?= $amberPct ?>%;background:#d97706;" title="Amber zone"></div>
@@ -195,8 +195,8 @@ function fmtNum(float $n): string {
           <!-- Value marker -->
           <?php if ($markerPct !== null): ?>
             <div style="position:absolute;top:-4px;left:<?= $markerPct ?>%;transform:translateX(-50%);">
-              <div style="width:4px;height:28px;background:#1e293b;border-radius:2px;"></div>
-              <div style="position:absolute;top:-18px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:10px;font-weight:700;color:var(--text);background:#fff;border:1px solid #e2e8f0;padding:1px 5px;border-radius:4px;">
+              <div style="width:4px;height:28px;background:#111111;border-radius:2px;"></div>
+              <div style="position:absolute;top:-18px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:10px;font-weight:700;color:var(--text);background:#fff;border:1px solid #e4e4e7;padding:1px 5px;border-radius:4px;">
                 <?= Security::h(fmtNum($latestVal)) ?> <?= Security::h($kri['unit'] ?? '') ?>
               </div>
             </div>
@@ -256,7 +256,7 @@ function fmtNum(float $n): string {
           <div>
             <div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:2px;">STATUS</div>
             <div style="font-size:14px;">
-              <span style="background:<?= $kri['is_active'] ? '#f0fdf4' : '#f8fafc' ?>;color:<?= $kri['is_active'] ? '#16a34a' : '#64748b' ?>;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:600;">
+              <span style="background:<?= $kri['is_active'] ? '#f0fdf4' : '#f9fafb' ?>;color:<?= $kri['is_active'] ? '#16a34a' : '#71717a' ?>;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:600;">
                 <?= $kri['is_active'] ? 'Active' : 'Inactive' ?>
               </span>
             </div>
@@ -290,7 +290,7 @@ function fmtNum(float $n): string {
             <?php foreach ($values as $v):
               $vRag = kriValueRag((float)$v['value'], $green, $amber, $red, $dir);
               $vColors = ['green'=>['#f0fdf4','#16a34a'],'amber'=>['#fffbeb','#d97706'],'red'=>['#fef2f2','#dc2626']];
-              [$vBg,$vColor] = $vColors[$vRag] ?? ['#f8fafc','#64748b'];
+              [$vBg,$vColor] = $vColors[$vRag] ?? ['#f9fafb','#71717a'];
               $vIcon = ['green'=>'bi-check-circle-fill','amber'=>'bi-exclamation-triangle-fill','red'=>'bi-exclamation-octagon-fill'][$vRag] ?? 'bi-dash-circle';
             ?>
               <tr>
@@ -358,7 +358,7 @@ function fmtNum(float $n): string {
       </div>
     </div>
     <?php elseif (!$kri['is_active']): ?>
-    <div class="card" style="background:#f8fafc;border:1.5px dashed #e2e8f0;">
+    <div class="card" style="background:#f9fafb;border:1.5px dashed #e4e4e7;">
       <div class="card-body" style="text-align:center;padding:24px;">
         <i class="bi bi-pause-circle" style="font-size:32px;color:var(--text-light);display:block;margin-bottom:8px;"></i>
         <div style="font-size:13px;color:var(--text-muted);">This KRI is inactive. Reactivate it to record new values.</div>
@@ -461,7 +461,7 @@ function fmtNum(float $n): string {
       responsive: true,
       plugins: { legend: { display: false } },
       scales: {
-        y: { beginAtZero: false, grid: { color: '#f1f5f9' } },
+        y: { beginAtZero: false, grid: { color: '#f4f4f5' } },
         x: { grid: { display: false }, ticks: { maxTicksLimit: 8 } }
       }
     }

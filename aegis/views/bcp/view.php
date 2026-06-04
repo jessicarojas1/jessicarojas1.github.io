@@ -26,7 +26,7 @@ ob_start(); ?>
 <?php endif; ?>
 
 <!-- Tabs -->
-<div style="display:flex;gap:0;border-bottom:2px solid #e5e7eb;margin-bottom:24px">
+<div style="display:flex;gap:0;border-bottom:2px solid #e4e4e7;margin-bottom:24px">
   <button class="tab-btn active" data-tab="sections">Plan Sections</button>
   <button class="tab-btn" data-tab="exercises" id="exercises-tab">Exercises</button>
 </div>

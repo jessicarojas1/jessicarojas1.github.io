@@ -48,7 +48,7 @@ ob_start();
   ?>
   <div class="overview-pct">
     <svg width="80" height="80" viewBox="0 0 80 80">
-      <circle cx="40" cy="40" r="34" fill="none" stroke="#e2e8f0" stroke-width="8"/>
+      <circle cx="40" cy="40" r="34" fill="none" stroke="#e4e4e7" stroke-width="8"/>
       <?php if ($total > 0): ?>
       <circle cx="40" cy="40" r="34" fill="none" stroke="var(--primary)" stroke-width="8"
         stroke-dasharray="<?= round(2*M_PI*34 * $pct/100, 2) ?> 999"
@@ -85,8 +85,8 @@ ob_start();
   <button class="bulk-status-btn" data-status="compliant"     style="background:#059669;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="bi bi-check-circle-fill"></i> Compliant</button>
   <button class="bulk-status-btn" data-status="partial"       style="background:#d97706;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="bi bi-dash-circle-fill"></i> Partial</button>
   <button class="bulk-status-btn" data-status="non_compliant" style="background:#dc2626;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="bi bi-x-circle-fill"></i> Non-Compliant</button>
-  <button class="bulk-status-btn" data-status="not_started"   style="background:#475569;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="bi bi-circle"></i> Not Started</button>
-  <button class="bulk-status-btn" data-status="not_applicable" style="background:#334155;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="bi bi-slash-circle-fill"></i> N/A</button>
+  <button class="bulk-status-btn" data-status="not_started"   style="background:#52525b;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="bi bi-circle"></i> Not Started</button>
+  <button class="bulk-status-btn" data-status="not_applicable" style="background:#3f3f46;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="bi bi-slash-circle-fill"></i> N/A</button>
   <button id="bulk-assess-btn" data-click="openBulkAssess" style="background:var(--primary);color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="bi bi-clipboard2-check-fill"></i> Bulk Assess</button>
   <button data-click="clearSelection" style="margin-left:auto;background:none;border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:6px;padding:6px 10px;font-size:12px;cursor:pointer">✕ Clear</button>
 </div>
@@ -114,7 +114,7 @@ ob_start();
 <!-- Domain list -->
 <?php if (!$domains): ?>
 <div class="card" style="text-align:center;padding:40px 20px;color:var(--text-muted)">
-  <i class="bi bi-diagram-3" style="font-size:2.5rem;display:block;margin-bottom:12px;color:#cbd5e1"></i>
+  <i class="bi bi-diagram-3" style="font-size:2.5rem;display:block;margin-bottom:12px;color:#d4d4d8"></i>
   <h3 style="margin-bottom:8px;color:var(--text)">No domains yet</h3>
   <p style="margin-bottom:16px">Domains group your controls into sections (e.g. Access Control, Risk Management).</p>
   <button class="btn btn-primary" data-click="openModal" data-arg="add-domain"><i class="bi bi-plus-lg"></i> Add First Domain</button>
@@ -685,11 +685,11 @@ document.addEventListener('DOMContentLoaded', function() {
         <label class="form-label" style="font-weight:700;margin-bottom:10px">Implementation Status <span style="color:#dc2626">*</span></label>
         <div style="display:flex;flex-direction:column;gap:8px">
           <?php foreach ([
-            ['not_started',   'circle',              '#64748b', 'Not Started',   'No implementation work has begun'],
+            ['not_started',   'circle',              '#71717a', 'Not Started',   'No implementation work has begun'],
             ['compliant',     'check-circle-fill',   '#059669', 'Compliant',     'Control is fully implemented and meets requirements'],
             ['partial',       'dash-circle-fill',    '#d97706', 'Partial',       'Control is partially implemented'],
             ['non_compliant', 'x-circle-fill',       '#dc2626', 'Non-Compliant', 'Control is not implemented or fails requirements'],
-            ['not_applicable','slash-circle-fill',   '#94a3b8', 'Not Applicable','This control does not apply'],
+            ['not_applicable','slash-circle-fill',   '#a1a1aa', 'Not Applicable','This control does not apply'],
           ] as [$val, $icon, $color, $label, $hint]): ?>
           <label style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:2px solid var(--border);border-radius:8px;cursor:pointer;transition:border-color .15s" class="ba-status-label">
             <input type="radio" name="ba_status" value="<?= $val ?>" style="margin-top:2px;accent-color:<?= $color ?>" <?= $val === 'not_started' ? 'checked' : '' ?>>

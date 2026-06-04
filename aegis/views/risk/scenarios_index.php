@@ -8,9 +8,9 @@ $nonce = Security::nonce();
 
 $typeMeta = [
     'stress'       => ['label'=>'Stress',        'color'=>'#dc2626','bg'=>'#fef2f2','border'=>'#fca5a5','icon'=>'bi-graph-up-arrow'],
-    'base'         => ['label'=>'Base',           'color'=>'#64748b','bg'=>'#f1f5f9','border'=>'#cbd5e1','icon'=>'bi-circle-fill'],
+    'base'         => ['label'=>'Base',           'color'=>'#71717a','bg'=>'#f4f4f5','border'=>'#d4d4d8','icon'=>'bi-circle-fill'],
     'optimistic'   => ['label'=>'Optimistic',     'color'=>'#16a34a','bg'=>'#f0fdf4','border'=>'#86efac','icon'=>'bi-graph-down-arrow'],
-    'catastrophic' => ['label'=>'Catastrophic',   'color'=>'#1e293b','bg'=>'#f8fafc','border'=>'#94a3b8','icon'=>'bi-exclamation-octagon-fill'],
+    'catastrophic' => ['label'=>'Catastrophic',   'color'=>'#111111','bg'=>'#f9fafb','border'=>'#a1a1aa','icon'=>'bi-exclamation-octagon-fill'],
     'regulatory'   => ['label'=>'Regulatory',     'color'=>'#2563eb','bg'=>'#eff6ff','border'=>'#93c5fd','icon'=>'bi-bank'],
 ];
 
@@ -169,7 +169,7 @@ function scIdxLevelClass(int $s): string {
                 <i class="bi bi-arrow-down"></i> <?= $delta ?>
               </span>
             <?php else: ?>
-              <span style="display:inline-flex;align-items:center;font-size:12px;font-weight:600;padding:2px 7px;border-radius:20px;background:#f1f5f9;color:var(--text-muted)">
+              <span style="display:inline-flex;align-items:center;font-size:12px;font-weight:600;padding:2px 7px;border-radius:20px;background:#f4f4f5;color:var(--text-muted)">
                 &#177;0
               </span>
             <?php endif; ?>

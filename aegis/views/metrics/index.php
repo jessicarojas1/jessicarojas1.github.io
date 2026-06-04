@@ -70,7 +70,7 @@ $classColors = ['public'=>'#22c55e','internal'=>'#3b82f6','confidential'=>'#f59e
           <td><?= (int)$fw['total_controls'] ?></td>
           <td>
             <div style="display:flex;align-items:center;gap:8px">
-              <div style="flex:1;height:6px;background:#e5e7eb;border-radius:3px">
+              <div style="flex:1;height:6px;background:#e4e4e7;border-radius:3px">
                 <div style="width:<?= $pct ?>%;height:100%;background:<?= $barColor ?>;border-radius:3px"></div>
               </div>
               <span style="min-width:36px;font-weight:600;color:<?= $barColor ?>"><?= $pct ?>%</span>
@@ -177,9 +177,9 @@ $classColors = ['public'=>'#22c55e','internal'=>'#3b82f6','confidential'=>'#f59e
 .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000; align-items:center; justify-content:center; }
 .modal-overlay.open { display:flex; }
 .modal-card { background:#fff; border-radius:12px; width:100%; max-height:90vh; overflow-y:auto; }
-.modal-header { padding:20px 24px; border-bottom:1px solid #e5e7eb; display:flex; justify-content:space-between; align-items:center; }
+.modal-header { padding:20px 24px; border-bottom:1px solid #e4e4e7; display:flex; justify-content:space-between; align-items:center; }
 .modal-body { padding:24px; }
-.modal-footer { padding:16px 24px; border-top:1px solid #e5e7eb; display:flex; gap:8px; justify-content:flex-end; }
+.modal-footer { padding:16px 24px; border-top:1px solid #e4e4e7; display:flex; gap:8px; justify-content:flex-end; }
 </style>
 <?php endif; ?>
 

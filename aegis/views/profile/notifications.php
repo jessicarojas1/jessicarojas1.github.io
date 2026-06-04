@@ -134,7 +134,7 @@ ob_start();
     align-items: center;
     justify-content: space-between;
     padding: 16px 0;
-    border-bottom: 1px solid var(--border, #e5e7eb);
+    border-bottom: 1px solid var(--border, #e4e4e7);
     gap: 16px;
 }
 .notif-toggle-wrap:last-child {
@@ -265,7 +265,7 @@ ob_start();
         </div>
         <?php endforeach; ?>
       </div>
-      <div class="card-footer" style="padding:16px 20px;border-top:1px solid var(--border,#e5e7eb);display:flex;justify-content:flex-end">
+      <div class="card-footer" style="padding:16px 20px;border-top:1px solid var(--border,#e4e4e7);display:flex;justify-content:flex-end">
         <button type="submit" class="btn btn-primary">
           <i class="bi bi-save"></i> Save Preferences
         </button>

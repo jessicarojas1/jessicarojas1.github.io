@@ -1,8 +1,8 @@
 <?php
 $tierColors   = ['critical'=>'#dc2626','high'=>'#d97706','medium'=>'#0284c7','low'=>'#059669'];
-$statusColors = ['active'=>'#059669','inactive'=>'#64748b','under_review'=>'#d97706','terminated'=>'#dc2626'];
-$tierColor    = $tierColors[$vendor['risk_tier']] ?? '#64748b';
-$stColor      = $statusColors[$vendor['status']] ?? '#64748b';
+$statusColors = ['active'=>'#059669','inactive'=>'#71717a','under_review'=>'#d97706','terminated'=>'#dc2626'];
+$tierColor    = $tierColors[$vendor['risk_tier']] ?? '#71717a';
+$stColor      = $statusColors[$vendor['status']] ?? '#71717a';
 $pageTitle    = 'Vendor: ' . Security::h($vendor['vendor_code']);
 $activeModule = 'vendor';
 $breadcrumbs  = [['Vendor Risk', '/vendor'], [$vendor['vendor_code'], null]];
@@ -59,10 +59,10 @@ ob_start();
       </div>
       <div class="card-body">
         <?php if ($assessments): foreach ($assessments as $a):
-          $aColors=['planned'=>'#64748b','in_progress'=>'#d97706','completed'=>'#059669','overdue'=>'#dc2626'];
+          $aColors=['planned'=>'#71717a','in_progress'=>'#d97706','completed'=>'#059669','overdue'=>'#dc2626'];
           $rColors=['critical'=>'#dc2626','high'=>'#d97706','medium'=>'#0284c7','low'=>'#059669','acceptable'=>'#059669'];
-          $ac = $aColors[$a['status']] ?? '#64748b';
-          $rc = $rColors[$a['risk_rating'] ?? ''] ?? '#64748b';
+          $ac = $aColors[$a['status']] ?? '#71717a';
+          $rc = $rColors[$a['risk_rating'] ?? ''] ?? '#71717a';
         ?>
           <div style="padding:14px 0;border-bottom:1px solid var(--border);">
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;">
@@ -182,17 +182,17 @@ $contracts = Database::fetchAll(
         <?php foreach ($contracts as $vc):
           $vcStatusMap = [
             'active'     => ['color'=>'#059669','bg'=>'#dcfce7','label'=>'Active'],
-            'draft'      => ['color'=>'#64748b','bg'=>'#f1f5f9','label'=>'Draft'],
+            'draft'      => ['color'=>'#71717a','bg'=>'#f4f4f5','label'=>'Draft'],
             'expired'    => ['color'=>'#dc2626','bg'=>'#fee2e2','label'=>'Expired'],
-            'terminated' => ['color'=>'#94a3b8','bg'=>'#f8fafc','label'=>'Terminated'],
+            'terminated' => ['color'=>'#a1a1aa','bg'=>'#f9fafb','label'=>'Terminated'],
           ];
-          $vcBadge = $vcStatusMap[$vc['status']] ?? ['color'=>'#64748b','bg'=>'#f1f5f9','label'=>ucfirst($vc['status'])];
+          $vcBadge = $vcStatusMap[$vc['status']] ?? ['color'=>'#71717a','bg'=>'#f4f4f5','label'=>ucfirst($vc['status'])];
           $vcDaysLeft = $vc['end_date'] ? (int)ceil((strtotime($vc['end_date']) - time()) / 86400) : null;
           $vcEndColor = ($vc['status']==='active' && $vcDaysLeft !== null && $vcDaysLeft <= 30) ? '#dc2626'
                       : (($vc['status']==='active' && $vcDaysLeft !== null && $vcDaysLeft <= 60) ? '#d97706' : 'inherit');
         ?>
         <tr>
-          <td style="font-weight:500"><?= Security::h($vc['title']) ?><?= $vc['contract_number'] ? ' <small style="color:#94a3b8;font-weight:400">('.Security::h($vc['contract_number']).')</small>' : '' ?></td>
+          <td style="font-weight:500"><?= Security::h($vc['title']) ?><?= $vc['contract_number'] ? ' <small style="color:#a1a1aa;font-weight:400">('.Security::h($vc['contract_number']).')</small>' : '' ?></td>
           <td>
             <span class="status-chip" style="background:<?= $vcBadge['bg'] ?>;color:<?= $vcBadge['color'] ?>">
               <?= $vcBadge['label'] ?>
@@ -223,7 +223,7 @@ $contracts = Database::fetchAll(
       </tbody>
     </table>
     <?php else: ?>
-    <div style="text-align:center;padding:32px 20px;color:#94a3b8">
+    <div style="text-align:center;padding:32px 20px;color:#a1a1aa">
       <i class="bi bi-file-earmark-text" style="font-size:32px;display:block;margin-bottom:10px"></i>
       <p style="margin:0;font-size:14px">No contracts on file.</p>
       <?php if (Auth::can('vendor.write')): ?>

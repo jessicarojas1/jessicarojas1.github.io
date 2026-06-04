@@ -183,9 +183,9 @@ $canEdit = Auth::can('policy.write');
 .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000; align-items:center; justify-content:center; }
 .modal-overlay.open { display:flex; }
 .modal-card { background:#fff; border-radius:12px; width:100%; max-height:90vh; overflow-y:auto; }
-.modal-header { padding:20px 24px; border-bottom:1px solid #e5e7eb; display:flex; justify-content:space-between; align-items:center; }
+.modal-header { padding:20px 24px; border-bottom:1px solid #e4e4e7; display:flex; justify-content:space-between; align-items:center; }
 .modal-body { padding:24px; }
-.modal-footer { padding:16px 24px; border-top:1px solid #e5e7eb; display:flex; gap:8px; justify-content:flex-end; }
+.modal-footer { padding:16px 24px; border-top:1px solid #e4e4e7; display:flex; gap:8px; justify-content:flex-end; }
 .hidden { display:none !important; }
 </style>
 <?php endif; ?>

@@ -64,8 +64,8 @@ if (!empty($trendData)) {
 .rdash-kpi {
     flex: 0 0 auto;
     min-width: 110px;
-    background: var(--bg-secondary, #f8fafc);
-    border: 1px solid var(--border, #e2e8f0);
+    background: var(--bg-secondary, #f9fafb);
+    border: 1px solid var(--border, #e4e4e7);
     border-radius: 12px;
     padding: 14px 16px;
     display: flex;
@@ -78,7 +78,7 @@ if (!empty($trendData)) {
 .rdash-kpi:hover { box-shadow: 0 4px 12px rgba(0,0,0,.08); }
 .rdash-kpi .kpi-icon { font-size: 20px; margin-bottom: 2px; }
 .rdash-kpi .kpi-num  { font-size: 26px; font-weight: 800; line-height: 1; }
-.rdash-kpi .kpi-lbl  { font-size: 11px; font-weight: 600; color: var(--text-muted, #64748b); text-transform: uppercase; letter-spacing: .04em; }
+.rdash-kpi .kpi-lbl  { font-size: 11px; font-weight: 600; color: var(--text-muted, #71717a); text-transform: uppercase; letter-spacing: .04em; }
 
 /* ── Two-column layout ────────────────────────────── */
 .rdash-cols {
@@ -108,7 +108,7 @@ if (!empty($trendData)) {
 .rdash-card-title {
     font-size: 13px;
     font-weight: 700;
-    color: var(--text-muted, #64748b);
+    color: var(--text-muted, #71717a);
     text-transform: uppercase;
     letter-spacing: .05em;
     display: flex;
@@ -151,7 +151,7 @@ if (!empty($trendData)) {
     justify-content: center;
     font-size: 11px;
     font-weight: 600;
-    color: var(--text-muted, #64748b);
+    color: var(--text-muted, #71717a);
 }
 .rdash-hm-axis-title {
     display: flex;
@@ -159,7 +159,7 @@ if (!empty($trendData)) {
     justify-content: center;
     font-size: 11px;
     font-weight: 700;
-    color: var(--text-muted, #64748b);
+    color: var(--text-muted, #71717a);
     text-transform: uppercase;
     letter-spacing: .04em;
 }
@@ -171,8 +171,8 @@ if (!empty($trendData)) {
     bottom: calc(100% + 6px);
     left: 50%;
     transform: translateX(-50%);
-    background: #1e293b;
-    color: #f8fafc;
+    background: #111111;
+    color: #f9fafb;
     font-size: 11px;
     font-weight: 500;
     padding: 5px 8px;
@@ -211,14 +211,14 @@ if (!empty($trendData)) {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: .04em;
-    color: var(--text-muted, #64748b);
+    color: var(--text-muted, #71717a);
     padding: 0 8px 8px;
-    border-bottom: 1px solid var(--border, #e2e8f0);
+    border-bottom: 1px solid var(--border, #e4e4e7);
     white-space: nowrap;
 }
 .rdash-compact-table td {
     padding: 7px 8px;
-    border-bottom: 1px solid var(--border, #e2e8f0);
+    border-bottom: 1px solid var(--border, #e4e4e7);
     vertical-align: middle;
 }
 .rdash-compact-table tr:last-child td { border-bottom: none; }
@@ -235,13 +235,13 @@ if (!empty($trendData)) {
     align-items: flex-start;
     gap: 10px;
     padding: 9px 0;
-    border-bottom: 1px solid var(--border, #e2e8f0);
+    border-bottom: 1px solid var(--border, #e4e4e7);
 }
 .rdash-review-item:last-child { border-bottom: none; }
 .rdash-review-date {
     flex: 0 0 44px;
     text-align: center;
-    background: var(--bg-secondary, #f8fafc);
+    background: var(--bg-secondary, #f9fafb);
     border-radius: 8px;
     padding: 4px 2px;
     font-size: 11px;
@@ -256,7 +256,7 @@ if (!empty($trendData)) {
     align-items: center;
     gap: 8px;
     padding: 8px 0;
-    border-bottom: 1px solid var(--border, #e2e8f0);
+    border-bottom: 1px solid var(--border, #e4e4e7);
     font-size: 13px;
 }
 .rdash-list-item:last-child { border-bottom: none; }
@@ -277,7 +277,7 @@ if (!empty($trendData)) {
 .rdash-bar-track {
     flex: 1;
     height: 10px;
-    background: var(--border, #e2e8f0);
+    background: var(--border, #e4e4e7);
     border-radius: 20px;
     overflow: hidden;
 }
@@ -301,16 +301,16 @@ if (!empty($trendData)) {
     flex: 0 0 auto;
     min-width: 180px;
     max-width: 220px;
-    background: var(--bg-secondary, #f8fafc);
-    border: 1px solid var(--border, #e2e8f0);
+    background: var(--bg-secondary, #f9fafb);
+    border: 1px solid var(--border, #e4e4e7);
     border-radius: 10px;
     padding: 10px 12px;
     font-size: 12px;
 }
-.rdash-change-card .rcc-id   { font-size: 11px; color: var(--text-muted, #64748b); font-weight: 600; margin-bottom: 2px; }
+.rdash-change-card .rcc-id   { font-size: 11px; color: var(--text-muted, #71717a); font-weight: 600; margin-bottom: 2px; }
 .rdash-change-card .rcc-title{ font-weight: 600; font-size: 12px; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .rdash-change-card .rcc-score{ display: flex; align-items: center; gap: 4px; margin-bottom: 4px; }
-.rdash-change-card .rcc-meta { color: var(--text-muted, #64748b); font-size: 11px; }
+.rdash-change-card .rcc-meta { color: var(--text-muted, #71717a); font-size: 11px; }
 
 /* ── Canvas chart ─────────────────────────────────── */
 #rdash-trend-canvas {
@@ -323,7 +323,7 @@ if (!empty($trendData)) {
 .rdash-empty {
     text-align: center;
     padding: 28px 16px;
-    color: var(--text-muted, #64748b);
+    color: var(--text-muted, #71717a);
     font-size: 13px;
 }
 .rdash-empty i { font-size: 28px; display: block; margin-bottom: 8px; }
@@ -753,7 +753,7 @@ if (!empty($trendData)) {
             $prev += $pct;
         }
     }
-    $conicGradient = empty($conicParts) ? '#e2e8f0 0% 100%' : implode(', ', $conicParts);
+    $conicGradient = empty($conicParts) ? '#e4e4e7 0% 100%' : implode(', ', $conicParts);
     ?>
 
     <!-- Donut -->
@@ -894,7 +894,7 @@ if (!empty($trendData)) {
       ctx.lineTo(PAD_L + chartW, y);
       ctx.stroke();
       // Y label
-      ctx.fillStyle = '#94a3b8';
+      ctx.fillStyle = '#a1a1aa';
       ctx.font = '10px Inter, sans-serif';
       ctx.textAlign = 'right';
       ctx.fillText(v, PAD_L - 6, y + 4);
@@ -943,7 +943,7 @@ if (!empty($trendData)) {
     });
 
     // ── X axis labels (week Mon DD) ─────────────────────
-    ctx.fillStyle  = '#94a3b8';
+    ctx.fillStyle  = '#a1a1aa';
     ctx.font       = '10px Inter, sans-serif';
     ctx.textAlign  = 'center';
     var step = data.length > 8 ? Math.ceil(data.length / 8) : 1;
@@ -968,7 +968,7 @@ if (!empty($trendData)) {
 
   // Tooltip overlay
   var tooltip = document.createElement('div');
-  tooltip.style.cssText = 'position:absolute;pointer-events:none;display:none;background:#1e293b;color:#f8fafc;font-size:11px;padding:6px 10px;border-radius:7px;z-index:50;line-height:1.5;white-space:nowrap;font-family:Inter,sans-serif';
+  tooltip.style.cssText = 'position:absolute;pointer-events:none;display:none;background:#111111;color:#f9fafb;font-size:11px;padding:6px 10px;border-radius:7px;z-index:50;line-height:1.5;white-space:nowrap;font-family:Inter,sans-serif';
   canvas.parentElement.style.position = 'relative';
   canvas.parentElement.appendChild(tooltip);
 

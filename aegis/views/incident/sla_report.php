@@ -5,10 +5,10 @@ function slaBadge(string $status): string {
         'on_track' => ['success',  '#059669', 'On Track'],
         'at_risk'  => ['warning',  '#d97706', 'At Risk'],
         'breached' => ['danger',   '#dc2626', 'Breached'],
-        'met'      => ['met',      '#64748b', 'Met'],
-        'n/a'      => ['muted',    '#94a3b8', 'N/A'],
+        'met'      => ['met',      '#71717a', 'Met'],
+        'n/a'      => ['muted',    '#a1a1aa', 'N/A'],
     ];
-    [$cls, $color, $label] = $map[$status] ?? ['muted', '#94a3b8', ucfirst($status)];
+    [$cls, $color, $label] = $map[$status] ?? ['muted', '#a1a1aa', ucfirst($status)];
     $extra = $status === 'met' ? 'text-decoration:line-through;' : '';
     return '<span style="display:inline-block;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;'
          . 'background:' . $color . '20;color:' . $color . ';border:1px solid ' . $color . '40;' . $extra . '">'
@@ -60,7 +60,7 @@ $sevColors = ['critical' => '#dc2626', 'high' => '#d97706', 'medium' => '#0284c7
         </tr>
       </thead>
       <tbody>
-        <?php foreach ($slaPolicies as $pol): $sc = $sevColors[$pol['severity']] ?? '#64748b'; ?>
+        <?php foreach ($slaPolicies as $pol): $sc = $sevColors[$pol['severity']] ?? '#71717a'; ?>
         <tr style="border-top:1px solid var(--border)">
           <td style="padding:10px 16px">
             <span style="display:inline-block;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:700;background:<?= $sc ?>20;color:<?= $sc ?>;border:1px solid <?= $sc ?>40">
@@ -136,7 +136,7 @@ $sevColors = ['critical' => '#dc2626', 'high' => '#d97706', 'medium' => '#0284c7
         </thead>
         <tbody>
           <?php foreach ($incidents as $inc):
-            $sc = $sevColors[$inc['severity']] ?? '#64748b';
+            $sc = $sevColors[$inc['severity']] ?? '#71717a';
             $ageH = $inc['age_hours'];
             $ageStr = $ageH >= 48 ? round($ageH / 24, 1) . ' days' : $ageH . ' hrs';
           ?>

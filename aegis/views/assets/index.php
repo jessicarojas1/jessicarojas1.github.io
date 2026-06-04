@@ -133,7 +133,7 @@ function criticalityBadge(string $crit): string {
         'medium'   => ['#fffbeb','#d97706','Medium'],
         'low'      => ['#f0fdf4','#16a34a','Low'],
     ];
-    [$bg, $color, $label] = $map[$crit] ?? ['#f1f5f9','#64748b',ucfirst($crit)];
+    [$bg, $color, $label] = $map[$crit] ?? ['#f4f4f5','#71717a',ucfirst($crit)];
     return "<span style=\"background:{$bg};color:{$color};border:1px solid {$color}33;padding:2px 10px;border-radius:99px;font-size:11px;font-weight:600;\">{$label}</span>";
 }
 ?>
@@ -158,10 +158,10 @@ function criticalityBadge(string $crit): string {
         <?php if ($assets): foreach ($assets as $a):
           $statusColors = [
             'active'         => ['#f0fdf4','#16a34a'],
-            'decommissioned' => ['#f8fafc','#64748b'],
+            'decommissioned' => ['#f9fafb','#71717a'],
             'maintenance'    => ['#fffbeb','#d97706'],
           ];
-          [$sBg, $sColor] = $statusColors[$a['status'] ?? ''] ?? ['#f1f5f9','#64748b'];
+          [$sBg, $sColor] = $statusColors[$a['status'] ?? ''] ?? ['#f4f4f5','#71717a'];
         ?>
           <tr>
             <td>

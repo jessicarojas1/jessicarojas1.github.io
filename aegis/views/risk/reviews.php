@@ -26,7 +26,7 @@ $statusConfig = [
     'planned'     => ['fg'=>'#2563eb','bg'=>'#eff6ff','label'=>'Planned'],
     'in_progress' => ['fg'=>'#d97706','bg'=>'#fffbeb','label'=>'In Progress'],
     'completed'   => ['fg'=>'#16a34a','bg'=>'#f0fdf4','label'=>'Completed'],
-    'cancelled'   => ['fg'=>'#64748b','bg'=>'#f1f5f9','label'=>'Cancelled'],
+    'cancelled'   => ['fg'=>'#71717a','bg'=>'#f4f4f5','label'=>'Cancelled'],
 ];
 
 $filterStatus = $_GET['status'] ?? '';
@@ -98,13 +98,13 @@ ob_start();
     </div>
   </div>
 
-  <div class="card" style="border-left:4px solid #94a3b8;">
+  <div class="card" style="border-left:4px solid #a1a1aa;">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
-      <div style="width:44px;height:44px;border-radius:10px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-        <i class="bi bi-x-circle" style="font-size:20px;color:#94a3b8;"></i>
+      <div style="width:44px;height:44px;border-radius:10px;background:#f4f4f5;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <i class="bi bi-x-circle" style="font-size:20px;color:#a1a1aa;"></i>
       </div>
       <div>
-        <div style="font-size:26px;font-weight:700;line-height:1;color:#94a3b8;"><?= $cancelled ?></div>
+        <div style="font-size:26px;font-weight:700;line-height:1;color:#a1a1aa;"><?= $cancelled ?></div>
         <div style="font-size:12px;color:var(--text-muted);margin-top:3px;">Cancelled</div>
       </div>
     </div>
@@ -159,8 +159,8 @@ ob_start();
       </thead>
       <tbody>
         <?php foreach ($displayedReviews as $rev):
-          $sc    = $statusConfig[$rev['status']] ?? ['fg'=>'#64748b','bg'=>'#f1f5f9','label'=>ucfirst($rev['status'])];
-          [$tFg, $tBg] = $typeBadgeColors[$rev['review_type']] ?? ['#64748b','#f1f5f9'];
+          $sc    = $statusConfig[$rev['status']] ?? ['fg'=>'#71717a','bg'=>'#f4f4f5','label'=>ucfirst($rev['status'])];
+          [$tFg, $tBg] = $typeBadgeColors[$rev['review_type']] ?? ['#71717a','#f4f4f5'];
           $total    = max(1, (int)$rev['total_risks']);
           $reviewed = (int)$rev['reviewed_count'];
           $pct      = $total > 0 ? round($reviewed / $total * 100) : 0;
@@ -190,7 +190,7 @@ ob_start();
                 <span style="color:var(--text-muted);">(<?= $pct ?>%)</span>
               <?php endif; ?>
             </div>
-            <div style="height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden;">
+            <div style="height:6px;background:#e4e4e7;border-radius:3px;overflow:hidden;">
               <div style="height:100%;width:<?= $pct ?>%;background:<?= $pct >= 100 ? '#16a34a' : ($pct > 50 ? '#d97706' : 'var(--primary)') ?>;border-radius:3px;transition:width .3s;"></div>
             </div>
           </td>

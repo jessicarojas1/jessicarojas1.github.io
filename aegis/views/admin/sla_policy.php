@@ -49,7 +49,7 @@ $sevColors = ['critical' => '#dc2626', 'high' => '#d97706', 'medium' => '#0284c7
             </thead>
             <tbody>
               <?php foreach ($policies as $pol):
-                $sc       = $sevColors[$pol['severity']] ?? '#64748b';
+                $sc       = $sevColors[$pol['severity']] ?? '#71717a';
                 $ackH     = (int)$pol['acknowledge_hours'];
                 $resH     = (int)$pol['resolve_hours'];
                 $resDays  = $resH >= 24 ? round($resH / 24, 1) : null;

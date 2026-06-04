@@ -6,7 +6,7 @@ $categoryColors = [
     'ddos'            => '#0284c7',
     'phishing'        => 'var(--secondary)',
     'insider_threat'  => '#db2777',
-    'system_failure'  => '#64748b',
+    'system_failure'  => '#71717a',
     'compliance'      => '#059669',
 ];
 $severityColors = [
@@ -34,7 +34,7 @@ $sevColor = $severityColors[strtolower($playbook['severity_filter'] ?? '')] ?? n
           <?= Security::h(ucfirst($playbook['severity_filter'])) ?> severity
         </span>
       <?php endif; ?>
-      <span class="status-chip" style="background:<?= $isActive ? '#05966920' : '#94a3b820' ?>;color:<?= $isActive ? '#059669' : '#94a3b8' ?>;border:1px solid <?= $isActive ? '#05966940' : '#94a3b840' ?>">
+      <span class="status-chip" style="background:<?= $isActive ? '#05966920' : '#a1a1aa20' ?>;color:<?= $isActive ? '#059669' : '#a1a1aa' ?>;border:1px solid <?= $isActive ? '#05966940' : '#a1a1aa40' ?>">
         <?= $isActive ? 'Active' : 'Inactive' ?>
       </span>
     </div>
@@ -188,10 +188,10 @@ $sevColor = $severityColors[strtolower($playbook['severity_filter'] ?? '')] ?? n
         <table style="width:100%;border-collapse:collapse;font-size:13px">
           <?php $rows = [
             ['Category',      Security::h($catLabel)],
-            ['Severity Filter', $playbook['severity_filter'] ? '<span class="status-chip" style="background:' . ($sevColor??'#64748b') . '20;color:' . ($sevColor??'#64748b') . '">' . Security::h(ucfirst($playbook['severity_filter'])) . '</span>' : 'Any'],
+            ['Severity Filter', $playbook['severity_filter'] ? '<span class="status-chip" style="background:' . ($sevColor??'#71717a') . '20;color:' . ($sevColor??'#71717a') . '">' . Security::h(ucfirst($playbook['severity_filter'])) . '</span>' : 'Any'],
             ['Steps',         count($steps)],
             ['Runs',          count($runs)],
-            ['Status',        $isActive ? '<span class="status-chip" style="background:#05966920;color:#059669">Active</span>' : '<span class="status-chip" style="background:#94a3b820;color:#94a3b8">Inactive</span>'],
+            ['Status',        $isActive ? '<span class="status-chip" style="background:#05966920;color:#059669">Active</span>' : '<span class="status-chip" style="background:#a1a1aa20;color:#a1a1aa">Inactive</span>'],
             ['Created By',    Security::h($playbook['creator_name'] ?? '—')],
             ['Created',       date('M j, Y', strtotime($playbook['created_at']))],
             ['Updated',       date('M j, Y', strtotime($playbook['updated_at']))],

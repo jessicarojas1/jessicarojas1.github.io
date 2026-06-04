@@ -6,7 +6,7 @@ $categoryColors = [
     'ddos'            => '#0284c7',
     'phishing'        => 'var(--secondary)',
     'insider_threat'  => '#db2777',
-    'system_failure'  => '#64748b',
+    'system_failure'  => '#71717a',
     'compliance'      => '#059669',
 ];
 $severityColors = [
@@ -48,10 +48,10 @@ $severityColors = [
       $sevColor = $severityColors[strtolower($pb['severity_filter'] ?? '')] ?? null;
       $isActive = (bool)$pb['is_active'];
     ?>
-      <div class="card" style="border-left:4px solid <?= $isActive ? $catColor : '#94a3b8' ?>;position:relative">
+      <div class="card" style="border-left:4px solid <?= $isActive ? $catColor : '#a1a1aa' ?>;position:relative">
         <?php if (!$isActive): ?>
           <div style="position:absolute;top:10px;right:10px">
-            <span class="status-chip" style="background:#94a3b820;color:#94a3b8;border:1px solid #94a3b840;font-size:10px">Inactive</span>
+            <span class="status-chip" style="background:#a1a1aa20;color:#a1a1aa;border:1px solid #a1a1aa40;font-size:10px">Inactive</span>
           </div>
         <?php endif; ?>
         <div class="card-body">

@@ -22,7 +22,7 @@ $typeColors = [
     'overdue_controls'=>'#ef4444','policy_review_due'=>'#f59e0b','pending_approval'=>'var(--primary)',
     'new_risk_assigned'=>'#f97316','open_incident_aging'=>'#dc2626','risk_review_overdue'=>'#b45309',
     'treatment_due'=>'var(--secondary)','risk_score_worsened'=>'#ef4444','vendor_assessment_expiring'=>'#0891b2',
-    'document_expiring'=>'#059669','assessment_pending_stale'=>'#64748b',
+    'document_expiring'=>'#059669','assessment_pending_stale'=>'#71717a',
 ];
 ?>
 
@@ -88,7 +88,7 @@ $typeColors = [
       </thead>
       <tbody>
         <?php if ($logs): foreach ($logs as $log):
-          $tc = $typeColors[$log['notification_type']] ?? '#64748b';
+          $tc = $typeColors[$log['notification_type']] ?? '#71717a';
           $tl = $typeLabels[$log['notification_type']] ?? $log['notification_type'];
         ?>
         <tr>

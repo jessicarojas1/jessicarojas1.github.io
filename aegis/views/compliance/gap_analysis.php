@@ -47,7 +47,7 @@ $totalGaps = count($gaps);
 
       <!-- Progress bar -->
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-        <div style="flex:1;background:#e2e8f0;border-radius:4px;height:8px;overflow:hidden">
+        <div style="flex:1;background:#e4e4e7;border-radius:4px;height:8px;overflow:hidden">
           <div style="width:<?= $pct ?>%;background:<?= $pctColor ?>;height:100%;border-radius:4px;transition:width .4s"></div>
         </div>
         <span style="font-size:13px;font-weight:700;color:<?= $pctColor ?>;min-width:38px;text-align:right"><?= $pct ?>%</span>
@@ -61,7 +61,7 @@ $totalGaps = count($gaps);
         <span style="background:#dbeafe;color:#1d4ed8;padding:3px 9px;border-radius:10px;font-weight:500">
           <i class="bi bi-arrow-repeat"></i> <?= $inProgress ?> In Progress
         </span>
-        <span style="background:#f1f5f9;color:var(--text-muted);padding:3px 9px;border-radius:10px;font-weight:500">
+        <span style="background:#f4f4f5;color:var(--text-muted);padding:3px 9px;border-radius:10px;font-weight:500">
           <i class="bi bi-circle"></i> <?= $notStarted ?> Not Started
         </span>
         <?php if ($overdue > 0): ?>
@@ -76,7 +76,7 @@ $totalGaps = count($gaps);
 </div>
 <?php else: ?>
 <div class="card" style="margin-bottom:32px">
-  <div class="card-body" style="text-align:center;padding:40px;color:#94a3b8">
+  <div class="card-body" style="text-align:center;padding:40px;color:#a1a1aa">
     <i class="bi bi-clipboard2-x" style="font-size:36px;display:block;margin-bottom:10px"></i>
     <p style="margin:0">No active compliance packages found. <a href="/compliance/import">Import a framework</a> to get started.</p>
   </div>
@@ -91,7 +91,7 @@ $totalGaps = count($gaps);
     <i class="bi bi-exclamation-triangle" style="color:#d97706"></i>
     Control Gaps Requiring Attention
   </h2>
-  <span style="font-size:13px;color:var(--text-muted);background:#f1f5f9;padding:4px 12px;border-radius:12px">
+  <span style="font-size:13px;color:var(--text-muted);background:#f4f4f5;padding:4px 12px;border-radius:12px">
     <?= $totalGaps ?> gap<?= $totalGaps !== 1 ? 's' : '' ?><?= $totalGaps >= 100 ? ' (showing top 100)' : '' ?>
   </span>
 </div>
@@ -122,8 +122,8 @@ $totalGaps = count($gaps);
               $statusColor = '#dc2626';
             } else {
               $statusLabel = $gap['status'] ? ucwords(str_replace('_',' ',$gap['status'])) : 'Not Started';
-              $statusBg    = '#f1f5f9';
-              $statusColor = '#64748b';
+              $statusBg    = '#f4f4f5';
+              $statusColor = '#71717a';
             }
             $dueDateColor = ($gap['due_date'] && strtotime($gap['due_date']) < time()) ? '#dc2626' : 'inherit';
           ?>
@@ -153,7 +153,7 @@ $totalGaps = count($gaps);
       </table>
     </div>
     <?php else: ?>
-    <div style="text-align:center;padding:48px 20px;color:#94a3b8">
+    <div style="text-align:center;padding:48px 20px;color:#a1a1aa">
       <i class="bi bi-patch-check" style="font-size:40px;display:block;margin-bottom:12px;color:#059669"></i>
       <p style="font-size:15px;margin:0;color:#059669;font-weight:600">No control gaps found!</p>
       <p style="font-size:13px;margin:8px 0 0">All active controls are implemented or in progress.</p>
@@ -195,7 +195,7 @@ $totalGaps = count($gaps);
             $cfFrameworks  = explode(', ', $cf['frameworks'] ?? '');
             $cfCount       = (int)$cf['framework_count'];
             $cfImplemented = (int)$cf['implemented_in'];
-            $priority      = $cfCount >= 3 ? '#dc2626' : ($cfCount === 2 ? '#d97706' : '#64748b');
+            $priority      = $cfCount >= 3 ? '#dc2626' : ($cfCount === 2 ? '#d97706' : '#71717a');
           ?>
           <tr>
             <td style="font-size:13px;max-width:300px;font-weight:500"><?= Security::h($cf['title']) ?></td>
@@ -220,7 +220,7 @@ $totalGaps = count($gaps);
       </table>
     </div>
     <?php else: ?>
-    <div style="text-align:center;padding:40px 20px;color:#94a3b8">
+    <div style="text-align:center;padding:40px 20px;color:#a1a1aa">
       <i class="bi bi-diagram-3" style="font-size:36px;display:block;margin-bottom:10px"></i>
       <p style="margin:0;font-size:14px">No cross-framework gaps found. Either only one framework is active, or all shared controls are implemented.</p>
     </div>

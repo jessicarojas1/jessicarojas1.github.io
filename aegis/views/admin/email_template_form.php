@@ -58,7 +58,7 @@ ob_start();
 
           <div class="form-group">
             <label class="form-label">Type</label>
-            <div style="padding:8px 12px;background:var(--bg-secondary,#f8fafc);border:1px solid var(--border,#e5e7eb);border-radius:6px;font-family:monospace;font-size:13px;color:var(--text-muted)">
+            <div style="padding:8px 12px;background:var(--bg-secondary,#f9fafb);border:1px solid var(--border,#e4e4e7);border-radius:6px;font-family:monospace;font-size:13px;color:var(--text-muted)">
               <?= Security::h($template['type'] ?? '') ?>
             </div>
             <span class="form-text">Template type is fixed and cannot be changed.</span>
@@ -95,7 +95,7 @@ ob_start();
             <span class="form-text">Optional plain-text fallback for email clients that do not render HTML.</span>
           </div>
 
-          <div style="display:flex;align-items:center;gap:10px;padding:14px 0;border-top:1px solid var(--border,#e5e7eb)">
+          <div style="display:flex;align-items:center;gap:10px;padding:14px 0;border-top:1px solid var(--border,#e4e4e7)">
             <label class="pill-toggle" title="Toggle active status">
               <input type="checkbox" id="tmpl_is_active" name="is_active" value="1"
                      <?= !empty($template['is_active']) ? 'checked' : '' ?>>
@@ -108,7 +108,7 @@ ob_start();
           </div>
 
         </div>
-        <div class="card-footer" style="padding:16px 20px;border-top:1px solid var(--border,#e5e7eb);display:flex;gap:10px;align-items:center">
+        <div class="card-footer" style="padding:16px 20px;border-top:1px solid var(--border,#e4e4e7);display:flex;gap:10px;align-items:center">
           <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Save Template</button>
           <a href="/admin/email-templates" class="btn btn-ghost">Cancel</a>
           <button type="button" class="btn btn-secondary" style="margin-left:auto" data-click="openPreviewModal">
@@ -136,7 +136,7 @@ ob_start();
             <?php foreach ($variables as $varName => $varDesc):
               $placeholder = '{{' . $varName . '}}';
             ?>
-              <div style="border:1px solid var(--border,#e5e7eb);border-radius:6px;padding:8px 10px;background:var(--bg-secondary,#f8fafc)">
+              <div style="border:1px solid var(--border,#e4e4e7);border-radius:6px;padding:8px 10px;background:var(--bg-secondary,#f9fafb)">
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
                   <code style="font-size:12px;color:var(--secondary);word-break:break-all"><?= Security::h($placeholder) ?></code>
                   <button type="button"
@@ -157,7 +157,7 @@ ob_start();
           <p style="font-size:13px;color:var(--text-muted);margin:0">No variables defined for this template type.</p>
         <?php endif; ?>
 
-        <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border,#e5e7eb)">
+        <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border,#e4e4e7)">
           <p style="font-size:12px;font-weight:600;color:var(--text-muted);margin:0 0 6px;text-transform:uppercase;letter-spacing:.04em">Syntax</p>
           <div style="background:#1c2a1b;border-radius:6px;padding:10px 12px;font-family:monospace;font-size:12px;color:#86efac;overflow-x:auto">
             <span style="color:#6ee7b7">{{variable_name}}</span>
@@ -173,7 +173,7 @@ ob_start();
 <!-- Preview Modal -->
 <div id="previewModal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.5);align-items:center;justify-content:center">
   <div style="background:#fff;border-radius:12px;width:90vw;max-width:820px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3)">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #e5e7eb">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #e4e4e7">
       <h3 style="margin:0;font-size:16px;font-weight:600">Email Preview</h3>
       <button type="button" data-click="closePreviewModal" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text-muted);line-height:1">
         <i class="bi bi-x-lg"></i>

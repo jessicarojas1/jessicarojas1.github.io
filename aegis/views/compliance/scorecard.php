@@ -9,24 +9,24 @@ ob_start();
   body { font-size: 11px; }
   table { page-break-inside: auto; }
   tr { page-break-inside: avoid; }
-  th { background: #e5e7eb !important; -webkit-print-color-adjust: exact; }
+  th { background: #e4e4e7 !important; -webkit-print-color-adjust: exact; }
 }
 .score-summary { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
 .score-chip { text-align: center; padding: 12px 20px; border-radius: 8px; min-width: 90px; }
 .score-bar { height: 16px; border-radius: 8px; overflow: hidden; display: flex; margin-bottom: 20px; }
-.sig-block { margin-top: 40px; border-top: 1px solid #e5e7eb; padding-top: 24px; }
+.sig-block { margin-top: 40px; border-top: 1px solid #e4e4e7; padding-top: 24px; }
 .sig-line { display: flex; gap: 40px; margin-bottom: 24px; }
 .sig-field { flex: 1; border-bottom: 1px solid #333; padding-bottom: 4px; }
-.scorecard-header { border-bottom: 2px solid #e5e7eb; margin-bottom: 24px; padding-bottom: 16px; }
+.scorecard-header { border-bottom: 2px solid #e4e4e7; margin-bottom: 24px; padding-bottom: 16px; }
 .scorecard-logo { font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: -0.5px; }
 .scorecard-logo span { color: var(--primary); }
-.domain-header-row { background: #1e293b; color: #fff; padding: 10px 14px; font-weight: 600; font-size: 13px; }
+.domain-header-row { background: #111111; color: #fff; padding: 10px 14px; font-weight: 600; font-size: 13px; }
 .status-badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; }
 .badge-compliant { background: #dcfce7; color: #166534; }
 .badge-non_compliant { background: #fee2e2; color: #991b1b; }
 .badge-partial { background: #fef9c3; color: #854d0e; }
-.badge-not_applicable { background: #f1f5f9; color: var(--text-muted); }
-.badge-not_started { background: #f1f5f9; color: var(--text-muted); }
+.badge-not_applicable { background: #f4f4f5; color: var(--text-muted); }
+.badge-not_started { background: #f4f4f5; color: var(--text-muted); }
 .domain-section { margin-bottom: 24px; page-break-before: auto; }
 </style>
 
@@ -63,7 +63,7 @@ ob_start();
     ?>
 
     <div class="score-summary">
-      <div class="score-chip" style="background:#f1f5f9;color:var(--text)">
+      <div class="score-chip" style="background:#f4f4f5;color:var(--text)">
         <div style="font-size:22px;font-weight:700"><?= $total ?></div>
         <div style="font-size:12px;margin-top:4px">Total Controls</div>
       </div>
@@ -79,11 +79,11 @@ ob_start();
         <div style="font-size:22px;font-weight:700"><?= $partial ?></div>
         <div style="font-size:12px;margin-top:4px">Partial</div>
       </div>
-      <div class="score-chip" style="background:#f1f5f9;color:var(--text-muted)">
+      <div class="score-chip" style="background:#f4f4f5;color:var(--text-muted)">
         <div style="font-size:22px;font-weight:700"><?= $notApplicable ?></div>
         <div style="font-size:12px;margin-top:4px">Not Applicable</div>
       </div>
-      <div class="score-chip" style="background:#f1f5f9;color:var(--text-muted)">
+      <div class="score-chip" style="background:#f4f4f5;color:var(--text-muted)">
         <div style="font-size:22px;font-weight:700"><?= $notAssessed ?></div>
         <div style="font-size:12px;margin-top:4px">Not Assessed</div>
       </div>
@@ -113,18 +113,18 @@ ob_start();
         <div style="width:<?= $wNonCompliant ?>%;background:#dc2626" title="Non-Compliant: <?= $nonCompliant ?>"></div>
       <?php endif; ?>
       <?php if ($wNA > 0): ?>
-        <div style="width:<?= $wNA ?>%;background:#94a3b8" title="Not Applicable: <?= $notApplicable ?>"></div>
+        <div style="width:<?= $wNA ?>%;background:#a1a1aa" title="Not Applicable: <?= $notApplicable ?>"></div>
       <?php endif; ?>
       <?php if ($wNotAssessed > 0): ?>
-        <div style="width:<?= $wNotAssessed ?>%;background:#e2e8f0" title="Not Assessed: <?= $notAssessed ?>"></div>
+        <div style="width:<?= $wNotAssessed ?>%;background:#e4e4e7" title="Not Assessed: <?= $notAssessed ?>"></div>
       <?php endif; ?>
     </div>
     <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text-muted);margin-bottom:4px">
       <span><span style="display:inline-block;width:10px;height:10px;background:#059669;border-radius:2px;margin-right:4px"></span>Compliant</span>
       <span><span style="display:inline-block;width:10px;height:10px;background:#d97706;border-radius:2px;margin-right:4px"></span>Partial</span>
       <span><span style="display:inline-block;width:10px;height:10px;background:#dc2626;border-radius:2px;margin-right:4px"></span>Non-Compliant</span>
-      <span><span style="display:inline-block;width:10px;height:10px;background:#94a3b8;border-radius:2px;margin-right:4px"></span>Not Applicable</span>
-      <span><span style="display:inline-block;width:10px;height:10px;background:#e2e8f0;border-radius:2px;margin-right:4px"></span>Not Assessed</span>
+      <span><span style="display:inline-block;width:10px;height:10px;background:#a1a1aa;border-radius:2px;margin-right:4px"></span>Not Applicable</span>
+      <span><span style="display:inline-block;width:10px;height:10px;background:#e4e4e7;border-radius:2px;margin-right:4px"></span>Not Assessed</span>
     </div>
   </div>
 </div>
@@ -142,12 +142,12 @@ ob_start();
   <table style="width:100%;border-collapse:collapse;font-size:12px">
     <thead>
       <tr>
-        <th style="text-align:left;padding:8px 12px;background:#f8fafc;border-bottom:1px solid #e2e8f0;width:100px">Code</th>
-        <th style="text-align:left;padding:8px 12px;background:#f8fafc;border-bottom:1px solid #e2e8f0">Control Title</th>
-        <th style="text-align:left;padding:8px 12px;background:#f8fafc;border-bottom:1px solid #e2e8f0;width:120px">Status</th>
-        <th style="text-align:left;padding:8px 12px;background:#f8fafc;border-bottom:1px solid #e2e8f0;width:120px">Assigned To</th>
-        <th style="text-align:left;padding:8px 12px;background:#f8fafc;border-bottom:1px solid #e2e8f0;width:90px">Due Date</th>
-        <th style="text-align:left;padding:8px 12px;background:#f8fafc;border-bottom:1px solid #e2e8f0">Notes</th>
+        <th style="text-align:left;padding:8px 12px;background:#f9fafb;border-bottom:1px solid #e4e4e7;width:100px">Code</th>
+        <th style="text-align:left;padding:8px 12px;background:#f9fafb;border-bottom:1px solid #e4e4e7">Control Title</th>
+        <th style="text-align:left;padding:8px 12px;background:#f9fafb;border-bottom:1px solid #e4e4e7;width:120px">Status</th>
+        <th style="text-align:left;padding:8px 12px;background:#f9fafb;border-bottom:1px solid #e4e4e7;width:120px">Assigned To</th>
+        <th style="text-align:left;padding:8px 12px;background:#f9fafb;border-bottom:1px solid #e4e4e7;width:90px">Due Date</th>
+        <th style="text-align:left;padding:8px 12px;background:#f9fafb;border-bottom:1px solid #e4e4e7">Notes</th>
       </tr>
     </thead>
     <tbody>
@@ -166,7 +166,7 @@ ob_start();
             $notes = mb_substr($notes, 0, 100) . '…';
         }
       ?>
-      <tr style="border-bottom:1px solid #f1f5f9">
+      <tr style="border-bottom:1px solid #f4f4f5">
         <td style="padding:7px 12px;font-family:monospace;font-size:11px;color:var(--text-muted)"><?= Security::h($ctrl['code']) ?></td>
         <td style="padding:7px 12px"><?= Security::h($ctrl['title']) ?></td>
         <td style="padding:7px 12px"><span class="status-badge <?= $badgeClass ?>"><?= $statusLabel ?></span></td>
@@ -178,7 +178,7 @@ ob_start();
     </tbody>
   </table>
   <?php else: ?>
-    <div style="padding:12px 16px;color:#94a3b8;font-size:13px">No controls in this domain.</div>
+    <div style="padding:12px 16px;color:#a1a1aa;font-size:13px">No controls in this domain.</div>
   <?php endif; ?>
 </div>
 <?php endforeach; ?>

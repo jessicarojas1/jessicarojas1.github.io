@@ -1,8 +1,8 @@
 <?php
 $sevColors = ['critical'=>'#dc2626','high'=>'#d97706','medium'=>'#0284c7','low'=>'#059669'];
-$statusColors = ['open'=>'#dc2626','in_progress'=>'#d97706','pending_review'=>'var(--secondary)','resolved'=>'#059669','closed'=>'#64748b','wont_fix'=>'#64748b'];
-$sevColor = $sevColors[$issue['severity']] ?? '#64748b';
-$stColor  = $statusColors[$issue['status']] ?? '#64748b';
+$statusColors = ['open'=>'#dc2626','in_progress'=>'#d97706','pending_review'=>'var(--secondary)','resolved'=>'#059669','closed'=>'#71717a','wont_fix'=>'#71717a'];
+$sevColor = $sevColors[$issue['severity']] ?? '#71717a';
+$stColor  = $statusColors[$issue['status']] ?? '#71717a';
 $pageTitle    = 'Issue: ' . $issue['issue_number'];
 $activeModule = 'issue';
 $breadcrumbs  = [['Issues', '/issue'], [$issue['issue_number'], null]];
@@ -61,8 +61,8 @@ ob_start();
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
                 <strong style="font-size:13px"><?= Security::h($upd['user_name'] ?? 'System') ?></strong>
                 <span style="font-size:11px;color:var(--text-muted)"><?= date('M j, Y g:ia', strtotime($upd['created_at'])) ?></span>
-                <?php $typeColors=['status_change'=>'var(--secondary)','assignment'=>'#0284c7','comment'=>'#64748b']; ?>
-                <span style="font-size:10px;padding:1px 6px;border-radius:3px;background:<?= ($typeColors[$upd['update_type']]??'#64748b') ?>20;color:<?= ($typeColors[$upd['update_type']]??'#64748b') ?>"><?= ucfirst(str_replace('_',' ',$upd['update_type'])) ?></span>
+                <?php $typeColors=['status_change'=>'var(--secondary)','assignment'=>'#0284c7','comment'=>'#71717a']; ?>
+                <span style="font-size:10px;padding:1px 6px;border-radius:3px;background:<?= ($typeColors[$upd['update_type']]??'#71717a') ?>20;color:<?= ($typeColors[$upd['update_type']]??'#71717a') ?>"><?= ucfirst(str_replace('_',' ',$upd['update_type'])) ?></span>
               </div>
               <p style="margin:0;white-space:pre-wrap;font-size:13px"><?= Security::h($upd['content']) ?></p>
             </div>

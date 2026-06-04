@@ -21,7 +21,7 @@ $consequenceTypeMeta = [
     'reputational'   => ['label' => 'Reputational',  'color' => 'var(--secondary)', 'bg' => 'rgba(55,65,81,.06)', 'icon' => 'bi-star-fill'],
     'legal'          => ['label' => 'Legal',          'color' => '#0891b2', 'bg' => '#ecfeff', 'icon' => 'bi-balance-scale'],
     'safety'         => ['label' => 'Safety',         'color' => '#16a34a', 'bg' => '#f0fdf4', 'icon' => 'bi-heart-pulse-fill'],
-    'impact'         => ['label' => 'Impact',         'color' => '#64748b', 'bg' => '#f1f5f9', 'icon' => 'bi-arrow-down-circle-fill'],
+    'impact'         => ['label' => 'Impact',         'color' => '#71717a', 'bg' => '#f4f4f5', 'icon' => 'bi-arrow-down-circle-fill'],
 ];
 
 $severityMeta = [
@@ -105,7 +105,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 .bt-item-card {
     position: relative;
     background: #fff;
-    border: 1.5px solid var(--border, #e2e8f0);
+    border: 1.5px solid var(--border, #e4e4e7);
     border-radius: 8px;
     padding: 9px 11px;
     margin-bottom: 8px;
@@ -116,7 +116,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
     transition: box-shadow .15s;
 }
 .bt-item-card:hover { box-shadow: 0 3px 8px rgba(0,0,0,.1); }
-.bt-item-card-desc { font-weight: 500; color: var(--text, #1e293b); margin-bottom: 4px; }
+.bt-item-card-desc { font-weight: 500; color: var(--text, #111111); margin-bottom: 4px; }
 .bt-item-badge {
     display: inline-flex;
     align-items: center;
@@ -133,7 +133,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
     background: none;
     border: none;
     cursor: pointer;
-    color: #94a3b8;
+    color: #a1a1aa;
     padding: 2px 4px;
     border-radius: 4px;
     font-size: 11px;
@@ -156,7 +156,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 .bt-arrow-line {
     width: 100%;
     height: 2px;
-    background: linear-gradient(90deg, #cbd5e1 0%, #94a3b8 100%);
+    background: linear-gradient(90deg, #d4d4d8 0%, #a1a1aa 100%);
     position: relative;
 }
 .bt-arrow-line::after {
@@ -164,7 +164,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
     position: absolute;
     right: -1px;
     top: -4px;
-    border-left: 8px solid #94a3b8;
+    border-left: 8px solid #a1a1aa;
     border-top: 5px solid transparent;
     border-bottom: 5px solid transparent;
 }
@@ -190,13 +190,13 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
     font-size: 11.5px;
     line-height: 1.35;
     box-shadow: 0 1px 4px rgba(0,0,0,.07);
-    border: 2px solid var(--ring-color, #e2e8f0);
+    border: 2px solid var(--ring-color, #e4e4e7);
     transition: box-shadow .15s;
 }
 .bt-barrier-pill:hover { box-shadow: 0 3px 8px rgba(0,0,0,.1); }
 .bt-barrier-label {
     font-weight: 600;
-    color: var(--text, #1e293b);
+    color: var(--text, #111111);
     padding-right: 20px;
 }
 .bt-barrier-meta {
@@ -224,7 +224,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
     z-index: 2;
 }
 .bt-event-box {
-    background: #1e293b;
+    background: #111111;
     color: #fff;
     border-radius: 12px;
     padding: 18px 16px;
@@ -238,7 +238,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: #94a3b8;
+    color: #a1a1aa;
     margin-bottom: 8px;
 }
 .bt-event-title {
@@ -276,7 +276,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 .bt-funnel-line {
     position: absolute;
     height: 2px;
-    background: #cbd5e1;
+    background: #d4d4d8;
     width: 100%;
     top: 50%;
     transform: translateY(-50%);
@@ -284,8 +284,8 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 
 /* Empty state */
 .bt-empty {
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-    border: 2px dashed #cbd5e1;
+    background: linear-gradient(135deg, #f9fafb 0%, #f4f4f5 100%);
+    border: 2px dashed #d4d4d8;
     border-radius: 12px;
     padding: 32px 24px;
     text-align: center;
@@ -299,7 +299,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 .bt-tabs-nav {
     display: flex;
     gap: 0;
-    border-bottom: 2px solid var(--border, #e2e8f0);
+    border-bottom: 2px solid var(--border, #e4e4e7);
     margin-bottom: 20px;
     flex-wrap: wrap;
 }
@@ -317,7 +317,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
     border-radius: 6px 6px 0 0;
     white-space: nowrap;
 }
-.bt-tab-btn:hover  { color: var(--primary, var(--primary)); background: #f8fafc; }
+.bt-tab-btn:hover  { color: var(--primary, var(--primary)); background: #f9fafb; }
 .bt-tab-btn.active { color: var(--primary, var(--primary)); border-bottom-color: var(--primary, var(--primary)); background: transparent; }
 
 .bt-tab-panel { display: none; }
@@ -333,7 +333,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 .bt-connector-line {
     flex: 1;
     height: 1.5px;
-    background: #e2e8f0;
+    background: #e4e4e7;
 }
 
 /* Responsive */
@@ -390,7 +390,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 
   <?php if ($isEmpty): ?>
   <div class="bt-empty">
-    <i class="bi bi-diagram-2" style="font-size:36px;color:#cbd5e1;display:block;margin-bottom:12px"></i>
+    <i class="bi bi-diagram-2" style="font-size:36px;color:#d4d4d8;display:block;margin-bottom:12px"></i>
     <h3>No Bow-Tie Elements Yet</h3>
     <p>
       A <strong>bow-tie diagram</strong> maps the causes (left side) and consequences (right side) of a risk event,
@@ -410,7 +410,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
           <i class="bi bi-exclamation-triangle-fill"></i> Threat / Cause
         </div>
         <?php if (empty($causes)): ?>
-          <div style="font-size:12px;color:#94a3b8;font-style:italic;padding:8px 0">No causes added</div>
+          <div style="font-size:12px;color:#a1a1aa;font-style:italic;padding:8px 0">No causes added</div>
         <?php else: foreach ($causes as $cause):
           $ct = $causeTypeMeta[$cause['cause_type']] ?? $causeTypeMeta['threat'];
           $lh = $likelihoodMeta[$cause['likelihood_contribution']] ?? $likelihoodMeta['medium'];
@@ -443,7 +443,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
           <i class="bi bi-shield-fill-check"></i> Preventive Controls
         </div>
         <?php if (empty($leftBarriers)): ?>
-          <div style="font-size:11px;color:#94a3b8;font-style:italic;padding:8px 4px">No barriers</div>
+          <div style="font-size:11px;color:#a1a1aa;font-style:italic;padding:8px 4px">No barriers</div>
         <?php else: foreach ($leftBarriers as $bar):
           $eff  = $effectivenessMeta[$bar['effectiveness']] ?? $effectivenessMeta['partial'];
           $btyp = $barrierTypeMeta[$bar['barrier_type']] ?? $barrierTypeMeta['control'];
@@ -462,7 +462,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
               <span class="bt-barrier-eff" style="background:<?= Security::h($eff['color']) ?>18;color:<?= Security::h($eff['color']) ?>">
                 <?= Security::h($eff['label']) ?>
               </span>
-              <span style="font-size:10px;color:#94a3b8">
+              <span style="font-size:10px;color:#a1a1aa">
                 <i class="bi <?= Security::h($btyp['icon']) ?>"></i> <?= Security::h($btyp['label']) ?>
               </span>
             </div>
@@ -473,8 +473,8 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
       <!-- ── (C) Funnel Left ─────────────────────────────── -->
       <div class="bt-funnel-left">
         <div style="position:relative;width:100%;display:flex;align-items:center">
-          <div style="flex:1;height:2px;background:linear-gradient(90deg,#cbd5e1,#64748b)"></div>
-          <div style="width:0;height:0;border-left:8px solid #64748b;border-top:5px solid transparent;border-bottom:5px solid transparent"></div>
+          <div style="flex:1;height:2px;background:linear-gradient(90deg,#d4d4d8,#71717a)"></div>
+          <div style="width:0;height:0;border-left:8px solid #71717a;border-top:5px solid transparent;border-bottom:5px solid transparent"></div>
         </div>
       </div>
 
@@ -487,7 +487,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
             <?= Security::h($scoreLevel) ?> &middot; <?= $score ?>
           </span>
           <?php if ($risk['risk_id']): ?>
-          <div style="margin-top:8px;font-size:10px;color:#94a3b8;font-family:monospace"><?= Security::h($risk['risk_id']) ?></div>
+          <div style="margin-top:8px;font-size:10px;color:#a1a1aa;font-family:monospace"><?= Security::h($risk['risk_id']) ?></div>
           <?php endif; ?>
         </div>
       </div>
@@ -495,8 +495,8 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
       <!-- ── (E) Funnel Right ────────────────────────────── -->
       <div class="bt-funnel-right">
         <div style="position:relative;width:100%;display:flex;align-items:center">
-          <div style="flex:1;height:2px;background:linear-gradient(90deg,#64748b,#cbd5e1)"></div>
-          <div style="width:0;height:0;border-left:8px solid #cbd5e1;border-top:5px solid transparent;border-bottom:5px solid transparent"></div>
+          <div style="flex:1;height:2px;background:linear-gradient(90deg,#71717a,#d4d4d8)"></div>
+          <div style="width:0;height:0;border-left:8px solid #d4d4d8;border-top:5px solid transparent;border-bottom:5px solid transparent"></div>
         </div>
       </div>
 
@@ -506,7 +506,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
           <i class="bi bi-arrow-counterclockwise"></i> Recovery Controls
         </div>
         <?php if (empty($rightBarriers)): ?>
-          <div style="font-size:11px;color:#94a3b8;font-style:italic;padding:8px 4px">No barriers</div>
+          <div style="font-size:11px;color:#a1a1aa;font-style:italic;padding:8px 4px">No barriers</div>
         <?php else: foreach ($rightBarriers as $bar):
           $eff  = $effectivenessMeta[$bar['effectiveness']] ?? $effectivenessMeta['partial'];
           $btyp = $barrierTypeMeta[$bar['barrier_type']] ?? $barrierTypeMeta['control'];
@@ -525,7 +525,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
               <span class="bt-barrier-eff" style="background:<?= Security::h($eff['color']) ?>18;color:<?= Security::h($eff['color']) ?>">
                 <?= Security::h($eff['label']) ?>
               </span>
-              <span style="font-size:10px;color:#94a3b8">
+              <span style="font-size:10px;color:#a1a1aa">
                 <i class="bi <?= Security::h($btyp['icon']) ?>"></i> <?= Security::h($btyp['label']) ?>
               </span>
             </div>
@@ -539,7 +539,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
           <i class="bi bi-arrow-down-circle-fill"></i> Consequence / Impact
         </div>
         <?php if (empty($consequences)): ?>
-          <div style="font-size:12px;color:#94a3b8;font-style:italic;padding:8px 0">No consequences added</div>
+          <div style="font-size:12px;color:#a1a1aa;font-style:italic;padding:8px 0">No consequences added</div>
         <?php else: foreach ($consequences as $con):
           $cty = $consequenceTypeMeta[$con['consequence_type']] ?? $consequenceTypeMeta['impact'];
           $sev = $severityMeta[$con['severity']] ?? $severityMeta['medium'];

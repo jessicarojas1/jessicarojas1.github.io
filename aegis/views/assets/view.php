@@ -8,14 +8,14 @@ $critColors  = [
     'medium'   => ['#fffbeb','#d97706'],
     'low'      => ['#f0fdf4','#16a34a'],
 ];
-[$critBg, $critColor] = $critColors[$criticality] ?? ['#f1f5f9','#64748b'];
+[$critBg, $critColor] = $critColors[$criticality] ?? ['#f4f4f5','#71717a'];
 
 $statusColors = [
     'active'         => ['#f0fdf4','#16a34a'],
-    'decommissioned' => ['#f8fafc','#64748b'],
+    'decommissioned' => ['#f9fafb','#71717a'],
     'maintenance'    => ['#fffbeb','#d97706'],
 ];
-[$sBg, $sColor] = $statusColors[$asset['status'] ?? ''] ?? ['#f1f5f9','#64748b'];
+[$sBg, $sColor] = $statusColors[$asset['status'] ?? ''] ?? ['#f4f4f5','#71717a'];
 
 $typeLabels = [
     'server'      => 'Server',
@@ -297,7 +297,7 @@ function riskScoreLevel(int $score): string {
                 $rScore = (int)$r['inherent_score'];
                 $rLevel = riskScoreLevel($rScore);
                 $rLevelColors = ['Critical'=>'#ef4444','High'=>'#f97316','Medium'=>'#f59e0b','Low'=>'#22c55e'];
-                $rLc = $rLevelColors[$rLevel] ?? '#64748b';
+                $rLc = $rLevelColors[$rLevel] ?? '#71717a';
               ?>
                 <tr>
                   <td>
@@ -359,7 +359,7 @@ function riskScoreLevel(int $score): string {
           $lvlColors = ['Critical'=>'#ef4444','High'=>'#f97316','Medium'=>'#f59e0b','Low'=>'#22c55e'];
         ?>
           <div class="detail-row">
-            <span style="color:<?= $lvlColors[$lvl] ?? '#64748b' ?>;">■ <?= $lvl ?></span>
+            <span style="color:<?= $lvlColors[$lvl] ?? '#71717a' ?>;">■ <?= $lvl ?></span>
             <strong><?= $cnt ?></strong>
           </div>
         <?php endforeach; ?>

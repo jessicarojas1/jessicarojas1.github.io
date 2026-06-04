@@ -197,10 +197,10 @@ foreach ($grouped as $level => $risks):
           'in_progress' => ['#eff6ff','#2563eb'],
           'mitigated'   => ['#f0fdf4','#16a34a'],
           'accepted'    => ['#fffbeb','#d97706'],
-          'closed'      => ['#f8fafc','#64748b'],
+          'closed'      => ['#f9fafb','#71717a'],
           'transferred' => ['rgba(55,65,81,.05)','var(--secondary)'],
       ];
-      [$tsBg, $tsFg] = $treatStatusColors[$treatStatus] ?? ['#f1f5f9','#64748b'];
+      [$tsBg, $tsFg] = $treatStatusColors[$treatStatus] ?? ['#f4f4f5','#71717a'];
     ?>
       <div style="display:grid;grid-template-columns:320px 1fr;gap:0;border-bottom:1px solid var(--border-light);">
 
@@ -245,7 +245,7 @@ foreach ($grouped as $level => $risks):
 
         <!-- Right: timeline bar -->
         <div style="padding:14px 16px;display:flex;align-items:center;">
-          <div style="position:relative;width:100%;height:20px;background:#f1f5f9;border-radius:10px;overflow:hidden;">
+          <div style="position:relative;width:100%;height:20px;background:#f4f4f5;border-radius:10px;overflow:hidden;">
             <?php if ($barWidth > 0): ?>
               <div style="
                 position:absolute;

@@ -178,7 +178,7 @@ $totalUsers = Database::fetchOne("SELECT COUNT(*) as cnt FROM users WHERE is_act
         <?php endif; ?>
       </div>
     </div>
-    <div style="background:#e5e7eb;border-radius:999px;height:8px;overflow:hidden">
+    <div style="background:#e4e4e7;border-radius:999px;height:8px;overflow:hidden">
       <div style="width:<?= $pct ?>%;background:<?= $pct >= 80 ? '#059669' : ($pct >= 50 ? '#d97706' : '#dc2626') ?>;height:100%;border-radius:999px;transition:width .3s"></div>
     </div>
     <div class="text-muted text-sm" style="margin-top:6px"><?= $pct ?>% completion</div>

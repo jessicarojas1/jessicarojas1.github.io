@@ -8,7 +8,7 @@ function testResultBadge(string $result): string {
         'pass'       => '<span class="badge" style="background:#dcfce7;color:#16a34a;border:1px solid #86efac">Pass</span>',
         'fail'       => '<span class="badge" style="background:#fef2f2;color:#dc2626;border:1px solid #fca5a5">Fail</span>',
         'partial'    => '<span class="badge" style="background:#fffbeb;color:#d97706;border:1px solid #fcd34d">Partial</span>',
-        'not_tested' => '<span class="badge" style="background:#f1f5f9;color:var(--text-muted);border:1px solid #cbd5e1">Not Tested</span>',
+        'not_tested' => '<span class="badge" style="background:#f4f4f5;color:var(--text-muted);border:1px solid #d4d4d8">Not Tested</span>',
         default      => '<span class="badge">' . htmlspecialchars($result, ENT_QUOTES, 'UTF-8') . '</span>',
     };
 }
@@ -67,8 +67,8 @@ function testResultBadge(string $result): string {
             'compliant'      => ['bg'=>'#dcfce7','text'=>'#16a34a','label'=>'Compliant'],
             'partial'        => ['bg'=>'#fffbeb','text'=>'#d97706','label'=>'Partial'],
             'non_compliant'  => ['bg'=>'#fef2f2','text'=>'#dc2626','label'=>'Non-Compliant'],
-            'not_applicable' => ['bg'=>'#f1f5f9','text'=>'#64748b','label'=>'Not Applicable'],
-            'not_started'    => ['bg'=>'#f8fafc','text'=>'#94a3b8','label'=>'Not Started'],
+            'not_applicable' => ['bg'=>'#f4f4f5','text'=>'#71717a','label'=>'Not Applicable'],
+            'not_started'    => ['bg'=>'#f9fafb','text'=>'#a1a1aa','label'=>'Not Started'],
           ];
           $sc = $statusCfg[$implStatus] ?? $statusCfg['not_started'];
           ?>
@@ -91,7 +91,7 @@ function testResultBadge(string $result): string {
     <div class="card-header-left">
       <i class="bi bi-clock-history" style="color:var(--primary)"></i>
       <span class="card-title">Test History</span>
-      <span style="background:#e2e8f0;color:var(--text-muted);border-radius:12px;padding:2px 10px;font-size:12px;font-weight:600"><?= count($history) ?></span>
+      <span style="background:#e4e4e7;color:var(--text-muted);border-radius:12px;padding:2px 10px;font-size:12px;font-weight:600"><?= count($history) ?></span>
     </div>
   </div>
   <?php if ($history): ?>
@@ -117,7 +117,7 @@ function testResultBadge(string $result): string {
           <td>
             <?php if ($h['effectiveness'] !== null): ?>
             <div style="display:flex;align-items:center;gap:8px">
-              <div style="width:60px;height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden">
+              <div style="width:60px;height:6px;background:#e4e4e7;border-radius:3px;overflow:hidden">
                 <div style="width:<?= (int)$h['effectiveness'] ?>%;height:100%;background:<?= $h['effectiveness'] >= 75 ? '#16a34a' : ($h['effectiveness'] >= 40 ? '#d97706' : '#dc2626') ?>;border-radius:3px"></div>
               </div>
               <span style="font-size:12px;font-weight:600;color:var(--text)"><?= (int)$h['effectiveness'] ?>%</span>
@@ -147,7 +147,7 @@ function testResultBadge(string $result): string {
   </div>
   <?php else: ?>
   <div class="card-body">
-    <div class="empty-state-sm" style="text-align:center;padding:24px;color:#94a3b8">
+    <div class="empty-state-sm" style="text-align:center;padding:24px;color:#a1a1aa">
       <i class="bi bi-clipboard2-x" style="font-size:28px;display:block;margin-bottom:8px"></i>
       <p style="margin:0">No test results recorded yet. Use the form below to record the first test.</p>
     </div>
@@ -193,7 +193,7 @@ function testResultBadge(string $result): string {
                    min="0" max="100" placeholder="e.g. 85" style="flex:1"
                    data-input="updateEffBar" data-input-val="1">
             <div style="width:80px;text-align:center">
-              <div style="height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden;margin-bottom:2px">
+              <div style="height:8px;background:#e4e4e7;border-radius:4px;overflow:hidden;margin-bottom:2px">
                 <div id="effBar" style="width:0%;height:100%;background:#16a34a;border-radius:4px;transition:width .2s"></div>
               </div>
               <span id="effLabel" style="font-size:11px;color:var(--text-muted)">—</span>

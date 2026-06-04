@@ -50,8 +50,8 @@
         <?php foreach ($risks as $r):
           $sc = (int)$r['inherent_score'];
           $rc = $sc >= 20 ? '#dc2626' : ($sc >= 15 ? '#d97706' : ($sc >= 8 ? '#0284c7' : '#059669'));
-          $stColors=['open'=>'#dc2626','in_treatment'=>'#d97706','accepted'=>'var(--secondary)','closed'=>'#64748b'];
-          $stc = $stColors[$r['status']] ?? '#64748b';
+          $stColors=['open'=>'#dc2626','in_treatment'=>'#d97706','accepted'=>'var(--secondary)','closed'=>'#71717a'];
+          $stc = $stColors[$r['status']] ?? '#71717a';
         ?>
         <tr style="border-top:1px solid var(--border)">
           <td style="padding:12px 16px">
@@ -93,8 +93,8 @@
       </thead>
       <tbody>
         <?php foreach ($openTreatments as $t):
-          $tColors=['planned'=>'#64748b','in_progress'=>'#d97706','completed'=>'#059669','cancelled'=>'#64748b'];
-          $tc = $tColors[$t['status']] ?? '#64748b';
+          $tColors=['planned'=>'#71717a','in_progress'=>'#d97706','completed'=>'#059669','cancelled'=>'#71717a'];
+          $tc = $tColors[$t['status']] ?? '#71717a';
           $overdue = $t['due_date'] && strtotime($t['due_date']) < time();
         ?>
         <tr style="border-top:1px solid var(--border)">
@@ -147,7 +147,7 @@
   .sidebar,.topbar,.bottom-nav,.page-actions,.alert-panel,.alert-overlay{display:none!important}
   .main-content{margin:0!important;padding:0!important}
   .page-content{padding:0!important}
-  .card{box-shadow:none!important;border:1px solid #e2e8f0!important;break-inside:avoid}
+  .card{box-shadow:none!important;border:1px solid #e4e4e7!important;break-inside:avoid}
 }
 </style>
 

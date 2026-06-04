@@ -79,7 +79,7 @@ ob_start();
           }
           $recipientCount = count($recipients);
           $typeLabel  = $reportTypeLabels[$sched['report_type']] ?? ucfirst($sched['report_type']);
-          $typeColor  = $reportTypeBadgeColors[$sched['report_type']] ?? '#64748b';
+          $typeColor  = $reportTypeBadgeColors[$sched['report_type']] ?? '#71717a';
           $freqLabel  = $freqLabels[$sched['frequency']] ?? ucfirst($sched['frequency']);
           $lastSent   = $sched['last_sent_at'] ? date('M j, Y g:ia', strtotime($sched['last_sent_at'])) : 'Never';
           $nextSend   = $sched['next_send_at'] ? date('M j, Y g:ia', strtotime($sched['next_send_at'])) : '—';

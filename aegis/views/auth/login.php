@@ -67,9 +67,9 @@
           Sign in with <?= Security::h($ssoName) ?>
         </a>
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
-          <hr style="flex:1;border:none;border-top:1px solid #e5e7eb">
+          <hr style="flex:1;border:none;border-top:1px solid #e4e4e7">
           <span style="color:var(--text-muted);font-size:12px;white-space:nowrap">or use password</span>
-          <hr style="flex:1;border:none;border-top:1px solid #e5e7eb">
+          <hr style="flex:1;border:none;border-top:1px solid #e4e4e7">
         </div>
       <?php endif; ?>
 

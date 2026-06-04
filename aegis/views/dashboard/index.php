@@ -74,7 +74,7 @@ ob_start();
 <?php
 $totalDue = array_sum(array_map('count', $dueBuckets));
 $bucketMeta = [
-  'expired' => ['label'=>'Expired',       'color'=>'#6b7280', 'bg'=>'#f1f5f9', 'icon'=>'bi-x-circle-fill'],
+  'expired' => ['label'=>'Expired',       'color'=>'#6b7280', 'bg'=>'#f4f4f5', 'icon'=>'bi-x-circle-fill'],
   'overdue' => ['label'=>'Overdue',        'color'=>'#dc2626', 'bg'=>'#fee2e2', 'icon'=>'bi-exclamation-octagon-fill'],
   'due7'    => ['label'=>'Due in 7 Days',  'color'=>'#d97706', 'bg'=>'#fef3c7', 'icon'=>'bi-exclamation-triangle-fill'],
   'due30'   => ['label'=>'Due in 30 Days', 'color'=>'#0284c7', 'bg'=>'#dbeafe', 'icon'=>'bi-clock-fill'],
@@ -302,7 +302,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },{
           label: 'Total Controls',
           data: complianceData.map(p => p.total - p.compliant),
-          backgroundColor: '#e2e8f0',
+          backgroundColor: '#e4e4e7',
           borderRadius: 6,
         }]
       },

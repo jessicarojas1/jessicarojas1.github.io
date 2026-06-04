@@ -1,8 +1,8 @@
 <?php
 $sevColors = ['critical'=>'#dc2626','high'=>'#d97706','medium'=>'#0284c7','low'=>'#059669'];
-$statusColors = ['open'=>'#dc2626','investigating'=>'#d97706','contained'=>'var(--secondary)','resolved'=>'#059669','closed'=>'#64748b'];
-$sevColor = $sevColors[$incident['severity']] ?? '#64748b';
-$stColor  = $statusColors[$incident['status']] ?? '#64748b';
+$statusColors = ['open'=>'#dc2626','investigating'=>'#d97706','contained'=>'var(--secondary)','resolved'=>'#059669','closed'=>'#71717a'];
+$sevColor = $sevColors[$incident['severity']] ?? '#71717a';
+$stColor  = $statusColors[$incident['status']] ?? '#71717a';
 $pageTitle    = 'Incident: ' . $incident['incident_number'];
 $activeModule = 'incident';
 $breadcrumbs  = [['Incidents','/incident'],[$incident['incident_number'],null]];
@@ -37,10 +37,10 @@ $slaBadgeStyle = function(string $status): string {
         'on_track' => ['#059669', 'On Track'],
         'at_risk'  => ['#d97706', 'At Risk'],
         'breached' => ['#dc2626', 'Breached'],
-        'met'      => ['#64748b', 'Met'],
-        'n/a'      => ['#94a3b8', 'N/A'],
+        'met'      => ['#71717a', 'Met'],
+        'n/a'      => ['#a1a1aa', 'N/A'],
     ];
-    [$color, $label] = $map[$status] ?? ['#94a3b8', ucfirst($status)];
+    [$color, $label] = $map[$status] ?? ['#a1a1aa', ucfirst($status)];
     $extra = $status === 'met' ? 'text-decoration:line-through;' : '';
     return '<span style="display:inline-block;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;'
          . 'background:' . $color . '20;color:' . $color . ';border:1px solid ' . $color . '40;' . $extra . '">'
@@ -202,8 +202,8 @@ $ageDisplay  = $ageHours >= 48 ? round($ageHours / 24, 1) . ' days' : $ageHours 
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
                 <strong style="font-size:13px"><?= Security::h($upd['user_name'] ?? 'System') ?></strong>
                 <span style="font-size:11px;color:var(--text-muted)"><?= date('M j, Y g:ia', strtotime($upd['created_at'])) ?></span>
-                <?php $typeColors=['status_change'=>'var(--secondary)','containment'=>'#d97706','resolution'=>'#059669','assignment'=>'#0284c7','comment'=>'#64748b']; ?>
-                <span style="font-size:10px;padding:1px 6px;border-radius:3px;background:<?= ($typeColors[$upd['update_type']]??'#64748b') ?>20;color:<?= ($typeColors[$upd['update_type']]??'#64748b') ?>"><?= ucfirst(str_replace('_',' ',$upd['update_type'])) ?></span>
+                <?php $typeColors=['status_change'=>'var(--secondary)','containment'=>'#d97706','resolution'=>'#059669','assignment'=>'#0284c7','comment'=>'#71717a']; ?>
+                <span style="font-size:10px;padding:1px 6px;border-radius:3px;background:<?= ($typeColors[$upd['update_type']]??'#71717a') ?>20;color:<?= ($typeColors[$upd['update_type']]??'#71717a') ?>"><?= ucfirst(str_replace('_',' ',$upd['update_type'])) ?></span>
               </div>
               <p style="margin:0;white-space:pre-wrap;font-size:13px"><?= Security::h($upd['content']) ?></p>
             </div>

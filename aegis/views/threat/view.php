@@ -14,13 +14,13 @@ $statusConfig = [
     'active'    => ['label' => 'Active',    'color' => '#16a34a', 'bg' => '#f0fdf4'],
     'mitigated' => ['label' => 'Mitigated', 'color' => '#2563eb', 'bg' => '#eff6ff'],
     'accepted'  => ['label' => 'Accepted',  'color' => '#d97706', 'bg' => '#fffbeb'],
-    'retired'   => ['label' => 'Retired',   'color' => '#64748b', 'bg' => '#f8fafc'],
+    'retired'   => ['label' => 'Retired',   'color' => '#71717a', 'bg' => '#f9fafb'],
 ];
 
 $cat     = $threat['category'] ?? 'technology';
-$catCfg  = $catConfig[$cat] ?? ['label' => ucfirst($cat), 'color' => '#64748b', 'bg' => '#f1f5f9', 'icon' => 'bi-question'];
+$catCfg  = $catConfig[$cat] ?? ['label' => ucfirst($cat), 'color' => '#71717a', 'bg' => '#f4f4f5', 'icon' => 'bi-question'];
 $status  = $threat['status'] ?? 'active';
-$stCfg   = $statusConfig[$status] ?? ['label' => ucfirst($status), 'color' => '#64748b', 'bg' => '#f8fafc'];
+$stCfg   = $statusConfig[$status] ?? ['label' => ucfirst($status), 'color' => '#71717a', 'bg' => '#f9fafb'];
 
 $likelihood = (int)($threat['likelihood'] ?? 0);
 $impact     = (int)($threat['impact'] ?? 0);
@@ -320,9 +320,9 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
                     'in_progress' => ['#eff6ff','#2563eb'],
                     'mitigated'   => ['rgba(55,65,81,.05)','var(--secondary)'],
                     'accepted'    => ['#fffbeb','#d97706'],
-                    'closed'      => ['#f8fafc','#64748b'],
+                    'closed'      => ['#f9fafb','#71717a'],
                 ];
-                [$rStBg, $rStColor] = $rStOpts[$r['status'] ?? ''] ?? ['#f1f5f9','#64748b'];
+                [$rStBg, $rStColor] = $rStOpts[$r['status'] ?? ''] ?? ['#f4f4f5','#71717a'];
               ?>
                 <tr>
                   <td>

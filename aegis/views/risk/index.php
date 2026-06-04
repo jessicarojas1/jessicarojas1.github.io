@@ -35,7 +35,7 @@ $_appColors = ['zero'=>'#dc2626','low'=>'#d97706','moderate'=>'#2563eb','high'=>
     <i class="bi bi-speedometer2" style="color:var(--primary);margin-right:3px"></i>Risk Appetite:
   </span>
   <?php foreach ($_appetiteRows as $_ar):
-    $_c = $_appColors[$_ar['appetite']] ?? '#64748b';
+    $_c = $_appColors[$_ar['appetite']] ?? '#71717a';
   ?>
   <span style="font-size:11px;font-weight:600;padding:2px 10px;border-radius:20px;background:<?= $_c ?>15;color:<?= $_c ?>;border:1px solid <?= $_c ?>35;white-space:nowrap">
     <?= Security::h($_ar['category']) ?>: <?= ucfirst($_ar['appetite']) ?><?= $_ar['max_score'] !== null ? ' (≤'.Security::h($_ar['max_score']).')' : '' ?>
@@ -169,7 +169,7 @@ $_appColors = ['zero'=>'#dc2626','low'=>'#d97706','moderate'=>'#2563eb','high'=>
               $strategies = json_decode($risk['treatment_strategies'] ?? '[]', true) ?: [];
               $stratColors = ['mitigate'=>'#2563eb','accept'=>'#b45309','transfer'=>'var(--secondary)','avoid'=>'#dc2626'];
               foreach ($strategies as $strat):
-                $sc = $stratColors[$strat] ?? '#64748b';
+                $sc = $stratColors[$strat] ?? '#71717a';
               ?>
               <span style="font-size:11px;font-weight:600;padding:2px 7px;border-radius:20px;background:<?= $sc ?>18;color:<?= $sc ?>;border:1px solid <?= $sc ?>30;white-space:nowrap;margin-right:2px">
                 <?= ucfirst($strat) ?>
@@ -179,7 +179,7 @@ $_appColors = ['zero'=>'#dc2626','low'=>'#d97706','moderate'=>'#2563eb','high'=>
             <td>
               <?php
               $aStatus = $risk['assessment_status'] ?? 'draft';
-              $aColors = ['draft'=>['#64748b','#f1f5f9'],'pending_review'=>['#d97706','#fffbeb'],'approved'=>['#16a34a','#f0fdf4']];
+              $aColors = ['draft'=>['#71717a','#f4f4f5'],'pending_review'=>['#d97706','#fffbeb'],'approved'=>['#16a34a','#f0fdf4']];
               [$aFg,$aBg] = $aColors[$aStatus] ?? $aColors['draft'];
               $aLabel = ['draft'=>'Draft','pending_review'=>'Pending Review','approved'=>'Approved'][$aStatus] ?? ucfirst($aStatus);
               ?>

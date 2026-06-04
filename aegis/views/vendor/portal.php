@@ -6,12 +6,12 @@
   <title><?= Security::h($vendor['name']) ?> — Security Assessment</title>
   <link rel="stylesheet" href="/public/vendor/bootstrap-icons/bootstrap-icons.min.css">
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; color: var(--text); margin: 0; padding: 0; }
-    .header { background: #0f172a; color: white; padding: 20px 40px; display: flex; align-items: center; gap: 12px; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9fafb; color: var(--text); margin: 0; padding: 0; }
+    .header { background: #111111; color: white; padding: 20px 40px; display: flex; align-items: center; gap: 12px; }
     .header h1 { margin: 0; font-size: 18px; }
     .content { max-width: 760px; margin: 40px auto; padding: 0 20px; }
     .card { background: white; border-radius: 12px; padding: 32px; box-shadow: 0 1px 3px rgba(0,0,0,.1); margin-bottom: 24px; }
-    .question { margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid #e2e8f0; }
+    .question { margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid #e4e4e7; }
     .question:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
     .question label { display: block; font-weight: 600; margin-bottom: 8px; }
     .required-star { color: #ef4444; }
@@ -20,9 +20,9 @@
     .btn { padding: 12px 28px; border-radius: 8px; border: none; cursor: pointer; font-size: 15px; font-weight: 600; }
     .btn-primary { background: var(--primary); color: white; }
     .btn-primary:hover { background: var(--primary-dark); }
-    .footer { text-align: center; color: #94a3b8; font-size: 13px; padding: 20px; }
+    .footer { text-align: center; color: #a1a1aa; font-size: 13px; padding: 20px; }
     .meta { color: var(--text-muted); font-size: 13px; margin-bottom: 20px; }
-    .progress-bar { height: 4px; background: #e2e8f0; border-radius: 2px; margin-bottom: 24px; }
+    .progress-bar { height: 4px; background: #e4e4e7; border-radius: 2px; margin-bottom: 24px; }
     .progress-fill { height: 100%; background: var(--primary); border-radius: 2px; transition: width .3s; }
   </style>
 </head>

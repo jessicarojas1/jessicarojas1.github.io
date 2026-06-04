@@ -12,9 +12,9 @@ $statusStyles = [
     'pending'  => ['bg' => '#fffbeb', 'fg' => '#d97706', 'icon' => 'bi-hourglass-split'],
     'approved' => ['bg' => '#f0fdf4', 'fg' => '#16a34a', 'icon' => 'bi-shield-check'],
     'rejected' => ['bg' => '#fef2f2', 'fg' => '#dc2626', 'icon' => 'bi-x-circle'],
-    'expired'  => ['bg' => '#f8fafc', 'fg' => '#64748b', 'icon' => 'bi-clock-history'],
+    'expired'  => ['bg' => '#f9fafb', 'fg' => '#71717a', 'icon' => 'bi-clock-history'],
 ];
-$sStyle = $statusStyles[$exception['status']] ?? ['bg' => '#f1f5f9', 'fg' => '#64748b', 'icon' => 'bi-question-circle'];
+$sStyle = $statusStyles[$exception['status']] ?? ['bg' => '#f4f4f5', 'fg' => '#71717a', 'icon' => 'bi-question-circle'];
 
 $typeLabels = ['accept' => 'Accept Risk', 'transfer' => 'Transfer Risk', 'defer' => 'Defer Risk'];
 $typeLabel  = $typeLabels[$exception['exception_type']] ?? ucfirst($exception['exception_type']);

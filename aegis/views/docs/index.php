@@ -2048,8 +2048,8 @@ Authorization: Bearer &lt;token&gt;</code></pre>
 .docs-body p { margin-bottom:10px; line-height:1.7; }
 .docs-body ul, .docs-body ol { margin:0 0 12px; padding-left:24px; line-height:1.7; }
 .docs-body li { margin-bottom:4px; }
-.docs-body pre { background:#0f172a; color:#e2e8f0; padding:12px 16px; border-radius:8px; font-size:12px; overflow-x:auto; margin:8px 0 16px; }
-.docs-body code { background:#f1f5f9; color:#1e3a5f; padding:1px 5px; border-radius:3px; font-size:12px; }
+.docs-body pre { background:#111111; color:#e4e4e7; padding:12px 16px; border-radius:8px; font-size:12px; overflow-x:auto; margin:8px 0 16px; }
+.docs-body code { background:#f4f4f5; color:#1e3a5f; padding:1px 5px; border-radius:3px; font-size:12px; }
 .docs-body pre code { background:none; color:inherit; padding:0; }
 .docs-body .table td, .docs-body .table th { padding:8px 12px; vertical-align:top; font-size:0.875rem; }
 .docs-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin:12px 0 20px; }

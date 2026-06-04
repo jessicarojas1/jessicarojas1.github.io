@@ -126,7 +126,7 @@ $mfaEnabled = !empty($dbUser['mfa_enabled']);
                  data-input="updateStrength" data-input-val="1">
           <!-- Strength meter -->
           <div id="strength-meter-wrap" style="margin-top:8px">
-            <div style="height:6px;border-radius:3px;background:#e5e7eb;overflow:hidden">
+            <div style="height:6px;border-radius:3px;background:#e4e4e7;overflow:hidden">
               <div id="strength-bar" style="height:100%;width:0%;border-radius:3px;transition:width 0.3s,background 0.3s"></div>
             </div>
             <div id="strength-label" style="font-size:12px;margin-top:4px;color:var(--text-muted)"></div>

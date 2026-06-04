@@ -38,7 +38,7 @@ $statusIcons = [
             'pending'  => '#fffbeb', default    => '#f9fafb',
           };
         ?>
-        <div style="flex:1;padding:16px;background:<?= $bgColor ?>;border:1px solid #e5e7eb;
+        <div style="flex:1;padding:16px;background:<?= $bgColor ?>;border:1px solid #e4e4e7;
                     <?= $i === 0 ? 'border-radius:8px 0 0 8px' : '' ?>
                     <?= $i === count($steps)-1 ? 'border-radius:0 8px 8px 0' : '' ?>
                     <?= $isCurrent ? 'border-color:#f59e0b;border-width:2px' : '' ?>">
@@ -62,7 +62,7 @@ $statusIcons = [
           <?php endif; ?>
         </div>
         <?php if ($i < count($steps) - 1): ?>
-          <div style="display:flex;align-items:center;padding:0 4px;background:#f9fafb;border-top:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb">
+          <div style="display:flex;align-items:center;padding:0 4px;background:#f9fafb;border-top:1px solid #e4e4e7;border-bottom:1px solid #e4e4e7">
             <i class="bi bi-chevron-right text-muted"></i>
           </div>
         <?php endif; ?>
@@ -100,13 +100,13 @@ $statusIcons = [
       <div class="form-group">
         <label class="form-label">Decision <span class="required">*</span></label>
         <div style="display:flex;gap:12px">
-          <label class="radio-card" style="flex:1;border:2px solid #e5e7eb;border-radius:8px;padding:16px;cursor:pointer">
+          <label class="radio-card" style="flex:1;border:2px solid #e4e4e7;border-radius:8px;padding:16px;cursor:pointer">
             <input type="radio" name="decision" value="approved" required style="margin-right:8px">
             <i class="bi bi-check-circle-fill" style="color:#22c55e"></i>
             <strong>Approve</strong>
             <p class="text-muted text-sm" style="margin:4px 0 0">Advance to the next step or complete the request.</p>
           </label>
-          <label class="radio-card" style="flex:1;border:2px solid #e5e7eb;border-radius:8px;padding:16px;cursor:pointer">
+          <label class="radio-card" style="flex:1;border:2px solid #e4e4e7;border-radius:8px;padding:16px;cursor:pointer">
             <input type="radio" name="decision" value="rejected" style="margin-right:8px">
             <i class="bi bi-x-circle-fill" style="color:#ef4444"></i>
             <strong>Reject</strong>

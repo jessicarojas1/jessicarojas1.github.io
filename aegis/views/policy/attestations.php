@@ -65,7 +65,7 @@
               </td>
               <td style="min-width:160px">
                 <div style="display:flex;align-items:center;gap:10px">
-                  <div style="flex:1;background:#e5e7eb;border-radius:999px;height:7px;overflow:hidden">
+                  <div style="flex:1;background:#e4e4e7;border-radius:999px;height:7px;overflow:hidden">
                     <div style="width:<?= $pct ?>%;background:<?= $barColor ?>;height:100%;border-radius:999px"></div>
                   </div>
                   <span class="text-sm" style="white-space:nowrap;color:<?= $barColor ?>;font-weight:600">

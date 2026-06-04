@@ -9,17 +9,17 @@ $statusColors = [
     'planned'     => ['#3b82f6','#eff6ff','#bfdbfe'],
     'in_progress' => ['#f59e0b','#fffbeb','#fde68a'],
     'completed'   => ['#16a34a','#f0fdf4','#bbf7d0'],
-    'cancelled'   => ['#64748b','#f8fafc','#e2e8f0'],
+    'cancelled'   => ['#71717a','#f9fafb','#e4e4e7'],
 ];
 [$stFg,$stBg,$stBd] = $statusColors[$review['status']] ?? $statusColors['planned'];
 
 $typeLabels = ['periodic'=>'Periodic','triggered'=>'Triggered','ad_hoc'=>'Ad Hoc','board'=>'Board'];
 $itemStatusColors = [
-    'pending'        => '#64748b',
+    'pending'        => '#71717a',
     'reviewed'       => '#16a34a',
     'escalated'      => '#ef4444',
     'deferred'       => '#f59e0b',
-    'not_applicable' => '#94a3b8',
+    'not_applicable' => '#a1a1aa',
 ];
 $riskLevelFn = fn(int $s) => $s > 14 ? 'Critical' : ($s > 9 ? 'High' : ($s > 4 ? 'Medium' : 'Low'));
 $riskColors  = ['Critical'=>'#ef4444','High'=>'#f97316','Medium'=>'#f59e0b','Low'=>'#22c55e'];
@@ -163,7 +163,7 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
             <a href="/risk/<?= $item['risk_id'] ?>" class="fw-500 table-link" style="font-size:13px" target="_blank">
               <?= Security::h($item['title']) ?>
             </a>
-            <div style="font-size:11px;color:#94a3b8;margin-top:2px"><?= Security::h($item['risk_code'] ?? '—') ?></div>
+            <div style="font-size:11px;color:#a1a1aa;margin-top:2px"><?= Security::h($item['risk_code'] ?? '—') ?></div>
           </td>
           <td>
             <?php if ($item['category_name']): ?>
@@ -184,7 +184,7 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
             </span>
           </td>
           <td>
-            <?php foreach ($strats as $st): $sc = $sColors[$st]??'#64748b'; ?>
+            <?php foreach ($strats as $st): $sc = $sColors[$st]??'#71717a'; ?>
               <span style="font-size:10px;font-weight:600;padding:2px 6px;border-radius:20px;background:<?= $sc ?>18;color:<?= $sc ?>;border:1px solid <?= $sc ?>30;white-space:nowrap;margin-right:2px"><?= ucfirst($st) ?></span>
             <?php endforeach; if(empty($strats)):?>—<?php endif;?>
           </td>
@@ -197,7 +197,7 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
               <span style="color:#ef4444">✗ Treatment inadequate</span><br>
             <?php endif; ?>
             <?php if ($item['reviewer_notes']): ?><div style="color:var(--text-muted);margin-top:4px;font-style:italic"><?= Security::h($item['reviewer_notes']) ?></div><?php endif; ?>
-            <?php if ($item['reviewer_name']): ?><div style="color:#94a3b8;margin-top:4px">— <?= Security::h($item['reviewer_name']) ?></div><?php endif; ?>
+            <?php if ($item['reviewer_name']): ?><div style="color:#a1a1aa;margin-top:4px">— <?= Security::h($item['reviewer_name']) ?></div><?php endif; ?>
           </td>
           <?php endif; ?>
           <?php if ($canAct): ?>

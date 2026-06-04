@@ -40,7 +40,7 @@ ob_start();
           <div class="form-group">
             <label class="form-label">Implementation Status</label>
             <div class="status-selector">
-              <?php $statuses = ['not_started'=>['circle','Not Started','#94a3b8'],'compliant'=>['check-circle-fill','Compliant','#059669'],'partial'=>['dash-circle-fill','Partial','#d97706'],'non_compliant'=>['x-circle-fill','Non-Compliant','#dc2626'],'not_applicable'=>['slash-circle-fill','N/A','#64748b']]; ?>
+              <?php $statuses = ['not_started'=>['circle','Not Started','#a1a1aa'],'compliant'=>['check-circle-fill','Compliant','#059669'],'partial'=>['dash-circle-fill','Partial','#d97706'],'non_compliant'=>['x-circle-fill','Non-Compliant','#dc2626'],'not_applicable'=>['slash-circle-fill','N/A','#71717a']]; ?>
               <?php foreach ($statuses as $val => [$icon,$label,$color]): ?>
                 <?php $checked = ($impl['status'] ?? 'not_started') === $val; ?>
                 <label class="status-opt <?= $checked ? 'selected' : '' ?>" style="<?= $checked ? "--opt-color:{$color}" : '' ?>">

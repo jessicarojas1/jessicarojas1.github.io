@@ -31,7 +31,7 @@ function scenarioLevelClass(int $s): string {
 .preview-delta{display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:700;padding:2px 8px;border-radius:20px}
 .delta-up{background:#fee2e2;color:#dc2626}
 .delta-down{background:#d1fae5;color:var(--success)}
-.delta-neutral{background:#f1f5f9;color:var(--text-muted)}
+.delta-neutral{background:#f4f4f5;color:var(--text-muted)}
 .multiplier-group{display:flex;flex-direction:column;gap:6px}
 .mult-row{display:flex;align-items:center;gap:12px}
 .mult-slider{flex:1}
@@ -99,10 +99,10 @@ function scenarioLevelClass(int $s): string {
               <?php
               $selectedType = $_POST['scenario_type'] ?? 'stress';
               $typeMeta = [
-                  'base'          => ['label'=>'Base',         'icon'=>'bi-circle-fill',          'color'=>'#64748b','bg'=>'#f1f5f9'],
+                  'base'          => ['label'=>'Base',         'icon'=>'bi-circle-fill',          'color'=>'#71717a','bg'=>'#f4f4f5'],
                   'stress'        => ['label'=>'Stress',       'icon'=>'bi-graph-up-arrow',        'color'=>'#dc2626','bg'=>'#fef2f2'],
                   'optimistic'    => ['label'=>'Optimistic',   'icon'=>'bi-graph-down-arrow',      'color'=>'#16a34a','bg'=>'#f0fdf4'],
-                  'catastrophic'  => ['label'=>'Catastrophic', 'icon'=>'bi-exclamation-octagon-fill','color'=>'#1e293b','bg'=>'#f8fafc'],
+                  'catastrophic'  => ['label'=>'Catastrophic', 'icon'=>'bi-exclamation-octagon-fill','color'=>'#111111','bg'=>'#f9fafb'],
                   'regulatory'    => ['label'=>'Regulatory',   'icon'=>'bi-bank',                  'color'=>'#2563eb','bg'=>'#eff6ff'],
               ];
               foreach ($typeMeta as $val => $meta):

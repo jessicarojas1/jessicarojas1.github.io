@@ -75,7 +75,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
 
 .rd-stat {
   background: #fff;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #e4e4e7;
   border-radius: 10px;
   padding: 16px 14px;
   text-align: center;
@@ -85,7 +85,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
 
 .rd-table-wrap {
   background: #fff;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #e4e4e7;
   border-radius: 12px;
   overflow: hidden;
   margin-bottom: 24px;
@@ -112,13 +112,13 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
   text-align: left;
   font-weight: 700;
   color: var(--text-muted);
-  background: #f8fafc;
-  border-bottom: 1px solid #e2e8f0;
+  background: #f9fafb;
+  border-bottom: 1px solid #e4e4e7;
   white-space: nowrap;
 }
 .rd-table thead th.center { text-align: center; }
-.rd-table tbody tr { border-bottom: 1px solid #f1f5f9; }
-.rd-table tbody tr:hover { background: #fafbff; }
+.rd-table tbody tr { border-bottom: 1px solid #f4f4f5; }
+.rd-table tbody tr:hover { background: #fafafa; }
 .rd-table tbody td { padding: 9px 10px; vertical-align: top; }
 .rd-table tbody td.center { text-align: center; }
 
@@ -154,8 +154,8 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
   display: none;
   text-align: center;
   font-size: 11px;
-  color: #94a3b8;
-  border-top: 1px solid #e2e8f0;
+  color: #a1a1aa;
+  border-top: 1px solid #e4e4e7;
   padding-top: 12px;
   margin-top: 32px;
 }
@@ -169,7 +169,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
   .main-content { margin: 0 !important; padding: 0 !important; }
   .page-content { padding: 0 !important; }
   body          { font-size: 10px; background: #fff; }
-  .rd-table-wrap { page-break-inside: avoid; box-shadow: none; border: 1px solid #cbd5e1; }
+  .rd-table-wrap { page-break-inside: avoid; box-shadow: none; border: 1px solid #d4d4d8; }
   .rd-table      { font-size: 10px; }
   .rd-stat-row   { grid-template-columns: repeat(5,1fr); gap: 8px; }
   .rd-stat       { padding: 10px; }
@@ -240,7 +240,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
 <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;align-items:center;" class="no-print">
   <span style="font-size:13px;font-weight:600;color:var(--text-muted);">Filter:</span>
   <a href="/report/risk-detail"
-     style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= (!$filterLevel && !$filterStatus) ? 'var(--primary)' : '#f1f5f9' ?>;color:<?= (!$filterLevel && !$filterStatus) ? '#fff' : '#475569' ?>;text-decoration:none;font-weight:600;">All</a>
+     style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= (!$filterLevel && !$filterStatus) ? 'var(--primary)' : '#f4f4f5' ?>;color:<?= (!$filterLevel && !$filterStatus) ? '#fff' : '#52525b' ?>;text-decoration:none;font-weight:600;">All</a>
   <a href="/report/risk-detail?level=critical"
      style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= $filterLevel === 'critical' ? '#dc2626' : '#fef2f2' ?>;color:<?= $filterLevel === 'critical' ? '#fff' : '#dc2626' ?>;text-decoration:none;font-weight:600;">Critical</a>
   <a href="/report/risk-detail?level=high"
@@ -295,9 +295,9 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
         else                { $res_bg = '#f0fdf4'; $res_cl = '#16a34a'; }
 
         $statusColors = ['open' => ['#eff6ff','#1d4ed8'], 'in_treatment' => ['#fffbeb','#d97706'],
-                         'accepted' => ['rgba(55,65,81,.05)','var(--text-muted)'], 'closed' => ['#f8fafc','#64748b'],
+                         'accepted' => ['rgba(55,65,81,.05)','var(--text-muted)'], 'closed' => ['#f9fafb','#71717a'],
                          'transferred' => ['#f0fdf4','#059669']];
-        $stColor = $statusColors[$r['status'] ?? ''] ?? ['#f8fafc','#475569'];
+        $stColor = $statusColors[$r['status'] ?? ''] ?? ['#f9fafb','#52525b'];
 
         $strategy  = Security::h($r['treatment_strategy'] ?? $r['strategy'] ?? '—');
         $reviewDt  = $r['review_date'] ? date('j M Y', strtotime($r['review_date'])) : '—';
@@ -310,7 +310,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
         <td style="max-width:200px;">
           <div style="font-weight:600;color:var(--text);"><?= Security::h($r['title']) ?></div>
           <?php if (!empty($r['description'])): ?>
-          <div style="font-size:10px;color:#94a3b8;margin-top:2px;"><?= Security::h(mb_substr($r['description'], 0, 70)) ?><?= mb_strlen($r['description'] ?? '') > 70 ? '…' : '' ?></div>
+          <div style="font-size:10px;color:#a1a1aa;margin-top:2px;"><?= Security::h(mb_substr($r['description'], 0, 70)) ?><?= mb_strlen($r['description'] ?? '') > 70 ? '…' : '' ?></div>
           <?php endif; ?>
         </td>
         <td style="color:var(--text-muted);white-space:nowrap;"><?= Security::h($r['category_name'] ?? '—') ?></td>
@@ -325,7 +325,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
         <td class="center">
           <?php if ($res > 0): ?>
           <span class="score-badge" style="background:<?= $res_bg ?>;color:<?= $res_cl ?>;"><?= $res ?></span>
-          <?php else: ?><span style="color:#cbd5e1;">—</span><?php endif; ?>
+          <?php else: ?><span style="color:#d4d4d8;">—</span><?php endif; ?>
         </td>
         <td>
           <span class="status-chip2" style="background:<?= $stColor[0] ?>;color:<?= $stColor[1] ?>;"><?= ucfirst(str_replace('_', ' ', $r['status'] ?? '')) ?></span>
@@ -333,22 +333,22 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
         <td>
           <?php if ($strategy && $strategy !== '—'): ?>
           <span style="background:rgba(55,65,81,.08);color:var(--secondary);font-size:10px;font-weight:600;padding:2px 7px;border-radius:99px;display:inline-block;"><?= $strategy ?></span>
-          <?php else: ?><span style="color:#cbd5e1;">—</span><?php endif; ?>
+          <?php else: ?><span style="color:#d4d4d8;">—</span><?php endif; ?>
         </td>
         <td style="white-space:nowrap;"><?= Security::h($r['owner_name'] ?? '—') ?></td>
-        <td style="white-space:nowrap;color:<?= $isOverdue ? '#dc2626' : '#475569' ?>;">
+        <td style="white-space:nowrap;color:<?= $isOverdue ? '#dc2626' : '#52525b' ?>;">
           <?= $reviewDt ?>
           <?php if ($isOverdue): ?>&nbsp;<i class="bi bi-exclamation-circle-fill" style="color:#dc2626;"></i><?php endif; ?>
         </td>
         <td class="center">
           <?php if ($openTx > 0): ?>
           <span style="display:inline-block;background:#fffbeb;color:#d97706;font-weight:700;min-width:22px;padding:2px 6px;border-radius:6px;font-size:11px;"><?= $openTx ?></span>
-          <?php else: ?><span style="color:#cbd5e1;">0</span><?php endif; ?>
+          <?php else: ?><span style="color:#d4d4d8;">0</span><?php endif; ?>
         </td>
         <td class="center">
           <?php if ($ctrlCnt > 0): ?>
           <span style="display:inline-block;background:#eff6ff;color:#1d4ed8;font-weight:700;min-width:22px;padding:2px 6px;border-radius:6px;font-size:11px;"><?= $ctrlCnt ?></span>
-          <?php else: ?><span style="color:#cbd5e1;">0</span><?php endif; ?>
+          <?php else: ?><span style="color:#d4d4d8;">0</span><?php endif; ?>
         </td>
       </tr>
       <?php endforeach; ?>
@@ -356,7 +356,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
   </table>
   </div>
   <?php else: ?>
-  <div style="text-align:center;padding:48px 24px;color:#94a3b8;">
+  <div style="text-align:center;padding:48px 24px;color:#a1a1aa;">
     <i class="bi bi-check-circle-fill" style="font-size:32px;color:#059669;display:block;margin-bottom:10px;"></i>
     No risks match the current filter criteria.
   </div>

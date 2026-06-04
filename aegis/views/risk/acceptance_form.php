@@ -101,7 +101,7 @@ ob_start();
               <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
                 <span style="font-size:12px;color:var(--text-muted);">Treatment:</span>
                 <?php foreach ($strategies as $strat):
-                  $sm = $strategyLabels[$strat] ?? ['label' => ucfirst($strat), 'icon' => 'bi-circle', 'color' => '#64748b'];
+                  $sm = $strategyLabels[$strat] ?? ['label' => ucfirst($strat), 'icon' => 'bi-circle', 'color' => '#71717a'];
                 ?>
                   <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;background:<?= $sm['color'] ?>18;color:<?= $sm['color'] ?>;border:1px solid <?= $sm['color'] ?>40;">
                     <i class="bi <?= $sm['icon'] ?>"></i> <?= Security::h($sm['label']) ?>
