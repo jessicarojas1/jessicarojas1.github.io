@@ -16,7 +16,7 @@ ob_start();
 
 <div class="page-header">
   <h1 class="page-title">User Management</h1>
-  <button class="btn btn-primary" onclick="showModal('createUserModal')"><i class="bi bi-person-plus-fill"></i> New User</button>
+  <button class="btn btn-primary" id="openCreateUserBtn"><i class="bi bi-person-plus-fill"></i> New User</button>
 </div>
 
 <div class="card">
@@ -39,13 +39,12 @@ ob_start();
             <td class="text-muted text-sm"><?= $u['last_login'] ? date('M j, Y g:ia', strtotime($u['last_login'])) : 'Never' ?></td>
             <td>
               <div class="action-btns">
-                <button type="button" class="btn btn-ghost btn-sm"
-                        data-user="<?= htmlspecialchars(json_encode($u), ENT_QUOTES, 'UTF-8') ?>"
-                        onclick="editUserFromBtn(this)"><i class="bi bi-pencil"></i></button>
+                <button type="button" class="btn btn-ghost btn-sm edit-user-btn"
+                        data-user="<?= htmlspecialchars(json_encode($u), ENT_QUOTES, 'UTF-8') ?>"><i class="bi bi-pencil"></i></button>
                 <?php if ($u['id'] !== Auth::id()): ?>
-                <form method="POST" action="/admin/users/<?= $u['id'] ?>/delete" style="display:inline">
+                <form method="POST" action="/admin/users/<?= $u['id'] ?>/delete" style="display:inline" data-confirm="Deactivate this user?">
                   <?= Security::csrfField() ?>
-                  <button class="btn btn-ghost btn-sm text-danger" onclick="return confirm('Deactivate this user?')"><i class="bi bi-person-slash"></i></button>
+                  <button class="btn btn-ghost btn-sm text-danger"><i class="bi bi-person-slash"></i></button>
                 </form>
                 <?php endif; ?>
               </div>
@@ -58,9 +57,9 @@ ob_start();
 </div>
 
 <!-- Create User Modal -->
-<div class="modal-overlay" id="createUserModal" style="display:none" onclick="if(event.target===this)closeModal('createUserModal')">
+<div class="modal-overlay" id="createUserModal" style="display:none" data-close-on-backdrop="createUserModal">
   <div class="modal">
-    <div class="modal-header"><h3><i class="bi bi-person-plus-fill"></i> New User</h3><button onclick="closeModal('createUserModal')"><i class="bi bi-x-lg"></i></button></div>
+    <div class="modal-header"><h3><i class="bi bi-person-plus-fill"></i> New User</h3><button id="closeCreateUserBtn"><i class="bi bi-x-lg"></i></button></div>
     <div class="modal-body">
       <form method="POST" action="/admin/users/create">
         <?= Security::csrfField() ?>
@@ -83,16 +82,16 @@ ob_start();
           </div>
           <div class="form-group"><label class="form-label required">Password</label><input type="password" name="password" class="form-control" required minlength="12" placeholder="Min 12 chars, upper, number, special"></div>
         </div>
-        <div class="form-actions"><button type="submit" class="btn btn-primary">Create User</button><button type="button" class="btn btn-ghost" onclick="closeModal('createUserModal')">Cancel</button></div>
+        <div class="form-actions"><button type="submit" class="btn btn-primary">Create User</button><button type="button" class="btn btn-ghost" id="cancelCreateUserBtn">Cancel</button></div>
       </form>
     </div>
   </div>
 </div>
 
 <!-- Edit User Modal -->
-<div class="modal-overlay" id="editUserModal" style="display:none" onclick="if(event.target===this)closeModal('editUserModal')">
+<div class="modal-overlay" id="editUserModal" style="display:none" data-close-on-backdrop="editUserModal">
   <div class="modal">
-    <div class="modal-header"><h3><i class="bi bi-pencil-fill"></i> Edit User</h3><button onclick="closeModal('editUserModal')"><i class="bi bi-x-lg"></i></button></div>
+    <div class="modal-header"><h3><i class="bi bi-pencil-fill"></i> Edit User</h3><button id="closeEditUserBtn"><i class="bi bi-x-lg"></i></button></div>
     <div class="modal-body">
       <form method="POST" id="editUserForm" action="">
         <?= Security::csrfField() ?>
@@ -120,7 +119,7 @@ ob_start();
             <input type="checkbox" name="is_active" id="eu_active" value="1"> Active account
           </label>
         </div>
-        <div class="form-actions"><button type="submit" class="btn btn-primary">Save Changes</button><button type="button" class="btn btn-ghost" onclick="closeModal('editUserModal')">Cancel</button></div>
+        <div class="form-actions"><button type="submit" class="btn btn-primary">Save Changes</button><button type="button" class="btn btn-ghost" id="cancelEditUserBtn">Cancel</button></div>
       </form>
     </div>
   </div>
@@ -129,9 +128,6 @@ ob_start();
 <script nonce="<?= Security::nonce() ?>">
 function showModal(id) { document.getElementById(id).style.display = 'flex'; }
 function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-function editUserFromBtn(btn) {
-  editUser(JSON.parse(btn.getAttribute('data-user')));
-}
 function editUser(u) {
   document.getElementById('editUserForm').action = '/admin/users/' + u.id + '/update';
   document.getElementById('eu_name').value  = u.name;
@@ -141,6 +137,28 @@ function editUser(u) {
   document.getElementById('eu_active').checked = u.is_active === '1' || u.is_active === true || u.is_active === 't';
   showModal('editUserModal');
 }
+
+document.getElementById('openCreateUserBtn').addEventListener('click', function() { showModal('createUserModal'); });
+document.getElementById('closeCreateUserBtn').addEventListener('click', function() { closeModal('createUserModal'); });
+document.getElementById('cancelCreateUserBtn').addEventListener('click', function() { closeModal('createUserModal'); });
+document.getElementById('closeEditUserBtn').addEventListener('click', function() { closeModal('editUserModal'); });
+document.getElementById('cancelEditUserBtn').addEventListener('click', function() { closeModal('editUserModal'); });
+
+document.querySelectorAll('[data-close-on-backdrop]').forEach(function(overlay) {
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) closeModal(overlay.getAttribute('data-close-on-backdrop'));
+  });
+});
+
+document.querySelectorAll('.edit-user-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() { editUser(JSON.parse(btn.getAttribute('data-user'))); });
+});
+
+document.querySelectorAll('form[data-confirm]').forEach(function(f) {
+  f.addEventListener('submit', function(e) {
+    if (!confirm(f.dataset.confirm)) e.preventDefault();
+  });
+});
 </script>
 
 <?php

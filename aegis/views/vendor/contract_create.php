@@ -54,8 +54,8 @@
         </div>
         <div class="form-group" style="flex:1">
           <label class="form-label">Currency</label>
-          <input type="text" name="currency" class="form-control" value="USD" maxlength="3" placeholder="USD"
-                 style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase()">
+          <input type="text" name="currency" id="currencyInput" class="form-control" value="USD" maxlength="3" placeholder="USD"
+                 style="text-transform:uppercase">
         </div>
       </div>
 
@@ -74,7 +74,7 @@
       <!-- Auto-Renewal -->
       <div class="form-group">
         <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px">
-          <input type="checkbox" name="auto_renewal" value="1" id="autoRenewalCheck" onchange="toggleNoticeField()">
+          <input type="checkbox" name="auto_renewal" value="1" id="autoRenewalCheck">
           <span>Auto-Renewal</span>
         </label>
         <small style="color:#64748b;display:block;margin-top:4px">Check if this contract automatically renews at expiry.</small>
@@ -116,5 +116,10 @@
 function toggleNoticeField() {
   var checked = document.getElementById('autoRenewalCheck').checked;
   document.getElementById('renewalNoticeDaysGroup').style.display = checked ? 'block' : 'none';
+}
+document.getElementById('autoRenewalCheck').addEventListener('change', toggleNoticeField);
+var currencyInput = document.getElementById('currencyInput');
+if (currencyInput) {
+  currencyInput.addEventListener('input', function() { this.value = this.value.toUpperCase(); });
 }
 </script>

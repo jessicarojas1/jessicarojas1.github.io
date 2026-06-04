@@ -40,12 +40,12 @@
       <div class="mfa-digits" id="digitBoxes">
         <?php for ($i = 0; $i < 6; $i++): ?>
           <input type="text" inputmode="numeric" pattern="[0-9]" maxlength="1" autocomplete="off"
-                 id="d<?= $i ?>" onkeyup="digitNext(this, <?= $i ?>)" onpaste="handlePaste(event)">
+                 id="d<?= $i ?>" data-index="<?= $i ?>">
         <?php endfor; ?>
       </div>
       <input type="hidden" name="code" id="codeInput">
 
-      <button type="submit" class="btn btn-primary" style="width:100%;margin-top:8px" onclick="assembleCode()">
+      <button type="submit" class="btn btn-primary" style="width:100%;margin-top:8px" id="btnMfaVerify">
         <i class="bi bi-shield-check"></i> Verify
       </button>
     </form>
@@ -56,7 +56,7 @@
 
     <!-- Backup code toggle -->
     <div style="text-align:center;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
-      <button type="button" id="toggleBackupBtn" onclick="toggleBackupForm()"
+      <button type="button" id="toggleBackupBtn"
               style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--primary);text-decoration:underline;padding:0">
         Use a backup code instead
       </button>
@@ -85,7 +85,7 @@
         </button>
       </form>
       <div style="text-align:center;margin-top:10px">
-        <button type="button" onclick="toggleBackupForm()"
+        <button type="button" id="backToAuthBtn"
                 style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--text-muted);text-decoration:underline;padding:0">
           Back to authenticator code
         </button>
@@ -97,7 +97,7 @@
 
 <script nonce="<?= Security::nonce() ?>">
 function digitNext(el, idx) {
-  const val = el.value.replace(/\D/g,'');
+  var val = el.value.replace(/\D/g,'');
   el.value = val;
   if (val && idx < 5) {
     document.getElementById('d' + (idx + 1)).focus();
@@ -110,12 +110,12 @@ function digitNext(el, idx) {
 
 function handlePaste(e) {
   e.preventDefault();
-  const digits = (e.clipboardData.getData('text') || '').replace(/\D/g,'').slice(0, 6).split('');
+  var digits = (e.clipboardData.getData('text') || '').replace(/\D/g,'').slice(0, 6).split('');
   digits.forEach(function(d, i) {
-    const box = document.getElementById('d' + i);
+    var box = document.getElementById('d' + i);
     if (box) box.value = d;
   });
-  const last = document.getElementById('d' + (digits.length - 1));
+  var last = document.getElementById('d' + (digits.length - 1));
   if (last) last.focus();
   if (digits.length === 6) {
     assembleCode();
@@ -124,10 +124,22 @@ function handlePaste(e) {
 }
 
 function assembleCode() {
-  let code = '';
-  for (let i = 0; i < 6; i++) { code += document.getElementById('d' + i).value; }
+  var code = '';
+  for (var i = 0; i < 6; i++) { code += document.getElementById('d' + i).value; }
   document.getElementById('codeInput').value = code;
 }
+
+// Wire up digit inputs via data-index
+document.querySelectorAll('#digitBoxes input[data-index]').forEach(function(input) {
+  var idx = parseInt(input.getAttribute('data-index'), 10);
+  input.addEventListener('keyup', function() { digitNext(input, idx); });
+  input.addEventListener('paste', function(e) { handlePaste(e); });
+});
+
+// Wire up verify button
+document.getElementById('btnMfaVerify').addEventListener('click', function() {
+  assembleCode();
+});
 
 function showBackupSection() {
   var totpSection  = document.getElementById('digitBoxes');

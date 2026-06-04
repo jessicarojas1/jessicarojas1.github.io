@@ -56,7 +56,7 @@ ob_start();
   </div>
   <div class="page-actions">
     <a href="/risk/matrix" class="btn btn-ghost"><i class="bi bi-eye"></i> Preview Matrix</a>
-    <button type="button" class="btn btn-primary" onclick="document.getElementById('matrixSaveForm').submit()">
+    <button type="button" class="btn btn-primary" id="saveMatrixBtn">
       <i class="bi bi-save-fill"></i> Save Matrix
     </button>
   </div>
@@ -120,16 +120,15 @@ ob_start();
                 Color: <span class="rm-color-swatch" style="background:<?= $color ?>"></span>
               </div>
               <div class="rm-cell-actions">
-                <button type="button" class="btn-icon" title="Edit cell"
-                        onclick="openCellEdit('<?= $key ?>',
-                          <?= htmlspecialchars(json_encode($cell['title']), ENT_QUOTES) ?>,
-                          <?= htmlspecialchars(json_encode($cell['desc']),  ENT_QUOTES) ?>,
-                          <?= htmlspecialchars(json_encode($cell['color']), ENT_QUOTES) ?>
-                        )">
+                <button type="button" class="btn-icon cell-edit-btn" title="Edit cell"
+                        data-key="<?= $key ?>"
+                        data-title="<?= htmlspecialchars($cell['title'], ENT_QUOTES, 'UTF-8') ?>"
+                        data-desc="<?= htmlspecialchars($cell['desc'],  ENT_QUOTES, 'UTF-8') ?>"
+                        data-color="<?= htmlspecialchars($cell['color'], ENT_QUOTES, 'UTF-8') ?>">
                   <i class="bi bi-gear-fill"></i>
                 </button>
-                <button type="button" class="btn-icon btn-icon-danger" title="Reset to default"
-                        onclick="resetCell('<?= $key ?>', event)">
+                <button type="button" class="btn-icon btn-icon-danger cell-reset-btn" title="Reset to default"
+                        data-key="<?= $key ?>">
                   <i class="bi bi-trash3-fill"></i>
                 </button>
               </div>

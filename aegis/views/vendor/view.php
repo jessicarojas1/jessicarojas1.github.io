@@ -24,8 +24,8 @@ ob_start();
         <?= Security::csrfField() ?>
         <button class="btn btn-secondary"><i class="bi bi-share"></i> Generate Assessment Link</button>
       </form>
-      <button onclick="showModal('editModal')" class="btn btn-secondary"><i class="bi bi-pencil"></i> Edit</button>
-      <button onclick="showModal('assessModal')" class="btn btn-primary"><i class="bi bi-clipboard-check"></i> Schedule Assessment</button>
+      <button id="btnOpenEdit" class="btn btn-secondary"><i class="bi bi-pencil"></i> Edit</button>
+      <button id="btnOpenAssess" class="btn btn-primary"><i class="bi bi-clipboard-check"></i> Schedule Assessment</button>
     <?php endif; ?>
   </div>
 </div>
@@ -34,7 +34,7 @@ ob_start();
 <div class="card" style="margin-bottom:16px;border-left:3px solid #059669">
   <div class="card-body">
     <strong>Portal link generated:</strong>
-    <input type="text" value="<?= Security::h($_SESSION['portal_link']) ?>" style="width:100%;margin-top:8px;font-family:monospace;padding:6px;border:1px solid #d1d5db;border-radius:6px" readonly onclick="this.select()">
+    <input type="text" id="portalLinkInput" value="<?= Security::h($_SESSION['portal_link']) ?>" style="width:100%;margin-top:8px;font-family:monospace;padding:6px;border:1px solid #d1d5db;border-radius:6px" readonly>
     <small style="color:#64748b">Share this link with the vendor. It expires in 30 days.</small>
   </div>
 </div>
@@ -84,7 +84,7 @@ ob_start();
               <p style="margin:8px 0 0;font-size:13px;white-space:pre-wrap"><?= Security::h($a['findings']) ?></p>
             <?php endif; ?>
             <?php if (Auth::can('vendor.write') && $a['status'] !== 'completed'): ?>
-              <button onclick="showUpdateAssessModal(<?= $a['id'] ?>, '<?= Security::h($a['status']) ?>')" class="btn btn-ghost" style="margin-top:8px;font-size:12px;padding:4px 10px"><i class="bi bi-pencil"></i> Update</button>
+              <button class="btn btn-ghost btn-update-assess" style="margin-top:8px;font-size:12px;padding:4px 10px" data-assess-id="<?= (int)$a['id'] ?>" data-status="<?= Security::h($a['status']) ?>"><i class="bi bi-pencil"></i> Update</button>
             <?php endif; ?>
           </div>
         <?php endforeach; else: ?>
@@ -242,7 +242,7 @@ $contracts = Database::fetchAll(
   <div class="modal" style="max-width:680px;width:100%">
     <div class="modal-header">
       <span>Edit Vendor</span>
-      <button onclick="closeModal('editModal')" style="background:none;border:none;cursor:pointer;font-size:18px">&times;</button>
+      <button id="btnCloseEdit" style="background:none;border:none;cursor:pointer;font-size:18px">&times;</button>
     </div>
     <div class="modal-body">
       <form method="post" action="/vendor/<?= $vendor['id'] ?>/update">
@@ -292,7 +292,7 @@ $contracts = Database::fetchAll(
           <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px"><input type="checkbox" name="critical_service" value="1" <?= $vendor['critical_service']?'checked':'' ?>> Critical service</label>
         </div>
         <div class="modal-footer">
-          <button type="button" onclick="closeModal('editModal')" class="btn btn-secondary">Cancel</button>
+          <button type="button" id="btnCloseEdit2" class="btn btn-secondary">Cancel</button>
           <button type="submit" class="btn btn-primary">Save Changes</button>
         </div>
       </form>
@@ -305,7 +305,7 @@ $contracts = Database::fetchAll(
   <div class="modal" style="max-width:480px;width:100%">
     <div class="modal-header">
       <span>Schedule Assessment</span>
-      <button onclick="closeModal('assessModal')" style="background:none;border:none;cursor:pointer;font-size:18px">&times;</button>
+      <button id="btnCloseAssess" style="background:none;border:none;cursor:pointer;font-size:18px">&times;</button>
     </div>
     <div class="modal-body">
       <form method="post" action="/vendor/<?= $vendor['id'] ?>/assessment">
@@ -326,7 +326,7 @@ $contracts = Database::fetchAll(
           </select>
         </div>
         <div class="modal-footer">
-          <button type="button" onclick="closeModal('assessModal')" class="btn btn-secondary">Cancel</button>
+          <button type="button" id="btnCloseAssess2" class="btn btn-secondary">Cancel</button>
           <button type="submit" class="btn btn-primary">Schedule</button>
         </div>
       </form>
@@ -339,7 +339,7 @@ $contracts = Database::fetchAll(
   <div class="modal" style="max-width:520px;width:100%">
     <div class="modal-header">
       <span>Update Assessment</span>
-      <button onclick="closeModal('updateAssessModal')" style="background:none;border:none;cursor:pointer;font-size:18px">&times;</button>
+      <button id="btnCloseUpdateAssess" style="background:none;border:none;cursor:pointer;font-size:18px">&times;</button>
     </div>
     <div class="modal-body">
       <form id="updateAssessForm" method="post">
@@ -369,7 +369,7 @@ $contracts = Database::fetchAll(
           <div class="form-group" style="flex:1"><label class="form-label">Next Assessment</label><input type="date" name="next_assessment_date" class="form-control"></div>
         </div>
         <div class="modal-footer">
-          <button type="button" onclick="closeModal('updateAssessModal')" class="btn btn-secondary">Cancel</button>
+          <button type="button" id="btnCloseUpdateAssess2" class="btn btn-secondary">Cancel</button>
           <button type="submit" class="btn btn-primary">Save</button>
         </div>
       </form>
@@ -385,6 +385,39 @@ function showUpdateAssessModal(assessId, currentStatus) {
   if (sel) { for (let o of sel.options) { o.selected = (o.value === currentStatus); } }
   showModal('updateAssessModal');
 }
+
+// Portal link input — click to select
+var pli = document.getElementById('portalLinkInput');
+if (pli) { pli.addEventListener('click', function() { this.select(); }); }
+
+// Open/close Edit modal
+var btnOpenEdit = document.getElementById('btnOpenEdit');
+if (btnOpenEdit) { btnOpenEdit.addEventListener('click', function() { showModal('editModal'); }); }
+var btnCloseEdit = document.getElementById('btnCloseEdit');
+if (btnCloseEdit) { btnCloseEdit.addEventListener('click', function() { closeModal('editModal'); }); }
+var btnCloseEdit2 = document.getElementById('btnCloseEdit2');
+if (btnCloseEdit2) { btnCloseEdit2.addEventListener('click', function() { closeModal('editModal'); }); }
+
+// Open/close Assess modal
+var btnOpenAssess = document.getElementById('btnOpenAssess');
+if (btnOpenAssess) { btnOpenAssess.addEventListener('click', function() { showModal('assessModal'); }); }
+var btnCloseAssess = document.getElementById('btnCloseAssess');
+if (btnCloseAssess) { btnCloseAssess.addEventListener('click', function() { closeModal('assessModal'); }); }
+var btnCloseAssess2 = document.getElementById('btnCloseAssess2');
+if (btnCloseAssess2) { btnCloseAssess2.addEventListener('click', function() { closeModal('assessModal'); }); }
+
+// Close Update Assessment modal
+var btnCloseUpdateAssess = document.getElementById('btnCloseUpdateAssess');
+if (btnCloseUpdateAssess) { btnCloseUpdateAssess.addEventListener('click', function() { closeModal('updateAssessModal'); }); }
+var btnCloseUpdateAssess2 = document.getElementById('btnCloseUpdateAssess2');
+if (btnCloseUpdateAssess2) { btnCloseUpdateAssess2.addEventListener('click', function() { closeModal('updateAssessModal'); }); }
+
+// Update assessment buttons (delegation via data attributes)
+document.querySelectorAll('.btn-update-assess').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    showUpdateAssessModal(parseInt(btn.dataset.assessId), btn.dataset.status);
+  });
+});
 </script>
 <?php endif; ?>
 

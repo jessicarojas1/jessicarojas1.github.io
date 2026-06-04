@@ -27,11 +27,11 @@ $packages = Database::fetchAll("SELECT id, name FROM compliance_packages WHERE i
 
 <!-- Tab switcher -->
 <div class="tab-bar" style="margin-bottom:20px">
-  <button class="tab-btn active" onclick="switchTab('csv',   this)"><i class="bi bi-filetype-csv"></i> CSV</button>
-  <button class="tab-btn"        onclick="switchTab('excel', this)"><i class="bi bi-file-earmark-excel-fill"></i> Excel</button>
-  <button class="tab-btn"        onclick="switchTab('pdf',   this)"><i class="bi bi-file-earmark-pdf-fill"></i> PDF</button>
-  <button class="tab-btn"        onclick="switchTab('json',  this)"><i class="bi bi-filetype-json"></i> JSON</button>
-  <button class="tab-btn"        onclick="switchTab('manual',this)"><i class="bi bi-plus-circle-fill"></i> Single Control</button>
+  <button class="tab-btn active" data-tab="csv"><i class="bi bi-filetype-csv"></i> CSV</button>
+  <button class="tab-btn"        data-tab="excel"><i class="bi bi-file-earmark-excel-fill"></i> Excel</button>
+  <button class="tab-btn"        data-tab="pdf"><i class="bi bi-file-earmark-pdf-fill"></i> PDF</button>
+  <button class="tab-btn"        data-tab="json"><i class="bi bi-filetype-json"></i> JSON</button>
+  <button class="tab-btn"        data-tab="manual"><i class="bi bi-plus-circle-fill"></i> Single Control</button>
 </div>
 
 <div class="two-col-layout">
@@ -51,8 +51,7 @@ $packages = Database::fetchAll("SELECT id, name FROM compliance_packages WHERE i
               <p>Drag & drop or <strong>click to upload</strong></p>
               <p class="text-muted">.csv format, max 20MB</p>
             </label>
-            <input type="file" id="csvFile" name="package_file" accept=".csv,text/csv" style="display:none"
-                   onchange="showFile(this,'fileDropCsv','csvName','#059669')">
+            <input type="file" id="csvFile" name="package_file" accept=".csv,text/csv" style="display:none">
             <div id="csvName" style="margin-top:8px;color:#059669;display:none"><i class="bi bi-file-earmark-check"></i> <span></span></div>
           </div>
           <button type="submit" class="btn btn-primary btn-full"><i class="bi bi-cloud-upload"></i> Import CSV</button>
@@ -81,7 +80,7 @@ $packages = Database::fetchAll("SELECT id, name FROM compliance_packages WHERE i
             </label>
             <input type="file" id="excelFile" name="package_file"
                    accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                   style="display:none" onchange="showFile(this,'fileDropExcel','excelName','#217346')">
+                   style="display:none">
             <div id="excelName" style="margin-top:8px;color:#217346;display:none"><i class="bi bi-file-earmark-check"></i> <span></span></div>
           </div>
           <button type="submit" class="btn btn-primary btn-full"><i class="bi bi-cloud-upload"></i> Import Excel</button>
@@ -114,7 +113,7 @@ $packages = Database::fetchAll("SELECT id, name FROM compliance_packages WHERE i
               <p class="text-muted">.pdf, max 20MB — must have selectable text</p>
             </label>
             <input type="file" id="pdfFile" name="package_file" accept=".pdf,application/pdf"
-                   style="display:none" onchange="showFile(this,'fileDropPdf','pdfName','#dc2626')">
+                   style="display:none">
             <div id="pdfName" style="margin-top:8px;color:#dc2626;display:none"><i class="bi bi-file-earmark-check"></i> <span></span></div>
           </div>
           <button type="submit" class="btn btn-primary btn-full"><i class="bi bi-cloud-upload"></i> Import PDF</button>
@@ -139,7 +138,7 @@ $packages = Database::fetchAll("SELECT id, name FROM compliance_packages WHERE i
               <p class="text-muted">.json format, max 20MB</p>
             </label>
             <input type="file" id="jsonFile" name="package_file" accept=".json,application/json"
-                   style="display:none" onchange="showFile(this,'fileDropJson','jsonName','#4f46e5')">
+                   style="display:none">
             <div id="jsonName" style="margin-top:8px;color:#4f46e5;display:none"><i class="bi bi-file-earmark-check"></i> <span></span></div>
           </div>
           <button type="submit" class="btn btn-primary btn-full"><i class="bi bi-cloud-upload"></i> Import JSON</button>

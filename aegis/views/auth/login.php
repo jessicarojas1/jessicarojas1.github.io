@@ -89,7 +89,7 @@
           </label>
           <div class="input-group">
             <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required autocomplete="current-password">
-            <button type="button" class="input-addon" onclick="togglePassword('password')">
+            <button type="button" class="input-addon" id="btnTogglePwd">
               <i class="bi bi-eye" id="toggleIcon"></i>
             </button>
           </div>
@@ -110,8 +110,8 @@
 
 <script nonce="<?= Security::nonce() ?>">
 function togglePassword(id) {
-  const input = document.getElementById(id);
-  const icon  = document.getElementById('toggleIcon');
+  var input = document.getElementById(id);
+  var icon  = document.getElementById('toggleIcon');
   if (input.type === 'password') {
     input.type = 'text';
     icon.className = 'bi bi-eye-slash';
@@ -120,6 +120,9 @@ function togglePassword(id) {
     icon.className = 'bi bi-eye';
   }
 }
+document.getElementById('btnTogglePwd').addEventListener('click', function() {
+  togglePassword('password');
+});
 </script>
 </body>
 </html>

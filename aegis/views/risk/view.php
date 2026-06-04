@@ -123,10 +123,10 @@ ob_start();
               <button class="btn btn-sm btn-secondary" title="Submit for review"><i class="bi bi-send-fill"></i> Submit for Review</button>
             </form>
           <?php elseif ($risk['assessment_status'] === 'pending_review' && Auth::role() === 'admin'): ?>
-            <button class="btn btn-sm btn-success" onclick="document.getElementById('approveModal').style.display='flex'">
+            <button class="btn btn-sm btn-success" id="openApproveModalBtn">
               <i class="bi bi-patch-check-fill"></i> Approve
             </button>
-            <button class="btn btn-sm btn-danger" onclick="document.getElementById('rejectModal').style.display='flex'">
+            <button class="btn btn-sm btn-danger" id="openRejectModalBtn">
               <i class="bi bi-x-circle-fill"></i> Send Back
             </button>
           <?php elseif ($risk['assessment_status'] === 'approved'): ?>
@@ -152,13 +152,13 @@ ob_start();
               <h4 class="r-score-head">Inherent Risk</h4>
               <div class="form-group">
                 <label class="form-label">Likelihood</label>
-                <input type="range" name="likelihood" min="1" max="5" value="<?= $risk['likelihood'] ?>" oninput="updateScores()" id="s_l" class="risk-slider">
+                <input type="range" name="likelihood" min="1" max="5" value="<?= $risk['likelihood'] ?>" id="s_l" class="risk-slider">
                 <div class="slider-markers"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
                 <div class="slider-val" id="v_l"><?= $risk['likelihood'] ?></div>
               </div>
               <div class="form-group">
                 <label class="form-label">Impact</label>
-                <input type="range" name="impact" min="1" max="5" value="<?= $risk['impact'] ?>" oninput="updateScores()" id="s_i" class="risk-slider">
+                <input type="range" name="impact" min="1" max="5" value="<?= $risk['impact'] ?>" id="s_i" class="risk-slider">
                 <div class="slider-markers"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
                 <div class="slider-val" id="v_i"><?= $risk['impact'] ?></div>
               </div>
@@ -172,13 +172,13 @@ ob_start();
               <h4 class="r-score-head">Residual Risk</h4>
               <div class="form-group">
                 <label class="form-label">Residual Likelihood</label>
-                <input type="range" name="residual_likelihood" min="1" max="5" value="<?= $risk['residual_likelihood'] ?? $risk['likelihood'] ?>" oninput="updateScores()" id="s_rl" class="risk-slider">
+                <input type="range" name="residual_likelihood" min="1" max="5" value="<?= $risk['residual_likelihood'] ?? $risk['likelihood'] ?>" id="s_rl" class="risk-slider">
                 <div class="slider-markers"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
                 <div class="slider-val" id="v_rl"><?= $risk['residual_likelihood'] ?? $risk['likelihood'] ?></div>
               </div>
               <div class="form-group">
                 <label class="form-label">Residual Impact</label>
-                <input type="range" name="residual_impact" min="1" max="5" value="<?= $risk['residual_impact'] ?? $risk['impact'] ?>" oninput="updateScores()" id="s_ri" class="risk-slider">
+                <input type="range" name="residual_impact" min="1" max="5" value="<?= $risk['residual_impact'] ?? $risk['impact'] ?>" id="s_ri" class="risk-slider">
                 <div class="slider-markers"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
                 <div class="slider-val" id="v_ri"><?= $risk['residual_impact'] ?? $risk['impact'] ?></div>
               </div>
@@ -192,13 +192,13 @@ ob_start();
               <h4 class="r-score-head">Target Risk</h4>
               <div class="form-group">
                 <label class="form-label">Target Likelihood</label>
-                <input type="range" name="target_likelihood" min="1" max="5" value="<?= $risk['target_likelihood'] ?? max(1, (int)$risk['likelihood'] - 1) ?>" oninput="updateScores()" id="s_tl" class="risk-slider tgt-slider">
+                <input type="range" name="target_likelihood" min="1" max="5" value="<?= $risk['target_likelihood'] ?? max(1, (int)$risk['likelihood'] - 1) ?>" id="s_tl" class="risk-slider tgt-slider">
                 <div class="slider-markers"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
                 <div class="slider-val" id="v_tl"><?= $risk['target_likelihood'] ?? max(1, (int)$risk['likelihood'] - 1) ?></div>
               </div>
               <div class="form-group">
                 <label class="form-label">Target Impact</label>
-                <input type="range" name="target_impact" min="1" max="5" value="<?= $risk['target_impact'] ?? max(1, (int)$risk['impact'] - 1) ?>" oninput="updateScores()" id="s_ti" class="risk-slider tgt-slider">
+                <input type="range" name="target_impact" min="1" max="5" value="<?= $risk['target_impact'] ?? max(1, (int)$risk['impact'] - 1) ?>" id="s_ti" class="risk-slider tgt-slider">
                 <div class="slider-markers"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
                 <div class="slider-val" id="v_ti"><?= $risk['target_impact'] ?? max(1, (int)$risk['impact'] - 1) ?></div>
               </div>
@@ -280,7 +280,7 @@ ob_start();
               ?>
               <label class="strategy-opt <?= $isSuggested?'strat-suggested':'' ?>" id="sl_<?= $key ?>">
                 <input type="checkbox" name="treatment_strategies[]" value="<?= $key ?>"
-                       <?= $checked?'checked':'' ?> onchange="onStratChange()">
+                       <?= $checked?'checked':'' ?> class="strat-cb">
                 <i class="bi bi-<?= $sm['icon'] ?>" style="font-size:20px"></i>
                 <span class="strat-lbl"><?= $sm['label'] ?></span>
                 <span class="strat-hint"><?= $sm['hint'] ?></span>
@@ -302,9 +302,9 @@ ob_start();
 
           <div class="form-actions" style="display:flex;gap:8px;align-items:center">
             <button type="submit" class="btn btn-primary"><i class="bi bi-save-fill"></i> Save Changes</button>
-            <form method="POST" action="/risk/<?= $risk['id'] ?>/delete" style="display:inline">
+            <form method="POST" action="/risk/<?= $risk['id'] ?>/delete" style="display:inline" data-confirm="Delete this risk permanently?">
               <?= Security::csrfField() ?>
-              <button class="btn btn-ghost text-danger" onclick="return confirm('Delete this risk permanently?')"><i class="bi bi-trash"></i></button>
+              <button class="btn btn-ghost text-danger"><i class="bi bi-trash"></i></button>
             </form>
           </div>
         </form>
@@ -421,7 +421,7 @@ ob_start();
                 <?php if (Auth::can('risk.write')): ?>
                 <form method="POST" action="/risk/control-link/<?= $lc['id'] ?>/remove" style="display:inline">
                   <?= Security::csrfField() ?>
-                  <button class="btn btn-sm btn-ghost text-danger" onclick="return confirm('Remove this control link?')" title="Unlink"><i class="bi bi-x-lg"></i></button>
+                  <button class="btn btn-sm btn-ghost text-danger" data-confirm="Remove this control link?" title="Unlink"><i class="bi bi-x-lg"></i></button>
                 </form>
                 <?php endif; ?>
               </td>
@@ -792,7 +792,7 @@ ob_start();
           <?php endif; ?>
           <div style="display:flex;gap:6px;flex-wrap:wrap">
             <a href="/risk-acceptances/<?= (int)$activeAcceptance['id'] ?>/renew" class="btn btn-ghost btn-sm" style="font-size:11px"><i class="bi bi-arrow-repeat"></i> Renew</a>
-            <form method="POST" action="/risk-acceptances/<?= (int)$activeAcceptance['id'] ?>/revoke" style="margin:0" onsubmit="return confirm('Revoke this acceptance certificate?')">
+            <form method="POST" action="/risk-acceptances/<?= (int)$activeAcceptance['id'] ?>/revoke" style="margin:0" data-confirm="Revoke this acceptance certificate?">
               <?= Security::csrfField() ?>
               <button type="submit" class="btn btn-ghost btn-sm" style="font-size:11px;color:#ef4444"><i class="bi bi-x-circle"></i> Revoke</button>
             </form>
@@ -875,7 +875,7 @@ ob_start();
             <div style="font-size:12px;font-weight:500"><?= Security::h(mb_strimwidth($sc['name'], 0, 40, '…')) ?></div>
             <span style="font-size:10px;color:<?= $scTypeColor ?>;font-weight:700;text-transform:uppercase"><?= ucfirst($sc['scenario_type']) ?></span>
           </div>
-          <form method="POST" action="/risk-scenarios/<?= (int)$sc['id'] ?>/delete" style="margin:0" onsubmit="return confirm('Delete this scenario?')">
+          <form method="POST" action="/risk-scenarios/<?= (int)$sc['id'] ?>/delete" style="margin:0" data-confirm="Delete this scenario?">
             <?= Security::csrfField() ?>
             <button type="submit" class="btn btn-ghost btn-sm" style="padding:2px 5px;color:var(--text-muted)"><i class="bi bi-trash3" style="font-size:11px"></i></button>
           </form>
@@ -899,7 +899,7 @@ ob_start();
       </div>
       <div style="display:flex;gap:8px;margin-top:16px">
         <button type="submit" class="btn btn-success">Approve</button>
-        <button type="button" class="btn btn-ghost" onclick="document.getElementById('approveModal').style.display='none'">Cancel</button>
+        <button type="button" class="btn btn-ghost" id="closeApproveModalBtn">Cancel</button>
       </div>
     </form>
   </div>
@@ -916,7 +916,7 @@ ob_start();
       </div>
       <div style="display:flex;gap:8px;margin-top:16px">
         <button type="submit" class="btn btn-danger">Send Back</button>
-        <button type="button" class="btn btn-ghost" onclick="document.getElementById('rejectModal').style.display='none'">Cancel</button>
+        <button type="button" class="btn btn-ghost" id="closeRejectModalBtn">Cancel</button>
       </div>
     </form>
   </div>

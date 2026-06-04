@@ -108,7 +108,7 @@ ob_start();
 
           <div class="form-group">
             <label class="form-label" for="risk_tier">Risk Tier</label>
-            <select id="risk_tier" name="risk_tier" class="form-control" onchange="updateTierPreview(this.value)">
+            <select id="risk_tier" name="risk_tier" class="form-control">
               <option value="critical">Critical</option>
               <option value="high">High</option>
               <option value="medium" selected>Medium</option>
@@ -174,6 +174,7 @@ function updateTierPreview(val) {
   preview.style.borderColor = d.color + '40';
   desc.textContent = d.desc;
 }
+document.getElementById('risk_tier').addEventListener('change', function() { updateTierPreview(this.value); });
 updateTierPreview(document.getElementById('risk_tier').value);
 </script>
 

@@ -17,9 +17,9 @@ ob_start();
   <div class="page-actions">
     <a href="/compliance/gap-analysis" class="btn btn-ghost"><i class="bi bi-diagram-3"></i> Gap Analysis</a>
     <a href="/compliance/<?= (int)$package['id'] ?>/scorecard" class="btn btn-ghost"><i class="bi bi-printer"></i> Scorecard</a>
-    <button class="btn btn-ghost" onclick="openModal('edit-pkg')"><i class="bi bi-pencil-fill"></i> Edit</button>
+    <button class="btn btn-ghost" id="btn-edit-pkg"><i class="bi bi-pencil-fill"></i> Edit</button>
     <form method="POST" action="/compliance/<?= (int)$package['id'] ?>/delete" style="display:inline"
-          onsubmit="return confirm('Permanently delete this package and all its controls? This cannot be undone.')">
+          id="form-delete-pkg" data-confirm="Permanently delete this package and all its controls? This cannot be undone.">
       <?= Security::csrfField() ?>
       <button type="submit" class="btn btn-ghost" style="color:#dc2626"><i class="bi bi-trash3-fill"></i> Delete</button>
     </form>
@@ -87,15 +87,15 @@ ob_start();
   <button class="bulk-status-btn" data-status="non_compliant" style="background:#dc2626;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="bi bi-x-circle-fill"></i> Non-Compliant</button>
   <button class="bulk-status-btn" data-status="not_started"   style="background:#475569;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="bi bi-circle"></i> Not Started</button>
   <button class="bulk-status-btn" data-status="not_applicable" style="background:#334155;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="bi bi-slash-circle-fill"></i> N/A</button>
-  <button id="bulk-assess-btn" onclick="openBulkAssess()" style="background:#4f46e5;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="bi bi-clipboard2-check-fill"></i> Bulk Assess</button>
-  <button onclick="clearSelection()" style="margin-left:auto;background:none;border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:6px;padding:6px 10px;font-size:12px;cursor:pointer">✕ Clear</button>
+  <button id="bulk-assess-btn" style="background:#4f46e5;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="bi bi-clipboard2-check-fill"></i> Bulk Assess</button>
+  <button id="bulk-clear-btn" style="margin-left:auto;background:none;border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:6px;padding:6px 10px;font-size:12px;cursor:pointer">✕ Clear</button>
 </div>
 
 <!-- Filter bar -->
 <div class="filter-bar card" id="domains">
   <form method="GET" class="filter-form">
     <input type="text" name="q" value="<?= Security::h($_GET['q'] ?? '') ?>" placeholder="Search controls…" class="form-control form-control-sm">
-    <select name="status" class="form-control form-control-sm" onchange="this.form.submit()">
+    <select name="status" class="form-control form-control-sm" id="filter-status-select">
       <option value="">All statuses</option>
       <option value="not_started"   <?= ($_GET['status']??'')==='not_started'  ?'selected':'' ?>>Not Started</option>
       <option value="compliant"     <?= ($_GET['status']??'')==='compliant'    ?'selected':'' ?>>Compliant</option>
@@ -105,7 +105,7 @@ ob_start();
     <button type="submit" class="btn btn-primary btn-sm">Filter</button>
     <a href="/compliance/<?= $package['id'] ?>" class="btn btn-ghost btn-sm">Clear</a>
     <span style="flex:1"></span>
-    <button type="button" class="btn btn-primary btn-sm" onclick="openModal('add-domain')">
+    <button type="button" class="btn btn-primary btn-sm" id="btn-add-domain-filter">
       <i class="bi bi-plus-lg"></i> Add Domain
     </button>
   </form>
@@ -117,7 +117,7 @@ ob_start();
   <i class="bi bi-diagram-3" style="font-size:2.5rem;display:block;margin-bottom:12px;color:#cbd5e1"></i>
   <h3 style="margin-bottom:8px;color:var(--text)">No domains yet</h3>
   <p style="margin-bottom:16px">Domains group your controls into sections (e.g. Access Control, Risk Management).</p>
-  <button class="btn btn-primary" onclick="openModal('add-domain')"><i class="bi bi-plus-lg"></i> Add First Domain</button>
+  <button class="btn btn-primary" id="btn-add-first-domain"><i class="bi bi-plus-lg"></i> Add First Domain</button>
 </div>
 <?php endif; ?>
 
@@ -129,10 +129,9 @@ ob_start();
   $dColor = $dPct >= 80 ? '#059669' : ($dPct >= 50 ? '#d97706' : '#dc2626');
 ?>
 <div class="domain-block card" id="domain-<?= $domain['id'] ?>">
-  <div class="domain-header" onclick="toggleDomain(<?= $domain['id'] ?>)" style="cursor:pointer">
+  <div class="domain-header" data-toggle-domain="<?= $domain['id'] ?>" style="cursor:pointer">
     <div class="domain-header-left" style="display:flex;align-items:center;gap:8px">
       <input type="checkbox" class="domain-select-all" data-domain="<?= $domain['id'] ?>"
-             onclick="event.stopPropagation();toggleDomainAll(this,<?= $domain['id'] ?>)"
              title="Select all in this domain"
              style="width:16px;height:16px;cursor:pointer;accent-color:#6366f1;flex-shrink:0">
       <div class="domain-code"><?= Security::h($domain['code']) ?></div>
@@ -154,15 +153,15 @@ ob_start();
       <?php endif; ?>
       <!-- Domain actions — stop propagation so clicks don't toggle the accordion -->
       <button class="btn btn-ghost btn-sm" title="Add Control"
-              onclick="event.stopPropagation();openModal('add-ctrl-<?= $domain['id'] ?>')">
+              data-stop-open-modal="add-ctrl-<?= $domain['id'] ?>">
         <i class="bi bi-plus-lg"></i> Add Control
       </button>
       <button class="btn btn-ghost btn-sm" title="Edit Domain"
-              onclick="event.stopPropagation();openModal('edit-domain-<?= $domain['id'] ?>')">
+              data-stop-open-modal="edit-domain-<?= $domain['id'] ?>">
         <i class="bi bi-pencil-fill"></i>
       </button>
       <form method="POST" action="/compliance/<?= $package['id'] ?>/domain/<?= $domain['id'] ?>/delete" style="display:inline"
-            onsubmit="event.stopPropagation();return confirm('Delete domain \'<?= Security::h(addslashes($domain['code'])) ?>\' and all its controls?')">
+            class="form-delete-domain" data-confirm="Delete domain '<?= Security::h($domain['code']) ?>' and all its controls?">
         <?= Security::csrfField() ?>
         <button type="submit" class="btn btn-ghost btn-sm" title="Delete Domain" style="color:#dc2626">
           <i class="bi bi-trash3-fill"></i>
@@ -194,7 +193,6 @@ ob_start();
       <div class="control-row" data-status="<?= Security::h($implStatus) ?>" data-domain="<?= $domain['id'] ?>">
         <div class="control-row-left">
           <input type="checkbox" class="ctrl-checkbox" data-id="<?= (int)$ctrl['id'] ?>"
-                 onchange="onCtrlCheck()"
                  style="width:16px;height:16px;cursor:pointer;accent-color:#6366f1;flex-shrink:0;margin-right:4px">
           <span class="control-status-icon status-<?= Security::h($implStatus) ?>" title="<?= ucwords(str_replace('_',' ',$implStatus)) ?>">
             <i class="bi bi-<?= statusIcon($implStatus) ?>"></i>
@@ -215,11 +213,11 @@ ob_start();
             <i class="bi bi-clipboard2-check"></i> Test
           </a>
           <button class="btn btn-ghost btn-sm" title="Edit control details"
-                  onclick="openModal('edit-ctrl-<?= $ctrl['id'] ?>')">
+                  data-open-modal="edit-ctrl-<?= $ctrl['id'] ?>">
             <i class="bi bi-sliders"></i>
           </button>
           <form method="POST" action="/compliance/<?= $package['id'] ?>/control/<?= $ctrl['id'] ?>/delete" style="display:inline"
-                onsubmit="return confirm('Delete control <?= Security::h(addslashes($ctrl['code'])) ?>?')">
+                class="form-delete-ctrl" data-confirm="Delete control <?= Security::h($ctrl['code']) ?>?">
             <?= Security::csrfField() ?>
             <button type="submit" class="btn btn-ghost btn-sm" title="Delete control" style="color:#dc2626"><i class="bi bi-trash3-fill"></i></button>
           </form>
@@ -235,7 +233,7 @@ ob_start();
 
     <!-- Quick add control row (inline) -->
     <div style="padding:10px 16px;border-top:1px solid var(--border-light);background:var(--bg-secondary)">
-      <button class="btn btn-ghost btn-sm" onclick="openModal('add-ctrl-<?= $domain['id'] ?>')">
+      <button class="btn btn-ghost btn-sm" data-open-modal="add-ctrl-<?= $domain['id'] ?>">
         <i class="bi bi-plus-lg"></i> Add Control to <?= Security::h($domain['code']) ?>
       </button>
     </div>
@@ -258,13 +256,13 @@ function statusIcon(string $s): string {
 <!-- ══════════════════════════════════════════════════════════════
      MODAL OVERLAY SYSTEM
 ════════════════════════════════════════════════════════════════ -->
-<div id="modal-overlay" onclick="pkgCloseModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;padding:16px"></div>
+<div id="modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;padding:16px"></div>
 
 <!-- Edit Package -->
 <div id="modal-edit-pkg" class="aegis-modal" style="display:none">
   <div class="modal-header">
     <h3>Edit Package</h3>
-    <button class="modal-close" onclick="pkgCloseModal()"><i class="bi bi-x-lg"></i></button>
+    <button class="modal-close" data-close-modal="1"><i class="bi bi-x-lg"></i></button>
   </div>
   <form method="POST" action="/compliance/<?= (int)$package['id'] ?>/update">
     <?= Security::csrfField() ?>
@@ -284,7 +282,7 @@ function statusIcon(string $s): string {
     </div>
     <div class="modal-footer">
       <button type="submit" class="btn btn-primary">Save Changes</button>
-      <button type="button" class="btn btn-ghost" onclick="pkgCloseModal()">Cancel</button>
+      <button type="button" class="btn btn-ghost" data-close-modal="1">Cancel</button>
     </div>
   </form>
 </div>
@@ -293,7 +291,7 @@ function statusIcon(string $s): string {
 <div id="modal-add-domain" class="aegis-modal" style="display:none">
   <div class="modal-header">
     <h3><i class="bi bi-plus-circle-fill" style="color:#4f46e5"></i> Add Domain</h3>
-    <button class="modal-close" onclick="pkgCloseModal()"><i class="bi bi-x-lg"></i></button>
+    <button class="modal-close" data-close-modal="1"><i class="bi bi-x-lg"></i></button>
   </div>
   <form method="POST" action="/compliance/<?= (int)$package['id'] ?>/domain/add">
     <?= Security::csrfField() ?>
@@ -310,7 +308,7 @@ function statusIcon(string $s): string {
     </div>
     <div class="modal-footer">
       <button type="submit" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add Domain</button>
-      <button type="button" class="btn btn-ghost" onclick="pkgCloseModal()">Cancel</button>
+      <button type="button" class="btn btn-ghost" data-close-modal="1">Cancel</button>
     </div>
   </form>
 </div>
@@ -322,7 +320,7 @@ function statusIcon(string $s): string {
 <div id="modal-edit-domain-<?= $domain['id'] ?>" class="aegis-modal" style="display:none">
   <div class="modal-header">
     <h3><i class="bi bi-pencil-fill"></i> Edit Domain</h3>
-    <button class="modal-close" onclick="pkgCloseModal()"><i class="bi bi-x-lg"></i></button>
+    <button class="modal-close" data-close-modal="1"><i class="bi bi-x-lg"></i></button>
   </div>
   <form method="POST" action="/compliance/<?= (int)$package['id'] ?>/domain/<?= (int)$domain['id'] ?>/update">
     <?= Security::csrfField() ?>
@@ -338,7 +336,7 @@ function statusIcon(string $s): string {
     </div>
     <div class="modal-footer">
       <button type="submit" class="btn btn-primary">Save</button>
-      <button type="button" class="btn btn-ghost" onclick="pkgCloseModal()">Cancel</button>
+      <button type="button" class="btn btn-ghost" data-close-modal="1">Cancel</button>
     </div>
   </form>
 </div>
@@ -347,7 +345,7 @@ function statusIcon(string $s): string {
 <div id="modal-add-ctrl-<?= $domain['id'] ?>" class="aegis-modal" style="display:none">
   <div class="modal-header">
     <h3><i class="bi bi-plus-circle-fill" style="color:#059669"></i> Add Control — <?= Security::h($domain['code']) ?></h3>
-    <button class="modal-close" onclick="pkgCloseModal()"><i class="bi bi-x-lg"></i></button>
+    <button class="modal-close" data-close-modal="1"><i class="bi bi-x-lg"></i></button>
   </div>
   <form method="POST" action="/compliance/<?= (int)$package['id'] ?>/domain/<?= (int)$domain['id'] ?>/control/add">
     <?= Security::csrfField() ?>
@@ -367,7 +365,7 @@ function statusIcon(string $s): string {
     </div>
     <div class="modal-footer">
       <button type="submit" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add Control</button>
-      <button type="button" class="btn btn-ghost" onclick="pkgCloseModal()">Cancel</button>
+      <button type="button" class="btn btn-ghost" data-close-modal="1">Cancel</button>
       <a href="/compliance/import" class="btn btn-ghost" style="margin-left:auto;font-size:12px" title="Import many controls at once">
         <i class="bi bi-cloud-upload"></i> Import instead
       </a>
@@ -386,7 +384,7 @@ foreach ($ctrlsForModal as $cm): ?>
 <div id="modal-edit-ctrl-<?= $cm['id'] ?>" class="aegis-modal" style="display:none">
   <div class="modal-header">
     <h3><i class="bi bi-sliders"></i> Edit Control</h3>
-    <button class="modal-close" onclick="pkgCloseModal()"><i class="bi bi-x-lg"></i></button>
+    <button class="modal-close" data-close-modal="1"><i class="bi bi-x-lg"></i></button>
   </div>
   <form method="POST" action="/compliance/<?= (int)$package['id'] ?>/control/<?= (int)$cm['id'] ?>/update">
     <?= Security::csrfField() ?>
@@ -406,7 +404,7 @@ foreach ($ctrlsForModal as $cm): ?>
     </div>
     <div class="modal-footer">
       <button type="submit" class="btn btn-primary">Save</button>
-      <button type="button" class="btn btn-ghost" onclick="pkgCloseModal()">Cancel</button>
+      <button type="button" class="btn btn-ghost" data-close-modal="1">Cancel</button>
     </div>
   </form>
 </div>
@@ -666,7 +664,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <div id="modal-bulk-assess" class="aegis-modal" style="display:none;max-width:540px">
   <div class="modal-header">
     <h3><i class="bi bi-clipboard2-check-fill" style="color:#4f46e5"></i> Bulk Assess Controls</h3>
-    <button class="modal-close" onclick="pkgCloseModal()"><i class="bi bi-x-lg"></i></button>
+    <button class="modal-close" data-close-modal="1"><i class="bi bi-x-lg"></i></button>
   </div>
   <form id="form-bulk-assess">
     <div class="card-body" style="display:flex;flex-direction:column;gap:16px;max-height:70vh;overflow-y:auto;padding:20px">
@@ -725,7 +723,7 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
     <div class="modal-footer">
       <button type="submit" id="ba-submit-btn" class="btn btn-primary"><i class="bi bi-check-lg"></i> Save Assessment</button>
-      <button type="button" class="btn btn-ghost" onclick="pkgCloseModal()">Cancel</button>
+      <button type="button" class="btn btn-ghost" data-close-modal="1">Cancel</button>
     </div>
   </form>
 </div>

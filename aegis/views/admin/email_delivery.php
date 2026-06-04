@@ -61,7 +61,7 @@ $typeColors = [
 <!-- Filters -->
 <div class="filter-bar card" style="margin-bottom:16px">
   <form method="GET" class="filter-form" style="flex-wrap:wrap;gap:8px">
-    <select name="type" class="form-control form-control-sm" onchange="this.form.submit()">
+    <select name="type" class="form-control form-control-sm" id="emailTypeFilter">
       <option value="">All types</option>
       <?php foreach ($types as $t): ?>
         <option value="<?= Security::h($t['notification_type']) ?>" <?= ($_GET['type']??'')===$t['notification_type']?'selected':'' ?>><?= $typeLabels[$t['notification_type']] ?? Security::h($t['notification_type']) ?></option>
@@ -134,6 +134,12 @@ $typeColors = [
   Showing <?= count($logs) ?> of <?= number_format($total) ?> records
 </div>
 <?php endif; ?>
+
+<script nonce="<?= Security::nonce() ?>">
+document.getElementById('emailTypeFilter').addEventListener('change', function() {
+  this.form.submit();
+});
+</script>
 
 <?php
 $content = ob_get_clean();

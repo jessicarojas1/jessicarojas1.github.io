@@ -64,31 +64,31 @@ $_appColors = ['zero'=>'#dc2626','low'=>'#d97706','moderate'=>'#2563eb','high'=>
 <!-- Filters -->
 <div class="filter-bar card">
   <form method="GET" class="filter-form">
-    <select name="category" class="form-control form-control-sm" onchange="this.form.submit()">
+    <select name="category" class="form-control form-control-sm filter-autosubmit">
       <option value="">All categories</option>
       <?php foreach ($categories as $cat): ?>
         <option value="<?= $cat['id'] ?>" <?= ($_GET['category']??'')==$cat['id']?'selected':'' ?>><?= Security::h($cat['name']) ?></option>
       <?php endforeach; ?>
     </select>
-    <select name="status" class="form-control form-control-sm" onchange="this.form.submit()">
+    <select name="status" class="form-control form-control-sm filter-autosubmit">
       <option value="">All statuses</option>
       <?php foreach (['open'=>'Open','in_review'=>'In Review','monitoring'=>'Monitoring','accepted'=>'Accepted','closed'=>'Closed','transferred'=>'Transferred'] as $sv=>$sl): ?>
         <option value="<?= $sv ?>" <?= ($_GET['status']??'')===$sv?'selected':'' ?>><?= $sl ?></option>
       <?php endforeach; ?>
     </select>
-    <select name="treatment" class="form-control form-control-sm" onchange="this.form.submit()">
+    <select name="treatment" class="form-control form-control-sm filter-autosubmit">
       <option value="">All strategies</option>
       <?php foreach (['mitigate'=>'Mitigate','accept'=>'Accept','transfer'=>'Transfer','avoid'=>'Avoid'] as $sv=>$sl): ?>
         <option value="<?= $sv ?>" <?= ($_GET['treatment']??'')===$sv?'selected':'' ?>><?= $sl ?></option>
       <?php endforeach; ?>
     </select>
-    <select name="source" class="form-control form-control-sm" onchange="this.form.submit()">
+    <select name="source" class="form-control form-control-sm filter-autosubmit">
       <option value="">All sources</option>
       <?php foreach (['strategic'=>'Strategic','operational'=>'Operational','financial'=>'Financial','compliance'=>'Compliance','technology'=>'Technology','reputational'=>'Reputational','external'=>'External','people'=>'People','project'=>'Project'] as $sv=>$sl): ?>
         <option value="<?= $sv ?>" <?= ($_GET['source']??'')===$sv?'selected':'' ?>><?= $sl ?></option>
       <?php endforeach; ?>
     </select>
-    <select name="level" class="form-control form-control-sm" onchange="this.form.submit()">
+    <select name="level" class="form-control form-control-sm filter-autosubmit">
       <option value="">All levels</option>
       <option value="critical" <?= ($_GET['level']??'')==='critical'?'selected':'' ?>>Critical (>14)</option>
       <option value="high" <?= ($_GET['level']??'')==='high'?'selected':'' ?>>High (10-14)</option>
@@ -122,8 +122,8 @@ $_appColors = ['zero'=>'#dc2626','low'=>'#d97706','moderate'=>'#2563eb','high'=>
         <option value="strategy_avoid">Avoid</option>
       </optgroup>
     </select>
-    <button type="submit" class="btn btn-primary btn-sm" onclick="return injectIds()">Apply</button>
-    <button type="button" class="btn btn-ghost btn-sm" onclick="clearSelection()">Clear</button>
+    <button type="submit" class="btn btn-primary btn-sm" id="bulkApplyBtn">Apply</button>
+    <button type="button" class="btn btn-ghost btn-sm" id="bulkClearBtn">Clear</button>
   </form>
 </div>
 
@@ -132,7 +132,7 @@ $_appColors = ['zero'=>'#dc2626','low'=>'#d97706','moderate'=>'#2563eb','high'=>
     <table class="table risk-table">
       <thead>
         <tr>
-          <th style="width:32px"><input type="checkbox" id="selectAll" onchange="toggleAll(this)"></th>
+          <th style="width:32px"><input type="checkbox" id="selectAll"></th>
           <th>Risk ID</th><th>Title</th><th>Category</th>
           <th>Likelihood</th><th>Impact</th><th>Score</th><th>Level</th>
           <th>Residual</th><th>Status</th><th>Strategy</th><th>Assessment</th><th>Owner</th><th></th>
@@ -145,7 +145,7 @@ $_appColors = ['zero'=>'#dc2626','low'=>'#d97706','moderate'=>'#2563eb','high'=>
           $resLevel = riskLevel((int)$resScore);
         ?>
           <tr>
-            <td><input type="checkbox" class="risk-cb" value="<?= $risk['id'] ?>" onchange="updateBulk()"></td>
+            <td><input type="checkbox" class="risk-cb" value="<?= $risk['id'] ?>"></td>
             <td><span class="mono text-sm"><?= Security::h($risk['risk_id'] ?? '—') ?></span></td>
             <td><a href="/risk/<?= $risk['id'] ?>" class="table-link fw-500"><?= Security::h($risk['title']) ?></a></td>
             <td>
