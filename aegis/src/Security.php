@@ -227,13 +227,20 @@ class Security {
     }
 
     public static function validateApiKey(string $key): bool {
-        $hash = hash_hmac('sha256', $key, $_ENV['JWT_SECRET'] ?? '');
+        // Try HMAC-SHA256 first (new keys), fall back to plain SHA-256 (legacy keys)
+        $hmacHash  = hash_hmac('sha256', $key, $_ENV['JWT_SECRET'] ?? '');
+        $legacyHash = hash('sha256', $key);
         $row = Database::fetchOne(
-            "SELECT id FROM api_keys WHERE key_hash = ? AND is_active = TRUE AND (expires_at IS NULL OR expires_at > NOW())",
-            [$hash]
+            "SELECT id, key_hash FROM api_keys WHERE key_hash IN (?,?) AND is_active = TRUE AND (expires_at IS NULL OR expires_at > NOW())",
+            [$hmacHash, $legacyHash]
         );
         if ($row) {
-            Database::query("UPDATE api_keys SET last_used = NOW() WHERE key_hash = ?", [$hash]);
+            // Silently upgrade legacy SHA-256 keys to HMAC on first use
+            if ($row['key_hash'] === $legacyHash && $hmacHash !== $legacyHash) {
+                Database::query("UPDATE api_keys SET key_hash = ?, last_used = NOW() WHERE key_hash = ?", [$hmacHash, $legacyHash]);
+            } else {
+                Database::query("UPDATE api_keys SET last_used = NOW() WHERE key_hash = ?", [$hmacHash]);
+            }
             return true;
         }
         return false;
@@ -294,7 +301,7 @@ class Security {
         $csp = implode('; ', [
             "default-src 'self'",
             "script-src 'self' 'nonce-{$n}' https://cdn.jsdelivr.net",
-            "style-src 'self' 'nonce-{$n}' https://fonts.googleapis.com https://cdn.jsdelivr.net",
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
             "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net",
             "img-src 'self' data: blob:",
             "connect-src 'self'",
