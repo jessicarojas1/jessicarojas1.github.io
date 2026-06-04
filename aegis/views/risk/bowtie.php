@@ -417,9 +417,9 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
         ?>
           <div class="bt-item-card">
             <?php if (Auth::can('risk.write')): ?>
-            <form method="POST" action="/risk-bowtie/cause/<?= (int)$cause['id'] ?>/remove" style="display:inline">
+            <form method="POST" action="/risk-bowtie/cause/<?= (int)$cause['id'] ?>/remove" style="display:inline" data-confirm="Remove this cause?">
               <?= Security::csrfField() ?>
-              <button type="submit" class="bt-item-delete" title="Remove" onclick="return confirm('Remove this cause?')">
+              <button type="submit" class="bt-item-delete" title="Remove">
                 <i class="bi bi-x-lg"></i>
               </button>
             </form>
@@ -450,9 +450,9 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
         ?>
           <div class="bt-barrier-pill" style="--ring-color:<?= Security::h($eff['ring']) ?>">
             <?php if (Auth::can('risk.write')): ?>
-            <form method="POST" action="/risk-bowtie/barrier/<?= (int)$bar['id'] ?>/remove" style="display:inline">
+            <form method="POST" action="/risk-bowtie/barrier/<?= (int)$bar['id'] ?>/remove" style="display:inline" data-confirm="Remove this barrier?">
               <?= Security::csrfField() ?>
-              <button type="submit" class="bt-item-delete" title="Remove" onclick="return confirm('Remove this barrier?')">
+              <button type="submit" class="bt-item-delete" title="Remove">
                 <i class="bi bi-x-lg"></i>
               </button>
             </form>
@@ -513,9 +513,9 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
         ?>
           <div class="bt-barrier-pill" style="--ring-color:<?= Security::h($eff['ring']) ?>">
             <?php if (Auth::can('risk.write')): ?>
-            <form method="POST" action="/risk-bowtie/barrier/<?= (int)$bar['id'] ?>/remove" style="display:inline">
+            <form method="POST" action="/risk-bowtie/barrier/<?= (int)$bar['id'] ?>/remove" style="display:inline" data-confirm="Remove this barrier?">
               <?= Security::csrfField() ?>
-              <button type="submit" class="bt-item-delete" title="Remove" onclick="return confirm('Remove this barrier?')">
+              <button type="submit" class="bt-item-delete" title="Remove">
                 <i class="bi bi-x-lg"></i>
               </button>
             </form>
@@ -546,9 +546,9 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
         ?>
           <div class="bt-item-card">
             <?php if (Auth::can('risk.write')): ?>
-            <form method="POST" action="/risk-bowtie/consequence/<?= (int)$con['id'] ?>/remove" style="display:inline">
+            <form method="POST" action="/risk-bowtie/consequence/<?= (int)$con['id'] ?>/remove" style="display:inline" data-confirm="Remove this consequence?">
               <?= Security::csrfField() ?>
-              <button type="submit" class="bt-item-delete" title="Remove" onclick="return confirm('Remove this consequence?')">
+              <button type="submit" class="bt-item-delete" title="Remove">
                 <i class="bi bi-x-lg"></i>
               </button>
             </form>
@@ -597,28 +597,28 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 
     <!-- Tab Navigation -->
     <div class="bt-tabs-nav" role="tablist">
-      <button class="bt-tab-btn active" onclick="btTab('causes', this)" role="tab" aria-selected="true">
+      <button class="bt-tab-btn active" data-bt-tab="causes" role="tab" aria-selected="true">
         <i class="bi bi-exclamation-triangle-fill" style="color:#dc2626"></i>
         Causes
         <?php if (!empty($causes)): ?>
           <span style="background:#dc262618;color:#dc2626;font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px"><?= count($causes) ?></span>
         <?php endif; ?>
       </button>
-      <button class="bt-tab-btn" onclick="btTab('left-barriers', this)" role="tab" aria-selected="false">
+      <button class="bt-tab-btn" data-bt-tab="left-barriers" role="tab" aria-selected="false">
         <i class="bi bi-shield-fill-check" style="color:#2563eb"></i>
         Left Barriers
         <?php if (!empty($leftBarriers)): ?>
           <span style="background:#2563eb18;color:#2563eb;font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px"><?= count($leftBarriers) ?></span>
         <?php endif; ?>
       </button>
-      <button class="bt-tab-btn" onclick="btTab('right-barriers', this)" role="tab" aria-selected="false">
+      <button class="bt-tab-btn" data-bt-tab="right-barriers" role="tab" aria-selected="false">
         <i class="bi bi-arrow-counterclockwise" style="color:#16a34a"></i>
         Right Barriers
         <?php if (!empty($rightBarriers)): ?>
           <span style="background:#16a34a18;color:#16a34a;font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px"><?= count($rightBarriers) ?></span>
         <?php endif; ?>
       </button>
-      <button class="bt-tab-btn" onclick="btTab('consequences', this)" role="tab" aria-selected="false">
+      <button class="bt-tab-btn" data-bt-tab="consequences" role="tab" aria-selected="false">
         <i class="bi bi-arrow-down-circle-fill" style="color:#7c3aed"></i>
         Consequences
         <?php if (!empty($consequences)): ?>
@@ -861,4 +861,18 @@ function btTab(name, btn) {
         btn.setAttribute('aria-selected', 'true');
     }
 }
+
+// Wire up tab buttons
+document.querySelectorAll('.bt-tab-btn[data-bt-tab]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        btTab(this.dataset.btTab, this);
+    });
+});
+
+// Wire up form confirm dialogs (data-confirm on form)
+document.querySelectorAll('form[data-confirm]').forEach(function(f) {
+    f.addEventListener('submit', function(e) {
+        if (!confirm(f.dataset.confirm)) { e.preventDefault(); }
+    });
+});
 </script>

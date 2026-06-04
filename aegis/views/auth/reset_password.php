@@ -69,7 +69,7 @@
                  required
                  autofocus
                  autocomplete="new-password"
-                 oninput="updateStrength(this.value)">
+                 id="new_password_rp">
           <!-- Strength meter -->
           <div style="margin-top:8px">
             <div style="height:6px;border-radius:3px;background:#e5e7eb;overflow:hidden">
@@ -106,6 +106,10 @@
 </div>
 
 <script nonce="<?= Security::nonce() ?>">
+document.getElementById('new_password_rp').addEventListener('input', function() {
+  updateStrength(this.value);
+});
+
 function updateStrength(pwd) {
     var score = 0;
     if (pwd.length >= 8)  score++;

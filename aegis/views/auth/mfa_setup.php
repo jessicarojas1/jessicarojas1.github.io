@@ -39,7 +39,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
     <div class="card-header"><div class="card-header-left"><i class="bi bi-shield-x" style="color:#dc2626"></i><span class="card-title">Disable 2FA</span></div></div>
     <div class="card-body">
       <p style="color:var(--text-muted);font-size:14px;margin-bottom:16px">Disabling two-factor authentication will make your account less secure. Only do this if you are switching authenticator apps or have a specific need.</p>
-      <form method="post" action="/mfa/disable" onsubmit="return confirm('Are you sure you want to disable two-factor authentication?')">
+      <form method="post" action="/mfa/disable" id="disableMfaForm" data-confirm="Are you sure you want to disable two-factor authentication?">
         <input type="hidden" name="csrf_token" value="<?= Security::generateCsrfToken() ?>">
         <button type="submit" class="btn btn-danger"><i class="bi bi-shield-x"></i> Disable 2FA</button>
       </form>
@@ -91,5 +91,18 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
   <?php endif; ?>
 
 </div>
+
+<script nonce="<?= Security::nonce() ?>">
+(function() {
+  var disableForm = document.getElementById('disableMfaForm');
+  if (disableForm) {
+    disableForm.addEventListener('submit', function(e) {
+      if (!confirm(disableForm.getAttribute('data-confirm'))) {
+        e.preventDefault();
+      }
+    });
+  }
+})();
+</script>
 
 <?php $content = ob_get_clean(); require AEGIS_ROOT . '/views/layout.php'; ?>

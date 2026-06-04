@@ -15,7 +15,7 @@ ob_start();
     <?php if ($packages && Auth::can('compliance.write')): ?>
     <!-- Delete selected (hidden until checkboxes selected) -->
     <form method="POST" action="/compliance/delete-selected" id="deleteSelectedForm"
-          onsubmit="return confirm('Delete selected package(s) and all their controls? This cannot be undone.')">
+          data-confirm="Delete selected package(s) and all their controls? This cannot be undone.">
       <?= Security::csrfField() ?>
       <div id="selectedHiddenInputs"></div>
       <button type="submit" class="btn btn-danger" id="deleteSelectedBtn" style="display:none">
@@ -23,7 +23,7 @@ ob_start();
       </button>
     </form>
     <!-- Clear all -->
-    <form method="POST" action="/compliance/clear-all" onsubmit="return confirm('Delete ALL compliance packages and their controls? This cannot be undone.')">
+    <form method="POST" action="/compliance/clear-all" data-confirm="Delete ALL compliance packages and their controls? This cannot be undone.">
       <?= Security::csrfField() ?>
       <button type="submit" class="btn btn-danger"><i class="bi bi-trash3-fill"></i> Clear All</button>
     </form>
@@ -47,7 +47,7 @@ ob_start();
     <?php if (Auth::can('compliance.write')): ?>
     <label class="pkg-select-label">
       <input type="checkbox" class="pkg-checkbox" value="<?= $pkg['id'] ?>"
-             onchange="updateSelection()" aria-label="Select <?= Security::h($pkg['name']) ?>">
+             aria-label="Select <?= Security::h($pkg['name']) ?>">
       <span class="pkg-select-indicator"><i class="bi bi-check-lg"></i></span>
     </label>
     <?php endif; ?>
@@ -141,6 +141,18 @@ ob_start();
 </style>
 
 <script nonce="<?= Security::nonce() ?>">
+// Confirm dialogs for delete forms
+document.querySelectorAll('form[data-confirm]').forEach(function(f) {
+  f.addEventListener('submit', function(e) {
+    if (!confirm(f.dataset.confirm)) e.preventDefault();
+  });
+});
+
+// Wire pkg-checkbox change handlers
+document.querySelectorAll('.pkg-checkbox').forEach(function(cb) {
+  cb.addEventListener('change', updateSelection);
+});
+
 function updateSelection() {
   const checked = document.querySelectorAll('.pkg-checkbox:checked');
   const btn = document.getElementById('deleteSelectedBtn');

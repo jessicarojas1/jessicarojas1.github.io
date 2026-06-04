@@ -103,7 +103,7 @@ ob_start();
                 <td>
                   <form method="POST" action="/policy/<?= $policy['id'] ?>/unmap/<?= $m['id'] ?>">
                     <?= Security::csrfField() ?>
-                    <button class="btn btn-ghost btn-sm text-danger" onclick="return confirm('Remove mapping?')"><i class="bi bi-x-lg"></i></button>
+                    <button class="btn btn-ghost btn-sm text-danger unmap-btn" data-confirm="Remove mapping?"><i class="bi bi-x-lg"></i></button>
                   </form>
                 </td>
               </tr>
@@ -192,4 +192,14 @@ $totalUsers = Database::fetchOne("SELECT COUNT(*) as cnt FROM users WHERE is_act
 
 <?php
 $content = ob_get_clean();
+
+// Inject nonce'd script for confirm dialogs before layout renders
+$content .= '<script nonce="' . Security::nonce() . '">'
+  . 'document.querySelectorAll(\'.unmap-btn\').forEach(function(btn) {'
+  . '  btn.closest(\'form\').addEventListener(\'submit\', function(e) {'
+  . '    if (!confirm(btn.getAttribute(\'data-confirm\'))) { e.preventDefault(); }'
+  . '  });'
+  . '});'
+  . '</script>';
+
 require AEGIS_ROOT . '/views/layout.php';

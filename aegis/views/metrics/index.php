@@ -87,7 +87,7 @@ $classColors = ['public'=>'#22c55e','internal'=>'#3b82f6','confidential'=>'#f59e
 <div class="card" style="margin-bottom:24px">
   <div class="card-header" style="display:flex;justify-content:space-between;align-items:center">
     <h3>Scheduled Report Delivery</h3>
-    <button class="btn btn-primary btn-sm" onclick="document.getElementById('scheduleModal').classList.add('open')">
+    <button class="btn btn-primary btn-sm" id="btnOpenScheduleModal">
       <i class="bi bi-plus-lg"></i> Add Schedule
     </button>
   </div>

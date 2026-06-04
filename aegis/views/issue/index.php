@@ -82,19 +82,19 @@ $statusColors = [
 <div class="card" style="margin-bottom:1.5rem">
   <div class="card-body" style="padding:.75rem 1rem">
     <form method="GET" class="filter-form" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center">
-      <select name="severity" class="form-control form-control-sm" onchange="this.form.submit()">
+      <select name="severity" id="issueSeverityFilter" class="form-control form-control-sm">
         <option value="">All severities</option>
         <?php foreach (['critical' => 'Critical', 'high' => 'High', 'medium' => 'Medium', 'low' => 'Low'] as $v => $l): ?>
           <option value="<?= $v ?>" <?= ($_GET['severity'] ?? '') === $v ? 'selected' : '' ?>><?= $l ?></option>
         <?php endforeach; ?>
       </select>
-      <select name="status" class="form-control form-control-sm" onchange="this.form.submit()">
+      <select name="status" id="issueStatusFilter" class="form-control form-control-sm">
         <option value="">All statuses</option>
         <?php foreach (['open' => 'Open', 'in_progress' => 'In Progress', 'pending_review' => 'Pending Review', 'resolved' => 'Resolved', 'closed' => 'Closed', 'wont_fix' => "Won't Fix"] as $v => $l): ?>
           <option value="<?= $v ?>" <?= ($_GET['status'] ?? '') === $v ? 'selected' : '' ?>><?= $l ?></option>
         <?php endforeach; ?>
       </select>
-      <select name="assigned_to" class="form-control form-control-sm" onchange="this.form.submit()">
+      <select name="assigned_to" id="issueAssigneeFilter" class="form-control form-control-sm">
         <option value="">All assignees</option>
         <?php foreach ($users as $u): ?>
           <option value="<?= $u['id'] ?>" <?= (int)($_GET['assigned_to'] ?? 0) === (int)$u['id'] ? 'selected' : '' ?>><?= Security::h($u['name']) ?></option>
@@ -193,6 +193,16 @@ $statusColors = [
   </div>
 </div>
 
+<script nonce="<?= Security::nonce() ?>">
+(function() {
+  var issueSeverityFilter = document.getElementById('issueSeverityFilter');
+  if (issueSeverityFilter) { issueSeverityFilter.addEventListener('change', function() { this.form.submit(); }); }
+  var issueStatusFilter = document.getElementById('issueStatusFilter');
+  if (issueStatusFilter) { issueStatusFilter.addEventListener('change', function() { this.form.submit(); }); }
+  var issueAssigneeFilter = document.getElementById('issueAssigneeFilter');
+  if (issueAssigneeFilter) { issueAssigneeFilter.addEventListener('change', function() { this.form.submit(); }); }
+})();
+</script>
 <?php
 $content = ob_get_clean();
 require AEGIS_ROOT . '/views/layout.php';

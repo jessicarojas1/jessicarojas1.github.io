@@ -230,6 +230,34 @@ function clearSelection() {
   document.getElementById('selectAll').checked = false;
   updateBulk();
 }
+
+// Wire up filter auto-submit selects
+document.querySelectorAll('.filter-autosubmit').forEach(function(sel) {
+  sel.addEventListener('change', function() { this.form.submit(); });
+});
+
+// Wire up selectAll checkbox
+var selectAllCb = document.getElementById('selectAll');
+if (selectAllCb) {
+  selectAllCb.addEventListener('change', function() { toggleAll(this); });
+}
+
+// Wire up individual risk checkboxes (delegated)
+document.addEventListener('change', function(e) {
+  if (e.target && e.target.classList.contains('risk-cb')) { updateBulk(); }
+});
+
+// Wire up bulk action buttons
+var bulkApplyBtn = document.getElementById('bulkApplyBtn');
+if (bulkApplyBtn) {
+  bulkApplyBtn.addEventListener('click', function(e) {
+    if (!injectIds()) { e.preventDefault(); }
+  });
+}
+var bulkClearBtn = document.getElementById('bulkClearBtn');
+if (bulkClearBtn) {
+  bulkClearBtn.addEventListener('click', function() { clearSelection(); });
+}
 </script>
 <?php
 function riskLevel(int $score): string {

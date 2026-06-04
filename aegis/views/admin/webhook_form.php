@@ -89,9 +89,9 @@ ob_start();
                     <?php endforeach; ?>
                 </div>
                 <div class="mt-2">
-                    <button type="button" class="btn btn-sm btn-link p-0" onclick="toggleAllEvents(true)">Select all</button>
+                    <button type="button" class="btn btn-sm btn-link p-0" id="selectAllEventsBtn">Select all</button>
                     &nbsp;·&nbsp;
-                    <button type="button" class="btn btn-sm btn-link p-0" onclick="toggleAllEvents(false)">Deselect all</button>
+                    <button type="button" class="btn btn-sm btn-link p-0" id="deselectAllEventsBtn">Deselect all</button>
                 </div>
             </div>
 
@@ -160,6 +160,8 @@ ob_start();
 function toggleAllEvents(check) {
     document.querySelectorAll('.event-type-grid .form-check-input').forEach(cb => cb.checked = check);
 }
+document.getElementById('selectAllEventsBtn').addEventListener('click', function() { toggleAllEvents(true); });
+document.getElementById('deselectAllEventsBtn').addEventListener('click', function() { toggleAllEvents(false); });
 </script>
 <?php
 $content = ob_get_clean();

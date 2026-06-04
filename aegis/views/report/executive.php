@@ -9,7 +9,7 @@ $scoreLabel = $grcScore >= 80 ? 'Good' : ($grcScore >= 60 ? 'Needs Attention' : 
     <p class="page-subtitle">Generated <?= date('M j, Y g:ia', strtotime($generatedAt)) ?> by <?= Security::h($generatedBy) ?> &mdash; <?= Security::h($orgName) ?></p>
   </div>
   <div class="page-actions">
-    <button onclick="window.print()" class="btn btn-secondary"><i class="bi bi-printer"></i> Print</button>
+    <button id="btnPrint" class="btn btn-secondary"><i class="bi bi-printer"></i> Print</button>
     <a href="/report" class="btn btn-ghost"><i class="bi bi-arrow-left"></i> Reports</a>
   </div>
 </div>
@@ -125,5 +125,9 @@ $scoreLabel = $grcScore >= 80 ? 'Good' : ($grcScore >= 60 ? 'Needs Attention' : 
   .card{box-shadow:none!important;border:1px solid #e2e8f0!important;break-inside:avoid}
 }
 </style>
+
+<script nonce="<?= Security::nonce() ?>">
+document.getElementById('btnPrint').addEventListener('click', function() { window.print(); });
+</script>
 
 <?php $content = ob_get_clean(); require AEGIS_ROOT . '/views/layout.php'; ?>

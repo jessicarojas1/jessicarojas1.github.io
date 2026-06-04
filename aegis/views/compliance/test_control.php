@@ -190,8 +190,7 @@ function testResultBadge(string $result): string {
           <label class="form-label" for="effectiveness">How effective is this control? (0–100%)</label>
           <div style="display:flex;align-items:center;gap:12px">
             <input type="number" id="effectiveness" name="effectiveness" class="form-control"
-                   min="0" max="100" placeholder="e.g. 85" style="flex:1"
-                   oninput="updateEffBar(this.value)">
+                   min="0" max="100" placeholder="e.g. 85" style="flex:1">
             <div style="width:80px;text-align:center">
               <div style="height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden;margin-bottom:2px">
                 <div id="effBar" style="width:0%;height:100%;background:#16a34a;border-radius:4px;transition:width .2s"></div>
@@ -250,4 +249,8 @@ function updateEffBar(val) {
   bar.style.background = n >= 75 ? '#16a34a' : (n >= 40 ? '#d97706' : '#dc2626');
   lbl.textContent = n + '%';
 }
+
+document.getElementById('effectiveness').addEventListener('input', function() {
+  updateEffBar(this.value);
+});
 </script>

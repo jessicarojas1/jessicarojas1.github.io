@@ -91,7 +91,7 @@ $severityColors = [
               <i class="bi bi-eye"></i> View
             </a>
             <?php if (Auth::can('incident.write')): ?>
-              <form method="post" action="/playbooks/<?= (int)$pb['id'] ?>/toggle" style="display:inline" onsubmit="return confirm('<?= $isActive ? 'Deactivate' : 'Activate' ?> this playbook?')">
+              <form method="post" action="/playbooks/<?= (int)$pb['id'] ?>/toggle" style="display:inline" class="playbook-toggle-form" data-confirm="<?= $isActive ? 'Deactivate' : 'Activate' ?> this playbook?">
                 <?= Security::csrfField() ?>
                 <button type="submit" class="btn btn-sm <?= $isActive ? 'btn-ghost' : 'btn-primary' ?>">
                   <i class="bi bi-<?= $isActive ? 'pause-circle' : 'play-circle' ?>"></i>
@@ -105,3 +105,13 @@ $severityColors = [
     <?php endforeach; ?>
   </div>
 <?php endif; ?>
+
+<script nonce="<?= Security::nonce() ?>">
+document.querySelectorAll('.playbook-toggle-form').forEach(function(form) {
+  form.addEventListener('submit', function(e) {
+    if (!confirm(form.getAttribute('data-confirm'))) {
+      e.preventDefault();
+    }
+  });
+});
+</script>

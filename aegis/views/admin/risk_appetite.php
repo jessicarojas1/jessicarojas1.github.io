@@ -81,8 +81,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
                        value="<?= Security::h($row['category']) ?>" required>
               </td>
               <td>
-                <select name="appetite[]" class="form-control form-control-sm appetite-select"
-                        onchange="updateRowColor(this)">
+                <select name="appetite[]" class="form-control form-control-sm appetite-select">
                   <option value="zero"     <?= $app==='zero'     ? 'selected':'' ?>>Zero Tolerance</option>
                   <option value="low"      <?= $app==='low'      ? 'selected':'' ?>>Low</option>
                   <option value="moderate" <?= $app==='moderate' ? 'selected':'' ?>>Moderate</option>

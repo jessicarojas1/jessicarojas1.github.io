@@ -10,7 +10,7 @@ ob_start();
     <i class="bi bi-key-fill"></i>
     <strong>API Key Created — copy now, it won't be shown again:</strong><br>
     <code id="newKey" style="background:#1e293b;color:#a5f3fc;padding:8px 12px;border-radius:6px;display:block;margin-top:8px;font-size:14px;word-break:break-all"><?= Security::h($_SESSION['new_api_key']) ?></code>
-    <button onclick="copyKey()" class="btn btn-ghost btn-sm" style="margin-top:8px"><i class="bi bi-clipboard"></i> Copy</button>
+    <button id="copyKeyBtn" class="btn btn-ghost btn-sm" style="margin-top:8px"><i class="bi bi-clipboard"></i> Copy</button>
     <?php unset($_SESSION['new_api_key']); ?>
   </div>
 <?php endif; ?>
@@ -19,7 +19,7 @@ ob_start();
 
 <div class="page-header">
   <h1 class="page-title">API Key Management</h1>
-  <button class="btn btn-primary" onclick="showModal('createKeyModal')"><i class="bi bi-plus-lg"></i> New API Key</button>
+  <button class="btn btn-primary" id="openCreateKeyBtn"><i class="bi bi-plus-lg"></i> New API Key</button>
 </div>
 
 <!-- API Overview -->
@@ -79,9 +79,9 @@ ob_start();
             <td><?= $key['is_active'] ? '<span class="badge badge-green">Active</span>' : '<span class="badge badge-gray">Revoked</span>' ?></td>
             <td>
               <?php if ($key['is_active']): ?>
-                <form method="POST" action="/admin/api-keys/<?= $key['id'] ?>/revoke">
+                <form method="POST" action="/admin/api-keys/<?= $key['id'] ?>/revoke" data-confirm="Revoke this API key?">
                   <?= Security::csrfField() ?>
-                  <button class="btn btn-ghost btn-sm text-danger" onclick="return confirm('Revoke this API key?')"><i class="bi bi-slash-circle"></i> Revoke</button>
+                  <button class="btn btn-ghost btn-sm text-danger"><i class="bi bi-slash-circle"></i> Revoke</button>
                 </form>
               <?php endif; ?>
             </td>
@@ -95,9 +95,9 @@ ob_start();
 </div>
 
 <!-- Create key modal -->
-<div class="modal-overlay" id="createKeyModal" style="display:none" onclick="if(event.target===this)closeModal('createKeyModal')">
+<div class="modal-overlay" id="createKeyModal" style="display:none">
   <div class="modal">
-    <div class="modal-header"><h3><i class="bi bi-key-fill"></i> New API Key</h3><button onclick="closeModal('createKeyModal')"><i class="bi bi-x-lg"></i></button></div>
+    <div class="modal-header"><h3><i class="bi bi-key-fill"></i> New API Key</h3><button id="closeCreateKeyBtn"><i class="bi bi-x-lg"></i></button></div>
     <div class="modal-body">
       <form method="POST" action="/admin/api-keys/create">
         <?= Security::csrfField() ?>
@@ -127,7 +127,7 @@ ob_start();
         </div>
         <div class="form-actions">
           <button type="submit" class="btn btn-primary"><i class="bi bi-key-fill"></i> Generate Key</button>
-          <button type="button" class="btn btn-ghost" onclick="closeModal('createKeyModal')">Cancel</button>
+          <button type="button" class="btn btn-ghost" id="cancelCreateKeyBtn">Cancel</button>
         </div>
       </form>
     </div>
@@ -137,10 +137,28 @@ ob_start();
 <script nonce="<?= Security::nonce() ?>">
 function showModal(id) { document.getElementById(id).style.display = 'flex'; }
 function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-function copyKey() {
-  navigator.clipboard.writeText(document.getElementById('newKey').textContent.trim());
-  event.target.innerHTML = '<i class="bi bi-check-lg"></i> Copied!';
+
+document.getElementById('openCreateKeyBtn').addEventListener('click', function() { showModal('createKeyModal'); });
+document.getElementById('closeCreateKeyBtn').addEventListener('click', function() { closeModal('createKeyModal'); });
+document.getElementById('cancelCreateKeyBtn').addEventListener('click', function() { closeModal('createKeyModal'); });
+
+document.getElementById('createKeyModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal('createKeyModal');
+});
+
+var copyKeyBtn = document.getElementById('copyKeyBtn');
+if (copyKeyBtn) {
+  copyKeyBtn.addEventListener('click', function() {
+    navigator.clipboard.writeText(document.getElementById('newKey').textContent.trim());
+    copyKeyBtn.innerHTML = '<i class="bi bi-check-lg"></i> Copied!';
+  });
 }
+
+document.querySelectorAll('form[data-confirm]').forEach(function(f) {
+  f.addEventListener('submit', function(e) {
+    if (!confirm(f.dataset.confirm)) e.preventDefault();
+  });
+});
 </script>
 
 <?php

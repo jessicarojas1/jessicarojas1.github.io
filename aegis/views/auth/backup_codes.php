@@ -36,10 +36,10 @@ $hasNewCodes = !empty($newCodes);
         <span class="card-title">Your Recovery Codes</span>
       </div>
       <div class="card-header-right" style="display:flex;gap:8px">
-        <button type="button" class="btn btn-secondary btn-sm" onclick="downloadCodes()">
+        <button type="button" class="btn btn-secondary btn-sm" id="btnDownloadCodes">
           <i class="bi bi-download"></i> Download
         </button>
-        <button type="button" class="btn btn-secondary btn-sm" onclick="window.print()">
+        <button type="button" class="btn btn-secondary btn-sm" id="btnPrintCodes">
           <i class="bi bi-printer"></i> Print
         </button>
       </div>
@@ -96,6 +96,9 @@ $hasNewCodes = !empty($newCodes);
     document.body.removeChild(a);
     URL.revokeObjectURL(a.href);
   }
+
+  document.getElementById('btnDownloadCodes').addEventListener('click', function() { downloadCodes(); });
+  document.getElementById('btnPrintCodes').addEventListener('click', function() { window.print(); });
   </script>
 
 <?php else: ?>

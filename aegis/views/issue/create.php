@@ -37,7 +37,7 @@ ob_start();
           <div class="form-row">
             <div class="form-group" style="flex:1">
               <label class="form-label" for="severity">Severity</label>
-              <select id="severity" name="severity" class="form-control" onchange="updateSevPreview(this.value)">
+              <select id="severity" name="severity" class="form-control">
                 <option value="critical">Critical</option>
                 <option value="high">High</option>
                 <option value="medium" selected>Medium</option>
@@ -127,6 +127,7 @@ function updateSevPreview(val) {
   badge.style.borderColor = d.color + '40';
   document.getElementById('sevDesc').textContent = d.desc;
 }
+document.getElementById('severity').addEventListener('change', function() { updateSevPreview(this.value); });
 updateSevPreview(document.getElementById('severity').value);
 </script>
 

@@ -44,7 +44,7 @@ ob_start();
               <?php foreach ($statuses as $val => [$icon,$label,$color]): ?>
                 <?php $checked = ($impl['status'] ?? 'not_started') === $val; ?>
                 <label class="status-opt <?= $checked ? 'selected' : '' ?>" style="<?= $checked ? "--opt-color:{$color}" : '' ?>">
-                  <input type="radio" name="status" value="<?= $val ?>" <?= $checked ? 'checked' : '' ?> onchange="updateStatusUI(this)">
+                  <input type="radio" name="status" value="<?= $val ?>" <?= $checked ? 'checked' : '' ?>>
                   <i class="bi bi-<?= $icon ?>" style="color:<?= $color ?>"></i>
                   <span><?= $label ?></span>
                 </label>
@@ -162,6 +162,10 @@ function updateStatusUI(radio) {
   const parent = radio.closest('.status-opt');
   parent.classList.add('selected');
 }
+
+document.querySelectorAll('input[name="status"]').forEach(function(radio) {
+  radio.addEventListener('change', function() { updateStatusUI(radio); });
+});
 </script>
 
 <?php

@@ -277,7 +277,7 @@ if ($plan['target_date']) {
             <!-- Delete (incomplete only) -->
             <?php if (!$mDone && Auth::can('risk.write')): ?>
             <form method="POST" action="/treatment/milestone/<?= (int)$m['id'] ?>/delete"
-                  onsubmit="return confirm('Delete this milestone?')" style="flex-shrink:0">
+                  class="milestone-delete-form" data-confirm="Delete this milestone?" style="flex-shrink:0">
               <?= Security::csrfField() ?>
               <button type="submit" class="btn btn-sm btn-ghost" style="color:var(--danger);padding:4px 8px" title="Delete milestone">
                 <i class="bi bi-trash"></i>
@@ -376,6 +376,15 @@ if ($plan['target_date']) {
 <script nonce="<?= Security::nonce() ?>">
 (function () {
   'use strict';
+
+  // Milestone delete confirmation
+  document.querySelectorAll('.milestone-delete-form').forEach(function(form) {
+    form.addEventListener('submit', function(e) {
+      if (!confirm(form.getAttribute('data-confirm'))) {
+        e.preventDefault();
+      }
+    });
+  });
 
   // Edit panel toggle
   var editCard   = document.getElementById('edit-plan-card');

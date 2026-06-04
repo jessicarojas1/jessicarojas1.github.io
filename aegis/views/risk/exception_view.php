@@ -115,11 +115,10 @@ ob_start();
       <div class="card-body">
 
         <!-- Approve -->
-        <form method="POST" action="/risk/exception/<?= (int)$exception['id'] ?>/decide" style="margin-bottom:16px;">
+        <form method="POST" action="/risk/exception/<?= (int)$exception['id'] ?>/decide" style="margin-bottom:16px;" data-confirm="Approve this risk exception?">
           <?= Security::csrfField() ?>
           <input type="hidden" name="action" value="approve">
-          <button type="submit" class="btn btn-primary"
-                  onclick="return confirm('Approve this risk exception?')">
+          <button type="submit" class="btn btn-primary">
             <i class="bi bi-check-circle"></i> Approve Exception
           </button>
         </form>
@@ -127,7 +126,7 @@ ob_start();
         <hr style="border-color:var(--border);margin:16px 0;">
 
         <!-- Reject -->
-        <form method="POST" action="/risk/exception/<?= (int)$exception['id'] ?>/decide">
+        <form method="POST" action="/risk/exception/<?= (int)$exception['id'] ?>/decide" data-confirm="Reject this risk exception?">
           <?= Security::csrfField() ?>
           <input type="hidden" name="action" value="reject">
           <div class="form-group">
@@ -135,8 +134,7 @@ ob_start();
             <textarea name="rejection_reason" class="form-control" rows="3"
                       placeholder="Explain why this exception is being rejected…"></textarea>
           </div>
-          <button type="submit" class="btn btn-danger"
-                  onclick="return confirm('Reject this risk exception?')">
+          <button type="submit" class="btn btn-danger">
             <i class="bi bi-x-circle"></i> Reject Exception
           </button>
         </form>
@@ -230,6 +228,14 @@ ob_start();
   </div>
 
 </div>
+
+<script nonce="<?= Security::nonce() ?>">
+document.querySelectorAll('form[data-confirm]').forEach(function(f) {
+  f.addEventListener('submit', function(e) {
+    if (!confirm(f.dataset.confirm)) { e.preventDefault(); }
+  });
+});
+</script>
 
 <?php
 $content = ob_get_clean();

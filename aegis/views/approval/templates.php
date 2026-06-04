@@ -45,6 +45,16 @@ $entityTypeLabels = [
   </div>
 <?php endif; ?>
 
+<script nonce="<?= Security::nonce() ?>">
+document.querySelectorAll('.confirm-toggle-form').forEach(function(form) {
+  form.addEventListener('submit', function(e) {
+    if (!confirm(form.getAttribute('data-confirm'))) {
+      e.preventDefault();
+    }
+  });
+});
+</script>
+
 <?php if (empty($templates)): ?>
   <div class="empty-state">
     <i class="bi bi-diagram-3"></i>
@@ -97,7 +107,8 @@ $entityTypeLabels = [
                   method="POST"
                   action="/admin/approval-templates/<?= (int)$tmpl['id'] ?>/toggle"
                   style="display:inline"
-                  onsubmit="return confirm('<?= $isActive ? 'Deactivate' : 'Activate' ?> this template?')"
+                  class="confirm-toggle-form"
+                  data-confirm="<?= $isActive ? 'Deactivate' : 'Activate' ?> this template?"
                 >
                   <?= Security::csrfField() ?>
                   <button

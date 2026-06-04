@@ -137,8 +137,8 @@ $failed    = count(array_filter($deliveries, fn($d) => $d['status'] === 'failed'
 
             <td>
               <?php if ($d['response_body']): ?>
-                <button class="btn btn-ghost btn-sm"
-                        onclick="showResponseModal(<?= (int) $d['id'] ?>)"
+                <button class="btn btn-ghost btn-sm show-response-btn"
+                        data-delivery-id="<?= (int) $d['id'] ?>"
                         title="View response body">
                   <i class="bi bi-eye"></i>
                 </button>
@@ -165,12 +165,11 @@ $failed    = count(array_filter($deliveries, fn($d) => $d['status'] === 'failed'
 </div>
 
 <!-- Response body modal -->
-<div class="modal-overlay" id="responseModal" style="display:none"
-     onclick="if(event.target===this)closeModal('responseModal')">
+<div class="modal-overlay" id="responseModal" style="display:none">
   <div class="modal" style="max-width:640px">
     <div class="modal-header">
       <h3><i class="bi bi-code-square"></i> Response Body</h3>
-      <button onclick="closeModal('responseModal')"><i class="bi bi-x-lg"></i></button>
+      <button id="closeResponseModalBtn"><i class="bi bi-x-lg"></i></button>
     </div>
     <div class="modal-body">
       <pre id="responseBodyContent"
@@ -190,6 +189,18 @@ function showResponseModal(deliveryId) {
   document.getElementById('responseBodyContent').textContent = body.textContent.trim();
   showModal('responseModal');
 }
+
+document.getElementById('closeResponseModalBtn').addEventListener('click', function() {
+  closeModal('responseModal');
+});
+document.getElementById('responseModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal('responseModal');
+});
+document.querySelectorAll('.show-response-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    showResponseModal(btn.dataset.deliveryId);
+  });
+});
 </script>
 
 <?php

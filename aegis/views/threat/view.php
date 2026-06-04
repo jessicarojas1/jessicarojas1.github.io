@@ -82,8 +82,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
       <?= $stCfg['label'] ?>
     </span>
     <?php if (Auth::can('risk.write')): ?>
-      <button class="btn btn-ghost"
-              onclick="document.getElementById('editPanel').classList.toggle('d-none');">
+      <button class="btn btn-ghost" id="btnToggleThreatEdit">
         <i class="bi bi-pencil-square"></i> Edit
       </button>
     <?php endif; ?>
@@ -157,7 +156,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
     <?php if (Auth::can('risk.write')): ?>
     <div class="card">
       <div id="editPanel" class="d-none">
-        <div class="card-header" style="cursor:pointer;" onclick="document.getElementById('editPanel').classList.add('d-none')">
+        <div class="card-header" style="cursor:pointer;" id="btnCollapseThreatEdit">
           <h3 class="card-title"><i class="bi bi-pencil-square"></i> Edit Threat</h3>
           <span style="font-size:12px;color:var(--text-muted);">Click header to collapse</span>
         </div>
@@ -201,7 +200,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
             <div class="form-row" style="display:flex;gap:16px;">
               <div class="form-group" style="flex:1;">
                 <label class="form-label">Likelihood</label>
-                <select name="likelihood" id="editLikelihood" class="form-control" onchange="updateEditScore()">
+                <select name="likelihood" id="editLikelihood" class="form-control">
                   <?php foreach ([1=>'1 — Rare',2=>'2 — Unlikely',3=>'3 — Possible',4=>'4 — Likely',5=>'5 — Almost Certain'] as $val => $lbl): ?>
                     <option value="<?= $val ?>" <?= ((int)$threat['likelihood'] === $val) ? 'selected' : '' ?>><?= $lbl ?></option>
                   <?php endforeach; ?>
@@ -209,7 +208,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
               </div>
               <div class="form-group" style="flex:1;">
                 <label class="form-label">Impact</label>
-                <select name="impact" id="editImpact" class="form-control" onchange="updateEditScore()">
+                <select name="impact" id="editImpact" class="form-control">
                   <?php foreach ([1=>'1 — Negligible',2=>'2 — Minor',3=>'3 — Moderate',4=>'4 — Major',5=>'5 — Catastrophic'] as $val => $lbl): ?>
                     <option value="<?= $val ?>" <?= ((int)$threat['impact'] === $val) ? 'selected' : '' ?>><?= $lbl ?></option>
                   <?php endforeach; ?>
@@ -257,8 +256,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
 
             <div style="display:flex;gap:12px;margin-top:8px;">
               <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Save Changes</button>
-              <button type="button" class="btn btn-ghost"
-                      onclick="document.getElementById('editPanel').classList.add('d-none')">Cancel</button>
+              <button type="button" class="btn btn-ghost" id="btnCancelThreatEdit">Cancel</button>
             </div>
           </form>
         </div>
@@ -271,7 +269,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
       <div class="card-header">
         <h3 class="card-title"><i class="bi bi-shield-exclamation"></i> Linked Risks</h3>
         <?php if (Auth::can('risk.write') && !empty($unlinkdRisks)): ?>
-          <button class="btn btn-primary btn-sm" onclick="document.getElementById('linkRiskPanel').classList.toggle('d-none')">
+          <button class="btn btn-primary btn-sm" id="btnToggleLinkRisk">
             <i class="bi bi-plus-lg"></i> Link Risk
           </button>
         <?php endif; ?>
@@ -293,8 +291,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
           <button type="submit" class="btn btn-primary btn-sm" style="flex-shrink:0;">
             <i class="bi bi-link-45deg"></i> Link
           </button>
-          <button type="button" class="btn btn-ghost btn-sm" style="flex-shrink:0;"
-                  onclick="document.getElementById('linkRiskPanel').classList.add('d-none')">Cancel</button>
+          <button type="button" class="btn btn-ghost btn-sm" style="flex-shrink:0;" id="btnCancelLinkRisk">Cancel</button>
         </form>
       </div>
       <?php endif; ?>
@@ -345,7 +342,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
                   <?php if (Auth::can('risk.write')): ?>
                     <td>
                       <form method="POST" action="/threats/<?= (int)$threat['id'] ?>/unlink-risk/<?= (int)$r['id'] ?>"
-                            onsubmit="return confirm('Unlink this risk from the threat?')">
+                            class="threat-unlink-risk-form" data-confirm="Unlink this risk from the threat?">
                         <?= Security::csrfField() ?>
                         <button type="submit" class="btn btn-ghost btn-sm" title="Unlink risk">
                           <i class="bi bi-x-lg" style="color:#ef4444;"></i>
@@ -362,8 +359,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
             <i class="bi bi-shield-check" style="font-size:32px;color:var(--text-light);display:block;margin-bottom:8px;"></i>
             <p style="color:var(--text-muted);margin:0;">No risks linked to this threat yet.</p>
             <?php if (Auth::can('risk.write') && !empty($unlinkdRisks)): ?>
-              <button class="btn btn-primary btn-sm" style="margin-top:12px;"
-                      onclick="document.getElementById('linkRiskPanel').classList.remove('d-none')">
+              <button class="btn btn-primary btn-sm" style="margin-top:12px;" id="btnEmptyStateLinkRisk">
                 <i class="bi bi-plus-lg"></i> Link a Risk
               </button>
             <?php endif; ?>
@@ -474,5 +470,35 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
             d.style.color = scoreColor(s);
         }
     };
+
+    // Edit panel toggle
+    var btnToggleThreatEdit = document.getElementById('btnToggleThreatEdit');
+    if (btnToggleThreatEdit) { btnToggleThreatEdit.addEventListener('click', function() { document.getElementById('editPanel').classList.toggle('d-none'); }); }
+    var btnCollapseThreatEdit = document.getElementById('btnCollapseThreatEdit');
+    if (btnCollapseThreatEdit) { btnCollapseThreatEdit.addEventListener('click', function() { document.getElementById('editPanel').classList.add('d-none'); }); }
+    var btnCancelThreatEdit = document.getElementById('btnCancelThreatEdit');
+    if (btnCancelThreatEdit) { btnCancelThreatEdit.addEventListener('click', function() { document.getElementById('editPanel').classList.add('d-none'); }); }
+
+    // Likelihood/Impact change → update score
+    var editLikelihood = document.getElementById('editLikelihood');
+    if (editLikelihood) { editLikelihood.addEventListener('change', updateEditScore); }
+    var editImpact = document.getElementById('editImpact');
+    if (editImpact) { editImpact.addEventListener('change', updateEditScore); }
+
+    // Link risk panel
+    var btnToggleLinkRisk = document.getElementById('btnToggleLinkRisk');
+    if (btnToggleLinkRisk) { btnToggleLinkRisk.addEventListener('click', function() { document.getElementById('linkRiskPanel').classList.toggle('d-none'); }); }
+    var btnCancelLinkRisk = document.getElementById('btnCancelLinkRisk');
+    if (btnCancelLinkRisk) { btnCancelLinkRisk.addEventListener('click', function() { document.getElementById('linkRiskPanel').classList.add('d-none'); }); }
+    var btnEmptyStateLinkRisk = document.getElementById('btnEmptyStateLinkRisk');
+    if (btnEmptyStateLinkRisk) { btnEmptyStateLinkRisk.addEventListener('click', function() { document.getElementById('linkRiskPanel').classList.remove('d-none'); }); }
+
+    // Confirm on unlink forms
+    document.querySelectorAll('.threat-unlink-risk-form').forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            var msg = this.dataset.confirm || 'Are you sure?';
+            if (!confirm(msg)) e.preventDefault();
+        });
+    });
 })();
 </script>

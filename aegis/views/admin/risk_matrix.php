@@ -143,11 +143,11 @@ ob_start();
 </form>
 
 <!-- Cell edit modal -->
-<div class="modal-overlay" id="cellEditModal" style="display:none" onclick="if(event.target===this)closeCellEdit()">
+<div class="modal-overlay" id="cellEditModal" style="display:none">
   <div class="modal" style="max-width:420px">
     <div class="modal-header">
       <h3>Edit Cell</h3>
-      <button type="button" onclick="closeCellEdit()"><i class="bi bi-x-lg"></i></button>
+      <button type="button" id="closeCellEditBtn"><i class="bi bi-x-lg"></i></button>
     </div>
     <div class="modal-body">
       <input type="hidden" id="editKey">
@@ -170,24 +170,23 @@ ob_start();
             '#7c3aed' => 'Avoid (purple)',
           ] as $hex => $label): ?>
           <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px">
-            <input type="radio" name="editColorPick" value="<?= $hex ?>"
-                   onchange="document.getElementById('editColor').value=this.value;updateColorPreview()">
+            <input type="radio" name="editColorPick" value="<?= $hex ?>" class="color-preset-radio">
             <span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:<?= $hex ?>"></span>
             <?= $label ?>
           </label>
           <?php endforeach; ?>
           <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px">
-            <input type="radio" name="editColorPick" value="custom" onchange="updateColorPreview()">
+            <input type="radio" name="editColorPick" value="custom" class="color-preset-radio">
             Custom:
-            <input type="color" id="editColor" value="#22c55e" oninput="document.querySelector('[name=editColorPick][value=custom]').checked=true;updateColorPreview()" style="width:40px;height:28px;border:none;cursor:pointer;border-radius:4px">
+            <input type="color" id="editColor" value="#22c55e" style="width:40px;height:28px;border:none;cursor:pointer;border-radius:4px">
           </label>
         </div>
         <div id="colorPreview" style="margin-top:10px;padding:8px 12px;border-radius:6px;font-size:13px;font-weight:600;text-align:center;color:#fff"></div>
       </div>
     </div>
     <div class="modal-footer" style="display:flex;justify-content:flex-end;gap:8px;padding:16px">
-      <button type="button" class="btn btn-ghost" onclick="closeCellEdit()">Cancel</button>
-      <button type="button" class="btn btn-primary" onclick="saveCellEdit()"><i class="bi bi-save-fill"></i> Save Cell</button>
+      <button type="button" class="btn btn-ghost" id="cancelCellEditBtn">Cancel</button>
+      <button type="button" class="btn btn-primary" id="saveCellEditBtn"><i class="bi bi-save-fill"></i> Save Cell</button>
     </div>
   </div>
 </div>
@@ -285,8 +284,7 @@ function saveCellEdit() {
   closeCellEdit();
 }
 
-function resetCell(key, e) {
-  e.preventDefault();
+function resetCell(key) {
   if (!confirm('Reset this cell to default values?')) return;
   const def = defaultCells[key] || { title: 'Accept', desc: 'Accept', color: '#22c55e' };
   cellData[key] = { ...def };
@@ -301,12 +299,52 @@ function refreshCell(key) {
   td.querySelector('.rm-cell-title').textContent = cell.title;
   td.querySelector('.rm-cell-desc').textContent  = cell.desc.length > 22 ? cell.desc.slice(0, 22) + '...' : cell.desc;
   td.querySelector('.rm-color-swatch').style.background = cell.color;
-  // Update onclick for gear button
-  const gearBtn = td.querySelector('.btn-icon:not(.btn-icon-danger)');
-  gearBtn.setAttribute('onclick',
-    `openCellEdit('${key}', ${JSON.stringify(cell.title)}, ${JSON.stringify(cell.desc)}, ${JSON.stringify(cell.color)})`
-  );
+  // Update data attributes for gear button
+  const gearBtn = td.querySelector('.cell-edit-btn');
+  if (gearBtn) {
+    gearBtn.dataset.title = cell.title;
+    gearBtn.dataset.desc  = cell.desc;
+    gearBtn.dataset.color = cell.color;
+  }
 }
+
+document.getElementById('saveMatrixBtn').addEventListener('click', function() {
+  document.getElementById('matrixSaveForm').submit();
+});
+
+document.getElementById('closeCellEditBtn').addEventListener('click', closeCellEdit);
+document.getElementById('cancelCellEditBtn').addEventListener('click', closeCellEdit);
+document.getElementById('saveCellEditBtn').addEventListener('click', saveCellEdit);
+
+document.getElementById('cellEditModal').addEventListener('click', function(e) {
+  if (e.target === this) closeCellEdit();
+});
+
+document.querySelectorAll('.cell-edit-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    openCellEdit(btn.dataset.key, btn.dataset.title, btn.dataset.desc, btn.dataset.color);
+  });
+});
+
+document.querySelectorAll('.cell-reset-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    resetCell(btn.dataset.key);
+  });
+});
+
+document.getElementById('editColor').addEventListener('input', function() {
+  document.querySelector('[name=editColorPick][value=custom]').checked = true;
+  updateColorPreview();
+});
+
+document.querySelectorAll('.color-preset-radio').forEach(function(radio) {
+  radio.addEventListener('change', function() {
+    if (this.value !== 'custom') {
+      document.getElementById('editColor').value = this.value;
+    }
+    updateColorPreview();
+  });
+});
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCellEdit(); });
 </script>

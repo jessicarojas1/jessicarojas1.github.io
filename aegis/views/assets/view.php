@@ -153,7 +153,7 @@ function riskScoreLevel(int $score): string {
     <!-- Edit panel (collapsible, policy.write only) -->
     <?php if (Auth::can('risk.write')): ?>
     <div class="card">
-      <div class="card-header" style="cursor:pointer;" onclick="document.getElementById('editPanel').classList.toggle('d-none');">
+      <div class="card-header" style="cursor:pointer;" id="btnToggleAssetEdit">
         <h3 class="card-title"><i class="bi bi-pencil-square"></i> Edit Asset</h3>
         <span style="font-size:12px;color:var(--text-muted);">Click to expand / collapse</span>
       </div>
@@ -259,7 +259,7 @@ function riskScoreLevel(int $score): string {
 
             <div style="display:flex;gap:12px;margin-top:8px;">
               <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Save Changes</button>
-              <button type="button" class="btn btn-ghost" onclick="document.getElementById('editPanel').classList.add('d-none')">Cancel</button>
+              <button type="button" class="btn btn-ghost" id="btnCancelAssetEdit">Cancel</button>
             </div>
           </form>
         </div>
@@ -276,7 +276,7 @@ function riskScoreLevel(int $score): string {
       <div class="card-header">
         <h3 class="card-title"><i class="bi bi-shield-exclamation"></i> Linked Risks</h3>
         <?php if (Auth::can('risk.write')): ?>
-          <button class="btn btn-primary btn-sm" onclick="showModal('linkRiskModal')">
+          <button class="btn btn-primary btn-sm" id="btnOpenLinkRiskModal">
             <i class="bi bi-plus-lg"></i> Link Risk
           </button>
         <?php endif; ?>
@@ -317,7 +317,7 @@ function riskScoreLevel(int $score): string {
                   <?php if (Auth::can('risk.write')): ?>
                     <td>
                       <form method="POST" action="/assets/<?= (int)$asset['id'] ?>/unlink-risk/<?= (int)$r['id'] ?>"
-                            onsubmit="return confirm('Unlink this risk from the asset?')">
+                            class="asset-unlink-risk-form" data-confirm="Unlink this risk from the asset?">
                         <?= Security::csrfField() ?>
                         <button type="submit" class="btn btn-ghost btn-sm" title="Unlink risk">
                           <i class="bi bi-x-lg" style="color:#ef4444;"></i>

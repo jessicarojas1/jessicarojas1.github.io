@@ -19,7 +19,7 @@ ob_start();
   </div>
   <div class="page-actions">
     <?php if (Auth::can('issue.write')): ?>
-      <button onclick="showModal('editModal')" class="btn btn-secondary"><i class="bi bi-pencil"></i> Edit</button>
+      <button id="btnOpenEditIssue" class="btn btn-secondary"><i class="bi bi-pencil"></i> Edit</button>
     <?php endif; ?>
   </div>
 </div>
@@ -135,7 +135,7 @@ ob_start();
   <div class="modal" style="max-width:600px;width:100%">
     <div class="modal-header">
       <span>Edit Issue</span>
-      <button onclick="closeModal('editModal')" style="background:none;border:none;cursor:pointer;font-size:18px">&times;</button>
+      <button id="btnCloseEditIssue" style="background:none;border:none;cursor:pointer;font-size:18px">&times;</button>
     </div>
     <div class="modal-body">
       <form method="post" action="/issue/<?= $issue['id'] ?>/update">
@@ -174,7 +174,7 @@ ob_start();
         <div class="form-group"><label class="form-label">Resolution</label><textarea name="resolution" class="form-control" rows="2"><?= Security::h($issue['resolution'] ?? '') ?></textarea></div>
         <div class="form-group"><label class="form-label">Recurrence Prevention</label><textarea name="recurrence_prevention" class="form-control" rows="2"><?= Security::h($issue['recurrence_prevention'] ?? '') ?></textarea></div>
         <div class="modal-footer">
-          <button type="button" onclick="closeModal('editModal')" class="btn btn-secondary">Cancel</button>
+          <button type="button" id="btnCancelEditIssue" class="btn btn-secondary">Cancel</button>
           <button type="submit" class="btn btn-primary">Save Changes</button>
         </div>
       </form>
@@ -183,4 +183,14 @@ ob_start();
 </div>
 <?php endif; ?>
 
+<script nonce="<?= Security::nonce() ?>">
+(function() {
+  var btnOpenEditIssue = document.getElementById('btnOpenEditIssue');
+  if (btnOpenEditIssue) { btnOpenEditIssue.addEventListener('click', function() { showModal('editModal'); }); }
+  var btnCloseEditIssue = document.getElementById('btnCloseEditIssue');
+  if (btnCloseEditIssue) { btnCloseEditIssue.addEventListener('click', function() { closeModal('editModal'); }); }
+  var btnCancelEditIssue = document.getElementById('btnCancelEditIssue');
+  if (btnCancelEditIssue) { btnCancelEditIssue.addEventListener('click', function() { closeModal('editModal'); }); }
+})();
+</script>
 <?php $content = ob_get_clean(); require AEGIS_ROOT . '/views/layout.php'; ?>

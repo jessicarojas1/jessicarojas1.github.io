@@ -175,10 +175,9 @@ ob_start();
 
           <div class="form-group">
             <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:14px 16px;border:2px solid var(--border);border-radius:10px;background:var(--surface-alt);" id="renewal-label">
-              <input type="checkbox" name="renewal_required" value="1"
+              <input type="checkbox" name="renewal_required" value="1" id="renewalRequiredCb"
                      <?= $prefillRenewal ? 'checked' : '' ?>
-                     style="margin-top:2px;flex-shrink:0;"
-                     onchange="document.getElementById('renewal-label').style.borderColor=this.checked?'var(--primary)':'var(--border)'">
+                     style="margin-top:2px;flex-shrink:0;">
               <div>
                 <div style="font-weight:600;font-size:13px;"><i class="bi bi-arrow-clockwise"></i> Renewal Required</div>
                 <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">
@@ -307,12 +306,15 @@ ob_start();
 </style>
 
 <script nonce="<?= Security::nonce() ?>">
-// Highlight renewal checkbox border on load
+// Highlight renewal checkbox border on load and on change
 (function() {
-  var cb = document.querySelector('input[name="renewal_required"]');
+  var cb = document.getElementById('renewalRequiredCb');
   var lbl = document.getElementById('renewal-label');
   if (cb && lbl) {
     lbl.style.borderColor = cb.checked ? 'var(--primary)' : 'var(--border)';
+    cb.addEventListener('change', function() {
+      lbl.style.borderColor = this.checked ? 'var(--primary)' : 'var(--border)';
+    });
   }
 })();
 </script>

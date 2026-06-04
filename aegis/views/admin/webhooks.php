@@ -35,7 +35,7 @@ $providerLabels = [
 
 <div class="page-header">
   <h1 class="page-title"><i class="bi bi-globe2"></i> Webhook Endpoints</h1>
-  <button class="btn btn-primary" onclick="showModal('createWebhookModal')">
+  <button class="btn btn-primary" id="openCreateWebhookBtn">
     <i class="bi bi-plus-lg"></i> New Webhook
   </button>
 </div>
@@ -130,7 +130,7 @@ $providerLabels = [
               </a>
               <form method="POST" action="/admin/webhooks/<?= (int) $ep['id'] ?>/delete"
                     style="display:inline"
-                    onsubmit="return confirm('Delete this webhook endpoint and all its delivery records?')">
+                    data-confirm="Delete this webhook endpoint and all its delivery records?">
                 <?= Security::csrfField() ?>
                 <button type="submit" class="btn btn-ghost btn-sm text-danger" title="Delete">
                   <i class="bi bi-trash3"></i>
@@ -155,12 +155,11 @@ $providerLabels = [
 </div>
 
 <!-- ── Create Webhook Modal ──────────────────────────────────────────────── -->
-<div class="modal-overlay" id="createWebhookModal" style="display:none"
-     onclick="if(event.target===this)closeModal('createWebhookModal')">
+<div class="modal-overlay" id="createWebhookModal" style="display:none">
   <div class="modal" style="max-width:600px">
     <div class="modal-header">
       <h3><i class="bi bi-globe2"></i> New Webhook Endpoint</h3>
-      <button onclick="closeModal('createWebhookModal')"><i class="bi bi-x-lg"></i></button>
+      <button id="closeCreateWebhookBtn"><i class="bi bi-x-lg"></i></button>
     </div>
     <div class="modal-body">
       <form method="POST" action="/admin/webhooks/create">
@@ -219,7 +218,7 @@ $providerLabels = [
           <button type="submit" class="btn btn-primary">
             <i class="bi bi-plus-lg"></i> Create Webhook
           </button>
-          <button type="button" class="btn btn-ghost" onclick="closeModal('createWebhookModal')">Cancel</button>
+          <button type="button" class="btn btn-ghost" id="cancelCreateWebhookBtn">Cancel</button>
         </div>
       </form>
     </div>
@@ -229,6 +228,18 @@ $providerLabels = [
 <script nonce="<?= Security::nonce() ?>">
 function showModal(id)  { document.getElementById(id).style.display = 'flex'; }
 function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+document.getElementById('openCreateWebhookBtn').addEventListener('click', function() { showModal('createWebhookModal'); });
+document.getElementById('closeCreateWebhookBtn').addEventListener('click', function() { closeModal('createWebhookModal'); });
+document.getElementById('cancelCreateWebhookBtn').addEventListener('click', function() { closeModal('createWebhookModal'); });
+document.getElementById('createWebhookModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal('createWebhookModal');
+});
+document.querySelectorAll('form[data-confirm]').forEach(function(f) {
+  f.addEventListener('submit', function(e) {
+    if (!confirm(f.dataset.confirm)) e.preventDefault();
+  });
+});
 </script>
 
 <?php

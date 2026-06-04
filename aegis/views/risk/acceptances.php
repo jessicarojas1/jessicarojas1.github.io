@@ -109,7 +109,7 @@ if ($filterStatus !== '') {
 <div class="filter-bar card" style="margin-bottom:20px;">
   <form method="GET" class="filter-form" style="display:flex;align-items:center;gap:12px;padding:12px 16px;">
     <label style="font-size:13px;font-weight:500;color:var(--text-muted);white-space:nowrap;">Filter by status:</label>
-    <select name="status" class="form-control form-control-sm" onchange="this.form.submit()" style="width:auto;min-width:160px;">
+    <select name="status" class="form-control form-control-sm" id="acceptanceStatusFilter" style="width:auto;min-width:160px;">
       <option value="">All statuses</option>
       <?php foreach ($statusConfig as $sv => $sc): ?>
         <option value="<?= $sv ?>" <?= $filterStatus === $sv ? 'selected' : '' ?>><?= $sc['label'] ?></option>
@@ -215,9 +215,9 @@ if ($filterStatus !== '') {
             </div>
             <?php if (!empty($acc['conditions'])): ?>
               <button type="button"
-                      class="btn btn-ghost btn-sm"
+                      class="btn btn-ghost btn-sm toggle-conditions-btn"
                       style="font-size:11px;padding:1px 6px;margin-top:2px;"
-                      onclick="toggleConditions('<?= $rowId ?>')">
+                      data-row-id="<?= $rowId ?>">
                 <i class="bi bi-chevron-down" id="chevron-<?= $rowId ?>"></i> Conditions
               </button>
             <?php endif; ?>
@@ -251,9 +251,9 @@ if ($filterStatus !== '') {
             <?php endif; ?>
             <?php if ($acc['status'] === 'active' && Auth::can('risk.write')): ?>
               <button type="button"
-                      class="btn btn-sm"
+                      class="btn btn-sm toggle-revoke-btn"
                       style="background:#fef2f2;color:#dc2626;border:1px solid #fca5a5;"
-                      onclick="toggleRevoke('revoke-<?= (int)$acc['id'] ?>')"
+                      data-row-id="revoke-<?= (int)$acc['id'] ?>"
                       title="Revoke">
                 <i class="bi bi-x-circle"></i> Revoke
               </button>
@@ -281,7 +281,7 @@ if ($filterStatus !== '') {
         <tr id="revoke-<?= (int)$acc['id'] ?>" style="display:none;">
           <td colspan="8" style="background:#fef2f2;padding:14px 20px 16px;border-top:1px solid #fca5a5;">
             <form method="POST" action="/risk-acceptances/<?= (int)$acc['id'] ?>/revoke"
-                  onsubmit="return confirm('Are you sure you want to revoke this acceptance certificate? This action cannot be undone.')">
+                  data-confirm="Are you sure you want to revoke this acceptance certificate? This action cannot be undone.">
               <?= Security::csrfField() ?>
               <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
                 <div style="flex:1;min-width:240px;">
@@ -293,8 +293,8 @@ if ($filterStatus !== '') {
                             placeholder="Explain why this acceptance is being revoked…"></textarea>
                 </div>
                 <div style="display:flex;gap:8px;flex-shrink:0;">
-                  <button type="button" class="btn btn-ghost btn-sm"
-                          onclick="toggleRevoke('revoke-<?= (int)$acc['id'] ?>')">Cancel</button>
+                  <button type="button" class="btn btn-ghost btn-sm toggle-revoke-btn"
+                          data-row-id="revoke-<?= (int)$acc['id'] ?>">Cancel</button>
                   <button type="submit" class="btn btn-sm" style="background:#dc2626;color:#fff;border:none;">
                     <i class="bi bi-x-circle-fill"></i> Confirm Revoke
                   </button>
@@ -319,9 +319,8 @@ if ($filterStatus !== '') {
 
 <script nonce="<?= Security::nonce() ?>">
 function toggleConditions(rowId) {
-  var row    = document.getElementById(rowId);
-  var btn    = document.querySelector('[onclick="toggleConditions(\'' + rowId + '\')"]');
-  var chev   = document.getElementById('chevron-' + rowId);
+  var row  = document.getElementById(rowId);
+  var chev = document.getElementById('chevron-' + rowId);
   if (!row) return;
   var isHidden = row.style.display === 'none' || row.style.display === '';
   row.style.display = isHidden ? 'table-row' : 'none';
@@ -335,4 +334,27 @@ function toggleRevoke(rowId) {
   if (!row) return;
   row.style.display = (row.style.display === 'none' || row.style.display === '') ? 'table-row' : 'none';
 }
+
+// Wire up status filter auto-submit
+var acceptanceStatusFilter = document.getElementById('acceptanceStatusFilter');
+if (acceptanceStatusFilter) {
+  acceptanceStatusFilter.addEventListener('change', function() { this.form.submit(); });
+}
+
+// Wire up conditions toggle buttons (delegated)
+document.querySelectorAll('.toggle-conditions-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() { toggleConditions(this.dataset.rowId); });
+});
+
+// Wire up revoke toggle buttons (delegated)
+document.querySelectorAll('.toggle-revoke-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() { toggleRevoke(this.dataset.rowId); });
+});
+
+// Wire up revoke forms with confirm
+document.querySelectorAll('form[data-confirm]').forEach(function(f) {
+  f.addEventListener('submit', function(e) {
+    if (!confirm(f.dataset.confirm)) { e.preventDefault(); }
+  });
+});
 </script>

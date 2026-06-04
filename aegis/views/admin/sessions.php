@@ -93,8 +93,8 @@ function parseOS(string $ua): string {
                   <i class="bi bi-x-circle"></i> Kill
                 </button>
               <?php else: ?>
-                <button class="btn btn-danger btn-sm"
-                        onclick="killSession('<?= Security::h($s['id']) ?>', this)"
+                <button class="btn btn-danger btn-sm kill-session-btn"
+                        data-session-id="<?= Security::h($s['id']) ?>"
                         title="Terminate this session">
                   <i class="bi bi-x-circle"></i> Kill
                 </button>
@@ -150,6 +150,12 @@ function killSession(sessionId, btn) {
         alert('Request failed.');
     });
 }
+
+document.querySelectorAll('.kill-session-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        killSession(btn.dataset.sessionId, btn);
+    });
+});
 </script>
 <?php $content = ob_get_clean();
 require AEGIS_ROOT . '/views/layout.php'; ?>

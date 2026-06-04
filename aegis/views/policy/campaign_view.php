@@ -13,7 +13,7 @@ $barColor    = $pct >= 80 ? '#059669' : ($pct >= 50 ? '#d97706' : '#dc2626');
     <p class="page-subtitle">Attestation Campaign · <?= Security::h($campaign['policy_title']) ?></p>
   </div>
   <div class="page-actions">
-    <button onclick="window.print()" class="btn btn-ghost"><i class="bi bi-printer"></i> Print</button>
+    <button id="btnPrintCampaign" class="btn btn-ghost"><i class="bi bi-printer"></i> Print</button>
     <a href="/policy/attestations" class="btn btn-ghost"><i class="bi bi-arrow-left"></i> All Campaigns</a>
   </div>
 </div>
@@ -153,5 +153,9 @@ $barColor    = $pct >= 80 ? '#059669' : ($pct >= 50 ? '#d97706' : '#dc2626');
       </div>
     </div>
   </div>
+
+<script nonce="<?= Security::nonce() ?>">
+document.getElementById('btnPrintCampaign').addEventListener('click', function() { window.print(); });
+</script>
 
 </div>

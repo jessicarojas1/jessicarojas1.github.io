@@ -18,7 +18,7 @@ $canEdit = Auth::can('policy.write');
   </div>
   <?php if ($canEdit): ?>
   <div>
-    <button class="btn btn-secondary" onclick="document.getElementById('editPanel').classList.toggle('hidden')">
+    <button class="btn btn-secondary" id="btn-toggle-edit-panel">
       <i class="bi bi-pencil"></i> Edit
     </button>
   </div>
@@ -64,7 +64,7 @@ $canEdit = Auth::can('policy.write');
     <div class="card-header" style="display:flex;justify-content:space-between;align-items:center">
       <h3>Version History</h3>
       <?php if ($canEdit): ?>
-        <button class="btn btn-sm btn-primary" onclick="document.getElementById('uploadModal').classList.add('open')">
+        <button class="btn btn-sm btn-primary" id="btn-open-upload-modal">
           <i class="bi bi-upload"></i> Upload Version
         </button>
       <?php endif; ?>
@@ -143,11 +143,11 @@ $canEdit = Auth::can('policy.write');
 </div>
 
 <!-- Upload version modal -->
-<div id="uploadModal" class="modal-overlay" onclick="if(event.target===this)this.classList.remove('open')">
+<div id="uploadModal" class="modal-overlay">
   <div class="modal-card" style="max-width:480px">
     <div class="modal-header">
       <h3>Upload New Version</h3>
-      <button onclick="document.getElementById('uploadModal').classList.remove('open')" class="btn-icon"><i class="bi bi-x-lg"></i></button>
+      <button id="btn-close-upload-modal" class="btn-icon"><i class="bi bi-x-lg"></i></button>
     </div>
     <form method="POST" action="/documents/<?= (int)$doc['id'] ?>/upload-version" enctype="multipart/form-data">
       <?= Security::csrfField() ?>
@@ -182,4 +182,33 @@ $canEdit = Auth::can('policy.write');
 .modal-footer { padding:16px 24px; border-top:1px solid #e5e7eb; display:flex; gap:8px; justify-content:flex-end; }
 .hidden { display:none !important; }
 </style>
+
+<script nonce="<?= Security::nonce() ?>">
+(function() {
+  var editBtn = document.getElementById('btn-toggle-edit-panel');
+  if (editBtn) {
+    editBtn.addEventListener('click', function() {
+      document.getElementById('editPanel').classList.toggle('hidden');
+    });
+  }
+  var uploadModal = document.getElementById('uploadModal');
+  var openBtn = document.getElementById('btn-open-upload-modal');
+  var closeBtn = document.getElementById('btn-close-upload-modal');
+  if (openBtn && uploadModal) {
+    openBtn.addEventListener('click', function() {
+      uploadModal.classList.add('open');
+    });
+  }
+  if (closeBtn && uploadModal) {
+    closeBtn.addEventListener('click', function() {
+      uploadModal.classList.remove('open');
+    });
+  }
+  if (uploadModal) {
+    uploadModal.addEventListener('click', function(e) {
+      if (e.target === uploadModal) uploadModal.classList.remove('open');
+    });
+  }
+})();
+</script>
 <?php endif; ?>

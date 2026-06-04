@@ -9,7 +9,7 @@ ob_start();
 
 <div class="page-header">
   <h1 class="page-title">Workflow Automation</h1>
-  <button class="btn btn-primary" onclick="showModal('createWfModal')"><i class="bi bi-plus-lg"></i> New Workflow</button>
+  <button class="btn btn-primary" id="openCreateWfBtn"><i class="bi bi-plus-lg"></i> New Workflow</button>
 </div>
 
 <div class="card">
@@ -67,7 +67,7 @@ ob_start();
             <div class="wt-name"><?= $name ?></div>
             <div class="wt-desc"><?= $desc ?></div>
           </div>
-          <button class="btn btn-ghost btn-sm" onclick="useTemplate('<?= $name ?>','<?= $trigger ?>')">Use</button>
+          <button class="btn btn-ghost btn-sm use-template-btn" data-name="<?= Security::h($name) ?>" data-trigger="<?= Security::h($trigger) ?>">Use</button>
         </div>
       <?php endforeach; ?>
     </div>
@@ -75,9 +75,9 @@ ob_start();
 </div>
 
 <!-- Create workflow modal -->
-<div class="modal-overlay" id="createWfModal" style="display:none" onclick="if(event.target===this)closeModal('createWfModal')">
+<div class="modal-overlay" id="createWfModal" style="display:none">
   <div class="modal modal-lg">
-    <div class="modal-header"><h3><i class="bi bi-diagram-3-fill"></i> New Workflow</h3><button onclick="closeModal('createWfModal')"><i class="bi bi-x-lg"></i></button></div>
+    <div class="modal-header"><h3><i class="bi bi-diagram-3-fill"></i> New Workflow</h3><button id="closeCreateWfBtn"><i class="bi bi-x-lg"></i></button></div>
     <div class="modal-body">
       <form method="POST" action="/admin/workflows/create">
         <?= Security::csrfField() ?>
@@ -119,7 +119,7 @@ ob_start();
         <input type="hidden" name="actions" value='[{"type":"create_alert","severity":"info","message":"Workflow triggered"}]'>
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">Create Workflow</button>
-          <button type="button" class="btn btn-ghost" onclick="closeModal('createWfModal')">Cancel</button>
+          <button type="button" class="btn btn-ghost" id="cancelCreateWfBtn">Cancel</button>
         </div>
       </form>
     </div>
@@ -134,6 +134,18 @@ function useTemplate(name, trigger) {
   document.getElementById('wf_trigger').value = trigger;
   showModal('createWfModal');
 }
+
+document.getElementById('openCreateWfBtn').addEventListener('click', function() { showModal('createWfModal'); });
+document.getElementById('closeCreateWfBtn').addEventListener('click', function() { closeModal('createWfModal'); });
+document.getElementById('cancelCreateWfBtn').addEventListener('click', function() { closeModal('createWfModal'); });
+document.getElementById('createWfModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal('createWfModal');
+});
+document.querySelectorAll('.use-template-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    useTemplate(btn.dataset.name, btn.dataset.trigger);
+  });
+});
 </script>
 
 <?php

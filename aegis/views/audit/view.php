@@ -25,9 +25,9 @@ ob_start();
         <button class="btn btn-primary"><i class="bi bi-play-fill"></i> Start Audit</button>
       </form>
     <?php elseif ($audit['status'] === 'in_progress'): ?>
-      <form method="POST" action="/audit/<?= $audit['id'] ?>/complete">
+      <form method="POST" action="/audit/<?= $audit['id'] ?>/complete" id="form-complete-audit" data-confirm="Complete this audit?">
         <?= Security::csrfField() ?>
-        <button class="btn btn-success" onclick="return confirm('Complete this audit?')"><i class="bi bi-check-lg"></i> Complete Audit</button>
+        <button class="btn btn-success"><i class="bi bi-check-lg"></i> Complete Audit</button>
       </form>
     <?php endif; ?>
     <a href="/audit/<?= $audit['id'] ?>/export" class="btn btn-secondary"><i class="bi bi-file-earmark-zip"></i> Export Package</a>
@@ -83,17 +83,17 @@ ob_start();
         <span class="control-title"><?= Security::h($item['title']) ?></span>
       </div>
       <div class="audit-item-controls">
-        <select class="status-select-inline" onchange="saveAuditItem(<?= $item['id'] ?>, <?= $audit['id'] ?>, this)" data-item="<?= $item['id'] ?>">
+        <select class="status-select-inline" data-item="<?= $item['id'] ?>" data-audit="<?= $audit['id'] ?>">
           <?php foreach (['not_assessed'=>'Not Assessed','compliant'=>'Compliant','partial'=>'Partial','non_compliant'=>'Non-Compliant','not_applicable'=>'N/A'] as $val=>$label): ?>
             <option value="<?= $val ?>" <?= $item['status']===$val?'selected':'' ?>><?= $label ?></option>
           <?php endforeach; ?>
         </select>
-        <button class="btn btn-ghost btn-sm" onclick="toggleFinding(<?= $item['id'] ?>)">
+        <button class="btn btn-ghost btn-sm btn-toggle-finding" data-item="<?= $item['id'] ?>">
           <i class="bi bi-pencil"></i>
         </button>
       </div>
       <div class="audit-finding-panel" id="finding-<?= $item['id'] ?>" style="display:none">
-        <form class="finding-form" onsubmit="saveFinding(event, <?= $item['id'] ?>, <?= $audit['id'] ?>)">
+        <form class="finding-form" data-item="<?= $item['id'] ?>" data-audit="<?= $audit['id'] ?>">
           <?= Security::csrfField() ?>
           <input type="hidden" name="status" class="finding-status-input" value="<?= Security::h($item['status']) ?>">
           <div class="form-row">
@@ -163,6 +163,37 @@ function saveFinding(e, itemId, auditId) {
       form.closest('.audit-finding-panel').style.display = 'none';
     });
 }
+
+// Confirm dialog for complete-audit form
+(function() {
+  var f = document.getElementById('form-complete-audit');
+  if (f) {
+    f.addEventListener('submit', function(e) {
+      if (!confirm(f.dataset.confirm)) e.preventDefault();
+    });
+  }
+})();
+
+// Event delegation for status selects (loop-generated)
+document.querySelectorAll('.status-select-inline').forEach(function(select) {
+  select.addEventListener('change', function() {
+    saveAuditItem(parseInt(select.dataset.item), parseInt(select.dataset.audit), select);
+  });
+});
+
+// Event delegation for toggle-finding buttons (loop-generated)
+document.querySelectorAll('.btn-toggle-finding').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    toggleFinding(parseInt(btn.dataset.item));
+  });
+});
+
+// Event delegation for finding forms (loop-generated)
+document.querySelectorAll('.finding-form').forEach(function(form) {
+  form.addEventListener('submit', function(e) {
+    saveFinding(e, parseInt(form.dataset.item), parseInt(form.dataset.audit));
+  });
+});
 </script>
 
 <?php

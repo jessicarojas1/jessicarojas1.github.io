@@ -187,7 +187,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
   </div>
   <div class="page-actions">
     <a href="/report/board-pack" class="btn btn-ghost btn-sm"><i class="bi bi-briefcase"></i> Board Pack</a>
-    <button class="rd-print-btn" onclick="window.print()"><i class="bi bi-printer"></i> Print / Export PDF</button>
+    <button class="rd-print-btn" id="btnPrint"><i class="bi bi-printer"></i> Print / Export PDF</button>
   </div>
 </div>
 
@@ -374,3 +374,6 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
   .rd-print-only { display: block !important; }
 }
 </style>
+<script nonce="<?= $nonce ?>">
+document.getElementById('btnPrint').addEventListener('click', function() { window.print(); });
+</script>

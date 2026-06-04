@@ -42,7 +42,7 @@ $sevColor = $severityColors[strtolower($playbook['severity_filter'] ?? '')] ?? n
   <div class="page-actions">
     <?php if (Auth::can('incident.write')): ?>
       <form method="post" action="/playbooks/<?= (int)$playbook['id'] ?>/toggle" style="display:inline"
-            onsubmit="return confirm('<?= $isActive ? 'Deactivate' : 'Activate' ?> this playbook?')">
+            id="playbookToggleForm" data-confirm="<?= $isActive ? 'Deactivate' : 'Activate' ?> this playbook?">
         <?= Security::csrfField() ?>
         <button type="submit" class="btn <?= $isActive ? 'btn-secondary' : 'btn-primary' ?>">
           <i class="bi bi-<?= $isActive ? 'pause-circle' : 'play-circle' ?>"></i>
@@ -224,3 +224,16 @@ $sevColor = $severityColors[strtolower($playbook['severity_filter'] ?? '')] ?? n
   </div>
 
 </div>
+
+<script nonce="<?= Security::nonce() ?>">
+(function() {
+  var toggleForm = document.getElementById('playbookToggleForm');
+  if (toggleForm) {
+    toggleForm.addEventListener('submit', function(e) {
+      if (!confirm(toggleForm.getAttribute('data-confirm'))) {
+        e.preventDefault();
+      }
+    });
+  }
+})();
+</script>

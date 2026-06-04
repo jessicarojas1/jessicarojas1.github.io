@@ -423,6 +423,76 @@ function toggleDomain(id) {
 document.addEventListener('DOMContentLoaded', function() {
   var first = document.querySelector('.domain-block');
   if (first) { toggleDomain(first.id.replace('domain-', '')); }
+
+  // Wire domain-select-all checkboxes
+  document.querySelectorAll('.domain-select-all').forEach(function(sa) {
+    sa.addEventListener('change', function() {
+      toggleDomainAll(sa, sa.dataset.domain);
+    });
+  });
+
+  // Wire ctrl-checkbox change
+  document.querySelectorAll('.ctrl-checkbox').forEach(function(cb) {
+    cb.addEventListener('change', onCtrlCheck);
+  });
+
+  // Wire data-toggle-domain (domain accordion headers)
+  document.querySelectorAll('[data-toggle-domain]').forEach(function(el) {
+    el.addEventListener('click', function() {
+      toggleDomain(el.dataset.toggleDomain);
+    });
+  });
+
+  // Wire data-open-modal buttons
+  document.querySelectorAll('[data-open-modal]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      openModal(btn.dataset.openModal);
+    });
+  });
+
+  // Wire data-stop-open-modal buttons (stop propagation so accordion doesn't toggle)
+  document.querySelectorAll('[data-stop-open-modal]').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      openModal(btn.dataset.stopOpenModal);
+    });
+  });
+
+  // Wire data-close-modal buttons
+  document.querySelectorAll('[data-close-modal]').forEach(function(btn) {
+    btn.addEventListener('click', pkgCloseModal);
+  });
+
+  // Overlay click to close
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) pkgCloseModal();
+  });
+
+  // Edit package button
+  var editPkgBtn = document.getElementById('btn-edit-pkg');
+  if (editPkgBtn) editPkgBtn.addEventListener('click', function() { openModal('edit-pkg'); });
+
+  // Add domain buttons
+  var addDomainFilterBtn = document.getElementById('btn-add-domain-filter');
+  if (addDomainFilterBtn) addDomainFilterBtn.addEventListener('click', function() { openModal('add-domain'); });
+
+  var addFirstDomainBtn = document.getElementById('btn-add-first-domain');
+  if (addFirstDomainBtn) addFirstDomainBtn.addEventListener('click', function() { openModal('add-domain'); });
+
+  // Bulk assess button
+  var bulkAssessBtn = document.getElementById('bulk-assess-btn');
+  if (bulkAssessBtn) bulkAssessBtn.addEventListener('click', openBulkAssess);
+
+  // Bulk clear button
+  var bulkClearBtn = document.getElementById('bulk-clear-btn');
+  if (bulkClearBtn) bulkClearBtn.addEventListener('click', clearSelection);
+
+  // Confirm dialogs for delete forms (package, domain, control)
+  document.querySelectorAll('form[data-confirm]').forEach(function(f) {
+    f.addEventListener('submit', function(e) {
+      if (!confirm(f.dataset.confirm)) e.preventDefault();
+    });
+  });
 });
 
 // ── Modal system ───────────────────────────────────────────────────────────

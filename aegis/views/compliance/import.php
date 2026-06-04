@@ -271,6 +271,30 @@ function showFile(input, dropId, nameId, color) {
   nameEl.querySelector('span').textContent = input.files[0].name;
   drop.style.borderColor = color;
 }
+
+// Wire tab buttons
+document.querySelectorAll('.tab-btn[data-tab]').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    switchTab(btn.dataset.tab, btn);
+  });
+});
+
+// Wire file inputs to showFile
+var fileConfigs = [
+  { inputId: 'csvFile',   dropId: 'fileDropCsv',   nameId: 'csvName',   color: '#059669' },
+  { inputId: 'excelFile', dropId: 'fileDropExcel',  nameId: 'excelName', color: '#217346' },
+  { inputId: 'pdfFile',   dropId: 'fileDropPdf',    nameId: 'pdfName',   color: '#dc2626' },
+  { inputId: 'jsonFile',  dropId: 'fileDropJson',   nameId: 'jsonName',  color: '#4f46e5' },
+];
+fileConfigs.forEach(function(cfg) {
+  var input = document.getElementById(cfg.inputId);
+  if (input) {
+    input.addEventListener('change', function() {
+      showFile(input, cfg.dropId, cfg.nameId, cfg.color);
+    });
+  }
+});
+
 ['Csv','Excel','Pdf','Json'].forEach(function(type) {
   const drop  = document.getElementById('fileDrop' + type);
   const input = document.getElementById(type.toLowerCase() + 'File');
