@@ -355,7 +355,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
             </tbody>
           </table>
         <?php else: ?>
-          <div class="empty-state-sm" style="padding:28px 24px;text-align:center;">
+          <div class="empty-state-sm">
             <i class="bi bi-shield-check" style="font-size:32px;color:var(--text-light);display:block;margin-bottom:8px;"></i>
             <p style="color:var(--text-muted);margin:0;">No risks linked to this threat yet.</p>
             <?php if (Auth::can('risk.write') && !empty($unlinkdRisks)): ?>

@@ -335,7 +335,7 @@ function riskScoreLevel(int $score): string {
             </tbody>
           </table>
         <?php else: ?>
-          <div class="empty-state-sm" style="padding:24px;">
+          <div class="empty-state-sm">
             <i class="bi bi-shield-check" style="font-size:28px;color:var(--text-light);"></i>
             <p style="color:var(--text-muted);margin:8px 0 0;">No risks linked to this asset yet.</p>
           </div>

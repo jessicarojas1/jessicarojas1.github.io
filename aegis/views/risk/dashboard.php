@@ -9,7 +9,7 @@ function dashRiskLevel(int $score): string {
 // Helper: hex color for level
 function dashLevelColor(int $score): string {
     if ($score > 14) return 'var(--danger)';
-    if ($score > 9)  return '#f97316';
+    if ($score > 9)  return 'var(--orange)';
     if ($score > 4)  return 'var(--warning)';
     return 'var(--success)';
 }
@@ -27,10 +27,10 @@ function dashCellBorder(int $score): string {
     return 'var(--success-border)';
 }
 function dashCellText(int $score): string {
-    if ($score > 14) return '#b91c1c';
-    if ($score > 9)  return '#c2410c';
-    if ($score > 4)  return '#92400e';
-    return '#15803d';
+    if ($score > 14) return 'var(--danger)';
+    if ($score > 9)  return 'var(--danger)';
+    if ($score > 4)  return 'var(--warning)';
+    return 'var(--primary-dark)';
 }
 
 $uncontrolledCount = count($uncontrolled ?? []);
@@ -249,7 +249,7 @@ if (!empty($trendData)) {
     font-weight: 700;
 }
 .rdash-review-date .rday { font-size: 18px; font-weight: 800; line-height: 1; }
-.rdash-review-date.overdue { background: #fee2e2; color: var(--danger); }
+.rdash-review-date.overdue { background: var(--danger-subtle); color: var(--danger); }
 
 /* ── Appetite / uncontrolled list ─────────────────── */
 .rdash-list-item {
@@ -336,7 +336,7 @@ if (!empty($trendData)) {
     background: var(--success-subtle);
     border: 1px solid var(--success-border);
     border-radius: 8px;
-    color: #15803d;
+    color: var(--primary-dark);
     font-size: 13px;
     font-weight: 600;
 }
@@ -378,16 +378,16 @@ if (!empty($trendData)) {
   </div>
 
   <!-- Open -->
-  <div class="rdash-kpi" style="border-top:3px solid #3b82f6">
-    <span class="kpi-icon" style="color:#3b82f6"><i class="bi bi-circle-fill"></i></span>
-    <span class="kpi-num" style="color:#3b82f6"><?= (int)($summary['open'] ?? 0) ?></span>
+  <div class="rdash-kpi" style="border-top:3px solid var(--info)">
+    <span class="kpi-icon" style="color:var(--info)"><i class="bi bi-circle-fill"></i></span>
+    <span class="kpi-num" style="color:var(--info)"><?= (int)($summary['open'] ?? 0) ?></span>
     <span class="kpi-lbl">Open</span>
   </div>
 
   <!-- In Review -->
   <div class="rdash-kpi" style="border-top:3px solid #f97316">
-    <span class="kpi-icon" style="color:#f97316"><i class="bi bi-eye-fill"></i></span>
-    <span class="kpi-num" style="color:#f97316"><?= (int)($summary['in_review'] ?? 0) ?></span>
+    <span class="kpi-icon" style="color:var(--orange)"><i class="bi bi-eye-fill"></i></span>
+    <span class="kpi-num" style="color:var(--orange)"><?= (int)($summary['in_review'] ?? 0) ?></span>
     <span class="kpi-lbl">In Review</span>
   </div>
 
@@ -452,7 +452,7 @@ if (!empty($trendData)) {
     <!-- b) Heat Map -->
     <div class="card">
       <div class="rdash-card-title">
-        <i class="bi bi-grid-3x3-gap-fill" style="color:#f97316"></i>
+        <i class="bi bi-grid-3x3-gap-fill" style="color:var(--orange)"></i>
         Risk Heat Map
         <span style="margin-left:auto;font-size:11px;font-weight:500;color:var(--text-muted)">Likelihood × Impact (click cell to filter)</span>
       </div>
@@ -514,7 +514,7 @@ if (!empty($trendData)) {
           <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;border-radius:3px;background:var(--success-subtle);border:1.5px solid var(--success-border);display:inline-block"></span>Low (≤4)</span>
           <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;border-radius:3px;background:#fefce8;border:1.5px solid #fde68a;display:inline-block"></span>Medium (5–9)</span>
           <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;border-radius:3px;background:#ffedd5;border:1.5px solid #fdba74;display:inline-block"></span>High (10–14)</span>
-          <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;border-radius:3px;background:#fee2e2;border:1.5px solid var(--danger-border);display:inline-block"></span>Critical (&gt;14)</span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;border-radius:3px;background:var(--danger-subtle);border:1.5px solid var(--danger-border);display:inline-block"></span>Critical (&gt;14)</span>
         </div>
       </div><!-- /heatmap-wrap -->
     </div><!-- /heat map card -->
@@ -740,7 +740,7 @@ if (!empty($trendData)) {
     $abTotal      = max($abTotal, 1); // avoid div-by-zero
     $bars = [
         ['label' => 'Planned',     'count' => $abPlanned,    'color' => 'var(--primary)', 'bg' => 'rgba(11,97,4,.06)'],
-        ['label' => 'In Progress', 'count' => $abInProgress, 'color' => '#f97316', 'bg' => '#fff7ed'],
+        ['label' => 'In Progress', 'count' => $abInProgress, 'color' => 'var(--orange)', 'bg' => 'var(--warning-subtle)'],
         ['label' => 'Completed',   'count' => $abCompleted,  'color' => 'var(--success)', 'bg' => 'var(--success-subtle)'],
         ['label' => 'Overdue',     'count' => $abOverdue,    'color' => 'var(--danger)', 'bg' => 'var(--danger-subtle)'],
     ];
@@ -933,7 +933,7 @@ if (!empty($trendData)) {
     var dotR = 5;
     data.forEach(function(pt, i) {
       var cx = xPos(i), cy = yPos(pt.avg);
-      var lvlColor = pt.avg > 14 ? 'var(--danger)' : (pt.avg > 9 ? '#f97316' : (pt.avg > 4 ? 'var(--warning)' : 'var(--success)'));
+      var lvlColor = pt.avg > 14 ? 'var(--danger)' : (pt.avg > 9 ? 'var(--orange)' : (pt.avg > 4 ? 'var(--warning)' : 'var(--success)'));
       ctx.beginPath();
       ctx.arc(cx, cy, dotR, 0, Math.PI * 2);
       ctx.fillStyle   = '#ffffff';

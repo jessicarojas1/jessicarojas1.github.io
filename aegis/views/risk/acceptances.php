@@ -12,14 +12,14 @@ $expiringSoon     = (int)($summary['expiring_soon_count'] ?? 0);
 // Status config
 $statusConfig = [
     'active'     => ['label' => 'Active',     'fg' => 'var(--primary)', 'bg' => 'var(--success-subtle)', 'border' => 'var(--success-border)'],
-    'expired'    => ['label' => 'Expired',    'fg' => '#71717a', 'bg' => '#f4f4f5', 'border' => '#d4d4d8'],
+    'expired'    => ['label' => 'Expired',    'fg' => 'var(--neutral)', 'bg' => 'var(--bg-subtle)', 'border' => 'var(--border)'],
     'superseded' => ['label' => 'Superseded', 'fg' => 'var(--secondary)', 'bg' => 'rgba(55,65,81,.06)', 'border' => '#d1d5db'],
     'revoked'    => ['label' => 'Revoked',    'fg' => 'var(--danger)', 'bg' => 'var(--danger-subtle)', 'border' => 'var(--danger-border)'],
 ];
 
 $levelConfig = [
     'critical' => ['label' => 'Critical', 'fg' => 'var(--danger)', 'bg' => 'var(--danger-subtle)'],
-    'high'     => ['label' => 'High',     'fg' => '#f97316', 'bg' => '#fff7ed'],
+    'high'     => ['label' => 'High',     'fg' => 'var(--orange)', 'bg' => 'var(--warning-subtle)'],
     'medium'   => ['label' => 'Medium',   'fg' => 'var(--warning)', 'bg' => 'var(--warning-subtle)'],
     'low'      => ['label' => 'Low',      'fg' => 'var(--success)', 'bg' => 'var(--success-subtle)'],
 ];
@@ -55,7 +55,7 @@ if ($filterStatus !== '') {
 <!-- KPI Strip -->
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;">
 
-  <div class="card" style="border-left:4px solid #16a34a;">
+  <div class="card" style="border-left:4px solid var(--primary);">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
       <div style="width:44px;height:44px;border-radius:10px;background:var(--success-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
         <i class="bi bi-patch-check-fill" style="font-size:20px;color:var(--primary);"></i>
@@ -67,19 +67,19 @@ if ($filterStatus !== '') {
     </div>
   </div>
 
-  <div class="card" style="border-left:4px solid <?= $expiringSoon > 0 ? 'var(--warning)' : '#a1a1aa' ?>;">
+  <div class="card" style="border-left:4px solid <?= $expiringSoon > 0 ? 'var(--warning)' : 'var(--neutral)' ?>;">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
       <div style="width:44px;height:44px;border-radius:10px;background:<?= $expiringSoon > 0 ? 'var(--warning-subtle)' : 'var(--bg-secondary)' ?>;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-        <i class="bi bi-alarm-fill" style="font-size:20px;color:<?= $expiringSoon > 0 ? 'var(--warning)' : '#a1a1aa' ?>;"></i>
+        <i class="bi bi-alarm-fill" style="font-size:20px;color:<?= $expiringSoon > 0 ? 'var(--warning)' : 'var(--neutral)' ?>;"></i>
       </div>
       <div>
-        <div style="font-size:26px;font-weight:700;line-height:1;color:<?= $expiringSoon > 0 ? 'var(--warning)' : '#a1a1aa' ?>;"><?= $expiringSoon ?></div>
+        <div style="font-size:26px;font-weight:700;line-height:1;color:<?= $expiringSoon > 0 ? 'var(--warning)' : 'var(--neutral)' ?>;"><?= $expiringSoon ?></div>
         <div style="font-size:12px;color:var(--text-muted);margin-top:3px;">Expiring &lt;30 Days</div>
       </div>
     </div>
   </div>
 
-  <div class="card" style="border-left:4px solid #71717a;">
+  <div class="card" style="border-left:4px solid var(--neutral);">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
       <div style="width:44px;height:44px;border-radius:10px;background:var(--bg-secondary);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
         <i class="bi bi-calendar-x-fill" style="font-size:20px;color:var(--text-muted);"></i>
@@ -91,7 +91,7 @@ if ($filterStatus !== '') {
     </div>
   </div>
 
-  <div class="card" style="border-left:4px solid #dc2626;">
+  <div class="card" style="border-left:4px solid var(--danger);">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
       <div style="width:44px;height:44px;border-radius:10px;background:var(--danger-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
         <i class="bi bi-x-circle-fill" style="font-size:20px;color:var(--danger);"></i>
@@ -152,7 +152,7 @@ if ($filterStatus !== '') {
       </thead>
       <tbody>
         <?php foreach ($displayed as $acc):
-          $sc = $statusConfig[$acc['status']] ?? ['label' => ucfirst($acc['status']), 'fg' => '#71717a', 'bg' => '#f4f4f5', 'border' => '#e4e4e7'];
+          $sc = $statusConfig[$acc['status']] ?? ['label' => ucfirst($acc['status']), 'fg' => 'var(--neutral)', 'bg' => 'var(--bg-subtle)', 'border' => 'var(--border)'];
           $lc = $levelConfig[strtolower($acc['risk_level_at_acceptance'] ?? '')] ?? null;
 
           $acceptanceScore = (int)($acc['risk_score_at_acceptance'] ?? 0);

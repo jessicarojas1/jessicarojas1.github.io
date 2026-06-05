@@ -1,5 +1,6 @@
 <?php
 // Variables: $policy, $existing (existing attestation record or null)
+$breadcrumbs = [['Policies', '/policy'], ['My Attestations', '/policy/my-attestations'], ['Attest', null]];
 ?>
 
 <div class="page-header">
@@ -69,7 +70,7 @@
         </div>
 
         <div class="form-actions">
-          <button type="submit" id="attest-btn" class="btn btn-primary" disabled>
+          <button type="submit" id="attest-btn" class="btn btn-primary">
             <i class="bi bi-pen-fill"></i> I Attest
           </button>
           <a href="/policy/<?= $policy['id'] ?>" class="btn btn-ghost">Cancel</a>
@@ -98,6 +99,7 @@
 
   if (checkbox) {
     checkbox.addEventListener('change', updateBtn);
+    updateBtn(); // set initial state: disabled until checkbox is checked
   }
 
   // Hide scroll hint once user has scrolled near the bottom

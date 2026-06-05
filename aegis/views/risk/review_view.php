@@ -6,23 +6,23 @@ $nonce = Security::nonce();
 ob_start();
 
 $statusColors = [
-    'planned'     => ['#3b82f6','var(--info-subtle)','var(--info-border)'],
+    'planned'     => ['var(--info)','var(--info-subtle)','var(--info-border)'],
     'in_progress' => ['var(--warning)','var(--warning-subtle)','#fde68a'],
     'completed'   => ['var(--primary)','var(--success-subtle)','#bbf7d0'],
-    'cancelled'   => ['#71717a','#f9fafb','#e4e4e7'],
+    'cancelled'   => ['var(--neutral)','var(--surface-alt)','var(--border)'],
 ];
 [$stFg,$stBg,$stBd] = $statusColors[$review['status']] ?? $statusColors['planned'];
 
 $typeLabels = ['periodic'=>'Periodic','triggered'=>'Triggered','ad_hoc'=>'Ad Hoc','board'=>'Board'];
 $itemStatusColors = [
-    'pending'        => '#71717a',
+    'pending'        => 'var(--text-muted)',
     'reviewed'       => 'var(--primary)',
     'escalated'      => 'var(--danger)',
     'deferred'       => 'var(--warning)',
-    'not_applicable' => '#a1a1aa',
+    'not_applicable' => 'var(--text-muted)',
 ];
 $riskLevelFn = fn(int $s) => $s > 14 ? 'Critical' : ($s > 9 ? 'High' : ($s > 4 ? 'Medium' : 'Low'));
-$riskColors  = ['Critical'=>'var(--danger)','High'=>'#f97316','Medium'=>'var(--warning)','Low'=>'var(--success)'];
+$riskColors  = ['Critical'=>'var(--danger)','High'=>'var(--orange)','Medium'=>'var(--warning)','Low'=>'var(--success)'];
 
 // Group items
 $groups = ['pending'=>[],'reviewed'=>[],'escalated'=>[],'deferred'=>[],'not_applicable'=>[]];
@@ -101,7 +101,7 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
 </div>
 
 <?php if ($review['status'] === 'completed'): ?>
-<div class="card" style="margin-bottom:16px;border-left:4px solid #16a34a">
+<div class="card" style="margin-bottom:16px;border-left:4px solid var(--primary)">
   <div class="card-body" style="display:flex;gap:24px;flex-wrap:wrap">
     <div><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">Completed</div><div style="font-weight:600"><?= Security::h($review['completed_date'] ?? '—') ?></div></div>
     <div><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">Signed Off By</div><div style="font-weight:600"><?= Security::h($review['sign_off_name'] ?? '—') ?></div></div>
@@ -163,7 +163,7 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
             <a href="/risk/<?= $item['risk_id'] ?>" class="fw-500 table-link" style="font-size:13px" target="_blank">
               <?= Security::h($item['title']) ?>
             </a>
-            <div style="font-size:11px;color:#a1a1aa;margin-top:2px"><?= Security::h($item['risk_code'] ?? '—') ?></div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:2px"><?= Security::h($item['risk_code'] ?? '—') ?></div>
           </td>
           <td>
             <?php if ($item['category_name']): ?>
@@ -197,7 +197,7 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
               <span style="color:var(--danger)">✗ Treatment inadequate</span><br>
             <?php endif; ?>
             <?php if ($item['reviewer_notes']): ?><div style="color:var(--text-muted);margin-top:4px;font-style:italic"><?= Security::h($item['reviewer_notes']) ?></div><?php endif; ?>
-            <?php if ($item['reviewer_name']): ?><div style="color:#a1a1aa;margin-top:4px">— <?= Security::h($item['reviewer_name']) ?></div><?php endif; ?>
+            <?php if ($item['reviewer_name']): ?><div style="color:var(--text-muted);margin-top:4px">— <?= Security::h($item['reviewer_name']) ?></div><?php endif; ?>
           </td>
           <?php endif; ?>
           <?php if ($canAct): ?>

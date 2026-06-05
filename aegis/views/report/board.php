@@ -240,7 +240,7 @@ $nonce = Security::nonce();
   display: none;
   text-align: center;
   font-size: 11px;
-  color: #a1a1aa;
+  color: var(--text-muted);
   border-top: 1px solid #e4e4e7;
   padding-top: 12px;
   margin-top: 40px;
@@ -294,7 +294,7 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
   .bp-stat-grid  { grid-template-columns: repeat(6,1fr); gap: 8px; }
   .bp-stat       { box-shadow: none; border: 1px solid #d4d4d8; padding: 12px 8px; }
   .bp-stat .stat-val { font-size: 24px; }
-  .card          { box-shadow: none !important; border: 1px solid #e4e4e7 !important; }
+  .card          { box-shadow: none !important; border: 1px solid var(--border) !important; }
   .bp-footer     { display: block !important; }
   canvas         { max-width: 100% !important; }
   a              { color: inherit !important; text-decoration: none !important; }
@@ -342,15 +342,15 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
     <div class="stat-lbl">Total Risks</div>
   </div>
 
-  <div class="bp-stat" style="border-top:4px solid #dc2626;">
+  <div class="bp-stat" style="border-top:4px solid var(--danger);">
     <i class="bi bi-exclamation-octagon-fill" style="color:var(--danger);"></i>
     <span class="stat-val" style="color:var(--danger);"><?= $criticalRisks ?></span>
     <div class="stat-lbl">Critical</div>
   </div>
 
-  <div class="bp-stat" style="border-top:4px solid #f97316;">
-    <i class="bi bi-exclamation-triangle-fill" style="color:#f97316;"></i>
-    <span class="stat-val" style="color:#f97316;"><?= $highRisks ?></span>
+  <div class="bp-stat" style="border-top:4px solid var(--orange);">
+    <i class="bi bi-exclamation-triangle-fill" style="color:var(--orange);"></i>
+    <span class="stat-val" style="color:var(--orange);"><?= $highRisks ?></span>
     <div class="stat-lbl">High</div>
   </div>
 
@@ -360,13 +360,13 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
     <div class="stat-lbl">Appetite Breaches</div>
   </div>
 
-  <div class="bp-stat" style="border-top:4px solid #d97706;">
+  <div class="bp-stat" style="border-top:4px solid var(--warning);">
     <i class="bi bi-tools" style="color:var(--warning);"></i>
     <span class="stat-val" style="color:var(--warning);"><?= $tbOverdue ?></span>
     <div class="stat-lbl">Overdue Treatments</div>
   </div>
 
-  <div class="bp-stat" style="border-top:4px solid #059669;">
+  <div class="bp-stat" style="border-top:4px solid var(--success);">
     <i class="bi bi-check2-circle" style="color:var(--success);"></i>
     <span class="stat-val" style="color:var(--success);"><?= $complianceAvg ?>%</span>
     <div class="stat-lbl">Compliance Avg</div>
@@ -395,7 +395,7 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
         <?php foreach ($topRisks as $r):
           $sc = (int)($r['inherent_score'] ?? 0);
           if ($sc > 20)       { $sc_bg = 'var(--danger-subtle)'; $sc_cl = 'var(--danger)'; $level = 'CRITICAL'; }
-          elseif ($sc > 14)   { $sc_bg = '#fff7ed'; $sc_cl = '#ea580c'; $level = 'CRITICAL'; }
+          elseif ($sc > 14)   { $sc_bg = 'var(--warning-subtle)'; $sc_cl = 'var(--orange)'; $level = 'CRITICAL'; }
           elseif ($sc >= 10)  { $sc_bg = 'var(--warning-subtle)'; $sc_cl = 'var(--warning)'; $level = 'HIGH'; }
           else                { $sc_bg = 'var(--success-subtle)'; $sc_cl = 'var(--primary)'; $level = 'MEDIUM'; }
 
@@ -403,7 +403,7 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
           $reviewDt = $r['review_date'] ? date('j M Y', strtotime($r['review_date'])) : '—';
           $isOverdue = $r['review_date'] && strtotime($r['review_date']) < time();
         ?>
-        <tr style="border-bottom:1px solid #f4f4f5;">
+        <tr style="border-bottom:1px solid var(--border);">
           <td style="padding:10px 12px;font-size:11px;font-weight:700;color:var(--primary);white-space:nowrap;"><?= Security::h($r['risk_id'] ?? '#' . $r['id']) ?></td>
           <td style="padding:10px 12px;font-weight:500;max-width:220px;">
             <a href="/risk/<?= (int)$r['id'] ?>" style="color:var(--text);text-decoration:none;"><?= Security::h($r['title']) ?></a>
@@ -417,10 +417,10 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
             <?php if ($strategy && $strategy !== '—'): ?>
             <span style="display:inline-block;background:rgba(55,65,81,.08);color:var(--secondary);font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;"><?= $strategy ?></span>
             <?php else: ?>
-            <span style="color:#a1a1aa;font-size:12px;">—</span>
+            <span style="color:var(--text-muted);font-size:12px;">—</span>
             <?php endif; ?>
           </td>
-          <td style="padding:10px 12px;font-size:12px;white-space:nowrap;color:<?= $isOverdue ? 'var(--danger)' : '#52525b' ?>;">
+          <td style="padding:10px 12px;font-size:12px;white-space:nowrap;color:<?= $isOverdue ? 'var(--danger)' : 'var(--text-muted)' ?>;">
             <?= $reviewDt ?>
             <?php if ($isOverdue): ?><i class="bi bi-exclamation-circle-fill" style="color:var(--danger);margin-left:4px;"></i><?php endif; ?>
           </td>
@@ -429,7 +429,7 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
       </tbody>
     </table>
     <?php else: ?>
-    <p style="text-align:center;color:#a1a1aa;padding:24px;">No critical or high risks found.</p>
+    <p style="text-align:center;color:var(--text-muted);padding:24px;">No critical or high risks found.</p>
     <?php endif; ?>
   </div>
 </div>
@@ -441,7 +441,7 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
     <?php if ($riskTrend): ?>
     <canvas id="bpTrendChart" height="280" style="max-width:100%;display:block;"></canvas>
     <?php else: ?>
-    <p style="text-align:center;color:#a1a1aa;padding:32px 0;">No trend data available. Risk score history will appear here once recorded.</p>
+    <p style="text-align:center;color:var(--text-muted);padding:32px 0;">No trend data available. Risk score history will appear here once recorded.</p>
     <?php endif; ?>
   </div>
 </div>
@@ -460,19 +460,19 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
       <div class="cp-bar-label">
         <div style="font-weight:600;"><?= Security::h($cp['name']) ?></div>
         <?php if (!empty($cp['standard'])): ?>
-        <div style="font-size:11px;color:#a1a1aa;"><?= Security::h($cp['standard']) ?></div>
+        <div style="font-size:11px;color:var(--text-muted);"><?= Security::h($cp['standard']) ?></div>
         <?php endif; ?>
       </div>
       <div class="cp-bar-track">
         <div class="cp-bar-fill" style="width:<?= $pct ?>%;background:<?= $bar_cl ?>;"></div>
       </div>
       <div class="cp-bar-pct" style="color:<?= $bar_cl ?>;"><?= $pct ?>%</div>
-      <div style="font-size:11px;color:#a1a1aa;min-width:100px;text-align:right;">
+      <div style="font-size:11px;color:var(--text-muted);min-width:100px;text-align:right;">
         <?= (int)($cp['compliant'] ?? 0) ?>/<?= (int)($cp['total_controls'] ?? 0) ?> controls
       </div>
     </div>
     <?php endforeach; else: ?>
-    <p style="text-align:center;color:#a1a1aa;padding:24px;">No compliance packages configured.</p>
+    <p style="text-align:center;color:var(--text-muted);padding:24px;">No compliance packages configured.</p>
     <?php endif; ?>
   </div>
 </div>
@@ -497,7 +497,7 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
         <?php foreach ($appetiteBreaches as $ab):
           $breach = (int)($ab['inherent_score'] ?? 0) - (int)($ab['max_score'] ?? 0);
         ?>
-        <tr style="border-bottom:1px solid #f4f4f5;">
+        <tr style="border-bottom:1px solid var(--border);">
           <td style="padding:10px 12px;font-weight:500;"><?= Security::h($ab['title']) ?></td>
           <td style="padding:10px 12px;color:var(--text-muted);font-size:12px;"><?= Security::h($ab['category_name'] ?? '—') ?></td>
           <td style="padding:10px 12px;text-align:center;">
@@ -524,12 +524,12 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
   <div class="bp-section-body">
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;">
       <div style="text-align:center;padding:16px;background:var(--bg-secondary);border-radius:10px;border:1px solid var(--border);">
-        <div style="font-size:28px;font-weight:800;color:#6366f1;"><?= $incTotal ?></div>
-        <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em;">Total Incidents</div>
+        <div style="font-size:28px;font-weight:800;color:var(--indigo);"><?= $incTotal ?></div>
+        <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Total Incidents</div>
       </div>
       <div style="text-align:center;padding:16px;background:var(--bg-secondary);border-radius:10px;border:1px solid var(--border);">
 
-        <div style="font-size:28px;font-weight:800;color:#f97316;"><?= $incOpen ?></div>
+        <div style="font-size:28px;font-weight:800;color:var(--orange);"><?= $incOpen ?></div>
         <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Open</div>
       </div>
       <div style="text-align:center;padding:16px;background:var(--bg-secondary);border-radius:10px;border:1px solid var(--border);">
@@ -550,19 +550,19 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
   <div class="bp-section-body">
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;">
       <div style="text-align:center;padding:16px;background:var(--bg-secondary);border-radius:10px;border:1px solid var(--border);">
-        <div style="font-size:28px;font-weight:800;color:#6366f1;"><?= $tbTotal ?></div>
-        <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em;">Total Actions</div>
+        <div style="font-size:28px;font-weight:800;color:var(--indigo);"><?= $tbTotal ?></div>
+        <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Total Actions</div>
       </div>
       <div style="text-align:center;padding:16px;background:var(--bg-secondary);border-radius:10px;border:1px solid var(--border);">
-        <div style="font-size:28px;font-weight:800;color:#64748b;"><?= $tbPlanned ?></div>
-        <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em;">Planned</div>
+        <div style="font-size:28px;font-weight:800;color:var(--text-muted);"><?= $tbPlanned ?></div>
+        <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Planned</div>
       </div>
       <div style="text-align:center;padding:16px;background:var(--bg-secondary);border-radius:10px;border:1px solid var(--border);">
 
         <div style="font-size:28px;font-weight:800;color:var(--warning);"><?= $tbInProg ?></div>
         <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">In Progress</div>
       </div>
-      <div style="text-align:center;padding:16px;background:#f9fafb;border-radius:10px;border:1px solid <?= $tbOverdue > 0 ? 'var(--danger)' : '#e4e4e7' ?>;">
+      <div style="text-align:center;padding:16px;background:var(--surface-alt);border-radius:10px;border:1px solid <?= $tbOverdue > 0 ? 'var(--danger)' : 'var(--border)' ?>;">
         <div style="font-size:28px;font-weight:800;color:<?= $tbOverdue > 0 ? 'var(--danger)' : 'var(--success)' ?>;"><?= $tbOverdue ?></div>
         <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Overdue</div>
       </div>
@@ -593,7 +593,7 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
           $amber   = $kri['threshold_amber'];
           $red     = $kri['threshold_red'];
           if ($val === null) {
-              $ragColor = '#a1a1aa'; $ragLabel = 'N/A';
+              $ragColor = 'var(--text-muted)'; $ragLabel = 'N/A';
           } elseif ($red !== null && (float)$val >= (float)$red) {
               $ragColor = 'var(--danger)'; $ragLabel = 'RED';
           } elseif ($amber !== null && (float)$val >= (float)$amber) {
@@ -603,7 +603,7 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
           }
           $recDate = $kri['latest_date'] ? date('j M Y', strtotime($kri['latest_date'])) : '—';
         ?>
-        <tr style="border-bottom:1px solid #f4f4f5;">
+        <tr style="border-bottom:1px solid var(--border);">
           <td style="padding:10px 12px;font-weight:500;"><?= Security::h($kri['title']) ?></td>
           <td style="padding:10px 12px;color:var(--text-muted);font-size:12px;"><?= Security::h($kri['risk_title'] ?? '—') ?></td>
           <td style="padding:10px 12px;text-align:center;font-weight:700;">
@@ -622,7 +622,7 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
       </tbody>
     </table>
     <?php else: ?>
-    <p style="text-align:center;color:#a1a1aa;padding:24px;">No active KRIs configured.</p>
+    <p style="text-align:center;color:var(--text-muted);padding:24px;">No active KRIs configured.</p>
     <?php endif; ?>
   </div>
 </div>
@@ -645,9 +645,9 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
       <tbody>
         <?php foreach ($upcomingReviews as $ur):
           $sc2 = (int)($ur['inherent_score'] ?? 0);
-          $sc2_cl = $sc2 > 14 ? 'var(--danger)' : ($sc2 >= 10 ? 'var(--warning)' : '#71717a');
+          $sc2_cl = $sc2 > 14 ? 'var(--danger)' : ($sc2 >= 10 ? 'var(--warning)' : 'var(--text-muted)');
         ?>
-        <tr style="border-bottom:1px solid #f4f4f5;">
+        <tr style="border-bottom:1px solid var(--border);">
           <td style="padding:10px 12px;font-size:11px;font-weight:700;color:var(--primary);"><?= Security::h($ur['risk_id'] ?? '—') ?></td>
           <td style="padding:10px 12px;font-weight:500;"><?= Security::h($ur['title']) ?></td>
           <td style="padding:10px 12px;text-align:center;">
@@ -660,7 +660,7 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
       </tbody>
     </table>
     <?php else: ?>
-    <p style="text-align:center;color:#a1a1aa;padding:24px;">No risk reviews due in the next 30 days.</p>
+    <p style="text-align:center;color:var(--text-muted);padding:24px;">No risk reviews due in the next 30 days.</p>
     <?php endif; ?>
   </div>
 </div>
@@ -677,8 +677,8 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
   var canvas = document.getElementById('bpTrendChart');
   if (!canvas) return;
 
-  var labels = <?= json_encode(array_values($trendWeeks), JSON_UNESCAPED_UNICODE) ?>;
-  var scores = <?= json_encode(array_values($trendScores)) ?>;
+  var labels = <?= json_encode(array_values($trendWeeks), JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>;
+  var scores = <?= json_encode(array_values($trendScores), JSON_HEX_TAG | JSON_HEX_AMP) ?>;
 
   var ctx = canvas.getContext('2d');
   var W = canvas.parentElement.clientWidth || 800;

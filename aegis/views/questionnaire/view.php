@@ -47,7 +47,7 @@ ob_start();
       <div class="card-body" style="padding:.5rem 0">
 
         <?php if (empty($sections)): ?>
-          <div class="empty-state" style="padding:2rem">
+          <div class="empty-state">
             <p class="text-muted">No questions added yet.</p>
           </div>
         <?php else: ?>
@@ -113,7 +113,7 @@ ob_start();
       </div>
       <div class="card-body p0">
         <?php if (empty($assignments)): ?>
-          <div class="empty-state" style="padding:2rem">
+          <div class="empty-state">
             <p class="text-muted">No assignments yet.</p>
           </div>
         <?php else: ?>

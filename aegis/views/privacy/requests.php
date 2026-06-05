@@ -59,7 +59,7 @@ $typeColors = ['access'=>'blue','erasure'=>'red','rectification'=>'yellow','port
       </tbody>
     </table>
     <?php else: ?>
-    <div class="empty-state" style="padding:60px 20px">
+    <div class="empty-state">
       <div class="empty-icon"><i class="bi bi-person-lines-fill"></i></div>
       <h3>No data subject requests</h3>
       <p>Log incoming GDPR data subject requests to track them through to resolution.</p>

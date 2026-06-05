@@ -76,7 +76,7 @@ ob_start();
 <div class="card">
   <div class="card-body p0">
     <?php if (empty($exceptions)): ?>
-      <div class="empty-state" style="padding:3rem;text-align:center;">
+      <div class="empty-state">
         <i class="bi bi-shield-slash" style="font-size:2.5rem;opacity:.3;display:block;margin-bottom:12px;"></i>
         <p style="color:var(--text-muted);">No risk exceptions found.</p>
         <p style="font-size:13px;color:var(--text-light);">To request an exception, open a risk and click &ldquo;Request Exception&rdquo;.</p>

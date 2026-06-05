@@ -2,6 +2,7 @@
 $entityTypes = ['risk','policy','audit','incident','vendor','control','asset'];
 $activeTab   = Security::sanitizeInput($_GET['tab'] ?? 'risk');
 if (!in_array($activeTab, $entityTypes, true)) $activeTab = 'risk';
+$breadcrumbs = [['Admin', '/admin'], ['Custom Fields', null]];
 ?>
 
 <?php if (!empty($_SESSION['flash_success'])): ?><div class="alert-box success"><i class="bi bi-check-circle-fill"></i> <?= Security::h($_SESSION['flash_success']) ?></div><?php unset($_SESSION['flash_success']); endif; ?>
@@ -139,7 +140,7 @@ if (!in_array($activeTab, $entityTypes, true)) $activeTab = 'risk';
       </tbody>
     </table>
     <?php else: ?>
-    <div class="empty-state-sm" style="padding:48px;text-align:center">
+    <div class="empty-state-sm">
       <i class="bi bi-sliders" style="font-size:2rem;color:var(--text-muted)"></i>
       <p style="margin-top:12px;color:var(--text-muted)">No custom fields defined for <strong><?= ucfirst($activeTab) ?></strong> yet.</p>
       <button class="btn btn-primary btn-sm" data-click="toggleAddForm" style="margin-top:8px"><i class="bi bi-plus-lg"></i> Add the first field</button>

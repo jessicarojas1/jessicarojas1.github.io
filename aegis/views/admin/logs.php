@@ -246,7 +246,7 @@ ob_start();
       <?php if ($page > 1): ?>
         <a href="?page=<?= $page - 1 ?><?= $qs ?>" class="btn btn-ghost btn-sm"><i class="bi bi-chevron-left"></i> Prev</a>
       <?php else: ?>
-        <button class="btn btn-ghost btn-sm" disabled style="opacity:.4"><i class="bi bi-chevron-left"></i> Prev</button>
+        <button class="btn btn-ghost btn-sm" <?= $page <= 1 ? 'disabled' : '' ?> style="opacity:.4"><i class="bi bi-chevron-left"></i> Prev</button>
       <?php endif; ?>
 
       <?php
@@ -264,7 +264,7 @@ ob_start();
       <?php if ($page < $totalPages): ?>
         <a href="?page=<?= $page + 1 ?><?= $qs ?>" class="btn btn-ghost btn-sm">Next <i class="bi bi-chevron-right"></i></a>
       <?php else: ?>
-        <button class="btn btn-ghost btn-sm" disabled style="opacity:.4">Next <i class="bi bi-chevron-right"></i></button>
+        <button class="btn btn-ghost btn-sm" <?= $page >= $totalPages ? 'disabled' : '' ?> style="opacity:.4">Next <i class="bi bi-chevron-right"></i></button>
       <?php endif; ?>
     </div>
     <span style="font-size:.82rem;color:var(--text-muted)">
