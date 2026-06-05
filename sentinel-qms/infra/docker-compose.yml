@@ -127,7 +127,9 @@ services:
       context: ../frontend
       dockerfile: Dockerfile
       args:
-        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8000}
+        # Relative path: the SPA calls /api/v1/* and nginx proxies it to the
+        # backend service (see frontend/nginx.conf), avoiding cross-origin calls.
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api/v1}
     image: sentinel-qms/frontend:local
     container_name: sentinel-frontend
     restart: unless-stopped

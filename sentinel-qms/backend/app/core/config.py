@@ -49,6 +49,8 @@ class Settings(BaseSettings):
     LOCAL_STORAGE_DIR: str = "./var/uploads"
     S3_BUCKET: str = ""
     S3_REGION: str = "us-gov-west-1"
+    # Custom S3 endpoint (e.g. MinIO for local dev). Empty = default AWS endpoint.
+    S3_ENDPOINT_URL: str = ""
     AZURE_STORAGE_CONNECTION_STRING: str = ""
     AZURE_STORAGE_CONTAINER: str = "sentinel-qms"
 

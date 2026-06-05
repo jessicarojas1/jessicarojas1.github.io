@@ -101,21 +101,31 @@ class S3Storage(StorageBackend):
 
     backend_name = "s3"
 
-    def __init__(self, bucket: str, region: str):
+    def __init__(self, bucket: str, region: str, endpoint_url: str | None = None):
         import boto3
+        from botocore.config import Config
 
         self.bucket = bucket
-        self.client = boto3.client("s3", region_name=region)
+        # A custom endpoint (e.g. MinIO) needs path-style addressing and does not
+        # support SSE-KMS; real AWS GovCloud S3 keeps virtual-host + KMS.
+        self.use_kms = not endpoint_url
+        client_kwargs: dict = {"region_name": region}
+        if endpoint_url:
+            client_kwargs["endpoint_url"] = endpoint_url
+            client_kwargs["config"] = Config(s3={"addressing_style": "path"})
+        self.client = boto3.client("s3", **client_kwargs)
 
     def save(self, data: bytes, *, content_type: str, original_filename: str) -> StoredObject:
         key = self._randomized_key(original_filename, content_type)
-        self.client.put_object(
-            Bucket=self.bucket,
-            Key=key,
-            Body=data,
-            ContentType=content_type,
-            ServerSideEncryption="aws:kms",
-        )
+        put_kwargs: dict = {
+            "Bucket": self.bucket,
+            "Key": key,
+            "Body": data,
+            "ContentType": content_type,
+        }
+        if self.use_kms:
+            put_kwargs["ServerSideEncryption"] = "aws:kms"
+        self.client.put_object(**put_kwargs)
         return StoredObject(
             key=key,
             size_bytes=len(data),
@@ -190,7 +200,11 @@ def get_storage() -> StorageBackend:
         return _backend
 
     if settings.STORAGE_BACKEND == "s3" and settings.S3_BUCKET:
-        _backend = S3Storage(settings.S3_BUCKET, settings.S3_REGION)
+        _backend = S3Storage(
+            settings.S3_BUCKET,
+            settings.S3_REGION,
+            endpoint_url=settings.S3_ENDPOINT_URL or None,
+        )
     elif settings.STORAGE_BACKEND == "azure_blob" and settings.AZURE_STORAGE_CONNECTION_STRING:
         _backend = AzureBlobStorage(
             settings.AZURE_STORAGE_CONNECTION_STRING, settings.AZURE_STORAGE_CONTAINER
