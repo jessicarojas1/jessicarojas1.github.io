@@ -11,6 +11,13 @@ class AdminController {
              ORDER BY al.created_at DESC LIMIT 20"
         );
         $settings = Database::fetchAll("SELECT * FROM settings ORDER BY key");
+        $sensitiveKeys = ['sso_client_secret', 'smtp_password', 'webhook_secret'];
+        foreach ($settings as &$s) {
+            if (in_array($s['key'], $sensitiveKeys, true) && !empty($s['value'])) {
+                $s['value'] = '••••••••';
+            }
+        }
+        unset($s);
         $settingsMap = array_column($settings, 'value', 'key');
 
         require AEGIS_ROOT . '/views/admin/index.php';

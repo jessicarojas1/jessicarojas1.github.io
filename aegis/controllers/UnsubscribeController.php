@@ -6,6 +6,11 @@ class UnsubscribeController {
     public function unsubscribe(string $token): void {
         $token = Security::sanitizeInput($token);
 
+        if (!Security::checkRateLimit('unsub_' . hash('sha256', $token))) {
+            http_response_code(429);
+            echo 'Too many requests.'; exit;
+        }
+
         $row = Database::fetchOne(
             "SELECT * FROM email_unsubscribes WHERE token = ?",
             [$token]
@@ -55,6 +60,11 @@ class UnsubscribeController {
     public function verifyEmail(string $token): void {
         $token    = Security::sanitizeInput($token);
         $verified = false;
+
+        if (!Security::checkRateLimit('unsub_' . hash('sha256', $token))) {
+            http_response_code(429);
+            echo 'Too many requests.'; exit;
+        }
 
         $row = Database::fetchOne(
             "SELECT * FROM email_verification_tokens
