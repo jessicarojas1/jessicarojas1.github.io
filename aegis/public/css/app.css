@@ -1437,6 +1437,21 @@ input[type="range"] {
 .modal-header button { border: none; background: none; cursor: pointer; font-size: 18px; color: var(--text-muted); }
 .modal-body { padding: 24px; }
 
+/* Audit item status — dot + select */
+.audit-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; display:inline-block; }
+.audit-dot.s-compliant      { background: var(--success); }
+.audit-dot.s-partial        { background: var(--warning); }
+.audit-dot.s-non_compliant  { background: var(--danger); }
+.audit-dot.s-not_assessed   { background: var(--text-muted); }
+.audit-dot.s-not_applicable { background: var(--text-light); }
+
+.audit-status-sel { border-radius:99px; padding:4px 10px; font-size:12px; font-weight:600; cursor:pointer; appearance:none; -webkit-appearance:none; outline:none; border:1px solid; }
+.audit-status-sel.s-not_assessed   { background:var(--bg-subtle);     color:var(--text-muted); border-color:var(--border); }
+.audit-status-sel.s-not_applicable { background:var(--bg-subtle);     color:var(--text-muted); border-color:var(--border); }
+.audit-status-sel.s-compliant      { background:var(--success-subtle); color:var(--success);    border-color:var(--success); }
+.audit-status-sel.s-partial        { background:var(--warning-subtle); color:var(--warning);    border-color:var(--warning); }
+.audit-status-sel.s-non_compliant  { background:var(--danger-subtle);  color:var(--danger);     border-color:var(--danger); }
+
 /* AEGIS dialog panels (.um-*) — avoids Bootstrap .modal{display:none} conflict */
 .um-overlay { position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:1050; display:flex; align-items:center; justify-content:center; padding:20px; }
 .um-dialog  { background:var(--card-bg); border-radius:var(--radius-lg); box-shadow:var(--shadow-lg); width:100%; max-width:580px; max-height:90vh; overflow-y:auto; border:1px solid var(--border); position:relative; }
