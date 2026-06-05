@@ -160,10 +160,10 @@ $legendDefs = [
 </div>
 
 <!-- Cell detail modal -->
-<div class="modal-overlay" id="cellModal" style="display:none">
-  <div class="modal">
-    <div class="modal-header"><h3 id="cellModalTitle">Risks</h3><button data-click="closeCellModal"><i class="bi bi-x-lg"></i></button></div>
-    <div class="modal-body" id="cellModalBody"></div>
+<div class="um-overlay" id="cellModal" style="display:none">
+  <div class="um-dialog">
+    <div class="um-header"><h3 id="cellModalTitle">Risks</h3><button class="um-close" data-click="closeCellModal"><i class="bi bi-x-lg"></i></button></div>
+    <div class="um-body" id="cellModalBody"></div>
   </div>
 </div>
 

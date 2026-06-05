@@ -512,13 +512,13 @@ $csrfTokenPlaybook = Security::generateCsrfToken();
 
 <!-- Edit Modal -->
 <?php if (Auth::can('incident.write')): ?>
-<div class="modal-overlay" id="editModal" style="display:none">
-  <div class="modal" style="max-width:640px;width:100%">
-    <div class="modal-header">
+<div class="um-overlay" id="editModal" style="display:none">
+  <div class="um-dialog" style="max-width:640px;width:100%">
+    <div class="um-header">
       <span>Edit Incident</span>
-      <button data-close-modal="editModal"><i class="bi bi-x-lg"></i></button>
+      <button class="um-close" data-close-modal="editModal"><i class="bi bi-x-lg"></i></button>
     </div>
-    <div class="modal-body">
+    <div class="um-body">
       <form method="post" action="/incident/<?= $incident['id'] ?>/update">
         <input type="hidden" name="csrf_token" value="<?= Security::generateCsrfToken() ?>">
         <div class="form-row">

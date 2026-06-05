@@ -281,13 +281,13 @@ ob_start(); ?>
 
 <!-- Edit Change Modal -->
 <?php if (($isSubmitter && $change['status'] === 'draft') || $isAdmin): ?>
-<div class="modal-overlay" id="editChangeModal" style="display:none">
-  <div class="modal" style="max-width:680px;width:100%">
-    <div class="modal-header">
+<div class="um-overlay" id="editChangeModal" style="display:none">
+  <div class="um-dialog" style="max-width:680px;width:100%">
+    <div class="um-header">
       <span>Edit Change Request</span>
-      <button data-close-modal="editChangeModal"><i class="bi bi-x-lg"></i></button>
+      <button class="um-close" data-close-modal="editChangeModal"><i class="bi bi-x-lg"></i></button>
     </div>
-    <div class="modal-body">
+    <div class="um-body">
       <form method="POST" action="/change/<?= (int)$change['id'] ?>/edit">
         <?= Security::csrfField() ?>
         <div class="form-group" style="margin-bottom:14px">

@@ -131,13 +131,13 @@ ob_start();
 
 <!-- Edit Modal -->
 <?php if (Auth::can('issue.write')): ?>
-<div class="modal-overlay" id="editModal" style="display:none">
-  <div class="modal" style="max-width:600px;width:100%">
-    <div class="modal-header">
+<div class="um-overlay" id="editModal" style="display:none">
+  <div class="um-dialog" style="max-width:600px;width:100%">
+    <div class="um-header">
       <span>Edit Issue</span>
-      <button data-close-modal="editModal"><i class="bi bi-x-lg"></i></button>
+      <button class="um-close" data-close-modal="editModal"><i class="bi bi-x-lg"></i></button>
     </div>
-    <div class="modal-body">
+    <div class="um-body">
       <form method="post" action="/issue/<?= $issue['id'] ?>/update">
         <input type="hidden" name="csrf_token" value="<?= Security::generateCsrfToken() ?>">
         <div class="form-group"><label class="form-label">Title *</label><input name="title" class="form-control" value="<?= Security::h($issue['title']) ?>" required></div>

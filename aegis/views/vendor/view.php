@@ -241,13 +241,13 @@ $contracts = Database::fetchAll(
 
 <!-- Edit Modal -->
 <?php if (Auth::can('vendor.write')): ?>
-<div class="modal-overlay" id="editModal" style="display:none">
-  <div class="modal" style="max-width:680px;width:100%">
-    <div class="modal-header">
+<div class="um-overlay" id="editModal" style="display:none">
+  <div class="um-dialog" style="max-width:680px;width:100%">
+    <div class="um-header">
       <span>Edit Vendor</span>
-      <button data-close-modal="editModal"><i class="bi bi-x-lg"></i></button>
+      <button class="um-close" data-close-modal="editModal"><i class="bi bi-x-lg"></i></button>
     </div>
-    <div class="modal-body">
+    <div class="um-body">
       <form method="post" action="/vendor/<?= $vendor['id'] ?>/update">
         <input type="hidden" name="csrf_token" value="<?= Security::generateCsrfToken() ?>">
         <div class="form-row">
@@ -304,13 +304,13 @@ $contracts = Database::fetchAll(
 </div>
 
 <!-- Schedule Assessment Modal -->
-<div class="modal-overlay" id="assessModal" style="display:none">
-  <div class="modal" style="max-width:480px;width:100%">
-    <div class="modal-header">
+<div class="um-overlay" id="assessModal" style="display:none">
+  <div class="um-dialog" style="max-width:480px;width:100%">
+    <div class="um-header">
       <span>Schedule Assessment</span>
-      <button data-close-modal="assessModal"><i class="bi bi-x-lg"></i></button>
+      <button class="um-close" data-close-modal="assessModal"><i class="bi bi-x-lg"></i></button>
     </div>
-    <div class="modal-body">
+    <div class="um-body">
       <form method="post" action="/vendor/<?= $vendor['id'] ?>/assessment">
         <input type="hidden" name="csrf_token" value="<?= Security::generateCsrfToken() ?>">
         <div class="form-group"><label class="form-label">Assessment Type</label>
@@ -338,13 +338,13 @@ $contracts = Database::fetchAll(
 </div>
 
 <!-- Update Assessment Modal (populated by JS) -->
-<div class="modal-overlay" id="updateAssessModal" style="display:none">
-  <div class="modal" style="max-width:520px;width:100%">
-    <div class="modal-header">
+<div class="um-overlay" id="updateAssessModal" style="display:none">
+  <div class="um-dialog" style="max-width:520px;width:100%">
+    <div class="um-header">
       <span>Update Assessment</span>
-      <button data-close-modal="updateAssessModal"><i class="bi bi-x-lg"></i></button>
+      <button class="um-close" data-close-modal="updateAssessModal"><i class="bi bi-x-lg"></i></button>
     </div>
-    <div class="modal-body">
+    <div class="um-body">
       <form id="updateAssessForm" method="post">
         <input type="hidden" name="csrf_token" value="<?= Security::generateCsrfToken() ?>">
         <div class="form-row">
