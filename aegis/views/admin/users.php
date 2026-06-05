@@ -16,8 +16,8 @@ ob_start();
 
 <div class="page-header">
   <h1 class="page-title">User Management</h1>
-  <button class="btn btn-secondary" data-show-modal="importUsersModal"><i class="bi bi-upload"></i> Import Users</button>
-  <button class="btn btn-primary" data-show-modal="createUserModal"><i class="bi bi-person-plus-fill"></i> New User</button>
+  <button id="btnOpenImport" class="btn btn-secondary"><i class="bi bi-upload"></i> Import Users</button>
+  <button id="btnOpenCreate" class="btn btn-primary"><i class="bi bi-person-plus-fill"></i> New User</button>
 </div>
 
 <div class="card">
@@ -58,11 +58,21 @@ ob_start();
   </div>
 </div>
 
-<!-- Create User Modal -->
-<div class="modal-overlay" id="createUserModal" style="display:none">
-  <div class="modal">
-    <div class="modal-header"><h3><i class="bi bi-person-plus-fill"></i> New User</h3><button data-close-modal="createUserModal"><i class="bi bi-x-lg"></i></button></div>
-    <div class="modal-body">
+<!-- ============================================================
+     DIALOGS — use .um-* classes to avoid Bootstrap .modal conflict
+     Bootstrap 5 sets .modal{display:none} globally which hides
+     any inner element with class="modal". These dialogs use
+     class="um-dialog" instead.
+     ============================================================ -->
+
+<!-- Create User Dialog -->
+<div id="dlgCreateUser" class="um-overlay" style="display:none">
+  <div class="um-dialog">
+    <div class="um-header">
+      <h3 style="margin:0;font-size:1rem;font-weight:700"><i class="bi bi-person-plus-fill"></i> New User</h3>
+      <button type="button" class="um-close" data-close-dialog="dlgCreateUser"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="um-body">
       <form method="POST" action="/admin/users/create">
         <?= Security::csrfField() ?>
         <div class="form-row">
@@ -84,20 +94,26 @@ ob_start();
           </div>
           <div class="form-group">
             <label class="form-label required">Password</label>
-            <input type="password" id="newUserPassword" name="password" class="form-control" required placeholder="Enter a password" autocomplete="new-password">
+            <input type="password" name="password" class="form-control" required minlength="8" placeholder="Min 8 characters" autocomplete="new-password">
           </div>
         </div>
-        <div class="form-actions"><button type="submit" id="btnCreateUser" class="btn btn-primary">Create User</button><button type="button" class="btn btn-ghost" data-close-modal="createUserModal">Cancel</button></div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Create User</button>
+          <button type="button" class="btn btn-ghost" data-close-dialog="dlgCreateUser">Cancel</button>
+        </div>
       </form>
     </div>
   </div>
 </div>
 
-<!-- Edit User Modal -->
-<div class="modal-overlay" id="editUserModal" style="display:none">
-  <div class="modal">
-    <div class="modal-header"><h3><i class="bi bi-pencil-fill"></i> Edit User</h3><button data-close-modal="editUserModal"><i class="bi bi-x-lg"></i></button></div>
-    <div class="modal-body">
+<!-- Edit User Dialog -->
+<div id="dlgEditUser" class="um-overlay" style="display:none">
+  <div class="um-dialog">
+    <div class="um-header">
+      <h3 style="margin:0;font-size:1rem;font-weight:700"><i class="bi bi-pencil-fill"></i> Edit User</h3>
+      <button type="button" class="um-close" data-close-dialog="dlgEditUser"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="um-body">
       <form method="POST" id="editUserForm" action="">
         <?= Security::csrfField() ?>
         <div class="form-row">
@@ -117,24 +133,30 @@ ob_start();
         </div>
         <div class="form-group">
           <label class="form-label">New Password <span class="text-muted">(leave blank to keep current)</span></label>
-          <input type="password" name="new_password" class="form-control" placeholder="Min 12 chars" minlength="12">
+          <input type="password" name="new_password" class="form-control" placeholder="Enter new password" autocomplete="new-password">
         </div>
         <div class="form-group">
           <label class="form-label" style="display:flex;align-items:center;gap:8px;cursor:pointer">
             <input type="checkbox" name="is_active" id="eu_active" value="1"> Active account
           </label>
         </div>
-        <div class="form-actions"><button type="submit" class="btn btn-primary">Save Changes</button><button type="button" class="btn btn-ghost" data-close-modal="editUserModal">Cancel</button></div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+          <button type="button" class="btn btn-ghost" data-close-dialog="dlgEditUser">Cancel</button>
+        </div>
       </form>
     </div>
   </div>
 </div>
 
-<!-- Import Users Modal -->
-<div class="modal-overlay" id="importUsersModal" style="display:none">
-  <div class="modal">
-    <div class="modal-header"><h3><i class="bi bi-upload"></i> Import Users</h3><button data-close-modal="importUsersModal"><i class="bi bi-x-lg"></i></button></div>
-    <div class="modal-body">
+<!-- Import Users Dialog -->
+<div id="dlgImportUsers" class="um-overlay" style="display:none">
+  <div class="um-dialog">
+    <div class="um-header">
+      <h3 style="margin:0;font-size:1rem;font-weight:700"><i class="bi bi-upload"></i> Import Users</h3>
+      <button type="button" class="um-close" data-close-dialog="dlgImportUsers"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="um-body">
       <form method="POST" action="/admin/users/import" enctype="multipart/form-data">
         <?= Security::csrfField() ?>
         <div class="form-group">
@@ -155,29 +177,139 @@ ob_start();
               <tr><td><code>role</code></td><td>admin / manager / auditor / analyst / viewer</td><td>Yes</td></tr>
               <tr><td><code>department</code></td><td>text</td><td>No</td></tr>
               <tr><td><code>job_title</code></td><td>text</td><td>No</td></tr>
-              <tr><td><code>password</code></td><td>text (min 12 chars)</td><td>Yes*</td></tr>
+              <tr><td><code>password</code></td><td>text</td><td>No*</td></tr>
             </tbody>
           </table>
         </div>
-        <div class="form-actions"><button type="submit" class="btn btn-primary"><i class="bi bi-upload"></i> Import Users</button><button type="button" class="btn btn-ghost" data-close-modal="importUsersModal">Cancel</button></div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary"><i class="bi bi-upload"></i> Import Users</button>
+          <button type="button" class="btn btn-ghost" data-close-dialog="dlgImportUsers">Cancel</button>
+        </div>
       </form>
     </div>
   </div>
 </div>
 
+<style nonce="<?= Security::nonce() ?>">
+/* User management dialogs — isolated from Bootstrap .modal rules */
+.um-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  z-index: 1050;
+  display: flex;        /* overridden to none via inline style when hidden */
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.um-dialog {
+  background: var(--card-bg, #ffffff);
+  border-radius: 12px;
+  box-shadow: 0 8px 40px rgba(0,0,0,.35);
+  width: 100%;
+  max-width: 580px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border: 1px solid var(--border, #d0d7de);
+  position: relative;
+}
+html[data-theme="dark"] .um-dialog {
+  background: #1c2128;
+  border-color: #30363d;
+  color: #e6edf3;
+}
+.um-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border, #d0d7de);
+  font-weight: 700;
+}
+html[data-theme="dark"] .um-header {
+  border-color: #30363d;
+  background: #161b22;
+  color: #e6edf3;
+}
+.um-body { padding: 24px; }
+.um-close {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--text-muted, #6e7681);
+  line-height: 1;
+  padding: 2px 4px;
+}
+.um-close:hover { color: var(--text, #24292f); }
+html[data-theme="dark"] .um-close:hover { color: #e6edf3; }
+</style>
+
 <script nonce="<?= Security::nonce() ?>">
-function editUserFromBtn(btn) {
-  editUser(JSON.parse(btn.getAttribute('data-user')));
-}
-function editUser(u) {
-  document.getElementById('editUserForm').action = '/admin/users/' + u.id + '/update';
-  document.getElementById('eu_name').value  = u.name;
-  document.getElementById('eu_dept').value  = u.department || '';
-  document.getElementById('eu_title').value = u.job_title || '';
-  document.getElementById('eu_role').value  = u.role;
-  document.getElementById('eu_active').checked = u.is_active === '1' || u.is_active === true || u.is_active === 't';
-  showModal('editUserModal');
-}
+(function () {
+  var openedAt = {};
+
+  function openDialog(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.style.display = 'flex';
+    openedAt[id] = Date.now();
+    // iOS ghost-click guard: block backdrop pointer-events for 400ms
+    el.style.pointerEvents = 'none';
+    var dlg = el.querySelector('.um-dialog');
+    if (dlg) dlg.style.pointerEvents = 'auto';
+    setTimeout(function () {
+      el.style.pointerEvents = '';
+      if (dlg) dlg.style.pointerEvents = '';
+    }, 400);
+  }
+
+  function closeDialog(id) {
+    var el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  }
+
+  // Open buttons
+  var btnCreate = document.getElementById('btnOpenCreate');
+  if (btnCreate) btnCreate.addEventListener('click', function () { openDialog('dlgCreateUser'); });
+
+  var btnImport = document.getElementById('btnOpenImport');
+  if (btnImport) btnImport.addEventListener('click', function () { openDialog('dlgImportUsers'); });
+
+  // Close buttons (data-close-dialog attribute)
+  document.addEventListener('click', function (e) {
+    var closer = e.target.closest('[data-close-dialog]');
+    if (closer) {
+      closeDialog(closer.getAttribute('data-close-dialog'));
+      return;
+    }
+    // Backdrop click closes the overlay
+    var overlay = e.target.closest('.um-overlay');
+    if (overlay && e.target === overlay) {
+      var since = Date.now() - (openedAt[overlay.id] || 0);
+      if (since > 350) closeDialog(overlay.id);
+    }
+  });
+
+  // Escape key
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      ['dlgCreateUser', 'dlgEditUser', 'dlgImportUsers'].forEach(closeDialog);
+    }
+  });
+
+  // Edit user: called by data-click="editUserFromBtn" in app.js
+  window.editUserFromBtn = function (btn) {
+    var u = JSON.parse(btn.getAttribute('data-user'));
+    document.getElementById('editUserForm').action = '/admin/users/' + u.id + '/update';
+    document.getElementById('eu_name').value  = u.name  || '';
+    document.getElementById('eu_dept').value  = u.department || '';
+    document.getElementById('eu_title').value = u.job_title || '';
+    document.getElementById('eu_role').value  = u.role;
+    document.getElementById('eu_active').checked = u.is_active === '1' || u.is_active === true || u.is_active === 't';
+    openDialog('dlgEditUser');
+  };
+}());
 </script>
 
 <?php

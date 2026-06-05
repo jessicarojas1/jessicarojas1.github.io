@@ -38,7 +38,7 @@ class AdminController {
 
         $errors = [];
         if (!$name || !$email) $errors[] = 'Name and email are required.';
-        if (!$password) $errors[] = 'Password is required.';
+        if (strlen($password) < 8) $errors[] = 'Password must be at least 8 characters.';
         if (Database::fetchOne("SELECT id FROM users WHERE email = ?", [$email])) $errors[] = 'Email already in use.';
 
         if ($errors) {
