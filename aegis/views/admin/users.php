@@ -204,12 +204,6 @@ ob_start();
   });
 })();
 
-// Close modal when clicking overlay background
-['createUserModal','editUserModal','importUsersModal'].forEach(function(id) {
-  var el = document.getElementById(id);
-  if (!el) return;
-  el.addEventListener('click', function(e) { if (e.target === el) closeModal(id); });
-});
 function editUserFromBtn(btn) {
   editUser(JSON.parse(btn.getAttribute('data-user')));
 }

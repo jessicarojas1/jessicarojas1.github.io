@@ -679,9 +679,4 @@ document.querySelectorAll('.edit-tab-btn').forEach(function(btn) {
   if(f){f.style.color='var(--primary)';f.style.borderBottomColor='var(--primary)';}
 })();
 
-// Close modals on overlay click
-['editSspModal','addContactModal','addHwModal','addSwModal','addDataModal','addContractModal','addPkgModal'].forEach(function(id){
-  var el=document.getElementById(id);
-  if(el) el.addEventListener('click',function(e){if(e.target===el)closeModal(id);});
-});
 </script>

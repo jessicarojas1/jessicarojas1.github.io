@@ -135,11 +135,6 @@ ob_start();
 </div>
 
 <script nonce="<?= Security::nonce() ?>">
-// Close modal when clicking overlay background
-(function() {
-  var m = document.getElementById('createKeyModal');
-  if (m) m.addEventListener('click', function(e) { if (e.target === m) closeModal('createKeyModal'); });
-})();
 function copyKey() {
   navigator.clipboard.writeText(document.getElementById('newKey').textContent.trim());
   var btn = document.querySelector('[data-click="copyKey"]');

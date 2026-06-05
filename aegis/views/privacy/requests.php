@@ -183,7 +183,6 @@ function closeModals() {
   document.getElementById('modal-new-request').style.display = 'none';
   document.getElementById('modal-update').style.display = 'none';
 }
-overlay.addEventListener('click', function(e){ if(e.target===overlay) closeModals(); });
 </script>
 
 <?php

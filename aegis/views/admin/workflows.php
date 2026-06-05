@@ -231,11 +231,6 @@ ob_start();
 </div>
 
 <script nonce="<?= Security::nonce() ?>">
-// Close modal when clicking overlay background
-(function() {
-  var m = document.getElementById('createWfModal');
-  if (m) m.addEventListener('click', function(e) { if (e.target === m) closeModal('createWfModal'); });
-})();
 function useTemplate(name, trigger) {
   document.getElementById('wf_name').value    = name;
   document.getElementById('wf_trigger').value = trigger;

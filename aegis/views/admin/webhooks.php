@@ -266,11 +266,6 @@ $providerLabels = [
 </div>
 
 <script nonce="<?= Security::nonce() ?>">
-// Close modal when clicking overlay background
-(function() {
-  var m = document.getElementById('createWebhookModal');
-  if (m) m.addEventListener('click', function(e) { if (e.target === m) closeModal('createWebhookModal'); });
-})();
 </script>
 
 <?php

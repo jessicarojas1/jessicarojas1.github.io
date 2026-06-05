@@ -81,9 +81,10 @@ document.addEventListener('click', function (e) {
 });
 
 // Modal helpers
+var _modalOpenedAt = {};
 window.showModal = function (id) {
   const el = document.getElementById(id);
-  if (el) el.style.display = 'flex';
+  if (el) { el.style.display = 'flex'; _modalOpenedAt[id] = Date.now(); }
 };
 window.closeModal = function (id) {
   const el = document.getElementById(id);
@@ -291,8 +292,14 @@ document.querySelectorAll('.perm-col-all').forEach(function (btn) {
     var el = e.target;
 
     // modal-overlay backdrop: clicking the overlay element itself closes it
+    // Guard: ignore clicks within 350ms of opening (iOS ghost-click prevention)
     if (el.classList && el.classList.contains('modal-overlay')) {
-      el.classList.remove('open');
+      var oid = el.id;
+      var openedAt = _modalOpenedAt[oid] || 0;
+      if (Date.now() - openedAt > 350) {
+        el.classList.remove('open');
+        el.style.display = 'none';
+      }
       return;
     }
 
