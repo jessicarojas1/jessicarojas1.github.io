@@ -22,6 +22,11 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "Sentinel QMS API"
     API_V1_PREFIX: str = "/api/v1"
 
+    # Single-service mode: serve the built React SPA from this API process
+    # (e.g. one Render web service). STATIC_DIR holds the Vite build output.
+    SERVE_FRONTEND: bool = False
+    STATIC_DIR: str = "static"
+
     # CORS
     CORS_ORIGINS: list[str] = ["http://localhost:3000"]
 

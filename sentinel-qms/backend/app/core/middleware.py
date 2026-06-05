@@ -22,6 +22,12 @@ _DOCS_CSP = (
     "worker-src 'self' blob:; connect-src 'self'"
 )
 _API_CSP = "default-src 'none'; frame-ancestors 'none'"
+# CSP for the served React SPA (single-service mode). API is same-origin.
+_APP_CSP = (
+    "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; "
+    "img-src 'self' data:; font-src 'self' data:; connect-src 'self'; "
+    "frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+)
 
 
 class RequestContextMiddleware(BaseHTTPMiddleware):
@@ -74,8 +80,13 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
                 "Strict-Transport-Security",
                 "max-age=63072000; includeSubDomains; preload",
             )
-        is_docs = any(request.url.path.startswith(p) for p in _DOCS_PATHS)
-        response.headers.setdefault(
-            "Content-Security-Policy", _DOCS_CSP if is_docs else _API_CSP
-        )
+        path = request.url.path
+        if any(path.startswith(p) for p in _DOCS_PATHS):
+            csp = _DOCS_CSP
+        elif settings.SERVE_FRONTEND and not path.startswith(settings.API_V1_PREFIX):
+            # Non-API request in single-service mode → it's the SPA / its assets.
+            csp = _APP_CSP
+        else:
+            csp = _API_CSP
+        response.headers.setdefault("Content-Security-Policy", csp)
         return response
