@@ -40,6 +40,7 @@ RUN pip install --no-cache-dir --no-index --find-links=/wheels sentinel-qms-api 
 COPY --chown=sentinel:sentinel app ./app
 COPY --chown=sentinel:sentinel alembic ./alembic
 COPY --chown=sentinel:sentinel alembic.ini gunicorn.conf.py ./
+COPY --chown=sentinel:sentinel --chmod=0755 docker-entrypoint.sh ./
 
 RUN mkdir -p /app/var/uploads && chown -R sentinel:sentinel /app/var
 
@@ -51,4 +52,5 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
     CMD python -c "import urllib.request,sys; \
 sys.exit(0) if urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3).status==200 else sys.exit(1)"
 
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["gunicorn", "app.main:app", "-c", "gunicorn.conf.py"]
