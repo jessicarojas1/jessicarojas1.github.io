@@ -36,8 +36,8 @@ $statusLabels = [
   <h3 style="margin:16px 0 8px;">No POA&amp;M Items</h3>
   <p style="color:var(--text-muted);margin-bottom:20px;">Generate from a compliance package, create manually, or import via CSV.</p>
   <div style="display:flex;gap:8px;justify-content:center;">
-    <button id="btnOpenGenerateEmpty" class="btn btn-primary"><i class="bi bi-lightning-fill"></i> Generate from Package</button>
-    <button id="btnOpenCreateEmpty" class="btn btn-secondary"><i class="bi bi-pencil-square"></i> New Item</button>
+    <button class="btn btn-primary" data-show-modal="generateModal"><i class="bi bi-lightning-fill"></i> Generate from Package</button>
+    <button class="btn btn-secondary" data-show-modal="createModal"><i class="bi bi-pencil-square"></i> New Item</button>
   </div>
 </div>
 <?php else: ?>
@@ -80,7 +80,7 @@ $statusLabels = [
   <div class="card" style="width:100%;max-width:480px;margin:0 20px;">
     <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;">
       <strong>Generate POA&amp;M from Package</strong>
-      <button id="btnCloseGenerate" type="button" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:1.2rem;"><i class="bi bi-x-lg"></i></button>
+      <button data-close-modal="generateModal"><i class="bi bi-x-lg"></i></button>
     </div>
     <div class="card-body">
       <form method="POST" action="/poam/generate">
@@ -99,7 +99,7 @@ $statusLabels = [
         </p>
         <div style="display:flex;gap:8px;margin-top:16px;">
           <button type="submit" class="btn btn-primary"><i class="bi bi-lightning-fill"></i> Generate</button>
-          <button type="button" id="btnCancelGenerate" class="btn btn-secondary">Cancel</button>
+          <button type="button" data-close-modal="generateModal" class="btn btn-secondary">Cancel</button>
         </div>
       </form>
     </div>
@@ -111,7 +111,7 @@ $statusLabels = [
   <div style="background:var(--card-bg);border-radius:12px;padding:28px;width:660px;max-height:90vh;overflow-y:auto;max-width:95vw;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
       <h3 style="margin:0;">New POA&amp;M Item</h3>
-      <button id="btnCloseCreate" style="background:none;border:none;cursor:pointer;font-size:1.25rem;"><i class="bi bi-x-lg"></i></button>
+      <button data-close-modal="createModal"><i class="bi bi-x-lg"></i></button>
     </div>
     <form method="POST" action="/poam/create">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
@@ -157,7 +157,7 @@ $statusLabels = [
       </div>
       <div style="display:flex;gap:10px;margin-top:20px;">
         <button type="submit" class="btn btn-primary">Create Item</button>
-        <button type="button" id="btnCancelCreate" class="btn btn-secondary">Cancel</button>
+        <button type="button" data-close-modal="createModal" class="btn btn-secondary">Cancel</button>
       </div>
     </form>
   </div>
@@ -168,7 +168,7 @@ $statusLabels = [
   <div style="background:var(--card-bg);border-radius:12px;padding:28px;width:680px;max-height:90vh;overflow-y:auto;max-width:95vw;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
       <h3 style="margin:0;">Import POA&amp;M Items via CSV</h3>
-      <button id="btnCloseImport" style="background:none;border:none;cursor:pointer;font-size:1.25rem;"><i class="bi bi-x-lg"></i></button>
+      <button data-close-modal="importModal"><i class="bi bi-x-lg"></i></button>
     </div>
     <form method="POST" action="/poam/import" enctype="multipart/form-data">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
@@ -189,7 +189,7 @@ $statusLabels = [
       <button type="button" id="btnDlTemplate" class="btn btn-ghost btn-sm"><i class="bi bi-download"></i> Download CSV Template</button>
     </div>
     <div style="margin-top:8px;text-align:right">
-      <button type="button" id="btnCancelImport" class="btn btn-secondary btn-sm">Cancel</button>
+      <button type="button" data-close-modal="importModal" class="btn btn-secondary btn-sm">Cancel</button>
     </div>
 
     <!-- Field Reference Guide -->
