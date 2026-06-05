@@ -134,8 +134,8 @@ $totalGaps = count($gaps);
               </span>
             </td>
             <td style="font-family:monospace;font-size:12px;white-space:nowrap"><?= Security::h($gap['code'] ?? '') ?></td>
-            <td style="font-size:13px;max-width:260px">
-              <span title="<?= Security::h($gap['description'] ?? '') ?>"><?= Security::h($gap['title']) ?></span>
+            <td style="font-size:13px">
+              <span title="<?= Security::h($gap['title']) ?>" style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px"><?= Security::h($gap['title']) ?></span>
             </td>
             <td style="font-size:13px"><?= Security::h($gap['package_name']) ?></td>
             <td>
@@ -198,7 +198,7 @@ $totalGaps = count($gaps);
             $priority      = $cfCount >= 3 ? '#dc2626' : ($cfCount === 2 ? '#d97706' : '#64748b');
           ?>
           <tr>
-            <td style="font-size:13px;max-width:300px;font-weight:500"><?= Security::h($cf['title']) ?></td>
+            <td style="font-size:13px;font-weight:500"><span title="<?= Security::h($cf['title']) ?>" style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px"><?= Security::h($cf['title']) ?></span></td>
             <td>
               <div style="display:flex;flex-wrap:wrap;gap:5px">
                 <?php foreach ($cfFrameworks as $fw): ?>

@@ -81,27 +81,45 @@ function threatScoreBg(int $score): string {
   <?php endforeach; ?>
 </div>
 
-<!-- Filter bar -->
-<div class="card" style="margin-bottom:20px;">
-  <form method="GET" action="/threats" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:16px;">
-    <select name="category" class="form-control form-control-sm" data-autosubmit>
-      <option value="">All Categories</option>
-      <?php foreach ($catConfig as $val => $cfg): ?>
-        <option value="<?= $val ?>" <?= ($filter === $val) ? 'selected' : '' ?>><?= $cfg['label'] ?></option>
-      <?php endforeach; ?>
-    </select>
-
-    <select name="status" class="form-control form-control-sm" data-autosubmit>
-      <option value="">All Statuses</option>
-      <?php foreach ($statusConfig as $val => $cfg): ?>
-        <option value="<?= $val ?>" <?= ($statusF === $val) ? 'selected' : '' ?>><?= $cfg['label'] ?></option>
-      <?php endforeach; ?>
-    </select>
-
-    <button type="submit" class="btn btn-primary btn-sm">Filter</button>
-    <a href="/threats" class="btn btn-ghost btn-sm">Clear</a>
-    <span style="margin-left:auto;font-size:13px;color:var(--text-muted);"><?= count($threats) ?> threat<?= count($threats) !== 1 ? 's' : '' ?></span>
+<?php
+$_threatActiveFilters = (int)!empty($filter) + (int)!empty($statusF);
+?>
+<div class="filter-toolbar" style="margin-bottom:20px">
+  <form method="GET" action="/threats">
+    <div class="filter-popover-wrap">
+      <button type="button" class="btn btn-secondary btn-sm filter-btn" data-toggle-class="open" data-target="#threatFilterPopover">
+        <i class="bi bi-funnel"></i> Filters
+        <?php if ($_threatActiveFilters > 0): ?>
+          <span class="filter-active-count"><?= $_threatActiveFilters ?></span>
+        <?php endif; ?>
+      </button>
+      <div id="threatFilterPopover" class="filter-popover">
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <select name="category" class="form-control form-control-sm">
+            <option value="">All Categories</option>
+            <?php foreach ($catConfig as $val => $cfg): ?>
+              <option value="<?= $val ?>" <?= ($filter === $val) ? 'selected' : '' ?>><?= $cfg['label'] ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select name="status" class="form-control form-control-sm">
+            <option value="">All Statuses</option>
+            <?php foreach ($statusConfig as $val => $cfg): ?>
+              <option value="<?= $val ?>" <?= ($statusF === $val) ? 'selected' : '' ?>><?= $cfg['label'] ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <div class="filter-popover-footer">
+          <a href="/threats" class="btn btn-ghost btn-sm">Clear</a>
+          <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-check"></i> Apply</button>
+        </div>
+      </div>
+    </div>
   </form>
+  <span style="font-size:13px;color:var(--text-muted);"><?= count($threats) ?> threat<?= count($threats) !== 1 ? 's' : '' ?></span>
 </div>
 
 <!-- Threat table -->

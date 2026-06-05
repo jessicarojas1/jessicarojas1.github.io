@@ -1719,3 +1719,61 @@ html[data-theme="dark"] .tab-btn.active { background: rgba(79,70,229,.15); }
 /* Auth page right panel */
 html[data-theme="dark"] .auth-right     { background: var(--bg); }
 html[data-theme="dark"] .auth-form-card { background: var(--card-bg); }
+
+/* ============================================================
+   Filter Popover
+   ============================================================ */
+.filter-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.filter-popover-wrap { position: relative; }
+.filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.filter-active-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 0 4px;
+}
+.filter-popover {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 400;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow-lg);
+  padding: 16px;
+  min-width: 260px;
+  flex-direction: column;
+  gap: 12px;
+}
+.filter-popover.open { display: flex; }
+.filter-popover .form-label { font-size: 11px; margin-bottom: 3px; }
+.filter-popover .form-control { font-size: 13px; padding: 7px 10px; }
+.filter-popover-footer {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  margin-top: 2px;
+}
+
+html[data-theme="dark"] .filter-popover { box-shadow: 0 8px 24px rgba(0,0,0,.5); }

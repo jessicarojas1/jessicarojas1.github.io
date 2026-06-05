@@ -494,3 +494,11 @@ document.querySelectorAll('.file-drop').forEach(function(drop) {
     window.showFileChange.call(input, input);
   });
 });
+
+// ── Filter popover: close when clicking outside ───────────────────────────────
+document.addEventListener('click', function(e) {
+  if (e.target.closest('.filter-popover-wrap')) return;
+  document.querySelectorAll('.filter-popover.open').forEach(function(p) {
+    p.classList.remove('open');
+  });
+});
