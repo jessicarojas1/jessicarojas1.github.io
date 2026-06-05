@@ -1,4 +1,5 @@
 <?php
+$breadcrumbs   = $breadcrumbs   ?? [['Projects', '/projects'], ['Project', null]];
 $csrf = Security::generateCsrfToken();
 $statusBadge = ['planning'=>'badge-info','active'=>'badge-success','on_hold'=>'badge-warning','completed'=>'badge-secondary','cancelled'=>'badge-danger'];
 $priorityBadge = ['critical'=>'badge-danger','high'=>'badge-warning','medium'=>'badge-info','low'=>'badge-secondary'];

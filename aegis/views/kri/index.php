@@ -1,4 +1,5 @@
 <?php
+$breadcrumbs  = $breadcrumbs  ?? [['KRI', null]];
 // Flash messages
 $flashSuccess = $_SESSION['flash_success'] ?? null;
 $flashError   = $_SESSION['flash_error']   ?? null;

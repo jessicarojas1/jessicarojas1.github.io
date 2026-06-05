@@ -1,4 +1,5 @@
 <?php
+$breadcrumbs = $breadcrumbs ?? [['Incidents', '/incident'], ['SLA Report', null]];
 // SLA badge helper
 function slaBadge(string $status): string {
     $map = [

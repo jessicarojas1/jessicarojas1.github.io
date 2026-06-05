@@ -1,4 +1,5 @@
 <?php
+$breadcrumbs = $breadcrumbs ?? [['KRI', '/kri'], ['New KRI', null]];
 $flashError = $_SESSION['flash_error'] ?? null;
 unset($_SESSION['flash_error']);
 ?>

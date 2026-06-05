@@ -1,4 +1,7 @@
-<?php ob_start(); ?>
+<?php
+$breadcrumbs = $breadcrumbs ?? [['BCP/DRP', null]];
+ob_start();
+?>
 <div class="page-header">
   <div>
     <h1 class="page-title">Business Continuity Plans</h1>

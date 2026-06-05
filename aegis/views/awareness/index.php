@@ -1,7 +1,7 @@
 <?php
 $pageTitle    = $pageTitle    ?? 'Awareness Training';
 $activeModule = $activeModule ?? 'awareness';
-$breadcrumbs  = $breadcrumbs  ?? [];
+$breadcrumbs  = $breadcrumbs  ?? [['Training', null]];
 ob_start();
 ?>
 

@@ -1,4 +1,5 @@
 <?php
+$breadcrumbs    = $breadcrumbs    ?? [['Treatments', null]];
 // Strategy badge colors
 $strategyColors = [
     'mitigate' => ['bg' => '#3b82f620', 'color' => '#3b82f6', 'border' => '#3b82f640'],

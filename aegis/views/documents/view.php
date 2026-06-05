@@ -1,4 +1,5 @@
 <?php
+$breadcrumbs  = $breadcrumbs  ?? [['Documents', '/documents'], ['Document', null]];
 $statusColors = ['draft'=>'#6b7280','under_review'=>'#f59e0b','approved'=>'#3b82f6','published'=>'#22c55e','archived'=>'#9ca3af','expired'=>'#ef4444'];
 $classColors  = ['public'=>'#22c55e','internal'=>'#3b82f6','confidential'=>'#f59e0b','restricted'=>'#ef4444'];
 $canEdit = Auth::can('policy.write');

@@ -1,3 +1,4 @@
+<?php $breadcrumbs = $breadcrumbs ?? [['Treatments', '/treatment'], ['New Treatment', null]]; ?>
 <div class="page-header">
   <div>
     <h1 class="page-title">New Treatment Plan</h1>

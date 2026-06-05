@@ -1,4 +1,5 @@
 <?php
+$breadcrumbs = $breadcrumbs ?? [['Threat Register', '/threat'], ['Threat', null]];
 // $threat, $linkedRisks, $unlinkdRisks, $users provided by ThreatController::view()
 
 $catConfig = [

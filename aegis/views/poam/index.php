@@ -1,4 +1,5 @@
 <?php
+$breadcrumbs  = $breadcrumbs  ?? [['POAM', null]];
 $csrf = Security::generateCsrfToken();
 $statusLabels = [
     'open'        => ['Open',        'badge-danger'],

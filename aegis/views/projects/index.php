@@ -1,4 +1,5 @@
 <?php
+$breadcrumbs  = $breadcrumbs  ?? [['Projects', null]];
 $statusBadge = [
     'planning'  => 'badge-info',
     'active'    => 'badge-success',

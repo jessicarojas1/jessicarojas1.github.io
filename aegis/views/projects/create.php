@@ -1,4 +1,7 @@
-<?php $csrf = Security::generateCsrfToken(); ?>
+<?php
+$breadcrumbs = $breadcrumbs ?? [['Projects', '/projects'], ['New Project', null]];
+$csrf = Security::generateCsrfToken();
+?>
 <div class="page-header">
   <div><h1 class="page-title">New GRC Project</h1></div>
   <a href="/projects" class="btn btn-secondary">Cancel</a>

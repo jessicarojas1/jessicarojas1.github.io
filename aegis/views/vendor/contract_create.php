@@ -1,4 +1,5 @@
 <?php
+$breadcrumbs = $breadcrumbs ?? [['Vendors', '/vendor'], ['Contracts', '/vendor/contracts'], ['New Contract', null]];
 // $vendor, $users are set by the controller
 ?>
 

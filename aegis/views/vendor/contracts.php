@@ -1,4 +1,5 @@
 <?php
+$breadcrumbs    = $breadcrumbs    ?? [['Vendors', '/vendor'], ['Contracts', null]];
 $totalContracts = count($contracts);
 $activeCount    = count(array_filter($contracts, fn($c) => $c['status'] === 'active'));
 $expiringCount  = count($expiring);

@@ -1,4 +1,7 @@
-<?php ob_start(); ?>
+<?php
+$breadcrumbs = $breadcrumbs ?? [['Documents', '/documents'], ['Upload', null]];
+ob_start();
+?>
 <div class="page-header">
   <div>
     <h1 class="page-title">New Document</h1>

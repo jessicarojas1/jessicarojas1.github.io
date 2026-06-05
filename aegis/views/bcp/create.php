@@ -1,4 +1,7 @@
-<?php ob_start(); ?>
+<?php
+$breadcrumbs = $breadcrumbs ?? [['BCP/DRP', '/bcp'], ['New Plan', null]];
+ob_start();
+?>
 <div class="page-header">
   <h1 class="page-title">New BCP Plan</h1>
 </div>

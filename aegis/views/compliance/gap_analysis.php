@@ -1,4 +1,5 @@
 <?php
+$breadcrumbs  = $breadcrumbs  ?? [['Compliance', '/compliance'], ['Gap Analysis', null]];
 // $packages, $gaps, $crossFramework provided by controller
 $totalGaps    = count($gaps);
 $overdueGaps  = count(array_filter($gaps, fn($g) => $g['due_date'] && strtotime($g['due_date']) < time() && ($g['status'] ?? '') !== 'implemented'));

@@ -1,4 +1,7 @@
-<?php ob_start(); ?>
+<?php
+$breadcrumbs = $breadcrumbs ?? [['Reports', null], ['Risk Report', null]];
+ob_start();
+?>
 
 <div class="page-header">
   <div>

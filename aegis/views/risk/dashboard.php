@@ -1,4 +1,5 @@
 <?php
+$breadcrumbs = $breadcrumbs ?? [['Risks', '/risk'], ['Dashboard', null]];
 ob_start();
 
 // Helper: risk level label from score

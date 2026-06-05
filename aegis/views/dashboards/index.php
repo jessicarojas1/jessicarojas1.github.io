@@ -1,4 +1,7 @@
-<?php $csrf = Security::generateCsrfToken(); ?>
+<?php
+$breadcrumbs = $breadcrumbs ?? [['Dashboards', null]];
+$csrf = Security::generateCsrfToken();
+?>
 <div class="page-header">
   <div>
     <h1 class="page-title">Custom Dashboards</h1>

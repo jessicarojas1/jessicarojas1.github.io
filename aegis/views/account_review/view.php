@@ -1,4 +1,6 @@
-<?php ob_start();
+<?php
+$breadcrumbs = $breadcrumbs ?? [['Account Reviews', '/account_review'], ['Review', null]];
+ob_start();
 $total    = count($items);
 $reviewed = count(array_filter($items, fn($i) => $i['decision'] !== 'pending'));
 $approved = count(array_filter($items, fn($i) => $i['decision'] === 'approved'));

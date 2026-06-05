@@ -1,4 +1,5 @@
 <?php
+$breadcrumbs  = $breadcrumbs  ?? [['Audits', '/audit'], ['Findings', '/audit_findings'], ['View Finding', null]];
 $csrf = Security::generateCsrfToken();
 $sevBadge = ['critical'=>'badge-danger','high'=>'badge-danger','medium'=>'badge-warning','low'=>'badge-info','info'=>'badge-secondary'];
 $statusBadge = ['open'=>'badge-danger','in_progress'=>'badge-warning','resolved'=>'badge-success','risk_accepted'=>'badge-info','closed'=>'badge-secondary'];

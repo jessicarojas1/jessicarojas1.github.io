@@ -1,4 +1,5 @@
 <?php
+$breadcrumbs  = $breadcrumbs  ?? [['SSP', null]];
 $statusLabels = [
     'operational'        => ['Operational',        'badge-success'],
     'under_development'  => ['Under Development',  'badge-warning'],

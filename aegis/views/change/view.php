@@ -1,4 +1,5 @@
 <?php
+$breadcrumbs  = $breadcrumbs  ?? [['Change Requests', '/change'], ['Change Request', null]];
 $statusColors = [
     'draft'=>'#6b7280','submitted'=>'#3b82f6','under_review'=>'#f59e0b',
     'approved'=>'#22c55e','rejected'=>'#ef4444','implementing'=>'#8b5cf6',

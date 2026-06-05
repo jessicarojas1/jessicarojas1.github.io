@@ -1,4 +1,7 @@
-<?php ob_start(); ?>
+<?php
+$breadcrumbs = $breadcrumbs ?? [['Account Reviews', null]];
+ob_start();
+?>
 
 <div class="page-header">
   <div>

@@ -1,4 +1,5 @@
 <?php
+$breadcrumbs = $breadcrumbs ?? [['Dashboards', '/dashboards'], ['Dashboard', null]];
 $csrf = Security::generateCsrfToken();
 $isOwner = $dashboard['owner_id'] === Auth::id();
 $metricOptions = [

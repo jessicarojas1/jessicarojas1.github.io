@@ -1,4 +1,5 @@
 <?php
+$breadcrumbs  = $breadcrumbs  ?? [['SSP', '/ssp'], ['View Plan', null]];
 $csrf = Security::generateCsrfToken();
 $statusLabels = ['operational'=>['Operational','badge-success'],'under_development'=>['Under Development','badge-warning'],'major_modification'=>['Major Modification','badge-info'],'other'=>['Other','badge-secondary']];
 [$statusLabel,$statusClass] = $statusLabels[$plan['operational_status']] ?? ['Unknown','badge-secondary'];

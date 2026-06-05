@@ -1,4 +1,5 @@
 <?php
+$breadcrumbs = $breadcrumbs ?? [['Threat Register', null]];
 // $threats, $stats, $filter, $statusF provided by ThreatController::index()
 
 // Category display config

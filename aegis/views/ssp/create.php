@@ -1,4 +1,7 @@
-<?php $csrf = Security::generateCsrfToken(); ?>
+<?php
+$breadcrumbs = $breadcrumbs ?? [['SSP', '/ssp'], ['New Plan', null]];
+$csrf = Security::generateCsrfToken();
+?>
 <div class="page-header">
   <div>
     <h1 class="page-title">New System Security Plan</h1>

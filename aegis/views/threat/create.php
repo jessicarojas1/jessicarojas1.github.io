@@ -1,4 +1,5 @@
 <?php
+$breadcrumbs = $breadcrumbs ?? [['Threat Register', '/threat'], ['New Threat', null]];
 // $users provided by ThreatController::createForm()
 ?>
 

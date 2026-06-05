@@ -1,4 +1,7 @@
-<?php ob_start(); ?>
+<?php
+$breadcrumbs = $breadcrumbs ?? [['Privacy', '/privacy'], ['New Record', null]];
+ob_start();
+?>
 
 <div class="page-header">
   <div>

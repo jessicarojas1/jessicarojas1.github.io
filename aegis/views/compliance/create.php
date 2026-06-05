@@ -1,4 +1,5 @@
 <?php
+$breadcrumbs = $breadcrumbs ?? [['Compliance', '/compliance'], ['New Package', null]];
 ob_start();
 ?>
 

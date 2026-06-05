@@ -1,4 +1,6 @@
-<?php ob_start();
+<?php
+$breadcrumbs = $breadcrumbs ?? [['Privacy', null]];
+ob_start();
 $basisLabels = [
   'consent'=>'Consent','legitimate_interest'=>'Legitimate Interest','contract'=>'Contract',
   'legal_obligation'=>'Legal Obligation','vital_interests'=>'Vital Interests','public_task'=>'Public Task'

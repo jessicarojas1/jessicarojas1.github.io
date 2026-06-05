@@ -1,4 +1,6 @@
-<?php ob_start();
+<?php
+$breadcrumbs = $breadcrumbs ?? [['Reports', null], ['Executive', null]];
+ob_start();
 $scoreColor = $grcScore >= 80 ? '#059669' : ($grcScore >= 60 ? '#d97706' : '#dc2626');
 $scoreLabel = $grcScore >= 80 ? 'Good' : ($grcScore >= 60 ? 'Needs Attention' : 'At Risk');
 ?>

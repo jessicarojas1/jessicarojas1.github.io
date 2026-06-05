@@ -1,4 +1,5 @@
 <?php
+$breadcrumbs    = $breadcrumbs    ?? [['Treatments', '/treatment'], ['Treatment', null]];
 $strategyColors = [
     'mitigate' => ['bg' => '#3b82f620', 'color' => '#3b82f6', 'border' => '#3b82f640', 'label' => 'Mitigate'],
     'transfer' => ['bg' => '#8b5cf620', 'color' => '#8b5cf6', 'border' => '#8b5cf640', 'label' => 'Transfer'],

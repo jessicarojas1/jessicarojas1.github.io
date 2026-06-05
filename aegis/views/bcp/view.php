@@ -1,4 +1,5 @@
 <?php
+$breadcrumbs   = $breadcrumbs   ?? [['BCP/DRP', '/bcp'], ['View Plan', null]];
 $statusColors = ['draft'=>'#6b7280','active'=>'#22c55e','archived'=>'#9ca3af'];
 $sc = $statusColors[$plan['status']] ?? '#6b7280';
 $outcomeColors = ['passed'=>'#22c55e','passed_with_findings'=>'#f59e0b','failed'=>'#ef4444','cancelled'=>'#9ca3af'];

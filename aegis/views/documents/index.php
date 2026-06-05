@@ -1,4 +1,5 @@
 <?php
+$breadcrumbs  = $breadcrumbs  ?? [['Documents', null]];
 $statusColors = [
   'draft'=>'#6b7280','under_review'=>'#f59e0b','approved'=>'#3b82f6',
   'published'=>'#22c55e','archived'=>'#9ca3af','expired'=>'#ef4444',

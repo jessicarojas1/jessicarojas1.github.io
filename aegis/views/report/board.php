@@ -1,4 +1,5 @@
 <?php
+$breadcrumbs = $breadcrumbs ?? [['Reports', null], ['Board Report', null]];
 // Board Pack view
 // Variables provided by ReportController::board():
 //   $riskSummary, $topRisks, $compliance, $riskTrend, $incidentSummary,
