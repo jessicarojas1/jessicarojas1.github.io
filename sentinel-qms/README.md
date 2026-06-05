@@ -115,7 +115,16 @@ docker compose up --build     # postgres + backend + frontend + minio (local S3)
 | Health | http://localhost:8000/health |
 
 The backend applies Alembic migrations and seeds reference data (roles + demo
-records) on first boot. See **[`docs/deployment/deployment-guide.md`](docs/deployment/deployment-guide.md)**.
+records) on first boot. Sign in with the seeded administrator:
+
+| Field | Value |
+|-------|-------|
+| Email | `admin@sentinel-qms.local` |
+| Password | `ChangeMe!Admin123` |
+
+> These development defaults are created only when `ENVIRONMENT=development`.
+> Change `ADMIN_EMAIL` / `ADMIN_PASSWORD` and never enable auto-seeded admins in
+> production. See **[`docs/deployment/deployment-guide.md`](docs/deployment/deployment-guide.md)**.
 
 ---
 
