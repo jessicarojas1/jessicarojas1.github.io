@@ -75,7 +75,6 @@ class EvidenceController {
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             'application/msword','application/vnd.ms-excel',
-            'application/octet-stream',
         ];
         if ($detectedMime && !in_array($detectedMime, $allowedMimes)) {
             $_SESSION['flash_error'] = 'File content type is not allowed.';

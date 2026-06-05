@@ -178,6 +178,12 @@ class AuditController {
                             'text/plain','text/csv'];
             $allowedExt  = ['jpg','jpeg','png','gif','webp','pdf','doc','docx','xls','xlsx','txt','csv'];
 
+            $uploadCount = count(array_filter($_FILES['evidence_file']['error'], fn($e) => $e === UPLOAD_ERR_OK));
+            if ($uploadCount > 10) {
+                $_SESSION['flash_error'] = 'Maximum 10 evidence files per submission.';
+                header("Location: /audits/{$auditId}/items/{$itemId}"); exit;
+            }
+
             foreach ($_FILES['evidence_file']['name'] as $i => $origName) {
                 if ($_FILES['evidence_file']['error'][$i] !== UPLOAD_ERR_OK) continue;
                 $tmpPath  = $_FILES['evidence_file']['tmp_name'][$i];

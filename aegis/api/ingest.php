@@ -34,18 +34,25 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
     ingestError('Only POST is accepted on this endpoint.', 405);
 }
 
-// API key auth
+// API key auth — try HMAC-SHA256 first (new keys), fall back to plain SHA-256 (legacy keys)
 $apiKey = $_SERVER['HTTP_X_API_KEY'] ?? '';
 if (!$apiKey) ingestError('X-API-Key header required.', 401);
 
-$hash = hash('sha256', $apiKey);
+$hmacHash   = hash_hmac('sha256', $apiKey, $_ENV['JWT_SECRET'] ?? '');
+$legacyHash = hash('sha256', $apiKey);
 $key  = Database::fetchOne(
     "SELECT ak.*, u.id AS uid, u.role FROM api_keys ak JOIN users u ON u.id = ak.user_id
-     WHERE ak.key_hash = ? AND ak.is_active = TRUE AND (ak.expires_at IS NULL OR ak.expires_at > NOW())",
-    [$hash]
+     WHERE ak.key_hash IN (?,?) AND ak.is_active = TRUE AND (ak.expires_at IS NULL OR ak.expires_at > NOW())",
+    [$hmacHash, $legacyHash]
 );
 if (!$key) ingestError('Invalid or expired API key.', 401);
-Database::query("UPDATE api_keys SET last_used=NOW() WHERE key_hash=?", [$hash]);
+// Upgrade legacy plain-SHA256 key to HMAC on first use
+if ($key['key_hash'] === $legacyHash && $hmacHash !== $legacyHash) {
+    Database::query("UPDATE api_keys SET key_hash=?, last_used=NOW() WHERE key_hash=?", [$hmacHash, $legacyHash]);
+} else {
+    Database::query("UPDATE api_keys SET last_used=NOW() WHERE key_hash=?", [$hmacHash]);
+}
+$hash = $hmacHash;
 
 $actorId = (int)$key['uid'];
 $canWrite = in_array('write', json_decode($key['permissions'] ?? '["read"]', true)) || $key['role'] === 'admin';

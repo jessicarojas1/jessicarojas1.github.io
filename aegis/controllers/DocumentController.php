@@ -191,8 +191,13 @@ class DocumentController {
         $dir = self::uploadDir();
         if (!is_dir($dir)) mkdir($dir, 0750, true);
 
-        $ext        = pathinfo($file['name'], PATHINFO_EXTENSION);
-        $stored     = bin2hex(random_bytes(16)) . '.' . strtolower($ext);
+        $ext        = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        $allowedExts = ['pdf','txt','csv','doc','docx','xls','xlsx'];
+        if (!in_array($ext, $allowedExts, true)) {
+            $_SESSION['flash_error'] = 'File extension not allowed.';
+            header("Location: /documents/{$id}"); exit;
+        }
+        $stored     = bin2hex(random_bytes(16)) . '.' . $ext;
         $fileHash   = hash_file('sha256', $file['tmp_name']);
         $version    = Security::sanitizeInput($_POST['version'] ?? '');
         $summary    = Security::sanitizeInput($_POST['change_summary'] ?? '');

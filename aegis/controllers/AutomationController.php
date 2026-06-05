@@ -22,7 +22,7 @@ class AutomationController {
     ];
 
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requireAdmin();
         $rules = Database::fetchAll(
             "SELECT ar.*, u.name AS created_by_name,
                     COUNT(al.id) FILTER (WHERE al.triggered_at > NOW() - INTERVAL '7 days' AND al.status='success') AS recent_success,
@@ -104,7 +104,7 @@ class AutomationController {
     }
 
     public function view(int $id): void {
-        Auth::requireAuth();
+        Auth::requireAdmin();
         $rule = Database::fetchOne("SELECT ar.*, u.name AS created_by_name FROM automation_rules ar LEFT JOIN users u ON u.id=ar.created_by WHERE ar.id=?", [$id]);
         if (!$rule) { http_response_code(404); require AEGIS_ROOT . '/views/errors/404.php'; return; }
         $rule['trigger_config'] = json_decode($rule['trigger_config'] ?: '{}', true);

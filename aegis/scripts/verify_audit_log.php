@@ -82,6 +82,7 @@ foreach ($rows as $row) {
 }
 
 if (empty($broken)) {
+    $count = count($rows);
     if (!$quiet) echo "✓ Audit log chain intact. {$count} records verified.\n";
     exit(0);
 } else {

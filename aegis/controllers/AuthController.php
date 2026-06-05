@@ -242,6 +242,11 @@ class AuthController {
             header('Location: /forgot-password'); exit;
         }
 
+        if (!Security::checkRateLimit('forgot_password_' . Security::clientIp())) {
+            $_SESSION['flash_error'] = 'Too many requests. Please try again later.';
+            header('Location: /forgot-password'); exit;
+        }
+
         require_once AEGIS_ROOT . '/src/Mailer.php';
 
         $email = strtolower(Security::sanitizeInput($_POST['email'] ?? ''));

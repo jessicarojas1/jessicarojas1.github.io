@@ -193,11 +193,9 @@ class Auth {
         $userAgent = substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 500);
         $changesJson = $changes ? json_encode($changes) : null;
 
-        // Hash chain: SHA-256( prev_hash | userId | action | entityType | entityId | changes | ip | timestamp )
-        // Timestamp is included to prevent log truncation attacks (NIST 800-53 AU-9)
+        // Hash chain: SHA-256( prev_hash | userId | action | entityType | entityId | changes | ip )
         $prev = Database::fetchOne("SELECT log_hash FROM activity_log ORDER BY id DESC LIMIT 1");
         $prevHash = $prev['log_hash'] ?? 'genesis';
-        $ts = date('Y-m-d\TH:i:s\Z');
         $payload  = implode('|', [
             $prevHash,
             (string)self::id(),
@@ -206,7 +204,6 @@ class Auth {
             (string)$entityId,
             (string)$changesJson,
             $ip,
-            $ts,
         ]);
         $logHash = hash('sha256', $payload);
 

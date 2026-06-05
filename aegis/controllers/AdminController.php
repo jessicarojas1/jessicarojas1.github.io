@@ -112,7 +112,14 @@ class AdminController {
 
         if (!empty($_POST['new_password'])) {
             $pwd = $_POST['new_password'];
-            Database::query("UPDATE users SET password_hash=? WHERE id=?", [Security::hashPassword($pwd), $id]);
+            if (strlen($pwd) < 8) {
+                $_SESSION['user_errors'] = ['Password must be at least 8 characters.'];
+                header('Location: /admin/users'); return;
+            }
+            Database::query(
+                "UPDATE users SET password_hash=?, password_changed_at=NOW() WHERE id=?",
+                [Security::hashPassword($pwd), $id]
+            );
         }
 
         // Revoke active sessions and API keys if account is being deactivated
@@ -599,9 +606,9 @@ class AdminController {
         // Validate MIME type via finfo
         $finfo = new finfo(FILEINFO_MIME_TYPE);
         $mime  = $finfo->file($file['tmp_name']);
-        $allowedMimes = ['image/jpeg','image/png','image/gif','image/webp','image/svg+xml'];
+        $allowedMimes = ['image/jpeg','image/png','image/gif','image/webp'];
         if (!in_array($mime, $allowedMimes, true)) {
-            $_SESSION['flash_error'] = 'Invalid file type. Allowed: JPG, PNG, GIF, WEBP, SVG.';
+            $_SESSION['flash_error'] = 'Invalid file type. Allowed: JPG, PNG, GIF, WEBP.';
             header('Location: /admin/settings'); return;
         }
 
