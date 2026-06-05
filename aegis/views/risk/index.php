@@ -63,41 +63,68 @@ $_appColors = ['zero'=>'#dc2626','low'=>'#d97706','moderate'=>'#2563eb','high'=>
 </div>
 
 <!-- Filters -->
-<div class="filter-bar card">
-  <form method="GET" class="filter-form">
-    <select name="category" class="form-control form-control-sm" data-autosubmit>
-      <option value="">All categories</option>
-      <?php foreach ($categories as $cat): ?>
-        <option value="<?= $cat['id'] ?>" <?= ($_GET['category']??'')==$cat['id']?'selected':'' ?>><?= Security::h($cat['name']) ?></option>
-      <?php endforeach; ?>
-    </select>
-    <select name="status" class="form-control form-control-sm" data-autosubmit>
-      <option value="">All statuses</option>
-      <?php foreach (['open'=>'Open','in_review'=>'In Review','monitoring'=>'Monitoring','accepted'=>'Accepted','closed'=>'Closed','transferred'=>'Transferred'] as $sv=>$sl): ?>
-        <option value="<?= $sv ?>" <?= ($_GET['status']??'')===$sv?'selected':'' ?>><?= $sl ?></option>
-      <?php endforeach; ?>
-    </select>
-    <select name="treatment" class="form-control form-control-sm" data-autosubmit>
-      <option value="">All strategies</option>
-      <?php foreach (['mitigate'=>'Mitigate','accept'=>'Accept','transfer'=>'Transfer','avoid'=>'Avoid'] as $sv=>$sl): ?>
-        <option value="<?= $sv ?>" <?= ($_GET['treatment']??'')===$sv?'selected':'' ?>><?= $sl ?></option>
-      <?php endforeach; ?>
-    </select>
-    <select name="source" class="form-control form-control-sm" data-autosubmit>
-      <option value="">All sources</option>
-      <?php foreach (['strategic'=>'Strategic','operational'=>'Operational','financial'=>'Financial','compliance'=>'Compliance','technology'=>'Technology','reputational'=>'Reputational','external'=>'External','people'=>'People','project'=>'Project'] as $sv=>$sl): ?>
-        <option value="<?= $sv ?>" <?= ($_GET['source']??'')===$sv?'selected':'' ?>><?= $sl ?></option>
-      <?php endforeach; ?>
-    </select>
-    <select name="level" class="form-control form-control-sm" data-autosubmit>
-      <option value="">All levels</option>
-      <option value="critical" <?= ($_GET['level']??'')==='critical'?'selected':'' ?>>Critical (>14)</option>
-      <option value="high" <?= ($_GET['level']??'')==='high'?'selected':'' ?>>High (10-14)</option>
-      <option value="medium" <?= ($_GET['level']??'')==='medium'?'selected':'' ?>>Medium (5-9)</option>
-      <option value="low" <?= ($_GET['level']??'')==='low'?'selected':'' ?>>Low (≤4)</option>
-    </select>
-    <button type="submit" class="btn btn-primary btn-sm">Filter</button>
-    <a href="/risk" class="btn btn-ghost btn-sm">Clear</a>
+<?php $riskFilterCount = (int)!empty($_GET['category']) + (int)!empty($_GET['status']) + (int)!empty($_GET['treatment']) + (int)!empty($_GET['source']) + (int)!empty($_GET['level']); ?>
+<div class="filter-toolbar no-print">
+  <form method="GET" class="filter-popover-wrap">
+    <button type="button" class="btn btn-secondary btn-sm filter-btn" data-toggle-class="open" data-target="#riskFilterPopover">
+      <i class="bi bi-funnel"></i> Filters
+      <?php if ($riskFilterCount > 0): ?><span class="filter-active-count"><?= $riskFilterCount ?></span><?php endif; ?>
+    </button>
+    <div id="riskFilterPopover" class="filter-popover" style="min-width:340px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Category</label>
+          <select name="category" class="form-control" data-autosubmit>
+            <option value="">All categories</option>
+            <?php foreach ($categories as $cat): ?>
+              <option value="<?= $cat['id'] ?>" <?= ($_GET['category']??'')==$cat['id']?'selected':'' ?>><?= Security::h($cat['name']) ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Status</label>
+          <select name="status" class="form-control" data-autosubmit>
+            <option value="">All statuses</option>
+            <?php foreach (['open'=>'Open','in_review'=>'In Review','monitoring'=>'Monitoring','accepted'=>'Accepted','closed'=>'Closed','transferred'=>'Transferred'] as $sv=>$sl): ?>
+              <option value="<?= $sv ?>" <?= ($_GET['status']??'')===$sv?'selected':'' ?>><?= $sl ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Strategy</label>
+          <select name="treatment" class="form-control" data-autosubmit>
+            <option value="">All strategies</option>
+            <?php foreach (['mitigate'=>'Mitigate','accept'=>'Accept','transfer'=>'Transfer','avoid'=>'Avoid'] as $sv=>$sl): ?>
+              <option value="<?= $sv ?>" <?= ($_GET['treatment']??'')===$sv?'selected':'' ?>><?= $sl ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Source</label>
+          <select name="source" class="form-control" data-autosubmit>
+            <option value="">All sources</option>
+            <?php foreach (['strategic'=>'Strategic','operational'=>'Operational','financial'=>'Financial','compliance'=>'Compliance','technology'=>'Technology','reputational'=>'Reputational','external'=>'External','people'=>'People','project'=>'Project'] as $sv=>$sl): ?>
+              <option value="<?= $sv ?>" <?= ($_GET['source']??'')===$sv?'selected':'' ?>><?= $sl ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <div class="form-group" style="margin:0;grid-column:1/-1">
+          <label class="form-label">Risk Level</label>
+          <select name="level" class="form-control" data-autosubmit>
+            <option value="">All levels</option>
+            <option value="critical" <?= ($_GET['level']??'')==='critical'?'selected':'' ?>>Critical (&gt;14)</option>
+            <option value="high"     <?= ($_GET['level']??'')==='high'?'selected':'' ?>>High (10–14)</option>
+            <option value="medium"   <?= ($_GET['level']??'')==='medium'?'selected':'' ?>>Medium (5–9)</option>
+            <option value="low"      <?= ($_GET['level']??'')==='low'?'selected':'' ?>>Low (≤4)</option>
+          </select>
+        </div>
+      </div>
+      <?php if ($riskFilterCount > 0): ?>
+      <div class="filter-popover-footer">
+        <a href="/risk" class="btn btn-ghost btn-sm"><i class="bi bi-x-circle"></i> Clear all</a>
+      </div>
+      <?php endif; ?>
+    </div>
   </form>
 </div>
 

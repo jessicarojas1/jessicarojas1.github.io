@@ -45,26 +45,44 @@ ob_start();
 </div>
 
 <!-- Filters -->
-<div class="card" style="margin-bottom:1rem">
-  <div class="card-body" style="padding:0.75rem 1rem">
-    <form method="GET" action="/incident" style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap">
-      <select name="severity" class="form-control" style="width:auto;min-width:140px" data-autosubmit>
-        <option value="">All severities</option>
-        <?php foreach (['critical'=>'Critical','high'=>'High','medium'=>'Medium','low'=>'Low'] as $val => $label): ?>
-          <option value="<?= $val ?>" <?= ($_GET['severity'] ?? '') === $val ? 'selected' : '' ?>><?= $label ?></option>
-        <?php endforeach; ?>
-      </select>
-      <select name="status" class="form-control" style="width:auto;min-width:150px" data-autosubmit>
-        <option value="">All statuses</option>
-        <?php foreach (['open'=>'Open','investigating'=>'Investigating','contained'=>'Contained','resolved'=>'Resolved','closed'=>'Closed'] as $val => $label): ?>
-          <option value="<?= $val ?>" <?= ($_GET['status'] ?? '') === $val ? 'selected' : '' ?>><?= $label ?></option>
-        <?php endforeach; ?>
-      </select>
-      <input type="text" name="search" class="form-control" placeholder="Search incidents..." value="<?= Security::h($_GET['search'] ?? '') ?>" style="flex:1;min-width:180px">
-      <button type="submit" class="btn btn-primary btn-sm">Filter</button>
-      <a href="/incident" class="btn btn-ghost btn-sm">Clear</a>
-    </form>
-  </div>
+<?php $incFilterCount = (int)!empty($_GET['severity']) + (int)!empty($_GET['status']) + (int)!empty($_GET['search']); ?>
+<div class="filter-toolbar">
+  <form method="GET" action="/incident" class="filter-popover-wrap">
+    <button type="button" class="btn btn-secondary btn-sm filter-btn" data-toggle-class="open" data-target="#incFilterPopover">
+      <i class="bi bi-funnel"></i> Filters
+      <?php if ($incFilterCount > 0): ?><span class="filter-active-count"><?= $incFilterCount ?></span><?php endif; ?>
+    </button>
+    <div id="incFilterPopover" class="filter-popover">
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Severity</label>
+        <select name="severity" class="form-control" data-autosubmit>
+          <option value="">All severities</option>
+          <?php foreach (['critical'=>'Critical','high'=>'High','medium'=>'Medium','low'=>'Low'] as $val => $label): ?>
+            <option value="<?= $val ?>" <?= ($_GET['severity'] ?? '') === $val ? 'selected' : '' ?>><?= $label ?></option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Status</label>
+        <select name="status" class="form-control" data-autosubmit>
+          <option value="">All statuses</option>
+          <?php foreach (['open'=>'Open','investigating'=>'Investigating','contained'=>'Contained','resolved'=>'Resolved','closed'=>'Closed'] as $val => $label): ?>
+            <option value="<?= $val ?>" <?= ($_GET['status'] ?? '') === $val ? 'selected' : '' ?>><?= $label ?></option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Search</label>
+        <input type="text" name="search" class="form-control" placeholder="Search incidents..." value="<?= Security::h($_GET['search'] ?? '') ?>">
+      </div>
+      <div class="filter-popover-footer">
+        <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+        <?php if ($incFilterCount > 0): ?>
+        <a href="/incident" class="btn btn-ghost btn-sm"><i class="bi bi-x-circle"></i> Clear</a>
+        <?php endif; ?>
+      </div>
+    </div>
+  </form>
 </div>
 
 <!-- Table -->
@@ -112,8 +130,8 @@ ob_start();
           $detectedAt = $inc['detected_at'] ? date('M j, Y g:ia', strtotime($inc['detected_at'])) : '—';
         ?>
           <tr>
-            <td><span style="font-family:monospace;font-size:0.85rem;font-weight:600"><?= Security::h($inc['incident_number']) ?></span></td>
-            <td><a href="/incident/<?= (int)$inc['id'] ?>" style="font-weight:500;text-decoration:none;color:inherit"><?= Security::h($inc['title']) ?></a></td>
+            <td><span class="mono fw-600 text-sm"><?= Security::h($inc['incident_number']) ?></span></td>
+            <td><a href="/incident/<?= (int)$inc['id'] ?>" class="table-link"><?= Security::h($inc['title']) ?></a></td>
             <td>
               <span class="status-chip" style="background:<?= $sevColor ?>20;color:<?= $sevColor ?>;border:1px solid <?= $sevColor ?>40;padding:2px 10px;border-radius:99px;font-size:0.78rem;font-weight:600;text-transform:uppercase;letter-spacing:0.04em">
                 <?= Security::h(ucfirst($sev)) ?>
@@ -126,26 +144,24 @@ ob_start();
               </span>
             </td>
             <td><?= Security::h($inc['assigned_to_name'] ?? '—') ?></td>
-            <td style="font-size:0.85rem;color:#6b7280"><?= $detectedAt ?></td>
+            <td class="text-sm text-muted"><?= $detectedAt ?></td>
             <td>
               <a href="/incident/<?= (int)$inc['id'] ?>" class="btn btn-ghost btn-sm" title="View"><i class="bi bi-eye"></i></a>
             </td>
           </tr>
         <?php endforeach; else: ?>
-          <tr>
-            <td colspan="8" style="text-align:center;padding:3rem 1rem">
-              <div style="display:flex;flex-direction:column;align-items:center;gap:0.75rem;color:#9ca3af">
-                <i class="bi bi-shield-check" style="font-size:2.5rem"></i>
-                <p style="margin:0;font-size:1rem">No incidents found.
-                  <?php if (empty($_GET['severity']) && empty($_GET['status']) && empty($_GET['search'])): ?>
-                    <a href="/incident/create">Report an incident</a>.
-                  <?php else: ?>
-                    <a href="/incident">Clear filters</a>.
-                  <?php endif; ?>
-                </p>
-              </div>
-            </td>
-          </tr>
+          <tr><td colspan="8" class="empty-row">
+            <div class="empty-state-sm">
+              <i class="bi bi-shield-check"></i>
+              <p>No incidents found.
+                <?php if (empty($_GET['severity']) && empty($_GET['status']) && empty($_GET['search'])): ?>
+                  <a href="/incident/create">Report an incident</a>.
+                <?php else: ?>
+                  <a href="/incident">Clear filters</a>.
+                <?php endif; ?>
+              </p>
+            </div>
+          </td></tr>
         <?php endif; ?>
       </tbody>
     </table>

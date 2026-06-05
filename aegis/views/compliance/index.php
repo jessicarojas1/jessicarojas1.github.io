@@ -113,7 +113,7 @@ ob_start();
 </div>
 </form>
 
-<style>
+<style nonce="<?= Security::nonce() ?>">
 .package-card { position: relative; }
 .pkg-select-label {
   position: absolute; top: 12px; right: 12px; z-index: 2;

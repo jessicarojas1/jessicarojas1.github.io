@@ -29,28 +29,28 @@ ob_start();
 <!-- Stats -->
 <div class="stats-grid">
   <div class="stat-card">
-    <div class="stat-icon" style="background:#eff6ff;color:#2563eb"><i class="bi bi-buildings"></i></div>
+    <div class="stat-icon" style="color:#2563eb"><i class="bi bi-buildings"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['total'] ?? 0) ?></div>
       <div class="stat-label">Total Vendors</div>
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:#f0fdf4;color:#059669"><i class="bi bi-check-circle-fill"></i></div>
+    <div class="stat-icon" style="color:#059669"><i class="bi bi-check-circle-fill"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['active_count'] ?? 0) ?></div>
       <div class="stat-label">Active Vendors</div>
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:#fef2f2;color:#dc2626"><i class="bi bi-exclamation-octagon-fill"></i></div>
+    <div class="stat-icon" style="color:#dc2626"><i class="bi bi-exclamation-octagon-fill"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['critical_count'] ?? 0) ?></div>
       <div class="stat-label">Critical Tier</div>
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:#fff7ed;color:#d97706"><i class="bi bi-database-fill-lock"></i></div>
+    <div class="stat-icon" style="color:#d97706"><i class="bi bi-database-fill-lock"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['data_access_count'] ?? 0) ?></div>
       <div class="stat-label">Data Access</div>
@@ -59,11 +59,16 @@ ob_start();
 </div>
 
 <!-- Filters -->
-<div class="card" style="margin-bottom:16px">
-  <div class="card-body">
-    <form method="GET" style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end">
-      <div class="form-group" style="margin:0;flex:1;min-width:180px">
-        <label class="form-label" style="font-size:12px;margin-bottom:4px">Risk Tier</label>
+<?php $vendorFilterCount = (int)!empty($_GET['risk_tier']) + (int)!empty($_GET['status']) + (int)!empty($_GET['search']); ?>
+<div class="filter-toolbar">
+  <form method="GET" class="filter-popover-wrap">
+    <button type="button" class="btn btn-secondary btn-sm filter-btn" data-toggle-class="open" data-target="#vendorFilterPopover">
+      <i class="bi bi-funnel"></i> Filters
+      <?php if ($vendorFilterCount > 0): ?><span class="filter-active-count"><?= $vendorFilterCount ?></span><?php endif; ?>
+    </button>
+    <div id="vendorFilterPopover" class="filter-popover">
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Risk Tier</label>
         <select name="risk_tier" class="form-control" data-autosubmit>
           <option value="">All Tiers</option>
           <?php foreach (['critical' => 'Critical', 'high' => 'High', 'medium' => 'Medium', 'low' => 'Low'] as $v => $l): ?>
@@ -71,8 +76,8 @@ ob_start();
           <?php endforeach; ?>
         </select>
       </div>
-      <div class="form-group" style="margin:0;flex:1;min-width:180px">
-        <label class="form-label" style="font-size:12px;margin-bottom:4px">Status</label>
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Status</label>
         <select name="status" class="form-control" data-autosubmit>
           <option value="">All Statuses</option>
           <?php foreach (['active' => 'Active', 'inactive' => 'Inactive', 'under_review' => 'Under Review', 'terminated' => 'Terminated'] as $v => $l): ?>
@@ -80,16 +85,18 @@ ob_start();
           <?php endforeach; ?>
         </select>
       </div>
-      <div class="form-group" style="margin:0;flex:2;min-width:220px">
-        <label class="form-label" style="font-size:12px;margin-bottom:4px">Search</label>
-        <input type="text" name="search" class="form-control" placeholder="Search name, code, category, contact..." value="<?= Security::h($_GET['search'] ?? '') ?>">
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Search</label>
+        <input type="text" name="search" class="form-control" placeholder="Search name, code, category..." value="<?= Security::h($_GET['search'] ?? '') ?>">
       </div>
-      <div style="display:flex;gap:8px;padding-bottom:1px">
-        <button type="submit" class="btn btn-primary btn-sm">Search</button>
-        <a href="/vendor" class="btn btn-secondary btn-sm">Clear</a>
+      <div class="filter-popover-footer">
+        <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+        <?php if ($vendorFilterCount > 0): ?>
+        <a href="/vendor" class="btn btn-ghost btn-sm"><i class="bi bi-x-circle"></i> Clear</a>
+        <?php endif; ?>
       </div>
-    </form>
-  </div>
+    </div>
+  </form>
 </div>
 
 <!-- Vendor Table -->
@@ -142,13 +149,9 @@ ob_start();
           }
         ?>
           <tr>
-            <td><span style="font-family:monospace;font-size:13px"><?= Security::h($v['vendor_code']) ?></span></td>
-            <td>
-              <a href="/vendor/<?= (int)$v['id'] ?>" style="font-weight:500;color:inherit;text-decoration:none">
-                <?= Security::h($v['name']) ?>
-              </a>
-            </td>
-            <td><?= $v['category'] ? Security::h($v['category']) : '<span style="color:#9ca3af">—</span>' ?></td>
+            <td><span class="mono text-sm"><?= Security::h($v['vendor_code']) ?></span></td>
+            <td><a href="/vendor/<?= (int)$v['id'] ?>" class="table-link"><?= Security::h($v['name']) ?></a></td>
+            <td><?= $v['category'] ? Security::h($v['category']) : '<span class="text-muted">—</span>' ?></td>
             <td>
               <span class="status-chip" style="background:<?= $tierColor ?>20;color:<?= $tierColor ?>;border:1px solid <?= $tierColor ?>40;padding:2px 10px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap">
                 <?= ucfirst(Security::h($v['risk_tier'])) ?>
@@ -190,17 +193,16 @@ ob_start();
             </td>
           </tr>
         <?php endforeach; else: ?>
-          <tr>
-            <td colspan="9" style="text-align:center;padding:48px 24px;color:#6b7280">
-              <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
-                <i class="bi bi-buildings" style="font-size:32px;color:#d1d5db"></i>
-                <p style="margin:0;font-size:15px">No vendors found.</p>
+          <tr><td colspan="9" class="empty-row">
+            <div class="empty-state-sm">
+              <i class="bi bi-buildings"></i>
+              <p>No vendors found.
                 <?php if (Auth::can('vendor.write')): ?>
-                  <a href="/vendor/create" class="btn btn-primary btn-sm" style="margin-top:8px"><i class="bi bi-plus-lg"></i> Add Vendor</a>
+                  <a href="/vendor/create">Add a vendor</a>.
                 <?php endif; ?>
-              </div>
-            </td>
-          </tr>
+              </p>
+            </div>
+          </td></tr>
         <?php endif; ?>
       </tbody>
     </table>

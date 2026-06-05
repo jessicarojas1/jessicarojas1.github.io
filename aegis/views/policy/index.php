@@ -10,7 +10,7 @@ ob_start();
     <h1 class="page-title">Policy Library</h1>
     <p class="page-subtitle">Manage, review, and map policies to compliance frameworks</p>
   </div>
-  <div style="display:flex;gap:8px;">
+  <div class="page-actions">
     <a href="/policy/mapping" class="btn btn-secondary"><i class="bi bi-diagram-2-fill"></i> Control Mapping</a>
     <a href="/policy/create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New Policy</a>
   </div>
@@ -24,39 +24,46 @@ ob_start();
 </div>
 
 <!-- Filters -->
-<div class="card" style="margin-bottom:16px;padding:14px 16px;">
-  <form method="GET" action="/policy" style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;">
-    <div>
-      <label style="display:block;font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;font-weight:600;">STATUS</label>
-      <div style="display:flex;gap:6px;">
-        <?php foreach ([''=>'All','draft'=>'Draft','under_review'=>'Under Review','published'=>'Published'] as $k=>$l): ?>
-        <a href="?<?= http_build_query(array_merge($_GET, ['status'=>$k])) ?>" class="btn btn-sm <?= ($status??'')===$k?'btn-primary':'btn-secondary' ?>"><?= $l ?></a>
-        <?php endforeach; ?>
-      </div>
-    </div>
-    <div>
-      <label style="display:block;font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;font-weight:600;">REVIEW DATE</label>
-      <select name="review" id="filterReview" class="form-control" style="min-width:160px;height:32px;font-size:0.85rem;">
-        <option value="">All dates</option>
-        <option value="overdue"     <?= ($reviewFilter??'')==='overdue'?'selected':'' ?>>Overdue</option>
-        <option value="this_month"  <?= ($reviewFilter??'')==='this_month'?'selected':'' ?>>Due in 30 days</option>
-        <option value="this_quarter"<?= ($reviewFilter??'')==='this_quarter'?'selected':'' ?>>Due in 90 days</option>
-        <option value="no_date"     <?= ($reviewFilter??'')==='no_date'?'selected':'' ?>>No review date</option>
-      </select>
-    </div>
-    <div>
-      <label style="display:block;font-size:0.75rem;color:var(--text-muted);margin-bottom:4px;font-weight:600;">COMPLIANCE PACKAGE</label>
-      <select name="package" id="filterPackagePol" class="form-control" style="min-width:180px;height:32px;font-size:0.85rem;">
-        <option value="">All packages</option>
-        <?php foreach ($packages as $pkg): ?>
-        <option value="<?= (int)$pkg['id'] ?>" <?= ($packageId??0)===(int)$pkg['id']?'selected':'' ?>><?= Security::h($pkg['name']) ?></option>
-        <?php endforeach; ?>
-      </select>
-    </div>
-    <?php if (!empty($status) || !empty($reviewFilter) || !empty($packageId)): ?>
-    <a href="/policy" class="btn btn-sm btn-secondary" style="align-self:flex-end;"><i class="bi bi-x-circle"></i> Clear</a>
-    <?php endif; ?>
+<?php $polFilterCount = (int)!empty($reviewFilter) + (int)!empty($packageId); ?>
+<div class="filter-toolbar">
+  <div style="display:flex;gap:6px;flex-wrap:wrap;">
+    <?php foreach ([''=>'All','draft'=>'Draft','under_review'=>'Under Review','published'=>'Published'] as $k=>$l): ?>
+    <a href="?<?= http_build_query(array_merge($_GET, ['status'=>$k])) ?>" class="btn btn-sm <?= ($status??'')===$k?'btn-primary':'btn-secondary' ?>"><?= $l ?></a>
+    <?php endforeach; ?>
+  </div>
+
+  <form method="GET" action="/policy" class="filter-popover-wrap">
     <input type="hidden" name="status" value="<?= Security::h($status ?? '') ?>">
+    <button type="button" class="btn btn-secondary btn-sm filter-btn" data-toggle-class="open" data-target="#polFilterPopover">
+      <i class="bi bi-funnel"></i> More Filters
+      <?php if ($polFilterCount > 0): ?><span class="filter-active-count"><?= $polFilterCount ?></span><?php endif; ?>
+    </button>
+    <div id="polFilterPopover" class="filter-popover">
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Review Date</label>
+        <select name="review" class="form-control" data-autosubmit>
+          <option value="">All dates</option>
+          <option value="overdue"      <?= ($reviewFilter??'')==='overdue'?'selected':'' ?>>Overdue</option>
+          <option value="this_month"   <?= ($reviewFilter??'')==='this_month'?'selected':'' ?>>Due in 30 days</option>
+          <option value="this_quarter" <?= ($reviewFilter??'')==='this_quarter'?'selected':'' ?>>Due in 90 days</option>
+          <option value="no_date"      <?= ($reviewFilter??'')==='no_date'?'selected':'' ?>>No review date</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Compliance Package</label>
+        <select name="package" class="form-control" data-autosubmit>
+          <option value="">All packages</option>
+          <?php foreach ($packages as $pkg): ?>
+          <option value="<?= (int)$pkg['id'] ?>" <?= ($packageId??0)===(int)$pkg['id']?'selected':'' ?>><?= Security::h($pkg['name']) ?></option>
+          <?php endforeach; ?>
+        </select>
+      </div>
+      <?php if ($polFilterCount > 0): ?>
+      <div class="filter-popover-footer">
+        <a href="/policy<?= $status ? '?status='.urlencode($status) : '' ?>" class="btn btn-ghost btn-sm"><i class="bi bi-x-circle"></i> Clear filters</a>
+      </div>
+      <?php endif; ?>
+    </div>
   </form>
 </div>
 
@@ -118,10 +125,6 @@ ob_start();
 <?php endif; ?>
 </div>
 
-<script nonce="<?= Security::nonce() ?>">
-document.getElementById('filterReview').addEventListener('change', function(){ this.form.submit(); });
-document.getElementById('filterPackagePol').addEventListener('change', function(){ this.form.submit(); });
-</script>
 <?php
 $content = ob_get_clean();
 require AEGIS_ROOT . '/views/layout.php';
