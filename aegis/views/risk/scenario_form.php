@@ -100,8 +100,8 @@ function scenarioLevelClass(int $s): string {
               $selectedType = $_POST['scenario_type'] ?? 'stress';
               $typeMeta = [
                   'base'          => ['label'=>'Base',         'icon'=>'bi-circle-fill',          'color'=>'#71717a','bg'=>'#f4f4f5'],
-                  'stress'        => ['label'=>'Stress',       'icon'=>'bi-graph-up-arrow',        'color'=>'#dc2626','bg'=>'#fef2f2'],
-                  'optimistic'    => ['label'=>'Optimistic',   'icon'=>'bi-graph-down-arrow',      'color'=>'#16a34a','bg'=>'#f0fdf4'],
+                  'stress'        => ['label'=>'Stress',       'icon'=>'bi-graph-up-arrow',        'color'=>'var(--danger)','bg'=>'#fef2f2'],
+                  'optimistic'    => ['label'=>'Optimistic',   'icon'=>'bi-graph-down-arrow',      'color'=>'var(--primary)','bg'=>'#f0fdf4'],
                   'catastrophic'  => ['label'=>'Catastrophic', 'icon'=>'bi-exclamation-octagon-fill','color'=>'#111111','bg'=>'#f9fafb'],
                   'regulatory'    => ['label'=>'Regulatory',   'icon'=>'bi-bank',                  'color'=>'#2563eb','bg'=>'#eff6ff'],
               ];
@@ -271,7 +271,7 @@ function scenarioLevelClass(int $s): string {
             <tbody>
               <tr>
                 <td><strong>0.1–0.5</strong></td>
-                <td style="color:#16a34a">Much less severe</td>
+                <td style="color:var(--primary)">Much less severe</td>
                 <td>Controls highly effective</td>
               </tr>
               <tr>

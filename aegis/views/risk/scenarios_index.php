@@ -7,9 +7,9 @@
 $nonce = Security::nonce();
 
 $typeMeta = [
-    'stress'       => ['label'=>'Stress',        'color'=>'#dc2626','bg'=>'#fef2f2','border'=>'#fca5a5','icon'=>'bi-graph-up-arrow'],
+    'stress'       => ['label'=>'Stress',        'color'=>'var(--danger)','bg'=>'#fef2f2','border'=>'#fca5a5','icon'=>'bi-graph-up-arrow'],
     'base'         => ['label'=>'Base',           'color'=>'#71717a','bg'=>'#f4f4f5','border'=>'#d4d4d8','icon'=>'bi-circle-fill'],
-    'optimistic'   => ['label'=>'Optimistic',     'color'=>'#16a34a','bg'=>'#f0fdf4','border'=>'#86efac','icon'=>'bi-graph-down-arrow'],
+    'optimistic'   => ['label'=>'Optimistic',     'color'=>'var(--primary)','bg'=>'#f0fdf4','border'=>'#86efac','icon'=>'bi-graph-down-arrow'],
     'catastrophic' => ['label'=>'Catastrophic',   'color'=>'#111111','bg'=>'#f9fafb','border'=>'#a1a1aa','icon'=>'bi-exclamation-octagon-fill'],
     'regulatory'   => ['label'=>'Regulatory',     'color'=>'#2563eb','bg'=>'#eff6ff','border'=>'#93c5fd','icon'=>'bi-bank'],
 ];
@@ -58,14 +58,14 @@ function scIdxLevelClass(int $s): string {
   </div>
   <div class="sc-stat">
     <div class="num <?= $highestScore > 14 ? 'text-danger' : ($highestScore > 9 ? '' : '') ?>"
-         style="color:<?= $highestScore > 14 ? '#dc2626' : ($highestScore > 9 ? '#f97316' : ($highestScore > 4 ? '#d97706' : '#16a34a')) ?>">
+         style="color:<?= $highestScore > 14 ? 'var(--danger)' : ($highestScore > 9 ? '#f97316' : ($highestScore > 4 ? 'var(--warning)' : 'var(--primary)')) ?>">
       <?= $highestScore ?>
     </div>
     <div class="lbl">Highest Scenario Score</div>
   </div>
   <?php if ($totalFinancial > 0): ?>
   <div class="sc-stat">
-    <div class="num" style="font-size:18px;color:#16a34a">$<?= number_format($totalFinancial, 0) ?></div>
+    <div class="num" style="font-size:18px;color:var(--primary)">$<?= number_format($totalFinancial, 0) ?></div>
     <div class="lbl">Total Financial Exposure</div>
   </div>
   <?php endif; ?>

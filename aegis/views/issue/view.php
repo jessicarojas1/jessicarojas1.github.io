@@ -1,6 +1,6 @@
 <?php
-$sevColors = ['critical'=>'#dc2626','high'=>'#d97706','medium'=>'#0284c7','low'=>'#059669'];
-$statusColors = ['open'=>'#dc2626','in_progress'=>'#d97706','pending_review'=>'var(--secondary)','resolved'=>'#059669','closed'=>'#71717a','wont_fix'=>'#71717a'];
+$sevColors = ['critical'=>'var(--danger)','high'=>'var(--warning)','medium'=>'#0284c7','low'=>'var(--success)'];
+$statusColors = ['open'=>'var(--danger)','in_progress'=>'var(--warning)','pending_review'=>'var(--secondary)','resolved'=>'var(--success)','closed'=>'#71717a','wont_fix'=>'#71717a'];
 $sevColor = $sevColors[$issue['severity']] ?? '#71717a';
 $stColor  = $statusColors[$issue['status']] ?? '#71717a';
 $pageTitle    = 'Issue: ' . $issue['issue_number'];
@@ -36,7 +36,7 @@ ob_start();
 
     <?php if ($issue['resolution']): ?>
     <div class="card">
-      <div class="card-header"><div class="card-header-left"><i class="bi bi-check-circle" style="color:#059669"></i><span class="card-title">Resolution</span></div></div>
+      <div class="card-header"><div class="card-header-left"><i class="bi bi-check-circle" style="color:var(--success)"></i><span class="card-title">Resolution</span></div></div>
       <div class="card-body"><p style="white-space:pre-wrap;margin:0"><?= Security::h($issue['resolution']) ?></p></div>
     </div>
     <?php endif; ?>

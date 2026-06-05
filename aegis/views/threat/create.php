@@ -193,10 +193,10 @@ $breadcrumbs = $breadcrumbs ?? [['Threat Register', '/threat'], ['New Threat', n
         <div class="card-body" style="font-size:13px;">
           <?php
           $guide = [
-              ['1 – 4',  '#f0fdf4', '#16a34a', 'Low',      'Minimal risk. Unlikely to occur or negligible impact.'],
-              ['5 – 9',  '#fffbeb', '#d97706', 'Medium',   'Moderate risk. Should be monitored and controlled.'],
+              ['1 – 4',  '#f0fdf4', 'var(--primary)', 'Low',      'Minimal risk. Unlikely to occur or negligible impact.'],
+              ['5 – 9',  '#fffbeb', 'var(--warning)', 'Medium',   'Moderate risk. Should be monitored and controlled.'],
               ['10 – 16','#fff7ed', '#ea580c', 'High',     'Significant risk. Requires active mitigation.'],
-              ['17 – 25','#fef2f2', '#dc2626', 'Critical', 'Severe risk. Immediate treatment required.'],
+              ['17 – 25','#fef2f2', 'var(--danger)', 'Critical', 'Severe risk. Immediate treatment required.'],
           ];
           foreach ($guide as [$range, $bg, $color, $label, $desc]):
           ?>
@@ -218,10 +218,10 @@ $breadcrumbs = $breadcrumbs ?? [['Threat Register', '/threat'], ['New Threat', n
 <script nonce="<?= Security::nonce() ?>">
 (function() {
     function scoreColor(s) {
-        if (s <= 4)  return '#16a34a';
-        if (s <= 9)  return '#d97706';
+        if (s <= 4)  return 'var(--primary)';
+        if (s <= 9)  return 'var(--warning)';
         if (s <= 16) return '#ea580c';
-        return '#dc2626';
+        return 'var(--danger)';
     }
     function scoreLabel(s) {
         if (s <= 4)  return 'Low';

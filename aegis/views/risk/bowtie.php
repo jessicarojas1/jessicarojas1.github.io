@@ -6,36 +6,36 @@
 $score = (int)($risk['inherent_score'] ?? 0);
 $scoreLevel = $score > 14 ? 'Critical' : ($score > 9 ? 'High' : ($score > 4 ? 'Medium' : 'Low'));
 $scoreBg    = $score > 14 ? '#fef2f2' : ($score > 9 ? '#fff7ed' : ($score > 4 ? '#fffbeb' : '#f0fdf4'));
-$scoreColor = $score > 14 ? '#dc2626' : ($score > 9 ? '#ea580c' : ($score > 4 ? '#d97706' : '#16a34a'));
+$scoreColor = $score > 14 ? 'var(--danger)' : ($score > 9 ? '#ea580c' : ($score > 4 ? 'var(--warning)' : 'var(--primary)'));
 
 $causeTypeMeta = [
-    'threat'          => ['label' => 'Threat',        'color' => '#dc2626', 'bg' => '#fef2f2', 'icon' => 'bi-exclamation-octagon-fill'],
-    'vulnerability'   => ['label' => 'Vulnerability', 'color' => '#d97706', 'bg' => '#fffbeb', 'icon' => 'bi-shield-slash-fill'],
+    'threat'          => ['label' => 'Threat',        'color' => 'var(--danger)', 'bg' => '#fef2f2', 'icon' => 'bi-exclamation-octagon-fill'],
+    'vulnerability'   => ['label' => 'Vulnerability', 'color' => 'var(--warning)', 'bg' => '#fffbeb', 'icon' => 'bi-shield-slash-fill'],
     'hazard'          => ['label' => 'Hazard',         'color' => 'var(--secondary)', 'bg' => 'rgba(55,65,81,.06)', 'icon' => 'bi-biohazard'],
     'event'           => ['label' => 'Event',          'color' => '#0891b2', 'bg' => '#ecfeff', 'icon' => 'bi-lightning-fill'],
 ];
 
 $consequenceTypeMeta = [
-    'financial'      => ['label' => 'Financial',     'color' => '#dc2626', 'bg' => '#fef2f2', 'icon' => 'bi-cash-coin'],
-    'operational'    => ['label' => 'Operational',   'color' => '#d97706', 'bg' => '#fffbeb', 'icon' => 'bi-gear-fill'],
+    'financial'      => ['label' => 'Financial',     'color' => 'var(--danger)', 'bg' => '#fef2f2', 'icon' => 'bi-cash-coin'],
+    'operational'    => ['label' => 'Operational',   'color' => 'var(--warning)', 'bg' => '#fffbeb', 'icon' => 'bi-gear-fill'],
     'reputational'   => ['label' => 'Reputational',  'color' => 'var(--secondary)', 'bg' => 'rgba(55,65,81,.06)', 'icon' => 'bi-star-fill'],
     'legal'          => ['label' => 'Legal',          'color' => '#0891b2', 'bg' => '#ecfeff', 'icon' => 'bi-balance-scale'],
-    'safety'         => ['label' => 'Safety',         'color' => '#16a34a', 'bg' => '#f0fdf4', 'icon' => 'bi-heart-pulse-fill'],
+    'safety'         => ['label' => 'Safety',         'color' => 'var(--primary)', 'bg' => '#f0fdf4', 'icon' => 'bi-heart-pulse-fill'],
     'impact'         => ['label' => 'Impact',         'color' => '#71717a', 'bg' => '#f4f4f5', 'icon' => 'bi-arrow-down-circle-fill'],
 ];
 
 $severityMeta = [
-    'low'      => ['label' => 'Low',      'color' => '#16a34a', 'bg' => '#f0fdf4'],
-    'medium'   => ['label' => 'Medium',   'color' => '#d97706', 'bg' => '#fffbeb'],
+    'low'      => ['label' => 'Low',      'color' => 'var(--primary)', 'bg' => '#f0fdf4'],
+    'medium'   => ['label' => 'Medium',   'color' => 'var(--warning)', 'bg' => '#fffbeb'],
     'high'     => ['label' => 'High',     'color' => '#ea580c', 'bg' => '#fff7ed'],
-    'critical' => ['label' => 'Critical', 'color' => '#dc2626', 'bg' => '#fef2f2'],
+    'critical' => ['label' => 'Critical', 'color' => 'var(--danger)', 'bg' => '#fef2f2'],
 ];
 
 $effectivenessMeta = [
-    'degraded'    => ['label' => 'Degraded',    'color' => '#dc2626', 'ring' => '#fca5a5'],
-    'partial'     => ['label' => 'Partial',     'color' => '#d97706', 'ring' => '#fcd34d'],
+    'degraded'    => ['label' => 'Degraded',    'color' => 'var(--danger)', 'ring' => '#fca5a5'],
+    'partial'     => ['label' => 'Partial',     'color' => 'var(--warning)', 'ring' => '#fcd34d'],
     'substantial' => ['label' => 'Substantial', 'color' => '#2563eb', 'ring' => '#93c5fd'],
-    'full'        => ['label' => 'Full',        'color' => '#16a34a', 'ring' => '#86efac'],
+    'full'        => ['label' => 'Full',        'color' => 'var(--primary)', 'ring' => '#86efac'],
 ];
 
 $barrierTypeMeta = [
@@ -47,9 +47,9 @@ $barrierTypeMeta = [
 ];
 
 $likelihoodMeta = [
-    'low'    => ['label' => 'Low',    'color' => '#16a34a'],
-    'medium' => ['label' => 'Medium', 'color' => '#d97706'],
-    'high'   => ['label' => 'High',   'color' => '#dc2626'],
+    'low'    => ['label' => 'Low',    'color' => 'var(--primary)'],
+    'medium' => ['label' => 'Medium', 'color' => 'var(--warning)'],
+    'high'   => ['label' => 'High',   'color' => 'var(--danger)'],
 ];
 
 $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && empty($rightBarriers);
@@ -140,7 +140,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
     line-height: 1;
     transition: color .12s, background .12s;
 }
-.bt-item-delete:hover { color: #dc2626; background: #dc262618; }
+.bt-item-delete:hover { color: var(--danger); background: #dc262618; }
 
 /* Arrow connector zones */
 .bt-arrow-zone {
@@ -502,7 +502,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 
       <!-- ── (F) Right Barriers ──────────────────────────── -->
       <div class="bt-barriers-col">
-        <div class="bt-col-header" style="color:#16a34a;background:#16a34a18;border:1px solid #16a34a40">
+        <div class="bt-col-header" style="color:var(--primary);background:#16a34a18;border:1px solid #16a34a40">
           <i class="bi bi-arrow-counterclockwise"></i> Recovery Controls
         </div>
         <?php if (empty($rightBarriers)): ?>
@@ -612,10 +612,10 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
         <?php endif; ?>
       </button>
       <button class="bt-tab-btn" data-click="btTabBtn" data-arg="right-barriers" role="tab" aria-selected="false">
-        <i class="bi bi-arrow-counterclockwise" style="color:#16a34a"></i>
+        <i class="bi bi-arrow-counterclockwise" style="color:var(--primary)"></i>
         Right Barriers
         <?php if (!empty($rightBarriers)): ?>
-          <span style="background:#16a34a18;color:#16a34a;font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px"><?= count($rightBarriers) ?></span>
+          <span style="background:#16a34a18;color:var(--primary);font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px"><?= count($rightBarriers) ?></span>
         <?php endif; ?>
       </button>
       <button class="bt-tab-btn" data-click="btTabBtn" data-arg="consequences" role="tab" aria-selected="false">

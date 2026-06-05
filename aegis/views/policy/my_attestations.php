@@ -15,7 +15,7 @@
   <div class="card" style="border:2px solid #fbbf24;margin-bottom:24px">
     <div class="card-header" style="background:var(--warning-subtle)">
       <h3 class="card-title" style="color:var(--warning)">
-        <i class="bi bi-exclamation-triangle-fill" style="color:#d97706"></i>
+        <i class="bi bi-exclamation-triangle-fill" style="color:var(--warning)"></i>
         Action Required — <?= count($pending) ?> Pending Attestation<?= count($pending) !== 1 ? 's' : '' ?>
       </h3>
     </div>
@@ -37,7 +37,7 @@
               <td>
                 <?php if ($p['due_date']): ?>
                   <?php $overdue = strtotime($p['due_date']) < time(); ?>
-                  <span <?= $overdue ? 'style="color:#dc2626;font-weight:600"' : '' ?>>
+                  <span <?= $overdue ? 'style="color:var(--danger);font-weight:600"' : '' ?>>
                     <?= date('M j, Y', strtotime($p['due_date'])) ?>
                     <?= $overdue ? '<span class="badge badge-danger" style="margin-left:6px">Overdue</span>' : '' ?>
                   </span>
@@ -66,7 +66,7 @@
 <!-- Completed attestations -->
 <div class="card">
   <div class="card-header">
-    <h3 class="card-title"><i class="bi bi-check-circle-fill" style="color:#059669"></i> Completed Attestations</h3>
+    <h3 class="card-title"><i class="bi bi-check-circle-fill" style="color:var(--success)"></i> Completed Attestations</h3>
     <span class="badge"><?= count($records) ?></span>
   </div>
   <div class="card-body p0">

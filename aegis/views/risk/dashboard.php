@@ -921,7 +921,7 @@ if (!empty($trendData)) {
     // ── Line ────────────────────────────────────────────
     ctx.beginPath();
     ctx.lineWidth = 2.5;
-    ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#16a34a';
+    ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || 'var(--primary)';
     ctx.lineJoin = 'round';
     data.forEach(function(pt, i) {
       if (i === 0) ctx.moveTo(xPos(i), yPos(pt.avg));

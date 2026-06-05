@@ -134,7 +134,7 @@ unset($_SESSION['flash_error']);
             <input type="number" name="threshold_green" id="tGreen" class="form-control" step="any" required
                    placeholder="e.g. 5"
                    value="<?= Security::h((string)($_POST['threshold_green'] ?? '')) ?>"
-                   style="border-color:#16a34a44;background:var(--success-subtle);"
+                   style="border-color:var(--primary)44;background:var(--success-subtle);"
                    data-input="updatePreview">
             <div style="font-size:11px;color:var(--primary);margin-top:3px;" id="greenHint">On-track level</div>
           </div>

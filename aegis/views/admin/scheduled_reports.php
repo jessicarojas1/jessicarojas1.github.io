@@ -14,7 +14,7 @@ $reportTypeLabels = [
     'executive_summary'  => 'Executive Summary',
 ];
 $reportTypeBadgeColors = [
-    'risk_register'      => '#dc2626',
+    'risk_register'      => 'var(--danger)',
     'compliance_summary' => '#2563eb',
     'audit_status'       => '#374151',
     'executive_summary'  => '#0891b2',

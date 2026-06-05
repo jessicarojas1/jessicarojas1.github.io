@@ -74,9 +74,9 @@
   .cover-meta td:first-child { color: var(--ssp-meta-label); width: 160px; font-weight: 600; }
   .impact-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
   .impact-badge { padding: 2px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
-  .impact-low      { background: rgba(5,150,105,0.15);  color: #059669; }
-  .impact-moderate { background: rgba(217,119,6,0.15);  color: #d97706; }
-  .impact-high     { background: rgba(220,38,38,0.15);  color: #dc2626; }
+  .impact-low      { background: rgba(5,150,105,0.15);  color: var(--success); }
+  .impact-moderate { background: rgba(217,119,6,0.15);  color: var(--warning); }
+  .impact-high     { background: rgba(220,38,38,0.15);  color: var(--danger); }
 
   /* TOC */
   .toc { page-break-before: always; padding: 50px 60px; }
@@ -102,9 +102,9 @@
   .control-code { background: var(--ssp-accent); color: #fff; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; white-space: nowrap; font-family: monospace; }
   .control-title { font-weight: 600; font-size: 0.9rem; flex: 1; }
   .status-badge { padding: 2px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; white-space: nowrap; }
-  .status-compliant      { background: rgba(5,150,105,0.15);   color: #059669; }
-  .status-partial        { background: rgba(217,119,6,0.15);   color: #d97706; }
-  .status-non_compliant  { background: rgba(220,38,38,0.15);   color: #dc2626; }
+  .status-compliant      { background: rgba(5,150,105,0.15);   color: var(--success); }
+  .status-partial        { background: rgba(217,119,6,0.15);   color: var(--warning); }
+  .status-non_compliant  { background: rgba(220,38,38,0.15);   color: var(--danger); }
   .status-not_applicable { background: rgba(100,116,139,0.15); color: #64748b; }
   .status-default        { background: rgba(100,116,139,0.15); color: #64748b; }
 

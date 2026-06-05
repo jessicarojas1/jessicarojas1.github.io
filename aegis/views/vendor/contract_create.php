@@ -26,7 +26,7 @@ $breadcrumbs = $breadcrumbs ?? [['Vendors', '/vendor'], ['Contracts', '/vendor/c
 
       <!-- Title -->
       <div class="form-group">
-        <label class="form-label">Title <span style="color:#dc2626">*</span></label>
+        <label class="form-label">Title <span style="color:var(--danger)">*</span></label>
         <input type="text" name="title" class="form-control" required placeholder="e.g. Master Service Agreement 2025" maxlength="255">
       </div>
 
@@ -63,7 +63,7 @@ $breadcrumbs = $breadcrumbs ?? [['Vendors', '/vendor'], ['Contracts', '/vendor/c
       <!-- Dates (side by side) -->
       <div class="form-row">
         <div class="form-group" style="flex:1">
-          <label class="form-label">Start Date <span style="color:#dc2626">*</span></label>
+          <label class="form-label">Start Date <span style="color:var(--danger)">*</span></label>
           <input type="date" name="start_date" class="form-control" required>
         </div>
         <div class="form-group" style="flex:1">

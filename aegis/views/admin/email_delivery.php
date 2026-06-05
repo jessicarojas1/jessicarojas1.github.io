@@ -20,9 +20,9 @@ $typeLabels = [
 ];
 $typeColors = [
     'overdue_controls'=>'#ef4444','policy_review_due'=>'#f59e0b','pending_approval'=>'var(--primary)',
-    'new_risk_assigned'=>'#f97316','open_incident_aging'=>'#dc2626','risk_review_overdue'=>'#b45309',
+    'new_risk_assigned'=>'#f97316','open_incident_aging'=>'var(--danger)','risk_review_overdue'=>'#b45309',
     'treatment_due'=>'var(--secondary)','risk_score_worsened'=>'#ef4444','vendor_assessment_expiring'=>'#0891b2',
-    'document_expiring'=>'#059669','assessment_pending_stale'=>'#71717a',
+    'document_expiring'=>'var(--success)','assessment_pending_stale'=>'#71717a',
 ];
 ?>
 
@@ -42,7 +42,7 @@ $typeColors = [
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
   <?php foreach ([
     ['Total Sent','total_all','var(--primary)','bi-envelope-fill'],
-    ['Today','today','#16a34a','bi-calendar-check-fill'],
+    ['Today','today','var(--primary)','bi-calendar-check-fill'],
     ['This Week','this_week','#f59e0b','bi-calendar-week-fill'],
     ['This Month','this_month','#3b82f6','bi-calendar-month-fill'],
   ] as [$label,$key,$color,$icon]): ?>

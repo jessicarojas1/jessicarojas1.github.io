@@ -41,7 +41,7 @@ ob_start();
   $compliant = (int)$pkg['compliant_count'];
   $partial   = (int)$pkg['partial_count'];
   $pct       = round(($compliant / $total) * 100);
-  $color     = $pct >= 80 ? '#059669' : ($pct >= 50 ? '#d97706' : '#dc2626');
+  $color     = $pct >= 80 ? 'var(--success)' : ($pct >= 50 ? 'var(--warning)' : 'var(--danger)');
 ?>
   <div class="package-card" id="pkgcard-<?= $pkg['id'] ?>">
     <?php if (Auth::can('compliance.write')): ?>

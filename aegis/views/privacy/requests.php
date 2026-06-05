@@ -42,7 +42,7 @@ $typeColors = ['access'=>'blue','erasure'=>'red','rectification'=>'yellow','port
           <td>
             <?php if ($r['due_date']): ?>
               <?php $overdue = strtotime($r['due_date']) < time() && $r['status'] !== 'completed'; ?>
-              <span style="color:<?= $overdue ? '#dc2626' : 'inherit' ?>"><?= date('M j, Y', strtotime($r['due_date'])) ?></span>
+              <span style="color:<?= $overdue ? 'var(--danger)' : 'inherit' ?>"><?= date('M j, Y', strtotime($r['due_date'])) ?></span>
             <?php else: ?>
               —
             <?php endif; ?>

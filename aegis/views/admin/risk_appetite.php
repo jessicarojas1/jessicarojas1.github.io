@@ -67,10 +67,10 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
             <?php
               $app = $row['appetite'];
               $appColors = [
-                'zero'     => ['bg'=>'#fef2f2','border'=>'#fca5a5','text'=>'#dc2626','label'=>'Zero'],
-                'low'      => ['bg'=>'#fffbeb','border'=>'#fcd34d','text'=>'#d97706','label'=>'Low'],
+                'zero'     => ['bg'=>'#fef2f2','border'=>'#fca5a5','text'=>'var(--danger)','label'=>'Zero'],
+                'low'      => ['bg'=>'#fffbeb','border'=>'#fcd34d','text'=>'var(--warning)','label'=>'Low'],
                 'moderate' => ['bg'=>'#eff6ff','border'=>'#93c5fd','text'=>'#2563eb','label'=>'Moderate'],
-                'high'     => ['bg'=>'#f0fdf4','border'=>'#86efac','text'=>'#16a34a','label'=>'High'],
+                'high'     => ['bg'=>'#f0fdf4','border'=>'#86efac','text'=>'var(--primary)','label'=>'High'],
               ];
               $ac = $appColors[$app] ?? $appColors['low'];
             ?>
@@ -172,10 +172,10 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 
 <script nonce="<?= Security::nonce() ?>">
 var _appetiteColors = {
-  'zero':     {text:'#dc2626',label:'Zero Tolerance'},
-  'low':      {text:'#d97706',label:'Low'},
+  'zero':     {text:'var(--danger)',label:'Zero Tolerance'},
+  'low':      {text:'var(--warning)',label:'Low'},
   'moderate': {text:'#2563eb',label:'Moderate'},
-  'high':     {text:'#16a34a',label:'High'},
+  'high':     {text:'var(--primary)',label:'High'},
 };
 
 function updateRowColor(sel) {

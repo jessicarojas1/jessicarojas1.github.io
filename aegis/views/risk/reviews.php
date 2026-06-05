@@ -17,15 +17,15 @@ $typeLabels = [
 
 $typeBadgeColors = [
     'periodic'  => ['#2563eb','#eff6ff'],
-    'triggered' => ['#d97706','#fffbeb'],
+    'triggered' => ['var(--warning)','#fffbeb'],
     'ad_hoc'    => ['var(--secondary)','rgba(55,65,81,.05)'],
     'board'     => ['#0891b2','#ecfeff'],
 ];
 
 $statusConfig = [
     'planned'     => ['fg'=>'#2563eb','bg'=>'#eff6ff','label'=>'Planned'],
-    'in_progress' => ['fg'=>'#d97706','bg'=>'#fffbeb','label'=>'In Progress'],
-    'completed'   => ['fg'=>'#16a34a','bg'=>'#f0fdf4','label'=>'Completed'],
+    'in_progress' => ['fg'=>'var(--warning)','bg'=>'#fffbeb','label'=>'In Progress'],
+    'completed'   => ['fg'=>'var(--primary)','bg'=>'#f0fdf4','label'=>'Completed'],
     'cancelled'   => ['fg'=>'#71717a','bg'=>'#f4f4f5','label'=>'Cancelled'],
 ];
 
@@ -89,10 +89,10 @@ ob_start();
   <div class="card" style="border-left:4px solid #16a34a;">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
       <div style="width:44px;height:44px;border-radius:10px;background:var(--success-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-        <i class="bi bi-check-circle-fill" style="font-size:20px;color:#16a34a;"></i>
+        <i class="bi bi-check-circle-fill" style="font-size:20px;color:var(--primary);"></i>
       </div>
       <div>
-        <div style="font-size:26px;font-weight:700;line-height:1;color:#16a34a;"><?= $completed ?></div>
+        <div style="font-size:26px;font-weight:700;line-height:1;color:var(--primary);"><?= $completed ?></div>
         <div style="font-size:12px;color:var(--text-muted);margin-top:3px;">Completed</div>
       </div>
     </div>
@@ -193,7 +193,7 @@ ob_start();
               <?php endif; ?>
             </div>
             <div style="height:6px;background:var(--bg-secondary);border-radius:3px;overflow:hidden;">
-              <div style="height:100%;width:<?= $pct ?>%;background:<?= $pct >= 100 ? '#16a34a' : ($pct > 50 ? '#d97706' : 'var(--primary)') ?>;border-radius:3px;transition:width .3s;"></div>
+              <div style="height:100%;width:<?= $pct ?>%;background:<?= $pct >= 100 ? 'var(--primary)' : ($pct > 50 ? 'var(--warning)' : 'var(--primary)') ?>;border-radius:3px;transition:width .3s;"></div>
             </div>
           </td>
           <td>

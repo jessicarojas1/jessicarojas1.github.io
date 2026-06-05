@@ -15,7 +15,7 @@ $kpiOpenRisks  = (int)($L['open_risks']     ?? 0);
 $kpiOpenInc    = (int)($L['open_incidents'] ?? 0);
 
 function metricColor(float $pct): string {
-    return $pct >= 80 ? '#059669' : ($pct >= 60 ? '#d97706' : '#dc2626');
+    return $pct >= 80 ? 'var(--success)' : ($pct >= 60 ? 'var(--warning)' : 'var(--danger)');
 }
 ?>
 
@@ -223,7 +223,7 @@ new Chart(ctx, {
     datasets: [
       { label: 'GRC Score',   data: <?= json_encode($trendGRC) ?>,  borderColor:'#1e3a5f', backgroundColor:'#1e3a5f20', tension:.3, fill:true },
       { label: 'Compliance',  data: <?= json_encode($trendComp) ?>, borderColor:'#0284c7', backgroundColor:'transparent', tension:.3 },
-      { label: 'Risk Health', data: <?= json_encode($trendRisk) ?>, borderColor:'#d97706', backgroundColor:'transparent', tension:.3 },
+      { label: 'Risk Health', data: <?= json_encode($trendRisk) ?>, borderColor:'var(--warning)', backgroundColor:'transparent', tension:.3 },
     ]
   },
   options: {

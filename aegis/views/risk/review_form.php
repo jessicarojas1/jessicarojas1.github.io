@@ -207,7 +207,7 @@ ob_start();
 </form>
 
 <style nonce="<?= Security::nonce() ?>">
-.required::after { content: ' *'; color: #dc2626; }
+.required::after { content: ' *'; color: var(--danger); }
 </style>
 <script nonce="<?= Security::nonce() ?>">
 var typeDescs = {

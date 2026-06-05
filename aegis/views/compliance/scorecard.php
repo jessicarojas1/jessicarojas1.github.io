@@ -58,7 +58,7 @@ ob_start();
     <h3 style="margin-bottom:12px;font-size:15px;color:var(--text)">Executive Summary</h3>
 
     <?php
-      $pctColor = $pct >= 80 ? '#059669' : ($pct >= 60 ? '#d97706' : '#dc2626');
+      $pctColor = $pct >= 80 ? 'var(--success)' : ($pct >= 60 ? 'var(--warning)' : 'var(--danger)');
       $pctBg    = $pct >= 80 ? '#dcfce7' : ($pct >= 60 ? '#fef9c3' : '#fee2e2');
     ?>
 

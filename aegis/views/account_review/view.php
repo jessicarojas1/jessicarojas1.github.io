@@ -131,11 +131,11 @@ $pct      = $total > 0 ? round(($reviewed / $total) * 100) : 0;
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;font-size:13px">
           <div style="display:flex;justify-content:space-between">
-            <span style="color:#059669"><i class="bi bi-check-circle-fill"></i> Approved</span>
+            <span style="color:var(--success)"><i class="bi bi-check-circle-fill"></i> Approved</span>
             <strong><?= $approved ?></strong>
           </div>
           <div style="display:flex;justify-content:space-between">
-            <span style="color:#dc2626"><i class="bi bi-x-circle-fill"></i> Revoked</span>
+            <span style="color:var(--danger)"><i class="bi bi-x-circle-fill"></i> Revoked</span>
             <strong><?= $revoked ?></strong>
           </div>
           <div style="display:flex;justify-content:space-between">
@@ -176,7 +176,7 @@ $pct      = $total > 0 ? round(($reviewed / $total) * 100) : 0;
     <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
       <div id="decisionAccountName" style="font-weight:600;font-size:14px"></div>
       <div class="form-group" style="margin:0">
-        <label class="form-label">Decision <span style="color:#dc2626">*</span></label>
+        <label class="form-label">Decision <span style="color:var(--danger)">*</span></label>
         <select name="decision" class="form-control" required>
           <option value="approved">✓ Approved — access is appropriate</option>
           <option value="revoked">✗ Revoked — access should be removed</option>

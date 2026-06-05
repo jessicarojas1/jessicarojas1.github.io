@@ -29,11 +29,11 @@ $urgent = array_filter($expiring, function($c) {
       <span>Total Contracts</span>
     </div>
     <div class="ov-stat">
-      <span class="ov-num" style="color:#059669"><?= $activeCount ?></span>
+      <span class="ov-num" style="color:var(--success)"><?= $activeCount ?></span>
       <span>Active</span>
     </div>
     <div class="ov-stat">
-      <span class="ov-num" style="color:#d97706"><?= $expiringCount ?></span>
+      <span class="ov-num" style="color:var(--warning)"><?= $expiringCount ?></span>
       <span>Expiring &le;60 Days</span>
     </div>
     <div class="ov-stat">
@@ -48,7 +48,7 @@ $urgent = array_filter($expiring, function($c) {
 <?php if ($urgent): ?>
 <div class="card" style="margin-bottom:16px;border-left:4px solid #dc2626;background:var(--danger-subtle)">
   <div class="card-body" style="display:flex;align-items:center;gap:12px;padding:14px 18px">
-    <i class="bi bi-exclamation-triangle-fill" style="color:#dc2626;font-size:20px;flex-shrink:0"></i>
+    <i class="bi bi-exclamation-triangle-fill" style="color:var(--danger);font-size:20px;flex-shrink:0"></i>
     <div>
       <strong style="color:#991b1b">Urgent: <?= count($urgent) ?> contract<?= count($urgent) !== 1 ? 's' : '' ?> expiring within 30 days</strong>
       <p style="margin:2px 0 0;font-size:13px;color:var(--danger)">Review auto-renewal settings or begin renegotiation immediately.</p>
@@ -61,14 +61,14 @@ $urgent = array_filter($expiring, function($c) {
 <!-- Expiring Soon -->
 <div style="margin-bottom:24px">
   <h2 style="font-size:16px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:8px">
-    <i class="bi bi-clock-history" style="color:#d97706"></i>
+    <i class="bi bi-clock-history" style="color:var(--warning)"></i>
     Expiring Soon
     <span style="font-size:12px;font-weight:400;color:var(--text-muted);background:var(--bg-secondary);padding:2px 8px;border-radius:10px"><?= count($expiring) ?></span>
   </h2>
   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">
     <?php foreach ($expiring as $c):
       $daysLeft = (int)ceil((strtotime($c['end_date']) - time()) / 86400);
-      $urgency  = $daysLeft <= 14 ? '#dc2626' : ($daysLeft <= 30 ? '#d97706' : '#0284c7');
+      $urgency  = $daysLeft <= 14 ? 'var(--danger)' : ($daysLeft <= 30 ? 'var(--warning)' : '#0284c7');
     ?>
     <div class="card" style="border-left:3px solid <?= $urgency ?>;padding:0">
       <div class="card-body" style="padding:14px 16px">
@@ -78,7 +78,7 @@ $urgent = array_filter($expiring, function($c) {
             <div style="font-size:12px;color:var(--text-muted);margin-top:2px"><?= Security::h($c['vendor_name']) ?></div>
           </div>
           <?php if ($c['auto_renewal']): ?>
-          <span style="font-size:11px;background:#16a34a18;color:#16a34a;padding:2px 7px;border-radius:10px;white-space:nowrap;margin-left:8px">Auto-Renews</span>
+          <span style="font-size:11px;background:#16a34a18;color:var(--primary);padding:2px 7px;border-radius:10px;white-space:nowrap;margin-left:8px">Auto-Renews</span>
           <?php endif; ?>
         </div>
         <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px">
@@ -131,9 +131,9 @@ $urgent = array_filter($expiring, function($c) {
         <tbody>
           <?php foreach ($contracts as $c):
             $statusMap = [
-              'active'     => ['color'=>'#059669','bg'=>'#dcfce7','label'=>'Active'],
+              'active'     => ['color'=>'var(--success)','bg'=>'#dcfce7','label'=>'Active'],
               'draft'      => ['color'=>'#71717a','bg'=>'#f4f4f5','label'=>'Draft'],
-              'expired'    => ['color'=>'#dc2626','bg'=>'#fee2e2','label'=>'Expired'],
+              'expired'    => ['color'=>'var(--danger)','bg'=>'#fee2e2','label'=>'Expired'],
               'terminated' => ['color'=>'#a1a1aa','bg'=>'#f9fafb','label'=>'Terminated'],
             ];
             $badge = $statusMap[$c['status']] ?? ['color'=>'#71717a','bg'=>'#f4f4f5','label'=>ucfirst($c['status'])];
@@ -157,14 +157,14 @@ $urgent = array_filter($expiring, function($c) {
               <?php if ($c['end_date']): ?>
                 <?php
                   $dLeft = (int)ceil((strtotime($c['end_date']) - time()) / 86400);
-                  $endColor = ($c['status'] === 'active' && $dLeft <= 30) ? '#dc2626' : (($c['status'] === 'active' && $dLeft <= 60) ? '#d97706' : 'inherit');
+                  $endColor = ($c['status'] === 'active' && $dLeft <= 30) ? 'var(--danger)' : (($c['status'] === 'active' && $dLeft <= 60) ? 'var(--warning)' : 'inherit');
                 ?>
                 <span style="color:<?= $endColor ?>"><?= date('M j, Y', strtotime($c['end_date'])) ?></span>
               <?php else: ?>—<?php endif; ?>
             </td>
             <td style="text-align:center">
               <?php if ($c['auto_renewal']): ?>
-                <span style="color:#059669"><i class="bi bi-check-circle-fill"></i></span>
+                <span style="color:var(--success)"><i class="bi bi-check-circle-fill"></i></span>
               <?php else: ?>
                 <span style="color:#d1d5db"><i class="bi bi-dash-circle"></i></span>
               <?php endif; ?>

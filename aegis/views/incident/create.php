@@ -31,7 +31,7 @@ ob_start();
         <div class="card-body">
 
           <div class="form-group">
-            <label class="form-label" for="title">Title <span style="color:#dc2626">*</span></label>
+            <label class="form-label" for="title">Title <span style="color:var(--danger)">*</span></label>
             <input type="text" id="title" name="title" class="form-control" placeholder="Brief description of the incident…" required autofocus>
             <span class="form-text">Summarize the incident in one clear sentence.</span>
           </div>
@@ -134,10 +134,10 @@ ob_start();
 
 <script nonce="<?= Security::nonce() ?>">
 const sevData = {
-  critical: { color: '#dc2626', label: 'Critical', desc: 'Severe impact; requires immediate response and escalation.' },
-  high:     { color: '#d97706', label: 'High',     desc: 'Significant impact; must be addressed urgently.' },
+  critical: { color: 'var(--danger)', label: 'Critical', desc: 'Severe impact; requires immediate response and escalation.' },
+  high:     { color: 'var(--warning)', label: 'High',     desc: 'Significant impact; must be addressed urgently.' },
   medium:   { color: '#0284c7', label: 'Medium',   desc: 'Moderate impact; should be addressed promptly.' },
-  low:      { color: '#059669', label: 'Low',       desc: 'Minor impact; can be handled in normal workflow.' },
+  low:      { color: 'var(--success)', label: 'Low',       desc: 'Minor impact; can be handled in normal workflow.' },
 };
 
 function updateSeverityPreview(val) {

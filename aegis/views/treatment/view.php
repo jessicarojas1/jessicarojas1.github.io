@@ -9,7 +9,7 @@ $strategyColors = [
 $statusStyles = [
     'draft'     => ['bg' => '#a1a1aa20', 'color' => '#a1a1aa', 'border' => '#a1a1aa40'],
     'active'    => ['bg' => 'rgba(22, 163, 74, .08)', 'color' => 'var(--primary)', 'border' => 'rgba(22, 163, 74, .20)'],
-    'completed' => ['bg' => '#05966920', 'color' => '#059669', 'border' => '#05966940'],
+    'completed' => ['bg' => '#05966920', 'color' => 'var(--success)', 'border' => '#05966940'],
     'cancelled' => ['bg' => '#a1a1aa20', 'color' => '#a1a1aa', 'border' => '#a1a1aa40'],
 ];
 $sc  = $strategyColors[$plan['strategy']] ?? $strategyColors['mitigate'];
@@ -79,7 +79,7 @@ if ($plan['target_date']) {
           <span id="progress-label" style="font-size:22px;font-weight:700;color:var(--primary)"><?= $progressPct ?>%</span>
         </div>
         <div style="height:12px;background:var(--border);border-radius:8px;overflow:hidden">
-          <div id="progress-bar" style="height:100%;width:<?= $progressPct ?>%;background:<?= $progressPct >= 100 ? '#059669' : 'var(--primary)' ?>;border-radius:8px;transition:width .4s ease"></div>
+          <div id="progress-bar" style="height:100%;width:<?= $progressPct ?>%;background:<?= $progressPct >= 100 ? 'var(--success)' : 'var(--primary)' ?>;border-radius:8px;transition:width .4s ease"></div>
         </div>
         <div style="margin-top:6px;font-size:13px;color:var(--text-muted)">
           <span id="progress-text"><?= $completedMilestones ?> of <?= $totalMilestones ?> milestone<?= $totalMilestones !== 1 ? 's' : '' ?> completed</span>
@@ -243,13 +243,13 @@ if ($plan['target_date']) {
             <form class="complete-form" data-milestone-id="<?= (int)$m['id'] ?>" style="margin:0;flex-shrink:0;margin-top:2px">
               <?= Security::csrfField() ?>
               <button type="submit" class="milestone-checkbox <?= $mDone ? 'checked' : '' ?>"
-                      style="width:22px;height:22px;border-radius:50%;border:2px solid <?= $mDone ? '#059669' : 'var(--border)' ?>;background:<?= $mDone ? '#059669' : 'transparent' ?>;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;color:#fff;transition:all .2s"
+                      style="width:22px;height:22px;border-radius:50%;border:2px solid <?= $mDone ? 'var(--success)' : 'var(--border)' ?>;background:<?= $mDone ? 'var(--success)' : 'transparent' ?>;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;color:#fff;transition:all .2s"
                       title="<?= $mDone ? 'Mark incomplete' : 'Mark complete' ?>">
                 <?php if ($mDone): ?><i class="bi bi-check" style="font-size:13px"></i><?php endif; ?>
               </button>
             </form>
             <?php else: ?>
-            <div style="width:22px;height:22px;border-radius:50%;border:2px solid <?= $mDone ? '#059669' : 'var(--border)' ?>;background:<?= $mDone ? '#059669' : 'transparent' ?>;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;color:#fff">
+            <div style="width:22px;height:22px;border-radius:50%;border:2px solid <?= $mDone ? 'var(--success)' : 'var(--border)' ?>;background:<?= $mDone ? 'var(--success)' : 'transparent' ?>;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;color:#fff">
               <?php if ($mDone): ?><i class="bi bi-check" style="font-size:13px"></i><?php endif; ?>
             </div>
             <?php endif; ?>
@@ -271,7 +271,7 @@ if ($plan['target_date']) {
                   </span>
                 <?php endif; ?>
                 <?php if ($mDone): ?>
-                  <span style="color:#059669">
+                  <span style="color:var(--success)">
                     <i class="bi bi-check-circle"></i>
                     Completed <?= date('M j, Y', strtotime($m['completed_at'])) ?>
                     <?php if ($m['completed_by_name']): ?> by <?= Security::h($m['completed_by_name']) ?><?php endif; ?>
@@ -412,7 +412,7 @@ if ($plan['target_date']) {
     var cnt  = document.getElementById('milestone-count-label');
     if (bar) {
       bar.style.width = pct + '%';
-      bar.style.background = pct >= 100 ? '#059669' : 'var(--primary)';
+      bar.style.background = pct >= 100 ? 'var(--success)' : 'var(--primary)';
     }
     if (lbl) lbl.textContent = pct + '%';
     if (txt) txt.textContent = progress + ' of ' + total + ' milestone' + (total !== 1 ? 's' : '') + ' completed';
@@ -452,8 +452,8 @@ if ($plan['target_date']) {
         } else {
           // Complete
           btn.classList.add('checked');
-          btn.style.borderColor = '#059669';
-          btn.style.background  = '#059669';
+          btn.style.borderColor = 'var(--success)';
+          btn.style.background  = 'var(--success)';
           btn.innerHTML         = '<i class="bi bi-check" style="font-size:13px"></i>';
           btn.title             = 'Mark incomplete';
           if (row) row.style.opacity = '.7';

@@ -32,11 +32,11 @@ $basisLabels = [
     <div style="font-size:12px;color:var(--text-muted)">Processing Activities</div>
   </div>
   <div class="card" style="padding:20px;text-align:center">
-    <div style="font-size:28px;font-weight:800;color:#059669"><?= $stats['active'] ?></div>
+    <div style="font-size:28px;font-weight:800;color:var(--success)"><?= $stats['active'] ?></div>
     <div style="font-size:12px;color:var(--text-muted)">Active</div>
   </div>
   <div class="card" style="padding:20px;text-align:center">
-    <div style="font-size:28px;font-weight:800;color:<?= $stats['dpia_due'] > 0 ? '#dc2626' : 'var(--text-muted)' ?>"><?= $stats['dpia_due'] ?></div>
+    <div style="font-size:28px;font-weight:800;color:<?= $stats['dpia_due'] > 0 ? 'var(--danger)' : 'var(--text-muted)' ?>"><?= $stats['dpia_due'] ?></div>
     <div style="font-size:12px;color:var(--text-muted)">DPIAs Required</div>
   </div>
 </div>

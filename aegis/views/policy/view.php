@@ -58,7 +58,7 @@ ob_start();
       <div class="card-header">
         <h3 class="card-title"><i class="bi bi-file-earmark-text"></i> Policy Content</h3>
         <?php if ($policy['approved_at']): ?>
-          <span class="text-muted text-sm"><i class="bi bi-check-circle" style="color:#059669"></i> Approved <?= date('M j, Y', strtotime($policy['approved_at'])) ?> by <?= Security::h($policy['approver_name'] ?? 'unknown') ?></span>
+          <span class="text-muted text-sm"><i class="bi bi-check-circle" style="color:var(--success)"></i> Approved <?= date('M j, Y', strtotime($policy['approved_at'])) ?> by <?= Security::h($policy['approver_name'] ?? 'unknown') ?></span>
         <?php endif; ?>
       </div>
       <div class="card-body">
@@ -133,7 +133,7 @@ ob_start();
         <div class="detail-row"><span>Version</span><strong><?= Security::h($policy['version']) ?></strong></div>
         <div class="detail-row"><span>Owner</span><strong><?= Security::h($policy['owner_name'] ?? 'Unassigned') ?></strong></div>
         <div class="detail-row"><span>Frequency</span><strong><?= ucfirst($policy['review_frequency'] ?? 'annual') ?></strong></div>
-        <div class="detail-row"><span>Next Review</span><strong <?= $policy['next_review_date'] && strtotime($policy['next_review_date']) < time() ? 'style="color:#dc2626"' : '' ?>><?= $policy['next_review_date'] ? date('M j, Y', strtotime($policy['next_review_date'])) : 'Not set' ?></strong></div>
+        <div class="detail-row"><span>Next Review</span><strong <?= $policy['next_review_date'] && strtotime($policy['next_review_date']) < time() ? 'style="color:var(--danger)"' : '' ?>><?= $policy['next_review_date'] ? date('M j, Y', strtotime($policy['next_review_date'])) : 'Not set' ?></strong></div>
         <div class="detail-row"><span>Mappings</span><strong><?= count($mappings) ?> controls</strong></div>
       </div>
     </div>
@@ -185,7 +185,7 @@ $totalUsers = Database::fetchOne("SELECT COUNT(*) as cnt FROM users WHERE is_act
       </div>
     </div>
     <div style="background:var(--bg-secondary);border-radius:999px;height:8px;overflow:hidden">
-      <div style="width:<?= $pct ?>%;background:<?= $pct >= 80 ? '#059669' : ($pct >= 50 ? '#d97706' : '#dc2626') ?>;height:100%;border-radius:999px;transition:width .3s"></div>
+      <div style="width:<?= $pct ?>%;background:<?= $pct >= 80 ? 'var(--success)' : ($pct >= 50 ? 'var(--warning)' : 'var(--danger)') ?>;height:100%;border-radius:999px;transition:width .3s"></div>
     </div>
     <div class="text-muted text-sm" style="margin-top:6px"><?= $pct ?>% completion</div>
     <?php if (Auth::can('policy.write')): ?>

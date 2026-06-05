@@ -4,7 +4,7 @@ $totalUsers  = count($attested) + count($pending);
 $attestedCnt = count($attested);
 $pendingCnt  = count($pending);
 $pct         = $totalUsers > 0 ? round($attestedCnt / $totalUsers * 100) : 0;
-$barColor    = $pct >= 80 ? '#059669' : ($pct >= 50 ? '#d97706' : '#dc2626');
+$barColor    = $pct >= 80 ? 'var(--success)' : ($pct >= 50 ? 'var(--warning)' : 'var(--danger)');
 ?>
 
 <div class="page-header">
@@ -31,7 +31,7 @@ $barColor    = $pct >= 80 ? '#059669' : ($pct >= 50 ? '#d97706' : '#dc2626');
           <strong>
             <?php if ($campaign['due_date']): ?>
               <?php $overdue = strtotime($campaign['due_date']) < time() && $campaign['is_active']; ?>
-              <span <?= $overdue ? 'style="color:#dc2626"' : '' ?>>
+              <span <?= $overdue ? 'style="color:var(--danger)"' : '' ?>>
                 <?= date('M j, Y', strtotime($campaign['due_date'])) ?>
                 <?= $overdue ? ' (Overdue)' : '' ?>
               </span>
@@ -65,11 +65,11 @@ $barColor    = $pct >= 80 ? '#059669' : ($pct >= 50 ? '#d97706' : '#dc2626');
             <div class="text-muted text-sm">Total</div>
           </div>
           <div>
-            <div style="font-size:1.75rem;font-weight:700;color:#059669"><?= $attestedCnt ?></div>
+            <div style="font-size:1.75rem;font-weight:700;color:var(--success)"><?= $attestedCnt ?></div>
             <div class="text-muted text-sm">Attested</div>
           </div>
           <div>
-            <div style="font-size:1.75rem;font-weight:700;color:#dc2626"><?= $pendingCnt ?></div>
+            <div style="font-size:1.75rem;font-weight:700;color:var(--danger)"><?= $pendingCnt ?></div>
             <div class="text-muted text-sm">Pending</div>
           </div>
         </div>
@@ -86,7 +86,7 @@ $barColor    = $pct >= 80 ? '#059669' : ($pct >= 50 ? '#d97706' : '#dc2626');
     <!-- Attested users -->
     <div class="card">
       <div class="card-header">
-        <h3 class="card-title"><i class="bi bi-check-circle-fill" style="color:#059669"></i> Attested</h3>
+        <h3 class="card-title"><i class="bi bi-check-circle-fill" style="color:var(--success)"></i> Attested</h3>
         <span class="badge"><?= $attestedCnt ?></span>
       </div>
       <div class="card-body p0">
@@ -103,7 +103,7 @@ $barColor    = $pct >= 80 ? '#059669' : ($pct >= 50 ? '#d97706' : '#dc2626');
             <tbody>
               <?php foreach ($attested as $a): ?>
                 <tr>
-                  <td><i class="bi bi-person-check-fill" style="color:#059669"></i> <?= Security::h($a['user_name']) ?></td>
+                  <td><i class="bi bi-person-check-fill" style="color:var(--success)"></i> <?= Security::h($a['user_name']) ?></td>
                   <td><?= Security::h($a['email']) ?></td>
                   <td><?= date('M j, Y g:i A', strtotime($a['attested_at'])) ?></td>
                   <td><span class="mono text-muted"><?= Security::h($a['ip_address'] ?? '—') ?></span></td>
@@ -123,7 +123,7 @@ $barColor    = $pct >= 80 ? '#059669' : ($pct >= 50 ? '#d97706' : '#dc2626');
     <!-- Pending users -->
     <div class="card" style="margin-top:16px">
       <div class="card-header">
-        <h3 class="card-title"><i class="bi bi-clock-fill" style="color:#d97706"></i> Pending</h3>
+        <h3 class="card-title"><i class="bi bi-clock-fill" style="color:var(--warning)"></i> Pending</h3>
         <span class="badge"><?= $pendingCnt ?></span>
       </div>
       <div class="card-body p0">
@@ -145,7 +145,7 @@ $barColor    = $pct >= 80 ? '#059669' : ($pct >= 50 ? '#d97706' : '#dc2626');
             </tbody>
           </table>
         <?php else: ?>
-          <div style="padding:24px;text-align:center;color:#059669">
+          <div style="padding:24px;text-align:center;color:var(--success)">
             <i class="bi bi-check-circle-fill" style="font-size:1.5rem"></i>
             <p style="margin-top:8px;font-weight:600">All users have attested!</p>
           </div>

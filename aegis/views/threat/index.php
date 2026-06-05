@@ -7,15 +7,15 @@ $catConfig = [
     'people'     => ['label' => 'People',     'color' => 'var(--secondary)', 'bg' => 'rgba(55,65,81,.05)', 'icon' => 'bi-person-fill'],
     'process'    => ['label' => 'Process',    'color' => '#2563eb', 'bg' => '#eff6ff', 'icon' => 'bi-diagram-3-fill'],
     'technology' => ['label' => 'Technology', 'color' => 'var(--primary)', 'bg' => 'rgba(11,97,4,.06)', 'icon' => 'bi-cpu-fill'],
-    'natural'    => ['label' => 'Natural',    'color' => '#16a34a', 'bg' => '#f0fdf4', 'icon' => 'bi-cloud-lightning-rain-fill'],
+    'natural'    => ['label' => 'Natural',    'color' => 'var(--primary)', 'bg' => '#f0fdf4', 'icon' => 'bi-cloud-lightning-rain-fill'],
     'regulatory' => ['label' => 'Regulatory', 'color' => '#ea580c', 'bg' => '#fff7ed', 'icon' => 'bi-file-earmark-ruled-fill'],
     'financial'  => ['label' => 'Financial',  'color' => '#ca8a04', 'bg' => '#fefce8', 'icon' => 'bi-currency-dollar'],
 ];
 
 $statusConfig = [
-    'active'    => ['label' => 'Active',    'color' => '#16a34a', 'bg' => '#f0fdf4'],
+    'active'    => ['label' => 'Active',    'color' => 'var(--primary)', 'bg' => '#f0fdf4'],
     'mitigated' => ['label' => 'Mitigated', 'color' => '#2563eb', 'bg' => '#eff6ff'],
-    'accepted'  => ['label' => 'Accepted',  'color' => '#d97706', 'bg' => '#fffbeb'],
+    'accepted'  => ['label' => 'Accepted',  'color' => 'var(--warning)', 'bg' => '#fffbeb'],
     'retired'   => ['label' => 'Retired',   'color' => '#71717a', 'bg' => '#f9fafb'],
 ];
 
@@ -26,10 +26,10 @@ foreach ($stats as $s) {
 }
 
 function threatScoreColor(int $score): string {
-    if ($score <= 4)  return '#16a34a';
-    if ($score <= 9)  return '#d97706';
+    if ($score <= 4)  return 'var(--primary)';
+    if ($score <= 9)  return 'var(--warning)';
     if ($score <= 16) return '#ea580c';
-    return '#dc2626';
+    return 'var(--danger)';
 }
 function threatScoreBg(int $score): string {
     if ($score <= 4)  return '#f0fdf4';

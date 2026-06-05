@@ -11,7 +11,7 @@ $strategyColors = [
 $statusStyles = [
     'draft'     => ['bg' => '#a1a1aa20', 'color' => '#a1a1aa', 'border' => '#a1a1aa40'],
     'active'    => ['bg' => 'rgba(22, 163, 74, .08)', 'color' => 'var(--primary)', 'border' => 'rgba(22, 163, 74, .20)'],
-    'completed' => ['bg' => '#05966920', 'color' => '#059669', 'border' => '#05966940'],
+    'completed' => ['bg' => '#05966920', 'color' => 'var(--success)', 'border' => '#05966940'],
     'cancelled' => ['bg' => '#a1a1aa20', 'color' => '#a1a1aa', 'border' => '#a1a1aa40'],
 ];
 ?>
@@ -42,7 +42,7 @@ $statusStyles = [
     <div style="font-size:12px;color:var(--text-muted);margin-top:2px">Active Plans</div>
   </div>
   <div class="stat-chip" style="background:#05966920;border:1px solid #05966940;border-radius:10px;padding:12px 20px;min-width:130px">
-    <div style="font-size:24px;font-weight:700;color:#059669"><?= (int)($stats['completed_count'] ?? 0) ?></div>
+    <div style="font-size:24px;font-weight:700;color:var(--success)"><?= (int)($stats['completed_count'] ?? 0) ?></div>
     <div style="font-size:12px;color:var(--text-muted);margin-top:2px">Completed Plans</div>
   </div>
   <div class="stat-chip" style="background:#ef444420;border:1px solid #ef444440;border-radius:10px;padding:12px 20px;min-width:130px">
@@ -108,7 +108,7 @@ $statusStyles = [
               <?php if ($total > 0): ?>
                 <div style="display:flex;align-items:center;gap:8px">
                   <div style="flex:1;height:6px;background:var(--border);border-radius:4px;overflow:hidden">
-                    <div style="height:100%;width:<?= $pct ?>%;background:<?= $pct >= 100 ? '#059669' : 'var(--primary)' ?>;border-radius:4px;transition:width .3s"></div>
+                    <div style="height:100%;width:<?= $pct ?>%;background:<?= $pct >= 100 ? 'var(--success)' : 'var(--primary)' ?>;border-radius:4px;transition:width .3s"></div>
                   </div>
                   <span style="font-size:11px;color:var(--text-muted);white-space:nowrap"><?= $completed ?>/<?= $total ?></span>
                 </div>

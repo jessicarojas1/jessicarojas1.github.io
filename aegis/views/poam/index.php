@@ -176,13 +176,13 @@ $statusLabels = [
       <div class="form-group">
         <label class="form-label">CSV File <span style="color:var(--danger)">*</span></label>
         <label class="file-drop" id="fileDropPoam" for="poamCsvFile">
-          <i class="bi bi-filetype-csv" style="font-size:2rem;color:#059669"></i>
+          <i class="bi bi-filetype-csv" style="font-size:2rem;color:var(--success)"></i>
           <p>Drag &amp; drop or <strong>click to upload</strong></p>
           <p class="text-muted">.csv format, max 10MB</p>
         </label>
         <input type="file" id="poamCsvFile" name="csv_file" accept=".csv,.txt" required style="display:none"
                data-change="showFileChange" data-drop-id="fileDropPoam" data-name-id="poamCsvName" data-color="#059669">
-        <div id="poamCsvName" style="margin-top:8px;color:#059669;display:none"><i class="bi bi-file-earmark-check"></i> <span></span></div>
+        <div id="poamCsvName" style="margin-top:8px;color:var(--success);display:none"><i class="bi bi-file-earmark-check"></i> <span></span></div>
       </div>
       <button type="submit" class="btn btn-primary btn-full" style="margin-top:8px;"><i class="bi bi-cloud-upload"></i> Import CSV</button>
     </form>

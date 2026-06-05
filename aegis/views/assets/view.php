@@ -3,17 +3,17 @@
 
 $criticality = $asset['criticality'] ?? 'low';
 $critColors  = [
-    'critical' => ['#fef2f2','#dc2626'],
+    'critical' => ['#fef2f2','var(--danger)'],
     'high'     => ['#fff7ed','#ea580c'],
-    'medium'   => ['#fffbeb','#d97706'],
-    'low'      => ['#f0fdf4','#16a34a'],
+    'medium'   => ['#fffbeb','var(--warning)'],
+    'low'      => ['#f0fdf4','var(--primary)'],
 ];
 [$critBg, $critColor] = $critColors[$criticality] ?? ['#f4f4f5','#71717a'];
 
 $statusColors = [
-    'active'         => ['#f0fdf4','#16a34a'],
+    'active'         => ['#f0fdf4','var(--primary)'],
     'decommissioned' => ['#f9fafb','#71717a'],
-    'maintenance'    => ['#fffbeb','#d97706'],
+    'maintenance'    => ['#fffbeb','var(--warning)'],
 ];
 [$sBg, $sColor] = $statusColors[$asset['status'] ?? ''] ?? ['#f4f4f5','#71717a'];
 

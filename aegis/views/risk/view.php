@@ -19,20 +19,20 @@ $strategyMeta = [
     'mitigate' => ['label'=>'Mitigate', 'icon'=>'shield-fill-check',  'color'=>'#2563eb', 'hint'=>'Reduce likelihood or impact'],
     'accept'   => ['label'=>'Accept',   'icon'=>'check-circle-fill',   'color'=>'#b45309', 'hint'=>'Formally accept as-is'],
     'transfer' => ['label'=>'Transfer', 'icon'=>'arrow-left-right',    'color'=>'var(--secondary)', 'hint'=>'Insurance or third party'],
-    'avoid'    => ['label'=>'Avoid',    'icon'=>'x-octagon-fill',      'color'=>'#dc2626', 'hint'=>'Eliminate the risk source'],
+    'avoid'    => ['label'=>'Avoid',    'icon'=>'x-octagon-fill',      'color'=>'var(--danger)', 'hint'=>'Eliminate the risk source'],
 ];
 $statusLabels = [
-    'open'        => ['label'=>'Open',        'color'=>'#dc2626', 'bg'=>'#fef2f2', 'border'=>'#fca5a5'],
+    'open'        => ['label'=>'Open',        'color'=>'var(--danger)', 'bg'=>'#fef2f2', 'border'=>'#fca5a5'],
     'in_review'   => ['label'=>'In Review',   'color'=>'#2563eb', 'bg'=>'#eff6ff', 'border'=>'#93c5fd'],
-    'monitoring'  => ['label'=>'Monitoring',  'color'=>'#16a34a', 'bg'=>'#f0fdf4', 'border'=>'#86efac'],
-    'accepted'    => ['label'=>'Accepted',    'color'=>'#d97706', 'bg'=>'#fffbeb', 'border'=>'#fcd34d'],
+    'monitoring'  => ['label'=>'Monitoring',  'color'=>'var(--primary)', 'bg'=>'#f0fdf4', 'border'=>'#86efac'],
+    'accepted'    => ['label'=>'Accepted',    'color'=>'var(--warning)', 'bg'=>'#fffbeb', 'border'=>'#fcd34d'],
     'closed'      => ['label'=>'Closed',      'color'=>'#71717a', 'bg'=>'#f4f4f5', 'border'=>'#d4d4d8'],
     'transferred' => ['label'=>'Transferred', 'color'=>'var(--secondary)', 'bg'=>'rgba(55,65,81,.06)', 'border'=>'#d1d5db'],
 ];
 $assessmentMeta = [
     'draft'          => ['label'=>'Draft',          'color'=>'#71717a', 'icon'=>'pencil-fill'],
-    'pending_review' => ['label'=>'Pending Review', 'color'=>'#d97706', 'icon'=>'hourglass-split'],
-    'approved'       => ['label'=>'Approved',       'color'=>'#16a34a', 'icon'=>'patch-check-fill'],
+    'pending_review' => ['label'=>'Pending Review', 'color'=>'var(--warning)', 'icon'=>'hourglass-split'],
+    'approved'       => ['label'=>'Approved',       'color'=>'var(--primary)', 'icon'=>'patch-check-fill'],
 ];
 $proximityLabels = ['immediate'=>'Immediate','short_term'=>'Short Term (1–6 mo)','medium_term'=>'Medium Term (6–18 mo)','long_term'=>'Long Term (18+ mo)'];
 $velocityLabels  = [1=>'Very Slow',2=>'Slow',3=>'Moderate',4=>'Fast',5=>'Immediate'];
@@ -130,7 +130,7 @@ ob_start();
               <i class="bi bi-x-circle-fill"></i> Send Back
             </button>
           <?php elseif ($risk['assessment_status'] === 'approved'): ?>
-            <span style="color:#16a34a;font-size:12px;font-weight:600">
+            <span style="color:var(--primary);font-size:12px;font-weight:600">
               <i class="bi bi-patch-check-fill"></i> Approved by <?= Security::h($risk['reviewed_by_name'] ?? 'Admin') ?>
               <?= $risk['reviewed_at'] ? ' · ' . date('M j, Y', strtotime($risk['reviewed_at'])) : '' ?>
             </span>
@@ -485,7 +485,7 @@ ob_start();
         <?php foreach ($responseActions as $ra):
           $sm = $strategyMeta[$ra['treatment_type']] ?? $strategyMeta['mitigate'];
           $overdue = $ra['due_date'] && $ra['due_date'] < date('Y-m-d') && $ra['status'] !== 'completed';
-          $raStatusColors = ['planned'=>'#d97706','in_progress'=>'#2563eb','completed'=>'#059669','cancelled'=>'#a1a1aa'];
+          $raStatusColors = ['planned'=>'var(--warning)','in_progress'=>'#2563eb','completed'=>'var(--success)','cancelled'=>'#a1a1aa'];
           $raColor = $raStatusColors[$ra['status']] ?? '#71717a';
         ?>
         <div class="ra-item <?= $ra['status']==='completed'?'ra-done':'' ?>">
@@ -497,7 +497,7 @@ ob_start();
               <div style="font-size:14px;font-weight:500"><?= Security::h($ra['description']) ?></div>
               <div style="font-size:12px;color:var(--text-muted);margin-top:2px;display:flex;gap:10px;flex-wrap:wrap">
                 <span><i class="bi bi-person"></i> <?= Security::h($ra['owner_name'] ?? 'Unassigned') ?></span>
-                <?php if ($ra['due_date']): ?><span style="color:<?= $overdue?'#dc2626':'inherit' ?>"><i class="bi bi-calendar-event"></i> Due <?= date('M j, Y', strtotime($ra['due_date'])) ?><?= $overdue?' ⚠':'' ?></span><?php endif; ?>
+                <?php if ($ra['due_date']): ?><span style="color:<?= $overdue?'var(--danger)':'inherit' ?>"><i class="bi bi-calendar-event"></i> Due <?= date('M j, Y', strtotime($ra['due_date'])) ?><?= $overdue?' ⚠':'' ?></span><?php endif; ?>
                 <?php if ($ra['effort']): ?><span><i class="bi bi-stopwatch"></i> <?= Security::h($ra['effort']) ?></span><?php endif; ?>
                 <?php if ($ra['cost_estimate']): ?><span><i class="bi bi-currency-dollar"></i> $<?= number_format((float)$ra['cost_estimate'],0) ?></span><?php endif; ?>
                 <?php if ($ra['completion_notes']): ?><span style="font-style:italic"><?= Security::h($ra['completion_notes']) ?></span><?php endif; ?>
@@ -581,7 +581,7 @@ ob_start();
     <!-- ── Treatment Plans ────────────────────────────────────────────────── -->
     <?php
     $tpStratColors = ['mitigate'=>['bg'=>'#3b82f620','c'=>'#3b82f6','b'=>'#3b82f640'],'transfer'=>['bg'=>'#8b5cf620','c'=>'#8b5cf6','b'=>'#8b5cf640'],'accept'=>['bg'=>'#f59e0b20','c'=>'#f59e0b','b'=>'#f59e0b40'],'avoid'=>['bg'=>'#ef444420','c'=>'#ef4444','b'=>'#ef444440']];
-    $tpStColors    = ['draft'=>['bg'=>'#a1a1aa20','c'=>'#a1a1aa'],'active'=>['bg'=>'rgba(22, 163, 74, .08)','c'=>'var(--primary)'],'completed'=>['bg'=>'#05966920','c'=>'#059669'],'cancelled'=>['bg'=>'#a1a1aa20','c'=>'#a1a1aa']];
+    $tpStColors    = ['draft'=>['bg'=>'#a1a1aa20','c'=>'#a1a1aa'],'active'=>['bg'=>'rgba(22, 163, 74, .08)','c'=>'var(--primary)'],'completed'=>['bg'=>'#05966920','c'=>'var(--success)'],'cancelled'=>['bg'=>'#a1a1aa20','c'=>'#a1a1aa']];
     ?>
     <?php if (!empty($treatmentPlans)): ?>
     <div class="card">
@@ -606,7 +606,7 @@ ob_start();
             <td style="min-width:100px">
               <?php if ($tot > 0): ?>
               <div style="display:flex;align-items:center;gap:6px">
-                <div style="flex:1;height:5px;background:var(--border);border-radius:4px;overflow:hidden"><div style="height:100%;width:<?= $pct ?>%;background:<?= $pct>=100?'#059669':'var(--primary)' ?>;border-radius:4px"></div></div>
+                <div style="flex:1;height:5px;background:var(--border);border-radius:4px;overflow:hidden"><div style="height:100%;width:<?= $pct ?>%;background:<?= $pct>=100?'var(--success)':'var(--primary)' ?>;border-radius:4px"></div></div>
                 <span style="font-size:11px;color:var(--text-muted)"><?= $done ?>/<?= $tot ?></span>
               </div>
               <?php else: ?><span class="text-muted text-sm">No milestones</span><?php endif; ?>
@@ -661,7 +661,7 @@ ob_start();
         <div class="detail-row"><span>Identified</span><strong><?= date('M j, Y', strtotime($risk['identified_date'])) ?></strong></div>
         <?php if ($risk['review_date']): ?>
         <?php $rvOvd = $risk['review_date'] < date('Y-m-d'); ?>
-        <div class="detail-row"><span>Review Due</span><strong style="color:<?= $rvOvd?'#dc2626':'inherit' ?>"><?= date('M j, Y', strtotime($risk['review_date'])) ?><?= $rvOvd?' ⚠':'' ?></strong></div>
+        <div class="detail-row"><span>Review Due</span><strong style="color:<?= $rvOvd?'var(--danger)':'inherit' ?>"><?= date('M j, Y', strtotime($risk['review_date'])) ?><?= $rvOvd?' ⚠':'' ?></strong></div>
         <?php endif; ?>
         <div class="detail-row"><span>Created By</span><strong><?= Security::h($risk['created_by_name'] ?? '—') ?></strong></div>
         <div class="detail-row"><span>Last Updated</span><strong><?= date('M j, Y', strtotime($risk['updated_at'])) ?></strong></div>
@@ -673,7 +673,7 @@ ob_start();
     </div>
 
     <!-- Risk Appetite -->
-    <?php if ($appetite): $ac=['zero'=>'#dc2626','low'=>'#d97706','moderate'=>'#2563eb','high'=>'#16a34a'][$appetite['appetite']] ?? '#71717a'; ?>
+    <?php if ($appetite): $ac=['zero'=>'var(--danger)','low'=>'var(--warning)','moderate'=>'#2563eb','high'=>'var(--primary)'][$appetite['appetite']] ?? '#71717a'; ?>
     <div class="card">
       <div class="card-header"><h3 class="card-title"><i class="bi bi-speedometer2"></i> Risk Appetite</h3></div>
       <div class="card-body">
@@ -770,7 +770,7 @@ ob_start();
     <?php if ($activeAcceptance || Auth::can('risk.write')): ?>
     <div class="card">
       <div class="card-header">
-        <h3 class="card-title"><i class="bi bi-patch-check-fill" style="color:#16a34a"></i> Risk Acceptance</h3>
+        <h3 class="card-title"><i class="bi bi-patch-check-fill" style="color:var(--primary)"></i> Risk Acceptance</h3>
         <?php if (Auth::can('risk.write')): ?>
           <a href="/risk/<?= (int)$risk['id'] ?>/accept" class="btn btn-ghost btn-sm"><i class="bi bi-plus-lg"></i> Issue</a>
         <?php endif; ?>
@@ -778,7 +778,7 @@ ob_start();
       <div class="card-body" style="padding:12px 16px">
         <?php if ($activeAcceptance): ?>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-            <span style="background:#16a34a18;color:#16a34a;border:1px solid #16a34a40;border-radius:20px;font-size:11px;font-weight:700;padding:2px 10px">Active</span>
+            <span style="background:#16a34a18;color:var(--primary);border:1px solid #16a34a40;border-radius:20px;font-size:11px;font-weight:700;padding:2px 10px">Active</span>
             <span style="font-size:12px;color:var(--text-muted)">until <?= date('M j, Y', strtotime($activeAcceptance['valid_until'])) ?></span>
           </div>
           <div style="font-size:12px;color:var(--text-secondary);margin-bottom:6px">
@@ -866,7 +866,7 @@ ob_start();
       <div class="card-body p0">
         <?php foreach ($scenarios as $sc):
           $scColor = $sc['scenario_score'] > 14 ? '#ef4444' : ($sc['scenario_score'] > 9 ? '#f97316' : ($sc['scenario_score'] > 4 ? '#f59e0b' : '#22c55e'));
-          $scTypeColors = ['stress'=>'#ef4444','catastrophic'=>'var(--secondary)','regulatory'=>'#d97706','base'=>'#2563eb','optimistic'=>'#16a34a'];
+          $scTypeColors = ['stress'=>'#ef4444','catastrophic'=>'var(--secondary)','regulatory'=>'var(--warning)','base'=>'#2563eb','optimistic'=>'var(--primary)'];
           $scTypeColor  = $scTypeColors[$sc['scenario_type']] ?? '#71717a';
         ?>
         <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid var(--border)">

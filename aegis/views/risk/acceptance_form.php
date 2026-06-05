@@ -34,7 +34,7 @@ $strategyLabels = [
     'mitigate' => ['label' => 'Mitigate', 'icon' => 'bi-shield-fill-check',   'color' => '#2563eb'],
     'accept'   => ['label' => 'Accept',   'icon' => 'bi-check-circle-fill',    'color' => '#b45309'],
     'transfer' => ['label' => 'Transfer', 'icon' => 'bi-arrow-left-right',     'color' => 'var(--secondary)'],
-    'avoid'    => ['label' => 'Avoid',    'icon' => 'bi-x-octagon-fill',       'color' => '#dc2626'],
+    'avoid'    => ['label' => 'Avoid',    'icon' => 'bi-x-octagon-fill',       'color' => 'var(--danger)'],
 ];
 
 // Pre-fill values (fresh form or renew)
@@ -232,7 +232,7 @@ ob_start();
       <div class="card-body" style="padding:16px;">
 
         <div style="margin-bottom:14px;">
-          <div style="font-size:12px;font-weight:700;color:#16a34a;margin-bottom:4px;">
+          <div style="font-size:12px;font-weight:700;color:var(--primary);margin-bottom:4px;">
             <i class="bi bi-check-circle-fill"></i> When to Accept
           </div>
           <ul style="font-size:12px;line-height:1.6;color:var(--text-muted);margin:0;padding-left:16px;">

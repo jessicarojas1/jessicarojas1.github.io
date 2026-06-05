@@ -36,21 +36,21 @@ ob_start();
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:#05966918;color:#059669"><i class="bi bi-check-circle-fill"></i></div>
+    <div class="stat-icon" style="background:#05966918;color:var(--success)"><i class="bi bi-check-circle-fill"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['active_count'] ?? 0) ?></div>
       <div class="stat-label">Active Vendors</div>
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:#dc262618;color:#dc2626"><i class="bi bi-exclamation-octagon-fill"></i></div>
+    <div class="stat-icon" style="background:#dc262618;color:var(--danger)"><i class="bi bi-exclamation-octagon-fill"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['critical_count'] ?? 0) ?></div>
       <div class="stat-label">Critical Tier</div>
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:#d9770618;color:#d97706"><i class="bi bi-database-fill-lock"></i></div>
+    <div class="stat-icon" style="background:#d9770618;color:var(--warning)"><i class="bi bi-database-fill-lock"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['data_access_count'] ?? 0) ?></div>
       <div class="stat-label">Data Access</div>
@@ -140,14 +140,14 @@ $_filterCount = count(array_filter([
       </thead>
       <tbody>
         <?php if ($vendors): foreach ($vendors as $v):
-          $tierColors = ['critical' => '#dc2626', 'high' => '#d97706', 'medium' => '#0284c7', 'low' => '#059669'];
+          $tierColors = ['critical' => 'var(--danger)', 'high' => 'var(--warning)', 'medium' => '#0284c7', 'low' => 'var(--success)'];
           $tierColor  = $tierColors[$v['risk_tier']] ?? '#6b7280';
 
           $statusColors = [
-            'active'       => '#059669',
+            'active'       => 'var(--success)',
             'inactive'     => '#6b7280',
-            'under_review' => '#d97706',
-            'terminated'   => '#dc2626',
+            'under_review' => 'var(--warning)',
+            'terminated'   => 'var(--danger)',
           ];
           $statusColor = $statusColors[$v['status']] ?? '#6b7280';
           $statusLabel = match($v['status']) {
@@ -164,9 +164,9 @@ $_filterCount = count(array_filter([
               $daysLeft = (int)ceil((strtotime($v['contract_end']) - time()) / 86400);
               $contractEndDisplay = date('M j, Y', strtotime($v['contract_end']));
               if ($daysLeft <= 30 && $daysLeft >= 0) {
-                  $contractEndHighlight = 'color:#d97706;font-weight:600';
+                  $contractEndHighlight = 'color:var(--warning);font-weight:600';
               } elseif ($daysLeft < 0) {
-                  $contractEndHighlight = 'color:#dc2626;font-weight:600';
+                  $contractEndHighlight = 'color:var(--danger);font-weight:600';
               }
           }
         ?>
@@ -190,14 +190,14 @@ $_filterCount = count(array_filter([
             </td>
             <td>
               <?php if ($v['data_access']): ?>
-                <span style="color:#d97706;font-weight:600;font-size:13px"><i class="bi bi-check-circle-fill"></i> Yes</span>
+                <span style="color:var(--warning);font-weight:600;font-size:13px"><i class="bi bi-check-circle-fill"></i> Yes</span>
               <?php else: ?>
                 <span style="color:var(--text-muted);font-size:13px">No</span>
               <?php endif; ?>
             </td>
             <td>
               <?php if ($v['critical_service']): ?>
-                <span style="color:#dc2626;font-weight:600;font-size:13px"><i class="bi bi-exclamation-triangle-fill"></i> Yes</span>
+                <span style="color:var(--danger);font-weight:600;font-size:13px"><i class="bi bi-exclamation-triangle-fill"></i> Yes</span>
               <?php else: ?>
                 <span style="color:var(--text-muted);font-size:13px">No</span>
               <?php endif; ?>

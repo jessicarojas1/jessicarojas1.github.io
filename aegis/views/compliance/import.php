@@ -294,7 +294,7 @@ $packages = Database::fetchAll("SELECT id, name FROM compliance_packages WHERE i
           ] as [$col,$req]): ?>
             <tr style="border-bottom:1px solid var(--border-light)">
               <td style="padding:4px 8px;font-family:monospace;font-size:11px"><?= $col ?></td>
-              <td style="padding:4px 8px;color:<?= $req ? '#059669' : 'var(--text-muted)' ?>"><?= $req ?: '—' ?></td>
+              <td style="padding:4px 8px;color:<?= $req ? 'var(--success)' : 'var(--text-muted)' ?>"><?= $req ?: '—' ?></td>
             </tr>
           <?php endforeach; ?>
           </tbody>

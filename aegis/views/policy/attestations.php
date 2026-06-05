@@ -43,7 +43,7 @@
             $attested = (int)($c['attested_count'] ?? 0);
             $total    = (int)($c['total_users'] ?? 0);
             $pct      = $total > 0 ? round($attested / $total * 100) : 0;
-            $barColor = $pct >= 80 ? '#059669' : ($pct >= 50 ? '#d97706' : '#dc2626');
+            $barColor = $pct >= 80 ? 'var(--success)' : ($pct >= 50 ? 'var(--warning)' : 'var(--danger)');
           ?>
             <tr>
               <td>
@@ -55,7 +55,7 @@
               <td>
                 <?php if ($c['due_date']): ?>
                   <?php $overdue = strtotime($c['due_date']) < time() && $c['is_active']; ?>
-                  <span <?= $overdue ? 'style="color:#dc2626;font-weight:600"' : '' ?>>
+                  <span <?= $overdue ? 'style="color:var(--danger);font-weight:600"' : '' ?>>
                     <?= date('M j, Y', strtotime($c['due_date'])) ?>
                     <?= $overdue ? '<i class="bi bi-exclamation-circle-fill"></i>' : '' ?>
                   </span>

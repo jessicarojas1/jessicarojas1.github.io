@@ -1,7 +1,7 @@
 <?php
 function ctResultBadge(string $result): string {
     return match($result) {
-        'pass'       => '<span class="badge" style="background:#16a34a18;color:#16a34a;border:1px solid #16a34a40">Pass</span>',
+        'pass'       => '<span class="badge" style="background:#16a34a18;color:var(--primary);border:1px solid #16a34a40">Pass</span>',
         'fail'       => '<span class="badge" style="background:#dc262618;color:var(--danger);border:1px solid #dc262640">Fail</span>',
         'partial'    => '<span class="badge" style="background:#d9770618;color:var(--warning);border:1px solid #d9770640">Partial</span>',
         'not_tested' => '<span class="badge" style="background:var(--bg-secondary);color:var(--text-muted);border:1px solid var(--border)">Not Tested</span>',
@@ -34,8 +34,8 @@ $cntTotal     = $cntPass + $cntFail + $cntPartial + $cntNotTested;
 <!-- Stat chips -->
 <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px">
   <div style="flex:1;min-width:120px;background:#16a34a18;border:1px solid #16a34a40;border-radius:12px;padding:16px 20px;text-align:center">
-    <div style="font-size:32px;font-weight:700;color:#16a34a;line-height:1"><?= $cntPass ?></div>
-    <div style="font-size:13px;color:#16a34a;margin-top:4px;font-weight:600">Pass</div>
+    <div style="font-size:32px;font-weight:700;color:var(--primary);line-height:1"><?= $cntPass ?></div>
+    <div style="font-size:13px;color:var(--primary);margin-top:4px;font-weight:600">Pass</div>
   </div>
   <div style="flex:1;min-width:120px;background:var(--danger-subtle);border:1px solid #fca5a580;border-radius:12px;padding:16px 20px;text-align:center">
     <div style="font-size:32px;font-weight:700;color:var(--danger);line-height:1"><?= $cntFail ?></div>
@@ -149,7 +149,7 @@ $cntTotal     = $cntPass + $cntFail + $cntPartial + $cntNotTested;
               <?php if ($r['effectiveness'] !== null): ?>
               <div style="display:flex;align-items:center;gap:8px">
                 <div style="flex:1;height:8px;background:#e4e4e7;border-radius:4px;overflow:hidden">
-                  <div style="width:<?= (int)$r['effectiveness'] ?>%;height:100%;background:<?= $r['effectiveness'] >= 75 ? '#16a34a' : ($r['effectiveness'] >= 40 ? '#d97706' : '#dc2626') ?>;border-radius:4px"></div>
+                  <div style="width:<?= (int)$r['effectiveness'] ?>%;height:100%;background:<?= $r['effectiveness'] >= 75 ? 'var(--primary)' : ($r['effectiveness'] >= 40 ? 'var(--warning)' : 'var(--danger)') ?>;border-radius:4px"></div>
                 </div>
                 <span style="font-size:12px;font-weight:600;color:var(--text);white-space:nowrap"><?= (int)$r['effectiveness'] ?>%</span>
               </div>

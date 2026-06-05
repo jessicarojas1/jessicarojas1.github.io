@@ -62,7 +62,7 @@ html[data-theme="dark"] .report-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,.
       <div>
         <div style="font-size:16px;font-weight:600;margin-bottom:4px">Compliance Status</div>
         <div style="font-size:13px;color:var(--text-muted)">Per-package compliance breakdown, non-compliant controls, and recent activity.</div>
-        <div style="margin-top:12px;font-size:12px;color:#059669;font-weight:500">View Report <i class="bi bi-arrow-right"></i></div>
+        <div style="margin-top:12px;font-size:12px;color:var(--success);font-weight:500">View Report <i class="bi bi-arrow-right"></i></div>
       </div>
     </div>
   </a>
@@ -75,7 +75,7 @@ html[data-theme="dark"] .report-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,.
       <div>
         <div style="font-size:16px;font-weight:600;margin-bottom:4px">Risk Register</div>
         <div style="font-size:13px;color:var(--text-muted)">Full risk inventory with scores, categories, treatment plans, and open actions.</div>
-        <div style="margin-top:12px;font-size:12px;color:#dc2626;font-weight:500">View Report <i class="bi bi-arrow-right"></i></div>
+        <div style="margin-top:12px;font-size:12px;color:var(--danger);font-weight:500">View Report <i class="bi bi-arrow-right"></i></div>
       </div>
     </div>
   </a>
@@ -127,7 +127,7 @@ html[data-theme="dark"] .report-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,.
       <div>
         <div style="font-size:16px;font-weight:600;margin-bottom:4px">Vendor Risk</div>
         <div style="font-size:13px;color:var(--text-muted)">Third-party risk ratings, assessment status, contract expirations, and vendor tiers.</div>
-        <div style="margin-top:12px;font-size:12px;color:#d97706;font-weight:500">View Vendors <i class="bi bi-arrow-right"></i></div>
+        <div style="margin-top:12px;font-size:12px;color:var(--warning);font-weight:500">View Vendors <i class="bi bi-arrow-right"></i></div>
       </div>
     </div>
   </a>

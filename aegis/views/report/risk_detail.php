@@ -219,7 +219,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
     <div class="lbl">Total Risks</div>
   </div>
   <div class="rd-stat" style="border-top:4px solid #dc2626;">
-    <span class="val" style="color:#dc2626;"><?= $countCritical ?></span>
+    <span class="val" style="color:var(--danger);"><?= $countCritical ?></span>
     <div class="lbl">Critical</div>
   </div>
   <div class="rd-stat" style="border-top:4px solid #f97316;">
@@ -227,11 +227,11 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
     <div class="lbl">High</div>
   </div>
   <div class="rd-stat" style="border-top:4px solid #d97706;">
-    <span class="val" style="color:#d97706;"><?= $countMedium ?></span>
+    <span class="val" style="color:var(--warning);"><?= $countMedium ?></span>
     <div class="lbl">Medium</div>
   </div>
   <div class="rd-stat" style="border-top:4px solid #059669;">
-    <span class="val" style="color:#059669;"><?= $countLow ?></span>
+    <span class="val" style="color:var(--success);"><?= $countLow ?></span>
     <div class="lbl">Low</div>
   </div>
 </div>
@@ -242,13 +242,13 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
   <a href="/report/risk-detail"
      style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= (!$filterLevel && !$filterStatus) ? 'var(--primary)' : '#f4f4f5' ?>;color:<?= (!$filterLevel && !$filterStatus) ? '#fff' : '#52525b' ?>;text-decoration:none;font-weight:600;">All</a>
   <a href="/report/risk-detail?level=critical"
-     style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= $filterLevel === 'critical' ? '#dc2626' : '#fef2f2' ?>;color:<?= $filterLevel === 'critical' ? '#fff' : '#dc2626' ?>;text-decoration:none;font-weight:600;">Critical</a>
+     style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= $filterLevel === 'critical' ? 'var(--danger)' : '#fef2f2' ?>;color:<?= $filterLevel === 'critical' ? '#fff' : 'var(--danger)' ?>;text-decoration:none;font-weight:600;">Critical</a>
   <a href="/report/risk-detail?level=high"
      style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= $filterLevel === 'high' ? '#f97316' : '#fff7ed' ?>;color:<?= $filterLevel === 'high' ? '#fff' : '#ea580c' ?>;text-decoration:none;font-weight:600;">High</a>
   <a href="/report/risk-detail?status=open"
      style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= $filterStatus === 'open' ? '#0284c7' : '#f0f9ff' ?>;color:<?= $filterStatus === 'open' ? '#fff' : '#0284c7' ?>;text-decoration:none;font-weight:600;">Open</a>
   <a href="/report/risk-detail?status=in_treatment"
-     style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= $filterStatus === 'in_treatment' ? '#d97706' : '#fffbeb' ?>;color:<?= $filterStatus === 'in_treatment' ? '#fff' : '#d97706' ?>;text-decoration:none;font-weight:600;">In Treatment</a>
+     style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= $filterStatus === 'in_treatment' ? 'var(--warning)' : '#fffbeb' ?>;color:<?= $filterStatus === 'in_treatment' ? '#fff' : 'var(--warning)' ?>;text-decoration:none;font-weight:600;">In Treatment</a>
   <a href="/report/risk-detail?status=accepted"
      style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= $filterStatus === 'accepted' ? 'var(--secondary)' : 'rgba(55,65,81,.05)' ?>;color:<?= $filterStatus === 'accepted' ? '#fff' : 'var(--secondary)' ?>;text-decoration:none;font-weight:600;">Accepted</a>
 </div>
@@ -284,19 +284,19 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
         $lik     = (int)($r['likelihood']     ?? 0);
         $imp     = (int)($r['impact']         ?? 0);
 
-        if ($sc > 14)       { $sc_bg = '#fef2f2'; $sc_cl = '#dc2626'; $lvl = 'CRITICAL'; $lvl_bg = '#fef2f2'; $lvl_cl = '#dc2626'; }
+        if ($sc > 14)       { $sc_bg = '#fef2f2'; $sc_cl = 'var(--danger)'; $lvl = 'CRITICAL'; $lvl_bg = '#fef2f2'; $lvl_cl = 'var(--danger)'; }
         elseif ($sc >= 10)  { $sc_bg = '#fff7ed'; $sc_cl = '#ea580c'; $lvl = 'HIGH';     $lvl_bg = '#fff7ed'; $lvl_cl = '#ea580c'; }
-        elseif ($sc >= 6)   { $sc_bg = '#fffbeb'; $sc_cl = '#d97706'; $lvl = 'MEDIUM';   $lvl_bg = '#fffbeb'; $lvl_cl = '#d97706'; }
-        else                { $sc_bg = '#f0fdf4'; $sc_cl = '#16a34a'; $lvl = 'LOW';      $lvl_bg = '#f0fdf4'; $lvl_cl = '#16a34a'; }
+        elseif ($sc >= 6)   { $sc_bg = '#fffbeb'; $sc_cl = 'var(--warning)'; $lvl = 'MEDIUM';   $lvl_bg = '#fffbeb'; $lvl_cl = 'var(--warning)'; }
+        else                { $sc_bg = '#f0fdf4'; $sc_cl = 'var(--primary)'; $lvl = 'LOW';      $lvl_bg = '#f0fdf4'; $lvl_cl = 'var(--primary)'; }
 
-        if ($res > 14)      { $res_bg = '#fef2f2'; $res_cl = '#dc2626'; }
+        if ($res > 14)      { $res_bg = '#fef2f2'; $res_cl = 'var(--danger)'; }
         elseif ($res >= 10) { $res_bg = '#fff7ed'; $res_cl = '#ea580c'; }
-        elseif ($res >= 6)  { $res_bg = '#fffbeb'; $res_cl = '#d97706'; }
-        else                { $res_bg = '#f0fdf4'; $res_cl = '#16a34a'; }
+        elseif ($res >= 6)  { $res_bg = '#fffbeb'; $res_cl = 'var(--warning)'; }
+        else                { $res_bg = '#f0fdf4'; $res_cl = 'var(--primary)'; }
 
-        $statusColors = ['open' => ['#eff6ff','#1d4ed8'], 'in_treatment' => ['#fffbeb','#d97706'],
+        $statusColors = ['open' => ['#eff6ff','#1d4ed8'], 'in_treatment' => ['#fffbeb','var(--warning)'],
                          'accepted' => ['rgba(55,65,81,.05)','var(--text-muted)'], 'closed' => ['#f9fafb','#71717a'],
-                         'transferred' => ['#f0fdf4','#059669']];
+                         'transferred' => ['#f0fdf4','var(--success)']];
         $stColor = $statusColors[$r['status'] ?? ''] ?? ['#f9fafb','#52525b'];
 
         $strategy  = Security::h($r['treatment_strategy'] ?? $r['strategy'] ?? '—');
@@ -336,13 +336,13 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
           <?php else: ?><span style="color:#d4d4d8;">—</span><?php endif; ?>
         </td>
         <td style="white-space:nowrap;"><?= Security::h($r['owner_name'] ?? '—') ?></td>
-        <td style="white-space:nowrap;color:<?= $isOverdue ? '#dc2626' : '#52525b' ?>;">
+        <td style="white-space:nowrap;color:<?= $isOverdue ? 'var(--danger)' : '#52525b' ?>;">
           <?= $reviewDt ?>
-          <?php if ($isOverdue): ?>&nbsp;<i class="bi bi-exclamation-circle-fill" style="color:#dc2626;"></i><?php endif; ?>
+          <?php if ($isOverdue): ?>&nbsp;<i class="bi bi-exclamation-circle-fill" style="color:var(--danger);"></i><?php endif; ?>
         </td>
         <td class="center">
           <?php if ($openTx > 0): ?>
-          <span style="display:inline-block;background:#fffbeb;color:#d97706;font-weight:700;min-width:22px;padding:2px 6px;border-radius:6px;font-size:11px;"><?= $openTx ?></span>
+          <span style="display:inline-block;background:#fffbeb;color:var(--warning);font-weight:700;min-width:22px;padding:2px 6px;border-radius:6px;font-size:11px;"><?= $openTx ?></span>
           <?php else: ?><span style="color:#d4d4d8;">0</span><?php endif; ?>
         </td>
         <td class="center">
@@ -357,7 +357,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
   </div>
   <?php else: ?>
   <div style="text-align:center;padding:48px 24px;color:#a1a1aa;">
-    <i class="bi bi-check-circle-fill" style="font-size:32px;color:#059669;display:block;margin-bottom:10px;"></i>
+    <i class="bi bi-check-circle-fill" style="font-size:32px;color:var(--success);display:block;margin-bottom:10px;"></i>
     No risks match the current filter criteria.
   </div>
   <?php endif; ?>

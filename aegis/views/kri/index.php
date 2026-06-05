@@ -14,9 +14,9 @@ foreach ($kris as $k) {
 
 // RAG color map
 $ragColors = [
-    'green' => ['#f0fdf4', '#16a34a', '#bbf7d0'],
-    'amber' => ['#fffbeb', '#d97706', '#fde68a'],
-    'red'   => ['#fef2f2', '#dc2626', '#fecaca'],
+    'green' => ['#f0fdf4', 'var(--primary)', '#bbf7d0'],
+    'amber' => ['#fffbeb', 'var(--warning)', '#fde68a'],
+    'red'   => ['#fef2f2', 'var(--danger)', '#fecaca'],
     'grey'  => ['#f9fafb', '#71717a', '#e4e4e7'],
 ];
 
@@ -56,9 +56,9 @@ $freqLabels = [
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;">
   <?php
   $chipDefs = [
-    ['green', 'Green',   'bi-check-circle-fill', '#16a34a', '#f0fdf4', '#bbf7d0'],
-    ['amber', 'Amber',   'bi-exclamation-triangle-fill', '#d97706', '#fffbeb', '#fde68a'],
-    ['red',   'Red',     'bi-exclamation-octagon-fill', '#dc2626', '#fef2f2', '#fecaca'],
+    ['green', 'Green',   'bi-check-circle-fill', 'var(--primary)', '#f0fdf4', '#bbf7d0'],
+    ['amber', 'Amber',   'bi-exclamation-triangle-fill', 'var(--warning)', '#fffbeb', '#fde68a'],
+    ['red',   'Red',     'bi-exclamation-octagon-fill', 'var(--danger)', '#fef2f2', '#fecaca'],
     ['grey',  'No Data', 'bi-dash-circle-fill', '#71717a', '#f9fafb', '#e4e4e7'],
   ];
   foreach ($chipDefs as [$rag, $label, $icon, $color, $bg, $border]):
@@ -212,7 +212,7 @@ $displayKris = $activeFilter
 
         <!-- Direction indicator -->
         <div style="font-size:11px;color:var(--text-muted);margin-bottom:12px;display:flex;align-items:center;gap:4px;">
-          <i class="bi bi-arrow-<?= $k['direction'] === 'higher_worse' ? 'up' : 'down' ?>-circle" style="color:<?= $k['direction'] === 'higher_worse' ? '#dc2626' : '#d97706' ?>;"></i>
+          <i class="bi bi-arrow-<?= $k['direction'] === 'higher_worse' ? 'up' : 'down' ?>-circle" style="color:<?= $k['direction'] === 'higher_worse' ? 'var(--danger)' : 'var(--warning)' ?>;"></i>
           <?= $dirLabel ?>
         </div>
 

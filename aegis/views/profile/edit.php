@@ -75,7 +75,7 @@ $mfaEnabled = !empty($dbUser['mfa_enabled']);
           <label class="form-label">Two-Factor Authentication</label>
           <div style="display:flex;align-items:center;gap:10px">
             <?php if ($mfaEnabled): ?>
-              <span style="display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:600;color:#059669">
+              <span style="display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:600;color:var(--success)">
                 <i class="bi bi-shield-check-fill"></i> Enabled
               </span>
             <?php else: ?>

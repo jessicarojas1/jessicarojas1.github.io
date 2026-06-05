@@ -7,9 +7,9 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 $rag = $kri['rag'] ?? 'grey';
 
 $ragMap = [
-    'green' => ['#16a34a', '#f0fdf4', '#bbf7d0', 'GREEN',   'bi-check-circle-fill'],
-    'amber' => ['#d97706', '#fffbeb', '#fde68a', 'AMBER',   'bi-exclamation-triangle-fill'],
-    'red'   => ['#dc2626', '#fef2f2', '#fecaca', 'RED',     'bi-exclamation-octagon-fill'],
+    'green' => ['var(--primary)', '#f0fdf4', '#bbf7d0', 'GREEN',   'bi-check-circle-fill'],
+    'amber' => ['var(--warning)', '#fffbeb', '#fde68a', 'AMBER',   'bi-exclamation-triangle-fill'],
+    'red'   => ['var(--danger)', '#fef2f2', '#fecaca', 'RED',     'bi-exclamation-octagon-fill'],
     'grey'  => ['#71717a', '#f9fafb', '#e4e4e7', 'NO DATA', 'bi-dash-circle-fill'],
 ];
 [$ragColor, $ragBg, $ragBorder, $ragLabel, $ragIcon] = $ragMap[$rag] ?? $ragMap['grey'];
@@ -159,7 +159,7 @@ function fmtNum(float $n): string {
               // For higher_worse: up trend is bad (red); for lower_worse: down trend is bad
               $trendBad = ($dir === 'higher_worse' && $trendUp) || ($dir === 'lower_worse' && $trendDown);
               $trendGood = ($dir === 'higher_worse' && $trendDown) || ($dir === 'lower_worse' && $trendUp);
-              $trendColor = $trendBad ? '#dc2626' : ($trendGood ? '#16a34a' : '#71717a');
+              $trendColor = $trendBad ? 'var(--danger)' : ($trendGood ? 'var(--primary)' : '#71717a');
               $trendIcon = $trendUp ? 'bi-arrow-up-circle-fill' : ($trendDown ? 'bi-arrow-down-circle-fill' : 'bi-dash-circle-fill');
               $trendText = $trendUp ? 'Trending ↑' : ($trendDown ? 'Trending ↓' : 'Flat');
               ?>
@@ -232,7 +232,7 @@ function fmtNum(float $n): string {
           <div>
             <div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:2px;">DIRECTION</div>
             <div style="font-size:14px;">
-              <i class="bi bi-arrow-<?= $dir === 'higher_worse' ? 'up' : 'down' ?>-circle" style="color:<?= $dir === 'higher_worse' ? '#dc2626' : '#d97706' ?>;"></i>
+              <i class="bi bi-arrow-<?= $dir === 'higher_worse' ? 'up' : 'down' ?>-circle" style="color:<?= $dir === 'higher_worse' ? 'var(--danger)' : 'var(--warning)' ?>;"></i>
               <?= $dir === 'higher_worse' ? 'Higher = worse' : 'Lower = worse' ?>
             </div>
           </div>
@@ -257,7 +257,7 @@ function fmtNum(float $n): string {
           <div>
             <div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:2px;">STATUS</div>
             <div style="font-size:14px;">
-              <span style="background:<?= $kri['is_active'] ? '#16a34a' : '#64748b' ?>20;color:<?= $kri['is_active'] ? '#16a34a' : '#64748b' ?>;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:600;">
+              <span style="background:<?= $kri['is_active'] ? 'var(--primary)' : '#64748b' ?>20;color:<?= $kri['is_active'] ? 'var(--primary)' : '#64748b' ?>;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:600;">
                 <?= $kri['is_active'] ? 'Active' : 'Inactive' ?>
               </span>
             </div>
@@ -290,7 +290,7 @@ function fmtNum(float $n): string {
           <tbody>
             <?php foreach ($values as $v):
               $vRag = kriValueRag((float)$v['value'], $green, $amber, $red, $dir);
-              $vColors = ['green'=>['#f0fdf4','#16a34a'],'amber'=>['#fffbeb','#d97706'],'red'=>['#fef2f2','#dc2626']];
+              $vColors = ['green'=>['#f0fdf4','var(--primary)'],'amber'=>['#fffbeb','var(--warning)'],'red'=>['#fef2f2','var(--danger)']];
               [$vBg,$vColor] = $vColors[$vRag] ?? ['#f9fafb','#71717a'];
               $vIcon = ['green'=>'bi-check-circle-fill','amber'=>'bi-exclamation-triangle-fill','red'=>'bi-exclamation-octagon-fill'][$vRag] ?? 'bi-dash-circle';
             ?>
@@ -443,7 +443,7 @@ function fmtNum(float $n): string {
       }, {
         label: 'Green threshold',
         data: labels.map(() => green),
-        borderColor: '#16a34a',
+        borderColor: 'var(--primary)',
         borderWidth: 1,
         borderDash: [4, 4],
         pointRadius: 0,
@@ -451,7 +451,7 @@ function fmtNum(float $n): string {
       }, {
         label: 'Amber threshold',
         data: labels.map(() => amber),
-        borderColor: '#d97706',
+        borderColor: 'var(--warning)',
         borderWidth: 1,
         borderDash: [4, 4],
         pointRadius: 0,

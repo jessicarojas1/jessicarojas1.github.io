@@ -30,7 +30,7 @@ ob_start();
         <div class="card-body">
 
           <div class="form-group">
-            <label class="form-label" for="title">Title <span style="color:#dc2626">*</span></label>
+            <label class="form-label" for="title">Title <span style="color:var(--danger)">*</span></label>
             <input type="text" id="title" name="title" class="form-control" placeholder="Brief description of the issue…" required autofocus>
           </div>
 
@@ -113,10 +113,10 @@ ob_start();
 
 <script nonce="<?= Security::nonce() ?>">
 const sevMeta = {
-  critical: { color:'#dc2626', label:'Critical', desc:'Severe; requires immediate remediation.' },
-  high:     { color:'#d97706', label:'High',     desc:'Significant risk; address urgently.' },
+  critical: { color:'var(--danger)', label:'Critical', desc:'Severe; requires immediate remediation.' },
+  high:     { color:'var(--warning)', label:'High',     desc:'Significant risk; address urgently.' },
   medium:   { color:'#0284c7', label:'Medium',   desc:'Moderate impact; address promptly.' },
-  low:      { color:'#059669', label:'Low',      desc:'Minor; handle in normal workflow.' },
+  low:      { color:'var(--success)', label:'Low',      desc:'Minor; handle in normal workflow.' },
 };
 function updateSevPreview(val) {
   const d = sevMeta[val] || sevMeta.medium;

@@ -41,7 +41,7 @@ ob_start();
           $total     = (int)$p['total_assigned'];
           $completed = (int)$p['completed_count'];
           $pct       = $total > 0 ? round(($completed / $total) * 100) : 0;
-          $color     = $pct >= 80 ? '#059669' : ($pct >= 50 ? '#d97706' : '#dc2626');
+          $color     = $pct >= 80 ? 'var(--success)' : ($pct >= 50 ? 'var(--warning)' : 'var(--danger)');
           $typeIcons = ['document'=>'file-earmark-text','video'=>'play-btn-fill','policy'=>'file-earmark-check','quiz'=>'patch-question-fill'];
           $icon = $typeIcons[$p['content_type']] ?? 'book';
         ?>

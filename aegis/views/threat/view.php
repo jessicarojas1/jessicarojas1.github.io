@@ -6,15 +6,15 @@ $catConfig = [
     'people'     => ['label' => 'People',     'color' => 'var(--secondary)', 'bg' => 'rgba(55,65,81,.05)', 'icon' => 'bi-person-fill'],
     'process'    => ['label' => 'Process',    'color' => '#2563eb', 'bg' => '#eff6ff', 'icon' => 'bi-diagram-3-fill'],
     'technology' => ['label' => 'Technology', 'color' => 'var(--primary)', 'bg' => 'rgba(11,97,4,.06)', 'icon' => 'bi-cpu-fill'],
-    'natural'    => ['label' => 'Natural',    'color' => '#16a34a', 'bg' => '#f0fdf4', 'icon' => 'bi-cloud-lightning-rain-fill'],
+    'natural'    => ['label' => 'Natural',    'color' => 'var(--primary)', 'bg' => '#f0fdf4', 'icon' => 'bi-cloud-lightning-rain-fill'],
     'regulatory' => ['label' => 'Regulatory', 'color' => '#ea580c', 'bg' => '#fff7ed', 'icon' => 'bi-file-earmark-ruled-fill'],
     'financial'  => ['label' => 'Financial',  'color' => '#ca8a04', 'bg' => '#fefce8', 'icon' => 'bi-currency-dollar'],
 ];
 
 $statusConfig = [
-    'active'    => ['label' => 'Active',    'color' => '#16a34a', 'bg' => '#f0fdf4'],
+    'active'    => ['label' => 'Active',    'color' => 'var(--primary)', 'bg' => '#f0fdf4'],
     'mitigated' => ['label' => 'Mitigated', 'color' => '#2563eb', 'bg' => '#eff6ff'],
-    'accepted'  => ['label' => 'Accepted',  'color' => '#d97706', 'bg' => '#fffbeb'],
+    'accepted'  => ['label' => 'Accepted',  'color' => 'var(--warning)', 'bg' => '#fffbeb'],
     'retired'   => ['label' => 'Retired',   'color' => '#71717a', 'bg' => '#f9fafb'],
 ];
 
@@ -28,10 +28,10 @@ $impact     = (int)($threat['impact'] ?? 0);
 $score      = $likelihood * $impact;
 
 function threatViewScoreColor(int $score): string {
-    if ($score <= 4)  return '#16a34a';
-    if ($score <= 9)  return '#d97706';
+    if ($score <= 4)  return 'var(--primary)';
+    if ($score <= 9)  return 'var(--warning)';
     if ($score <= 16) return '#ea580c';
-    return '#dc2626';
+    return 'var(--danger)';
 }
 function threatViewScoreBg(int $score): string {
     if ($score <= 4)  return '#f0fdf4';
@@ -316,11 +316,11 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
             <tbody>
               <?php foreach ($linkedRisks as $r):
                 $rs = (int)($r['inherent_score'] ?? 0);
-                if ($rs > 16)     { $rc = '#dc2626'; }
+                if ($rs > 16)     { $rc = 'var(--danger)'; }
                 elseif ($rs > 9)  { $rc = '#ea580c'; }
-                elseif ($rs > 4)  { $rc = '#d97706'; }
-                else              { $rc = '#16a34a'; }
-                $rStColors = ['open'=>'#16a34a','in_progress'=>'#2563eb','mitigated'=>'#7c3aed','accepted'=>'#d97706','closed'=>'#64748b'];
+                elseif ($rs > 4)  { $rc = 'var(--warning)'; }
+                else              { $rc = 'var(--primary)'; }
+                $rStColors = ['open'=>'var(--primary)','in_progress'=>'#2563eb','mitigated'=>'#7c3aed','accepted'=>'var(--warning)','closed'=>'#64748b'];
                 $rStColor = $rStColors[$r['status'] ?? ''] ?? '#64748b';
               ?>
                 <tr>
@@ -430,7 +430,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
             elseif ($rs > 4) $risksByLevel['Medium']++;
             else             $risksByLevel['Low']++;
         }
-        $lvlColors = ['Critical'=>'#dc2626','High'=>'#ea580c','Medium'=>'#d97706','Low'=>'#16a34a'];
+        $lvlColors = ['Critical'=>'var(--danger)','High'=>'#ea580c','Medium'=>'var(--warning)','Low'=>'var(--primary)'];
         foreach ($risksByLevel as $lvl => $cnt):
             if ($cnt === 0) continue;
         ?>
@@ -456,10 +456,10 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
 <script nonce="<?= Security::nonce() ?>">
 (function() {
     function scoreColor(s) {
-        if (s <= 4)  return '#16a34a';
-        if (s <= 9)  return '#d97706';
+        if (s <= 4)  return 'var(--primary)';
+        if (s <= 9)  return 'var(--warning)';
         if (s <= 16) return '#ea580c';
-        return '#dc2626';
+        return 'var(--danger)';
     }
     window.updateEditScore = function() {
         var l = parseInt(document.getElementById('editLikelihood')?.value, 10) || 0;

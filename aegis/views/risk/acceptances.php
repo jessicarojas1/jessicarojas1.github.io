@@ -11,10 +11,10 @@ $expiringSoon     = (int)($summary['expiring_soon_count'] ?? 0);
 
 // Status config
 $statusConfig = [
-    'active'     => ['label' => 'Active',     'fg' => '#16a34a', 'bg' => '#f0fdf4', 'border' => '#86efac'],
+    'active'     => ['label' => 'Active',     'fg' => 'var(--primary)', 'bg' => '#f0fdf4', 'border' => '#86efac'],
     'expired'    => ['label' => 'Expired',    'fg' => '#71717a', 'bg' => '#f4f4f5', 'border' => '#d4d4d8'],
     'superseded' => ['label' => 'Superseded', 'fg' => 'var(--secondary)', 'bg' => 'rgba(55,65,81,.06)', 'border' => '#d1d5db'],
-    'revoked'    => ['label' => 'Revoked',    'fg' => '#dc2626', 'bg' => '#fef2f2', 'border' => '#fca5a5'],
+    'revoked'    => ['label' => 'Revoked',    'fg' => 'var(--danger)', 'bg' => '#fef2f2', 'border' => '#fca5a5'],
 ];
 
 $levelConfig = [
@@ -58,10 +58,10 @@ if ($filterStatus !== '') {
   <div class="card" style="border-left:4px solid #16a34a;">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
       <div style="width:44px;height:44px;border-radius:10px;background:var(--success-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-        <i class="bi bi-patch-check-fill" style="font-size:20px;color:#16a34a;"></i>
+        <i class="bi bi-patch-check-fill" style="font-size:20px;color:var(--primary);"></i>
       </div>
       <div>
-        <div style="font-size:26px;font-weight:700;line-height:1;color:#16a34a;"><?= $activeCount ?></div>
+        <div style="font-size:26px;font-weight:700;line-height:1;color:var(--primary);"><?= $activeCount ?></div>
         <div style="font-size:12px;color:var(--text-muted);margin-top:3px;">Active</div>
       </div>
     </div>

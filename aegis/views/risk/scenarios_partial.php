@@ -10,9 +10,9 @@ $baseL     = (int)$risk['likelihood'];
 $baseI     = (int)$risk['impact'];
 
 $typeMeta = [
-    'stress'       => ['label'=>'Stress',        'color'=>'#dc2626', 'bg'=>'#fef2f2', 'border'=>'#fca5a5', 'icon'=>'bi-graph-up-arrow'],
+    'stress'       => ['label'=>'Stress',        'color'=>'var(--danger)', 'bg'=>'#fef2f2', 'border'=>'#fca5a5', 'icon'=>'bi-graph-up-arrow'],
     'base'         => ['label'=>'Base',           'color'=>'#71717a', 'bg'=>'#f4f4f5', 'border'=>'#d4d4d8', 'icon'=>'bi-circle-fill'],
-    'optimistic'   => ['label'=>'Optimistic',     'color'=>'#16a34a', 'bg'=>'#f0fdf4', 'border'=>'#86efac', 'icon'=>'bi-graph-down-arrow'],
+    'optimistic'   => ['label'=>'Optimistic',     'color'=>'var(--primary)', 'bg'=>'#f0fdf4', 'border'=>'#86efac', 'icon'=>'bi-graph-down-arrow'],
     'catastrophic' => ['label'=>'Catastrophic',   'color'=>'#111111', 'bg'=>'#f9fafb', 'border'=>'#a1a1aa', 'icon'=>'bi-exclamation-octagon-fill'],
     'regulatory'   => ['label'=>'Regulatory',     'color'=>'#2563eb', 'bg'=>'#eff6ff', 'border'=>'#93c5fd', 'icon'=>'bi-bank'],
 ];
@@ -212,7 +212,7 @@ $avgScore = count($scenarios) > 0 ? round($totalScoreSum / count($scenarios), 1)
       </span>
       <?php if ($totalFinancial > 0): ?>
       <span>
-        <i class="bi bi-currency-dollar" style="color:#16a34a"></i>
+        <i class="bi bi-currency-dollar" style="color:var(--primary)"></i>
         <strong style="color:var(--text)">Total financial exposure:</strong>
         $<?= number_format($totalFinancial, 0) ?>
       </span>

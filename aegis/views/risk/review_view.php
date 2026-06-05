@@ -8,7 +8,7 @@ ob_start();
 $statusColors = [
     'planned'     => ['#3b82f6','#eff6ff','#bfdbfe'],
     'in_progress' => ['#f59e0b','#fffbeb','#fde68a'],
-    'completed'   => ['#16a34a','#f0fdf4','#bbf7d0'],
+    'completed'   => ['var(--primary)','#f0fdf4','#bbf7d0'],
     'cancelled'   => ['#71717a','#f9fafb','#e4e4e7'],
 ];
 [$stFg,$stBg,$stBd] = $statusColors[$review['status']] ?? $statusColors['planned'];
@@ -16,7 +16,7 @@ $statusColors = [
 $typeLabels = ['periodic'=>'Periodic','triggered'=>'Triggered','ad_hoc'=>'Ad Hoc','board'=>'Board'];
 $itemStatusColors = [
     'pending'        => '#71717a',
-    'reviewed'       => '#16a34a',
+    'reviewed'       => 'var(--primary)',
     'escalated'      => '#ef4444',
     'deferred'       => '#f59e0b',
     'not_applicable' => '#a1a1aa',
@@ -115,7 +115,7 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
 <!-- Progress + KPIs -->
 <div class="rv-kpi-row">
   <div class="rv-kpi"><div class="num"><?= $review['total_risks'] ?></div><div class="lbl">Total Risks</div></div>
-  <div class="rv-kpi" style="border-color:#16a34a"><div class="num" style="color:#16a34a"><?= count($groups['reviewed']) + count($groups['escalated']) + count($groups['deferred']) + count($groups['not_applicable']) ?></div><div class="lbl">Reviewed</div></div>
+  <div class="rv-kpi" style="border-color:var(--primary)"><div class="num" style="color:var(--primary)"><?= count($groups['reviewed']) + count($groups['escalated']) + count($groups['deferred']) + count($groups['not_applicable']) ?></div><div class="lbl">Reviewed</div></div>
   <div class="rv-kpi" style="border-color:var(--text-muted)"><div class="num" style="color:var(--text-muted)"><?= count($groups['pending']) ?></div><div class="lbl">Pending</div></div>
   <div class="rv-kpi" style="border-color:#ef4444"><div class="num" style="color:#ef4444"><?= count($groups['escalated']) ?></div><div class="lbl">Escalated</div></div>
   <div class="rv-kpi" style="border-color:#f59e0b"><div class="num" style="color:#f59e0b"><?= count($groups['deferred']) ?></div><div class="lbl">Deferred</div></div>
@@ -156,7 +156,7 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
           $iColor  = $riskColors[$iLevel];
           $rColor  = $riskColors[$rLevel];
           $strats  = json_decode($item['treatment_strategies'] ?? '[]', true) ?: [];
-          $sColors = ['mitigate'=>'#2563eb','accept'=>'#b45309','transfer'=>'var(--secondary)','avoid'=>'#dc2626'];
+          $sColors = ['mitigate'=>'#2563eb','accept'=>'#b45309','transfer'=>'var(--secondary)','avoid'=>'var(--danger)'];
         ?>
         <tr class="risk-item-row">
           <td>
@@ -190,9 +190,9 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
           </td>
           <?php if ($groupStatus !== 'pending'): ?>
           <td style="font-size:12px">
-            <?php if ($item['score_confirmed']): ?><span style="color:#16a34a">✓ Score confirmed</span><br><?php endif; ?>
+            <?php if ($item['score_confirmed']): ?><span style="color:var(--primary)">✓ Score confirmed</span><br><?php endif; ?>
             <?php if ($item['treatment_adequate'] === 't' || $item['treatment_adequate'] === true || $item['treatment_adequate'] === 1): ?>
-              <span style="color:#16a34a">✓ Treatment adequate</span><br>
+              <span style="color:var(--primary)">✓ Treatment adequate</span><br>
             <?php elseif ($item['treatment_adequate'] === 'f' || $item['treatment_adequate'] === false || $item['treatment_adequate'] === 0): ?>
               <span style="color:#ef4444">✗ Treatment inadequate</span><br>
             <?php endif; ?>
@@ -254,7 +254,7 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
 <!-- Complete Modal -->
 <div class="modal-overlay" id="completeModal">
   <div class="modal-box">
-    <h3 style="margin:0 0 12px"><i class="bi bi-check2-circle" style="color:#16a34a"></i> Complete Review</h3>
+    <h3 style="margin:0 0 12px"><i class="bi bi-check2-circle" style="color:var(--primary)"></i> Complete Review</h3>
     <?php if (count($groups['pending']) > 0): ?>
     <div class="alert-box" style="background:var(--danger-subtle);border-color:var(--danger)40;color:var(--danger);margin-bottom:12px">
       <i class="bi bi-exclamation-triangle-fill"></i> <?= count($groups['pending']) ?> risk(s) still pending review. You can still complete but they will remain pending.

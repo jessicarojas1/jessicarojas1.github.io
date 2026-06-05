@@ -31,7 +31,7 @@ ob_start();
 
           <div class="form-row">
             <div class="form-group" style="flex:2">
-              <label class="form-label" for="name">Vendor Name <span style="color:#dc2626">*</span></label>
+              <label class="form-label" for="name">Vendor Name <span style="color:var(--danger)">*</span></label>
               <input type="text" id="name" name="name" class="form-control" placeholder="Company or service name" required autofocus>
             </div>
             <div class="form-group" style="flex:1">
@@ -66,7 +66,7 @@ ob_start();
 
       <div class="card">
         <div class="card-header">
-          <div class="card-header-left"><i class="bi bi-person-lines-fill" style="color:#d97706"></i><span class="card-title">Contact &amp; Contract</span></div>
+          <div class="card-header-left"><i class="bi bi-person-lines-fill" style="color:var(--warning)"></i><span class="card-title">Contact &amp; Contract</span></div>
         </div>
         <div class="card-body">
 
@@ -102,7 +102,7 @@ ob_start();
 
       <div class="card">
         <div class="card-header">
-          <div class="card-header-left"><i class="bi bi-exclamation-triangle-fill" style="color:#d97706"></i><span class="card-title">Risk Classification</span></div>
+          <div class="card-header-left"><i class="bi bi-exclamation-triangle-fill" style="color:var(--warning)"></i><span class="card-title">Risk Classification</span></div>
         </div>
         <div class="card-body">
 
@@ -158,10 +158,10 @@ ob_start();
 
 <script nonce="<?= Security::nonce() ?>">
 const tierData = {
-  critical: { color:'#dc2626', label:'Critical Risk', desc:'Continuous monitoring; executive oversight required.' },
-  high:     { color:'#d97706', label:'High Risk',     desc:'Frequent assessments; formal approval needed.' },
+  critical: { color:'var(--danger)', label:'Critical Risk', desc:'Continuous monitoring; executive oversight required.' },
+  high:     { color:'var(--warning)', label:'High Risk',     desc:'Frequent assessments; formal approval needed.' },
   medium:   { color:'#0284c7', label:'Medium Risk',   desc:'Periodic assessments required; monitor access.' },
-  low:      { color:'#059669', label:'Low Risk',      desc:'Annual review; standard due diligence.' },
+  low:      { color:'var(--success)', label:'Low Risk',      desc:'Annual review; standard due diligence.' },
 };
 function updateTierPreview(val) {
   const d = tierData[val] || tierData.medium;

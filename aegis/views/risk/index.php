@@ -29,7 +29,7 @@ try {
     $_appetiteRows = Database::fetchAll("SELECT category, appetite, max_score FROM risk_appetite ORDER BY category LIMIT 10") ?: [];
 } catch (Throwable $_e) { $_appetiteRows = []; }
 if (!empty($_appetiteRows)):
-$_appColors = ['zero'=>'#dc2626','low'=>'#d97706','moderate'=>'#2563eb','high'=>'#16a34a'];
+$_appColors = ['zero'=>'var(--danger)','low'=>'var(--warning)','moderate'=>'#2563eb','high'=>'var(--primary)'];
 ?>
 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px;padding:10px 14px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:10px">
   <span style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;flex-shrink:0">
@@ -57,8 +57,8 @@ $_appColors = ['zero'=>'#dc2626','low'=>'#d97706','moderate'=>'#2563eb','high'=>
   <div class="risk-kpi medium"><i class="bi bi-exclamation-circle-fill"></i><span class="kpi-num"><?= $summary['medium'] ?></span><span>Medium</span></div>
   <div class="risk-kpi low"><i class="bi bi-info-circle-fill"></i><span class="kpi-num"><?= $summary['low'] ?></span><span>Low</span></div>
   <div class="risk-kpi open"><i class="bi bi-circle-fill"></i><span class="kpi-num"><?= $summary['open'] ?></span><span>Open</span></div>
-  <div class="risk-kpi" style="color:#16a34a"><i class="bi bi-eye-fill"></i><span class="kpi-num"><?= $summary['monitoring'] ?></span><span>Monitoring</span></div>
-  <div class="risk-kpi accepted" style="color:#d97706"><i class="bi bi-check-circle-fill"></i><span class="kpi-num"><?= $summary['accepted'] ?></span><span>Accepted</span></div>
+  <div class="risk-kpi" style="color:var(--primary)"><i class="bi bi-eye-fill"></i><span class="kpi-num"><?= $summary['monitoring'] ?></span><span>Monitoring</span></div>
+  <div class="risk-kpi accepted" style="color:var(--warning)"><i class="bi bi-check-circle-fill"></i><span class="kpi-num"><?= $summary['accepted'] ?></span><span>Accepted</span></div>
   <div class="risk-kpi" style="color:var(--text-muted)"><i class="bi bi-lock-fill"></i><span class="kpi-num"><?= $summary['closed'] ?></span><span>Closed</span></div>
 </div>
 
@@ -229,7 +229,7 @@ $_filterCount = count(array_filter([
             <td>
               <?php
               $strategies = json_decode($risk['treatment_strategies'] ?? '[]', true) ?: [];
-              $stratColors = ['mitigate'=>'#2563eb','accept'=>'#b45309','transfer'=>'var(--secondary)','avoid'=>'#dc2626'];
+              $stratColors = ['mitigate'=>'#2563eb','accept'=>'#b45309','transfer'=>'var(--secondary)','avoid'=>'var(--danger)'];
               foreach ($strategies as $strat):
                 $sc = $stratColors[$strat] ?? '#71717a';
               ?>
@@ -241,7 +241,7 @@ $_filterCount = count(array_filter([
             <td>
               <?php
               $aStatus = $risk['assessment_status'] ?? 'draft';
-              $aColors = ['draft'=>['#71717a','#f4f4f5'],'pending_review'=>['#d97706','#fffbeb'],'approved'=>['#16a34a','#f0fdf4']];
+              $aColors = ['draft'=>['#71717a','#f4f4f5'],'pending_review'=>['var(--warning)','#fffbeb'],'approved'=>['var(--primary)','#f0fdf4']];
               [$aFg,$aBg] = $aColors[$aStatus] ?? $aColors['draft'];
               $aLabel = ['draft'=>'Draft','pending_review'=>'Pending Review','approved'=>'Approved'][$aStatus] ?? ucfirst($aStatus);
               ?>

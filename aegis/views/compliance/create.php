@@ -22,7 +22,7 @@ ob_start();
           <?= Security::csrfField() ?>
 
           <div class="form-group">
-            <label class="form-label">Package Name <span style="color:#dc2626">*</span></label>
+            <label class="form-label">Package Name <span style="color:var(--danger)">*</span></label>
             <input type="text" name="name" class="form-control" required autofocus
                    placeholder="e.g. HIPAA Security Rule 2024" value="<?= Security::h($_POST['name'] ?? '') ?>">
           </div>

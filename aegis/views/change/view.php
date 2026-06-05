@@ -156,12 +156,12 @@ ob_start(); ?>
         <h3 style="margin:0"><i class="bi bi-people-fill" style="margin-right:6px;color:var(--primary)"></i>CAB Review</h3>
         <div style="display:flex;gap:10px;font-size:13px">
           <?php if ($approveCount > 0): ?>
-            <span style="display:inline-flex;align-items:center;gap:5px;background:#dcfce7;color:#16a34a;padding:3px 10px;border-radius:99px;font-weight:700">
+            <span style="display:inline-flex;align-items:center;gap:5px;background:#dcfce7;color:var(--primary);padding:3px 10px;border-radius:99px;font-weight:700">
               <i class="bi bi-check-circle-fill"></i> <?= $approveCount ?> Approve
             </span>
           <?php endif; ?>
           <?php if ($rejectCount > 0): ?>
-            <span style="display:inline-flex;align-items:center;gap:5px;background:#fee2e2;color:#dc2626;padding:3px 10px;border-radius:99px;font-weight:700">
+            <span style="display:inline-flex;align-items:center;gap:5px;background:#fee2e2;color:var(--danger);padding:3px 10px;border-radius:99px;font-weight:700">
               <i class="bi bi-x-circle-fill"></i> <?= $rejectCount ?> Reject
             </span>
           <?php endif; ?>
@@ -175,7 +175,7 @@ ob_start(); ?>
           <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
             <?php foreach ($cabVotes as $v):
               $isApprove = str_starts_with($v['content'], 'APPROVE');
-              $voteColor = $isApprove ? '#16a34a' : '#dc2626';
+              $voteColor = $isApprove ? 'var(--primary)' : 'var(--danger)';
               $voteBg    = $isApprove ? '#dcfce7' : '#fee2e2';
               $voteLabel = $isApprove ? 'Approved' : 'Rejected';
               $voteIcon  = $isApprove ? 'bi-check-circle-fill' : 'bi-x-circle-fill';

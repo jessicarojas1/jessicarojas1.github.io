@@ -5,7 +5,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 
 function testResultBadge(string $result): string {
     return match($result) {
-        'pass'       => '<span class="badge" style="background:#16a34a18;color:#16a34a;border:1px solid #16a34a40">Pass</span>',
+        'pass'       => '<span class="badge" style="background:#16a34a18;color:var(--primary);border:1px solid #16a34a40">Pass</span>',
         'fail'       => '<span class="badge" style="background:#dc262618;color:var(--danger);border:1px solid #dc262640">Fail</span>',
         'partial'    => '<span class="badge" style="background:#d9770618;color:var(--warning);border:1px solid #d9770640">Partial</span>',
         'not_tested' => '<span class="badge" style="background:var(--bg-secondary);color:var(--text-muted);border:1px solid var(--border)">Not Tested</span>',
@@ -64,9 +64,9 @@ function testResultBadge(string $result): string {
           <?php
           $implStatus = $obj['status'] ?? 'not_started';
           $statusCfg = [
-            'compliant'      => ['bg'=>'#dcfce7','text'=>'#16a34a','label'=>'Compliant'],
-            'partial'        => ['bg'=>'#fffbeb','text'=>'#d97706','label'=>'Partial'],
-            'non_compliant'  => ['bg'=>'#fef2f2','text'=>'#dc2626','label'=>'Non-Compliant'],
+            'compliant'      => ['bg'=>'#dcfce7','text'=>'var(--primary)','label'=>'Compliant'],
+            'partial'        => ['bg'=>'#fffbeb','text'=>'var(--warning)','label'=>'Partial'],
+            'non_compliant'  => ['bg'=>'#fef2f2','text'=>'var(--danger)','label'=>'Non-Compliant'],
             'not_applicable' => ['bg'=>'#f4f4f5','text'=>'#71717a','label'=>'Not Applicable'],
             'not_started'    => ['bg'=>'#f9fafb','text'=>'#a1a1aa','label'=>'Not Started'],
           ];
@@ -118,7 +118,7 @@ function testResultBadge(string $result): string {
             <?php if ($h['effectiveness'] !== null): ?>
             <div style="display:flex;align-items:center;gap:8px">
               <div style="width:60px;height:6px;background:#e4e4e7;border-radius:3px;overflow:hidden">
-                <div style="width:<?= (int)$h['effectiveness'] ?>%;height:100%;background:<?= $h['effectiveness'] >= 75 ? '#16a34a' : ($h['effectiveness'] >= 40 ? '#d97706' : '#dc2626') ?>;border-radius:3px"></div>
+                <div style="width:<?= (int)$h['effectiveness'] ?>%;height:100%;background:<?= $h['effectiveness'] >= 75 ? 'var(--primary)' : ($h['effectiveness'] >= 40 ? 'var(--warning)' : 'var(--danger)') ?>;border-radius:3px"></div>
               </div>
               <span style="font-size:12px;font-weight:600;color:var(--text)"><?= (int)$h['effectiveness'] ?>%</span>
             </div>
@@ -247,7 +247,7 @@ function updateEffBar(val) {
   }
   n = Math.max(0, Math.min(100, n));
   bar.style.width = n + '%';
-  bar.style.background = n >= 75 ? '#16a34a' : (n >= 40 ? '#d97706' : '#dc2626');
+  bar.style.background = n >= 75 ? 'var(--primary)' : (n >= 40 ? 'var(--warning)' : 'var(--danger)');
   lbl.textContent = n + '%';
 }
 </script>

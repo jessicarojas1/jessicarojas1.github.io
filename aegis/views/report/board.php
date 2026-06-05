@@ -343,8 +343,8 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
   </div>
 
   <div class="bp-stat" style="border-top:4px solid #dc2626;">
-    <i class="bi bi-exclamation-octagon-fill" style="color:#dc2626;"></i>
-    <span class="stat-val" style="color:#dc2626;"><?= $criticalRisks ?></span>
+    <i class="bi bi-exclamation-octagon-fill" style="color:var(--danger);"></i>
+    <span class="stat-val" style="color:var(--danger);"><?= $criticalRisks ?></span>
     <div class="stat-lbl">Critical</div>
   </div>
 
@@ -361,14 +361,14 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
   </div>
 
   <div class="bp-stat" style="border-top:4px solid #d97706;">
-    <i class="bi bi-tools" style="color:#d97706;"></i>
-    <span class="stat-val" style="color:#d97706;"><?= $tbOverdue ?></span>
+    <i class="bi bi-tools" style="color:var(--warning);"></i>
+    <span class="stat-val" style="color:var(--warning);"><?= $tbOverdue ?></span>
     <div class="stat-lbl">Overdue Treatments</div>
   </div>
 
   <div class="bp-stat" style="border-top:4px solid #059669;">
-    <i class="bi bi-check2-circle" style="color:#059669;"></i>
-    <span class="stat-val" style="color:#059669;"><?= $complianceAvg ?>%</span>
+    <i class="bi bi-check2-circle" style="color:var(--success);"></i>
+    <span class="stat-val" style="color:var(--success);"><?= $complianceAvg ?>%</span>
     <div class="stat-lbl">Compliance Avg</div>
   </div>
 
@@ -394,10 +394,10 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
       <tbody>
         <?php foreach ($topRisks as $r):
           $sc = (int)($r['inherent_score'] ?? 0);
-          if ($sc > 20)       { $sc_bg = '#fef2f2'; $sc_cl = '#dc2626'; $level = 'CRITICAL'; }
+          if ($sc > 20)       { $sc_bg = '#fef2f2'; $sc_cl = 'var(--danger)'; $level = 'CRITICAL'; }
           elseif ($sc > 14)   { $sc_bg = '#fff7ed'; $sc_cl = '#ea580c'; $level = 'CRITICAL'; }
-          elseif ($sc >= 10)  { $sc_bg = '#fffbeb'; $sc_cl = '#d97706'; $level = 'HIGH'; }
-          else                { $sc_bg = '#f0fdf4'; $sc_cl = '#16a34a'; $level = 'MEDIUM'; }
+          elseif ($sc >= 10)  { $sc_bg = '#fffbeb'; $sc_cl = 'var(--warning)'; $level = 'HIGH'; }
+          else                { $sc_bg = '#f0fdf4'; $sc_cl = 'var(--primary)'; $level = 'MEDIUM'; }
 
           $strategy = Security::h($r['treatment_strategy'] ?? $r['strategy'] ?? '—');
           $reviewDt = $r['review_date'] ? date('j M Y', strtotime($r['review_date'])) : '—';
@@ -420,9 +420,9 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
             <span style="color:#a1a1aa;font-size:12px;">—</span>
             <?php endif; ?>
           </td>
-          <td style="padding:10px 12px;font-size:12px;white-space:nowrap;color:<?= $isOverdue ? '#dc2626' : '#52525b' ?>;">
+          <td style="padding:10px 12px;font-size:12px;white-space:nowrap;color:<?= $isOverdue ? 'var(--danger)' : '#52525b' ?>;">
             <?= $reviewDt ?>
-            <?php if ($isOverdue): ?><i class="bi bi-exclamation-circle-fill" style="color:#dc2626;margin-left:4px;"></i><?php endif; ?>
+            <?php if ($isOverdue): ?><i class="bi bi-exclamation-circle-fill" style="color:var(--danger);margin-left:4px;"></i><?php endif; ?>
           </td>
         </tr>
         <?php endforeach; ?>
@@ -452,9 +452,9 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
   <div class="bp-section-body">
     <?php if ($compliance): foreach ($compliance as $cp):
       $pct = min(100, max(0, (int)($cp['pct'] ?? 0)));
-      if ($pct >= 80)      { $bar_cl = '#059669'; }
-      elseif ($pct >= 60)  { $bar_cl = '#d97706'; }
-      else                  { $bar_cl = '#dc2626'; }
+      if ($pct >= 80)      { $bar_cl = 'var(--success)'; }
+      elseif ($pct >= 60)  { $bar_cl = 'var(--warning)'; }
+      else                  { $bar_cl = 'var(--danger)'; }
     ?>
     <div class="cp-bar-wrap">
       <div class="cp-bar-label">
@@ -501,11 +501,11 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
           <td style="padding:10px 12px;font-weight:500;"><?= Security::h($ab['title']) ?></td>
           <td style="padding:10px 12px;color:var(--text-muted);font-size:12px;"><?= Security::h($ab['category_name'] ?? '—') ?></td>
           <td style="padding:10px 12px;text-align:center;">
-            <span class="score-badge" style="background:#fef2f2;color:#dc2626;"><?= (int)($ab['inherent_score'] ?? 0) ?></span>
+            <span class="score-badge" style="background:#fef2f2;color:var(--danger);"><?= (int)($ab['inherent_score'] ?? 0) ?></span>
           </td>
           <td style="padding:10px 12px;text-align:center;font-weight:600;color:var(--text-muted);"><?= (int)($ab['max_score'] ?? 0) ?></td>
           <td style="padding:10px 12px;text-align:center;">
-            <span style="display:inline-block;background:#fef2f2;color:#dc2626;font-weight:700;font-size:12px;padding:2px 10px;border-radius:99px;">+<?= $breach ?></span>
+            <span style="display:inline-block;background:#fef2f2;color:var(--danger);font-weight:700;font-size:12px;padding:2px 10px;border-radius:99px;">+<?= $breach ?></span>
           </td>
           <td style="padding:10px 12px;color:var(--text-muted);font-size:12px;"><?= Security::h($ab['appetite'] ?? '—') ?></td>
         </tr>
@@ -513,7 +513,7 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
       </tbody>
     </table>
     <?php else: ?>
-    <p style="text-align:center;color:#059669;padding:24px;"><i class="bi bi-check-circle-fill"></i> No risk appetite breaches detected.</p>
+    <p style="text-align:center;color:var(--success);padding:24px;"><i class="bi bi-check-circle-fill"></i> No risk appetite breaches detected.</p>
     <?php endif; ?>
   </div>
 </div>
@@ -533,11 +533,11 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
         <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Open</div>
       </div>
       <div style="text-align:center;padding:16px;background:var(--bg-secondary);border-radius:10px;border:1px solid var(--border);">
-        <div style="font-size:28px;font-weight:800;color:#dc2626;"><?= $incHighSev ?></div>
+        <div style="font-size:28px;font-weight:800;color:var(--danger);"><?= $incHighSev ?></div>
         <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">High Severity</div>
       </div>
       <div style="text-align:center;padding:16px;background:var(--bg-secondary);border-radius:10px;border:1px solid var(--border);">
-        <div style="font-size:28px;font-weight:800;color:#d97706;"><?= $incLast30 ?></div>
+        <div style="font-size:28px;font-weight:800;color:var(--warning);"><?= $incLast30 ?></div>
         <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Last 30 Days</div>
       </div>
     </div>
@@ -559,11 +559,11 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
       </div>
       <div style="text-align:center;padding:16px;background:var(--bg-secondary);border-radius:10px;border:1px solid var(--border);">
 
-        <div style="font-size:28px;font-weight:800;color:#d97706;"><?= $tbInProg ?></div>
+        <div style="font-size:28px;font-weight:800;color:var(--warning);"><?= $tbInProg ?></div>
         <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">In Progress</div>
       </div>
-      <div style="text-align:center;padding:16px;background:#f9fafb;border-radius:10px;border:1px solid <?= $tbOverdue > 0 ? '#dc2626' : '#e4e4e7' ?>;">
-        <div style="font-size:28px;font-weight:800;color:<?= $tbOverdue > 0 ? '#dc2626' : '#059669' ?>;"><?= $tbOverdue ?></div>
+      <div style="text-align:center;padding:16px;background:#f9fafb;border-radius:10px;border:1px solid <?= $tbOverdue > 0 ? 'var(--danger)' : '#e4e4e7' ?>;">
+        <div style="font-size:28px;font-weight:800;color:<?= $tbOverdue > 0 ? 'var(--danger)' : 'var(--success)' ?>;"><?= $tbOverdue ?></div>
         <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Overdue</div>
       </div>
     </div>
@@ -595,11 +595,11 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
           if ($val === null) {
               $ragColor = '#a1a1aa'; $ragLabel = 'N/A';
           } elseif ($red !== null && (float)$val >= (float)$red) {
-              $ragColor = '#dc2626'; $ragLabel = 'RED';
+              $ragColor = 'var(--danger)'; $ragLabel = 'RED';
           } elseif ($amber !== null && (float)$val >= (float)$amber) {
-              $ragColor = '#d97706'; $ragLabel = 'AMBER';
+              $ragColor = 'var(--warning)'; $ragLabel = 'AMBER';
           } else {
-              $ragColor = '#059669'; $ragLabel = 'GREEN';
+              $ragColor = 'var(--success)'; $ragLabel = 'GREEN';
           }
           $recDate = $kri['latest_date'] ? date('j M Y', strtotime($kri['latest_date'])) : '—';
         ?>
@@ -609,8 +609,8 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
           <td style="padding:10px 12px;text-align:center;font-weight:700;">
             <?= $val !== null ? Security::h((string)$val) . ($kri['unit'] ? ' ' . Security::h($kri['unit']) : '') : '—' ?>
           </td>
-          <td style="padding:10px 12px;text-align:center;color:#d97706;font-weight:600;"><?= $amber !== null ? Security::h((string)$amber) : '—' ?></td>
-          <td style="padding:10px 12px;text-align:center;color:#dc2626;font-weight:600;"><?= $red !== null ? Security::h((string)$red) : '—' ?></td>
+          <td style="padding:10px 12px;text-align:center;color:var(--warning);font-weight:600;"><?= $amber !== null ? Security::h((string)$amber) : '—' ?></td>
+          <td style="padding:10px 12px;text-align:center;color:var(--danger);font-weight:600;"><?= $red !== null ? Security::h((string)$red) : '—' ?></td>
           <td style="padding:10px 12px;text-align:center;">
             <span style="display:inline-flex;align-items:center;gap:5px;background:<?= $ragColor ?>18;color:<?= $ragColor ?>;font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;">
               <span class="rag-dot" style="background:<?= $ragColor ?>;"></span><?= $ragLabel ?>
@@ -645,7 +645,7 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
       <tbody>
         <?php foreach ($upcomingReviews as $ur):
           $sc2 = (int)($ur['inherent_score'] ?? 0);
-          $sc2_cl = $sc2 > 14 ? '#dc2626' : ($sc2 >= 10 ? '#d97706' : '#71717a');
+          $sc2_cl = $sc2 > 14 ? 'var(--danger)' : ($sc2 >= 10 ? 'var(--warning)' : '#71717a');
         ?>
         <tr style="border-bottom:1px solid #f4f4f5;">
           <td style="padding:10px 12px;font-size:11px;font-weight:700;color:var(--primary);"><?= Security::h($ur['risk_id'] ?? '—') ?></td>
@@ -654,7 +654,7 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
             <span class="score-badge" style="background:<?= $sc2_cl ?>18;color:<?= $sc2_cl ?>;"><?= $sc2 ?></span>
           </td>
           <td style="padding:10px 12px;font-size:12px;"><?= Security::h($ur['owner_name'] ?? '—') ?></td>
-          <td style="padding:10px 12px;font-size:12px;font-weight:600;color:#059669;"><?= date('j M Y', strtotime($ur['review_date'])) ?></td>
+          <td style="padding:10px 12px;font-size:12px;font-weight:600;color:var(--success);"><?= date('j M Y', strtotime($ur['review_date'])) ?></td>
         </tr>
         <?php endforeach; ?>
       </tbody>
@@ -731,7 +731,7 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
 
   // Line
   ctx.beginPath();
-  var primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#16a34a';
+  var primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || 'var(--primary)';
   ctx.strokeStyle = primaryColor;
   ctx.lineWidth = 2.5;
   ctx.lineJoin = 'round';

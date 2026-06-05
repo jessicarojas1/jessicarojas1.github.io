@@ -1,19 +1,19 @@
 <?php
 $categoryColors = [
     'general'         => 'var(--primary)',
-    'ransomware'      => '#dc2626',
-    'data_breach'     => '#d97706',
+    'ransomware'      => 'var(--danger)',
+    'data_breach'     => 'var(--warning)',
     'ddos'            => '#0284c7',
     'phishing'        => 'var(--secondary)',
     'insider_threat'  => '#db2777',
     'system_failure'  => '#71717a',
-    'compliance'      => '#059669',
+    'compliance'      => 'var(--success)',
 ];
 $severityColors = [
-    'critical' => '#dc2626',
-    'high'     => '#d97706',
+    'critical' => 'var(--danger)',
+    'high'     => 'var(--warning)',
     'medium'   => '#0284c7',
-    'low'      => '#059669',
+    'low'      => 'var(--success)',
 ];
 ?>
 <div class="page-header">
