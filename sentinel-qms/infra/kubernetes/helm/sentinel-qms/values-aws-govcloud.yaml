@@ -1,0 +1,34 @@
+cloud: aws
+
+image:
+  backend:
+    repository: 123456789012.dkr.ecr.us-gov-west-1.amazonaws.com/sentinel-qms/backend
+  frontend:
+    repository: 123456789012.dkr.ecr.us-gov-west-1.amazonaws.com/sentinel-qms/frontend
+
+serviceAccount:
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws-us-gov:iam::123456789012:role/sentinel-qms-prod-eks-backend
+
+config:
+  STORAGE_BACKEND: s3
+  S3_BUCKET: sentinel-qms-prod-uploads
+  S3_REGION: us-gov-west-1
+  AWS_USE_FIPS_ENDPOINT: "true"
+
+secrets:
+  externalSecrets:
+    enabled: true # populated by External Secrets Operator from Secrets Manager
+
+ingress:
+  enabled: true
+  className: alb
+  host: qms.example.gov
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+    alb.ingress.kubernetes.io/ssl-policy: ELBSecurityPolicy-FS-1-2-Res-2020-10
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws-us-gov:acm:us-gov-west-1:123456789012:certificate/REPLACE-ME
+    alb.ingress.kubernetes.io/wafv2-acl-arn: arn:aws-us-gov:wafv2:us-gov-west-1:123456789012:regional/webacl/sentinel-qms-prod-waf/REPLACE-ME

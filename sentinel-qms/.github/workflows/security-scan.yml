@@ -1,0 +1,121 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "0 7 * * 1" # weekly Monday 07:00 UTC
+
+permissions:
+  contents: read
+  security-events: write # upload SARIF to code scanning
+
+concurrency:
+  group: security-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gitleaks:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITLEAKS_CONFIG: ""
+
+  iac-scan:
+    name: IaC scan (checkov + tfsec)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkov (Terraform + Kubernetes + Dockerfile)
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: sentinel-qms/infra
+          framework: terraform,kubernetes,dockerfile,github_actions
+          output_format: cli,sarif
+          output_file_path: console,checkov.sarif
+          soft_fail: true
+      - name: Upload checkov SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: checkov.sarif
+          category: checkov
+      - name: tfsec
+        uses: aquasecurity/tfsec-sarif-action@v0.1.4
+        with:
+          working_directory: sentinel-qms/infra/terraform
+          sarif_file: tfsec.sarif
+      - name: Upload tfsec SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: tfsec.sarif
+          category: tfsec
+
+  dependency-audit:
+    name: Dependency audit (pip + npm)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: pip-audit
+        run: |
+          pip install pip-audit
+          pip-audit -r sentinel-qms/backend/requirements.txt || \
+          pip-audit --project-path sentinel-qms/backend || \
+          echo "::warning::pip-audit found advisories"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: npm audit
+        working-directory: sentinel-qms/frontend
+        run: npm audit --audit-level=high || echo "::warning::npm audit found advisories"
+
+  image-scan:
+    name: Image vulnerability scan (trivy)
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        component: [backend, frontend]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t sentinel-qms/${{ matrix.component }}:scan sentinel-qms/${{ matrix.component }}
+      - name: Trivy scan
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          image-ref: sentinel-qms/${{ matrix.component }}:scan
+          format: sarif
+          output: trivy-${{ matrix.component }}.sarif
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+      - name: Upload Trivy SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: trivy-${{ matrix.component }}.sarif
+          category: trivy-${{ matrix.component }}
+
+  codeql:
+    name: CodeQL (python + javascript)
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        language: [python, javascript-typescript]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+      - uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"

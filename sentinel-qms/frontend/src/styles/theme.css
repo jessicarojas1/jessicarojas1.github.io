@@ -1,0 +1,168 @@
+/* ============================================================
+   Sentinel QMS — Design tokens (light + dark)
+   ============================================================ */
+
+:root {
+  --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', 'Cascadia Code', 'Roboto Mono', Menlo, monospace;
+
+  --radius-sm: 4px;
+  --radius: 6px;
+  --radius-lg: 10px;
+
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.08);
+  --shadow: 0 4px 12px rgba(15, 23, 42, 0.10);
+  --shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.18);
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+
+  --header-h: 56px;
+  --nav-w: 248px;
+  --cui-h: 26px;
+
+  --transition: 150ms ease;
+}
+
+/* ---- Light theme (default) ---- */
+:root,
+[data-theme='light'] {
+  color-scheme: light;
+
+  --bg: #f1f4f9;
+  --bg-elevated: #ffffff;
+  --card-bg: #ffffff;
+  --surface-2: #f7f9fc;
+  --border: #d8dee9;
+  --border-strong: #c2cad6;
+
+  --text: #1a2231;
+  --text-muted: #5b6677;
+  --text-faint: #8b94a3;
+  --text-inverse: #ffffff;
+
+  --primary: #1d4e89;
+  --primary-hover: #173f6e;
+  --primary-soft: #e6eef7;
+  --accent: #0f766e;
+
+  --success: #1a7f4b;
+  --success-soft: #e3f5ec;
+  --warning: #b45309;
+  --warning-soft: #fbf0dd;
+  --danger: #b3261e;
+  --danger-soft: #fae8e7;
+  --info: #1f6fb2;
+  --info-soft: #e4f0fa;
+
+  --nav-bg: #122036;
+  --nav-text: #c4cedd;
+  --nav-text-active: #ffffff;
+  --nav-active-bg: rgba(255, 255, 255, 0.10);
+  --nav-hover-bg: rgba(255, 255, 255, 0.06);
+
+  --cui-bg: #4b0c0c;
+  --cui-text: #ffffff;
+
+  --focus-ring: 0 0 0 3px rgba(29, 78, 137, 0.35);
+}
+
+/* ---- Dark theme ---- */
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg: #0c1119;
+  --bg-elevated: #141b27;
+  --card-bg: #161e2c;
+  --surface-2: #1b2433;
+  --border: #283448;
+  --border-strong: #3a485f;
+
+  --text: #e6ebf2;
+  --text-muted: #9aa7bb;
+  --text-faint: #6c7a90;
+  --text-inverse: #0c1119;
+
+  --primary: #4d8fd6;
+  --primary-hover: #6aa3e0;
+  --primary-soft: #16314f;
+  --accent: #2dd4bf;
+
+  --success: #34d07f;
+  --success-soft: #12301f;
+  --warning: #e0a64b;
+  --warning-soft: #33260f;
+  --danger: #f0635a;
+  --danger-soft: #361615;
+  --info: #5aa9e6;
+  --info-soft: #102a40;
+
+  --nav-bg: #0a0f17;
+  --nav-text: #aab6c8;
+  --nav-text-active: #ffffff;
+  --nav-active-bg: rgba(255, 255, 255, 0.08);
+  --nav-hover-bg: rgba(255, 255, 255, 0.05);
+
+  --cui-bg: #5c1414;
+  --cui-text: #ffffff;
+
+  --focus-ring: 0 0 0 3px rgba(77, 143, 214, 0.4);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+h1, h2, h3, h4 {
+  margin: 0;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-sm);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}

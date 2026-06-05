@@ -1,0 +1,77 @@
+"""Application configuration loaded from environment variables."""
+from __future__ import annotations
+
+from functools import lru_cache
+from typing import Literal
+
+from pydantic import field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+    """Strongly-typed settings sourced from env vars / .env file."""
+
+    model_config = SettingsConfigDict(
+        env_file=".env", env_file_encoding="utf-8", case_sensitive=False, extra="ignore"
+    )
+
+    # Runtime
+    ENVIRONMENT: Literal["development", "production"] = "development"
+    LOG_LEVEL: str = "INFO"
+    APP_VERSION: str = "1.0.0"
+    PROJECT_NAME: str = "Sentinel QMS API"
+    API_V1_PREFIX: str = "/api/v1"
+
+    # CORS
+    CORS_ORIGINS: list[str] = ["http://localhost:3000"]
+
+    # Database
+    DATABASE_URL: str = "postgresql+psycopg://sentinel:change_me@localhost:5432/sentinel_qms"
+
+    # JWT
+    JWT_SECRET: str = "insecure-development-secret-change-me-please-32+chars"
+    JWT_ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+
+    # OIDC / federal SSO (stub)
+    OIDC_ISSUER: str = ""
+    OIDC_CLIENT_ID: str = ""
+    OIDC_CLIENT_SECRET: str = ""
+
+    # Bootstrap admin
+    ADMIN_EMAIL: str = "admin@sentinel-qms.local"
+    ADMIN_PASSWORD: str = "ChangeMe!Admin123"
+    ADMIN_AUTO_CREATE: bool = True
+
+    # Storage
+    STORAGE_BACKEND: Literal["s3", "azure_blob", "local"] = "local"
+    LOCAL_STORAGE_DIR: str = "./var/uploads"
+    S3_BUCKET: str = ""
+    S3_REGION: str = "us-gov-west-1"
+    # Custom S3 endpoint (e.g. MinIO for local dev). Empty = default AWS endpoint.
+    S3_ENDPOINT_URL: str = ""
+    AZURE_STORAGE_CONNECTION_STRING: str = ""
+    AZURE_STORAGE_CONTAINER: str = "sentinel-qms"
+
+    # Uploads
+    MAX_UPLOAD_BYTES: int = 52_428_800
+
+    @field_validator("CORS_ORIGINS", mode="before")
+    @classmethod
+    def _split_cors(cls, v: object) -> object:
+        if isinstance(v, str):
+            return [o.strip() for o in v.split(",") if o.strip()]
+        return v
+
+    @property
+    def is_production(self) -> bool:
+        return self.ENVIRONMENT == "production"
+
+
+@lru_cache
+def get_settings() -> Settings:
+    return Settings()
+
+
+settings = get_settings()

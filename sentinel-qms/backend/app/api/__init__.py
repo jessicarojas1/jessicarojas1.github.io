@@ -1,0 +1,42 @@
+"""Aggregate all v1 routers under the configured API prefix."""
+from __future__ import annotations
+
+from fastapi import APIRouter
+
+from app.api.routers import (
+    attachments,
+    audits,
+    auth,
+    calibration,
+    capa,
+    changes,
+    complaints,
+    dashboard,
+    documents,
+    inspections,
+    mgmt_reviews,
+    nonconformances,
+    risks,
+    suppliers,
+    training,
+    users,
+)
+
+api_router = APIRouter()
+
+api_router.include_router(auth.router)
+api_router.include_router(users.router)
+api_router.include_router(documents.router)
+api_router.include_router(nonconformances.router)
+api_router.include_router(capa.router)
+api_router.include_router(audits.router)
+api_router.include_router(suppliers.router)
+api_router.include_router(calibration.router)
+api_router.include_router(training.router)
+api_router.include_router(changes.router)
+api_router.include_router(risks.router)
+api_router.include_router(inspections.router)
+api_router.include_router(mgmt_reviews.router)
+api_router.include_router(complaints.router)
+api_router.include_router(dashboard.router)
+api_router.include_router(attachments.router)

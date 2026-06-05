@@ -1,0 +1,105 @@
+# Default values for sentinel-qms. Override per-cloud with values-*.yaml.
+
+nameOverride: ""
+fullnameOverride: ""
+
+cloud: generic # aws | azure | generic
+
+image:
+  backend:
+    repository: sentinel-qms/backend
+    tag: latest
+    pullPolicy: IfNotPresent
+  frontend:
+    repository: sentinel-qms/frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+
+backend:
+  replicaCount: 3
+  port: 8000
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 12
+    targetCPUUtilizationPercentage: 65
+  pdb:
+    minAvailable: 2
+
+frontend:
+  replicaCount: 2
+  port: 8080
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 70
+  pdb:
+    minAvailable: 1
+
+serviceAccount:
+  create: true
+  name: sentinel-backend
+  annotations: {}
+
+# Non-secret config -> ConfigMap.
+config:
+  ENVIRONMENT: prod
+  LOG_LEVEL: INFO
+  CORS_ORIGINS: https://qms.example.gov
+  STORAGE_BACKEND: s3
+  S3_BUCKET: sentinel-qms-prod-uploads
+  S3_REGION: us-gov-west-1
+  OIDC_ISSUER: https://login.example.gov/oauth2/default
+  OIDC_CLIENT_ID: REPLACE-ME
+
+# Secrets. When externalSecrets.enabled, the chart does NOT create a Secret —
+# an ExternalSecret/SecretProviderClass managed outside the chart populates
+# the named Secret instead. Otherwise a placeholder Secret is rendered.
+secrets:
+  secretName: sentinel-backend-secrets
+  externalSecrets:
+    enabled: false
+  # Placeholder values only — supply via --set or a sealed secret in real envs.
+  values:
+    DATABASE_URL: "postgresql+psycopg://sentinel:REPLACE_ME@localhost:5432/sentinel_qms?sslmode=require"
+    JWT_SECRET: "REPLACE_ME_MIN_32_CHARS"
+    OIDC_CLIENT_SECRET: "REPLACE_ME"
+
+ingress:
+  enabled: true
+  className: nginx
+  host: qms.example.gov
+  tlsSecretName: sentinel-qms-tls
+  annotations: {}
+
+networkPolicy:
+  enabled: true
+  ingressNamespace: ingress-nginx
+
+podSecurityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  capabilities:
+    drop:
+      - ALL

@@ -1,0 +1,35 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: sentinel-qms
+
+resources:
+  - ../../base
+  - external-secret.yaml
+
+# Pin to ECR GovCloud images (account/region substituted at deploy time).
+images:
+  - name: sentinel-qms/backend
+    newName: 123456789012.dkr.ecr.us-gov-west-1.amazonaws.com/sentinel-qms/backend
+    newTag: latest
+  - name: sentinel-qms/frontend
+    newName: 123456789012.dkr.ecr.us-gov-west-1.amazonaws.com/sentinel-qms/frontend
+    newTag: latest
+
+patches:
+  - path: patch-serviceaccount.yaml
+    target:
+      kind: ServiceAccount
+      name: sentinel-backend
+  - path: patch-ingress.yaml
+    target:
+      kind: Ingress
+      name: sentinel-qms
+  - path: patch-configmap.yaml
+    target:
+      kind: ConfigMap
+      name: sentinel-backend-config
+
+# The placeholder Secret is replaced by the ExternalSecret in this overlay.
+patchesStrategicMerge:
+  - delete-secret.yaml

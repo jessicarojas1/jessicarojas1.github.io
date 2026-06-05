@@ -1,0 +1,105 @@
+name: CD — AWS GovCloud
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Image tag to deploy (default: commit SHA)"
+        required: false
+  push:
+    tags:
+      - "v*"
+
+# OIDC federation to AWS — no long-lived access keys stored in GitHub.
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: cd-aws-govcloud
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: us-gov-west-1
+  TF_DIR: sentinel-qms/infra/terraform/aws-govcloud
+
+jobs:
+  deploy:
+    name: Build, push & apply (GovCloud)
+    runs-on: ubuntu-latest
+    # Requires manual approval configured on this environment in repo settings.
+    environment: aws-govcloud-prod
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve image tag
+        id: tag
+        run: echo "tag=${{ github.event.inputs.image_tag || github.sha }}" >> "$GITHUB_OUTPUT"
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_GOV_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          # FIPS endpoint for STS in GovCloud.
+          audience: sts.us-gov-west-1.amazonaws.com
+
+      - name: Login to Amazon ECR (GovCloud)
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build & push images
+        env:
+          ECR_REGISTRY: ${{ steps.ecr.outputs.registry }}
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          for c in backend frontend; do
+            docker build -t "$ECR_REGISTRY/sentinel-qms/$c:$TAG" "sentinel-qms/$c"
+            docker push "$ECR_REGISTRY/sentinel-qms/$c:$TAG"
+          done
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.5"
+
+      - name: Terraform init
+        working-directory: ${{ env.TF_DIR }}
+        run: terraform init -input=false
+
+      - name: Terraform plan
+        working-directory: ${{ env.TF_DIR }}
+        env:
+          TF_VAR_oidc_client_secret: ${{ secrets.OIDC_CLIENT_SECRET }}
+          TF_VAR_backend_image: ${{ steps.ecr.outputs.registry }}/sentinel-qms/backend:${{ steps.tag.outputs.tag }}
+          TF_VAR_frontend_image: ${{ steps.ecr.outputs.registry }}/sentinel-qms/frontend:${{ steps.tag.outputs.tag }}
+        run: terraform plan -input=false -out=tfplan
+
+      - name: Terraform apply
+        working-directory: ${{ env.TF_DIR }}
+        run: terraform apply -input=false -auto-approve tfplan
+
+      - name: Run database migrations + roll deployment
+        env:
+          ECR_REGISTRY: ${{ steps.ecr.outputs.registry }}
+        working-directory: ${{ env.TF_DIR }}
+        run: |
+          CLUSTER=$(terraform output -raw ecs_cluster_name)
+          BE=$(terraform output -raw backend_service_name)
+          FE=$(terraform output -raw frontend_service_name)
+          TASK_DEF=$(aws ecs describe-services --cluster "$CLUSTER" --services "$BE" \
+            --query 'services[0].taskDefinition' --output text)
+          NETCFG=$(aws ecs describe-services --cluster "$CLUSTER" --services "$BE" \
+            --query 'services[0].networkConfiguration' --output json)
+          aws ecs run-task --cluster "$CLUSTER" --task-definition "$TASK_DEF" \
+            --launch-type FARGATE --network-configuration "$NETCFG" \
+            --overrides '{"containerOverrides":[{"name":"backend","command":["alembic","upgrade","head"]}]}'
+          aws ecs update-service --cluster "$CLUSTER" --service "$BE" --force-new-deployment >/dev/null
+          aws ecs update-service --cluster "$CLUSTER" --service "$FE" --force-new-deployment >/dev/null
+
+      - name: Wait for services to stabilize
+        working-directory: ${{ env.TF_DIR }}
+        run: |
+          CLUSTER=$(terraform output -raw ecs_cluster_name)
+          aws ecs wait services-stable --cluster "$CLUSTER" \
+            --services "$(terraform output -raw backend_service_name)" \
+                       "$(terraform output -raw frontend_service_name)"

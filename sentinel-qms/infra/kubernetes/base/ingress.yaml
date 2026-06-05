@@ -1,0 +1,42 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sentinel-qms
+  namespace: sentinel-qms
+  labels:
+    app.kubernetes.io/name: sentinel-qms
+  annotations:
+    # Cloud-specific annotations (ALB / AGIC) are added by the overlays.
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - qms.example.gov
+      secretName: sentinel-qms-tls
+  rules:
+    - host: qms.example.gov
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: sentinel-backend
+                port:
+                  number: 8000
+          - path: /health
+            pathType: Prefix
+            backend:
+              service:
+                name: sentinel-backend
+                port:
+                  number: 8000
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: sentinel-frontend
+                port:
+                  number: 8080

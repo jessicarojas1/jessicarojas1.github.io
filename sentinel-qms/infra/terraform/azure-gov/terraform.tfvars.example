@@ -1,0 +1,39 @@
+# =============================================================================
+# Azure Government — copy to terraform.tfvars and fill in. NEVER commit secrets.
+# oidc_client_secret should be supplied via TF_VAR_oidc_client_secret in CI.
+# subscription/tenant via ARM_SUBSCRIPTION_ID / ARM_TENANT_ID (or OIDC in CI).
+# =============================================================================
+
+location    = "usgovvirginia"
+tenant_id   = "00000000-0000-0000-0000-000000000000"
+project     = "sentinel-qms"
+environment = "prod"
+owner       = "qms-platform"
+
+vnet_cidr          = "10.50.0.0/16"
+public_subnet_cidr = "10.50.0.0/24"
+app_subnet_cidr    = "10.50.16.0/23"
+data_subnet_cidr   = "10.50.32.0/24"
+
+# Image repo:tag within the ACR created by this stack.
+backend_image  = "sentinel-qms/backend:latest"
+frontend_image = "sentinel-qms/frontend:latest"
+
+db_sku_name   = "GP_Standard_D2ds_v5"
+db_storage_gb = 128
+db_ha_enabled = true
+
+oidc_issuer    = "https://login.example.gov/oauth2/default"
+oidc_client_id = "REPLACE-ME"
+cors_origins   = "https://qms.example.gov"
+log_level      = "INFO"
+alarm_email    = "qms-oncall@example.gov"
+
+# Entra object ids of operators allowed to manage Key Vault secrets.
+admin_object_ids = ["00000000-0000-0000-0000-000000000000"]
+
+# Key Vault certificate secret id for the App Gateway HTTPS listener (set after
+# importing your TLS cert into Key Vault). Leave empty for the first apply.
+appgw_keyvault_cert_secret_id = ""
+
+# oidc_client_secret -> export TF_VAR_oidc_client_secret=...
