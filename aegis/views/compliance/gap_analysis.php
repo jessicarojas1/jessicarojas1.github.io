@@ -26,7 +26,7 @@ $pkgsWithGaps = count(array_unique(array_column($gaps, 'package_name')));
     ['Total Gaps',      $totalGaps,    'bi-exclamation-circle', 'var(--warning)', 'rgba(217,119,6,.1)'],
     ['Overdue',         $overdueGaps,  'bi-clock-fill',         'var(--danger)', 'rgba(220,38,38,.1)'],
     ['Not Started',     $notStarted,   'bi-circle',             '#6b7280', 'rgba(107,114,128,.1)'],
-    ['In Progress',     $inProgress,   'bi-arrow-repeat',       '#2563eb', 'rgba(37,99,235,.1)'],
+    ['In Progress',     $inProgress,   'bi-arrow-repeat',       'var(--moderate)', 'rgba(37,99,235,.1)'],
     ['Packages Affected',$pkgsWithGaps,'bi-grid-3x3-gap',       '#7c3aed', 'rgba(124,58,237,.1)'],
   ];
   foreach ($kpis as [$label, $val, $icon, $color, $bg]):
@@ -79,7 +79,7 @@ $pkgsWithGaps = count(array_unique(array_column($gaps, 'package_name')));
         <span style="background:rgba(5,150,105,.12);color:var(--success);padding:2px 8px;border-radius:10px;font-weight:600">
           <i class="bi bi-check-circle-fill"></i> <?= $implemented ?> Done
         </span>
-        <span style="background:rgba(37,99,235,.12);color:#2563eb;padding:2px 8px;border-radius:10px;font-weight:600">
+        <span style="background:rgba(37,99,235,.12);color:var(--moderate);padding:2px 8px;border-radius:10px;font-weight:600">
           <i class="bi bi-arrow-repeat"></i> <?= $inProg ?> In Progress
         </span>
         <span style="background:rgba(107,114,128,.1);color:var(--text-muted);padding:2px 8px;border-radius:10px;font-weight:600">
@@ -161,7 +161,7 @@ $pkgsWithGaps = count(array_unique(array_column($gaps, 'package_name')));
             } elseif (($gap['status'] ?? '') === 'in_progress') {
               $statusLabel = 'In Progress';
               $statusBg    = 'rgba(37,99,235,.12)';
-              $statusColor = '#2563eb';
+              $statusColor = 'var(--moderate)';
             } else {
               $statusLabel = $gap['status'] ? ucwords(str_replace('_',' ',$gap['status'])) : 'Not Started';
               $statusBg    = 'rgba(107,114,128,.1)';

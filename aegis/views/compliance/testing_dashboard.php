@@ -50,9 +50,9 @@ $cntTotal     = $cntPass + $cntFail + $cntPartial + $cntNotTested;
     <div style="font-size:13px;color:var(--text-muted);margin-top:4px;font-weight:600">Not Tested</div>
   </div>
   <?php if ($cntTotal > 0): ?>
-  <div style="flex:1;min-width:140px;background:var(--info-subtle);border:1px solid #93c5fd80;border-radius:12px;padding:16px 20px;text-align:center">
-    <div style="font-size:32px;font-weight:700;color:#2563eb;line-height:1"><?= $cntTotal > 0 ? round($cntPass / $cntTotal * 100) : 0 ?>%</div>
-    <div style="font-size:13px;color:#2563eb;margin-top:4px;font-weight:600">Pass Rate</div>
+  <div style="flex:1;min-width:140px;background:var(--info-subtle);border:1px solid var(--moderate-border)80;border-radius:12px;padding:16px 20px;text-align:center">
+    <div style="font-size:32px;font-weight:700;color:var(--moderate);line-height:1"><?= $cntTotal > 0 ? round($cntPass / $cntTotal * 100) : 0 ?>%</div>
+    <div style="font-size:13px;color:var(--moderate);margin-top:4px;font-weight:600">Pass Rate</div>
   </div>
   <?php endif; ?>
 </div>

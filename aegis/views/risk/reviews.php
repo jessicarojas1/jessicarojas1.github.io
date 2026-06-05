@@ -16,14 +16,14 @@ $typeLabels = [
 ];
 
 $typeBadgeColors = [
-    'periodic'  => ['#2563eb','var(--info-subtle)'],
+    'periodic'  => ['var(--moderate)','var(--info-subtle)'],
     'triggered' => ['var(--warning)','var(--warning-subtle)'],
     'ad_hoc'    => ['var(--secondary)','rgba(55,65,81,.05)'],
     'board'     => ['#0891b2','#ecfeff'],
 ];
 
 $statusConfig = [
-    'planned'     => ['fg'=>'#2563eb','bg'=>'var(--info-subtle)','label'=>'Planned'],
+    'planned'     => ['fg'=>'var(--moderate)','bg'=>'var(--info-subtle)','label'=>'Planned'],
     'in_progress' => ['fg'=>'var(--warning)','bg'=>'var(--warning-subtle)','label'=>'In Progress'],
     'completed'   => ['fg'=>'var(--primary)','bg'=>'var(--success-subtle)','label'=>'Completed'],
     'cancelled'   => ['fg'=>'#71717a','bg'=>'#f4f4f5','label'=>'Cancelled'],
@@ -62,13 +62,13 @@ ob_start();
 <!-- KPI Summary Row -->
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;">
 
-  <div class="card" style="border-left:4px solid #2563eb;">
+  <div class="card" style="border-left:4px solid var(--moderate);">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
       <div style="width:44px;height:44px;border-radius:10px;background:var(--info-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-        <i class="bi bi-calendar-check" style="font-size:20px;color:#2563eb;"></i>
+        <i class="bi bi-calendar-check" style="font-size:20px;color:var(--moderate);"></i>
       </div>
       <div>
-        <div style="font-size:26px;font-weight:700;line-height:1;color:#2563eb;"><?= $planned ?></div>
+        <div style="font-size:26px;font-weight:700;line-height:1;color:var(--moderate);"><?= $planned ?></div>
         <div style="font-size:12px;color:var(--text-muted);margin-top:3px;">Planned</div>
       </div>
     </div>

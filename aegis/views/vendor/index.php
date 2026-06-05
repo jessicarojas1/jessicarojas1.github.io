@@ -29,7 +29,7 @@ ob_start();
 <!-- Stats -->
 <div class="stats-grid">
   <div class="stat-card">
-    <div class="stat-icon" style="background:#2563eb18;color:#2563eb"><i class="bi bi-buildings"></i></div>
+    <div class="stat-icon" style="background:var(--moderate-subtle);color:var(--moderate)"><i class="bi bi-buildings"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['total'] ?? 0) ?></div>
       <div class="stat-label">Total Vendors</div>

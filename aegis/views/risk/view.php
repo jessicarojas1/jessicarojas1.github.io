@@ -16,14 +16,14 @@ $resLevel = riskLevelStr($resScore);
 $lc       = riskLevelColor($score);
 
 $strategyMeta = [
-    'mitigate' => ['label'=>'Mitigate', 'icon'=>'shield-fill-check',  'color'=>'#2563eb', 'hint'=>'Reduce likelihood or impact'],
+    'mitigate' => ['label'=>'Mitigate', 'icon'=>'shield-fill-check',  'color'=>'var(--moderate)', 'hint'=>'Reduce likelihood or impact'],
     'accept'   => ['label'=>'Accept',   'icon'=>'check-circle-fill',   'color'=>'#b45309', 'hint'=>'Formally accept as-is'],
     'transfer' => ['label'=>'Transfer', 'icon'=>'arrow-left-right',    'color'=>'var(--secondary)', 'hint'=>'Insurance or third party'],
     'avoid'    => ['label'=>'Avoid',    'icon'=>'x-octagon-fill',      'color'=>'var(--danger)', 'hint'=>'Eliminate the risk source'],
 ];
 $statusLabels = [
     'open'        => ['label'=>'Open',        'color'=>'var(--danger)', 'bg'=>'var(--danger-subtle)', 'border'=>'var(--danger-border)'],
-    'in_review'   => ['label'=>'In Review',   'color'=>'#2563eb', 'bg'=>'var(--info-subtle)', 'border'=>'#93c5fd'],
+    'in_review'   => ['label'=>'In Review',   'color'=>'var(--moderate)', 'bg'=>'var(--info-subtle)', 'border'=>'var(--moderate-border)'],
     'monitoring'  => ['label'=>'Monitoring',  'color'=>'var(--primary)', 'bg'=>'var(--success-subtle)', 'border'=>'var(--success-border)'],
     'accepted'    => ['label'=>'Accepted',    'color'=>'var(--warning)', 'bg'=>'var(--warning-subtle)', 'border'=>'var(--warning-border)'],
     'closed'      => ['label'=>'Closed',      'color'=>'#71717a', 'bg'=>'#f4f4f5', 'border'=>'#d4d4d8'],
@@ -475,7 +475,7 @@ ob_start();
           $actionCounts = ['planned'=>0,'in_progress'=>0,'completed'=>0];
           foreach ($responseActions as $ra) { if (isset($actionCounts[$ra['status']])) $actionCounts[$ra['status']]++; }
           ?>
-          <?php if ($actionCounts['in_progress']): ?><span style="font-size:11px;background:#2563eb18;color:#2563eb;padding:2px 8px;border-radius:20px"><?= $actionCounts['in_progress'] ?> active</span><?php endif; ?>
+          <?php if ($actionCounts['in_progress']): ?><span style="font-size:11px;background:var(--moderate-subtle);color:var(--moderate);padding:2px 8px;border-radius:20px"><?= $actionCounts['in_progress'] ?> active</span><?php endif; ?>
           <?php if ($actionCounts['completed']): ?><span style="font-size:11px;background:#d1fae5;color:var(--success);padding:2px 8px;border-radius:20px"><?= $actionCounts['completed'] ?> done</span><?php endif; ?>
           <?php if ($actionCounts['planned']): ?><span style="font-size:11px;background:#fef3c7;color:var(--warning);padding:2px 8px;border-radius:20px"><?= $actionCounts['planned'] ?> planned</span><?php endif; ?>
         </div>
@@ -485,7 +485,7 @@ ob_start();
         <?php foreach ($responseActions as $ra):
           $sm = $strategyMeta[$ra['treatment_type']] ?? $strategyMeta['mitigate'];
           $overdue = $ra['due_date'] && $ra['due_date'] < date('Y-m-d') && $ra['status'] !== 'completed';
-          $raStatusColors = ['planned'=>'var(--warning)','in_progress'=>'#2563eb','completed'=>'var(--success)','cancelled'=>'#a1a1aa'];
+          $raStatusColors = ['planned'=>'var(--warning)','in_progress'=>'var(--moderate)','completed'=>'var(--success)','cancelled'=>'#a1a1aa'];
           $raColor = $raStatusColors[$ra['status']] ?? '#71717a';
         ?>
         <div class="ra-item <?= $ra['status']==='completed'?'ra-done':'' ?>">
@@ -673,7 +673,7 @@ ob_start();
     </div>
 
     <!-- Risk Appetite -->
-    <?php if ($appetite): $ac=['zero'=>'var(--danger)','low'=>'var(--warning)','moderate'=>'#2563eb','high'=>'var(--primary)'][$appetite['appetite']] ?? '#71717a'; ?>
+    <?php if ($appetite): $ac=['zero'=>'var(--danger)','low'=>'var(--warning)','moderate'=>'var(--moderate)','high'=>'var(--primary)'][$appetite['appetite']] ?? '#71717a'; ?>
     <div class="card">
       <div class="card-header"><h3 class="card-title"><i class="bi bi-speedometer2"></i> Risk Appetite</h3></div>
       <div class="card-body">
@@ -842,7 +842,7 @@ ob_start();
           <div><strong style="display:block;font-size:12px">Bow-Tie Analysis</strong><span style="font-size:11px;color:var(--text-muted)">Causes, barriers &amp; consequences</span></div>
         </a>
         <a href="/risk/<?= (int)$risk['id'] ?>/scenario/create" class="btn btn-ghost btn-sm" style="justify-content:flex-start;gap:8px;text-align:left">
-          <i class="bi bi-graph-up-arrow" style="color:#2563eb"></i>
+          <i class="bi bi-graph-up-arrow" style="color:var(--moderate)"></i>
           <div><strong style="display:block;font-size:12px">Add Scenario<?php if (!empty($scenarios)): ?> <span style="font-weight:400;color:var(--text-muted)">(<?= count($scenarios) ?>)</span><?php endif; ?></strong><span style="font-size:11px;color:var(--text-muted)">Stress-test &amp; model outcomes</span></div>
         </a>
         <?php if ($controlEffSuggestion && ($resScore > $controlEffSuggestion['score'])): ?>
@@ -860,13 +860,13 @@ ob_start();
     <?php if (!empty($scenarios)): ?>
     <div class="card">
       <div class="card-header">
-        <h3 class="card-title"><i class="bi bi-graph-up-arrow" style="color:#2563eb"></i> Risk Scenarios</h3>
+        <h3 class="card-title"><i class="bi bi-graph-up-arrow" style="color:var(--moderate)"></i> Risk Scenarios</h3>
         <a href="/risk/<?= (int)$risk['id'] ?>/scenario/create" class="btn btn-ghost btn-sm"><i class="bi bi-plus-lg"></i></a>
       </div>
       <div class="card-body p0">
         <?php foreach ($scenarios as $sc):
           $scColor = $sc['scenario_score'] > 14 ? 'var(--danger)' : ($sc['scenario_score'] > 9 ? '#f97316' : ($sc['scenario_score'] > 4 ? 'var(--warning)' : 'var(--success)'));
-          $scTypeColors = ['stress'=>'var(--danger)','catastrophic'=>'var(--secondary)','regulatory'=>'var(--warning)','base'=>'#2563eb','optimistic'=>'var(--primary)'];
+          $scTypeColors = ['stress'=>'var(--danger)','catastrophic'=>'var(--secondary)','regulatory'=>'var(--warning)','base'=>'var(--moderate)','optimistic'=>'var(--primary)'];
           $scTypeColor  = $scTypeColors[$sc['scenario_type']] ?? '#71717a';
         ?>
         <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid var(--border)">

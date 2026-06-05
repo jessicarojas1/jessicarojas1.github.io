@@ -5,7 +5,7 @@ $breadcrumbs = $breadcrumbs ?? [['Threat Register', null]];
 // Category display config
 $catConfig = [
     'people'     => ['label' => 'People',     'color' => 'var(--secondary)', 'bg' => 'rgba(55,65,81,.05)', 'icon' => 'bi-person-fill'],
-    'process'    => ['label' => 'Process',    'color' => '#2563eb', 'bg' => 'var(--info-subtle)', 'icon' => 'bi-diagram-3-fill'],
+    'process'    => ['label' => 'Process',    'color' => 'var(--moderate)', 'bg' => 'var(--info-subtle)', 'icon' => 'bi-diagram-3-fill'],
     'technology' => ['label' => 'Technology', 'color' => 'var(--primary)', 'bg' => 'rgba(11,97,4,.06)', 'icon' => 'bi-cpu-fill'],
     'natural'    => ['label' => 'Natural',    'color' => 'var(--primary)', 'bg' => 'var(--success-subtle)', 'icon' => 'bi-cloud-lightning-rain-fill'],
     'regulatory' => ['label' => 'Regulatory', 'color' => '#ea580c', 'bg' => '#fff7ed', 'icon' => 'bi-file-earmark-ruled-fill'],
@@ -14,7 +14,7 @@ $catConfig = [
 
 $statusConfig = [
     'active'    => ['label' => 'Active',    'color' => 'var(--primary)', 'bg' => 'var(--success-subtle)'],
-    'mitigated' => ['label' => 'Mitigated', 'color' => '#2563eb', 'bg' => 'var(--info-subtle)'],
+    'mitigated' => ['label' => 'Mitigated', 'color' => 'var(--moderate)', 'bg' => 'var(--info-subtle)'],
     'accepted'  => ['label' => 'Accepted',  'color' => 'var(--warning)', 'bg' => 'var(--warning-subtle)'],
     'retired'   => ['label' => 'Retired',   'color' => '#71717a', 'bg' => '#f9fafb'],
 ];

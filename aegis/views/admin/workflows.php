@@ -76,7 +76,7 @@ ob_start();
         ['Control Marked Non-Compliant',      'Alerts admin when a control assessment fails',                    'control_failed',                'var(--danger)', 'Compliance'],
         ['Gap Analysis Updated',              'Notifies compliance team when a gap analysis is submitted',       'gap_analysis_submitted',        '#7c3aed', 'Compliance'],
         // Change Management
-        ['Change Request Submitted',          'Notifies CAB members when a change request is submitted',         'change_submitted',              '#2563eb', 'Changes'],
+        ['Change Request Submitted',          'Notifies CAB members when a change request is submitted',         'change_submitted',              'var(--moderate)', 'Changes'],
         ['Emergency Change Alert',            'Immediately alerts management when an emergency change is filed', 'emergency_change',              'var(--danger)', 'Changes'],
         ['Change Implementation Due',         'Reminds implementer when a change implementation date is near',  'change_due',                    '#f97316', 'Changes'],
         ['Change Rejected',                   'Notifies submitter when a change request is rejected by CAB',    'change_rejected',               'var(--danger)', 'Changes'],

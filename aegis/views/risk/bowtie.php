@@ -34,7 +34,7 @@ $severityMeta = [
 $effectivenessMeta = [
     'degraded'    => ['label' => 'Degraded',    'color' => 'var(--danger)', 'ring' => 'var(--danger-border)'],
     'partial'     => ['label' => 'Partial',     'color' => 'var(--warning)', 'ring' => 'var(--warning-border)'],
-    'substantial' => ['label' => 'Substantial', 'color' => '#2563eb', 'ring' => '#93c5fd'],
+    'substantial' => ['label' => 'Substantial', 'color' => 'var(--moderate)', 'ring' => 'var(--moderate-border)'],
     'full'        => ['label' => 'Full',        'color' => 'var(--primary)', 'ring' => 'var(--success-border)'],
 ];
 
@@ -439,7 +439,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 
       <!-- ── (B) Left Barriers ───────────────────────────── -->
       <div class="bt-barriers-col">
-        <div class="bt-col-header" style="color:#2563eb;background:#2563eb18;border:1px solid #2563eb40">
+        <div class="bt-col-header" style="color:var(--moderate);background:var(--moderate-subtle);border:1px solid var(--moderate-border)">
           <i class="bi bi-shield-fill-check"></i> Preventive Controls
         </div>
         <?php if (empty($leftBarriers)): ?>
@@ -605,10 +605,10 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
         <?php endif; ?>
       </button>
       <button class="bt-tab-btn" data-click="btTabBtn" data-arg="left-barriers" role="tab" aria-selected="false">
-        <i class="bi bi-shield-fill-check" style="color:#2563eb"></i>
+        <i class="bi bi-shield-fill-check" style="color:var(--moderate)"></i>
         Left Barriers
         <?php if (!empty($leftBarriers)): ?>
-          <span style="background:#2563eb18;color:#2563eb;font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px"><?= count($leftBarriers) ?></span>
+          <span style="background:var(--moderate-subtle);color:var(--moderate);font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px"><?= count($leftBarriers) ?></span>
         <?php endif; ?>
       </button>
       <button class="bt-tab-btn" data-click="btTabBtn" data-arg="right-barriers" role="tab" aria-selected="false">

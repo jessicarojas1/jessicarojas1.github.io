@@ -29,7 +29,7 @@ try {
     $_appetiteRows = Database::fetchAll("SELECT category, appetite, max_score FROM risk_appetite ORDER BY category LIMIT 10") ?: [];
 } catch (Throwable $_e) { $_appetiteRows = []; }
 if (!empty($_appetiteRows)):
-$_appColors = ['zero'=>'var(--danger)','low'=>'var(--warning)','moderate'=>'#2563eb','high'=>'var(--primary)'];
+$_appColors = ['zero'=>'var(--danger)','low'=>'var(--warning)','moderate'=>'var(--moderate)','high'=>'var(--primary)'];
 ?>
 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:16px;padding:10px 14px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:10px">
   <span style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;flex-shrink:0">
@@ -229,7 +229,7 @@ $_filterCount = count(array_filter([
             <td>
               <?php
               $strategies = json_decode($risk['treatment_strategies'] ?? '[]', true) ?: [];
-              $stratColors = ['mitigate'=>'#2563eb','accept'=>'#b45309','transfer'=>'var(--secondary)','avoid'=>'var(--danger)'];
+              $stratColors = ['mitigate'=>'var(--moderate)','accept'=>'#b45309','transfer'=>'var(--secondary)','avoid'=>'var(--danger)'];
               foreach ($strategies as $strat):
                 $sc = $stratColors[$strat] ?? '#71717a';
               ?>

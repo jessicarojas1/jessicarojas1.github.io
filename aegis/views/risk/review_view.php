@@ -156,7 +156,7 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
           $iColor  = $riskColors[$iLevel];
           $rColor  = $riskColors[$rLevel];
           $strats  = json_decode($item['treatment_strategies'] ?? '[]', true) ?: [];
-          $sColors = ['mitigate'=>'#2563eb','accept'=>'#b45309','transfer'=>'var(--secondary)','avoid'=>'var(--danger)'];
+          $sColors = ['mitigate'=>'var(--moderate)','accept'=>'#b45309','transfer'=>'var(--secondary)','avoid'=>'var(--danger)'];
         ?>
         <tr class="risk-item-row">
           <td>

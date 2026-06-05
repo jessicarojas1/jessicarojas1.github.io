@@ -69,7 +69,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
               $appColors = [
                 'zero'     => ['bg'=>'var(--danger-subtle)','border'=>'var(--danger-border)','text'=>'var(--danger)','label'=>'Zero'],
                 'low'      => ['bg'=>'var(--warning-subtle)','border'=>'var(--warning-border)','text'=>'var(--warning)','label'=>'Low'],
-                'moderate' => ['bg'=>'var(--info-subtle)','border'=>'#93c5fd','text'=>'#2563eb','label'=>'Moderate'],
+                'moderate' => ['bg'=>'var(--info-subtle)','border'=>'var(--moderate-border)','text'=>'var(--moderate)','label'=>'Moderate'],
                 'high'     => ['bg'=>'var(--success-subtle)','border'=>'var(--success-border)','text'=>'var(--primary)','label'=>'High'],
               ];
               $ac = $appColors[$app] ?? $appColors['low'];
@@ -174,7 +174,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 var _appetiteColors = {
   'zero':     {text:'var(--danger)',label:'Zero Tolerance'},
   'low':      {text:'var(--warning)',label:'Low'},
-  'moderate': {text:'#2563eb',label:'Moderate'},
+  'moderate': {text:'var(--moderate)',label:'Moderate'},
   'high':     {text:'var(--primary)',label:'High'},
 };
 

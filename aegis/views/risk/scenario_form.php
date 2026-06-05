@@ -103,7 +103,7 @@ function scenarioLevelClass(int $s): string {
                   'stress'        => ['label'=>'Stress',       'icon'=>'bi-graph-up-arrow',        'color'=>'var(--danger)','bg'=>'var(--danger-subtle)'],
                   'optimistic'    => ['label'=>'Optimistic',   'icon'=>'bi-graph-down-arrow',      'color'=>'var(--primary)','bg'=>'var(--success-subtle)'],
                   'catastrophic'  => ['label'=>'Catastrophic', 'icon'=>'bi-exclamation-octagon-fill','color'=>'#111111','bg'=>'#f9fafb'],
-                  'regulatory'    => ['label'=>'Regulatory',   'icon'=>'bi-bank',                  'color'=>'#2563eb','bg'=>'var(--info-subtle)'],
+                  'regulatory'    => ['label'=>'Regulatory',   'icon'=>'bi-bank',                  'color'=>'var(--moderate)','bg'=>'var(--info-subtle)'],
               ];
               foreach ($typeMeta as $val => $meta):
                   $checked = ($selectedType === $val) ? 'checked' : '';
