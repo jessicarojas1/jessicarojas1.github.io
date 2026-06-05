@@ -449,28 +449,42 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
 <div class="bp-section">
   <div class="bp-section-header"><i class="bi bi-bar-chart-steps"></i> Compliance Status by Framework</div>
   <div class="bp-section-body">
-    <?php if ($compliance): foreach ($compliance as $cp):
-      $pct = min(100, max(0, (int)($cp['pct'] ?? 0)));
-      if ($pct >= 80)      { $bar_cl = '#059669'; }
-      elseif ($pct >= 60)  { $bar_cl = '#d97706'; }
-      else                  { $bar_cl = '#dc2626'; }
-    ?>
-    <div class="cp-bar-wrap">
-      <div class="cp-bar-label">
-        <div style="font-weight:600;"><?= Security::h($cp['name']) ?></div>
-        <?php if (!empty($cp['standard'])): ?>
-        <div style="font-size:11px;color:#94a3b8;"><?= Security::h($cp['standard']) ?></div>
-        <?php endif; ?>
+    <?php if ($compliance): ?>
+    <div style="display:grid;grid-template-columns:1fr 180px;gap:24px;align-items:center;">
+      <div>
+        <?php foreach ($compliance as $cp):
+          $pct = min(100, max(0, (int)($cp['pct'] ?? 0)));
+          if ($pct >= 80)      { $bar_cl = '#059669'; }
+          elseif ($pct >= 60)  { $bar_cl = '#d97706'; }
+          else                  { $bar_cl = '#dc2626'; }
+        ?>
+        <div class="cp-bar-wrap">
+          <div class="cp-bar-label">
+            <div style="font-weight:600;"><?= Security::h($cp['name']) ?></div>
+            <?php if (!empty($cp['standard'])): ?>
+            <div style="font-size:11px;color:#94a3b8;"><?= Security::h($cp['standard']) ?></div>
+            <?php endif; ?>
+          </div>
+          <div class="cp-bar-track">
+            <div class="cp-bar-fill" style="width:<?= $pct ?>%;background:<?= $bar_cl ?>;"></div>
+          </div>
+          <div class="cp-bar-pct" style="color:<?= $bar_cl ?>;"><?= $pct ?>%</div>
+          <div style="font-size:11px;color:#94a3b8;min-width:100px;text-align:right;">
+            <?= (int)($cp['compliant'] ?? 0) ?>/<?= (int)($cp['total_controls'] ?? 0) ?> controls
+          </div>
+        </div>
+        <?php endforeach; ?>
       </div>
-      <div class="cp-bar-track">
-        <div class="cp-bar-fill" style="width:<?= $pct ?>%;background:<?= $bar_cl ?>;"></div>
-      </div>
-      <div class="cp-bar-pct" style="color:<?= $bar_cl ?>;"><?= $pct ?>%</div>
-      <div style="font-size:11px;color:#94a3b8;min-width:100px;text-align:right;">
-        <?= (int)($cp['compliant'] ?? 0) ?>/<?= (int)($cp['total_controls'] ?? 0) ?> controls
+      <div style="text-align:center;">
+        <canvas id="bpComplianceDonut" style="max-width:160px;display:block;margin:0 auto;"></canvas>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:6px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;">Overall Avg</div>
+        <div style="display:flex;justify-content:center;gap:10px;margin-top:6px;font-size:11px;color:var(--text-muted);">
+          <span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;border-radius:50%;display:inline-block;background:#059669;"></span> Met</span>
+          <span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;border-radius:50%;display:inline-block;background:#e2e8f0;"></span> Gap</span>
+        </div>
       </div>
     </div>
-    <?php endforeach; else: ?>
+    <?php else: ?>
     <p style="text-align:center;color:#94a3b8;padding:24px;">No compliance packages configured.</p>
     <?php endif; ?>
   </div>
@@ -521,22 +535,31 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
 <div class="bp-section">
   <div class="bp-section-header"><i class="bi bi-fire"></i> Incident Overview</div>
   <div class="bp-section-body">
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;">
-      <div style="text-align:center;padding:16px;background:var(--bg-secondary);border-radius:10px;border:1px solid var(--border);">
-        <div style="font-size:28px;font-weight:800;color:#6366f1;"><?= $incTotal ?></div>
-        <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em;">Total Incidents</div>
+    <div style="display:grid;grid-template-columns:1fr 200px;gap:24px;align-items:center;">
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
+        <div style="text-align:center;padding:16px;background:var(--bg-secondary);border-radius:10px;border:1px solid var(--border);">
+          <div style="font-size:28px;font-weight:800;color:#6366f1;"><?= $incTotal ?></div>
+          <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em;">Total Incidents</div>
+        </div>
+        <div style="text-align:center;padding:16px;background:var(--bg-secondary);border-radius:10px;border:1px solid var(--border);">
+          <div style="font-size:28px;font-weight:800;color:#f97316;"><?= $incOpen ?></div>
+          <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em;">Open</div>
+        </div>
+        <div style="text-align:center;padding:16px;background:var(--bg-secondary);border-radius:10px;border:1px solid var(--border);">
+          <div style="font-size:28px;font-weight:800;color:#dc2626;"><?= $incHighSev ?></div>
+          <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em;">High Severity</div>
+        </div>
+        <div style="text-align:center;padding:16px;background:var(--bg-secondary);border-radius:10px;border:1px solid var(--border);">
+          <div style="font-size:28px;font-weight:800;color:#d97706;"><?= $incLast30 ?></div>
+          <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em;">Last 30 Days</div>
+        </div>
       </div>
-      <div style="text-align:center;padding:16px;background:var(--bg-secondary);border-radius:10px;border:1px solid var(--border);">
-        <div style="font-size:28px;font-weight:800;color:#f97316;"><?= $incOpen ?></div>
-        <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em;">Open</div>
-      </div>
-      <div style="text-align:center;padding:16px;background:var(--bg-secondary);border-radius:10px;border:1px solid var(--border);">
-        <div style="font-size:28px;font-weight:800;color:#dc2626;"><?= $incHighSev ?></div>
-        <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em;">High Severity</div>
-      </div>
-      <div style="text-align:center;padding:16px;background:var(--bg-secondary);border-radius:10px;border:1px solid var(--border);">
-        <div style="font-size:28px;font-weight:800;color:#d97706;"><?= $incLast30 ?></div>
-        <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em;">Last 30 Days</div>
+      <div style="text-align:center;">
+        <canvas id="bpIncidentDonut" style="max-width:160px;display:block;margin:0 auto;"></canvas>
+        <div style="display:flex;justify-content:center;gap:10px;margin-top:6px;font-size:11px;color:var(--text-muted);">
+          <span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;border-radius:50%;display:inline-block;background:#f97316;"></span> Open</span>
+          <span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;border-radius:50%;display:inline-block;background:#059669;"></span> Closed</span>
+        </div>
       </div>
     </div>
   </div>
@@ -546,22 +569,32 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
 <div class="bp-section">
   <div class="bp-section-header"><i class="bi bi-tools"></i> Treatment Action Backlog</div>
   <div class="bp-section-body">
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;">
-      <div style="text-align:center;padding:16px;background:var(--bg-secondary);border-radius:10px;border:1px solid var(--border);">
-        <div style="font-size:28px;font-weight:800;color:#6366f1;"><?= $tbTotal ?></div>
-        <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em;">Total Actions</div>
+    <div style="display:grid;grid-template-columns:1fr 200px;gap:24px;align-items:center;">
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
+        <div style="text-align:center;padding:16px;background:var(--bg-secondary);border-radius:10px;border:1px solid var(--border);">
+          <div style="font-size:28px;font-weight:800;color:#6366f1;"><?= $tbTotal ?></div>
+          <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em;">Total Actions</div>
+        </div>
+        <div style="text-align:center;padding:16px;background:var(--bg-secondary);border-radius:10px;border:1px solid var(--border);">
+          <div style="font-size:28px;font-weight:800;color:#94a3b8;"><?= $tbPlanned ?></div>
+          <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em;">Planned</div>
+        </div>
+        <div style="text-align:center;padding:16px;background:var(--bg-secondary);border-radius:10px;border:1px solid var(--border);">
+          <div style="font-size:28px;font-weight:800;color:#d97706;"><?= $tbInProg ?></div>
+          <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em;">In Progress</div>
+        </div>
+        <div style="text-align:center;padding:16px;background:var(--bg-secondary);border-radius:10px;border:1px solid <?= $tbOverdue > 0 ? '#dc2626' : 'var(--border)' ?>;">
+          <div style="font-size:28px;font-weight:800;color:<?= $tbOverdue > 0 ? '#dc2626' : '#059669' ?>;"><?= $tbOverdue ?></div>
+          <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em;">Overdue</div>
+        </div>
       </div>
-      <div style="text-align:center;padding:16px;background:var(--bg-secondary);border-radius:10px;border:1px solid var(--border);">
-        <div style="font-size:28px;font-weight:800;color:#64748b;"><?= $tbPlanned ?></div>
-        <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em;">Planned</div>
-      </div>
-      <div style="text-align:center;padding:16px;background:var(--bg-secondary);border-radius:10px;border:1px solid var(--border);">
-        <div style="font-size:28px;font-weight:800;color:#d97706;"><?= $tbInProg ?></div>
-        <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em;">In Progress</div>
-      </div>
-      <div style="text-align:center;padding:16px;background:#f8fafc;border-radius:10px;border:1px solid <?= $tbOverdue > 0 ? '#dc2626' : '#e2e8f0' ?>;">
-        <div style="font-size:28px;font-weight:800;color:<?= $tbOverdue > 0 ? '#dc2626' : '#059669' ?>;"><?= $tbOverdue ?></div>
-        <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em;">Overdue</div>
+      <div style="text-align:center;">
+        <canvas id="bpTreatmentDonut" style="max-width:160px;display:block;margin:0 auto;"></canvas>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;margin-top:6px;font-size:11px;color:var(--text-muted);">
+          <span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;border-radius:50%;display:inline-block;background:#94a3b8;"></span> Planned</span>
+          <span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;border-radius:50%;display:inline-block;background:#d97706;"></span> In Progress</span>
+          <span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;border-radius:50%;display:inline-block;background:#dc2626;"></span> Overdue</span>
+        </div>
       </div>
     </div>
   </div>
@@ -766,3 +799,79 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
 })();
 </script>
 <?php endif; ?>
+
+<?php
+$compColor   = $complianceAvg >= 80 ? '#059669' : ($complianceAvg >= 60 ? '#d97706' : '#dc2626');
+$incResolved = max(0, $incTotal - $incOpen);
+$tbActive    = $tbPlanned + $tbInProg + $tbOverdue;
+?>
+<script nonce="<?= $nonce ?>">
+(function () {
+  'use strict';
+  function drawDonut(id, segs, centerLabel, centerSub) {
+    var c = document.getElementById(id);
+    if (!c) return;
+    var s     = getComputedStyle(document.documentElement);
+    var text  = s.getPropertyValue('--text').trim()       || '#1e293b';
+    var muted = s.getPropertyValue('--text-muted').trim() || '#64748b';
+    var ctx   = c.getContext('2d');
+    c.width = 160; c.height = 160;
+    var cx = 80, cy = 80, outerR = 62, innerR = 36;
+    var tot = segs.reduce(function(a, x) { return a + (x.v || 0); }, 0);
+    if (!tot) {
+      ctx.beginPath();
+      ctx.arc(cx, cy, outerR, 0, Math.PI * 2);
+      ctx.fillStyle = '#e2e8f0';
+      ctx.fill();
+    } else {
+      var start = -Math.PI / 2;
+      segs.forEach(function(seg) {
+        if (!seg.v) return;
+        var sweep = (seg.v / tot) * Math.PI * 2;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, outerR, start, start + sweep);
+        ctx.closePath();
+        ctx.fillStyle = seg.c;
+        ctx.fill();
+        start += sweep;
+      });
+    }
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.beginPath();
+    ctx.arc(cx, cy, innerR, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0,0,0,1)';
+    ctx.fill();
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = text;
+    ctx.font = 'bold 18px Inter, sans-serif';
+    ctx.fillText(centerLabel, cx, cy - (centerSub ? 7 : 0));
+    if (centerSub) {
+      ctx.font = '10px Inter, sans-serif';
+      ctx.fillStyle = muted;
+      ctx.fillText(centerSub, cx, cy + 9);
+    }
+  }
+
+  drawDonut('bpComplianceDonut',
+    [{ v: <?= $complianceAvg ?>, c: '<?= $compColor ?>' },
+     { v: <?= 100 - $complianceAvg ?>, c: '#e2e8f0' }],
+    '<?= $complianceAvg ?>%', 'avg'
+  );
+
+  drawDonut('bpIncidentDonut',
+    [{ v: <?= $incOpen ?>, c: '#f97316' },
+     { v: <?= $incResolved ?>, c: '#059669' }],
+    '<?= $incTotal ?>', 'total'
+  );
+
+  drawDonut('bpTreatmentDonut',
+    [{ v: <?= $tbPlanned ?>, c: '#94a3b8' },
+     { v: <?= $tbInProg ?>,  c: '#d97706' },
+     { v: <?= $tbOverdue ?>, c: '#dc2626' }],
+    '<?= $tbActive ?>', 'open'
+  );
+})();
+</script>

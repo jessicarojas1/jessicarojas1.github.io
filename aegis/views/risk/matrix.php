@@ -38,10 +38,24 @@ ob_start();
 
 <!-- Legend -->
 <div class="matrix-legend card">
-  <?php foreach (['low'=>'Low','medium'=>'Medium','high'=>'High','critical'=>'Critical'] as $key=>$label): ?>
+  <?php
+  $tLow  = (int)$thresholds['low'];
+  $tMed  = (int)$thresholds['medium'];
+  $tHigh = (int)$thresholds['high'];
+  $legendDefs = [
+    'low'      => ['Low',      "≤ $tLow"],
+    'medium'   => ['Medium',   ($tLow+1) . " – $tMed"],
+    'high'     => ['High',     ($tMed+1) . " – $tHigh"],
+    'critical' => ['Critical', "> $tHigh"],
+  ];
+  foreach ($legendDefs as $key => [$label, $range]):
+  ?>
     <div class="legend-item">
       <div class="legend-swatch" style="background:<?= $colors[$key] ?>"></div>
-      <span><?= $label ?></span>
+      <div>
+        <div style="font-weight:600;font-size:13px;line-height:1.2;"><?= $label ?></div>
+        <div style="font-size:11px;color:var(--text-muted);line-height:1.2;">score <?= $range ?></div>
+      </div>
     </div>
   <?php endforeach; ?>
   <div class="legend-sep">|</div>
