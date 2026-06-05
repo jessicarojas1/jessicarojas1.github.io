@@ -12,27 +12,30 @@ $classColors = ['public'=>'var(--success)','internal'=>'#3b82f6','confidential'=
     <p class="page-subtitle">Version-controlled document library with classification and expiry tracking.</p>
   </div>
   <div>
+    <button class="btn btn-sm filter-btn" data-toggle-class="open" data-target="#docFilters"><i class="bi bi-funnel-fill"></i> Filters</button>
     <a href="/documents/create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New Document</a>
   </div>
 </div>
 
 <!-- Filters -->
-<form method="GET" class="filter-bar" style="margin-bottom:16px">
-  <input type="text" name="q" class="form-control" placeholder="Search title…" value="<?= Security::h($_GET['q'] ?? '') ?>" style="max-width:240px">
-  <select name="status" class="form-control" style="max-width:160px">
-    <option value="">All Statuses</option>
-    <?php foreach (['draft','under_review','approved','published','archived','expired'] as $s): ?>
-      <option value="<?= $s ?>" <?= ($_GET['status'] ?? '') === $s ? 'selected' : '' ?>><?= ucfirst(str_replace('_',' ',$s)) ?></option>
-    <?php endforeach; ?>
-  </select>
-  <select name="classification" class="form-control" style="max-width:160px">
-    <option value="">All Classifications</option>
-    <?php foreach (['public','internal','confidential','restricted'] as $c): ?>
-      <option value="<?= $c ?>" <?= ($_GET['classification'] ?? '') === $c ? 'selected' : '' ?>><?= ucfirst($c) ?></option>
-    <?php endforeach; ?>
-  </select>
-  <button class="btn btn-secondary" type="submit"><i class="bi bi-search"></i></button>
-</form>
+<div class="filter-bar" id="docFilters">
+  <form method="GET">
+    <input type="text" name="q" class="form-control" placeholder="Search title…" value="<?= Security::h($_GET['q'] ?? '') ?>" style="max-width:240px">
+    <select name="status" class="form-control" style="max-width:160px">
+      <option value="">All Statuses</option>
+      <?php foreach (['draft','under_review','approved','published','archived','expired'] as $s): ?>
+        <option value="<?= $s ?>" <?= ($_GET['status'] ?? '') === $s ? 'selected' : '' ?>><?= ucfirst(str_replace('_',' ',$s)) ?></option>
+      <?php endforeach; ?>
+    </select>
+    <select name="classification" class="form-control" style="max-width:160px">
+      <option value="">All Classifications</option>
+      <?php foreach (['public','internal','confidential','restricted'] as $c): ?>
+        <option value="<?= $c ?>" <?= ($_GET['classification'] ?? '') === $c ? 'selected' : '' ?>><?= ucfirst($c) ?></option>
+      <?php endforeach; ?>
+    </select>
+    <button class="btn btn-primary btn-sm" type="submit">Apply</button>
+  </form>
+</div>
 
 <?php if (empty($documents)): ?>
   <div class="empty-state-sm"><i class="bi bi-file-earmark-text"></i><p>No documents found. Create your first document to start building the document library.</p></div>

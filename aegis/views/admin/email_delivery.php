@@ -32,6 +32,7 @@ $typeColors = [
     <p class="page-subtitle">Track all notification emails sent by AEGIS</p>
   </div>
   <div class="page-actions">
+    <button class="btn btn-sm filter-btn" data-toggle-class="open" data-target="#emailFilters"><i class="bi bi-funnel-fill"></i> Filters</button>
     <?php $safeGet = array_intersect_key($_GET, array_flip(['page','status','from','to','type'])); ?>
     <a href="/admin/email-delivery?<?= Security::h(http_build_query(array_merge($safeGet, ['export'=>'csv']))) ?>" class="btn btn-ghost">
       <i class="bi bi-download"></i> Export CSV
@@ -60,7 +61,7 @@ $typeColors = [
 </div>
 
 <!-- Filters -->
-<div class="filter-bar card" style="margin-bottom:16px">
+<div class="filter-bar" id="emailFilters">
   <form method="GET" class="filter-form" style="flex-wrap:wrap;gap:8px">
     <select name="type" class="form-control form-control-sm" data-autosubmit>
       <option value="">All types</option>

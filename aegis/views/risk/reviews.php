@@ -41,6 +41,7 @@ ob_start();
   </div>
   <div class="page-actions">
     <a href="/risk" class="btn btn-ghost"><i class="bi bi-arrow-left"></i> Risk Register</a>
+    <button class="btn btn-sm filter-btn" data-toggle-class="open" data-target="#reviewFilters"><i class="bi bi-funnel-fill"></i> Filters</button>
     <?php if (Auth::can('risk.write')): ?>
     <a href="/risk/reviews/create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Schedule Review</a>
     <?php endif; ?>
@@ -113,14 +114,15 @@ ob_start();
 </div>
 
 <!-- Filter Bar -->
-<div class="filter-bar card">
-  <form method="GET" class="filter-form">
-    <select name="status" class="form-control form-control-sm" data-autosubmit>
+<div class="filter-bar" id="reviewFilters">
+  <form method="GET">
+    <select name="status" class="form-control form-control-sm">
       <option value="">All statuses</option>
       <?php foreach ($statusConfig as $sv => $sc): ?>
         <option value="<?= $sv ?>" <?= $filterStatus === $sv ? 'selected' : '' ?>><?= $sc['label'] ?></option>
       <?php endforeach; ?>
     </select>
+    <button type="submit" class="btn btn-primary btn-sm">Apply</button>
     <a href="/risk/reviews" class="btn btn-ghost btn-sm">Clear</a>
   </form>
 </div>

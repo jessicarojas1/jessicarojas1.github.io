@@ -40,6 +40,7 @@ if ($filterStatus !== '') {
   </div>
   <div class="page-actions">
     <a href="/risk" class="btn btn-ghost"><i class="bi bi-arrow-left"></i> Risk Register</a>
+    <button class="btn btn-sm filter-btn" data-toggle-class="open" data-target="#acceptanceFilters"><i class="bi bi-funnel-fill"></i> Filters</button>
   </div>
 </div>
 
@@ -106,19 +107,16 @@ if ($filterStatus !== '') {
 </div>
 
 <!-- Filter Bar -->
-<div class="filter-bar card" style="margin-bottom:20px;">
-  <form method="GET" class="filter-form" style="display:flex;align-items:center;gap:12px;padding:12px 16px;">
-    <label style="font-size:13px;font-weight:500;color:var(--text-muted);white-space:nowrap;">Filter by status:</label>
-    <select name="status" class="form-control form-control-sm" data-autosubmit style="width:auto;min-width:160px;">
+<div class="filter-bar" id="acceptanceFilters">
+  <form method="GET">
+    <select name="status" class="form-control form-control-sm" style="width:auto;min-width:160px;">
       <option value="">All statuses</option>
       <?php foreach ($statusConfig as $sv => $sc): ?>
         <option value="<?= $sv ?>" <?= $filterStatus === $sv ? 'selected' : '' ?>><?= $sc['label'] ?></option>
       <?php endforeach; ?>
     </select>
-    <?php if ($filterStatus): ?>
-      <a href="/risk-acceptances" class="btn btn-ghost btn-sm">Clear</a>
-    <?php endif; ?>
-    <span style="font-size:12px;color:var(--text-muted);margin-left:auto;"><?= count($displayed) ?> result<?= count($displayed) !== 1 ? 's' : '' ?></span>
+    <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+    <a href="/risk-acceptances" class="btn btn-ghost btn-sm">Clear</a>
   </form>
 </div>
 
@@ -311,11 +309,6 @@ if ($filterStatus !== '') {
     <?php endif; ?>
   </div>
 </div>
-
-<style nonce="<?= Security::nonce() ?>">
-.filter-bar { border-radius: 8px; }
-.filter-form { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-</style>
 
 <script nonce="<?= Security::nonce() ?>">
 function toggleConditions(rowId) {
