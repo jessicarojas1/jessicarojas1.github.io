@@ -40,9 +40,15 @@ ob_start();
     <div class="stat-body">
       <div class="stat-value"><?= $stats['open_risks'] ?></div>
       <div class="stat-label">Open Risks</div>
-      <?php foreach ($riskDistribution as $rd): ?>
-        <?php $color = match($rd['level']) { 'Critical'=>'#ef4444','High'=>'#f97316','Medium'=>'#f59e0b',default=>'#22c55e' }; ?>
-        <span class="badge" style="background:<?= $color ?>20;color:<?= $color ?>;border:1px solid <?= $color ?>40"><?= $rd['count'] ?> <?= $rd['level'] ?></span>
+      <?php foreach ($riskDistribution as $rd):
+        [$bg, $fg] = match($rd['level']) {
+          'Critical' => ['var(--danger-subtle)', 'var(--danger)'],
+          'High'     => ['var(--warning-subtle)', '#ea580c'],
+          'Medium'   => ['var(--warning-subtle)', 'var(--warning)'],
+          default    => ['var(--success-subtle)', 'var(--success)'],
+        };
+      ?>
+        <span class="badge" style="background:<?= $bg ?>;color:<?= $fg ?>;border:none;font-size:11px"><?= $rd['count'] ?> <?= Security::h($rd['level']) ?></span>
       <?php endforeach; ?>
     </div>
   </div>
@@ -74,16 +80,16 @@ ob_start();
 <?php
 $totalDue = array_sum(array_map('count', $dueBuckets));
 $bucketMeta = [
-  'expired' => ['label'=>'Expired',       'color'=>'#6b7280', 'bg'=>'#f4f4f5', 'icon'=>'bi-x-circle-fill'],
-  'overdue' => ['label'=>'Overdue',        'color'=>'#dc2626', 'bg'=>'#fee2e2', 'icon'=>'bi-exclamation-octagon-fill'],
-  'due7'    => ['label'=>'Due in 7 Days',  'color'=>'#d97706', 'bg'=>'#fef3c7', 'icon'=>'bi-exclamation-triangle-fill'],
-  'due30'   => ['label'=>'Due in 30 Days', 'color'=>'#0284c7', 'bg'=>'#dbeafe', 'icon'=>'bi-clock-fill'],
+  'expired' => ['label'=>'Expired',       'color'=>'var(--text-muted)', 'bg'=>'var(--bg-secondary)', 'icon'=>'bi-x-circle-fill'],
+  'overdue' => ['label'=>'Overdue',        'color'=>'var(--danger)',     'bg'=>'var(--danger-subtle)', 'icon'=>'bi-exclamation-octagon-fill'],
+  'due7'    => ['label'=>'Due in 7 Days',  'color'=>'var(--warning)',    'bg'=>'var(--warning-subtle)', 'icon'=>'bi-exclamation-triangle-fill'],
+  'due30'   => ['label'=>'Due in 30 Days', 'color'=>'var(--info)',       'bg'=>'var(--info-subtle)', 'icon'=>'bi-clock-fill'],
 ];
 ?>
 <?php if ($totalDue > 0): ?>
 <div class="card due-items-card" style="margin-bottom:20px">
   <div class="card-header">
-    <h3 class="card-title"><i class="bi bi-alarm-fill" style="color:#dc2626"></i> Action Required</h3>
+    <h3 class="card-title"><i class="bi bi-alarm-fill" style="color:var(--danger)"></i> Action Required</h3>
     <div class="due-filter-bar">
       <button class="due-tab active" data-bucket="all">All <span class="due-count-pill"><?= $totalDue ?></span></button>
       <?php foreach ($bucketMeta as $key => $meta): ?>
