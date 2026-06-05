@@ -165,13 +165,13 @@ $failed    = count(array_filter($deliveries, fn($d) => $d['status'] === 'failed'
 </div>
 
 <!-- Response body modal -->
-<div class="modal-overlay" id="responseModal" style="display:none">
-  <div class="modal" style="max-width:640px">
-    <div class="modal-header">
+<div class="um-overlay" id="responseModal" style="display:none">
+  <div class="um-dialog" style="max-width:640px">
+    <div class="um-header">
       <h3><i class="bi bi-code-square"></i> Response Body</h3>
-      <button data-close-modal="responseModal"><i class="bi bi-x-lg"></i></button>
+      <button class="um-close" data-close-modal="responseModal"><i class="bi bi-x-lg"></i></button>
     </div>
-    <div class="modal-body">
+    <div class="um-body">
       <pre id="responseBodyContent"
            style="background:var(--surface-2,#111111);color:#a5f3fc;padding:16px;border-radius:8px;
                   font-size:13px;white-space:pre-wrap;word-break:break-all;max-height:400px;overflow:auto;margin:0"></pre>

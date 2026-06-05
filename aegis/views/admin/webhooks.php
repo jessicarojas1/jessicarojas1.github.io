@@ -167,13 +167,13 @@ $providerLabels = [
 </div>
 
 <!-- ── Create Webhook Modal ──────────────────────────────────────────────── -->
-<div class="modal-overlay" id="createWebhookModal" style="display:none">
-  <div class="modal" style="max-width:600px">
-    <div class="modal-header">
+<div class="um-overlay" id="createWebhookModal" style="display:none">
+  <div class="um-dialog" style="max-width:600px">
+    <div class="um-header">
       <h3><i class="bi bi-globe2"></i> New Webhook Endpoint</h3>
-      <button data-close-modal="createWebhookModal"><i class="bi bi-x-lg"></i></button>
+      <button class="um-close" data-close-modal="createWebhookModal"><i class="bi bi-x-lg"></i></button>
     </div>
-    <div class="modal-body">
+    <div class="um-body">
       <form method="POST" action="/admin/webhooks/create">
         <?= Security::csrfField() ?>
 

@@ -128,10 +128,10 @@ ob_start();
 </div>
 
 <!-- Create workflow modal -->
-<div class="modal-overlay" id="createWfModal" style="display:none">
-  <div class="modal modal-lg">
-    <div class="modal-header"><h3><i class="bi bi-diagram-3-fill"></i> New Workflow</h3><button data-close-modal="createWfModal"><i class="bi bi-x-lg"></i></button></div>
-    <div class="modal-body">
+<div class="um-overlay" id="createWfModal" style="display:none">
+  <div class="um-dialog um-dialog-lg">
+    <div class="um-header"><h3><i class="bi bi-diagram-3-fill"></i> New Workflow</h3><button class="um-close" data-close-modal="createWfModal"><i class="bi bi-x-lg"></i></button></div>
+    <div class="um-body">
       <form method="POST" action="/admin/workflows/create">
         <?= Security::csrfField() ?>
         <div class="form-row">
