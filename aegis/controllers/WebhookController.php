@@ -5,23 +5,60 @@ class WebhookController {
 
     /** All supported event types selectable in the UI */
     private const EVENT_TYPES = [
-        'risk.created'      => 'Risk Created',
-        'risk.updated'      => 'Risk Updated',
-        'incident.created'  => 'Incident Created',
-        'incident.closed'   => 'Incident Closed',
-        'vendor.added'      => 'Vendor Added',
-        'issue.created'     => 'Issue Created',
-        'policy.approved'   => 'Policy Approved',
-        'audit.completed'   => 'Audit Completed',
-        'change.approved'   => 'Change Approved',
+        // Risks
+        'risk.created'           => 'Risk Created',
+        'risk.updated'           => 'Risk Updated',
+        'risk.score_high'        => 'Risk Score High',
+        'risk.review_due'        => 'Risk Review Due',
+        'risk.treatment_overdue' => 'Risk Treatment Overdue',
+        // Incidents
+        'incident.created'       => 'Incident Created',
+        'incident.critical'      => 'Critical Incident Created',
+        'incident.closed'        => 'Incident Closed',
+        'incident.sla_breach'    => 'Incident SLA Breach',
+        // Audits
+        'audit.completed'        => 'Audit Completed',
+        'audit.finding_created'  => 'Audit Finding Created',
+        'audit.overdue'          => 'Audit Overdue',
+        // Compliance
+        'control.failed'         => 'Control Non-Compliant',
+        'compliance.score_drop'  => 'Compliance Score Drop',
+        'gap_analysis.submitted' => 'Gap Analysis Submitted',
+        // Changes
+        'change.submitted'       => 'Change Request Submitted',
+        'change.approved'        => 'Change Approved',
+        'change.rejected'        => 'Change Rejected',
+        'change.emergency'       => 'Emergency Change Filed',
+        // Policies
+        'policy.approved'        => 'Policy Approved',
+        'policy.review_due'      => 'Policy Review Due',
+        'policy.expired'         => 'Policy Expired',
+        // Vendors
+        'vendor.added'           => 'Vendor Added',
+        'vendor.risk_high'       => 'Vendor High Risk',
+        'vendor.contract_due'    => 'Vendor Contract Due',
+        // Issues
+        'issue.created'          => 'Issue Created',
+        'issue.critical'         => 'Critical Issue Created',
+        'issue.sla_overdue'      => 'Issue SLA Overdue',
+        // Assets / BCP
+        'asset.critical_added'   => 'Critical Asset Added',
+        'bcp.exercise_due'       => 'BCP Exercise Due',
+        'dr.test_failed'         => 'DR Test Failed',
     ];
 
     private const PROVIDERS = [
-        'generic'    => 'Generic',
-        'slack'      => 'Slack',
-        'jira'       => 'Jira',
-        'pagerduty'  => 'PagerDuty',
-        'servicenow' => 'ServiceNow',
+        'generic'          => 'Generic HTTP',
+        'slack'            => 'Slack',
+        'teams'            => 'Microsoft Teams',
+        'jira'             => 'Jira',
+        'pagerduty'        => 'PagerDuty',
+        'servicenow'       => 'ServiceNow',
+        'discord'          => 'Discord',
+        'google_chat'      => 'Google Chat',
+        'opsgenie'         => 'OpsGenie',
+        'datadog'          => 'Datadog',
+        'splunk'           => 'Splunk HEC',
     ];
 
     // ------------------------------------------------------------------ index

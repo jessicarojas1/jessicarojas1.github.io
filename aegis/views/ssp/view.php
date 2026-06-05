@@ -329,7 +329,188 @@ $impactBadge = fn($v) => match($v) { 'high' => 'badge-danger', 'low' => 'badge-s
           <label class="form-label">Next Review Date</label>
           <input type="date" name="next_review_date" class="form-control" value="<?= Security::h($plan['next_review_date'] ?? '') ?>">
         </div>
+        <div class="form-group">
+          <label class="form-label">Presentation Mode</label>
+          <select name="presentation_mode" class="form-control">
+            <?php foreach (['standard'=>'Standard','executive'=>'Executive','technical'=>'Technical','condensed'=>'Condensed'] as $v=>$l): ?>
+            <option value="<?= $v ?>" <?= ($plan['presentation_mode'] ?? 'standard')===$v?'selected':'' ?>><?= $l ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
       </div>
+
+      <!-- Company / Organization Info -->
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
+        <div style="font-size:0.8rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px;">Company / Organization</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="form-group">
+            <label class="form-label">Company Name</label>
+            <input type="text" name="company_name" class="form-control" value="<?= Security::h($plan['company_name'] ?? '') ?>">
+          </div>
+          <div class="form-group">
+            <label class="form-label">DUNS Number</label>
+            <input type="text" name="duns_number" class="form-control" value="<?= Security::h($plan['duns_number'] ?? '') ?>">
+          </div>
+          <div class="form-group">
+            <label class="form-label">CAGE Code</label>
+            <input type="text" name="cage_code" class="form-control" value="<?= Security::h($plan['cage_code'] ?? '') ?>">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Framework</label>
+            <input type="text" name="framework" class="form-control" value="<?= Security::h($plan['framework'] ?? '') ?>" placeholder="e.g. NIST 800-171, CMMC L2">
+          </div>
+          <div class="form-group" style="grid-column:1/-1">
+            <label class="form-label">Assessment Scope</label>
+            <textarea name="assessment_scope" class="form-control" rows="2"><?= Security::h($plan['assessment_scope'] ?? '') ?></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Approval Information -->
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
+        <div style="font-size:0.8rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px;">Approval Information</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="form-group">
+            <label class="form-label">Approval Status</label>
+            <select name="approval_status" class="form-control">
+              <option value="">— None —</option>
+              <?php foreach (['pending'=>'Pending','approved'=>'Approved','rejected'=>'Rejected','not_submitted'=>'Not Submitted'] as $v=>$l): ?>
+              <option value="<?= $v ?>" <?= ($plan['approval_status'] ?? '')===$v?'selected':'' ?>><?= $l ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Approval Date</label>
+            <input type="date" name="approval_date" class="form-control" value="<?= Security::h($plan['approval_date'] ?? '') ?>">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Approver Name</label>
+            <input type="text" name="approver_name" class="form-control" value="<?= Security::h($plan['approver_name'] ?? '') ?>">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Approver Title</label>
+            <input type="text" name="approver_title" class="form-control" value="<?= Security::h($plan['approver_title'] ?? '') ?>">
+          </div>
+          <div class="form-group" style="grid-column:1/-1">
+            <label class="form-label">Approval Notes</label>
+            <textarea name="approval_notes" class="form-control" rows="2"><?= Security::h($plan['approval_notes'] ?? '') ?></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Certification -->
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
+        <div style="font-size:0.8rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px;">Certifying Official</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="form-group">
+            <label class="form-label">Certifying Official Name</label>
+            <input type="text" name="certifying_official_name" class="form-control" value="<?= Security::h($plan['certifying_official_name'] ?? '') ?>">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Certifying Official Title</label>
+            <input type="text" name="certifying_official_title" class="form-control" value="<?= Security::h($plan['certifying_official_title'] ?? '') ?>">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Certification Date</label>
+            <input type="date" name="certification_date" class="form-control" value="<?= Security::h($plan['certification_date'] ?? '') ?>">
+          </div>
+          <div class="form-group" style="grid-column:1/-1">
+            <label class="form-label">Certification Statement</label>
+            <textarea name="certification_statement" class="form-control" rows="3"><?= Security::h($plan['certification_statement'] ?? '') ?></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Extended System Boundary -->
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
+        <div style="font-size:0.8rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px;">Extended System Boundary</div>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="form-group">
+            <label class="form-label">General System Purpose</label>
+            <textarea name="general_system_purpose" class="form-control" rows="2"><?= Security::h($plan['general_system_purpose'] ?? '') ?></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Boundary Description</label>
+            <textarea name="boundary_description" class="form-control" rows="2"><?= Security::h($plan['boundary_description'] ?? '') ?></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Information Systems &amp; Applications</label>
+            <textarea name="info_systems_apps" class="form-control" rows="2"><?= Security::h($plan['info_systems_apps'] ?? '') ?></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Endpoints &amp; User Devices</label>
+            <textarea name="endpoints_user_devices" class="form-control" rows="2"><?= Security::h($plan['endpoints_user_devices'] ?? '') ?></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Servers &amp; Storage</label>
+            <textarea name="servers_storage" class="form-control" rows="2"><?= Security::h($plan['servers_storage'] ?? '') ?></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Physical Security</label>
+            <textarea name="physical_security" class="form-control" rows="2"><?= Security::h($plan['physical_security'] ?? '') ?></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Access Control &amp; Authentication</label>
+            <textarea name="access_control_auth" class="form-control" rows="2"><?= Security::h($plan['access_control_auth'] ?? '') ?></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- System Environment -->
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
+        <div style="font-size:0.8rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px;">System Environment</div>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="form-group">
+            <label class="form-label">Topology Description</label>
+            <textarea name="topology_description" class="form-control" rows="2"><?= Security::h($plan['topology_description'] ?? '') ?></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Maintenance Info</label>
+            <textarea name="maintenance_info" class="form-control" rows="2"><?= Security::h($plan['maintenance_info'] ?? '') ?></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">System Details</label>
+            <textarea name="system_details" class="form-control" rows="2"><?= Security::h($plan['system_details'] ?? '') ?></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- JSON Array Inventory Fields -->
+      <?php
+      $jsonSections = [
+          'team_contacts'          => ['label' => 'Team Contacts',            'placeholder' => 'Name, role, email…'],
+          'contracts'              => ['label' => 'Contracts',                'placeholder' => 'Contract number, vendor, description…'],
+          'data_inventory'         => ['label' => 'Data Inventory',           'placeholder' => 'Data type, classification, storage location…'],
+          'hardware_inventory'     => ['label' => 'Hardware Inventory',       'placeholder' => 'Device name, type, serial number…'],
+          'software_inventory'     => ['label' => 'Software Inventory',       'placeholder' => 'Software name, version, vendor…'],
+          'network_devices'        => ['label' => 'Network Devices',          'placeholder' => 'Device name, type, IP address…'],
+          'other_connected_systems'=> ['label' => 'Other Connected Systems',  'placeholder' => 'System name, connection type, owner…'],
+          'server_inventory'       => ['label' => 'Server Inventory',         'placeholder' => 'Hostname, OS, role…'],
+          'user_device_types'      => ['label' => 'User Device Types',        'placeholder' => 'Device type, OS, quantity…'],
+      ];
+      ?>
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
+        <div style="font-size:0.8rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px;">Inventory Lists</div>
+        <p style="font-size:0.8rem;color:var(--text-muted);margin:0 0 14px;">Each field accepts a JSON array. Paste JSON directly or use the text area — the hidden input is updated automatically on save.</p>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <?php foreach ($jsonSections as $fieldName => $meta):
+            $currentJson = json_encode($plan[$fieldName] ?? [], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+          ?>
+          <div class="form-group">
+            <label class="form-label"><?= Security::h($meta['label']) ?></label>
+            <textarea
+              class="form-control ssp-json-textarea"
+              data-field="<?= Security::h($fieldName) ?>"
+              rows="3"
+              placeholder="<?= Security::h($meta['placeholder']) ?>"
+              style="font-family:monospace;font-size:0.8rem;"
+            ><?= Security::h($currentJson) ?></textarea>
+            <input type="hidden" name="<?= Security::h($fieldName) ?>" class="ssp-json-hidden" value="<?= Security::h($currentJson) ?>">
+          </div>
+          <?php endforeach; ?>
+        </div>
+      </div>
+
       <div style="display:flex;gap:10px;margin-top:20px;">
         <button type="submit" class="btn btn-primary">Save Changes</button>
         <button type="button" id="btnCancelEditSsp" class="btn btn-secondary">Cancel</button>
@@ -384,5 +565,41 @@ $impactBadge = fn($v) => match($v) { 'high' => 'badge-danger', 'low' => 'badge-s
   document.querySelectorAll('form[data-confirm]').forEach(function(f) {
     f.addEventListener('submit', function(e) { if (!confirm(f.dataset.confirm)) e.preventDefault(); });
   });
+
+  // Sync JSON textarea values to hidden inputs before form submit
+  document.querySelectorAll('.ssp-json-textarea').forEach(function(ta) {
+    ta.addEventListener('input', function() {
+      var fieldName = ta.getAttribute('data-field');
+      var hidden = ta.closest('.form-group').querySelector('.ssp-json-hidden');
+      if (hidden) hidden.value = ta.value;
+    });
+  });
+
+  // Before the edit form submits, validate JSON in each textarea and normalize
+  var editForm = document.querySelector('#editModal form');
+  if (editForm) {
+    editForm.addEventListener('submit', function(e) {
+      var valid = true;
+      document.querySelectorAll('.ssp-json-textarea').forEach(function(ta) {
+        var val = ta.value.trim();
+        if (!val) val = '[]';
+        try {
+          var parsed = JSON.parse(val);
+          if (!Array.isArray(parsed)) parsed = [];
+          var normalized = JSON.stringify(parsed);
+          ta.value = normalized;
+          var hidden = ta.closest('.form-group').querySelector('.ssp-json-hidden');
+          if (hidden) hidden.value = normalized;
+        } catch (err) {
+          ta.style.borderColor = 'var(--danger)';
+          valid = false;
+        }
+      });
+      if (!valid) {
+        e.preventDefault();
+        alert('One or more inventory fields contain invalid JSON. Please correct them before saving.');
+      }
+    });
+  }
 })();
 </script>

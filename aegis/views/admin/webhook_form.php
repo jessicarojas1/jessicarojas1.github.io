@@ -73,21 +73,66 @@ ob_start();
                 <h3 class="form-section-title">Event Subscriptions</h3>
                 <p class="text-muted mb-3">Select which events will trigger this webhook.</p>
 
-                <div class="event-type-grid">
-                    <?php foreach ($eventTypes as $key => $label): ?>
-                        <?php $checked = $isEdit && in_array($key, $endpoint['event_types_arr'], true); ?>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox"
-                                   name="event_types[]" id="evt_<?= Security::h(str_replace('.', '_', $key)) ?>"
-                                   value="<?= Security::h($key) ?>"
-                                   <?= $checked ? 'checked' : '' ?>>
-                            <label class="form-check-label" for="evt_<?= Security::h(str_replace('.', '_', $key)) ?>">
-                                <code><?= Security::h($key) ?></code>
-                                <small class="d-block text-muted"><?= Security::h($label) ?></small>
-                            </label>
-                        </div>
-                    <?php endforeach; ?>
+                <?php
+                // Group event types by their dot-prefix category
+                $eventGroups = [
+                    'Risks'       => [],
+                    'Incidents'   => [],
+                    'Audits'      => [],
+                    'Compliance'  => [],
+                    'Changes'     => [],
+                    'Policies'    => [],
+                    'Vendors'     => [],
+                    'Issues'      => [],
+                    'Assets / BCP'=> [],
+                ];
+                $categoryMap = [
+                    'risk'             => 'Risks',
+                    'incident'         => 'Incidents',
+                    'audit'            => 'Audits',
+                    'control'          => 'Compliance',
+                    'compliance'       => 'Compliance',
+                    'gap_analysis'     => 'Compliance',
+                    'change'           => 'Changes',
+                    'policy'           => 'Policies',
+                    'vendor'           => 'Vendors',
+                    'issue'            => 'Issues',
+                    'asset'            => 'Assets / BCP',
+                    'bcp'              => 'Assets / BCP',
+                    'dr'               => 'Assets / BCP',
+                ];
+                foreach ($eventTypes as $key => $label) {
+                    $prefix = strtok($key, '.');
+                    $group  = $categoryMap[$prefix] ?? 'Other';
+                    if (!isset($eventGroups[$group])) {
+                        $eventGroups[$group] = [];
+                    }
+                    $eventGroups[$group][$key] = $label;
+                }
+                ?>
+
+                <?php foreach ($eventGroups as $groupName => $groupEvents):
+                    if (empty($groupEvents)) continue; ?>
+                <div class="event-group mb-3">
+                    <div class="event-group-label"><?= Security::h($groupName) ?></div>
+                    <div class="event-type-grid">
+                        <?php foreach ($groupEvents as $key => $label): ?>
+                            <?php $checked = $isEdit && in_array($key, $endpoint['event_types_arr'], true); ?>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox"
+                                       name="event_types[]" id="evt_<?= Security::h(str_replace(['.', '_'], '_', $key)) ?>"
+                                       value="<?= Security::h($key) ?>"
+                                       <?= $checked ? 'checked' : '' ?>>
+                                <label class="form-check-label" for="evt_<?= Security::h(str_replace(['.', '_'], '_', $key)) ?>">
+                                    <code><?= Security::h($key) ?></code>
+                                    <small class="d-block text-muted"><?= Security::h($label) ?></small>
+                                </label>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
+                <?php endforeach; ?>
+
                 <div class="mt-2">
                     <button type="button" class="btn btn-sm btn-link p-0" data-click="toggleAllEvents" data-args='[true]'>Select all</button>
                     &nbsp;·&nbsp;
@@ -154,6 +199,14 @@ ob_start();
     background: color-mix(in srgb, var(--primary) 8%, transparent);
 }
 .font-monospace { font-family: monospace; font-size: 0.85rem; }
+.event-group-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
 </style>
 
 <script nonce="<?= Security::nonce() ?>">

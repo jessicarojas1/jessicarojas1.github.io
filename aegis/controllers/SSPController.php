@@ -117,6 +117,16 @@ class SSPController {
         $plan = $this->getPlan($id);
         if (!$plan) { http_response_code(404); require AEGIS_ROOT . '/views/errors/404.php'; return; }
 
+        // Decode JSONB array fields for use in the view
+        $jsonArrayFields = [
+            'team_contacts', 'contracts', 'data_inventory',
+            'hardware_inventory', 'software_inventory', 'network_devices',
+            'other_connected_systems', 'server_inventory', 'user_device_types',
+        ];
+        foreach ($jsonArrayFields as $field) {
+            $plan[$field] = json_decode($plan[$field] ?? '[]', true) ?? [];
+        }
+
         $linkedPackages = Database::fetchAll(
             "SELECT cp.id, cp.name, cp.version,
                     COALESCE(s.code,'CUSTOM') AS standard_code,
@@ -474,9 +484,11 @@ window.addEventListener("load", function() {
         Auth::requirePermission('compliance.write');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
-        $validStatuses = ['operational','under_development','major_modification','other'];
-        $validTypes    = ['major_application','general_support_system','minor_application'];
-        $validImpacts  = ['low','moderate','high'];
+        $validStatuses      = ['operational','under_development','major_modification','other'];
+        $validTypes         = ['major_application','general_support_system','minor_application'];
+        $validImpacts       = ['low','moderate','high'];
+        $validApprovalStats = ['pending','approved','rejected','not_submitted'];
+        $validPresentModes  = ['standard','executive','technical','condensed'];
 
         [$naFilename, $naData] = $this->handleFileUpload('network_arch_file', 10);
         [$dfFilename, $dfData] = $this->handleFileUpload('data_flow_file', 10);
@@ -492,6 +504,19 @@ window.addEventListener("load", function() {
             $fileParams[] = $dfFilename; $fileParams[] = $dfData;
         }
 
+        // Parse JSON array fields sent as JSON strings from hidden inputs
+        $jsonFields = [
+            'team_contacts', 'contracts', 'data_inventory',
+            'hardware_inventory', 'software_inventory', 'network_devices',
+            'other_connected_systems', 'server_inventory', 'user_device_types',
+        ];
+        $jsonValues = [];
+        foreach ($jsonFields as $field) {
+            $raw = $_POST[$field] ?? '[]';
+            $decoded = json_decode($raw, true);
+            $jsonValues[$field] = json_encode(is_array($decoded) ? $decoded : []);
+        }
+
         Database::query(
             "UPDATE ssp_plans SET
                title=?, system_name=?, system_description=?, system_owner=?,
@@ -500,7 +525,21 @@ window.addEventListener("load", function() {
                operational_status=?, system_type=?,
                confidentiality_impact=?, integrity_impact=?, availability_impact=?,
                authorization_date=?, next_review_date=?,
-               version=?, revision=?, authorizing_signature=?, signature_date=?{$fileUpdates},
+               version=?, revision=?, authorizing_signature=?, signature_date=?,
+               company_name=?, duns_number=?, cage_code=?, framework=?,
+               assessment_scope=?, presentation_mode=?,
+               approval_status=?, approval_date=?, approval_notes=?,
+               approver_name=?, approver_title=?,
+               certifying_official_name=?, certifying_official_title=?,
+               certification_date=?, certification_statement=?,
+               boundary_description=?, info_systems_apps=?,
+               endpoints_user_devices=?, servers_storage=?, physical_security=?,
+               access_control_auth=?, general_system_purpose=?,
+               topology_description=?, maintenance_info=?, system_details=?,
+               team_contacts=?::jsonb, contracts=?::jsonb, data_inventory=?::jsonb,
+               hardware_inventory=?::jsonb, software_inventory=?::jsonb,
+               network_devices=?::jsonb, other_connected_systems=?::jsonb,
+               server_inventory=?::jsonb, user_device_types=?::jsonb{$fileUpdates},
                updated_at=NOW()
              WHERE id=?",
             [
@@ -525,6 +564,46 @@ window.addEventListener("load", function() {
                 max(0, (int)($_POST['revision'] ?? 0)),
                 Security::sanitizeInput($_POST['authorizing_signature'] ?? ''),
                 $_POST['signature_date'] ?: null,
+                // Company / organization info
+                Security::sanitizeInput($_POST['company_name']  ?? ''),
+                Security::sanitizeInput($_POST['duns_number']   ?? ''),
+                Security::sanitizeInput($_POST['cage_code']     ?? ''),
+                Security::sanitizeInput($_POST['framework']     ?? ''),
+                Security::sanitizeInput($_POST['assessment_scope'] ?? ''),
+                in_array($_POST['presentation_mode'] ?? '', $validPresentModes, true) ? $_POST['presentation_mode'] : 'standard',
+                // Approval
+                in_array($_POST['approval_status'] ?? '', $validApprovalStats, true) ? $_POST['approval_status'] : null,
+                $_POST['approval_date'] ?: null,
+                Security::sanitizeInput($_POST['approval_notes']  ?? ''),
+                Security::sanitizeInput($_POST['approver_name']   ?? ''),
+                Security::sanitizeInput($_POST['approver_title']  ?? ''),
+                // Certification
+                Security::sanitizeInput($_POST['certifying_official_name']  ?? ''),
+                Security::sanitizeInput($_POST['certifying_official_title'] ?? ''),
+                $_POST['certification_date'] ?: null,
+                Security::sanitizeInput($_POST['certification_statement'] ?? ''),
+                // Extended boundary
+                Security::sanitizeInput($_POST['boundary_description']   ?? ''),
+                Security::sanitizeInput($_POST['info_systems_apps']      ?? ''),
+                Security::sanitizeInput($_POST['endpoints_user_devices'] ?? ''),
+                Security::sanitizeInput($_POST['servers_storage']        ?? ''),
+                Security::sanitizeInput($_POST['physical_security']      ?? ''),
+                Security::sanitizeInput($_POST['access_control_auth']    ?? ''),
+                Security::sanitizeInput($_POST['general_system_purpose'] ?? ''),
+                // Environment
+                Security::sanitizeInput($_POST['topology_description'] ?? ''),
+                Security::sanitizeInput($_POST['maintenance_info']     ?? ''),
+                Security::sanitizeInput($_POST['system_details']       ?? ''),
+                // JSON arrays
+                $jsonValues['team_contacts'],
+                $jsonValues['contracts'],
+                $jsonValues['data_inventory'],
+                $jsonValues['hardware_inventory'],
+                $jsonValues['software_inventory'],
+                $jsonValues['network_devices'],
+                $jsonValues['other_connected_systems'],
+                $jsonValues['server_inventory'],
+                $jsonValues['user_device_types'],
                 ...$fileParams,
                 $id,
             ]

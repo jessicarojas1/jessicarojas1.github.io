@@ -154,6 +154,15 @@
             </select>
           </div>
           <div class="form-group">
+            <label class="form-label">Presentation Mode</label>
+            <select name="presentation_mode" class="form-control">
+              <option value="standard" selected>Standard</option>
+              <option value="executive">Executive</option>
+              <option value="technical">Technical</option>
+              <option value="condensed">Condensed</option>
+            </select>
+          </div>
+          <div class="form-group">
             <label class="form-label">Authorization Date</label>
             <input type="date" name="authorization_date" class="form-control">
           </div>

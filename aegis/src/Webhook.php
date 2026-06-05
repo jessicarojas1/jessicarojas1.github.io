@@ -225,6 +225,56 @@ class Webhook {
                     ],
                 ];
 
+            case 'teams':
+                return [
+                    '@type'      => 'MessageCard',
+                    '@context'   => 'http://schema.org/extensions',
+                    'themeColor' => '6366f1',
+                    'summary'    => $payload['text'] ?? $payload['title'] ?? 'AEGIS Alert',
+                    'sections'   => [[
+                        'activityTitle'    => $payload['title'] ?? 'AEGIS GRC Notification',
+                        'activitySubtitle' => $payload['text']  ?? '',
+                        'facts'            => array_map(fn($k,$v) => ['name'=>$k,'value'=>(string)$v], array_keys($payload['fields']??[]), array_values($payload['fields']??[])),
+                    ]],
+                ];
+
+            case 'discord':
+                return [
+                    'content'  => null,
+                    'embeds'   => [[
+                        'title'       => $payload['title'] ?? 'AEGIS GRC',
+                        'description' => $payload['text']  ?? '',
+                        'color'       => 6579697, // #6466f1 indigo in decimal
+                        'footer'      => ['text' => 'AEGIS GRC'],
+                    ]],
+                ];
+
+            case 'google_chat':
+                return [
+                    'text' => ($payload['title'] ?? 'AEGIS GRC') . "\n" . ($payload['text'] ?? ''),
+                ];
+
+            case 'opsgenie':
+                $summary  = $payload['title'] ?? $payload['name'] ?? $payload['summary'] ?? $eventType;
+                $priority = 'P3';
+                $rawSeverity = strtolower($payload['severity'] ?? $payload['risk_level'] ?? '');
+                if (in_array($rawSeverity, ['critical'], true)) {
+                    $priority = 'P1';
+                } elseif ($rawSeverity === 'high') {
+                    $priority = 'P2';
+                } elseif ($rawSeverity === 'medium') {
+                    $priority = 'P3';
+                } elseif (in_array($rawSeverity, ['low', 'info'], true)) {
+                    $priority = 'P5';
+                }
+                return [
+                    'message'  => $summary,
+                    'alias'    => str_replace(['.', ' '], '-', $eventType) . '-' . ($payload['id'] ?? ''),
+                    'source'   => 'AEGIS GRC',
+                    'priority' => $priority,
+                    'details'  => array_map('strval', $payload),
+                ];
+
             case 'generic':
             case 'servicenow':
             default:

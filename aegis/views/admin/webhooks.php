@@ -4,18 +4,30 @@ $breadcrumbs = [['Admin', '/admin'], ['Webhooks', null]];
 ob_start();
 
 $providerIcons = [
-    'slack'      => 'bi-slack',
-    'jira'       => 'bi-bug',
-    'pagerduty'  => 'bi-bell-fill',
-    'servicenow' => 'bi-layers',
-    'generic'    => 'bi-globe2',
+    'slack'       => 'bi-slack',
+    'teams'       => 'bi-microsoft-teams',
+    'jira'        => 'bi-bug',
+    'pagerduty'   => 'bi-bell-fill',
+    'servicenow'  => 'bi-layers',
+    'discord'     => 'bi-discord',
+    'google_chat' => 'bi-chat-dots-fill',
+    'opsgenie'    => 'bi-exclamation-triangle-fill',
+    'datadog'     => 'bi-activity',
+    'splunk'      => 'bi-search',
+    'generic'     => 'bi-globe2',
 ];
 $providerLabels = [
-    'slack'      => 'Slack',
-    'jira'       => 'Jira',
-    'pagerduty'  => 'PagerDuty',
-    'servicenow' => 'ServiceNow',
-    'generic'    => 'Generic',
+    'slack'       => 'Slack',
+    'teams'       => 'Microsoft Teams',
+    'jira'        => 'Jira',
+    'pagerduty'   => 'PagerDuty',
+    'servicenow'  => 'ServiceNow',
+    'discord'     => 'Discord',
+    'google_chat' => 'Google Chat',
+    'opsgenie'    => 'OpsGenie',
+    'datadog'     => 'Datadog',
+    'splunk'      => 'Splunk HEC',
+    'generic'     => 'Generic HTTP',
 ];
 ?>
 
@@ -144,7 +156,7 @@ $providerLabels = [
             <td colspan="7" class="empty-row">
               <div class="empty-state-sm">
                 <i class="bi bi-globe2"></i>
-                <p>No webhook endpoints configured. Add one to push events to Slack, Jira, PagerDuty, or any HTTP endpoint.</p>
+                <p>No webhook endpoints configured. Add one to push events to Slack, Teams, Discord, Jira, PagerDuty, OpsGenie, or any HTTP endpoint.</p>
               </div>
             </td>
           </tr>
@@ -196,14 +208,42 @@ $providerLabels = [
 
         <div class="form-group">
           <label class="form-label required">Events to Subscribe</label>
-          <div class="checkbox-group" style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-            <?php foreach ($eventTypes as $val => $label): ?>
-              <label style="display:flex;align-items:center;gap:6px;font-size:14px">
-                <input type="checkbox" name="event_types[]" value="<?= Security::h($val) ?>">
-                <?= Security::h($label) ?>
-              </label>
-            <?php endforeach; ?>
+          <?php
+          $modalCategoryMap = [
+              'risk'         => 'Risks',
+              'incident'     => 'Incidents',
+              'audit'        => 'Audits',
+              'control'      => 'Compliance',
+              'compliance'   => 'Compliance',
+              'gap_analysis' => 'Compliance',
+              'change'       => 'Changes',
+              'policy'       => 'Policies',
+              'vendor'       => 'Vendors',
+              'issue'        => 'Issues',
+              'asset'        => 'Assets / BCP',
+              'bcp'          => 'Assets / BCP',
+              'dr'           => 'Assets / BCP',
+          ];
+          $modalGroups = [];
+          foreach ($eventTypes as $val => $lbl) {
+              $prefix = strtok($val, '.');
+              $grp    = $modalCategoryMap[$prefix] ?? 'Other';
+              $modalGroups[$grp][$val] = $lbl;
+          }
+          ?>
+          <?php foreach ($modalGroups as $grpName => $grpEvents): ?>
+          <div style="margin-bottom:8px">
+            <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-bottom:4px"><?= Security::h($grpName) ?></div>
+            <div class="checkbox-group" style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+              <?php foreach ($grpEvents as $val => $lbl): ?>
+                <label style="display:flex;align-items:center;gap:6px;font-size:13px">
+                  <input type="checkbox" name="event_types[]" value="<?= Security::h($val) ?>">
+                  <?= Security::h($lbl) ?>
+                </label>
+              <?php endforeach; ?>
+            </div>
           </div>
+          <?php endforeach; ?>
         </div>
 
         <div class="form-group">
