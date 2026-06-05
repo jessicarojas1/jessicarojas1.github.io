@@ -4,8 +4,10 @@ from __future__ import annotations
 import multiprocessing
 import os
 
-# Bind / workers
-bind = os.getenv("GUNICORN_BIND", "0.0.0.0:8000")
+# Bind / workers.
+# Honour an explicit GUNICORN_BIND, otherwise bind the platform-provided PORT
+# (Render/Heroku/Cloud Run set this) and fall back to 8000 for local/compose.
+bind = os.getenv("GUNICORN_BIND") or f"0.0.0.0:{os.getenv('PORT', '8000')}"
 workers = int(os.getenv("WEB_CONCURRENCY", multiprocessing.cpu_count() * 2 + 1))
 worker_class = "uvicorn.workers.UvicornWorker"
 threads = int(os.getenv("GUNICORN_THREADS", "1"))

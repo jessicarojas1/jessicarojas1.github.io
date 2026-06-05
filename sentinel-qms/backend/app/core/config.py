@@ -64,6 +64,19 @@ class Settings(BaseSettings):
             return [o.strip() for o in v.split(",") if o.strip()]
         return v
 
+    @field_validator("DATABASE_URL", mode="before")
+    @classmethod
+    def _normalize_db_url(cls, v: object) -> object:
+        # Managed Postgres providers (e.g. Render, Heroku) hand out URLs with the
+        # bare ``postgres://`` / ``postgresql://`` scheme. SQLAlchemy 2.x needs an
+        # explicit driver, so pin it to psycopg (v3) which is what we ship.
+        if isinstance(v, str):
+            if v.startswith("postgres://"):
+                return "postgresql+psycopg://" + v[len("postgres://"):]
+            if v.startswith("postgresql://"):
+                return "postgresql+psycopg://" + v[len("postgresql://"):]
+        return v
+
     @property
     def is_production(self) -> bool:
         return self.ENVIRONMENT == "production"
