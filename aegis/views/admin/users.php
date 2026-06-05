@@ -174,26 +174,33 @@ ob_start();
 <script nonce="<?= Security::nonce() ?>">
 // Password strength checker for new user form
 (function() {
-  var pwInput  = document.getElementById('newUserPassword');
+  var pwInput   = document.getElementById('newUserPassword');
   var createBtn = document.getElementById('btnCreateUser');
+  var form      = createBtn.closest('form');
   var rules = [
     { id: 'pw-len',     test: function(v) { return v.length >= 12; } },
     { id: 'pw-upper',   test: function(v) { return /[A-Z]/.test(v); } },
     { id: 'pw-num',     test: function(v) { return /[0-9]/.test(v); } },
     { id: 'pw-special', test: function(v) { return /[^A-Za-z0-9]/.test(v); } },
   ];
-  pwInput.addEventListener('input', function() {
-    var val = pwInput.value;
+  function checkRules(val) {
     var allOk = true;
     rules.forEach(function(r) {
       var ok = r.test(val);
-      var el = document.getElementById(r.id);
       if (!ok) allOk = false;
+      var el = document.getElementById(r.id);
       el.style.color = ok ? 'var(--success)' : 'var(--text-muted)';
       el.querySelector('i').className = ok ? 'bi bi-check-circle-fill' : 'bi bi-x-circle-fill';
       el.querySelector('i').style.marginRight = '4px';
     });
-    createBtn.disabled = !allOk;
+    return allOk;
+  }
+  pwInput.addEventListener('input', function() { checkRules(pwInput.value); });
+  form.addEventListener('submit', function(e) {
+    if (!checkRules(pwInput.value)) {
+      e.preventDefault();
+      pwInput.focus();
+    }
   });
 })();
 
