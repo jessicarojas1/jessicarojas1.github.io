@@ -13,7 +13,7 @@ $open    = array_filter($findings, fn($f) => in_array($f['status'], ['open','in_
     <h1 class="page-title">External Audit Findings</h1>
     <p class="page-subtitle">Track findings from external auditors, pen testers, and certification bodies</p>
   </div>
-  <button id="btnOpenFinding" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New Finding</button>
+  <button class="btn btn-primary" data-show-modal="createFindingModal"><i class="bi bi-plus-lg"></i> New Finding</button>
 </div>
 
 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;">
@@ -66,11 +66,11 @@ $open    = array_filter($findings, fn($f) => in_array($f['status'], ['open','in_
 <?php endif; ?>
 
 <!-- Create Modal -->
-<div id="findingModal" style="display:none;position:fixed;inset:0;z-index:1000;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);">
+<div id="createFindingModal" style="display:none;position:fixed;inset:0;z-index:1000;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);">
   <div style="background:var(--card-bg);border-radius:12px;padding:28px;width:700px;max-height:90vh;overflow-y:auto;max-width:95vw;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
       <h3 style="margin:0;">New Audit Finding</h3>
-      <button id="btnCloseFinding" style="background:none;border:none;cursor:pointer;font-size:1.25rem;"><i class="bi bi-x-lg"></i></button>
+      <button data-close-modal="createFindingModal"><i class="bi bi-x-lg"></i></button>
     </div>
     <form method="POST" action="/audit-findings/create">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
@@ -114,20 +114,9 @@ $open    = array_filter($findings, fn($f) => in_array($f['status'], ['open','in_
       </div>
       <div style="display:flex;gap:10px;margin-top:20px;">
         <button type="submit" class="btn btn-primary">Create Finding</button>
-        <button type="button" id="btnCancelFinding" class="btn btn-secondary">Cancel</button>
+        <button type="button" data-close-modal="createFindingModal" class="btn btn-secondary">Cancel</button>
       </div>
     </form>
   </div>
 </div>
 
-<script nonce="<?= Security::nonce() ?>">
-(function() {
-  var modal = document.getElementById('findingModal');
-  function openModal()  { modal.style.display = 'flex'; }
-  function closeModal() { modal.style.display = 'none'; }
-  document.getElementById('btnOpenFinding').addEventListener('click', openModal);
-  document.getElementById('btnCloseFinding').addEventListener('click', closeModal);
-  document.getElementById('btnCancelFinding').addEventListener('click', closeModal);
-  modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
-})();
-</script>

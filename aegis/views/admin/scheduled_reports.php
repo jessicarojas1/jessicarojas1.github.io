@@ -121,16 +121,9 @@ ob_start();
             </td>
           </tr>
         <?php endforeach; else: ?>
-          <tr>
-            <td colspan="8">
-              <div class="empty-state" style="padding:50px;text-align:center">
-                <i class="bi bi-file-earmark-bar-graph" style="font-size:2.5rem;color:var(--text-muted);display:block;margin-bottom:12px"></i>
-                <h4 style="margin:0 0 6px;color:var(--text-primary)">No scheduled reports</h4>
-                <p style="color:var(--text-muted);margin:0 0 16px;font-size:14px">Set up automatic report delivery to keep stakeholders informed.</p>
-                <a href="/admin/scheduled-reports/create" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> Create First Schedule</a>
-              </div>
-            </td>
-          </tr>
+          <tr><td colspan="8" class="empty-row">
+            <div class="empty-state-sm"><i class="bi bi-file-earmark-bar-graph"></i><p>No scheduled reports. Set up automatic report delivery to keep stakeholders informed.</p></div>
+          </td></tr>
         <?php endif; ?>
       </tbody>
     </table>

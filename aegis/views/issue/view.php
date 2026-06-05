@@ -135,7 +135,7 @@ ob_start();
   <div class="modal" style="max-width:600px;width:100%">
     <div class="modal-header">
       <span>Edit Issue</span>
-      <button data-close-modal="editModal" style="background:none;border:none;cursor:pointer;font-size:18px">&times;</button>
+      <button data-close-modal="editModal"><i class="bi bi-x-lg"></i></button>
     </div>
     <div class="modal-body">
       <form method="post" action="/issue/<?= $issue['id'] ?>/update">

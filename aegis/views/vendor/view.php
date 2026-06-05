@@ -242,7 +242,7 @@ $contracts = Database::fetchAll(
   <div class="modal" style="max-width:680px;width:100%">
     <div class="modal-header">
       <span>Edit Vendor</span>
-      <button data-close-modal="editModal" style="background:none;border:none;cursor:pointer;font-size:18px">&times;</button>
+      <button data-close-modal="editModal"><i class="bi bi-x-lg"></i></button>
     </div>
     <div class="modal-body">
       <form method="post" action="/vendor/<?= $vendor['id'] ?>/update">
@@ -305,7 +305,7 @@ $contracts = Database::fetchAll(
   <div class="modal" style="max-width:480px;width:100%">
     <div class="modal-header">
       <span>Schedule Assessment</span>
-      <button data-close-modal="assessModal" style="background:none;border:none;cursor:pointer;font-size:18px">&times;</button>
+      <button data-close-modal="assessModal"><i class="bi bi-x-lg"></i></button>
     </div>
     <div class="modal-body">
       <form method="post" action="/vendor/<?= $vendor['id'] ?>/assessment">
@@ -339,7 +339,7 @@ $contracts = Database::fetchAll(
   <div class="modal" style="max-width:520px;width:100%">
     <div class="modal-header">
       <span>Update Assessment</span>
-      <button data-close-modal="updateAssessModal" style="background:none;border:none;cursor:pointer;font-size:18px">&times;</button>
+      <button data-close-modal="updateAssessModal"><i class="bi bi-x-lg"></i></button>
     </div>
     <div class="modal-body">
       <form id="updateAssessForm" method="post">

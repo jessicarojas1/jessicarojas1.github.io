@@ -81,8 +81,8 @@ $_assetActiveFilters = (int)!empty($_GET['type']) + (int)!empty($_GET['criticali
 <div class="filter-toolbar">
   <form method="GET" action="/assets">
     <div class="filter-popover-wrap">
-      <button type="button" class="btn btn-secondary btn-sm filter-btn" data-toggle-class="open" data-target="#assetFilterPopover">
-        <i class="bi bi-funnel"></i> Filters
+      <button type="button" class="btn btn-sm filter-btn" data-toggle-class="open" data-target="#assetFilterPopover">
+        <i class="bi bi-funnel-fill"></i> Filters
         <?php if ($_assetActiveFilters > 0): ?>
           <span class="filter-active-count"><?= $_assetActiveFilters ?></span>
         <?php endif; ?>

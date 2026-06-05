@@ -13,9 +13,9 @@ $statusLabels = [
     <p class="page-subtitle">Plans of Action &amp; Milestones — track remediation of non-compliant controls</p>
   </div>
   <div style="display:flex;gap:8px;">
-    <button id="btnOpenImport" class="btn btn-secondary"><i class="bi bi-upload"></i> Import CSV</button>
-    <button id="btnOpenCreate" class="btn btn-secondary"><i class="bi bi-pencil-square"></i> New Item</button>
-    <button id="btnOpenGenerate" class="btn btn-primary"><i class="bi bi-lightning-fill"></i> Generate from Package</button>
+    <button class="btn btn-secondary" data-show-modal="importModal"><i class="bi bi-upload"></i> Import CSV</button>
+    <button class="btn btn-secondary" data-show-modal="createModal"><i class="bi bi-pencil-square"></i> New Item</button>
+    <button class="btn btn-primary" data-show-modal="generateModal"><i class="bi bi-lightning-fill"></i> Generate from Package</button>
   </div>
 </div>
 

@@ -375,7 +375,7 @@ function riskScoreLevel(int $score): string {
   <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:12px;width:100%;max-width:520px;box-shadow:0 8px 32px rgba(0,0,0,.2);padding:0;overflow:hidden;">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border);">
       <h3 style="margin:0;font-size:16px;font-weight:600;"><i class="bi bi-shield-plus" style="margin-right:8px;color:var(--primary);"></i> Link Risk to Asset</h3>
-      <button data-close-modal="linkRiskModal" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text-muted);">&times;</button>
+      <button data-close-modal="linkRiskModal"><i class="bi bi-x-lg"></i></button>
     </div>
     <form method="POST" action="/assets/<?= (int)$asset['id'] ?>/link-risk">
       <?= Security::csrfField() ?>

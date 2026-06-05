@@ -516,7 +516,7 @@ $csrfTokenPlaybook = Security::generateCsrfToken();
   <div class="modal" style="max-width:640px;width:100%">
     <div class="modal-header">
       <span>Edit Incident</span>
-      <button data-close-modal="editModal" style="background:none;border:none;cursor:pointer;font-size:18px">&times;</button>
+      <button data-close-modal="editModal"><i class="bi bi-x-lg"></i></button>
     </div>
     <div class="modal-body">
       <form method="post" action="/incident/<?= $incident['id'] ?>/update">

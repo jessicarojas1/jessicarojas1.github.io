@@ -279,7 +279,7 @@ ob_start(); ?>
   <div class="modal" style="max-width:680px;width:100%">
     <div class="modal-header">
       <span>Edit Change Request</span>
-      <button data-close-modal="editChangeModal" style="background:none;border:none;cursor:pointer;font-size:18px">&times;</button>
+      <button data-close-modal="editChangeModal"><i class="bi bi-x-lg"></i></button>
     </div>
     <div class="modal-body">
       <form method="POST" action="/change/<?= (int)$change['id'] ?>/edit">

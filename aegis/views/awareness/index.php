@@ -73,14 +73,7 @@ ob_start();
       </tbody>
     </table>
     <?php else: ?>
-    <div class="empty-state" style="padding:60px 20px">
-      <div class="empty-icon"><i class="bi bi-mortarboard"></i></div>
-      <h3>No awareness programs</h3>
-      <p>Create your first security awareness training program to track completion across your team.</p>
-      <?php if (Auth::can('compliance.write')): ?>
-      <a href="/awareness/create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New Program</a>
-      <?php endif; ?>
-    </div>
+    <div class="empty-state-sm"><i class="bi bi-mortarboard"></i><p>No awareness programs. Create your first security awareness training program to track completion across your team.</p></div>
     <?php endif; ?>
   </div>
 </div>

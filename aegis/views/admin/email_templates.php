@@ -75,14 +75,9 @@ ob_start();
             </td>
           </tr>
         <?php endforeach; else: ?>
-          <tr>
-            <td colspan="6">
-              <div class="empty-state" style="padding:40px;text-align:center">
-                <i class="bi bi-envelope-x" style="font-size:2rem;color:var(--text-muted);display:block;margin-bottom:12px"></i>
-                <p style="color:var(--text-muted);margin:0">No email templates found. Add templates via the form below.</p>
-              </div>
-            </td>
-          </tr>
+          <tr><td colspan="6" class="empty-row">
+            <div class="empty-state-sm"><i class="bi bi-envelope-x"></i><p>No email templates found. Add templates via the form below.</p></div>
+          </td></tr>
         <?php endif; ?>
       </tbody>
     </table>

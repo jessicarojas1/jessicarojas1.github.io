@@ -90,14 +90,7 @@ $basisLabels = [
       </tbody>
     </table>
     <?php else: ?>
-    <div class="empty-state" style="padding:60px 20px">
-      <div class="empty-icon"><i class="bi bi-file-earmark-lock2"></i></div>
-      <h3>No processing activities</h3>
-      <p>Document every activity where personal data is processed to build your GDPR Record of Processing Activities (RoPA).</p>
-      <?php if (Auth::can('compliance.write')): ?>
-      <a href="/privacy/create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New Activity</a>
-      <?php endif; ?>
-    </div>
+    <div class="empty-state-sm"><i class="bi bi-file-earmark-lock2"></i><p>No processing activities. Document every activity where personal data is processed to build your GDPR Record of Processing Activities (RoPA).</p></div>
     <?php endif; ?>
   </div>
 </div>

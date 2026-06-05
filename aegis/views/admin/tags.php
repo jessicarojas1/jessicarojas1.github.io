@@ -47,11 +47,7 @@
         <h3 class="card-title">All Tags <span class="badge-count"><?= count($tags) ?></span></h3>
       </div>
       <?php if (empty($tags)): ?>
-        <div class="empty-state">
-          <i class="bi bi-tags-fill"></i>
-          <h3>No tags yet</h3>
-          <p>Create a tag to get started</p>
-        </div>
+        <div class="empty-state-sm"><i class="bi bi-tags-fill"></i><p>No tags yet. Create a tag to get started.</p></div>
       <?php else: ?>
         <div class="table-container">
           <table class="data-table">

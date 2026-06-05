@@ -71,14 +71,7 @@
       </tbody>
     </table>
     <?php else: ?>
-    <div class="empty-state" style="padding:60px 20px">
-      <div class="empty-icon"><i class="bi bi-person-check"></i></div>
-      <h3>No account reviews</h3>
-      <p>Create a review campaign to certify that user access across your systems is appropriate.</p>
-      <?php if (Auth::can('admin')): ?>
-      <a href="/account-reviews/create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New Review</a>
-      <?php endif; ?>
-    </div>
+    <div class="empty-state-sm"><i class="bi bi-person-check"></i><p>No account reviews. Create a review campaign to certify that user access across your systems is appropriate.</p></div>
     <?php endif; ?>
   </div>
 </div>

@@ -34,13 +34,7 @@ ob_start();
     </div>
     <div class="card-body p0" style="overflow-x:auto">
       <?php if (empty($questionnaires)): ?>
-        <div class="empty-state">
-          <i class="bi bi-journal-x" style="font-size:2.5rem;opacity:.3"></i>
-          <p>No questionnaires yet.</p>
-          <?php if (Auth::can('policy.write')): ?>
-            <a href="/questionnaire/create" class="btn btn-primary btn-sm">Create First Questionnaire</a>
-          <?php endif; ?>
-        </div>
+        <div class="empty-state-sm"><i class="bi bi-journal-x"></i><p>No questionnaires yet.</p></div>
       <?php else: ?>
         <table class="table">
           <thead>
@@ -104,10 +98,7 @@ ob_start();
     </div>
     <div class="card-body" style="padding:0">
       <?php if (empty($myAssignments)): ?>
-        <div class="empty-state" style="padding:2rem">
-          <i class="bi bi-check2-all" style="font-size:2rem;opacity:.3"></i>
-          <p class="text-muted">No pending assignments.</p>
-        </div>
+        <div class="empty-state-sm"><i class="bi bi-check2-all"></i><p>No pending assignments.</p></div>
       <?php else: ?>
         <ul class="assignment-list" style="list-style:none;margin:0;padding:0">
           <?php foreach ($myAssignments as $a): ?>
