@@ -178,7 +178,7 @@ ob_start();
               <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Unplanned review of a specific subset of risks.</div>
             </div>
             <div>
-              <div style="font-weight:600;font-size:12px;color:#0891b2;">Board Review</div>
+              <div style="font-weight:600;font-size:12px;color:var(--info);">Board Review</div>
               <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Formal board-level review requiring executive sign-off.</div>
             </div>
           </div>

@@ -94,7 +94,7 @@ ob_start();
               <?php endif; ?>
               <!-- Score badge -->
               <span style="font-size:12px;font-weight:700;padding:2px 10px;border-radius:20px;background:<?= $scoreColor ?>18;color:<?= $scoreColor ?>;border:1px solid <?= $scoreColor ?>40;">
-                Score <?= $score ?> &mdash; <?= $scoreLevel ?>
+                Score <?= $score ?> &mdash; <?= Security::h($scoreLevel) ?>
               </span>
             </div>
             <?php if (!empty($strategies)): ?>
@@ -276,7 +276,7 @@ ob_start();
         <div style="display:flex;align-items:center;gap:12px;">
           <div style="font-size:32px;font-weight:800;color:<?= $scoreColor ?>;line-height:1;"><?= $score ?></div>
           <div>
-            <div style="font-size:14px;font-weight:700;color:<?= $scoreColor ?>;"><?= $scoreLevel ?></div>
+            <div style="font-size:14px;font-weight:700;color:<?= $scoreColor ?>;"><?= Security::h($scoreLevel) ?></div>
             <div style="font-size:11px;color:var(--text-muted);">Inherent risk score</div>
           </div>
         </div>

@@ -42,21 +42,21 @@ $statusColors = [
 <!-- Stats -->
 <div class="stats-grid">
   <div class="stat-card">
-    <div class="stat-icon" style="background:#3b82f620;color:#3b82f6"><i class="bi bi-list-ul"></i></div>
+    <div class="stat-icon" style="background:var(--info-subtle);color:var(--info)"><i class="bi bi-list-ul"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['total'] ?? 0) ?></div>
       <div class="stat-label">Total Issues</div>
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:#3b82f620;color:#3b82f6"><i class="bi bi-circle-fill"></i></div>
+    <div class="stat-icon" style="background:var(--info-subtle);color:var(--info)"><i class="bi bi-circle-fill"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['open'] ?? 0) ?></div>
       <div class="stat-label">Open</div>
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:#8b5cf620;color:#8b5cf6"><i class="bi bi-arrow-repeat"></i></div>
+    <div class="stat-icon" style="background:var(--purple)18;color:var(--purple)"><i class="bi bi-arrow-repeat"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['in_progress'] ?? 0) ?></div>
       <div class="stat-label">In Progress</div>
@@ -70,7 +70,7 @@ $statusColors = [
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:#f9731620;color:#f97316"><i class="bi bi-clock-fill"></i></div>
+    <div class="stat-icon" style="background:var(--orange)18;color:var(--orange)"><i class="bi bi-clock-fill"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['overdue'] ?? 0) ?></div>
       <div class="stat-label">Overdue</div>

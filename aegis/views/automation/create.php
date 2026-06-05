@@ -1,4 +1,7 @@
-<?php $csrf = Security::generateCsrfToken(); ?>
+<?php
+$csrf = Security::generateCsrfToken();
+$breadcrumbs = [['Automation', '/automation'], ['New Rule', null]];
+?>
 <div class="page-header">
   <div><h1 class="page-title">New Automation Rule</h1></div>
   <a href="/automation" class="btn btn-secondary">Cancel</a>

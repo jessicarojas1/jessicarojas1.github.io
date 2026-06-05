@@ -168,8 +168,8 @@ $legendDefs = [
 </div>
 
 <script nonce="<?= Security::nonce() ?>">
-const allRisks = <?= json_encode(array_values($risks)) ?>;
-const colors   = <?= json_encode($colors) ?>;
+const allRisks = <?= json_encode(array_values($risks), JSON_HEX_TAG | JSON_HEX_AMP) ?>;
+const colors   = <?= json_encode($colors, JSON_HEX_TAG | JSON_HEX_AMP) ?>;
 
 function riskLevel(score) {
   return score > 14 ? 'critical' : score > 9 ? 'high' : score > 4 ? 'medium' : 'low';
@@ -185,7 +185,7 @@ function showCellRisks(r, c) {
     document.getElementById('cellModalBody').innerHTML = '<p class="text-muted">No risks in this cell.</p>';
   } else {
     document.getElementById('cellModalBody').innerHTML = cell.map(risk =>
-      `<a href="/risk/${risk.id}" class="matrix-risk-item" style="display:flex;align-items:center;gap:12px;padding:12px;border-bottom:1px solid #e4e4e7;text-decoration:none;color:inherit">
+      `<a href="/risk/${risk.id}" class="matrix-risk-item" style="display:flex;align-items:center;gap:12px;padding:12px;border-bottom:1px solid var(--border);text-decoration:none;color:inherit">
         <div style="min-width:40px;height:40px;border-radius:8px;background:${colors[level]}20;color:${colors[level]};display:flex;align-items:center;justify-content:center;font-weight:700">${risk.inherent_score}</div>
         <div>
           <div style="font-weight:600">${risk.title}</div>

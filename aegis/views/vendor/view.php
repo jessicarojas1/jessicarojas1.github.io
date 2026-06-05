@@ -34,10 +34,10 @@ ob_start();
 </div>
 
 <?php if (!empty($_SESSION['portal_link'])): ?>
-<div class="card" style="margin-bottom:16px;border-left:3px solid #059669">
+<div class="card" style="margin-bottom:16px;border-left:3px solid var(--success)">
   <div class="card-body">
     <strong>Portal link generated:</strong>
-    <input type="text" value="<?= Security::h($_SESSION['portal_link']) ?>" style="width:100%;margin-top:8px;font-family:monospace;padding:6px;border:1px solid #d1d5db;border-radius:6px" readonly id="portal-link-input">
+    <input type="text" value="<?= Security::h($_SESSION['portal_link']) ?>" style="width:100%;margin-top:8px;font-family:monospace;padding:6px;border:1px solid var(--border);border-radius:6px" readonly id="portal-link-input">
     <small style="color:var(--text-muted)">Share this link with the vendor. It expires in 30 days.</small>
   </div>
 </div>
@@ -158,7 +158,7 @@ $contracts = Database::fetchAll(
 <div class="card" style="margin-top:20px">
   <div class="card-header">
     <div class="card-header-left">
-      <i class="bi bi-file-earmark-text" style="color:#0284c7"></i>
+      <i class="bi bi-file-earmark-text" style="color:var(--info)"></i>
       <span class="card-title">Contracts</span>
     </div>
     <?php if (Auth::can('vendor.write')): ?>
@@ -195,7 +195,7 @@ $contracts = Database::fetchAll(
                       : (($vc['status']==='active' && $vcDaysLeft !== null && $vcDaysLeft <= 60) ? 'var(--warning)' : 'inherit');
         ?>
         <tr>
-          <td style="font-weight:500"><?= Security::h($vc['title']) ?><?= $vc['contract_number'] ? ' <small style="color:#a1a1aa;font-weight:400">('.Security::h($vc['contract_number']).')</small>' : '' ?></td>
+          <td style="font-weight:500"><?= Security::h($vc['title']) ?><?= $vc['contract_number'] ? ' <small style="color:var(--text-muted);font-weight:400">('.Security::h($vc['contract_number']).')</small>' : '' ?></td>
           <td>
             <span class="status-chip" style="background:<?= $vcBadge['bg'] ?>;color:<?= $vcBadge['color'] ?>">
               <?= $vcBadge['label'] ?>
@@ -218,7 +218,7 @@ $contracts = Database::fetchAll(
             <?php if ($vc['auto_renewal']): ?>
               <span style="color:var(--success)" title="Auto-renews <?= (int)$vc['renewal_notice_days'] ?> days before expiry"><i class="bi bi-check-circle-fill"></i></span>
             <?php else: ?>
-              <span style="color:#d1d5db"><i class="bi bi-dash-circle"></i></span>
+              <span style="color:var(--border)"><i class="bi bi-dash-circle"></i></span>
             <?php endif; ?>
           </td>
         </tr>
@@ -226,7 +226,7 @@ $contracts = Database::fetchAll(
       </tbody>
     </table>
     <?php else: ?>
-    <div style="text-align:center;padding:32px 20px;color:#a1a1aa">
+    <div style="text-align:center;padding:32px 20px;color:var(--text-muted)">
       <i class="bi bi-file-earmark-text" style="font-size:32px;display:block;margin-bottom:10px"></i>
       <p style="margin:0;font-size:14px">No contracts on file.</p>
       <?php if (Auth::can('vendor.write')): ?>

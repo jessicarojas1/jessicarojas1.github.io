@@ -156,12 +156,12 @@ ob_start(); ?>
         <h3 style="margin:0"><i class="bi bi-people-fill" style="margin-right:6px;color:var(--primary)"></i>CAB Review</h3>
         <div style="display:flex;gap:10px;font-size:13px">
           <?php if ($approveCount > 0): ?>
-            <span style="display:inline-flex;align-items:center;gap:5px;background:#dcfce7;color:var(--primary);padding:3px 10px;border-radius:99px;font-weight:700">
+            <span style="display:inline-flex;align-items:center;gap:5px;background:var(--success-subtle);color:var(--primary);padding:3px 10px;border-radius:99px;font-weight:700">
               <i class="bi bi-check-circle-fill"></i> <?= $approveCount ?> Approve
             </span>
           <?php endif; ?>
           <?php if ($rejectCount > 0): ?>
-            <span style="display:inline-flex;align-items:center;gap:5px;background:#fee2e2;color:var(--danger);padding:3px 10px;border-radius:99px;font-weight:700">
+            <span style="display:inline-flex;align-items:center;gap:5px;background:var(--danger-subtle);color:var(--danger);padding:3px 10px;border-radius:99px;font-weight:700">
               <i class="bi bi-x-circle-fill"></i> <?= $rejectCount ?> Reject
             </span>
           <?php endif; ?>
@@ -253,7 +253,7 @@ ob_start(); ?>
                 <span class="text-xs text-muted"><?= date('M j, g:ia', strtotime($upd['created_at'])) ?></span>
               </div>
               <?php if ($upd['update_type'] === 'status_change'): ?>
-                <p style="color:#6366f1;font-style:italic;margin:4px 0 0"><?= Security::h($upd['content']) ?></p>
+                <p style="color:var(--indigo);font-style:italic;margin:4px 0 0"><?= Security::h($upd['content']) ?></p>
               <?php else: ?>
                 <p style="margin:4px 0 0;white-space:pre-wrap"><?= Security::h($upd['content']) ?></p>
               <?php endif; ?>

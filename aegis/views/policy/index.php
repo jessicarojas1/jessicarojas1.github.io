@@ -17,8 +17,8 @@ ob_start();
 </div>
 
 <div class="stats-row">
-  <div class="stat-mini"><i class="bi bi-file-earmark-text" style="color:#a1a1aa"></i><span class="stat-mini-num"><?= $summary['drafts'] ?? 0 ?></span><span>Drafts</span></div>
-  <div class="stat-mini"><i class="bi bi-eye" style="color:#0284c7"></i><span class="stat-mini-num"><?= $summary['under_review'] ?? 0 ?></span><span>Under Review</span></div>
+  <div class="stat-mini"><i class="bi bi-file-earmark-text" style="color:var(--text-muted)"></i><span class="stat-mini-num"><?= $summary['drafts'] ?? 0 ?></span><span>Drafts</span></div>
+  <div class="stat-mini"><i class="bi bi-eye" style="color:var(--info)"></i><span class="stat-mini-num"><?= $summary['under_review'] ?? 0 ?></span><span>Under Review</span></div>
   <div class="stat-mini"><i class="bi bi-check-circle" style="color:var(--success)"></i><span class="stat-mini-num"><?= $summary['published'] ?? 0 ?></span><span>Published</span></div>
   <div class="stat-mini"><i class="bi bi-exclamation-circle" style="color:var(--danger)"></i><span class="stat-mini-num"><?= $summary['overdue'] ?? 0 ?></span><span>Review Overdue</span></div>
 </div>

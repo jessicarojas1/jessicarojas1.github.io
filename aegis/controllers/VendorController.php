@@ -399,8 +399,8 @@ class VendorController {
             return;
         }
 
-        // Validate simple CSRF: sha256 of portal token stored in hidden field
-        $expectedCsrf = hash('sha256', $token);
+        // Validate CSRF: HMAC-SHA256 of portal token with app secret
+        $expectedCsrf  = hash_hmac('sha256', $token, $_ENV['JWT_SECRET'] ?? '');
         $submittedCsrf = $_POST['csrf_token'] ?? '';
         if (!hash_equals($expectedCsrf, $submittedCsrf)) {
             http_response_code(403);

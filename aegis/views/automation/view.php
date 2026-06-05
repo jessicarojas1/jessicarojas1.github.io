@@ -1,4 +1,7 @@
-<?php $csrf = Security::generateCsrfToken(); ?>
+<?php
+$csrf = Security::generateCsrfToken();
+$breadcrumbs = [['Automation', '/automation'], [Security::h($rule['name'] ?? 'Rule'), null]];
+?>
 <div class="page-header">
   <div>
     <h1 class="page-title"><?= Security::h($rule['name']) ?></h1>
@@ -91,7 +94,7 @@ document.getElementById('btnTestRule').addEventListener('click', testRule);
 document.querySelectorAll('[data-confirm]').forEach(function(el) {
   el.addEventListener('submit', function(e) { if (!confirm(el.getAttribute('data-confirm'))) e.preventDefault(); });
 });
-let csrf = <?= json_encode(Security::generateCsrfToken()) ?>;
+let csrf = <?= json_encode(Security::generateCsrfToken(), JSON_HEX_TAG | JSON_HEX_AMP) ?>;
 async function testRule() {
   const pre = document.getElementById('testResult');
   pre.style.display = 'block';

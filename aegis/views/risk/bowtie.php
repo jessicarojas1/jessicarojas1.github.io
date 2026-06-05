@@ -133,7 +133,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
     background: none;
     border: none;
     cursor: pointer;
-    color: #a1a1aa;
+    color: var(--text-muted);
     padding: 2px 4px;
     border-radius: 4px;
     font-size: 11px;
@@ -238,7 +238,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: #a1a1aa;
+    color: var(--text-muted);
     margin-bottom: 8px;
 }
 .bt-event-title {
@@ -276,7 +276,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 .bt-funnel-line {
     position: absolute;
     height: 2px;
-    background: #d4d4d8;
+    background: var(--border);
     width: 100%;
     top: 50%;
     transform: translateY(-50%);
@@ -410,7 +410,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
           <i class="bi bi-exclamation-triangle-fill"></i> Threat / Cause
         </div>
         <?php if (empty($causes)): ?>
-          <div style="font-size:12px;color:#a1a1aa;font-style:italic;padding:8px 0">No causes added</div>
+          <div style="font-size:12px;color:var(--text-muted);font-style:italic;padding:8px 0">No causes added</div>
         <?php else: foreach ($causes as $cause):
           $ct = $causeTypeMeta[$cause['cause_type']] ?? $causeTypeMeta['threat'];
           $lh = $likelihoodMeta[$cause['likelihood_contribution']] ?? $likelihoodMeta['medium'];
@@ -443,7 +443,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
           <i class="bi bi-shield-fill-check"></i> Preventive Controls
         </div>
         <?php if (empty($leftBarriers)): ?>
-          <div style="font-size:11px;color:#a1a1aa;font-style:italic;padding:8px 4px">No barriers</div>
+          <div style="font-size:11px;color:var(--text-muted);font-style:italic;padding:8px 4px">No barriers</div>
         <?php else: foreach ($leftBarriers as $bar):
           $eff  = $effectivenessMeta[$bar['effectiveness']] ?? $effectivenessMeta['partial'];
           $btyp = $barrierTypeMeta[$bar['barrier_type']] ?? $barrierTypeMeta['control'];
@@ -462,7 +462,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
               <span class="bt-barrier-eff" style="background:<?= Security::h($eff['color']) ?>18;color:<?= Security::h($eff['color']) ?>">
                 <?= Security::h($eff['label']) ?>
               </span>
-              <span style="font-size:10px;color:#a1a1aa">
+              <span style="font-size:10px;color:var(--text-muted)">
                 <i class="bi <?= Security::h($btyp['icon']) ?>"></i> <?= Security::h($btyp['label']) ?>
               </span>
             </div>
@@ -487,7 +487,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
             <?= Security::h($scoreLevel) ?> &middot; <?= $score ?>
           </span>
           <?php if ($risk['risk_id']): ?>
-          <div style="margin-top:8px;font-size:10px;color:#a1a1aa;font-family:monospace"><?= Security::h($risk['risk_id']) ?></div>
+          <div style="margin-top:8px;font-size:10px;color:var(--text-muted);font-family:monospace"><?= Security::h($risk['risk_id']) ?></div>
           <?php endif; ?>
         </div>
       </div>
@@ -506,7 +506,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
           <i class="bi bi-arrow-counterclockwise"></i> Recovery Controls
         </div>
         <?php if (empty($rightBarriers)): ?>
-          <div style="font-size:11px;color:#a1a1aa;font-style:italic;padding:8px 4px">No barriers</div>
+          <div style="font-size:11px;color:var(--text-muted);font-style:italic;padding:8px 4px">No barriers</div>
         <?php else: foreach ($rightBarriers as $bar):
           $eff  = $effectivenessMeta[$bar['effectiveness']] ?? $effectivenessMeta['partial'];
           $btyp = $barrierTypeMeta[$bar['barrier_type']] ?? $barrierTypeMeta['control'];
@@ -525,7 +525,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
               <span class="bt-barrier-eff" style="background:<?= Security::h($eff['color']) ?>18;color:<?= Security::h($eff['color']) ?>">
                 <?= Security::h($eff['label']) ?>
               </span>
-              <span style="font-size:10px;color:#a1a1aa">
+              <span style="font-size:10px;color:var(--text-muted)">
                 <i class="bi <?= Security::h($btyp['icon']) ?>"></i> <?= Security::h($btyp['label']) ?>
               </span>
             </div>
@@ -535,11 +535,11 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 
       <!-- ── (G) Consequences Column ────────────────────── -->
       <div class="bt-consequences-col">
-        <div class="bt-col-header" style="color:var(--secondary);background:rgba(55,65,81,.06);border:1px solid #d1d5db">
+        <div class="bt-col-header" style="color:var(--secondary);background:rgba(55,65,81,.06);border:1px solid var(--border)">
           <i class="bi bi-arrow-down-circle-fill"></i> Consequence / Impact
         </div>
         <?php if (empty($consequences)): ?>
-          <div style="font-size:12px;color:#a1a1aa;font-style:italic;padding:8px 0">No consequences added</div>
+          <div style="font-size:12px;color:var(--text-muted);font-style:italic;padding:8px 0">No consequences added</div>
         <?php else: foreach ($consequences as $con):
           $cty = $consequenceTypeMeta[$con['consequence_type']] ?? $consequenceTypeMeta['impact'];
           $sev = $severityMeta[$con['severity']] ?? $severityMeta['medium'];

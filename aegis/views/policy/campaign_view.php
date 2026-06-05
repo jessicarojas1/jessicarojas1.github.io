@@ -1,5 +1,6 @@
 <?php
 // Variables: $campaign, $attested, $pending
+$breadcrumbs = [['Policies', '/policy'], ['Campaigns', '/policy/campaigns'], [Security::h($campaign['name'] ?? 'Campaign'), null]];
 $totalUsers  = count($attested) + count($pending);
 $attestedCnt = count($attested);
 $pendingCnt  = count($pending);
@@ -73,7 +74,7 @@ $barColor    = $pct >= 80 ? 'var(--success)' : ($pct >= 50 ? 'var(--warning)' : 
             <div class="text-muted text-sm">Pending</div>
           </div>
         </div>
-        <div style="background:#e4e4e7;border-radius:999px;height:10px;overflow:hidden">
+        <div style="background:var(--border);border-radius:999px;height:10px;overflow:hidden">
           <div style="width:<?= $pct ?>%;background:<?= $barColor ?>;height:100%;border-radius:999px;transition:width .3s"></div>
         </div>
         <div style="text-align:center;margin-top:8px;font-weight:600;color:<?= $barColor ?>"><?= $pct ?>% complete</div>
@@ -138,7 +139,7 @@ $barColor    = $pct >= 80 ? 'var(--success)' : ($pct >= 50 ? 'var(--warning)' : 
             <tbody>
               <?php foreach ($pending as $p): ?>
                 <tr>
-                  <td><i class="bi bi-person-fill" style="color:#a1a1aa"></i> <?= Security::h($p['name']) ?></td>
+                  <td><i class="bi bi-person-fill" style="color:var(--text-muted)"></i> <?= Security::h($p['name']) ?></td>
                   <td><?= Security::h($p['email']) ?></td>
                 </tr>
               <?php endforeach; ?>

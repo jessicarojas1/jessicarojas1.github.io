@@ -15,6 +15,7 @@ $severityColors = [
     'medium'   => '#0284c7',
     'low'      => 'var(--success)',
 ];
+$breadcrumbs = [['Playbooks', null]];
 ?>
 <div class="page-header">
   <div>
@@ -51,7 +52,7 @@ $severityColors = [
       <div class="card" style="border-left:4px solid <?= $isActive ? $catColor : '#a1a1aa' ?>;position:relative">
         <?php if (!$isActive): ?>
           <div style="position:absolute;top:10px;right:10px">
-            <span class="status-chip" style="background:#a1a1aa20;color:#a1a1aa;border:1px solid #a1a1aa40;font-size:10px">Inactive</span>
+            <span class="status-chip" style="background:#a1a1aa20;color:var(--text-muted);border:1px solid #a1a1aa40;font-size:10px">Inactive</span>
           </div>
         <?php endif; ?>
         <div class="card-body">

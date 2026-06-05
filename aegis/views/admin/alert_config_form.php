@@ -87,7 +87,7 @@ $alertTypes = [
             <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer">
               <input type="checkbox" name="channels[]" value="<?= $cv ?>"
                 <?= in_array($cv, $config['channels'] ?? ['in_app'])?'checked':'' ?>>
-              <?= $cl ?>
+              <?= Security::h($cl) ?>
             </label>
             <?php endforeach; ?>
           </div>

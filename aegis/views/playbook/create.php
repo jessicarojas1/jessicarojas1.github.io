@@ -1,3 +1,4 @@
+<?php $breadcrumbs = [['Playbooks', '/playbook'], ['New Playbook', null]]; ?>
 <div class="page-header">
   <div>
     <h1 class="page-title">New Playbook</h1>

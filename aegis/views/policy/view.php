@@ -198,12 +198,12 @@ $totalUsers = Database::fetchOne("SELECT COUNT(*) as cnt FROM users WHERE is_act
 
 <script nonce="<?= Security::nonce() ?>">
 (function() {
-  var title    = <?= json_encode($policy['title']) ?>;
-  var number   = <?= json_encode($policy['policy_number'] ?? '') ?>;
-  var version  = <?= json_encode('v' . $policy['version']) ?>;
-  var owner    = <?= json_encode($policy['owner_name'] ?? '') ?>;
-  var content  = <?= json_encode($policy['content'] ?? '') ?>;
-  var approved = <?= json_encode($policy['approved_at'] ? date('F j, Y', strtotime($policy['approved_at'])) : '') ?>;
+  var title    = <?= json_encode($policy['title'], JSON_HEX_TAG | JSON_HEX_AMP) ?>;
+  var number   = <?= json_encode($policy['policy_number'] ?? '', JSON_HEX_TAG | JSON_HEX_AMP) ?>;
+  var version  = <?= json_encode('v' . $policy['version'], JSON_HEX_TAG | JSON_HEX_AMP) ?>;
+  var owner    = <?= json_encode($policy['owner_name'] ?? '', JSON_HEX_TAG | JSON_HEX_AMP) ?>;
+  var content  = <?= json_encode($policy['content'] ?? '', JSON_HEX_TAG | JSON_HEX_AMP) ?>;
+  var approved = <?= json_encode($policy['approved_at'] ? date('F j, Y', strtotime($policy['approved_at'])) : '', JSON_HEX_TAG | JSON_HEX_AMP) ?>;
 
   document.getElementById('btnPolicyPrint').addEventListener('click', function() {
     window.print();

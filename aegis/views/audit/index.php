@@ -16,7 +16,7 @@ ob_start();
 <!-- Summary -->
 <div class="stats-row">
   <div class="stat-mini"><i class="bi bi-calendar-event" style="color:var(--primary)"></i><span class="stat-mini-num"><?= $summary['planned'] ?? 0 ?></span><span>Planned</span></div>
-  <div class="stat-mini"><i class="bi bi-play-circle" style="color:#0284c7"></i><span class="stat-mini-num"><?= $summary['in_progress'] ?? 0 ?></span><span>In Progress</span></div>
+  <div class="stat-mini"><i class="bi bi-play-circle" style="color:var(--info)"></i><span class="stat-mini-num"><?= $summary['in_progress'] ?? 0 ?></span><span>In Progress</span></div>
   <div class="stat-mini"><i class="bi bi-check-circle" style="color:var(--success)"></i><span class="stat-mini-num"><?= $summary['completed'] ?? 0 ?></span><span>Completed</span></div>
   <div class="stat-mini"><i class="bi bi-exclamation-circle" style="color:var(--danger)"></i><span class="stat-mini-num"><?= $summary['overdue'] ?? 0 ?></span><span>Overdue</span></div>
 </div>

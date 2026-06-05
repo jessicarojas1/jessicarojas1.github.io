@@ -455,7 +455,7 @@ document.addEventListener('keydown', function(e){ if (e.key === 'Escape') pkgClo
 // ── Bulk selection ─────────────────────────────────────────────────────────
 var bulkBar   = document.getElementById('bulk-bar');
 var bulkCount = document.getElementById('bulk-count');
-var _csrf     = <?= json_encode(Security::generateCsrfToken()) ?>;
+var _csrf     = <?= json_encode(Security::generateCsrfToken(), JSON_HEX_TAG | JSON_HEX_AMP) ?>;
 var _pkgId    = <?= (int)$package['id'] ?>;
 
 function getChecked() {

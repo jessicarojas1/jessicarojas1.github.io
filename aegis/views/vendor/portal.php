@@ -6,23 +6,23 @@
   <title><?= Security::h($vendor['name']) ?> — Security Assessment</title>
   <link rel="stylesheet" href="/public/vendor/bootstrap-icons/bootstrap-icons.min.css">
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9fafb; color: var(--text); margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--surface-alt); color: var(--text); margin: 0; padding: 0; }
     .header { background: #111111; color: white; padding: 20px 40px; display: flex; align-items: center; gap: 12px; }
     .header h1 { margin: 0; font-size: 18px; }
     .content { max-width: 760px; margin: 40px auto; padding: 0 20px; }
     .card { background: white; border-radius: 12px; padding: 32px; box-shadow: 0 1px 3px rgba(0,0,0,.1); margin-bottom: 24px; }
-    .question { margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid #e4e4e7; }
+    .question { margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
     .question:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
     .question label { display: block; font-weight: 600; margin-bottom: 8px; }
     .required-star { color: var(--danger); }
-    textarea { width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; min-height: 100px; resize: vertical; font-family: inherit; }
+    textarea { width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; min-height: 100px; resize: vertical; font-family: inherit; }
     textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79,70,229,.1); }
     .btn { padding: 12px 28px; border-radius: 8px; border: none; cursor: pointer; font-size: 15px; font-weight: 600; }
     .btn-primary { background: var(--primary); color: white; }
     .btn-primary:hover { background: var(--primary-dark); }
-    .footer { text-align: center; color: #a1a1aa; font-size: 13px; padding: 20px; }
+    .footer { text-align: center; color: var(--text-muted); font-size: 13px; padding: 20px; }
     .meta { color: var(--text-muted); font-size: 13px; margin-bottom: 20px; }
-    .progress-bar { height: 4px; background: #e4e4e7; border-radius: 2px; margin-bottom: 24px; }
+    .progress-bar { height: 4px; background: var(--border); border-radius: 2px; margin-bottom: 24px; }
     .progress-fill { height: 100%; background: var(--primary); border-radius: 2px; transition: width .3s; }
   </style>
 </head>
@@ -47,7 +47,7 @@
   </div>
 
   <form method="POST" action="/vendor/portal/<?= Security::h($token) ?>/submit" id="vendorPortalForm">
-    <input type="hidden" name="csrf_token" value="<?= Security::h(hash('sha256', $token)) ?>">
+    <input type="hidden" name="csrf_token" value="<?= Security::h(hash_hmac('sha256', $token, $_ENV['JWT_SECRET'] ?? '')) ?>">
 
     <?php foreach ($questions as $i => $q): ?>
     <div class="card question" id="q-<?= (int)$q['id'] ?>">

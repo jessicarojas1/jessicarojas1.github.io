@@ -1,4 +1,6 @@
 <?php
+$breadcrumbs = [['Compliance', '/compliance'], ['Testing Dashboard', null]];
+
 function ctResultBadge(string $result): string {
     return match($result) {
         'pass'       => '<span class="badge" style="background:var(--primary)18;color:var(--primary);border:1px solid #16a34a40">Pass</span>',
@@ -59,7 +61,7 @@ $cntTotal     = $cntPass + $cntFail + $cntPartial + $cntNotTested;
 
 <!-- Overdue tests -->
 <?php if (!empty($overdue)): ?>
-<div class="card" style="margin-bottom:20px;border-left:4px solid #dc2626">
+<div class="card" style="margin-bottom:20px;border-left:4px solid var(--danger)">
   <div class="card-header" style="background:var(--danger-subtle)">
     <div class="card-header-left">
       <i class="bi bi-exclamation-triangle-fill" style="color:var(--danger)"></i>
@@ -107,7 +109,7 @@ $cntTotal     = $cntPass + $cntFail + $cntPartial + $cntNotTested;
     <div class="card-header-left">
       <i class="bi bi-clock-history" style="color:var(--primary)"></i>
       <span class="card-title">Recent Tests</span>
-      <span style="background:#e4e4e7;color:var(--text-muted);border-radius:12px;padding:2px 10px;font-size:12px;font-weight:600"><?= count($recent) ?></span>
+      <span style="background:var(--border);color:var(--text-muted);border-radius:12px;padding:2px 10px;font-size:12px;font-weight:600"><?= count($recent) ?></span>
     </div>
   </div>
   <?php if ($recent): ?>
@@ -148,13 +150,13 @@ $cntTotal     = $cntPass + $cntFail + $cntPartial + $cntNotTested;
             <td>
               <?php if ($r['effectiveness'] !== null): ?>
               <div style="display:flex;align-items:center;gap:8px">
-                <div style="flex:1;height:8px;background:#e4e4e7;border-radius:4px;overflow:hidden">
+                <div style="flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden">
                   <div style="width:<?= (int)$r['effectiveness'] ?>%;height:100%;background:<?= $r['effectiveness'] >= 75 ? 'var(--primary)' : ($r['effectiveness'] >= 40 ? 'var(--warning)' : 'var(--danger)') ?>;border-radius:4px"></div>
                 </div>
                 <span style="font-size:12px;font-weight:600;color:var(--text);white-space:nowrap"><?= (int)$r['effectiveness'] ?>%</span>
               </div>
               <?php else: ?>
-              <span style="color:#a1a1aa;font-size:13px">—</span>
+              <span style="color:var(--text-muted);font-size:13px">—</span>
               <?php endif; ?>
             </td>
             <td>
@@ -170,7 +172,7 @@ $cntTotal     = $cntPass + $cntFail + $cntPartial + $cntNotTested;
   </div>
   <?php else: ?>
   <div class="card-body">
-    <div style="text-align:center;padding:32px;color:#a1a1aa">
+    <div style="text-align:center;padding:32px;color:var(--text-muted)">
       <i class="bi bi-clipboard2-x" style="font-size:36px;display:block;margin-bottom:12px"></i>
       <p style="margin:0;font-size:15px">No control tests have been recorded yet.</p>
       <p style="margin:8px 0 0;font-size:13px">Navigate to a compliance package and click <strong>Test</strong> on a control to get started.</p>

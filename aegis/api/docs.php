@@ -1,15 +1,31 @@
 <?php
 // Serve OpenAPI spec as JSON, or render Swagger UI if ?ui=1
-$format = $_GET['format'] ?? 'ui';
+declare(strict_types=1);
+
+define('AEGIS_ROOT', dirname(__DIR__));
+require_once AEGIS_ROOT . '/src/Auth.php';
+require_once AEGIS_ROOT . '/src/Security.php';
+
+// Require an active authenticated session
+if (!Auth::check()) {
+    http_response_code(401);
+    header('Content-Type: application/json');
+    echo json_encode(['error' => 'Authentication required'], JSON_HEX_TAG | JSON_HEX_AMP);
+    exit;
+}
+
+Security::setSecurityHeaders();
+
+$format  = $_GET['format'] ?? 'ui';
 $specPath = __DIR__ . '/openapi.json';
 
-if ($format === 'json' || !isset($_GET['ui'])) {
+if ($format === 'json') {
     header('Content-Type: application/json');
-    header('Access-Control-Allow-Origin: *');
     readfile($specPath);
     exit;
 }
-// Swagger UI (CDN)
+
+$nonce = Security::nonce();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -21,8 +37,8 @@ if ($format === 'json' || !isset($_GET['ui'])) {
 </head>
 <body>
 <div id="swagger-ui"></div>
-<script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
-<script>
+<script nonce="<?= $nonce ?>" src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+<script nonce="<?= $nonce ?>">
 SwaggerUIBundle({
   url: '/api/docs?format=json',
   dom_id: '#swagger-ui',

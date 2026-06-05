@@ -2,6 +2,11 @@
 class SSOController {
 
     public function login(): void {
+        if (!Security::checkRateLimit('sso_login_' . Security::clientIp())) {
+            http_response_code(429);
+            $_SESSION['flash_error'] = 'Too many requests. Please try again later.';
+            header('Location: /login'); exit;
+        }
         if (!SSO::isEnabled()) {
             $_SESSION['sso_error'] = 'SSO is not configured on this instance. Contact your administrator.';
             header('Location: /login'); exit;
@@ -17,6 +22,11 @@ class SSOController {
     }
 
     public function callback(): void {
+        if (!Security::checkRateLimit('sso_callback_' . Security::clientIp())) {
+            http_response_code(429);
+            $_SESSION['flash_error'] = 'Too many requests. Please try again later.';
+            header('Location: /login'); exit;
+        }
         if (!SSO::isEnabled()) {
             header('Location: /login'); exit;
         }

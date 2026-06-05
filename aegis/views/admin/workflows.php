@@ -115,12 +115,12 @@ ob_start();
           <div class="wt-icon" style="background:<?= $color ?>20;color:<?= $color ?>"><i class="bi bi-lightning"></i></div>
           <div class="wt-body">
             <div class="wt-name">
-              <?= $name ?>
-              <span class="badge" style="background:<?= $color ?>18;color:<?= $color ?>;margin-left:6px;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:600;vertical-align:middle"><?= $cat ?></span>
+              <?= Security::h($name) ?>
+              <span class="badge" style="background:<?= $color ?>18;color:<?= $color ?>;margin-left:6px;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:600;vertical-align:middle"><?= Security::h($cat) ?></span>
             </div>
-            <div class="wt-desc"><?= $desc ?></div>
+            <div class="wt-desc"><?= Security::h($desc) ?></div>
           </div>
-          <button class="btn btn-ghost btn-sm" data-click="useTemplate" data-args='[<?= json_encode($name) ?>,<?= json_encode($trigger) ?>]'>Use</button>
+          <button class="btn btn-ghost btn-sm" data-click="useTemplate" data-args='[<?= json_encode($name, JSON_HEX_TAG | JSON_HEX_AMP) ?>,<?= json_encode($trigger, JSON_HEX_TAG | JSON_HEX_AMP) ?>]'>Use</button>
         </div>
       <?php endforeach; ?>
     </div>

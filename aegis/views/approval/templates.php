@@ -8,6 +8,7 @@
 $flash_success = $_SESSION['flash_success'] ?? null;
 $flash_error   = $_SESSION['flash_error']   ?? null;
 unset($_SESSION['flash_success'], $_SESSION['flash_error']);
+$breadcrumbs = [['Approvals', '/approvals'], ['Templates', null]];
 
 $entityTypeLabels = [
     'risk'     => 'Risk',
@@ -82,7 +83,7 @@ $entityTypeLabels = [
               <?php if ($isActive): ?>
                 <span class="badge badge-success">Active</span>
               <?php else: ?>
-                <span class="badge" style="background:#f3f4f6;color:var(--text-muted)">Inactive</span>
+                <span class="badge" style="background:var(--bg-subtle);color:var(--text-muted)">Inactive</span>
               <?php endif; ?>
             </td>
             <td class="text-muted text-sm">

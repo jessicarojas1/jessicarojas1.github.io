@@ -257,13 +257,14 @@ class SSPController {
 
         $h = fn(string $s): string => htmlspecialchars($s, ENT_QUOTES | ENT_HTML5, 'UTF-8');
 
-        $printScript = $isPdf ? '
-<script>
-window.addEventListener("load", function() {
+        $n = Security::nonce();
+        $printScript = $isPdf ? "
+<script nonce=\"{$n}\">
+window.addEventListener(\"load\", function() {
   window.print();
-  window.addEventListener("afterprint", function() { window.close(); });
+  window.addEventListener(\"afterprint\", function() { window.close(); });
 });
-</script>' : '';
+</script>" : '';
 
         $wordMeta = $isWord ? '
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">

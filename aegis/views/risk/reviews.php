@@ -74,7 +74,7 @@ ob_start();
     </div>
   </div>
 
-  <div class="card" style="border-left:4px solid #d97706;">
+  <div class="card" style="border-left:4px solid var(--warning);">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
       <div style="width:44px;height:44px;border-radius:10px;background:var(--warning-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
         <i class="bi bi-play-circle" style="font-size:20px;color:var(--warning);"></i>
@@ -86,7 +86,7 @@ ob_start();
     </div>
   </div>
 
-  <div class="card" style="border-left:4px solid #16a34a;">
+  <div class="card" style="border-left:4px solid var(--primary);">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
       <div style="width:44px;height:44px;border-radius:10px;background:var(--success-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
         <i class="bi bi-check-circle-fill" style="font-size:20px;color:var(--primary);"></i>
@@ -98,13 +98,13 @@ ob_start();
     </div>
   </div>
 
-  <div class="card" style="border-left:4px solid #a1a1aa;">
+  <div class="card" style="border-left:4px solid var(--text-muted);">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
       <div style="width:44px;height:44px;border-radius:10px;background:var(--bg-secondary);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-        <i class="bi bi-x-circle" style="font-size:20px;color:#a1a1aa;"></i>
+        <i class="bi bi-x-circle" style="font-size:20px;color:var(--text-muted);"></i>
       </div>
       <div>
-        <div style="font-size:26px;font-weight:700;line-height:1;color:#a1a1aa;"><?= $cancelled ?></div>
+        <div style="font-size:26px;font-weight:700;line-height:1;color:var(--text-muted);"><?= $cancelled ?></div>
         <div style="font-size:12px;color:var(--text-muted);margin-top:3px;">Cancelled</div>
       </div>
     </div>

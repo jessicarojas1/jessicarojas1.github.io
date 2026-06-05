@@ -1,5 +1,6 @@
 <?php
 $statusColors = ['pending' => 'var(--warning)', 'approved' => 'var(--success)', 'rejected' => 'var(--danger)'];
+$breadcrumbs = [['Approvals', '/approvals'], ['Pending', null]];
 ?>
 <div class="page-header">
   <div>

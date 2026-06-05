@@ -1,4 +1,7 @@
-<?php ob_start(); ?>
+<?php
+ob_start();
+$breadcrumbs = [['Policies', '/policy'], ['Control Mapping', null]];
+?>
 <div class="page-header">
   <div>
     <h1 class="page-title">Policy &amp; Control Mapping</h1>

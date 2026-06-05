@@ -61,7 +61,7 @@ $pkgsWithGaps = count(array_unique(array_column($gaps, 'package_name')));
   <div class="card" style="padding:0">
     <div class="card-body" style="padding:16px">
       <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:12px">
-        <span style="font-size:11px;font-weight:700;background:rgba(91,33,182,.12);color:#7c3aed;padding:3px 8px;border-radius:6px;white-space:nowrap;margin-top:2px;flex-shrink:0">
+        <span style="font-size:11px;font-weight:700;background:rgba(91,33,182,.12);color:var(--purple);padding:3px 8px;border-radius:6px;white-space:nowrap;margin-top:2px;flex-shrink:0">
           <?= Security::h($pkg['standard_code']) ?>
         </span>
         <div style="min-width:0">
@@ -173,7 +173,7 @@ $pkgsWithGaps = count(array_unique(array_column($gaps, 'package_name')));
           <tr data-framework="<?= Security::h($gap['standard_code'] ?? '') ?>"
               data-status="<?= Security::h($gapStatus) ?>">
             <td>
-              <span style="font-size:11px;font-weight:700;background:rgba(91,33,182,.12);color:#7c3aed;padding:2px 7px;border-radius:5px">
+              <span style="font-size:11px;font-weight:700;background:rgba(91,33,182,.12);color:var(--purple);padding:2px 7px;border-radius:5px">
                 <?= Security::h($gap['standard_code']) ?>
               </span>
             </td>
@@ -254,7 +254,7 @@ $pkgsWithGaps = count(array_unique(array_column($gaps, 'package_name')));
             <td>
               <div style="display:flex;flex-wrap:wrap;gap:5px">
                 <?php foreach ($cfFrameworks as $fw): ?>
-                <span style="font-size:11px;font-weight:700;background:rgba(91,33,182,.12);color:#7c3aed;padding:2px 7px;border-radius:5px">
+                <span style="font-size:11px;font-weight:700;background:rgba(91,33,182,.12);color:var(--purple);padding:2px 7px;border-radius:5px">
                   <?= Security::h(trim($fw)) ?>
                 </span>
                 <?php endforeach; ?>

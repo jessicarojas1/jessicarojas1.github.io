@@ -2,6 +2,7 @@
 $flash_success = $_SESSION['flash_success'] ?? null;
 $flash_error   = $_SESSION['flash_error']   ?? null;
 unset($_SESSION['flash_success'], $_SESSION['flash_error']);
+$breadcrumbs = [['Admin', '/admin'], ['System Settings', null]];
 ob_start();
 ?>
 

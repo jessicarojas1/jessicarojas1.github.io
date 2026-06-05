@@ -201,7 +201,7 @@ $avgScore = count($scenarios) > 0 ? round($totalScoreSum / count($scenarios), 1)
     <div style="padding:12px 16px;border-top:2px solid var(--border);background:var(--bg-secondary);
                 display:flex;flex-wrap:wrap;gap:16px;align-items:center;font-size:12px;color:var(--text-muted)">
       <span>
-        <i class="bi bi-exclamation-triangle-fill" style="color:#f97316"></i>
+        <i class="bi bi-exclamation-triangle-fill" style="color:var(--orange)"></i>
         <strong style="color:var(--text)">Worst case score:</strong>
         <span class="risk-badge <?= scenPartialLevelClass($worstScore) ?>" style="font-size:12px;padding:1px 8px"><?= $worstScore ?></span>
         <?= scenPartialLevel($worstScore) ?>

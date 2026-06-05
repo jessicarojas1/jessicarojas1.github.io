@@ -163,7 +163,7 @@ $_filterCount = count(array_filter([
 </div>
 
 <div id="bulkBar" style="display:none;background:var(--info-subtle);border:1px solid #bae6fd80;border-radius:8px;padding:12px 16px;margin-bottom:12px;align-items:center;gap:12px;flex-wrap:wrap">
-  <span id="bulkCount" style="font-weight:600;color:#0369a1">0 selected</span>
+  <span id="bulkCount" style="font-weight:600;color:var(--info)">0 selected</span>
   <form method="POST" action="/risk/bulk-update" id="bulkForm" style="display:flex;gap:8px;align-items:center">
     <?= Security::csrfField() ?>
     <div id="bulkIdsContainer"></div>

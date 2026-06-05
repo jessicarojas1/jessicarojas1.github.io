@@ -421,23 +421,23 @@ function fmtNum(float $n): string {
 <?php if (!empty($values) && count($values) >= 2): ?>
 <script nonce="<?= Security::nonce() ?>">
 (function() {
-  var labels = <?= json_encode(array_map(fn($v) => date('M j', strtotime($v['recorded_at'])), array_reverse($values))) ?>;
-  var data   = <?= json_encode(array_map(fn($v) => (float)$v['value'], array_reverse($values))) ?>;
-  var green  = <?= json_encode($green) ?>;
-  var amber  = <?= json_encode($amber) ?>;
+  var labels = <?= json_encode(array_map(fn($v) => date('M j', strtotime($v['recorded_at'])), array_reverse($values)), JSON_HEX_TAG | JSON_HEX_AMP) ?>;
+  var data   = <?= json_encode(array_map(fn($v) => (float)$v['value'], array_reverse($values)), JSON_HEX_TAG | JSON_HEX_AMP) ?>;
+  var green  = <?= json_encode($green, JSON_HEX_TAG | JSON_HEX_AMP) ?>;
+  var amber  = <?= json_encode($amber, JSON_HEX_TAG | JSON_HEX_AMP) ?>;
   var ctx = document.getElementById('kriChart').getContext('2d');
   new Chart(ctx, {
     type: 'line',
     data: {
       labels: labels,
       datasets: [{
-        label: <?= json_encode($kri['title']) ?>,
+        label: <?= json_encode($kri['title'], JSON_HEX_TAG | JSON_HEX_AMP) ?>,
         data: data,
-        borderColor: <?= json_encode($ragColor) ?>,
-        backgroundColor: <?= json_encode($ragColor . '22') ?>,
+        borderColor: <?= json_encode($ragColor, JSON_HEX_TAG | JSON_HEX_AMP) ?>,
+        backgroundColor: <?= json_encode($ragColor . '22', JSON_HEX_TAG | JSON_HEX_AMP) ?>,
         borderWidth: 2,
         pointRadius: 4,
-        pointBackgroundColor: <?= json_encode($ragColor) ?>,
+        pointBackgroundColor: <?= json_encode($ragColor, JSON_HEX_TAG | JSON_HEX_AMP) ?>,
         tension: 0.3,
         fill: true,
       }, {

@@ -124,7 +124,7 @@ $scoreLabel = $grcScore >= 80 ? 'Good' : ($grcScore >= 60 ? 'Needs Attention' : 
   .sidebar,.topbar,.bottom-nav,.page-actions,.alert-panel,.alert-overlay{display:none!important}
   .main-content{margin:0!important;padding:0!important}
   .page-content{padding:0!important}
-  .card{box-shadow:none!important;border:1px solid #e4e4e7!important;break-inside:avoid}
+  .card{box-shadow:none!important;border:1px solid var(--border)!important;break-inside:avoid}
 }
 </style>
 

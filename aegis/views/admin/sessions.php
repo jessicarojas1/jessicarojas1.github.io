@@ -1,4 +1,5 @@
 <?php ob_start();
+$breadcrumbs = [['Admin', '/admin'], ['Active Sessions', null]];
 
 function parseBrowser(string $ua): string {
     if (str_contains($ua, 'Edg/'))       return 'Edge';

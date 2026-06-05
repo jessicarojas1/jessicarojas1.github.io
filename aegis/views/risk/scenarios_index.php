@@ -5,6 +5,7 @@
  * Variables: $scenarios, $countByType, $highestScore, $totalFinancial
  */
 $nonce = Security::nonce();
+$breadcrumbs = [['Risk Register', '/risk'], ['Scenarios', null]];
 
 $typeMeta = [
     'stress'       => ['label'=>'Stress',        'color'=>'var(--danger)','bg'=>'var(--danger-subtle)','border'=>'var(--danger-border)','icon'=>'bi-graph-up-arrow'],

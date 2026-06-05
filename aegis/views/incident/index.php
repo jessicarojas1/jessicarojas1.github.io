@@ -33,7 +33,7 @@ ob_start();
     <div class="stat-label">Investigating</div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="color:#0284c7"><i class="bi bi-shield-fill-check"></i></div>
+    <div class="stat-icon" style="color:var(--info)"><i class="bi bi-shield-fill-check"></i></div>
     <div class="stat-value"><?= (int)($summary['contained'] ?? 0) ?></div>
     <div class="stat-label">Contained</div>
   </div>

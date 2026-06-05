@@ -1,4 +1,5 @@
 <?php
+$breadcrumbs = [['Import', null]];
 $templates = [
   'risks'     => 'title,description,likelihood,impact,status,category,treatment_type',
   'vendors'   => 'name,category,website,description,risk_tier',
@@ -199,7 +200,7 @@ $notes = [
 </div>
 
 <script nonce="<?= Security::nonce() ?>">
-const templates = <?= json_encode($templates) ?>;
+const templates = <?= json_encode($templates, JSON_HEX_TAG | JSON_HEX_AMP) ?>;
 
 // Tab switching
 document.querySelectorAll('.import-tab-btn').forEach(function(btn) {

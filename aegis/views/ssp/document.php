@@ -105,8 +105,8 @@
   .status-compliant      { background: rgba(5,150,105,0.15);   color: var(--success); }
   .status-partial        { background: rgba(217,119,6,0.15);   color: var(--warning); }
   .status-non_compliant  { background: rgba(220,38,38,0.15);   color: var(--danger); }
-  .status-not_applicable { background: rgba(100,116,139,0.15); color: #64748b; }
-  .status-default        { background: rgba(100,116,139,0.15); color: #64748b; }
+  .status-not_applicable { background: rgba(100,116,139,0.15); color: var(--text-muted); }
+  .status-default        { background: rgba(100,116,139,0.15); color: var(--text-muted); }
 
   .control-body { padding: 16px; background: var(--ssp-bg); }
   .control-desc { font-size: 0.83rem; color: var(--ssp-muted); margin-bottom: 14px; line-height: 1.6; }
@@ -368,7 +368,7 @@ document.getElementById('btnWord').addEventListener('click', function() {
     '.cover-meta{border:1px solid #ddd;border-radius:8px;padding:20px 32px;display:inline-block;text-align:left;min-width:380px;margin-top:24px;background:#f8fafc}',
     '.cover-meta td{padding:5px 4px;font-size:10pt}.cover-meta td:first-child{color:#666;width:150px;font-weight:600}',
     '.impact-badge{padding:2px 8px;border-radius:4px;font-size:9pt;font-weight:700}',
-    '.impact-low{background:#d1fae5;color:#065f46}.impact-moderate{background:#fef3c7;color:#92400e}.impact-high{background:#fee2e2;color:#991b1b}',
+    '.impact-low{background:#d1fae5;color:#065f46}.impact-moderate{background:#fef3c7;color:#92400e}.impact-high{background:var(--danger-subtle);color:var(--danger)}',
     '.toc{padding:40px 60px;page-break-after:always}.toc h2{font-size:16pt;border-bottom:2px solid #4f46e5;padding-bottom:6px}',
     '.toc ul{list-style:none;padding:0}.toc li{padding:3px 0;border-bottom:1px dotted #ccc;display:flex;justify-content:space-between}',
     '.toc a{text-decoration:none;color:#1a1a2e}',
@@ -383,10 +383,10 @@ document.getElementById('btnWord').addEventListener('click', function() {
     '.control-title{font-weight:600;font-size:10pt;flex:1}',
     '.status-badge{padding:2px 8px;border-radius:12px;font-size:8pt;font-weight:700;text-transform:uppercase;white-space:nowrap}',
     '.status-compliant{background:#d1fae5;color:#065f46}.status-partial{background:#fef3c7;color:#92400e}',
-    '.status-non_compliant{background:#fee2e2;color:#991b1b}.status-not_applicable,.status-default{background:#f1f5f9;color:#64748b}',
-    '.control-body{padding:12px 14px}.control-desc{font-size:9pt;color:#475569;margin-bottom:10px;line-height:1.5}',
-    '.field-block{margin-bottom:10px}.field-label{font-size:7.5pt;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#64748b;margin-bottom:4px}',
-    '.field-content,.assignee-line{font-size:10pt;line-height:1.5;white-space:pre-wrap}.assignee-line{font-size:8.5pt;color:#64748b;margin-top:2px}',
+    '.status-non_compliant{background:var(--danger-subtle);color:var(--danger)}.status-not_applicable,.status-default{background:#f1f5f9;color:var(--text-muted)}',
+    '.control-body{padding:12px 14px}.control-desc{font-size:9pt;color:var(--secondary);margin-bottom:10px;line-height:1.5}',
+    '.field-block{margin-bottom:10px}.field-label{font-size:7.5pt;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);margin-bottom:4px}',
+    '.field-content,.assignee-line{font-size:10pt;line-height:1.5;white-space:pre-wrap}.assignee-line{font-size:8.5pt;color:var(--text-muted);margin-top:2px}',
   ].join('\n');
 
   var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>' + css + '</style></head><body>' + bodyClone.innerHTML + '</body></html>';
@@ -404,7 +404,7 @@ document.getElementById('btnWord').addEventListener('click', function() {
 document.querySelectorAll('.save-btn').forEach(function(btn) {
   btn.addEventListener('click', function(){ saveStatement(btn, btn.dataset.saveField); });
 });
-let _csrf = <?= json_encode(Security::generateCsrfToken()) ?>;
+let _csrf = <?= json_encode(Security::generateCsrfToken(), JSON_HEX_TAG | JSON_HEX_AMP) ?>;
 
 function saveStatement(btn, field) {
   const row   = btn.closest('.control-body');

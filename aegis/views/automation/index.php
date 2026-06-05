@@ -1,4 +1,7 @@
-<?php $csrf = Security::generateCsrfToken(); ?>
+<?php
+$csrf = Security::generateCsrfToken();
+$breadcrumbs = [['Automation', null]];
+?>
 <div class="page-header">
   <div>
     <h1 class="page-title">Automation Rules</h1>

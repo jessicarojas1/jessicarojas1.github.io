@@ -172,7 +172,7 @@ ob_start();
             <input type="radio" name="editColorPick" value="<?= $hex ?>"
                    data-change="onEditColorPickChange">
             <span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:<?= $hex ?>"></span>
-            <?= $label ?>
+            <?= Security::h($label) ?>
           </label>
           <?php endforeach; ?>
           <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px">
@@ -238,7 +238,7 @@ ob_start();
   transition: all .15s;
 }
 .btn-icon:hover { background: var(--surface-2); color: var(--text); }
-.btn-icon-danger:hover { background: #fee2e2; color: var(--danger); border-color: var(--danger-border); }
+.btn-icon-danger:hover { background: var(--danger-subtle); color: var(--danger); border-color: var(--danger-border); }
 </style>
 
 <script nonce="<?= Security::nonce() ?>">
@@ -261,8 +261,8 @@ function onEditColorInput(e) {
   updateColorPreview();
 }
 
-const cellData = <?= json_encode($cells) ?>;
-const defaultCells = <?= json_encode($defaultCells) ?>;
+const cellData = <?= json_encode($cells, JSON_HEX_TAG | JSON_HEX_AMP) ?>;
+const defaultCells = <?= json_encode($defaultCells, JSON_HEX_TAG | JSON_HEX_AMP) ?>;
 
 function openCellEdit(key, title, desc, color) {
   document.getElementById('editKey').value   = key;

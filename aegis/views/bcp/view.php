@@ -196,11 +196,11 @@ ob_start(); ?>
 
 <script nonce="<?= Security::nonce() ?>">
 (function() {
-  var planTitle   = <?= json_encode($plan['title']) ?>;
-  var planVersion = <?= json_encode('v' . $plan['version']) ?>;
-  var rto         = <?= json_encode($plan['rto_hours'] ? '≤' . (int)$plan['rto_hours'] . 'h' : 'Not set') ?>;
-  var rpo         = <?= json_encode($plan['rpo_hours'] ? '≤' . (int)$plan['rpo_hours'] . 'h' : 'Not set') ?>;
-  var sections    = <?= json_encode(array_values($sections)) ?>;
+  var planTitle   = <?= json_encode($plan['title'], JSON_HEX_TAG | JSON_HEX_AMP) ?>;
+  var planVersion = <?= json_encode('v' . $plan['version'], JSON_HEX_TAG | JSON_HEX_AMP) ?>;
+  var rto         = <?= json_encode($plan['rto_hours'] ? '≤' . (int)$plan['rto_hours'] . 'h' : 'Not set', JSON_HEX_TAG | JSON_HEX_AMP) ?>;
+  var rpo         = <?= json_encode($plan['rpo_hours'] ? '≤' . (int)$plan['rpo_hours'] . 'h' : 'Not set', JSON_HEX_TAG | JSON_HEX_AMP) ?>;
+  var sections    = <?= json_encode(array_values($sections), JSON_HEX_TAG | JSON_HEX_AMP) ?>;
 
   document.getElementById('btnBcpPrint').addEventListener('click', function() { window.print(); });
 

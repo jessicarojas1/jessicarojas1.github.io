@@ -1,4 +1,6 @@
-<?php if (!defined('AEGIS_ROOT')) { http_response_code(403); exit; } ?>
+<?php if (!defined('AEGIS_ROOT')) { http_response_code(403); exit; }
+$breadcrumbs = [['Admin', '/admin'], ['Tags', null]];
+?>
 
 <?php if (!empty($_SESSION['flash_success'])): ?>
   <div class="alert-box success"><?= Security::h($_SESSION['flash_success']) ?><?php unset($_SESSION['flash_success']); ?></div>

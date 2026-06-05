@@ -1,4 +1,7 @@
-<?php $csrf = Security::generateCsrfToken(); ?>
+<?php
+$csrf = Security::generateCsrfToken();
+$breadcrumbs = [['CUI Registry', null]];
+?>
 <div class="page-header">
   <div>
     <h1 class="page-title">CUI Inventory</h1>

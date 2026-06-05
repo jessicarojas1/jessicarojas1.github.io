@@ -271,8 +271,8 @@ document.querySelectorAll('.due-tab').forEach(btn => {
   });
 });
 
-const complianceData = <?= json_encode($complianceByPackage) ?>;
-const riskData = <?= json_encode($riskDistribution) ?>;
+const complianceData = <?= json_encode($complianceByPackage, JSON_HEX_TAG | JSON_HEX_AMP) ?>;
+const riskData = <?= json_encode($riskDistribution, JSON_HEX_TAG | JSON_HEX_AMP) ?>;
 
 document.addEventListener('DOMContentLoaded', () => {
   // Resolve theme-aware colors from CSS vars at runtime

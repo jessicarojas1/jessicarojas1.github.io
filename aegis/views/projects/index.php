@@ -58,7 +58,7 @@ $priorityBadge = [
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:#3b82f620;color:#3b82f6"><i class="bi bi-cash-stack"></i></div>
+    <div class="stat-icon" style="background:var(--info-subtle);color:var(--info)"><i class="bi bi-cash-stack"></i></div>
     <div>
       <div class="stat-value">$<?= number_format((float)($stats['total_budget'] ?? 0), 0) ?></div>
       <div class="stat-label">Total Budget Planned</div>

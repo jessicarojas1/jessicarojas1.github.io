@@ -1,4 +1,5 @@
 <?php
+$breadcrumbs = [['Calendar', null]];
 // Build prev/next month links
 $prevMonth = $month - 1;
 $prevYear  = $year;

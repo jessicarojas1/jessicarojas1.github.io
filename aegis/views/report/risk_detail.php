@@ -75,7 +75,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
 
 .rd-stat {
   background: #fff;
-  border: 1px solid #e4e4e7;
+  border: 1px solid var(--border);
   border-radius: 10px;
   padding: 16px 14px;
   text-align: center;
@@ -85,7 +85,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
 
 .rd-table-wrap {
   background: #fff;
-  border: 1px solid #e4e4e7;
+  border: 1px solid var(--border);
   border-radius: 12px;
   overflow: hidden;
   margin-bottom: 24px;
@@ -112,12 +112,12 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
   text-align: left;
   font-weight: 700;
   color: var(--text-muted);
-  background: #f9fafb;
-  border-bottom: 1px solid #e4e4e7;
+  background: var(--surface-alt);
+  border-bottom: 1px solid var(--border);
   white-space: nowrap;
 }
 .rd-table thead th.center { text-align: center; }
-.rd-table tbody tr { border-bottom: 1px solid #f4f4f5; }
+.rd-table tbody tr { border-bottom: 1px solid var(--border); }
 .rd-table tbody tr:hover { background: #fafafa; }
 .rd-table tbody td { padding: 9px 10px; vertical-align: top; }
 .rd-table tbody td.center { text-align: center; }
@@ -154,7 +154,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
   display: none;
   text-align: center;
   font-size: 11px;
-  color: #a1a1aa;
+  color: var(--text-muted);
   border-top: 1px solid #e4e4e7;
   padding-top: 12px;
   margin-top: 32px;
@@ -204,7 +204,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
 </div>
 
 <?php if ($filterLevel || $filterStatus): ?>
-<div style="background:rgba(55,65,81,.08);border:1px solid #d1d5db;border-radius:8px;padding:10px 16px;margin-bottom:20px;font-size:13px;color:var(--text-muted);">
+<div style="background:rgba(55,65,81,.08);border:1px solid var(--border);border-radius:8px;padding:10px 16px;margin-bottom:20px;font-size:13px;color:var(--text-muted);">
   <i class="bi bi-funnel-fill"></i> <strong>Filter applied:</strong>
   <?php if ($filterLevel):  ?> Level: <strong><?= Security::h(ucfirst($filterLevel)) ?></strong><?php endif; ?>
   <?php if ($filterStatus): ?> &nbsp;Status: <strong><?= Security::h(ucfirst(str_replace('_',' ',$filterStatus))) ?></strong><?php endif; ?>
@@ -218,12 +218,12 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
     <span class="val" style="color:var(--primary);"><?= $countTotal ?></span>
     <div class="lbl">Total Risks</div>
   </div>
-  <div class="rd-stat" style="border-top:4px solid #dc2626;">
+  <div class="rd-stat" style="border-top:4px solid var(--danger);">
     <span class="val" style="color:var(--danger);"><?= $countCritical ?></span>
     <div class="lbl">Critical</div>
   </div>
   <div class="rd-stat" style="border-top:4px solid #f97316;">
-    <span class="val" style="color:#f97316;"><?= $countHigh ?></span>
+    <span class="val" style="color:var(--orange);"><?= $countHigh ?></span>
     <div class="lbl">High</div>
   </div>
   <div class="rd-stat" style="border-top:4px solid #d97706;">
@@ -310,7 +310,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
         <td style="max-width:200px;">
           <div style="font-weight:600;color:var(--text);"><?= Security::h($r['title']) ?></div>
           <?php if (!empty($r['description'])): ?>
-          <div style="font-size:10px;color:#a1a1aa;margin-top:2px;"><?= Security::h(mb_substr($r['description'], 0, 70)) ?><?= mb_strlen($r['description'] ?? '') > 70 ? '…' : '' ?></div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:2px;"><?= Security::h(mb_substr($r['description'], 0, 70)) ?><?= mb_strlen($r['description'] ?? '') > 70 ? '…' : '' ?></div>
           <?php endif; ?>
         </td>
         <td style="color:var(--text-muted);white-space:nowrap;"><?= Security::h($r['category_name'] ?? '—') ?></td>
@@ -356,7 +356,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
   </table>
   </div>
   <?php else: ?>
-  <div style="text-align:center;padding:48px 24px;color:#a1a1aa;">
+  <div style="text-align:center;padding:48px 24px;color:var(--text-muted);">
     <i class="bi bi-check-circle-fill" style="font-size:32px;color:var(--success);display:block;margin-bottom:10px;"></i>
     No risks match the current filter criteria.
   </div>

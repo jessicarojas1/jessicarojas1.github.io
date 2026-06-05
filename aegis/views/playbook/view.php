@@ -20,6 +20,7 @@ $catColor = $categoryColors[$catKey] ?? 'var(--primary)';
 $catLabel = ucwords(str_replace('_', ' ', $playbook['category']));
 $isActive = (bool)$playbook['is_active'];
 $sevColor = $severityColors[strtolower($playbook['severity_filter'] ?? '')] ?? null;
+$breadcrumbs = [['Playbooks', '/playbook'], [Security::h($playbook['title'] ?? 'Playbook'), null]];
 ?>
 
 <div class="page-header">
@@ -191,7 +192,7 @@ $sevColor = $severityColors[strtolower($playbook['severity_filter'] ?? '')] ?? n
             ['Severity Filter', $playbook['severity_filter'] ? '<span class="status-chip" style="background:' . ($sevColor??'#71717a') . '20;color:' . ($sevColor??'#71717a') . '">' . Security::h(ucfirst($playbook['severity_filter'])) . '</span>' : 'Any'],
             ['Steps',         count($steps)],
             ['Runs',          count($runs)],
-            ['Status',        $isActive ? '<span class="status-chip" style="background:var(--success)20;color:var(--success)">Active</span>' : '<span class="status-chip" style="background:#a1a1aa20;color:#a1a1aa">Inactive</span>'],
+            ['Status',        $isActive ? '<span class="status-chip" style="background:var(--success)20;color:var(--success)">Active</span>' : '<span class="status-chip" style="background:#a1a1aa20;color:var(--text-muted)">Inactive</span>'],
             ['Created By',    Security::h($playbook['creator_name'] ?? '—')],
             ['Created',       date('M j, Y', strtotime($playbook['created_at']))],
             ['Updated',       date('M j, Y', strtotime($playbook['updated_at']))],

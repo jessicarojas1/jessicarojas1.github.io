@@ -204,6 +204,10 @@ class AuthController {
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403); return;
         }
+        if (!Security::checkRateLimit('mfa_setup_' . Auth::id())) {
+            $_SESSION['flash_error'] = 'Too many attempts. Please wait before trying again.';
+            header('Location: /mfa/setup'); exit;
+        }
 
         require_once AEGIS_ROOT . '/src/TOTP.php';
         $code   = preg_replace('/\s/', '', $_POST['code'] ?? '');
@@ -459,8 +463,12 @@ class AuthController {
             $_SESSION['mfa_pending_user_id'] = (int)$_SESSION['mfa_user_id'];
         }
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
-        $code   = strtoupper(trim(Security::sanitizeInput($_POST['backup_code'] ?? '')));
         $userId = (int)$_SESSION['mfa_pending_user_id'];
+        if (!Security::checkRateLimit('mfa_backup_' . $userId)) {
+            $_SESSION['mfa_error'] = 'Too many attempts. Please wait before trying again.';
+            header('Location: /mfa/verify?mode=backup'); return;
+        }
+        $code   = strtoupper(trim(Security::sanitizeInput($_POST['backup_code'] ?? '')));
         // Remove hyphens for flexible entry
         $codeNorm = str_replace('-', '', $code);
         $stored   = Database::fetchAll(

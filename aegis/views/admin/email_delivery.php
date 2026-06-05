@@ -32,7 +32,8 @@ $typeColors = [
     <p class="page-subtitle">Track all notification emails sent by AEGIS</p>
   </div>
   <div class="page-actions">
-    <a href="/admin/email-delivery?<?= http_build_query(array_merge($_GET,['export'=>'csv'])) ?>" class="btn btn-ghost">
+    <?php $safeGet = array_intersect_key($_GET, array_flip(['page','status','from','to','type'])); ?>
+    <a href="/admin/email-delivery?<?= Security::h(http_build_query(array_merge($safeGet, ['export'=>'csv']))) ?>" class="btn btn-ghost">
       <i class="bi bi-download"></i> Export CSV
     </a>
   </div>

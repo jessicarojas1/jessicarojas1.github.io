@@ -168,7 +168,7 @@ unset($_SESSION['flash_error']);
           <!-- Live preview bar -->
           <div style="margin-top:20px;">
             <div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:8px;">Live Preview</div>
-            <div id="previewBar" style="height:18px;border-radius:6px;overflow:hidden;display:flex;background:#e4e4e7;transition:all .3s;">
+            <div id="previewBar" style="height:18px;border-radius:6px;overflow:hidden;display:flex;background:var(--border);transition:all .3s;">
               <div id="previewGreen" style="background:var(--primary);width:33.3%;transition:width .3s;"></div>
               <div id="previewAmber" style="background:var(--warning);width:33.3%;transition:width .3s;"></div>
               <div id="previewRed"   style="background:var(--danger);width:33.4%;transition:width .3s;"></div>

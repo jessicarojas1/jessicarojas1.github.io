@@ -27,7 +27,7 @@ if (!function_exists('sspVal')) {
     <p class="page-subtitle" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       <span class="badge <?= $statusClass ?>"><?= $statusLabel ?></span>
       <?php if ($plan['framework']): ?><span class="badge badge-secondary"><?= Security::h($plan['framework']) ?></span><?php endif; ?>
-      <?php if ($plan['presentation_mode'] ?? ''): ?><span class="badge" style="background:rgba(99,102,241,.1);color:#6366f1"><?= Security::h(ucfirst($plan['presentation_mode'] ?? 'standard')) ?> Mode</span><?php endif; ?>
+      <?php if ($plan['presentation_mode'] ?? ''): ?><span class="badge" style="background:rgba(99,102,241,.1);color:var(--indigo)"><?= Security::h(ucfirst($plan['presentation_mode'] ?? 'standard')) ?> Mode</span><?php endif; ?>
     </p>
   </div>
   <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -592,15 +592,15 @@ if (!function_exists('sspVal')) {
 <script nonce="<?= Security::nonce() ?>">
 // In-memory list state (mirrors hidden fields in the form)
 var sspLists = {
-  team_contacts:          <?= json_encode($teamContacts) ?>,
-  contracts:              <?= json_encode($contracts) ?>,
-  data_inventory:         <?= json_encode($dataInventory) ?>,
-  hardware_inventory:     <?= json_encode($hwInventory) ?>,
-  software_inventory:     <?= json_encode($swInventory) ?>,
-  network_devices:        <?= json_encode($networkDevices) ?>,
-  server_inventory:       <?= json_encode($serverInv) ?>,
-  user_device_types:      <?= json_encode($userDevices) ?>,
-  other_connected_systems:<?= json_encode($otherSystems) ?>
+  team_contacts:          <?= json_encode($teamContacts, JSON_HEX_TAG | JSON_HEX_AMP) ?>,
+  contracts:              <?= json_encode($contracts, JSON_HEX_TAG | JSON_HEX_AMP) ?>,
+  data_inventory:         <?= json_encode($dataInventory, JSON_HEX_TAG | JSON_HEX_AMP) ?>,
+  hardware_inventory:     <?= json_encode($hwInventory, JSON_HEX_TAG | JSON_HEX_AMP) ?>,
+  software_inventory:     <?= json_encode($swInventory, JSON_HEX_TAG | JSON_HEX_AMP) ?>,
+  network_devices:        <?= json_encode($networkDevices, JSON_HEX_TAG | JSON_HEX_AMP) ?>,
+  server_inventory:       <?= json_encode($serverInv, JSON_HEX_TAG | JSON_HEX_AMP) ?>,
+  user_device_types:      <?= json_encode($userDevices, JSON_HEX_TAG | JSON_HEX_AMP) ?>,
+  other_connected_systems:<?= json_encode($otherSystems, JSON_HEX_TAG | JSON_HEX_AMP) ?>
 };
 function syncHidden() {
   var map = {

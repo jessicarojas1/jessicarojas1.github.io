@@ -1,4 +1,7 @@
-<?php ob_start(); ?>
+<?php
+$breadcrumbs = [['Admin', '/admin'], ['Data Retention', null]];
+ob_start();
+?>
 <div class="page-header">
   <div>
     <h1 class="page-title">Data Retention Policies</h1>

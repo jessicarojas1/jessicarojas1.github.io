@@ -276,8 +276,8 @@ function load8d() {
 function autoFill8D() {
   const d2 = document.getElementById('eightd_1');
   if (!d2 || d2.value) return;
-  const auditName   = <?= json_encode($audit['name']) ?>;
-  const scheduled   = <?= json_encode($audit['scheduled_date'] ? date('M j, Y', strtotime($audit['scheduled_date'])) : 'Not scheduled') ?>;
+  const auditName   = <?= json_encode($audit['name'], JSON_HEX_TAG | JSON_HEX_AMP) ?>;
+  const scheduled   = <?= json_encode($audit['scheduled_date'] ? date('M j, Y', strtotime($audit['scheduled_date'])) : 'Not scheduled', JSON_HEX_TAG | JSON_HEX_AMP) ?>;
   const ncCount     = parseInt('<?= $summary['non_compliant'] ?? 0 ?>');
   const partCount   = parseInt('<?= $summary['partial'] ?? 0 ?>');
   const totalCount  = parseInt('<?= $summary['total'] ?? 0 ?>');

@@ -3,7 +3,9 @@ class AuditController {
     public function index(): void {
         Auth::requireAuth();
 
+        $validStatuses = ['planned', 'in_progress', 'completed', 'overdue', 'cancelled'];
         $status = Security::sanitizeInput($_GET['status'] ?? '');
+        if ($status && !in_array($status, $validStatuses, true)) $status = '';
         $where  = $status ? "WHERE a.status = ?" : "WHERE 1=1";
         $params = $status ? [$status] : [];
 

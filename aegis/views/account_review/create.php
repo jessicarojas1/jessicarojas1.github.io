@@ -1,4 +1,7 @@
-<?php ob_start(); ?>
+<?php
+$breadcrumbs = [['Account Reviews', '/account-review'], ['New Review', null]];
+ob_start();
+?>
 
 <div class="page-header">
   <div>

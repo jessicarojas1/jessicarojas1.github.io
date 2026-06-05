@@ -49,7 +49,7 @@ html[data-theme="dark"] .report-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,.
       <div>
         <div style="font-size:16px;font-weight:600;margin-bottom:4px">Board Pack</div>
         <div style="font-size:13px;color:var(--text-muted)">Full board-ready risk report with KRIs, appetite breaches, compliance, and incident overview.</div>
-        <div style="margin-top:12px;font-size:12px;color:#4338ca;font-weight:500">View Report <i class="bi bi-arrow-right"></i></div>
+        <div style="margin-top:12px;font-size:12px;color:var(--indigo);font-weight:500">View Report <i class="bi bi-arrow-right"></i></div>
       </div>
     </div>
   </a>
@@ -88,7 +88,7 @@ html[data-theme="dark"] .report-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,.
       <div>
         <div style="font-size:16px;font-weight:600;margin-bottom:4px">Audit Status</div>
         <div style="font-size:13px;color:var(--text-muted)">Open audits, findings by severity, overdue items, and audit program summary.</div>
-        <div style="margin-top:12px;font-size:12px;color:#7c3aed;font-weight:500">View Audits <i class="bi bi-arrow-right"></i></div>
+        <div style="margin-top:12px;font-size:12px;color:var(--purple);font-weight:500">View Audits <i class="bi bi-arrow-right"></i></div>
       </div>
     </div>
   </a>
@@ -114,7 +114,7 @@ html[data-theme="dark"] .report-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,.
       <div>
         <div style="font-size:16px;font-weight:600;margin-bottom:4px">Policy Review</div>
         <div style="font-size:13px;color:var(--text-muted)">Policy lifecycle status, review schedules, pending approvals, and acknowledgement rates.</div>
-        <div style="margin-top:12px;font-size:12px;color:#0284c7;font-weight:500">View Policies <i class="bi bi-arrow-right"></i></div>
+        <div style="margin-top:12px;font-size:12px;color:var(--info);font-weight:500">View Policies <i class="bi bi-arrow-right"></i></div>
       </div>
     </div>
   </a>
@@ -140,7 +140,7 @@ html[data-theme="dark"] .report-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,.
       <div>
         <div style="font-size:16px;font-weight:600;margin-bottom:4px">Data Export</div>
         <div style="font-size:13px;color:var(--text-muted)">Export raw data as CSV or JSON for integration with external tools and GDPR portability.</div>
-        <div style="margin-top:12px;font-size:12px;color:#475569;font-weight:500">Go to Export <i class="bi bi-arrow-right"></i></div>
+        <div style="margin-top:12px;font-size:12px;color:var(--secondary);font-weight:500">Go to Export <i class="bi bi-arrow-right"></i></div>
       </div>
     </div>
   </a>

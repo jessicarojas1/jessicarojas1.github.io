@@ -37,7 +37,7 @@ $urgent = array_filter($expiring, function($c) {
       <span>Expiring &le;60 Days</span>
     </div>
     <div class="ov-stat">
-      <span class="ov-num" style="color:#0284c7">
+      <span class="ov-num" style="color:var(--info)">
         <?= $totalValue > 0 ? '$' . number_format($totalValue, 0) : '—' ?>
       </span>
       <span>Total Value (USD equiv.)</span>
@@ -46,11 +46,11 @@ $urgent = array_filter($expiring, function($c) {
 </div>
 
 <?php if ($urgent): ?>
-<div class="card" style="margin-bottom:16px;border-left:4px solid #dc2626;background:var(--danger-subtle)">
+<div class="card" style="margin-bottom:16px;border-left:4px solid var(--danger);background:var(--danger-subtle)">
   <div class="card-body" style="display:flex;align-items:center;gap:12px;padding:14px 18px">
     <i class="bi bi-exclamation-triangle-fill" style="color:var(--danger);font-size:20px;flex-shrink:0"></i>
     <div>
-      <strong style="color:#991b1b">Urgent: <?= count($urgent) ?> contract<?= count($urgent) !== 1 ? 's' : '' ?> expiring within 30 days</strong>
+      <strong style="color:var(--danger)">Urgent: <?= count($urgent) ?> contract<?= count($urgent) !== 1 ? 's' : '' ?> expiring within 30 days</strong>
       <p style="margin:2px 0 0;font-size:13px;color:var(--danger)">Review auto-renewal settings or begin renegotiation immediately.</p>
     </div>
   </div>
@@ -166,7 +166,7 @@ $urgent = array_filter($expiring, function($c) {
               <?php if ($c['auto_renewal']): ?>
                 <span style="color:var(--success)"><i class="bi bi-check-circle-fill"></i></span>
               <?php else: ?>
-                <span style="color:#d1d5db"><i class="bi bi-dash-circle"></i></span>
+                <span style="color:var(--border)"><i class="bi bi-dash-circle"></i></span>
               <?php endif; ?>
             </td>
             <td style="font-size:13px"><?= $c['owner_name'] ? Security::h($c['owner_name']) : '—' ?></td>
@@ -181,7 +181,7 @@ $urgent = array_filter($expiring, function($c) {
       </table>
     </div>
     <?php else: ?>
-    <div style="text-align:center;padding:48px 20px;color:#a1a1aa">
+    <div style="text-align:center;padding:48px 20px;color:var(--text-muted)">
       <i class="bi bi-file-earmark-text" style="font-size:40px;display:block;margin-bottom:12px"></i>
       <p style="font-size:15px;margin:0">No contracts found.</p>
       <p style="font-size:13px;margin:8px 0 0">Add contracts from the vendor detail page.</p>

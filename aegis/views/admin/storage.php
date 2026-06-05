@@ -1,4 +1,7 @@
-<?php ob_start(); ?>
+<?php
+$breadcrumbs = [['Admin', '/admin'], ['Storage', null]];
+ob_start();
+?>
 <div class="page-header">
   <div>
     <h1 class="page-title">Storage Settings</h1>

@@ -4,6 +4,7 @@ $statusIcons = [
     'rejected' => '<i class="bi bi-x-circle-fill" style="color:var(--danger)"></i>',
     'pending'  => '<i class="bi bi-clock" style="color:var(--warning)"></i>',
 ];
+$breadcrumbs = [['Approvals', '/approvals'], ['Request #' . (int)($req['id'] ?? 0), null]];
 ?>
 <div class="page-header">
   <div>

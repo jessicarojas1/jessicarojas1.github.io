@@ -86,7 +86,7 @@ ob_start();
           <h3 class="card-title"><i class="bi bi-speedometer2"></i> Severity</h3>
         </div>
         <div class="card-body" style="text-align:center;padding:1.5rem 1rem">
-          <div id="severityBadge" style="display:inline-block;padding:0.4rem 1.2rem;border-radius:99px;font-size:1rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;background:#0284c720;color:#0284c7;border:2px solid #0284c740;margin-bottom:0.75rem">
+          <div id="severityBadge" style="display:inline-block;padding:0.4rem 1.2rem;border-radius:99px;font-size:1rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;background:var(--info-subtle);color:var(--info);border:2px solid #0284c740;margin-bottom:0.75rem">
             Medium
           </div>
           <p id="severityDesc" style="font-size:0.85rem;color:var(--text-muted);margin:0">Moderate impact; should be addressed promptly.</p>

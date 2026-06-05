@@ -1012,7 +1012,7 @@ updateScores();
   if(!canvas)return;
   const ctx=canvas.getContext('2d');
   const W=canvas.offsetWidth||700; canvas.width=W; canvas.height=140;
-  const data=<?= json_encode(array_map(fn($h)=>['s'=>(int)$h['score'],'r'=>$h['residual_score']?(int)$h['residual_score']:null,'d'=>date('M j',strtotime($h['created_at']))], $scoreHistory)) ?>;
+  const data=<?= json_encode(array_map(fn($h)=>['s'=>(int)$h['score'],'r'=>$h['residual_score']?(int)$h['residual_score']:null,'d'=>date('M j',strtotime($h['created_at']))], $scoreHistory), JSON_HEX_TAG | JSON_HEX_AMP) ?>;
   const PAD={t:12,r:20,b:30,l:36};
   const cW=W-PAD.l-PAD.r, cH=140-PAD.t-PAD.b;
   const maxS=25, n=data.length;

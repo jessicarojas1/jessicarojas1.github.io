@@ -126,7 +126,7 @@ $typeListUrl = [
               <?php if (isset($row['score_num']) && $row['score_num'] !== null): ?>
                 <span
                   class="badge"
-                  style="background:#f3f4f6;color:var(--text);font-variant-numeric:tabular-nums"
+                  style="background:var(--bg-subtle);color:var(--text);font-variant-numeric:tabular-nums"
                   title="Score"
                 >
                   Score <?= (int)$row['score_num'] ?>

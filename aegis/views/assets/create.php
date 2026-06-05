@@ -173,7 +173,7 @@
           <p style="margin:4px 0 0;color:var(--text-muted);">Business-critical. Outage has severe financial or safety impact.</p>
         </div>
         <div style="margin-bottom:10px;">
-          <span style="background:#ea580c18;color:#ea580c;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;">High</span>
+          <span style="background:var(--orange)18;color:var(--orange);padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;">High</span>
           <p style="margin:4px 0 0;color:var(--text-muted);">Important asset. Disruption significantly impacts operations.</p>
         </div>
         <div style="margin-bottom:10px;">

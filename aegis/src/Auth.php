@@ -146,6 +146,7 @@ class Auth {
         $ip = Security::clientIp();
 
         if (!Security::checkRateLimit('login_' . $ip)) return false;
+        if (!Security::checkRateLimit('login_email_' . hash('sha256', $email))) return false;
 
         $user = Database::fetchOne("SELECT * FROM users WHERE email = ? AND is_active = TRUE", [$email]);
         if (!$user || !Security::verifyPassword($password, $user['password_hash'])) {

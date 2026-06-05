@@ -1,4 +1,7 @@
-<?php $csrf = Security::generateCsrfToken(); ?>
+<?php
+$csrf = Security::generateCsrfToken();
+$breadcrumbs = [['RACI Matrix', '/raci'], ['Matrix View', null]];
+?>
 <div class="page-header">
   <div>
     <h1 class="page-title">RACI Matrix</h1>

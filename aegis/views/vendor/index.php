@@ -222,7 +222,7 @@ $_filterCount = count(array_filter([
           <tr>
             <td colspan="9" style="text-align:center;padding:48px 24px;color:var(--text-muted)">
               <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
-                <i class="bi bi-buildings" style="font-size:32px;color:#d1d5db"></i>
+                <i class="bi bi-buildings" style="font-size:32px;color:var(--border)"></i>
                 <p style="margin:0;font-size:15px">No vendors found.</p>
                 <?php if (Auth::can('vendor.write')): ?>
                   <a href="/vendor/create" class="btn btn-primary btn-sm" style="margin-top:8px"><i class="bi bi-plus-lg"></i> Add Vendor</a>

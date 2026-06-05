@@ -6,6 +6,7 @@ $statusLabels = [
     'cancelled'   => ['Cancelled',   'badge-secondary'],
 ];
 [$statusLabel, $statusClass] = $statusLabels[$item['status']] ?? ['Unknown', 'badge-secondary'];
+$breadcrumbs = [['POAM', '/poam'], [Security::h($item['poam_number'] ?? 'Item'), null]];
 $totalMilestones     = count($milestones);
 $completedMilestones = count(array_filter($milestones, fn($m) => $m['is_complete']));
 ?>

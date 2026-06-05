@@ -1,6 +1,7 @@
 <?php
 $csrf = Security::generateCsrfToken();
 $respBadge = ['customer'=>'badge-primary','provider'=>'badge-info','shared'=>'badge-success'];
+$breadcrumbs = [['RACI Matrix', '/raci'], ['Responsibilities', null]];
 ?>
 <div class="page-header">
   <div>
