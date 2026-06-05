@@ -181,14 +181,14 @@ function fmtNum(float $n): string {
           <!-- Bar -->
           <div style="height:20px;border-radius:6px;overflow:hidden;display:flex;background:var(--bg-secondary);">
             <?php if ($dir === 'higher_worse'): ?>
-              <div style="width:<?= $greenPct ?>%;background:#16a34a;" title="Green zone"></div>
-              <div style="width:<?= $amberPct ?>%;background:#d97706;" title="Amber zone"></div>
-              <div style="width:<?= $redPct ?>%;background:#dc2626;"   title="Red zone"></div>
+              <div style="width:<?= $greenPct ?>%;background:var(--primary);" title="Green zone"></div>
+              <div style="width:<?= $amberPct ?>%;background:var(--warning);" title="Amber zone"></div>
+              <div style="width:<?= $redPct ?>%;background:var(--danger);"   title="Red zone"></div>
               <div style="width:<?= $overPct ?>%;background:#b91c1c99;" title="Beyond red"></div>
             <?php else: ?>
-              <div style="width:<?= $redPct ?>%;background:#dc2626;"   title="Red zone (too low)"></div>
-              <div style="width:<?= $amberPct ?>%;background:#d97706;" title="Amber zone"></div>
-              <div style="width:<?= $greenPct ?>%;background:#16a34a;" title="Green zone"></div>
+              <div style="width:<?= $redPct ?>%;background:var(--danger);"   title="Red zone (too low)"></div>
+              <div style="width:<?= $amberPct ?>%;background:var(--warning);" title="Amber zone"></div>
+              <div style="width:<?= $greenPct ?>%;background:var(--primary);" title="Green zone"></div>
               <div style="width:<?= $overPct ?>%;background:#15803d99;" title="Above green"></div>
             <?php endif; ?>
           </div>
@@ -203,9 +203,9 @@ function fmtNum(float $n): string {
           <?php endif; ?>
           <!-- Labels below -->
           <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:11px;font-weight:600;">
-            <span style="color:#16a34a;"><i class="bi bi-circle-fill" style="font-size:8px;"></i> Green &le; <?= Security::h(fmtNum($green)) ?></span>
-            <span style="color:#d97706;"><i class="bi bi-circle-fill" style="font-size:8px;"></i> Amber &le; <?= Security::h(fmtNum($amber)) ?></span>
-            <span style="color:#dc2626;"><i class="bi bi-circle-fill" style="font-size:8px;"></i> Red &gt; <?= Security::h(fmtNum($amber)) ?></span>
+            <span style="color:var(--primary);"><i class="bi bi-circle-fill" style="font-size:8px;"></i> Green &le; <?= Security::h(fmtNum($green)) ?></span>
+            <span style="color:var(--warning);"><i class="bi bi-circle-fill" style="font-size:8px;"></i> Amber &le; <?= Security::h(fmtNum($amber)) ?></span>
+            <span style="color:var(--danger);"><i class="bi bi-circle-fill" style="font-size:8px;"></i> Red &gt; <?= Security::h(fmtNum($amber)) ?></span>
           </div>
         </div>
       </div>
@@ -326,7 +326,7 @@ function fmtNum(float $n): string {
           <?= Security::csrfField() ?>
 
           <div class="form-group">
-            <label class="form-label">Value <span style="color:#ef4444;">*</span></label>
+            <label class="form-label">Value <span style="color:var(--danger);">*</span></label>
             <div style="display:flex;align-items:center;gap:8px;">
               <input type="number" name="value" class="form-control" step="any" required
                      placeholder="Enter measurement"
@@ -374,28 +374,28 @@ function fmtNum(float $n): string {
       <div class="card-body" style="display:flex;flex-direction:column;gap:10px;">
         <div style="display:flex;align-items:center;justify-content:space-between;background:#16a34a18;border:1px solid #16a34a40;border-radius:8px;padding:10px 14px;">
           <div style="display:flex;align-items:center;gap:8px;">
-            <i class="bi bi-circle-fill" style="color:#16a34a;font-size:12px;"></i>
-            <span style="font-weight:600;color:#16a34a;">Green</span>
+            <i class="bi bi-circle-fill" style="color:var(--primary);font-size:12px;"></i>
+            <span style="font-weight:600;color:var(--primary);">Green</span>
           </div>
-          <span style="font-size:15px;font-weight:700;color:#16a34a;">
+          <span style="font-size:15px;font-weight:700;color:var(--primary);">
             <?= $dir === 'higher_worse' ? '&le;' : '&ge;' ?> <?= Security::h(fmtNum($green)) ?> <?= Security::h($kri['unit'] ?? '') ?>
           </span>
         </div>
         <div style="display:flex;align-items:center;justify-content:space-between;background:#d9770618;border:1px solid #d9770640;border-radius:8px;padding:10px 14px;">
           <div style="display:flex;align-items:center;gap:8px;">
-            <i class="bi bi-circle-fill" style="color:#d97706;font-size:12px;"></i>
-            <span style="font-weight:600;color:#d97706;">Amber</span>
+            <i class="bi bi-circle-fill" style="color:var(--warning);font-size:12px;"></i>
+            <span style="font-weight:600;color:var(--warning);">Amber</span>
           </div>
-          <span style="font-size:15px;font-weight:700;color:#d97706;">
+          <span style="font-size:15px;font-weight:700;color:var(--warning);">
             <?= $dir === 'higher_worse' ? '&le;' : '&ge;' ?> <?= Security::h(fmtNum($amber)) ?> <?= Security::h($kri['unit'] ?? '') ?>
           </span>
         </div>
         <div style="display:flex;align-items:center;justify-content:space-between;background:#dc262618;border:1px solid #dc262640;border-radius:8px;padding:10px 14px;">
           <div style="display:flex;align-items:center;gap:8px;">
-            <i class="bi bi-circle-fill" style="color:#dc2626;font-size:12px;"></i>
-            <span style="font-weight:600;color:#dc2626;">Red</span>
+            <i class="bi bi-circle-fill" style="color:var(--danger);font-size:12px;"></i>
+            <span style="font-weight:600;color:var(--danger);">Red</span>
           </div>
-          <span style="font-size:15px;font-weight:700;color:#dc2626;">
+          <span style="font-size:15px;font-weight:700;color:var(--danger);">
             <?= $dir === 'higher_worse' ? '&gt;' : '&lt;' ?> <?= Security::h(fmtNum($amber)) ?> <?= Security::h($kri['unit'] ?? '') ?>
           </span>
         </div>

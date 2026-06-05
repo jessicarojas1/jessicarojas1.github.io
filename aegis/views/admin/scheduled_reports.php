@@ -114,7 +114,7 @@ ob_start();
                     style="display:inline"
                     data-confirm="Delete this scheduled report? This cannot be undone.">
                 <?= Security::csrfField() ?>
-                <button type="submit" class="btn btn-ghost btn-sm" style="color:#ef4444" title="Delete">
+                <button type="submit" class="btn btn-ghost btn-sm" style="color:var(--danger)" title="Delete">
                   <i class="bi bi-trash3"></i>
                 </button>
               </form>

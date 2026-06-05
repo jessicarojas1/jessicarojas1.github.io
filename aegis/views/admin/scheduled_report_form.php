@@ -61,7 +61,7 @@ ob_start();
     <div class="card-body">
 
       <div class="form-group">
-        <label class="form-label" for="sched_name">Schedule Name <span style="color:#ef4444">*</span></label>
+        <label class="form-label" for="sched_name">Schedule Name <span style="color:var(--danger)">*</span></label>
         <input type="text" id="sched_name" name="name" class="form-control"
                value="<?= Security::h($v('name')) ?>" required maxlength="255"
                placeholder="e.g. Monthly Executive Risk Report">
@@ -69,7 +69,7 @@ ob_start();
 
       <div class="form-row">
         <div class="form-group" style="flex:1">
-          <label class="form-label" for="sched_report_type">Report Type <span style="color:#ef4444">*</span></label>
+          <label class="form-label" for="sched_report_type">Report Type <span style="color:var(--danger)">*</span></label>
           <select id="sched_report_type" name="report_type" class="form-control" required>
             <?php
             $reportTypes = [
@@ -88,7 +88,7 @@ ob_start();
         </div>
 
         <div class="form-group" style="flex:1">
-          <label class="form-label" for="sched_frequency">Frequency <span style="color:#ef4444">*</span></label>
+          <label class="form-label" for="sched_frequency">Frequency <span style="color:var(--danger)">*</span></label>
           <select id="sched_frequency" name="frequency" class="form-control" required data-change="onFrequencyChange" data-input-val="1">
             <?php
             $freqs  = ['daily' => 'Daily', 'weekly' => 'Weekly', 'monthly' => 'Monthly', 'quarterly' => 'Quarterly'];
@@ -129,7 +129,7 @@ ob_start();
       </div>
 
       <div class="form-group">
-        <label class="form-label" for="sched_send_time">Send Time <span style="color:#ef4444">*</span></label>
+        <label class="form-label" for="sched_send_time">Send Time <span style="color:var(--danger)">*</span></label>
         <input type="time" id="sched_send_time" name="send_time" class="form-control"
                style="max-width:160px"
                value="<?= Security::h($v('send_time', '08:00')) ?>" required>
@@ -142,14 +142,14 @@ ob_start();
   <div class="card" style="margin-bottom:20px">
     <div class="card-header">
       <div class="card-header-left">
-        <i class="bi bi-people-fill" style="color:#059669"></i>
+        <i class="bi bi-people-fill" style="color:var(--success)"></i>
         <span class="card-title">Delivery</span>
       </div>
     </div>
     <div class="card-body">
 
       <div class="form-group">
-        <label class="form-label" for="sched_recipients">Recipients <span style="color:#ef4444">*</span></label>
+        <label class="form-label" for="sched_recipients">Recipients <span style="color:var(--danger)">*</span></label>
         <textarea id="sched_recipients" name="recipients" class="form-control" rows="5" required
                   placeholder="one@example.com&#10;two@example.com&#10;three@example.com"><?= Security::h($recipientsRaw) ?></textarea>
         <span class="form-text">Enter one email address per line. All recipients will receive the report simultaneously.</span>

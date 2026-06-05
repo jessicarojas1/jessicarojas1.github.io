@@ -111,7 +111,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
               </td>
               <td>
                 <button type="button" class="btn btn-ghost btn-sm" title="Remove row"
-                        data-click="removeRow" style="color:#dc2626">
+                        data-click="removeRow" style="color:var(--danger)">
                   <i class="bi bi-trash3"></i>
                 </button>
               </td>
@@ -147,7 +147,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
         <option value="moderate">Moderate</option>
         <option value="high">High</option>
       </select>
-      <span class="appetite-badge" style="display:inline-block;margin-top:4px;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;background:#d9770618;color:#d97706;border:1px solid #d9770640">Low</span>
+      <span class="appetite-badge" style="display:inline-block;margin-top:4px;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;background:var(--warning-subtle);color:var(--warning);border:1px solid var(--warning)">Low</span>
     </td>
     <td>
       <input type="number" name="new_max_score[]" class="form-control form-control-sm" min="0" max="100" placeholder="—">
@@ -163,7 +163,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
     </td>
     <td>
       <button type="button" class="btn btn-ghost btn-sm" title="Remove row"
-              data-click="removeRow" style="color:#dc2626">
+              data-click="removeRow" style="color:var(--danger)">
         <i class="bi bi-trash3"></i>
       </button>
     </td>

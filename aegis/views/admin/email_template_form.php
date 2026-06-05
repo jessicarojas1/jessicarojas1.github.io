@@ -65,14 +65,14 @@ ob_start();
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="tmpl_name">Name <span style="color:#ef4444">*</span></label>
+            <label class="form-label" for="tmpl_name">Name <span style="color:var(--danger)">*</span></label>
             <input type="text" id="tmpl_name" name="name" class="form-control"
                    value="<?= Security::h($template['name'] ?? '') ?>" required maxlength="255"
                    placeholder="Template display name">
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="tmpl_subject">Subject <span style="color:#ef4444">*</span></label>
+            <label class="form-label" for="tmpl_subject">Subject <span style="color:var(--danger)">*</span></label>
             <input type="text" id="tmpl_subject" name="subject" class="form-control"
                    value="<?= Security::h($template['subject'] ?? '') ?>" required maxlength="500"
                    placeholder="e.g. [AEGIS] {{entity_name}} — action required">
@@ -80,7 +80,7 @@ ob_start();
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="tmpl_body_html">HTML Body <span style="color:#ef4444">*</span></label>
+            <label class="form-label" for="tmpl_body_html">HTML Body <span style="color:var(--danger)">*</span></label>
             <textarea id="tmpl_body_html" name="body_html" class="form-control"
                       rows="18" required
                       style="font-family:monospace;font-size:13px;resize:vertical"><?= Security::h($template['body_html'] ?? '') ?></textarea>

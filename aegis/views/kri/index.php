@@ -193,19 +193,19 @@ $displayKris = $activeFilter
           <div style="font-size:11px;color:var(--text-muted);font-weight:600;margin-bottom:4px;">Thresholds</div>
           <div style="height:8px;border-radius:4px;overflow:hidden;display:flex;background:var(--bg-secondary);">
             <?php if ($k['direction'] === 'higher_worse'): ?>
-              <div style="width:<?= $greenPct ?>%;background:#16a34a;" title="Green ≤ <?= Security::h((string)$green) ?>"></div>
-              <div style="width:<?= $amberPct ?>%;background:#d97706;" title="Amber ≤ <?= Security::h((string)$amber) ?>"></div>
-              <div style="width:<?= $redPct  ?>%;background:#dc2626;" title="Red > <?= Security::h((string)$amber) ?>"></div>
+              <div style="width:<?= $greenPct ?>%;background:var(--primary);" title="Green ≤ <?= Security::h((string)$green) ?>"></div>
+              <div style="width:<?= $amberPct ?>%;background:var(--warning);" title="Amber ≤ <?= Security::h((string)$amber) ?>"></div>
+              <div style="width:<?= $redPct  ?>%;background:var(--danger);" title="Red > <?= Security::h((string)$amber) ?>"></div>
             <?php else: ?>
-              <div style="width:<?= $redPct  ?>%;background:#dc2626;" title="Red < <?= Security::h((string)$red) ?>"></div>
-              <div style="width:<?= $amberPct ?>%;background:#d97706;" title="Amber ≥ <?= Security::h((string)$red) ?>"></div>
-              <div style="width:<?= $greenPct ?>%;background:#16a34a;" title="Green ≥ <?= Security::h((string)$green) ?>"></div>
+              <div style="width:<?= $redPct  ?>%;background:var(--danger);" title="Red < <?= Security::h((string)$red) ?>"></div>
+              <div style="width:<?= $amberPct ?>%;background:var(--warning);" title="Amber ≥ <?= Security::h((string)$red) ?>"></div>
+              <div style="width:<?= $greenPct ?>%;background:var(--primary);" title="Green ≥ <?= Security::h((string)$green) ?>"></div>
             <?php endif; ?>
           </div>
           <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-light);margin-top:3px;">
-            <span style="color:#16a34a;">G: <?= Security::h(rtrim(rtrim(number_format($green,4),'0'),'.')) ?></span>
-            <span style="color:#d97706;">A: <?= Security::h(rtrim(rtrim(number_format($amber,4),'0'),'.')) ?></span>
-            <span style="color:#dc2626;">R: <?= Security::h(rtrim(rtrim(number_format($red,4),'0'),'.')) ?></span>
+            <span style="color:var(--primary);">G: <?= Security::h(rtrim(rtrim(number_format($green,4),'0'),'.')) ?></span>
+            <span style="color:var(--warning);">A: <?= Security::h(rtrim(rtrim(number_format($amber,4),'0'),'.')) ?></span>
+            <span style="color:var(--danger);">R: <?= Security::h(rtrim(rtrim(number_format($red,4),'0'),'.')) ?></span>
           </div>
         </div>
 

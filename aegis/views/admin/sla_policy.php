@@ -106,9 +106,9 @@ $sevColors = ['critical' => '#dc2626', 'high' => '#d97706', 'medium' => '#0284c7
         and on each incident's detail page. Statuses are determined as follows:
       </p>
       <ul style="margin:0 0 10px;padding-left:20px">
-        <li><strong style="color:#059669">On Track</strong> — Incident age is within the SLA target.</li>
-        <li><strong style="color:#d97706">At Risk</strong> — Incident has consumed more than 75% of the allowed time without being acknowledged/resolved.</li>
-        <li><strong style="color:#dc2626">Breached</strong> — SLA deadline has passed and the event has not occurred.</li>
+        <li><strong style="color:var(--success)">On Track</strong> — Incident age is within the SLA target.</li>
+        <li><strong style="color:var(--warning)">At Risk</strong> — Incident has consumed more than 75% of the allowed time without being acknowledged/resolved.</li>
+        <li><strong style="color:var(--danger)">Breached</strong> — SLA deadline has passed and the event has not occurred.</li>
         <li><strong style="color:var(--text-muted)">Met</strong> — The event (acknowledgement or resolution) was recorded before the deadline.</li>
       </ul>
       <p style="margin:0">

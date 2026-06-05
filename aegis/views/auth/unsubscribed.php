@@ -20,7 +20,7 @@ p{color:var(--text-muted);line-height:1.6;margin-bottom:24px}
 <body>
 <div class="card">
   <?php if (!empty($error)): ?>
-    <div class="icon" style="background:#fef2f2;color:#dc2626">&#10007;</div>
+    <div class="icon" style="background:var(--danger-subtle);color:var(--danger)">&#10007;</div>
     <h1>Invalid Link</h1>
     <p>This unsubscribe link is invalid or has already been used. Please log in to manage your notification preferences directly.</p>
   <?php else: ?>

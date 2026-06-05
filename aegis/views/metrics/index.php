@@ -84,9 +84,9 @@ function metricColor(float $pct): string {
       ?>
         <tr>
           <td class="fw-600"><?= Security::h($fw['name']) ?></td>
-          <td style="color:#22c55e"><?= (int)$fw['compliant'] ?></td>
-          <td style="color:#f59e0b"><?= (int)$fw['partial'] ?></td>
-          <td style="color:#ef4444"><?= (int)$fw['non_compliant'] ?></td>
+          <td style="color:var(--success)"><?= (int)$fw['compliant'] ?></td>
+          <td style="color:var(--warning)"><?= (int)$fw['partial'] ?></td>
+          <td style="color:var(--danger)"><?= (int)$fw['non_compliant'] ?></td>
           <td class="text-muted"><?= (int)$fw['na'] ?></td>
           <td><?= (int)$fw['total_controls'] ?></td>
           <td>

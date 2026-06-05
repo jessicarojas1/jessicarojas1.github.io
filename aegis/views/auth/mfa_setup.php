@@ -26,17 +26,17 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
   <div class="card" style="margin-bottom:20px">
     <div class="card-body" style="display:flex;align-items:center;gap:16px;padding:24px">
       <div style="width:48px;height:48px;border-radius:50%;background:#05966920;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-        <i class="bi bi-shield-check-fill" style="color:#059669;font-size:22px"></i>
+        <i class="bi bi-shield-check-fill" style="color:var(--success);font-size:22px"></i>
       </div>
       <div>
-        <div style="font-size:16px;font-weight:600;color:#059669">Two-Factor Authentication is Active</div>
+        <div style="font-size:16px;font-weight:600;color:var(--success)">Two-Factor Authentication is Active</div>
         <div style="font-size:13px;color:var(--text-muted);margin-top:2px">Your account is protected with TOTP authentication.</div>
       </div>
     </div>
   </div>
 
   <div class="card">
-    <div class="card-header"><div class="card-header-left"><i class="bi bi-shield-x" style="color:#dc2626"></i><span class="card-title">Disable 2FA</span></div></div>
+    <div class="card-header"><div class="card-header-left"><i class="bi bi-shield-x" style="color:var(--danger)"></i><span class="card-title">Disable 2FA</span></div></div>
     <div class="card-body">
       <p style="color:var(--text-muted);font-size:14px;margin-bottom:16px">Disabling two-factor authentication will make your account less secure. Only do this if you are switching authenticator apps or have a specific need.</p>
       <form method="post" action="/mfa/disable" data-confirm="Are you sure you want to disable two-factor authentication?">
@@ -51,7 +51,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
   <div class="card" style="margin-bottom:20px">
     <div class="card-body" style="display:flex;align-items:center;gap:16px;padding:24px">
       <div style="width:48px;height:48px;border-radius:50%;background:#d9770620;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-        <i class="bi bi-shield-exclamation" style="color:#d97706;font-size:22px"></i>
+        <i class="bi bi-shield-exclamation" style="color:var(--warning);font-size:22px"></i>
       </div>
       <div>
         <div style="font-size:16px;font-weight:600">Two-Factor Authentication is Not Enabled</div>

@@ -49,7 +49,7 @@ ob_start();
               <a href="/admin/alerts/config/<?= (int)$cfg['id'] ?>/edit" class="btn btn-ghost btn-sm"><i class="bi bi-pencil"></i></a>
               <form method="POST" action="/admin/alerts/config/<?= (int)$cfg['id'] ?>/delete" style="margin:0" data-confirm="Delete this alert config?">
                 <?= Security::csrfField() ?>
-                <button type="submit" class="btn btn-ghost btn-sm" style="color:#ef4444"><i class="bi bi-trash3"></i></button>
+                <button type="submit" class="btn btn-ghost btn-sm" style="color:var(--danger)"><i class="bi bi-trash3"></i></button>
               </form>
             </div>
           </div>

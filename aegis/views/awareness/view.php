@@ -157,11 +157,11 @@ $color     = $pct >= 80 ? '#059669' : ($pct >= 50 ? '#d97706' : '#dc2626');
           <div>
             <div style="font-size:13px;font-weight:600"><?= Security::h($a['user_name']) ?></div>
             <?php if ($a['completed'] && $a['completed_at']): ?>
-            <div style="font-size:11px;color:#059669"><?= date('M j, Y', strtotime($a['completed_at'])) ?></div>
+            <div style="font-size:11px;color:var(--success)"><?= date('M j, Y', strtotime($a['completed_at'])) ?></div>
             <?php endif; ?>
           </div>
           <?php if ($a['completed']): ?>
-          <i class="bi bi-check-circle-fill" style="color:#059669" title="Complete"></i>
+          <i class="bi bi-check-circle-fill" style="color:var(--success)" title="Complete"></i>
           <?php else: ?>
           <i class="bi bi-clock" style="color:var(--text-muted)" title="Pending"></i>
           <?php endif; ?>

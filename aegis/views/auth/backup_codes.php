@@ -32,7 +32,7 @@ $hasNewCodes = !empty($newCodes);
   <div class="card" style="max-width:640px">
     <div class="card-header">
       <div class="card-header-left">
-        <i class="bi bi-key-fill" style="color:#d97706"></i>
+        <i class="bi bi-key-fill" style="color:var(--warning)"></i>
         <span class="card-title">Your Recovery Codes</span>
       </div>
       <div class="card-header-right" style="display:flex;gap:8px">
@@ -103,7 +103,7 @@ $hasNewCodes = !empty($newCodes);
   <div class="card" style="max-width:640px">
     <div class="card-header">
       <div class="card-header-left">
-        <i class="bi bi-key-fill" style="color:#d97706"></i>
+        <i class="bi bi-key-fill" style="color:var(--warning)"></i>
         <span class="card-title">Backup Code Status</span>
       </div>
     </div>

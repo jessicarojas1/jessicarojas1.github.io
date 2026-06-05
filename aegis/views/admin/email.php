@@ -81,7 +81,7 @@ ob_start();
   </div>
 
   <div class="card">
-    <div class="card-header"><div class="card-header-left"><i class="bi bi-send-fill" style="color:#059669"></i><span class="card-title">Send Test Email</span></div></div>
+    <div class="card-header"><div class="card-header-left"><i class="bi bi-send-fill" style="color:var(--success)"></i><span class="card-title">Send Test Email</span></div></div>
     <div class="card-body">
       <p style="font-size:14px;color:var(--text-muted);margin-bottom:16px">Send a test message to verify your SMTP configuration is working correctly.</p>
       <form method="post" action="/admin/email/test" style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
