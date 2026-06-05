@@ -101,7 +101,7 @@ $_appColors = ['zero'=>'#dc2626','low'=>'#d97706','moderate'=>'#2563eb','high'=>
   </form>
 </div>
 
-<div id="bulkBar" style="display:none;background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:12px 16px;margin-bottom:12px;align-items:center;gap:12px;flex-wrap:wrap">
+<div id="bulkBar" style="display:none;background:var(--info-subtle);border:1px solid #bae6fd80;border-radius:8px;padding:12px 16px;margin-bottom:12px;align-items:center;gap:12px;flex-wrap:wrap">
   <span id="bulkCount" style="font-weight:600;color:#0369a1">0 selected</span>
   <form method="POST" action="/risk/bulk-update" id="bulkForm" style="display:flex;gap:8px;align-items:center">
     <?= Security::csrfField() ?>

@@ -203,9 +203,9 @@ $widgetTypes = [
         <?php else: ?>
         <div style="display:flex;flex-direction:column;gap:8px;">
           <?php foreach ($w['data'] as $kri):
-            $val = (float)($kri['current_value'] ?? 0);
+            $val = (float)($kri['latest_value'] ?? 0);
             $red = (float)($kri['threshold_red'] ?? 0);
-            $yel = (float)($kri['threshold_yellow'] ?? 0);
+            $yel = (float)($kri['threshold_amber'] ?? 0);
             $higherWorse = str_contains($kri['direction'] ?? '', 'higher');
             if ($higherWorse) {
                 $status = $val >= $red ? 'red' : ($val >= $yel ? 'yellow' : 'green');
@@ -215,7 +215,7 @@ $widgetTypes = [
             $statusColor = ['red'=>'#ef4444','yellow'=>'#f59e0b','green'=>'#22c55e'][$status];
           ?>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);">
-            <a href="/kri/<?= (int)$kri['id'] ?>" style="font-size:0.875rem;max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><?= Security::h($kri['name']) ?></a>
+            <a href="/kri/<?= (int)$kri['id'] ?>" style="font-size:0.875rem;max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><?= Security::h($kri['title']) ?></a>
             <span style="font-size:0.8rem;font-weight:600;color:<?= $statusColor ?>">
               <?= number_format($val,1) ?><?= $kri['unit'] ? ' '.Security::h($kri['unit']) : '' ?>
             </span>

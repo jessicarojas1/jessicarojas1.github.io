@@ -45,7 +45,7 @@ $urgent = array_filter($expiring, function($c) {
 </div>
 
 <?php if ($urgent): ?>
-<div class="card" style="margin-bottom:16px;border-left:4px solid #dc2626;background:#fef2f2">
+<div class="card" style="margin-bottom:16px;border-left:4px solid #dc2626;background:var(--danger-subtle)">
   <div class="card-body" style="display:flex;align-items:center;gap:12px;padding:14px 18px">
     <i class="bi bi-exclamation-triangle-fill" style="color:#dc2626;font-size:20px;flex-shrink:0"></i>
     <div>

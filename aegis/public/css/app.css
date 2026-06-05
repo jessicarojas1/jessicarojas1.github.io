@@ -25,11 +25,19 @@
   --topbar-h:    64px;
 
   /* Backgrounds */
-  --bg:          #f0f2f4;
-  --card-bg:     #ffffff;
-  --bg-subtle:   #e8ebee;
-  --border:      #d0d7de;
-  --border-light:#e8ebee;
+  --bg:            #f0f2f4;
+  --card-bg:       #ffffff;
+  --bg-subtle:     #e8ebee;
+  --bg-secondary:  #f6f8fa;
+  --surface-alt:   #f9fafb;
+  --border:        #d0d7de;
+  --border-light:  #e8ebee;
+
+  /* Semantic subtle backgrounds */
+  --success-subtle: #f0fdf4;
+  --warning-subtle: #fffbeb;
+  --danger-subtle:  #fef2f2;
+  --info-subtle:    #eff6ff;
 
   /* Text */
   --text:        #0d1117;
@@ -1607,11 +1615,19 @@ input[type="range"] {
    ============================================================ */
 html[data-theme="dark"] {
   /* Deep space — GitHub-style dark canvas */
-  --bg:          #010409;
-  --card-bg:     #0d1117;
-  --bg-subtle:   #161b22;
-  --border:      #30363d;
-  --border-light:#21262d;
+  --bg:            #010409;
+  --card-bg:       #0d1117;
+  --bg-subtle:     #161b22;
+  --bg-secondary:  #161b22;
+  --surface-alt:   #1c2128;
+  --border:        #30363d;
+  --border-light:  #21262d;
+
+  /* Semantic subtle backgrounds — dark variants */
+  --success-subtle: rgba(16, 185, 129, 0.12);
+  --warning-subtle: rgba(245, 158, 11, 0.12);
+  --danger-subtle:  rgba(248, 113, 113, 0.12);
+  --info-subtle:    rgba(56, 189, 248, 0.12);
 
   --text:        #e6edf3;
   --text-muted:  #8b949e;

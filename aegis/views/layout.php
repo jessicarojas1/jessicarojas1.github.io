@@ -20,7 +20,7 @@
 
 <!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
-  <a href="/dashboard" class="sidebar-brand" style="text-decoration:none">
+  <a href="/" class="sidebar-brand" style="text-decoration:none">
     <div class="brand-icon"><i class="bi bi-shield-fill-check"></i></div>
     <div class="brand-text">
       <span class="brand-name">AEGIS</span>

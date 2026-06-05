@@ -137,6 +137,17 @@ try {
 } catch (Throwable) {}
 
 try {
+    // Assets: add created_by column missing from base schema
+    $__assetCols = Database::fetchAll(
+        "SELECT column_name FROM information_schema.columns WHERE table_name='assets' AND table_schema='public'"
+    );
+    if (!in_array('created_by', array_column($__assetCols, 'column_name'), true)) {
+        Database::query("ALTER TABLE assets ADD COLUMN created_by INTEGER REFERENCES users(id)");
+    }
+    unset($__assetCols);
+} catch (Throwable) {}
+
+try {
     // Risk matrix config: seed default row if table is empty
     $__rmCount = Database::fetchOne("SELECT COUNT(*) AS cnt FROM risk_matrix_config");
     if (($__rmCount['cnt'] ?? 0) == 0) {

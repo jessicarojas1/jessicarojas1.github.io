@@ -36,7 +36,7 @@ ob_start();
 
   <div class="card" style="border-left:4px solid #f59e0b;">
     <div class="card-body" style="padding:20px;display:flex;align-items:center;gap:16px;">
-      <div style="width:48px;height:48px;border-radius:12px;background:#fffbeb;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <div style="width:48px;height:48px;border-radius:12px;background:var(--warning-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
         <i class="bi bi-hourglass-split" style="font-size:22px;color:#f59e0b;"></i>
       </div>
       <div>
@@ -60,7 +60,7 @@ ob_start();
 
   <div class="card" style="border-left:4px solid #ef4444;">
     <div class="card-body" style="padding:20px;display:flex;align-items:center;gap:16px;">
-      <div style="width:48px;height:48px;border-radius:12px;background:#fef2f2;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <div style="width:48px;height:48px;border-radius:12px;background:var(--danger-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
         <i class="bi bi-calendar-x" style="font-size:22px;color:#ef4444;"></i>
       </div>
       <div>

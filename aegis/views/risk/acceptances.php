@@ -69,7 +69,7 @@ if ($filterStatus !== '') {
 
   <div class="card" style="border-left:4px solid <?= $expiringSoon > 0 ? '#f59e0b' : '#a1a1aa' ?>;">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
-      <div style="width:44px;height:44px;border-radius:10px;background:<?= $expiringSoon > 0 ? '#fffbeb' : '#f4f4f5' ?>;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <div style="width:44px;height:44px;border-radius:10px;background:<?= $expiringSoon > 0 ? 'var(--warning-subtle)' : 'var(--bg-secondary)' ?>;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
         <i class="bi bi-alarm-fill" style="font-size:20px;color:<?= $expiringSoon > 0 ? '#f59e0b' : '#a1a1aa' ?>;"></i>
       </div>
       <div>
@@ -93,7 +93,7 @@ if ($filterStatus !== '') {
 
   <div class="card" style="border-left:4px solid #dc2626;">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
-      <div style="width:44px;height:44px;border-radius:10px;background:#fef2f2;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <div style="width:44px;height:44px;border-radius:10px;background:var(--danger-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
         <i class="bi bi-x-circle-fill" style="font-size:20px;color:#dc2626;"></i>
       </div>
       <div>
@@ -279,7 +279,7 @@ if ($filterStatus !== '') {
         <!-- Revoke inline form -->
         <?php if ($acc['status'] === 'active' && Auth::can('risk.write')): ?>
         <tr id="revoke-<?= (int)$acc['id'] ?>" style="display:none;">
-          <td colspan="8" style="background:#fef2f2;padding:14px 20px 16px;border-top:1px solid #fca5a5;">
+          <td colspan="8" style="background:var(--danger-subtle);padding:14px 20px 16px;border-top:1px solid #fca5a580;">
             <form method="POST" action="/risk-acceptances/<?= (int)$acc['id'] ?>/revoke"
                   data-confirm="Are you sure you want to revoke this acceptance certificate? This action cannot be undone.">
               <?= Security::csrfField() ?>

@@ -37,20 +37,20 @@ $cntTotal     = $cntPass + $cntFail + $cntPartial + $cntNotTested;
     <div style="font-size:32px;font-weight:700;color:#16a34a;line-height:1"><?= $cntPass ?></div>
     <div style="font-size:13px;color:#16a34a;margin-top:4px;font-weight:600">Pass</div>
   </div>
-  <div style="flex:1;min-width:120px;background:#fef2f2;border:1px solid #fca5a5;border-radius:12px;padding:16px 20px;text-align:center">
+  <div style="flex:1;min-width:120px;background:var(--danger-subtle);border:1px solid #fca5a580;border-radius:12px;padding:16px 20px;text-align:center">
     <div style="font-size:32px;font-weight:700;color:#dc2626;line-height:1"><?= $cntFail ?></div>
     <div style="font-size:13px;color:#dc2626;margin-top:4px;font-weight:600">Fail</div>
   </div>
-  <div style="flex:1;min-width:120px;background:#fffbeb;border:1px solid #fcd34d;border-radius:12px;padding:16px 20px;text-align:center">
+  <div style="flex:1;min-width:120px;background:var(--warning-subtle);border:1px solid #fcd34d80;border-radius:12px;padding:16px 20px;text-align:center">
     <div style="font-size:32px;font-weight:700;color:#d97706;line-height:1"><?= $cntPartial ?></div>
     <div style="font-size:13px;color:#d97706;margin-top:4px;font-weight:600">Partial</div>
   </div>
-  <div style="flex:1;min-width:120px;background:#f4f4f5;border:1px solid #d4d4d8;border-radius:12px;padding:16px 20px;text-align:center">
+  <div style="flex:1;min-width:120px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:12px;padding:16px 20px;text-align:center">
     <div style="font-size:32px;font-weight:700;color:var(--text-muted);line-height:1"><?= $cntNotTested ?></div>
     <div style="font-size:13px;color:var(--text-muted);margin-top:4px;font-weight:600">Not Tested</div>
   </div>
   <?php if ($cntTotal > 0): ?>
-  <div style="flex:1;min-width:140px;background:#eff6ff;border:1px solid #93c5fd;border-radius:12px;padding:16px 20px;text-align:center">
+  <div style="flex:1;min-width:140px;background:var(--info-subtle);border:1px solid #93c5fd80;border-radius:12px;padding:16px 20px;text-align:center">
     <div style="font-size:32px;font-weight:700;color:#2563eb;line-height:1"><?= $cntTotal > 0 ? round($cntPass / $cntTotal * 100) : 0 ?>%</div>
     <div style="font-size:13px;color:#2563eb;margin-top:4px;font-weight:600">Pass Rate</div>
   </div>
@@ -60,7 +60,7 @@ $cntTotal     = $cntPass + $cntFail + $cntPartial + $cntNotTested;
 <!-- Overdue tests -->
 <?php if (!empty($overdue)): ?>
 <div class="card" style="margin-bottom:20px;border-left:4px solid #dc2626">
-  <div class="card-header" style="background:#fef2f2">
+  <div class="card-header" style="background:var(--danger-subtle)">
     <div class="card-header-left">
       <i class="bi bi-exclamation-triangle-fill" style="color:#dc2626"></i>
       <span class="card-title" style="color:#dc2626">Overdue Tests (<?= count($overdue) ?>)</span>

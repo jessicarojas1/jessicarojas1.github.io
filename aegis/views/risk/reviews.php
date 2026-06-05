@@ -64,7 +64,7 @@ ob_start();
 
   <div class="card" style="border-left:4px solid #2563eb;">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
-      <div style="width:44px;height:44px;border-radius:10px;background:#eff6ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <div style="width:44px;height:44px;border-radius:10px;background:var(--info-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
         <i class="bi bi-calendar-check" style="font-size:20px;color:#2563eb;"></i>
       </div>
       <div>
@@ -76,7 +76,7 @@ ob_start();
 
   <div class="card" style="border-left:4px solid #d97706;">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
-      <div style="width:44px;height:44px;border-radius:10px;background:#fffbeb;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <div style="width:44px;height:44px;border-radius:10px;background:var(--warning-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
         <i class="bi bi-play-circle" style="font-size:20px;color:#d97706;"></i>
       </div>
       <div>
@@ -88,7 +88,7 @@ ob_start();
 
   <div class="card" style="border-left:4px solid #16a34a;">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
-      <div style="width:44px;height:44px;border-radius:10px;background:#f0fdf4;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <div style="width:44px;height:44px;border-radius:10px;background:var(--success-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
         <i class="bi bi-check-circle-fill" style="font-size:20px;color:#16a34a;"></i>
       </div>
       <div>

@@ -345,11 +345,11 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 }
 
 /* Diagram section backgrounds */
-.bt-section-causes    { background: #fff7f7; }
-.bt-section-barriers  { background: #f0f9ff; }
+.bt-section-causes    { background: rgba(239,68,68,.06); }
+.bt-section-barriers  { background: rgba(59,130,246,.06); }
 .bt-section-event     { background: transparent; }
-.bt-section-recovery  { background: #f0fdf4; }
-.bt-section-conseq    { background: rgba(55,65,81,.06); }
+.bt-section-recovery  { background: rgba(22,163,74,.06); }
+.bt-section-conseq    { background: rgba(128,128,128,.06); }
 </style>
 
 <?php if (!empty($_SESSION['flash_success'])): ?>

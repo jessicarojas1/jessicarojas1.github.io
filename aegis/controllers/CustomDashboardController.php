@@ -133,8 +133,8 @@ class CustomDashboardController {
                         'critical_risks'        => Database::fetchOne("SELECT COUNT(*) AS val FROM risks WHERE status='open' AND inherent_score >= 15")['val'] ?? 0,
                         'overdue_treatments'    => Database::fetchOne("SELECT COUNT(*) AS val FROM risk_treatments WHERE status NOT IN ('completed','cancelled') AND due_date < NOW()")['val'] ?? 0,
                         'total_assets'          => Database::fetchOne("SELECT COUNT(*) AS val FROM assets")['val'] ?? 0,
-                        'open_poams'            => Database::fetchOne("SELECT COUNT(*) AS val FROM poams WHERE status NOT IN ('completed','closed')")['val'] ?? 0,
-                        'overdue_audits'        => Database::fetchOne("SELECT COUNT(*) AS val FROM audits WHERE status NOT IN ('completed','cancelled') AND end_date < NOW()")['val'] ?? 0,
+                        'open_poams'            => Database::fetchOne("SELECT COUNT(*) AS val FROM poam_items WHERE status NOT IN ('completed','closed')")['val'] ?? 0,
+                        'overdue_audits'        => Database::fetchOne("SELECT COUNT(*) AS val FROM audits WHERE status NOT IN ('completed','cancelled') AND completed_date < NOW()")['val'] ?? 0,
                         default                 => 0,
                     };
                 case 'recent_risks':
@@ -157,7 +157,7 @@ class CustomDashboardController {
                     return [
                         'risks'    => Database::fetchOne("SELECT COUNT(*) AS val FROM risks WHERE status='open' AND review_date < NOW()")['val'] ?? 0,
                         'policies' => Database::fetchOne("SELECT COUNT(*) AS val FROM policies WHERE next_review_date < NOW() AND status='published'")['val'] ?? 0,
-                        'audits'   => Database::fetchOne("SELECT COUNT(*) AS val FROM audits WHERE status NOT IN ('completed','cancelled') AND end_date < NOW()")['val'] ?? 0,
+                        'audits'   => Database::fetchOne("SELECT COUNT(*) AS val FROM audits WHERE status NOT IN ('completed','cancelled') AND completed_date < NOW()")['val'] ?? 0,
                     ];
                 case 'audit_status':
                     return Database::fetchAll("SELECT status, COUNT(*) AS count FROM audits GROUP BY status ORDER BY status");
@@ -175,13 +175,19 @@ class CustomDashboardController {
                     );
                 case 'kri_status':
                     return Database::fetchAll(
-                        "SELECT id, name, current_value, threshold_red, threshold_yellow, unit, direction FROM kris ORDER BY name LIMIT 8"
+                        "SELECT k.id, k.title, k.threshold_red, k.threshold_amber, k.unit, k.direction,
+                                kv.value AS latest_value
+                         FROM kris k
+                         LEFT JOIN kri_values kv ON kv.id = (
+                             SELECT id FROM kri_values WHERE kri_id = k.id ORDER BY recorded_at DESC LIMIT 1
+                         )
+                         ORDER BY k.title LIMIT 8"
                     );
                 case 'poam_tracker':
-                    return Database::fetchAll("SELECT status, COUNT(*) AS count FROM poams GROUP BY status ORDER BY status");
+                    return Database::fetchAll("SELECT status, COUNT(*) AS count FROM poam_items GROUP BY status ORDER BY status");
                 case 'treatment_actions':
                     return Database::fetchAll(
-                        "SELECT rt.id, rt.title, rt.status, rt.due_date, r.title AS risk_title
+                        "SELECT rt.id, rt.description AS title, rt.status, rt.due_date, r.title AS risk_title
                          FROM risk_treatments rt
                          LEFT JOIN risks r ON r.id = rt.risk_id
                          WHERE rt.status NOT IN ('completed','cancelled')
