@@ -147,9 +147,10 @@ logging/alerting. Container images deploy to ECS/EKS (AWS) or Container Apps/AKS
 
 ### 🚀 Quick demo on Render
 
-For a fast public demo of the same Docker images (free tier), use the
+For a fast public demo, deploy as a **single web service** (one container where
+FastAPI serves both the API and the SPA) plus a database, via the
 [`render.yaml`](render.yaml) Blueprint: **Render → New → Blueprint** against the
-repo, then **Apply**. Step‑by‑step (including manual setup and URL fix‑ups) is in
+repo, then **Apply**. Step‑by‑step (and a two‑service variant) is in
 **[`docs/deployment/render-demo.md`](docs/deployment/render-demo.md)**.
 
 > The Render profile is a **demo** (free plans, development mode, ephemeral

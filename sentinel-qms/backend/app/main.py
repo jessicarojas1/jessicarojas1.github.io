@@ -1,9 +1,13 @@
 """FastAPI application factory for the Sentinel QMS API."""
 from __future__ import annotations
 
-from fastapi import FastAPI
+import os
+
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
+from starlette.responses import FileResponse
 
 from app import __version__
 from app.api import api_router
@@ -79,16 +83,46 @@ def create_app() -> FastAPI:
             payload["database"]["error"] = db_error
         return payload
 
-    @app.get("/", tags=["system"])
-    def root() -> dict:
-        return {
-            "name": settings.PROJECT_NAME,
-            "version": __version__,
-            "docs": "/docs",
-            "api": settings.API_V1_PREFIX,
-        }
+    static_dir = os.path.abspath(settings.STATIC_DIR)
+    if settings.SERVE_FRONTEND and os.path.isdir(static_dir):
+        _mount_spa(app, static_dir)
+    else:
+        @app.get("/", tags=["system"])
+        def root() -> dict:
+            return {
+                "name": settings.PROJECT_NAME,
+                "version": __version__,
+                "docs": "/docs",
+                "api": settings.API_V1_PREFIX,
+            }
 
     return app
+
+
+def _mount_spa(app: FastAPI, static_dir: str) -> None:
+    """Serve the built React SPA from this process (single-service mode).
+
+    Hashed assets are served from ``/assets``; every other non-API path falls
+    back to ``index.html`` so client-side routes work on hard refresh.
+    """
+    assets_dir = os.path.join(static_dir, "assets")
+    if os.path.isdir(assets_dir):
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+    index_file = os.path.join(static_dir, "index.html")
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    async def spa_fallback(full_path: str) -> FileResponse:
+        # Let unmatched API routes return a normal JSON 404, not the SPA shell.
+        if full_path.startswith("api/"):
+            raise HTTPException(status_code=404, detail="Not Found")
+        candidate = os.path.normpath(os.path.join(static_dir, full_path))
+        if (
+            full_path
+            and candidate.startswith(static_dir)
+            and os.path.isfile(candidate)
+        ):
+            return FileResponse(candidate)
+        return FileResponse(index_file)
 
 
 app = create_app()
