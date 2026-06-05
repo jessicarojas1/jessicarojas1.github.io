@@ -54,17 +54,36 @@ ob_start();
     <div class="workflow-templates">
       <?php
       $templates = [
-        ['Risk Review Reminder', 'Sends alert when risk review date is approaching', 'risk_review_due', '#ef4444'],
-        ['Policy Expiry Alert', 'Notifies owner when policy review date is due', 'policy_review_due', '#d97706'],
-        ['Audit Overdue Alert', 'Escalates when an audit passes its scheduled date', 'audit_overdue', '#dc2626'],
-        ['New Risk Notification', 'Notifies admins when a critical risk is logged', 'risk_created_critical', '#f97316'],
-        ['Compliance Drop Alert', 'Alerts when compliance score drops below threshold', 'compliance_score_drop', '#7c3aed'],
+        // Risks
+        ['Risk Review Reminder',            'Sends alert when risk review date is approaching',           'risk_review_due',           '#ef4444', 'Risks'],
+        ['New Risk Notification',            'Notifies admins when a critical risk is logged',             'risk_created_critical',     '#f97316', 'Risks'],
+        ['Risk Treatment Overdue',           'Escalates when a risk treatment plan passes its deadline',   'treatment_overdue',         '#dc2626', 'Risks'],
+        // Policies
+        ['Policy Expiry Alert',              'Notifies owner when policy review date is due',              'policy_review_due',         '#d97706', 'Policies'],
+        ['Policy Acknowledgment Required',   'Notifies staff when a new policy requires acknowledgment',   'policy_published',          '#059669', 'Policies'],
+        // Audits
+        ['Audit Overdue Alert',              'Escalates when an audit passes its scheduled date',          'audit_overdue',             '#dc2626', 'Audits'],
+        ['Audit Finding Assigned',           'Notifies assignee when a new audit finding is created',      'audit_finding_created',     '#6366f1', 'Audits'],
+        // Compliance
+        ['Compliance Drop Alert',            'Alerts when compliance score drops below threshold',         'compliance_score_drop',     '#7c3aed', 'Compliance'],
+        ['Control Implementation Deadline',  'Notifies owner when a control implementation is due',        'control_due',               '#d97706', 'Compliance'],
+        // Incidents
+        ['Incident Escalation',              'Alerts management when a critical incident is created',      'incident_created_critical', '#dc2626', 'Incidents'],
+        ['Incident Resolution Reminder',     'Notifies team when an incident is approaching its SLA',      'incident_overdue_sla',      '#f97316', 'Incidents'],
+        // Vendors
+        ['Vendor Contract Expiry',           'Alerts owner when a vendor contract is nearing expiry',      'vendor_contract_due',       '#0284c7', 'Vendors'],
+        ['Vendor Assessment Due',            'Reminds owner when a vendor risk assessment is due',         'vendor_assessment_due',     '#0369a1', 'Vendors'],
+        // Training
+        ['Training Completion Reminder',     'Reminds users when awareness training is due',               'awareness_due',             '#8b5cf6', 'Training'],
       ];
-      foreach ($templates as [$name, $desc, $trigger, $color]): ?>
+      foreach ($templates as [$name, $desc, $trigger, $color, $cat]): ?>
         <div class="workflow-template">
           <div class="wt-icon" style="background:<?= $color ?>20;color:<?= $color ?>"><i class="bi bi-lightning"></i></div>
           <div class="wt-body">
-            <div class="wt-name"><?= $name ?></div>
+            <div class="wt-name">
+              <?= $name ?>
+              <span class="badge" style="background:<?= $color ?>18;color:<?= $color ?>;margin-left:6px;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:600;vertical-align:middle"><?= $cat ?></span>
+            </div>
             <div class="wt-desc"><?= $desc ?></div>
           </div>
           <button class="btn btn-ghost btn-sm" data-click="useTemplate" data-args='[<?= json_encode($name) ?>,<?= json_encode($trigger) ?>]'>Use</button>
@@ -94,24 +113,38 @@ ob_start();
         <div class="form-group">
           <label class="form-label required">Trigger</label>
           <select name="trigger_type" id="wf_trigger" class="form-control" required>
-            <optgroup label="Risk">
+            <optgroup label="Risks">
               <option value="risk_created">Risk Created</option>
               <option value="risk_created_critical">Critical Risk Created</option>
               <option value="risk_review_due">Risk Review Due</option>
               <option value="risk_status_changed">Risk Status Changed</option>
+              <option value="treatment_overdue">Risk Treatment Overdue</option>
             </optgroup>
-            <optgroup label="Compliance">
-              <option value="control_status_changed">Control Status Changed</option>
-              <option value="compliance_score_drop">Compliance Score Drop</option>
+            <optgroup label="Policies">
+              <option value="policy_review_due">Policy Review Due</option>
+              <option value="policy_published">Policy Published</option>
             </optgroup>
-            <optgroup label="Audit">
+            <optgroup label="Audits">
               <option value="audit_created">Audit Created</option>
               <option value="audit_overdue">Audit Overdue</option>
               <option value="audit_completed">Audit Completed</option>
+              <option value="audit_finding_created">Audit Finding Created</option>
             </optgroup>
-            <optgroup label="Policy">
-              <option value="policy_review_due">Policy Review Due</option>
-              <option value="policy_published">Policy Published</option>
+            <optgroup label="Compliance">
+              <option value="control_status_changed">Control Status Changed</option>
+              <option value="control_due">Control Implementation Due</option>
+              <option value="compliance_score_drop">Compliance Score Drop</option>
+            </optgroup>
+            <optgroup label="Incidents">
+              <option value="incident_created_critical">Critical Incident Created</option>
+              <option value="incident_overdue_sla">Incident SLA Overdue</option>
+            </optgroup>
+            <optgroup label="Vendors">
+              <option value="vendor_contract_due">Vendor Contract Due</option>
+              <option value="vendor_assessment_due">Vendor Assessment Due</option>
+            </optgroup>
+            <optgroup label="Training">
+              <option value="awareness_due">Awareness Training Due</option>
             </optgroup>
           </select>
         </div>
