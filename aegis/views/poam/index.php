@@ -214,32 +214,6 @@ $statusLabels = [
 
 <script nonce="<?= Security::nonce() ?>">
 (function() {
-  function modal(id) { return document.getElementById(id); }
-  function open(id)  { modal(id).style.display = 'flex'; }
-  function close(id) { modal(id).style.display = 'none'; }
-
-  // Generate modal
-  document.getElementById('btnOpenGenerate').addEventListener('click', function() { open('generateModal'); });
-  var openGenerateEmpty = document.getElementById('btnOpenGenerateEmpty');
-  if (openGenerateEmpty) openGenerateEmpty.addEventListener('click', function() { open('generateModal'); });
-  document.getElementById('btnCloseGenerate').addEventListener('click', function() { close('generateModal'); });
-  document.getElementById('btnCancelGenerate').addEventListener('click', function() { close('generateModal'); });
-  modal('generateModal').addEventListener('click', function(e) { if (e.target === this) close('generateModal'); });
-
-  // Create modal
-  document.getElementById('btnOpenCreate').addEventListener('click', function() { open('createModal'); });
-  var openCreateEmpty = document.getElementById('btnOpenCreateEmpty');
-  if (openCreateEmpty) openCreateEmpty.addEventListener('click', function() { open('createModal'); });
-  document.getElementById('btnCloseCreate').addEventListener('click', function() { close('createModal'); });
-  document.getElementById('btnCancelCreate').addEventListener('click', function() { close('createModal'); });
-  modal('createModal').addEventListener('click', function(e) { if (e.target === this) close('createModal'); });
-
-  // Import modal
-  document.getElementById('btnOpenImport').addEventListener('click', function() { open('importModal'); });
-  document.getElementById('btnCloseImport').addEventListener('click', function() { close('importModal'); });
-  document.getElementById('btnCancelImport').addEventListener('click', function() { close('importModal'); });
-  modal('importModal').addEventListener('click', function(e) { if (e.target === this) close('importModal'); });
-
   // Template download
   document.getElementById('btnDlTemplate').addEventListener('click', function() {
     var csv = 'title,weakness_description,package,owner_email,scheduled_completion,required_resources,notes\n' +
