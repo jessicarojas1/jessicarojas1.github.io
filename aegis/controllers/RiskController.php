@@ -251,7 +251,6 @@ class RiskController {
         $confidence   = in_array($_POST['confidence'] ?? '', ['low','medium','high'], true) ? $_POST['confidence'] : 'medium';
         $ownerId      = !empty($_POST['owner_id'])      ? (int)$_POST['owner_id']      : Auth::id();
         $reviewDate   = Security::sanitizeInput($_POST['review_date'] ?? '');
-        $riskId       = Security::sanitizeInput($_POST['risk_id']     ?? '');
         $treatDesc    = Security::sanitizeInput($_POST['treatment_description'] ?? '');
         $parentRiskId = !empty($_POST['parent_risk_id']) ? (int)$_POST['parent_risk_id'] : null;
 
@@ -269,10 +268,8 @@ class RiskController {
             header('Location: /risk/create'); return;
         }
 
-        if (!$riskId) {
-            $maxRow = Database::fetchOne("SELECT COALESCE(MAX(id), 0) AS max_id FROM risks");
-            $riskId = 'RSK-' . str_pad((string)(((int)$maxRow['max_id']) + 1), 4, '0', STR_PAD_LEFT);
-        }
+        $maxRow = Database::fetchOne("SELECT COALESCE(MAX(id), 0) AS max_id FROM risks");
+        $riskId = 'RSK-' . str_pad((string)(((int)$maxRow['max_id']) + 1), 4, '0', STR_PAD_LEFT);
 
         $riskDbId = Database::insert('risks', [
             'title'                 => $title,

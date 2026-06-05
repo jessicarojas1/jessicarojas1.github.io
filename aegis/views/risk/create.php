@@ -27,13 +27,9 @@ ob_start();
         </div>
 
         <div class="form-row">
-          <div class="form-group flex-2">
+          <div class="form-group">
             <label class="form-label required">Risk Title</label>
             <input type="text" name="title" class="form-control" placeholder="Describe the risk in one sentence..." required>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Risk ID</label>
-            <input type="text" name="risk_id" class="form-control" placeholder="Auto-generated if blank">
           </div>
         </div>
 
