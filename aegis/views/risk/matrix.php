@@ -160,9 +160,9 @@ $legendDefs = [
 </div>
 
 <!-- Cell detail modal -->
-<div class="um-overlay" id="cellModal" style="display:none">
+<div class="um-overlay" id="cellModal">
   <div class="um-dialog">
-    <div class="um-header"><h3 id="cellModalTitle">Risks</h3><button class="um-close" data-click="closeCellModal"><i class="bi bi-x-lg"></i></button></div>
+    <div class="um-header"><h3 id="cellModalTitle">Risks</h3><button class="um-close" data-close-modal="cellModal"><i class="bi bi-x-lg"></i></button></div>
     <div class="um-body" id="cellModalBody"></div>
   </div>
 </div>
@@ -194,13 +194,10 @@ function showCellRisks(r, c) {
       </a>`
     ).join('');
   }
-  document.getElementById('cellModal').style.display = 'flex';
+  document.getElementById('cellModal').classList.add('open');
 }
 
-function closeCellModal() { document.getElementById('cellModal').style.display = 'none'; }
-document.getElementById('cellModal').addEventListener('click', function(e) {
-  if (e.target === this) closeCellModal();
-});
+function closeCellModal() { document.getElementById('cellModal').classList.remove('open'); }
 </script>
 
 <?php

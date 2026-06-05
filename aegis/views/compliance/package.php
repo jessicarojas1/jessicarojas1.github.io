@@ -258,121 +258,128 @@ function statusIcon(string $s): string {
 <!-- ══════════════════════════════════════════════════════════════
      MODAL OVERLAY SYSTEM
 ════════════════════════════════════════════════════════════════ -->
-<div id="modal-overlay" data-click="pkgCloseModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;padding:16px"></div>
 
 <!-- Edit Package -->
-<div id="modal-edit-pkg" class="aegis-modal" style="display:none">
-  <div class="modal-header">
-    <h3>Edit Package</h3>
-    <button class="modal-close" data-click="pkgCloseModal"><i class="bi bi-x-lg"></i></button>
+<div class="um-overlay" id="modal-edit-pkg">
+  <div class="um-dialog">
+    <div class="um-header">
+      <h3>Edit Package</h3>
+      <button class="um-close" data-click="pkgCloseModal"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <form method="POST" action="/compliance/<?= (int)$package['id'] ?>/update">
+      <?= Security::csrfField() ?>
+      <div class="um-body" style="display:flex;flex-direction:column;gap:14px">
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Name <span style="color:var(--danger)">*</span></label>
+          <input type="text" name="name" class="form-control" required value="<?= Security::h($package['name']) ?>">
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Version</label>
+          <input type="text" name="version" class="form-control" value="<?= Security::h($package['version'] ?? '1.0') ?>">
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Description</label>
+          <textarea name="description" class="form-control" rows="3"><?= Security::h($package['description'] ?? '') ?></textarea>
+        </div>
+      </div>
+      <div class="um-footer">
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <button type="button" class="btn btn-ghost" data-click="pkgCloseModal">Cancel</button>
+      </div>
+    </form>
   </div>
-  <form method="POST" action="/compliance/<?= (int)$package['id'] ?>/update">
-    <?= Security::csrfField() ?>
-    <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
-      <div class="form-group" style="margin:0">
-        <label class="form-label">Name <span style="color:var(--danger)">*</span></label>
-        <input type="text" name="name" class="form-control" required value="<?= Security::h($package['name']) ?>">
-      </div>
-      <div class="form-group" style="margin:0">
-        <label class="form-label">Version</label>
-        <input type="text" name="version" class="form-control" value="<?= Security::h($package['version'] ?? '1.0') ?>">
-      </div>
-      <div class="form-group" style="margin:0">
-        <label class="form-label">Description</label>
-        <textarea name="description" class="form-control" rows="3"><?= Security::h($package['description'] ?? '') ?></textarea>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button type="submit" class="btn btn-primary">Save Changes</button>
-      <button type="button" class="btn btn-ghost" data-click="pkgCloseModal">Cancel</button>
-    </div>
-  </form>
 </div>
 
 <!-- Add Domain -->
-<div id="modal-add-domain" class="aegis-modal" style="display:none">
-  <div class="modal-header">
-    <h3><i class="bi bi-plus-circle-fill" style="color:var(--primary)"></i> Add Domain</h3>
-    <button class="modal-close" data-click="pkgCloseModal"><i class="bi bi-x-lg"></i></button>
+<div class="um-overlay" id="modal-add-domain">
+  <div class="um-dialog">
+    <div class="um-header">
+      <h3><i class="bi bi-plus-circle-fill" style="color:var(--primary)"></i> Add Domain</h3>
+      <button class="um-close" data-click="pkgCloseModal"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <form method="POST" action="/compliance/<?= (int)$package['id'] ?>/domain/add">
+      <?= Security::csrfField() ?>
+      <div class="um-body" style="display:flex;flex-direction:column;gap:14px">
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Domain Code <span style="color:var(--danger)">*</span></label>
+          <input type="text" name="code" class="form-control" required placeholder="e.g. AC, 5.1, PR.AC" autofocus>
+          <p class="text-muted" style="font-size:12px;margin-top:4px">A short unique identifier for this domain.</p>
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Domain Title <span style="color:var(--danger)">*</span></label>
+          <input type="text" name="title" class="form-control" required placeholder="e.g. Access Control">
+        </div>
+      </div>
+      <div class="um-footer">
+        <button type="submit" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add Domain</button>
+        <button type="button" class="btn btn-ghost" data-click="pkgCloseModal">Cancel</button>
+      </div>
+    </form>
   </div>
-  <form method="POST" action="/compliance/<?= (int)$package['id'] ?>/domain/add">
-    <?= Security::csrfField() ?>
-    <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
-      <div class="form-group" style="margin:0">
-        <label class="form-label">Domain Code <span style="color:var(--danger)">*</span></label>
-        <input type="text" name="code" class="form-control" required placeholder="e.g. AC, 5.1, PR.AC" autofocus>
-        <p class="text-muted" style="font-size:12px;margin-top:4px">A short unique identifier for this domain.</p>
-      </div>
-      <div class="form-group" style="margin:0">
-        <label class="form-label">Domain Title <span style="color:var(--danger)">*</span></label>
-        <input type="text" name="title" class="form-control" required placeholder="e.g. Access Control">
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button type="submit" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add Domain</button>
-      <button type="button" class="btn btn-ghost" data-click="pkgCloseModal">Cancel</button>
-    </div>
-  </form>
 </div>
 
 <!-- Per-domain modals: Edit Domain + Add Control -->
 <?php foreach ($domains as $domain): ?>
 
 <!-- Edit Domain: <?= $domain['id'] ?> -->
-<div id="modal-edit-domain-<?= $domain['id'] ?>" class="aegis-modal" style="display:none">
-  <div class="modal-header">
-    <h3><i class="bi bi-pencil-fill"></i> Edit Domain</h3>
-    <button class="modal-close" data-click="pkgCloseModal"><i class="bi bi-x-lg"></i></button>
+<div class="um-overlay" id="modal-edit-domain-<?= $domain['id'] ?>">
+  <div class="um-dialog">
+    <div class="um-header">
+      <h3><i class="bi bi-pencil-fill"></i> Edit Domain</h3>
+      <button class="um-close" data-click="pkgCloseModal"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <form method="POST" action="/compliance/<?= (int)$package['id'] ?>/domain/<?= (int)$domain['id'] ?>/update">
+      <?= Security::csrfField() ?>
+      <div class="um-body" style="display:flex;flex-direction:column;gap:14px">
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Domain Code <span style="color:var(--danger)">*</span></label>
+          <input type="text" name="code" class="form-control" required value="<?= Security::h($domain['code']) ?>">
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Domain Title <span style="color:var(--danger)">*</span></label>
+          <input type="text" name="title" class="form-control" required value="<?= Security::h($domain['title']) ?>">
+        </div>
+      </div>
+      <div class="um-footer">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-ghost" data-click="pkgCloseModal">Cancel</button>
+      </div>
+    </form>
   </div>
-  <form method="POST" action="/compliance/<?= (int)$package['id'] ?>/domain/<?= (int)$domain['id'] ?>/update">
-    <?= Security::csrfField() ?>
-    <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
-      <div class="form-group" style="margin:0">
-        <label class="form-label">Domain Code <span style="color:var(--danger)">*</span></label>
-        <input type="text" name="code" class="form-control" required value="<?= Security::h($domain['code']) ?>">
-      </div>
-      <div class="form-group" style="margin:0">
-        <label class="form-label">Domain Title <span style="color:var(--danger)">*</span></label>
-        <input type="text" name="title" class="form-control" required value="<?= Security::h($domain['title']) ?>">
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button type="submit" class="btn btn-primary">Save</button>
-      <button type="button" class="btn btn-ghost" data-click="pkgCloseModal">Cancel</button>
-    </div>
-  </form>
 </div>
 
 <!-- Add Control to Domain: <?= $domain['id'] ?> -->
-<div id="modal-add-ctrl-<?= $domain['id'] ?>" class="aegis-modal" style="display:none">
-  <div class="modal-header">
-    <h3><i class="bi bi-plus-circle-fill" style="color:var(--success)"></i> Add Control — <?= Security::h($domain['code']) ?></h3>
-    <button class="modal-close" data-click="pkgCloseModal"><i class="bi bi-x-lg"></i></button>
+<div class="um-overlay" id="modal-add-ctrl-<?= $domain['id'] ?>">
+  <div class="um-dialog">
+    <div class="um-header">
+      <h3><i class="bi bi-plus-circle-fill" style="color:var(--success)"></i> Add Control — <?= Security::h($domain['code']) ?></h3>
+      <button class="um-close" data-click="pkgCloseModal"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <form method="POST" action="/compliance/<?= (int)$package['id'] ?>/domain/<?= (int)$domain['id'] ?>/control/add">
+      <?= Security::csrfField() ?>
+      <div class="um-body" style="display:flex;flex-direction:column;gap:14px">
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Control Code <span style="color:var(--danger)">*</span></label>
+          <input type="text" name="code" class="form-control" required placeholder="e.g. <?= Security::h($domain['code']) ?>.1">
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Control Title <span style="color:var(--danger)">*</span></label>
+          <input type="text" name="title" class="form-control" required placeholder="e.g. Least Privilege Access">
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Description <span class="text-muted">(optional)</span></label>
+          <textarea name="description" class="form-control" rows="3" placeholder="What does this control require?"></textarea>
+        </div>
+      </div>
+      <div class="um-footer">
+        <button type="submit" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add Control</button>
+        <button type="button" class="btn btn-ghost" data-click="pkgCloseModal">Cancel</button>
+        <a href="/compliance/import" class="btn btn-ghost" style="margin-left:auto;font-size:12px" title="Import many controls at once">
+          <i class="bi bi-cloud-upload"></i> Import instead
+        </a>
+      </div>
+    </form>
   </div>
-  <form method="POST" action="/compliance/<?= (int)$package['id'] ?>/domain/<?= (int)$domain['id'] ?>/control/add">
-    <?= Security::csrfField() ?>
-    <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
-      <div class="form-group" style="margin:0">
-        <label class="form-label">Control Code <span style="color:var(--danger)">*</span></label>
-        <input type="text" name="code" class="form-control" required placeholder="e.g. <?= Security::h($domain['code']) ?>.1">
-      </div>
-      <div class="form-group" style="margin:0">
-        <label class="form-label">Control Title <span style="color:var(--danger)">*</span></label>
-        <input type="text" name="title" class="form-control" required placeholder="e.g. Least Privilege Access">
-      </div>
-      <div class="form-group" style="margin:0">
-        <label class="form-label">Description <span class="text-muted">(optional)</span></label>
-        <textarea name="description" class="form-control" rows="3" placeholder="What does this control require?"></textarea>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button type="submit" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add Control</button>
-      <button type="button" class="btn btn-ghost" data-click="pkgCloseModal">Cancel</button>
-      <a href="/compliance/import" class="btn btn-ghost" style="margin-left:auto;font-size:12px" title="Import many controls at once">
-        <i class="bi bi-cloud-upload"></i> Import instead
-      </a>
-    </div>
-  </form>
 </div>
 
 <?php
@@ -383,32 +390,34 @@ $ctrlsForModal = Database::fetchAll(
 );
 foreach ($ctrlsForModal as $cm): ?>
 <!-- Edit Control: <?= $cm['id'] ?> -->
-<div id="modal-edit-ctrl-<?= $cm['id'] ?>" class="aegis-modal" style="display:none">
-  <div class="modal-header">
-    <h3><i class="bi bi-sliders"></i> Edit Control</h3>
-    <button class="modal-close" data-click="pkgCloseModal"><i class="bi bi-x-lg"></i></button>
+<div class="um-overlay" id="modal-edit-ctrl-<?= $cm['id'] ?>">
+  <div class="um-dialog">
+    <div class="um-header">
+      <h3><i class="bi bi-sliders"></i> Edit Control</h3>
+      <button class="um-close" data-click="pkgCloseModal"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <form method="POST" action="/compliance/<?= (int)$package['id'] ?>/control/<?= (int)$cm['id'] ?>/update">
+      <?= Security::csrfField() ?>
+      <div class="um-body" style="display:flex;flex-direction:column;gap:14px">
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Control Code <span style="color:var(--danger)">*</span></label>
+          <input type="text" name="code" class="form-control" required value="<?= Security::h($cm['code']) ?>">
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Control Title <span style="color:var(--danger)">*</span></label>
+          <input type="text" name="title" class="form-control" required value="<?= Security::h($cm['title']) ?>">
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Description</label>
+          <textarea name="description" class="form-control" rows="3"><?= Security::h($cm['description'] ?? '') ?></textarea>
+        </div>
+      </div>
+      <div class="um-footer">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-ghost" data-click="pkgCloseModal">Cancel</button>
+      </div>
+    </form>
   </div>
-  <form method="POST" action="/compliance/<?= (int)$package['id'] ?>/control/<?= (int)$cm['id'] ?>/update">
-    <?= Security::csrfField() ?>
-    <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
-      <div class="form-group" style="margin:0">
-        <label class="form-label">Control Code <span style="color:var(--danger)">*</span></label>
-        <input type="text" name="code" class="form-control" required value="<?= Security::h($cm['code']) ?>">
-      </div>
-      <div class="form-group" style="margin:0">
-        <label class="form-label">Control Title <span style="color:var(--danger)">*</span></label>
-        <input type="text" name="title" class="form-control" required value="<?= Security::h($cm['title']) ?>">
-      </div>
-      <div class="form-group" style="margin:0">
-        <label class="form-label">Description</label>
-        <textarea name="description" class="form-control" rows="3"><?= Security::h($cm['description'] ?? '') ?></textarea>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button type="submit" class="btn btn-primary">Save</button>
-      <button type="button" class="btn btn-ghost" data-click="pkgCloseModal">Cancel</button>
-    </div>
-  </form>
 </div>
 <?php endforeach; ?>
 <?php endforeach; ?>
@@ -434,21 +443,18 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ── Modal system ───────────────────────────────────────────────────────────
-var overlay = document.getElementById('modal-overlay');
 var activeModal = null;
 function openModal(id) {
-  if (activeModal) activeModal.style.display = 'none';
+  if (activeModal) activeModal.classList.remove('open');
   var m = document.getElementById('modal-' + id);
   if (!m) return;
   activeModal = m;
-  overlay.style.display = 'flex';
-  m.style.display = 'block';
+  m.classList.add('open');
   var inp = m.querySelector('input,textarea,select');
   if (inp) setTimeout(function(){ inp.focus(); inp.select && inp.select(); }, 80);
 }
 function pkgCloseModal() {
-  overlay.style.display = 'none';
-  if (activeModal) { activeModal.style.display = 'none'; activeModal = null; }
+  if (activeModal) { activeModal.classList.remove('open'); activeModal = null; }
 }
 document.addEventListener('keydown', function(e){ if (e.key === 'Escape') pkgCloseModal(); });
 
@@ -673,13 +679,14 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <!-- Bulk Assess Modal -->
-<div id="modal-bulk-assess" class="aegis-modal" style="display:none;max-width:540px">
-  <div class="modal-header">
-    <h3><i class="bi bi-clipboard2-check-fill" style="color:var(--primary)"></i> Bulk Assess Controls</h3>
-    <button class="modal-close" data-click="pkgCloseModal"><i class="bi bi-x-lg"></i></button>
-  </div>
+<div class="um-overlay" id="modal-bulk-assess">
+  <div class="um-dialog" style="max-width:540px">
+    <div class="um-header">
+      <h3><i class="bi bi-clipboard2-check-fill" style="color:var(--primary)"></i> Bulk Assess Controls</h3>
+      <button class="um-close" data-click="pkgCloseModal"><i class="bi bi-x-lg"></i></button>
+    </div>
   <form id="form-bulk-assess">
-    <div class="card-body" style="display:flex;flex-direction:column;gap:16px;max-height:70vh;overflow-y:auto;padding:20px">
+    <div class="um-body" style="display:flex;flex-direction:column;gap:16px;max-height:70vh;overflow-y:auto;padding:20px">
 
       <div class="form-group" style="margin:0">
         <label class="form-label" style="font-weight:700;margin-bottom:10px">Implementation Status <span style="color:var(--danger)">*</span></label>
@@ -733,49 +740,13 @@ document.addEventListener('DOMContentLoaded', function() {
       </div>
 
     </div>
-    <div class="modal-footer">
+    <div class="um-footer">
       <button type="submit" id="ba-submit-btn" class="btn btn-primary"><i class="bi bi-check-lg"></i> Save Assessment</button>
       <button type="button" class="btn btn-ghost" data-click="pkgCloseModal">Cancel</button>
     </div>
   </form>
+  </div>
 </div>
-
-<style>
-.aegis-modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1001;
-  width: 100%;
-  max-width: 480px;
-  background: var(--card-bg);
-  border-radius: 12px;
-  box-shadow: 0 20px 60px rgba(0,0,0,.25);
-  overflow: hidden;
-}
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--border);
-}
-.modal-header h3 { margin: 0; font-size: 15px; font-weight: 700; display:flex;gap:8px;align-items:center; }
-.modal-close { background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 16px; padding: 4px; }
-.modal-close:hover { color: var(--text); }
-.modal-footer {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  padding: 14px 20px;
-  border-top: 1px solid var(--border);
-  background: var(--bg);
-}
-@media (max-width: 520px) {
-  .aegis-modal { max-width: calc(100vw - 32px); }
-}
-</style>
 
 <?php
 $content = ob_get_clean();

@@ -71,118 +71,112 @@ $typeColors = ['access'=>'blue','erasure'=>'red','rectification'=>'yellow','port
 </div>
 
 <!-- New request modal -->
-<div id="modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:center;justify-content:center"></div>
-
-<div id="modal-new-request" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:501;background:var(--card-bg);border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.25);width:100%;max-width:500px;overflow:hidden">
-  <div class="modal-header">
-    <h3 style="font-size:15px;font-weight:700;margin:0"><i class="bi bi-person-lines-fill" style="color:var(--primary)"></i> New Data Subject Request</h3>
-    <button class="modal-close" data-click="closeModals"><i class="bi bi-x-lg"></i></button>
+<div class="um-overlay" id="modal-new-request">
+  <div class="um-dialog" style="max-width:500px">
+    <div class="um-header">
+      <h3><i class="bi bi-person-lines-fill" style="color:var(--primary)"></i> New Data Subject Request</h3>
+      <button class="um-close" data-close-modal="modal-new-request"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <form method="POST" action="/privacy/requests/create">
+      <?= Security::csrfField() ?>
+      <div class="um-body" style="display:flex;flex-direction:column;gap:12px">
+        <div class="form-group" style="margin:0">
+          <label class="form-label required">Request Type</label>
+          <select name="request_type" class="form-control" required>
+            <?php foreach ($typeLabels as $val => $label): ?>
+            <option value="<?= $val ?>"><?= $label ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <div class="form-row" style="margin:0">
+          <div class="form-group" style="flex:1;margin:0">
+            <label class="form-label">Subject Name</label>
+            <input type="text" name="subject_name" class="form-control" placeholder="Full name">
+          </div>
+          <div class="form-group" style="flex:1;margin:0">
+            <label class="form-label">Subject Email</label>
+            <input type="email" name="subject_email" class="form-control" placeholder="email@example.com">
+          </div>
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Description</label>
+          <textarea name="description" class="form-control" rows="3" placeholder="Details of the request…"></textarea>
+        </div>
+        <div class="form-row" style="margin:0">
+          <div class="form-group" style="flex:1;margin:0">
+            <label class="form-label">Due Date</label>
+            <input type="date" name="due_date" class="form-control">
+          </div>
+          <div class="form-group" style="flex:1;margin:0">
+            <label class="form-label">Assign To</label>
+            <select name="assigned_to" class="form-control">
+              <option value="">— Unassigned —</option>
+              <?php foreach ($users as $u): ?>
+              <option value="<?= (int)$u['id'] ?>"><?= Security::h($u['name']) ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;padding:14px 20px;border-top:1px solid var(--border);background:var(--bg)">
+        <button type="button" class="btn btn-secondary btn-sm" data-close-modal="modal-new-request">Cancel</button>
+        <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-check-lg"></i> Log Request</button>
+      </div>
+    </form>
   </div>
-  <form method="POST" action="/privacy/requests/create">
-    <?= Security::csrfField() ?>
-    <div style="padding:20px;display:flex;flex-direction:column;gap:12px">
-      <div class="form-group" style="margin:0">
-        <label class="form-label required">Request Type</label>
-        <select name="request_type" class="form-control" required>
-          <?php foreach ($typeLabels as $val => $label): ?>
-          <option value="<?= $val ?>"><?= $label ?></option>
-          <?php endforeach; ?>
-        </select>
-      </div>
-      <div class="form-row" style="margin:0">
-        <div class="form-group" style="flex:1;margin:0">
-          <label class="form-label">Subject Name</label>
-          <input type="text" name="subject_name" class="form-control" placeholder="Full name">
+</div>
+
+<!-- Update modal -->
+<div class="um-overlay" id="modal-update">
+  <div class="um-dialog" style="max-width:420px">
+    <div class="um-header">
+      <h3>Update Request</h3>
+      <button class="um-close" data-close-modal="modal-update"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <form id="updateForm" method="POST">
+      <?= Security::csrfField() ?>
+      <div class="um-body" style="display:flex;flex-direction:column;gap:12px">
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Status</label>
+          <select name="status" class="form-control" id="updateStatus">
+            <option value="open">Open</option>
+            <option value="in_progress">In Progress</option>
+            <option value="completed">Completed</option>
+            <option value="rejected">Rejected</option>
+          </select>
         </div>
-        <div class="form-group" style="flex:1;margin:0">
-          <label class="form-label">Subject Email</label>
-          <input type="email" name="subject_email" class="form-control" placeholder="email@example.com">
-        </div>
-      </div>
-      <div class="form-group" style="margin:0">
-        <label class="form-label">Description</label>
-        <textarea name="description" class="form-control" rows="3" placeholder="Details of the request…"></textarea>
-      </div>
-      <div class="form-row" style="margin:0">
-        <div class="form-group" style="flex:1;margin:0">
-          <label class="form-label">Due Date</label>
-          <input type="date" name="due_date" class="form-control">
-        </div>
-        <div class="form-group" style="flex:1;margin:0">
+        <div class="form-group" style="margin:0">
           <label class="form-label">Assign To</label>
-          <select name="assigned_to" class="form-control">
+          <select name="assigned_to" class="form-control" id="updateAssigned">
             <option value="">— Unassigned —</option>
             <?php foreach ($users as $u): ?>
             <option value="<?= (int)$u['id'] ?>"><?= Security::h($u['name']) ?></option>
             <?php endforeach; ?>
           </select>
         </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Notes</label>
+          <textarea name="notes" class="form-control" rows="3" id="updateNotes" placeholder="Resolution notes, actions taken…"></textarea>
+        </div>
       </div>
-    </div>
-    <div style="display:flex;gap:10px;justify-content:flex-end;padding:14px 20px;border-top:1px solid var(--border);background:var(--bg)">
-      <button type="button" class="btn btn-secondary btn-sm" data-click="closeModals">Cancel</button>
-      <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-check-lg"></i> Log Request</button>
-    </div>
-  </form>
-</div>
-
-<!-- Update modal -->
-<div id="modal-update" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:501;background:var(--card-bg);border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.25);width:100%;max-width:420px;overflow:hidden">
-  <div class="modal-header">
-    <h3 style="font-size:15px;font-weight:700;margin:0">Update Request</h3>
-    <button class="modal-close" data-click="closeModals"><i class="bi bi-x-lg"></i></button>
+      <div style="display:flex;gap:10px;justify-content:flex-end;padding:14px 20px;border-top:1px solid var(--border);background:var(--bg)">
+        <button type="button" class="btn btn-secondary btn-sm" data-close-modal="modal-update">Cancel</button>
+        <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-check-lg"></i> Save</button>
+      </div>
+    </form>
   </div>
-  <form id="updateForm" method="POST">
-    <?= Security::csrfField() ?>
-    <div style="padding:20px;display:flex;flex-direction:column;gap:12px">
-      <div class="form-group" style="margin:0">
-        <label class="form-label">Status</label>
-        <select name="status" class="form-control" id="updateStatus">
-          <option value="open">Open</option>
-          <option value="in_progress">In Progress</option>
-          <option value="completed">Completed</option>
-          <option value="rejected">Rejected</option>
-        </select>
-      </div>
-      <div class="form-group" style="margin:0">
-        <label class="form-label">Assign To</label>
-        <select name="assigned_to" class="form-control" id="updateAssigned">
-          <option value="">— Unassigned —</option>
-          <?php foreach ($users as $u): ?>
-          <option value="<?= (int)$u['id'] ?>"><?= Security::h($u['name']) ?></option>
-          <?php endforeach; ?>
-        </select>
-      </div>
-      <div class="form-group" style="margin:0">
-        <label class="form-label">Notes</label>
-        <textarea name="notes" class="form-control" rows="3" id="updateNotes" placeholder="Resolution notes, actions taken…"></textarea>
-      </div>
-    </div>
-    <div style="display:flex;gap:10px;justify-content:flex-end;padding:14px 20px;border-top:1px solid var(--border);background:var(--bg)">
-      <button type="button" class="btn btn-secondary btn-sm" data-click="closeModals">Cancel</button>
-      <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-check-lg"></i> Save</button>
-    </div>
-  </form>
 </div>
 
 <script nonce="<?= Security::nonce() ?>">
-var overlay = document.getElementById('modal-overlay');
 function openNewRequest() {
-  overlay.style.display = 'flex';
-  document.getElementById('modal-new-request').style.display = 'block';
+  document.getElementById('modal-new-request').classList.add('open');
 }
 function openUpdate(el, id, status, notes, assignedTo) {
   document.getElementById('updateForm').action = '/privacy/requests/' + id + '/update';
   document.getElementById('updateStatus').value   = status;
   document.getElementById('updateNotes').value    = notes;
   document.getElementById('updateAssigned').value = assignedTo || '';
-  overlay.style.display = 'flex';
-  document.getElementById('modal-update').style.display = 'block';
-}
-function closeModals() {
-  overlay.style.display = 'none';
-  document.getElementById('modal-new-request').style.display = 'none';
-  document.getElementById('modal-update').style.display = 'none';
+  document.getElementById('modal-update').classList.add('open');
 }
 </script>
 
