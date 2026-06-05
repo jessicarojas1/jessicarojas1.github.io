@@ -8,6 +8,7 @@
   const CITADEL = root.CITADEL = root.CITADEL || {};
   const charts = {};
   let current = null;
+  let aiOn = false;
 
   function esc(s) {
     return String(s == null ? '' : s)
@@ -174,18 +175,28 @@
   }
 
   /* ---------- Findings ---------- */
+  let showSuppressed = false;
   function renderFindings(r) {
-    const sorted = r.findings.slice().sort((a, b) => SEV_ORDER.indexOf(a.severity) - SEV_ORDER.indexOf(b.severity));
+    const all = r.findings.slice().sort((a, b) => SEV_ORDER.indexOf(a.severity) - SEV_ORDER.indexOf(b.severity));
+    const sup = CITADEL.suppress;
+    const shown = showSuppressed ? all : all.filter(f => !sup.isSuppressed(f));
+    r._shown = shown;
+    const supN = all.length - all.filter(f => !sup.isSuppressed(f)).length;
     const filterBtns = ['all'].concat(SEV_ORDER).map(sv =>
       `<button class="btn btn-sm ${sv === 'all' ? 'btn-primary' : 'btn-outline-secondary'} finding-filter" data-sev="${sv}">${sv === 'all' ? 'All' : c(sv)} ${sv === 'all' ? '' : '(' + (r.scoring.sev[sv] || 0) + ')'}</button>`
     ).join(' ');
-    const rows = sorted.length ? sorted.map((f, i) => `
-      <div class="finding" data-sev="${f.severity}">
+    const supToggle = supN > 0
+      ? `<button class="btn btn-sm ${showSuppressed ? 'btn-warning text-dark' : 'btn-outline-warning'} ms-auto" id="toggle-suppressed"><i class="bi bi-eye${showSuppressed ? '-slash' : ''}"></i> ${showSuppressed ? 'Hide' : 'Show'} suppressed (${supN})</button>`
+      : '';
+    const rows = shown.length ? shown.map((f, i) => {
+      const isSup = sup.isSuppressed(f);
+      return `
+      <div class="finding${isSup ? ' finding-suppressed' : ''}" data-sev="${f.severity}">
         <div class="finding-head" data-finding-toggle="${i}">
           <span class="sev-dot" style="background:${SEV_COLOR[f.severity]}"></span>
-          <span class="finding-name">${esc(f.name)}</span>
+          <span class="finding-name">${esc(f.name)}${isSup ? ' <span class="badge bg-secondary">suppressed</span>' : ''}</span>
           <span class="badge sev-badge" style="background:${SEV_COLOR[f.severity]}">${f.severity}</span>
-          <span class="text-body-secondary small ms-auto d-none d-md-inline">${esc(f.cwe || '')}</span>
+          <span class="text-body-secondary small ms-auto d-none d-md-inline">${esc(f.source || 'heuristic')} · ${esc(f.cwe || '')}</span>
           <i class="bi bi-chevron-down finding-chev"></i>
         </div>
         <div class="finding-body d-none" id="finding-body-${i}">
@@ -194,17 +205,24 @@
           <div class="finding-meta">
             <span><strong>Category:</strong> ${esc(CITADEL.frameworks.CATEGORIES[f.category] || f.category)}</span>
             <span><strong>Confidence:</strong> ${esc(f.confidence || 'n/a')}</span>
-            <span><strong>Rule:</strong> ${esc(f.ruleId || '—')}</span>
+            <span><strong>Source:</strong> ${esc(f.source || 'heuristic')}</span>
           </div>
           <div class="finding-fix"><i class="bi bi-wrench-adjustable"></i> ${esc(f.remediation || 'Review and remediate.')}</div>
           ${mappedControls(f.category)}
+          <div class="finding-actions">
+            ${aiOn ? `<button class="btn btn-sm btn-outline-primary" data-explain="${i}"><i class="bi bi-stars"></i> Explain &amp; fix (AI)</button>` : ''}
+            <button class="btn btn-sm btn-outline-secondary" data-suppress="${i}"><i class="bi bi-${isSup ? 'arrow-counterclockwise' : 'slash-circle'}"></i> ${isSup ? 'Un-suppress' : 'Accept risk'}</button>
+          </div>
+          <div class="finding-ai d-none" id="finding-ai-${i}"></div>
         </div>
-      </div>`).join('') :
-      '<div class="empty-state"><i class="bi bi-check2-circle"></i><p>No findings — clean scan.</p></div>';
+      </div>`; }).join('') :
+      '<div class="empty-state"><i class="bi bi-check2-circle"></i><p>No findings to show.</p></div>';
     $('tab-findings').innerHTML = `
-      <div class="d-flex flex-wrap gap-2 mb-3" id="finding-filters">${filterBtns}</div>
+      <div class="d-flex flex-wrap gap-2 mb-3 align-items-center" id="finding-filters">${filterBtns}${supToggle}</div>
       <div id="findings-list">${rows}</div>`;
   }
+  function shownFinding(i) { return current && current._shown ? current._shown[i] : null; }
+  function toggleSuppressedView() { showSuppressed = !showSuppressed; renderFindings(current); }
 
   function mappedControls(cat) {
     const m = CITADEL.frameworks.MAP[cat] || {};
@@ -257,7 +275,17 @@
         <td>${flag ? `<span class="text-warning"><i class="bi bi-exclamation-triangle"></i> ${esc(flag)}</span>` : '<span class="text-success"><i class="bi bi-check"></i></span>'}</td>
       </tr>`;
     }).join('') : '<tr><td colspan="5" class="text-center text-body-secondary py-4">No dependency manifests detected.</td></tr>';
+    // Live/real CVEs (from OSV in quick mode, or Trivy/Grype in deep mode)
+    const cves = r.findings.filter(f => f.source === 'osv' || ((f.source === 'trivy' || f.source === 'grype') && f.category === 'deps'));
+    const cveBox = cves.length
+      ? `<div class="alert-cve mb-3"><i class="bi bi-shield-exclamation"></i> <strong>${cves.length} known vulnerabilit${cves.length === 1 ? 'y' : 'ies'}</strong> matched against live advisories
+           (${cves.filter(f => f.severity === 'critical').length} critical, ${cves.filter(f => f.severity === 'high').length} high). See the <strong>Findings</strong> tab for details &amp; fixes.</div>`
+      : (r.meta && r.meta.engine === 'deep'
+          ? ''
+          : '<div class="text-body-secondary small mb-3" id="osv-status"><i class="bi bi-hourglass-split"></i> Checking dependencies against the OSV.dev vulnerability database…</div>');
     $('tab-sbom').innerHTML = `
+      ${cveBox}
+      ${renderLicenses(r)}
       <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
         <p class="text-body-secondary mb-0">${comps.length} component(s) across ${[...new Set(comps.map(c => c.ecosystem))].length} ecosystem(s). CycloneDX 1.5 SBOM available in <strong>Export</strong>.</p>
         <button class="btn btn-sm btn-outline-primary" id="dl-sbom"><i class="bi bi-box-arrow-down"></i> Download SBOM (JSON)</button>
@@ -266,6 +294,18 @@
         <thead><tr><th>Component</th><th>Version</th><th>Ecosystem</th><th>Scope</th><th>Supply-chain</th></tr></thead>
         <tbody>${rows}</tbody>
       </table></div>`;
+  }
+
+  function renderLicenses(r) {
+    const lic = r.licenses;
+    if (!lic || !lic.detected) return '';
+    const chip = (l) => `<span class="badge ${l.copyleft ? 'bg-warning text-dark' : 'bg-success'}" title="${esc(l.file)}">${esc(l.license)}</span>`;
+    return `<div class="card citadel-card mb-3"><div class="card-body py-2">
+      <div class="d-flex flex-wrap gap-2 align-items-center">
+        <strong class="small"><i class="bi bi-card-checklist"></i> Licenses:</strong>
+        ${lic.all.map(chip).join(' ')}
+        ${lic.copyleft.length ? `<span class="small text-warning ms-1">${lic.copyleft.length} copyleft — review distribution obligations</span>` : '<span class="small text-success ms-1">all permissive</span>'}
+      </div></div></div>`;
   }
 
   /* ---------- Binary ---------- */
@@ -339,7 +379,10 @@
     $('tab-export').innerHTML = `
       <div class="row g-3">
         <div class="col-md-6 col-lg-3"><button class="btn btn-outline-primary w-100 export-btn" id="exp-json"><i class="bi bi-filetype-json"></i><span>Full report<br><small>JSON</small></span></button></div>
+        <div class="col-md-6 col-lg-3"><button class="btn btn-outline-primary w-100 export-btn" id="exp-sarif"><i class="bi bi-shield-check"></i><span>SARIF<br><small>2.1.0 · code scanning</small></span></button></div>
         <div class="col-md-6 col-lg-3"><button class="btn btn-outline-primary w-100 export-btn" id="exp-sbom"><i class="bi bi-box-seam"></i><span>SBOM<br><small>CycloneDX 1.5</small></span></button></div>
+        <div class="col-md-6 col-lg-3"><button class="btn btn-outline-primary w-100 export-btn" id="exp-poam"><i class="bi bi-list-check"></i><span>POA&amp;M<br><small>CSV</small></span></button></div>
+        <div class="col-md-6 col-lg-3"><button class="btn btn-outline-primary w-100 export-btn" id="exp-ssp"><i class="bi bi-file-earmark-text"></i><span>Control appendix<br><small>SSP · Markdown</small></span></button></div>
         <div class="col-md-6 col-lg-3"><button class="btn btn-outline-primary w-100 export-btn" id="exp-md"><i class="bi bi-filetype-md"></i><span>Summary<br><small>Markdown</small></span></button></div>
         <div class="col-md-6 col-lg-3"><button class="btn btn-outline-primary w-100 export-btn" id="exp-pdf"><i class="bi bi-printer"></i><span>Printable<br><small>PDF / print</small></span></button></div>
       </div>
@@ -381,5 +424,104 @@
 
   function c(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
-  CITADEL.report = { render, exportJson, exportSbom, exportMarkdown, exportPdf, get current() { return current; } };
+  function exportSarif() {
+    if (!CITADEL.sarif) return;
+    download('citadel-results.sarif', JSON.stringify(CITADEL.sarif.fromReport(current), null, 2), 'application/json');
+  }
+
+  function csvCell(s) { return '"' + String(s == null ? '' : s).replace(/"/g, '""') + '"'; }
+  // POA&M — Plan of Action & Milestones (CSV), one row per finding.
+  function exportPoam() {
+    const r = current;
+    const rows = [['POAM ID', 'Weakness', 'CWE', 'Severity', 'Category', 'Source', 'Location', 'Recommended Correction', 'Status', 'Identified']];
+    r.findings.slice().sort((a, b) => SEV_ORDER.indexOf(a.severity) - SEV_ORDER.indexOf(b.severity)).forEach((f, i) => {
+      rows.push([
+        'POAM-' + String(i + 1).padStart(4, '0'),
+        f.name, f.cwe || '', f.severity, CITADEL.frameworks.CATEGORIES[f.category] || f.category,
+        f.source || 'heuristic', (f.file || '') + (f.line ? ':' + f.line : ''),
+        f.remediation || '', 'Open', r.meta.scannedAt
+      ]);
+    });
+    download('citadel-poam.csv', rows.map(row => row.map(csvCell).join(',')).join('\r\n'), 'text/csv');
+  }
+
+  // SSP-style control implementation appendix (Markdown) from the compliance posture.
+  function exportSsp() {
+    const r = current;
+    let md = `# CITADEL — Control Impact Appendix\n\n`;
+    md += `_Generated ${r.meta.scannedAt} · Grade ${r.scoring.grade} · Security ${r.scoring.security}/100_\n\n`;
+    md += `This appendix maps scanner findings to the security controls they implicate across ${r.posture.length} frameworks. Use it to seed an SSP gap analysis or a POA&M.\n\n`;
+    r.posture.forEach(p => {
+      md += `## ${p.name} ${p.version} — ${p.findings ? p.status.toUpperCase() : 'no findings'}\n\n`;
+      if (!p.controls.length) { md += `_No findings implicate this framework._\n\n`; return; }
+      md += `| Control | Findings |\n|---|---|\n`;
+      p.controls.forEach(cc => { md += `| ${cc.id} | ${cc.count} |\n`; });
+      md += `\n`;
+    });
+    download('citadel-control-appendix.md', md, 'text/markdown');
+  }
+
+  function setAi(on) { aiOn = !!on; }
+
+  /* ---------- History panel ---------- */
+  function renderHistory(targetId) {
+    const el = $(targetId || 'tab-history');
+    if (!el) return;
+    const hist = CITADEL.history.list();
+    if (!hist.length) { el.innerHTML = '<div class="empty-state"><i class="bi bi-clock-history"></i><p>No scan history yet. Each scan you run is recorded here (locally) so you can track trend and compare runs.</p></div>'; return; }
+    const opts = hist.map(h => `<option value="${h.id}">${esc(h.label)} — ${h.grade} (${h.security})</option>`).join('');
+    const rows = hist.map(h => `<tr>
+      <td>${esc(new Date(h.at).toLocaleString())}</td>
+      <td><span class="badge ${h.engine === 'deep' ? 'bg-info text-dark' : 'bg-secondary'}">${esc(h.engine)}</span></td>
+      <td><span class="badge grade-pill grade-${h.grade.toLowerCase()}">${h.grade}</span></td>
+      <td>${h.security}</td><td>${h.findings}</td>
+      <td class="text-danger">${(h.sev && (h.sev.critical + h.sev.high)) || 0}</td>
+      <td>${h.files}</td>
+    </tr>`).join('');
+    el.innerHTML = `
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+        <p class="text-body-secondary mb-0">${hist.length} scan(s) recorded locally in this browser.</p>
+        <button class="btn btn-sm btn-outline-danger" id="hist-clear"><i class="bi bi-trash"></i> Clear history</button>
+      </div>
+      <div class="card citadel-card mb-3"><div class="card-body">
+        <h6 class="text-uppercase text-body-secondary small fw-bold mb-2">Compare two runs</h6>
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+          <select class="form-select form-select-sm" id="hist-a" style="max-width:280px">${opts}</select>
+          <span>vs</span>
+          <select class="form-select form-select-sm" id="hist-b" style="max-width:280px">${opts}</select>
+          <button class="btn btn-sm btn-primary" id="hist-compare">Compare</button>
+        </div>
+        <div id="hist-result" class="mt-3"></div>
+      </div></div>
+      <div class="table-responsive"><table class="table table-sm align-middle citadel-table">
+        <thead><tr><th>When</th><th>Mode</th><th>Grade</th><th>Security</th><th>Findings</th><th>Crit+High</th><th>Files</th></tr></thead>
+        <tbody>${rows}</tbody></table></div>`;
+    if (hist[1]) { $('hist-b').selectedIndex = 1; }
+  }
+
+  function renderCompare(aId, bId) {
+    const cmp = CITADEL.history.compare(aId, bId);
+    const el = $('hist-result');
+    if (!cmp || !el) return;
+    const d = cmp.delta;
+    const arrow = (n, goodWhenNegative) => {
+      if (n === 0) return '<span class="text-body-secondary">±0</span>';
+      const good = goodWhenNegative ? n < 0 : n > 0;
+      const cls = good ? 'text-success' : 'text-danger';
+      return `<span class="${cls}">${n > 0 ? '+' : ''}${n}</span>`;
+    };
+    el.innerHTML = `<div class="row g-2">
+      <div class="col-6 col-md-3"><div class="quality-metric"><div class="qm-val">${arrow(d.security, false)}</div><div class="qm-lbl">Security</div></div></div>
+      <div class="col-6 col-md-3"><div class="quality-metric"><div class="qm-val">${arrow(d.findings, true)}</div><div class="qm-lbl">Findings</div></div></div>
+      <div class="col-6 col-md-3"><div class="quality-metric"><div class="qm-val">${arrow(d.critical, true)}</div><div class="qm-lbl">Critical</div></div></div>
+      <div class="col-6 col-md-3"><div class="quality-metric"><div class="qm-val">${arrow(d.high, true)}</div><div class="qm-lbl">High</div></div></div>
+    </div><p class="small text-body-secondary mt-2">Delta = "${esc(cmp.a.label)}" minus "${esc(cmp.b.label)}". Green = improvement.</p>`;
+  }
+
+  CITADEL.report = {
+    render, renderHistory, renderCompare, renderFindings, setAi,
+    shownFinding, toggleSuppressedView,
+    exportJson, exportSbom, exportMarkdown, exportPdf, exportSarif, exportPoam, exportSsp,
+    get current() { return current; }
+  };
 })(window);

@@ -42,5 +42,30 @@
     return res.json();
   }
 
-  CITADEL.api = { available, scan };
+  async function scanUrl(url, onProgress) {
+    onProgress && onProgress('Cloning & scanning repository…');
+    const res = await fetch('api/scan-url', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url })
+    });
+    if (!res.ok) {
+      let msg = 'Scan service error ' + res.status;
+      try { const j = await res.json(); if (j.error) msg = j.error; } catch (e) {}
+      throw new Error(msg);
+    }
+    return res.json();
+  }
+
+  async function explain(finding) {
+    const res = await fetch('api/explain', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ finding })
+    });
+    if (!res.ok) {
+      let msg = 'AI service error ' + res.status;
+      try { const j = await res.json(); if (j.error) msg = j.error; } catch (e) {}
+      throw new Error(msg);
+    }
+    return res.json();
+  }
+
+  CITADEL.api = { available, scan, scanUrl, explain };
 })(window);

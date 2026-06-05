@@ -1,0 +1,60 @@
+# =============================================================================
+# CITADEL — example GitHub Actions workflow
+# -----------------------------------------------------------------------------
+# Copy this file to:
+#
+#     .github/workflows/citadel.yml
+#
+# (at the ROOT of your repository — NOT inside the citadel/ folder). It runs the
+# CITADEL composite action on every push and pull request, then uploads the
+# SARIF results to GitHub code scanning so findings show up in the Security tab
+# and inline on pull requests.
+#
+# The `security-events: write` permission is REQUIRED for the SARIF upload step
+# inside the action (github/codeql-action/upload-sarif). `contents: read` is
+# enough for checkout.
+# =============================================================================
+name: CITADEL Security & Compliance Scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  # Allow manual runs from the Actions tab.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  citadel:
+    name: Scan with CITADEL
+    runs-on: ubuntu-latest
+    steps:
+      # Check out the repo (this brings the citadel/ action source along with it
+      # when CITADEL lives in the same repository).
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Run the CITADEL composite action. If CITADEL lives in THIS repo, use the
+      # local path `./citadel`. If you consume CITADEL from another repo, replace
+      # this with `your-org/citadel@v1` (and drop the checkout-bundled source).
+      - name: Run CITADEL
+        uses: ./citadel
+        with:
+          path: .
+          format: sarif
+          output: citadel-results.sarif
+          # Fail the build on high or critical findings. Use `none` to report
+          # only (never fail), or `critical` to gate on the worst issues only.
+          fail-on: high
+
+      # Optional: keep the raw SARIF as a build artifact for auditing/evidence.
+      - name: Upload SARIF artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: citadel-results
+          path: citadel-results.sarif
+          if-no-files-found: ignore

@@ -188,6 +188,15 @@
     stage('Detecting deployment & IaC…');
     const deployment = detectDeployment(entries);
 
+    stage('Detecting licenses…');
+    const licenses = detectLicenses(entries);
+    licenses.copyleft.forEach(l => findings.push({
+      ruleId: 'license-copyleft', name: 'Copyleft license: ' + l.license, category: 'supply-chain',
+      severity: 'low', cwe: 'CWE-1357', confidence: 'medium', file: l.file, line: 0,
+      snippet: l.license, source: 'heuristic',
+      remediation: 'Copyleft terms may impose source-disclosure obligations on distribution — confirm compatibility with your licensing policy.'
+    }));
+
     stage('Scoring & grading…');
     const scoring = score(findings, q);
 
@@ -197,9 +206,53 @@
     return {
       meta: { scannedAt: new Date().toISOString(), fileCount: entries.filter(e => !e.archive).length, totalBytes: entries.reduce((a, e) => a + e.size, 0) },
       languages: langs, findings, sbom: { components: sbomComponents, doc: CITADEL.sbom.cyclonedx(sbomComponents) },
-      binaries, quality: q, deployment, scoring, posture
+      binaries, quality: q, deployment, licenses, scoring, posture
     };
   }
 
-  CITADEL.scanner = { scan, SEV_WEIGHT, grade, score, quality, languageStats, detectDeployment };
+  const COPYLEFT = /\b(GPL|AGPL|LGPL|MPL|EPL|CDDL|EUPL|OSL|CECILL)\b/;
+  const PERMISSIVE = /\b(MIT|Apache(-2\.0)?|BSD(-2|-3)?|ISC|Unlicense|0BSD|Zlib|BSL)\b/;
+  function classifyLicense(text) {
+    const t = String(text).toUpperCase();
+    if (/\bAGPL|AFFERO/.test(t)) return { id: 'AGPL', copyleft: true };
+    if (/\bLGPL/.test(t)) return { id: 'LGPL', copyleft: true };
+    if (/\bGPL|GNU GENERAL PUBLIC/.test(t)) return { id: 'GPL', copyleft: true };
+    if (/\bMPL|MOZILLA PUBLIC/.test(t)) return { id: 'MPL', copyleft: true };
+    if (/\bEPL|ECLIPSE PUBLIC/.test(t)) return { id: 'EPL', copyleft: true };
+    if (/\bAPACHE/.test(t)) return { id: 'Apache-2.0', copyleft: false };
+    if (/\bMIT LICENSE|PERMISSION IS HEREBY GRANTED/.test(t)) return { id: 'MIT', copyleft: false };
+    if (/\bBSD/.test(t)) return { id: 'BSD', copyleft: false };
+    if (/\bISC LICENSE/.test(t)) return { id: 'ISC', copyleft: false };
+    return null;
+  }
+  // Detect licenses from LICENSE/COPYING files and SPDX-License-Identifier tags.
+  function detectLicenses(entries) {
+    const found = {};            // id -> { license, file, copyleft }
+    const spdxRe = /SPDX-License-Identifier:\s*([A-Za-z0-9.\-+ ]+)/;
+    entries.forEach(e => {
+      const base = e.path.split('/').pop().toLowerCase();
+      const isLicenseFile = /^(license|licence|copying|unlicense)(\.|$)/.test(base);
+      if (e.content) {
+        if (isLicenseFile) {
+          const c = classifyLicense(e.content.slice(0, 4000));
+          if (c) found[c.id] = found[c.id] || { license: c.id, file: e.path, copyleft: c.copyleft };
+        }
+        const m = e.content.match(spdxRe);
+        if (m) {
+          const id = m[1].trim().split(/\s/)[0];
+          const copyleft = COPYLEFT.test(id);
+          if (PERMISSIVE.test(id) || copyleft) found[id] = found[id] || { license: id, file: e.path, copyleft };
+        }
+      }
+    });
+    const all = Object.values(found);
+    return {
+      all,
+      copyleft: all.filter(l => l.copyleft),
+      permissive: all.filter(l => !l.copyleft),
+      detected: all.length > 0
+    };
+  }
+
+  CITADEL.scanner = { scan, SEV_WEIGHT, grade, score, quality, languageStats, detectDeployment, detectLicenses };
 })(window);

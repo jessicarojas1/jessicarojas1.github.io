@@ -25,6 +25,16 @@ tools, and secret scanners into a single, framework-aware report.
 - **Optional deep-scan backend.** A Node API ([`server/`](server/)) runs **real open-source
   scanners** — Semgrep, Bandit, Trivy, Syft, Grype, Gitleaks, ClamAV — and merges their
   results with the heuristic engine into the *same* report the SPA renders.
+- **Live CVEs.** Quick scans cross-check dependencies against the **OSV.dev** advisory database
+  (client-side, keyless) for real CVEs with fixed versions.
+- **Exports for the whole pipeline.** JSON, **SARIF 2.1.0** (GitHub Code Scanning), CycloneDX
+  SBOM, **POA&M** (CSV), an **SSP control appendix** (Markdown), summary Markdown, and printable PDF.
+- **Trend & triage.** Local **scan history** with run-to-run comparison, plus **risk acceptance**
+  (suppress findings) and **license detection** (flags copyleft).
+- **AI remediation.** With the backend + an `ANTHROPIC_API_KEY`, each finding gets an
+  "Explain & fix" powered by Claude (`claude-opus-4-8`).
+- **CI/CD.** A [GitHub Action](CI.md) + CLI (`server/cli.js`) emit SARIF and fail the build on a
+  configurable severity; scan a **public repo by URL** from the UI.
 - **Government-ready.** Hardened, FIPS-friendly container with Infrastructure-as-Code for
   **Azure Government** and **AWS GovCloud (US)** under [`deploy/`](deploy/).
 

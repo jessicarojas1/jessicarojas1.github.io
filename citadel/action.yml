@@ -1,0 +1,131 @@
+# =============================================================================
+# CITADEL Security & Compliance Scan — composite GitHub Action
+# -----------------------------------------------------------------------------
+# Builds the CITADEL deep-scan Docker image (which bundles every scanner:
+# Semgrep, Bandit, Gitleaks, Trivy, Syft, Grype, ClamAV) and runs the CLI
+# against your checked-out repository. Emits SARIF by default and uploads it to
+# GitHub code scanning so findings appear in the Security tab and on PRs.
+#
+# Usage (in a workflow):
+#
+#   - uses: actions/checkout@v4
+#   - uses: ./citadel            # if CITADEL lives in this repo
+#     with:
+#       path: .
+#       format: sarif
+#       output: citadel-results.sarif
+#       fail-on: high
+#
+# Build context note: the Dockerfile COPYs `citadel/server/` to `/app/`, so
+# cli.js ends up at /app/cli.js inside the image. The image is built from the
+# repository root with `-f citadel/server/Dockerfile`.
+# =============================================================================
+name: "CITADEL Security & Compliance Scan"
+description: "Scan source code & executables with CITADEL (Semgrep, Bandit, Gitleaks, Trivy, Syft, Grype, ClamAV) and upload SARIF to GitHub code scanning."
+author: "CITADEL"
+
+branding:
+  icon: "shield"
+  color: "blue"
+
+inputs:
+  path:
+    description: "Path (relative to the workspace) to scan."
+    required: false
+    default: "."
+  format:
+    description: "Output format: sarif or json."
+    required: false
+    default: "sarif"
+  output:
+    description: "Report filename written into the workspace."
+    required: false
+    default: "citadel-results.sarif"
+  fail-on:
+    description: "Fail the build when findings reach this severity: critical | high | medium | low | none."
+    required: false
+    default: "high"
+
+outputs:
+  results-file:
+    description: "Path to the generated report file (within the workspace)."
+    value: ${{ inputs.output }}
+
+runs:
+  using: "composite"
+  steps:
+    # -------------------------------------------------------------------------
+    # 1. Build the CITADEL image so ALL scanners are present and pinned.
+    #    The Dockerfile's build context is the repository root, hence the
+    #    trailing "." with `-f citadel/server/Dockerfile`. github.action_path
+    #    points at the directory containing this action.yml (the citadel/ dir),
+    #    whose parent is the repo root that was checked out.
+    # -------------------------------------------------------------------------
+    - name: Build CITADEL scanner image
+      shell: bash
+      run: |
+        set -euo pipefail
+        REPO_ROOT="$(cd "${{ github.action_path }}/.." && pwd)"
+        echo "::group::Building CITADEL image from ${REPO_ROOT}"
+        docker build \
+          -f "${REPO_ROOT}/citadel/server/Dockerfile" \
+          -t citadel-scan \
+          "${REPO_ROOT}"
+        echo "::endgroup::"
+
+    # -------------------------------------------------------------------------
+    # 2. Run the scan INSIDE the image. The workspace is mounted read-only-ish
+    #    at /scan; the CLI only READS source (scanners never execute it) and
+    #    writes the report back into the mounted workspace.
+    #    cli.js lives at /app/cli.js because the Dockerfile copies
+    #    citadel/server/ -> /app/.
+    #    `|| true` captures the CLI exit code so we can surface it as a step
+    #    failure ourselves while still allowing the SARIF upload to run.
+    # -------------------------------------------------------------------------
+    - name: Run CITADEL scan
+      id: scan
+      shell: bash
+      run: |
+        set -uo pipefail
+        echo "::group::Running CITADEL scan"
+        set +e
+        docker run --rm \
+          -v "${GITHUB_WORKSPACE}:/scan" \
+          -w /scan \
+          citadel-scan \
+          node /app/cli.js "/scan/${{ inputs.path }}" \
+            --format "${{ inputs.format }}" \
+            --output "/scan/${{ inputs.output }}" \
+            --fail-on "${{ inputs.fail-on }}"
+        CITADEL_EXIT=$?
+        set -e
+        echo "::endgroup::"
+        echo "exit-code=${CITADEL_EXIT}" >> "$GITHUB_OUTPUT"
+
+    # -------------------------------------------------------------------------
+    # 3. Upload SARIF to GitHub code scanning (only when format is sarif and
+    #    the file exists). This step runs even if the scan flagged findings so
+    #    results are always visible in the Security tab. Requires the calling
+    #    workflow to grant `security-events: write`.
+    # -------------------------------------------------------------------------
+    - name: Upload SARIF to GitHub code scanning
+      if: ${{ always() && inputs.format == 'sarif' && hashFiles(inputs.output) != '' }}
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: ${{ inputs.output }}
+        category: citadel
+
+    # -------------------------------------------------------------------------
+    # 4. Re-surface the CLI exit code so the job fails when findings reached the
+    #    --fail-on threshold (after SARIF has been uploaded above).
+    # -------------------------------------------------------------------------
+    - name: Enforce CITADEL gate
+      shell: bash
+      run: |
+        set -euo pipefail
+        CODE="${{ steps.scan.outputs.exit-code }}"
+        if [ "${CODE}" != "0" ]; then
+          echo "CITADEL scan failed the build (exit ${CODE}) — findings reached the '${{ inputs.fail-on }}' threshold." >&2
+          exit "${CODE}"
+        fi
+        echo "CITADEL gate passed."

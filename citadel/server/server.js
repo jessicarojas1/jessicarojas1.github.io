@@ -17,8 +17,10 @@ const os = require('os');
 const path = require('path');
 const crypto = require('crypto');
 
+const { execFile } = require('child_process');
 const scanners = require('./lib/scanners');
 const engine = require('./lib/engine');
+const ai = require('./lib/ai');
 
 const PORT = parseInt(process.env.PORT || '8080', 10);
 // Locate the SPA. Local dev: server.js lives in citadel/server, so the app is
@@ -97,7 +99,45 @@ async function toolStatus() {
 }
 
 app.get('/api/health', async (req, res) => {
-  res.json({ ok: true, version: '1.0', engine: 'deep', scanners: await toolStatus() });
+  res.json({ ok: true, version: '1.0', engine: 'deep', ai: ai.available(), scanners: await toolStatus() });
+});
+
+app.use(express.json({ limit: '256kb' }));
+
+// Scan a public Git repository by URL (shallow clone, read-only).
+app.post('/api/scan-url', async (req, res) => {
+  const url = String((req.body && req.body.url) || '').trim();
+  // Allowlist: https git URLs only (github/gitlab/bitbucket/codeberg or generic https .git)
+  if (!/^https:\/\/[\w.-]+\/[\w./~-]+?(\.git)?$/.test(url) || url.length > 300) {
+    return res.status(400).json({ error: 'Provide a valid public https Git URL.' });
+  }
+  const work = path.join(TMP_ROOT, 'clone-' + crypto.randomBytes(8).toString('hex'));
+  try {
+    await new Promise((resolve, reject) => {
+      execFile('git', ['clone', '--depth', '1', '--single-branch', url, work],
+        { timeout: 120000, env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } },
+        (err) => err ? reject(new Error('Clone failed (is the repository public?).')) : resolve());
+    });
+    const scannerResult = await scanners.runAll(work);
+    const report = await engine.analyzeDir(work, scannerResult);
+    report.meta.source = url;
+    res.json(report);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  } finally {
+    rmrf(work);
+  }
+});
+
+// AI-assisted remediation for a single finding (opt-in; needs ANTHROPIC_API_KEY).
+app.post('/api/explain', async (req, res) => {
+  if (!ai.available()) return res.status(503).json({ error: 'AI remediation is not enabled on this server.' });
+  try {
+    const out = await ai.explain((req.body && req.body.finding) || {});
+    res.json(out);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.post('/api/scan', upload.array('files'), async (req, res) => {
