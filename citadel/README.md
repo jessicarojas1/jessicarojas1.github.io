@@ -22,6 +22,9 @@ tools, and secret scanners into a single, framework-aware report.
   scoring → compliance mapping.
 - **A–F security grade** with severity-weighted scoring and a maintainability index.
 - **CycloneDX 1.5 SBOM**, plus JSON / Markdown / printable-PDF exports.
+- **Optional deep-scan backend.** A Node API ([`server/`](server/)) runs **real open-source
+  scanners** — Semgrep, Bandit, Trivy, Syft, Grype, Gitleaks, ClamAV — and merges their
+  results with the heuristic engine into the *same* report the SPA renders.
 - **Government-ready.** Hardened, FIPS-friendly container with Infrastructure-as-Code for
   **Azure Government** and **AWS GovCloud (US)** under [`deploy/`](deploy/).
 
@@ -56,6 +59,13 @@ citadel/
 │   ├── demo.js           # synthetic demo project
 │   └── app.js            # UI controller
 ├── docs/index.html       # Architecture & module-interaction documentation
+├── server/               # Deep-scan backend (Express API + real scanners)
+│   ├── server.js         # API: GET /api/health, POST /api/scan; serves the SPA
+│   ├── lib/scanners.js   # adapters: Semgrep, Bandit, Trivy, Syft, Grype, Gitleaks, ClamAV
+│   ├── lib/normalize.js  # severity + CWE→category normalization
+│   ├── lib/engine.js     # reuses the browser engine server-side; merges results
+│   ├── Dockerfile        # image with all scanners installed (build from repo root)
+│   └── README.md         # backend runbook + Render / Gov-cloud deploy
 ├── deploy/
 │   ├── azure-gov/        # Azure Government IaC (Bicep) + runbook
 │   └── aws-gov/          # AWS GovCloud IaC (Terraform) + runbook
@@ -71,12 +81,28 @@ citadel/
   cross-walk.
 - **[deploy/README.md](deploy/README.md)** — choosing and using a government deployment target.
 
+## Deep scan (real scanners)
+
+The browser engine is heuristic. For depth, run the backend in [`server/`](server/), which
+shells out to real open-source scanners and merges their findings with the heuristic engine —
+the SPA automatically shows a **Deep scan** toggle when it's served by the backend.
+
+```bash
+# build from the REPO ROOT (the image bundles the SPA + all scanners)
+docker build -f citadel/server/Dockerfile -t citadel-server .
+docker run -p 8080:8080 citadel-server      # open http://localhost:8080/
+# or: cd citadel/server && docker compose up
+```
+
+Deploy that container to **Render.com** (Docker web service, port 8080) or to the Azure Gov /
+AWS GovCloud IaC under [`deploy/`](deploy/). See [`server/README.md`](server/README.md).
+
 ## Scope & limitations
 
-The browser engine is a **heuristic, pattern-based** analyzer built for fast triage, education,
-and demonstration — not a substitute for full data-flow SAST/DAST or a live CVE feed. For an
-Authorization to Operate (ATO), run the production tier's integrated open-source scanners
-(Semgrep, Trivy, Syft/Grype, Gitleaks, ClamAV, Bandit) and have results reviewed by a qualified
-assessor.
+The **browser engine** is a heuristic, pattern-based analyzer for fast triage, education, and
+demonstration. The **deep-scan backend** adds Semgrep/Bandit (SAST), Trivy/Grype (CVEs),
+Gitleaks/Trivy (secrets), Syft (SBOM), and ClamAV (malware) for real depth. Even so, for an
+Authorization to Operate (ATO), pair it with a credentialed vulnerability assessment and have
+results reviewed by a qualified assessor.
 
 _Built by Jessica Rojas. Heuristic analysis — verify findings before acting on them._

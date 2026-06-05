@@ -26,6 +26,22 @@
   $('framework-chips').innerHTML = CITADEL.frameworks.CATALOG
     .map(f => `<span class="hero-chip" title="${f.desc.replace(/"/g, '')}">${f.name}</span>`).join('');
 
+  /* ---------- Deep-scan mode (only if backend is present) ---------- */
+  let deepMode = false, deepAvailable = false;
+  (async function initDeep() {
+    const st = await CITADEL.api.available();
+    if (!st) return;
+    deepAvailable = true;
+    $('deep-mode-row').classList.remove('d-none');
+    const on = (st.scanners || []).filter(s => s.available).map(s => s.tool);
+    $('deep-mode-tools').innerHTML = on.length
+      ? 'Real scanners online: ' + on.map(t => '<span class="badge bg-secondary">' + t + '</span>').join(' ')
+      : 'Backend detected, but no scanners are installed — deep scan will fall back to heuristics.';
+    const tg = $('deep-mode-toggle');
+    deepMode = tg.checked;
+    tg.addEventListener('change', () => { deepMode = tg.checked; });
+  })();
+
   /* ---------- Intake ---------- */
   const dz = $('dropzone');
   const fileInput = $('file-input');
@@ -85,7 +101,24 @@
   function hideProgress() { setTimeout(() => $('progress-wrap').classList.add('d-none'), 600); }
 
   /* ---------- Run pipeline ---------- */
+  async function handleDeep(files) {
+    try {
+      let p = 15;
+      showProgress(p, 'Deep scan — uploading…', files.length + ' item(s)');
+      const report = await CITADEL.api.scan(files, (stage) => { p = Math.min(90, p + 18); showProgress(p, stage, ''); });
+      showProgress(100, 'Done (deep scan).', report.findings.length + ' finding(s)');
+      CITADEL.report.render(report);
+      $('results').classList.remove('d-none');
+      hideProgress();
+      $('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (err) {
+      showProgress(100, 'Deep scan failed: ' + (err.message || err), '');
+      console.error(err);
+    }
+  }
+
   async function handleFiles(files) {
+    if (deepMode && deepAvailable) return handleDeep(files);
     try {
       showProgress(5, 'Ingesting files…', files.length + ' item(s)');
       const entries = await CITADEL.ingest.ingestFiles(files, (i, n, name) => {

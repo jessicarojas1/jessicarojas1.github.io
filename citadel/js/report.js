@@ -62,6 +62,7 @@
         <div><span class="sc-val">${r.sbom.components.length}</span><span class="sc-lbl">Dependencies</span></div>
         <div><span class="sc-val text-danger">${s.sev.critical + s.sev.high}</span><span class="sc-lbl">Critical+High</span></div>
         <div><span class="sc-val">${r.posture.filter(p => p.findings > 0).length}</span><span class="sc-lbl">Frameworks impacted</span></div>
+        <div><span class="sc-val">${r.meta && r.meta.engine === 'deep' ? 'Deep' : 'Quick'}</span><span class="sc-lbl">Scan mode</span></div>
       </div>`;
   }
 

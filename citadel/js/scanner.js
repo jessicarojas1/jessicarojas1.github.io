@@ -201,5 +201,5 @@
     };
   }
 
-  CITADEL.scanner = { scan, SEV_WEIGHT, grade };
+  CITADEL.scanner = { scan, SEV_WEIGHT, grade, score, quality, languageStats, detectDeployment };
 })(window);
