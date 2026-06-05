@@ -257,6 +257,8 @@ class SSPController {
 
         $h = fn(string $s): string => htmlspecialchars($s, ENT_QUOTES | ENT_HTML5, 'UTF-8');
 
+        Security::setSecurityHeaders();
+
         $n = Security::nonce();
         $printScript = $isPdf ? "
 <script nonce=\"{$n}\">
