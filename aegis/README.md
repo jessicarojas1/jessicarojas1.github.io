@@ -11,16 +11,73 @@ AEGIS is a self-hosted Governance, Risk, and Compliance (GRC) platform built wit
 
 ## Features
 
-- **Compliance Management** — Track compliance packages against any imported standard, manage control implementations, attach evidence, and link policies to objectives
-- **Risk Register** — Create and score risks using a configurable likelihood × impact matrix, assign owners, record treatments, and visualize exposure on a 5×5 heatmap
-- **Audit Workflows** — Schedule and conduct audits against compliance packages, manage checklist items, and record scores through to completion
-- **Policy Lifecycle** — Draft, version, approve, publish, and review policies with full mapping to compliance controls
+### Core GRC Modules
+
+- **Compliance Management** — Track compliance packages against any imported standard, manage control implementations, attach evidence, and link policies to objectives; bulk status/assess operations; multi-format import (JSON, CSV, XLSX, PDF, manual entry)
+- **Risk Register** — Create and score risks using a configurable likelihood × impact matrix, assign owners, record treatments, and visualize exposure on a 5×5 heatmap; BowTie diagrams; risk scenarios; multi-select treatment strategies
+- **Audit Workflows** — Schedule and conduct audits against compliance packages, manage checklist items, and record scores through to completion; recurring audit schedules
+- **Audit Findings** — Track external audit findings, penetration-test results, certification findings, and regulatory observations with severity ratings and remediation timelines
+- **Policy Lifecycle** — Draft, version, approve, publish, and review policies with full mapping to compliance controls; attestation campaigns; review scheduling
+- **Change Management** — Change request tracking with CAB (Change Advisory Board) approvals and change advisory workflows
+- **Incident Management** — Incident CRUD with severity classification, SLA tracking, update timeline, acknowledge and close flows
+- **Issue Tracking** — Issue register linked to compliance, risk, and audit entities
+- **Vendor Management** — Vendor register with risk tier, data access tracking, contract dates, vendor assessments, and portal link generation for external questionnaire responses
+- **Asset Management** — Asset register with risk linking and categorization
+- **Business Continuity Planning (BCP/DRP)** — Business continuity and disaster recovery plan management
+- **Threat Register** — Threat catalogue with severity and status tracking
+- **Workforce & Awareness Training** — Training program management, user assignment tracking, and completion recording
+- **Account Reviews (Access Certification)** — Periodic access review campaigns for certifying user entitlements
+- **Privacy Management** — Privacy impact assessments and data handling records
+
+### Risk Management (Extended)
+
+- **Key Risk Indicators (KRIs)** — Define and track KRI thresholds with breach alerting
+- **Risk Treatment Plans** — Structured treatment action management linked to risks
+- **Risk Exceptions** — Formal risk exception requests with approval tracking
+- **Risk Reviews** — Scheduled review records and risk acceptance documentation
+- **Risk Appetite** — Configurable risk appetite thresholds per category (Financial, Operational, Strategic, Compliance, Technology, Reputational)
+- **Risk Score History** — Automatic score-change logging for trend analysis
+
+### Compliance & Assurance (Extended)
+
+- **System Security Plans (SSP)** — Full SSP authoring with a 7-tab view (Overview, Approval, Organization, Boundary, Environment, Inventory, Compliance); multiple presentation modes (Standard, Military, Corporate, Air Force, DoD); JSONB-backed hardware, software, network, server, and data inventories; versioning and authorization signatures
+- **POA&M** — Plans of Action and Milestones with milestone tracking, linked to compliance packages and POA&M numbers
+- **CUI Inventory** — Controlled Unclassified Information inventory management
+- **SPRS** — Supplier Performance Risk System score tracking
+- **ODP** — Organizational-Defined Parameters management for NIST controls
+- **RACI Matrix** — Responsibility assignment matrix per compliance package and control
+- **Cross-Framework Control Mapping** — Map controls across multiple compliance standards
+
+### Automation & Integration
+
+- **Workflow Automation** — Rules engine with configurable triggers and action chains; execution history; cooldown periods; 46+ built-in templates
+- **Webhook Integration** — 11 supported providers: Slack, Microsoft Teams, Discord, Jira, PagerDuty, ServiceNow, Google Chat, OpsGenie, Datadog, Splunk HEC, and Generic HTTP; delivery log per endpoint
+- **Approval Workflows** — Multi-step approval chains for risks, policies, audits, vendors, and incidents; configurable approval templates
+- **Scheduled Reports** — Automated report generation and delivery
+- **Email Templates** — Customizable notification email templates
+
+### Analytics & Reporting
+
 - **GRC Metrics Dashboard** — Compliance percentage, risk trends, audit scores, and policy lifecycle status rendered as interactive Chart.js visualizations
+- **Custom Dashboards** — User-configurable dashboard widgets
+- **Export Engine** — Per-module CSV and XLSX exports plus a full-platform ZIP bundle; formula-injection safe
+- **GRC Projects** — Project tracking for GRC initiatives with tasks and entity links
+
+### Platform & Administration
+
 - **REST API v1** — Full API with API-key and JWT authentication, rate limiting, and CORS origin enforcement
 - **Role-Based Access Control** — Five built-in roles (admin, manager, auditor, analyst, viewer) with per-user per-module permission overrides
-- **Export Engine** — Per-module CSV and XLSX exports plus a full-platform ZIP bundle; formula-injection safe
-- **Admin Panel** — User management, API key management, alert configurations, workflow builder, risk matrix configurator, and permission matrix editor
-- **Security-First Design** — Argon2ID hashing, CSRF protection, CSP/HSTS headers, brute-force lockout, PDO prepared statements throughout
+- **Dark Mode** — Full dark/light theme toggle persisted via localStorage with CSS custom properties
+- **Admin Panel** — User management, API key management, alert configurations, workflow builder, risk matrix configurator, permission matrix editor, module visibility controls, SMTP settings, and SSO configuration
+- **Document Management** — Document store with version upload history
+- **Questionnaires** — Configurable questionnaire builder for vendor and internal assessments
+- **Playbooks** — Operational playbook library linked to incidents and risks
+- **Calendar** — GRC event and due-date calendar view
+- **Tags** — Cross-module tagging system
+- **Evidence Management** — File upload with randomized filenames, SHA-256 integrity hashing, and PHP-gated downloads
+- **Search** — Global full-text search across modules
+- **Notification Preferences** — Per-user notification channel and frequency configuration
+- **Security-First Design** — Argon2ID hashing, CSRF protection, CSP/HSTS headers, brute-force lockout, PDO prepared statements throughout, TOTP MFA with backup codes, tamper-evident audit log with SHA-256 hash chain
 
 ---
 
@@ -93,19 +150,65 @@ aegis/
 │                                  # CSP/HSTS headers, XSS output helpers
 │
 ├── controllers/
-│   ├── AdminController.php        # Admin: users, risk matrix, workflows, alerts, API keys,
-│   │                              # per-user permissions
-│   ├── AuditController.php        # Audits: list, create, view, update, complete, audit items
-│   ├── AuthController.php         # Login form, login POST (open-redirect fix), logout
-│   ├── ComplianceController.php   # Packages, objectives, control implementations, JSON import
-│   ├── DashboardController.php    # Dashboard KPIs, due-items widget, mark-alert-read AJAX
-│   ├── DocsController.php         # In-app documentation module
-│   ├── ExportController.php       # CSV/XLSX/ZIP exports for 6 data modules
-│   ├── MetricsController.php      # GRC metrics: compliance %, risks, audits, policies;
-│   │                              # Chart.js data endpoints
-│   ├── PolicyController.php       # Policies: CRUD, versioning, approve/publish, control mapping
-│   └── RiskController.php         # Risk register: CRUD, likelihood×impact scoring, treatment,
-│                                  # risk matrix
+│   ├── AccountReviewController.php  # Access certification / account review campaigns
+│   ├── AdminController.php          # Admin: users, risk matrix, workflows, alerts, API keys,
+│   │                                # per-user permissions, module visibility, SMTP
+│   ├── ApprovalController.php       # Multi-step approval chains for risks, policies, vendors, etc.
+│   ├── AssetController.php          # Asset register with risk linking
+│   ├── AuditController.php          # Audits: list, create, view, update, complete, items, schedules
+│   ├── AuditFindingController.php   # External audit findings: severity, status, remediation timeline
+│   ├── AuthController.php           # Login form, login POST (open-redirect fix), logout, MFA
+│   ├── AutomationController.php     # Workflow automation rules engine; trigger/action builder
+│   ├── AwarenessController.php      # Awareness training programs and user completion tracking
+│   ├── BCPController.php            # Business continuity and disaster recovery plans
+│   ├── BowTieController.php         # BowTie risk diagram view
+│   ├── CalendarController.php       # GRC event and due-date calendar
+│   ├── ChangeController.php         # Change management with CAB approvals
+│   ├── ComplianceController.php     # Packages, objectives, control implementations, bulk ops,
+│   │                                # multi-format import (JSON/CSV/XLSX/PDF/manual)
+│   ├── CUIController.php            # Controlled Unclassified Information (CUI) inventory
+│   ├── CustomDashboardController.php# User-configurable dashboard widgets
+│   ├── DashboardController.php      # Dashboard KPIs, due-items widget, mark-alert-read AJAX
+│   ├── DocumentController.php       # Document management with version upload history
+│   ├── DocsController.php           # In-app documentation module
+│   ├── EvidenceController.php       # Evidence file upload, integrity hashing, gated download
+│   ├── ExportController.php         # CSV/XLSX/ZIP exports for all data modules
+│   ├── ImportController.php         # Compliance import: JSON, CSV, XLSX, PDF, single-control
+│   ├── IncidentController.php       # Incident CRUD, severity, SLA tracking, timeline
+│   ├── IssueController.php          # Issue tracker linked to compliance/risk/audit
+│   ├── KRIController.php            # Key Risk Indicators with threshold breach alerting
+│   ├── MetricsController.php        # GRC metrics: compliance %, risks, audits, policies;
+│   │                                # Chart.js data endpoints
+│   ├── ODPController.php            # Organizational-Defined Parameters for NIST controls
+│   ├── PlaybookController.php       # Operational playbooks linked to incidents and risks
+│   ├── POAMController.php           # Plans of Action and Milestones with milestone tracking
+│   ├── PolicyController.php         # Policies: CRUD, versioning, approve/publish, control mapping,
+│   │                                # attestation campaigns, review scheduling
+│   ├── PrivacyController.php        # Privacy impact assessments and data handling records
+│   ├── ProfileController.php        # User profile, password change, notification preferences
+│   ├── ProjectController.php        # GRC project tracking with tasks and entity links
+│   ├── QuestionnaireController.php  # Questionnaire builder for vendor and internal assessments
+│   ├── RACIController.php           # RACI responsibility assignment matrix per compliance package
+│   ├── ReportController.php         # Scheduled report generation and delivery
+│   ├── RiskAcceptanceController.php # Formal risk acceptance documentation
+│   ├── RiskController.php           # Risk register: CRUD, likelihood×impact scoring, treatments,
+│   │                                # scenarios, risk matrix, BowTie, score history
+│   ├── RiskExceptionController.php  # Risk exception requests with approval tracking
+│   ├── RiskReviewController.php     # Scheduled risk review records
+│   ├── ScenarioController.php       # Risk scenario modelling
+│   ├── SearchController.php         # Global full-text search across modules
+│   ├── SPRSController.php           # Supplier Performance Risk System (SPRS) score tracking
+│   ├── SSOController.php            # SSO/SAML2/OIDC settings (settings UI; flow in progress)
+│   ├── SSPController.php            # System Security Plans: 7-tab authoring, versioning,
+│   │                                # presentation modes, JSONB inventories
+│   ├── TagController.php            # Cross-module tagging system
+│   ├── ThreatController.php         # Threat register with severity and status tracking
+│   ├── TreatmentController.php      # Risk treatment plan management
+│   ├── UnsubscribeController.php    # Email unsubscribe handling
+│   ├── VendorController.php         # Vendor register: risk tier, assessments, questionnaire portal
+│   └── WebhookController.php        # Webhook endpoints for 11 providers (Slack, Teams, Discord,
+│                                    # Jira, PagerDuty, ServiceNow, Google Chat, OpsGenie,
+│                                    # Datadog, Splunk HEC, Generic HTTP); delivery log
 │
 ├── database/
 │   ├── schema.sql                 # 18 CREATE TABLE statements in aegis schema + 13 indexes
@@ -124,23 +227,28 @@ aegis/
 │                                  # helpers, time-ago formatting
 │
 └── views/
-    ├── layout.php                 # Shell: sidebar nav, topbar, alert panel fly-out,
+    ├── layout.php                 # Shell: collapsible accordion sidebar nav (8 sections),
+    │                              # topbar with dark-mode toggle, alert panel fly-out,
     │                              # Chart.js + app.js script loads
     ├── auth/
-    │   └── login.php              # Login form
+    │   └── login.php              # Login form; MFA verification; backup code recovery
     ├── dashboard/
     │   └── index.php              # KPI cards, due-items widget (overdue/7d/30d/expired tabs),
     │                              # activity log
     ├── compliance/
-    │   ├── index.php              # Package grid with per-package compliance progress bars
-    │   ├── package.php            # Domain tree + control list with status filters
-    │   ├── objective.php          # Single control detail: status form, evidence,
-    │   │                          # policy mappings, audit findings
-    │   └── import.php             # JSON upload form for importing custom standards
+    │   ├── index.php              # Package grid with per-package compliance progress bars;
+    │   │                          # multi-select delete
+    │   ├── package.php            # Domain tree + control list; bulk status/assess actions;
+    │   │                          # floating action bar; inline CSRF refresh
+    │   ├── objective.php          # Single control detail: status form, evidence, policy
+    │   │                          # mappings, audit findings, additional information
+    │   └── import.php             # Multi-format import: JSON, CSV, XLSX, PDF, single-control;
+    │                              # CSV/Excel template downloads
     ├── audit/
     │   ├── index.php              # Audit list with status badges
     │   ├── create.php             # Create audit form
     │   └── view.php               # Audit detail: item checklist, score, complete button
+    ├── audit_findings/            # External audit finding list and detail views
     ├── policy/
     │   ├── index.php              # Policy list with lifecycle status
     │   ├── create.php             # Create policy form with rich textarea
@@ -149,19 +257,58 @@ aegis/
     ├── risk/
     │   ├── index.php              # Risk register table with category + score badges
     │   ├── create.php             # Create risk form with scoring sliders
-    │   ├── view.php               # Risk detail: treatment history
+    │   ├── view.php               # Risk detail: treatment history, score history
     │   └── matrix.php             # Interactive 5×5 risk heatmap (Chart.js scatter + CSS grid)
+    ├── change/                    # Change request list, create, and view (with CAB approval)
+    ├── incident/                  # Incident list, create, view (with SLA timeline)
+    ├── issue/                     # Issue tracker list, create, view
+    ├── vendor/                    # Vendor register, assessments, questionnaire portal
+    ├── assets/                    # Asset register list, create, view
+    ├── bcp/                       # BCP/DRP plan list, create, view
+    ├── threat/                    # Threat register list, create, view
+    ├── awareness/                 # Training programs and user assignment tracking
+    ├── account_review/            # Access certification campaigns
+    ├── privacy/                   # Privacy impact assessments
+    ├── ssp/
+    │   ├── index.php              # SSP plan list
+    │   ├── create.php             # Create SSP form
+    │   ├── view.php               # 7-tab SSP detail: Overview, Approval, Organization,
+    │   │                          # Boundary, Environment, Inventory, Compliance;
+    │   │                          # presentation mode badge (Standard/Military/Corporate/
+    │   │                          # Air Force/DoD); JSONB inventory tables (hardware,
+    │   │                          # software, network, server, data)
+    │   └── document.php           # SSP document/export view
+    ├── poam/                      # POA&M item list, create, view with milestones
+    ├── kri/                       # Key Risk Indicators list and detail
+    ├── treatment/                 # Risk treatment plan management
+    ├── raci/                      # RACI matrix per compliance package
+    ├── automation/
+    │   ├── index.php              # Automation rules list
+    │   ├── create.php             # Rule builder: trigger selector + action chain
+    │   └── view.php               # Rule detail with execution history
+    ├── questionnaire/             # Questionnaire builder and response views
+    ├── playbook/                  # Playbook library
+    ├── calendar/                  # GRC event calendar
+    ├── projects/                  # GRC project list, create, view with tasks
+    ├── dashboards/                # Custom dashboard widget configuration
+    ├── odp/                       # ODP management views
+    ├── cui/                       # CUI inventory views
+    ├── sprs/                      # SPRS score tracking views
     ├── export/
     │   └── index.php              # Card grid: per-module CSV/XLSX download forms + ZIP export
     ├── metrics/
     │   └── index.php              # 4 KPI rings + 5 Chart.js charts (stacked bar, doughnut,
     │                              # horizontal bar, 2 line charts) + 2 data tables
+    ├── report/                    # Scheduled report configuration and delivery
+    ├── search/                    # Global search results
+    ├── documents/                 # Document management with version history
     ├── docs/
     │   └── index.php              # In-app documentation (scrollspy sidebar + rich content)
+    ├── profile/                   # User profile, password change, notification preferences
     ├── admin/
     │   ├── index.php              # Admin overview: user count, API keys, activity log, settings
     │   ├── users.php              # User management CRUD table
-    │   ├── risk_matrix.php        # Risk matrix configurator (labels, thresholds, colors)
+    │   ├── risk_matrix.php        # Risk matrix configurator (labels, thresholds, per-cell colors)
     │   ├── workflows.php          # Workflow builder (trigger + actions)
     │   ├── alerts.php             # Alert configurations + recent alert log
     │   ├── api_keys.php           # API key management (create, revoke, copy-to-clipboard)
@@ -244,34 +391,60 @@ standards (1) ──────────< compliance_packages (1) ───�
                                                                     └── reviewed_by → users
 
 compliance_packages ──< audits ──< audit_items ──> compliance_objectives
+compliance_packages ──< poam_items ──< poam_milestones
+compliance_packages ──< raci_assignments ──> users
+compliance_packages ──< ssp_plans (via compliance linkage tab)
+compliance_objectives ──< control_framework_mappings (cross-framework)
+compliance_objectives ──< audit_findings ──< finding_updates
 
 policies ──< policy_mappings  ──> compliance_objectives
 policies ──< policy_versions
 policies ──< policy_reviews
 
 risks ──< risk_treatments
+risks ──< risk_score_history
+risks ──< risk_scenarios
+risks ──< risk_bowtie_events
+risks ──< risk_reviews
+risks ──< risk_acceptances
 risks ──> risk_categories
 risks ──> users (owner_id, created_by)
 
+workflows ──< workflow_executions
+approval_templates ──< approval_instances ──< approval_decisions ──> users
+
+webhook_endpoints ──< webhook_delivery_log
+
+awareness_programs ──< awareness_assignments ──> users
+account_reviews ──< account_review_items ──> users
+
+grc_projects ──< grc_project_tasks
+grc_projects ──< grc_project_links (polymorphic: risk/policy/audit/etc.)
+
+custom_dashboards ──< dashboard_widgets ──> users
+
 users ──< api_keys
 users ──< user_permissions  (module + permission grants)
+users ──< user_notification_prefs
 users ──< alerts
-users ──< activity_log
+users ──< activity_log  (SHA-256 hash chain per entry)
 ```
 
 ---
 
 ## Database Schema
 
-All tables live in the `aegis` PostgreSQL schema (isolated from `public`). The schema is created by `install.php` using `database/schema.sql`.
+All tables live in the `aegis` PostgreSQL schema (isolated from `public`). The base schema is created by `install.php` using `database/schema.sql`; all subsequent feature additions are applied via numbered migration scripts in `database/migrations/`.
+
+### Base Tables (schema.sql)
 
 | Table | Description |
 |---|---|
-| `users` | User accounts: email, hashed password, role, active flag |
+| `users` | User accounts: email, hashed password, role, active flag; MFA secret, SSO linking columns |
 | `api_keys` | API keys per user: SHA-256 hash of the key, name, last-used timestamp |
 | `standards` | Compliance framework definitions (ISO 27001, NIST, SOC 2, etc.) |
 | `compliance_packages` | Instances of a standard assigned for tracking within the org |
-| `compliance_objectives` | Individual controls/practices within a package; tree structure via `parent_id` |
+| `compliance_objectives` | Individual controls/practices within a package; tree structure via `parent_id`; `additional_information` column |
 | `control_implementations` | One-to-one implementation record per objective: status, evidence, assignee, reviewer |
 | `audits` | Audit records tied to a compliance package: title, scope, status, scheduled date |
 | `audit_schedules` | Recurring audit schedule definitions |
@@ -280,17 +453,41 @@ All tables live in the `aegis` PostgreSQL schema (isolated from `public`). The s
 | `policy_versions` | Immutable version snapshots of policy content on each revision |
 | `policy_mappings` | Many-to-many join between policies and compliance objectives |
 | `policy_reviews` | Scheduled or completed review records for a policy |
-| `risk_categories` | Taxonomy of risk categories (configurable) |
-| `risks` | Risk register entries: title, description, likelihood, impact, owner, status |
+| `risk_categories` | Taxonomy of risk categories with amber/red appetite thresholds |
+| `risks` | Risk register entries: title, description, likelihood, impact, owner, status, JSONB treatment strategies |
 | `risk_treatments` | Treatment actions (accept/mitigate/transfer/avoid) linked to a risk |
-| `risk_matrix_config` | Admin-configurable labels, thresholds, and colors for the risk scoring matrix |
-| `workflows` | Workflow definitions: trigger condition + ordered action list |
+| `risk_matrix_config` | Admin-configurable labels, thresholds, colors, and per-cell JSONB treatment config |
+| `workflows` | Workflow definitions: trigger condition + ordered action list; cooldown; execution tracking |
 | `alerts` | Per-user alert notifications with read/unread state |
 | `alert_configs` | Alert trigger configurations (thresholds, channels, recipients) |
 | `settings` | Key-value store for application-level settings |
-| `activity_log` | Audit trail of all user actions: user, action, resource type/id, IP, timestamp |
+| `activity_log` | Tamper-evident audit trail: user, action, entity, IP, user agent, SHA-256 hash chain |
 | `rate_limits` | Request count windows per IP for API rate limiting |
 | `user_permissions` | Per-user, per-module explicit permission grants that extend or override role defaults |
+
+### Migration-Added Tables
+
+| Migration | Tables Added | Purpose |
+|---|---|---|
+| `001_enterprise_phase1.sql` | `workflow_executions`, `approval_templates`, `approval_steps`, `approval_instances`, `approval_decisions` | Workflow execution history; multi-step approval chains |
+| `002_phase2.sql` | `control_framework_mappings` | Cross-framework control mapping |
+| `003_phase3.sql` | `webhook_endpoints`, `webhook_delivery_log` | Webhook integration for 11 external providers |
+| `004_risk_enhancements.sql` | — (columns only) | Multi-select treatment strategies (JSONB) on `risks` |
+| `005_risk_enterprise.sql` | `risk_score_history`, `risk_scenarios`, `risk_bowtie_events` | Risk score trend logging; scenario modelling; BowTie diagram data |
+| `006_email_risk_review.sql` | `email_templates`, `risk_reviews` | Customizable email templates; scheduled risk review records |
+| `007_risk_extensions.sql` | `risk_acceptances`, `risk_exceptions`, `risk_bowtie` | Formal risk acceptance and exception records; BowTie structure |
+| `008_notification_prefs.sql` | `user_notification_prefs` | Per-user notification channel and frequency preferences |
+| `009_remove_seeded_packages.sql` | — | Data cleanup: removes auto-seeded compliance packages |
+| `010_risk_matrix_cells.sql` | — (columns only) | Per-cell JSONB treatment config on `risk_matrix_config` |
+| `011_drop_builtin_columns.sql` | — | Removes legacy `is_builtin`/`is_paid` columns |
+| `012_awareness_account_reviews_privacy.sql` | `awareness_programs`, `awareness_assignments`, `account_reviews`, `account_review_items`, `privacy_assessments` | Awareness training; access certification campaigns; privacy impact assessments |
+| `013_ssp.sql` | `ssp_plans` (with JSONB inventory columns: `hardware_inventory`, `software_inventory`, `network_devices`, `server_inventory`, `data_inventory`, `team_contacts`, `contracts`, `user_device_types`, `other_connected_systems`) | System Security Plan authoring with structured inventory data |
+| `014_poam.sql` | `poam_items`, `poam_milestones` | Plans of Action and Milestones with milestone tracking |
+| `015_projects.sql` | `grc_projects`, `grc_project_tasks`, `grc_project_links` | GRC project tracking with tasks and entity links |
+| `016_findings_automation.sql` | `audit_findings`, `finding_updates`, `automation_rules`, `automation_rule_actions` | External audit findings; automation rules engine |
+| `017_dashboards_raci.sql` | `custom_dashboards`, `dashboard_widgets`, `raci_assignments` | Custom dashboard widgets; RACI responsibility matrix |
+| `018_ssp_versioning.sql` | — (columns only) | SSP version, revision, and authorization signature fields |
+| `019_ssp_extended.sql` | — (columns only) | SSP company info, approval, certification, boundary, and environment detail fields |
 
 ---
 
@@ -720,7 +917,7 @@ The initial build established the foundational architecture, data model, and all
 | **Admin Panel** | User management; risk matrix configurator; workflow builder; alert configurations; API key management; per-user permission matrix; module visibility settings |
 | **Security layer** | CSP with per-request nonce; HSTS; CSRF tokens (CSPRNG, 2-hour expiry, constant-time comparison); SQL injection prevention (PDO parameterized statements throughout); XSS encoding via `Security::h()`; DOMDocument HTML sanitizer for rich content; open-redirect prevention; audit log with SHA-256 hash chain |
 | **Infrastructure** | Docker (`php:8.2-apache`); `render.yaml` Render.com manifest; `scripts/startup.sh` idempotent startup hook; PostgreSQL `aegis` schema isolation |
-| **Additional Modules** | Issue tracker; Document management with version uploads; Change management; Business Continuity Plans; Asset register with risk linking; Threat register; Key Risk Indicators (KRIs); Risk treatment plans; Risk exceptions; Risk reviews; Risk acceptance; Approval workflows; Questionnaires; Calendar; Playbooks; Tags system; Evidence file upload (randomised filenames, SHA-256 integrity, PHP-gated download); SSO (SAML/OIDC) settings; Scheduled reports; Email templates; Webhook configurations; Search |
+| **Additional Modules** | Issue tracker; Document management with version uploads; Change management with CAB approvals; Business Continuity Plans; Asset register with risk linking; Threat register; Key Risk Indicators (KRIs); Risk treatment plans; Risk exceptions; Risk reviews; Risk acceptance; Approval workflows; Questionnaires; Calendar; Playbooks; Tags system; Evidence file upload (randomised filenames, SHA-256 integrity, PHP-gated download); SSO (SAML/OIDC) settings; Scheduled reports; Email templates; Webhook configurations (11 providers); Search; Awareness training; Account reviews (access certification); Privacy assessments; System Security Plans (7-tab, JSONB inventories); POA&M; CUI inventory; SPRS; ODP; RACI matrix; Automation rules engine; Audit findings; Custom dashboards; GRC projects; Cross-framework control mapping |
 
 ---
 
@@ -802,22 +999,43 @@ Major UX feature additions: collapsible sidebar nav, bulk compliance actions, an
 
 ---
 
-### Planned — Phase 6
+### Phase 6 — Advanced Modules & Integrations (Delivered)
 
-The following items are scoped for future development.
+| Area | What was built |
+|---|---|
+| **System Security Plans (SSP)** | Full 7-tab SSP authoring (Overview, Approval, Organization, Boundary, Environment, Inventory, Compliance); presentation modes (Standard, Military, Corporate, Air Force, DoD); versioning with revision numbers and authorization signatures; JSONB-backed hardware, software, network, server, data inventories; extended company/org fields (DUNS, certifications, environment detail) via migrations 013, 018, 019 |
+| **POA&M** | Plans of Action and Milestones with numbered POA&M IDs, milestone tracking, and linkage to compliance packages |
+| **Audit Findings** | External audit finding tracking with severity (critical/high/medium/low/info), status lifecycle (open/in_progress/resolved/risk_accepted/closed), source classification (external_audit/pentest/certification/assessment/regulatory), finding update timeline, compliance objective and package linkage |
+| **Automation Rules Engine** | Configurable rules with triggers and action chains; execution history per rule; cooldown period enforcement; separate from the admin workflow builder |
+| **Custom Dashboards** | User-configurable dashboard widgets stored per-user |
+| **RACI Matrix** | Responsibility assignment (Responsible/Accountable/Consulted/Informed) per compliance package and control objective |
+| **GRC Projects** | Project tracking with code, tasks, milestones, and polymorphic entity links (risk/policy/audit/etc.) |
+| **Awareness Training** | Training programs with content types (document/video/link); per-user assignment and completion tracking |
+| **Account Reviews** | Periodic access certification campaigns with per-item certify/revoke decisions |
+| **Privacy Management** | Privacy impact assessment records linked to data processing activities |
+| **CUI Inventory** | Controlled Unclassified Information tracking by category |
+| **SPRS** | Supplier Performance Risk System score management |
+| **ODP** | Organizational-Defined Parameters management for NIST control tailoring |
+| **Cross-Framework Mapping** | Map controls across multiple compliance standards via `control_framework_mappings` |
+| **Webhook Integration** | 11-provider delivery engine (Slack, Teams, Discord, Jira, PagerDuty, ServiceNow, Google Chat, OpsGenie, Datadog, Splunk HEC, Generic HTTP) with per-endpoint delivery log |
+| **Dark Mode** | Full dark/light theme toggle persisted via `localStorage`; implemented with CSS custom properties across all views and modules |
+
+---
+
+### Planned — Future Work
 
 | Area | Description |
 |---|---|
 | **AI-Assisted Gap Analysis** | Claude API integration to analyse a compliance package, identify unaddressed control gaps relative to existing policies and risks, and generate a prioritised remediation narrative |
-| **Control Testing Dashboard** | Dedicated dashboard aggregating all control test results (`control_tests` table) with pass/fail trend charts, overdue retests, and effectiveness heatmap by domain |
+| **Control Testing Dashboard** | Dedicated dashboard aggregating all control test results with pass/fail trend charts, overdue retests, and effectiveness heatmap by domain |
 | **Evidence Attachments on Controls** | File upload directly from the control assess page and the bulk assess modal, linked to `control_implementations` rather than the generic evidence store |
-| **Compliance Scorecard PDF Export** | One-click PDF export of the per-package scorecard view (domain breakdown, compliance percentages, non-compliant control list) using a server-side HTML-to-PDF renderer |
-| **Risk Roadmap Gantt** | Gantt-style visualisation of open treatment plans on the risk roadmap view, with drag-to-reschedule and owner swimlanes |
-| **Automated Evidence Collection** | Webhook receiver that accepts structured evidence payloads from CI/CD pipelines, cloud platforms, and security tools and attaches them to mapped controls automatically |
-| **Attestation Campaigns v2** | Bulk-assign policy attestation campaigns by role or department; track completion percentage; send reminder emails via the configured SMTP provider |
-| **SSO / SAML2 live integration** | Complete the SAML2 authentication flow (`SSOController`) with IdP metadata exchange, SP-initiated login, and attribute mapping for role assignment |
-| **Multi-tenant organisations** | Namespace all tables under an `organisation_id` to allow a single AEGIS instance to serve multiple independent tenants with data isolation |
-| **Mobile-first view layer** | Responsive card-based views for the compliance package and risk register pages optimised for small screens; swipe gestures for quick status updates |
+| **Compliance Scorecard PDF Export** | One-click PDF export of the per-package scorecard view (domain breakdown, compliance percentages, non-compliant control list) |
+| **Risk Roadmap Gantt** | Gantt-style visualisation of open treatment plans with drag-to-reschedule and owner swimlanes |
+| **Automated Evidence Collection** | Webhook receiver accepting structured evidence payloads from CI/CD pipelines and security tools, auto-attached to mapped controls |
+| **Attestation Campaigns v2** | Bulk-assign policy attestation campaigns by role or department; track completion percentage; reminder emails via SMTP |
+| **SSO / SAML2 live integration** | Complete the SAML2 authentication flow (`SSOController`) with IdP metadata exchange, SP-initiated login, and role attribute mapping |
+| **Multi-tenant organisations** | Namespace all tables under an `organisation_id` for data isolation between tenants on a single AEGIS instance |
+| **Mobile-first view layer** | Responsive card-based views for compliance and risk modules optimised for small screens; swipe gestures for quick status updates |
 
 ---
 
