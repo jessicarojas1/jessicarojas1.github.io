@@ -1,4 +1,5 @@
 <?php ob_start();
+$breadcrumbs = [['Privacy', '/privacy'], ['DSR Requests', null]];
 $typeLabels = ['access'=>'Access','erasure'=>'Erasure','rectification'=>'Rectification','portability'=>'Portability','objection'=>'Objection','restriction'=>'Restriction'];
 $typeColors = ['access'=>'blue','erasure'=>'red','rectification'=>'yellow','portability'=>'indigo','objection'=>'orange','restriction'=>'purple'];
 ?>

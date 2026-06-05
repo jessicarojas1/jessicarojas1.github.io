@@ -1,4 +1,5 @@
 <?php ob_start();
+$breadcrumbs = [['Privacy', '/privacy'], ['Requests', '/privacy/requests'], [Security::h($record['name'] ?? 'Request'), null]];
 $basisLabels = [
   'consent'=>'Consent','legitimate_interest'=>'Legitimate Interest','contract'=>'Contract',
   'legal_obligation'=>'Legal Obligation','vital_interests'=>'Vital Interests','public_task'=>'Public Task'
