@@ -9,6 +9,8 @@
  *   $tooShort   bool    — true when strlen($q) < 2
  */
 
+$breadcrumbs = [['Search', null]];
+
 // Type metadata: icon class, badge CSS class
 $typeMeta = [
     'risk'     => ['icon' => 'bi-exclamation-triangle-fill', 'badge' => 'badge-danger',    'label' => 'Risks'],

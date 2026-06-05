@@ -6,6 +6,7 @@
 $risks        = $risks        ?? [];
 $filterStatus = Security::sanitizeInput($_GET['status'] ?? '');
 $filterLevel  = Security::sanitizeInput($_GET['level']  ?? '');
+$breadcrumbs  = [['Reports', '/report'], ['Risk Detail', null]];
 $reportDate   = date('F j, Y');
 $orgName      = Database::fetchOne("SELECT value FROM settings WHERE key='org_name'")['value'] ?? 'Organisation';
 

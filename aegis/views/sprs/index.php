@@ -1,3 +1,4 @@
+<?php $breadcrumbs = [['SPRS', null]]; ?>
 <div class="page-header">
   <div>
     <h1 class="page-title">SPRS Score</h1>
