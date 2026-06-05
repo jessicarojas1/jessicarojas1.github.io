@@ -397,10 +397,10 @@ if (!function_exists('sspVal')) {
 </div>
 
 <!-- ────────────────── EDIT MODAL ────────────────── -->
-<div class="modal-overlay" id="editSspModal" style="display:none">
-  <div class="modal modal-lg" style="max-width:860px">
-    <div class="modal-header"><h3><i class="bi bi-pencil-fill"></i> Edit System Security Plan</h3><button data-close-modal="editSspModal"><i class="bi bi-x-lg"></i></button></div>
-    <div class="modal-body">
+<div class="um-overlay" id="editSspModal" style="display:none">
+  <div class="um-dialog um-dialog-lg" style="max-width:860px">
+    <div class="um-header"><h3><i class="bi bi-pencil-fill"></i> Edit System Security Plan</h3><button class="um-close" data-close-modal="editSspModal"><i class="bi bi-x-lg"></i></button></div>
+    <div class="um-body">
       <form method="POST" action="/ssp/<?= (int)$plan['id'] ?>/update" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
         <!-- Hidden fields for JSON lists (updated by JS) -->
@@ -502,9 +502,9 @@ if (!function_exists('sspVal')) {
 </div>
 
 <!-- Add Contact Modal -->
-<div class="modal-overlay" id="addContactModal" style="display:none">
-  <div class="modal"><div class="modal-header"><h3>Add Team Contact</h3><button data-close-modal="addContactModal"><i class="bi bi-x-lg"></i></button></div>
-  <div class="modal-body">
+<div class="um-overlay" id="addContactModal" style="display:none">
+  <div class="um-dialog"><div class="um-header"><h3>Add Team Contact</h3><button class="um-close" data-close-modal="addContactModal"><i class="bi bi-x-lg"></i></button></div>
+  <div class="um-body">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
       <div class="form-group"><label class="form-label">Name</label><input type="text" id="ci_name" class="form-control" placeholder="Full name"></div>
       <div class="form-group"><label class="form-label">Title</label><input type="text" id="ci_title" class="form-control" placeholder="Job title"></div>
@@ -517,9 +517,9 @@ if (!function_exists('sspVal')) {
 </div>
 
 <!-- Add Hardware Modal -->
-<div class="modal-overlay" id="addHwModal" style="display:none">
-  <div class="modal"><div class="modal-header"><h3>Add Hardware</h3><button data-close-modal="addHwModal"><i class="bi bi-x-lg"></i></button></div>
-  <div class="modal-body">
+<div class="um-overlay" id="addHwModal" style="display:none">
+  <div class="um-dialog"><div class="um-header"><h3>Add Hardware</h3><button class="um-close" data-close-modal="addHwModal"><i class="bi bi-x-lg"></i></button></div>
+  <div class="um-body">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
       <div class="form-group"><label class="form-label">Make/Model</label><input type="text" id="hw_make_model" class="form-control"></div>
       <div class="form-group"><label class="form-label">Serial Number</label><input type="text" id="hw_serial" class="form-control"></div>
@@ -531,9 +531,9 @@ if (!function_exists('sspVal')) {
 </div>
 
 <!-- Add Software Modal -->
-<div class="modal-overlay" id="addSwModal" style="display:none">
-  <div class="modal"><div class="modal-header"><h3>Add Software</h3><button data-close-modal="addSwModal"><i class="bi bi-x-lg"></i></button></div>
-  <div class="modal-body">
+<div class="um-overlay" id="addSwModal" style="display:none">
+  <div class="um-dialog"><div class="um-header"><h3>Add Software</h3><button class="um-close" data-close-modal="addSwModal"><i class="bi bi-x-lg"></i></button></div>
+  <div class="um-body">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
       <div class="form-group"><label class="form-label">Name</label><input type="text" id="sw_name" class="form-control"></div>
       <div class="form-group"><label class="form-label">Version</label><input type="text" id="sw_version" class="form-control"></div>
@@ -546,9 +546,9 @@ if (!function_exists('sspVal')) {
 </div>
 
 <!-- Add Data Inventory Modal -->
-<div class="modal-overlay" id="addDataModal" style="display:none">
-  <div class="modal"><div class="modal-header"><h3>Add Data Type</h3><button data-close-modal="addDataModal"><i class="bi bi-x-lg"></i></button></div>
-  <div class="modal-body">
+<div class="um-overlay" id="addDataModal" style="display:none">
+  <div class="um-dialog"><div class="um-header"><h3>Add Data Type</h3><button class="um-close" data-close-modal="addDataModal"><i class="bi bi-x-lg"></i></button></div>
+  <div class="um-body">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
       <div class="form-group"><label class="form-label">Data Type</label><input type="text" id="di_type" class="form-control" placeholder="e.g. PII, CUI, Financial"></div>
       <div class="form-group"><label class="form-label">Classification</label><select id="di_classification" class="form-control"><option>Public</option><option>Internal</option><option>CUI</option><option>Classified</option></select></div>
@@ -561,9 +561,9 @@ if (!function_exists('sspVal')) {
 </div>
 
 <!-- Add Contract Modal -->
-<div class="modal-overlay" id="addContractModal" style="display:none">
-  <div class="modal"><div class="modal-header"><h3>Add Contract</h3><button data-close-modal="addContractModal"><i class="bi bi-x-lg"></i></button></div>
-  <div class="modal-body">
+<div class="um-overlay" id="addContractModal" style="display:none">
+  <div class="um-dialog"><div class="um-header"><h3>Add Contract</h3><button class="um-close" data-close-modal="addContractModal"><i class="bi bi-x-lg"></i></button></div>
+  <div class="um-body">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
       <div class="form-group"><label class="form-label">Contract Number</label><input type="text" id="cn_number" class="form-control"></div>
       <div class="form-group"><label class="form-label">CAGE Code</label><input type="text" id="cn_cage" class="form-control"></div>
@@ -577,9 +577,9 @@ if (!function_exists('sspVal')) {
 
 <!-- Add Package Modal -->
 <?php if (!empty($allPackages)): ?>
-<div class="modal-overlay" id="addPkgModal" style="display:none">
-  <div class="modal"><div class="modal-header"><h3>Add Compliance Package</h3><button data-close-modal="addPkgModal"><i class="bi bi-x-lg"></i></button></div>
-  <div class="modal-body">
+<div class="um-overlay" id="addPkgModal" style="display:none">
+  <div class="um-dialog"><div class="um-header"><h3>Add Compliance Package</h3><button class="um-close" data-close-modal="addPkgModal"><i class="bi bi-x-lg"></i></button></div>
+  <div class="um-body">
     <form method="POST" action="/ssp/<?= (int)$plan['id'] ?>/add-package">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
       <div class="form-group"><label class="form-label">Package</label><select name="package_id" class="form-control"><option value="">— Select —</option><?php foreach($allPackages as $pkg): ?><option value="<?= (int)$pkg['id'] ?>"><?= Security::h($pkg['name']) ?> (<?= Security::h($pkg['standard_code']) ?>)</option><?php endforeach; ?></select></div>
