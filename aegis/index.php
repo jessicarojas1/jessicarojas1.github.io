@@ -394,6 +394,24 @@ try {
 } catch (Throwable) {}
 
 try {
+    // incidents: widen status CHECK constraint to include 'contained'
+    Database::query("ALTER TABLE incidents DROP CONSTRAINT IF EXISTS incidents_status_check");
+    Database::query(
+        "ALTER TABLE incidents ADD CONSTRAINT incidents_status_check
+         CHECK (status IN ('open','investigating','contained','resolved','closed'))"
+    );
+} catch (Throwable) {}
+
+try {
+    // issues: widen status CHECK constraint to include 'pending_review' and 'wont_fix'
+    Database::query("ALTER TABLE issues DROP CONSTRAINT IF EXISTS issues_status_check");
+    Database::query(
+        "ALTER TABLE issues ADD CONSTRAINT issues_status_check
+         CHECK (status IN ('open','in_progress','pending_review','resolved','closed','wont_fix'))"
+    );
+} catch (Throwable) {}
+
+try {
     // Risk appetite: remove duplicate rows (keep lowest id per category), then seed defaults if empty
     Database::query(
         "DELETE FROM risk_appetite WHERE id NOT IN (

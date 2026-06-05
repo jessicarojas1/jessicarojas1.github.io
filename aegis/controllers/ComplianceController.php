@@ -427,7 +427,7 @@ class ComplianceController {
             ? $_POST['status'] : 'not_started';
         $notes    = Security::sanitizeInput($_POST['implementation_notes'] ?? '');
         $evidence = Security::sanitizeInput($_POST['evidence'] ?? '');
-        $dueDate  = $_POST['due_date'] ? Security::sanitizeInput($_POST['due_date']) : null;
+        $dueDate  = !empty($_POST['due_date'] ?? '') ? Security::sanitizeInput($_POST['due_date']) : null;
         $assignTo = !empty($_POST['assigned_to']) ? (int)$_POST['assigned_to'] : null;
 
         $existing = Database::fetchOne("SELECT id FROM control_implementations WHERE objective_id = ?", [$objId]);

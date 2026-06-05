@@ -154,7 +154,7 @@ class ChangeController {
             return;
         }
 
-        Auth::requirePermission('audit.write');
+        Auth::requirePermission('compliance.write');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);

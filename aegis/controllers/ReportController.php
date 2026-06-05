@@ -22,7 +22,7 @@ class ReportController {
                     COUNT(ci.id) FILTER (WHERE ci.status = 'not_started')    AS not_started,
                     COUNT(ci.id) FILTER (WHERE ci.status = 'not_applicable') AS not_applicable
              FROM compliance_packages cp
-             LEFT JOIN compliance_objectives co ON co.package_id = cp.id AND co.level = 3
+             LEFT JOIN compliance_objectives co ON co.package_id = cp.id AND co.level = 2
              LEFT JOIN control_implementations ci ON ci.objective_id = co.id
              WHERE cp.is_active = TRUE
              GROUP BY cp.id, cp.name, cp.objectives_count

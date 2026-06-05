@@ -705,25 +705,25 @@ class AdminController {
                 switch ($entityType) {
                     case 'activity_log':
                         $res     = Database::query(
-                            "DELETE FROM activity_log WHERE created_at < NOW() - ($1 * INTERVAL '1 day')",
+                            "DELETE FROM activity_log WHERE created_at < NOW() - (? * INTERVAL '1 day')",
                             [$days]
                         );
                         break;
                     case 'notification_log':
                         $res     = Database::query(
-                            "DELETE FROM notification_log WHERE sent_at < NOW() - ($1 * INTERVAL '1 day')",
+                            "DELETE FROM notification_log WHERE sent_at < NOW() - (? * INTERVAL '1 day')",
                             [$days]
                         );
                         break;
                     case 'webhook_deliveries':
                         $res     = Database::query(
-                            "DELETE FROM webhook_deliveries WHERE created_at < NOW() - ($1 * INTERVAL '1 day') AND status IN ('delivered','failed')",
+                            "DELETE FROM webhook_deliveries WHERE created_at < NOW() - (? * INTERVAL '1 day') AND status IN ('delivered','failed')",
                             [$days]
                         );
                         break;
                     case 'alerts':
                         $res     = Database::query(
-                            "DELETE FROM alerts WHERE created_at < NOW() - ($1 * INTERVAL '1 day') AND is_read = TRUE",
+                            "DELETE FROM alerts WHERE created_at < NOW() - (? * INTERVAL '1 day') AND is_read = TRUE",
                             [$days]
                         );
                         break;

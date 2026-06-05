@@ -144,7 +144,7 @@ class ExportController {
                 "SELECT r.risk_id, r.title, r.description, rc.name as category,
                         r.likelihood, r.impact, r.inherent_score,
                         r.residual_likelihood, r.residual_impact, r.residual_score,
-                        r.treatment_type, r.status, r.target_date,
+                        r.treatment_type, r.status, r.due_date,
                         u.name as owner, r.created_at
                  FROM risks r
                  LEFT JOIN risk_categories rc ON rc.id = r.category_id
@@ -168,10 +168,10 @@ class ExportController {
                  ORDER BY a.scheduled_date DESC"
             ),
             'incidents' => Database::fetchAll(
-                "SELECT i.title, i.severity, i.status, i.incident_type,
-                        i.description, i.resolution, i.created_at, i.resolved_at,
-                        u.name as owner
-                 FROM incidents i LEFT JOIN users u ON u.id = i.owner_id
+                "SELECT i.title, i.severity, i.status, i.category,
+                        i.description, i.created_at, i.resolved_at,
+                        u.name as reported_by
+                 FROM incidents i LEFT JOIN users u ON u.id = i.reported_by
                  ORDER BY i.created_at DESC"
             ),
             'vendors' => Database::fetchAll(
@@ -194,8 +194,10 @@ class ExportController {
                 try {
                     return Database::fetchAll(
                         "SELECT a.name, a.asset_type, a.criticality, a.status,
-                                a.ip_address, a.owner, a.location, a.created_at
-                         FROM assets a ORDER BY a.criticality DESC, a.name"
+                                a.ip_address, u.name as owner, a.location, a.created_at
+                         FROM assets a
+                         LEFT JOIN users u ON u.id = a.owner_id
+                         ORDER BY a.criticality DESC, a.name"
                     );
                 } catch (Throwable) { return []; }
             })(),

@@ -172,7 +172,7 @@ class AutomationController {
                     break;
                 case 'vendor_contract_expiring':
                     $days = (int)($config['days_before'] ?? 30);
-                    $vendors = Database::fetchAll("SELECT v.id, v.name, vc.end_date FROM vendors v JOIN vendor_contracts vc ON vc.vendor_id=v.id WHERE vc.end_date <= NOW() + INTERVAL '{$days} days' AND vc.status='active' LIMIT 20");
+                    $vendors = Database::fetchAll("SELECT v.id, v.name, vc.end_date FROM vendors v JOIN vendor_contracts vc ON vc.vendor_id=v.id WHERE vc.end_date <= NOW() + (? * INTERVAL '1 day') AND vc.status='active' LIMIT 20", [$days]);
                     $matches = ['message' => "Found " . count($vendors) . " contracts expiring within {$days} days", 'items' => $vendors];
                     break;
                 default:

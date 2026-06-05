@@ -19,7 +19,7 @@ class MetricsController {
                  FROM control_implementations"
             );
             $livePolicies = Database::fetchOne(
-                "SELECT COUNT(*) as total, COUNT(*) FILTER (WHERE status='approved') as approved FROM policies"
+                "SELECT COUNT(*) as total, COUNT(*) FILTER (WHERE status='published') as approved FROM policies"
             );
             $liveRisks = Database::fetchOne(
                 "SELECT COUNT(*) as total,
