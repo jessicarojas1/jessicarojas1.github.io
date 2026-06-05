@@ -170,7 +170,7 @@ ob_start();
               <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Scheduled regular reviews (monthly, quarterly, annual) of the risk register.</div>
             </div>
             <div>
-              <div style="font-weight:600;font-size:12px;color:#d97706;">Triggered</div>
+              <div style="font-weight:600;font-size:12px;color:var(--warning);">Triggered</div>
               <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Initiated by a specific event — incident, change, or external threat.</div>
             </div>
             <div>

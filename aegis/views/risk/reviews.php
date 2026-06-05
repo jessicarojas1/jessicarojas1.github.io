@@ -77,10 +77,10 @@ ob_start();
   <div class="card" style="border-left:4px solid #d97706;">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
       <div style="width:44px;height:44px;border-radius:10px;background:var(--warning-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-        <i class="bi bi-play-circle" style="font-size:20px;color:#d97706;"></i>
+        <i class="bi bi-play-circle" style="font-size:20px;color:var(--warning);"></i>
       </div>
       <div>
-        <div style="font-size:26px;font-weight:700;line-height:1;color:#d97706;"><?= $inProgress ?></div>
+        <div style="font-size:26px;font-weight:700;line-height:1;color:var(--warning);"><?= $inProgress ?></div>
         <div style="font-size:12px;color:var(--text-muted);margin-top:3px;">In Progress</div>
       </div>
     </div>

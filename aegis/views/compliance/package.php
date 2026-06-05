@@ -21,7 +21,7 @@ ob_start();
     <form method="POST" action="/compliance/<?= (int)$package['id'] ?>/delete" style="display:inline"
           data-confirm="Permanently delete this package and all its controls? This cannot be undone.">
       <?= Security::csrfField() ?>
-      <button type="submit" class="btn btn-ghost" style="color:#dc2626"><i class="bi bi-trash3-fill"></i> Delete</button>
+      <button type="submit" class="btn btn-ghost" style="color:var(--danger)"><i class="bi bi-trash3-fill"></i> Delete</button>
     </form>
     <a href="/audit/create" class="btn btn-primary"><i class="bi bi-clipboard2-plus"></i> Start Audit</a>
   </div>
@@ -59,9 +59,9 @@ ob_start();
   </div>
   <div class="overview-stats">
     <div class="ov-stat"><span class="ov-num" style="color:var(--primary)"><?= $total ?></span><span>Total Controls</span></div>
-    <div class="ov-stat"><span class="ov-num" style="color:#059669"><?= $compliant ?></span><span>Compliant</span></div>
-    <div class="ov-stat"><span class="ov-num" style="color:#d97706"><?= $partial ?></span><span>Partial</span></div>
-    <div class="ov-stat"><span class="ov-num" style="color:#dc2626"><?= $nonComp ?></span><span>Non-compliant</span></div>
+    <div class="ov-stat"><span class="ov-num" style="color:var(--success)"><?= $compliant ?></span><span>Compliant</span></div>
+    <div class="ov-stat"><span class="ov-num" style="color:var(--warning)"><?= $partial ?></span><span>Partial</span></div>
+    <div class="ov-stat"><span class="ov-num" style="color:var(--danger)"><?= $nonComp ?></span><span>Non-compliant</span></div>
     <div class="ov-stat"><span class="ov-num" style="color:var(--text-muted)"><?= max(0,$total-$compliant-$partial-$nonComp) ?></span><span>Not Started</span></div>
   </div>
   <?php if ($package['standard_desc']): ?>
@@ -164,7 +164,7 @@ ob_start();
       <form method="POST" action="/compliance/<?= $package['id'] ?>/domain/<?= $domain['id'] ?>/delete" style="display:inline"
             data-confirm="Delete this domain and all its controls?" data-stop-prop>
         <?= Security::csrfField() ?>
-        <button type="submit" class="btn btn-ghost btn-sm" title="Delete Domain" style="color:#dc2626">
+        <button type="submit" class="btn btn-ghost btn-sm" title="Delete Domain" style="color:var(--danger)">
           <i class="bi bi-trash3-fill"></i>
         </button>
       </form>
@@ -221,7 +221,7 @@ ob_start();
           <form method="POST" action="/compliance/<?= $package['id'] ?>/control/<?= $ctrl['id'] ?>/delete" style="display:inline"
                 data-confirm="Delete control <?= Security::h(addslashes($ctrl['code'])) ?>?">
             <?= Security::csrfField() ?>
-            <button type="submit" class="btn btn-ghost btn-sm" title="Delete control" style="color:#dc2626"><i class="bi bi-trash3-fill"></i></button>
+            <button type="submit" class="btn btn-ghost btn-sm" title="Delete control" style="color:var(--danger)"><i class="bi bi-trash3-fill"></i></button>
           </form>
         </div>
       </div>
@@ -270,7 +270,7 @@ function statusIcon(string $s): string {
     <?= Security::csrfField() ?>
     <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
       <div class="form-group" style="margin:0">
-        <label class="form-label">Name <span style="color:#dc2626">*</span></label>
+        <label class="form-label">Name <span style="color:var(--danger)">*</span></label>
         <input type="text" name="name" class="form-control" required value="<?= Security::h($package['name']) ?>">
       </div>
       <div class="form-group" style="margin:0">
@@ -299,12 +299,12 @@ function statusIcon(string $s): string {
     <?= Security::csrfField() ?>
     <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
       <div class="form-group" style="margin:0">
-        <label class="form-label">Domain Code <span style="color:#dc2626">*</span></label>
+        <label class="form-label">Domain Code <span style="color:var(--danger)">*</span></label>
         <input type="text" name="code" class="form-control" required placeholder="e.g. AC, 5.1, PR.AC" autofocus>
         <p class="text-muted" style="font-size:12px;margin-top:4px">A short unique identifier for this domain.</p>
       </div>
       <div class="form-group" style="margin:0">
-        <label class="form-label">Domain Title <span style="color:#dc2626">*</span></label>
+        <label class="form-label">Domain Title <span style="color:var(--danger)">*</span></label>
         <input type="text" name="title" class="form-control" required placeholder="e.g. Access Control">
       </div>
     </div>
@@ -328,11 +328,11 @@ function statusIcon(string $s): string {
     <?= Security::csrfField() ?>
     <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
       <div class="form-group" style="margin:0">
-        <label class="form-label">Domain Code <span style="color:#dc2626">*</span></label>
+        <label class="form-label">Domain Code <span style="color:var(--danger)">*</span></label>
         <input type="text" name="code" class="form-control" required value="<?= Security::h($domain['code']) ?>">
       </div>
       <div class="form-group" style="margin:0">
-        <label class="form-label">Domain Title <span style="color:#dc2626">*</span></label>
+        <label class="form-label">Domain Title <span style="color:var(--danger)">*</span></label>
         <input type="text" name="title" class="form-control" required value="<?= Security::h($domain['title']) ?>">
       </div>
     </div>
@@ -346,18 +346,18 @@ function statusIcon(string $s): string {
 <!-- Add Control to Domain: <?= $domain['id'] ?> -->
 <div id="modal-add-ctrl-<?= $domain['id'] ?>" class="aegis-modal" style="display:none">
   <div class="modal-header">
-    <h3><i class="bi bi-plus-circle-fill" style="color:#059669"></i> Add Control — <?= Security::h($domain['code']) ?></h3>
+    <h3><i class="bi bi-plus-circle-fill" style="color:var(--success)"></i> Add Control — <?= Security::h($domain['code']) ?></h3>
     <button class="modal-close" data-click="pkgCloseModal"><i class="bi bi-x-lg"></i></button>
   </div>
   <form method="POST" action="/compliance/<?= (int)$package['id'] ?>/domain/<?= (int)$domain['id'] ?>/control/add">
     <?= Security::csrfField() ?>
     <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
       <div class="form-group" style="margin:0">
-        <label class="form-label">Control Code <span style="color:#dc2626">*</span></label>
+        <label class="form-label">Control Code <span style="color:var(--danger)">*</span></label>
         <input type="text" name="code" class="form-control" required placeholder="e.g. <?= Security::h($domain['code']) ?>.1">
       </div>
       <div class="form-group" style="margin:0">
-        <label class="form-label">Control Title <span style="color:#dc2626">*</span></label>
+        <label class="form-label">Control Title <span style="color:var(--danger)">*</span></label>
         <input type="text" name="title" class="form-control" required placeholder="e.g. Least Privilege Access">
       </div>
       <div class="form-group" style="margin:0">
@@ -392,11 +392,11 @@ foreach ($ctrlsForModal as $cm): ?>
     <?= Security::csrfField() ?>
     <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
       <div class="form-group" style="margin:0">
-        <label class="form-label">Control Code <span style="color:#dc2626">*</span></label>
+        <label class="form-label">Control Code <span style="color:var(--danger)">*</span></label>
         <input type="text" name="code" class="form-control" required value="<?= Security::h($cm['code']) ?>">
       </div>
       <div class="form-group" style="margin:0">
-        <label class="form-label">Control Title <span style="color:#dc2626">*</span></label>
+        <label class="form-label">Control Title <span style="color:var(--danger)">*</span></label>
         <input type="text" name="title" class="form-control" required value="<?= Security::h($cm['title']) ?>">
       </div>
       <div class="form-group" style="margin:0">
@@ -682,7 +682,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="card-body" style="display:flex;flex-direction:column;gap:16px;max-height:70vh;overflow-y:auto;padding:20px">
 
       <div class="form-group" style="margin:0">
-        <label class="form-label" style="font-weight:700;margin-bottom:10px">Implementation Status <span style="color:#dc2626">*</span></label>
+        <label class="form-label" style="font-weight:700;margin-bottom:10px">Implementation Status <span style="color:var(--danger)">*</span></label>
         <div style="display:flex;flex-direction:column;gap:8px">
           <?php foreach ([
             ['not_started',   'circle',              '#71717a', 'Not Started',   'No implementation work has begun'],

@@ -406,7 +406,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 
       <!-- ── (A) Causes Column ───────────────────────────── -->
       <div class="bt-causes-col">
-        <div class="bt-col-header" style="color:#dc2626;background:#dc262618;border:1px solid #dc262640">
+        <div class="bt-col-header" style="color:var(--danger);background:#dc262618;border:1px solid #dc262640">
           <i class="bi bi-exclamation-triangle-fill"></i> Threat / Cause
         </div>
         <?php if (empty($causes)): ?>
@@ -598,10 +598,10 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
     <!-- Tab Navigation -->
     <div class="bt-tabs-nav" role="tablist">
       <button class="bt-tab-btn active" data-click="btTabBtn" data-arg="causes" role="tab" aria-selected="true">
-        <i class="bi bi-exclamation-triangle-fill" style="color:#dc2626"></i>
+        <i class="bi bi-exclamation-triangle-fill" style="color:var(--danger)"></i>
         Causes
         <?php if (!empty($causes)): ?>
-          <span style="background:#dc262618;color:#dc2626;font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px"><?= count($causes) ?></span>
+          <span style="background:#dc262618;color:var(--danger);font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px"><?= count($causes) ?></span>
         <?php endif; ?>
       </button>
       <button class="bt-tab-btn" data-click="btTabBtn" data-arg="left-barriers" role="tab" aria-selected="false">
@@ -825,7 +825,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
     <h4 style="margin:0 0 10px;font-size:14px;color:var(--text)"><i class="bi bi-info-circle-fill" style="color:var(--primary)"></i> About Bow-Tie Analysis</h4>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;font-size:13px;color:var(--text-muted)">
       <div>
-        <strong style="color:#dc2626"><i class="bi bi-exclamation-triangle-fill"></i> Left Side — Causes</strong>
+        <strong style="color:var(--danger)"><i class="bi bi-exclamation-triangle-fill"></i> Left Side — Causes</strong>
         <p style="margin:6px 0 0">Threats, vulnerabilities, or events that could lead to the central risk event occurring. Each cause may have a different likelihood contribution.</p>
       </div>
       <div>

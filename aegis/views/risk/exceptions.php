@@ -116,9 +116,9 @@ ob_start();
                 $daysLeft = (int)((strtotime($ex['expiry_date']) - strtotime('today')) / 86400);
                 $expiryDisplay = date('M j, Y', strtotime($ex['expiry_date']));
                 if ($daysLeft < 0) {
-                    $expiryStyle = 'color:#dc2626;font-weight:600;';
+                    $expiryStyle = 'color:var(--danger);font-weight:600;';
                 } elseif ($daysLeft <= 30) {
-                    $expiryStyle = 'color:#d97706;font-weight:600;';
+                    $expiryStyle = 'color:var(--warning);font-weight:600;';
                 }
             }
           ?>

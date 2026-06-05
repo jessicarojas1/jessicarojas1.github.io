@@ -76,7 +76,7 @@ $totalGaps = count($gaps);
 </div>
 <?php else: ?>
 <div class="card" style="margin-bottom:32px">
-  <div class="card-body" style="text-align:center;padding:40px;color:#a1a1aa">
+  <div class="card-body" style="text-align:center;padding:40px;color:var(--text-muted)">
     <i class="bi bi-clipboard2-x" style="font-size:36px;display:block;margin-bottom:10px"></i>
     <p style="margin:0">No active compliance packages found. <a href="/compliance/import">Import a framework</a> to get started.</p>
   </div>
@@ -88,7 +88,7 @@ $totalGaps = count($gaps);
 ════════════════════════════════════════════ -->
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
   <h2 style="font-size:16px;font-weight:600;margin:0;display:flex;align-items:center;gap:8px">
-    <i class="bi bi-exclamation-triangle" style="color:#d97706"></i>
+    <i class="bi bi-exclamation-triangle" style="color:var(--warning)"></i>
     Control Gaps Requiring Attention
   </h2>
   <span style="font-size:13px;color:var(--text-muted);background:var(--bg-secondary);padding:4px 12px;border-radius:12px">
@@ -118,14 +118,14 @@ $totalGaps = count($gaps);
                          && $gap['status'] !== 'implemented';
             if ($isOverdue) {
               $statusLabel = 'Overdue';
-              $statusColor = '#dc2626';
-              $statusBg    = $statusColor . '18';
+              $statusColor = 'var(--danger)';
+              $statusBg    = 'var(--danger-subtle)';
             } else {
               $statusLabel = $gap['status'] ? ucwords(str_replace('_',' ',$gap['status'])) : 'Not Started';
-              $statusColor = '#71717a';
+              $statusColor = 'var(--text-muted)';
               $statusBg    = 'var(--bg-secondary)';
             }
-            $dueDateColor = ($gap['due_date'] && strtotime($gap['due_date']) < time()) ? '#dc2626' : 'inherit';
+            $dueDateColor = ($gap['due_date'] && strtotime($gap['due_date']) < time()) ? 'var(--danger)' : 'inherit';
           ?>
           <tr>
             <td>
@@ -153,9 +153,9 @@ $totalGaps = count($gaps);
       </table>
     </div>
     <?php else: ?>
-    <div style="text-align:center;padding:48px 20px;color:#a1a1aa">
-      <i class="bi bi-patch-check" style="font-size:40px;display:block;margin-bottom:12px;color:#059669"></i>
-      <p style="font-size:15px;margin:0;color:#059669;font-weight:600">No control gaps found!</p>
+    <div style="text-align:center;padding:48px 20px;color:var(--text-muted)">
+      <i class="bi bi-patch-check" style="font-size:40px;display:block;margin-bottom:12px;color:var(--success)"></i>
+      <p style="font-size:15px;margin:0;color:var(--success);font-weight:600">No control gaps found!</p>
       <p style="font-size:13px;margin:8px 0 0">All active controls are implemented or in progress.</p>
     </div>
     <?php endif; ?>
@@ -168,7 +168,7 @@ $totalGaps = count($gaps);
 <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
   <div>
     <h2 style="font-size:16px;font-weight:600;margin:0 0 4px;display:flex;align-items:center;gap:8px">
-      <i class="bi bi-diagram-3" style="color:#dc2626"></i>
+      <i class="bi bi-diagram-3" style="color:var(--danger)"></i>
       Controls Failing Across Multiple Frameworks
     </h2>
     <p style="font-size:13px;color:var(--text-muted);margin:0">

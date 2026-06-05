@@ -6,8 +6,8 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 function testResultBadge(string $result): string {
     return match($result) {
         'pass'       => '<span class="badge" style="background:#16a34a18;color:#16a34a;border:1px solid #16a34a40">Pass</span>',
-        'fail'       => '<span class="badge" style="background:#dc262618;color:#dc2626;border:1px solid #dc262640">Fail</span>',
-        'partial'    => '<span class="badge" style="background:#d9770618;color:#d97706;border:1px solid #d9770640">Partial</span>',
+        'fail'       => '<span class="badge" style="background:#dc262618;color:var(--danger);border:1px solid #dc262640">Fail</span>',
+        'partial'    => '<span class="badge" style="background:#d9770618;color:var(--warning);border:1px solid #d9770640">Partial</span>',
         'not_tested' => '<span class="badge" style="background:var(--bg-secondary);color:var(--text-muted);border:1px solid var(--border)">Not Tested</span>',
         default      => '<span class="badge">' . htmlspecialchars($result, ENT_QUOTES, 'UTF-8') . '</span>',
     };
@@ -137,7 +137,7 @@ function testResultBadge(string $result): string {
               $now = new DateTime();
               $isOverdue = $ntd < $now;
               ?>
-              <span style="<?= $isOverdue ? 'color:#dc2626;font-weight:600' : '' ?>"><?= Security::h($h['next_test_date']) ?><?= $isOverdue ? ' <i class="bi bi-exclamation-triangle-fill" style="color:#dc2626"></i>' : '' ?></span>
+              <span style="<?= $isOverdue ? 'color:var(--danger);font-weight:600' : '' ?>"><?= Security::h($h['next_test_date']) ?><?= $isOverdue ? ' <i class="bi bi-exclamation-triangle-fill" style="color:var(--danger)"></i>' : '' ?></span>
             <?php else: ?>—<?php endif; ?>
           </td>
         </tr>
@@ -169,12 +169,12 @@ function testResultBadge(string $result): string {
 
       <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
         <div class="form-group">
-          <label class="form-label" for="test_date">Test Date <span style="color:#dc2626">*</span></label>
+          <label class="form-label" for="test_date">Test Date <span style="color:var(--danger)">*</span></label>
           <input type="date" id="test_date" name="test_date" class="form-control"
                  value="<?= date('Y-m-d') ?>" required>
         </div>
         <div class="form-group">
-          <label class="form-label" for="result">Result <span style="color:#dc2626">*</span></label>
+          <label class="form-label" for="result">Result <span style="color:var(--danger)">*</span></label>
           <select id="result" name="result" class="form-control" required>
             <option value="">— Select result —</option>
             <option value="pass">Pass</option>

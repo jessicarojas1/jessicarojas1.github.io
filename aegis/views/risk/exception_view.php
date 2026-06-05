@@ -98,7 +98,7 @@ ob_start();
     <!-- Rejection Reason -->
     <div class="card" style="margin-bottom:16px;border-left:4px solid #ef4444;">
       <div class="card-header">
-        <h3 class="card-title" style="color:#dc2626;"><i class="bi bi-x-octagon"></i> Rejection Reason</h3>
+        <h3 class="card-title" style="color:var(--danger);"><i class="bi bi-x-octagon"></i> Rejection Reason</h3>
       </div>
       <div class="card-body">
         <p style="white-space:pre-wrap;margin:0;"><?= Security::h($exception['rejection_reason']) ?></p>
@@ -191,13 +191,13 @@ ob_start();
               <?php if ($exception['expiry_date']): ?>
                 <?php
                   $daysLeft = (int)((strtotime($exception['expiry_date']) - strtotime('today')) / 86400);
-                  $exStyle  = $daysLeft < 0 ? 'color:#dc2626;font-weight:600;' : ($daysLeft <= 30 ? 'color:#d97706;font-weight:600;' : '');
+                  $exStyle  = $daysLeft < 0 ? 'color:var(--danger);font-weight:600;' : ($daysLeft <= 30 ? 'color:var(--warning);font-weight:600;' : '');
                 ?>
                 <span style="<?= $exStyle ?>"><?= Security::h(date('M j, Y', strtotime($exception['expiry_date']))) ?></span>
                 <?php if ($daysLeft >= 0): ?>
                   <div style="font-size:11px;color:var(--text-muted);"><?= $daysLeft ?> days remaining</div>
                 <?php else: ?>
-                  <div style="font-size:11px;color:#dc2626;">Expired <?= abs($daysLeft) ?> day<?= abs($daysLeft) !== 1 ? 's' : '' ?> ago</div>
+                  <div style="font-size:11px;color:var(--danger);">Expired <?= abs($daysLeft) ?> day<?= abs($daysLeft) !== 1 ? 's' : '' ?> ago</div>
                 <?php endif; ?>
               <?php else: ?>
                 <span style="color:var(--text-muted);">No expiry</span>

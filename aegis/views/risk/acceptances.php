@@ -94,10 +94,10 @@ if ($filterStatus !== '') {
   <div class="card" style="border-left:4px solid #dc2626;">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
       <div style="width:44px;height:44px;border-radius:10px;background:var(--danger-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-        <i class="bi bi-x-circle-fill" style="font-size:20px;color:#dc2626;"></i>
+        <i class="bi bi-x-circle-fill" style="font-size:20px;color:var(--danger);"></i>
       </div>
       <div>
-        <div style="font-size:26px;font-weight:700;line-height:1;color:#dc2626;"><?= $revokedCount ?></div>
+        <div style="font-size:26px;font-weight:700;line-height:1;color:var(--danger);"><?= $revokedCount ?></div>
         <div style="font-size:12px;color:var(--text-muted);margin-top:3px;">Revoked</div>
       </div>
     </div>
@@ -167,17 +167,17 @@ if ($filterStatus !== '') {
               if ($daysRemaining > 0) {
                   if ($daysRemaining <= 7) {
                       $daysDisplay = $daysRemaining . ' day' . ($daysRemaining !== 1 ? 's' : '') . ' left';
-                      $daysStyle   = 'color:#dc2626;font-weight:600;';
+                      $daysStyle   = 'color:var(--danger);font-weight:600;';
                   } elseif ($daysRemaining <= 30) {
                       $daysDisplay = $daysRemaining . ' days left';
-                      $daysStyle   = 'color:#d97706;font-weight:600;';
+                      $daysStyle   = 'color:var(--warning);font-weight:600;';
                   } else {
                       $daysDisplay = $daysRemaining . ' days';
                   }
               } else {
                   $expired_ago = abs($daysRemaining);
                   $daysDisplay = 'Expired ' . $expired_ago . ' day' . ($expired_ago !== 1 ? 's' : '') . ' ago';
-                  $daysStyle   = 'color:#dc2626;font-size:12px;';
+                  $daysStyle   = 'color:var(--danger);font-size:12px;';
               }
           }
 
@@ -252,7 +252,7 @@ if ($filterStatus !== '') {
             <?php if ($acc['status'] === 'active' && Auth::can('risk.write')): ?>
               <button type="button"
                       class="btn btn-sm"
-                      style="background:#dc262618;color:#dc2626;border:1px solid #dc262640;"
+                      style="background:#dc262618;color:var(--danger);border:1px solid #dc262640;"
                       data-click="toggleRevoke" data-arg="revoke-<?= (int)$acc['id'] ?>"
                       title="Revoke">
                 <i class="bi bi-x-circle"></i> Revoke
@@ -285,7 +285,7 @@ if ($filterStatus !== '') {
               <?= Security::csrfField() ?>
               <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
                 <div style="flex:1;min-width:240px;">
-                  <label style="font-size:12px;font-weight:600;color:#dc2626;display:block;margin-bottom:4px;">
+                  <label style="font-size:12px;font-weight:600;color:var(--danger);display:block;margin-bottom:4px;">
                     <i class="bi bi-exclamation-triangle-fill"></i> Revocation Reason
                   </label>
                   <textarea name="revocation_reason" class="form-control" rows="2"

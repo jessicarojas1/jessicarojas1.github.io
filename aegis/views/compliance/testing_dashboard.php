@@ -2,8 +2,8 @@
 function ctResultBadge(string $result): string {
     return match($result) {
         'pass'       => '<span class="badge" style="background:#16a34a18;color:#16a34a;border:1px solid #16a34a40">Pass</span>',
-        'fail'       => '<span class="badge" style="background:#dc262618;color:#dc2626;border:1px solid #dc262640">Fail</span>',
-        'partial'    => '<span class="badge" style="background:#d9770618;color:#d97706;border:1px solid #d9770640">Partial</span>',
+        'fail'       => '<span class="badge" style="background:#dc262618;color:var(--danger);border:1px solid #dc262640">Fail</span>',
+        'partial'    => '<span class="badge" style="background:#d9770618;color:var(--warning);border:1px solid #d9770640">Partial</span>',
         'not_tested' => '<span class="badge" style="background:var(--bg-secondary);color:var(--text-muted);border:1px solid var(--border)">Not Tested</span>',
         default      => '<span class="badge">' . htmlspecialchars($result, ENT_QUOTES, 'UTF-8') . '</span>',
     };
@@ -38,12 +38,12 @@ $cntTotal     = $cntPass + $cntFail + $cntPartial + $cntNotTested;
     <div style="font-size:13px;color:#16a34a;margin-top:4px;font-weight:600">Pass</div>
   </div>
   <div style="flex:1;min-width:120px;background:var(--danger-subtle);border:1px solid #fca5a580;border-radius:12px;padding:16px 20px;text-align:center">
-    <div style="font-size:32px;font-weight:700;color:#dc2626;line-height:1"><?= $cntFail ?></div>
-    <div style="font-size:13px;color:#dc2626;margin-top:4px;font-weight:600">Fail</div>
+    <div style="font-size:32px;font-weight:700;color:var(--danger);line-height:1"><?= $cntFail ?></div>
+    <div style="font-size:13px;color:var(--danger);margin-top:4px;font-weight:600">Fail</div>
   </div>
   <div style="flex:1;min-width:120px;background:var(--warning-subtle);border:1px solid #fcd34d80;border-radius:12px;padding:16px 20px;text-align:center">
-    <div style="font-size:32px;font-weight:700;color:#d97706;line-height:1"><?= $cntPartial ?></div>
-    <div style="font-size:13px;color:#d97706;margin-top:4px;font-weight:600">Partial</div>
+    <div style="font-size:32px;font-weight:700;color:var(--warning);line-height:1"><?= $cntPartial ?></div>
+    <div style="font-size:13px;color:var(--warning);margin-top:4px;font-weight:600">Partial</div>
   </div>
   <div style="flex:1;min-width:120px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:12px;padding:16px 20px;text-align:center">
     <div style="font-size:32px;font-weight:700;color:var(--text-muted);line-height:1"><?= $cntNotTested ?></div>
@@ -62,8 +62,8 @@ $cntTotal     = $cntPass + $cntFail + $cntPartial + $cntNotTested;
 <div class="card" style="margin-bottom:20px;border-left:4px solid #dc2626">
   <div class="card-header" style="background:var(--danger-subtle)">
     <div class="card-header-left">
-      <i class="bi bi-exclamation-triangle-fill" style="color:#dc2626"></i>
-      <span class="card-title" style="color:#dc2626">Overdue Tests (<?= count($overdue) ?>)</span>
+      <i class="bi bi-exclamation-triangle-fill" style="color:var(--danger)"></i>
+      <span class="card-title" style="color:var(--danger)">Overdue Tests (<?= count($overdue) ?>)</span>
     </div>
   </div>
   <div class="card-body p0">
@@ -81,11 +81,11 @@ $cntTotal     = $cntPass + $cntFail + $cntPartial + $cntNotTested;
       <tbody>
         <?php foreach ($overdue as $od): ?>
         <tr>
-          <td><span style="font-family:monospace;font-weight:700;color:#dc2626"><?= Security::h($od['code']) ?></span></td>
+          <td><span style="font-family:monospace;font-weight:700;color:var(--danger)"><?= Security::h($od['code']) ?></span></td>
           <td><?= Security::h($od['title']) ?></td>
           <td><?= Security::h($od['package_name']) ?></td>
           <td><?= ctResultBadge($od['result']) ?></td>
-          <td style="color:#dc2626;font-weight:600">
+          <td style="color:var(--danger);font-weight:600">
             <i class="bi bi-calendar-x"></i> <?= Security::h($od['next_test_date']) ?>
           </td>
           <td>

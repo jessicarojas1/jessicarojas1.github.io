@@ -47,19 +47,19 @@ $packages = Database::fetchAll("SELECT id, name FROM compliance_packages WHERE i
           <div class="form-group">
             <label class="form-label">CSV File</label>
             <label class="file-drop" id="fileDropCsv" for="csvFile">
-              <i class="bi bi-filetype-csv" style="font-size:2rem;color:#059669"></i>
+              <i class="bi bi-filetype-csv" style="font-size:2rem;color:var(--success)"></i>
               <p>Drag & drop or <strong>click to upload</strong></p>
               <p class="text-muted">.csv format, max 20MB</p>
             </label>
             <input type="file" id="csvFile" name="package_file" accept=".csv,text/csv" style="display:none"
                    data-change="showFileChange" data-drop-id="fileDropCsv" data-name-id="csvName" data-color="#059669">
-            <div id="csvName" style="margin-top:8px;color:#059669;display:none"><i class="bi bi-file-earmark-check"></i> <span></span></div>
+            <div id="csvName" style="margin-top:8px;color:var(--success);display:none"><i class="bi bi-file-earmark-check"></i> <span></span></div>
             <div style="margin-top:10px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:0.8rem;">
               <div style="font-weight:600;color:var(--text);margin-bottom:5px;"><i class="bi bi-info-circle" style="color:var(--primary)"></i> Upload Reference</div>
               <table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
                 <thead><tr style="color:var(--text-muted)"><th style="text-align:left;padding:2px 8px 2px 0;">Field</th><th style="text-align:left;padding:2px 8px 2px 0;">Format</th><th style="text-align:left;padding:2px 8px 2px 0;">Max Size</th><th style="text-align:left;">Required</th></tr></thead>
                 <tbody style="color:var(--text);">
-                  <tr><td style="padding:2px 8px 2px 0;font-family:monospace">package_file</td><td style="padding:2px 8px 2px 0;">CSV (.csv)</td><td style="padding:2px 8px 2px 0;">20 MB</td><td><strong style="color:#dc2626">Yes</strong></td></tr>
+                  <tr><td style="padding:2px 8px 2px 0;font-family:monospace">package_file</td><td style="padding:2px 8px 2px 0;">CSV (.csv)</td><td style="padding:2px 8px 2px 0;">20 MB</td><td><strong style="color:var(--danger)">Yes</strong></td></tr>
                 </tbody>
               </table>
               <div style="margin-top:5px;color:var(--text-muted);">Row 1 must be a header row. See the <strong>Required Columns</strong> panel for field names.</div>
@@ -98,7 +98,7 @@ $packages = Database::fetchAll("SELECT id, name FROM compliance_packages WHERE i
               <table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
                 <thead><tr style="color:var(--text-muted)"><th style="text-align:left;padding:2px 8px 2px 0;">Field</th><th style="text-align:left;padding:2px 8px 2px 0;">Format</th><th style="text-align:left;padding:2px 8px 2px 0;">Max Size</th><th style="text-align:left;">Required</th></tr></thead>
                 <tbody style="color:var(--text);">
-                  <tr><td style="padding:2px 8px 2px 0;font-family:monospace">package_file</td><td style="padding:2px 8px 2px 0;">Excel (.xlsx)</td><td style="padding:2px 8px 2px 0;">20 MB</td><td><strong style="color:#dc2626">Yes</strong></td></tr>
+                  <tr><td style="padding:2px 8px 2px 0;font-family:monospace">package_file</td><td style="padding:2px 8px 2px 0;">Excel (.xlsx)</td><td style="padding:2px 8px 2px 0;">20 MB</td><td><strong style="color:var(--danger)">Yes</strong></td></tr>
                 </tbody>
               </table>
               <div style="margin-top:5px;color:var(--text-muted);">Row 1 must be a header row. See the <strong>Required Columns</strong> panel for field names.</div>
@@ -129,19 +129,19 @@ $packages = Database::fetchAll("SELECT id, name FROM compliance_packages WHERE i
           <div class="form-group">
             <label class="form-label">PDF File</label>
             <label class="file-drop" id="fileDropPdf" for="pdfFile">
-              <i class="bi bi-file-earmark-pdf-fill" style="font-size:2rem;color:#dc2626"></i>
+              <i class="bi bi-file-earmark-pdf-fill" style="font-size:2rem;color:var(--danger)"></i>
               <p>Drag & drop or <strong>click to upload</strong></p>
               <p class="text-muted">.pdf, max 20MB — must have selectable text</p>
             </label>
             <input type="file" id="pdfFile" name="package_file" accept=".pdf,application/pdf"
                    style="display:none" data-change="showFileChange" data-drop-id="fileDropPdf" data-name-id="pdfName" data-color="#dc2626">
-            <div id="pdfName" style="margin-top:8px;color:#dc2626;display:none"><i class="bi bi-file-earmark-check"></i> <span></span></div>
+            <div id="pdfName" style="margin-top:8px;color:var(--danger);display:none"><i class="bi bi-file-earmark-check"></i> <span></span></div>
             <div style="margin-top:10px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:0.8rem;">
               <div style="font-weight:600;color:var(--text);margin-bottom:5px;"><i class="bi bi-info-circle" style="color:var(--primary)"></i> Upload Reference</div>
               <table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
                 <thead><tr style="color:var(--text-muted)"><th style="text-align:left;padding:2px 8px 2px 0;">Field</th><th style="text-align:left;padding:2px 8px 2px 0;">Format</th><th style="text-align:left;padding:2px 8px 2px 0;">Max Size</th><th style="text-align:left;">Required</th></tr></thead>
                 <tbody style="color:var(--text);">
-                  <tr><td style="padding:2px 8px 2px 0;font-family:monospace">package_file</td><td style="padding:2px 8px 2px 0;">PDF (.pdf) — text-based only</td><td style="padding:2px 8px 2px 0;">20 MB</td><td><strong style="color:#dc2626">Yes</strong></td></tr>
+                  <tr><td style="padding:2px 8px 2px 0;font-family:monospace">package_file</td><td style="padding:2px 8px 2px 0;">PDF (.pdf) — text-based only</td><td style="padding:2px 8px 2px 0;">20 MB</td><td><strong style="color:var(--danger)">Yes</strong></td></tr>
                 </tbody>
               </table>
               <div style="margin-top:5px;color:var(--text-muted);">PDF must have selectable text (not a scanned image). Control codes are auto-detected from content.</div>
@@ -176,7 +176,7 @@ $packages = Database::fetchAll("SELECT id, name FROM compliance_packages WHERE i
               <table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
                 <thead><tr style="color:var(--text-muted)"><th style="text-align:left;padding:2px 8px 2px 0;">Field</th><th style="text-align:left;padding:2px 8px 2px 0;">Format</th><th style="text-align:left;padding:2px 8px 2px 0;">Max Size</th><th style="text-align:left;">Required</th></tr></thead>
                 <tbody style="color:var(--text);">
-                  <tr><td style="padding:2px 8px 2px 0;font-family:monospace">package_file</td><td style="padding:2px 8px 2px 0;">JSON (.json)</td><td style="padding:2px 8px 2px 0;">20 MB</td><td><strong style="color:#dc2626">Yes</strong></td></tr>
+                  <tr><td style="padding:2px 8px 2px 0;font-family:monospace">package_file</td><td style="padding:2px 8px 2px 0;">JSON (.json)</td><td style="padding:2px 8px 2px 0;">20 MB</td><td><strong style="color:var(--danger)">Yes</strong></td></tr>
                 </tbody>
               </table>
               <div style="margin-top:5px;color:var(--text-muted);">Must follow the Aegis compliance package JSON schema. Download a CSV template and use as reference for field structure.</div>
@@ -202,7 +202,7 @@ $packages = Database::fetchAll("SELECT id, name FROM compliance_packages WHERE i
         <form method="POST" action="/compliance/add-single-control">
           <?= Security::csrfField() ?>
           <div class="form-group">
-            <label class="form-label">Package <span style="color:#dc2626">*</span></label>
+            <label class="form-label">Package <span style="color:var(--danger)">*</span></label>
             <select name="package_id" class="form-control" required>
               <option value="">— Select package —</option>
               <?php foreach ($packages as $p): ?><option value="<?= $p['id'] ?>"><?= Security::h($p['name']) ?></option><?php endforeach; ?>
@@ -210,21 +210,21 @@ $packages = Database::fetchAll("SELECT id, name FROM compliance_packages WHERE i
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
             <div class="form-group">
-              <label class="form-label">Domain Code <span style="color:#dc2626">*</span></label>
+              <label class="form-label">Domain Code <span style="color:var(--danger)">*</span></label>
               <input type="text" name="domain_code" class="form-control" required placeholder="e.g. AC">
             </div>
             <div class="form-group">
-              <label class="form-label">Domain Title <span style="color:#dc2626">*</span></label>
+              <label class="form-label">Domain Title <span style="color:var(--danger)">*</span></label>
               <input type="text" name="domain_title" class="form-control" required placeholder="e.g. Access Control">
             </div>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
             <div class="form-group">
-              <label class="form-label">Control Code <span style="color:#dc2626">*</span></label>
+              <label class="form-label">Control Code <span style="color:var(--danger)">*</span></label>
               <input type="text" name="control_code" class="form-control" required placeholder="e.g. AC.1">
             </div>
             <div class="form-group">
-              <label class="form-label">Control Title <span style="color:#dc2626">*</span></label>
+              <label class="form-label">Control Title <span style="color:var(--danger)">*</span></label>
               <input type="text" name="control_title" class="form-control" required placeholder="e.g. User Access Review">
             </div>
           </div>
@@ -257,7 +257,7 @@ $packages = Database::fetchAll("SELECT id, name FROM compliance_packages WHERE i
           </div>
         </a>
         <a href="/compliance/csv-template" class="btn btn-ghost btn-full" style="justify-content:flex-start;gap:10px">
-          <i class="bi bi-filetype-csv" style="color:#059669;font-size:20px"></i>
+          <i class="bi bi-filetype-csv" style="color:var(--success);font-size:20px"></i>
           <div style="text-align:left">
             <div style="font-weight:600;font-size:13px">CSV Template (.csv)</div>
             <div class="text-muted" style="font-size:11px">Open in Excel or any text editor</div>

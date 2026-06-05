@@ -476,8 +476,8 @@ ob_start();
           foreach ($responseActions as $ra) { if (isset($actionCounts[$ra['status']])) $actionCounts[$ra['status']]++; }
           ?>
           <?php if ($actionCounts['in_progress']): ?><span style="font-size:11px;background:#2563eb18;color:#2563eb;padding:2px 8px;border-radius:20px"><?= $actionCounts['in_progress'] ?> active</span><?php endif; ?>
-          <?php if ($actionCounts['completed']): ?><span style="font-size:11px;background:#d1fae5;color:#059669;padding:2px 8px;border-radius:20px"><?= $actionCounts['completed'] ?> done</span><?php endif; ?>
-          <?php if ($actionCounts['planned']): ?><span style="font-size:11px;background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:20px"><?= $actionCounts['planned'] ?> planned</span><?php endif; ?>
+          <?php if ($actionCounts['completed']): ?><span style="font-size:11px;background:#d1fae5;color:var(--success);padding:2px 8px;border-radius:20px"><?= $actionCounts['completed'] ?> done</span><?php endif; ?>
+          <?php if ($actionCounts['planned']): ?><span style="font-size:11px;background:#fef3c7;color:var(--warning);padding:2px 8px;border-radius:20px"><?= $actionCounts['planned'] ?> planned</span><?php endif; ?>
         </div>
       </div>
       <?php if (!empty($responseActions)): ?>
@@ -788,7 +788,7 @@ ob_start();
             <div style="font-size:11px;color:var(--text-muted);font-style:italic;margin-bottom:8px"><?= Security::h(mb_strimwidth($activeAcceptance['conditions'], 0, 100, '…')) ?></div>
           <?php endif; ?>
           <?php if (strtotime($activeAcceptance['valid_until']) < strtotime('+30 days')): ?>
-            <div style="font-size:11px;color:#d97706;font-weight:600;margin-bottom:8px"><i class="bi bi-exclamation-triangle"></i> Expiring soon</div>
+            <div style="font-size:11px;color:var(--warning);font-weight:600;margin-bottom:8px"><i class="bi bi-exclamation-triangle"></i> Expiring soon</div>
           <?php endif; ?>
           <div style="display:flex;gap:6px;flex-wrap:wrap">
             <a href="/risk-acceptances/<?= (int)$activeAcceptance['id'] ?>/renew" class="btn btn-ghost btn-sm" style="font-size:11px"><i class="bi bi-arrow-repeat"></i> Renew</a>

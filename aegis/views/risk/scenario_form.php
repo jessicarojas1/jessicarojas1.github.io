@@ -29,7 +29,7 @@ function scenarioLevelClass(int $s): string {
 .preview-label{color:var(--text-muted);font-weight:500}
 .preview-score{font-size:22px;font-weight:900;line-height:1}
 .preview-delta{display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:700;padding:2px 8px;border-radius:20px}
-.delta-up{background:#dc262618;color:#dc2626}
+.delta-up{background:#dc262618;color:var(--danger)}
 .delta-down{background:#d1fae5;color:var(--success)}
 .delta-neutral{background:var(--bg-secondary);color:var(--text-muted)}
 .multiplier-group{display:flex;flex-direction:column;gap:6px}
@@ -286,7 +286,7 @@ function scenarioLevelClass(int $s): string {
               </tr>
               <tr>
                 <td><strong>1.5</strong></td>
-                <td style="color:#d97706">50% worse</td>
+                <td style="color:var(--warning)">50% worse</td>
                 <td>Controls partially fail</td>
               </tr>
               <tr>
@@ -296,7 +296,7 @@ function scenarioLevelClass(int $s): string {
               </tr>
               <tr>
                 <td><strong>3.0</strong></td>
-                <td style="color:#dc2626">Extreme</td>
+                <td style="color:var(--danger)">Extreme</td>
                 <td>Catastrophic conditions</td>
               </tr>
             </tbody>
