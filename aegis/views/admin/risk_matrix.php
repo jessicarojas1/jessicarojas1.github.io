@@ -220,14 +220,15 @@ ob_start();
 }
 .rm-cell {
   padding: 10px 12px;
-  vertical-align: top;
+  vertical-align: middle;
+  text-align: center;
   min-width: 150px;
 }
 .rm-cell-title { font-weight: 600; font-size: 12px; color: var(--text); margin-bottom: 2px; }
 .rm-cell-desc  { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.rm-cell-color-row { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
+.rm-cell-color-row { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
 .rm-color-swatch { display: inline-block; width: 22px; height: 14px; border-radius: 3px; border: 1px solid rgba(0,0,0,.15); }
-.rm-cell-actions { display: flex; gap: 4px; }
+.rm-cell-actions { display: flex; gap: 4px; justify-content: center; }
 .btn-icon {
   background: transparent; border: 1px solid var(--border);
   border-radius: 5px; width: 26px; height: 26px;
