@@ -84,13 +84,7 @@ ob_start();
           </div>
           <div class="form-group">
             <label class="form-label required">Password</label>
-            <input type="password" id="newUserPassword" name="password" class="form-control" required placeholder="Min 12 chars, upper, number, special" autocomplete="new-password">
-            <div id="pwStrength" style="margin-top:8px;display:flex;flex-direction:column;gap:4px;font-size:0.8rem;">
-              <div id="pw-len"    style="color:var(--text-muted);"><i class="bi bi-x-circle-fill" style="margin-right:4px;"></i>At least 12 characters</div>
-              <div id="pw-upper"  style="color:var(--text-muted);"><i class="bi bi-x-circle-fill" style="margin-right:4px;"></i>At least 1 uppercase letter</div>
-              <div id="pw-num"    style="color:var(--text-muted);"><i class="bi bi-x-circle-fill" style="margin-right:4px;"></i>At least 1 number</div>
-              <div id="pw-special"style="color:var(--text-muted);"><i class="bi bi-x-circle-fill" style="margin-right:4px;"></i>At least 1 special character (!@#$%^&amp;*...)</div>
-            </div>
+            <input type="password" id="newUserPassword" name="password" class="form-control" required placeholder="Enter a password" autocomplete="new-password">
           </div>
         </div>
         <div class="form-actions"><button type="submit" id="btnCreateUser" class="btn btn-primary">Create User</button><button type="button" class="btn btn-ghost" data-close-modal="createUserModal">Cancel</button></div>
@@ -172,27 +166,6 @@ ob_start();
 </div>
 
 <script nonce="<?= Security::nonce() ?>">
-// Password strength indicator — visual only, no submit blocking
-(function() {
-  var pwInput = document.getElementById('newUserPassword');
-  if (!pwInput) return;
-  var rules = [
-    { id: 'pw-len',     test: function(v) { return v.length >= 12; } },
-    { id: 'pw-upper',   test: function(v) { return /[A-Z]/.test(v); } },
-    { id: 'pw-num',     test: function(v) { return /[0-9]/.test(v); } },
-    { id: 'pw-special', test: function(v) { return /[^A-Za-z0-9]/.test(v); } },
-  ];
-  pwInput.addEventListener('input', function() {
-    rules.forEach(function(r) {
-      var ok = r.test(pwInput.value);
-      var el = document.getElementById(r.id);
-      if (!el) return;
-      el.style.color = ok ? 'var(--success)' : 'var(--text-muted)';
-      el.querySelector('i').className = ok ? 'bi bi-check-circle-fill' : 'bi bi-x-circle-fill';
-      el.querySelector('i').style.marginRight = '4px';
-    });
-  });
-})();
 function editUserFromBtn(btn) {
   editUser(JSON.parse(btn.getAttribute('data-user')));
 }

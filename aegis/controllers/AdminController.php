@@ -36,8 +36,9 @@ class AdminController {
         $dept       = Security::sanitizeInput($_POST['department'] ?? '');
         $title      = Security::sanitizeInput($_POST['job_title'] ?? '');
 
-        $errors = Security::validatePasswordPolicy($password);
+        $errors = [];
         if (!$name || !$email) $errors[] = 'Name and email are required.';
+        if (!$password) $errors[] = 'Password is required.';
         if (Database::fetchOne("SELECT id FROM users WHERE email = ?", [$email])) $errors[] = 'Email already in use.';
 
         if ($errors) {
@@ -111,10 +112,7 @@ class AdminController {
 
         if (!empty($_POST['new_password'])) {
             $pwd = $_POST['new_password'];
-            $errors = Security::validatePasswordPolicy($pwd);
-            if (!$errors) {
-                Database::query("UPDATE users SET password_hash=? WHERE id=?", [Security::hashPassword($pwd), $id]);
-            }
+            Database::query("UPDATE users SET password_hash=? WHERE id=?", [Security::hashPassword($pwd), $id]);
         }
 
         // Revoke active sessions and API keys if account is being deactivated
