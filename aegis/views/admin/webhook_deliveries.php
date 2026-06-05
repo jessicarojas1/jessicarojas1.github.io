@@ -165,7 +165,7 @@ $failed    = count(array_filter($deliveries, fn($d) => $d['status'] === 'failed'
 </div>
 
 <!-- Response body modal -->
-<div class="um-overlay" id="responseModal" style="display:none">
+<div class="um-overlay" id="responseModal">
   <div class="um-dialog" style="max-width:640px">
     <div class="um-header">
       <h3><i class="bi bi-code-square"></i> Response Body</h3>
@@ -180,17 +180,11 @@ $failed    = count(array_filter($deliveries, fn($d) => $d['status'] === 'failed'
 </div>
 
 <script nonce="<?= Security::nonce() ?>">
-function showModal(id)  { document.getElementById(id).style.display = 'flex'; }
-function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-document.getElementById('responseModal').addEventListener('click', function(e) {
-  if (e.target === this) closeModal('responseModal');
-});
-
 function showResponseModal(deliveryId) {
   const body = document.getElementById('resp-' + deliveryId);
   if (!body) return;
   document.getElementById('responseBodyContent').textContent = body.textContent.trim();
-  showModal('responseModal');
+  document.getElementById('responseModal').classList.add('open');
 }
 </script>
 

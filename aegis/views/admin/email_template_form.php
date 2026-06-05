@@ -171,13 +171,11 @@ ob_start();
 </div>
 
 <!-- Preview Modal -->
-<div id="previewModal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.5);align-items:center;justify-content:center">
-  <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:12px;width:90vw;max-width:820px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3)">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)">
-      <h3 style="margin:0;font-size:16px;font-weight:600">Email Preview</h3>
-      <button type="button" data-click="closePreviewModal" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text-muted);line-height:1">
-        <i class="bi bi-x-lg"></i>
-      </button>
+<div class="um-overlay" id="previewModal">
+  <div class="um-dialog" style="max-width:820px;width:90vw;display:flex;flex-direction:column;max-height:90vh">
+    <div class="um-header">
+      <h3>Email Preview</h3>
+      <button type="button" class="um-close" data-close-modal="previewModal"><i class="bi bi-x-lg"></i></button>
     </div>
     <div id="previewLoading" style="padding:40px;text-align:center;color:var(--text-muted);display:none">
       <i class="bi bi-arrow-repeat" style="font-size:1.5rem;animation:spin 1s linear infinite"></i>
@@ -215,13 +213,12 @@ function copyVar(text) {
 }
 
 function openPreviewModal() {
-    var modal = document.getElementById('previewModal');
-    modal.style.display = 'flex';
+    document.getElementById('previewModal').classList.add('open');
     loadPreview();
 }
 
 function closePreviewModal() {
-    document.getElementById('previewModal').style.display = 'none';
+    document.getElementById('previewModal').classList.remove('open');
     document.getElementById('previewFrame').src = 'about:blank';
 }
 

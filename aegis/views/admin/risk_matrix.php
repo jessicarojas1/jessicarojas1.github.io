@@ -142,11 +142,11 @@ ob_start();
 </form>
 
 <!-- Cell edit modal -->
-<div class="um-overlay" id="cellEditModal" style="display:none">
+<div class="um-overlay" id="cellEditModal">
   <div class="um-dialog" style="max-width:420px">
     <div class="um-header">
       <h3>Edit Cell</h3>
-      <button type="button" class="um-close" data-click="closeCellEdit"><i class="bi bi-x-lg"></i></button>
+      <button type="button" class="um-close" data-close-modal="cellEditModal"><i class="bi bi-x-lg"></i></button>
     </div>
     <div class="um-body">
       <input type="hidden" id="editKey">
@@ -185,7 +185,7 @@ ob_start();
       </div>
     </div>
     <div class="modal-footer" style="display:flex;justify-content:flex-end;gap:8px;padding:16px">
-      <button type="button" class="btn btn-ghost" data-click="closeCellEdit">Cancel</button>
+      <button type="button" class="btn btn-ghost" data-close-modal="cellEditModal">Cancel</button>
       <button type="button" class="btn btn-primary" data-click="saveCellEdit"><i class="bi bi-save-fill"></i> Save Cell</button>
     </div>
   </div>
@@ -242,11 +242,6 @@ ob_start();
 </style>
 
 <script nonce="<?= Security::nonce() ?>">
-// Close modal when clicking overlay background
-document.addEventListener('click', function(e) {
-  var modal = document.getElementById('cellEditModal');
-  if (modal && e.target === modal) closeCellEdit();
-});
 
 function submitMatrixForm() { document.getElementById('matrixSaveForm').submit(); }
 
@@ -278,11 +273,11 @@ function openCellEdit(key, title, desc, color) {
   else { document.querySelector('[name=editColorPick][value=custom]').checked = true; }
 
   updateColorPreview();
-  document.getElementById('cellEditModal').style.display = 'flex';
+  document.getElementById('cellEditModal').classList.add('open');
 }
 
 function closeCellEdit() {
-  document.getElementById('cellEditModal').style.display = 'none';
+  document.getElementById('cellEditModal').classList.remove('open');
 }
 
 function updateColorPreview() {
