@@ -1,0 +1,59 @@
+# CITADEL — Docker build-context exclusions
+# Keep the build context small and avoid leaking secrets/IaC into the image.
+
+# Version control
+.git
+.gitignore
+.gitattributes
+.github/
+
+# IaC / deploy artifacts (must never land in the runtime image)
+*.bicep
+parameters.json
+deploy.sh
+*.tfstate
+*.tfstate.*
+
+# Secrets / env
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.crt
+secrets/
+**/secrets*
+
+# Node / build tooling
+node_modules/
+npm-debug.log*
+yarn-error.log*
+.npm/
+.cache/
+coverage/
+.nyc_output/
+
+# Editor / OS cruft
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Docs / misc (not needed at runtime)
+README.md
+*.md
+LICENSE
+docs/
+
+# Test & local-only assets
+test/
+tests/
+__tests__/
+*.test.js
+*.spec.js
+tmp/
+temp/
+*.log

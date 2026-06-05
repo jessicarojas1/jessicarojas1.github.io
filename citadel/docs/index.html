@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; img-src 'self' https://cdn.jsdelivr.net data:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self'; object-src 'none'; base-uri 'self';">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../../theme.css" />
+  <link rel="stylesheet" href="../css/citadel.css" />
+  <title>CITADEL — Architecture &amp; Module Documentation</title>
+  <style>
+    .docs-wrap{max-width:980px;margin:0 auto;padding:0 1rem}
+    .docs-toc{position:sticky;top:80px}
+    .docs-toc a{display:block;padding:.2rem 0;color:var(--bs-secondary-color);text-decoration:none;font-size:.86rem;border-left:2px solid transparent;padding-left:.7rem}
+    .docs-toc a:hover{color:var(--bs-body-color);border-left-color:var(--citadel-accent)}
+    .docs-section{padding:2rem 0;border-bottom:1px solid var(--bs-border-color)}
+    .docs-section h2{font-size:1.5rem;margin-bottom:1rem}
+    .ascii{background:var(--bs-tertiary-bg);border:1px solid var(--bs-border-color);border-radius:10px;padding:1rem;font-size:.72rem;line-height:1.25;overflow-x:auto}
+    .mod-card{border:1px solid var(--bs-border-color);border-radius:12px;padding:1rem 1.1rem;margin-bottom:.8rem;background:var(--bs-body-bg)}
+    .mod-card h5{font-size:1rem;margin-bottom:.3rem;display:flex;align-items:center;gap:.5rem}
+    .mod-card .badge{font-size:.62rem}
+    .pill{font-size:.66rem;padding:.15rem .5rem;border-radius:5px;background:var(--bs-tertiary-bg);border:1px solid var(--bs-border-color);color:var(--bs-secondary-color)}
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg sticky-top citadel-bar">
+    <div class="container-fluid px-3 px-lg-4">
+      <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="../index.html">
+        <svg width="26" height="26" viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#0ea5e9"/><path d="M20 6 L32 11 V21 C32 28 27 32.5 20 35 C13 32.5 8 28 8 21 V11 Z" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/></svg>
+        <span>CITADEL <span class="text-body-secondary fw-normal">/ docs</span></span>
+      </a>
+      <div class="ms-auto d-flex gap-2">
+        <a class="btn btn-sm btn-outline-secondary" href="../index.html"><i class="bi bi-arrow-left"></i> Analyzer</a>
+        <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container py-4">
+    <div class="row">
+      <div class="col-lg-3 d-none d-lg-block">
+        <nav class="docs-toc">
+          <a href="#overview">Overview</a>
+          <a href="#architecture">Architecture</a>
+          <a href="#dataflow">Data flow</a>
+          <a href="#modules">Engine modules</a>
+          <a href="#interaction">Module interaction</a>
+          <a href="#frameworks">Framework coverage</a>
+          <a href="#categories">Weakness taxonomy</a>
+          <a href="#deploy">Deployment</a>
+          <a href="#limits">Scope &amp; limitations</a>
+        </nav>
+      </div>
+      <div class="col-lg-9">
+        <div class="docs-wrap">
+
+          <section id="overview" class="docs-section">
+            <h2>Overview</h2>
+            <p><strong>CITADEL</strong> (Code Inspection, Threat Analysis &amp; Deployment Evaluation Lab) is a
+            source-code and executable review platform. The public demo runs <strong>entirely in your browser</strong> —
+            uploaded files are parsed locally and never transmitted — while the production build packages the same
+            front-end with an optional API/worker tier that orchestrates heavyweight open-source scanners
+            (Semgrep, Trivy, Syft/Grype, Gitleaks, ClamAV, Bandit) for deployment to <strong>Azure Government</strong>
+            or <strong>AWS GovCloud</strong>.</p>
+            <p>It answers, in one report: <em>How secure is this code? How well is it written? What languages does it use?
+            How is it deployed? Which compliance obligations does it touch?</em></p>
+          </section>
+
+          <section id="architecture" class="docs-section">
+            <h2>Architecture</h2>
+            <p>The browser app is a layered pipeline. Each stage is an independent module attached to a global
+            <code>CITADEL</code> namespace and communicates through plain data objects — no framework lock-in.</p>
+            <pre class="ascii">
+ ┌──────────────────────────────────────────────────────────────────────┐
+ │                          PRESENTATION (app.js)                         │
+ │   drag/drop · file & folder pickers · tabs · progress · exports        │
+ └───────────────┬───────────────────────────────────────┬──────────────┘
+                 │ File[]                                  │ render(report)
+                 ▼                                         ▲
+ ┌───────────────────────────┐                 ┌───────────────────────────┐
+ │   INGEST ENGINE (ingest)  │                 │  REPORT ENGINE (report)   │
+ │  archive expansion (JSZip)│                 │  DOM + Chart.js + exports │
+ │  text/binary sniffing     │                 └───────────▲───────────────┘
+ └───────────┬───────────────┘                             │ report{}
+             │ entries[]                                    │
+             ▼                                              │
+ ┌──────────────────────────────────────────────────────────────────────┐
+ │                       SCAN ORCHESTRATOR (scanner.js)                   │
+ │  fans entries out to every analyzer, then scores & maps the results    │
+ └─┬────────┬────────┬────────┬────────┬────────┬────────┬───────────────┘
+   ▼        ▼        ▼        ▼        ▼        ▼        ▼
+ ┌────┐  ┌──────┐ ┌──────┐ ┌─────┐ ┌──────┐ ┌──────┐ ┌──────────────────┐
+ │lang│  │ SAST │ │secret│ │sbom │ │binary│ │qual. │ │ deployment detect│
+ └────┘  └──┬───┘ └──┬───┘ └──┬──┘ └──┬───┘ └──────┘ └──────────────────┘
+            └────────┴────────┴───────┴──────────────┐
+                          findings[]                  ▼
+                                     ┌──────────────────────────────────┐
+                                     │ COMPLIANCE MAPPING (frameworks)  │
+                                     │ category → control IDs × 20+ stds│
+                                     └──────────────────────────────────┘
+            </pre>
+          </section>
+
+          <section id="dataflow" class="docs-section">
+            <h2>Data flow</h2>
+            <ol>
+              <li><strong>Intake.</strong> <code>app.js</code> collects <code>File</code> objects from drop, picker, or folder selection and hands them to the Ingest Engine.</li>
+              <li><strong>Normalize.</strong> <code>ingest.js</code> expands ZIP/JAR/APK archives via JSZip, skips dependency/build dirs, sniffs each file as text or binary, and emits a flat list of <em>entries</em> <code>{ path, lang, content|bytes }</code>.</li>
+              <li><strong>Fan-out.</strong> <code>scanner.js</code> streams every entry to the analyzers and concatenates their <em>findings</em>.</li>
+              <li><strong>Score.</strong> The orchestrator computes language stats, a maintainability index, a severity-weighted security score, and an A–F grade.</li>
+              <li><strong>Map.</strong> Findings are cross-walked to control identifiers across every framework by the Compliance Mapping Engine.</li>
+              <li><strong>Render.</strong> <code>report.js</code> paints the scorecard, charts, finding cards, compliance posture, SBOM, and export artifacts.</li>
+            </ol>
+          </section>
+
+          <section id="modules" class="docs-section">
+            <h2>Engine modules</h2>
+            <div id="modules-list"></div>
+          </section>
+
+          <section id="interaction" class="docs-section">
+            <h2>How the modules interact</h2>
+            <p>Every analyzer consumes the same normalized <em>entry</em> and produces objects in one shared
+            <em>finding</em> shape:</p>
+            <pre class="ascii">finding = {
+  ruleId, name, category, severity,      // what & how bad
+  cwe, confidence,                        // weakness id & certainty
+  file, line, snippet,                    // where
+  remediation                             // how to fix
+}</pre>
+            <p>This single contract is what lets independent modules cooperate without coupling:</p>
+            <ul>
+              <li>The <strong>SAST</strong>, <strong>Secrets</strong>, <strong>SBOM</strong>, and <strong>Binary</strong> modules each emit findings into one stream — the orchestrator never needs to know how a finding was produced.</li>
+              <li>The <strong>Scoring Engine</strong> only reads <code>severity</code>, so adding a new analyzer automatically affects the grade.</li>
+              <li>The <strong>Compliance Mapping Engine</strong> only reads <code>category</code>; a finding's framework cross-walk is derived purely from its category, so one new rule instantly lights up the right controls across all 20+ standards.</li>
+              <li>The <strong>Report Engine</strong> renders by <code>severity</code> and <code>category</code> and is otherwise analyzer-agnostic.</li>
+            </ul>
+            <p>Adding coverage is therefore additive: drop a rule into <code>rules.js</code> with a <code>category</code>,
+            and scoring, compliance mapping, charts, and exports all update with no other changes.</p>
+          </section>
+
+          <section id="frameworks" class="docs-section">
+            <h2>Framework &amp; standard coverage</h2>
+            <p>CITADEL maps findings to the controls of <strong id="fw-count">…</strong> security and compliance frameworks:</p>
+            <div class="row g-2" id="frameworks-list"></div>
+          </section>
+
+          <section id="categories" class="docs-section">
+            <h2>Weakness taxonomy</h2>
+            <p>Findings are bucketed into these categories, each pre-mapped to the relevant controls in every framework above:</p>
+            <div class="d-flex flex-wrap gap-2" id="categories-list"></div>
+          </section>
+
+          <section id="deploy" class="docs-section">
+            <h2>Production deployment</h2>
+            <p>The <code>deploy/</code> directory ships hardened, government-ready Infrastructure-as-Code:</p>
+            <ul>
+              <li><strong>Azure Government</strong> — Bicep + <code>az</code> runbook: Container Apps, ACR, Key Vault, private Storage, Log Analytics, managed identity, and an NIST 800-53 / CMMC hardening checklist. See <a href="../deploy/azure-gov/README.md">deploy/azure-gov</a>.</li>
+              <li><strong>AWS GovCloud (US)</strong> — Terraform + <code>aws</code> runbook: ECS Fargate, ALB + WAF, ECR scan-on-push, KMS, Secrets Manager, S3 Object-Lock quarantine, GuardDuty/Security Hub. See <a href="../deploy/aws-gov/README.md">deploy/aws-gov</a>.</li>
+            </ul>
+            <p>Both ship a multi-stage hardened <code>Dockerfile</code> (non-root, FIPS-friendly base, strict
+            security-headers Nginx) so the analyzer runs inside a CUI / FedRAMP-High boundary with TLS 1.2+ FIPS,
+            private networking, and no public ingress except the WAF.</p>
+          </section>
+
+          <section id="limits" class="docs-section" style="border-bottom:0">
+            <h2>Scope &amp; limitations</h2>
+            <p>The in-browser engine is a <strong>heuristic, pattern-based</strong> analyzer optimized for fast triage,
+            education, and demonstration. It is intentionally transparent and dependency-light. It is <em>not</em> a
+            replacement for a full data-flow SAST, DAST, IAST, or a live CVE feed. For an Authorization to Operate
+            (ATO) package, run the production tier's integrated scanners and a credentialed vulnerability assessment,
+            and have results reviewed by a qualified assessor. CITADEL's value is consolidating many signals into one
+            framework-aware report and getting you to the right controls quickly.</p>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="citadel-footer text-center py-4">
+    <div class="container small text-body-secondary">CITADEL · client-side security &amp; compliance review · part of the Jessica Rojas portfolio</div>
+  </footer>
+
+  <script src="../js/languages.js"></script>
+  <script src="../js/frameworks.js"></script>
+  <script src="../js/rules.js"></script>
+  <script>
+    (function () {
+      // Theme toggle
+      function icon(){var t=document.documentElement.getAttribute('data-bs-theme');var i=document.querySelector('#themeToggleBtn .theme-icon');if(i)i.textContent=t==='dark'?'☀️':'🌙';}
+      document.getElementById('themeToggleBtn').addEventListener('click',function(){var c=document.documentElement.getAttribute('data-bs-theme');var n=c==='dark'?'light':'dark';document.documentElement.setAttribute('data-bs-theme',n);try{localStorage.setItem('bsTheme',n);}catch(e){}icon();});
+      icon();
+
+      var F = window.CITADEL.frameworks;
+      var R = window.CITADEL.rules;
+
+      // Module catalog (static descriptions; rule count pulled live)
+      var modules = [
+        ['Ingest Engine','ingest.js','Intake','Expands archives (JSZip), skips build/vendor dirs, sniffs text vs. binary, normalizes everything to entries.'],
+        ['Language Classifier','languages.js','Classify','Maps 70+ extensions & special filenames to languages, marks which are code-bearing, supplies chart colors.'],
+        ['SAST Rules Engine','rules.js + scanner.js','Analyze','Runs '+R.length+' heuristic rules (regex, language-aware) for injection, XSS, crypto, deserialization, SSRF, traversal, config & more.'],
+        ['Secrets Scanner','secrets.js','Analyze','Shannon-entropy + keyword heuristics to surface hardcoded credentials, tokens and keys the regex rules miss.'],
+        ['SBOM &amp; Dependency Analyzer','sbom.js','Analyze','Parses npm/PyPI/Maven/Go/Gem/Composer/Cargo/NuGet manifests, flags unpinned/pre-release deps, emits CycloneDX 1.5.'],
+        ['Binary / Executable Analyzer','binary.js','Analyze','Detects PE/ELF/Mach-O, computes entropy (packing), extracts strings, flags suspicious capability indicators.'],
+        ['Quality &amp; Maintainability','scanner.js','Measure','LOC, comment ratio, oversized files, and a 0–100 maintainability index.'],
+        ['Deployment &amp; IaC Detector','scanner.js','Measure','Infers how the project ships: Docker, K8s, Helm, Terraform, Bicep, CI/CD, PaaS blueprints.'],
+        ['Scoring &amp; Grading Engine','scanner.js','Score','Severity-weighted, volume-normalized security score, maintainability, and an A–F grade.'],
+        ['Compliance Mapping Engine','frameworks.js','Map','Cross-walks each finding category to concrete control IDs across every framework; computes per-framework posture.'],
+        ['Report &amp; Export Engine','report.js','Present','Scorecard, Chart.js visuals, finding cards, compliance posture; exports JSON, CycloneDX SBOM, Markdown, print/PDF.']
+      ];
+      document.getElementById('modules-list').innerHTML = modules.map(function(m){
+        return '<div class="mod-card"><h5><i class="bi bi-puzzle"></i> '+m[0]+' <span class="badge bg-secondary">'+m[2]+'</span></h5>'+
+          '<div class="small text-body-secondary mb-1"><code>'+m[1]+'</code></div><p class="mb-0 small">'+m[3]+'</p></div>';
+      }).join('');
+
+      // Frameworks
+      document.getElementById('fw-count').textContent = F.CATALOG.length;
+      document.getElementById('frameworks-list').innerHTML = F.CATALOG.map(function(f){
+        return '<div class="col-md-6"><div class="mod-card"><h5 style="font-size:.92rem"><a href="'+f.url+'" target="_blank" rel="noopener">'+f.name+'</a> <span class="pill">'+f.version+'</span> <span class="badge bg-secondary ms-auto">'+f.tag+'</span></h5><p class="mb-0 small text-body-secondary">'+f.desc+'</p></div></div>';
+      }).join('');
+
+      // Categories
+      document.getElementById('categories-list').innerHTML = Object.keys(F.CATEGORIES).map(function(k){
+        return '<span class="pill" title="'+k+'">'+F.CATEGORIES[k]+'</span>';
+      }).join('');
+    })();
+  </script>
+</body>
+</html>

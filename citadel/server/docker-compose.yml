@@ -1,0 +1,60 @@
+# =============================================================================
+# CITADEL deep-scan backend — local / single-host compose
+# -----------------------------------------------------------------------------
+# Build context is the REPOSITORY ROOT so the image can copy both the SPA
+# (citadel/) and the backend (citadel/server/). Run this from the repo root:
+#
+#     docker compose -f citadel/server/docker-compose.yml up --build
+#
+# then open http://localhost:8080/
+# =============================================================================
+services:
+  citadel:
+    image: citadel-server:latest
+    build:
+      # Repo root, so COPY citadel/ and COPY citadel/server/ both resolve.
+      context: ../../
+      dockerfile: citadel/server/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      NODE_ENV: production
+      PORT: "8080"
+      CITADEL_TMP: /tmp/citadel
+    # Hardening: untrusted code is uploaded here, so run least-privilege.
+    read_only: true                 # immutable root filesystem
+    cap_drop:
+      - ALL                         # drop every Linux capability
+    security_opt:
+      - no-new-privileges:true      # block setuid privilege escalation
+    # Writable scratch space the read-only FS still needs. /tmp/citadel holds
+    # extracted (untrusted) uploads; ClamAV needs a writable signature DB if you
+    # refresh it at runtime. tmpfs keeps untrusted files off persistent disk.
+    tmpfs:
+      - /tmp/citadel:exec=false,mode=1777,size=2g
+      - /tmp:mode=1777,size=256m
+    volumes:
+      # ClamAV signature database — a named volume lets `freshclam` persist DB
+      # updates across restarts instead of re-downloading every boot.
+      - clamav-db:/var/lib/clamav
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8080/api/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 40s
+      retries: 3
+    restart: unless-stopped
+    # Resource limits MATTER: Semgrep, Trivy and Grype are CPU- and RAM-heavy,
+    # and a large or malicious upload can spike memory. Cap them so one scan
+    # can't OOM the host; raise for bigger codebases. ClamAV alone wants ~1GB.
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2g
+        reservations:
+          cpus: "0.5"
+          memory: 1g
+
+volumes:
+  clamav-db:

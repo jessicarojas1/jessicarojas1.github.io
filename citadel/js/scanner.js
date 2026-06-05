@@ -1,0 +1,205 @@
+/* CITADEL — Scan Orchestrator
+ * Runs every engine over the ingested entries and assembles a single report:
+ * languages, SAST findings, secrets, SBOM, binaries, quality, deployment
+ * posture, scoring/grading, and the compliance mapping. window.CITADEL.scanner
+ */
+(function (root) {
+  'use strict';
+  const CITADEL = root.CITADEL = root.CITADEL || {};
+
+  const SEV_WEIGHT = { critical: 25, high: 10, medium: 4, low: 1, info: 0 };
+  const COMMENT_RE = /^\s*(\/\/|#|\*|\/\*|--|<!--|;)/;
+
+  function lineOf(content, index) {
+    let line = 1;
+    for (let i = 0; i < index && i < content.length; i++) if (content[i] === '\n') line++;
+    return line;
+  }
+  function snippetAt(content, idx) {
+    const start = content.lastIndexOf('\n', idx) + 1;
+    let end = content.indexOf('\n', idx);
+    if (end < 0) end = content.length;
+    const s = content.slice(start, end).trim();
+    return s.length > 180 ? s.slice(0, 177) + '…' : s;
+  }
+
+  function runRules(entry) {
+    const findings = [];
+    const { content, lang, path } = entry;
+    if (!content) return findings;
+    const rules = CITADEL.rules.filter(r => r.langs === '*' || (Array.isArray(r.langs) && r.langs.includes(lang)));
+    rules.forEach(rule => {
+      const re = new RegExp(rule.re.source, rule.re.flags.includes('g') ? rule.re.flags : rule.re.flags + 'g');
+      let m, hits = 0;
+      while ((m = re.exec(content)) !== null && hits < 50) {
+        hits++;
+        // Skip matches inside obvious comment lines for noisy quality rules
+        findings.push({
+          ruleId: rule.id, name: rule.name, category: rule.category,
+          severity: rule.severity, cwe: rule.cwe, confidence: rule.confidence,
+          file: path, line: lineOf(content, m.index), snippet: snippetAt(content, m.index),
+          remediation: rule.remediation
+        });
+        if (m.index === re.lastIndex) re.lastIndex++;
+      }
+    });
+    return findings;
+  }
+
+  function detectDeployment(entries) {
+    const signals = [];
+    const add = (tech, file, detail) => signals.push({ tech, file, detail });
+    entries.forEach(e => {
+      const p = e.path.toLowerCase();
+      const base = p.split('/').pop();
+      const c = e.content || '';
+      if (base === 'dockerfile' || base.startsWith('dockerfile.')) add('Docker', e.path, 'Containerized build');
+      if (base === 'docker-compose.yml' || base === 'docker-compose.yaml' || base === 'compose.yml') add('Docker Compose', e.path, 'Multi-container orchestration');
+      if (p.endsWith('.tf') || base === 'main.tf') add('Terraform', e.path, 'Infrastructure as Code');
+      if (p.endsWith('.bicep')) add('Azure Bicep', e.path, 'Azure IaC');
+      if (/\.github\/workflows\//.test(p)) add('GitHub Actions', e.path, 'CI/CD pipeline');
+      if (base === '.gitlab-ci.yml') add('GitLab CI', e.path, 'CI/CD pipeline');
+      if (base === 'azure-pipelines.yml' || base === 'azure-pipelines.yaml') add('Azure Pipelines', e.path, 'CI/CD pipeline');
+      if (base === 'jenkinsfile') add('Jenkins', e.path, 'CI/CD pipeline');
+      if (base === 'serverless.yml' || base === 'serverless.yaml') add('Serverless Framework', e.path, 'FaaS deployment');
+      if (base === 'template.yaml' && /AWS::Serverless/.test(c)) add('AWS SAM', e.path, 'Serverless app');
+      if (base === 'procfile') add('Heroku/Buildpacks', e.path, 'Process model');
+      if (base === 'chart.yaml' || /(^|\/)templates\/.*\.yaml$/.test(p)) add('Helm', e.path, 'Kubernetes packaging');
+      if (/kind:\s*(Deployment|Service|Pod|StatefulSet|DaemonSet|Ingress)/.test(c)) add('Kubernetes', e.path, 'K8s manifest');
+      if (base === 'vercel.json') add('Vercel', e.path, 'Edge/serverless host');
+      if (base === 'netlify.toml') add('Netlify', e.path, 'Static/edge host');
+      if (base === 'render.yaml') add('Render.com', e.path, 'PaaS blueprint');
+      if (base === 'app.yaml' && /runtime:/.test(c)) add('Google App Engine', e.path, 'PaaS');
+      if (base === 'cloudformation.yaml' || (base.endsWith('.yaml') && /AWSTemplateFormatVersion/.test(c))) add('AWS CloudFormation', e.path, 'AWS IaC');
+    });
+    // de-dup by tech
+    const seen = {};
+    return signals.filter(s => (seen[s.tech] ? false : (seen[s.tech] = true)));
+  }
+
+  function quality(entries) {
+    let loc = 0, comments = 0, blank = 0, codeFiles = 0, maxFile = 0, longFiles = 0, totalFiles = entries.length;
+    entries.forEach(e => {
+      if (!e.content || !CITADEL.lang.isCode(e.lang)) return;
+      codeFiles++;
+      const lines = e.content.split('\n');
+      loc += lines.length;
+      if (lines.length > maxFile) maxFile = lines.length;
+      if (lines.length > 800) longFiles++;
+      lines.forEach(l => {
+        const t = l.trim();
+        if (!t) blank++; else if (COMMENT_RE.test(l)) comments++;
+      });
+    });
+    const codeLines = Math.max(1, loc - comments - blank);
+    const commentRatio = loc ? comments / loc : 0;
+    // Maintainability heuristic 0..100
+    let mi = 100;
+    mi -= longFiles * 4;
+    mi -= commentRatio < 0.05 ? 12 : 0;
+    mi -= maxFile > 2000 ? 10 : 0;
+    mi = Math.max(0, Math.min(100, Math.round(mi)));
+    return { loc, comments, blank, codeLines, codeFiles, totalFiles, maxFile, longFiles, commentRatio: Math.round(commentRatio * 1000) / 10, maintainability: mi };
+  }
+
+  function languageStats(entries) {
+    const bytes = {};
+    let total = 0;
+    entries.forEach(e => {
+      if (e.archive) return;
+      const l = e.lang;
+      if (l === 'Unknown') return;
+      bytes[l] = (bytes[l] || 0) + e.size;
+      total += e.size;
+    });
+    const arr = Object.keys(bytes).map(l => ({
+      lang: l, bytes: bytes[l], pct: total ? Math.round(bytes[l] / total * 1000) / 10 : 0,
+      color: CITADEL.lang.colorFor(l)
+    })).sort((a, b) => b.bytes - a.bytes);
+    return { total, languages: arr, primary: arr[0] ? arr[0].lang : 'Unknown' };
+  }
+
+  function score(findings, q) {
+    const sev = { critical: 0, high: 0, medium: 0, low: 0, info: 0 };
+    findings.forEach(f => { sev[f.severity] = (sev[f.severity] || 0) + 1; });
+    let penalty = 0;
+    for (const k in sev) penalty += sev[k] * SEV_WEIGHT[k];
+    // Normalize penalty against code volume so big repos aren't unfairly crushed.
+    // Density is capped so a tiny-but-vulnerable sample still yields a readable,
+    // non-zero score rather than collapsing to 0.
+    const kloc = Math.max(1, (q.loc || 1) / 1000);
+    const density = Math.min(45, (penalty / kloc) * 0.35);
+    let security = Math.round(100 - Math.min(94, density + sev.critical * 7 + sev.high * 2));
+    if (sev.critical > 0) security = Math.min(security, 55);
+    if (findings.length > 0) security = Math.max(6, security);
+    security = Math.max(0, Math.min(100, security));
+    const quality = q.maintainability;
+    const overall = Math.round(security * 0.6 + quality * 0.25 + (q.commentRatio > 5 ? 100 : q.commentRatio * 20) * 0.15);
+    return { sev, security, quality, overall: Math.max(0, Math.min(100, overall)), grade: grade(security) };
+  }
+
+  function grade(s) {
+    if (s >= 90) return 'A'; if (s >= 80) return 'B'; if (s >= 70) return 'C';
+    if (s >= 60) return 'D'; if (s >= 40) return 'E'; return 'F';
+  }
+
+  async function scan(entries, onStage) {
+    const stage = (s) => onStage && onStage(s);
+
+    stage('Classifying languages…');
+    const langs = languageStats(entries);
+
+    stage('Running SAST rules…');
+    let findings = [];
+    const sbomComponents = [];
+    const binaries = [];
+
+    for (const e of entries) {
+      if (e.content) {
+        findings = findings.concat(runRules(e));
+        // secrets (entropy)
+        CITADEL.secrets.scan(e.content, e.lang).forEach(s => findings.push(Object.assign({ file: e.path }, s)));
+        // SBOM
+        const comps = CITADEL.sbom.parse(e.path, e.content);
+        comps.forEach(c => sbomComponents.push(c));
+      } else if (e.bytes && !e.archive) {
+        const b = CITADEL.binary.analyze(e.path, e.bytes);
+        binaries.push(b);
+        b.findings.forEach(f => findings.push(Object.assign({ file: e.path, line: 0 }, f)));
+      } else if (e.bytes && e.archive) {
+        const b = CITADEL.binary.analyze(e.path, e.bytes);
+        binaries.push(b);
+      }
+    }
+
+    stage('Building SBOM & dependency risk…');
+    const depFlags = CITADEL.sbom.riskFlags(sbomComponents);
+    depFlags.forEach(f => findings.push({
+      ruleId: 'dep-flag', name: f.reason, category: f.category, severity: f.severity,
+      cwe: f.category === 'supply-chain' ? 'CWE-1357' : 'CWE-1104', confidence: 'medium',
+      file: f.component.name + '@' + f.component.version, line: 0,
+      snippet: `${f.component.ecosystem}: ${f.component.name} ${f.component.version}`,
+      remediation: 'Pin to a fixed, vetted version and monitor advisories (OSV/NVD).'
+    }));
+
+    stage('Measuring quality & maintainability…');
+    const q = quality(entries);
+
+    stage('Detecting deployment & IaC…');
+    const deployment = detectDeployment(entries);
+
+    stage('Scoring & grading…');
+    const scoring = score(findings, q);
+
+    stage('Mapping to compliance frameworks…');
+    const posture = CITADEL.frameworks.posture(findings);
+
+    return {
+      meta: { scannedAt: new Date().toISOString(), fileCount: entries.filter(e => !e.archive).length, totalBytes: entries.reduce((a, e) => a + e.size, 0) },
+      languages: langs, findings, sbom: { components: sbomComponents, doc: CITADEL.sbom.cyclonedx(sbomComponents) },
+      binaries, quality: q, deployment, scoring, posture
+    };
+  }
+
+  CITADEL.scanner = { scan, SEV_WEIGHT, grade, score, quality, languageStats, detectDeployment };
+})(window);

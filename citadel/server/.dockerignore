@@ -1,0 +1,64 @@
+# CITADEL deep-scan backend — build-context exclusions
+# -----------------------------------------------------------------------------
+# IMPORTANT: this image is built from the REPOSITORY ROOT
+# (`docker build -f citadel/server/Dockerfile .`), so the build context is the
+# entire portfolio repo. We aggressively exclude everything that isn't the
+# CITADEL app or backend to keep the context (and image) small and secret-free.
+#
+# Docker reads the .dockerignore next to the build context root by default; for
+# a -f build it also honours <Dockerfile>.dockerignore — keep this file in sync
+# if you relocate it. The patterns below are written for a repo-root context.
+# -----------------------------------------------------------------------------
+
+# VCS / CI
+.git
+.gitignore
+.github
+.gitlab-ci.yml
+
+# Secrets & local env (never bake into the image)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+secrets*.json
+aws-credentials*
+*credentials*
+
+# Node / build caches (deps are installed fresh via `npm ci` in the image)
+node_modules
+**/node_modules
+npm-debug.log*
+yarn-error.log
+.npm
+.cache
+dist
+coverage
+
+# IaC & government deploy artifacts — not needed by the backend image
+citadel/deploy
+**/*.tf
+**/*.tfvars
+**/*.tfstate
+**/*.tfstate.*
+.terraform
+.terraform.lock.hcl
+**/*.bicep
+
+# Docker meta
+**/Dockerfile
+**/.dockerignore
+**/docker-compose.yml
+
+# Large portfolio assets the backend neither runs nor serves
+*.pdf
+Resume_*.pdf
+
+# Editor / OS cruft
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+*.swp
