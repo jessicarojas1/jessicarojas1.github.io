@@ -371,7 +371,7 @@ if (!empty($trendData)) {
   </div>
 
   <!-- Critical -->
-  <div class="rdash-kpi" style="border-top:3px solid #ef4444">
+  <div class="rdash-kpi" style="border-top:3px solid var(--danger)">
     <span class="kpi-icon" style="color:var(--danger)"><i class="bi bi-exclamation-octagon-fill"></i></span>
     <span class="kpi-num" style="color:var(--danger)"><?= (int)($summary['critical'] ?? 0) ?></span>
     <span class="kpi-lbl">Critical</span>
@@ -385,14 +385,14 @@ if (!empty($trendData)) {
   </div>
 
   <!-- In Review -->
-  <div class="rdash-kpi" style="border-top:3px solid #f97316">
+  <div class="rdash-kpi" style="border-top:3px solid var(--orange)">
     <span class="kpi-icon" style="color:var(--orange)"><i class="bi bi-eye-fill"></i></span>
     <span class="kpi-num" style="color:var(--orange)"><?= (int)($summary['in_review'] ?? 0) ?></span>
     <span class="kpi-lbl">In Review</span>
   </div>
 
   <!-- Overdue Reviews -->
-  <div class="rdash-kpi" style="border-top:3px solid #ef4444">
+  <div class="rdash-kpi" style="border-top:3px solid var(--danger)">
     <span class="kpi-icon" style="color:var(--danger)"><i class="bi bi-alarm-fill"></i></span>
     <span class="kpi-num" style="color:var(--danger)">
       <?php if (($summary['overdue_reviews'] ?? 0) > 0): ?>
@@ -404,21 +404,21 @@ if (!empty($trendData)) {
   </div>
 
   <!-- Approved -->
-  <div class="rdash-kpi" style="border-top:3px solid #22c55e">
+  <div class="rdash-kpi" style="border-top:3px solid var(--success)">
     <span class="kpi-icon" style="color:var(--success)"><i class="bi bi-patch-check-fill"></i></span>
     <span class="kpi-num" style="color:var(--success)"><?= (int)($summary['approved'] ?? 0) ?></span>
     <span class="kpi-lbl">Approved</span>
   </div>
 
   <!-- Actions Overdue -->
-  <div class="rdash-kpi" style="border-top:3px solid #ef4444">
+  <div class="rdash-kpi" style="border-top:3px solid var(--danger)">
     <span class="kpi-icon" style="color:var(--danger)"><i class="bi bi-lightning-fill"></i></span>
     <span class="kpi-num" style="color:<?= $actionsOverdue > 0 ? 'var(--danger)' : 'inherit' ?>"><?= $actionsOverdue ?></span>
     <span class="kpi-lbl">Actions Overdue</span>
   </div>
 
   <!-- No Controls -->
-  <div class="rdash-kpi" style="border-top:3px solid #f59e0b">
+  <div class="rdash-kpi" style="border-top:3px solid var(--warning)">
     <span class="kpi-icon" style="color:var(--warning)"><i class="bi bi-shield-x"></i></span>
     <span class="kpi-num" style="color:<?= $uncontrolledCount > 0 ? 'var(--warning)' : 'inherit' ?>"><?= $uncontrolledCount ?></span>
     <span class="kpi-lbl">No Controls</span>

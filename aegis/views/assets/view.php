@@ -376,8 +376,8 @@ function riskScoreLevel(int $score): string {
 
 <!-- Link Risk Modal -->
 <?php if (Auth::can('risk.write')): ?>
-<div id="linkRiskModal" class="modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:center;justify-content:center;">
-  <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:12px;width:100%;max-width:520px;box-shadow:0 8px 32px rgba(0,0,0,.2);padding:0;overflow:hidden;">
+<div class="um-overlay" id="linkRiskModal">
+  <div class="um-dialog">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border);">
       <h3 style="margin:0;font-size:16px;font-weight:600;"><i class="bi bi-shield-plus" style="margin-right:8px;color:var(--primary);"></i> Link Risk to Asset</h3>
       <button data-close-modal="linkRiskModal"><i class="bi bi-x-lg"></i></button>

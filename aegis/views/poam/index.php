@@ -77,8 +77,8 @@ $statusLabels = [
 <?php endif; ?>
 
 <!-- ── Generate from Package Modal ── -->
-<div id="generateModal" style="display:none;position:fixed;inset:0;z-index:1000;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);">
-  <div class="card" style="width:100%;max-width:480px;margin:0 20px;">
+<div class="um-overlay" id="generateModal">
+  <div class="um-dialog">
     <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;">
       <strong>Generate POA&amp;M from Package</strong>
       <button data-close-modal="generateModal"><i class="bi bi-x-lg"></i></button>
@@ -108,8 +108,8 @@ $statusLabels = [
 </div>
 
 <!-- ── Manual Create Modal ── -->
-<div id="createModal" style="display:none;position:fixed;inset:0;z-index:1000;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);">
-  <div style="background:var(--card-bg);border-radius:12px;padding:28px;width:660px;max-height:90vh;overflow-y:auto;max-width:95vw;">
+<div class="um-overlay" id="createModal">
+  <div class="um-dialog">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
       <h3 style="margin:0;">New POA&amp;M Item</h3>
       <button data-close-modal="createModal"><i class="bi bi-x-lg"></i></button>
@@ -165,8 +165,8 @@ $statusLabels = [
 </div>
 
 <!-- ── CSV Import Modal ── -->
-<div id="importModal" style="display:none;position:fixed;inset:0;z-index:1000;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);">
-  <div style="background:var(--card-bg);border-radius:12px;padding:28px;width:680px;max-height:90vh;overflow-y:auto;max-width:95vw;">
+<div class="um-overlay" id="importModal">
+  <div class="um-dialog">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
       <h3 style="margin:0;">Import POA&amp;M Items via CSV</h3>
       <button data-close-modal="importModal"><i class="bi bi-x-lg"></i></button>
