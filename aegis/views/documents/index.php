@@ -34,12 +34,7 @@ $classColors = ['public'=>'#22c55e','internal'=>'#3b82f6','confidential'=>'#f59e
 </form>
 
 <?php if (empty($documents)): ?>
-  <div class="empty-state">
-    <i class="bi bi-file-earmark-text"></i>
-    <h3>No documents found</h3>
-    <p>Create your first document to start building the document library.</p>
-    <a href="/documents/create" class="btn btn-primary">New Document</a>
-  </div>
+  <div class="empty-state-sm"><i class="bi bi-file-earmark-text"></i><p>No documents found. Create your first document to start building the document library.</p></div>
 <?php else: ?>
 <div class="card">
   <table class="data-table">

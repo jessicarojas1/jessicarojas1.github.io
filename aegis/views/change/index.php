@@ -53,11 +53,7 @@ ob_start();
 <div class="card">
   <div class="card-body p0">
     <?php if (empty($changeRequests)): ?>
-      <div class="empty-state" style="padding:3rem">
-        <i class="bi bi-arrow-repeat" style="font-size:2.5rem;opacity:.3"></i>
-        <p>No change requests found.</p>
-        <a href="/change/create" class="btn btn-primary btn-sm">Create First Change Request</a>
-      </div>
+      <div class="empty-state-sm"><i class="bi bi-arrow-repeat"></i><p>No change requests found.</p></div>
     <?php else: ?>
       <table class="table">
         <thead>
