@@ -57,7 +57,7 @@
       <button type="button" class="btn btn-sm btn-secondary" data-click="addSection"><i class="bi bi-plus-lg"></i> Add Section</button>
     </div>
     <div id="sectionsContainer">
-      <div class="section-row card" style="padding:16px;margin-bottom:8px;background:#f8f9fa">
+      <div class="section-row card" style="padding:16px;margin-bottom:8px;background:var(--bg-secondary)">
         <input type="hidden" name="sections[0][sort_order]" value="0">
         <div class="form-row">
           <div class="form-group">

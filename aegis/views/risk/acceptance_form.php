@@ -80,7 +80,7 @@ ob_start();
     <div class="card" style="margin-bottom:20px;border-left:4px solid <?= $scoreColor ?>;">
       <div class="card-body" style="padding:16px 20px;">
         <div style="display:flex;align-items:flex-start;gap:16px;">
-          <div style="flex-shrink:0;width:44px;height:44px;border-radius:10px;background:<?= $scoreBg ?>;display:flex;align-items:center;justify-content:center;">
+          <div style="flex-shrink:0;width:44px;height:44px;border-radius:10px;background:<?= $scoreColor ?>18;display:flex;align-items:center;justify-content:center;">
             <i class="bi bi-exclamation-triangle-fill" style="font-size:20px;color:<?= $scoreColor ?>;"></i>
           </div>
           <div style="flex:1;min-width:0;">
@@ -93,7 +93,7 @@ ob_start();
                 <span style="font-size:12px;color:var(--text-muted);"><?= Security::h($risk['category_name']) ?></span>
               <?php endif; ?>
               <!-- Score badge -->
-              <span style="font-size:12px;font-weight:700;padding:2px 10px;border-radius:20px;background:<?= $scoreBg ?>;color:<?= $scoreColor ?>;border:1px solid <?= $scoreColor ?>40;">
+              <span style="font-size:12px;font-weight:700;padding:2px 10px;border-radius:20px;background:<?= $scoreColor ?>18;color:<?= $scoreColor ?>;border:1px solid <?= $scoreColor ?>40;">
                 Score <?= $score ?> &mdash; <?= $scoreLevel ?>
               </span>
             </div>
@@ -116,7 +116,7 @@ ob_start();
 
     <?php if ($existingActive): ?>
     <!-- Warning: active acceptance already exists -->
-    <div class="alert-box" style="background:#fffbeb;border-color:#f59e0b;color:var(--warning);margin-bottom:20px;">
+    <div class="alert-box" style="background:var(--warning-subtle);border-color:#f59e0b;color:var(--warning);margin-bottom:20px;">
       <i class="bi bi-exclamation-triangle-fill" style="color:#f59e0b;margin-right:6px;"></i>
       <strong>Active acceptance already exists.</strong>
       An acceptance certificate was issued by <strong><?= Security::h($existingActive['acceptor_name']) ?></strong>

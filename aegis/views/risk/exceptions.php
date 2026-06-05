@@ -48,7 +48,7 @@ ob_start();
 
   <div class="card" style="border-left:4px solid #22c55e;">
     <div class="card-body" style="padding:20px;display:flex;align-items:center;gap:16px;">
-      <div style="width:48px;height:48px;border-radius:12px;background:#f0fdf4;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <div style="width:48px;height:48px;border-radius:12px;background:var(--success-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
         <i class="bi bi-shield-check" style="font-size:22px;color:#22c55e;"></i>
       </div>
       <div>
@@ -142,7 +142,7 @@ ob_start();
                   border-radius:99px;
                   font-size:12px;
                   font-weight:600;
-                  background:<?= $sStyle['bg'] ?>;
+                  background:<?= $sStyle['fg'] ?>18;
                   color:<?= $sStyle['fg'] ?>;
                 ">
                   <?= Security::h(ucfirst($ex['status'])) ?>

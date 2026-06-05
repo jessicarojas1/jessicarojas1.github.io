@@ -57,7 +57,7 @@ if ($filterStatus !== '') {
 
   <div class="card" style="border-left:4px solid #16a34a;">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
-      <div style="width:44px;height:44px;border-radius:10px;background:#f0fdf4;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <div style="width:44px;height:44px;border-radius:10px;background:var(--success-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
         <i class="bi bi-patch-check-fill" style="font-size:20px;color:#16a34a;"></i>
       </div>
       <div>
@@ -198,7 +198,7 @@ if ($filterStatus !== '') {
           <td>
             <?php if ($hasScore): ?>
               <?php if ($lc): ?>
-                <span style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:2px 10px;border-radius:20px;background:<?= $lc['bg'] ?>;color:<?= $lc['fg'] ?>;">
+                <span style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:2px 10px;border-radius:20px;background:<?= $lc['fg'] ?>18;color:<?= $lc['fg'] ?>;">
                   <?= $acceptanceScore ?> &mdash; <?= $lc['label'] ?>
                 </span>
               <?php else: ?>
@@ -228,7 +228,7 @@ if ($filterStatus !== '') {
           </td>
 
           <td>
-            <span style="display:inline-block;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:600;background:<?= $sc['bg'] ?>;color:<?= $sc['fg'] ?>;border:1px solid <?= $sc['border'] ?? $sc['bg'] ?>;">
+            <span style="display:inline-block;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:600;background:<?= $sc['fg'] ?>18;color:<?= $sc['fg'] ?>;border:1px solid <?= $sc['fg'] ?>40;">
               <?= $sc['label'] ?>
             </span>
             <?php if (!empty($acc['renewal_required']) && $acc['renewal_required'] !== 'f' && $acc['renewal_required'] !== false): ?>
@@ -252,7 +252,7 @@ if ($filterStatus !== '') {
             <?php if ($acc['status'] === 'active' && Auth::can('risk.write')): ?>
               <button type="button"
                       class="btn btn-sm"
-                      style="background:#fef2f2;color:#dc2626;border:1px solid #fca5a5;"
+                      style="background:#dc262618;color:#dc2626;border:1px solid #dc262640;"
                       data-click="toggleRevoke" data-arg="revoke-<?= (int)$acc['id'] ?>"
                       title="Revoke">
                 <i class="bi bi-x-circle"></i> Revoke

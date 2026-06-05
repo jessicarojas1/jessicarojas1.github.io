@@ -29,28 +29,28 @@ ob_start();
 <!-- Stats -->
 <div class="stats-grid">
   <div class="stat-card">
-    <div class="stat-icon" style="background:#eff6ff;color:#2563eb"><i class="bi bi-buildings"></i></div>
+    <div class="stat-icon" style="background:#2563eb18;color:#2563eb"><i class="bi bi-buildings"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['total'] ?? 0) ?></div>
       <div class="stat-label">Total Vendors</div>
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:#f0fdf4;color:#059669"><i class="bi bi-check-circle-fill"></i></div>
+    <div class="stat-icon" style="background:#05966918;color:#059669"><i class="bi bi-check-circle-fill"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['active_count'] ?? 0) ?></div>
       <div class="stat-label">Active Vendors</div>
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:#fef2f2;color:#dc2626"><i class="bi bi-exclamation-octagon-fill"></i></div>
+    <div class="stat-icon" style="background:#dc262618;color:#dc2626"><i class="bi bi-exclamation-octagon-fill"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['critical_count'] ?? 0) ?></div>
       <div class="stat-label">Critical Tier</div>
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:#fff7ed;color:#d97706"><i class="bi bi-database-fill-lock"></i></div>
+    <div class="stat-icon" style="background:#d9770618;color:#d97706"><i class="bi bi-database-fill-lock"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['data_access_count'] ?? 0) ?></div>
       <div class="stat-label">Data Access</div>

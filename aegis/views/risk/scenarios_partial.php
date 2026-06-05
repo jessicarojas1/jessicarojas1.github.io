@@ -103,7 +103,7 @@ $avgScore = count($scenarios) > 0 ? round($totalScoreSum / count($scenarios), 1)
                   <span style="font-weight:600;color:var(--text)"><?= Security::h($sc['name']) ?></span>
                   <span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;
                                padding:2px 7px;border-radius:20px;
-                               background:<?= $sm['bg'] ?>;color:<?= $sm['color'] ?>;border:1px solid <?= $sm['border'] ?>">
+                               background:<?= $sm['color'] ?>18;color:<?= $sm['color'] ?>;border:1px solid <?= $sm['color'] ?>40">
                     <i class="bi <?= $sm['icon'] ?>"></i> <?= $sm['label'] ?>
                   </span>
                 </div>
@@ -141,7 +141,7 @@ $avgScore = count($scenarios) > 0 ? round($totalScoreSum / count($scenarios), 1)
           <td style="padding:12px;text-align:center;white-space:nowrap">
             <?php if ($delta > 0): ?>
               <span style="display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:700;
-                           padding:3px 8px;border-radius:20px;background:#fee2e2;color:#dc2626">
+                           padding:3px 8px;border-radius:20px;background:#dc262618;color:#dc2626">
                 <i class="bi bi-arrow-up"></i> +<?= $delta ?>
               </span>
             <?php elseif ($delta < 0): ?>
@@ -151,7 +151,7 @@ $avgScore = count($scenarios) > 0 ? round($totalScoreSum / count($scenarios), 1)
               </span>
             <?php else: ?>
               <span style="display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:600;
-                           padding:3px 8px;border-radius:20px;background:#f4f4f5;color:var(--text-muted)">
+                           padding:3px 8px;border-radius:20px;background:var(--bg-secondary);color:var(--text-muted)">
                 &#177; 0
               </span>
             <?php endif; ?>

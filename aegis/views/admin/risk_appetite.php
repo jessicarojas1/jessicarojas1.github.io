@@ -88,7 +88,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
                   <option value="moderate" <?= $app==='moderate' ? 'selected':'' ?>>Moderate</option>
                   <option value="high"     <?= $app==='high'     ? 'selected':'' ?>>High</option>
                 </select>
-                <span class="appetite-badge" style="display:inline-block;margin-top:4px;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;background:<?= $ac['bg'] ?>;color:<?= $ac['text'] ?>;border:1px solid <?= $ac['border'] ?>"><?= $ac['label'] ?></span>
+                <span class="appetite-badge" style="display:inline-block;margin-top:4px;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;background:<?= $ac['text'] ?>18;color:<?= $ac['text'] ?>;border:1px solid <?= $ac['text'] ?>40"><?= $ac['label'] ?></span>
               </td>
               <td>
                 <input type="number" name="max_score[]" class="form-control form-control-sm"
@@ -147,7 +147,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
         <option value="moderate">Moderate</option>
         <option value="high">High</option>
       </select>
-      <span class="appetite-badge" style="display:inline-block;margin-top:4px;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;background:#fffbeb;color:#d97706;border:1px solid #fcd34d">Low</span>
+      <span class="appetite-badge" style="display:inline-block;margin-top:4px;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;background:#d9770618;color:#d97706;border:1px solid #d9770640">Low</span>
     </td>
     <td>
       <input type="number" name="new_max_score[]" class="form-control form-control-sm" min="0" max="100" placeholder="—">
@@ -172,10 +172,10 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 
 <script nonce="<?= Security::nonce() ?>">
 var _appetiteColors = {
-  'zero':     {bg:'#fef2f2',border:'#fca5a5',text:'#dc2626',label:'Zero Tolerance'},
-  'low':      {bg:'#fffbeb',border:'#fcd34d',text:'#d97706',label:'Low'},
-  'moderate': {bg:'#eff6ff',border:'#93c5fd',text:'#2563eb',label:'Moderate'},
-  'high':     {bg:'#f0fdf4',border:'#86efac',text:'#16a34a',label:'High'},
+  'zero':     {text:'#dc2626',label:'Zero Tolerance'},
+  'low':      {text:'#d97706',label:'Low'},
+  'moderate': {text:'#2563eb',label:'Moderate'},
+  'high':     {text:'#16a34a',label:'High'},
 };
 
 function updateRowColor(sel) {
@@ -183,9 +183,9 @@ function updateRowColor(sel) {
   var c   = _appetiteColors[val] || _appetiteColors['low'];
   var badge = sel.parentElement.querySelector('.appetite-badge');
   if (badge) {
-    badge.style.background   = c.bg;
+    badge.style.background   = c.text + '18';
     badge.style.color        = c.text;
-    badge.style.borderColor  = c.border;
+    badge.style.borderColor  = c.text + '40';
     badge.textContent        = c.label;
   }
 }

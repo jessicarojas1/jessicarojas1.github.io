@@ -55,17 +55,17 @@ $totalGaps = count($gaps);
 
       <!-- Stat chips -->
       <div style="display:flex;flex-wrap:wrap;gap:8px;font-size:12px">
-        <span style="background:#dcfce7;color:#15803d;padding:3px 9px;border-radius:10px;font-weight:500">
+        <span style="background:#16a34a18;color:#16a34a;padding:3px 9px;border-radius:10px;font-weight:500">
           <i class="bi bi-check-circle-fill"></i> <?= $implemented ?> Implemented
         </span>
-        <span style="background:#dbeafe;color:#1d4ed8;padding:3px 9px;border-radius:10px;font-weight:500">
+        <span style="background:#1d4ed818;color:#1d4ed8;padding:3px 9px;border-radius:10px;font-weight:500">
           <i class="bi bi-arrow-repeat"></i> <?= $inProgress ?> In Progress
         </span>
-        <span style="background:#f4f4f5;color:var(--text-muted);padding:3px 9px;border-radius:10px;font-weight:500">
+        <span style="background:var(--bg-secondary);color:var(--text-muted);padding:3px 9px;border-radius:10px;font-weight:500">
           <i class="bi bi-circle"></i> <?= $notStarted ?> Not Started
         </span>
         <?php if ($overdue > 0): ?>
-        <span style="background:#fee2e2;color:#dc2626;padding:3px 9px;border-radius:10px;font-weight:500">
+        <span style="background:#dc262618;color:#dc2626;padding:3px 9px;border-radius:10px;font-weight:500">
           <i class="bi bi-exclamation-triangle-fill"></i> <?= $overdue ?> Overdue
         </span>
         <?php endif; ?>
@@ -91,7 +91,7 @@ $totalGaps = count($gaps);
     <i class="bi bi-exclamation-triangle" style="color:#d97706"></i>
     Control Gaps Requiring Attention
   </h2>
-  <span style="font-size:13px;color:var(--text-muted);background:#f4f4f5;padding:4px 12px;border-radius:12px">
+  <span style="font-size:13px;color:var(--text-muted);background:var(--bg-secondary);padding:4px 12px;border-radius:12px">
     <?= $totalGaps ?> gap<?= $totalGaps !== 1 ? 's' : '' ?><?= $totalGaps >= 100 ? ' (showing top 100)' : '' ?>
   </span>
 </div>
@@ -118,12 +118,12 @@ $totalGaps = count($gaps);
                          && $gap['status'] !== 'implemented';
             if ($isOverdue) {
               $statusLabel = 'Overdue';
-              $statusBg    = '#fee2e2';
               $statusColor = '#dc2626';
+              $statusBg    = $statusColor . '18';
             } else {
               $statusLabel = $gap['status'] ? ucwords(str_replace('_',' ',$gap['status'])) : 'Not Started';
-              $statusBg    = '#f4f4f5';
               $statusColor = '#71717a';
+              $statusBg    = 'var(--bg-secondary)';
             }
             $dueDateColor = ($gap['due_date'] && strtotime($gap['due_date']) < time()) ? '#dc2626' : 'inherit';
           ?>

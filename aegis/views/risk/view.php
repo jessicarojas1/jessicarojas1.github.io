@@ -475,7 +475,7 @@ ob_start();
           $actionCounts = ['planned'=>0,'in_progress'=>0,'completed'=>0];
           foreach ($responseActions as $ra) { if (isset($actionCounts[$ra['status']])) $actionCounts[$ra['status']]++; }
           ?>
-          <?php if ($actionCounts['in_progress']): ?><span style="font-size:11px;background:#dbeafe;color:#2563eb;padding:2px 8px;border-radius:20px"><?= $actionCounts['in_progress'] ?> active</span><?php endif; ?>
+          <?php if ($actionCounts['in_progress']): ?><span style="font-size:11px;background:#2563eb18;color:#2563eb;padding:2px 8px;border-radius:20px"><?= $actionCounts['in_progress'] ?> active</span><?php endif; ?>
           <?php if ($actionCounts['completed']): ?><span style="font-size:11px;background:#d1fae5;color:#059669;padding:2px 8px;border-radius:20px"><?= $actionCounts['completed'] ?> done</span><?php endif; ?>
           <?php if ($actionCounts['planned']): ?><span style="font-size:11px;background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:20px"><?= $actionCounts['planned'] ?> planned</span><?php endif; ?>
         </div>

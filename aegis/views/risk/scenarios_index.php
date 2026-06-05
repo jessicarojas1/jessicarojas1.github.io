@@ -124,7 +124,7 @@ function scIdxLevelClass(int $s): string {
                    onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text)'">
                   <?= Security::h($sc['name']) ?>
                 </a>
-                <span class="sc-type-badge" style="background:<?= $sm['bg'] ?>;color:<?= $sm['color'] ?>;border:1px solid <?= $sm['border'] ?>">
+                <span class="sc-type-badge" style="background:<?= $sm['color'] ?>18;color:<?= $sm['color'] ?>;border:1px solid <?= $sm['color'] ?>40">
                   <i class="bi <?= $sm['icon'] ?>"></i> <?= $sm['label'] ?>
                 </span>
               </div>
@@ -161,7 +161,7 @@ function scIdxLevelClass(int $s): string {
 
           <td style="padding:10px 12px;text-align:center;white-space:nowrap">
             <?php if ($delta > 0): ?>
-              <span style="display:inline-flex;align-items:center;gap:2px;font-size:12px;font-weight:700;padding:2px 7px;border-radius:20px;background:#fee2e2;color:#dc2626">
+              <span style="display:inline-flex;align-items:center;gap:2px;font-size:12px;font-weight:700;padding:2px 7px;border-radius:20px;background:#dc262618;color:#dc2626">
                 <i class="bi bi-arrow-up"></i> +<?= $delta ?>
               </span>
             <?php elseif ($delta < 0): ?>
@@ -169,7 +169,7 @@ function scIdxLevelClass(int $s): string {
                 <i class="bi bi-arrow-down"></i> <?= $delta ?>
               </span>
             <?php else: ?>
-              <span style="display:inline-flex;align-items:center;font-size:12px;font-weight:600;padding:2px 7px;border-radius:20px;background:#f4f4f5;color:var(--text-muted)">
+              <span style="display:inline-flex;align-items:center;font-size:12px;font-weight:600;padding:2px 7px;border-radius:20px;background:var(--bg-secondary);color:var(--text-muted)">
                 &#177;0
               </span>
             <?php endif; ?>

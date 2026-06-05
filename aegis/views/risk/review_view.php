@@ -67,7 +67,7 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
       <a href="/risk/reviews" class="btn btn-ghost btn-sm"><i class="bi bi-arrow-left"></i></a>
       <h1 class="page-title" style="margin:0"><?= Security::h($review['title']) ?></h1>
-      <span class="rv-status" style="color:<?= $stFg ?>;background:<?= $stBg ?>;border-color:<?= $stBd ?>">
+      <span class="rv-status" style="color:<?= $stFg ?>;background:<?= $stFg ?>18;border-color:<?= $stFg ?>40">
         <?= ucfirst(str_replace('_',' ',$review['status'])) ?>
       </span>
     </div>
@@ -256,7 +256,7 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
   <div class="modal-box">
     <h3 style="margin:0 0 12px"><i class="bi bi-check2-circle" style="color:#16a34a"></i> Complete Review</h3>
     <?php if (count($groups['pending']) > 0): ?>
-    <div class="alert-box" style="background:#fef2f2;border-color:#fca5a5;color:#dc2626;margin-bottom:12px">
+    <div class="alert-box" style="background:var(--danger-subtle);border-color:#dc262640;color:#dc2626;margin-bottom:12px">
       <i class="bi bi-exclamation-triangle-fill"></i> <?= count($groups['pending']) ?> risk(s) still pending review. You can still complete but they will remain pending.
     </div>
     <?php endif; ?>

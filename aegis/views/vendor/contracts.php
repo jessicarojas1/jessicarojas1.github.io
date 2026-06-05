@@ -62,7 +62,7 @@ $urgent = array_filter($expiring, function($c) {
   <h2 style="font-size:16px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:8px">
     <i class="bi bi-clock-history" style="color:#d97706"></i>
     Expiring Soon
-    <span style="font-size:12px;font-weight:400;color:var(--text-muted);background:#f4f4f5;padding:2px 8px;border-radius:10px"><?= count($expiring) ?></span>
+    <span style="font-size:12px;font-weight:400;color:var(--text-muted);background:var(--bg-secondary);padding:2px 8px;border-radius:10px"><?= count($expiring) ?></span>
   </h2>
   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">
     <?php foreach ($expiring as $c):
@@ -77,7 +77,7 @@ $urgent = array_filter($expiring, function($c) {
             <div style="font-size:12px;color:var(--text-muted);margin-top:2px"><?= Security::h($c['vendor_name']) ?></div>
           </div>
           <?php if ($c['auto_renewal']): ?>
-          <span style="font-size:11px;background:#dcfce7;color:#15803d;padding:2px 7px;border-radius:10px;white-space:nowrap;margin-left:8px">Auto-Renews</span>
+          <span style="font-size:11px;background:#16a34a18;color:#16a34a;padding:2px 7px;border-radius:10px;white-space:nowrap;margin-left:8px">Auto-Renews</span>
           <?php endif; ?>
         </div>
         <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px">
@@ -142,7 +142,7 @@ $urgent = array_filter($expiring, function($c) {
             <td><?= Security::h($c['title']) ?></td>
             <td style="font-family:monospace;font-size:12px;color:var(--text-muted)"><?= $c['contract_number'] ? Security::h($c['contract_number']) : '—' ?></td>
             <td>
-              <span class="status-chip" style="background:<?= $badge['bg'] ?>;color:<?= $badge['color'] ?>;border:1px solid <?= $badge['color'] ?>30">
+              <span class="status-chip" style="background:<?= $badge['color'] ?>18;color:<?= $badge['color'] ?>;border:1px solid <?= $badge['color'] ?>40">
                 <?= $badge['label'] ?>
               </span>
             </td>

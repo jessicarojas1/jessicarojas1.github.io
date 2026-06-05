@@ -29,9 +29,9 @@ function scenarioLevelClass(int $s): string {
 .preview-label{color:var(--text-muted);font-weight:500}
 .preview-score{font-size:22px;font-weight:900;line-height:1}
 .preview-delta{display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:700;padding:2px 8px;border-radius:20px}
-.delta-up{background:#fee2e2;color:#dc2626}
+.delta-up{background:#dc262618;color:#dc2626}
 .delta-down{background:#d1fae5;color:var(--success)}
-.delta-neutral{background:#f4f4f5;color:var(--text-muted)}
+.delta-neutral{background:var(--bg-secondary);color:var(--text-muted)}
 .multiplier-group{display:flex;flex-direction:column;gap:6px}
 .mult-row{display:flex;align-items:center;gap:12px}
 .mult-slider{flex:1}
@@ -108,7 +108,7 @@ function scenarioLevelClass(int $s): string {
               foreach ($typeMeta as $val => $meta):
                   $checked = ($selectedType === $val) ? 'checked' : '';
               ?>
-              <label class="type-opt" style="--accent-color:<?= $meta['color'] ?>;--accent-bg:<?= $meta['bg'] ?>">
+              <label class="type-opt" style="--accent-color:<?= $meta['color'] ?>;--accent-bg:<?= $meta['color'] ?>18">
                 <input type="radio" name="scenario_type" value="<?= $val ?>" <?= $checked ?> data-change="updatePreview">
                 <div class="type-card">
                   <i class="bi <?= $meta['icon'] ?>" style="font-size:18px;color:<?= $meta['color'] ?>"></i>

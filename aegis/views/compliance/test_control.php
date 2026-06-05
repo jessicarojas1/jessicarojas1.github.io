@@ -5,10 +5,10 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 
 function testResultBadge(string $result): string {
     return match($result) {
-        'pass'       => '<span class="badge" style="background:#dcfce7;color:#16a34a;border:1px solid #86efac">Pass</span>',
-        'fail'       => '<span class="badge" style="background:#fef2f2;color:#dc2626;border:1px solid #fca5a5">Fail</span>',
-        'partial'    => '<span class="badge" style="background:#fffbeb;color:#d97706;border:1px solid #fcd34d">Partial</span>',
-        'not_tested' => '<span class="badge" style="background:#f4f4f5;color:var(--text-muted);border:1px solid #d4d4d8">Not Tested</span>',
+        'pass'       => '<span class="badge" style="background:#16a34a18;color:#16a34a;border:1px solid #16a34a40">Pass</span>',
+        'fail'       => '<span class="badge" style="background:#dc262618;color:#dc2626;border:1px solid #dc262640">Fail</span>',
+        'partial'    => '<span class="badge" style="background:#d9770618;color:#d97706;border:1px solid #d9770640">Partial</span>',
+        'not_tested' => '<span class="badge" style="background:var(--bg-secondary);color:var(--text-muted);border:1px solid var(--border)">Not Tested</span>',
         default      => '<span class="badge">' . htmlspecialchars($result, ENT_QUOTES, 'UTF-8') . '</span>',
     };
 }

@@ -70,7 +70,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
       </ol>
 
       <div style="text-align:center;margin-bottom:24px">
-        <div style="display:inline-block;padding:16px;background:#fff;border-radius:12px;border:1px solid var(--border)">
+        <div style="display:inline-block;padding:16px;background:#fff;border-radius:8px;border:1px solid var(--border)">
           <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=<?= urlencode($qrUri) ?>" alt="QR Code" width="180" height="180" style="display:block">
         </div>
         <p style="font-size:12px;color:var(--text-muted);margin-top:8px">Can't scan? Enter this key manually:</p>
