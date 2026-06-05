@@ -30,7 +30,7 @@ $totalGaps = count($gaps);
     $notStarted  = (int)$pkg['not_started'];
     $overdue     = (int)$pkg['overdue'];
     $pct         = round($implemented / $total * 100);
-    $pctColor    = $pct >= 80 ? '#059669' : ($pct >= 50 ? '#d97706' : '#dc2626');
+    $pctColor    = $pct >= 80 ? 'var(--success)' : ($pct >= 50 ? 'var(--warning)' : 'var(--danger)');
   ?>
   <div class="card" style="padding:0">
     <div class="card-body" style="padding:18px">
@@ -47,7 +47,7 @@ $totalGaps = count($gaps);
 
       <!-- Progress bar -->
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-        <div style="flex:1;background:#e4e4e7;border-radius:4px;height:8px;overflow:hidden">
+        <div style="flex:1;background:var(--border);border-radius:4px;height:8px;overflow:hidden">
           <div style="width:<?= $pct ?>%;background:<?= $pctColor ?>;height:100%;border-radius:4px;transition:width .4s"></div>
         </div>
         <span style="font-size:13px;font-weight:700;color:<?= $pctColor ?>;min-width:38px;text-align:right"><?= $pct ?>%</span>
@@ -55,17 +55,17 @@ $totalGaps = count($gaps);
 
       <!-- Stat chips -->
       <div style="display:flex;flex-wrap:wrap;gap:8px;font-size:12px">
-        <span style="background:#16a34a18;color:#16a34a;padding:3px 9px;border-radius:10px;font-weight:500">
+        <span style="background:var(--success-subtle);color:var(--success);padding:3px 9px;border-radius:10px;font-weight:500">
           <i class="bi bi-check-circle-fill"></i> <?= $implemented ?> Implemented
         </span>
-        <span style="background:#1d4ed818;color:#1d4ed8;padding:3px 9px;border-radius:10px;font-weight:500">
+        <span style="background:var(--info-subtle);color:var(--info);padding:3px 9px;border-radius:10px;font-weight:500">
           <i class="bi bi-arrow-repeat"></i> <?= $inProgress ?> In Progress
         </span>
         <span style="background:var(--bg-secondary);color:var(--text-muted);padding:3px 9px;border-radius:10px;font-weight:500">
           <i class="bi bi-circle"></i> <?= $notStarted ?> Not Started
         </span>
         <?php if ($overdue > 0): ?>
-        <span style="background:#dc262618;color:#dc2626;padding:3px 9px;border-radius:10px;font-weight:500">
+        <span style="background:var(--danger-subtle);color:var(--danger);padding:3px 9px;border-radius:10px;font-weight:500">
           <i class="bi bi-exclamation-triangle-fill"></i> <?= $overdue ?> Overdue
         </span>
         <?php endif; ?>
@@ -195,7 +195,7 @@ $totalGaps = count($gaps);
             $cfFrameworks  = explode(', ', $cf['frameworks'] ?? '');
             $cfCount       = (int)$cf['framework_count'];
             $cfImplemented = (int)$cf['implemented_in'];
-            $priority      = $cfCount >= 3 ? '#dc2626' : ($cfCount === 2 ? '#d97706' : '#71717a');
+            $priority      = $cfCount >= 3 ? 'var(--danger)' : ($cfCount === 2 ? 'var(--warning)' : 'var(--text-muted)');
           ?>
           <tr>
             <td style="font-size:13px;max-width:300px;font-weight:500"><?= Security::h($cf['title']) ?></td>
@@ -220,7 +220,7 @@ $totalGaps = count($gaps);
       </table>
     </div>
     <?php else: ?>
-    <div style="text-align:center;padding:40px 20px;color:#a1a1aa">
+    <div style="text-align:center;padding:40px 20px;color:var(--text-muted)">
       <i class="bi bi-diagram-3" style="font-size:36px;display:block;margin-bottom:10px"></i>
       <p style="margin:0;font-size:14px">No cross-framework gaps found. Either only one framework is active, or all shared controls are implemented.</p>
     </div>

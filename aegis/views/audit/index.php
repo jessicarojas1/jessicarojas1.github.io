@@ -21,13 +21,45 @@ ob_start();
   <div class="stat-mini"><i class="bi bi-exclamation-circle" style="color:#dc2626"></i><span class="stat-mini-num"><?= $summary['overdue'] ?? 0 ?></span><span>Overdue</span></div>
 </div>
 
-<!-- Filter -->
-<div class="filter-bar card">
-  <a href="/audit" class="btn btn-sm <?= !($status??'') ? 'btn-primary' : 'btn-ghost' ?>">All</a>
-  <a href="/audit?status=planned" class="btn btn-sm <?= ($status??'')==='planned' ? 'btn-primary' : 'btn-ghost' ?>">Planned</a>
-  <a href="/audit?status=in_progress" class="btn btn-sm <?= ($status??'')==='in_progress' ? 'btn-primary' : 'btn-ghost' ?>">In Progress</a>
-  <a href="/audit?status=completed" class="btn btn-sm <?= ($status??'')==='completed' ? 'btn-primary' : 'btn-ghost' ?>">Completed</a>
-  <a href="/audit?status=overdue" class="btn btn-sm <?= ($status??'')==='overdue' ? 'btn-danger' : 'btn-ghost' ?>">Overdue</a>
+<?php
+$_filterCount = count(array_filter([
+    $_GET['status'] ?? '',
+]));
+?>
+<div class="filter-toolbar">
+  <div class="filter-popover-wrap">
+    <button type="button" class="filter-btn <?= $_filterCount ? 'active' : '' ?>" data-filter-toggle>
+      <i class="bi bi-funnel"></i> Filters
+      <?php if ($_filterCount): ?><span class="filter-count"><?= $_filterCount ?></span><?php endif; ?>
+    </button>
+    <div class="filter-popover <?= $_filterCount ? 'open' : '' ?>">
+      <form method="GET" action="/audit">
+        <div class="filter-popover-grid single-col">
+          <div class="filter-field">
+            <label>Status</label>
+            <select name="status">
+              <option value="">All statuses</option>
+              <?php foreach (['planned'=>'Planned','in_progress'=>'In Progress','completed'=>'Completed','overdue'=>'Overdue','cancelled'=>'Cancelled'] as $sv=>$sl): ?>
+                <option value="<?= $sv ?>" <?= ($_GET['status']??'')===$sv?'selected':'' ?>><?= $sl ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+        </div>
+        <div class="filter-popover-actions">
+          <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+          <a href="/audit" class="btn btn-ghost btn-sm">Clear</a>
+        </div>
+      </form>
+    </div>
+  </div>
+  <?php if ($_filterCount): ?>
+  <div class="filter-chips">
+    <?php if (!empty($_GET['status'])): ?>
+      <?php $__stl = ['planned'=>'Planned','in_progress'=>'In Progress','completed'=>'Completed','overdue'=>'Overdue','cancelled'=>'Cancelled']; ?>
+      <span class="filter-chip">Status: <?= Security::h($__stl[$_GET['status']] ?? $_GET['status']) ?> <a href="<?= Security::h(preg_replace('/[?&]status=[^&]*/','', $_SERVER['REQUEST_URI'])) ?>" class="filter-chip-remove">×</a></span>
+    <?php endif; ?>
+  </div>
+  <?php endif; ?>
 </div>
 
 <div class="card">

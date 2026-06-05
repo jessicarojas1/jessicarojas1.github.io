@@ -494,3 +494,29 @@ document.querySelectorAll('.file-drop').forEach(function(drop) {
     window.showFileChange.call(input, input);
   });
 });
+
+// Filter popover toggle
+document.addEventListener('click', function(e) {
+  var btn = e.target.closest('.filter-btn[data-filter-toggle]');
+  if (btn) {
+    e.stopPropagation();
+    var wrap = btn.closest('.filter-popover-wrap');
+    var popover = wrap ? wrap.querySelector('.filter-popover') : null;
+    if (popover) {
+      var isOpen = popover.classList.contains('open');
+      // Close all other open popovers
+      document.querySelectorAll('.filter-popover.open').forEach(function(p) { p.classList.remove('open'); });
+      document.querySelectorAll('.filter-btn[data-filter-toggle].active').forEach(function(b) { b.classList.remove('active'); });
+      if (!isOpen) {
+        popover.classList.add('open');
+        btn.classList.add('active');
+      }
+    }
+    return;
+  }
+  // Close on outside click
+  if (!e.target.closest('.filter-popover-wrap')) {
+    document.querySelectorAll('.filter-popover.open').forEach(function(p) { p.classList.remove('open'); });
+    document.querySelectorAll('.filter-btn[data-filter-toggle].active').forEach(function(b) { b.classList.remove('active'); });
+  }
+});

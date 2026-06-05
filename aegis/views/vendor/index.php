@@ -58,38 +58,65 @@ ob_start();
   </div>
 </div>
 
-<!-- Filters -->
-<div class="card" style="margin-bottom:16px">
-  <div class="card-body">
-    <form method="GET" style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end">
-      <div class="form-group" style="margin:0;flex:1;min-width:180px">
-        <label class="form-label" style="font-size:12px;margin-bottom:4px">Risk Tier</label>
-        <select name="risk_tier" class="form-control" data-autosubmit>
-          <option value="">All Tiers</option>
-          <?php foreach (['critical' => 'Critical', 'high' => 'High', 'medium' => 'Medium', 'low' => 'Low'] as $v => $l): ?>
-            <option value="<?= $v ?>" <?= ($_GET['risk_tier'] ?? '') === $v ? 'selected' : '' ?>><?= $l ?></option>
-          <?php endforeach; ?>
-        </select>
-      </div>
-      <div class="form-group" style="margin:0;flex:1;min-width:180px">
-        <label class="form-label" style="font-size:12px;margin-bottom:4px">Status</label>
-        <select name="status" class="form-control" data-autosubmit>
-          <option value="">All Statuses</option>
-          <?php foreach (['active' => 'Active', 'inactive' => 'Inactive', 'under_review' => 'Under Review', 'terminated' => 'Terminated'] as $v => $l): ?>
-            <option value="<?= $v ?>" <?= ($_GET['status'] ?? '') === $v ? 'selected' : '' ?>><?= $l ?></option>
-          <?php endforeach; ?>
-        </select>
-      </div>
-      <div class="form-group" style="margin:0;flex:2;min-width:220px">
-        <label class="form-label" style="font-size:12px;margin-bottom:4px">Search</label>
-        <input type="text" name="search" class="form-control" placeholder="Search name, code, category, contact..." value="<?= Security::h($_GET['search'] ?? '') ?>">
-      </div>
-      <div style="display:flex;gap:8px;padding-bottom:1px">
-        <button type="submit" class="btn btn-primary btn-sm">Search</button>
-        <a href="/vendor" class="btn btn-secondary btn-sm">Clear</a>
-      </div>
-    </form>
+<?php
+$_filterCount = count(array_filter([
+    $_GET['risk_tier'] ?? '',
+    $_GET['status'] ?? '',
+]));
+?>
+<div class="filter-toolbar">
+  <div class="filter-popover-wrap">
+    <button type="button" class="filter-btn <?= $_filterCount ? 'active' : '' ?>" data-filter-toggle>
+      <i class="bi bi-funnel"></i> Filters
+      <?php if ($_filterCount): ?><span class="filter-count"><?= $_filterCount ?></span><?php endif; ?>
+    </button>
+    <div class="filter-popover <?= $_filterCount ? 'open' : '' ?>">
+      <form method="GET" action="/vendor">
+        <div class="filter-popover-grid single-col">
+          <div class="filter-field">
+            <label>Risk Tier</label>
+            <select name="risk_tier">
+              <option value="">All Tiers</option>
+              <?php foreach (['critical' => 'Critical', 'high' => 'High', 'medium' => 'Medium', 'low' => 'Low'] as $v => $l): ?>
+                <option value="<?= $v ?>" <?= ($_GET['risk_tier'] ?? '') === $v ? 'selected' : '' ?>><?= $l ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label>Status</label>
+            <select name="status">
+              <option value="">All Statuses</option>
+              <?php foreach (['active' => 'Active', 'inactive' => 'Inactive', 'under_review' => 'Under Review', 'terminated' => 'Terminated'] as $v => $l): ?>
+                <option value="<?= $v ?>" <?= ($_GET['status'] ?? '') === $v ? 'selected' : '' ?>><?= $l ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+        </div>
+        <div class="filter-popover-actions">
+          <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+          <a href="/vendor" class="btn btn-ghost btn-sm">Clear</a>
+        </div>
+      </form>
+    </div>
   </div>
+  <form method="GET" action="/vendor" style="display:contents">
+    <?php if (!empty($_GET['risk_tier'])): ?><input type="hidden" name="risk_tier" value="<?= Security::h($_GET['risk_tier']) ?>"><?php endif; ?>
+    <?php if (!empty($_GET['status'])): ?><input type="hidden" name="status" value="<?= Security::h($_GET['status']) ?>"><?php endif; ?>
+    <input type="text" name="search" class="form-control form-control-sm" placeholder="Search vendors..." value="<?= Security::h($_GET['search'] ?? '') ?>" style="min-width:220px;max-width:320px">
+    <button type="submit" class="btn btn-ghost btn-sm"><i class="bi bi-search"></i></button>
+  </form>
+  <?php if ($_filterCount): ?>
+  <div class="filter-chips">
+    <?php if (!empty($_GET['risk_tier'])): ?>
+      <?php $__tl = ['critical'=>'Critical','high'=>'High','medium'=>'Medium','low'=>'Low']; ?>
+      <span class="filter-chip">Tier: <?= Security::h($__tl[$_GET['risk_tier']] ?? $_GET['risk_tier']) ?> <a href="<?= Security::h(preg_replace('/[?&]risk_tier=[^&]*/','', $_SERVER['REQUEST_URI'])) ?>" class="filter-chip-remove">×</a></span>
+    <?php endif; ?>
+    <?php if (!empty($_GET['status'])): ?>
+      <?php $__stl = ['active'=>'Active','inactive'=>'Inactive','under_review'=>'Under Review','terminated'=>'Terminated']; ?>
+      <span class="filter-chip">Status: <?= Security::h($__stl[$_GET['status']] ?? $_GET['status']) ?> <a href="<?= Security::h(preg_replace('/[?&]status=[^&]*/','', $_SERVER['REQUEST_URI'])) ?>" class="filter-chip-remove">×</a></span>
+    <?php endif; ?>
+  </div>
+  <?php endif; ?>
 </div>
 
 <!-- Vendor Table -->

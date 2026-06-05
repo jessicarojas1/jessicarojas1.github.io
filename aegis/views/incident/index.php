@@ -44,27 +44,65 @@ ob_start();
   </div>
 </div>
 
-<!-- Filters -->
-<div class="card" style="margin-bottom:1rem">
-  <div class="card-body" style="padding:0.75rem 1rem">
-    <form method="GET" action="/incident" style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap">
-      <select name="severity" class="form-control" style="width:auto;min-width:140px" data-autosubmit>
-        <option value="">All severities</option>
-        <?php foreach (['critical'=>'Critical','high'=>'High','medium'=>'Medium','low'=>'Low'] as $val => $label): ?>
-          <option value="<?= $val ?>" <?= ($_GET['severity'] ?? '') === $val ? 'selected' : '' ?>><?= $label ?></option>
-        <?php endforeach; ?>
-      </select>
-      <select name="status" class="form-control" style="width:auto;min-width:150px" data-autosubmit>
-        <option value="">All statuses</option>
-        <?php foreach (['open'=>'Open','investigating'=>'Investigating','contained'=>'Contained','resolved'=>'Resolved','closed'=>'Closed'] as $val => $label): ?>
-          <option value="<?= $val ?>" <?= ($_GET['status'] ?? '') === $val ? 'selected' : '' ?>><?= $label ?></option>
-        <?php endforeach; ?>
-      </select>
-      <input type="text" name="search" class="form-control" placeholder="Search incidents..." value="<?= Security::h($_GET['search'] ?? '') ?>" style="flex:1;min-width:180px">
-      <button type="submit" class="btn btn-primary btn-sm">Filter</button>
-      <a href="/incident" class="btn btn-ghost btn-sm">Clear</a>
-    </form>
+<?php
+$_filterCount = count(array_filter([
+    $_GET['severity'] ?? '',
+    $_GET['status'] ?? '',
+]));
+?>
+<div class="filter-toolbar">
+  <div class="filter-popover-wrap">
+    <button type="button" class="filter-btn <?= $_filterCount ? 'active' : '' ?>" data-filter-toggle>
+      <i class="bi bi-funnel"></i> Filters
+      <?php if ($_filterCount): ?><span class="filter-count"><?= $_filterCount ?></span><?php endif; ?>
+    </button>
+    <div class="filter-popover <?= $_filterCount ? 'open' : '' ?>">
+      <form method="GET" action="/incident">
+        <div class="filter-popover-grid single-col">
+          <div class="filter-field">
+            <label>Severity</label>
+            <select name="severity">
+              <option value="">All severities</option>
+              <?php foreach (['critical'=>'Critical','high'=>'High','medium'=>'Medium','low'=>'Low'] as $val => $label): ?>
+                <option value="<?= $val ?>" <?= ($_GET['severity'] ?? '') === $val ? 'selected' : '' ?>><?= $label ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label>Status</label>
+            <select name="status">
+              <option value="">All statuses</option>
+              <?php foreach (['open'=>'Open','investigating'=>'Investigating','contained'=>'Contained','resolved'=>'Resolved','closed'=>'Closed'] as $val => $label): ?>
+                <option value="<?= $val ?>" <?= ($_GET['status'] ?? '') === $val ? 'selected' : '' ?>><?= $label ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+        </div>
+        <div class="filter-popover-actions">
+          <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+          <a href="/incident" class="btn btn-ghost btn-sm">Clear</a>
+        </div>
+      </form>
+    </div>
   </div>
+  <form method="GET" action="/incident" style="display:contents">
+    <?php if (!empty($_GET['severity'])): ?><input type="hidden" name="severity" value="<?= Security::h($_GET['severity']) ?>"><?php endif; ?>
+    <?php if (!empty($_GET['status'])): ?><input type="hidden" name="status" value="<?= Security::h($_GET['status']) ?>"><?php endif; ?>
+    <input type="text" name="search" class="form-control form-control-sm" placeholder="Search incidents..." value="<?= Security::h($_GET['search'] ?? '') ?>" style="min-width:200px;max-width:320px">
+    <button type="submit" class="btn btn-ghost btn-sm"><i class="bi bi-search"></i></button>
+  </form>
+  <?php if ($_filterCount): ?>
+  <div class="filter-chips">
+    <?php if (!empty($_GET['severity'])): ?>
+      <?php $__svl = ['critical'=>'Critical','high'=>'High','medium'=>'Medium','low'=>'Low']; ?>
+      <span class="filter-chip">Severity: <?= Security::h($__svl[$_GET['severity']] ?? $_GET['severity']) ?> <a href="<?= Security::h(preg_replace('/[?&]severity=[^&]*/','', $_SERVER['REQUEST_URI'])) ?>" class="filter-chip-remove">×</a></span>
+    <?php endif; ?>
+    <?php if (!empty($_GET['status'])): ?>
+      <?php $__stl = ['open'=>'Open','investigating'=>'Investigating','contained'=>'Contained','resolved'=>'Resolved','closed'=>'Closed']; ?>
+      <span class="filter-chip">Status: <?= Security::h($__stl[$_GET['status']] ?? $_GET['status']) ?> <a href="<?= Security::h(preg_replace('/[?&]status=[^&]*/','', $_SERVER['REQUEST_URI'])) ?>" class="filter-chip-remove">×</a></span>
+    <?php endif; ?>
+  </div>
+  <?php endif; ?>
 </div>
 
 <!-- Table -->

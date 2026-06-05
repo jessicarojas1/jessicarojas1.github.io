@@ -78,32 +78,75 @@ $statusColors = [
   </div>
 </div>
 
-<!-- Filter bar -->
-<div class="card" style="margin-bottom:1.5rem">
-  <div class="card-body" style="padding:.75rem 1rem">
-    <form method="GET" class="filter-form" style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center">
-      <select name="severity" class="form-control form-control-sm" data-autosubmit>
-        <option value="">All severities</option>
-        <?php foreach (['critical' => 'Critical', 'high' => 'High', 'medium' => 'Medium', 'low' => 'Low'] as $v => $l): ?>
-          <option value="<?= $v ?>" <?= ($_GET['severity'] ?? '') === $v ? 'selected' : '' ?>><?= $l ?></option>
-        <?php endforeach; ?>
-      </select>
-      <select name="status" class="form-control form-control-sm" data-autosubmit>
-        <option value="">All statuses</option>
-        <?php foreach (['open' => 'Open', 'in_progress' => 'In Progress', 'pending_review' => 'Pending Review', 'resolved' => 'Resolved', 'closed' => 'Closed', 'wont_fix' => "Won't Fix"] as $v => $l): ?>
-          <option value="<?= $v ?>" <?= ($_GET['status'] ?? '') === $v ? 'selected' : '' ?>><?= $l ?></option>
-        <?php endforeach; ?>
-      </select>
-      <select name="assigned_to" class="form-control form-control-sm" data-autosubmit>
-        <option value="">All assignees</option>
-        <?php foreach ($users as $u): ?>
-          <option value="<?= $u['id'] ?>" <?= (int)($_GET['assigned_to'] ?? 0) === (int)$u['id'] ? 'selected' : '' ?>><?= Security::h($u['name']) ?></option>
-        <?php endforeach; ?>
-      </select>
-      <button type="submit" class="btn btn-primary btn-sm">Filter</button>
-      <a href="/issue" class="btn btn-secondary btn-sm">Clear</a>
-    </form>
+<?php
+$_filterCount = count(array_filter([
+    $_GET['severity'] ?? '',
+    $_GET['status'] ?? '',
+    $_GET['assigned_to'] ?? '',
+]));
+?>
+<div class="filter-toolbar">
+  <div class="filter-popover-wrap">
+    <button type="button" class="filter-btn <?= $_filterCount ? 'active' : '' ?>" data-filter-toggle>
+      <i class="bi bi-funnel"></i> Filters
+      <?php if ($_filterCount): ?><span class="filter-count"><?= $_filterCount ?></span><?php endif; ?>
+    </button>
+    <div class="filter-popover <?= $_filterCount ? 'open' : '' ?>">
+      <form method="GET" action="/issue">
+        <div class="filter-popover-grid single-col">
+          <div class="filter-field">
+            <label>Severity</label>
+            <select name="severity">
+              <option value="">All severities</option>
+              <?php foreach (['critical' => 'Critical', 'high' => 'High', 'medium' => 'Medium', 'low' => 'Low'] as $v => $l): ?>
+                <option value="<?= $v ?>" <?= ($_GET['severity'] ?? '') === $v ? 'selected' : '' ?>><?= $l ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label>Status</label>
+            <select name="status">
+              <option value="">All statuses</option>
+              <?php foreach (['open' => 'Open', 'in_progress' => 'In Progress', 'pending_review' => 'Pending Review', 'resolved' => 'Resolved', 'closed' => 'Closed', 'wont_fix' => "Won't Fix"] as $v => $l): ?>
+                <option value="<?= $v ?>" <?= ($_GET['status'] ?? '') === $v ? 'selected' : '' ?>><?= $l ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label>Assigned To</label>
+            <select name="assigned_to">
+              <option value="">All assignees</option>
+              <?php foreach ($users as $u): ?>
+                <option value="<?= $u['id'] ?>" <?= (int)($_GET['assigned_to'] ?? 0) === (int)$u['id'] ? 'selected' : '' ?>><?= Security::h($u['name']) ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+        </div>
+        <div class="filter-popover-actions">
+          <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+          <a href="/issue" class="btn btn-ghost btn-sm">Clear</a>
+        </div>
+      </form>
+    </div>
   </div>
+  <?php if ($_filterCount): ?>
+  <div class="filter-chips">
+    <?php if (!empty($_GET['severity'])): ?>
+      <?php $__svl = ['critical'=>'Critical','high'=>'High','medium'=>'Medium','low'=>'Low']; ?>
+      <span class="filter-chip">Severity: <?= Security::h($__svl[$_GET['severity']] ?? $_GET['severity']) ?> <a href="<?= Security::h(preg_replace('/[?&]severity=[^&]*/','', $_SERVER['REQUEST_URI'])) ?>" class="filter-chip-remove">×</a></span>
+    <?php endif; ?>
+    <?php if (!empty($_GET['status'])): ?>
+      <?php $__stl = ['open'=>'Open','in_progress'=>'In Progress','pending_review'=>'Pending Review','resolved'=>'Resolved','closed'=>'Closed','wont_fix'=>"Won't Fix"]; ?>
+      <span class="filter-chip">Status: <?= Security::h($__stl[$_GET['status']] ?? $_GET['status']) ?> <a href="<?= Security::h(preg_replace('/[?&]status=[^&]*/','', $_SERVER['REQUEST_URI'])) ?>" class="filter-chip-remove">×</a></span>
+    <?php endif; ?>
+    <?php if (!empty($_GET['assigned_to'])): ?>
+      <?php $__u = array_values(array_filter($users, fn($u)=>(int)$u['id']===(int)$_GET['assigned_to']))[0] ?? null; ?>
+      <?php if ($__u): ?>
+      <span class="filter-chip">Assignee: <?= Security::h($__u['name']) ?> <a href="<?= Security::h(preg_replace('/[?&]assigned_to=[^&]*/','', $_SERVER['REQUEST_URI'])) ?>" class="filter-chip-remove">×</a></span>
+      <?php endif; ?>
+    <?php endif; ?>
+  </div>
+  <?php endif; ?>
 </div>
 
 <!-- Issues table -->
