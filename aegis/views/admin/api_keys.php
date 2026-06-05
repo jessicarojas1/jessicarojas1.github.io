@@ -95,10 +95,10 @@ ob_start();
 </div>
 
 <!-- Create key modal -->
-<div class="modal-overlay" id="createKeyModal" style="display:none">
-  <div class="modal">
-    <div class="modal-header"><h3><i class="bi bi-key-fill"></i> New API Key</h3><button data-close-modal="createKeyModal"><i class="bi bi-x-lg"></i></button></div>
-    <div class="modal-body">
+<div class="um-overlay" id="createKeyModal" style="display:none">
+  <div class="um-dialog">
+    <div class="um-header"><h3><i class="bi bi-key-fill"></i> New API Key</h3><button class="um-close" data-close-modal="createKeyModal"><i class="bi bi-x-lg"></i></button></div>
+    <div class="um-body">
       <form method="POST" action="/admin/api-keys/create">
         <?= Security::csrfField() ?>
         <div class="form-group">

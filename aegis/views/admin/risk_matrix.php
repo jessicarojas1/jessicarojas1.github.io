@@ -142,13 +142,13 @@ ob_start();
 </form>
 
 <!-- Cell edit modal -->
-<div class="modal-overlay" id="cellEditModal" style="display:none">
-  <div class="modal" style="max-width:420px">
-    <div class="modal-header">
+<div class="um-overlay" id="cellEditModal" style="display:none">
+  <div class="um-dialog" style="max-width:420px">
+    <div class="um-header">
       <h3>Edit Cell</h3>
-      <button type="button" data-click="closeCellEdit"><i class="bi bi-x-lg"></i></button>
+      <button type="button" class="um-close" data-click="closeCellEdit"><i class="bi bi-x-lg"></i></button>
     </div>
-    <div class="modal-body">
+    <div class="um-body">
       <input type="hidden" id="editKey">
       <div class="form-group">
         <label class="form-label">Treatment / Title</label>
