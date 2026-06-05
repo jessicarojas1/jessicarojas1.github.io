@@ -132,7 +132,7 @@ $_filterCount = count(array_filter([
             'low'      => 'var(--success)',
           ];
           $sev = $inc['severity'] ?? 'medium';
-          $sevColor = $sevColors[$sev] ?? '#6b7280';
+          $sevColor = $sevColors[$sev] ?? 'var(--text-muted)';
           $statusLabels = [
             'open'          => 'Open',
             'investigating' => 'Investigating',
@@ -148,7 +148,7 @@ $_filterCount = count(array_filter([
             'closed'        => '#6b7280',
           ];
           $st = $inc['status'] ?? 'open';
-          $stColor = $statusColors[$st] ?? '#6b7280';
+          $stColor = $statusColors[$st] ?? 'var(--text-muted)';
           $detectedAt = $inc['detected_at'] ? date('M j, Y g:ia', strtotime($inc['detected_at'])) : '—';
         ?>
           <tr>

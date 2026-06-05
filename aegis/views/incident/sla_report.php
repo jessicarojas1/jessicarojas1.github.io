@@ -141,7 +141,7 @@ $sevColors = ['critical' => 'var(--danger)', 'high' => 'var(--warning)', 'medium
             $ageH = $inc['age_hours'];
             $ageStr = $ageH >= 48 ? round($ageH / 24, 1) . ' days' : $ageH . ' hrs';
           ?>
-          <tr style="border-top:1px solid var(--border);<?= ($inc['ack_sla_status'] === 'breached' || $inc['resolve_sla_status'] === 'breached') ? 'background:var(--danger)08;' : '' ?>">
+          <tr style="border-top:1px solid var(--border);<?= ($inc['ack_sla_status'] === 'breached' || $inc['resolve_sla_status'] === 'breached') ? 'background:var(--danger-tint);' : '' ?>">
             <td style="padding:10px 14px">
               <span style="display:inline-block;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:700;background:<?= $sc ?>20;color:<?= $sc ?>;border:1px solid <?= $sc ?>40">
                 <?= ucfirst(Security::h($inc['severity'])) ?>

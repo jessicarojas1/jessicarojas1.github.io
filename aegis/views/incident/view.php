@@ -315,11 +315,11 @@ $csrfTokenPlaybook = Security::generateCsrfToken();
               </div>
               <div style="display:flex;align-items:center;gap:10px">
                 <?php if ($isComplete): ?>
-                  <span class="status-chip" style="background:var(--success)20;color:var(--success);border:1px solid #05966940">
+                  <span class="status-chip" style="background:var(--success-tint);color:var(--success);border:1px solid var(--success-ring)">
                     <i class="bi bi-check-circle-fill"></i> Complete
                   </span>
                 <?php else: ?>
-                  <span class="status-chip" style="background:var(--warning)20;color:var(--warning);border:1px solid #d9770640">In Progress</span>
+                  <span class="status-chip" style="background:var(--warning-tint);color:var(--warning);border:1px solid var(--warning-ring)">In Progress</span>
                 <?php endif; ?>
                 <span style="font-size:12px;color:var(--text-muted)"><?= $doneSteps ?>/<?= $totalSteps ?> steps</span>
                 <i class="bi bi-chevron-down" id="pb-chevron-<?= (int)$run['id'] ?>" style="color:var(--text-muted);transition:transform .2s"></i>

@@ -51,7 +51,7 @@ $breadcrumbs = [['Policies', '/policy'], ['My Attestations', '/policy/my-attesta
       <form method="POST" action="/policy/<?= $policy['id'] ?>/attest" id="attest-form">
         <?= Security::csrfField() ?>
 
-        <div class="form-group" style="background:var(--success-subtle);border:1px solid #16a34a40;border-radius:var(--radius);padding:16px">
+        <div class="form-group" style="background:var(--success-subtle);border:1px solid var(--primary-ring);border-radius:var(--radius);padding:16px">
           <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer;font-weight:500">
             <input type="checkbox" name="confirmed" id="confirmed" value="1"
                    style="width:20px;height:20px;margin-top:2px;accent-color:var(--success);flex-shrink:0">

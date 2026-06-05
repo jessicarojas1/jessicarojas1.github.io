@@ -23,7 +23,7 @@ ob_start();
       $rtoColor = ($plan['rto_hours'] ?? 99) <= 4 ? 'var(--danger)' : (($plan['rto_hours'] ?? 99) <= 24 ? 'var(--warning)' : 'var(--success)');
       $rpoColor = ($plan['rpo_hours'] ?? 99) <= 1 ? 'var(--danger)' : (($plan['rpo_hours'] ?? 99) <= 4 ? 'var(--warning)' : 'var(--success)');
       $statusColors = ['draft'=>'#6b7280','active'=>'var(--success)','archived'=>'#9ca3af'];
-      $sc = $statusColors[$plan['status']] ?? '#6b7280';
+      $sc = $statusColors[$plan['status']] ?? 'var(--text-muted)';
     ?>
       <div class="card" style="border-left:4px solid <?= $sc ?>">
         <div class="card-body">

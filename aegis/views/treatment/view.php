@@ -1,7 +1,7 @@
 <?php
 $breadcrumbs    = $breadcrumbs    ?? [['Treatments', '/treatment'], ['Treatment', null]];
 $strategyColors = [
-    'mitigate' => ['bg' => '#3b82f620', 'color' => '#3b82f6', 'border' => '#3b82f640', 'label' => 'Mitigate'],
+    'mitigate' => ['bg' => 'var(--info-tint)', 'color' => '#3b82f6', 'border' => '#3b82f640', 'label' => 'Mitigate'],
     'transfer' => ['bg' => '#8b5cf620', 'color' => '#8b5cf6', 'border' => '#8b5cf640', 'label' => 'Transfer'],
     'accept'   => ['bg' => '#f59e0b20', 'color' => 'var(--warning)', 'border' => '#f59e0b40', 'label' => 'Accept'],
     'avoid'    => ['bg' => '#ef444420', 'color' => 'var(--danger)', 'border' => '#ef444440', 'label' => 'Avoid'],
@@ -9,7 +9,7 @@ $strategyColors = [
 $statusStyles = [
     'draft'     => ['bg' => '#a1a1aa20', 'color' => '#a1a1aa', 'border' => '#a1a1aa40'],
     'active'    => ['bg' => 'rgba(22, 163, 74, .08)', 'color' => 'var(--primary)', 'border' => 'rgba(22, 163, 74, .20)'],
-    'completed' => ['bg' => '#05966920', 'color' => 'var(--success)', 'border' => '#05966940'],
+    'completed' => ['bg' => '#05966920', 'color' => 'var(--success)', 'border' => 'var(--success-ring)'],
     'cancelled' => ['bg' => '#a1a1aa20', 'color' => '#a1a1aa', 'border' => '#a1a1aa40'],
 ];
 $sc  = $strategyColors[$plan['strategy']] ?? $strategyColors['mitigate'];

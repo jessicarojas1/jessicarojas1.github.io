@@ -326,7 +326,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
         <td class="center">
           <?php if ($res > 0): ?>
           <span class="score-badge" style="background:<?= $res_bg ?>;color:<?= $res_cl ?>;"><?= $res ?></span>
-          <?php else: ?><span style="color:#d4d4d8;">—</span><?php endif; ?>
+          <?php else: ?><span style="color:var(--border);">—</span><?php endif; ?>
         </td>
         <td>
           <span class="status-chip2" style="background:<?= $stColor[0] ?>;color:<?= $stColor[1] ?>;"><?= ucfirst(str_replace('_', ' ', $r['status'] ?? '')) ?></span>
@@ -334,7 +334,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
         <td>
           <?php if ($strategy && $strategy !== '—'): ?>
           <span style="background:rgba(55,65,81,.08);color:var(--secondary);font-size:10px;font-weight:600;padding:2px 7px;border-radius:99px;display:inline-block;"><?= $strategy ?></span>
-          <?php else: ?><span style="color:#d4d4d8;">—</span><?php endif; ?>
+          <?php else: ?><span style="color:var(--border);">—</span><?php endif; ?>
         </td>
         <td style="white-space:nowrap;"><?= Security::h($r['owner_name'] ?? '—') ?></td>
         <td style="white-space:nowrap;color:<?= $isOverdue ? 'var(--danger)' : '#52525b' ?>;">
@@ -344,12 +344,12 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
         <td class="center">
           <?php if ($openTx > 0): ?>
           <span style="display:inline-block;background:var(--warning-subtle);color:var(--warning);font-weight:700;min-width:22px;padding:2px 6px;border-radius:6px;font-size:11px;"><?= $openTx ?></span>
-          <?php else: ?><span style="color:#d4d4d8;">0</span><?php endif; ?>
+          <?php else: ?><span style="color:var(--border);">0</span><?php endif; ?>
         </td>
         <td class="center">
           <?php if ($ctrlCnt > 0): ?>
           <span style="display:inline-block;background:var(--info-subtle);color:var(--info-text);font-weight:700;min-width:22px;padding:2px 6px;border-radius:6px;font-size:11px;"><?= $ctrlCnt ?></span>
-          <?php else: ?><span style="color:#d4d4d8;">0</span><?php endif; ?>
+          <?php else: ?><span style="color:var(--border);">0</span><?php endif; ?>
         </td>
       </tr>
       <?php endforeach; ?>

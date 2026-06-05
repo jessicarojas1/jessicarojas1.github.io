@@ -373,7 +373,7 @@ function fmtNum(float $n): string {
         <h4 class="card-title"><i class="bi bi-bookmark-check"></i> Threshold Reference</h4>
       </div>
       <div class="card-body" style="display:flex;flex-direction:column;gap:10px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--primary)18;border:1px solid #16a34a40;border-radius:8px;padding:10px 14px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--primary-tint);border:1px solid var(--primary-ring);border-radius:8px;padding:10px 14px;">
           <div style="display:flex;align-items:center;gap:8px;">
             <i class="bi bi-circle-fill" style="color:var(--primary);font-size:12px;"></i>
             <span style="font-weight:600;color:var(--primary);">Green</span>
@@ -382,7 +382,7 @@ function fmtNum(float $n): string {
             <?= $dir === 'higher_worse' ? '&le;' : '&ge;' ?> <?= Security::h(fmtNum($green)) ?> <?= Security::h($kri['unit'] ?? '') ?>
           </span>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--warning)18;border:1px solid #d9770640;border-radius:8px;padding:10px 14px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--warning-tint);border:1px solid var(--warning-ring);border-radius:8px;padding:10px 14px;">
           <div style="display:flex;align-items:center;gap:8px;">
             <i class="bi bi-circle-fill" style="color:var(--warning);font-size:12px;"></i>
             <span style="font-weight:600;color:var(--warning);">Amber</span>
@@ -391,7 +391,7 @@ function fmtNum(float $n): string {
             <?= $dir === 'higher_worse' ? '&le;' : '&ge;' ?> <?= Security::h(fmtNum($amber)) ?> <?= Security::h($kri['unit'] ?? '') ?>
           </span>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--danger)18;border:1px solid #dc262640;border-radius:8px;padding:10px 14px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--danger-tint);border:1px solid var(--danger-ring);border-radius:8px;padding:10px 14px;">
           <div style="display:flex;align-items:center;gap:8px;">
             <i class="bi bi-circle-fill" style="color:var(--danger);font-size:12px;"></i>
             <span style="font-weight:600;color:var(--danger);">Red</span>

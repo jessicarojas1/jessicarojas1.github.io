@@ -21,15 +21,15 @@ ob_start();
     <div class="stat-body"><div class="stat-value"><?= $stats['total'] ?></div><div class="stat-label">Total Risks</div></div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:linear-gradient(135deg,#dc2626,#b91c1c)"><i class="bi bi-exclamation-octagon-fill"></i></div>
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--danger),var(--danger))"><i class="bi bi-exclamation-octagon-fill"></i></div>
     <div class="stat-body"><div class="stat-value"><?= $stats['critical'] ?></div><div class="stat-label">Critical</div></div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:linear-gradient(135deg,#d97706,#b45309)"><i class="bi bi-exclamation-triangle-fill"></i></div>
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--warning),var(--warning))"><i class="bi bi-exclamation-triangle-fill"></i></div>
     <div class="stat-body"><div class="stat-value"><?= $stats['high'] ?></div><div class="stat-label">High</div></div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:linear-gradient(135deg,#059669,#047857)"><i class="bi bi-check-circle-fill"></i></div>
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--success),var(--primary-dark))"><i class="bi bi-check-circle-fill"></i></div>
     <div class="stat-body"><div class="stat-value"><?= $stats['low'] + $stats['medium'] ?></div><div class="stat-label">Medium / Low</div></div>
   </div>
 </div>

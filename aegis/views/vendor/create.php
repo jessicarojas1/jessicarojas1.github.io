@@ -116,7 +116,7 @@ ob_start();
             </select>
           </div>
 
-          <div id="tierPreview" style="padding:0.75rem;border-radius:8px;background:var(--info-subtle);border:1px solid #0284c740;margin-bottom:1rem">
+          <div id="tierPreview" style="padding:0.75rem;border-radius:8px;background:var(--info-subtle);border:1px solid var(--info-tint);margin-bottom:1rem">
             <strong id="tierLabel" style="color:var(--info)">Medium Risk</strong>
             <p id="tierDesc" style="font-size:0.82rem;color:var(--text-muted);margin:4px 0 0">Periodic assessments required; monitor access.</p>
           </div>

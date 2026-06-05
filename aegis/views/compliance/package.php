@@ -114,7 +114,7 @@ ob_start();
 <!-- Domain list -->
 <?php if (!$domains): ?>
 <div class="card" style="text-align:center;padding:40px 20px;color:var(--text-muted)">
-  <i class="bi bi-diagram-3" style="font-size:2.5rem;display:block;margin-bottom:12px;color:#d4d4d8"></i>
+  <i class="bi bi-diagram-3" style="font-size:2.5rem;display:block;margin-bottom:12px;color:var(--border)"></i>
   <h3 style="margin-bottom:8px;color:var(--text)">No domains yet</h3>
   <p style="margin-bottom:16px">Domains group your controls into sections (e.g. Access Control, Risk Management).</p>
   <button class="btn btn-primary" data-click="openModal" data-arg="add-domain"><i class="bi bi-plus-lg"></i> Add First Domain</button>

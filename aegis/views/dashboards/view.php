@@ -158,7 +158,7 @@ $widgetTypes = [
         <?php else: ?>
         <?php $statusColors=['planned'=>'#6366f1','in_progress'=>'var(--warning)','completed'=>'var(--success)','cancelled'=>'#6b7280','on_hold'=>'#f97316']; ?>
         <div style="display:flex;flex-direction:column;gap:8px;">
-          <?php foreach ($w['data'] as $row): $clr=$statusColors[$row['status']] ?? '#6b7280'; ?>
+          <?php foreach ($w['data'] as $row): $clr=$statusColors[$row['status']] ?? 'var(--text-muted)'; ?>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);">
             <span style="font-size:0.875rem;text-transform:capitalize;"><?= Security::h(str_replace('_',' ',$row['status'])) ?></span>
             <span style="background:<?= $clr ?>20;color:<?= $clr ?>;border-radius:12px;padding:2px 10px;font-size:0.8rem;font-weight:600;"><?= (int)$row['count'] ?></span>
@@ -230,7 +230,7 @@ $widgetTypes = [
         <?php else: ?>
         <?php $poamColors=['open'=>'var(--danger)','in_progress'=>'var(--warning)','completed'=>'var(--success)','closed'=>'#6b7280','on_hold'=>'#f97316']; ?>
         <div style="display:flex;flex-direction:column;gap:8px;">
-          <?php foreach ($w['data'] as $row): $clr=$poamColors[$row['status']] ?? '#6b7280'; ?>
+          <?php foreach ($w['data'] as $row): $clr=$poamColors[$row['status']] ?? 'var(--text-muted)'; ?>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);">
             <span style="font-size:0.875rem;text-transform:capitalize;"><?= Security::h(str_replace('_',' ',$row['status'])) ?></span>
             <span style="background:<?= $clr ?>20;color:<?= $clr ?>;border-radius:12px;padding:2px 10px;font-size:0.8rem;font-weight:600;"><?= (int)$row['count'] ?></span>
@@ -271,7 +271,7 @@ $widgetTypes = [
         <div style="display:flex;flex-direction:column;gap:10px;">
           <?php foreach ($w['data'] as $row):
             $pct = $total > 0 ? round($row['count']/$total*100) : 0;
-            $clr = $critColors[$row['criticality']] ?? '#6b7280';
+            $clr = $critColors[$row['criticality']] ?? 'var(--text-muted)';
           ?>
           <div>
             <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
@@ -338,7 +338,7 @@ $widgetTypes = [
         <?php else: ?>
         <?php $sevColors=['critical'=>'var(--danger)','high'=>'#f97316','medium'=>'var(--warning)','low'=>'var(--success)']; ?>
         <div style="display:flex;flex-direction:column;gap:8px;">
-          <?php foreach ($w['data'] as $row): $clr=$sevColors[$row['severity']] ?? '#6b7280'; ?>
+          <?php foreach ($w['data'] as $row): $clr=$sevColors[$row['severity']] ?? 'var(--text-muted)'; ?>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);">
             <span style="font-size:0.875rem;text-transform:capitalize;font-weight:500;color:<?= $clr ?>"><?= Security::h($row['severity']) ?></span>
             <div style="text-align:right;">

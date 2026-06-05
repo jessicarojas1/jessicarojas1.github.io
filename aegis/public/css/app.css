@@ -52,6 +52,20 @@
   --moderate:         #2563eb;
   --moderate-text:    #1d4ed8;
 
+  /* Alpha tints (for background: and border: inline uses) */
+  --primary-tint:    rgba(22,163,74,.09);
+  --danger-tint:     rgba(220,38,38,.09);
+  --warning-tint:    rgba(217,119,6,.09);
+  --success-tint:    rgba(5,150,105,.09);
+  --info-tint:       rgba(2,132,199,.09);
+  --orange-tint:     rgba(249,115,22,.09);
+  --purple-tint:     rgba(124,58,237,.09);
+  --secondary-tint:  rgba(82,82,91,.09);
+  --primary-ring:    rgba(22,163,74,.25);
+  --danger-ring:     rgba(220,38,38,.25);
+  --warning-ring:    rgba(217,119,6,.25);
+  --success-ring:    rgba(5,150,105,.25);
+
   /* Text */
   --text:        #0d1117;
   --text-muted:  #57606a;
@@ -1846,6 +1860,20 @@ html[data-theme="dark"] {
   --info-text:        #60a5fa;
   --moderate:         #60a5fa;
   --moderate-text:    #60a5fa;
+
+  /* Alpha tints — dark variants (slightly more opaque for visibility) */
+  --primary-tint:    rgba(63,185,80,.12);
+  --danger-tint:     rgba(248,113,113,.12);
+  --warning-tint:    rgba(245,158,11,.12);
+  --success-tint:    rgba(16,185,129,.12);
+  --info-tint:       rgba(56,189,248,.12);
+  --orange-tint:     rgba(251,146,60,.12);
+  --purple-tint:     rgba(167,139,250,.12);
+  --secondary-tint:  rgba(139,148,158,.12);
+  --primary-ring:    rgba(63,185,80,.30);
+  --danger-ring:     rgba(248,113,113,.30);
+  --warning-ring:    rgba(245,158,11,.30);
+  --success-ring:    rgba(16,185,129,.30);
 
   --text:        #e6edf3;
   --text-muted:  #8b949e;

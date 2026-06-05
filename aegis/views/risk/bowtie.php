@@ -140,7 +140,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
     line-height: 1;
     transition: color .12s, background .12s;
 }
-.bt-item-delete:hover { color: var(--danger); background: var(--danger)18; }
+.bt-item-delete:hover { color: var(--danger); background: var(--danger-tint); }
 
 /* Arrow connector zones */
 .bt-arrow-zone {
@@ -390,7 +390,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 
   <?php if ($isEmpty): ?>
   <div class="bt-empty">
-    <i class="bi bi-diagram-2" style="font-size:36px;color:#d4d4d8;display:block;margin-bottom:12px"></i>
+    <i class="bi bi-diagram-2" style="font-size:36px;color:var(--border);display:block;margin-bottom:12px"></i>
     <h3>No Bow-Tie Elements Yet</h3>
     <p>
       A <strong>bow-tie diagram</strong> maps the causes (left side) and consequences (right side) of a risk event,
@@ -406,7 +406,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 
       <!-- ── (A) Causes Column ───────────────────────────── -->
       <div class="bt-causes-col">
-        <div class="bt-col-header" style="color:var(--danger);background:var(--danger)18;border:1px solid #dc262640">
+        <div class="bt-col-header" style="color:var(--danger);background:var(--danger-tint);border:1px solid var(--danger-ring)">
           <i class="bi bi-exclamation-triangle-fill"></i> Threat / Cause
         </div>
         <?php if (empty($causes)): ?>
@@ -473,7 +473,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
       <!-- ── (C) Funnel Left ─────────────────────────────── -->
       <div class="bt-funnel-left">
         <div style="position:relative;width:100%;display:flex;align-items:center">
-          <div style="flex:1;height:2px;background:linear-gradient(90deg,#d4d4d8,#71717a)"></div>
+          <div style="flex:1;height:2px;background:linear-gradient(90deg,var(--border),var(--neutral))"></div>
           <div style="width:0;height:0;border-left:8px solid #71717a;border-top:5px solid transparent;border-bottom:5px solid transparent"></div>
         </div>
       </div>
@@ -495,14 +495,14 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
       <!-- ── (E) Funnel Right ────────────────────────────── -->
       <div class="bt-funnel-right">
         <div style="position:relative;width:100%;display:flex;align-items:center">
-          <div style="flex:1;height:2px;background:linear-gradient(90deg,#71717a,#d4d4d8)"></div>
-          <div style="width:0;height:0;border-left:8px solid #d4d4d8;border-top:5px solid transparent;border-bottom:5px solid transparent"></div>
+          <div style="flex:1;height:2px;background:linear-gradient(90deg,var(--neutral),var(--border))"></div>
+          <div style="width:0;height:0;border-left:8px solid var(--border);border-top:5px solid transparent;border-bottom:5px solid transparent"></div>
         </div>
       </div>
 
       <!-- ── (F) Right Barriers ──────────────────────────── -->
       <div class="bt-barriers-col">
-        <div class="bt-col-header" style="color:var(--primary);background:var(--primary)18;border:1px solid #16a34a40">
+        <div class="bt-col-header" style="color:var(--primary);background:var(--primary-tint);border:1px solid var(--primary-ring)">
           <i class="bi bi-arrow-counterclockwise"></i> Recovery Controls
         </div>
         <?php if (empty($rightBarriers)): ?>
@@ -601,7 +601,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
         <i class="bi bi-exclamation-triangle-fill" style="color:var(--danger)"></i>
         Causes
         <?php if (!empty($causes)): ?>
-          <span style="background:var(--danger)18;color:var(--danger);font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px"><?= count($causes) ?></span>
+          <span style="background:var(--danger-tint);color:var(--danger);font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px"><?= count($causes) ?></span>
         <?php endif; ?>
       </button>
       <button class="bt-tab-btn" data-click="btTabBtn" data-arg="left-barriers" role="tab" aria-selected="false">
@@ -615,14 +615,14 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
         <i class="bi bi-arrow-counterclockwise" style="color:var(--primary)"></i>
         Right Barriers
         <?php if (!empty($rightBarriers)): ?>
-          <span style="background:var(--primary)18;color:var(--primary);font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px"><?= count($rightBarriers) ?></span>
+          <span style="background:var(--primary-tint);color:var(--primary);font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px"><?= count($rightBarriers) ?></span>
         <?php endif; ?>
       </button>
       <button class="bt-tab-btn" data-click="btTabBtn" data-arg="consequences" role="tab" aria-selected="false">
         <i class="bi bi-arrow-down-circle-fill" style="color:var(--secondary)"></i>
         Consequences
         <?php if (!empty($consequences)): ?>
-          <span style="background:var(--secondary)18;color:var(--secondary);font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px"><?= count($consequences) ?></span>
+          <span style="background:var(--secondary-tint);color:var(--secondary);font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px"><?= count($consequences) ?></span>
         <?php endif; ?>
       </button>
     </div>

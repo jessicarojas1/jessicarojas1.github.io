@@ -65,12 +65,12 @@ $classColors = ['public'=>'var(--success)','internal'=>'#3b82f6','confidential'=
             <?php if ($doc['doc_number']): ?><div class="text-muted text-xs"><?= Security::h($doc['doc_number']) ?></div><?php endif; ?>
           </td>
           <td>
-            <span class="badge" style="background:<?= $classColors[$doc['classification']] ?? '#6b7280' ?>20;color:<?= $classColors[$doc['classification']] ?? '#6b7280' ?>">
+            <span class="badge" style="background:<?= $classColors[$doc['classification']] ?? 'var(--text-muted)' ?>20;color:<?= $classColors[$doc['classification']] ?? 'var(--text-muted)' ?>">
               <?= Security::h(ucfirst($doc['classification'])) ?>
             </span>
           </td>
           <td>
-            <span class="badge" style="background:<?= $statusColors[$doc['status']] ?? '#6b7280' ?>20;color:<?= $statusColors[$doc['status']] ?? '#6b7280' ?>">
+            <span class="badge" style="background:<?= $statusColors[$doc['status']] ?? 'var(--text-muted)' ?>20;color:<?= $statusColors[$doc['status']] ?? 'var(--text-muted)' ?>">
               <?= Security::h(ucfirst(str_replace('_',' ',$doc['status']))) ?>
             </span>
           </td>

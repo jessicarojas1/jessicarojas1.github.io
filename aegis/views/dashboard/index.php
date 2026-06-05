@@ -54,7 +54,7 @@ ob_start();
   </div>
 
   <div class="stat-card">
-    <div class="stat-icon" style="background:linear-gradient(135deg,#059669,#047857)">
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--success),var(--primary-dark))">
       <i class="bi bi-file-earmark-text-fill"></i>
     </div>
     <div class="stat-body">
@@ -65,7 +65,7 @@ ob_start();
   </div>
 
   <div class="stat-card">
-    <div class="stat-icon" style="background:linear-gradient(135deg,#0284c7,#0369a1)">
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--info),var(--info))">
       <i class="bi bi-clipboard2-check-fill"></i>
     </div>
     <div class="stat-body">

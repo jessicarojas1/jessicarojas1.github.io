@@ -252,7 +252,7 @@ if ($filterStatus !== '') {
             <?php if ($acc['status'] === 'active' && Auth::can('risk.write')): ?>
               <button type="button"
                       class="btn btn-sm"
-                      style="background:var(--danger)18;color:var(--danger);border:1px solid #dc262640;"
+                      style="background:var(--danger-tint);color:var(--danger);border:1px solid var(--danger-ring);"
                       data-click="toggleRevoke" data-arg="revoke-<?= (int)$acc['id'] ?>"
                       title="Revoke">
                 <i class="bi bi-x-circle"></i> Revoke

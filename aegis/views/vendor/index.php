@@ -36,21 +36,21 @@ ob_start();
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:var(--success)18;color:var(--success)"><i class="bi bi-check-circle-fill"></i></div>
+    <div class="stat-icon" style="background:var(--success-tint);color:var(--success)"><i class="bi bi-check-circle-fill"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['active_count'] ?? 0) ?></div>
       <div class="stat-label">Active Vendors</div>
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:var(--danger)18;color:var(--danger)"><i class="bi bi-exclamation-octagon-fill"></i></div>
+    <div class="stat-icon" style="background:var(--danger-tint);color:var(--danger)"><i class="bi bi-exclamation-octagon-fill"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['critical_count'] ?? 0) ?></div>
       <div class="stat-label">Critical Tier</div>
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:var(--warning)18;color:var(--warning)"><i class="bi bi-database-fill-lock"></i></div>
+    <div class="stat-icon" style="background:var(--warning-tint);color:var(--warning)"><i class="bi bi-database-fill-lock"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['data_access_count'] ?? 0) ?></div>
       <div class="stat-label">Data Access</div>
@@ -141,7 +141,7 @@ $_filterCount = count(array_filter([
       <tbody>
         <?php if ($vendors): foreach ($vendors as $v):
           $tierColors = ['critical' => 'var(--danger)', 'high' => 'var(--warning)', 'medium' => '#0284c7', 'low' => 'var(--success)'];
-          $tierColor  = $tierColors[$v['risk_tier']] ?? '#6b7280';
+          $tierColor  = $tierColors[$v['risk_tier']] ?? 'var(--text-muted)';
 
           $statusColors = [
             'active'       => 'var(--success)',
@@ -149,7 +149,7 @@ $_filterCount = count(array_filter([
             'under_review' => 'var(--warning)',
             'terminated'   => 'var(--danger)',
           ];
-          $statusColor = $statusColors[$v['status']] ?? '#6b7280';
+          $statusColor = $statusColors[$v['status']] ?? 'var(--text-muted)';
           $statusLabel = match($v['status']) {
             'active'       => 'Active',
             'inactive'     => 'Inactive',

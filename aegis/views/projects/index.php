@@ -51,7 +51,7 @@ $priorityBadge = [
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:#6b728020;color:var(--text-muted)"><i class="bi bi-check-circle-fill"></i></div>
+    <div class="stat-icon" style="background:rgba(107,114,128,.08);color:var(--text-muted)"><i class="bi bi-check-circle-fill"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['completed'] ?? 0) ?></div>
       <div class="stat-label">Completed</div>

@@ -476,7 +476,7 @@ ob_start();
           foreach ($responseActions as $ra) { if (isset($actionCounts[$ra['status']])) $actionCounts[$ra['status']]++; }
           ?>
           <?php if ($actionCounts['in_progress']): ?><span style="font-size:11px;background:var(--moderate-subtle);color:var(--moderate);padding:2px 8px;border-radius:20px"><?= $actionCounts['in_progress'] ?> active</span><?php endif; ?>
-          <?php if ($actionCounts['completed']): ?><span style="font-size:11px;background:#d1fae5;color:var(--success);padding:2px 8px;border-radius:20px"><?= $actionCounts['completed'] ?> done</span><?php endif; ?>
+          <?php if ($actionCounts['completed']): ?><span style="font-size:11px;background:var(--success-subtle);color:var(--success);padding:2px 8px;border-radius:20px"><?= $actionCounts['completed'] ?> done</span><?php endif; ?>
           <?php if ($actionCounts['planned']): ?><span style="font-size:11px;background:#fef3c7;color:var(--warning);padding:2px 8px;border-radius:20px"><?= $actionCounts['planned'] ?> planned</span><?php endif; ?>
         </div>
       </div>
@@ -580,7 +580,7 @@ ob_start();
 
     <!-- ── Treatment Plans ────────────────────────────────────────────────── -->
     <?php
-    $tpStratColors = ['mitigate'=>['bg'=>'#3b82f620','c'=>'#3b82f6','b'=>'#3b82f640'],'transfer'=>['bg'=>'#8b5cf620','c'=>'#8b5cf6','b'=>'#8b5cf640'],'accept'=>['bg'=>'#f59e0b20','c'=>'var(--warning)','b'=>'#f59e0b40'],'avoid'=>['bg'=>'#ef444420','c'=>'var(--danger)','b'=>'#ef444440']];
+    $tpStratColors = ['mitigate'=>['bg'=>'var(--info-tint)','c'=>'#3b82f6','b'=>'#3b82f640'],'transfer'=>['bg'=>'#8b5cf620','c'=>'#8b5cf6','b'=>'#8b5cf640'],'accept'=>['bg'=>'#f59e0b20','c'=>'var(--warning)','b'=>'#f59e0b40'],'avoid'=>['bg'=>'#ef444420','c'=>'var(--danger)','b'=>'#ef444440']];
     $tpStColors    = ['draft'=>['bg'=>'#a1a1aa20','c'=>'#a1a1aa'],'active'=>['bg'=>'rgba(22, 163, 74, .08)','c'=>'var(--primary)'],'completed'=>['bg'=>'#05966920','c'=>'var(--success)'],'cancelled'=>['bg'=>'#a1a1aa20','c'=>'#a1a1aa']];
     ?>
     <?php if (!empty($treatmentPlans)): ?>
@@ -778,7 +778,7 @@ ob_start();
       <div class="card-body" style="padding:12px 16px">
         <?php if ($activeAcceptance): ?>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-            <span style="background:var(--primary)18;color:var(--primary);border:1px solid #16a34a40;border-radius:20px;font-size:11px;font-weight:700;padding:2px 10px">Active</span>
+            <span style="background:var(--primary-tint);color:var(--primary);border:1px solid var(--primary-ring);border-radius:20px;font-size:11px;font-weight:700;padding:2px 10px">Active</span>
             <span style="font-size:12px;color:var(--text-muted)">until <?= date('M j, Y', strtotime($activeAcceptance['valid_until'])) ?></span>
           </div>
           <div style="font-size:12px;color:var(--text-secondary);margin-bottom:6px">

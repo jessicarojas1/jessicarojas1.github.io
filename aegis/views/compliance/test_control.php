@@ -6,9 +6,9 @@ $breadcrumbs = [['Compliance', '/compliance'], ['Testing', '/compliance/testing'
 
 function testResultBadge(string $result): string {
     return match($result) {
-        'pass'       => '<span class="badge" style="background:var(--primary)18;color:var(--primary);border:1px solid #16a34a40">Pass</span>',
-        'fail'       => '<span class="badge" style="background:var(--danger)18;color:var(--danger);border:1px solid #dc262640">Fail</span>',
-        'partial'    => '<span class="badge" style="background:var(--warning)18;color:var(--warning);border:1px solid #d9770640">Partial</span>',
+        'pass'       => '<span class="badge" style="background:var(--primary-tint);color:var(--primary);border:1px solid var(--primary-ring)">Pass</span>',
+        'fail'       => '<span class="badge" style="background:var(--danger-tint);color:var(--danger);border:1px solid var(--danger-ring)">Fail</span>',
+        'partial'    => '<span class="badge" style="background:var(--warning-tint);color:var(--warning);border:1px solid var(--warning-ring)">Partial</span>',
         'not_tested' => '<span class="badge" style="background:var(--bg-secondary);color:var(--text-muted);border:1px solid var(--border)">Not Tested</span>',
         default      => '<span class="badge">' . htmlspecialchars($result, ENT_QUOTES, 'UTF-8') . '</span>',
     };

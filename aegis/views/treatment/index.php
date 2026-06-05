@@ -2,7 +2,7 @@
 $breadcrumbs    = $breadcrumbs    ?? [['Treatments', null]];
 // Strategy badge colors
 $strategyColors = [
-    'mitigate' => ['bg' => '#3b82f620', 'color' => '#3b82f6', 'border' => '#3b82f640'],
+    'mitigate' => ['bg' => 'var(--info-tint)', 'color' => '#3b82f6', 'border' => '#3b82f640'],
     'transfer' => ['bg' => '#8b5cf620', 'color' => '#8b5cf6', 'border' => '#8b5cf640'],
     'accept'   => ['bg' => '#f59e0b20', 'color' => 'var(--warning)', 'border' => '#f59e0b40'],
     'avoid'    => ['bg' => '#ef444420', 'color' => 'var(--danger)', 'border' => '#ef444440'],
@@ -11,7 +11,7 @@ $strategyColors = [
 $statusStyles = [
     'draft'     => ['bg' => '#a1a1aa20', 'color' => '#a1a1aa', 'border' => '#a1a1aa40'],
     'active'    => ['bg' => 'rgba(22, 163, 74, .08)', 'color' => 'var(--primary)', 'border' => 'rgba(22, 163, 74, .20)'],
-    'completed' => ['bg' => '#05966920', 'color' => 'var(--success)', 'border' => '#05966940'],
+    'completed' => ['bg' => '#05966920', 'color' => 'var(--success)', 'border' => 'var(--success-ring)'],
     'cancelled' => ['bg' => '#a1a1aa20', 'color' => '#a1a1aa', 'border' => '#a1a1aa40'],
 ];
 ?>
@@ -41,11 +41,11 @@ $statusStyles = [
     <div style="font-size:24px;font-weight:700;color:var(--primary)"><?= (int)($stats['active_count'] ?? 0) ?></div>
     <div style="font-size:12px;color:var(--text-muted);margin-top:2px">Active Plans</div>
   </div>
-  <div class="stat-chip" style="background:var(--success)20;border:1px solid #05966940;border-radius:10px;padding:12px 20px;min-width:130px">
+  <div class="stat-chip" style="background:var(--success-tint);border:1px solid var(--success-ring);border-radius:10px;padding:12px 20px;min-width:130px">
     <div style="font-size:24px;font-weight:700;color:var(--success)"><?= (int)($stats['completed_count'] ?? 0) ?></div>
     <div style="font-size:12px;color:var(--text-muted);margin-top:2px">Completed Plans</div>
   </div>
-  <div class="stat-chip" style="background:var(--danger)20;border:1px solid #ef444440;border-radius:10px;padding:12px 20px;min-width:130px">
+  <div class="stat-chip" style="background:var(--danger-tint);border:1px solid #ef444440;border-radius:10px;padding:12px 20px;min-width:130px">
     <div style="font-size:24px;font-weight:700;color:var(--danger)"><?= (int)($stats['overdue_count'] ?? 0) ?></div>
     <div style="font-size:12px;color:var(--text-muted);margin-top:2px">Overdue Plans</div>
   </div>

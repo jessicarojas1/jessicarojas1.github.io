@@ -25,7 +25,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
   <!-- MFA is enabled -->
   <div class="card" style="margin-bottom:20px">
     <div class="card-body" style="display:flex;align-items:center;gap:16px;padding:24px">
-      <div style="width:48px;height:48px;border-radius:50%;background:var(--success)20;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <div style="width:48px;height:48px;border-radius:50%;background:var(--success-tint);display:flex;align-items:center;justify-content:center;flex-shrink:0">
         <i class="bi bi-shield-check-fill" style="color:var(--success);font-size:22px"></i>
       </div>
       <div>
@@ -50,7 +50,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
   <!-- MFA is not enabled — show setup -->
   <div class="card" style="margin-bottom:20px">
     <div class="card-body" style="display:flex;align-items:center;gap:16px;padding:24px">
-      <div style="width:48px;height:48px;border-radius:50%;background:var(--warning)20;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <div style="width:48px;height:48px;border-radius:50%;background:var(--warning-tint);display:flex;align-items:center;justify-content:center;flex-shrink:0">
         <i class="bi bi-shield-exclamation" style="color:var(--warning);font-size:22px"></i>
       </div>
       <div>

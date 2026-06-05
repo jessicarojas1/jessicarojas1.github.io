@@ -21,15 +21,15 @@ ob_start();
     <div class="stat-body"><div class="stat-value"><?= $overallPct ?>%</div><div class="stat-label">Overall Compliance</div></div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:linear-gradient(135deg,#059669,#047857)"><i class="bi bi-check-circle-fill"></i></div>
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--success),var(--primary-dark))"><i class="bi bi-check-circle-fill"></i></div>
     <div class="stat-body"><div class="stat-value"><?= $compliantCount ?></div><div class="stat-label">Compliant Controls</div></div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:linear-gradient(135deg,#dc2626,#b91c1c)"><i class="bi bi-x-circle-fill"></i></div>
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--danger),var(--danger))"><i class="bi bi-x-circle-fill"></i></div>
     <div class="stat-body"><div class="stat-value"><?= $totalControls - $compliantCount ?></div><div class="stat-label">Gaps</div></div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:linear-gradient(135deg,#0284c7,#0369a1)"><i class="bi bi-collection-fill"></i></div>
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--info),var(--info))"><i class="bi bi-collection-fill"></i></div>
     <div class="stat-body"><div class="stat-value"><?= count($packages) ?></div><div class="stat-label">Active Packages</div></div>
   </div>
 </div>

@@ -19,15 +19,15 @@ ob_start();
     <div class="stat-body"><div class="stat-value"><?= $userCount ?></div><div class="stat-label">Total Users</div></div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:linear-gradient(135deg,#059669,#047857)"><i class="bi bi-key-fill"></i></div>
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--success),var(--primary-dark))"><i class="bi bi-key-fill"></i></div>
     <div class="stat-body"><div class="stat-value"><?= $apiKeyCount ?></div><div class="stat-label">Active API Keys</div></div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:linear-gradient(135deg,#0284c7,#0369a1)"><i class="bi bi-gear-fill"></i></div>
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--info),var(--info))"><i class="bi bi-gear-fill"></i></div>
     <div class="stat-body"><div class="stat-value"><?= count($settings) ?></div><div class="stat-label">Settings</div></div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:linear-gradient(135deg,#d97706,#b45309)"><i class="bi bi-activity"></i></div>
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--warning),var(--warning))"><i class="bi bi-activity"></i></div>
     <div class="stat-body"><div class="stat-value"><?= count($activityLog) ?></div><div class="stat-label">Recent Events</div></div>
   </div>
 </div>

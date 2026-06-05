@@ -169,19 +169,19 @@
       </div>
       <div class="card-body" style="font-size:13px;">
         <div style="margin-bottom:10px;">
-          <span style="background:var(--danger)18;color:var(--danger);padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;">Critical</span>
+          <span style="background:var(--danger-tint);color:var(--danger);padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;">Critical</span>
           <p style="margin:4px 0 0;color:var(--text-muted);">Business-critical. Outage has severe financial or safety impact.</p>
         </div>
         <div style="margin-bottom:10px;">
-          <span style="background:var(--orange)18;color:var(--orange);padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;">High</span>
+          <span style="background:var(--orange-tint);color:var(--orange);padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;">High</span>
           <p style="margin:4px 0 0;color:var(--text-muted);">Important asset. Disruption significantly impacts operations.</p>
         </div>
         <div style="margin-bottom:10px;">
-          <span style="background:var(--warning)18;color:var(--warning);padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;">Medium</span>
+          <span style="background:var(--warning-tint);color:var(--warning);padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;">Medium</span>
           <p style="margin:4px 0 0;color:var(--text-muted);">Standard asset. Disruption has limited operational impact.</p>
         </div>
         <div>
-          <span style="background:var(--primary)18;color:var(--primary);padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;">Low</span>
+          <span style="background:var(--primary-tint);color:var(--primary);padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;">Low</span>
           <p style="margin:4px 0 0;color:var(--text-muted);">Non-critical. Minimal impact if unavailable.</p>
         </div>
       </div>

@@ -256,7 +256,7 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
   <div class="modal-box">
     <h3 style="margin:0 0 12px"><i class="bi bi-check2-circle" style="color:var(--primary)"></i> Complete Review</h3>
     <?php if (count($groups['pending']) > 0): ?>
-    <div class="alert-box" style="background:var(--danger-subtle);border-color:var(--danger)40;color:var(--danger);margin-bottom:12px">
+    <div class="alert-box" style="background:var(--danger-subtle);border-color:var(--danger-ring);color:var(--danger);margin-bottom:12px">
       <i class="bi bi-exclamation-triangle-fill"></i> <?= count($groups['pending']) ?> risk(s) still pending review. You can still complete but they will remain pending.
     </div>
     <?php endif; ?>

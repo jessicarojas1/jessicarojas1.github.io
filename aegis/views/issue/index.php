@@ -56,21 +56,21 @@ $statusColors = [
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:var(--purple)18;color:var(--purple)"><i class="bi bi-arrow-repeat"></i></div>
+    <div class="stat-icon" style="background:var(--purple-tint);color:var(--purple)"><i class="bi bi-arrow-repeat"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['in_progress'] ?? 0) ?></div>
       <div class="stat-label">In Progress</div>
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:var(--danger)20;color:var(--danger)"><i class="bi bi-exclamation-octagon-fill"></i></div>
+    <div class="stat-icon" style="background:var(--danger-tint);color:var(--danger)"><i class="bi bi-exclamation-octagon-fill"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['critical'] ?? 0) ?></div>
       <div class="stat-label">Critical</div>
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:var(--orange)18;color:var(--orange)"><i class="bi bi-clock-fill"></i></div>
+    <div class="stat-icon" style="background:var(--orange-tint);color:var(--orange)"><i class="bi bi-clock-fill"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['overdue'] ?? 0) ?></div>
       <div class="stat-label">Overdue</div>
@@ -172,8 +172,8 @@ $_filterCount = count(array_filter([
           $isOverdue = $issue['due_date']
             && strtotime($issue['due_date']) < time()
             && !in_array($issue['status'], ['resolved', 'closed', 'wont_fix']);
-          $sevColor = $severityColors[$issue['severity']] ?? '#6b7280';
-          $stColor  = $statusColors[$issue['status']]    ?? '#6b7280';
+          $sevColor = $severityColors[$issue['severity']] ?? 'var(--text-muted)';
+          $stColor  = $statusColors[$issue['status']]    ?? 'var(--text-muted)';
         ?>
           <tr>
             <td>
@@ -209,7 +209,7 @@ $_filterCount = count(array_filter([
             </td>
             <td>
               <?php if ($issue['source_type']): ?>
-                <span class="status-chip" style="background:#6b728020;color:var(--text-muted);border:1px solid #6b728040;font-size:.75rem">
+                <span class="status-chip" style="background:rgba(107,114,128,.08);color:var(--text-muted);border:1px solid rgba(107,114,128,.25);font-size:.75rem">
                   <?= Security::h(ucfirst($issue['source_type'])) ?>
                 </span>
               <?php else: ?>—<?php endif; ?>
