@@ -580,6 +580,70 @@ class AdminController {
         header('Location: /admin/settings');
     }
 
+    public function uploadLogo(): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403); return;
+        }
+
+        $file = $_FILES['logo_file'] ?? null;
+        if (!$file || $file['error'] !== UPLOAD_ERR_OK) {
+            $_SESSION['flash_error'] = 'No file uploaded or upload error.';
+            header('Location: /admin/settings'); return;
+        }
+
+        // Max 2 MB
+        if ($file['size'] > 2 * 1024 * 1024) {
+            $_SESSION['flash_error'] = 'Logo file must be under 2 MB.';
+            header('Location: /admin/settings'); return;
+        }
+
+        // Validate MIME type via finfo
+        $finfo = new finfo(FILEINFO_MIME_TYPE);
+        $mime  = $finfo->file($file['tmp_name']);
+        $allowedMimes = ['image/jpeg','image/png','image/gif','image/webp','image/svg+xml'];
+        if (!in_array($mime, $allowedMimes, true)) {
+            $_SESSION['flash_error'] = 'Invalid file type. Allowed: JPG, PNG, GIF, WEBP, SVG.';
+            header('Location: /admin/settings'); return;
+        }
+
+        $dataUri = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($file['tmp_name']));
+        $origName = Security::sanitizeInput($file['name']);
+
+        Database::query(
+            "INSERT INTO settings (key, value) VALUES ('company_logo_data', ?) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value",
+            [$dataUri]
+        );
+        Database::query(
+            "INSERT INTO settings (key, value) VALUES ('company_logo_name', ?) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value",
+            [$origName]
+        );
+
+        Auth::log('upload_logo', 'settings', 0);
+        $_SESSION['flash_success'] = 'Company logo uploaded successfully.';
+        header('Location: /admin/settings');
+    }
+
+    public function removeLogo(): void {
+        Auth::requireAdmin();
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403); return;
+        }
+
+        Database::query(
+            "INSERT INTO settings (key, value) VALUES ('company_logo_data', '') ON CONFLICT (key) DO UPDATE SET value = ''",
+            []
+        );
+        Database::query(
+            "INSERT INTO settings (key, value) VALUES ('company_logo_name', '') ON CONFLICT (key) DO UPDATE SET value = ''",
+            []
+        );
+
+        Auth::log('remove_logo', 'settings', 0);
+        $_SESSION['flash_success'] = 'Company logo removed.';
+        header('Location: /admin/settings');
+    }
+
     public function storage(): void {
         Auth::requireAdmin();
         $keys = ['storage_driver','s3_bucket','s3_region','s3_access_key','s3_endpoint','s3_public_url'];

@@ -74,6 +74,62 @@ ob_start();
       </div>
     </div>
 
+    <!-- Branding -->
+    <div class="card">
+      <div class="card-header"><div class="card-header-left"><i class="bi bi-image" style="color:var(--primary)"></i><span class="card-title">Branding</span></div></div>
+      <div class="card-body">
+        <?php
+        $logoData = $settings['company_logo_data']['value'] ?? '';
+        $logoName = $settings['company_logo_name']['value'] ?? '';
+        ?>
+        <?php if ($logoData): ?>
+        <div style="margin-bottom:16px;">
+          <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px;">Current Logo</div>
+          <img src="<?= htmlspecialchars($logoData, ENT_QUOTES | ENT_HTML5, 'UTF-8') ?>"
+               alt="Company Logo"
+               style="max-height:80px;max-width:240px;border:1px solid var(--border);border-radius:6px;padding:8px;background:#fff;">
+          <?php if ($logoName): ?>
+          <div style="font-size:0.78rem;color:var(--text-muted);margin-top:4px;"><?= Security::h($logoName) ?></div>
+          <?php endif; ?>
+        </div>
+        <?php endif; ?>
+
+        <form method="post" action="/admin/settings/upload-logo" enctype="multipart/form-data">
+          <input type="hidden" name="csrf_token" value="<?= Security::generateCsrfToken() ?>">
+          <div class="form-group">
+            <label class="form-label" for="logo_file">Upload Company Logo</label>
+            <input type="file" id="logo_file" name="logo_file" class="form-control"
+                   accept=".jpg,.jpeg,.png,.gif,.webp,.svg">
+            <span class="form-text">Accepted formats: JPG, PNG, GIF, WEBP, SVG &nbsp;·&nbsp; Max size: 2 MB</span>
+          </div>
+          <button type="submit" class="btn btn-primary"><i class="bi bi-upload"></i> Upload Logo</button>
+        </form>
+
+        <?php if ($logoData): ?>
+        <form method="post" action="/admin/settings/remove-logo" style="margin-top:12px;">
+          <input type="hidden" name="csrf_token" value="<?= Security::generateCsrfToken() ?>">
+          <button type="submit" class="btn btn-danger btn-sm"
+                  onclick="return confirm('Remove the current company logo?')">
+            <i class="bi bi-trash"></i> Remove Logo
+          </button>
+        </form>
+        <?php endif; ?>
+
+        <!-- Logo Upload — Field Reference -->
+        <div style="margin-top:16px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:6px;padding:10px;font-size:0.78rem;">
+          <div style="font-weight:600;color:var(--text);margin-bottom:4px;"><i class="bi bi-info-circle" style="color:var(--primary)"></i> Logo Upload — Field Reference</div>
+          <table style="width:100%;border-collapse:collapse;font-size:0.75rem;">
+            <thead><tr><th style="text-align:left;padding:3px 6px;color:var(--text-muted);">Field</th><th style="text-align:left;padding:3px 6px;color:var(--text-muted);">Type</th><th style="text-align:left;padding:3px 6px;color:var(--text-muted);">Required</th></tr></thead>
+            <tbody>
+              <tr><td style="padding:2px 6px;font-family:monospace;">logo_file</td><td style="padding:2px 6px;">file (image/jpeg, image/png, image/gif, image/webp, image/svg+xml)</td><td style="padding:2px 6px;">Yes</td></tr>
+              <tr><td style="padding:2px 6px;font-family:monospace;">csrf_token</td><td style="padding:2px 6px;">string (CSRF token)</td><td style="padding:2px 6px;">Yes</td></tr>
+            </tbody>
+          </table>
+          <div style="margin-top:4px;color:var(--text-muted);">Stored as: base64 data URI in <code>company_logo_data</code> setting; original filename in <code>company_logo_name</code>.</div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <div style="display:flex;flex-direction:column;gap:20px">

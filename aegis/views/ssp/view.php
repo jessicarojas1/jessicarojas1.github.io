@@ -21,6 +21,8 @@ $impactBadge = fn($v) => match($v) { 'high' => 'badge-danger', 'low' => 'badge-s
   </div>
   <div style="display:flex;gap:10px;">
     <a href="/ssp/<?= (int)$plan['id'] ?>/generate" target="_blank" class="btn btn-primary"><i class="bi bi-file-earmark-text"></i> Generate Document</a>
+    <a href="/ssp/<?= (int)$plan['id'] ?>/generate?format=pdf" target="_blank" class="btn btn-secondary"><i class="bi bi-file-earmark-pdf"></i> Download PDF</a>
+    <a href="/ssp/<?= (int)$plan['id'] ?>/generate?format=word" class="btn btn-secondary"><i class="bi bi-file-earmark-word"></i> Download Word</a>
     <button id="btnOpenEditSsp" class="btn btn-secondary"><i class="bi bi-pencil"></i> Edit</button>
     <form method="POST" action="/ssp/<?= (int)$plan['id'] ?>/delete" data-confirm="Delete this SSP permanently?" style="margin:0">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
@@ -170,11 +172,19 @@ $impactBadge = fn($v) => match($v) { 'high' => 'badge-danger', 'low' => 'badge-s
     <div class="card" style="background:var(--primary);color:#fff;border-color:var(--primary);">
       <div class="card-body" style="text-align:center;padding:24px;">
         <i class="bi bi-file-earmark-text-fill" style="font-size:2.5rem;margin-bottom:12px;display:block;"></i>
-        <h4 style="margin:0 0 8px;color:#fff;">Generate SSP Document</h4>
+        <h4 style="margin:0 0 8px;color:#fff;">Export SSP Document</h4>
         <p style="margin:0 0 16px;font-size:0.875rem;opacity:0.85;">Produces a printable document with all control statements and implementation details.</p>
-        <a href="/ssp/<?= (int)$plan['id'] ?>/generate" target="_blank" class="btn" style="background:#fff;color:var(--primary);font-weight:600;">
-          <i class="bi bi-printer"></i> Open Document
-        </a>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <a href="/ssp/<?= (int)$plan['id'] ?>/generate" target="_blank" class="btn" style="background:#fff;color:var(--primary);font-weight:600;">
+            <i class="bi bi-printer"></i> Open Document
+          </a>
+          <a href="/ssp/<?= (int)$plan['id'] ?>/generate?format=pdf" target="_blank" class="btn" style="background:rgba(255,255,255,0.15);color:#fff;font-weight:600;border:1px solid rgba(255,255,255,0.4);">
+            <i class="bi bi-file-earmark-pdf"></i> Download PDF
+          </a>
+          <a href="/ssp/<?= (int)$plan['id'] ?>/generate?format=word" class="btn" style="background:rgba(255,255,255,0.15);color:#fff;font-weight:600;border:1px solid rgba(255,255,255,0.4);">
+            <i class="bi bi-file-earmark-word"></i> Download Word
+          </a>
+        </div>
       </div>
     </div>
 

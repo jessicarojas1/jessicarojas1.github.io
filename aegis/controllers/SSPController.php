@@ -196,8 +196,222 @@ class SSPController {
         $org = Database::fetchOne("SELECT value FROM settings WHERE key='org_name'");
         $orgName = $org['value'] ?? 'Organization';
 
-        // Render standalone printable document
+        $format = $_GET['format'] ?? '';
+
+        if ($format === 'pdf') {
+            // Print-optimized HTML — browser opens print dialog automatically
+            $safeName = preg_replace('/[^a-zA-Z0-9_-]/', '_', $plan['title']);
+            header('Content-Type: text/html; charset=utf-8');
+            header('Content-Disposition: inline; filename="SSP-' . $safeName . '.html"');
+            $this->outputSspDocument($plan, $sections, $orgName, 'pdf');
+            return;
+        }
+
+        if ($format === 'word') {
+            // Word-compatible HTML download
+            $safeName = preg_replace('/[^a-zA-Z0-9_-]/', '_', $plan['title']);
+            header('Content-Type: application/msword');
+            header('Content-Disposition: attachment; filename="SSP-' . $safeName . '.doc"');
+            $this->outputSspDocument($plan, $sections, $orgName, 'word');
+            return;
+        }
+
+        // Default: render standalone interactive document
         require AEGIS_ROOT . '/views/ssp/document.php';
+    }
+
+    /**
+     * Output a self-contained SSP HTML document suitable for PDF printing or Word import.
+     */
+    private function outputSspDocument(array $plan, array $sections, string $orgName, string $mode): void
+    {
+        $isPdf  = $mode === 'pdf';
+        $isWord = $mode === 'word';
+
+        $statusLabels = [
+            'compliant'      => 'Compliant',
+            'partial'        => 'Partial',
+            'non_compliant'  => 'Non-Compliant',
+            'not_applicable' => 'N/A',
+            'default'        => 'Not Assessed',
+        ];
+        $typeLabels = [
+            'major_application'      => 'Major Application',
+            'general_support_system' => 'General Support System',
+            'minor_application'      => 'Minor Application',
+        ];
+
+        $h = fn(string $s): string => htmlspecialchars($s, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+        $printScript = $isPdf ? '
+<script>
+window.addEventListener("load", function() {
+  window.print();
+  window.addEventListener("afterprint", function() { window.close(); });
+});
+</script>' : '';
+
+        $wordMeta = $isWord ? '
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<xml><w:WordDocument><w:View>Print</w:View><w:Zoom>100</w:Zoom></w:WordDocument></xml>' : '';
+
+        echo '<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+' . $wordMeta . '
+<title>' . $h($plan['title']) . ' — System Security Plan</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  body { font-family: Arial, Helvetica, sans-serif; color: #1a1a2e; background: #fff; margin: 40px 60px; font-size: 12pt; line-height: 1.5; }
+  h1 { font-size: 22pt; margin: 0 0 8px; }
+  h2 { font-size: 16pt; margin: 0 0 6px; color: #1e3a8a; }
+  h3 { font-size: 12pt; margin: 0 0 4px; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+  th, td { border: 1px solid #ccc; padding: 6px 10px; text-align: left; font-size: 10pt; }
+  th { background: #f0f4ff; font-weight: bold; }
+  .cover { text-align: center; padding: 60px 0 40px; border-bottom: 3px solid #1e3a8a; margin-bottom: 40px; page-break-after: always; }
+  .cover-org { font-size: 11pt; font-weight: bold; letter-spacing: 0.1em; text-transform: uppercase; color: #1e3a8a; margin-bottom: 12px; }
+  .cover-title { font-size: 24pt; font-weight: bold; margin-bottom: 8px; }
+  .cover-subtitle { font-size: 14pt; color: #555; margin-bottom: 32px; }
+  .section-header { background: #1e3a8a; color: #fff; padding: 12px 16px; margin: 32px 0 16px; page-break-before: always; }
+  .section-header h2 { color: #fff; margin: 0; }
+  .domain-header { background: #eff6ff; border-left: 4px solid #1e3a8a; padding: 8px 14px; margin: 20px 0 10px; }
+  .control-block { border: 1px solid #ddd; border-radius: 4px; margin-bottom: 18px; page-break-inside: avoid; }
+  .control-head { background: #f9fafb; padding: 8px 14px; border-bottom: 1px solid #ddd; display: flex; align-items: center; gap: 10px; }
+  .control-code { background: #1e3a8a; color: #fff; padding: 2px 8px; border-radius: 12px; font-size: 9pt; font-family: monospace; white-space: nowrap; }
+  .control-body { padding: 12px 14px; }
+  .field-label { font-size: 8pt; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em; color: #666; margin-bottom: 4px; margin-top: 10px; }
+  .field-content { font-size: 10pt; white-space: pre-wrap; }
+  .field-empty { color: #999; font-style: italic; font-size: 10pt; }
+  .status-compliant { color: #065f46; font-weight: bold; }
+  .status-partial { color: #92400e; font-weight: bold; }
+  .status-non_compliant { color: #991b1b; font-weight: bold; }
+  .status-not_applicable { color: #6b7280; }
+  @media print {
+    body { margin: 0; }
+    .section-header { page-break-before: always; }
+    .control-block { page-break-inside: avoid; }
+  }
+</style>
+' . $printScript . '
+</head>
+<body>
+
+<!-- Cover Page -->
+<div class="cover">
+  <div class="cover-org">' . $h($orgName) . '</div>
+  <div class="cover-title">System Security Plan</div>
+  <div class="cover-subtitle">' . $h($plan['title']) . '</div>
+  <table style="display:inline-table;width:auto;min-width:360px;text-align:left;margin:0 auto;">
+';
+        if ($plan['system_name']) echo '    <tr><td style="color:#666;width:160px;font-weight:bold;border:none;padding:5px 8px;">System Name</td><td style="border:none;padding:5px 8px;">' . $h($plan['system_name']) . '</td></tr>' . "\n";
+        echo '    <tr><td style="color:#666;width:160px;font-weight:bold;border:none;padding:5px 8px;">System Owner</td><td style="border:none;padding:5px 8px;">' . $h($plan['system_owner'] ?: '—') . '</td></tr>' . "\n";
+        if ($plan['system_owner_email']) echo '    <tr><td style="color:#666;width:160px;font-weight:bold;border:none;padding:5px 8px;">Owner Email</td><td style="border:none;padding:5px 8px;">' . $h($plan['system_owner_email']) . '</td></tr>' . "\n";
+        echo '    <tr><td style="color:#666;width:160px;font-weight:bold;border:none;padding:5px 8px;">Information Owner</td><td style="border:none;padding:5px 8px;">' . $h($plan['information_owner'] ?: '—') . '</td></tr>' . "\n";
+        echo '    <tr><td style="color:#666;width:160px;font-weight:bold;border:none;padding:5px 8px;">Auth. Official</td><td style="border:none;padding:5px 8px;">' . $h($plan['authorizing_official'] ?: '—') . '</td></tr>' . "\n";
+        echo '    <tr><td style="color:#666;width:160px;font-weight:bold;border:none;padding:5px 8px;">System Type</td><td style="border:none;padding:5px 8px;">' . $h($typeLabels[$plan['system_type']] ?? $plan['system_type']) . '</td></tr>' . "\n";
+        echo '    <tr><td style="color:#666;width:160px;font-weight:bold;border:none;padding:5px 8px;">Impact (C/I/A)</td><td style="border:none;padding:5px 8px;">' . $h(ucfirst($plan['confidentiality_impact']) . ' / ' . ucfirst($plan['integrity_impact']) . ' / ' . ucfirst($plan['availability_impact'])) . '</td></tr>' . "\n";
+        if ($plan['authorization_date']) echo '    <tr><td style="color:#666;width:160px;font-weight:bold;border:none;padding:5px 8px;">Auth. Date</td><td style="border:none;padding:5px 8px;">' . $h(date('F j, Y', strtotime($plan['authorization_date']))) . '</td></tr>' . "\n";
+        if ($plan['next_review_date'])   echo '    <tr><td style="color:#666;width:160px;font-weight:bold;border:none;padding:5px 8px;">Next Review</td><td style="border:none;padding:5px 8px;">' . $h(date('F j, Y', strtotime($plan['next_review_date']))) . '</td></tr>' . "\n";
+        echo '    <tr><td style="color:#666;width:160px;font-weight:bold;border:none;padding:5px 8px;">Date Generated</td><td style="border:none;padding:5px 8px;">' . $h(date('F j, Y')) . '</td></tr>' . "\n";
+        echo '  </table>
+';
+
+        if ($plan['system_description']) {
+            echo '<p style="max-width:600px;margin:24px auto 0;font-size:11pt;color:#444;text-align:left;"><strong>System Description:</strong> ' . $h($plan['system_description']) . '</p>' . "\n";
+        }
+
+        echo '</div>
+
+<!-- System Details -->
+<div style="margin-bottom:40px;">
+  <h2 style="border-bottom:2px solid #1e3a8a;padding-bottom:6px;margin-bottom:16px;">System Details</h2>
+';
+        if ($plan['authorization_boundary']) {
+            echo '<p><strong>Authorization Boundary:</strong><br>' . nl2br($h($plan['authorization_boundary'])) . '</p>' . "\n";
+        }
+        if ($plan['network_architecture']) {
+            echo '<p><strong>Network Architecture:</strong><br>' . nl2br($h($plan['network_architecture'])) . '</p>' . "\n";
+        }
+        if ($plan['data_flow']) {
+            echo '<p><strong>Data Flow:</strong><br>' . nl2br($h($plan['data_flow'])) . '</p>' . "\n";
+        }
+        echo '</div>
+
+';
+        // Sections
+        foreach ($sections as $sec) {
+            $pkg = $sec['package'];
+            echo '<div class="section-header">
+  <h2>' . $h($pkg['standard_name']) . '</h2>
+  <div style="font-size:10pt;opacity:0.85;">' . $h($pkg['name']);
+            if ($pkg['version']) echo ' · Version ' . $h($pkg['version']);
+            echo '</div>
+</div>
+
+';
+            if (empty($sec['domains'])) {
+                echo '<p style="color:#999;font-style:italic;">No domains found in this package.</p>' . "\n";
+            }
+
+            foreach ($sec['domains'] as $domain) {
+                echo '<div class="domain-header"><h3>' . $h($domain['code']) . ' — ' . $h($domain['title']) . '</h3></div>' . "\n";
+
+                if (empty($domain['controls'])) {
+                    echo '<p style="color:#999;font-style:italic;padding-left:14px;">No controls in this domain.</p>' . "\n";
+                }
+
+                foreach ($domain['controls'] as $ctrl) {
+                    $statusKey   = $ctrl['status'] ?: 'default';
+                    $statusLabel = $statusLabels[$statusKey] ?? 'Not Assessed';
+                    echo '<div class="control-block">
+  <div class="control-head">
+    <span class="control-code">' . $h($ctrl['code']) . '</span>
+    <strong style="flex:1;font-size:10pt;">' . $h($ctrl['title']) . '</strong>
+    <span class="status-' . $h($statusKey) . '">' . $h($statusLabel) . '</span>
+  </div>
+  <div class="control-body">';
+
+                    if ($ctrl['description']) {
+                        echo "\n    <div class=\"field-label\">Control Description</div><div class=\"field-content\">" . nl2br($h($ctrl['description'])) . '</div>';
+                    }
+
+                    echo "\n    <div class=\"field-label\">Implementation Notes (from Compliance)</div>";
+                    echo $ctrl['implementation_notes']
+                        ? '<div class="field-content">' . nl2br($h($ctrl['implementation_notes'])) . '</div>'
+                        : '<div class="field-empty">No implementation notes recorded.</div>';
+
+                    if ($ctrl['assignee_name']) {
+                        echo "\n    <div style=\"font-size:9pt;color:#666;margin-top:4px;\">Control Owner: " . $h($ctrl['assignee_name']) . '</div>';
+                    }
+
+                    echo "\n    <div class=\"field-label\">SSP Implementation Statement</div>";
+                    echo ($ctrl['implementation_statement'] ?? '')
+                        ? '<div class="field-content">' . nl2br($h($ctrl['implementation_statement'])) . '</div>'
+                        : '<div class="field-empty">Not documented.</div>';
+
+                    echo "\n    <div class=\"field-label\">Objective-Level Responses</div>";
+                    echo ($ctrl['objective_responses'] ?? '')
+                        ? '<div class="field-content">' . nl2br($h($ctrl['objective_responses'])) . '</div>'
+                        : '<div class="field-empty">Not documented.</div>';
+
+                    echo "\n    <div class=\"field-label\">Responsible Roles</div>";
+                    echo ($ctrl['responsible_roles'] ?? '')
+                        ? '<div class="field-content">' . $h($ctrl['responsible_roles']) . '</div>'
+                        : '<div class="field-empty">Not documented.</div>';
+
+                    echo '
+  </div>
+</div>
+';
+                }
+            }
+        }
+
+        echo '
+</body>
+</html>';
     }
 
     public function saveStatement(int $id, int $objectiveId): void {

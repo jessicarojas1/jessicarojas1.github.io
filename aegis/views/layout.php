@@ -21,7 +21,28 @@
 <!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
   <a href="/" class="sidebar-brand" style="text-decoration:none">
-    <div class="brand-icon"><i class="bi bi-shield-fill-check"></i></div>
+    <?php
+    $__logoSetting = null;
+    try { $__logoSetting = Database::fetchOne("SELECT value FROM settings WHERE key='company_logo_data'"); } catch(Throwable) {}
+    $__logoData = $__logoSetting['value'] ?? '';
+    ?>
+    <?php if ($__logoData): ?>
+      <img src="<?= Security::h($__logoData) ?>" alt="Logo" style="width:34px;height:34px;object-fit:contain;border-radius:6px">
+    <?php else: ?>
+      <div class="brand-logomark">
+        <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="shieldGrad" x1="0" y1="0" x2="34" y2="34" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#4ade80"/>
+              <stop offset="100%" stop-color="#16a34a"/>
+            </linearGradient>
+          </defs>
+          <path d="M17 2L4 7.5V17C4 24.2 9.8 30.9 17 32.5C24.2 30.9 30 24.2 30 17V7.5L17 2Z" fill="url(#shieldGrad)" opacity="0.95"/>
+          <path d="M17 2L4 7.5V17C4 24.2 9.8 30.9 17 32.5C24.2 30.9 30 24.2 30 17V7.5L17 2Z" stroke="rgba(255,255,255,0.2)" stroke-width="0.5" fill="none"/>
+          <text x="17" y="22" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="13" font-weight="800" fill="white" letter-spacing="-0.5">A</text>
+        </svg>
+      </div>
+    <?php endif; ?>
     <div class="brand-text">
       <span class="brand-name">AEGIS</span>
       <span class="brand-sub">GRC Platform</span>

@@ -551,6 +551,19 @@ try {
 } catch (Throwable) {}
 
 try {
+    // Ensure company logo settings rows exist
+    $__logoExists = Database::fetchOne("SELECT 1 FROM settings WHERE key='company_logo_data'");
+    if (!$__logoExists) {
+        Database::query("INSERT INTO settings (key, value) VALUES ('company_logo_data', '') ON CONFLICT (key) DO NOTHING");
+    }
+    $__logoNameExists = Database::fetchOne("SELECT 1 FROM settings WHERE key='company_logo_name'");
+    if (!$__logoNameExists) {
+        Database::query("INSERT INTO settings (key, value) VALUES ('company_logo_name', '') ON CONFLICT (key) DO NOTHING");
+    }
+    unset($__logoExists, $__logoNameExists);
+} catch (Throwable) {}
+
+try {
     // Data Privacy tables (migration 012)
     Database::query(
         "CREATE TABLE IF NOT EXISTS privacy_records (
@@ -791,6 +804,8 @@ $routes = [
         '/admin/email/save'              => ['AdminController', 'saveEmail'],
         '/admin/email/test'              => ['AdminController', 'testEmail'],
         '/admin/settings/save'           => ['AdminController', 'saveSettings'],
+        '/admin/settings/upload-logo'    => ['AdminController', 'uploadLogo'],
+        '/admin/settings/remove-logo'    => ['AdminController', 'removeLogo'],
         '/admin/module-visibility/save'  => ['AdminController', 'saveModuleVisibility'],
         '/admin/logs/export'             => ['AdminController', 'exportLogs'],
         '/admin/settings/sso/save'       => ['SSOController', 'saveSettings'],
