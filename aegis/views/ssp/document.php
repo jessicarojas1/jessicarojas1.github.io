@@ -122,7 +122,7 @@
   .save-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
   .save-btn { background: var(--ssp-accent); color: #fff; border: none; border-radius: 6px; padding: 5px 14px; font-size: 0.8rem; cursor: pointer; font-family: inherit; }
   .save-btn:hover { background: var(--ssp-accent-hover); }
-  .save-status { font-size: 0.78rem; color: #10b981; display: none; }
+  .save-status { font-size: 0.78rem; color: var(--success); display: none; }
   .save-status.error { color: var(--danger); }
 
   .assignee-line { font-size: 0.8rem; color: var(--ssp-subtle); margin-top: 4px; }
