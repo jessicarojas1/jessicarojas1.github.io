@@ -1873,10 +1873,11 @@ html[data-theme="dark"] .table-hover > tbody > tr:hover > * {
   background-color: rgba(255,255,255,.06) !important;
 }
 
-/* Bootstrap modals */
-html[data-theme="dark"] .modal-content   { background: var(--card-bg); color: var(--text); border-color: var(--border); }
-html[data-theme="dark"] .modal-header    { background: var(--bg-subtle); border-color: var(--border); }
-html[data-theme="dark"] .modal-footer    { background: var(--bg-subtle); border-color: var(--border); }
+/* Aegis modals (class="modal") + Bootstrap modals (class="modal-content") */
+html[data-theme="dark"] .modal          { background: var(--surface-alt); color: var(--text); border: 1px solid var(--border); }
+html[data-theme="dark"] .modal-content  { background: var(--surface-alt); color: var(--text); border-color: var(--border); }
+html[data-theme="dark"] .modal-header   { background: var(--bg-subtle); border-color: var(--border); }
+html[data-theme="dark"] .modal-footer   { background: var(--bg-subtle); border-color: var(--border); }
 
 /* Bootstrap dropdowns */
 html[data-theme="dark"] .dropdown-menu  { background: var(--card-bg); border-color: var(--border); }
