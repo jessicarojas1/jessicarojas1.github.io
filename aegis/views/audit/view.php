@@ -38,35 +38,53 @@ ob_start();
   </div>
 </div>
 
-<!-- Summary row -->
-<div class="audit-summary">
-  <div class="audit-meta-card">
-    <div class="audit-meta-label">Status</div>
+<!-- KPI Summary bar -->
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:24px">
+  <!-- Status card -->
+  <div class="card" style="padding:16px;text-align:center">
+    <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-bottom:8px">Status</div>
     <span class="badge badge-lg badge-<?= $audit['status'] ?>"><?= ucfirst(str_replace('_',' ',$audit['status'])) ?></span>
   </div>
-  <div class="audit-meta-card">
-    <div class="audit-meta-label">Score</div>
-    <div class="audit-score"><?= $audit['score'] !== null ? round($audit['score']).'%' : '—' ?></div>
+  <!-- Score card -->
+  <div class="card" style="padding:16px;text-align:center">
+    <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-bottom:8px">Score</div>
+    <div style="font-size:24px;font-weight:800;color:<?= $audit['score'] !== null ? ($audit['score'] >= 80 ? '#16a34a' : ($audit['score'] >= 60 ? '#d97706' : '#dc2626')) : 'var(--text-muted)' ?>"><?= $audit['score'] !== null ? round($audit['score']).'%' : '—' ?></div>
   </div>
-  <div class="audit-meta-card">
-    <div class="audit-meta-label">Lead Auditor</div>
-    <div class="fw-600"><?= Security::h($audit['auditor_name'] ?? 'Unassigned') ?></div>
+  <!-- Lead Auditor card -->
+  <div class="card" style="padding:16px;text-align:center">
+    <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-bottom:8px">Lead Auditor</div>
+    <div style="font-weight:600;font-size:13px"><?= Security::h($audit['auditor_name'] ?? 'Unassigned') ?></div>
   </div>
-  <div class="audit-meta-card">
-    <div class="audit-meta-label">Progress</div>
-    <div class="progress-mini-wrap">
-      <?php $total=max(1,(int)($summary['total']??0)); $assessed=$total-($summary['not_assessed']??0); $pct=round($assessed/$total*100); ?>
-      <div class="progress-bar-wrap">
-        <div class="progress-fill" style="width:<?= $pct ?>%;background:var(--primary)"></div>
-      </div>
-      <span><?= $assessed ?>/<?= $total ?> assessed</span>
+  <!-- Progress card with progress bar -->
+  <?php $total=max(1,(int)($summary['total']??0)); $assessed=$total-($summary['not_assessed']??0); $pct=round($assessed/$total*100); ?>
+  <div class="card" style="padding:16px;text-align:center">
+    <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-bottom:8px">Progress</div>
+    <div style="font-size:16px;font-weight:700;margin-bottom:6px"><?= $assessed ?>/<?= $total ?></div>
+    <div style="height:6px;background:var(--bg-subtle);border-radius:99px;overflow:hidden">
+      <div style="height:100%;width:<?= $pct ?>%;background:var(--primary);border-radius:99px"></div>
     </div>
   </div>
-  <div class="audit-findings-summary">
-    <span class="finding-stat green"><i class="bi bi-check-circle-fill"></i> <?= $summary['compliant'] ?> Compliant</span>
-    <span class="finding-stat yellow"><i class="bi bi-dash-circle-fill"></i> <?= $summary['partial'] ?> Partial</span>
-    <span class="finding-stat red"><i class="bi bi-x-circle-fill"></i> <?= $summary['non_compliant'] ?> Non-Compliant</span>
-    <span class="finding-stat gray"><i class="bi bi-circle"></i> <?= $summary['not_assessed'] ?> Not Assessed</span>
+  <!-- Findings summary card -->
+  <div class="card" style="padding:16px">
+    <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-bottom:8px;text-align:center">Findings</div>
+    <div style="display:flex;flex-direction:column;gap:4px">
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px">
+        <span style="display:flex;align-items:center;gap:5px;color:#16a34a"><i class="bi bi-check-circle-fill"></i>Compliant</span>
+        <strong><?= $summary['compliant'] ?></strong>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px">
+        <span style="display:flex;align-items:center;gap:5px;color:#d97706"><i class="bi bi-dash-circle-fill"></i>Partial</span>
+        <strong><?= $summary['partial'] ?></strong>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px">
+        <span style="display:flex;align-items:center;gap:5px;color:#dc2626"><i class="bi bi-x-circle-fill"></i>Non-Compliant</span>
+        <strong><?= $summary['non_compliant'] ?></strong>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px">
+        <span style="display:flex;align-items:center;gap:5px;color:var(--text-muted)"><i class="bi bi-circle"></i>Not Assessed</span>
+        <strong><?= $summary['not_assessed'] ?></strong>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -76,33 +94,55 @@ ob_start();
   <div class="card-header">
     <h3 class="card-title"><?= Security::h($domain) ?></h3>
     <?php $domainTotal = count($items); $domainComp = count(array_filter($items, fn($i)=>$i['status']==='compliant')); ?>
-    <span class="badge badge-<?= $domainComp===$domainTotal ? 'green' : 'gray' ?>"><?= $domainComp ?>/<?= $domainTotal ?></span>
+    <span class="badge badge-<?= $domainComp===$domainTotal ? 'green' : 'gray' ?>"><?= $domainComp ?>/<?= $domainTotal ?> compliant</span>
   </div>
   <div class="card-body p0">
     <?php foreach ($items as $item): ?>
-    <div class="audit-item-row" id="item-<?= $item['id'] ?>">
-      <div class="audit-item-info">
-        <span class="control-code"><?= Security::h($item['code']) ?></span>
-        <span class="control-title"><?= Security::h($item['title']) ?></span>
+    <div class="audit-item-row item-<?= $item['status'] ?>" id="item-<?= $item['id'] ?>" style="padding:14px 16px;border-bottom:1px solid var(--border-light);display:flex;flex-direction:column;gap:0">
+      <!-- Top row: code + title + status selector + edit button -->
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <!-- Left: code badge + title -->
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap">
+            <span style="font-family:monospace;font-size:11px;font-weight:700;background:var(--bg-subtle);border:1px solid var(--border);padding:1px 7px;border-radius:4px;color:var(--text-muted)"><?= Security::h($item['code']) ?></span>
+            <!-- Status indicator dot -->
+            <?php
+            $dotColors = ['compliant'=>'#16a34a','partial'=>'#d97706','non_compliant'=>'#dc2626','not_assessed'=>'#9ca3af','not_applicable'=>'#6b7280'];
+            $dotColor = $dotColors[$item['status']] ?? '#9ca3af';
+            ?>
+            <span style="width:8px;height:8px;border-radius:50%;background:<?= $dotColor ?>;flex-shrink:0;display:inline-block"></span>
+          </div>
+          <!-- Title — truncated with expand -->
+          <div class="audit-ctrl-title" style="font-size:13px;font-weight:600;color:var(--text);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer" data-click="toggleCtrlTitle" data-arg="<?= $item['id'] ?>">
+            <?= Security::h($item['title']) ?>
+          </div>
+        </div>
+        <!-- Right: status select + edit button -->
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+          <?php
+          $statusBgs = ['not_assessed'=>['#f9fafb','#6b7280'],'compliant'=>['#f0fdf4','#16a34a'],'partial'=>['#fffbeb','#d97706'],'non_compliant'=>['#fef2f2','#dc2626'],'not_applicable'=>['#f4f4f5','#71717a']];
+          [$sBg,$sFg] = $statusBgs[$item['status']] ?? ['#f9fafb','#6b7280'];
+          ?>
+          <select class="status-select-inline" data-change="saveAuditItem" data-args='[<?= $item['id'] ?>,<?= $audit['id'] ?>]' data-item="<?= $item['id'] ?>"
+                  style="background:<?= $sBg ?>;color:<?= $sFg ?>;border:1px solid <?= $sFg ?>44;border-radius:99px;padding:4px 10px;font-size:12px;font-weight:600;cursor:pointer;appearance:none;-webkit-appearance:none;outline:none">
+            <?php foreach (['not_assessed'=>'Not Assessed','compliant'=>'Compliant','partial'=>'Partial','non_compliant'=>'Non-Compliant','not_applicable'=>'N/A'] as $val=>$label): ?>
+              <option value="<?= $val ?>" <?= $item['status']===$val?'selected':'' ?>><?= $label ?></option>
+            <?php endforeach; ?>
+          </select>
+          <button class="btn btn-ghost btn-sm" data-click="toggleFinding" data-arg="<?= $item['id'] ?>" title="Add finding details" style="padding:4px 8px">
+            <i class="bi bi-<?= ($item['finding'] || $item['evidence']) ? 'pencil-fill' : 'pencil' ?>" style="font-size:13px;<?= ($item['finding'] || $item['evidence']) ? 'color:var(--primary)' : '' ?>"></i>
+          </button>
+        </div>
       </div>
-      <div class="audit-item-controls">
-        <select class="status-select-inline" data-change="saveAuditItem" data-args='[<?= $item['id'] ?>,<?= $audit['id'] ?>]' data-item="<?= $item['id'] ?>">
-          <?php foreach (['not_assessed'=>'Not Assessed','compliant'=>'Compliant','partial'=>'Partial','non_compliant'=>'Non-Compliant','not_applicable'=>'N/A'] as $val=>$label): ?>
-            <option value="<?= $val ?>" <?= $item['status']===$val?'selected':'' ?>><?= $label ?></option>
-          <?php endforeach; ?>
-        </select>
-        <button class="btn btn-ghost btn-sm" data-click="toggleFinding" data-arg="<?= $item['id'] ?>">
-          <i class="bi bi-pencil"></i>
-        </button>
-      </div>
-      <div class="audit-finding-panel" id="finding-<?= $item['id'] ?>" style="display:none">
+      <!-- Finding panel (hidden by default) -->
+      <div class="audit-finding-panel" id="finding-<?= $item['id'] ?>" style="display:none;margin-top:12px;padding-top:12px;border-top:1px dashed var(--border)">
         <form class="finding-form" data-submit="saveFinding" data-args='[<?= $item['id'] ?>,<?= $audit['id'] ?>]' enctype="multipart/form-data">
           <?= Security::csrfField() ?>
           <input type="hidden" name="status" class="finding-status-input" value="<?= Security::h($item['status']) ?>">
           <div class="form-row">
             <div class="form-group flex-1">
               <label class="form-label">Finding</label>
-              <textarea name="finding" class="form-control" rows="2" placeholder="Describe the audit finding..."><?= Security::h($item['finding'] ?? '') ?></textarea>
+              <textarea name="finding" class="form-control" rows="2" placeholder="Describe the finding..."><?= Security::h($item['finding'] ?? '') ?></textarea>
             </div>
             <div class="form-group flex-1">
               <label class="form-label">Evidence Notes</label>
@@ -127,7 +167,6 @@ ob_start();
           <div class="form-group">
             <label class="form-label">Upload Evidence File</label>
             <input type="file" name="evidence_file[]" multiple class="form-control" accept="image/*,.pdf,.doc,.docx,.xlsx,.csv,.txt,.png,.jpg,.jpeg">
-            <p style="margin:4px 0 0;font-size:12px;color:var(--text-muted)">PDF, Word, images, spreadsheets accepted.</p>
           </div>
           <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-save"></i> Save Finding</button>
         </form>
@@ -245,6 +284,18 @@ function toggleFinding(id) {
   panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
 }
 
+function toggleCtrlTitle(id) {
+  var el = document.querySelector('#item-' + id + ' .audit-ctrl-title');
+  if (!el) return;
+  if (el.style.webkitLineClamp === 'unset' || el.style['-webkit-line-clamp'] === 'unset') {
+    el.style.webkitLineClamp = '2';
+    el.style.overflow = 'hidden';
+  } else {
+    el.style.webkitLineClamp = 'unset';
+    el.style.overflow = 'visible';
+  }
+}
+
 function saveAuditItem(itemId, auditId) {
   const select = this;
   const status = select.value;
@@ -260,6 +311,11 @@ function saveAuditItem(itemId, auditId) {
     .then(data => {
       const row = document.getElementById('item-' + itemId);
       row.className = 'audit-item-row item-' + data.status;
+      const statusBgs = {not_assessed:['#f9fafb','#6b7280'],compliant:['#f0fdf4','#16a34a'],partial:['#fffbeb','#d97706'],non_compliant:['#fef2f2','#dc2626'],not_applicable:['#f4f4f5','#71717a']};
+      const [bg,fg] = statusBgs[data.status] || ['#f9fafb','#6b7280'];
+      select.style.background = bg;
+      select.style.color = fg;
+      select.style.borderColor = fg + '44';
     });
 }
 

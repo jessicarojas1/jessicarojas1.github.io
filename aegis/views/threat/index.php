@@ -87,8 +87,8 @@ $_threatActiveFilters = (int)!empty($filter) + (int)!empty($statusF);
 <div class="filter-toolbar" style="margin-bottom:20px">
   <form method="GET" action="/threats">
     <div class="filter-popover-wrap">
-      <button type="button" class="btn btn-secondary btn-sm filter-btn" data-toggle-class="open" data-target="#threatFilterPopover">
-        <i class="bi bi-funnel"></i> Filters
+      <button type="button" class="btn btn-sm filter-btn" data-toggle-class="open" data-target="#threatFilterPopover">
+        <i class="bi bi-funnel-fill"></i> Filters
         <?php if ($_threatActiveFilters > 0): ?>
           <span class="filter-active-count"><?= $_threatActiveFilters ?></span>
         <?php endif; ?>

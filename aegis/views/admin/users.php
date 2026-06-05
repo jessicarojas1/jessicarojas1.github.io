@@ -93,7 +93,7 @@ ob_start();
             </div>
           </div>
         </div>
-        <div class="form-actions"><button type="submit" id="btnCreateUser" class="btn btn-primary" disabled>Create User</button><button type="button" class="btn btn-ghost" data-close-modal="createUserModal">Cancel</button></div>
+        <div class="form-actions"><button type="submit" id="btnCreateUser" class="btn btn-primary">Create User</button><button type="button" class="btn btn-ghost" data-close-modal="createUserModal">Cancel</button></div>
       </form>
     </div>
   </div>

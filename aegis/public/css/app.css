@@ -16,11 +16,11 @@
   --info:    #0284c7;
 
   /* Sidebar */
-  --sidebar-bg:            #0a1f0e;
-  --sidebar-text:          #86efac;
+  --sidebar-bg:            #0f172a;
+  --sidebar-text:          #94a3b8;
   --sidebar-text-active:   #ffffff;
-  --sidebar-active-bg:     rgba(74, 222, 128, 0.14);
-  --sidebar-active-border: #4ade80;
+  --sidebar-active-bg:     rgba(99, 102, 241, 0.14);
+  --sidebar-active-border: #6366f1;
   --sidebar-w:   260px;
   --topbar-h:    64px;
 
@@ -130,27 +130,27 @@ body {
   width: 34px;
   height: 34px;
   flex-shrink: 0;
-  filter: drop-shadow(0 2px 8px rgba(74,222,128,0.35));
+  filter: drop-shadow(0 2px 8px rgba(99,102,241,0.35));
 }
 
 /* Legacy .brand-icon kept for safety; new pages use .brand-logomark */
 .brand-icon {
-  width: 34px;
-  height: 34px;
-  background: rgba(74, 222, 128, 0.18);
-  border: 1px solid rgba(74, 222, 128, 0.3);
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, var(--primary), #4f46e5);
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #4ade80;
+  color: #fff;
   font-size: 18px;
   flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(99,102,241,0.35);
 }
 
 .brand-text { display: flex; flex-direction: column; min-width: 0; }
 .brand-name { font-size: 15px; font-weight: 800; color: #f9fafb; letter-spacing: .3px; line-height: 1.2; white-space: nowrap; }
-.brand-sub  { font-size: 9.5px; color: rgba(134,239,172,0.7); letter-spacing: .3px; line-height: 1.3; white-space: normal; }
+.brand-sub  { font-size: 9.5px; color: rgba(148,163,184,0.65); letter-spacing: .3px; line-height: 1.3; white-space: normal; }
 
 .sidebar-nav { flex: 1; padding: 6px 10px; display: flex; flex-direction: column; gap: 1px; }
 
@@ -172,7 +172,7 @@ body {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
-  color: rgba(134,239,172,.4);
+  color: rgba(148,163,184,.45);
   padding: 12px 10px 4px;
   margin-top: 2px;
   text-align: left;
@@ -184,8 +184,8 @@ body {
   min-height: 36px;
 }
 .nav-acc-header:hover,
-.nav-acc-header:focus-visible { color: rgba(134,239,172,.85); outline: none; }
-.nav-acc-header:focus-visible { outline: 2px solid rgba(74,222,128,.5); outline-offset: 1px; border-radius: 4px; }
+.nav-acc-header:focus-visible { color: rgba(148,163,184,.9); outline: none; }
+.nav-acc-header:focus-visible { outline: 2px solid rgba(99,102,241,.5); outline-offset: 1px; border-radius: 4px; }
 
 .nav-acc-chevron {
   font-size: 11px;
@@ -225,9 +225,9 @@ body {
 }
 
 .nav-item.active {
-  background: rgba(74,222,128,0.12);
-  color: #f0fdf4;
-  border-left-color: #4ade80;
+  background: var(--sidebar-active-bg);
+  color: var(--sidebar-text-active);
+  border-left-color: var(--sidebar-active-border);
 }
 
 .nav-item i { font-size: 15px; flex-shrink: 0; }
@@ -901,21 +901,22 @@ select.form-control { cursor: pointer; }
 }
 
 .filter-btn {
+  background: var(--bg-secondary);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 5px 14px;
+  font-size: 13px;
+  font-weight: 500;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 7px 14px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--card-bg);
-  color: var(--text);
-  font-size: 13px;
-  font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s;
-  white-space: nowrap;
+  transition: all .15s;
+  line-height: 1.4;
 }
-.filter-btn:hover { border-color: var(--primary); color: var(--primary); }
+.filter-btn i { color: #f59e0b; }
+.filter-btn:hover { background: var(--bg-subtle); border-color: var(--border); }
 .filter-btn.active { border-color: var(--primary); background: var(--success-subtle); color: var(--primary); }
 
 .filter-count {
@@ -930,6 +931,18 @@ select.form-control { cursor: pointer; }
   border-radius: 9px;
   font-size: 10px;
   font-weight: 700;
+}
+
+.filter-active-count {
+  background: #6366f1;
+  color: #fff;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 0px 5px;
+  min-width: 16px;
+  text-align: center;
+  display: inline-block;
 }
 
 .filter-popover {
@@ -1797,7 +1810,10 @@ html[data-theme="dark"] {
   --danger:  #f87171;
   --info:    #38bdf8;
 
-  --sidebar-bg: #010b07;
+  --sidebar-bg: #080e1a;
+  --sidebar-text:          #94a3b8;
+  --sidebar-active-bg:     rgba(99, 102, 241, 0.16);
+  --sidebar-active-border: #818cf8;
 
   --shadow:    0 1px 3px rgba(0,0,0,.7),  0 4px 16px rgba(0,0,0,.4);
   --shadow-md: 0 4px 12px rgba(0,0,0,.8);

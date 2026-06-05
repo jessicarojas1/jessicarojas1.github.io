@@ -34,9 +34,11 @@ ob_start();
 
   <form method="GET" action="/policy" class="filter-popover-wrap">
     <input type="hidden" name="status" value="<?= Security::h($status ?? '') ?>">
-    <button type="button" class="btn btn-secondary btn-sm filter-btn" data-toggle-class="open" data-target="#polFilterPopover">
-      <i class="bi bi-funnel"></i> More Filters
-      <?php if ($polFilterCount > 0): ?><span class="filter-active-count"><?= $polFilterCount ?></span><?php endif; ?>
+    <button type="button" class="btn btn-sm filter-btn" data-toggle-class="open" data-target="#polFilterPopover">
+      <i class="bi bi-funnel-fill"></i> Filters
+      <?php if ($polFilterCount > 0): ?>
+        <span class="filter-active-count"><?= $polFilterCount ?></span>
+      <?php endif; ?>
     </button>
     <div id="polFilterPopover" class="filter-popover">
       <div class="form-group" style="margin:0">

@@ -73,11 +73,13 @@ $_filterCount = count(array_filter([
 ?>
 <div class="filter-toolbar">
   <div class="filter-popover-wrap">
-    <button type="button" class="filter-btn <?= $_filterCount ? 'active' : '' ?>" data-filter-toggle>
-      <i class="bi bi-funnel"></i> Filters
-      <?php if ($_filterCount): ?><span class="filter-count"><?= $_filterCount ?></span><?php endif; ?>
+    <button type="button" class="btn btn-sm filter-btn" data-toggle-class="open" data-target="#riskFilterPopover">
+      <i class="bi bi-funnel-fill"></i> Filters
+      <?php if ($_filterCount > 0): ?>
+        <span class="filter-active-count"><?= $_filterCount ?></span>
+      <?php endif; ?>
     </button>
-    <div class="filter-popover <?= $_filterCount ? 'open' : '' ?>">
+    <div id="riskFilterPopover" class="filter-popover <?= $_filterCount ? 'open' : '' ?>">
       <form method="GET" action="/risk">
         <div class="filter-popover-grid">
           <div class="filter-field">

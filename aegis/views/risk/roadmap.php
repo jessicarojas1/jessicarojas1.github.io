@@ -106,8 +106,8 @@ $_roadmapActiveFilters = (int)!empty($filterStatus) + (int)!empty($filterOwner) 
 <div class="filter-toolbar" style="margin-bottom:16px">
   <form method="GET" action="/risk/roadmap">
     <div class="filter-popover-wrap">
-      <button type="button" class="btn btn-secondary btn-sm filter-btn" data-toggle-class="open" data-target="#roadmapFilterPopover">
-        <i class="bi bi-funnel"></i> Filters
+      <button type="button" class="btn btn-sm filter-btn" data-toggle-class="open" data-target="#roadmapFilterPopover">
+        <i class="bi bi-funnel-fill"></i> Filters
         <?php if ($_roadmapActiveFilters > 0): ?>
           <span class="filter-active-count"><?= $_roadmapActiveFilters ?></span>
         <?php endif; ?>

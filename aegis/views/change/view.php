@@ -53,22 +53,42 @@ ob_start(); ?>
       </span>
     </p>
   </div>
-  <?php if (!empty($available)): ?>
   <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-    <?php foreach ($available as $newStatus => $label): ?>
-      <form method="POST" action="/change/<?= (int)$change['id'] ?>/update" style="display:inline-flex;gap:8px;align-items:center">
+    <?php if (($isSubmitter && $change['status'] === 'draft') || $isAdmin): ?>
+      <button class="btn btn-secondary" data-show-modal="editChangeModal">
+        <i class="bi bi-pencil"></i> Edit
+      </button>
+    <?php endif; ?>
+    <?php if (!empty($available)): ?>
+      <?php foreach ($available as $newStatus => $label): ?>
+        <form method="POST" action="/change/<?= (int)$change['id'] ?>/update" style="display:inline-flex;gap:8px;align-items:center">
+          <?= Security::csrfField() ?>
+          <input type="hidden" name="status" value="<?= Security::h($newStatus) ?>">
+          <?php if (in_array($newStatus, ['approved','rejected'])): ?>
+            <input type="text" name="note" placeholder="Notes (optional)" class="form-control" style="width:200px">
+          <?php endif; ?>
+          <button class="btn <?= $newStatus === 'rejected' ? 'btn-danger' : 'btn-primary' ?>" type="submit">
+            <?= Security::h($label) ?>
+          </button>
+        </form>
+      <?php endforeach; ?>
+    <?php endif; ?>
+    <?php if ($isAdmin): ?>
+      <form method="POST" action="/change/<?= (int)$change['id'] ?>/update" style="display:inline-flex;gap:6px;align-items:center">
         <?= Security::csrfField() ?>
-        <input type="hidden" name="status" value="<?= Security::h($newStatus) ?>">
-        <?php if (in_array($newStatus, ['approved','rejected'])): ?>
-          <input type="text" name="note" placeholder="Notes (optional)" class="form-control" style="width:200px">
-        <?php endif; ?>
-        <button class="btn <?= $newStatus === 'rejected' ? 'btn-danger' : 'btn-primary' ?>" type="submit">
-          <?= Security::h($label) ?>
+        <select name="status" class="form-control" style="width:160px;font-size:13px">
+          <?php foreach (['draft','submitted','under_review','approved','rejected','implementing','implemented','closed'] as $s): ?>
+            <option value="<?= $s ?>" <?= $change['status'] === $s ? 'selected' : '' ?>>
+              <?= Security::h(ucfirst(str_replace('_',' ',$s))) ?>
+            </option>
+          <?php endforeach; ?>
+        </select>
+        <button class="btn btn-secondary" type="submit" style="font-size:13px;white-space:nowrap">
+          <i class="bi bi-shield-fill-exclamation"></i> Force Status
         </button>
       </form>
-    <?php endforeach; ?>
+    <?php endif; ?>
   </div>
-  <?php endif; ?>
 </div>
 
 <?php if (!empty($_SESSION['change_success'])): ?>
@@ -249,4 +269,83 @@ ob_start(); ?>
   </div>
 </div>
 <?php $content = ob_get_clean();
+
+// Append Edit modal and inline script to $content
+ob_start(); ?>
+
+<!-- Edit Change Modal -->
+<?php if (($isSubmitter && $change['status'] === 'draft') || $isAdmin): ?>
+<div class="modal-overlay" id="editChangeModal" style="display:none">
+  <div class="modal" style="max-width:680px;width:100%">
+    <div class="modal-header">
+      <span>Edit Change Request</span>
+      <button data-close-modal="editChangeModal" style="background:none;border:none;cursor:pointer;font-size:18px">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form method="POST" action="/change/<?= (int)$change['id'] ?>/edit">
+        <?= Security::csrfField() ?>
+        <div class="form-group" style="margin-bottom:14px">
+          <label class="form-label">Title <span style="color:#ef4444">*</span></label>
+          <input type="text" name="title" class="form-control" value="<?= Security::h($change['title']) ?>" required>
+        </div>
+        <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px">
+          <div class="form-group" style="flex:1;min-width:160px">
+            <label class="form-label">Change Type</label>
+            <select name="change_type" class="form-control">
+              <?php foreach (['normal','emergency','standard'] as $ct): ?>
+                <option value="<?= $ct ?>" <?= $change['change_type'] === $ct ? 'selected' : '' ?>><?= ucfirst($ct) ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="form-group" style="flex:1;min-width:160px">
+            <label class="form-label">Risk Level</label>
+            <select name="risk_level" class="form-control">
+              <?php foreach (['low','medium','high','critical'] as $rl): ?>
+                <option value="<?= $rl ?>" <?= $change['risk_level'] === $rl ? 'selected' : '' ?>><?= ucfirst($rl) ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="form-group" style="flex:1;min-width:200px">
+            <label class="form-label">Implementation Date</label>
+            <input type="datetime-local" name="implementation_date" class="form-control"
+              value="<?= $change['implementation_date'] ? date('Y-m-d\TH:i', strtotime($change['implementation_date'])) : '' ?>">
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:14px">
+          <label class="form-label">Description</label>
+          <textarea name="description" class="form-control" rows="3"><?= Security::h($change['description'] ?? '') ?></textarea>
+        </div>
+        <div class="form-group" style="margin-bottom:14px">
+          <label class="form-label">Impact Analysis</label>
+          <textarea name="impact_analysis" class="form-control" rows="3"><?= Security::h($change['impact_analysis'] ?? '') ?></textarea>
+        </div>
+        <div class="form-group" style="margin-bottom:14px">
+          <label class="form-label">Rollback Plan</label>
+          <textarea name="rollback_plan" class="form-control" rows="3"><?= Security::h($change['rollback_plan'] ?? '') ?></textarea>
+        </div>
+        <div class="form-group" style="margin-bottom:18px">
+          <label class="form-label">Testing Plan</label>
+          <textarea name="testing_plan" class="form-control" rows="3"><?= Security::h($change['testing_plan'] ?? '') ?></textarea>
+        </div>
+        <div style="display:flex;gap:10px;justify-content:flex-end">
+          <button type="button" class="btn btn-secondary" data-close-modal="editChangeModal">Cancel</button>
+          <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script nonce="<?= Security::nonce() ?>">
+(function() {
+  var el = document.getElementById('editChangeModal');
+  if (el) {
+    el.addEventListener('click', function(e) {
+      if (e.target === el) closeModal('editChangeModal');
+    });
+  }
+}());
+</script>
+<?php endif; ?>
+
+<?php $content .= ob_get_clean();
 require AEGIS_ROOT . '/views/layout.php'; ?>

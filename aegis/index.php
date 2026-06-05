@@ -987,6 +987,7 @@ $dynamicRoutes = [
         '#^/questionnaire/(\d+)/assign$#'                       => ['QuestionnaireController', 'assign'],
         '#^/questionnaire/assignment/(\d+)/submit$#'            => ['QuestionnaireController', 'submitResponse'],
         '#^/change/(\d+)/update$#'                              => ['ChangeController', 'update'],
+        '#^/change/(\d+)/edit$#'                                => ['ChangeController', 'editChange'],
         '#^/change/(\d+)/add-update$#'                          => ['ChangeController', 'addUpdate'],
         '#^/change/(\d+)/cab-vote$#'                            => ['ChangeController', 'cabVote'],
         '#^/bcp/(\d+)/update$#'                                 => ['BCPController', 'update'],

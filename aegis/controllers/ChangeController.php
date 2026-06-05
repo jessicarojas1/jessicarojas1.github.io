@@ -7,6 +7,7 @@ class ChangeController {
     ];
 
     private const STATUS_TRANSITIONS = [
+        'draft'        => ['submitted'],
         'submitted'    => ['under_review'],
         'under_review' => ['approved', 'rejected'],
         'approved'     => ['implementing'],
@@ -181,22 +182,16 @@ class ChangeController {
 
         $currentStatus = $change['status'];
 
-        // Validate transition: closed is always allowed as a terminal state
+        // Admins (admin/manager role) may force any valid status directly.
+        $currentUser = Auth::user();
+        $isAdminUser = in_array($currentUser['role'] ?? '', ['admin', 'manager']);
+
+        // Validate transition: closed is always allowed as a terminal state; admins bypass strict transitions
         $allowed = self::STATUS_TRANSITIONS[$currentStatus] ?? [];
-        if ($newStatus !== 'closed' && !in_array($newStatus, $allowed, true)) {
+        if (!$isAdminUser && $newStatus !== 'closed' && !in_array($newStatus, $allowed, true)) {
             $_SESSION['change_error'] = "Transition from '{$currentStatus}' to '{$newStatus}' is not permitted.";
             header('Location: /change/' . $id);
             return;
-        }
-
-        $updateData = [
-            'status'      => $newStatus,
-            'cab_reviewer_id' => Auth::id(),
-            'updated_at'      => date('Y-m-d H:i:s'),
-        ];
-
-        if ($newStatus === 'implemented') {
-            $updateData['implemented_at'] = date('Y-m-d H:i:s');
         }
 
         Database::query(
@@ -230,6 +225,92 @@ class ChangeController {
             'to'     => $newStatus,
         ]);
 
+        header('Location: /change/' . $id);
+    }
+
+    public function editChange(string $id): void {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: /change/' . (int)$id);
+            return;
+        }
+
+        Auth::requireAuth();
+
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403);
+            return;
+        }
+
+        $id = (int)$id;
+
+        $change = Database::fetchOne(
+            "SELECT * FROM change_requests WHERE id = ?", [$id]
+        );
+
+        if (!$change) {
+            http_response_code(404);
+            return;
+        }
+
+        $u          = Auth::user();
+        $isAdmin    = in_array($u['role'], ['admin', 'manager']);
+        $isSubmitter = (int)$change['submitter_id'] === (int)$u['id'];
+
+        // Only submitter (if draft) or admin can edit
+        if (!($isAdmin || ($isSubmitter && $change['status'] === 'draft'))) {
+            http_response_code(403);
+            return;
+        }
+
+        $title              = Security::sanitizeInput($_POST['title'] ?? '');
+        $description        = Security::sanitizeInput($_POST['description'] ?? '');
+        $changeType         = Security::sanitizeInput($_POST['change_type'] ?? 'normal');
+        $riskLevel          = Security::sanitizeInput($_POST['risk_level'] ?? 'medium');
+        $implementationDate = Security::sanitizeInput($_POST['implementation_date'] ?? '');
+        $rollbackPlan       = Security::sanitizeInput($_POST['rollback_plan'] ?? '');
+        $impactAnalysis     = Security::sanitizeInput($_POST['impact_analysis'] ?? '');
+        $testingPlan        = Security::sanitizeInput($_POST['testing_plan'] ?? '');
+
+        $allowedTypes      = ['normal', 'emergency', 'standard'];
+        $allowedRiskLevels = ['low', 'medium', 'high', 'critical'];
+
+        if (!in_array($changeType, $allowedTypes, true)) {
+            $changeType = 'normal';
+        }
+        if (!in_array($riskLevel, $allowedRiskLevels, true)) {
+            $riskLevel = 'medium';
+        }
+
+        if (!$title) {
+            $_SESSION['change_error'] = 'Title is required.';
+            header('Location: /change/' . $id);
+            return;
+        }
+
+        $implementationDateDb = null;
+        if ($implementationDate) {
+            $parsed = date_create($implementationDate);
+            if ($parsed) {
+                $implementationDateDb = date_format($parsed, 'Y-m-d H:i:s');
+            }
+        }
+
+        Database::query(
+            "UPDATE change_requests
+             SET title = ?, description = ?, change_type = ?, risk_level = ?,
+                 implementation_date = ?, impact_analysis = ?, rollback_plan = ?,
+                 testing_plan = ?, updated_at = NOW()
+             WHERE id = ?",
+            [
+                $title, $description, $changeType, $riskLevel,
+                $implementationDateDb, $impactAnalysis, $rollbackPlan,
+                $testingPlan, $id,
+            ]
+        );
+
+        Auth::log('edit', 'change_requests', $id, ['title' => $title]);
+
+        $_SESSION['change_success'] = 'Change request updated successfully.';
         header('Location: /change/' . $id);
     }
 
