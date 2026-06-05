@@ -69,7 +69,7 @@ function threatScoreBg(int $score): string {
   ?>
     <a href="<?= $isActive ? '/threats' : '/threats?category=' . $cat . ($statusF ? '&status=' . Security::h($statusF) : '') ?>"
        style="text-decoration:none;">
-      <div style="background:<?= $isActive ? $cfg['color'] : '#fff' ?>;color:<?= $isActive ? '#fff' : $cfg['color'] ?>;border:2px solid <?= $cfg['color'] ?>33;border-radius:12px;padding:14px 12px;text-align:center;transition:all .15s;<?= $isActive ? 'box-shadow:0 4px 12px ' . $cfg['color'] . '33;' : '' ?>">
+      <div style="background:<?= $isActive ? $cfg['color'] : 'var(--card-bg)' ?>;color:<?= $isActive ? '#fff' : $cfg['color'] ?>;border:2px solid <?= $cfg['color'] ?>40;border-radius:12px;padding:14px 12px;text-align:center;transition:all .15s;<?= $isActive ? 'box-shadow:0 4px 12px ' . $cfg['color'] . '33;' : '' ?>">
         <i class="bi <?= $cfg['icon'] ?>" style="font-size:20px;display:block;margin-bottom:4px;"></i>
         <div style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-bottom:4px;"><?= $cfg['label'] ?></div>
         <div style="font-size:22px;font-weight:800;line-height:1;"><?= $cnt ?></div>

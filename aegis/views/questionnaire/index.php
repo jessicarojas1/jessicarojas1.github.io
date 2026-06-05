@@ -32,7 +32,7 @@ ob_start();
       <h2 class="card-title"><i class="bi bi-journal-text"></i> Questionnaire Library</h2>
       <span class="badge badge-secondary"><?= count($questionnaires) ?> total</span>
     </div>
-    <div class="card-body p0">
+    <div class="card-body p0" style="overflow-x:auto">
       <?php if (empty($questionnaires)): ?>
         <div class="empty-state">
           <i class="bi bi-journal-x" style="font-size:2.5rem;opacity:.3"></i>

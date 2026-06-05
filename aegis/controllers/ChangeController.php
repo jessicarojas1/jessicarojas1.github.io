@@ -275,4 +275,57 @@ class ChangeController {
 
         header('Location: /change/' . $id . '#updates');
     }
+
+    public function cabVote(string $id): void {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: /change/' . (int)$id);
+            return;
+        }
+
+        Auth::requirePermission('audit.write');
+
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403);
+            return;
+        }
+
+        $id    = (int)$id;
+        $vote  = Security::sanitizeInput($_POST['vote'] ?? '');
+        $notes = Security::sanitizeInput($_POST['notes'] ?? '');
+
+        if (!in_array($vote, ['approve', 'reject'], true)) {
+            header('Location: /change/' . $id);
+            return;
+        }
+
+        $change = Database::fetchOne(
+            "SELECT id, status FROM change_requests WHERE id = ?", [$id]
+        );
+
+        if (!$change) {
+            http_response_code(404);
+            return;
+        }
+
+        // Replace any prior vote by this CAB member
+        Database::query(
+            "DELETE FROM change_request_updates WHERE change_id = ? AND user_id = ? AND update_type = 'cab_vote'",
+            [$id, Auth::id()]
+        );
+
+        $content = strtoupper($vote) . ($notes ? ': ' . $notes : '');
+
+        Database::insert('change_request_updates', [
+            'change_id'   => $id,
+            'user_id'     => Auth::id(),
+            'update_type' => 'cab_vote',
+            'content'     => $content,
+            'created_at'  => date('Y-m-d H:i:s'),
+        ]);
+
+        Auth::log('cab_vote', 'change_requests', $id, ['vote' => $vote]);
+
+        $_SESSION['change_success'] = 'CAB vote recorded.';
+        header('Location: /change/' . $id . '#cab');
+    }
 }

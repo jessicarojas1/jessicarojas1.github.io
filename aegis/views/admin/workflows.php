@@ -55,26 +55,60 @@ ob_start();
       <?php
       $templates = [
         // Risks
-        ['Risk Review Reminder',            'Sends alert when risk review date is approaching',           'risk_review_due',           '#ef4444', 'Risks'],
-        ['New Risk Notification',            'Notifies admins when a critical risk is logged',             'risk_created_critical',     '#f97316', 'Risks'],
-        ['Risk Treatment Overdue',           'Escalates when a risk treatment plan passes its deadline',   'treatment_overdue',         '#dc2626', 'Risks'],
+        ['Risk Review Reminder',              'Sends alert when risk review date is approaching',                  'risk_review_due',               '#ef4444', 'Risks'],
+        ['New Risk Notification',             'Notifies admins when a critical risk is logged',                    'risk_created_critical',         '#f97316', 'Risks'],
+        ['Risk Treatment Overdue',            'Escalates when a risk treatment plan passes its deadline',          'treatment_overdue',             '#dc2626', 'Risks'],
+        ['Risk Status Changed',               'Alerts owner when a risk status transition occurs',                 'risk_status_changed',           '#9a3412', 'Risks'],
+        ['Residual Risk Threshold Exceeded',  'Alerts when residual risk score exceeds acceptable threshold',      'residual_risk_exceeded',        '#ef4444', 'Risks'],
         // Policies
-        ['Policy Expiry Alert',              'Notifies owner when policy review date is due',              'policy_review_due',         '#d97706', 'Policies'],
-        ['Policy Acknowledgment Required',   'Notifies staff when a new policy requires acknowledgment',   'policy_published',          '#059669', 'Policies'],
+        ['Policy Expiry Alert',               'Notifies owner when policy review date is due',                    'policy_review_due',             '#d97706', 'Policies'],
+        ['Policy Acknowledgment Required',    'Notifies staff when a new policy requires acknowledgment',          'policy_published',              '#059669', 'Policies'],
+        ['Policy Acknowledgment Overdue',     'Escalates when a user has not acknowledged a published policy',     'policy_attest_overdue',         '#b45309', 'Policies'],
+        ['Policy Archived',                   'Notifies owner and admin when a policy is archived',               'policy_archived',               '#6b7280', 'Policies'],
         // Audits
-        ['Audit Overdue Alert',              'Escalates when an audit passes its scheduled date',          'audit_overdue',             '#dc2626', 'Audits'],
-        ['Audit Finding Assigned',           'Notifies assignee when a new audit finding is created',      'audit_finding_created',     '#6366f1', 'Audits'],
+        ['Audit Overdue Alert',               'Escalates when an audit passes its scheduled date',                'audit_overdue',                 '#dc2626', 'Audits'],
+        ['Audit Finding Assigned',            'Notifies assignee when a new audit finding is created',            'audit_finding_created',         '#6366f1', 'Audits'],
+        ['Audit Completed',                   'Notifies stakeholders when an audit is marked complete',           'audit_completed',               '#059669', 'Audits'],
+        ['Audit Finding Overdue',             'Escalates when an audit finding remediation is past due',          'audit_finding_overdue',         '#dc2626', 'Audits'],
         // Compliance
-        ['Compliance Drop Alert',            'Alerts when compliance score drops below threshold',         'compliance_score_drop',     '#7c3aed', 'Compliance'],
-        ['Control Implementation Deadline',  'Notifies owner when a control implementation is due',        'control_due',               '#d97706', 'Compliance'],
+        ['Compliance Drop Alert',             'Alerts when compliance score drops below threshold',               'compliance_score_drop',         '#7c3aed', 'Compliance'],
+        ['Control Implementation Deadline',   'Notifies owner when a control implementation is due',             'control_due',                   '#d97706', 'Compliance'],
+        ['Control Marked Non-Compliant',      'Alerts admin when a control assessment fails',                    'control_failed',                '#dc2626', 'Compliance'],
+        ['Gap Analysis Updated',              'Notifies compliance team when a gap analysis is submitted',       'gap_analysis_submitted',        '#7c3aed', 'Compliance'],
+        // Change Management
+        ['Change Request Submitted',          'Notifies CAB members when a change request is submitted',         'change_submitted',              '#2563eb', 'Changes'],
+        ['Emergency Change Alert',            'Immediately alerts management when an emergency change is filed', 'emergency_change',              '#dc2626', 'Changes'],
+        ['Change Implementation Due',         'Reminds implementer when a change implementation date is near',  'change_due',                    '#f97316', 'Changes'],
+        ['Change Rejected',                   'Notifies submitter when a change request is rejected by CAB',    'change_rejected',               '#ef4444', 'Changes'],
         // Incidents
-        ['Incident Escalation',              'Alerts management when a critical incident is created',      'incident_created_critical', '#dc2626', 'Incidents'],
-        ['Incident Resolution Reminder',     'Notifies team when an incident is approaching its SLA',      'incident_overdue_sla',      '#f97316', 'Incidents'],
+        ['Incident Escalation',               'Alerts management when a critical incident is created',           'incident_created_critical',     '#dc2626', 'Incidents'],
+        ['Incident Resolution Reminder',      'Notifies team when an incident is approaching its SLA',           'incident_overdue_sla',          '#f97316', 'Incidents'],
+        ['Incident Closed',                   'Notifies requester and owner when an incident is resolved',       'incident_closed',               '#059669', 'Incidents'],
+        ['Incident Pattern Detected',         'Alerts when more than N incidents share the same root cause',     'incident_pattern',              '#9a3412', 'Incidents'],
+        // Issues
+        ['Critical Issue Created',            'Alerts management immediately when a critical issue is logged',   'issue_created_critical',        '#dc2626', 'Issues'],
+        ['Issue SLA Overdue',                 'Escalates when an issue is not resolved within its SLA window',  'issue_sla_overdue',             '#f97316', 'Issues'],
+        ['Issue Assigned',                    'Notifies user when an issue is assigned to them',                'issue_assigned',                '#6366f1', 'Issues'],
         // Vendors
-        ['Vendor Contract Expiry',           'Alerts owner when a vendor contract is nearing expiry',      'vendor_contract_due',       '#0284c7', 'Vendors'],
-        ['Vendor Assessment Due',            'Reminds owner when a vendor risk assessment is due',         'vendor_assessment_due',     '#0369a1', 'Vendors'],
+        ['Vendor Contract Expiry',            'Alerts owner when a vendor contract is nearing expiry',           'vendor_contract_due',           '#0284c7', 'Vendors'],
+        ['Vendor Assessment Due',             'Reminds owner when a vendor risk assessment is due',              'vendor_assessment_due',         '#0369a1', 'Vendors'],
+        ['Vendor Risk Score Changed',         'Alerts procurement when a vendor risk score increases',           'vendor_risk_changed',           '#0c4a6e', 'Vendors'],
+        ['Questionnaire Assignment Due',      'Reminds assignee when a questionnaire response is due',           'questionnaire_due',             '#7c3aed', 'Vendors'],
+        ['Questionnaire Overdue',             'Escalates when a questionnaire response is past the due date',   'questionnaire_overdue',         '#6d28d9', 'Vendors'],
+        // Assets
+        ['Asset Review Due',                  'Reminds asset owner when periodic asset review is due',           'asset_review_due',              '#0891b2', 'Assets'],
+        ['Critical Asset Registered',         'Alerts admin when a new critical-tier asset is added',            'asset_registered_critical',     '#0e7490', 'Assets'],
+        ['Asset Contract Expiry',             'Alerts owner when an asset support/license contract expires',    'asset_contract_due',            '#155e75', 'Assets'],
+        // BCP/DRP
+        ['BCP Exercise Due',                  'Reminds BCP owner when a scheduled tabletop or DR exercise is due','bcp_exercise_due',            '#be185d', 'BCP/DRP'],
+        ['BCP Annual Review Due',             'Alerts management when the annual BCP/DRP review is approaching', 'bcp_review_due',               '#9d174d', 'BCP/DRP'],
+        ['DR Test Failed',                    'Immediately alerts CISO/management when a DR test fails',         'dr_test_failed',               '#dc2626', 'BCP/DRP'],
+        // Threats
+        ['New Critical Threat',               'Alerts risk team when a critical threat is added to the register','threat_created_critical',      '#b91c1c', 'Threats'],
+        ['Threat Status Changed',             'Notifies stakeholders when a threat status changes to mitigated', 'threat_status_changed',        '#991b1b', 'Threats'],
         // Training
-        ['Training Completion Reminder',     'Reminds users when awareness training is due',               'awareness_due',             '#8b5cf6', 'Training'],
+        ['Training Completion Reminder',      'Reminds users when awareness training is due',                   'awareness_due',                 '#8b5cf6', 'Training'],
+        ['Training Completion Overdue',       'Escalates to manager when training is not completed by deadline', 'awareness_overdue',            '#7c3aed', 'Training'],
       ];
       foreach ($templates as [$name, $desc, $trigger, $color, $cat]): ?>
         <div class="workflow-template">
@@ -119,32 +153,69 @@ ob_start();
               <option value="risk_review_due">Risk Review Due</option>
               <option value="risk_status_changed">Risk Status Changed</option>
               <option value="treatment_overdue">Risk Treatment Overdue</option>
+              <option value="residual_risk_exceeded">Residual Risk Threshold Exceeded</option>
             </optgroup>
             <optgroup label="Policies">
               <option value="policy_review_due">Policy Review Due</option>
               <option value="policy_published">Policy Published</option>
+              <option value="policy_attest_overdue">Policy Acknowledgment Overdue</option>
+              <option value="policy_archived">Policy Archived</option>
             </optgroup>
             <optgroup label="Audits">
               <option value="audit_created">Audit Created</option>
               <option value="audit_overdue">Audit Overdue</option>
               <option value="audit_completed">Audit Completed</option>
               <option value="audit_finding_created">Audit Finding Created</option>
+              <option value="audit_finding_overdue">Audit Finding Overdue</option>
             </optgroup>
             <optgroup label="Compliance">
               <option value="control_status_changed">Control Status Changed</option>
               <option value="control_due">Control Implementation Due</option>
+              <option value="control_failed">Control Marked Non-Compliant</option>
               <option value="compliance_score_drop">Compliance Score Drop</option>
+              <option value="gap_analysis_submitted">Gap Analysis Submitted</option>
+            </optgroup>
+            <optgroup label="Change Management">
+              <option value="change_submitted">Change Request Submitted</option>
+              <option value="emergency_change">Emergency Change</option>
+              <option value="change_due">Change Implementation Due</option>
+              <option value="change_rejected">Change Request Rejected</option>
             </optgroup>
             <optgroup label="Incidents">
               <option value="incident_created_critical">Critical Incident Created</option>
               <option value="incident_overdue_sla">Incident SLA Overdue</option>
+              <option value="incident_closed">Incident Closed</option>
+              <option value="incident_pattern">Incident Pattern Detected</option>
             </optgroup>
-            <optgroup label="Vendors">
+            <optgroup label="Issues">
+              <option value="issue_created_critical">Critical Issue Created</option>
+              <option value="issue_sla_overdue">Issue SLA Overdue</option>
+              <option value="issue_assigned">Issue Assigned</option>
+            </optgroup>
+            <optgroup label="Vendors &amp; Questionnaires">
               <option value="vendor_contract_due">Vendor Contract Due</option>
               <option value="vendor_assessment_due">Vendor Assessment Due</option>
+              <option value="vendor_risk_changed">Vendor Risk Score Changed</option>
+              <option value="questionnaire_due">Questionnaire Assignment Due</option>
+              <option value="questionnaire_overdue">Questionnaire Overdue</option>
+            </optgroup>
+            <optgroup label="Assets">
+              <option value="asset_review_due">Asset Review Due</option>
+              <option value="asset_registered_critical">Critical Asset Registered</option>
+              <option value="asset_contract_due">Asset Contract Expiry</option>
+            </optgroup>
+            <optgroup label="BCP / DRP">
+              <option value="bcp_exercise_due">BCP Exercise Due</option>
+              <option value="bcp_review_due">BCP Annual Review Due</option>
+              <option value="dr_test_failed">DR Test Failed</option>
+            </optgroup>
+            <optgroup label="Threats">
+              <option value="threat_created_critical">Critical Threat Added</option>
+              <option value="threat_status_changed">Threat Status Changed</option>
             </optgroup>
             <optgroup label="Training">
               <option value="awareness_due">Awareness Training Due</option>
+              <option value="awareness_overdue">Training Completion Overdue</option>
             </optgroup>
           </select>
         </div>

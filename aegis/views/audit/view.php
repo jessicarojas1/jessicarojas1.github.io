@@ -30,6 +30,9 @@ ob_start();
         <button class="btn btn-success" data-confirm-click="Complete this audit?"><i class="bi bi-check-lg"></i> Complete Audit</button>
       </form>
     <?php endif; ?>
+    <?php if ($audit['audit_type'] === 'internal'): ?>
+      <a href="#report8d" class="btn btn-secondary"><i class="bi bi-clipboard2-check-fill"></i> 8D Report</a>
+    <?php endif; ?>
     <a href="/audit/<?= $audit['id'] ?>/export" class="btn btn-secondary"><i class="bi bi-file-earmark-zip"></i> Export Package</a>
     <a href="/audit" class="btn btn-ghost"><i class="bi bi-arrow-left"></i> Back</a>
   </div>
@@ -93,7 +96,7 @@ ob_start();
         </button>
       </div>
       <div class="audit-finding-panel" id="finding-<?= $item['id'] ?>" style="display:none">
-        <form class="finding-form" data-submit="saveFinding" data-args='[<?= $item['id'] ?>,<?= $audit['id'] ?>]'>
+        <form class="finding-form" data-submit="saveFinding" data-args='[<?= $item['id'] ?>,<?= $audit['id'] ?>]' enctype="multipart/form-data">
           <?= Security::csrfField() ?>
           <input type="hidden" name="status" class="finding-status-input" value="<?= Security::h($item['status']) ?>">
           <div class="form-row">
@@ -102,7 +105,7 @@ ob_start();
               <textarea name="finding" class="form-control" rows="2" placeholder="Describe the audit finding..."><?= Security::h($item['finding'] ?? '') ?></textarea>
             </div>
             <div class="form-group flex-1">
-              <label class="form-label">Evidence</label>
+              <label class="form-label">Evidence Notes</label>
               <textarea name="evidence" class="form-control" rows="2" placeholder="Evidence reviewed..."><?= Security::h($item['evidence'] ?? '') ?></textarea>
             </div>
           </div>
@@ -121,6 +124,11 @@ ob_start();
               <input type="text" name="remediation" class="form-control" placeholder="Required remediation actions..." value="<?= Security::h($item['remediation'] ?? '') ?>">
             </div>
           </div>
+          <div class="form-group">
+            <label class="form-label">Upload Evidence File</label>
+            <input type="file" name="evidence_file[]" multiple class="form-control" accept="image/*,.pdf,.doc,.docx,.xlsx,.csv,.txt,.png,.jpg,.jpeg">
+            <p style="margin:4px 0 0;font-size:12px;color:var(--text-muted)">PDF, Word, images, spreadsheets accepted.</p>
+          </div>
           <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-save"></i> Save Finding</button>
         </form>
       </div>
@@ -130,7 +138,108 @@ ob_start();
 </div>
 <?php endforeach; ?>
 
+<?php if ($audit['audit_type'] === 'internal'): ?>
+<!-- 8D Internal Audit Report -->
+<div class="card" style="margin-top:24px" id="report8d">
+  <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+    <h3 class="card-title" style="margin:0">
+      <i class="bi bi-clipboard2-check-fill" style="color:var(--primary);margin-right:6px"></i>
+      8D Internal Audit Report
+    </h3>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost btn-sm" id="btn8dClear"><i class="bi bi-arrow-counterclockwise"></i> Reset</button>
+      <button class="btn btn-secondary btn-sm" id="btn8dPrint"><i class="bi bi-printer-fill"></i> Print Report</button>
+    </div>
+  </div>
+  <div class="card-body" style="display:flex;flex-direction:column;gap:18px" id="eightDBody">
+
+    <?php
+    $eightD = [
+      ['D1', 'Team Formation',           'List all team members involved in this internal audit investigation, including lead auditor, reviewers, and subject-matter experts.', 'rows' => 3],
+      ['D2', 'Problem Description',      'Describe the audit scope, objectives, and summary of non-compliant findings identified during this audit.', 'rows' => 4],
+      ['D3', 'Containment Actions',      'Immediate short-term actions taken to contain the impact of identified non-conformities and prevent further compliance drift.', 'rows' => 3],
+      ['D4', 'Root Cause Analysis',      'Identify the root cause(s) of each non-compliant finding. Use 5-Why or Fishbone analysis as appropriate.', 'rows' => 4],
+      ['D5', 'Corrective Actions',       'Define permanent corrective actions to address each root cause. Include specific tasks, owners, and target completion dates.', 'rows' => 4],
+      ['D6', 'Implementation & Verification', 'Document the implementation of corrective actions, verification evidence, and confirmation that they are effective.', 'rows' => 3],
+      ['D7', 'Prevention Measures',      'Systemic measures to prevent recurrence across other similar processes, departments, or frameworks.', 'rows' => 3],
+      ['D8', 'Team Recognition & Closure','Summarise the outcome, acknowledge the audit team\'s effort, and formally close the 8D report.', 'rows' => 2],
+    ];
+    foreach ($eightD as $i => $d):
+    ?>
+    <div style="border:1px solid var(--border);border-radius:10px;overflow:hidden">
+      <div style="padding:10px 16px;background:var(--bg-secondary);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
+        <span style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:var(--primary);color:#fff;font-weight:800;font-size:13px;flex-shrink:0"><?= $d[0] ?></span>
+        <strong style="font-size:14px;color:var(--text)"><?= $d[1] ?></strong>
+      </div>
+      <div style="padding:12px 16px">
+        <p style="margin:0 0 8px;font-size:12px;color:var(--text-muted)"><?= $d[2] ?></p>
+        <textarea class="form-control eightd-field" id="eightd_<?= $i ?>" rows="<?= $d['rows'] ?>"
+                  placeholder="<?= $d[0] ?>: <?= $d[1] ?> — enter details here…"
+                  style="font-size:13px"></textarea>
+      </div>
+    </div>
+    <?php endforeach; ?>
+
+  </div>
+</div>
+<?php endif; ?>
+
 <script nonce="<?= Security::nonce() ?>">
+const _auditId8d = '<?= (int)$audit['id'] ?>';
+const _8dKey     = 'aegis_8d_audit_' + _auditId8d;
+
+// Persist 8D fields in localStorage
+function save8d() {
+  const vals = {};
+  document.querySelectorAll('.eightd-field').forEach(function(ta) { vals[ta.id] = ta.value; });
+  localStorage.setItem(_8dKey, JSON.stringify(vals));
+}
+function load8d() {
+  try {
+    const vals = JSON.parse(localStorage.getItem(_8dKey) || '{}');
+    document.querySelectorAll('.eightd-field').forEach(function(ta) {
+      if (vals[ta.id]) ta.value = vals[ta.id];
+    });
+  } catch(e) {}
+}
+
+// Auto-fill D2 with non-compliant findings on first open
+function autoFill8D() {
+  const d2 = document.getElementById('eightd_1');
+  if (!d2 || d2.value) return;
+  const auditName   = <?= json_encode($audit['name']) ?>;
+  const scheduled   = <?= json_encode($audit['scheduled_date'] ? date('M j, Y', strtotime($audit['scheduled_date'])) : 'Not scheduled') ?>;
+  const ncCount     = parseInt('<?= $summary['non_compliant'] ?? 0 ?>');
+  const partCount   = parseInt('<?= $summary['partial'] ?? 0 ?>');
+  const totalCount  = parseInt('<?= $summary['total'] ?? 0 ?>');
+  d2.value = 'Audit: ' + auditName + '\nScheduled: ' + scheduled +
+    '\n\nTotal items assessed: ' + totalCount +
+    '\nNon-Compliant findings: ' + ncCount +
+    '\nPartial findings: ' + partCount +
+    '\n\nSee audit items above for detailed control-level findings.';
+}
+
+load8d();
+autoFill8D();
+
+document.querySelectorAll('.eightd-field').forEach(function(ta) {
+  ta.addEventListener('input', save8d);
+});
+
+var clear8dBtn = document.getElementById('btn8dClear');
+if (clear8dBtn) clear8dBtn.addEventListener('click', function() {
+  if (!confirm('Reset all 8D fields? This cannot be undone.')) return;
+  localStorage.removeItem(_8dKey);
+  document.querySelectorAll('.eightd-field').forEach(function(ta) { ta.value = ''; });
+  autoFill8D();
+});
+
+var print8dBtn = document.getElementById('btn8dPrint');
+if (print8dBtn) print8dBtn.addEventListener('click', function() {
+  window.print();
+});
+
+// Audit item functions
 function toggleFinding(id) {
   const panel = document.getElementById('finding-' + id);
   panel.style.display = panel.style.display === 'none' ? 'block' : 'none';

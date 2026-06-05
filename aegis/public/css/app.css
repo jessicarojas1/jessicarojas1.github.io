@@ -847,11 +847,12 @@ select.form-control { cursor: pointer; }
    ============================================================ */
 .risk-kpi-grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 12px;
   margin-bottom: 20px;
 }
-@media (max-width: 900px) { .risk-kpi-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 900px) { .risk-kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 540px)  { .risk-kpi-grid { grid-template-columns: repeat(2, 1fr); } }
 
 .risk-kpi {
   background: var(--card-bg);

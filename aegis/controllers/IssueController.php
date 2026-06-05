@@ -186,7 +186,6 @@ class IssueController {
             'due_date'              => $dueDate ?: null,
             'resolution'            => $resolution ?: null,
             'recurrence_prevention' => $recurrencePrevention ?: null,
-            'updated_at'            => date('Y-m-d H:i:s'),
         ];
 
         if ($status === 'resolved') {
@@ -232,16 +231,11 @@ class IssueController {
         ]);
 
         if ($newStatus && in_array($newStatus, ['open', 'in_progress', 'pending_review', 'resolved', 'closed', 'wont_fix'])) {
-            $statusData = [
-                'status'     => $newStatus,
-                'updated_at' => date('Y-m-d H:i:s'),
-            ];
+            $statusData = ['status' => $newStatus];
             if ($newStatus === 'resolved') {
                 $statusData['resolved_at'] = date('Y-m-d H:i:s');
             }
             Database::update('issues', $statusData, 'id = ?', [$id]);
-        } else {
-            Database::update('issues', ['updated_at' => date('Y-m-d H:i:s')], 'id = ?', [$id]);
         }
 
         Auth::log('add_issue_update', 'issues', $id, ['update_type' => $updateType]);
