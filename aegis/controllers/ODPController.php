@@ -76,7 +76,11 @@ class ODPController {
 
         if (!$objectiveId || !$paramName) {
             $_SESSION['flash_error'] = 'Objective and parameter name are required.';
-            header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? '/odp'));
+            $ref = $_SERVER['HTTP_REFERER'] ?? '/odp';
+            $parsed = parse_url($ref);
+            $safePath = $parsed['path'] ?? '/odp';
+            if (!preg_match('#^/[a-zA-Z0-9/_?=&%.@-]*$#', $safePath)) $safePath = '/odp';
+            header('Location: ' . $safePath);
             return;
         }
 

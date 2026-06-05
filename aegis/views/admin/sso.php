@@ -228,7 +228,7 @@ $roles = ['admin', 'manager', 'auditor', 'analyst', 'viewer'];
 
 </div>
 
-<script>
+<script nonce="<?= Security::nonce() ?>">
 (function () {
   document.querySelectorAll('[data-copy-to]').forEach(function (btn) {
     btn.addEventListener('click', function () {
