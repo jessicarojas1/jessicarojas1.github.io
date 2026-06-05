@@ -87,10 +87,15 @@ window.showModal = function (id) {
   if (!el) return;
   el.style.display = 'flex';
   _modalOpenedAt[id] = Date.now();
+  // iOS ghost-click guard: block pointer-events on the overlay for 400ms after open.
+  // The inner .modal stays interactive so the form is immediately usable.
   el.style.pointerEvents = 'none';
   var inner = el.querySelector('.modal');
   if (inner) inner.style.pointerEvents = 'auto';
-  setTimeout(function() { el.style.pointerEvents = ''; if (inner) inner.style.pointerEvents = ''; }, 400);
+  setTimeout(function () {
+    el.style.pointerEvents = '';
+    if (inner) inner.style.pointerEvents = '';
+  }, 400);
 };
 window.closeModal = function (id) {
   var el = document.getElementById(id);
@@ -297,13 +302,11 @@ document.querySelectorAll('.perm-col-all').forEach(function (btn) {
   document.addEventListener('click', function (e) {
     var el = e.target;
 
-    // modal-overlay backdrop: clicking the overlay element itself closes it
-    // Guard: ignore clicks within 350ms of opening (iOS ghost-click prevention)
+    // modal-overlay backdrop: clicking the overlay element itself closes it.
+    // Guard against iOS ghost-click: ignore if modal opened < 350ms ago.
     if (el.classList && el.classList.contains('modal-overlay')) {
-      var oid = el.id;
-      var openedAt = _modalOpenedAt[oid] || 0;
+      var openedAt = _modalOpenedAt[el.id] || 0;
       if (Date.now() - openedAt > 350) {
-        el.classList.remove('open');
         el.style.display = 'none';
       }
       return;
