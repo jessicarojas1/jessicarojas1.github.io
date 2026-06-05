@@ -293,6 +293,9 @@ function runMigrations(PDO $pdo): void {
         '015_projects.sql',
         '016_findings_automation.sql',
         '017_dashboards_raci.sql',
+        '018_ssp_versioning.sql',
+        '019_ssp_extended.sql',
+        '020_module_identifiers.sql',
     ];
     foreach ($migrationFiles as $file) {
         $path = AEGIS_ROOT . '/database/migrations/' . $file;

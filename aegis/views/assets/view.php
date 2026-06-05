@@ -64,10 +64,15 @@ function riskScoreLevel(int $score): string {
 
 <div class="page-header">
   <div>
-    <h1 class="page-title">
-      <i class="bi <?= $typeIcons[$asset['asset_type'] ?? ''] ?? 'bi-hdd' ?>" style="margin-right:8px;"></i>
-      <?= Security::h($asset['name']) ?>
-    </h1>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px">
+      <h1 class="page-title" style="margin:0">
+        <i class="bi <?= $typeIcons[$asset['asset_type'] ?? ''] ?? 'bi-hdd' ?>" style="margin-right:8px;"></i>
+        <?= Security::h($asset['name']) ?>
+      </h1>
+      <?php if (!empty($asset['asset_code'])): ?>
+        <span class="badge" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($asset['asset_code']) ?></span>
+      <?php endif; ?>
+    </div>
     <p class="page-subtitle">
       <?= Security::h($typeLabels[$asset['asset_type'] ?? ''] ?? ucfirst($asset['asset_type'] ?? '')) ?>
       · Owner: <?= Security::h($asset['owner_name'] ?? 'Unassigned') ?>

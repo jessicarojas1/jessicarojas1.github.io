@@ -119,7 +119,6 @@ class PolicyController {
         }
 
         $title    = Security::sanitizeInput($_POST['title'] ?? '');
-        $number   = Security::sanitizeInput($_POST['policy_number'] ?? '');
         $desc     = Security::sanitizeInput($_POST['description'] ?? '');
         $content  = Security::sanitizeHtml($_POST['content'] ?? '');
         $category = Security::sanitizeInput($_POST['category'] ?? '');
@@ -132,6 +131,10 @@ class PolicyController {
             $_SESSION['policy_error'] = 'Policy title is required.';
             header('Location: /policy/create'); return;
         }
+
+        // Auto-generate policy number
+        $maxRow = Database::fetchOne("SELECT COALESCE(MAX(id), 0) AS max_id FROM policies");
+        $number = 'POL-' . str_pad((string)(((int)$maxRow['max_id']) + 1), 4, '0', STR_PAD_LEFT);
 
         if (!$reviewDate) {
             $reviewDate = match($frequency) {
@@ -165,7 +168,8 @@ class PolicyController {
             'created_by'   => Auth::id(),
         ]);
 
-        Auth::log('create_policy', 'policies', $policyId);
+        Auth::log('create_policy', 'policies', $policyId, ['policy_number' => $number]);
+        $_SESSION['flash_success'] = "Policy {$number} created successfully.";
         header('Location: /policy/' . $policyId);
     }
 

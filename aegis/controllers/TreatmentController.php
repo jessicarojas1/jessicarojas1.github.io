@@ -112,7 +112,12 @@ class TreatmentController {
             $status = 'draft';
         }
 
+        // Generate treatment plan code from next sequential ID
+        $maxRow   = Database::fetchOne("SELECT COALESCE(MAX(id), 0) AS max_id FROM treatment_plans");
+        $planCode = 'TRT-' . str_pad((string)(((int)$maxRow['max_id']) + 1), 4, '0', STR_PAD_LEFT);
+
         $planId = Database::insert('treatment_plans', [
+            'plan_code'    => $planCode,
             'risk_id'      => $riskId,
             'title'        => $title,
             'strategy'     => $strategy,
@@ -142,8 +147,8 @@ class TreatmentController {
             ]);
         }
 
-        Auth::log('treatment_plan_created', 'treatment_plans', $planId, ['risk_id' => $riskId, 'title' => $title]);
-        $_SESSION['flash_success'] = 'Treatment plan created.';
+        Auth::log('treatment_plan_created', 'treatment_plans', $planId, ['plan_code' => $planCode, 'risk_id' => $riskId, 'title' => $title]);
+        $_SESSION['flash_success'] = "Treatment plan {$planCode} created.";
         header("Location: /risk/{$riskId}");
     }
 

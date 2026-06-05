@@ -66,13 +66,17 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
 <!-- Page header -->
 <div class="page-header">
   <div>
-    <h1 class="page-title">
-      <i class="bi <?= $catCfg['icon'] ?>" style="margin-right:8px;color:<?= $catCfg['color'] ?>;"></i>
-      <?= Security::h($threat['title']) ?>
-    </h1>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px">
+      <h1 class="page-title" style="margin:0">
+        <i class="bi <?= $catCfg['icon'] ?>" style="margin-right:8px;color:<?= $catCfg['color'] ?>;"></i>
+        <?= Security::h($threat['title']) ?>
+      </h1>
+      <?php if (!empty($threat['threat_number'])): ?>
+        <span class="badge" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($threat['threat_number']) ?></span>
+      <?php endif; ?>
+    </div>
     <p class="page-subtitle">
-      Threat ID #<?= (int)$threat['id'] ?>
-      · Owner: <?= Security::h($threat['owner_name'] ?? 'Unassigned') ?>
+      Owner: <?= Security::h($threat['owner_name'] ?? 'Unassigned') ?>
     </p>
   </div>
   <div class="page-actions">

@@ -41,7 +41,12 @@ $canVote = $isAdmin && in_array($change['status'], ['submitted', 'under_review']
 ob_start(); ?>
 <div class="page-header">
   <div>
-    <h1 class="page-title"><?= Security::h($change['title']) ?></h1>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px">
+      <h1 class="page-title" style="margin:0"><?= Security::h($change['title']) ?></h1>
+      <?php if (!empty($change['change_number'])): ?>
+        <span class="badge" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($change['change_number']) ?></span>
+      <?php endif; ?>
+    </div>
     <p class="page-subtitle">
       <span class="badge" style="background:<?= $typeColors[$change['change_type']] ?>20;color:<?= $typeColors[$change['change_type']] ?>">
         <?= Security::h(ucfirst($change['change_type'])) ?>

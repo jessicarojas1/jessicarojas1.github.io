@@ -118,7 +118,12 @@ class AssetController {
         if (!in_array($criticality, $validCriticalities, true)) $criticality    = 'medium';
         if (!in_array($status, $validStatuses, true))           $status         = 'active';
 
+        // Generate asset code from next sequential ID
+        $maxRow    = Database::fetchOne("SELECT COALESCE(MAX(id), 0) AS max_id FROM assets");
+        $assetCode = 'AST-' . str_pad((string)(((int)$maxRow['max_id']) + 1), 4, '0', STR_PAD_LEFT);
+
         $id = Database::insert('assets', [
+            'asset_code'     => $assetCode,
             'name'           => $name,
             'asset_type'     => $assetType,
             'criticality'    => $criticality,
@@ -136,7 +141,8 @@ class AssetController {
             'created_by'     => Auth::id(),
         ]);
 
-        Auth::log('create_asset', 'assets', $id);
+        Auth::log('create_asset', 'assets', $id, ['asset_code' => $assetCode]);
+        $_SESSION['flash_success'] = "Asset {$assetCode} created successfully.";
         header('Location: /assets/' . $id);
     }
 

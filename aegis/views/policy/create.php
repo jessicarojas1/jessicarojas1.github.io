@@ -26,10 +26,13 @@ ob_start();
           <label class="form-label required">Policy Title</label>
           <input type="text" name="title" class="form-control" placeholder="e.g. Information Security Policy" value="<?= Security::h($policy['title'] ?? '') ?>" required>
         </div>
+        <?php if (!empty($policy['policy_number'])): ?>
         <div class="form-group">
           <label class="form-label">Policy Number</label>
-          <input type="text" name="policy_number" class="form-control" placeholder="e.g. IS-POL-001" value="<?= Security::h($policy['policy_number'] ?? '') ?>">
+          <div class="form-control" style="background:var(--bg-secondary);color:var(--text-muted);cursor:default"><?= Security::h($policy['policy_number']) ?></div>
+          <p class="form-hint">System-assigned. Not editable.</p>
         </div>
+        <?php endif; ?>
       </div>
 
       <div class="form-row">

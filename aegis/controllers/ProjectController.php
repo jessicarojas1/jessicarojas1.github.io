@@ -78,8 +78,7 @@ class ProjectController {
         }
 
         $maxRow = Database::fetchOne("SELECT COALESCE(MAX(id), 0) AS max_id FROM grc_projects");
-        $nextId = ((int)$maxRow['max_id']) + 1;
-        $projectCode = 'PROJ-' . str_pad((string)$nextId, 4, '0', STR_PAD_LEFT);
+        $projectCode = 'PRJ-' . str_pad((string)(((int)$maxRow['max_id']) + 1), 4, '0', STR_PAD_LEFT);
 
         $id = Database::insert('grc_projects', [
             'project_code'   => $projectCode,

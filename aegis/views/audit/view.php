@@ -10,7 +10,12 @@ ob_start();
 
 <div class="page-header">
   <div>
-    <h1 class="page-title"><?= Security::h($audit['name']) ?></h1>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px">
+      <h1 class="page-title" style="margin:0"><?= Security::h($audit['name']) ?></h1>
+      <?php if (!empty($audit['audit_number'])): ?>
+        <span class="badge" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($audit['audit_number']) ?></span>
+      <?php endif; ?>
+    </div>
     <p class="page-subtitle">
       <?= Security::h($audit['package_name'] ?? 'No package') ?> ·
       <?= ucfirst(str_replace('_',' ',$audit['audit_type'])) ?> ·

@@ -109,9 +109,9 @@ class VendorController {
         if (!in_array($status, $validStatuses, true))      { $status   = 'active'; }
         if ($category && !in_array($category, $validCategories, true)) { $category = 'Other'; }
 
-        // Generate vendor code: VEN-001 style
-        $nextId     = (int)(Database::fetchOne("SELECT COALESCE(MAX(id), 0) + 1 AS next_id FROM vendors")['next_id']);
-        $vendorCode = 'VEN-' . str_pad((string)$nextId, 3, '0', STR_PAD_LEFT);
+        // Generate vendor code: VND-0001 style
+        $maxRow     = Database::fetchOne("SELECT COALESCE(MAX(id), 0) AS max_id FROM vendors");
+        $vendorCode = 'VND-' . str_pad((string)(((int)$maxRow['max_id']) + 1), 4, '0', STR_PAD_LEFT);
 
         $vendorId = Database::insert('vendors', [
             'vendor_code'     => $vendorCode,

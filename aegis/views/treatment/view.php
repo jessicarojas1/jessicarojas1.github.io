@@ -44,7 +44,12 @@ if ($plan['target_date']) {
 <!-- Page header -->
 <div class="page-header">
   <div>
-    <h1 class="page-title" style="margin-bottom:8px"><?= Security::h($plan['title']) ?></h1>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+      <h1 class="page-title" style="margin:0"><?= Security::h($plan['title']) ?></h1>
+      <?php if (!empty($plan['plan_code'])): ?>
+        <span class="badge" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($plan['plan_code']) ?></span>
+      <?php endif; ?>
+    </div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       <span class="status-chip" style="background:<?= $sc['bg'] ?>;color:<?= $sc['color'] ?>;border:1px solid <?= $sc['border'] ?>">
         <i class="bi bi-shield-half"></i> <?= $sc['label'] ?>

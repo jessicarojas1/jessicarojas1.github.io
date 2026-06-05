@@ -64,20 +64,25 @@ class ThreatController {
         $impact     = (int)($_POST['impact'] ?? 3);
         $likelihood = max(1, min(5, $likelihood));
         $impact     = max(1, min(5, $impact));
+        // Generate threat number from next sequential ID
+        $maxRow       = Database::fetchOne("SELECT COALESCE(MAX(id), 0) AS max_id FROM threats");
+        $threatNumber = 'THR-' . str_pad((string)(((int)$maxRow['max_id']) + 1), 4, '0', STR_PAD_LEFT);
+
         $id = Database::insert('threats', [
-            'title'       => $title,
-            'category'    => $category,
-            'description' => Security::sanitizeInput($_POST['description'] ?? ''),
-            'likelihood'  => $likelihood,
-            'impact'      => $impact,
-            'status'      => 'active',
-            'source'      => Security::sanitizeInput($_POST['source'] ?? ''),
-            'mitigations' => Security::sanitizeInput($_POST['mitigations'] ?? ''),
-            'owner_id'    => (int)($_POST['owner_id'] ?? 0) ?: null,
-            'created_by'  => Auth::id(),
+            'threat_number' => $threatNumber,
+            'title'         => $title,
+            'category'      => $category,
+            'description'   => Security::sanitizeInput($_POST['description'] ?? ''),
+            'likelihood'    => $likelihood,
+            'impact'        => $impact,
+            'status'        => 'active',
+            'source'        => Security::sanitizeInput($_POST['source'] ?? ''),
+            'mitigations'   => Security::sanitizeInput($_POST['mitigations'] ?? ''),
+            'owner_id'      => (int)($_POST['owner_id'] ?? 0) ?: null,
+            'created_by'    => Auth::id(),
         ]);
-        Auth::log('threat_created', 'threats', $id, ['title' => $title]);
-        $_SESSION['flash_success'] = 'Threat added to register.';
+        Auth::log('threat_created', 'threats', $id, ['threat_number' => $threatNumber, 'title' => $title]);
+        $_SESSION['flash_success'] = "Threat {$threatNumber} added to register.";
         header("Location: /threats/{$id}");
     }
 

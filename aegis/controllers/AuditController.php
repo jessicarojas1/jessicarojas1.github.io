@@ -56,7 +56,12 @@ class AuditController {
             header('Location: /audit/create'); return;
         }
 
+        // Generate audit number from next sequential ID
+        $maxRow = Database::fetchOne("SELECT COALESCE(MAX(id), 0) AS max_id FROM audits");
+        $auditNumber = 'AUD-' . str_pad((string)(((int)$maxRow['max_id']) + 1), 4, '0', STR_PAD_LEFT);
+
         $auditId = Database::insert('audits', [
+            'audit_number'   => $auditNumber,
             'name'           => $name,
             'description'    => $description,
             'package_id'     => $packageId,
@@ -96,7 +101,8 @@ class AuditController {
             }
         }
 
-        Auth::log('create_audit', 'audits', $auditId);
+        Auth::log('create_audit', 'audits', $auditId, ['audit_number' => $auditNumber]);
+        $_SESSION['flash_success'] = "Audit {$auditNumber} created successfully.";
         header('Location: /audit/' . $auditId);
     }
 

@@ -95,7 +95,12 @@ class ChangeController {
             return;
         }
 
+        // Generate change number from next sequential ID
+        $maxRow = Database::fetchOne("SELECT COALESCE(MAX(id), 0) AS max_id FROM change_requests");
+        $changeNumber = 'CHG-' . str_pad((string)(((int)$maxRow['max_id']) + 1), 4, '0', STR_PAD_LEFT);
+
         $id = Database::insert('change_requests', [
+            'change_number'       => $changeNumber,
             'title'               => $title,
             'description'         => $description,
             'change_type'         => $changeType,
@@ -109,8 +114,9 @@ class ChangeController {
             'created_at'          => date('Y-m-d H:i:s'),
         ]);
 
-        Auth::log('create', 'change_requests', $id, ['title' => $title, 'change_type' => $changeType]);
+        Auth::log('create', 'change_requests', $id, ['change_number' => $changeNumber, 'title' => $title, 'change_type' => $changeType]);
 
+        $_SESSION['change_success'] = "Change request {$changeNumber} created successfully.";
         header('Location: /change/' . $id);
     }
 

@@ -13,10 +13,13 @@ ob_start();
   <div>
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
       <h1 class="page-title" style="margin:0"><?= Security::h($vendor['name']) ?></h1>
+      <?php if (!empty($vendor['vendor_code'])): ?>
+        <span class="badge" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($vendor['vendor_code']) ?></span>
+      <?php endif; ?>
       <span class="status-chip" style="background:<?= $tierColor ?>20;color:<?= $tierColor ?>;border:1px solid <?= $tierColor ?>40;"><?= ucfirst(Security::h($vendor['risk_tier'])) ?> Risk</span>
       <span class="status-chip" style="background:<?= $stColor ?>20;color:<?= $stColor ?>;border:1px solid <?= $stColor ?>40;"><?= ucfirst(str_replace('_',' ',Security::h($vendor['status']))) ?></span>
     </div>
-    <p class="page-subtitle"><?= Security::h($vendor['vendor_code']) ?><?= $vendor['category'] ? ' · ' . Security::h($vendor['category']) : '' ?><?= $vendor['country'] ? ' · ' . Security::h($vendor['country']) : '' ?></p>
+    <p class="page-subtitle"><?= $vendor['category'] ? Security::h($vendor['category']) : '' ?><?= $vendor['country'] ? ' · ' . Security::h($vendor['country']) : '' ?></p>
   </div>
   <div class="page-actions">
     <?php if (Auth::can('vendor.write')): ?>

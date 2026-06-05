@@ -39,7 +39,12 @@ class BCPController {
         $nextTestDate = !empty($_POST['next_test_date']) ? Security::sanitizeInput($_POST['next_test_date']) : null;
         if (!$title) { header('Location: /bcp/create?error=missing'); return; }
 
+        // Generate BCP plan code from next sequential ID
+        $maxRow   = Database::fetchOne("SELECT COALESCE(MAX(id), 0) AS max_id FROM bcp_plans");
+        $planCode = 'BCP-' . str_pad((string)(((int)$maxRow['max_id']) + 1), 4, '0', STR_PAD_LEFT);
+
         $planId = Database::insert('bcp_plans', [
+            'plan_code'      => $planCode,
             'title'          => $title,
             'description'    => $description,
             'version'        => $version,
@@ -63,7 +68,8 @@ class BCPController {
                 'sort_order'   => (int)($section['sort_order'] ?? 0),
             ]);
         }
-        Auth::log('create_bcp', 'bcp_plans', $planId, ['title' => $title]);
+        Auth::log('create_bcp', 'bcp_plans', $planId, ['plan_code' => $planCode, 'title' => $title]);
+        $_SESSION['flash_success'] = "BCP Plan {$planCode} created successfully.";
         header("Location: /bcp/{$planId}");
     }
 
