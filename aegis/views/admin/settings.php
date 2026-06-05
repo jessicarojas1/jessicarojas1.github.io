@@ -109,7 +109,7 @@ ob_start();
         <form method="post" action="/admin/settings/remove-logo" style="margin-top:12px;">
           <input type="hidden" name="csrf_token" value="<?= Security::generateCsrfToken() ?>">
           <button type="submit" class="btn btn-danger btn-sm"
-                  onclick="return confirm('Remove the current company logo?')">
+                  data-confirm-click="Remove the current company logo?">
             <i class="bi bi-trash"></i> Remove Logo
           </button>
         </form>

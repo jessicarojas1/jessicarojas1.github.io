@@ -141,7 +141,7 @@ $_filterCount = count(array_filter([
     <?php if (!empty($_GET['category'])): ?>
       <?php $__cat = array_values(array_filter($categories, fn($c)=>$c['id']==$_GET['category']))[0] ?? null; ?>
       <?php if ($__cat): ?>
-      <span class="filter-chip"><?= Security::h($__cat['name']) ?> <button class="filter-chip-remove" onclick="window.location='/risk?'+new URLSearchParams({...Object.fromEntries(new URLSearchParams(location.search)),...{category:''}}).toString().replace('category=&','').replace(/&?category=$/,'')">×</button></span>
+      <span class="filter-chip"><?= Security::h($__cat['name']) ?> <a href="<?= Security::h(preg_replace('/[?&]category=[^&]*/','', $_SERVER['REQUEST_URI'])) ?>" class="filter-chip-remove">×</a></span>
       <?php endif; ?>
     <?php endif; ?>
     <?php if (!empty($_GET['status'])): ?>
