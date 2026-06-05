@@ -59,10 +59,10 @@ $notes = [
   <?php unset($_SESSION['flash_error']); ?>
 <?php endif; ?>
 
-<div style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap">
+<div style="display:grid;grid-template-columns:460px 1fr;gap:24px;align-items:start">
 
 <!-- Import form -->
-<div style="flex:0 0 460px;min-width:320px">
+<div>
   <div class="card">
     <div class="card-body">
       <form method="POST" action="/import/upload" enctype="multipart/form-data">
@@ -128,7 +128,7 @@ $notes = [
 </div>
 
 <!-- Per-entity field reference -->
-<div style="flex:1;min-width:280px">
+<div>
   <div id="dynamicNotes" style="display:none">
     <!-- filled by JS when a type is selected -->
   </div>

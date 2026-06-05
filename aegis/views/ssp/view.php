@@ -20,7 +20,7 @@ $impactBadge = fn($v) => match($v) { 'high' => 'badge-danger', 'low' => 'badge-s
     <p class="page-subtitle">System Security Plan · <span class="badge <?= $statusClass ?>"><?= $statusLabel ?></span></p>
   </div>
   <div style="display:flex;gap:10px;">
-    <a href="/ssp/<?= (int)$plan['id'] ?>/generate" target="_blank" class="btn btn-primary"><i class="bi bi-file-earmark-text"></i> Generate Document</a>
+    <button class="btn btn-primary" data-show-modal="sspExportModal"><i class="bi bi-file-earmark-text"></i> Export Document</button>
     <button id="btnOpenEditSsp" class="btn btn-secondary"><i class="bi bi-pencil"></i> Edit</button>
     <form method="POST" action="/ssp/<?= (int)$plan['id'] ?>/delete" data-confirm="Delete this SSP permanently?" style="margin:0">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
@@ -149,9 +149,26 @@ $impactBadge = fn($v) => match($v) { 'high' => 'badge-danger', 'low' => 'badge-s
 
     <!-- Dates -->
     <div class="card">
-      <div class="card-header"><h3 class="card-title">Key Dates</h3></div>
+      <div class="card-header"><h3 class="card-title">Key Dates &amp; Version</h3></div>
       <div class="card-body" style="display:flex;flex-direction:column;gap:12px;">
+        <?php if (!empty($plan['version'])): ?>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="flex:1">
+            <div style="font-size:0.75rem;color:var(--text-muted);">Version / Revision</div>
+            <div style="font-weight:600">v<?= Security::h($plan['version']) ?> · Rev <?= (int)($plan['revision'] ?? 0) ?></div>
+          </div>
+        </div>
+        <?php endif; ?>
         <div><div style="font-size:0.75rem;color:var(--text-muted);">Authorization Date</div><div><?= $plan['authorization_date'] ? date('M j, Y', strtotime($plan['authorization_date'])) : '—' ?></div></div>
+        <?php if (!empty($plan['authorizing_signature'])): ?>
+        <div>
+          <div style="font-size:0.75rem;color:var(--text-muted);">Authorized By</div>
+          <div><?= Security::h($plan['authorizing_signature']) ?></div>
+          <?php if (!empty($plan['signature_date'])): ?>
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px"><?= date('M j, Y', strtotime($plan['signature_date'])) ?></div>
+          <?php endif; ?>
+        </div>
+        <?php endif; ?>
         <div><div style="font-size:0.75rem;color:var(--text-muted);">Next Review</div>
           <?php if ($plan['next_review_date']): ?>
             <?php $daysLeft = (int)((strtotime($plan['next_review_date']) - time()) / 86400); ?>
@@ -170,11 +187,11 @@ $impactBadge = fn($v) => match($v) { 'high' => 'badge-danger', 'low' => 'badge-s
     <div class="card" style="background:var(--primary);color:#fff;border-color:var(--primary);">
       <div class="card-body" style="text-align:center;padding:24px;">
         <i class="bi bi-file-earmark-text-fill" style="font-size:2.5rem;margin-bottom:12px;display:block;"></i>
-        <h4 style="margin:0 0 8px;color:#fff;">Generate SSP Document</h4>
-        <p style="margin:0 0 16px;font-size:0.875rem;opacity:0.85;">Produces a printable document with all control statements and implementation details.</p>
-        <a href="/ssp/<?= (int)$plan['id'] ?>/generate" target="_blank" class="btn" style="background:#fff;color:var(--primary);font-weight:600;">
-          <i class="bi bi-printer"></i> Open Document
-        </a>
+        <h4 style="margin:0 0 8px;color:#fff;">Export SSP Document</h4>
+        <p style="margin:0 0 16px;font-size:0.875rem;opacity:0.85;">Generate a printable document with all control statements and implementation details.</p>
+        <button class="btn" style="background:#fff;color:var(--primary);font-weight:600;" data-show-modal="sspExportModal">
+          <i class="bi bi-file-earmark-arrow-down"></i> Choose Format
+        </button>
       </div>
     </div>
 
@@ -319,6 +336,22 @@ $impactBadge = fn($v) => match($v) { 'high' => 'badge-danger', 'low' => 'badge-s
           <label class="form-label">Next Review Date</label>
           <input type="date" name="next_review_date" class="form-control" value="<?= Security::h($plan['next_review_date'] ?? '') ?>">
         </div>
+        <div class="form-group">
+          <label class="form-label">Version</label>
+          <input type="text" name="version" class="form-control" value="<?= Security::h($plan['version'] ?? '1.0') ?>" placeholder="1.0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Revision Number</label>
+          <input type="number" name="revision" class="form-control" value="<?= (int)($plan['revision'] ?? 0) ?>" min="0" placeholder="0">
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label class="form-label">Authorizing Signature (Name)</label>
+          <input type="text" name="authorizing_signature" class="form-control" value="<?= Security::h($plan['authorizing_signature'] ?? '') ?>" placeholder="Full name of authorizing official">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Signature Date</label>
+          <input type="date" name="signature_date" class="form-control" value="<?= Security::h($plan['signature_date'] ?? '') ?>">
+        </div>
       </div>
       <div style="display:flex;gap:10px;margin-top:20px;">
         <button type="submit" class="btn btn-primary">Save Changes</button>
@@ -355,6 +388,34 @@ $impactBadge = fn($v) => match($v) { 'high' => 'badge-danger', 'low' => 'badge-s
   </div>
 </div>
 <?php endif; ?>
+
+<!-- SSP Export Format Modal -->
+<div id="sspExportModal" class="modal-overlay" style="display:none">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-header">
+      <h3 class="modal-title"><i class="bi bi-file-earmark-arrow-down"></i> Export SSP Document</h3>
+      <button class="btn-icon" data-close-modal="sspExportModal"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:12px">
+      <p style="margin:0;color:var(--text-muted);font-size:13px">Choose a format for the System Security Plan document.</p>
+      <a href="/ssp/<?= (int)$plan['id'] ?>/generate" target="_blank" class="btn btn-primary btn-full" style="justify-content:flex-start;gap:12px;padding:14px 16px">
+        <i class="bi bi-file-earmark-text-fill" style="font-size:20px;flex-shrink:0"></i>
+        <div style="text-align:left">
+          <div style="font-weight:600">HTML Document</div>
+          <div style="font-size:11px;opacity:.8;font-weight:400">Opens in browser · Use Print → Save as PDF</div>
+        </div>
+      </a>
+      <div style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;padding:12px 14px">
+        <div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:4px"><i class="bi bi-info-circle"></i> Saving as PDF</div>
+        <div style="font-size:12px;color:var(--text-muted)">After the document opens, press <kbd style="background:var(--card-bg);border:1px solid var(--border);border-radius:4px;padding:1px 5px">Ctrl+P</kbd> (or <kbd style="background:var(--card-bg);border:1px solid var(--border);border-radius:4px;padding:1px 5px">⌘P</kbd> on Mac) and select <em>Save as PDF</em> from the print dialog.</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-close-modal="sspExportModal">Close</button>
+    </div>
+  </div>
+</div>
+
 <script nonce="<?= Security::nonce() ?>">
 (function() {
   var editModal = document.getElementById('editModal');
