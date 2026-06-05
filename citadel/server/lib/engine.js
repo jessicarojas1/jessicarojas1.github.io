@@ -130,6 +130,7 @@ async function analyzeDir(dir, scannerResult, onStage) {
     binaries: base.binaries,
     quality: base.quality,
     deployment: base.deployment,
+    licenses: base.licenses,
     scoring,
     posture
   };

@@ -27,20 +27,34 @@
     .map(f => `<span class="hero-chip" title="${f.desc.replace(/"/g, '')}">${f.name}</span>`).join('');
 
   /* ---------- Deep-scan mode (only if backend is present) ---------- */
-  let deepMode = false, deepAvailable = false;
+  let deepMode = false, deepAvailable = false, aiAvailable = false;
   (async function initDeep() {
     const st = await CITADEL.api.available();
     if (!st) return;
     deepAvailable = true;
+    aiAvailable = !!st.ai;
+    CITADEL.report.setAi(aiAvailable);
     $('deep-mode-row').classList.remove('d-none');
+    $('url-scan-row').classList.remove('d-none');
     const on = (st.scanners || []).filter(s => s.available).map(s => s.tool);
-    $('deep-mode-tools').innerHTML = on.length
+    $('deep-mode-tools').innerHTML = (on.length
       ? 'Real scanners online: ' + on.map(t => '<span class="badge bg-secondary">' + t + '</span>').join(' ')
-      : 'Backend detected, but no scanners are installed — deep scan will fall back to heuristics.';
+      : 'Backend detected, but no scanners are installed — deep scan will fall back to heuristics.')
+      + (aiAvailable ? ' <span class="badge" style="background:#10b981">AI remediation on</span>' : '');
     const tg = $('deep-mode-toggle');
     deepMode = tg.checked;
     tg.addEventListener('change', () => { deepMode = tg.checked; });
   })();
+
+  $('scan-url-btn').addEventListener('click', async () => {
+    const url = $('repo-url').value.trim();
+    if (!url) return;
+    try {
+      let p = 20; showProgress(p, 'Cloning & scanning repository…', url);
+      const report = await CITADEL.api.scanUrl(url, (s) => { p = Math.min(90, p + 20); showProgress(p, s, ''); });
+      finishScan(report, 'deep');
+    } catch (err) { showProgress(100, 'Repo scan failed: ' + (err.message || err), ''); }
+  });
 
   /* ---------- Intake ---------- */
   const dz = $('dropzone');
@@ -106,14 +120,39 @@
       let p = 15;
       showProgress(p, 'Deep scan — uploading…', files.length + ' item(s)');
       const report = await CITADEL.api.scan(files, (stage) => { p = Math.min(90, p + 18); showProgress(p, stage, ''); });
-      showProgress(100, 'Done (deep scan).', report.findings.length + ' finding(s)');
-      CITADEL.report.render(report);
-      $('results').classList.remove('d-none');
-      hideProgress();
-      $('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      finishScan(report, 'deep');
     } catch (err) {
       showProgress(100, 'Deep scan failed: ' + (err.message || err), '');
       console.error(err);
+    }
+  }
+
+  // Shared finish: render, record history, reveal, then enrich quick scans with live CVEs.
+  function finishScan(report, mode) {
+    showProgress(100, mode === 'deep' ? 'Done (deep scan).' : 'Done.', report.findings.length + ' finding(s)');
+    CITADEL.report.render(report);
+    try { CITADEL.history.record(report); } catch (e) {}
+    $('results').classList.remove('d-none');
+    hideProgress();
+    $('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (mode !== 'deep' && report.sbom && report.sbom.components.length) enrichOsv(report);
+  }
+
+  // Quick mode: query OSV.dev for real CVEs, merge, re-score, re-render.
+  async function enrichOsv(report) {
+    try {
+      const res = await CITADEL.osv.enrich(report.sbom.components);
+      if (!res.findings.length) {
+        const s = $('osv-status'); if (s) s.innerHTML = '<i class="bi bi-check-circle text-success"></i> No known vulnerabilities for the ' + res.queried + ' pinned dependenc(ies) checked via OSV.dev.';
+        return;
+      }
+      report.findings = report.findings.concat(res.findings);
+      report.scoring = CITADEL.scanner.score(report.findings, report.quality);
+      report.posture = CITADEL.frameworks.posture(report.findings);
+      CITADEL.report.render(report);
+      try { CITADEL.history.record(report, 'Scan + OSV ' + new Date().toLocaleString()); } catch (e) {}
+    } catch (e) {
+      const s = $('osv-status'); if (s) s.innerHTML = '<i class="bi bi-exclamation-circle"></i> OSV.dev lookup unavailable (offline?).';
     }
   }
 
@@ -144,11 +183,7 @@
       p = Math.min(96, p + 7);
       showProgress(p, stage, '');
     });
-    showProgress(100, 'Done.', report.findings.length + ' finding(s)');
-    CITADEL.report.render(report);
-    $('results').classList.remove('d-none');
-    hideProgress();
-    $('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    finishScan(report, 'quick');
   }
 
   function shorten(s) { return s.length > 48 ? '…' + s.slice(-46) : s; }
@@ -162,8 +197,39 @@
       document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('d-none'));
       const panel = $(tab.dataset.tab);
       if (panel) panel.classList.remove('d-none');
+      if (tab.dataset.tab === 'tab-history') CITADEL.report.renderHistory('tab-history');
       return;
     }
+
+    // Suppress / un-suppress a finding
+    const supBtn = e.target.closest('[data-suppress]');
+    if (supBtn) {
+      const f = CITADEL.report.shownFinding(+supBtn.dataset.suppress);
+      if (f) { CITADEL.suppress.isSuppressed(f) ? CITADEL.suppress.unsuppress(f) : CITADEL.suppress.suppress(f); CITADEL.report.renderFindings(CITADEL.report.current); }
+      return;
+    }
+    if (e.target.closest('#toggle-suppressed')) { CITADEL.report.toggleSuppressedView(); return; }
+
+    // AI explain
+    const aiBtn = e.target.closest('[data-explain]');
+    if (aiBtn) {
+      const i = +aiBtn.dataset.explain;
+      const f = CITADEL.report.shownFinding(i);
+      const box = $('finding-ai-' + i);
+      if (!f || !box) return;
+      box.classList.remove('d-none');
+      box.innerHTML = '<i class="bi bi-hourglass-split"></i> Asking Claude…';
+      aiBtn.disabled = true;
+      CITADEL.api.explain(f).then(out => {
+        box.innerHTML = '<div class="ai-answer"><div class="small text-body-secondary mb-1"><i class="bi bi-stars"></i> ' + out.model + '</div>' + mdLite(out.text) + '</div>';
+      }).catch(err => { box.innerHTML = '<span class="text-danger">' + (err.message || err) + '</span>'; })
+        .finally(() => { aiBtn.disabled = false; });
+      return;
+    }
+
+    // History compare / clear
+    if (e.target.closest('#hist-compare')) { CITADEL.report.renderCompare($('hist-a').value, $('hist-b').value); return; }
+    if (e.target.closest('#hist-clear')) { CITADEL.history.clear(); CITADEL.report.renderHistory('tab-history'); return; }
 
     // Finding expand/collapse
     const head = e.target.closest('[data-finding-toggle]');
@@ -188,7 +254,20 @@
     // Exports
     if (e.target.closest('#exp-json')) return CITADEL.report.exportJson();
     if (e.target.closest('#exp-sbom') || e.target.closest('#dl-sbom')) return CITADEL.report.exportSbom();
+    if (e.target.closest('#exp-sarif')) return CITADEL.report.exportSarif();
+    if (e.target.closest('#exp-poam')) return CITADEL.report.exportPoam();
+    if (e.target.closest('#exp-ssp')) return CITADEL.report.exportSsp();
     if (e.target.closest('#exp-md')) return CITADEL.report.exportMarkdown();
     if (e.target.closest('#exp-pdf')) return CITADEL.report.exportPdf();
   });
+
+  // Minimal, safe Markdown → HTML for AI answers (escape first, then format).
+  function mdLite(s) {
+    let h = String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    h = h.replace(/```([\s\S]*?)```/g, (m, code) => '<pre class="finding-snippet">' + code.trim() + '</pre>');
+    h = h.replace(/`([^`]+)`/g, '<code>$1</code>');
+    h = h.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    h = h.replace(/\n{2,}/g, '</p><p>').replace(/\n/g, '<br>');
+    return '<p>' + h + '</p>';
+  }
 })(window);

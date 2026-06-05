@@ -96,6 +96,15 @@ body { background: var(--bs-body-bg); }
 .finding-controls { margin-top:.6rem; display:flex; flex-wrap:wrap; gap:.3rem; align-items:center; }
 .ctrl-chip { font-size:.66rem; padding:.15rem .45rem; border-radius:5px; background: var(--bs-tertiary-bg); border:1px solid var(--bs-border-color); color: var(--bs-secondary-color); }
 
+.finding-actions { display:flex; flex-wrap:wrap; gap:.4rem; margin-top:.7rem; }
+.finding-suppressed { opacity:.6; }
+.finding-ai { margin-top:.7rem; }
+.ai-answer { background: color-mix(in srgb, #10b981 8%, transparent); border-left:3px solid #10b981; border-radius:0 8px 8px 0; padding:.6rem .8rem; font-size:.86rem; }
+.ai-answer pre { font-size:.78rem; }
+.alert-cve { background: color-mix(in srgb, var(--danger, #dc3545) 12%, transparent); border:1px solid color-mix(in srgb, var(--danger, #dc3545) 35%, transparent); color: var(--bs-body-color); border-radius:10px; padding:.7rem .9rem; font-size:.9rem; }
+.grade-pill { color:#fff; font-weight:700; }
+.grade-pill.grade-a{background:#16a34a}.grade-pill.grade-b{background:#65a30d}.grade-pill.grade-c{background:#ca8a04}.grade-pill.grade-d{background:#ea580c}.grade-pill.grade-e{background:#dc2626}.grade-pill.grade-f{background:#991b1b}
+
 /* ---------- Compliance ---------- */
 .compliance-card { border-top:4px solid var(--bs-border-color); }
 .compliance-card.status-fail { border-top-color:#dc3545; }
