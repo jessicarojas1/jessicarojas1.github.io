@@ -62,7 +62,8 @@ class Webhook {
         $formatted = self::formatPayload($provider, $eventType, $rawPayload);
         $body      = json_encode($formatted, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
-        $targetUrl = $endpoint['url'];
+        $targetUrl    = $endpoint['url'];
+        $resolveEntry = null; // populated below for CURLOPT_RESOLVE to pin the IP (DNS rebinding prevention)
 
         // SSRF prevention: resolve hostname and reject private/reserved IP ranges
         // (PagerDuty is overridden to a fixed known URL below, so check after that override)
@@ -74,6 +75,9 @@ class Webhook {
                 error_log('[AEGIS] Webhook SSRF blocked: ' . $targetUrl);
                 return false;
             }
+            // Pin cURL to the already-validated IP so a second DNS lookup can't rebind to a private range
+            $port         = parse_url($targetUrl, PHP_URL_SCHEME) === 'https' ? 443 : 80;
+            $resolveEntry = ["{$host}:{$port}:{$resolved}"];
         }
 
         // For PagerDuty: routing_key may come from a custom_headers JSON or url query param
@@ -123,7 +127,7 @@ class Webhook {
 
         // Execute via cURL
         $ch = curl_init();
-        curl_setopt_array($ch, [
+        $curlOpts = [
             CURLOPT_URL            => $targetUrl,
             CURLOPT_POST           => true,
             CURLOPT_POSTFIELDS     => $body,
@@ -134,7 +138,11 @@ class Webhook {
             CURLOPT_FOLLOWLOCATION => false,
             CURLOPT_SSL_VERIFYPEER => true,
             CURLOPT_SSL_VERIFYHOST => 2,
-        ]);
+        ];
+        if ($resolveEntry !== null) {
+            $curlOpts[CURLOPT_RESOLVE] = $resolveEntry;
+        }
+        curl_setopt_array($ch, $curlOpts);
 
         $responseBody = (string) curl_exec($ch);
         $responseCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);

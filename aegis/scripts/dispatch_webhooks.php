@@ -47,7 +47,7 @@ $deliveries = Database::fetchAll(
       WHERE status = 'pending'
         AND next_retry_at <= NOW()
       ORDER BY next_retry_at ASC
-      LIMIT " . BATCH_SIZE
+      LIMIT " . (int) BATCH_SIZE
 );
 
 $totalDelivered = 0;

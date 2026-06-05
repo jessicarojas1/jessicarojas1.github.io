@@ -176,18 +176,23 @@ class AuthController {
     public function mfaSetupForm(): void {
         Auth::requireAuth();
         require_once AEGIS_ROOT . '/src/TOTP.php';
-        $user        = Auth::user();
-        $dbUser      = Database::fetchOne("SELECT mfa_enabled, mfa_secret FROM users WHERE id = ?", [Auth::id()]);
+        $user         = Auth::user();
+        $dbUser       = Database::fetchOne("SELECT mfa_enabled, mfa_secret FROM users WHERE id = ?", [Auth::id()]);
         $isMfaEnabled = !empty($dbUser['mfa_enabled']);
 
         if ($isMfaEnabled && !empty($dbUser['mfa_secret'])) {
+            // Already verified — show existing secret (used for displaying current status)
             $secret = $dbUser['mfa_secret'];
+            unset($_SESSION['mfa_pending_secret']);
         } else {
-            $secret = TOTP::generateSecret();
-            Database::query("UPDATE users SET mfa_secret = ? WHERE id = ?", [$secret, Auth::id()]);
+            // Keep same pending secret across page refreshes; never write to DB until verified
+            if (empty($_SESSION['mfa_pending_secret'])) {
+                $_SESSION['mfa_pending_secret'] = TOTP::generateSecret();
+            }
+            $secret = $_SESSION['mfa_pending_secret'];
         }
 
-        $qrUri       = TOTP::getUri($secret, $user['email']);
+        $qrUri        = TOTP::getUri($secret, $user['email']);
         $pageTitle    = 'Two-Factor Authentication';
         $activeModule = 'profile';
         $breadcrumbs  = [['Two-Factor Authentication', null]];
@@ -201,15 +206,17 @@ class AuthController {
         }
 
         require_once AEGIS_ROOT . '/src/TOTP.php';
-        $dbUser = Database::fetchOne("SELECT mfa_secret FROM users WHERE id = ?", [Auth::id()]);
         $code   = preg_replace('/\s/', '', $_POST['code'] ?? '');
+        $secret = $_SESSION['mfa_pending_secret'] ?? null;
 
-        if (!$dbUser['mfa_secret'] || !TOTP::verify($dbUser['mfa_secret'], $code)) {
+        if (!$secret || !TOTP::verify($secret, $code)) {
             $_SESSION['flash_error'] = 'Invalid code. Please try again.';
             header('Location: /mfa/setup'); exit;
         }
 
-        Database::query("UPDATE users SET mfa_enabled = TRUE WHERE id = ?", [Auth::id()]);
+        // Only write the secret to the DB after successful verification
+        Database::query("UPDATE users SET mfa_secret = ?, mfa_enabled = TRUE WHERE id = ?", [$secret, Auth::id()]);
+        unset($_SESSION['mfa_pending_secret']);
         Auth::log('enable_mfa', 'users', Auth::id());
         $_SESSION['flash_success'] = 'Two-factor authentication enabled successfully.';
         header('Location: /mfa/setup'); exit;
