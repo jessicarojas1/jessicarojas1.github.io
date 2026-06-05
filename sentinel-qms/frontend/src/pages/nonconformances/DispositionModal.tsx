@@ -12,8 +12,7 @@ const DISPOSITIONS: { value: DispositionType; label: string }[] = [
   { value: 'rework', label: 'Rework' },
   { value: 'repair', label: 'Repair' },
   { value: 'scrap', label: 'Scrap' },
-  { value: 'return_to_supplier', label: 'Return to Supplier' },
-  { value: 'regrade', label: 'Regrade' },
+  { value: 'return', label: 'Return to Supplier' },
 ];
 
 export function DispositionModal({
@@ -26,17 +25,17 @@ export function DispositionModal({
   onClose: () => void;
 }) {
   const { notify } = useToast();
-  const disposition = ncrHooks.useAction('disposition');
+  const disposition = ncrHooks.useAction('dispositions');
   const [type, setType] = useState<DispositionType>('use_as_is');
   const [justification, setJustification] = useState('');
-  const [mrbRequired, setMrbRequired] = useState(true);
+  const [customerApprovalRequired, setCustomerApprovalRequired] = useState(false);
   const [sigOpen, setSigOpen] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
   const reset = () => {
     setType('use_as_is');
     setJustification('');
-    setMrbRequired(true);
+    setCustomerApprovalRequired(false);
     setFormError(null);
   };
 
@@ -54,10 +53,10 @@ export function DispositionModal({
       await disposition.mutateAsync({
         id: ncrId,
         payload: {
-          type,
+          disposition_type: type,
           justification: justification.trim(),
-          mrb_required: mrbRequired,
-          signature: { meaning: sig.meaning, reason: sig.reason },
+          customer_approval_required: customerApprovalRequired,
+          signature: { meaning: sig.meaning, reason: sig.reason, password: sig.password },
         },
       });
       notify('Disposition recorded and signed', 'success');
@@ -119,10 +118,10 @@ export function DispositionModal({
         <label className="row text-sm" style={{ gap: 8, cursor: 'pointer' }}>
           <input
             type="checkbox"
-            checked={mrbRequired}
-            onChange={(e) => setMrbRequired(e.target.checked)}
+            checked={customerApprovalRequired}
+            onChange={(e) => setCustomerApprovalRequired(e.target.checked)}
           />
-          Material Review Board (MRB) review required
+          Customer approval required
         </label>
       </Modal>
 

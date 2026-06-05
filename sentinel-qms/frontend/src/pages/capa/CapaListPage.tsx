@@ -24,10 +24,9 @@ export default function CapaListPage() {
       render: (r) => <span className="mono">{r.capa_number}</span>,
     },
     { key: 'title', header: 'Title', sortable: true, render: (r) => <strong>{r.title}</strong> },
-    { key: 'type', header: 'Type', render: (r) => <StatusBadge status={r.type} noDot /> },
-    { key: 'priority', header: 'Priority', sortable: true, render: (r) => <StatusBadge status={r.priority} /> },
+    { key: 'capa_type', header: 'Type', render: (r) => <StatusBadge status={r.capa_type} noDot /> },
     { key: 'status', header: 'Status', sortable: true, render: (r) => <StatusBadge status={r.status} /> },
-    { key: 'owner', header: 'Owner' },
+    { key: 'owner_id', header: 'Owner', render: (r) => r.owner_id ?? '—' },
     {
       key: 'due_date',
       header: 'Due',
@@ -74,7 +73,7 @@ export default function CapaListPage() {
                 onChange={(e) => ctl.setFilter('status', e.target.value)}
               >
                 <option value="">All statuses</option>
-                {['open', 'investigation', 'action_planned', 'implementation', 'verification', 'closed'].map((s) => (
+                {['open', 'containment', 'root_cause', 'action_plan', 'implementation', 'verification', 'closed', 'cancelled'].map((s) => (
                   <option key={s} value={s}>
                     {s.replace(/_/g, ' ')}
                   </option>

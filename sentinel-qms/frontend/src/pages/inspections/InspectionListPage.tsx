@@ -12,18 +12,15 @@ import type { Inspection } from '@/types';
 
 export default function InspectionListPage() {
   const navigate = useNavigate();
-  const ctl = useListController({ sort: 'performed_at', order: 'desc' });
+  const ctl = useListController({ sort: 'inspection_date', order: 'desc' });
   const { data, isLoading, error } = inspectionHooks.useList(ctl.params);
 
   const columns: Column<Inspection>[] = [
-    { key: 'fai_number', header: 'FAI #', sortable: true, width: '130px', render: (r) => <span className="mono">{r.fai_number}</span> },
-    { key: 'part_number', header: 'Part #', sortable: true, render: (r) => <span className="mono">{r.part_number}</span> },
-    { key: 'part_name', header: 'Part Name', render: (r) => r.part_name ?? '—' },
-    { key: 'revision', header: 'Rev', align: 'center', render: (r) => r.revision ?? '—' },
-    { key: 'type', header: 'Type', render: (r) => humanize(r.type) },
+    { key: 'inspection_number', header: 'Inspection #', sortable: true, width: '150px', render: (r) => <span className="mono">{r.inspection_number}</span> },
+    { key: 'part_number', header: 'Part #', sortable: true, render: (r) => <span className="mono">{r.part_number ?? '—'}</span> },
+    { key: 'inspection_type', header: 'Type', render: (r) => humanize(r.inspection_type) },
     { key: 'result', header: 'Result', sortable: true, render: (r) => <StatusBadge status={r.result} /> },
-    { key: 'inspector', header: 'Inspector' },
-    { key: 'performed_at', header: 'Date', sortable: true, render: (r) => formatDate(r.performed_at) },
+    { key: 'inspection_date', header: 'Date', sortable: true, render: (r) => formatDate(r.inspection_date) },
   ];
 
   return (
@@ -56,15 +53,15 @@ export default function InspectionListPage() {
             <div className="field">
               <Select aria-label="Filter by result" value={ctl.filters.result ?? ''} onChange={(e) => ctl.setFilter('result', e.target.value)}>
                 <option value="">All results</option>
-                {['pass', 'fail', 'conditional', 'pending'].map((s) => (
-                  <option key={s} value={s}>{s}</option>
+                {['pending', 'accept', 'reject', 'accept_with_deviation'].map((s) => (
+                  <option key={s} value={s}>{humanize(s)}</option>
                 ))}
               </Select>
             </div>
             <div className="field">
-              <Select aria-label="Filter by type" value={ctl.filters.type ?? ''} onChange={(e) => ctl.setFilter('type', e.target.value)}>
+              <Select aria-label="Filter by type" value={ctl.filters.inspection_type ?? ''} onChange={(e) => ctl.setFilter('inspection_type', e.target.value)}>
                 <option value="">All types</option>
-                {['fai', 'in_process', 'final', 'receiving'].map((s) => (
+                {['receiving', 'in_process', 'final', 'first_article', 'source'].map((s) => (
                   <option key={s} value={s}>{humanize(s)}</option>
                 ))}
               </Select>

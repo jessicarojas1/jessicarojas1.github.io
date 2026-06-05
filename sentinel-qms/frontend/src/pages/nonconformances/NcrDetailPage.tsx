@@ -15,7 +15,6 @@ import {
   DataList,
   DetailState,
 } from '@/components/detail';
-import { SignatureSummary } from '@/components/SignatureModal';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { DispositionModal } from './DispositionModal';
 
@@ -24,16 +23,17 @@ export default function NcrDetailPage() {
   const { user } = useAuth();
   const { notify } = useToast();
   const { data: ncr, isLoading, error } = ncrHooks.useDetail(id);
-  const close = ncrHooks.useAction('close');
+  const changeStatus = ncrHooks.useAction('status');
   const [dispOpen, setDispOpen] = useState(false);
   const [closeOpen, setCloseOpen] = useState(false);
 
   const canDisposition = can(user?.roles, 'ncr.disposition');
+  const disposition = ncr?.dispositions?.[ncr.dispositions.length - 1];
 
   const handleClose = async () => {
     if (!id) return;
     try {
-      await close.mutateAsync({ id });
+      await changeStatus.mutateAsync({ id, payload: { status: 'closed' } });
       notify('NCR closed', 'success');
       setCloseOpen(false);
     } catch (err) {
@@ -65,12 +65,12 @@ export default function NcrDetailPage() {
             actions={
               canDisposition && (
                 <>
-                  {!ncr.disposition && ncr.status !== 'closed' && (
+                  {!disposition && ncr.status !== 'closed' && (
                     <button type="button" className="btn btn-primary" onClick={() => setDispOpen(true)}>
                       <Gavel size={16} /> Disposition
                     </button>
                   )}
-                  {ncr.disposition && ncr.status !== 'closed' && (
+                  {disposition && ncr.status !== 'closed' && (
                     <button type="button" className="btn" onClick={() => setCloseOpen(true)}>
                       <CheckCircle2 size={16} /> Close NCR
                     </button>
@@ -93,13 +93,12 @@ export default function NcrDetailPage() {
                     items={[
                       { label: 'Source', value: humanize(ncr.source) },
                       { label: 'Part Number', value: ncr.part_number ?? '—' },
-                      { label: 'Lot / Serial', value: ncr.lot_number ?? '—' },
+                      { label: 'Lot Number', value: ncr.lot_number ?? '—' },
+                      { label: 'Serial Number', value: ncr.serial_number ?? '—' },
                       { label: 'Qty Affected', value: ncr.quantity_affected ?? '—' },
-                      { label: 'Supplier', value: ncr.supplier_name ?? '—' },
-                      { label: 'Detected By', value: ncr.detected_by },
+                      { label: 'Work Order', value: ncr.work_order ?? '—' },
                       { label: 'Detected', value: formatDateTime(ncr.detected_at) },
                       { label: 'Assigned To', value: ncr.assigned_to ?? 'Unassigned' },
-                      { label: 'Due Date', value: formatDate(ncr.due_date) },
                     ]}
                   />
                 </div>
@@ -110,23 +109,21 @@ export default function NcrDetailPage() {
                   <div className="card__title">Disposition</div>
                 </div>
                 <div className="card__body">
-                  {ncr.disposition ? (
+                  {disposition ? (
                     <div className="stack">
                       <DataList
                         items={[
-                          { label: 'Disposition', value: <StatusBadge status={ncr.disposition.type} noDot /> },
-                          { label: 'MRB Required', value: ncr.disposition.mrb_required ? 'Yes' : 'No' },
-                          { label: 'By', value: ncr.disposition.dispositioned_by },
-                          { label: 'Date', value: formatDateTime(ncr.disposition.dispositioned_at) },
+                          { label: 'Disposition', value: <StatusBadge status={disposition.disposition_type} noDot /> },
+                          { label: 'Customer Approval Required', value: disposition.customer_approval_required ? 'Yes' : 'No' },
+                          { label: 'Customer Approved', value: disposition.customer_approved ? 'Yes' : 'No' },
+                          { label: 'MRB Members', value: disposition.mrb_members ?? '—' },
+                          { label: 'Date', value: formatDateTime(disposition.created_at) },
                         ]}
                       />
                       <div>
                         <div className="section-title">Justification</div>
-                        <p style={{ margin: 0 }}>{ncr.disposition.justification}</p>
+                        <p style={{ margin: 0 }}>{disposition.justification}</p>
                       </div>
-                      {ncr.disposition.signature && (
-                        <SignatureSummary signature={ncr.disposition.signature} />
-                      )}
                     </div>
                   ) : (
                     <div className="empty-state-sm">
@@ -147,8 +144,8 @@ export default function NcrDetailPage() {
                     items={[
                       {
                         label: 'CAPA',
-                        value: ncr.linked_capa_id ? (
-                          <a href={`/capa/${ncr.linked_capa_id}`}>View linked CAPA</a>
+                        value: ncr.capa_id ? (
+                          <a href={`/capa/${ncr.capa_id}`}>View linked CAPA</a>
                         ) : (
                           'None'
                         ),
@@ -170,7 +167,7 @@ export default function NcrDetailPage() {
             title="Close NCR"
             message="Confirm that all disposition actions are complete and this nonconformance can be closed."
             confirmLabel="Close NCR"
-            loading={close.isPending}
+            loading={changeStatus.isPending}
             onConfirm={handleClose}
             onCancel={() => setCloseOpen(false)}
           />

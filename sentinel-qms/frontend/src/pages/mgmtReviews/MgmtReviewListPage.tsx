@@ -12,17 +12,15 @@ import type { MgmtReview } from '@/types';
 
 export default function MgmtReviewListPage() {
   const navigate = useNavigate();
-  const ctl = useListController({ sort: 'scheduled_date', order: 'desc' });
+  const ctl = useListController({ sort: 'meeting_date', order: 'desc' });
   const { data, isLoading, error } = mgmtReviewHooks.useList(ctl.params);
 
   const columns: Column<MgmtReview>[] = [
     { key: 'review_number', header: 'Review #', sortable: true, width: '130px', render: (r) => <span className="mono">{r.review_number}</span> },
     { key: 'title', header: 'Title', sortable: true, render: (r) => <strong>{r.title}</strong> },
-    { key: 'chair', header: 'Chair' },
     { key: 'status', header: 'Status', sortable: true, render: (r) => <StatusBadge status={r.status} /> },
-    { key: 'scheduled_date', header: 'Scheduled', sortable: true, render: (r) => formatDate(r.scheduled_date) },
-    { key: 'held_date', header: 'Held', render: (r) => formatDate(r.held_date) },
-    { key: 'actions', header: 'Actions', align: 'right', render: (r) => r.actions?.length ?? 0 },
+    { key: 'meeting_date', header: 'Meeting Date', sortable: true, render: (r) => formatDate(r.meeting_date) },
+    { key: 'created_at', header: 'Created', sortable: true, render: (r) => formatDate(r.created_at) },
   ];
 
   return (
@@ -54,7 +52,7 @@ export default function MgmtReviewListPage() {
           <div className="field">
             <Select aria-label="Filter by status" value={ctl.filters.status ?? ''} onChange={(e) => ctl.setFilter('status', e.target.value)}>
               <option value="">All statuses</option>
-              {['scheduled', 'in_progress', 'completed'].map((s) => (
+              {['scheduled', 'in_progress', 'completed', 'closed'].map((s) => (
                 <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
               ))}
             </Select>

@@ -6,7 +6,7 @@ import { useListController } from '@/hooks/useListController';
 import { useAuth } from '@/lib/auth';
 import { can } from '@/lib/rbac';
 import { getErrorMessage } from '@/lib/api';
-import { formatDate, isOverdue } from '@/lib/format';
+import { formatDate } from '@/lib/format';
 import { PageHeader } from '@/components/PageHeader';
 import { DataTable, type Column } from '@/components/DataTable';
 import { StatusBadge } from '@/components/StatusBadge';
@@ -17,10 +17,9 @@ import type { Nonconformance } from '@/types';
 const STATUS_OPTIONS = [
   'open',
   'under_review',
-  'disposition_pending',
   'dispositioned',
   'closed',
-  'cancelled',
+  'void',
 ];
 const SEVERITY_OPTIONS = ['minor', 'major', 'critical'];
 
@@ -57,16 +56,12 @@ export default function NcrListPage() {
       header: 'Part #',
       render: (r) => <span className="mono text-sm">{r.part_number ?? '—'}</span>,
     },
-    { key: 'supplier_name', header: 'Supplier', render: (r) => r.supplier_name ?? '—' },
+    { key: 'supplier_id', header: 'Supplier', render: (r) => r.supplier_id ?? '—' },
     {
-      key: 'due_date',
-      header: 'Due',
+      key: 'created_at',
+      header: 'Created',
       sortable: true,
-      render: (r) => (
-        <span style={isOverdue(r.due_date) && r.status !== 'closed' ? { color: 'var(--danger)', fontWeight: 600 } : undefined}>
-          {formatDate(r.due_date)}
-        </span>
-      ),
+      render: (r) => formatDate(r.created_at),
     },
   ];
 

@@ -6,15 +6,21 @@ import { formatDate } from '@/lib/format';
 import { PageHeader } from '@/components/PageHeader';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
+import type { ReviewInput } from '@/types';
 
-function BulletCard({ title, items }: { title: string; items?: string[] }) {
+function InputsCard({ title, items }: { title: string; items?: ReviewInput[] }) {
   return (
     <div className="card">
       <div className="card__header"><div className="card__title">{title}</div></div>
       <div className="card__body">
         {items?.length ? (
           <ul style={{ margin: 0, paddingLeft: 18 }}>
-            {items.map((it, i) => <li key={i} style={{ marginBottom: 6 }}>{it}</li>)}
+            {items.map((it) => (
+              <li key={it.id} style={{ marginBottom: 6 }}>
+                <strong>{it.category}:</strong> {it.content}
+                {it.metric_value ? ` (${it.metric_value})` : ''}
+              </li>
+            ))}
           </ul>
         ) : (
           <div className="empty-state-sm">None recorded.</div>
@@ -50,8 +56,7 @@ export default function MgmtReviewDetailPage() {
 
           <div className="detail-grid">
             <div className="stack">
-              <BulletCard title="Review Inputs" items={mr.inputs} />
-              <BulletCard title="Review Outputs" items={mr.outputs} />
+              <InputsCard title="Review Inputs" items={mr.inputs} />
               <div className="card">
                 <div className="card__header"><div className="card__title">Action Items</div></div>
                 <div className="table-wrap">
@@ -60,11 +65,11 @@ export default function MgmtReviewDetailPage() {
                       <tr><th>Action</th><th>Owner</th><th>Due</th><th>Status</th></tr>
                     </thead>
                     <tbody>
-                      {mr.actions?.length ? (
-                        mr.actions.map((a) => (
+                      {mr.action_items?.length ? (
+                        mr.action_items.map((a) => (
                           <tr key={a.id}>
                             <td>{a.description}</td>
-                            <td>{a.owner}</td>
+                            <td>{a.owner_id ?? '—'}</td>
                             <td>{formatDate(a.due_date)}</td>
                             <td><StatusBadge status={a.status} /></td>
                           </tr>
@@ -84,9 +89,8 @@ export default function MgmtReviewDetailPage() {
                 <div className="card__body">
                   <DataList
                     items={[
-                      { label: 'Chair', value: mr.chair },
-                      { label: 'Scheduled', value: formatDate(mr.scheduled_date) },
-                      { label: 'Held', value: formatDate(mr.held_date) },
+                      { label: 'Chairperson', value: mr.chairperson_id ?? '—' },
+                      { label: 'Meeting Date', value: formatDate(mr.meeting_date) },
                     ]}
                   />
                 </div>
@@ -94,8 +98,8 @@ export default function MgmtReviewDetailPage() {
               <div className="card">
                 <div className="card__header"><div className="card__title">Attendees</div></div>
                 <div className="card__body">
-                  {mr.attendees?.length ? (
-                    <div className="tag-list">{mr.attendees.map((a) => <span key={a} className="pill">{a}</span>)}</div>
+                  {mr.attendees ? (
+                    <p style={{ margin: 0 }}>{mr.attendees}</p>
                   ) : (
                     <div className="empty-state-sm">No attendees recorded.</div>
                   )}

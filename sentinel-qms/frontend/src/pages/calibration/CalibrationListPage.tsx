@@ -22,17 +22,15 @@ function DueCell({ value }: { value?: string }) {
 
 export default function CalibrationListPage() {
   const navigate = useNavigate();
-  const ctl = useListController({ sort: 'next_due', order: 'asc' });
+  const ctl = useListController({ sort: 'next_due_date', order: 'asc' });
   const { data, isLoading, error } = calibrationHooks.useList(ctl.params);
 
   const columns: Column<Equipment>[] = [
     { key: 'asset_tag', header: 'Asset Tag', sortable: true, width: '120px', render: (r) => <span className="mono">{r.asset_tag}</span> },
     { key: 'name', header: 'Equipment', sortable: true, render: (r) => <strong>{r.name}</strong> },
-    { key: 'manufacturer', header: 'Mfr / Model', render: (r) => [r.manufacturer, r.model].filter(Boolean).join(' ') || '—' },
     { key: 'location', header: 'Location', render: (r) => r.location ?? '—' },
     { key: 'status', header: 'Status', sortable: true, render: (r) => <StatusBadge status={r.status} /> },
-    { key: 'last_calibrated', header: 'Last Cal', sortable: true, render: (r) => formatDate(r.last_calibrated) },
-    { key: 'next_due', header: 'Next Due', sortable: true, render: (r) => <DueCell value={r.next_due} /> },
+    { key: 'next_due_date', header: 'Next Due', sortable: true, render: (r) => <DueCell value={r.next_due_date} /> },
   ];
 
   return (
@@ -69,7 +67,7 @@ export default function CalibrationListPage() {
                 onChange={(e) => ctl.setFilter('status', e.target.value)}
               >
                 <option value="">All statuses</option>
-                {['in_tolerance', 'out_of_tolerance', 'limited_use', 'out_of_service'].map((s) => (
+                {['active', 'out_of_service', 'lost', 'retired'].map((s) => (
                   <option key={s} value={s}>
                     {s.replace(/_/g, ' ')}
                   </option>

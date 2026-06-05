@@ -23,12 +23,9 @@ export default function RiskListPage() {
     { key: 'risk_number', header: 'Risk #', sortable: true, width: '110px', render: (r) => <span className="mono">{r.risk_number}</span> },
     { key: 'title', header: 'Title', sortable: true, render: (r) => <strong>{r.title}</strong> },
     { key: 'category', header: 'Category' },
-    { key: 'severity', header: 'Sev', align: 'right', sortable: true },
-    { key: 'occurrence', header: 'Occ', align: 'right', sortable: true },
-    { key: 'detection', header: 'Det', align: 'right', sortable: true },
     { key: 'rpn', header: 'RPN', align: 'right', sortable: true, render: (r) => <RpnBadge rpn={r.rpn} /> },
+    { key: 'residual_rpn', header: 'Residual RPN', align: 'right', sortable: true, render: (r) => r.residual_rpn ?? '—' },
     { key: 'status', header: 'Status', sortable: true, render: (r) => <StatusBadge status={r.status} /> },
-    { key: 'owner', header: 'Owner' },
   ];
 
   return (
@@ -71,7 +68,7 @@ export default function RiskListPage() {
             <div className="field">
               <Select aria-label="Filter by status" value={ctl.filters.status ?? ''} onChange={(e) => ctl.setFilter('status', e.target.value)}>
                 <option value="">All statuses</option>
-                {['identified', 'assessed', 'mitigating', 'accepted', 'closed'].map((s) => (
+                {['identified', 'assessed', 'treatment_planned', 'mitigating', 'monitoring', 'closed'].map((s) => (
                   <option key={s} value={s}>{s}</option>
                 ))}
               </Select>

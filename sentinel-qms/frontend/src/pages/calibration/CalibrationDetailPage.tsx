@@ -48,16 +48,16 @@ export default function CalibrationDetailPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {eq.history?.length ? (
-                      eq.history.map((h) => (
+                    {eq.records?.length ? (
+                      eq.records.map((h) => (
                         <tr key={h.id}>
-                          <td>{formatDate(h.performed_at)}</td>
+                          <td>{formatDate(h.calibration_date)}</td>
                           <td>
                             <StatusBadge status={h.result} />
                           </td>
                           <td className="mono text-sm">{h.certificate_number ?? '—'}</td>
-                          <td>{h.performed_by}</td>
-                          <td>{formatDate(h.next_due)}</td>
+                          <td>{h.performed_by ?? '—'}</td>
+                          <td>{formatDate(h.due_date)}</td>
                         </tr>
                       ))
                     ) : (
@@ -83,10 +83,10 @@ export default function CalibrationDetailPage() {
                     { label: 'Model', value: eq.model ?? '—' },
                     { label: 'Serial #', value: eq.serial_number ?? '—' },
                     { label: 'Location', value: eq.location ?? '—' },
-                    { label: 'Custodian', value: eq.custodian ?? '—' },
+                    { label: 'Custodian', value: eq.custodian_id ?? '—' },
                     { label: 'Interval', value: `${eq.calibration_interval_days} days` },
-                    { label: 'Last Calibrated', value: formatDate(eq.last_calibrated) },
-                    { label: 'Next Due', value: formatDate(eq.next_due) },
+                    { label: 'Last Calibrated', value: formatDate(eq.last_calibration_date) },
+                    { label: 'Next Due', value: formatDate(eq.next_due_date) },
                   ]}
                 />
               </div>

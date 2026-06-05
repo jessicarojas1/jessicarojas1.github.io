@@ -12,18 +12,16 @@ import type { ControlledDocument } from '@/types';
 
 export default function DocumentListPage() {
   const navigate = useNavigate();
-  const ctl = useListController({ sort: 'doc_number', order: 'asc' });
+  const ctl = useListController({ sort: 'document_number', order: 'asc' });
   const { data, isLoading, error } = documentHooks.useList(ctl.params);
 
   const columns: Column<ControlledDocument>[] = [
-    { key: 'doc_number', header: 'Doc #', sortable: true, width: '130px', render: (r) => <span className="mono">{r.doc_number}</span> },
+    { key: 'document_number', header: 'Doc #', sortable: true, width: '130px', render: (r) => <span className="mono">{r.document_number}</span> },
     { key: 'title', header: 'Title', sortable: true, render: (r) => <strong>{r.title}</strong> },
     { key: 'doc_type', header: 'Type', render: (r) => r.doc_type },
-    { key: 'current_revision', header: 'Rev', align: 'center', render: (r) => <span className="mono">{r.current_revision}</span> },
+    { key: 'current_revision', header: 'Rev', align: 'center', render: (r) => <span className="mono">{r.current_revision ?? '—'}</span> },
     { key: 'status', header: 'Status', sortable: true, render: (r) => <StatusBadge status={r.status} /> },
-    { key: 'owner', header: 'Owner' },
     { key: 'effective_date', header: 'Effective', sortable: true, render: (r) => formatDate(r.effective_date) },
-    { key: 'next_review_date', header: 'Next Review', sortable: true, render: (r) => formatDate(r.next_review_date) },
   ];
 
   return (
@@ -59,7 +57,7 @@ export default function DocumentListPage() {
               onChange={(e) => ctl.setFilter('status', e.target.value)}
             >
               <option value="">All statuses</option>
-              {['draft', 'in_review', 'approved', 'released', 'obsolete'].map((s) => (
+              {['draft', 'in_review', 'approved', 'effective', 'obsolete'].map((s) => (
                 <option key={s} value={s}>
                   {s.replace(/_/g, ' ')}
                 </option>

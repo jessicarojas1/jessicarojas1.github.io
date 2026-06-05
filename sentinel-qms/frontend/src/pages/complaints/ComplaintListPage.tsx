@@ -12,17 +12,17 @@ import type { Complaint } from '@/types';
 
 export default function ComplaintListPage() {
   const navigate = useNavigate();
-  const ctl = useListController({ sort: 'received_at', order: 'desc' });
+  const ctl = useListController({ sort: 'created_at', order: 'desc' });
   const { data, isLoading, error } = complaintHooks.useList(ctl.params);
 
   const columns: Column<Complaint>[] = [
     { key: 'complaint_number', header: 'Complaint #', sortable: true, width: '140px', render: (r) => <span className="mono">{r.complaint_number}</span> },
-    { key: 'customer', header: 'Customer', sortable: true, render: (r) => <strong>{r.customer}</strong> },
-    { key: 'product', header: 'Product', render: (r) => r.product ?? '—' },
+    { key: 'customer_name', header: 'Customer', sortable: true, render: (r) => <strong>{r.customer_name}</strong> },
+    { key: 'title', header: 'Title', render: (r) => r.title },
     { key: 'severity', header: 'Severity', render: (r) => <StatusBadge status={r.severity} /> },
     { key: 'status', header: 'Status', sortable: true, render: (r) => <StatusBadge status={r.status} /> },
-    { key: 'rma_number', header: 'RMA #', render: (r) => r.rma_number ? <span className="mono">{r.rma_number}</span> : '—' },
-    { key: 'received_at', header: 'Received', sortable: true, render: (r) => formatDate(r.received_at) },
+    { key: 'is_rma', header: 'RMA', align: 'center', render: (r) => (r.is_rma ? 'Yes' : '—') },
+    { key: 'created_at', header: 'Received', sortable: true, render: (r) => formatDate(r.created_at) },
   ];
 
   return (
@@ -54,7 +54,7 @@ export default function ComplaintListPage() {
           <div className="field">
             <Select aria-label="Filter by status" value={ctl.filters.status ?? ''} onChange={(e) => ctl.setFilter('status', e.target.value)}>
               <option value="">All statuses</option>
-              {['received', 'investigating', 'rma_issued', 'resolved', 'closed'].map((s) => (
+              {['received', 'under_investigation', 'awaiting_customer', 'resolved', 'closed'].map((s) => (
                 <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
               ))}
             </Select>

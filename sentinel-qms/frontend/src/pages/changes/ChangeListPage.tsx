@@ -18,11 +18,11 @@ export default function ChangeListPage() {
   const columns: Column<ChangeRequest>[] = [
     { key: 'change_number', header: 'Change #', sortable: true, width: '130px', render: (r) => <span className="mono">{r.change_number}</span> },
     { key: 'title', header: 'Title', sortable: true, render: (r) => <strong>{r.title}</strong> },
-    { key: 'type', header: 'Type', render: (r) => <span className="pill">{r.type.toUpperCase()}</span> },
+    { key: 'change_type', header: 'Type', render: (r) => <span className="pill">{r.change_type.toUpperCase()}</span> },
     { key: 'priority', header: 'Priority', render: (r) => <StatusBadge status={r.priority} /> },
     { key: 'status', header: 'Status', sortable: true, render: (r) => <StatusBadge status={r.status} /> },
-    { key: 'originator', header: 'Originator' },
-    { key: 'submitted_at', header: 'Submitted', sortable: true, render: (r) => formatDate(r.submitted_at) },
+    { key: 'target_date', header: 'Target', sortable: true, render: (r) => formatDate(r.target_date) },
+    { key: 'created_at', header: 'Created', sortable: true, render: (r) => formatDate(r.created_at) },
   ];
 
   return (
@@ -55,7 +55,7 @@ export default function ChangeListPage() {
             <div className="field">
               <Select aria-label="Filter by status" value={ctl.filters.status ?? ''} onChange={(e) => ctl.setFilter('status', e.target.value)}>
                 <option value="">All statuses</option>
-                {['draft', 'submitted', 'in_review', 'approved', 'implemented', 'rejected'].map((s) => (
+                {['draft', 'submitted', 'under_review', 'approved', 'rejected', 'implemented', 'closed'].map((s) => (
                   <option key={s} value={s}>{humanize(s)}</option>
                 ))}
               </Select>

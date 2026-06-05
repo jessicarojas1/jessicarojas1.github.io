@@ -10,7 +10,7 @@ import { useToast } from '@/lib/toast';
 import { PageHeader } from '@/components/PageHeader';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
-import { SignatureModal, SignatureSummary, type SignaturePayload } from '@/components/SignatureModal';
+import { SignatureModal, type SignaturePayload } from '@/components/SignatureModal';
 
 export default function ChangeDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -21,12 +21,18 @@ export default function ChangeDetailPage() {
   const [sigOpen, setSigOpen] = useState(false);
 
   const canApprove = can(user?.roles, 'changes.approve');
-  const pending = chg?.status === 'submitted' || chg?.status === 'in_review';
+  const pending = chg?.status === 'submitted' || chg?.status === 'under_review';
 
   const handleSign = async (sig: SignaturePayload) => {
     if (!id) return;
     try {
-      await approve.mutateAsync({ id, payload: { signature: { meaning: sig.meaning, reason: sig.reason } } });
+      await approve.mutateAsync({
+        id,
+        payload: {
+          decision: 'approved',
+          signature: { meaning: sig.meaning, reason: sig.reason, password: sig.password },
+        },
+      });
       notify('Change approved', 'success');
       setSigOpen(false);
     } catch (err) {
@@ -71,13 +77,19 @@ export default function ChangeDetailPage() {
                   <p style={{ margin: 0 }}>{chg.reason}</p>
                 </div>
               </div>
-              {chg.affected_items?.length ? (
+              {chg.affected_items ? (
                 <div className="card">
                   <div className="card__header"><div className="card__title">Affected Items</div></div>
                   <div className="card__body">
-                    <div className="tag-list">
-                      {chg.affected_items.map((i) => <span key={i} className="pill mono">{i}</span>)}
-                    </div>
+                    <p style={{ margin: 0 }}>{chg.affected_items}</p>
+                  </div>
+                </div>
+              ) : null}
+              {chg.impact_analysis ? (
+                <div className="card">
+                  <div className="card__header"><div className="card__title">Impact Analysis</div></div>
+                  <div className="card__body">
+                    <p style={{ margin: 0 }}>{chg.impact_analysis}</p>
                   </div>
                 </div>
               ) : null}
@@ -89,20 +101,17 @@ export default function ChangeDetailPage() {
                 <div className="card__body">
                   <DataList
                     items={[
-                      { label: 'Type', value: chg.type.toUpperCase() },
-                      { label: 'Originator', value: chg.originator },
-                      { label: 'CCB Required', value: chg.ccb_required ? 'Yes' : 'No' },
+                      { label: 'Type', value: chg.change_type.toUpperCase() },
+                      { label: 'Requested By', value: chg.requested_by ?? '—' },
+                      { label: 'Owner', value: chg.owner_id ?? '—' },
                       { label: 'Priority', value: humanize(chg.priority) },
-                      { label: 'Submitted', value: formatDate(chg.submitted_at) },
+                      { label: 'Target Date', value: formatDate(chg.target_date) },
                       { label: 'Approved', value: formatDate(chg.approved_at) },
-                      { label: 'Effective', value: formatDate(chg.effective_date) },
+                      { label: 'Implemented', value: formatDate(chg.implemented_at) },
                     ]}
                   />
                 </div>
               </div>
-              {chg.signature && (
-                <div className="card"><div className="card__body"><SignatureSummary signature={chg.signature} /></div></div>
-              )}
             </div>
           </div>
 

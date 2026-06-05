@@ -52,9 +52,9 @@ export default function AuditDetailPage() {
                     {audit.findings?.length ? (
                       audit.findings.map((f) => (
                         <tr key={f.id}>
-                          <td className="mono">{f.reference}</td>
-                          <td className="mono">{f.clause}</td>
-                          <td><StatusBadge status={f.type} noDot /></td>
+                          <td className="mono">{f.finding_number}</td>
+                          <td className="mono">{f.clause_reference ?? '—'}</td>
+                          <td><StatusBadge status={f.finding_type} noDot /></td>
                           <td>{f.description}</td>
                           <td><StatusBadge status={f.status} /></td>
                         </tr>
@@ -76,14 +76,13 @@ export default function AuditDetailPage() {
               <div className="card__body">
                 <DataList
                   items={[
-                    { label: 'Type', value: humanize(audit.type) },
-                    { label: 'Standard', value: audit.standard },
-                    { label: 'Scope', value: audit.scope },
-                    { label: 'Lead Auditor', value: audit.lead_auditor },
-                    { label: 'Auditee', value: audit.auditee ?? '—' },
+                    { label: 'Type', value: humanize(audit.audit_type) },
+                    { label: 'Standard', value: audit.standard ?? '—' },
+                    { label: 'Scope', value: audit.scope ?? '—' },
+                    { label: 'Lead Auditor', value: audit.lead_auditor_id ?? '—' },
+                    { label: 'Auditee Area', value: audit.auditee_area ?? '—' },
                     { label: 'Planned', value: formatDate(audit.planned_date) },
-                    { label: 'Start', value: formatDate(audit.start_date) },
-                    { label: 'End', value: formatDate(audit.end_date) },
+                    { label: 'Actual', value: formatDate(audit.actual_date) },
                   ]}
                 />
               </div>

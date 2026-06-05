@@ -13,12 +13,12 @@ export function RiskHeatMap({ risks }: { risks: Risk[] }) {
   // Build a 10x10 grid keyed by `${severity}-${occurrence}`.
   const counts = new Map<string, number>();
   for (const r of risks) {
-    const key = `${r.severity}-${r.occurrence}`;
+    const key = `${r.severity}-${r.likelihood}`;
     counts.set(key, (counts.get(key) ?? 0) + 1);
   }
 
   const rows = Array.from({ length: 10 }, (_, i) => 10 - i); // severity 10..1 top-down
-  const cols = Array.from({ length: 10 }, (_, i) => i + 1); // occurrence 1..10
+  const cols = Array.from({ length: 10 }, (_, i) => i + 1); // likelihood 1..10
 
   return (
     <div>
@@ -39,7 +39,7 @@ export function RiskHeatMap({ risks }: { risks: Risk[] }) {
                   key={`${sev}-${occ}`}
                   className={`heatmap__cell ${band(sev * occ)}`}
                   style={{ opacity: n ? 1 : 0.18 }}
-                  title={`Severity ${sev} × Occurrence ${occ}: ${n} risk(s)`}
+                  title={`Severity ${sev} × Likelihood ${occ}: ${n} risk(s)`}
                 >
                   {n || ''}
                 </div>
@@ -49,7 +49,7 @@ export function RiskHeatMap({ risks }: { risks: Risk[] }) {
         ))}
       </div>
       <div className="row text-sm muted" style={{ marginTop: 10, justifyContent: 'space-between' }}>
-        <span>← Occurrence (1–10) →</span>
+        <span>← Likelihood (1–10) →</span>
         <span>Vertical: Severity (1–10)</span>
       </div>
     </div>

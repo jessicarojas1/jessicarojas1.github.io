@@ -18,12 +18,11 @@ export default function AuditListPage() {
   const columns: Column<Audit>[] = [
     { key: 'audit_number', header: 'Audit #', sortable: true, width: '120px', render: (r) => <span className="mono">{r.audit_number}</span> },
     { key: 'title', header: 'Title', sortable: true, render: (r) => <strong>{r.title}</strong> },
-    { key: 'type', header: 'Type', render: (r) => humanize(r.type) },
-    { key: 'standard', header: 'Standard' },
+    { key: 'audit_type', header: 'Type', render: (r) => humanize(r.audit_type) },
+    { key: 'standard', header: 'Standard', render: (r) => r.standard ?? '—' },
     { key: 'status', header: 'Status', sortable: true, render: (r) => <StatusBadge status={r.status} /> },
-    { key: 'lead_auditor', header: 'Lead Auditor' },
     { key: 'planned_date', header: 'Planned', sortable: true, render: (r) => formatDate(r.planned_date) },
-    { key: 'findings', header: 'Findings', align: 'right', render: (r) => r.findings?.length ?? 0 },
+    { key: 'created_at', header: 'Created', sortable: true, render: (r) => formatDate(r.created_at) },
   ];
 
   return (
@@ -62,9 +61,9 @@ export default function AuditListPage() {
               </Select>
             </div>
             <div className="field">
-              <Select aria-label="Filter by type" value={ctl.filters.type ?? ''} onChange={(e) => ctl.setFilter('type', e.target.value)}>
+              <Select aria-label="Filter by type" value={ctl.filters.audit_type ?? ''} onChange={(e) => ctl.setFilter('audit_type', e.target.value)}>
                 <option value="">All types</option>
-                {['internal', 'external', 'supplier', 'certification'].map((s) => (
+                {['internal', 'external', 'supplier', 'certification', 'process'].map((s) => (
                   <option key={s} value={s}>{s}</option>
                 ))}
               </Select>

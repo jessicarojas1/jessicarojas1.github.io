@@ -23,42 +23,42 @@ export default function InspectionDetailPage() {
             title={
               <span className="row" style={{ gap: 10 }}>
                 <FlaskConical size={22} />
-                <span className="mono">{insp.fai_number}</span>
+                <span className="mono">{insp.inspection_number}</span>
                 <StatusBadge status={insp.result} />
               </span>
             }
-            subtitle={`${insp.part_number}${insp.part_name ? ` — ${insp.part_name}` : ''}`}
-            breadcrumbs={[{ label: 'Inspections', to: '/inspections' }, { label: insp.fai_number }]}
+            subtitle={`${insp.part_number ?? ''}${insp.fai_report?.part_name ? ` — ${insp.fai_report.part_name}` : ''}`}
+            breadcrumbs={[{ label: 'Inspections', to: '/inspections' }, { label: insp.inspection_number }]}
           />
 
           <div className="detail-grid">
             <div className="card">
               <div className="card__header">
                 <div className="card__title">Characteristics (AS9102 Form 3)</div>
-                <span className="text-sm muted">{insp.characteristics?.length ?? 0} features</span>
+                <span className="text-sm muted">{insp.fai_report?.characteristics?.length ?? 0} features</span>
               </div>
               <div className="table-wrap">
                 <table className="data-table">
                   <thead>
                     <tr>
-                      <th>Char #</th>
-                      <th>Requirement</th>
+                      <th>Balloon #</th>
+                      <th>Characteristic</th>
                       <th>Nominal</th>
-                      <th>Tolerance</th>
-                      <th>Actual</th>
+                      <th>Tol −/+</th>
+                      <th>Measured</th>
                       <th>Result</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {insp.characteristics?.length ? (
-                      insp.characteristics.map((c) => (
+                    {insp.fai_report?.characteristics?.length ? (
+                      insp.fai_report.characteristics.map((c) => (
                         <tr key={c.id}>
-                          <td className="mono">{c.number}</td>
-                          <td>{c.requirement}</td>
+                          <td className="mono">{c.balloon_number}</td>
+                          <td>{c.characteristic}</td>
                           <td className="mono">{c.nominal ?? '—'}</td>
-                          <td className="mono">{c.tolerance ?? '—'}</td>
-                          <td className="mono">{c.actual ?? '—'}</td>
-                          <td><StatusBadge status={c.result} /></td>
+                          <td className="mono">{c.tol_minus ?? '—'} / {c.tol_plus ?? '—'}</td>
+                          <td className="mono">{c.measured_value ?? '—'}</td>
+                          <td>{c.result ?? '—'}</td>
                         </tr>
                       ))
                     ) : (
@@ -76,12 +76,12 @@ export default function InspectionDetailPage() {
               <div className="card__body">
                 <DataList
                   items={[
-                    { label: 'Type', value: humanize(insp.type) },
-                    { label: 'Revision', value: insp.revision ?? '—' },
-                    { label: 'Drawing #', value: insp.drawing_number ?? '—' },
-                    { label: 'Inspector', value: insp.inspector },
+                    { label: 'Type', value: humanize(insp.inspection_type) },
+                    { label: 'Revision', value: insp.fai_report?.part_revision ?? '—' },
+                    { label: 'Drawing #', value: insp.fai_report?.drawing_number ?? '—' },
+                    { label: 'Inspector', value: insp.inspector_id ?? '—' },
                     { label: 'Result', value: <StatusBadge status={insp.result} /> },
-                    { label: 'Performed', value: formatDate(insp.performed_at) },
+                    { label: 'Inspected', value: formatDate(insp.inspection_date) },
                   ]}
                 />
               </div>

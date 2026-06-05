@@ -27,7 +27,7 @@ export default function ComplaintDetailPage() {
                 <StatusBadge status={c.status} />
               </span>
             }
-            subtitle={`${c.customer}${c.product ? ` · ${c.product}` : ''}`}
+            subtitle={`${c.customer_name} · ${c.title}`}
             breadcrumbs={[{ label: 'Complaints', to: '/complaints' }, { label: c.complaint_number }]}
           />
 
@@ -54,10 +54,11 @@ export default function ComplaintDetailPage() {
                   <DataList
                     items={[
                       { label: 'Part Number', value: c.part_number ?? '—' },
+                      { label: 'Serial Number', value: c.serial_number ?? '—' },
                       { label: 'RMA Number', value: c.rma_number ?? '—' },
                       { label: 'Assigned To', value: c.assigned_to ?? 'Unassigned' },
-                      { label: 'Received', value: formatDateTime(c.received_at) },
-                      { label: 'Closed', value: formatDate(c.closed_at) },
+                      { label: 'Received', value: formatDate(c.received_date) },
+                      { label: 'Closed', value: formatDateTime(c.closed_at) },
                     ]}
                   />
                 </div>
@@ -67,8 +68,8 @@ export default function ComplaintDetailPage() {
                 <div className="card__body">
                   <DataList
                     items={[
-                      { label: 'NCR', value: c.linked_ncr_id ? <a href={`/nonconformances/${c.linked_ncr_id}`}>View NCR</a> : 'None' },
-                      { label: 'CAPA', value: c.linked_capa_id ? <a href={`/capa/${c.linked_capa_id}`}>View CAPA</a> : 'None' },
+                      { label: 'NCR', value: c.nonconformance_id ? <a href={`/nonconformances/${c.nonconformance_id}`}>View NCR</a> : 'None' },
+                      { label: 'CAPA', value: c.capa_id ? <a href={`/capa/${c.capa_id}`}>View CAPA</a> : 'None' },
                     ]}
                   />
                 </div>

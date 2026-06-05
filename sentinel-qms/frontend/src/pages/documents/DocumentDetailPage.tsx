@@ -10,27 +10,34 @@ import { useToast } from '@/lib/toast';
 import { PageHeader } from '@/components/PageHeader';
 import { StatusBadge } from '@/components/StatusBadge';
 import { AttachmentsCard, DataList, DetailState } from '@/components/detail';
-import { SignatureModal, SignatureSummary, type SignaturePayload } from '@/components/SignatureModal';
+import { SignatureModal, type SignaturePayload } from '@/components/SignatureModal';
 
 export default function DocumentDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const { notify } = useToast();
   const { data: doc, isLoading, error } = documentHooks.useDetail(id);
+  // Approval is performed per-revision: POST /documents/revisions/{revision_id}/approve
   const approve = documentHooks.useAction('approve');
   const [sigOpen, setSigOpen] = useState(false);
 
   const canApprove = can(user?.roles, 'documents.approve');
-  const pendingApproval = doc?.status === 'in_review' || doc?.status === 'draft';
+  const pendingRevision = doc?.revisions?.find(
+    (r) => r.status === 'in_review' || r.status === 'draft',
+  );
+  const pendingApproval = Boolean(pendingRevision);
 
   const handleSign = async (sig: SignaturePayload) => {
-    if (!id) return;
+    if (!pendingRevision) return;
     try {
       await approve.mutateAsync({
-        id,
-        payload: { signature: { meaning: sig.meaning, reason: sig.reason } },
+        id: `revisions/${pendingRevision.id}`,
+        payload: {
+          decision: 'approved',
+          signature: { meaning: sig.meaning, reason: sig.reason, password: sig.password },
+        },
       });
-      notify('Document approved and released', 'success');
+      notify('Document revision approved', 'success');
       setSigOpen(false);
     } catch (err) {
       notify(getErrorMessage(err), 'danger');
@@ -49,12 +56,12 @@ export default function DocumentDetailPage() {
             title={
               <span className="row" style={{ gap: 10 }}>
                 <FileText size={22} />
-                <span className="mono">{doc.doc_number}</span>
+                <span className="mono">{doc.document_number}</span>
                 <StatusBadge status={doc.status} />
               </span>
             }
             subtitle={`${doc.title} · Rev ${doc.current_revision}`}
-            breadcrumbs={[{ label: 'Documents', to: '/documents' }, { label: doc.doc_number }]}
+            breadcrumbs={[{ label: 'Documents', to: '/documents' }, { label: doc.document_number }]}
             actions={
               canApprove &&
               pendingApproval && (
@@ -75,11 +82,10 @@ export default function DocumentDetailPage() {
                   <thead>
                     <tr>
                       <th>Rev</th>
-                      <th>Summary</th>
+                      <th>Change Summary</th>
                       <th>Status</th>
-                      <th>Author</th>
-                      <th>Approved By</th>
                       <th>Effective</th>
+                      <th>Created</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -87,18 +93,17 @@ export default function DocumentDetailPage() {
                       doc.revisions.map((rev) => (
                         <tr key={rev.id}>
                           <td className="mono">{rev.revision}</td>
-                          <td>{rev.summary}</td>
+                          <td>{rev.change_summary ?? '—'}</td>
                           <td>
                             <StatusBadge status={rev.status} />
                           </td>
-                          <td>{rev.author}</td>
-                          <td>{rev.approved_by ?? '—'}</td>
                           <td>{formatDate(rev.effective_date)}</td>
+                          <td>{formatDate(rev.created_at)}</td>
                         </tr>
                       ))
                     ) : (
                       <tr className="empty-row">
-                        <td colSpan={6}>
+                        <td colSpan={5}>
                           <div className="empty-state-sm">No revision history.</div>
                         </td>
                       </tr>
@@ -117,25 +122,15 @@ export default function DocumentDetailPage() {
                   <DataList
                     items={[
                       { label: 'Type', value: doc.doc_type },
-                      { label: 'Category', value: doc.category ?? '—' },
-                      { label: 'Owner', value: doc.owner },
-                      { label: 'Department', value: doc.department ?? '—' },
-                      { label: 'Current Rev', value: doc.current_revision },
+                      { label: 'Owner', value: doc.owner_id ?? '—' },
+                      { label: 'AS9100 Clause', value: doc.as9100_clause ?? '—' },
+                      { label: 'Current Rev', value: doc.current_revision ?? '—' },
                       { label: 'Effective', value: formatDate(doc.effective_date) },
                       { label: 'Next Review', value: formatDate(doc.next_review_date) },
                     ]}
                   />
                 </div>
               </div>
-              {doc.revisions?.find((r) => r.signature)?.signature && (
-                <div className="card">
-                  <div className="card__body">
-                    <SignatureSummary
-                      signature={doc.revisions.find((r) => r.signature)!.signature!}
-                    />
-                  </div>
-                </div>
-              )}
               <AttachmentsCard attachments={doc.attachments} />
             </div>
           </div>
