@@ -32,7 +32,7 @@ unset($_SESSION['flash_error']);
 
           <!-- Title -->
           <div class="form-group">
-            <label class="form-label">Title <span style="color:#ef4444;">*</span></label>
+            <label class="form-label">Title <span style="color:var(--danger);">*</span></label>
             <input type="text" name="title" class="form-control" required
                    placeholder="e.g. Overdue High-Risk Items, SLA Breach Rate"
                    value="<?= Security::h($_POST['title'] ?? '') ?>">
@@ -127,7 +127,7 @@ unset($_SESSION['flash_error']);
 
           <!-- Green threshold -->
           <div class="form-group">
-            <label class="form-label" style="color:#16a34a;font-weight:700;">
+            <label class="form-label" style="color:var(--primary);font-weight:700;">
               <i class="bi bi-circle-fill" style="font-size:10px;"></i> Green Threshold
             </label>
             <input type="number" name="threshold_green" id="tGreen" class="form-control" step="any" required
@@ -135,12 +135,12 @@ unset($_SESSION['flash_error']);
                    value="<?= Security::h((string)($_POST['threshold_green'] ?? '')) ?>"
                    style="border-color:#16a34a44;background:var(--success-subtle);"
                    data-input="updatePreview">
-            <div style="font-size:11px;color:#16a34a;margin-top:3px;" id="greenHint">On-track level</div>
+            <div style="font-size:11px;color:var(--primary);margin-top:3px;" id="greenHint">On-track level</div>
           </div>
 
           <!-- Amber threshold -->
           <div class="form-group">
-            <label class="form-label" style="color:#d97706;font-weight:700;">
+            <label class="form-label" style="color:var(--warning);font-weight:700;">
               <i class="bi bi-circle-fill" style="font-size:10px;"></i> Amber Threshold
             </label>
             <input type="number" name="threshold_amber" id="tAmber" class="form-control" step="any" required
@@ -148,12 +148,12 @@ unset($_SESSION['flash_error']);
                    value="<?= Security::h((string)($_POST['threshold_amber'] ?? '')) ?>"
                    style="border-color:#d9770644;background:var(--warning-subtle);"
                    data-input="updatePreview">
-            <div style="font-size:11px;color:#d97706;margin-top:3px;" id="amberHint">Caution level</div>
+            <div style="font-size:11px;color:var(--warning);margin-top:3px;" id="amberHint">Caution level</div>
           </div>
 
           <!-- Red threshold -->
           <div class="form-group">
-            <label class="form-label" style="color:#dc2626;font-weight:700;">
+            <label class="form-label" style="color:var(--danger);font-weight:700;">
               <i class="bi bi-circle-fill" style="font-size:10px;"></i> Red Threshold
             </label>
             <input type="number" name="threshold_red" id="tRed" class="form-control" step="any" required
@@ -161,21 +161,21 @@ unset($_SESSION['flash_error']);
                    value="<?= Security::h((string)($_POST['threshold_red'] ?? '')) ?>"
                    style="border-color:#dc262644;background:var(--danger-subtle);"
                    data-input="updatePreview">
-            <div style="font-size:11px;color:#dc2626;margin-top:3px;" id="redHint">Danger level</div>
+            <div style="font-size:11px;color:var(--danger);margin-top:3px;" id="redHint">Danger level</div>
           </div>
 
           <!-- Live preview bar -->
           <div style="margin-top:20px;">
             <div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:8px;">Live Preview</div>
             <div id="previewBar" style="height:18px;border-radius:6px;overflow:hidden;display:flex;background:#e4e4e7;transition:all .3s;">
-              <div id="previewGreen" style="background:#16a34a;width:33.3%;transition:width .3s;"></div>
-              <div id="previewAmber" style="background:#d97706;width:33.3%;transition:width .3s;"></div>
-              <div id="previewRed"   style="background:#dc2626;width:33.4%;transition:width .3s;"></div>
+              <div id="previewGreen" style="background:var(--primary);width:33.3%;transition:width .3s;"></div>
+              <div id="previewAmber" style="background:var(--warning);width:33.3%;transition:width .3s;"></div>
+              <div id="previewRed"   style="background:var(--danger);width:33.4%;transition:width .3s;"></div>
             </div>
             <div id="previewLabels" style="display:flex;justify-content:space-between;font-size:10px;margin-top:4px;">
-              <span style="color:#16a34a;font-weight:600;" id="previewGreenLabel">Green</span>
-              <span style="color:#d97706;font-weight:600;" id="previewAmberLabel">Amber</span>
-              <span style="color:#dc2626;font-weight:600;" id="previewRedLabel">Red</span>
+              <span style="color:var(--primary);font-weight:600;" id="previewGreenLabel">Green</span>
+              <span style="color:var(--warning);font-weight:600;" id="previewAmberLabel">Amber</span>
+              <span style="color:var(--danger);font-weight:600;" id="previewRedLabel">Red</span>
             </div>
           </div>
 
@@ -233,15 +233,15 @@ unset($_SESSION['flash_error']);
       document.getElementById('previewAmber').style.width = aPct + '%';
       document.getElementById('previewRed').style.width   = gPct + '%';
       // Swap colors
-      document.getElementById('previewGreen').style.background = '#dc2626';
-      document.getElementById('previewAmber').style.background = '#d97706';
-      document.getElementById('previewRed').style.background   = '#16a34a';
+      document.getElementById('previewGreen').style.background = 'var(--danger)';
+      document.getElementById('previewAmber').style.background = 'var(--warning)';
+      document.getElementById('previewRed').style.background   = 'var(--primary)';
     }
 
     if (dir === 'higher_worse') {
-      document.getElementById('previewGreen').style.background = '#16a34a';
-      document.getElementById('previewAmber').style.background = '#d97706';
-      document.getElementById('previewRed').style.background   = '#dc2626';
+      document.getElementById('previewGreen').style.background = 'var(--primary)';
+      document.getElementById('previewAmber').style.background = 'var(--warning)';
+      document.getElementById('previewRed').style.background   = 'var(--danger)';
     }
 
     document.getElementById('previewGreenLabel').textContent = 'Green (' + g + ')';
