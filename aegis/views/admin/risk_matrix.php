@@ -1,4 +1,5 @@
 <?php
+if (!$matrix) { echo '<div class="card card-body text-muted">No risk matrix configuration found. A default will be created on next page load.</div>'; return; }
 $pageTitle    = 'Risk Matrix Config';
 $activeModule = 'admin_risk_matrix';
 $breadcrumbs  = [['Admin','/admin'],['Risk Matrix',null]];

@@ -141,7 +141,7 @@ class RiskExceptionController {
             'exception_type'             => $exceptionType,
             'rationale'                  => $rationale,
             'compensating_controls'      => $controls ?: null,
-            'residual_risk_acknowledged' => $ackChecked ? 'TRUE' : 'FALSE',
+            'residual_risk_acknowledged' => $ackChecked,
             'expiry_date'                => $expiryDateDb,
             'created_at'                 => date('Y-m-d H:i:s'),
             'updated_at'                 => date('Y-m-d H:i:s'),

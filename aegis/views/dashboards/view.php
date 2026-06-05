@@ -192,7 +192,7 @@ $widgetTypes = [
           <?php foreach ($w['data'] as $v): ?>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);">
             <a href="/vendor/<?= (int)$v['id'] ?>" style="font-size:0.875rem;"><?= Security::h($v['name']) ?></a>
-            <span class="badge <?= $ratingColors[$v['risk_rating']] ?? 'badge-secondary' ?>"><?= ucfirst($v['risk_rating'] ?? 'N/A') ?></span>
+            <span class="badge <?= $ratingColors[$v['risk_tier']] ?? 'badge-secondary' ?>"><?= ucfirst($v['risk_tier'] ?? 'N/A') ?></span>
           </div>
           <?php endforeach; ?>
         </div>

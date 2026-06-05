@@ -133,7 +133,7 @@ class CustomDashboardController {
                         'critical_risks'        => Database::fetchOne("SELECT COUNT(*) AS val FROM risks WHERE status='open' AND inherent_score >= 15")['val'] ?? 0,
                         'overdue_treatments'    => Database::fetchOne("SELECT COUNT(*) AS val FROM risk_treatments WHERE status NOT IN ('completed','cancelled') AND due_date < NOW()")['val'] ?? 0,
                         'total_assets'          => Database::fetchOne("SELECT COUNT(*) AS val FROM assets")['val'] ?? 0,
-                        'open_poams'            => Database::fetchOne("SELECT COUNT(*) AS val FROM poam_items WHERE status NOT IN ('completed','closed')")['val'] ?? 0,
+                        'open_poams'            => Database::fetchOne("SELECT COUNT(*) AS val FROM poam_items WHERE status NOT IN ('closed','cancelled')")['val'] ?? 0,
                         'overdue_audits'        => Database::fetchOne("SELECT COUNT(*) AS val FROM audits WHERE status NOT IN ('completed','cancelled') AND completed_date < NOW()")['val'] ?? 0,
                         default                 => 0,
                     };
@@ -169,8 +169,8 @@ class CustomDashboardController {
                     );
                 case 'vendor_risk':
                     return Database::fetchAll(
-                        "SELECT id, name, risk_rating, status FROM vendors
-                         ORDER BY CASE risk_rating WHEN 'critical' THEN 1 WHEN 'high' THEN 2 WHEN 'medium' THEN 3 ELSE 4 END, name
+                        "SELECT id, name, risk_tier, status FROM vendors
+                         ORDER BY CASE risk_tier WHEN 'critical' THEN 1 WHEN 'high' THEN 2 WHEN 'medium' THEN 3 ELSE 4 END, name
                          LIMIT 8"
                     );
                 case 'kri_status':

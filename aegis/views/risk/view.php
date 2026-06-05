@@ -76,7 +76,7 @@ ob_start();
         <i class="bi bi-<?= $as['icon'] ?>"></i> <?= $as['label'] ?>
       </span>
       <!-- Operational status -->
-      <span style="font-size:12px;font-weight:600;padding:3px 10px;border-radius:20px;background:<?= $st['bg'] ?>;color:<?= $st['color'] ?>;border:1px solid <?= $st['border'] ?>">
+      <span style="font-size:12px;font-weight:600;padding:3px 10px;border-radius:20px;background:<?= $st['color'] ?>18;color:<?= $st['color'] ?>;border:1px solid <?= $st['color'] ?>40">
         <?= $st['label'] ?>
       </span>
       <!-- Strategy tags -->
@@ -778,7 +778,7 @@ ob_start();
       <div class="card-body" style="padding:12px 16px">
         <?php if ($activeAcceptance): ?>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-            <span style="background:#f0fdf4;color:#16a34a;border:1px solid #86efac;border-radius:20px;font-size:11px;font-weight:700;padding:2px 10px">Active</span>
+            <span style="background:#16a34a18;color:#16a34a;border:1px solid #16a34a40;border-radius:20px;font-size:11px;font-weight:700;padding:2px 10px">Active</span>
             <span style="font-size:12px;color:var(--text-muted)">until <?= date('M j, Y', strtotime($activeAcceptance['valid_until'])) ?></span>
           </div>
           <div style="font-size:12px;color:var(--text-secondary);margin-bottom:6px">

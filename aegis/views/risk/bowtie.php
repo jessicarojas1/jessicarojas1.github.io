@@ -140,7 +140,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
     line-height: 1;
     transition: color .12s, background .12s;
 }
-.bt-item-delete:hover { color: #dc2626; background: #fef2f2; }
+.bt-item-delete:hover { color: #dc2626; background: #dc262618; }
 
 /* Arrow connector zones */
 .bt-arrow-zone {
@@ -406,7 +406,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 
       <!-- ── (A) Causes Column ───────────────────────────── -->
       <div class="bt-causes-col">
-        <div class="bt-col-header" style="color:#dc2626;background:#fef2f2;border:1px solid #fca5a5">
+        <div class="bt-col-header" style="color:#dc2626;background:#dc262618;border:1px solid #dc262640">
           <i class="bi bi-exclamation-triangle-fill"></i> Threat / Cause
         </div>
         <?php if (empty($causes)): ?>
@@ -439,7 +439,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 
       <!-- ── (B) Left Barriers ───────────────────────────── -->
       <div class="bt-barriers-col">
-        <div class="bt-col-header" style="color:#2563eb;background:#eff6ff;border:1px solid #93c5fd">
+        <div class="bt-col-header" style="color:#2563eb;background:#2563eb18;border:1px solid #2563eb40">
           <i class="bi bi-shield-fill-check"></i> Preventive Controls
         </div>
         <?php if (empty($leftBarriers)): ?>
@@ -502,7 +502,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 
       <!-- ── (F) Right Barriers ──────────────────────────── -->
       <div class="bt-barriers-col">
-        <div class="bt-col-header" style="color:#16a34a;background:#f0fdf4;border:1px solid #86efac">
+        <div class="bt-col-header" style="color:#16a34a;background:#16a34a18;border:1px solid #16a34a40">
           <i class="bi bi-arrow-counterclockwise"></i> Recovery Controls
         </div>
         <?php if (empty($rightBarriers)): ?>

@@ -146,7 +146,7 @@ class DashboardController {
                    SELECT a.scheduled_date   AS due_date,
                           'Audit'            AS item_type,
                           '/audit/' || a.id  AS url,
-                          a.title            AS name,
+                          a.name             AS name,
                           u.name             AS owner
                    FROM audits a
                    LEFT JOIN users u ON a.auditor_id = u.id

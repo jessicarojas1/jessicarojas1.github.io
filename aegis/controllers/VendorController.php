@@ -92,8 +92,8 @@ class VendorController {
         $contactEmail   = Security::sanitizeInput($_POST['contact_email'] ?? '');
         $contractStart  = Security::sanitizeInput($_POST['contract_start'] ?? '');
         $contractEnd    = Security::sanitizeInput($_POST['contract_end'] ?? '');
-        $dataAccess      = isset($_POST['data_access']) ? 'true' : 'false';
-        $criticalService = isset($_POST['critical_service']) ? 'true' : 'false';
+        $dataAccess      = isset($_POST['data_access']);
+        $criticalService = isset($_POST['critical_service']);
 
         if (!$name) {
             $_SESSION['flash_error'] = 'Vendor name is required.';
@@ -196,8 +196,8 @@ class VendorController {
         $contactEmail   = Security::sanitizeInput($_POST['contact_email'] ?? '');
         $contractStart  = Security::sanitizeInput($_POST['contract_start'] ?? '');
         $contractEnd    = Security::sanitizeInput($_POST['contract_end'] ?? '');
-        $dataAccess      = isset($_POST['data_access']) ? 'true' : 'false';
-        $criticalService = isset($_POST['critical_service']) ? 'true' : 'false';
+        $dataAccess      = isset($_POST['data_access']);
+        $criticalService = isset($_POST['critical_service']);
 
         if (!$name) {
             $_SESSION['flash_error'] = 'Vendor name is required.';

@@ -1,4 +1,5 @@
 <?php
+if (!$matrixConfig) { echo '<div class="card card-body text-muted">No risk matrix configured. <a href="/admin/risk-matrix">Configure one here</a>.</div>'; return; }
 $pageTitle    = 'Risk Matrix';
 $activeModule = 'risk_matrix';
 $breadcrumbs  = [['Risk Register','/risk'],['Matrix',null]];

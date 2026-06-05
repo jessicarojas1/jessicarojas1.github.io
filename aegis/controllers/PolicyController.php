@@ -331,7 +331,7 @@ class PolicyController {
     // Create attestation campaign
     public function createCampaign(): void {
         Auth::requirePermission('policy.write');
-        $policies = Database::fetchAll("SELECT id, title FROM policies WHERE status='approved' ORDER BY title");
+        $policies = Database::fetchAll("SELECT id, title FROM policies WHERE status='published' ORDER BY title");
         $pageTitle    = 'New Attestation Campaign';
         $activeModule = 'policy_attestations';
         $breadcrumbs  = [['Policies', '/policy'], ['Attestations', '/policy/attestations'], ['New Campaign', null]];

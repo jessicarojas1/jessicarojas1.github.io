@@ -137,6 +137,17 @@ try {
 } catch (Throwable) {}
 
 try {
+    // Change requests: add implemented_at column missing from base schema
+    $__crCols = Database::fetchAll(
+        "SELECT column_name FROM information_schema.columns WHERE table_name='change_requests' AND table_schema='public'"
+    );
+    if (!in_array('implemented_at', array_column($__crCols, 'column_name'), true)) {
+        Database::query("ALTER TABLE change_requests ADD COLUMN implemented_at TIMESTAMP");
+    }
+    unset($__crCols);
+} catch (Throwable) {}
+
+try {
     // Assets: add created_by column missing from base schema
     $__assetCols = Database::fetchAll(
         "SELECT column_name FROM information_schema.columns WHERE table_name='assets' AND table_schema='public'"
