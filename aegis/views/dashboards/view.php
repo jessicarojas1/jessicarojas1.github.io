@@ -403,8 +403,5 @@ function toggleMetric() {
 }
 document.getElementById('widgetTypeSelect').addEventListener('change', toggleMetric);
 toggleMetric();
-document.querySelectorAll('[data-confirm]').forEach(function(el) {
-  el.addEventListener('submit', function(e) { if (!confirm(el.getAttribute('data-confirm'))) e.preventDefault(); });
-});
 </script>
 <?php endif; ?>
