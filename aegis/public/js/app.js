@@ -44,7 +44,7 @@ function markAlertRead(id, el) {
     body: 'csrf_token=' + encodeURIComponent(csrf),
   }).then(function (r) {
     if (r.ok) {
-      const item = el ? el.closest('.alert-panel-item') : null;
+      const item = el ? el.closest('.alert-item') : null;
       if (item) item.classList.add('read');
       const dot = document.querySelector('.alert-badge');
       if (dot) {
@@ -57,7 +57,7 @@ function markAlertRead(id, el) {
 }
 
 function markAllRead() {
-  document.querySelectorAll('.alert-panel-item:not(.read) .alert-read-btn').forEach(function (btn) {
+  document.querySelectorAll('.alert-item:not(.read) .mark-read-btn').forEach(function (btn) {
     btn.click();
   });
 }

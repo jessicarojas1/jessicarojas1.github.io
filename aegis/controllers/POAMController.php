@@ -189,6 +189,13 @@ class POAMController {
             header('Location: /poam'); return;
         }
 
+        $finfo = new finfo(FILEINFO_MIME_TYPE);
+        $mime  = $finfo->file($file['tmp_name']);
+        if (!in_array($mime, ['text/csv', 'text/plain', 'application/csv', 'application/octet-stream'], true)) {
+            $_SESSION['flash_error'] = 'Invalid file type. Only CSV files are accepted.';
+            header('Location: /poam'); return;
+        }
+
         if ($file['size'] > 5 * 1024 * 1024) {
             $_SESSION['flash_error'] = 'File too large (max 5MB).';
             header('Location: /poam'); return;

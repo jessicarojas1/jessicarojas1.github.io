@@ -344,7 +344,53 @@ try {
     if (!in_array('breach_notification_sent_at', $__incExisting)) {
         Database::query("ALTER TABLE incidents ADD COLUMN breach_notification_sent_at TIMESTAMP");
     }
+    if (!in_array('root_cause', $__incExisting)) {
+        Database::query("ALTER TABLE incidents ADD COLUMN root_cause TEXT");
+    }
+    if (!in_array('lessons_learned', $__incExisting)) {
+        Database::query("ALTER TABLE incidents ADD COLUMN lessons_learned TEXT");
+    }
+    if (!in_array('contained_at', $__incExisting)) {
+        Database::query("ALTER TABLE incidents ADD COLUMN contained_at TIMESTAMP");
+    }
     unset($__incCols, $__incExisting);
+} catch (Throwable) {}
+
+try {
+    // incident_updates: add update_type column if missing
+    $__iuCol = Database::fetchOne(
+        "SELECT 1 FROM information_schema.columns WHERE table_name='incident_updates' AND column_name='update_type' AND table_schema='public'"
+    );
+    if (!$__iuCol) {
+        Database::query("ALTER TABLE incident_updates ADD COLUMN update_type VARCHAR(50) NOT NULL DEFAULT 'comment'");
+    }
+    unset($__iuCol);
+} catch (Throwable) {}
+
+try {
+    // issues: add resolution and recurrence_prevention columns if missing
+    $__issCols = Database::fetchAll(
+        "SELECT column_name FROM information_schema.columns WHERE table_name='issues' AND table_schema='public'"
+    );
+    $__issExisting = array_column($__issCols, 'column_name');
+    if (!in_array('resolution', $__issExisting)) {
+        Database::query("ALTER TABLE issues ADD COLUMN resolution TEXT");
+    }
+    if (!in_array('recurrence_prevention', $__issExisting)) {
+        Database::query("ALTER TABLE issues ADD COLUMN recurrence_prevention TEXT");
+    }
+    unset($__issCols, $__issExisting);
+} catch (Throwable) {}
+
+try {
+    // issue_updates: add update_type column if missing
+    $__issUCol = Database::fetchOne(
+        "SELECT 1 FROM information_schema.columns WHERE table_name='issue_updates' AND column_name='update_type' AND table_schema='public'"
+    );
+    if (!$__issUCol) {
+        Database::query("ALTER TABLE issue_updates ADD COLUMN update_type VARCHAR(50) NOT NULL DEFAULT 'comment'");
+    }
+    unset($__issUCol);
 } catch (Throwable) {}
 
 try {
@@ -846,6 +892,8 @@ $dynamicRoutes = [
         '#^/dashboards/(\d+)$#'             => ['CustomDashboardController', 'view'],
         '#^/raci/(\d+)$#'                   => ['RACIController', 'view'],
         '#^/raci/(\d+)/responsibility$#'    => ['RACIController', 'responsibilityMatrix'],
+        '#^/approvals/(\d+)/review$#'       => ['ApprovalController', 'review'],
+        '#^/documents/(\d+)$#'              => ['DocumentController', 'view'],
     ],
     'POST' => [
         '#^/compliance/(\d+)/objective/(\d+)/update$#' => ['ComplianceController', 'updateObjective'],
@@ -885,10 +933,8 @@ $dynamicRoutes = [
         '#^/issue/(\d+)/update$#'                      => ['IssueController', 'update'],
         '#^/issue/(\d+)/add-update$#'                  => ['IssueController', 'addUpdate'],
         '#^/evidence/(\d+)/delete$#'                   => ['EvidenceController', 'delete'],
-        '#^/approvals/(\d+)/review$#'                  => ['ApprovalController', 'review'],
         '#^/approvals/(\d+)/decide$#'                  => ['ApprovalController', 'decide'],
         '#^/metrics/schedule/(\d+)/delete$#'           => ['MetricsController', 'deleteSchedule'],
-        '#^/documents/(\d+)$#'                                  => ['DocumentController', 'view'],
         '#^/documents/(\d+)/update$#'                           => ['DocumentController', 'update'],
         '#^/documents/(\d+)/upload-version$#'                   => ['DocumentController', 'uploadVersion'],
         '#^/admin/webhooks/(\d+)/update$#'                      => ['WebhookController', 'update'],

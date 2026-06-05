@@ -296,7 +296,7 @@
   <div class="alert-panel" id="alertPanel">
     <div class="alert-panel-header">
       <span>Notifications</span>
-      <button id="alertPanelClose"><i class="bi bi-x-lg"></i></button>
+      <button id="alertPanelClose" aria-label="Close notifications"><i class="bi bi-x-lg"></i></button>
     </div>
     <div class="alert-panel-body" id="alertPanelBody">
       <?php
@@ -311,7 +311,7 @@
             <div class="alert-item-time"><?= date('M j, g:ia', strtotime($al['created_at'])) ?></div>
           </div>
           <?php if (!$al['is_read']): ?>
-            <button class="mark-read-btn" data-alert-id="<?= (int)$al['id'] ?>"><i class="bi bi-check"></i></button>
+            <button class="mark-read-btn" data-alert-id="<?= (int)$al['id'] ?>" aria-label="Mark as read"><i class="bi bi-check"></i></button>
           <?php endif; ?>
         </div>
       <?php endforeach; else: ?>

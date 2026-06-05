@@ -60,7 +60,7 @@ class Security {
 
         // Dangerous attribute prefixes
         $blockedAttrPrefixes = ['on']; // onclick, onload, onerror, etc.
-        $blockedAttrs = ['href', 'src', 'action', 'formaction', 'data', 'srcdoc'];
+        $blockedAttrs = ['href', 'src', 'action', 'formaction', 'data', 'srcdoc', 'style'];
 
         $dom = new \DOMDocument();
         libxml_use_internal_errors(true);
