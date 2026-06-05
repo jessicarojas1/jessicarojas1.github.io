@@ -165,34 +165,35 @@ $pct      = $total > 0 ? round(($reviewed / $total) * 100) : 0;
 </div>
 
 <!-- Decision modal -->
-<div id="modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:center;justify-content:center" data-click="closeDecision"></div>
-<div id="modal-decision" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:501;background:var(--card-bg);border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.25);width:100%;max-width:440px;overflow:hidden">
-  <div class="modal-header">
-    <h3 style="font-size:15px;font-weight:700;margin:0"><i class="bi bi-person-check-fill" style="color:var(--primary)"></i> Review Decision</h3>
-    <button class="modal-close" data-click="closeDecision"><i class="bi bi-x-lg"></i></button>
+<div class="um-overlay" id="decisionModal">
+  <div class="um-dialog">
+    <div class="modal-header">
+      <h3 style="font-size:15px;font-weight:700;margin:0"><i class="bi bi-person-check-fill" style="color:var(--primary)"></i> Review Decision</h3>
+      <button class="modal-close" data-close-modal="decisionModal"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <form id="decisionForm" method="POST">
+      <?= Security::csrfField() ?>
+      <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
+        <div id="decisionAccountName" style="font-weight:600;font-size:14px"></div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Decision <span style="color:var(--danger)">*</span></label>
+          <select name="decision" class="form-control" required>
+            <option value="approved">✓ Approved — access is appropriate</option>
+            <option value="revoked">✗ Revoked — access should be removed</option>
+            <option value="modified">~ Modified — access level should change</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Notes</label>
+          <textarea name="notes" class="form-control" rows="3" placeholder="Justification or follow-up actions…"></textarea>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;padding:14px 20px;border-top:1px solid var(--border);background:var(--bg)">
+        <button type="button" class="btn btn-secondary btn-sm" data-close-modal="decisionModal">Cancel</button>
+        <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-check-lg"></i> Save Decision</button>
+      </div>
+    </form>
   </div>
-  <form id="decisionForm" method="POST">
-    <?= Security::csrfField() ?>
-    <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
-      <div id="decisionAccountName" style="font-weight:600;font-size:14px"></div>
-      <div class="form-group" style="margin:0">
-        <label class="form-label">Decision <span style="color:var(--danger)">*</span></label>
-        <select name="decision" class="form-control" required>
-          <option value="approved">✓ Approved — access is appropriate</option>
-          <option value="revoked">✗ Revoked — access should be removed</option>
-          <option value="modified">~ Modified — access level should change</option>
-        </select>
-      </div>
-      <div class="form-group" style="margin:0">
-        <label class="form-label">Notes</label>
-        <textarea name="notes" class="form-control" rows="3" placeholder="Justification or follow-up actions…"></textarea>
-      </div>
-    </div>
-    <div style="display:flex;gap:10px;justify-content:flex-end;padding:14px 20px;border-top:1px solid var(--border);background:var(--bg)">
-      <button type="button" class="btn btn-secondary btn-sm" data-click="closeDecision">Cancel</button>
-      <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-check-lg"></i> Save Decision</button>
-    </div>
-  </form>
 </div>
 
 <script nonce="<?= Security::nonce() ?>">
@@ -200,12 +201,10 @@ var _reviewId = <?= (int)$review['id'] ?>;
 function openDecision(el, itemId, accountName) {
   document.getElementById('decisionAccountName').textContent = accountName;
   document.getElementById('decisionForm').action = '/account-reviews/' + _reviewId + '/item/' + itemId + '/decide';
-  document.getElementById('modal-overlay').style.display = 'flex';
-  document.getElementById('modal-decision').style.display = 'block';
+  document.getElementById('decisionModal').classList.add('open');
 }
 function closeDecision() {
-  document.getElementById('modal-overlay').style.display = 'none';
-  document.getElementById('modal-decision').style.display = 'none';
+  document.getElementById('decisionModal').classList.remove('open');
 }
 </script>
 

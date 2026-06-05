@@ -44,7 +44,7 @@ $widgetTypes = [
   <div style="display:flex;gap:10px;align-items:center;">
     <?php if ($dashboard['is_shared']): ?><span class="badge badge-info">Shared</span><?php endif; ?>
     <?php if ($isOwner): ?>
-    <button id="btnOpenWidget" class="btn btn-secondary btn-sm"><i class="bi bi-plus-lg"></i> Add Widget</button>
+    <button id="btnOpenWidget" class="btn btn-secondary btn-sm" data-show-modal="addWidgetModal"><i class="bi bi-plus-lg"></i> Add Widget</button>
     <form method="POST" action="/dashboards/<?= (int)$dashboard['id'] ?>/delete" data-confirm="Delete this dashboard?" style="margin:0;">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
       <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i></button>
@@ -60,7 +60,7 @@ $widgetTypes = [
   <h3 style="margin:16px 0 8px;">No Widgets Yet</h3>
   <?php if ($isOwner): ?>
   <p style="color:var(--text-muted);margin-bottom:20px;">Add widgets to build your custom view.</p>
-  <button class="btn btn-primary" id="btnOpenWidget2">Add First Widget</button>
+  <button class="btn btn-primary" id="btnOpenWidget2" data-show-modal="addWidgetModal">Add First Widget</button>
   <?php else: ?>
   <p style="color:var(--text-muted);">This dashboard has no widgets.</p>
   <?php endif; ?>
@@ -361,11 +361,11 @@ $widgetTypes = [
 
 <?php if ($isOwner): ?>
 <!-- Add Widget Modal -->
-<div id="addWidgetModal" style="display:none;position:fixed;inset:0;z-index:1000;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);">
-  <div style="background:var(--card-bg);border-radius:12px;padding:28px;width:460px;max-width:95vw;">
+<div class="um-overlay" id="addWidgetModal">
+  <div class="um-dialog">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
       <h3 style="margin:0;">Add Widget</h3>
-      <button id="btnCloseWidget" style="background:none;border:none;cursor:pointer;font-size:1.25rem;"><i class="bi bi-x-lg"></i></button>
+      <button id="btnCloseWidget" data-close-modal="addWidgetModal" style="background:none;border:none;cursor:pointer;font-size:1.25rem;"><i class="bi bi-x-lg"></i></button>
     </div>
     <form method="POST" action="/dashboards/<?= (int)$dashboard['id'] ?>/add-widget">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
@@ -391,7 +391,7 @@ $widgetTypes = [
       </div>
       <div style="display:flex;gap:10px;margin-top:20px;">
         <button type="submit" class="btn btn-primary">Add Widget</button>
-        <button type="button" id="btnCancelWidget" class="btn btn-secondary">Cancel</button>
+        <button type="button" id="btnCancelWidget" data-close-modal="addWidgetModal" class="btn btn-secondary">Cancel</button>
       </div>
     </form>
   </div>
@@ -403,12 +403,6 @@ function toggleMetric() {
 }
 document.getElementById('widgetTypeSelect').addEventListener('change', toggleMetric);
 toggleMetric();
-var modal = document.getElementById('addWidgetModal');
-document.getElementById('btnOpenWidget').addEventListener('click', function(){ modal.style.display = 'flex'; });
-var btn2 = document.getElementById('btnOpenWidget2');
-if (btn2) btn2.addEventListener('click', function(){ modal.style.display = 'flex'; });
-document.getElementById('btnCloseWidget').addEventListener('click', function(){ modal.style.display = 'none'; });
-document.getElementById('btnCancelWidget').addEventListener('click', function(){ modal.style.display = 'none'; });
 document.querySelectorAll('[data-confirm]').forEach(function(el) {
   el.addEventListener('submit', function(e) { if (!confirm(el.getAttribute('data-confirm'))) e.preventDefault(); });
 });

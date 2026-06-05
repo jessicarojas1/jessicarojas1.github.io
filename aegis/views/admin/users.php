@@ -16,8 +16,8 @@ ob_start();
 
 <div class="page-header">
   <h1 class="page-title">User Management</h1>
-  <button id="btnOpenImport" class="btn btn-secondary"><i class="bi bi-upload"></i> Import Users</button>
-  <button id="btnOpenCreate" class="btn btn-primary"><i class="bi bi-person-plus-fill"></i> New User</button>
+  <button id="btnOpenImport" class="btn btn-secondary" data-show-modal="dlgImportUsers"><i class="bi bi-upload"></i> Import Users</button>
+  <button id="btnOpenCreate" class="btn btn-primary" data-show-modal="dlgCreateUser"><i class="bi bi-person-plus-fill"></i> New User</button>
 </div>
 
 <div class="card">
@@ -66,11 +66,11 @@ ob_start();
      ============================================================ -->
 
 <!-- Create User Dialog -->
-<div id="dlgCreateUser" class="um-overlay" style="display:none">
+<div id="dlgCreateUser" class="um-overlay">
   <div class="um-dialog">
     <div class="um-header">
       <h3 style="margin:0;font-size:1rem;font-weight:700"><i class="bi bi-person-plus-fill"></i> New User</h3>
-      <button type="button" class="um-close" data-close-dialog="dlgCreateUser"><i class="bi bi-x-lg"></i></button>
+      <button type="button" class="um-close" data-close-modal="dlgCreateUser"><i class="bi bi-x-lg"></i></button>
     </div>
     <div class="um-body">
       <form method="POST" action="/admin/users/create">
@@ -99,7 +99,7 @@ ob_start();
         </div>
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">Create User</button>
-          <button type="button" class="btn btn-ghost" data-close-dialog="dlgCreateUser">Cancel</button>
+          <button type="button" class="btn btn-ghost" data-close-modal="dlgCreateUser">Cancel</button>
         </div>
       </form>
     </div>
@@ -107,11 +107,11 @@ ob_start();
 </div>
 
 <!-- Edit User Dialog -->
-<div id="dlgEditUser" class="um-overlay" style="display:none">
+<div id="dlgEditUser" class="um-overlay">
   <div class="um-dialog">
     <div class="um-header">
       <h3 style="margin:0;font-size:1rem;font-weight:700"><i class="bi bi-pencil-fill"></i> Edit User</h3>
-      <button type="button" class="um-close" data-close-dialog="dlgEditUser"><i class="bi bi-x-lg"></i></button>
+      <button type="button" class="um-close" data-close-modal="dlgEditUser"><i class="bi bi-x-lg"></i></button>
     </div>
     <div class="um-body">
       <form method="POST" id="editUserForm" action="">
@@ -142,7 +142,7 @@ ob_start();
         </div>
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">Save Changes</button>
-          <button type="button" class="btn btn-ghost" data-close-dialog="dlgEditUser">Cancel</button>
+          <button type="button" class="btn btn-ghost" data-close-modal="dlgEditUser">Cancel</button>
         </div>
       </form>
     </div>
@@ -150,11 +150,11 @@ ob_start();
 </div>
 
 <!-- Import Users Dialog -->
-<div id="dlgImportUsers" class="um-overlay" style="display:none">
+<div id="dlgImportUsers" class="um-overlay">
   <div class="um-dialog">
     <div class="um-header">
       <h3 style="margin:0;font-size:1rem;font-weight:700"><i class="bi bi-upload"></i> Import Users</h3>
-      <button type="button" class="um-close" data-close-dialog="dlgImportUsers"><i class="bi bi-x-lg"></i></button>
+      <button type="button" class="um-close" data-close-modal="dlgImportUsers"><i class="bi bi-x-lg"></i></button>
     </div>
     <div class="um-body">
       <form method="POST" action="/admin/users/import" enctype="multipart/form-data">
@@ -183,7 +183,7 @@ ob_start();
         </div>
         <div class="form-actions">
           <button type="submit" class="btn btn-primary"><i class="bi bi-upload"></i> Import Users</button>
-          <button type="button" class="btn btn-ghost" data-close-dialog="dlgImportUsers">Cancel</button>
+          <button type="button" class="btn btn-ghost" data-close-modal="dlgImportUsers">Cancel</button>
         </div>
       </form>
     </div>
@@ -247,57 +247,6 @@ html[data-theme="dark"] .um-close:hover { color: #e6edf3; }
 
 <script nonce="<?= Security::nonce() ?>">
 (function () {
-  var openedAt = {};
-
-  function openDialog(id) {
-    var el = document.getElementById(id);
-    if (!el) return;
-    el.style.display = 'flex';
-    openedAt[id] = Date.now();
-    // iOS ghost-click guard: block backdrop pointer-events for 400ms
-    el.style.pointerEvents = 'none';
-    var dlg = el.querySelector('.um-dialog');
-    if (dlg) dlg.style.pointerEvents = 'auto';
-    setTimeout(function () {
-      el.style.pointerEvents = '';
-      if (dlg) dlg.style.pointerEvents = '';
-    }, 400);
-  }
-
-  function closeDialog(id) {
-    var el = document.getElementById(id);
-    if (el) el.style.display = 'none';
-  }
-
-  // Open buttons
-  var btnCreate = document.getElementById('btnOpenCreate');
-  if (btnCreate) btnCreate.addEventListener('click', function () { openDialog('dlgCreateUser'); });
-
-  var btnImport = document.getElementById('btnOpenImport');
-  if (btnImport) btnImport.addEventListener('click', function () { openDialog('dlgImportUsers'); });
-
-  // Close buttons (data-close-dialog attribute)
-  document.addEventListener('click', function (e) {
-    var closer = e.target.closest('[data-close-dialog]');
-    if (closer) {
-      closeDialog(closer.getAttribute('data-close-dialog'));
-      return;
-    }
-    // Backdrop click closes the overlay
-    var overlay = e.target.closest('.um-overlay');
-    if (overlay && e.target === overlay) {
-      var since = Date.now() - (openedAt[overlay.id] || 0);
-      if (since > 350) closeDialog(overlay.id);
-    }
-  });
-
-  // Escape key
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') {
-      ['dlgCreateUser', 'dlgEditUser', 'dlgImportUsers'].forEach(closeDialog);
-    }
-  });
-
   // Edit user: called by data-click="editUserFromBtn" in app.js
   window.editUserFromBtn = function (btn) {
     var u = JSON.parse(btn.getAttribute('data-user'));
@@ -307,7 +256,7 @@ html[data-theme="dark"] .um-close:hover { color: #e6edf3; }
     document.getElementById('eu_title').value = u.job_title || '';
     document.getElementById('eu_role').value  = u.role;
     document.getElementById('eu_active').checked = u.is_active === '1' || u.is_active === true || u.is_active === 't';
-    openDialog('dlgEditUser');
+    document.getElementById('dlgEditUser').classList.add('open');
   };
 }());
 </script>
