@@ -1,0 +1,29 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: sentinel-backend
+  namespace: sentinel-qms
+  labels:
+    app.kubernetes.io/name: sentinel-qms
+    app.kubernetes.io/component: backend
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: sentinel-qms
+      app.kubernetes.io/component: backend
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: sentinel-frontend
+  namespace: sentinel-qms
+  labels:
+    app.kubernetes.io/name: sentinel-qms
+    app.kubernetes.io/component: frontend
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: sentinel-qms
+      app.kubernetes.io/component: frontend

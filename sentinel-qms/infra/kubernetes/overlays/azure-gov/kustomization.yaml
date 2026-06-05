@@ -1,0 +1,37 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: sentinel-qms
+
+resources:
+  - ../../base
+  - secret-provider-class.yaml
+
+images:
+  - name: sentinel-qms/backend
+    newName: sentinelqmsacr.azurecr.us/sentinel-qms/backend
+    newTag: latest
+  - name: sentinel-qms/frontend
+    newName: sentinelqmsacr.azurecr.us/sentinel-qms/frontend
+    newTag: latest
+
+patches:
+  - path: patch-serviceaccount.yaml
+    target:
+      kind: ServiceAccount
+      name: sentinel-backend
+  - path: patch-deployment.yaml
+    target:
+      kind: Deployment
+      name: sentinel-backend
+  - path: patch-ingress.yaml
+    target:
+      kind: Ingress
+      name: sentinel-qms
+  - path: patch-configmap.yaml
+    target:
+      kind: ConfigMap
+      name: sentinel-backend-config
+
+patchesStrategicMerge:
+  - delete-secret.yaml

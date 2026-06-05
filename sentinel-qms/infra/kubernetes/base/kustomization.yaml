@@ -1,0 +1,30 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: sentinel-qms
+
+commonLabels:
+  app.kubernetes.io/name: sentinel-qms
+  app.kubernetes.io/part-of: sentinel-qms
+  app.kubernetes.io/managed-by: kustomize
+
+resources:
+  - namespace.yaml
+  - serviceaccount.yaml
+  - configmap.yaml
+  - secret.yaml
+  - backend-deployment.yaml
+  - backend-service.yaml
+  - frontend-deployment.yaml
+  - frontend-service.yaml
+  - ingress.yaml
+  - hpa.yaml
+  - networkpolicy.yaml
+  - poddisruptionbudget.yaml
+  - resourcequota.yaml
+
+images:
+  - name: sentinel-qms/backend
+    newTag: latest
+  - name: sentinel-qms/frontend
+    newTag: latest

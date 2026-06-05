@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sentinel-backend-config
+  namespace: sentinel-qms
+  labels:
+    app.kubernetes.io/name: sentinel-qms
+    app.kubernetes.io/component: backend
+data:
+  # Non-secret runtime configuration. Secrets live in the Secret object.
+  ENVIRONMENT: "prod"
+  LOG_LEVEL: "INFO"
+  CORS_ORIGINS: "https://qms.example.gov"
+  STORAGE_BACKEND: "s3"
+  S3_BUCKET: "sentinel-qms-prod-uploads"
+  S3_REGION: "us-gov-west-1"
+  OIDC_ISSUER: "https://login.example.gov/oauth2/default"
+  OIDC_CLIENT_ID: "REPLACE-ME"

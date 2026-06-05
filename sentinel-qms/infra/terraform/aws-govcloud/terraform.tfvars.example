@@ -1,0 +1,34 @@
+# =============================================================================
+# AWS GovCloud — copy to terraform.tfvars and fill in. NEVER commit real values.
+# Secrets (oidc_client_secret) should be passed via TF_VAR_* env vars in CI,
+# not stored in this file.
+# =============================================================================
+
+aws_region          = "us-gov-west-1"
+allowed_account_ids = ["123456789012"] # your GovCloud account id
+project             = "sentinel-qms"
+environment         = "prod"
+owner               = "qms-platform"
+
+availability_zones    = ["us-gov-west-1a", "us-gov-west-1b"]
+vpc_cidr              = "10.40.0.0/16"
+ingress_allowed_cidrs = ["0.0.0.0/0"] # tighten to agency CIDR ranges in prod
+
+# Images (ECR GovCloud). Pushed by scripts/build-and-push.sh.
+backend_image  = "123456789012.dkr.ecr.us-gov-west-1.amazonaws.com/sentinel-qms/backend:latest"
+frontend_image = "123456789012.dkr.ecr.us-gov-west-1.amazonaws.com/sentinel-qms/frontend:latest"
+
+# ACM cert covering your QMS hostname.
+acm_certificate_arn = "arn:aws-us-gov:acm:us-gov-west-1:123456789012:certificate/REPLACE-ME"
+
+db_instance_class       = "db.m6g.large"
+db_allocated_storage_gb = 100
+db_multi_az             = true
+
+oidc_issuer    = "https://login.example.gov/oauth2/default"
+oidc_client_id = "REPLACE-ME"
+cors_origins   = "https://qms.example.gov"
+log_level      = "INFO"
+alarm_email    = "qms-oncall@example.gov"
+
+# oidc_client_secret -> supply via:  export TF_VAR_oidc_client_secret=...

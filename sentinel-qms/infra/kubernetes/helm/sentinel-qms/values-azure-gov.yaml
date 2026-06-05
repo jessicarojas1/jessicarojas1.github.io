@@ -1,0 +1,30 @@
+cloud: azure
+
+image:
+  backend:
+    repository: sentinelqmsacr.azurecr.us/sentinel-qms/backend
+  frontend:
+    repository: sentinelqmsacr.azurecr.us/sentinel-qms/frontend
+
+serviceAccount:
+  annotations:
+    azure.workload.identity/client-id: "00000000-0000-0000-0000-000000000000"
+
+config:
+  STORAGE_BACKEND: azure_blob
+  AZURE_STORAGE_ACCOUNT: sentinelqmsst
+  AZURE_STORAGE_CONTAINER: uploads
+  AZURE_AUTHORITY_HOST: https://login.microsoftonline.us/
+
+secrets:
+  externalSecrets:
+    enabled: true # populated by Secrets Store CSI Driver from Key Vault
+
+ingress:
+  enabled: true
+  className: azure-application-gateway
+  host: qms.example.gov
+  annotations:
+    appgw.ingress.kubernetes.io/ssl-redirect: "true"
+    appgw.ingress.kubernetes.io/backend-protocol: http
+    appgw.ingress.kubernetes.io/health-probe-path: /health

@@ -1,0 +1,15 @@
+apiVersion: v2
+name: sentinel-qms
+description: Sentinel QMS — Enterprise Quality Management System (backend + frontend)
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+keywords:
+  - qms
+  - aerospace
+  - compliance
+  - cmmc
+  - fedramp
+maintainers:
+  - name: qms-platform
+home: https://qms.example.gov

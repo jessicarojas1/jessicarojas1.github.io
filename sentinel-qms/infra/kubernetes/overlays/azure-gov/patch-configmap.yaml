@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sentinel-backend-config
+  namespace: sentinel-qms
+data:
+  ENVIRONMENT: "prod"
+  STORAGE_BACKEND: "azure_blob"
+  AZURE_STORAGE_ACCOUNT: "sentinelqmsst"
+  AZURE_STORAGE_CONTAINER: "uploads"
+  AZURE_AUTHORITY_HOST: "https://login.microsoftonline.us/"

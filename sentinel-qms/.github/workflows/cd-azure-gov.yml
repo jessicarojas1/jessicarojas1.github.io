@@ -1,0 +1,101 @@
+name: CD — Azure Government
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Image tag to deploy (default: commit SHA)"
+        required: false
+  push:
+    tags:
+      - "v*"
+
+# OIDC federation to Entra ID — no client secret stored in GitHub.
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: cd-azure-gov
+  cancel-in-progress: false
+
+env:
+  TF_DIR: sentinel-qms/infra/terraform/azure-gov
+  ARM_USE_OIDC: "true"
+  ARM_ENVIRONMENT: usgovernment
+
+jobs:
+  deploy:
+    name: Build, push & apply (Azure Gov)
+    runs-on: ubuntu-latest
+    environment: azure-gov-prod # manual approval gate
+    env:
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve image tag
+        id: tag
+        run: echo "tag=${{ github.event.inputs.image_tag || github.sha }}" >> "$GITHUB_OUTPUT"
+
+      - name: Azure login (OIDC, Government cloud)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          environment: AzureUSGovernment
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.5"
+
+      - name: Terraform init
+        working-directory: ${{ env.TF_DIR }}
+        run: terraform init -input=false
+
+      # First apply provisions ACR (and the rest); subsequent push targets it.
+      - name: Terraform apply (infra)
+        working-directory: ${{ env.TF_DIR }}
+        env:
+          TF_VAR_oidc_client_secret: ${{ secrets.OIDC_CLIENT_SECRET }}
+          TF_VAR_backend_image: sentinel-qms/backend:${{ steps.tag.outputs.tag }}
+          TF_VAR_frontend_image: sentinel-qms/frontend:${{ steps.tag.outputs.tag }}
+        run: terraform apply -input=false -auto-approve
+
+      - name: Build & push images to ACR
+        working-directory: ${{ env.TF_DIR }}
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          ACR=$(terraform output -raw acr_login_server)
+          az acr login --name "${ACR%%.*}"
+          for c in backend frontend; do
+            docker build -t "$ACR/sentinel-qms/$c:$TAG" "$GITHUB_WORKSPACE/sentinel-qms/$c"
+            docker push "$ACR/sentinel-qms/$c:$TAG"
+          done
+
+      - name: Database migrations (Container App job)
+        working-directory: ${{ env.TF_DIR }}
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          ACR=$(terraform output -raw acr_login_server)
+          RG=$(terraform output -raw resource_group)
+          ENV_ID=$(terraform output -raw container_app_environment_id)
+          az containerapp job create --name "sentinel-qms-migrate-$TAG" \
+            --resource-group "$RG" --environment "$ENV_ID" \
+            --trigger-type Manual --replica-timeout 600 --replica-retry-limit 1 \
+            --image "$ACR/sentinel-qms/backend:$TAG" --cpu 0.5 --memory 1Gi \
+            --command "alembic" "upgrade" "head" || true
+          az containerapp job start --name "sentinel-qms-migrate-$TAG" --resource-group "$RG"
+
+      - name: Roll out new image
+        working-directory: ${{ env.TF_DIR }}
+        env:
+          TF_VAR_oidc_client_secret: ${{ secrets.OIDC_CLIENT_SECRET }}
+          TF_VAR_backend_image: sentinel-qms/backend:${{ steps.tag.outputs.tag }}
+          TF_VAR_frontend_image: sentinel-qms/frontend:${{ steps.tag.outputs.tag }}
+        run: terraform apply -input=false -auto-approve
