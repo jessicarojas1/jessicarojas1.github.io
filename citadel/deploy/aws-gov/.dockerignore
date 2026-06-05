@@ -1,0 +1,46 @@
+# CITADEL — build context exclusions (keep images small & secret-free)
+
+# VCS / CI
+.git
+.gitignore
+.github
+.gitlab-ci.yml
+
+# IaC & deployment artifacts (never bake into the app image)
+deploy
+**/*.tf
+**/*.tfvars
+**/*.tfstate
+**/*.tfstate.*
+.terraform
+.terraform.lock.hcl
+
+# Secrets & local env
+.env
+.env.*
+*.pem
+*.key
+*.crt
+secrets*.json
+aws-credentials*
+
+# Node / build caches
+node_modules
+npm-debug.log*
+yarn-error.log
+.cache
+dist
+coverage
+
+# Editor / OS cruft
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+*.swp
+
+# Docs & misc not needed at runtime
+*.md
+LICENSE
+.dockerignore
+Dockerfile

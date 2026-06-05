@@ -1,0 +1,45 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "value": "usgovvirginia"
+    },
+    "namePrefix": {
+      "value": "citadel"
+    },
+    "environmentName": {
+      "value": "prod"
+    },
+    "containerImage": {
+      "value": "acrcitadelprod.azurecr.us/citadel/web:1.0.0"
+    },
+    "containerPort": {
+      "value": 8080
+    },
+    "cpuCores": {
+      "value": "0.5"
+    },
+    "memorySize": {
+      "value": "1.0Gi"
+    },
+    "minReplicas": {
+      "value": 1
+    },
+    "maxReplicas": {
+      "value": 5
+    },
+    "internalOnly": {
+      "value": true
+    },
+    "logRetentionDays": {
+      "value": 365
+    },
+    "classification": {
+      "value": "CUI"
+    },
+    "impactLevel": {
+      "value": "IL4"
+    }
+  }
+}

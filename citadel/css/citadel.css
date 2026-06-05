@@ -1,0 +1,163 @@
+/* CITADEL — styles. Built on Bootstrap 5.3 theme variables so light & dark
+   modes both work via [data-bs-theme]. */
+
+:root { --citadel-accent:#0ea5e9; --citadel-accent-2:#6366f1; }
+
+body { background: var(--bs-body-bg); }
+
+/* ---------- Top bar ---------- */
+.citadel-bar {
+  background: color-mix(in srgb, var(--bs-body-bg) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--bs-border-color);
+}
+.citadel-bar .navbar-brand span { letter-spacing:.12em; }
+
+/* ---------- Hero ---------- */
+.citadel-hero {
+  padding: 3.2rem 0 2rem;
+  background:
+    radial-gradient(1100px 380px at 50% -8%, color-mix(in srgb, var(--citadel-accent) 16%, transparent), transparent 70%),
+    var(--bs-body-bg);
+  border-bottom: 1px solid var(--bs-border-color);
+}
+.citadel-pill {
+  background: color-mix(in srgb, var(--citadel-accent) 16%, transparent);
+  color: var(--citadel-accent); border:1px solid color-mix(in srgb, var(--citadel-accent) 35%, transparent);
+  font-weight:600; padding:.4rem .8rem;
+}
+.hero-chip {
+  font-size:.72rem; padding:.28rem .6rem; border-radius:999px;
+  background: var(--bs-tertiary-bg); border:1px solid var(--bs-border-color);
+  color: var(--bs-secondary-color);
+}
+
+/* ---------- Dropzone ---------- */
+.dropzone {
+  border:2px dashed color-mix(in srgb, var(--citadel-accent) 45%, var(--bs-border-color));
+  border-radius:16px; padding:2.6rem 1.5rem; text-align:center; cursor:pointer;
+  background: var(--bs-tertiary-bg); transition:.18s ease; height:100%;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+}
+.dropzone:hover, .dropzone:focus-visible { border-color: var(--citadel-accent); background: color-mix(in srgb, var(--citadel-accent) 7%, var(--bs-tertiary-bg)); outline:none; }
+.dropzone.dragover { border-color: var(--citadel-accent); background: color-mix(in srgb, var(--citadel-accent) 14%, var(--bs-tertiary-bg)); transform:scale(1.005); }
+.dz-icon { font-size:2.6rem; color: var(--citadel-accent); margin-bottom:.4rem; }
+
+.citadel-card { background: var(--bs-body-bg); border:1px solid var(--bs-border-color); border-radius:14px; }
+.pipeline-list { list-style:none; margin:0; padding:0; }
+.pipeline-list li { display:flex; align-items:center; gap:.6rem; padding:.32rem 0; font-size:.9rem; border-bottom:1px dashed var(--bs-border-color); }
+.pipeline-list li:last-child { border-bottom:0; }
+.pipeline-list li span { flex:0 0 22px; height:22px; border-radius:50%; background: color-mix(in srgb, var(--citadel-accent) 18%, transparent); color: var(--citadel-accent); font-size:.72rem; font-weight:700; display:grid; place-items:center; }
+
+/* ---------- Scorecard ---------- */
+.scorecard { display:flex; flex-wrap:wrap; gap:1.5rem; align-items:center; padding:1.4rem 1.6rem;
+  background: var(--bs-tertiary-bg); border:1px solid var(--bs-border-color); border-radius:16px; }
+.grade-badge { display:flex; flex-direction:column; align-items:center; justify-content:center;
+  width:104px; height:104px; border-radius:18px; color:#fff; flex-shrink:0; }
+.grade-letter { font-size:2.8rem; font-weight:800; line-height:1; }
+.grade-sub { font-size:.62rem; text-transform:uppercase; letter-spacing:.1em; text-align:center; opacity:.9; }
+.grade-a{background:#16a34a}.grade-b{background:#65a30d}.grade-c{background:#ca8a04}.grade-d{background:#ea580c}.grade-e{background:#dc2626}.grade-f{background:#991b1b}
+
+.score-rings { display:flex; gap:1.4rem; flex-wrap:wrap; }
+.score-ring-card { text-align:center; }
+.score-ring { --val:0; width:74px; height:74px; border-radius:50%; display:grid; place-items:center; margin:0 auto .35rem;
+  background: conic-gradient(var(--citadel-accent) calc(var(--val)*1%), color-mix(in srgb, var(--bs-border-color) 60%, transparent) 0); }
+.score-ring::before { content:''; position:absolute; width:56px; height:56px; border-radius:50%; background: var(--bs-tertiary-bg); }
+.score-num { position:relative; font-weight:700; font-size:1.15rem; }
+.score-label { font-weight:600; font-size:.82rem; }
+.score-hint { font-size:.66rem; color: var(--bs-secondary-color); }
+.scorecard-stats { display:flex; flex-wrap:wrap; gap:1.1rem 1.6rem; margin-left:auto; }
+.scorecard-stats > div { display:flex; flex-direction:column; }
+.sc-val { font-size:1.35rem; font-weight:700; line-height:1.1; }
+.sc-lbl { font-size:.7rem; text-transform:uppercase; letter-spacing:.04em; color: var(--bs-secondary-color); }
+
+/* ---------- Tabs ---------- */
+.citadel-tabs { list-style:none; display:flex; flex-wrap:wrap; gap:.4rem; padding:0; border-bottom:1px solid var(--bs-border-color); }
+.tab-btn { background:transparent; border:0; border-bottom:2px solid transparent; padding:.55rem .8rem;
+  color: var(--bs-secondary-color); font-weight:600; font-size:.88rem; border-radius:8px 8px 0 0; }
+.tab-btn:hover { color: var(--bs-body-color); background: var(--bs-tertiary-bg); }
+.tab-btn.active { color: var(--citadel-accent); border-bottom-color: var(--citadel-accent); }
+
+/* ---------- Findings ---------- */
+.finding { border:1px solid var(--bs-border-color); border-radius:10px; margin-bottom:.55rem; overflow:hidden; background: var(--bs-body-bg); }
+.finding-head { display:flex; align-items:center; gap:.6rem; padding:.6rem .8rem; cursor:pointer; }
+.finding-head:hover { background: var(--bs-tertiary-bg); }
+.sev-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.finding-name { font-weight:600; font-size:.9rem; }
+.sev-badge { font-size:.62rem; text-transform:uppercase; color:#fff; }
+.finding-chev { transition:.2s; color: var(--bs-secondary-color); }
+.finding-chev.open { transform:rotate(180deg); }
+.finding-body { padding:.2rem .9rem 1rem; border-top:1px solid var(--bs-border-color); }
+.finding-loc { font-family:monospace; font-size:.8rem; color: var(--citadel-accent); margin:.6rem 0 .4rem; word-break:break-all; }
+.finding-snippet { background: var(--bs-tertiary-bg); border:1px solid var(--bs-border-color); border-radius:6px;
+  padding:.5rem .7rem; font-size:.78rem; overflow-x:auto; margin:.2rem 0 .6rem; white-space:pre-wrap; word-break:break-word; }
+.finding-meta { display:flex; flex-wrap:wrap; gap:.4rem 1.2rem; font-size:.8rem; color: var(--bs-secondary-color); margin-bottom:.5rem; }
+.finding-fix { font-size:.84rem; background: color-mix(in srgb, var(--citadel-accent) 8%, transparent); border-left:3px solid var(--citadel-accent); padding:.45rem .7rem; border-radius:0 6px 6px 0; }
+.finding-controls { margin-top:.6rem; display:flex; flex-wrap:wrap; gap:.3rem; align-items:center; }
+.ctrl-chip { font-size:.66rem; padding:.15rem .45rem; border-radius:5px; background: var(--bs-tertiary-bg); border:1px solid var(--bs-border-color); color: var(--bs-secondary-color); }
+
+/* ---------- Compliance ---------- */
+.compliance-card { border-top:4px solid var(--bs-border-color); }
+.compliance-card.status-fail { border-top-color:#dc3545; }
+.compliance-card.status-partial { border-top-color:#ffc107; }
+.compliance-card.status-pass { border-top-color:#16a34a; }
+.compliance-status { font-weight:700; font-size:.86rem; margin-bottom:.4rem; }
+.status-fail .compliance-status { color:#dc3545; }
+.status-partial .compliance-status { color:#d39e00; }
+.status-pass .compliance-status { color:#16a34a; }
+.framework-tag { background: var(--bs-tertiary-bg); color: var(--bs-secondary-color); border:1px solid var(--bs-border-color); font-size:.62rem; }
+.ctrl-list { list-style:none; padding:0; margin:0; font-size:.78rem; }
+.ctrl-list li { padding:.12rem 0; }
+.ctrl-list code { font-size:.74rem; }
+
+.fw-row { padding:.5rem 0; border-bottom:1px dashed var(--bs-border-color); }
+.fw-row:last-child { border-bottom:0; }
+.fw-row-main { display:flex; align-items:center; justify-content:space-between; gap:.5rem; }
+.fw-name { font-weight:600; font-size:.88rem; text-decoration:none; }
+
+/* ---------- Tables ---------- */
+.citadel-table code { font-size:.8rem; }
+
+/* ---------- Binary ---------- */
+.binary-stats { margin-top:.4rem; }
+.bs-lbl { display:block; font-size:.66rem; text-transform:uppercase; color: var(--bs-secondary-color); }
+.bs-val { font-weight:600; font-size:.86rem; word-break:break-word; }
+
+/* ---------- Quality ---------- */
+.quality-metric { background: var(--bs-tertiary-bg); border:1px solid var(--bs-border-color); border-radius:12px; padding:1rem; text-align:center; height:100%; }
+.qm-val { font-size:1.5rem; font-weight:700; color: var(--citadel-accent); }
+.qm-lbl { font-size:.8rem; font-weight:600; }
+.qm-hint { font-size:.66rem; color: var(--bs-secondary-color); }
+
+/* ---------- Deployment ---------- */
+.deploy-card code { font-size:.74rem; word-break:break-all; }
+
+/* ---------- Export ---------- */
+.export-btn { display:flex; align-items:center; gap:.7rem; justify-content:flex-start; padding:1rem; text-align:left; }
+.export-btn i { font-size:1.5rem; }
+.export-preview { background: var(--bs-tertiary-bg); border:1px solid var(--bs-border-color); border-radius:8px; padding:.8rem; font-size:.78rem; max-height:260px; overflow:auto; }
+
+.exec-summary ul { padding-left:1.1rem; font-size:.88rem; }
+.exec-summary li { margin-bottom:.2rem; }
+
+/* ---------- Empty / misc ---------- */
+.empty-state { text-align:center; color: var(--bs-secondary-color); padding:2.5rem 1rem; }
+.empty-state i { font-size:2.4rem; display:block; margin-bottom:.5rem; opacity:.6; }
+.citadel-footer { border-top:1px solid var(--bs-border-color); margin-top:2rem; }
+.skip-link { position:absolute; left:-999px; }
+.skip-link:focus { left:1rem; top:1rem; z-index:1080; background:var(--bs-body-bg); padding:.5rem .9rem; border-radius:8px; }
+
+@media (max-width: 575px){
+  .scorecard { gap:1rem; padding:1rem; }
+  .scorecard-stats { margin-left:0; gap:.8rem 1.1rem; }
+  .grade-badge { width:84px; height:84px; }
+  .grade-letter { font-size:2.1rem; }
+}
+
+/* ---------- Print ---------- */
+@media print {
+  .citadel-bar, .citadel-hero, #intake-section, .citadel-tabs, .citadel-footer, #themeToggleBtn, .skip-link { display:none !important; }
+  .tab-panel.d-none { display:block !important; }
+  .tab-panel { page-break-inside:avoid; margin-bottom:1.5rem; }
+  body { background:#fff; }
+}
