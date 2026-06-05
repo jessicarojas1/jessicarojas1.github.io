@@ -81,7 +81,7 @@ if ($filterStatus !== '') {
 
   <div class="card" style="border-left:4px solid #71717a;">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
-      <div style="width:44px;height:44px;border-radius:10px;background:#f4f4f5;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <div style="width:44px;height:44px;border-radius:10px;background:var(--bg-secondary);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
         <i class="bi bi-calendar-x-fill" style="font-size:20px;color:var(--text-muted);"></i>
       </div>
       <div>
@@ -264,7 +264,7 @@ if ($filterStatus !== '') {
         <!-- Conditions expandable row -->
         <?php if (!empty($acc['conditions'])): ?>
         <tr id="<?= $rowId ?>" style="display:none;">
-          <td colspan="8" style="background:#f9fafb;padding:12px 20px 14px;border-top:none;">
+          <td colspan="8" style="background:var(--bg-secondary);padding:12px 20px 14px;border-top:none;">
             <div style="display:flex;gap:8px;align-items:flex-start;">
               <i class="bi bi-bookmark-fill" style="color:var(--secondary);font-size:14px;flex-shrink:0;margin-top:2px;"></i>
               <div>

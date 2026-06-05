@@ -54,6 +54,16 @@ $packages = Database::fetchAll("SELECT id, name FROM compliance_packages WHERE i
             <input type="file" id="csvFile" name="package_file" accept=".csv,text/csv" style="display:none"
                    data-change="showFileChange" data-drop-id="fileDropCsv" data-name-id="csvName" data-color="#059669">
             <div id="csvName" style="margin-top:8px;color:#059669;display:none"><i class="bi bi-file-earmark-check"></i> <span></span></div>
+            <div style="margin-top:10px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:0.8rem;">
+              <div style="font-weight:600;color:var(--text);margin-bottom:5px;"><i class="bi bi-info-circle" style="color:var(--primary)"></i> Upload Reference</div>
+              <table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
+                <thead><tr style="color:var(--text-muted)"><th style="text-align:left;padding:2px 8px 2px 0;">Field</th><th style="text-align:left;padding:2px 8px 2px 0;">Format</th><th style="text-align:left;padding:2px 8px 2px 0;">Max Size</th><th style="text-align:left;">Required</th></tr></thead>
+                <tbody style="color:var(--text);">
+                  <tr><td style="padding:2px 8px 2px 0;font-family:monospace">package_file</td><td style="padding:2px 8px 2px 0;">CSV (.csv)</td><td style="padding:2px 8px 2px 0;">20 MB</td><td><strong style="color:#dc2626">Yes</strong></td></tr>
+                </tbody>
+              </table>
+              <div style="margin-top:5px;color:var(--text-muted);">Row 1 must be a header row. See the <strong>Required Columns</strong> panel for field names.</div>
+            </div>
           </div>
           <button type="submit" class="btn btn-primary btn-full"><i class="bi bi-cloud-upload"></i> Import CSV</button>
         </form>
@@ -83,6 +93,16 @@ $packages = Database::fetchAll("SELECT id, name FROM compliance_packages WHERE i
                    accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                    style="display:none" data-change="showFileChange" data-drop-id="fileDropExcel" data-name-id="excelName" data-color="#217346">
             <div id="excelName" style="margin-top:8px;color:#217346;display:none"><i class="bi bi-file-earmark-check"></i> <span></span></div>
+            <div style="margin-top:10px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:0.8rem;">
+              <div style="font-weight:600;color:var(--text);margin-bottom:5px;"><i class="bi bi-info-circle" style="color:var(--primary)"></i> Upload Reference</div>
+              <table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
+                <thead><tr style="color:var(--text-muted)"><th style="text-align:left;padding:2px 8px 2px 0;">Field</th><th style="text-align:left;padding:2px 8px 2px 0;">Format</th><th style="text-align:left;padding:2px 8px 2px 0;">Max Size</th><th style="text-align:left;">Required</th></tr></thead>
+                <tbody style="color:var(--text);">
+                  <tr><td style="padding:2px 8px 2px 0;font-family:monospace">package_file</td><td style="padding:2px 8px 2px 0;">Excel (.xlsx)</td><td style="padding:2px 8px 2px 0;">20 MB</td><td><strong style="color:#dc2626">Yes</strong></td></tr>
+                </tbody>
+              </table>
+              <div style="margin-top:5px;color:var(--text-muted);">Row 1 must be a header row. See the <strong>Required Columns</strong> panel for field names.</div>
+            </div>
           </div>
           <button type="submit" class="btn btn-primary btn-full"><i class="bi bi-cloud-upload"></i> Import Excel</button>
         </form>
@@ -116,6 +136,16 @@ $packages = Database::fetchAll("SELECT id, name FROM compliance_packages WHERE i
             <input type="file" id="pdfFile" name="package_file" accept=".pdf,application/pdf"
                    style="display:none" data-change="showFileChange" data-drop-id="fileDropPdf" data-name-id="pdfName" data-color="#dc2626">
             <div id="pdfName" style="margin-top:8px;color:#dc2626;display:none"><i class="bi bi-file-earmark-check"></i> <span></span></div>
+            <div style="margin-top:10px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:0.8rem;">
+              <div style="font-weight:600;color:var(--text);margin-bottom:5px;"><i class="bi bi-info-circle" style="color:var(--primary)"></i> Upload Reference</div>
+              <table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
+                <thead><tr style="color:var(--text-muted)"><th style="text-align:left;padding:2px 8px 2px 0;">Field</th><th style="text-align:left;padding:2px 8px 2px 0;">Format</th><th style="text-align:left;padding:2px 8px 2px 0;">Max Size</th><th style="text-align:left;">Required</th></tr></thead>
+                <tbody style="color:var(--text);">
+                  <tr><td style="padding:2px 8px 2px 0;font-family:monospace">package_file</td><td style="padding:2px 8px 2px 0;">PDF (.pdf) — text-based only</td><td style="padding:2px 8px 2px 0;">20 MB</td><td><strong style="color:#dc2626">Yes</strong></td></tr>
+                </tbody>
+              </table>
+              <div style="margin-top:5px;color:var(--text-muted);">PDF must have selectable text (not a scanned image). Control codes are auto-detected from content.</div>
+            </div>
           </div>
           <button type="submit" class="btn btn-primary btn-full"><i class="bi bi-cloud-upload"></i> Import PDF</button>
         </form>
@@ -141,6 +171,16 @@ $packages = Database::fetchAll("SELECT id, name FROM compliance_packages WHERE i
             <input type="file" id="jsonFile" name="package_file" accept=".json,application/json"
                    style="display:none" data-change="showFileChange" data-drop-id="fileDropJson" data-name-id="jsonName" data-color="var(--primary)">
             <div id="jsonName" style="margin-top:8px;color:var(--primary);display:none"><i class="bi bi-file-earmark-check"></i> <span></span></div>
+            <div style="margin-top:10px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:0.8rem;">
+              <div style="font-weight:600;color:var(--text);margin-bottom:5px;"><i class="bi bi-info-circle" style="color:var(--primary)"></i> Upload Reference</div>
+              <table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
+                <thead><tr style="color:var(--text-muted)"><th style="text-align:left;padding:2px 8px 2px 0;">Field</th><th style="text-align:left;padding:2px 8px 2px 0;">Format</th><th style="text-align:left;padding:2px 8px 2px 0;">Max Size</th><th style="text-align:left;">Required</th></tr></thead>
+                <tbody style="color:var(--text);">
+                  <tr><td style="padding:2px 8px 2px 0;font-family:monospace">package_file</td><td style="padding:2px 8px 2px 0;">JSON (.json)</td><td style="padding:2px 8px 2px 0;">20 MB</td><td><strong style="color:#dc2626">Yes</strong></td></tr>
+                </tbody>
+              </table>
+              <div style="margin-top:5px;color:var(--text-muted);">Must follow the Aegis compliance package JSON schema. Download a CSV template and use as reference for field structure.</div>
+            </div>
           </div>
           <button type="submit" class="btn btn-primary btn-full"><i class="bi bi-cloud-upload"></i> Import JSON</button>
         </form>

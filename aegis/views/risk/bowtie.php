@@ -104,7 +104,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 /* Individual cause/consequence cards */
 .bt-item-card {
     position: relative;
-    background: #fff;
+    background: var(--card-bg);
     border: 1.5px solid var(--border, #e4e4e7);
     border-radius: 8px;
     padding: 9px 11px;
@@ -183,7 +183,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 /* Barrier pill */
 .bt-barrier-pill {
     position: relative;
-    background: #fff;
+    background: var(--card-bg);
     border-radius: 8px;
     padding: 7px 10px;
     margin-bottom: 7px;
@@ -284,8 +284,8 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 
 /* Empty state */
 .bt-empty {
-    background: linear-gradient(135deg, #f9fafb 0%, #f4f4f5 100%);
-    border: 2px dashed #d4d4d8;
+    background: var(--bg-secondary);
+    border: 2px dashed var(--border);
     border-radius: 12px;
     padding: 32px 24px;
     text-align: center;
@@ -317,7 +317,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
     border-radius: 6px 6px 0 0;
     white-space: nowrap;
 }
-.bt-tab-btn:hover  { color: var(--primary, var(--primary)); background: #f9fafb; }
+.bt-tab-btn:hover  { color: var(--primary, var(--primary)); background: var(--bg-secondary); }
 .bt-tab-btn.active { color: var(--primary, var(--primary)); border-bottom-color: var(--primary, var(--primary)); background: transparent; }
 
 .bt-tab-panel { display: none; }
@@ -333,7 +333,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 .bt-connector-line {
     flex: 1;
     height: 1.5px;
-    background: #e4e4e7;
+    background: var(--border);
 }
 
 /* Responsive */

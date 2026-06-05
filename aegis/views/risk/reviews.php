@@ -100,7 +100,7 @@ ob_start();
 
   <div class="card" style="border-left:4px solid #a1a1aa;">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
-      <div style="width:44px;height:44px;border-radius:10px;background:#f4f4f5;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <div style="width:44px;height:44px;border-radius:10px;background:var(--bg-secondary);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
         <i class="bi bi-x-circle" style="font-size:20px;color:#a1a1aa;"></i>
       </div>
       <div>
@@ -190,7 +190,7 @@ ob_start();
                 <span style="color:var(--text-muted);">(<?= $pct ?>%)</span>
               <?php endif; ?>
             </div>
-            <div style="height:6px;background:#e4e4e7;border-radius:3px;overflow:hidden;">
+            <div style="height:6px;background:var(--bg-secondary);border-radius:3px;overflow:hidden;">
               <div style="height:100%;width:<?= $pct ?>%;background:<?= $pct >= 100 ? '#16a34a' : ($pct > 50 ? '#d97706' : 'var(--primary)') ?>;border-radius:3px;transition:width .3s;"></div>
             </div>
           </td>

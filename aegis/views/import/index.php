@@ -98,6 +98,16 @@ $notes = [
           <input type="file" id="bulkCsvFile" name="csv_file" accept=".csv,.txt" required style="display:none"
                  data-change="showFileChange" data-drop-id="fileDropBulk" data-name-id="bulkCsvName" data-color="#059669">
           <div id="bulkCsvName" style="margin-top:8px;color:#059669;display:none"><i class="bi bi-file-earmark-check"></i> <span></span></div>
+          <div style="margin-top:10px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:0.8rem;">
+            <div style="font-weight:600;color:var(--text);margin-bottom:5px;"><i class="bi bi-info-circle" style="color:var(--primary)"></i> Upload Reference</div>
+            <table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
+              <thead><tr style="color:var(--text-muted)"><th style="text-align:left;padding:2px 8px 2px 0;">Field</th><th style="text-align:left;padding:2px 8px 2px 0;">Format</th><th style="text-align:left;padding:2px 8px 2px 0;">Max Size</th><th style="text-align:left;">Required</th></tr></thead>
+              <tbody style="color:var(--text);">
+                <tr><td style="padding:2px 8px 2px 0;font-family:monospace">csv_file</td><td style="padding:2px 8px 2px 0;">CSV (.csv) or plain text (.txt)</td><td style="padding:2px 8px 2px 0;">10 MB</td><td><strong style="color:#dc2626">Yes</strong></td></tr>
+              </tbody>
+            </table>
+            <div style="margin-top:5px;color:var(--text-muted);">Row 1 must be a header row. Download the template for the exact column layout expected.</div>
+          </div>
         </div>
 
         <button type="submit" class="btn btn-primary btn-full"><i class="bi bi-cloud-upload"></i> Import CSV</button>

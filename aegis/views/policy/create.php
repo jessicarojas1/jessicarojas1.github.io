@@ -100,7 +100,7 @@ ob_start();
       </div>
 
       <?php if ($isEdit): ?>
-      <div class="form-row" style="background:#f9fafb;padding:12px;border-radius:8px;border:1px solid #e4e4e7">
+      <div class="form-row" style="background:var(--bg-secondary);padding:12px;border-radius:8px;border:1px solid var(--border)">
         <div class="form-group">
           <label class="form-label">New Version Number</label>
           <input type="text" name="new_version" class="form-control" placeholder="e.g. 1.1 (leave blank to not version)">

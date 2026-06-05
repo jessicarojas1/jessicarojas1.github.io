@@ -245,7 +245,7 @@ foreach ($grouped as $level => $risks):
 
         <!-- Right: timeline bar -->
         <div style="padding:14px 16px;display:flex;align-items:center;">
-          <div style="position:relative;width:100%;height:20px;background:#f4f4f5;border-radius:10px;overflow:hidden;">
+          <div style="position:relative;width:100%;height:20px;background:var(--bg-secondary);border-radius:10px;overflow:hidden;">
             <?php if ($barWidth > 0): ?>
               <div style="
                 position:absolute;

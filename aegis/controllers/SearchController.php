@@ -88,7 +88,7 @@ class SearchController {
             // ── vendors ───────────────────────────────────────────────────────
             try {
                 $vendors = Database::fetchAll(
-                    "SELECT id, name AS label, vendor_type AS sub, 'vendor' AS type,
+                    "SELECT id, name AS label, category AS sub, 'vendor' AS type,
                             '/vendor/'||id AS url, NULL AS score_num
                      FROM vendors
                      WHERE name ILIKE ?
