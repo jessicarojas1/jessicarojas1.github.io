@@ -94,6 +94,23 @@ ob_start();
 </div>
 
 <!-- Audit items by domain -->
+<?php if ($audit['status'] === 'in_progress'): ?>
+<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:12px 16px;background:var(--bg-secondary);border-radius:10px;border:1px solid var(--border);flex-wrap:wrap">
+  <span style="font-size:13px;font-weight:600;color:var(--text-muted)">Bulk update:</span>
+  <select id="bulkStatusSelect" class="form-control" style="width:auto;min-width:160px;font-size:13px">
+    <option value="">— Select status —</option>
+    <option value="compliant">✓ Compliant</option>
+    <option value="non_compliant">✗ Non-Compliant</option>
+    <option value="partial">◑ Partial</option>
+    <option value="not_applicable">— Not Applicable</option>
+    <option value="not_assessed">○ Not Assessed</option>
+  </select>
+  <button type="button" class="btn btn-secondary btn-sm" id="btnApplyBulk"><i class="bi bi-check2-all"></i> Apply to All</button>
+  <button type="button" class="btn btn-ghost btn-sm" id="btnApplyUnassessed"><i class="bi bi-check2-all"></i> Apply to Unassessed Only</button>
+  <span id="bulkProgress" style="font-size:12px;color:var(--text-muted);display:none"></span>
+</div>
+<?php endif; ?>
+
 <?php foreach ($groupedByDomain as $domain => $items): ?>
 <div class="card" style="margin-bottom:16px">
   <div class="card-header">
@@ -173,6 +190,23 @@ ob_start();
             <label class="form-label">Upload Evidence File</label>
             <input type="file" name="evidence_file[]" multiple class="form-control" accept="image/*,.pdf,.doc,.docx,.xlsx,.csv,.txt,.png,.jpg,.jpeg">
           </div>
+          <?php
+          $existingFiles = Database::fetchAll(
+              "SELECT id, original_name, file_size FROM evidence_files WHERE entity_type='audit_item' AND entity_id=? ORDER BY created_at DESC",
+              [(int)$item['id']]
+          );
+          ?>
+          <?php if ($existingFiles): ?>
+          <div class="evidence-file-list" id="efile-<?= $item['id'] ?>" style="margin-bottom:8px">
+            <?php foreach ($existingFiles as $ef): ?>
+              <div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:13px">
+                <i class="bi bi-paperclip" style="color:var(--primary)"></i>
+                <a href="/evidence/<?= $ef['id'] ?>/download" target="_blank" style="color:var(--primary)"><?= Security::h($ef['original_name']) ?></a>
+                <span style="color:var(--text-muted);font-size:11px">(<?= round($ef['file_size']/1024,1) ?>KB)</span>
+              </div>
+            <?php endforeach; ?>
+          </div>
+          <?php endif; ?>
           <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-save"></i> Save Finding</button>
         </form>
       </div>
@@ -330,10 +364,80 @@ function saveFinding(e, itemId, auditId) {
   const fd   = new FormData(form);
   fetch('/audit/' + auditId + '/item/' + itemId + '/update', { method:'POST', body:fd })
     .then(r => r.json())
-    .then(() => {
+    .then(data => {
+      // Refresh file list if files were uploaded
+      if (data.files && data.files.length > 0) {
+        const list = document.getElementById('efile-' + itemId);
+        const container = list || document.createElement('div');
+        container.id = 'efile-' + itemId;
+        container.style.cssText = 'margin-bottom:8px';
+        container.innerHTML = data.files.map(f =>
+          `<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:13px">
+            <i class="bi bi-paperclip" style="color:var(--primary)"></i>
+            <a href="/evidence/${f.id}/download" target="_blank" style="color:var(--primary)">${f.original_name}</a>
+            <span style="color:var(--text-muted);font-size:11px">(${Math.round(f.file_size/1024*10)/10}KB)</span>
+          </div>`
+        ).join('');
+        if (!list) form.insertBefore(container, form.querySelector('[name="evidence_file[]"]').parentElement);
+      }
+      // Reset file input
+      form.querySelector('[name="evidence_file[]"]').value = '';
       form.closest('.audit-finding-panel').style.display = 'none';
     });
 }
+
+// Bulk status update
+(function() {
+  var auditId = <?= (int)$audit['id'] ?>;
+  var csrf    = '<?= Security::generateCsrfToken() ?>';
+
+  function applyBulkStatus(unassessedOnly) {
+    var status = document.getElementById('bulkStatusSelect').value;
+    if (!status) { alert('Please select a status first.'); return; }
+
+    var selects = Array.from(document.querySelectorAll('.status-select-inline'));
+    if (unassessedOnly) selects = selects.filter(function(s) { return s.value === 'not_assessed'; });
+    if (!selects.length) return;
+
+    var progress = document.getElementById('bulkProgress');
+    progress.style.display = 'inline';
+    progress.textContent = '0/' + selects.length + ' updated...';
+
+    var done = 0;
+    var statusBgs = {not_assessed:['#f9fafb','#6b7280'],compliant:['#f0fdf4','#16a34a'],partial:['#fffbeb','#d97706'],non_compliant:['#fef2f2','#dc2626'],not_applicable:['#f4f4f5','#71717a']};
+
+    selects.forEach(function(select) {
+      var itemId = select.getAttribute('data-item');
+      var fd = new FormData();
+      fd.append('status', status);
+      fd.append('csrf_token', csrf);
+      fetch('/audit/' + auditId + '/item/' + itemId + '/update', { method:'POST', body:fd })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          select.value = data.status;
+          var bg = statusBgs[data.status] || ['#f9fafb','#6b7280'];
+          select.style.background = bg[0];
+          select.style.color = bg[1];
+          select.style.borderColor = bg[1] + '44';
+          var row = document.getElementById('item-' + itemId);
+          if (row) row.className = 'audit-item-row item-' + data.status;
+          var panel = document.getElementById('finding-' + itemId);
+          if (panel) { var fi = panel.querySelector('.finding-status-input'); if(fi) fi.value = data.status; }
+          done++;
+          progress.textContent = done + '/' + selects.length + ' updated...';
+          if (done === selects.length) {
+            progress.textContent = '✓ All updated!';
+            setTimeout(function() { progress.style.display = 'none'; }, 2000);
+          }
+        });
+    });
+  }
+
+  var btnAll = document.getElementById('btnApplyBulk');
+  var btnUA  = document.getElementById('btnApplyUnassessed');
+  if (btnAll) btnAll.addEventListener('click', function() { applyBulkStatus(false); });
+  if (btnUA)  btnUA.addEventListener('click', function() { applyBulkStatus(true); });
+})();
 </script>
 
 <?php

@@ -169,9 +169,53 @@ class AuditController {
             [$status, $finding, $evidence, $riskLevel ?: null, $remediation, (int)$itemId, (int)$auditId]
         );
 
+        // Handle evidence file uploads
+        if (!empty($_FILES['evidence_file']['name'][0])) {
+            $uploadDir  = AEGIS_ROOT . '/uploads/evidence';
+            $allowedMime = ['image/jpeg','image/png','image/gif','image/webp','application/pdf',
+                            'application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                            'application/vnd.ms-excel','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                            'text/plain','text/csv'];
+            $allowedExt  = ['jpg','jpeg','png','gif','webp','pdf','doc','docx','xls','xlsx','txt','csv'];
+
+            foreach ($_FILES['evidence_file']['name'] as $i => $origName) {
+                if ($_FILES['evidence_file']['error'][$i] !== UPLOAD_ERR_OK) continue;
+                $tmpPath  = $_FILES['evidence_file']['tmp_name'][$i];
+                $fileSize = $_FILES['evidence_file']['size'][$i];
+                if ($fileSize > 20 * 1024 * 1024) continue; // 20MB limit
+
+                $finfo    = new \finfo(FILEINFO_MIME_TYPE);
+                $detectedMime = $finfo->file($tmpPath);
+                if (!in_array($detectedMime, $allowedMime, true)) continue;
+
+                $ext = strtolower(pathinfo($origName, PATHINFO_EXTENSION));
+                if (!in_array($ext, $allowedExt, true)) continue;
+
+                $storedName = bin2hex(random_bytes(16)) . '.' . $ext;
+                if (move_uploaded_file($tmpPath, $uploadDir . '/' . $storedName)) {
+                    Database::insert('evidence_files', [
+                        'entity_type'   => 'audit_item',
+                        'entity_id'     => (int)$itemId,
+                        'original_name' => basename($origName),
+                        'stored_name'   => 'evidence/' . $storedName,
+                        'mime_type'     => $detectedMime,
+                        'file_size'     => $fileSize,
+                        'file_hash'     => hash_file('sha256', $uploadDir . '/' . $storedName),
+                        'uploaded_by'   => Auth::id(),
+                    ]);
+                }
+            }
+        }
+
+        // Return existing evidence files list with response
+        $files = Database::fetchAll(
+            "SELECT id, original_name, file_size, mime_type FROM evidence_files WHERE entity_type='audit_item' AND entity_id=? ORDER BY created_at DESC",
+            [(int)$itemId]
+        );
+
         Auth::log('update_audit_item', 'audit_items', (int)$itemId, ['status' => $status]);
         header('Content-Type: application/json');
-        echo json_encode(['success' => true, 'status' => $status]);
+        echo json_encode(['success' => true, 'status' => $status, 'files' => $files]);
     }
 
     public function update(string $id): void {
@@ -350,6 +394,16 @@ class AuditController {
         readfile($tmpFile);
         @unlink($tmpFile);
         exit;
+    }
+
+    public function itemEvidence(string $auditId, string $itemId): void {
+        Auth::requirePermission('audit.read');
+        header('Content-Type: application/json');
+        $files = Database::fetchAll(
+            "SELECT id, original_name, file_size, mime_type, created_at FROM evidence_files WHERE entity_type='audit_item' AND entity_id=? ORDER BY created_at DESC",
+            [(int)$itemId]
+        );
+        echo json_encode($files);
     }
 
     private function uniqueZipPath(string $path, array $existing): string {

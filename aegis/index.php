@@ -888,6 +888,7 @@ $dynamicRoutes = [
         '#^/vendor/(\d+)/contract/create$#'         => ['VendorController', 'createContract'],
         '#^/issue/(\d+)$#'                          => ['IssueController', 'view'],
         '#^/evidence/(\d+)/download$#'              => ['EvidenceController', 'download'],
+        '#^/audit/(\d+)/item/(\d+)/evidence$#'      => ['AuditController', 'itemEvidence'],
         '#^/admin/webhooks/(\d+)/edit$#'            => ['WebhookController', 'editForm'],
         '#^/admin/webhooks/(\d+)/deliveries$#'      => ['WebhookController', 'deliveries'],
         '#^/questionnaire/(\d+)$#'                  => ['QuestionnaireController', 'view'],
