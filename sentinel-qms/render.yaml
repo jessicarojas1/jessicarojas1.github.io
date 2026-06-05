@@ -1,0 +1,79 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Sentinel QMS — Render Blueprint (DEMO)
+#
+# Spins up three resources on Render: a PostgreSQL database, the Dockerized
+# FastAPI backend, and the Dockerized React/nginx frontend. This is a DEMO
+# profile (free plans, ENVIRONMENT=development so a login is seeded). For real
+# CUI / production use, deploy to AWS GovCloud or Azure Government via the
+# Terraform in infra/ — see docs/deployment/.
+#
+# Paths assume this file sits at the REPOSITORY ROOT. The easiest way to get
+# there is to extract the project into its own repo first:
+#     ./scripts/extract-to-standalone-repo.sh
+# (If you instead deploy from the portfolio monorepo, prefix each rootDir with
+#  "sentinel-qms/".)
+#
+# Service URLs are derived from the names below, e.g.
+#   backend  -> https://sentinel-qms-api.onrender.com
+#   frontend -> https://sentinel-qms-web.onrender.com
+# If a name is already taken globally, Render appends a suffix; update
+# CORS_ORIGINS / VITE_API_BASE_URL / API_ORIGIN to match the real URLs.
+# ─────────────────────────────────────────────────────────────────────────────
+
+databases:
+  - name: sentinel-qms-db
+    plan: free
+    databaseName: sentinel_qms
+    user: sentinel
+
+services:
+  # ── Backend: FastAPI (Docker) ──────────────────────────────────────────────
+  - type: web
+    name: sentinel-qms-api
+    runtime: docker
+    plan: free
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: sentinel-qms-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ENVIRONMENT
+        value: development          # DEMO ONLY — enables the seeded admin login
+      - key: LOG_LEVEL
+        value: INFO
+      - key: CORS_ORIGINS
+        value: https://sentinel-qms-web.onrender.com
+      - key: STORAGE_BACKEND
+        value: local                # uploads live on ephemeral disk in the demo
+      - key: AUTO_MIGRATE
+        value: "1"
+      - key: AUTO_SEED
+        value: "1"
+      - key: ADMIN_AUTO_CREATE
+        value: "true"
+      - key: ADMIN_EMAIL
+        value: admin@sentinel-qms.local
+      # DEMO password — change this before sharing the link, and never reuse it.
+      - key: ADMIN_PASSWORD
+        value: Demo!Sentinel2026
+
+  # ── Frontend: React + nginx (Docker) ───────────────────────────────────────
+  - type: web
+    name: sentinel-qms-web
+    runtime: docker
+    plan: free
+    rootDir: frontend
+    dockerfilePath: ./Dockerfile.render
+    healthCheckPath: /healthz
+    envVars:
+      # Baked into the SPA at build time (Render passes env vars as build args).
+      - key: VITE_API_BASE_URL
+        value: https://sentinel-qms-api.onrender.com/api/v1
+      # Allowed in the Content-Security-Policy connect-src at container start.
+      - key: API_ORIGIN
+        value: https://sentinel-qms-api.onrender.com

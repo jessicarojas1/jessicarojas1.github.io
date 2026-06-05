@@ -145,6 +145,16 @@ object storage, secrets management, a WAF‑fronted load balancer, and centraliz
 logging/alerting. Container images deploy to ECS/EKS (AWS) or Container Apps/AKS
 (Azure). Full runbooks live in **[`docs/deployment/`](docs/deployment/)**.
 
+### 🚀 Quick demo on Render
+
+For a fast public demo of the same Docker images (free tier), use the
+[`render.yaml`](render.yaml) Blueprint: **Render → New → Blueprint** against the
+repo, then **Apply**. Step‑by‑step (including manual setup and URL fix‑ups) is in
+**[`docs/deployment/render-demo.md`](docs/deployment/render-demo.md)**.
+
+> The Render profile is a **demo** (free plans, development mode, ephemeral
+> storage). Use AWS GovCloud / Azure Government for CUI and production.
+
 ---
 
 ## 🔐 Compliance & security
