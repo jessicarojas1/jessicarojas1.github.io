@@ -350,10 +350,33 @@ class AuthController {
             header('Location: /reset-password/' . rawurlencode($token)); exit;
         }
 
+        // Check password history (NIST 800-171 3.5.8, CMMC IA.L2-3.5.8)
+        try {
+            $history = Database::fetchAll(
+                "SELECT password_hash FROM password_history WHERE user_id = ? ORDER BY created_at DESC LIMIT 12",
+                [(int)$row['user_id']]
+            );
+            foreach ($history as $h) {
+                if (password_verify($new, $h['password_hash'])) {
+                    $_SESSION['flash_error'] = 'This password was used recently. Please choose a different password.';
+                    header('Location: /reset-password/' . rawurlencode($token)); exit;
+                }
+            }
+        } catch (Throwable) {}
+
+        $newHash = Security::hashPassword($new);
         Database::query(
             "UPDATE users SET password_hash=?, updated_at=NOW() WHERE id=?",
-            [Security::hashPassword($new), (int)$row['user_id']]
+            [$newHash, (int)$row['user_id']]
         );
+
+        // Record in password history
+        try {
+            Database::query(
+                "INSERT INTO password_history (user_id, password_hash) VALUES (?,?)",
+                [(int)$row['user_id'], $newHash]
+            );
+        } catch (Throwable) {}
 
         Database::query(
             "UPDATE password_reset_tokens SET used=TRUE WHERE token_hash=?",

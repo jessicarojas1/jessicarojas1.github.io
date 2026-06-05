@@ -26,16 +26,17 @@ class DashboardController {
         }
 
         // New module stats — safe try/catch for environments running older migrations
-        foreach ([
-            'open_incidents'  => "SELECT COUNT(*) as c FROM incidents WHERE status NOT IN ('resolved','closed')",
-            'open_changes'    => "SELECT COUNT(*) as c FROM change_requests WHERE status NOT IN ('implemented','closed','rejected')",
-            'active_bcp'      => "SELECT COUNT(*) as c FROM bcp_plans WHERE status = 'active'",
-            'total_assets'    => "SELECT COUNT(*) as c FROM assets WHERE status = 'active'",
-            'critical_assets' => "SELECT COUNT(*) as c FROM assets WHERE criticality = 'critical' AND status = 'active'",
-            'pending_questionnaires' => "SELECT COUNT(*) as c FROM questionnaire_assignments WHERE status = 'pending' AND assigned_to = " . (int)Auth::id(),
-            'webhook_failures_24h'   => "SELECT COUNT(*) as c FROM webhook_deliveries WHERE status = 'failed' AND created_at >= NOW() - INTERVAL '24 hours'",
-        ] as $key => $sql) {
-            try { $stats[$key] = (int)(Database::fetchOne($sql)['c'] ?? 0); }
+        $moduleQueries = [
+            'open_incidents'  => ["SELECT COUNT(*) as c FROM incidents WHERE status NOT IN ('resolved','closed')", []],
+            'open_changes'    => ["SELECT COUNT(*) as c FROM change_requests WHERE status NOT IN ('implemented','closed','rejected')", []],
+            'active_bcp'      => ["SELECT COUNT(*) as c FROM bcp_plans WHERE status = 'active'", []],
+            'total_assets'    => ["SELECT COUNT(*) as c FROM assets WHERE status = 'active'", []],
+            'critical_assets' => ["SELECT COUNT(*) as c FROM assets WHERE criticality = 'critical' AND status = 'active'", []],
+            'pending_questionnaires' => ["SELECT COUNT(*) as c FROM questionnaire_assignments WHERE status = 'pending' AND assigned_to = ?", [Auth::id()]],
+            'webhook_failures_24h'   => ["SELECT COUNT(*) as c FROM webhook_deliveries WHERE status = 'failed' AND created_at >= NOW() - INTERVAL '24 hours'", []],
+        ];
+        foreach ($moduleQueries as $key => [$sql, $params]) {
+            try { $stats[$key] = (int)(Database::fetchOne($sql, $params)['c'] ?? 0); }
             catch (Throwable) { $stats[$key] = 0; }
         }
 

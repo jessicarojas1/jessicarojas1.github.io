@@ -6,11 +6,15 @@ class Security {
      * Falls back to REMOTE_ADDR (e.g. in CLI/test contexts).
      */
     public static function clientIp(): string {
-        $realIp = $_SERVER['HTTP_X_REAL_IP'] ?? '';
-        if ($realIp && filter_var($realIp, FILTER_VALIDATE_IP)) {
+        $remoteAddr = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+        $realIp     = $_SERVER['HTTP_X_REAL_IP'] ?? '';
+        // Only trust X-Real-IP when the immediate connection comes from a known proxy
+        // (TRUSTED_PROXY_IPS defaults to localhost; set in env to match your nginx IP)
+        $trusted = array_filter(array_map('trim', explode(',', $_ENV['TRUSTED_PROXY_IPS'] ?? '127.0.0.1')));
+        if ($realIp && filter_var($realIp, FILTER_VALIDATE_IP) && in_array($remoteAddr, $trusted, true)) {
             return $realIp;
         }
-        return $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+        return $remoteAddr;
     }
     public static function generateCsrfToken(): string {
         if (empty($_SESSION['csrf_token'])) {
@@ -43,7 +47,7 @@ class Security {
     }
 
     public static function sanitizeInput(string $input): string {
-        return trim(strip_tags($input));
+        return trim(strip_tags(str_replace("\0", '', $input)));
     }
 
     /**
@@ -93,11 +97,14 @@ class Security {
                         continue 2;
                     }
                 }
-                // Remove javascript: hrefs and data: srcs
+                // Allowlist URI schemes — reject anything other than http, https, mailto, relative
                 if (in_array($name, $blockedAttrs, true)) {
-                    $val = strtolower(trim($attr->nodeValue));
-                    if (str_starts_with($val, 'javascript:') || str_starts_with($val, 'data:text')) {
-                        $attrsToRemove[] = $attr->nodeName;
+                    $val = trim($attr->nodeValue);
+                    if ($val !== '' && !str_starts_with($val, '/') && !str_starts_with($val, '#') && !str_starts_with($val, '?')) {
+                        $scheme = strtolower(explode(':', $val)[0] ?? '');
+                        if (!in_array($scheme, ['http', 'https', 'mailto'], true)) {
+                            $attrsToRemove[] = $attr->nodeName;
+                        }
                     }
                 }
             }

@@ -1173,8 +1173,8 @@ class AdminController {
         $escaped = htmlspecialchars($html, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
         header('Content-Type: text/html; charset=utf-8');
         header('X-Frame-Options: SAMEORIGIN');
-        header('Content-Security-Policy: default-src \'none\'; style-src \'unsafe-inline\'; img-src \'self\' data:; sandbox allow-same-origin');
-        echo '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>' . $html . '</body></html>';
+        header('Content-Security-Policy: default-src \'none\'; style-src \'unsafe-inline\'; img-src \'self\' data:; sandbox');
+        echo '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>' . Security::sanitizeHtml($html) . '</body></html>';
     }
 
     // ─── Scheduled Reports ────────────────────────────────────────────────────

@@ -108,7 +108,7 @@ class SSOController {
             'sso_enabled'         => $_POST['sso_enabled'] ?? '0',
             'sso_provider_name'   => Security::sanitizeInput($_POST['sso_provider_name'] ?? ''),
             'sso_client_id'       => Security::sanitizeInput($_POST['sso_client_id'] ?? ''),
-            'sso_client_secret'   => Security::sanitizeInput($_POST['sso_client_secret'] ?? ''),
+            'sso_client_secret'   => Security::encryptSetting(Security::sanitizeInput($_POST['sso_client_secret'] ?? '')),
             'sso_discovery_url'   => Security::sanitizeInput($_POST['sso_discovery_url'] ?? ''),
             'sso_default_role'    => Security::sanitizeInput($_POST['sso_default_role'] ?? 'viewer'),
             'sso_auto_provision'  => $_POST['sso_auto_provision'] ?? '0',

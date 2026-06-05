@@ -64,6 +64,18 @@ class Webhook {
 
         $targetUrl = $endpoint['url'];
 
+        // SSRF prevention: resolve hostname and reject private/reserved IP ranges
+        // (PagerDuty is overridden to a fixed known URL below, so check after that override)
+        if ($provider !== 'pagerduty') {
+            $host     = parse_url($targetUrl, PHP_URL_HOST);
+            $resolved = $host ? gethostbyname($host) : '';
+            if (!$resolved || filter_var($resolved, FILTER_VALIDATE_IP,
+                    FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+                error_log('[AEGIS] Webhook SSRF blocked: ' . $targetUrl);
+                return false;
+            }
+        }
+
         // For PagerDuty: routing_key may come from a custom_headers JSON or url query param
         if ($provider === 'pagerduty') {
             $customHeaders = is_array($endpoint['custom_headers'])

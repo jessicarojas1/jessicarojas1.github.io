@@ -32,10 +32,21 @@ function authenticateApi(): array {
     if (str_starts_with($auth, 'Bearer ')) $bearerToken = substr($auth, 7);
 
     if ($apiKey) {
-        $hash = hash('sha256', $apiKey);
-        $key  = Database::fetchOne("SELECT ak.*, u.id as uid, u.role FROM api_keys ak JOIN users u ON u.id = ak.user_id WHERE ak.key_hash = ? AND ak.is_active = TRUE AND (ak.expires_at IS NULL OR ak.expires_at > NOW())", [$hash]);
+        // Try HMAC-SHA256 (new keys) and plain SHA-256 (legacy keys)
+        $hmacHash   = hash_hmac('sha256', $apiKey, $_ENV['JWT_SECRET'] ?? '');
+        $legacyHash = hash('sha256', $apiKey);
+        $key = Database::fetchOne(
+            "SELECT ak.*, u.id as uid, u.role FROM api_keys ak JOIN users u ON u.id = ak.user_id
+             WHERE ak.key_hash IN (?,?) AND ak.is_active = TRUE AND (ak.expires_at IS NULL OR ak.expires_at > NOW())",
+            [$hmacHash, $legacyHash]
+        );
         if (!$key) apiError('Invalid or expired API key', 401);
-        Database::query("UPDATE api_keys SET last_used=NOW() WHERE key_hash=?", [$hash]);
+        // Silently upgrade legacy SHA-256 keys to HMAC on first use
+        if ($key['key_hash'] === $legacyHash && $hmacHash !== $legacyHash) {
+            Database::query("UPDATE api_keys SET key_hash=?, last_used=NOW() WHERE key_hash=?", [$hmacHash, $legacyHash]);
+        } else {
+            Database::query("UPDATE api_keys SET last_used=NOW() WHERE key_hash=?", [$hmacHash]);
+        }
         return ['id' => $key['uid'], 'role' => $key['role'], 'permissions' => json_decode($key['permissions'] ?? '["read"]', true)];
     }
 

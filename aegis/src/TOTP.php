@@ -6,7 +6,7 @@ class TOTP {
     private const BASE32 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
 
     public static function generateSecret(): string {
-        $bytes  = random_bytes(10);
+        $bytes  = random_bytes(20); // 160 bits — satisfies NIST SP 800-63B minimum
         $secret = '';
         $buf    = 0;
         $bits   = 0;

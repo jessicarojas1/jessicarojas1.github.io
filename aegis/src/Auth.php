@@ -106,6 +106,23 @@ class Auth {
                     exit;
                 }
             }
+            // Password expiry enforcement (NIST 800-171 3.5.6, CMMC IA.L2-3.5.6)
+            try {
+                $expiryRow  = Database::fetchOne("SELECT value FROM settings WHERE key = 'password_expiry_days'");
+                $expiryDays = (int)($expiryRow['value'] ?? 0);
+                if ($expiryDays > 0) {
+                    $changedRow = Database::fetchOne("SELECT password_changed_at, created_at FROM users WHERE id = ?", [self::id()]);
+                    $changedAt  = $changedRow['password_changed_at'] ?? $changedRow['created_at'] ?? null;
+                    if ($changedAt && ((time() - strtotime($changedAt)) / 86400) > $expiryDays) {
+                        $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+                        if (!in_array($uri, ['/profile/edit', '/logout', '/login'])) {
+                            $_SESSION['flash_warning'] = 'Your password has expired. Please update it to continue.';
+                            header('Location: /profile/edit');
+                            exit;
+                        }
+                    }
+                }
+            } catch (Throwable) {}
         } catch (Throwable) {}
 
         $_SESSION['last_activity'] = time();
@@ -202,9 +219,10 @@ class Auth {
 
     public static function logSystem(string $action, ?string $entityType = null, ?int $entityId = null): void {
         $ip = $_SERVER['REMOTE_ADDR'] ?? 'system';
+        $ts = date('Y-m-d\TH:i:s\Z');
         $prev = Database::fetchOne("SELECT log_hash FROM activity_log ORDER BY id DESC LIMIT 1");
         $prevHash = $prev['log_hash'] ?? 'genesis';
-        $payload  = implode('|', [$prevHash, 'system', $action, (string)$entityType, (string)$entityId, '', $ip]);
+        $payload  = implode('|', [$prevHash, 'system', $action, (string)$entityType, (string)$entityId, '', $ip, $ts]);
         $logHash  = hash('sha256', $payload);
         Database::query(
             "INSERT INTO activity_log (user_id, action, entity_type, entity_id, ip_address, log_hash)

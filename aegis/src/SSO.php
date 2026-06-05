@@ -22,7 +22,9 @@ class SSO {
         $cfg = [];
         foreach ($keys as $k) {
             $row = Database::fetchOne("SELECT value FROM settings WHERE key = ?", [$k]);
-            $cfg[$k] = $row['value'] ?? '';
+            $val = $row['value'] ?? '';
+            // Decrypt sensitive fields stored with encryptSetting()
+            $cfg[$k] = ($k === 'sso_client_secret') ? Security::decryptSetting($val) : $val;
         }
         return $cfg;
     }

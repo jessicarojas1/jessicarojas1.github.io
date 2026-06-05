@@ -12,14 +12,20 @@ class JWT {
         if (count($parts) !== 3) return null;
 
         [$header, $payload, $signature] = $parts;
-        $expected = self::base64url(hash_hmac('sha256', "{$header}.{$payload}", $secret, true));
 
+        // Validate algorithm before verifying signature (defence against alg:none attacks)
+        $headerData = json_decode(self::base64urlDecode($header), true);
+        if (($headerData['alg'] ?? '') !== 'HS256') return null;
+
+        $expected = self::base64url(hash_hmac('sha256', "{$header}.{$payload}", $secret, true));
         if (!hash_equals($expected, $signature)) return null;
 
         $data = json_decode(self::base64urlDecode($payload), true);
         if (!$data) return null;
         if (!isset($data['exp'])) return null;
         if ($data['exp'] < time()) return null;
+        // Reject tokens with iat in the future (60s clock-skew tolerance)
+        if (isset($data['iat']) && $data['iat'] > time() + 60) return null;
 
         return $data;
     }

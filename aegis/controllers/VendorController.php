@@ -5,7 +5,7 @@ class VendorController {
 
     // ------------------------------------------------------------------ index
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('vendor.read');
 
         $tierFilter   = Security::sanitizeInput($_GET['risk_tier'] ?? '');
         $statusFilter = Security::sanitizeInput($_GET['status'] ?? '');
@@ -138,7 +138,7 @@ class VendorController {
 
     // ------------------------------------------------------------------ view
     public function view(string $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('vendor.read');
         $id = (int)$id;
 
         $vendor = Database::fetchOne(

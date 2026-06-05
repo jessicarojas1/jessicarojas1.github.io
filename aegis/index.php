@@ -287,6 +287,17 @@ try {
 } catch (Throwable) {}
 
 try {
+    // users: add password_changed_at for expiry enforcement (NIST 800-171 3.5.6)
+    $__pcaCol = Database::fetchOne(
+        "SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='password_changed_at' AND table_schema='public'"
+    );
+    if (!$__pcaCol) {
+        Database::query("ALTER TABLE users ADD COLUMN password_changed_at TIMESTAMP");
+    }
+    unset($__pcaCol);
+} catch (Throwable) {}
+
+try {
     // ai_inference_log: track AI API calls for ISO 42001 governance & auditability (AI-G1)
     $__aiLogTable = Database::fetchOne(
         "SELECT 1 FROM information_schema.tables WHERE table_name='ai_inference_log' AND table_schema='public'"
