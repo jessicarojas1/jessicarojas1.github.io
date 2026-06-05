@@ -172,11 +172,10 @@ ob_start();
 </div>
 
 <script nonce="<?= Security::nonce() ?>">
-// Password strength checker for new user form
+// Password strength checker — visual only, never disables the button
 (function() {
-  var pwInput   = document.getElementById('newUserPassword');
-  var createBtn = document.getElementById('btnCreateUser');
-  var form      = createBtn.closest('form');
+  var pwInput = document.getElementById('newUserPassword');
+  var form    = pwInput.closest('form');
   var rules = [
     { id: 'pw-len',     test: function(v) { return v.length >= 12; } },
     { id: 'pw-upper',   test: function(v) { return /[A-Z]/.test(v); } },
@@ -197,13 +196,9 @@ ob_start();
   }
   pwInput.addEventListener('input', function() { checkRules(pwInput.value); });
   form.addEventListener('submit', function(e) {
-    if (!checkRules(pwInput.value)) {
-      e.preventDefault();
-      pwInput.focus();
-    }
+    if (!checkRules(pwInput.value)) { e.preventDefault(); pwInput.focus(); }
   });
 })();
-
 function editUserFromBtn(btn) {
   editUser(JSON.parse(btn.getAttribute('data-user')));
 }

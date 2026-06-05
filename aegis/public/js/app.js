@@ -83,11 +83,17 @@ document.addEventListener('click', function (e) {
 // Modal helpers
 var _modalOpenedAt = {};
 window.showModal = function (id) {
-  const el = document.getElementById(id);
-  if (el) { el.style.display = 'flex'; _modalOpenedAt[id] = Date.now(); }
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.style.display = 'flex';
+  _modalOpenedAt[id] = Date.now();
+  el.style.pointerEvents = 'none';
+  var inner = el.querySelector('.modal');
+  if (inner) inner.style.pointerEvents = 'auto';
+  setTimeout(function() { el.style.pointerEvents = ''; if (inner) inner.style.pointerEvents = ''; }, 400);
 };
 window.closeModal = function (id) {
-  const el = document.getElementById(id);
+  var el = document.getElementById(id);
   if (el) el.style.display = 'none';
 };
 // openModal fallback (pages may define their own openModal; only set if not already defined)
