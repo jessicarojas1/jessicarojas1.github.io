@@ -48,11 +48,21 @@ class SSO {
         if (!preg_match('#^https://#i', $url)) return null;
         $host = parse_url($url, PHP_URL_HOST);
         if (!$host) return null;
+        // Resolve once and validate — then pin the connection to that IP via CURLOPT_RESOLVE
+        // to prevent DNS rebinding (TOCTOU between check and fetch)
         $resolved = gethostbyname($host);
         if (filter_var($resolved, FILTER_VALIDATE_IP,
                 FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) return null;
-        $ctx  = stream_context_create(['http' => ['timeout' => 8, 'method' => 'GET']]);
-        $body = @file_get_contents($url, false, $ctx);
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 8,
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_SSL_VERIFYHOST => 2,
+            CURLOPT_RESOLVE        => ["{$host}:443:{$resolved}"],
+        ]);
+        $body = curl_exec($ch);
+        curl_close($ch);
         if (!$body) return null;
         self::$discovery = json_decode($body, true) ?: null;
         return self::$discovery;

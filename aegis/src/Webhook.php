@@ -96,7 +96,7 @@ class Webhook {
         }
 
         // Build HTTP headers
-        $secret    = $endpoint['secret'] ?? '';
+        $secret    = Security::decryptSetting($endpoint['secret'] ?? '');
         $signature = $secret ? self::sign($body, $secret) : '';
 
         $headers = [

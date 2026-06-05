@@ -151,7 +151,7 @@ class WebhookController {
         $newId = Database::insert('webhook_endpoints', [
             'name'           => $name,
             'url'            => $url,
-            'secret'         => $secret,
+            'secret'         => Security::encryptSetting($secret),
             'event_types'    => json_encode(array_values($validEvents)),
             'provider'       => $provider,
             'custom_headers' => $customHeaders,
@@ -262,7 +262,7 @@ class WebhookController {
             [
                 $name,
                 $url,
-                $secret,
+                Security::encryptSetting($secret),
                 json_encode(array_values($validEvents)),
                 $provider,
                 $customHeaders,

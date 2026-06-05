@@ -63,7 +63,7 @@ ob_start();
                 <div class="form-group mb-3">
                     <label for="secret" class="form-label">Signing Secret</label>
                     <input type="text" id="secret" name="secret" class="form-control"
-                           value="<?= Security::h($isEdit ? $endpoint['secret'] : '') ?>"
+                           value="<?= Security::h($isEdit ? Security::decryptSetting($endpoint['secret'] ?? '') : '') ?>"
                            placeholder="Optional HMAC-SHA256 secret">
                     <div class="form-hint">If set, each delivery will include an <code>X-AEGIS-Signature</code> header.</div>
                 </div>

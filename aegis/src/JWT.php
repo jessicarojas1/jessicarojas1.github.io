@@ -110,12 +110,22 @@ class JWT {
         if (!preg_match('#^https://#i', $url)) return null;
         $host = parse_url($url, PHP_URL_HOST);
         if (!$host) return null;
+        // Resolve once and validate — then pin the connection to that IP via CURLOPT_RESOLVE
+        // to prevent DNS rebinding (TOCTOU between check and fetch)
         $resolved = gethostbyname($host);
         if (filter_var($resolved, FILTER_VALIDATE_IP,
                 FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) return null;
-        $ctx  = stream_context_create(['http' => ['timeout' => 5, 'method' => 'GET']]);
-        $body = @file_get_contents($url, false, $ctx);
-        if ($body === false) return null;
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 5,
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_SSL_VERIFYHOST => 2,
+            CURLOPT_RESOLVE        => ["{$host}:443:{$resolved}"],
+        ]);
+        $body = curl_exec($ch);
+        curl_close($ch);
+        if (!$body) return null;
         return json_decode($body, true) ?: null;
     }
 
