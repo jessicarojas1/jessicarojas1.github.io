@@ -10,7 +10,7 @@ ob_start();
     <h1 class="page-title">Audit Management</h1>
     <p class="page-subtitle">Schedule, track, and complete internal audits</p>
   </div>
-  <a href="/audit/create" class="btn btn-primary"><i class="bi bi-clipboard2-plus"></i> New Audit</a>
+  <div class="page-actions"><a href="/audit/create" class="btn btn-primary"><i class="bi bi-clipboard2-plus"></i> New Audit</a></div>
 </div>
 
 <!-- Summary -->

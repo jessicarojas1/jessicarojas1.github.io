@@ -16,6 +16,7 @@ ob_start();
 
 <div class="page-header">
   <h1 class="page-title">User Management</h1>
+  <button class="btn btn-secondary" data-show-modal="importUsersModal"><i class="bi bi-upload"></i> Import Users</button>
   <button class="btn btn-primary" data-show-modal="createUserModal"><i class="bi bi-person-plus-fill"></i> New User</button>
 </div>
 
@@ -135,6 +136,41 @@ ob_start();
   </div>
 </div>
 
+<!-- Import Users Modal -->
+<div class="modal-overlay" id="importUsersModal" style="display:none">
+  <div class="modal">
+    <div class="modal-header"><h3><i class="bi bi-upload"></i> Import Users</h3><button data-close-modal="importUsersModal"><i class="bi bi-x-lg"></i></button></div>
+    <div class="modal-body">
+      <form method="POST" action="/admin/users/import" enctype="multipart/form-data">
+        <?= Security::csrfField() ?>
+        <div class="form-group">
+          <label class="form-label required">CSV File <span class="text-muted">(max 5MB)</span></label>
+          <input type="file" name="csv_file" class="form-control" accept=".csv" required>
+        </div>
+        <div class="form-group">
+          <p class="text-muted text-sm" style="margin:0 0 8px 0">If no <code>password</code> column is present, a random password will be generated and emailed to each user.</p>
+          <a href="/admin/users/import-template" class="btn btn-ghost btn-sm"><i class="bi bi-download"></i> Download CSV Template</a>
+        </div>
+        <div class="form-group">
+          <p class="form-label" style="margin-bottom:6px">CSV Field Reference</p>
+          <table class="table" style="font-size:0.85rem">
+            <thead><tr><th>Field</th><th>Type</th><th>Required</th></tr></thead>
+            <tbody>
+              <tr><td><code>name</code></td><td>text</td><td>Yes</td></tr>
+              <tr><td><code>email</code></td><td>email</td><td>Yes</td></tr>
+              <tr><td><code>role</code></td><td>admin / manager / auditor / analyst / viewer</td><td>Yes</td></tr>
+              <tr><td><code>department</code></td><td>text</td><td>No</td></tr>
+              <tr><td><code>job_title</code></td><td>text</td><td>No</td></tr>
+              <tr><td><code>password</code></td><td>text (min 12 chars)</td><td>Yes*</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="form-actions"><button type="submit" class="btn btn-primary"><i class="bi bi-upload"></i> Import Users</button><button type="button" class="btn btn-ghost" data-close-modal="importUsersModal">Cancel</button></div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <script nonce="<?= Security::nonce() ?>">
 // Password strength checker for new user form
 (function() {
@@ -162,7 +198,7 @@ ob_start();
 })();
 
 // Close modal when clicking overlay background
-['createUserModal','editUserModal'].forEach(function(id) {
+['createUserModal','editUserModal','importUsersModal'].forEach(function(id) {
   var el = document.getElementById(id);
   if (!el) return;
   el.addEventListener('click', function(e) { if (e.target === el) closeModal(id); });

@@ -14,11 +14,15 @@ ob_start(); ?>
       <?php if ($plan['rpo_hours']): ?><span class="badge badge-gray" style="margin-left:4px">RPO ≤<?= (int)$plan['rpo_hours'] ?>h</span><?php endif; ?>
     </p>
   </div>
-  <?php if ($canEdit): ?>
-    <button class="btn btn-secondary" data-toggle-class="hidden" data-target="#editPanel">
-      <i class="bi bi-pencil"></i> Edit
-    </button>
-  <?php endif; ?>
+  <div class="page-actions">
+    <button class="btn btn-ghost" id="btnBcpWord"><i class="bi bi-file-word-fill"></i> Word</button>
+    <button class="btn btn-ghost" id="btnBcpPrint"><i class="bi bi-printer-fill"></i> Print</button>
+    <?php if ($canEdit): ?>
+      <button class="btn btn-secondary" data-toggle-class="hidden" data-target="#editPanel">
+        <i class="bi bi-pencil"></i> Edit
+      </button>
+    <?php endif; ?>
+  </div>
 </div>
 
 <?php if (!empty($_GET['saved'])): ?>
@@ -185,6 +189,36 @@ ob_start(); ?>
 <?php endif; ?>
 
 <script nonce="<?= Security::nonce() ?>">
+(function() {
+  var planTitle   = <?= json_encode($plan['title']) ?>;
+  var planVersion = <?= json_encode('v' . $plan['version']) ?>;
+  var rto         = <?= json_encode($plan['rto_hours'] ? '≤' . (int)$plan['rto_hours'] . 'h' : 'Not set') ?>;
+  var rpo         = <?= json_encode($plan['rpo_hours'] ? '≤' . (int)$plan['rpo_hours'] . 'h' : 'Not set') ?>;
+  var sections    = <?= json_encode(array_values($sections)) ?>;
+
+  document.getElementById('btnBcpPrint').addEventListener('click', function() { window.print(); });
+
+  document.getElementById('btnBcpWord').addEventListener('click', function() {
+    function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    var body = '<h1>' + esc(planTitle) + '</h1>' +
+      '<p style="color:#555;font-size:10pt">Version: <b>' + esc(planVersion) + '</b> &nbsp;|&nbsp; RTO: <b>' + esc(rto) + '</b> &nbsp;|&nbsp; RPO: <b>' + esc(rpo) + '</b></p>';
+    sections.forEach(function(sec) {
+      body += '<h2>' + esc(sec.section_type ? sec.section_type.replace(/_/g,' ').toUpperCase() : '') + ' — ' + esc(sec.title) + '</h2>';
+      body += '<p>' + esc(sec.content || '').replace(/\n/g,'</p><p>') + '</p>';
+    });
+    var html = '<!DOCTYPE html><html><head><meta charset="UTF-8">' +
+      '<style>body{font-family:Calibri,Arial,sans-serif;margin:2.5cm;color:#111;line-height:1.6}' +
+      'h1{font-size:22pt;border-bottom:2pt solid #333;padding-bottom:6pt}' +
+      'h2{font-size:13pt;color:#1e40af;margin-top:18pt;border-bottom:1pt solid #ddd;padding-bottom:3pt}' +
+      'p{margin:0 0 8pt}</style></head><body>' + body + '</body></html>';
+    var blob = new Blob(['﻿', html], { type: 'application/msword' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = planTitle.replace(/[^a-z0-9]/gi, '_') + '.doc';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  });
+})();
+
 function showTab(tab, btn) {
   document.getElementById('tab-sections').classList.toggle('hidden', tab !== 'sections');
   document.getElementById('tab-exercises').classList.toggle('hidden', tab !== 'exercises');

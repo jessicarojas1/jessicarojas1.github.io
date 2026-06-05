@@ -92,9 +92,13 @@ class SSPController {
             'confidentiality_impact' => in_array($_POST['confidentiality_impact'] ?? '', $validImpacts, true) ? $_POST['confidentiality_impact'] : 'moderate',
             'integrity_impact'       => in_array($_POST['integrity_impact'] ?? '', $validImpacts, true) ? $_POST['integrity_impact'] : 'moderate',
             'availability_impact'    => in_array($_POST['availability_impact'] ?? '', $validImpacts, true) ? $_POST['availability_impact'] : 'moderate',
-            'authorization_date'     => $_POST['authorization_date']  ?: null,
-            'next_review_date'       => $_POST['next_review_date']    ?: null,
-            'created_by'             => Auth::id(),
+            'authorization_date'      => $_POST['authorization_date']  ?: null,
+            'next_review_date'        => $_POST['next_review_date']    ?: null,
+            'version'                 => Security::sanitizeInput($_POST['version'] ?? '1.0') ?: '1.0',
+            'revision'                => max(0, (int)($_POST['revision'] ?? 0)),
+            'authorizing_signature'   => Security::sanitizeInput($_POST['authorizing_signature'] ?? ''),
+            'signature_date'          => $_POST['signature_date'] ?: null,
+            'created_by'              => Auth::id(),
         ]);
 
         foreach ($packageIds as $pkgId) {
@@ -495,7 +499,9 @@ window.addEventListener("load", function() {
                authorization_boundary=?, network_architecture=?, data_flow=?,
                operational_status=?, system_type=?,
                confidentiality_impact=?, integrity_impact=?, availability_impact=?,
-               authorization_date=?, next_review_date=?{$fileUpdates}, updated_at=NOW()
+               authorization_date=?, next_review_date=?,
+               version=?, revision=?, authorizing_signature=?, signature_date=?{$fileUpdates},
+               updated_at=NOW()
              WHERE id=?",
             [
                 Security::sanitizeInput($_POST['title']                  ?? ''),
@@ -515,6 +521,10 @@ window.addEventListener("load", function() {
                 in_array($_POST['availability_impact']?? '', $validImpacts, true) ? $_POST['availability_impact']: 'moderate',
                 $_POST['authorization_date'] ?: null,
                 $_POST['next_review_date']   ?: null,
+                Security::sanitizeInput($_POST['version'] ?? '1.0') ?: '1.0',
+                max(0, (int)($_POST['revision'] ?? 0)),
+                Security::sanitizeInput($_POST['authorizing_signature'] ?? ''),
+                $_POST['signature_date'] ?: null,
                 ...$fileParams,
                 $id,
             ]

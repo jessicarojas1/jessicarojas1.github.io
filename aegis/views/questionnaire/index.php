@@ -24,15 +24,15 @@ ob_start();
   <?php unset($_SESSION['q_success']); ?>
 <?php endif; ?>
 
-<div class="two-col-layout" style="align-items:flex-start;gap:1.5rem">
+<div style="display:grid;grid-template-columns:3fr 2fr;gap:20px;align-items:start">
 
   <!-- Questionnaire Library -->
-  <div class="card" style="flex:3">
+  <div class="card">
     <div class="card-header">
       <h2 class="card-title"><i class="bi bi-journal-text"></i> Questionnaire Library</h2>
       <span class="badge badge-secondary"><?= count($questionnaires) ?> total</span>
     </div>
-    <div class="card-body p0">
+    <div class="card-body p0" style="overflow-x:auto">
       <?php if (empty($questionnaires)): ?>
         <div class="empty-state">
           <i class="bi bi-journal-x" style="font-size:2.5rem;opacity:.3"></i>
@@ -94,7 +94,7 @@ ob_start();
   </div>
 
   <!-- My Assignments -->
-  <div class="card" style="flex:2">
+  <div class="card">
     <div class="card-header">
       <h2 class="card-title"><i class="bi bi-person-check"></i> My Assignments</h2>
       <?php $pendingCount = count($myAssignments); ?>

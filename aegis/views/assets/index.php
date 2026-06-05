@@ -64,48 +64,66 @@
   </div>
 </div>
 
-<!-- Filter bar -->
-<div class="filter-bar card" style="margin-bottom:20px;">
-  <form method="GET" class="filter-form" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:16px;">
-    <select name="type" class="form-control form-control-sm" data-autosubmit>
-      <option value="">All Types</option>
-      <?php
-      $typeLabels = [
-        'server'      => 'Server',
-        'workstation' => 'Workstation',
-        'application' => 'Application',
-        'database'    => 'Database',
-        'network'     => 'Network Device',
-        'cloud'       => 'Cloud Resource',
-        'mobile'      => 'Mobile Device',
-        'iot'         => 'IoT Device',
-        'saas'        => 'SaaS',
-      ];
-      foreach ($typeLabels as $val => $label):
-        $sel = (($_GET['type'] ?? '') === $val) ? 'selected' : '';
-      ?>
-        <option value="<?= $val ?>" <?= $sel ?>><?= $label ?></option>
-      <?php endforeach; ?>
-    </select>
-
-    <select name="criticality" class="form-control form-control-sm" data-autosubmit>
-      <option value="">All Criticality</option>
-      <?php foreach (['critical'=>'Critical','high'=>'High','medium'=>'Medium','low'=>'Low'] as $val => $label): ?>
-        <option value="<?= $val ?>" <?= (($_GET['criticality'] ?? '') === $val) ? 'selected' : '' ?>><?= $label ?></option>
-      <?php endforeach; ?>
-    </select>
-
-    <select name="status" class="form-control form-control-sm" data-autosubmit>
-      <option value="">All Statuses</option>
-      <?php foreach (['active'=>'Active','decommissioned'=>'Decommissioned','maintenance'=>'Maintenance'] as $val => $label): ?>
-        <option value="<?= $val ?>" <?= (($_GET['status'] ?? '') === $val) ? 'selected' : '' ?>><?= $label ?></option>
-      <?php endforeach; ?>
-    </select>
-
-    <button type="submit" class="btn btn-primary btn-sm">Filter</button>
-    <a href="/assets" class="btn btn-ghost btn-sm">Clear</a>
-    <span style="margin-left:auto;font-size:13px;color:var(--text-muted);"><?= count($assets) ?> asset<?= count($assets) !== 1 ? 's' : '' ?></span>
+<?php
+$typeLabels = [
+    'server'      => 'Server',
+    'workstation' => 'Workstation',
+    'application' => 'Application',
+    'database'    => 'Database',
+    'network'     => 'Network Device',
+    'cloud'       => 'Cloud Resource',
+    'mobile'      => 'Mobile Device',
+    'iot'         => 'IoT Device',
+    'saas'        => 'SaaS',
+];
+$_assetActiveFilters = (int)!empty($_GET['type']) + (int)!empty($_GET['criticality']) + (int)!empty($_GET['status']);
+?>
+<div class="filter-toolbar">
+  <form method="GET" action="/assets">
+    <div class="filter-popover-wrap">
+      <button type="button" class="btn btn-secondary btn-sm filter-btn" data-toggle-class="open" data-target="#assetFilterPopover">
+        <i class="bi bi-funnel"></i> Filters
+        <?php if ($_assetActiveFilters > 0): ?>
+          <span class="filter-active-count"><?= $_assetActiveFilters ?></span>
+        <?php endif; ?>
+      </button>
+      <div id="assetFilterPopover" class="filter-popover">
+        <div class="form-group">
+          <label class="form-label">Asset Type</label>
+          <select name="type" class="form-control form-control-sm">
+            <option value="">All Types</option>
+            <?php foreach ($typeLabels as $val => $label):
+              $sel = (($_GET['type'] ?? '') === $val) ? 'selected' : ''; ?>
+              <option value="<?= $val ?>" <?= $sel ?>><?= $label ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Criticality</label>
+          <select name="criticality" class="form-control form-control-sm">
+            <option value="">All Criticality</option>
+            <?php foreach (['critical'=>'Critical','high'=>'High','medium'=>'Medium','low'=>'Low'] as $val => $label): ?>
+              <option value="<?= $val ?>" <?= (($_GET['criticality'] ?? '') === $val) ? 'selected' : '' ?>><?= $label ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select name="status" class="form-control form-control-sm">
+            <option value="">All Statuses</option>
+            <?php foreach (['active'=>'Active','decommissioned'=>'Decommissioned','maintenance'=>'Maintenance'] as $val => $label): ?>
+              <option value="<?= $val ?>" <?= (($_GET['status'] ?? '') === $val) ? 'selected' : '' ?>><?= $label ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <div class="filter-popover-footer">
+          <a href="/assets" class="btn btn-ghost btn-sm">Clear</a>
+          <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-check"></i> Apply</button>
+        </div>
+      </div>
+    </div>
   </form>
+  <span style="font-size:13px;color:var(--text-muted);"><?= count($assets) ?> asset<?= count($assets) !== 1 ? 's' : '' ?></span>
 </div>
 
 <?php

@@ -37,16 +37,29 @@ ob_start();
   </div>
 </div>
 
-<!-- Legend -->
-<div class="matrix-legend card">
-  <?php foreach (['low'=>'Low','medium'=>'Medium','high'=>'High','critical'=>'Critical'] as $key=>$label): ?>
-    <div class="legend-item">
-      <div class="legend-swatch" style="background:<?= $colors[$key] ?>"></div>
-      <span><?= $label ?></span>
-    </div>
+<!-- Legend bar -->
+<?php
+$tLow  = (int)$thresholds['low'];
+$tMed  = (int)$thresholds['medium'];
+$tHigh = (int)$thresholds['high'];
+$legendDefs = [
+  'low'      => ['Low',      "≤ $tLow"],
+  'medium'   => ['Medium',   ($tLow+1) . " – $tMed"],
+  'high'     => ['High',     ($tMed+1) . " – $tHigh"],
+  'critical' => ['Critical', "> $tHigh"],
+];
+?>
+<div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-bottom:16px;padding:10px 16px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:10px">
+  <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);white-space:nowrap">Legend:</span>
+  <?php foreach ($legendDefs as $key => [$label, $range]): ?>
+  <span style="display:inline-flex;align-items:center;gap:7px;font-size:12px;white-space:nowrap">
+    <span style="display:inline-block;width:14px;height:14px;border-radius:3px;flex-shrink:0;background:<?= $colors[$key] ?>"></span>
+    <span style="font-weight:700;color:var(--text)"><?= $label ?></span>
+    <span style="color:var(--text-muted);font-size:11px;">(score <?= $range ?>)</span>
+  </span>
   <?php endforeach; ?>
-  <div class="legend-sep">|</div>
-  <span class="text-muted text-sm"><?= count($risks) ?> active risks plotted</span>
+  <span style="color:var(--border);margin:0 4px">|</span>
+  <span style="font-size:12px;color:var(--text-muted)"><strong><?= count($risks) ?></strong> active risks plotted</span>
 </div>
 
 <div class="matrix-layout">

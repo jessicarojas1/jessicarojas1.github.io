@@ -27,6 +27,8 @@ function scIdxLevelClass(int $s): string {
 .sc-stat .num{font-size:26px;font-weight:900;line-height:1}
 .sc-stat .lbl{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-top:3px}
 .sc-type-badge{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px}
+.sc-risk-link{font-weight:600;color:var(--text);text-decoration:none}
+.sc-risk-link:hover{color:var(--primary)}
 </style>
 
 <div class="page-header">
@@ -120,8 +122,7 @@ function scIdxLevelClass(int $s): string {
             <div style="display:flex;flex-direction:column;gap:3px">
               <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
                 <a href="/risk/<?= (int)$sc['risk_id'] ?>#risk-scenarios-section"
-                   style="font-weight:600;color:var(--text);text-decoration:none"
-                   onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text)'">
+                   class="sc-risk-link">
                   <?= Security::h($sc['name']) ?>
                 </a>
                 <span class="sc-type-badge" style="background:<?= $sm['color'] ?>18;color:<?= $sm['color'] ?>;border:1px solid <?= $sm['color'] ?>40">

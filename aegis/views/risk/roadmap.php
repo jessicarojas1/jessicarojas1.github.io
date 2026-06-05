@@ -80,10 +80,10 @@ foreach ($roadmapRisks as $r) {
 }
 
 $levelConfig = [
-    'critical' => ['label'=>'Critical','border'=>'#ef4444','bg'=>'#fef2f2','badge_bg'=>'#ef4444','badge_fg'=>'#fff'],
-    'high'     => ['label'=>'High',    'border'=>'#f97316','bg'=>'#fff7ed','badge_bg'=>'#f97316','badge_fg'=>'#fff'],
-    'medium'   => ['label'=>'Medium',  'border'=>'#f59e0b','bg'=>'#fffbeb','badge_bg'=>'#f59e0b','badge_fg'=>'#fff'],
-    'low'      => ['label'=>'Low',     'border'=>'#22c55e','bg'=>'#f0fdf4','badge_bg'=>'#22c55e','badge_fg'=>'#fff'],
+    'critical' => ['label'=>'Critical','border'=>'#ef4444','bg'=>'rgba(239,68,68,.07)','badge_bg'=>'#ef4444','badge_fg'=>'#fff'],
+    'high'     => ['label'=>'High',    'border'=>'#f97316','bg'=>'rgba(249,115,22,.07)','badge_bg'=>'#f97316','badge_fg'=>'#fff'],
+    'medium'   => ['label'=>'Medium',  'border'=>'#f59e0b','bg'=>'rgba(245,158,11,.07)','badge_bg'=>'#f59e0b','badge_fg'=>'#fff'],
+    'low'      => ['label'=>'Low',     'border'=>'#22c55e','bg'=>'rgba(34,197,94,.07)','badge_bg'=>'#22c55e','badge_fg'=>'#fff'],
 ];
 
 ob_start();
@@ -100,37 +100,56 @@ ob_start();
   </div>
 </div>
 
-<!-- Filters -->
-<div class="filter-bar card" style="margin-bottom:20px;">
-  <form method="GET" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:14px 16px;">
-    <select name="status" class="form-control form-control-sm" data-autosubmit>
-      <option value="">All Statuses</option>
-      <?php foreach (['open'=>'Open','in_progress'=>'In Progress','mitigated'=>'Mitigated','accepted'=>'Accepted','closed'=>'Closed'] as $v=>$l): ?>
-        <option value="<?= $v ?>" <?= $filterStatus === $v ? 'selected' : '' ?>><?= $l ?></option>
-      <?php endforeach; ?>
-    </select>
-
-    <select name="owner_id" class="form-control form-control-sm" data-autosubmit>
-      <option value="">All Owners</option>
-      <?php foreach ($allUsers as $u): ?>
-        <option value="<?= (int)$u['id'] ?>" <?= ((int)$filterOwner === (int)$u['id']) ? 'selected' : '' ?>><?= Security::h($u['name']) ?></option>
-      <?php endforeach; ?>
-    </select>
-
-    <select name="level" class="form-control form-control-sm" data-autosubmit>
-      <option value="">All Risk Levels</option>
-      <?php foreach (['critical'=>'Critical','high'=>'High','medium'=>'Medium','low'=>'Low'] as $v=>$l): ?>
-        <option value="<?= $v ?>" <?= $filterLevel === $v ? 'selected' : '' ?>><?= $l ?></option>
-      <?php endforeach; ?>
-    </select>
-
-    <button type="submit" class="btn btn-primary btn-sm">Filter</button>
-    <a href="/risk/roadmap" class="btn btn-ghost btn-sm">Clear</a>
-
-    <span style="margin-left:auto;font-size:12px;color:var(--text-muted);">
-      Today: <strong><?= date('M j, Y') ?></strong> · Window: <?= $displayWindowDays ?> days
-    </span>
+<?php
+$_roadmapActiveFilters = (int)!empty($filterStatus) + (int)!empty($filterOwner) + (int)!empty($filterLevel);
+?>
+<div class="filter-toolbar" style="margin-bottom:16px">
+  <form method="GET" action="/risk/roadmap">
+    <div class="filter-popover-wrap">
+      <button type="button" class="btn btn-secondary btn-sm filter-btn" data-toggle-class="open" data-target="#roadmapFilterPopover">
+        <i class="bi bi-funnel"></i> Filters
+        <?php if ($_roadmapActiveFilters > 0): ?>
+          <span class="filter-active-count"><?= $_roadmapActiveFilters ?></span>
+        <?php endif; ?>
+      </button>
+      <div id="roadmapFilterPopover" class="filter-popover">
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select name="status" class="form-control form-control-sm">
+            <option value="">All Statuses</option>
+            <?php foreach (['open'=>'Open','in_progress'=>'In Progress','mitigated'=>'Mitigated','accepted'=>'Accepted','closed'=>'Closed'] as $v=>$l): ?>
+              <option value="<?= $v ?>" <?= $filterStatus === $v ? 'selected' : '' ?>><?= $l ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Owner</label>
+          <select name="owner_id" class="form-control form-control-sm">
+            <option value="">All Owners</option>
+            <?php foreach ($allUsers as $u): ?>
+              <option value="<?= (int)$u['id'] ?>" <?= ((int)$filterOwner === (int)$u['id']) ? 'selected' : '' ?>><?= Security::h($u['name']) ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Risk Level</label>
+          <select name="level" class="form-control form-control-sm">
+            <option value="">All Risk Levels</option>
+            <?php foreach (['critical'=>'Critical','high'=>'High','medium'=>'Medium','low'=>'Low'] as $v=>$l): ?>
+              <option value="<?= $v ?>" <?= $filterLevel === $v ? 'selected' : '' ?>><?= $l ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <div class="filter-popover-footer">
+          <a href="/risk/roadmap" class="btn btn-ghost btn-sm">Clear</a>
+          <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-check"></i> Apply</button>
+        </div>
+      </div>
+    </div>
   </form>
+  <span style="font-size:12px;color:var(--text-muted);">
+    Today: <strong><?= date('M j, Y') ?></strong> · Window: <?= $displayWindowDays ?> days
+  </span>
 </div>
 
 <!-- Timeline legend -->

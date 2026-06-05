@@ -2,10 +2,20 @@
 $pageTitle    = 'Import Standard';
 $activeModule = 'import';
 $breadcrumbs  = [['Compliance','/compliance'],['Import',null]];
+$nonce        = Security::nonce();
 ob_start();
 
 $packages = Database::fetchAll("SELECT id, name FROM compliance_packages WHERE is_active=TRUE ORDER BY name");
 ?>
+<style nonce="<?= $nonce ?>">
+/* Stretch the upload card to match the right column height */
+.two-col-layout { align-items: stretch; }
+.tab-panel { display: flex; flex-direction: column; }
+.tab-panel > .card { flex: 1; display: flex; flex-direction: column; }
+.tab-panel > .card > .card-body { flex: 1; display: flex; flex-direction: column; }
+.tab-panel > .card > .card-body form { flex: 1; display: flex; flex-direction: column; }
+.tab-panel > .card > .card-body form .btn-full:last-of-type { margin-top: auto; }
+</style>
 
 <div class="page-header">
   <div>

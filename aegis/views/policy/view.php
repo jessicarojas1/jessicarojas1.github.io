@@ -28,6 +28,8 @@ ob_start();
       <?php endif; ?>
     </form>
     <a href="/policy/<?= $policy['id'] ?>/attest" class="btn btn-primary"><i class="bi bi-pen-fill"></i> Attest Policy</a>
+    <button class="btn btn-ghost" id="btnPolicyWord"><i class="bi bi-file-word-fill"></i> Word</button>
+    <button class="btn btn-ghost" id="btnPolicyPrint"><i class="bi bi-printer-fill"></i> Print</button>
     <a href="/policy/<?= $policy['id'] ?>/edit" class="btn btn-ghost"><i class="bi bi-pencil"></i> Edit</a>
   </div>
 </div>
@@ -189,6 +191,45 @@ $totalUsers = Database::fetchOne("SELECT COUNT(*) as cnt FROM users WHERE is_act
     <?php endif; ?>
   </div>
 </div>
+
+<script nonce="<?= Security::nonce() ?>">
+(function() {
+  var title    = <?= json_encode($policy['title']) ?>;
+  var number   = <?= json_encode($policy['policy_number'] ?? '') ?>;
+  var version  = <?= json_encode('v' . $policy['version']) ?>;
+  var owner    = <?= json_encode($policy['owner_name'] ?? '') ?>;
+  var content  = <?= json_encode($policy['content'] ?? '') ?>;
+  var approved = <?= json_encode($policy['approved_at'] ? date('F j, Y', strtotime($policy['approved_at'])) : '') ?>;
+
+  document.getElementById('btnPolicyPrint').addEventListener('click', function() {
+    window.print();
+  });
+
+  document.getElementById('btnPolicyWord').addEventListener('click', function() {
+    var html = '<!DOCTYPE html><html><head><meta charset="UTF-8">' +
+      '<style>body{font-family:Calibri,Arial,sans-serif;margin:2.5cm;color:#111;line-height:1.6}' +
+      'h1{font-size:22pt;border-bottom:2pt solid #333;padding-bottom:6pt}' +
+      'h2{font-size:14pt;margin-top:18pt}' +
+      '.meta{font-size:10pt;color:#555;margin-bottom:18pt}' +
+      'p{margin:0 0 10pt}</style></head><body>' +
+      '<h1>' + title + '</h1>' +
+      '<div class="meta">' +
+      (number ? 'Policy Number: <b>' + number + '</b> &nbsp;|&nbsp; ' : '') +
+      'Version: <b>' + version + '</b>' +
+      (owner ? ' &nbsp;|&nbsp; Owner: <b>' + owner + '</b>' : '') +
+      (approved ? ' &nbsp;|&nbsp; Approved: <b>' + approved + '</b>' : '') +
+      '</div>' +
+      '<h2>Policy Content</h2>' +
+      (content ? '<p>' + content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'</p><p>') + '</p>' : '<p><em>No content.</em></p>') +
+      '</body></html>';
+    var blob = new Blob(['﻿', html], { type: 'application/msword' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = (title || 'Policy').replace(/[^a-z0-9]/gi, '_') + '.doc';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  });
+})();
+</script>
 
 <?php
 $content = ob_get_clean();

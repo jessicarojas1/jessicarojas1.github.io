@@ -11,7 +11,7 @@ $isAdmin = in_array($u['role'], ['admin','manager']);
 $isSubmitter = (int)$change['submitter_id'] === (int)$u['id'];
 $transitions = [
     'draft'=>['submitted'=>'Submit for Review'],
-    'submitted'=>['under_review'=>'Start Review','rejected'=>'Reject'],
+    'submitted'=>['under_review'=>'Start Review'],
     'under_review'=>['approved'=>'Approve','rejected'=>'Reject'],
     'approved'=>['implementing'=>'Mark Implementing'],
     'implementing'=>['implemented'=>'Mark Implemented'],
@@ -19,6 +19,24 @@ $transitions = [
 ];
 $available = ($isSubmitter && $change['status'] === 'draft') ? ($transitions['draft'] ?? []) :
              ($isAdmin ? ($transitions[$change['status']] ?? []) : []);
+
+// Separate CAB votes from regular activity
+$cabVotes = array_values(array_filter($updates, fn($upd) => $upd['update_type'] === 'cab_vote'));
+$activity = array_values(array_filter($updates, fn($upd) => $upd['update_type'] !== 'cab_vote'));
+
+$approveCount = count(array_filter($cabVotes, fn($v) => str_starts_with($v['content'], 'APPROVE')));
+$rejectCount  = count($cabVotes) - $approveCount;
+
+$myVote = null;
+foreach ($cabVotes as $v) {
+    if ((int)$v['user_id'] === (int)$u['id']) {
+        $myVote = str_starts_with($v['content'], 'APPROVE') ? 'approve' : 'reject';
+        break;
+    }
+}
+
+$canVote = $isAdmin && in_array($change['status'], ['submitted', 'under_review'], true);
+
 ob_start(); ?>
 <div class="page-header">
   <div>
@@ -36,13 +54,13 @@ ob_start(); ?>
     </p>
   </div>
   <?php if (!empty($available)): ?>
-  <div style="display:flex;gap:8px;flex-wrap:wrap">
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
     <?php foreach ($available as $newStatus => $label): ?>
-      <form method="POST" action="/change/<?= (int)$change['id'] ?>/update" style="display:inline">
+      <form method="POST" action="/change/<?= (int)$change['id'] ?>/update" style="display:inline-flex;gap:8px;align-items:center">
         <?= Security::csrfField() ?>
         <input type="hidden" name="status" value="<?= Security::h($newStatus) ?>">
         <?php if (in_array($newStatus, ['approved','rejected'])): ?>
-          <input type="text" name="review_notes" placeholder="Notes (optional)" class="form-control" style="width:220px;display:inline-block">
+          <input type="text" name="note" placeholder="Notes (optional)" class="form-control" style="width:200px">
         <?php endif; ?>
         <button class="btn <?= $newStatus === 'rejected' ? 'btn-danger' : 'btn-primary' ?>" type="submit">
           <?= Security::h($label) ?>
@@ -53,85 +71,182 @@ ob_start(); ?>
   <?php endif; ?>
 </div>
 
-<?php if (!empty($_GET['saved'])): ?>
-  <div class="alert-box success"><i class="bi bi-check-circle-fill"></i> Change request updated.</div>
+<?php if (!empty($_SESSION['change_success'])): ?>
+  <div class="alert-box success"><i class="bi bi-check-circle-fill"></i> <?= Security::h($_SESSION['change_success']) ?></div>
+  <?php unset($_SESSION['change_success']); ?>
+<?php endif; ?>
+<?php if (!empty($_SESSION['change_error'])): ?>
+  <div class="alert-box error"><i class="bi bi-exclamation-circle-fill"></i> <?= Security::h($_SESSION['change_error']) ?></div>
+  <?php unset($_SESSION['change_error']); ?>
 <?php endif; ?>
 
 <div style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap">
 
-<div style="flex:1;min-width:280px">
-  <div class="card" style="margin-bottom:16px">
-    <div class="card-header"><h3>Details</h3></div>
-    <div class="card-body">
-      <table class="desc-table">
-        <tr><th>Submitted By</th><td><?= Security::h($change['submitter_name'] ?? '—') ?></td></tr>
-        <tr><th>Reviewer</th><td><?= Security::h($change['reviewer_name'] ?? '—') ?></td></tr>
-        <tr><th>Implementation Date</th><td><?= $change['implementation_date'] ? date('M j, Y g:ia', strtotime($change['implementation_date'])) : '—' ?></td></tr>
-        <tr><th>Reviewed At</th><td><?= $change['reviewed_at'] ? date('M j, Y', strtotime($change['reviewed_at'])) : '—' ?></td></tr>
-        <tr><th>Created</th><td><?= date('M j, Y', strtotime($change['created_at'])) ?></td></tr>
-      </table>
+  <!-- Left: Details -->
+  <div style="flex:1;min-width:280px">
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-header"><h3>Details</h3></div>
+      <div class="card-body">
+        <table class="desc-table">
+          <tr><th>Submitted By</th><td><?= Security::h($change['submitter_name'] ?? '—') ?></td></tr>
+          <tr><th>Reviewer</th><td><?= Security::h($change['reviewer_name'] ?? '—') ?></td></tr>
+          <tr><th>Implementation Date</th><td><?= $change['implementation_date'] ? date('M j, Y g:ia', strtotime($change['implementation_date'])) : '—' ?></td></tr>
+          <tr><th>Created</th><td><?= date('M j, Y', strtotime($change['created_at'])) ?></td></tr>
+        </table>
+      </div>
     </div>
+    <?php if ($change['description']): ?>
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-header"><h3>Description</h3></div>
+      <div class="card-body"><p style="white-space:pre-wrap"><?= Security::h($change['description']) ?></p></div>
+    </div>
+    <?php endif; ?>
+    <?php if ($change['impact_analysis']): ?>
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-header"><h3>Impact Analysis</h3></div>
+      <div class="card-body"><p style="white-space:pre-wrap"><?= Security::h($change['impact_analysis']) ?></p></div>
+    </div>
+    <?php endif; ?>
+    <?php if ($change['rollback_plan']): ?>
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-header"><h3>Rollback Plan</h3></div>
+      <div class="card-body"><p style="white-space:pre-wrap"><?= Security::h($change['rollback_plan']) ?></p></div>
+    </div>
+    <?php endif; ?>
+    <?php if ($change['testing_plan']): ?>
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-header"><h3>Testing Plan</h3></div>
+      <div class="card-body"><p style="white-space:pre-wrap"><?= Security::h($change['testing_plan']) ?></p></div>
+    </div>
+    <?php endif; ?>
   </div>
-  <?php if ($change['description']): ?>
-  <div class="card" style="margin-bottom:16px">
-    <div class="card-header"><h3>Description</h3></div>
-    <div class="card-body"><p style="white-space:pre-wrap"><?= Security::h($change['description']) ?></p></div>
-  </div>
-  <?php endif; ?>
-  <?php if ($change['impact_analysis']): ?>
-  <div class="card" style="margin-bottom:16px">
-    <div class="card-header"><h3>Impact Analysis</h3></div>
-    <div class="card-body"><p style="white-space:pre-wrap"><?= Security::h($change['impact_analysis']) ?></p></div>
-  </div>
-  <?php endif; ?>
-  <?php if ($change['rollback_plan']): ?>
-  <div class="card" style="margin-bottom:16px">
-    <div class="card-header"><h3>Rollback Plan</h3></div>
-    <div class="card-body"><p style="white-space:pre-wrap"><?= Security::h($change['rollback_plan']) ?></p></div>
-  </div>
-  <?php endif; ?>
-  <?php if ($change['review_notes']): ?>
-  <div class="card">
-    <div class="card-header"><h3>Review Notes</h3></div>
-    <div class="card-body"><p><?= Security::h($change['review_notes']) ?></p></div>
-  </div>
-  <?php endif; ?>
-</div>
 
-<div style="flex:2;min-width:320px">
-  <div class="card" style="margin-bottom:16px">
-    <div class="card-header"><h3 id="updates">Activity</h3></div>
-    <div class="card-body">
-      <?php if (empty($updates)): ?>
-        <p class="text-muted">No activity yet.</p>
-      <?php else: foreach ($updates as $upd): ?>
-        <div style="display:flex;gap:12px;margin-bottom:16px;align-items:flex-start">
-          <div class="user-avatar" style="flex-shrink:0"><?= strtoupper(substr($upd['user_name'] ?? '?', 0, 1)) ?></div>
-          <div style="flex:1">
-            <div style="display:flex;justify-content:space-between">
-              <strong><?= Security::h($upd['user_name'] ?? 'System') ?></strong>
-              <span class="text-xs text-muted"><?= date('M j, g:ia', strtotime($upd['created_at'])) ?></span>
-            </div>
-            <?php if ($upd['update_type'] === 'status_change'): ?>
-              <p style="color:var(--primary);font-style:italic;margin:4px 0 0"><?= Security::h($upd['content']) ?></p>
-            <?php else: ?>
-              <p style="margin:4px 0 0;white-space:pre-wrap"><?= Security::h($upd['content']) ?></p>
-            <?php endif; ?>
+  <!-- Right: CAB Review + Activity -->
+  <div style="flex:2;min-width:320px">
+
+    <!-- CAB Review Panel -->
+    <div class="card" style="margin-bottom:16px" id="cab">
+      <div class="card-header" style="display:flex;align-items:center;justify-content:space-between">
+        <h3 style="margin:0"><i class="bi bi-people-fill" style="margin-right:6px;color:var(--primary)"></i>CAB Review</h3>
+        <div style="display:flex;gap:10px;font-size:13px">
+          <?php if ($approveCount > 0): ?>
+            <span style="display:inline-flex;align-items:center;gap:5px;background:#dcfce7;color:#16a34a;padding:3px 10px;border-radius:99px;font-weight:700">
+              <i class="bi bi-check-circle-fill"></i> <?= $approveCount ?> Approve
+            </span>
+          <?php endif; ?>
+          <?php if ($rejectCount > 0): ?>
+            <span style="display:inline-flex;align-items:center;gap:5px;background:#fee2e2;color:#dc2626;padding:3px 10px;border-radius:99px;font-weight:700">
+              <i class="bi bi-x-circle-fill"></i> <?= $rejectCount ?> Reject
+            </span>
+          <?php endif; ?>
+          <?php if (!$cabVotes): ?>
+            <span style="color:var(--text-muted);font-size:12px">No votes yet</span>
+          <?php endif; ?>
+        </div>
+      </div>
+      <div class="card-body">
+        <?php if ($cabVotes): ?>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+            <?php foreach ($cabVotes as $v):
+              $isApprove = str_starts_with($v['content'], 'APPROVE');
+              $voteColor = $isApprove ? '#16a34a' : '#dc2626';
+              $voteBg    = $isApprove ? '#dcfce7' : '#fee2e2';
+              $voteLabel = $isApprove ? 'Approved' : 'Rejected';
+              $voteIcon  = $isApprove ? 'bi-check-circle-fill' : 'bi-x-circle-fill';
+              $notePart  = strpos($v['content'], ': ') !== false ? substr($v['content'], strpos($v['content'], ': ') + 2) : '';
+            ?>
+              <div style="display:flex;align-items:flex-start;gap:12px;padding:12px;background:var(--bg-secondary);border-radius:10px;border:1px solid var(--border)">
+                <div class="user-avatar" style="flex-shrink:0"><?= strtoupper(substr($v['author_name'] ?? '?', 0, 1)) ?></div>
+                <div style="flex:1;min-width:0">
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+                    <strong style="font-size:14px"><?= Security::h($v['author_name'] ?? 'Unknown') ?></strong>
+                    <div style="display:flex;align-items:center;gap:8px">
+                      <span style="display:inline-flex;align-items:center;gap:4px;background:<?= $voteBg ?>;color:<?= $voteColor ?>;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:700">
+                        <i class="bi <?= $voteIcon ?>"></i> <?= $voteLabel ?>
+                      </span>
+                      <span class="text-xs text-muted"><?= date('M j, g:ia', strtotime($v['created_at'])) ?></span>
+                    </div>
+                  </div>
+                  <?php if ($notePart): ?>
+                    <p style="margin:6px 0 0;font-size:13px;color:var(--text-secondary)"><?= Security::h($notePart) ?></p>
+                  <?php endif; ?>
+                </div>
+              </div>
+            <?php endforeach; ?>
           </div>
-        </div>
-      <?php endforeach; endif; ?>
+        <?php elseif (!$canVote): ?>
+          <p class="text-muted">No CAB votes recorded yet.</p>
+        <?php endif; ?>
+
+        <?php if ($canVote): ?>
+          <form method="POST" action="/change/<?= (int)$change['id'] ?>/cab-vote">
+            <?= Security::csrfField() ?>
+            <div style="border-top:<?= $cabVotes ? '1px solid var(--border)' : 'none' ?>;padding-top:<?= $cabVotes ? '16px' : '0' ?>">
+              <p style="font-size:13px;font-weight:600;margin:0 0 10px;color:var(--text)">
+                <?= $myVote ? 'Update your vote:' : 'Cast your CAB vote:' ?>
+              </p>
+              <div class="form-group" style="margin-bottom:10px">
+                <label class="form-label">Notes <span class="text-muted">(optional)</span></label>
+                <textarea name="notes" class="form-control" rows="2" placeholder="Add rationale or conditions…"></textarea>
+              </div>
+              <div style="display:flex;gap:10px">
+                <button type="submit" name="vote" value="approve"
+                  class="btn btn-sm"
+                  style="background:#16a34a;color:#fff;border:none;display:inline-flex;align-items:center;gap:6px">
+                  <i class="bi bi-check-circle-fill"></i> Approve
+                </button>
+                <button type="submit" name="vote" value="reject"
+                  class="btn btn-sm btn-danger"
+                  style="display:inline-flex;align-items:center;gap:6px">
+                  <i class="bi bi-x-circle-fill"></i> Reject
+                </button>
+              </div>
+              <?php if ($myVote): ?>
+                <p style="margin-top:8px;font-size:12px;color:var(--text-muted)">
+                  <i class="bi bi-info-circle"></i> Your current vote: <strong><?= ucfirst($myVote) ?></strong>. Submitting will replace it.
+                </p>
+              <?php endif; ?>
+            </div>
+          </form>
+        <?php endif; ?>
+      </div>
     </div>
-    <div class="card-footer">
-      <form method="POST" action="/change/<?= (int)$change['id'] ?>/add-update">
-        <?= Security::csrfField() ?>
-        <div class="form-group" style="margin-bottom:8px">
-          <textarea name="content" class="form-control" rows="2" placeholder="Add a comment…" required></textarea>
-        </div>
-        <button class="btn btn-sm btn-primary">Post Comment</button>
-      </form>
+
+    <!-- Activity Feed -->
+    <div class="card" id="updates">
+      <div class="card-header"><h3>Activity</h3></div>
+      <div class="card-body">
+        <?php if (empty($activity)): ?>
+          <p class="text-muted">No activity yet.</p>
+        <?php else: foreach ($activity as $upd): ?>
+          <div style="display:flex;gap:12px;margin-bottom:16px;align-items:flex-start">
+            <div class="user-avatar" style="flex-shrink:0"><?= strtoupper(substr($upd['author_name'] ?? '?', 0, 1)) ?></div>
+            <div style="flex:1">
+              <div style="display:flex;justify-content:space-between">
+                <strong><?= Security::h($upd['author_name'] ?? 'System') ?></strong>
+                <span class="text-xs text-muted"><?= date('M j, g:ia', strtotime($upd['created_at'])) ?></span>
+              </div>
+              <?php if ($upd['update_type'] === 'status_change'): ?>
+                <p style="color:#6366f1;font-style:italic;margin:4px 0 0"><?= Security::h($upd['content']) ?></p>
+              <?php else: ?>
+                <p style="margin:4px 0 0;white-space:pre-wrap"><?= Security::h($upd['content']) ?></p>
+              <?php endif; ?>
+            </div>
+          </div>
+        <?php endforeach; endif; ?>
+      </div>
+      <div class="card-footer">
+        <form method="POST" action="/change/<?= (int)$change['id'] ?>/add-update">
+          <?= Security::csrfField() ?>
+          <div class="form-group" style="margin-bottom:8px">
+            <textarea name="content" class="form-control" rows="2" placeholder="Add a comment…" required></textarea>
+          </div>
+          <button class="btn btn-sm btn-primary">Post Comment</button>
+        </form>
+      </div>
     </div>
+
   </div>
-</div>
 </div>
 <?php $content = ob_get_clean();
 require AEGIS_ROOT . '/views/layout.php'; ?>
