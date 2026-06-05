@@ -106,12 +106,6 @@ class DashboardController {
             [Auth::id()]
         );
 
-        $activityLog = Database::fetchAll(
-            "SELECT al.*, u.name as user_name FROM activity_log al
-             LEFT JOIN users u ON al.user_id = u.id
-             ORDER BY al.created_at DESC LIMIT 10"
-        );
-
         $recentChanges = [];
         $openIncidents = [];
         try {

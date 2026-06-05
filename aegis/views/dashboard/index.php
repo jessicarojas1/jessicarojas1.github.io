@@ -256,24 +256,6 @@ $bucketMeta = [
     </div>
   </div>
 
-  <!-- Activity Log -->
-  <div class="card">
-    <div class="card-header">
-      <h3 class="card-title"><i class="bi bi-activity"></i> Recent Activity</h3>
-    </div>
-    <div class="card-body p0">
-      <?php foreach ($activityLog as $log): ?>
-        <div class="activity-item">
-          <div class="activity-avatar"><?= strtoupper(substr($log['user_name'] ?? 'S', 0, 1)) ?></div>
-          <div class="activity-body">
-            <span class="activity-user"><?= Security::h($log['user_name'] ?? 'System') ?></span>
-            <span class="activity-action"><?= Security::h(str_replace('_', ' ', $log['action'])) ?></span>
-          </div>
-          <span class="activity-time"><?= timeAgo($log['created_at']) ?></span>
-        </div>
-      <?php endforeach; ?>
-    </div>
-  </div>
 </div>
 
 <script nonce="<?= Security::nonce() ?>">
@@ -293,46 +275,114 @@ const complianceData = <?= json_encode($complianceByPackage) ?>;
 const riskData = <?= json_encode($riskDistribution) ?>;
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Compliance bar chart
+  // Resolve theme-aware colors from CSS vars at runtime
+  const style = getComputedStyle(document.documentElement);
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const clrText     = isDark ? 'rgba(248,250,252,0.65)' : 'rgba(30,41,59,0.65)';
+  const clrGrid     = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
+  const clrBg       = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)';
+  const clrGreen    = '#22c55e';
+  const clrYellow   = '#f59e0b';
+  const clrRed      = '#ef4444';
+
+  // Apply global Chart.js defaults for dark mode
+  Chart.defaults.color = clrText;
+  Chart.defaults.borderColor = clrGrid;
+
+  // ── Compliance horizontal bar chart ──────────────────────────
   if (complianceData.length > 0) {
     const ctx = document.getElementById('complianceChart').getContext('2d');
+
+    // Color each bar by compliance % (green ≥80, yellow ≥50, red <50)
+    const pcts   = complianceData.map(p => Math.round((p.compliant / Math.max(p.total, 1)) * 100));
+    const barColors = pcts.map(p => p >= 80 ? clrGreen : p >= 50 ? clrYellow : clrRed);
+
     new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: complianceData.map(p => p.name.length > 20 ? p.name.substring(0,20)+'…' : p.name),
-        datasets: [{
-          label: 'Compliant',
-          data: complianceData.map(p => p.compliant),
-          backgroundColor: 'var(--primary)',
-          borderRadius: 6,
-        },{
-          label: 'Total Controls',
-          data: complianceData.map(p => p.total - p.compliant),
-          backgroundColor: '#e4e4e7',
-          borderRadius: 6,
-        }]
+        labels: complianceData.map(p => p.name.length > 22 ? p.name.substring(0, 22) + '…' : p.name),
+        datasets: [
+          {
+            label: 'Compliance %',
+            data: pcts,
+            backgroundColor: barColors,
+            borderRadius: 5,
+            borderSkipped: false,
+            maxBarThickness: 28,
+          },
+          {
+            label: 'Remaining',
+            data: pcts.map(p => 100 - p),
+            backgroundColor: clrBg,
+            borderRadius: 5,
+            borderSkipped: false,
+            maxBarThickness: 28,
+          }
+        ]
       },
       options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: true, position: 'top' } },
-        scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, beginAtZero: true } }
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (item) => {
+                const d = complianceData[item.dataIndex];
+                return item.datasetIndex === 0
+                  ? ` ${item.raw}% compliant (${d.compliant} / ${d.total} controls)`
+                  : ` ${item.raw}% remaining`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            stacked: true,
+            min: 0, max: 100,
+            ticks: { callback: v => v + '%', maxTicksLimit: 6, color: clrText },
+            grid: { color: clrGrid },
+          },
+          y: {
+            stacked: true,
+            ticks: { color: clrText, font: { size: 11 } },
+            grid: { display: false },
+          }
+        }
       }
     });
   }
 
-  // Risk donut chart
+  // ── Risk donut chart ──────────────────────────────────────────
   if (riskData.length > 0) {
-    const colors = { Critical:'#ef4444', High:'#f97316', Medium:'#f59e0b', Low:'#22c55e' };
+    const riskColors = { Critical: '#ef4444', High: '#f97316', Medium: '#f59e0b', Low: '#22c55e' };
     const ctx2 = document.getElementById('riskChart').getContext('2d');
     new Chart(ctx2, {
       type: 'doughnut',
       data: {
         labels: riskData.map(r => r.level),
-        datasets: [{ data: riskData.map(r => r.count), backgroundColor: riskData.map(r => colors[r.level] || 'var(--primary)'), borderWidth: 0, hoverOffset: 8 }]
+        datasets: [{
+          data: riskData.map(r => r.count),
+          backgroundColor: riskData.map(r => riskColors[r.level] || '#94a3b8'),
+          borderWidth: 2,
+          borderColor: isDark ? '#1e293b' : '#ffffff',
+          hoverOffset: 8
+        }]
       },
       options: {
-        responsive: true, maintainAspectRatio: false, cutout: '65%',
-        plugins: { legend: { position: 'bottom' } }
+        responsive: true, maintainAspectRatio: false, cutout: '68%',
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { padding: 16, boxWidth: 12, color: clrText }
+          },
+          tooltip: {
+            callbacks: {
+              label: (item) => ` ${item.label}: ${item.raw} risk${item.raw !== 1 ? 's' : ''}`
+            }
+          }
+        }
       }
     });
   }
