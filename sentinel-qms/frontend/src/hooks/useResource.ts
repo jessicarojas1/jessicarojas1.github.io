@@ -21,8 +21,18 @@ export function createResourceHooks<T extends { id: string }>(resource: string) 
     return useQuery<Paginated<T>>({
       queryKey: [...baseKey, 'list', params],
       queryFn: async () => {
-        const { data } = await api.get<Paginated<T>>(`/${resource}`, { params });
-        return data;
+        // Translate frontend param names to the backend's query contract:
+        // page_size -> size, sort -> sort_by. Everything else passes through.
+        const { page_size, sort, ...rest } = params;
+        const query: Record<string, string | number | undefined> = { ...rest };
+        if (page_size != null) query.size = page_size;
+        if (sort != null) query.sort_by = sort;
+        const { data } = await api.get<Paginated<T> & { size?: number }>(
+          `/${resource}`,
+          { params: query },
+        );
+        // Backend envelope exposes `size`; surface it as `page_size` too.
+        return { ...data, page_size: data.page_size ?? data.size ?? page_size ?? 25 };
       },
       ...options,
     });

@@ -26,7 +26,7 @@ export const trainingHooks = createResourceHooks<TrainingRecord>('training');
 export const changeHooks = createResourceHooks<ChangeRequest>('changes');
 export const riskHooks = createResourceHooks<Risk>('risks');
 export const inspectionHooks = createResourceHooks<Inspection>('inspections');
-export const mgmtReviewHooks = createResourceHooks<MgmtReview>('mgmt_reviews');
+export const mgmtReviewHooks = createResourceHooks<MgmtReview>('management-reviews');
 export const complaintHooks = createResourceHooks<Complaint>('complaints');
 export const userHooks = createResourceHooks<User>('users');
 

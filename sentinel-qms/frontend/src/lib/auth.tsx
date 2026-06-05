@@ -10,6 +10,48 @@ import {
 import { api, tokenStore } from './api';
 import type { LoginRequest, Role, TokenResponse, User } from '@/types';
 
+/**
+ * Shape returned by the backend `/auth/me` (UserRead). Roles arrive as objects
+ * carrying display names ("Quality Manager"); the frontend RBAC layer works in
+ * slug form ("quality_manager"), so we normalize on the way in. The backend
+ * keys users by email and has no separate username column.
+ */
+interface RawUser {
+  id: number | string;
+  email: string;
+  full_name: string;
+  department?: string | null;
+  is_active: boolean;
+  last_login_at?: string | null;
+  created_at?: string | null;
+  roles?: Array<{ name: string } | string>;
+}
+
+const roleSlug = (name: string): Role =>
+  name.trim().toLowerCase().replace(/[\s-]+/g, '_') as Role;
+
+function mapUser(raw: RawUser): User {
+  const roles = (raw.roles ?? []).map((r) =>
+    typeof r === 'string' ? roleSlug(r) : roleSlug(r.name),
+  );
+  return {
+    id: String(raw.id),
+    username: raw.email,
+    email: raw.email,
+    full_name: raw.full_name,
+    roles,
+    department: raw.department ?? undefined,
+    is_active: raw.is_active,
+    last_login_at: raw.last_login_at ?? undefined,
+    created_at: raw.created_at ?? '',
+  };
+}
+
+async function fetchProfile(): Promise<User> {
+  const { data } = await api.get<RawUser>('/auth/me');
+  return mapUser(data);
+}
+
 interface AuthState {
   user: User | null;
   loading: boolean;
@@ -34,8 +76,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
     try {
-      const { data } = await api.get<User>('/auth/me');
-      setUser(data);
+      const profile = await fetchProfile();
+      setUser(profile);
     } catch {
       tokenStore.clear();
       setUser(null);
@@ -61,8 +103,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (credentials: LoginRequest) => {
     const { data } = await api.post<TokenResponse>('/auth/login', credentials);
     tokenStore.set(data);
-    const profile = await api.get<User>('/auth/me');
-    setUser(profile.data);
+    const profile = await fetchProfile();
+    setUser(profile);
   }, []);
 
   const logout = useCallback(() => {
@@ -83,7 +125,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (password: string): Promise<boolean> => {
       if (!user) return false;
       try {
-        await api.post('/auth/login', { username: user.username, password });
+        await api.post('/auth/login', { username: user.email, password });
         return true;
       } catch {
         return false;
