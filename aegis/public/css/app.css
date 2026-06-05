@@ -148,9 +148,9 @@ body {
   flex-shrink: 0;
 }
 
-.brand-text { display: flex; flex-direction: column; }
-.brand-name { font-size: 15px; font-weight: 800; color: #f9fafb; letter-spacing: .3px; line-height: 1.1; }
-.brand-sub  { font-size: 9px; color: rgba(134,239,172,0.65); text-transform: uppercase; letter-spacing: 1.2px; }
+.brand-text { display: flex; flex-direction: column; min-width: 0; }
+.brand-name { font-size: 15px; font-weight: 800; color: #f9fafb; letter-spacing: .3px; line-height: 1.2; white-space: nowrap; }
+.brand-sub  { font-size: 9.5px; color: rgba(134,239,172,0.7); letter-spacing: .3px; line-height: 1.3; white-space: normal; }
 
 .sidebar-nav { flex: 1; padding: 6px 10px; display: flex; flex-direction: column; gap: 1px; }
 
