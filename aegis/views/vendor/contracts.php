@@ -78,7 +78,7 @@ $urgent = array_filter($expiring, function($c) {
             <div style="font-size:12px;color:var(--text-muted);margin-top:2px"><?= Security::h($c['vendor_name']) ?></div>
           </div>
           <?php if ($c['auto_renewal']): ?>
-          <span style="font-size:11px;background:#16a34a18;color:var(--primary);padding:2px 7px;border-radius:10px;white-space:nowrap;margin-left:8px">Auto-Renews</span>
+          <span style="font-size:11px;background:var(--primary)18;color:var(--primary);padding:2px 7px;border-radius:10px;white-space:nowrap;margin-left:8px">Auto-Renews</span>
           <?php endif; ?>
         </div>
         <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px">

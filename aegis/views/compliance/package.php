@@ -82,9 +82,9 @@ ob_start();
      align-items:center;gap:10px;flex-wrap:wrap;box-shadow:0 4px 20px rgba(79,70,229,.4)">
   <span id="bulk-count" style="font-size:13px;font-weight:600;margin-right:4px"></span>
   <span style="font-size:12px;opacity:.7;margin-right:8px">Set status to:</span>
-  <button class="bulk-status-btn" data-status="compliant"     style="background:#059669;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="bi bi-check-circle-fill"></i> Compliant</button>
-  <button class="bulk-status-btn" data-status="partial"       style="background:#d97706;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="bi bi-dash-circle-fill"></i> Partial</button>
-  <button class="bulk-status-btn" data-status="non_compliant" style="background:#dc2626;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="bi bi-x-circle-fill"></i> Non-Compliant</button>
+  <button class="bulk-status-btn" data-status="compliant"     style="background:var(--success);color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="bi bi-check-circle-fill"></i> Compliant</button>
+  <button class="bulk-status-btn" data-status="partial"       style="background:var(--warning);color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="bi bi-dash-circle-fill"></i> Partial</button>
+  <button class="bulk-status-btn" data-status="non_compliant" style="background:var(--danger);color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="bi bi-x-circle-fill"></i> Non-Compliant</button>
   <button class="bulk-status-btn" data-status="not_started"   style="background:#52525b;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="bi bi-circle"></i> Not Started</button>
   <button class="bulk-status-btn" data-status="not_applicable" style="background:#3f3f46;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="bi bi-slash-circle-fill"></i> N/A</button>
   <button id="bulk-assess-btn" data-click="openBulkAssess" style="background:var(--primary);color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer"><i class="bi bi-clipboard2-check-fill"></i> Bulk Assess</button>

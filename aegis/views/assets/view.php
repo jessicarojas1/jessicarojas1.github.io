@@ -301,7 +301,7 @@ function riskScoreLevel(int $score): string {
               <?php foreach ($linkedRisks as $r):
                 $rScore = (int)$r['inherent_score'];
                 $rLevel = riskScoreLevel($rScore);
-                $rLevelColors = ['Critical'=>'#ef4444','High'=>'#f97316','Medium'=>'#f59e0b','Low'=>'#22c55e'];
+                $rLevelColors = ['Critical'=>'var(--danger)','High'=>'#f97316','Medium'=>'var(--warning)','Low'=>'var(--success)'];
                 $rLc = $rLevelColors[$rLevel] ?? '#71717a';
               ?>
                 <tr>
@@ -325,7 +325,7 @@ function riskScoreLevel(int $score): string {
                             data-confirm="Unlink this risk from the asset?">
                         <?= Security::csrfField() ?>
                         <button type="submit" class="btn btn-ghost btn-sm" title="Unlink risk">
-                          <i class="bi bi-x-lg" style="color:#ef4444;"></i>
+                          <i class="bi bi-x-lg" style="color:var(--danger);"></i>
                         </button>
                       </form>
                     </td>
@@ -361,7 +361,7 @@ function riskScoreLevel(int $score): string {
         }
         foreach ($risksByLevel as $lvl => $cnt):
           if ($cnt === 0) continue;
-          $lvlColors = ['Critical'=>'#ef4444','High'=>'#f97316','Medium'=>'#f59e0b','Low'=>'#22c55e'];
+          $lvlColors = ['Critical'=>'var(--danger)','High'=>'#f97316','Medium'=>'var(--warning)','Low'=>'var(--success)'];
         ?>
           <div class="detail-row">
             <span style="color:<?= $lvlColors[$lvl] ?? '#71717a' ?>;">■ <?= $lvl ?></span>

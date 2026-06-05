@@ -298,7 +298,7 @@ function updateScore() {
   const score = l * i;
   document.getElementById('scoreNum').textContent = score;
   const level = score > 14 ? 'Critical' : score > 9 ? 'High' : score > 4 ? 'Medium' : 'Low';
-  const colors = { Critical:'#ef4444', High:'#f97316', Medium:'#f59e0b', Low:'#22c55e' };
+  const colors = { Critical:'var(--danger)', High:'#f97316', Medium:'var(--warning)', Low:'var(--success)' };
   document.getElementById('scoreLabel').textContent = level;
   document.getElementById('scoreDisplay').style.background = colors[level] + '20';
   document.getElementById('scoreDisplay').style.borderColor = colors[level] + '50';

@@ -101,7 +101,7 @@ html[data-theme="dark"] .report-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,.
       <div>
         <div style="font-size:16px;font-weight:600;margin-bottom:4px">Incident Report</div>
         <div style="font-size:13px;color:var(--text-muted)">Open and resolved incidents, SLA compliance, severity breakdown, and MTTR trends.</div>
-        <div style="margin-top:12px;font-size:12px;color:#ef4444;font-weight:500">View Incidents <i class="bi bi-arrow-right"></i></div>
+        <div style="margin-top:12px;font-size:12px;color:var(--danger);font-weight:500">View Incidents <i class="bi bi-arrow-right"></i></div>
       </div>
     </div>
   </a>

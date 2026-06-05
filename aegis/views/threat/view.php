@@ -171,7 +171,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
 
             <!-- Title -->
             <div class="form-group">
-              <label class="form-label required">Title <span style="color:#ef4444;">*</span></label>
+              <label class="form-label required">Title <span style="color:var(--danger);">*</span></label>
               <input type="text" name="title" class="form-control" value="<?= Security::h($threat['title']) ?>" required>
             </div>
 
@@ -345,7 +345,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
                             data-confirm="Unlink this risk from the threat?">
                         <?= Security::csrfField() ?>
                         <button type="submit" class="btn btn-ghost btn-sm" title="Unlink risk">
-                          <i class="bi bi-x-lg" style="color:#ef4444;"></i>
+                          <i class="bi bi-x-lg" style="color:var(--danger);"></i>
                         </button>
                       </form>
                     </td>

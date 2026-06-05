@@ -14,7 +14,7 @@ function scenarioLevelStr(int $s): string {
     return $s > 14 ? 'Critical' : ($s > 9 ? 'High' : ($s > 4 ? 'Medium' : 'Low'));
 }
 function scenarioLevelColor(int $s): string {
-    return $s > 14 ? '#ef4444' : ($s > 9 ? '#f97316' : ($s > 4 ? '#f59e0b' : '#22c55e'));
+    return $s > 14 ? 'var(--danger)' : ($s > 9 ? '#f97316' : ($s > 4 ? 'var(--warning)' : 'var(--success)'));
 }
 function scenarioLevelClass(int $s): string {
     return $s > 14 ? 'risk-critical' : ($s > 9 ? 'risk-high' : ($s > 4 ? 'risk-medium' : 'risk-low'));
@@ -29,7 +29,7 @@ function scenarioLevelClass(int $s): string {
 .preview-label{color:var(--text-muted);font-weight:500}
 .preview-score{font-size:22px;font-weight:900;line-height:1}
 .preview-delta{display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:700;padding:2px 8px;border-radius:20px}
-.delta-up{background:#dc262618;color:var(--danger)}
+.delta-up{background:var(--danger)18;color:var(--danger)}
 .delta-down{background:#d1fae5;color:var(--success)}
 .delta-neutral{background:var(--bg-secondary);color:var(--text-muted)}
 .multiplier-group{display:flex;flex-direction:column;gap:6px}

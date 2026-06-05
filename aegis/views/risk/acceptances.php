@@ -18,10 +18,10 @@ $statusConfig = [
 ];
 
 $levelConfig = [
-    'critical' => ['label' => 'Critical', 'fg' => '#ef4444', 'bg' => '#fef2f2'],
+    'critical' => ['label' => 'Critical', 'fg' => 'var(--danger)', 'bg' => '#fef2f2'],
     'high'     => ['label' => 'High',     'fg' => '#f97316', 'bg' => '#fff7ed'],
-    'medium'   => ['label' => 'Medium',   'fg' => '#f59e0b', 'bg' => '#fffbeb'],
-    'low'      => ['label' => 'Low',      'fg' => '#22c55e', 'bg' => '#f0fdf4'],
+    'medium'   => ['label' => 'Medium',   'fg' => 'var(--warning)', 'bg' => '#fffbeb'],
+    'low'      => ['label' => 'Low',      'fg' => 'var(--success)', 'bg' => '#f0fdf4'],
 ];
 
 $filterStatus = $_GET['status'] ?? '';
@@ -67,13 +67,13 @@ if ($filterStatus !== '') {
     </div>
   </div>
 
-  <div class="card" style="border-left:4px solid <?= $expiringSoon > 0 ? '#f59e0b' : '#a1a1aa' ?>;">
+  <div class="card" style="border-left:4px solid <?= $expiringSoon > 0 ? 'var(--warning)' : '#a1a1aa' ?>;">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
       <div style="width:44px;height:44px;border-radius:10px;background:<?= $expiringSoon > 0 ? 'var(--warning-subtle)' : 'var(--bg-secondary)' ?>;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-        <i class="bi bi-alarm-fill" style="font-size:20px;color:<?= $expiringSoon > 0 ? '#f59e0b' : '#a1a1aa' ?>;"></i>
+        <i class="bi bi-alarm-fill" style="font-size:20px;color:<?= $expiringSoon > 0 ? 'var(--warning)' : '#a1a1aa' ?>;"></i>
       </div>
       <div>
-        <div style="font-size:26px;font-weight:700;line-height:1;color:<?= $expiringSoon > 0 ? '#f59e0b' : '#a1a1aa' ?>;"><?= $expiringSoon ?></div>
+        <div style="font-size:26px;font-weight:700;line-height:1;color:<?= $expiringSoon > 0 ? 'var(--warning)' : '#a1a1aa' ?>;"><?= $expiringSoon ?></div>
         <div style="font-size:12px;color:var(--text-muted);margin-top:3px;">Expiring &lt;30 Days</div>
       </div>
     </div>
@@ -252,7 +252,7 @@ if ($filterStatus !== '') {
             <?php if ($acc['status'] === 'active' && Auth::can('risk.write')): ?>
               <button type="button"
                       class="btn btn-sm"
-                      style="background:#dc262618;color:var(--danger);border:1px solid #dc262640;"
+                      style="background:var(--danger)18;color:var(--danger);border:1px solid #dc262640;"
                       data-click="toggleRevoke" data-arg="revoke-<?= (int)$acc['id'] ?>"
                       title="Revoke">
                 <i class="bi bi-x-circle"></i> Revoke
@@ -295,7 +295,7 @@ if ($filterStatus !== '') {
                 <div style="display:flex;gap:8px;flex-shrink:0;">
                   <button type="button" class="btn btn-ghost btn-sm"
                           data-click="toggleRevoke" data-arg="revoke-<?= (int)$acc['id'] ?>">Cancel</button>
-                  <button type="submit" class="btn btn-sm" style="background:#dc2626;color:#fff;border:none;">
+                  <button type="submit" class="btn btn-sm" style="background:var(--danger);color:#fff;border:none;">
                     <i class="bi bi-x-circle-fill"></i> Confirm Revoke
                   </button>
                 </div>

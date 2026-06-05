@@ -9,7 +9,7 @@ $notes = [
   'risks' => [
     'label'  => 'Risks',
     'icon'   => 'bi-exclamation-triangle-fill',
-    'color'  => '#ef4444',
+    'color'  => 'var(--danger)',
     'fields' => [
       ['title',          'Required',  'string',  'Short descriptive title for the risk.'],
       ['description',    'Optional',  'string',  'Detailed description of the risk scenario.'],

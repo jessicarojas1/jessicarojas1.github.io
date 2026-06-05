@@ -55,11 +55,11 @@ ob_start();
       <?php
       $templates = [
         // Risks
-        ['Risk Review Reminder',              'Sends alert when risk review date is approaching',                  'risk_review_due',               '#ef4444', 'Risks'],
+        ['Risk Review Reminder',              'Sends alert when risk review date is approaching',                  'risk_review_due',               'var(--danger)', 'Risks'],
         ['New Risk Notification',             'Notifies admins when a critical risk is logged',                    'risk_created_critical',         '#f97316', 'Risks'],
         ['Risk Treatment Overdue',            'Escalates when a risk treatment plan passes its deadline',          'treatment_overdue',             'var(--danger)', 'Risks'],
         ['Risk Status Changed',               'Alerts owner when a risk status transition occurs',                 'risk_status_changed',           '#9a3412', 'Risks'],
-        ['Residual Risk Threshold Exceeded',  'Alerts when residual risk score exceeds acceptable threshold',      'residual_risk_exceeded',        '#ef4444', 'Risks'],
+        ['Residual Risk Threshold Exceeded',  'Alerts when residual risk score exceeds acceptable threshold',      'residual_risk_exceeded',        'var(--danger)', 'Risks'],
         // Policies
         ['Policy Expiry Alert',               'Notifies owner when policy review date is due',                    'policy_review_due',             'var(--warning)', 'Policies'],
         ['Policy Acknowledgment Required',    'Notifies staff when a new policy requires acknowledgment',          'policy_published',              'var(--success)', 'Policies'],
@@ -79,7 +79,7 @@ ob_start();
         ['Change Request Submitted',          'Notifies CAB members when a change request is submitted',         'change_submitted',              '#2563eb', 'Changes'],
         ['Emergency Change Alert',            'Immediately alerts management when an emergency change is filed', 'emergency_change',              'var(--danger)', 'Changes'],
         ['Change Implementation Due',         'Reminds implementer when a change implementation date is near',  'change_due',                    '#f97316', 'Changes'],
-        ['Change Rejected',                   'Notifies submitter when a change request is rejected by CAB',    'change_rejected',               '#ef4444', 'Changes'],
+        ['Change Rejected',                   'Notifies submitter when a change request is rejected by CAB',    'change_rejected',               'var(--danger)', 'Changes'],
         // Incidents
         ['Incident Escalation',               'Alerts management when a critical incident is created',           'incident_created_critical',     'var(--danger)', 'Incidents'],
         ['Incident Resolution Reminder',      'Notifies team when an incident is approaching its SLA',           'incident_overdue_sla',          '#f97316', 'Incidents'],

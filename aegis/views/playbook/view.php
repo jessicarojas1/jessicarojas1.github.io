@@ -159,9 +159,9 @@ $sevColor = $severityColors[strtolower($playbook['severity_filter'] ?? '')] ?? n
                   <td class="text-sm text-muted"><?= $run['completed_at'] ? date('M j, Y g:ia', strtotime($run['completed_at'])) : '—' ?></td>
                   <td>
                     <?php if ($run['completed_at']): ?>
-                      <span class="status-chip" style="background:#05966920;color:var(--success);border:1px solid #05966940">Complete</span>
+                      <span class="status-chip" style="background:var(--success)20;color:var(--success);border:1px solid #05966940">Complete</span>
                     <?php else: ?>
-                      <span class="status-chip" style="background:#d9770620;color:var(--warning);border:1px solid #d9770640">In Progress</span>
+                      <span class="status-chip" style="background:var(--warning)20;color:var(--warning);border:1px solid #d9770640">In Progress</span>
                     <?php endif; ?>
                   </td>
                 </tr>
@@ -191,7 +191,7 @@ $sevColor = $severityColors[strtolower($playbook['severity_filter'] ?? '')] ?? n
             ['Severity Filter', $playbook['severity_filter'] ? '<span class="status-chip" style="background:' . ($sevColor??'#71717a') . '20;color:' . ($sevColor??'#71717a') . '">' . Security::h(ucfirst($playbook['severity_filter'])) . '</span>' : 'Any'],
             ['Steps',         count($steps)],
             ['Runs',          count($runs)],
-            ['Status',        $isActive ? '<span class="status-chip" style="background:#05966920;color:var(--success)">Active</span>' : '<span class="status-chip" style="background:#a1a1aa20;color:#a1a1aa">Inactive</span>'],
+            ['Status',        $isActive ? '<span class="status-chip" style="background:var(--success)20;color:var(--success)">Active</span>' : '<span class="status-chip" style="background:#a1a1aa20;color:#a1a1aa">Inactive</span>'],
             ['Created By',    Security::h($playbook['creator_name'] ?? '—')],
             ['Created',       date('M j, Y', strtotime($playbook['created_at']))],
             ['Updated',       date('M j, Y', strtotime($playbook['updated_at']))],

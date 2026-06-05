@@ -125,15 +125,15 @@ function updateStrength(pwd) {
 
     var pct, color, text;
     if (score <= 1) {
-        pct = '20%'; color = '#ef4444'; text = 'Very weak';
+        pct = '20%'; color = 'var(--danger)'; text = 'Very weak';
     } else if (score === 2) {
         pct = '40%'; color = '#f97316'; text = 'Weak';
     } else if (score === 3) {
-        pct = '60%'; color = '#f59e0b'; text = 'Fair';
+        pct = '60%'; color = 'var(--warning)'; text = 'Fair';
     } else if (score === 4) {
         pct = '80%'; color = '#84cc16'; text = 'Good';
     } else {
-        pct = '100%'; color = '#22c55e'; text = 'Strong';
+        pct = '100%'; color = 'var(--success)'; text = 'Strong';
     }
 
     bar.style.width = pct;

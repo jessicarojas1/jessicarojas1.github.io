@@ -202,7 +202,7 @@ $bucketMeta = [
         <?php $overdue = $policy['next_review_date'] && strtotime($policy['next_review_date']) < time(); ?>
         <div class="list-item">
           <div class="list-item-icon">
-            <i class="bi bi-file-earmark-text" style="color:<?= $overdue ? '#ef4444' : 'var(--primary)' ?>"></i>
+            <i class="bi bi-file-earmark-text" style="color:<?= $overdue ? 'var(--danger)' : 'var(--primary)' ?>"></i>
           </div>
           <div class="list-item-body">
             <div class="list-item-title"><a href="/policy/<?= $policy['id'] ?>"><?= Security::h($policy['title']) ?></a></div>
@@ -281,9 +281,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const clrText     = isDark ? 'rgba(248,250,252,0.65)' : 'rgba(30,41,59,0.65)';
   const clrGrid     = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
   const clrBg       = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)';
-  const clrGreen    = '#22c55e';
-  const clrYellow   = '#f59e0b';
-  const clrRed      = '#ef4444';
+  const clrGreen    = 'var(--success)';
+  const clrYellow   = 'var(--warning)';
+  const clrRed      = 'var(--danger)';
 
   // Apply global Chart.js defaults for dark mode
   Chart.defaults.color = clrText;
@@ -356,7 +356,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ── Risk donut chart ──────────────────────────────────────────
   if (riskData.length > 0) {
-    const riskColors = { Critical: '#ef4444', High: '#f97316', Medium: '#f59e0b', Low: '#22c55e' };
+    const riskColors = { Critical: 'var(--danger)', High: '#f97316', Medium: 'var(--warning)', Low: 'var(--success)' };
     const ctx2 = document.getElementById('riskChart').getContext('2d');
     new Chart(ctx2, {
       type: 'doughnut',

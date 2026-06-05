@@ -1,9 +1,9 @@
 <?php
 function ctResultBadge(string $result): string {
     return match($result) {
-        'pass'       => '<span class="badge" style="background:#16a34a18;color:var(--primary);border:1px solid #16a34a40">Pass</span>',
-        'fail'       => '<span class="badge" style="background:#dc262618;color:var(--danger);border:1px solid #dc262640">Fail</span>',
-        'partial'    => '<span class="badge" style="background:#d9770618;color:var(--warning);border:1px solid #d9770640">Partial</span>',
+        'pass'       => '<span class="badge" style="background:var(--primary)18;color:var(--primary);border:1px solid #16a34a40">Pass</span>',
+        'fail'       => '<span class="badge" style="background:var(--danger)18;color:var(--danger);border:1px solid #dc262640">Fail</span>',
+        'partial'    => '<span class="badge" style="background:var(--warning)18;color:var(--warning);border:1px solid #d9770640">Partial</span>',
         'not_tested' => '<span class="badge" style="background:var(--bg-secondary);color:var(--text-muted);border:1px solid var(--border)">Not Tested</span>',
         default      => '<span class="badge">' . htmlspecialchars($result, ENT_QUOTES, 'UTF-8') . '</span>',
     };
@@ -33,7 +33,7 @@ $cntTotal     = $cntPass + $cntFail + $cntPartial + $cntNotTested;
 
 <!-- Stat chips -->
 <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px">
-  <div style="flex:1;min-width:120px;background:#16a34a18;border:1px solid #16a34a40;border-radius:12px;padding:16px 20px;text-align:center">
+  <div style="flex:1;min-width:120px;background:var(--primary)18;border:1px solid #16a34a40;border-radius:12px;padding:16px 20px;text-align:center">
     <div style="font-size:32px;font-weight:700;color:var(--primary);line-height:1"><?= $cntPass ?></div>
     <div style="font-size:13px;color:var(--primary);margin-top:4px;font-weight:600">Pass</div>
   </div>

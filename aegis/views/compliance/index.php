@@ -129,7 +129,7 @@ ob_start();
   transition: all .15s;
 }
 .pkg-select-label input:checked + .pkg-select-indicator {
-  background: #ef4444; border-color: #ef4444; color: #fff;
+  background: var(--danger); border-color: var(--danger); color: #fff;
 }
 .package-card.selected {
   outline: 2px solid #ef4444;
@@ -168,7 +168,7 @@ function updateSelection() {
 <?php
 function categoryColor(string $cat): string {
   return match(strtolower($cat)) {
-    'cybersecurity' => '#ef4444',
+    'cybersecurity' => 'var(--danger)',
     'information security' => 'var(--primary)',
     'ai governance' => 'var(--secondary)',
     default => '#0284c7'

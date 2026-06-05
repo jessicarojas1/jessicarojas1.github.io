@@ -1,12 +1,12 @@
 <?php
 $breadcrumbs  = $breadcrumbs  ?? [['Change Requests', '/change'], ['Change Request', null]];
 $statusColors = [
-    'draft'=>'#6b7280','submitted'=>'#3b82f6','under_review'=>'#f59e0b',
-    'approved'=>'#22c55e','rejected'=>'#ef4444','implementing'=>'#8b5cf6',
+    'draft'=>'#6b7280','submitted'=>'#3b82f6','under_review'=>'var(--warning)',
+    'approved'=>'var(--success)','rejected'=>'var(--danger)','implementing'=>'#8b5cf6',
     'implemented'=>'#06b6d4','closed'=>'#9ca3af'
 ];
-$riskColors = ['low'=>'#22c55e','medium'=>'#f59e0b','high'=>'#f97316','critical'=>'#ef4444'];
-$typeColors = ['normal'=>'#3b82f6','emergency'=>'#ef4444','standard'=>'#22c55e'];
+$riskColors = ['low'=>'var(--success)','medium'=>'var(--warning)','high'=>'#f97316','critical'=>'var(--danger)'];
+$typeColors = ['normal'=>'#3b82f6','emergency'=>'var(--danger)','standard'=>'var(--success)'];
 $u = Auth::user();
 $isAdmin = in_array($u['role'], ['admin','manager']);
 $isSubmitter = (int)$change['submitter_id'] === (int)$u['id'];
@@ -218,7 +218,7 @@ ob_start(); ?>
               <div style="display:flex;gap:10px">
                 <button type="submit" name="vote" value="approve"
                   class="btn btn-sm"
-                  style="background:#16a34a;color:#fff;border:none;display:inline-flex;align-items:center;gap:6px">
+                  style="background:var(--primary);color:#fff;border:none;display:inline-flex;align-items:center;gap:6px">
                   <i class="bi bi-check-circle-fill"></i> Approve
                 </button>
                 <button type="submit" name="vote" value="reject"
@@ -291,7 +291,7 @@ ob_start(); ?>
       <form method="POST" action="/change/<?= (int)$change['id'] ?>/edit">
         <?= Security::csrfField() ?>
         <div class="form-group" style="margin-bottom:14px">
-          <label class="form-label">Title <span style="color:#ef4444">*</span></label>
+          <label class="form-label">Title <span style="color:var(--danger)">*</span></label>
           <input type="text" name="title" class="form-control" value="<?= Security::h($change['title']) ?>" required>
         </div>
         <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px">

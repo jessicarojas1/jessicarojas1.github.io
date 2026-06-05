@@ -80,10 +80,10 @@ foreach ($roadmapRisks as $r) {
 }
 
 $levelConfig = [
-    'critical' => ['label'=>'Critical','border'=>'#ef4444','bg'=>'rgba(239,68,68,.07)','badge_bg'=>'#ef4444','badge_fg'=>'#fff'],
+    'critical' => ['label'=>'Critical','border'=>'var(--danger)','bg'=>'rgba(239,68,68,.07)','badge_bg'=>'var(--danger)','badge_fg'=>'#fff'],
     'high'     => ['label'=>'High',    'border'=>'#f97316','bg'=>'rgba(249,115,22,.07)','badge_bg'=>'#f97316','badge_fg'=>'#fff'],
-    'medium'   => ['label'=>'Medium',  'border'=>'#f59e0b','bg'=>'rgba(245,158,11,.07)','badge_bg'=>'#f59e0b','badge_fg'=>'#fff'],
-    'low'      => ['label'=>'Low',     'border'=>'#22c55e','bg'=>'rgba(34,197,94,.07)','badge_bg'=>'#22c55e','badge_fg'=>'#fff'],
+    'medium'   => ['label'=>'Medium',  'border'=>'var(--warning)','bg'=>'rgba(245,158,11,.07)','badge_bg'=>'var(--warning)','badge_fg'=>'#fff'],
+    'low'      => ['label'=>'Low',     'border'=>'var(--success)','bg'=>'rgba(34,197,94,.07)','badge_bg'=>'var(--success)','badge_fg'=>'#fff'],
 ];
 
 ob_start();
@@ -156,7 +156,7 @@ $_roadmapActiveFilters = (int)!empty($filterStatus) + (int)!empty($filterOwner) 
 <div style="display:flex;gap:20px;align-items:center;margin-bottom:16px;flex-wrap:wrap;">
   <span style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Legend:</span>
   <span style="display:flex;align-items:center;gap:6px;font-size:12px;">
-    <span style="display:inline-block;width:32px;height:10px;border-radius:4px;background:#ef4444;"></span>Past Due
+    <span style="display:inline-block;width:32px;height:10px;border-radius:4px;background:var(--danger);"></span>Past Due
   </span>
   <span style="display:flex;align-items:center;gap:6px;font-size:12px;">
     <span style="display:inline-block;width:32px;height:10px;border-radius:4px;background:#f97316;"></span>Due ≤30 days
@@ -196,7 +196,7 @@ foreach ($grouped as $level => $risks):
           $barLeft  = 0;
       } elseif ($daysUntil < 0) {
           // Past due — fill from 0 to today marker (full bar, red)
-          $barColor = '#ef4444';
+          $barColor = 'var(--danger)';
           $barWidth = 100;
           $barLeft  = 0;
       } elseif ($daysUntil <= 30) {
@@ -249,7 +249,7 @@ foreach ($grouped as $level => $risks):
             <i class="bi bi-person"></i> <?= Security::h($r['owner_name'] ?? 'Unassigned') ?>
             <?php if ($dueDate): ?>
               · <i class="bi bi-calendar-event"></i>
-              <span style="color:<?= $daysUntil !== null && $daysUntil < 0 ? '#ef4444' : ($daysUntil !== null && $daysUntil <= 30 ? '#f97316' : 'var(--text-muted)') ?>;font-weight:600;">
+              <span style="color:<?= $daysUntil !== null && $daysUntil < 0 ? 'var(--danger)' : ($daysUntil !== null && $daysUntil <= 30 ? '#f97316' : 'var(--text-muted)') ?>;font-weight:600;">
                 <?php if ($daysUntil !== null && $daysUntil < 0): ?>
                   Overdue by <?= abs($daysUntil) ?>d
                 <?php elseif ($daysUntil !== null): ?>

@@ -315,11 +315,11 @@ $csrfTokenPlaybook = Security::generateCsrfToken();
               </div>
               <div style="display:flex;align-items:center;gap:10px">
                 <?php if ($isComplete): ?>
-                  <span class="status-chip" style="background:#05966920;color:var(--success);border:1px solid #05966940">
+                  <span class="status-chip" style="background:var(--success)20;color:var(--success);border:1px solid #05966940">
                     <i class="bi bi-check-circle-fill"></i> Complete
                   </span>
                 <?php else: ?>
-                  <span class="status-chip" style="background:#d9770620;color:var(--warning);border:1px solid #d9770640">In Progress</span>
+                  <span class="status-chip" style="background:var(--warning)20;color:var(--warning);border:1px solid #d9770640">In Progress</span>
                 <?php endif; ?>
                 <span style="font-size:12px;color:var(--text-muted)"><?= $doneSteps ?>/<?= $totalSteps ?> steps</span>
                 <i class="bi bi-chevron-down" id="pb-chevron-<?= (int)$run['id'] ?>" style="color:var(--text-muted);transition:transform .2s"></i>
@@ -350,7 +350,7 @@ $csrfTokenPlaybook = Security::generateCsrfToken();
                         data-csrf="<?= Security::h($csrfTokenPlaybook) ?>"
                       ></button>
                     <?php elseif ($completed): ?>
-                      <div style="width:20px;height:20px;border-radius:50%;background:#059669;display:flex;align-items:center;justify-content:center">
+                      <div style="width:20px;height:20px;border-radius:50%;background:var(--success);display:flex;align-items:center;justify-content:center">
                         <i class="bi bi-check" style="color:#fff;font-size:11px"></i>
                       </div>
                     <?php else: ?>
@@ -481,7 +481,7 @@ $csrfTokenPlaybook = Security::generateCsrfToken();
         var rowEl = document.getElementById('pb-step-row-' + runId + '-' + stepId);
         if (rowEl) {
           var btnWrap = rowEl.querySelector('.pb-complete-btn').parentNode;
-          btnWrap.innerHTML = '<div style="width:20px;height:20px;border-radius:50%;background:#059669;display:flex;align-items:center;justify-content:center"><i class="bi bi-check" style="color:#fff;font-size:11px"></i></div>';
+          btnWrap.innerHTML = '<div style="width:20px;height:20px;border-radius:50%;background:var(--success);display:flex;align-items:center;justify-content:center"><i class="bi bi-check" style="color:#fff;font-size:11px"></i></div>';
           var titleEl = rowEl.querySelector('div[style*="font-weight"]');
           if (titleEl) {
             titleEl.style.textDecoration = 'line-through';

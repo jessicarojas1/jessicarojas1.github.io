@@ -8,7 +8,7 @@ function riskLevelStr(int $s): string {
     return $s > 14 ? 'Critical' : ($s > 9 ? 'High' : ($s > 4 ? 'Medium' : 'Low'));
 }
 function riskLevelColor(int $s): string {
-    return $s > 14 ? '#ef4444' : ($s > 9 ? '#f97316' : ($s > 4 ? '#f59e0b' : '#22c55e'));
+    return $s > 14 ? 'var(--danger)' : ($s > 9 ? '#f97316' : ($s > 4 ? 'var(--warning)' : 'var(--success)'));
 }
 
 $level    = riskLevelStr($score);
@@ -38,7 +38,7 @@ $proximityLabels = ['immediate'=>'Immediate','short_term'=>'Short Term (1–6 mo
 $velocityLabels  = [1=>'Very Slow',2=>'Slow',3=>'Moderate',4=>'Fast',5=>'Immediate'];
 $sourceLabels    = ['strategic'=>'Strategic','operational'=>'Operational','financial'=>'Financial','compliance'=>'Compliance','technology'=>'Technology','reputational'=>'Reputational','external'=>'External','people'=>'People','project'=>'Project'];
 $effLabels       = ['none'=>'None','partial'=>'Partial','substantial'=>'Substantial','full'=>'Full'];
-$effColors       = ['none'=>'#ef4444','partial'=>'#f59e0b','substantial'=>'#3b82f6','full'=>'#22c55e'];
+$effColors       = ['none'=>'var(--danger)','partial'=>'var(--warning)','substantial'=>'#3b82f6','full'=>'var(--success)'];
 $actionStatuses  = ['planned'=>'Planned','in_progress'=>'In Progress','completed'=>'Completed','cancelled'=>'Cancelled'];
 
 $st = $statusLabels[$risk['status']] ?? $statusLabels['open'];
@@ -358,19 +358,19 @@ ob_start();
             <?php $maxVal = $fMax ?: $fLikely ?: $fMin ?: 1; ?>
             <?php if ($fMin !== null): ?>
             <div class="fin-bar-row"><span>Min</span>
-              <div class="fin-bar" style="width:<?= min(100, (int)(($fMin/$maxVal)*100)) ?>%;background:#22c55e"></div>
+              <div class="fin-bar" style="width:<?= min(100, (int)(($fMin/$maxVal)*100)) ?>%;background:var(--success)"></div>
               <span class="fin-val">$<?= number_format($fMin, 0) ?></span>
             </div>
             <?php endif; ?>
             <?php if ($fLikely !== null): ?>
             <div class="fin-bar-row"><span>Likely</span>
-              <div class="fin-bar" style="width:<?= min(100, (int)(($fLikely/$maxVal)*100)) ?>%;background:#f59e0b"></div>
+              <div class="fin-bar" style="width:<?= min(100, (int)(($fLikely/$maxVal)*100)) ?>%;background:var(--warning)"></div>
               <span class="fin-val">$<?= number_format($fLikely, 0) ?></span>
             </div>
             <?php endif; ?>
             <?php if ($fMax !== null): ?>
             <div class="fin-bar-row"><span>Max</span>
-              <div class="fin-bar" style="width:100%;background:#ef4444"></div>
+              <div class="fin-bar" style="width:100%;background:var(--danger)"></div>
               <span class="fin-val">$<?= number_format($fMax, 0) ?></span>
             </div>
             <?php endif; ?>
@@ -580,7 +580,7 @@ ob_start();
 
     <!-- ── Treatment Plans ────────────────────────────────────────────────── -->
     <?php
-    $tpStratColors = ['mitigate'=>['bg'=>'#3b82f620','c'=>'#3b82f6','b'=>'#3b82f640'],'transfer'=>['bg'=>'#8b5cf620','c'=>'#8b5cf6','b'=>'#8b5cf640'],'accept'=>['bg'=>'#f59e0b20','c'=>'#f59e0b','b'=>'#f59e0b40'],'avoid'=>['bg'=>'#ef444420','c'=>'#ef4444','b'=>'#ef444440']];
+    $tpStratColors = ['mitigate'=>['bg'=>'#3b82f620','c'=>'#3b82f6','b'=>'#3b82f640'],'transfer'=>['bg'=>'#8b5cf620','c'=>'#8b5cf6','b'=>'#8b5cf640'],'accept'=>['bg'=>'#f59e0b20','c'=>'var(--warning)','b'=>'#f59e0b40'],'avoid'=>['bg'=>'#ef444420','c'=>'var(--danger)','b'=>'#ef444440']];
     $tpStColors    = ['draft'=>['bg'=>'#a1a1aa20','c'=>'#a1a1aa'],'active'=>['bg'=>'rgba(22, 163, 74, .08)','c'=>'var(--primary)'],'completed'=>['bg'=>'#05966920','c'=>'var(--success)'],'cancelled'=>['bg'=>'#a1a1aa20','c'=>'#a1a1aa']];
     ?>
     <?php if (!empty($treatmentPlans)): ?>
@@ -778,7 +778,7 @@ ob_start();
       <div class="card-body" style="padding:12px 16px">
         <?php if ($activeAcceptance): ?>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-            <span style="background:#16a34a18;color:var(--primary);border:1px solid #16a34a40;border-radius:20px;font-size:11px;font-weight:700;padding:2px 10px">Active</span>
+            <span style="background:var(--primary)18;color:var(--primary);border:1px solid #16a34a40;border-radius:20px;font-size:11px;font-weight:700;padding:2px 10px">Active</span>
             <span style="font-size:12px;color:var(--text-muted)">until <?= date('M j, Y', strtotime($activeAcceptance['valid_until'])) ?></span>
           </div>
           <div style="font-size:12px;color:var(--text-secondary);margin-bottom:6px">
@@ -794,7 +794,7 @@ ob_start();
             <a href="/risk-acceptances/<?= (int)$activeAcceptance['id'] ?>/renew" class="btn btn-ghost btn-sm" style="font-size:11px"><i class="bi bi-arrow-repeat"></i> Renew</a>
             <form method="POST" action="/risk-acceptances/<?= (int)$activeAcceptance['id'] ?>/revoke" style="margin:0" data-confirm="Revoke this acceptance certificate?">
               <?= Security::csrfField() ?>
-              <button type="submit" class="btn btn-ghost btn-sm" style="font-size:11px;color:#ef4444"><i class="bi bi-x-circle"></i> Revoke</button>
+              <button type="submit" class="btn btn-ghost btn-sm" style="font-size:11px;color:var(--danger)"><i class="bi bi-x-circle"></i> Revoke</button>
             </form>
           </div>
         <?php else: ?>
@@ -814,7 +814,7 @@ ob_start();
       <div class="card-body" style="padding:8px 0">
         <?php foreach ($linkedKRIs as $kri):
           $kriStatus = $kri['status'] ?? 'normal';
-          $kriColor  = match($kriStatus) { 'red' => '#ef4444', 'amber' => '#f59e0b', default => '#22c55e' };
+          $kriColor  = match($kriStatus) { 'red' => 'var(--danger)', 'amber' => 'var(--warning)', default => 'var(--success)' };
           $kriIcon   = match($kriStatus) { 'red' => 'exclamation-octagon-fill', 'amber' => 'exclamation-triangle-fill', default => 'check-circle-fill' };
         ?>
         <div style="display:flex;align-items:center;gap:10px;padding:8px 16px;border-bottom:1px solid var(--border)">
@@ -847,7 +847,7 @@ ob_start();
         </a>
         <?php if ($controlEffSuggestion && ($resScore > $controlEffSuggestion['score'])): ?>
         <div style="background:var(--bg-secondary);border-radius:8px;padding:10px;border:1px solid var(--border)">
-          <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px"><i class="bi bi-lightbulb-fill" style="color:#f59e0b"></i> Residual Score Suggestion</div>
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px"><i class="bi bi-lightbulb-fill" style="color:var(--warning)"></i> Residual Score Suggestion</div>
           <div style="font-size:12px">Based on <strong><?= ucfirst($controlEffSuggestion['effectiveness']) ?></strong> control effectiveness,
             consider setting residual to <strong><?= $controlEffSuggestion['score'] ?></strong>
             (L<?= $controlEffSuggestion['likelihood'] ?>×I<?= $controlEffSuggestion['impact'] ?>)</div>
@@ -865,8 +865,8 @@ ob_start();
       </div>
       <div class="card-body p0">
         <?php foreach ($scenarios as $sc):
-          $scColor = $sc['scenario_score'] > 14 ? '#ef4444' : ($sc['scenario_score'] > 9 ? '#f97316' : ($sc['scenario_score'] > 4 ? '#f59e0b' : '#22c55e'));
-          $scTypeColors = ['stress'=>'#ef4444','catastrophic'=>'var(--secondary)','regulatory'=>'var(--warning)','base'=>'#2563eb','optimistic'=>'var(--primary)'];
+          $scColor = $sc['scenario_score'] > 14 ? 'var(--danger)' : ($sc['scenario_score'] > 9 ? '#f97316' : ($sc['scenario_score'] > 4 ? 'var(--warning)' : 'var(--success)'));
+          $scTypeColors = ['stress'=>'var(--danger)','catastrophic'=>'var(--secondary)','regulatory'=>'var(--warning)','base'=>'#2563eb','optimistic'=>'var(--primary)'];
           $scTypeColor  = $scTypeColors[$sc['scenario_type']] ?? '#71717a';
         ?>
         <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid var(--border)">
@@ -982,7 +982,7 @@ ob_start();
 </style>
 
 <script nonce="<?= Security::nonce() ?>">
-const LC = {Critical:'#ef4444',High:'#f97316',Medium:'#f59e0b',Low:'#22c55e'};
+const LC = {Critical:'var(--danger)',High:'#f97316',Medium:'var(--warning)',Low:'var(--success)'};
 function lv(s){return s>14?'Critical':s>9?'High':s>4?'Medium':'Low'}
 function chip(elId,sc,s){const e=document.getElementById(elId);if(!e)return;e.style.background=LC[lv(s)]+'20';e.style.color=LC[lv(s)];e.style.borderColor=LC[lv(s)]+'40';document.getElementById(sc).textContent=s;document.getElementById(sc.replace('sc_','sl_')).textContent=lv(s)}
 function updateScores(){
@@ -1026,7 +1026,7 @@ updateScores();
   [5,10,15,20,25].forEach(v=>{ctx.beginPath();ctx.moveTo(PAD.l,yp(v));ctx.lineTo(PAD.l+cW,yp(v));ctx.stroke();
     ctx.fillStyle='#a1a1aa';ctx.font='10px sans-serif';ctx.fillText(v,2,yp(v)+3);});
   // Inherent line
-  ctx.beginPath();ctx.strokeStyle='#ef4444';ctx.lineWidth=2;
+  ctx.beginPath();ctx.strokeStyle='var(--danger)';ctx.lineWidth=2;
   data.forEach((d,i)=>{i===0?ctx.moveTo(xp(i),yp(d.s)):ctx.lineTo(xp(i),yp(d.s))});ctx.stroke();
   // Residual line
   const hasRes=data.some(d=>d.r!==null);
@@ -1034,11 +1034,11 @@ updateScores();
     data.forEach((d,i)=>{if(d.r===null)return;i===0?ctx.moveTo(xp(i),yp(d.r)):ctx.lineTo(xp(i),yp(d.r))});ctx.stroke();ctx.setLineDash([]);}
   // Dots and labels
   data.forEach((d,i)=>{
-    ctx.fillStyle='#ef4444';ctx.beginPath();ctx.arc(xp(i),yp(d.s),3,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='var(--danger)';ctx.beginPath();ctx.arc(xp(i),yp(d.s),3,0,Math.PI*2);ctx.fill();
     if(i===0||i===n-1||(n>8&&i%Math.ceil(n/6)===0)){ctx.fillStyle='#71717a';ctx.font='9px sans-serif';ctx.fillText(d.d,xp(i)-12,PAD.t+cH+14);}
   });
   // Legend
-  ctx.fillStyle='#ef4444';ctx.fillRect(W-130,8,12,3);ctx.fillStyle='#374151';ctx.font='10px sans-serif';ctx.fillText('Inherent',W-114,12);
+  ctx.fillStyle='var(--danger)';ctx.fillRect(W-130,8,12,3);ctx.fillStyle='#374151';ctx.font='10px sans-serif';ctx.fillText('Inherent',W-114,12);
   if(hasRes){ctx.strokeStyle='#3b82f6';ctx.setLineDash([4,2]);ctx.beginPath();ctx.moveTo(W-60,10);ctx.lineTo(W-48,10);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#374151';ctx.fillText('Residual',W-44,12);}
 })();
 <?php endif; ?>

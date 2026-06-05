@@ -1,5 +1,5 @@
 <?php
-$statusColors = ['pending' => '#f59e0b', 'approved' => '#22c55e', 'rejected' => '#ef4444'];
+$statusColors = ['pending' => 'var(--warning)', 'approved' => 'var(--success)', 'rejected' => 'var(--danger)'];
 ?>
 <div class="page-header">
   <div>

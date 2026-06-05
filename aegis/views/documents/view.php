@@ -1,7 +1,7 @@
 <?php
 $breadcrumbs  = $breadcrumbs  ?? [['Documents', '/documents'], ['Document', null]];
-$statusColors = ['draft'=>'#6b7280','under_review'=>'#f59e0b','approved'=>'#3b82f6','published'=>'#22c55e','archived'=>'#9ca3af','expired'=>'#ef4444'];
-$classColors  = ['public'=>'#22c55e','internal'=>'#3b82f6','confidential'=>'#f59e0b','restricted'=>'#ef4444'];
+$statusColors = ['draft'=>'#6b7280','under_review'=>'var(--warning)','approved'=>'#3b82f6','published'=>'var(--success)','archived'=>'#9ca3af','expired'=>'var(--danger)'];
+$classColors  = ['public'=>'var(--success)','internal'=>'#3b82f6','confidential'=>'var(--warning)','restricted'=>'var(--danger)'];
 $canEdit = Auth::can('policy.write');
 ?>
 <div class="page-header">

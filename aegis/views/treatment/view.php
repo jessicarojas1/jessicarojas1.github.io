@@ -3,8 +3,8 @@ $breadcrumbs    = $breadcrumbs    ?? [['Treatments', '/treatment'], ['Treatment'
 $strategyColors = [
     'mitigate' => ['bg' => '#3b82f620', 'color' => '#3b82f6', 'border' => '#3b82f640', 'label' => 'Mitigate'],
     'transfer' => ['bg' => '#8b5cf620', 'color' => '#8b5cf6', 'border' => '#8b5cf640', 'label' => 'Transfer'],
-    'accept'   => ['bg' => '#f59e0b20', 'color' => '#f59e0b', 'border' => '#f59e0b40', 'label' => 'Accept'],
-    'avoid'    => ['bg' => '#ef444420', 'color' => '#ef4444', 'border' => '#ef444440', 'label' => 'Avoid'],
+    'accept'   => ['bg' => '#f59e0b20', 'color' => 'var(--warning)', 'border' => '#f59e0b40', 'label' => 'Accept'],
+    'avoid'    => ['bg' => '#ef444420', 'color' => 'var(--danger)', 'border' => '#ef444440', 'label' => 'Avoid'],
 ];
 $statusStyles = [
     'draft'     => ['bg' => '#a1a1aa20', 'color' => '#a1a1aa', 'border' => '#a1a1aa40'],
@@ -88,8 +88,8 @@ if ($plan['target_date']) {
       <?php if ($daysLabel): ?>
       <div style="text-align:center;padding:12px 20px;background:<?= $overduePlan ? '#ef444415' : 'var(--bg-secondary)' ?>;border-radius:10px;border:1px solid <?= $overduePlan ? '#ef444430' : 'var(--border)' ?>">
         <div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:4px">Target Date</div>
-        <div style="font-weight:700;color:<?= $overduePlan ? '#ef4444' : 'var(--text-primary)' ?>"><?= date('M j, Y', strtotime($plan['target_date'])) ?></div>
-        <div style="font-size:12px;color:<?= $overduePlan ? '#ef4444' : 'var(--text-muted)' ?>"><?= Security::h($daysLabel) ?></div>
+        <div style="font-weight:700;color:<?= $overduePlan ? 'var(--danger)' : 'var(--text-primary)' ?>"><?= date('M j, Y', strtotime($plan['target_date'])) ?></div>
+        <div style="font-size:12px;color:<?= $overduePlan ? 'var(--danger)' : 'var(--text-muted)' ?>"><?= Security::h($daysLabel) ?></div>
       </div>
       <?php endif; ?>
     </div>
@@ -118,7 +118,7 @@ if ($plan['target_date']) {
             ['Target Score', $plan['target_score'] ? (int)$plan['target_score'] : '<span style="color:var(--text-muted)">—</span>'],
             ['Owner',        Security::h($plan['owner_name'] ?? '—')],
             ['Start Date',   $plan['start_date'] ? date('M j, Y', strtotime($plan['start_date'])) : '<span style="color:var(--text-muted)">—</span>'],
-            ['Target Date',  $plan['target_date'] ? '<span style="color:' . ($overduePlan ? '#ef4444' : 'inherit') . '">' . date('M j, Y', strtotime($plan['target_date'])) . ($overduePlan ? ' <i class="bi bi-exclamation-circle-fill"></i>' : '') . '</span>' : '<span style="color:var(--text-muted)">—</span>'],
+            ['Target Date',  $plan['target_date'] ? '<span style="color:' . ($overduePlan ? 'var(--danger)' : 'inherit') . '">' . date('M j, Y', strtotime($plan['target_date'])) . ($overduePlan ? ' <i class="bi bi-exclamation-circle-fill"></i>' : '') . '</span>' : '<span style="color:var(--text-muted)">—</span>'],
             ['Created',      date('M j, Y', strtotime($plan['created_at']))],
             ['Updated',      date('M j, Y', strtotime($plan['updated_at']))],
           ]; foreach ($rows as [$label, $val]): ?>
@@ -264,7 +264,7 @@ if ($plan['target_date']) {
               <?php endif; ?>
               <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:6px;font-size:12px">
                 <?php if ($m['due_date']): ?>
-                  <span style="color:<?= $mOverdue ? '#ef4444' : 'var(--text-muted)' ?>">
+                  <span style="color:<?= $mOverdue ? 'var(--danger)' : 'var(--text-muted)' ?>">
                     <i class="bi bi-calendar<?= $mOverdue ? '-x' : '' ?>"></i>
                     Due <?= date('M j, Y', strtotime($m['due_date'])) ?>
                     <?php if ($mOverdue): ?><strong>(overdue)</strong><?php endif; ?>

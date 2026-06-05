@@ -9,7 +9,7 @@ function acceptFormScoreLevel(int $s): string {
     return $s > 14 ? 'Critical' : ($s > 9 ? 'High' : ($s > 4 ? 'Medium' : 'Low'));
 }
 function acceptFormScoreColor(int $s): string {
-    return $s > 14 ? '#ef4444' : ($s > 9 ? '#f97316' : ($s > 4 ? '#f59e0b' : '#22c55e'));
+    return $s > 14 ? 'var(--danger)' : ($s > 9 ? '#f97316' : ($s > 4 ? 'var(--warning)' : 'var(--success)'));
 }
 function acceptFormScoreBg(int $s): string {
     return $s > 14 ? '#fef2f2' : ($s > 9 ? '#fff7ed' : ($s > 4 ? '#fffbeb' : '#f0fdf4'));
@@ -116,8 +116,8 @@ ob_start();
 
     <?php if ($existingActive): ?>
     <!-- Warning: active acceptance already exists -->
-    <div class="alert-box" style="background:var(--warning-subtle);border-color:#f59e0b;color:var(--warning);margin-bottom:20px;">
-      <i class="bi bi-exclamation-triangle-fill" style="color:#f59e0b;margin-right:6px;"></i>
+    <div class="alert-box" style="background:var(--warning-subtle);border-color:var(--warning);color:var(--warning);margin-bottom:20px;">
+      <i class="bi bi-exclamation-triangle-fill" style="color:var(--warning);margin-right:6px;"></i>
       <strong>Active acceptance already exists.</strong>
       An acceptance certificate was issued by <strong><?= Security::h($existingActive['acceptor_name']) ?></strong>
       on <?= date('M j, Y', strtotime($existingActive['created_at'])) ?>,
@@ -227,7 +227,7 @@ ob_start();
     <!-- Best practices -->
     <div class="card" style="margin-bottom:16px;">
       <div class="card-header">
-        <h3 class="card-title" style="font-size:13px;"><i class="bi bi-lightbulb-fill" style="color:#f59e0b;"></i> Best Practices</h3>
+        <h3 class="card-title" style="font-size:13px;"><i class="bi bi-lightbulb-fill" style="color:var(--warning);"></i> Best Practices</h3>
       </div>
       <div class="card-body" style="padding:16px;">
 

@@ -10,7 +10,7 @@ if ($nextMonth > 12) { $nextMonth = 1; $nextYear++; }
 $monthName = date('F', mktime(0, 0, 0, $month, 1, $year));
 
 $typeColors = [
-    'control'      => '#ef4444',
+    'control'      => 'var(--danger)',
     'policy_review'=> '#3b82f6',
     'audit'        => 'var(--primary)',
     'treatment'    => '#f97316',

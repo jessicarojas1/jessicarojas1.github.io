@@ -141,7 +141,7 @@ $avgScore = count($scenarios) > 0 ? round($totalScoreSum / count($scenarios), 1)
           <td style="padding:12px;text-align:center;white-space:nowrap">
             <?php if ($delta > 0): ?>
               <span style="display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:700;
-                           padding:3px 8px;border-radius:20px;background:#dc262618;color:var(--danger)">
+                           padding:3px 8px;border-radius:20px;background:var(--danger)18;color:var(--danger)">
                 <i class="bi bi-arrow-up"></i> +<?= $delta ?>
               </span>
             <?php elseif ($delta < 0): ?>
@@ -185,7 +185,7 @@ $avgScore = count($scenarios) > 0 ? round($totalScoreSum / count($scenarios), 1)
                   data-confirm="Delete scenario &#39;<?= Security::h($sc['name']) ?>&#39;?">
               <?= Security::csrfField() ?>
               <button type="submit"
-                      style="background:none;border:none;padding:4px 6px;cursor:pointer;color:#ef4444;border-radius:4px"
+                      style="background:none;border:none;padding:4px 6px;cursor:pointer;color:var(--danger);border-radius:4px"
                       title="Delete scenario">
                 <i class="bi bi-trash3-fill"></i>
               </button>

@@ -13,31 +13,31 @@ $cols       = (int)$cfg['cols'];
 
 // Default cells if empty (fallback)
 $defaultCells = [
-    '5_1'=>['title'=>'Avoid / Mitigate / Transfer','desc'=>'Avoid / Mitigate / Transfer','color'=>'#22c55e'],
-    '5_2'=>['title'=>'Avoid / Mitigate / Transfer','desc'=>'Avoid / Mitigate / Transfer','color'=>'#f59e0b'],
-    '5_3'=>['title'=>'Mitigate','desc'=>'Mitigate','color'=>'#ef4444'],
-    '5_4'=>['title'=>'Mitigate','desc'=>'Mitigate','color'=>'#ef4444'],
-    '5_5'=>['title'=>'Mitigate','desc'=>'Mitigate','color'=>'#ef4444'],
-    '4_1'=>['title'=>'Accept / Monitor / Transfer','desc'=>'Accept Monitor Transfer','color'=>'#22c55e'],
-    '4_2'=>['title'=>'Avoid / Mitigate / Transfer','desc'=>'Avoid / Mitigate / Transfer','color'=>'#f59e0b'],
-    '4_3'=>['title'=>'Avoid / Mitigate / Transfer','desc'=>'Accept Mitigate Transfer','color'=>'#ef4444'],
-    '4_4'=>['title'=>'Mitigate','desc'=>'Mitigate','color'=>'#ef4444'],
-    '4_5'=>['title'=>'Mitigate','desc'=>'Mitigate','color'=>'#ef4444'],
-    '3_1'=>['title'=>'Accept / Monitor / Transfer','desc'=>'Accept / Monitor / Transfer','color'=>'#22c55e'],
-    '3_2'=>['title'=>'Accept / Monitor / Transfer','desc'=>'Accept / Monitor / Transfer','color'=>'#22c55e'],
-    '3_3'=>['title'=>'Avoid / Mitigate / Transfer','desc'=>'Avoid / Mitigate / Transfer','color'=>'#f59e0b'],
-    '3_4'=>['title'=>'Avoid / Mitigate / Transfer','desc'=>'Avoid / Mitigate / Transfer','color'=>'#f59e0b'],
-    '3_5'=>['title'=>'Avoid / Mitigate / Transfer','desc'=>'Avoid / Mitigate / Transfer','color'=>'#f59e0b'],
-    '2_1'=>['title'=>'Accept / Monitor / Transfer','desc'=>'Accept Monitor Transfer','color'=>'#22c55e'],
-    '2_2'=>['title'=>'Accept / Monitor / Transfer','desc'=>'Accept / Monitor / Transfer','color'=>'#22c55e'],
-    '2_3'=>['title'=>'Accept / Monitor / Transfer','desc'=>'Accept Monitor Transfer','color'=>'#22c55e'],
-    '2_4'=>['title'=>'Avoid / Mitigate / Transfer','desc'=>'Avoid / Mitigate / Transfer','color'=>'#f59e0b'],
-    '2_5'=>['title'=>'Avoid / Mitigate / Transfer','desc'=>'Avoid Mitigate Transfer','color'=>'#f59e0b'],
-    '1_1'=>['title'=>'Accept','desc'=>'Accept','color'=>'#22c55e'],
-    '1_2'=>['title'=>'Accept','desc'=>'Accept','color'=>'#22c55e'],
-    '1_3'=>['title'=>'Accept','desc'=>'Accept','color'=>'#22c55e'],
-    '1_4'=>['title'=>'Accept','desc'=>'Accept','color'=>'#22c55e'],
-    '1_5'=>['title'=>'Accept','desc'=>'Accept','color'=>'#22c55e'],
+    '5_1'=>['title'=>'Avoid / Mitigate / Transfer','desc'=>'Avoid / Mitigate / Transfer','color'=>'var(--success)'],
+    '5_2'=>['title'=>'Avoid / Mitigate / Transfer','desc'=>'Avoid / Mitigate / Transfer','color'=>'var(--warning)'],
+    '5_3'=>['title'=>'Mitigate','desc'=>'Mitigate','color'=>'var(--danger)'],
+    '5_4'=>['title'=>'Mitigate','desc'=>'Mitigate','color'=>'var(--danger)'],
+    '5_5'=>['title'=>'Mitigate','desc'=>'Mitigate','color'=>'var(--danger)'],
+    '4_1'=>['title'=>'Accept / Monitor / Transfer','desc'=>'Accept Monitor Transfer','color'=>'var(--success)'],
+    '4_2'=>['title'=>'Avoid / Mitigate / Transfer','desc'=>'Avoid / Mitigate / Transfer','color'=>'var(--warning)'],
+    '4_3'=>['title'=>'Avoid / Mitigate / Transfer','desc'=>'Accept Mitigate Transfer','color'=>'var(--danger)'],
+    '4_4'=>['title'=>'Mitigate','desc'=>'Mitigate','color'=>'var(--danger)'],
+    '4_5'=>['title'=>'Mitigate','desc'=>'Mitigate','color'=>'var(--danger)'],
+    '3_1'=>['title'=>'Accept / Monitor / Transfer','desc'=>'Accept / Monitor / Transfer','color'=>'var(--success)'],
+    '3_2'=>['title'=>'Accept / Monitor / Transfer','desc'=>'Accept / Monitor / Transfer','color'=>'var(--success)'],
+    '3_3'=>['title'=>'Avoid / Mitigate / Transfer','desc'=>'Avoid / Mitigate / Transfer','color'=>'var(--warning)'],
+    '3_4'=>['title'=>'Avoid / Mitigate / Transfer','desc'=>'Avoid / Mitigate / Transfer','color'=>'var(--warning)'],
+    '3_5'=>['title'=>'Avoid / Mitigate / Transfer','desc'=>'Avoid / Mitigate / Transfer','color'=>'var(--warning)'],
+    '2_1'=>['title'=>'Accept / Monitor / Transfer','desc'=>'Accept Monitor Transfer','color'=>'var(--success)'],
+    '2_2'=>['title'=>'Accept / Monitor / Transfer','desc'=>'Accept / Monitor / Transfer','color'=>'var(--success)'],
+    '2_3'=>['title'=>'Accept / Monitor / Transfer','desc'=>'Accept Monitor Transfer','color'=>'var(--success)'],
+    '2_4'=>['title'=>'Avoid / Mitigate / Transfer','desc'=>'Avoid / Mitigate / Transfer','color'=>'var(--warning)'],
+    '2_5'=>['title'=>'Avoid / Mitigate / Transfer','desc'=>'Avoid Mitigate Transfer','color'=>'var(--warning)'],
+    '1_1'=>['title'=>'Accept','desc'=>'Accept','color'=>'var(--success)'],
+    '1_2'=>['title'=>'Accept','desc'=>'Accept','color'=>'var(--success)'],
+    '1_3'=>['title'=>'Accept','desc'=>'Accept','color'=>'var(--success)'],
+    '1_4'=>['title'=>'Accept','desc'=>'Accept','color'=>'var(--success)'],
+    '1_5'=>['title'=>'Accept','desc'=>'Accept','color'=>'var(--success)'],
 ];
 foreach ($defaultCells as $k => $d) {
     if (!isset($cells[$k])) { $cells[$k] = $d; }
@@ -111,7 +111,7 @@ ob_start();
             <td class="rm-row-head">Likelihood (<?= Security::h($rowLabel) ?> [<?= $displayIdx ?>])</td>
             <?php for ($c = 1; $c <= $cols; $c++):
               $key  = "{$r}_{$c}";
-              $cell = $cells[$key] ?? ['title'=>'Accept','desc'=>'Accept','color'=>'#22c55e'];
+              $cell = $cells[$key] ?? ['title'=>'Accept','desc'=>'Accept','color'=>'var(--success)'];
               $color = htmlspecialchars($cell['color'], ENT_QUOTES, 'UTF-8');
             ?>
             <td class="rm-cell" id="cell-<?= $key ?>">
@@ -162,10 +162,10 @@ ob_start();
         <label class="form-label">Cell Color</label>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
           <?php foreach ([
-            '#22c55e' => 'Accept (green)',
-            '#f59e0b' => 'Monitor (yellow)',
+            'var(--success)' => 'Accept (green)',
+            'var(--warning)' => 'Monitor (yellow)',
             '#f97316' => 'Transfer (orange)',
-            '#ef4444' => 'Mitigate (red)',
+            'var(--danger)' => 'Mitigate (red)',
             'var(--secondary)' => 'Avoid (purple)',
           ] as $hex => $label): ?>
           <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px">
@@ -238,7 +238,7 @@ ob_start();
   transition: all .15s;
 }
 .btn-icon:hover { background: var(--surface-2); color: var(--text); }
-.btn-icon-danger:hover { background: #fee2e2; color: #ef4444; border-color: #fca5a5; }
+.btn-icon-danger:hover { background: #fee2e2; color: var(--danger); border-color: #fca5a5; }
 </style>
 
 <script nonce="<?= Security::nonce() ?>">
@@ -306,7 +306,7 @@ function saveCellEdit() {
 
 function resetCell(key) {
   if (!confirm('Reset this cell to default values?')) return;
-  const def = defaultCells[key] || { title: 'Accept', desc: 'Accept', color: '#22c55e' };
+  const def = defaultCells[key] || { title: 'Accept', desc: 'Accept', color: 'var(--success)' };
   cellData[key] = { ...def };
   refreshCell(key);
   document.getElementById('cellsJsonInput').value = JSON.stringify(cellData);

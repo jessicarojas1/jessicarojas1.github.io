@@ -20,9 +20,9 @@ ob_start();
 <?php else: ?>
   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px">
     <?php foreach ($plans as $plan):
-      $rtoColor = ($plan['rto_hours'] ?? 99) <= 4 ? '#ef4444' : (($plan['rto_hours'] ?? 99) <= 24 ? '#f59e0b' : '#22c55e');
-      $rpoColor = ($plan['rpo_hours'] ?? 99) <= 1 ? '#ef4444' : (($plan['rpo_hours'] ?? 99) <= 4 ? '#f59e0b' : '#22c55e');
-      $statusColors = ['draft'=>'#6b7280','active'=>'#22c55e','archived'=>'#9ca3af'];
+      $rtoColor = ($plan['rto_hours'] ?? 99) <= 4 ? 'var(--danger)' : (($plan['rto_hours'] ?? 99) <= 24 ? 'var(--warning)' : 'var(--success)');
+      $rpoColor = ($plan['rpo_hours'] ?? 99) <= 1 ? 'var(--danger)' : (($plan['rpo_hours'] ?? 99) <= 4 ? 'var(--warning)' : 'var(--success)');
+      $statusColors = ['draft'=>'#6b7280','active'=>'var(--success)','archived'=>'#9ca3af'];
       $sc = $statusColors[$plan['status']] ?? '#6b7280';
     ?>
       <div class="card" style="border-left:4px solid <?= $sc ?>">

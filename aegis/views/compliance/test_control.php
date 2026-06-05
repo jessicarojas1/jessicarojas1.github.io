@@ -5,9 +5,9 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 
 function testResultBadge(string $result): string {
     return match($result) {
-        'pass'       => '<span class="badge" style="background:#16a34a18;color:var(--primary);border:1px solid #16a34a40">Pass</span>',
-        'fail'       => '<span class="badge" style="background:#dc262618;color:var(--danger);border:1px solid #dc262640">Fail</span>',
-        'partial'    => '<span class="badge" style="background:#d9770618;color:var(--warning);border:1px solid #d9770640">Partial</span>',
+        'pass'       => '<span class="badge" style="background:var(--primary)18;color:var(--primary);border:1px solid #16a34a40">Pass</span>',
+        'fail'       => '<span class="badge" style="background:var(--danger)18;color:var(--danger);border:1px solid #dc262640">Fail</span>',
+        'partial'    => '<span class="badge" style="background:var(--warning)18;color:var(--warning);border:1px solid #d9770640">Partial</span>',
         'not_tested' => '<span class="badge" style="background:var(--bg-secondary);color:var(--text-muted);border:1px solid var(--border)">Not Tested</span>',
         default      => '<span class="badge">' . htmlspecialchars($result, ENT_QUOTES, 'UTF-8') . '</span>',
     };
@@ -194,7 +194,7 @@ function testResultBadge(string $result): string {
                    data-input="updateEffBar" data-input-val="1">
             <div style="width:80px;text-align:center">
               <div style="height:8px;background:#e4e4e7;border-radius:4px;overflow:hidden;margin-bottom:2px">
-                <div id="effBar" style="width:0%;height:100%;background:#16a34a;border-radius:4px;transition:width .2s"></div>
+                <div id="effBar" style="width:0%;height:100%;background:var(--primary);border-radius:4px;transition:width .2s"></div>
               </div>
               <span id="effLabel" style="font-size:11px;color:var(--text-muted)">—</span>
             </div>

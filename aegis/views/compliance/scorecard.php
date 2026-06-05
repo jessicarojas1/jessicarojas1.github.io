@@ -104,13 +104,13 @@ ob_start();
     ?>
     <div class="score-bar" title="Compliance distribution">
       <?php if ($wCompliant > 0): ?>
-        <div style="width:<?= $wCompliant ?>%;background:#059669" title="Compliant: <?= $compliant ?>"></div>
+        <div style="width:<?= $wCompliant ?>%;background:var(--success)" title="Compliant: <?= $compliant ?>"></div>
       <?php endif; ?>
       <?php if ($wPartial > 0): ?>
-        <div style="width:<?= $wPartial ?>%;background:#d97706" title="Partial: <?= $partial ?>"></div>
+        <div style="width:<?= $wPartial ?>%;background:var(--warning)" title="Partial: <?= $partial ?>"></div>
       <?php endif; ?>
       <?php if ($wNonCompliant > 0): ?>
-        <div style="width:<?= $wNonCompliant ?>%;background:#dc2626" title="Non-Compliant: <?= $nonCompliant ?>"></div>
+        <div style="width:<?= $wNonCompliant ?>%;background:var(--danger)" title="Non-Compliant: <?= $nonCompliant ?>"></div>
       <?php endif; ?>
       <?php if ($wNA > 0): ?>
         <div style="width:<?= $wNA ?>%;background:#a1a1aa" title="Not Applicable: <?= $notApplicable ?>"></div>
@@ -120,9 +120,9 @@ ob_start();
       <?php endif; ?>
     </div>
     <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--text-muted);margin-bottom:4px">
-      <span><span style="display:inline-block;width:10px;height:10px;background:#059669;border-radius:2px;margin-right:4px"></span>Compliant</span>
-      <span><span style="display:inline-block;width:10px;height:10px;background:#d97706;border-radius:2px;margin-right:4px"></span>Partial</span>
-      <span><span style="display:inline-block;width:10px;height:10px;background:#dc2626;border-radius:2px;margin-right:4px"></span>Non-Compliant</span>
+      <span><span style="display:inline-block;width:10px;height:10px;background:var(--success);border-radius:2px;margin-right:4px"></span>Compliant</span>
+      <span><span style="display:inline-block;width:10px;height:10px;background:var(--warning);border-radius:2px;margin-right:4px"></span>Partial</span>
+      <span><span style="display:inline-block;width:10px;height:10px;background:var(--danger);border-radius:2px;margin-right:4px"></span>Non-Compliant</span>
       <span><span style="display:inline-block;width:10px;height:10px;background:#a1a1aa;border-radius:2px;margin-right:4px"></span>Not Applicable</span>
       <span><span style="display:inline-block;width:10px;height:10px;background:#e4e4e7;border-radius:2px;margin-right:4px"></span>Not Assessed</span>
     </div>

@@ -32,10 +32,10 @@
   <div class="card kpi-card">
     <div class="card-body" style="display:flex;align-items:center;gap:16px;">
       <div style="width:48px;height:48px;border-radius:12px;background:rgba(239,68,68,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-        <i class="bi bi-exclamation-octagon-fill" style="font-size:22px;color:#ef4444;"></i>
+        <i class="bi bi-exclamation-octagon-fill" style="font-size:22px;color:var(--danger);"></i>
       </div>
       <div>
-        <div style="font-size:28px;font-weight:700;line-height:1;color:#ef4444;"><?= (int)($summary['critical'] ?? 0) ?></div>
+        <div style="font-size:28px;font-weight:700;line-height:1;color:var(--danger);"><?= (int)($summary['critical'] ?? 0) ?></div>
         <div style="font-size:12px;color:var(--text-muted);font-weight:500;margin-top:2px;">Critical Assets</div>
       </div>
     </div>

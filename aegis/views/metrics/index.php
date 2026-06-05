@@ -40,7 +40,7 @@ function metricColor(float $pct): string {
     ['Risk Health',    $kpiRisk   . '%', 'bi-heart-pulse-fill',         metricColor((float)$kpiRisk),   null],
     ['Policy Health',  $kpiPolicy . '%', 'bi-file-earmark-check-fill',  metricColor((float)$kpiPolicy), null],
     ['Open Risks',     $kpiOpenRisks,    'bi-exclamation-triangle-fill','#f97316',                      '/risk'],
-    ['Open Incidents', $kpiOpenInc,      'bi-fire',                     '#ef4444',                      '/incidents'],
+    ['Open Incidents', $kpiOpenInc,      'bi-fire',                     'var(--danger)',                      '/incidents'],
   ];
   foreach ($kpis as [$label, $val, $icon, $color, $href]):
     $pctVal = is_string($val) && str_ends_with($val, '%') ? (float)$val : null;
@@ -80,7 +80,7 @@ function metricColor(float $pct): string {
     <tbody>
       <?php foreach ($frameworks as $fw):
         $pct = $fw['total_controls'] > 0 ? round($fw['compliant'] / $fw['total_controls'] * 100) : 0;
-        $barColor = $pct >= 80 ? '#22c55e' : ($pct >= 50 ? '#f59e0b' : '#ef4444');
+        $barColor = $pct >= 80 ? 'var(--success)' : ($pct >= 50 ? 'var(--warning)' : 'var(--danger)');
       ?>
         <tr>
           <td class="fw-600"><?= Security::h($fw['name']) ?></td>

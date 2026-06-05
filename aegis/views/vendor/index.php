@@ -36,21 +36,21 @@ ob_start();
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:#05966918;color:var(--success)"><i class="bi bi-check-circle-fill"></i></div>
+    <div class="stat-icon" style="background:var(--success)18;color:var(--success)"><i class="bi bi-check-circle-fill"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['active_count'] ?? 0) ?></div>
       <div class="stat-label">Active Vendors</div>
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:#dc262618;color:var(--danger)"><i class="bi bi-exclamation-octagon-fill"></i></div>
+    <div class="stat-icon" style="background:var(--danger)18;color:var(--danger)"><i class="bi bi-exclamation-octagon-fill"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['critical_count'] ?? 0) ?></div>
       <div class="stat-label">Critical Tier</div>
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:#d9770618;color:var(--warning)"><i class="bi bi-database-fill-lock"></i></div>
+    <div class="stat-icon" style="background:var(--warning)18;color:var(--warning)"><i class="bi bi-database-fill-lock"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['data_access_count'] ?? 0) ?></div>
       <div class="stat-label">Data Access</div>

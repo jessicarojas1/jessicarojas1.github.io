@@ -32,7 +32,7 @@ $breadcrumbs = $breadcrumbs ?? [['Threat Register', '/threat'], ['New Threat', n
 
         <!-- Title -->
         <div class="form-group">
-          <label class="form-label required">Title <span style="color:#ef4444;">*</span></label>
+          <label class="form-label required">Title <span style="color:var(--danger);">*</span></label>
           <input type="text" name="title" class="form-control"
                  placeholder="e.g. Phishing Campaign, Ransomware Attack, Regulatory Non-Compliance"
                  value="<?= Security::h($_POST['title'] ?? '') ?>" required>

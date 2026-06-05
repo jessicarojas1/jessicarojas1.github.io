@@ -5,16 +5,16 @@ $breadcrumbs  = [['Issues', null]];
 ob_start();
 
 $severityColors = [
-    'critical' => '#ef4444',
+    'critical' => 'var(--danger)',
     'high'     => '#f97316',
-    'medium'   => '#f59e0b',
-    'low'      => '#22c55e',
+    'medium'   => 'var(--warning)',
+    'low'      => 'var(--success)',
 ];
 $statusColors = [
     'open'           => '#3b82f6',
     'in_progress'    => '#8b5cf6',
-    'pending_review' => '#f59e0b',
-    'resolved'       => '#22c55e',
+    'pending_review' => 'var(--warning)',
+    'resolved'       => 'var(--success)',
     'closed'         => '#6b7280',
     'wont_fix'       => '#9ca3af',
 ];
@@ -63,7 +63,7 @@ $statusColors = [
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:#ef444420;color:#ef4444"><i class="bi bi-exclamation-octagon-fill"></i></div>
+    <div class="stat-icon" style="background:var(--danger)20;color:var(--danger)"><i class="bi bi-exclamation-octagon-fill"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['critical'] ?? 0) ?></div>
       <div class="stat-label">Critical</div>
@@ -199,7 +199,7 @@ $_filterCount = count(array_filter([
             <td><?= Security::h($issue['assigned_to_name'] ?? '—') ?></td>
             <td>
               <?php if ($issue['due_date']): ?>
-                <span style="<?= $isOverdue ? 'color:#ef4444;font-weight:600' : '' ?>">
+                <span style="<?= $isOverdue ? 'color:var(--danger);font-weight:600' : '' ?>">
                   <?= Security::h(date('M j, Y', strtotime($issue['due_date']))) ?>
                   <?php if ($isOverdue): ?><i class="bi bi-exclamation-circle" title="Overdue"></i><?php endif; ?>
                 </span>

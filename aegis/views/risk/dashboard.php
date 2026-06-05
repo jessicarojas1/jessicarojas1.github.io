@@ -8,10 +8,10 @@ function dashRiskLevel(int $score): string {
 }
 // Helper: hex color for level
 function dashLevelColor(int $score): string {
-    if ($score > 14) return '#ef4444';
+    if ($score > 14) return 'var(--danger)';
     if ($score > 9)  return '#f97316';
-    if ($score > 4)  return '#f59e0b';
-    return '#22c55e';
+    if ($score > 4)  return 'var(--warning)';
+    return 'var(--success)';
 }
 // Helper: cell background for heat-map score
 function dashCellBg(int $score): string {
@@ -372,8 +372,8 @@ if (!empty($trendData)) {
 
   <!-- Critical -->
   <div class="rdash-kpi" style="border-top:3px solid #ef4444">
-    <span class="kpi-icon" style="color:#ef4444"><i class="bi bi-exclamation-octagon-fill"></i></span>
-    <span class="kpi-num" style="color:#ef4444"><?= (int)($summary['critical'] ?? 0) ?></span>
+    <span class="kpi-icon" style="color:var(--danger)"><i class="bi bi-exclamation-octagon-fill"></i></span>
+    <span class="kpi-num" style="color:var(--danger)"><?= (int)($summary['critical'] ?? 0) ?></span>
     <span class="kpi-lbl">Critical</span>
   </div>
 
@@ -393,8 +393,8 @@ if (!empty($trendData)) {
 
   <!-- Overdue Reviews -->
   <div class="rdash-kpi" style="border-top:3px solid #ef4444">
-    <span class="kpi-icon" style="color:#ef4444"><i class="bi bi-alarm-fill"></i></span>
-    <span class="kpi-num" style="color:#ef4444">
+    <span class="kpi-icon" style="color:var(--danger)"><i class="bi bi-alarm-fill"></i></span>
+    <span class="kpi-num" style="color:var(--danger)">
       <?php if (($summary['overdue_reviews'] ?? 0) > 0): ?>
         <i class="bi bi-exclamation-triangle-fill" style="font-size:18px;vertical-align:middle"></i>
       <?php endif; ?>
@@ -405,22 +405,22 @@ if (!empty($trendData)) {
 
   <!-- Approved -->
   <div class="rdash-kpi" style="border-top:3px solid #22c55e">
-    <span class="kpi-icon" style="color:#22c55e"><i class="bi bi-patch-check-fill"></i></span>
-    <span class="kpi-num" style="color:#22c55e"><?= (int)($summary['approved'] ?? 0) ?></span>
+    <span class="kpi-icon" style="color:var(--success)"><i class="bi bi-patch-check-fill"></i></span>
+    <span class="kpi-num" style="color:var(--success)"><?= (int)($summary['approved'] ?? 0) ?></span>
     <span class="kpi-lbl">Approved</span>
   </div>
 
   <!-- Actions Overdue -->
   <div class="rdash-kpi" style="border-top:3px solid #ef4444">
-    <span class="kpi-icon" style="color:#ef4444"><i class="bi bi-lightning-fill"></i></span>
-    <span class="kpi-num" style="color:<?= $actionsOverdue > 0 ? '#ef4444' : 'inherit' ?>"><?= $actionsOverdue ?></span>
+    <span class="kpi-icon" style="color:var(--danger)"><i class="bi bi-lightning-fill"></i></span>
+    <span class="kpi-num" style="color:<?= $actionsOverdue > 0 ? 'var(--danger)' : 'inherit' ?>"><?= $actionsOverdue ?></span>
     <span class="kpi-lbl">Actions Overdue</span>
   </div>
 
   <!-- No Controls -->
   <div class="rdash-kpi" style="border-top:3px solid #f59e0b">
-    <span class="kpi-icon" style="color:#f59e0b"><i class="bi bi-shield-x"></i></span>
-    <span class="kpi-num" style="color:<?= $uncontrolledCount > 0 ? '#f59e0b' : 'inherit' ?>"><?= $uncontrolledCount ?></span>
+    <span class="kpi-icon" style="color:var(--warning)"><i class="bi bi-shield-x"></i></span>
+    <span class="kpi-num" style="color:<?= $uncontrolledCount > 0 ? 'var(--warning)' : 'inherit' ?>"><?= $uncontrolledCount ?></span>
     <span class="kpi-lbl">No Controls</span>
   </div>
 
@@ -527,11 +527,11 @@ if (!empty($trendData)) {
     <!-- c) Top 10 Risks -->
     <div class="card">
       <div class="rdash-card-title">
-        <i class="bi bi-trophy-fill" style="color:#ef4444"></i>
+        <i class="bi bi-trophy-fill" style="color:var(--danger)"></i>
         Top 10 Risks by Score
       </div>
       <?php if (empty($topRisks)): ?>
-        <div class="rdash-empty"><i class="bi bi-shield-check" style="color:#22c55e"></i>No risks recorded yet.</div>
+        <div class="rdash-empty"><i class="bi bi-shield-check" style="color:var(--success)"></i>No risks recorded yet.</div>
       <?php else: ?>
         <table class="rdash-compact-table">
           <thead>
@@ -647,7 +647,7 @@ if (!empty($trendData)) {
   <!-- e) Exceeding Risk Appetite -->
   <div class="card">
     <div class="rdash-card-title">
-      <i class="bi bi-speedometer2" style="color:#ef4444"></i>
+      <i class="bi bi-speedometer2" style="color:var(--danger)"></i>
       Exceeding Risk Appetite
     </div>
     <?php if (empty($exceedingAppetite)): ?>
@@ -687,7 +687,7 @@ if (!empty($trendData)) {
   <!-- f) Uncontrolled Risks -->
   <div class="card">
     <div class="rdash-card-title">
-      <i class="bi bi-shield-x" style="color:#f59e0b"></i>
+      <i class="bi bi-shield-x" style="color:var(--warning)"></i>
       Uncontrolled Risks
       <?php if ($uncontrolledCount > 0): ?>
         <span style="margin-left:auto;background:#fef3c7;color:var(--warning);font-size:11px;padding:2px 8px;border-radius:20px;border:1px solid #fde68a"><?= $uncontrolledCount ?> risks</span>
@@ -741,8 +741,8 @@ if (!empty($trendData)) {
     $bars = [
         ['label' => 'Planned',     'count' => $abPlanned,    'color' => 'var(--primary)', 'bg' => 'rgba(11,97,4,.06)'],
         ['label' => 'In Progress', 'count' => $abInProgress, 'color' => '#f97316', 'bg' => '#fff7ed'],
-        ['label' => 'Completed',   'count' => $abCompleted,  'color' => '#22c55e', 'bg' => '#f0fdf4'],
-        ['label' => 'Overdue',     'count' => $abOverdue,    'color' => '#ef4444', 'bg' => '#fef2f2'],
+        ['label' => 'Completed',   'count' => $abCompleted,  'color' => 'var(--success)', 'bg' => '#f0fdf4'],
+        ['label' => 'Overdue',     'count' => $abOverdue,    'color' => 'var(--danger)', 'bg' => '#fef2f2'],
     ];
     // Donut via conic-gradient
     $conicParts = [];
@@ -933,7 +933,7 @@ if (!empty($trendData)) {
     var dotR = 5;
     data.forEach(function(pt, i) {
       var cx = xPos(i), cy = yPos(pt.avg);
-      var lvlColor = pt.avg > 14 ? '#ef4444' : (pt.avg > 9 ? '#f97316' : (pt.avg > 4 ? '#f59e0b' : '#22c55e'));
+      var lvlColor = pt.avg > 14 ? 'var(--danger)' : (pt.avg > 9 ? '#f97316' : (pt.avg > 4 ? 'var(--warning)' : 'var(--success)'));
       ctx.beginPath();
       ctx.arc(cx, cy, dotR, 0, Math.PI * 2);
       ctx.fillStyle   = '#ffffff';

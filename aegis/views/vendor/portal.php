@@ -14,7 +14,7 @@
     .question { margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid #e4e4e7; }
     .question:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
     .question label { display: block; font-weight: 600; margin-bottom: 8px; }
-    .required-star { color: #ef4444; }
+    .required-star { color: var(--danger); }
     textarea { width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; min-height: 100px; resize: vertical; font-family: inherit; }
     textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79,70,229,.1); }
     .btn { padding: 12px 28px; border-radius: 8px; border: none; cursor: pointer; font-size: 15px; font-weight: 600; }
@@ -85,7 +85,7 @@ function validateForm() {
   var ok = true;
   required.forEach(function(t) {
     if (!t.value.trim()) {
-      t.style.borderColor = '#ef4444';
+      t.style.borderColor = 'var(--danger)';
       ok = false;
     } else {
       t.style.borderColor = '';

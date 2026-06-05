@@ -7,7 +7,7 @@ ob_start();
 
 $statusColors = [
     'planned'     => ['#3b82f6','#eff6ff','#bfdbfe'],
-    'in_progress' => ['#f59e0b','#fffbeb','#fde68a'],
+    'in_progress' => ['var(--warning)','#fffbeb','#fde68a'],
     'completed'   => ['var(--primary)','#f0fdf4','#bbf7d0'],
     'cancelled'   => ['#71717a','#f9fafb','#e4e4e7'],
 ];
@@ -17,12 +17,12 @@ $typeLabels = ['periodic'=>'Periodic','triggered'=>'Triggered','ad_hoc'=>'Ad Hoc
 $itemStatusColors = [
     'pending'        => '#71717a',
     'reviewed'       => 'var(--primary)',
-    'escalated'      => '#ef4444',
-    'deferred'       => '#f59e0b',
+    'escalated'      => 'var(--danger)',
+    'deferred'       => 'var(--warning)',
     'not_applicable' => '#a1a1aa',
 ];
 $riskLevelFn = fn(int $s) => $s > 14 ? 'Critical' : ($s > 9 ? 'High' : ($s > 4 ? 'Medium' : 'Low'));
-$riskColors  = ['Critical'=>'#ef4444','High'=>'#f97316','Medium'=>'#f59e0b','Low'=>'#22c55e'];
+$riskColors  = ['Critical'=>'var(--danger)','High'=>'#f97316','Medium'=>'var(--warning)','Low'=>'var(--success)'];
 
 // Group items
 $groups = ['pending'=>[],'reviewed'=>[],'escalated'=>[],'deferred'=>[],'not_applicable'=>[]];
@@ -117,8 +117,8 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
   <div class="rv-kpi"><div class="num"><?= $review['total_risks'] ?></div><div class="lbl">Total Risks</div></div>
   <div class="rv-kpi" style="border-color:var(--primary)"><div class="num" style="color:var(--primary)"><?= count($groups['reviewed']) + count($groups['escalated']) + count($groups['deferred']) + count($groups['not_applicable']) ?></div><div class="lbl">Reviewed</div></div>
   <div class="rv-kpi" style="border-color:var(--text-muted)"><div class="num" style="color:var(--text-muted)"><?= count($groups['pending']) ?></div><div class="lbl">Pending</div></div>
-  <div class="rv-kpi" style="border-color:#ef4444"><div class="num" style="color:#ef4444"><?= count($groups['escalated']) ?></div><div class="lbl">Escalated</div></div>
-  <div class="rv-kpi" style="border-color:#f59e0b"><div class="num" style="color:#f59e0b"><?= count($groups['deferred']) ?></div><div class="lbl">Deferred</div></div>
+  <div class="rv-kpi" style="border-color:var(--danger)"><div class="num" style="color:var(--danger)"><?= count($groups['escalated']) ?></div><div class="lbl">Escalated</div></div>
+  <div class="rv-kpi" style="border-color:var(--warning)"><div class="num" style="color:var(--warning)"><?= count($groups['deferred']) ?></div><div class="lbl">Deferred</div></div>
   <div style="flex:3;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px">
     <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:4px">
       <span>Overall Progress</span><span style="color:var(--primary)"><?= $totalPct ?>%</span>
@@ -194,7 +194,7 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
             <?php if ($item['treatment_adequate'] === 't' || $item['treatment_adequate'] === true || $item['treatment_adequate'] === 1): ?>
               <span style="color:var(--primary)">✓ Treatment adequate</span><br>
             <?php elseif ($item['treatment_adequate'] === 'f' || $item['treatment_adequate'] === false || $item['treatment_adequate'] === 0): ?>
-              <span style="color:#ef4444">✗ Treatment inadequate</span><br>
+              <span style="color:var(--danger)">✗ Treatment inadequate</span><br>
             <?php endif; ?>
             <?php if ($item['reviewer_notes']): ?><div style="color:var(--text-muted);margin-top:4px;font-style:italic"><?= Security::h($item['reviewer_notes']) ?></div><?php endif; ?>
             <?php if ($item['reviewer_name']): ?><div style="color:#a1a1aa;margin-top:4px">— <?= Security::h($item['reviewer_name']) ?></div><?php endif; ?>
