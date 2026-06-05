@@ -9,8 +9,8 @@
 body{font-family:Inter,system-ui,sans-serif;background:#f9fafb;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}
 .card{background:#fff;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,.1);padding:48px 40px;max-width:480px;width:100%;text-align:center}
 .icon{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:32px}
-.icon.success{background:#f0fdf4;color:var(--primary)}
-.icon.error{background:#fef2f2;color:var(--danger)}
+.icon.success{background:var(--success-subtle);color:var(--primary)}
+.icon.error{background:var(--danger-subtle);color:var(--danger)}
 h1{font-size:24px;font-weight:700;color:var(--text);margin-bottom:12px}
 p{color:var(--text-muted);line-height:1.6;margin-bottom:24px}
 .btn{display:inline-block;padding:12px 28px;background:var(--primary);color:#fff;text-decoration:none;border-radius:8px;font-weight:600;font-size:15px;transition:opacity .15s}

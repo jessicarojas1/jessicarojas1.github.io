@@ -18,13 +18,13 @@ function dashCellBg(int $score): string {
     if ($score > 14) return '#fee2e2';
     if ($score > 9)  return '#ffedd5';
     if ($score > 4)  return '#fefce8';
-    return '#f0fdf4';
+    return 'var(--success-subtle)';
 }
 function dashCellBorder(int $score): string {
-    if ($score > 14) return '#fca5a5';
+    if ($score > 14) return 'var(--danger-border)';
     if ($score > 9)  return '#fdba74';
     if ($score > 4)  return '#fde68a';
-    return '#86efac';
+    return 'var(--success-border)';
 }
 function dashCellText(int $score): string {
     if ($score > 14) return '#b91c1c';
@@ -333,8 +333,8 @@ if (!empty($trendData)) {
     align-items: center;
     gap: 8px;
     padding: 12px 14px;
-    background: #f0fdf4;
-    border: 1px solid #86efac;
+    background: var(--success-subtle);
+    border: 1px solid var(--success-border);
     border-radius: 8px;
     color: #15803d;
     font-size: 13px;
@@ -511,10 +511,10 @@ if (!empty($trendData)) {
 
         <!-- Legend -->
         <div style="display:flex;gap:12px;margin-top:14px;flex-wrap:wrap;font-size:11px;font-weight:600">
-          <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;border-radius:3px;background:#f0fdf4;border:1.5px solid #86efac;display:inline-block"></span>Low (≤4)</span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;border-radius:3px;background:var(--success-subtle);border:1.5px solid var(--success-border);display:inline-block"></span>Low (≤4)</span>
           <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;border-radius:3px;background:#fefce8;border:1.5px solid #fde68a;display:inline-block"></span>Medium (5–9)</span>
           <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;border-radius:3px;background:#ffedd5;border:1.5px solid #fdba74;display:inline-block"></span>High (10–14)</span>
-          <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;border-radius:3px;background:#fee2e2;border:1.5px solid #fca5a5;display:inline-block"></span>Critical (&gt;14)</span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;border-radius:3px;background:#fee2e2;border:1.5px solid var(--danger-border);display:inline-block"></span>Critical (&gt;14)</span>
         </div>
       </div><!-- /heatmap-wrap -->
     </div><!-- /heat map card -->
@@ -741,8 +741,8 @@ if (!empty($trendData)) {
     $bars = [
         ['label' => 'Planned',     'count' => $abPlanned,    'color' => 'var(--primary)', 'bg' => 'rgba(11,97,4,.06)'],
         ['label' => 'In Progress', 'count' => $abInProgress, 'color' => '#f97316', 'bg' => '#fff7ed'],
-        ['label' => 'Completed',   'count' => $abCompleted,  'color' => 'var(--success)', 'bg' => '#f0fdf4'],
-        ['label' => 'Overdue',     'count' => $abOverdue,    'color' => 'var(--danger)', 'bg' => '#fef2f2'],
+        ['label' => 'Completed',   'count' => $abCompleted,  'color' => 'var(--success)', 'bg' => 'var(--success-subtle)'],
+        ['label' => 'Overdue',     'count' => $abOverdue,    'color' => 'var(--danger)', 'bg' => 'var(--danger-subtle)'],
     ];
     // Donut via conic-gradient
     $conicParts = [];
@@ -784,7 +784,7 @@ if (!empty($trendData)) {
     </div>
 
     <?php if ($abOverdue > 0): ?>
-    <div style="margin-top:12px;display:flex;align-items:center;gap:6px;padding:8px 10px;background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;font-size:12px;font-weight:600;color:var(--danger)">
+    <div style="margin-top:12px;display:flex;align-items:center;gap:6px;padding:8px 10px;background:var(--danger-subtle);border:1px solid var(--danger-border);border-radius:8px;font-size:12px;font-weight:600;color:var(--danger)">
       <i class="bi bi-exclamation-circle-fill"></i>
       <?= $abOverdue ?> action<?= $abOverdue !== 1 ? 's' : '' ?> overdue — immediate attention required.
     </div>

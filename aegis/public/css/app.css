@@ -33,11 +33,16 @@
   --border:        #d0d7de;
   --border-light:  #e8ebee;
 
-  /* Semantic subtle backgrounds */
-  --success-subtle: #f0fdf4;
-  --warning-subtle: #fffbeb;
-  --danger-subtle:  #fef2f2;
-  --info-subtle:    #eff6ff;
+  /* Semantic subtle backgrounds + border tints */
+  --success-subtle:  #f0fdf4;
+  --warning-subtle:  #fffbeb;
+  --danger-subtle:   #fef2f2;
+  --info-subtle:     #eff6ff;
+  --success-border:  #86efac;
+  --warning-border:  #fcd34d;
+  --danger-border:   #fca5a5;
+  --info-border:     #bfdbfe;
+  --info-text:       #1d4ed8;
 
   /* Text */
   --text:        #0d1117;
@@ -2103,6 +2108,13 @@ html[data-theme="dark"] .auth-form-card { background: var(--card-bg); }
 
 /* Semantic colors — brighter in dark mode for readable inline text */
 html[data-theme="dark"] { --success: #10b981; --warning: #f59e0b; --danger: #f87171; --info: #38bdf8; }
+/* Subtle tint backgrounds for dark mode chips/badges */
+html[data-theme="dark"] {
+  --success-subtle: rgba(16,185,129,.15);
+  --warning-subtle: rgba(245,158,11,.15);
+  --danger-subtle:  rgba(248,113,113,.15);
+  --info-subtle:    rgba(56,189,248,.15);
+}
 
 /* Rich text editor */
 html[data-theme="dark"] .rich-editor { background: var(--bg-subtle); color: var(--text); }

@@ -7,9 +7,9 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 $rag = $kri['rag'] ?? 'grey';
 
 $ragMap = [
-    'green' => ['var(--primary)', '#f0fdf4', '#bbf7d0', 'GREEN',   'bi-check-circle-fill'],
-    'amber' => ['var(--warning)', '#fffbeb', '#fde68a', 'AMBER',   'bi-exclamation-triangle-fill'],
-    'red'   => ['var(--danger)', '#fef2f2', '#fecaca', 'RED',     'bi-exclamation-octagon-fill'],
+    'green' => ['var(--primary)', 'var(--success-subtle)', '#bbf7d0', 'GREEN',   'bi-check-circle-fill'],
+    'amber' => ['var(--warning)', 'var(--warning-subtle)', '#fde68a', 'AMBER',   'bi-exclamation-triangle-fill'],
+    'red'   => ['var(--danger)', 'var(--danger-subtle)', '#fecaca', 'RED',     'bi-exclamation-octagon-fill'],
     'grey'  => ['#71717a', '#f9fafb', '#e4e4e7', 'NO DATA', 'bi-dash-circle-fill'],
 ];
 [$ragColor, $ragBg, $ragBorder, $ragLabel, $ragIcon] = $ragMap[$rag] ?? $ragMap['grey'];
@@ -290,7 +290,7 @@ function fmtNum(float $n): string {
           <tbody>
             <?php foreach ($values as $v):
               $vRag = kriValueRag((float)$v['value'], $green, $amber, $red, $dir);
-              $vColors = ['green'=>['#f0fdf4','var(--primary)'],'amber'=>['#fffbeb','var(--warning)'],'red'=>['#fef2f2','var(--danger)']];
+              $vColors = ['green'=>['var(--success-subtle)','var(--primary)'],'amber'=>['var(--warning-subtle)','var(--warning)'],'red'=>['var(--danger-subtle)','var(--danger)']];
               [$vBg,$vColor] = $vColors[$vRag] ?? ['#f9fafb','#71717a'];
               $vIcon = ['green'=>'bi-check-circle-fill','amber'=>'bi-exclamation-triangle-fill','red'=>'bi-exclamation-octagon-fill'][$vRag] ?? 'bi-dash-circle';
             ?>

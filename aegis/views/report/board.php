@@ -394,10 +394,10 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
       <tbody>
         <?php foreach ($topRisks as $r):
           $sc = (int)($r['inherent_score'] ?? 0);
-          if ($sc > 20)       { $sc_bg = '#fef2f2'; $sc_cl = 'var(--danger)'; $level = 'CRITICAL'; }
+          if ($sc > 20)       { $sc_bg = 'var(--danger-subtle)'; $sc_cl = 'var(--danger)'; $level = 'CRITICAL'; }
           elseif ($sc > 14)   { $sc_bg = '#fff7ed'; $sc_cl = '#ea580c'; $level = 'CRITICAL'; }
-          elseif ($sc >= 10)  { $sc_bg = '#fffbeb'; $sc_cl = 'var(--warning)'; $level = 'HIGH'; }
-          else                { $sc_bg = '#f0fdf4'; $sc_cl = 'var(--primary)'; $level = 'MEDIUM'; }
+          elseif ($sc >= 10)  { $sc_bg = 'var(--warning-subtle)'; $sc_cl = 'var(--warning)'; $level = 'HIGH'; }
+          else                { $sc_bg = 'var(--success-subtle)'; $sc_cl = 'var(--primary)'; $level = 'MEDIUM'; }
 
           $strategy = Security::h($r['treatment_strategy'] ?? $r['strategy'] ?? '—');
           $reviewDt = $r['review_date'] ? date('j M Y', strtotime($r['review_date'])) : '—';
@@ -501,11 +501,11 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
           <td style="padding:10px 12px;font-weight:500;"><?= Security::h($ab['title']) ?></td>
           <td style="padding:10px 12px;color:var(--text-muted);font-size:12px;"><?= Security::h($ab['category_name'] ?? '—') ?></td>
           <td style="padding:10px 12px;text-align:center;">
-            <span class="score-badge" style="background:#fef2f2;color:var(--danger);"><?= (int)($ab['inherent_score'] ?? 0) ?></span>
+            <span class="score-badge" style="background:var(--danger-subtle);color:var(--danger);"><?= (int)($ab['inherent_score'] ?? 0) ?></span>
           </td>
           <td style="padding:10px 12px;text-align:center;font-weight:600;color:var(--text-muted);"><?= (int)($ab['max_score'] ?? 0) ?></td>
           <td style="padding:10px 12px;text-align:center;">
-            <span style="display:inline-block;background:#fef2f2;color:var(--danger);font-weight:700;font-size:12px;padding:2px 10px;border-radius:99px;">+<?= $breach ?></span>
+            <span style="display:inline-block;background:var(--danger-subtle);color:var(--danger);font-weight:700;font-size:12px;padding:2px 10px;border-radius:99px;">+<?= $breach ?></span>
           </td>
           <td style="padding:10px 12px;color:var(--text-muted);font-size:12px;"><?= Security::h($ab['appetite'] ?? '—') ?></td>
         </tr>

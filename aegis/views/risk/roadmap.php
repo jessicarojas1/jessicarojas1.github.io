@@ -212,10 +212,10 @@ foreach ($grouped as $level => $risks):
       // Status badge
       $treatStatus = $r['treatment_status'] ?? $r['status'] ?? 'open';
       $treatStatusColors = [
-          'open'        => ['#fef2f2','var(--danger)'],
-          'in_progress' => ['#eff6ff','#2563eb'],
-          'mitigated'   => ['#f0fdf4','var(--primary)'],
-          'accepted'    => ['#fffbeb','var(--warning)'],
+          'open'        => ['var(--danger-subtle)','var(--danger)'],
+          'in_progress' => ['var(--info-subtle)','#2563eb'],
+          'mitigated'   => ['var(--success-subtle)','var(--primary)'],
+          'accepted'    => ['var(--warning-subtle)','var(--warning)'],
           'closed'      => ['#f9fafb','#71717a'],
           'transferred' => ['rgba(55,65,81,.05)','var(--secondary)'],
       ];

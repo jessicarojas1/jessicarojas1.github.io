@@ -12,7 +12,7 @@ function acceptFormScoreColor(int $s): string {
     return $s > 14 ? 'var(--danger)' : ($s > 9 ? '#f97316' : ($s > 4 ? 'var(--warning)' : 'var(--success)'));
 }
 function acceptFormScoreBg(int $s): string {
-    return $s > 14 ? '#fef2f2' : ($s > 9 ? '#fff7ed' : ($s > 4 ? '#fffbeb' : '#f0fdf4'));
+    return $s > 14 ? 'var(--danger-subtle)' : ($s > 9 ? '#fff7ed' : ($s > 4 ? 'var(--warning-subtle)' : 'var(--success-subtle)'));
 }
 
 $scoreLevel = acceptFormScoreLevel($score);

@@ -34,8 +34,8 @@ $statusIcons = [
           $isDone    = !empty($step['actioned_at']);
           $status    = $step['decision'] ?? ($isDone ? 'approved' : ($isCurrent ? 'pending' : 'waiting'));
           $bgColor   = match($status) {
-            'approved' => '#f0fdf4', 'rejected' => '#fef2f2',
-            'pending'  => '#fffbeb', default    => '#f9fafb',
+            'approved' => 'var(--success-subtle)', 'rejected' => 'var(--danger-subtle)',
+            'pending'  => 'var(--warning-subtle)', default    => '#f9fafb',
           };
         ?>
         <div style="flex:1;padding:16px;background:<?= $bgColor ?>;border:1px solid var(--border);

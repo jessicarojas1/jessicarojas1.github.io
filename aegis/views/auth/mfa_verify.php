@@ -32,7 +32,7 @@
     </div>
 
     <?php if (!empty($error)): ?>
-      <div class="alert alert-error" style="margin-bottom:16px"><i class="bi bi-exclamation-triangle-fill"></i> <?= Security::h($error) ?></div>
+      <div class="alert-box error" style="margin-bottom:16px"><i class="bi bi-exclamation-triangle-fill"></i> <?= Security::h($error) ?></div>
     <?php endif; ?>
 
     <form method="POST" action="/mfa/verify" id="mfaForm">

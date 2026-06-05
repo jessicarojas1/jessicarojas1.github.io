@@ -100,10 +100,10 @@ function scenarioLevelClass(int $s): string {
               $selectedType = $_POST['scenario_type'] ?? 'stress';
               $typeMeta = [
                   'base'          => ['label'=>'Base',         'icon'=>'bi-circle-fill',          'color'=>'#71717a','bg'=>'#f4f4f5'],
-                  'stress'        => ['label'=>'Stress',       'icon'=>'bi-graph-up-arrow',        'color'=>'var(--danger)','bg'=>'#fef2f2'],
-                  'optimistic'    => ['label'=>'Optimistic',   'icon'=>'bi-graph-down-arrow',      'color'=>'var(--primary)','bg'=>'#f0fdf4'],
+                  'stress'        => ['label'=>'Stress',       'icon'=>'bi-graph-up-arrow',        'color'=>'var(--danger)','bg'=>'var(--danger-subtle)'],
+                  'optimistic'    => ['label'=>'Optimistic',   'icon'=>'bi-graph-down-arrow',      'color'=>'var(--primary)','bg'=>'var(--success-subtle)'],
                   'catastrophic'  => ['label'=>'Catastrophic', 'icon'=>'bi-exclamation-octagon-fill','color'=>'#111111','bg'=>'#f9fafb'],
-                  'regulatory'    => ['label'=>'Regulatory',   'icon'=>'bi-bank',                  'color'=>'#2563eb','bg'=>'#eff6ff'],
+                  'regulatory'    => ['label'=>'Regulatory',   'icon'=>'bi-bank',                  'color'=>'#2563eb','bg'=>'var(--info-subtle)'],
               ];
               foreach ($typeMeta as $val => $meta):
                   $checked = ($selectedType === $val) ? 'checked' : '';

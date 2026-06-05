@@ -3,17 +3,17 @@
 
 $criticality = $asset['criticality'] ?? 'low';
 $critColors  = [
-    'critical' => ['#fef2f2','var(--danger)'],
+    'critical' => ['var(--danger-subtle)','var(--danger)'],
     'high'     => ['#fff7ed','#ea580c'],
-    'medium'   => ['#fffbeb','var(--warning)'],
-    'low'      => ['#f0fdf4','var(--primary)'],
+    'medium'   => ['var(--warning-subtle)','var(--warning)'],
+    'low'      => ['var(--success-subtle)','var(--primary)'],
 ];
 [$critBg, $critColor] = $critColors[$criticality] ?? ['#f4f4f5','#71717a'];
 
 $statusColors = [
-    'active'         => ['#f0fdf4','var(--primary)'],
+    'active'         => ['var(--success-subtle)','var(--primary)'],
     'decommissioned' => ['#f9fafb','#71717a'],
-    'maintenance'    => ['#fffbeb','var(--warning)'],
+    'maintenance'    => ['var(--warning-subtle)','var(--warning)'],
 ];
 [$sBg, $sColor] = $statusColors[$asset['status'] ?? ''] ?? ['#f4f4f5','#71717a'];
 
@@ -70,7 +70,7 @@ function riskScoreLevel(int $score): string {
         <?= Security::h($asset['name']) ?>
       </h1>
       <?php if (!empty($asset['asset_code'])): ?>
-        <span class="badge" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($asset['asset_code']) ?></span>
+        <span class="badge" style="background:var(--info-subtle);color:var(--info-text);border:1px solid var(--info-border);font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($asset['asset_code']) ?></span>
       <?php endif; ?>
     </div>
     <p class="page-subtitle">

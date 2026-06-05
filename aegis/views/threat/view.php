@@ -4,17 +4,17 @@ $breadcrumbs = $breadcrumbs ?? [['Threat Register', '/threat'], ['Threat', null]
 
 $catConfig = [
     'people'     => ['label' => 'People',     'color' => 'var(--secondary)', 'bg' => 'rgba(55,65,81,.05)', 'icon' => 'bi-person-fill'],
-    'process'    => ['label' => 'Process',    'color' => '#2563eb', 'bg' => '#eff6ff', 'icon' => 'bi-diagram-3-fill'],
+    'process'    => ['label' => 'Process',    'color' => '#2563eb', 'bg' => 'var(--info-subtle)', 'icon' => 'bi-diagram-3-fill'],
     'technology' => ['label' => 'Technology', 'color' => 'var(--primary)', 'bg' => 'rgba(11,97,4,.06)', 'icon' => 'bi-cpu-fill'],
-    'natural'    => ['label' => 'Natural',    'color' => 'var(--primary)', 'bg' => '#f0fdf4', 'icon' => 'bi-cloud-lightning-rain-fill'],
+    'natural'    => ['label' => 'Natural',    'color' => 'var(--primary)', 'bg' => 'var(--success-subtle)', 'icon' => 'bi-cloud-lightning-rain-fill'],
     'regulatory' => ['label' => 'Regulatory', 'color' => '#ea580c', 'bg' => '#fff7ed', 'icon' => 'bi-file-earmark-ruled-fill'],
     'financial'  => ['label' => 'Financial',  'color' => '#ca8a04', 'bg' => '#fefce8', 'icon' => 'bi-currency-dollar'],
 ];
 
 $statusConfig = [
-    'active'    => ['label' => 'Active',    'color' => 'var(--primary)', 'bg' => '#f0fdf4'],
-    'mitigated' => ['label' => 'Mitigated', 'color' => '#2563eb', 'bg' => '#eff6ff'],
-    'accepted'  => ['label' => 'Accepted',  'color' => 'var(--warning)', 'bg' => '#fffbeb'],
+    'active'    => ['label' => 'Active',    'color' => 'var(--primary)', 'bg' => 'var(--success-subtle)'],
+    'mitigated' => ['label' => 'Mitigated', 'color' => '#2563eb', 'bg' => 'var(--info-subtle)'],
+    'accepted'  => ['label' => 'Accepted',  'color' => 'var(--warning)', 'bg' => 'var(--warning-subtle)'],
     'retired'   => ['label' => 'Retired',   'color' => '#71717a', 'bg' => '#f9fafb'],
 ];
 
@@ -34,10 +34,10 @@ function threatViewScoreColor(int $score): string {
     return 'var(--danger)';
 }
 function threatViewScoreBg(int $score): string {
-    if ($score <= 4)  return '#f0fdf4';
-    if ($score <= 9)  return '#fffbeb';
+    if ($score <= 4)  return 'var(--success-subtle)';
+    if ($score <= 9)  return 'var(--warning-subtle)';
     if ($score <= 16) return '#fff7ed';
-    return '#fef2f2';
+    return 'var(--danger-subtle)';
 }
 function threatViewScoreLabel(int $score): string {
     if ($score <= 4)  return 'Low';
@@ -72,7 +72,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
         <?= Security::h($threat['title']) ?>
       </h1>
       <?php if (!empty($threat['threat_number'])): ?>
-        <span class="badge" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($threat['threat_number']) ?></span>
+        <span class="badge" style="background:var(--info-subtle);color:var(--info-text);border:1px solid var(--info-border);font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($threat['threat_number']) ?></span>
       <?php endif; ?>
     </div>
     <p class="page-subtitle">

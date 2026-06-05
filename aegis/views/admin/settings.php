@@ -16,10 +16,10 @@ ob_start();
 </div>
 
 <?php if ($flash_success): ?>
-  <div class="alert alert-success" style="margin-bottom:20px"><i class="bi bi-check-circle-fill"></i> <?= Security::h($flash_success) ?></div>
+  <div class="alert-box success" style="margin-bottom:20px"><i class="bi bi-check-circle-fill"></i> <?= Security::h($flash_success) ?></div>
 <?php endif; ?>
 <?php if ($flash_error): ?>
-  <div class="alert alert-error" style="margin-bottom:20px"><i class="bi bi-exclamation-triangle-fill"></i> <?= Security::h($flash_error) ?></div>
+  <div class="alert-box error" style="margin-bottom:20px"><i class="bi bi-exclamation-triangle-fill"></i> <?= Security::h($flash_error) ?></div>
 <?php endif; ?>
 
 <div style="display:grid;grid-template-columns:2fr 1fr;gap:20px;max-width:1100px;align-items:start">

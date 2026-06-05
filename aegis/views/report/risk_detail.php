@@ -242,13 +242,13 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
   <a href="/report/risk-detail"
      style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= (!$filterLevel && !$filterStatus) ? 'var(--primary)' : '#f4f4f5' ?>;color:<?= (!$filterLevel && !$filterStatus) ? '#fff' : '#52525b' ?>;text-decoration:none;font-weight:600;">All</a>
   <a href="/report/risk-detail?level=critical"
-     style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= $filterLevel === 'critical' ? 'var(--danger)' : '#fef2f2' ?>;color:<?= $filterLevel === 'critical' ? '#fff' : 'var(--danger)' ?>;text-decoration:none;font-weight:600;">Critical</a>
+     style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= $filterLevel === 'critical' ? 'var(--danger)' : 'var(--danger-subtle)' ?>;color:<?= $filterLevel === 'critical' ? '#fff' : 'var(--danger)' ?>;text-decoration:none;font-weight:600;">Critical</a>
   <a href="/report/risk-detail?level=high"
      style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= $filterLevel === 'high' ? '#f97316' : '#fff7ed' ?>;color:<?= $filterLevel === 'high' ? '#fff' : '#ea580c' ?>;text-decoration:none;font-weight:600;">High</a>
   <a href="/report/risk-detail?status=open"
      style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= $filterStatus === 'open' ? '#0284c7' : '#f0f9ff' ?>;color:<?= $filterStatus === 'open' ? '#fff' : '#0284c7' ?>;text-decoration:none;font-weight:600;">Open</a>
   <a href="/report/risk-detail?status=in_treatment"
-     style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= $filterStatus === 'in_treatment' ? 'var(--warning)' : '#fffbeb' ?>;color:<?= $filterStatus === 'in_treatment' ? '#fff' : 'var(--warning)' ?>;text-decoration:none;font-weight:600;">In Treatment</a>
+     style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= $filterStatus === 'in_treatment' ? 'var(--warning)' : 'var(--warning-subtle)' ?>;color:<?= $filterStatus === 'in_treatment' ? '#fff' : 'var(--warning)' ?>;text-decoration:none;font-weight:600;">In Treatment</a>
   <a href="/report/risk-detail?status=accepted"
      style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= $filterStatus === 'accepted' ? 'var(--secondary)' : 'rgba(55,65,81,.05)' ?>;color:<?= $filterStatus === 'accepted' ? '#fff' : 'var(--secondary)' ?>;text-decoration:none;font-weight:600;">Accepted</a>
 </div>
@@ -284,19 +284,19 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
         $lik     = (int)($r['likelihood']     ?? 0);
         $imp     = (int)($r['impact']         ?? 0);
 
-        if ($sc > 14)       { $sc_bg = '#fef2f2'; $sc_cl = 'var(--danger)'; $lvl = 'CRITICAL'; $lvl_bg = '#fef2f2'; $lvl_cl = 'var(--danger)'; }
+        if ($sc > 14)       { $sc_bg = 'var(--danger-subtle)'; $sc_cl = 'var(--danger)'; $lvl = 'CRITICAL'; $lvl_bg = 'var(--danger-subtle)'; $lvl_cl = 'var(--danger)'; }
         elseif ($sc >= 10)  { $sc_bg = '#fff7ed'; $sc_cl = '#ea580c'; $lvl = 'HIGH';     $lvl_bg = '#fff7ed'; $lvl_cl = '#ea580c'; }
-        elseif ($sc >= 6)   { $sc_bg = '#fffbeb'; $sc_cl = 'var(--warning)'; $lvl = 'MEDIUM';   $lvl_bg = '#fffbeb'; $lvl_cl = 'var(--warning)'; }
-        else                { $sc_bg = '#f0fdf4'; $sc_cl = 'var(--primary)'; $lvl = 'LOW';      $lvl_bg = '#f0fdf4'; $lvl_cl = 'var(--primary)'; }
+        elseif ($sc >= 6)   { $sc_bg = 'var(--warning-subtle)'; $sc_cl = 'var(--warning)'; $lvl = 'MEDIUM';   $lvl_bg = 'var(--warning-subtle)'; $lvl_cl = 'var(--warning)'; }
+        else                { $sc_bg = 'var(--success-subtle)'; $sc_cl = 'var(--primary)'; $lvl = 'LOW';      $lvl_bg = 'var(--success-subtle)'; $lvl_cl = 'var(--primary)'; }
 
-        if ($res > 14)      { $res_bg = '#fef2f2'; $res_cl = 'var(--danger)'; }
+        if ($res > 14)      { $res_bg = 'var(--danger-subtle)'; $res_cl = 'var(--danger)'; }
         elseif ($res >= 10) { $res_bg = '#fff7ed'; $res_cl = '#ea580c'; }
-        elseif ($res >= 6)  { $res_bg = '#fffbeb'; $res_cl = 'var(--warning)'; }
-        else                { $res_bg = '#f0fdf4'; $res_cl = 'var(--primary)'; }
+        elseif ($res >= 6)  { $res_bg = 'var(--warning-subtle)'; $res_cl = 'var(--warning)'; }
+        else                { $res_bg = 'var(--success-subtle)'; $res_cl = 'var(--primary)'; }
 
-        $statusColors = ['open' => ['#eff6ff','#1d4ed8'], 'in_treatment' => ['#fffbeb','var(--warning)'],
+        $statusColors = ['open' => ['var(--info-subtle)','#1d4ed8'], 'in_treatment' => ['var(--warning-subtle)','var(--warning)'],
                          'accepted' => ['rgba(55,65,81,.05)','var(--text-muted)'], 'closed' => ['#f9fafb','#71717a'],
-                         'transferred' => ['#f0fdf4','var(--success)']];
+                         'transferred' => ['var(--success-subtle)','var(--success)']];
         $stColor = $statusColors[$r['status'] ?? ''] ?? ['#f9fafb','#52525b'];
 
         $strategy  = Security::h($r['treatment_strategy'] ?? $r['strategy'] ?? '—');
@@ -342,12 +342,12 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
         </td>
         <td class="center">
           <?php if ($openTx > 0): ?>
-          <span style="display:inline-block;background:#fffbeb;color:var(--warning);font-weight:700;min-width:22px;padding:2px 6px;border-radius:6px;font-size:11px;"><?= $openTx ?></span>
+          <span style="display:inline-block;background:var(--warning-subtle);color:var(--warning);font-weight:700;min-width:22px;padding:2px 6px;border-radius:6px;font-size:11px;"><?= $openTx ?></span>
           <?php else: ?><span style="color:#d4d4d8;">0</span><?php endif; ?>
         </td>
         <td class="center">
           <?php if ($ctrlCnt > 0): ?>
-          <span style="display:inline-block;background:#eff6ff;color:#1d4ed8;font-weight:700;min-width:22px;padding:2px 6px;border-radius:6px;font-size:11px;"><?= $ctrlCnt ?></span>
+          <span style="display:inline-block;background:var(--info-subtle);color:var(--info-text);font-weight:700;min-width:22px;padding:2px 6px;border-radius:6px;font-size:11px;"><?= $ctrlCnt ?></span>
           <?php else: ?><span style="color:#d4d4d8;">0</span><?php endif; ?>
         </td>
       </tr>

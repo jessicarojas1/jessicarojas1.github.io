@@ -5,37 +5,37 @@
 
 $score = (int)($risk['inherent_score'] ?? 0);
 $scoreLevel = $score > 14 ? 'Critical' : ($score > 9 ? 'High' : ($score > 4 ? 'Medium' : 'Low'));
-$scoreBg    = $score > 14 ? '#fef2f2' : ($score > 9 ? '#fff7ed' : ($score > 4 ? '#fffbeb' : '#f0fdf4'));
+$scoreBg    = $score > 14 ? 'var(--danger-subtle)' : ($score > 9 ? '#fff7ed' : ($score > 4 ? 'var(--warning-subtle)' : 'var(--success-subtle)'));
 $scoreColor = $score > 14 ? 'var(--danger)' : ($score > 9 ? '#ea580c' : ($score > 4 ? 'var(--warning)' : 'var(--primary)'));
 
 $causeTypeMeta = [
-    'threat'          => ['label' => 'Threat',        'color' => 'var(--danger)', 'bg' => '#fef2f2', 'icon' => 'bi-exclamation-octagon-fill'],
-    'vulnerability'   => ['label' => 'Vulnerability', 'color' => 'var(--warning)', 'bg' => '#fffbeb', 'icon' => 'bi-shield-slash-fill'],
+    'threat'          => ['label' => 'Threat',        'color' => 'var(--danger)', 'bg' => 'var(--danger-subtle)', 'icon' => 'bi-exclamation-octagon-fill'],
+    'vulnerability'   => ['label' => 'Vulnerability', 'color' => 'var(--warning)', 'bg' => 'var(--warning-subtle)', 'icon' => 'bi-shield-slash-fill'],
     'hazard'          => ['label' => 'Hazard',         'color' => 'var(--secondary)', 'bg' => 'rgba(55,65,81,.06)', 'icon' => 'bi-biohazard'],
     'event'           => ['label' => 'Event',          'color' => '#0891b2', 'bg' => '#ecfeff', 'icon' => 'bi-lightning-fill'],
 ];
 
 $consequenceTypeMeta = [
-    'financial'      => ['label' => 'Financial',     'color' => 'var(--danger)', 'bg' => '#fef2f2', 'icon' => 'bi-cash-coin'],
-    'operational'    => ['label' => 'Operational',   'color' => 'var(--warning)', 'bg' => '#fffbeb', 'icon' => 'bi-gear-fill'],
+    'financial'      => ['label' => 'Financial',     'color' => 'var(--danger)', 'bg' => 'var(--danger-subtle)', 'icon' => 'bi-cash-coin'],
+    'operational'    => ['label' => 'Operational',   'color' => 'var(--warning)', 'bg' => 'var(--warning-subtle)', 'icon' => 'bi-gear-fill'],
     'reputational'   => ['label' => 'Reputational',  'color' => 'var(--secondary)', 'bg' => 'rgba(55,65,81,.06)', 'icon' => 'bi-star-fill'],
     'legal'          => ['label' => 'Legal',          'color' => '#0891b2', 'bg' => '#ecfeff', 'icon' => 'bi-balance-scale'],
-    'safety'         => ['label' => 'Safety',         'color' => 'var(--primary)', 'bg' => '#f0fdf4', 'icon' => 'bi-heart-pulse-fill'],
+    'safety'         => ['label' => 'Safety',         'color' => 'var(--primary)', 'bg' => 'var(--success-subtle)', 'icon' => 'bi-heart-pulse-fill'],
     'impact'         => ['label' => 'Impact',         'color' => '#71717a', 'bg' => '#f4f4f5', 'icon' => 'bi-arrow-down-circle-fill'],
 ];
 
 $severityMeta = [
-    'low'      => ['label' => 'Low',      'color' => 'var(--primary)', 'bg' => '#f0fdf4'],
-    'medium'   => ['label' => 'Medium',   'color' => 'var(--warning)', 'bg' => '#fffbeb'],
+    'low'      => ['label' => 'Low',      'color' => 'var(--primary)', 'bg' => 'var(--success-subtle)'],
+    'medium'   => ['label' => 'Medium',   'color' => 'var(--warning)', 'bg' => 'var(--warning-subtle)'],
     'high'     => ['label' => 'High',     'color' => '#ea580c', 'bg' => '#fff7ed'],
-    'critical' => ['label' => 'Critical', 'color' => 'var(--danger)', 'bg' => '#fef2f2'],
+    'critical' => ['label' => 'Critical', 'color' => 'var(--danger)', 'bg' => 'var(--danger-subtle)'],
 ];
 
 $effectivenessMeta = [
-    'degraded'    => ['label' => 'Degraded',    'color' => 'var(--danger)', 'ring' => '#fca5a5'],
-    'partial'     => ['label' => 'Partial',     'color' => 'var(--warning)', 'ring' => '#fcd34d'],
+    'degraded'    => ['label' => 'Degraded',    'color' => 'var(--danger)', 'ring' => 'var(--danger-border)'],
+    'partial'     => ['label' => 'Partial',     'color' => 'var(--warning)', 'ring' => 'var(--warning-border)'],
     'substantial' => ['label' => 'Substantial', 'color' => '#2563eb', 'ring' => '#93c5fd'],
-    'full'        => ['label' => 'Full',        'color' => 'var(--primary)', 'ring' => '#86efac'],
+    'full'        => ['label' => 'Full',        'color' => 'var(--primary)', 'ring' => 'var(--success-border)'],
 ];
 
 $barrierTypeMeta = [

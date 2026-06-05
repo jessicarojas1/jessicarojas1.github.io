@@ -146,10 +146,10 @@ function assetTypeIcon(string $type): string {
 // Helper: criticality badge style
 function criticalityBadge(string $crit): string {
     $map = [
-        'critical' => ['#fef2f2','var(--danger)','Critical'],
+        'critical' => ['var(--danger-subtle)','var(--danger)','Critical'],
         'high'     => ['#fff7ed','#ea580c','High'],
-        'medium'   => ['#fffbeb','var(--warning)','Medium'],
-        'low'      => ['#f0fdf4','var(--primary)','Low'],
+        'medium'   => ['var(--warning-subtle)','var(--warning)','Medium'],
+        'low'      => ['var(--success-subtle)','var(--primary)','Low'],
     ];
     [$bg, $color, $label] = $map[$crit] ?? ['#f4f4f5','#71717a',ucfirst($crit)];
     return "<span style=\"background:{$bg};color:{$color};border:1px solid {$color}33;padding:2px 10px;border-radius:99px;font-size:11px;font-weight:600;\">{$label}</span>";
@@ -175,9 +175,9 @@ function criticalityBadge(string $crit): string {
       <tbody>
         <?php if ($assets): foreach ($assets as $a):
           $statusColors = [
-            'active'         => ['#f0fdf4','var(--primary)'],
+            'active'         => ['var(--success-subtle)','var(--primary)'],
             'decommissioned' => ['#f9fafb','#71717a'],
-            'maintenance'    => ['#fffbeb','var(--warning)'],
+            'maintenance'    => ['var(--warning-subtle)','var(--warning)'],
           ];
           [$sBg, $sColor] = $statusColors[$a['status'] ?? ''] ?? ['#f4f4f5','#71717a'];
         ?>

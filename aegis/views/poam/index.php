@@ -21,12 +21,12 @@ $statusLabels = [
 </div>
 
 <?php if (!empty($_SESSION['flash_success'])): ?>
-  <div class="alert alert-success" style="background:color-mix(in srgb,var(--success) 15%,transparent);border:1px solid var(--success);color:var(--success);padding:12px 16px;border-radius:8px;margin-bottom:16px;">
+  <div class="alert-box success" style="background:color-mix(in srgb,var(--success) 15%,transparent);border:1px solid var(--success);color:var(--success);padding:12px 16px;border-radius:8px;margin-bottom:16px;">
     <?= Security::h($_SESSION['flash_success']) ?></div>
   <?php unset($_SESSION['flash_success']); ?>
 <?php endif; ?>
 <?php if (!empty($_SESSION['flash_error'])): ?>
-  <div class="alert alert-danger" style="background:color-mix(in srgb,var(--danger) 15%,transparent);border:1px solid var(--danger);color:var(--danger);padding:12px 16px;border-radius:8px;margin-bottom:16px;">
+  <div class="alert-box error" style="background:color-mix(in srgb,var(--danger) 15%,transparent);border:1px solid var(--danger);color:var(--danger);padding:12px 16px;border-radius:8px;margin-bottom:16px;">
     <?= Security::h($_SESSION['flash_error']) ?></div>
   <?php unset($_SESSION['flash_error']); ?>
 <?php endif; ?>

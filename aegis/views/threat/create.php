@@ -193,10 +193,10 @@ $breadcrumbs = $breadcrumbs ?? [['Threat Register', '/threat'], ['New Threat', n
         <div class="card-body" style="font-size:13px;">
           <?php
           $guide = [
-              ['1 – 4',  '#f0fdf4', 'var(--primary)', 'Low',      'Minimal risk. Unlikely to occur or negligible impact.'],
-              ['5 – 9',  '#fffbeb', 'var(--warning)', 'Medium',   'Moderate risk. Should be monitored and controlled.'],
+              ['1 – 4',  'var(--success-subtle)', 'var(--primary)', 'Low',      'Minimal risk. Unlikely to occur or negligible impact.'],
+              ['5 – 9',  'var(--warning-subtle)', 'var(--warning)', 'Medium',   'Moderate risk. Should be monitored and controlled.'],
               ['10 – 16','#fff7ed', '#ea580c', 'High',     'Significant risk. Requires active mitigation.'],
-              ['17 – 25','#fef2f2', 'var(--danger)', 'Critical', 'Severe risk. Immediate treatment required.'],
+              ['17 – 25','var(--danger-subtle)', 'var(--danger)', 'Critical', 'Severe risk. Immediate treatment required.'],
           ];
           foreach ($guide as [$range, $bg, $color, $label, $desc]):
           ?>

@@ -24,10 +24,10 @@ ob_start();
 ?>
 
 <?php if ($flash_success): ?>
-  <div class="alert alert-success" style="margin-bottom:20px"><i class="bi bi-check-circle-fill"></i> <?= Security::h($flash_success) ?></div>
+  <div class="alert-box success" style="margin-bottom:20px"><i class="bi bi-check-circle-fill"></i> <?= Security::h($flash_success) ?></div>
 <?php endif; ?>
 <?php if ($flash_error): ?>
-  <div class="alert alert-error" style="margin-bottom:20px"><i class="bi bi-exclamation-triangle-fill"></i> <?= Security::h($flash_error) ?></div>
+  <div class="alert-box error" style="margin-bottom:20px"><i class="bi bi-exclamation-triangle-fill"></i> <?= Security::h($flash_error) ?></div>
 <?php endif; ?>
 
 <div class="page-header">
@@ -184,7 +184,7 @@ ob_start();
       <p style="margin:12px 0 0">Rendering preview…</p>
     </div>
     <div id="previewError" style="padding:20px;display:none">
-      <div class="alert alert-error"></div>
+      <div class="alert-box error"></div>
     </div>
     <iframe id="previewFrame" style="flex:1;border:none;border-radius:0 0 12px 12px;min-height:500px" sandbox="allow-same-origin"></iframe>
   </div>

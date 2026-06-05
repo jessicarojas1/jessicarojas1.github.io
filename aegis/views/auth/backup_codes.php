@@ -6,7 +6,7 @@ $hasNewCodes = !empty($newCodes);
 ?>
 
 <?php if (!empty($_SESSION['flash_error'])): ?>
-  <div class="alert alert-error" style="margin-bottom:20px">
+  <div class="alert-box error" style="margin-bottom:20px">
     <i class="bi bi-exclamation-triangle-fill"></i> <?= Security::h($_SESSION['flash_error']) ?>
   </div>
   <?php unset($_SESSION['flash_error']); ?>
@@ -24,7 +24,7 @@ $hasNewCodes = !empty($newCodes);
 
 <?php if ($hasNewCodes): ?>
   <!-- ── New codes just generated ─────────────────────────────────── -->
-  <div class="alert alert-success" style="margin-bottom:24px;font-size:15px;font-weight:600">
+  <div class="alert-box success" style="margin-bottom:24px;font-size:15px;font-weight:600">
     <i class="bi bi-check-circle-fill"></i>
     Save these codes now — they won't be shown again.
   </div>
@@ -67,7 +67,7 @@ $hasNewCodes = !empty($newCodes);
         <?php endforeach; ?>
       </div>
 
-      <div class="alert alert-error" style="font-size:13px">
+      <div class="alert-box error" style="font-size:13px">
         <i class="bi bi-exclamation-triangle-fill"></i>
         <strong>Important:</strong> Each code can only be used once. Store them somewhere safe — a password manager, printed paper in a secure location, or encrypted file. These codes will not be shown again.
       </div>
@@ -114,7 +114,7 @@ $hasNewCodes = !empty($newCodes);
       </p>
 
       <?php if ((int)$existingCount < 3): ?>
-        <div class="alert alert-error" style="margin-bottom:16px;font-size:13px">
+        <div class="alert-box error" style="margin-bottom:16px;font-size:13px">
           <i class="bi bi-exclamation-triangle-fill"></i>
           You are running low on backup codes. Consider regenerating a fresh set.
         </div>

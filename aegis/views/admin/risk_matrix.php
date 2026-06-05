@@ -238,7 +238,7 @@ ob_start();
   transition: all .15s;
 }
 .btn-icon:hover { background: var(--surface-2); color: var(--text); }
-.btn-icon-danger:hover { background: #fee2e2; color: var(--danger); border-color: #fca5a5; }
+.btn-icon-danger:hover { background: #fee2e2; color: var(--danger); border-color: var(--danger-border); }
 </style>
 
 <script nonce="<?= Security::nonce() ?>">

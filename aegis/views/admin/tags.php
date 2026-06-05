@@ -1,10 +1,10 @@
 <?php if (!defined('AEGIS_ROOT')) { http_response_code(403); exit; } ?>
 
 <?php if (!empty($_SESSION['flash_success'])): ?>
-  <div class="alert alert-success"><?= Security::h($_SESSION['flash_success']) ?><?php unset($_SESSION['flash_success']); ?></div>
+  <div class="alert-box success"><?= Security::h($_SESSION['flash_success']) ?><?php unset($_SESSION['flash_success']); ?></div>
 <?php endif; ?>
 <?php if (!empty($_SESSION['flash_error'])): ?>
-  <div class="alert alert-danger"><?= Security::h($_SESSION['flash_error']) ?><?php unset($_SESSION['flash_error']); ?></div>
+  <div class="alert-box error"><?= Security::h($_SESSION['flash_error']) ?><?php unset($_SESSION['flash_error']); ?></div>
 <?php endif; ?>
 
 <div class="page-header">

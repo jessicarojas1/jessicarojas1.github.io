@@ -9,9 +9,9 @@ $canDecide = $isMgr && $exception['status'] === 'pending';
 
 // Status colours
 $statusStyles = [
-    'pending'  => ['bg' => '#fffbeb', 'fg' => 'var(--warning)', 'icon' => 'bi-hourglass-split'],
-    'approved' => ['bg' => '#f0fdf4', 'fg' => 'var(--primary)', 'icon' => 'bi-shield-check'],
-    'rejected' => ['bg' => '#fef2f2', 'fg' => 'var(--danger)', 'icon' => 'bi-x-circle'],
+    'pending'  => ['bg' => 'var(--warning-subtle)', 'fg' => 'var(--warning)', 'icon' => 'bi-hourglass-split'],
+    'approved' => ['bg' => 'var(--success-subtle)', 'fg' => 'var(--primary)', 'icon' => 'bi-shield-check'],
+    'rejected' => ['bg' => 'var(--danger-subtle)', 'fg' => 'var(--danger)', 'icon' => 'bi-x-circle'],
     'expired'  => ['bg' => '#f9fafb', 'fg' => '#71717a', 'icon' => 'bi-clock-history'],
 ];
 $sStyle = $statusStyles[$exception['status']] ?? ['bg' => '#f4f4f5', 'fg' => '#71717a', 'icon' => 'bi-question-circle'];

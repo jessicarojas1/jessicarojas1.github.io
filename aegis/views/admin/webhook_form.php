@@ -21,7 +21,7 @@ ob_start();
 </div>
 
 <?php if (!empty($_SESSION['flash_error'])): ?>
-<div class="alert alert-danger mb-4"><?= Security::h($_SESSION['flash_error']) ?><?php unset($_SESSION['flash_error']); ?></div>
+<div class="alert-box error" style="margin-bottom:1rem"><?= Security::h($_SESSION['flash_error']) ?><?php unset($_SESSION['flash_error']); ?></div>
 <?php endif; ?>
 
 <div class="card">

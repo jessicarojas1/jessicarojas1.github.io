@@ -16,16 +16,16 @@ $typeLabels = [
 ];
 
 $typeBadgeColors = [
-    'periodic'  => ['#2563eb','#eff6ff'],
-    'triggered' => ['var(--warning)','#fffbeb'],
+    'periodic'  => ['#2563eb','var(--info-subtle)'],
+    'triggered' => ['var(--warning)','var(--warning-subtle)'],
     'ad_hoc'    => ['var(--secondary)','rgba(55,65,81,.05)'],
     'board'     => ['#0891b2','#ecfeff'],
 ];
 
 $statusConfig = [
-    'planned'     => ['fg'=>'#2563eb','bg'=>'#eff6ff','label'=>'Planned'],
-    'in_progress' => ['fg'=>'var(--warning)','bg'=>'#fffbeb','label'=>'In Progress'],
-    'completed'   => ['fg'=>'var(--primary)','bg'=>'#f0fdf4','label'=>'Completed'],
+    'planned'     => ['fg'=>'#2563eb','bg'=>'var(--info-subtle)','label'=>'Planned'],
+    'in_progress' => ['fg'=>'var(--warning)','bg'=>'var(--warning-subtle)','label'=>'In Progress'],
+    'completed'   => ['fg'=>'var(--primary)','bg'=>'var(--success-subtle)','label'=>'Completed'],
     'cancelled'   => ['fg'=>'#71717a','bg'=>'#f4f4f5','label'=>'Cancelled'],
 ];
 

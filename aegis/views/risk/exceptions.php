@@ -98,9 +98,9 @@ ob_start();
           <?php foreach ($exceptions as $ex):
             // Status badge colours
             $statusStyles = [
-                'pending'  => ['bg' => '#fffbeb', 'fg' => 'var(--warning)'],
-                'approved' => ['bg' => '#f0fdf4', 'fg' => 'var(--primary)'],
-                'rejected' => ['bg' => '#fef2f2', 'fg' => 'var(--danger)'],
+                'pending'  => ['bg' => 'var(--warning-subtle)', 'fg' => 'var(--warning)'],
+                'approved' => ['bg' => 'var(--success-subtle)', 'fg' => 'var(--primary)'],
+                'rejected' => ['bg' => 'var(--danger-subtle)', 'fg' => 'var(--danger)'],
                 'expired'  => ['bg' => '#f9fafb', 'fg' => '#71717a'],
             ];
             $sStyle = $statusStyles[$ex['status']] ?? ['bg' => '#f4f4f5', 'fg' => '#71717a'];

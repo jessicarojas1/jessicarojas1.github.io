@@ -37,7 +37,7 @@ $cntTotal     = $cntPass + $cntFail + $cntPartial + $cntNotTested;
     <div style="font-size:32px;font-weight:700;color:var(--primary);line-height:1"><?= $cntPass ?></div>
     <div style="font-size:13px;color:var(--primary);margin-top:4px;font-weight:600">Pass</div>
   </div>
-  <div style="flex:1;min-width:120px;background:var(--danger-subtle);border:1px solid #fca5a580;border-radius:12px;padding:16px 20px;text-align:center">
+  <div style="flex:1;min-width:120px;background:var(--danger-subtle);border:1px solid var(--danger-border)80;border-radius:12px;padding:16px 20px;text-align:center">
     <div style="font-size:32px;font-weight:700;color:var(--danger);line-height:1"><?= $cntFail ?></div>
     <div style="font-size:13px;color:var(--danger);margin-top:4px;font-weight:600">Fail</div>
   </div>

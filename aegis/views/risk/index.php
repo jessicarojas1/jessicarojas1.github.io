@@ -241,7 +241,7 @@ $_filterCount = count(array_filter([
             <td>
               <?php
               $aStatus = $risk['assessment_status'] ?? 'draft';
-              $aColors = ['draft'=>['#71717a','#f4f4f5'],'pending_review'=>['var(--warning)','#fffbeb'],'approved'=>['var(--primary)','#f0fdf4']];
+              $aColors = ['draft'=>['#71717a','#f4f4f5'],'pending_review'=>['var(--warning)','var(--warning-subtle)'],'approved'=>['var(--primary)','var(--success-subtle)']];
               [$aFg,$aBg] = $aColors[$aStatus] ?? $aColors['draft'];
               $aLabel = ['draft'=>'Draft','pending_review'=>'Pending Review','approved'=>'Approved'][$aStatus] ?? ucfirst($aStatus);
               ?>

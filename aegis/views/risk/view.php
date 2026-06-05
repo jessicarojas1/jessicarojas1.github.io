@@ -22,10 +22,10 @@ $strategyMeta = [
     'avoid'    => ['label'=>'Avoid',    'icon'=>'x-octagon-fill',      'color'=>'var(--danger)', 'hint'=>'Eliminate the risk source'],
 ];
 $statusLabels = [
-    'open'        => ['label'=>'Open',        'color'=>'var(--danger)', 'bg'=>'#fef2f2', 'border'=>'#fca5a5'],
-    'in_review'   => ['label'=>'In Review',   'color'=>'#2563eb', 'bg'=>'#eff6ff', 'border'=>'#93c5fd'],
-    'monitoring'  => ['label'=>'Monitoring',  'color'=>'var(--primary)', 'bg'=>'#f0fdf4', 'border'=>'#86efac'],
-    'accepted'    => ['label'=>'Accepted',    'color'=>'var(--warning)', 'bg'=>'#fffbeb', 'border'=>'#fcd34d'],
+    'open'        => ['label'=>'Open',        'color'=>'var(--danger)', 'bg'=>'var(--danger-subtle)', 'border'=>'var(--danger-border)'],
+    'in_review'   => ['label'=>'In Review',   'color'=>'#2563eb', 'bg'=>'var(--info-subtle)', 'border'=>'#93c5fd'],
+    'monitoring'  => ['label'=>'Monitoring',  'color'=>'var(--primary)', 'bg'=>'var(--success-subtle)', 'border'=>'var(--success-border)'],
+    'accepted'    => ['label'=>'Accepted',    'color'=>'var(--warning)', 'bg'=>'var(--warning-subtle)', 'border'=>'var(--warning-border)'],
     'closed'      => ['label'=>'Closed',      'color'=>'#71717a', 'bg'=>'#f4f4f5', 'border'=>'#d4d4d8'],
     'transferred' => ['label'=>'Transferred', 'color'=>'var(--secondary)', 'bg'=>'rgba(55,65,81,.06)', 'border'=>'#d1d5db'],
 ];

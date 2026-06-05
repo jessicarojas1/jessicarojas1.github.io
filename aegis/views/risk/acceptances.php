@@ -11,17 +11,17 @@ $expiringSoon     = (int)($summary['expiring_soon_count'] ?? 0);
 
 // Status config
 $statusConfig = [
-    'active'     => ['label' => 'Active',     'fg' => 'var(--primary)', 'bg' => '#f0fdf4', 'border' => '#86efac'],
+    'active'     => ['label' => 'Active',     'fg' => 'var(--primary)', 'bg' => 'var(--success-subtle)', 'border' => 'var(--success-border)'],
     'expired'    => ['label' => 'Expired',    'fg' => '#71717a', 'bg' => '#f4f4f5', 'border' => '#d4d4d8'],
     'superseded' => ['label' => 'Superseded', 'fg' => 'var(--secondary)', 'bg' => 'rgba(55,65,81,.06)', 'border' => '#d1d5db'],
-    'revoked'    => ['label' => 'Revoked',    'fg' => 'var(--danger)', 'bg' => '#fef2f2', 'border' => '#fca5a5'],
+    'revoked'    => ['label' => 'Revoked',    'fg' => 'var(--danger)', 'bg' => 'var(--danger-subtle)', 'border' => 'var(--danger-border)'],
 ];
 
 $levelConfig = [
-    'critical' => ['label' => 'Critical', 'fg' => 'var(--danger)', 'bg' => '#fef2f2'],
+    'critical' => ['label' => 'Critical', 'fg' => 'var(--danger)', 'bg' => 'var(--danger-subtle)'],
     'high'     => ['label' => 'High',     'fg' => '#f97316', 'bg' => '#fff7ed'],
-    'medium'   => ['label' => 'Medium',   'fg' => 'var(--warning)', 'bg' => '#fffbeb'],
-    'low'      => ['label' => 'Low',      'fg' => 'var(--success)', 'bg' => '#f0fdf4'],
+    'medium'   => ['label' => 'Medium',   'fg' => 'var(--warning)', 'bg' => 'var(--warning-subtle)'],
+    'low'      => ['label' => 'Low',      'fg' => 'var(--success)', 'bg' => 'var(--success-subtle)'],
 ];
 
 $filterStatus = $_GET['status'] ?? '';
@@ -289,7 +289,7 @@ if ($filterStatus !== '') {
                     <i class="bi bi-exclamation-triangle-fill"></i> Revocation Reason
                   </label>
                   <textarea name="revocation_reason" class="form-control" rows="2"
-                            style="border-color:#fca5a5;"
+                            style="border-color:var(--danger-border);"
                             placeholder="Explain why this acceptance is being revoked…"></textarea>
                 </div>
                 <div style="display:flex;gap:8px;flex-shrink:0;">

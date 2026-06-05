@@ -12,7 +12,7 @@ ob_start();
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px">
       <h1 class="page-title" style="margin:0"><?= Security::h($policy['title']) ?></h1>
       <?php if (!empty($policy['policy_number'])): ?>
-        <span class="badge" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($policy['policy_number']) ?></span>
+        <span class="badge" style="background:var(--info-subtle);color:var(--info-text);border:1px solid var(--info-border);font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($policy['policy_number']) ?></span>
       <?php endif; ?>
     </div>
     <p class="page-subtitle">

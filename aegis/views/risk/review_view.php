@@ -6,9 +6,9 @@ $nonce = Security::nonce();
 ob_start();
 
 $statusColors = [
-    'planned'     => ['#3b82f6','#eff6ff','#bfdbfe'],
-    'in_progress' => ['var(--warning)','#fffbeb','#fde68a'],
-    'completed'   => ['var(--primary)','#f0fdf4','#bbf7d0'],
+    'planned'     => ['#3b82f6','var(--info-subtle)','var(--info-border)'],
+    'in_progress' => ['var(--warning)','var(--warning-subtle)','#fde68a'],
+    'completed'   => ['var(--primary)','var(--success-subtle)','#bbf7d0'],
     'cancelled'   => ['#71717a','#f9fafb','#e4e4e7'],
 ];
 [$stFg,$stBg,$stBd] = $statusColors[$review['status']] ?? $statusColors['planned'];

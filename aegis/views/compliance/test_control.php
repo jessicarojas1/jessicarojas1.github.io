@@ -30,10 +30,10 @@ function testResultBadge(string $result): string {
 </div>
 
 <?php if ($flash_success): ?>
-  <div class="alert alert-success" style="margin-bottom:20px"><i class="bi bi-check-circle-fill"></i> <?= Security::h($flash_success) ?></div>
+  <div class="alert-box success" style="margin-bottom:20px"><i class="bi bi-check-circle-fill"></i> <?= Security::h($flash_success) ?></div>
 <?php endif; ?>
 <?php if ($flash_error): ?>
-  <div class="alert alert-error" style="margin-bottom:20px"><i class="bi bi-exclamation-triangle-fill"></i> <?= Security::h($flash_error) ?></div>
+  <div class="alert-box error" style="margin-bottom:20px"><i class="bi bi-exclamation-triangle-fill"></i> <?= Security::h($flash_error) ?></div>
 <?php endif; ?>
 
 <!-- Control Details -->
@@ -65,8 +65,8 @@ function testResultBadge(string $result): string {
           $implStatus = $obj['status'] ?? 'not_started';
           $statusCfg = [
             'compliant'      => ['bg'=>'#dcfce7','text'=>'var(--primary)','label'=>'Compliant'],
-            'partial'        => ['bg'=>'#fffbeb','text'=>'var(--warning)','label'=>'Partial'],
-            'non_compliant'  => ['bg'=>'#fef2f2','text'=>'var(--danger)','label'=>'Non-Compliant'],
+            'partial'        => ['bg'=>'var(--warning-subtle)','text'=>'var(--warning)','label'=>'Partial'],
+            'non_compliant'  => ['bg'=>'var(--danger-subtle)','text'=>'var(--danger)','label'=>'Non-Compliant'],
             'not_applicable' => ['bg'=>'#f4f4f5','text'=>'#71717a','label'=>'Not Applicable'],
             'not_started'    => ['bg'=>'#f9fafb','text'=>'#a1a1aa','label'=>'Not Started'],
           ];

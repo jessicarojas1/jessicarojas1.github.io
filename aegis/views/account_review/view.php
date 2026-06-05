@@ -26,7 +26,7 @@ $pct      = $total > 0 ? round(($reviewed / $total) * 100) : 0;
 </div>
 
 <?php if (!empty($_SESSION['flash_success'])): ?>
-  <div class="alert alert-success"><i class="bi bi-check-circle-fill"></i> <?= Security::h($_SESSION['flash_success']) ?></div>
+  <div class="alert-box success"><i class="bi bi-check-circle-fill"></i> <?= Security::h($_SESSION['flash_success']) ?></div>
   <?php unset($_SESSION['flash_success']); ?>
 <?php endif; ?>
 
