@@ -135,15 +135,17 @@ ob_start();
     }
     ?>
     <?php if (empty($displayedReviews)): ?>
-      <div class="empty-state" style="padding:3rem;text-align:center;">
-        <i class="bi bi-clipboard2-check" style="font-size:2.5rem;opacity:.3;display:block;margin-bottom:12px;"></i>
-        <p style="color:var(--text-muted);margin:0;">
-          <?= $filterStatus ? 'No reviews match this filter.' : 'No review sessions yet.' ?>
-          <?php if (!$filterStatus && Auth::can('risk.write')): ?>
-            <a href="/risk/reviews/create">Schedule the first one</a>.
-          <?php endif; ?>
-        </p>
-      </div>
+      <table class="table"><tbody>
+        <tr><td colspan="7" class="empty-row">
+          <div class="empty-state-sm">
+            <i class="bi bi-clipboard2-check"></i>
+            <?= $filterStatus ? 'No reviews match this filter.' : 'No review sessions yet.' ?>
+            <?php if (!$filterStatus && Auth::can('risk.write')): ?>
+              <a href="/risk/reviews/create">Schedule the first one</a>.
+            <?php endif; ?>
+          </div>
+        </td></tr>
+      </tbody></table>
     <?php else: ?>
     <table class="table">
       <thead>

@@ -34,37 +34,37 @@ ob_start();
 <!-- Summary stat cards -->
 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;">
 
-  <div class="card" style="border-left:4px solid #f59e0b;">
+  <div class="card" style="border-left:4px solid var(--warning);">
     <div class="card-body" style="padding:20px;display:flex;align-items:center;gap:16px;">
       <div style="width:48px;height:48px;border-radius:12px;background:var(--warning-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-        <i class="bi bi-hourglass-split" style="font-size:22px;color:#f59e0b;"></i>
+        <i class="bi bi-hourglass-split" style="font-size:22px;color:var(--warning);"></i>
       </div>
       <div>
-        <div style="font-size:28px;font-weight:700;line-height:1;color:#f59e0b;"><?= $pendingCount ?></div>
+        <div style="font-size:28px;font-weight:700;line-height:1;color:var(--warning);"><?= $pendingCount ?></div>
         <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Pending Review</div>
       </div>
     </div>
   </div>
 
-  <div class="card" style="border-left:4px solid #22c55e;">
+  <div class="card" style="border-left:4px solid var(--success);">
     <div class="card-body" style="padding:20px;display:flex;align-items:center;gap:16px;">
       <div style="width:48px;height:48px;border-radius:12px;background:var(--success-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-        <i class="bi bi-shield-check" style="font-size:22px;color:#22c55e;"></i>
+        <i class="bi bi-shield-check" style="font-size:22px;color:var(--success);"></i>
       </div>
       <div>
-        <div style="font-size:28px;font-weight:700;line-height:1;color:#22c55e;"><?= $approvedCount ?></div>
+        <div style="font-size:28px;font-weight:700;line-height:1;color:var(--success);"><?= $approvedCount ?></div>
         <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Approved</div>
       </div>
     </div>
   </div>
 
-  <div class="card" style="border-left:4px solid #ef4444;">
+  <div class="card" style="border-left:4px solid var(--danger);">
     <div class="card-body" style="padding:20px;display:flex;align-items:center;gap:16px;">
       <div style="width:48px;height:48px;border-radius:12px;background:var(--danger-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-        <i class="bi bi-calendar-x" style="font-size:22px;color:#ef4444;"></i>
+        <i class="bi bi-calendar-x" style="font-size:22px;color:var(--danger);"></i>
       </div>
       <div>
-        <div style="font-size:28px;font-weight:700;line-height:1;color:#ef4444;"><?= $expiringSoonCount ?></div>
+        <div style="font-size:28px;font-weight:700;line-height:1;color:var(--danger);"><?= $expiringSoonCount ?></div>
         <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Expiring Within 30 Days</div>
       </div>
     </div>

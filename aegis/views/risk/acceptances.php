@@ -126,16 +126,16 @@ if ($filterStatus !== '') {
 <div class="card">
   <div class="card-body p0">
     <?php if (empty($displayed)): ?>
-      <div class="empty-state" style="padding:3rem;text-align:center;">
-        <i class="bi bi-patch-check" style="font-size:2.5rem;opacity:.3;display:block;margin-bottom:12px;"></i>
-        <p style="color:var(--text-muted);margin:0;">
-          <?= $filterStatus ? 'No acceptance certificates match this filter.' : 'No acceptance certificates on record.' ?>
-        </p>
-        <p style="font-size:13px;color:var(--text-light);margin-top:4px;">
-          To issue a certificate, open a risk and click "Issue Acceptance".
-        </p>
-        <a href="/risk" class="btn btn-primary btn-sm" style="margin-top:12px;">Go to Risk Register</a>
-      </div>
+      <table class="table"><tbody>
+        <tr><td colspan="8" class="empty-row">
+          <div class="empty-state-sm">
+            <i class="bi bi-patch-check"></i>
+            <?= $filterStatus ? 'No acceptance certificates match this filter.' : 'No acceptance certificates on record.' ?>
+            <div style="font-size:12px;margin-top:4px;">To issue a certificate, open a risk and click "Issue Acceptance".</div>
+            <a href="/risk" class="btn btn-primary btn-sm" style="margin-top:12px;">Go to Risk Register</a>
+          </div>
+        </td></tr>
+      </tbody></table>
     <?php else: ?>
     <table class="table">
       <thead>

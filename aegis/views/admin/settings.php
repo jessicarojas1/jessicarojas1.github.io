@@ -87,7 +87,7 @@ ob_start();
           <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px;">Current Logo</div>
           <img src="<?= htmlspecialchars($logoData, ENT_QUOTES | ENT_HTML5, 'UTF-8') ?>"
                alt="Company Logo"
-               style="max-height:80px;max-width:240px;border:1px solid var(--border);border-radius:6px;padding:8px;background:#fff;">
+               style="max-height:80px;max-width:240px;border:1px solid var(--border);border-radius:6px;padding:8px;background:var(--card-bg);">
           <?php if ($logoName): ?>
           <div style="font-size:0.78rem;color:var(--text-muted);margin-top:4px;"><?= Security::h($logoName) ?></div>
           <?php endif; ?>
