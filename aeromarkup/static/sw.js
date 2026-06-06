@@ -1,14 +1,11 @@
-/* AeroMarkup service worker — offline app shell cache.
-   Strategy: cache-first for the app shell so the tool launches with no
-   network. API calls (/api/*) always go to network and never block the UI. */
-const CACHE = "aeromarkup-v1";
+/* AeroMarkup service worker — offline app-shell cache.
+   Cache-first for the shell (so the tool launches air-gapped); /api/* always
+   hits the network and fails soft so the offline-first UI never blocks. */
+const CACHE = "aeromarkup-v2";
 const SHELL = [
-  "./",
-  "index.html",
-  "app.css",
-  "app.js",
-  "manifest.webmanifest",
-  "icon.svg",
+  "./", "index.html", "app.css", "manifest.webmanifest", "icon.svg",
+  "js/app.js", "js/router.js", "js/store.js", "js/session.js", "js/audit.js",
+  "js/api.js", "js/ui.js", "js/icons.js", "js/canvas.js", "js/views.js",
 ];
 
 self.addEventListener("install", (e) => {
@@ -17,29 +14,24 @@ self.addEventListener("install", (e) => {
 
 self.addEventListener("activate", (e) => {
   e.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
-    ).then(() => self.clients.claim())
+    caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+      .then(() => self.clients.claim())
   );
 });
 
 self.addEventListener("fetch", (e) => {
   const url = new URL(e.request.url);
-  // never cache the API — let it fail gracefully offline
   if (url.pathname.includes("/api/")) {
-    e.respondWith(fetch(e.request).catch(() => new Response(
-      JSON.stringify({ error: "offline" }), { status: 503, headers: { "Content-Type": "application/json" } }
-    )));
+    e.respondWith(fetch(e.request).catch(() =>
+      new Response(JSON.stringify({ error: "offline" }), { status: 503, headers: { "Content-Type": "application/json" } })));
     return;
   }
-  // cache-first for app shell, fall back to network, then cache the result
   e.respondWith(
     caches.match(e.request).then((hit) =>
       hit || fetch(e.request).then((res) => {
         const copy = res.clone();
         caches.open(CACHE).then((c) => c.put(e.request, copy)).catch(() => {});
         return res;
-      }).catch(() => caches.match("index.html"))
-    )
+      }).catch(() => caches.match("index.html")))
   );
 });

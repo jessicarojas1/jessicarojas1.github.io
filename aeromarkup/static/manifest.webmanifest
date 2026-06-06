@@ -1,13 +1,13 @@
 {
-  "name": "AeroMarkup — Aircraft Drawing & Annotation",
+  "name": "AeroMarkup — Aerospace Engineering Lifecycle",
   "short_name": "AeroMarkup",
-  "description": "Offline-capable aircraft drawing, sketch and annotation tool for aerospace and manufacturing.",
+  "description": "DoD aerospace & manufacturing engineering markup, redline, nonconformance, inspection and approval platform. Offline-capable.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#0b0e14",
-  "theme_color": "#0b0e14",
+  "background_color": "#0a0d12",
+  "theme_color": "#0a0d12",
   "icons": [
     { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
   ]
