@@ -63,12 +63,14 @@ export default function DocumentDetailPage() {
             subtitle={`${doc.title} · Rev ${doc.current_revision}`}
             breadcrumbs={[{ label: 'Documents', to: '/documents' }, { label: doc.document_number }]}
             actions={
-              canApprove &&
-              pendingApproval && (
-                <button type="button" className="btn btn-primary" onClick={() => setSigOpen(true)}>
-                  <Stamp size={16} /> Approve & Release
-                </button>
-              )
+              <>
+                <PrintButton />
+                {canApprove && pendingApproval && (
+                  <button type="button" className="btn btn-primary" onClick={() => setSigOpen(true)}>
+                    <Stamp size={16} /> Approve & Release
+                  </button>
+                )}
+              </>
             }
           />
 

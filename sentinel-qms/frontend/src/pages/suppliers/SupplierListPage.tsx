@@ -47,6 +47,7 @@ export default function SupplierListPage() {
         pageSize={ctl.pageSize}
         total={data?.total}
         onPageChange={ctl.setPage}
+        exportFilename="suppliers"
         filters={
           <div className="field">
             <Select

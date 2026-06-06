@@ -50,6 +50,7 @@ export default function AuditListPage() {
         pageSize={ctl.pageSize}
         total={data?.total}
         onPageChange={ctl.setPage}
+        exportFilename="audits"
         filters={
           <>
             <div className="field">

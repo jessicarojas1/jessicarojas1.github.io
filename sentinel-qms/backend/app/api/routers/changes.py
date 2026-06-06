@@ -35,6 +35,7 @@ from app.services.crud import (
     paginate,
     request_context,
 )
+from app.services.notifications import notify_assignment
 from app.services.signatures import create_signature
 from app.services.workflow import StateMachine
 
@@ -102,6 +103,15 @@ def create_change(
         after=co,
         **request_context(request),
     )
+    if co.owner_id:
+        notify_assignment(
+            db,
+            user_id=co.owner_id,
+            title=f"Change {co.change_number} assigned to you",
+            message=co.title,
+            entity_type=ENTITY,
+            entity_id=co.id,
+        )
     db.commit()
     db.refresh(co)
     return co
@@ -126,6 +136,7 @@ def update_change(
 ) -> ChangeOrder:
     co = get_or_404(db, ChangeOrder, change_id, name="Change order")
     before = audit.snapshot(co)
+    prev_owner = co.owner_id
     for key, value in body.model_dump(exclude_unset=True).items():
         setattr(co, key, value)
     co.updated_by = actor.id
@@ -141,6 +152,15 @@ def update_change(
         after=co,
         **request_context(request),
     )
+    if co.owner_id and co.owner_id != prev_owner:
+        notify_assignment(
+            db,
+            user_id=co.owner_id,
+            title=f"Change {co.change_number} assigned to you",
+            message=co.title,
+            entity_type=ENTITY,
+            entity_id=co.id,
+        )
     db.commit()
     db.refresh(co)
     return co

@@ -40,7 +40,7 @@ from app.services.crud import (
     paginate,
     request_context,
 )
-from app.services.notifications import notify_user
+from app.services.notifications import notify_assignment
 from app.services.signatures import create_signature
 from app.services.workflow import StateMachine
 
@@ -115,12 +115,11 @@ def create_ncr(
         **request_context(request),
     )
     if ncr.assigned_to:
-        notify_user(
+        notify_assignment(
             db,
             user_id=ncr.assigned_to,
             title=f"NCR {ncr.ncr_number} assigned to you",
-            body=ncr.title,
-            category="ncr",
+            message=ncr.title,
             entity_type=ENTITY,
             entity_id=ncr.id,
         )
@@ -148,10 +147,20 @@ def update_ncr(
 ) -> Nonconformance:
     ncr = get_or_404(db, Nonconformance, ncr_id, name="NCR")
     before = audit.snapshot(ncr)
+    prev_assignee = ncr.assigned_to
     for key, value in body.model_dump(exclude_unset=True).items():
         setattr(ncr, key, value)
     ncr.updated_by = actor.id
     db.flush()
+    if ncr.assigned_to and ncr.assigned_to != prev_assignee:
+        notify_assignment(
+            db,
+            user_id=ncr.assigned_to,
+            title=f"NCR {ncr.ncr_number} assigned to you",
+            message=ncr.title,
+            entity_type=ENTITY,
+            entity_id=ncr.id,
+        )
     audit.record(
         db,
         actor_id=actor.id,
