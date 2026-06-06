@@ -562,8 +562,8 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
         <div style="font-size:28px;font-weight:800;color:var(--warning);"><?= $tbInProg ?></div>
         <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">In Progress</div>
       </div>
-      <div style="text-align:center;padding:16px;background:#f9fafb;border-radius:10px;border:1px solid <?= $tbOverdue > 0 ? '#dc2626' : '#e4e4e7' ?>;">
-        <div style="font-size:28px;font-weight:800;color:<?= $tbOverdue > 0 ? '#dc2626' : '#059669' ?>;"><?= $tbOverdue ?></div>
+      <div style="text-align:center;padding:16px;background:var(--surface-alt);border-radius:10px;border:1px solid <?= $tbOverdue > 0 ? 'var(--danger)' : 'var(--border)' ?>;">
+        <div style="font-size:28px;font-weight:800;color:<?= $tbOverdue > 0 ? 'var(--danger)' : 'var(--success)' ?>;"><?= $tbOverdue ?></div>
         <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Overdue</div>
       </div>
     </div>
@@ -593,13 +593,13 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
           $amber   = $kri['threshold_amber'];
           $red     = $kri['threshold_red'];
           if ($val === null) {
-              $ragColor = '#a1a1aa'; $ragLabel = 'N/A';
+              $ragColor = 'var(--text-muted)'; $ragLabel = 'N/A';
           } elseif ($red !== null && (float)$val >= (float)$red) {
-              $ragColor = '#dc2626'; $ragLabel = 'RED';
+              $ragColor = 'var(--danger)'; $ragLabel = 'RED';
           } elseif ($amber !== null && (float)$val >= (float)$amber) {
-              $ragColor = '#d97706'; $ragLabel = 'AMBER';
+              $ragColor = 'var(--warning)'; $ragLabel = 'AMBER';
           } else {
-              $ragColor = '#059669'; $ragLabel = 'GREEN';
+              $ragColor = 'var(--success)'; $ragLabel = 'GREEN';
           }
           $recDate = $kri['latest_date'] ? date('j M Y', strtotime($kri['latest_date'])) : '—';
         ?>

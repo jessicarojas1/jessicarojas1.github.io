@@ -181,7 +181,7 @@
           <p style="margin:4px 0 0;color:var(--text-muted);">Standard asset. Disruption has limited operational impact.</p>
         </div>
         <div>
-          <span style="background:#16a34a18;color:#16a34a;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;">Low</span>
+          <span style="background:var(--success-subtle);color:var(--primary);padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;">Low</span>
           <p style="margin:4px 0 0;color:var(--text-muted);">Non-critical. Minimal impact if unavailable.</p>
         </div>
       </div>

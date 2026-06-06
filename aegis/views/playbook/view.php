@@ -1,19 +1,19 @@
 <?php
 $categoryColors = [
     'general'         => 'var(--primary)',
-    'ransomware'      => '#dc2626',
-    'data_breach'     => '#d97706',
-    'ddos'            => '#0284c7',
+    'ransomware'      => 'var(--danger)',
+    'data_breach'     => 'var(--warning)',
+    'ddos'            => 'var(--info)',
     'phishing'        => 'var(--secondary)',
     'insider_threat'  => '#db2777',
-    'system_failure'  => '#71717a',
-    'compliance'      => '#059669',
+    'system_failure'  => 'var(--text-muted)',
+    'compliance'      => 'var(--success)',
 ];
 $severityColors = [
-    'critical' => '#dc2626',
-    'high'     => '#d97706',
-    'medium'   => '#0284c7',
-    'low'      => '#059669',
+    'critical' => 'var(--danger)',
+    'high'     => 'var(--warning)',
+    'medium'   => 'var(--info)',
+    'low'      => 'var(--success)',
 ];
 $catKey   = strtolower(str_replace([' ','-'], '_', $playbook['category']));
 $catColor = $categoryColors[$catKey] ?? 'var(--primary)';
