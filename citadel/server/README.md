@@ -121,6 +121,54 @@ calls `/api/scan` instead of analyzing locally.
 
 ---
 
+## Authentication & access control
+
+When the deep-scan backend is present, the SPA authenticates against it with
+**JWT sessions** and permission checks are enforced **server-side** — the
+browser store is only a fallback for static hosting (GitHub Pages).
+
+- **User store** — `lib/users.js`, a JSON file at `CITADEL_DATA_DIR` (default
+  under `CITADEL_TMP`). Passwords are **scrypt**-hashed with per-user salts. On
+  first run it seeds an admin and a JWT signing secret.
+- **Sessions** — `lib/jwt.js` issues compact **HS256** JWTs (12 h expiry)
+  signed with `CITADEL_JWT_SECRET`. The SPA sends `Authorization: Bearer <jwt>`.
+- **Enforcement** — page-level permissions (mirroring the client's catalog) are
+  checked on every protected route. `/api/scan` requires `analyze`,
+  `/api/scan-url` requires `deepscan`, `/api/explain` requires `tab-aifix`;
+  user-management and access-settings routes are admin-only. When the global
+  *enforce* toggle is **off** (default), scans are open; flip it on in the Admin
+  console once accounts are set up.
+
+| Route | Method | Auth |
+|---|---|---|
+| `/api/auth/login` | POST | public — returns `{ token, user }` |
+| `/api/auth/me` | GET | Bearer token |
+| `/api/auth/settings` | GET / PATCH | GET any · PATCH admin |
+| `/api/users` `…/:id` `…/:id/password` | GET/POST/PATCH/DELETE | admin |
+| `/api/scan` · `/api/scan-url` · `/api/explain` | POST | permission-gated when enforce is on |
+
+**Auth-related environment variables**
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `CITADEL_DATA_DIR` | `$CITADEL_TMP/citadel` | Where `users.json` + the JWT secret persist. Point at a persistent disk. |
+| `CITADEL_JWT_SECRET` | random (or seeded into the store) | HS256 signing key. Set/`generateValue` a stable one so sessions survive restarts. |
+| `CITADEL_ADMIN_EMAIL` | `admin@citadel.local` | First-boot admin email (only used when no admin exists yet). |
+| `CITADEL_ADMIN_PASSWORD` | `citadel-admin` | First-boot admin password — **change it after first login.** |
+
+```bash
+# Log in and call a gated endpoint
+TOKEN=$(curl -sS -X POST http://localhost:8080/api/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"admin@citadel.local","password":"citadel-admin"}' | jq -r .token)
+
+curl -sS -X POST http://localhost:8080/api/scan \
+  -H "Authorization: Bearer $TOKEN" \
+  -F "files=@./my-project.zip" -o report.json
+```
+
+---
+
 ## Build & run locally
 
 Everything is built from the **repository root** because the image copies both
@@ -189,15 +237,33 @@ services:
     dockerContext: .
     plan: standard          # NOT free — needs ≥1GB RAM (2GB+ recommended)
     healthCheckPath: /api/health
+    # Persistent disk so the user store + JWT secret survive deploys.
+    disk:
+      name: citadel-data
+      mountPath: /var/lib/citadel
+      sizeGB: 1
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
         value: "8080"
+      - key: CITADEL_DATA_DIR        # where users.json + the JWT secret live
+        value: /var/lib/citadel
+      - key: CITADEL_JWT_SECRET      # stable signing key, minted once & reused
+        generateValue: true
+      - key: CITADEL_ADMIN_EMAIL     # optional first-boot admin override
+        sync: false
+      - key: CITADEL_ADMIN_PASSWORD  # optional — else seeds the documented default
+        sync: false
 ```
 
 Render terminates TLS for you and routes to port 8080. The container's own
 healthcheck and Render's `/api/health` probe are complementary.
+
+> The container runs as numeric `USER 10001`, so Render chowns the disk mount
+> to that UID — no extra permission setup is needed. **Without the disk** the
+> filesystem is ephemeral: the seeded admin and any users you create reset on
+> every deploy/restart (the server logs a `cannot persist user store` warning).
 
 ---
 

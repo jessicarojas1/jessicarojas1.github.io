@@ -24,35 +24,50 @@
 
   /* ---------- Access control (users & page-level permissions) ---------- */
   const escH = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  // When the deep-scan backend is present, authentication & permission checks
+  // run server-side (JWT). Otherwise we fall back to the client-only store.
+  let backendMode = false, backendUser = null, backendEnforce = false;
+  function curUser() { return backendMode ? backendUser : CITADEL.auth.current(); }
+  function aclEnforce() { return backendMode ? backendEnforce : CITADEL.auth.settings().enforce; }
+  function aclCan(page) {
+    const u = curUser();
+    if (!u) return false;
+    if (u.role === 'admin') return true;
+    return !!(u.permissions && u.permissions[page]);
+  }
+
   let _loginModal = null;
   function loginModal() { if (!_loginModal && root.bootstrap) _loginModal = new root.bootstrap.Modal($('loginModal')); return _loginModal; }
   function openLogin() {
-    const a = CITADEL.auth; const h = $('login-hint');
-    if (h) h.innerHTML = 'Demo admin — <code>' + escH(a.DEFAULT_ADMIN.email) + '</code> / <code>' + escH(a.DEFAULT_ADMIN.password) + '</code>';
+    const h = $('login-hint');
+    if (h) {
+      if (backendMode) h.innerHTML = 'Sign in with your CITADEL account. Default admin — <code>admin@citadel.local</code> / <code>citadel-admin</code> (change after first login).';
+      else { const a = CITADEL.auth; h.innerHTML = 'Demo admin — <code>' + escH(a.DEFAULT_ADMIN.email) + '</code> / <code>' + escH(a.DEFAULT_ADMIN.password) + '</code>'; }
+    }
     const er = $('login-error'); if (er) er.classList.add('d-none');
     const m = loginModal(); if (m) m.show();
   }
   function renderUserArea() {
-    const a = CITADEL.auth, ua = $('user-area'); if (!ua) return;
-    const u = a.current();
+    const ua = $('user-area'); if (!ua) return;
+    const u = curUser();
     const adm = $('nav-admin'); if (adm) adm.classList.toggle('d-none', !(u && u.role === 'admin'));
     ua.innerHTML = u
       ? `<span class="badge bg-secondary">${escH(u.role)}</span><span class="small d-none d-sm-inline">${escH(u.name || u.email)}</span><button class="btn btn-sm btn-outline-secondary" id="logout-btn" title="Sign out"><i class="bi bi-box-arrow-right"></i></button>`
       : `<button class="btn btn-sm btn-outline-primary" id="login-btn"><i class="bi bi-box-arrow-in-right"></i> Login</button>`;
   }
   function applyAccess() {
-    const a = CITADEL.auth, st = a.settings();
+    const enforce = aclEnforce();
     renderUserArea();
     document.querySelectorAll('.tab-btn').forEach(b => {
-      const restrict = st.enforce && !a.can(b.dataset.tab);
+      const restrict = enforce && !aclCan(b.dataset.tab);
       b.classList.toggle('d-none', restrict);
     });
     // deep-scan gate
     const dt = $('deep-mode-toggle');
-    if (dt && st.enforce && !a.can('deepscan')) { dt.checked = false; dt.disabled = true; } else if (dt) { dt.disabled = false; }
+    if (dt && enforce && !aclCan('deepscan')) { dt.checked = false; dt.disabled = true; } else if (dt) { dt.disabled = false; }
     // if the active tab is now restricted, switch to the first accessible one
     const active = document.querySelector('.tab-btn.active');
-    if (st.enforce && active && active.classList.contains('d-none')) {
+    if (enforce && active && active.classList.contains('d-none')) {
       const first = document.querySelector('.tab-btn:not(.d-none)');
       if (first) {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -63,15 +78,24 @@
     }
   }
   // Block a scan if access control is on and the user lacks the 'analyze' page.
+  // The backend enforces this authoritatively; this is a UX pre-check only.
   function gateScan() {
-    const a = CITADEL.auth, st = a.settings();
-    if (!st.enforce) return true;
-    if (a.can('analyze')) return true;
-    if (!a.current()) { openLogin(); showProgress(100, 'Sign in required to run a scan.', ''); }
+    if (!aclEnforce()) return true;
+    if (aclCan('analyze')) return true;
+    if (!curUser()) { openLogin(); showProgress(100, 'Sign in required to run a scan.', ''); }
     else { showProgress(100, 'Your account does not have permission to run scans.', ''); }
     return false;
   }
-  CITADEL.auth.ready.then(applyAccess);
+  // If a scan endpoint rejects us (server-side enforcement), reflect it in the UI.
+  function handleAuthError(err) {
+    if (err && (err.status === 401 || err.status === 403)) {
+      if (err.status === 401) { backendUser = null; renderUserArea(); openLogin(); }
+      showProgress(100, err.status === 401 ? 'Sign in required to run a scan.' : 'Your account does not have permission for this action.', '');
+      return true;
+    }
+    return false;
+  }
+  CITADEL.auth.ready.then(() => { if (!backendMode) applyAccess(); });
 
   /* ---------- Hero live stats ---------- */
   (function () {
@@ -134,6 +158,11 @@
     renderEngineStatus(st);
     deepAvailable = true;
     aiAvailable = !!st.ai;
+    // Backend present → auth & permission checks are authoritative server-side.
+    backendMode = true;
+    backendEnforce = !!(st.auth && st.auth.enforce);
+    try { backendUser = await CITADEL.api.authMe(); } catch (e) { backendUser = null; }
+    applyAccess();
     CITADEL.report.setAi(aiAvailable);
     $('deep-mode-row').classList.remove('d-none');
     $('url-scan-row').classList.remove('d-none');
@@ -155,7 +184,7 @@
       let p = 20; showProgress(p, 'Cloning & scanning repository…', url);
       const report = await CITADEL.api.scanUrl(url, (s) => { p = Math.min(90, p + 20); showProgress(p, s, ''); });
       finishScan(report, 'deep');
-    } catch (err) { showProgress(100, 'Repo scan failed: ' + (err.message || err), ''); }
+    } catch (err) { if (!handleAuthError(err)) showProgress(100, 'Repo scan failed: ' + (err.message || err), ''); }
   });
 
   /* ---------- Intake ---------- */
@@ -224,7 +253,7 @@
       const report = await CITADEL.api.scan(files, (stage) => { p = Math.min(90, p + 18); showProgress(p, stage, ''); });
       finishScan(report, 'deep');
     } catch (err) {
-      showProgress(100, 'Deep scan failed: ' + (err.message || err), '');
+      if (!handleAuthError(err)) showProgress(100, 'Deep scan failed: ' + (err.message || err), '');
       console.error(err);
     }
   }
@@ -330,13 +359,18 @@
   document.addEventListener('click', (e) => {
     // Auth controls
     if (e.target.closest('#login-btn')) return openLogin();
-    if (e.target.closest('#logout-btn')) { CITADEL.auth.logout(); applyAccess(); return; }
+    if (e.target.closest('#logout-btn')) {
+      if (backendMode) { CITADEL.api.authLogout(); backendUser = null; } else { CITADEL.auth.logout(); }
+      applyAccess(); return;
+    }
     if (e.target.closest('#login-submit')) {
       const em = $('login-email').value, pw = $('login-password').value;
-      CITADEL.auth.loginByCreds(em, pw).then(u => {
-        if (u) { const m = loginModal(); if (m) m.hide(); $('login-password').value = ''; applyAccess(); }
-        else { const er = $('login-error'); if (er) { er.textContent = 'Invalid credentials or inactive account.'; er.classList.remove('d-none'); } }
-      });
+      const fail = () => { const er = $('login-error'); if (er) { er.textContent = 'Invalid credentials or inactive account.'; er.classList.remove('d-none'); } };
+      const ok = (u) => { const m = loginModal(); if (m) m.hide(); $('login-password').value = ''; applyAccess(); };
+      const p = backendMode
+        ? CITADEL.api.authLogin(em, pw).then(u => { if (u) backendUser = u; return u; })
+        : CITADEL.auth.loginByCreds(em, pw);
+      p.then(u => { if (u) ok(u); else fail(); }).catch(fail);
       return;
     }
 
