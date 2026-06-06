@@ -23,10 +23,15 @@ from app.core import audit
 from app.core.database import get_db
 from app.core.exceptions import NotFoundError, ValidationAppError
 from app.core.pages import LEVELS, PAGE_KEYS, PAGES, PageDef
-from app.core.permissions import default_level_for, effective_levels
+from app.core.permissions import (
+    default_level_for,
+    effective_levels,
+    role_derived_levels,
+    user_explicit_levels,
+)
 from app.core.rbac import Role as RoleEnum
-from app.models.permission import RolePagePermission
-from app.models.user import Role as RoleModel
+from app.models.permission import RolePagePermission, UserPagePermission
+from app.models.user import Role as RoleModel, User as UserModel
 from app.schemas.auth import CurrentUser
 from app.services.crud import request_context
 
@@ -148,3 +153,101 @@ def update_role_matrix(
     )
     db.commit()
     return after
+
+
+class UserPermissionRow(BaseModel):
+    """A user's page-permission breakdown for the admin matrix."""
+
+    id: int
+    full_name: str
+    email: str
+    roles: list[str]
+    role_default: dict[str, str]
+    explicit: dict[str, str]
+    effective: dict[str, str]
+
+
+class UserOverrideUpdate(BaseModel):
+    """Body for PUT /permissions/users/{id}: {page_key: level|"inherit"}."""
+
+    overrides: dict[str, str]
+
+
+def _user_row(db: Session, user: UserModel) -> UserPermissionRow:
+    role_default = role_derived_levels(db, user)
+    explicit = user_explicit_levels(db, user.id)
+    effective = {**role_default, **explicit}
+    return UserPermissionRow(
+        id=user.id,
+        full_name=user.full_name,
+        email=user.email,
+        roles=list(user.role_names),
+        role_default=role_default,
+        explicit=explicit,
+        effective=effective,
+    )
+
+
+@router.get("/permissions/users", response_model=list[UserPermissionRow])
+def get_user_matrix(
+    db: Session = Depends(get_db),
+    _: CurrentUser = Depends(require_page("permissions", "view")),
+) -> list[UserPermissionRow]:
+    users = db.execute(
+        select(UserModel).order_by(UserModel.full_name)
+    ).scalars().all()
+    return [_user_row(db, u) for u in users]
+
+
+@router.put("/permissions/users/{user_id}", response_model=UserPermissionRow)
+def update_user_overrides(
+    user_id: int,
+    body: UserOverrideUpdate,
+    request: Request,
+    db: Session = Depends(get_db),
+    actor: CurrentUser = Depends(require_page("permissions", "edit")),
+) -> UserPermissionRow:
+    user = db.get(UserModel, user_id)
+    if user is None:
+        raise NotFoundError(f"Unknown user: {user_id}.")
+
+    before = _user_row(db, user).model_dump()
+
+    for page_key, level in body.overrides.items():
+        if page_key not in PAGE_KEYS:
+            raise ValidationAppError(f"Unknown page key: {page_key}.")
+        existing = db.execute(
+            select(UserPagePermission).where(
+                UserPagePermission.user_id == user_id,
+                UserPagePermission.page_key == page_key,
+            )
+        ).scalar_one_or_none()
+        if level == "inherit":
+            if existing is not None:
+                db.delete(existing)
+            continue
+        if level not in _VALID_LEVELS:
+            raise ValidationAppError(
+                f"Invalid level '{level}' (allowed: inherit, {', '.join(sorted(_VALID_LEVELS))})."
+            )
+        if existing is None:
+            db.add(UserPagePermission(user_id=user_id, page_key=page_key, level=level))
+        else:
+            existing.level = level
+
+    db.flush()
+    db.refresh(user)
+    after_row = _user_row(db, user)
+    audit.record(
+        db,
+        actor_id=actor.id,
+        actor_email=actor.email,
+        action="update",
+        entity_type="user_page_permission",
+        entity_id=user_id,
+        before=before,
+        after=after_row.model_dump(),
+        **request_context(request),
+    )
+    db.commit()
+    return after_row

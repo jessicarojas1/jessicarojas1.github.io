@@ -26,3 +26,24 @@ class RolePagePermission(Base, TimestampMixin):
     )
     page_key: Mapped[str] = mapped_column(String(64), nullable=False)
     level: Mapped[str] = mapped_column(String(16), default="none", nullable=False)
+
+
+class UserPagePermission(Base, TimestampMixin):
+    """Per-user page-permission override.
+
+    When a row exists for a (user, page) it REPLACES the level the user would
+    otherwise derive from their roles — letting an admin elevate or restrict an
+    individual user. Absence of a row means "inherit from roles".
+    """
+
+    __tablename__ = "user_page_permissions"
+    __table_args__ = (
+        UniqueConstraint("user_id", "page_key", name="uq_user_page"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    page_key: Mapped[str] = mapped_column(String(64), nullable=False)
+    level: Mapped[str] = mapped_column(String(16), default="none", nullable=False)
