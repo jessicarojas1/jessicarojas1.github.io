@@ -1,7 +1,7 @@
 <?php
 class BCPController {
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('bcp.view');
         $plans = Database::fetchAll(
             "SELECT bp.*, u.name AS owner_name,
                (SELECT COUNT(*) FROM bcp_exercises be WHERE be.plan_id = bp.id) AS exercise_count,
@@ -74,7 +74,7 @@ class BCPController {
     }
 
     public function view(string $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('bcp.view');
         $id = (int)$id;
         $plan = Database::fetchOne(
             "SELECT bp.*, u.name AS owner_name FROM bcp_plans bp LEFT JOIN users u ON u.id = bp.owner_id WHERE bp.id = ?",

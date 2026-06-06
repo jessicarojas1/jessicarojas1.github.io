@@ -59,8 +59,14 @@ and Azure Container Apps.
 
 ## Database
 
+> **Shared-database safe.** All objects are created in a dedicated
+> `aeromarkup` Postgres schema, and the app connects with
+> `search_path = aeromarkup,public`. You can therefore point `DATABASE_URL`
+> at a database shared with other apps (e.g. APEX) without colliding on
+> common names like `users` or `projects`.
+
 The full schema for **every table** is in [`db/schema.sql`](db/schema.sql)
-(idempotent; PostgreSQL 13+). Tables:
+(idempotent; PostgreSQL 13+). Tables (all under schema `aeromarkup`):
 
 `users` · `projects` · `drawings` · `layers` · `strokes` · `annotations` ·
 `attachments` · `revisions` · `sync_log`

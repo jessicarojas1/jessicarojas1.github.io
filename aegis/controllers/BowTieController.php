@@ -5,7 +5,7 @@ class BowTieController {
 
     // ─────────────────────────────────────────── view ───────────────────────
     public function view(string $riskId): void {
-        Auth::requireAuth();
+        Auth::requirePermission('risk.bowtie');
 
         $riskId = (int)$riskId;
 

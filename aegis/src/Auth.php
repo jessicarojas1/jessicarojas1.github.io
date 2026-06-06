@@ -2,6 +2,103 @@
 class Auth {
     private static ?array $permCache = null;
 
+    private static array $roleDefaults = [
+        'manager' => [
+            'risk'       => ['view','create','edit','delete','accept','review','treatment','scenarios','bowtie','export'],
+            'compliance' => ['view','create','assess','import','test','gap'],
+            'audit'      => ['view','create','edit','findings','close'],
+            'policy'     => ['view','create','edit','publish','attest'],
+            'incident'   => ['view','create','edit','close','playbook'],
+            'vendor'     => ['view','create','edit','assess','contracts','questionnaire'],
+            'issue'      => ['view','create','edit'],
+            'change'     => ['view','create','edit','approve'],
+            'threat'     => ['view','create','edit'],
+            'awareness'  => ['view','manage'],
+            'asset'      => ['view','create','edit'],
+            'kri'        => ['view','manage','record'],
+            'bcp'        => ['view','edit','exercise'],
+            'ssp'        => ['view','edit'],
+            'report'     => ['view'],
+            'automation' => ['view','manage'],
+            'approval'   => ['view','approve'],
+        ],
+        'analyst' => [
+            'risk'       => ['view','create','edit','review','treatment','scenarios','bowtie'],
+            'compliance' => ['view','assess','test','gap'],
+            'audit'      => ['view','findings'],
+            'policy'     => ['view','attest'],
+            'incident'   => ['view','create','edit'],
+            'vendor'     => ['view','assess'],
+            'issue'      => ['view','create','edit'],
+            'change'     => ['view','create'],
+            'threat'     => ['view','create'],
+            'awareness'  => ['view'],
+            'asset'      => ['view','create'],
+            'kri'        => ['view','record'],
+            'bcp'        => ['view'],
+            'ssp'        => ['view'],
+            'report'     => ['view'],
+            'automation' => ['view'],
+            'approval'   => ['view'],
+        ],
+        'viewer' => [
+            'risk'       => ['view'],
+            'compliance' => ['view'],
+            'audit'      => ['view'],
+            'policy'     => ['view','attest'],
+            'incident'   => ['view'],
+            'vendor'     => ['view'],
+            'issue'      => ['view'],
+            'change'     => ['view'],
+            'threat'     => ['view'],
+            'awareness'  => ['view'],
+            'asset'      => ['view'],
+            'kri'        => ['view'],
+            'bcp'        => ['view'],
+            'ssp'        => ['view'],
+            'report'     => ['view'],
+            'automation' => ['view'],
+            'approval'   => ['view'],
+        ],
+    ];
+
+    private static array $aliases = [
+        'risk.read'        => ['risk.view'],
+        'risk.write'       => ['risk.create','risk.edit','risk.delete','risk.accept','risk.review','risk.treatment','risk.scenarios'],
+        'risk.edit'        => ['risk.edit','risk.delete'],
+        'compliance.read'  => ['compliance.view'],
+        'compliance.write' => ['compliance.create','compliance.assess','compliance.import','compliance.test','compliance.gap'],
+        'compliance.edit'  => ['compliance.assess','compliance.test'],
+        'audit.read'       => ['audit.view'],
+        'audit.write'      => ['audit.create','audit.edit','audit.findings','audit.close'],
+        'audit.edit'       => ['audit.edit','audit.findings'],
+        'policy.read'      => ['policy.view'],
+        'policy.write'     => ['policy.create','policy.edit','policy.publish','policy.attest'],
+        'policy.edit'      => ['policy.edit','policy.publish'],
+        'incident.read'    => ['incident.view'],
+        'incident.write'   => ['incident.create','incident.edit','incident.close','incident.playbook'],
+        'incident.edit'    => ['incident.edit','incident.close'],
+        'vendor.read'      => ['vendor.view'],
+        'vendor.write'     => ['vendor.create','vendor.edit','vendor.assess','vendor.contracts','vendor.questionnaire'],
+        'vendor.edit'      => ['vendor.edit','vendor.assess'],
+        'issue.read'       => ['issue.view'],
+        'issue.write'      => ['issue.create','issue.edit'],
+        'change.read'      => ['change.view'],
+        'change.write'     => ['change.create','change.edit','change.approve'],
+        'threat.read'      => ['threat.view'],
+        'threat.write'     => ['threat.create','threat.edit'],
+        'awareness.read'   => ['awareness.view'],
+        'asset.read'       => ['asset.view'],
+        'asset.write'      => ['asset.create','asset.edit'],
+        'kri.read'         => ['kri.view'],
+        'automation.read'  => ['automation.view'],
+        'automation.write' => ['automation.manage'],
+        'approval.read'    => ['approval.view'],
+        'ssp.read'         => ['ssp.view'],
+        'bcp.read'         => ['bcp.view'],
+        'report.read'      => ['report.view'],
+    ];
+
     public static function user(): ?array {
         return $_SESSION['user'] ?? null;
     }
@@ -18,125 +115,19 @@ class Auth {
         return $_SESSION['user']['role'] ?? 'viewer';
     }
 
-    // Backward-compat aliases: old permission strings → new granular equivalents
-    private static array $aliases = [
-        'risk.read'        => ['risk.view'],
-        'risk.write'       => ['risk.create','risk.edit','risk.delete','risk.accept','risk.review','risk.treatment','risk.scenarios'],
-        'risk.edit'        => ['risk.edit','risk.delete'],
-        'compliance.read'  => ['compliance.view'],
-        'compliance.write' => ['compliance.create','compliance.assess','compliance.import','compliance.test','compliance.gap'],
-        'compliance.edit'  => ['compliance.assess','compliance.create'],
-        'audit.read'       => ['audit.view'],
-        'audit.write'      => ['audit.create','audit.edit','audit.findings','audit.close'],
-        'audit.edit'       => ['audit.edit','audit.close'],
-        'policy.read'      => ['policy.view'],
-        'policy.write'     => ['policy.create','policy.edit','policy.publish'],
-        'policy.edit'      => ['policy.edit','policy.publish'],
-        'incident.read'    => ['incident.view'],
-        'incident.write'   => ['incident.create','incident.edit','incident.close'],
-        'incident.edit'    => ['incident.edit','incident.close'],
-        'vendor.read'      => ['vendor.view'],
-        'vendor.write'     => ['vendor.create','vendor.edit','vendor.assess'],
-        'vendor.edit'      => ['vendor.edit','vendor.assess'],
-        'issue.read'       => ['issue.view'],
-        'issue.write'      => ['issue.create','issue.edit','issue.close'],
-        'issue.edit'       => ['issue.edit','issue.close'],
-    ];
-
     public static function can(string $permission): bool {
         $role = self::role();
         if ($role === 'admin') return true;
 
-        $roleDefaults = [
-            'manager' => [
-                'risk'        => ['view','create','edit','delete','accept','review','treatment','scenarios','bowtie','export'],
-                'compliance'  => ['view','create','assess','import','test','gap','export'],
-                'audit'       => ['view','create','edit','findings','close'],
-                'policy'      => ['view','create','edit','publish','attest'],
-                'incident'    => ['view','create','edit','close','playbook'],
-                'vendor'      => ['view','create','edit','assess','questionnaire','contracts'],
-                'issue'       => ['view','create','edit','close'],
-                'asset'       => ['view','create','edit','delete'],
-                'change'      => ['view','create','edit','approve'],
-                'bcp'         => ['view','edit','exercise'],
-                'threat'      => ['view','create','edit'],
-                'awareness'   => ['view','manage'],
-                'report'      => ['view','export'],
-                'kri'         => ['view','manage','record'],
-                'ssp'         => ['view','edit'],
-                'automation'  => ['view','manage'],
-                'approval'    => ['view','approve'],
-            ],
-            'auditor' => [
-                'risk'        => ['view','review','scenarios','bowtie'],
-                'compliance'  => ['view','assess','test','gap'],
-                'audit'       => ['view','create','edit','findings','close'],
-                'policy'      => ['view','attest'],
-                'incident'    => ['view','create','edit'],
-                'vendor'      => ['view','assess'],
-                'issue'       => ['view','create','edit'],
-                'asset'       => ['view'],
-                'change'      => ['view'],
-                'bcp'         => ['view'],
-                'threat'      => ['view'],
-                'awareness'   => ['view'],
-                'report'      => ['view'],
-                'kri'         => ['view'],
-                'ssp'         => ['view'],
-                'automation'  => ['view'],
-                'approval'    => ['view','approve'],
-            ],
-            'analyst' => [
-                'risk'        => ['view','create','edit','treatment','scenarios','bowtie','export'],
-                'compliance'  => ['view','create','assess','gap'],
-                'audit'       => ['view'],
-                'policy'      => ['view'],
-                'incident'    => ['view','create','edit'],
-                'vendor'      => ['view'],
-                'issue'       => ['view','create','edit'],
-                'asset'       => ['view','create','edit'],
-                'change'      => ['view','create','edit'],
-                'bcp'         => ['view'],
-                'threat'      => ['view','create','edit'],
-                'awareness'   => ['view'],
-                'report'      => ['view','export'],
-                'kri'         => ['view','manage','record'],
-                'ssp'         => ['view'],
-                'automation'  => ['view'],
-                'approval'    => ['view'],
-            ],
-            'viewer' => [
-                'risk'       => ['view'],
-                'compliance' => ['view'],
-                'audit'      => ['view'],
-                'policy'     => ['view'],
-                'incident'   => ['view'],
-                'vendor'     => ['view'],
-                'issue'      => ['view'],
-                'asset'      => ['view'],
-                'change'     => ['view'],
-                'bcp'        => ['view'],
-                'threat'     => ['view'],
-                'awareness'  => ['view'],
-                'report'     => ['view'],
-                'kri'        => ['view'],
-                'ssp'        => ['view'],
-                'automation' => ['view'],
-                'approval'   => ['view'],
-            ],
-        ];
-
-        // Build flat permission list for this role
-        $flat = [];
-        foreach ($roleDefaults[$role] ?? [] as $module => $actions) {
+        // Build flat $granted from role defaults
+        $granted = [];
+        foreach (self::$roleDefaults[$role] ?? [] as $module => $actions) {
             foreach ($actions as $action) {
-                $flat[] = $module . '.' . $action;
+                $granted[] = $module . '.' . $action;
             }
         }
 
-        if (in_array($permission, $flat)) return true;
-
-        // Check explicit DB grants (cached per request)
+        // Load explicit DB grants (cached per request)
         if (self::$permCache === null) {
             self::$permCache = [];
             if (self::check()) {
@@ -150,17 +141,18 @@ class Auth {
             }
         }
 
-        if (in_array($permission, self::$permCache)) return true;
+        // Merge explicit DB grants into the granted set
+        $granted = array_unique(array_merge($granted, self::$permCache));
 
-        // Alias check: if $permission is an old-style alias, check if user has any of the mapped new permissions
+        // If permission is an alias key, check if ANY aliased permission is in $granted
         if (isset(self::$aliases[$permission])) {
-            $allPerms = array_merge($flat, self::$permCache);
-            foreach (self::$aliases[$permission] as $newPerm) {
-                if (in_array($newPerm, $allPerms)) return true;
+            foreach (self::$aliases[$permission] as $aliased) {
+                if (in_array($aliased, $granted)) return true;
             }
+            return false;
         }
 
-        return false;
+        return in_array($permission, $granted);
     }
 
     public static function requireAuth(): void {

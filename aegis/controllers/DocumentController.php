@@ -6,7 +6,7 @@ class DocumentController {
     }
 
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('policy.view');
 
         $filter = Security::sanitizeInput($_GET['status'] ?? '');
         $search = Security::sanitizeInput($_GET['q'] ?? '');
@@ -89,7 +89,7 @@ class DocumentController {
     }
 
     public function view(string $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('policy.view');
         $id  = (int)$id;
         $doc = $this->getDoc($id);
         if (!$doc) { http_response_code(404); require AEGIS_ROOT . '/views/errors/404.php'; return; }

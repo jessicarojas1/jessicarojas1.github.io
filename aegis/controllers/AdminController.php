@@ -441,23 +441,83 @@ class AdminController {
         Auth::requireAdmin();
 
         $modules = [
-            'risk'        => ['view','create','edit','delete','accept','review','treatment','scenarios','bowtie','export'],
-            'compliance'  => ['view','create','assess','import','test','gap','export'],
-            'audit'       => ['view','create','edit','findings','close'],
-            'policy'      => ['view','create','edit','publish','attest'],
-            'incident'    => ['view','create','edit','close','playbook'],
-            'vendor'      => ['view','create','edit','assess','questionnaire','contracts'],
-            'issue'       => ['view','create','edit','close'],
-            'asset'       => ['view','create','edit','delete'],
-            'change'      => ['view','create','edit','approve'],
-            'bcp'         => ['view','edit','exercise'],
-            'threat'      => ['view','create','edit'],
-            'awareness'   => ['view','manage'],
-            'report'      => ['view','export'],
-            'kri'         => ['view','manage','record'],
-            'ssp'         => ['view','edit'],
-            'automation'  => ['view','manage'],
-            'approval'    => ['view','approve'],
+            'risk'       => ['view','create','edit','delete','accept','review','treatment','scenarios','bowtie','export'],
+            'compliance' => ['view','create','assess','import','test','gap'],
+            'audit'      => ['view','create','edit','findings','close'],
+            'policy'     => ['view','create','edit','publish','attest'],
+            'incident'   => ['view','create','edit','close','playbook'],
+            'vendor'     => ['view','create','edit','assess','contracts','questionnaire'],
+            'issue'      => ['view','create','edit'],
+            'change'     => ['view','create','edit','approve'],
+            'threat'     => ['view','create','edit'],
+            'awareness'  => ['view','manage'],
+            'asset'      => ['view','create','edit'],
+            'kri'        => ['view','manage','record'],
+            'bcp'        => ['view','edit','exercise'],
+            'ssp'        => ['view','edit'],
+            'report'     => ['view'],
+            'automation' => ['view','manage'],
+            'approval'   => ['view','approve'],
+        ];
+
+        $roleDefaults = [
+            'manager' => [
+                'risk'       => ['view','create','edit','delete','accept','review','treatment','scenarios','bowtie','export'],
+                'compliance' => ['view','create','assess','import','test','gap'],
+                'audit'      => ['view','create','edit','findings','close'],
+                'policy'     => ['view','create','edit','publish','attest'],
+                'incident'   => ['view','create','edit','close','playbook'],
+                'vendor'     => ['view','create','edit','assess','contracts','questionnaire'],
+                'issue'      => ['view','create','edit'],
+                'change'     => ['view','create','edit','approve'],
+                'threat'     => ['view','create','edit'],
+                'awareness'  => ['view','manage'],
+                'asset'      => ['view','create','edit'],
+                'kri'        => ['view','manage','record'],
+                'bcp'        => ['view','edit','exercise'],
+                'ssp'        => ['view','edit'],
+                'report'     => ['view'],
+                'automation' => ['view','manage'],
+                'approval'   => ['view','approve'],
+            ],
+            'analyst' => [
+                'risk'       => ['view','create','edit','review','treatment','scenarios','bowtie'],
+                'compliance' => ['view','assess','test','gap'],
+                'audit'      => ['view','findings'],
+                'policy'     => ['view','attest'],
+                'incident'   => ['view','create','edit'],
+                'vendor'     => ['view','assess'],
+                'issue'      => ['view','create','edit'],
+                'change'     => ['view','create'],
+                'threat'     => ['view','create'],
+                'awareness'  => ['view'],
+                'asset'      => ['view','create'],
+                'kri'        => ['view','record'],
+                'bcp'        => ['view'],
+                'ssp'        => ['view'],
+                'report'     => ['view'],
+                'automation' => ['view'],
+                'approval'   => ['view'],
+            ],
+            'viewer' => [
+                'risk'       => ['view'],
+                'compliance' => ['view'],
+                'audit'      => ['view'],
+                'policy'     => ['view','attest'],
+                'incident'   => ['view'],
+                'vendor'     => ['view'],
+                'issue'      => ['view'],
+                'change'     => ['view'],
+                'threat'     => ['view'],
+                'awareness'  => ['view'],
+                'asset'      => ['view'],
+                'kri'        => ['view'],
+                'bcp'        => ['view'],
+                'ssp'        => ['view'],
+                'report'     => ['view'],
+                'automation' => ['view'],
+                'approval'   => ['view'],
+            ],
         ];
 
         $users = Database::fetchAll(
@@ -471,110 +531,53 @@ class AdminController {
             $grants[$r['user_id']][$r['module']][$r['permission']] = true;
         }
 
-        // Role default permissions for display
-        $roleDefaults = [
-            'manager' => [
-                'risk'        => ['view','create','edit','delete','accept','review','treatment','scenarios','bowtie','export'],
-                'compliance'  => ['view','create','assess','import','test','gap','export'],
-                'audit'       => ['view','create','edit','findings','close'],
-                'policy'      => ['view','create','edit','publish','attest'],
-                'incident'    => ['view','create','edit','close','playbook'],
-                'vendor'      => ['view','create','edit','assess','questionnaire','contracts'],
-                'issue'       => ['view','create','edit','close'],
-                'asset'       => ['view','create','edit','delete'],
-                'change'      => ['view','create','edit','approve'],
-                'bcp'         => ['view','edit','exercise'],
-                'threat'      => ['view','create','edit'],
-                'awareness'   => ['view','manage'],
-                'report'      => ['view','export'],
-                'kri'         => ['view','manage','record'],
-                'ssp'         => ['view','edit'],
-                'automation'  => ['view','manage'],
-                'approval'    => ['view','approve'],
-            ],
-            'auditor' => [
-                'risk'        => ['view','review','scenarios','bowtie'],
-                'compliance'  => ['view','assess','test','gap'],
-                'audit'       => ['view','create','edit','findings','close'],
-                'policy'      => ['view','attest'],
-                'incident'    => ['view','create','edit'],
-                'vendor'      => ['view','assess'],
-                'issue'       => ['view','create','edit'],
-                'asset'       => ['view'],
-                'change'      => ['view'],
-                'bcp'         => ['view'],
-                'threat'      => ['view'],
-                'awareness'   => ['view'],
-                'report'      => ['view'],
-                'kri'         => ['view'],
-                'ssp'         => ['view'],
-                'automation'  => ['view'],
-                'approval'    => ['view','approve'],
-            ],
-            'analyst' => [
-                'risk'        => ['view','create','edit','treatment','scenarios','bowtie','export'],
-                'compliance'  => ['view','create','assess','gap'],
-                'audit'       => ['view'],
-                'policy'      => ['view'],
-                'incident'    => ['view','create','edit'],
-                'vendor'      => ['view'],
-                'issue'       => ['view','create','edit'],
-                'asset'       => ['view','create','edit'],
-                'change'      => ['view','create','edit'],
-                'bcp'         => ['view'],
-                'threat'      => ['view','create','edit'],
-                'awareness'   => ['view'],
-                'report'      => ['view','export'],
-                'kri'         => ['view','manage','record'],
-                'ssp'         => ['view'],
-                'automation'  => ['view'],
-                'approval'    => ['view'],
-            ],
-            'viewer' => [
-                'risk'       => ['view'],
-                'compliance' => ['view'],
-                'audit'      => ['view'],
-                'policy'     => ['view'],
-                'incident'   => ['view'],
-                'vendor'     => ['view'],
-                'issue'      => ['view'],
-                'asset'      => ['view'],
-                'change'     => ['view'],
-                'bcp'        => ['view'],
-                'threat'     => ['view'],
-                'awareness'  => ['view'],
-                'report'     => ['view'],
-                'kri'        => ['view'],
-                'ssp'        => ['view'],
-                'automation' => ['view'],
-                'approval'   => ['view'],
-            ],
-        ];
-
         require AEGIS_ROOT . '/views/admin/permissions.php';
     }
 
     public function updatePermissions(string $userId): void {
         Auth::requireAdmin();
 
-        $isAjax = ($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'XMLHttpRequest';
-
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
-            http_response_code(403);
-            if ($isAjax) {
+            if (($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'XMLHttpRequest') {
+                http_response_code(403);
                 header('Content-Type: application/json');
-                echo json_encode(['ok' => false, 'message' => 'CSRF validation failed.']);
+                echo json_encode(['ok' => false, 'message' => 'CSRF validation failed']);
+            } else {
+                http_response_code(403);
             }
             return;
         }
 
+        $modules = [
+            'risk'       => ['view','create','edit','delete','accept','review','treatment','scenarios','bowtie','export'],
+            'compliance' => ['view','create','assess','import','test','gap'],
+            'audit'      => ['view','create','edit','findings','close'],
+            'policy'     => ['view','create','edit','publish','attest'],
+            'incident'   => ['view','create','edit','close','playbook'],
+            'vendor'     => ['view','create','edit','assess','contracts','questionnaire'],
+            'issue'      => ['view','create','edit'],
+            'change'     => ['view','create','edit','approve'],
+            'threat'     => ['view','create','edit'],
+            'awareness'  => ['view','manage'],
+            'asset'      => ['view','create','edit'],
+            'kri'        => ['view','manage','record'],
+            'bcp'        => ['view','edit','exercise'],
+            'ssp'        => ['view','edit'],
+            'report'     => ['view'],
+            'automation' => ['view','manage'],
+            'approval'   => ['view','approve'],
+        ];
+
+        $allowedModules = array_keys($modules);
+        $allowedActions = ['view','create','edit','delete','accept','review','treatment','scenarios','bowtie','export','assess','import','test','gap','findings','close','publish','attest','playbook','questionnaire','contracts','approve','exercise','manage','record'];
+
         $userId = (int)$userId;
         $user = Database::fetchOne("SELECT id, role FROM users WHERE id = ? AND role != 'admin'", [$userId]);
         if (!$user) {
-            if ($isAjax) {
+            if (($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'XMLHttpRequest') {
                 http_response_code(422);
                 header('Content-Type: application/json');
-                echo json_encode(['ok' => false, 'message' => 'Invalid user.']);
+                echo json_encode(['ok' => false, 'message' => 'Invalid user']);
             } else {
                 header('Location: /admin/permissions?error=invalid');
             }
@@ -584,25 +587,15 @@ class AdminController {
         // Delete existing explicit grants for this user
         Database::query("DELETE FROM user_permissions WHERE user_id = ?", [$userId]);
 
-        // Insert checked permissions
+        // Insert validated permissions
         $granted = $_POST['permissions'] ?? [];
         if (is_array($granted)) {
-            $allowed = [
-                'risk','compliance','audit','policy','incident','vendor',
-                'issue','asset','change','bcp','threat','awareness',
-                'report','kri','ssp','automation','approval',
-            ];
-            $allowedPerms = [
-                'view','create','edit','delete','accept','review','treatment','scenarios','bowtie','export',
-                'assess','import','test','gap','findings','close','publish','attest','playbook',
-                'questionnaire','contracts','approve','exercise','manage','record',
-            ];
             foreach ($granted as $perm) {
                 $parts = explode('.', $perm, 2);
                 if (count($parts) === 2) {
-                    $module = Security::sanitizeInput($parts[0]);
+                    $module   = Security::sanitizeInput($parts[0]);
                     $permType = Security::sanitizeInput($parts[1]);
-                    if (in_array($module, $allowed) && in_array($permType, $allowedPerms)) {
+                    if (in_array($module, $allowedModules, true) && in_array($permType, $allowedActions, true)) {
                         Database::query(
                             "INSERT INTO user_permissions (user_id, module, permission, granted_by) VALUES (?,?,?,?)
                              ON CONFLICT (user_id, module, permission) DO NOTHING",
@@ -615,12 +608,9 @@ class AdminController {
 
         Auth::log('update_permissions', 'users', $userId);
 
-        if ($isAjax) {
+        if (($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'XMLHttpRequest') {
             header('Content-Type: application/json');
-            echo json_encode([
-                'ok'   => true,
-                'csrf' => Security::generateCsrfToken(),
-            ]);
+            echo json_encode(['ok' => true, 'csrf' => Security::generateCsrfToken()]);
             return;
         }
 

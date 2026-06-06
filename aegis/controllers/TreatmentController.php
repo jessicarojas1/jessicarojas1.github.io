@@ -7,7 +7,7 @@ class TreatmentController {
     // GET /treatment
     // ──────────────────────────────────────────────────
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('risk.treatment');
 
         $plans = Database::fetchAll(
             "SELECT tp.*, r.title AS risk_title, r.id AS risk_id,
@@ -156,7 +156,7 @@ class TreatmentController {
     // GET /treatment/{id}
     // ──────────────────────────────────────────────────
     public function view(string $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('risk.treatment');
         $id = (int)$id;
 
         $plan = Database::fetchOne(
@@ -276,7 +276,7 @@ class TreatmentController {
     // POST /treatment/milestone/{id}/complete
     // ──────────────────────────────────────────────────
     public function completeMilestone(string $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('risk.treatment');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);

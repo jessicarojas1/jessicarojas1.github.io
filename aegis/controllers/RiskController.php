@@ -11,7 +11,7 @@ class RiskController {
 
     // ─────────────────────────────────────────── dashboard ──────────────────
     public function dashboard(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('risk.view');
 
         $summary = Database::fetchOne(
             "SELECT
@@ -146,7 +146,7 @@ class RiskController {
 
     // ─────────────────────────────────────────── index ──────────────────────
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('risk.view');
 
         $status    = Security::sanitizeInput($_GET['status']    ?? '');
         $category  = Security::sanitizeInput($_GET['category']  ?? '');
@@ -316,7 +316,7 @@ class RiskController {
 
     // ─────────────────────────────────────────── view ───────────────────────
     public function view(string $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('risk.view');
         $id = (int)$id;
 
         $risk = Database::fetchOne(
@@ -604,7 +604,7 @@ class RiskController {
 
     // ─────────────────────────────────────────── assessment workflow ─────────
     public function submitReview(string $id): void {
-        Auth::requirePermission('risk.edit');
+        Auth::requirePermission('risk.review');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         $id = (int)$id;
@@ -618,7 +618,7 @@ class RiskController {
     }
 
     public function approve(string $id): void {
-        Auth::requirePermission('risk.edit');
+        Auth::requirePermission('risk.review');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         $id    = (int)$id;
@@ -633,7 +633,7 @@ class RiskController {
     }
 
     public function rejectReview(string $id): void {
-        Auth::requirePermission('risk.edit');
+        Auth::requirePermission('risk.review');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         $id    = (int)$id;
@@ -797,7 +797,7 @@ class RiskController {
 
     // ─────────────────────────────────────────── matrix ─────────────────────
     public function matrix(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('risk.view');
         $matrixConfig = Database::fetchOne("SELECT * FROM risk_matrix_config WHERE is_active=TRUE ORDER BY id LIMIT 1");
         $risks = Database::fetchAll(
             "SELECT r.id, r.title, r.risk_id, r.likelihood, r.impact, r.inherent_score,
@@ -854,7 +854,7 @@ class RiskController {
 
     // ─────────────────────────────────────────── roadmap ────────────────────
     public function roadmap(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('risk.view');
         $users       = Database::fetchAll("SELECT id, name FROM users WHERE is_active=TRUE ORDER BY name");
         $ownerFilter = !empty($_GET['owner'])  ? (int)$_GET['owner']  : null;
         $levelFilter = $_GET['level']  ?? '';

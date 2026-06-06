@@ -1,7 +1,7 @@
 <?php
 class AuditController {
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('audit.view');
 
         $validStatuses = ['planned', 'in_progress', 'completed', 'overdue', 'cancelled'];
         $status = Security::sanitizeInput($_GET['status'] ?? '');
@@ -109,7 +109,7 @@ class AuditController {
     }
 
     public function view(string $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('audit.view');
         $id = (int)$id;
 
         $audit = Database::fetchOne(
@@ -154,7 +154,7 @@ class AuditController {
     }
 
     public function updateItem(string $auditId, string $itemId): void {
-        Auth::requirePermission('audit.findings');
+        Auth::requirePermission('audit.edit');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403); return;

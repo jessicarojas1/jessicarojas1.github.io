@@ -5,7 +5,7 @@ class RiskReviewController {
 
     // ─────────────────────────────────────────── index ───────────────────────
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('risk.review');
 
         $reviews = Database::fetchAll(
             "SELECT rr.*, u.name AS lead_reviewer_name
@@ -143,7 +143,7 @@ class RiskReviewController {
 
     // ─────────────────────────────────────────── view ────────────────────────
     public function view(string $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('risk.review');
         $id = (int)$id;
 
         $review = Database::fetchOne(

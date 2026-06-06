@@ -325,7 +325,7 @@ _RISK_OPEN = [
     RiskStatus.IDENTIFIED, RiskStatus.ASSESSED, RiskStatus.TREATMENT_PLANNED,
     RiskStatus.MITIGATING, RiskStatus.MONITORING,
 ]
-_REVIEW_OPEN = [ReviewStatus.OPEN, ReviewStatus.SCHEDULED, ReviewStatus.IN_PROGRESS]
+_REVIEW_OPEN = [ReviewStatus.SCHEDULED, ReviewStatus.IN_PROGRESS]
 
 
 def my_open_items(db: Session, user_id: int, *, limit: int = 60) -> list[dict]:

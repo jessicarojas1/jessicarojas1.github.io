@@ -14,7 +14,7 @@ class RiskAcceptanceController {
 
     // ── index ─────────────────────────────────────────────────────────────────
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('risk.view');
 
         $acceptances = Database::fetchAll(
             "SELECT ra.*,
