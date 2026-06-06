@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from datetime import date, timedelta
 
-from fastapi import APIRouter, Depends, Query, Request, status
+from fastapi import APIRouter, Depends, File, Query, Request, UploadFile, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -31,8 +31,8 @@ from app.schemas.calibration import (
     EquipmentRead,
     EquipmentUpdate,
 )
-from app.schemas.common import Page
-from app.services import numbering
+from app.schemas.common import ImportResult, Page
+from app.services import csv_import, numbering
 from app.services.crud import (
     apply_sort,
     base_select,
@@ -45,6 +45,30 @@ from app.services.crud import (
 router = APIRouter(prefix="/calibration", tags=["calibration"])
 
 ENTITY = "equipment"
+
+# Importable columns: required + common optional fields from EquipmentCreate.
+_IMPORT_COLUMNS = [
+    "name",
+    "equipment_type",
+    "manufacturer",
+    "model",
+    "serial_number",
+    "location",
+    "status",
+    "calibration_interval_days",
+    "last_calibration_date",
+]
+_IMPORT_EXAMPLE = [
+    "Digital Caliper 0-150mm",
+    "Caliper",
+    "Mitutoyo",
+    "CD-6 ASX",
+    "SN-00123",
+    "Inspection Lab",
+    "active",
+    "365",
+    "2026-01-15",
+]
 
 
 @router.get("/equipment", response_model=Page[EquipmentList])
@@ -126,6 +150,59 @@ def create_equipment(
     db.commit()
     db.refresh(equipment)
     return equipment
+
+
+# ── Bulk CSV import ───────────────────────────────────────────────────────────
+# Declared before /equipment/{equipment_id} so the literal paths are not shadowed.
+
+
+@router.get("/equipment/import/template")
+def equipment_import_template(
+    _: CurrentUser = Depends(require_page("calibration", "edit")),
+):
+    return csv_import.template_response(
+        "equipment_import_template.csv", _IMPORT_COLUMNS, _IMPORT_EXAMPLE
+    )
+
+
+@router.post("/equipment/import", response_model=ImportResult)
+def equipment_import(
+    request: Request,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    actor: CurrentUser = Depends(require_page("calibration", "edit")),
+) -> ImportResult:
+    def build_and_insert(row: dict[str, str]) -> None:
+        data = {col: csv_import.clean(row.get(col)) for col in _IMPORT_COLUMNS}
+        body = EquipmentCreate(**{k: v for k, v in data.items() if v is not None})
+        payload = body.model_dump()
+        last_cal = payload.get("last_calibration_date")
+        equipment = Equipment(
+            **payload,
+            asset_tag=numbering.next_number(db, Equipment, "asset_tag", "GAGE"),
+            created_by=actor.id,
+            updated_by=actor.id,
+        )
+        if last_cal:
+            equipment.next_due_date = last_cal + timedelta(
+                days=equipment.calibration_interval_days
+            )
+        db.add(equipment)
+        db.flush()
+
+    result = csv_import.import_rows(file, build_and_insert)
+    audit.record(
+        db,
+        actor_id=actor.id,
+        actor_email=actor.email,
+        action="import",
+        entity_type=ENTITY,
+        entity_id=None,
+        after={"created": result.created, "failed": result.failed},
+        **request_context(request),
+    )
+    db.commit()
+    return result
 
 
 @router.get("/equipment/{equipment_id}", response_model=EquipmentRead)
