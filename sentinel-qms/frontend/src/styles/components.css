@@ -1064,3 +1064,9 @@ table.data-table {
   min-width: 180px;
   font-size: 0.8125rem;
 }
+
+/* Dashboard "My Open Items" overdue cell */
+.cell-overdue {
+  color: var(--danger);
+  font-weight: 600;
+}

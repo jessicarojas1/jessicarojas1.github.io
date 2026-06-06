@@ -86,6 +86,17 @@ class DashboardSummary(BaseModel):
     findings_by_clause: list[ClauseCount]
 
 
+class MyOpenItem(BaseModel):
+    type: str
+    id: int
+    number: str
+    title: str
+    status: str
+    due_date: str | None = None
+    overdue: bool
+    url: str
+
+
 # Legacy detailed aggregate (still available via the per-domain KPI endpoints).
 class DashboardDetail(BaseModel):
     nonconformances: NcrKpi
