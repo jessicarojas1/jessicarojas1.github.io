@@ -1,7 +1,7 @@
 <?php
 $breadcrumbs = $breadcrumbs ?? [['Reports', null], ['Executive', null]];
 ob_start();
-$scoreColor = $grcScore >= 80 ? '#059669' : ($grcScore >= 60 ? '#d97706' : '#dc2626');
+$scoreColor = $grcScore >= 80 ? 'var(--success)' : ($grcScore >= 60 ? 'var(--warning)' : 'var(--danger)');
 $scoreLabel = $grcScore >= 80 ? 'Good' : ($grcScore >= 60 ? 'Needs Attention' : 'At Risk');
 ?>
 
@@ -32,9 +32,9 @@ $scoreLabel = $grcScore >= 80 ? 'Good' : ($grcScore >= 60 ? 'Needs Attention' : 
     <div style="flex:1;min-width:200px">
       <?php $metrics=[
         ['Compliance',  $compliancePct,  'var(--primary)', '40% weight'],
-        ['Risk Health', $riskHealth,     '#dc2626', '30% weight'],
-        ['Policy',      $policyHealth,   '#0284c7', '20% weight'],
-        ['Audit',       $auditHealth,    '#059669', '10% weight'],
+        ['Risk Health', $riskHealth,     'var(--danger)',  '30% weight'],
+        ['Policy',      $policyHealth,   'var(--info)',    '20% weight'],
+        ['Audit',       $auditHealth,    'var(--success)', '10% weight'],
       ]; ?>
       <?php foreach ($metrics as [$label,$pct,$color,$weight]): ?>
       <div style="margin-bottom:12px">
@@ -49,12 +49,12 @@ $scoreLabel = $grcScore >= 80 ? 'Good' : ($grcScore >= 60 ? 'Needs Attention' : 
       <?php endforeach; ?>
     </div>
     <div style="display:flex;flex-direction:column;gap:12px">
-      <div style="text-align:center;padding:16px 24px;background:<?= $openIncidents > 0 ? '#dc262610' : 'var(--bg-subtle)' ?>;border-radius:10px;border:1px solid <?= $openIncidents > 0 ? '#dc262630' : 'var(--border)' ?>">
-        <div style="font-size:28px;font-weight:800;color:<?= $openIncidents > 0 ? '#dc2626' : '#059669' ?>"><?= $openIncidents ?></div>
+      <div style="text-align:center;padding:16px 24px;background:<?= $openIncidents > 0 ? 'var(--danger-subtle)' : 'var(--bg-subtle)' ?>;border-radius:10px;border:1px solid <?= $openIncidents > 0 ? 'var(--danger-subtle)' : 'var(--border)' ?>">
+        <div style="font-size:28px;font-weight:800;color:<?= $openIncidents > 0 ? 'var(--danger)' : 'var(--success)' ?>"><?= $openIncidents ?></div>
         <div style="font-size:12px;color:var(--text-muted)">Open Incidents</div>
       </div>
-      <div style="text-align:center;padding:16px 24px;background:<?= $upcomingAudits > 0 ? '#d9770610' : 'var(--bg-subtle)' ?>;border-radius:10px;border:1px solid <?= $upcomingAudits > 0 ? '#d9770630' : 'var(--border)' ?>">
-        <div style="font-size:28px;font-weight:800;color:<?= $upcomingAudits > 0 ? '#d97706' : '#059669' ?>"><?= $upcomingAudits ?></div>
+      <div style="text-align:center;padding:16px 24px;background:<?= $upcomingAudits > 0 ? 'var(--warning-subtle)' : 'var(--bg-subtle)' ?>;border-radius:10px;border:1px solid <?= $upcomingAudits > 0 ? 'var(--warning-subtle)' : 'var(--border)' ?>">
+        <div style="font-size:28px;font-weight:800;color:<?= $upcomingAudits > 0 ? 'var(--warning)' : 'var(--success)' ?>"><?= $upcomingAudits ?></div>
         <div style="font-size:12px;color:var(--text-muted)">Audits Due (30d)</div>
       </div>
     </div>
@@ -64,13 +64,13 @@ $scoreLabel = $grcScore >= 80 ? 'Good' : ($grcScore >= 60 ? 'Needs Attention' : 
 <div class="two-col-layout">
   <!-- Top risks -->
   <div class="card">
-    <div class="card-header"><div class="card-header-left"><i class="bi bi-exclamation-triangle-fill" style="color:#dc2626"></i><span class="card-title">Top Risks</span></div></div>
+    <div class="card-header"><div class="card-header-left"><i class="bi bi-exclamation-triangle-fill" style="color:var(--danger)"></i><span class="card-title">Top Risks</span></div></div>
     <div class="card-body" style="padding:0">
       <?php if ($topRisks): ?>
       <table style="width:100%;border-collapse:collapse;font-size:13px">
         <?php foreach ($topRisks as $risk):
           $sc = $risk['inherent_score'];
-          $rc = $sc >= 20 ? '#dc2626' : ($sc >= 15 ? '#d97706' : ($sc >= 8 ? '#0284c7' : '#059669'));
+          $rc = $sc >= 20 ? 'var(--danger)' : ($sc >= 15 ? 'var(--warning)' : ($sc >= 8 ? 'var(--info)' : 'var(--success)'));
         ?>
         <tr style="border-top:1px solid var(--border)">
           <td style="padding:12px 16px">
@@ -91,13 +91,13 @@ $scoreLabel = $grcScore >= 80 ? 'Good' : ($grcScore >= 60 ? 'Needs Attention' : 
 
   <!-- Policies due for review -->
   <div class="card">
-    <div class="card-header"><div class="card-header-left"><i class="bi bi-clock-fill" style="color:#d97706"></i><span class="card-title">Policies Due for Review</span></div></div>
+    <div class="card-header"><div class="card-header-left"><i class="bi bi-clock-fill" style="color:var(--warning)"></i><span class="card-title">Policies Due for Review</span></div></div>
     <div class="card-body" style="padding:0">
       <?php if ($reviewsDue): ?>
       <table style="width:100%;border-collapse:collapse;font-size:13px">
         <?php foreach ($reviewsDue as $pol):
           $daysLeft = (int)round((strtotime($pol['next_review_date']) - time()) / 86400);
-          $rc = $daysLeft < 0 ? '#dc2626' : ($daysLeft <= 7 ? '#d97706' : '#059669');
+          $rc = $daysLeft < 0 ? 'var(--danger)' : ($daysLeft <= 7 ? 'var(--warning)' : 'var(--success)');
         ?>
         <tr style="border-top:1px solid var(--border)">
           <td style="padding:12px 16px">

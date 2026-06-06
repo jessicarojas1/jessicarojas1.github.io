@@ -1,5 +1,6 @@
 <?php
 ob_start();
+$breadcrumbs = [['Admin', '/admin'], ['Modules', null]];
 $groups = [
   'Compliance' => [
     'compliance'      => 'Compliance Packages',

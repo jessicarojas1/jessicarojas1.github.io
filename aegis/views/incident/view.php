@@ -106,7 +106,7 @@ $ageDisplay  = $ageHours >= 48 ? round($ageHours / 24, 1) . ' days' : $ageHours 
           <?php if ($acknowledgedAt): ?>
             Acknowledged: <?= date('M j, Y g:ia', strtotime($acknowledgedAt)) ?>
           <?php else: ?>
-            <span style="color:<?= $ackStatus === 'breached' ? '#dc2626' : 'var(--text-muted)' ?>">
+            <span style="color:<?= $ackStatus === 'breached' ? 'var(--danger)' : 'var(--text-muted)' ?>">
               <?= $ackStatus === 'breached' ? 'OVERDUE — not yet acknowledged' : 'Pending acknowledgement' ?>
             </span>
           <?php endif; ?>
@@ -130,7 +130,7 @@ $ageDisplay  = $ageHours >= 48 ? round($ageHours / 24, 1) . ' days' : $ageHours 
           <?php if ($resolvedAt): ?>
             Resolved: <?= date('M j, Y g:ia', strtotime($resolvedAt)) ?>
           <?php else: ?>
-            <span style="color:<?= $resStatus === 'breached' ? '#dc2626' : 'var(--text-muted)' ?>">
+            <span style="color:<?= $resStatus === 'breached' ? 'var(--danger)' : 'var(--text-muted)' ?>">
               <?= $resStatus === 'breached' ? 'OVERDUE — not yet resolved' : 'Pending resolution' ?>
             </span>
           <?php endif; ?>
@@ -163,14 +163,14 @@ $ageDisplay  = $ageHours >= 48 ? round($ageHours / 24, 1) . ' days' : $ageHours 
 
     <?php if ($incident['affected_systems']): ?>
     <div class="card">
-      <div class="card-header"><div class="card-header-left"><i class="bi bi-hdd-network" style="color:#d97706"></i><span class="card-title">Affected Systems</span></div></div>
+      <div class="card-header"><div class="card-header-left"><i class="bi bi-hdd-network" style="color:var(--warning)"></i><span class="card-title">Affected Systems</span></div></div>
       <div class="card-body"><p style="white-space:pre-wrap;margin:0"><?= Security::h($incident['affected_systems']) ?></p></div>
     </div>
     <?php endif; ?>
 
     <?php if ($incident['impact_description']): ?>
     <div class="card">
-      <div class="card-header"><div class="card-header-left"><i class="bi bi-exclamation-triangle" style="color:#dc2626"></i><span class="card-title">Impact</span></div></div>
+      <div class="card-header"><div class="card-header-left"><i class="bi bi-exclamation-triangle" style="color:var(--danger)"></i><span class="card-title">Impact</span></div></div>
       <div class="card-body"><p style="white-space:pre-wrap;margin:0"><?= Security::h($incident['impact_description']) ?></p></div>
     </div>
     <?php endif; ?>
@@ -184,7 +184,7 @@ $ageDisplay  = $ageHours >= 48 ? round($ageHours / 24, 1) . ' days' : $ageHours 
 
     <?php if ($incident['lessons_learned']): ?>
     <div class="card">
-      <div class="card-header"><div class="card-header-left"><i class="bi bi-lightbulb" style="color:#059669"></i><span class="card-title">Lessons Learned</span></div></div>
+      <div class="card-header"><div class="card-header-left"><i class="bi bi-lightbulb" style="color:var(--success)"></i><span class="card-title">Lessons Learned</span></div></div>
       <div class="card-body"><p style="white-space:pre-wrap;margin:0"><?= Security::h($incident['lessons_learned']) ?></p></div>
     </div>
     <?php endif; ?>
@@ -202,8 +202,8 @@ $ageDisplay  = $ageHours >= 48 ? round($ageHours / 24, 1) . ' days' : $ageHours 
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
                 <strong style="font-size:13px"><?= Security::h($upd['user_name'] ?? 'System') ?></strong>
                 <span style="font-size:11px;color:var(--text-muted)"><?= date('M j, Y g:ia', strtotime($upd['created_at'])) ?></span>
-                <?php $typeColors=['status_change'=>'var(--secondary)','containment'=>'#d97706','resolution'=>'#059669','assignment'=>'#0284c7','comment'=>'#71717a']; ?>
-                <span style="font-size:10px;padding:1px 6px;border-radius:3px;background:<?= ($typeColors[$upd['update_type']]??'#71717a') ?>20;color:<?= ($typeColors[$upd['update_type']]??'#71717a') ?>"><?= ucfirst(str_replace('_',' ',$upd['update_type'])) ?></span>
+                <?php $typeColors=['status_change'=>'var(--secondary)','containment'=>'var(--warning)','resolution'=>'var(--success)','assignment'=>'var(--info)','comment'=>'var(--text-muted)']; ?>
+                <span style="font-size:10px;padding:1px 6px;border-radius:3px;background:<?= ($typeColors[$upd['update_type']]??'var(--text-muted)') ?>20;color:<?= ($typeColors[$upd['update_type']]??'var(--text-muted)') ?>"><?= ucfirst(str_replace('_',' ',$upd['update_type'])) ?></span>
               </div>
               <p style="margin:0;white-space:pre-wrap;font-size:13px"><?= Security::h($upd['content']) ?></p>
             </div>
@@ -315,11 +315,11 @@ $csrfTokenPlaybook = Security::generateCsrfToken();
               </div>
               <div style="display:flex;align-items:center;gap:10px">
                 <?php if ($isComplete): ?>
-                  <span class="status-chip" style="background:#05966920;color:#059669;border:1px solid #05966940">
+                  <span class="status-chip" style="background:var(--success)20;color:var(--success);border:1px solid var(--success)40">
                     <i class="bi bi-check-circle-fill"></i> Complete
                   </span>
                 <?php else: ?>
-                  <span class="status-chip" style="background:#d9770620;color:#d97706;border:1px solid #d9770640">In Progress</span>
+                  <span class="status-chip" style="background:var(--warning)20;color:var(--warning);border:1px solid var(--warning)40">In Progress</span>
                 <?php endif; ?>
                 <span style="font-size:12px;color:var(--text-muted)"><?= $doneSteps ?>/<?= $totalSteps ?> steps</span>
                 <i class="bi bi-chevron-down" id="pb-chevron-<?= (int)$run['id'] ?>" style="color:var(--text-muted);transition:transform .2s"></i>
@@ -328,7 +328,7 @@ $csrfTokenPlaybook = Security::generateCsrfToken();
 
             <!-- Progress bar -->
             <div style="height:4px;background:var(--border);position:relative">
-              <div id="pb-bar-<?= (int)$run['id'] ?>" style="height:100%;background:<?= $isComplete ? '#059669' : 'var(--primary)' ?>;width:<?= $pct ?>%;transition:width .3s"></div>
+              <div id="pb-bar-<?= (int)$run['id'] ?>" style="height:100%;background:<?= $isComplete ? 'var(--success)' : 'var(--primary)' ?>;width:<?= $pct ?>%;transition:width .3s"></div>
             </div>
 
             <!-- Steps checklist (collapsible) -->
@@ -350,8 +350,8 @@ $csrfTokenPlaybook = Security::generateCsrfToken();
                         data-csrf="<?= Security::h($csrfTokenPlaybook) ?>"
                       ></button>
                     <?php elseif ($completed): ?>
-                      <div style="width:20px;height:20px;border-radius:50%;background:#059669;display:flex;align-items:center;justify-content:center">
-                        <i class="bi bi-check" style="color:#fff;font-size:11px"></i>
+                      <div style="width:20px;height:20px;border-radius:50%;background:var(--success);display:flex;align-items:center;justify-content:center">
+                        <i class="bi bi-check" style="color:var(--card-bg);font-size:11px"></i>
                       </div>
                     <?php else: ?>
                       <div style="width:20px;height:20px;border-radius:50%;border:2px solid var(--border)"></div>
@@ -382,7 +382,7 @@ $csrfTokenPlaybook = Security::generateCsrfToken();
                         <span><i class="bi bi-clock"></i> Due within <?= Security::h($dl) ?></span>
                       <?php endif; ?>
                       <?php if ($completed): ?>
-                        <span style="color:#059669"><i class="bi bi-check-circle"></i>
+                        <span style="color:var(--success)"><i class="bi bi-check-circle"></i>
                           Completed by <?= Security::h($step['completed_by_name'] ?? '—') ?>
                           at <?= date('M j, Y g:ia', strtotime($step['completed_at'])) ?>
                         </span>
@@ -481,7 +481,7 @@ $csrfTokenPlaybook = Security::generateCsrfToken();
         var rowEl = document.getElementById('pb-step-row-' + runId + '-' + stepId);
         if (rowEl) {
           var btnWrap = rowEl.querySelector('.pb-complete-btn').parentNode;
-          btnWrap.innerHTML = '<div style="width:20px;height:20px;border-radius:50%;background:#059669;display:flex;align-items:center;justify-content:center"><i class="bi bi-check" style="color:#fff;font-size:11px"></i></div>';
+          btnWrap.innerHTML = '<div style="width:20px;height:20px;border-radius:50%;background:var(--success);display:flex;align-items:center;justify-content:center"><i class="bi bi-check" style="color:var(--card-bg);font-size:11px"></i></div>';
           var titleEl = rowEl.querySelector('div[style*="font-weight"]');
           if (titleEl) {
             titleEl.style.textDecoration = 'line-through';
@@ -495,7 +495,7 @@ $csrfTokenPlaybook = Security::generateCsrfToken();
         var pct = data.total > 0 ? Math.round(data.done / data.total * 100) : 0;
         if (bar) {
           bar.style.width = pct + '%';
-          if (data.done >= data.total) bar.style.background = '#059669';
+          if (data.done >= data.total) bar.style.background = 'var(--success)';
         }
         // Update the done/total text (sibling of chevron)
         var header = bar ? bar.parentNode.previousElementSibling : null;

@@ -88,9 +88,6 @@
 
 <script nonce="<?= Security::nonce() ?>">
 document.getElementById('btnTestRule').addEventListener('click', testRule);
-document.querySelectorAll('[data-confirm]').forEach(function(el) {
-  el.addEventListener('submit', function(e) { if (!confirm(el.getAttribute('data-confirm'))) e.preventDefault(); });
-});
 let csrf = <?= json_encode(Security::generateCsrfToken()) ?>;
 async function testRule() {
   const pre = document.getElementById('testResult');

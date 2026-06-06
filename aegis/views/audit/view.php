@@ -13,7 +13,7 @@ ob_start();
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px">
       <h1 class="page-title" style="margin:0"><?= Security::h($audit['name']) ?></h1>
       <?php if (!empty($audit['audit_number'])): ?>
-        <span class="badge" style="background:var(--info-subtle);color:var(--info);border:1px solid #bfdbfe;font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($audit['audit_number']) ?></span>
+        <span class="badge" style="background:var(--info-subtle);color:var(--info);border:1px solid var(--info)40;font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($audit['audit_number']) ?></span>
       <?php endif; ?>
     </div>
     <p class="page-subtitle">

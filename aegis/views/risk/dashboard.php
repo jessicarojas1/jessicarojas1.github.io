@@ -333,10 +333,10 @@ if (!empty($trendData)) {
     align-items: center;
     gap: 8px;
     padding: 12px 14px;
-    background: #f0fdf4;
-    border: 1px solid #86efac;
+    background: var(--success-subtle);
+    border: 1px solid var(--success)40;
     border-radius: 8px;
-    color: #15803d;
+    color: var(--success);
     font-size: 13px;
     font-weight: 600;
 }
@@ -371,30 +371,30 @@ if (!empty($trendData)) {
   </div>
 
   <!-- Critical -->
-  <div class="rdash-kpi" style="border-top:3px solid #ef4444">
-    <span class="kpi-icon" style="color:#ef4444"><i class="bi bi-exclamation-octagon-fill"></i></span>
-    <span class="kpi-num" style="color:#ef4444"><?= (int)($summary['critical'] ?? 0) ?></span>
+  <div class="rdash-kpi" style="border-top:3px solid var(--danger)">
+    <span class="kpi-icon" style="color:var(--danger)"><i class="bi bi-exclamation-octagon-fill"></i></span>
+    <span class="kpi-num" style="color:var(--danger)"><?= (int)($summary['critical'] ?? 0) ?></span>
     <span class="kpi-lbl">Critical</span>
   </div>
 
   <!-- Open -->
-  <div class="rdash-kpi" style="border-top:3px solid #3b82f6">
-    <span class="kpi-icon" style="color:#3b82f6"><i class="bi bi-circle-fill"></i></span>
-    <span class="kpi-num" style="color:#3b82f6"><?= (int)($summary['open'] ?? 0) ?></span>
+  <div class="rdash-kpi" style="border-top:3px solid var(--info)">
+    <span class="kpi-icon" style="color:var(--info)"><i class="bi bi-circle-fill"></i></span>
+    <span class="kpi-num" style="color:var(--info)"><?= (int)($summary['open'] ?? 0) ?></span>
     <span class="kpi-lbl">Open</span>
   </div>
 
   <!-- In Review -->
-  <div class="rdash-kpi" style="border-top:3px solid #f97316">
-    <span class="kpi-icon" style="color:#f97316"><i class="bi bi-eye-fill"></i></span>
-    <span class="kpi-num" style="color:#f97316"><?= (int)($summary['in_review'] ?? 0) ?></span>
+  <div class="rdash-kpi" style="border-top:3px solid var(--orange)">
+    <span class="kpi-icon" style="color:var(--orange)"><i class="bi bi-eye-fill"></i></span>
+    <span class="kpi-num" style="color:var(--orange)"><?= (int)($summary['in_review'] ?? 0) ?></span>
     <span class="kpi-lbl">In Review</span>
   </div>
 
   <!-- Overdue Reviews -->
-  <div class="rdash-kpi" style="border-top:3px solid #ef4444">
-    <span class="kpi-icon" style="color:#ef4444"><i class="bi bi-alarm-fill"></i></span>
-    <span class="kpi-num" style="color:#ef4444">
+  <div class="rdash-kpi" style="border-top:3px solid var(--danger)">
+    <span class="kpi-icon" style="color:var(--danger)"><i class="bi bi-alarm-fill"></i></span>
+    <span class="kpi-num" style="color:var(--danger)">
       <?php if (($summary['overdue_reviews'] ?? 0) > 0): ?>
         <i class="bi bi-exclamation-triangle-fill" style="font-size:18px;vertical-align:middle"></i>
       <?php endif; ?>
@@ -404,23 +404,23 @@ if (!empty($trendData)) {
   </div>
 
   <!-- Approved -->
-  <div class="rdash-kpi" style="border-top:3px solid #22c55e">
-    <span class="kpi-icon" style="color:#22c55e"><i class="bi bi-patch-check-fill"></i></span>
-    <span class="kpi-num" style="color:#22c55e"><?= (int)($summary['approved'] ?? 0) ?></span>
+  <div class="rdash-kpi" style="border-top:3px solid var(--primary-light)">
+    <span class="kpi-icon" style="color:var(--primary-light)"><i class="bi bi-patch-check-fill"></i></span>
+    <span class="kpi-num" style="color:var(--primary-light)"><?= (int)($summary['approved'] ?? 0) ?></span>
     <span class="kpi-lbl">Approved</span>
   </div>
 
   <!-- Actions Overdue -->
-  <div class="rdash-kpi" style="border-top:3px solid #ef4444">
-    <span class="kpi-icon" style="color:#ef4444"><i class="bi bi-lightning-fill"></i></span>
-    <span class="kpi-num" style="color:<?= $actionsOverdue > 0 ? '#ef4444' : 'inherit' ?>"><?= $actionsOverdue ?></span>
+  <div class="rdash-kpi" style="border-top:3px solid var(--danger)">
+    <span class="kpi-icon" style="color:var(--danger)"><i class="bi bi-lightning-fill"></i></span>
+    <span class="kpi-num" style="color:<?= $actionsOverdue > 0 ? 'var(--danger)' : 'inherit' ?>"><?= $actionsOverdue ?></span>
     <span class="kpi-lbl">Actions Overdue</span>
   </div>
 
   <!-- No Controls -->
-  <div class="rdash-kpi" style="border-top:3px solid #f59e0b">
-    <span class="kpi-icon" style="color:#f59e0b"><i class="bi bi-shield-x"></i></span>
-    <span class="kpi-num" style="color:<?= $uncontrolledCount > 0 ? '#f59e0b' : 'inherit' ?>"><?= $uncontrolledCount ?></span>
+  <div class="rdash-kpi" style="border-top:3px solid var(--warning)">
+    <span class="kpi-icon" style="color:var(--warning)"><i class="bi bi-shield-x"></i></span>
+    <span class="kpi-num" style="color:<?= $uncontrolledCount > 0 ? 'var(--warning)' : 'inherit' ?>"><?= $uncontrolledCount ?></span>
     <span class="kpi-lbl">No Controls</span>
   </div>
 
@@ -452,7 +452,7 @@ if (!empty($trendData)) {
     <!-- b) Heat Map -->
     <div class="card">
       <div class="rdash-card-title">
-        <i class="bi bi-grid-3x3-gap-fill" style="color:#f97316"></i>
+        <i class="bi bi-grid-3x3-gap-fill" style="color:var(--orange)"></i>
         Risk Heat Map
         <span style="margin-left:auto;font-size:11px;font-weight:500;color:var(--text-muted)">Likelihood × Impact (click cell to filter)</span>
       </div>
@@ -511,10 +511,10 @@ if (!empty($trendData)) {
 
         <!-- Legend -->
         <div style="display:flex;gap:12px;margin-top:14px;flex-wrap:wrap;font-size:11px;font-weight:600">
-          <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;border-radius:3px;background:#f0fdf4;border:1.5px solid #86efac;display:inline-block"></span>Low (≤4)</span>
-          <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;border-radius:3px;background:#fefce8;border:1.5px solid #fde68a;display:inline-block"></span>Medium (5–9)</span>
-          <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;border-radius:3px;background:#ffedd5;border:1.5px solid #fdba74;display:inline-block"></span>High (10–14)</span>
-          <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;border-radius:3px;background:#fee2e2;border:1.5px solid #fca5a5;display:inline-block"></span>Critical (&gt;14)</span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;border-radius:3px;background:var(--success-subtle);border:1.5px solid var(--success)40;display:inline-block"></span>Low (≤4)</span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;border-radius:3px;background:var(--warning-subtle);border:1.5px solid var(--warning)40;display:inline-block"></span>Medium (5–9)</span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;border-radius:3px;background:var(--bg-subtle);border:1.5px solid var(--orange)40;display:inline-block"></span>High (10–14)</span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;border-radius:3px;background:var(--danger-subtle);border:1.5px solid var(--danger)40;display:inline-block"></span>Critical (&gt;14)</span>
         </div>
       </div><!-- /heatmap-wrap -->
     </div><!-- /heat map card -->
@@ -527,11 +527,11 @@ if (!empty($trendData)) {
     <!-- c) Top 10 Risks -->
     <div class="card">
       <div class="rdash-card-title">
-        <i class="bi bi-trophy-fill" style="color:#ef4444"></i>
+        <i class="bi bi-trophy-fill" style="color:var(--danger)"></i>
         Top 10 Risks by Score
       </div>
       <?php if (empty($topRisks)): ?>
-        <div class="rdash-empty"><i class="bi bi-shield-check" style="color:#22c55e"></i>No risks recorded yet.</div>
+        <div class="rdash-empty"><i class="bi bi-shield-check" style="color:var(--primary-light)"></i>No risks recorded yet.</div>
       <?php else: ?>
         <table class="rdash-compact-table">
           <thead>
@@ -620,7 +620,7 @@ if (!empty($trendData)) {
               <?= Security::h($rv['title']) ?>
             </a>
             <div style="font-size:11px;color:var(--text-muted);margin-top:2px">
-              <span style="color:<?= $overdue ? '#b91c1c' : 'var(--text-muted)' ?>;font-weight:<?= $overdue ? '700' : '400' ?>">
+              <span style="color:<?= $overdue ? 'var(--danger)' : 'var(--text-muted)' ?>;font-weight:<?= $overdue ? '700' : '400' ?>">
                 <?= Security::h($dayLabel) ?>
               </span>
               · <?= Security::h($rv['owner_name'] ?? 'Unassigned') ?>
@@ -647,7 +647,7 @@ if (!empty($trendData)) {
   <!-- e) Exceeding Risk Appetite -->
   <div class="card">
     <div class="rdash-card-title">
-      <i class="bi bi-speedometer2" style="color:#ef4444"></i>
+      <i class="bi bi-speedometer2" style="color:var(--danger)"></i>
       Exceeding Risk Appetite
     </div>
     <?php if (empty($exceedingAppetite)): ?>
@@ -687,10 +687,10 @@ if (!empty($trendData)) {
   <!-- f) Uncontrolled Risks -->
   <div class="card">
     <div class="rdash-card-title">
-      <i class="bi bi-shield-x" style="color:#f59e0b"></i>
+      <i class="bi bi-shield-x" style="color:var(--warning)"></i>
       Uncontrolled Risks
       <?php if ($uncontrolledCount > 0): ?>
-        <span style="margin-left:auto;background:#fef3c7;color:var(--warning);font-size:11px;padding:2px 8px;border-radius:20px;border:1px solid #fde68a"><?= $uncontrolledCount ?> risks</span>
+        <span style="margin-left:auto;background:var(--warning-subtle);color:var(--warning);font-size:11px;padding:2px 8px;border-radius:20px;border:1px solid var(--warning)40"><?= $uncontrolledCount ?> risks</span>
       <?php endif; ?>
     </div>
     <?php if (empty($uncontrolled)): ?>
@@ -716,7 +716,7 @@ if (!empty($trendData)) {
           <?php endif; ?>
         </div>
         <?php if (Auth::can('risk.write')): ?>
-        <a href="/risk/<?= (int)$uc['id'] ?>" style="flex-shrink:0;font-size:11px;font-weight:600;color:var(--primary);text-decoration:none;white-space:nowrap;padding:3px 8px;border-radius:6px;border:1px solid #c7d2fe;background:rgba(11,97,4,.06)">
+        <a href="/risk/<?= (int)$uc['id'] ?>" style="flex-shrink:0;font-size:11px;font-weight:600;color:var(--primary);text-decoration:none;white-space:nowrap;padding:3px 8px;border-radius:6px;border:1px solid var(--primary)40;background:rgba(11,97,4,.06)">
           <i class="bi bi-link-45deg"></i> Link Controls
         </a>
         <?php endif; ?>
@@ -784,7 +784,7 @@ if (!empty($trendData)) {
     </div>
 
     <?php if ($abOverdue > 0): ?>
-    <div style="margin-top:12px;display:flex;align-items:center;gap:6px;padding:8px 10px;background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;font-size:12px;font-weight:600;color:var(--danger)">
+    <div style="margin-top:12px;display:flex;align-items:center;gap:6px;padding:8px 10px;background:var(--danger-subtle);border:1px solid var(--danger)40;border-radius:8px;font-size:12px;font-weight:600;color:var(--danger)">
       <i class="bi bi-exclamation-circle-fill"></i>
       <?= $abOverdue ?> action<?= $abOverdue !== 1 ? 's' : '' ?> overdue — immediate attention required.
     </div>

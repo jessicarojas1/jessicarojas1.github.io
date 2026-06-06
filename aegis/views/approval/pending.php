@@ -1,4 +1,7 @@
 <?php
+$pageTitle    = 'Pending Approvals';
+$activeModule = 'approval';
+$breadcrumbs  = [['Approvals', '/approval'], ['Pending', null]];
 $statusColors = ['pending' => '#f59e0b', 'approved' => '#22c55e', 'rejected' => '#ef4444'];
 ?>
 <div class="page-header">
@@ -53,7 +56,7 @@ $statusColors = ['pending' => '#f59e0b', 'approved' => '#22c55e', 'rejected' => 
             <?php else: ?>—<?php endif; ?>
           </td>
           <td>
-            <span class="badge" style="background:<?= $statusColors[$r['status']] ?? '#6b7280' ?>20;color:<?= $statusColors[$r['status']] ?? '#6b7280' ?>">
+            <span class="badge" style="background:<?= $statusColors[$r['status']] ?? 'var(--text-muted)' ?>20;color:<?= $statusColors[$r['status']] ?? 'var(--text-muted)' ?>">
               <?= ucfirst(Security::h($r['status'])) ?>
             </span>
           </td>

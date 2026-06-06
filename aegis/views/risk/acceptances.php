@@ -67,13 +67,13 @@ if ($filterStatus !== '') {
     </div>
   </div>
 
-  <div class="card" style="border-left:4px solid <?= $expiringSoon > 0 ? '#f59e0b' : '#a1a1aa' ?>;">
+  <div class="card" style="border-left:4px solid <?= $expiringSoon > 0 ? 'var(--warning)' : 'var(--text-muted)' ?>;">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
       <div style="width:44px;height:44px;border-radius:10px;background:<?= $expiringSoon > 0 ? 'var(--warning-subtle)' : 'var(--bg-secondary)' ?>;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-        <i class="bi bi-alarm-fill" style="font-size:20px;color:<?= $expiringSoon > 0 ? '#f59e0b' : '#a1a1aa' ?>;"></i>
+        <i class="bi bi-alarm-fill" style="font-size:20px;color:<?= $expiringSoon > 0 ? 'var(--warning)' : 'var(--text-muted)' ?>;"></i>
       </div>
       <div>
-        <div style="font-size:26px;font-weight:700;line-height:1;color:<?= $expiringSoon > 0 ? '#f59e0b' : '#a1a1aa' ?>;"><?= $expiringSoon ?></div>
+        <div style="font-size:26px;font-weight:700;line-height:1;color:<?= $expiringSoon > 0 ? 'var(--warning)' : 'var(--text-muted)' ?>;"><?= $expiringSoon ?></div>
         <div style="font-size:12px;color:var(--text-muted);margin-top:3px;">Expiring &lt;30 Days</div>
       </div>
     </div>
@@ -279,7 +279,7 @@ if ($filterStatus !== '') {
         <!-- Revoke inline form -->
         <?php if ($acc['status'] === 'active' && Auth::can('risk.write')): ?>
         <tr id="revoke-<?= (int)$acc['id'] ?>" style="display:none;">
-          <td colspan="8" style="background:var(--danger-subtle);padding:14px 20px 16px;border-top:1px solid #fca5a580;">
+          <td colspan="8" style="background:var(--danger-subtle);padding:14px 20px 16px;border-top:1px solid var(--danger)40;">
             <form method="POST" action="/risk-acceptances/<?= (int)$acc['id'] ?>/revoke"
                   data-confirm="Are you sure you want to revoke this acceptance certificate? This action cannot be undone.">
               <?= Security::csrfField() ?>
@@ -289,7 +289,7 @@ if ($filterStatus !== '') {
                     <i class="bi bi-exclamation-triangle-fill"></i> Revocation Reason
                   </label>
                   <textarea name="revocation_reason" class="form-control" rows="2"
-                            style="border-color:#fca5a5;"
+                            style="border-color:var(--danger)60;"
                             placeholder="Explain why this acceptance is being revoked…"></textarea>
                 </div>
                 <div style="display:flex;gap:8px;flex-shrink:0;">

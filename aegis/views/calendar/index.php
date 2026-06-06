@@ -1,4 +1,5 @@
 <?php
+$breadcrumbs = $breadcrumbs ?? [['Calendar', null]];
 // Build prev/next month links
 $prevMonth = $month - 1;
 $prevYear  = $year;
@@ -10,10 +11,10 @@ if ($nextMonth > 12) { $nextMonth = 1; $nextYear++; }
 $monthName = date('F', mktime(0, 0, 0, $month, 1, $year));
 
 $typeColors = [
-    'control'      => '#ef4444',
-    'policy_review'=> '#3b82f6',
+    'control'      => 'var(--danger)',
+    'policy_review'=> 'var(--info)',
     'audit'        => 'var(--primary)',
-    'treatment'    => '#f97316',
+    'treatment'    => 'var(--orange)',
 ];
 $typeLabels = [
     'control'       => 'Control Due',

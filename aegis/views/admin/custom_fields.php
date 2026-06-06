@@ -2,6 +2,7 @@
 $entityTypes = ['risk','policy','audit','incident','vendor','control','asset'];
 $activeTab   = Security::sanitizeInput($_GET['tab'] ?? 'risk');
 if (!in_array($activeTab, $entityTypes, true)) $activeTab = 'risk';
+$breadcrumbs = [['Admin', '/admin'], ['Custom Fields', null]];
 ?>
 
 <?php if (!empty($_SESSION['flash_success'])): ?><div class="alert-box success"><i class="bi bi-check-circle-fill"></i> <?= Security::h($_SESSION['flash_success']) ?></div><?php unset($_SESSION['flash_success']); endif; ?>

@@ -150,11 +150,11 @@ $actual  = $project['budget_actual']  !== null ? (float)$project['budget_actual'
 </div>
 
 <!-- Edit Modal -->
-<div id="editModal" style="display:none;position:fixed;inset:0;z-index:1000;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);">
-  <div style="background:var(--card-bg);border-radius:12px;padding:28px;width:560px;max-height:90vh;overflow-y:auto;max-width:95vw;">
+<div id="editModal" class="um-overlay">
+  <div class="um-dialog" style="width:560px;max-height:90vh;overflow-y:auto;max-width:95vw;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
       <h3 style="margin:0;">Edit Project</h3>
-      <button id="btnCloseEdit" style="background:none;border:none;cursor:pointer;font-size:1.25rem;"><i class="bi bi-x-lg"></i></button>
+      <button data-close-modal="editModal" style="background:none;border:none;cursor:pointer;font-size:1.25rem;"><i class="bi bi-x-lg"></i></button>
     </div>
     <form method="POST" action="/projects/<?= (int)$project['id'] ?>/update">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
@@ -192,7 +192,7 @@ $actual  = $project['budget_actual']  !== null ? (float)$project['budget_actual'
         </div>
         <div style="display:flex;gap:10px;margin-top:8px;">
           <button type="submit" class="btn btn-primary">Save Changes</button>
-          <button type="button" id="btnCancelEdit" class="btn btn-secondary">Cancel</button>
+          <button type="button" data-close-modal="editModal" class="btn btn-secondary">Cancel</button>
         </div>
       </div>
     </form>
@@ -200,11 +200,11 @@ $actual  = $project['budget_actual']  !== null ? (float)$project['budget_actual'
 </div>
 
 <!-- Add Task Modal -->
-<div id="addTaskModal" style="display:none;position:fixed;inset:0;z-index:1000;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);">
-  <div style="background:var(--card-bg);border-radius:12px;padding:28px;width:480px;max-width:95vw;">
+<div id="addTaskModal" class="um-overlay">
+  <div class="um-dialog" style="width:480px;max-width:95vw;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
       <h3 style="margin:0;">Add Task</h3>
-      <button id="btnCloseAddTask" style="background:none;border:none;cursor:pointer;font-size:1.25rem;"><i class="bi bi-x-lg"></i></button>
+      <button data-close-modal="addTaskModal" style="background:none;border:none;cursor:pointer;font-size:1.25rem;"><i class="bi bi-x-lg"></i></button>
     </div>
     <form method="POST" action="/projects/<?= (int)$project['id'] ?>/task/add">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
@@ -223,18 +223,18 @@ $actual  = $project['budget_actual']  !== null ? (float)$project['budget_actual'
       </div>
       <div style="display:flex;gap:10px;margin-top:16px;">
         <button type="submit" class="btn btn-primary">Add Task</button>
-        <button type="button" id="btnCancelAddTask" class="btn btn-secondary">Cancel</button>
+        <button type="button" data-close-modal="addTaskModal" class="btn btn-secondary">Cancel</button>
       </div>
     </form>
   </div>
 </div>
 
 <!-- Add Link Modal -->
-<div id="addLinkModal" style="display:none;position:fixed;inset:0;z-index:1000;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);">
-  <div style="background:var(--card-bg);border-radius:12px;padding:28px;width:400px;max-width:95vw;">
+<div id="addLinkModal" class="um-overlay">
+  <div class="um-dialog" style="width:400px;max-width:95vw;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
       <h3 style="margin:0;">Link Item</h3>
-      <button id="btnCloseAddLink" style="background:none;border:none;cursor:pointer;font-size:1.25rem;"><i class="bi bi-x-lg"></i></button>
+      <button data-close-modal="addLinkModal" style="background:none;border:none;cursor:pointer;font-size:1.25rem;"><i class="bi bi-x-lg"></i></button>
     </div>
     <form method="POST" action="/projects/<?= (int)$project['id'] ?>/link/add">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
@@ -249,32 +249,8 @@ $actual  = $project['budget_actual']  !== null ? (float)$project['budget_actual'
       <div class="form-group"><label class="form-label">Entity ID <span style="color:var(--danger)">*</span></label><input type="number" name="entity_id" class="form-control" required min="1" placeholder="Enter numeric ID"></div>
       <div style="display:flex;gap:10px;margin-top:16px;">
         <button type="submit" class="btn btn-primary">Link</button>
-        <button type="button" id="btnCancelAddLink" class="btn btn-secondary">Cancel</button>
+        <button type="button" data-close-modal="addLinkModal" class="btn btn-secondary">Cancel</button>
       </div>
     </form>
   </div>
 </div>
-<script nonce="<?= Security::nonce() ?>">
-(function() {
-  var editModal    = document.getElementById('editModal');
-  var taskModal    = document.getElementById('addTaskModal');
-  var linkModal    = document.getElementById('addLinkModal');
-  function open(m)  { if (m) m.style.display = 'flex'; }
-  function close(m) { if (m) m.style.display = 'none'; }
-  document.getElementById('btnOpenEdit').addEventListener('click', function() { open(editModal); });
-  document.getElementById('btnCloseEdit').addEventListener('click', function() { close(editModal); });
-  document.getElementById('btnCancelEdit').addEventListener('click', function() { close(editModal); });
-  document.getElementById('btnOpenAddTask').addEventListener('click', function() { open(taskModal); });
-  document.getElementById('btnCloseAddTask').addEventListener('click', function() { close(taskModal); });
-  document.getElementById('btnCancelAddTask').addEventListener('click', function() { close(taskModal); });
-  document.getElementById('btnOpenAddLink').addEventListener('click', function() { open(linkModal); });
-  document.getElementById('btnCloseAddLink').addEventListener('click', function() { close(linkModal); });
-  document.getElementById('btnCancelAddLink').addEventListener('click', function() { close(linkModal); });
-  document.querySelectorAll('form[data-confirm]').forEach(function(f) {
-    f.addEventListener('submit', function(e) { if (!confirm(f.dataset.confirm)) e.preventDefault(); });
-  });
-  document.querySelectorAll('button[data-confirm]').forEach(function(btn) {
-    btn.addEventListener('click', function(e) { if (!confirm(btn.dataset.confirm)) e.preventDefault(); });
-  });
-})();
-</script>

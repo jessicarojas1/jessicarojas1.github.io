@@ -476,8 +476,8 @@ ob_start();
           foreach ($responseActions as $ra) { if (isset($actionCounts[$ra['status']])) $actionCounts[$ra['status']]++; }
           ?>
           <?php if ($actionCounts['in_progress']): ?><span style="font-size:11px;background:var(--info-subtle);color:var(--info);padding:2px 8px;border-radius:20px"><?= $actionCounts['in_progress'] ?> active</span><?php endif; ?>
-          <?php if ($actionCounts['completed']): ?><span style="font-size:11px;background:#d1fae5;color:var(--success);padding:2px 8px;border-radius:20px"><?= $actionCounts['completed'] ?> done</span><?php endif; ?>
-          <?php if ($actionCounts['planned']): ?><span style="font-size:11px;background:#fef3c7;color:var(--warning);padding:2px 8px;border-radius:20px"><?= $actionCounts['planned'] ?> planned</span><?php endif; ?>
+          <?php if ($actionCounts['completed']): ?><span style="font-size:11px;background:var(--success-subtle);color:var(--success);padding:2px 8px;border-radius:20px"><?= $actionCounts['completed'] ?> done</span><?php endif; ?>
+          <?php if ($actionCounts['planned']): ?><span style="font-size:11px;background:var(--warning-subtle);color:var(--warning);padding:2px 8px;border-radius:20px"><?= $actionCounts['planned'] ?> planned</span><?php endif; ?>
         </div>
       </div>
       <?php if (!empty($responseActions)): ?>
@@ -794,7 +794,7 @@ ob_start();
             <a href="/risk-acceptances/<?= (int)$activeAcceptance['id'] ?>/renew" class="btn btn-ghost btn-sm" style="font-size:11px"><i class="bi bi-arrow-repeat"></i> Renew</a>
             <form method="POST" action="/risk-acceptances/<?= (int)$activeAcceptance['id'] ?>/revoke" style="margin:0" data-confirm="Revoke this acceptance certificate?">
               <?= Security::csrfField() ?>
-              <button type="submit" class="btn btn-ghost btn-sm" style="font-size:11px;color:#ef4444"><i class="bi bi-x-circle"></i> Revoke</button>
+              <button type="submit" class="btn btn-ghost btn-sm" style="font-size:11px;color:var(--danger)"><i class="bi bi-x-circle"></i> Revoke</button>
             </form>
           </div>
         <?php else: ?>
@@ -847,7 +847,7 @@ ob_start();
         </a>
         <?php if ($controlEffSuggestion && ($resScore > $controlEffSuggestion['score'])): ?>
         <div style="background:var(--bg-secondary);border-radius:8px;padding:10px;border:1px solid var(--border)">
-          <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px"><i class="bi bi-lightbulb-fill" style="color:#f59e0b"></i> Residual Score Suggestion</div>
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px"><i class="bi bi-lightbulb-fill" style="color:var(--warning)"></i> Residual Score Suggestion</div>
           <div style="font-size:12px">Based on <strong><?= ucfirst($controlEffSuggestion['effectiveness']) ?></strong> control effectiveness,
             consider setting residual to <strong><?= $controlEffSuggestion['score'] ?></strong>
             (L<?= $controlEffSuggestion['likelihood'] ?>×I<?= $controlEffSuggestion['impact'] ?>)</div>

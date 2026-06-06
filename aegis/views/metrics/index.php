@@ -15,7 +15,7 @@ $kpiOpenRisks  = (int)($L['open_risks']     ?? 0);
 $kpiOpenInc    = (int)($L['open_incidents'] ?? 0);
 
 function metricColor(float $pct): string {
-    return $pct >= 80 ? '#059669' : ($pct >= 60 ? '#d97706' : '#dc2626');
+    return $pct >= 80 ? 'var(--success)' : ($pct >= 60 ? 'var(--warning)' : 'var(--danger)');
 }
 ?>
 
@@ -39,8 +39,8 @@ function metricColor(float $pct): string {
     ['Compliance',     $kpiComp   . '%', 'bi-bar-chart-fill',           metricColor((float)$kpiComp),   null],
     ['Risk Health',    $kpiRisk   . '%', 'bi-heart-pulse-fill',         metricColor((float)$kpiRisk),   null],
     ['Policy Health',  $kpiPolicy . '%', 'bi-file-earmark-check-fill',  metricColor((float)$kpiPolicy), null],
-    ['Open Risks',     $kpiOpenRisks,    'bi-exclamation-triangle-fill','#f97316',                      '/risk'],
-    ['Open Incidents', $kpiOpenInc,      'bi-fire',                     '#ef4444',                      '/incidents'],
+    ['Open Risks',     $kpiOpenRisks,    'bi-exclamation-triangle-fill','var(--orange)',                 '/risk'],
+    ['Open Incidents', $kpiOpenInc,      'bi-fire',                     'var(--danger)',                 '/incidents'],
   ];
   foreach ($kpis as [$label, $val, $icon, $color, $href]):
     $pctVal = is_string($val) && str_ends_with($val, '%') ? (float)$val : null;
@@ -80,7 +80,7 @@ function metricColor(float $pct): string {
     <tbody>
       <?php foreach ($frameworks as $fw):
         $pct = $fw['total_controls'] > 0 ? round($fw['compliant'] / $fw['total_controls'] * 100) : 0;
-        $barColor = $pct >= 80 ? '#22c55e' : ($pct >= 50 ? '#f59e0b' : '#ef4444');
+        $barColor = $pct >= 80 ? 'var(--primary-light)' : ($pct >= 50 ? 'var(--warning)' : 'var(--danger)');
       ?>
         <tr>
           <td class="fw-600"><?= Security::h($fw['name']) ?></td>
@@ -108,7 +108,7 @@ function metricColor(float $pct): string {
 <div class="card" style="margin-bottom:24px">
   <div class="card-header" style="display:flex;justify-content:space-between;align-items:center">
     <h3>Scheduled Report Delivery</h3>
-    <button class="btn btn-primary btn-sm" data-add-class="open" data-target="#scheduleModal">
+    <button class="btn btn-primary btn-sm" data-show-modal="scheduleModal">
       <i class="bi bi-plus-lg"></i> Add Schedule
     </button>
   </div>
@@ -140,11 +140,11 @@ function metricColor(float $pct): string {
 </div>
 
 <!-- Schedule modal -->
-<div id="scheduleModal" class="modal-overlay" style="display:none">
-  <div class="modal-card" style="max-width:520px">
+<div id="scheduleModal" class="um-overlay">
+  <div class="um-dialog" style="max-width:520px">
     <div class="modal-header">
       <h3>New Report Schedule</h3>
-      <button data-remove-class="open" data-target="#scheduleModal" class="btn-icon"><i class="bi bi-x-lg"></i></button>
+      <button data-close-modal="scheduleModal" class="btn-icon"><i class="bi bi-x-lg"></i></button>
     </div>
     <form method="POST" action="/metrics/schedule/save">
       <?= Security::csrfField() ?>
@@ -188,20 +188,12 @@ function metricColor(float $pct): string {
       </div>
       <div class="modal-footer">
         <button type="submit" class="btn btn-primary">Save Schedule</button>
-        <button type="button" class="btn btn-secondary" data-remove-class="open" data-target="#scheduleModal">Cancel</button>
+        <button type="button" class="btn btn-secondary" data-close-modal="scheduleModal">Cancel</button>
       </div>
     </form>
   </div>
 </div>
 
-<style>
-.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:1000; align-items:center; justify-content:center; }
-.modal-overlay.open { display:flex; }
-.modal-card { background:var(--card-bg); border:1px solid var(--border); border-radius:12px; width:100%; max-height:90vh; overflow-y:auto; color:var(--text); }
-.modal-header { padding:20px 24px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
-.modal-body { padding:24px; }
-.modal-footer { padding:16px 24px; border-top:1px solid var(--border); display:flex; gap:8px; justify-content:flex-end; }
-</style>
 <?php endif; ?>
 
 <?php if (!empty($trend)): ?>
@@ -210,11 +202,6 @@ function metricColor(float $pct): string {
 document.querySelectorAll('[data-href]').forEach(function(el) {
   el.addEventListener('click', function() { location.href = el.dataset.href; });
 });
-// Close schedule modal when clicking overlay background
-(function() {
-  var m = document.getElementById('scheduleModal');
-  if (m) m.addEventListener('click', function(e) { if (e.target === m) m.classList.remove('open'); });
-})();
 const ctx = document.getElementById('trendChart').getContext('2d');
 new Chart(ctx, {
   type: 'line',

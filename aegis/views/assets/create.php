@@ -29,7 +29,7 @@
         <!-- Name + Type -->
         <div class="form-row" style="display:flex;gap:16px;">
           <div class="form-group" style="flex:2;">
-            <label class="form-label required">Asset Name <span style="color:#ef4444;">*</span></label>
+            <label class="form-label required">Asset Name <span style="color:var(--danger);">*</span></label>
             <input type="text" name="name" class="form-control" placeholder="e.g. Production Database Server" required
                    value="<?= Security::h($_POST['name'] ?? '') ?>">
           </div>
@@ -169,15 +169,15 @@
       </div>
       <div class="card-body" style="font-size:13px;">
         <div style="margin-bottom:10px;">
-          <span style="background:#dc262618;color:#dc2626;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;">Critical</span>
+          <span style="background:var(--danger-subtle);color:var(--danger);padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;">Critical</span>
           <p style="margin:4px 0 0;color:var(--text-muted);">Business-critical. Outage has severe financial or safety impact.</p>
         </div>
         <div style="margin-bottom:10px;">
-          <span style="background:#ea580c18;color:#ea580c;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;">High</span>
+          <span style="background:var(--warning-subtle);color:var(--orange);padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;">High</span>
           <p style="margin:4px 0 0;color:var(--text-muted);">Important asset. Disruption significantly impacts operations.</p>
         </div>
         <div style="margin-bottom:10px;">
-          <span style="background:#d9770618;color:#d97706;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;">Medium</span>
+          <span style="background:var(--warning-subtle);color:var(--warning);padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;">Medium</span>
           <p style="margin:4px 0 0;color:var(--text-muted);">Standard asset. Disruption has limited operational impact.</p>
         </div>
         <div>

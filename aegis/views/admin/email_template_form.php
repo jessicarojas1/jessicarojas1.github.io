@@ -171,7 +171,7 @@ ob_start();
 </div>
 
 <!-- Preview Modal -->
-<div id="previewModal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.5);align-items:center;justify-content:center">
+<div id="previewModal" class="um-overlay" style="display:none">
   <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:12px;width:90vw;max-width:820px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3)">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)">
       <h3 style="margin:0;font-size:16px;font-weight:600">Email Preview</h3>
@@ -215,13 +215,14 @@ function copyVar(text) {
 }
 
 function openPreviewModal() {
-    var modal = document.getElementById('previewModal');
-    modal.style.display = 'flex';
+    if (window.showModal) showModal('previewModal');
+    else document.getElementById('previewModal').style.display = 'flex';
     loadPreview();
 }
 
 function closePreviewModal() {
-    document.getElementById('previewModal').style.display = 'none';
+    if (window.closeModal) closeModal('previewModal');
+    else document.getElementById('previewModal').style.display = 'none';
     document.getElementById('previewFrame').src = 'about:blank';
 }
 

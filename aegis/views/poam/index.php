@@ -77,8 +77,8 @@ $statusLabels = [
 <?php endif; ?>
 
 <!-- ── Generate from Package Modal ── -->
-<div id="generateModal" style="display:none;position:fixed;inset:0;z-index:1000;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);">
-  <div class="card" style="width:100%;max-width:480px;margin:0 20px;">
+<div id="generateModal" class="um-overlay">
+  <div class="um-dialog" style="max-width:480px;">
     <div class="card-header" style="display:flex;align-items:center;justify-content:space-between;">
       <strong>Generate POA&amp;M from Package</strong>
       <button data-close-modal="generateModal"><i class="bi bi-x-lg"></i></button>
@@ -108,8 +108,8 @@ $statusLabels = [
 </div>
 
 <!-- ── Manual Create Modal ── -->
-<div id="createModal" style="display:none;position:fixed;inset:0;z-index:1000;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);">
-  <div style="background:var(--card-bg);border-radius:12px;padding:28px;width:660px;max-height:90vh;overflow-y:auto;max-width:95vw;">
+<div id="createModal" class="um-overlay">
+  <div class="um-dialog" style="width:660px;max-height:90vh;overflow-y:auto;max-width:95vw;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
       <h3 style="margin:0;">New POA&amp;M Item</h3>
       <button data-close-modal="createModal"><i class="bi bi-x-lg"></i></button>
@@ -165,8 +165,8 @@ $statusLabels = [
 </div>
 
 <!-- ── CSV Import Modal ── -->
-<div id="importModal" style="display:none;position:fixed;inset:0;z-index:1000;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);">
-  <div style="background:var(--card-bg);border-radius:12px;padding:28px;width:680px;max-height:90vh;overflow-y:auto;max-width:95vw;">
+<div id="importModal" class="um-overlay">
+  <div class="um-dialog" style="width:680px;max-height:90vh;overflow-y:auto;max-width:95vw;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
       <h3 style="margin:0;">Import POA&amp;M Items via CSV</h3>
       <button data-close-modal="importModal"><i class="bi bi-x-lg"></i></button>
@@ -176,13 +176,13 @@ $statusLabels = [
       <div class="form-group">
         <label class="form-label">CSV File <span style="color:var(--danger)">*</span></label>
         <label class="file-drop" id="fileDropPoam" for="poamCsvFile">
-          <i class="bi bi-filetype-csv" style="font-size:2rem;color:#059669"></i>
+          <i class="bi bi-filetype-csv" style="font-size:2rem;color:var(--success)"></i>
           <p>Drag &amp; drop or <strong>click to upload</strong></p>
           <p class="text-muted">.csv format, max 10MB</p>
         </label>
         <input type="file" id="poamCsvFile" name="csv_file" accept=".csv,.txt" required style="display:none"
-               data-change="showFileChange" data-drop-id="fileDropPoam" data-name-id="poamCsvName" data-color="#059669">
-        <div id="poamCsvName" style="margin-top:8px;color:#059669;display:none"><i class="bi bi-file-earmark-check"></i> <span></span></div>
+               data-change="showFileChange" data-drop-id="fileDropPoam" data-name-id="poamCsvName" data-color="var(--success)">
+        <div id="poamCsvName" style="margin-top:8px;color:var(--success);display:none"><i class="bi bi-file-earmark-check"></i> <span></span></div>
       </div>
       <button type="submit" class="btn btn-primary btn-full" style="margin-top:8px;"><i class="bi bi-cloud-upload"></i> Import CSV</button>
     </form>

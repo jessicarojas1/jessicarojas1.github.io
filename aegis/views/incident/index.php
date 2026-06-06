@@ -173,8 +173,8 @@ $_filterCount = count(array_filter([
           </tr>
         <?php endforeach; else: ?>
           <tr>
-            <td colspan="8" style="text-align:center;padding:3rem 1rem">
-              <div style="display:flex;flex-direction:column;align-items:center;gap:0.75rem;color:var(--text-muted)">
+            <td class="empty-row" colspan="8">
+              <div class="empty-state-sm">
                 <i class="bi bi-shield-check" style="font-size:2.5rem"></i>
                 <p style="margin:0;font-size:1rem">No incidents found.
                   <?php if (empty($_GET['severity']) && empty($_GET['status']) && empty($_GET['search'])): ?>

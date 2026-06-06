@@ -96,7 +96,7 @@ ob_start();
 
     <?php if ($exception['status'] === 'rejected' && $exception['rejection_reason']): ?>
     <!-- Rejection Reason -->
-    <div class="card" style="margin-bottom:16px;border-left:4px solid #ef4444;">
+    <div class="card" style="margin-bottom:16px;border-left:4px solid var(--danger);">
       <div class="card-header">
         <h3 class="card-title" style="color:var(--danger);"><i class="bi bi-x-octagon"></i> Rejection Reason</h3>
       </div>
@@ -179,7 +179,7 @@ ob_start();
             <th style="padding:10px 16px;color:var(--text-muted);font-weight:600;text-align:left;">Residual Risk Ack.</th>
             <td style="padding:10px 16px;">
               <?php if ($exception['residual_risk_acknowledged']): ?>
-                <span style="color:#16a34a;font-weight:600;"><i class="bi bi-check-circle-fill"></i> Yes</span>
+                <span style="color:var(--success);font-weight:600;"><i class="bi bi-check-circle-fill"></i> Yes</span>
               <?php else: ?>
                 <span style="color:var(--text-muted);">No</span>
               <?php endif; ?>

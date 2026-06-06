@@ -3,6 +3,7 @@ $flash_success = $_SESSION['flash_success'] ?? null;
 $flash_error   = $_SESSION['flash_error']   ?? null;
 unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 $sevColors = ['critical' => '#dc2626', 'high' => '#d97706', 'medium' => '#0284c7', 'low' => '#059669'];
+$breadcrumbs = [['Admin', '/admin'], ['SLA Policies', null]];
 ?>
 
 <div class="page-header">

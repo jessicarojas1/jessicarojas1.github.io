@@ -57,8 +57,3 @@
   </table>
 </div>
 <?php endif; ?>
-<script nonce="<?= Security::nonce() ?>">
-document.querySelectorAll('[data-confirm]').forEach(function(el) {
-  el.addEventListener('submit', function(e) { if (!confirm(el.getAttribute('data-confirm'))) e.preventDefault(); });
-});
-</script>

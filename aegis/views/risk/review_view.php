@@ -44,9 +44,7 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
 .section-tab.active{background:var(--primary);color:#fff}
 .risk-item-row td{vertical-align:top;padding:10px 12px;font-size:13px}
 .inline-review-form textarea{font-size:12px}
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center}
-.modal-overlay.open{display:flex}
-.modal-box{background:var(--bg-card);border-radius:12px;padding:28px;max-width:520px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal-box{background:var(--card-bg);border-radius:12px;padding:28px;max-width:520px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.3)}
 </style>
 
 <?php if (!empty($_SESSION['flash_success'])): ?>
@@ -101,7 +99,7 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
 </div>
 
 <?php if ($review['status'] === 'completed'): ?>
-<div class="card" style="margin-bottom:16px;border-left:4px solid #16a34a">
+<div class="card" style="margin-bottom:16px;border-left:4px solid var(--success)">
   <div class="card-body" style="display:flex;gap:24px;flex-wrap:wrap">
     <div><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">Completed</div><div style="font-weight:600"><?= Security::h($review['completed_date'] ?? '—') ?></div></div>
     <div><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em">Signed Off By</div><div style="font-weight:600"><?= Security::h($review['sign_off_name'] ?? '—') ?></div></div>
@@ -115,10 +113,10 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
 <!-- Progress + KPIs -->
 <div class="rv-kpi-row">
   <div class="rv-kpi"><div class="num"><?= $review['total_risks'] ?></div><div class="lbl">Total Risks</div></div>
-  <div class="rv-kpi" style="border-color:#16a34a"><div class="num" style="color:#16a34a"><?= count($groups['reviewed']) + count($groups['escalated']) + count($groups['deferred']) + count($groups['not_applicable']) ?></div><div class="lbl">Reviewed</div></div>
+  <div class="rv-kpi" style="border-color:var(--success)"><div class="num" style="color:var(--success)"><?= count($groups['reviewed']) + count($groups['escalated']) + count($groups['deferred']) + count($groups['not_applicable']) ?></div><div class="lbl">Reviewed</div></div>
   <div class="rv-kpi" style="border-color:var(--text-muted)"><div class="num" style="color:var(--text-muted)"><?= count($groups['pending']) ?></div><div class="lbl">Pending</div></div>
-  <div class="rv-kpi" style="border-color:#ef4444"><div class="num" style="color:#ef4444"><?= count($groups['escalated']) ?></div><div class="lbl">Escalated</div></div>
-  <div class="rv-kpi" style="border-color:#f59e0b"><div class="num" style="color:#f59e0b"><?= count($groups['deferred']) ?></div><div class="lbl">Deferred</div></div>
+  <div class="rv-kpi" style="border-color:var(--danger)"><div class="num" style="color:var(--danger)"><?= count($groups['escalated']) ?></div><div class="lbl">Escalated</div></div>
+  <div class="rv-kpi" style="border-color:var(--warning)"><div class="num" style="color:var(--warning)"><?= count($groups['deferred']) ?></div><div class="lbl">Deferred</div></div>
   <div style="flex:3;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px 16px">
     <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:4px">
       <span>Overall Progress</span><span style="color:var(--primary)"><?= $totalPct ?>%</span>
@@ -163,7 +161,7 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
             <a href="/risk/<?= $item['risk_id'] ?>" class="fw-500 table-link" style="font-size:13px" target="_blank">
               <?= Security::h($item['title']) ?>
             </a>
-            <div style="font-size:11px;color:#a1a1aa;margin-top:2px"><?= Security::h($item['risk_code'] ?? '—') ?></div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:2px"><?= Security::h($item['risk_code'] ?? '—') ?></div>
           </td>
           <td>
             <?php if ($item['category_name']): ?>
@@ -190,14 +188,14 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
           </td>
           <?php if ($groupStatus !== 'pending'): ?>
           <td style="font-size:12px">
-            <?php if ($item['score_confirmed']): ?><span style="color:#16a34a">✓ Score confirmed</span><br><?php endif; ?>
+            <?php if ($item['score_confirmed']): ?><span style="color:var(--success)">✓ Score confirmed</span><br><?php endif; ?>
             <?php if ($item['treatment_adequate'] === 't' || $item['treatment_adequate'] === true || $item['treatment_adequate'] === 1): ?>
-              <span style="color:#16a34a">✓ Treatment adequate</span><br>
+              <span style="color:var(--success)">✓ Treatment adequate</span><br>
             <?php elseif ($item['treatment_adequate'] === 'f' || $item['treatment_adequate'] === false || $item['treatment_adequate'] === 0): ?>
-              <span style="color:#ef4444">✗ Treatment inadequate</span><br>
+              <span style="color:var(--danger)">✗ Treatment inadequate</span><br>
             <?php endif; ?>
             <?php if ($item['reviewer_notes']): ?><div style="color:var(--text-muted);margin-top:4px;font-style:italic"><?= Security::h($item['reviewer_notes']) ?></div><?php endif; ?>
-            <?php if ($item['reviewer_name']): ?><div style="color:#a1a1aa;margin-top:4px">— <?= Security::h($item['reviewer_name']) ?></div><?php endif; ?>
+            <?php if ($item['reviewer_name']): ?><div style="color:var(--text-muted);margin-top:4px">— <?= Security::h($item['reviewer_name']) ?></div><?php endif; ?>
           </td>
           <?php endif; ?>
           <?php if ($canAct): ?>
@@ -252,9 +250,9 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
 <?php endif; ?>
 
 <!-- Complete Modal -->
-<div class="modal-overlay" id="completeModal">
-  <div class="modal-box">
-    <h3 style="margin:0 0 12px"><i class="bi bi-check2-circle" style="color:#16a34a"></i> Complete Review</h3>
+<div class="um-overlay" id="completeModal" style="display:none">
+  <div class="um-dialog modal-box">
+    <h3 style="margin:0 0 12px"><i class="bi bi-check2-circle" style="color:var(--success)"></i> Complete Review</h3>
     <?php if (count($groups['pending']) > 0): ?>
     <div class="alert-box" style="background:var(--danger-subtle);border-color:var(--danger)40;color:var(--danger);margin-bottom:12px">
       <i class="bi bi-exclamation-triangle-fill"></i> <?= count($groups['pending']) ?> risk(s) still pending review. You can still complete but they will remain pending.
@@ -280,7 +278,7 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
 
 <script nonce="<?= $nonce ?>">
 document.getElementById('completeModal').addEventListener('click', function(e) {
-  if (e.target === this) this.classList.remove('open');
+  if (e.target === this) this.style.display = 'none';
 });
 </script>
 

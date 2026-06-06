@@ -36,8 +36,8 @@ $cntTotal     = $cntPass + $cntFail + $cntPartial + $cntNotTested;
 <!-- Stat chips -->
 <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px">
   <div style="flex:1;min-width:120px;background:#16a34a18;border:1px solid #16a34a40;border-radius:12px;padding:16px 20px;text-align:center">
-    <div style="font-size:32px;font-weight:700;color:#16a34a;line-height:1"><?= $cntPass ?></div>
-    <div style="font-size:13px;color:#16a34a;margin-top:4px;font-weight:600">Pass</div>
+    <div style="font-size:32px;font-weight:700;color:var(--primary);line-height:1"><?= $cntPass ?></div>
+    <div style="font-size:13px;color:var(--primary);margin-top:4px;font-weight:600">Pass</div>
   </div>
   <div style="flex:1;min-width:120px;background:var(--danger-subtle);border:1px solid #fca5a580;border-radius:12px;padding:16px 20px;text-align:center">
     <div style="font-size:32px;font-weight:700;color:var(--danger);line-height:1"><?= $cntFail ?></div>
@@ -53,15 +53,15 @@ $cntTotal     = $cntPass + $cntFail + $cntPartial + $cntNotTested;
   </div>
   <?php if ($cntTotal > 0): ?>
   <div style="flex:1;min-width:140px;background:var(--info-subtle);border:1px solid #93c5fd80;border-radius:12px;padding:16px 20px;text-align:center">
-    <div style="font-size:32px;font-weight:700;color:#2563eb;line-height:1"><?= $cntTotal > 0 ? round($cntPass / $cntTotal * 100) : 0 ?>%</div>
-    <div style="font-size:13px;color:#2563eb;margin-top:4px;font-weight:600">Pass Rate</div>
+    <div style="font-size:32px;font-weight:700;color:var(--info);line-height:1"><?= $cntTotal > 0 ? round($cntPass / $cntTotal * 100) : 0 ?>%</div>
+    <div style="font-size:13px;color:var(--info);margin-top:4px;font-weight:600">Pass Rate</div>
   </div>
   <?php endif; ?>
 </div>
 
 <!-- Overdue tests -->
 <?php if (!empty($overdue)): ?>
-<div class="card" style="margin-bottom:20px;border-left:4px solid #dc2626">
+<div class="card" style="margin-bottom:20px;border-left:4px solid var(--danger)">
   <div class="card-header" style="background:var(--danger-subtle)">
     <div class="card-header-left">
       <i class="bi bi-exclamation-triangle-fill" style="color:var(--danger)"></i>
@@ -109,7 +109,7 @@ $cntTotal     = $cntPass + $cntFail + $cntPartial + $cntNotTested;
     <div class="card-header-left">
       <i class="bi bi-clock-history" style="color:var(--primary)"></i>
       <span class="card-title">Recent Tests</span>
-      <span style="background:#e4e4e7;color:var(--text-muted);border-radius:12px;padding:2px 10px;font-size:12px;font-weight:600"><?= count($recent) ?></span>
+      <span style="background:var(--bg-subtle);color:var(--text-muted);border-radius:12px;padding:2px 10px;font-size:12px;font-weight:600"><?= count($recent) ?></span>
     </div>
   </div>
   <?php if ($recent): ?>
@@ -150,13 +150,13 @@ $cntTotal     = $cntPass + $cntFail + $cntPartial + $cntNotTested;
             <td>
               <?php if ($r['effectiveness'] !== null): ?>
               <div style="display:flex;align-items:center;gap:8px">
-                <div style="flex:1;height:8px;background:#e4e4e7;border-radius:4px;overflow:hidden">
-                  <div style="width:<?= (int)$r['effectiveness'] ?>%;height:100%;background:<?= $r['effectiveness'] >= 75 ? '#16a34a' : ($r['effectiveness'] >= 40 ? '#d97706' : '#dc2626') ?>;border-radius:4px"></div>
+                <div style="flex:1;height:8px;background:var(--bg-subtle);border-radius:4px;overflow:hidden">
+                  <div style="width:<?= (int)$r['effectiveness'] ?>%;height:100%;background:<?= $r['effectiveness'] >= 75 ? 'var(--primary)' : ($r['effectiveness'] >= 40 ? 'var(--warning)' : 'var(--danger)') ?>;border-radius:4px"></div>
                 </div>
                 <span style="font-size:12px;font-weight:600;color:var(--text);white-space:nowrap"><?= (int)$r['effectiveness'] ?>%</span>
               </div>
               <?php else: ?>
-              <span style="color:#a1a1aa;font-size:13px">—</span>
+              <span style="color:var(--text-muted);font-size:13px">—</span>
               <?php endif; ?>
             </td>
             <td>
@@ -172,7 +172,7 @@ $cntTotal     = $cntPass + $cntFail + $cntPartial + $cntNotTested;
   </div>
   <?php else: ?>
   <div class="card-body">
-    <div style="text-align:center;padding:32px;color:#a1a1aa">
+    <div style="text-align:center;padding:32px;color:var(--text-muted)">
       <i class="bi bi-clipboard2-x" style="font-size:36px;display:block;margin-bottom:12px"></i>
       <p style="margin:0;font-size:15px">No control tests have been recorded yet.</p>
       <p style="margin:8px 0 0;font-size:13px">Navigate to a compliance package and click <strong>Test</strong> on a control to get started.</p>
