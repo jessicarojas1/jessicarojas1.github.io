@@ -198,6 +198,7 @@
           <span class="sev-dot" style="background:${SEV_COLOR[f.severity]}"></span>
           <span class="finding-name">${esc(f.name)}${isSup ? ' <span class="badge bg-secondary">suppressed</span>' : ''}</span>
           <span class="badge sev-badge" style="background:${SEV_COLOR[f.severity]}">${f.severity}</span>
+          ${f.tainted ? '<span class="badge bg-warning text-dark" title="User input flows into this sink (data-flow taint)">tainted</span>' : ''}
           <span class="text-body-secondary small ms-auto d-none d-md-inline">${esc(f.source || 'heuristic')} · ${esc(f.cwe || '')}</span>
           <i class="bi bi-chevron-down finding-chev"></i>
         </div>

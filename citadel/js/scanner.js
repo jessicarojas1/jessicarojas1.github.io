@@ -46,15 +46,33 @@
     return findings;
   }
 
-  // Lightweight intra-file taint: variables assigned from a user-input source.
+  // Data-flow taint with intra-file propagation: variables assigned from a
+  // user-input source, then propagated across subsequent assignments (var2 =
+  // f(var1)) so a tainted value is tracked across statements (multi-hop).
   const TAINT_SRC = /\b([A-Za-z_$][\w$]*)\s*(?:=|:=|<-)\s*[^;\n]{0,80}?(req\.(query|params|body|cookies|headers)|request\.(GET|POST|args|form|values|json)|\$_(GET|POST|REQUEST|COOKIE|FILES)|params\[|getParameter|os\.environ|sys\.argv|process\.argv|input\(|fmt\.Scan|Console\.ReadLine|location\.(hash|search|href)|document\.(cookie|referrer))/;
+  const ASSIGN = /^[^=\n]{0,120}?\b([A-Za-z_$][\w$]*)\s*(?:=|:=|<-)\s*(.+)$/;
+  function escRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
   function taintedVars(content) {
     const set = new Set();
     const lines = content.split('\n');
     for (let i = 0; i < lines.length; i++) {
       const m = lines[i].match(TAINT_SRC);
-      if (m && m[1] && m[1].length > 1) set.add(m[1]);
-      if (set.size > 200) break;
+      if (m && m[1]) set.add(m[1]);
+    }
+    if (!set.size) return set;
+    // Propagate up to 4 hops: var = <expr referencing a tainted var> → tainted.
+    for (let pass = 0; pass < 4; pass++) {
+      let grew = false;
+      for (let i = 0; i < lines.length; i++) {
+        const a = lines[i].match(ASSIGN);
+        if (!a || !a[1] || set.has(a[1])) continue;
+        const rhs = a[2];
+        for (const v of set) {
+          if (new RegExp('\\b' + escRe(v) + '\\b').test(rhs)) { set.add(a[1]); grew = true; break; }
+        }
+        if (set.size > 400) { grew = false; break; }
+      }
+      if (!grew) break;
     }
     return set;
   }

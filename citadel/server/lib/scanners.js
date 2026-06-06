@@ -194,12 +194,248 @@ async function clamav(dir) {
   return { tool: 'clamav', available: true, findings };
 }
 
+/* ---------------- Checkov (IaC misconfig) ---------------- */
+async function checkov(dir) {
+  if (!await has('checkov')) return { tool: 'checkov', available: false, findings: [] };
+  const r = await run('checkov', ['-d', dir, '-o', 'json', '--compact', '--quiet']);
+  const j = safeJson(r.stdout);
+  if (!j) return { tool: 'checkov', available: true, findings: [] };
+  // Top-level may be a single object or an array of {check_type, results:{...}}.
+  const blocks = Array.isArray(j) ? j : [j];
+  const findings = [];
+  blocks.forEach(b => {
+    const failed = (b && b.results && Array.isArray(b.results.failed_checks)) ? b.results.failed_checks : [];
+    failed.forEach(c => findings.push(f({
+      ruleId: c.check_id, source: 'checkov',
+      name: (c.check_name || c.check_id || 'Checkov misconfiguration').slice(0, 140),
+      category: N.categorize({ text: c.check_name, fallback: 'config' }),
+      severity: N.normSeverity(c.severity || 'medium'), cwe: null,
+      file: N.relPath(c.file_path, dir),
+      line: (Array.isArray(c.file_line_range) && c.file_line_range[0]) || 0,
+      snippet: (c.check_name || '').slice(0, 180),
+      remediation: c.guideline || 'Apply the recommended secure configuration.'
+    })));
+  });
+  return { tool: 'checkov', available: true, findings };
+}
+
+/* ---------------- OSV-Scanner (Google OSV — lockfile vulns) ---------------- */
+function osvSeverityFromScore(score) {
+  const n = parseFloat(score);
+  if (!isFinite(n)) return null;
+  if (n >= 9) return 'critical';
+  if (n >= 7) return 'high';
+  if (n >= 4) return 'medium';
+  if (n > 0) return 'low';
+  return 'medium';
+}
+async function osvScanner(dir) {
+  if (!await has('osv-scanner')) return { tool: 'osv-scanner', available: false, findings: [] };
+  // Exits non-zero when vulns are found — parse stdout regardless.
+  const r = await run('osv-scanner', ['--format', 'json', '-r', dir], { env: { ...process.env } });
+  const j = safeJson(r.stdout);
+  if (!j || !Array.isArray(j.results)) return { tool: 'osv-scanner', available: true, findings: [] };
+  const findings = [];
+  j.results.forEach(rs => {
+    (rs.packages || []).forEach(p => {
+      const pkg = p.package || {};
+      const name = pkg.name || 'package';
+      const version = pkg.version || '*';
+      // Map vuln id -> max_severity score from its group, if present.
+      const groupSev = {};
+      (p.groups || []).forEach(g => {
+        (g.ids || []).forEach(id => { if (g.max_severity != null) groupSev[id] = g.max_severity; });
+      });
+      (p.vulnerabilities || []).forEach(v => {
+        let sev = osvSeverityFromScore(groupSev[v.id]);
+        if (!sev && v.database_specific && v.database_specific.severity) {
+          sev = N.normSeverity(v.database_specific.severity);
+        }
+        if (!sev) sev = 'medium';
+        const aliases = Array.isArray(v.aliases) ? v.aliases : [];
+        const cve = aliases.find(a => /^CVE-/i.test(a));
+        const id = cve || v.id;
+        findings.push(f({
+          ruleId: id, source: 'osv-scanner',
+          name: `${id}: ${name}${version !== '*' ? ' ' + version : ''}`,
+          category: 'deps', severity: sev, cwe: null,
+          file: `${name}@${version}`, line: 0,
+          snippet: (v.summary || v.details || '').slice(0, 180),
+          remediation: `Upgrade ${name} to a fixed version (see advisory ${v.id}).`
+        }));
+      });
+    });
+  });
+  return { tool: 'osv-scanner', available: true, findings };
+}
+
+/* ---------------- Hadolint (Dockerfile linter) ---------------- */
+function findDockerfiles(dir, cap = 50) {
+  const out = [];
+  const rx = /^(dockerfile|containerfile)(\.|$)/i;
+  function walk(d) {
+    if (out.length >= cap) return;
+    let entries;
+    try { entries = fs.readdirSync(d, { withFileTypes: true }); } catch (e) { return; }
+    for (const e of entries) {
+      if (out.length >= cap) return;
+      const full = path.join(d, e.name);
+      if (e.isDirectory()) {
+        if (e.name === '.git' || e.name === 'node_modules') continue;
+        walk(full);
+      } else if (e.isFile()) {
+        const base = e.name;
+        if (rx.test(base) || /\.dockerfile$/i.test(base)) out.push(full);
+      }
+    }
+  }
+  walk(dir);
+  return out;
+}
+function hadolintSeverity(level) {
+  const l = String(level || '').toLowerCase();
+  if (l === 'error') return 'high';
+  if (l === 'warning') return 'medium';
+  return 'low'; // info / style
+}
+async function hadolint(dir) {
+  if (!await has('hadolint')) return { tool: 'hadolint', available: false, findings: [] };
+  const files = findDockerfiles(dir);
+  const findings = [];
+  for (const file of files) {
+    const r = await run('hadolint', ['--no-fail', '-f', 'json', file]);
+    const j = safeJson(r.stdout);
+    if (!Array.isArray(j)) continue;
+    j.forEach(res => findings.push(f({
+      ruleId: res.code, source: 'hadolint',
+      name: `${res.code}: ${res.message}`.slice(0, 140),
+      category: 'config', severity: hadolintSeverity(res.level), cwe: null,
+      file: N.relPath(res.file || file, dir), line: res.line || 0,
+      snippet: (res.message || '').slice(0, 180),
+      remediation: `See hadolint rule ${res.code}.`
+    })));
+  }
+  return { tool: 'hadolint', available: true, findings };
+}
+
+/* ---------------- CodeQL (deep dataflow SAST — OPT-IN, heavy) ---------------- */
+function codeqlLangForDir(dir) {
+  // Pick one language by scanning for telltale source extensions (cheap walk).
+  const order = [
+    [/\.py$/i, 'python'],
+    [/\.(js|ts|jsx|tsx|mjs|cjs)$/i, 'javascript'],
+    [/\.go$/i, 'go'],
+    [/\.java$/i, 'java'],
+    [/\.rb$/i, 'ruby'],
+    [/\.cs$/i, 'csharp'],
+    [/\.(cpp|cc|cxx|c|h|hpp)$/i, 'cpp']
+  ];
+  const seen = new Set();
+  let count = 0;
+  function walk(d) {
+    if (count > 5000) return;
+    let entries;
+    try { entries = fs.readdirSync(d, { withFileTypes: true }); } catch (e) { return; }
+    for (const e of entries) {
+      count++;
+      if (count > 5000) return;
+      if (e.isDirectory()) {
+        if (e.name === '.git' || e.name === 'node_modules') continue;
+        walk(path.join(d, e.name));
+      } else if (e.isFile()) {
+        for (const [rx, lang] of order) if (rx.test(e.name)) seen.add(lang);
+      }
+    }
+  }
+  try { walk(dir); } catch (e) {}
+  for (const [, lang] of order) if (seen.has(lang)) return lang;
+  return null;
+}
+function codeqlSeverity(level, secSev) {
+  const n = parseFloat(secSev);
+  if (isFinite(n)) {
+    if (n >= 9) return 'critical';
+    if (n >= 7) return 'high';
+    if (n >= 4) return 'medium';
+    if (n > 0) return 'low';
+  }
+  const l = String(level || '').toLowerCase();
+  if (l === 'error') return 'high';
+  if (l === 'warning') return 'medium';
+  if (l === 'note') return 'low';
+  return 'medium';
+}
+async function codeql(dir) {
+  if (process.env.CITADEL_ENABLE_CODEQL !== '1' || !await has('codeql')) {
+    return { tool: 'codeql', available: false, findings: [] };
+  }
+  // Best-effort and fully non-fatal: any failure -> available:true, findings:[].
+  let db = null, sarifPath = null;
+  try {
+    const lang = codeqlLangForDir(dir);
+    if (!lang) return { tool: 'codeql', available: true, findings: [], warning: 'no supported language detected' };
+    const base = path.join(os.tmpdir(), `citadel-codeql-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    db = base + '-db';
+    sarifPath = base + '.sarif';
+    const longTimeout = Math.max(TIMEOUT, 1800000);
+    const cr = await run('codeql', ['database', 'create', db, `--language=${lang}`,
+      `--source-root=${dir}`, '--overwrite'], { timeout: longTimeout });
+    if (cr.code !== 0 && !fs.existsSync(db)) {
+      return { tool: 'codeql', available: true, findings: [], warning: 'database create failed' };
+    }
+    const ar = await run('codeql', ['database', 'analyze', db, `codeql/${lang}-queries`,
+      '--format=sarifv2.1.0', `--output=${sarifPath}`, '--threads=2'], { timeout: longTimeout });
+    if (ar.code !== 0 && !fs.existsSync(sarifPath)) {
+      return { tool: 'codeql', available: true, findings: [], warning: 'analyze failed' };
+    }
+    let sarif = null;
+    try { sarif = safeJson(fs.readFileSync(sarifPath, 'utf8')); } catch (e) {}
+    const findings = [];
+    const runs = (sarif && Array.isArray(sarif.runs)) ? sarif.runs : [];
+    runs.forEach(rn => {
+      // Build rule lookup for tags/descriptions.
+      const rules = {};
+      const driverRules = rn.tool && rn.tool.driver && Array.isArray(rn.tool.driver.rules) ? rn.tool.driver.rules : [];
+      driverRules.forEach(rule => { if (rule.id) rules[rule.id] = rule; });
+      (rn.results || []).forEach(res => {
+        const ruleId = res.ruleId || (res.rule && res.rule.id) || 'codeql';
+        const rule = rules[ruleId] || {};
+        const props = rule.properties || {};
+        const tags = Array.isArray(props.tags) ? props.tags : [];
+        const cweTag = tags.map(t => String(t).match(/external\/cwe\/cwe-(\d+)/i)).find(Boolean);
+        const cwe = cweTag ? 'CWE-' + cweTag[1] : null;
+        const secSev = props['security-severity'];
+        const msg = (res.message && res.message.text) || (rule.shortDescription && rule.shortDescription.text) || ruleId;
+        const loc = res.locations && res.locations[0] && res.locations[0].physicalLocation;
+        const file = loc && loc.artifactLocation ? loc.artifactLocation.uri : '';
+        const line = loc && loc.region ? (loc.region.startLine || 0) : 0;
+        findings.push(f({
+          ruleId, source: 'codeql',
+          name: String(msg).split('\n')[0].slice(0, 140),
+          category: N.categorize({ cwe, text: (ruleId || '') + ' ' + msg, fallback: 'quality' }),
+          severity: codeqlSeverity(res.level, secSev), cwe,
+          file: N.relPath(file, dir), line,
+          snippet: String(msg).slice(0, 180),
+          remediation: (rule.fullDescription && rule.fullDescription.text) || 'Review the CodeQL dataflow path and sanitize untrusted input.'
+        }));
+      });
+    });
+    return { tool: 'codeql', available: true, findings };
+  } catch (e) {
+    return { tool: 'codeql', available: true, findings: [], warning: 'codeql error' };
+  } finally {
+    if (db) { try { fs.rmSync(db, { recursive: true, force: true }); } catch (e) {} }
+    if (sarifPath) { try { fs.unlinkSync(sarifPath); } catch (e) {} }
+  }
+}
+
 /* ---------------- Orchestrate all ---------------- */
 async function runAll(dir, onStage) {
   const stage = (s) => onStage && onStage(s);
   stage('Launching scanners…');
   const results = await Promise.all([
-    semgrep(dir), bandit(dir), gitleaks(dir), trivy(dir), grype(dir), syft(dir), clamav(dir)
+    semgrep(dir), bandit(dir), gitleaks(dir), trivy(dir), grype(dir), syft(dir), clamav(dir),
+    checkov(dir), osvScanner(dir), hadolint(dir), codeql(dir)
   ]);
   const findings = [];
   const tools = [];
@@ -212,4 +448,4 @@ async function runAll(dir, onStage) {
   return { findings, sbom, tools };
 }
 
-module.exports = { runAll, semgrep, bandit, gitleaks, trivy, grype, syft, clamav, has };
+module.exports = { runAll, semgrep, bandit, gitleaks, trivy, grype, syft, clamav, checkov, osvScanner, hadolint, codeql, has };

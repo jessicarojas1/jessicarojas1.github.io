@@ -56,11 +56,31 @@
       </div>`).join('');
   }
 
+  /* ---------- Engine / scanner status panel ---------- */
+  function renderEngineStatus(health) {
+    const el = $('engine-status'); if (!el) return;
+    const workerOn = (typeof Worker !== 'undefined');
+    const pill = (label, on, title) => `<span class="es-pill ${on ? 'on' : 'off'}" title="${title || ''}"><span class="es-dot"></span>${label}</span>`;
+    let html = `<div class="es-group"><span class="es-title"><i class="bi bi-cpu"></i> In-browser engine</span>
+      ${pill('Active', true, 'heuristic SAST + secrets + SBOM + OSV CVEs')}
+      ${pill(workerOn ? 'Web Worker' : 'Main thread', true, workerOn ? 'non-blocking background scanning' : 'inline scanning')}</div>`;
+    if (health && health.scanners) {
+      const scs = health.scanners.map(s => pill(s.tool, s.available, s.available ? 'online' : 'not installed')).join('');
+      html += `<div class="es-group"><span class="es-title"><i class="bi bi-hdd-network"></i> Backend scanners</span>${scs}
+        ${pill('AI fix', !!health.ai, health.ai ? 'Claude remediation on' : 'no API key')}</div>`;
+    } else {
+      html += `<div class="es-group"><span class="es-title"><i class="bi bi-hdd-network"></i> Backend</span>${pill('Not connected — client-side only', false, 'deploy the backend for deep scan')}</div>`;
+    }
+    el.innerHTML = html;
+  }
+  renderEngineStatus(null);
+
   /* ---------- Deep-scan mode (only if backend is present) ---------- */
   let deepMode = false, deepAvailable = false, aiAvailable = false;
   (async function initDeep() {
     const st = await CITADEL.api.available();
     if (!st) return;
+    renderEngineStatus(st);
     deepAvailable = true;
     aiAvailable = !!st.ai;
     CITADEL.report.setAi(aiAvailable);
