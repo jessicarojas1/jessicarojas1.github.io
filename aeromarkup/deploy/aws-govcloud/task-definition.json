@@ -1,0 +1,44 @@
+{
+  "comment": "AeroMarkup — ECS Fargate task definition for AWS GovCloud (us-gov-west-1 / us-gov-east-1). Pull the image from ECR, store DATABASE_URL in Secrets Manager, and front the service with an ALB whose health check targets /api/health.",
+  "family": "aeromarkup",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "runtimePlatform": { "operatingSystemFamily": "LINUX", "cpuArchitecture": "X86_64" },
+  "executionRoleArn": "arn:aws-us-gov:iam::<ACCOUNT_ID>:role/aeromarkupExecutionRole",
+  "taskRoleArn": "arn:aws-us-gov:iam::<ACCOUNT_ID>:role/aeromarkupTaskRole",
+  "containerDefinitions": [
+    {
+      "name": "aeromarkup",
+      "image": "<ACCOUNT_ID>.dkr.ecr.us-gov-west-1.amazonaws.com/aeromarkup:latest",
+      "essential": true,
+      "portMappings": [{ "containerPort": 8080, "protocol": "tcp" }],
+      "environment": [
+        { "name": "PORT", "value": "8080" },
+        { "name": "AUTO_MIGRATE", "value": "1" }
+      ],
+      "secrets": [
+        {
+          "name": "DATABASE_URL",
+          "valueFrom": "arn:aws-us-gov:secretsmanager:us-gov-west-1:<ACCOUNT_ID>:secret:aeromarkup/database-url"
+        }
+      ],
+      "healthCheck": {
+        "command": ["CMD-SHELL", "python -c \"import urllib.request;urllib.request.urlopen('http://127.0.0.1:8080/api/health').read()\" || exit 1"],
+        "interval": 30,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 20
+      },
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/aeromarkup",
+          "awslogs-region": "us-gov-west-1",
+          "awslogs-stream-prefix": "app"
+        }
+      }
+    }
+  ]
+}
