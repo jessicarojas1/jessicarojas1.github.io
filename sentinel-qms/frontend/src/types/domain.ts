@@ -642,6 +642,41 @@ export interface Complaint {
 }
 
 /* ------------------------------------------------------------------ */
+/* Attachments / evidence (matches backend AttachmentRead)             */
+/* ------------------------------------------------------------------ */
+
+export interface AttachmentRecord {
+  id: number;
+  entity_type: string;
+  entity_id: string;
+  original_filename: string;
+  content_type: string;
+  size_bytes: number;
+  checksum_sha256?: string | null;
+  storage_backend: string;
+  uploaded_by?: number | null;
+  created_at?: Iso8601 | null;
+}
+
+/* ------------------------------------------------------------------ */
+/* Record-scoped audit log (matches backend AuditLogRead)              */
+/* ------------------------------------------------------------------ */
+
+export interface AuditLogRecord {
+  id: number;
+  actor_id: number | null;
+  actor_email: string | null;
+  action: string;
+  entity_type: string;
+  entity_id: string | null;
+  before?: Record<string, unknown> | null;
+  after?: Record<string, unknown> | null;
+  ip_address?: string | null;
+  request_id?: string | null;
+  created_at: Iso8601;
+}
+
+/* ------------------------------------------------------------------ */
 /* Dashboard                                                            */
 /* ------------------------------------------------------------------ */
 

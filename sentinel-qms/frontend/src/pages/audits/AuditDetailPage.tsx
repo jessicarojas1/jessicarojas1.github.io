@@ -8,6 +8,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { PrintButton } from '@/components/PrintButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
+import { RecordSupplements } from '@/components/RecordSupplements';
 import { UserName } from '@/components/UserName';
 import type { FindingType } from '@/types';
 
@@ -187,6 +188,8 @@ export default function AuditDetailPage() {
               </div>
             </div>
           )}
+
+          <RecordSupplements entityType="audit" entityId={audit.id} canEditPage="audits" />
         </>
       )}
     </DetailState>

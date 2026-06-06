@@ -7,6 +7,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { PrintButton } from '@/components/PrintButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
+import { RecordSupplements } from '@/components/RecordSupplements';
 
 export default function SupplierDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -84,6 +85,8 @@ export default function SupplierDetailPage() {
               </div>
             </div>
           </div>
+
+          <RecordSupplements entityType="supplier" entityId={s.id} canEditPage="suppliers" />
         </>
       )}
     </DetailState>

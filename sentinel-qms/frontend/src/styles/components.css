@@ -956,3 +956,111 @@ table.data-table {
 .tally--warning { background: var(--warning-soft); color: var(--warning); border-color: var(--warning); }
 .tally--info { background: var(--info-soft); color: var(--info); border-color: var(--info); }
 .tally--success { background: var(--success-soft); color: var(--success); border-color: var(--success); }
+
+/* ------------------------------------------------------------------ */
+/* Activity timeline + Attachments panel (record detail enterprise UX) */
+/* ------------------------------------------------------------------ */
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  background: var(--border);
+}
+.timeline__item {
+  position: relative;
+  padding: 0 0 var(--space-4) var(--space-5);
+}
+.timeline__item:last-child {
+  padding-bottom: 0;
+}
+.timeline__dot {
+  position: absolute;
+  left: 0;
+  top: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 2px solid var(--card-bg);
+  box-shadow: 0 0 0 1px var(--border);
+}
+.timeline__content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.timeline-diff {
+  list-style: none;
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.8125rem;
+}
+.timeline-diff li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+}
+.timeline-diff__key {
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.timeline-diff__from {
+  color: var(--danger);
+  text-decoration: line-through;
+}
+.timeline-diff__arrow {
+  color: var(--text-faint);
+}
+.timeline-diff__to {
+  color: var(--success);
+}
+
+.attachment-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+.attachment-row__icon {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+.attachment-row__meta {
+  flex: 1;
+  min-width: 0;
+}
+.attachment-row__name {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.attachment-upload {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  padding-top: var(--space-3);
+  border-top: 1px dashed var(--border);
+}
+.attachment-upload__input {
+  flex: 1;
+  min-width: 180px;
+  font-size: 0.8125rem;
+}

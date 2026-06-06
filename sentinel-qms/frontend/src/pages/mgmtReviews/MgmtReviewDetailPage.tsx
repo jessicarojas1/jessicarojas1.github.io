@@ -7,6 +7,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { PrintButton } from '@/components/PrintButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
+import { RecordSupplements } from '@/components/RecordSupplements';
 import { UserName } from '@/components/UserName';
 import type { ReviewInput } from '@/types';
 
@@ -110,6 +111,8 @@ export default function MgmtReviewDetailPage() {
               </div>
             </div>
           </div>
+
+          <RecordSupplements entityType="management_review" entityId={mr.id} canEditPage="mgmt_reviews" />
         </>
       )}
     </DetailState>

@@ -7,6 +7,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { PrintButton } from '@/components/PrintButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
+import { RecordSupplements } from '@/components/RecordSupplements';
 import { UserName } from '@/components/UserName';
 
 export default function ComplaintDetailPage() {
@@ -79,6 +80,8 @@ export default function ComplaintDetailPage() {
               </div>
             </div>
           </div>
+
+          <RecordSupplements entityType="complaint" entityId={c.id} canEditPage="complaints" />
         </>
       )}
     </DetailState>

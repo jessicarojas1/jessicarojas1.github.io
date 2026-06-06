@@ -11,6 +11,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { PrintButton } from '@/components/PrintButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
+import { RecordSupplements } from '@/components/RecordSupplements';
 import { UserName } from '@/components/UserName';
 import { SignatureModal, type SignaturePayload } from '@/components/SignatureModal';
 
@@ -119,6 +120,8 @@ export default function ChangeDetailPage() {
               </div>
             </div>
           </div>
+
+          <RecordSupplements entityType="change_order" entityId={chg.id} canEditPage="changes" />
 
           <SignatureModal
             open={sigOpen}
