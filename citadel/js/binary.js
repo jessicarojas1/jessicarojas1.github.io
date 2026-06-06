@@ -23,7 +23,18 @@
       return { format: 'Mach-O (macOS/iOS)', kind: 'executable', platform: 'macOS' };
     // Java class
     if (u32 >>> 0 === 0xCAFEBABE) return { format: 'Java class', kind: 'bytecode', platform: 'JVM' };
+    // WebAssembly
+    if (b[0] === 0x00 && b[1] === 0x61 && b[2] === 0x73 && b[3] === 0x6D) return { format: 'WebAssembly module (.wasm)', kind: 'bytecode', platform: 'WASM' };
+    // Android Dalvik / DEX
+    if (b[0] === 0x64 && b[1] === 0x65 && b[2] === 0x78 && b[3] === 0x0A) return { format: 'Android DEX bytecode', kind: 'bytecode', platform: 'Android' };
+    // LLVM bitcode
+    if (b[0] === 0x42 && b[1] === 0x43 && b[2] === 0xC0 && b[3] === 0xDE) return { format: 'LLVM bitcode', kind: 'bytecode' };
+    // Python compiled (heuristic: low magic word followed by 0D 0A)
+    if ((b[2] === 0x0D && b[3] === 0x0A) && b[1] === 0x0D) return { format: 'Python bytecode (.pyc)', kind: 'bytecode', platform: 'CPython' };
     // Archives
+    if (b[0] === 0x37 && b[1] === 0x7A && b[2] === 0xBC && b[3] === 0xAF) return { format: '7-Zip archive', kind: 'archive' };
+    if (b[0] === 0x4D && b[1] === 0x53 && b[2] === 0x43 && b[3] === 0x46) return { format: 'Microsoft Cabinet (CAB)', kind: 'archive' };
+    if (b[0] === 0x75 && b[1] === 0x73 && b[2] === 0x74 && b[3] === 0x61) return { format: 'TAR archive', kind: 'archive' };
     if (b[0] === 0x50 && b[1] === 0x4B) return { format: 'ZIP / JAR / APK / Office', kind: 'archive' };
     if (b[0] === 0x1F && b[1] === 0x8B) return { format: 'GZIP archive', kind: 'archive' };
     if (b[0] === 0x42 && b[1] === 0x5A && b[2] === 0x68) return { format: 'BZIP2 archive', kind: 'archive' };
