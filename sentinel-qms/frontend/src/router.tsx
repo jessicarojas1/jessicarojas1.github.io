@@ -6,6 +6,7 @@ import type { Capability } from './lib/rbac';
 
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
+const DocumentationPage = lazy(() => import('./pages/docs/DocumentationPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 const NcrListPage = lazy(() => import('./pages/nonconformances/NcrListPage'));
@@ -59,6 +60,11 @@ export function AppRouter() {
           }
         >
           <Route index element={<DashboardPage />} />
+
+          <Route
+            path="docs"
+            element={<Guard capability="docs.read"><DocumentationPage /></Guard>}
+          />
 
           <Route path="nonconformances">
             <Route index element={<Guard capability="ncr.read"><NcrListPage /></Guard>} />

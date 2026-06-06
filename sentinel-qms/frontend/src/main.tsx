@@ -11,6 +11,7 @@ import { AuthProvider } from './lib/auth';
 import './styles/theme.css';
 import './styles/layout.css';
 import './styles/components.css';
+import './styles/docs.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
