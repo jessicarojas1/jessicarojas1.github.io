@@ -12,6 +12,33 @@ body { background: var(--bs-body-bg); }
   border-bottom: 1px solid var(--bs-border-color);
 }
 .citadel-bar .navbar-brand span { letter-spacing:.12em; }
+.citadel-bar .nav-link { color: var(--bs-secondary-color); font-weight:500; font-size:.92rem; display:flex; align-items:center; gap:.35rem; }
+.citadel-bar .nav-link:hover, .citadel-bar .nav-link:focus { color: var(--citadel-accent); }
+.citadel-bar .dropdown-menu { background: var(--bs-body-bg); border:1px solid var(--bs-border-color); font-size:.9rem; }
+.citadel-bar .dropdown-item { color: var(--bs-body-color); display:flex; align-items:center; gap:.5rem; }
+.citadel-bar .dropdown-item:hover { background: var(--bs-tertiary-bg); color: var(--citadel-accent); }
+.citadel-bar .dropdown-header { color: var(--bs-secondary-color); text-transform:uppercase; font-size:.7rem; letter-spacing:.05em; }
+.citadel-bar .navbar-toggler { color: var(--bs-body-color); }
+
+/* anchor scroll offset under the sticky navbar */
+html { scroll-behavior: smooth; }
+.section-anchor { scroll-margin-top: 72px; }
+#intake-section { scroll-margin-top: 72px; }
+
+/* Capability cards */
+.cap-card { height:100%; background: var(--bs-body-bg); border:1px solid var(--bs-border-color); border-radius:14px; padding:1.2rem; transition:.18s ease; }
+.cap-card:hover { border-color: color-mix(in srgb, var(--citadel-accent) 45%, var(--bs-border-color)); transform:translateY(-2px); }
+.cap-card > i { font-size:1.6rem; color: var(--citadel-accent); }
+.cap-card h6 { margin:.5rem 0 .35rem; font-weight:700; }
+.cap-card p { font-size:.85rem; color: var(--bs-secondary-color); margin:0; }
+
+/* Frameworks section */
+.citadel-frameworks { background: var(--bs-tertiary-bg); border-top:1px solid var(--bs-border-color); border-bottom:1px solid var(--bs-border-color); }
+.fw-tile { display:block; height:100%; text-decoration:none; background: var(--bs-body-bg); border:1px solid var(--bs-border-color); border-radius:12px; padding:.85rem .95rem; transition:.16s ease; }
+.fw-tile:hover { border-color: color-mix(in srgb, var(--citadel-accent) 50%, var(--bs-border-color)); transform:translateY(-2px); }
+.fw-tile-name { font-weight:700; font-size:.92rem; color: var(--bs-body-color); line-height:1.2; }
+.fw-tile-ver { font-size:.72rem; color: var(--bs-secondary-color); margin:.15rem 0 .35rem; }
+.fw-tile-desc { font-size:.78rem; color: var(--bs-secondary-color); }
 
 /* ---------- Hero ---------- */
 .citadel-hero {

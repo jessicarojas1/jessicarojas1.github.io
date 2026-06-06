@@ -26,6 +26,22 @@
   $('framework-chips').innerHTML = CITADEL.frameworks.CATALOG
     .map(f => `<span class="hero-chip" title="${f.desc.replace(/"/g, '')}">${f.name}</span>`).join('');
 
+  /* ---------- Frameworks section grid ---------- */
+  const fgrid = $('frameworks-grid');
+  if (fgrid) {
+    fgrid.innerHTML = CITADEL.frameworks.CATALOG.map(f => `
+      <div class="col-sm-6 col-lg-4 col-xl-3">
+        <a class="fw-tile" href="${f.url}" target="_blank" rel="noopener">
+          <div class="d-flex justify-content-between align-items-start gap-2">
+            <span class="fw-tile-name">${f.name}</span>
+            <span class="badge framework-tag">${f.tag}</span>
+          </div>
+          <div class="fw-tile-ver">${f.version}</div>
+          <div class="fw-tile-desc">${f.desc.replace(/"/g, '')}</div>
+        </a>
+      </div>`).join('');
+  }
+
   /* ---------- Deep-scan mode (only if backend is present) ---------- */
   let deepMode = false, deepAvailable = false, aiAvailable = false;
   (async function initDeep() {
