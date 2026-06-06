@@ -4,7 +4,7 @@ declare(strict_types=1);
 class ReportController {
 
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('report.view');
         $pageTitle    = 'Reports';
         $activeModule = 'report';
         $breadcrumbs  = [['Reports', null]];
@@ -12,7 +12,7 @@ class ReportController {
     }
 
     public function compliance(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('report.view');
 
         $packages = Database::fetchAll(
             "SELECT cp.id, cp.name, cp.objectives_count,
@@ -66,7 +66,7 @@ class ReportController {
     }
 
     public function executive(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('report.view');
 
         // Compliance health
         $totalCtrl      = (int)(Database::fetchOne("SELECT COUNT(*) AS c FROM control_implementations")['c'] ?? 0);
@@ -127,7 +127,7 @@ class ReportController {
     }
 
     public function board(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('report.view');
 
         // Date range: default last 90 days
         $asOf = date('Y-m-d');
@@ -213,7 +213,7 @@ class ReportController {
     }
 
     public function riskDetail(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('report.view');
         $status = Security::sanitizeInput($_GET['status'] ?? '');
         $level  = Security::sanitizeInput($_GET['level'] ?? '');
 
@@ -241,7 +241,7 @@ class ReportController {
     }
 
     public function risk(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('report.view');
 
         $risks = Database::fetchAll(
             "SELECT r.*, rc.name AS category_name, u.name AS owner_name,
