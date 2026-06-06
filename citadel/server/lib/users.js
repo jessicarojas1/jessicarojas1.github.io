@@ -67,7 +67,17 @@ function load() {
   if (changed) save();
   return _db;
 }
-function save() { try { fs.mkdirSync(DATA_DIR, { recursive: true }); fs.writeFileSync(FILE, JSON.stringify(_db, null, 2)); } catch (e) { /* ephemeral fs */ } }
+let _warnedSave = false;
+function save() {
+  try { fs.mkdirSync(DATA_DIR, { recursive: true }); fs.writeFileSync(FILE, JSON.stringify(_db, null, 2)); }
+  catch (e) {
+    if (!_warnedSave) {
+      _warnedSave = true;
+      console.warn('[citadel] WARNING: cannot persist user store to ' + FILE + ' (' + e.code + '). ' +
+        'Accounts and the JWT secret will reset on restart. Set CITADEL_DATA_DIR to a writable persistent disk.');
+    }
+  }
+}
 
 function strip(u) { if (!u) return null; const { pass, salt, ...rest } = u; return rest; }
 function secret() { return load().secret; }

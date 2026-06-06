@@ -30,9 +30,34 @@ services:
     plan: standard
     healthCheckPath: /api/health
     autoDeploy: true
+    # Persistent disk for the backend user store (users.json) and JWT secret.
+    # Without it, Render's filesystem is ephemeral and the seeded admin account
+    # + any users you create reset on every deploy/restart. Mounted where
+    # CITADEL_DATA_DIR points (below). 1 GB is ample for the JSON store.
+    disk:
+      name: citadel-data
+      mountPath: /var/lib/citadel
+      sizeGB: 1
     envVars:
       - key: NODE_ENV
         value: production
+      # Where the backend persists users.json + the JWT secret. Points at the
+      # persistent disk above so accounts survive deploys.
+      - key: CITADEL_DATA_DIR
+        value: /var/lib/citadel
+      # Stable HS256 signing secret for session JWTs. generateValue makes Render
+      # mint it once and reuse it across deploys, so existing sessions stay valid
+      # (and it's seeded into the user store on first boot).
+      - key: CITADEL_JWT_SECRET
+        generateValue: true
+      # Optional first-boot admin override. If unset, the store seeds
+      # admin@citadel.local / citadel-admin on first run — change the password
+      # immediately after first login (it persists on the disk). To bootstrap a
+      # strong admin password instead, set these in the dashboard BEFORE first deploy.
+      - key: CITADEL_ADMIN_EMAIL
+        sync: false
+      - key: CITADEL_ADMIN_PASSWORD
+        sync: false
       # Optional: enables the AI "Explain & fix" feature. Set in the dashboard.
       - key: ANTHROPIC_API_KEY
         sync: false
