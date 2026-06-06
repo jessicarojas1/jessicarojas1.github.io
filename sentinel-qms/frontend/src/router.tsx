@@ -35,7 +35,9 @@ const UsersPage = lazy(() => import('./pages/admin/UsersPage'));
 const RolesPage = lazy(() => import('./pages/admin/RolesPage'));
 const PermissionsPage = lazy(() => import('./pages/admin/PermissionsPage'));
 const AuditTrailPage = lazy(() => import('./pages/admin/AuditTrailPage'));
+const SettingsPage = lazy(() => import('./pages/admin/SettingsPage'));
 const AnalyticsPage = lazy(() => import('./pages/AnalyticsPage'));
+const ReportsPage = lazy(() => import('./pages/ReportsPage'));
 
 function PageFallback() {
   return (
@@ -84,6 +86,11 @@ export function AppRouter() {
           <Route
             path="analytics"
             element={<Guard page="analytics" capability="ncr.read"><AnalyticsPage /></Guard>}
+          />
+
+          <Route
+            path="reports"
+            element={<Guard page="analytics" capability="ncr.read"><ReportsPage /></Guard>}
           />
 
           <Route path="nonconformances">
@@ -151,6 +158,7 @@ export function AppRouter() {
             <Route path="roles" element={<Guard page="roles" capability="admin.roles"><RolesPage /></Guard>} />
             <Route path="permissions" element={<Guard page="permissions" capability="admin.roles"><PermissionsPage /></Guard>} />
             <Route path="audit-trail" element={<Guard page="audit_trail" capability="admin.users"><AuditTrailPage /></Guard>} />
+            <Route path="settings" element={<Guard capability="admin.users"><SettingsPage /></Guard>} />
           </Route>
 
           <Route path="*" element={<NotFoundPage />} />

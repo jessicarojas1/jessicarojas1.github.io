@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { AlertCircle, Boxes, LogIn } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { getErrorMessage } from '@/lib/api';
+import { useOrgSettings } from '@/hooks';
 import { FormField, TextInput } from '@/components/FormField';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
@@ -20,6 +21,10 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [serverError, setServerError] = useState<string | null>(null);
+  // Branding is best-effort here (endpoint requires auth); fall back to static.
+  const { data: settings } = useOrgSettings();
+  const brandName = settings?.organization_name || 'Sentinel QMS';
+  const logoUrl = settings?.logo_url || null;
 
   const {
     register,
@@ -51,10 +56,14 @@ export default function LoginPage() {
         <div className="login-card">
           <div className="login-brand">
             <span className="logo-mark">
-              <Boxes size={22} />
+              {logoUrl ? (
+                <img src={logoUrl} alt="" className="logo-mark__img" />
+              ) : (
+                <Boxes size={22} />
+              )}
             </span>
             <div>
-              <h1 style={{ fontSize: 20 }}>Sentinel QMS</h1>
+              <h1 style={{ fontSize: 20 }}>{brandName}</h1>
               <div className="muted text-sm">Enterprise Quality Management</div>
             </div>
           </div>
