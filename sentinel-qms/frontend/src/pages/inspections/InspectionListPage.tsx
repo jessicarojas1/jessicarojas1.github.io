@@ -48,6 +48,7 @@ export default function InspectionListPage() {
         pageSize={ctl.pageSize}
         total={data?.total}
         onPageChange={ctl.setPage}
+        exportFilename="inspections"
         filters={
           <>
             <div className="field">

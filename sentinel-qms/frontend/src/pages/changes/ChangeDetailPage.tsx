@@ -59,11 +59,14 @@ export default function ChangeDetailPage() {
             subtitle={chg.title}
             breadcrumbs={[{ label: 'Change Control', to: '/changes' }, { label: chg.change_number }]}
             actions={
-              canApprove && pending && (
-                <button type="button" className="btn btn-primary" onClick={() => setSigOpen(true)}>
-                  <Stamp size={16} /> Approve & Sign
-                </button>
-              )
+              <>
+                <PrintButton />
+                {canApprove && pending && (
+                  <button type="button" className="btn btn-primary" onClick={() => setSigOpen(true)}>
+                    <Stamp size={16} /> Approve & Sign
+                  </button>
+                )}
+              </>
             }
           />
 

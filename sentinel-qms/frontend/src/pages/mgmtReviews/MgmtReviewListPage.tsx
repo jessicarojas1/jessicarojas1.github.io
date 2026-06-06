@@ -48,6 +48,7 @@ export default function MgmtReviewListPage() {
         pageSize={ctl.pageSize}
         total={data?.total}
         onPageChange={ctl.setPage}
+        exportFilename="management-reviews"
         filters={
           <div className="field">
             <Select aria-label="Filter by status" value={ctl.filters.status ?? ''} onChange={(e) => ctl.setFilter('status', e.target.value)}>

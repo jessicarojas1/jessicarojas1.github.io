@@ -59,12 +59,14 @@ export default function CapaDetailPage() {
             subtitle={capa.title}
             breadcrumbs={[{ label: 'CAPA', to: '/capa' }, { label: capa.capa_number }]}
             actions={
-              canClose &&
-              capa.status !== 'closed' && (
-                <button type="button" className="btn btn-primary" onClick={() => setSigOpen(true)}>
-                  <ShieldCheck size={16} /> Close & Sign
-                </button>
-              )
+              <>
+                <PrintButton />
+                {canClose && capa.status !== 'closed' && (
+                  <button type="button" className="btn btn-primary" onClick={() => setSigOpen(true)}>
+                    <ShieldCheck size={16} /> Close & Sign
+                  </button>
+                )}
+              </>
             }
           />
 

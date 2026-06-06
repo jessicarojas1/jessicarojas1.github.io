@@ -98,6 +98,7 @@ export default function NcrListPage() {
         pageSize={ctl.pageSize}
         total={data?.total}
         onPageChange={ctl.setPage}
+        exportFilename="nonconformances"
         filters={
           <>
             <div className="field">

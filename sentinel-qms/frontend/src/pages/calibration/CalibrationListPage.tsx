@@ -58,6 +58,7 @@ export default function CalibrationListPage() {
         pageSize={ctl.pageSize}
         total={data?.total}
         onPageChange={ctl.setPage}
+        exportFilename="calibration"
         filters={
           <>
             <div className="field">

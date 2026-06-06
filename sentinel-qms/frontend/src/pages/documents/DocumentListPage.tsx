@@ -49,6 +49,7 @@ export default function DocumentListPage() {
         pageSize={ctl.pageSize}
         total={data?.total}
         onPageChange={ctl.setPage}
+        exportFilename="documents"
         filters={
           <div className="field">
             <Select

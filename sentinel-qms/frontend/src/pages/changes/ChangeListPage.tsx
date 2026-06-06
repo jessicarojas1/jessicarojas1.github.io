@@ -50,6 +50,7 @@ export default function ChangeListPage() {
         pageSize={ctl.pageSize}
         total={data?.total}
         onPageChange={ctl.setPage}
+        exportFilename="change-control"
         filters={
           <>
             <div className="field">
