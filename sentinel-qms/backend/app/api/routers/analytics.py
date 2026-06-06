@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_current_user
+from app.api.deps import require_page
 from app.core.database import get_db
 from app.models.audit_mgmt import Audit, AuditFinding, AuditStatus
 from app.models.calibration import Equipment  # noqa: F401 (kept for parity)
@@ -103,7 +103,7 @@ def _count_open(db: Session, model, states: list) -> int:
 def trends(
     months: int = Query(6, ge=1, le=36),
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(get_current_user),
+    _: CurrentUser = Depends(require_page("analytics", "view")),
 ) -> AnalyticsTrends:
     window = _month_window(months)
 

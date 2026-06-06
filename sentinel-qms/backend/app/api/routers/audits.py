@@ -9,12 +9,12 @@ from app.api.deps import (
     Pagination,
     SortParams,
     pagination_params,
+    require_page,
     sort_params,
 )
 from app.core import audit as audit_log
 from app.core.database import get_db
 from app.core.exceptions import NotFoundError
-from app.core.rbac import Permission, require_permission
 from app.models.audit_mgmt import (
     Audit,
     AuditChecklistItem,
@@ -60,7 +60,7 @@ def list_audits(
     sort: SortParams = Depends(sort_params),
     status_filter: AuditStatus | None = Query(None, alias="status"),
     audit_type: AuditType | None = Query(None),
-    _: CurrentUser = Depends(require_permission(Permission.AUDIT_READ)),
+    _: CurrentUser = Depends(require_page("audits", "view")),
 ) -> Page[AuditList]:
     stmt = base_select(Audit)
     if status_filter:
@@ -77,7 +77,7 @@ def create_audit(
     body: AuditCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.AUDIT_WRITE)),
+    actor: CurrentUser = Depends(require_page("audits", "edit")),
 ) -> Audit:
     rec = Audit(
         **body.model_dump(),
@@ -107,7 +107,7 @@ def create_audit(
 def get_audit(
     audit_id: int,
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(require_permission(Permission.AUDIT_READ)),
+    _: CurrentUser = Depends(require_page("audits", "view")),
 ) -> Audit:
     return get_or_404(db, Audit, audit_id, name="Audit")
 
@@ -118,7 +118,7 @@ def update_audit(
     body: AuditUpdate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.AUDIT_WRITE)),
+    actor: CurrentUser = Depends(require_page("audits", "edit")),
 ) -> Audit:
     rec = get_or_404(db, Audit, audit_id, name="Audit")
     before = audit_log.snapshot(rec)
@@ -150,7 +150,7 @@ def add_finding(
     body: FindingCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.AUDIT_WRITE)),
+    actor: CurrentUser = Depends(require_page("audits", "edit")),
 ) -> AuditFinding:
     rec = get_or_404(db, Audit, audit_id, name="Audit")
     seq = (
@@ -192,7 +192,7 @@ def update_finding(
     body: FindingUpdate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.AUDIT_WRITE)),
+    actor: CurrentUser = Depends(require_page("audits", "edit")),
 ) -> AuditFinding:
     finding = db.get(AuditFinding, finding_id)
     if finding is None:
@@ -224,7 +224,7 @@ def link_finding_to_capa(
     body: FindingLinkCapa,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.AUDIT_WRITE)),
+    actor: CurrentUser = Depends(require_page("audits", "edit")),
 ) -> AuditFinding:
     finding = db.get(AuditFinding, finding_id)
     if finding is None:
@@ -257,7 +257,7 @@ def add_checklist_item(
     audit_id: int,
     body: ChecklistItemCreate,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.AUDIT_WRITE)),
+    actor: CurrentUser = Depends(require_page("audits", "edit")),
 ) -> AuditChecklistItem:
     get_or_404(db, Audit, audit_id, name="Audit")
     item = AuditChecklistItem(audit_id=audit_id, **body.model_dump())
