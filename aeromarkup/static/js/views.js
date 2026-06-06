@@ -1,12 +1,13 @@
 /* AeroMarkup — application views (offline-first, IndexedDB-authoritative). */
 import { all, get, put, del, byIndex, uid, getMeta, setMeta } from "./store.js";
-import { currentUser, can } from "./session.js";
+import { currentUser, can, getClassification } from "./session.js";
 import { logAudit, recentAudit } from "./audit.js";
 import { syncDrawing, pushNcr, pushApproval, netState } from "./api.js";
 import { icon } from "./icons.js";
 import { $, $$, el, esc, modal, toast, pill, fmtDate, fmtDay, timeAgo, formValues } from "./ui.js";
 import { Editor } from "./canvas.js";
 import { navigate } from "./router.js";
+import { flattenPNG, renderInto, renderDiff, diffSnapshots } from "./snapshot.js";
 
 /* =================================================================
    Seeding — give a brand-new (offline) device realistic demo content.
@@ -254,6 +255,8 @@ export async function renderEditor(host, drawingId) {
       `${pill(d.status || "draft")}
        <button class="btn btn-ghost" data-back>${icon("chevron", 16)} Project</button>
        ${wf.join("")}
+       <button class="btn btn-ghost" data-revisions>${icon("layers", 15)} Revisions</button>
+       <button class="btn btn-ghost" data-report>${icon("download", 15)} Report PDF</button>
        <button class="btn btn-primary" data-sync>${icon("sync", 15)} Sync</button>`)}
     <div class="editor-host" style="height:calc(100vh - var(--topbar) - var(--cui-h)*2 - 120px);min-height:480px"></div>`;
 
@@ -274,10 +277,165 @@ export async function renderEditor(host, drawingId) {
       toast("Synced to server", "success");
     } catch (e) { toast(e.message, "error", 5000); }
   });
+  $("[data-report]", host).addEventListener("click", () => buildReport(d, project));
+  $("[data-revisions]", host).addEventListener("click", () => revisionsModal(d, () => renderEditor(host, drawingId)));
   $$("[data-wf]", host).forEach((b) => b.addEventListener("click", () => signAction("drawing", d.id, b.dataset.wf, async (newStatus) => {
-    if (newStatus) { d.status = newStatus; d.updated_at = new Date().toISOString(); await put("drawings", d); }
+    if (newStatus) {
+      d.status = newStatus; d.updated_at = new Date().toISOString(); await put("drawings", d);
+      // capture an immutable snapshot at each lifecycle transition
+      await saveRevision(d, `${b.dataset.wf} · status → ${newStatus}`);
+    }
     renderEditor(host, drawingId);
   })));
+}
+
+/* =================================================================
+   Snapshots · Revisions · Compare · PDF report
+   ================================================================= */
+async function buildSnapshot(drawing) {
+  const strokes = await byIndex("strokes", "drawing_id", drawing.id);
+  const annotations = await byIndex("annotations", "drawing_id", drawing.id);
+  return {
+    width: drawing.width, height: drawing.height, background_data: drawing.background_data,
+    scale_ratio: drawing.scale_ratio, units: drawing.units, strokes, annotations,
+  };
+}
+
+async function saveRevision(drawing, note) {
+  const existing = await byIndex("revisions", "drawing_id", drawing.id);
+  const rev = {
+    id: uid(), client_uid: uid(), drawing_id: drawing.id,
+    version: existing.length + 1, snapshot: await buildSnapshot(drawing),
+    note: note || "", created_by: currentUser().display_name, created_at: new Date().toISOString(),
+  };
+  await put("revisions", rev);
+  await logAudit("drawing.revision", "drawing", drawing.id, { version: rev.version, note: rev.note });
+  return rev;
+}
+
+async function buildReport(drawing, project) {
+  toast("Preparing report…", "info", 1500);
+  const snap = await buildSnapshot(drawing);
+  const [img, ncrs, approvals] = await Promise.all([
+    flattenPNG(snap),
+    byIndex("ncrs", "project_id", drawing.project_id),
+    byIndex("approvals", "entity", `drawing:${drawing.id}`),
+  ]);
+  const cls = drawing.classification || (await getClassification());
+  const measures = (snap.strokes || []).filter((s) => s.kind === "measure");
+  const notes = (snap.annotations || []).filter((a) => a.kind === "note");
+  const linkedNcr = ncrs.filter((n) => n.drawing_id === drawing.id);
+  const when = fmtDate(new Date().toISOString());
+
+  const metaRows = [
+    ["Drawing No.", drawing.drawing_number || "—"], ["Revision", drawing.revision || "A"],
+    ["Title", drawing.title], ["Status", (drawing.status || "draft").replace(/_/g, " ")],
+    ["Project", project ? project.name : "—"], ["Tail / Part", `${project?.tail_number || "—"} / ${project?.part_number || "—"}`],
+    ["Work Order", project?.work_order || "—"], ["Scale", drawing.scale_ratio ? `1px = ${drawing.scale_ratio.toFixed(4)} ${drawing.units || "in"}` : "uncalibrated"],
+  ];
+  const tbl = (head, rows) => rows.length
+    ? `<table><thead><tr>${head.map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${rows.join("")}</tbody></table>`
+    : `<p style="font-size:9pt;color:#555">None.</p>`;
+
+  const rpt = el(`<div class="print-report">
+    <div class="report-header">
+      <div><h1>Engineering Markup Report</h1>
+        <div class="mono">${esc(drawing.drawing_number || drawing.title)} · Rev ${esc(drawing.revision || "A")}</div></div>
+      <div style="text-align:right"><div><strong>${esc(cls)}</strong></div><div>${esc(when)}</div>
+        <div style="font-size:9pt">Generated by ${esc(currentUser().display_name)}</div></div>
+    </div>
+    <table><tbody>${metaRows.map(([k, v]) => `<tr><th style="width:160px">${esc(k)}</th><td>${esc(String(v))}</td></tr>`).join("")}</tbody></table>
+    <h3 style="margin:14px 0 6px">Marked-up Drawing</h3>
+    <img src="${img}" style="max-width:100%;border:1px solid #999"/>
+    <h3 style="margin:14px 0 6px">Measurements</h3>
+    ${tbl(["#", "Dimension"], measures.map((m, i) => {
+      const px = Math.hypot(m.x2 - m.x, m.y2 - m.y);
+      const val = drawing.scale_ratio ? (px * drawing.scale_ratio).toFixed(3) + " " + (drawing.units || "in") : Math.round(px) + " px";
+      return `<tr><td>${i + 1}</td><td>${esc(val)}</td></tr>`;
+    }))}
+    <h3 style="margin:14px 0 6px">Notes</h3>
+    ${tbl(["#", "Note"], notes.map((n, i) => `<tr><td>${i + 1}</td><td>${esc(n.text || "")}</td></tr>`))}
+    <h3 style="margin:14px 0 6px">Linked Nonconformances</h3>
+    ${tbl(["NCR", "Title", "Severity", "Status", "Disposition"], linkedNcr.map((n) =>
+      `<tr><td class="mono">${esc(n.ncr_number)}</td><td>${esc(n.title)}</td><td>${esc(n.severity)}</td><td>${esc(n.status)}</td><td>${esc(n.disposition || "—")}</td></tr>`))}
+    <h3 style="margin:14px 0 6px">Approval Signatures</h3>
+    ${tbl(["When", "Action", "Signed By", "Signature Hash"], approvals.map((a) =>
+      `<tr><td>${esc(fmtDate(a.created_at))}</td><td>${esc(a.action)}</td><td>${esc(a.actor_name)}</td><td class="mono">${esc(a.signature_hash || "")}</td></tr>`))}
+    <div class="report-footer"><span>AeroMarkup · Controlled Engineering Record</span><span>${esc(cls)}</span></div>
+  </div>`);
+
+  document.body.appendChild(rpt);
+  const cleanup = () => { rpt.remove(); window.removeEventListener("afterprint", cleanup); };
+  window.addEventListener("afterprint", cleanup);
+  setTimeout(() => window.print(), 120);
+  setTimeout(cleanup, 120000); // safety net if afterprint never fires
+}
+
+async function revisionsModal(drawing, onChange) {
+  const list = (await byIndex("revisions", "drawing_id", drawing.id)).sort((a, b) => b.version - a.version);
+  const body = el(`<div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--s3)">
+      <span class="muted">Immutable snapshots captured at each lifecycle transition (and on demand).</span>
+      <button class="btn btn-sm btn-outline" data-save-rev>${icon("plus", 14)} Snapshot now</button>
+    </div>
+    ${list.length ? `<div class="table-wrap"><table class="table"><thead><tr>
+      <th>Rev</th><th>Note</th><th>By</th><th>When</th><th>A</th><th>B</th></tr></thead><tbody>
+      ${list.map((r) => `<tr>
+        <td class="mono">v${r.version}</td><td>${esc(r.note || "—")}</td><td>${esc(r.created_by || "—")}</td>
+        <td>${fmtDate(r.created_at)}</td>
+        <td><input type="radio" name="rev-a" value="${r.id}"></td>
+        <td><input type="radio" name="rev-b" value="${r.id}"></td>
+      </tr>`).join("")}</tbody></table></div>`
+      : empty("No revisions yet. Snapshot now or submit for review.")}
+  </div>`);
+  const foot = el(`<div><button class="btn btn-ghost" data-cancel>Close</button>
+    <button class="btn btn-primary" data-compare ${list.length < 2 ? "disabled" : ""}>${icon("layers", 15)} Compare A vs B</button></div>`);
+  const m = modal({ title: `Revisions · ${drawing.drawing_number || drawing.title}`, body, footer: foot, width: 720 });
+  $("[data-cancel]", foot).addEventListener("click", m.close);
+  $("[data-save-rev]", body).addEventListener("click", async () => {
+    const note = prompt("Revision note (optional):") || "manual snapshot";
+    await saveRevision(drawing, note); m.close(); toast("Revision saved", "success");
+    onChange && onChange();
+  });
+  const cmp = $("[data-compare]", foot);
+  cmp && cmp.addEventListener("click", () => {
+    const aId = (body.querySelector('input[name="rev-a"]:checked') || {}).value;
+    const bId = (body.querySelector('input[name="rev-b"]:checked') || {}).value;
+    if (!aId || !bId || aId === bId) return toast("Pick two different revisions (A and B).", "error");
+    const a = list.find((r) => r.id === aId), b = list.find((r) => r.id === bId);
+    m.close(); compareModal(drawing, a, b);
+  });
+}
+
+function compareModal(drawing, revA, revB) {
+  const d = diffSnapshots(revA.snapshot, revB.snapshot);
+  const body = el(`<div>
+    <div class="grid-3" style="margin-bottom:var(--s3)">
+      <div class="kpi kpi-accent kpi-success"><div class="kpi-label">Added in v${revB.version}</div><div class="kpi-value">${d.added.length}</div></div>
+      <div class="kpi kpi-accent kpi-danger"><div class="kpi-label">Removed since v${revA.version}</div><div class="kpi-value">${d.removed.length}</div></div>
+      <div class="kpi kpi-accent"><div class="kpi-label">Unchanged</div><div class="kpi-value">${d.unchanged}</div></div>
+    </div>
+    <div class="grid-2">
+      <div class="card"><div class="card-head"><div class="card-title">v${revA.version} — ${esc(revA.note || "")}</div></div>
+        <div class="card-body" style="text-align:center"><canvas data-cv-a style="max-width:100%;border:1px solid var(--border);border-radius:var(--radius)"></canvas></div></div>
+      <div class="card"><div class="card-head"><div class="card-title">v${revB.version} — ${esc(revB.note || "")}</div></div>
+        <div class="card-body" style="text-align:center"><canvas data-cv-b style="max-width:100%;border:1px solid var(--border);border-radius:var(--radius)"></canvas></div></div>
+    </div>
+    <div class="card" style="margin-top:var(--s4)">
+      <div class="card-head"><div class="card-title">Overlay diff</div>
+        <span class="muted" style="font-size:.75rem"><span style="color:var(--success)">■</span> added &nbsp;<span style="color:var(--danger)">■</span> removed &nbsp;<span style="color:var(--text-faint)">■</span> unchanged</span></div>
+      <div class="card-body" style="text-align:center"><canvas data-cv-diff style="max-width:100%;border:1px solid var(--border);border-radius:var(--radius)"></canvas></div>
+    </div>
+  </div>`);
+  const m = modal({ title: `Compare Revisions · v${revA.version} → v${revB.version}`, body, width: 980 });
+  // render after the modal is in the DOM
+  setTimeout(async () => {
+    try {
+      await renderInto($("[data-cv-a]", body), revA.snapshot, 440, 330);
+      await renderInto($("[data-cv-b]", body), revB.snapshot, 440, 330);
+      await renderDiff($("[data-cv-diff]", body), revA.snapshot, revB.snapshot, 900, 520);
+    } catch (e) { console.error(e); toast("Could not render comparison: " + e.message, "error"); }
+  }, 30);
 }
 
 /* =================================================================

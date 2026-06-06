@@ -5,7 +5,7 @@ const CACHE = "aeromarkup-v2";
 const SHELL = [
   "./", "index.html", "app.css", "manifest.webmanifest", "icon.svg",
   "js/app.js", "js/router.js", "js/store.js", "js/session.js", "js/audit.js",
-  "js/api.js", "js/ui.js", "js/icons.js", "js/canvas.js", "js/views.js",
+  "js/api.js", "js/ui.js", "js/icons.js", "js/canvas.js", "js/snapshot.js", "js/views.js",
 ];
 
 self.addEventListener("install", (e) => {

@@ -3,7 +3,7 @@
    Every record carries a stable `client_uid` so it can sync idempotently. */
 
 const DB_NAME = "aeromarkup";
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 const STORES = {
   programs:     { keyPath: "id", indexes: [] },
   projects:     { keyPath: "id", indexes: [["program_id", "program_id"]] },
@@ -11,6 +11,7 @@ const STORES = {
   strokes:      { keyPath: "id", indexes: [["drawing_id", "drawing_id"]] },
   annotations:  { keyPath: "id", indexes: [["drawing_id", "drawing_id"]] },
   layers:       { keyPath: "id", indexes: [["drawing_id", "drawing_id"]] },
+  revisions:    { keyPath: "id", indexes: [["drawing_id", "drawing_id"]] },
   ncrs:         { keyPath: "id", indexes: [["project_id", "project_id"], ["status", "status"]] },
   inspections:  { keyPath: "id", indexes: [["project_id", "project_id"]] },
   inspection_items: { keyPath: "id", indexes: [["inspection_id", "inspection_id"]] },
