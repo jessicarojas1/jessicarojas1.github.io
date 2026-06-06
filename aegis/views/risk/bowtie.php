@@ -406,7 +406,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 
       <!-- ── (A) Causes Column ───────────────────────────── -->
       <div class="bt-causes-col">
-        <div class="bt-col-header" style="color:var(--danger);background:#dc262618;border:1px solid #dc262640">
+        <div class="bt-col-header" style="color:var(--danger);background:color-mix(in srgb,var(--danger) 9%,transparent);border:1px solid color-mix(in srgb,var(--danger) 25%,transparent)">
           <i class="bi bi-exclamation-triangle-fill"></i> Threat / Cause
         </div>
         <?php if (empty($causes)): ?>

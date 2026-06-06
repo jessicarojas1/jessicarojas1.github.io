@@ -90,7 +90,7 @@ $csrf = Security::generateCsrfToken(); ?>
 
 <script nonce="<?= Security::nonce() ?>">
 document.getElementById('btnTestRule').addEventListener('click', testRule);
-let csrf = <?= json_encode(Security::generateCsrfToken()) ?>;
+let csrf = <?= json_encode(Security::generateCsrfToken(), JSON_HEX_TAG | JSON_HEX_AMP) ?>;
 async function testRule() {
   const pre = document.getElementById('testResult');
   pre.style.display = 'block';

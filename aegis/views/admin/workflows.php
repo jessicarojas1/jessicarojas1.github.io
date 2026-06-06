@@ -120,7 +120,7 @@ ob_start();
             </div>
             <div class="wt-desc"><?= $desc ?></div>
           </div>
-          <button class="btn btn-ghost btn-sm" data-click="useTemplate" data-args='[<?= json_encode($name) ?>,<?= json_encode($trigger) ?>]'>Use</button>
+          <button class="btn btn-ghost btn-sm" data-click="useTemplate" data-args='[<?= htmlspecialchars(json_encode($name), ENT_QUOTES, 'UTF-8') ?>,<?= htmlspecialchars(json_encode($trigger), ENT_QUOTES, 'UTF-8') ?>]'>Use</button>
         </div>
       <?php endforeach; ?>
     </div>

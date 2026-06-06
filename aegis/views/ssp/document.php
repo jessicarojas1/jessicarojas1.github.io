@@ -404,7 +404,7 @@ document.getElementById('btnWord').addEventListener('click', function() {
 document.querySelectorAll('.save-btn').forEach(function(btn) {
   btn.addEventListener('click', function(){ saveStatement(btn, btn.dataset.saveField); });
 });
-let _csrf = <?= json_encode(Security::generateCsrfToken()) ?>;
+let _csrf = <?= json_encode(Security::generateCsrfToken(), JSON_HEX_TAG | JSON_HEX_AMP) ?>;
 
 function saveStatement(btn, field) {
   const row   = btn.closest('.control-body');
