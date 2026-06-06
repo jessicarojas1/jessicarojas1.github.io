@@ -14,6 +14,7 @@ import { useToast } from '@/lib/toast';
 import type { PermLevel } from '@/lib/permissions';
 import { PageHeader } from '@/components/PageHeader';
 import { EmptyState } from '@/components/EmptyState';
+import { IamUserManager } from '@/components/IamUserManager';
 import { ROLE_LABELS, type Role } from '@/types';
 
 const LEVELS: PermLevel[] = ['none', 'view', 'edit'];
@@ -280,7 +281,7 @@ export default function PermissionsPage() {
         <button type="button" className={`tab ${tab === 'users' ? 'tab--active' : ''}`} onClick={() => setTab('users')}>By User</button>
       </div>
       <div className="card">
-        <div className="card__body">{tab === 'roles' ? <RoleMatrix /> : <UserPanel />}</div>
+        <div className="card__body">{tab === 'roles' ? <RoleMatrix /> : <IamUserManager />}</div>
       </div>
     </>
   );
