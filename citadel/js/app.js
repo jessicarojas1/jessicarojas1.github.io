@@ -22,6 +22,57 @@
   });
   applyThemeIcon();
 
+  /* ---------- Access control (users & page-level permissions) ---------- */
+  const escH = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  let _loginModal = null;
+  function loginModal() { if (!_loginModal && root.bootstrap) _loginModal = new root.bootstrap.Modal($('loginModal')); return _loginModal; }
+  function openLogin() {
+    const a = CITADEL.auth; const h = $('login-hint');
+    if (h) h.innerHTML = 'Demo admin — <code>' + escH(a.DEFAULT_ADMIN.email) + '</code> / <code>' + escH(a.DEFAULT_ADMIN.password) + '</code>';
+    const er = $('login-error'); if (er) er.classList.add('d-none');
+    const m = loginModal(); if (m) m.show();
+  }
+  function renderUserArea() {
+    const a = CITADEL.auth, ua = $('user-area'); if (!ua) return;
+    const u = a.current();
+    const adm = $('nav-admin'); if (adm) adm.classList.toggle('d-none', !(u && u.role === 'admin'));
+    ua.innerHTML = u
+      ? `<span class="badge bg-secondary">${escH(u.role)}</span><span class="small d-none d-sm-inline">${escH(u.name || u.email)}</span><button class="btn btn-sm btn-outline-secondary" id="logout-btn" title="Sign out"><i class="bi bi-box-arrow-right"></i></button>`
+      : `<button class="btn btn-sm btn-outline-primary" id="login-btn"><i class="bi bi-box-arrow-in-right"></i> Login</button>`;
+  }
+  function applyAccess() {
+    const a = CITADEL.auth, st = a.settings();
+    renderUserArea();
+    document.querySelectorAll('.tab-btn').forEach(b => {
+      const restrict = st.enforce && !a.can(b.dataset.tab);
+      b.classList.toggle('d-none', restrict);
+    });
+    // deep-scan gate
+    const dt = $('deep-mode-toggle');
+    if (dt && st.enforce && !a.can('deepscan')) { dt.checked = false; dt.disabled = true; } else if (dt) { dt.disabled = false; }
+    // if the active tab is now restricted, switch to the first accessible one
+    const active = document.querySelector('.tab-btn.active');
+    if (st.enforce && active && active.classList.contains('d-none')) {
+      const first = document.querySelector('.tab-btn:not(.d-none)');
+      if (first) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('d-none'));
+        first.classList.add('active');
+        const panel = $(first.dataset.tab); if (panel) panel.classList.remove('d-none');
+      }
+    }
+  }
+  // Block a scan if access control is on and the user lacks the 'analyze' page.
+  function gateScan() {
+    const a = CITADEL.auth, st = a.settings();
+    if (!st.enforce) return true;
+    if (a.can('analyze')) return true;
+    if (!a.current()) { openLogin(); showProgress(100, 'Sign in required to run a scan.', ''); }
+    else { showProgress(100, 'Your account does not have permission to run scans.', ''); }
+    return false;
+  }
+  CITADEL.auth.ready.then(applyAccess);
+
   /* ---------- Hero live stats ---------- */
   (function () {
     const hs = $('hero-stats'); if (!hs) return;
@@ -97,6 +148,7 @@
   })();
 
   $('scan-url-btn').addEventListener('click', async () => {
+    if (!gateScan()) return;
     const url = $('repo-url').value.trim();
     if (!url) return;
     try {
@@ -182,6 +234,7 @@
     showProgress(100, mode === 'deep' ? 'Done (deep scan).' : 'Done.', report.findings.length + ' finding(s)');
     CITADEL.report.render(report);
     try { CITADEL.history.record(report); } catch (e) {}
+    applyAccess();
     $('results').classList.remove('d-none');
     hideProgress();
     $('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -207,6 +260,7 @@
   }
 
   async function handleFiles(files) {
+    if (!gateScan()) return;
     if (deepMode && deepAvailable) return handleDeep(files);
     try {
       showProgress(5, 'Ingesting files…', files.length + ' item(s)');
@@ -221,6 +275,7 @@
   }
 
   async function runDemo() {
+    if (!gateScan()) return;
     showProgress(20, 'Building demo project…', 'synthetic vulnerable app');
     const entries = CITADEL.demo.buildEntries();
     await runScan(entries);
@@ -273,6 +328,18 @@
 
   /* ---------- Tabs ---------- */
   document.addEventListener('click', (e) => {
+    // Auth controls
+    if (e.target.closest('#login-btn')) return openLogin();
+    if (e.target.closest('#logout-btn')) { CITADEL.auth.logout(); applyAccess(); return; }
+    if (e.target.closest('#login-submit')) {
+      const em = $('login-email').value, pw = $('login-password').value;
+      CITADEL.auth.loginByCreds(em, pw).then(u => {
+        if (u) { const m = loginModal(); if (m) m.hide(); $('login-password').value = ''; applyAccess(); }
+        else { const er = $('login-error'); if (er) { er.textContent = 'Invalid credentials or inactive account.'; er.classList.remove('d-none'); } }
+      });
+      return;
+    }
+
     const tab = e.target.closest('.tab-btn');
     if (tab) {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
