@@ -22,27 +22,61 @@ from app.models.base import SoftDeleteMixin, TimestampMixin
 
 
 class DocumentStatus(str, enum.Enum):
-    DRAFT = "draft"
-    IN_REVIEW = "in_review"
+    CONCEPT = "concept"
+    WORK_IN_PROGRESS = "work_in_progress"
+    PEER_REVIEW = "peer_review"
+    QA_REVIEW = "qa_review"
     APPROVED = "approved"
-    EFFECTIVE = "effective"
     OBSOLETE = "obsolete"
 
 
 class DocumentType(str, enum.Enum):
-    PROCEDURE = "procedure"
     WORK_INSTRUCTION = "work_instruction"
-    FORM = "form"
     POLICY = "policy"
-    SPECIFICATION = "specification"
-    DRAWING = "drawing"
-    QUALITY_MANUAL = "quality_manual"
+    PROCESS = "process"
+    PROCEDURE = "procedure"
+    FORM = "form"
+    GUIDE = "guide"
+
+
+class Department(str, enum.Enum):
+    ENS = "ens"
+    EXEC = "exec"
+    QUAL = "qual"
+    ILM = "ilm"
+    INS = "ins"  # label "I&S"
+    TS = "ts"
+    FIN = "fin"
+    OPS = "ops"
+
+
+# Ordered approval stages (excludes the terminal OBSOLETE state). The index of a
+# status in this tuple defines the linear "advance" path.
+WORKFLOW_STAGES: tuple[DocumentStatus, ...] = (
+    DocumentStatus.CONCEPT,
+    DocumentStatus.WORK_IN_PROGRESS,
+    DocumentStatus.PEER_REVIEW,
+    DocumentStatus.QA_REVIEW,
+    DocumentStatus.APPROVED,
+)
+
+
+def next_stage(current: DocumentStatus) -> DocumentStatus | None:
+    """Return the next stage after ``current`` on the linear path, or None."""
+    try:
+        idx = WORKFLOW_STAGES.index(current)
+    except ValueError:
+        return None
+    if idx + 1 >= len(WORKFLOW_STAGES):
+        return None
+    return WORKFLOW_STAGES[idx + 1]
 
 
 # Shared Enum type instances: reuse one object so the PG type is created once
 # even though the enum is referenced by multiple columns/tables.
 DOCUMENT_STATUS_ENUM = Enum(DocumentStatus, name="document_status")
 DOCUMENT_TYPE_ENUM = Enum(DocumentType, name="document_type")
+DEPARTMENT_ENUM = Enum(Department, name="document_department")
 
 
 class Document(Base, TimestampMixin, SoftDeleteMixin):
@@ -54,15 +88,28 @@ class Document(Base, TimestampMixin, SoftDeleteMixin):
     doc_type: Mapped[DocumentType] = mapped_column(DOCUMENT_TYPE_ENUM, nullable=False)
     status: Mapped[DocumentStatus] = mapped_column(
         DOCUMENT_STATUS_ENUM,
-        default=DocumentStatus.DRAFT,
+        default=DocumentStatus.CONCEPT,
         nullable=False,
     )
+    department: Mapped[Department | None] = mapped_column(DEPARTMENT_ENUM, nullable=True)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     owner_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    approved_by: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     current_revision: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    version: Mapped[str | None] = mapped_column(String(16), nullable=True)
     effective_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     next_review_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    last_review_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     as9100_clause: Mapped[str | None] = mapped_column(String(32), nullable=True)
+
+    # Fixed-template body sections.
+    purpose: Mapped[str | None] = mapped_column(Text, nullable=True)
+    scope: Mapped[str | None] = mapped_column(Text, nullable=True)
+    definitions: Mapped[str | None] = mapped_column(Text, nullable=True)
+    responsibilities: Mapped[str | None] = mapped_column(Text, nullable=True)
+    detail: Mapped[str | None] = mapped_column(Text, nullable=True)
+    revision_history: Mapped[str | None] = mapped_column(Text, nullable=True)
+    appendix: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     revisions: Mapped[list[DocumentRevision]] = relationship(
         "DocumentRevision",
@@ -84,7 +131,7 @@ class DocumentRevision(Base, TimestampMixin):
     change_summary: Mapped[str | None] = mapped_column(Text, nullable=True)
     status: Mapped[DocumentStatus] = mapped_column(
         DOCUMENT_STATUS_ENUM,
-        default=DocumentStatus.DRAFT,
+        default=DocumentStatus.CONCEPT,
         nullable=False,
     )
     attachment_id: Mapped[int | None] = mapped_column(ForeignKey("attachments.id"), nullable=True)
