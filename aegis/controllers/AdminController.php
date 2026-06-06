@@ -742,9 +742,14 @@ class AdminController {
                     "INSERT INTO settings (key, value) VALUES ('company_logo_data', ?) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value",
                     [$clean]
                 );
+                if (str_starts_with($clean, 'data:')) {
+                    $logoLabel = 'Logo (data URI)';
+                } else {
+                    $logoLabel = basename((string)parse_url($clean, PHP_URL_PATH)) ?: 'Logo (URL)';
+                }
                 Database::query(
                     "INSERT INTO settings (key, value) VALUES ('company_logo_name', ?) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value",
-                    [Security::sanitizeInput(parse_url($clean, PHP_URL_PATH) !== false ? basename((string)parse_url($clean, PHP_URL_PATH)) : 'logo')]
+                    [Security::sanitizeInput($logoLabel)]
                 );
             }
         }
