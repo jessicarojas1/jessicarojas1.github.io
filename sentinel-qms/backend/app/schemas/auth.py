@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, Field
 
 from app.schemas.common import ORMModel
 
@@ -20,7 +20,9 @@ class TokenRefreshRequest(BaseModel):
 
 
 class LoginRequest(BaseModel):
-    username: EmailStr
+    # Plain string (not EmailStr): the identifier is matched against the user's
+    # email server-side, and EmailStr rejects reserved domains like ".local".
+    username: str = Field(..., min_length=1, max_length=320)
     password: str = Field(..., min_length=1, max_length=256)
 
 
@@ -31,7 +33,7 @@ class RoleRead(ORMModel):
 
 
 class UserBase(BaseModel):
-    email: EmailStr
+    email: str
     full_name: str = Field(..., min_length=1, max_length=255)
     employee_id: str | None = Field(default=None, max_length=64)
     department: str | None = Field(default=None, max_length=128)
@@ -54,7 +56,7 @@ class UserUpdate(BaseModel):
 
 class UserRead(ORMModel):
     id: int
-    email: EmailStr
+    email: str
     full_name: str
     employee_id: str | None = None
     department: str | None = None
@@ -70,7 +72,7 @@ class UserLookup(ORMModel):
 
     id: int
     full_name: str
-    email: EmailStr
+    email: str
     is_active: bool
 
 
