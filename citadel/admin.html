@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; img-src 'self' https://cdn.jsdelivr.net data:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self'; object-src 'none'; base-uri 'self';">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../theme.css" />
+  <link rel="stylesheet" href="css/citadel.css" />
+  <title>CITADEL — Admin console</title>
+  <meta name="description" content="CITADEL admin console — manage users, roles and page-level access control." />
+  <style>
+    .admin-login-wrap { min-height: calc(100vh - 64px); display:flex; align-items:center; justify-content:center; padding:1.5rem; }
+    .admin-login-card { width:100%; max-width:400px; }
+    .perm-group-head { font-size:.66rem; text-transform:uppercase; letter-spacing:.06em; color:var(--bs-secondary-color); white-space:nowrap; }
+    .perm-matrix th, .perm-matrix td { text-align:center; vertical-align:middle; }
+    .perm-matrix th.user-col, .perm-matrix td.user-col { text-align:left; position:sticky; left:0; background:var(--ct-surface, var(--bs-body-bg)); z-index:2; }
+    .perm-matrix thead th { white-space:nowrap; }
+    .perm-col-label { font-size:.72rem; color:var(--bs-secondary-color); }
+    .role-badge { text-transform:capitalize; }
+    .admin-empty { padding:1.5rem; text-align:center; color:var(--bs-secondary-color); }
+    .matrix-cell input { cursor:pointer; }
+  </style>
+</head>
+<body>
+  <!-- Top bar -->
+  <nav class="navbar navbar-expand-lg sticky-top citadel-bar" aria-label="CITADEL admin navigation">
+    <div class="container-fluid px-3 px-lg-4">
+      <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="index.html">
+        <svg width="26" height="26" viewBox="0 0 40 40" aria-hidden="true">
+          <rect width="40" height="40" rx="9" fill="#0ea5e9"/>
+          <path d="M20 6 L32 11 V21 C32 28 27 32.5 20 35 C13 32.5 8 28 8 21 V11 Z" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/>
+          <path d="M14.5 20.5 l4 4 l7.5 -8.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>CITADEL <span class="text-body-secondary fw-normal">/ admin</span></span>
+      </a>
+      <div class="ms-auto d-flex align-items-center gap-2">
+        <a class="btn btn-sm btn-outline-secondary" href="index.html"><i class="bi bi-arrow-left"></i> Analyzer</a>
+        <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Login view -->
+  <div id="login-view" class="admin-login-wrap d-none">
+    <div class="card citadel-card admin-login-card">
+      <div class="card-body p-4">
+        <div class="text-center mb-3">
+          <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true">
+            <rect width="40" height="40" rx="9" fill="#0ea5e9"/>
+            <path d="M20 6 L32 11 V21 C32 28 27 32.5 20 35 C13 32.5 8 28 8 21 V11 Z" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/>
+            <path d="M14.5 20.5 l4 4 l7.5 -8.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <h1 class="h5 mt-2 mb-0">Admin sign in</h1>
+          <p class="small text-body-secondary mb-0">CITADEL access control console</p>
+        </div>
+        <form id="login-form" autocomplete="on">
+          <div class="mb-2">
+            <label class="form-label small" for="login-email">Email</label>
+            <input type="email" class="form-control" id="login-email" required autocomplete="username" placeholder="you@example.com">
+          </div>
+          <div class="mb-2">
+            <label class="form-label small" for="login-password">Password</label>
+            <input type="password" class="form-control" id="login-password" required autocomplete="current-password" placeholder="••••••••">
+          </div>
+          <div id="login-error" class="alert alert-danger py-2 px-3 small d-none mb-2" role="alert"></div>
+          <button type="submit" class="btn btn-primary w-100"><i class="bi bi-box-arrow-in-right"></i> Sign in</button>
+        </form>
+        <p class="small text-body-secondary mt-3 mb-0 text-center" id="login-hint"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Console view -->
+  <main id="console-view" class="container py-4 d-none">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+      <div>
+        <h1 class="h4 mb-0">Access control console</h1>
+        <p class="small text-body-secondary mb-0">Manage users, roles &amp; page-level permissions.</p>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <span class="text-body-secondary small d-flex align-items-center gap-2">
+          <i class="bi bi-person-circle"></i>
+          <span id="me-name"></span>
+          <span class="badge text-bg-primary role-badge" id="me-role"></span>
+        </span>
+        <button class="btn btn-sm btn-outline-danger" id="logout-btn"><i class="bi bi-box-arrow-right"></i> Logout</button>
+      </div>
+    </div>
+
+    <ul class="nav citadel-tabs" id="admin-tabs" role="tablist">
+      <li><button class="tab-btn active" data-tab="tab-users"><i class="bi bi-people-fill"></i> Users</button></li>
+      <li><button class="tab-btn" data-tab="tab-perms"><i class="bi bi-grid-3x3-gap-fill"></i> Permissions</button></li>
+      <li><button class="tab-btn" data-tab="tab-settings"><i class="bi bi-sliders"></i> Access Settings</button></li>
+    </ul>
+
+    <!-- Users tab -->
+    <section class="tab-panel" id="tab-users">
+      <div class="card citadel-card mb-3">
+        <div class="card-body">
+          <h2 class="h6 mb-3"><i class="bi bi-person-plus-fill"></i> Add user</h2>
+          <form id="add-user-form" class="row g-2 align-items-end">
+            <div class="col-12 col-md-3">
+              <label class="form-label small" for="nu-name">Name</label>
+              <input type="text" class="form-control form-control-sm" id="nu-name" placeholder="Jane Doe">
+            </div>
+            <div class="col-12 col-md-3">
+              <label class="form-label small" for="nu-email">Email</label>
+              <input type="email" class="form-control form-control-sm" id="nu-email" required placeholder="jane@example.com">
+            </div>
+            <div class="col-6 col-md-2">
+              <label class="form-label small" for="nu-role">Role</label>
+              <select class="form-select form-select-sm" id="nu-role"></select>
+            </div>
+            <div class="col-6 col-md-2">
+              <label class="form-label small" for="nu-pass">Password</label>
+              <input type="text" class="form-control form-control-sm" id="nu-pass" required placeholder="set a password">
+            </div>
+            <div class="col-12 col-md-2 d-grid">
+              <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> Add</button>
+            </div>
+          </form>
+          <div id="add-user-error" class="alert alert-danger py-2 px-3 small d-none mt-2 mb-0" role="alert"></div>
+        </div>
+      </div>
+
+      <div class="card citadel-card">
+        <div class="table-responsive">
+          <table class="table table-sm align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Created</th><th class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="users-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Permissions tab -->
+    <section class="tab-panel d-none" id="tab-perms">
+      <div class="card citadel-card">
+        <div class="card-body pb-0">
+          <h2 class="h6 mb-1"><i class="bi bi-grid-3x3-gap-fill"></i> Page-level permissions</h2>
+          <p class="small text-body-secondary">Grant or revoke individual pages per user. Administrators implicitly have every permission.</p>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-sm perm-matrix mb-0">
+            <thead id="perms-thead"></thead>
+            <tbody id="perms-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Access Settings tab -->
+    <section class="tab-panel d-none" id="tab-settings">
+      <div class="row g-3">
+        <div class="col-lg-7">
+          <div class="card citadel-card">
+            <div class="card-body">
+              <h2 class="h6 mb-3"><i class="bi bi-sliders"></i> Enforcement</h2>
+              <div class="form-check form-switch mb-2">
+                <input class="form-check-input" type="checkbox" role="switch" id="enforce-switch">
+                <label class="form-check-label fw-semibold" for="enforce-switch">Enforce access control across the analyzer</label>
+              </div>
+              <p class="small text-body-secondary mb-2">
+                When <strong>ON</strong>, the analyzer requires login and hides any Report tab, Analyzer action,
+                or Admin link a user lacks permission for.
+              </p>
+              <p class="small text-body-secondary mb-0">
+                When <strong>OFF</strong> (default), the tool is open to everyone and these permissions only gate
+                the Admin console.
+              </p>
+              <div class="mt-3">
+                <span class="es-pill" id="enforce-pill"><span class="es-dot"></span><span id="enforce-pill-text">Open</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-5">
+          <div class="card citadel-card h-100">
+            <div class="card-body">
+              <h2 class="h6 mb-3"><i class="bi bi-bar-chart-fill"></i> Summary</h2>
+              <p class="mb-2"><span class="display-6 fw-bold" id="summary-user-count">0</span>
+                <span class="text-body-secondary small">users</span></p>
+              <div id="summary-roles"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+  (function () {
+    'use strict';
+    const auth = window.CITADEL && window.CITADEL.auth;
+    const $ = (id) => document.getElementById(id);
+
+    /* ---------- theme toggle (same wiring as other pages) ---------- */
+    function applyThemeIcon() {
+      const t = document.documentElement.getAttribute('data-bs-theme');
+      const ic = document.querySelector('#themeToggleBtn .theme-icon');
+      if (ic) ic.textContent = t === 'dark' ? '☀️' : '🌙';
+    }
+    $('themeToggleBtn').addEventListener('click', () => {
+      const cur = document.documentElement.getAttribute('data-bs-theme');
+      const next = cur === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-bs-theme', next);
+      try { localStorage.setItem('bsTheme', next); } catch (e) {}
+      applyThemeIcon();
+    });
+    applyThemeIcon();
+
+    /* ---------- helpers ---------- */
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[c]));
+    }
+    function fmtDate(iso) {
+      if (!iso) return '—';
+      const d = new Date(iso);
+      return isNaN(d) ? '—' : d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+    }
+    function roleLabel(role) {
+      return (auth.ROLES[role] && auth.ROLES[role].label) || role;
+    }
+
+    /* ---------- view switching ---------- */
+    function show(view) {
+      $('login-view').classList.toggle('d-none', view !== 'login');
+      $('console-view').classList.toggle('d-none', view !== 'console');
+    }
+
+    /* ---------- login ---------- */
+    function setupLogin() {
+      $('login-hint').textContent = 'Demo admin — ' + auth.DEFAULT_ADMIN.email + ' / ' + auth.DEFAULT_ADMIN.password;
+      const form = $('login-form');
+      if (form.dataset.wired) return;
+      form.dataset.wired = '1';
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const err = $('login-error');
+        err.classList.add('d-none');
+        const email = $('login-email').value.trim();
+        const password = $('login-password').value;
+        let user = null;
+        try { user = await auth.loginByCreds(email, password); } catch (ex) { user = null; }
+        if (!user) {
+          err.textContent = 'Invalid credentials or not an administrator.';
+          err.classList.remove('d-none');
+          return;
+        }
+        if (user.role !== 'admin') {
+          auth.logout();
+          err.textContent = 'Invalid credentials or not an administrator.';
+          err.classList.remove('d-none');
+          return;
+        }
+        $('login-password').value = '';
+        render();
+      });
+    }
+
+    /* ---------- tab bar ---------- */
+    function setupTabs() {
+      const bar = $('admin-tabs');
+      if (bar.dataset.wired) return;
+      bar.dataset.wired = '1';
+      bar.addEventListener('click', (e) => {
+        const btn = e.target.closest('.tab-btn');
+        if (!btn) return;
+        bar.querySelectorAll('.tab-btn').forEach((b) => b.classList.toggle('active', b === btn));
+        const target = btn.getAttribute('data-tab');
+        document.querySelectorAll('#console-view .tab-panel').forEach((p) => {
+          p.classList.toggle('d-none', p.id !== target);
+        });
+      });
+    }
+
+    /* ---------- Users tab ---------- */
+    function renderRoleOptions(select, selected) {
+      select.innerHTML = Object.keys(auth.ROLES).map((r) =>
+        '<option value="' + esc(r) + '"' + (r === selected ? ' selected' : '') + '>' + esc(auth.ROLES[r].label) + '</option>'
+      ).join('');
+    }
+
+    function renderUsers() {
+      const me = auth.current();
+      const users = auth.listUsers();
+      const tbody = $('users-tbody');
+      if (!users.length) {
+        tbody.innerHTML = '<tr><td colspan="6" class="admin-empty">No users.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = users.map((u) => {
+        const isMe = me && u.id === me.id;
+        const roleSel = '<select class="form-select form-select-sm" data-role-for="' + esc(u.id) + '" style="min-width:150px">' +
+          Object.keys(auth.ROLES).map((r) =>
+            '<option value="' + esc(r) + '"' + (r === u.role ? ' selected' : '') + '>' + esc(auth.ROLES[r].label) + '</option>'
+          ).join('') + '</select>';
+        const statusBadge = u.active
+          ? '<span class="badge text-bg-success">Active</span>'
+          : '<span class="badge text-bg-secondary">Disabled</span>';
+        const toggleBtn = '<button class="btn btn-sm btn-outline-secondary" data-toggle-active="' + esc(u.id) + '" data-next="' + (u.active ? '0' : '1') + '">' +
+          (u.active ? 'Disable' : 'Enable') + '</button>';
+        const resetBtn = '<button class="btn btn-sm btn-outline-secondary" data-reset-pass="' + esc(u.id) + '"><i class="bi bi-key"></i> Reset password</button>';
+        const removeBtn = isMe
+          ? '<button class="btn btn-sm btn-outline-danger" disabled title="You cannot remove your own account"><i class="bi bi-trash"></i></button>'
+          : '<button class="btn btn-sm btn-outline-danger" data-remove="' + esc(u.id) + '"><i class="bi bi-trash"></i></button>';
+        return '<tr>' +
+          '<td>' + esc(u.name) + (isMe ? ' <span class="badge text-bg-light text-dark">you</span>' : '') + '</td>' +
+          '<td class="text-body-secondary">' + esc(u.email) + '</td>' +
+          '<td>' + roleSel + '</td>' +
+          '<td><div class="d-flex align-items-center gap-2">' + statusBadge + toggleBtn + '</div></td>' +
+          '<td class="text-body-secondary small">' + fmtDate(u.createdAt) + '</td>' +
+          '<td class="text-end"><div class="d-inline-flex gap-1">' + resetBtn + removeBtn + '</div></td>' +
+          '</tr>';
+      }).join('');
+    }
+
+    function wireUsers() {
+      renderRoleOptions($('nu-role'), 'analyst');
+      const addForm = $('add-user-form');
+      if (!addForm.dataset.wired) {
+        addForm.dataset.wired = '1';
+        addForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const err = $('add-user-error');
+          err.classList.add('d-none');
+          try {
+            await auth.addUser({
+              name: $('nu-name').value.trim(),
+              email: $('nu-email').value.trim(),
+              role: $('nu-role').value,
+              password: $('nu-pass').value
+            });
+            addForm.reset();
+            renderRoleOptions($('nu-role'), 'analyst');
+            render();
+          } catch (ex) {
+            err.textContent = ex && ex.message ? ex.message : 'Could not add user.';
+            err.classList.remove('d-none');
+          }
+        });
+      }
+
+      const tbody = $('users-tbody');
+      if (tbody.dataset.wired) return;
+      tbody.dataset.wired = '1';
+      tbody.addEventListener('change', (e) => {
+        const roleSel = e.target.closest('[data-role-for]');
+        if (roleSel) {
+          auth.updateUser(roleSel.getAttribute('data-role-for'), { role: roleSel.value, resetPerms: true });
+          render();
+        }
+      });
+      tbody.addEventListener('click', async (e) => {
+        const toggle = e.target.closest('[data-toggle-active]');
+        if (toggle) {
+          auth.setActive(toggle.getAttribute('data-toggle-active'), toggle.getAttribute('data-next') === '1');
+          render();
+          return;
+        }
+        const resetPass = e.target.closest('[data-reset-pass]');
+        if (resetPass) {
+          const pw = window.prompt('Enter a new password for this user:');
+          if (pw) { await auth.setPassword(resetPass.getAttribute('data-reset-pass'), pw); window.alert('Password updated.'); }
+          return;
+        }
+        const remove = e.target.closest('[data-remove]');
+        if (remove) {
+          if (!window.confirm('Remove this user? This cannot be undone.')) return;
+          try { auth.removeUser(remove.getAttribute('data-remove')); render(); }
+          catch (ex) { window.alert(ex && ex.message ? ex.message : 'Could not remove user.'); }
+        }
+      });
+    }
+
+    /* ---------- Permissions tab ---------- */
+    function renderPerms() {
+      const users = auth.listUsers();
+      const pages = auth.PAGES;
+      // group order based on first appearance
+      const groups = [];
+      pages.forEach((p) => { if (!groups.includes(p.group)) groups.push(p.group); });
+
+      // header: two rows — group header row + page label row
+      let groupRow = '<tr><th class="user-col" rowspan="2">User</th>';
+      groups.forEach((g) => {
+        const count = pages.filter((p) => p.group === g).length;
+        groupRow += '<th colspan="' + count + '" class="perm-group-head border-start">' + esc(g) + '</th>';
+      });
+      groupRow += '</tr>';
+
+      let pageRow = '<tr>';
+      groups.forEach((g) => {
+        const inGroup = pages.filter((p) => p.group === g);
+        inGroup.forEach((p, i) => {
+          pageRow += '<th class="perm-col-label' + (i === 0 ? ' border-start' : '') + '" title="' + esc(p.label) + '">' + esc(p.label) + '</th>';
+        });
+      });
+      pageRow += '</tr>';
+      $('perms-thead').innerHTML = groupRow + pageRow;
+
+      const tbody = $('perms-tbody');
+      if (!users.length) {
+        tbody.innerHTML = '<tr><td class="admin-empty" colspan="' + (pages.length + 1) + '">No users.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = users.map((u) => {
+        const isAdmin = u.role === 'admin';
+        let row = '<tr><td class="user-col">' +
+          '<div class="d-flex flex-column">' +
+            '<span>' + esc(u.name) + '</span>' +
+            '<span class="d-flex align-items-center gap-2 mt-1">' +
+              '<span class="badge text-bg-secondary role-badge">' + esc(u.role) + '</span>' +
+              '<button class="btn btn-sm btn-outline-secondary py-0 px-1" data-reset-perms="' + esc(u.id) + '" data-role="' + esc(u.role) + '" title="Reset to role defaults"><i class="bi bi-arrow-counterclockwise"></i></button>' +
+            '</span>' +
+          '</div></td>';
+        groups.forEach((g) => {
+          const inGroup = pages.filter((p) => p.group === g);
+          inGroup.forEach((p, i) => {
+            const checked = isAdmin ? true : !!(u.permissions && u.permissions[p.id]);
+            row += '<td class="matrix-cell' + (i === 0 ? ' border-start' : '') + '">' +
+              '<input type="checkbox" class="form-check-input" ' +
+                (checked ? 'checked ' : '') + (isAdmin ? 'disabled ' : '') +
+                'data-perm-user="' + esc(u.id) + '" data-perm-page="' + esc(p.id) + '" ' +
+                'aria-label="' + esc(u.name + ' — ' + p.label) + '">' +
+              '</td>';
+          });
+        });
+        row += '</tr>';
+        return row;
+      }).join('');
+    }
+
+    function wirePerms() {
+      const tbody = $('perms-tbody');
+      if (tbody.dataset.wired) return;
+      tbody.dataset.wired = '1';
+      tbody.addEventListener('change', (e) => {
+        const cb = e.target.closest('[data-perm-user]');
+        if (cb) {
+          auth.setPermission(cb.getAttribute('data-perm-user'), cb.getAttribute('data-perm-page'), cb.checked);
+        }
+      });
+      tbody.addEventListener('click', (e) => {
+        const reset = e.target.closest('[data-reset-perms]');
+        if (reset) {
+          auth.updateUser(reset.getAttribute('data-reset-perms'), { role: reset.getAttribute('data-role'), resetPerms: true });
+          render();
+        }
+      });
+    }
+
+    /* ---------- Access Settings tab ---------- */
+    function renderSettings() {
+      const s = auth.settings();
+      const sw = $('enforce-switch');
+      sw.checked = !!s.enforce;
+      const pill = $('enforce-pill');
+      pill.classList.toggle('on', !!s.enforce);
+      pill.classList.toggle('off', !s.enforce);
+      $('enforce-pill-text').textContent = s.enforce ? 'Enforced' : 'Open';
+
+      const users = auth.listUsers();
+      $('summary-user-count').textContent = users.length;
+      const counts = {};
+      Object.keys(auth.ROLES).forEach((r) => counts[r] = 0);
+      users.forEach((u) => { counts[u.role] = (counts[u.role] || 0) + 1; });
+      $('summary-roles').innerHTML = Object.keys(auth.ROLES).map((r) =>
+        '<div class="d-flex justify-content-between border-top py-1 small">' +
+          '<span>' + esc(auth.ROLES[r].label) + '</span>' +
+          '<span class="badge text-bg-secondary">' + (counts[r] || 0) + '</span>' +
+        '</div>'
+      ).join('');
+    }
+
+    function wireSettings() {
+      const sw = $('enforce-switch');
+      if (sw.dataset.wired) return;
+      sw.dataset.wired = '1';
+      sw.addEventListener('change', () => {
+        auth.setSetting('enforce', sw.checked);
+        renderSettings();
+      });
+    }
+
+    /* ---------- logout ---------- */
+    $('logout-btn').addEventListener('click', () => {
+      auth.logout();
+      render();
+    });
+
+    /* ---------- master render ---------- */
+    function render() {
+      const me = auth.current();
+      if (!me || me.role !== 'admin') {
+        show('login');
+        setupLogin();
+        return;
+      }
+      show('console');
+      $('me-name').textContent = me.name;
+      $('me-role').textContent = roleLabel(me.role);
+      setupTabs();
+      renderUsers(); wireUsers();
+      renderPerms(); wirePerms();
+      renderSettings(); wireSettings();
+    }
+
+    /* ---------- boot ---------- */
+    (async function boot() {
+      if (!auth) { document.body.innerHTML = '<div class="container py-5">Access control API failed to load.</div>'; return; }
+      await auth.ready;
+      render();
+    })();
+  })();
+  </script>
+</body>
+</html>
