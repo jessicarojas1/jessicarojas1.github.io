@@ -2,7 +2,7 @@
 class QuestionnaireController {
 
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('vendor.questionnaire');
 
         $questionnaires = Database::fetchAll(
             "SELECT q.*,
@@ -34,7 +34,7 @@ class QuestionnaireController {
     }
 
     public function createForm(): void {
-        Auth::requirePermission('policy.write');
+        Auth::requirePermission('vendor.questionnaire');
 
         $users = Database::fetchAll(
             "SELECT id, name FROM users WHERE is_active = TRUE ORDER BY name"
@@ -45,7 +45,7 @@ class QuestionnaireController {
     }
 
     public function create(): void {
-        Auth::requirePermission('policy.write');
+        Auth::requirePermission('vendor.questionnaire');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -122,7 +122,7 @@ class QuestionnaireController {
     }
 
     public function view(string $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('vendor.questionnaire');
 
         $id = (int)$id;
 
@@ -176,7 +176,7 @@ class QuestionnaireController {
             return;
         }
 
-        Auth::requirePermission('policy.write');
+        Auth::requirePermission('vendor.questionnaire');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -214,7 +214,7 @@ class QuestionnaireController {
     }
 
     public function respond(string $assignmentId): void {
-        Auth::requireAuth();
+        Auth::requirePermission('vendor.questionnaire');
 
         $assignmentId = (int)$assignmentId;
         $currentUser  = Auth::user();
@@ -275,7 +275,7 @@ class QuestionnaireController {
             return;
         }
 
-        Auth::requireAuth();
+        Auth::requirePermission('vendor.questionnaire');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);

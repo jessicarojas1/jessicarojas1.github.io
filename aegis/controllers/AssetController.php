@@ -4,7 +4,7 @@ declare(strict_types=1);
 class AssetController {
 
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('asset.view');
 
         $type        = Security::sanitizeInput($_GET['type']        ?? '');
         $criticality = Security::sanitizeInput($_GET['criticality'] ?? '');
@@ -69,13 +69,13 @@ class AssetController {
     }
 
     public function createForm(): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('asset.create');
         $users = Database::fetchAll("SELECT id, name FROM users WHERE is_active = TRUE ORDER BY name");
         require AEGIS_ROOT . '/views/assets/create.php';
     }
 
     public function create(): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('asset.create');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -147,7 +147,7 @@ class AssetController {
     }
 
     public function view(string $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('asset.view');
         $id = (int)$id;
 
         $asset = Database::fetchOne(
@@ -200,7 +200,7 @@ class AssetController {
     }
 
     public function update(string $id): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('asset.edit');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -256,7 +256,7 @@ class AssetController {
     }
 
     public function linkRisk(string $id): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('asset.edit');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -280,7 +280,7 @@ class AssetController {
     }
 
     public function unlinkRisk(string $assetId, string $riskId): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('asset.edit');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);

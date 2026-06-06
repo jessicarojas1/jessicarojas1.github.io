@@ -6,7 +6,7 @@ class DocumentController {
     }
 
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('policy.view');
 
         $filter = Security::sanitizeInput($_GET['status'] ?? '');
         $search = Security::sanitizeInput($_GET['q'] ?? '');
@@ -36,7 +36,7 @@ class DocumentController {
     }
 
     public function createForm(): void {
-        Auth::requirePermission('policy.write');
+        Auth::requirePermission('policy.create');
         $users = Database::fetchAll("SELECT id, name FROM users WHERE is_active = TRUE ORDER BY name");
         $pageTitle    = 'New Document';
         $activeModule = 'documents';
@@ -45,7 +45,7 @@ class DocumentController {
     }
 
     public function create(): void {
-        Auth::requirePermission('policy.write');
+        Auth::requirePermission('policy.create');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403); return;
         }
@@ -89,7 +89,7 @@ class DocumentController {
     }
 
     public function view(string $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('policy.view');
         $id  = (int)$id;
         $doc = $this->getDoc($id);
         if (!$doc) { http_response_code(404); require AEGIS_ROOT . '/views/errors/404.php'; return; }
@@ -112,7 +112,7 @@ class DocumentController {
     }
 
     public function update(string $id): void {
-        Auth::requirePermission('policy.write');
+        Auth::requirePermission('policy.edit');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403); return;
         }
@@ -153,7 +153,7 @@ class DocumentController {
     }
 
     public function uploadVersion(string $id): void {
-        Auth::requirePermission('policy.write');
+        Auth::requirePermission('policy.edit');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403); return;
         }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 class SPRSController {
 
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('compliance.view');
 
         $packages = Database::fetchAll(
             "SELECT cp.id, cp.name, cp.version,

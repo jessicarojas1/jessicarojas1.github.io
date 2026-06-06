@@ -4,7 +4,7 @@ declare(strict_types=1);
 class CUIController {
 
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('compliance.view');
         $items = Database::fetchAll(
             "SELECT ci.*, a.name AS asset_name
              FROM cui_inventory ci
@@ -26,7 +26,7 @@ class CUIController {
     }
 
     public function createForm(): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.assess');
         $assets = Database::fetchAll("SELECT id, name FROM assets ORDER BY name");
         $pageTitle    = 'New CUI Record';
         $activeModule = 'cui';
@@ -38,7 +38,7 @@ class CUIController {
     }
 
     public function create(): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.assess');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         $desc = trim(Security::sanitizeInput($_POST['data_description'] ?? ''));
@@ -69,7 +69,7 @@ class CUIController {
     }
 
     public function view(int $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('compliance.view');
         $item = $this->getItem($id);
         if (!$item) { http_response_code(404); require AEGIS_ROOT . '/views/errors/404.php'; return; }
         $assets = Database::fetchAll("SELECT id, name FROM assets ORDER BY name");
@@ -83,7 +83,7 @@ class CUIController {
     }
 
     public function update(int $id): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.assess');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         Database::query(
             "UPDATE cui_inventory SET data_description=?, cui_category=?, asset_id=?, system_name=?,
@@ -108,7 +108,7 @@ class CUIController {
     }
 
     public function delete(int $id): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.assess');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         Database::query("DELETE FROM cui_inventory WHERE id=?", [$id]);
         Auth::log('cui_deleted', 'cui_inventory', $id, []);

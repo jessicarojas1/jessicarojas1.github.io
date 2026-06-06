@@ -1,7 +1,7 @@
 <?php
 class PolicyController {
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('policy.view');
 
         $status        = Security::sanitizeInput($_GET['status']   ?? '');
         $packageId     = (int)($_GET['package']  ?? 0);
@@ -62,7 +62,7 @@ class PolicyController {
     }
 
     public function mapping(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('policy.view');
 
         $filterPackage = (int)($_GET['package'] ?? 0);
         $filterPolicy  = (int)($_GET['policy']  ?? 0);
@@ -106,13 +106,13 @@ class PolicyController {
     }
 
     public function createForm(): void {
-        Auth::requirePermission('policy.write');
+        Auth::requirePermission('policy.create');
         $users = Database::fetchAll("SELECT id, name FROM users WHERE is_active = TRUE ORDER BY name");
         require AEGIS_ROOT . '/views/policy/create.php';
     }
 
     public function create(): void {
-        Auth::requirePermission('policy.write');
+        Auth::requirePermission('policy.create');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403); return;
@@ -174,7 +174,7 @@ class PolicyController {
     }
 
     public function view(string $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('policy.view');
         $id = (int)$id;
 
         $policy = Database::fetchOne(
@@ -220,7 +220,7 @@ class PolicyController {
     }
 
     public function update(string $id): void {
-        Auth::requirePermission('policy.write');
+        Auth::requirePermission('policy.edit');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403); return;
@@ -270,7 +270,7 @@ class PolicyController {
     }
 
     public function mapObjective(string $id): void {
-        Auth::requirePermission('policy.write');
+        Auth::requirePermission('policy.edit');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403); return;
@@ -292,7 +292,7 @@ class PolicyController {
     }
 
     public function unmapObjective(string $policyId, string $mappingId): void {
-        Auth::requirePermission('policy.write');
+        Auth::requirePermission('policy.edit');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403); return;
@@ -303,7 +303,7 @@ class PolicyController {
     }
 
     public function editForm(string $id): void {
-        Auth::requirePermission('policy.write');
+        Auth::requirePermission('policy.edit');
         $policy = Database::fetchOne("SELECT * FROM policies WHERE id = ?", [(int)$id]);
         if (!$policy) { http_response_code(404); return; }
         $users = Database::fetchAll("SELECT id, name FROM users WHERE is_active = TRUE ORDER BY name");
@@ -312,7 +312,7 @@ class PolicyController {
 
     // List all attestation campaigns (admin/manager)
     public function attestations(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('policy.view');
         // load campaigns with policy name, attested count, total user count
         $campaigns = Database::fetchAll(
             "SELECT pac.*, p.title as policy_title,
@@ -334,7 +334,7 @@ class PolicyController {
 
     // Create attestation campaign
     public function createCampaign(): void {
-        Auth::requirePermission('policy.write');
+        Auth::requirePermission('policy.attest');
         $policies = Database::fetchAll("SELECT id, title FROM policies WHERE status='published' ORDER BY title");
         $pageTitle    = 'New Attestation Campaign';
         $activeModule = 'policy_attestations';
@@ -346,7 +346,7 @@ class PolicyController {
     }
 
     public function saveCampaign(): void {
-        Auth::requirePermission('policy.write');
+        Auth::requirePermission('policy.attest');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $policyId = (int)($_POST['policy_id'] ?? 0);
         $title    = trim(Security::sanitizeInput($_POST['title'] ?? ''));
@@ -371,7 +371,7 @@ class PolicyController {
 
     // View a campaign — shows attestation matrix (who signed, who hasn't)
     public function viewCampaign(string $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('policy.view');
         $id = (int)$id;
         $campaign = Database::fetchOne(
             "SELECT pac.*, p.title as policy_title, p.id as pid FROM policy_attestation_campaigns pac
@@ -401,7 +401,7 @@ class PolicyController {
 
     // User reads and signs off on a policy
     public function attestForm(string $policyId): void {
-        Auth::requireAuth();
+        Auth::requirePermission('policy.attest');
         $policyId = (int)$policyId;
         $policy = Database::fetchOne("SELECT * FROM policies WHERE id=?", [$policyId]);
         if (!$policy) { http_response_code(404); require AEGIS_ROOT.'/views/errors/404.php'; return; }
@@ -419,7 +419,7 @@ class PolicyController {
     }
 
     public function attest(string $policyId): void {
-        Auth::requireAuth();
+        Auth::requirePermission('policy.attest');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $policyId = (int)$policyId;
         $policy = Database::fetchOne("SELECT id, title FROM policies WHERE id=?", [$policyId]);
@@ -446,7 +446,7 @@ class PolicyController {
 
     // My attestations (profile page)
     public function myAttestations(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('policy.attest');
         $records = Database::fetchAll(
             "SELECT pa.*, p.title as policy_title, p.id as policy_id FROM policy_attestations pa
              JOIN policies p ON p.id = pa.policy_id
