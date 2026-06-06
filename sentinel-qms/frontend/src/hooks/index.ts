@@ -45,3 +45,4 @@ export * from './useUserLookup';
 export * from './useMyOpenItems';
 export * from './useComments';
 export * from './useSettings';
+export * from './useBranding';

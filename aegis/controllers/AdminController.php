@@ -691,7 +691,7 @@ class AdminController {
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403); return;
         }
-        $allowed = ['org_name','date_format','timezone','session_timeout'];
+        $allowed = ['date_format','timezone','session_timeout'];
         foreach ($allowed as $key) {
             if (isset($_POST[$key])) {
                 $val = Security::sanitizeInput($_POST[$key]);
@@ -703,8 +703,60 @@ class AdminController {
         header('Location: /admin/settings');
     }
 
+    // ─── Branding (display name, accent colour, logo via URL) ───────────────────
+    public function saveBranding(): void {
+        Auth::requirePermission('admin');
+        if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
+            http_response_code(403); return;
+        }
+
+        // Organization / product display name
+        $orgName = Security::sanitizeInput($_POST['org_name'] ?? '');
+        Database::query(
+            "INSERT INTO settings (key, value, type, description) VALUES ('org_name', ?, 'string', 'Organization name') ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value",
+            [$orgName]
+        );
+
+        // Primary accent colour — validate to #RRGGBB, reject anything else
+        $accentRaw = (string)($_POST['brand_accent'] ?? '');
+        $accent    = Branding::sanitizeColor($accentRaw);
+        if ($accentRaw !== '' && $accent === '') {
+            $_SESSION['flash_error'] = 'Accent colour must be a valid hex value (e.g. #16a34a).';
+            header('Location: /admin/settings'); return;
+        }
+        Database::query(
+            "INSERT INTO settings (key, value, type, description) VALUES ('brand_accent', ?, 'string', 'Primary brand accent colour (#RRGGBB)') ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value",
+            [$accent]
+        );
+
+        // Logo via URL — only persist when provided; sanitize to http(s) or data:image
+        if (array_key_exists('logo_url', $_POST)) {
+            $logoUrl = trim((string)$_POST['logo_url']);
+            if ($logoUrl !== '') {
+                $clean = Branding::sanitizeLogo($logoUrl);
+                if ($clean === '') {
+                    $_SESSION['flash_error'] = 'Logo URL must start with http(s):// or data:image/.';
+                    header('Location: /admin/settings'); return;
+                }
+                Database::query(
+                    "INSERT INTO settings (key, value) VALUES ('company_logo_data', ?) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value",
+                    [$clean]
+                );
+                Database::query(
+                    "INSERT INTO settings (key, value) VALUES ('company_logo_name', ?) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value",
+                    [Security::sanitizeInput(parse_url($clean, PHP_URL_PATH) !== false ? basename((string)parse_url($clean, PHP_URL_PATH)) : 'logo')]
+                );
+            }
+        }
+
+        Branding::clearCache();
+        Auth::log('update_branding', 'settings', 0);
+        $_SESSION['flash_success'] = 'Branding saved.';
+        header('Location: /admin/settings');
+    }
+
     public function uploadLogo(): void {
-        Auth::requireAdmin();
+        Auth::requirePermission('admin');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403); return;
         }
@@ -742,6 +794,7 @@ class AdminController {
             [$origName]
         );
 
+        Branding::clearCache();
         Auth::log('upload_logo', 'settings', 0);
         $_SESSION['flash_success'] = 'Company logo uploaded successfully.';
         header('Location: /admin/settings');
@@ -762,6 +815,7 @@ class AdminController {
             []
         );
 
+        Branding::clearCache();
         Auth::log('remove_logo', 'settings', 0);
         $_SESSION['flash_success'] = 'Company logo removed.';
         header('Location: /admin/settings');

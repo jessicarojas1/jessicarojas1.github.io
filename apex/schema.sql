@@ -3,6 +3,7 @@
 --  Apply with:  psql $DATABASE_URL -f schema.sql
 -- ════════════════════════════════════════════════════════════════════════
 
+DROP TABLE IF EXISTS app_settings    CASCADE;
 DROP TABLE IF EXISTS notifications   CASCADE;
 DROP TABLE IF EXISTS history         CASCADE;
 DROP TABLE IF EXISTS comments        CASCADE;
@@ -133,6 +134,17 @@ CREATE TABLE notifications (
 
 CREATE INDEX idx_notifications_user ON notifications(user_id, read);
 
+-- ─── app_settings (branding & global settings) ─────────────────────────
+-- Key/value store for shared, server-side app settings. The `branding` key
+-- holds { displayName, logoUrl, accentColor } applied live across the app,
+-- login screen, and printed/report output. Managed via /api/settings/branding
+-- and the Admin Center → Branding tab.
+CREATE TABLE IF NOT EXISTS app_settings (
+  key        VARCHAR(50)  PRIMARY KEY,
+  value      JSONB        NOT NULL DEFAULT '{}'::jsonb,
+  updated_at TIMESTAMPTZ  DEFAULT NOW()
+);
+
 -- ════════════════════════════════════════════════════════════════════════
 --  SEED DATA
 -- ════════════════════════════════════════════════════════════════════════
@@ -238,3 +250,9 @@ INSERT INTO comments (id, ticket_id, user_id, body, created_at) VALUES
   ('cmt_002', 'SEC-002', 'smith',
    'Reviewed the patch. LGTM — happy to merge after the staging soak.',
    NOW() - INTERVAL '30 minutes');
+
+-- ─── Default branding ───
+-- Stock app name / accent; empty logoUrl falls back to the built-in mark.
+INSERT INTO app_settings (key, value) VALUES
+  ('branding', '{"displayName":"APEX","logoUrl":"","accentColor":"#6366f1"}'::jsonb)
+ON CONFLICT (key) DO NOTHING;

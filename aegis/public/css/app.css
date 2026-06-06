@@ -1745,9 +1745,19 @@ html[data-theme="dark"] .um-close:hover { color:var(--text); }
 }
 
 /* Print styles for board dashboard */
+/* Branding header shown only on printed / PDF report output */
+.report-print-header { display: none; }
+
 @media print {
   .sidebar, .topbar, .sidebar-toggle, .alert-bell, .btn-logout,
   .no-print, .page-actions, [data-print], .filter-bar { display: none !important; }
+  .report-print-header {
+    display: flex !important; align-items: center; gap: 12px;
+    border-bottom: 2px solid #111; padding-bottom: 8px; margin-bottom: 12px;
+  }
+  .report-print-header img { max-height: 44px; max-width: 180px; object-fit: contain; }
+  .report-print-header .rph-name { font-size: 16px; font-weight: 800; color: #111; }
+  .report-print-header .rph-sub { font-size: 10px; color: #444; }
   .main-content { margin: 0 !important; padding: 0 !important; }
   .page-content { padding: 8px !important; }
   .card { break-inside: avoid; box-shadow: none; border: 1px solid #d1d5db; margin-bottom: 12px; }

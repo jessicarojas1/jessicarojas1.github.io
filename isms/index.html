@@ -18,7 +18,7 @@
 
   <nav class="navbar navbar-expand-lg sticky-top" id="mainNav" aria-label="Main navigation">
     <div class="container-fluid px-4">
-      <a class="navbar-brand fw-bold" href="../index.html">
+      <a class="navbar-brand fw-bold" href="../index.html" id="ismsBrand" data-default-mark='<span style="color:var(--bs-primary)">J</span>Rojas'>
         <span style="color:var(--bs-primary)">J</span>Rojas
       </a>
       <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,6 +51,9 @@
         <div class="d-flex align-items-center gap-2 flex-wrap">
           <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme">
             <span class="theme-icon">☀️</span>
+          </button>
+          <button class="btn btn-sm btn-outline-secondary" id="ismsSettingsBtn" data-bs-toggle="modal" data-bs-target="#ismsSettingsModal" aria-label="Open settings">
+            ⚙ Settings
           </button>
           <button class="btn btn-sm btn-outline-primary" id="rbac-login-btn" data-bs-toggle="modal" data-bs-target="#rbacLoginModal">Login</button>
           <div class="d-flex align-items-center gap-2 d-none" id="rbac-user-area">
@@ -854,6 +857,72 @@
     </div>
   </div>
 
+  <!-- Settings Modal (Branding) -->
+  <div class="modal fade" id="ismsSettingsModal" tabindex="-1" aria-labelledby="ismsSettingsLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="ismsSettingsLabel">Settings</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <h3 class="h6 text-uppercase text-secondary mb-3" style="letter-spacing:.08em">Branding</h3>
+          <p class="small text-secondary">Customize how this ISMS library is branded. Settings are stored in this browser only.</p>
+
+          <form id="ismsBrandingForm" novalidate>
+            <!-- Display name -->
+            <div class="mb-3">
+              <label for="brandName" class="form-label">Organization / product name</label>
+              <input type="text" class="form-control" id="brandName" maxlength="80" placeholder="JRojas" autocomplete="off" />
+              <div class="form-text">Replaces the brand name in the header and the browser tab title.</div>
+            </div>
+
+            <!-- Logo URL -->
+            <div class="mb-3">
+              <label for="brandLogoUrl" class="form-label">Logo URL</label>
+              <input type="url" class="form-control" id="brandLogoUrl" placeholder="https://example.com/logo.png" autocomplete="off" />
+              <div class="form-text">Paste an image URL (must start with <code>https://</code>, <code>http://</code>, or <code>data:image/</code>).</div>
+            </div>
+
+            <!-- Logo upload -->
+            <div class="mb-3">
+              <label for="brandLogoFile" class="form-label">…or upload a logo</label>
+              <input type="file" class="form-control" id="brandLogoFile" accept="image/png,image/jpeg,image/gif,image/svg+xml,image/webp" />
+              <div class="form-text">
+                Stored inside this browser as a <code>data:</code> URL so it works offline.
+                <br><strong>Field reference:</strong> <code>brandLogoFile</code> → image file (PNG, JPG, GIF, SVG, WEBP), read via <code>FileReader.readAsDataURL</code> and saved to <code>brandLogoUrl</code>.
+              </div>
+            </div>
+
+            <!-- Logo preview -->
+            <div class="mb-3">
+              <span class="form-label d-block">Logo preview</span>
+              <div class="border rounded p-3 d-inline-flex align-items-center justify-content-center" style="min-width:120px;min-height:60px;background:var(--bs-tertiary-bg)">
+                <img id="brandLogoPreview" alt="Logo preview" style="max-height:48px;max-width:220px;display:none" />
+                <span id="brandLogoPreviewEmpty" class="small text-secondary">No logo set</span>
+              </div>
+            </div>
+
+            <!-- Accent color -->
+            <div class="mb-3">
+              <label for="brandAccent" class="form-label">Primary accent color</label>
+              <div class="d-flex align-items-center gap-2">
+                <input type="color" class="form-control form-control-color" id="brandAccent" value="#ff5811" title="Choose accent color" />
+                <input type="text" class="form-control" id="brandAccentHex" maxlength="7" placeholder="#ff5811" style="max-width:140px" autocomplete="off" />
+              </div>
+              <div class="form-text">Overrides the app's primary color (CSS custom property <code>--bs-primary</code>).</div>
+            </div>
+
+            <div class="d-flex gap-2 flex-wrap pt-2">
+              <button type="submit" class="btn btn-primary" id="brandSaveBtn">Save branding</button>
+              <button type="button" class="btn btn-outline-secondary" id="brandResetBtn">Reset to defaults</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <footer class="site-footer">
     <div class="d-flex justify-content-center gap-3 mb-2">
       <a href="https://github.com/jessicarojas1" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
@@ -871,6 +940,7 @@
   <script src="../users.js" defer></script>
   <script src="../roles.js" defer></script>
   <script src="../script.js" defer></script>
+  <script src="branding.js" defer></script>
   <script>
   /* ── ISMS Filter & Search ─────────────────────────────────────── */
   (function () {

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { TopBar } from './TopBar';
 import { SideNav } from './SideNav';
+import { PrintBrandHeader } from './PrintBrandHeader';
 
 export function Layout() {
   const [navOpen, setNavOpen] = useState(false);
@@ -19,6 +20,7 @@ export function Layout() {
       )}
       <main className="content">
         <div className="content__inner">
+          <PrintBrandHeader />
           <Outlet />
         </div>
       </main>

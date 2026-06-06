@@ -87,6 +87,7 @@ spl_autoload_register(function (string $class): void {
 require_once AEGIS_ROOT . '/config/database.php';
 require_once AEGIS_ROOT . '/src/Database.php';
 require_once AEGIS_ROOT . '/src/Security.php';
+require_once AEGIS_ROOT . '/src/Branding.php';
 require_once AEGIS_ROOT . '/src/Auth.php';
 require_once AEGIS_ROOT . '/src/JWT.php';
 require_once AEGIS_ROOT . '/src/SSO.php';
@@ -560,7 +561,14 @@ try {
     if (!$__logoNameExists) {
         Database::query("INSERT INTO settings (key, value) VALUES ('company_logo_name', '') ON CONFLICT (key) DO NOTHING");
     }
-    unset($__logoExists, $__logoNameExists);
+    // Branding accent colour (Settings → Branding)
+    $__accentExists = Database::fetchOne("SELECT 1 FROM settings WHERE key='brand_accent'");
+    if (!$__accentExists) {
+        Database::query(
+            "INSERT INTO settings (key, value, type, description) VALUES ('brand_accent', '', 'string', 'Primary brand accent colour (#RRGGBB)') ON CONFLICT (key) DO NOTHING"
+        );
+    }
+    unset($__logoExists, $__logoNameExists, $__accentExists);
 } catch (Throwable) {}
 
 try {
@@ -804,6 +812,7 @@ $routes = [
         '/admin/email/save'              => ['AdminController', 'saveEmail'],
         '/admin/email/test'              => ['AdminController', 'testEmail'],
         '/admin/settings/save'           => ['AdminController', 'saveSettings'],
+        '/admin/settings/branding/save'  => ['AdminController', 'saveBranding'],
         '/admin/settings/upload-logo'    => ['AdminController', 'uploadLogo'],
         '/admin/settings/remove-logo'    => ['AdminController', 'removeLogo'],
         '/admin/module-visibility/save'  => ['AdminController', 'saveModuleVisibility'],

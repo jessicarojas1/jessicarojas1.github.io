@@ -18,7 +18,10 @@
   <div id="auth-gate" class="auth-gate">
     <div class="auth-shell">
       <div class="auth-shell-header">
-        <div class="auth-shell-title">APEX · Secure Access</div>
+        <div class="auth-shell-title">
+          <img class="auth-logo d-none" id="auth-logo" alt="" />
+          <span id="auth-title-name">APEX</span> · Secure Access
+        </div>
         <div class="step-track" id="auth-steps">
           <div class="step-node active" data-step="1"><div class="step-circle">1</div><div class="step-lbl">Identity</div></div>
           <div class="step-connector"></div>
@@ -69,8 +72,9 @@
     <!-- Top header — always visible -->
     <header class="app-header">
       <div class="brand" id="brand-home" style="cursor:pointer">
-        <span class="brand-mark">▲</span>
-        <span class="brand-text">APEX</span>
+        <img class="brand-logo d-none" id="brand-logo" alt="" />
+        <span class="brand-mark" id="brand-mark">▲</span>
+        <span class="brand-text" id="brand-text">APEX</span>
       </div>
 
       <!-- Project context bar — shown when inside a project -->
@@ -176,6 +180,7 @@
             <button class="admin-nav-btn" data-admin-tab="labels">🏷 Labels</button>
             <button class="admin-nav-btn" data-admin-tab="permissions">🔒 Permissions</button>
             <button class="admin-nav-btn" data-admin-tab="risk">⚠ Risk Matrix</button>
+            <button class="admin-nav-btn" data-admin-tab="branding">🎨 Branding</button>
           </nav>
           <div class="admin-content" id="admin-content">
             <div class="admin-placeholder">Select a section from the left panel.</div>

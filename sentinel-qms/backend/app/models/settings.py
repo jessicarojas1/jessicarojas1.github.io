@@ -1,7 +1,7 @@
 """Organization-wide settings & branding — a single-row (singleton) table."""
 from __future__ import annotations
 
-from sqlalchemy import Integer, String
+from sqlalchemy import Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
@@ -22,7 +22,8 @@ class OrgSettings(Base, TimestampMixin):
     organization_name: Mapped[str] = mapped_column(
         String(255), default="Sentinel QMS", nullable=False
     )
-    logo_url: Mapped[str | None] = mapped_column(String(1024), nullable=True)
+    # Text (not a bounded VARCHAR) so an uploaded logo stored as a data: URL fits.
+    logo_url: Mapped[str | None] = mapped_column(Text, nullable=True)
     primary_color: Mapped[str | None] = mapped_column(String(32), nullable=True)
     support_email: Mapped[str | None] = mapped_column(String(255), nullable=True)
     default_review_cycle_days: Mapped[int] = mapped_column(

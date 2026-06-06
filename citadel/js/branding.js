@@ -55,6 +55,23 @@
     } else {
       doc.documentElement.style.removeProperty('--citadel-accent');
     }
+
+    // Print-only header (the on-screen navbar is hidden in print/PDF). Built via
+    // DOM (not innerHTML) so a logo URL can never inject markup/script.
+    const pb = doc.getElementById('print-brand');
+    if (pb) {
+      pb.textContent = '';
+      if (b.logoUrl) {
+        const im = doc.createElement('img');
+        im.src = b.logoUrl; im.alt = '';
+        im.style.height = '34px'; im.style.width = 'auto'; im.style.marginRight = '.6rem';
+        pb.appendChild(im);
+      }
+      const sp = doc.createElement('span');
+      sp.style.fontWeight = '700'; sp.style.fontSize = '1.15rem';
+      sp.textContent = name;
+      pb.appendChild(sp);
+    }
   }
 
   // Pull shared branding from the backend (if any), cache + apply it.
