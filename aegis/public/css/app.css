@@ -47,6 +47,14 @@
   --text-muted:  #57606a;
   --text-light:  #8b949e;
 
+  /* Terminal / code-display (always dark regardless of theme) */
+  --terminal-bg:          #111111;
+  --terminal-text:        #a5f3fc;
+  --surface-2:            #111111;
+  --code-green-bg:        #1c2a1b;
+  --code-green-text:      #86efac;
+  --code-green-accent:    #6ee7b7;
+
   /* Misc */
   --radius:    12px;
   --radius-sm:  8px;

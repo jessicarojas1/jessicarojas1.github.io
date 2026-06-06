@@ -173,7 +173,7 @@ $failed    = count(array_filter($deliveries, fn($d) => $d['status'] === 'failed'
     </div>
     <div class="um-body">
       <pre id="responseBodyContent"
-           style="background:var(--surface-2,#111111);color:#a5f3fc;padding:16px;border-radius:8px;
+           style="background:var(--surface-2);color:var(--terminal-text);padding:16px;border-radius:8px;
                   font-size:13px;white-space:pre-wrap;word-break:break-all;max-height:400px;overflow:auto;margin:0"></pre>
     </div>
   </div>

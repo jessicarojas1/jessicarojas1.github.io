@@ -212,7 +212,7 @@ $displayKris = $activeFilter
 
         <!-- Direction indicator -->
         <div style="font-size:11px;color:var(--text-muted);margin-bottom:12px;display:flex;align-items:center;gap:4px;">
-          <i class="bi bi-arrow-<?= $k['direction'] === 'higher_worse' ? 'up' : 'down' ?>-circle" style="color:<?= $k['direction'] === 'higher_worse' ? '#dc2626' : '#d97706' ?>;"></i>
+          <i class="bi bi-arrow-<?= $k['direction'] === 'higher_worse' ? 'up' : 'down' ?>-circle" style="color:<?= $k['direction'] === 'higher_worse' ? 'var(--danger)' : 'var(--warning)' ?>;"></i>
           <?= $dirLabel ?>
         </div>
 

@@ -185,12 +185,12 @@ function fmtNum(float $n): string {
               <div style="width:<?= $greenPct ?>%;background:var(--primary);" title="Green zone"></div>
               <div style="width:<?= $amberPct ?>%;background:var(--warning);" title="Amber zone"></div>
               <div style="width:<?= $redPct ?>%;background:var(--danger);"   title="Red zone"></div>
-              <div style="width:<?= $overPct ?>%;background:#b91c1c99;" title="Beyond red"></div>
+              <div style="width:<?= $overPct ?>%;background:var(--danger);" title="Beyond red"></div>
             <?php else: ?>
               <div style="width:<?= $redPct ?>%;background:var(--danger);"   title="Red zone (too low)"></div>
               <div style="width:<?= $amberPct ?>%;background:var(--warning);" title="Amber zone"></div>
               <div style="width:<?= $greenPct ?>%;background:var(--primary);" title="Green zone"></div>
-              <div style="width:<?= $overPct ?>%;background:#15803d99;" title="Above green"></div>
+              <div style="width:<?= $overPct ?>%;background:var(--success);" title="Above green"></div>
             <?php endif; ?>
           </div>
           <!-- Value marker -->

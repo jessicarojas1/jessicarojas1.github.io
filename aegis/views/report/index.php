@@ -43,7 +43,7 @@ html[data-theme="dark"] .report-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,.
 
   <a href="/report/board" class="card report-card">
     <div class="card-body" style="display:flex;gap:16px;align-items:flex-start;padding:24px">
-      <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#1e1b4b,var(--indigo));display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--indigo),var(--indigo));display:flex;align-items:center;justify-content:center;flex-shrink:0">
         <i class="bi bi-briefcase-fill" style="color:var(--card-bg);font-size:22px"></i>
       </div>
       <div>
@@ -56,7 +56,7 @@ html[data-theme="dark"] .report-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,.
 
   <a href="/report/compliance" class="card report-card">
     <div class="card-body" style="display:flex;gap:16px;align-items:flex-start;padding:24px">
-      <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--success),#047857);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--success),var(--success));display:flex;align-items:center;justify-content:center;flex-shrink:0">
         <i class="bi bi-shield-check" style="color:var(--card-bg);font-size:22px"></i>
       </div>
       <div>
@@ -82,7 +82,7 @@ html[data-theme="dark"] .report-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,.
 
   <a href="/audit" class="card report-card">
     <div class="card-body" style="display:flex;gap:16px;align-items:flex-start;padding:24px">
-      <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--purple),#6d28d9);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--purple),var(--purple));display:flex;align-items:center;justify-content:center;flex-shrink:0">
         <i class="bi bi-clipboard2-check-fill" style="color:var(--card-bg);font-size:22px"></i>
       </div>
       <div>
@@ -108,7 +108,7 @@ html[data-theme="dark"] .report-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,.
 
   <a href="/policy" class="card report-card">
     <div class="card-body" style="display:flex;gap:16px;align-items:flex-start;padding:24px">
-      <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--info),#0369a1);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--info),var(--info));display:flex;align-items:center;justify-content:center;flex-shrink:0">
         <i class="bi bi-file-earmark-text-fill" style="color:var(--card-bg);font-size:22px"></i>
       </div>
       <div>
@@ -121,7 +121,7 @@ html[data-theme="dark"] .report-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,.
 
   <a href="/vendors" class="card report-card">
     <div class="card-body" style="display:flex;gap:16px;align-items:flex-start;padding:24px">
-      <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--warning),#b45309);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--warning),var(--warning));display:flex;align-items:center;justify-content:center;flex-shrink:0">
         <i class="bi bi-building-fill" style="color:var(--card-bg);font-size:22px"></i>
       </div>
       <div>

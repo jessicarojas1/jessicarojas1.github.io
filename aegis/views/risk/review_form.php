@@ -166,7 +166,7 @@ ob_start();
         <div class="card-body" style="padding:14px 16px;">
           <div style="display:flex;flex-direction:column;gap:12px;">
             <div>
-              <div style="font-weight:600;font-size:12px;color:#2563eb;">Periodic</div>
+              <div style="font-weight:600;font-size:12px;color:var(--info);">Periodic</div>
               <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Scheduled regular reviews (monthly, quarterly, annual) of the risk register.</div>
             </div>
             <div>
@@ -178,7 +178,7 @@ ob_start();
               <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Unplanned review of a specific subset of risks.</div>
             </div>
             <div>
-              <div style="font-weight:600;font-size:12px;color:#0891b2;">Board Review</div>
+              <div style="font-weight:600;font-size:12px;color:var(--info);">Board Review</div>
               <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Formal board-level review requiring executive sign-off.</div>
             </div>
           </div>

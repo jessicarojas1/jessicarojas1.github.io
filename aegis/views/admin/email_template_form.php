@@ -159,8 +159,8 @@ ob_start();
 
         <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
           <p style="font-size:12px;font-weight:600;color:var(--text-muted);margin:0 0 6px;text-transform:uppercase;letter-spacing:.04em">Syntax</p>
-          <div style="background:#1c2a1b;border-radius:6px;padding:10px 12px;font-family:monospace;font-size:12px;color:#86efac;overflow-x:auto">
-            <span style="color:#6ee7b7">{{variable_name}}</span>
+          <div style="background:var(--code-green-bg);border-radius:6px;padding:10px 12px;font-family:monospace;font-size:12px;color:var(--code-green-text);overflow-x:auto">
+            <span style="color:var(--code-green-accent)">{{variable_name}}</span>
           </div>
           <p style="font-size:11px;color:var(--text-muted);margin:6px 0 0">Variable names are case-sensitive and must match exactly.</p>
         </div>

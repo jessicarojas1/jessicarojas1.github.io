@@ -39,11 +39,11 @@ $color     = $pct >= 80 ? '#059669' : ($pct >= 50 ? '#d97706' : '#dc2626');
 
     <!-- My assignment card (if assigned) -->
     <?php if ($myAssignment): ?>
-    <div class="card" style="border:2px solid <?= $myAssignment['completed'] ? '#059669' : 'var(--primary)' ?>">
+    <div class="card" style="border:2px solid <?= $myAssignment['completed'] ? 'var(--success)' : 'var(--primary)' ?>">
       <div class="card-header" style="background:<?= $myAssignment['completed'] ? 'var(--success-subtle)' : 'rgba(11,97,4,.06)' ?>">
         <div class="card-header-left">
           <i class="bi bi-<?= $myAssignment['completed'] ? 'check-circle-fill' : 'bell-fill' ?>"
-             style="color:<?= $myAssignment['completed'] ? '#059669' : 'var(--primary)' ?>"></i>
+             style="color:<?= $myAssignment['completed'] ? 'var(--success)' : 'var(--primary)' ?>"></i>
           <span class="card-title"><?= $myAssignment['completed'] ? 'You completed this program' : 'Action Required — Mark as Complete' ?></span>
         </div>
       </div>

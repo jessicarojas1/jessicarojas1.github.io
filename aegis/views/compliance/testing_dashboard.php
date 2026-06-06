@@ -39,11 +39,11 @@ $cntTotal     = $cntPass + $cntFail + $cntPartial + $cntNotTested;
     <div style="font-size:32px;font-weight:700;color:var(--primary);line-height:1"><?= $cntPass ?></div>
     <div style="font-size:13px;color:var(--primary);margin-top:4px;font-weight:600">Pass</div>
   </div>
-  <div style="flex:1;min-width:120px;background:var(--danger-subtle);border:1px solid #fca5a580;border-radius:12px;padding:16px 20px;text-align:center">
+  <div style="flex:1;min-width:120px;background:var(--danger-subtle);border:1px solid var(--danger);border-radius:12px;padding:16px 20px;text-align:center">
     <div style="font-size:32px;font-weight:700;color:var(--danger);line-height:1"><?= $cntFail ?></div>
     <div style="font-size:13px;color:var(--danger);margin-top:4px;font-weight:600">Fail</div>
   </div>
-  <div style="flex:1;min-width:120px;background:var(--warning-subtle);border:1px solid #fcd34d80;border-radius:12px;padding:16px 20px;text-align:center">
+  <div style="flex:1;min-width:120px;background:var(--warning-subtle);border:1px solid var(--warning);border-radius:12px;padding:16px 20px;text-align:center">
     <div style="font-size:32px;font-weight:700;color:var(--warning);line-height:1"><?= $cntPartial ?></div>
     <div style="font-size:13px;color:var(--warning);margin-top:4px;font-weight:600">Partial</div>
   </div>
@@ -52,7 +52,7 @@ $cntTotal     = $cntPass + $cntFail + $cntPartial + $cntNotTested;
     <div style="font-size:13px;color:var(--text-muted);margin-top:4px;font-weight:600">Not Tested</div>
   </div>
   <?php if ($cntTotal > 0): ?>
-  <div style="flex:1;min-width:140px;background:var(--info-subtle);border:1px solid #93c5fd80;border-radius:12px;padding:16px 20px;text-align:center">
+  <div style="flex:1;min-width:140px;background:var(--info-subtle);border:1px solid var(--info);border-radius:12px;padding:16px 20px;text-align:center">
     <div style="font-size:32px;font-weight:700;color:var(--info);line-height:1"><?= $cntTotal > 0 ? round($cntPass / $cntTotal * 100) : 0 ?>%</div>
     <div style="font-size:13px;color:var(--info);margin-top:4px;font-weight:600">Pass Rate</div>
   </div>

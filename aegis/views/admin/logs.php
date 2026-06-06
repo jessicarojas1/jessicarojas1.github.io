@@ -23,7 +23,7 @@ ob_start();
 <div class="stats-grid" style="margin-bottom:1.5rem">
 
   <div class="stat-card" style="flex-direction:row;align-items:center;gap:16px">
-    <div class="stat-icon" style="background:linear-gradient(135deg,var(--primary),#818cf8);flex-shrink:0">
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--primary),var(--indigo));flex-shrink:0">
       <i class="bi bi-journal-text"></i>
     </div>
     <div class="stat-body">
@@ -33,7 +33,7 @@ ob_start();
   </div>
 
   <div class="stat-card" style="flex-direction:row;align-items:center;gap:16px">
-    <div class="stat-icon" style="background:linear-gradient(135deg,var(--success),#34d399);flex-shrink:0">
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--success),var(--success));flex-shrink:0">
       <i class="bi bi-clock"></i>
     </div>
     <div class="stat-body">
@@ -43,7 +43,7 @@ ob_start();
   </div>
 
   <div class="stat-card" style="flex-direction:row;align-items:center;gap:16px">
-    <div class="stat-icon" style="background:linear-gradient(135deg,var(--info),#38bdf8);flex-shrink:0">
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--info),var(--info));flex-shrink:0">
       <i class="bi bi-people-fill"></i>
     </div>
     <div class="stat-body">
@@ -53,7 +53,7 @@ ob_start();
   </div>
 
   <div class="stat-card" style="flex-direction:row;align-items:center;gap:16px">
-    <div class="stat-icon" style="background:linear-gradient(135deg,var(--warning),#fbbf24);flex-shrink:0">
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--warning),var(--warning));flex-shrink:0">
       <i class="bi bi-lightning-fill"></i>
     </div>
     <div class="stat-body">

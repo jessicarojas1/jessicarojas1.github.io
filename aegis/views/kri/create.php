@@ -134,7 +134,7 @@ unset($_SESSION['flash_error']);
             <input type="number" name="threshold_green" id="tGreen" class="form-control" step="any" required
                    placeholder="e.g. 5"
                    value="<?= Security::h((string)($_POST['threshold_green'] ?? '')) ?>"
-                   style="border-color:#16a34a44;background:var(--success-subtle);"
+                   style="border-color:var(--success);background:var(--success-subtle);"
                    data-input="updatePreview">
             <div style="font-size:11px;color:var(--primary);margin-top:3px;" id="greenHint">On-track level</div>
           </div>
@@ -168,7 +168,7 @@ unset($_SESSION['flash_error']);
           <!-- Live preview bar -->
           <div style="margin-top:20px;">
             <div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:8px;">Live Preview</div>
-            <div id="previewBar" style="height:18px;border-radius:6px;overflow:hidden;display:flex;background:#e4e4e7;transition:all .3s;">
+            <div id="previewBar" style="height:18px;border-radius:6px;overflow:hidden;display:flex;background:var(--border);transition:all .3s;">
               <div id="previewGreen" style="background:var(--primary);width:33.3%;transition:width .3s;"></div>
               <div id="previewAmber" style="background:var(--warning);width:33.3%;transition:width .3s;"></div>
               <div id="previewRed"   style="background:var(--danger);width:33.4%;transition:width .3s;"></div>

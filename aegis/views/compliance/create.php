@@ -22,7 +22,7 @@ ob_start();
           <?= Security::csrfField() ?>
 
           <div class="form-group">
-            <label class="form-label">Package Name <span style="color:#dc2626">*</span></label>
+            <label class="form-label">Package Name <span style="color:var(--danger)">*</span></label>
             <input type="text" name="name" class="form-control" required autofocus
                    placeholder="e.g. HIPAA Security Rule 2024" value="<?= Security::h($_POST['name'] ?? '') ?>">
           </div>
@@ -78,7 +78,7 @@ ob_start();
             </div>
           </div>
           <div style="display:flex;gap:12px;align-items:flex-start">
-            <div style="width:28px;height:28px;border-radius:50%;background:#059669;color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0">✓</div>
+            <div style="width:28px;height:28px;border-radius:50%;background:var(--success);color:var(--card-bg);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0">✓</div>
             <div>
               <div style="font-weight:600;font-size:13px">Start assessing</div>
               <div class="text-muted" style="font-size:12px">Assign controls, record evidence, and track compliance progress.</div>
