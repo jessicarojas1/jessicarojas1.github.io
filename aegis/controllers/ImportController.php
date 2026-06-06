@@ -9,7 +9,7 @@
 class ImportController {
 
     public function index(): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.import');
         $pageTitle    = 'Bulk Import';
         $activeModule = 'bulk_import';
         $breadcrumbs  = [['Import', null]];
@@ -20,7 +20,7 @@ class ImportController {
     }
 
     public function upload(): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('compliance.import');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403); return;
         }
