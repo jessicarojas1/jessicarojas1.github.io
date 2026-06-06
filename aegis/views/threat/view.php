@@ -28,16 +28,16 @@ $impact     = (int)($threat['impact'] ?? 0);
 $score      = $likelihood * $impact;
 
 function threatViewScoreColor(int $score): string {
-    if ($score <= 4)  return '#16a34a';
-    if ($score <= 9)  return '#d97706';
-    if ($score <= 16) return '#ea580c';
-    return '#dc2626';
+    if ($score <= 4)  return 'var(--primary)';
+    if ($score <= 9)  return 'var(--warning)';
+    if ($score <= 16) return 'var(--orange)';
+    return 'var(--danger)';
 }
 function threatViewScoreBg(int $score): string {
-    if ($score <= 4)  return '#f0fdf4';
-    if ($score <= 9)  return '#fffbeb';
-    if ($score <= 16) return '#fff7ed';
-    return '#fef2f2';
+    if ($score <= 4)  return 'var(--success-subtle)';
+    if ($score <= 9)  return 'var(--warning-subtle)';
+    if ($score <= 16) return 'var(--warning-subtle)';
+    return 'var(--danger-subtle)';
 }
 function threatViewScoreLabel(int $score): string {
     if ($score <= 4)  return 'Low';
@@ -171,7 +171,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
 
             <!-- Title -->
             <div class="form-group">
-              <label class="form-label required">Title <span style="color:#ef4444;">*</span></label>
+              <label class="form-label required">Title <span style="color:var(--danger);">*</span></label>
               <input type="text" name="title" class="form-control" value="<?= Security::h($threat['title']) ?>" required>
             </div>
 
@@ -316,11 +316,11 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
             <tbody>
               <?php foreach ($linkedRisks as $r):
                 $rs = (int)($r['inherent_score'] ?? 0);
-                if ($rs > 16)     { $rc = '#dc2626'; }
-                elseif ($rs > 9)  { $rc = '#ea580c'; }
-                elseif ($rs > 4)  { $rc = '#d97706'; }
-                else              { $rc = '#16a34a'; }
-                $rStColors = ['open'=>'#16a34a','in_progress'=>'#2563eb','mitigated'=>'#7c3aed','accepted'=>'#d97706','closed'=>'#64748b'];
+                if ($rs > 16)     { $rc = 'var(--danger)'; }
+                elseif ($rs > 9)  { $rc = 'var(--orange)'; }
+                elseif ($rs > 4)  { $rc = 'var(--warning)'; }
+                else              { $rc = 'var(--primary)'; }
+                $rStColors = ['open'=>'var(--primary)','in_progress'=>'var(--info)','mitigated'=>'var(--purple)','accepted'=>'var(--warning)','closed'=>'var(--text-muted)'];
                 $rStColor = $rStColors[$r['status'] ?? ''] ?? '#64748b';
               ?>
                 <tr>
@@ -345,7 +345,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
                             data-confirm="Unlink this risk from the threat?">
                         <?= Security::csrfField() ?>
                         <button type="submit" class="btn btn-ghost btn-sm" title="Unlink risk">
-                          <i class="bi bi-x-lg" style="color:#ef4444;"></i>
+                          <i class="bi bi-x-lg" style="color:var(--danger);"></i>
                         </button>
                       </form>
                     </td>
@@ -430,7 +430,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
             elseif ($rs > 4) $risksByLevel['Medium']++;
             else             $risksByLevel['Low']++;
         }
-        $lvlColors = ['Critical'=>'#dc2626','High'=>'#ea580c','Medium'=>'#d97706','Low'=>'#16a34a'];
+        $lvlColors = ['Critical'=>'var(--danger)','High'=>'var(--orange)','Medium'=>'var(--warning)','Low'=>'var(--primary)'];
         foreach ($risksByLevel as $lvl => $cnt):
             if ($cnt === 0) continue;
         ?>
@@ -456,10 +456,10 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
 <script nonce="<?= Security::nonce() ?>">
 (function() {
     function scoreColor(s) {
-        if (s <= 4)  return '#16a34a';
-        if (s <= 9)  return '#d97706';
-        if (s <= 16) return '#ea580c';
-        return '#dc2626';
+        if (s <= 4)  return 'var(--primary)';
+        if (s <= 9)  return 'var(--warning)';
+        if (s <= 16) return 'var(--orange)';
+        return 'var(--danger)';
     }
     window.updateEditScore = function() {
         var l = parseInt(document.getElementById('editLikelihood')?.value, 10) || 0;

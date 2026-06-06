@@ -41,12 +41,12 @@ $statusStyles = [
     <div style="font-size:24px;font-weight:700;color:var(--primary)"><?= (int)($stats['active_count'] ?? 0) ?></div>
     <div style="font-size:12px;color:var(--text-muted);margin-top:2px">Active Plans</div>
   </div>
-  <div class="stat-chip" style="background:#05966920;border:1px solid #05966940;border-radius:10px;padding:12px 20px;min-width:130px">
-    <div style="font-size:24px;font-weight:700;color:#059669"><?= (int)($stats['completed_count'] ?? 0) ?></div>
+  <div class="stat-chip" style="background:var(--success-subtle);border:1px solid var(--success)40;border-radius:10px;padding:12px 20px;min-width:130px">
+    <div style="font-size:24px;font-weight:700;color:var(--success)"><?= (int)($stats['completed_count'] ?? 0) ?></div>
     <div style="font-size:12px;color:var(--text-muted);margin-top:2px">Completed Plans</div>
   </div>
-  <div class="stat-chip" style="background:#ef444420;border:1px solid #ef444440;border-radius:10px;padding:12px 20px;min-width:130px">
-    <div style="font-size:24px;font-weight:700;color:#ef4444"><?= (int)($stats['overdue_count'] ?? 0) ?></div>
+  <div class="stat-chip" style="background:var(--danger-subtle);border:1px solid var(--danger)40;border-radius:10px;padding:12px 20px;min-width:130px">
+    <div style="font-size:24px;font-weight:700;color:var(--danger)"><?= (int)($stats['overdue_count'] ?? 0) ?></div>
     <div style="font-size:12px;color:var(--text-muted);margin-top:2px">Overdue Plans</div>
   </div>
 </div>
@@ -108,7 +108,7 @@ $statusStyles = [
               <?php if ($total > 0): ?>
                 <div style="display:flex;align-items:center;gap:8px">
                   <div style="flex:1;height:6px;background:var(--border);border-radius:4px;overflow:hidden">
-                    <div style="height:100%;width:<?= $pct ?>%;background:<?= $pct >= 100 ? '#059669' : 'var(--primary)' ?>;border-radius:4px;transition:width .3s"></div>
+                    <div style="height:100%;width:<?= $pct ?>%;background:<?= $pct >= 100 ? 'var(--success)' : 'var(--primary)' ?>;border-radius:4px;transition:width .3s"></div>
                   </div>
                   <span style="font-size:11px;color:var(--text-muted);white-space:nowrap"><?= $completed ?>/<?= $total ?></span>
                 </div>
@@ -120,7 +120,7 @@ $statusStyles = [
             <td class="text-sm <?= $overdue ? 'text-danger' : '' ?>">
               <?php if ($plan['target_date']): ?>
                 <?= date('M j, Y', strtotime($plan['target_date'])) ?>
-                <?php if ($overdue): ?><i class="bi bi-exclamation-circle-fill" style="color:#ef4444;margin-left:4px"></i><?php endif; ?>
+                <?php if ($overdue): ?><i class="bi bi-exclamation-circle-fill" style="color:var(--danger);margin-left:4px"></i><?php endif; ?>
               <?php else: ?>
                 <span class="text-muted">—</span>
               <?php endif; ?>

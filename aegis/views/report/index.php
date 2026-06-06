@@ -31,7 +31,7 @@ html[data-theme="dark"] .report-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,.
   <a href="/report/executive" class="card report-card">
     <div class="card-body" style="display:flex;gap:16px;align-items:flex-start;padding:24px">
       <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;flex-shrink:0">
-        <i class="bi bi-graph-up-arrow" style="color:#fff;font-size:22px"></i>
+        <i class="bi bi-graph-up-arrow" style="color:var(--card-bg);font-size:22px"></i>
       </div>
       <div>
         <div style="font-size:16px;font-weight:600;margin-bottom:4px">Executive Summary</div>
@@ -43,104 +43,104 @@ html[data-theme="dark"] .report-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,.
 
   <a href="/report/board" class="card report-card">
     <div class="card-body" style="display:flex;gap:16px;align-items:flex-start;padding:24px">
-      <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#1e1b4b,#4338ca);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-        <i class="bi bi-briefcase-fill" style="color:#fff;font-size:22px"></i>
+      <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#1e1b4b,var(--indigo));display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <i class="bi bi-briefcase-fill" style="color:var(--card-bg);font-size:22px"></i>
       </div>
       <div>
         <div style="font-size:16px;font-weight:600;margin-bottom:4px">Board Pack</div>
         <div style="font-size:13px;color:var(--text-muted)">Full board-ready risk report with KRIs, appetite breaches, compliance, and incident overview.</div>
-        <div style="margin-top:12px;font-size:12px;color:#4338ca;font-weight:500">View Report <i class="bi bi-arrow-right"></i></div>
+        <div style="margin-top:12px;font-size:12px;color:var(--indigo);font-weight:500">View Report <i class="bi bi-arrow-right"></i></div>
       </div>
     </div>
   </a>
 
   <a href="/report/compliance" class="card report-card">
     <div class="card-body" style="display:flex;gap:16px;align-items:flex-start;padding:24px">
-      <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#059669,#047857);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-        <i class="bi bi-shield-check" style="color:#fff;font-size:22px"></i>
+      <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--success),#047857);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <i class="bi bi-shield-check" style="color:var(--card-bg);font-size:22px"></i>
       </div>
       <div>
         <div style="font-size:16px;font-weight:600;margin-bottom:4px">Compliance Status</div>
         <div style="font-size:13px;color:var(--text-muted)">Per-package compliance breakdown, non-compliant controls, and recent activity.</div>
-        <div style="margin-top:12px;font-size:12px;color:#059669;font-weight:500">View Report <i class="bi bi-arrow-right"></i></div>
+        <div style="margin-top:12px;font-size:12px;color:var(--success);font-weight:500">View Report <i class="bi bi-arrow-right"></i></div>
       </div>
     </div>
   </a>
 
   <a href="/report/risk" class="card report-card">
     <div class="card-body" style="display:flex;gap:16px;align-items:flex-start;padding:24px">
-      <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#dc2626,#b91c1c);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-        <i class="bi bi-exclamation-triangle-fill" style="color:#fff;font-size:22px"></i>
+      <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--danger),#b91c1c);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <i class="bi bi-exclamation-triangle-fill" style="color:var(--card-bg);font-size:22px"></i>
       </div>
       <div>
         <div style="font-size:16px;font-weight:600;margin-bottom:4px">Risk Register</div>
         <div style="font-size:13px;color:var(--text-muted)">Full risk inventory with scores, categories, treatment plans, and open actions.</div>
-        <div style="margin-top:12px;font-size:12px;color:#dc2626;font-weight:500">View Report <i class="bi bi-arrow-right"></i></div>
+        <div style="margin-top:12px;font-size:12px;color:var(--danger);font-weight:500">View Report <i class="bi bi-arrow-right"></i></div>
       </div>
     </div>
   </a>
 
   <a href="/audit" class="card report-card">
     <div class="card-body" style="display:flex;gap:16px;align-items:flex-start;padding:24px">
-      <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#7c3aed,#6d28d9);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-        <i class="bi bi-clipboard2-check-fill" style="color:#fff;font-size:22px"></i>
+      <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--purple),#6d28d9);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <i class="bi bi-clipboard2-check-fill" style="color:var(--card-bg);font-size:22px"></i>
       </div>
       <div>
         <div style="font-size:16px;font-weight:600;margin-bottom:4px">Audit Status</div>
         <div style="font-size:13px;color:var(--text-muted)">Open audits, findings by severity, overdue items, and audit program summary.</div>
-        <div style="margin-top:12px;font-size:12px;color:#7c3aed;font-weight:500">View Audits <i class="bi bi-arrow-right"></i></div>
+        <div style="margin-top:12px;font-size:12px;color:var(--purple);font-weight:500">View Audits <i class="bi bi-arrow-right"></i></div>
       </div>
     </div>
   </a>
 
   <a href="/incidents" class="card report-card">
     <div class="card-body" style="display:flex;gap:16px;align-items:flex-start;padding:24px">
-      <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#ef4444,#b91c1c);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-        <i class="bi bi-fire" style="color:#fff;font-size:22px"></i>
+      <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--danger),#b91c1c);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <i class="bi bi-fire" style="color:var(--card-bg);font-size:22px"></i>
       </div>
       <div>
         <div style="font-size:16px;font-weight:600;margin-bottom:4px">Incident Report</div>
         <div style="font-size:13px;color:var(--text-muted)">Open and resolved incidents, SLA compliance, severity breakdown, and MTTR trends.</div>
-        <div style="margin-top:12px;font-size:12px;color:#ef4444;font-weight:500">View Incidents <i class="bi bi-arrow-right"></i></div>
+        <div style="margin-top:12px;font-size:12px;color:var(--danger);font-weight:500">View Incidents <i class="bi bi-arrow-right"></i></div>
       </div>
     </div>
   </a>
 
   <a href="/policy" class="card report-card">
     <div class="card-body" style="display:flex;gap:16px;align-items:flex-start;padding:24px">
-      <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#0284c7,#0369a1);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-        <i class="bi bi-file-earmark-text-fill" style="color:#fff;font-size:22px"></i>
+      <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--info),#0369a1);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <i class="bi bi-file-earmark-text-fill" style="color:var(--card-bg);font-size:22px"></i>
       </div>
       <div>
         <div style="font-size:16px;font-weight:600;margin-bottom:4px">Policy Review</div>
         <div style="font-size:13px;color:var(--text-muted)">Policy lifecycle status, review schedules, pending approvals, and acknowledgement rates.</div>
-        <div style="margin-top:12px;font-size:12px;color:#0284c7;font-weight:500">View Policies <i class="bi bi-arrow-right"></i></div>
+        <div style="margin-top:12px;font-size:12px;color:var(--info);font-weight:500">View Policies <i class="bi bi-arrow-right"></i></div>
       </div>
     </div>
   </a>
 
   <a href="/vendors" class="card report-card">
     <div class="card-body" style="display:flex;gap:16px;align-items:flex-start;padding:24px">
-      <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#d97706,#b45309);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-        <i class="bi bi-building-fill" style="color:#fff;font-size:22px"></i>
+      <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--warning),#b45309);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <i class="bi bi-building-fill" style="color:var(--card-bg);font-size:22px"></i>
       </div>
       <div>
         <div style="font-size:16px;font-weight:600;margin-bottom:4px">Vendor Risk</div>
         <div style="font-size:13px;color:var(--text-muted)">Third-party risk ratings, assessment status, contract expirations, and vendor tiers.</div>
-        <div style="margin-top:12px;font-size:12px;color:#d97706;font-weight:500">View Vendors <i class="bi bi-arrow-right"></i></div>
+        <div style="margin-top:12px;font-size:12px;color:var(--warning);font-weight:500">View Vendors <i class="bi bi-arrow-right"></i></div>
       </div>
     </div>
   </a>
 
   <a href="/export" class="card report-card">
     <div class="card-body" style="display:flex;gap:16px;align-items:flex-start;padding:24px">
-      <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#475569,#334155);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-        <i class="bi bi-download" style="color:#fff;font-size:22px"></i>
+      <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--text-muted),#334155);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <i class="bi bi-download" style="color:var(--card-bg);font-size:22px"></i>
       </div>
       <div>
         <div style="font-size:16px;font-weight:600;margin-bottom:4px">Data Export</div>
         <div style="font-size:13px;color:var(--text-muted)">Export raw data as CSV or JSON for integration with external tools and GDPR portability.</div>
-        <div style="margin-top:12px;font-size:12px;color:#475569;font-weight:500">Go to Export <i class="bi bi-arrow-right"></i></div>
+        <div style="margin-top:12px;font-size:12px;color:var(--text-muted);font-weight:500">Go to Export <i class="bi bi-arrow-right"></i></div>
       </div>
     </div>
   </a>

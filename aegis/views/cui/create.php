@@ -1,4 +1,6 @@
-<?php $csrf = Security::generateCsrfToken(); ?>
+<?php
+$breadcrumbs = $breadcrumbs ?? [['CUI Inventory', '/cui'], ['New Entry', null]];
+$csrf = Security::generateCsrfToken(); ?>
 <div class="page-header">
   <div>
     <h1 class="page-title">New CUI Record</h1>

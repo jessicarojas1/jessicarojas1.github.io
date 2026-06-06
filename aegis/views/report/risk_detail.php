@@ -207,7 +207,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
 </div>
 
 <?php if ($filterLevel || $filterStatus): ?>
-<div style="background:rgba(55,65,81,.08);border:1px solid #d1d5db;border-radius:8px;padding:10px 16px;margin-bottom:20px;font-size:13px;color:var(--text-muted);">
+<div style="background:rgba(55,65,81,.08);border:1px solid var(--border);border-radius:8px;padding:10px 16px;margin-bottom:20px;font-size:13px;color:var(--text-muted);">
   <i class="bi bi-funnel-fill"></i> <strong>Filter applied:</strong>
   <?php if ($filterLevel):  ?> Level: <strong><?= Security::h(ucfirst($filterLevel)) ?></strong><?php endif; ?>
   <?php if ($filterStatus): ?> &nbsp;Status: <strong><?= Security::h(ucfirst(str_replace('_',' ',$filterStatus))) ?></strong><?php endif; ?>
@@ -243,7 +243,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
 <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;align-items:center;" class="no-print">
   <span style="font-size:13px;font-weight:600;color:var(--text-muted);">Filter:</span>
   <a href="/report/risk-detail"
-     style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= (!$filterLevel && !$filterStatus) ? 'var(--primary)' : '#f4f4f5' ?>;color:<?= (!$filterLevel && !$filterStatus) ? '#fff' : '#52525b' ?>;text-decoration:none;font-weight:600;">All</a>
+     style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= (!$filterLevel && !$filterStatus) ? 'var(--primary)' : 'var(--bg-subtle)' ?>;color:<?= (!$filterLevel && !$filterStatus) ? 'var(--card-bg)' : 'var(--text-muted)' ?>;text-decoration:none;font-weight:600;">All</a>
   <a href="/report/risk-detail?level=critical"
      style="font-size:12px;padding:5px 14px;border-radius:99px;background:<?= $filterLevel === 'critical' ? 'var(--danger)' : 'var(--danger-subtle)' ?>;color:<?= $filterLevel === 'critical' ? 'var(--card-bg)' : 'var(--danger)' ?>;text-decoration:none;font-weight:600;">Critical</a>
   <a href="/report/risk-detail?level=high"
@@ -328,7 +328,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
         <td class="center">
           <?php if ($res > 0): ?>
           <span class="score-badge" style="background:<?= $res_bg ?>;color:<?= $res_cl ?>;"><?= $res ?></span>
-          <?php else: ?><span style="color:#d4d4d8;">—</span><?php endif; ?>
+          <?php else: ?><span style="color:var(--border);">—</span><?php endif; ?>
         </td>
         <td>
           <span class="status-chip2" style="background:<?= $stColor[0] ?>;color:<?= $stColor[1] ?>;"><?= ucfirst(str_replace('_', ' ', $r['status'] ?? '')) ?></span>
@@ -336,7 +336,7 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
         <td>
           <?php if ($strategy && $strategy !== '—'): ?>
           <span style="background:rgba(55,65,81,.08);color:var(--secondary);font-size:10px;font-weight:600;padding:2px 7px;border-radius:99px;display:inline-block;"><?= $strategy ?></span>
-          <?php else: ?><span style="color:#d4d4d8;">—</span><?php endif; ?>
+          <?php else: ?><span style="color:var(--border);">—</span><?php endif; ?>
         </td>
         <td style="white-space:nowrap;"><?= Security::h($r['owner_name'] ?? '—') ?></td>
         <td style="white-space:nowrap;color:<?= $isOverdue ? 'var(--danger)' : 'var(--text-muted)' ?>;">
@@ -346,12 +346,12 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
         <td class="center">
           <?php if ($openTx > 0): ?>
           <span style="display:inline-block;background:var(--warning-subtle);color:var(--warning);font-weight:700;min-width:22px;padding:2px 6px;border-radius:6px;font-size:11px;"><?= $openTx ?></span>
-          <?php else: ?><span style="color:#d4d4d8;">0</span><?php endif; ?>
+          <?php else: ?><span style="color:var(--border);">0</span><?php endif; ?>
         </td>
         <td class="center">
           <?php if ($ctrlCnt > 0): ?>
           <span style="display:inline-block;background:var(--info-subtle);color:var(--info);font-weight:700;min-width:22px;padding:2px 6px;border-radius:6px;font-size:11px;"><?= $ctrlCnt ?></span>
-          <?php else: ?><span style="color:#d4d4d8;">0</span><?php endif; ?>
+          <?php else: ?><span style="color:var(--border);">0</span><?php endif; ?>
         </td>
       </tr>
       <?php endforeach; ?>

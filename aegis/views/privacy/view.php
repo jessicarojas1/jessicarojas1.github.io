@@ -1,4 +1,6 @@
-<?php ob_start();
+<?php
+$breadcrumbs = $breadcrumbs ?? [['Privacy', '/privacy'], ['Record', null]];
+ob_start();
 $basisLabels = [
   'consent'=>'Consent','legitimate_interest'=>'Legitimate Interest','contract'=>'Contract',
   'legal_obligation'=>'Legal Obligation','vital_interests'=>'Vital Interests','public_task'=>'Public Task'
@@ -96,14 +98,14 @@ $basisLabels = [
       <div class="card-body">
         <?php if ($record['dpia_required']): ?>
           <?php if ($record['dpia_completed']): ?>
-          <div style="display:flex;align-items:center;gap:8px;color:#059669;font-weight:600;margin-bottom:8px">
+          <div style="display:flex;align-items:center;gap:8px;color:var(--success);font-weight:600;margin-bottom:8px">
             <i class="bi bi-check-circle-fill"></i> DPIA Completed
           </div>
           <?php if ($record['dpia_date']): ?>
           <div style="font-size:12px;color:var(--text-muted)">Completed: <?= date('M j, Y', strtotime($record['dpia_date'])) ?></div>
           <?php endif; ?>
           <?php else: ?>
-          <div style="display:flex;align-items:center;gap:8px;color:#dc2626;font-weight:600">
+          <div style="display:flex;align-items:center;gap:8px;color:var(--danger);font-weight:600">
             <i class="bi bi-exclamation-circle-fill"></i> DPIA Required
           </div>
           <div style="font-size:12px;color:var(--text-muted);margin-top:4px">This activity requires a Data Protection Impact Assessment.</div>

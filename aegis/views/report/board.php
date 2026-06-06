@@ -403,7 +403,7 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
           $reviewDt = $r['review_date'] ? date('j M Y', strtotime($r['review_date'])) : '—';
           $isOverdue = $r['review_date'] && strtotime($r['review_date']) < time();
         ?>
-        <tr style="border-bottom:1px solid #f4f4f5;">
+        <tr style="border-bottom:1px solid var(--border);">
           <td style="padding:10px 12px;font-size:11px;font-weight:700;color:var(--primary);white-space:nowrap;"><?= Security::h($r['risk_id'] ?? '#' . $r['id']) ?></td>
           <td style="padding:10px 12px;font-weight:500;max-width:220px;">
             <a href="/risk/<?= (int)$r['id'] ?>" style="color:var(--text);text-decoration:none;"><?= Security::h($r['title']) ?></a>
@@ -497,7 +497,7 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
         <?php foreach ($appetiteBreaches as $ab):
           $breach = (int)($ab['inherent_score'] ?? 0) - (int)($ab['max_score'] ?? 0);
         ?>
-        <tr style="border-bottom:1px solid #f4f4f5;">
+        <tr style="border-bottom:1px solid var(--border);">
           <td style="padding:10px 12px;font-weight:500;"><?= Security::h($ab['title']) ?></td>
           <td style="padding:10px 12px;color:var(--text-muted);font-size:12px;"><?= Security::h($ab['category_name'] ?? '—') ?></td>
           <td style="padding:10px 12px;text-align:center;">
@@ -603,7 +603,7 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
           }
           $recDate = $kri['latest_date'] ? date('j M Y', strtotime($kri['latest_date'])) : '—';
         ?>
-        <tr style="border-bottom:1px solid #f4f4f5;">
+        <tr style="border-bottom:1px solid var(--border);">
           <td style="padding:10px 12px;font-weight:500;"><?= Security::h($kri['title']) ?></td>
           <td style="padding:10px 12px;color:var(--text-muted);font-size:12px;"><?= Security::h($kri['risk_title'] ?? '—') ?></td>
           <td style="padding:10px 12px;text-align:center;font-weight:700;">
@@ -647,7 +647,7 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
           $sc2 = (int)($ur['inherent_score'] ?? 0);
           $sc2_cl = $sc2 > 14 ? 'var(--danger)' : ($sc2 >= 10 ? 'var(--warning)' : 'var(--text-muted)');
         ?>
-        <tr style="border-bottom:1px solid #f4f4f5;">
+        <tr style="border-bottom:1px solid var(--border);">
           <td style="padding:10px 12px;font-size:11px;font-weight:700;color:var(--primary);"><?= Security::h($ur['risk_id'] ?? '—') ?></td>
           <td style="padding:10px 12px;font-weight:500;"><?= Security::h($ur['title']) ?></td>
           <td style="padding:10px 12px;text-align:center;">
@@ -677,8 +677,8 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
   var canvas = document.getElementById('bpTrendChart');
   if (!canvas) return;
 
-  var labels = <?= json_encode(array_values($trendWeeks), JSON_UNESCAPED_UNICODE) ?>;
-  var scores = <?= json_encode(array_values($trendScores)) ?>;
+  var labels = <?= json_encode(array_values($trendWeeks), JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE) ?>;
+  var scores = <?= json_encode(array_values($trendScores), JSON_HEX_TAG | JSON_HEX_AMP) ?>;
 
   var ctx = canvas.getContext('2d');
   var W = canvas.parentElement.clientWidth || 800;

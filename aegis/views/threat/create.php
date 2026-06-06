@@ -155,7 +155,7 @@ $breadcrumbs = $breadcrumbs ?? [['Threat Register', '/threat'], ['New Threat', n
           </div>
 
           <!-- Live score display -->
-          <div style="text-align:center;padding:20px 16px;margin:8px 0;border-radius:12px;background:#fafbfc;border:1px solid var(--border-light);">
+          <div style="text-align:center;padding:20px 16px;margin:8px 0;border-radius:12px;background:var(--surface-alt);border:1px solid var(--border-light);">
             <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:8px;">Threat Score (L × I)</div>
             <div id="scoreDisplay" style="font-size:52px;font-weight:800;line-height:1;transition:color .2s;">9</div>
             <div id="scoreLabel" style="font-size:12px;font-weight:600;margin-top:6px;transition:color .2s;">Medium</div>

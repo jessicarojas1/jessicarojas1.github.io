@@ -145,7 +145,7 @@ $widgetTypes = [
       <?php elseif ($w['widget_type'] === 'overdue_items' && is_array($w['data'])): ?>
         <?php $od = $w['data']; ?>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center;">
-          <?php foreach ([['Risks',$od['risks'],'#ef4444'],['Policies',$od['policies'],'#f59e0b'],['Audits',$od['audits'],'#8b5cf6']] as [$lbl,$val,$clr]): ?>
+          <?php foreach ([['Risks',$od['risks'],'var(--danger)'],['Policies',$od['policies'],'var(--warning)'],['Audits',$od['audits'],'#8b5cf6']] as [$lbl,$val,$clr]): ?>
           <div style="background:var(--bg-secondary);border-radius:8px;padding:14px 8px;">
             <div style="font-size:1.75rem;font-weight:700;color:<?= $clr ?>"><?= (int)$val ?></div>
             <div style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;"><?= $lbl ?></div>
@@ -156,9 +156,9 @@ $widgetTypes = [
       <?php elseif ($w['widget_type'] === 'audit_status' && is_array($w['data'])): ?>
         <?php if (empty($w['data'])): ?><p style="color:var(--text-muted);font-size:0.875rem;">No audits.</p>
         <?php else: ?>
-        <?php $statusColors=['planned'=>'#6366f1','in_progress'=>'#f59e0b','completed'=>'#22c55e','cancelled'=>'#6b7280','on_hold'=>'#f97316']; ?>
+        <?php $statusColors=['planned'=>'var(--indigo,#6366f1)','in_progress'=>'var(--warning)','completed'=>'var(--primary-light)','cancelled'=>'var(--text-muted)','on_hold'=>'var(--orange)']; ?>
         <div style="display:flex;flex-direction:column;gap:8px;">
-          <?php foreach ($w['data'] as $row): $clr=$statusColors[$row['status']] ?? '#6b7280'; ?>
+          <?php foreach ($w['data'] as $row): $clr=$statusColors[$row['status']] ?? 'var(--text-muted)'; ?>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);">
             <span style="font-size:0.875rem;text-transform:capitalize;"><?= Security::h(str_replace('_',' ',$row['status'])) ?></span>
             <span style="background:<?= $clr ?>20;color:<?= $clr ?>;border-radius:12px;padding:2px 10px;font-size:0.8rem;font-weight:600;"><?= (int)$row['count'] ?></span>
@@ -173,7 +173,7 @@ $widgetTypes = [
         <div style="display:flex;flex-direction:column;gap:8px;">
           <?php foreach ($w['data'] as $pol):
             $daysLeft = $pol['next_review_date'] ? (int)((strtotime($pol['next_review_date'])-time())/86400) : 999;
-            $urgColor = $daysLeft <= 7 ? '#ef4444' : ($daysLeft <= 14 ? '#f59e0b' : '#6b7280');
+            $urgColor = $daysLeft <= 7 ? 'var(--danger)' : ($daysLeft <= 14 ? 'var(--warning)' : 'var(--text-muted)');
           ?>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);">
             <a href="/policy/<?= (int)$pol['id'] ?>" style="font-size:0.875rem;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><?= Security::h($pol['title']) ?></a>
@@ -213,7 +213,7 @@ $widgetTypes = [
             } else {
                 $status = $val <= $red ? 'red' : ($val <= $yel ? 'yellow' : 'green');
             }
-            $statusColor = ['red'=>'#ef4444','yellow'=>'#f59e0b','green'=>'#22c55e'][$status];
+            $statusColor = ['red'=>'var(--danger)','yellow'=>'var(--warning)','green'=>'var(--primary-light)'][$status];
           ?>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);">
             <a href="/kri/<?= (int)$kri['id'] ?>" style="font-size:0.875rem;max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><?= Security::h($kri['title']) ?></a>
@@ -228,9 +228,9 @@ $widgetTypes = [
       <?php elseif ($w['widget_type'] === 'poam_tracker' && is_array($w['data'])): ?>
         <?php if (empty($w['data'])): ?><p style="color:var(--text-muted);font-size:0.875rem;">No POA&Ms.</p>
         <?php else: ?>
-        <?php $poamColors=['open'=>'#ef4444','in_progress'=>'#f59e0b','completed'=>'#22c55e','closed'=>'#6b7280','on_hold'=>'#f97316']; ?>
+        <?php $poamColors=['open'=>'var(--danger)','in_progress'=>'var(--warning)','completed'=>'var(--primary-light)','closed'=>'var(--text-muted)','on_hold'=>'var(--orange)']; ?>
         <div style="display:flex;flex-direction:column;gap:8px;">
-          <?php foreach ($w['data'] as $row): $clr=$poamColors[$row['status']] ?? '#6b7280'; ?>
+          <?php foreach ($w['data'] as $row): $clr=$poamColors[$row['status']] ?? 'var(--text-muted)'; ?>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);">
             <span style="font-size:0.875rem;text-transform:capitalize;"><?= Security::h(str_replace('_',' ',$row['status'])) ?></span>
             <span style="background:<?= $clr ?>20;color:<?= $clr ?>;border-radius:12px;padding:2px 10px;font-size:0.8rem;font-weight:600;"><?= (int)$row['count'] ?></span>
@@ -250,7 +250,7 @@ $widgetTypes = [
             <div style="display:flex;justify-content:space-between;align-items:flex-start;">
               <span style="font-size:0.875rem;font-weight:500;max-width:200px;"><?= Security::h($rt['title']) ?></span>
               <?php if ($rt['due_date']): ?>
-              <span style="font-size:0.75rem;color:<?= $isOverdue?'#ef4444':'var(--text-muted)' ?>;white-space:nowrap;">
+              <span style="font-size:0.75rem;color:<?= $isOverdue?'var(--danger)':'var(--text-muted)' ?>;white-space:nowrap;">
                 <?= date('M j', strtotime($rt['due_date'])) ?>
               </span>
               <?php endif; ?>
@@ -266,12 +266,12 @@ $widgetTypes = [
       <?php elseif ($w['widget_type'] === 'asset_criticality' && is_array($w['data'])): ?>
         <?php if (empty($w['data'])): ?><p style="color:var(--text-muted);font-size:0.875rem;">No assets.</p>
         <?php else: ?>
-        <?php $critColors=['critical'=>'#ef4444','high'=>'#f97316','medium'=>'#f59e0b','low'=>'#22c55e'];
+        <?php $critColors=['critical'=>'var(--danger)','high'=>'var(--orange)','medium'=>'var(--warning)','low'=>'var(--primary-light)'];
               $total = array_sum(array_column($w['data'],'count')); ?>
         <div style="display:flex;flex-direction:column;gap:10px;">
           <?php foreach ($w['data'] as $row):
             $pct = $total > 0 ? round($row['count']/$total*100) : 0;
-            $clr = $critColors[$row['criticality']] ?? '#6b7280';
+            $clr = $critColors[$row['criticality']] ?? 'var(--text-muted)';
           ?>
           <div>
             <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
@@ -319,7 +319,7 @@ $widgetTypes = [
             <tbody>
             <?php foreach ($w['data'] as $r):
               $s = (int)($r['inherent_score'] ?? $r['score'] ?? 0);
-              $sClr = $s >= 15 ? '#ef4444' : ($s >= 10 ? '#f97316' : ($s >= 5 ? '#f59e0b' : '#22c55e'));
+              $sClr = $s >= 15 ? 'var(--danger)' : ($s >= 10 ? 'var(--orange)' : ($s >= 5 ? 'var(--warning)' : 'var(--primary-light)'));
             ?>
             <tr style="border-top:1px solid var(--border);">
               <td style="padding:5px 6px;"><a href="/risk/<?= (int)$r['id'] ?>" style="max-width:160px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><?= Security::h($r['title']) ?></a></td>
@@ -336,9 +336,9 @@ $widgetTypes = [
       <?php elseif ($w['widget_type'] === 'incident_heatmap' && is_array($w['data'])): ?>
         <?php if (empty($w['data'])): ?><p style="color:var(--text-muted);font-size:0.875rem;">No incidents.</p>
         <?php else: ?>
-        <?php $sevColors=['critical'=>'#ef4444','high'=>'#f97316','medium'=>'#f59e0b','low'=>'#22c55e']; ?>
+        <?php $sevColors=['critical'=>'var(--danger)','high'=>'var(--orange)','medium'=>'var(--warning)','low'=>'var(--primary-light)']; ?>
         <div style="display:flex;flex-direction:column;gap:8px;">
-          <?php foreach ($w['data'] as $row): $clr=$sevColors[$row['severity']] ?? '#6b7280'; ?>
+          <?php foreach ($w['data'] as $row): $clr=$sevColors[$row['severity']] ?? 'var(--text-muted)'; ?>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);">
             <span style="font-size:0.875rem;text-transform:capitalize;font-weight:500;color:<?= $clr ?>"><?= Security::h($row['severity']) ?></span>
             <div style="text-align:right;">

@@ -51,14 +51,14 @@ $priorityBadge = [
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:#6b728020;color:var(--text-muted)"><i class="bi bi-check-circle-fill"></i></div>
+    <div class="stat-icon" style="background:color-mix(in srgb,var(--text-muted) 20%,transparent);color:var(--text-muted)"><i class="bi bi-check-circle-fill"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['completed'] ?? 0) ?></div>
       <div class="stat-label">Completed</div>
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:#3b82f620;color:#3b82f6"><i class="bi bi-cash-stack"></i></div>
+    <div class="stat-icon" style="background:var(--info-subtle);color:var(--info)"><i class="bi bi-cash-stack"></i></div>
     <div>
       <div class="stat-value">$<?= number_format((float)($stats['total_budget'] ?? 0), 0) ?></div>
       <div class="stat-label">Total Budget Planned</div>
@@ -149,8 +149,8 @@ $priorityBadge = [
           </tr>
         <?php endforeach; else: ?>
           <tr>
-            <td colspan="9" style="text-align:center;padding:3rem">
-              <div style="display:flex;flex-direction:column;align-items:center;gap:.75rem;color:var(--text-muted)">
+            <td class="empty-row" colspan="9">
+              <div class="empty-state-sm">
                 <i class="bi bi-briefcase-fill" style="font-size:2.5rem"></i>
                 <p style="margin:0;font-size:1rem;font-weight:500">No projects yet</p>
                 <p style="margin:0;font-size:.875rem"><a href="/projects/create">Create the first project</a></p>

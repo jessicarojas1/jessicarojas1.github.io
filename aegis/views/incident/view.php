@@ -34,13 +34,13 @@ $ackStatus = $calcSlaStatus($incident['created_at'], $acknowledgedAt, $slaPolicy
 $resStatus = $calcSlaStatus($incident['created_at'], $resolvedAt,     $slaPolicy['resolve_hours'] ?? null);
 $slaBadgeStyle = function(string $status): string {
     $map = [
-        'on_track' => ['#059669', 'On Track'],
-        'at_risk'  => ['#d97706', 'At Risk'],
-        'breached' => ['#dc2626', 'Breached'],
-        'met'      => ['#71717a', 'Met'],
-        'n/a'      => ['#a1a1aa', 'N/A'],
+        'on_track' => ['var(--success)', 'On Track'],
+        'at_risk'  => ['var(--warning)', 'At Risk'],
+        'breached' => ['var(--danger)',  'Breached'],
+        'met'      => ['var(--text-muted)', 'Met'],
+        'n/a'      => ['var(--text-muted)', 'N/A'],
     ];
-    [$color, $label] = $map[$status] ?? ['#a1a1aa', ucfirst($status)];
+    [$color, $label] = $map[$status] ?? ['var(--text-muted)', ucfirst($status)];
     $extra = $status === 'met' ? 'text-decoration:line-through;' : '';
     return '<span style="display:inline-block;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;'
          . 'background:' . $color . '20;color:' . $color . ';border:1px solid ' . $color . '40;' . $extra . '">'

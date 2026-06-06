@@ -15,7 +15,7 @@ $breadcrumbs  = [['Policies', '/policy'], ['My Attestations', null]];
 
 <!-- Pending / action-required section -->
 <?php if ($pending): ?>
-  <div class="card" style="border:2px solid #fbbf24;margin-bottom:24px">
+  <div class="card" style="border:2px solid var(--warning);margin-bottom:24px">
     <div class="card-header" style="background:var(--warning-subtle)">
       <h3 class="card-title" style="color:var(--warning)">
         <i class="bi bi-exclamation-triangle-fill" style="color:var(--warning)"></i>

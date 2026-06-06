@@ -34,7 +34,7 @@ ob_start();
   </div>
 
   <div class="stat-card">
-    <div class="stat-icon" style="background:linear-gradient(135deg,#dc2626,#991b1b)">
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--danger),var(--danger-dark,#991b1b))">
       <i class="bi bi-exclamation-triangle-fill"></i>
     </div>
     <div class="stat-body">
@@ -43,7 +43,7 @@ ob_start();
       <?php foreach ($riskDistribution as $rd):
         [$bg, $fg] = match($rd['level']) {
           'Critical' => ['var(--danger-subtle)', 'var(--danger)'],
-          'High'     => ['var(--warning-subtle)', '#ea580c'],
+          'High'     => ['var(--warning-subtle)', 'var(--orange)'],
           'Medium'   => ['var(--warning-subtle)', 'var(--warning)'],
           default    => ['var(--success-subtle)', 'var(--success)'],
         };
@@ -54,7 +54,7 @@ ob_start();
   </div>
 
   <div class="stat-card">
-    <div class="stat-icon" style="background:linear-gradient(135deg,#059669,#047857)">
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--success),var(--success-dark,#047857))">
       <i class="bi bi-file-earmark-text-fill"></i>
     </div>
     <div class="stat-body">
@@ -65,7 +65,7 @@ ob_start();
   </div>
 
   <div class="stat-card">
-    <div class="stat-icon" style="background:linear-gradient(135deg,#0284c7,#0369a1)">
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--info),var(--info-dark,#0369a1))">
       <i class="bi bi-clipboard2-check-fill"></i>
     </div>
     <div class="stat-body">
@@ -202,7 +202,7 @@ $bucketMeta = [
         <?php $overdue = $policy['next_review_date'] && strtotime($policy['next_review_date']) < time(); ?>
         <div class="list-item">
           <div class="list-item-icon">
-            <i class="bi bi-file-earmark-text" style="color:<?= $overdue ? '#ef4444' : 'var(--primary)' ?>"></i>
+            <i class="bi bi-file-earmark-text" style="color:<?= $overdue ? 'var(--danger)' : 'var(--primary)' ?>"></i>
           </div>
           <div class="list-item-body">
             <div class="list-item-title"><a href="/policy/<?= $policy['id'] ?>"><?= Security::h($policy['title']) ?></a></div>
@@ -281,9 +281,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const clrText     = isDark ? 'rgba(248,250,252,0.65)' : 'rgba(30,41,59,0.65)';
   const clrGrid     = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
   const clrBg       = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)';
-  const clrGreen    = '#22c55e';
-  const clrYellow   = '#f59e0b';
-  const clrRed      = '#ef4444';
+  const clrGreen    = style.getPropertyValue('--primary-light').trim() || '#22c55e';
+  const clrYellow   = style.getPropertyValue('--warning').trim() || '#f59e0b';
+  const clrRed      = style.getPropertyValue('--danger').trim() || '#ef4444';
 
   // Apply global Chart.js defaults for dark mode
   Chart.defaults.color = clrText;
@@ -356,7 +356,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ── Risk donut chart ──────────────────────────────────────────
   if (riskData.length > 0) {
-    const riskColors = { Critical: '#ef4444', High: '#f97316', Medium: '#f59e0b', Low: '#22c55e' };
+    const riskColors = {
+      Critical: style.getPropertyValue('--danger').trim() || '#ef4444',
+      High: style.getPropertyValue('--orange').trim() || '#f97316',
+      Medium: style.getPropertyValue('--warning').trim() || '#f59e0b',
+      Low: style.getPropertyValue('--primary-light').trim() || '#22c55e'
+    };
     const ctx2 = document.getElementById('riskChart').getContext('2d');
     new Chart(ctx2, {
       type: 'doughnut',
@@ -364,9 +369,9 @@ document.addEventListener('DOMContentLoaded', () => {
         labels: riskData.map(r => r.level),
         datasets: [{
           data: riskData.map(r => r.count),
-          backgroundColor: riskData.map(r => riskColors[r.level] || '#94a3b8'),
+          backgroundColor: riskData.map(r => riskColors[r.level] || style.getPropertyValue('--text-muted').trim() || '#94a3b8'),
           borderWidth: 2,
-          borderColor: isDark ? '#1e293b' : '#ffffff',
+          borderColor: isDark ? style.getPropertyValue('--bg').trim() || '#1e293b' : style.getPropertyValue('--card-bg').trim() || '#ffffff',
           hoverOffset: 8
         }]
       },

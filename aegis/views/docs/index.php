@@ -1,4 +1,6 @@
-<?php ob_start(); ?>
+<?php
+$breadcrumbs = $breadcrumbs ?? [['Docs', null]];
+ob_start(); ?>
 <div class="page-header">
   <div>
     <h1 class="page-title">Documentation</h1>

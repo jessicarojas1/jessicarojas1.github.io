@@ -1,4 +1,5 @@
 <?php
+$breadcrumbs = $breadcrumbs ?? [['Metrics', null]];
 $trendDates  = array_column($trend, 'snapshot_date');
 $trendGRC    = array_column($trend, 'grc_score');
 $trendComp   = array_column($trend, 'compliance_pct');

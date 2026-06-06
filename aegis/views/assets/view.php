@@ -364,7 +364,7 @@ function riskScoreLevel(int $score): string {
           $lvlColors = ['Critical'=>'var(--danger)','High'=>'var(--orange)','Medium'=>'var(--warning)','Low'=>'var(--primary-light)'];
         ?>
           <div class="detail-row">
-            <span style="color:<?= $lvlColors[$lvl] ?? '#71717a' ?>;">■ <?= $lvl ?></span>
+            <span style="color:<?= $lvlColors[$lvl] ?? 'var(--text-muted)' ?>;">■ <?= $lvl ?></span>
             <strong><?= $cnt ?></strong>
           </div>
         <?php endforeach; ?>

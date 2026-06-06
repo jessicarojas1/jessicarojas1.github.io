@@ -21,15 +21,15 @@ ob_start();
     <div class="stat-body"><div class="stat-value"><?= $overallPct ?>%</div><div class="stat-label">Overall Compliance</div></div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:linear-gradient(135deg,#059669,#047857)"><i class="bi bi-check-circle-fill"></i></div>
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--success),#047857)"><i class="bi bi-check-circle-fill"></i></div>
     <div class="stat-body"><div class="stat-value"><?= $compliantCount ?></div><div class="stat-label">Compliant Controls</div></div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:linear-gradient(135deg,#dc2626,#b91c1c)"><i class="bi bi-x-circle-fill"></i></div>
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--danger),#b91c1c)"><i class="bi bi-x-circle-fill"></i></div>
     <div class="stat-body"><div class="stat-value"><?= $totalControls - $compliantCount ?></div><div class="stat-label">Gaps</div></div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:linear-gradient(135deg,#0284c7,#0369a1)"><i class="bi bi-collection-fill"></i></div>
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--info),#0369a1)"><i class="bi bi-collection-fill"></i></div>
     <div class="stat-body"><div class="stat-value"><?= count($packages) ?></div><div class="stat-label">Active Packages</div></div>
   </div>
 </div>
@@ -42,9 +42,9 @@ ob_start();
       <thead>
         <tr style="background:var(--bg-subtle)">
           <th style="padding:10px 16px;text-align:left;font-weight:600;color:var(--text-muted)">Package</th>
-          <th style="padding:10px 8px;text-align:center;font-weight:600;color:#059669">Compliant</th>
-          <th style="padding:10px 8px;text-align:center;font-weight:600;color:#d97706">Partial</th>
-          <th style="padding:10px 8px;text-align:center;font-weight:600;color:#dc2626">Non-Compliant</th>
+          <th style="padding:10px 8px;text-align:center;font-weight:600;color:var(--success)">Compliant</th>
+          <th style="padding:10px 8px;text-align:center;font-weight:600;color:var(--warning)">Partial</th>
+          <th style="padding:10px 8px;text-align:center;font-weight:600;color:var(--danger)">Non-Compliant</th>
           <th style="padding:10px 8px;text-align:center;font-weight:600;color:var(--text-muted)">Not Started</th>
           <th style="padding:10px 16px;text-align:right;font-weight:600;color:var(--text-muted)">Score</th>
         </tr>
@@ -56,14 +56,14 @@ ob_start();
         ?>
         <tr style="border-top:1px solid var(--border)">
           <td style="padding:12px 16px;font-weight:500"><?= Security::h($pkg['name']) ?></td>
-          <td style="padding:12px 8px;text-align:center;color:#059669"><?= $pkg['compliant'] ?></td>
-          <td style="padding:12px 8px;text-align:center;color:#d97706"><?= $pkg['partial'] ?></td>
-          <td style="padding:12px 8px;text-align:center;color:#dc2626"><?= $pkg['non_compliant'] ?></td>
+          <td style="padding:12px 8px;text-align:center;color:var(--success)"><?= $pkg['compliant'] ?></td>
+          <td style="padding:12px 8px;text-align:center;color:var(--warning)"><?= $pkg['partial'] ?></td>
+          <td style="padding:12px 8px;text-align:center;color:var(--danger)"><?= $pkg['non_compliant'] ?></td>
           <td style="padding:12px 8px;text-align:center;color:var(--text-muted)"><?= $pkg['not_started'] ?></td>
           <td style="padding:12px 16px;text-align:right">
-            <span style="font-weight:700;color:<?= $pct>=80?'#059669':($pct>=50?'#d97706':'#dc2626') ?>"><?= $pct ?>%</span>
+            <span style="font-weight:700;color:<?= $pct>=80?'var(--success)':($pct>=50?'var(--warning)':'var(--danger)') ?>"><?= $pct ?>%</span>
             <div style="height:4px;background:var(--border);border-radius:2px;margin-top:4px;width:80px;margin-left:auto">
-              <div style="height:100%;border-radius:2px;background:<?= $pct>=80?'#059669':($pct>=50?'#d97706':'#dc2626') ?>;width:<?= $pct ?>%"></div>
+              <div style="height:100%;border-radius:2px;background:<?= $pct>=80?'var(--success)':($pct>=50?'var(--warning)':'var(--danger)') ?>;width:<?= $pct ?>%"></div>
             </div>
           </td>
         </tr>
@@ -76,7 +76,7 @@ ob_start();
 <!-- Non-compliant items -->
 <?php if ($nonCompliantItems): ?>
 <div class="card" style="margin-bottom:20px">
-  <div class="card-header"><div class="card-header-left"><i class="bi bi-x-circle-fill" style="color:#dc2626"></i><span class="card-title">Non-Compliant Controls</span></div></div>
+  <div class="card-header"><div class="card-header-left"><i class="bi bi-x-circle-fill" style="color:var(--danger)"></i><span class="card-title">Non-Compliant Controls</span></div></div>
   <div class="card-body" style="padding:0">
     <table style="width:100%;border-collapse:collapse;font-size:13px">
       <thead>

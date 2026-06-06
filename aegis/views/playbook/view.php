@@ -189,7 +189,7 @@ $sevColor = $severityColors[strtolower($playbook['severity_filter'] ?? '')] ?? n
         <table style="width:100%;border-collapse:collapse;font-size:13px">
           <?php $rows = [
             ['Category',      Security::h($catLabel)],
-            ['Severity Filter', $playbook['severity_filter'] ? '<span class="status-chip" style="background:' . ($sevColor??'#71717a') . '20;color:' . ($sevColor??'#71717a') . '">' . Security::h(ucfirst($playbook['severity_filter'])) . '</span>' : 'Any'],
+            ['Severity Filter', $playbook['severity_filter'] ? '<span class="status-chip" style="background:' . ($sevColor??'var(--text-muted)') . '20;color:' . ($sevColor??'var(--text-muted)') . '">' . Security::h(ucfirst($playbook['severity_filter'])) . '</span>' : 'Any'],
             ['Steps',         count($steps)],
             ['Runs',          count($runs)],
             ['Status',        $isActive ? '<span class="status-chip" style="background:color-mix(in srgb,var(--success) 20%,transparent);color:var(--success)">Active</span>' : '<span class="status-chip" style="background:color-mix(in srgb,var(--text-muted) 20%,transparent);color:var(--text-muted)">Inactive</span>'],

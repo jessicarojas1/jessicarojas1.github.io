@@ -47,7 +47,7 @@ if ($plan['target_date']) {
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">
       <h1 class="page-title" style="margin:0"><?= Security::h($plan['title']) ?></h1>
       <?php if (!empty($plan['plan_code'])): ?>
-        <span class="badge" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($plan['plan_code']) ?></span>
+        <span class="badge" style="background:var(--info-subtle);color:var(--info);border:1px solid var(--border);font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($plan['plan_code']) ?></span>
       <?php endif; ?>
     </div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
@@ -79,17 +79,17 @@ if ($plan['target_date']) {
           <span id="progress-label" style="font-size:22px;font-weight:700;color:var(--primary)"><?= $progressPct ?>%</span>
         </div>
         <div style="height:12px;background:var(--border);border-radius:8px;overflow:hidden">
-          <div id="progress-bar" style="height:100%;width:<?= $progressPct ?>%;background:<?= $progressPct >= 100 ? '#059669' : 'var(--primary)' ?>;border-radius:8px;transition:width .4s ease"></div>
+          <div id="progress-bar" style="height:100%;width:<?= $progressPct ?>%;background:<?= $progressPct >= 100 ? 'var(--success)' : 'var(--primary)' ?>;border-radius:8px;transition:width .4s ease"></div>
         </div>
         <div style="margin-top:6px;font-size:13px;color:var(--text-muted)">
           <span id="progress-text"><?= $completedMilestones ?> of <?= $totalMilestones ?> milestone<?= $totalMilestones !== 1 ? 's' : '' ?> completed</span>
         </div>
       </div>
       <?php if ($daysLabel): ?>
-      <div style="text-align:center;padding:12px 20px;background:<?= $overduePlan ? '#ef444415' : 'var(--bg-secondary)' ?>;border-radius:10px;border:1px solid <?= $overduePlan ? '#ef444430' : 'var(--border)' ?>">
+      <div style="text-align:center;padding:12px 20px;background:<?= $overduePlan ? 'var(--danger-subtle)' : 'var(--bg-secondary)' ?>;border-radius:10px;border:1px solid <?= $overduePlan ? 'var(--danger)' : 'var(--border)' ?>">
         <div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:4px">Target Date</div>
-        <div style="font-weight:700;color:<?= $overduePlan ? '#ef4444' : 'var(--text-primary)' ?>"><?= date('M j, Y', strtotime($plan['target_date'])) ?></div>
-        <div style="font-size:12px;color:<?= $overduePlan ? '#ef4444' : 'var(--text-muted)' ?>"><?= Security::h($daysLabel) ?></div>
+        <div style="font-weight:700;color:<?= $overduePlan ? 'var(--danger)' : 'var(--text-primary)' ?>"><?= date('M j, Y', strtotime($plan['target_date'])) ?></div>
+        <div style="font-size:12px;color:<?= $overduePlan ? 'var(--danger)' : 'var(--text-muted)' ?>"><?= Security::h($daysLabel) ?></div>
       </div>
       <?php endif; ?>
     </div>
@@ -118,7 +118,7 @@ if ($plan['target_date']) {
             ['Target Score', $plan['target_score'] ? (int)$plan['target_score'] : '<span style="color:var(--text-muted)">—</span>'],
             ['Owner',        Security::h($plan['owner_name'] ?? '—')],
             ['Start Date',   $plan['start_date'] ? date('M j, Y', strtotime($plan['start_date'])) : '<span style="color:var(--text-muted)">—</span>'],
-            ['Target Date',  $plan['target_date'] ? '<span style="color:' . ($overduePlan ? '#ef4444' : 'inherit') . '">' . date('M j, Y', strtotime($plan['target_date'])) . ($overduePlan ? ' <i class="bi bi-exclamation-circle-fill"></i>' : '') . '</span>' : '<span style="color:var(--text-muted)">—</span>'],
+            ['Target Date',  $plan['target_date'] ? '<span style="color:' . ($overduePlan ? 'var(--danger)' : 'inherit') . '">' . date('M j, Y', strtotime($plan['target_date'])) . ($overduePlan ? ' <i class="bi bi-exclamation-circle-fill"></i>' : '') . '</span>' : '<span style="color:var(--text-muted)">—</span>'],
             ['Created',      date('M j, Y', strtotime($plan['created_at']))],
             ['Updated',      date('M j, Y', strtotime($plan['updated_at']))],
           ]; foreach ($rows as [$label, $val]): ?>
@@ -243,13 +243,13 @@ if ($plan['target_date']) {
             <form class="complete-form" data-milestone-id="<?= (int)$m['id'] ?>" style="margin:0;flex-shrink:0;margin-top:2px">
               <?= Security::csrfField() ?>
               <button type="submit" class="milestone-checkbox <?= $mDone ? 'checked' : '' ?>"
-                      style="width:22px;height:22px;border-radius:50%;border:2px solid <?= $mDone ? '#059669' : 'var(--border)' ?>;background:<?= $mDone ? '#059669' : 'transparent' ?>;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;color:#fff;transition:all .2s"
+                      style="width:22px;height:22px;border-radius:50%;border:2px solid <?= $mDone ? 'var(--success)' : 'var(--border)' ?>;background:<?= $mDone ? 'var(--success)' : 'transparent' ?>;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;color:var(--card-bg);transition:all .2s"
                       title="<?= $mDone ? 'Mark incomplete' : 'Mark complete' ?>">
                 <?php if ($mDone): ?><i class="bi bi-check" style="font-size:13px"></i><?php endif; ?>
               </button>
             </form>
             <?php else: ?>
-            <div style="width:22px;height:22px;border-radius:50%;border:2px solid <?= $mDone ? '#059669' : 'var(--border)' ?>;background:<?= $mDone ? '#059669' : 'transparent' ?>;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;color:#fff">
+            <div style="width:22px;height:22px;border-radius:50%;border:2px solid <?= $mDone ? 'var(--success)' : 'var(--border)' ?>;background:<?= $mDone ? 'var(--success)' : 'transparent' ?>;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;color:var(--card-bg)">
               <?php if ($mDone): ?><i class="bi bi-check" style="font-size:13px"></i><?php endif; ?>
             </div>
             <?php endif; ?>
@@ -264,14 +264,14 @@ if ($plan['target_date']) {
               <?php endif; ?>
               <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:6px;font-size:12px">
                 <?php if ($m['due_date']): ?>
-                  <span style="color:<?= $mOverdue ? '#ef4444' : 'var(--text-muted)' ?>">
+                  <span style="color:<?= $mOverdue ? 'var(--danger)' : 'var(--text-muted)' ?>">
                     <i class="bi bi-calendar<?= $mOverdue ? '-x' : '' ?>"></i>
                     Due <?= date('M j, Y', strtotime($m['due_date'])) ?>
                     <?php if ($mOverdue): ?><strong>(overdue)</strong><?php endif; ?>
                   </span>
                 <?php endif; ?>
                 <?php if ($mDone): ?>
-                  <span style="color:#059669">
+                  <span style="color:var(--success)">
                     <i class="bi bi-check-circle"></i>
                     Completed <?= date('M j, Y', strtotime($m['completed_at'])) ?>
                     <?php if ($m['completed_by_name']): ?> by <?= Security::h($m['completed_by_name']) ?><?php endif; ?>
@@ -412,7 +412,7 @@ if ($plan['target_date']) {
     var cnt  = document.getElementById('milestone-count-label');
     if (bar) {
       bar.style.width = pct + '%';
-      bar.style.background = pct >= 100 ? '#059669' : 'var(--primary)';
+      bar.style.background = pct >= 100 ? 'var(--success)' : 'var(--primary)';
     }
     if (lbl) lbl.textContent = pct + '%';
     if (txt) txt.textContent = progress + ' of ' + total + ' milestone' + (total !== 1 ? 's' : '') + ' completed';
@@ -452,8 +452,8 @@ if ($plan['target_date']) {
         } else {
           // Complete
           btn.classList.add('checked');
-          btn.style.borderColor = '#059669';
-          btn.style.background  = '#059669';
+          btn.style.borderColor = 'var(--success)';
+          btn.style.background  = 'var(--success)';
           btn.innerHTML         = '<i class="bi bi-check" style="font-size:13px"></i>';
           btn.title             = 'Mark incomplete';
           if (row) row.style.opacity = '.7';

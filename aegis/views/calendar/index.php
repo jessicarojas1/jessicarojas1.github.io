@@ -85,7 +85,7 @@ $typeLabels = [
         <?php foreach ($showEvents as $ev): ?>
           <a href="<?= Security::h($ev['url']) ?>"
              title="<?= Security::h($ev['title']) ?>"
-             style="display:flex;align-items:center;gap:4px;padding:2px 5px;margin-bottom:2px;border-radius:4px;font-size:0.72rem;font-weight:500;text-decoration:none;color:#fff;background:<?= Security::h($typeColors[$ev['type']] ?? '#6b7280') ?>;overflow:hidden;white-space:nowrap;max-width:100%">
+             style="display:flex;align-items:center;gap:4px;padding:2px 5px;margin-bottom:2px;border-radius:4px;font-size:0.72rem;font-weight:500;text-decoration:none;color:var(--card-bg);background:<?= Security::h($typeColors[$ev['type']] ?? 'var(--text-muted)') ?>;overflow:hidden;white-space:nowrap;max-width:100%">
             <span style="flex:1;overflow:hidden;text-overflow:ellipsis"><?= Security::h($ev['title']) ?></span>
           </a>
         <?php endforeach; ?>

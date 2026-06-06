@@ -31,7 +31,7 @@ $breadcrumbs  = [['Policies', '/policy'], ['New Campaign', null]];
           </select>
           <div class="form-hint">Only published/approved policies are shown.</div>
         <?php else: ?>
-          <div class="alert-box" style="background:#fef9c3;border-color:#fbbf24;color:var(--warning)">
+          <div class="alert-box" style="background:var(--warning-subtle);border-color:var(--warning);color:var(--warning)">
             <i class="bi bi-exclamation-triangle-fill"></i>
             No approved policies found. Publish a policy first before creating a campaign.
           </div>

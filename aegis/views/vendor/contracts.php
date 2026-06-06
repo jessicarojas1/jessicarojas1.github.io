@@ -131,12 +131,12 @@ $urgent = array_filter($expiring, function($c) {
         <tbody>
           <?php foreach ($contracts as $c):
             $statusMap = [
-              'active'     => ['color'=>'#059669','bg'=>'#dcfce7','label'=>'Active'],
-              'draft'      => ['color'=>'#71717a','bg'=>'#f4f4f5','label'=>'Draft'],
-              'expired'    => ['color'=>'#dc2626','bg'=>'#fee2e2','label'=>'Expired'],
-              'terminated' => ['color'=>'#a1a1aa','bg'=>'#f9fafb','label'=>'Terminated'],
+              'active'     => ['color'=>'var(--success)','bg'=>'var(--success-subtle)','label'=>'Active'],
+              'draft'      => ['color'=>'var(--text-muted)','bg'=>'var(--bg-subtle)','label'=>'Draft'],
+              'expired'    => ['color'=>'var(--danger)','bg'=>'var(--danger-subtle)','label'=>'Expired'],
+              'terminated' => ['color'=>'var(--text-muted)','bg'=>'var(--surface-alt)','label'=>'Terminated'],
             ];
-            $badge = $statusMap[$c['status']] ?? ['color'=>'#71717a','bg'=>'#f4f4f5','label'=>ucfirst($c['status'])];
+            $badge = $statusMap[$c['status']] ?? ['color'=>'var(--text-muted)','bg'=>'var(--bg-subtle)','label'=>ucfirst($c['status'])];
           ?>
           <tr>
             <td style="font-weight:500"><?= Security::h($c['vendor_name']) ?></td>

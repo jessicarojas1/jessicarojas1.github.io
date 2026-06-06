@@ -184,12 +184,12 @@ $contracts = Database::fetchAll(
       <tbody>
         <?php foreach ($contracts as $vc):
           $vcStatusMap = [
-            'active'     => ['color'=>'#059669','bg'=>'#dcfce7','label'=>'Active'],
-            'draft'      => ['color'=>'#71717a','bg'=>'#f4f4f5','label'=>'Draft'],
-            'expired'    => ['color'=>'#dc2626','bg'=>'#fee2e2','label'=>'Expired'],
-            'terminated' => ['color'=>'#a1a1aa','bg'=>'#f9fafb','label'=>'Terminated'],
+            'active'     => ['color'=>'var(--success)','bg'=>'var(--success-subtle)','label'=>'Active'],
+            'draft'      => ['color'=>'var(--text-muted)','bg'=>'var(--bg-subtle)','label'=>'Draft'],
+            'expired'    => ['color'=>'var(--danger)','bg'=>'var(--danger-subtle)','label'=>'Expired'],
+            'terminated' => ['color'=>'var(--text-muted)','bg'=>'var(--surface-alt)','label'=>'Terminated'],
           ];
-          $vcBadge = $vcStatusMap[$vc['status']] ?? ['color'=>'#71717a','bg'=>'#f4f4f5','label'=>ucfirst($vc['status'])];
+          $vcBadge = $vcStatusMap[$vc['status']] ?? ['color'=>'var(--text-muted)','bg'=>'var(--bg-subtle)','label'=>ucfirst($vc['status'])];
           $vcDaysLeft = $vc['end_date'] ? (int)ceil((strtotime($vc['end_date']) - time()) / 86400) : null;
           $vcEndColor = ($vc['status']==='active' && $vcDaysLeft !== null && $vcDaysLeft <= 30) ? 'var(--danger)'
                       : (($vc['status']==='active' && $vcDaysLeft !== null && $vcDaysLeft <= 60) ? 'var(--warning)' : 'inherit');

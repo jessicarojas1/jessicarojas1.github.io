@@ -21,15 +21,15 @@ ob_start();
     <div class="stat-body"><div class="stat-value"><?= $stats['total'] ?></div><div class="stat-label">Total Risks</div></div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:linear-gradient(135deg,#dc2626,#b91c1c)"><i class="bi bi-exclamation-octagon-fill"></i></div>
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--danger),#b91c1c)"><i class="bi bi-exclamation-octagon-fill"></i></div>
     <div class="stat-body"><div class="stat-value"><?= $stats['critical'] ?></div><div class="stat-label">Critical</div></div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:linear-gradient(135deg,#d97706,#b45309)"><i class="bi bi-exclamation-triangle-fill"></i></div>
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--warning),#b45309)"><i class="bi bi-exclamation-triangle-fill"></i></div>
     <div class="stat-body"><div class="stat-value"><?= $stats['high'] ?></div><div class="stat-label">High</div></div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:linear-gradient(135deg,#059669,#047857)"><i class="bi bi-check-circle-fill"></i></div>
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--success),#047857)"><i class="bi bi-check-circle-fill"></i></div>
     <div class="stat-body"><div class="stat-value"><?= $stats['low'] + $stats['medium'] ?></div><div class="stat-label">Medium / Low</div></div>
   </div>
 </div>
@@ -52,9 +52,9 @@ ob_start();
       <tbody>
         <?php foreach ($risks as $r):
           $sc = (int)$r['inherent_score'];
-          $rc = $sc >= 20 ? '#dc2626' : ($sc >= 15 ? '#d97706' : ($sc >= 8 ? '#0284c7' : '#059669'));
-          $stColors=['open'=>'#dc2626','in_treatment'=>'#d97706','accepted'=>'var(--secondary)','closed'=>'#71717a'];
-          $stc = $stColors[$r['status']] ?? '#71717a';
+          $rc = $sc >= 20 ? 'var(--danger)' : ($sc >= 15 ? 'var(--warning)' : ($sc >= 8 ? 'var(--info)' : 'var(--success)'));
+          $stColors=['open'=>'var(--danger)','in_treatment'=>'var(--warning)','accepted'=>'var(--secondary)','closed'=>'var(--text-muted)'];
+          $stc = $stColors[$r['status']] ?? 'var(--text-muted)';
         ?>
         <tr style="border-top:1px solid var(--border)">
           <td style="padding:12px 16px">
@@ -82,7 +82,7 @@ ob_start();
 <!-- Open treatment actions -->
 <?php if ($openTreatments): ?>
 <div class="card" style="margin-bottom:20px">
-  <div class="card-header"><div class="card-header-left"><i class="bi bi-tools" style="color:#d97706"></i><span class="card-title">Open Treatment Actions</span></div></div>
+  <div class="card-header"><div class="card-header-left"><i class="bi bi-tools" style="color:var(--warning)"></i><span class="card-title">Open Treatment Actions</span></div></div>
   <div class="card-body" style="padding:0">
     <table style="width:100%;border-collapse:collapse;font-size:13px">
       <thead>
@@ -96,8 +96,8 @@ ob_start();
       </thead>
       <tbody>
         <?php foreach ($openTreatments as $t):
-          $tColors=['planned'=>'#71717a','in_progress'=>'#d97706','completed'=>'#059669','cancelled'=>'#71717a'];
-          $tc = $tColors[$t['status']] ?? '#71717a';
+          $tColors=['planned'=>'var(--text-muted)','in_progress'=>'var(--warning)','completed'=>'var(--success)','cancelled'=>'var(--text-muted)'];
+          $tc = $tColors[$t['status']] ?? 'var(--text-muted)';
           $overdue = $t['due_date'] && strtotime($t['due_date']) < time();
         ?>
         <tr style="border-top:1px solid var(--border)">
@@ -107,9 +107,9 @@ ob_start();
           <td style="padding:10px 8px;text-align:center">
             <span class="status-chip" style="background:<?= $tc ?>20;color:<?= $tc ?>"><?= ucfirst(str_replace('_',' ',$t['status'])) ?></span>
           </td>
-          <td style="padding:10px 16px;text-align:right;white-space:nowrap;color:<?= $overdue?'#dc2626':'inherit' ?>">
+          <td style="padding:10px 16px;text-align:right;white-space:nowrap;color:<?= $overdue?'var(--danger)':'inherit' ?>">
             <?= $t['due_date'] ? date('M j, Y', strtotime($t['due_date'])) : '—' ?>
-            <?= $overdue ? ' <i class="bi bi-exclamation-circle-fill" style="color:#dc2626"></i>' : '' ?>
+            <?= $overdue ? ' <i class="bi bi-exclamation-circle-fill" style="color:var(--danger)"></i>' : '' ?>
           </td>
         </tr>
         <?php endforeach; ?>
