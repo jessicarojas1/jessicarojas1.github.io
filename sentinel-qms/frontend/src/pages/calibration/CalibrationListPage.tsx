@@ -1,13 +1,16 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Wrench } from 'lucide-react';
+import { Plus, Wrench } from 'lucide-react';
 import { calibrationHooks } from '@/hooks';
 import { useListController } from '@/hooks/useListController';
 import { getErrorMessage } from '@/lib/api';
 import { daysUntil, formatDate } from '@/lib/format';
+import { usePagePerms } from '@/lib/permissions';
 import { PageHeader } from '@/components/PageHeader';
 import { DataTable, type Column } from '@/components/DataTable';
 import { StatusBadge } from '@/components/StatusBadge';
 import { Select } from '@/components/FormField';
+import { CalibrationCreateModal } from './CalibrationCreateModal';
 import type { Equipment } from '@/types';
 
 function DueCell({ value }: { value?: string }) {
@@ -23,6 +26,8 @@ function DueCell({ value }: { value?: string }) {
 export default function CalibrationListPage() {
   const navigate = useNavigate();
   const ctl = useListController({ sort: 'next_due_date', order: 'asc' });
+  const { canEdit } = usePagePerms();
+  const [createOpen, setCreateOpen] = useState(false);
   const { data, isLoading, error } = calibrationHooks.useList(ctl.params);
 
   const columns: Column<Equipment>[] = [
@@ -40,6 +45,13 @@ export default function CalibrationListPage() {
         icon={<Wrench size={22} />}
         subtitle="Measurement & test equipment calibration status and due dates."
         breadcrumbs={[{ label: 'Calibration' }]}
+        actions={
+          canEdit('calibration') && (
+            <button type="button" className="btn btn-primary" onClick={() => setCreateOpen(true)}>
+              <Plus size={16} /> New Equipment
+            </button>
+          )
+        }
       />
       <DataTable
         columns={columns}
@@ -89,6 +101,15 @@ export default function CalibrationListPage() {
             </div>
           </>
         }
+      />
+
+      <CalibrationCreateModal
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        onCreated={(id) => {
+          setCreateOpen(false);
+          navigate(`/calibration/${id}`);
+        }}
       />
     </>
   );

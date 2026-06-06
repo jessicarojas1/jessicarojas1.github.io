@@ -4,13 +4,11 @@
 
 .app-shell {
   display: grid;
-  grid-template-rows: var(--cui-h) var(--header-h) 1fr var(--cui-h);
+  grid-template-rows: var(--header-h) 1fr;
   grid-template-columns: var(--nav-w) 1fr;
   grid-template-areas:
-    'cui-top  cui-top'
     'topbar   topbar'
-    'sidenav  content'
-    'cui-bot  cui-bot';
+    'sidenav  content';
   height: 100vh;
   overflow: hidden;
 }
@@ -275,11 +273,8 @@
   min-height: 100vh;
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: var(--cui-h) 1fr var(--cui-h);
-  grid-template-areas:
-    'cui-top'
-    'login-main'
-    'cui-bot';
+  grid-template-rows: 1fr;
+  grid-template-areas: 'login-main';
 }
 .login-main {
   grid-area: login-main;
@@ -320,16 +315,15 @@
 @media (max-width: 920px) {
   .app-shell {
     grid-template-columns: 1fr;
+    grid-template-rows: var(--header-h) 1fr;
     grid-template-areas:
-      'cui-top'
       'topbar'
-      'content'
-      'cui-bot';
+      'content';
   }
   .sidenav {
     position: fixed;
-    top: calc(var(--cui-h) + var(--header-h));
-    bottom: var(--cui-h);
+    top: var(--header-h);
+    bottom: 0;
     left: 0;
     width: var(--nav-w);
     transform: translateX(-100%);
