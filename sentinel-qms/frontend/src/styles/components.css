@@ -771,3 +771,188 @@ table.data-table {
   font-size: 12.5px;
   min-width: 78px;
 }
+
+/* ================================================================== */
+/* AEGIS-style Risk Register & Audit module                            */
+/* ================================================================== */
+
+.form-grid--3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+@media (max-width: 640px) { .form-grid--3 { grid-template-columns: 1fr; } }
+
+.text-truncate {
+  max-width: 360px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---- Risk / audit summary KPI strip ---- */
+.risk-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: var(--space-3);
+}
+.risk-kpi {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  box-shadow: var(--shadow-sm);
+  color: var(--text-muted);
+}
+.risk-kpi__num { font-size: 26px; font-weight: 700; line-height: 1.1; color: var(--text); }
+.risk-kpi__label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+.risk-kpi--critical { border-left-color: var(--danger); color: var(--danger); }
+.risk-kpi--high { border-left-color: #d97706; color: #d97706; }
+.risk-kpi--medium { border-left-color: var(--warning); color: var(--warning); }
+.risk-kpi--low { border-left-color: var(--success); color: var(--success); }
+.risk-kpi--critical .risk-kpi__num,
+.risk-kpi--high .risk-kpi__num,
+.risk-kpi--medium .risk-kpi__num,
+.risk-kpi--low .risk-kpi__num { color: inherit; }
+
+/* ---- Risk matrix (5×5 heat map) ---- */
+.risk-matrix-wrap { overflow-x: auto; }
+.risk-matrix {
+  display: grid;
+  grid-template-columns: minmax(140px, auto) repeat(5, minmax(72px, 1fr));
+  gap: 4px;
+  min-width: 560px;
+}
+.risk-matrix__corner {
+  display: flex;
+  align-items: flex-end;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 6px;
+}
+.risk-matrix__colhead,
+.risk-matrix__rowhead {
+  background: var(--surface-2, var(--primary-soft));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 6px 4px;
+  gap: 2px;
+}
+.risk-matrix__rowhead { align-items: flex-end; text-align: right; padding: 6px 10px; }
+.risk-matrix__idx { font-size: 10px; color: var(--text-muted); font-weight: 700; }
+.risk-matrix__cell {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  aspect-ratio: 1.7;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  font: inherit;
+}
+.risk-matrix__cell:disabled { cursor: default; }
+.risk-matrix__cell:not(:disabled):hover { transform: scale(1.04); box-shadow: var(--shadow-sm); }
+.risk-matrix__cell.is-active {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+.risk-matrix__score { font-size: 18px; font-weight: 800; }
+.risk-matrix__legend {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.risk-matrix__legend-item { display: inline-flex; align-items: center; gap: 6px; }
+.risk-matrix__legend-item strong { color: var(--text); }
+.risk-matrix__swatch { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+.risk-matrix__legend-note { margin-left: auto; }
+
+/* ---- Register table accents ---- */
+.score-cell {
+  display: inline-grid;
+  place-items: center;
+  min-width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: var(--surface-2, var(--primary-soft));
+  border: 1px solid var(--border);
+  font-weight: 700;
+  font-size: 12.5px;
+}
+.risk-level-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 9px;
+  border-radius: 100px;
+  border: 1px solid transparent;
+}
+.risk-level--critical { background: var(--danger-soft); color: var(--danger); border-color: var(--danger); }
+.risk-level--high { background: var(--warning-soft); color: #d97706; border-color: #d97706; }
+.risk-level--medium { background: var(--warning-soft); color: var(--warning); border-color: var(--warning); }
+.risk-level--low { background: var(--success-soft); color: var(--success); border-color: var(--success); }
+
+.risk-rpn-preview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  margin: 4px 0 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-2, var(--primary-soft));
+}
+.risk-rpn-preview strong { font-size: 22px; font-weight: 800; color: var(--primary); }
+
+/* ---- Audit detail KPI bar ---- */
+.audit-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+.audit-kpi {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-sm);
+}
+.audit-kpi__label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+.audit-kpi__value { font-size: 18px; font-weight: 700; color: var(--text); }
+.audit-kpi--findings { grid-column: span 2; }
+.audit-finding-tally { display: flex; flex-wrap: wrap; gap: 6px; }
+.tally {
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 100px;
+  border: 1px solid transparent;
+}
+.tally--danger { background: var(--danger-soft); color: var(--danger); border-color: var(--danger); }
+.tally--warning { background: var(--warning-soft); color: var(--warning); border-color: var(--warning); }
+.tally--info { background: var(--info-soft); color: var(--info); border-color: var(--info); }
+.tally--success { background: var(--success-soft); color: var(--success); border-color: var(--success); }
