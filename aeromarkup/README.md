@@ -1,34 +1,42 @@
 # AeroMarkup ✈
 
-**Offline-capable aircraft drawing, sketch & annotation tool** for aerospace and
-manufacturing. Load an engineering drawing or photo of an airframe/part, then
-sketch, point, annotate, measure, and redline it — on a 2-in-1, iPad, Android
-tablet, or phone, **with or without internet**.
+**Aerospace & manufacturing engineering-lifecycle platform** for DoD programs.
+Redline engineering drawings and photos of airframes/parts, then run the work
+through to disposition and approval — on a 2-in-1, iPad, Android tablet, or
+phone, **with or without internet**.
 
 > Deploys to **Render** today; the same container runs in **AWS GovCloud** and
-> **Azure Government**.
+> **Azure Government**. Offline-first PWA, RBAC, immutable audit trail, and CUI
+> classification banners throughout.
 
 ---
 
-## What it does
+## Lifecycle modules
 
-| Capability | Notes |
-|------------|-------|
-| Freehand sketch / scribble | Pressure-sensitive with a stylus (Apple Pencil, Surface Pen, S Pen) |
-| Highlighter & eraser | Translucent markup; eraser removes ink |
-| Pointers / arrows | Drag from base to tip to point at a feature |
-| Notes & callouts | Drop draggable text notes anywhere |
-| Pins | Drop location markers |
-| Shapes | Line, rectangle, ellipse to circle areas |
-| Load reference image | Bring in a drawing or photo to mark up |
-| Pan / pinch-zoom | Two-finger gestures on touch; wheel + space-drag on desktop |
-| Undo / redo | Full history per drawing |
-| Export PNG | Flattened image of background + markup |
-| **Works offline** | App shell cached (service worker); all data saved to **IndexedDB** |
-| **Syncs when online** | Pushes/pulls changes via `/api/sync` to PostgreSQL |
+| Module | What it does |
+|--------|--------------|
+| **Dashboard** | Live KPIs — projects, drawings, open/critical NCRs, items in review — plus an activity feed |
+| **Projects** | Programs, projects, tail/part/serial/work-order metadata, classification |
+| **Drawing Editor** | Pressure-sensitive markup, shapes, pointers, notes, pins, **dimensioned measurement with scale calibration**, layers, revision/status workflow, **revision compare** (side-by-side + overlay diff), and **PDF redline report** export |
+| **Nonconformance (NCR)** | Raise, triage, and **disposition** defects (use-as-is / rework / repair / scrap / RTV) with severity + status workflow |
+| **Inspections** | Quality inspection records (AS9100-style) with pass/fail items |
+| **Approvals** | Review queue + **electronic signatures** (submit → approve → release), hashed and recorded |
+| **Audit Trail** | Immutable, append-only record of every consequential action |
+| **Administration** | Identity, **role-based access control** (viewer / engineer / inspector / approver / admin) |
 
-Input is handled with **Pointer Events**, so mouse, touch, and pen all work and
-pen pressure is captured where the hardware supports it.
+### Engineering markup
+Pressure-sensitive pen/highlighter/eraser, arrows/pointers, line/rect/ellipse,
+draggable notes & pins, and **measurements** that report real-world units once
+you calibrate the drawing scale against a known dimension. Input uses **Pointer
+Events**, so mouse, touch, and stylus (Apple Pencil, Surface Pen, S Pen) all
+work and pen pressure is captured where the hardware supports it. Pan/pinch-zoom
+on touch; wheel-zoom on desktop. Export a flattened PNG redline.
+
+### Security / DoD posture
+- **CUI classification banners** (top + bottom, persisted, kept in print output).
+- **RBAC** gates every lifecycle action; approvals require an **e-signature**.
+- **Immutable audit trail** for traceability.
+- **No third-party CDN/runtime calls** — fully self-hosted, usable air-gapped.
 
 ### Offline-first model
 Every edit is written to the device's IndexedDB **first**, so the tool never
@@ -43,13 +51,20 @@ carries a stable client-generated id.
 ## Architecture
 
 ```
-Browser PWA (static/)                Flask API (server.py)         PostgreSQL (db/schema.sql)
-┌───────────────────────┐   /api    ┌────────────────────┐  SQL  ┌────────────────────────┐
-│ canvas engine + IndexedDB │ ◄────► │ /projects /drawings │ ◄──► │ projects, drawings,     │
-│ service worker (offline)  │  sync  │ /sync  /health      │       │ strokes, annotations,   │
-└───────────────────────┘           └────────────────────┘       │ revisions, sync_log …   │
-                                                                  └────────────────────────┘
+Browser PWA (static/, ES modules)     Flask API (server.py)        PostgreSQL — schema "aeromarkup"
+┌──────────────────────────────┐  /api ┌──────────────────────┐ SQL ┌────────────────────────────┐
+│ app · router · views          │ ◄───► │ /dashboard /projects  │◄──►│ programs, projects, drawings,│
+│ canvas engine (markup/measure)│ sync  │ /drawings /sync       │    │ strokes, annotations, layers,│
+│ store (IndexedDB) · session   │       │ /ncrs /inspections    │    │ ncrs, inspections, approvals,│
+│ audit · service worker        │       │ /approvals /audit     │    │ comments, audit_log, sync_log│
+└──────────────────────────────┘       └──────────────────────┘    └────────────────────────────┘
+        offline-first, RBAC, CUI                  stateless                shared-DB safe (namespaced)
 ```
+
+The frontend is a modular ES-module SPA (`static/js/`: `app`, `router`,
+`store`, `session`, `audit`, `api`, `ui`, `icons`, `canvas`, `views`). It is
+**IndexedDB-authoritative** so every module works fully offline; the server is
+best-effort persistence + multi-device reconciliation.
 
 The Flask process is **stateless** — all durable state is in Postgres and each
 client's IndexedDB. That's what makes it portable across Render, ECS/Fargate,
@@ -68,8 +83,9 @@ and Azure Container Apps.
 The full schema for **every table** is in [`db/schema.sql`](db/schema.sql)
 (idempotent; PostgreSQL 13+). Tables (all under schema `aeromarkup`):
 
-`users` · `projects` · `drawings` · `layers` · `strokes` · `annotations` ·
-`attachments` · `revisions` · `sync_log`
+`users` · `programs` · `projects` · `drawings` · `layers` · `strokes` ·
+`annotations` · `attachments` · `revisions` · `ncrs` · `inspections` ·
+`inspection_items` · `approvals` · `comments` · `audit_log` · `sync_log`
 
 Apply it manually, or let the app apply it on boot (`AUTO_MIGRATE=1`, default):
 

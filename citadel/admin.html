@@ -210,7 +210,10 @@
                 <div class="col-12">
                   <label class="form-label small" for="brand-logo-url">Logo URL</label>
                   <input type="url" class="form-control form-control-sm" id="brand-logo-url" placeholder="https://example.com/logo.png">
-                  <div class="form-text">Paste a public image URL (https). Leave blank to use the built-in CITADEL mark.</div>
+                  <div class="d-flex align-items-center gap-2 mt-1">
+                    <input type="file" class="form-control form-control-sm" id="brand-logo-file" accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml" style="max-width:260px">
+                    <span class="form-text mb-0">Paste a public https URL, or upload a small image (embedded inline). Blank = built-in mark.</span>
+                  </div>
                 </div>
                 <div class="col-12 col-md-7">
                   <label class="form-label small" for="brand-org-name">Organization / product name</label>
@@ -984,6 +987,17 @@
     function wireBranding() {
       const u = $('brand-logo-url'), n = $('brand-org-name'), a = $('brand-accent');
       [u, n, a].forEach((el) => { if (el && !el.dataset.wiredPv) { el.dataset.wiredPv = '1'; el.addEventListener('input', updateBrandPreview); } });
+      const file = $('brand-logo-file');
+      if (file && !file.dataset.wired) {
+        file.dataset.wired = '1';
+        file.addEventListener('change', () => {
+          const f = file.files && file.files[0]; if (!f) return;
+          if (f.size > 180 * 1024) { window.alert('Image is too large (max ~180 KB). Use a URL for larger logos.'); file.value = ''; return; }
+          const reader = new FileReader();
+          reader.onload = () => { if (u) { u.value = String(reader.result || ''); updateBrandPreview(); } };
+          reader.readAsDataURL(f);
+        });
+      }
       const save = $('brand-save');
       if (save && !save.dataset.wired) {
         save.dataset.wired = '1';

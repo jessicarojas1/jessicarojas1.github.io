@@ -62,22 +62,29 @@ When asked to build any user management, roles, or permissions UI, always delive
 Every app or project — new or existing, moving forward — **must** include a
 **Settings** area that contains a **Branding** section where the user can:
 
-- **Upload/enter a logo via URL** (a `logoUrl` text field — paste an image URL)
-- Set an **organization / product name** (text)
-- Set a **primary accent color** (color picker, applied via a CSS custom property)
+- **Set a logo via URL** (a `logoUrl` text field — paste an image URL). Also
+  accept a **file upload stored as a `data:` URL** so it works offline.
+- Set the **organization / product display name** (text).
+- Set a **primary accent / brand color** (color picker, applied via a CSS custom property).
+
+Branding must be **persisted** and **applied live** across the app:
+- Persist wherever the app stores settings: server-side settings when a backend
+  exists (shared), and `localStorage` / IndexedDB for static/front-end-only
+  hosting (per-browser). The backend value wins when both are present.
+- The logo replaces the default brand mark in the header/top bar; the display
+  name replaces the default app name (header + document `<title>`); the accent
+  color overrides the app's primary CSS custom property.
+- The logo also appears in any generated reports / PDF / print output and on
+  login/landing screens.
 
 Requirements:
-- Branding applies app-wide: the logo renders in the header/navbar, the org name
-  shows in the header and document `<title>`, and the accent color overrides the
-  app's primary CSS custom property.
-- Persist branding wherever the app stores settings: server-side settings when a
-  backend exists (shared), and `localStorage` for static/front-end-only hosting
-  (per-browser). Backend value wins when both are present.
 - Provide sensible empty-state defaults (the app's built-in logo/name/accent) so
-  an unset branding never breaks the UI.
-- A bad/broken logo URL must degrade gracefully (fall back to the default mark).
-- Follow all existing rules: no inline event handlers, escape user-supplied
-  strings on output, and never hardcode colors that should be the accent var.
+  unset branding never breaks the UI; a bad/broken logo URL degrades gracefully
+  to the default mark.
+- **Sanitize** logo URLs (allow only `http(s)://` or `data:image/...`) and escape
+  user-supplied strings when injected into markup.
+- Follow all existing rules: no inline event handlers, and never hardcode colors
+  that should be the accent var.
 
 ## Other Permanent Rules
 

@@ -92,6 +92,25 @@ def require_db():
     return None
 
 
+def audit(conn, actor, action, entity_type, entity_id, detail=None):
+    """Append an immutable activity-log row inside the caller's transaction.
+
+    All values are bound as parameters (no string concatenation of input).
+    """
+    conn.execute(
+        """INSERT INTO audit_log (actor, action, entity_type, entity_id, detail, source)
+           VALUES (%(actor)s, %(action)s, %(etype)s, %(eid)s,
+                   COALESCE(%(detail)s,'{}')::jsonb, 'api')""",
+        {
+            "actor": actor,
+            "action": action,
+            "etype": entity_type,
+            "eid": entity_id,
+            "detail": json.dumps(detail or {}),
+        },
+    )
+
+
 # ── Static PWA ───────────────────────────────────────────────────────
 @app.get("/")
 def index():
@@ -144,10 +163,14 @@ def create_project():
     d = request.get_json(force=True) or {}
     with get_conn() as conn:
         row = conn.execute(
-            """INSERT INTO projects (name, description, category, tail_number, part_number)
+            """INSERT INTO projects
+                 (name, description, category, tail_number, part_number,
+                  serial_number, work_order, classification, program_id)
                VALUES (%(name)s, %(description)s,
                        COALESCE(%(category)s,'aerospace'),
-                       %(tail_number)s, %(part_number)s)
+                       %(tail_number)s, %(part_number)s,
+                       %(serial_number)s, %(work_order)s,
+                       COALESCE(%(classification)s,'CUI'), %(program_id)s)
                RETURNING *""",
             {
                 "name": d.get("name", "Untitled Project"),
@@ -155,8 +178,14 @@ def create_project():
                 "category": d.get("category"),
                 "tail_number": d.get("tail_number"),
                 "part_number": d.get("part_number"),
+                "serial_number": d.get("serial_number"),
+                "work_order": d.get("work_order"),
+                "classification": d.get("classification"),
+                "program_id": d.get("program_id"),
             },
         ).fetchone()
+        audit(conn, d.get("actor", "system"), "create", "project",
+              row["id"], {"name": row["name"]})
     return jsonify(row), 201
 
 
@@ -182,10 +211,16 @@ def create_drawing(project_id):
         row = conn.execute(
             """INSERT INTO drawings
                  (project_id, title, background_kind, background_data,
-                  background_name, width, height, client_uid)
+                  background_name, width, height, client_uid,
+                  drawing_number, revision, units, scale_ratio,
+                  status, classification)
                VALUES (%(pid)s, %(title)s,
                        COALESCE(%(bk)s,'blank'), %(bd)s, %(bn)s,
-                       COALESCE(%(w)s,1600), COALESCE(%(h)s,1200), %(cuid)s)
+                       COALESCE(%(w)s,1600), COALESCE(%(h)s,1200), %(cuid)s,
+                       %(dnum)s, COALESCE(%(rev)s,'A'),
+                       COALESCE(%(units)s,'in'), %(scale)s,
+                       COALESCE(%(status)s,'draft'),
+                       COALESCE(%(classification)s,'CUI'))
                ON CONFLICT (client_uid) DO UPDATE SET title = EXCLUDED.title
                RETURNING *""",
             {
@@ -197,8 +232,16 @@ def create_drawing(project_id):
                 "w": d.get("width"),
                 "h": d.get("height"),
                 "cuid": d.get("client_uid"),
+                "dnum": d.get("drawing_number"),
+                "rev": d.get("revision"),
+                "units": d.get("units"),
+                "scale": d.get("scale_ratio"),
+                "status": d.get("status"),
+                "classification": d.get("classification"),
             },
         ).fetchone()
+        audit(conn, d.get("actor", "system"), "create", "drawing",
+              row["id"], {"title": row["title"]})
     return jsonify(row), 201
 
 
@@ -222,6 +265,436 @@ def get_drawing(drawing_id):
             (drawing_id,),
         ).fetchall()
     return jsonify({"drawing": drawing, "strokes": strokes, "annotations": annotations})
+
+
+# ── Dashboard ────────────────────────────────────────────────────────
+@app.get("/api/dashboard")
+def dashboard():
+    if (r := require_db()):
+        return r
+    with get_conn() as conn:
+        counts = conn.execute(
+            """SELECT
+                 (SELECT COUNT(*) FROM projects)                            AS projects,
+                 (SELECT COUNT(*) FROM drawings)                            AS drawings,
+                 (SELECT COUNT(*) FROM ncrs WHERE status = 'open')          AS open_ncrs,
+                 (SELECT COUNT(*) FROM ncrs WHERE severity = 'critical'
+                                              AND status <> 'closed')        AS critical_ncrs,
+                 (SELECT COUNT(*) FROM approvals a
+                    WHERE a.action = 'submit'
+                      AND NOT EXISTS (
+                        SELECT 1 FROM approvals later
+                        WHERE later.entity_type = a.entity_type
+                          AND later.entity_id   = a.entity_id
+                          AND later.action IN ('approve','reject','release')
+                          AND later.created_at >= a.created_at))            AS pending_approvals
+            """
+        ).fetchone()
+        recent = conn.execute(
+            "SELECT * FROM audit_log ORDER BY seq DESC LIMIT 15"
+        ).fetchall()
+    return jsonify({**counts, "recent_activity": recent})
+
+
+# ── Programs ─────────────────────────────────────────────────────────
+@app.get("/api/programs")
+def list_programs():
+    if (r := require_db()):
+        return r
+    with get_conn() as conn:
+        rows = conn.execute(
+            "SELECT * FROM programs ORDER BY created_at DESC"
+        ).fetchall()
+    return jsonify(rows)
+
+
+@app.post("/api/programs")
+def create_program():
+    if (r := require_db()):
+        return r
+    d = request.get_json(force=True) or {}
+    with get_conn() as conn:
+        row = conn.execute(
+            """INSERT INTO programs (name, code, description, classification)
+               VALUES (%(name)s, %(code)s, %(description)s,
+                       COALESCE(%(classification)s,'CUI'))
+               RETURNING *""",
+            {
+                "name": d.get("name", "Untitled Program"),
+                "code": d.get("code"),
+                "description": d.get("description"),
+                "classification": d.get("classification"),
+            },
+        ).fetchone()
+        audit(conn, d.get("actor", "system"), "create", "program",
+              row["id"], {"name": row["name"]})
+    return jsonify(row), 201
+
+
+# ── NCRs ─────────────────────────────────────────────────────────────
+@app.get("/api/ncrs")
+def list_ncrs():
+    if (r := require_db()):
+        return r
+    project_id = request.args.get("project_id")
+    status = request.args.get("status")
+    sql = "SELECT * FROM ncrs"
+    where, params = [], {}
+    if project_id:
+        where.append("project_id = %(pid)s")
+        params["pid"] = project_id
+    if status:
+        where.append("status = %(status)s")
+        params["status"] = status
+    if where:
+        sql += " WHERE " + " AND ".join(where)
+    sql += " ORDER BY created_at DESC"
+    with get_conn() as conn:
+        rows = conn.execute(sql, params).fetchall()
+    return jsonify(rows)
+
+
+@app.post("/api/ncrs")
+def create_ncr():
+    if (r := require_db()):
+        return r
+    d = request.get_json(force=True) or {}
+    with get_conn() as conn:
+        row = conn.execute(
+            """INSERT INTO ncrs
+                 (project_id, drawing_id, annotation_id, ncr_number, title,
+                  description, severity, defect_type, status, disposition,
+                  disposition_notes, raised_by, assigned_to, due_date,
+                  classification, client_uid)
+               VALUES (%(project_id)s, %(drawing_id)s, %(annotation_id)s,
+                       %(ncr_number)s, %(title)s, %(description)s,
+                       COALESCE(%(severity)s,'minor'), %(defect_type)s,
+                       COALESCE(%(status)s,'open'), %(disposition)s,
+                       %(disposition_notes)s, %(raised_by)s, %(assigned_to)s,
+                       %(due_date)s, COALESCE(%(classification)s,'CUI'),
+                       %(client_uid)s)
+               ON CONFLICT (client_uid) DO UPDATE
+                 SET title = EXCLUDED.title,
+                     description = EXCLUDED.description,
+                     severity = EXCLUDED.severity,
+                     defect_type = EXCLUDED.defect_type,
+                     status = EXCLUDED.status,
+                     disposition = EXCLUDED.disposition,
+                     disposition_notes = EXCLUDED.disposition_notes,
+                     assigned_to = EXCLUDED.assigned_to,
+                     due_date = EXCLUDED.due_date
+               RETURNING *""",
+            {
+                "project_id": d.get("project_id"),
+                "drawing_id": d.get("drawing_id"),
+                "annotation_id": d.get("annotation_id"),
+                "ncr_number": d.get("ncr_number"),
+                "title": d.get("title", "Untitled NCR"),
+                "description": d.get("description"),
+                "severity": d.get("severity"),
+                "defect_type": d.get("defect_type"),
+                "status": d.get("status"),
+                "disposition": d.get("disposition"),
+                "disposition_notes": d.get("disposition_notes"),
+                "raised_by": d.get("raised_by"),
+                "assigned_to": d.get("assigned_to"),
+                "due_date": d.get("due_date"),
+                "classification": d.get("classification"),
+                "client_uid": d.get("client_uid"),
+            },
+        ).fetchone()
+        audit(conn, d.get("actor", "system"), "upsert", "ncr",
+              row["id"], {"status": row["status"], "severity": row["severity"]})
+    return jsonify(row), 201
+
+
+@app.patch("/api/ncrs/<ncr_id>")
+def update_ncr(ncr_id):
+    if (r := require_db()):
+        return r
+    d = request.get_json(force=True) or {}
+    with get_conn() as conn:
+        row = conn.execute(
+            """UPDATE ncrs SET
+                 status            = COALESCE(%(status)s, status),
+                 disposition       = COALESCE(%(disposition)s, disposition),
+                 disposition_notes = COALESCE(%(disposition_notes)s, disposition_notes),
+                 assigned_to       = COALESCE(%(assigned_to)s, assigned_to)
+               WHERE id = %(id)s
+               RETURNING *""",
+            {
+                "id": ncr_id,
+                "status": d.get("status"),
+                "disposition": d.get("disposition"),
+                "disposition_notes": d.get("disposition_notes"),
+                "assigned_to": d.get("assigned_to"),
+            },
+        ).fetchone()
+        if not row:
+            return jsonify({"error": "not_found"}), 404
+        audit(conn, d.get("actor", "system"), "update", "ncr",
+              row["id"], {"status": row["status"],
+                          "disposition": row["disposition"]})
+    return jsonify(row)
+
+
+# ── Inspections ──────────────────────────────────────────────────────
+@app.get("/api/inspections")
+def list_inspections():
+    if (r := require_db()):
+        return r
+    project_id = request.args.get("project_id")
+    sql = "SELECT * FROM inspections"
+    params = {}
+    if project_id:
+        sql += " WHERE project_id = %(pid)s"
+        params["pid"] = project_id
+    sql += " ORDER BY created_at DESC"
+    with get_conn() as conn:
+        rows = conn.execute(sql, params).fetchall()
+    return jsonify(rows)
+
+
+@app.post("/api/inspections")
+def create_inspection():
+    if (r := require_db()):
+        return r
+    d = request.get_json(force=True) or {}
+    with get_conn() as conn:
+        row = conn.execute(
+            """INSERT INTO inspections
+                 (project_id, drawing_id, type, result, inspector_id,
+                  performed_at, notes, client_uid)
+               VALUES (%(project_id)s, %(drawing_id)s, %(type)s,
+                       COALESCE(%(result)s,'pending'), %(inspector_id)s,
+                       %(performed_at)s, %(notes)s, %(client_uid)s)
+               ON CONFLICT (client_uid) DO UPDATE
+                 SET result = EXCLUDED.result,
+                     notes = EXCLUDED.notes,
+                     performed_at = EXCLUDED.performed_at
+               RETURNING *""",
+            {
+                "project_id": d.get("project_id"),
+                "drawing_id": d.get("drawing_id"),
+                "type": d.get("type"),
+                "result": d.get("result"),
+                "inspector_id": d.get("inspector_id"),
+                "performed_at": d.get("performed_at"),
+                "notes": d.get("notes"),
+                "client_uid": d.get("client_uid"),
+            },
+        ).fetchone()
+        audit(conn, d.get("actor", "system"), "create", "inspection",
+              row["id"], {"result": row["result"]})
+    return jsonify(row), 201
+
+
+@app.post("/api/inspections/<inspection_id>/items")
+def add_inspection_item(inspection_id):
+    if (r := require_db()):
+        return r
+    d = request.get_json(force=True) or {}
+    with get_conn() as conn:
+        row = conn.execute(
+            """INSERT INTO inspection_items
+                 (inspection_id, label, result, notes, sort)
+               VALUES (%(iid)s, %(label)s, COALESCE(%(result)s,'na'),
+                       %(notes)s, COALESCE(%(sort)s,0))
+               RETURNING *""",
+            {
+                "iid": inspection_id,
+                "label": d.get("label", "Item"),
+                "result": d.get("result"),
+                "notes": d.get("notes"),
+                "sort": d.get("sort"),
+            },
+        ).fetchone()
+    return jsonify(row), 201
+
+
+# ── Approvals (e-signature / workflow trail) ─────────────────────────
+@app.get("/api/approvals")
+def list_approvals():
+    if (r := require_db()):
+        return r
+    entity_type = request.args.get("entity_type")
+    entity_id = request.args.get("entity_id")
+    sql = "SELECT * FROM approvals"
+    where, params = [], {}
+    if entity_type:
+        where.append("entity_type = %(et)s")
+        params["et"] = entity_type
+    if entity_id:
+        where.append("entity_id = %(eid)s")
+        params["eid"] = entity_id
+    if where:
+        sql += " WHERE " + " AND ".join(where)
+    sql += " ORDER BY created_at DESC"
+    with get_conn() as conn:
+        rows = conn.execute(sql, params).fetchall()
+    return jsonify(rows)
+
+
+@app.post("/api/approvals")
+def create_approval():
+    if (r := require_db()):
+        return r
+    d = request.get_json(force=True) or {}
+    entity_type = d.get("entity_type")
+    entity_id = d.get("entity_id")
+    action = d.get("action")
+    with get_conn() as conn:
+        row = conn.execute(
+            """INSERT INTO approvals
+                 (entity_type, entity_id, action, actor_id, actor_name,
+                  signature_hash, comment, client_uid)
+               VALUES (%(entity_type)s, %(entity_id)s, %(action)s,
+                       %(actor_id)s, %(actor_name)s, %(signature_hash)s,
+                       %(comment)s, %(client_uid)s)
+               ON CONFLICT (client_uid) DO NOTHING
+               RETURNING *""",
+            {
+                "entity_type": entity_type,
+                "entity_id": entity_id,
+                "action": action,
+                "actor_id": d.get("actor_id"),
+                "actor_name": d.get("actor_name"),
+                "signature_hash": d.get("signature_hash"),
+                "comment": d.get("comment"),
+                "client_uid": d.get("client_uid"),
+            },
+        ).fetchone()
+        # Idempotent replay (client_uid conflict) -> fetch existing row
+        if not row and d.get("client_uid"):
+            row = conn.execute(
+                "SELECT * FROM approvals WHERE client_uid = %s",
+                (d.get("client_uid"),),
+            ).fetchone()
+
+        # Drive drawing lifecycle status on approve/release
+        if entity_type == "drawing" and entity_id and action in ("approve", "release"):
+            new_status = "approved" if action == "approve" else "released"
+            conn.execute(
+                "UPDATE drawings SET status = %(s)s WHERE id = %(id)s",
+                {"s": new_status, "id": entity_id},
+            )
+
+        audit(conn, d.get("actor_name") or d.get("actor", "system"),
+              action or "approval", entity_type, entity_id,
+              {"comment": d.get("comment")})
+    return jsonify(row), 201
+
+
+# ── Comments ─────────────────────────────────────────────────────────
+@app.get("/api/comments")
+def list_comments():
+    if (r := require_db()):
+        return r
+    entity_type = request.args.get("entity_type")
+    entity_id = request.args.get("entity_id")
+    sql = "SELECT * FROM comments"
+    where, params = [], {}
+    if entity_type:
+        where.append("entity_type = %(et)s")
+        params["et"] = entity_type
+    if entity_id:
+        where.append("entity_id = %(eid)s")
+        params["eid"] = entity_id
+    if where:
+        sql += " WHERE " + " AND ".join(where)
+    sql += " ORDER BY created_at ASC"
+    with get_conn() as conn:
+        rows = conn.execute(sql, params).fetchall()
+    return jsonify(rows)
+
+
+@app.post("/api/comments")
+def create_comment():
+    if (r := require_db()):
+        return r
+    d = request.get_json(force=True) or {}
+    with get_conn() as conn:
+        row = conn.execute(
+            """INSERT INTO comments
+                 (entity_type, entity_id, author, body, client_uid)
+               VALUES (%(entity_type)s, %(entity_id)s, %(author)s,
+                       %(body)s, %(client_uid)s)
+               ON CONFLICT (client_uid) DO NOTHING
+               RETURNING *""",
+            {
+                "entity_type": d.get("entity_type"),
+                "entity_id": d.get("entity_id"),
+                "author": d.get("author"),
+                "body": d.get("body", ""),
+                "client_uid": d.get("client_uid"),
+            },
+        ).fetchone()
+        if not row and d.get("client_uid"):
+            row = conn.execute(
+                "SELECT * FROM comments WHERE client_uid = %s",
+                (d.get("client_uid"),),
+            ).fetchone()
+    return jsonify(row), 201
+
+
+# ── Audit log ────────────────────────────────────────────────────────
+@app.get("/api/audit")
+def list_audit():
+    if (r := require_db()):
+        return r
+    try:
+        limit = int(request.args.get("limit", 50))
+    except (TypeError, ValueError):
+        limit = 50
+    limit = max(1, min(limit, 1000))
+    with get_conn() as conn:
+        rows = conn.execute(
+            "SELECT * FROM audit_log ORDER BY seq DESC LIMIT %s",
+            (limit,),
+        ).fetchall()
+    return jsonify(rows)
+
+
+# ── Users ────────────────────────────────────────────────────────────
+@app.get("/api/users")
+def list_users():
+    if (r := require_db()):
+        return r
+    with get_conn() as conn:
+        rows = conn.execute(
+            """SELECT id, username, display_name, email, role,
+                      created_at, updated_at
+               FROM users ORDER BY username"""
+        ).fetchall()
+    return jsonify(rows)
+
+
+@app.post("/api/users")
+def create_user():
+    if (r := require_db()):
+        return r
+    d = request.get_json(force=True) or {}
+    with get_conn() as conn:
+        row = conn.execute(
+            """INSERT INTO users
+                 (username, display_name, email, password_hash, role)
+               VALUES (%(username)s, %(display_name)s, %(email)s,
+                       %(password_hash)s, COALESCE(%(role)s,'engineer'))
+               ON CONFLICT (username) DO UPDATE
+                 SET display_name = EXCLUDED.display_name,
+                     email = EXCLUDED.email,
+                     role = EXCLUDED.role
+               RETURNING id, username, display_name, email, role,
+                         created_at, updated_at""",
+            {
+                "username": d.get("username"),
+                "display_name": d.get("display_name"),
+                "email": d.get("email"),
+                "password_hash": d.get("password_hash"),
+                "role": d.get("role"),
+            },
+        ).fetchone()
+    return jsonify(row), 201
 
 
 # ── Sync: the heart of offline<->online reconciliation ───────────────

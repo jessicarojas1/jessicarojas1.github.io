@@ -112,20 +112,25 @@ def seed_permissions(db: Session, roles: dict[str, Role]) -> None:
 
 
 def seed_admin(db: Session, roles: dict[str, Role]) -> User | None:
+    # ADMIN_AUTO_CREATE is the explicit opt-in (default True). When set, we
+    # create-or-resync the bootstrap admin in ANY environment so the configured
+    # ADMIN_EMAIL / ADMIN_PASSWORD always work. Set ADMIN_AUTO_CREATE=false for a
+    # hardened production deployment where admins are provisioned another way.
     if not settings.ADMIN_AUTO_CREATE:
         logger.info("ADMIN_AUTO_CREATE disabled; skipping admin bootstrap.")
         return None
     if settings.is_production:
-        logger.warning("Refusing to auto-create admin in production environment.")
-        return None
+        logger.warning(
+            "ENVIRONMENT=production with ADMIN_AUTO_CREATE enabled — provisioning "
+            "the bootstrap admin anyway; disable ADMIN_AUTO_CREATE to harden."
+        )
 
     email = settings.ADMIN_EMAIL.lower()
     admin = db.execute(select(User).where(User.email == email)).scalar_one_or_none()
     if admin:
-        # Demo/dev only (production returns above): keep the admin login usable by
-        # re-syncing the password to the configured value, re-activating, and
-        # ensuring the admin role — so changing ADMIN_PASSWORD and redeploying
-        # always lets you sign in.
+        # Keep the admin login usable by re-syncing the password to the
+        # configured value, re-activating, and ensuring the admin role — so
+        # changing ADMIN_PASSWORD and redeploying always lets you sign in.
         admin.hashed_password = hash_password(settings.ADMIN_PASSWORD)
         admin.is_active = True
         admin_role = roles[RoleEnum.ADMIN.value]

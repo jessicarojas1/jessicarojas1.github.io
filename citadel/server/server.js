@@ -211,8 +211,11 @@ app.patch('/api/branding', requireAdmin, (req, res) => {
   const b = req.body || {};
   const url = typeof b.logoUrl === 'string' ? b.logoUrl.trim() : '';
   const accent = typeof b.accent === 'string' ? b.accent.trim() : '';
+  // Allow public https(/http) URLs or inline data: image URIs (file uploads).
+  const isHttp = /^https?:\/\/\S+$/i.test(url);
+  const isDataImg = /^data:image\/(png|jpe?g|gif|webp|svg\+xml);base64,[A-Za-z0-9+/=\s]+$/i.test(url);
   const clean = {
-    logoUrl: /^https?:\/\/\S+$/i.test(url) ? url.slice(0, 500) : '',
+    logoUrl: isHttp ? url.slice(0, 500) : (isDataImg ? url.slice(0, 200000) : ''),
     orgName: (typeof b.orgName === 'string' ? b.orgName.trim() : '').slice(0, 80),
     accent: /^#?[0-9a-fA-F]{3,8}$/.test(accent) ? (accent[0] === '#' ? accent : '#' + accent) : ''
   };
