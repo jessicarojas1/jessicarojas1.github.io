@@ -44,7 +44,7 @@ class TreatmentController {
     // GET /risk/{riskId}/treatment/create
     // ──────────────────────────────────────────────────
     public function createForm(string $riskId): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.treatment');
         $riskId = (int)$riskId;
 
         $risk = Database::fetchOne("SELECT * FROM risks WHERE id = ?", [$riskId]);
@@ -73,7 +73,7 @@ class TreatmentController {
     // POST /risk/{riskId}/treatment/create
     // ──────────────────────────────────────────────────
     public function create(string $riskId): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.treatment');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -212,7 +212,7 @@ class TreatmentController {
     // POST /treatment/{id}/update
     // ──────────────────────────────────────────────────
     public function update(string $id): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.treatment');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -335,7 +335,7 @@ class TreatmentController {
     // POST /treatment/{planId}/milestone/add
     // ──────────────────────────────────────────────────
     public function addMilestone(string $planId): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.treatment');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -381,7 +381,7 @@ class TreatmentController {
     // POST /treatment/milestone/{milestoneId}/delete
     // ──────────────────────────────────────────────────
     public function deleteMilestone(string $milestoneId): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.treatment');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);

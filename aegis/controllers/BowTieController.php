@@ -76,7 +76,7 @@ class BowTieController {
 
     // ─────────────────────────────────────────── causes ─────────────────────
     public function addCause(string $riskId): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.bowtie');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -122,7 +122,7 @@ class BowTieController {
     }
 
     public function removeCause(string $id): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.bowtie');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -150,7 +150,7 @@ class BowTieController {
 
     // ─────────────────────────────────────────── consequences ────────────────
     public function addConsequence(string $riskId): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.bowtie');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -196,7 +196,7 @@ class BowTieController {
     }
 
     public function removeConsequence(string $id): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.bowtie');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -224,7 +224,7 @@ class BowTieController {
 
     // ─────────────────────────────────────────── barriers ───────────────────
     public function addBarrier(string $riskId): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.bowtie');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -281,7 +281,7 @@ class BowTieController {
     }
 
     public function removeBarrier(string $id): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.bowtie');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);

@@ -227,7 +227,7 @@ class RiskController {
 
     // ─────────────────────────────────────────── createForm / create ─────────
     public function createForm(): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.create');
         $categories = Database::fetchAll("SELECT * FROM risk_categories ORDER BY sort_order");
         $users      = Database::fetchAll("SELECT id, name FROM users WHERE is_active = TRUE ORDER BY name");
         $parentRisks = Database::fetchAll(
@@ -237,7 +237,7 @@ class RiskController {
     }
 
     public function create(): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.create');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         $title        = Security::sanitizeInput($_POST['title'] ?? '');
@@ -509,7 +509,7 @@ class RiskController {
 
     // ─────────────────────────────────────────── update ─────────────────────
     public function update(string $id): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.edit');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         $id = (int)$id;
@@ -604,7 +604,7 @@ class RiskController {
 
     // ─────────────────────────────────────────── assessment workflow ─────────
     public function submitReview(string $id): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.edit');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         $id = (int)$id;
@@ -618,7 +618,7 @@ class RiskController {
     }
 
     public function approve(string $id): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.edit');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         $id    = (int)$id;
@@ -633,7 +633,7 @@ class RiskController {
     }
 
     public function rejectReview(string $id): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.edit');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         $id    = (int)$id;
@@ -649,7 +649,7 @@ class RiskController {
 
     // ─────────────────────────────────────────── control links ───────────────
     public function linkControl(string $id): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.edit');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         $id              = (int)$id;
@@ -674,7 +674,7 @@ class RiskController {
     }
 
     public function removeControlLink(string $linkId): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.edit');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         $linkId = (int)$linkId;
@@ -690,7 +690,7 @@ class RiskController {
 
     // ─────────────────────────────────────────── related risks ───────────────
     public function linkRelated(string $id): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.edit');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         $id        = (int)$id;
@@ -712,7 +712,7 @@ class RiskController {
     }
 
     public function removeRelatedLink(string $linkId): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.edit');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         $linkId = (int)$linkId;
@@ -728,7 +728,7 @@ class RiskController {
 
     // ─────────────────────────────────────────── response actions ────────────
     public function addResponseAction(string $id): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.edit');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         $id         = (int)$id;
@@ -762,7 +762,7 @@ class RiskController {
     }
 
     public function updateResponseAction(string $tid): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.edit');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         $tid    = (int)$tid;
@@ -787,7 +787,7 @@ class RiskController {
 
     // ─────────────────────────────────────────── delete ─────────────────────
     public function delete(string $id): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.delete');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $id = (int)$id;
         Database::query("DELETE FROM risks WHERE id=?", [$id]);
@@ -815,7 +815,7 @@ class RiskController {
 
     // ─────────────────────────────────────────── bulk update ─────────────────
     public function bulkUpdate(): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.edit');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         $ids    = array_filter(array_map('intval', (array)($_POST['ids'] ?? [])));
