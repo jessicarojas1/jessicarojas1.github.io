@@ -223,15 +223,15 @@ if ($filterStatus) $filterDesc .= ' · Status: ' . ucfirst(str_replace('_', ' ',
     <span class="val" style="color:var(--danger);"><?= $countCritical ?></span>
     <div class="lbl">Critical</div>
   </div>
-  <div class="rd-stat" style="border-top:4px solid #f97316;">
+  <div class="rd-stat" style="border-top:4px solid var(--orange);">
     <span class="val" style="color:var(--orange);"><?= $countHigh ?></span>
     <div class="lbl">High</div>
   </div>
-  <div class="rd-stat" style="border-top:4px solid #d97706;">
+  <div class="rd-stat" style="border-top:4px solid var(--warning);">
     <span class="val" style="color:var(--warning);"><?= $countMedium ?></span>
     <div class="lbl">Medium</div>
   </div>
-  <div class="rd-stat" style="border-top:4px solid #059669;">
+  <div class="rd-stat" style="border-top:4px solid var(--success);">
     <span class="val" style="color:var(--success);"><?= $countLow ?></span>
     <div class="lbl">Low</div>
   </div>
