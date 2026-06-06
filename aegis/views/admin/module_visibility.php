@@ -1,6 +1,6 @@
 <?php
 ob_start();
-$breadcrumbs = [['Admin', '/admin'], ['Module Visibility', null]];
+$breadcrumbs = [['Admin', '/admin'], ['Modules', null]];
 $groups = [
   'Compliance' => [
     'compliance'      => 'Compliance Packages',
@@ -105,7 +105,7 @@ function updateVisBadge() {
 .toggle-switch { position:relative; display:inline-block; width:40px; height:22px; flex-shrink:0; }
 .toggle-switch input { opacity:0; width:0; height:0; }
 .toggle-slider {
-  position:absolute; inset:0; background:var(--border); border-radius:22px;
+  position:absolute; inset:0; background:#d4d4d8; border-radius:22px;
   cursor:pointer; transition:.2s;
 }
 .toggle-slider:before {

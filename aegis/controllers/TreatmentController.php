@@ -7,7 +7,7 @@ class TreatmentController {
     // GET /treatment
     // ──────────────────────────────────────────────────
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('risk.treatment');
 
         $plans = Database::fetchAll(
             "SELECT tp.*, r.title AS risk_title, r.id AS risk_id,
@@ -44,7 +44,7 @@ class TreatmentController {
     // GET /risk/{riskId}/treatment/create
     // ──────────────────────────────────────────────────
     public function createForm(string $riskId): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.treatment');
         $riskId = (int)$riskId;
 
         $risk = Database::fetchOne("SELECT * FROM risks WHERE id = ?", [$riskId]);
@@ -73,7 +73,7 @@ class TreatmentController {
     // POST /risk/{riskId}/treatment/create
     // ──────────────────────────────────────────────────
     public function create(string $riskId): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.treatment');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -156,7 +156,7 @@ class TreatmentController {
     // GET /treatment/{id}
     // ──────────────────────────────────────────────────
     public function view(string $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('risk.treatment');
         $id = (int)$id;
 
         $plan = Database::fetchOne(
@@ -212,7 +212,7 @@ class TreatmentController {
     // POST /treatment/{id}/update
     // ──────────────────────────────────────────────────
     public function update(string $id): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.treatment');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -276,7 +276,7 @@ class TreatmentController {
     // POST /treatment/milestone/{id}/complete
     // ──────────────────────────────────────────────────
     public function completeMilestone(string $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('risk.treatment');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -335,7 +335,7 @@ class TreatmentController {
     // POST /treatment/{planId}/milestone/add
     // ──────────────────────────────────────────────────
     public function addMilestone(string $planId): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.treatment');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -381,7 +381,7 @@ class TreatmentController {
     // POST /treatment/milestone/{milestoneId}/delete
     // ──────────────────────────────────────────────────
     public function deleteMilestone(string $milestoneId): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.treatment');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);

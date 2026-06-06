@@ -5,7 +5,7 @@ class RiskReviewController {
 
     // ─────────────────────────────────────────── index ───────────────────────
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('risk.review');
 
         $reviews = Database::fetchAll(
             "SELECT rr.*, u.name AS lead_reviewer_name
@@ -31,7 +31,7 @@ class RiskReviewController {
 
     // ─────────────────────────────────────────── createForm ──────────────────
     public function createForm(): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.review');
 
         $users      = Database::fetchAll("SELECT id, name FROM users WHERE is_active = TRUE ORDER BY name");
         $categories = Database::fetchAll("SELECT * FROM risk_categories ORDER BY sort_order");
@@ -45,7 +45,7 @@ class RiskReviewController {
 
     // ─────────────────────────────────────────── create ──────────────────────
     public function create(): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.review');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         $title          = Security::sanitizeInput($_POST['title'] ?? '');
@@ -143,7 +143,7 @@ class RiskReviewController {
 
     // ─────────────────────────────────────────── view ────────────────────────
     public function view(string $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('risk.review');
         $id = (int)$id;
 
         $review = Database::fetchOne(
@@ -217,7 +217,7 @@ class RiskReviewController {
 
     // ─────────────────────────────────────────── updateItem ──────────────────
     public function updateItem(string $reviewId, string $riskId): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.review');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         $reviewId = (int)$reviewId;
@@ -312,7 +312,7 @@ class RiskReviewController {
 
     // ─────────────────────────────────────────── start ───────────────────────
     public function start(string $id): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.review');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         $id = (int)$id;
@@ -326,7 +326,7 @@ class RiskReviewController {
 
     // ─────────────────────────────────────────── complete ────────────────────
     public function complete(string $id): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.review');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         $id = (int)$id;
@@ -389,7 +389,7 @@ class RiskReviewController {
 
     // ─────────────────────────────────────────── cancel ──────────────────────
     public function cancel(string $id): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('risk.review');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         $id = (int)$id;

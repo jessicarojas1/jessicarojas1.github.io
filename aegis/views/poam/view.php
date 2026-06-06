@@ -1,4 +1,5 @@
 <?php
+$breadcrumbs = [['POA&M', '/poam'], ['Item', null]];
 $statusLabels = [
     'open'        => ['Open',        'badge-danger'],
     'in_progress' => ['In Progress', 'badge-warning'],

@@ -121,6 +121,62 @@ calls `/api/scan` instead of analyzing locally.
 
 ---
 
+## Authentication & access control
+
+When the deep-scan backend is present, the SPA authenticates against it with
+**JWT sessions** and permission checks are enforced **server-side** — the
+browser store is only a fallback for static hosting (GitHub Pages).
+
+- **User store** — `lib/users.js`, a JSON file at `CITADEL_DATA_DIR` (default
+  under `CITADEL_TMP`). Passwords are **scrypt**-hashed with per-user salts. On
+  first run it seeds an admin and a JWT signing secret.
+- **Sessions** — `lib/jwt.js` issues compact **HS256** JWTs (12 h expiry)
+  signed with `CITADEL_JWT_SECRET`. The SPA sends `Authorization: Bearer <jwt>`.
+- **Enforcement** — page-level permissions (mirroring the client's catalog) are
+  checked on every protected route. `/api/scan` requires `analyze`,
+  `/api/scan-url` requires `deepscan`, `/api/explain` requires `tab-aifix`;
+  user-management and access-settings routes are admin-only. When the global
+  *enforce* toggle is **off** (default), scans are open; flip it on in the Admin
+  console once accounts are set up.
+
+| Route | Method | Auth |
+|---|---|---|
+| `/api/auth/login` | POST | public — returns `{ token, user }` |
+| `/api/auth/me` | GET | Bearer token |
+| `/api/auth/settings` | GET / PATCH | GET any · PATCH admin |
+| `/api/users` `…/:id` `…/:id/password` | GET/POST/PATCH/DELETE | admin |
+| `/api/scan` · `/api/scan-url` · `/api/explain` | POST | permission-gated when enforce is on |
+
+**Auth-related environment variables**
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `CITADEL_DATA_DIR` | `$CITADEL_TMP/citadel` | Where `users.json` + the JWT secret persist. Point at a persistent disk. |
+| `CITADEL_JWT_SECRET` | random (or seeded into the store) | HS256 signing key. Set/`generateValue` a stable one so sessions survive restarts. |
+| `CITADEL_ADMIN_EMAIL` | `admin@citadel.local` | First-boot admin email (only used when no admin exists yet). |
+| `CITADEL_ADMIN_PASSWORD` | `citadel-admin` | First-boot admin password — **change it after first login.** |
+
+> **Persistence.** The store writes to `CITADEL_DATA_DIR`. On a host with a
+> persistent volume (a paid Render disk, an Azure/AWS volume), accounts and the
+> JWT secret survive restarts. On an **ephemeral filesystem (e.g. Render's free
+> tier)** there is no persistent disk: the store resets on every deploy, so the
+> seeded admin and any users you create are recreated each time. Set a fixed
+> `CITADEL_JWT_SECRET` in the dashboard to at least keep issued sessions valid
+> across redeploys; durable accounts require a persistent volume.
+
+```bash
+# Log in and call a gated endpoint
+TOKEN=$(curl -sS -X POST http://localhost:8080/api/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"admin@citadel.local","password":"citadel-admin"}' | jq -r .token)
+
+curl -sS -X POST http://localhost:8080/api/scan \
+  -H "Authorization: Bearer $TOKEN" \
+  -F "files=@./my-project.zip" -o report.json
+```
+
+---
+
 ## Build & run locally
 
 Everything is built from the **repository root** because the image copies both
@@ -194,10 +250,22 @@ services:
         value: production
       - key: PORT
         value: "8080"
+      # Set a fixed value in the dashboard so JWT sessions survive redeploys.
+      - key: CITADEL_JWT_SECRET
+        sync: false
 ```
 
 Render terminates TLS for you and routes to port 8080. The container's own
 healthcheck and Render's `/api/health` probe are complementary.
+
+> **Account persistence.** Render's filesystem is ephemeral, so the user store
+> resets on every deploy/restart and the server logs a `cannot persist user
+> store` warning. To keep accounts durable, attach a **persistent disk** (paid
+> tiers) and point `CITADEL_DATA_DIR` at its mount path — e.g. a 1 GB disk at
+> `/var/lib/citadel` with `CITADEL_DATA_DIR=/var/lib/citadel`. The container
+> runs as numeric `USER 10001`, so Render chowns the disk mount to that UID with
+> no extra setup. On the **free tier** (no disks), set a fixed
+> `CITADEL_JWT_SECRET` so at least issued sessions survive redeploys.
 
 ---
 

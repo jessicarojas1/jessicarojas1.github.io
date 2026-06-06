@@ -22,6 +22,95 @@
   });
   applyThemeIcon();
 
+  /* ---------- Access control (users & page-level permissions) ---------- */
+  const escH = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  // When the deep-scan backend is present, authentication & permission checks
+  // run server-side (JWT). Otherwise we fall back to the client-only store.
+  let backendMode = false, backendUser = null, backendEnforce = false;
+  function curUser() { return backendMode ? backendUser : CITADEL.auth.current(); }
+  function aclEnforce() { return backendMode ? backendEnforce : CITADEL.auth.settings().enforce; }
+  function aclCan(page) {
+    const u = curUser();
+    if (!u) return false;
+    if (u.role === 'admin') return true;
+    return !!(u.permissions && u.permissions[page]);
+  }
+
+  let _loginModal = null;
+  function loginModal() { if (!_loginModal && root.bootstrap) _loginModal = new root.bootstrap.Modal($('loginModal')); return _loginModal; }
+  function openLogin() {
+    const h = $('login-hint');
+    if (h) {
+      if (backendMode) h.innerHTML = 'Sign in with your CITADEL account. Default admin — <code>admin@citadel.local</code> / <code>citadel-admin</code> (change after first login).';
+      else { const a = CITADEL.auth; h.innerHTML = 'Demo admin — <code>' + escH(a.DEFAULT_ADMIN.email) + '</code> / <code>' + escH(a.DEFAULT_ADMIN.password) + '</code>'; }
+    }
+    const er = $('login-error'); if (er) er.classList.add('d-none');
+    const m = loginModal(); if (m) m.show();
+  }
+  function renderUserArea() {
+    const ua = $('user-area'); if (!ua) return;
+    const u = curUser();
+    const adm = $('nav-admin'); if (adm) adm.classList.toggle('d-none', !(u && u.role === 'admin'));
+    ua.innerHTML = u
+      ? `<span class="badge bg-secondary">${escH(u.role)}</span><span class="small d-none d-sm-inline">${escH(u.name || u.email)}</span><button class="btn btn-sm btn-outline-secondary" id="logout-btn" title="Sign out"><i class="bi bi-box-arrow-right"></i></button>`
+      : `<button class="btn btn-sm btn-outline-primary" id="login-btn"><i class="bi bi-box-arrow-in-right"></i> Login</button>`;
+  }
+  function applyAccess() {
+    const enforce = aclEnforce();
+    renderUserArea();
+    document.querySelectorAll('.tab-btn').forEach(b => {
+      const restrict = enforce && !aclCan(b.dataset.tab);
+      b.classList.toggle('d-none', restrict);
+    });
+    // deep-scan gate
+    const dt = $('deep-mode-toggle');
+    if (dt && enforce && !aclCan('deepscan')) { dt.checked = false; dt.disabled = true; } else if (dt) { dt.disabled = false; }
+    // if the active tab is now restricted, switch to the first accessible one
+    const active = document.querySelector('.tab-btn.active');
+    if (enforce && active && active.classList.contains('d-none')) {
+      const first = document.querySelector('.tab-btn:not(.d-none)');
+      if (first) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('d-none'));
+        first.classList.add('active');
+        const panel = $(first.dataset.tab); if (panel) panel.classList.remove('d-none');
+      }
+    }
+  }
+  // Block a scan if access control is on and the user lacks the 'analyze' page.
+  // The backend enforces this authoritatively; this is a UX pre-check only.
+  function gateScan() {
+    if (!aclEnforce()) return true;
+    if (aclCan('analyze')) return true;
+    if (!curUser()) { openLogin(); showProgress(100, 'Sign in required to run a scan.', ''); }
+    else { showProgress(100, 'Your account does not have permission to run scans.', ''); }
+    return false;
+  }
+  // If a scan endpoint rejects us (server-side enforcement), reflect it in the UI.
+  function handleAuthError(err) {
+    if (err && (err.status === 401 || err.status === 403)) {
+      if (err.status === 401) { backendUser = null; renderUserArea(); openLogin(); }
+      showProgress(100, err.status === 401 ? 'Sign in required to run a scan.' : 'Your account does not have permission for this action.', '');
+      return true;
+    }
+    return false;
+  }
+  CITADEL.auth.ready.then(() => { if (!backendMode) applyAccess(); });
+
+  /* ---------- Hero live stats ---------- */
+  (function () {
+    const hs = $('hero-stats'); if (!hs) return;
+    const cwe = new Set(CITADEL.rules.filter(r => r.cwe).map(r => r.cwe)).size;
+    const stats = [
+      [CITADEL.lang.count, 'languages'],
+      [CITADEL.rules.length, 'SAST rules'],
+      [CITADEL.frameworks.CATALOG.length, 'frameworks'],
+      [CITADEL.frameworks.catalogTotal(), 'controls'],
+      [cwe, 'CWEs']
+    ];
+    hs.innerHTML = stats.map(s => `<div class="hero-stat"><span class="hs-num">${s[0]}</span><span class="hs-lbl">${s[1]}</span></div>`).join('');
+  })();
+
   /* ---------- Hero framework chips ---------- */
   $('framework-chips').innerHTML = CITADEL.frameworks.CATALOG
     .map(f => `<span class="hero-chip" title="${f.desc.replace(/"/g, '')}">${f.name}</span>`).join('');
@@ -42,13 +131,38 @@
       </div>`).join('');
   }
 
+  /* ---------- Engine / scanner status panel ---------- */
+  function renderEngineStatus(health) {
+    const el = $('engine-status'); if (!el) return;
+    const workerOn = (typeof Worker !== 'undefined');
+    const pill = (label, on, title) => `<span class="es-pill ${on ? 'on' : 'off'}" title="${title || ''}"><span class="es-dot"></span>${label}</span>`;
+    let html = `<div class="es-group"><span class="es-title"><i class="bi bi-cpu"></i> In-browser engine</span>
+      ${pill('Active', true, 'heuristic SAST + secrets + SBOM + OSV CVEs')}
+      ${pill(workerOn ? 'Web Worker' : 'Main thread', true, workerOn ? 'non-blocking background scanning' : 'inline scanning')}</div>`;
+    if (health && health.scanners) {
+      const scs = health.scanners.map(s => pill(s.tool, s.available, s.available ? 'online' : 'not installed')).join('');
+      html += `<div class="es-group"><span class="es-title"><i class="bi bi-hdd-network"></i> Backend scanners</span>${scs}
+        ${pill('AI fix', !!health.ai, health.ai ? 'Claude remediation on' : 'no API key')}</div>`;
+    } else {
+      html += `<div class="es-group"><span class="es-title"><i class="bi bi-hdd-network"></i> Backend</span>${pill('Not connected — client-side only', false, 'deploy the backend for deep scan')}</div>`;
+    }
+    el.innerHTML = html;
+  }
+  renderEngineStatus(null);
+
   /* ---------- Deep-scan mode (only if backend is present) ---------- */
   let deepMode = false, deepAvailable = false, aiAvailable = false;
   (async function initDeep() {
     const st = await CITADEL.api.available();
     if (!st) return;
+    renderEngineStatus(st);
     deepAvailable = true;
     aiAvailable = !!st.ai;
+    // Backend present → auth & permission checks are authoritative server-side.
+    backendMode = true;
+    backendEnforce = !!(st.auth && st.auth.enforce);
+    try { backendUser = await CITADEL.api.authMe(); } catch (e) { backendUser = null; }
+    applyAccess();
     CITADEL.report.setAi(aiAvailable);
     $('deep-mode-row').classList.remove('d-none');
     $('url-scan-row').classList.remove('d-none');
@@ -63,13 +177,14 @@
   })();
 
   $('scan-url-btn').addEventListener('click', async () => {
+    if (!gateScan()) return;
     const url = $('repo-url').value.trim();
     if (!url) return;
     try {
       let p = 20; showProgress(p, 'Cloning & scanning repository…', url);
       const report = await CITADEL.api.scanUrl(url, (s) => { p = Math.min(90, p + 20); showProgress(p, s, ''); });
       finishScan(report, 'deep');
-    } catch (err) { showProgress(100, 'Repo scan failed: ' + (err.message || err), ''); }
+    } catch (err) { if (!handleAuthError(err)) showProgress(100, 'Repo scan failed: ' + (err.message || err), ''); }
   });
 
   /* ---------- Intake ---------- */
@@ -138,7 +253,7 @@
       const report = await CITADEL.api.scan(files, (stage) => { p = Math.min(90, p + 18); showProgress(p, stage, ''); });
       finishScan(report, 'deep');
     } catch (err) {
-      showProgress(100, 'Deep scan failed: ' + (err.message || err), '');
+      if (!handleAuthError(err)) showProgress(100, 'Deep scan failed: ' + (err.message || err), '');
       console.error(err);
     }
   }
@@ -148,6 +263,7 @@
     showProgress(100, mode === 'deep' ? 'Done (deep scan).' : 'Done.', report.findings.length + ' finding(s)');
     CITADEL.report.render(report);
     try { CITADEL.history.record(report); } catch (e) {}
+    applyAccess();
     $('results').classList.remove('d-none');
     hideProgress();
     $('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -173,6 +289,7 @@
   }
 
   async function handleFiles(files) {
+    if (!gateScan()) return;
     if (deepMode && deepAvailable) return handleDeep(files);
     try {
       showProgress(5, 'Ingesting files…', files.length + ' item(s)');
@@ -187,18 +304,52 @@
   }
 
   async function runDemo() {
+    if (!gateScan()) return;
     showProgress(20, 'Building demo project…', 'synthetic vulnerable app');
     const entries = CITADEL.demo.buildEntries();
     await runScan(entries);
   }
 
+  // Web Worker: keeps the UI responsive on large repos. Falls back to inline.
+  let _worker;
+  function getWorker() {
+    if (_worker !== undefined) return _worker;
+    try { _worker = new Worker('js/worker.js'); _worker.onerror = function () {}; }
+    catch (e) { _worker = null; }
+    return _worker;
+  }
+  function scanInline(entries) {
+    let p = 45;
+    return CITADEL.scanner.scan(entries, (stage) => { p = Math.min(96, p + 7); showProgress(p, stage, ''); });
+  }
+  function scanViaWorker(entries) {
+    return new Promise((resolve, reject) => {
+      const w = getWorker();
+      if (!w) return reject(new Error('no worker'));
+      let p = 45, settled = false;
+      const onMsg = (e) => {
+        const m = e.data || {};
+        if (m.type === 'progress') { p = Math.min(96, p + 7); showProgress(p, m.stage, ''); }
+        else if (m.type === 'done') { cleanup(); resolve(m.report); }
+        else if (m.type === 'error' || m.type === 'fatal') { cleanup(); reject(new Error(m.message)); }
+      };
+      const onErr = () => { cleanup(); reject(new Error('worker error')); };
+      function cleanup() { if (settled) return; settled = true; w.removeEventListener('message', onMsg); w.removeEventListener('error', onErr); }
+      w.addEventListener('message', onMsg);
+      w.addEventListener('error', onErr);
+      try { w.postMessage({ type: 'scan', entries: entries }); } catch (e) { cleanup(); reject(e); }
+    });
+  }
   async function runScan(entries) {
     if (!entries.length) { showProgress(100, 'No analyzable files found.', ''); return; }
-    let p = 45;
-    const report = await CITADEL.scanner.scan(entries, (stage) => {
-      p = Math.min(96, p + 7);
-      showProgress(p, stage, '');
-    });
+    let report;
+    try {
+      showProgress(45, 'Analyzing…', getWorker() ? 'background worker' : '');
+      report = getWorker() ? await scanViaWorker(entries) : await scanInline(entries);
+    } catch (err) {
+      // Worker failed for any reason — degrade to inline scanning.
+      try { report = await scanInline(entries); } catch (e2) { showProgress(100, 'Scan error: ' + (e2.message || e2), ''); return; }
+    }
     finishScan(report, 'quick');
   }
 
@@ -206,6 +357,23 @@
 
   /* ---------- Tabs ---------- */
   document.addEventListener('click', (e) => {
+    // Auth controls
+    if (e.target.closest('#login-btn')) return openLogin();
+    if (e.target.closest('#logout-btn')) {
+      if (backendMode) { CITADEL.api.authLogout(); backendUser = null; } else { CITADEL.auth.logout(); }
+      applyAccess(); return;
+    }
+    if (e.target.closest('#login-submit')) {
+      const em = $('login-email').value, pw = $('login-password').value;
+      const fail = () => { const er = $('login-error'); if (er) { er.textContent = 'Invalid credentials or inactive account.'; er.classList.remove('d-none'); } };
+      const ok = (u) => { const m = loginModal(); if (m) m.hide(); $('login-password').value = ''; applyAccess(); };
+      const p = backendMode
+        ? CITADEL.api.authLogin(em, pw).then(u => { if (u) backendUser = u; return u; })
+        : CITADEL.auth.loginByCreds(em, pw);
+      p.then(u => { if (u) ok(u); else fail(); }).catch(fail);
+      return;
+    }
+
     const tab = e.target.closest('.tab-btn');
     if (tab) {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -285,9 +453,179 @@
     if (e.target.closest('#exp-sarif')) return CITADEL.report.exportSarif();
     if (e.target.closest('#exp-poam')) return CITADEL.report.exportPoam();
     if (e.target.closest('#exp-ssp')) return CITADEL.report.exportSsp();
+    if (e.target.closest('#exp-junit')) return CITADEL.report.exportJUnit();
+    if (e.target.closest('#exp-prcomment')) return CITADEL.report.exportPrComment();
     if (e.target.closest('#exp-md')) return CITADEL.report.exportMarkdown();
     if (e.target.closest('#exp-pdf')) return CITADEL.report.exportPdf();
   });
+
+  /* ---------- Keyboard shortcuts + help overlay ---------- */
+  (function keyboardShortcuts() {
+    const SHORTCUTS = [
+      { keys: ['?'], desc: 'Toggle this shortcuts help' },
+      { keys: ['t'], desc: 'Toggle light / dark theme' },
+      { keys: ['d'], desc: 'Run the demo scan' },
+      { keys: ['1', '–', '9'], desc: 'Jump to the Nth tab' },
+      { keys: ['g', 'then', 'o'], desc: 'Go to Overview tab' },
+      { keys: ['g', 'then', 'f'], desc: 'Go to Findings tab' },
+      { keys: ['g', 'then', 'c'], desc: 'Go to Compliance tab' },
+      { keys: ['g', 'then', 'r'], desc: 'Go to Report tab' },
+      { keys: ['Esc'], desc: 'Close this overlay' }
+    ];
+    const CHORD_TABS = { o: 'tab-overview', f: 'tab-findings', c: 'tab-compliance', r: 'tab-report' };
+
+    let overlay = null;          // the .kbd-overlay element (built lazily)
+    let chordActive = false;     // are we waiting for the 2nd key of a 'g' chord?
+    let chordTimer = null;
+    let lastFocused = null;      // restore focus when the overlay closes
+
+    function isTyping() {
+      const el = document.activeElement;
+      if (!el) return false;
+      const tag = (el.tagName || '').toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || tag === 'select') return true;
+      if (el.isContentEditable) return true;
+      return false;
+    }
+
+    function buildOverlay() {
+      const ov = document.createElement('div');
+      ov.className = 'kbd-overlay d-none';
+      ov.setAttribute('role', 'dialog');
+      ov.setAttribute('aria-modal', 'true');
+      ov.setAttribute('aria-label', 'Keyboard shortcuts');
+
+      const card = document.createElement('div');
+      card.className = 'kbd-card';
+      card.setAttribute('tabindex', '-1');
+
+      const h = document.createElement('div');
+      h.className = 'kbd-card-head';
+      h.innerHTML = '<span class="kbd-title"><i class="bi bi-keyboard"></i> Keyboard shortcuts</span>'
+        + '<span class="kbd-esc-hint"><kbd>Esc</kbd> to close</span>';
+      card.appendChild(h);
+
+      const list = document.createElement('div');
+      list.className = 'kbd-list';
+      SHORTCUTS.forEach(s => {
+        const row = document.createElement('div');
+        row.className = 'kbd-row';
+        const keysWrap = document.createElement('div');
+        keysWrap.className = 'kbd-keys';
+        s.keys.forEach(k => {
+          if (k === 'then' || k === '–') {
+            const sep = document.createElement('span');
+            sep.className = 'kbd-sep';
+            sep.textContent = k === 'then' ? 'then' : '–';
+            keysWrap.appendChild(sep);
+          } else {
+            const kb = document.createElement('kbd');
+            kb.textContent = k;
+            keysWrap.appendChild(kb);
+          }
+        });
+        const desc = document.createElement('div');
+        desc.className = 'kbd-desc';
+        desc.textContent = s.desc;
+        row.appendChild(keysWrap);
+        row.appendChild(desc);
+        list.appendChild(row);
+      });
+      card.appendChild(list);
+      ov.appendChild(card);
+
+      // Close when clicking the dimmed backdrop (but not the card itself).
+      ov.addEventListener('click', (e) => { if (e.target === ov) hideOverlay(); });
+
+      document.body.appendChild(ov);
+      return ov;
+    }
+
+    function isOpen() { return overlay && !overlay.classList.contains('d-none'); }
+
+    function showOverlay() {
+      if (!overlay) overlay = buildOverlay();
+      lastFocused = document.activeElement;
+      overlay.classList.remove('d-none');
+      const card = overlay.querySelector('.kbd-card');
+      if (card) try { card.focus(); } catch (e) {}
+    }
+    function hideOverlay() {
+      if (!overlay) return;
+      overlay.classList.add('d-none');
+      if (lastFocused && typeof lastFocused.focus === 'function') { try { lastFocused.focus(); } catch (e) {} }
+      lastFocused = null;
+    }
+    function toggleOverlay() { isOpen() ? hideOverlay() : showOverlay(); }
+
+    function clearChord() { chordActive = false; if (chordTimer) { clearTimeout(chordTimer); chordTimer = null; } }
+
+    function visibleTabs() {
+      return Array.prototype.filter.call(
+        document.querySelectorAll('.tab-btn'),
+        (b) => !b.classList.contains('d-none')
+      );
+    }
+    function clickVisibleTabByData(tabId) {
+      const tabs = visibleTabs();
+      for (let i = 0; i < tabs.length; i++) {
+        if (tabs[i].dataset && tabs[i].dataset.tab === tabId) { tabs[i].click(); return true; }
+      }
+      return false;
+    }
+
+    document.addEventListener('keydown', (e) => {
+      // Never hijack modifier combos (browser/OS shortcuts).
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+      // Escape always closes the overlay if it is open.
+      if (e.key === 'Escape') { if (isOpen()) { hideOverlay(); e.preventDefault(); } clearChord(); return; }
+
+      // Ignore everything else while typing in a field / contenteditable.
+      if (isTyping()) { clearChord(); return; }
+
+      // Resolve the 2nd key of a 'g' chord first.
+      if (chordActive) {
+        const k = (e.key || '').toLowerCase();
+        const target = CHORD_TABS[k];
+        if (target) { if (clickVisibleTabByData(target)) e.preventDefault(); }
+        clearChord();
+        return;
+      }
+
+      const key = e.key;
+
+      if (key === '?') { toggleOverlay(); e.preventDefault(); return; }
+
+      // Other single-key shortcuts should not fire while the overlay is open
+      // (Esc/'?' above already handle the overlay itself).
+      if (isOpen()) return;
+
+      if (key === 't') {
+        const btn = $('themeToggleBtn');
+        if (btn) { btn.click(); e.preventDefault(); }
+        return;
+      }
+      if (key === 'd') {
+        const btn = $('load-demo');
+        if (btn) { btn.click(); e.preventDefault(); }
+        return;
+      }
+      if (key === 'g') {
+        chordActive = true;
+        if (chordTimer) clearTimeout(chordTimer);
+        chordTimer = setTimeout(() => { chordActive = false; chordTimer = null; }, 1000);
+        e.preventDefault();
+        return;
+      }
+      if (key >= '1' && key <= '9') {
+        const tabs = visibleTabs();
+        const idx = parseInt(key, 10) - 1;
+        if (tabs[idx]) { tabs[idx].click(); e.preventDefault(); }
+        return;
+      }
+    });
+  })();
 
   // Minimal, safe Markdown → HTML for AI answers (escape first, then format).
   function mdLite(s) {

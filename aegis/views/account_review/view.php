@@ -26,7 +26,7 @@ $pct      = $total > 0 ? round(($reviewed / $total) * 100) : 0;
 </div>
 
 <?php if (!empty($_SESSION['flash_success'])): ?>
-  <div class="alert-box success"><i class="bi bi-check-circle-fill"></i> <?= Security::h($_SESSION['flash_success']) ?></div>
+  <div class="alert alert-success"><i class="bi bi-check-circle-fill"></i> <?= Security::h($_SESSION['flash_success']) ?></div>
   <?php unset($_SESSION['flash_success']); ?>
 <?php endif; ?>
 
@@ -165,11 +165,11 @@ $pct      = $total > 0 ? round(($reviewed / $total) * 100) : 0;
 </div>
 
 <!-- Decision modal -->
-<div class="um-overlay" id="decisionModal">
-  <div class="um-dialog">
+<div id="modal-decision" class="um-overlay">
+  <div class="um-dialog" style="max-width:440px;overflow:hidden">
     <div class="modal-header">
       <h3 style="font-size:15px;font-weight:700;margin:0"><i class="bi bi-person-check-fill" style="color:var(--primary)"></i> Review Decision</h3>
-      <button class="modal-close" data-close-modal="decisionModal"><i class="bi bi-x-lg"></i></button>
+      <button class="modal-close" data-close-modal="modal-decision"><i class="bi bi-x-lg"></i></button>
     </div>
     <form id="decisionForm" method="POST">
       <?= Security::csrfField() ?>
@@ -189,7 +189,7 @@ $pct      = $total > 0 ? round(($reviewed / $total) * 100) : 0;
         </div>
       </div>
       <div style="display:flex;gap:10px;justify-content:flex-end;padding:14px 20px;border-top:1px solid var(--border);background:var(--bg)">
-        <button type="button" class="btn btn-secondary btn-sm" data-close-modal="decisionModal">Cancel</button>
+        <button type="button" class="btn btn-secondary btn-sm" data-close-modal="modal-decision">Cancel</button>
         <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-check-lg"></i> Save Decision</button>
       </div>
     </form>
@@ -201,10 +201,7 @@ var _reviewId = <?= (int)$review['id'] ?>;
 function openDecision(el, itemId, accountName) {
   document.getElementById('decisionAccountName').textContent = accountName;
   document.getElementById('decisionForm').action = '/account-reviews/' + _reviewId + '/item/' + itemId + '/decide';
-  document.getElementById('decisionModal').classList.add('open');
-}
-function closeDecision() {
-  document.getElementById('decisionModal').classList.remove('open');
+  document.getElementById('modal-decision').classList.add('open');
 }
 </script>
 

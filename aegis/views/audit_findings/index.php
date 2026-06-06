@@ -67,8 +67,8 @@ $open    = array_filter($findings, fn($f) => in_array($f['status'], ['open','in_
 <?php endif; ?>
 
 <!-- Create Modal -->
-<div class="um-overlay" id="createFindingModal">
-  <div class="um-dialog">
+<div id="createFindingModal" class="um-overlay">
+  <div class="um-dialog" style="width:700px;max-height:90vh;overflow-y:auto;max-width:95vw;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
       <h3 style="margin:0;">New Audit Finding</h3>
       <button data-close-modal="createFindingModal"><i class="bi bi-x-lg"></i></button>

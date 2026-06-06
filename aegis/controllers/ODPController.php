@@ -4,7 +4,7 @@ declare(strict_types=1);
 class ODPController {
 
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('ssp.view');
         $packages = Database::fetchAll(
             "SELECT cp.id, cp.name, COALESCE(s.code,'CUSTOM') AS standard_code,
                     COUNT(odp.id) AS odp_count
@@ -26,7 +26,7 @@ class ODPController {
     }
 
     public function packageView(int $packageId): void {
-        Auth::requireAuth();
+        Auth::requirePermission('ssp.view');
         $package = Database::fetchOne(
             "SELECT cp.*, COALESCE(s.code,'CUSTOM') AS standard_code
              FROM compliance_packages cp LEFT JOIN standards s ON s.id=cp.standard_id
@@ -65,7 +65,7 @@ class ODPController {
     }
 
     public function save(): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('ssp.edit');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         $objectiveId  = (int)($_POST['objective_id'] ?? 0);

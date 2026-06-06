@@ -10,7 +10,7 @@
     <p class="page-subtitle">Manage and track all organizational assets</p>
   </div>
   <div class="page-actions">
-    <?php if (Auth::can('risk.write')): ?>
+    <?php if (Auth::can('asset.create')): ?>
       <a href="/assets/create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New Asset</a>
     <?php endif; ?>
   </div>
@@ -31,7 +31,7 @@
   </div>
   <div class="card kpi-card">
     <div class="card-body" style="display:flex;align-items:center;gap:16px;">
-      <div style="width:48px;height:48px;border-radius:12px;background:rgba(239,68,68,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <div style="width:48px;height:48px;border-radius:12px;background:var(--danger-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
         <i class="bi bi-exclamation-octagon-fill" style="font-size:22px;color:var(--danger);"></i>
       </div>
       <div>
@@ -42,7 +42,7 @@
   </div>
   <div class="card kpi-card">
     <div class="card-body" style="display:flex;align-items:center;gap:16px;">
-      <div style="width:48px;height:48px;border-radius:12px;background:rgba(249,115,22,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <div style="width:48px;height:48px;border-radius:12px;background:var(--warning-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
         <i class="bi bi-exclamation-triangle-fill" style="font-size:22px;color:var(--orange);"></i>
       </div>
       <div>
@@ -146,10 +146,10 @@ function assetTypeIcon(string $type): string {
 // Helper: criticality badge style
 function criticalityBadge(string $crit): string {
     $map = [
-        'critical' => ['var(--danger-subtle)','var(--danger)','Critical'],
+        'critical' => ['#fef2f2','#dc2626','Critical'],
         'high'     => ['#fff7ed','#ea580c','High'],
-        'medium'   => ['var(--warning-subtle)','var(--warning)','Medium'],
-        'low'      => ['var(--success-subtle)','var(--primary)','Low'],
+        'medium'   => ['#fffbeb','#d97706','Medium'],
+        'low'      => ['#f0fdf4','#16a34a','Low'],
     ];
     [$bg, $color, $label] = $map[$crit] ?? ['#f4f4f5','#71717a',ucfirst($crit)];
     return "<span style=\"background:{$bg};color:{$color};border:1px solid {$color}33;padding:2px 10px;border-radius:99px;font-size:11px;font-weight:600;\">{$label}</span>";
@@ -175,9 +175,9 @@ function criticalityBadge(string $crit): string {
       <tbody>
         <?php if ($assets): foreach ($assets as $a):
           $statusColors = [
-            'active'         => ['var(--success-subtle)','var(--primary)'],
+            'active'         => ['#f0fdf4','#16a34a'],
             'decommissioned' => ['#f9fafb','#71717a'],
-            'maintenance'    => ['var(--warning-subtle)','var(--warning)'],
+            'maintenance'    => ['#fffbeb','#d97706'],
           ];
           [$sBg, $sColor] = $statusColors[$a['status'] ?? ''] ?? ['#f4f4f5','#71717a'];
         ?>
@@ -230,7 +230,7 @@ function criticalityBadge(string $crit): string {
             <td colspan="8" class="empty-row">
               <div class="empty-state-sm">
                 <i class="bi bi-hdd-stack"></i>
-                <p>No assets found. <?php if (Auth::can('risk.write')): ?><a href="/assets/create">Add your first asset</a>.<?php endif; ?></p>
+                <p>No assets found. <?php if (Auth::can('asset.create')): ?><a href="/assets/create">Add your first asset</a>.<?php endif; ?></p>
               </div>
             </td>
           </tr>

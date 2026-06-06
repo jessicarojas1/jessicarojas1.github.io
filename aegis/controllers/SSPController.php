@@ -4,7 +4,7 @@ declare(strict_types=1);
 class SSPController {
 
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('ssp.view');
         $plans = Database::fetchAll(
             "SELECT sp.*, u.name AS created_by_name,
                     COUNT(DISTINCT spkg.package_id) AS package_count
@@ -24,7 +24,7 @@ class SSPController {
     }
 
     public function createForm(): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('ssp.edit');
         $packages = Database::fetchAll(
             "SELECT cp.id, cp.name, cp.version,
                     COALESCE(s.code,'CUSTOM') AS standard_code,
@@ -50,7 +50,7 @@ class SSPController {
     }
 
     public function create(): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('ssp.edit');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         $title = trim(Security::sanitizeInput($_POST['title'] ?? ''));
@@ -113,7 +113,7 @@ class SSPController {
     }
 
     public function view(int $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('ssp.view');
         $plan = $this->getPlan($id);
         if (!$plan) { http_response_code(404); require AEGIS_ROOT . '/views/errors/404.php'; return; }
 
@@ -162,7 +162,7 @@ class SSPController {
     }
 
     public function generate(int $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('ssp.view');
         $plan = $this->getPlan($id);
         if (!$plan) { http_response_code(404); return; }
 
@@ -432,7 +432,7 @@ window.addEventListener(\"load\", function() {
     }
 
     public function saveStatement(int $id, int $objectiveId): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('ssp.edit');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         // Upsert SSP control statement
@@ -467,7 +467,7 @@ window.addEventListener(\"load\", function() {
     }
 
     public function addPackage(int $id): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('ssp.edit');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $pkgId = (int)($_POST['package_id'] ?? 0);
         if ($pkgId) {
@@ -477,14 +477,14 @@ window.addEventListener(\"load\", function() {
     }
 
     public function removePackage(int $id, int $pkgId): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('ssp.edit');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         Database::query("DELETE FROM ssp_packages WHERE ssp_id=? AND package_id=?", [$id, $pkgId]);
         header("Location: /ssp/{$id}");
     }
 
     public function update(int $id): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('ssp.edit');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
 
         $validStatuses      = ['operational','under_development','major_modification','other'];
@@ -616,7 +616,7 @@ window.addEventListener(\"load\", function() {
     }
 
     public function delete(int $id): void {
-        Auth::requirePermission('compliance.write');
+        Auth::requirePermission('ssp.edit');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         Database::query("DELETE FROM ssp_plans WHERE id=?", [$id]);
         Auth::log('ssp_deleted', 'ssp_plans', $id, []);
@@ -625,14 +625,14 @@ window.addEventListener(\"load\", function() {
     }
 
     public function downloadNetworkArch(int $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('ssp.view');
         $plan = $this->getPlan($id);
         if (!$plan || empty($plan['network_arch_data'])) { http_response_code(404); return; }
         $this->serveFile($plan['network_arch_filename'] ?? 'network_architecture', $plan['network_arch_data']);
     }
 
     public function downloadDataFlow(int $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('ssp.view');
         $plan = $this->getPlan($id);
         if (!$plan || empty($plan['data_flow_data'])) { http_response_code(404); return; }
         $this->serveFile($plan['data_flow_filename'] ?? 'data_flow', $plan['data_flow_data']);

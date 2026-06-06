@@ -2,7 +2,7 @@
 $flash_success = $_SESSION['flash_success'] ?? null;
 $flash_error   = $_SESSION['flash_error']   ?? null;
 unset($_SESSION['flash_success'], $_SESSION['flash_error']);
-$sevColors = ['critical' => 'var(--danger)', 'high' => 'var(--warning)', 'medium' => '#0284c7', 'low' => 'var(--success)'];
+$sevColors = ['critical' => '#dc2626', 'high' => '#d97706', 'medium' => '#0284c7', 'low' => '#059669'];
 $breadcrumbs = [['Admin', '/admin'], ['SLA Policies', null]];
 ?>
 
@@ -18,10 +18,10 @@ $breadcrumbs = [['Admin', '/admin'], ['SLA Policies', null]];
 </div>
 
 <?php if ($flash_success): ?>
-  <div class="alert-box success" style="margin-bottom:20px"><i class="bi bi-check-circle-fill"></i> <?= Security::h($flash_success) ?></div>
+  <div class="alert alert-success" style="margin-bottom:20px"><i class="bi bi-check-circle-fill"></i> <?= Security::h($flash_success) ?></div>
 <?php endif; ?>
 <?php if ($flash_error): ?>
-  <div class="alert-box error" style="margin-bottom:20px"><i class="bi bi-exclamation-triangle-fill"></i> <?= Security::h($flash_error) ?></div>
+  <div class="alert alert-error" style="margin-bottom:20px"><i class="bi bi-exclamation-triangle-fill"></i> <?= Security::h($flash_error) ?></div>
 <?php endif; ?>
 
 <div style="max-width:900px">

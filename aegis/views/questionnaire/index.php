@@ -11,7 +11,7 @@ ob_start();
     <p class="page-subtitle">Build and assign assessment questionnaires across the organization</p>
   </div>
   <div class="page-actions">
-    <?php if (Auth::can('policy.write')): ?>
+    <?php if (Auth::can('vendor.questionnaire')): ?>
       <a href="/questionnaire/create" class="btn btn-primary">
         <i class="bi bi-plus-lg"></i> New Questionnaire
       </a>

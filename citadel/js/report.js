@@ -198,6 +198,7 @@
           <span class="sev-dot" style="background:${SEV_COLOR[f.severity]}"></span>
           <span class="finding-name">${esc(f.name)}${isSup ? ' <span class="badge bg-secondary">suppressed</span>' : ''}</span>
           <span class="badge sev-badge" style="background:${SEV_COLOR[f.severity]}">${f.severity}</span>
+          ${f.tainted ? '<span class="badge bg-warning text-dark" title="User input flows into this sink (data-flow taint)">tainted</span>' : ''}
           <span class="text-body-secondary small ms-auto d-none d-md-inline">${esc(f.source || 'heuristic')} · ${esc(f.cwe || '')}</span>
           <i class="bi bi-chevron-down finding-chev"></i>
         </div>
@@ -409,6 +410,8 @@
         <div class="col-md-6 col-lg-3"><button class="btn btn-outline-primary w-100 export-btn" id="exp-sbom"><i class="bi bi-box-seam"></i><span>SBOM<br><small>CycloneDX 1.5</small></span></button></div>
         <div class="col-md-6 col-lg-3"><button class="btn btn-outline-primary w-100 export-btn" id="exp-poam"><i class="bi bi-list-check"></i><span>POA&amp;M<br><small>CSV</small></span></button></div>
         <div class="col-md-6 col-lg-3"><button class="btn btn-outline-primary w-100 export-btn" id="exp-ssp"><i class="bi bi-file-earmark-text"></i><span>Control appendix<br><small>SSP · Markdown</small></span></button></div>
+        <div class="col-md-6 col-lg-3"><button class="btn btn-outline-primary w-100 export-btn" id="exp-junit"><i class="bi bi-filetype-xml"></i><span>JUnit<br><small>CI test report</small></span></button></div>
+        <div class="col-md-6 col-lg-3"><button class="btn btn-outline-primary w-100 export-btn" id="exp-prcomment"><i class="bi bi-chat-left-text"></i><span>PR comment<br><small>Markdown</small></span></button></div>
         <div class="col-md-6 col-lg-3"><button class="btn btn-outline-primary w-100 export-btn" id="exp-md"><i class="bi bi-filetype-md"></i><span>Summary<br><small>Markdown</small></span></button></div>
         <div class="col-md-6 col-lg-3"><button class="btn btn-outline-primary w-100 export-btn" id="exp-pdf"><i class="bi bi-printer"></i><span>Printable<br><small>PDF / print</small></span></button></div>
       </div>
@@ -607,6 +610,8 @@
         ${sorted.length ? `<div class="table-responsive"><table class="table table-sm citadel-table"><thead><tr><th>Sev</th><th>Issue</th><th>CWE</th><th>Location</th></tr></thead><tbody>${topFindings}</tbody></table></div>
           ${sorted.length > 12 ? `<p class="small text-body-secondary">Showing top 12 of ${sorted.length}. Full list in the <strong>Findings</strong> tab; AI fix instructions in <strong>AI Fix Prompt</strong>.</p>` : ''}` : '<p class="text-success">No findings.</p>'}
 
+        ${hotspotsHtml(r)}
+
         <h5 class="report-h">Compliance posture</h5>
         ${impacted.length ? `<div class="table-responsive"><table class="table table-sm citadel-table"><thead><tr><th>Framework</th><th>Status</th><th class="text-center">Controls hit / total</th><th class="text-center">Findings</th></tr></thead><tbody>${fwRows}</tbody></table></div>` : '<p class="text-success">No findings implicate any framework control.</p>'}
 
@@ -697,10 +702,74 @@ ul{padding-left:1.1rem}</style></head>
 
   function setAi(on) { aiOn = !!on; }
 
+  /* ---------- Risk hotspots (riskiest files) ---------- */
+  const RISK_W = { critical: 25, high: 10, medium: 4, low: 1, info: 0 };
+  function hotspots(r) {
+    const by = {};
+    r.findings.forEach(f => {
+      const file = (f.file || 'unknown').replace(/^.*!\//, '');
+      const h = by[file] || (by[file] = { file, score: 0, n: 0, critical: 0, high: 0 });
+      h.score += RISK_W[f.severity] || 0; h.n++;
+      if (f.severity === 'critical') h.critical++; if (f.severity === 'high') h.high++;
+    });
+    return Object.values(by).sort((a, b) => b.score - a.score || b.n - a.n).slice(0, 10);
+  }
+  function hotspotsHtml(r) {
+    const hs = hotspots(r);
+    if (!hs.length) return '';
+    const max = hs[0].score || 1;
+    const rows = hs.map(h => `<div class="hotspot">
+      <div class="hotspot-bar-wrap"><div class="hotspot-bar" style="width:${Math.max(6, Math.round(h.score / max * 100))}%"></div></div>
+      <div class="hotspot-meta"><code>${esc(h.file)}</code><span class="text-body-secondary small">${h.n} finding(s)${h.critical ? ' · ' + h.critical + ' critical' : ''}${h.high ? ' · ' + h.high + ' high' : ''} · risk ${h.score}</span></div>
+    </div>`).join('');
+    return `<h5 class="report-h">Risk hotspots</h5>
+      <p class="small text-body-secondary">Files ranked by weighted risk (critical×25, high×10, medium×4, low×1) — fix these first.</p>
+      <div class="hotspots">${rows}</div>`;
+  }
+
+  /* ---------- CI exporters: JUnit XML + PR-comment Markdown ---------- */
+  function xmlEsc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function exportJUnit() {
+    const r = current;
+    const sorted = r.findings.slice().sort((a, b) => SEV_ORDER.indexOf(a.severity) - SEV_ORDER.indexOf(b.severity));
+    const fails = sorted.filter(f => ['critical', 'high', 'medium'].includes(f.severity)).length;
+    let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+    xml += `<testsuites name="CITADEL" tests="${sorted.length}" failures="${fails}">\n`;
+    xml += `  <testsuite name="security-compliance" tests="${sorted.length}" failures="${fails}" timestamp="${xmlEsc(r.meta.scannedAt)}">\n`;
+    sorted.forEach(f => {
+      const cls = (f.category || 'finding');
+      const nm = `${f.severity.toUpperCase()}: ${f.name}${f.cwe ? ' (' + f.cwe + ')' : ''} @ ${(f.file || '')}${f.line ? ':' + f.line : ''}`;
+      const fail = ['critical', 'high', 'medium'].includes(f.severity);
+      xml += `    <testcase classname="${xmlEsc(cls)}" name="${xmlEsc(nm)}">`;
+      if (fail) {
+        xml += `\n      <failure type="${xmlEsc(f.severity)}" message="${xmlEsc(f.name)}">${xmlEsc((f.snippet ? f.snippet + '\n' : '') + 'Fix: ' + (f.remediation || ''))}</failure>\n    `;
+      }
+      xml += `</testcase>\n`;
+    });
+    xml += '  </testsuite>\n</testsuites>\n';
+    download('citadel-junit.xml', xml, 'application/xml');
+  }
+  function exportPrComment() {
+    const r = current, s = r.scoring;
+    const cves = cveList(r);
+    let md = `## 🛡️ CITADEL Security & Compliance Report\n\n`;
+    md += `**Grade ${s.grade}** · Security ${s.security}/100 · ${r.findings.length} findings · ${cves.length} known CVEs\n\n`;
+    md += `| Severity | Count |\n|---|---|\n`;
+    SEV_ORDER.forEach(k => { if (s.sev[k]) md += `| ${c(k)} | ${s.sev[k]} |\n`; });
+    const top = r.findings.slice().sort((a, b) => SEV_ORDER.indexOf(a.severity) - SEV_ORDER.indexOf(b.severity)).slice(0, 15);
+    md += `\n<details><summary>Top ${top.length} findings</summary>\n\n`;
+    top.forEach(f => { md += `- **[${f.severity.toUpperCase()}]** ${f.name} ${f.cwe ? '(' + f.cwe + ')' : ''} — \`${(f.file || '').split('/').pop()}${f.line ? ':' + f.line : ''}\`\n`; });
+    md += `\n</details>\n\n`;
+    const hit = r.posture.filter(p => p.findings > 0).slice(0, 6).map(p => p.name).join(', ');
+    md += `**Frameworks impacted:** ${hit || 'none'}.\n\n`;
+    md += `_Generated by CITADEL · ${s.sev.critical ? '🔴 blocking — critical issues present' : s.sev.high ? '🟠 review required' : '🟢 no blocking issues'}_\n`;
+    download('citadel-pr-comment.md', md, 'text/markdown');
+  }
+
   CITADEL.report = {
     render, renderHistory, renderCompare, renderFindings, renderReport, renderAiFix, setAi,
     shownFinding, toggleSuppressedView, copyAiFix, downloadAiFix, downloadHtmlReport,
-    exportJson, exportSbom, exportMarkdown, exportPdf, exportSarif, exportPoam, exportSsp,
+    exportJson, exportSbom, exportMarkdown, exportPdf, exportSarif, exportPoam, exportSsp, exportJUnit, exportPrComment,
     get current() { return current; }
   };
 })(window);

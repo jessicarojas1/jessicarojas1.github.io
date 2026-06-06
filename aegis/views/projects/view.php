@@ -15,7 +15,7 @@ $actual  = $project['budget_actual']  !== null ? (float)$project['budget_actual'
     <p class="page-subtitle"><?= Security::h($project['title']) ?></p>
   </div>
   <div style="display:flex;gap:10px;">
-    <button id="btnOpenEdit" class="btn btn-secondary" data-show-modal="editModal"><i class="bi bi-pencil"></i> Edit</button>
+    <button class="btn btn-secondary" data-show-modal="editModal"><i class="bi bi-pencil"></i> Edit</button>
     <form method="POST" action="/projects/<?= (int)$project['id'] ?>/delete" data-confirm="Delete this project?" style="margin:0;">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
       <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i></button>
@@ -30,7 +30,7 @@ $actual  = $project['budget_actual']  !== null ? (float)$project['budget_actual'
     <div class="card">
       <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
         <h3 class="card-title">Tasks</h3>
-        <button id="btnOpenAddTask" class="btn btn-sm btn-secondary" data-show-modal="addTaskModal"><i class="bi bi-plus-lg"></i> Add Task</button>
+        <button class="btn btn-sm btn-secondary" data-show-modal="addTaskModal"><i class="bi bi-plus-lg"></i> Add Task</button>
       </div>
       <?php if ($taskCount > 0): ?>
       <div style="padding:12px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);">
@@ -88,7 +88,7 @@ $actual  = $project['budget_actual']  !== null ? (float)$project['budget_actual'
     <div class="card">
       <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
         <h3 class="card-title">Linked Items</h3>
-        <button id="btnOpenAddLink" class="btn btn-sm btn-secondary" data-show-modal="addLinkModal"><i class="bi bi-link-45deg"></i> Add Link</button>
+        <button class="btn btn-sm btn-secondary" data-show-modal="addLinkModal"><i class="bi bi-link-45deg"></i> Add Link</button>
       </div>
       <?php if (empty($links)): ?>
       <div class="card-body"><p style="color:var(--text-muted);font-size:0.875rem;">No linked items.</p></div>
@@ -150,11 +150,11 @@ $actual  = $project['budget_actual']  !== null ? (float)$project['budget_actual'
 </div>
 
 <!-- Edit Modal -->
-<div class="um-overlay" id="editModal">
-  <div class="um-dialog">
+<div id="editModal" class="um-overlay">
+  <div class="um-dialog" style="width:560px;max-height:90vh;overflow-y:auto;max-width:95vw;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
       <h3 style="margin:0;">Edit Project</h3>
-      <button id="btnCloseEdit" data-close-modal="editModal" style="background:none;border:none;cursor:pointer;font-size:1.25rem;"><i class="bi bi-x-lg"></i></button>
+      <button data-close-modal="editModal" style="background:none;border:none;cursor:pointer;font-size:1.25rem;"><i class="bi bi-x-lg"></i></button>
     </div>
     <form method="POST" action="/projects/<?= (int)$project['id'] ?>/update">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
@@ -192,7 +192,7 @@ $actual  = $project['budget_actual']  !== null ? (float)$project['budget_actual'
         </div>
         <div style="display:flex;gap:10px;margin-top:8px;">
           <button type="submit" class="btn btn-primary">Save Changes</button>
-          <button type="button" id="btnCancelEdit" data-close-modal="editModal" class="btn btn-secondary">Cancel</button>
+          <button type="button" data-close-modal="editModal" class="btn btn-secondary">Cancel</button>
         </div>
       </div>
     </form>
@@ -200,11 +200,11 @@ $actual  = $project['budget_actual']  !== null ? (float)$project['budget_actual'
 </div>
 
 <!-- Add Task Modal -->
-<div class="um-overlay" id="addTaskModal">
-  <div class="um-dialog">
+<div id="addTaskModal" class="um-overlay">
+  <div class="um-dialog" style="width:480px;max-width:95vw;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
       <h3 style="margin:0;">Add Task</h3>
-      <button id="btnCloseAddTask" data-close-modal="addTaskModal" style="background:none;border:none;cursor:pointer;font-size:1.25rem;"><i class="bi bi-x-lg"></i></button>
+      <button data-close-modal="addTaskModal" style="background:none;border:none;cursor:pointer;font-size:1.25rem;"><i class="bi bi-x-lg"></i></button>
     </div>
     <form method="POST" action="/projects/<?= (int)$project['id'] ?>/task/add">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
@@ -223,18 +223,18 @@ $actual  = $project['budget_actual']  !== null ? (float)$project['budget_actual'
       </div>
       <div style="display:flex;gap:10px;margin-top:16px;">
         <button type="submit" class="btn btn-primary">Add Task</button>
-        <button type="button" id="btnCancelAddTask" data-close-modal="addTaskModal" class="btn btn-secondary">Cancel</button>
+        <button type="button" data-close-modal="addTaskModal" class="btn btn-secondary">Cancel</button>
       </div>
     </form>
   </div>
 </div>
 
 <!-- Add Link Modal -->
-<div class="um-overlay" id="addLinkModal">
-  <div class="um-dialog">
+<div id="addLinkModal" class="um-overlay">
+  <div class="um-dialog" style="width:400px;max-width:95vw;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
       <h3 style="margin:0;">Link Item</h3>
-      <button id="btnCloseAddLink" data-close-modal="addLinkModal" style="background:none;border:none;cursor:pointer;font-size:1.25rem;"><i class="bi bi-x-lg"></i></button>
+      <button data-close-modal="addLinkModal" style="background:none;border:none;cursor:pointer;font-size:1.25rem;"><i class="bi bi-x-lg"></i></button>
     </div>
     <form method="POST" action="/projects/<?= (int)$project['id'] ?>/link/add">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
@@ -249,18 +249,8 @@ $actual  = $project['budget_actual']  !== null ? (float)$project['budget_actual'
       <div class="form-group"><label class="form-label">Entity ID <span style="color:var(--danger)">*</span></label><input type="number" name="entity_id" class="form-control" required min="1" placeholder="Enter numeric ID"></div>
       <div style="display:flex;gap:10px;margin-top:16px;">
         <button type="submit" class="btn btn-primary">Link</button>
-        <button type="button" id="btnCancelAddLink" data-close-modal="addLinkModal" class="btn btn-secondary">Cancel</button>
+        <button type="button" data-close-modal="addLinkModal" class="btn btn-secondary">Cancel</button>
       </div>
     </form>
   </div>
 </div>
-<script nonce="<?= Security::nonce() ?>">
-(function() {
-  document.querySelectorAll('form[data-confirm]').forEach(function(f) {
-    f.addEventListener('submit', function(e) { if (!confirm(f.dataset.confirm)) e.preventDefault(); });
-  });
-  document.querySelectorAll('button[data-confirm]').forEach(function(btn) {
-    btn.addEventListener('click', function(e) { if (!confirm(btn.dataset.confirm)) e.preventDefault(); });
-  });
-})();
-</script>

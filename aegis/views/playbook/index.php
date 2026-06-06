@@ -1,28 +1,28 @@
 <?php
+$breadcrumbs = $breadcrumbs ?? [['Playbooks', null]];
 $categoryColors = [
     'general'         => 'var(--primary)',
     'ransomware'      => 'var(--danger)',
     'data_breach'     => 'var(--warning)',
-    'ddos'            => '#0284c7',
+    'ddos'            => 'var(--info)',
     'phishing'        => 'var(--secondary)',
     'insider_threat'  => '#db2777',
-    'system_failure'  => '#71717a',
+    'system_failure'  => 'var(--text-muted)',
     'compliance'      => 'var(--success)',
 ];
 $severityColors = [
     'critical' => 'var(--danger)',
     'high'     => 'var(--warning)',
-    'medium'   => '#0284c7',
+    'medium'   => 'var(--info)',
     'low'      => 'var(--success)',
 ];
-$breadcrumbs = [['Playbooks', null]];
 ?>
 <div class="page-header">
   <div>
     <h1 class="page-title">Incident Response Playbooks</h1>
     <p class="page-subtitle">Step-by-step response procedures that can be attached to incidents and worked as checklists.</p>
   </div>
-  <?php if (Auth::can('incident.write')): ?>
+  <?php if (Auth::can('incident.playbook')): ?>
     <div class="page-actions">
       <a href="/playbooks/create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New Playbook</a>
     </div>
@@ -35,7 +35,7 @@ $breadcrumbs = [['Playbooks', null]];
       <i class="bi bi-journal-bookmark-fill" style="font-size:48px;color:var(--border);display:block;margin-bottom:16px"></i>
       <h3 style="margin:0 0 8px;color:var(--text-muted)">No playbooks yet</h3>
       <p style="color:var(--text-muted);margin:0 0 20px">Create your first incident response playbook to standardize how your team handles security events.</p>
-      <?php if (Auth::can('incident.write')): ?>
+      <?php if (Auth::can('incident.playbook')): ?>
         <a href="/playbooks/create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Create Playbook</a>
       <?php endif; ?>
     </div>
@@ -49,10 +49,10 @@ $breadcrumbs = [['Playbooks', null]];
       $sevColor = $severityColors[strtolower($pb['severity_filter'] ?? '')] ?? null;
       $isActive = (bool)$pb['is_active'];
     ?>
-      <div class="card" style="border-left:4px solid <?= $isActive ? $catColor : '#a1a1aa' ?>;position:relative">
+      <div class="card" style="border-left:4px solid <?= $isActive ? $catColor : 'var(--text-muted)' ?>;position:relative">
         <?php if (!$isActive): ?>
           <div style="position:absolute;top:10px;right:10px">
-            <span class="status-chip" style="background:#a1a1aa20;color:var(--text-muted);border:1px solid #a1a1aa40;font-size:10px">Inactive</span>
+            <span class="status-chip" style="background:var(--text-muted)20;color:var(--text-muted);border:1px solid var(--text-muted)40;font-size:10px">Inactive</span>
           </div>
         <?php endif; ?>
         <div class="card-body">
@@ -91,7 +91,7 @@ $breadcrumbs = [['Playbooks', null]];
             <a href="/playbooks/<?= (int)$pb['id'] ?>" class="btn btn-sm btn-secondary">
               <i class="bi bi-eye"></i> View
             </a>
-            <?php if (Auth::can('incident.write')): ?>
+            <?php if (Auth::can('incident.playbook')): ?>
               <form method="post" action="/playbooks/<?= (int)$pb['id'] ?>/toggle" style="display:inline" data-confirm="<?= $isActive ? 'Deactivate' : 'Activate' ?> this playbook?">
                 <?= Security::csrfField() ?>
                 <button type="submit" class="btn btn-sm <?= $isActive ? 'btn-ghost' : 'btn-primary' ?>">

@@ -1,6 +1,8 @@
 <?php
 // $policies = approved policies list (from controller)
-$breadcrumbs = [['Policies', '/policy'], ['Campaigns', '/policy/campaigns'], ['New Campaign', null]];
+$pageTitle    = 'New Campaign';
+$activeModule = 'policy';
+$breadcrumbs  = [['Policies', '/policy'], ['New Campaign', null]];
 ?>
 
 <div class="page-header">
@@ -29,7 +31,7 @@ $breadcrumbs = [['Policies', '/policy'], ['Campaigns', '/policy/campaigns'], ['N
           </select>
           <div class="form-hint">Only published/approved policies are shown.</div>
         <?php else: ?>
-          <div class="alert-box" style="background:var(--warning-subtle);border-color:#fbbf24;color:var(--warning)">
+          <div class="alert-box" style="background:var(--warning-subtle);border-color:var(--warning);color:var(--warning)">
             <i class="bi bi-exclamation-triangle-fill"></i>
             No approved policies found. Publish a policy first before creating a campaign.
           </div>

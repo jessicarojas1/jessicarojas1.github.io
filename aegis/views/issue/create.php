@@ -74,7 +74,7 @@ ob_start();
           <div class="card-header-left"><i class="bi bi-speedometer2" style="color:var(--primary)"></i><span class="card-title">Severity</span></div>
         </div>
         <div class="card-body" style="text-align:center;padding:1.5rem 1rem">
-          <div id="sevBadge" style="display:inline-block;padding:0.4rem 1.2rem;border-radius:99px;font-size:1rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;background:var(--info-subtle);color:var(--info);border:2px solid var(--info-tint);margin-bottom:0.75rem">Medium</div>
+          <div id="sevBadge" style="display:inline-block;padding:0.4rem 1.2rem;border-radius:99px;font-size:1rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;background:var(--info)20;color:var(--info);border:2px solid var(--info)40;margin-bottom:0.75rem">Medium</div>
           <p id="sevDesc" style="font-size:0.85rem;color:var(--text-muted);margin:0">Moderate impact; address promptly.</p>
         </div>
       </div>
@@ -113,10 +113,10 @@ ob_start();
 
 <script nonce="<?= Security::nonce() ?>">
 const sevMeta = {
-  critical: { color:'var(--danger)', label:'Critical', desc:'Severe; requires immediate remediation.' },
-  high:     { color:'var(--warning)', label:'High',     desc:'Significant risk; address urgently.' },
+  critical: { color:'#dc2626', label:'Critical', desc:'Severe; requires immediate remediation.' },
+  high:     { color:'#d97706', label:'High',     desc:'Significant risk; address urgently.' },
   medium:   { color:'#0284c7', label:'Medium',   desc:'Moderate impact; address promptly.' },
-  low:      { color:'var(--success)', label:'Low',      desc:'Minor; handle in normal workflow.' },
+  low:      { color:'#059669', label:'Low',      desc:'Minor; handle in normal workflow.' },
 };
 function updateSevPreview(val) {
   const d = sevMeta[val] || sevMeta.medium;

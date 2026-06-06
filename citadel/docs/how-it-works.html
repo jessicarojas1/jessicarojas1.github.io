@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; img-src 'self' https://cdn.jsdelivr.net data:; font-src 'self' https://cdn.jsdelivr.net; connect-src 'self'; object-src 'none'; base-uri 'self';">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>(function(){document.documentElement.setAttribute('data-bs-theme',localStorage.getItem('bsTheme')||'dark');})()</script>
+  <link rel="icon" href="../../favicon.ico" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="../../theme.css" />
+  <link rel="stylesheet" href="../css/citadel.css" />
+  <title>CITADEL — How It Works (Work Instructions)</title>
+  <style>
+    .guide-toc{position:sticky;top:80px;font-size:.86rem}
+    .guide-toc a{display:block;padding:.18rem 0 .18rem .7rem;color:var(--bs-secondary-color);text-decoration:none;border-left:2px solid transparent}
+    .guide-toc a:hover{color:var(--bs-body-color);border-left-color:var(--citadel-accent)}
+    .guide section{padding:1.8rem 0;border-bottom:1px solid var(--bs-border-color);scroll-margin-top:80px}
+    .guide h2{font-size:1.45rem;margin-bottom:.8rem}
+    .guide h3{font-size:1.05rem;margin:1.1rem 0 .5rem}
+    .step{display:flex;gap:.9rem;padding:.6rem 0;border-bottom:1px dashed var(--bs-border-color)}
+    .step:last-child{border-bottom:0}
+    .step-n{flex:0 0 30px;height:30px;border-radius:50%;background:color-mix(in srgb,var(--citadel-accent) 18%,transparent);color:var(--citadel-accent);font-weight:700;display:grid;place-items:center}
+    .ascii{background:var(--bs-tertiary-bg);border:1px solid var(--bs-border-color);border-radius:10px;padding:1rem;font-size:.72rem;line-height:1.3;overflow-x:auto}
+    .role-card{border:1px solid var(--bs-border-color);border-radius:12px;padding:1rem;height:100%}
+    .role-card h6{display:flex;align-items:center;gap:.4rem}
+    code.k{background:var(--bs-tertiary-bg);padding:.05rem .3rem;border-radius:3px}
+    table td,table th{font-size:.88rem}
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg sticky-top citadel-bar">
+    <div class="container-fluid px-3 px-lg-4">
+      <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="../index.html">
+        <svg width="26" height="26" viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="9" fill="#0ea5e9"/><path d="M20 6 L32 11 V21 C32 28 27 32.5 20 35 C13 32.5 8 28 8 21 V11 Z" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/></svg>
+        <span>CITADEL <span class="text-body-secondary fw-normal">/ how it works</span></span>
+      </a>
+      <div class="ms-auto d-flex gap-2">
+        <a class="btn btn-sm btn-outline-secondary" href="capabilities.html"><i class="bi bi-stack"></i> Capabilities</a>
+        <a class="btn btn-sm btn-outline-secondary" href="../index.html"><i class="bi bi-arrow-left"></i> Analyzer</a>
+        <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
+      </div>
+    </div>
+  </nav>
+
+  <section class="citadel-hero text-center">
+    <div class="container">
+      <span class="badge rounded-pill citadel-pill mb-3"><i class="bi bi-journal-check"></i> Work instructions</span>
+      <h1 class="display-6 fw-bold">How CITADEL Works</h1>
+      <p class="lead mx-auto" style="max-width:760px">The end-to-end process, step-by-step usage, how to read the results, and how to run it in CI/CD and the cloud.</p>
+    </div>
+  </section>
+
+  <div class="container py-4"><div class="row">
+    <div class="col-lg-3 d-none d-lg-block">
+      <nav class="guide-toc">
+        <a href="#overview">1. What it is</a>
+        <a href="#pipeline">2. The process</a>
+        <a href="#start">3. Running a scan</a>
+        <a href="#deep">4. Quick vs deep scan</a>
+        <a href="#report">5. Reading the report</a>
+        <a href="#aifix">6. Fixing issues (AI)</a>
+        <a href="#triage">7. Triage workflow</a>
+        <a href="#compliance">8. Compliance mapping</a>
+        <a href="#exports">9. Exports &amp; CI/CD</a>
+        <a href="#deploy">10. Deploying CITADEL</a>
+        <a href="#roles">11. Roles &amp; workflow</a>
+        <a href="#limits">12. Scope &amp; limits</a>
+      </nav>
+    </div>
+    <div class="col-lg-9 guide">
+
+      <section id="overview">
+        <h2>1. What CITADEL is</h2>
+        <p>CITADEL (Code Inspection, Threat Analysis &amp; Deployment Evaluation Lab) is an enterprise
+        source-code, executable and script review platform. You give it code (or a binary); it tells you
+        <strong>how secure it is, how well it's written, what languages it uses, how it's deployed, and which
+        compliance obligations it touches</strong> — in one report, mapped to the exact controls of 20+
+        frameworks.</p>
+        <p>The public app runs <strong>100% in your browser</strong> — nothing is uploaded. An optional
+        <strong>deep-scan backend</strong> adds real open-source scanners (Semgrep, Trivy, Grype, Syft, Gitleaks,
+        Bandit, ClamAV) and AI-assisted fixes.</p>
+      </section>
+
+      <section id="pipeline">
+        <h2>2. The process (what happens to your code)</h2>
+        <pre class="ascii">  Ingest → Classify → Analyze (×6) → Score → Map to controls → Report
+   files     language    SAST · secrets · SBOM/CVE · binary · quality · deploy</pre>
+        <div class="step"><div class="step-n">1</div><div><strong>Ingest.</strong> Files, folders, ZIP/JAR/APK archives (expanded in-browser) and executables are normalized into a flat list. Build/vendor dirs (<code class="k">node_modules</code>, <code class="k">.git</code>…) are skipped; each file is sniffed as text or binary.</div></div>
+        <div class="step"><div class="step-n">2</div><div><strong>Classify.</strong> Every file is mapped to one of 117 languages/formats by extension and filename, with a language breakdown.</div></div>
+        <div class="step"><div class="step-n">3</div><div><strong>SAST.</strong> 100+ heuristic rules (regex, language-aware) flag injection, XSS, broken crypto, deserialization, SSRF, path traversal, XXE, insecure config and IaC misconfig. Deep scan adds Semgrep + Bandit.</div></div>
+        <div class="step"><div class="step-n">4</div><div><strong>Secrets.</strong> Shannon-entropy + pattern detection surfaces hardcoded keys, tokens, private keys and passwords. Deep scan adds Gitleaks + Trivy.</div></div>
+        <div class="step"><div class="step-n">5</div><div><strong>SBOM &amp; CVEs.</strong> Dependency manifests (npm, PyPI, Maven, Go, Gem, Composer, Cargo, NuGet) become a CycloneDX SBOM, cross-checked against the <strong>OSV.dev</strong> advisory database for real CVEs (Syft/Grype/Trivy on the backend).</div></div>
+        <div class="step"><div class="step-n">6</div><div><strong>Binary &amp; quality.</strong> Executables/bytecode are inspected (format, entropy/packing, strings, capability indicators). Quality computes a maintainability index, comment density, licenses, and deployment/IaC detection.</div></div>
+        <div class="step"><div class="step-n">7</div><div><strong>Score.</strong> Findings are severity-weighted and volume-normalized into a security score and an <strong>A–F grade</strong>.</div></div>
+        <div class="step"><div class="step-n">8</div><div><strong>Map &amp; report.</strong> Every finding is cross-walked to the specific controls it implicates across all frameworks, then rendered into the report.</div></div>
+      </section>
+
+      <section id="start">
+        <h2>3. Running a scan (step by step)</h2>
+        <ol>
+          <li>Open the analyzer (<a href="../index.html">CITADEL home</a>).</li>
+          <li>Choose what to analyze:
+            <ul>
+              <li><strong>Load demo project</strong> — instant synthetic vulnerable app to see the tool in action.</li>
+              <li><strong>Select files</strong> or <strong>Select folder</strong> — pick source files or a whole project.</li>
+              <li><strong>Drag &amp; drop</strong> a <code class="k">.zip</code>, folder, source file, or executable onto the dropzone.</li>
+              <li><strong>Scan a public repo by URL</strong> (deep-scan backend only) — paste a GitHub/GitLab URL.</li>
+            </ul>
+          </li>
+          <li>Watch the progress bar move through the pipeline stages.</li>
+          <li>The <strong>results section</strong> appears with the <strong>Report</strong> tab open. Quick scans then enrich dependencies with live OSV CVEs and refresh automatically.</li>
+        </ol>
+        <p class="small text-body-secondary">Files never leave your browser in the client-side app. In deep-scan mode the upload goes to your own backend, which only reads the files (never executes them) and deletes them after the scan.</p>
+      </section>
+
+      <section id="deep">
+        <h2>4. Quick scan vs deep scan</h2>
+        <table class="table table-sm">
+          <thead><tr><th></th><th>Quick scan (browser)</th><th>Deep scan (backend)</th></tr></thead>
+          <tbody>
+            <tr><td>Runs</td><td>Anywhere (GitHub Pages)</td><td>The CITADEL Docker service</td></tr>
+            <tr><td>SAST</td><td>117-language heuristics</td><td>+ Semgrep, Bandit</td></tr>
+            <tr><td>Secrets</td><td>Entropy + patterns</td><td>+ Gitleaks, Trivy</td></tr>
+            <tr><td>CVEs</td><td>OSV.dev live lookup</td><td>+ Grype, Trivy</td></tr>
+            <tr><td>SBOM</td><td>Manifest parsing</td><td>+ Syft</td></tr>
+            <tr><td>Malware</td><td>Heuristic indicators</td><td>+ ClamAV</td></tr>
+            <tr><td>AI fix</td><td>Copy-paste prompt</td><td>+ inline "Explain &amp; fix"</td></tr>
+          </tbody>
+        </table>
+        <p>The <strong>Deep scan</strong> toggle and <strong>Scan repo URL</strong> box appear automatically when CITADEL is served by its backend. See section 10 to deploy it.</p>
+      </section>
+
+      <section id="report">
+        <h2>5. Reading the report</h2>
+        <p>After a scan the results area shows a scorecard (grade + scores) and tabs:</p>
+        <ul>
+          <li><strong>Report</strong> — the executive summary: verdict, grade, vulnerabilities &amp; findings, <strong>risk hotspots</strong> (riskiest files), compliance posture, dependencies/CVEs, licenses, deployment. <strong>Download full report</strong> gives a standalone HTML file.</li>
+          <li><strong>Overview</strong> — charts: severity, language composition, weakness categories.</li>
+          <li><strong>Findings</strong> — every finding, filterable by severity. Expand one for location, code snippet, fix, mapped controls, and (backend) "Explain &amp; fix".</li>
+          <li><strong>Compliance</strong> — per-framework posture with "controls implicated / total" and a <strong>View all N controls</strong> expander (implicated controls flagged).</li>
+          <li><strong>SBOM</strong> — dependencies, ecosystems, known CVEs, and licenses.</li>
+          <li><strong>Binaries</strong> — format, entropy/packing, capability indicators, embedded URLs.</li>
+          <li><strong>Quality</strong> — maintainability metrics and interpretation.</li>
+          <li><strong>Deployment</strong> — detected Docker/K8s/Terraform/CI signals.</li>
+          <li><strong>AI Fix Prompt</strong> — see section 6.</li>
+          <li><strong>History</strong> — past scans (local), trend, and run-to-run comparison.</li>
+          <li><strong>Export</strong> — see section 9.</li>
+        </ul>
+      </section>
+
+      <section id="aifix">
+        <h2>6. Fixing the issues with AI</h2>
+        <ol>
+          <li>Open the <strong>AI Fix Prompt</strong> tab.</li>
+          <li>Click <strong>Copy prompt</strong> (or Download). It contains exact, structured wording listing <em>every</em> finding — location, flagged code, the required fix, and the compliance controls affected — instructing the assistant to fix them in priority order.</li>
+          <li>Paste it into Claude (or any coding assistant) together with your code, and apply the returned diffs.</li>
+          <li>Re-scan to confirm the grade improved and no regressions were introduced.</li>
+        </ol>
+        <p>With the backend configured (an <code class="k">ANTHROPIC_API_KEY</code>), each finding also gets an inline <strong>Explain &amp; fix</strong> button powered by Claude.</p>
+      </section>
+
+      <section id="triage">
+        <h2>7. Triage workflow</h2>
+        <ul>
+          <li><strong>Prioritize</strong> by severity and the <strong>Risk hotspots</strong> list — fix critical/high first.</li>
+          <li><strong>Accept risk</strong>: on any finding, click "Accept risk" to suppress it (stored locally). Toggle "Show suppressed" to review accepted items.</li>
+          <li><strong>Track progress</strong>: every scan is recorded in <strong>History</strong>; use <strong>Compare</strong> to see security/findings deltas between two runs (green = improvement).</li>
+        </ul>
+      </section>
+
+      <section id="compliance">
+        <h2>8. How findings map to controls</h2>
+        <p>Each finding has a <em>category</em> (e.g. injection, broken crypto, secrets). A cross-walk maps every
+        category to the specific controls it implicates in each framework — so one SQL-injection finding
+        simultaneously flags OWASP A03, CWE-89, NIST 800-53 SI-10, NIST 800-171 3.14.1, CMMC SI.L1-3.14.1,
+        ISO 27001 A.8.28, PCI 6.2.4, and so on. The Compliance tab shows the full control catalog per framework
+        with implicated controls highlighted, and the Export tab produces POA&amp;M and SSP appendix documents
+        from this mapping.</p>
+      </section>
+
+      <section id="exports">
+        <h2>9. Exports &amp; CI/CD integration</h2>
+        <p>From the <strong>Export</strong> tab (or Report): <strong>JSON</strong>, <strong>SARIF 2.1.0</strong>
+        (GitHub Code Scanning), <strong>CycloneDX SBOM</strong>, <strong>POA&amp;M</strong> (CSV),
+        <strong>SSP control appendix</strong> (Markdown), <strong>JUnit XML</strong> (CI test reports),
+        <strong>PR-comment Markdown</strong>, summary Markdown, and printable PDF.</p>
+        <h3>Run it in CI</h3>
+        <pre class="ascii"># GitHub Action (uploads SARIF to code scanning, fails build on high+)
+- uses: ./citadel            # action.yml
+  with: { path: '.', fail-on: 'high' }
+
+# Or the CLI directly (inside the Docker image)
+node citadel/server/cli.js ./src --format sarif --fail-on high</pre>
+        <p>See <a href="https://github.com/jessicarojas1/jessicarojas1.github.io/blob/main/citadel/CI.md" target="_blank" rel="noopener">CI.md</a> for the full GitHub Action + CLI reference.</p>
+      </section>
+
+      <section id="deploy">
+        <h2>10. Deploying CITADEL</h2>
+        <h3>Static (quick scan only)</h3>
+        <p>The browser app is already live on GitHub Pages. Any static host works.</p>
+        <h3>Deep-scan backend (Docker)</h3>
+        <pre class="ascii"># build from the repo root (bundles the SPA + all scanners)
+docker build -f citadel/server/Dockerfile -t citadel-server .
+docker run -p 8080:8080 citadel-server      # http://localhost:8080/</pre>
+        <h3>Render</h3>
+        <p>New → Web Service → Docker → Dockerfile <code class="k">./citadel/server/Dockerfile</code>, build context <code class="k">.</code>, port 8080, Standard (2 GB) instance, health check <code class="k">/api/health</code>. Optional <code class="k">ANTHROPIC_API_KEY</code> for AI fixes. (A one-click Blueprint exists in <code class="k">render.yaml</code>.)</p>
+        <h3>Government cloud</h3>
+        <p>Hardened IaC ships under <code class="k">citadel/deploy/azure-gov</code> (Bicep) and <code class="k">citadel/deploy/aws-gov</code> (Terraform). Use <code class="k">scripts/deploy.sh aws|azure</code> to orchestrate, then run <code class="k">scripts/init.sh</code> inside the container to hydrate the Trivy/Grype/ClamAV databases.</p>
+      </section>
+
+      <section id="roles">
+        <h2>11. Roles &amp; recommended workflow</h2>
+        <div class="row g-3">
+          <div class="col-md-6"><div class="role-card"><h6><i class="bi bi-code-slash text-info"></i> Developer</h6><p class="small mb-0">Scan your branch before a PR → fix critical/high from the Report &amp; AI Fix Prompt → re-scan to confirm grade.</p></div></div>
+          <div class="col-md-6"><div class="role-card"><h6><i class="bi bi-shield-check text-info"></i> Security reviewer</h6><p class="small mb-0">Use deep scan for full CVE/secret coverage; triage with suppressions; export SARIF to code scanning.</p></div></div>
+          <div class="col-md-6"><div class="role-card"><h6><i class="bi bi-clipboard-check text-info"></i> Compliance / GRC</h6><p class="small mb-0">Use the Compliance tab and export POA&amp;M + SSP appendix to seed an ATO package against your framework.</p></div></div>
+          <div class="col-md-6"><div class="role-card"><h6><i class="bi bi-gear-wide-connected text-info"></i> CI/CD</h6><p class="small mb-0">Run the GitHub Action / CLI on every PR; gate merges with <code class="k">--fail-on</code>; post the PR-comment Markdown.</p></div></div>
+        </div>
+      </section>
+
+      <section id="limits" style="border-bottom:0">
+        <h2>12. Scope &amp; limitations</h2>
+        <p>The browser engine is <strong>heuristic</strong> (pattern-based) for fast, transparent triage across all 117 languages.
+        The deep-scan backend adds data-flow-grade scanners for the languages those tools support. Neither replaces a
+        credentialed penetration test or a qualified assessor's review. For an Authorization to Operate (ATO), pair
+        CITADEL's output with the backend scanners and human review. Treat all findings as candidates to verify, not
+        verdicts.</p>
+      </section>
+
+    </div>
+  </div></div>
+
+  <footer class="citadel-footer text-center py-4"><div class="container small text-body-secondary">CITADEL — work instructions · <a href="capabilities.html">capabilities</a> · <a href="index.html">architecture</a></div></footer>
+
+  <script>
+  (function(){function icon(){var t=document.documentElement.getAttribute('data-bs-theme');var i=document.querySelector('#themeToggleBtn .theme-icon');if(i)i.textContent=t==='dark'?'☀️':'🌙';}
+  document.getElementById('themeToggleBtn').addEventListener('click',function(){var c=document.documentElement.getAttribute('data-bs-theme');var n=c==='dark'?'light':'dark';document.documentElement.setAttribute('data-bs-theme',n);try{localStorage.setItem('bsTheme',n);}catch(e){}icon();});icon();})();
+  </script>
+</body>
+</html>

@@ -1,5 +1,6 @@
-<?php ob_start();
-$breadcrumbs = [['Privacy', '/privacy'], ['DSR Requests', null]];
+<?php
+$breadcrumbs = $breadcrumbs ?? [['Privacy', '/privacy'], ['DSR Requests', null]];
+ob_start();
 $typeLabels = ['access'=>'Access','erasure'=>'Erasure','rectification'=>'Rectification','portability'=>'Portability','objection'=>'Objection','restriction'=>'Restriction'];
 $typeColors = ['access'=>'blue','erasure'=>'red','rectification'=>'yellow','portability'=>'indigo','objection'=>'orange','restriction'=>'purple'];
 ?>
@@ -16,7 +17,7 @@ $typeColors = ['access'=>'blue','erasure'=>'red','rectification'=>'yellow','port
 </div>
 
 <?php if (!empty($_SESSION['flash_success'])): ?>
-  <div class="alert-box success"><i class="bi bi-check-circle-fill"></i> <?= Security::h($_SESSION['flash_success']) ?></div>
+  <div class="alert alert-success"><i class="bi bi-check-circle-fill"></i> <?= Security::h($_SESSION['flash_success']) ?></div>
   <?php unset($_SESSION['flash_success']); ?>
 <?php endif; ?>
 
@@ -60,7 +61,7 @@ $typeColors = ['access'=>'blue','erasure'=>'red','rectification'=>'yellow','port
       </tbody>
     </table>
     <?php else: ?>
-    <div class="empty-state">
+    <div class="empty-state" style="padding:60px 20px">
       <div class="empty-icon"><i class="bi bi-person-lines-fill"></i></div>
       <h3>No data subject requests</h3>
       <p>Log incoming GDPR data subject requests to track them through to resolution.</p>
@@ -71,15 +72,15 @@ $typeColors = ['access'=>'blue','erasure'=>'red','rectification'=>'yellow','port
 </div>
 
 <!-- New request modal -->
-<div class="um-overlay" id="modal-new-request">
-  <div class="um-dialog" style="max-width:500px">
-    <div class="um-header">
-      <h3><i class="bi bi-person-lines-fill" style="color:var(--primary)"></i> New Data Subject Request</h3>
-      <button class="um-close" data-close-modal="modal-new-request"><i class="bi bi-x-lg"></i></button>
+<div id="modal-new-request" class="um-overlay">
+  <div class="um-dialog" style="max-width:500px;overflow:hidden">
+    <div class="modal-header">
+      <h3 style="font-size:15px;font-weight:700;margin:0"><i class="bi bi-person-lines-fill" style="color:var(--primary)"></i> New Data Subject Request</h3>
+      <button class="modal-close" data-close-modal="modal-new-request"><i class="bi bi-x-lg"></i></button>
     </div>
     <form method="POST" action="/privacy/requests/create">
       <?= Security::csrfField() ?>
-      <div class="um-body" style="display:flex;flex-direction:column;gap:12px">
+      <div style="padding:20px;display:flex;flex-direction:column;gap:12px">
         <div class="form-group" style="margin:0">
           <label class="form-label required">Request Type</label>
           <select name="request_type" class="form-control" required>
@@ -127,15 +128,15 @@ $typeColors = ['access'=>'blue','erasure'=>'red','rectification'=>'yellow','port
 </div>
 
 <!-- Update modal -->
-<div class="um-overlay" id="modal-update">
-  <div class="um-dialog" style="max-width:420px">
-    <div class="um-header">
-      <h3>Update Request</h3>
-      <button class="um-close" data-close-modal="modal-update"><i class="bi bi-x-lg"></i></button>
+<div id="modal-update" class="um-overlay">
+  <div class="um-dialog" style="max-width:420px;overflow:hidden">
+    <div class="modal-header">
+      <h3 style="font-size:15px;font-weight:700;margin:0">Update Request</h3>
+      <button class="modal-close" data-close-modal="modal-update"><i class="bi bi-x-lg"></i></button>
     </div>
     <form id="updateForm" method="POST">
       <?= Security::csrfField() ?>
-      <div class="um-body" style="display:flex;flex-direction:column;gap:12px">
+      <div style="padding:20px;display:flex;flex-direction:column;gap:12px">
         <div class="form-group" style="margin:0">
           <label class="form-label">Status</label>
           <select name="status" class="form-control" id="updateStatus">

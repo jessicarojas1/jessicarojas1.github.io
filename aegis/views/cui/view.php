@@ -1,14 +1,13 @@
 <?php
-$csrf = Security::generateCsrfToken();
-$breadcrumbs = [['CUI Registry', '/cui'], [Security::h($item['inventory_number'] ?? 'Record'), null]];
-?>
+$breadcrumbs = $breadcrumbs ?? [['CUI Inventory', '/cui'], ['Entry', null]];
+$csrf = Security::generateCsrfToken(); ?>
 <div class="page-header">
   <div>
     <h1 class="page-title"><?= Security::h($item['inventory_number']) ?></h1>
     <p class="page-subtitle">CUI Record</p>
   </div>
   <div style="display:flex;gap:10px;">
-    <button class="btn btn-secondary" data-show-modal="cuiEditModal"><i class="bi bi-pencil"></i> Edit</button>
+    <button class="btn btn-secondary" data-show-modal="editModal"><i class="bi bi-pencil"></i> Edit</button>
     <form method="POST" action="/cui/<?= (int)$item['id'] ?>/delete" data-confirm="Delete this CUI record?" style="margin:0">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
       <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i></button>
@@ -55,11 +54,11 @@ $breadcrumbs = [['CUI Registry', '/cui'], [Security::h($item['inventory_number']
 </div>
 
 <!-- Edit Modal -->
-<div class="um-overlay" id="cuiEditModal">
-  <div class="um-dialog" style="max-width:680px">
-    <div class="um-header">
-      <h3>Edit CUI Record</h3>
-      <button class="um-close" data-close-modal="cuiEditModal"><i class="bi bi-x-lg"></i></button>
+<div id="editModal" class="um-overlay">
+  <div class="um-dialog" style="width:680px;max-height:90vh;overflow-y:auto;max-width:95vw;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <h3 style="margin:0;">Edit CUI Record</h3>
+      <button data-close-modal="editModal" style="background:none;border:none;cursor:pointer;font-size:1.25rem;"><i class="bi bi-x-lg"></i></button>
     </div>
     <form method="POST" action="/cui/<?= (int)$item['id'] ?>/update">
       <input type="hidden" name="csrf_token" value="<?= $csrf ?>">
@@ -92,7 +91,7 @@ $breadcrumbs = [['CUI Registry', '/cui'], [Security::h($item['inventory_number']
       </div>
       <div style="display:flex;gap:10px;margin-top:20px;">
         <button type="submit" class="btn btn-primary">Save</button>
-        <button type="button" class="btn btn-secondary" data-close-modal="cuiEditModal">Cancel</button>
+        <button type="button" data-close-modal="editModal" class="btn btn-secondary">Cancel</button>
       </div>
     </form>
   </div>

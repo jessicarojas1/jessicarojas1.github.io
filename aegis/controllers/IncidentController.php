@@ -4,7 +4,7 @@ declare(strict_types=1);
 class IncidentController {
 
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('incident.view');
 
         $severity = Security::sanitizeInput($_GET['severity'] ?? '');
         $status   = Security::sanitizeInput($_GET['status']   ?? '');
@@ -63,13 +63,13 @@ class IncidentController {
     }
 
     public function createForm(): void {
-        Auth::requirePermission('incident.write');
+        Auth::requirePermission('incident.create');
         $users = Database::fetchAll("SELECT id, name FROM users WHERE is_active = TRUE ORDER BY name");
         require AEGIS_ROOT . '/views/incident/create.php';
     }
 
     public function create(): void {
-        Auth::requirePermission('incident.write');
+        Auth::requirePermission('incident.create');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -129,7 +129,7 @@ class IncidentController {
     }
 
     public function view(string $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('incident.view');
         $id = (int)$id;
 
         $incident = Database::fetchOne(
@@ -211,7 +211,7 @@ class IncidentController {
     }
 
     public function update(string $id): void {
-        Auth::requirePermission('incident.write');
+        Auth::requirePermission('incident.edit');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -267,7 +267,7 @@ class IncidentController {
     }
 
     public function addUpdate(string $id): void {
-        Auth::requirePermission('incident.write');
+        Auth::requirePermission('incident.edit');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -319,7 +319,7 @@ class IncidentController {
     }
 
     public function close(string $id): void {
-        Auth::requirePermission('incident.write');
+        Auth::requirePermission('incident.close');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);
@@ -348,7 +348,7 @@ class IncidentController {
     }
 
     public function acknowledge(string $id): void {
-        Auth::requirePermission('incident.write');
+        Auth::requirePermission('incident.edit');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $id       = (int)$id;
         $incident = Database::fetchOne("SELECT id, severity FROM incidents WHERE id=?", [$id]);
@@ -373,7 +373,7 @@ class IncidentController {
     }
 
     public function slaReport(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('incident.view');
         // Active incidents with SLA status
         $incidents = Database::fetchAll(
             "SELECT i.*, isp.acknowledge_hours, isp.resolve_hours,

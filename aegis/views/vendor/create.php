@@ -116,7 +116,7 @@ ob_start();
             </select>
           </div>
 
-          <div id="tierPreview" style="padding:0.75rem;border-radius:8px;background:var(--info-subtle);border:1px solid var(--info-tint);margin-bottom:1rem">
+          <div id="tierPreview" style="padding:0.75rem;border-radius:8px;background:var(--info)20;border:1px solid var(--info)40;margin-bottom:1rem">
             <strong id="tierLabel" style="color:var(--info)">Medium Risk</strong>
             <p id="tierDesc" style="font-size:0.82rem;color:var(--text-muted);margin:4px 0 0">Periodic assessments required; monitor access.</p>
           </div>
@@ -160,7 +160,7 @@ ob_start();
 const tierData = {
   critical: { color:'var(--danger)', label:'Critical Risk', desc:'Continuous monitoring; executive oversight required.' },
   high:     { color:'var(--warning)', label:'High Risk',     desc:'Frequent assessments; formal approval needed.' },
-  medium:   { color:'#0284c7', label:'Medium Risk',   desc:'Periodic assessments required; monitor access.' },
+  medium:   { color:'var(--info)', label:'Medium Risk',   desc:'Periodic assessments required; monitor access.' },
   low:      { color:'var(--success)', label:'Low Risk',      desc:'Annual review; standard due diligence.' },
 };
 function updateTierPreview(val) {

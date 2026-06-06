@@ -4,7 +4,7 @@ declare(strict_types=1);
 class ThreatController {
 
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('threat.view');
         $filter   = Security::sanitizeInput($_GET['category'] ?? '');
         $statusF  = Security::sanitizeInput($_GET['status'] ?? '');
         $params   = [];
@@ -38,7 +38,7 @@ class ThreatController {
     }
 
     public function createForm(): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('threat.create');
         $users = Database::fetchAll("SELECT id, name FROM users WHERE is_active=TRUE ORDER BY name");
         $pageTitle    = 'New Threat';
         $activeModule = 'threats';
@@ -50,7 +50,7 @@ class ThreatController {
     }
 
     public function create(): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('threat.create');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $title    = trim(Security::sanitizeInput($_POST['title'] ?? ''));
         $category = Security::sanitizeInput($_POST['category'] ?? 'technology');
@@ -87,7 +87,7 @@ class ThreatController {
     }
 
     public function view(string $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('threat.view');
         $id = (int)$id;
         $threat = Database::fetchOne(
             "SELECT t.*, u.name as owner_name, cb.name as created_by_name
@@ -121,7 +121,7 @@ class ThreatController {
     }
 
     public function update(string $id): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('threat.edit');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $id     = (int)$id;
         $threat = Database::fetchOne("SELECT id FROM threats WHERE id=?", [$id]);
@@ -152,7 +152,7 @@ class ThreatController {
     }
 
     public function linkRisk(string $id): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('threat.edit');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $id     = (int)$id;
         $riskId = (int)($_POST['risk_id'] ?? 0);
@@ -167,7 +167,7 @@ class ThreatController {
     }
 
     public function unlinkRisk(string $id, string $riskId): void {
-        Auth::requirePermission('risk.write');
+        Auth::requirePermission('threat.edit');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         Database::query(
             "DELETE FROM threat_risk_links WHERE threat_id=? AND risk_id=?",

@@ -3,17 +3,17 @@
 
 $criticality = $asset['criticality'] ?? 'low';
 $critColors  = [
-    'critical' => ['var(--danger-subtle)','var(--danger)'],
+    'critical' => ['#fef2f2','#dc2626'],
     'high'     => ['#fff7ed','#ea580c'],
-    'medium'   => ['var(--warning-subtle)','var(--warning)'],
-    'low'      => ['var(--success-subtle)','var(--primary)'],
+    'medium'   => ['#fffbeb','#d97706'],
+    'low'      => ['#f0fdf4','#16a34a'],
 ];
 [$critBg, $critColor] = $critColors[$criticality] ?? ['#f4f4f5','#71717a'];
 
 $statusColors = [
-    'active'         => ['var(--success-subtle)','var(--primary)'],
+    'active'         => ['#f0fdf4','#16a34a'],
     'decommissioned' => ['#f9fafb','#71717a'],
-    'maintenance'    => ['var(--warning-subtle)','var(--warning)'],
+    'maintenance'    => ['#fffbeb','#d97706'],
 ];
 [$sBg, $sColor] = $statusColors[$asset['status'] ?? ''] ?? ['#f4f4f5','#71717a'];
 
@@ -70,7 +70,7 @@ function riskScoreLevel(int $score): string {
         <?= Security::h($asset['name']) ?>
       </h1>
       <?php if (!empty($asset['asset_code'])): ?>
-        <span class="badge" style="background:var(--info-subtle);color:var(--info-text);border:1px solid var(--info-border);font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($asset['asset_code']) ?></span>
+        <span class="badge" style="background:var(--info-subtle);color:var(--info);border:1px solid var(--border);font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($asset['asset_code']) ?></span>
       <?php endif; ?>
     </div>
     <p class="page-subtitle">
@@ -156,7 +156,7 @@ function riskScoreLevel(int $score): string {
     </div>
 
     <!-- Edit panel (collapsible, policy.write only) -->
-    <?php if (Auth::can('risk.write')): ?>
+    <?php if (Auth::can('asset.edit')): ?>
     <div class="card">
       <div class="card-header" style="cursor:pointer;" data-toggle-class="d-none" data-target="#editPanel">
         <h3 class="card-title"><i class="bi bi-pencil-square"></i> Edit Asset</h3>
@@ -280,7 +280,7 @@ function riskScoreLevel(int $score): string {
     <div class="card">
       <div class="card-header">
         <h3 class="card-title"><i class="bi bi-shield-exclamation"></i> Linked Risks</h3>
-        <?php if (Auth::can('risk.write')): ?>
+        <?php if (Auth::can('asset.edit')): ?>
           <button class="btn btn-primary btn-sm" data-show-modal="linkRiskModal">
             <i class="bi bi-plus-lg"></i> Link Risk
           </button>
@@ -294,14 +294,14 @@ function riskScoreLevel(int $score): string {
                 <th>Risk</th>
                 <th style="text-align:center;">Score</th>
                 <th>Status</th>
-                <?php if (Auth::can('risk.write')): ?><th style="width:50px;"></th><?php endif; ?>
+                <?php if (Auth::can('asset.edit')): ?><th style="width:50px;"></th><?php endif; ?>
               </tr>
             </thead>
             <tbody>
               <?php foreach ($linkedRisks as $r):
                 $rScore = (int)$r['inherent_score'];
                 $rLevel = riskScoreLevel($rScore);
-                $rLevelColors = ['Critical'=>'var(--danger)','High'=>'#f97316','Medium'=>'var(--warning)','Low'=>'var(--success)'];
+                $rLevelColors = ['Critical'=>'var(--danger)','High'=>'var(--orange)','Medium'=>'var(--warning)','Low'=>'var(--primary-light)'];
                 $rLc = $rLevelColors[$rLevel] ?? '#71717a';
               ?>
                 <tr>
@@ -319,7 +319,7 @@ function riskScoreLevel(int $score): string {
                     </span>
                   </td>
                   <td><span class="badge badge-<?= Security::h($r['status']) ?>"><?= ucfirst(Security::h($r['status'])) ?></span></td>
-                  <?php if (Auth::can('risk.write')): ?>
+                  <?php if (Auth::can('asset.edit')): ?>
                     <td>
                       <form method="POST" action="/assets/<?= (int)$asset['id'] ?>/unlink-risk/<?= (int)$r['id'] ?>"
                             data-confirm="Unlink this risk from the asset?">
@@ -335,7 +335,7 @@ function riskScoreLevel(int $score): string {
             </tbody>
           </table>
         <?php else: ?>
-          <div class="empty-state-sm">
+          <div class="empty-state-sm" style="padding:24px;">
             <i class="bi bi-shield-check" style="font-size:28px;color:var(--text-light);"></i>
             <p style="color:var(--text-muted);margin:8px 0 0;">No risks linked to this asset yet.</p>
           </div>
@@ -361,10 +361,10 @@ function riskScoreLevel(int $score): string {
         }
         foreach ($risksByLevel as $lvl => $cnt):
           if ($cnt === 0) continue;
-          $lvlColors = ['Critical'=>'var(--danger)','High'=>'#f97316','Medium'=>'var(--warning)','Low'=>'var(--success)'];
+          $lvlColors = ['Critical'=>'var(--danger)','High'=>'var(--orange)','Medium'=>'var(--warning)','Low'=>'var(--primary-light)'];
         ?>
           <div class="detail-row">
-            <span style="color:<?= $lvlColors[$lvl] ?? '#71717a' ?>;">■ <?= $lvl ?></span>
+            <span style="color:<?= $lvlColors[$lvl] ?? 'var(--text-muted)' ?>;">■ <?= $lvl ?></span>
             <strong><?= $cnt ?></strong>
           </div>
         <?php endforeach; ?>
@@ -375,9 +375,9 @@ function riskScoreLevel(int $score): string {
 </div>
 
 <!-- Link Risk Modal -->
-<?php if (Auth::can('risk.write')): ?>
-<div class="um-overlay" id="linkRiskModal">
-  <div class="um-dialog">
+<?php if (Auth::can('asset.edit')): ?>
+<div id="linkRiskModal" class="modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:center;justify-content:center;">
+  <div style="background:var(--card-bg);border:1px solid var(--border);border-radius:12px;width:100%;max-width:520px;box-shadow:0 8px 32px rgba(0,0,0,.2);padding:0;overflow:hidden;">
     <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border);">
       <h3 style="margin:0;font-size:16px;font-weight:600;"><i class="bi bi-shield-plus" style="margin-right:8px;color:var(--primary);"></i> Link Risk to Asset</h3>
       <button data-close-modal="linkRiskModal"><i class="bi bi-x-lg"></i></button>

@@ -26,6 +26,9 @@
     shader:    { label: 'Game & Shaders',     color: '#7b42bc' },
     config:    { label: 'Config & Markup',    color: '#cb171e' },
     iac:       { label: 'IaC & DevOps',       color: '#844FBA' },
+    policy:    { label: 'Policy as Code',     color: '#7c4dff' },
+    template:  { label: 'Templating',         color: '#e9711c' },
+    proof:     { label: 'Proof & Verification',color: '#2e7d6f' },
     doc:       { label: 'Docs & Data',        color: '#083fa1' }
   };
 
@@ -165,7 +168,89 @@
     { n:'Markdown', c:'doc', code:false, x:['md','markdown','mdx'], col:'#083fa1' },
     { n:'reStructuredText', c:'doc', code:false, x:['rst'], col:'#141414' },
     { n:'AsciiDoc', c:'doc', code:false, x:['adoc','asciidoc'], col:'#73a0c5' },
-    { n:'LaTeX', c:'doc', code:false, x:['tex','sty','cls'], col:'#3D6117' }
+    { n:'LaTeX', c:'doc', code:false, x:['tex','sty','cls'], col:'#3D6117' },
+    // ── More systems / emerging ──
+    { n:'Mojo', c:'systems', code:true, x:['mojo'], col:'#ff5e00' },
+    { n:'Carbon', c:'systems', code:true, x:['carbon'], col:'#222222' },
+    { n:'Odin', c:'systems', code:true, x:['odin'], col:'#60AFFE' },
+    { n:'Hare', c:'systems', code:true, x:['ha'], col:'#9d6cff' },
+    { n:'Pony', c:'systems', code:true, x:['pony'], col:'#1a1a2e' },
+    { n:'Vala', c:'systems', code:true, x:['vala','vapi'], col:'#a56de2' },
+    { n:'Eiffel', c:'systems', code:true, x:['e'], col:'#4d6977' },
+    { n:'Chapel', c:'systems', code:true, x:['chpl'], col:'#8dc63f' },
+    { n:'Modula-2', c:'systems', code:true, x:['mod','m2'], col:'#6e6e6e' },
+    { n:'Pike', c:'systems', code:true, x:['pike','pmod'], col:'#005390' },
+    // ── More functional ──
+    { n:'Gleam', c:'functional', code:true, x:['gleam'], col:'#ffaff3' },
+    { n:'Roc', c:'functional', code:true, x:['roc'], col:'#7c38f5' },
+    { n:'Unison', c:'functional', code:true, x:['u'], col:'#1a1a1a' },
+    { n:'ATS', c:'functional', code:true, x:['dats','sats'], col:'#1ac620' },
+    { n:'Mercury', c:'functional', code:true, x:['moo'], col:'#ff2b2b' },
+    // ── Proof & verification ──
+    { n:'Coq', c:'proof', code:true, x:['vo'], col:'#d0b68c' },
+    { n:'Lean', c:'proof', code:true, x:['lean'], col:'#572e30' },
+    { n:'Isabelle', c:'proof', code:true, x:['thy'], col:'#fefe33' },
+    { n:'Agda', c:'proof', code:true, x:['agda'], col:'#315665' },
+    // ── More scripting ──
+    { n:'AutoHotkey', c:'scripting', code:true, x:['ahk'], col:'#6594b9' },
+    { n:'AutoIt', c:'scripting', code:true, x:['au3'], col:'#1C3552' },
+    { n:'Red', c:'scripting', code:true, x:['red','reds'], col:'#f50000' },
+    { n:'Ballerina', c:'scripting', code:true, x:['bal'], col:'#FF5000' },
+    { n:'NSIS', c:'scripting', code:true, x:['nsi','nsh'], col:'#6e6e6e' },
+    // ── More data & scientific ──
+    { n:'Octave', c:'data', code:true, x:['octave'], col:'#e16737' },
+    { n:'Stan', c:'data', code:true, x:['stan'], col:'#b2011d' },
+    { n:'Q#', c:'data', code:true, x:['qs'], col:'#fed659' },
+    { n:'OpenQASM', c:'data', code:true, x:['qasm'], col:'#512888' },
+    { n:'Wolfram', c:'data', code:true, x:['wl','wls','nb'], col:'#dd1100' },
+    { n:'IDL', c:'data', code:true, x:['idl'], col:'#a3522f' },
+    // ── More query / database ──
+    { n:'HiveQL', c:'query', code:true, x:['hql','q'], col:'#dce200' },
+    { n:'Datalog', c:'query', code:true, x:['dl'], col:'#0c479c' },
+    { n:'PromQL', c:'query', code:true, x:['promql'], col:'#e6522c' },
+    // ── Policy as code ──
+    { n:'Rego (OPA)', c:'policy', code:true, x:['rego'], col:'#7c4dff' },
+    { n:'Sentinel', c:'policy', code:true, x:['sentinel'], col:'#7B42BC' },
+    { n:'CUE', c:'policy', code:true, x:['cue'], col:'#00b3b3' },
+    { n:'Dhall', c:'policy', code:true, x:['dhall'], col:'#dfafff' },
+    { n:'Jsonnet', c:'policy', code:true, x:['jsonnet','libsonnet'], col:'#0064bd' },
+    { n:'Nickel', c:'policy', code:true, x:['ncl'], col:'#1a1a1a' },
+    { n:'KCL', c:'policy', code:true, x:['k'], col:'#3f6ec6' },
+    { n:'Cedar', c:'policy', code:true, x:['cedar'], col:'#ff9900' },
+    // ── Templating ──
+    { n:'Jinja', c:'template', code:true, x:['jinja','jinja2','j2'], col:'#b41717' },
+    { n:'Handlebars', c:'template', code:true, x:['hbs','handlebars'], col:'#f0772b' },
+    { n:'Mustache', c:'template', code:true, x:['mustache'], col:'#724b3b' },
+    { n:'Twig', c:'template', code:true, x:['twig'], col:'#c1d026' },
+    { n:'Blade', c:'template', code:true, x:['blade.php','blade'], col:'#f7523f' },
+    { n:'EJS', c:'template', code:true, x:['ejs'], col:'#a91e50' },
+    { n:'Pug', c:'template', code:true, x:['pug','jade'], col:'#a86454' },
+    { n:'Haml', c:'template', code:true, x:['haml'], col:'#ece2a9' },
+    { n:'Liquid', c:'template', code:true, x:['liquid'], col:'#67b8de' },
+    { n:'Smarty', c:'template', code:true, x:['tpl'], col:'#f0c040' },
+    { n:'FreeMarker', c:'template', code:true, x:['ftl'], col:'#0050b2' },
+    { n:'Velocity', c:'template', code:true, x:['vm','vtl'], col:'#3d6e9e' },
+    // ── More smart contracts ──
+    { n:'Yul', c:'contract', code:true, x:['yul'], col:'#AA6746' },
+    { n:'Clarity', c:'contract', code:true, x:['clar'], col:'#5546ff' },
+    { n:'Sway', c:'contract', code:true, x:['sw'], col:'#00f58c' },
+    { n:'Fe', c:'contract', code:true, x:['fe'], col:'#ff5722' },
+    // ── More config / schema ──
+    { n:'Cap’n Proto', c:'config', code:true, x:['capnp'], col:'#c42727' },
+    { n:'FlatBuffers', c:'config', code:true, x:['fbs'], col:'#4f5d95' },
+    { n:'Smithy', c:'config', code:true, x:['smithy'], col:'#c925d1' },
+    { n:'Nginx config', c:'config', code:false, x:['nginxconf'], col:'#009639' },
+    { n:'CMake', c:'iac', code:true, x:['cmake'], col:'#064F8C' },
+    { n:'Meson', c:'iac', code:true, x:['meson'], col:'#394965' },
+    { n:'Earthfile', c:'iac', code:true, x:['earth'], col:'#2af0c8' },
+    // ── More legacy / enterprise ──
+    { n:'REXX', c:'legacy', code:true, x:['rexx','rex'], col:'#6e6e6e' },
+    { n:'JCL', c:'legacy', code:true, x:['jcl'], col:'#6e6e6e' },
+    { n:'Clipper', c:'legacy', code:true, x:['prg'], col:'#6e6e6e' },
+    // ── More web ──
+    { n:'QML', c:'web', code:true, x:['qml'], col:'#44a51c' },
+    { n:'Stylus', c:'web', code:false, x:['styl'], col:'#ff6347' },
+    { n:'Marko', c:'web', code:true, x:['marko'], col:'#42bff5' }
   ];
 
   // Special filenames (no/ambiguous extension) → language.

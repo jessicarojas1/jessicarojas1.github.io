@@ -5,7 +5,9 @@
  * Variables provided by ApprovalController::createTemplate():
  *   $users  array  — active users for the "Required User" select
  */
-$breadcrumbs = [['Approvals', '/approvals'], ['Templates', '/approvals/templates'], ['New Template', null]];
+$pageTitle    = 'New Approval Template';
+$activeModule = 'approval';
+$breadcrumbs  = [['Approvals', '/approval'], ['Templates', '/approval/templates'], ['New Template', null]];
 ?>
 
 <div class="page-header">
