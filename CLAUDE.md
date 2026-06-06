@@ -38,3 +38,6 @@ Every project roadmap must include:
 - **Every section with file upload** must include a field reference key below it
 - **`Database::update()`** automatically appends `updated_at = NOW()` — never include `updated_at` in data arrays passed to it
 - **Never commit `.env`** — only `.env.example` with placeholder values
+- **Every app/project must include a Settings & Branding area** — at minimum an
+  admin-editable organization name and a **logo URL** field, with the logo applied
+  to the app (e.g. top bar + login). Build this into every new app by default.

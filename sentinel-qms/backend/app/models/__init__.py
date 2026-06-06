@@ -55,7 +55,7 @@ from app.models.mgmt_review import (
     ManagementReviewInput,
     ReviewStatus,
 )
-from app.models.permission import RolePagePermission
+from app.models.permission import RolePagePermission, UserPagePermission
 from app.models.settings import OrgSettings
 from app.models.nonconformance import (
     DispositionType,
@@ -106,6 +106,7 @@ __all__ = [
     "Attachment",
     "Notification",
     "RolePagePermission",
+    "UserPagePermission",
     "user_roles",
     "Department",
     "Document",

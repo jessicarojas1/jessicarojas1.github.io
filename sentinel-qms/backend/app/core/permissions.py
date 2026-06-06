@@ -45,12 +45,18 @@ def default_level_for(role: Role, page_key: str) -> str:
     return "none"
 
 
-def effective_levels(db: Session, user) -> dict[str, str]:  # noqa: ANN001
-    """Max effective level per page across all the user's roles.
+def user_explicit_levels(db: Session, user_id: int) -> dict[str, str]:
+    """Per-user override levels (only pages that have an explicit row)."""
+    from app.models.permission import UserPagePermission
 
-    For each role, the level is the DB row if present, else the static default.
-    The user's level for a page is the maximum across their roles.
-    """
+    rows = db.execute(
+        select(UserPagePermission).where(UserPagePermission.user_id == user_id)
+    ).scalars().all()
+    return {r.page_key: r.level for r in rows}
+
+
+def role_derived_levels(db: Session, user) -> dict[str, str]:  # noqa: ANN001
+    """Max level per page across the user's roles (DB row, else static default)."""
     from app.models.permission import RolePagePermission
     from app.models.user import Role as RoleModel
 
@@ -96,3 +102,14 @@ def effective_levels(db: Session, user) -> dict[str, str]:  # noqa: ANN001
                 best = level
         result[page_key] = best
     return result
+
+
+def effective_levels(db: Session, user) -> dict[str, str]:  # noqa: ANN001
+    """Effective level per page: a per-user override REPLACES the role-derived
+    level when present; otherwise the role-derived level applies."""
+    levels = role_derived_levels(db, user)
+    user_id = getattr(user, "id", None)
+    if user_id is not None:
+        for page_key, level in user_explicit_levels(db, int(user_id)).items():
+            levels[page_key] = level
+    return levels
