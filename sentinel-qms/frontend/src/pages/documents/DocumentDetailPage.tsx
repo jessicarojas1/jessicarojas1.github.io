@@ -17,6 +17,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { PrintButton } from '@/components/PrintButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
+import { UserName } from '@/components/UserName';
 import { DocumentFormModal } from './DocumentFormModal';
 import {
   WORKFLOW_STAGES,
@@ -194,8 +195,8 @@ export default function DocumentDetailPage() {
                       { label: 'Department', value: departmentLabel(doc.department) },
                       { label: 'Revision', value: doc.current_revision ?? '—' },
                       { label: 'Version', value: doc.version ?? '—' },
-                      { label: 'Owner', value: doc.owner_id ?? '—' },
-                      { label: 'Approved By', value: doc.approved_by ?? '—' },
+                      { label: 'Owner', value: <UserName id={doc.owner_id} /> },
+                      { label: 'Approved By', value: <UserName id={doc.approved_by} /> },
                       { label: 'AS9100 Clause', value: doc.as9100_clause ?? '—' },
                       { label: 'Effective', value: formatDate(doc.effective_date) },
                       { label: 'Last Review', value: formatDate(doc.last_review_date) },

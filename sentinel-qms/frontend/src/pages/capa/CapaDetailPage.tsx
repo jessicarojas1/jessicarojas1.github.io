@@ -11,6 +11,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { PrintButton } from '@/components/PrintButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { AttachmentsCard, DataList, DetailState } from '@/components/detail';
+import { UserName } from '@/components/UserName';
 import { SignatureModal, type SignaturePayload } from '@/components/SignatureModal';
 import { EightDStepper } from './EightDStepper';
 
@@ -94,7 +95,7 @@ export default function CapaDetailPage() {
                   <DataList
                     items={[
                       { label: 'Type', value: humanize(capa.capa_type) },
-                      { label: 'Owner', value: capa.owner_id ?? '—' },
+                      { label: 'Owner', value: <UserName id={capa.owner_id} /> },
                       { label: 'Root Cause Method', value: capa.root_cause_method ?? '—' },
                       { label: 'Due', value: formatDate(capa.due_date) },
                       { label: 'Closed', value: formatDate(capa.closed_at) },
@@ -125,7 +126,7 @@ export default function CapaDetailPage() {
                         label: 'Verified',
                         value: <StatusBadge status={capa.effectiveness_verified ? 'verified' : 'pending'} />,
                       },
-                      { label: 'Verified By', value: capa.effectiveness_verified_by ?? '—' },
+                      { label: 'Verified By', value: <UserName id={capa.effectiveness_verified_by} /> },
                       { label: 'Verified At', value: formatDateTime(capa.effectiveness_verified_at) },
                     ]}
                   />

@@ -65,6 +65,15 @@ class UserRead(ORMModel):
     created_at: datetime | None = None
 
 
+class UserLookup(ORMModel):
+    """Lightweight directory entry for resolving user IDs to names in the UI."""
+
+    id: int
+    full_name: str
+    email: EmailStr
+    is_active: bool
+
+
 class CurrentUser(BaseModel):
     """Lightweight principal attached to the request after authentication."""
 

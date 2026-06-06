@@ -38,3 +38,4 @@ export * from './useAnalytics';
 export * from './useAuditLogs';
 export * from './useUsers';
 export * from './usePermissions';
+export * from './useUserLookup';

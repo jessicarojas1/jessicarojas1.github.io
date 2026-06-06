@@ -7,13 +7,20 @@ from sqlalchemy.orm import Session
 
 from pydantic import BaseModel, Field
 
-from app.api.deps import Pagination, pagination_params, require_page
+from app.api.deps import Pagination, get_current_user, pagination_params, require_page
 from app.core import audit
 from app.core.database import get_db
 from app.core.exceptions import ConflictError, NotFoundError
 from app.core.security import hash_password
 from app.models.user import Role, User
-from app.schemas.auth import CurrentUser, RoleRead, UserCreate, UserRead, UserUpdate
+from app.schemas.auth import (
+    CurrentUser,
+    RoleRead,
+    UserCreate,
+    UserLookup,
+    UserRead,
+    UserUpdate,
+)
 from app.schemas.common import MessageOut, Page
 from app.services.crud import page_meta, request_context
 
@@ -93,6 +100,19 @@ def create_user(
     db.commit()
     db.refresh(user)
     return user
+
+
+@router.get("/lookup", response_model=list[UserLookup])
+def lookup_users(
+    db: Session = Depends(get_db),
+    _: CurrentUser = Depends(get_current_user),
+) -> list[User]:
+    """Lightweight directory for resolving user IDs to display names.
+
+    Available to ANY authenticated user (not admin-gated) so non-admin pages can
+    render owner/assignee/approver names instead of raw numeric IDs.
+    """
+    return db.execute(select(User).order_by(User.full_name)).scalars().all()
 
 
 @router.get("/{user_id}", response_model=UserRead)

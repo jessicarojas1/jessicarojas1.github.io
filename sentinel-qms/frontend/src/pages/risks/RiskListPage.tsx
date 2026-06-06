@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { riskHooks } from '@/hooks';
 import { useListController } from '@/hooks/useListController';
+import { useUserName } from '@/hooks/useUserLookup';
 import { getErrorMessage } from '@/lib/api';
 import { humanize } from '@/lib/format';
 import { usePagePerms } from '@/lib/permissions';
@@ -42,6 +43,7 @@ function LevelBadge({ rpn }: { rpn: number }) {
 export default function RiskListPage() {
   const navigate = useNavigate();
   const ctl = useListController({ sort: 'rpn', order: 'desc', page_size: 100 });
+  const userName = useUserName();
   const { canEdit } = usePagePerms();
   const [createOpen, setCreateOpen] = useState(false);
   const [activeCell, setActiveCell] = useState<string | null>(null);
@@ -78,7 +80,7 @@ export default function RiskListPage() {
     { key: 'residual_rpn', header: 'Residual', align: 'right', sortable: true, render: (r) => (r.residual_rpn != null ? <RpnBadge rpn={r.residual_rpn} /> : '—') },
     { key: 'treatment_strategy', header: 'Treatment', render: (r) => (r.treatment_strategy ? <span className="pill">{humanize(r.treatment_strategy)}</span> : '—') },
     { key: 'status', header: 'Status', sortable: true, render: (r) => <StatusBadge status={r.status} /> },
-    { key: 'owner_id', header: 'Owner', render: (r) => r.owner_id ?? '—' },
+    { key: 'owner_id', header: 'Owner', render: (r) => userName(r.owner_id) },
   ];
 
   return (

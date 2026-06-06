@@ -11,6 +11,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { PrintButton } from '@/components/PrintButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
+import { UserName } from '@/components/UserName';
 import { SignatureModal, type SignaturePayload } from '@/components/SignatureModal';
 
 export default function ChangeDetailPage() {
@@ -106,8 +107,8 @@ export default function ChangeDetailPage() {
                   <DataList
                     items={[
                       { label: 'Type', value: chg.change_type.toUpperCase() },
-                      { label: 'Requested By', value: chg.requested_by ?? '—' },
-                      { label: 'Owner', value: chg.owner_id ?? '—' },
+                      { label: 'Requested By', value: <UserName id={chg.requested_by} /> },
+                      { label: 'Owner', value: <UserName id={chg.owner_id} /> },
                       { label: 'Priority', value: humanize(chg.priority) },
                       { label: 'Target Date', value: formatDate(chg.target_date) },
                       { label: 'Approved', value: formatDate(chg.approved_at) },

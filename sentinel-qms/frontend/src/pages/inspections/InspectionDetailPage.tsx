@@ -7,6 +7,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { PrintButton } from '@/components/PrintButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
+import { UserName } from '@/components/UserName';
 
 export default function InspectionDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -81,7 +82,7 @@ export default function InspectionDetailPage() {
                     { label: 'Type', value: humanize(insp.inspection_type) },
                     { label: 'Revision', value: insp.fai_report?.part_revision ?? '—' },
                     { label: 'Drawing #', value: insp.fai_report?.drawing_number ?? '—' },
-                    { label: 'Inspector', value: insp.inspector_id ?? '—' },
+                    { label: 'Inspector', value: <UserName id={insp.inspector_id} /> },
                     { label: 'Result', value: <StatusBadge status={insp.result} /> },
                     { label: 'Inspected', value: formatDate(insp.inspection_date) },
                   ]}
