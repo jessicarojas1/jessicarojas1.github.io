@@ -11,6 +11,7 @@ from app.api.deps import (
     SortParams,
     pagination_params,
     require_page,
+    require_perm,
     sort_params,
 )
 from app.core import audit
@@ -198,7 +199,11 @@ def change_status(
     return co
 
 
-@router.post("/{change_id}/approve", response_model=ChangeOrderRead)
+@router.post(
+    "/{change_id}/approve",
+    response_model=ChangeOrderRead,
+    dependencies=[Depends(require_perm("changes.approve"))],
+)
 def approve_change(
     change_id: int,
     body: ChangeApproval,

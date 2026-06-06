@@ -16,6 +16,7 @@ from app.api.routers import (
     complaints,
     dashboard,
     documents,
+    iam,
     inspections,
     mgmt_reviews,
     nonconformances,
@@ -55,4 +56,5 @@ api_router.include_router(analytics.router)
 api_router.include_router(reports.router)
 api_router.include_router(notifications.router)
 api_router.include_router(permissions.router)
+api_router.include_router(iam.router)
 api_router.include_router(settings.router)

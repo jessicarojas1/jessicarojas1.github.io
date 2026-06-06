@@ -32,6 +32,7 @@ from app.models.change import (
 )
 from app.models.comment import Comment
 from app.models.complaint import Complaint, ComplaintSeverity, ComplaintStatus
+from app.models.iam import UserPermissionGrant
 from app.models.document import (
     Department,
     Document,
@@ -107,6 +108,7 @@ __all__ = [
     "Notification",
     "RolePagePermission",
     "UserPagePermission",
+    "UserPermissionGrant",
     "user_roles",
     "Department",
     "Document",
