@@ -156,6 +156,14 @@ browser store is only a fallback for static hosting (GitHub Pages).
 | `CITADEL_ADMIN_EMAIL` | `admin@citadel.local` | First-boot admin email (only used when no admin exists yet). |
 | `CITADEL_ADMIN_PASSWORD` | `citadel-admin` | First-boot admin password — **change it after first login.** |
 
+> **Persistence.** The store writes to `CITADEL_DATA_DIR`. On a host with a
+> persistent volume (a paid Render disk, an Azure/AWS volume), accounts and the
+> JWT secret survive restarts. On an **ephemeral filesystem (e.g. Render's free
+> tier)** there is no persistent disk: the store resets on every deploy, so the
+> seeded admin and any users you create are recreated each time. Set a fixed
+> `CITADEL_JWT_SECRET` in the dashboard to at least keep issued sessions valid
+> across redeploys; durable accounts require a persistent volume.
+
 ```bash
 # Log in and call a gated endpoint
 TOKEN=$(curl -sS -X POST http://localhost:8080/api/auth/login \
@@ -237,33 +245,27 @@ services:
     dockerContext: .
     plan: standard          # NOT free — needs ≥1GB RAM (2GB+ recommended)
     healthCheckPath: /api/health
-    # Persistent disk so the user store + JWT secret survive deploys.
-    disk:
-      name: citadel-data
-      mountPath: /var/lib/citadel
-      sizeGB: 1
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
         value: "8080"
-      - key: CITADEL_DATA_DIR        # where users.json + the JWT secret live
-        value: /var/lib/citadel
-      - key: CITADEL_JWT_SECRET      # stable signing key, minted once & reused
-        generateValue: true
-      - key: CITADEL_ADMIN_EMAIL     # optional first-boot admin override
-        sync: false
-      - key: CITADEL_ADMIN_PASSWORD  # optional — else seeds the documented default
+      # Set a fixed value in the dashboard so JWT sessions survive redeploys.
+      - key: CITADEL_JWT_SECRET
         sync: false
 ```
 
 Render terminates TLS for you and routes to port 8080. The container's own
 healthcheck and Render's `/api/health` probe are complementary.
 
-> The container runs as numeric `USER 10001`, so Render chowns the disk mount
-> to that UID — no extra permission setup is needed. **Without the disk** the
-> filesystem is ephemeral: the seeded admin and any users you create reset on
-> every deploy/restart (the server logs a `cannot persist user store` warning).
+> **Account persistence.** Render's filesystem is ephemeral, so the user store
+> resets on every deploy/restart and the server logs a `cannot persist user
+> store` warning. To keep accounts durable, attach a **persistent disk** (paid
+> tiers) and point `CITADEL_DATA_DIR` at its mount path — e.g. a 1 GB disk at
+> `/var/lib/citadel` with `CITADEL_DATA_DIR=/var/lib/citadel`. The container
+> runs as numeric `USER 10001`, so Render chowns the disk mount to that UID with
+> no extra setup. On the **free tier** (no disks), set a fixed
+> `CITADEL_JWT_SECRET` so at least issued sessions survive redeploys.
 
 ---
 
