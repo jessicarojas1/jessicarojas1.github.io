@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { History } from 'lucide-react';
-import { useAuditLogs } from '@/hooks';
-import { useDebounced } from '@/hooks';
+import { useAuditLogs, useDebounced } from '@/hooks';
 import { getErrorMessage } from '@/lib/api';
 import { formatDateTime, humanize } from '@/lib/format';
 import { PageHeader } from '@/components/PageHeader';

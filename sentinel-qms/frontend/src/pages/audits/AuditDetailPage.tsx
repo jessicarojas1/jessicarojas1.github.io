@@ -4,6 +4,7 @@ import { auditHooks } from '@/hooks';
 import { getErrorMessage } from '@/lib/api';
 import { formatDate, humanize } from '@/lib/format';
 import { PageHeader } from '@/components/PageHeader';
+import { PrintButton } from '@/components/PrintButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
 
@@ -29,6 +30,7 @@ export default function AuditDetailPage() {
             }
             subtitle={audit.title}
             breadcrumbs={[{ label: 'Audits', to: '/audits' }, { label: audit.audit_number }]}
+            actions={<PrintButton />}
           />
 
           <div className="detail-grid">

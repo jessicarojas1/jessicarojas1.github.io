@@ -8,6 +8,7 @@ import { getErrorMessage } from '@/lib/api';
 import { formatDate, formatDateTime, humanize } from '@/lib/format';
 import { useToast } from '@/lib/toast';
 import { PageHeader } from '@/components/PageHeader';
+import { PrintButton } from '@/components/PrintButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import {
   AttachmentsCard,
@@ -63,20 +64,23 @@ export default function NcrDetailPage() {
               { label: ncr.ncr_number },
             ]}
             actions={
-              canDisposition && (
-                <>
-                  {!disposition && ncr.status !== 'closed' && (
-                    <button type="button" className="btn btn-primary" onClick={() => setDispOpen(true)}>
-                      <Gavel size={16} /> Disposition
-                    </button>
-                  )}
-                  {disposition && ncr.status !== 'closed' && (
-                    <button type="button" className="btn" onClick={() => setCloseOpen(true)}>
-                      <CheckCircle2 size={16} /> Close NCR
-                    </button>
-                  )}
-                </>
-              )
+              <>
+                <PrintButton />
+                {canDisposition && (
+                  <>
+                    {!disposition && ncr.status !== 'closed' && (
+                      <button type="button" className="btn btn-primary" onClick={() => setDispOpen(true)}>
+                        <Gavel size={16} /> Disposition
+                      </button>
+                    )}
+                    {disposition && ncr.status !== 'closed' && (
+                      <button type="button" className="btn" onClick={() => setCloseOpen(true)}>
+                        <CheckCircle2 size={16} /> Close NCR
+                      </button>
+                    )}
+                  </>
+                )}
+              </>
             }
           />
 

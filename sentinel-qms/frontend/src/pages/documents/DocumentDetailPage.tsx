@@ -8,6 +8,7 @@ import { getErrorMessage } from '@/lib/api';
 import { formatDate } from '@/lib/format';
 import { useToast } from '@/lib/toast';
 import { PageHeader } from '@/components/PageHeader';
+import { PrintButton } from '@/components/PrintButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { AttachmentsCard, DataList, DetailState } from '@/components/detail';
 import { SignatureModal, type SignaturePayload } from '@/components/SignatureModal';
