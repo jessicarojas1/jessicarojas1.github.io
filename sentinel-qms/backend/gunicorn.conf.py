@@ -8,7 +8,10 @@ import os
 # Honour an explicit GUNICORN_BIND, otherwise bind the platform-provided PORT
 # (Render/Heroku/Cloud Run set this) and fall back to 8000 for local/compose.
 bind = os.getenv("GUNICORN_BIND") or f"0.0.0.0:{os.getenv('PORT', '8000')}"
-workers = int(os.getenv("WEB_CONCURRENCY", multiprocessing.cpu_count() * 2 + 1))
+# Honour WEB_CONCURRENCY; otherwise size to the CPU but cap the default so small
+# instances (e.g. a 512 MB free tier that reports many host CPUs) don't OOM.
+_default_workers = min(multiprocessing.cpu_count() * 2 + 1, 4)
+workers = int(os.getenv("WEB_CONCURRENCY", _default_workers))
 worker_class = "uvicorn.workers.UvicornWorker"
 threads = int(os.getenv("GUNICORN_THREADS", "1"))
 

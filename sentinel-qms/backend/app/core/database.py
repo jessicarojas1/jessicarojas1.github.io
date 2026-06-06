@@ -37,11 +37,16 @@ if DB_SCHEMA and not settings.DATABASE_URL.startswith("sqlite"):
 
     @event.listens_for(engine, "connect")
     def _set_search_path(dbapi_connection, connection_record):  # noqa: ANN001
+        # Commit the SET immediately (autocommit) so it survives later
+        # transaction rollbacks — the SQLAlchemy-recommended recipe.
+        previous_autocommit = dbapi_connection.autocommit
+        dbapi_connection.autocommit = True
         cursor = dbapi_connection.cursor()
         try:
-            cursor.execute(f'SET search_path TO "{DB_SCHEMA}", public')
+            cursor.execute(f'SET SESSION search_path TO "{DB_SCHEMA}", public')
         finally:
             cursor.close()
+        dbapi_connection.autocommit = previous_autocommit
 
 
 SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False, expire_on_commit=False)
