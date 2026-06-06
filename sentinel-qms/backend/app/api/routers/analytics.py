@@ -117,7 +117,17 @@ def trends(
         "complaint": _count_open(db, Complaint, _COMPLAINT_OPEN),
         "risk": _count_open(db, Risk, _RISK_OPEN),
         "change": _count_open(db, ChangeOrder, _CHANGE_OPEN),
-        "inspection": _count_open(db, Inspection, [InspectionResult.PENDING]),
+        # Inspections track state via `result`, not `status`.
+        "inspection": int(
+            db.execute(
+                select(func.count())
+                .select_from(Inspection)
+                .where(
+                    Inspection.result == InspectionResult.PENDING,
+                    Inspection.is_deleted.is_(False),
+                )
+            ).scalar_one()
+        ),
     }
 
     nc_by_severity = {sev.value: 0 for sev in NcSeverity}
