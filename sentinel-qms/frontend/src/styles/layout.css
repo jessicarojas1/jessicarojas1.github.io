@@ -274,9 +274,16 @@
 .login-shell {
   min-height: 100vh;
   display: grid;
+  grid-template-columns: 1fr;
   grid-template-rows: var(--cui-h) 1fr var(--cui-h);
+  grid-template-areas:
+    'cui-top'
+    'login-main'
+    'cui-bot';
 }
 .login-main {
+  grid-area: login-main;
+  position: relative;
   display: grid;
   place-items: center;
   padding: var(--space-5);
