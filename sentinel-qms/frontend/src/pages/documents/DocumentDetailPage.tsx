@@ -17,6 +17,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { PrintButton } from '@/components/PrintButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
+import { RecordSupplements } from '@/components/RecordSupplements';
 import { UserName } from '@/components/UserName';
 import { DocumentFormModal } from './DocumentFormModal';
 import {
@@ -207,6 +208,8 @@ export default function DocumentDetailPage() {
               </div>
             </div>
           </div>
+
+          <RecordSupplements entityType="document" entityId={doc.id} canEditPage="documents" />
 
           <DocumentFormModal
             open={editOpen}

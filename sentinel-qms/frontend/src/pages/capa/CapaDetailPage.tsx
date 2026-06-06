@@ -10,7 +10,8 @@ import { useToast } from '@/lib/toast';
 import { PageHeader } from '@/components/PageHeader';
 import { PrintButton } from '@/components/PrintButton';
 import { StatusBadge } from '@/components/StatusBadge';
-import { AttachmentsCard, DataList, DetailState } from '@/components/detail';
+import { DataList, DetailState } from '@/components/detail';
+import { RecordSupplements } from '@/components/RecordSupplements';
 import { UserName } from '@/components/UserName';
 import { SignatureModal, type SignaturePayload } from '@/components/SignatureModal';
 import { EightDStepper } from './EightDStepper';
@@ -139,9 +140,10 @@ export default function CapaDetailPage() {
                 </div>
               </div>
 
-              <AttachmentsCard attachments={capa.attachments} />
             </div>
           </div>
+
+          <RecordSupplements entityType="capa" entityId={capa.id} canEditPage="capa" />
 
           <SignatureModal
             open={sigOpen}

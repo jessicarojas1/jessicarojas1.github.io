@@ -7,6 +7,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { PrintButton } from '@/components/PrintButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
+import { RecordSupplements } from '@/components/RecordSupplements';
 import { UserName } from '@/components/UserName';
 
 export default function InspectionDetailPage() {
@@ -90,6 +91,8 @@ export default function InspectionDetailPage() {
               </div>
             </div>
           </div>
+
+          <RecordSupplements entityType="inspection" entityId={insp.id} canEditPage="inspections" />
         </>
       )}
     </DetailState>

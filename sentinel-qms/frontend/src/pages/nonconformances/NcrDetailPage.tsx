@@ -10,12 +10,8 @@ import { useToast } from '@/lib/toast';
 import { PageHeader } from '@/components/PageHeader';
 import { PrintButton } from '@/components/PrintButton';
 import { StatusBadge } from '@/components/StatusBadge';
-import {
-  AttachmentsCard,
-  AuditTrailCard,
-  DataList,
-  DetailState,
-} from '@/components/detail';
+import { DataList, DetailState } from '@/components/detail';
+import { RecordSupplements } from '@/components/RecordSupplements';
 import { UserName } from '@/components/UserName';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { DispositionModal } from './DispositionModal';
@@ -161,10 +157,10 @@ export default function NcrDetailPage() {
                   />
                 </div>
               </div>
-              <AttachmentsCard attachments={ncr.attachments} />
-              <AuditTrailCard entries={ncr.audit_trail} />
             </div>
           </div>
+
+          <RecordSupplements entityType="nonconformance" entityId={ncr.id} canEditPage="nonconformances" />
 
           {id && <DispositionModal open={dispOpen} ncrId={id} onClose={() => setDispOpen(false)} />}
           <ConfirmDialog
