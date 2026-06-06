@@ -24,6 +24,11 @@ const roleSlug = (name: string): Role =>
 
 const roleLabel = (name: string): string => ROLE_LABELS[roleSlug(name)] ?? name;
 
+/** The /users API returns roles as objects ({id,name,...}); be tolerant of
+ *  either a server role object or a slug/name string. */
+const roleName = (role: unknown): string =>
+  typeof role === 'string' ? role : ((role as { name?: string } | null)?.name ?? '');
+
 /* -------------------------------------------------------------------------- */
 /* Create / Edit form                                                          */
 /* -------------------------------------------------------------------------- */
@@ -31,7 +36,7 @@ const roleLabel = (name: string): string => ROLE_LABELS[roleSlug(name)] ?? name;
 const createSchema = z.object({
   email: z.string().email('A valid email is required'),
   full_name: z.string().min(2, 'Full name is required'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  password: z.string().min(12, 'Password must be at least 12 characters'),
   department: z.string().optional(),
   is_active: z.boolean(),
 });
@@ -44,7 +49,7 @@ const editSchema = z.object({
   password: z
     .string()
     .optional()
-    .refine((v) => !v || v.length >= 8, 'Password must be at least 8 characters'),
+    .refine((v) => !v || v.length >= 12, 'Password must be at least 12 characters'),
 });
 type EditValues = z.infer<typeof editSchema>;
 
@@ -114,7 +119,7 @@ function CreateUserModal({ open, onClose }: { open: boolean; onClose: () => void
       return;
     }
     try {
-      await create.mutateAsync({ ...values, roles } as unknown as Partial<User>);
+      await create.mutateAsync({ ...values, role_names: roles } as unknown as Partial<User>);
       notify(`User ${values.email} created`, 'success');
       close();
     } catch (err) {
@@ -191,7 +196,11 @@ function EditUserModal({ user, onClose }: { user: User; onClose: () => void }) {
   // Map the user's slug roles back to the server role names used as option keys.
   const initialRoles = useMemo(() => {
     return roleOptions
-      .filter((opt) => user.roles.includes(roleSlug(opt.name)))
+      .filter((opt) =>
+        (user.roles as unknown[]).some(
+          (rr) => roleName(rr) === opt.name || roleSlug(roleName(rr)) === roleSlug(opt.name),
+        ),
+      )
       .map((opt) => opt.name);
   }, [roleOptions, user.roles]);
 
@@ -222,7 +231,7 @@ function EditUserModal({ user, onClose }: { user: User; onClose: () => void }) {
       full_name: values.full_name,
       department: values.department || undefined,
       is_active: values.is_active,
-      roles,
+      role_names: roles,
     };
     if (values.password) payload.password = values.password;
     try {
@@ -307,8 +316,8 @@ function ResetPasswordModal({ user, onClose }: { user: User; onClose: () => void
   const [error, setError] = useState<string | null>(null);
 
   const submit = async () => {
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters');
+    if (password.length < 12) {
+      setError('Password must be at least 12 characters');
       return;
     }
     try {
@@ -345,7 +354,7 @@ function ResetPasswordModal({ user, onClose }: { user: User; onClose: () => void
           autoComplete="new-password"
           onChange={(e) => {
             setPassword(e.target.value);
-            if (e.target.value.length >= 8) setError(null);
+            if (e.target.value.length >= 12) setError(null);
           }}
         />
       </FormField>
@@ -396,11 +405,14 @@ export default function UsersPage() {
       header: 'Roles',
       render: (r) => (
         <div className="tag-list">
-          {r.roles.map((role) => (
-            <span key={role} className="pill">
-              {ROLE_LABELS[role] ?? role}
-            </span>
-          ))}
+          {(r.roles as unknown[]).map((role) => {
+            const name = roleName(role);
+            return (
+              <span key={name} className="pill">
+                {roleLabel(name)}
+              </span>
+            );
+          })}
         </div>
       ),
     },
