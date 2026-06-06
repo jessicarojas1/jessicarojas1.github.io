@@ -16,6 +16,7 @@ import {
   DataList,
   DetailState,
 } from '@/components/detail';
+import { UserName } from '@/components/UserName';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { DispositionModal } from './DispositionModal';
 
@@ -102,7 +103,7 @@ export default function NcrDetailPage() {
                       { label: 'Qty Affected', value: ncr.quantity_affected ?? '—' },
                       { label: 'Work Order', value: ncr.work_order ?? '—' },
                       { label: 'Detected', value: formatDateTime(ncr.detected_at) },
-                      { label: 'Assigned To', value: ncr.assigned_to ?? 'Unassigned' },
+                      { label: 'Assigned To', value: ncr.assigned_to == null ? 'Unassigned' : <UserName id={ncr.assigned_to} /> },
                     ]}
                   />
                 </div>

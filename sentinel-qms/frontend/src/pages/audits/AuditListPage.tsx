@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ScrollText, Plus, CalendarClock, PlayCircle, CheckCircle2, AlertCircle } from 'lucide-react';
 import { auditHooks } from '@/hooks';
 import { useListController } from '@/hooks/useListController';
+import { useUserName } from '@/hooks/useUserLookup';
 import { getErrorMessage } from '@/lib/api';
 import { formatDate, humanize, isOverdue } from '@/lib/format';
 import { usePagePerms } from '@/lib/permissions';
@@ -16,6 +17,7 @@ import type { Audit } from '@/types';
 export default function AuditListPage() {
   const navigate = useNavigate();
   const ctl = useListController({ sort: 'planned_date', order: 'desc', page_size: 100 });
+  const userName = useUserName();
   const { canEdit } = usePagePerms();
   const [createOpen, setCreateOpen] = useState(false);
   const { data, isLoading, error } = auditHooks.useList(ctl.params);
@@ -49,7 +51,7 @@ export default function AuditListPage() {
     },
     { key: 'auditee_area', header: 'Auditee Area', render: (r) => r.auditee_area ?? '—' },
     { key: 'standard', header: 'Standard', render: (r) => r.standard ?? '—' },
-    { key: 'lead_auditor_id', header: 'Lead Auditor', render: (r) => r.lead_auditor_id ?? '—' },
+    { key: 'lead_auditor_id', header: 'Lead Auditor', render: (r) => userName(r.lead_auditor_id) },
     {
       key: 'planned_date',
       header: 'Planned',

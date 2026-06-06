@@ -7,6 +7,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { PrintButton } from '@/components/PrintButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
+import { UserName } from '@/components/UserName';
 
 export default function ComplaintDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -58,7 +59,7 @@ export default function ComplaintDetailPage() {
                       { label: 'Part Number', value: c.part_number ?? '—' },
                       { label: 'Serial Number', value: c.serial_number ?? '—' },
                       { label: 'RMA Number', value: c.rma_number ?? '—' },
-                      { label: 'Assigned To', value: c.assigned_to ?? 'Unassigned' },
+                      { label: 'Assigned To', value: c.assigned_to == null ? 'Unassigned' : <UserName id={c.assigned_to} /> },
                       { label: 'Received', value: formatDate(c.received_date) },
                       { label: 'Closed', value: formatDateTime(c.closed_at) },
                     ]}

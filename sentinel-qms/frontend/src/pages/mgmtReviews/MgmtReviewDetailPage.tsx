@@ -7,6 +7,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { PrintButton } from '@/components/PrintButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
+import { UserName } from '@/components/UserName';
 import type { ReviewInput } from '@/types';
 
 function InputsCard({ title, items }: { title: string; items?: ReviewInput[] }) {
@@ -71,7 +72,7 @@ export default function MgmtReviewDetailPage() {
                         mr.action_items.map((a) => (
                           <tr key={a.id}>
                             <td>{a.description}</td>
-                            <td>{a.owner_id ?? '—'}</td>
+                            <td><UserName id={a.owner_id} /></td>
                             <td>{formatDate(a.due_date)}</td>
                             <td><StatusBadge status={a.status} /></td>
                           </tr>
@@ -91,7 +92,7 @@ export default function MgmtReviewDetailPage() {
                 <div className="card__body">
                   <DataList
                     items={[
-                      { label: 'Chairperson', value: mr.chairperson_id ?? '—' },
+                      { label: 'Chairperson', value: <UserName id={mr.chairperson_id} /> },
                       { label: 'Meeting Date', value: formatDate(mr.meeting_date) },
                     ]}
                   />

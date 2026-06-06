@@ -8,6 +8,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { PrintButton } from '@/components/PrintButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
+import { UserName } from '@/components/UserName';
 import type { FindingType } from '@/types';
 
 const FINDING_TONE: Record<FindingType, string> = {
@@ -72,7 +73,7 @@ export default function AuditDetailPage() {
             </div>
             <div className="audit-kpi">
               <div className="audit-kpi__label">Lead Auditor</div>
-              <div className="audit-kpi__value">{audit.lead_auditor_id ?? 'Unassigned'}</div>
+              <div className="audit-kpi__value">{audit.lead_auditor_id == null ? 'Unassigned' : <UserName id={audit.lead_auditor_id} />}</div>
             </div>
             <div className="audit-kpi">
               <div className="audit-kpi__label">Findings</div>
@@ -145,7 +146,7 @@ export default function AuditDetailPage() {
                     { label: 'Type', value: humanize(audit.audit_type) },
                     { label: 'Standard', value: audit.standard ?? '—' },
                     { label: 'Scope', value: audit.scope ?? '—' },
-                    { label: 'Lead Auditor', value: audit.lead_auditor_id ?? '—' },
+                    { label: 'Lead Auditor', value: <UserName id={audit.lead_auditor_id} /> },
                     { label: 'Auditee Area', value: audit.auditee_area ?? '—' },
                     { label: 'Planned', value: formatDate(audit.planned_date) },
                     { label: 'Actual', value: formatDate(audit.actual_date) },
