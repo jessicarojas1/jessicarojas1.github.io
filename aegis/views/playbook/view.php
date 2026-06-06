@@ -34,7 +34,7 @@ $sevColor = $severityColors[strtolower($playbook['severity_filter'] ?? '')] ?? n
           <?= Security::h(ucfirst($playbook['severity_filter'])) ?> severity
         </span>
       <?php endif; ?>
-      <span class="status-chip" style="background:<?= $isActive ? '#05966920' : '#a1a1aa20' ?>;color:<?= $isActive ? '#059669' : '#a1a1aa' ?>;border:1px solid <?= $isActive ? '#05966940' : '#a1a1aa40' ?>">
+      <span class="status-chip" style="background:<?= $isActive ? 'color-mix(in srgb,var(--success) 20%,transparent)' : 'color-mix(in srgb,var(--text-muted) 20%,transparent)' ?>;color:<?= $isActive ? 'var(--success)' : '#a1a1aa' ?>;border:1px solid <?= $isActive ? 'color-mix(in srgb,var(--success) 40%,transparent)' : '#a1a1aa40' ?>">
         <?= $isActive ? 'Active' : 'Inactive' ?>
       </span>
     </div>
@@ -129,7 +129,7 @@ $sevColor = $severityColors[strtolower($playbook['severity_filter'] ?? '')] ?? n
     <div class="card">
       <div class="card-header">
         <div class="card-header-left">
-          <i class="bi bi-play-circle" style="color:#059669"></i>
+          <i class="bi bi-play-circle" style="color:var(--success)"></i>
           <span class="card-title">Recent Runs</span>
         </div>
       </div>
@@ -159,7 +159,7 @@ $sevColor = $severityColors[strtolower($playbook['severity_filter'] ?? '')] ?? n
                   <td class="text-sm text-muted"><?= $run['completed_at'] ? date('M j, Y g:ia', strtotime($run['completed_at'])) : '—' ?></td>
                   <td>
                     <?php if ($run['completed_at']): ?>
-                      <span class="status-chip" style="background:#05966920;color:#059669;border:1px solid #05966940">Complete</span>
+                      <span class="status-chip" style="background:color-mix(in srgb,var(--success) 20%,transparent);color:var(--success);border:1px solid color-mix(in srgb,var(--success) 40%,transparent)">Complete</span>
                     <?php else: ?>
                       <span class="status-chip" style="background:#d9770620;color:#d97706;border:1px solid #d9770640">In Progress</span>
                     <?php endif; ?>
@@ -191,7 +191,7 @@ $sevColor = $severityColors[strtolower($playbook['severity_filter'] ?? '')] ?? n
             ['Severity Filter', $playbook['severity_filter'] ? '<span class="status-chip" style="background:' . ($sevColor??'#71717a') . '20;color:' . ($sevColor??'#71717a') . '">' . Security::h(ucfirst($playbook['severity_filter'])) . '</span>' : 'Any'],
             ['Steps',         count($steps)],
             ['Runs',          count($runs)],
-            ['Status',        $isActive ? '<span class="status-chip" style="background:#05966920;color:#059669">Active</span>' : '<span class="status-chip" style="background:#a1a1aa20;color:#a1a1aa">Inactive</span>'],
+            ['Status',        $isActive ? '<span class="status-chip" style="background:color-mix(in srgb,var(--success) 20%,transparent);color:var(--success)">Active</span>' : '<span class="status-chip" style="background:color-mix(in srgb,var(--text-muted) 20%,transparent);color:#a1a1aa">Inactive</span>'],
             ['Created By',    Security::h($playbook['creator_name'] ?? '—')],
             ['Created',       date('M j, Y', strtotime($playbook['created_at']))],
             ['Updated',       date('M j, Y', strtotime($playbook['updated_at']))],

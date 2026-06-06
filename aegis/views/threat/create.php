@@ -32,7 +32,7 @@ $breadcrumbs = $breadcrumbs ?? [['Threat Register', '/threat'], ['New Threat', n
 
         <!-- Title -->
         <div class="form-group">
-          <label class="form-label required">Title <span style="color:#ef4444;">*</span></label>
+          <label class="form-label required">Title <span style="color:var(--danger);">*</span></label>
           <input type="text" name="title" class="form-control"
                  placeholder="e.g. Phishing Campaign, Ransomware Attack, Regulatory Non-Compliance"
                  value="<?= Security::h($_POST['title'] ?? '') ?>" required>
@@ -193,10 +193,10 @@ $breadcrumbs = $breadcrumbs ?? [['Threat Register', '/threat'], ['New Threat', n
         <div class="card-body" style="font-size:13px;">
           <?php
           $guide = [
-              ['1 – 4',  '#f0fdf4', '#16a34a', 'Low',      'Minimal risk. Unlikely to occur or negligible impact.'],
-              ['5 – 9',  '#fffbeb', '#d97706', 'Medium',   'Moderate risk. Should be monitored and controlled.'],
-              ['10 – 16','#fff7ed', '#ea580c', 'High',     'Significant risk. Requires active mitigation.'],
-              ['17 – 25','#fef2f2', '#dc2626', 'Critical', 'Severe risk. Immediate treatment required.'],
+              ['1 – 4',  'var(--success-subtle)', 'var(--primary)',  'Low',      'Minimal risk. Unlikely to occur or negligible impact.'],
+              ['5 – 9',  'var(--warning-subtle)', 'var(--warning)',  'Medium',   'Moderate risk. Should be monitored and controlled.'],
+              ['10 – 16','var(--warning-subtle)', 'var(--orange)',   'High',     'Significant risk. Requires active mitigation.'],
+              ['17 – 25','var(--danger-subtle)',  'var(--danger)',   'Critical', 'Severe risk. Immediate treatment required.'],
           ];
           foreach ($guide as [$range, $bg, $color, $label, $desc]):
           ?>

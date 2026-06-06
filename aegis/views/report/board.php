@@ -609,8 +609,8 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
           <td style="padding:10px 12px;text-align:center;font-weight:700;">
             <?= $val !== null ? Security::h((string)$val) . ($kri['unit'] ? ' ' . Security::h($kri['unit']) : '') : '—' ?>
           </td>
-          <td style="padding:10px 12px;text-align:center;color:#d97706;font-weight:600;"><?= $amber !== null ? Security::h((string)$amber) : '—' ?></td>
-          <td style="padding:10px 12px;text-align:center;color:#dc2626;font-weight:600;"><?= $red !== null ? Security::h((string)$red) : '—' ?></td>
+          <td style="padding:10px 12px;text-align:center;color:var(--warning);font-weight:600;"><?= $amber !== null ? Security::h((string)$amber) : '—' ?></td>
+          <td style="padding:10px 12px;text-align:center;color:var(--danger);font-weight:600;"><?= $red !== null ? Security::h((string)$red) : '—' ?></td>
           <td style="padding:10px 12px;text-align:center;">
             <span style="display:inline-flex;align-items:center;gap:5px;background:<?= $ragColor ?>18;color:<?= $ragColor ?>;font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;">
               <span class="rag-dot" style="background:<?= $ragColor ?>;"></span><?= $ragLabel ?>
@@ -622,7 +622,7 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
       </tbody>
     </table>
     <?php else: ?>
-    <p style="text-align:center;color:#a1a1aa;padding:24px;">No active KRIs configured.</p>
+    <p style="text-align:center;color:var(--text-muted);padding:24px;">No active KRIs configured.</p>
     <?php endif; ?>
   </div>
 </div>
@@ -645,7 +645,7 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
       <tbody>
         <?php foreach ($upcomingReviews as $ur):
           $sc2 = (int)($ur['inherent_score'] ?? 0);
-          $sc2_cl = $sc2 > 14 ? '#dc2626' : ($sc2 >= 10 ? '#d97706' : '#71717a');
+          $sc2_cl = $sc2 > 14 ? 'var(--danger)' : ($sc2 >= 10 ? 'var(--warning)' : 'var(--text-muted)');
         ?>
         <tr style="border-bottom:1px solid #f4f4f5;">
           <td style="padding:10px 12px;font-size:11px;font-weight:700;color:var(--primary);"><?= Security::h($ur['risk_id'] ?? '—') ?></td>
