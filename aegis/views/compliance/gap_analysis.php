@@ -23,11 +23,11 @@ $pkgsWithGaps = count(array_unique(array_column($gaps, 'package_name')));
 <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px">
   <?php
   $kpis = [
-    ['Total Gaps',      $totalGaps,    'bi-exclamation-circle', '#d97706', 'rgba(217,119,6,.1)'],
-    ['Overdue',         $overdueGaps,  'bi-clock-fill',         '#dc2626', 'rgba(220,38,38,.1)'],
-    ['Not Started',     $notStarted,   'bi-circle',             '#6b7280', 'rgba(107,114,128,.1)'],
-    ['In Progress',     $inProgress,   'bi-arrow-repeat',       '#2563eb', 'rgba(37,99,235,.1)'],
-    ['Packages Affected',$pkgsWithGaps,'bi-grid-3x3-gap',       '#7c3aed', 'rgba(124,58,237,.1)'],
+    ['Total Gaps',      $totalGaps,    'bi-exclamation-circle', 'var(--warning)', 'rgba(217,119,6,.1)'],
+    ['Overdue',         $overdueGaps,  'bi-clock-fill',         'var(--danger)',  'rgba(220,38,38,.1)'],
+    ['Not Started',     $notStarted,   'bi-circle',             'var(--text-muted)', 'rgba(107,114,128,.1)'],
+    ['In Progress',     $inProgress,   'bi-arrow-repeat',       'var(--info)',    'rgba(37,99,235,.1)'],
+    ['Packages Affected',$pkgsWithGaps,'bi-grid-3x3-gap',       'var(--purple)',  'rgba(124,58,237,.1)'],
   ];
   foreach ($kpis as [$label, $val, $icon, $color, $bg]):
   ?>
@@ -56,12 +56,12 @@ $pkgsWithGaps = count(array_unique(array_column($gaps, 'package_name')));
     $notStr      = (int)$pkg['not_started'];
     $overdue     = (int)$pkg['overdue'];
     $pct         = round($implemented / $total * 100);
-    $pctColor    = $pct >= 80 ? '#059669' : ($pct >= 50 ? '#d97706' : '#dc2626');
+    $pctColor    = $pct >= 80 ? 'var(--success)' : ($pct >= 50 ? 'var(--warning)' : 'var(--danger)');
   ?>
   <div class="card" style="padding:0">
     <div class="card-body" style="padding:16px">
       <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:12px">
-        <span style="font-size:11px;font-weight:700;background:rgba(91,33,182,.12);color:#7c3aed;padding:3px 8px;border-radius:6px;white-space:nowrap;margin-top:2px;flex-shrink:0">
+        <span style="font-size:11px;font-weight:700;background:var(--bg-subtle);color:var(--purple);padding:3px 8px;border-radius:6px;white-space:nowrap;margin-top:2px;flex-shrink:0">
           <?= Security::h($pkg['standard_code']) ?>
         </span>
         <div style="min-width:0">
@@ -156,24 +156,24 @@ $pkgsWithGaps = count(array_unique(array_column($gaps, 'package_name')));
                          && ($gap['status'] ?? '') !== 'implemented';
             if ($isOverdue) {
               $statusLabel = 'Overdue';
-              $statusBg    = 'rgba(220,38,38,.12)';
-              $statusColor = '#dc2626';
+              $statusBg    = 'var(--danger-subtle)';
+              $statusColor = 'var(--danger)';
             } elseif (($gap['status'] ?? '') === 'in_progress') {
               $statusLabel = 'In Progress';
-              $statusBg    = 'rgba(37,99,235,.12)';
-              $statusColor = '#2563eb';
+              $statusBg    = 'var(--info-subtle)';
+              $statusColor = 'var(--info)';
             } else {
               $statusLabel = $gap['status'] ? ucwords(str_replace('_',' ',$gap['status'])) : 'Not Started';
-              $statusBg    = 'rgba(107,114,128,.1)';
+              $statusBg    = 'var(--bg-subtle)';
               $statusColor = 'var(--text-muted)';
             }
-            $dueDateColor = ($gap['due_date'] && strtotime($gap['due_date']) < time()) ? '#dc2626' : 'var(--text)';
+            $dueDateColor = ($gap['due_date'] && strtotime($gap['due_date']) < time()) ? 'var(--danger)' : 'var(--text)';
             $gapStatus = $isOverdue ? 'overdue' : (($gap['status'] ?? '') ?: 'not_started');
           ?>
           <tr data-framework="<?= Security::h($gap['standard_code'] ?? '') ?>"
               data-status="<?= Security::h($gapStatus) ?>">
             <td>
-              <span style="font-size:11px;font-weight:700;background:rgba(91,33,182,.12);color:#7c3aed;padding:2px 7px;border-radius:5px">
+              <span style="font-size:11px;font-weight:700;background:var(--bg-subtle);color:var(--purple);padding:2px 7px;border-radius:5px">
                 <?= Security::h($gap['standard_code']) ?>
               </span>
             </td>
@@ -243,7 +243,7 @@ $pkgsWithGaps = count(array_unique(array_column($gaps, 'package_name')));
             $cfFrameworks  = explode(', ', $cf['frameworks'] ?? '');
             $cfCount       = (int)$cf['framework_count'];
             $cfImplemented = (int)$cf['implemented_in'];
-            $priority      = $cfCount >= 3 ? '#dc2626' : ($cfCount === 2 ? '#d97706' : 'var(--text-secondary)');
+            $priority      = $cfCount >= 3 ? 'var(--danger)' : ($cfCount === 2 ? 'var(--warning)' : 'var(--text-muted)');
           ?>
           <tr>
             <td style="font-size:13px;font-weight:500">
@@ -254,7 +254,7 @@ $pkgsWithGaps = count(array_unique(array_column($gaps, 'package_name')));
             <td>
               <div style="display:flex;flex-wrap:wrap;gap:5px">
                 <?php foreach ($cfFrameworks as $fw): ?>
-                <span style="font-size:11px;font-weight:700;background:rgba(91,33,182,.12);color:#7c3aed;padding:2px 7px;border-radius:5px">
+                <span style="font-size:11px;font-weight:700;background:var(--bg-subtle);color:var(--purple);padding:2px 7px;border-radius:5px">
                   <?= Security::h(trim($fw)) ?>
                 </span>
                 <?php endforeach; ?>

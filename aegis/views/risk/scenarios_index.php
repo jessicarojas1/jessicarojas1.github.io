@@ -59,14 +59,14 @@ function scIdxLevelClass(int $s): string {
   </div>
   <div class="sc-stat">
     <div class="num <?= $highestScore > 14 ? 'text-danger' : ($highestScore > 9 ? '' : '') ?>"
-         style="color:<?= $highestScore > 14 ? '#dc2626' : ($highestScore > 9 ? '#f97316' : ($highestScore > 4 ? '#d97706' : '#16a34a')) ?>">
+         style="color:<?= $highestScore > 14 ? 'var(--danger)' : ($highestScore > 9 ? 'var(--orange)' : ($highestScore > 4 ? 'var(--warning)' : 'var(--success)')) ?>">
       <?= $highestScore ?>
     </div>
     <div class="lbl">Highest Scenario Score</div>
   </div>
   <?php if ($totalFinancial > 0): ?>
   <div class="sc-stat">
-    <div class="num" style="font-size:18px;color:#16a34a">$<?= number_format($totalFinancial, 0) ?></div>
+    <div class="num" style="font-size:18px;color:var(--success)">$<?= number_format($totalFinancial, 0) ?></div>
     <div class="lbl">Total Financial Exposure</div>
   </div>
   <?php endif; ?>
@@ -163,11 +163,11 @@ function scIdxLevelClass(int $s): string {
 
           <td style="padding:10px 12px;text-align:center;white-space:nowrap">
             <?php if ($delta > 0): ?>
-              <span style="display:inline-flex;align-items:center;gap:2px;font-size:12px;font-weight:700;padding:2px 7px;border-radius:20px;background:#dc262618;color:var(--danger)">
+              <span style="display:inline-flex;align-items:center;gap:2px;font-size:12px;font-weight:700;padding:2px 7px;border-radius:20px;background:var(--danger-subtle);color:var(--danger)">
                 <i class="bi bi-arrow-up"></i> +<?= $delta ?>
               </span>
             <?php elseif ($delta < 0): ?>
-              <span style="display:inline-flex;align-items:center;gap:2px;font-size:12px;font-weight:700;padding:2px 7px;border-radius:20px;background:#d1fae5;color:var(--success)">
+              <span style="display:inline-flex;align-items:center;gap:2px;font-size:12px;font-weight:700;padding:2px 7px;border-radius:20px;background:var(--success-subtle);color:var(--success)">
                 <i class="bi bi-arrow-down"></i> <?= $delta ?>
               </span>
             <?php else: ?>

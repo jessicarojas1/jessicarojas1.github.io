@@ -21,7 +21,7 @@ ob_start();
     <div class="stat-body"><div class="stat-value"><?= $stats['total'] ?></div><div class="stat-label">Total Risks</div></div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:linear-gradient(135deg,var(--danger),#b91c1c)"><i class="bi bi-exclamation-octagon-fill"></i></div>
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--danger),var(--danger))"><i class="bi bi-exclamation-octagon-fill"></i></div>
     <div class="stat-body"><div class="stat-value"><?= $stats['critical'] ?></div><div class="stat-label">Critical</div></div>
   </div>
   <div class="stat-card">

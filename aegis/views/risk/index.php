@@ -57,8 +57,8 @@ $_appColors = ['zero'=>'#dc2626','low'=>'#d97706','moderate'=>'#2563eb','high'=>
   <div class="risk-kpi medium"><i class="bi bi-exclamation-circle-fill"></i><span class="kpi-num"><?= $summary['medium'] ?></span><span>Medium</span></div>
   <div class="risk-kpi low"><i class="bi bi-info-circle-fill"></i><span class="kpi-num"><?= $summary['low'] ?></span><span>Low</span></div>
   <div class="risk-kpi open"><i class="bi bi-circle-fill"></i><span class="kpi-num"><?= $summary['open'] ?></span><span>Open</span></div>
-  <div class="risk-kpi" style="color:#16a34a"><i class="bi bi-eye-fill"></i><span class="kpi-num"><?= $summary['monitoring'] ?></span><span>Monitoring</span></div>
-  <div class="risk-kpi accepted" style="color:#d97706"><i class="bi bi-check-circle-fill"></i><span class="kpi-num"><?= $summary['accepted'] ?></span><span>Accepted</span></div>
+  <div class="risk-kpi" style="color:var(--success)"><i class="bi bi-eye-fill"></i><span class="kpi-num"><?= $summary['monitoring'] ?></span><span>Monitoring</span></div>
+  <div class="risk-kpi accepted" style="color:var(--warning)"><i class="bi bi-check-circle-fill"></i><span class="kpi-num"><?= $summary['accepted'] ?></span><span>Accepted</span></div>
   <div class="risk-kpi" style="color:var(--text-muted)"><i class="bi bi-lock-fill"></i><span class="kpi-num"><?= $summary['closed'] ?></span><span>Closed</span></div>
 </div>
 
@@ -162,8 +162,8 @@ $_filterCount = count(array_filter([
   <?php endif; ?>
 </div>
 
-<div id="bulkBar" style="display:none;background:var(--info-subtle);border:1px solid #bae6fd80;border-radius:8px;padding:12px 16px;margin-bottom:12px;align-items:center;gap:12px;flex-wrap:wrap">
-  <span id="bulkCount" style="font-weight:600;color:#0369a1">0 selected</span>
+<div id="bulkBar" style="display:none;background:var(--info-subtle);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-bottom:12px;align-items:center;gap:12px;flex-wrap:wrap">
+  <span id="bulkCount" style="font-weight:600;color:var(--info)">0 selected</span>
   <form method="POST" action="/risk/bulk-update" id="bulkForm" style="display:flex;gap:8px;align-items:center">
     <?= Security::csrfField() ?>
     <div id="bulkIdsContainer"></div>

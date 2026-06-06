@@ -77,7 +77,7 @@ ob_start();
 </div>
 
 <!-- Bulk action bar (appears when controls are selected) -->
-<div id="bulk-bar" style="display:none;position:sticky;top:0;z-index:200;background:#1c2a1b;color:#fff;
+<div id="bulk-bar" style="display:none;position:sticky;top:0;z-index:200;background:var(--primary-dark,#1c2a1b);color:#fff;
      padding:10px 16px;border-radius:10px;margin-bottom:12px;
      align-items:center;gap:10px;flex-wrap:wrap;box-shadow:0 4px 20px rgba(79,70,229,.4)">
   <span id="bulk-count" style="font-size:13px;font-weight:600;margin-right:4px"></span>
@@ -114,7 +114,7 @@ ob_start();
 <!-- Domain list -->
 <?php if (!$domains): ?>
 <div class="card" style="text-align:center;padding:40px 20px;color:var(--text-muted)">
-  <i class="bi bi-diagram-3" style="font-size:2.5rem;display:block;margin-bottom:12px;color:#d4d4d8"></i>
+  <i class="bi bi-diagram-3" style="font-size:2.5rem;display:block;margin-bottom:12px;color:var(--text-muted)"></i>
   <h3 style="margin-bottom:8px;color:var(--text)">No domains yet</h3>
   <p style="margin-bottom:16px">Domains group your controls into sections (e.g. Access Control, Risk Management).</p>
   <button class="btn btn-primary" data-click="openModal" data-arg="add-domain"><i class="bi bi-plus-lg"></i> Add First Domain</button>
@@ -126,7 +126,7 @@ ob_start();
   $dTotal = (int)$domain['child_count'];
   $dComp  = (int)$domain['compliant_count'];
   $dPct   = $dTotal > 0 ? round(($dComp/$dTotal)*100) : 0;
-  $dColor = $dPct >= 80 ? '#059669' : ($dPct >= 50 ? '#d97706' : '#dc2626');
+  $dColor = $dPct >= 80 ? 'var(--success)' : ($dPct >= 50 ? 'var(--warning)' : 'var(--danger)');
 ?>
 <div class="domain-block card" id="domain-<?= $domain['id'] ?>">
   <div class="domain-header" data-click="toggleDomain" data-arg="<?= $domain['id'] ?>" style="cursor:pointer">
@@ -570,7 +570,7 @@ document.querySelectorAll('.bulk-status-btn').forEach(function(btn) {
 function showToast(msg, color) {
   var t = document.createElement('div');
   t.textContent = msg;
-  t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:' + (color||'#059669') + ';color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.2);pointer-events:none';
+  t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:' + (color||'var(--success)') + ';color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.2);pointer-events:none';
   document.body.appendChild(t);
   setTimeout(function(){ t.style.opacity='0'; t.style.transition='opacity .4s'; }, 2000);
   setTimeout(function(){ t.remove(); }, 2500);
@@ -685,11 +685,11 @@ document.addEventListener('DOMContentLoaded', function() {
         <label class="form-label" style="font-weight:700;margin-bottom:10px">Implementation Status <span style="color:var(--danger)">*</span></label>
         <div style="display:flex;flex-direction:column;gap:8px">
           <?php foreach ([
-            ['not_started',   'circle',              '#71717a', 'Not Started',   'No implementation work has begun'],
-            ['compliant',     'check-circle-fill',   '#059669', 'Compliant',     'Control is fully implemented and meets requirements'],
-            ['partial',       'dash-circle-fill',    '#d97706', 'Partial',       'Control is partially implemented'],
-            ['non_compliant', 'x-circle-fill',       '#dc2626', 'Non-Compliant', 'Control is not implemented or fails requirements'],
-            ['not_applicable','slash-circle-fill',   '#a1a1aa', 'Not Applicable','This control does not apply'],
+            ['not_started',   'circle',              'var(--text-muted)', 'Not Started',   'No implementation work has begun'],
+            ['compliant',     'check-circle-fill',   'var(--success)',    'Compliant',     'Control is fully implemented and meets requirements'],
+            ['partial',       'dash-circle-fill',    'var(--warning)',    'Partial',       'Control is partially implemented'],
+            ['non_compliant', 'x-circle-fill',       'var(--danger)',     'Non-Compliant', 'Control is not implemented or fails requirements'],
+            ['not_applicable','slash-circle-fill',   'var(--text-muted)', 'Not Applicable','This control does not apply'],
           ] as [$val, $icon, $color, $label, $hint]): ?>
           <label style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:2px solid var(--border);border-radius:8px;cursor:pointer;transition:border-color .15s" class="ba-status-label">
             <input type="radio" name="ba_status" value="<?= $val ?>" style="margin-top:2px;accent-color:<?= $color ?>" <?= $val === 'not_started' ? 'checked' : '' ?>>

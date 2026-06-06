@@ -390,7 +390,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 
   <?php if ($isEmpty): ?>
   <div class="bt-empty">
-    <i class="bi bi-diagram-2" style="font-size:36px;color:#d4d4d8;display:block;margin-bottom:12px"></i>
+    <i class="bi bi-diagram-2" style="font-size:36px;color:var(--bg-subtle);display:block;margin-bottom:12px"></i>
     <h3>No Bow-Tie Elements Yet</h3>
     <p>
       A <strong>bow-tie diagram</strong> maps the causes (left side) and consequences (right side) of a risk event,
@@ -406,11 +406,11 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 
       <!-- ── (A) Causes Column ───────────────────────────── -->
       <div class="bt-causes-col">
-        <div class="bt-col-header" style="color:var(--danger);background:color-mix(in srgb,var(--danger) 9%,transparent);border:1px solid color-mix(in srgb,var(--danger) 25%,transparent)">
+        <div class="bt-col-header" style="color:var(--danger);background:var(--danger-subtle);border:1px solid color-mix(in srgb,var(--danger) 25%,transparent)">
           <i class="bi bi-exclamation-triangle-fill"></i> Threat / Cause
         </div>
         <?php if (empty($causes)): ?>
-          <div style="font-size:12px;color:#a1a1aa;font-style:italic;padding:8px 0">No causes added</div>
+          <div style="font-size:12px;color:var(--text-muted);font-style:italic;padding:8px 0">No causes added</div>
         <?php else: foreach ($causes as $cause):
           $ct = $causeTypeMeta[$cause['cause_type']] ?? $causeTypeMeta['threat'];
           $lh = $likelihoodMeta[$cause['likelihood_contribution']] ?? $likelihoodMeta['medium'];
@@ -439,11 +439,11 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 
       <!-- ── (B) Left Barriers ───────────────────────────── -->
       <div class="bt-barriers-col">
-        <div class="bt-col-header" style="color:#2563eb;background:#2563eb18;border:1px solid #2563eb40">
+        <div class="bt-col-header" style="color:var(--info);background:var(--info-subtle);border:1px solid color-mix(in srgb,var(--info) 25%,transparent)">
           <i class="bi bi-shield-fill-check"></i> Preventive Controls
         </div>
         <?php if (empty($leftBarriers)): ?>
-          <div style="font-size:11px;color:#a1a1aa;font-style:italic;padding:8px 4px">No barriers</div>
+          <div style="font-size:11px;color:var(--text-muted);font-style:italic;padding:8px 4px">No barriers</div>
         <?php else: foreach ($leftBarriers as $bar):
           $eff  = $effectivenessMeta[$bar['effectiveness']] ?? $effectivenessMeta['partial'];
           $btyp = $barrierTypeMeta[$bar['barrier_type']] ?? $barrierTypeMeta['control'];
@@ -462,7 +462,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
               <span class="bt-barrier-eff" style="background:<?= Security::h($eff['color']) ?>18;color:<?= Security::h($eff['color']) ?>">
                 <?= Security::h($eff['label']) ?>
               </span>
-              <span style="font-size:10px;color:#a1a1aa">
+              <span style="font-size:10px;color:var(--text-muted)">
                 <i class="bi <?= Security::h($btyp['icon']) ?>"></i> <?= Security::h($btyp['label']) ?>
               </span>
             </div>
@@ -473,8 +473,8 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
       <!-- ── (C) Funnel Left ─────────────────────────────── -->
       <div class="bt-funnel-left">
         <div style="position:relative;width:100%;display:flex;align-items:center">
-          <div style="flex:1;height:2px;background:linear-gradient(90deg,#d4d4d8,#71717a)"></div>
-          <div style="width:0;height:0;border-left:8px solid #71717a;border-top:5px solid transparent;border-bottom:5px solid transparent"></div>
+          <div style="flex:1;height:2px;background:linear-gradient(90deg,var(--bg-subtle),var(--text-muted))"></div>
+          <div style="width:0;height:0;border-left:8px solid var(--text-muted);border-top:5px solid transparent;border-bottom:5px solid transparent"></div>
         </div>
       </div>
 
@@ -487,7 +487,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
             <?= Security::h($scoreLevel) ?> &middot; <?= $score ?>
           </span>
           <?php if ($risk['risk_id']): ?>
-          <div style="margin-top:8px;font-size:10px;color:#a1a1aa;font-family:monospace"><?= Security::h($risk['risk_id']) ?></div>
+          <div style="margin-top:8px;font-size:10px;color:var(--text-muted);font-family:monospace"><?= Security::h($risk['risk_id']) ?></div>
           <?php endif; ?>
         </div>
       </div>
@@ -495,18 +495,18 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
       <!-- ── (E) Funnel Right ────────────────────────────── -->
       <div class="bt-funnel-right">
         <div style="position:relative;width:100%;display:flex;align-items:center">
-          <div style="flex:1;height:2px;background:linear-gradient(90deg,#71717a,#d4d4d8)"></div>
-          <div style="width:0;height:0;border-left:8px solid #d4d4d8;border-top:5px solid transparent;border-bottom:5px solid transparent"></div>
+          <div style="flex:1;height:2px;background:linear-gradient(90deg,var(--text-muted),var(--bg-subtle))"></div>
+          <div style="width:0;height:0;border-left:8px solid var(--bg-subtle);border-top:5px solid transparent;border-bottom:5px solid transparent"></div>
         </div>
       </div>
 
       <!-- ── (F) Right Barriers ──────────────────────────── -->
       <div class="bt-barriers-col">
-        <div class="bt-col-header" style="color:#16a34a;background:#16a34a18;border:1px solid #16a34a40">
+        <div class="bt-col-header" style="color:var(--success);background:var(--success-subtle);border:1px solid color-mix(in srgb,var(--success) 25%,transparent)">
           <i class="bi bi-arrow-counterclockwise"></i> Recovery Controls
         </div>
         <?php if (empty($rightBarriers)): ?>
-          <div style="font-size:11px;color:#a1a1aa;font-style:italic;padding:8px 4px">No barriers</div>
+          <div style="font-size:11px;color:var(--text-muted);font-style:italic;padding:8px 4px">No barriers</div>
         <?php else: foreach ($rightBarriers as $bar):
           $eff  = $effectivenessMeta[$bar['effectiveness']] ?? $effectivenessMeta['partial'];
           $btyp = $barrierTypeMeta[$bar['barrier_type']] ?? $barrierTypeMeta['control'];
@@ -525,7 +525,7 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
               <span class="bt-barrier-eff" style="background:<?= Security::h($eff['color']) ?>18;color:<?= Security::h($eff['color']) ?>">
                 <?= Security::h($eff['label']) ?>
               </span>
-              <span style="font-size:10px;color:#a1a1aa">
+              <span style="font-size:10px;color:var(--text-muted)">
                 <i class="bi <?= Security::h($btyp['icon']) ?>"></i> <?= Security::h($btyp['label']) ?>
               </span>
             </div>
@@ -535,11 +535,11 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
 
       <!-- ── (G) Consequences Column ────────────────────── -->
       <div class="bt-consequences-col">
-        <div class="bt-col-header" style="color:var(--secondary);background:rgba(55,65,81,.06);border:1px solid #d1d5db">
+        <div class="bt-col-header" style="color:var(--secondary);background:rgba(55,65,81,.06);border:1px solid var(--border)">
           <i class="bi bi-arrow-down-circle-fill"></i> Consequence / Impact
         </div>
         <?php if (empty($consequences)): ?>
-          <div style="font-size:12px;color:#a1a1aa;font-style:italic;padding:8px 0">No consequences added</div>
+          <div style="font-size:12px;color:var(--text-muted);font-style:italic;padding:8px 0">No consequences added</div>
         <?php else: foreach ($consequences as $con):
           $cty = $consequenceTypeMeta[$con['consequence_type']] ?? $consequenceTypeMeta['impact'];
           $sev = $severityMeta[$con['severity']] ?? $severityMeta['medium'];
@@ -601,21 +601,21 @@ $isEmpty = empty($causes) && empty($consequences) && empty($leftBarriers) && emp
         <i class="bi bi-exclamation-triangle-fill" style="color:var(--danger)"></i>
         Causes
         <?php if (!empty($causes)): ?>
-          <span style="background:#dc262618;color:var(--danger);font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px"><?= count($causes) ?></span>
+          <span style="background:var(--danger-subtle);color:var(--danger);font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px"><?= count($causes) ?></span>
         <?php endif; ?>
       </button>
       <button class="bt-tab-btn" data-click="btTabBtn" data-arg="left-barriers" role="tab" aria-selected="false">
-        <i class="bi bi-shield-fill-check" style="color:#2563eb"></i>
+        <i class="bi bi-shield-fill-check" style="color:var(--info)"></i>
         Left Barriers
         <?php if (!empty($leftBarriers)): ?>
-          <span style="background:#2563eb18;color:#2563eb;font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px"><?= count($leftBarriers) ?></span>
+          <span style="background:var(--info-subtle);color:var(--info);font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px"><?= count($leftBarriers) ?></span>
         <?php endif; ?>
       </button>
       <button class="bt-tab-btn" data-click="btTabBtn" data-arg="right-barriers" role="tab" aria-selected="false">
-        <i class="bi bi-arrow-counterclockwise" style="color:#16a34a"></i>
+        <i class="bi bi-arrow-counterclockwise" style="color:var(--success)"></i>
         Right Barriers
         <?php if (!empty($rightBarriers)): ?>
-          <span style="background:#16a34a18;color:#16a34a;font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px"><?= count($rightBarriers) ?></span>
+          <span style="background:var(--success-subtle);color:var(--success);font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px"><?= count($rightBarriers) ?></span>
         <?php endif; ?>
       </button>
       <button class="bt-tab-btn" data-click="btTabBtn" data-arg="consequences" role="tab" aria-selected="false">

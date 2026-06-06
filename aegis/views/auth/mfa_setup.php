@@ -25,7 +25,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
   <!-- MFA is enabled -->
   <div class="card" style="margin-bottom:20px">
     <div class="card-body" style="display:flex;align-items:center;gap:16px;padding:24px">
-      <div style="width:48px;height:48px;border-radius:50%;background:#05966920;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <div style="width:48px;height:48px;border-radius:50%;background:var(--success-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0">
         <i class="bi bi-shield-check-fill" style="color:var(--success);font-size:22px"></i>
       </div>
       <div>
@@ -50,7 +50,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
   <!-- MFA is not enabled — show setup -->
   <div class="card" style="margin-bottom:20px">
     <div class="card-body" style="display:flex;align-items:center;gap:16px;padding:24px">
-      <div style="width:48px;height:48px;border-radius:50%;background:#d9770620;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <div style="width:48px;height:48px;border-radius:50%;background:var(--warning-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0">
         <i class="bi bi-shield-exclamation" style="color:var(--warning);font-size:22px"></i>
       </div>
       <div>
@@ -70,7 +70,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
       </ol>
 
       <div style="text-align:center;margin-bottom:24px">
-        <div style="display:inline-block;padding:16px;background:#fff;border-radius:8px;border:1px solid var(--border)">
+        <div style="display:inline-block;padding:16px;background:var(--card-bg);border-radius:8px;border:1px solid var(--border)">
           <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=<?= urlencode($qrUri) ?>" alt="QR Code" width="180" height="180" style="display:block">
         </div>
         <p style="font-size:12px;color:var(--text-muted);margin-top:8px">Can't scan? Enter this key manually:</p>

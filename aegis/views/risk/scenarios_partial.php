@@ -141,12 +141,12 @@ $avgScore = count($scenarios) > 0 ? round($totalScoreSum / count($scenarios), 1)
           <td style="padding:12px;text-align:center;white-space:nowrap">
             <?php if ($delta > 0): ?>
               <span style="display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:700;
-                           padding:3px 8px;border-radius:20px;background:#dc262618;color:var(--danger)">
+                           padding:3px 8px;border-radius:20px;background:var(--danger-subtle);color:var(--danger)">
                 <i class="bi bi-arrow-up"></i> +<?= $delta ?>
               </span>
             <?php elseif ($delta < 0): ?>
               <span style="display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:700;
-                           padding:3px 8px;border-radius:20px;background:#d1fae5;color:var(--success)">
+                           padding:3px 8px;border-radius:20px;background:var(--success-subtle);color:var(--success)">
                 <i class="bi bi-arrow-down"></i> <?= $delta ?>
               </span>
             <?php else: ?>
@@ -185,7 +185,7 @@ $avgScore = count($scenarios) > 0 ? round($totalScoreSum / count($scenarios), 1)
                   data-confirm="Delete scenario &#39;<?= Security::h($sc['name']) ?>&#39;?">
               <?= Security::csrfField() ?>
               <button type="submit"
-                      style="background:none;border:none;padding:4px 6px;cursor:pointer;color:#ef4444;border-radius:4px"
+                      style="background:none;border:none;padding:4px 6px;cursor:pointer;color:var(--danger);border-radius:4px"
                       title="Delete scenario">
                 <i class="bi bi-trash3-fill"></i>
               </button>
@@ -201,7 +201,7 @@ $avgScore = count($scenarios) > 0 ? round($totalScoreSum / count($scenarios), 1)
     <div style="padding:12px 16px;border-top:2px solid var(--border);background:var(--bg-secondary);
                 display:flex;flex-wrap:wrap;gap:16px;align-items:center;font-size:12px;color:var(--text-muted)">
       <span>
-        <i class="bi bi-exclamation-triangle-fill" style="color:#f97316"></i>
+        <i class="bi bi-exclamation-triangle-fill" style="color:var(--orange)"></i>
         <strong style="color:var(--text)">Worst case score:</strong>
         <span class="risk-badge <?= scenPartialLevelClass($worstScore) ?>" style="font-size:12px;padding:1px 8px"><?= $worstScore ?></span>
         <?= scenPartialLevel($worstScore) ?>
@@ -212,7 +212,7 @@ $avgScore = count($scenarios) > 0 ? round($totalScoreSum / count($scenarios), 1)
       </span>
       <?php if ($totalFinancial > 0): ?>
       <span>
-        <i class="bi bi-currency-dollar" style="color:#16a34a"></i>
+        <i class="bi bi-currency-dollar" style="color:var(--success)"></i>
         <strong style="color:var(--text)">Total financial exposure:</strong>
         $<?= number_format($totalFinancial, 0) ?>
       </span>

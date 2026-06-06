@@ -25,7 +25,7 @@ ob_start();
     <div class="stat-body"><div class="stat-value"><?= $compliantCount ?></div><div class="stat-label">Compliant Controls</div></div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:linear-gradient(135deg,var(--danger),#b91c1c)"><i class="bi bi-x-circle-fill"></i></div>
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--danger),var(--danger))"><i class="bi bi-x-circle-fill"></i></div>
     <div class="stat-body"><div class="stat-value"><?= $totalControls - $compliantCount ?></div><div class="stat-label">Gaps</div></div>
   </div>
   <div class="stat-card">

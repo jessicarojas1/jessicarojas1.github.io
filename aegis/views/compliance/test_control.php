@@ -6,9 +6,9 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 
 function testResultBadge(string $result): string {
     return match($result) {
-        'pass'       => '<span class="badge" style="background:#16a34a18;color:var(--primary);border:1px solid #16a34a40">Pass</span>',
-        'fail'       => '<span class="badge" style="background:#dc262618;color:var(--danger);border:1px solid #dc262640">Fail</span>',
-        'partial'    => '<span class="badge" style="background:#d9770618;color:var(--warning);border:1px solid #d9770640">Partial</span>',
+        'pass'       => '<span class="badge" style="background:var(--success-subtle);color:var(--primary);border:1px solid var(--success)">Pass</span>',
+        'fail'       => '<span class="badge" style="background:var(--danger-subtle);color:var(--danger);border:1px solid var(--danger)">Fail</span>',
+        'partial'    => '<span class="badge" style="background:var(--warning-subtle);color:var(--warning);border:1px solid var(--warning)">Partial</span>',
         'not_tested' => '<span class="badge" style="background:var(--bg-secondary);color:var(--text-muted);border:1px solid var(--border)">Not Tested</span>',
         default      => '<span class="badge">' . htmlspecialchars($result, ENT_QUOTES, 'UTF-8') . '</span>',
     };
@@ -65,11 +65,11 @@ function testResultBadge(string $result): string {
           <?php
           $implStatus = $obj['status'] ?? 'not_started';
           $statusCfg = [
-            'compliant'      => ['bg'=>'#dcfce7','text'=>'#16a34a','label'=>'Compliant'],
-            'partial'        => ['bg'=>'#fffbeb','text'=>'#d97706','label'=>'Partial'],
-            'non_compliant'  => ['bg'=>'#fef2f2','text'=>'#dc2626','label'=>'Non-Compliant'],
-            'not_applicable' => ['bg'=>'#f4f4f5','text'=>'#71717a','label'=>'Not Applicable'],
-            'not_started'    => ['bg'=>'#f9fafb','text'=>'#a1a1aa','label'=>'Not Started'],
+            'compliant'      => ['bg'=>'var(--success-subtle)','text'=>'var(--success)','label'=>'Compliant'],
+            'partial'        => ['bg'=>'var(--warning-subtle)','text'=>'var(--warning)','label'=>'Partial'],
+            'non_compliant'  => ['bg'=>'var(--danger-subtle)', 'text'=>'var(--danger)', 'label'=>'Non-Compliant'],
+            'not_applicable' => ['bg'=>'var(--bg-subtle)',     'text'=>'var(--text-muted)','label'=>'Not Applicable'],
+            'not_started'    => ['bg'=>'var(--surface-alt)',   'text'=>'var(--text-muted)','label'=>'Not Started'],
           ];
           $sc = $statusCfg[$implStatus] ?? $statusCfg['not_started'];
           ?>

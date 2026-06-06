@@ -44,7 +44,7 @@ ob_start(); ?>
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px">
       <h1 class="page-title" style="margin:0"><?= Security::h($change['title']) ?></h1>
       <?php if (!empty($change['change_number'])): ?>
-        <span class="badge" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($change['change_number']) ?></span>
+        <span class="badge" style="background:var(--info-subtle);color:var(--info);border:1px solid var(--border);font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($change['change_number']) ?></span>
       <?php endif; ?>
     </div>
     <p class="page-subtitle">
@@ -156,12 +156,12 @@ ob_start(); ?>
         <h3 style="margin:0"><i class="bi bi-people-fill" style="margin-right:6px;color:var(--primary)"></i>CAB Review</h3>
         <div style="display:flex;gap:10px;font-size:13px">
           <?php if ($approveCount > 0): ?>
-            <span style="display:inline-flex;align-items:center;gap:5px;background:#dcfce7;color:#16a34a;padding:3px 10px;border-radius:99px;font-weight:700">
+            <span style="display:inline-flex;align-items:center;gap:5px;background:var(--success-subtle);color:var(--success);padding:3px 10px;border-radius:99px;font-weight:700">
               <i class="bi bi-check-circle-fill"></i> <?= $approveCount ?> Approve
             </span>
           <?php endif; ?>
           <?php if ($rejectCount > 0): ?>
-            <span style="display:inline-flex;align-items:center;gap:5px;background:#fee2e2;color:#dc2626;padding:3px 10px;border-radius:99px;font-weight:700">
+            <span style="display:inline-flex;align-items:center;gap:5px;background:var(--danger-subtle);color:var(--danger);padding:3px 10px;border-radius:99px;font-weight:700">
               <i class="bi bi-x-circle-fill"></i> <?= $rejectCount ?> Reject
             </span>
           <?php endif; ?>
@@ -218,7 +218,7 @@ ob_start(); ?>
               <div style="display:flex;gap:10px">
                 <button type="submit" name="vote" value="approve"
                   class="btn btn-sm"
-                  style="background:#16a34a;color:#fff;border:none;display:inline-flex;align-items:center;gap:6px">
+                  style="background:var(--success);color:var(--card-bg);border:none;display:inline-flex;align-items:center;gap:6px">
                   <i class="bi bi-check-circle-fill"></i> Approve
                 </button>
                 <button type="submit" name="vote" value="reject"
@@ -253,7 +253,7 @@ ob_start(); ?>
                 <span class="text-xs text-muted"><?= date('M j, g:ia', strtotime($upd['created_at'])) ?></span>
               </div>
               <?php if ($upd['update_type'] === 'status_change'): ?>
-                <p style="color:#6366f1;font-style:italic;margin:4px 0 0"><?= Security::h($upd['content']) ?></p>
+                <p style="color:var(--indigo);font-style:italic;margin:4px 0 0"><?= Security::h($upd['content']) ?></p>
               <?php else: ?>
                 <p style="margin:4px 0 0;white-space:pre-wrap"><?= Security::h($upd['content']) ?></p>
               <?php endif; ?>
@@ -291,7 +291,7 @@ ob_start(); ?>
       <form method="POST" action="/change/<?= (int)$change['id'] ?>/edit">
         <?= Security::csrfField() ?>
         <div class="form-group" style="margin-bottom:14px">
-          <label class="form-label">Title <span style="color:#ef4444">*</span></label>
+          <label class="form-label">Title <span style="color:var(--danger)">*</span></label>
           <input type="text" name="title" class="form-control" value="<?= Security::h($change['title']) ?>" required>
         </div>
         <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px">

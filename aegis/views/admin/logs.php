@@ -255,7 +255,7 @@ ob_start();
         for ($p = $start; $p <= $end; $p++):
       ?>
         <?php if ($p === $page): ?>
-          <span style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:var(--primary);color:#fff;border-radius:6px;font-size:.82rem;font-weight:600"><?= $p ?></span>
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:var(--primary);color:var(--card-bg);border-radius:6px;font-size:.82rem;font-weight:600"><?= $p ?></span>
         <?php else: ?>
           <a href="?page=<?= $p ?><?= $qs ?>" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border:1px solid var(--border);border-radius:6px;font-size:.82rem;color:var(--text-muted);text-decoration:none" class="btn btn-ghost btn-sm" style="width:32px;height:32px;padding:0;justify-content:center"><?= $p ?></a>
         <?php endif; ?>

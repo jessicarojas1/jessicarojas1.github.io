@@ -271,12 +271,12 @@ function scenarioLevelClass(int $s): string {
             <tbody>
               <tr>
                 <td><strong>0.1–0.5</strong></td>
-                <td style="color:#16a34a">Much less severe</td>
+                <td style="color:var(--success)">Much less severe</td>
                 <td>Controls highly effective</td>
               </tr>
               <tr>
                 <td><strong>0.6–0.9</strong></td>
-                <td style="color:#3b82f6">Slightly reduced</td>
+                <td style="color:var(--info)">Slightly reduced</td>
                 <td>Partial mitigation</td>
               </tr>
               <tr>
@@ -291,7 +291,7 @@ function scenarioLevelClass(int $s): string {
               </tr>
               <tr>
                 <td><strong>2.0</strong></td>
-                <td style="color:#ea580c">Double</td>
+                <td style="color:var(--orange)">Double</td>
                 <td>Major control failure</td>
               </tr>
               <tr>
