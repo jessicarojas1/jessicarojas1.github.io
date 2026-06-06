@@ -14,6 +14,9 @@
   --warning: #d97706;
   --danger:  #dc2626;
   --info:    #0284c7;
+  --orange:  #f97316;
+  --purple:  #8b5cf6;
+  --indigo:  #6366f1;
 
   /* Sidebar */
   --sidebar-bg:            #0f172a;
@@ -1822,6 +1825,9 @@ html[data-theme="dark"] {
   --warning: #f59e0b;
   --danger:  #f87171;
   --info:    #38bdf8;
+  --orange:  #fb923c;
+  --purple:  #a78bfa;
+  --indigo:  #818cf8;
 
   --sidebar-bg: #080e1a;
   --sidebar-text:          #94a3b8;

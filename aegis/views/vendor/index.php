@@ -29,28 +29,28 @@ ob_start();
 <!-- Stats -->
 <div class="stats-grid">
   <div class="stat-card">
-    <div class="stat-icon" style="background:#2563eb18;color:#2563eb"><i class="bi bi-buildings"></i></div>
+    <div class="stat-icon" style="background:var(--info)18;color:var(--info)"><i class="bi bi-buildings"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['total'] ?? 0) ?></div>
       <div class="stat-label">Total Vendors</div>
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:#05966918;color:#059669"><i class="bi bi-check-circle-fill"></i></div>
+    <div class="stat-icon" style="background:var(--success)18;color:var(--success)"><i class="bi bi-check-circle-fill"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['active_count'] ?? 0) ?></div>
       <div class="stat-label">Active Vendors</div>
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:#dc262618;color:#dc2626"><i class="bi bi-exclamation-octagon-fill"></i></div>
+    <div class="stat-icon" style="background:var(--danger)18;color:var(--danger)"><i class="bi bi-exclamation-octagon-fill"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['critical_count'] ?? 0) ?></div>
       <div class="stat-label">Critical Tier</div>
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:#d9770618;color:#d97706"><i class="bi bi-database-fill-lock"></i></div>
+    <div class="stat-icon" style="background:var(--warning)18;color:var(--warning)"><i class="bi bi-database-fill-lock"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['data_access_count'] ?? 0) ?></div>
       <div class="stat-label">Data Access</div>
@@ -164,9 +164,9 @@ $_filterCount = count(array_filter([
               $daysLeft = (int)ceil((strtotime($v['contract_end']) - time()) / 86400);
               $contractEndDisplay = date('M j, Y', strtotime($v['contract_end']));
               if ($daysLeft <= 30 && $daysLeft >= 0) {
-                  $contractEndHighlight = 'color:#d97706;font-weight:600';
+                  $contractEndHighlight = 'color:var(--warning);font-weight:600';
               } elseif ($daysLeft < 0) {
-                  $contractEndHighlight = 'color:#dc2626;font-weight:600';
+                  $contractEndHighlight = 'color:var(--danger);font-weight:600';
               }
           }
         ?>
@@ -190,14 +190,14 @@ $_filterCount = count(array_filter([
             </td>
             <td>
               <?php if ($v['data_access']): ?>
-                <span style="color:#d97706;font-weight:600;font-size:13px"><i class="bi bi-check-circle-fill"></i> Yes</span>
+                <span style="color:var(--warning);font-weight:600;font-size:13px"><i class="bi bi-check-circle-fill"></i> Yes</span>
               <?php else: ?>
                 <span style="color:var(--text-muted);font-size:13px">No</span>
               <?php endif; ?>
             </td>
             <td>
               <?php if ($v['critical_service']): ?>
-                <span style="color:#dc2626;font-weight:600;font-size:13px"><i class="bi bi-exclamation-triangle-fill"></i> Yes</span>
+                <span style="color:var(--danger);font-weight:600;font-size:13px"><i class="bi bi-exclamation-triangle-fill"></i> Yes</span>
               <?php else: ?>
                 <span style="color:var(--text-muted);font-size:13px">No</span>
               <?php endif; ?>
@@ -220,9 +220,9 @@ $_filterCount = count(array_filter([
           </tr>
         <?php endforeach; else: ?>
           <tr>
-            <td colspan="9" style="text-align:center;padding:48px 24px;color:var(--text-muted)">
-              <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
-                <i class="bi bi-buildings" style="font-size:32px;color:#d1d5db"></i>
+            <td class="empty-row" colspan="9">
+              <div class="empty-state-sm">
+                <i class="bi bi-buildings" style="font-size:32px"></i>
                 <p style="margin:0;font-size:15px">No vendors found.</p>
                 <?php if (Auth::can('vendor.write')): ?>
                   <a href="/vendor/create" class="btn btn-primary btn-sm" style="margin-top:8px"><i class="bi bi-plus-lg"></i> Add Vendor</a>

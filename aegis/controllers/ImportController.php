@@ -44,6 +44,13 @@ class ImportController {
             header('Location: /import'); exit;
         }
 
+        $finfo = new finfo(FILEINFO_MIME_TYPE);
+        $mime  = $finfo->file($file['tmp_name']);
+        if (!in_array($mime, ['text/plain', 'text/csv', 'application/csv', 'application/vnd.ms-excel'])) {
+            $_SESSION['flash_error'] = 'Invalid file type. Only CSV files are accepted.';
+            header('Location: /import'); exit;
+        }
+
         if ($file['size'] > 10 * 1024 * 1024) {
             $_SESSION['flash_error'] = 'File too large (max 10MB).';
             header('Location: /import'); exit;

@@ -10,7 +10,7 @@ $pkgsWithGaps = count(array_unique(array_column($gaps, 'package_name')));
 
 <div class="page-header">
   <div>
-    <h1 class="page-title"><i class="bi bi-exclamation-triangle-fill" style="color:#d97706;margin-right:8px"></i>Compliance Gap Analysis</h1>
+    <h1 class="page-title"><i class="bi bi-exclamation-triangle-fill" style="color:var(--warning);margin-right:8px"></i>Compliance Gap Analysis</h1>
     <p class="page-subtitle">Cross-framework view of unimplemented and overdue controls.</p>
   </div>
   <div class="page-actions">
@@ -76,17 +76,17 @@ $pkgsWithGaps = count(array_unique(array_column($gaps, 'package_name')));
         <span style="font-size:13px;font-weight:700;color:<?= $pctColor ?>;min-width:36px;text-align:right"><?= $pct ?>%</span>
       </div>
       <div style="display:flex;flex-wrap:wrap;gap:6px;font-size:11px">
-        <span style="background:rgba(5,150,105,.12);color:#059669;padding:2px 8px;border-radius:10px;font-weight:600">
+        <span style="background:rgba(5,150,105,.12);color:var(--success);padding:2px 8px;border-radius:10px;font-weight:600">
           <i class="bi bi-check-circle-fill"></i> <?= $implemented ?> Done
         </span>
-        <span style="background:rgba(37,99,235,.12);color:#2563eb;padding:2px 8px;border-radius:10px;font-weight:600">
+        <span style="background:rgba(37,99,235,.12);color:var(--info);padding:2px 8px;border-radius:10px;font-weight:600">
           <i class="bi bi-arrow-repeat"></i> <?= $inProg ?> In Progress
         </span>
         <span style="background:rgba(107,114,128,.1);color:var(--text-muted);padding:2px 8px;border-radius:10px;font-weight:600">
           <i class="bi bi-circle"></i> <?= $notStr ?> Not Started
         </span>
         <?php if ($overdue > 0): ?>
-        <span style="background:rgba(220,38,38,.12);color:#dc2626;padding:2px 8px;border-radius:10px;font-weight:600">
+        <span style="background:rgba(220,38,38,.12);color:var(--danger);padding:2px 8px;border-radius:10px;font-weight:600">
           <i class="bi bi-exclamation-triangle-fill"></i> <?= $overdue ?> Overdue
         </span>
         <?php endif; ?>
@@ -107,7 +107,7 @@ $pkgsWithGaps = count(array_unique(array_column($gaps, 'package_name')));
 <!-- Gaps Table with filter bar -->
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
   <h2 style="font-size:15px;font-weight:700;margin:0;display:flex;align-items:center;gap:8px;color:var(--text)">
-    <i class="bi bi-exclamation-triangle" style="color:#d97706"></i>
+    <i class="bi bi-exclamation-triangle" style="color:var(--warning)"></i>
     Control Gaps
     <span style="font-size:12px;font-weight:500;color:var(--text-muted);background:var(--bg-secondary);padding:2px 10px;border-radius:10px;border:1px solid var(--border)" id="gapCount">
       <?= $totalGaps ?> gap<?= $totalGaps !== 1 ? 's' : '' ?>
@@ -208,8 +208,8 @@ $pkgsWithGaps = count(array_unique(array_column($gaps, 'package_name')));
     </div>
     <?php else: ?>
     <div style="text-align:center;padding:48px 20px;color:var(--text-muted)">
-      <i class="bi bi-patch-check" style="font-size:40px;display:block;margin-bottom:12px;color:#059669"></i>
-      <p style="font-size:15px;margin:0;color:#059669;font-weight:600">No control gaps found!</p>
+      <i class="bi bi-patch-check" style="font-size:40px;display:block;margin-bottom:12px;color:var(--success)"></i>
+      <p style="font-size:15px;margin:0;color:var(--success);font-weight:600">No control gaps found!</p>
       <p style="font-size:13px;margin:8px 0 0">All active controls are implemented or in progress.</p>
     </div>
     <?php endif; ?>

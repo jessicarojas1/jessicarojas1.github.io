@@ -168,8 +168,8 @@ $legendDefs = [
 </div>
 
 <script nonce="<?= Security::nonce() ?>">
-const allRisks = <?= json_encode(array_values($risks)) ?>;
-const colors   = <?= json_encode($colors) ?>;
+const allRisks = <?= json_encode(array_values($risks), JSON_HEX_TAG | JSON_HEX_AMP) ?>;
+const colors   = <?= json_encode($colors, JSON_HEX_TAG | JSON_HEX_AMP) ?>;
 
 function riskLevel(score) {
   return score > 14 ? 'critical' : score > 9 ? 'high' : score > 4 ? 'medium' : 'low';

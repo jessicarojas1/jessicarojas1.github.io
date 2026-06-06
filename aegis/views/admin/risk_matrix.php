@@ -261,8 +261,8 @@ function onEditColorInput(e) {
   updateColorPreview();
 }
 
-const cellData = <?= json_encode($cells) ?>;
-const defaultCells = <?= json_encode($defaultCells) ?>;
+const cellData = <?= json_encode($cells, JSON_HEX_TAG | JSON_HEX_AMP) ?>;
+const defaultCells = <?= json_encode($defaultCells, JSON_HEX_TAG | JSON_HEX_AMP) ?>;
 
 function openCellEdit(key, title, desc, color) {
   document.getElementById('editKey').value   = key;

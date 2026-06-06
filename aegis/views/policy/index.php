@@ -17,10 +17,10 @@ ob_start();
 </div>
 
 <div class="stats-row">
-  <div class="stat-mini"><i class="bi bi-file-earmark-text" style="color:#a1a1aa"></i><span class="stat-mini-num"><?= $summary['drafts'] ?? 0 ?></span><span>Drafts</span></div>
-  <div class="stat-mini"><i class="bi bi-eye" style="color:#0284c7"></i><span class="stat-mini-num"><?= $summary['under_review'] ?? 0 ?></span><span>Under Review</span></div>
-  <div class="stat-mini"><i class="bi bi-check-circle" style="color:#059669"></i><span class="stat-mini-num"><?= $summary['published'] ?? 0 ?></span><span>Published</span></div>
-  <div class="stat-mini"><i class="bi bi-exclamation-circle" style="color:#dc2626"></i><span class="stat-mini-num"><?= $summary['overdue'] ?? 0 ?></span><span>Review Overdue</span></div>
+  <div class="stat-mini"><i class="bi bi-file-earmark-text" style="color:var(--text-muted)"></i><span class="stat-mini-num"><?= $summary['drafts'] ?? 0 ?></span><span>Drafts</span></div>
+  <div class="stat-mini"><i class="bi bi-eye" style="color:var(--info)"></i><span class="stat-mini-num"><?= $summary['under_review'] ?? 0 ?></span><span>Under Review</span></div>
+  <div class="stat-mini"><i class="bi bi-check-circle" style="color:var(--success)"></i><span class="stat-mini-num"><?= $summary['published'] ?? 0 ?></span><span>Published</span></div>
+  <div class="stat-mini"><i class="bi bi-exclamation-circle" style="color:var(--danger)"></i><span class="stat-mini-num"><?= $summary['overdue'] ?? 0 ?></span><span>Review Overdue</span></div>
 </div>
 
 <!-- Filters -->
@@ -28,7 +28,7 @@ ob_start();
 <div class="filter-toolbar">
   <div style="display:flex;gap:6px;flex-wrap:wrap;">
     <?php foreach ([''=>'All','draft'=>'Draft','under_review'=>'Under Review','published'=>'Published'] as $k=>$l): ?>
-    <a href="?<?= http_build_query(array_merge($_GET, ['status'=>$k])) ?>" class="btn btn-sm <?= ($status??'')===$k?'btn-primary':'btn-secondary' ?>"><?= $l ?></a>
+    <a href="?<?= htmlspecialchars(http_build_query(array_merge($_GET, ['status' => $k])), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-sm <?= ($status??'')===$k?'btn-primary':'btn-secondary' ?>"><?= $l ?></a>
     <?php endforeach; ?>
   </div>
 

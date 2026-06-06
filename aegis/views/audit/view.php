@@ -13,7 +13,7 @@ ob_start();
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px">
       <h1 class="page-title" style="margin:0"><?= Security::h($audit['name']) ?></h1>
       <?php if (!empty($audit['audit_number'])): ?>
-        <span class="badge" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($audit['audit_number']) ?></span>
+        <span class="badge" style="background:var(--info-subtle);color:var(--info);border:1px solid #bfdbfe;font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($audit['audit_number']) ?></span>
       <?php endif; ?>
     </div>
     <p class="page-subtitle">
@@ -53,7 +53,7 @@ ob_start();
   <!-- Score card -->
   <div class="card" style="padding:16px;text-align:center">
     <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-bottom:8px">Score</div>
-    <div style="font-size:24px;font-weight:800;color:<?= $audit['score'] !== null ? ($audit['score'] >= 80 ? '#16a34a' : ($audit['score'] >= 60 ? '#d97706' : '#dc2626')) : 'var(--text-muted)' ?>"><?= $audit['score'] !== null ? round($audit['score']).'%' : '—' ?></div>
+    <div style="font-size:24px;font-weight:800;color:<?= $audit['score'] !== null ? ($audit['score'] >= 80 ? 'var(--success)' : ($audit['score'] >= 60 ? 'var(--warning)' : 'var(--danger)')) : 'var(--text-muted)' ?>"><?= $audit['score'] !== null ? round($audit['score']).'%' : '—' ?></div>
   </div>
   <!-- Lead Auditor card -->
   <div class="card" style="padding:16px;text-align:center">
@@ -129,8 +129,8 @@ ob_start();
             <span style="font-family:monospace;font-size:11px;font-weight:700;background:var(--bg-subtle);border:1px solid var(--border);padding:1px 7px;border-radius:4px;color:var(--text-muted)"><?= Security::h($item['code']) ?></span>
             <!-- Status indicator dot -->
             <?php
-            $dotColors = ['compliant'=>'#16a34a','partial'=>'#d97706','non_compliant'=>'#dc2626','not_assessed'=>'#9ca3af','not_applicable'=>'#6b7280'];
-            $dotColor = $dotColors[$item['status']] ?? '#9ca3af';
+            $dotColors = ['compliant'=>'var(--success)','partial'=>'var(--warning)','non_compliant'=>'var(--danger)','not_assessed'=>'var(--text-muted)','not_applicable'=>'var(--text-muted)'];
+            $dotColor = $dotColors[$item['status']] ?? 'var(--text-muted)';
             ?>
             <span style="width:8px;height:8px;border-radius:50%;background:<?= $dotColor ?>;flex-shrink:0;display:inline-block"></span>
           </div>
@@ -142,8 +142,8 @@ ob_start();
         <!-- Right: status select + edit button -->
         <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
           <?php
-          $statusBgs = ['not_assessed'=>['#f9fafb','#6b7280'],'compliant'=>['#f0fdf4','#16a34a'],'partial'=>['#fffbeb','#d97706'],'non_compliant'=>['#fef2f2','#dc2626'],'not_applicable'=>['#f4f4f5','#71717a']];
-          [$sBg,$sFg] = $statusBgs[$item['status']] ?? ['#f9fafb','#6b7280'];
+          $statusBgs = ['not_assessed'=>['var(--surface-alt)','var(--text-muted)'],'compliant'=>['var(--success-subtle)','var(--success)'],'partial'=>['var(--warning-subtle)','var(--warning)'],'non_compliant'=>['var(--danger-subtle)','var(--danger)'],'not_applicable'=>['var(--bg-subtle)','var(--text-muted)']];
+          [$sBg,$sFg] = $statusBgs[$item['status']] ?? ['var(--surface-alt)','var(--text-muted)'];
           ?>
           <select class="status-select-inline" data-change="saveAuditItem" data-args='[<?= $item['id'] ?>,<?= $audit['id'] ?>]' data-item="<?= $item['id'] ?>"
                   style="background:<?= $sBg ?>;color:<?= $sFg ?>;border:1px solid <?= $sFg ?>44;border-radius:99px;padding:4px 10px;font-size:12px;font-weight:600;cursor:pointer;appearance:none;-webkit-appearance:none;outline:none">
@@ -285,8 +285,8 @@ function load8d() {
 function autoFill8D() {
   const d2 = document.getElementById('eightd_1');
   if (!d2 || d2.value) return;
-  const auditName   = <?= json_encode($audit['name']) ?>;
-  const scheduled   = <?= json_encode($audit['scheduled_date'] ? date('M j, Y', strtotime($audit['scheduled_date'])) : 'Not scheduled') ?>;
+  const auditName   = <?= json_encode($audit['name'], JSON_HEX_TAG | JSON_HEX_AMP) ?>;
+  const scheduled   = <?= json_encode($audit['scheduled_date'] ? date('M j, Y', strtotime($audit['scheduled_date'])) : 'Not scheduled', JSON_HEX_TAG | JSON_HEX_AMP) ?>;
   const ncCount     = parseInt('<?= $summary['non_compliant'] ?? 0 ?>');
   const partCount   = parseInt('<?= $summary['partial'] ?? 0 ?>');
   const totalCount  = parseInt('<?= $summary['total'] ?? 0 ?>');

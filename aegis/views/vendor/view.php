@@ -14,7 +14,7 @@ ob_start();
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
       <h1 class="page-title" style="margin:0"><?= Security::h($vendor['name']) ?></h1>
       <?php if (!empty($vendor['vendor_code'])): ?>
-        <span class="badge" style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($vendor['vendor_code']) ?></span>
+        <span class="badge" style="background:var(--info-subtle);color:var(--info);border:1px solid var(--border);font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($vendor['vendor_code']) ?></span>
       <?php endif; ?>
       <span class="status-chip" style="background:<?= $tierColor ?>20;color:<?= $tierColor ?>;border:1px solid <?= $tierColor ?>40;"><?= ucfirst(Security::h($vendor['risk_tier'])) ?> Risk</span>
       <span class="status-chip" style="background:<?= $stColor ?>20;color:<?= $stColor ?>;border:1px solid <?= $stColor ?>40;"><?= ucfirst(str_replace('_',' ',Security::h($vendor['status']))) ?></span>
@@ -34,10 +34,10 @@ ob_start();
 </div>
 
 <?php if (!empty($_SESSION['portal_link'])): ?>
-<div class="card" style="margin-bottom:16px;border-left:3px solid #059669">
+<div class="card" style="margin-bottom:16px;border-left:3px solid var(--success)">
   <div class="card-body">
     <strong>Portal link generated:</strong>
-    <input type="text" value="<?= Security::h($_SESSION['portal_link']) ?>" style="width:100%;margin-top:8px;font-family:monospace;padding:6px;border:1px solid #d1d5db;border-radius:6px" readonly id="portal-link-input">
+    <input type="text" value="<?= Security::h($_SESSION['portal_link']) ?>" style="width:100%;margin-top:8px;font-family:monospace;padding:6px;border:1px solid var(--border);border-radius:6px" readonly id="portal-link-input">
     <small style="color:var(--text-muted)">Share this link with the vendor. It expires in 30 days.</small>
   </div>
 </div>
@@ -117,8 +117,8 @@ ob_start();
               if (!in_array($scheme, ['http', 'https'])) return Security::h($url);
               return '<a href="'.Security::h($url).'" target="_blank" rel="noopener noreferrer">'.Security::h($url).'</a>';
             })()],
-            ['Data Access',  $vendor['data_access'] ? '<span style="color:#dc2626">Yes</span>' : 'No'],
-            ['Critical Service', $vendor['critical_service'] ? '<span style="color:#dc2626">Yes</span>' : 'No'],
+            ['Data Access',  $vendor['data_access'] ? '<span style="color:var(--danger)">Yes</span>' : 'No'],
+            ['Critical Service', $vendor['critical_service'] ? '<span style="color:var(--danger)">Yes</span>' : 'No'],
             ['Contract Start', $vendor['contract_start'] ? date('M j, Y', strtotime($vendor['contract_start'])) : '—'],
             ['Contract End',   $vendor['contract_end'] ? date('M j, Y', strtotime($vendor['contract_end'])) : '—'],
             ['Added',        date('M j, Y', strtotime($vendor['created_at']))],

@@ -130,7 +130,7 @@ ob_start();
               <i class="bi bi-x-circle-fill"></i> Send Back
             </button>
           <?php elseif ($risk['assessment_status'] === 'approved'): ?>
-            <span style="color:#16a34a;font-size:12px;font-weight:600">
+            <span style="color:var(--success);font-size:12px;font-weight:600">
               <i class="bi bi-patch-check-fill"></i> Approved by <?= Security::h($risk['reviewed_by_name'] ?? 'Admin') ?>
               <?= $risk['reviewed_at'] ? ' · ' . date('M j, Y', strtotime($risk['reviewed_at'])) : '' ?>
             </span>
@@ -358,19 +358,19 @@ ob_start();
             <?php $maxVal = $fMax ?: $fLikely ?: $fMin ?: 1; ?>
             <?php if ($fMin !== null): ?>
             <div class="fin-bar-row"><span>Min</span>
-              <div class="fin-bar" style="width:<?= min(100, (int)(($fMin/$maxVal)*100)) ?>%;background:#22c55e"></div>
+              <div class="fin-bar" style="width:<?= min(100, (int)(($fMin/$maxVal)*100)) ?>%;background:var(--success)"></div>
               <span class="fin-val">$<?= number_format($fMin, 0) ?></span>
             </div>
             <?php endif; ?>
             <?php if ($fLikely !== null): ?>
             <div class="fin-bar-row"><span>Likely</span>
-              <div class="fin-bar" style="width:<?= min(100, (int)(($fLikely/$maxVal)*100)) ?>%;background:#f59e0b"></div>
+              <div class="fin-bar" style="width:<?= min(100, (int)(($fLikely/$maxVal)*100)) ?>%;background:var(--warning)"></div>
               <span class="fin-val">$<?= number_format($fLikely, 0) ?></span>
             </div>
             <?php endif; ?>
             <?php if ($fMax !== null): ?>
             <div class="fin-bar-row"><span>Max</span>
-              <div class="fin-bar" style="width:100%;background:#ef4444"></div>
+              <div class="fin-bar" style="width:100%;background:var(--danger)"></div>
               <span class="fin-val">$<?= number_format($fMax, 0) ?></span>
             </div>
             <?php endif; ?>
@@ -475,7 +475,7 @@ ob_start();
           $actionCounts = ['planned'=>0,'in_progress'=>0,'completed'=>0];
           foreach ($responseActions as $ra) { if (isset($actionCounts[$ra['status']])) $actionCounts[$ra['status']]++; }
           ?>
-          <?php if ($actionCounts['in_progress']): ?><span style="font-size:11px;background:#2563eb18;color:#2563eb;padding:2px 8px;border-radius:20px"><?= $actionCounts['in_progress'] ?> active</span><?php endif; ?>
+          <?php if ($actionCounts['in_progress']): ?><span style="font-size:11px;background:var(--info-subtle);color:var(--info);padding:2px 8px;border-radius:20px"><?= $actionCounts['in_progress'] ?> active</span><?php endif; ?>
           <?php if ($actionCounts['completed']): ?><span style="font-size:11px;background:#d1fae5;color:var(--success);padding:2px 8px;border-radius:20px"><?= $actionCounts['completed'] ?> done</span><?php endif; ?>
           <?php if ($actionCounts['planned']): ?><span style="font-size:11px;background:#fef3c7;color:var(--warning);padding:2px 8px;border-radius:20px"><?= $actionCounts['planned'] ?> planned</span><?php endif; ?>
         </div>
@@ -497,7 +497,7 @@ ob_start();
               <div style="font-size:14px;font-weight:500"><?= Security::h($ra['description']) ?></div>
               <div style="font-size:12px;color:var(--text-muted);margin-top:2px;display:flex;gap:10px;flex-wrap:wrap">
                 <span><i class="bi bi-person"></i> <?= Security::h($ra['owner_name'] ?? 'Unassigned') ?></span>
-                <?php if ($ra['due_date']): ?><span style="color:<?= $overdue?'#dc2626':'inherit' ?>"><i class="bi bi-calendar-event"></i> Due <?= date('M j, Y', strtotime($ra['due_date'])) ?><?= $overdue?' ⚠':'' ?></span><?php endif; ?>
+                <?php if ($ra['due_date']): ?><span style="color:<?= $overdue?'var(--danger)':'inherit' ?>"><i class="bi bi-calendar-event"></i> Due <?= date('M j, Y', strtotime($ra['due_date'])) ?><?= $overdue?' ⚠':'' ?></span><?php endif; ?>
                 <?php if ($ra['effort']): ?><span><i class="bi bi-stopwatch"></i> <?= Security::h($ra['effort']) ?></span><?php endif; ?>
                 <?php if ($ra['cost_estimate']): ?><span><i class="bi bi-currency-dollar"></i> $<?= number_format((float)$ra['cost_estimate'],0) ?></span><?php endif; ?>
                 <?php if ($ra['completion_notes']): ?><span style="font-style:italic"><?= Security::h($ra['completion_notes']) ?></span><?php endif; ?>
@@ -606,7 +606,7 @@ ob_start();
             <td style="min-width:100px">
               <?php if ($tot > 0): ?>
               <div style="display:flex;align-items:center;gap:6px">
-                <div style="flex:1;height:5px;background:var(--border);border-radius:4px;overflow:hidden"><div style="height:100%;width:<?= $pct ?>%;background:<?= $pct>=100?'#059669':'var(--primary)' ?>;border-radius:4px"></div></div>
+                <div style="flex:1;height:5px;background:var(--border);border-radius:4px;overflow:hidden"><div style="height:100%;width:<?= $pct ?>%;background:<?= $pct>=100?'var(--success)':'var(--primary)' ?>;border-radius:4px"></div></div>
                 <span style="font-size:11px;color:var(--text-muted)"><?= $done ?>/<?= $tot ?></span>
               </div>
               <?php else: ?><span class="text-muted text-sm">No milestones</span><?php endif; ?>
@@ -661,7 +661,7 @@ ob_start();
         <div class="detail-row"><span>Identified</span><strong><?= date('M j, Y', strtotime($risk['identified_date'])) ?></strong></div>
         <?php if ($risk['review_date']): ?>
         <?php $rvOvd = $risk['review_date'] < date('Y-m-d'); ?>
-        <div class="detail-row"><span>Review Due</span><strong style="color:<?= $rvOvd?'#dc2626':'inherit' ?>"><?= date('M j, Y', strtotime($risk['review_date'])) ?><?= $rvOvd?' ⚠':'' ?></strong></div>
+        <div class="detail-row"><span>Review Due</span><strong style="color:<?= $rvOvd?'var(--danger)':'inherit' ?>"><?= date('M j, Y', strtotime($risk['review_date'])) ?><?= $rvOvd?' ⚠':'' ?></strong></div>
         <?php endif; ?>
         <div class="detail-row"><span>Created By</span><strong><?= Security::h($risk['created_by_name'] ?? '—') ?></strong></div>
         <div class="detail-row"><span>Last Updated</span><strong><?= date('M j, Y', strtotime($risk['updated_at'])) ?></strong></div>
@@ -770,7 +770,7 @@ ob_start();
     <?php if ($activeAcceptance || Auth::can('risk.write')): ?>
     <div class="card">
       <div class="card-header">
-        <h3 class="card-title"><i class="bi bi-patch-check-fill" style="color:#16a34a"></i> Risk Acceptance</h3>
+        <h3 class="card-title"><i class="bi bi-patch-check-fill" style="color:var(--success)"></i> Risk Acceptance</h3>
         <?php if (Auth::can('risk.write')): ?>
           <a href="/risk/<?= (int)$risk['id'] ?>/accept" class="btn btn-ghost btn-sm"><i class="bi bi-plus-lg"></i> Issue</a>
         <?php endif; ?>
@@ -778,7 +778,7 @@ ob_start();
       <div class="card-body" style="padding:12px 16px">
         <?php if ($activeAcceptance): ?>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-            <span style="background:#16a34a18;color:#16a34a;border:1px solid #16a34a40;border-radius:20px;font-size:11px;font-weight:700;padding:2px 10px">Active</span>
+            <span style="background:var(--success-subtle);color:var(--success);border:1px solid var(--success)40;border-radius:20px;font-size:11px;font-weight:700;padding:2px 10px">Active</span>
             <span style="font-size:12px;color:var(--text-muted)">until <?= date('M j, Y', strtotime($activeAcceptance['valid_until'])) ?></span>
           </div>
           <div style="font-size:12px;color:var(--text-secondary);margin-bottom:6px">
@@ -842,7 +842,7 @@ ob_start();
           <div><strong style="display:block;font-size:12px">Bow-Tie Analysis</strong><span style="font-size:11px;color:var(--text-muted)">Causes, barriers &amp; consequences</span></div>
         </a>
         <a href="/risk/<?= (int)$risk['id'] ?>/scenario/create" class="btn btn-ghost btn-sm" style="justify-content:flex-start;gap:8px;text-align:left">
-          <i class="bi bi-graph-up-arrow" style="color:#2563eb"></i>
+          <i class="bi bi-graph-up-arrow" style="color:var(--info)"></i>
           <div><strong style="display:block;font-size:12px">Add Scenario<?php if (!empty($scenarios)): ?> <span style="font-weight:400;color:var(--text-muted)">(<?= count($scenarios) ?>)</span><?php endif; ?></strong><span style="font-size:11px;color:var(--text-muted)">Stress-test &amp; model outcomes</span></div>
         </a>
         <?php if ($controlEffSuggestion && ($resScore > $controlEffSuggestion['score'])): ?>
@@ -860,7 +860,7 @@ ob_start();
     <?php if (!empty($scenarios)): ?>
     <div class="card">
       <div class="card-header">
-        <h3 class="card-title"><i class="bi bi-graph-up-arrow" style="color:#2563eb"></i> Risk Scenarios</h3>
+        <h3 class="card-title"><i class="bi bi-graph-up-arrow" style="color:var(--info)"></i> Risk Scenarios</h3>
         <a href="/risk/<?= (int)$risk['id'] ?>/scenario/create" class="btn btn-ghost btn-sm"><i class="bi bi-plus-lg"></i></a>
       </div>
       <div class="card-body p0">
@@ -889,36 +889,40 @@ ob_start();
 </div><!-- /r-layout -->
 
 <!-- Approve Modal -->
-<div id="approveModal" style="display:none;position:fixed;inset:0;background:#00000060;z-index:9999;align-items:center;justify-content:center">
-  <div style="background:var(--bg-primary);border-radius:12px;padding:24px;width:420px;max-width:95vw">
-    <h3 style="margin:0 0 12px">Approve Risk Assessment</h3>
-    <form method="POST" action="/risk/<?= $risk['id'] ?>/approve">
-      <?= Security::csrfField() ?>
-      <div class="form-group"><label class="form-label">Approval Notes</label>
-        <textarea name="review_notes" class="form-control" rows="3" placeholder="Optional notes…"></textarea>
-      </div>
-      <div style="display:flex;gap:8px;margin-top:16px">
-        <button type="submit" class="btn btn-success">Approve</button>
-        <button type="button" class="btn btn-ghost" data-close-modal="approveModal">Cancel</button>
-      </div>
-    </form>
+<div id="approveModal" class="um-overlay" style="display:none">
+  <div class="um-dialog">
+    <div class="um-header"><h3>Approve Risk Assessment</h3><button class="um-close" data-close-modal="approveModal"><i class="bi bi-x-lg"></i></button></div>
+    <div class="um-body">
+      <form method="POST" action="/risk/<?= $risk['id'] ?>/approve">
+        <?= Security::csrfField() ?>
+        <div class="form-group"><label class="form-label">Approval Notes</label>
+          <textarea name="review_notes" class="form-control" rows="3" placeholder="Optional notes…"></textarea>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:16px">
+          <button type="submit" class="btn btn-success">Approve</button>
+          <button type="button" class="btn btn-ghost" data-close-modal="approveModal">Cancel</button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
 
 <!-- Reject Modal -->
-<div id="rejectModal" style="display:none;position:fixed;inset:0;background:#00000060;z-index:9999;align-items:center;justify-content:center">
-  <div style="background:var(--bg-primary);border-radius:12px;padding:24px;width:420px;max-width:95vw">
-    <h3 style="margin:0 0 12px">Send Back for Revision</h3>
-    <form method="POST" action="/risk/<?= $risk['id'] ?>/reject-review">
-      <?= Security::csrfField() ?>
-      <div class="form-group"><label class="form-label">Reason for Revision</label>
-        <textarea name="review_notes" class="form-control" rows="3" placeholder="Explain what needs to change…" required></textarea>
-      </div>
-      <div style="display:flex;gap:8px;margin-top:16px">
-        <button type="submit" class="btn btn-danger">Send Back</button>
-        <button type="button" class="btn btn-ghost" data-close-modal="rejectModal">Cancel</button>
-      </div>
-    </form>
+<div id="rejectModal" class="um-overlay" style="display:none">
+  <div class="um-dialog">
+    <div class="um-header"><h3>Send Back for Revision</h3><button class="um-close" data-close-modal="rejectModal"><i class="bi bi-x-lg"></i></button></div>
+    <div class="um-body">
+      <form method="POST" action="/risk/<?= $risk['id'] ?>/reject-review">
+        <?= Security::csrfField() ?>
+        <div class="form-group"><label class="form-label">Reason for Revision</label>
+          <textarea name="review_notes" class="form-control" rows="3" placeholder="Explain what needs to change…" required></textarea>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:16px">
+          <button type="submit" class="btn btn-danger">Send Back</button>
+          <button type="button" class="btn btn-ghost" data-close-modal="rejectModal">Cancel</button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
 
@@ -1012,7 +1016,7 @@ updateScores();
   if(!canvas)return;
   const ctx=canvas.getContext('2d');
   const W=canvas.offsetWidth||700; canvas.width=W; canvas.height=140;
-  const data=<?= json_encode(array_map(fn($h)=>['s'=>(int)$h['score'],'r'=>$h['residual_score']?(int)$h['residual_score']:null,'d'=>date('M j',strtotime($h['created_at']))], $scoreHistory)) ?>;
+  const data=<?= json_encode(array_map(fn($h)=>['s'=>(int)$h['score'],'r'=>$h['residual_score']?(int)$h['residual_score']:null,'d'=>date('M j',strtotime($h['created_at']))], $scoreHistory), JSON_HEX_TAG | JSON_HEX_AMP) ?>;
   const PAD={t:12,r:20,b:30,l:36};
   const cW=W-PAD.l-PAD.r, cH=140-PAD.t-PAD.b;
   const maxS=25, n=data.length;
