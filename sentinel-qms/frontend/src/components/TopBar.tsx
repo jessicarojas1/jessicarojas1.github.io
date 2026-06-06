@@ -10,7 +10,7 @@ import {
   UserCircle,
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
-import { humanize, initials } from '@/lib/format';
+import { formatDateTime, humanize, initials } from '@/lib/format';
 import { ROLE_LABELS } from '@/types';
 import {
   useDebounced,
@@ -20,7 +20,6 @@ import {
   useNotifications,
   useUnreadCount,
 } from '@/hooks';
-import { formatDateTime } from '@/lib/format';
 import { ThemeToggle } from './ThemeToggle';
 import { BrandIcon } from '@/lib/nav';
 

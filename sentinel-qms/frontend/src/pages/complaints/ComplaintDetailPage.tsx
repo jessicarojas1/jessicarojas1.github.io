@@ -4,6 +4,7 @@ import { complaintHooks } from '@/hooks';
 import { getErrorMessage } from '@/lib/api';
 import { formatDate, formatDateTime } from '@/lib/format';
 import { PageHeader } from '@/components/PageHeader';
+import { PrintButton } from '@/components/PrintButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
 
@@ -29,6 +30,7 @@ export default function ComplaintDetailPage() {
             }
             subtitle={`${c.customer_name} · ${c.title}`}
             breadcrumbs={[{ label: 'Complaints', to: '/complaints' }, { label: c.complaint_number }]}
+            actions={<PrintButton />}
           />
 
           <div className="detail-grid">

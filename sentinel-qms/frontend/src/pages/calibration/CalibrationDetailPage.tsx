@@ -4,6 +4,7 @@ import { calibrationHooks } from '@/hooks';
 import { getErrorMessage } from '@/lib/api';
 import { formatDate } from '@/lib/format';
 import { PageHeader } from '@/components/PageHeader';
+import { PrintButton } from '@/components/PrintButton';
 import { StatusBadge } from '@/components/StatusBadge';
 import { DataList, DetailState } from '@/components/detail';
 
@@ -29,6 +30,7 @@ export default function CalibrationDetailPage() {
             }
             subtitle={`Asset ${eq.asset_tag}`}
             breadcrumbs={[{ label: 'Calibration', to: '/calibration' }, { label: eq.asset_tag }]}
+            actions={<PrintButton />}
           />
 
           <div className="detail-grid">
