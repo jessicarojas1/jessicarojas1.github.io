@@ -29,6 +29,12 @@ depends_on: str | Sequence[str] | None = None
 
 def upgrade() -> None:
     bind = op.get_bind()
+    # Self-heal any partial objects left by a prior failed run. This is safe
+    # because the MetaData is bound to a dedicated schema, so drop_all only ever
+    # targets Sentinel's own tables — never anything in ``public`` on a shared
+    # database. Skipped if no dedicated schema is configured (e.g. plain public).
+    if Base.metadata.schema and Base.metadata.schema != "public":
+        Base.metadata.drop_all(bind=bind, checkfirst=True)
     Base.metadata.create_all(bind=bind)
 
 
