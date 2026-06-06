@@ -11,6 +11,7 @@ from app.api.deps import (
     SortParams,
     pagination_params,
     require_page,
+    require_perm,
     sort_params,
 )
 from app.core import audit
@@ -68,7 +69,7 @@ def create_complaint(
     body: ComplaintCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("complaints", "edit")),
+    actor: CurrentUser = Depends(require_perm("complaints.create")),
 ) -> Complaint:
     complaint = Complaint(
         **body.model_dump(),
@@ -109,7 +110,7 @@ def update_complaint(
     body: ComplaintUpdate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("complaints", "edit")),
+    actor: CurrentUser = Depends(require_perm("complaints.edit")),
 ) -> Complaint:
     complaint = get_or_404(db, Complaint, complaint_id, name="Complaint")
     before = audit.snapshot(complaint)
@@ -142,7 +143,7 @@ def soft_delete_complaint(
     complaint_id: int,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("complaints", "edit")),
+    actor: CurrentUser = Depends(require_perm("complaints.edit")),
 ) -> Complaint:
     complaint = get_or_404(db, Complaint, complaint_id, name="Complaint")
     complaint.soft_delete(actor.id)

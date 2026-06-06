@@ -9,6 +9,7 @@ from app.api.deps import (
     SortParams,
     pagination_params,
     require_page,
+    require_perm,
     sort_params,
 )
 from app.core import audit
@@ -70,7 +71,7 @@ def create_inspection(
     body: InspectionCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("inspections", "edit")),
+    actor: CurrentUser = Depends(require_perm("inspections.create")),
 ) -> Inspection:
     insp = Inspection(
         **body.model_dump(),
@@ -114,7 +115,7 @@ def update_inspection(
     body: InspectionUpdate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("inspections", "edit")),
+    actor: CurrentUser = Depends(require_perm("inspections.edit")),
 ) -> Inspection:
     insp = get_or_404(db, Inspection, inspection_id, name="Inspection")
     before = audit.snapshot(insp)
@@ -143,7 +144,7 @@ def create_fai_report(
     body: FaiReportCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("inspections", "edit")),
+    actor: CurrentUser = Depends(require_perm("inspections.record")),
 ) -> FaiReport:
     """Create an AS9102 First Article Inspection report with balloon characteristics."""
     if body.inspection_id is not None and db.get(Inspection, body.inspection_id) is None:

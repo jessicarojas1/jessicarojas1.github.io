@@ -9,6 +9,7 @@ from app.api.deps import (
     SortParams,
     pagination_params,
     require_page,
+    require_perm,
     sort_params,
 )
 from app.core import audit
@@ -89,7 +90,7 @@ def create_risk(
     body: RiskCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("risks", "edit")),
+    actor: CurrentUser = Depends(require_perm("risks.create")),
 ) -> Risk:
     risk = Risk(
         **body.model_dump(),
@@ -122,7 +123,7 @@ def create_risk(
 
 @router.get("/import/template")
 def risk_import_template(
-    _: CurrentUser = Depends(require_page("risks", "edit")),
+    _: CurrentUser = Depends(require_page("risks", "view")),
 ):
     return csv_import.template_response(
         "risks_import_template.csv", _IMPORT_COLUMNS, _IMPORT_EXAMPLE
@@ -134,7 +135,7 @@ def risk_import(
     request: Request,
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("risks", "edit")),
+    actor: CurrentUser = Depends(require_perm("risks.create")),
 ) -> ImportResult:
     def build_and_insert(row: dict[str, str]) -> None:
         data = {col: csv_import.clean(row.get(col)) for col in _IMPORT_COLUMNS}
@@ -180,7 +181,7 @@ def update_risk(
     body: RiskUpdate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("risks", "edit")),
+    actor: CurrentUser = Depends(require_perm("risks.edit")),
 ) -> Risk:
     risk = get_or_404(db, Risk, risk_id, name="Risk")
     before = audit.snapshot(risk)
@@ -215,7 +216,7 @@ def soft_delete_risk(
     risk_id: int,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("risks", "edit")),
+    actor: CurrentUser = Depends(require_perm("risks.edit")),
 ) -> Risk:
     risk = get_or_404(db, Risk, risk_id, name="Risk")
     risk.soft_delete(actor.id)

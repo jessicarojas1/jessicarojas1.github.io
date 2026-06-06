@@ -13,6 +13,7 @@ from app.api.deps import (
     SortParams,
     pagination_params,
     require_page,
+    require_perm,
     sort_params,
 )
 from app.core import audit
@@ -119,7 +120,7 @@ def create_supplier(
     body: SupplierCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("suppliers", "edit")),
+    actor: CurrentUser = Depends(require_perm("suppliers.create")),
 ) -> Supplier:
     supplier = Supplier(
         **body.model_dump(),
@@ -150,7 +151,7 @@ def create_supplier(
 
 @router.get("/import/template")
 def supplier_import_template(
-    _: CurrentUser = Depends(require_page("suppliers", "edit")),
+    _: CurrentUser = Depends(require_page("suppliers", "view")),
 ):
     return csv_import.template_response(
         "suppliers_import_template.csv", _IMPORT_COLUMNS, _IMPORT_EXAMPLE
@@ -162,7 +163,7 @@ def supplier_import(
     request: Request,
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("suppliers", "edit")),
+    actor: CurrentUser = Depends(require_perm("suppliers.create")),
 ) -> ImportResult:
     def build_and_insert(row: dict[str, str]) -> None:
         data = {col: csv_import.clean(row.get(col)) for col in _IMPORT_COLUMNS}
@@ -206,7 +207,7 @@ def update_supplier(
     body: SupplierUpdate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("suppliers", "edit")),
+    actor: CurrentUser = Depends(require_perm("suppliers.edit")),
 ) -> Supplier:
     supplier = get_or_404(db, Supplier, supplier_id, name="Supplier")
     before = audit.snapshot(supplier)
@@ -235,7 +236,7 @@ def soft_delete_supplier(
     supplier_id: int,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("suppliers", "edit")),
+    actor: CurrentUser = Depends(require_perm("suppliers.edit")),
 ) -> Supplier:
     supplier = get_or_404(db, Supplier, supplier_id, name="Supplier")
     supplier.soft_delete(actor.id)
@@ -282,7 +283,7 @@ def create_scar(
     body: ScarCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("suppliers", "edit")),
+    actor: CurrentUser = Depends(require_perm("suppliers.scar")),
 ) -> SupplierScar:
     get_or_404(db, Supplier, supplier_id, name="Supplier")
     scar = SupplierScar(
@@ -316,7 +317,7 @@ def update_scar(
     body: ScarUpdate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("suppliers", "edit")),
+    actor: CurrentUser = Depends(require_perm("suppliers.scar")),
 ) -> SupplierScar:
     scar = db.get(SupplierScar, scar_id)
     if scar is None:
@@ -356,7 +357,7 @@ def add_asl_entry(
     body: AslEntryCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("suppliers", "edit")),
+    actor: CurrentUser = Depends(require_perm("suppliers.edit")),
 ) -> ApprovedSupplierListEntry:
     get_or_404(db, Supplier, supplier_id, name="Supplier")
     entry = ApprovedSupplierListEntry(
@@ -411,7 +412,7 @@ def add_rating(
     body: RatingCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("suppliers", "edit")),
+    actor: CurrentUser = Depends(require_perm("suppliers.rate")),
 ) -> SupplierRating:
     get_or_404(db, Supplier, supplier_id, name="Supplier")
 

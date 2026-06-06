@@ -12,6 +12,7 @@ from app.api.deps import (
     SortParams,
     pagination_params,
     require_page,
+    require_perm,
     sort_params,
 )
 from app.core import audit
@@ -121,7 +122,7 @@ def create_equipment(
     body: EquipmentCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("calibration", "edit")),
+    actor: CurrentUser = Depends(require_perm("calibration.create")),
 ) -> Equipment:
     data = body.model_dump()
     last_cal = data.get("last_calibration_date")
@@ -158,7 +159,7 @@ def create_equipment(
 
 @router.get("/equipment/import/template")
 def equipment_import_template(
-    _: CurrentUser = Depends(require_page("calibration", "edit")),
+    _: CurrentUser = Depends(require_page("calibration", "view")),
 ):
     return csv_import.template_response(
         "equipment_import_template.csv", _IMPORT_COLUMNS, _IMPORT_EXAMPLE
@@ -170,7 +171,7 @@ def equipment_import(
     request: Request,
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("calibration", "edit")),
+    actor: CurrentUser = Depends(require_perm("calibration.create")),
 ) -> ImportResult:
     def build_and_insert(row: dict[str, str]) -> None:
         data = {col: csv_import.clean(row.get(col)) for col in _IMPORT_COLUMNS}
@@ -220,7 +221,7 @@ def update_equipment(
     body: EquipmentUpdate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("calibration", "edit")),
+    actor: CurrentUser = Depends(require_perm("calibration.edit")),
 ) -> Equipment:
     equipment = get_or_404(db, Equipment, equipment_id, name="Equipment")
     before = audit.snapshot(equipment)
@@ -254,7 +255,7 @@ def record_calibration(
     body: CalibrationRecordCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("calibration", "edit")),
+    actor: CurrentUser = Depends(require_perm("calibration.record")),
 ) -> CalibrationRecord:
     equipment = get_or_404(db, Equipment, equipment_id, name="Equipment")
 
