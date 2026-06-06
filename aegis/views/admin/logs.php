@@ -23,7 +23,7 @@ ob_start();
 <div class="stats-grid" style="margin-bottom:1.5rem">
 
   <div class="stat-card" style="flex-direction:row;align-items:center;gap:16px">
-    <div class="stat-icon" style="background:linear-gradient(135deg,var(--primary),#818cf8);flex-shrink:0">
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--primary),var(--indigo));flex-shrink:0">
       <i class="bi bi-journal-text"></i>
     </div>
     <div class="stat-body">
@@ -33,7 +33,7 @@ ob_start();
   </div>
 
   <div class="stat-card" style="flex-direction:row;align-items:center;gap:16px">
-    <div class="stat-icon" style="background:linear-gradient(135deg,var(--success),#34d399);flex-shrink:0">
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--success),var(--success));flex-shrink:0">
       <i class="bi bi-clock"></i>
     </div>
     <div class="stat-body">
@@ -43,7 +43,7 @@ ob_start();
   </div>
 
   <div class="stat-card" style="flex-direction:row;align-items:center;gap:16px">
-    <div class="stat-icon" style="background:linear-gradient(135deg,var(--info),#38bdf8);flex-shrink:0">
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--info),var(--info));flex-shrink:0">
       <i class="bi bi-people-fill"></i>
     </div>
     <div class="stat-body">
@@ -53,7 +53,7 @@ ob_start();
   </div>
 
   <div class="stat-card" style="flex-direction:row;align-items:center;gap:16px">
-    <div class="stat-icon" style="background:linear-gradient(135deg,var(--warning),#fbbf24);flex-shrink:0">
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--warning),var(--warning));flex-shrink:0">
       <i class="bi bi-lightning-fill"></i>
     </div>
     <div class="stat-body">
@@ -255,7 +255,7 @@ ob_start();
         for ($p = $start; $p <= $end; $p++):
       ?>
         <?php if ($p === $page): ?>
-          <span style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:var(--primary);color:#fff;border-radius:6px;font-size:.82rem;font-weight:600"><?= $p ?></span>
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:var(--primary);color:var(--card-bg);border-radius:6px;font-size:.82rem;font-weight:600"><?= $p ?></span>
         <?php else: ?>
           <a href="?page=<?= $p ?><?= $qs ?>" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border:1px solid var(--border);border-radius:6px;font-size:.82rem;color:var(--text-muted);text-decoration:none" class="btn btn-ghost btn-sm" style="width:32px;height:32px;padding:0;justify-content:center"><?= $p ?></a>
         <?php endif; ?>

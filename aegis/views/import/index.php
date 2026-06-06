@@ -1,5 +1,5 @@
 <?php
-$breadcrumbs = [['Import', null]];
+$breadcrumbs = $breadcrumbs ?? [['Import', null]];
 $templates = [
   'risks'     => 'title,description,likelihood,impact,status,category,treatment_type',
   'vendors'   => 'name,category,website,description,risk_tier',
@@ -25,7 +25,7 @@ $notes = [
   'vendors' => [
     'label'  => 'Vendors',
     'icon'   => 'bi-building',
-    'color'  => '#0284c7',
+    'color'  => 'var(--info)',
     'fields' => [
       ['name',        'Required', 'string', 'Full legal or trade name of the vendor.'],
       ['category',    'Optional', 'string', 'Vendor category (e.g. Cloud Provider, Software, Consultant, Staffing).'],
@@ -38,7 +38,7 @@ $notes = [
   'incidents' => [
     'label'  => 'Incidents',
     'icon'   => 'bi-fire',
-    'color'  => '#f97316',
+    'color'  => 'var(--orange)',
     'fields' => [
       ['title',       'Required', 'string', 'Short descriptive title for the incident.'],
       ['description', 'Optional', 'string', 'Summary of what occurred, initial indicators, or affected systems.'],
@@ -98,7 +98,7 @@ $notes = [
             <p class="text-muted">.csv format, max 10MB</p>
           </label>
           <input type="file" id="bulkCsvFile" name="csv_file" accept=".csv,.txt" required style="display:none"
-                 data-change="showFileChange" data-drop-id="fileDropBulk" data-name-id="bulkCsvName" data-color="#059669">
+                 data-change="showFileChange" data-drop-id="fileDropBulk" data-name-id="bulkCsvName" data-color="var(--success)">
           <div id="bulkCsvName" style="margin-top:8px;color:var(--success);display:none"><i class="bi bi-file-earmark-check"></i> <span></span></div>
           <div style="margin-top:10px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:0.8rem;">
             <div style="font-weight:600;color:var(--text);margin-bottom:5px;"><i class="bi bi-info-circle" style="color:var(--primary)"></i> Upload Reference</div>

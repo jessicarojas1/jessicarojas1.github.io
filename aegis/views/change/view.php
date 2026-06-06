@@ -1,12 +1,12 @@
 <?php
 $breadcrumbs  = $breadcrumbs  ?? [['Change Requests', '/change'], ['Change Request', null]];
 $statusColors = [
-    'draft'=>'#6b7280','submitted'=>'#3b82f6','under_review'=>'var(--warning)',
-    'approved'=>'var(--success)','rejected'=>'var(--danger)','implementing'=>'#8b5cf6',
+    'draft'=>'#6b7280','submitted'=>'#3b82f6','under_review'=>'#f59e0b',
+    'approved'=>'#22c55e','rejected'=>'#ef4444','implementing'=>'#8b5cf6',
     'implemented'=>'#06b6d4','closed'=>'#9ca3af'
 ];
-$riskColors = ['low'=>'var(--success)','medium'=>'var(--warning)','high'=>'#f97316','critical'=>'var(--danger)'];
-$typeColors = ['normal'=>'#3b82f6','emergency'=>'var(--danger)','standard'=>'var(--success)'];
+$riskColors = ['low'=>'#22c55e','medium'=>'#f59e0b','high'=>'#f97316','critical'=>'#ef4444'];
+$typeColors = ['normal'=>'#3b82f6','emergency'=>'#ef4444','standard'=>'#22c55e'];
 $u = Auth::user();
 $isAdmin = in_array($u['role'], ['admin','manager']);
 $isSubmitter = (int)$change['submitter_id'] === (int)$u['id'];
@@ -44,7 +44,7 @@ ob_start(); ?>
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px">
       <h1 class="page-title" style="margin:0"><?= Security::h($change['title']) ?></h1>
       <?php if (!empty($change['change_number'])): ?>
-        <span class="badge" style="background:var(--info-subtle);color:var(--info-text);border:1px solid var(--info-border);font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($change['change_number']) ?></span>
+        <span class="badge" style="background:var(--info-subtle);color:var(--info);border:1px solid var(--border);font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($change['change_number']) ?></span>
       <?php endif; ?>
     </div>
     <p class="page-subtitle">
@@ -156,7 +156,7 @@ ob_start(); ?>
         <h3 style="margin:0"><i class="bi bi-people-fill" style="margin-right:6px;color:var(--primary)"></i>CAB Review</h3>
         <div style="display:flex;gap:10px;font-size:13px">
           <?php if ($approveCount > 0): ?>
-            <span style="display:inline-flex;align-items:center;gap:5px;background:var(--success-subtle);color:var(--primary);padding:3px 10px;border-radius:99px;font-weight:700">
+            <span style="display:inline-flex;align-items:center;gap:5px;background:var(--success-subtle);color:var(--success);padding:3px 10px;border-radius:99px;font-weight:700">
               <i class="bi bi-check-circle-fill"></i> <?= $approveCount ?> Approve
             </span>
           <?php endif; ?>
@@ -175,7 +175,7 @@ ob_start(); ?>
           <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
             <?php foreach ($cabVotes as $v):
               $isApprove = str_starts_with($v['content'], 'APPROVE');
-              $voteColor = $isApprove ? 'var(--primary)' : 'var(--danger)';
+              $voteColor = $isApprove ? '#16a34a' : '#dc2626';
               $voteBg    = $isApprove ? '#dcfce7' : '#fee2e2';
               $voteLabel = $isApprove ? 'Approved' : 'Rejected';
               $voteIcon  = $isApprove ? 'bi-check-circle-fill' : 'bi-x-circle-fill';
@@ -218,7 +218,7 @@ ob_start(); ?>
               <div style="display:flex;gap:10px">
                 <button type="submit" name="vote" value="approve"
                   class="btn btn-sm"
-                  style="background:var(--primary);color:#fff;border:none;display:inline-flex;align-items:center;gap:6px">
+                  style="background:var(--success);color:var(--card-bg);border:none;display:inline-flex;align-items:center;gap:6px">
                   <i class="bi bi-check-circle-fill"></i> Approve
                 </button>
                 <button type="submit" name="vote" value="reject"

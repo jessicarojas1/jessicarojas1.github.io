@@ -1,14 +1,14 @@
 <?php
+$breadcrumbs   = [['Compliance', '/compliance'], ['Test Control', null]];
 $flash_success = $_SESSION['flash_success'] ?? null;
 $flash_error   = $_SESSION['flash_error']   ?? null;
 unset($_SESSION['flash_success'], $_SESSION['flash_error']);
-$breadcrumbs = [['Compliance', '/compliance'], ['Testing', '/compliance/testing'], [Security::h($obj['title'] ?? 'Control'), null]];
 
 function testResultBadge(string $result): string {
     return match($result) {
-        'pass'       => '<span class="badge" style="background:var(--primary-tint);color:var(--primary);border:1px solid var(--primary-ring)">Pass</span>',
-        'fail'       => '<span class="badge" style="background:var(--danger-tint);color:var(--danger);border:1px solid var(--danger-ring)">Fail</span>',
-        'partial'    => '<span class="badge" style="background:var(--warning-tint);color:var(--warning);border:1px solid var(--warning-ring)">Partial</span>',
+        'pass'       => '<span class="badge" style="background:var(--success-subtle);color:var(--primary);border:1px solid var(--success)">Pass</span>',
+        'fail'       => '<span class="badge" style="background:var(--danger-subtle);color:var(--danger);border:1px solid var(--danger)">Fail</span>',
+        'partial'    => '<span class="badge" style="background:var(--warning-subtle);color:var(--warning);border:1px solid var(--warning)">Partial</span>',
         'not_tested' => '<span class="badge" style="background:var(--bg-secondary);color:var(--text-muted);border:1px solid var(--border)">Not Tested</span>',
         default      => '<span class="badge">' . htmlspecialchars($result, ENT_QUOTES, 'UTF-8') . '</span>',
     };
@@ -31,10 +31,10 @@ function testResultBadge(string $result): string {
 </div>
 
 <?php if ($flash_success): ?>
-  <div class="alert-box success" style="margin-bottom:20px"><i class="bi bi-check-circle-fill"></i> <?= Security::h($flash_success) ?></div>
+  <div class="alert alert-success" style="margin-bottom:20px"><i class="bi bi-check-circle-fill"></i> <?= Security::h($flash_success) ?></div>
 <?php endif; ?>
 <?php if ($flash_error): ?>
-  <div class="alert-box error" style="margin-bottom:20px"><i class="bi bi-exclamation-triangle-fill"></i> <?= Security::h($flash_error) ?></div>
+  <div class="alert alert-error" style="margin-bottom:20px"><i class="bi bi-exclamation-triangle-fill"></i> <?= Security::h($flash_error) ?></div>
 <?php endif; ?>
 
 <!-- Control Details -->
@@ -65,11 +65,11 @@ function testResultBadge(string $result): string {
           <?php
           $implStatus = $obj['status'] ?? 'not_started';
           $statusCfg = [
-            'compliant'      => ['bg'=>'#dcfce7','text'=>'var(--primary)','label'=>'Compliant'],
+            'compliant'      => ['bg'=>'var(--success-subtle)','text'=>'var(--success)','label'=>'Compliant'],
             'partial'        => ['bg'=>'var(--warning-subtle)','text'=>'var(--warning)','label'=>'Partial'],
-            'non_compliant'  => ['bg'=>'var(--danger-subtle)','text'=>'var(--danger)','label'=>'Non-Compliant'],
-            'not_applicable' => ['bg'=>'#f4f4f5','text'=>'#71717a','label'=>'Not Applicable'],
-            'not_started'    => ['bg'=>'#f9fafb','text'=>'#a1a1aa','label'=>'Not Started'],
+            'non_compliant'  => ['bg'=>'var(--danger-subtle)', 'text'=>'var(--danger)', 'label'=>'Non-Compliant'],
+            'not_applicable' => ['bg'=>'var(--bg-subtle)',     'text'=>'var(--text-muted)','label'=>'Not Applicable'],
+            'not_started'    => ['bg'=>'var(--surface-alt)',   'text'=>'var(--text-muted)','label'=>'Not Started'],
           ];
           $sc = $statusCfg[$implStatus] ?? $statusCfg['not_started'];
           ?>
@@ -92,7 +92,7 @@ function testResultBadge(string $result): string {
     <div class="card-header-left">
       <i class="bi bi-clock-history" style="color:var(--primary)"></i>
       <span class="card-title">Test History</span>
-      <span style="background:var(--border);color:var(--text-muted);border-radius:12px;padding:2px 10px;font-size:12px;font-weight:600"><?= count($history) ?></span>
+      <span style="background:var(--bg-subtle);color:var(--text-muted);border-radius:12px;padding:2px 10px;font-size:12px;font-weight:600"><?= count($history) ?></span>
     </div>
   </div>
   <?php if ($history): ?>
@@ -118,7 +118,7 @@ function testResultBadge(string $result): string {
           <td>
             <?php if ($h['effectiveness'] !== null): ?>
             <div style="display:flex;align-items:center;gap:8px">
-              <div style="width:60px;height:6px;background:var(--border);border-radius:3px;overflow:hidden">
+              <div style="width:60px;height:6px;background:var(--bg-subtle);border-radius:3px;overflow:hidden">
                 <div style="width:<?= (int)$h['effectiveness'] ?>%;height:100%;background:<?= $h['effectiveness'] >= 75 ? 'var(--primary)' : ($h['effectiveness'] >= 40 ? 'var(--warning)' : 'var(--danger)') ?>;border-radius:3px"></div>
               </div>
               <span style="font-size:12px;font-weight:600;color:var(--text)"><?= (int)$h['effectiveness'] ?>%</span>
@@ -148,7 +148,7 @@ function testResultBadge(string $result): string {
   </div>
   <?php else: ?>
   <div class="card-body">
-    <div class="empty-state-sm" style="text-align:center;padding:24px;color:var(--text-muted)">
+    <div class="empty-state-sm">
       <i class="bi bi-clipboard2-x" style="font-size:28px;display:block;margin-bottom:8px"></i>
       <p style="margin:0">No test results recorded yet. Use the form below to record the first test.</p>
     </div>
@@ -194,7 +194,7 @@ function testResultBadge(string $result): string {
                    min="0" max="100" placeholder="e.g. 85" style="flex:1"
                    data-input="updateEffBar" data-input-val="1">
             <div style="width:80px;text-align:center">
-              <div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin-bottom:2px">
+              <div style="height:8px;background:var(--bg-subtle);border-radius:4px;overflow:hidden;margin-bottom:2px">
                 <div id="effBar" style="width:0%;height:100%;background:var(--primary);border-radius:4px;transition:width .2s"></div>
               </div>
               <span id="effLabel" style="font-size:11px;color:var(--text-muted)">—</span>

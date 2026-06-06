@@ -8,29 +8,29 @@ function dashRiskLevel(int $score): string {
 }
 // Helper: hex color for level
 function dashLevelColor(int $score): string {
-    if ($score > 14) return 'var(--danger)';
-    if ($score > 9)  return 'var(--orange)';
-    if ($score > 4)  return 'var(--warning)';
-    return 'var(--success)';
+    if ($score > 14) return '#ef4444';
+    if ($score > 9)  return '#f97316';
+    if ($score > 4)  return '#f59e0b';
+    return '#22c55e';
 }
 // Helper: cell background for heat-map score
 function dashCellBg(int $score): string {
     if ($score > 14) return '#fee2e2';
     if ($score > 9)  return '#ffedd5';
     if ($score > 4)  return '#fefce8';
-    return 'var(--success-subtle)';
+    return '#f0fdf4';
 }
 function dashCellBorder(int $score): string {
-    if ($score > 14) return 'var(--danger-border)';
+    if ($score > 14) return '#fca5a5';
     if ($score > 9)  return '#fdba74';
     if ($score > 4)  return '#fde68a';
-    return 'var(--success-border)';
+    return '#86efac';
 }
 function dashCellText(int $score): string {
-    if ($score > 14) return 'var(--danger)';
-    if ($score > 9)  return 'var(--danger)';
-    if ($score > 4)  return 'var(--warning)';
-    return 'var(--primary-dark)';
+    if ($score > 14) return '#b91c1c';
+    if ($score > 9)  return '#c2410c';
+    if ($score > 4)  return '#92400e';
+    return '#15803d';
 }
 
 $uncontrolledCount = count($uncontrolled ?? []);
@@ -249,7 +249,7 @@ if (!empty($trendData)) {
     font-weight: 700;
 }
 .rdash-review-date .rday { font-size: 18px; font-weight: 800; line-height: 1; }
-.rdash-review-date.overdue { background: var(--danger-subtle); color: var(--danger); }
+.rdash-review-date.overdue { background: #fee2e2; color: var(--danger); }
 
 /* ── Appetite / uncontrolled list ─────────────────── */
 .rdash-list-item {
@@ -334,9 +334,9 @@ if (!empty($trendData)) {
     gap: 8px;
     padding: 12px 14px;
     background: var(--success-subtle);
-    border: 1px solid var(--success-border);
+    border: 1px solid var(--success)40;
     border-radius: 8px;
-    color: var(--primary-dark);
+    color: var(--success);
     font-size: 13px;
     font-weight: 600;
 }
@@ -404,9 +404,9 @@ if (!empty($trendData)) {
   </div>
 
   <!-- Approved -->
-  <div class="rdash-kpi" style="border-top:3px solid var(--success)">
-    <span class="kpi-icon" style="color:var(--success)"><i class="bi bi-patch-check-fill"></i></span>
-    <span class="kpi-num" style="color:var(--success)"><?= (int)($summary['approved'] ?? 0) ?></span>
+  <div class="rdash-kpi" style="border-top:3px solid var(--primary-light)">
+    <span class="kpi-icon" style="color:var(--primary-light)"><i class="bi bi-patch-check-fill"></i></span>
+    <span class="kpi-num" style="color:var(--primary-light)"><?= (int)($summary['approved'] ?? 0) ?></span>
     <span class="kpi-lbl">Approved</span>
   </div>
 
@@ -511,10 +511,10 @@ if (!empty($trendData)) {
 
         <!-- Legend -->
         <div style="display:flex;gap:12px;margin-top:14px;flex-wrap:wrap;font-size:11px;font-weight:600">
-          <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;border-radius:3px;background:var(--success-subtle);border:1.5px solid var(--success-border);display:inline-block"></span>Low (≤4)</span>
-          <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;border-radius:3px;background:#fefce8;border:1.5px solid #fde68a;display:inline-block"></span>Medium (5–9)</span>
-          <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;border-radius:3px;background:#ffedd5;border:1.5px solid #fdba74;display:inline-block"></span>High (10–14)</span>
-          <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;border-radius:3px;background:var(--danger-subtle);border:1.5px solid var(--danger-border);display:inline-block"></span>Critical (&gt;14)</span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;border-radius:3px;background:var(--success-subtle);border:1.5px solid var(--success)40;display:inline-block"></span>Low (≤4)</span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;border-radius:3px;background:var(--warning-subtle);border:1.5px solid var(--warning)40;display:inline-block"></span>Medium (5–9)</span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;border-radius:3px;background:var(--bg-subtle);border:1.5px solid var(--orange)40;display:inline-block"></span>High (10–14)</span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:14px;border-radius:3px;background:var(--danger-subtle);border:1.5px solid var(--danger)40;display:inline-block"></span>Critical (&gt;14)</span>
         </div>
       </div><!-- /heatmap-wrap -->
     </div><!-- /heat map card -->
@@ -531,7 +531,7 @@ if (!empty($trendData)) {
         Top 10 Risks by Score
       </div>
       <?php if (empty($topRisks)): ?>
-        <div class="rdash-empty"><i class="bi bi-shield-check" style="color:var(--success)"></i>No risks recorded yet.</div>
+        <div class="rdash-empty"><i class="bi bi-shield-check" style="color:var(--primary-light)"></i>No risks recorded yet.</div>
       <?php else: ?>
         <table class="rdash-compact-table">
           <thead>
@@ -620,7 +620,7 @@ if (!empty($trendData)) {
               <?= Security::h($rv['title']) ?>
             </a>
             <div style="font-size:11px;color:var(--text-muted);margin-top:2px">
-              <span style="color:<?= $overdue ? '#b91c1c' : 'var(--text-muted)' ?>;font-weight:<?= $overdue ? '700' : '400' ?>">
+              <span style="color:<?= $overdue ? 'var(--danger)' : 'var(--text-muted)' ?>;font-weight:<?= $overdue ? '700' : '400' ?>">
                 <?= Security::h($dayLabel) ?>
               </span>
               · <?= Security::h($rv['owner_name'] ?? 'Unassigned') ?>
@@ -690,7 +690,7 @@ if (!empty($trendData)) {
       <i class="bi bi-shield-x" style="color:var(--warning)"></i>
       Uncontrolled Risks
       <?php if ($uncontrolledCount > 0): ?>
-        <span style="margin-left:auto;background:#fef3c7;color:var(--warning);font-size:11px;padding:2px 8px;border-radius:20px;border:1px solid #fde68a"><?= $uncontrolledCount ?> risks</span>
+        <span style="margin-left:auto;background:var(--warning-subtle);color:var(--warning);font-size:11px;padding:2px 8px;border-radius:20px;border:1px solid var(--warning)40"><?= $uncontrolledCount ?> risks</span>
       <?php endif; ?>
     </div>
     <?php if (empty($uncontrolled)): ?>
@@ -716,7 +716,7 @@ if (!empty($trendData)) {
           <?php endif; ?>
         </div>
         <?php if (Auth::can('risk.write')): ?>
-        <a href="/risk/<?= (int)$uc['id'] ?>" style="flex-shrink:0;font-size:11px;font-weight:600;color:var(--primary);text-decoration:none;white-space:nowrap;padding:3px 8px;border-radius:6px;border:1px solid #c7d2fe;background:rgba(11,97,4,.06)">
+        <a href="/risk/<?= (int)$uc['id'] ?>" style="flex-shrink:0;font-size:11px;font-weight:600;color:var(--primary);text-decoration:none;white-space:nowrap;padding:3px 8px;border-radius:6px;border:1px solid var(--primary)40;background:rgba(11,97,4,.06)">
           <i class="bi bi-link-45deg"></i> Link Controls
         </a>
         <?php endif; ?>
@@ -740,9 +740,9 @@ if (!empty($trendData)) {
     $abTotal      = max($abTotal, 1); // avoid div-by-zero
     $bars = [
         ['label' => 'Planned',     'count' => $abPlanned,    'color' => 'var(--primary)', 'bg' => 'rgba(11,97,4,.06)'],
-        ['label' => 'In Progress', 'count' => $abInProgress, 'color' => 'var(--orange)', 'bg' => 'var(--warning-subtle)'],
-        ['label' => 'Completed',   'count' => $abCompleted,  'color' => 'var(--success)', 'bg' => 'var(--success-subtle)'],
-        ['label' => 'Overdue',     'count' => $abOverdue,    'color' => 'var(--danger)', 'bg' => 'var(--danger-subtle)'],
+        ['label' => 'In Progress', 'count' => $abInProgress, 'color' => '#f97316', 'bg' => '#fff7ed'],
+        ['label' => 'Completed',   'count' => $abCompleted,  'color' => '#22c55e', 'bg' => '#f0fdf4'],
+        ['label' => 'Overdue',     'count' => $abOverdue,    'color' => '#ef4444', 'bg' => '#fef2f2'],
     ];
     // Donut via conic-gradient
     $conicParts = [];
@@ -784,7 +784,7 @@ if (!empty($trendData)) {
     </div>
 
     <?php if ($abOverdue > 0): ?>
-    <div style="margin-top:12px;display:flex;align-items:center;gap:6px;padding:8px 10px;background:var(--danger-subtle);border:1px solid var(--danger-border);border-radius:8px;font-size:12px;font-weight:600;color:var(--danger)">
+    <div style="margin-top:12px;display:flex;align-items:center;gap:6px;padding:8px 10px;background:var(--danger-subtle);border:1px solid var(--danger)40;border-radius:8px;font-size:12px;font-weight:600;color:var(--danger)">
       <i class="bi bi-exclamation-circle-fill"></i>
       <?= $abOverdue ?> action<?= $abOverdue !== 1 ? 's' : '' ?> overdue — immediate attention required.
     </div>
@@ -921,7 +921,7 @@ if (!empty($trendData)) {
     // ── Line ────────────────────────────────────────────
     ctx.beginPath();
     ctx.lineWidth = 2.5;
-    ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || 'var(--primary)';
+    ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#16a34a';
     ctx.lineJoin = 'round';
     data.forEach(function(pt, i) {
       if (i === 0) ctx.moveTo(xPos(i), yPos(pt.avg));
@@ -933,7 +933,7 @@ if (!empty($trendData)) {
     var dotR = 5;
     data.forEach(function(pt, i) {
       var cx = xPos(i), cy = yPos(pt.avg);
-      var lvlColor = pt.avg > 14 ? 'var(--danger)' : (pt.avg > 9 ? 'var(--orange)' : (pt.avg > 4 ? 'var(--warning)' : 'var(--success)'));
+      var lvlColor = pt.avg > 14 ? '#ef4444' : (pt.avg > 9 ? '#f97316' : (pt.avg > 4 ? '#f59e0b' : '#22c55e'));
       ctx.beginPath();
       ctx.arc(cx, cy, dotR, 0, Math.PI * 2);
       ctx.fillStyle   = '#ffffff';

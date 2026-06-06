@@ -25,11 +25,11 @@ ob_start();
     <div class="stat-body"><div class="stat-value"><?= $stats['critical'] ?></div><div class="stat-label">Critical</div></div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:linear-gradient(135deg,var(--warning),var(--warning))"><i class="bi bi-exclamation-triangle-fill"></i></div>
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--warning),#b45309)"><i class="bi bi-exclamation-triangle-fill"></i></div>
     <div class="stat-body"><div class="stat-value"><?= $stats['high'] ?></div><div class="stat-label">High</div></div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:linear-gradient(135deg,var(--success),var(--primary-dark))"><i class="bi bi-check-circle-fill"></i></div>
+    <div class="stat-icon" style="background:linear-gradient(135deg,var(--success),#047857)"><i class="bi bi-check-circle-fill"></i></div>
     <div class="stat-body"><div class="stat-value"><?= $stats['low'] + $stats['medium'] ?></div><div class="stat-label">Medium / Low</div></div>
   </div>
 </div>
@@ -52,9 +52,9 @@ ob_start();
       <tbody>
         <?php foreach ($risks as $r):
           $sc = (int)$r['inherent_score'];
-          $rc = $sc >= 20 ? 'var(--danger)' : ($sc >= 15 ? 'var(--warning)' : ($sc >= 8 ? '#0284c7' : 'var(--success)'));
-          $stColors=['open'=>'var(--danger)','in_treatment'=>'var(--warning)','accepted'=>'var(--secondary)','closed'=>'#71717a'];
-          $stc = $stColors[$r['status']] ?? '#71717a';
+          $rc = $sc >= 20 ? 'var(--danger)' : ($sc >= 15 ? 'var(--warning)' : ($sc >= 8 ? 'var(--info)' : 'var(--success)'));
+          $stColors=['open'=>'var(--danger)','in_treatment'=>'var(--warning)','accepted'=>'var(--secondary)','closed'=>'var(--text-muted)'];
+          $stc = $stColors[$r['status']] ?? 'var(--text-muted)';
         ?>
         <tr style="border-top:1px solid var(--border)">
           <td style="padding:12px 16px">
@@ -96,8 +96,8 @@ ob_start();
       </thead>
       <tbody>
         <?php foreach ($openTreatments as $t):
-          $tColors=['planned'=>'#71717a','in_progress'=>'var(--warning)','completed'=>'var(--success)','cancelled'=>'#71717a'];
-          $tc = $tColors[$t['status']] ?? '#71717a';
+          $tColors=['planned'=>'var(--text-muted)','in_progress'=>'var(--warning)','completed'=>'var(--success)','cancelled'=>'var(--text-muted)'];
+          $tc = $tColors[$t['status']] ?? 'var(--text-muted)';
           $overdue = $t['due_date'] && strtotime($t['due_date']) < time();
         ?>
         <tr style="border-top:1px solid var(--border)">
@@ -150,7 +150,7 @@ ob_start();
   .sidebar,.topbar,.bottom-nav,.page-actions,.alert-panel,.alert-overlay{display:none!important}
   .main-content{margin:0!important;padding:0!important}
   .page-content{padding:0!important}
-  .card{box-shadow:none!important;border:1px solid var(--border)!important;break-inside:avoid}
+  .card{box-shadow:none!important;border:1px solid #e4e4e7!important;break-inside:avoid}
 }
 </style>
 

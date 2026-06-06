@@ -1,15 +1,15 @@
 <?php
 $breadcrumbs    = $breadcrumbs    ?? [['Treatments', '/treatment'], ['Treatment', null]];
 $strategyColors = [
-    'mitigate' => ['bg' => 'var(--info-tint)', 'color' => '#3b82f6', 'border' => '#3b82f640', 'label' => 'Mitigate'],
+    'mitigate' => ['bg' => '#3b82f620', 'color' => '#3b82f6', 'border' => '#3b82f640', 'label' => 'Mitigate'],
     'transfer' => ['bg' => '#8b5cf620', 'color' => '#8b5cf6', 'border' => '#8b5cf640', 'label' => 'Transfer'],
-    'accept'   => ['bg' => '#f59e0b20', 'color' => 'var(--warning)', 'border' => '#f59e0b40', 'label' => 'Accept'],
-    'avoid'    => ['bg' => '#ef444420', 'color' => 'var(--danger)', 'border' => '#ef444440', 'label' => 'Avoid'],
+    'accept'   => ['bg' => '#f59e0b20', 'color' => '#f59e0b', 'border' => '#f59e0b40', 'label' => 'Accept'],
+    'avoid'    => ['bg' => '#ef444420', 'color' => '#ef4444', 'border' => '#ef444440', 'label' => 'Avoid'],
 ];
 $statusStyles = [
     'draft'     => ['bg' => '#a1a1aa20', 'color' => '#a1a1aa', 'border' => '#a1a1aa40'],
     'active'    => ['bg' => 'rgba(22, 163, 74, .08)', 'color' => 'var(--primary)', 'border' => 'rgba(22, 163, 74, .20)'],
-    'completed' => ['bg' => '#05966920', 'color' => 'var(--success)', 'border' => 'var(--success-ring)'],
+    'completed' => ['bg' => '#05966920', 'color' => '#059669', 'border' => '#05966940'],
     'cancelled' => ['bg' => '#a1a1aa20', 'color' => '#a1a1aa', 'border' => '#a1a1aa40'],
 ];
 $sc  = $strategyColors[$plan['strategy']] ?? $strategyColors['mitigate'];
@@ -47,7 +47,7 @@ if ($plan['target_date']) {
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">
       <h1 class="page-title" style="margin:0"><?= Security::h($plan['title']) ?></h1>
       <?php if (!empty($plan['plan_code'])): ?>
-        <span class="badge" style="background:var(--info-subtle);color:var(--info-text);border:1px solid var(--info-border);font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($plan['plan_code']) ?></span>
+        <span class="badge" style="background:var(--info-subtle);color:var(--info);border:1px solid var(--border);font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($plan['plan_code']) ?></span>
       <?php endif; ?>
     </div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
@@ -86,7 +86,7 @@ if ($plan['target_date']) {
         </div>
       </div>
       <?php if ($daysLabel): ?>
-      <div style="text-align:center;padding:12px 20px;background:<?= $overduePlan ? '#ef444415' : 'var(--bg-secondary)' ?>;border-radius:10px;border:1px solid <?= $overduePlan ? '#ef444430' : 'var(--border)' ?>">
+      <div style="text-align:center;padding:12px 20px;background:<?= $overduePlan ? 'var(--danger-subtle)' : 'var(--bg-secondary)' ?>;border-radius:10px;border:1px solid <?= $overduePlan ? 'var(--danger)' : 'var(--border)' ?>">
         <div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:4px">Target Date</div>
         <div style="font-weight:700;color:<?= $overduePlan ? 'var(--danger)' : 'var(--text-primary)' ?>"><?= date('M j, Y', strtotime($plan['target_date'])) ?></div>
         <div style="font-size:12px;color:<?= $overduePlan ? 'var(--danger)' : 'var(--text-muted)' ?>"><?= Security::h($daysLabel) ?></div>
@@ -243,13 +243,13 @@ if ($plan['target_date']) {
             <form class="complete-form" data-milestone-id="<?= (int)$m['id'] ?>" style="margin:0;flex-shrink:0;margin-top:2px">
               <?= Security::csrfField() ?>
               <button type="submit" class="milestone-checkbox <?= $mDone ? 'checked' : '' ?>"
-                      style="width:22px;height:22px;border-radius:50%;border:2px solid <?= $mDone ? 'var(--success)' : 'var(--border)' ?>;background:<?= $mDone ? 'var(--success)' : 'transparent' ?>;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;color:#fff;transition:all .2s"
+                      style="width:22px;height:22px;border-radius:50%;border:2px solid <?= $mDone ? 'var(--success)' : 'var(--border)' ?>;background:<?= $mDone ? 'var(--success)' : 'transparent' ?>;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;color:var(--card-bg);transition:all .2s"
                       title="<?= $mDone ? 'Mark incomplete' : 'Mark complete' ?>">
                 <?php if ($mDone): ?><i class="bi bi-check" style="font-size:13px"></i><?php endif; ?>
               </button>
             </form>
             <?php else: ?>
-            <div style="width:22px;height:22px;border-radius:50%;border:2px solid <?= $mDone ? 'var(--success)' : 'var(--border)' ?>;background:<?= $mDone ? 'var(--success)' : 'transparent' ?>;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;color:#fff">
+            <div style="width:22px;height:22px;border-radius:50%;border:2px solid <?= $mDone ? 'var(--success)' : 'var(--border)' ?>;background:<?= $mDone ? 'var(--success)' : 'transparent' ?>;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;color:var(--card-bg)">
               <?php if ($mDone): ?><i class="bi bi-check" style="font-size:13px"></i><?php endif; ?>
             </div>
             <?php endif; ?>

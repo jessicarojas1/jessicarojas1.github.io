@@ -1,7 +1,7 @@
 <?php
-$csrf = Security::generateCsrfToken();
-$respBadge = ['customer'=>'badge-primary','provider'=>'badge-info','shared'=>'badge-success'];
-$breadcrumbs = [['RACI Matrix', '/raci'], ['Responsibilities', null]];
+$csrf        = Security::generateCsrfToken();
+$breadcrumbs = [['Compliance', '/compliance'], ['RACI', '/raci'], ['Responsibility', null]];
+$respBadge   = ['customer'=>'badge-primary','provider'=>'badge-info','shared'=>'badge-success'];
 ?>
 <div class="page-header">
   <div>

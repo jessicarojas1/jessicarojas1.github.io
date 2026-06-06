@@ -61,8 +61,8 @@ ob_start();
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
                 <strong style="font-size:13px"><?= Security::h($upd['user_name'] ?? 'System') ?></strong>
                 <span style="font-size:11px;color:var(--text-muted)"><?= date('M j, Y g:ia', strtotime($upd['created_at'])) ?></span>
-                <?php $typeColors=['status_change'=>'var(--secondary)','assignment'=>'#0284c7','comment'=>'#71717a']; ?>
-                <span style="font-size:10px;padding:1px 6px;border-radius:3px;background:<?= ($typeColors[$upd['update_type']]??'#71717a') ?>20;color:<?= ($typeColors[$upd['update_type']]??'#71717a') ?>"><?= ucfirst(str_replace('_',' ',$upd['update_type'])) ?></span>
+                <?php $typeColors=['status_change'=>'var(--secondary)','assignment'=>'var(--info)','comment'=>'var(--text-muted)']; ?>
+                <span style="font-size:10px;padding:1px 6px;border-radius:3px;background:<?= ($typeColors[$upd['update_type']]??'var(--text-muted)') ?>20;color:<?= ($typeColors[$upd['update_type']]??'var(--text-muted)') ?>"><?= ucfirst(str_replace('_',' ',$upd['update_type'])) ?></span>
               </div>
               <p style="margin:0;white-space:pre-wrap;font-size:13px"><?= Security::h($upd['content']) ?></p>
             </div>

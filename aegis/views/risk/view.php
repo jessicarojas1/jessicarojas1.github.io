@@ -8,7 +8,7 @@ function riskLevelStr(int $s): string {
     return $s > 14 ? 'Critical' : ($s > 9 ? 'High' : ($s > 4 ? 'Medium' : 'Low'));
 }
 function riskLevelColor(int $s): string {
-    return $s > 14 ? 'var(--danger)' : ($s > 9 ? '#f97316' : ($s > 4 ? 'var(--warning)' : 'var(--success)'));
+    return $s > 14 ? '#ef4444' : ($s > 9 ? '#f97316' : ($s > 4 ? '#f59e0b' : '#22c55e'));
 }
 
 $level    = riskLevelStr($score);
@@ -16,29 +16,29 @@ $resLevel = riskLevelStr($resScore);
 $lc       = riskLevelColor($score);
 
 $strategyMeta = [
-    'mitigate' => ['label'=>'Mitigate', 'icon'=>'shield-fill-check',  'color'=>'var(--moderate)', 'hint'=>'Reduce likelihood or impact'],
+    'mitigate' => ['label'=>'Mitigate', 'icon'=>'shield-fill-check',  'color'=>'#2563eb', 'hint'=>'Reduce likelihood or impact'],
     'accept'   => ['label'=>'Accept',   'icon'=>'check-circle-fill',   'color'=>'#b45309', 'hint'=>'Formally accept as-is'],
     'transfer' => ['label'=>'Transfer', 'icon'=>'arrow-left-right',    'color'=>'var(--secondary)', 'hint'=>'Insurance or third party'],
-    'avoid'    => ['label'=>'Avoid',    'icon'=>'x-octagon-fill',      'color'=>'var(--danger)', 'hint'=>'Eliminate the risk source'],
+    'avoid'    => ['label'=>'Avoid',    'icon'=>'x-octagon-fill',      'color'=>'#dc2626', 'hint'=>'Eliminate the risk source'],
 ];
 $statusLabels = [
-    'open'        => ['label'=>'Open',        'color'=>'var(--danger)', 'bg'=>'var(--danger-subtle)', 'border'=>'var(--danger-border)'],
-    'in_review'   => ['label'=>'In Review',   'color'=>'var(--moderate)', 'bg'=>'var(--info-subtle)', 'border'=>'var(--moderate-border)'],
-    'monitoring'  => ['label'=>'Monitoring',  'color'=>'var(--primary)', 'bg'=>'var(--success-subtle)', 'border'=>'var(--success-border)'],
-    'accepted'    => ['label'=>'Accepted',    'color'=>'var(--warning)', 'bg'=>'var(--warning-subtle)', 'border'=>'var(--warning-border)'],
+    'open'        => ['label'=>'Open',        'color'=>'#dc2626', 'bg'=>'#fef2f2', 'border'=>'#fca5a5'],
+    'in_review'   => ['label'=>'In Review',   'color'=>'#2563eb', 'bg'=>'#eff6ff', 'border'=>'#93c5fd'],
+    'monitoring'  => ['label'=>'Monitoring',  'color'=>'#16a34a', 'bg'=>'#f0fdf4', 'border'=>'#86efac'],
+    'accepted'    => ['label'=>'Accepted',    'color'=>'#d97706', 'bg'=>'#fffbeb', 'border'=>'#fcd34d'],
     'closed'      => ['label'=>'Closed',      'color'=>'#71717a', 'bg'=>'#f4f4f5', 'border'=>'#d4d4d8'],
     'transferred' => ['label'=>'Transferred', 'color'=>'var(--secondary)', 'bg'=>'rgba(55,65,81,.06)', 'border'=>'#d1d5db'],
 ];
 $assessmentMeta = [
     'draft'          => ['label'=>'Draft',          'color'=>'#71717a', 'icon'=>'pencil-fill'],
-    'pending_review' => ['label'=>'Pending Review', 'color'=>'var(--warning)', 'icon'=>'hourglass-split'],
-    'approved'       => ['label'=>'Approved',       'color'=>'var(--primary)', 'icon'=>'patch-check-fill'],
+    'pending_review' => ['label'=>'Pending Review', 'color'=>'#d97706', 'icon'=>'hourglass-split'],
+    'approved'       => ['label'=>'Approved',       'color'=>'#16a34a', 'icon'=>'patch-check-fill'],
 ];
 $proximityLabels = ['immediate'=>'Immediate','short_term'=>'Short Term (1–6 mo)','medium_term'=>'Medium Term (6–18 mo)','long_term'=>'Long Term (18+ mo)'];
 $velocityLabels  = [1=>'Very Slow',2=>'Slow',3=>'Moderate',4=>'Fast',5=>'Immediate'];
 $sourceLabels    = ['strategic'=>'Strategic','operational'=>'Operational','financial'=>'Financial','compliance'=>'Compliance','technology'=>'Technology','reputational'=>'Reputational','external'=>'External','people'=>'People','project'=>'Project'];
 $effLabels       = ['none'=>'None','partial'=>'Partial','substantial'=>'Substantial','full'=>'Full'];
-$effColors       = ['none'=>'var(--danger)','partial'=>'var(--warning)','substantial'=>'#3b82f6','full'=>'var(--success)'];
+$effColors       = ['none'=>'#ef4444','partial'=>'#f59e0b','substantial'=>'#3b82f6','full'=>'#22c55e'];
 $actionStatuses  = ['planned'=>'Planned','in_progress'=>'In Progress','completed'=>'Completed','cancelled'=>'Cancelled'];
 
 $st = $statusLabels[$risk['status']] ?? $statusLabels['open'];
@@ -130,7 +130,7 @@ ob_start();
               <i class="bi bi-x-circle-fill"></i> Send Back
             </button>
           <?php elseif ($risk['assessment_status'] === 'approved'): ?>
-            <span style="color:var(--primary);font-size:12px;font-weight:600">
+            <span style="color:var(--success);font-size:12px;font-weight:600">
               <i class="bi bi-patch-check-fill"></i> Approved by <?= Security::h($risk['reviewed_by_name'] ?? 'Admin') ?>
               <?= $risk['reviewed_at'] ? ' · ' . date('M j, Y', strtotime($risk['reviewed_at'])) : '' ?>
             </span>
@@ -475,9 +475,9 @@ ob_start();
           $actionCounts = ['planned'=>0,'in_progress'=>0,'completed'=>0];
           foreach ($responseActions as $ra) { if (isset($actionCounts[$ra['status']])) $actionCounts[$ra['status']]++; }
           ?>
-          <?php if ($actionCounts['in_progress']): ?><span style="font-size:11px;background:var(--moderate-subtle);color:var(--moderate);padding:2px 8px;border-radius:20px"><?= $actionCounts['in_progress'] ?> active</span><?php endif; ?>
+          <?php if ($actionCounts['in_progress']): ?><span style="font-size:11px;background:var(--info-subtle);color:var(--info);padding:2px 8px;border-radius:20px"><?= $actionCounts['in_progress'] ?> active</span><?php endif; ?>
           <?php if ($actionCounts['completed']): ?><span style="font-size:11px;background:var(--success-subtle);color:var(--success);padding:2px 8px;border-radius:20px"><?= $actionCounts['completed'] ?> done</span><?php endif; ?>
-          <?php if ($actionCounts['planned']): ?><span style="font-size:11px;background:#fef3c7;color:var(--warning);padding:2px 8px;border-radius:20px"><?= $actionCounts['planned'] ?> planned</span><?php endif; ?>
+          <?php if ($actionCounts['planned']): ?><span style="font-size:11px;background:var(--warning-subtle);color:var(--warning);padding:2px 8px;border-radius:20px"><?= $actionCounts['planned'] ?> planned</span><?php endif; ?>
         </div>
       </div>
       <?php if (!empty($responseActions)): ?>
@@ -485,7 +485,7 @@ ob_start();
         <?php foreach ($responseActions as $ra):
           $sm = $strategyMeta[$ra['treatment_type']] ?? $strategyMeta['mitigate'];
           $overdue = $ra['due_date'] && $ra['due_date'] < date('Y-m-d') && $ra['status'] !== 'completed';
-          $raStatusColors = ['planned'=>'var(--warning)','in_progress'=>'var(--moderate)','completed'=>'var(--success)','cancelled'=>'#a1a1aa'];
+          $raStatusColors = ['planned'=>'#d97706','in_progress'=>'#2563eb','completed'=>'#059669','cancelled'=>'#a1a1aa'];
           $raColor = $raStatusColors[$ra['status']] ?? '#71717a';
         ?>
         <div class="ra-item <?= $ra['status']==='completed'?'ra-done':'' ?>">
@@ -580,8 +580,8 @@ ob_start();
 
     <!-- ── Treatment Plans ────────────────────────────────────────────────── -->
     <?php
-    $tpStratColors = ['mitigate'=>['bg'=>'var(--info-tint)','c'=>'#3b82f6','b'=>'#3b82f640'],'transfer'=>['bg'=>'#8b5cf620','c'=>'#8b5cf6','b'=>'#8b5cf640'],'accept'=>['bg'=>'#f59e0b20','c'=>'var(--warning)','b'=>'#f59e0b40'],'avoid'=>['bg'=>'#ef444420','c'=>'var(--danger)','b'=>'#ef444440']];
-    $tpStColors    = ['draft'=>['bg'=>'#a1a1aa20','c'=>'#a1a1aa'],'active'=>['bg'=>'rgba(22, 163, 74, .08)','c'=>'var(--primary)'],'completed'=>['bg'=>'#05966920','c'=>'var(--success)'],'cancelled'=>['bg'=>'#a1a1aa20','c'=>'#a1a1aa']];
+    $tpStratColors = ['mitigate'=>['bg'=>'#3b82f620','c'=>'#3b82f6','b'=>'#3b82f640'],'transfer'=>['bg'=>'#8b5cf620','c'=>'#8b5cf6','b'=>'#8b5cf640'],'accept'=>['bg'=>'#f59e0b20','c'=>'#f59e0b','b'=>'#f59e0b40'],'avoid'=>['bg'=>'#ef444420','c'=>'#ef4444','b'=>'#ef444440']];
+    $tpStColors    = ['draft'=>['bg'=>'#a1a1aa20','c'=>'#a1a1aa'],'active'=>['bg'=>'rgba(22, 163, 74, .08)','c'=>'var(--primary)'],'completed'=>['bg'=>'#05966920','c'=>'#059669'],'cancelled'=>['bg'=>'#a1a1aa20','c'=>'#a1a1aa']];
     ?>
     <?php if (!empty($treatmentPlans)): ?>
     <div class="card">
@@ -673,7 +673,7 @@ ob_start();
     </div>
 
     <!-- Risk Appetite -->
-    <?php if ($appetite): $ac=['zero'=>'var(--danger)','low'=>'var(--warning)','moderate'=>'var(--moderate)','high'=>'var(--primary)'][$appetite['appetite']] ?? '#71717a'; ?>
+    <?php if ($appetite): $ac=['zero'=>'#dc2626','low'=>'#d97706','moderate'=>'#2563eb','high'=>'#16a34a'][$appetite['appetite']] ?? '#71717a'; ?>
     <div class="card">
       <div class="card-header"><h3 class="card-title"><i class="bi bi-speedometer2"></i> Risk Appetite</h3></div>
       <div class="card-body">
@@ -770,7 +770,7 @@ ob_start();
     <?php if ($activeAcceptance || Auth::can('risk.write')): ?>
     <div class="card">
       <div class="card-header">
-        <h3 class="card-title"><i class="bi bi-patch-check-fill" style="color:var(--primary)"></i> Risk Acceptance</h3>
+        <h3 class="card-title"><i class="bi bi-patch-check-fill" style="color:var(--success)"></i> Risk Acceptance</h3>
         <?php if (Auth::can('risk.write')): ?>
           <a href="/risk/<?= (int)$risk['id'] ?>/accept" class="btn btn-ghost btn-sm"><i class="bi bi-plus-lg"></i> Issue</a>
         <?php endif; ?>
@@ -778,7 +778,7 @@ ob_start();
       <div class="card-body" style="padding:12px 16px">
         <?php if ($activeAcceptance): ?>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-            <span style="background:var(--primary-tint);color:var(--primary);border:1px solid var(--primary-ring);border-radius:20px;font-size:11px;font-weight:700;padding:2px 10px">Active</span>
+            <span style="background:var(--success-subtle);color:var(--success);border:1px solid var(--success)40;border-radius:20px;font-size:11px;font-weight:700;padding:2px 10px">Active</span>
             <span style="font-size:12px;color:var(--text-muted)">until <?= date('M j, Y', strtotime($activeAcceptance['valid_until'])) ?></span>
           </div>
           <div style="font-size:12px;color:var(--text-secondary);margin-bottom:6px">
@@ -814,7 +814,7 @@ ob_start();
       <div class="card-body" style="padding:8px 0">
         <?php foreach ($linkedKRIs as $kri):
           $kriStatus = $kri['status'] ?? 'normal';
-          $kriColor  = match($kriStatus) { 'red' => 'var(--danger)', 'amber' => 'var(--warning)', default => 'var(--success)' };
+          $kriColor  = match($kriStatus) { 'red' => '#ef4444', 'amber' => '#f59e0b', default => '#22c55e' };
           $kriIcon   = match($kriStatus) { 'red' => 'exclamation-octagon-fill', 'amber' => 'exclamation-triangle-fill', default => 'check-circle-fill' };
         ?>
         <div style="display:flex;align-items:center;gap:10px;padding:8px 16px;border-bottom:1px solid var(--border)">
@@ -842,7 +842,7 @@ ob_start();
           <div><strong style="display:block;font-size:12px">Bow-Tie Analysis</strong><span style="font-size:11px;color:var(--text-muted)">Causes, barriers &amp; consequences</span></div>
         </a>
         <a href="/risk/<?= (int)$risk['id'] ?>/scenario/create" class="btn btn-ghost btn-sm" style="justify-content:flex-start;gap:8px;text-align:left">
-          <i class="bi bi-graph-up-arrow" style="color:var(--moderate)"></i>
+          <i class="bi bi-graph-up-arrow" style="color:var(--info)"></i>
           <div><strong style="display:block;font-size:12px">Add Scenario<?php if (!empty($scenarios)): ?> <span style="font-weight:400;color:var(--text-muted)">(<?= count($scenarios) ?>)</span><?php endif; ?></strong><span style="font-size:11px;color:var(--text-muted)">Stress-test &amp; model outcomes</span></div>
         </a>
         <?php if ($controlEffSuggestion && ($resScore > $controlEffSuggestion['score'])): ?>
@@ -860,13 +860,13 @@ ob_start();
     <?php if (!empty($scenarios)): ?>
     <div class="card">
       <div class="card-header">
-        <h3 class="card-title"><i class="bi bi-graph-up-arrow" style="color:var(--moderate)"></i> Risk Scenarios</h3>
+        <h3 class="card-title"><i class="bi bi-graph-up-arrow" style="color:var(--info)"></i> Risk Scenarios</h3>
         <a href="/risk/<?= (int)$risk['id'] ?>/scenario/create" class="btn btn-ghost btn-sm"><i class="bi bi-plus-lg"></i></a>
       </div>
       <div class="card-body p0">
         <?php foreach ($scenarios as $sc):
-          $scColor = $sc['scenario_score'] > 14 ? 'var(--danger)' : ($sc['scenario_score'] > 9 ? '#f97316' : ($sc['scenario_score'] > 4 ? 'var(--warning)' : 'var(--success)'));
-          $scTypeColors = ['stress'=>'var(--danger)','catastrophic'=>'var(--secondary)','regulatory'=>'var(--warning)','base'=>'var(--moderate)','optimistic'=>'var(--primary)'];
+          $scColor = $sc['scenario_score'] > 14 ? '#ef4444' : ($sc['scenario_score'] > 9 ? '#f97316' : ($sc['scenario_score'] > 4 ? '#f59e0b' : '#22c55e'));
+          $scTypeColors = ['stress'=>'#ef4444','catastrophic'=>'var(--secondary)','regulatory'=>'#d97706','base'=>'#2563eb','optimistic'=>'#16a34a'];
           $scTypeColor  = $scTypeColors[$sc['scenario_type']] ?? '#71717a';
         ?>
         <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid var(--border)">
@@ -889,36 +889,40 @@ ob_start();
 </div><!-- /r-layout -->
 
 <!-- Approve Modal -->
-<div class="um-overlay" id="approveModal">
+<div id="approveModal" class="um-overlay" style="display:none">
   <div class="um-dialog">
-    <h3 style="margin:0 0 12px">Approve Risk Assessment</h3>
-    <form method="POST" action="/risk/<?= $risk['id'] ?>/approve">
-      <?= Security::csrfField() ?>
-      <div class="form-group"><label class="form-label">Approval Notes</label>
-        <textarea name="review_notes" class="form-control" rows="3" placeholder="Optional notes…"></textarea>
-      </div>
-      <div style="display:flex;gap:8px;margin-top:16px">
-        <button type="submit" class="btn btn-success">Approve</button>
-        <button type="button" class="btn btn-ghost" data-close-modal="approveModal">Cancel</button>
-      </div>
-    </form>
+    <div class="um-header"><h3>Approve Risk Assessment</h3><button class="um-close" data-close-modal="approveModal"><i class="bi bi-x-lg"></i></button></div>
+    <div class="um-body">
+      <form method="POST" action="/risk/<?= $risk['id'] ?>/approve">
+        <?= Security::csrfField() ?>
+        <div class="form-group"><label class="form-label">Approval Notes</label>
+          <textarea name="review_notes" class="form-control" rows="3" placeholder="Optional notes…"></textarea>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:16px">
+          <button type="submit" class="btn btn-success">Approve</button>
+          <button type="button" class="btn btn-ghost" data-close-modal="approveModal">Cancel</button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
 
 <!-- Reject Modal -->
-<div class="um-overlay" id="rejectModal">
+<div id="rejectModal" class="um-overlay" style="display:none">
   <div class="um-dialog">
-    <h3 style="margin:0 0 12px">Send Back for Revision</h3>
-    <form method="POST" action="/risk/<?= $risk['id'] ?>/reject-review">
-      <?= Security::csrfField() ?>
-      <div class="form-group"><label class="form-label">Reason for Revision</label>
-        <textarea name="review_notes" class="form-control" rows="3" placeholder="Explain what needs to change…" required></textarea>
-      </div>
-      <div style="display:flex;gap:8px;margin-top:16px">
-        <button type="submit" class="btn btn-danger">Send Back</button>
-        <button type="button" class="btn btn-ghost" data-close-modal="rejectModal">Cancel</button>
-      </div>
-    </form>
+    <div class="um-header"><h3>Send Back for Revision</h3><button class="um-close" data-close-modal="rejectModal"><i class="bi bi-x-lg"></i></button></div>
+    <div class="um-body">
+      <form method="POST" action="/risk/<?= $risk['id'] ?>/reject-review">
+        <?= Security::csrfField() ?>
+        <div class="form-group"><label class="form-label">Reason for Revision</label>
+          <textarea name="review_notes" class="form-control" rows="3" placeholder="Explain what needs to change…" required></textarea>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:16px">
+          <button type="submit" class="btn btn-danger">Send Back</button>
+          <button type="button" class="btn btn-ghost" data-close-modal="rejectModal">Cancel</button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
 
@@ -982,7 +986,7 @@ ob_start();
 </style>
 
 <script nonce="<?= Security::nonce() ?>">
-const LC = {Critical:'var(--danger)',High:'#f97316',Medium:'var(--warning)',Low:'var(--success)'};
+const LC = {Critical:'#ef4444',High:'#f97316',Medium:'#f59e0b',Low:'#22c55e'};
 function lv(s){return s>14?'Critical':s>9?'High':s>4?'Medium':'Low'}
 function chip(elId,sc,s){const e=document.getElementById(elId);if(!e)return;e.style.background=LC[lv(s)]+'20';e.style.color=LC[lv(s)];e.style.borderColor=LC[lv(s)]+'40';document.getElementById(sc).textContent=s;document.getElementById(sc.replace('sc_','sl_')).textContent=lv(s)}
 function updateScores(){
@@ -1026,7 +1030,7 @@ updateScores();
   [5,10,15,20,25].forEach(v=>{ctx.beginPath();ctx.moveTo(PAD.l,yp(v));ctx.lineTo(PAD.l+cW,yp(v));ctx.stroke();
     ctx.fillStyle='#a1a1aa';ctx.font='10px sans-serif';ctx.fillText(v,2,yp(v)+3);});
   // Inherent line
-  ctx.beginPath();ctx.strokeStyle='var(--danger)';ctx.lineWidth=2;
+  ctx.beginPath();ctx.strokeStyle='#ef4444';ctx.lineWidth=2;
   data.forEach((d,i)=>{i===0?ctx.moveTo(xp(i),yp(d.s)):ctx.lineTo(xp(i),yp(d.s))});ctx.stroke();
   // Residual line
   const hasRes=data.some(d=>d.r!==null);
@@ -1034,11 +1038,11 @@ updateScores();
     data.forEach((d,i)=>{if(d.r===null)return;i===0?ctx.moveTo(xp(i),yp(d.r)):ctx.lineTo(xp(i),yp(d.r))});ctx.stroke();ctx.setLineDash([]);}
   // Dots and labels
   data.forEach((d,i)=>{
-    ctx.fillStyle='var(--danger)';ctx.beginPath();ctx.arc(xp(i),yp(d.s),3,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#ef4444';ctx.beginPath();ctx.arc(xp(i),yp(d.s),3,0,Math.PI*2);ctx.fill();
     if(i===0||i===n-1||(n>8&&i%Math.ceil(n/6)===0)){ctx.fillStyle='#71717a';ctx.font='9px sans-serif';ctx.fillText(d.d,xp(i)-12,PAD.t+cH+14);}
   });
   // Legend
-  ctx.fillStyle='var(--danger)';ctx.fillRect(W-130,8,12,3);ctx.fillStyle='#374151';ctx.font='10px sans-serif';ctx.fillText('Inherent',W-114,12);
+  ctx.fillStyle='#ef4444';ctx.fillRect(W-130,8,12,3);ctx.fillStyle='#374151';ctx.font='10px sans-serif';ctx.fillText('Inherent',W-114,12);
   if(hasRes){ctx.strokeStyle='#3b82f6';ctx.setLineDash([4,2]);ctx.beginPath();ctx.moveTo(W-60,10);ctx.lineTo(W-48,10);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#374151';ctx.fillText('Residual',W-44,12);}
 })();
 <?php endif; ?>

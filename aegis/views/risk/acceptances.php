@@ -11,17 +11,17 @@ $expiringSoon     = (int)($summary['expiring_soon_count'] ?? 0);
 
 // Status config
 $statusConfig = [
-    'active'     => ['label' => 'Active',     'fg' => 'var(--primary)', 'bg' => 'var(--success-subtle)', 'border' => 'var(--success-border)'],
-    'expired'    => ['label' => 'Expired',    'fg' => 'var(--neutral)', 'bg' => 'var(--bg-subtle)', 'border' => 'var(--border)'],
+    'active'     => ['label' => 'Active',     'fg' => '#16a34a', 'bg' => '#f0fdf4', 'border' => '#86efac'],
+    'expired'    => ['label' => 'Expired',    'fg' => '#71717a', 'bg' => '#f4f4f5', 'border' => '#d4d4d8'],
     'superseded' => ['label' => 'Superseded', 'fg' => 'var(--secondary)', 'bg' => 'rgba(55,65,81,.06)', 'border' => '#d1d5db'],
-    'revoked'    => ['label' => 'Revoked',    'fg' => 'var(--danger)', 'bg' => 'var(--danger-subtle)', 'border' => 'var(--danger-border)'],
+    'revoked'    => ['label' => 'Revoked',    'fg' => '#dc2626', 'bg' => '#fef2f2', 'border' => '#fca5a5'],
 ];
 
 $levelConfig = [
-    'critical' => ['label' => 'Critical', 'fg' => 'var(--danger)', 'bg' => 'var(--danger-subtle)'],
-    'high'     => ['label' => 'High',     'fg' => 'var(--orange)', 'bg' => 'var(--warning-subtle)'],
-    'medium'   => ['label' => 'Medium',   'fg' => 'var(--warning)', 'bg' => 'var(--warning-subtle)'],
-    'low'      => ['label' => 'Low',      'fg' => 'var(--success)', 'bg' => 'var(--success-subtle)'],
+    'critical' => ['label' => 'Critical', 'fg' => '#ef4444', 'bg' => '#fef2f2'],
+    'high'     => ['label' => 'High',     'fg' => '#f97316', 'bg' => '#fff7ed'],
+    'medium'   => ['label' => 'Medium',   'fg' => '#f59e0b', 'bg' => '#fffbeb'],
+    'low'      => ['label' => 'Low',      'fg' => '#22c55e', 'bg' => '#f0fdf4'],
 ];
 
 $filterStatus = $_GET['status'] ?? '';
@@ -40,7 +40,6 @@ if ($filterStatus !== '') {
   </div>
   <div class="page-actions">
     <a href="/risk" class="btn btn-ghost"><i class="bi bi-arrow-left"></i> Risk Register</a>
-    <button class="btn btn-sm filter-btn" data-toggle-class="open" data-target="#acceptanceFilters"><i class="bi bi-funnel-fill"></i> Filters</button>
   </div>
 </div>
 
@@ -56,31 +55,31 @@ if ($filterStatus !== '') {
 <!-- KPI Strip -->
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;">
 
-  <div class="card" style="border-left:4px solid var(--primary);">
+  <div class="card" style="border-left:4px solid var(--success);">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
       <div style="width:44px;height:44px;border-radius:10px;background:var(--success-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-        <i class="bi bi-patch-check-fill" style="font-size:20px;color:var(--primary);"></i>
+        <i class="bi bi-patch-check-fill" style="font-size:20px;color:var(--success);"></i>
       </div>
       <div>
-        <div style="font-size:26px;font-weight:700;line-height:1;color:var(--primary);"><?= $activeCount ?></div>
+        <div style="font-size:26px;font-weight:700;line-height:1;color:var(--success);"><?= $activeCount ?></div>
         <div style="font-size:12px;color:var(--text-muted);margin-top:3px;">Active</div>
       </div>
     </div>
   </div>
 
-  <div class="card" style="border-left:4px solid <?= $expiringSoon > 0 ? 'var(--warning)' : 'var(--neutral)' ?>;">
+  <div class="card" style="border-left:4px solid <?= $expiringSoon > 0 ? 'var(--warning)' : 'var(--text-muted)' ?>;">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
       <div style="width:44px;height:44px;border-radius:10px;background:<?= $expiringSoon > 0 ? 'var(--warning-subtle)' : 'var(--bg-secondary)' ?>;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-        <i class="bi bi-alarm-fill" style="font-size:20px;color:<?= $expiringSoon > 0 ? 'var(--warning)' : 'var(--neutral)' ?>;"></i>
+        <i class="bi bi-alarm-fill" style="font-size:20px;color:<?= $expiringSoon > 0 ? 'var(--warning)' : 'var(--text-muted)' ?>;"></i>
       </div>
       <div>
-        <div style="font-size:26px;font-weight:700;line-height:1;color:<?= $expiringSoon > 0 ? 'var(--warning)' : 'var(--neutral)' ?>;"><?= $expiringSoon ?></div>
+        <div style="font-size:26px;font-weight:700;line-height:1;color:<?= $expiringSoon > 0 ? 'var(--warning)' : 'var(--text-muted)' ?>;"><?= $expiringSoon ?></div>
         <div style="font-size:12px;color:var(--text-muted);margin-top:3px;">Expiring &lt;30 Days</div>
       </div>
     </div>
   </div>
 
-  <div class="card" style="border-left:4px solid var(--neutral);">
+  <div class="card" style="border-left:4px solid var(--text-muted);">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
       <div style="width:44px;height:44px;border-radius:10px;background:var(--bg-secondary);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
         <i class="bi bi-calendar-x-fill" style="font-size:20px;color:var(--text-muted);"></i>
@@ -107,16 +106,19 @@ if ($filterStatus !== '') {
 </div>
 
 <!-- Filter Bar -->
-<div class="filter-bar" id="acceptanceFilters">
-  <form method="GET">
-    <select name="status" class="form-control form-control-sm" style="width:auto;min-width:160px;">
+<div class="filter-bar card" style="margin-bottom:20px;">
+  <form method="GET" class="filter-form" style="display:flex;align-items:center;gap:12px;padding:12px 16px;">
+    <label style="font-size:13px;font-weight:500;color:var(--text-muted);white-space:nowrap;">Filter by status:</label>
+    <select name="status" class="form-control form-control-sm" data-autosubmit style="width:auto;min-width:160px;">
       <option value="">All statuses</option>
       <?php foreach ($statusConfig as $sv => $sc): ?>
         <option value="<?= $sv ?>" <?= $filterStatus === $sv ? 'selected' : '' ?>><?= $sc['label'] ?></option>
       <?php endforeach; ?>
     </select>
-    <button type="submit" class="btn btn-primary btn-sm">Apply</button>
-    <a href="/risk-acceptances" class="btn btn-ghost btn-sm">Clear</a>
+    <?php if ($filterStatus): ?>
+      <a href="/risk-acceptances" class="btn btn-ghost btn-sm">Clear</a>
+    <?php endif; ?>
+    <span style="font-size:12px;color:var(--text-muted);margin-left:auto;"><?= count($displayed) ?> result<?= count($displayed) !== 1 ? 's' : '' ?></span>
   </form>
 </div>
 
@@ -150,7 +152,7 @@ if ($filterStatus !== '') {
       </thead>
       <tbody>
         <?php foreach ($displayed as $acc):
-          $sc = $statusConfig[$acc['status']] ?? ['label' => ucfirst($acc['status']), 'fg' => 'var(--neutral)', 'bg' => 'var(--bg-subtle)', 'border' => 'var(--border)'];
+          $sc = $statusConfig[$acc['status']] ?? ['label' => ucfirst($acc['status']), 'fg' => '#71717a', 'bg' => '#f4f4f5', 'border' => '#e4e4e7'];
           $lc = $levelConfig[strtolower($acc['risk_level_at_acceptance'] ?? '')] ?? null;
 
           $acceptanceScore = (int)($acc['risk_score_at_acceptance'] ?? 0);
@@ -250,7 +252,7 @@ if ($filterStatus !== '') {
             <?php if ($acc['status'] === 'active' && Auth::can('risk.write')): ?>
               <button type="button"
                       class="btn btn-sm"
-                      style="background:var(--danger-tint);color:var(--danger);border:1px solid var(--danger-ring);"
+                      style="background:var(--danger-subtle);color:var(--danger);border:1px solid var(--danger)40;"
                       data-click="toggleRevoke" data-arg="revoke-<?= (int)$acc['id'] ?>"
                       title="Revoke">
                 <i class="bi bi-x-circle"></i> Revoke
@@ -277,7 +279,7 @@ if ($filterStatus !== '') {
         <!-- Revoke inline form -->
         <?php if ($acc['status'] === 'active' && Auth::can('risk.write')): ?>
         <tr id="revoke-<?= (int)$acc['id'] ?>" style="display:none;">
-          <td colspan="8" style="background:var(--danger-subtle);padding:14px 20px 16px;border-top:1px solid #fca5a580;">
+          <td colspan="8" style="background:var(--danger-subtle);padding:14px 20px 16px;border-top:1px solid var(--danger)40;">
             <form method="POST" action="/risk-acceptances/<?= (int)$acc['id'] ?>/revoke"
                   data-confirm="Are you sure you want to revoke this acceptance certificate? This action cannot be undone.">
               <?= Security::csrfField() ?>
@@ -287,13 +289,13 @@ if ($filterStatus !== '') {
                     <i class="bi bi-exclamation-triangle-fill"></i> Revocation Reason
                   </label>
                   <textarea name="revocation_reason" class="form-control" rows="2"
-                            style="border-color:var(--danger-border);"
+                            style="border-color:var(--danger)60;"
                             placeholder="Explain why this acceptance is being revoked…"></textarea>
                 </div>
                 <div style="display:flex;gap:8px;flex-shrink:0;">
                   <button type="button" class="btn btn-ghost btn-sm"
                           data-click="toggleRevoke" data-arg="revoke-<?= (int)$acc['id'] ?>">Cancel</button>
-                  <button type="submit" class="btn btn-sm" style="background:var(--danger);color:white;border:none;">
+                  <button type="submit" class="btn btn-sm btn-danger">
                     <i class="bi bi-x-circle-fill"></i> Confirm Revoke
                   </button>
                 </div>
@@ -309,6 +311,11 @@ if ($filterStatus !== '') {
     <?php endif; ?>
   </div>
 </div>
+
+<style nonce="<?= Security::nonce() ?>">
+.filter-bar { border-radius: 8px; }
+.filter-form { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+</style>
 
 <script nonce="<?= Security::nonce() ?>">
 function toggleConditions(rowId) {

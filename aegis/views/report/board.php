@@ -240,7 +240,7 @@ $nonce = Security::nonce();
   display: none;
   text-align: center;
   font-size: 11px;
-  color: var(--text-muted);
+  color: #a1a1aa;
   border-top: 1px solid #e4e4e7;
   padding-top: 12px;
   margin-top: 40px;
@@ -294,7 +294,7 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
   .bp-stat-grid  { grid-template-columns: repeat(6,1fr); gap: 8px; }
   .bp-stat       { box-shadow: none; border: 1px solid #d4d4d8; padding: 12px 8px; }
   .bp-stat .stat-val { font-size: 24px; }
-  .card          { box-shadow: none !important; border: 1px solid var(--border) !important; }
+  .card          { box-shadow: none !important; border: 1px solid #e4e4e7 !important; }
   .bp-footer     { display: block !important; }
   canvas         { max-width: 100% !important; }
   a              { color: inherit !important; text-decoration: none !important; }
@@ -394,10 +394,10 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
       <tbody>
         <?php foreach ($topRisks as $r):
           $sc = (int)($r['inherent_score'] ?? 0);
-          if ($sc > 20)       { $sc_bg = 'var(--danger-subtle)'; $sc_cl = 'var(--danger)'; $level = 'CRITICAL'; }
-          elseif ($sc > 14)   { $sc_bg = 'var(--warning-subtle)'; $sc_cl = 'var(--orange)'; $level = 'CRITICAL'; }
+          if ($sc > 20)       { $sc_bg = 'var(--danger-subtle)';  $sc_cl = 'var(--danger)';  $level = 'CRITICAL'; }
+          elseif ($sc > 14)   { $sc_bg = 'var(--warning-subtle)'; $sc_cl = 'var(--orange)';  $level = 'CRITICAL'; }
           elseif ($sc >= 10)  { $sc_bg = 'var(--warning-subtle)'; $sc_cl = 'var(--warning)'; $level = 'HIGH'; }
-          else                { $sc_bg = 'var(--success-subtle)'; $sc_cl = 'var(--primary)'; $level = 'MEDIUM'; }
+          else                { $sc_bg = 'var(--success-subtle)'; $sc_cl = 'var(--success)'; $level = 'MEDIUM'; }
 
           $strategy = Security::h($r['treatment_strategy'] ?? $r['strategy'] ?? '—');
           $reviewDt = $r['review_date'] ? date('j M Y', strtotime($r['review_date'])) : '—';
@@ -731,7 +731,7 @@ html[data-theme="dark"] a[style*="color:#1e293b"] { color: var(--text) !importan
 
   // Line
   ctx.beginPath();
-  var primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || 'var(--primary)';
+  var primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#16a34a';
   ctx.strokeStyle = primaryColor;
   ctx.lineWidth = 2.5;
   ctx.lineJoin = 'round';

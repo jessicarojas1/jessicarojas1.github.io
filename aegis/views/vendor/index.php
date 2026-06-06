@@ -29,28 +29,28 @@ ob_start();
 <!-- Stats -->
 <div class="stats-grid">
   <div class="stat-card">
-    <div class="stat-icon" style="background:var(--moderate-subtle);color:var(--moderate)"><i class="bi bi-buildings"></i></div>
+    <div class="stat-icon" style="background:var(--info)18;color:var(--info)"><i class="bi bi-buildings"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['total'] ?? 0) ?></div>
       <div class="stat-label">Total Vendors</div>
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:var(--success-tint);color:var(--success)"><i class="bi bi-check-circle-fill"></i></div>
+    <div class="stat-icon" style="background:var(--success)18;color:var(--success)"><i class="bi bi-check-circle-fill"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['active_count'] ?? 0) ?></div>
       <div class="stat-label">Active Vendors</div>
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:var(--danger-tint);color:var(--danger)"><i class="bi bi-exclamation-octagon-fill"></i></div>
+    <div class="stat-icon" style="background:var(--danger)18;color:var(--danger)"><i class="bi bi-exclamation-octagon-fill"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['critical_count'] ?? 0) ?></div>
       <div class="stat-label">Critical Tier</div>
     </div>
   </div>
   <div class="stat-card">
-    <div class="stat-icon" style="background:var(--warning-tint);color:var(--warning)"><i class="bi bi-database-fill-lock"></i></div>
+    <div class="stat-icon" style="background:var(--warning)18;color:var(--warning)"><i class="bi bi-database-fill-lock"></i></div>
     <div>
       <div class="stat-value"><?= (int)($stats['data_access_count'] ?? 0) ?></div>
       <div class="stat-label">Data Access</div>
@@ -140,16 +140,16 @@ $_filterCount = count(array_filter([
       </thead>
       <tbody>
         <?php if ($vendors): foreach ($vendors as $v):
-          $tierColors = ['critical' => 'var(--danger)', 'high' => 'var(--warning)', 'medium' => '#0284c7', 'low' => 'var(--success)'];
-          $tierColor  = $tierColors[$v['risk_tier']] ?? 'var(--text-muted)';
+          $tierColors = ['critical' => '#dc2626', 'high' => '#d97706', 'medium' => '#0284c7', 'low' => '#059669'];
+          $tierColor  = $tierColors[$v['risk_tier']] ?? '#6b7280';
 
           $statusColors = [
-            'active'       => 'var(--success)',
+            'active'       => '#059669',
             'inactive'     => '#6b7280',
-            'under_review' => 'var(--warning)',
-            'terminated'   => 'var(--danger)',
+            'under_review' => '#d97706',
+            'terminated'   => '#dc2626',
           ];
-          $statusColor = $statusColors[$v['status']] ?? 'var(--text-muted)';
+          $statusColor = $statusColors[$v['status']] ?? '#6b7280';
           $statusLabel = match($v['status']) {
             'active'       => 'Active',
             'inactive'     => 'Inactive',
@@ -222,7 +222,7 @@ $_filterCount = count(array_filter([
           <tr>
             <td class="empty-row" colspan="9">
               <div class="empty-state-sm">
-                <i class="bi bi-buildings" style="font-size:32px;color:var(--border)"></i>
+                <i class="bi bi-buildings" style="font-size:32px"></i>
                 <p style="margin:0;font-size:15px">No vendors found.</p>
                 <?php if (Auth::can('vendor.write')): ?>
                   <a href="/vendor/create" class="btn btn-primary btn-sm" style="margin-top:8px"><i class="bi bi-plus-lg"></i> Add Vendor</a>
