@@ -85,7 +85,7 @@ def create_document(
     body: DocumentCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("documents", "edit")),
+    actor: CurrentUser = Depends(require_perm("documents.create")),
 ) -> Document:
     doc = Document(
         **body.model_dump(),
@@ -126,7 +126,7 @@ def update_document(
     body: DocumentUpdate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("documents", "edit")),
+    actor: CurrentUser = Depends(require_perm("documents.edit")),
 ) -> Document:
     doc = get_or_404(db, Document, doc_id, name="Document")
     if doc.status == DocumentStatus.OBSOLETE:
@@ -166,7 +166,7 @@ def transition_document(
     body: TransitionRequest,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("documents", "edit")),
+    actor: CurrentUser = Depends(require_perm("documents.edit")),
 ) -> Document:
     """Move a document through its approval workflow.
 
@@ -264,7 +264,7 @@ def create_revision(
     body: RevisionCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("documents", "edit")),
+    actor: CurrentUser = Depends(require_perm("documents.edit")),
 ) -> DocumentRevision:
     doc = get_or_404(db, Document, doc_id, name="Document")
     revision = DocumentRevision(
@@ -374,7 +374,7 @@ def obsolete_document(
     doc_id: int,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("documents", "edit")),
+    actor: CurrentUser = Depends(require_perm("documents.obsolete")),
 ) -> Document:
     doc = get_or_404(db, Document, doc_id, name="Document")
     doc.status = DocumentStatus.OBSOLETE
@@ -401,7 +401,7 @@ def soft_delete_document(
     doc_id: int,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("documents", "edit")),
+    actor: CurrentUser = Depends(require_perm("documents.edit")),
 ) -> Document:
     doc = get_or_404(db, Document, doc_id, name="Document")
     doc.soft_delete(actor.id)

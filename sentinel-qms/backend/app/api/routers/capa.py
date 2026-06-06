@@ -116,7 +116,7 @@ def create_capa(
     body: CapaCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("capa", "edit")),
+    actor: CurrentUser = Depends(require_perm("capa.create")),
 ) -> Capa:
     data = body.model_dump()
     ncr_id = data.pop("nonconformance_id", None)
@@ -176,7 +176,7 @@ def update_capa(
     body: CapaUpdate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("capa", "edit")),
+    actor: CurrentUser = Depends(require_perm("capa.edit")),
 ) -> Capa:
     capa = get_or_404(db, Capa, capa_id, name="CAPA")
     if capa.status in (CapaStatus.CLOSED, CapaStatus.CANCELLED):
@@ -218,7 +218,7 @@ def change_status(
     body: CapaStatusChange,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("capa", "edit")),
+    actor: CurrentUser = Depends(require_perm("capa.edit")),
 ) -> Capa:
     capa = get_or_404(db, Capa, capa_id, name="CAPA")
     CAPA_FSM.assert_transition(capa.status, body.status)
@@ -255,7 +255,7 @@ def add_action(
     body: CapaActionCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("capa", "edit")),
+    actor: CurrentUser = Depends(require_perm("capa.edit")),
 ) -> CapaAction:
     capa = get_or_404(db, Capa, capa_id, name="CAPA")
     action = CapaAction(
@@ -289,7 +289,7 @@ def update_action(
     body: CapaActionUpdate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("capa", "edit")),
+    actor: CurrentUser = Depends(require_perm("capa.edit")),
 ) -> CapaAction:
     action = db.get(CapaAction, action_id)
     if action is None or action.capa_id != capa_id:
@@ -324,7 +324,7 @@ def verify_effectiveness(
     body: CapaEffectivenessVerify,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("capa", "edit")),
+    actor: CurrentUser = Depends(require_perm("capa.edit")),
 ) -> Capa:
     capa = get_or_404(db, Capa, capa_id, name="CAPA")
     require_states(capa.status, {CapaStatus.VERIFICATION}, action="verify effectiveness")

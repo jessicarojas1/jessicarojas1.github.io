@@ -82,7 +82,7 @@ def create_change(
     body: ChangeOrderCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("changes", "edit")),
+    actor: CurrentUser = Depends(require_perm("changes.create")),
 ) -> ChangeOrder:
     co = ChangeOrder(
         **body.model_dump(),
@@ -133,7 +133,7 @@ def update_change(
     body: ChangeOrderUpdate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("changes", "edit")),
+    actor: CurrentUser = Depends(require_perm("changes.edit")),
 ) -> ChangeOrder:
     co = get_or_404(db, ChangeOrder, change_id, name="Change order")
     before = audit.snapshot(co)
@@ -173,7 +173,7 @@ def change_status(
     body: ChangeStatusChange,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("changes", "edit")),
+    actor: CurrentUser = Depends(require_perm("changes.edit")),
 ) -> ChangeOrder:
     co = get_or_404(db, ChangeOrder, change_id, name="Change order")
     CHANGE_FSM.assert_transition(co.status, body.status)

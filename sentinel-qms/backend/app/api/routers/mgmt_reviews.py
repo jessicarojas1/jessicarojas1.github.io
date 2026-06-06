@@ -11,6 +11,7 @@ from app.api.deps import (
     SortParams,
     pagination_params,
     require_page,
+    require_perm,
     sort_params,
 )
 from app.core import audit
@@ -72,7 +73,7 @@ def create_review(
     body: ReviewCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("mgmt_reviews", "edit")),
+    actor: CurrentUser = Depends(require_perm("mgmt_reviews.create")),
 ) -> ManagementReview:
     review = ManagementReview(
         **body.model_dump(),
@@ -113,7 +114,7 @@ def update_review(
     body: ReviewUpdate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("mgmt_reviews", "edit")),
+    actor: CurrentUser = Depends(require_perm("mgmt_reviews.edit")),
 ) -> ManagementReview:
     review = get_or_404(db, ManagementReview, review_id, name="Management review")
     before = audit.snapshot(review)
@@ -144,7 +145,7 @@ def add_input(
     review_id: int,
     body: ReviewInputCreate,
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(require_page("mgmt_reviews", "edit")),
+    _: CurrentUser = Depends(require_perm("mgmt_reviews.edit")),
 ) -> ManagementReviewInput:
     get_or_404(db, ManagementReview, review_id, name="Management review")
     item = ManagementReviewInput(review_id=review_id, **body.model_dump())
@@ -164,7 +165,7 @@ def add_action_item(
     body: ActionItemCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("mgmt_reviews", "edit")),
+    actor: CurrentUser = Depends(require_perm("mgmt_reviews.edit")),
 ) -> ActionItem:
     get_or_404(db, ManagementReview, review_id, name="Management review")
     item = ActionItem(
@@ -196,7 +197,7 @@ def update_action_item(
     item_id: int,
     body: ActionItemUpdate,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("mgmt_reviews", "edit")),
+    actor: CurrentUser = Depends(require_perm("mgmt_reviews.edit")),
 ) -> ActionItem:
     item = db.get(ActionItem, item_id)
     if item is None:

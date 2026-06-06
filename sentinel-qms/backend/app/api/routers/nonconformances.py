@@ -94,7 +94,7 @@ def create_ncr(
     body: NonconformanceCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("nonconformances", "edit")),
+    actor: CurrentUser = Depends(require_perm("nonconformances.create")),
 ) -> Nonconformance:
     ncr = Nonconformance(
         **body.model_dump(),
@@ -144,7 +144,7 @@ def update_ncr(
     body: NonconformanceUpdate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("nonconformances", "edit")),
+    actor: CurrentUser = Depends(require_perm("nonconformances.edit")),
 ) -> Nonconformance:
     ncr = get_or_404(db, Nonconformance, ncr_id, name="NCR")
     before = audit.snapshot(ncr)
@@ -184,7 +184,7 @@ def change_status(
     body: NcStatusChange,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("nonconformances", "edit")),
+    actor: CurrentUser = Depends(require_perm("nonconformances.edit")),
 ) -> Nonconformance:
     ncr = get_or_404(db, Nonconformance, ncr_id, name="NCR")
     NCR_FSM.assert_transition(ncr.status, body.status)
@@ -277,7 +277,7 @@ def soft_delete_ncr(
     ncr_id: int,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_page("nonconformances", "edit")),
+    actor: CurrentUser = Depends(require_perm("nonconformances.delete")),
 ) -> Nonconformance:
     """Soft-delete only — controlled records are never hard-deleted."""
     ncr = get_or_404(db, Nonconformance, ncr_id, name="NCR")
