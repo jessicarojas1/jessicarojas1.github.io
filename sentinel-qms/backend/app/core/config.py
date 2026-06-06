@@ -66,6 +66,17 @@ class Settings(BaseSettings):
     # Uploads
     MAX_UPLOAD_BYTES: int = 52_428_800
 
+    # Outbound notifications (all optional — empty disables that channel).
+    # Microsoft Teams incoming webhook (Connector / Workflow URL).
+    TEAMS_WEBHOOK_URL: str = ""
+    # SMTP email dispatch.
+    SMTP_HOST: str = ""
+    SMTP_PORT: int = 587
+    SMTP_USERNAME: str = ""
+    SMTP_PASSWORD: str = ""
+    SMTP_FROM: str = ""
+    SMTP_USE_TLS: bool = True
+
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
     def _split_cors(cls, v: object) -> object:
