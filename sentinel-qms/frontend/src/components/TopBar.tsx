@@ -18,6 +18,7 @@ import {
   useMarkAllRead,
   useMarkRead,
   useNotifications,
+  useOrgSettings,
   useUnreadCount,
 } from '@/hooks';
 import { ThemeToggle } from './ThemeToggle';
@@ -26,8 +27,13 @@ import { BrandIcon } from '@/lib/nav';
 export function TopBar({ onToggleNav }: { onToggleNav: () => void }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { data: settings } = useOrgSettings();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  // Resilient branding: fall back to the static brand while loading / on error.
+  const brandName = settings?.organization_name || 'Sentinel QMS';
+  const logoUrl = settings?.logo_url || null;
 
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
@@ -59,9 +65,13 @@ export function TopBar({ onToggleNav }: { onToggleNav: () => void }) {
 
       <div className="topbar__brand">
         <span className="logo-mark">
-          <BrandIcon size={16} />
+          {logoUrl ? (
+            <img src={logoUrl} alt="" className="logo-mark__img" />
+          ) : (
+            <BrandIcon size={16} />
+          )}
         </span>
-        Sentinel QMS
+        {brandName}
       </div>
 
       <GlobalSearch />

@@ -30,6 +30,7 @@ from app.models import (  # noqa: F401 - ensure metadata is populated
     NcSeverity,
     NcStatus,
     Nonconformance,
+    OrgSettings,
     Role,
     RolePagePermission,
     Supplier,
@@ -63,6 +64,17 @@ def seed_roles(db: Session) -> dict[str, Role]:
             logger.info("seeded role %s", role_enum.value)
     db.flush()
     return existing
+
+
+def seed_org_settings(db: Session) -> None:
+    """Ensure the singleton organization settings row exists (idempotent)."""
+    existing = db.get(OrgSettings, 1) or db.execute(
+        select(OrgSettings)
+    ).scalars().first()
+    if existing is None:
+        db.add(OrgSettings(id=1))
+        db.flush()
+        logger.info("seeded default org settings")
 
 
 def seed_permissions(db: Session, roles: dict[str, Role]) -> None:
@@ -266,6 +278,7 @@ def run() -> None:
         roles = seed_roles(db)
         admin = seed_admin(db, roles)
         seed_permissions(db, roles)
+        seed_org_settings(db)
         db.commit()
 
         try:

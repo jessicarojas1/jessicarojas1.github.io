@@ -1132,3 +1132,44 @@ table.data-table {
   color: var(--text-muted);
 }
 .import-result__message { color: var(--danger); }
+
+/* ------------------------------------------------------------------ */
+/* Settings & branding page                                            */
+/* ------------------------------------------------------------------ */
+.settings-card {
+  padding: 1.5rem;
+}
+.settings-fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+.settings-fieldset:disabled {
+  opacity: 0.7;
+}
+.settings-section-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin: 1.25rem 0 0.75rem;
+}
+.settings-section-title:first-child {
+  margin-top: 0;
+}
+.settings-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+/* Branding logo rendered in the brand marks (top bar / login). */
+.logo-mark__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+}
