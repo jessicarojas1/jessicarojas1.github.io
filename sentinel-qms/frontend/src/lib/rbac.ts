@@ -34,9 +34,11 @@ export type Capability =
   | 'complaints.read'
   | 'complaints.write'
   | 'admin.users'
-  | 'admin.roles';
+  | 'admin.roles'
+  | 'docs.read';
 
 const ALL_READ: Capability[] = [
+  'docs.read',
   'documents.read',
   'ncr.read',
   'capa.read',
@@ -108,6 +110,7 @@ const ROLE_CAPABILITIES: Record<Role, Capability[]> = {
     'inspections.write',
   ],
   operator: [
+    'docs.read',
     'ncr.read',
     'ncr.write',
     'inspections.read',

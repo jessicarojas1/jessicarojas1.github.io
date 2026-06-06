@@ -1,6 +1,7 @@
 import type { LucideIcon } from 'lucide-react';
 import {
   Award,
+  BookOpen,
   Boxes,
   ClipboardCheck,
   FileText,
@@ -35,6 +36,7 @@ export const NAV_GROUPS: NavGroup[] = [
     label: 'Overview',
     items: [
       { label: 'Dashboard', to: '/', icon: LayoutDashboard, capability: 'ncr.read' },
+      { label: 'Documentation', to: '/docs', icon: BookOpen, capability: 'docs.read' },
     ],
   },
   {
