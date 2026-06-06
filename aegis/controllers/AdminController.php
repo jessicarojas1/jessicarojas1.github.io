@@ -557,14 +557,28 @@ class AdminController {
     public function updatePermissions(string $userId): void {
         Auth::requireAdmin();
 
+        $isAjax = ($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'XMLHttpRequest';
+
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
-            http_response_code(403); return;
+            http_response_code(403);
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode(['ok' => false, 'message' => 'CSRF validation failed.']);
+            }
+            return;
         }
 
         $userId = (int)$userId;
         $user = Database::fetchOne("SELECT id, role FROM users WHERE id = ? AND role != 'admin'", [$userId]);
         if (!$user) {
-            header('Location: /admin/permissions?error=invalid'); return;
+            if ($isAjax) {
+                http_response_code(422);
+                header('Content-Type: application/json');
+                echo json_encode(['ok' => false, 'message' => 'Invalid user.']);
+            } else {
+                header('Location: /admin/permissions?error=invalid');
+            }
+            return;
         }
 
         // Delete existing explicit grants for this user
@@ -600,6 +614,16 @@ class AdminController {
         }
 
         Auth::log('update_permissions', 'users', $userId);
+
+        if ($isAjax) {
+            header('Content-Type: application/json');
+            echo json_encode([
+                'ok'   => true,
+                'csrf' => Security::generateCsrfToken(),
+            ]);
+            return;
+        }
+
         header('Location: /admin/permissions?saved=' . $userId);
     }
 
