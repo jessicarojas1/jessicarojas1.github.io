@@ -459,6 +459,174 @@
     if (e.target.closest('#exp-pdf')) return CITADEL.report.exportPdf();
   });
 
+  /* ---------- Keyboard shortcuts + help overlay ---------- */
+  (function keyboardShortcuts() {
+    const SHORTCUTS = [
+      { keys: ['?'], desc: 'Toggle this shortcuts help' },
+      { keys: ['t'], desc: 'Toggle light / dark theme' },
+      { keys: ['d'], desc: 'Run the demo scan' },
+      { keys: ['1', '–', '9'], desc: 'Jump to the Nth tab' },
+      { keys: ['g', 'then', 'o'], desc: 'Go to Overview tab' },
+      { keys: ['g', 'then', 'f'], desc: 'Go to Findings tab' },
+      { keys: ['g', 'then', 'c'], desc: 'Go to Compliance tab' },
+      { keys: ['g', 'then', 'r'], desc: 'Go to Report tab' },
+      { keys: ['Esc'], desc: 'Close this overlay' }
+    ];
+    const CHORD_TABS = { o: 'tab-overview', f: 'tab-findings', c: 'tab-compliance', r: 'tab-report' };
+
+    let overlay = null;          // the .kbd-overlay element (built lazily)
+    let chordActive = false;     // are we waiting for the 2nd key of a 'g' chord?
+    let chordTimer = null;
+    let lastFocused = null;      // restore focus when the overlay closes
+
+    function isTyping() {
+      const el = document.activeElement;
+      if (!el) return false;
+      const tag = (el.tagName || '').toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || tag === 'select') return true;
+      if (el.isContentEditable) return true;
+      return false;
+    }
+
+    function buildOverlay() {
+      const ov = document.createElement('div');
+      ov.className = 'kbd-overlay d-none';
+      ov.setAttribute('role', 'dialog');
+      ov.setAttribute('aria-modal', 'true');
+      ov.setAttribute('aria-label', 'Keyboard shortcuts');
+
+      const card = document.createElement('div');
+      card.className = 'kbd-card';
+      card.setAttribute('tabindex', '-1');
+
+      const h = document.createElement('div');
+      h.className = 'kbd-card-head';
+      h.innerHTML = '<span class="kbd-title"><i class="bi bi-keyboard"></i> Keyboard shortcuts</span>'
+        + '<span class="kbd-esc-hint"><kbd>Esc</kbd> to close</span>';
+      card.appendChild(h);
+
+      const list = document.createElement('div');
+      list.className = 'kbd-list';
+      SHORTCUTS.forEach(s => {
+        const row = document.createElement('div');
+        row.className = 'kbd-row';
+        const keysWrap = document.createElement('div');
+        keysWrap.className = 'kbd-keys';
+        s.keys.forEach(k => {
+          if (k === 'then' || k === '–') {
+            const sep = document.createElement('span');
+            sep.className = 'kbd-sep';
+            sep.textContent = k === 'then' ? 'then' : '–';
+            keysWrap.appendChild(sep);
+          } else {
+            const kb = document.createElement('kbd');
+            kb.textContent = k;
+            keysWrap.appendChild(kb);
+          }
+        });
+        const desc = document.createElement('div');
+        desc.className = 'kbd-desc';
+        desc.textContent = s.desc;
+        row.appendChild(keysWrap);
+        row.appendChild(desc);
+        list.appendChild(row);
+      });
+      card.appendChild(list);
+      ov.appendChild(card);
+
+      // Close when clicking the dimmed backdrop (but not the card itself).
+      ov.addEventListener('click', (e) => { if (e.target === ov) hideOverlay(); });
+
+      document.body.appendChild(ov);
+      return ov;
+    }
+
+    function isOpen() { return overlay && !overlay.classList.contains('d-none'); }
+
+    function showOverlay() {
+      if (!overlay) overlay = buildOverlay();
+      lastFocused = document.activeElement;
+      overlay.classList.remove('d-none');
+      const card = overlay.querySelector('.kbd-card');
+      if (card) try { card.focus(); } catch (e) {}
+    }
+    function hideOverlay() {
+      if (!overlay) return;
+      overlay.classList.add('d-none');
+      if (lastFocused && typeof lastFocused.focus === 'function') { try { lastFocused.focus(); } catch (e) {} }
+      lastFocused = null;
+    }
+    function toggleOverlay() { isOpen() ? hideOverlay() : showOverlay(); }
+
+    function clearChord() { chordActive = false; if (chordTimer) { clearTimeout(chordTimer); chordTimer = null; } }
+
+    function visibleTabs() {
+      return Array.prototype.filter.call(
+        document.querySelectorAll('.tab-btn'),
+        (b) => !b.classList.contains('d-none')
+      );
+    }
+    function clickVisibleTabByData(tabId) {
+      const tabs = visibleTabs();
+      for (let i = 0; i < tabs.length; i++) {
+        if (tabs[i].dataset && tabs[i].dataset.tab === tabId) { tabs[i].click(); return true; }
+      }
+      return false;
+    }
+
+    document.addEventListener('keydown', (e) => {
+      // Never hijack modifier combos (browser/OS shortcuts).
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+      // Escape always closes the overlay if it is open.
+      if (e.key === 'Escape') { if (isOpen()) { hideOverlay(); e.preventDefault(); } clearChord(); return; }
+
+      // Ignore everything else while typing in a field / contenteditable.
+      if (isTyping()) { clearChord(); return; }
+
+      // Resolve the 2nd key of a 'g' chord first.
+      if (chordActive) {
+        const k = (e.key || '').toLowerCase();
+        const target = CHORD_TABS[k];
+        if (target) { if (clickVisibleTabByData(target)) e.preventDefault(); }
+        clearChord();
+        return;
+      }
+
+      const key = e.key;
+
+      if (key === '?') { toggleOverlay(); e.preventDefault(); return; }
+
+      // Other single-key shortcuts should not fire while the overlay is open
+      // (Esc/'?' above already handle the overlay itself).
+      if (isOpen()) return;
+
+      if (key === 't') {
+        const btn = $('themeToggleBtn');
+        if (btn) { btn.click(); e.preventDefault(); }
+        return;
+      }
+      if (key === 'd') {
+        const btn = $('load-demo');
+        if (btn) { btn.click(); e.preventDefault(); }
+        return;
+      }
+      if (key === 'g') {
+        chordActive = true;
+        if (chordTimer) clearTimeout(chordTimer);
+        chordTimer = setTimeout(() => { chordActive = false; chordTimer = null; }, 1000);
+        e.preventDefault();
+        return;
+      }
+      if (key >= '1' && key <= '9') {
+        const tabs = visibleTabs();
+        const idx = parseInt(key, 10) - 1;
+        if (tabs[idx]) { tabs[idx].click(); e.preventDefault(); }
+        return;
+      }
+    });
+  })();
+
   // Minimal, safe Markdown → HTML for AI answers (escape first, then format).
   function mdLite(s) {
     let h = String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');

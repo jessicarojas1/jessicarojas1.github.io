@@ -23,6 +23,8 @@ const engine = require('./lib/engine');
 const ai = require('./lib/ai');
 const users = require('./lib/users');
 const jwt = require('./lib/jwt');
+const rateLimit = require('./lib/ratelimit');
+const audit = require('./lib/audit');
 
 const PORT = parseInt(process.env.PORT || '8080', 10);
 // Locate the SPA. Local dev: server.js lives in citadel/server, so the app is
@@ -40,6 +42,27 @@ fs.mkdirSync(TMP_ROOT, { recursive: true });
 const upload = multer({ dest: path.join(TMP_ROOT, 'uploads'), limits: { fileSize: MAX_UPLOAD, files: 5000 } });
 const app = express();
 app.disable('x-powered-by');
+app.set('trust proxy', true);   // honour X-Forwarded-For behind Render/ALB so client IPs are real
+
+// Best-effort client IP (first hop of X-Forwarded-For, else the socket address).
+function clientIp(req) {
+  const xff = (req.headers['x-forwarded-for'] || '').split(',')[0].trim();
+  return xff || req.ip || (req.socket && req.socket.remoteAddress) || 'unknown';
+}
+
+// Reusable fixed-window limiter middleware keyed by IP + route bucket.
+function rateLimited(bucket, max, windowMs) {
+  return (req, res, next) => {
+    const r = rateLimit.limit(bucket + ':' + clientIp(req), max, windowMs);
+    res.setHeader('X-RateLimit-Remaining', String(r.remaining));
+    if (!r.ok) {
+      res.setHeader('Retry-After', String(r.retryAfter));
+      audit.record('ratelimit.block', { ip: clientIp(req), detail: bucket + ' (' + max + '/' + Math.round(windowMs / 1000) + 's)', ok: false });
+      return res.status(429).json({ error: 'Too many requests — slow down and retry shortly.', retryAfter: r.retryAfter });
+    }
+    next();
+  };
+}
 
 /* Security headers (mirrors the hardened nginx config for non-container runs) */
 app.use((req, res, next) => {
@@ -47,6 +70,7 @@ app.use((req, res, next) => {
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
   next();
 });
 
@@ -129,25 +153,56 @@ app.get('/api/health', async (req, res) => {
 app.use(express.json({ limit: '256kb' }));
 
 /* ---------------- Auth & user management ---------------- */
-app.post('/api/auth/login', (req, res) => {
-  const { email, password } = req.body || {};
+// Login: IP rate-limit (blunt) + per-(email,IP) brute-force lockout (targeted).
+app.post('/api/auth/login', rateLimited('login', 20, 15 * 60000), (req, res) => {
+  const ip = clientIp(req);
+  const email = String((req.body && req.body.email) || '').trim().toLowerCase();
+  const password = (req.body && req.body.password) || '';
+  const lockKey = 'login:' + email + '|' + ip;
+
+  const lock = rateLimit.lockState(lockKey);
+  if (lock.locked) {
+    audit.record('login.locked', { actor: email || null, ip, detail: 'attempt while locked', ok: false });
+    res.setHeader('Retry-After', String(lock.retryAfter));
+    return res.status(429).json({ error: 'Too many failed attempts. Try again later.', retryAfter: lock.retryAfter });
+  }
+
   const u = users.verifyPassword(email, password);
-  if (!u) return res.status(401).json({ error: 'Invalid credentials or inactive account.' });
+  if (!u) {
+    const f = rateLimit.fail(lockKey);
+    audit.record(f.locked ? 'login.locked' : 'login.failure', { actor: email || null, ip, detail: 'failed attempt #' + f.fails, ok: false });
+    const body = { error: 'Invalid credentials or inactive account.' };
+    if (f.locked) { res.setHeader('Retry-After', String(f.retryAfter)); return res.status(429).json(Object.assign(body, { error: 'Too many failed attempts. Try again later.', retryAfter: f.retryAfter })); }
+    return res.status(401).json(body);
+  }
+  rateLimit.clearFails(lockKey);
+  audit.record('login.success', { actor: u.email, ip, detail: 'role=' + u.role, ok: true });
   const token = jwt.sign({ sub: u.id, role: u.role, email: u.email }, users.secret());
   res.json({ token, user: u });
 });
 app.get('/api/auth/me', (req, res) => { if (!req.user) return res.status(401).json({ error: 'Not authenticated.' }); res.json(req.user); });
 app.get('/api/auth/settings', (req, res) => res.json(users.settings()));
-app.patch('/api/auth/settings', requireAdmin, (req, res) => res.json(users.setSetting('enforce', !!(req.body && req.body.enforce))));
+app.patch('/api/auth/settings', requireAdmin, (req, res) => {
+  const out = users.setSetting('enforce', !!(req.body && req.body.enforce));
+  audit.record('settings.change', { actor: req.user.email, ip: clientIp(req), detail: 'enforce=' + out.enforce, ok: true });
+  res.json(out);
+});
+
+// Read-only security audit trail (most recent first; optional ?type= prefix filter).
+app.get('/api/audit', requireAdmin, (req, res) => {
+  const n = Math.min(parseInt(req.query.limit, 10) || 200, 500);
+  res.json({ stats: audit.stats(), events: audit.list(n, req.query.type || null) });
+});
 
 app.get('/api/users', requireAdmin, (req, res) => res.json(users.list()));
-app.post('/api/users', requireAdmin, (req, res) => { try { res.json(users.add(req.body || {})); } catch (e) { res.status(400).json({ error: e.message }); } });
-app.patch('/api/users/:id', requireAdmin, (req, res) => { try { res.json(users.update(req.params.id, req.body || {})); } catch (e) { res.status(400).json({ error: e.message }); } });
-app.delete('/api/users/:id', requireAdmin, (req, res) => { try { users.remove(req.params.id); res.json({ ok: true }); } catch (e) { res.status(400).json({ error: e.message }); } });
-app.post('/api/users/:id/password', requireAdmin, (req, res) => { try { users.setPassword(req.params.id, (req.body && req.body.password) || ''); res.json({ ok: true }); } catch (e) { res.status(400).json({ error: e.message }); } });
+app.post('/api/users', requireAdmin, (req, res) => { try { const u = users.add(req.body || {}); audit.record('user.add', { actor: req.user.email, ip: clientIp(req), detail: u.email + ' role=' + u.role, ok: true }); res.json(u); } catch (e) { res.status(400).json({ error: e.message }); } });
+app.patch('/api/users/:id', requireAdmin, (req, res) => { try { const u = users.update(req.params.id, req.body || {}); audit.record('user.update', { actor: req.user.email, ip: clientIp(req), detail: u.email + ' ' + Object.keys(req.body || {}).join(','), ok: true }); res.json(u); } catch (e) { res.status(400).json({ error: e.message }); } });
+app.delete('/api/users/:id', requireAdmin, (req, res) => { try { users.remove(req.params.id); audit.record('user.remove', { actor: req.user.email, ip: clientIp(req), detail: 'id=' + req.params.id, ok: true }); res.json({ ok: true }); } catch (e) { res.status(400).json({ error: e.message }); } });
+app.post('/api/users/:id/password', requireAdmin, (req, res) => { try { users.setPassword(req.params.id, (req.body && req.body.password) || ''); audit.record('user.password', { actor: req.user.email, ip: clientIp(req), detail: 'id=' + req.params.id, ok: true }); res.json({ ok: true }); } catch (e) { res.status(400).json({ error: e.message }); } });
 
 // Scan a public Git repository by URL (shallow clone, read-only).
-app.post('/api/scan-url', requirePerm('deepscan'), async (req, res) => {
+// Heavy (clone + full scanner fan-out): throttle to protect the free-tier box.
+app.post('/api/scan-url', rateLimited('scan-url', 10, 10 * 60000), requirePerm('deepscan'), async (req, res) => {
   const url = String((req.body && req.body.url) || '').trim();
   // Allowlist: https git URLs only (github/gitlab/bitbucket/codeberg or generic https .git)
   if (!/^https:\/\/[\w.-]+\/[\w./~-]+?(\.git)?$/.test(url) || url.length > 300) {
@@ -172,7 +227,7 @@ app.post('/api/scan-url', requirePerm('deepscan'), async (req, res) => {
 });
 
 // AI-assisted remediation for a single finding (opt-in; needs ANTHROPIC_API_KEY).
-app.post('/api/explain', requirePerm('tab-aifix'), async (req, res) => {
+app.post('/api/explain', rateLimited('explain', 30, 10 * 60000), requirePerm('tab-aifix'), async (req, res) => {
   if (!ai.available()) return res.status(503).json({ error: 'AI remediation is not enabled on this server.' });
   try {
     const out = await ai.explain((req.body && req.body.finding) || {});
@@ -182,7 +237,7 @@ app.post('/api/explain', requirePerm('tab-aifix'), async (req, res) => {
   }
 });
 
-app.post('/api/scan', requirePerm('analyze'), upload.array('files'), async (req, res) => {
+app.post('/api/scan', rateLimited('scan', 20, 10 * 60000), requirePerm('analyze'), upload.array('files'), async (req, res) => {
   if (!req.files || !req.files.length) return res.status(400).json({ error: 'No files uploaded (field "files").' });
   let work;
   try {

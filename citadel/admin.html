@@ -96,6 +96,7 @@
       <li><button class="tab-btn active" data-tab="tab-users"><i class="bi bi-people-fill"></i> Users</button></li>
       <li><button class="tab-btn" data-tab="tab-perms"><i class="bi bi-grid-3x3-gap-fill"></i> Permissions</button></li>
       <li><button class="tab-btn" data-tab="tab-settings"><i class="bi bi-sliders"></i> Access Settings</button></li>
+      <li id="nav-audit" class="d-none"><button class="tab-btn" data-tab="tab-audit"><i class="bi bi-clock-history"></i> Activity</button></li>
     </ul>
 
     <!-- Users tab -->
@@ -195,6 +196,41 @@
         </div>
       </div>
     </section>
+
+    <!-- Activity / Audit tab (backend mode only) -->
+    <section class="tab-panel d-none" id="tab-audit">
+      <div class="card citadel-card mb-3">
+        <div class="card-body">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <div>
+              <h2 class="h6 mb-1"><i class="bi bi-clock-history"></i> Security activity</h2>
+              <p class="small text-body-secondary mb-0">Recent logins, lockouts, permission &amp; settings changes. In-memory and resets on redeploy.</p>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <select class="form-select form-select-sm" id="audit-filter" style="width:auto" aria-label="Filter activity by type">
+                <option value="">All events</option>
+                <option value="login">Logins &amp; lockouts</option>
+                <option value="user">User changes</option>
+                <option value="settings">Settings changes</option>
+                <option value="ratelimit">Rate-limit blocks</option>
+              </select>
+              <button class="btn btn-sm btn-outline-secondary" id="audit-refresh"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+            </div>
+          </div>
+          <div id="audit-stats" class="small text-body-secondary mt-2"></div>
+        </div>
+      </div>
+      <div class="card citadel-card">
+        <div class="table-responsive">
+          <table class="table table-sm align-middle mb-0">
+            <thead>
+              <tr><th>Time</th><th>Event</th><th>Actor</th><th>IP</th><th>Detail</th></tr>
+            </thead>
+            <tbody id="audit-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -250,6 +286,15 @@
       async _refreshUsers() {
         if (this.mode !== 'backend') return;
         this._users = await this._api('api/users');
+      },
+
+      // Security audit trail (backend only). Returns { stats, events } or null.
+      async audit(type, limit) {
+        if (this.mode !== 'backend') return null;
+        const q = [];
+        if (type) q.push('type=' + encodeURIComponent(type));
+        if (limit) q.push('limit=' + encodeURIComponent(limit));
+        return this._api('api/audit' + (q.length ? '?' + q.join('&') : ''));
       },
 
       /* ---- lifecycle ---- */
@@ -719,6 +764,51 @@
       });
     }
 
+    /* ---------- Activity / Audit tab ---------- */
+    function fmtTime(iso) {
+      if (!iso) return '—';
+      const d = new Date(iso);
+      return isNaN(d) ? '—' : d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+    function auditBadge(type, ok) {
+      const cls = !ok ? 'text-bg-danger'
+        : (type === 'login.success' ? 'text-bg-success'
+        : (type.indexOf('user.') === 0 || type.indexOf('settings') === 0 ? 'text-bg-primary' : 'text-bg-secondary'));
+      return '<span class="badge ' + cls + '">' + esc(type) + '</span>';
+    }
+    async function renderAudit() {
+      if (DA.mode !== 'backend') return;
+      const tbody = $('audit-tbody'); const statsEl = $('audit-stats');
+      if (!tbody) return;
+      let data;
+      try { data = await DA.audit($('audit-filter') ? $('audit-filter').value : '', 200); }
+      catch (ex) {
+        tbody.innerHTML = '<tr><td class="admin-empty" colspan="5">' + esc(ex && ex.message ? ex.message : 'Could not load activity.') + '</td></tr>';
+        return;
+      }
+      if (!data) return;
+      const events = data.events || [];
+      if (statsEl) statsEl.textContent = (data.stats ? (data.stats.total + ' event(s) buffered (capacity ' + data.stats.capacity + ')') : '');
+      if (!events.length) {
+        tbody.innerHTML = '<tr><td class="admin-empty" colspan="5">No activity recorded yet.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = events.map((e) =>
+        '<tr>' +
+          '<td class="text-nowrap small">' + esc(fmtTime(e.ts)) + '</td>' +
+          '<td>' + auditBadge(e.type, e.ok) + '</td>' +
+          '<td class="small">' + esc(e.actor || '—') + '</td>' +
+          '<td class="small font-monospace">' + esc(e.ip || '—') + '</td>' +
+          '<td class="small">' + esc(e.detail || '') + '</td>' +
+        '</tr>'
+      ).join('');
+    }
+    function wireAudit() {
+      const btn = $('audit-refresh'); const sel = $('audit-filter');
+      if (btn && !btn.dataset.wired) { btn.dataset.wired = '1'; btn.addEventListener('click', renderAudit); }
+      if (sel && !sel.dataset.wired) { sel.dataset.wired = '1'; sel.addEventListener('change', renderAudit); }
+    }
+
     /* ---------- logout ---------- */
     $('logout-btn').addEventListener('click', () => {
       DA.logout();
@@ -754,6 +844,10 @@
       renderUsers(); wireUsers();
       renderPerms(); wirePerms();
       renderSettings(); wireSettings();
+      // Activity tab is backend-only (no audit trail in local/browser mode).
+      const navAudit = $('nav-audit');
+      if (navAudit) navAudit.classList.toggle('d-none', DA.mode !== 'backend');
+      if (DA.mode === 'backend') { wireAudit(); renderAudit(); }
     }
 
     /* ---------- boot ---------- */
