@@ -206,13 +206,46 @@
     await runScan(entries);
   }
 
+  // Web Worker: keeps the UI responsive on large repos. Falls back to inline.
+  let _worker;
+  function getWorker() {
+    if (_worker !== undefined) return _worker;
+    try { _worker = new Worker('js/worker.js'); _worker.onerror = function () {}; }
+    catch (e) { _worker = null; }
+    return _worker;
+  }
+  function scanInline(entries) {
+    let p = 45;
+    return CITADEL.scanner.scan(entries, (stage) => { p = Math.min(96, p + 7); showProgress(p, stage, ''); });
+  }
+  function scanViaWorker(entries) {
+    return new Promise((resolve, reject) => {
+      const w = getWorker();
+      if (!w) return reject(new Error('no worker'));
+      let p = 45, settled = false;
+      const onMsg = (e) => {
+        const m = e.data || {};
+        if (m.type === 'progress') { p = Math.min(96, p + 7); showProgress(p, m.stage, ''); }
+        else if (m.type === 'done') { cleanup(); resolve(m.report); }
+        else if (m.type === 'error' || m.type === 'fatal') { cleanup(); reject(new Error(m.message)); }
+      };
+      const onErr = () => { cleanup(); reject(new Error('worker error')); };
+      function cleanup() { if (settled) return; settled = true; w.removeEventListener('message', onMsg); w.removeEventListener('error', onErr); }
+      w.addEventListener('message', onMsg);
+      w.addEventListener('error', onErr);
+      try { w.postMessage({ type: 'scan', entries: entries }); } catch (e) { cleanup(); reject(e); }
+    });
+  }
   async function runScan(entries) {
     if (!entries.length) { showProgress(100, 'No analyzable files found.', ''); return; }
-    let p = 45;
-    const report = await CITADEL.scanner.scan(entries, (stage) => {
-      p = Math.min(96, p + 7);
-      showProgress(p, stage, '');
-    });
+    let report;
+    try {
+      showProgress(45, 'Analyzing…', getWorker() ? 'background worker' : '');
+      report = getWorker() ? await scanViaWorker(entries) : await scanInline(entries);
+    } catch (err) {
+      // Worker failed for any reason — degrade to inline scanning.
+      try { report = await scanInline(entries); } catch (e2) { showProgress(100, 'Scan error: ' + (e2.message || e2), ''); return; }
+    }
     finishScan(report, 'quick');
   }
 

@@ -6,7 +6,7 @@
 
 | | |
 |---|---|
-| Languages & formats | **117** (102 code-bearing) |
+| Languages & formats | **187** (170 code-bearing) |
 | SAST rules | **118** (29 universal + language-specific) |
 | Compliance frameworks | **22** |
 | Controls catalogued | **999** |
