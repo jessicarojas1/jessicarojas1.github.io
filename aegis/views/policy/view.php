@@ -188,7 +188,7 @@ $totalUsers = Database::fetchOne("SELECT COUNT(*) as cnt FROM users WHERE is_act
       <div style="width:<?= $pct ?>%;background:<?= $pct >= 80 ? 'var(--success)' : ($pct >= 50 ? 'var(--warning)' : 'var(--danger)') ?>;height:100%;border-radius:999px;transition:width .3s"></div>
     </div>
     <div class="text-muted text-sm" style="margin-top:6px"><?= $pct ?>% completion</div>
-    <?php if (Auth::can('policy.write')): ?>
+    <?php if (Auth::can('policy.edit')): ?>
       <div style="margin-top:12px">
         <a href="/policy/attestations" class="btn btn-ghost btn-sm"><i class="bi bi-people"></i> Manage Campaigns</a>
       </div>

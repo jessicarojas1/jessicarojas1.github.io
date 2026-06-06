@@ -41,7 +41,7 @@ $sevColor = $severityColors[strtolower($playbook['severity_filter'] ?? '')] ?? n
     </div>
   </div>
   <div class="page-actions">
-    <?php if (Auth::can('incident.write')): ?>
+    <?php if (Auth::can('incident.playbook')): ?>
       <form method="post" action="/playbooks/<?= (int)$playbook['id'] ?>/toggle" style="display:inline"
             data-confirm="<?= $isActive ? 'Deactivate' : 'Activate' ?> this playbook?">
         <?= Security::csrfField() ?>

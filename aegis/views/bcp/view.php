@@ -1,16 +1,16 @@
 <?php
 $breadcrumbs   = $breadcrumbs   ?? [['BCP/DRP', '/bcp'], ['View Plan', null]];
-$statusColors = ['draft'=>'#6b7280','active'=>'#22c55e','archived'=>'#9ca3af'];
-$sc = $statusColors[$plan['status']] ?? '#6b7280';
-$outcomeColors = ['passed'=>'#22c55e','passed_with_findings'=>'#f59e0b','failed'=>'#ef4444','cancelled'=>'#9ca3af'];
-$canEdit = Auth::can('policy.write');
+$statusColors = ['draft'=>'#6b7280','active'=>'var(--success)','archived'=>'#9ca3af'];
+$sc = $statusColors[$plan['status']] ?? 'var(--text-muted)';
+$outcomeColors = ['passed'=>'var(--success)','passed_with_findings'=>'var(--warning)','failed'=>'var(--danger)','cancelled'=>'#9ca3af'];
+$canEdit = Auth::can('bcp.edit');
 ob_start(); ?>
 <div class="page-header">
   <div>
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px">
       <h1 class="page-title" style="margin:0"><?= Security::h($plan['title']) ?></h1>
       <?php if (!empty($plan['plan_code'])): ?>
-        <span class="badge" style="background:var(--info-subtle);color:var(--info);border:1px solid var(--info)40;font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($plan['plan_code']) ?></span>
+        <span class="badge" style="background:var(--info-subtle);color:var(--info-text);border:1px solid var(--info-border);font-family:monospace;font-size:13px;padding:4px 10px"><?= Security::h($plan['plan_code']) ?></span>
       <?php endif; ?>
     </div>
     <p class="page-subtitle">

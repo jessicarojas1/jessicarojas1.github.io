@@ -237,17 +237,17 @@ if ($filterStatus !== '') {
           <td class="text-sm" style="<?= $daysStyle ?>;white-space:nowrap;"><?= Security::h($daysDisplay) ?></td>
 
           <td style="white-space:nowrap;text-align:right;">
-            <?php if ($acc['status'] === 'active' && Auth::can('risk.write')): ?>
+            <?php if ($acc['status'] === 'active' && Auth::can('risk.accept')): ?>
               <a href="/risk-acceptances/<?= (int)$acc['id'] ?>/renew" class="btn btn-ghost btn-sm" title="Renew">
                 <i class="bi bi-arrow-clockwise"></i>
               </a>
             <?php endif; ?>
-            <?php if ($acc['status'] === 'expired' && Auth::can('risk.write')): ?>
+            <?php if ($acc['status'] === 'expired' && Auth::can('risk.accept')): ?>
               <a href="/risk-acceptances/<?= (int)$acc['id'] ?>/renew" class="btn btn-primary btn-sm">
                 <i class="bi bi-arrow-clockwise"></i> Renew
               </a>
             <?php endif; ?>
-            <?php if ($acc['status'] === 'active' && Auth::can('risk.write')): ?>
+            <?php if ($acc['status'] === 'active' && Auth::can('risk.accept')): ?>
               <button type="button"
                       class="btn btn-sm"
                       style="background:var(--danger-tint);color:var(--danger);border:1px solid var(--danger-ring);"
@@ -275,7 +275,7 @@ if ($filterStatus !== '') {
         <?php endif; ?>
 
         <!-- Revoke inline form -->
-        <?php if ($acc['status'] === 'active' && Auth::can('risk.write')): ?>
+        <?php if ($acc['status'] === 'active' && Auth::can('risk.accept')): ?>
         <tr id="revoke-<?= (int)$acc['id'] ?>" style="display:none;">
           <td colspan="8" style="background:var(--danger-subtle);padding:14px 20px 16px;border-top:1px solid #fca5a580;">
             <form method="POST" action="/risk-acceptances/<?= (int)$acc['id'] ?>/revoke"

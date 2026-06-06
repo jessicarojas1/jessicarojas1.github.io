@@ -42,7 +42,7 @@ $avgScore = count($scenarios) > 0 ? round($totalScoreSum / count($scenarios), 1)
 <div class="card" style="margin-top:20px" id="risk-scenarios-section">
   <div class="card-header">
     <h3 class="card-title"><i class="bi bi-diagram-3-fill"></i> Risk Scenarios</h3>
-    <?php if (Auth::can('risk.write')): ?>
+    <?php if (Auth::can('risk.scenarios')): ?>
     <a href="/risk/<?= (int)$risk['id'] ?>/scenario/create" class="btn btn-sm btn-secondary">
       <i class="bi bi-plus-lg"></i> Add Scenario
     </a>
@@ -61,7 +61,7 @@ $avgScore = count($scenarios) > 0 ? round($totalScoreSum / count($scenarios), 1)
       stress, optimistic, regulatory change, or catastrophic failure. Each scenario
       applies likelihood and impact multipliers to produce a projected score.
     </p>
-    <?php if (Auth::can('risk.write')): ?>
+    <?php if (Auth::can('risk.scenarios')): ?>
     <a href="/risk/<?= (int)$risk['id'] ?>/scenario/create" class="btn btn-primary btn-sm">
       <i class="bi bi-plus-lg"></i> Create First Scenario
     </a>
@@ -79,7 +79,7 @@ $avgScore = count($scenarios) > 0 ? round($totalScoreSum / count($scenarios), 1)
           <th style="padding:10px 12px;font-weight:600;color:var(--text-muted);text-align:center">vs Base</th>
           <th style="padding:10px 12px;font-weight:600;color:var(--text-muted);text-align:right">Financial Est.</th>
           <th style="padding:10px 12px;font-weight:600;color:var(--text-muted);text-align:right">Probability</th>
-          <?php if (Auth::can('risk.write')): ?>
+          <?php if (Auth::can('risk.scenarios')): ?>
           <th style="padding:10px 12px;width:36px"></th>
           <?php endif; ?>
         </tr>
@@ -179,7 +179,7 @@ $avgScore = count($scenarios) > 0 ? round($totalScoreSum / count($scenarios), 1)
           </td>
 
           <!-- Delete -->
-          <?php if (Auth::can('risk.write')): ?>
+          <?php if (Auth::can('risk.scenarios')): ?>
           <td style="padding:12px 10px;text-align:center">
             <form method="POST" action="/risk-scenarios/<?= (int)$sc['id'] ?>/delete"
                   data-confirm="Delete scenario &#39;<?= Security::h($sc['name']) ?>&#39;?">

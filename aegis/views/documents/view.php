@@ -1,20 +1,18 @@
 <?php
 $breadcrumbs  = $breadcrumbs  ?? [['Documents', '/documents'], ['Document', null]];
-$statusColors = ['draft'=>'var(--text-muted)','under_review'=>'var(--warning)','approved'=>'var(--info)','published'=>'var(--primary-light)','archived'=>'var(--text-muted)','expired'=>'var(--danger)'];
-$classColors  = ['public'=>'var(--primary-light)','internal'=>'var(--info)','confidential'=>'var(--warning)','restricted'=>'var(--danger)'];
-$canEdit = Auth::can('policy.write');
+$statusColors = ['draft'=>'#6b7280','under_review'=>'var(--warning)','approved'=>'#3b82f6','published'=>'var(--success)','archived'=>'#9ca3af','expired'=>'var(--danger)'];
+$classColors  = ['public'=>'var(--success)','internal'=>'#3b82f6','confidential'=>'var(--warning)','restricted'=>'var(--danger)'];
+$canEdit = Auth::can('policy.edit');
 ?>
 <div class="page-header">
   <div>
     <h1 class="page-title"><?= Security::h($doc['title']) ?></h1>
     <p class="page-subtitle">
       <?php if ($doc['doc_number']): ?><span class="text-muted"><?= Security::h($doc['doc_number']) ?></span> &mdash;<?php endif; ?>
-      <?php $cc = $classColors[$doc['classification']] ?? 'var(--text-muted)'; ?>
-      <span class="badge" style="background:color-mix(in srgb,<?= $cc ?> 20%,transparent);color:<?= $cc ?>">
+      <span class="badge" style="background:<?= $classColors[$doc['classification']] ?? 'var(--text-muted)' ?>20;color:<?= $classColors[$doc['classification']] ?? 'var(--text-muted)' ?>">
         <?= Security::h(ucfirst($doc['classification'])) ?>
       </span>
-      <?php $sc = $statusColors[$doc['status']] ?? 'var(--text-muted)'; ?>
-      <span class="badge" style="background:color-mix(in srgb,<?= $sc ?> 20%,transparent);color:<?= $sc ?>">
+      <span class="badge" style="background:<?= $statusColors[$doc['status']] ?? 'var(--text-muted)' ?>20;color:<?= $statusColors[$doc['status']] ?? 'var(--text-muted)' ?>">
         <?= Security::h(ucfirst(str_replace('_',' ',$doc['status']))) ?>
       </span>
     </p>
@@ -146,8 +144,8 @@ $canEdit = Auth::can('policy.write');
 </div>
 
 <!-- Upload version modal -->
-<div id="uploadModal" class="um-overlay">
-  <div class="um-dialog" style="max-width:480px">
+<div id="uploadModal" class="modal-overlay">
+  <div class="modal-card" style="max-width:480px">
     <div class="modal-header">
       <h3>Upload New Version</h3>
       <button data-close-modal="uploadModal" class="btn-icon"><i class="bi bi-x-lg"></i></button>
@@ -201,6 +199,12 @@ $canEdit = Auth::can('policy.write');
 </div>
 
 <style>
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000; align-items:center; justify-content:center; }
+.modal-overlay.open { display:flex; }
+.modal-card { background:var(--card-bg); border:1px solid var(--border); border-radius:12px; width:100%; max-height:90vh; overflow-y:auto; }
+.modal-header { padding:20px 24px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+.modal-body { padding:24px; }
+.modal-footer { padding:16px 24px; border-top:1px solid var(--border); display:flex; gap:8px; justify-content:flex-end; }
 .hidden { display:none !important; }
 </style>
 <?php endif; ?>

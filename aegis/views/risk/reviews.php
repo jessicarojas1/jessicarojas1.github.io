@@ -16,16 +16,16 @@ $typeLabels = [
 ];
 
 $typeBadgeColors = [
-    'periodic'  => ['#2563eb','#eff6ff'],
-    'triggered' => ['#d97706','#fffbeb'],
+    'periodic'  => ['var(--moderate)','var(--info-subtle)'],
+    'triggered' => ['var(--warning)','var(--warning-subtle)'],
     'ad_hoc'    => ['var(--secondary)','rgba(55,65,81,.05)'],
     'board'     => ['#0891b2','#ecfeff'],
 ];
 
 $statusConfig = [
-    'planned'     => ['fg'=>'#2563eb','bg'=>'#eff6ff','label'=>'Planned'],
-    'in_progress' => ['fg'=>'#d97706','bg'=>'#fffbeb','label'=>'In Progress'],
-    'completed'   => ['fg'=>'#16a34a','bg'=>'#f0fdf4','label'=>'Completed'],
+    'planned'     => ['fg'=>'var(--moderate)','bg'=>'var(--info-subtle)','label'=>'Planned'],
+    'in_progress' => ['fg'=>'var(--warning)','bg'=>'var(--warning-subtle)','label'=>'In Progress'],
+    'completed'   => ['fg'=>'var(--primary)','bg'=>'var(--success-subtle)','label'=>'Completed'],
     'cancelled'   => ['fg'=>'#71717a','bg'=>'#f4f4f5','label'=>'Cancelled'],
 ];
 
@@ -41,7 +41,8 @@ ob_start();
   </div>
   <div class="page-actions">
     <a href="/risk" class="btn btn-ghost"><i class="bi bi-arrow-left"></i> Risk Register</a>
-    <?php if (Auth::can('risk.write')): ?>
+    <button class="btn btn-sm filter-btn" data-toggle-class="open" data-target="#reviewFilters"><i class="bi bi-funnel-fill"></i> Filters</button>
+    <?php if (Auth::can('risk.review')): ?>
     <a href="/risk/reviews/create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Schedule Review</a>
     <?php endif; ?>
   </div>
@@ -62,13 +63,13 @@ ob_start();
 <!-- KPI Summary Row -->
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;">
 
-  <div class="card" style="border-left:4px solid var(--info);">
+  <div class="card" style="border-left:4px solid var(--moderate);">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
       <div style="width:44px;height:44px;border-radius:10px;background:var(--info-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-        <i class="bi bi-calendar-check" style="font-size:20px;color:var(--info);"></i>
+        <i class="bi bi-calendar-check" style="font-size:20px;color:var(--moderate);"></i>
       </div>
       <div>
-        <div style="font-size:26px;font-weight:700;line-height:1;color:var(--info);"><?= $planned ?></div>
+        <div style="font-size:26px;font-weight:700;line-height:1;color:var(--moderate);"><?= $planned ?></div>
         <div style="font-size:12px;color:var(--text-muted);margin-top:3px;">Planned</div>
       </div>
     </div>
@@ -86,13 +87,13 @@ ob_start();
     </div>
   </div>
 
-  <div class="card" style="border-left:4px solid var(--success);">
+  <div class="card" style="border-left:4px solid var(--primary);">
     <div class="card-body" style="padding:18px 20px;display:flex;align-items:center;gap:14px;">
       <div style="width:44px;height:44px;border-radius:10px;background:var(--success-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-        <i class="bi bi-check-circle-fill" style="font-size:20px;color:var(--success);"></i>
+        <i class="bi bi-check-circle-fill" style="font-size:20px;color:var(--primary);"></i>
       </div>
       <div>
-        <div style="font-size:26px;font-weight:700;line-height:1;color:var(--success);"><?= $completed ?></div>
+        <div style="font-size:26px;font-weight:700;line-height:1;color:var(--primary);"><?= $completed ?></div>
         <div style="font-size:12px;color:var(--text-muted);margin-top:3px;">Completed</div>
       </div>
     </div>
@@ -113,14 +114,15 @@ ob_start();
 </div>
 
 <!-- Filter Bar -->
-<div class="filter-bar card">
-  <form method="GET" class="filter-form">
-    <select name="status" class="form-control form-control-sm" data-autosubmit>
+<div class="filter-bar" id="reviewFilters">
+  <form method="GET">
+    <select name="status" class="form-control form-control-sm">
       <option value="">All statuses</option>
       <?php foreach ($statusConfig as $sv => $sc): ?>
         <option value="<?= $sv ?>" <?= $filterStatus === $sv ? 'selected' : '' ?>><?= $sc['label'] ?></option>
       <?php endforeach; ?>
     </select>
+    <button type="submit" class="btn btn-primary btn-sm">Apply</button>
     <a href="/risk/reviews" class="btn btn-ghost btn-sm">Clear</a>
   </form>
 </div>
@@ -140,7 +142,7 @@ ob_start();
           <div class="empty-state-sm">
             <i class="bi bi-clipboard2-check"></i>
             <?= $filterStatus ? 'No reviews match this filter.' : 'No review sessions yet.' ?>
-            <?php if (!$filterStatus && Auth::can('risk.write')): ?>
+            <?php if (!$filterStatus && Auth::can('risk.review')): ?>
               <a href="/risk/reviews/create">Schedule the first one</a>.
             <?php endif; ?>
           </div>
@@ -193,7 +195,7 @@ ob_start();
               <?php endif; ?>
             </div>
             <div style="height:6px;background:var(--bg-secondary);border-radius:3px;overflow:hidden;">
-              <div style="height:100%;width:<?= $pct ?>%;background:<?= $pct >= 100 ? 'var(--success)' : ($pct > 50 ? 'var(--warning)' : 'var(--primary)') ?>;border-radius:3px;transition:width .3s;"></div>
+              <div style="height:100%;width:<?= $pct ?>%;background:<?= $pct >= 100 ? 'var(--primary)' : ($pct > 50 ? 'var(--warning)' : 'var(--primary)') ?>;border-radius:3px;transition:width .3s;"></div>
             </div>
           </td>
           <td>

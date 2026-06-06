@@ -60,7 +60,7 @@ if ($plan['target_date']) {
     </div>
   </div>
   <div class="page-actions">
-    <?php if (Auth::can('risk.write')): ?>
+    <?php if (Auth::can('risk.treatment')): ?>
       <button type="button" class="btn btn-secondary" id="toggle-edit-btn">
         <i class="bi bi-pencil"></i> Edit Plan
       </button>
@@ -138,7 +138,7 @@ if ($plan['target_date']) {
     </div>
 
     <!-- Edit form (collapsible) -->
-    <?php if (Auth::can('risk.write')): ?>
+    <?php if (Auth::can('risk.treatment')): ?>
     <div class="card" id="edit-plan-card" style="display:none">
       <div class="card-header">
         <div class="card-header-left">
@@ -239,7 +239,7 @@ if ($plan['target_date']) {
                style="padding:14px 20px;<?= $idx > 0 ? 'border-top:1px solid var(--border)' : '' ?>;display:flex;align-items:flex-start;gap:14px;<?= $mDone ? 'opacity:.7' : '' ?>">
 
             <!-- Checkbox (AJAX toggle) -->
-            <?php if (Auth::can('risk.write')): ?>
+            <?php if (Auth::can('risk.treatment')): ?>
             <form class="complete-form" data-milestone-id="<?= (int)$m['id'] ?>" style="margin:0;flex-shrink:0;margin-top:2px">
               <?= Security::csrfField() ?>
               <button type="submit" class="milestone-checkbox <?= $mDone ? 'checked' : '' ?>"
@@ -281,7 +281,7 @@ if ($plan['target_date']) {
             </div>
 
             <!-- Delete (incomplete only) -->
-            <?php if (!$mDone && Auth::can('risk.write')): ?>
+            <?php if (!$mDone && Auth::can('risk.treatment')): ?>
             <form method="POST" action="/treatment/milestone/<?= (int)$m['id'] ?>/delete"
                   data-confirm="Delete this milestone?" style="flex-shrink:0">
               <?= Security::csrfField() ?>
@@ -295,7 +295,7 @@ if ($plan['target_date']) {
         <?php endif; ?>
 
         <!-- Add Milestone inline form -->
-        <?php if (Auth::can('risk.write')): ?>
+        <?php if (Auth::can('risk.treatment')): ?>
         <div style="padding:16px 20px;border-top:1px solid var(--border);background:var(--bg-secondary)">
           <div style="font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:12px">
             <i class="bi bi-plus-circle"></i> Add Milestone

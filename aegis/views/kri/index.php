@@ -46,7 +46,7 @@ $freqLabels = [
     <p class="page-subtitle">Monitor measurable metrics that signal changes in risk exposure</p>
   </div>
   <div class="page-actions">
-    <?php if (Auth::can('risk.write')): ?>
+    <?php if (Auth::can('kri.manage')): ?>
       <a href="/kris/create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New KRI</a>
     <?php endif; ?>
   </div>
@@ -109,7 +109,7 @@ $displayKris = $activeFilter
         ? 'Try clearing the filter to see all KRIs.'
         : 'Create your first KRI to start monitoring risk exposure.' ?>
     </p>
-    <?php if (!$activeFilter && Auth::can('risk.write')): ?>
+    <?php if (!$activeFilter && Auth::can('kri.manage')): ?>
       <a href="/kris/create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Create First KRI</a>
     <?php endif; ?>
   </div>

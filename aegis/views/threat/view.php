@@ -86,7 +86,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
     <span style="background:<?= $stCfg['color'] ?>18;color:<?= $stCfg['color'] ?>;border:1px solid <?= $stCfg['color'] ?>33;padding:4px 14px;border-radius:99px;font-size:12px;font-weight:600;">
       <?= $stCfg['label'] ?>
     </span>
-    <?php if (Auth::can('risk.write')): ?>
+    <?php if (Auth::can('threat.edit')): ?>
       <button class="btn btn-ghost" data-toggle-class="d-none" data-target="#editPanel">
         <i class="bi bi-pencil-square"></i> Edit
       </button>
@@ -158,7 +158,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
     </div>
 
     <!-- Edit form (collapsible) -->
-    <?php if (Auth::can('risk.write')): ?>
+    <?php if (Auth::can('threat.edit')): ?>
     <div class="card">
       <div id="editPanel" class="d-none">
         <div class="card-header" style="cursor:pointer;" data-add-class="d-none" data-target="#editPanel">
@@ -273,14 +273,14 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
     <div class="card">
       <div class="card-header">
         <h3 class="card-title"><i class="bi bi-shield-exclamation"></i> Linked Risks</h3>
-        <?php if (Auth::can('risk.write') && !empty($unlinkdRisks)): ?>
+        <?php if (Auth::can('threat.edit') && !empty($unlinkdRisks)): ?>
           <button class="btn btn-primary btn-sm" data-toggle-class="d-none" data-target="#linkRiskPanel">
             <i class="bi bi-plus-lg"></i> Link Risk
           </button>
         <?php endif; ?>
       </div>
 
-      <?php if (Auth::can('risk.write')): ?>
+      <?php if (Auth::can('threat.edit')): ?>
       <div id="linkRiskPanel" class="d-none" style="padding:16px;border-bottom:1px solid var(--border-light);background:var(--bg-secondary);">
         <form method="POST" action="/threats/<?= (int)$threat['id'] ?>/link-risk" style="display:flex;gap:12px;align-items:flex-end;">
           <?= Security::csrfField() ?>
@@ -310,7 +310,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
                 <th>Risk</th>
                 <th style="text-align:center;">Score</th>
                 <th>Status</th>
-                <?php if (Auth::can('risk.write')): ?><th style="width:60px;"></th><?php endif; ?>
+                <?php if (Auth::can('threat.edit')): ?><th style="width:60px;"></th><?php endif; ?>
               </tr>
             </thead>
             <tbody>
@@ -339,7 +339,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
                       <?= ucfirst(str_replace('_', ' ', Security::h($r['status'] ?? ''))) ?>
                     </span>
                   </td>
-                  <?php if (Auth::can('risk.write')): ?>
+                  <?php if (Auth::can('threat.edit')): ?>
                     <td>
                       <form method="POST" action="/threats/<?= (int)$threat['id'] ?>/unlink-risk/<?= (int)$r['id'] ?>"
                             data-confirm="Unlink this risk from the threat?">
@@ -358,7 +358,7 @@ $impactLabels     = [1=>'Negligible',2=>'Minor',3=>'Moderate',4=>'Major',5=>'Cat
           <div class="empty-state-sm" style="padding:28px 24px;text-align:center;">
             <i class="bi bi-shield-check" style="font-size:32px;color:var(--text-light);display:block;margin-bottom:8px;"></i>
             <p style="color:var(--text-muted);margin:0;">No risks linked to this threat yet.</p>
-            <?php if (Auth::can('risk.write') && !empty($unlinkdRisks)): ?>
+            <?php if (Auth::can('threat.edit') && !empty($unlinkdRisks)): ?>
               <button class="btn btn-primary btn-sm" style="margin-top:12px;"
                       data-remove-class="d-none" data-target="#linkRiskPanel">
                 <i class="bi bi-plus-lg"></i> Link a Risk
