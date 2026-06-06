@@ -57,6 +57,28 @@ When asked to build any user management, roles, or permissions UI, always delive
 - **Controller coverage**: every controller method must call `Auth::requirePermission('module.action')` with the specific granular string
 - **View coverage**: every `Auth::can()` call in views must use the specific granular string
 
+## Settings & Branding Standard (Every App / Project)
+
+Every app or project — new or existing, moving forward — **must** include a
+**Settings** area that contains a **Branding** section where the user can:
+
+- **Upload/enter a logo via URL** (a `logoUrl` text field — paste an image URL)
+- Set an **organization / product name** (text)
+- Set a **primary accent color** (color picker, applied via a CSS custom property)
+
+Requirements:
+- Branding applies app-wide: the logo renders in the header/navbar, the org name
+  shows in the header and document `<title>`, and the accent color overrides the
+  app's primary CSS custom property.
+- Persist branding wherever the app stores settings: server-side settings when a
+  backend exists (shared), and `localStorage` for static/front-end-only hosting
+  (per-browser). Backend value wins when both are present.
+- Provide sensible empty-state defaults (the app's built-in logo/name/accent) so
+  an unset branding never breaks the UI.
+- A bad/broken logo URL must degrade gracefully (fall back to the default mark).
+- Follow all existing rules: no inline event handlers, escape user-supplied
+  strings on output, and never hardcode colors that should be the accent var.
+
 ## Other Permanent Rules
 
 - **No inline event handlers** — CSP compliance required at all times

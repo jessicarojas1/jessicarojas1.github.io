@@ -22,6 +22,9 @@
   });
   applyThemeIcon();
 
+  /* ---------- Branding (logo URL, org name, accent) ---------- */
+  if (CITADEL.branding) CITADEL.branding.apply();
+
   /* ---------- Access control (users & page-level permissions) ---------- */
   const escH = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   // When the deep-scan backend is present, authentication & permission checks
@@ -155,6 +158,7 @@
   (async function initDeep() {
     const st = await CITADEL.api.available();
     if (!st) return;
+    if (CITADEL.branding) CITADEL.branding.syncFromBackend();   // shared branding from the server
     renderEngineStatus(st);
     deepAvailable = true;
     aiAvailable = !!st.ai;
