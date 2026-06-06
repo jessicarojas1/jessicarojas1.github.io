@@ -12,6 +12,7 @@ from app.api.routers import (
     calibration,
     capa,
     changes,
+    comments,
     complaints,
     dashboard,
     documents,
@@ -43,6 +44,7 @@ api_router.include_router(risks.router)
 api_router.include_router(inspections.router)
 api_router.include_router(mgmt_reviews.router)
 api_router.include_router(complaints.router)
+api_router.include_router(comments.router)
 api_router.include_router(dashboard.router)
 api_router.include_router(attachments.router)
 api_router.include_router(search.router)

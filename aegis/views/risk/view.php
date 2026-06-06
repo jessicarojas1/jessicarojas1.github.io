@@ -587,7 +587,7 @@ ob_start();
     <div class="card">
       <div class="card-header">
         <h3 class="card-title"><i class="bi bi-kanban-fill"></i> Treatment Plans</h3>
-        <?php if (Auth::can('risk.edit')): ?><a href="/risk/<?= (int)$risk['id'] ?>/treatment/create" class="btn btn-sm btn-primary"><i class="bi bi-plus-lg"></i> Add Plan</a><?php endif; ?>
+        <?php if (Auth::can('risk.treatment')): ?><a href="/risk/<?= (int)$risk['id'] ?>/treatment/create" class="btn btn-sm btn-primary"><i class="bi bi-plus-lg"></i> Add Plan</a><?php endif; ?>
       </div>
       <div class="card-body" style="padding:0">
         <table class="data-table">
@@ -620,7 +620,7 @@ ob_start();
       </div>
     </div>
     <?php else: ?>
-    <?php if (Auth::can('risk.edit')): ?>
+    <?php if (Auth::can('risk.treatment')): ?>
     <div style="text-align:center;padding:6px">
       <a href="/risk/<?= (int)$risk['id'] ?>/treatment/create" class="btn btn-sm btn-secondary"><i class="bi bi-kanban-fill"></i> Create Treatment Plan</a>
     </div>
@@ -767,11 +767,11 @@ ob_start();
     <?php endif; ?>
 
     <!-- Acceptance Certificate -->
-    <?php if ($activeAcceptance || Auth::can('risk.edit')): ?>
+    <?php if ($activeAcceptance || Auth::can('risk.accept')): ?>
     <div class="card">
       <div class="card-header">
         <h3 class="card-title"><i class="bi bi-patch-check-fill" style="color:var(--primary)"></i> Risk Acceptance</h3>
-        <?php if (Auth::can('risk.edit')): ?>
+        <?php if (Auth::can('risk.accept')): ?>
           <a href="/risk/<?= (int)$risk['id'] ?>/accept" class="btn btn-ghost btn-sm"><i class="bi bi-plus-lg"></i> Issue</a>
         <?php endif; ?>
       </div>
@@ -889,8 +889,8 @@ ob_start();
 </div><!-- /r-layout -->
 
 <!-- Approve Modal -->
-<div class="um-overlay" id="approveModal">
-  <div class="um-dialog">
+<div id="approveModal" style="display:none;position:fixed;inset:0;background:#00000060;z-index:9999;align-items:center;justify-content:center">
+  <div style="background:var(--bg-primary);border-radius:12px;padding:24px;width:420px;max-width:95vw">
     <h3 style="margin:0 0 12px">Approve Risk Assessment</h3>
     <form method="POST" action="/risk/<?= $risk['id'] ?>/approve">
       <?= Security::csrfField() ?>
@@ -906,8 +906,8 @@ ob_start();
 </div>
 
 <!-- Reject Modal -->
-<div class="um-overlay" id="rejectModal">
-  <div class="um-dialog">
+<div id="rejectModal" style="display:none;position:fixed;inset:0;background:#00000060;z-index:9999;align-items:center;justify-content:center">
+  <div style="background:var(--bg-primary);border-radius:12px;padding:24px;width:420px;max-width:95vw">
     <h3 style="margin:0 0 12px">Send Back for Revision</h3>
     <form method="POST" action="/risk/<?= $risk['id'] ?>/reject-review">
       <?= Security::csrfField() ?>

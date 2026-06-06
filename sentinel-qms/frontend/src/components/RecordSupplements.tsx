@@ -1,5 +1,6 @@
 import { ActivityTimelineCard } from './ActivityTimeline';
 import { AttachmentsPanelCard } from './AttachmentsPanel';
+import { CommentsPanelCard } from './CommentsPanel';
 
 export interface RecordSupplementsProps {
   /** Backend audit-log / attachment entity_type for this module. */
@@ -24,6 +25,11 @@ export function RecordSupplements({
     <div className="detail-grid" style={{ marginTop: 'var(--space-4)' }}>
       <ActivityTimelineCard entityType={entityType} entityId={entityId} />
       <AttachmentsPanelCard
+        entityType={entityType}
+        entityId={entityId}
+        canEditPage={canEditPage}
+      />
+      <CommentsPanelCard
         entityType={entityType}
         entityId={entityId}
         canEditPage={canEditPage}
