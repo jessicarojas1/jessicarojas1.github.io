@@ -8,7 +8,16 @@ set -e
 
 if [ "${AUTO_MIGRATE:-1}" = "1" ]; then
   echo "[entrypoint] Applying database migrations (alembic upgrade head)..."
-  alembic upgrade head
+  if ! alembic upgrade head > /tmp/migrate.log 2>&1; then
+    echo "[entrypoint] ================= MIGRATION FAILED ================="
+    echo "[entrypoint] Reason (filtered):"
+    grep -iE "does not exist|already exists|permission denied|could not|undefinedtable|duplicateobject|psycopg\.|sqlalchemy\.exc\.[A-Za-z]+Error" /tmp/migrate.log | head -20 || true
+    echo "[entrypoint] ---------------- last 30 log lines -----------------"
+    tail -n 30 /tmp/migrate.log
+    echo "[entrypoint] ===================================================="
+    exit 1
+  fi
+  echo "[entrypoint] Migrations applied successfully."
 fi
 
 if [ "${AUTO_SEED:-1}" = "1" ]; then

@@ -22,6 +22,20 @@
   });
   applyThemeIcon();
 
+  /* ---------- Hero live stats ---------- */
+  (function () {
+    const hs = $('hero-stats'); if (!hs) return;
+    const cwe = new Set(CITADEL.rules.filter(r => r.cwe).map(r => r.cwe)).size;
+    const stats = [
+      [CITADEL.lang.count, 'languages'],
+      [CITADEL.rules.length, 'SAST rules'],
+      [CITADEL.frameworks.CATALOG.length, 'frameworks'],
+      [CITADEL.frameworks.catalogTotal(), 'controls'],
+      [cwe, 'CWEs']
+    ];
+    hs.innerHTML = stats.map(s => `<div class="hero-stat"><span class="hs-num">${s[0]}</span><span class="hs-lbl">${s[1]}</span></div>`).join('');
+  })();
+
   /* ---------- Hero framework chips ---------- */
   $('framework-chips').innerHTML = CITADEL.frameworks.CATALOG
     .map(f => `<span class="hero-chip" title="${f.desc.replace(/"/g, '')}">${f.name}</span>`).join('');
@@ -192,13 +206,46 @@
     await runScan(entries);
   }
 
+  // Web Worker: keeps the UI responsive on large repos. Falls back to inline.
+  let _worker;
+  function getWorker() {
+    if (_worker !== undefined) return _worker;
+    try { _worker = new Worker('js/worker.js'); _worker.onerror = function () {}; }
+    catch (e) { _worker = null; }
+    return _worker;
+  }
+  function scanInline(entries) {
+    let p = 45;
+    return CITADEL.scanner.scan(entries, (stage) => { p = Math.min(96, p + 7); showProgress(p, stage, ''); });
+  }
+  function scanViaWorker(entries) {
+    return new Promise((resolve, reject) => {
+      const w = getWorker();
+      if (!w) return reject(new Error('no worker'));
+      let p = 45, settled = false;
+      const onMsg = (e) => {
+        const m = e.data || {};
+        if (m.type === 'progress') { p = Math.min(96, p + 7); showProgress(p, m.stage, ''); }
+        else if (m.type === 'done') { cleanup(); resolve(m.report); }
+        else if (m.type === 'error' || m.type === 'fatal') { cleanup(); reject(new Error(m.message)); }
+      };
+      const onErr = () => { cleanup(); reject(new Error('worker error')); };
+      function cleanup() { if (settled) return; settled = true; w.removeEventListener('message', onMsg); w.removeEventListener('error', onErr); }
+      w.addEventListener('message', onMsg);
+      w.addEventListener('error', onErr);
+      try { w.postMessage({ type: 'scan', entries: entries }); } catch (e) { cleanup(); reject(e); }
+    });
+  }
   async function runScan(entries) {
     if (!entries.length) { showProgress(100, 'No analyzable files found.', ''); return; }
-    let p = 45;
-    const report = await CITADEL.scanner.scan(entries, (stage) => {
-      p = Math.min(96, p + 7);
-      showProgress(p, stage, '');
-    });
+    let report;
+    try {
+      showProgress(45, 'Analyzing…', getWorker() ? 'background worker' : '');
+      report = getWorker() ? await scanViaWorker(entries) : await scanInline(entries);
+    } catch (err) {
+      // Worker failed for any reason — degrade to inline scanning.
+      try { report = await scanInline(entries); } catch (e2) { showProgress(100, 'Scan error: ' + (e2.message || e2), ''); return; }
+    }
     finishScan(report, 'quick');
   }
 
@@ -269,10 +316,24 @@
 
     // Exports
     if (e.target.closest('#exp-json')) return CITADEL.report.exportJson();
+    // Full control-list expander (Compliance tab)
+    const ce = e.target.closest('.ctrl-expand');
+    if (ce) {
+      const el = $('fwctrls-' + ce.dataset.fwctrls);
+      if (el) { if (!ce.dataset.orig) ce.dataset.orig = ce.textContent; const hidden = el.classList.toggle('d-none'); ce.textContent = hidden ? ce.dataset.orig : 'Hide controls'; }
+      return;
+    }
+    // Report tab + AI fix prompt
+    if (e.target.closest('#dl-report')) return CITADEL.report.downloadHtmlReport(CITADEL.report.current);
+    if (e.target.closest('#copy-aifix')) return CITADEL.report.copyAiFix();
+    if (e.target.closest('#dl-aifix')) return CITADEL.report.downloadAiFix();
+
     if (e.target.closest('#exp-sbom') || e.target.closest('#dl-sbom')) return CITADEL.report.exportSbom();
     if (e.target.closest('#exp-sarif')) return CITADEL.report.exportSarif();
     if (e.target.closest('#exp-poam')) return CITADEL.report.exportPoam();
     if (e.target.closest('#exp-ssp')) return CITADEL.report.exportSsp();
+    if (e.target.closest('#exp-junit')) return CITADEL.report.exportJUnit();
+    if (e.target.closest('#exp-prcomment')) return CITADEL.report.exportPrComment();
     if (e.target.closest('#exp-md')) return CITADEL.report.exportMarkdown();
     if (e.target.closest('#exp-pdf')) return CITADEL.report.exportPdf();
   });
