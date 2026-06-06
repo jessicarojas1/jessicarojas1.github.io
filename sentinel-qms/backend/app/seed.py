@@ -72,6 +72,17 @@ def seed_admin(db: Session, roles: dict[str, Role]) -> User | None:
     email = settings.ADMIN_EMAIL.lower()
     admin = db.execute(select(User).where(User.email == email)).scalar_one_or_none()
     if admin:
+        # Demo/dev only (production returns above): keep the admin login usable by
+        # re-syncing the password to the configured value, re-activating, and
+        # ensuring the admin role — so changing ADMIN_PASSWORD and redeploying
+        # always lets you sign in.
+        admin.hashed_password = hash_password(settings.ADMIN_PASSWORD)
+        admin.is_active = True
+        admin_role = roles[RoleEnum.ADMIN.value]
+        if admin_role not in admin.roles:
+            admin.roles = [*admin.roles, admin_role]
+        db.flush()
+        logger.info("re-synced admin user %s password", email)
         return admin
     admin = User(
         email=email,
@@ -189,10 +200,19 @@ def run() -> None:
     Base.metadata.create_all(bind=engine)
 
     with SessionLocal() as db:
+        # Commit the essentials (roles + admin) FIRST and on their own, so a
+        # problem seeding optional demo data can never roll back the admin
+        # account and lock everyone out.
         roles = seed_roles(db)
         admin = seed_admin(db, roles)
-        seed_demo(db, admin)
         db.commit()
+
+        try:
+            seed_demo(db, admin)
+            db.commit()
+        except Exception:  # noqa: BLE001 - demo data is best-effort
+            db.rollback()
+            logger.exception("demo data seeding failed (non-fatal); continuing")
     logger.info("seed complete")
 
 
