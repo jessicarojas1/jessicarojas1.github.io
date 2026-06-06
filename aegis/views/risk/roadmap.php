@@ -159,13 +159,13 @@ $_roadmapActiveFilters = (int)!empty($filterStatus) + (int)!empty($filterOwner) 
     <span style="display:inline-block;width:32px;height:10px;border-radius:4px;background:var(--danger);"></span>Past Due
   </span>
   <span style="display:flex;align-items:center;gap:6px;font-size:12px;">
-    <span style="display:inline-block;width:32px;height:10px;border-radius:4px;background:#f97316;"></span>Due ≤30 days
+    <span style="display:inline-block;width:32px;height:10px;border-radius:4px;background:var(--orange);"></span>Due ≤30 days
   </span>
   <span style="display:flex;align-items:center;gap:6px;font-size:12px;">
     <span style="display:inline-block;width:32px;height:10px;border-radius:4px;background:var(--primary);"></span>On track
   </span>
   <span style="display:flex;align-items:center;gap:6px;font-size:12px;">
-    <span style="display:inline-block;width:32px;height:10px;border-radius:4px;background:#d1d5db;"></span>No due date
+    <span style="display:inline-block;width:32px;height:10px;border-radius:4px;background:var(--border);"></span>No due date
   </span>
 </div>
 
