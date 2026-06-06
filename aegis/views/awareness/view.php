@@ -16,7 +16,7 @@ $color     = $pct >= 80 ? 'var(--success)' : ($pct >= 50 ? 'var(--warning)' : 'v
   </div>
   <div class="page-actions">
     <a href="/awareness" class="btn btn-ghost"><i class="bi bi-arrow-left"></i> Back</a>
-    <?php if (Auth::can('compliance.write')): ?>
+    <?php if (Auth::can('awareness.manage')): ?>
     <form method="POST" action="/awareness/<?= (int)$program['id'] ?>/delete"
           data-confirm="Delete this program and all assignment records?">
       <?= Security::csrfField() ?>
@@ -95,7 +95,7 @@ $color     = $pct >= 80 ? 'var(--success)' : ($pct >= 50 ? 'var(--warning)' : 'v
     </div>
 
     <!-- Assign more users (admin) -->
-    <?php if (Auth::can('compliance.write')): ?>
+    <?php if (Auth::can('awareness.manage')): ?>
     <div class="card">
       <div class="card-header">
         <div class="card-header-left"><i class="bi bi-person-plus-fill" style="color:var(--primary)"></i><span class="card-title">Add Users</span></div>

@@ -3,7 +3,7 @@ $breadcrumbs   = $breadcrumbs   ?? [['BCP/DRP', '/bcp'], ['View Plan', null]];
 $statusColors = ['draft'=>'#6b7280','active'=>'var(--success)','archived'=>'#9ca3af'];
 $sc = $statusColors[$plan['status']] ?? 'var(--text-muted)';
 $outcomeColors = ['passed'=>'var(--success)','passed_with_findings'=>'var(--warning)','failed'=>'var(--danger)','cancelled'=>'#9ca3af'];
-$canEdit = Auth::can('policy.write');
+$canEdit = Auth::can('bcp.edit');
 ob_start(); ?>
 <div class="page-header">
   <div>

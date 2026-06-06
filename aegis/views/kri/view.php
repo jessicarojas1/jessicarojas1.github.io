@@ -100,7 +100,7 @@ function fmtNum(float $n): string {
     </div>
   </div>
   <div class="page-actions">
-    <?php if (Auth::can('risk.write')): ?>
+    <?php if (Auth::can('kri.manage')): ?>
       <form method="POST" action="/kris/<?= (int)$kri['id'] ?>/toggle" style="display:inline;">
         <?= Security::csrfField() ?>
         <button type="submit" class="btn btn-ghost btn-sm">
@@ -317,7 +317,7 @@ function fmtNum(float $n): string {
   <!-- Right column: Record Value form -->
   <div style="display:flex;flex-direction:column;gap:20px;">
 
-    <?php if (Auth::can('risk.write') && $kri['is_active']): ?>
+    <?php if (Auth::can('kri.record') && $kri['is_active']): ?>
     <div class="card">
       <div class="card-header">
         <h4 class="card-title"><i class="bi bi-plus-circle-fill"></i> Record New Value</h4>

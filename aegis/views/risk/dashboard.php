@@ -352,7 +352,7 @@ if (!empty($trendData)) {
   </div>
   <div class="page-actions">
     <a href="/risk" class="btn btn-ghost"><i class="bi bi-list-ul"></i> Risk Register</a>
-    <?php if (Auth::can('risk.write')): ?>
+    <?php if (Auth::can('risk.create')): ?>
     <a href="/risk/create" class="btn btn-danger"><i class="bi bi-plus-lg"></i> Log Risk</a>
     <?php endif; ?>
   </div>
@@ -715,7 +715,7 @@ if (!empty($trendData)) {
             <div style="font-size:10px;color:var(--text-muted)"><?= Security::h($uc['category_name']) ?></div>
           <?php endif; ?>
         </div>
-        <?php if (Auth::can('risk.write')): ?>
+        <?php if (Auth::can('risk.edit')): ?>
         <a href="/risk/<?= (int)$uc['id'] ?>" style="flex-shrink:0;font-size:11px;font-weight:600;color:var(--primary);text-decoration:none;white-space:nowrap;padding:3px 8px;border-radius:6px;border:1px solid #c7d2fe;background:rgba(11,97,4,.06)">
           <i class="bi bi-link-45deg"></i> Link Controls
         </a>

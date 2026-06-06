@@ -9,7 +9,7 @@ $breadcrumbs = [['Policies', '/policy'], ['Attestations', null]];
     <p class="page-subtitle">Track user sign-off on policies across the organisation</p>
   </div>
   <div class="page-actions">
-    <?php if (Auth::can('policy.write')): ?>
+    <?php if (Auth::can('policy.attest')): ?>
       <a href="/policy/attestations/create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New Campaign</a>
     <?php endif; ?>
     <a href="/my-attestations" class="btn btn-ghost"><i class="bi bi-person-check"></i> My Attestations</a>
@@ -21,7 +21,7 @@ $breadcrumbs = [['Policies', '/policy'], ['Attestations', null]];
     <div class="empty-icon"><i class="bi bi-pen"></i></div>
     <h3>No attestation campaigns yet</h3>
     <p>Create a campaign to require users to read and acknowledge a policy.</p>
-    <?php if (Auth::can('policy.write')): ?>
+    <?php if (Auth::can('policy.attest')): ?>
       <a href="/policy/attestations/create" class="btn btn-primary">Create Campaign</a>
     <?php endif; ?>
   </div>

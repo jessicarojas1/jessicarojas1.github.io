@@ -22,7 +22,7 @@ $breadcrumbs = [['Playbooks', null]];
     <h1 class="page-title">Incident Response Playbooks</h1>
     <p class="page-subtitle">Step-by-step response procedures that can be attached to incidents and worked as checklists.</p>
   </div>
-  <?php if (Auth::can('incident.write')): ?>
+  <?php if (Auth::can('incident.playbook')): ?>
     <div class="page-actions">
       <a href="/playbooks/create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New Playbook</a>
     </div>
@@ -35,7 +35,7 @@ $breadcrumbs = [['Playbooks', null]];
       <i class="bi bi-journal-bookmark-fill" style="font-size:48px;color:var(--border);display:block;margin-bottom:16px"></i>
       <h3 style="margin:0 0 8px;color:var(--text-muted)">No playbooks yet</h3>
       <p style="color:var(--text-muted);margin:0 0 20px">Create your first incident response playbook to standardize how your team handles security events.</p>
-      <?php if (Auth::can('incident.write')): ?>
+      <?php if (Auth::can('incident.playbook')): ?>
         <a href="/playbooks/create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Create Playbook</a>
       <?php endif; ?>
     </div>
@@ -91,7 +91,7 @@ $breadcrumbs = [['Playbooks', null]];
             <a href="/playbooks/<?= (int)$pb['id'] ?>" class="btn btn-sm btn-secondary">
               <i class="bi bi-eye"></i> View
             </a>
-            <?php if (Auth::can('incident.write')): ?>
+            <?php if (Auth::can('incident.playbook')): ?>
               <form method="post" action="/playbooks/<?= (int)$pb['id'] ?>/toggle" style="display:inline" data-confirm="<?= $isActive ? 'Deactivate' : 'Activate' ?> this playbook?">
                 <?= Security::csrfField() ?>
                 <button type="submit" class="btn btn-sm <?= $isActive ? 'btn-ghost' : 'btn-primary' ?>">

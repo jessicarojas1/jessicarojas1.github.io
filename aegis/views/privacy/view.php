@@ -13,7 +13,7 @@ $basisLabels = [
   </div>
   <div class="page-actions">
     <a href="/privacy" class="btn btn-ghost"><i class="bi bi-arrow-left"></i> Back</a>
-    <?php if (Auth::can('compliance.write')): ?>
+    <?php if (Auth::can('compliance.assess')): ?>
     <form method="POST" action="/privacy/<?= (int)$record['id'] ?>/delete"
           data-confirm="Delete this processing activity record?">
       <?= Security::csrfField() ?>

@@ -27,7 +27,7 @@ $riskColors  = ['Critical'=>'var(--danger)','High'=>'var(--orange)','Medium'=>'v
 // Group items
 $groups = ['pending'=>[],'reviewed'=>[],'escalated'=>[],'deferred'=>[],'not_applicable'=>[]];
 foreach ($items as $item) { $groups[$item['status']][] = $item; }
-$canAct  = $review['status'] === 'in_progress' && (Auth::can('risk.write') || Auth::id() == $review['lead_reviewer_id']);
+$canAct  = $review['status'] === 'in_progress' && (Auth::can('risk.review') || Auth::id() == $review['lead_reviewer_id']);
 $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $review['total_risks'] * 100) : 0;
 ?>
 
@@ -80,18 +80,18 @@ $totalPct = $review['total_risks'] > 0 ? round($review['reviewed_count'] / $revi
     </div>
   </div>
   <div style="display:flex;gap:8px;flex-wrap:wrap">
-    <?php if ($review['status'] === 'planned' && Auth::can('risk.write')): ?>
+    <?php if ($review['status'] === 'planned' && Auth::can('risk.review')): ?>
       <form method="POST" action="/risk/reviews/<?= $review['id'] ?>/start">
         <?= Security::csrfField() ?>
         <button class="btn btn-primary"><i class="bi bi-play-fill"></i> Start Review</button>
       </form>
     <?php endif; ?>
-    <?php if ($review['status'] === 'in_progress' && Auth::can('risk.write')): ?>
+    <?php if ($review['status'] === 'in_progress' && Auth::can('risk.review')): ?>
       <button class="btn btn-success" data-show-modal="completeModal">
         <i class="bi bi-check2-circle"></i> Complete Review
       </button>
     <?php endif; ?>
-    <?php if (in_array($review['status'],['planned','in_progress']) && Auth::can('risk.write')): ?>
+    <?php if (in_array($review['status'],['planned','in_progress']) && Auth::can('risk.review')): ?>
       <form method="POST" action="/risk/reviews/<?= $review['id'] ?>/cancel" data-confirm="Cancel this review session?">
         <?= Security::csrfField() ?>
         <button class="btn btn-ghost"><i class="bi bi-x-circle"></i> Cancel</button>
