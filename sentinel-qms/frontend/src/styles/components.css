@@ -1070,3 +1070,19 @@ table.data-table {
   color: var(--danger);
   font-weight: 600;
 }
+
+/* Comments / collaboration */
+.comment-list { list-style: none; margin: 0 0 1rem; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+.comment { border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-elevated, rgba(127,127,127,0.05)); padding: 0.5rem 0.7rem; }
+.comment__head { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; }
+.comment__author { font-weight: 600; }
+.comment__time { color: var(--text-muted, #8b95a7); font-size: 0.72rem; }
+.comment__delete { margin-left: auto; background: none; border: none; color: var(--text-muted, #8b95a7); cursor: pointer; padding: 2px; }
+.comment__delete:hover { color: var(--danger); }
+.comment__body { margin-top: 0.25rem; white-space: pre-wrap; font-size: 0.88rem; line-height: 1.5; }
+.comment-composer { display: flex; flex-direction: column; gap: 0.5rem; }
+.comment-composer__row { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.comment-mention { display: inline-flex; align-items: center; gap: 0.35rem; }
+.comment-mention__chips { display: flex; flex-wrap: wrap; gap: 0.3rem; flex: 1; }
+.comment-mention__chips .doc-chip button { background: none; border: none; cursor: pointer; color: inherit; margin-left: 4px; }
+.comment-composer__row .btn { margin-left: auto; }

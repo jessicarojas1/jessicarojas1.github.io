@@ -30,6 +30,7 @@ from app.models.change import (
     ChangeStatus,
     ChangeType,
 )
+from app.models.comment import Comment
 from app.models.complaint import Complaint, ComplaintSeverity, ComplaintStatus
 from app.models.document import (
     Department,
@@ -166,4 +167,5 @@ __all__ = [
     "Complaint",
     "ComplaintStatus",
     "ComplaintSeverity",
+    "Comment",
 ]
