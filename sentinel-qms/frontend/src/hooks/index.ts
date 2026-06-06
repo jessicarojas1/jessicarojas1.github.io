@@ -35,6 +35,7 @@ export * from './useTraining';
 export * from './useSearch';
 export * from './useNotifications';
 export * from './useAnalytics';
+export * from './useReports';
 export * from './useAuditLogs';
 export * from './useActivity';
 export * from './useAttachments';

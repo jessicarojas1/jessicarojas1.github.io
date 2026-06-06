@@ -37,6 +37,7 @@ const PermissionsPage = lazy(() => import('./pages/admin/PermissionsPage'));
 const AuditTrailPage = lazy(() => import('./pages/admin/AuditTrailPage'));
 const SettingsPage = lazy(() => import('./pages/admin/SettingsPage'));
 const AnalyticsPage = lazy(() => import('./pages/AnalyticsPage'));
+const ReportsPage = lazy(() => import('./pages/ReportsPage'));
 
 function PageFallback() {
   return (
@@ -85,6 +86,11 @@ export function AppRouter() {
           <Route
             path="analytics"
             element={<Guard page="analytics" capability="ncr.read"><AnalyticsPage /></Guard>}
+          />
+
+          <Route
+            path="reports"
+            element={<Guard page="analytics" capability="ncr.read"><ReportsPage /></Guard>}
           />
 
           <Route path="nonconformances">

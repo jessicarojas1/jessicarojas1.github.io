@@ -120,3 +120,58 @@ export interface AnalyticsTrends {
   nc_by_severity: Record<string, number>;
   audit_findings_by_type: Record<string, number>;
 }
+
+/* ------------------------------------------------------------------ */
+/* Reports & Exports                                                   */
+/* ------------------------------------------------------------------ */
+export interface LabelCount {
+  label: string;
+  count: number;
+}
+
+export interface ReportMonthTrend {
+  month: string;
+  opened: number;
+  closed: number;
+}
+
+export interface AgingBucket {
+  bucket: string;
+  count: number;
+}
+
+export interface NcrSummaryReport {
+  by_status: LabelCount[];
+  by_severity: LabelCount[];
+  by_month: ReportMonthTrend[];
+  total_open: number;
+  total: number;
+}
+
+export interface CapaSummaryReport {
+  by_status: LabelCount[];
+  aging: AgingBucket[];
+  overdue: number;
+  total_open: number;
+  avg_days_open: number;
+}
+
+export interface SupplierScorecardRow {
+  name: string;
+  status: string;
+  quality_score: number | null;
+  on_time_delivery: number | null;
+  open_scars: number;
+  rating_count: number;
+}
+
+export interface SupplierScorecardReport {
+  suppliers: SupplierScorecardRow[];
+}
+
+export interface AuditSummaryReport {
+  by_type: LabelCount[];
+  by_status: LabelCount[];
+  findings_by_type: LabelCount[];
+  total: number;
+}
