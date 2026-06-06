@@ -48,8 +48,6 @@
               <li><a class="dropdown-item" href="https://github.com/jessicarojas1/jessicarojas1.github.io/blob/main/citadel/deploy/aws-gov/README.md" target="_blank" rel="noopener"><i class="bi bi-amazon"></i> AWS GovCloud</a></li>
             </ul>
           </li>
-          <li class="nav-item"><a class="nav-link" href="https://github.com/jessicarojas1/jessicarojas1.github.io/tree/main/citadel" target="_blank" rel="noopener"><i class="bi bi-github"></i> Source</a></li>
-          <li class="nav-item"><a class="nav-link" href="https://jessicarojas1.github.io/projects.html"><i class="bi bi-grid"></i> Projects</a></li>
         </ul>
         <button class="btn btn-sm btn-outline-secondary" id="themeToggleBtn" aria-label="Toggle theme"><span class="theme-icon">☀️</span></button>
       </div>
@@ -146,24 +144,28 @@
 
       <!-- Tabs -->
       <ul class="nav citadel-tabs mb-3" id="result-tabs" role="tablist">
-        <li><button class="tab-btn active" data-tab="tab-overview"><i class="bi bi-speedometer2"></i> Overview</button></li>
+        <li><button class="tab-btn active" data-tab="tab-report"><i class="bi bi-file-earmark-text-fill"></i> Report</button></li>
+        <li><button class="tab-btn" data-tab="tab-overview"><i class="bi bi-speedometer2"></i> Overview</button></li>
         <li><button class="tab-btn" data-tab="tab-findings"><i class="bi bi-bug"></i> Findings <span class="badge bg-secondary" id="findings-count">0</span></button></li>
         <li><button class="tab-btn" data-tab="tab-compliance"><i class="bi bi-clipboard-check"></i> Compliance</button></li>
         <li><button class="tab-btn" data-tab="tab-sbom"><i class="bi bi-box-seam"></i> SBOM</button></li>
         <li><button class="tab-btn" data-tab="tab-binary"><i class="bi bi-cpu"></i> Binaries</button></li>
         <li><button class="tab-btn" data-tab="tab-quality"><i class="bi bi-award"></i> Quality</button></li>
         <li><button class="tab-btn" data-tab="tab-deploy"><i class="bi bi-rocket-takeoff"></i> Deployment</button></li>
+        <li><button class="tab-btn" data-tab="tab-aifix"><i class="bi bi-robot"></i> AI Fix Prompt</button></li>
         <li><button class="tab-btn" data-tab="tab-history"><i class="bi bi-clock-history"></i> History</button></li>
         <li><button class="tab-btn" data-tab="tab-export"><i class="bi bi-download"></i> Export</button></li>
       </ul>
 
-      <div class="tab-panel" id="tab-overview"></div>
+      <div class="tab-panel" id="tab-report"></div>
+      <div class="tab-panel d-none" id="tab-overview"></div>
       <div class="tab-panel d-none" id="tab-findings"></div>
       <div class="tab-panel d-none" id="tab-compliance"></div>
       <div class="tab-panel d-none" id="tab-sbom"></div>
       <div class="tab-panel d-none" id="tab-binary"></div>
       <div class="tab-panel d-none" id="tab-quality"></div>
       <div class="tab-panel d-none" id="tab-deploy"></div>
+      <div class="tab-panel d-none" id="tab-aifix"></div>
       <div class="tab-panel d-none" id="tab-history"></div>
       <div class="tab-panel d-none" id="tab-export"></div>
     </section>
@@ -214,6 +216,9 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="js/languages.js"></script>
   <script src="js/frameworks.js"></script>
+  <script src="js/controls-federal.js"></script>
+  <script src="js/controls-appsec.js"></script>
+  <script src="js/controls-extra.js"></script>
   <script src="js/rules.js"></script>
   <script src="js/secrets.js"></script>
   <script src="js/sbom.js"></script>

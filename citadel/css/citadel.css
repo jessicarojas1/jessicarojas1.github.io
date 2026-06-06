@@ -18,7 +18,24 @@ body { background: var(--bs-body-bg); }
 .citadel-bar .dropdown-item { color: var(--bs-body-color); display:flex; align-items:center; gap:.5rem; }
 .citadel-bar .dropdown-item:hover { background: var(--bs-tertiary-bg); color: var(--citadel-accent); }
 .citadel-bar .dropdown-header { color: var(--bs-secondary-color); text-transform:uppercase; font-size:.7rem; letter-spacing:.05em; }
-.citadel-bar .navbar-toggler { color: var(--bs-body-color); }
+.citadel-bar .navbar-toggler { color: var(--bs-body-color); padding:.25rem .5rem; }
+.citadel-bar .navbar-toggler:focus { box-shadow:none; }
+/* When the menu collapses (below lg / not full screen), give the dropdown a solid
+   card so it doesn't overlap the page and look broken. */
+@media (max-width: 991.98px) {
+  .citadel-bar .navbar-collapse {
+    background: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color);
+    border-radius: 12px;
+    padding: .6rem .9rem;
+    margin-top: .6rem;
+    box-shadow: 0 12px 30px rgba(0,0,0,.28);
+  }
+  .citadel-bar .navbar-nav .nav-link { padding:.55rem .25rem; border-bottom:1px solid var(--bs-border-color); }
+  .citadel-bar .navbar-nav .nav-item:last-child .nav-link { border-bottom:0; }
+  .citadel-bar #themeToggleBtn { margin-top:.6rem; }
+  .citadel-bar .dropdown-menu { border:0; box-shadow:none; padding-left:.5rem; }
+}
 
 /* anchor scroll offset under the sticky navbar */
 html { scroll-behavior: smooth; }
@@ -131,6 +148,31 @@ html { scroll-behavior: smooth; }
 .alert-cve { background: color-mix(in srgb, var(--danger, #dc3545) 12%, transparent); border:1px solid color-mix(in srgb, var(--danger, #dc3545) 35%, transparent); color: var(--bs-body-color); border-radius:10px; padding:.7rem .9rem; font-size:.9rem; }
 .grade-pill { color:#fff; font-weight:700; }
 .grade-pill.grade-a{background:#16a34a}.grade-pill.grade-b{background:#65a30d}.grade-pill.grade-c{background:#ca8a04}.grade-pill.grade-d{background:#ea580c}.grade-pill.grade-e{background:#dc2626}.grade-pill.grade-f{background:#991b1b}
+
+/* ---------- Report tab ---------- */
+.report-verdict { font-weight:700; font-size:1.05rem; padding:.6rem .9rem; border-radius:10px; background: var(--bs-tertiary-bg); border:1px solid var(--bs-border-color); margin:.4rem 0 .2rem; display:flex; align-items:center; gap:.5rem; }
+.report-h { margin:1.6rem 0 .6rem; padding-bottom:.25rem; border-bottom:2px solid var(--citadel-accent); font-weight:700; }
+.rep-metric { background: var(--bs-tertiary-bg); border:1px solid var(--bs-border-color); border-radius:12px; padding:.7rem; text-align:center; height:100%; }
+.rep-val { font-size:1.7rem; font-weight:800; line-height:1.1; }
+.rep-lbl { font-size:.72rem; text-transform:uppercase; letter-spacing:.03em; color: var(--bs-secondary-color); }
+.rep-sevrow { font-size:.88rem; }
+.rep-sev { margin-right:1rem; white-space:nowrap; }
+.rep-sev .dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:4px; }
+.report-list { font-size:.9rem; }
+.report-list li { margin-bottom:.25rem; }
+.report-cta { margin-top:1.3rem; padding:.7rem .9rem; border-left:3px solid #10b981; background: color-mix(in srgb,#10b981 8%,transparent); border-radius:0 8px 8px 0; font-size:.9rem; }
+
+/* AI fix prompt */
+.aifix-box { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.8rem; background: var(--bs-tertiary-bg); color: var(--bs-body-color); border:1px solid var(--bs-border-color); }
+
+/* Full control catalog list */
+.ctrl-expand { font-size:.78rem; }
+.full-controls { margin-top:.5rem; max-height:320px; overflow:auto; border-top:1px dashed var(--bs-border-color); padding-top:.5rem; }
+.ctrl-fam-name { font-size:.74rem; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color: var(--bs-secondary-color); margin:.4rem 0 .2rem; }
+.ctrl-full-list { list-style:none; padding:0; margin:0 0 .3rem; }
+.ctrl-full-list li { font-size:.78rem; padding:.1rem 0; color: var(--bs-secondary-color); }
+.ctrl-full-list li code { font-size:.74rem; }
+.ctrl-full-list li.ctrl-hit { color: var(--bs-body-color); font-weight:500; }
 
 /* ---------- Compliance ---------- */
 .compliance-card { border-top:4px solid var(--bs-border-color); }

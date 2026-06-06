@@ -269,6 +269,18 @@
 
     // Exports
     if (e.target.closest('#exp-json')) return CITADEL.report.exportJson();
+    // Full control-list expander (Compliance tab)
+    const ce = e.target.closest('.ctrl-expand');
+    if (ce) {
+      const el = $('fwctrls-' + ce.dataset.fwctrls);
+      if (el) { if (!ce.dataset.orig) ce.dataset.orig = ce.textContent; const hidden = el.classList.toggle('d-none'); ce.textContent = hidden ? ce.dataset.orig : 'Hide controls'; }
+      return;
+    }
+    // Report tab + AI fix prompt
+    if (e.target.closest('#dl-report')) return CITADEL.report.downloadHtmlReport(CITADEL.report.current);
+    if (e.target.closest('#copy-aifix')) return CITADEL.report.copyAiFix();
+    if (e.target.closest('#dl-aifix')) return CITADEL.report.downloadAiFix();
+
     if (e.target.closest('#exp-sbom') || e.target.closest('#dl-sbom')) return CITADEL.report.exportSbom();
     if (e.target.closest('#exp-sarif')) return CITADEL.report.exportSarif();
     if (e.target.closest('#exp-poam')) return CITADEL.report.exportPoam();
