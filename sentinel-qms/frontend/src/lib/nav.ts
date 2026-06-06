@@ -14,6 +14,7 @@ import {
   LayoutDashboard,
   MessageSquareWarning,
   ScrollText,
+  Settings,
   ShieldAlert,
   TrendingUp,
   Truck,
@@ -80,6 +81,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { label: 'Roles', to: '/admin/roles', icon: Award, capability: 'admin.roles', page: 'roles' },
       { label: 'Permissions', to: '/admin/permissions', icon: KeyRound, capability: 'admin.roles', page: 'permissions' },
       { label: 'Audit Trail', to: '/admin/audit-trail', icon: History, capability: 'admin.users', page: 'audit_trail' },
+      { label: 'Settings', to: '/admin/settings', icon: Settings, capability: 'admin.users' },
     ],
   },
 ];

@@ -43,3 +43,4 @@ export * from './usePermissions';
 export * from './useUserLookup';
 export * from './useMyOpenItems';
 export * from './useComments';
+export * from './useSettings';

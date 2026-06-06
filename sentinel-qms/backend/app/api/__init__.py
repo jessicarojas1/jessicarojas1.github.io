@@ -23,6 +23,7 @@ from app.api.routers import (
     permissions,
     risks,
     search,
+    settings,
     suppliers,
     training,
     users,
@@ -52,3 +53,4 @@ api_router.include_router(audit_logs.router)
 api_router.include_router(analytics.router)
 api_router.include_router(notifications.router)
 api_router.include_router(permissions.router)
+api_router.include_router(settings.router)
