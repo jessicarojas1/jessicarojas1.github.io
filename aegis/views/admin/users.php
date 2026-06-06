@@ -197,11 +197,12 @@ ob_start();
   inset: 0;
   background: rgba(0,0,0,.55);
   z-index: 1050;
-  display: flex;        /* overridden to none via inline style when hidden */
+  display: none;
   align-items: center;
   justify-content: center;
   padding: 20px;
 }
+.um-overlay.open { display: flex; }
 .um-dialog {
   background: var(--card-bg, #ffffff);
   border-radius: 12px;
