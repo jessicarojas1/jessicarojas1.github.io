@@ -141,7 +141,7 @@ $typeLabels = [
             </div>
           <?php endif; ?>
           <a href="<?= Security::h($ev['url']) ?>" style="display:flex;align-items:center;gap:10px;padding:10px 16px;text-decoration:none;color:var(--text-primary);border-top:1px solid var(--border)">
-            <span style="width:10px;height:10px;border-radius:50%;flex-shrink:0;background:<?= Security::h($typeColors[$ev['type']] ?? '#6b7280') ?>"></span>
+            <span style="width:10px;height:10px;border-radius:50%;flex-shrink:0;background:<?= Security::h($typeColors[$ev['type']] ?? 'var(--text-muted)') ?>"></span>
             <span style="flex:1;font-size:0.88rem"><?= Security::h($ev['title']) ?></span>
             <span style="font-size:0.75rem;color:var(--text-muted)"><?= Security::h($typeLabels[$ev['type']] ?? $ev['type']) ?></span>
           </a>

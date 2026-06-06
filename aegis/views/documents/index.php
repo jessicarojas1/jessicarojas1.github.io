@@ -1,10 +1,10 @@
 <?php
 $breadcrumbs  = $breadcrumbs  ?? [['Documents', null]];
 $statusColors = [
-  'draft'=>'#6b7280','under_review'=>'#f59e0b','approved'=>'#3b82f6',
-  'published'=>'#22c55e','archived'=>'#9ca3af','expired'=>'#ef4444',
+  'draft'=>'var(--text-muted)','under_review'=>'var(--warning)','approved'=>'var(--info)',
+  'published'=>'var(--primary-light)','archived'=>'var(--text-muted)','expired'=>'var(--danger)',
 ];
-$classColors = ['public'=>'#22c55e','internal'=>'#3b82f6','confidential'=>'#f59e0b','restricted'=>'#ef4444'];
+$classColors = ['public'=>'var(--primary-light)','internal'=>'var(--info)','confidential'=>'var(--warning)','restricted'=>'var(--danger)'];
 ?>
 <div class="page-header">
   <div>
@@ -65,12 +65,14 @@ $classColors = ['public'=>'#22c55e','internal'=>'#3b82f6','confidential'=>'#f59e
             <?php if ($doc['doc_number']): ?><div class="text-muted text-xs"><?= Security::h($doc['doc_number']) ?></div><?php endif; ?>
           </td>
           <td>
-            <span class="badge" style="background:<?= $classColors[$doc['classification']] ?? '#6b7280' ?>20;color:<?= $classColors[$doc['classification']] ?? '#6b7280' ?>">
+            <?php $cc = $classColors[$doc['classification']] ?? 'var(--text-muted)'; ?>
+            <span class="badge" style="background:color-mix(in srgb,<?= $cc ?> 20%,transparent);color:<?= $cc ?>">
               <?= Security::h(ucfirst($doc['classification'])) ?>
             </span>
           </td>
           <td>
-            <span class="badge" style="background:<?= $statusColors[$doc['status']] ?? '#6b7280' ?>20;color:<?= $statusColors[$doc['status']] ?? '#6b7280' ?>">
+            <?php $sc = $statusColors[$doc['status']] ?? 'var(--text-muted)'; ?>
+            <span class="badge" style="background:color-mix(in srgb,<?= $sc ?> 20%,transparent);color:<?= $sc ?>">
               <?= Security::h(ucfirst(str_replace('_',' ',$doc['status']))) ?>
             </span>
           </td>

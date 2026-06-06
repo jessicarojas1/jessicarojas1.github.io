@@ -10,7 +10,7 @@ $notes = [
   'risks' => [
     'label'  => 'Risks',
     'icon'   => 'bi-exclamation-triangle-fill',
-    'color'  => '#ef4444',
+    'color'  => 'var(--danger)',
     'fields' => [
       ['title',          'Required',  'string',  'Short descriptive title for the risk.'],
       ['description',    'Optional',  'string',  'Detailed description of the risk scenario.'],
@@ -25,7 +25,7 @@ $notes = [
   'vendors' => [
     'label'  => 'Vendors',
     'icon'   => 'bi-building',
-    'color'  => '#0284c7',
+    'color'  => 'var(--info)',
     'fields' => [
       ['name',        'Required', 'string', 'Full legal or trade name of the vendor.'],
       ['category',    'Optional', 'string', 'Vendor category (e.g. Cloud Provider, Software, Consultant, Staffing).'],
@@ -38,7 +38,7 @@ $notes = [
   'incidents' => [
     'label'  => 'Incidents',
     'icon'   => 'bi-fire',
-    'color'  => '#f97316',
+    'color'  => 'var(--orange)',
     'fields' => [
       ['title',       'Required', 'string', 'Short descriptive title for the incident.'],
       ['description', 'Optional', 'string', 'Summary of what occurred, initial indicators, or affected systems.'],

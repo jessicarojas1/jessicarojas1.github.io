@@ -9,10 +9,12 @@ $canEdit = Auth::can('policy.write');
     <h1 class="page-title"><?= Security::h($doc['title']) ?></h1>
     <p class="page-subtitle">
       <?php if ($doc['doc_number']): ?><span class="text-muted"><?= Security::h($doc['doc_number']) ?></span> &mdash;<?php endif; ?>
-      <span class="badge" style="background:<?= $classColors[$doc['classification']] ?? '#6b7280' ?>20;color:<?= $classColors[$doc['classification']] ?? '#6b7280' ?>">
+      <?php $cc = $classColors[$doc['classification']] ?? 'var(--text-muted)'; ?>
+      <span class="badge" style="background:color-mix(in srgb,<?= $cc ?> 20%,transparent);color:<?= $cc ?>">
         <?= Security::h(ucfirst($doc['classification'])) ?>
       </span>
-      <span class="badge" style="background:<?= $statusColors[$doc['status']] ?? '#6b7280' ?>20;color:<?= $statusColors[$doc['status']] ?? '#6b7280' ?>">
+      <?php $sc = $statusColors[$doc['status']] ?? 'var(--text-muted)'; ?>
+      <span class="badge" style="background:color-mix(in srgb,<?= $sc ?> 20%,transparent);color:<?= $sc ?>">
         <?= Security::h(ucfirst(str_replace('_',' ',$doc['status']))) ?>
       </span>
     </p>
