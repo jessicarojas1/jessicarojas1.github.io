@@ -80,7 +80,11 @@
     try { const res = await fetch('api/auth/me', { headers: authHeader() }); if (!res.ok) { if (res.status === 401) setToken(null); return null; } return res.json(); }
     catch (e) { return null; }
   }
-  function authLogout() { setToken(null); }
+  async function authLogout() {
+    const t = getToken();
+    if (t) { try { await fetch('api/auth/logout', { method: 'POST', headers: authHeader() }); } catch (e) {} }
+    setToken(null);
+  }
 
   CITADEL.api = { available, scan, scanUrl, explain, authLogin, authMe, authLogout, getToken };
 })(window);

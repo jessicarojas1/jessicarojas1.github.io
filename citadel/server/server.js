@@ -25,6 +25,7 @@ const users = require('./lib/users');
 const jwt = require('./lib/jwt');
 const rateLimit = require('./lib/ratelimit');
 const audit = require('./lib/audit');
+const sessions = require('./lib/sessions');
 
 const PORT = parseInt(process.env.PORT || '8080', 10);
 // Locate the SPA. Local dev: server.js lives in citadel/server, so the app is
@@ -74,11 +75,23 @@ app.use((req, res, next) => {
   next();
 });
 
-/* ---- Auth: parse a Bearer JWT (if present) into req.user — non-blocking ---- */
+/* ---- Auth: parse a Bearer JWT (if present) into req.user — non-blocking ----
+ * Honours session revocation (a revoked jti is rejected) and lazily re-registers
+ * a valid token's session so it shows up in the active-sessions view after a
+ * restart. Default-allow: an unknown-but-valid jti is accepted. */
 app.use((req, res, next) => {
   const h = req.headers.authorization || '';
   const m = h.match(/^Bearer\s+(.+)$/i);
-  if (m) { const p = jwt.verify(m[1], users.secret()); if (p && p.sub) req.user = users.get(p.sub); }
+  if (m) {
+    const p = jwt.verify(m[1], users.secret());
+    if (p && p.sub && !(p.jti && sessions.isRevoked(p.jti))) {
+      req.user = users.get(p.sub);
+      if (req.user && p.jti) {
+        sessions.register({ jti: p.jti, userId: p.sub, email: p.email, role: p.role, ip: clientIp(req), ua: req.headers['user-agent'], iat: p.iat, exp: p.exp });
+        req.jti = p.jti;
+      }
+    }
+  }
   next();
 });
 // Permission gate: open when enforce is off; else require auth + the page perm.
@@ -176,8 +189,11 @@ app.post('/api/auth/login', rateLimited('login', 20, 15 * 60000), (req, res) => 
     return res.status(401).json(body);
   }
   rateLimit.clearFails(lockKey);
+  const jti = crypto.randomBytes(12).toString('hex');
+  const token = jwt.sign({ sub: u.id, role: u.role, email: u.email, jti }, users.secret());
+  const now = Math.floor(Date.now() / 1000);
+  sessions.register({ jti, userId: u.id, email: u.email, role: u.role, ip, ua: req.headers['user-agent'], iat: now, exp: now + 43200 });
   audit.record('login.success', { actor: u.email, ip, detail: 'role=' + u.role, ok: true });
-  const token = jwt.sign({ sub: u.id, role: u.role, email: u.email }, users.secret());
   res.json({ token, user: u });
 });
 app.get('/api/auth/me', (req, res) => { if (!req.user) return res.status(401).json({ error: 'Not authenticated.' }); res.json(req.user); });
@@ -192,6 +208,30 @@ app.patch('/api/auth/settings', requireAdmin, (req, res) => {
 app.get('/api/audit', requireAdmin, (req, res) => {
   const n = Math.min(parseInt(req.query.limit, 10) || 200, 500);
   res.json({ stats: audit.stats(), events: audit.list(n, req.query.type || null) });
+});
+
+/* ---------------- Sessions ---------------- */
+// Log out the current session (revokes this token server-side).
+app.post('/api/auth/logout', (req, res) => {
+  if (req.jti) { sessions.revoke(req.jti); audit.record('session.logout', { actor: req.user && req.user.email, ip: clientIp(req), detail: 'self', ok: true }); }
+  res.json({ ok: true });
+});
+// The caller's own active sessions (marks which one is the current request).
+app.get('/api/auth/sessions', (req, res) => {
+  if (!req.user) return res.status(401).json({ error: 'Not authenticated.' });
+  res.json(sessions.listForUser(req.user.id).map(s => Object.assign({ current: s.jti === req.jti }, s)));
+});
+// Admin: all active sessions, or revoke one / all-for-a-user.
+app.get('/api/sessions', requireAdmin, (req, res) => res.json({ stats: sessions.stats(), sessions: sessions.listAll().map(s => Object.assign({ current: s.jti === req.jti }, s)) }));
+app.delete('/api/sessions/:jti', requireAdmin, (req, res) => {
+  const s = sessions.revoke(req.params.jti);
+  audit.record('session.revoke', { actor: req.user.email, ip: clientIp(req), detail: 'jti=' + req.params.jti.slice(0, 8) + (s && s.email ? ' (' + s.email + ')' : ''), ok: true });
+  res.json({ ok: true });
+});
+app.post('/api/users/:id/revoke-sessions', requireAdmin, (req, res) => {
+  const n = sessions.revokeAllForUser(req.params.id);
+  audit.record('session.revoke', { actor: req.user.email, ip: clientIp(req), detail: 'all for id=' + req.params.id + ' (' + n + ')', ok: true });
+  res.json({ ok: true, revoked: n });
 });
 
 app.get('/api/users', requireAdmin, (req, res) => res.json(users.list()));

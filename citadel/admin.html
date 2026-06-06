@@ -96,6 +96,7 @@
       <li><button class="tab-btn active" data-tab="tab-users"><i class="bi bi-people-fill"></i> Users</button></li>
       <li><button class="tab-btn" data-tab="tab-perms"><i class="bi bi-grid-3x3-gap-fill"></i> Permissions</button></li>
       <li><button class="tab-btn" data-tab="tab-settings"><i class="bi bi-sliders"></i> Access Settings</button></li>
+      <li id="nav-sessions" class="d-none"><button class="tab-btn" data-tab="tab-sessions"><i class="bi bi-hdd-network"></i> Sessions</button></li>
       <li id="nav-audit" class="d-none"><button class="tab-btn" data-tab="tab-audit"><i class="bi bi-clock-history"></i> Activity</button></li>
     </ul>
 
@@ -211,9 +212,12 @@
                 <option value="">All events</option>
                 <option value="login">Logins &amp; lockouts</option>
                 <option value="user">User changes</option>
+                <option value="session">Session changes</option>
                 <option value="settings">Settings changes</option>
                 <option value="ratelimit">Rate-limit blocks</option>
               </select>
+              <button class="btn btn-sm btn-outline-secondary" id="audit-export-json" title="Download shown events as JSON"><i class="bi bi-filetype-json"></i> JSON</button>
+              <button class="btn btn-sm btn-outline-secondary" id="audit-export-csv" title="Download shown events as CSV"><i class="bi bi-filetype-csv"></i> CSV</button>
               <button class="btn btn-sm btn-outline-secondary" id="audit-refresh"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
             </div>
           </div>
@@ -227,6 +231,30 @@
               <tr><th>Time</th><th>Event</th><th>Actor</th><th>IP</th><th>Detail</th></tr>
             </thead>
             <tbody id="audit-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sessions tab (backend mode only) -->
+    <section class="tab-panel d-none" id="tab-sessions">
+      <div class="card citadel-card mb-3">
+        <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-2">
+          <div>
+            <h2 class="h6 mb-1"><i class="bi bi-hdd-network"></i> Active sessions</h2>
+            <p class="small text-body-secondary mb-0">Signed-in JWT sessions. Revoking forces that token to re-authenticate immediately. In-memory: clears on redeploy.</p>
+          </div>
+          <button class="btn btn-sm btn-outline-secondary" id="sessions-refresh"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+        </div>
+        <div id="sessions-stats" class="small text-body-secondary px-3 pb-2"></div>
+      </div>
+      <div class="card citadel-card">
+        <div class="table-responsive">
+          <table class="table table-sm align-middle mb-0">
+            <thead>
+              <tr><th>User</th><th>Role</th><th>IP</th><th>Client</th><th>Signed in</th><th>Last seen</th><th class="text-end">Actions</th></tr>
+            </thead>
+            <tbody id="sessions-tbody"></tbody>
           </table>
         </div>
       </div>
@@ -296,6 +324,11 @@
         if (limit) q.push('limit=' + encodeURIComponent(limit));
         return this._api('api/audit' + (q.length ? '?' + q.join('&') : ''));
       },
+
+      // Active sessions (backend only). Returns { stats, sessions } or null.
+      async sessions() { if (this.mode !== 'backend') return null; return this._api('api/sessions'); },
+      async revokeSession(jti) { if (this.mode !== 'backend') return; await this._api('api/sessions/' + encodeURIComponent(jti), { method: 'DELETE' }); },
+      async revokeUserSessions(id) { if (this.mode !== 'backend') return; await this._api('api/users/' + encodeURIComponent(id) + '/revoke-sessions', { method: 'POST' }); },
 
       /* ---- lifecycle ---- */
       async init() {
@@ -776,6 +809,7 @@
         : (type.indexOf('user.') === 0 || type.indexOf('settings') === 0 ? 'text-bg-primary' : 'text-bg-secondary'));
       return '<span class="badge ' + cls + '">' + esc(type) + '</span>';
     }
+    let _lastAudit = [];
     async function renderAudit() {
       if (DA.mode !== 'backend') return;
       const tbody = $('audit-tbody'); const statsEl = $('audit-stats');
@@ -788,6 +822,7 @@
       }
       if (!data) return;
       const events = data.events || [];
+      _lastAudit = events;
       if (statsEl) statsEl.textContent = (data.stats ? (data.stats.total + ' event(s) buffered (capacity ' + data.stats.capacity + ')') : '');
       if (!events.length) {
         tbody.innerHTML = '<tr><td class="admin-empty" colspan="5">No activity recorded yet.</td></tr>';
@@ -803,10 +838,73 @@
         '</tr>'
       ).join('');
     }
+    // Trigger a client-side file download (no server round-trip).
+    function downloadFile(name, mime, text) {
+      const blob = new Blob([text], { type: mime });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+    function toCsv(rows, cols) {
+      const q = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+      const head = cols.map(q).join(',');
+      const body = rows.map((r) => cols.map((c) => q(r[c])).join(',')).join('\r\n');
+      return head + '\r\n' + body;
+    }
+    function exportAudit(fmt) {
+      if (!_lastAudit.length) { window.alert('Nothing to export yet — refresh the activity list first.'); return; }
+      const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+      if (fmt === 'csv') downloadFile('citadel-audit-' + stamp + '.csv', 'text/csv', toCsv(_lastAudit, ['seq', 'ts', 'type', 'actor', 'ip', 'detail', 'ok']));
+      else downloadFile('citadel-audit-' + stamp + '.json', 'application/json', JSON.stringify(_lastAudit, null, 2));
+    }
     function wireAudit() {
       const btn = $('audit-refresh'); const sel = $('audit-filter');
+      const ej = $('audit-export-json'); const ec = $('audit-export-csv');
       if (btn && !btn.dataset.wired) { btn.dataset.wired = '1'; btn.addEventListener('click', renderAudit); }
       if (sel && !sel.dataset.wired) { sel.dataset.wired = '1'; sel.addEventListener('change', renderAudit); }
+      if (ej && !ej.dataset.wired) { ej.dataset.wired = '1'; ej.addEventListener('click', () => exportAudit('json')); }
+      if (ec && !ec.dataset.wired) { ec.dataset.wired = '1'; ec.addEventListener('click', () => exportAudit('csv')); }
+    }
+
+    /* ---------- Sessions tab ---------- */
+    async function renderSessions() {
+      if (DA.mode !== 'backend') return;
+      const tbody = $('sessions-tbody'); const statsEl = $('sessions-stats');
+      if (!tbody) return;
+      let data;
+      try { data = await DA.sessions(); }
+      catch (ex) { tbody.innerHTML = '<tr><td class="admin-empty" colspan="7">' + esc(ex && ex.message ? ex.message : 'Could not load sessions.') + '</td></tr>'; return; }
+      if (!data) return;
+      const list = data.sessions || [];
+      if (statsEl) statsEl.textContent = data.stats ? (data.stats.active + ' active, ' + data.stats.revoked + ' revoked (this process)') : '';
+      if (!list.length) { tbody.innerHTML = '<tr><td class="admin-empty" colspan="7">No active sessions.</td></tr>'; return; }
+      tbody.innerHTML = list.map((s) =>
+        '<tr>' +
+          '<td class="small">' + esc(s.email || '—') + (s.current ? ' <span class="badge text-bg-info">this session</span>' : '') + '</td>' +
+          '<td><span class="badge text-bg-secondary role-badge">' + esc(s.role || '') + '</span></td>' +
+          '<td class="small font-monospace">' + esc(s.ip || '—') + '</td>' +
+          '<td class="small text-truncate" style="max-width:220px" title="' + esc(s.ua || '') + '">' + esc(s.ua || '—') + '</td>' +
+          '<td class="text-nowrap small">' + esc(fmtTime(s.firstSeen)) + '</td>' +
+          '<td class="text-nowrap small">' + esc(fmtTime(s.lastSeen)) + '</td>' +
+          '<td class="text-end"><button class="btn btn-sm btn-outline-danger py-0 px-1" data-revoke-session="' + esc(s.jti) + '" title="Revoke this session"><i class="bi bi-x-circle"></i> Revoke</button></td>' +
+        '</tr>'
+      ).join('');
+    }
+    function wireSessions() {
+      const btn = $('sessions-refresh'); const tbody = $('sessions-tbody');
+      if (btn && !btn.dataset.wired) { btn.dataset.wired = '1'; btn.addEventListener('click', renderSessions); }
+      if (tbody && !tbody.dataset.wired) {
+        tbody.dataset.wired = '1';
+        tbody.addEventListener('click', async (e) => {
+          const r = e.target.closest('[data-revoke-session]');
+          if (!r) return;
+          if (!window.confirm('Revoke this session? The user will have to sign in again.')) return;
+          try { await DA.revokeSession(r.getAttribute('data-revoke-session')); renderSessions(); }
+          catch (ex) { window.alert(ex && ex.message ? ex.message : 'Could not revoke session.'); }
+        });
+      }
     }
 
     /* ---------- logout ---------- */
@@ -844,10 +942,11 @@
       renderUsers(); wireUsers();
       renderPerms(); wirePerms();
       renderSettings(); wireSettings();
-      // Activity tab is backend-only (no audit trail in local/browser mode).
-      const navAudit = $('nav-audit');
-      if (navAudit) navAudit.classList.toggle('d-none', DA.mode !== 'backend');
-      if (DA.mode === 'backend') { wireAudit(); renderAudit(); }
+      // Activity & Sessions tabs are backend-only (no server state in local mode).
+      const backend = DA.mode === 'backend';
+      const navAudit = $('nav-audit'); if (navAudit) navAudit.classList.toggle('d-none', !backend);
+      const navSessions = $('nav-sessions'); if (navSessions) navSessions.classList.toggle('d-none', !backend);
+      if (backend) { wireAudit(); renderAudit(); wireSessions(); renderSessions(); }
     }
 
     /* ---------- boot ---------- */
