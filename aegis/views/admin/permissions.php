@@ -668,13 +668,13 @@ html[data-theme="dark"] .perm-toast.err { background:#7f1d1d; color:#fca5a5; bor
         <input type="text" id="permUserSearch" class="perm-search-input" placeholder="Search users…" autocomplete="off">
       </div>
     </div>
-    <div class="perm-user-count-bar" id="permUserCount"><?= count($users) ?> users</div>
+    <div class="perm-user-count-bar" id="permUserCount"><?= (int)count($users) ?> users</div>
     <div class="perm-user-list" id="permUserList">
       <?php foreach ($users as $u): ?>
         <div class="perm-user-card"
              data-user-id="<?= (int)$u['id'] ?>"
              data-name="<?= strtolower(Security::h($u['name'])) ?>">
-          <div class="pu-avatar"><?= strtoupper(substr($u['name'], 0, 1)) ?></div>
+          <div class="pu-avatar"><?= Security::h(strtoupper(substr($u['name'], 0, 1))) ?></div>
           <div class="pu-info">
             <div class="pu-name"><?= Security::h($u['name']) ?></div>
             <div class="pu-dept"><?= Security::h($u['department'] ?? ($u['email'] ?? '')) ?></div>
