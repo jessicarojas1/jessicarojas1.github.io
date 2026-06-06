@@ -62,6 +62,7 @@ export default function TrainingListPage() {
           pageSize={ctl.pageSize}
           total={data?.total}
           onPageChange={ctl.setPage}
+        exportFilename="training"
           filters={
             <div className="field">
               <Select aria-label="Filter by status" value={ctl.filters.status ?? ''} onChange={(e) => ctl.setFilter('status', e.target.value)}>

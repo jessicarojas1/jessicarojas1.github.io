@@ -9,10 +9,12 @@ import {
   GaugeCircle,
   GitPullRequestArrow,
   GraduationCap,
+  History,
   LayoutDashboard,
   MessageSquareWarning,
   ScrollText,
   ShieldAlert,
+  TrendingUp,
   Truck,
   Users,
   Wrench,
@@ -36,6 +38,7 @@ export const NAV_GROUPS: NavGroup[] = [
     label: 'Overview',
     items: [
       { label: 'Dashboard', to: '/', icon: LayoutDashboard, capability: 'ncr.read' },
+      { label: 'Analytics', to: '/analytics', icon: TrendingUp, capability: 'ncr.read' },
       { label: 'Documentation', to: '/docs', icon: BookOpen, capability: 'docs.read' },
     ],
   },
@@ -71,6 +74,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { label: 'Users', to: '/admin/users', icon: Users, capability: 'admin.users' },
       { label: 'Roles', to: '/admin/roles', icon: Award, capability: 'admin.roles' },
+      { label: 'Audit Trail', to: '/admin/audit-trail', icon: History, capability: 'admin.users' },
     ],
   },
 ];

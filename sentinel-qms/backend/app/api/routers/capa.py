@@ -46,6 +46,7 @@ from app.services.crud import (
     paginate,
     request_context,
 )
+from app.services.notifications import notify_assignment
 from app.services.signatures import create_signature
 from app.services.workflow import StateMachine, require_states
 
@@ -145,6 +146,15 @@ def create_capa(
         after=capa,
         **request_context(request),
     )
+    if capa.owner_id:
+        notify_assignment(
+            db,
+            user_id=capa.owner_id,
+            title=f"CAPA {capa.capa_number} assigned to you",
+            message=capa.title,
+            entity_type=ENTITY,
+            entity_id=capa.id,
+        )
     db.commit()
     db.refresh(capa)
     return capa
@@ -171,6 +181,7 @@ def update_capa(
     if capa.status in (CapaStatus.CLOSED, CapaStatus.CANCELLED):
         raise WorkflowError("Cannot edit a closed or cancelled CAPA.")
     before = audit.snapshot(capa)
+    prev_owner = capa.owner_id
     for key, value in body.model_dump(exclude_unset=True).items():
         setattr(capa, key, value)
     capa.updated_by = actor.id
@@ -186,6 +197,15 @@ def update_capa(
         after=capa,
         **request_context(request),
     )
+    if capa.owner_id and capa.owner_id != prev_owner:
+        notify_assignment(
+            db,
+            user_id=capa.owner_id,
+            title=f"CAPA {capa.capa_number} assigned to you",
+            message=capa.title,
+            entity_type=ENTITY,
+            entity_id=capa.id,
+        )
     db.commit()
     db.refresh(capa)
     return capa

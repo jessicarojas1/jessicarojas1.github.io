@@ -4,7 +4,9 @@ from __future__ import annotations
 from fastapi import APIRouter
 
 from app.api.routers import (
+    analytics,
     attachments,
+    audit_logs,
     audits,
     auth,
     calibration,
@@ -16,7 +18,9 @@ from app.api.routers import (
     inspections,
     mgmt_reviews,
     nonconformances,
+    notifications,
     risks,
+    search,
     suppliers,
     training,
     users,
@@ -40,3 +44,7 @@ api_router.include_router(mgmt_reviews.router)
 api_router.include_router(complaints.router)
 api_router.include_router(dashboard.router)
 api_router.include_router(attachments.router)
+api_router.include_router(search.router)
+api_router.include_router(audit_logs.router)
+api_router.include_router(analytics.router)
+api_router.include_router(notifications.router)
