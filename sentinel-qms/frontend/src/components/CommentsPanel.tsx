@@ -32,7 +32,9 @@ export function CommentsPanel({ entityType, entityId }: Props) {
   const [mentions, setMentions] = useState<number[]>([]);
 
   const userOptions = useMemo(
-    () => Object.values(map).sort((a, b) => a.full_name.localeCompare(b.full_name)),
+    () => Object.entries(map)
+      .map(([id, u]) => ({ id: Number(id), ...u }))
+      .sort((a, b) => a.full_name.localeCompare(b.full_name)),
     [map],
   );
 

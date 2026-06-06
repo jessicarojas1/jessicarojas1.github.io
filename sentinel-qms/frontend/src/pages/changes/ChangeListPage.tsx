@@ -84,6 +84,14 @@ export default function ChangeListPage() {
           </>
         }
       />
+      <ChangeCreateModal
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        onCreated={(id) => {
+          setCreateOpen(false);
+          navigate(`/changes/${id}`);
+        }}
+      />
     </>
   );
 }
