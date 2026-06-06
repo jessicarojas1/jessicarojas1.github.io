@@ -4,9 +4,8 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
-from app.api.deps import Pagination, pagination_params
+from app.api.deps import Pagination, pagination_params, require_page
 from app.core.database import get_db
-from app.core.rbac import Permission, require_permission
 from app.models.user import AuditLog
 from app.schemas.auth import CurrentUser
 from app.schemas.common import AuditLogRead, Page
@@ -23,7 +22,7 @@ def list_audit_logs(
     action: str | None = Query(None),
     actor_email: str | None = Query(None, description="ILIKE match on actor email"),
     entity_id: str | None = Query(None),
-    _: CurrentUser = Depends(require_permission(Permission.USER_MANAGE)),
+    _: CurrentUser = Depends(require_page("audit_trail", "view")),
 ) -> Page[AuditLogRead]:
     from sqlalchemy import select
 

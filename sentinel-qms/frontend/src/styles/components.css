@@ -709,3 +709,65 @@ table.data-table {
   }
   a { color: #000 !important; text-decoration: none; }
 }
+
+/* ---- User admin row actions ---- */
+.row-actions {
+  display: inline-flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+.btn-danger-ghost {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+.btn-danger-ghost:hover {
+  background: var(--danger-soft);
+}
+
+/* ---- Role multi-select chips ---- */
+.role-chip-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.role-chip {
+  font-size: 12.5px;
+  padding: 5px 12px;
+  border-radius: 100px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+}
+.role-chip:hover { border-color: var(--primary); }
+.role-chip--active {
+  background: var(--primary-soft);
+  border-color: var(--primary);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* ---- Permissions matrix editor ---- */
+.perm-matrix-wrap {
+  overflow-x: auto;
+}
+.perm-matrix th,
+.perm-matrix td {
+  white-space: nowrap;
+}
+.perm-matrix__page-col {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--card-bg);
+  text-align: left;
+}
+.perm-matrix thead .perm-matrix__page-col {
+  z-index: 2;
+}
+.select--sm {
+  padding: 4px 26px 4px 8px;
+  font-size: 12.5px;
+  min-width: 78px;
+}

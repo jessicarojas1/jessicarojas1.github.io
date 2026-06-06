@@ -11,11 +11,11 @@ from app.api.deps import (
     Pagination,
     SortParams,
     pagination_params,
+    require_page,
     sort_params,
 )
 from app.core import audit
 from app.core.database import get_db
-from app.core.rbac import Permission, require_permission
 from app.models.calibration import (
     CalibrationRecord,
     CalibrationResult,
@@ -55,7 +55,7 @@ def list_equipment(
     status_filter: EquipmentStatus | None = Query(None, alias="status"),
     location: str | None = Query(None),
     search: str | None = Query(None),
-    _: CurrentUser = Depends(require_permission(Permission.CALIBRATION_READ)),
+    _: CurrentUser = Depends(require_page("calibration", "view")),
 ) -> Page[EquipmentList]:
     stmt = base_select(Equipment)
     if status_filter:
@@ -75,7 +75,7 @@ def due_or_overdue(
     within_days: int = Query(30, ge=0, le=365),
     overdue_only: bool = Query(False),
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(require_permission(Permission.CALIBRATION_READ)),
+    _: CurrentUser = Depends(require_page("calibration", "view")),
 ) -> list[Equipment]:
     """Equipment whose calibration is overdue or due within ``within_days``."""
     today = date.today()
@@ -97,7 +97,7 @@ def create_equipment(
     body: EquipmentCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.CALIBRATION_WRITE)),
+    actor: CurrentUser = Depends(require_page("calibration", "edit")),
 ) -> Equipment:
     data = body.model_dump()
     last_cal = data.get("last_calibration_date")
@@ -132,7 +132,7 @@ def create_equipment(
 def get_equipment(
     equipment_id: int,
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(require_permission(Permission.CALIBRATION_READ)),
+    _: CurrentUser = Depends(require_page("calibration", "view")),
 ) -> Equipment:
     return get_or_404(db, Equipment, equipment_id, name="Equipment")
 
@@ -143,7 +143,7 @@ def update_equipment(
     body: EquipmentUpdate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.CALIBRATION_WRITE)),
+    actor: CurrentUser = Depends(require_page("calibration", "edit")),
 ) -> Equipment:
     equipment = get_or_404(db, Equipment, equipment_id, name="Equipment")
     before = audit.snapshot(equipment)
@@ -177,7 +177,7 @@ def record_calibration(
     body: CalibrationRecordCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.CALIBRATION_WRITE)),
+    actor: CurrentUser = Depends(require_page("calibration", "edit")),
 ) -> CalibrationRecord:
     equipment = get_or_404(db, Equipment, equipment_id, name="Equipment")
 
@@ -233,7 +233,7 @@ def record_calibration(
 def list_records(
     equipment_id: int,
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(require_permission(Permission.CALIBRATION_READ)),
+    _: CurrentUser = Depends(require_page("calibration", "view")),
 ) -> list[CalibrationRecord]:
     get_or_404(db, Equipment, equipment_id, name="Equipment")
     return (

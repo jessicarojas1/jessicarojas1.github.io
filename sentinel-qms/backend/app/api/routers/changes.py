@@ -10,11 +10,11 @@ from app.api.deps import (
     Pagination,
     SortParams,
     pagination_params,
+    require_page,
     sort_params,
 )
 from app.core import audit
 from app.core.database import get_db
-from app.core.rbac import Permission, require_permission
 from app.models.change import ChangeOrder, ChangeStatus, ChangeType
 from app.schemas.auth import CurrentUser
 from app.schemas.change import (
@@ -64,7 +64,7 @@ def list_changes(
     sort: SortParams = Depends(sort_params),
     status_filter: ChangeStatus | None = Query(None, alias="status"),
     change_type: ChangeType | None = Query(None),
-    _: CurrentUser = Depends(require_permission(Permission.CHANGE_READ)),
+    _: CurrentUser = Depends(require_page("changes", "view")),
 ) -> Page[ChangeOrderList]:
     stmt = base_select(ChangeOrder)
     if status_filter:
@@ -81,7 +81,7 @@ def create_change(
     body: ChangeOrderCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.CHANGE_WRITE)),
+    actor: CurrentUser = Depends(require_page("changes", "edit")),
 ) -> ChangeOrder:
     co = ChangeOrder(
         **body.model_dump(),
@@ -121,7 +121,7 @@ def create_change(
 def get_change(
     change_id: int,
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(require_permission(Permission.CHANGE_READ)),
+    _: CurrentUser = Depends(require_page("changes", "view")),
 ) -> ChangeOrder:
     return get_or_404(db, ChangeOrder, change_id, name="Change order")
 
@@ -132,7 +132,7 @@ def update_change(
     body: ChangeOrderUpdate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.CHANGE_WRITE)),
+    actor: CurrentUser = Depends(require_page("changes", "edit")),
 ) -> ChangeOrder:
     co = get_or_404(db, ChangeOrder, change_id, name="Change order")
     before = audit.snapshot(co)
@@ -172,7 +172,7 @@ def change_status(
     body: ChangeStatusChange,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.CHANGE_WRITE)),
+    actor: CurrentUser = Depends(require_page("changes", "edit")),
 ) -> ChangeOrder:
     co = get_or_404(db, ChangeOrder, change_id, name="Change order")
     CHANGE_FSM.assert_transition(co.status, body.status)
@@ -204,7 +204,7 @@ def approve_change(
     body: ChangeApproval,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.CHANGE_WRITE)),
+    actor: CurrentUser = Depends(require_page("changes", "edit")),
 ) -> ChangeOrder:
     co = get_or_404(db, ChangeOrder, change_id, name="Change order")
     CHANGE_FSM.assert_transition(

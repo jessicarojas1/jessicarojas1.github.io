@@ -15,6 +15,8 @@ from app.core.config import settings
 from app.core.database import SessionLocal, engine
 from app.core.database import Base
 from app.core.logging import configure_logging
+from app.core.pages import PAGES
+from app.core.permissions import default_level_for
 from app.core.rbac import ROLE_PERMISSIONS, Role as RoleEnum
 from app.core.security import hash_password
 from app.models import (  # noqa: F401 - ensure metadata is populated
@@ -28,6 +30,7 @@ from app.models import (  # noqa: F401 - ensure metadata is populated
     NcStatus,
     Nonconformance,
     Role,
+    RolePagePermission,
     Supplier,
     SupplierStatus,
     User,
@@ -59,6 +62,40 @@ def seed_roles(db: Session) -> dict[str, Role]:
             logger.info("seeded role %s", role_enum.value)
     db.flush()
     return existing
+
+
+def seed_permissions(db: Session, roles: dict[str, Role]) -> None:
+    """Populate the role/page permission matrix with static defaults.
+
+    Idempotent: inserts a :class:`RolePagePermission` for every (role, page) pair
+    using :func:`default_level_for`, but only when no row exists for that pair.
+    Existing (possibly admin-customized) rows are never overwritten.
+    """
+    existing: set[tuple[int, str]] = {
+        (rp.role_id, rp.page_key)
+        for rp in db.execute(select(RolePagePermission)).scalars().all()
+    }
+    added = 0
+    for role_name, role in roles.items():
+        try:
+            role_enum = RoleEnum(role_name)
+        except ValueError:
+            continue
+        for page in PAGES:
+            key = page["key"]
+            if (role.id, key) in existing:
+                continue
+            db.add(
+                RolePagePermission(
+                    role_id=role.id,
+                    page_key=key,
+                    level=default_level_for(role_enum, key),
+                )
+            )
+            added += 1
+    if added:
+        db.flush()
+        logger.info("seeded %d role/page permission defaults", added)
 
 
 def seed_admin(db: Session, roles: dict[str, Role]) -> User | None:
@@ -205,6 +242,7 @@ def run() -> None:
         # account and lock everyone out.
         roles = seed_roles(db)
         admin = seed_admin(db, roles)
+        seed_permissions(db, roles)
         db.commit()
 
         try:

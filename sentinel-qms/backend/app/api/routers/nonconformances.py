@@ -10,11 +10,11 @@ from app.api.deps import (
     Pagination,
     SortParams,
     pagination_params,
+    require_page,
     sort_params,
 )
 from app.core import audit
 from app.core.database import get_db
-from app.core.rbac import Permission, require_permission
 from app.models.nonconformance import (
     NcSeverity,
     NcStatus,
@@ -69,7 +69,7 @@ def list_ncrs(
     severity: NcSeverity | None = Query(None),
     supplier_id: int | None = Query(None),
     search: str | None = Query(None, description="Match NCR number or title"),
-    _: CurrentUser = Depends(require_permission(Permission.NCR_READ)),
+    _: CurrentUser = Depends(require_page("nonconformances", "view")),
 ) -> Page[NonconformanceList]:
     stmt = base_select(Nonconformance)
     if status_filter:
@@ -93,7 +93,7 @@ def create_ncr(
     body: NonconformanceCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.NCR_WRITE)),
+    actor: CurrentUser = Depends(require_page("nonconformances", "edit")),
 ) -> Nonconformance:
     ncr = Nonconformance(
         **body.model_dump(),
@@ -132,7 +132,7 @@ def create_ncr(
 def get_ncr(
     ncr_id: int,
     db: Session = Depends(get_db),
-    _: CurrentUser = Depends(require_permission(Permission.NCR_READ)),
+    _: CurrentUser = Depends(require_page("nonconformances", "view")),
 ) -> Nonconformance:
     return get_or_404(db, Nonconformance, ncr_id, name="NCR")
 
@@ -143,7 +143,7 @@ def update_ncr(
     body: NonconformanceUpdate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.NCR_WRITE)),
+    actor: CurrentUser = Depends(require_page("nonconformances", "edit")),
 ) -> Nonconformance:
     ncr = get_or_404(db, Nonconformance, ncr_id, name="NCR")
     before = audit.snapshot(ncr)
@@ -183,7 +183,7 @@ def change_status(
     body: NcStatusChange,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.NCR_WRITE)),
+    actor: CurrentUser = Depends(require_page("nonconformances", "edit")),
 ) -> Nonconformance:
     ncr = get_or_404(db, Nonconformance, ncr_id, name="NCR")
     NCR_FSM.assert_transition(ncr.status, body.status)
@@ -219,7 +219,7 @@ def add_disposition(
     body: DispositionCreate,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.NCR_DISPOSITION)),
+    actor: CurrentUser = Depends(require_page("nonconformances", "edit")),
 ) -> Nonconformance:
     """Record an MRB disposition with a captured 21 CFR Part 11 e-signature."""
     ncr = get_or_404(db, Nonconformance, ncr_id, name="NCR")
@@ -275,7 +275,7 @@ def soft_delete_ncr(
     ncr_id: int,
     request: Request,
     db: Session = Depends(get_db),
-    actor: CurrentUser = Depends(require_permission(Permission.NCR_WRITE)),
+    actor: CurrentUser = Depends(require_page("nonconformances", "edit")),
 ) -> Nonconformance:
     """Soft-delete only — controlled records are never hard-deleted."""
     ncr = get_or_404(db, Nonconformance, ncr_id, name="NCR")
