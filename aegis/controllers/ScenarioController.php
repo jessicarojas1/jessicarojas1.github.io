@@ -7,7 +7,7 @@ class ScenarioController {
 
     // ─────────────────────────────────────────── index ──────────────────────
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('risk.scenarios');
 
         $scenarios = Database::fetchAll(
             "SELECT rs.*,

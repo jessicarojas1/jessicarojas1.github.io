@@ -8,7 +8,7 @@ class AuditFindingController {
     private const VALID_SOURCES    = ['external_audit', 'pentest', 'certification', 'assessment', 'regulatory', 'other'];
 
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('audit.findings');
 
         $findings = Database::fetchAll(
             "SELECT af.*,
@@ -55,7 +55,7 @@ class AuditFindingController {
     }
 
     public function createForm(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('audit.findings');
         header('Location: /audit-findings');
     }
 
@@ -134,7 +134,7 @@ class AuditFindingController {
     }
 
     public function view(string $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('audit.findings');
         $id = (int)$id;
 
         $finding = Database::fetchOne(
@@ -244,7 +244,7 @@ class AuditFindingController {
     }
 
     public function addUpdate(string $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('audit.findings');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);

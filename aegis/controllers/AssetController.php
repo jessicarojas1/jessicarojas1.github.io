@@ -4,7 +4,7 @@ declare(strict_types=1);
 class AssetController {
 
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('asset.view');
 
         $type        = Security::sanitizeInput($_GET['type']        ?? '');
         $criticality = Security::sanitizeInput($_GET['criticality'] ?? '');
@@ -147,7 +147,7 @@ class AssetController {
     }
 
     public function view(string $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('asset.view');
         $id = (int)$id;
 
         $asset = Database::fetchOne(

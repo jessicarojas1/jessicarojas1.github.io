@@ -287,7 +287,7 @@ class VendorController {
 
     // ------------------------------------------- generatePortalLink
     public function generatePortalLink(string $id): void {
-        Auth::requirePermission('vendor.questionnaire');
+        Auth::requirePermission('vendor.assess');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403);

@@ -1,7 +1,7 @@
 <?php
 class ComplianceController {
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('compliance.view');
 
         $packages = Database::fetchAll(
             "SELECT cp.*, COALESCE(s.name, cp.name) as standard_name,
@@ -220,7 +220,7 @@ class ComplianceController {
     }
 
     public function bulkStatus(string $pkgId): void {
-        Auth::requirePermission('compliance.assess');
+        Auth::requirePermission('compliance.create');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             header('Content-Type: application/json');
             echo json_encode(['ok' => false, 'error' => 'Invalid CSRF token']);
@@ -448,7 +448,7 @@ class ComplianceController {
     }
 
     public function aiSuggestions(string $pkgId): void {
-        Auth::requireAuth();
+        Auth::requirePermission('compliance.view');
         header('Content-Type: application/json');
 
         // Per-user rate limit: 5 AI requests per hour (prevents API cost abuse)
@@ -579,7 +579,7 @@ class ComplianceController {
     }
 
     public function clearAll(): void {
-        Auth::requirePermission('compliance.import');
+        Auth::requirePermission('compliance.create');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403); return;
         }
@@ -867,7 +867,7 @@ class ComplianceController {
     }
 
     public function scorecard(string $pkgId): void {
-        Auth::requireAuth();
+        Auth::requirePermission('compliance.view');
         $pkgId = (int)$pkgId;
         $package = Database::fetchOne("SELECT cp.*, s.name as standard_name, s.code as standard_code FROM compliance_packages cp LEFT JOIN standards s ON s.id = cp.standard_id WHERE cp.id = ?", [$pkgId]);
         if (!$package) { http_response_code(404); require AEGIS_ROOT . '/views/errors/404.php'; return; }
@@ -1094,7 +1094,7 @@ class ComplianceController {
     }
 
     public function testingDashboard(): void {
-        Auth::requirePermission('compliance.test');
+        Auth::requirePermission('compliance.view');
         // Controls by result
         $summary = Database::fetchAll(
             "SELECT result, COUNT(*) as cnt FROM control_tests

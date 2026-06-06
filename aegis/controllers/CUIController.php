@@ -4,7 +4,7 @@ declare(strict_types=1);
 class CUIController {
 
     public function index(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('compliance.view');
         $items = Database::fetchAll(
             "SELECT ci.*, a.name AS asset_name
              FROM cui_inventory ci
@@ -69,7 +69,7 @@ class CUIController {
     }
 
     public function view(int $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('compliance.view');
         $item = $this->getItem($id);
         if (!$item) { http_response_code(404); require AEGIS_ROOT . '/views/errors/404.php'; return; }
         $assets = Database::fetchAll("SELECT id, name FROM assets ORDER BY name");
