@@ -106,13 +106,13 @@ class PolicyController {
     }
 
     public function createForm(): void {
-        Auth::requirePermission('policy.write');
+        Auth::requirePermission('policy.create');
         $users = Database::fetchAll("SELECT id, name FROM users WHERE is_active = TRUE ORDER BY name");
         require AEGIS_ROOT . '/views/policy/create.php';
     }
 
     public function create(): void {
-        Auth::requirePermission('policy.write');
+        Auth::requirePermission('policy.create');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403); return;
@@ -220,7 +220,7 @@ class PolicyController {
     }
 
     public function update(string $id): void {
-        Auth::requirePermission('policy.write');
+        Auth::requirePermission('policy.edit');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403); return;
@@ -233,12 +233,15 @@ class PolicyController {
         $action = $_POST['action'] ?? 'save';
 
         if ($action === 'publish') {
+            Auth::requirePermission('policy.publish');
             Database::query("UPDATE policies SET status='published', published_at=NOW(), updated_at=NOW() WHERE id=?", [$id]);
         } elseif ($action === 'approve') {
+            Auth::requirePermission('policy.publish');
             Database::query("UPDATE policies SET status='published', approved_at=NOW(), approver_id=?, updated_at=NOW() WHERE id=?", [Auth::id(), $id]);
         } elseif ($action === 'submit_review') {
             Database::query("UPDATE policies SET status='under_review', updated_at=NOW() WHERE id=?", [$id]);
         } elseif ($action === 'archive') {
+            Auth::requirePermission('policy.publish');
             Database::query("UPDATE policies SET status='archived', updated_at=NOW() WHERE id=?", [$id]);
         } else {
             $title   = Security::sanitizeInput($_POST['title'] ?? '');
@@ -270,7 +273,7 @@ class PolicyController {
     }
 
     public function mapObjective(string $id): void {
-        Auth::requirePermission('policy.write');
+        Auth::requirePermission('policy.edit');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403); return;
@@ -292,7 +295,7 @@ class PolicyController {
     }
 
     public function unmapObjective(string $policyId, string $mappingId): void {
-        Auth::requirePermission('policy.write');
+        Auth::requirePermission('policy.edit');
 
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403); return;
@@ -303,7 +306,7 @@ class PolicyController {
     }
 
     public function editForm(string $id): void {
-        Auth::requirePermission('policy.write');
+        Auth::requirePermission('policy.edit');
         $policy = Database::fetchOne("SELECT * FROM policies WHERE id = ?", [(int)$id]);
         if (!$policy) { http_response_code(404); return; }
         $users = Database::fetchAll("SELECT id, name FROM users WHERE is_active = TRUE ORDER BY name");
@@ -334,7 +337,7 @@ class PolicyController {
 
     // Create attestation campaign
     public function createCampaign(): void {
-        Auth::requirePermission('policy.write');
+        Auth::requirePermission('policy.attest');
         $policies = Database::fetchAll("SELECT id, title FROM policies WHERE status='published' ORDER BY title");
         $pageTitle    = 'New Attestation Campaign';
         $activeModule = 'policy_attestations';
@@ -346,7 +349,7 @@ class PolicyController {
     }
 
     public function saveCampaign(): void {
-        Auth::requirePermission('policy.write');
+        Auth::requirePermission('policy.attest');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) { http_response_code(403); return; }
         $policyId = (int)($_POST['policy_id'] ?? 0);
         $title    = trim(Security::sanitizeInput($_POST['title'] ?? ''));

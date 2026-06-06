@@ -79,7 +79,7 @@ class ApprovalController {
     // ── Web routes ────────────────────────────────────────────────────────────
 
     public function pending(): void {
-        Auth::requireAuth();
+        Auth::requirePermission('approval.view');
         $userId = Auth::id();
         $role   = Auth::role();
 
@@ -106,7 +106,7 @@ class ApprovalController {
     }
 
     public function review(string $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('approval.view');
         $id      = (int)$id;
         $userId  = Auth::id();
         $role    = Auth::role();
@@ -152,7 +152,7 @@ class ApprovalController {
     }
 
     public function decide(string $id): void {
-        Auth::requireAuth();
+        Auth::requirePermission('approval.approve');
         if (!Security::validateCsrf($_POST['csrf_token'] ?? '')) {
             http_response_code(403); return;
         }
