@@ -32,6 +32,7 @@ from app.models.change import (
 )
 from app.models.complaint import Complaint, ComplaintSeverity, ComplaintStatus
 from app.models.document import (
+    Department,
     Document,
     DocumentApproval,
     DocumentRevision,
@@ -104,6 +105,7 @@ __all__ = [
     "Notification",
     "RolePagePermission",
     "user_roles",
+    "Department",
     "Document",
     "DocumentRevision",
     "DocumentApproval",
